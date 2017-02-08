@@ -165,27 +165,6 @@ ParserTests.prototype.parseTestCase = function(content) {
 /**
  * @method
  *
- * Process an article test case (i.e. the text of an article we need for a test)
- *
- * @param {Object} item
- * @param {string} item.title
- * @param {string} item.text
- * @param {Function} cb
- */
-ParserTests.prototype.processArticle = function(item, cb) {
-	var err = null;
-	var key = this.env.normalizedTitleKey(item.title, false, true);
-	if (this.articles.hasOwnProperty(key)) {
-		err = new Error('Duplicate article: ' + item.title);
-	} else {
-		this.articles[key] = item.text;
-	}
-	setImmediate(cb, err);
-};
-
-/**
- * @method
- *
  * Convert a DOM to Wikitext.
  *
  * @param {Object} options
@@ -681,7 +660,7 @@ ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
  * @param {string} mode
  * @param {Function} endCb
  */
-ParserTests.prototype.processTest = function(item, options, mode, endCb) {
+ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	if (!('title' in item)) {
 		return endCb(new Error('Missing title from test case.'));
 	}
@@ -974,7 +953,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = function(options) {
+ParserTests.prototype.main = Promise.method(function(options) {
 	this.runDisabled = Util.booleanOption(options['run-disabled']);
 	this.runPHP = Util.booleanOption(options['run-php']);
 
@@ -985,13 +964,7 @@ ParserTests.prototype.main = function(options) {
 		// shows up as a numeric type rather than a string.
 		// Ex: parserTests.js --filter 53221
 		var pattern = options.regex || Util.escapeRegExp(options.filter.toString());
-		try {
-			this.testFilter = new RegExp(pattern);
-		} catch (e) {
-			console.error('\nERROR> --filter was given an invalid regular expression.');
-			console.error('\nERROR> See below for JS engine error:\n' + e + '\n');
-			process.exit(1);
-		}
+		this.testFilter = new RegExp(pattern);
 	}
 
 	this.testParserFilePath = path.join(__dirname, '../tests/parserTests.pegjs');
@@ -1006,8 +979,6 @@ ParserTests.prototype.main = function(options) {
 			this.cases.length = n;
 		}
 	}
-
-	options.expandExtensions = true;
 
 	var setup = function(parsoidConfig) {
 		// Set tracing and debugging before the env. object is
@@ -1058,12 +1029,8 @@ ParserTests.prototype.main = function(options) {
 	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);
 
 	// Create a new parser environment
-	MWParserEnvironment.getParserEnv(parsoidConfig, { prefix: 'enwiki' },
-			function(err, env) {
-		// For posterity: err will never be non-null here, because we expect
-		// the WikiConfig to be basically empty, since the parserTests
-		// environment is very bare.
-		console.assert(!err, (err && err.stack) || err);
+	return MWParserEnvironment.getParserEnv(parsoidConfig, { prefix: 'enwiki' })
+	.then(function(env) {
 		this.env = env;
 
 		if (Util.booleanOption(options.quiet)) {
@@ -1102,9 +1069,9 @@ ParserTests.prototype.main = function(options) {
 		options.reportStart();
 		this.env.pageCache = this.articles;
 		this.comments = [];
-		this.processCase(0, options);
+		return this.processCase(0, options, false);
 	}.bind(this));
-};
+});
 
 /**
  * FIXME: clean up this mess!
@@ -1147,7 +1114,7 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 					console.assert(newitem.changetree === 'manual' ||
 						newitem.changetree === undefined);
 					newitem.changetree = 'manual';
-					self.processTest(newitem, options, 'selser', function(err) {
+					self.prepareTest(newitem, options, 'selser', function(err) {
 						setImmediate(cb, err);
 					});
 				});
@@ -1163,7 +1130,7 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 			tasks.push(function(cb) {
 				newitem = Util.clone(item);
 				newitem.changetree = 5;
-				self.processTest(newitem, options, 'selser', function(err) {
+				self.prepareTest(newitem, options, 'selser', function(err) {
 					setImmediate(cb, err);
 				});
 			});
@@ -1181,7 +1148,7 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 						// Make sure we aren't reusing the one from manual changes
 						console.assert(newitem.changetree === undefined);
 						newitem.seed = changesIndex + '';
-						this.processTest(newitem, options, targetModes[modeIndex], function(err) {
+						this.prepareTest(newitem, options, targetModes[modeIndex], function(err) {
 							if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
 								// Once we get a duplicate change tree, we can no longer
 								// generate and run new tests.  So, be done now!
@@ -1201,14 +1168,14 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 				if (item.options.parsoid && item.options.parsoid.changes) {
 					// If it does, we need to clone the item so that previous
 					// results don't clobber this one.
-					tasks.push(this.processTest.bind(this, Util.clone(item), options, targetModes[i]));
+					tasks.push(this.prepareTest.bind(this, Util.clone(item), options, targetModes[i]));
 				} else {
 					// If it doesn't have manual changes, just skip it.
 					continue;
 				}
 			} else {
 				// A non-selser task, we can reuse the item.
-				tasks.push(this.processTest.bind(this, item, options, targetModes[i]));
+				tasks.push(this.prepareTest.bind(this, item, options, targetModes[i]));
 			}
 		}
 	}
@@ -1218,245 +1185,27 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 /**
  * @method
  */
-ParserTests.prototype.processCase = function(i, options, err) {
-	var item;
-	var targetModes = options.modes;
-	var nextCallback = this.processCase.bind(this, i + 1, options);
-
-	// There are two types of errors that reach here.  The first is just
-	// a notification that a test failed.  We use the error propagation
-	// mechanism to get back to this point to print the summary.  The
-	// second type is an actual exception that we should hard fail on.
-	// exitUnexpected is a sentinel for the first type.
-	if (err && err !== exitUnexpected) {
-		this.env.log('fatal', err);
-		process.exit(1); // Should not reach here.
-	}
-	var earlyExit = options['exit-unexpected'] && (err === exitUnexpected);
-
+ParserTests.prototype.processCase = function(i, options, earlyExit) {
 	if (i < this.cases.length && !earlyExit) {
-		item = this.cases[i];
-		if (typeof item === 'string') {
-			// this is a comment line in the file, ignore it.
-			return setImmediate(nextCallback);
-		}
-
-		if (!item.options) { item.options = {}; }
-
-		// backwards-compatibility aliases for section names.
-		if ('input' in item) { item.wikitext = item.input; delete item.input; }
-		if ('result' in item) { item.html = item.result; delete item.result; }
-
-		// html/* and html/parsoid should be treated as html.
-		[ 'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid' ].forEach(function(alt) {
-			if (alt in item) {
-				item.html = item[alt];
-			}
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			var item = self.cases[i];
+			self.processItem(item, options, function(err) {
+				// There are two types of errors that reach here.  The first is just
+				// a notification that a test failed.  We use the error propagation
+				// mechanism to get back to this point to print the summary.  The
+				// second type is an actual exception that we should hard fail on.
+				// exitUnexpected is a sentinel for the first type.
+				if (err && err !== exitUnexpected) {
+					reject(err);
+				} else {
+					resolve(options['exit-unexpected'] && (err === exitUnexpected));
+				}
+			});
+		})
+		.then(function(ee) {
+			return self.processCase(i + 1, options, ee);
 		});
-		// ensure that test is not skipped if it has a wikitext/edited section
-		if ('wikitext/edited' in item) { item.html = true; }
-
-		// Reset the cached results for the new case.
-		// All test modes happen in a single run of processCase.
-		item.cachedBODYstr = null;
-		item.cachedNormalizedHTML = null;
-
-		// Also reset the logger, since we might have changed it to support
-		// the `suppressErrors` option.
-		this.env.setLogger(this.defaultLogger);
-		// Similarly for parsing resource limits.
-		this.env.setResourceLimits();
-
-		// console.log( 'processCase ' + i + JSON.stringify( item )  );
-		if (typeof item === 'object') {
-			switch (item.type) {
-				case 'article':
-					this.comments = [];
-					this.processArticle(item, nextCallback);
-					break;
-				case 'test':
-					if (this.tests.has(item.title)) {
-						return setImmediate(nextCallback,
-							new Error('Duplicate titles: ' + item.title));
-					} else {
-						this.tests.add(item.title);
-					}
-
-					if (!('wikitext' in item && 'html' in item) ||
-						('disabled' in item.options && !this.runDisabled) ||
-						('php' in item.options &&
-							!('html/parsoid' in item || this.runPHP)) ||
-						(this.testFilter &&
-							-1 === item.title.search(this.testFilter))) {
-						// Skip test whose title does not match --filter
-						// or which is disabled or php-only
-						this.comments = [];
-						setImmediate(nextCallback);
-						break;
-					}
-					// Add comments to following test.
-					item.comments = item.comments || this.comments;
-					this.comments = [];
-
-					var suppressErrors = item.options.parsoid && item.options.parsoid.suppressErrors;
-					if (suppressErrors) {
-						this.env.setLogger(this.suppressLogger);
-					}
-					if (item.options.parsoid && item.options.parsoid.modes) {
-						// Avoid filtering out the selser test
-						if (options.selser &&
-							item.options.parsoid.modes.indexOf("selser") < 0 &&
-							item.options.parsoid.modes.indexOf("wt2wt") >= 0
-						) {
-							item.options.parsoid.modes.push("selser");
-						}
-
-						targetModes = targetModes.filter(function(mode) {
-							return item.options.parsoid.modes.indexOf(mode) >= 0;
-						});
-					}
-
-					if (targetModes.length) {
-						// Honor language option in parserTests.txt
-						var prefix = item.options.language || 'enwiki';
-						if (!/wiki/.test(prefix)) {
-							// Convert to our enwiki.. format
-							prefix = prefix + 'wiki';
-						}
-						this.env.switchToConfig(prefix, function(err2) {
-							if (err2) {
-								return nextCallback(err2);
-							}
-
-							// TODO: set language variant
-							// adjust config to match that used for PHP tests
-							// see core/tests/parser/parserTest.inc:setupGlobals() for
-							// full set of config normalizations done.
-							var wikiConf = this.env.conf.wiki;
-							wikiConf.fakeTimestamp = 123;
-							wikiConf.timezoneOffset = 0; // force utc for parsertests
-							wikiConf.server = 'http://example.org';
-							wikiConf.wgScriptPath = '/';
-							wikiConf.script = '/index.php';
-							wikiConf.articlePath = '/wiki/$1';
-							// Hard-code some interwiki prefixes, as is done
-							// in parserTest.inc:setupInterwikis()
-							var iwl = {
-								local: {
-									url: 'http://doesnt.matter.org/$1',
-									localinterwiki: '',
-								},
-								wikipedia: {
-									url: 'http://en.wikipedia.org/wiki/$1',
-								},
-								meatball: {
-									// this has been updated in the live wikis, but the parser tests
-									// expect the old value (as set in parserTest.inc:setupInterwikis())
-									url: 'http://www.usemod.com/cgi-bin/mb.pl?$1',
-								},
-								memoryalpha: {
-									url: 'http://www.memory-alpha.org/en/index.php/$1',
-								},
-								zh: {
-									url: 'http://zh.wikipedia.org/wiki/$1',
-									language: '\u4e2d\u6587',
-									local: '',
-								},
-								es: {
-									url: 'http://es.wikipedia.org/wiki/$1',
-									language: 'espa\u00f1ol',
-									local: '',
-								},
-								fr: {
-									url: 'http://fr.wikipedia.org/wiki/$1',
-									language: 'fran\u00e7ais',
-									local: '',
-								},
-								ru: {
-									url: 'http://ru.wikipedia.org/wiki/$1',
-									language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
-									local: '',
-								},
-								mi: {
-									url: 'http://mi.wikipedia.org/wiki/$1',
-									// better for testing if one of the
-									// localinterwiki prefixes is also a
-									// language
-									language: 'Test',
-									local: '',
-									localinterwiki: '',
-								},
-								mul: {
-									url: 'http://wikisource.org/wiki/$1',
-									extralanglink: '',
-									linktext: 'Multilingual',
-									sitename: 'WikiSource',
-									local: '',
-								},
-								// not in PHP setupInterwikis(), but needed
-								en: {
-									url: 'http://en.wikipedia.org/wiki/$1',
-									language: 'English',
-									local: '',
-									protorel: '',
-								},
-							};
-							wikiConf.interwikiMap.clear();
-							Object.keys(iwl).forEach(function(key) {
-								iwl[key].prefix = key;
-								wikiConf.interwikiMap.set(key, {});
-								Object.keys(iwl[key]).forEach(function(f) {
-									wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
-								});
-							});
-							// Add 'MemoryAlpha' namespace (bug 51680)
-							wikiConf.namespaceNames['100'] = 'MemoryAlpha';
-							wikiConf.namespaceIds.memoryalpha =
-							wikiConf.canonicalNamespaces.memoryalpha = 100;
-							// Cannot add namespace 100 otherwise since
-							// baseConfig is deep frozen.
-							wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
-							wikiConf.siteInfo.namespaces['100'] = {
-								"case": "first-letter",
-								"*": "MemoryAlpha",
-								"canonical": "MemoryAlpha",
-							};
-
-							// Update $wgInterwikiMagic flag
-							// default (undefined) setting is true
-							this.env.conf.wiki.interwikimagic =
-								item.options.wginterwikimagic === undefined ||
-								/^(1|true|)$/.test(item.options.wginterwikimagic);
-
-							async.series(this.buildTasks(item, targetModes, options),
-								nextCallback);
-						}.bind(this));
-
-					} else {
-						setImmediate(nextCallback);
-					}
-
-					break;
-				case 'comment':
-					this.comments.push(item.comment);
-					setImmediate(nextCallback);
-					break;
-				case 'hooks':
-					this.env.log('warn', 'parserTests: Unhandled extension hook', JSON.stringify(item));
-					setImmediate(nextCallback);
-					break;
-				case 'functionhooks':
-					this.env.log("warn", "parserTests: Unhandled functionhook", JSON.stringify(item));
-					setImmediate(nextCallback);
-					break;
-				default:
-					this.comments = [];
-					setImmediate(nextCallback);
-					break;
-			}
-		} else {
-			setImmediate(nextCallback);
-		}
 	} else {
 		// update the blacklist, if requested
 		if (Util.booleanOption(options['rewrite-blacklist'])) {
@@ -1472,7 +1221,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 			var contents = shell[0];
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(start of automatically-generated section)\n';
-			targetModes.forEach(function(mode) {
+			options.modes.forEach(function(mode) {
 				contents += '\n// Blacklist for ' + mode + '\n';
 				this.stats.modes[mode].failList.forEach(function(fail) {
 					contents += 'add(' + JSON.stringify(mode) + ', ' +
@@ -1516,8 +1265,193 @@ ParserTests.prototype.processCase = function(i, options, err) {
 		if (Util.booleanOption(options['exit-zero'])) {
 			failures = false;
 		}
-		process.exit(failures ? 2 : 0); // exit status 1 == uncaught exception
+
+		return failures ? 2 : 0;  // exit status 1 == uncaught exception
 	}
+};
+
+/**
+ * @method
+ */
+ParserTests.prototype.processItem = function(item, options, nextCallback) {
+	if (typeof item !== 'object') {
+		// this is a comment line in the file, ignore it.
+		return setImmediate(nextCallback);
+	}
+
+	if (!item.options) { item.options = {}; }
+
+	// backwards-compatibility aliases for section names.
+	if ('input' in item) { item.wikitext = item.input; delete item.input; }
+	if ('result' in item) { item.html = item.result; delete item.result; }
+
+	// html/* and html/parsoid should be treated as html.
+	[ 'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid' ].forEach(function(alt) {
+		if (alt in item) {
+			item.html = item[alt];
+		}
+	});
+
+	// ensure that test is not skipped if it has a wikitext/edited section
+	if ('wikitext/edited' in item) { item.html = true; }
+
+	// Reset the cached results for the new case.
+	// All test modes happen in a single run of processCase.
+	item.cachedBODYstr = null;
+	item.cachedNormalizedHTML = null;
+
+	// Also reset the logger, since we might have changed it to support
+	// the `suppressErrors` option.
+	this.env.setLogger(this.defaultLogger);
+	// Similarly for parsing resource limits.
+	this.env.setResourceLimits();
+
+	switch (item.type) {
+		case 'article':
+			this.comments = [];
+			this.processArticle(item, nextCallback);
+			break;
+		case 'test':
+			this.processTest(item, options, nextCallback);
+			break;
+		case 'comment':
+			this.comments.push(item.comment);
+			setImmediate(nextCallback);
+			break;
+		case 'hooks':
+			this.comments = [];
+			this.env.log('warn', 'parserTests: Unhandled extension hook', JSON.stringify(item));
+			setImmediate(nextCallback);
+			break;
+		case 'functionhooks':
+			this.comments = [];
+			this.env.log("warn", "parserTests: Unhandled functionhook", JSON.stringify(item));
+			setImmediate(nextCallback);
+			break;
+		default:
+			this.comments = [];
+			setImmediate(nextCallback);
+			break;
+	}
+};
+
+/**
+ * @method
+ *
+ * Process an article test case (i.e. the text of an article we need for a test)
+ *
+ * @param {Object} item
+ * @param {string} item.title
+ * @param {string} item.text
+ * @param {Function} cb
+ */
+ParserTests.prototype.processArticle = function(item, cb) {
+	var err = null;
+	var key = this.env.normalizedTitleKey(item.title, false, true);
+	if (this.articles.hasOwnProperty(key)) {
+		err = new Error('Duplicate article: ' + item.title);
+	} else {
+		this.articles[key] = item.text;
+	}
+	setImmediate(cb, err);
+};
+
+/**
+ * @method
+ */
+ParserTests.prototype.processTest = function(item, options, nextCallback) {
+	var targetModes = options.modes;
+	if (this.tests.has(item.title)) {
+		return setImmediate(nextCallback,
+			new Error('Duplicate titles: ' + item.title));
+	} else {
+		this.tests.add(item.title);
+	}
+	if (!('wikitext' in item && 'html' in item) ||
+		('disabled' in item.options && !this.runDisabled) ||
+		('php' in item.options &&
+			!('html/parsoid' in item || this.runPHP)) ||
+		(this.testFilter &&
+			-1 === item.title.search(this.testFilter))) {
+		// Skip test whose title does not match --filter
+		// or which is disabled or php-only
+		this.comments = [];
+		setImmediate(nextCallback);
+		return;
+	}
+	// Add comments to following test.
+	item.comments = item.comments || this.comments;
+	this.comments = [];
+	var suppressErrors = item.options.parsoid && item.options.parsoid.suppressErrors;
+	if (suppressErrors) {
+		this.env.setLogger(this.suppressLogger);
+	}
+	if (item.options.parsoid && item.options.parsoid.modes) {
+		// Avoid filtering out the selser test
+		if (options.selser &&
+			item.options.parsoid.modes.indexOf("selser") < 0 &&
+			item.options.parsoid.modes.indexOf("wt2wt") >= 0
+		) {
+			item.options.parsoid.modes.push("selser");
+		}
+
+		targetModes = targetModes.filter(function(mode) {
+			return item.options.parsoid.modes.indexOf(mode) >= 0;
+		});
+	}
+	if (!targetModes.length) {
+		setImmediate(nextCallback);
+		return;
+	}
+	// Honor language option in parserTests.txt
+	var prefix = item.options.language || 'enwiki';
+	if (!/wiki/.test(prefix)) {
+		// Convert to our enwiki.. format
+		prefix = prefix + 'wiki';
+	}
+	this.env.switchToConfig(prefix, function(err2) {
+		if (err2) { return nextCallback(err2); }
+		// TODO: set language variant
+		// adjust config to match that used for PHP tests
+		// see core/tests/parser/parserTest.inc:setupGlobals() for
+		// full set of config normalizations done.
+		var wikiConf = this.env.conf.wiki;
+		wikiConf.fakeTimestamp = 123;
+		wikiConf.timezoneOffset = 0; // force utc for parsertests
+		wikiConf.server = 'http://example.org';
+		wikiConf.wgScriptPath = '/';
+		wikiConf.script = '/index.php';
+		wikiConf.articlePath = '/wiki/$1';
+		wikiConf.interwikiMap.clear();
+		var iwl = PTUtils.iwl;
+		Object.keys(iwl).forEach(function(key) {
+			iwl[key].prefix = key;
+			wikiConf.interwikiMap.set(key, {});
+			Object.keys(iwl[key]).forEach(function(f) {
+				wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
+			});
+		});
+		// Add 'MemoryAlpha' namespace (bug 51680)
+		wikiConf.namespaceNames['100'] = 'MemoryAlpha';
+		wikiConf.namespaceIds.memoryalpha =
+		wikiConf.canonicalNamespaces.memoryalpha = 100;
+		// Cannot add namespace 100 otherwise since
+		// baseConfig is deep frozen.
+		wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
+		wikiConf.siteInfo.namespaces['100'] = {
+			"case": "first-letter",
+			"*": "MemoryAlpha",
+			"canonical": "MemoryAlpha",
+		};
+		// Update $wgInterwikiMagic flag
+		// default (undefined) setting is true
+		this.env.conf.wiki.interwikimagic =
+			item.options.wginterwikimagic === undefined ||
+			/^(1|true|)$/.test(item.options.wginterwikimagic);
+
+		async.series(this.buildTasks(item, targetModes, options),
+			nextCallback);
+	}.bind(this));
 };
 
 // Start the mock api server and kick off parser tests
@@ -1532,5 +1466,8 @@ serviceWrapper.runServices({ skipParsoid: true })
 		testFilePath = path.join(__dirname, '../tests/parserTests.txt');
 	}
 	var ptests = new ParserTests(testFilePath, options.modes);
-	return ptests.main(options);
+	return ptests.main(options)
+	.then(function(status) {
+		process.exit(status);
+	});
 }).done();

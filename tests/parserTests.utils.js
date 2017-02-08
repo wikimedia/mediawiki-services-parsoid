@@ -767,3 +767,66 @@ PTUtils.prepareOptions = function() {
 
 	return options;
 };
+
+// Hard-code some interwiki prefixes, as is done
+// in parserTest.inc:setupInterwikis()
+PTUtils.iwl = {
+	local: {
+		url: 'http://doesnt.matter.org/$1',
+		localinterwiki: '',
+	},
+	wikipedia: {
+		url: 'http://en.wikipedia.org/wiki/$1',
+	},
+	meatball: {
+		// this has been updated in the live wikis, but the parser tests
+		// expect the old value (as set in parserTest.inc:setupInterwikis())
+		url: 'http://www.usemod.com/cgi-bin/mb.pl?$1',
+	},
+	memoryalpha: {
+		url: 'http://www.memory-alpha.org/en/index.php/$1',
+	},
+	zh: {
+		url: 'http://zh.wikipedia.org/wiki/$1',
+		language: '\u4e2d\u6587',
+		local: '',
+	},
+	es: {
+		url: 'http://es.wikipedia.org/wiki/$1',
+		language: 'espa\u00f1ol',
+		local: '',
+	},
+	fr: {
+		url: 'http://fr.wikipedia.org/wiki/$1',
+		language: 'fran\u00e7ais',
+		local: '',
+	},
+	ru: {
+		url: 'http://ru.wikipedia.org/wiki/$1',
+		language: '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
+		local: '',
+	},
+	mi: {
+		url: 'http://mi.wikipedia.org/wiki/$1',
+		// better for testing if one of the
+		// localinterwiki prefixes is also a
+		// language
+		language: 'Test',
+		local: '',
+		localinterwiki: '',
+	},
+	mul: {
+		url: 'http://wikisource.org/wiki/$1',
+		extralanglink: '',
+		linktext: 'Multilingual',
+		sitename: 'WikiSource',
+		local: '',
+	},
+	// not in PHP setupInterwikis(), but needed
+	en: {
+		url: 'http://en.wikipedia.org/wiki/$1',
+		language: 'English',
+		local: '',
+		protorel: '',
+	},
+};
