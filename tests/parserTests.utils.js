@@ -8,11 +8,6 @@ var Diff = require('../lib/utils/Diff.js').Diff;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var Util = require('../lib/utils/Util.js').Util;
 
-var testWhiteList = require(__dirname + '/../tests/parserTests-whitelist.js').
-		testWhiteList;
-var testBlackList = require(__dirname + '/../tests/parserTests-blacklist.js').
-		testBlackList;
-
 /**
  * @class PTUtils
  * @singleton
@@ -48,10 +43,11 @@ var colorizeCount = function(count, color) {
  * @param {Number} stats.passedTests Number of tests passed without any special consideration
  * @param {Number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
+ * @param {String} file
  * @param {Number} loggedErrorCount
  * @param {RegExp|null} testFilter
  */
-var reportSummary = function(modesRan, stats, loggedErrorCount, testFilter) {
+var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter) {
 	var curStr, mode, thisMode;
 	var failTotalTests = stats.failedTests;
 
@@ -147,18 +143,17 @@ var printWhitelistEntry = function(title, raw) {
 
 /**
  * @param {Object} stats
- * @param {String} title
- * @param {Array} comments
- * @param {Object|null} iopts Options from the test file
+ * @param {Object} item
  * @param {Object} options
+ * @param {String} mode
+ * @param {String} title
  * @param {Object} actual
  * @param {Object} expected
  * @param {Boolean} expectFail Whether this test was expected to fail (on blacklist)
  * @param {Boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
- * @param {String} mode
- * @param {Object} item
+ * @param {Object} bl BlackList
  */
-var printFailure = function(stats, title, comments, iopts, options, actual, expected, expectFail, failureOnly, mode, item) {
+var printFailure = function(stats, item, options, mode, title, actual, expected, expectFail, failureOnly, bl) {
 	stats.failedTests++;
 	stats.modes[mode].failedTests++;
 	var fail = {
@@ -175,7 +170,7 @@ var printFailure = function(stats, title, comments, iopts, options, actual, expe
 	var blacklisted = false;
 	if (Util.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
-		if (mode === 'selser' && !options.changetree && testBlackList[title].raw !== actual.raw) {
+		if (mode === 'selser' && !options.changetree && bl[title].raw !== actual.raw) {
 			blacklisted = true;
 		} else {
 			if (!Util.booleanOption(options.quiet)) {
@@ -208,10 +203,10 @@ var printFailure = function(stats, title, comments, iopts, options, actual, expe
 	}
 
 	if (!failureOnly) {
-		console.log(comments.join('\n'));
+		console.log(item.comments.join('\n'));
 		if (options) {
 			console.log('OPTIONS'.cyan + ':');
-			console.log(prettyPrintIOptions(iopts) + '\n');
+			console.log(prettyPrintIOptions(item.options) + '\n');
 		}
 		console.log('INPUT'.cyan + ':');
 		console.log(actual.input + '\n');
@@ -226,14 +221,14 @@ var printFailure = function(stats, title, comments, iopts, options, actual, expe
 
 /**
  * @param {Object} stats
- * @param {String} title
+ * @param {Object} item
  * @param {Object} options
  * @param {String} mode
+ * @param {String} title
  * @param {Boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
  * @param {Boolean} isWhitelist Whether this success was due to a whitelisting
- * @param {Object} item
  */
-var printSuccess = function(stats, title, options, mode, expectSuccess, isWhitelist, item) {
+var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
 	var quiet = Util.booleanOption(options.quiet);
 	if (isWhitelist) {
 		stats.passedTestsWhitelisted++;
@@ -321,32 +316,30 @@ var doDiff = function(actual, expected) {
 /**
  * @param {Function} reportFailure
  * @param {Function} reportSuccess
+ * @param {Object} bl BlackList
+ * @param {Object} wl WhiteList
  * @param {Object} stats
- * @param {String} title
- * @param {Object} time
- * @param {Number} time.start
- * @param {Number} time.end
- * @param {Array} comments
- * @param {Object|null} iopts Any options for the test (not options passed into the process)
- * @param {Object} expected
- * @param {Object} actual
+ * @param {Object} item
  * @param {Object} options
  * @param {String} mode
- * @param {Object} item
+ * @param {Object} expected
+ * @param {Object} actual
  * @param {Function} pre
  * @param {Function} post
  */
-function printResult(reportFailure, reportSuccess, stats, title, time, comments, iopts, expected, actual, options, mode, item, pre, post) {
+function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options, mode, expected, actual, pre, post) {
+	var title = item.title;  // Title may be modified here, so pass it on.
+
 	var quick = Util.booleanOption(options.quick);
 	var parsoidOnly =
-		('html/parsoid' in item) || (iopts.parsoid !== undefined);
+		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	if (mode === 'selser') {
 		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
 	}
 
 	var whitelist = false;
-	var tb = testBlackList[title];
+	var tb = bl[title];
 	var expectFail = (tb ? tb.modes : []).indexOf(mode) >= 0;
 	var fail = (expected.normal !== actual.normal);
 	// Return whether the test was as expected, independent of pass/fail
@@ -354,8 +347,8 @@ function printResult(reportFailure, reportSuccess, stats, title, time, comments,
 
 	if (fail &&
 		Util.booleanOption(options.whitelist) &&
-		title in testWhiteList &&
-		DU.normalizeOut(DU.parseHTML(testWhiteList[title]).body, parsoidOnly) ===  actual.normal
+		title in wl &&
+		DU.normalizeOut(DU.parseHTML(wl[title]).body, parsoidOnly) ===  actual.normal
 	) {
 		whitelist = true;
 		fail = false;
@@ -372,13 +365,13 @@ function printResult(reportFailure, reportSuccess, stats, title, time, comments,
 	}
 
 	if (typeof pre === 'function') {
-		pre(stats, mode, title, time);
+		pre(stats, mode, title, item.time);
 	}
 
 	if (fail) {
-		asExpected = reportFailure(stats, title, comments, iopts, options, actual, expected, expectFail, quick, mode, item);
+		asExpected = reportFailure(stats, item, options, mode, title, actual, expected, expectFail, quick, bl);
 	} else {
-		asExpected = reportSuccess(stats, title, options, mode, !expectFail, whitelist, item);
+		asExpected = reportSuccess(stats, item, options, mode, title, !expectFail, whitelist);
 	}
 
 	if (typeof post === 'function') {
@@ -438,8 +431,8 @@ var reportStartXML = function() {};
  *
  * @inheritdoc reportSummary
  */
-var reportSummaryXML = function(modesRan, stats, loggedErrorCount, testFilter) {
-	console.log('<testsuites file="parserTests.txt">');
+var reportSummaryXML = function(modesRan, stats, file, loggedErrorCount, testFilter) {
+	console.log('<testsuites file="' + file + '">');
 	for (var i = 0; i < modesRan.length; i++) {
 		var mode = modesRan[i];
 		console.log('<testsuite name="parserTests-' + mode + '">');
@@ -454,7 +447,7 @@ var reportSummaryXML = function(modesRan, stats, loggedErrorCount, testFilter) {
  *
  * @inheritdoc printFailure
  */
-var reportFailureXML = function(stats, title, comments, iopts, options, actual, expected, expectFail, failureOnly, mode, item) {
+var reportFailureXML = function(stats, item, options, mode, title, actual, expected, expectFail, failureOnly, bl) {
 	stats.failedTests++;
 	stats.modes[mode].failedTests++;
 	var failEle = '';
@@ -462,7 +455,7 @@ var reportFailureXML = function(stats, title, comments, iopts, options, actual, 
 	if (Util.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
 		blacklisted = !(mode === 'selser' && !options.changetree &&
-			testBlackList[title].raw !== actual.raw);
+			bl[title].raw !== actual.raw);
 	}
 	if (!blacklisted) {
 		failEle += '<failure type="parserTestsDifferenceInOutputFailure">\n';
@@ -479,7 +472,7 @@ var reportFailureXML = function(stats, title, comments, iopts, options, actual, 
  *
  * @inheritdoc printSuccess
  */
-var reportSuccessXML = function(stats, title, options, mode, expectSuccess, isWhitelist, item) {
+var reportSuccessXML = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
 	if (isWhitelist) {
 		stats.passedTestsWhitelisted++;
 		stats.modes[mode].passedTestsWhitelisted++;

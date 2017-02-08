@@ -31,9 +31,6 @@ var ParserHook = ParsoidConfig.loadExtension(
 // Run a mock API in the background so we can request things from it
 var mockAPIServerURL;
 
-// track files imported / required
-var fileDependencies = [];
-
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
 
 /**
@@ -44,9 +41,32 @@ var exitUnexpected = new Error('unexpected failure');  // unique marker value
  * @singleton
  * @private
  */
-function ParserTests(modes) {
-	this.cacheFile = "parserTests.cache"; // Name of file used to cache the parser tests cases
-	this.parserTestsFile = "parserTests.txt";
+function ParserTests(testFilePath, modes) {
+	var parseFilePath = path.parse(testFilePath);
+	this.testFileName = parseFilePath.base;
+	this.testFilePath = testFilePath;
+
+	// Name of file used to cache the parser tests cases
+	this.cacheFileName = parseFilePath.name + '.cache';
+	this.cacheFilePath = path.resolve(parseFilePath.dir, this.cacheFileName);
+
+	var whiteListName = parseFilePath.name + '-whitelist.js';
+	this.whiteListPath = path.resolve(parseFilePath.dir, whiteListName);
+	try {
+		this.testWhiteList = require(this.whiteListPath).testWhiteList;
+	} catch (e) {
+		console.warn('No whitelist found at ' + this.whiteListPath);
+		this.testWhiteList = {};
+	}
+
+	var blackListName = parseFilePath.name + '-blacklist.js';
+	this.blackListPath = path.resolve(parseFilePath.dir, blackListName);
+	try {
+		this.testBlackList = require(this.blackListPath).testBlackList;
+	} catch (e) {
+		console.warn('No blacklist found at ' + this.blackListPath);
+		this.testBlackList = {};
+	}
 
 	this.articles = {};
 	this.tests = new Set();
@@ -78,20 +98,18 @@ function ParserTests(modes) {
  */
 ParserTests.prototype.getTests = function(argv) {
 	// Startup by loading .txt test file
-	var testFile;
-	try {
-		testFile = fs.readFileSync(this.testFileName, 'utf8');
-		fileDependencies.push(this.testFileName);
-	} catch (e) {
-		console.error(e);
-	}
-	// parser grammar is also a dependency
-	fileDependencies.push(this.testParserFileName);
+	var testFile = fs.readFileSync(this.testFilePath, 'utf8');
 
 	if (!Util.booleanOption(argv.cache)) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase(testFile);
 	}
+
+	// Track files imported / required
+	var fileDependencies = [
+		this.testFilePath,
+		this.testParserFilePath,
+	];
 
 	// Find out modification time of all files dependencies and then hash those
 	// to make a unique value using sha1.
@@ -104,12 +122,11 @@ ParserTests.prototype.getTests = function(argv) {
 		.update(mtimes)
 		.digest('hex');
 
-	var cacheFileName = __dirname + '/../tests/' + this.cacheFile;
 	// Look for a cacheFile
 	var cacheContent;
 	var cacheFileDigest;
 	try {
-		cacheContent = fs.readFileSync(cacheFileName, 'utf8');
+		cacheContent = fs.readFileSync(this.cacheFilePath, 'utf8');
 		// Fetch previous digest
 		cacheFileDigest = cacheContent.match(/^CACHE: (\w+)\n/)[1];
 	} catch (e4) {
@@ -124,12 +141,10 @@ ParserTests.prototype.getTests = function(argv) {
 		// Write new file cache, content preprended with current digest
 		console.error("Cache file either not present or outdated");
 		var parse = this.parseTestCase(testFile);
-		if (parse !== undefined) {
-			fs.writeFileSync(cacheFileName,
-				"CACHE: " + sha1 + "\n" + JSON.stringify(parse),
-				'utf8'
-			);
-		}
+		fs.writeFileSync(this.cacheFilePath,
+			"CACHE: " + sha1 + "\n" + JSON.stringify(parse),
+			'utf8'
+		);
 		// We can now return the parsed object
 		return parse;
 	}
@@ -144,12 +159,7 @@ ParserTests.prototype.getTests = function(argv) {
  * @return {Array}
  */
 ParserTests.prototype.parseTestCase = function(content) {
-	try {
-		return this.testParser.parse(content);
-	} catch (e) {
-		console.error(e);
-	}
-	return undefined;
+	return this.testParser.parse(content);
 };
 
 /**
@@ -926,7 +936,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(this.stats, item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
+	return options.reportResult(this.testBlackList, this.testWhiteList, this.stats, item, options, mode, expected, actual);
 };
 
 /**
@@ -957,7 +967,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: itemWikitext };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(this.stats, item.title, item.time, item.comments, item.options || null, expected, actual, options, mode, item);
+	return options.reportResult(this.testBlackList, this.testWhiteList, this.stats, item, options, mode, expected, actual);
 };
 
 /**
@@ -984,21 +994,10 @@ ParserTests.prototype.main = function(options) {
 		}
 	}
 
-	// Identify tests file
-	if (options._[0]) {
-		this.testFileName = options._[0] ;
-	} else {
-		this.testFileName = __dirname + '/../tests/' + this.parserTestsFile;
-	}
+	this.testParserFilePath = path.join(__dirname, '../tests/parserTests.pegjs');
+	this.testParser = PEG.buildParser(fs.readFileSync(this.testParserFilePath, 'utf8'));
 
-	try {
-		this.testParserFileName = __dirname + '/../tests/parserTests.pegjs';
-		this.testParser = PEG.buildParser(fs.readFileSync(this.testParserFileName, 'utf8'));
-	} catch (e2) {
-		console.log(e2);
-	}
-
-	this.cases = this.getTests(options) || [];
+	this.cases = this.getTests(options);
 
 	if (options.maxtests) {
 		var n = Number(options.maxtests);
@@ -1461,9 +1460,15 @@ ParserTests.prototype.processCase = function(i, options, err) {
 	} else {
 		// update the blacklist, if requested
 		if (Util.booleanOption(options['rewrite-blacklist'])) {
-			var filename = __dirname + '/../tests/parserTests-blacklist.js';
-			var shell = fs.readFileSync(filename, 'utf8').
-				split(/^.*DO NOT REMOVE THIS LINE.*$/m);
+			var old;
+			if (fs.existsSync(this.blackListPath)) {
+				old = fs.readFileSync(this.blackListPath, 'utf8');
+			} else {
+				// Use the preamble from one we know about ...
+				var defaultBlPath = path.join(__dirname, '../tests/parserTests-blacklist.js');
+				old = fs.readFileSync(defaultBlPath, 'utf8');
+			}
+			var shell = old.split(/^.*DO NOT REMOVE THIS LINE.*$/m);
 			var contents = shell[0];
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(start of automatically-generated section)\n';
@@ -1480,7 +1485,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
-			fs.writeFileSync(filename, contents, 'utf8');
+			fs.writeFileSync(this.blackListPath, contents, 'utf8');
 		}
 
 		// Write updated tests from failed ones
@@ -1488,8 +1493,7 @@ ParserTests.prototype.processCase = function(i, options, err) {
 				Util.booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
 					'raw' : 'actualNormalized';
-			var parserTestsFilename = __dirname + '/../tests/parserTests.txt';
-			var parserTests = fs.readFileSync(parserTestsFilename, 'utf8');
+			var parserTests = fs.readFileSync(this.testFilePath, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function(fail) {
 				if (options['update-tests'] || fail.unexpected) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
@@ -1499,14 +1503,14 @@ ParserTests.prototype.processCase = function(i, options, err) {
 						fail[updateFormat].replace(/\$/g, '$$$$'));
 				}
 			});
-			fs.writeFileSync(parserTestsFilename, parserTests, 'utf8');
+			fs.writeFileSync(this.testFilePath, parserTests, 'utf8');
 		}
 
 		// print out the summary
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		var failures = options.reportSummary(options.modes, this.stats, this.loggedErrorCount, this.testFilter);
+		var failures = options.reportSummary(options.modes, this.stats, this.testFileName, this.loggedErrorCount, this.testFilter);
 
 		// we're done!
 		if (Util.booleanOption(options['exit-zero'])) {
@@ -1521,6 +1525,12 @@ serviceWrapper.runServices({ skipParsoid: true })
 .then(function(ret) {
 	mockAPIServerURL = ret.mockURL;
 	var options = PTUtils.prepareOptions();
-	var ptests = new ParserTests(options.modes);
+	var testFilePath;
+	if (options._[0]) {
+		testFilePath = path.resolve(process.cwd(), options._[0]);
+	} else {
+		testFilePath = path.join(__dirname, '../tests/parserTests.txt');
+	}
+	var ptests = new ParserTests(testFilePath, options.modes);
 	return ptests.main(options);
 }).done();
