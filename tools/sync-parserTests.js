@@ -39,7 +39,11 @@ var async = require('async');
 var path = require('path');
 var fs = require('fs');
 
-var fetcher = require(path.join(__dirname, '../tests/parserTests.json'))['parserTests.txt'];
+var testDir = path.join(__dirname, '../tests/');
+var testFilesPath = path.join(testDir, 'parserTests.json');
+var testFiles = require(testFilesPath);
+
+var DEFAULT_TARGET = 'parserTests.txt';
 
 var strip = function(s) {
 	return s.replace(/(^\s+)|(\s+$)/g, '');
@@ -47,12 +51,12 @@ var strip = function(s) {
 
 (function() {
 	// Option parsing and helpful messages.
-	var usage = 'Usage: $0 <mediawiki checkout path> <branch name>';
+	var usage = 'Usage: $0 <mediawiki checkout path> <branch name> <target>';
 	var opts = yargs.usage(usage, {
 		'help': { description: 'Show this message' },
 	});
 	var argv = opts.argv;
-	if (argv.help || argv._.length !== 2) {
+	if (argv.help || argv._.length < 2 || argv._.length > 3) {
 		opts.showHelp();
 		var morehelp = fs.readFileSync(__filename, 'utf8');
 		morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
@@ -63,7 +67,15 @@ var strip = function(s) {
 	// Ok, let's do this thing!
 	var mwpath = path.resolve(argv._[0]);
 	var branch = argv._[1];
-	var oldhash = fetcher.latestCommit;
+	var targetName = argv._[2] || DEFAULT_TARGET;
+
+	if (!testFiles.hasOwnProperty(targetName)) {
+		console.warn(targetName + ' not defined in parserTests.json');
+		return;
+	}
+
+	var file = testFiles[targetName];
+	var oldhash = file.latestCommit;
 
 	var mwexec = function(cmd) {
 		return function(callback) {
@@ -79,9 +91,8 @@ var strip = function(s) {
 	};
 
 	var q = [];
-	var PARSERTESTS = 'parserTests.txt';
-	var pPARSERTESTS = path.join(__dirname, '..', 'tests', PARSERTESTS);
-	var mwPARSERTESTS = path.join(mwpath, 'tests', 'parser', PARSERTESTS);
+	var pPARSERTESTS = path.join(__dirname, '..', 'tests', targetName);
+	var mwPARSERTESTS = path.join(mwpath, file.path);
 
 	// Fetch current Parsoid git hash.
 	var phash;
@@ -128,7 +139,7 @@ var strip = function(s) {
 
 	// Make a new mediawiki/core commit with an appropriate message.
 	q.push(function(callback) {
-		var commitmsg = 'Sync up with Parsoid parserTests.';
+		var commitmsg = 'Sync up with Parsoid ' + targetName;
 		commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
 		mwexec(['git', 'commit', '-m', commitmsg, mwPARSERTESTS])(callback);
 	});

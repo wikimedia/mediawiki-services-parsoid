@@ -36,10 +36,11 @@ var computeSHA1 = function(targetName) {
 var fetch = function(targetName, gitCommit, cb) {
 	console.log('Fetching parserTests.txt from mediawiki/core');
 	var file = testFiles[targetName];
-	var url = Object.assign({
+	var url = {
+		host: 'raw.githubusercontent.com',
+		path: file.repo + (gitCommit || file.latestCommit) + '/' + file.path,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
-	}, file.downloadUrl);
-	url.path = url.path.replace(/COMMIT-SHA/, gitCommit || file.latestCommit);
+	};
 	https.get(url, function(result) {
 		var targetPath = path.join(testDir, targetName);
 		var out = fs.createWriteStream(targetPath);
@@ -80,9 +81,11 @@ var forceUpdate = function(targetName) {
 	var file = testFiles[targetName];
 
 	// fetch the history page
-	var url = Object.assign({
+	var url = {
+		host: 'api.github.com',
+		path: '/repos' + file.repo + 'commits?path=' + file.path,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
-	}, file.historyUrl);
+	};
 	https.get(url, function(result) {
 		var res = '';
 		result.setEncoding('utf8');
