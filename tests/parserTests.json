@@ -10,5 +10,11 @@
 		"path": "tests/parser/citeParserTests.txt",
 		"expectedSHA1": "1db0e82134bfc66c2b9ba1c899fc00de50f27bcc",
 		"latestCommit": "440b3179086fe4e52bef28f293918381aa45ff1f"
+	},
+	"timedMediaHandlerParserTests.txt": {
+		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
+		"path": "tests/parserTests.txt",
+		"expectedSHA1": "f3bf66579002634106e59e71810ee5d493798673",
+		"latestCommit": "8b8b191624591c0f4d447cb8c6634a9dde39ffd2"
 	}
 }
