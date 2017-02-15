@@ -1,15 +1,6 @@
 'use strict';
 
 exports.setup = function(parsoidConfig) {
-	// The URL of your MediaWiki API endpoint.
-	if (process.env.PARSOID_MOCKAPI_URL) {
-		parsoidConfig.setMwApi({
-			prefix: 'customwiki',
-			domain: 'customwiki',
-			uri: process.env.PARSOID_MOCKAPI_URL,
-		});
-	}
-
 	// Turn on the batching API
 	parsoidConfig.useBatchAPI = true;
 

@@ -17,6 +17,7 @@ require(configPath).setup(fakeConfig);  // Set limits
 
 var api, runner;
 var defaultContentVersion = '1.3.0';
+var mockDomain = 'customwiki';
 
 function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
 	var payload = { html: newHTML };
@@ -51,7 +52,7 @@ function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVer
 	}
 
 	return request(api)
-		.post('mock.domain/v3/transform/pagebundle/to/wikitext')
+		.post(mockDomain + '/v3/transform/pagebundle/to/wikitext')
 		.send(payload)
 		.expect(function(res) {
 			res.text.should.equal(expectedWT);

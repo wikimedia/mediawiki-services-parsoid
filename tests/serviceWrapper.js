@@ -51,14 +51,13 @@ var runServices = function(options) {
 			});
 		}
 		p = p.then(function(mockURL) {
-			process.env.PARSOID_MOCKAPI_URL = mockURL;
 			ret.mockURL = mockURL;
 		});
 	}
 
 	if (!options.skipParsoid) {
 		p = p.then(choosePort).then(function(parsoidPort) {
-			services.push({
+			var pServ = {
 				module: path.resolve(__dirname, '../lib/index.js'),
 				entrypoint: 'apiServiceWorker',
 				conf: {
@@ -67,7 +66,17 @@ var runServices = function(options) {
 					localsettings: options.localsettings ||
 						path.resolve(__dirname, './rttest.localsettings.js'),
 				},
-			});
+			};
+			if (ret.mockURL) {
+				pServ.conf.mwApis = [
+					{
+						prefix: 'customwiki',
+						domain: 'customwiki',
+						uri: ret.mockURL,
+					},
+				];
+			}
+			services.push(pServ);
 			ret.parsoidURL = 'http://localhost:' + parsoidPort + '/';
 		});
 	}

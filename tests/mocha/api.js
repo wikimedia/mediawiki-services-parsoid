@@ -22,7 +22,7 @@ var defaultContentVersion = '1.3.0';
 
 describe('Parsoid API', function() {
 	var api, runner;
-	var mockDomain = 'mock.domain';
+	var mockDomain = 'customwiki';
 
 	before(function() {
 		return serviceWrapper.runServices({

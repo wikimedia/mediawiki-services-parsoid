@@ -1,15 +1,6 @@
 'use strict';
 
 exports.setup = function(parsoidConfig) {
-	// The URL of your MediaWiki API endpoint.
-	if (process.env.PARSOID_MOCKAPI_URL) {
-		parsoidConfig.setMwApi({
-			prefix: 'mock.prefix',
-			domain: 'mock.domain',
-			uri: process.env.PARSOID_MOCKAPI_URL,
-		});
-	}
-
 	// We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
 	// for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
 	// 'enwikivoyage' etc. (default false)
