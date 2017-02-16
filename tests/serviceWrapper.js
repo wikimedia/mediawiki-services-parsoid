@@ -90,6 +90,8 @@ var runServices = function(options) {
 		});
 		ret.runner = runner;
 		return runner.start({
+			// T158265: We should set this to zero since otherwise
+			// service-runner doesn't actually call close on the worker.
 			num_workers: 1,
 			worker_heartbeat_timeout: 2 * 60 * 1000,
 			logging: {

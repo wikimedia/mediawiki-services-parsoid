@@ -1484,10 +1484,11 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 Promise.resolve(null).then(function() {
 	var options = PTUtils.prepareOptions();
 	return serviceWrapper.runServices({ skipParsoid: true })
-		.then(function(ret) {
-			return [ options, ret.mockURL ];
-		});
-}).spread(function(options, mockURL) {
+	.then(function(ret) {
+		return [ ret.runner, options, ret.mockURL ];
+	});
+})
+.spread(function(runner, options, mockURL) {
 	var testFilePaths;
 	if (options._[0]) {
 		testFilePaths = [path.resolve(process.cwd(), options._[0])];
@@ -1515,13 +1516,17 @@ Promise.resolve(null).then(function() {
 			Object.keys(stats).forEach(function(k) {
 				stats[k] += result.stats[k]; // Sum all stats
 			});
-			return exitCode || result.exitCode;
+			return [ runner, exitCode || result.exitCode ];
 		});
-	}, 0).tap(function() {
+	}, 0)
+	.tap(function() {
 		options.reportSummary([], stats, null, stats.loggedErrorCount, null);
 	});
 })
-.then(function(exitCode) {
-	process.exit(exitCode);
+.spread(function(runner, exitCode) {
+	return runner.stop()
+	.then(function() {
+		process.exit(exitCode);
+	});
 })
 .done();
