@@ -665,26 +665,27 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	item.time = {};
 
 	if (item.options) {
-
 		console.assert(item.options.extensions === undefined);
 
-		if (item.options.title !== undefined &&
-			!Array.isArray(item.options.title)) {
-			// Strip the [[]] markers.
-			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
-			// This sets the page name as well as the relative link prefix
-			// for the rest of the parse.
-			this.env.initializeForPageName(title);
-		} else {
-			// Since we are reusing the 'env' object, set it to the default
-			// so that relative link prefix is back to "./"
-			this.env.initializeForPageName(this.env.defaultPageName);
-		}
+		this.env.conf.wiki.namespacesWithSubpages[0] = false;
+
+		// Since we are reusing the 'env' object, set it to the default
+		// so that relative link prefix is back to "./"
+		this.env.initializeForPageName(this.env.defaultPageName);
 
 		if (item.options.subpage !== undefined) {
 			this.env.conf.wiki.namespacesWithSubpages[0] = true;
-		} else {
-			this.env.conf.wiki.namespacesWithSubpages[0] = false;
+		}
+
+		if (item.options.title !== undefined &&
+				!Array.isArray(item.options.title)) {
+			// Strip the [[]] markers.
+			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
+			// This sets the page name as well as the relative link prefix
+			// for the rest of the parse.  Do this redundantly with the above
+			// so that we start from the defaultPageName when resolving
+			// absolute subpages.
+			this.env.initializeForPageName(title);
 		}
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed

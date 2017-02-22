@@ -8152,7 +8152,6 @@ Handle title parsing for subpages
 !! options
 title=[[/123123]]
 subpage
-disabled
 !! wikitext
 123
 !! html/php
