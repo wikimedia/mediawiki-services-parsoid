@@ -21793,7 +21793,7 @@ showindicators
 !! wikitext
 <indicator name=" "></indicator>
 <indicator></indicator>
-!! html
+!! html/php
 <p><span class="error"><strong>Error:</strong> Page status indicators' <code>name</code> attribute must not be empty.</span>
 <span class="error"><strong>Error:</strong> Page status indicators' <code>name</code> attribute must not be empty.</span>
 </p>
@@ -21806,7 +21806,7 @@ showindicators
 !! wikitext
 <indicator name="empty" />
 <indicator name="name"></indicator>
-!! html
+!! html/php
 empty=
 name=
 <p><br />
@@ -21833,7 +21833,7 @@ showindicators
 <indicator name="10">Two
 
 paragraphs</indicator>
-!! html
+!! html/php
 01=hello world
 02=<a href="/wiki/Main_Page" title="Main Page">Main Page</a>
 03=<img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/25px-Foobar.jpg" width="25" height="3" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/38px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg 2x" />
