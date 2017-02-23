@@ -2173,10 +2173,10 @@
       "base": "https://be-tarask.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0",
       "sitename": "Вікіпэдыя",
       "logo": "//be-tarask.wikipedia.org/static/images/project-logos/be_x_oldwiki.png",
-      "generator": "MediaWiki 1.29.0-wmf.8",
+      "generator": "MediaWiki 1.29.0-wmf.13",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
-      "hhvmversion": "3.12.7",
+      "hhvmversion": "3.12.14",
       "dbtype": "mysql",
       "dbversion": "10.0.23-MariaDB-log",
       "imagewhitelistenabled": "",
@@ -2189,8 +2189,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "a828f619777b8db5566c4da5517924250ced3ca0",
-      "git-branch": "wmf/1.29.0-wmf.8",
+      "git-hash": "0276546c9f393129e6f7d2dc41e2e6fc1e48748d",
+      "git-branch": "wmf/1.29.0-wmf.13",
       "case": "first-letter",
       "lang": "be-tarask",
       "fallback": [
@@ -2213,7 +2213,7 @@
       "server": "//be-tarask.wikipedia.org",
       "servername": "be-tarask.wikipedia.org",
       "wikiid": "be_x_oldwiki",
-      "time": "2017-01-25T19:50:25Z",
+      "time": "2017-02-23T23:12:28Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -5312,6 +5312,10 @@
       {
         "prefix": "usemod",
         "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "utrs",
+        "url": "https://utrs.wmflabs.org/appeal.php?id=$1"
       },
       {
         "prefix": "uz",
@@ -8896,7 +8900,6 @@
       {
         "realname": "ZeroRatedMobileAccess",
         "aliases": [
-          "ZeroRatedMobileAccess",
           "ZeroRatedMobileAccess"
         ]
       },
@@ -8910,6 +8913,12 @@
         "realname": "MathStatus",
         "aliases": [
           "MathStatus"
+        ]
+      },
+      {
+        "realname": "VipsTest",
+        "aliases": [
+          "VipsTest"
         ]
       },
       {

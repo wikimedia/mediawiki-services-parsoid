@@ -831,3 +831,18 @@ PTUtils.iwl = {
 		protorel: '',
 	},
 };
+
+PTUtils.addNamespace = function(wikiConf, name) {
+	var nsid = name.id;
+	var old = wikiConf.siteInfo.namespaces[nsid];
+	if (old) {  // Id may already be defined; if so, clear it.
+		if (old === name) { return; }  // ParserTests does a lot redundantly.
+		wikiConf.namespaceIds[Util.normalizeNamespaceName(old['*'])] = undefined;
+		wikiConf.canonicalNamespaces[Util.normalizeNamespaceName(old.canonical ? old.canonical : old['*'])] = undefined;
+	}
+	wikiConf.namespaceNames[nsid] = name['*'];
+	wikiConf.namespaceIds[Util.normalizeNamespaceName(name['*'])] = Number(nsid);
+	wikiConf.canonicalNamespaces[Util.normalizeNamespaceName(name.canonical ? name.canonical : name['*'])] = Number(nsid);
+	wikiConf.namespacesWithSubpages[nsid] = true;
+	wikiConf.siteInfo.namespaces[nsid] = name;
+};

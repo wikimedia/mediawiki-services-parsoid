@@ -2343,10 +2343,10 @@
       "base": "https://cs.wikipedia.org/wiki/Hlavn%C3%AD_strana",
       "sitename": "Wikipedie",
       "logo": "//cs.wikipedia.org/static/images/project-logos/cswiki.png",
-      "generator": "MediaWiki 1.29.0-wmf.8",
+      "generator": "MediaWiki 1.29.0-wmf.13",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
-      "hhvmversion": "3.12.7",
+      "hhvmversion": "3.12.14",
       "dbtype": "mysql",
       "dbversion": "10.0.22-MariaDB-log",
       "imagewhitelistenabled": "",
@@ -2359,8 +2359,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "a828f619777b8db5566c4da5517924250ced3ca0",
-      "git-branch": "wmf/1.29.0-wmf.8",
+      "git-hash": "0276546c9f393129e6f7d2dc41e2e6fc1e48748d",
+      "git-branch": "wmf/1.29.0-wmf.13",
       "case": "first-letter",
       "lang": "cs",
       "fallback": [
@@ -2383,7 +2383,7 @@
       "server": "//cs.wikipedia.org",
       "servername": "cs.wikipedia.org",
       "wikiid": "cswiki",
-      "time": "2017-01-25T19:50:28Z",
+      "time": "2017-02-23T23:12:34Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -5482,6 +5482,10 @@
       {
         "prefix": "usemod",
         "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "utrs",
+        "url": "https://utrs.wmflabs.org/appeal.php?id=$1"
       },
       {
         "prefix": "uz",
@@ -9365,7 +9369,6 @@
       {
         "realname": "ZeroRatedMobileAccess",
         "aliases": [
-          "ZeroRatedMobileAccess",
           "ZeroRatedMobileAccess"
         ]
       },
@@ -9379,6 +9382,12 @@
         "realname": "MathStatus",
         "aliases": [
           "MathStatus"
+        ]
+      },
+      {
+        "realname": "VipsTest",
+        "aliases": [
+          "VipsTest"
         ]
       },
       {

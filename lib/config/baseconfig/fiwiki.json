@@ -152,6 +152,20 @@
         "canonical": "Keskustelu kirjasta",
         "*": "Keskustelu kirjasta"
       },
+      "106": {
+        "id": 106,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Wikiprojekti",
+        "*": "Wikiprojekti"
+      },
+      "107": {
+        "id": 107,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Keskustelu wikiprojektista",
+        "*": "Keskustelu wikiprojektista"
+      },
       "828": {
         "id": 828,
         "case": "first-letter",
@@ -2168,12 +2182,12 @@
       "base": "https://fi.wikipedia.org/wiki/Wikipedia:Etusivu",
       "sitename": "Wikipedia",
       "logo": "//fi.wikipedia.org/static/images/project-logos/fiwiki.png",
-      "generator": "MediaWiki 1.29.0-wmf.8",
+      "generator": "MediaWiki 1.29.0-wmf.13",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
-      "hhvmversion": "3.12.7",
+      "hhvmversion": "3.12.14",
       "dbtype": "mysql",
-      "dbversion": "10.0.28-MariaDB",
+      "dbversion": "10.0.22-MariaDB-log",
       "imagewhitelistenabled": "",
       "langconversion": "",
       "titleconversion": "",
@@ -2184,8 +2198,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "a828f619777b8db5566c4da5517924250ced3ca0",
-      "git-branch": "wmf/1.29.0-wmf.8",
+      "git-hash": "0276546c9f393129e6f7d2dc41e2e6fc1e48748d",
+      "git-branch": "wmf/1.29.0-wmf.13",
       "case": "first-letter",
       "lang": "fi",
       "fallback": [
@@ -2205,7 +2219,7 @@
       "server": "//fi.wikipedia.org",
       "servername": "fi.wikipedia.org",
       "wikiid": "fiwiki",
-      "time": "2017-01-25T19:50:36Z",
+      "time": "2017-02-23T23:12:47Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -5304,6 +5318,10 @@
       {
         "prefix": "usemod",
         "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1"
+      },
+      {
+        "prefix": "utrs",
+        "url": "https://utrs.wmflabs.org/appeal.php?id=$1"
       },
       {
         "prefix": "uz",
@@ -8957,7 +8975,6 @@
       {
         "realname": "ZeroRatedMobileAccess",
         "aliases": [
-          "ZeroRatedMobileAccess",
           "ZeroRatedMobileAccess"
         ]
       },
@@ -8971,6 +8988,12 @@
         "realname": "MathStatus",
         "aliases": [
           "MathStatus"
+        ]
+      },
+      {
+        "realname": "VipsTest",
+        "aliases": [
+          "VipsTest"
         ]
       },
       {

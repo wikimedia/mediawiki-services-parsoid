@@ -13745,7 +13745,7 @@ Manually-specified thumbnail image
 !! options
 thumbsize=220
 !! wikitext
-[[File:Foobar.jpg|thumb=Thumb.png|Title]]
+[[File:Foobar.jpg|thumbnail=Thumb.png|Title]]
 !! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Foobar.jpg"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
 

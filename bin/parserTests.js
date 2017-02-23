@@ -1429,18 +1429,32 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 				wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
 			});
 		});
-		// Add 'MemoryAlpha' namespace (bug 51680)
-		wikiConf.namespaceNames['100'] = 'MemoryAlpha';
-		wikiConf.namespaceIds.memoryalpha =
-		wikiConf.canonicalNamespaces.memoryalpha = 100;
-		// Cannot add namespace 100 otherwise since
-		// baseConfig is deep frozen.
+		// Cannot modify namespaces otherwise since baseConfig is deep frozen.
 		wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
-		wikiConf.siteInfo.namespaces['100'] = {
+		// Add 'MemoryAlpha' namespace (T53680)
+		PTUtils.addNamespace(wikiConf, {
+			"id": 100,
 			"case": "first-letter",
-			"*": "MemoryAlpha",
 			"canonical": "MemoryAlpha",
-		};
+			"*": "MemoryAlpha",
+		});
+		// Testing
+		if (wikiConf.iwp === 'enwiki') {
+			PTUtils.addNamespace(wikiConf, {
+				"id": 4,
+				"case": "first-letter",
+				"subpages": "",
+				"canonical": "Project",
+				"*": "Base MW",
+			});
+			PTUtils.addNamespace(wikiConf, {
+				"id": 5,
+				"case": "first-letter",
+				"subpages": "",
+				"canonical": "Project talk",
+				"*": "Base MW talk",
+			});
+		}
 		// Update $wgInterwikiMagic flag
 		// default (undefined) setting is true
 		this.env.conf.wiki.interwikimagic =

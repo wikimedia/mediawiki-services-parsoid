@@ -70,7 +70,7 @@ var update = function(opts) {
 		var localConfigFile = path.resolve(
 			configDir, './baseconfig/' + iwp + '.json'
 		);
-		var resultStr = JSON.stringify({query: resultConf}, null, 2);
+		var resultStr = JSON.stringify({ query: resultConf }, null, 2);
 		fs.writeFileSync(localConfigFile, resultStr, 'utf8');
 		console.log('Wrote', localConfigFile);
 	});
