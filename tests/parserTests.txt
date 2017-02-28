@@ -9962,9 +9962,10 @@ Magic Words LOCAL (UTC)
 Magic Word: {{FULLPAGENAME}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{FULLPAGENAME}}
-!! html
+!! html/*
 <p>User:Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -9973,9 +9974,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{FULLPAGENAMEE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{FULLPAGENAMEE}}
-!! html
+!! html/*
 <p>User:%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
@@ -9984,9 +9986,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{TALKSPACE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKSPACE}}
-!! html
+!! html/*
 <p>User talk
 </p>
 !! end
@@ -9995,9 +9998,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{TALKSPACE}}, same namespace
 !! options
 title=[[User talk:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKSPACE}}
-!! html
+!! html/*
 <p>User talk
 </p>
 !! end
@@ -10006,9 +10010,10 @@ title=[[User talk:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{TALKSPACE}}, main namespace
 !! options
 title=[[Parser Test]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKSPACE}}
-!! html
+!! html/*
 <p>Talk
 </p>
 !! end
@@ -10017,9 +10022,10 @@ title=[[Parser Test]]
 Magic Word: {{TALKSPACEE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKSPACEE}}
-!! html
+!! html/*
 <p>User_talk
 </p>
 !! end
@@ -10028,9 +10034,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBJECTSPACE}}
 !! options
 title=[[User talk:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTSPACE}}
-!! html
+!! html/*
 <p>User
 </p>
 !! end
@@ -10039,9 +10046,10 @@ title=[[User talk:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBJECTSPACE}}, same namespace
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTSPACE}}
-!! html
+!! html/*
 <p>User
 </p>
 !! end
@@ -10050,9 +10058,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBJECTSPACE}}, main namespace
 !! options
 title=[[Parser Test]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTSPACE}}
-!! html
+!! html/*
 
 !! end
 
@@ -10060,9 +10069,10 @@ title=[[Parser Test]]
 Magic Word: {{SUBJECTSPACEE}}
 !! options
 title=[[User talk:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTSPACEE}}
-!! html
+!! html/*
 <p>User
 </p>
 !! end
@@ -10071,9 +10081,10 @@ title=[[User talk:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{NAMESPACE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{NAMESPACE}}
-!! html
+!! html/*
 <p>User
 </p>
 !! end
@@ -10082,9 +10093,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{NAMESPACEE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{NAMESPACEE}}
-!! html
+!! html/*
 <p>User
 </p>
 !! end
@@ -10093,9 +10105,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{NAMESPACENUMBER}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{NAMESPACENUMBER}}
-!! html
+!! html/*
 <p>2
 </p>
 !! end
@@ -10104,9 +10117,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBPAGENAME}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub ö]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBPAGENAME}}
-!! html
+!! html/*
 <p>sub ö
 </p>
 !! end
@@ -10115,9 +10129,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub ö]] subpage
 Magic Word: {{SUBPAGENAMEE}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub ö]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBPAGENAMEE}}
-!! html
+!! html/*
 <p>sub_%C3%B6
 </p>
 !! end
@@ -10126,9 +10141,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub ö]] subpage
 Magic Word: {{ROOTPAGENAME}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub/sub2]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{ROOTPAGENAME}}
-!! html
+!! html/*
 <p>Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -10137,9 +10153,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub/sub2]] subpage
 Magic Word: {{ROOTPAGENAMEE}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub/sub2]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{ROOTPAGENAMEE}}
-!! html
+!! html/*
 <p>%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
@@ -10148,9 +10165,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub/sub2]] subpage
 Magic Word: {{BASEPAGENAME}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{BASEPAGENAME}}
-!! html
+!! html/*
 <p>Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -10159,9 +10177,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub]] subpage
 Magic Word: {{BASEPAGENAMEE}}
 !! options
 title=[[Ævar Arnfjörð Bjarmason/sub]] subpage
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{BASEPAGENAMEE}}
-!! html
+!! html/*
 <p>%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
@@ -10170,9 +10189,10 @@ title=[[Ævar Arnfjörð Bjarmason/sub]] subpage
 Magic Word: {{TALKPAGENAME}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKPAGENAME}}
-!! html
+!! html/*
 <p>User talk:Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -10181,9 +10201,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{TALKPAGENAMEE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{TALKPAGENAMEE}}
-!! html
+!! html/*
 <p>User_talk:%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
@@ -10192,9 +10213,10 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBJECTPAGENAME}}
 !! options
 title=[[User talk:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTPAGENAME}}
-!! html
+!! html/*
 <p>User:Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -10203,18 +10225,21 @@ title=[[User talk:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{SUBJECTPAGENAMEE}}
 !! options
 title=[[User talk:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SUBJECTPAGENAMEE}}
-!! html
+!! html/*
 <p>User:%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
 
 !! test
 Magic Word: {{NUMBEROFFILES}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{NUMBEROFFILES}}
-!! html
+!! html/*
 <p>7
 </p>
 !! end
@@ -10223,9 +10248,10 @@ Magic Word: {{NUMBEROFFILES}}
 Magic Word: {{PAGENAME}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGENAME}}
-!! html
+!! html/*
 <p>Ævar Arnfjörð Bjarmason
 </p>
 !! end
@@ -10234,6 +10260,7 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{PAGENAME}} with metacharacters
 !! options
 title=[['foo & bar = baz']]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 ''{{PAGENAME}}''
 !! html/php
@@ -10247,6 +10274,7 @@ title=[['foo & bar = baz']]
 Magic Word: {{PAGENAME}} with metacharacters (T28781)
 !! options
 title=[[*RFC 1234 http://example.com/]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGENAME}}
 !! html/php
@@ -10260,9 +10288,10 @@ title=[[*RFC 1234 http://example.com/]]
 Magic Word: {{PAGENAMEE}}
 !! options
 title=[[User:Ævar Arnfjörð Bjarmason]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGENAMEE}}
-!! html
+!! html/*
 <p>%C3%86var_Arnfj%C3%B6r%C3%B0_Bjarmason
 </p>
 !! end
@@ -10271,6 +10300,7 @@ title=[[User:Ævar Arnfjörð Bjarmason]]
 Magic Word: {{PAGENAMEE}} with metacharacters (T28781)
 !! options
 title=[[*RFC 1234 http://example.com/]]
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGENAMEE}}
 !! html/php
@@ -10282,53 +10312,65 @@ title=[[*RFC 1234 http://example.com/]]
 
 !! test
 Magic Word: {{REVISIONID}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{REVISIONID}}
-!! html
+!! html/*
 <p>1337
 </p>
 !! end
 
 !! test
 Magic Word: {{SCRIPTPATH}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SCRIPTPATH}}
-!! html
+!! html/*
 
 !! end
 
 !! test
 Magic Word: {{STYLEPATH}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{STYLEPATH}}
-!! html
+!! html/*
 <p>/skins
 </p>
 !! end
 
 !! test
 Magic Word: {{SERVER}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SERVER}}
-!! html
+!! html/*
 <p><a rel="nofollow" class="external free" href="http://example.org">http://example.org</a>
 </p>
 !! end
 
 !! test
 Magic Word: {{SERVERNAME}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SERVERNAME}}
-!! html
+!! html/*
 <p>example.org
 </p>
 !! end
 
 !! test
 Magic Word: {{SITENAME}}
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{SITENAME}}
-!! html
+!! html/*
 <p>MediaWiki
 </p>
 !! end
@@ -10337,18 +10379,21 @@ Magic Word: {{SITENAME}}
 Magic Word: {{PAGELANGUAGE}}
 !! options
 language=fr
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGELANGUAGE}}
-!! html
+!! html/*
 <p>fr
 </p>
 !! end
 
 !! test
 Magic Word: {{PAGELANGUAGE}} on a page with no explicitly set language
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 {{PAGELANGUAGE}}
-!! html
+!! html/*
 <p>en
 </p>
 !! end

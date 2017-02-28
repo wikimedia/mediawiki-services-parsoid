@@ -718,7 +718,9 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	var endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt';
 	var endsAtHtml = mode === 'wt2html' || mode === 'html2html';
 
-	var parsoidOnly = ('html/parsoid' in item) || (item.options.parsoid !== undefined);
+	var parsoidOnly =
+		('html/parsoid' in item) ||
+		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
 
 	// Source preparation
 	if (startsAtHtml) {
@@ -892,7 +894,8 @@ ParserTests.prototype.processSerializedWT = function(item, options, mode, wikite
 ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var normalizedOut, normalizedExpected;
 	var parsoidOnly =
-		('html/parsoid' in item) || (item.options.parsoid !== undefined);
+		('html/parsoid' in item) ||
+		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
 
 	normalizedOut = DU.normalizeOut(out, parsoidOnly);
 	out = DU.toXML(out, { innerXML: true });
