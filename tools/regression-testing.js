@@ -99,7 +99,7 @@ var opts = yargs.usage(usage, {
 			var ind = l.indexOf(':');
 			return {
 				prefix: l.substr(0, ind),
-				title: l.substr(ind + 1),
+				title: l.substr(ind + 1).replace(/ \|.*$/, ''),
 			};
 		});
 		return checkout(argv.o);
