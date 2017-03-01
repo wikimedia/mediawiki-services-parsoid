@@ -1474,9 +1474,13 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 };
 
 // Start the mock api server and kick off parser tests
-serviceWrapper.runServices({ skipParsoid: true })
-.then(function(ret) {
+Promise.resolve(null).then(function() {
 	var options = PTUtils.prepareOptions();
+	return serviceWrapper.runServices({ skipParsoid: true })
+		.then(function(ret) {
+			return [ options, ret.mockURL ];
+		});
+}).spread(function(options, mockURL) {
 	var testFilePaths;
 	if (options._[0]) {
 		testFilePaths = [path.resolve(process.cwd(), options._[0])];
@@ -1490,7 +1494,7 @@ serviceWrapper.runServices({ skipParsoid: true })
 	}
 	return Promise.reduce(testFilePaths, function(status, testFilePath) {
 		var ptests = new ParserTests(testFilePath, options.modes);
-		return ptests.main(options, ret.mockURL)
+		return ptests.main(options, mockURL)
 		.then(function(s) {
 			return status + s;  // Add up the status codes
 		});
