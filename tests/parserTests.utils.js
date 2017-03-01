@@ -50,9 +50,12 @@ var colorizeCount = function(count, color) {
 var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter) {
 	var curStr, mode, thisMode;
 	var failTotalTests = stats.failedTests;
+	var happiness = (
+		stats.passedTestsUnexpected === 0 && stats.failedTestsUnexpected === 0
+	);
 
 	console.log("==========================================================");
-	console.log("SUMMARY: ");
+	console.log("SUMMARY:", happiness ? file.green : file.red);
 	if (console.time && console.timeEnd) {
 		console.timeEnd('Execution time');
 	}
@@ -381,14 +384,18 @@ function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options,
 	return asExpected;
 }
 
+var _reportOnce = false;
 /**
  * Simple function for reporting the start of the tests.
  *
  * This method can be reimplemented in the options of the ParserTests object.
  */
 var reportStartOfTests = function() {
-	console.log('ParserTests running with node', process.version);
-	console.log('Initialization complete. Now launching tests.');
+	if (!_reportOnce) {
+		_reportOnce = true;
+		console.log('ParserTests running with node', process.version);
+		console.log('Initialization complete. Now launching tests.');
+	}
 };
 
 /**

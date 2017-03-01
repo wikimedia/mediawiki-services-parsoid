@@ -51,8 +51,8 @@ function ParserTests(testFilePath, modes) {
 	this.whiteListPath = path.resolve(parseFilePath.dir, whiteListName);
 	try {
 		this.testWhiteList = require(this.whiteListPath).testWhiteList;
+		console.warn('Using whitelist from ' + this.whiteListPath);
 	} catch (e) {
-		console.warn('No whitelist found at ' + this.whiteListPath);
 		this.testWhiteList = {};
 	}
 
