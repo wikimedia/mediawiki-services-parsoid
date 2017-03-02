@@ -1267,11 +1267,20 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 		var failures = options.reportSummary(options.modes, this.stats, this.testFileName, this.loggedErrorCount, this.testFilter);
 
 		// we're done!
+		// exit status 1 == uncaught exception
+		var exitCode = failures ? 2 : 0;
 		if (Util.booleanOption(options['exit-zero'])) {
-			failures = false;
+			exitCode = 0;
 		}
 
-		return failures ? 2 : 0;  // exit status 1 == uncaught exception
+		return {
+			exitCode: exitCode,
+			stats: Object.assign({
+				failures: failures,
+				loggedErrorCount: this.loggedErrorCount,
+			}, this.stats),
+			file: this.testFileName,
+		};
 	}
 };
 
@@ -1381,8 +1390,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		// Skip test whose title does not match --filter
 		// or which is disabled or php-only
 		this.comments = [];
-		setImmediate(nextCallback);
-		return;
+		return setImmediate(nextCallback);
 	}
 	// Add comments to following test.
 	item.comments = item.comments || this.comments;
@@ -1405,8 +1413,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		});
 	}
 	if (!targetModes.length) {
-		setImmediate(nextCallback);
-		return;
+		return setImmediate(nextCallback);
 	}
 	// Honor language option in parserTests.txt
 	var prefix = item.options.language || 'enwiki';
@@ -1492,15 +1499,29 @@ Promise.resolve(null).then(function() {
 			return path.join(testDir, f);
 		});
 	}
-	return Promise.reduce(testFilePaths, function(status, testFilePath) {
+	var stats = {
+		passedTests: 0,
+		passedTestsWhitelisted: 0,
+		passedTestsUnexpected: 0,
+		failedTests: 0,
+		failedTestsUnexpected: 0,
+		loggedErrorCount: 0,
+		failures: 0,
+	};
+	return Promise.reduce(testFilePaths, function(exitCode, testFilePath) {
 		var ptests = new ParserTests(testFilePath, options.modes);
 		return ptests.main(options, mockURL)
-		.then(function(s) {
-			return status + s;  // Add up the status codes
+		.then(function(result) {
+			Object.keys(stats).forEach(function(k) {
+				stats[k] += result.stats[k]; // Sum all stats
+			});
+			return exitCode || result.exitCode;
 		});
-	}, 0);
+	}, 0).tap(function() {
+		options.reportSummary([], stats, null, stats.loggedErrorCount, null);
+	});
 })
-.then(function(status) {
-	process.exit(status);
+.then(function(exitCode) {
+	process.exit(exitCode);
 })
 .done();

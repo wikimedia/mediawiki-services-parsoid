@@ -53,10 +53,12 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 	var happiness = (
 		stats.passedTestsUnexpected === 0 && stats.failedTestsUnexpected === 0
 	);
+	var filename = (file === null) ? "ALL TESTS" : file;
 
+	if (file === null) { console.log(); }
 	console.log("==========================================================");
-	console.log("SUMMARY:", happiness ? file.green : file.red);
-	if (console.time && console.timeEnd) {
+	console.log("SUMMARY:", happiness ? filename.green : filename.red);
+	if (console.time && console.timeEnd && file !== null) {
 		console.timeEnd('Execution time');
 	}
 
@@ -81,17 +83,14 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 		curStr += colorizeCount(stats.failedTestsUnexpected, 'red') + ' unexpected)';
 		console.log(curStr);
 
-		console.log('\n');
-		console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
-			' total passed tests (expected ' +
-			(stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
-			'), ' +
-			colorizeCount(failTotalTests , 'red') + ' total failures (expected ' +
-			(stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
-			')');
-		if (stats.passedTestsUnexpected === 0 &&
-				stats.failedTestsUnexpected === 0) {
-			console.log('--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
+		if (file === null) {
+			console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
+				' total passed tests (expected ' +
+				(stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
+				'), ' +
+				colorizeCount(failTotalTests , 'red') + ' total failures (expected ' +
+				(stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
+				')');
 		}
 	} else {
 		if (testFilter !== null) {
@@ -110,11 +109,30 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 	if (loggedErrorCount > 0) {
 		logMsg = (loggedErrorCount + " errors logged.").red;
 	}
-	console.log('--> ' + logMsg + ' <--');
+	if (file === null) {
+		if (loggedErrorCount > 0) {
+			logMsg = ('' + loggedErrorCount).red;
+		} else {
+			logMsg = ('' + loggedErrorCount).green;
+		}
+		logMsg += ' errors logged.';
+	}
+	console.log(logMsg);
 
-	console.log("==========================================================");
+	var failures = (
+		stats.passedTestsUnexpected +
+		stats.failedTestsUnexpected +
+		loggedErrorCount
+	);
+	if (file === null) {
+		if (failures === 0) {
+			console.log('--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
+		} else {
+			console.log(('--> ' + failures + ' UNEXPECTED RESULTS. <--').red);
+		}
+	}
 
-	return (stats.passedTestsUnexpected + stats.failedTestsUnexpected + loggedErrorCount);
+	return failures;
 };
 
 var prettyPrintIOptions = function(iopts) {
@@ -439,6 +457,10 @@ var reportStartXML = function() {};
  * @inheritdoc reportSummary
  */
 var reportSummaryXML = function(modesRan, stats, file, loggedErrorCount, testFilter) {
+	if (file === null) {
+		/* Summary for all tests; not included in XML format output. */
+		return;
+	}
 	console.log('<testsuites file="' + file + '">');
 	for (var i = 0; i < modesRan.length; i++) {
 		var mode = modesRan[i];
