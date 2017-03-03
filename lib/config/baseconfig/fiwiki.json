@@ -1392,6 +1392,18 @@
         ]
       },
       {
+        "name": "pagesusingpendingchanges",
+        "aliases": [
+          "pagesusingpendingchanges"
+        ]
+      },
+      {
+        "name": "pendingchangelevel",
+        "aliases": [
+          "pendingchangelevel"
+        ]
+      },
+      {
         "name": "timedmedia_noplayer",
         "aliases": [
           "noplayer"
@@ -1428,6 +1440,12 @@
         ]
       },
       {
+        "name": "translation",
+        "aliases": [
+          "translation"
+        ]
+      },
+      {
         "name": "invoke",
         "aliases": [
           "invoke"
@@ -1449,24 +1467,6 @@
         "name": "wbreponame",
         "aliases": [
           "wbreponame"
-        ]
-      },
-      {
-        "name": "pagesusingpendingchanges",
-        "aliases": [
-          "pagesusingpendingchanges"
-        ]
-      },
-      {
-        "name": "pendingchangelevel",
-        "aliases": [
-          "pendingchangelevel"
-        ]
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ]
       },
       {
@@ -2182,7 +2182,7 @@
       "base": "https://fi.wikipedia.org/wiki/Wikipedia:Etusivu",
       "sitename": "Wikipedia",
       "logo": "//fi.wikipedia.org/static/images/project-logos/fiwiki.png",
-      "generator": "MediaWiki 1.29.0-wmf.13",
+      "generator": "MediaWiki 1.29.0-wmf.14",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
       "hhvmversion": "3.12.14",
@@ -2198,8 +2198,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "0276546c9f393129e6f7d2dc41e2e6fc1e48748d",
-      "git-branch": "wmf/1.29.0-wmf.13",
+      "git-hash": "ec6907e0b64f302a719ac9f08e2e0fa943ce8fc2",
+      "git-branch": "wmf/1.29.0-wmf.14",
       "case": "first-letter",
       "lang": "fi",
       "fallback": [
@@ -2219,7 +2219,7 @@
       "server": "//fi.wikipedia.org",
       "servername": "fi.wikipedia.org",
       "wikiid": "fiwiki",
-      "time": "2017-02-23T23:12:47Z",
+      "time": "2017-03-03T18:09:09Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -2912,7 +2912,7 @@
       },
       {
         "prefix": "drae",
-        "url": "http://lema.rae.es/drae/?val=$1"
+        "url": "http://dle.rae.es/?w=$1"
       },
       {
         "prefix": "dreamhost",
@@ -8973,12 +8973,6 @@
         ]
       },
       {
-        "realname": "ZeroRatedMobileAccess",
-        "aliases": [
-          "ZeroRatedMobileAccess"
-        ]
-      },
-      {
         "realname": "MathShowImage",
         "aliases": [
           "MathShowImage"
@@ -9272,6 +9266,158 @@
           "Nearby"
         ]
       }
-    ]
+    ],
+    "defaultoptions": {
+      "globaluserpage": true,
+      "visualeditor-enable": 1,
+      "visualeditor-betatempdisable": 0,
+      "visualeditor-newwikitext": 0,
+      "visualeditor-enable-experimental": 0,
+      "visualeditor-enable-language": 0,
+      "visualeditor-hidebetawelcome": 0,
+      "visualeditor-autodisable": 0,
+      "visualeditor-tabs": "remember-last",
+      "visualeditor-editor": "wikitext",
+      "visualeditor-hidetabdialog": 0,
+      "math": "mathml",
+      "echo-show-alert": true,
+      "echo-email-frequency": 0,
+      "echo-dismiss-special-page-invitation": 0,
+      "echo-subscriptions-web-edit-thank": true,
+      "echo-subscriptions-email-edit-thank": false,
+      "echo-subscriptions-web-flow-discussion": true,
+      "echo-subscriptions-email-flow-discussion": false,
+      "flow-topiclist-sortby": "updated",
+      "flow-editor": "visualeditor",
+      "flow-side-rail-state": "expanded",
+      "eventlogging-display-web": 0,
+      "uls-preferences": "",
+      "compact-language-links": 1,
+      "echo-subscriptions-web-cx": true,
+      "echo-subscriptions-web-oauth-owner": true,
+      "echo-subscriptions-email-oauth-owner": true,
+      "echo-subscriptions-web-oauth-admin": true,
+      "echo-subscriptions-email-oauth-admin": true,
+      "ccmeonemails": 0,
+      "cols": 80,
+      "date": "default",
+      "diffonly": 0,
+      "disablemail": 0,
+      "editfont": "default",
+      "editondblclick": 0,
+      "editsectiononrightclick": 0,
+      "enotifminoredits": 0,
+      "enotifrevealaddr": 0,
+      "enotifusertalkpages": 1,
+      "enotifwatchlistpages": 0,
+      "extendwatchlist": 0,
+      "fancysig": 0,
+      "forceeditsummary": 0,
+      "gender": "unknown",
+      "hideminor": 0,
+      "hidepatrolled": 0,
+      "hidecategorization": 1,
+      "imagesize": 2,
+      "minordefault": 0,
+      "newpageshidepatrolled": 0,
+      "nickname": "",
+      "norollbackdiff": 0,
+      "numberheadings": 0,
+      "previewonfirst": 0,
+      "previewontop": 1,
+      "rcdays": 7,
+      "rcenhancedfilters": 0,
+      "rclimit": 50,
+      "rows": 25,
+      "showhiddencats": false,
+      "shownumberswatching": 1,
+      "showtoolbar": 1,
+      "skin": "vector",
+      "stubthreshold": 0,
+      "thumbsize": 4,
+      "underline": 2,
+      "uselivepreview": 0,
+      "usenewrc": 0,
+      "watchcreations": 1,
+      "watchdefault": 0,
+      "watchdeletion": 0,
+      "watchuploads": 1,
+      "watchlistdays": 3,
+      "watchlisthideanons": 0,
+      "watchlisthidebots": 0,
+      "watchlisthideliu": 0,
+      "watchlisthideminor": 0,
+      "watchlisthideown": 0,
+      "watchlisthidepatrolled": 0,
+      "watchlisthidecategorization": 1,
+      "watchlistreloadautomatically": 0,
+      "watchmoves": 0,
+      "watchrollback": 0,
+      "wllimit": 250,
+      "useeditwarning": 1,
+      "prefershttps": 1,
+      "flaggedrevssimpleui": 0,
+      "flaggedrevsstable": 0,
+      "flaggedrevseditdiffs": true,
+      "flaggedrevsviewdiffs": false,
+      "usebetatoolbar": 1,
+      "usebetatoolbar-cgd": 1,
+      "echo-cross-wiki-notifications": 1,
+      "echo-email-format": "html",
+      "echo-subscriptions-email-system": true,
+      "echo-subscriptions-web-system": true,
+      "echo-subscriptions-email-user-rights": true,
+      "echo-subscriptions-web-user-rights": true,
+      "echo-subscriptions-email-other": false,
+      "echo-subscriptions-web-other": true,
+      "echo-subscriptions-email-edit-user-talk": false,
+      "echo-subscriptions-web-edit-user-talk": true,
+      "echo-subscriptions-email-reverted": false,
+      "echo-subscriptions-web-reverted": true,
+      "echo-subscriptions-email-article-linked": false,
+      "echo-subscriptions-web-article-linked": false,
+      "echo-subscriptions-email-mention": false,
+      "echo-subscriptions-web-mention": true,
+      "echo-subscriptions-email-mention-failure": false,
+      "echo-subscriptions-web-mention-failure": false,
+      "echo-subscriptions-email-mention-success": false,
+      "echo-subscriptions-web-mention-success": false,
+      "echo-subscriptions-email-emailuser": false,
+      "echo-subscriptions-web-emailuser": true,
+      "timecorrection": "System|120",
+      "multimediaviewer-enable": true,
+      "language": "fi",
+      "variant-gan": "gan",
+      "variant-iu": "iu",
+      "variant-kk": "kk",
+      "variant-ku": "ku",
+      "variant-shi": "shi",
+      "variant-sr": "sr",
+      "variant-tg": "tg",
+      "variant-uz": "uz",
+      "variant-zh": "zh",
+      "searchNs0": true,
+      "searchNs1": false,
+      "searchNs2": false,
+      "searchNs3": false,
+      "searchNs4": false,
+      "searchNs5": false,
+      "searchNs6": false,
+      "searchNs7": false,
+      "searchNs8": false,
+      "searchNs9": false,
+      "searchNs10": false,
+      "searchNs11": false,
+      "searchNs12": false,
+      "searchNs13": false,
+      "cirrussearch-pref-completion-profile": "fuzzy",
+      "gadget-ViikonKilpailu": 1,
+      "gadget-ReferenceTooltips": 1,
+      "gadget-quickStatements": 1,
+      "gadget-hidePersonalSandboxEdits": 1,
+      "gadget-ProtectionIndicator": 1,
+      "popups": "0",
+      "echo-subscriptions-web-page-connection": true
+    }
   }
 }
