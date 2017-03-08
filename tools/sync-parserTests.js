@@ -4,16 +4,17 @@ require('../core-upgrade.js');
 
 /**
    == USAGE ==
-   Script to synchronize parsoid parserTests with mediawiki/core parserTests.
+   Script to synchronize parsoid parserTests with parserTests in other repos.
 
    Basic use:
      $PARSOID is the path to a checked out git copy of Parsoid
-     $MEDIAWIKI is the path to a checked out git copy of mediawiki/core
-     $BRANCH is a branch name for the patch to mediawiki/core (ie, 'pt-sync')
+     $REPO is the path to a checked out git copy of the repo containing the parserTest file
+     $BRANCH is a branch name for the patch to $REPO (ie, 'pt-sync')
+     $TARGET is the key to parserTests.json we're sync'ing
 
    $ cd $PARSOID
-   $ tools/sync-parserTests.js $MEDIAWIKI $BRANCH
-   $ cd $MEDIAWIKI
+   $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
+   $ cd $REPO
    $ git rebase master
      ... resolve conflicts, sigh ...
    $ php tests/parserTests.php
@@ -23,7 +24,7 @@ require('../core-upgrade.js');
      ... time passes, eventually your patch is merged to core ...
 
    $ cd $PARSOID
-   $ tools/fetch-parserTests.txt.js --force
+   $ tools/fetch-parserTests.txt.js $TARGET --force
    $ bin/parserTests.js --rewrite-blacklist
    $ git add -u
    $ git commit -m "Sync parserTests with core"
@@ -51,7 +52,7 @@ var strip = function(s) {
 
 (function() {
 	// Option parsing and helpful messages.
-	var usage = 'Usage: $0 <mediawiki checkout path> <branch name> <target>';
+	var usage = 'Usage: $0 <repo path> <branch name> <target>';
 	var opts = yargs.usage(usage, {
 		'help': { description: 'Show this message' },
 	});

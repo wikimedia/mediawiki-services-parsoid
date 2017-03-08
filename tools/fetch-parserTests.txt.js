@@ -8,8 +8,8 @@ require('../core-upgrade.js');
 // UPDATE THESE when upstream mediawiki/core includes new parsoid-relevant tests
 // This ensures that our whitelist/blacklist is in sync.
 //
-// ==> Use "./fetch-parserTests.txt.js --force" to download latest parserTests
-//     and update these hashes automatically.
+// ==> Use "./fetch-parserTests.txt.js <target> --force" to download latest
+//     parserTests and update these hashes automatically.
 //
 
 var fs = require('fs');
