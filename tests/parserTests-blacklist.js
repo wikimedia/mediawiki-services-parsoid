@@ -330,7 +330,6 @@ add("wt2wt", "Fuzz testing: Parser22", "http://===r:::https://b\n\n{|\n|}");
 add("wt2wt", "Inline wiki vs wiki block nesting", "'''Bold paragraph'''\n\nNew wiki paragraph\n");
 add("wt2wt", "Mixing markup for italics and bold", "'<nowiki/>''bold'<nowiki/>'''''bold''bolditalics'''''\n");
 add("wt2wt", "Illegal character references (T106578)", "; Null: &#00;\n; FF: &#xC;\n; CR: &#x0A;\n; Control (low): &#8;\n; Control (high): &#x7F; &#x9F;\n; Surrogate: &#xD83D;&#xDCA9;\n; This is an okay astral character: &#x1F4A9;");
-add("wt2wt", "Image with page parameter", "[[File:LoremIpsum.djvu]]\n");
 add("wt2wt", "Don't fall for the self-closing div", "<div>hello world</div>");
 add("wt2wt", "Parsing of overlapping (improperly nested) inline html tags", "<span><s>x</span>\n");
 add("wt2wt", "T153140: Don't break table handling if language converter markup is in the cell.", "{|\n|-\n| -{R |B}-\n|}");
@@ -1013,7 +1012,6 @@ add("html2wt", "Width + Height sized image (using px) (height is ignored)", "htt
 add("html2wt", "Width-sized image (using px, no following whitespace)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
 add("html2wt", "Width-sized image (using px, with following whitespace - test regression from r39467)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
 add("html2wt", "Width-sized image (using px, with preceding whitespace - test regression from r39467)", "http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg\n");
-add("html2wt", "Image with page parameter", "[[File:LoremIpsum.djvu]]\n");
 add("html2wt", "HTML with raw HTML ($wgRawHtml==true)", "<script>alert(1);</script>\n");
 add("html2wt", "Parents of subpages, one level up", "[/index.php?title=Subpage_test/L1/L2&action=edit&redlink=1 L2]\n");
 add("html2wt", "Parents of subpages, one level up, not named", "[/index.php?title=Subpage_test/L1/L2&action=edit&redlink=1 Subpage test/L1/L2]\n");
@@ -1859,8 +1857,6 @@ add("selser", "Illegal character references (T106578) [[2,0,3,3,[4,0],3,2,[2,0],
 add("selser", "Illegal character references (T106578) [[0,4,2,4,0,3,2,0,4,2,[3,0],0,4,[2,0,0,0],0,2,2,4,0,4]]", "; Null\n: 9fwhioeeke0442t9\n: j9rvy22kl04quxr\n: b9r3w66fxy8k6gvi: &#xC;\n: y1yftc25vffg8pvi\n; CR: &#xD;\n: 2qqnhtc01zjpds4i\n: h4mtw9i1zzq1714i\n; Control (low):&#8;\n: pbxoidwcwzlac3di:xdk2vbc7v3rf6r &#x7F; &#x9F;\n: ltyipg2p1w9izfr\n; Surrogate\n: 53dgbaz96yeyu8fr: &#xD83D;&#xDCA9;\n: w4u00ww32t7kqpvi\n; This is an okay astral character\n: ybr70brqekzw7b9");
 add("selser", "Illegal character references (T106578) [[[2],0,0,[4],[2,0],0,[2],0,0,1,4,0,[3],0,0,2,4,4,0,3]]", ";zu5495hxxql1sjor Null: &#00;\n;5cbqazxlqwbl0udi:pof7ppk4wzmpldi &#xC;\n;xtwdv922j0xusor CR: &#xD;\n; Control (low)\n: 7mds6rq9nzwoecdi\n;: &#x7F; &#x9F;\n: 9k3u42yb3sl6usor\n; Surrogate\n: qb704xdxe3aqbyb9\n: phjue90joss2lnmi\n; This is an okay astral character");
 add("selser", "Illegal character references (T106578) [[1,3,0,1,4,3,2,0,0,2,[4,0],0,[2],2,4,1,3,0,2,1]]", "; Null\n; FF\n: xf4ed4b6sfywrk9\n: 7lsfy0qpn1nn4s4i\n; CR: &#xD;\n: uh0ehwxo7xjbrzfr\n; Control (low):qws1kllvtusj1yvi&#8;\n;0bvupxnunsq93sor Control (high)\n: 6d547p71l1ve7b9: &#x7F; &#x9F;\n: swbefkspflsrlik9\n; Surrogate\n: ulaiulmr6q88h0k9\n; This is an okay astral character: &#x1F4A9;");
-add("selser", "Image with page parameter [2]", "t1gktsrwi7iizfr\n\n[[File:LoremIpsum.djvu|page=2]]");
-add("selser", "Image with page parameter [1]", "[[File:LoremIpsum.djvu|page=2]]");
 add("selser", "Don't fall for the self-closing div [[4]]", "<div>f7k96jvehbnmte29</div/>");
 add("selser", "Don't fall for the self-closing div [[3]]", "<div></div/>");
 add("selser", "Don't fall for the self-closing div [2]", "03k36yoyy20jatt9<div>hello world</div/>");
