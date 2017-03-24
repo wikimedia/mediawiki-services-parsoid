@@ -23848,7 +23848,8 @@ Links 4. ExtLinks: Escapes needed
 parsoid=html2wt
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://google.com">[google]</a>
-<a rel="mw:ExtLink" href="http://google.com">google]</a></p>
+<a rel="mw:ExtLink" href="http://google.com">google]</a>
+<a rel="mw:ExtLink" href="http://google.com">goog] le</a></p>
 <p>[http://google.com]</p>
 <p>[http://google.com google]</p>
 <p>[<a rel="mw:ExtLink" href="http://google.com">http://google.com</a>]</p>
@@ -23856,6 +23857,7 @@ parsoid=html2wt
 !! wikitext
 [http://google.com <nowiki>[google]</nowiki>]
 [http://google.com <nowiki>google]</nowiki>]
+[http://google.com <nowiki>goog] le</nowiki>]
 
 <nowiki>[http://google.com]</nowiki>
 
@@ -23867,6 +23869,7 @@ parsoid=html2wt
 !! html/php
 <p><a rel="nofollow" class="external text" href="http://google.com">[google]</a>
 <a rel="nofollow" class="external text" href="http://google.com">google]</a>
+<a rel="nofollow" class="external text" href="http://google.com">goog] le</a>
 </p><p>[http://google.com]
 </p><p>[http://google.com google]
 </p><p>[<a rel="nofollow" class="external free" href="http://google.com">http://google.com</a>]
