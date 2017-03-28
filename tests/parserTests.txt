@@ -26705,6 +26705,20 @@ parsoid= {
 # --------------------------------------------
 
 !! test
+Serialize multi-line indent-pre starting with wikitext syntax
+!! options
+parsoid=html2wt
+!! html/parsoid
+<pre>* 1
+** 2
+* 3</pre>
+!! wikitext
+ * 1
+ ** 2
+ * 3
+!! end
+
+!! test
 1. Categories should always be serialized on their own line
 !! options
 parsoid=html2wt
