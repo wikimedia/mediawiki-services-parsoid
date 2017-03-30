@@ -1,4 +1,4 @@
-0.7.0 / XXXX-XX-XX
+0.7.0 / 2017-04-04
 ==================
 
   wt -> html changes:
@@ -28,9 +28,10 @@
   * T160207: Fix serializing multi-line indent-pre w/ sol wt syntax
   * T133267: Escape extlink content when containing ] anywhere
   * T152633: Fix crasher from ConstrainedText
+  * T112043: Handle anchors without hrefs
   * Fix and cleanup domdiff annotations which fixes some edge case bugs
 
-  Extensions
+  Extensions:
   * T110910: Implement gallery extension natively inside Parsoid
   * T58381, T108216: Treat NOWIKI and html PRE as extension tags
   * Cite: T102134: Fix hrefs to render properly
