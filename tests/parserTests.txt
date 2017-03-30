@@ -27449,6 +27449,20 @@ d
 |}
 !! end
 
+!! test
+Anchor without href scenarios
+!! options
+parsoid={ "modes": ["html2wt"], "suppressErrors": true }
+!! html/parsoid
+<a class="bc"></a>
+<a class="no">dice</a>
+<a name="foo"></a>
+!! wikitext
+
+dice
+<span name="foo"></span>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
