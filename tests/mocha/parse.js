@@ -3,6 +3,7 @@
 require('../../core-upgrade.js');
 /*global describe, it*/
 
+require("chai").should();
 var url = require('url');
 var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
