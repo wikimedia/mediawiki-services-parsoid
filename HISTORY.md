@@ -1,12 +1,65 @@
-
-n.n.n / XXXX-XX-XX
+0.7.0 / XXXX-XX-XX
 ==================
 
-  * T110910: Implement <gallery> extension natively inside Parsoid
-  * T150213: Suppress logs for known unknown contentmodels
-  * T149209: Handle newlines in <td> and <th> cells
-  * T102209: Assign ids to <h*> tags that match PHP parser's assignment
+  wt -> html changes:
+  * T102209: Assign ids to H[1-6] tags that match PHP parser's assignment
   * T150112: Munge link fragments and element ids as in the php parser
+  * T59603: T133267: Escape extlink content when containing ] anywhere
+  * T156296: Update cached wiki configs for several wikimedia wikis
+  * T50900: Improved error output for extensions, missing images
+  * T109897: Remove implicit_table_data_tag rule
+  * T98960: Accept entities in extlink href and url links
+  * T113044: Complete templatearg representation in spec
+  * T104523: Prevent infinite recursion in template expansion
+  * T104662: Allow nested ref tags only in templates
+  * Support extension tags which shadows "block level" HTML elements
+  * A bunch of cleanup and edge case fixes in the PEG tokenizer
+  * Don't accept pipe unconditionally in extlink
+  * Percent-encode modules link in the HEAD section
+  * Update CSS modules in HEAD section
+  * Remove special-case non-void semantics for SOURCE
+  * Fixup redirect-detecting regular expressions in multiple places
+  * Edge case bug fixes to title handling code
+  * Edge case bug fixes in aynsc token transformation pipeline
+  * Several fixes to the linting code to support the PHP Linter extension
+
+  html -> wt changes:
+  * T149209: Handle newlines in TD and TH cells
+  * T160207: Fix serializing multi-line indent-pre w/ sol wt syntax
+  * T133267: Escape extlink content when containing ] anywhere
+  * T152633: Fix crasher from ConstrainedText
+  * Fix and cleanup domdiff annotations which fixes some edge case bugs
+
+  Extensions
+  * T110910: Implement gallery extension natively inside Parsoid
+  * T58381, T108216: Treat NOWIKI and html PRE as extension tags
+  * Cite: T102134: Fix hrefs to render properly
+  * Cite: Escape cite ids with Sanitizer.escapeId
+  * Move section handling to the LST extension
+  * Extension API improvements for the ProofreadPage extension
+  * Normalize all extension options
+
+  Infrastructure changes:
+  * Update parser tests syncing scripts to let us sync PHP extension tests
+    from to/from Parsoid.
+  * Several fixes to parserTests scripts to improve output and processing of
+    test options, among other things.
+  * Bump domino, service-runner, minor versions of some deps,
+    and some dev deps.
+  * Switch to npm@3
+
+  API changes:
+  * In dev-api mode, add ?follow_redirects=true support to wt2html
+    API end points to get Parsoid to return a HTTP 302 response for
+    redirect pages. This lets 302-following clients to render the
+    target page.
+
+  Other fixes:
+  * T153797: ApiRequest: Clone the request options before modifying them
+  * T150213: Suppress logs for known unknown contentmodels
+  * Code cleanup and refactoring for upcoming audio/video support.
+  * Code cleanup and refactoring in template handling for upcoming support
+    for templated template names. This also fixes some edge case bugs.
 
 0.6.1 / 2016-11-14
 ==================
