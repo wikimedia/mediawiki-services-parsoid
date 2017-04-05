@@ -205,5 +205,82 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.include.members([ 0, 17, null, null ]);
 			});
 		});
+		it('should identify deletable table tag for T161341 (1)', function() {
+			var wt = [
+				"{| style='border:1px solid red;'",
+				"|a",
+				"|-",
+				"{| style='border:1px solid blue;'",
+				"|b",
+				"|c",
+				"|}",
+				"|}",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "deletable-table-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].dsr.should.include.members([ 39, 72, 0, 0 ]);
+			});
+		});
+		it('should identify deletable table tag for T161341 (2)', function() {
+			var wt = [
+				"{| style='border:1px solid red;'",
+				"|a",
+				"|-  ",
+				"   <!--boo-->   ",
+				"{| style='border:1px solid blue;'",
+				"|b",
+				"|c",
+				"|}",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "deletable-table-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].dsr.should.include.members([ 58, 91, 0, 0 ]);
+			});
+		});
+		it('should identify deletable table tag for T161341 (3)', function() {
+			var wt = [
+				"{{1x|{{{!}}",
+				"{{!}}a",
+				"{{!}}-",
+				"{{{!}}",
+				"{{!}}b",
+				"{{!}}c",
+				"{{!}}}",
+				"}}",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "deletable-table-tag");
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "1x");
+				result[0].dsr.should.include.members([ 0, 56, 0, 0 ]);
+			});
+		});
+		it('should identify deletable table tag for T161341 (4)', function() {
+			var wt = [
+				"{{1x|{{{!}}",
+				"{{!}}a",
+				"{{!}}-",
+				"}}",
+				"{|",
+				"|b",
+				"|c",
+				"|}",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(2);
+				result[1].should.have.a.property("type", "deletable-table-tag");
+				result[1].should.not.have.a.property("templateInfo");
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("name", "table");
+				result[1].dsr.should.include.members([ 29, 31, 0, 0 ]);
+			});
+		});
 	});
 });
