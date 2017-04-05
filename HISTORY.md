@@ -1,3 +1,7 @@
+0.7.1 / 2017-04-05
+==================
+  No changes.  New release to update nodejs dependency in the deb package.
+
 0.7.0 / 2017-04-04
 ==================
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.7.0');
+var ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.7.1');
 var Util = ParsoidExtApi.Util;
 var DU = ParsoidExtApi.DOMUtils;
 
