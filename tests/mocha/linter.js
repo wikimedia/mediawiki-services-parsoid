@@ -61,6 +61,13 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 			});
 		});
+		it('should lint stripped tags correctly in misnested tag situations', function() {
+			return parseWT('<b><i>a</b></i>').then(function(result) {
+				result.should.have.length(2);
+				result[1].should.have.a.property("type", "stripped-tag");
+				result[1].dsr.should.deep.equal([ 11, 15, null, null ]);
+			});
+		});
 		it('should lint obsolete tags correctly', function() {
 			return parseWT('<tt>foo</tt>bar').then(function(result) {
 				result.should.have.length(1);
