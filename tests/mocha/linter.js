@@ -31,7 +31,7 @@ describe('Linter Tests', function() {
 			return parseWT('<div>foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "missing-end-tag");
-				result[0].dsr.should.include.members([ 0, 8, 5, 0 ]);
+				result[0].dsr.should.deep.equal([ 0, 8, 5, 0 ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "div");
 			});
@@ -40,7 +40,7 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div>foo<p>bar</div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "missing-end-tag");
-				result[0].dsr.should.include.members([ 0, 27, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 				result[0].should.have.a.property("templateInfo");
 				result[0].templateInfo.should.have.a.property("name", "1x");
 				result[0].should.have.a.property("params");
@@ -51,21 +51,21 @@ describe('Linter Tests', function() {
 			return parseWT('foo</div>').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
-				result[0].dsr.should.include.members([ 3, 9, null, null ]);
+				result[0].dsr.should.deep.equal([ 3, 9, null, null ]);
 			});
 		});
 		it('should lint stripped tags found in transclusions correctly', function() {
 			return parseWT('{{1x|<div>foo</div></div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
-				result[0].dsr.should.include.members([ 0, 27, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 			});
 		});
 		it('should lint obsolete tags correctly', function() {
 			return parseWT('<tt>foo</tt>bar').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].dsr.should.include.members([ 0, 12, 4, 5 ]);
+				result[0].dsr.should.deep.equal([ 0, 12, 4, 5 ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "tt");
 			});
@@ -79,7 +79,7 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div><tt>foo</tt></div>}}foo').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "obsolete-tag");
-				result[0].dsr.should.include.members([ 0, 30, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 30, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "tt");
 			});
@@ -90,7 +90,7 @@ describe('Linter Tests', function() {
 				result.should.have.length(2);
 				result[0].should.have.a.property("type", "missing-end-tag");
 				result[1].should.have.a.property("type", "obsolete-tag");
-				result[1].dsr.should.include.members([ 0, 7, 4, 0 ]);
+				result[1].dsr.should.deep.equal([ 0, 7, 4, 0 ]);
 				result[1].should.have.a.property("params");
 				result[1].params.should.have.a.property("name", "tt");
 			});
@@ -99,21 +99,21 @@ describe('Linter Tests', function() {
 			return parseWT('{|\nfoo\n|-\n| bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "fostered");
-				result[0].dsr.should.include.members([ 0, 18, 2, 2 ]);
+				result[0].dsr.should.deep.equal([ 0, 18, 2, 2 ]);
 			});
 		});
 		it('should lint ignored table attributes Correctly', function() {
 			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.include.members([ 3, 14, 6, 0 ]);
+				result[0].dsr.should.deep.equal([ 3, 14, 6, 0 ]);
 			});
 		});
 		it('should lint ignored table attributes found in transclusions correctly', function() {
 			return parseWT('{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.include.members([ 0, 43, null, null]);
+				result[0].dsr.should.deep.equal([ 0, 43, null, null]);
 			});
 		});
 		it('should not lint whitespaces as ignored table attributes', function() {
@@ -125,14 +125,14 @@ describe('Linter Tests', function() {
 			return parseWT('{|\n|- <!--bad attr-->attr\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.include.members([ 3, 30, 22, 0 ]);
+				result[0].dsr.should.deep.equal([ 3, 30, 22, 0 ]);
 			});
 		});
 		it('should lint Bogus image options correctly', function() {
 			return parseWT('[[file:a.jpg|foo|bar]]').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].dsr.should.include.members([ 0, 22, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 22, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("items");
 				result[0].params.items.should.include.members(["foo"]);
@@ -142,7 +142,7 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|[[file:a.jpg|foo|bar]]}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].dsr.should.include.members([ 0, 29, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 29, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.items.should.include.members(["foo"]);
 			});
@@ -151,7 +151,7 @@ describe('Linter Tests', function() {
 			return parseWT('[[file:a.jpg|foo|bar|baz]]').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "bogus-image-options");
-				result[0].dsr.should.include.members([ 0, 26, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 26, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.items.should.include.members(["foo", "bar"]);
 			});
@@ -171,11 +171,11 @@ describe('Linter Tests', function() {
 			return parseWT('foo<b />bar<span />baz<hr />boo<br /> <ref name="boo" />').then(function(result) {
 				result.should.have.length(2);
 				result[0].should.have.a.property("type", "self-closed-tag");
-				result[0].dsr.should.include.members([ 3, 8, 5, 0 ]);
+				result[0].dsr.should.deep.equal([ 3, 8, 5, 0 ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "b");
 				result[1].should.have.a.property("type", "self-closed-tag");
-				result[1].dsr.should.include.members([ 11, 19, 8, 0 ]);
+				result[1].dsr.should.deep.equal([ 11, 19, 8, 0 ]);
 				result[1].should.have.a.property("params");
 				result[1].params.should.have.a.property("name", "span");
 			});
@@ -184,7 +184,7 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<b /> <ref name="boo" />}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "self-closed-tag");
-				result[0].dsr.should.include.members([ 0, 31, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 31, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "b");
 				result[0].should.have.a.property("templateInfo");
@@ -195,14 +195,14 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|*}}hi').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "mixed-content");
-				result[0].dsr.should.include.members([ 0, 10, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 10, null, null ]);
 			});
 		});
 		it('should lint multi-template', function() {
 			return parseWT('{{1x|*}}{{1x|hi}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "multi-template");
-				result[0].dsr.should.include.members([ 0, 17, null, null ]);
+				result[0].dsr.should.deep.equal([ 0, 17, null, null ]);
 			});
 		});
 		it('should identify deletable table tag for T161341 (1)', function() {
@@ -221,7 +221,7 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("type", "deletable-table-tag");
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "table");
-				result[0].dsr.should.include.members([ 39, 72, 0, 0 ]);
+				result[0].dsr.should.deep.equal([ 39, 72, 0, 0 ]);
 			});
 		});
 		it('should identify deletable table tag for T161341 (2)', function() {
@@ -240,7 +240,7 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("type", "deletable-table-tag");
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "table");
-				result[0].dsr.should.include.members([ 58, 91, 0, 0 ]);
+				result[0].dsr.should.deep.equal([ 58, 91, 0, 0 ]);
 			});
 		});
 		it('should identify deletable table tag for T161341 (3)', function() {
@@ -259,7 +259,7 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("type", "deletable-table-tag");
 				result[0].should.have.a.property("templateInfo");
 				result[0].templateInfo.should.have.a.property("name", "1x");
-				result[0].dsr.should.include.members([ 0, 56, 0, 0 ]);
+				result[0].dsr.should.deep.equal([ 0, 56, null, null ]);
 			});
 		});
 		it('should identify deletable table tag for T161341 (4)', function() {
@@ -279,7 +279,7 @@ describe('Linter Tests', function() {
 				result[1].should.not.have.a.property("templateInfo");
 				result[1].should.have.a.property("params");
 				result[1].params.should.have.a.property("name", "table");
-				result[1].dsr.should.include.members([ 29, 31, 0, 0 ]);
+				result[1].dsr.should.deep.equal([ 29, 31, 0, 0 ]);
 			});
 		});
 	});
