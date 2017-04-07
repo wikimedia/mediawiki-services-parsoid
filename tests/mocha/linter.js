@@ -61,11 +61,40 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 			});
 		});
-		it('should lint stripped tags correctly in misnested tag situations', function() {
-			return parseWT('<b><i>a</b></i>').then(function(result) {
-				result.should.have.length(2);
-				result[1].should.have.a.property("type", "stripped-tag");
-				result[1].dsr.should.deep.equal([ 11, 15, null, null ]);
+		it('should lint stripped tags correctly in misnested tag situations (</i> is stripped)', function() {
+			return parseWT('<b><i>X</b></i>').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].dsr.should.deep.equal([ 3, 7, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "i");
+			});
+		});
+		it('should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)', function() {
+			return parseWT('<b><i>X</b>Y</i>').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].dsr.should.deep.equal([ 3, 7, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "i");
+			});
+		});
+		it('should lint stripped tags correctly in misnested tag situations (skip over empty autoinserted <small></small>)', function() {
+			return parseWT('*a<small>b\n*c</small>d').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].dsr.should.deep.equal([ 2, 10, 7, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "small");
+			});
+		});
+		it('should lint stripped tags correctly in misnested tag situations (formatting tags around lists, but ok for div)', function() {
+			return parseWT('<small>a\n*b\n*c\nd</small>\n<div>a\n*b\n*c\nd</div>').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].dsr.should.deep.equal([ 0, 8, 7, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "small");
 			});
 		});
 		it('should lint obsolete tags correctly', function() {
