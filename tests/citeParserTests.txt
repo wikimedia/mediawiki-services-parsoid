@@ -288,9 +288,7 @@ name cannot be a simple integer. Use a descriptive title</span>
 </p><p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
 </p><p><sup id="cite_ref-bar_2-0" class="reference"><a href="#cite_note-bar-2">&#91;2&#93;</a></sup>
 </p><p><sup id="cite_ref-blankwithnoreference_3-0" class="reference"><a href="#cite_note-blankwithnoreference-3">&#91;3&#93;</a></sup>
-</p><p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;references&gt;</code> tag;
-parameter "group" is allowed only.
-Use <code>&lt;references /&gt;</code>, or <code>&lt;references group="..." /&gt;</code></span>
+</p><p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid parameter in <code>&lt;references&gt;</code> tag</span>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Also zero, but differently! (Normal ref)</span>
