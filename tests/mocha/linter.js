@@ -352,5 +352,62 @@ describe('Linter Tests', function() {
 				result[1].dsr.should.deep.equal([ 29, 31, 0, 0 ]);
 			});
 		});
+		it('should identify rendering workarounds needed for doBlockLevels bug', function() {
+			var wt = [
+				"<div><span style='white-space:nowrap'>",
+				"a",
+				"</span>",
+				"</div>",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(3);
+				result[1].should.have.a.property("type", "pwrap-bug-workaround");
+				result[1].should.not.have.a.property("templateInfo");
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("root", "DIV");
+				result[1].params.should.have.a.property("child", "SPAN");
+				result[1].dsr.should.deep.equal([ 5, 48, 33, 0 ]);
+			});
+		});
+		it('should not lint doBlockLevels bug rendering workarounds if newline break is present', function() {
+			var wt = [
+				"<div>",
+				"<span style='white-space:nowrap'>",
+				"a",
+				"</span>",
+				"</div>",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.forEach(function(r) {
+					r.should.not.have.a.property("type", "pwrap-bug-workaround");
+				});
+			});
+		});
+		it('should not lint doBlockLevels bug rendering workarounds if nowrap CSS is not present', function() {
+			var wt = [
+				"<div><span>",
+				"a",
+				"</span>",
+				"</div>",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.forEach(function(r) {
+					r.should.not.have.a.property("type", "pwrap-bug-workaround");
+				});
+			});
+		});
+		it('should not lint doBlockLevels bug rendering workarounds where not required', function() {
+			var wt = [
+				"<div><small style='white-space:nowrap'>",
+				"a",
+				"</small>",
+				"</div>",
+			].join('\n');
+			return parseWT(wt).then(function(result) {
+				result.forEach(function(r) {
+					r.should.not.have.a.property("type", "pwrap-bug-workaround");
+				});
+			});
+		});
 	});
 });
