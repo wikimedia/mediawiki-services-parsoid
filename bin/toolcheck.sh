@@ -11,7 +11,7 @@ BIN=$(dirname $0)
 set -ev
 
 echo "Foo" | node $BIN/parse.js --wt2html
-echo "Foo" | node $BIN/parse.js --wt2html --pagebundle
+echo "Foo" | node $BIN/parse.js --wt2html --pageBundle
 echo "Foo" | node $BIN/parse.js --wt2wt
 echo "Foo" | node $BIN/parse.js --html2wt
 echo "Foo" | node $BIN/parse.js --html2html
