@@ -12,7 +12,6 @@
 	"--": [
 		".jsduck/external.js",
 		"lib/index.js",
-		"lib/jsapi.js",
 		"lib/logger/LogData.js",
 		"lib/logger/Logger.js",
 		"lib/logger/ParsoidLogger.js",

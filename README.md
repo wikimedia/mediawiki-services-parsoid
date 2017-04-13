@@ -34,8 +34,13 @@ https://www.mediawiki.org/wiki/Parsoid/Setup
 
 Developer API documentation can be found at
 https://doc.wikimedia.org/Parsoid/master/
-and some helpful getting-started guides are at
+
+And some helpful getting-started guides are at
 https://doc.wikimedia.org/Parsoid/master/
+
+An example of a library that builds on Parsoid output to offer an API that
+mimic's mwparserfromhell in JavaScript can be found at,
+https://github.com/wikimedia/parsoid-jsapi
 
 License
 -------

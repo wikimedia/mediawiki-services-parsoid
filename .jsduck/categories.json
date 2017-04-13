@@ -11,20 +11,7 @@
 			{
 				"name": "JavaScript Interface (experimental)",
 				"classes": [
-					"Parsoid",
-					"PComment",
-					"PDoc",
-					"PNodeList",
-					"PNode",
-					"PExtLink",
-					"PHeading",
-					"PHtmlEntity",
-					"PMedia",
-					"PTag",
-					"PTemplate",
-					"PTemplate.Parameter",
-					"PText",
-					"PWikiLink"
+					"Parsoid"
 				]
 			}
 		]

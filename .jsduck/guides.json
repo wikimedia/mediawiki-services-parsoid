@@ -19,12 +19,6 @@
 				"url": "../guides/apiuse",
 				"title": "Using Parsoid's HTTP API",
 				"description": "How to use Parsoid's HTTP API to parse and roundtrip wikitext."
-			},
-			{
-				"name": "jsapi",
-				"url": "../guides/jsapi",
-				"title": "Using Parsoid's JavaScript API",
-				"description": "How to use Parsoid's JavaScript API to parse and manipulate article content."
 			}
 		]
 	}
