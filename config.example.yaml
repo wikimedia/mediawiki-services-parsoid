@@ -37,8 +37,9 @@ services:
           uri: 'http://localhost/w/api.php'
           # The "domain" is used for communication with Visual Editor
           # and RESTBase.  It defaults to the hostname portion of
-          # the `uri` property below, but you can manually set it
-          # to an arbitrary string.
+          # the `uri` property above, but you can manually set it
+          # to an arbitrary string. It must match the "domain" set
+          # in $wgVirtualRestConfig.
           domain: 'localhost'  # optional
           # To specify a proxy (or proxy headers) specific to this prefix
           # (which overrides defaultAPIProxyURI). Alternatively, set `proxy`
