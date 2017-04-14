@@ -8,9 +8,11 @@ require('../core-upgrade.js');
 
    Basic use:
      $PARSOID is the path to a checked out git copy of Parsoid
-     $REPO is the path to a checked out git copy of the repo containing the parserTest file
-     $BRANCH is a branch name for the patch to $REPO (ie, 'pt-sync')
-     $TARGET is the key to parserTests.json we're sync'ing
+     $REPO is the path to a checked out git copy of the repo containing
+       the parserTest file. (Check the `repo` key in tests/parserTests.json)
+     $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
+     $TARGET identifies which set of parserTests we're synchronizing.
+       (This should be one of the top-level keys in tests/parserTests.json)
 
    $ cd $PARSOID
    $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
@@ -21,7 +23,7 @@ require('../core-upgrade.js');
      ... fix any failures by marking tests parsoid-only, etc ...
    $ git review
 
-     ... time passes, eventually your patch is merged to core ...
+     ... time passes, eventually your patch is merged to $REPO ...
 
    $ cd $PARSOID
    $ tools/fetch-parserTests.txt.js $TARGET --force
