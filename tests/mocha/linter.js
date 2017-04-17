@@ -138,6 +138,27 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 18, 2, 2 ]);
 			});
 		});
+		it('should not lint fostered categories', function() {
+			return parseWT('{|\n[[Category:Fostered]]\n|-\n| bar\n|}').then(function(result) {
+				result.should.have.length(0);
+			});
+		});
+		it('should not lint fostered behavior switches', function() {
+			return parseWT('{|\n__NOTOC__\n|-\n| bar\n|}').then(function(result) {
+				result.should.have.length(0);
+			});
+		});
+		it('should not lint fostered include directives without fostered content', function() {
+			return parseWT('{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}').then(function(result) {
+				result.should.have.length(0);
+			});
+		});
+		it('should lint fostered include directives that has fostered content', function() {
+			return parseWT('{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "fostered");
+			});
+		});
 		it('should lint ignored table attributes Correctly', function() {
 			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
