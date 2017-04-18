@@ -51,6 +51,8 @@ describe('Linter Tests', function() {
 			return parseWT('foo</div>').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "DIV");
 				result[0].dsr.should.deep.equal([ 3, 9, null, null ]);
 			});
 		});
@@ -58,6 +60,8 @@ describe('Linter Tests', function() {
 			return parseWT('{{1x|<div>foo</div></div>}}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "DIV");
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 			});
 		});
