@@ -74,6 +74,15 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "i");
 			});
 		});
+		it('should lint stripped tags correctly in misnested tag situations from template (</i> is stripped)', function() {
+			return parseWT('{{1x|<b><i>X</b></i>}}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].dsr.should.deep.equal([ 0, 22, null, null ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "i");
+			});
+		});
 		it('should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)', function() {
 			return parseWT('<b><i>X</b>Y</i>').then(function(result) {
 				result.should.have.length(1);
