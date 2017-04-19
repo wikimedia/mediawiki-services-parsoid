@@ -5304,6 +5304,49 @@ Bracketed external links with template-generated invalid target
 </p>
 !! end
 
+# wt2html only because Parsoid would want to add <nowiki>s coming from html
+!! test
+Broken wikilinks (but not external links) prevent templates from closing
+!! options
+parsoid=wt2html
+!! wikitext
+[http://example.com x
+
+{{echo|[http://example.com x}}
+
+[[Foo
+
+{{echo|[[Foo}}
+!! html/php
+<p>[<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a> x
+</p><p>[<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a> x
+</p><p>[[Foo
+</p><p>{{echo|[[Foo}}
+</p>
+!! html/parsoid
+<p>[<a rel="mw:ExtLink" href="http://example.com">http://example.com</a> x</p>
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[http://example.com x"}},"i":0}}]}'>[<a rel="mw:ExtLink" href="http://example.com">http://example.com</a> x</p>
+<p>[[Foo</p>
+<p>{{echo|[[Foo}}</p>
+!! end
+
+!! test
+Broken templates
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|[[Foo|}}]]
+
+[[Foo|{{echo|]]}}
+!! html/php
+<p>{{echo|<a href="/wiki/Foo" title="Foo">}}</a>
+</p><p>[[Foo|]]
+</p>
+!! html/parsoid
+<p>{{echo|<a rel="mw:WikiLink" href="./Foo" title="Foo">}}</a></p>
+<p>[[Foo|<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"]]"}},"i":0}}]}'>]]</span></p>
+!! end
+
 !! test
 T4702: Mismatched <i>, <b> and <a> tags are invalid
 !! wikitext
@@ -10477,6 +10520,14 @@ Parsoid: Page property magic word with magic word contents
 Parsoid: Template-generated DISPLAYTITLE
 !! wikitext
 {{{{echo|DISPLAYTITLE}}:Foo}}
+!! options
+showtitle
+!! config
+wgAllowDisplayTitle=true
+wgRestrictDisplayTitle=false
+!! html/php
+Foo
+
 !! html/parsoid
 <meta property="mw:PageProp/displaytitle" content="Foo" about="#mwt1" typeof="mw:ExpandedAttrs" data-parsoid='{"pi":[[]]}' data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,23,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"DISPLAYTITLE\"}},\"i\":0}}]}&#39;>DISPLAYTITLE&lt;/span>:Foo"}]]}'/>
 !! end
@@ -11321,17 +11372,23 @@ T2041: Template parameters shown as broken links
 
 !! test
 Template with targets containing wikilinks
+!! options
+parsoid=wt2html
 !! wikitext
 {{[[foo]]}}
 
 {{[[{{echo|foo}}]]}}
 
 {{{{echo|[[foo}}]]}}
-!! html
+!! html/php
 <p>{{<a href="/wiki/Foo" title="Foo">foo</a>}}
 </p><p>{{<a href="/wiki/Foo" title="Foo">foo</a>}}
 </p><p>{{[[foo}}]]
 </p>
+!! html/parsoid
+<p>{{<a rel="mw:WikiLink" href="./Foo" title="Foo">foo</a>}}</p>
+<p>{{<a typeof="mw:ExpandedAttrs" rel="mw:WikiLink" href="./Foo" title="Foo" data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}&#39;>foo&lt;/span>"}]]}'>foo</a>}}</p>
+<p>{{<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[foo}}]]"}},"i":0}}]}'>[[foo}}]]</span></p>
 !! end
 
 !! article
@@ -14945,6 +15002,7 @@ Render invalid page names as plain text (T53090)
 [[.]]
 [[..]]
 [[foo././bar]]
+[[foo[http://example.com]xyz]]
 
 [[{{echo|./../foo}}|bar]]
 [[{{echo|foo/.}}|bar]]
@@ -14968,6 +15026,7 @@ Render invalid page names as plain text (T53090)
 [[.]]
 [[..]]
 [[foo././bar]]
+[[foo<a rel="nofollow" class="external autonumber" href="http://example.com">[1]</a>xyz]]
 </p><p>[[./../foo|bar]]
 [[foo/.|bar]]
 [[foo/..|bar]]
@@ -14990,7 +15049,8 @@ Render invalid page names as plain text (T53090)
 [[foo[bar]]
 [[.]]
 [[..]]
-[[foo././bar]]</p>
+[[foo././bar]]
+[[foo<a rel="mw:ExtLink" href="http://example.com"></a>xyz]]</p>
 
 <p>[[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"./../foo"}},"i":0}}]}'>./../foo</span>|bar]]
 [[<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo/."}},"i":0}}]}'>foo/.</span>|bar]]
@@ -17980,8 +18040,8 @@ MOVE YOUR MOUSE CURSOR OVER THIS TEXT
 
 !! html/parsoid
 <p data-parsoid='{"fostered":true,"autoInsertedEnd":true}'>{{{|
-<u class="|" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}":null},"sa":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}","html":"{&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[21,79,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&amp;lt;noinclude>\"},\"params\":{},\"i\":0}}]}&#39;>{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}&lt;/span>}"},{"html":""}]]}'>
-<br style="onmouseover='alert(document.cookie);' " data-parsoid='{"stx":"html","selfClose":true}'/></u></p><p data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><u class="|" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}":null},"sa":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&lt;noinclude>}}}}":""},"autoInsertedEnd":true,"autoInsertedStart":true}' data-mw='{"attribs":[[{"txt":"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}}","html":"{&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[21,79,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->&amp;lt;noinclude>\"},\"params\":{},\"i\":0}}]}&#39;>{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx-->}}}&lt;/span>}"},{"html":""}]]}'>MOVE YOUR MOUSE CURSOR OVER THIS TEXT</u></p><table data-parsoid='{"autoInsertedEnd":true}'>
+<u class="|" data-parsoid='{"stx":"html","a":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--":null},"sa":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--":""},"autoInsertedEnd":true}'><meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>}}}} >
+<br style="onmouseover='alert(document.cookie);' " data-parsoid='{"stx":"html","selfClose":true}'/></u></p><p data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><u class="|" data-parsoid='{"stx":"html","a":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--":null},"sa":{"{{{{SSSll!!!!!!!VVVV)]]][[Special:*xxxxxxx--":""},"autoInsertedEnd":true,"autoInsertedStart":true}'>MOVE YOUR MOUSE CURSOR OVER THIS TEXT</u></p><table data-parsoid='{"autoInsertedEnd":true}'>
 
 
 
