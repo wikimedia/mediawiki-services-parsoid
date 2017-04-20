@@ -2736,6 +2736,39 @@ Templates: Don't strip whitespace from positional-param values
 !! end
 
 !! test
+Templates: Don't recognize targets split by newlines
+!! options
+parsoid=wt2html
+!! wikitext
+{{ech
+o|foo}}
+!! html/php
+<p>{{ech
+o|foo}}
+</p>
+!! html/parsoid
+<p>{{ech
+o|foo}}</p>
+!! end
+
+!! test
+Templates: Recognize targets when newlines and comments don't split the target
+!! options
+parsoid=wt2html
+!! wikitext
+{{  
+ <!--X--> ech<!--X-->o<!--X-->  
+   <!--X-->   <!--X-->
+
+ |foo}}
+!! html/php
+<p>foo
+</p>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"ech&lt;!--X-->o&lt;!--X-->  \n   &lt;!--X-->   &lt;!--X-->\n\n ","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
+!! end
+
+!! test
 Templates: Handle empty comment-and-ws-only lines correctly
 !! wikitext
 {{echo|foo
