@@ -11056,6 +11056,24 @@ Templates with templated name
 <ul about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|inner list}} ","href":"./Template:Inner_list"},"params":{},"i":0}}]}'><li> item 1</li></ul>
 !! end
 
+# Parsoid markup is deliberate "broken". This is an edge case.
+# See long comment in TemplateHandler.js:convertAttribsToString.
+!! test
+Templates with invalid templated targets
+!! wikitext
+{{echo
+{{echo|foo}}
+}}
+!! html/php
+<p>{{echo
+foo
+}}
+</p>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo\n{{echo|foo}}\n"},"params":{},"i":0}}]}'>{{echo
+foo }}</p>
+!! end
+
 !! test
 Template with thumb image (with link in description)
 !! wikitext
