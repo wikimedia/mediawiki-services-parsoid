@@ -134,7 +134,7 @@ Simple audio element
 <div class="mediaContainer" style="width:180px"><audio id="mwe_player_1" controls="" preload="none" style="width:180px" class="kskin" data-durationhint="0.99875" data-startoffset="0" data-mwtitle="Audio.oga" data-mwprovider="local">
 <source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source" data-width="0" data-height="0" data-bandwidth="41107" /></audio></div>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Audio"><span><video controls="" preload="none" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type="application/ogg"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:Audio"><span><video controls="" preload="none" height="20" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type="application/ogg"/></video></span></span></p>
 !! end
 
 !! test
