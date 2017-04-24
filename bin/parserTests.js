@@ -1516,9 +1516,12 @@ Promise.resolve(null).then(function() {
 			Object.keys(stats).forEach(function(k) {
 				stats[k] += result.stats[k]; // Sum all stats
 			});
-			return [ runner, exitCode || result.exitCode ];
+			return exitCode || result.exitCode;
 		});
 	}, 0)
+	.then(function(exitCode) {
+		return [ runner, exitCode ];
+	})
 	.tap(function() {
 		options.reportSummary([], stats, null, stats.loggedErrorCount, null);
 	});
