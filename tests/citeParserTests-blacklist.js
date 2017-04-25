@@ -23,11 +23,10 @@
  * helper function to create the array if needed then append the test type.
  */
 
-/* exported add */
 'use strict';
 
 var testBlackList = {};
-var add = function(testtype, title, raw) {
+var add = function(testtype, title, raw) {  // eslint-disable-line
 	if (typeof (testBlackList[title]) !== 'object') {
 		testBlackList[title] = {
 			modes: [],

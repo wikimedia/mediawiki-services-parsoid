@@ -1,9 +1,0 @@
-coverage
-doc
-extensions
-node_modules
-lib/api/static/js/jquery.js
-lib/wt2html/mediawiki.tokenizer.js
-tests/server/static/js/jquery-min.js
-tests/server/node_modules
-tests/parserTests-blacklist.js

@@ -44,16 +44,15 @@ var fetch = function(page, revid, opts) {
 		Util.setDebuggingFlags(parsoidConfig, opts);
 	};
 
-	var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
+	var pc = new ParsoidConfig({ setup: setup }, config);
 	if (!prefix) {
 		// domain has been provided
-		prefix = parsoidConfig.reverseMwApiMap.get(domain);
+		prefix = pc.reverseMwApiMap.get(domain);
 	} else if (!domain) {
 		// prefix has been set
-		domain = parsoidConfig.mwApiMap.get(prefix).domain;
+		domain = pc.mwApiMap.get(prefix).domain;
 	}
-
-	parsoidConfig.defaultWiki = prefix;
+	pc.defaultWiki = prefix;
 
 	var env;
 	var outputPrefix = prefix + "." + page;
@@ -61,38 +60,46 @@ var fetch = function(page, revid, opts) {
 		uri: null,
 		method: 'GET',
 		headers: {
-			'User-Agent': parsoidConfig.userAgent,
+			'User-Agent': pc.userAgent,
 		},
 	};
-	MWParserEnvironment.getParserEnv(parsoidConfig, {
+
+	MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
-	}).then(function(_env) {
+	})
+	.then(function(_env) {
 		// Fetch wikitext from mediawiki API
 		env = _env;
 		var target = page ?
 			env.normalizeAndResolvePageTitle() : null;
 		return TemplateRequest.setPageSrcInfo(env, target, revid);
-	}).then(function() {
+	})
+	.then(function() {
 		fs.writeFileSync(outputPrefix + ".wt", env.page.src, 'utf8');
-	}).then(function() {
+	})
+	.then(function() {
 		// Fetch HTML from RESTBase
 		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.phpURLEncode(page) + (revid ? "/" + revid : "");
 		return Util.retryingHTTPRequest(2, rbOpts);
-	}).then(function(resp) {
+	})
+	.then(function(resp) {
 		fs.writeFileSync(outputPrefix + ".html", resp[1], 'utf8');
 		return resp[0].headers.etag.replace(/"/g, '');
-	}).then(function(etag) {
+	})
+	.then(function(etag) {
 		// Fetch matching data-parsoid form RESTBase
 		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.phpURLEncode(page) + "/" + etag;
 		return Util.retryingHTTPRequest(2, rbOpts);
-	}).then(function(resp) {
+	})
+	.then(function(resp) {
 		// RESTBase doesn't have the outer wrapper
 		// that the parse.js script expects
 		var pb = '{"parsoid":' + resp[1] + "}";
 		fs.writeFileSync(outputPrefix + ".pb.json", pb, 'utf8');
-	}).done(function() {
+	})
+	.done(function() {
 		console.log("If you are debugging a bug report on a VE edit, make desired edit to the HTML file and save to a new file.");
 		console.log("Then run the following script to generated edited wikitext");
 		console.log("parse.js --html2wt --selser --oldtextfile " + outputPrefix + ".wt"
@@ -103,7 +110,7 @@ var fetch = function(page, revid, opts) {
 };
 
 var usage = 'Usage: $0 [options] <page-title> <optional-rev-id>\n';
-var opts = yargs.usage(usage, {
+var yopts = yargs.usage(usage, {
 	'config': {
 		description: "Path to a config.yaml file. Defaults to the server's config.yaml",
 		'default': true,
@@ -129,7 +136,7 @@ var opts = yargs.usage(usage, {
 });
 
 (function() {
-	var argv = opts.argv;
+	var argv = yopts.argv;
 	var title = argv.title;
 	var error;
 	if (!title) {
@@ -148,7 +155,7 @@ var opts = yargs.usage(usage, {
 			console.error('ERROR:', error);
 			console.error(buf);
 		}
-		opts.showHelp();
+		yopts.showHelp();
 		return;
 	}
 

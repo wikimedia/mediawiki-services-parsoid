@@ -48,21 +48,21 @@ var update = function(opts) {
 		Util.setDebuggingFlags(parsoidConfig, opts);
 	};
 
-	var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
-
-	parsoidConfig.defaultWiki = prefix ? prefix :
-		parsoidConfig.reverseMwApiMap.get(domain);
+	var pc = new ParsoidConfig({ setup: setup }, config);
+	pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
 	var env;
-	return MWParserEnvironment.getParserEnv(parsoidConfig, {
+	return MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
 		pageName: MWParserEnvironment.prototype.defaultPageName,
-	}).then(function(_env) {
+	})
+	.then(function(_env) {
 		env = _env;
 		var wiki = env.conf.wiki;
 		return ConfigRequest.promise(wiki.apiURI, env, wiki.apiProxy);
-	}).then(function(resultConf) {
+	})
+	.then(function(resultConf) {
 		var configDir = path.resolve(__dirname, '../lib/config');
 		var iwp = env.conf.wiki.iwp;
 		// HACK for be-tarask
@@ -79,7 +79,8 @@ var update = function(opts) {
 var usage = 'Usage: $0 [options]\n' +
 	'Rewrites one cached siteinfo configuration.\n' +
 	'Use --domain or --prefix to select which one to rewrite.';
-var opts = yargs.usage(usage, Util.addStandardOptions({
+
+var yopts = yargs.usage(usage, Util.addStandardOptions({
 	'config': {
 		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,
@@ -97,11 +98,10 @@ var opts = yargs.usage(usage, Util.addStandardOptions({
 }));
 
 (function() {
-	var argv = opts.argv;
+	var argv = yopts.argv;
 	if (argv.help) {
-		opts.showHelp();
+		yopts.showHelp();
 		return;
 	}
-
 	update(argv).done();
 }());

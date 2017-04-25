@@ -410,10 +410,8 @@ if (require.main === module) {
 			Util.setDebuggingFlags(parsoidConfig, argv);
 		};
 
-		var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
-
-		parsoidConfig.defaultWiki = prefix ? prefix :
-			parsoidConfig.reverseMwApiMap.get(domain);
+		var pc = new ParsoidConfig({ setup: setup }, config);
+		pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
 		var nock, dir, nocksFile;
 		if (argv.record || argv.replay) {
@@ -442,13 +440,13 @@ if (require.main === module) {
 			}
 		}
 
-		return parse(null, argv, parsoidConfig, prefix, domain).then(function(res) {
+		return parse(null, argv, pc, prefix, domain)
+		.then(function(res) {
 			var stdout = process.stdout;
 			stdout.write(res.out);
 			if (res.trailingNL && stdout.isTTY) {
 				stdout.write('\n');
 			}
-
 			if (argv.record) {
 				var nockCalls = nock.recorder.play();
 				var stream = fs.createWriteStream(nocksFile);

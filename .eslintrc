@@ -1,0 +1,31 @@
+{
+  "extends": "node-style-guide",
+  "globals": {
+      "Map": true,
+      "Set": true,
+  },
+  "rules": {
+    "quotes": 0,
+    "max-depth": 0,
+    "max-len": 0,
+    "max-statements": 0,
+    "no-bitwise": 2,
+    "camelcase": [2, { "properties": "never" }],
+    "strict": [2, "global"],
+    "no-unused-vars": [2, { "args": "none" }],
+    "brace-style": [2, "1tbs", { "allowSingleLine": true }],
+    "no-shadow": [2, { "builtinGlobals": true, "hoist": "all" }],
+    "indent": [2, "tab", { "SwitchCase": 1 }],
+
+    // Maybe enforce these in some agreed upon way?
+    "object-curly-spacing": 0,
+    "array-bracket-spacing": 0,
+
+    // Workaround until a new style-guide release
+    "space-after-keywords": 0,
+    "keyword-spacing": [2, { "before": true, "after": true }],
+
+    // Should we re-enable these?
+    "valid-jsdoc": 0,
+  }
+}

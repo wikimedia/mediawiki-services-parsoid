@@ -171,7 +171,7 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 	if (profile) {
 		// Delete the start time to avoid serializing it
 		if (profile.time && profile.time.start) {
-			delete(profile.time.start);
+			delete profile.time.start;
 		}
 		output += '<perfstats>\n';
 		Object.keys(profile).forEach(function(type) {
@@ -333,10 +333,10 @@ var normalizeWikitext = function(str) {
 	// str = str.replace(/([<"'!#\*:;+-=|{}\[\]\/]) /g, "$1");
 	// Ignore capitalization of tags and void tag indications
 	str = str.replace(/<(\/?)([^ >\/]+)((?:[^>\/]|\/(?!>))*)\/?>/g,
-			function(match, close, name, remaining) {
-		return '<' + close + name.toLowerCase() +
-			remaining.replace(/ $/, '') + '>';
-	});
+		function(match, close, name, remaining) {
+			return '<' + close + name.toLowerCase() +
+				remaining.replace(/ $/, '') + '>';
+		});
 	// Ignore whitespace in table cell attributes
 	str = str.replace(/(^|\n|\|(?=\|)|!(?=!))(\{\||\|[\-+]*|!) *([^|\n]*?) *(?=[|\n]|$)/g, '$1$2$3');
 	// Ignore trailing semicolons and spaces in style attributes
@@ -700,7 +700,7 @@ function runTests(title, options, formatter, cb) {
 
 
 if (require.main === module) {
-	var options = {
+	var standardOpts = {
 		xml: {
 			description: 'Use xml callback',
 			boolean: true,
@@ -752,7 +752,7 @@ if (require.main === module) {
 			'Usage: $0 [options] <page-title> \n' +
 			'The page title should be the "true title",' +
 			'i.e., without any url encoding which might be necessary if it appeared in wikitext.' +
-			'\n\n', options
+			'\n\n', standardOpts
 		).strict();
 
 		var argv = opts.argv;

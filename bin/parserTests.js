@@ -1031,16 +1031,16 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 		parsoidConfig.timeouts.mwApi.connect = 10000;
 	};
 
-	var parsoidConfig = new ParsoidConfig({ setup: setup }, options);
+	var pc = new ParsoidConfig({ setup: setup }, options);
 
 	// Create a new parser environment
-	return MWParserEnvironment.getParserEnv(parsoidConfig, { prefix: 'enwiki' })
+	return MWParserEnvironment.getParserEnv(pc, { prefix: 'enwiki' })
 	.then(function(env) {
 		this.env = env;
 
 		if (Util.booleanOption(options.quiet)) {
 			var logger = new ParsoidLogger(env);
-			logger.registerLoggingBackends(["fatal", "error"], parsoidConfig);
+			logger.registerLoggingBackends(["fatal", "error"], pc);
 			env.setLogger(logger);
 		}
 
@@ -1049,7 +1049,7 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 		// messages.
 		this.defaultLogger = env.logger;
 		this.suppressLogger = new ParsoidLogger(env);
-		this.suppressLogger.registerLoggingBackends(["fatal"], parsoidConfig);
+		this.suppressLogger.registerLoggingBackends(["fatal"], pc);
 
 		// Override env's `setLogger` to record if we see `fatal` or `error`
 		// while running parser tests.  (Keep it clean, folks!  Use
@@ -1144,7 +1144,6 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 			for (var j = 0; j < item.selserChangeTrees.length; j++) {
 				// we create the function in the loop but are careful to
 				// bind loop variables i and j at function creation time
-				/* jshint loopfunc: true */
 				tasks.push(function(modeIndex, changesIndex, cb) {
 					if (done) {
 						setImmediate(cb);

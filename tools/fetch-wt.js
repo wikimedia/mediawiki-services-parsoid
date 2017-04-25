@@ -48,23 +48,23 @@ var fetch = function(page, revid, opts) {
 		Util.setDebuggingFlags(parsoidConfig, opts);
 	};
 
-	var parsoidConfig = new ParsoidConfig({ setup: setup }, config);
-
-	parsoidConfig.defaultWiki = prefix ? prefix :
-		parsoidConfig.reverseMwApiMap.get(domain);
+	var pc = new ParsoidConfig({ setup: setup }, config);
+	pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
 	var env;
 	var target;
-	MWParserEnvironment.getParserEnv(parsoidConfig, {
+	MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
-	}).then(function(_env) {
+	})
+	.then(function(_env) {
 		env = _env;
 		target = page ?
 			env.normalizeAndResolvePageTitle() : null;
 		return TemplateRequest.setPageSrcInfo(env, target, revid);
-	}).then(function() {
+	})
+	.then(function() {
 		if (opts.output) {
 			fs.writeFileSync(opts.output, env.page.src, 'utf8');
 		} else {
@@ -79,7 +79,8 @@ var fetch = function(page, revid, opts) {
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
-var opts = yargs.usage(usage, Util.addStandardOptions({
+
+var yopts = yargs.usage(usage, Util.addStandardOptions({
 	'output': {
 		description: "Write page to given file",
 	},
@@ -108,7 +109,7 @@ var opts = yargs.usage(usage, Util.addStandardOptions({
 }));
 
 (function() {
-	var argv = opts.argv;
+	var argv = yopts.argv;
 	var title = null;
 	var revid = null;
 	var error;
@@ -138,7 +139,7 @@ var opts = yargs.usage(usage, Util.addStandardOptions({
 			console.error('ERROR:', error);
 			console.error(buf);
 		}
-		opts.showHelp();
+		yopts.showHelp();
 		return;
 	}
 
