@@ -16,7 +16,7 @@ var fakeConfig = {
 require(configPath).setup(fakeConfig);  // Set limits
 
 var api, runner;
-var defaultContentVersion = '1.3.0';
+var defaultContentVersion = '1.4.0';
 var mockDomain = 'customwiki';
 
 function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
