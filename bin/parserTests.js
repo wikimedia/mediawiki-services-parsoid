@@ -4,7 +4,9 @@
  *
  * This pulls all the parserTests.txt items and runs them through Parsoid.
  */
+
 'use strict';
+
 require('../core-upgrade.js');
 
 var serviceWrapper = require('../tests/serviceWrapper.js');

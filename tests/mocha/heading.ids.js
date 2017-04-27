@@ -1,4 +1,5 @@
 'use strict';
+
 /* global describe, it */
 
 require('../../core-upgrade.js');

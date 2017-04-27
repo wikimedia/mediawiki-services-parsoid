@@ -1,4 +1,5 @@
 'use strict';
+
 var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var MWParserEnvironment = require('../../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 

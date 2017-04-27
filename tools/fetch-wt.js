@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+
 'use strict';
+
 require('../core-upgrade.js');
 
 /** Fetch the wikitext for a page, given title or revision id.

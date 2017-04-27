@@ -2,7 +2,9 @@
  * Example configuration for the testreduce client.js script
  * Copy this file to config.js and change the values as needed.
  */
+
 'use strict';
+
 var path = require('path');
 
 (function() {

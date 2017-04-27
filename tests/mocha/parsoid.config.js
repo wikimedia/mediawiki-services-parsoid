@@ -1,5 +1,7 @@
 /** Test cases for the linter */
+
 'use strict';
+
 require('../../core-upgrade.js');
 /* global describe, it */
 

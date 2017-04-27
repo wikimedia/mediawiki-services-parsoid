@@ -5,6 +5,7 @@
  */
 
 'use strict';
+
 require('../core-upgrade.js');
 
 var Promise = require('../lib/utils/promise.js');

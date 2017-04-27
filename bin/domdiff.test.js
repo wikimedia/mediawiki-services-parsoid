@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+
 'use strict';
+
 require('../core-upgrade.js');
 
 var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;

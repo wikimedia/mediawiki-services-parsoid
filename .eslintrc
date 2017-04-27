@@ -41,8 +41,5 @@
     "jsdoc/newline-after-description": [0, "never"],
     "jsdoc/require-param-type": 0,
     "jsdoc/require-returns-type": 0,
-
-    // Autofix these
-    "lines-around-directive": 0,
   }
 }

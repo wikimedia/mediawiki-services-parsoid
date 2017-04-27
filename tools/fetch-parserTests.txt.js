@@ -2,7 +2,9 @@
 /**
  * Fetch new parserTests.txt from upstream mediawiki/core.
  */
+
 'use strict';
+
 require('../core-upgrade.js');
 
 // UPDATE THESE when upstream mediawiki/core includes new parsoid-relevant tests

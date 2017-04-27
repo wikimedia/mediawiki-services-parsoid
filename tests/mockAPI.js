@@ -2,6 +2,7 @@
 // for the purposes of testing extension expansion.
 
 'use strict';
+
 require('../core-upgrade.js');
 
 var express = require('express');

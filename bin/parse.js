@@ -3,7 +3,9 @@
  * Command line parse utility.
  * Read from STDIN, write to STDOUT.
  */
+
 'use strict';
+
 require('../core-upgrade.js');
 
 var ParserEnv = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;

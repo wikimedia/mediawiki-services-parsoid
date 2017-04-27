@@ -1,5 +1,7 @@
 /** Test cases for lib/mediawiki.Util.js */
+
 'use strict';
+
 require('../../core-upgrade.js');
 /* global describe, it */
 

@@ -1,4 +1,5 @@
 'use strict';
+
 require('../core-upgrade.js');
 
 /**
