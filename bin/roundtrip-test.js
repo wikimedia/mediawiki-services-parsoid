@@ -302,8 +302,8 @@ var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	//     swallows newlines into template context.
 	// See https://phabricator.wikimedia.org/T89628
 	if (nlDiffs) {
-		offsetRange.start = offsetRange.start - 1;
-		offsetRange.end = offsetRange.end + 1;
+		offsetRange.start -= 1;
+		offsetRange.end += 1;
 	}
 
 	var html = '';

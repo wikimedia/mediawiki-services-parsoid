@@ -713,7 +713,7 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	// Build a list of tasks for this test that will be passed to async.waterfall
 	var finishHandler = function(err) {
 		setImmediate(endCb, err);
-	}.bind(this);
+	};
 
 	var testTasks = [];
 
@@ -1384,8 +1384,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		('disabled' in item.options && !this.runDisabled) ||
 		('php' in item.options &&
 			!('html/parsoid' in item || this.runPHP)) ||
-		(this.testFilter &&
-			-1 === item.title.search(this.testFilter))) {
+		(this.testFilter && item.title.search(this.testFilter) === -1)) {
 		// Skip test whose title does not match --filter
 		// or which is disabled or php-only
 		this.comments = [];
@@ -1418,7 +1417,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 	var prefix = item.options.language || 'enwiki';
 	if (!/wiki/.test(prefix)) {
 		// Convert to our enwiki.. format
-		prefix = prefix + 'wiki';
+		prefix += 'wiki';
 	}
 	this.env.switchToConfig(prefix, function(err2) {
 		if (err2) { return nextCallback(err2); }

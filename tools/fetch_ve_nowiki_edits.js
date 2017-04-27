@@ -59,9 +59,9 @@ processRes = function(fetchArgs, out, err, resp, body) {
 		out);
 
 	// More to fetch?
-	var resContinue = body['continue'];
+	var resContinue = body.continue;
 	if (resContinue) {
-		fetchArgs.opts['continue'] = resContinue['continue'];
+		fetchArgs.opts.continue = resContinue.continue;
 		fetchArgs.opts.rccontinue = resContinue.rccontinue;
 		fetchAll(fetchArgs, out);
 	} else {

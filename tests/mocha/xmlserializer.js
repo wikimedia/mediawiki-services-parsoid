@@ -1,4 +1,4 @@
-/*global describe, it*/
+/* global describe, it */
 'use strict';
 
 var domino = require('domino');

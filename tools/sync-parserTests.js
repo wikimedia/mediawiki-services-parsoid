@@ -63,7 +63,7 @@ var strip = function(s) {
 		opts.showHelp();
 		var morehelp = fs.readFileSync(__filename, 'utf8');
 		morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
-		console.log(morehelp.replace(/^   /mg, ''));
+		console.log(morehelp.replace(/^ {3}/mg, ''));
 		return;
 	}
 

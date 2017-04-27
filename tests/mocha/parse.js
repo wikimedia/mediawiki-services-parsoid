@@ -1,7 +1,7 @@
 /** Test cases for lib/mediawiki.Util.js */
 'use strict';
 require('../../core-upgrade.js');
-/*global describe, it*/
+/* global describe, it */
 
 require("chai").should();
 var url = require('url');

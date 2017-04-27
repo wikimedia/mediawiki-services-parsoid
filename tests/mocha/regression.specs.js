@@ -1,5 +1,5 @@
 'use strict';
-/*global describe, it*/
+/* global describe, it */
 
 require('../../core-upgrade.js');
 require("chai").should();

@@ -1,6 +1,6 @@
 /** Cases for spec'ing use of templatedata while converting HTML to wikitext */
 'use strict';
-/*global describe, it, before, after*/
+/* global describe, it, before, after */
 
 var serviceWrapper = require('../serviceWrapper.js');
 var request = require('supertest');

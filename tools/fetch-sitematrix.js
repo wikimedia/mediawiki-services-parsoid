@@ -9,11 +9,12 @@ require('../core-upgrade.js');
 
 var Promise = require('../lib/utils/promise.js');
 var fs = require('fs');
+var path = require('path');
 
 var writeFile = Promise.promisify(fs.writeFile, false, fs);
 var request = Promise.promisify(require('request'), true);
 var downloadUrl = 'https://en.wikipedia.org/w/api.php?action=sitematrix&format=json';
-var filename = __dirname + '/../lib/config/sitematrix.json';
+var filename = path.join(__dirname, '/../lib/config/sitematrix.json');
 
 request({
 	url: downloadUrl,

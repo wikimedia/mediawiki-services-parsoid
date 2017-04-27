@@ -1,6 +1,6 @@
 /** Cases for testing the Parsoid API through HTTP */
 'use strict';
-/*global describe, it, before, after*/
+/* global describe, it, before, after */
 
 var Util = require('../../lib/utils/Util.js').Util;
 var serviceWrapper = require('../serviceWrapper.js');
