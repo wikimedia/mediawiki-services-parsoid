@@ -50,7 +50,7 @@ describe('ParserPipelineFactory', function() {
 
 		it('should support json contentmodel', function() {
 			var opts = { contentmodel: 'json' };
-			var testval = {a: "a", b: [2, true, ""], c: null};
+			var testval = { a: "a", b: [2, true, ""], c: null };
 			return parse(JSON.stringify(testval), opts).then(function(doc) {
 				doc.should.have.property('nodeName', '#document');
 				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);

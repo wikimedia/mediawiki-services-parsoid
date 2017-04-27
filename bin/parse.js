@@ -429,7 +429,7 @@ if (require.main === module) {
 
 		if (argv.record) {
 			nock = require('nock');
-			nock.recorder.rec({dont_print: true});
+			nock.recorder.rec({ dont_print: true });
 		} else if (argv.replay) {
 			try {
 				require(nocksFile);

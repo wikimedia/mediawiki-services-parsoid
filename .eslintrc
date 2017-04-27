@@ -18,7 +18,7 @@
     "indent": [2, "tab", { "SwitchCase": 1 }],
 
     // Maybe enforce these in some agreed upon way?
-    "object-curly-spacing": 0,
+    "object-curly-spacing": [2, "always"],
     "array-bracket-spacing": 0,
 
     // Workaround until a new style-guide release
