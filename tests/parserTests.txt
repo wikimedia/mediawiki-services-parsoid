@@ -17498,14 +17498,12 @@ all additional text is vanished
 
 !! test
 Self closed html pairs (T7487)
-!! options
 !! wikitext
 <center><font id="bug" />Centered text</center>
 <div><font id="bug2" />In div text</div>
-!! html
-<center>&lt;font id="bug" /&gt;Centered text</center>
-<div>&lt;font id="bug2" /&gt;In div text</div>
-
+!! html+tidy
+<center><font id="bug"></font>Centered text</center>
+<div><font id="bug2"></font>In div text</div>
 !! end
 
 #
