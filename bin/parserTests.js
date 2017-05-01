@@ -1510,6 +1510,7 @@ Promise.resolve(null).then(function() {
 		failures: 0,
 	};
 	return Promise.reduce(testFilePaths, function(exitCode, testFilePath) {
+		if (exitCode !== 0 && options['exit-unexpected']) { return exitCode; }
 		var ptests = new ParserTests(testFilePath, options.modes);
 		return ptests.main(options, mockURL)
 		.then(function(result) {
