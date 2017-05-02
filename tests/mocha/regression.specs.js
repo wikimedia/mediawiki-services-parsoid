@@ -5,6 +5,7 @@
 require('../../core-upgrade.js');
 require("chai").should();
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
+var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var helpers = require('./test.helpers.js');
 
 // FIXME: MWParserEnvironment.getParserEnv and switchToConfig both require
@@ -16,6 +17,8 @@ var parse = function(src, options) {
 		return ret.doc;
 	});
 };
+
+var serialize = helpers.serialize.bind(null, parsoidConfig);
 
 // These are regression specs for when we fix bugs that cannot be easily
 // verified with the parser tests framework
@@ -30,6 +33,30 @@ describe('Regression Specs', function() {
 				should.equal('./Main_Page#cite_note-1');
 			result.body.querySelector("#cite_note-1 a").getAttribute('href').
 				should.equal('./Main_Page#cite_ref-1');
+		});
+	});
+
+	it('should prevent regression of T153107', function() {
+		var wt = '[[Foo|bar]]';
+		return parse(wt).then(function(result) {
+			var origDOM = result.body;
+			// This is mimicking a copy/paste in an editor
+			var editedHTML = origDOM.innerHTML + origDOM.innerHTML.replace(/bar/, 'Foo');
+
+			// Without selser, we should see [[Foo|Foo]], since we only normalize
+			// for modified / new content, which requires selser for detection
+			return serialize(DU.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+				editedWT.should.equal(wt + "\n\n[[Foo|Foo]]\n");
+				// With selser, we should see [[Foo]]
+				var options = {
+					useSelser: true,
+					pageSrc: wt,
+					origDOM: origDOM,
+				};
+				return serialize(DU.parseHTML(editedHTML), null, options).then(function(editedWT) {
+					editedWT.should.equal(wt + "\n\n[[Foo]]\n");
+				});
+			});
 		});
 	});
 
