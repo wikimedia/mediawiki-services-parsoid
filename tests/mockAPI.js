@@ -204,6 +204,27 @@ var lintPage = {
 	},
 };
 
+var redlinksPage = {
+	query: {
+		pages: {
+			'103': {
+				pageid: 103,
+				ns: 0,
+				title: "Redlinks Page",
+				revisions: [
+					{
+						revid: 103,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '[[Special:Version]] [[Doesnotexist]] [[Redirected]]',
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -344,6 +365,29 @@ var parse = function(text, onlypst) {
 	return { text: html };
 };
 
+var missingTitles = new Set([
+	'Doesnotexist',
+]);
+
+var specialTitles = new Set([
+	'Special:Version',
+]);
+
+var redirectTitles = new Set([
+	'Redirected',
+]);
+
+var pageProps = function(titles) {
+	if (!Array.isArray(titles)) { return null; }
+	return titles.map(function(t) {
+		var props = { title: t };
+		if (missingTitles.has(t)) { props.missing = ''; }
+		if (specialTitles.has(t)) { props.special = ''; }
+		if (redirectTitles.has(t)) { props.redirect = ''; }
+		return props;
+	});
+};
+
 var availableActions = {
 	parse: function(body, cb) {
 		var result = parse(body.text, body.onlypst);
@@ -367,6 +411,8 @@ var availableActions = {
 				return cb(null , jsonPage);
 			} else if (body.revids === '102' || body.titles === 'Lint_Page') {
 				return cb(null , lintPage);
+			} else if (body.revids === '103' || body.titles === 'Redlinks_Page') {
+				return cb(null , redlinksPage);
 			} else {
 				return cb(null, { query: { pages: {
 					'-1': {
@@ -434,6 +480,9 @@ var availableActions = {
 					return (ii !== null) ? ii.result : null;
 				case 'parse':
 					res = parse(b.text);
+					break;
+				case 'pageprops':
+					res = pageProps(b.titles);
 					break;
 			}
 			if (res === null) { errs.push(b); }

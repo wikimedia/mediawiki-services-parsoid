@@ -864,6 +864,72 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should add redlinks for get (html)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/Redlinks_Page/103')
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.querySelectorAll('a').length.should.equal(3);
+				var redLinks = doc.body.querySelectorAll('.new');
+				redLinks.length.should.equal(1);
+				redLinks[0].getAttribute('title').should.equal('Doesnotexist');
+				var redirects = doc.body.querySelectorAll('.mw-redirect');
+				redirects.length.should.equal(1);
+				redirects[0].getAttribute('title').should.equal('Redirected');
+			}))
+			.end(done);
+		});
+
+		it('should add redlinks for get (pagebundle)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/Redlinks_Page/103')
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.querySelectorAll('a').length.should.equal(3);
+				var redLinks = doc.body.querySelectorAll('.new');
+				redLinks.length.should.equal(1);
+				redLinks[0].getAttribute('title').should.equal('Doesnotexist');
+				var redirects = doc.body.querySelectorAll('.mw-redirect');
+				redirects.length.should.equal(1);
+				redirects[0].getAttribute('title').should.equal('Redirected');
+			}))
+			.end(done);
+		});
+
+		it('should add redlinks for transform (html)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.send({
+				wikitext: "[[Special:Version]] [[Doesnotexist]] [[Redirected]]",
+			})
+			.expect(validHtmlResponse(function(doc) {
+				doc.body.querySelectorAll('a').length.should.equal(3);
+				var redLinks = doc.body.querySelectorAll('.new');
+				redLinks.length.should.equal(1);
+				redLinks[0].getAttribute('title').should.equal('Doesnotexist');
+				var redirects = doc.body.querySelectorAll('.mw-redirect');
+				redirects.length.should.equal(1);
+				redirects[0].getAttribute('title').should.equal('Redirected');
+			}))
+			.end(done);
+		});
+
+		it('should add redlinks for transform (pagebundle)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+			.send({
+				wikitext: "[[Special:Version]] [[Doesnotexist]] [[Redirected]]",
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.querySelectorAll('a').length.should.equal(3);
+				var redLinks = doc.body.querySelectorAll('.new');
+				redLinks.length.should.equal(1);
+				redLinks[0].getAttribute('title').should.equal('Doesnotexist');
+				var redirects = doc.body.querySelectorAll('.mw-redirect');
+				redirects.length.should.equal(1);
+				redirects[0].getAttribute('title').should.equal('Redirected');
+			}))
+			.end(done);
+		});
+
 	}); // end wt2html
 
 	describe("html2wt", function() {
@@ -1709,6 +1775,40 @@ describe('Parsoid API', function() {
 				// In 1.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
 				html.should.not.match(/\s+data-parsoid\s*=\s*['"]/);
+			}))
+			.end(done);
+		});
+
+		it('should accept the original and update the redlinks', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+			.send({
+				updates: {
+					redlinks: true,
+				},
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': {
+						body: {
+							ids: {},
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.4.0"',
+						},
+						body: '<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected">Redirected</a></p>',
+					},
+				},
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.querySelectorAll('a').length.should.equal(3);
+				var redLinks = doc.body.querySelectorAll('.new');
+				redLinks.length.should.equal(1);
+				redLinks[0].getAttribute('title').should.equal('Doesnotexist');
+				var redirects = doc.body.querySelectorAll('.mw-redirect');
+				redirects.length.should.equal(1);
+				redirects[0].getAttribute('title').should.equal('Redirected');
 			}))
 			.end(done);
 		});
