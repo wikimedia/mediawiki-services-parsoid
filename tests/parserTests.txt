@@ -25911,6 +25911,20 @@ parsoid=html2wt
 [[Foo]]
 !! end
 
+!! test
+Parsoid should accept interwiki shortcuts
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a rel='mw:WikiLink' href='./fr:Foo'>Foo</a>
+<a rel='mw:ExtLink' href='./fr:Foo'>Foo</a>
+<a href='./fr:Foo'>Foo</a>
+!! wikitext
+[[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+!! end
+
 # See T93839
 !! test
 New wikilinks should be serialized properly
