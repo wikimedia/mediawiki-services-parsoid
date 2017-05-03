@@ -20368,9 +20368,11 @@ ISBN ---
 ISBN with space-delimited number
 !! wikitext
 ISBN 92 9017 032 8
-!! html
+!! html/php
 <p><a href="/wiki/Special:BookSources/9290170328" class="internal mw-magiclink-isbn">ISBN 92 9017 032 8</a>
 </p>
+!! html/parsoid
+<p data-parsoid='{"dsr":[0,18,0,0]}'><a href="./Special:BookSources/9290170328" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink","dsr":[0,18,2,2]}'>ISBN 92 9017 032 8</a></p>
 !! end
 
 
@@ -20392,11 +20394,17 @@ ISBN 123456789
 ISBN 1234567890
 
 ISBN 12345678901
-!! html
+!! html/php
 <p>ISBN 123456789
 </p><p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1234567890</a>
 </p><p>ISBN 12345678901
 </p>
+!! html/parsoid
+<p>ISBN 123456789</p>
+
+<p><a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1234567890</a></p>
+
+<p>ISBN 12345678901</p>
 !! end
 
 
@@ -20406,10 +20414,14 @@ ISBN with trailing year (T9110)
 ISBN 1-234-56789-0 - 2006
 
 ISBN 1 234 56789 0 - 2006
-!! html
+!! html/php
 <p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1-234-56789-0</a> - 2006
 </p><p><a href="/wiki/Special:BookSources/1234567890" class="internal mw-magiclink-isbn">ISBN 1 234 56789 0</a> - 2006
 </p>
+!! html/parsoid
+<p><a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1-234-56789-0</a> - 2006</p>
+
+<p><a href="./Special:BookSources/1234567890" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 1 234 56789 0</a> - 2006</p>
 !! end
 
 
