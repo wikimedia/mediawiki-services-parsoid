@@ -16484,11 +16484,14 @@ Media link with nasty text
 Media link to nonexistent file (T3702)
 !! wikitext
 [[Media:No such.jpg]]
+[[Media:No_such file.jpg]]
 !! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such.jpg" class="new" title="No such.jpg">Media:No such.jpg</a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such_file.jpg" class="new" title="No such file.jpg">Media:No_such file.jpg</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:Media" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a></p>
+<p><a rel="mw:Media" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a>
+<a rel="mw:Media" href="./Special:FilePath/No_such_file.jpg" title="No such file.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such_file.jpg"},"sa":{"fileName":"No_such file.jpg"}}'>Media:No_such file.jpg</a></p>
 !! end
 
 !! test
