@@ -22324,6 +22324,12 @@ language=en
 </p>
 !! end
 
+# Note that Parsoid doesn't emit an explicit TOC.
+# Note also that the html2wt direction tends to emit an extra newline
+# between the __TOC__ magicword and the first heading unless *both*
+# the <meta> and the <h2> have a data-parsoid attribute set (even if
+# it's "{}").
+
 !! test
 T28375: TOC with italics
 !! options
@@ -22331,7 +22337,7 @@ title=[[Main Page]]
 !! wikitext
 __TOC__
 == ''Lost'' episodes ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Lost_episodes"><span class="tocnumber">1</span> <span class="toctext"><i>Lost</i> episodes</span></a></li>
@@ -22340,6 +22346,9 @@ __TOC__
 
 <h2><span class="mw-headline" id="Lost_episodes"><i>Lost</i> episodes</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Lost episodes">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <i>Lost</i> episodes </h2>
 !! end
 
 !! test
@@ -22349,7 +22358,7 @@ title=[[Main Page]]
 !! wikitext
 __TOC__
 == '''should be bold''' then normal text ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#should_be_bold_then_normal_text"><span class="tocnumber">1</span> <span class="toctext"><b>should be bold</b> then normal text</span></a></li>
@@ -22358,6 +22367,9 @@ __TOC__
 
 <h2><span class="mw-headline" id="should_be_bold_then_normal_text"><b>should be bold</b> then normal text</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: should be bold then normal text">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <b>should be bold</b> then normal text </h2>
 !! end
 
 !! test
@@ -22367,7 +22379,7 @@ title=[[Main Page]]
 !! wikitext
 __TOC__
 == Image [[Image:foobar.jpg]] ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Image"><span class="tocnumber">1</span> <span class="toctext">Image</span></a></li>
@@ -22376,6 +22388,9 @@ __TOC__
 
 <h2><span class="mw-headline" id="Image">Image <a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Image">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> Image <span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></span> </h2>
 !! end
 
 !! test
@@ -22385,7 +22400,7 @@ title=[[Main Page]]
 !! wikitext
 __TOC__
 == <blockquote>Quote</blockquote> ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Quote"><span class="tocnumber">1</span> <span class="toctext">Quote</span></a></li>
@@ -22394,7 +22409,7 @@ __TOC__
 
 <h2><span class="mw-headline" id="Quote"><blockquote>Quote</blockquote></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Quote">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
-!! html+tidy
+!! html/php+tidy
 <p></p>
 <div id="toc" class="toc">
 <div id="toctitle" class="toctitle">
@@ -22410,6 +22425,9 @@ __TOC__
 <p><span class="mw-headline" id="Quote">Quote</span></p>
 </blockquote>
 <p><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Quote">edit</a><span class="mw-editsection-bracket">]</span></span></p>
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <blockquote>Quote</blockquote> </h2>
 !! end
 
 !! test
@@ -22421,7 +22439,7 @@ __TOC__
 == Proof: 2 < 3 ==
 <small>Hanc marginis exiguitas non caperet.</small>
 QED
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Proof:_2_.3C_3"><span class="tocnumber">1</span> <span class="toctext">Proof: 2 &lt; 3</span></a></li>
@@ -22432,6 +22450,11 @@ QED
 <p><small>Hanc marginis exiguitas non caperet.</small>
 QED
 </p>
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> Proof: 2 &lt; 3 </h2>
+<p><small>Hanc marginis exiguitas non caperet.</small>
+QED</p>
 !! end
 
 !! test
@@ -22441,7 +22464,7 @@ __TOC__
 == <i>Foo</i> <b>Bar</b> ==
 
 == <i>Foo</i> <blockquote>Bar</blockquote> ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Foo_Bar"><span class="tocnumber">1</span> <span class="toctext"><i>Foo</i> <b>Bar</b></span></a></li>
@@ -22452,7 +22475,7 @@ __TOC__
 <h2><span class="mw-headline" id="Foo_Bar"><i>Foo</i> <b>Bar</b></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Foo Bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h2><span class="mw-headline" id="Foo_Bar_2"><i>Foo</i> <blockquote>Bar</blockquote></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: Foo Bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
-!! html+tidy
+!! html/php+tidy
 <p></p>
 <div id="toc" class="toc">
 <div id="toctitle" class="toctitle">
@@ -22470,6 +22493,10 @@ __TOC__
 <p><span class="mw-headline" id="Foo_Bar_2">Bar</span></p>
 </blockquote>
 <p><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: Foo Bar">edit</a><span class="mw-editsection-bracket">]</span></span></p>
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <i data-parsoid='{"stx":"html"}'>Foo</i> <b data-parsoid='{"stx":"html"}'>Bar</b> </h2>
+<h2> <i data-parsoid='{"stx":"html"}'>Foo</i> <blockquote>Bar</blockquote> </h2>
 !! end
 
 # Don't expect Parsoid to roundtrip this until the php parser comes closer to
@@ -22514,7 +22541,7 @@ __TOC__
 == <span style="font-style: italic" dir="ltr">All attributes on these span tags must be deleted from the TOC</span> ==
 
 == <span dir="ltr" style="font-style: italic">Attributes after dir on these span tags must be deleted from the TOC</span> ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#C.2B.2B"><span class="tocnumber">1</span> <span class="toctext"><span dir="ltr">C++</span></span></a></li>
@@ -22531,6 +22558,13 @@ __TOC__
 <h2><span class="mw-headline" id="All_attributes_on_these_span_tags_must_be_deleted_from_the_TOC"><span style="font-style: italic" dir="ltr">All attributes on these span tags must be deleted from the TOC</span></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: All attributes on these span tags must be deleted from the TOC">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h2><span class="mw-headline" id="Attributes_after_dir_on_these_span_tags_must_be_deleted_from_the_TOC"><span dir="ltr" style="font-style: italic">Attributes after dir on these span tags must be deleted from the TOC</span></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: Attributes after dir on these span tags must be deleted from the TOC">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <span dir="ltr">C++</span> </h2>
+<h2> <span dir="rtl">זבנג!</span> </h2>
+<h2> <span style="font-style: italic">The attributes on these span tags must be deleted from the TOC</span> </h2>
+<h2> <span style="font-style: italic" dir="ltr">All attributes on these span tags must be deleted from the TOC</span> </h2>
+<h2> <span dir="ltr" style="font-style: italic">Attributes after dir on these span tags must be deleted from the TOC</span> </h2>
 !! end
 
 !! test
@@ -22538,7 +22572,7 @@ T74884: bdi element in ToC
 !! wikitext
 __TOC__
 == <bdi>test</bdi> ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#test"><span class="tocnumber">1</span> <span class="toctext"><bdi>test</bdi></span></a></li>
@@ -22547,6 +22581,9 @@ __TOC__
 
 <h2><span class="mw-headline" id="test"><bdi>test</bdi></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: test">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <bdi>test</bdi> </h2>
 !! end
 
 !! test
@@ -22554,7 +22591,7 @@ T35715: s/strike element in ToC
 !! wikitext
 __TOC__
 == <s>test</s> test <strike>test</strike> ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#test_test_test"><span class="tocnumber">1</span> <span class="toctext"><s>test</s> test <strike>test</strike></span></a></li>
@@ -22563,6 +22600,9 @@ __TOC__
 
 <h2><span class="mw-headline" id="test_test_test"><s>test</s> test <strike>test</strike></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: test test test">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> <s>test</s> test <strike>test</strike> </h2>
 !! end
 
 # Note that the html output does not have the <p></p>, but the
@@ -22573,7 +22613,7 @@ Empty <p> tag in TOC, removed by Sanitizer (T92892)
 !! wikitext
 __TOC__
 == x ==
-!! html
+!! html/php
 <div id="toc" class="toc"><div id="toctitle" class="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#x"><span class="tocnumber">1</span> <span class="toctext">x</span></a></li>
@@ -22582,7 +22622,7 @@ __TOC__
 
 <h2><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
-!! html+tidy
+!! html/php+tidy
 <p></p>
 <div id="toc" class="toc">
 <div id="toctitle" class="toctitle">
@@ -22594,6 +22634,9 @@ __TOC__
 </div>
 <p></p>
 <h2><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 data-parsoid='{}'> x </h2>
 !! end
 
 !! article
