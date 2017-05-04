@@ -1558,7 +1558,7 @@ describe('Parsoid API', function() {
 
 	}); // end html2wt
 
-	describe('html2html', function() {
+	describe('pb2pb', function() {
 
 		it('should require an original or previous version', function(done) {
 			request(api)
@@ -1589,19 +1589,7 @@ describe('Parsoid API', function() {
 			},
 		};
 
-		it('should accept the previous revision to reuse expansions (html)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/html/Reuse_Page/100')
-			.send({
-				previous: previousRevHTML,
-			})
-			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.match(/pink/);
-			}))
-			.end(done);
-		});
-
-		it('should accept the previous revision to reuse expansions (pagebundle)', function(done) {
+		it('should accept the previous revision to reuse expansions', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.send({
@@ -1616,22 +1604,7 @@ describe('Parsoid API', function() {
 		var origHTML = Util.clone(previousRevHTML);
 		origHTML.revid = 100;
 
-		it('should accept the original and reuse certain expansions (html)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/html/Reuse_Page/100')
-			.send({
-				updates: {
-					transclusions: true,
-				},
-				original: origHTML,
-			})
-			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.match(/purple/);
-			}))
-			.end(done);
-		});
-
-		it('should accept the original and reuse certain expansions (pagebundle)', function(done) {
+		it('should accept the original and reuse certain expansions', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.send({
@@ -1649,8 +1622,8 @@ describe('Parsoid API', function() {
 		it('should refuse an unknown conversion (1.x -> 2.x)', function(done) {
 			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.4.0"');
 			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/html/Reuse_Page/100')
-			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"')
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
+			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')
 			.send({
 				previous: previousRevHTML,
 			})
@@ -1664,7 +1637,6 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
 			.send({
-				html: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">hi</p>',
 				original: {
 					title: 'Doesnotexist',
 					'data-parsoid': {
@@ -1694,7 +1666,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-	});  // end html2html
+	});  // end pb2pb
 
 	after(function() {
 		return runner.stop();
