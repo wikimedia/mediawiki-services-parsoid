@@ -16449,7 +16449,7 @@ Media link
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Foobar.jpg</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a></p>
 !! end
 
 !! test
@@ -16460,7 +16460,7 @@ Media link with text
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">A neat file to look at</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
 !! end
 
 # FIXME: this is still bad HTML tag nesting
@@ -16476,7 +16476,7 @@ Media link with nasty text
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link</a></p>
 <div style="display:none">" onmouseover="alert(document.cookie)" onfoo="</div>
 !! html/parsoid
-<p><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true}'>Safe Link</a></p><div style="display:none" data-parsoid='{"stx":"html"}'><a rel="mw:Media" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'>" onmouseover="alert(document.cookie)" onfoo="</a></div>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true}'>Safe Link</a></p><div style="display:none" data-parsoid='{"stx":"html"}'><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'>" onmouseover="alert(document.cookie)" onfoo="</a></div>
 
 !! end
 
@@ -16490,8 +16490,8 @@ Media link to nonexistent file (T3702)
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such_file.jpg" class="new" title="No such file.jpg">Media:No_such file.jpg</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:Media" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a>
-<a rel="mw:Media" href="./Special:FilePath/No_such_file.jpg" title="No such file.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such_file.jpg"},"sa":{"fileName":"No_such file.jpg"}}'>Media:No_such file.jpg</a></p>
+<p><a rel="mw:MediaLink" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a>
+<a rel="mw:MediaLink" href="./Special:FilePath/No_such_file.jpg" title="No such file.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such_file.jpg"},"sa":{"fileName":"No_such file.jpg"}}'>Media:No_such file.jpg</a></p>
 !! end
 
 !! test
