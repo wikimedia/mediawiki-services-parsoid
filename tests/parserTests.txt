@@ -13181,6 +13181,17 @@ pst
 !! end
 
 !! test
+Parsoid: backwards pipe trick
+!! wikitext
+[[|'''bar''']]
+!! html/php
+<p>[[|<b>bar</b>]]
+</p>
+!! html/parsoid
+<p>[[|<b>bar</b>]]</p>
+!! end
+
+!! test
 pre-save transform: trim trailing empty lines
 !! options
 pst
