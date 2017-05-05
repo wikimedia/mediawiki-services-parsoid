@@ -23,11 +23,11 @@ var path = require('path');
 
 			// Only one of these should be necessary.
 			opts: {
-				// By default, use the same configuration as the testing Parsoid server.
-				parsoidConfig: path.resolve(__dirname, '../rttest.localsettings.js'),
-
-				// The parsoid API to use. If null, create our own server
+				// The parsoid API to use. If null, create our own server with `parsoidOptions`.
 				parsoidURL: null,
+
+				// By default, use the same configuration as the testing Parsoid server.
+				parsoidOptions: null,
 			},
 
 			runTest: require('./rtTestWrapper.js').runRoundTripTest,

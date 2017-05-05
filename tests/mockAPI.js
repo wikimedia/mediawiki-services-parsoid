@@ -5,6 +5,9 @@
 
 require('../core-upgrade.js');
 
+var fs = require('fs');
+var yaml = require('js-yaml');
+var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
@@ -12,12 +15,9 @@ var crypto = require('crypto');
 var Promise = require('../lib/utils/promise.js');
 
 // Get Parsoid limits.
-var fakeConfig = {
-	setMwApi: function() {},
-	limits: { wt2html: {}, html2wt: {} },
-	timeouts: { mwApi: {} },
-};
-require('./mocha/apitest.localsettings.js').setup(fakeConfig);
+var optionsPath = path.resolve(__dirname, './mocha/test.config.yaml');
+var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
+var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 // configuration to match PHP parserTests
 var IMAGE_BASE_URL = 'http://example.com/images';
@@ -141,7 +141,7 @@ var largePage = {
 						parentid: 0,
 						contentmodel: 'wikitext',
 						contentformat: 'text/x-wiki',
-						'*': 'a'.repeat(fakeConfig.limits.wt2html.maxWikitextSize + 1),
+						'*': 'a'.repeat(parsoidOptions.limits.wt2html.maxWikitextSize + 1),
 					},
 				],
 			},

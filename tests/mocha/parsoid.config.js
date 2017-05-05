@@ -2,8 +2,11 @@
 
 'use strict';
 
-require('../../core-upgrade.js');
 /* global describe, it */
+require('../../core-upgrade.js');
+require('chai').should();
+
+var path = require('path');
 
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 
@@ -27,5 +30,10 @@ describe('Parsoid Config setup ', function() {
 		};
 		var pc = new ParsoidConfig(ls);
 		pc.timeouts.request.should.equal(4 * 60 * 1000);
+	});
+	it('should', function() {
+		var ls = path.resolve(__dirname, './test.localsettings.js');
+		var pc = new ParsoidConfig(null, { localsettings: ls });
+		pc.somethingWacky.should.equal(true);
 	});
 });

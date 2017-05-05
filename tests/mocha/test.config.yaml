@@ -1,0 +1,20 @@
+services:
+    - conf:
+        loadWMF: true
+        useSelser: true
+        strictAcceptCheck: true
+
+        timeouts:
+            mwApi:
+                connect: 10000
+
+        limits:
+            wt2html:
+                maxWikitextSize: 20000
+            html2wt:
+                maxHTMLSize: 10000
+
+        loggerSampling:
+            -
+                - 'info'
+                - 100

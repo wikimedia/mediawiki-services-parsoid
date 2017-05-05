@@ -28,25 +28,24 @@ var fetch = function(page, revid, opts) {
 		domain = "en.wikipedia.org";
 	}
 
-	var config = null;
+	var parsoidOptions = {};
+
 	if (Util.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
 		// Assuming Parsoid is the first service in the list
-		config = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+		parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
 	}
 
-	var setup = function(parsoidConfig) {
-		if (config && config.localsettings) {
-			var local = require(path.resolve(__dirname, config.localsettings));
-			local.setup(parsoidConfig);
-		}
-		Util.setTemplatingAndProcessingFlags(parsoidConfig, opts);
-		Util.setDebuggingFlags(parsoidConfig, opts);
-	};
+	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
+	Util.setDebuggingFlags(parsoidOptions, opts);
 
-	var pc = new ParsoidConfig({ setup: setup }, config);
+	if (parsoidOptions.localsettings) {
+		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
+	}
+
+	var pc = new ParsoidConfig(null, parsoidOptions);
 	if (!prefix) {
 		// domain has been provided
 		prefix = pc.reverseMwApiMap.get(domain);

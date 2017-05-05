@@ -987,14 +987,12 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 		}
 	}
 
-	var setup = function(parsoidConfig) {
-		// Set tracing and debugging before the env. object is
-		// constructed since tracing backends are registered there.
-		// (except for the --quiet option where the backends are
-		// overridden here).
-		Util.setDebuggingFlags(parsoidConfig, options);
-		Util.setTemplatingAndProcessingFlags(parsoidConfig, options);
+	var parsoidOptions = {};
 
+	Util.setDebuggingFlags(parsoidOptions, options);
+	Util.setTemplatingAndProcessingFlags(parsoidOptions, options);
+
+	var setup = function(parsoidConfig) {
 		// Init early so we can overwrite it here.
 		parsoidConfig.loadWMF = false;
 		parsoidConfig.initMwApiMap();
@@ -1033,7 +1031,7 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 		parsoidConfig.timeouts.mwApi.connect = 10000;
 	};
 
-	var pc = new ParsoidConfig({ setup: setup }, options);
+	var pc = new ParsoidConfig({ setup: setup }, parsoidOptions);
 
 	// Create a new parser environment
 	return MWParserEnvironment.getParserEnv(pc, { prefix: 'enwiki' })

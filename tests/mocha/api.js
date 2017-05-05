@@ -4,21 +4,20 @@
 
 /* global describe, it, before, after */
 
-var Util = require('../../lib/utils/Util.js').Util;
-var serviceWrapper = require('../serviceWrapper.js');
+var fs = require('fs');
+var yaml = require('js-yaml');
 var request = require('supertest');
 var domino = require('domino');
 var path = require('path');
 var should = require('chai').should();
 var semver = require('semver');
 
-var configPath = path.resolve(__dirname, './apitest.localsettings.js');
-var fakeConfig = {
-	setMwApi: function() {},
-	limits: { wt2html: {}, html2wt: {} },
-	timeouts: { mwApi: {} },
-};
-require(configPath).setup(fakeConfig);  // Set limits.
+var Util = require('../../lib/utils/Util.js').Util;
+var serviceWrapper = require('../serviceWrapper.js');
+
+var optionsPath = path.resolve(__dirname, './test.config.yaml');
+var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
+var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 var defaultContentVersion = '1.4.0';
 
@@ -28,8 +27,9 @@ describe('Parsoid API', function() {
 
 	before(function() {
 		return serviceWrapper.runServices({
-			localsettings: configPath,
-		}).then(function(ret) {
+			parsoidOptions: parsoidOptions,
+		})
+		.then(function(ret) {
 			api = ret.parsoidURL;
 			runner = ret.runner;
 		});
@@ -804,7 +804,7 @@ describe('Parsoid API', function() {
 				original: {
 					title: 'Large_Page',
 				},
-				wikitext: "a".repeat(fakeConfig.limits.wt2html.maxWikitextSize + 1),
+				wikitext: "a".repeat(parsoidOptions.limits.wt2html.maxWikitextSize + 1),
 			})
 			.expect(413)
 			.end(done);
@@ -1550,7 +1550,7 @@ describe('Parsoid API', function() {
 				original: {
 					title: 'Large_Page',
 				},
-				html: "a".repeat(fakeConfig.limits.html2wt.maxHTMLSize + 1),
+				html: "a".repeat(parsoidOptions.limits.html2wt.maxHTMLSize + 1),
 			})
 			.expect(413)
 			.end(done);

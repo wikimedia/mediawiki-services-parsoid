@@ -4,18 +4,17 @@
 
 /* global describe, it, before, after */
 
-var serviceWrapper = require('../serviceWrapper.js');
+var fs = require('fs');
+var yaml = require('js-yaml');
 var request = require('supertest');
 var path = require('path');
 require('chai').should();
 
-var configPath = path.resolve(__dirname, './apitest.localsettings.js');
-var fakeConfig = {
-	setMwApi: function() {},
-	limits: { wt2html: {}, html2wt: {} },
-	timeouts: { mwApi: {} },
-};
-require(configPath).setup(fakeConfig);  // Set limits
+var serviceWrapper = require('../serviceWrapper.js');
+
+var optionsPath = path.resolve(__dirname, './test.config.yaml');
+var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
+var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 var api, runner;
 var defaultContentVersion = '1.4.0';
@@ -195,8 +194,9 @@ var dataParsoidVersionTests = [
 describe('[TemplateData]', function() {
 	before(function() {
 		return serviceWrapper.runServices({
-			localsettings: configPath,
-		}).then(function(ret) {
+			parsoidOptions: parsoidOptions,
+		})
+		.then(function(ret) {
 			api = ret.parsoidURL;
 			runner = ret.runner;
 		});

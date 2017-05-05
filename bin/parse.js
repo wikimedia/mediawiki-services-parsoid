@@ -375,14 +375,6 @@ if (require.main === module) {
 			argv.wt2html = true;
 		}
 
-		// Offline shortcut
-		if (argv.offline) {
-			argv.fetchConfig = false;
-			argv.fetchTemplates = false;
-			argv.fetchImageInfo = false;
-			argv.usephppreprocessor = false;
-		}
-
 		var prefix = argv.prefix || null;
 		var domain = argv.domain || null;
 
@@ -393,26 +385,34 @@ if (require.main === module) {
 			domain = 'en.wikipedia.org';
 		}
 
-		var config = null;
+		var parsoidOptions = {
+			loadWMF: argv.loadWMF,
+		};
+
 		if (Util.booleanOption(argv.config)) {
 			var p = (typeof (argv.config) === 'string') ?
 				path.resolve('.', argv.config) :
 				path.resolve(__dirname, '../config.yaml');
 			// Assuming Parsoid is the first service in the list
-			config = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+			parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
 		}
 
-		var setup = function(parsoidConfig) {
-			parsoidConfig.loadWMF = argv.loadWMF;
-			if (config && config.localsettings) {
-				var local = require(path.resolve(__dirname, config.localsettings));
-				local.setup(parsoidConfig);
-			}
-			Util.setTemplatingAndProcessingFlags(parsoidConfig, argv);
-			Util.setDebuggingFlags(parsoidConfig, argv);
-		};
+		Util.setTemplatingAndProcessingFlags(parsoidOptions, argv);
+		Util.setDebuggingFlags(parsoidOptions, argv);
 
-		var pc = new ParsoidConfig({ setup: setup }, config);
+		// Offline shortcut
+		if (argv.offline) {
+			parsoidOptions.fetchConfig = false;
+			parsoidOptions.fetchTemplates = false;
+			parsoidOptions.fetchImageInfo = false;
+			parsoidOptions.usephppreprocessor = false;
+		}
+
+		if (parsoidOptions.localsettings) {
+			parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
+		}
+
+		var pc = new ParsoidConfig(null, parsoidOptions);
 		pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
 		var nock, dir, nocksFile;

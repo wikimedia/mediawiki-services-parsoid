@@ -24,8 +24,9 @@ var runRoundTripTest = function(config, test) {
 		// If no Parsoid server was passed, start our own
 		return serviceWrapper.runServices({
 			skipMock: true,
-			localsettings: config.parsoidConfig,
-		}).then(function(ret) {
+			parsoidOptions: config.parsoidOptions,
+		})
+		.then(function(ret) {
 			parsoidURL = ret.parsoidURL;
 			return _run(test);
 		});

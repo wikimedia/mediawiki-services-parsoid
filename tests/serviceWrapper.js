@@ -61,12 +61,16 @@ var runServices = function(options) {
 			var pServ = {
 				module: path.resolve(__dirname, '../lib/index.js'),
 				entrypoint: 'apiServiceWorker',
-				conf: {
+				conf: Object.assign({
 					serverPort: parsoidPort,
 					serverInterface: 'localhost',
-					localsettings: options.localsettings ||
-						path.resolve(__dirname, './rttest.localsettings.js'),
-				},
+				}, options.parsoidOptions || {
+					useBatchAPI: true,
+					loadWMF: true,
+					useSelser: true,
+					rtTestMode: true,
+					strictAcceptCheck: true,
+				}),
 			};
 			if (ret.mockURL) {
 				pServ.conf.mwApis = [
