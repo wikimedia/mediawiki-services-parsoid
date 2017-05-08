@@ -20,6 +20,7 @@ var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
 var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 parsoidOptions.useBatchAPI = true;
+parsoidOptions.linting = true;
 
 var defaultContentVersion = '1.4.0';
 
@@ -403,6 +404,50 @@ describe('Parsoid API', function() {
 			}
 		};
 	};
+
+	describe('wt2lint', function() {
+
+		it('should reject the given page format', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/lint/Lint_Page/102')
+			.expect(404)
+			.end(done);
+		});
+
+		it('should lint the given wikitext', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/lint/')
+			.send({
+				wikitext: {
+					headers: {
+						'content-type': 'text/plain;profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"',
+					},
+					body: "{|\nhi\n|ho\n|}",
+				},
+			})
+			.expect(200)
+			.expect(function(res) {
+				res.body.should.be.instanceof(Array);
+				res.body.length.should.equal(1);
+				res.body[0].type.should.equal('fostered');
+			})
+			.end(done);
+		});
+
+		it('should lint the given page', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/lint/Lint_Page/102')
+			.send({})
+			.expect(200)
+			.expect(function(res) {
+				res.body.should.be.instanceof(Array);
+				res.body.length.should.equal(1);
+				res.body[0].type.should.equal('fostered');
+			})
+			.end(done);
+		});
+
+	});
 
 	describe("wt2html", function() {
 

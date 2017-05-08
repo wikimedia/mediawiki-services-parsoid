@@ -191,6 +191,27 @@ var jsonPage = {
 	},
 };
 
+var lintPage = {
+	query: {
+		pages: {
+			'102': {
+				pageid: 102,
+				ns: 0,
+				title: "Lint Page",
+				revisions: [
+					{
+						revid: 102,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '{|\nhi\n|ho\n|}',
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -306,6 +327,8 @@ var availableActions = {
 				return cb(null , reusePage);
 			} else if (body.revids === '101' || body.titles === 'JSON_Page') {
 				return cb(null , jsonPage);
+			} else if (body.revids === '102' || body.titles === 'Lint_Page') {
+				return cb(null , lintPage);
 			}
 		}
 
