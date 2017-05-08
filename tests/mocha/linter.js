@@ -19,7 +19,7 @@ describe('Linter Tests', function() {
 	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', loadWMF: true, linting: true });
 	var parseWT = function(wt) {
 		return helpers.parse(parsoidConfig, wt).then(function(ret) {
-			return ret.env.linter.buffer;
+			return ret.env.lintLogger.buffer;
 		});
 	};
 
