@@ -44,7 +44,11 @@ var serialize = function(parsoidConfig, doc, pb, options) {
 		if (pb) {
 			DU.applyPageBundle(doc, pb);
 		}
-		return env.getContentHandler().fromHTML(env, doc.body, false);
+		if (options.useSelser) {
+			env.page.src = options.pageSrc;
+			env.page.dom = options.origDOM;
+		}
+		return env.getContentHandler().fromHTML(env, doc.body, options.useSelser);
 	});
 };
 
