@@ -241,6 +241,17 @@ var formatters = {
 	},
 };
 
+var preProcess = function(text) {
+	var match = text.match(/{{echo\|(.*?)}}/);
+	if (match) {
+		return { wikitext: match[1] };
+	} else if (text === '{{colours of the rainbow}}') {
+		return { wikitext: 'purple' };
+	} else {
+		return null;
+	}
+};
+
 var availableActions = {
 	parse: function(body, cb) {
 		var resultText;
@@ -391,14 +402,35 @@ var availableActions = {
 	},
 
 	expandtemplates: function(body, cb) {
-		var match = body.text.match(/{{echo\|(.*?)}}/);
-		if (match) {
-			cb(null, { expandtemplates: { wikitext: match[1] } });
-		} else if (body.text === '{{colours of the rainbow}}') {
-			cb(null, { expandtemplates: { wikitext: 'purple' } });
-		} else {
+		var res = preProcess(body.text);
+		if (res === null) {
 			cb(new Error('Sorry!'));
+		} else {
+			cb(null, { expandtemplates: res });
 		}
+	},
+
+	'parsoid-batch': function(body, cb) {
+		var batch;
+		try {
+			batch = JSON.parse(body.batch);
+			console.assert(Array.isArray(batch));
+		} catch (e) {
+			return cb(e);
+		}
+		var errs = [];
+		var results = batch.map(function(b) {
+			var res = null;
+			switch (b.action) {
+				case 'preprocess':
+					res = preProcess(b.text);
+					break;
+			}
+			if (res === null) { errs.push(b); }
+			return res;
+		});
+		var err = (errs.length > 0) ? new Error(JSON.stringify(errs)) : null;
+		cb(err, { 'parsoid-batch': results });
 	},
 
 	// Return a dummy response

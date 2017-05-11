@@ -19,6 +19,8 @@ var optionsPath = path.resolve(__dirname, './test.config.yaml');
 var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
 var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
+parsoidOptions.useBatchAPI = true;
+
 var defaultContentVersion = '1.4.0';
 
 describe('Parsoid API', function() {
