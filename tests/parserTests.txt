@@ -26848,6 +26848,16 @@ parsoid=html2wt
 !! end
 
 !! test
+Catch regression when unpacking misnested links
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|hi}}[http://example.com [[ho]]]
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi"}},"i":0}}]}'>hi</span><a rel="mw:ExtLink" href="http://example.com"></a><a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"misnested":true}'>ho</a></p>
+!! end
+
+!! test
 Use data-parsoid.firstWikitextNode to compute newline constraints for template content
 !! options
 parsoid=html2wt
