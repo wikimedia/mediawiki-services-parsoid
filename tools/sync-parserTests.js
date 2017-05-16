@@ -21,7 +21,7 @@ require('../core-upgrade.js');
    $ cd $REPO
    $ git rebase master
      ... resolve conflicts, sigh ...
-   $ php tests/parserTests.php
+   $ php tests/parser/parserTests.php
      ... fix any failures by marking tests parsoid-only, etc ...
    $ git review
 
@@ -159,7 +159,7 @@ var strip = function(s) {
 		console.log(' cd', mwpath);
 		console.log(' git rebase origin/master');
 		console.log(' .. fix any conflicts .. ');
-		console.log(' php tests/parserTests.php');
+		console.log(' php tests/parser/parserTests.php');
 		console.log(' git review');
 
 		// XXX to rebase semi-automatically, we might do something like:
