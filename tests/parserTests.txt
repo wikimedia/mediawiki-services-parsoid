@@ -5332,6 +5332,21 @@ parsoid=wt2html
 !! end
 
 !! test
+Wikilinks with embedded newlines are not broken
+!! wikitext
+{{echo|[[ Foo
+B
+C]]}}
+!! html/php
+<p>[[ Foo
+B
+C]]
+</p>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[ Foo\nB\nC]]"}},"i":0}}]}'>[[ Foo B C]]</p>
+!! end
+
+!! test
 Broken templates
 !! options
 parsoid=wt2html
