@@ -997,6 +997,8 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 		parsoidConfig.loadWMF = false;
 		parsoidConfig.initMwApiMap();
 
+		parsoidConfig.useBatchAPI = true;
+
 		// Needed for bidi-char-scrubbing html2wt tests.
 		parsoidConfig.scrubBidiChars = true;
 

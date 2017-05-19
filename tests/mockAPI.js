@@ -273,6 +273,80 @@ var preProcess = function(text) {
 	}
 };
 
+var imageInfo = function(filename, twidth, theight, useBatchAPI) {
+	var normPagename = pnames[filename] || filename;
+	var normFilename = fnames[filename] || filename;
+	if (!(normFilename in FILE_PROPS)) {
+		return null;
+	}
+	var props = FILE_PROPS[normFilename] || Object.create(null);
+	var md5 = crypto.createHash('md5').update(normFilename).digest('hex');
+	var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
+	var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename;
+	var height = props.hasOwnProperty('height') ? props.height : 220;
+	var width = props.hasOwnProperty('width') ? props.width : 1941;
+	var turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename;
+	var durl = IMAGE_DESC_URL + '/' + normFilename;
+	var mediatype = props.mediatype ||
+			(props.mime === 'image/svg+xml' ? 'DRAWING' : 'BITMAP');
+	var result = {
+		size: props.size || 12345,
+		height: height,
+		width: width,
+		url: baseurl,
+		descriptionurl: durl,
+		mediatype: mediatype,
+		mime: props.mime,
+	};
+	if (props.hasOwnProperty('duration')) {
+		result.duration = props.duration;
+	}
+	if (twidth || theight) {
+		if (twidth && (theight === undefined || theight === null)) {
+			// File::scaleHeight in PHP
+			theight = Math.round(height * twidth / width);
+		} else if (theight && (twidth === undefined || twidth === null)) {
+			// MediaHandler::fitBoxWidth in PHP
+			// This is crazy!
+			var idealWidth = width * theight / height;
+			var roundedUp = Math.ceil(idealWidth);
+			if (Math.round(roundedUp * height / width) > theight) {
+				twidth = Math.floor(idealWidth);
+			} else {
+				twidth = roundedUp;
+			}
+		} else {
+			if (Math.round(height * twidth / width) > theight) {
+				twidth = Math.ceil(width * theight / height);
+			} else {
+				theight = Math.round(height * twidth / width);
+			}
+		}
+		var urlWidth = twidth;
+		if (twidth >= width || theight >= height) {
+			// The PHP api won't enlarge an image ... but the batch api will.
+			if (!useBatchAPI) {
+				twidth = width;
+				theight = height;
+			}
+			urlWidth = width;  // That right?
+		}
+		turl += '/' + urlWidth + 'px-' + normFilename;
+		result.thumbwidth = twidth;
+		result.thumbheight = theight;
+		result.thumburl = turl;
+	}
+	return {
+		result: result,
+		normPagename: normPagename,
+	};
+};
+
+var querySiteinfo = function(body, cb) {
+	// TODO: Read which language should we use from somewhere.
+	cb(null, require('../lib/config/baseconfig/enwiki.json'));
+};
+
 var availableActions = {
 	parse: function(body, cb) {
 		var resultText;
@@ -306,16 +380,10 @@ var availableActions = {
 		cb(null, { parse: { text: { '*': resultText } } });
 	},
 
-	querySiteinfo: function(body, cb) {
-		// TODO: Read which language should we use from somewhere.
-		cb(null, require('../lib/config/baseconfig/enwiki.json'));
-	},
-
 	query: function(body, cb) {
 		if (body.meta === 'siteinfo') {
-			return this.querySiteinfo(body, cb);
+			return querySiteinfo(body, cb);
 		}
-
 		if (body.prop === "info|revisions") {
 			if (body.revids === "1" || body.titles === "Main_Page") {
 				return cb(null , mainPage);
@@ -329,99 +397,40 @@ var availableActions = {
 				return cb(null , jsonPage);
 			} else if (body.revids === '102' || body.titles === 'Lint_Page') {
 				return cb(null , lintPage);
-			}
-		}
-
-		var filename = body.titles;
-		var normPagename = pnames[filename] || filename;
-		var normFilename = fnames[filename] || filename;
-		if (!(normFilename in FILE_PROPS)) {
-			cb(null, {
-				'query': {
-					'pages': {
-						'-1': {
-							'ns': 6,
-							'title': filename,
-							'missing': '',
-							'imagerepository': '',
-						},
-					},
-				},
-			});
-			return;
-		}
-		var props = FILE_PROPS[normFilename] || Object.create(null);
-		var md5 = crypto.createHash('md5').update(normFilename).digest('hex');
-		var md5prefix = md5[0] + '/' + md5[0] + md5[1] + '/';
-		var baseurl = IMAGE_BASE_URL + '/' + md5prefix + normFilename;
-		var height = props.hasOwnProperty('height') ? props.height : 220;
-		var width = props.hasOwnProperty('width') ? props.width : 1941;
-		var twidth = body.iiurlwidth;
-		var theight = body.iiurlheight;
-		var turl = IMAGE_BASE_URL + '/thumb/' + md5prefix + normFilename;
-		var durl = IMAGE_DESC_URL + '/' + normFilename;
-		var mediatype = props.mediatype ||
-				(props.mime === 'image/svg+xml' ? 'DRAWING' : 'BITMAP');
-		var result = {
-			size: props.size || 12345,
-			height: height,
-			width: width,
-			url: baseurl,
-			descriptionurl: durl,
-			mediatype: mediatype,
-			mime: props.mime,
-		};
-		if (props.hasOwnProperty('duration')) {
-			result.duration = props.duration;
-		}
-		var imageinfo = {
-			pageid: 1,
-			ns: 6,
-			title: normPagename,
-			imageinfo: [result],
-		};
-		var response = {
-			query: {
-				normalized: [{ from: filename, to: normPagename }],
-				pages: {},
-			},
-		};
-
-		if (twidth || theight) {
-			if (twidth && (theight === undefined || theight === null)) {
-				// File::scaleHeight in PHP
-				theight = Math.round(height * twidth / width);
-			} else if (theight && (twidth === undefined || twidth === null)) {
-				// MediaHandler::fitBoxWidth in PHP
-				// This is crazy!
-				var idealWidth = width * theight / height;
-				var roundedUp = Math.ceil(idealWidth);
-				if (Math.round(roundedUp * height / width) > theight) {
-					twidth = Math.floor(idealWidth);
-				} else {
-					twidth = roundedUp;
-				}
 			} else {
-				if (Math.round(height * twidth / width) > theight) {
-					twidth = Math.ceil(width * theight / height);
-				} else {
-					theight = Math.round(height * twidth / width);
-				}
+				return cb(null, { query: { pages: {
+					'-1': {
+						ns: 6,
+						title: body.titles,
+						missing: '',
+						imagerepository: '',
+					},
+				} } });
 			}
-			if (twidth >= width || theight >= height) {
-				// the PHP api won't enlarge an image
-				twidth = width;
-				theight = height;
-			}
-
-			turl += '/' + twidth + 'px-' + normFilename;
-			imageinfo.imageinfo[0].thumbwidth = twidth;
-			imageinfo.imageinfo[0].thumbheight = theight;
-			imageinfo.imageinfo[0].thumburl = turl;
 		}
-
-		response.query.pages['1'] = imageinfo;
-		cb(null, response);
+		if (body.prop === 'imageinfo') {
+			var response = { query: { pages: {} } };
+			var filename = body.titles;
+			var ii = imageInfo(filename, body.iiurlwidth, body.iiurlheight, false);
+			if (ii === null) {
+				response.query.pages['-1'] = {
+					ns: 6,
+					title: filename,
+					missing: '',
+					imagerepository: '',
+				};
+			} else {
+				response.query.normalized = [{ from: filename, to: ii.normPagename }];
+				response.query.pages['1'] = {
+					pageid: 1,
+					ns: 6,
+					title: ii.normPagename,
+					imageinfo: [ii.result],
+				};
+			}
+			return cb(null, response);
+		}
+		return cb(new Error('Uh oh!'));
 	},
 
 	expandtemplates: function(body, cb) {
@@ -448,6 +457,11 @@ var availableActions = {
 				case 'preprocess':
 					res = preProcess(b.text);
 					break;
+				case 'imageinfo':
+					var txopts = b.txopts || {};
+					var ii = imageInfo('File:' + b.filename, txopts.width, txopts.height, true);
+					// NOTE: Return early here since a null is acceptable.
+					return (ii !== null) ? ii.result : null;
 			}
 			if (res === null) { errs.push(b); }
 			return res;
