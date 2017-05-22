@@ -78,14 +78,6 @@ var FILE_PROPS = {
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
-function sanitizeHTMLAttribute(text) {
-	return text
-		.replace(/&/g, '&amp;')
-		.replace(/"/g, '&quot;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
-}
-
 var mainPage = {
 	query: {
 		pages: {
@@ -347,37 +339,15 @@ var querySiteinfo = function(body, cb) {
 	cb(null, require('../lib/config/baseconfig/enwiki.json'));
 };
 
+var parse = function(text, onlypst) {
+	var html = onlypst ? text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1") : '\n';
+	return { text: html };
+};
+
 var availableActions = {
 	parse: function(body, cb) {
-		var resultText;
-		var text = body.text;
-		var onlypst = body.onlypst;
-		var re = /<testextension(?: ([^>]*))?>((?:[^<]|<(?!\/testextension>))*)<\/testextension>/;
-		var replaceString = '<p data-options="$1">$2</p>';
-		var result = text.match(re);
-
-		// I guess this doesn't need to be a function anymore, but still.
-		function handleTestExtension(opts, content) {
-			var optHash = {};
-			opts = opts.split(/ +/);
-			for (var i = 0; i < opts.length; i++) {
-				var opt = opts[i].split('=');
-				optHash[opt[0]] = opt[1].trim().replace(/(^"|"*$)/g, '');
-			}
-			return replaceString
-				.replace('$1', sanitizeHTMLAttribute(JSON.stringify(optHash)))
-				.replace('$2', sanitizeHTMLAttribute(content));
-		}
-
-		if (result) {
-			resultText = handleTestExtension(result[1], result[2]);
-		} else if (onlypst) {
-			resultText = body.text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1");
-		} else {
-			resultText = body.text;
-		}
-
-		cb(null, { parse: { text: { '*': resultText } } });
+		var result = parse(body.text, body.onlypst);
+		cb(null, { parse: { text: { '*': result.text } } });
 	},
 
 	query: function(body, cb) {
@@ -462,6 +432,9 @@ var availableActions = {
 					var ii = imageInfo('File:' + b.filename, txopts.width, txopts.height, true);
 					// NOTE: Return early here since a null is acceptable.
 					return (ii !== null) ? ii.result : null;
+				case 'parse':
+					res = parse(b.text);
+					break;
 			}
 			if (res === null) { errs.push(b); }
 			return res;

@@ -677,7 +677,7 @@ var getOpts = function() {
 	}, {
 		// override defaults for standard options
 		fetchTemplates: false,
-		usephppreprocessor: false,
+		usePHPPreProcessor: false,
 		fetchConfig: false,
 	});
 

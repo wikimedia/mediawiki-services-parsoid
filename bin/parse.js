@@ -405,7 +405,8 @@ if (require.main === module) {
 			parsoidOptions.fetchConfig = false;
 			parsoidOptions.fetchTemplates = false;
 			parsoidOptions.fetchImageInfo = false;
-			parsoidOptions.usephppreprocessor = false;
+			parsoidOptions.usePHPPreProcessor = false;
+			parsoidOptions.expandExtensions = false;
 		}
 
 		if (parsoidOptions.localsettings) {
