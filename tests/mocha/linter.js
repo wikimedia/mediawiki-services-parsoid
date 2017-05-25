@@ -44,7 +44,7 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("type", "missing-end-tag");
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 				result[0].should.have.a.property("templateInfo");
-				result[0].templateInfo.should.have.a.property("name", "1x");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "p");
 			});
@@ -65,6 +65,8 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "DIV");
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should lint stripped tags correctly in misnested tag situations (</i> is stripped)', function() {
@@ -83,6 +85,8 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 22, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "i");
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)', function() {
@@ -133,6 +137,8 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 30, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "tt");
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should not lint auto-inserted obsolete tags', function() {
@@ -186,6 +192,8 @@ describe('Linter Tests', function() {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
 				result[0].dsr.should.deep.equal([ 0, 43, null, null]);
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should not lint whitespaces as ignored table attributes', function() {
@@ -217,6 +225,8 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 29, null, null ]);
 				result[0].should.have.a.property("params");
 				result[0].params.items.should.include.members(["foo"]);
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should batch lint Bogus image options correctly', function() {
@@ -270,7 +280,7 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("params");
 				result[0].params.should.have.a.property("name", "b");
 				result[0].should.have.a.property("templateInfo");
-				result[0].templateInfo.should.have.a.property("name", "1x");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
 		it('should lint mixed-content templates', function() {
@@ -340,7 +350,7 @@ describe('Linter Tests', function() {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "deletable-table-tag");
 				result[0].should.have.a.property("templateInfo");
-				result[0].templateInfo.should.have.a.property("name", "1x");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 				result[0].dsr.should.deep.equal([ 0, 56, null, null ]);
 			});
 		});
