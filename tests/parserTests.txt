@@ -25944,13 +25944,34 @@ Parsoid should accept interwiki shortcuts
 !! options
 parsoid=html2wt
 !! html/parsoid
-<a rel='mw:WikiLink' href='./fr:Foo'>Foo</a>
+<p><a rel='mw:WikiLink' href='./fr:Foo'>Foo</a>
 <a rel='mw:ExtLink' href='./fr:Foo'>Foo</a>
-<a href='./fr:Foo'>Foo</a>
+<a href='./fr:Foo'>Foo</a></p>
+<p><a rel='mw:WikiLink' href='fr%3AFoo'>Foo</a>
+<a rel='mw:ExtLink' href='fr%3AFoo'>Foo</a>
+<a href='fr%3AFoo'>Foo</a></p>
 !! wikitext
 [[:fr:Foo|Foo]]
 [[:fr:Foo|Foo]]
 [[:fr:Foo|Foo]]
+
+[[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+!! end
+
+!! test
+Parsoid should not accept invalid interwiki shortcuts
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><a rel='mw:WikiLink' href='news:Foo'>Foo</a>
+<a rel='mw:ExtLink' href='news:Foo'>Foo</a>
+<a href='news:Foo'>Foo</a></p>
+!! wikitext
+[news:Foo Foo]
+[news:Foo Foo]
+[news:Foo Foo]
 !! end
 
 # See T93839

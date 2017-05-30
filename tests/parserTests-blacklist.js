@@ -1143,6 +1143,7 @@ add("html2wt", "Empty TR followed by a template-generated TR", "{|\n{{echo|<tr><
 add("html2wt", "Empty TR followed by mixed-ws-comment line should RT correctly", "{|\n\n <!--c-->|-\n<!--c--> <!--d-->\n|}\n");
 add("html2wt", "Improperly nested inline or quotes tags with whitespace in between", "<span> <s>x</s></span><s> </s>\n''' ''x'''''<nowiki/>'' ''\n");
 add("html2wt", "T73074: More fostering fun", "[[Category:Two]]\n<table><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]");
+add("html2wt", "Parsoid should not accept invalid interwiki shortcuts", "[[news:Foo|Foo]]\n[news:Foo Foo]\n[news:Foo Foo]\n");
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]\n");
 
