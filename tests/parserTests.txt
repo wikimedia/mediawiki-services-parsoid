@@ -28096,6 +28096,17 @@ dice
 <span name="foo"></span>
 !! end
 
+!! test
+New transclusion added after a list should be serialized after the list
+!! options
+parsoid=html2wt
+!! html/parsoid
+<ul><li>a</li></ul><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>
+!! wikitext
+* a
+{{echo|foo}}
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
