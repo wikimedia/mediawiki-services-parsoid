@@ -8302,6 +8302,21 @@ subpage
 !! end
 
 !! test
+Serialization of purely hash wikilink
+!! options
+title=[[User:Test/123]]
+subpage
+parsoid=html2wt
+!! html/parsoid
+<p><a href="#a">[[</a></p>
+!! wikitext
+[[#a|<nowiki>[[</nowiki>]]
+!! html/php
+<p><a href="#a">[[</a>
+</p>
+!! end
+
+!! test
 1. Interaction of linktrail and template encapsulation
 !! wikitext
 {{echo|[[Foo]]}}l
