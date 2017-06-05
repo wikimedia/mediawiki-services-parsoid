@@ -17911,6 +17911,19 @@ Sanitizer: Validating that <meta> and <link> work, but only for Microdata
 !! end
 
 !! test
+Sanitizer: Strip comments from CSS attributes
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+<span style="margin:/*negate mbox-text padding */-0.125em -0.45em; /*rainbow*/rgba(255, 0, 0, 0.3)">2013</span>
+!! html/php
+<p><span style="margin: -0.125em -0.45em;  rgba(255, 0, 0, 0.3)">2013</span>
+</p>
+!! html/parsoid
+<p><span style="margin: -0.125em -0.45em;  rgba(255, 0, 0, 0.3)">2013</span></p>
+!! end
+
+!! test
 Language converter: output gets cut off unexpectedly (T7757)
 !! options
 language=zh
