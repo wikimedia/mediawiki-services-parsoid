@@ -249,7 +249,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 
 	// Helper function for getting a random string
 	function randomString() {
-		return random().toString(36).slice(2);
+		return random.uint32().toString(36);
 	}
 
 	function insertNewNode(n) {
