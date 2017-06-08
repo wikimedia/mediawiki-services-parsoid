@@ -9142,8 +9142,6 @@ some text
 <ol data-parsoid='{}'><li data-parsoid='{}'>redirect <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page"},"sa":{"href":"Main Page"}}'>Main Page</a></li></ol>
 !! end
 
-# FIXME: Should hoist the redirect to the top of the page and ensure there
-# is only one.
 !! test
 New redirect
 !! options
@@ -9151,8 +9149,8 @@ parsoid=html2wt
 !! html/parsoid
 <p>Foo<link rel="mw:PageProp/redirect" href="./Foo"/></p>
 !! wikitext
-Foo
 #REDIRECT [[Foo]]
+Foo
 !! end
 
 !! test
@@ -26057,7 +26055,8 @@ language=de
 <!-- this is good  -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
 <!-- this is great -->    <link rel="mw:PageProp/Category" href="./Kategorie:Great" />
 !! wikitext
-         #WEITERLEITUNG [[Main Page]]
+#WEITERLEITUNG [[Main Page]]
+         
 <!-- this is good  -->    [[Category:Good]]
 <!-- this is great -->    [[Kategorie:Great]]
 !! end
