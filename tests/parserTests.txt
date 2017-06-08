@@ -9155,6 +9155,16 @@ Foo
 #REDIRECT [[Foo]]
 !! end
 
+!! test
+Redirect followed by block on the same line
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+#REDIRECT [[Main Page]]== hi ==
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page"/><h2 id="hi"> hi </h2>
+!! end
+
 ##
 ## XHTML tidiness
 ###
