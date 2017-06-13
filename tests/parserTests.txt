@@ -9156,11 +9156,11 @@ Foo
 !! test
 Redirect followed by block on the same line
 !! options
-parsoid=wt2html,html2html
+parsoid=wt2html
 !! wikitext
-#REDIRECT [[Main Page]]== hi ==
+#REDIRECT [[Main Page]]<!-- haha -->== hi ==
 !! html/parsoid
-<link rel="mw:PageProp/redirect" href="./Main_Page"/><h2 id="hi"> hi </h2>
+<link rel="mw:PageProp/redirect" href="./Main_Page"/><!-- haha --><h2 id="hi"> hi </h2>
 !! end
 
 ##
