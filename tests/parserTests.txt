@@ -25958,12 +25958,17 @@ parsoid=html2wt
 <p><a rel='mw:WikiLink' href='fr%3AFoo'>Foo</a>
 <a rel='mw:ExtLink' href='fr%3AFoo'>Foo</a>
 <a href='fr%3AFoo'>Foo</a></p>
+<p><a href='FR%3AFoo'>Foo</a>
+<a href='./FR:Foo'>Foo</a></p>
 !! wikitext
 [[:fr:Foo|Foo]]
 [[:fr:Foo|Foo]]
 [[:fr:Foo|Foo]]
 
 [[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+[[:fr:Foo|Foo]]
+
 [[:fr:Foo|Foo]]
 [[:fr:Foo|Foo]]
 !! end
