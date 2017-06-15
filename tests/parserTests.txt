@@ -9163,6 +9163,16 @@ parsoid=wt2html
 <link rel="mw:PageProp/redirect" href="./Main_Page"/><!-- haha --><h2 id="hi"> hi </h2>
 !! end
 
+!! test
+Redirect followed by a newline
+!! wikitext
+#REDIRECT [[Main Page]]
+A newline
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
+<p>A newline</p>
+!! end
+
 ##
 ## XHTML tidiness
 ###
