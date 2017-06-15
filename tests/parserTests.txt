@@ -26070,8 +26070,7 @@ language=de
 <!-- this is good  -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
 <!-- this is great -->    <link rel="mw:PageProp/Category" href="./Kategorie:Great" />
 !! wikitext
-#WEITERLEITUNG [[Main Page]]
-         
+#WEITERLEITUNG [[Main Page]]         
 <!-- this is good  -->    [[Category:Good]]
 <!-- this is great -->    [[Kategorie:Great]]
 !! end
