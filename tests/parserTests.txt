@@ -278,6 +278,12 @@ Template:CircularRef
 <ref>{{CircularRef}}</ref>
 !! endarticle
 
+!! article
+Template:With: Colon
+!! text
+Template with colon
+!! endarticle
+
 ###
 ### Basic tests
 ###
@@ -2818,7 +2824,7 @@ Templates: Handle comments in the target
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo&lt;!-- should be ignored -->","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
-!!end
+!! end
 
 !! test
 Templates: Handle comments in parameter names (T69657)
@@ -2848,7 +2854,7 @@ Templates: Handle comments in parameter names (T69657)
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"1&lt;!-- should be ignored -->"}}},"i":0}}]}'>foo</p>
 
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo","key":{"wt":"&lt;!-- should be ignored -->1"}}},"i":0}}]}'>foo</p>
-!!end
+!! end
 
 !! test
 Templates: Other wikitext in parameter names (T69657)
@@ -2859,11 +2865,23 @@ Templates: Other wikitext in parameter names (T69657)
 </p>
 !! html/parsoid
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"&#39;&#39;1&#39;&#39;":{"wt":"foo"}},"i":0}}]}'>{{{1}}}</p>
-!!end
+!! end
+
+!! test
+Templates: With colons
+!! wikitext
+{{With: Colon}}
+!! html/php
+<p>Template with colon
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"With: Colon","href":"./Template:With:_Colon"},"params":{},"i":0}}]}'>Template with colon</p>
+!! end
 
 #--------------------------------------------------------------------
 # Transclusion parameter escaping tests
 #--------------------------------------------------------------------
+
 !! test
 Templates: Parsoid parameter escaping test 1
 !! wikitext
