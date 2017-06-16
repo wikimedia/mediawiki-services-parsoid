@@ -9173,6 +9173,20 @@ A newline
 <p>A newline</p>
 !! end
 
+!! test
+Redirect followed by multiple newlines
+!! wikitext
+#REDIRECT [[Main Page]]
+
+
+A newline
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page"/>
+
+<p><br/>
+A newline</p>
+!! end
+
 ##
 ## XHTML tidiness
 ###

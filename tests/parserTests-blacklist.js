@@ -1459,6 +1459,9 @@ add("selser", "Different interwiki prefixes mapping to the same URL [1,3,1,4,[[4
 add("selser", "Parsoid: recognize interwiki links without a target page [2,2,1]", "13h7yqp\n\n[[:es:]]\n\nn76wcf\n\n[[ko:]]");
 add("selser", "Parsoid: recognize interwiki links without a target page [[2],2,1]", "1fz9jlc[[:es:]]\n\n2alzzr\n\n[[ko:]]");
 add("selser", "Parsoid: recognize interwiki links without a target page [1,4,1]", "[[:es:]]\n\neviwhn\n\n[[ko:]]");
+add("selser", "Redirect followed by multiple newlines [0,3,[3,4]]", "#REDIRECT [[Main Page]]m6skhw\n");
+add("selser", "Redirect followed by multiple newlines [0,3,[4,4]]", "#REDIRECT [[Main Page]]3y8z9650g3za\n");
+add("selser", "Redirect followed by multiple newlines [0,3,[2,3]]", "#REDIRECT [[Main Page]]8bz10p\n");
 add("selser", "Handling html with a div self-closing tag [0,0,4,0,1,0,1,0,3,4,3]", "<div title />\njvfv9u\n<div title=\"\" data-foobar=\"19amz5u\" />\n<div title=\"bar\" data-foobar=\"2c0zl1\" />\nunjgxk\n");
 add("selser", "Handling html with a div self-closing tag [0,2,3,0,1,3,4,0,0,0,2]", "<div title />z4hu3d\n\n<div title=\"\" data-foobar=\"1ejw30m\" />zpk4k0\n<div title=bar/>\n9vzhbx<div title=bar/ >");
 add("selser", "Handling html with a div self-closing tag [0,2,0,2,0,0,1,2,4,3,1]", "<div title />z1wu6q\n<div title/>prls0w\n<div title/ >\n<div title=\"bar\" data-foobar=\"17m8bl0\" />7xb62b\najpkh9<div title=\"bar/\" data-foobar=\"z4xusc\">");
