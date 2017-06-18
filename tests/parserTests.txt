@@ -9205,6 +9205,18 @@ A newline
 A newline</p>
 !! end
 
+!! test
+Drop duplicate redirects
+!! options
+parsoid=html2wt
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Foo"/>
+<link rel="mw:PageProp/redirect" href="./Bar"/>
+<link rel="mw:PageProp/redirect" href="./Baz"/>
+!! wikitext
+#REDIRECT [[Foo]]
+!! end
+
 ##
 ## XHTML tidiness
 ###
@@ -26102,7 +26114,7 @@ language=de
 <!-- this is good  -->    <link rel="mw:PageProp/Category" href="./Category:Good" />
 <!-- this is great -->    <link rel="mw:PageProp/Category" href="./Kategorie:Great" />
 !! wikitext
-#WEITERLEITUNG [[Main Page]]         
+         #WEITERLEITUNG [[Main Page]]
 <!-- this is good  -->    [[Category:Good]]
 <!-- this is great -->    [[Kategorie:Great]]
 !! end
