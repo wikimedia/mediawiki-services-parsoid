@@ -39,6 +39,10 @@ var opts = yargs.usage(usage, {
 		'default': 'master',
 		alias: 'c',
 	},
+	contentVersion: {
+		description: 'The acceptable content version.',
+		boolean: false,
+	},
 	// FIXME: Add an option for the regression url.
 });
 
@@ -73,6 +77,7 @@ var opts = yargs.usage(usage, {
 				return rtTest.runTests(t.title, {
 					prefix: t.prefix,
 					parsoidURL: ret.parsoidURL,
+					contentVersion: argv.contentVersion,
 				}, rtTest.jsonFormat).then(
 					handleResult.bind(null, t)
 				);
