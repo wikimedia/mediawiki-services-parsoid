@@ -208,6 +208,11 @@ startsAtWikitext = function(argv, env, input) {
 	env.setPageSrcInfo(input);
 	var handler = env.getContentHandler(argv.contentmodel);
 	return handler.toHTML(env)
+	.tap(function(doc) {
+		if (env.conf.parsoid.useBatchAPI) {
+			return DU.addRedLinks(env, doc);
+		}
+	})
 	.then(function(doc) {
 		if (argv.lint) {
 			env.log("end/parse");
