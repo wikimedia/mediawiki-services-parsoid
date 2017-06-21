@@ -8190,6 +8190,33 @@ Non-breaking spaces in title
 </p>
 !!end
 
+# Add new article for the test below so that it doesn't red-link
+!! article
+Foo bar baz
+!! text
+boo
+!! endarticle
+
+!! test
+Multiple spaces in titles should normalize to a single underscore
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+[[Foo bar baz|x]]
+[[Foo  bar baz|x]]
+[[Foo  bar   baz|x]]
+!! html/php
+<p><a href="/wiki/Foo_bar_baz" title="Foo bar baz">x</a>
+<a href="/wiki/Foo_bar_baz" title="Foo bar baz">x</a>
+<a href="/wiki/Foo_bar_baz" title="Foo bar baz">x</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo_bar_baz" title="Foo bar baz">x</a>
+<a rel="mw:WikiLink" href="./Foo_bar_baz" title="Foo bar baz">x</a>
+<a rel="mw:WikiLink" href="./Foo_bar_baz" title="Foo bar baz">x</a>
+</p>
+!! end
+
 !! test
 Internal link with ca linktrail, surrounded by bold apostrophes (T29473 primary issue)
 !! options

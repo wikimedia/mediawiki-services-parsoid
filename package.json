@@ -18,7 +18,7 @@
     "express-handlebars": "^3.0.0",
     "finalhandler": "^1.0.1",
     "js-yaml": "^3.8.1",
-    "mediawiki-title": "^0.5.6",
+    "mediawiki-title": "^0.6.0",
     "negotiator": "git+https://github.com/arlolra/negotiator#full-parse-access",
     "node-uuid": "^1.4.8",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
