@@ -1589,9 +1589,9 @@
       "resolved": "https://registry.npmjs.org/media-typer/-/media-typer-0.3.0.tgz"
     },
     "mediawiki-title": {
-      "version": "0.6.0",
-      "from": "mediawiki-title@0.6.0",
-      "resolved": "https://registry.npmjs.org/mediawiki-title/-/mediawiki-title-0.6.0.tgz"
+      "version": "0.6.1",
+      "from": "mediawiki-title@0.6.1",
+      "resolved": "https://registry.npmjs.org/mediawiki-title/-/mediawiki-title-0.6.1.tgz"
     },
     "merge": {
       "version": "1.2.0",
