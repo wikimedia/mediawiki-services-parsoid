@@ -13215,6 +13215,14 @@ Templates: Parameters substituted at the top-level
 <p about="#mwt3" typeof="mw:Param" data-mw='{"parts":[{"templatearg":{"target":{"wt":"foo"},"params":{"1":{"wt":"bar"},"2":{"wt":"baz"}},"i":0}}]}'>bar</p>
 !! end
 
+!! test
+Templates: Param with empty arg in the final position
+!! wikitext
+{{{hi|}}}
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Param" data-mw='{"parts":[{"templatearg":{"target":{"wt":"hi"},"params":{"1":{"wt":""}},"i":0}}]}'></span>
+!! end
+
 !!test
 Parser Functions: 1. Simple example
 !! wikitext
