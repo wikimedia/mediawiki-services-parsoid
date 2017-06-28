@@ -16876,6 +16876,24 @@ HTML tag with leading space is parsed as text
 </p>
 !! end
 
+## Don't expect Parsoid and PHP to match, since PHP isn't exactly following
+## the HTML5 parsing spec.
+!! test
+Element with broken attribute syntax
+!! options
+parsoid=wt2html
+!! wikitext
+<div style=" style="123">hi</div>
+<div =>ho</div>
+!! html/php
+<div style="123">hi</div>
+<div>ho</div>
+
+!! html/parsoid
+<div style=" style=" data-parsoid='{"stx":"html","a":{"123\"":null},"sa":{"123\"":""}}'>hi</div>
+<div data-parsoid='{"stx":"html","a":{"=":null},"sa":{"=":""}}'>ho</div>
+!! end
+
 ###
 ### Nesting tests (see T43545, T52604, T53081)
 ###
