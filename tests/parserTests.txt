@@ -22106,11 +22106,13 @@ parsoid={
 {|
 |-
 |<span class="x">Foo</span>-{Bar}-
+||<span class="x">Foo</span>-{Bar}-
 |}
 !! wikitext/edited
 {|
 |-
 |<nowiki/>-{Bar}-
+||-{Bar}-
 |}
 !! end
 
