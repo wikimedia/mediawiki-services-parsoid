@@ -18198,7 +18198,7 @@ all additional text is vanished
 </p>
 !! html/parsoid
 <p>this bit is safe: }-</p>
-<p>but if we add a conversion instance: <span typeof="mw:LanguageVariant" data-parsoid='{"fl":[]}' data-mw-variant='{"bidir":[{"l":"zh-cn","t":"xxx"},{"l":"zh-tw","t":"yyy"}]}'></span></p>
+<p>but if we add a conversion instance: <span typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"bidir":[{"l":"zh-cn","t":"xxx"},{"l":"zh-tw","t":"yyy"}]}'></span></p>
 <p>then we get cut off here: }-</p>
 <p>all additional text is vanished</p>
 !! end
@@ -21473,7 +21473,7 @@ language=zh variant=zh-tw
 <p>Taiwan, not China
 </p>
 !! html/parsoid
-<p><span typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'></span>, not China</p>
+<p><span typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'></span>, not China</p>
 !! end
 
 !! test
@@ -21491,12 +21491,10 @@ foo-{zh;zh-hans;zh-hant|blog, WEBJOURNAL, WEBLOG}-quux
 
 # Note that Parsoid post-processing for language variants needs to
 # update the `title` attribute here, based on the mw:ExpandedAttrs property
-# Parsoid html2wt mode disabled due to an insignificant whitespace difference.
 !! test
 Conversion around HTML tags
 !! options
 language=sr variant=sr-ec
-parsoid=wt2html,wt2wt,html2html
 !! wikitext
 -{H|span=>sr-ec:script;title=>sr-ec:src}-
 <span title="La-{sr-el:L;sr-ec:C}-tin">ski</span>
@@ -21505,7 +21503,8 @@ parsoid=wt2html,wt2wt,html2html
 <span title="ЛаCтин">ски</span>
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"span","l":"sr-ec","t":"script"},{"f":"title","l":"sr-ec","t":"src"}]}'/> <span title="Latin" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"title"},{"html":"La&lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"sr-el\",\"t\":\"L\"},{\"l\":\"sr-ec\",\"t\":\"C\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"dsr\":[57,76,null,2]}&#39;>&lt;/span>tin"}]]}'>ski</span></p>
+<p><meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[8]}' data-mw-variant='{"add":true,"unidir":[{"f":"span","l":"sr-ec","t":"script"},{"f":"title","l":"sr-ec","t":"src"}]}'/>
+<span title="Latin" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"title"},{"html":"La&lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"sr-el\",\"t\":\"L\"},{\"l\":\"sr-ec\",\"t\":\"C\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"tSp\":[6],\"dsr\":[57,76,null,2]}&#39;>&lt;/span>tin"}]]}'>ski</span></p>
 !! end
 
 !! test
@@ -21513,13 +21512,13 @@ Explicit session-wise bidirectional language variant mapping (A flag and - flag)
 !! options
 language=zh variant=zh-tw
 !! wikitext
-This is -{zh:China;zh-tw:Taiwan}-, but we'll forget that now.
+This is -{zh:China; zh-tw:Taiwan}-, but we'll forget that now.
 
 Taiwan is not China.
 
-But -{A|zh:China;zh-tw:Taiwan}- is China,
+But -{A|zh:China; zh-tw:Taiwan}- is China,
 
-(This-{-|zh:China;zh-tw:Taiwan}- should be stripped!)
+(This-{-|zh:China; zh-tw:Taiwan}- should be stripped!)
 
 and -{China}- is China.
 !! html/php
@@ -21579,7 +21578,7 @@ Taiwan is China.
 </p><p>Taiwan is Taiwan.
 </p>
 !! html/parsoid
-<p>(This<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/> should be stripped!)</p>
+<p>(This<meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"add":true,"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/> should be stripped!)</p>
 <p>Taiwan is China.</p>
 !! end
 
@@ -21596,7 +21595,7 @@ COUNTRY is Taiwan or China.
 </p><p>Taiwan is Taiwan or China.
 </p>
 !! html/parsoid
-<p>(This<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"COUNTRY","l":"zh","t":"China"},{"f":"COUNTRY","l":"zh-tw","t":"Taiwan"}]}'/> should be stripped!)</p>
+<p>(This<meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[8]}' data-mw-variant='{"add":true,"unidir":[{"f":"COUNTRY","l":"zh","t":"China"},{"f":"COUNTRY","l":"zh-tw","t":"Taiwan"}]}'/> should be stripped!)</p>
 <p>COUNTRY is Taiwan or China.</p>
 !! end
 
@@ -21615,7 +21614,7 @@ Taiwan
 </p><p>Taiwan is China.
 </p>
 !! html/parsoid
-<p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}],"title":true}'/>!</p>
+<p>Should be stripped<meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}],"title":true}'/>!</p>
 <p>Taiwan is China.</p>
 !! end
 
@@ -21624,7 +21623,7 @@ Code coverage: T combined with H flag
 !! options
 language=zh variant=zh-tw showtitle
 !! wikitext
-Should be stripped-{T;H|zh:China;zh-tw:Taiwan}-!
+Should be stripped-{T;H|zh:China; zh-tw:Taiwan}-!
 
 Taiwan is China.
 !! html/php
@@ -21642,7 +21641,7 @@ Code coverage: T with no variants
 !! options
 language=zh variant=zh-tw showtitle
 !! wikitext
--{H|zh:China;zh-tw:Taiwan}-
+-{H|zh:China; zh-tw:Taiwan}-
 Taiwan is China.-{T|Taiwan is China}-
 !! html/php
 Taiwan is China
@@ -21659,7 +21658,7 @@ Code coverage: rules with no variants
 !! options
 language=zh variant=zh-tw
 !! wikitext
--{H|zh:China;zh-tw:Taiwan}-
+-{H|zh:China; zh-tw:Taiwan}-
 Taiwan is China.
 -{H|China}-
 Taiwan is China.
@@ -21682,9 +21681,9 @@ Code coverage: D flag for conversion rule
 !! options
 language=zh variant=zh-tw
 !! wikitext
--{D|zh-cn:XA;zh-tw:YA}-
--{A;D|zh-cn:XB;zh-tw:YB}-
--{D;H|zh-cn:XC;zh-tw:YC}-
+-{D|zh-cn:XA; zh-tw:YA}-
+-{A;D|zh-cn:XB; zh-tw:YB}-
+-{D;H|zh-cn:XC; zh-tw:YC}-
 
 -{D;H|FOO=>zh-tw:BAR;FOO=>zh-cn:BAT}-
 
@@ -21755,7 +21754,7 @@ Testing that changing the language variant here in the tests actually works
 !! options
 language=zh variant=zh showtitle
 !! wikitext
-Should be stripped-{T|zh:China;zh-tw:Taiwan}-!
+Should be stripped-{T|zh:China; zh-tw:Taiwan}-!
 !! html/php
 China
 <p>Should be stripped!
@@ -21764,23 +21763,22 @@ China
 <p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}],"title":true}'/>!</p>
 !! end
 
-# Parsoid html2wt mode disabled due to an insignificant whitespace difference.
 !! test
 Recursive conversion of alt and title attrs shouldn't clear converter state
 !! options
 language=zh variant=zh-cn
-parsoid=wt2html,wt2wt,html2html
 showtitle
 !! wikitext
--{H|zh-cn:Exclamation;zh-tw:exclamation}-
-Should be stripped-{T|zh-cn:China;zh-tw:Taiwan}-<span title="exclamation">!</span>
+-{H|zh-cn:Exclamation; zh-tw:exclamation}-
+Should be stripped-{T|zh-cn:China; zh-tw:Taiwan}-<span title="exclamation">!</span>
 !! html/php
 China
 <p>
 Should be stripped<span title="Exclamation">!</span>
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"bidir":[{"l":"zh-cn","t":"Exclamation"},{"l":"zh-tw","t":"exclamation"}]}'/> Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-cn","t":"China"},{"l":"zh-tw","t":"Taiwan"}],"title":true}'/><span title="exclamation">!</span></p>
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"bidir":[{"l":"zh-cn","t":"Exclamation"},{"l":"zh-tw","t":"exclamation"}]}'/>
+Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-cn","t":"China"},{"l":"zh-tw","t":"Taiwan"}],"title":true}'/><span title="exclamation">!</span></p>
 !! end
 
 !! test
@@ -21788,9 +21786,9 @@ T26072: more test on conversion rule for title
 !! options
 language=zh variant=zh-tw showtitle
 !! wikitext
-This should be stripped-{T|zh:China;zh-tw:Taiwan}-!
+This should be stripped-{T|zh:China; zh-tw:Taiwan}-!
 
-This won't take interferes with the title rule-{H|zh:Beijing;zh-tw:Taipei}-.
+This won't take interferes with the title rule-{H|zh:Beijing; zh-tw:Taipei}-.
 !! html/php
 Taiwan
 <p>This should be stripped!
@@ -21812,7 +21810,7 @@ ZH
 <p>
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-cn","t":"CN"},{"l":"zh-tw","t":"TW"}],"title":true}'/></p>
+<p><meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"bidir":[{"l":"zh-cn","t":"CN"},{"l":"zh-tw","t":"TW"}],"title":true}'/></p>
 !! end
 
 !! test
@@ -21867,7 +21865,7 @@ Nested raw: -{R|nested -{zh:China;zh-tw:Taiwan}- nested}-
 <p>Nested raw: nested Taiwan nested
 </p>
 !! html/parsoid
-<p>Nested raw: <span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nested &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh\",\"t\":\"China\"},{\"l\":\"zh-tw\",\"t\":\"Taiwan\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"dsr\":[23,48,null,2]}&#39;>&lt;/span> nested"}}'></span></p>
+<p>Nested raw: <span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nested &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh\",\"t\":\"China\"},{\"l\":\"zh-tw\",\"t\":\"Taiwan\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"tSp\":[6],\"dsr\":[23,48,null,2]}&#39;>&lt;/span> nested"}}'></span></p>
 !! end
 
 !! test
@@ -21906,7 +21904,7 @@ language=zh variant=zh-cn
 <p>0
 </p>
 !! html/parsoid
-<p><span typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-cn","t":"0"},{"l":"zh-sg","t":"1"},{"l":"zh-tw","t":"2"},{"l":"zh-hk","t":"3"}]}'></span></p>
+<p><span typeof="mw:LanguageVariant" data-parsoid='{"tSp":[12]}' data-mw-variant='{"bidir":[{"l":"zh-cn","t":"0"},{"l":"zh-sg","t":"1"},{"l":"zh-tw","t":"2"},{"l":"zh-hk","t":"3"}]}'></span></p>
 !! end
 
 !! test
@@ -21919,7 +21917,7 @@ language=zh variant=zh-cn
 <p>D12345EE12345
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-cn","t":"B"}]}'/><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-cn","t":"C"},{"f":"0","l":"zh-cn","t":"D"}]}'/><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-hans","t":"A"}]}'/>012345<span typeof="mw:LanguageVariant" data-parsoid='{"ts":true,"fl":["A"]}' data-mw-variant='{"add":true,"bidir":[{"l":"zh-tw","t":"0"},{"l":"zh-cn","t":"E"}]}'></span>012345</p>
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-cn","t":"B"}]}'/><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-cn","t":"C"},{"f":"0","l":"zh-cn","t":"D"}]}'/><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"unidir":[{"f":"0","l":"zh-hans","t":"A"}]}'/>012345<span typeof="mw:LanguageVariant" data-parsoid='{"fl":["A"],"tSp":[7]}' data-mw-variant='{"add":true,"bidir":[{"l":"zh-tw","t":"0"},{"l":"zh-cn","t":"E"}]}'></span>012345</p>
 !! end
 
 !! test
@@ -21932,7 +21930,7 @@ language=zh variant=zh-cn
 <p>foobar
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-parsoid='{"ts":true}' data-mw-variant='{"add":true,"bidir":[{"l":"zh-cn","t":"foo"},{"l":"zh-tw","t":""}]}'/>foobar</p>
+<p><meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[7]}' data-mw-variant='{"add":true,"bidir":[{"l":"zh-cn","t":"foo"},{"l":"zh-tw","t":""}]}'/>foobar</p>
 !! end
 
 !! test
@@ -21945,7 +21943,7 @@ language=zh variant=zh-cn
 <p>foobar
 </p>
 !! html/parsoid
-<p><meta typeof="mw:LanguageVariant" data-parsoid='{"ts":true}' data-mw-variant='{"add":true,"unidir":[{"f":"","l":"zh-cn","t":"foo"}]}'/>foobar</p>
+<p><meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[5]}' data-mw-variant='{"add":true,"unidir":[{"f":"","l":"zh-cn","t":"foo"}]}'/>foobar</p>
 !! end
 
 !! test
@@ -21961,19 +21959,17 @@ language=zh variant=zh-cn
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"bidir":[{"l":"*","t":""}]}'/>foobar</p>
 !! end
 
-# Parsoid html2wt mode disabled due to use of trailing semicolon in rule.
 !! test
 Nested using of manual convert syntax
 !! options
 language=zh variant=zh-hk
-parsoid=wt2html,wt2wt,html2html
 !! wikitext
 Nested: -{zh-hans:Hi -{zh-cn:China;zh-sg:Singapore;}-;zh-hant:Hello -{zh-tw:Taiwan;zh-hk:H-{ong}- K-{}-ong;}-;}-!
 !! html/php
 <p>Nested: Hello Hong Kong!
 </p>
 !! html/parsoid
-<p>Nested: <span typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-hans","t":"Hi &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh-cn\",\"t\":\"China\"},{\"l\":\"zh-sg\",\"t\":\"Singapore\"}]}&#39; data-parsoid=&#39;{\"ts\":true,\"fl\":[],\"dsr\":[21,53,null,2]}&#39;>&lt;/span>"},{"l":"zh-hant","t":"Hello &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh-tw\",\"t\":\"Taiwan\"},{\"l\":\"zh-hk\",\"t\":\"H&amp;lt;span typeof=\\\"mw:LanguageVariant\\\" data-mw-variant=&amp;#39;{\\\"disabled\\\":{\\\"t\\\":\\\"ong\\\"}}&amp;#39; data-parsoid=&amp;#39;{\\\"fl\\\":[],\\\"dsr\\\":[90,97,null,2]}&amp;#39;>&amp;lt;/span> K&amp;lt;span typeof=\\\"mw:LanguageVariant\\\" data-mw-variant=&amp;#39;{\\\"disabled\\\":{\\\"t\\\":\\\"\\\"}}&amp;#39; data-parsoid=&amp;#39;{\\\"fl\\\":[],\\\"dsr\\\":[99,103,null,2]}&amp;#39;>&amp;lt;/span>ong\"}]}&#39; data-parsoid=&#39;{\"ts\":true,\"fl\":[],\"dsr\":[68,109,null,2]}&#39;>&lt;/span>"}]}'></span>!</p>
+<p>Nested: <span typeof="mw:LanguageVariant" data-parsoid='{"tSp":[7]}' data-mw-variant='{"bidir":[{"l":"zh-hans","t":"Hi &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh-cn\",\"t\":\"China\"},{\"l\":\"zh-sg\",\"t\":\"Singapore\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"tSp\":[7],\"dsr\":[21,53,null,2]}&#39;>&lt;/span>"},{"l":"zh-hant","t":"Hello &lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"bidir\":[{\"l\":\"zh-tw\",\"t\":\"Taiwan\"},{\"l\":\"zh-hk\",\"t\":\"H&amp;lt;span typeof=\\\"mw:LanguageVariant\\\" data-mw-variant=&amp;#39;{\\\"disabled\\\":{\\\"t\\\":\\\"ong\\\"}}&amp;#39; data-parsoid=&amp;#39;{\\\"fl\\\":[],\\\"dsr\\\":[90,97,null,2]}&amp;#39;>&amp;lt;/span> K&amp;lt;span typeof=\\\"mw:LanguageVariant\\\" data-mw-variant=&amp;#39;{\\\"disabled\\\":{\\\"t\\\":\\\"\\\"}}&amp;#39; data-parsoid=&amp;#39;{\\\"fl\\\":[],\\\"dsr\\\":[99,103,null,2]}&amp;#39;>&amp;lt;/span>ong\"}]}&#39; data-parsoid=&#39;{\"fl\":[],\"tSp\":[7],\"dsr\":[68,109,null,2]}&#39;>&lt;/span>"}]}'></span>!</p>
 !! end
 
 !! test
@@ -22296,7 +22292,7 @@ language=zh variant=zh-cn
 <dt>foo:bar</dt></dl>
 
 !! html/parsoid
-<dl><dt data-parsoid='{"dsr":[0,24,1,0]}'><span typeof="mw:LanguageVariant" data-mw-variant='{"bidir":[{"l":"zh-cn","t":"AAA"},{"l":"zh-tw","t":"BBB"}]}'></span></dt>
+<dl><dt data-parsoid='{"dsr":[0,24,1,0]}'><span typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"bidir":[{"l":"zh-cn","t":"AAA"},{"l":"zh-tw","t":"BBB"}]}'></span></dt>
 <dt data-parsoid='{"dsr":[25,39,1,0]}'><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"foo:bar"}}'></span></dt>
 </dl>
 !! end
@@ -22452,9 +22448,9 @@ language=zh variant=zh-cn
 
 -{H|A=><nowiki>bo:g;us</nowiki>:B}-
 
--{A|zh-tw:xyz;zh-cn:<nowiki>0;zh-tw:bar</nowiki>}-
+-{A|zh-tw:xyz; zh-cn:<nowiki>0;zh-tw:bar</nowiki>}-
 
--{<nowiki>bo:g;us</nowiki>:xyz;zh-cn:abc}-
+-{<nowiki>bo:g;us</nowiki>:xyz; zh-cn:abc}-
 
 a:b=>c xyz
 !! html/php+disabled
