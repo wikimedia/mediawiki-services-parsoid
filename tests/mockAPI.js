@@ -314,7 +314,15 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 	if (props.hasOwnProperty('duration')) {
 		result.duration = props.duration;
 	}
-	if (twidth || theight) {
+	// The batch api always generates thumbs
+	if (useBatchAPI &&
+			(theight === undefined || theight === null) &&
+			(twidth === undefined || twidth === null)) {
+		twidth = width;
+		theight = height;
+	}
+	if ((theight !== undefined && theight !== null) ||
+			(twidth !== undefined && twidth !== null)) {
 		if (twidth && (theight === undefined || theight === null)) {
 			// File::scaleHeight in PHP
 			theight = Math.round(height * twidth / width);
@@ -336,15 +344,30 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 			}
 		}
 		var urlWidth = twidth;
-		if (twidth >= width || theight >= height) {
-			// The PHP api won't enlarge an image ... but the batch api will.
-			if (!useBatchAPI) {
-				twidth = width;
-				theight = height;
+		if (twidth > width) {
+			// The PHP api won't enlarge a bitmap ... but the batch api will.
+			// But, to match the PHP sections, don't scale.
+			if (mediatype !== 'DRAWING') {
+				urlWidth = width;
 			}
-			urlWidth = width;  // That right?
 		}
-		turl += '/' + urlWidth + 'px-' + normFilename;
+		if (urlWidth !== width || ['AUDIO', 'VIDEO'].includes(mediatype)) {
+			turl += '/' + urlWidth + 'px-' + normFilename;
+			switch (mediatype) {
+				case 'AUDIO':
+					// No thumbs are generated for audio
+					turl = IMAGE_BASE_URL + '/w/resources/assets/file-type-icons/fileicon-ogg.png';
+					break;
+				case 'VIDEO':
+					turl += '.jpg';
+					break;
+				case 'DRAWING':
+					turl += '.png';
+					break;
+			}
+		} else {
+			turl = baseurl;
+		}
 		result.thumbwidth = twidth;
 		result.thumbheight = theight;
 		result.thumburl = turl;

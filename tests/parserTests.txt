@@ -14707,7 +14707,7 @@ parsoid=wt2html,wt2wt,html2html
 #    enlarged.
 
 !! test
-Image: "unspecified format" and border enlarge
+Image: unspecified format and border enlarge
 !! options
 parsoid=wt2html,wt2wt,html2html
 !! wikitext
@@ -14719,8 +14719,8 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" class="thumbborder" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
-<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
 !! end
 
 !! test
@@ -14766,8 +14766,8 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:2002px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div></div></div></div>
 
 !! html/parsoid
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
-<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></figure>
 !! end
 
 !! test
@@ -14796,8 +14796,8 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/File:Foobar.svg" class="image"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" /></a>
 </p>
 !! html/parsoid
-<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
-<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></span></p>
 !! end
 
 !! test
@@ -14894,7 +14894,7 @@ SVG thumbnails with no language set
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.svg" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg.png" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -14907,7 +14907,7 @@ parsoid=wt2html,wt2wt,html2html
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=File:Foobar.svg&amp;lang=de" class="image"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.svg" class="internal" title="Enlarge"></a></div>caption</div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg.png" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
