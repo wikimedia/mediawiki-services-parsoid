@@ -17121,11 +17121,14 @@ Nesting of <bdo>
 Media link
 !! wikitext
 [[Media:Foobar.jpg]]
+[[Media:Video.ogv]]
 !! html/php
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Foobar.jpg</a>
+<a href="http://example.com/images/0/00/Video.ogv" class="internal" title="Video.ogv">Media:Video.ogv</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a>
+<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv">Media:Video.ogv</a></p>
 !! end
 
 !! test
@@ -17191,8 +17194,6 @@ Image link to nonexistent file (T3850 - good)
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./File:No_such.jpg" title="File:No such.jpg">Image:No such.jpg</a></p>
 !! end
-
-
 
 !! test
 Character reference normalization in link text (T3938)
