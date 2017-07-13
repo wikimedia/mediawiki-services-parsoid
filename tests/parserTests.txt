@@ -8093,7 +8093,6 @@ Plain link to page with question mark in title
 </p>
 !! end
 
-
 # I'm fairly sure the expected result here is wrong.
 # We want these to be URL links, not pseudo-pages with URLs for titles....
 # However the current output is also pretty screwy.
@@ -8114,6 +8113,34 @@ Piped link to URL: [[http://www.example.com|an example URL]]
 </p>
 !! html/parsoid
 <p>Piped link to URL: [<a rel="mw:ExtLink" href="http://www.example.com%7Can" data-parsoid='{"a":{"href":"http://www.example.com%7Can"},"sa":{"href":"http://www.example.com|an"}}'>example URL</a>]</p>
+!! end
+
+!! test
+Plain link in template argument
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|[http://www.example.com |123]}}
+
+{{echo|[[http://www.example.com |123]]}}
+
+{{echo|[[http://www.example.com |123]}}
+
+{{echo|[http://www.example.com |123]]}}
+!! html/php
+<p>[<a rel="nofollow" class="external free" href="http://www.example.com">http://www.example.com</a> 
+</p><p>[<a rel="nofollow" class="external text" href="http://www.example.com">|123</a>]
+</p><p>{{echo|[<a rel="nofollow" class="external text" href="http://www.example.com">|123</a>}}
+</p><p>[<a rel="nofollow" class="external free" href="http://www.example.com">http://www.example.com</a> 
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[http://www.example.com "},"2":{"wt":"123]"}},"i":0}}]}'>[<a rel="mw:ExtLink" href="http://www.example.com">http://www.example.com</a> </p>
+
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[http://www.example.com |123]]"}},"i":0}}]}'>[<a rel="mw:ExtLink" href="http://www.example.com">|123</a>]</p>
+
+<p>{{echo|[<a rel="mw:ExtLink" href="http://www.example.com" data-parsoid='{"targetOff":114,"contentOffsets":[114,118],"dsr":[90,119,24,1]}'>|123</a>}}</p>
+
+<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[http://www.example.com "},"2":{"wt":"123]]"}},"i":0}}]}'>[<a rel="mw:ExtLink" href="http://www.example.com">http://www.example.com</a> </p>
 !! end
 
 !! test
