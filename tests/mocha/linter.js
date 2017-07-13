@@ -17,7 +17,7 @@ describe('Linter Tests', function() {
 	// will require some changes to ParsoidConfig and MWParserEnvironment.
 	// Parsing the `[[file:...]]` tags below may also require running the
 	// mock API to answer imageinfo queries.
-	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', loadWMF: true, linting: true });
+	var parsoidConfig = new ParsoidConfig(null, { wrapSections: false, defaultWiki: 'enwiki', loadWMF: true, linting: true });
 	// Undo freezing so we can tweak it below
 	parsoidConfig.linter = Util.clone(parsoidConfig.linter);
 	var parseWT = function(wt, opts) {

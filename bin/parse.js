@@ -178,6 +178,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': null,
 	},
+	'noSectionWrap': {
+		description: 'Do not output <section> tags',
+		'boolean': true,
+		'default': false,
+	},
 });
 
 (function() {
@@ -263,6 +268,10 @@ var standardOpts = Util.addStandardOptions({
 
 	if (parsoidOptions.localsettings) {
 		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
+	}
+
+	if (argv.noSectionWrap) {
+		parsoidOptions.wrapSections = !argv.noSectionWrap;
 	}
 
 	var nock, dir, nocksFile;

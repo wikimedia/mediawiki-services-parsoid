@@ -704,15 +704,13 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 			this.env.conf.wiki.allowExternalImages = undefined;
 		}
 
-		this.env.scrubWikitext = item.options.parsoid &&
-			item.options.parsoid.hasOwnProperty('scrubWikitext') ?
-				item.options.parsoid.scrubWikitext :
-				MWParserEnvironment.prototype.scrubWikitext;
-
-		this.env.nativeGallery = item.options.parsoid &&
-			item.options.parsoid.hasOwnProperty('nativeGallery') ?
-				item.options.parsoid.nativeGallery :
-				MWParserEnvironment.prototype.nativeGallery;
+		// Process test-specific options
+		var env = this.env;
+		['scrubWikitext', 'nativeGallery', 'wrapSections'].forEach(function(opt) {
+			env[opt] = item.options.parsoid &&
+			item.options.parsoid.hasOwnProperty(opt) ?
+				item.options.parsoid[opt] : MWParserEnvironment.prototype[opt];
+		});
 
 		this.env.conf.wiki.responsiveReferences =
 			(item.options.parsoid && item.options.parsoid.responsiveReferences) ||
@@ -1009,6 +1007,9 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 
 		// Needed for bidi-char-scrubbing html2wt tests.
 		parsoidConfig.scrubBidiChars = true;
+
+		// Default to false and let individual tests opt in
+		parsoidConfig.wrapSections = false;
 
 		var extensions = parsoidConfig.defaultNativeExtensions.concat(ParserHook);
 

@@ -57,6 +57,9 @@ services:
         # to load WMF's config for wikipedias, etc.
         #loadWMF: true
 
+        # Adds <section> tags around mediwiki sections (defaults to true)
+        #wrapSections: false
+
         # A default proxy to connect to the API endpoints.
         # Default: undefined (no proxying).
         # Overridden by per-wiki proxy config in setMwApi.
