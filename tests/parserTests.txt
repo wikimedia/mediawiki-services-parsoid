@@ -17141,13 +17141,16 @@ Media link
 !! wikitext
 [[Media:Foobar.jpg]]
 [[Media:Video.ogv]]
+[[:Media:Video.ogv]]
 !! html/php
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Foobar.jpg</a>
+<a href="http://example.com/images/0/00/Video.ogv" class="internal" title="Video.ogv">Media:Video.ogv</a>
 <a href="http://example.com/images/0/00/Video.ogv" class="internal" title="Video.ogv">Media:Video.ogv</a>
 </p>
 !! html/parsoid
 <p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a>
-<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv">Media:Video.ogv</a></p>
+<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv">Media:Video.ogv</a>
+<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv" data-parsoid='{"a":{"namespace":"Media"},"sa":{"namespace":":Media"}}'>Media:Video.ogv</a></p>
 !! end
 
 !! test
