@@ -264,6 +264,12 @@ var templateData = {
 		'format': 'block',
 		'paramOrder': ['f1','f2'],
 	},
+	'Template:WithParamOrderAndAliases': {
+		'params': {
+			'f1': { 'aliases': ['f3'] }
+		},
+		'paramOrder': ['f1','f2'],
+	},
 };
 
 var formatters = {

@@ -170,6 +170,17 @@ var tests = [
 			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2 = foo|f1 = foo}}',
 		},
 	},
+
+	// 11. Alias sort order
+	{
+		'name': 'Enforce param order with aliases',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion"' + " data-mw='" + '{"parts":[{"template":{"target":{"wt":"WithParamOrderAndAliases\\n","href":"./Template:WithParamOrderAndAliases"},"params":{"f2":{"wt":"foo"},"f3":{"wt":"foo"}},"i":1}}]}' + "'" + '>foo</span>',
+		'wt': {
+			'no_selser':   '{{WithParamOrderAndAliases|f3=foo|f2=foo}}',
+			'new_content': '{{WithParamOrderAndAliases|f3=foo|f2=foo}}',
+			'edited':      '{{WithParamOrderAndAliases|f3=foo|f2=BAR}}',
+		},
+	},
 ];
 
 var dataParsoidVersionTests = [
