@@ -27072,7 +27072,7 @@ Image: Block level image should have \n before and after
 <p>123</p>
 <figure class="mw-halign-right" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150"/></a></figure>
 <p>456</p>
-!!end
+!! end
 
 !! test
 Image: New block level image should have \n before and after (existing content)
@@ -27084,7 +27084,7 @@ Image: New block level image should have \n before and after (existing content)
 <p>123</p>
 <figure class="mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"right","ak":"right"},{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"150x150px"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"17","width":"150"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure>
 <p>456</p>
-!!end
+!! end
 
 !! test
 Image: upright option (parsoid)
@@ -27096,7 +27096,7 @@ Image: upright option (parsoid)
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/170px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="19" width="170"/></a><figcaption>caption</figcaption></figure>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/110px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="12" width="110"/></a><figcaption>caption</figcaption></figure>
 <figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/500px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a><figcaption>caption</figcaption></figure>
-!!end
+!! end
 
 !! test
 Image: upright option is ignored on inline and frame images (parsoid)
@@ -27104,7 +27104,15 @@ Image: upright option is ignored on inline and frame images (parsoid)
 [[File:Foobar.jpg|500x500px|upright=0.5|caption]]
 !! html/parsoid
 <p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/500px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500"/></a></span></p>
-!!end
+!! end
+
+!! test
+Image: in template parameter with empty parameter
+!! wikitext
+{{echo|[[File:Foobar.jpg|link=]]}}
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Transclusion mw:Image" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[File:Foobar.jpg|link=]]"}},"i":0}}]}'><span><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span></span></p>
+!! end
 
 !! test
 Image: from basic HTML (1)
