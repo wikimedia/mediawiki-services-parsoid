@@ -1868,6 +1868,19 @@ parsoid=wt2html,wt2wt
 </ul>
 !! end
 
+## Make sure ">" gets escaped in comments to avoid XSS
+!! test
+IE conditional comments
+!! wikitext
+<!--[if lt IE 9]>
+	<script>alert('hi');</script>
+<![endif]-->
+!! html/parsoid
+<!--[if lt IE 9]&#x3E;
+	<script&#x3E;alert('hi');</script&#x3E;
+<![endif]-->
+!! end
+
 ###
 ### paragraph wrapping tests
 ###
