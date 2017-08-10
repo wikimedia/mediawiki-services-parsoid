@@ -29,6 +29,9 @@ describe('Linter Tests', function() {
 				return result.should.be.empty;
 			});
 		});
+	});
+
+	describe('MISSING END TAGS', function() {
 		it('should lint missing end tags correctly', function() {
 			return parseWT('<div>foo').then(function(result) {
 				result.should.have.length(1);
@@ -49,6 +52,9 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "p");
 			});
 		});
+	});
+
+	describe('STRIPPED TAGS', function() {
 		it('should lint stripped tags correctly', function() {
 			return parseWT('foo</div>').then(function(result) {
 				result.should.have.length(1);
@@ -116,6 +122,9 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "small");
 			});
 		});
+	});
+
+	describe('OBSOLETE TAGS', function() {
 		it('should lint obsolete tags correctly', function() {
 			return parseWT('<tt>foo</tt>bar').then(function(result) {
 				result.should.have.length(1);
@@ -152,6 +161,9 @@ describe('Linter Tests', function() {
 				result[1].params.should.have.a.property("name", "tt");
 			});
 		});
+	});
+
+	describe('FOSTERED CONTENT', function() {
 		it('should lint fostered content correctly', function() {
 			return parseWT('{|\nfoo\n|-\n| bar\n|}').then(function(result) {
 				result.should.have.length(1);
@@ -180,7 +192,10 @@ describe('Linter Tests', function() {
 				result[0].should.have.a.property("type", "fostered");
 			});
 		});
-		it('should lint ignored table attributes Correctly', function() {
+	});
+
+	describe('IGNORED TABLE ATTRIBUTES', function() {
+		it('should lint ignored table attributes correctly', function() {
 			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "ignored-table-attr");
@@ -208,6 +223,9 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 3, 30, 22, 0 ]);
 			});
 		});
+	});
+
+	describe('BOGUS IMAGE OPTIONS', function() {
 		it('should lint Bogus image options correctly', function() {
 			return parseWT('[[file:a.jpg|foo|bar]]').then(function(result) {
 				result.should.have.length(1);
@@ -259,6 +277,9 @@ describe('Linter Tests', function() {
 				result.should.have.length(0);
 			});
 		});
+	});
+
+	describe('SELF-CLOSING TAGS', function() {
 		it('should lint self-closing tags corrrectly', function() {
 			return parseWT('foo<b />bar<span />baz<hr />boo<br /> <ref name="boo" />').then(function(result) {
 				result.should.have.length(2);
@@ -283,6 +304,9 @@ describe('Linter Tests', function() {
 				result[0].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
+	});
+
+	describe('MIXED-CONTENT TEMPLATES', function() {
 		it('should lint mixed-content templates', function() {
 			return parseWT('{{1x|*}}hi').then(function(result) {
 				result.should.have.length(1);
@@ -297,6 +321,9 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 17, null, null ]);
 			});
 		});
+	});
+
+	describe('DELETABLE TABLE TAG', function() {
 		it('should identify deletable table tag for T161341 (1)', function() {
 			var wt = [
 				"{| style='border:1px solid red;'",
@@ -374,6 +401,9 @@ describe('Linter Tests', function() {
 				result[1].dsr.should.deep.equal([ 29, 31, 0, 0 ]);
 			});
 		});
+	});
+
+	describe('PWRAP BUG WORKAROUND', function() {
 		it('should identify rendering workarounds needed for doBlockLevels bug', function() {
 			var wt = [
 				"<div><span style='white-space:nowrap'>",
