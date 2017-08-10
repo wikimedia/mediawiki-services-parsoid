@@ -23,11 +23,23 @@ describe('Linter Tests', function() {
 		});
 	};
 
+	var expectEmptyResults = function(wt) {
+		return parseWT(wt).then(function(result) {
+			return result.should.be.empty;
+		});
+	};
+
+	var expectLinterCategoryToBeAbsent = function(wt, cat) {
+		return parseWT(wt).then(function(result) {
+			result.forEach(function(r) {
+				r.should.not.have.a.property("type", cat);
+			});
+		});
+	};
+
 	describe('#Issues', function() {
 		it('should not lint any issues', function() {
-			return parseWT('foo').then(function(result) {
-				return result.should.be.empty;
-			});
+			return expectEmptyResults('foo');
 		});
 	});
 
@@ -135,9 +147,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should not lint big as an obsolete tag', function() {
-			return parseWT('<big>foo</big>bar').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('<big>foo</big>bar');
 		});
 		it('should lint obsolete tags found in transclusions correctly', function() {
 			return parseWT('{{1x|<div><tt>foo</tt></div>}}foo').then(function(result) {
@@ -172,19 +182,13 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should not lint fostered categories', function() {
-			return parseWT('{|\n[[Category:Fostered]]\n|-\n| bar\n|}').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('{|\n[[Category:Fostered]]\n|-\n| bar\n|}');
 		});
 		it('should not lint fostered behavior switches', function() {
-			return parseWT('{|\n__NOTOC__\n|-\n| bar\n|}').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('{|\n__NOTOC__\n|-\n| bar\n|}');
 		});
 		it('should not lint fostered include directives without fostered content', function() {
-			return parseWT('{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}');
 		});
 		it('should lint fostered include directives that has fostered content', function() {
 			return parseWT('{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}').then(function(result) {
@@ -212,9 +216,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should not lint whitespaces as ignored table attributes', function() {
-			return parseWT('{|\n|- \n| 1 ||style="text-align:left;"| p \n|}').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('{|\n|- \n| 1 ||style="text-align:left;"| p \n|}');
 		});
 		it('should lint as ignored table attributes', function() {
 			return parseWT('{|\n|- <!--bad attr-->attr\n|bar\n|}').then(function(result) {
@@ -257,9 +259,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should not send any Bogus image options if there are none', function() {
-			return parseWT('[[file:a.jpg|foo]]').then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('[[file:a.jpg|foo]]');
 		});
 		it('should flag noplayer, noicon, and disablecontrols as bogus options', function() {
 			return parseWT('[[File:Video.ogv|noplayer|noicon|disablecontrols=ok|These are bogus.]]')
@@ -272,10 +272,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should not crash on gallery images', function() {
-			return parseWT('<gallery>\nfile:a.jpg\n</gallery>')
-			.then(function(result) {
-				result.should.have.length(0);
-			});
+			return expectEmptyResults('<gallery>\nfile:a.jpg\n</gallery>');
 		});
 	});
 
@@ -429,11 +426,7 @@ describe('Linter Tests', function() {
 				"</span>",
 				"</div>",
 			].join('\n');
-			return parseWT(wt).then(function(result) {
-				result.forEach(function(r) {
-					r.should.not.have.a.property("type", "pwrap-bug-workaround");
-				});
-			});
+			return expectLinterCategoryToBeAbsent(wt, "pwrap-bug-workaround");
 		});
 		it('should not lint doBlockLevels bug rendering workarounds if nowrap CSS is not present', function() {
 			var wt = [
@@ -442,11 +435,7 @@ describe('Linter Tests', function() {
 				"</span>",
 				"</div>",
 			].join('\n');
-			return parseWT(wt).then(function(result) {
-				result.forEach(function(r) {
-					r.should.not.have.a.property("type", "pwrap-bug-workaround");
-				});
-			});
+			return expectLinterCategoryToBeAbsent(wt, "pwrap-bug-workaround");
 		});
 		it('should not lint doBlockLevels bug rendering workarounds where not required', function() {
 			var wt = [
@@ -455,11 +444,8 @@ describe('Linter Tests', function() {
 				"</small>",
 				"</div>",
 			].join('\n');
-			return parseWT(wt).then(function(result) {
-				result.forEach(function(r) {
-					r.should.not.have.a.property("type", "pwrap-bug-workaround");
-				});
-			});
+			return expectLinterCategoryToBeAbsent(wt, "pwrap-bug-workaround");
 		});
 	});
+
 });
