@@ -448,4 +448,90 @@ describe('Linter Tests', function() {
 		});
 	});
 
+	describe('TIDY WHITESPACE BUG', function() {
+		it('should detect problematic whitespace hoisting' , function() {
+			var wt = [
+				// Basic with inline CSS + text sibling
+				"<span style='white-space:nowrap'>",
+				"a ",
+				"</span>",
+				"x",
+				// Basic with inline CSS + span sibling
+				"<span style='white-space:nowrap'>",
+				"a ",
+				"</span>",
+				"<span>x</span>",
+				// Basic with class CSS + text sibling
+				"<span class='nowrap'>",
+				"a ",
+				"</span>",
+				"x",
+				// Basic with class CSS + span sibling
+				"<span class='nowrap'>",
+				"a ",
+				"</span>",
+				"<span>x</span>",
+				// Comments shouldn't trip it up
+				"<span style='white-space:nowrap'>",
+				"a<!--boo--> <!--boo-->",
+				"</span>",
+				"<!--boo-->",
+				"<span>x</span>",
+			].join('');
+			return parseWT(wt).then(function(result) {
+				result.should.have.length(5);
+				result.forEach(function(r) {
+					r.should.have.a.property('type', 'tidy-whitespace-bug');
+					r.params.should.have.a.property('node', 'SPAN');
+				});
+				result[0].params.should.have.a.property("sibling", "#text");
+				result[1].params.should.have.a.property("sibling", "SPAN");
+				result[2].params.should.have.a.property("sibling", "#text");
+				result[3].params.should.have.a.property("sibling", "SPAN");
+				result[4].params.should.have.a.property("sibling", "SPAN");
+				// skipping dsr tests
+			});
+		});
+		it('should not flag tidy whitespace bug (1)' , function() {
+			var wt = [
+				// No CSS
+				"<span>",
+				"a ",
+				"</span>",
+				"<span>x</span>",
+				// No trailing white-space
+				"<span class='nowrap'>",
+				"a",
+				"</span>",
+				"x",
+				// White-space follows
+				"<span class='nowrap'>",
+				"a ",
+				"</span>",
+				" ",
+				"<span>x</span>",
+				// White-space follows
+				"<span style='white-space:nowrap'>",
+				"a ",
+				"</span>",
+				"<!--boo--> boo",
+				"<span>x</span>",
+				// Block tag
+				"<div class='nowrap'>",
+				"a ",
+				"</div>",
+				"<span>x</span>",
+				// Block tag sibling
+				"<span class='nowrap'>",
+				"a ",
+				"</span>",
+				"<div>x</div>",
+				// No next sibling
+				"<span class='nowrap'>",
+				"a ",
+				"</span>",
+			].join('');
+			return expectEmptyResults(wt);
+		});
+	});
 });
