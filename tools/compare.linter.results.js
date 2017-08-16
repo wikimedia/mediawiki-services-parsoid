@@ -79,6 +79,7 @@ var highPriorityCats = [
 	"deletable-table-tag",
 	"pwrap-bug-workaround",
 	"self-closed-tag",
+	"tidy-whitespace-bug",
 ];
 
 var argv = opts.argv;
