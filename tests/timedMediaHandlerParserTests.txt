@@ -53,7 +53,7 @@ File:Video.ogv
 
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span style="display: inline-block; height: 100%; vertical-align: middle;"></span><span typeof="mw:Video" style="vertical-align: middle; display: inline-block;"><span><video poster="//example.com/images/thumb/0/00/Video.ogv/120px-Video.ogv.jpg" controls="" preload="none" height="90" width="120" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type="application/ogg" data-file-width="320" data-file-height="240"/></video></span></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Video"><span><video poster="//example.com/images/thumb/0/00/Video.ogv/120px-Video.ogv.jpg" controls="" preload="none" height="90" width="120" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type="application/ogg" data-file-width="320" data-file-height="240"/></video></span></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
 
