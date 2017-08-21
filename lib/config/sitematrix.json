@@ -515,8 +515,7 @@
 					"url": "https://ba.wikibooks.org",
 					"dbname": "bawikibooks",
 					"code": "wikibooks",
-					"sitename": "Wikibooks",
-					"closed": ""
+					"sitename": "Викидәреслек"
 				}
 			],
 			"localname": "Bashkir"
@@ -4471,7 +4470,7 @@
 					"url": "https://nl.wikinews.org",
 					"dbname": "nlwikinews",
 					"code": "wikinews",
-					"sitename": "Wikinews"
+					"sitename": "Wikinieuws"
 				},
 				{
 					"url": "https://nl.wikiquote.org",
@@ -4521,7 +4520,7 @@
 		},
 		"191": {
 			"code": "no",
-			"name": "norsk bokmål",
+			"name": "norsk",
 			"site": [
 				{
 					"url": "https://no.wikipedia.org",
