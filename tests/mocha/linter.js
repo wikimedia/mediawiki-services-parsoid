@@ -17,14 +17,14 @@ describe('Linter Tests', function() {
 	// Parsing the `[[file:...]]` tags below may also require running the
 	// mock API to answer imageinfo queries.
 	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', loadWMF: true, linting: true });
-	var parseWT = function(wt) {
-		return helpers.parse(parsoidConfig, wt).then(function(ret) {
+	var parseWT = function(wt, opts) {
+		return helpers.parse(parsoidConfig, wt, opts).then(function(ret) {
 			return ret.env.lintLogger.buffer;
 		});
 	};
 
-	var expectEmptyResults = function(wt) {
-		return parseWT(wt).then(function(result) {
+	var expectEmptyResults = function(wt, opts) {
+		return parseWT(wt, opts).then(function(result) {
 			return result.should.be.empty;
 		});
 	};
@@ -449,36 +449,30 @@ describe('Linter Tests', function() {
 	});
 
 	describe('TIDY WHITESPACE BUG', function() {
-		it('should detect problematic whitespace hoisting' , function() {
-			var wt = [
-				// Basic with inline CSS + text sibling
-				"<span style='white-space:nowrap'>",
-				"a ",
-				"</span>",
-				"x",
-				// Basic with inline CSS + span sibling
-				"<span style='white-space:nowrap'>",
-				"a ",
-				"</span>",
-				"<span>x</span>",
-				// Basic with class CSS + text sibling
-				"<span class='nowrap'>",
-				"a ",
-				"</span>",
-				"x",
-				// Basic with class CSS + span sibling
-				"<span class='nowrap'>",
-				"a ",
-				"</span>",
-				"<span>x</span>",
-				// Comments shouldn't trip it up
-				"<span style='white-space:nowrap'>",
-				"a<!--boo--> <!--boo-->",
-				"</span>",
-				"<!--boo-->",
-				"<span>x</span>",
-			].join('');
-			return parseWT(wt).then(function(result) {
+		var wt1 = [
+			// Basic with inline CSS + text sibling
+			"<span style='white-space:nowrap'>a </span>",
+			"x",
+			// Basic with inline CSS + span sibling
+			"<span style='white-space:nowrap'>a </span>",
+			"<span>x</span>",
+			// Basic with class CSS + text sibling
+			"<span class='nowrap'>a </span>",
+			"x",
+			// Basic with class CSS + span sibling
+			"<span class='nowrap'>a </span>",
+			"<span>x</span>",
+			// Comments shouldn't trip it up
+			"<span style='white-space:nowrap'>a<!--boo--> <!--boo--></span>",
+			"<!--boo-->",
+			"<span>x</span>",
+		].join('');
+
+		it('should detect problematic whitespace hoisting', function() {
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 0;
+			};
+			return parseWT(wt1, { tweakEnv: tweakEnv }).then(function(result) {
 				result.should.have.length(5);
 				result.forEach(function(r) {
 					r.should.have.a.property('type', 'tidy-whitespace-bug');
@@ -488,11 +482,80 @@ describe('Linter Tests', function() {
 				result[1].params.should.have.a.property("sibling", "SPAN");
 				result[2].params.should.have.a.property("sibling", "#text");
 				result[3].params.should.have.a.property("sibling", "SPAN");
-				result[4].params.should.have.a.property("sibling", "SPAN");
+				result[4].params.should.have.a.property("sibling", "#comment");
 				// skipping dsr tests
 			});
 		});
-		it('should not flag tidy whitespace bug (1)' , function() {
+
+		it('should not detect problematic whitespace hoisting for short text runs', function() {
+			// Nothing to trigger here
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 100;
+			};
+			return expectEmptyResults(wt1, { tweakEnv: tweakEnv });
+		});
+
+		var wt2 = [
+			"some unaffected text here ",
+			"<span style='white-space:nowrap'>a </span>",
+			"<span style='white-space:nowrap'>bb</span>",
+			"<span class='nowrap'>cc</span>",
+			"<span class='nowrap'>d </span>",
+			"<span style='white-space:nowrap'>e </span>",
+			"<span class='nowrap'>x</span>",
+		].join('');
+
+		it('should flag tidy whitespace bug on a run of affected content', function() {
+			// The run length is 11 chars in the example above
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 5;
+			};
+			return parseWT(wt2, { tweakEnv: tweakEnv }).then(function(result) {
+				result.should.have.length(3);
+				result.forEach(function(r) {
+					r.should.have.a.property('type', 'tidy-whitespace-bug');
+					r.params.should.have.a.property('node', 'SPAN');
+				});
+				result[0].params.should.have.a.property("sibling", "SPAN"); // 1st span
+				result[0].dsr.should.deep.equal([ 26, 68, 33, 7 ]);
+				result[1].params.should.have.a.property("sibling", "SPAN"); // 4th span
+				result[1].dsr.should.deep.equal([ 140, 170, 21, 7 ]);
+				result[2].params.should.have.a.property("sibling", "SPAN"); // 5th span
+				result[2].dsr.should.deep.equal([ 170, 212, 33, 7 ]);
+			});
+		});
+
+		it('should not flag tidy whitespace bug on a run of short affected content', function() {
+			// The run length is 11 chars in the example above
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 12;
+			};
+			return expectEmptyResults(wt2, { tweakEnv: tweakEnv });
+		});
+
+		it('should account for preceding text content', function() {
+			// The run length is 11 chars in the example above
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 12;
+			};
+			// Run length changes to 16 chars because of preceding text
+			wt2 = wt2.replace(/some unaffected text here /, 'some unaffected text HERE-');
+			return parseWT(wt2, { tweakEnv: tweakEnv }).then(function(result) {
+				result.should.have.length(3);
+				result.forEach(function(r) {
+					r.should.have.a.property('type', 'tidy-whitespace-bug');
+					r.params.should.have.a.property('node', 'SPAN');
+				});
+				result[0].params.should.have.a.property("sibling", "SPAN"); // 1st span
+				result[0].dsr.should.deep.equal([ 26, 68, 33, 7 ]);
+				result[1].params.should.have.a.property("sibling", "SPAN"); // 4th span
+				result[1].dsr.should.deep.equal([ 140, 170, 21, 7 ]);
+				result[2].params.should.have.a.property("sibling", "SPAN"); // 5th span
+				result[2].dsr.should.deep.equal([ 170, 212, 33, 7 ]);
+			});
+		});
+
+		it('should not flag tidy whitespace bug where it does not matter', function() {
 			var wt = [
 				// No CSS
 				"<span>",
@@ -531,7 +594,10 @@ describe('Linter Tests', function() {
 				"a ",
 				"</span>",
 			].join('');
-			return expectEmptyResults(wt);
+			var tweakEnv = function(env) {
+				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 0;
+			};
+			return expectEmptyResults(wt, { tweakEnv: tweakEnv });
 		});
 	});
 });
