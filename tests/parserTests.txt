@@ -2449,7 +2449,7 @@ Block tag pre
 foo
 </pre>
 !! html/parsoid
-<p data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p><pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo"}}'>foo</pre><p data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
+<p class='mw-empty-elt' data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p><pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo"}}'>foo</pre><p class='mw-empty-elt' data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
 !! end
 
 !!test
@@ -7307,8 +7307,8 @@ parsoid=wt2html
 !! html
 <table>
 <tbody>
-<tr></tr>
-<tr></tr>
+<tr class='mw-empty-elt'></tr>
+<tr class='mw-empty-elt'></tr>
 </tbody></table>
 !! end
 
@@ -9861,6 +9861,17 @@ parsoid=wt2html,wt2wt
 <ul>
 <li>not a li-hack</li>
 </ul>
+!! html/parsoid
+<ul><li> foo</li>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true,"liHackSrc":"* "}'>li-hack</li>
+<li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["* ",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}}]}'>templated li-hack</li>
+<li data-parsoid='{"autoInsertedEnd":true}'> <!--foo--> </li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'> unsupported li-hack with preceding comments</li></ul>
+
+<ul data-parsoid='{"stx":"html"}'>
+<li class="mw-empty-elt" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></li><li data-parsoid='{"stx":"html"}'>not a li-hack
+</li>
+</ul>
+
 !!end
 
 !! test
@@ -9896,9 +9907,9 @@ Parsoid: Test of whitespace serialization with Templated bullets
 parsoid
 !! wikitext
 * {{bullet}}
-!! html
+!! html/parsoid
 <ul>
-<li> </li><li about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"bullet","href":"./Template:Bullet"},"params":{},"i":0}}]}'> Bar</li>
+<li class="mw-empty-elt"> </li><li about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"bullet","href":"./Template:Bullet"},"params":{},"i":0}}]}'> Bar</li>
 </ul>
 !! end
 
@@ -18138,7 +18149,7 @@ Parser hook: static parser hook inside a comment
 </p>
 !! html/parsoid
 <!-- <statictag&#x3E;hello, world</statictag&#x3E; -->
-<p typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{"action":"flush"},"body":null}' data-parsoid='{}' about="#mwt2"></p>
+<p typeof='mw:Extension/statictag' data-mw='{"name":"statictag","attrs":{"action":"flush"},"body":null}' data-parsoid='{}' about='#mwt2'></p>
 !! end
 
 # Nested template calls; this case was broken by Parser.php rev 1.506,
@@ -24423,12 +24434,12 @@ Empty LI and TR nodes should not be stripped from top-level content
 !! html/parsoid
 <ul>
 <li> a</li>
-<li></li>
+<li class='mw-empty-elt'></li>
 <li> b</li>
 </ul>
 <table>
 <tbody>
-<tr></tr>
+<tr class='mw-empty-elt'></tr>
 <tr>
 <td>foo</td>
 </tr>
@@ -24442,9 +24453,9 @@ Empty TR nodes should not be stripped if they have any attributes set
 {{EmptyTRWithHTMLAttrTest}}
 !! html/parsoid
 <table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"EmptyTRWithHTMLAttrTest","href":"./Template:EmptyTRWithHTMLAttrTest"},"params":{},"i":0}}]}'>
-<tr align="center"></tr>
+<tr align='center'></tr>
 <tr><td>foo</td></tr>
-<tr align="center"></tr>
+<tr align='center'></tr>
 <tr><td>bar</td></tr>
 </table>
 !! end
@@ -26288,7 +26299,7 @@ RT-ed inter-element separators should be valid separators
 
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""},"autoInsertedEnd":true}'></tr>
+<tbody><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""},"autoInsertedEnd":true}'></tr>
 </tbody></table>
 !!end
 
@@ -26435,7 +26446,7 @@ parsoid
 !! html
 <table>
 <tbody>
-<tr></tr>
+<tr class='mw-empty-elt'></tr>
 <tr about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<tr><td>foo</td></tr>"}},"i":0}}]}'>
 <td>foo</td></tr>
 </tbody></table>
@@ -26457,7 +26468,7 @@ parsoid
 !! html
 <table>
 <tbody>
-<tr></tr>
+<tr class='mw-empty-elt'></tr>
  <!--c-->
 <tr>
 <!--c--> </tr><!--d-->
