@@ -20910,7 +20910,7 @@ HTML with raw HTML ($wgRawHtml==true)
 wgRawHtml=1
 !! wikitext
 <html><script>alert(1);</script></html>
-!! html
+!! html/php
 <p><script>alert(1);</script>
 </p>
 !! end
@@ -29240,17 +29240,18 @@ unclosed internal link XSS (T137264)
 <p>[[#%3Cscript%3Ealert(1)%3C/script%3E|</p>
 !! end
 
+# Use $wgRawHtml to inject a <style> tag, since you normally can't in wikitext
+# (Parsoid doesn't support $wgRawHtml==true)
 !! test
 Validating that <style> isn't eaten by tidy (T167349)
 !! options
-# Use $wgRawHtml to inject a <style> tag, since you normally can't in wikitext
 wgRawHtml=1
 !! wikitext
 <div class="foo">
 <html><style>.foo::before { content: "<foo>"; }</style></html>
 <html><style data-mw-foobar="baz">.foo::after { content: "<bar>"; }</style></html>
 </div>
-!! html+tidy
+!! html/php+tidy
 <div class="foo">
 <style>.foo::before { content: "<foo>"; }</style>
 <style data-mw-foobar="baz">.foo::after { content: "<bar>"; }</style>
