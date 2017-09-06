@@ -110,13 +110,13 @@ describe('Parsoid API', function() {
 
 		it('should return an html error', function(done) {
 			request(api)
-			.get(mockDomain + '/v3/page/html/Doesnotexist')
+			.get('<img src=x onerror="javascript:alert(\'hi\')">/v3/page/html/XSS')
 			.expect(404)
 			.expect(function(res) {
 				res.headers['content-type'].should.equal(
 					'text/html; charset=utf-8'
 				);
-				Util.decodeEntities(res.text).should.equal('Did not find page revisions for Doesnotexist');
+				res.text.should.equal('Invalid domain: &lt;img src=x onerror=&quot;javascript:alert(&apos;hi&apos;)&quot;&gt;');
 			})
 			.end(done);
 		});
