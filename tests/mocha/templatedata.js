@@ -101,7 +101,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{InlineTplNoParamOrder\n|f1 = foo\n|f2 = foo\n}}',
 			'new_content': '{{InlineTplNoParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{InlineTplNoParamOrder|f1 = BAR|f2 = foo}}',
+			'edited':      '{{InlineTplNoParamOrder|f1=BAR|f2=foo}}',
 		},
 	},
 
@@ -122,8 +122,8 @@ var tests = [
 		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1","spc":[" ", " ", " ", "\\n <!--ha--> "]},{"k":"f2","spc":[" ", " ", " ", ""]}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockTplNoParamOrder\\n ","href":"./Template:BlockTplNoParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
 			'no_selser':   '{{BlockTplNoParamOrder\n | f1 = foo\n <!--ha--> | f2 = foo}}',
-			'new_content': '{{BlockTplNoParamOrder\n | f1 = foo\n| f2 = foo\n}}',
-			'edited':      '{{BlockTplNoParamOrder\n | f1 = BAR\n <!--ha--> | f2 = foo\n}}',
+			'new_content': '{{BlockTplNoParamOrder\n| f1 = foo\n| f2 = foo\n}}',
+			'edited':      '{{BlockTplNoParamOrder\n| f1 = BAR\n <!--ha--> | f2 = foo\n}}',
 		},
 	},
 
@@ -134,7 +134,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{InlineTplWithParamOrder\n|f2 = foo\n|f1 = foo\n}}',
 			'new_content': '{{InlineTplWithParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{InlineTplWithParamOrder|f1 = BAR|f2 = foo}}',
+			'edited':      '{{InlineTplWithParamOrder|f1=BAR|f2=foo}}',
 		},
 	},
 
@@ -167,7 +167,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{BlockTplWithParamOrder|f2=foo|f1=foo}}SOME TEXT{{InlineTplNoParamOrder\n|f2 = foo\n|f1 = foo\n}}',
 			'new_content': '{{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2 = foo|f1 = foo}}',
+			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2=foo|f1=foo}}',
 		},
 	},
 
@@ -179,6 +179,60 @@ var tests = [
 			'no_selser':   '{{WithParamOrderAndAliases|f3=foo|f2=foo}}',
 			'new_content': '{{WithParamOrderAndAliases|f3=foo|f2=foo}}',
 			'edited':      '{{WithParamOrderAndAliases|f3=foo|f2=BAR}}',
+		},
+	},
+	// 12. Inline Formatted template 1
+	{
+		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_1","href":"./Template:InlineFormattedTpl_1"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
+		'wt': {
+			'no_selser':   'x {{InlineFormattedTpl_1|f1=|x=foo}} y',
+			'new_content': 'x {{InlineFormattedTpl_1|f1=|x=foo}} y',
+			'edited':      'x {{InlineFormattedTpl_1|f1=|x=BAR}} y',
+		},
+	},
+	// 13. Inline Formatted template 2
+	{
+		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_2","href":"./Template:InlineFormattedTpl_2"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
+		'wt': {
+			'no_selser':   'x {{InlineFormattedTpl_2|f1=|x=foo}} y',
+			'new_content': 'x \n{{InlineFormattedTpl_2 | f1 =  | x = foo}} y',
+			'edited':      'x \n{{InlineFormattedTpl_2 | f1 =  | x = BAR}} y',
+		},
+	},
+	// 14. Inline Formatted template 3
+	{
+		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_3","href":"./Template:InlineFormattedTpl_3"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
+		'wt': {
+			'no_selser':   'x {{InlineFormattedTpl_3|f1=|x=foo}} y',
+			'new_content': 'x {{InlineFormattedTpl_3| f1    = | x     = foo}} y',
+			'edited':      'x {{InlineFormattedTpl_3| f1    = | x     = BAR}} y',
+		},
+	},
+	// 15. Custom block formatting 1
+	{
+		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_1","href":"./Template:BlockFormattedTpl_1"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
+		'wt': {
+			'no_selser':   'x{{BlockFormattedTpl_1|f1=|f2=foo}}y', // data-parsoid spacing info is preserved
+			'new_content': 'x{{BlockFormattedTpl_1\n| f1 = \n| f2 = foo\n}}y', // normalized
+			'edited':      'x{{BlockFormattedTpl_1\n| f1 = \n| f2 = BAR\n}}y', // normalized
+		},
+	},
+	// 16. Custom block formatting 2
+	{
+		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
+		'wt': {
+			'no_selser':   'x{{BlockFormattedTpl_2|f1=|f2=foo}}y', // data-parsoid spacing info is preserved
+			'new_content': 'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = foo\n}}\ny', // normalized
+			'edited':      'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}\ny', // normalized
+		},
+	},
+	// 17. Custom block formatting 3
+	{
+		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_3","href":"./Template:BlockFormattedTpl_3"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
+		'wt': {
+			'no_selser':   'x{{BlockFormattedTpl_3|f1=|f2=foo}}y', // data-parsoid spacing info is preserved
+			'new_content': 'x{{BlockFormattedTpl_3|\n f1    = |\n f2    = foo}}y', // normalized
+			'edited':      'x{{BlockFormattedTpl_3|\n f1    = |\n f2    = BAR}}y', // normalized
 		},
 	},
 ];

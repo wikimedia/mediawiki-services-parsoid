@@ -291,6 +291,24 @@ var templateData = {
 		},
 		'paramOrder': ['f1','f2'],
 	},
+	'Template:InlineFormattedTpl_1': {
+		'format': '{{_|_=_}}',
+	},
+	'Template:InlineFormattedTpl_2': {
+		'format': '\n{{_ | _ = _}}',
+	},
+	'Template:InlineFormattedTpl_3': {
+		'format': '{{_| _____ = _}}',
+	},
+	'Template:BlockFormattedTpl_1': {
+		'format': '{{_\n| _ = _\n}}',
+	},
+	'Template:BlockFormattedTpl_2': {
+		'format': '\n{{_\n| _ = _\n}}\n',
+	},
+	'Template:BlockFormattedTpl_3': {
+		'format': '{{_|\n _____ = _}}',
+	},
 };
 
 var formatters = {

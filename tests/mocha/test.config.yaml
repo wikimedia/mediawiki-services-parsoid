@@ -3,6 +3,12 @@ services:
         loadWMF: true
         useSelser: true
         strictAcceptCheck: true
+        #traceFlags:
+        #   - 'wts'
+        #   - 'selser'
+        #debugFlags:
+        #   - 'wts'
+        #   - 'selser'
 
         timeouts:
             mwApi:
