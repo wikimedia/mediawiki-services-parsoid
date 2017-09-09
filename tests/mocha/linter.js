@@ -569,41 +569,30 @@ describe('Linter Tests', function() {
 		it('should not flag tidy whitespace bug where it does not matter', function() {
 			var wt = [
 				// No CSS
-				"<span>",
-				"a ",
-				"</span>",
+				"<span>a </span>",
 				"<span>x</span>",
 				// No trailing white-space
-				"<span class='nowrap'>",
-				"a",
-				"</span>",
+				"<span class='nowrap'>a</span>",
 				"x",
 				// White-space follows
-				"<span class='nowrap'>",
-				"a ",
-				"</span>",
+				"<span class='nowrap'>a </span>",
 				" ",
 				"<span>x</span>",
 				// White-space follows
-				"<span style='white-space:nowrap'>",
-				"a ",
-				"</span>",
+				"<span style='white-space:nowrap'>a </span>",
 				"<!--boo--> boo",
 				"<span>x</span>",
 				// Block tag
-				"<div class='nowrap'>",
-				"a ",
-				"</div>",
+				"<div class='nowrap'>a </div>",
 				"<span>x</span>",
 				// Block tag sibling
-				"<span class='nowrap'>",
-				"a ",
-				"</span>",
+				"<span class='nowrap'>a </span>",
 				"<div>x</div>",
+				// br sibling
+				"<span class='nowrap'>a </span>",
+				"<br/>",
 				// No next sibling
-				"<span class='nowrap'>",
-				"a ",
-				"</span>",
+				"<span class='nowrap'>a </span>",
 			].join('');
 			var tweakEnv = function(env) {
 				env.conf.parsoid.linter.tidyWhitespaceBugMaxLength = 0;
