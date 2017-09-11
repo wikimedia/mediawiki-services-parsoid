@@ -410,8 +410,12 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 	 * Currently true for template and extension content, and for entities.
 	 */
 	function domSubtreeIsEditable(env, node) {
-		return !DU.isEncapsulationWrapper(node) &&
-			!(DU.isElt(node) && node.getAttribute("typeof") === "mw:Entity");
+		return !DU.isElt(node) ||
+			(!DU.isEncapsulationWrapper(node) &&
+			node.getAttribute("typeof") !== "mw:Entity" &&
+			// Deleting these div wrappers is tantamount to removing the
+			// reference tag encaption wrappers, which results in errors.
+			!/\bmw-references-wrap\b/.test(node.getAttribute("class")));
 	}
 
 	/**
@@ -710,6 +714,14 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 				item.options.parsoid.nativeGallery :
 				MWParserEnvironment.prototype.nativeGallery;
 
+		// Cache the default so we restore it on the next go around
+		if (!this.env.responsiveReferencesDefault) {
+			this.env.responsiveReferencesDefault =
+				this.env.conf.wiki.responsiveReferences;
+		}
+		this.env.conf.wiki.responsiveReferences =
+			(item.options.parsoid && item.options.parsoid.responsiveReferences) ||
+			this.env.responsiveReferencesDefault;
 	}
 
 	// Build a list of tasks for this test that will be passed to async.waterfall
