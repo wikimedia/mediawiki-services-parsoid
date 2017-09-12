@@ -261,6 +261,12 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 		var wrapperName;
 		var newNode;
 
+		// Don't separate legacy IDs from their H? node.
+		if (n.nodeName === 'SPAN' &&
+			n.getAttribute('typeof') === 'mw:FallbackId') {
+			n = n.nextSibling || n.parentNode;
+		}
+
 		// For these container nodes, it would be buggy
 		// to insert text nodes as children
 		switch (n.parentNode.nodeName) {
