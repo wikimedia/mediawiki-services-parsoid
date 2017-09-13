@@ -225,6 +225,27 @@ var redlinksPage = {
 	},
 };
 
+var revisionPage = {
+	query: {
+		pages: {
+			'63': {
+				pageid: 63,
+				ns: 0,
+				title: 'Revision ID',
+				revisions: [
+					{
+						revid: 63,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': '{{REVISIONID}}',
+					},
+				],
+			},
+		},
+	},
+};
+
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
@@ -281,12 +302,14 @@ var formatters = {
 	},
 };
 
-var preProcess = function(text) {
+var preProcess = function(text, revid) {
 	var match = text.match(/{{echo\|(.*?)}}/);
 	if (match) {
 		return { wikitext: match[1] };
 	} else if (text === '{{colours of the rainbow}}') {
 		return { wikitext: 'purple' };
+	} else if (text === '{{REVISIONID}}') {
+		return { wikitext: String(revid) };
 	} else {
 		return null;
 	}
@@ -434,6 +457,8 @@ var availableActions = {
 				return cb(null , junkPage);
 			} else if (body.revids === '3' || body.titles === 'Large_Page') {
 				return cb(null , largePage);
+			} else if (body.revids === '63' || body.titles === 'Revision_ID') {
+				return cb(null , revisionPage);
 			} else if (body.revids === '100' || body.titles === 'Reuse_Page') {
 				return cb(null , reusePage);
 			} else if (body.revids === '101' || body.titles === 'JSON_Page') {
@@ -479,7 +504,7 @@ var availableActions = {
 	},
 
 	expandtemplates: function(body, cb) {
-		var res = preProcess(body.text);
+		var res = preProcess(body.text, body.revid);
 		if (res === null) {
 			cb(new Error('Sorry!'));
 		} else {
@@ -500,7 +525,7 @@ var availableActions = {
 			var res = null;
 			switch (b.action) {
 				case 'preprocess':
-					res = preProcess(b.text);
+					res = preProcess(b.text, b.revid);
 					break;
 				case 'imageinfo':
 					var txopts = b.txopts || {};
