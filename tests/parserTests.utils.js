@@ -332,7 +332,9 @@ var getActualExpected = function(actual, expected, getDiff) {
 var doDiff = function(actual, expected) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
-	return Diff.htmlDiff(expected.normal, actual.normal, true);
+	var e = expected.normal.replace(/\xA0/g, '\u2423');
+	var a = actual.normal.replace(/\xA0/g, '\u2423');
+	return Diff.htmlDiff(e, a, true);
 };
 
 /**
