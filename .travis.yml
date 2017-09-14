@@ -1,10 +1,12 @@
 language: node_js
 
 node_js:
-    # Production
+    # Maintenance
     - "4"
-    # Next LTS
+    # Production
     - "6"
+    # Next LTS
+    - "8"
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
