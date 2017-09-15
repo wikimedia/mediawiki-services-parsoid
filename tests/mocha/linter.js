@@ -611,4 +611,32 @@ describe('Linter Tests', function() {
 			return expectEmptyResults(wt, { tweakEnv: tweakEnv });
 		});
 	});
+
+	describe('MULTIPLE COLON ESCAPE', function() {
+		it('should lint links prefixed with multiple colons', function() {
+			return parseWT('[[None]]\n[[:One]]\n[[::Two]]\n[[:::Three]]')
+			.then(function(result) {
+				result.should.have.length(2);
+				result[0].dsr.should.deep.equal([ 18, 27 ]);
+				result[0].should.have.a.property('params');
+				result[0].params.should.have.a.property('href', '::Two');
+				result[1].dsr.should.deep.equal([ 28, 40 ]);
+				result[1].should.have.a.property('params');
+				result[1].params.should.have.a.property('href', ':::Three');
+			});
+		});
+		it('should lint links prefixed with multiple colons from templates', function() {
+			return parseWT('{{1x|[[:One]]}}\n{{1x|[[::Two]]}}')
+			.then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property('templateInfo');
+				result[0].templateInfo.should.have.a.property('name', 'Template:1x');
+				// TODO(arlolra): Frame doesn't have tsr info yet
+				result[0].dsr.should.deep.equal([ 0, 0 ]);
+				result[0].should.have.a.property('params');
+				result[0].params.should.have.a.property('href', '::Two');
+			});
+		});
+	});
+
 });
