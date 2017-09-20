@@ -84,8 +84,9 @@ services:
 
         # Enable linting of some wikitext errors to the log
         #linting: true
-        # Send lint errors to MW API instead of to the log
-        #linterSendAPI: false
+        #linter:
+        #  sendAPI: false # Send lint errors to MW API instead of to the log
+        #  apiSampling: 10 # Sampling rate (1 / 10)
 
         # Require SSL certificates to be valid (default true)
         # Set to false when using self-signed SSL certificates
