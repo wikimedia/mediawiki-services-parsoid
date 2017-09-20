@@ -639,4 +639,58 @@ describe('Linter Tests', function() {
 		});
 	});
 
+	describe('HTML5 MISNESTED TAGS', function() {
+		it('should not trigger html5 misnesting if there is no following content', function() {
+			return parseWT('<del>foo\nbar').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "del");
+			});
+		});
+		it('should trigger html5 misnesting correctly', function() {
+			return parseWT('<del>foo\n\nbar').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].dsr.should.deep.equal([ 0, 8, 5, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "del");
+			});
+		});
+		it('should trigger html5 misnesting for span (1)', function() {
+			return parseWT('<span>foo\n\nbar').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].dsr.should.deep.equal([ 0, 9, 6, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+			});
+		});
+		it('should trigger html5 misnesting for span (2)', function() {
+			return parseWT('<span>foo\n\n<div>bar</div>').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].dsr.should.deep.equal([ 0, 9, 6, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+			});
+		});
+		it('should trigger html5 misnesting for span (3)', function() {
+			return parseWT('<span>foo\n\n{|\n|x\n|}\nboo').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].dsr.should.deep.equal([ 0, 9, 6, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+			});
+		});
+		it('should not trigger html5 misnesting for formatting tags', function() {
+			return parseWT('<small>foo\n\nbar').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "small");
+			});
+		});
+	});
 });
