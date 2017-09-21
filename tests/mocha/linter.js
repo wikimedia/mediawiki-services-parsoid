@@ -207,6 +207,7 @@ describe('Linter Tests', function() {
 		});
 	});
 
+	/*
 	describe('IGNORED TABLE ATTRIBUTES', function() {
 		it('should lint ignored table attributes correctly', function() {
 			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
@@ -235,6 +236,7 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+	*/
 
 	describe('BOGUS IMAGE OPTIONS', function() {
 		it('should lint Bogus image options correctly', function() {
