@@ -171,6 +171,15 @@ describe('Linter Tests', function() {
 				result[1].params.should.have.a.property("name", "tt");
 			});
 		});
+		it('should not have template info for extension tags', function() {
+			return parseWT('<gallery>\nFile:Test.jpg|<tt>foo</tt>\n</gallery>')
+			.then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property('type', 'obsolete-tag');
+				result[0].should.not.have.a.property('templateInfo');
+				result[0].dsr.should.deep.equal([ 0, 47, 2, 2 ]);
+			});
+		});
 	});
 
 	describe('FOSTERED CONTENT', function() {
