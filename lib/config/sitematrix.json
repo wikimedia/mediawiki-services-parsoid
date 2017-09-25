@@ -499,7 +499,7 @@
 					"sitename": "ویکی‌پدیا"
 				}
 			],
-			"localname": "تۆرکجه"
+			"localname": "South Azerbaijani"
 		},
 		"20": {
 			"code": "ba",
@@ -557,7 +557,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Bikol Central"
+			"localname": "Central Bikol"
 		},
 		"24": {
 			"code": "be",
@@ -607,7 +607,7 @@
 					"sitename": "Вікіпэдыя"
 				}
 			],
-			"localname": "беларуская (тарашкевіца)‎"
+			"localname": "Belarusian (Taraškievica orthography)"
 		},
 		"26": {
 			"code": "bg",
@@ -670,7 +670,7 @@
 					"closed": ""
 				}
 			],
-			"localname": "भोजपुरी"
+			"localname": "Bhojpuri"
 		},
 		"28": {
 			"code": "bi",
@@ -915,7 +915,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "буряад"
+			"localname": "Russia Buriat"
 		},
 		"38": {
 			"code": "ca",
@@ -971,7 +971,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Chavacano de Zamboanga"
+			"localname": "Chavacano"
 		},
 		"40": {
 			"code": "cdo",
@@ -1450,7 +1450,7 @@
 					"sitename": "विकिपिडिया"
 				}
 			],
-			"localname": "डोटेली"
+			"localname": "Doteli"
 		},
 		"62": {
 			"code": "dv",
@@ -2470,6 +2470,12 @@
 					"dbname": "hiwikiversity",
 					"code": "wikiversity",
 					"sitename": "विकिविद्यालय"
+				},
+				{
+					"url": "https://hi.wikivoyage.org",
+					"dbname": "hiwikivoyage",
+					"code": "wikivoyage",
+					"sitename": "विकियात्रा"
 				}
 			],
 			"localname": "Hindi"
@@ -3131,7 +3137,7 @@
 					"sitename": "Wikipediya"
 				}
 			],
-			"localname": "Kabɩyɛ"
+			"localname": "Kabiye"
 		},
 		"128": {
 			"code": "kg",
@@ -3624,7 +3630,7 @@
 					"sitename": "Википедия"
 				}
 			],
-			"localname": "лакку"
+			"localname": "Lak"
 		},
 		"149": {
 			"code": "lez",
@@ -4585,7 +4591,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "Nouormand"
+			"localname": "Norman"
 		},
 		"194": {
 			"code": "nso",
@@ -5210,7 +5216,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
-			"localname": "tarandíne"
+			"localname": "Tarantino"
 		},
 		"224": {
 			"code": "ru",
@@ -7087,7 +7093,7 @@
 			],
 			"localname": "Zulu"
 		},
-		"count": 912,
+		"count": 913,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7544,7 +7550,7 @@
 				"closed": ""
 			},
 			{
-				"url": "https://techconduct.wikipedia.org",
+				"url": "https://techconduct.wikimedia.org",
 				"dbname": "techconductwiki",
 				"code": "techconduct",
 				"sitename": "CoC committee",
