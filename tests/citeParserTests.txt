@@ -1303,4 +1303,20 @@ Test <ref>1</ref><ref>2</ref>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{"responsive":"0"}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">1</span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Main_Page#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">2</span></li></ol>
 !! end
 
+!! test
+Responsive references: roundtrip templates
+!! options
+parsoid={
+  "responsiveReferences": { "enabled": true, "threshold": 2 }
+}
+!! wikitext
+test <ref>123</ref>
+
+{{echo|haha<references/>}}
+!! html/parsoid
+<p>test <span about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","body":{"id":"mw-reference-text-cite_note-1"},"attrs":{}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></span></p>
+
+<p about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"haha&lt;references/>"}},"i":0}}]}'>haha</p><div class="mw-references-wrap" about="#mwt4"><ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">123</span></li></ol></div>
+!! end
+
 ## End Parsoid responsive references tests
