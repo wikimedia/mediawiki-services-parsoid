@@ -22258,7 +22258,7 @@ parsoid={
 |}
 !! end
 
-# Tests LanguageVariantText._fromSelser
+# Tests LanguageVariantText._fromSelSer
 !! test
 LanguageConverter selser (4)
 !! options
