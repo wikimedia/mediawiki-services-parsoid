@@ -1803,11 +1803,6 @@
         }
       }
     },
-    "node-uuid": {
-      "version": "1.4.8",
-      "from": "node-uuid@>=1.4.8 <2.0.0",
-      "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.8.tgz"
-    },
     "nopt": {
       "version": "3.0.6",
       "from": "nopt@>=3.0.0 <4.0.0",
@@ -2717,6 +2712,11 @@
       "version": "1.0.0",
       "from": "utils-merge@1.0.0",
       "resolved": "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.0.tgz"
+    },
+    "uuid": {
+      "version": "3.1.0",
+      "from": "uuid@latest",
+      "resolved": "https://registry.npmjs.org/uuid/-/uuid-3.1.0.tgz"
     },
     "validate-npm-package-license": {
       "version": "3.0.1",

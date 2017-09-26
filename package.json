@@ -20,7 +20,6 @@
     "js-yaml": "^3.8.1",
     "mediawiki-title": "^0.6.3",
     "negotiator": "git+https://github.com/arlolra/negotiator#full-parse-access",
-    "node-uuid": "^1.4.8",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "^2.1.4",
     "request": "^2.81.0",
@@ -28,6 +27,7 @@
     "serve-favicon": "^2.4.5",
     "service-runner": "^2.2.5",
     "simplediff": "^0.1.1",
+    "uuid": "^3.1.0",
     "yargs": "^6.6.0"
   },
   "devDependencies": {
