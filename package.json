@@ -22,7 +22,7 @@
     "negotiator": "git+https://github.com/arlolra/negotiator#full-parse-access",
     "pegjs": "git+https://github.com/tstarling/pegjs#fork",
     "prfun": "^2.1.4",
-    "request": "^2.82.0",
+    "request": "^2.83.0",
     "semver": "^5.3.0",
     "serve-favicon": "^2.4.5",
     "service-runner": "^2.3.0",

@@ -2402,9 +2402,9 @@
       "dev": true
     },
     "request": {
-      "version": "2.82.0",
-      "from": "request@2.82.0",
-      "resolved": "https://registry.npmjs.org/request/-/request-2.82.0.tgz",
+      "version": "2.83.0",
+      "from": "request@2.83.0",
+      "resolved": "https://registry.npmjs.org/request/-/request-2.83.0.tgz",
       "dependencies": {
         "assert-plus": {
           "version": "1.0.0",
@@ -2477,6 +2477,11 @@
           "version": "2.0.2",
           "from": "sntp@>=2.0.0 <3.0.0",
           "resolved": "https://registry.npmjs.org/sntp/-/sntp-2.0.2.tgz"
+        },
+        "tough-cookie": {
+          "version": "2.3.3",
+          "from": "tough-cookie@>=2.3.3 <2.4.0",
+          "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.3.tgz"
         }
       }
     },
@@ -2802,7 +2807,8 @@
     "tough-cookie": {
       "version": "2.3.2",
       "from": "tough-cookie@>=2.3.0 <2.4.0",
-      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.2.tgz"
+      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.2.tgz",
+      "dev": true
     },
     "tryit": {
       "version": "1.0.3",

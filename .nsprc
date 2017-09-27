@@ -1,6 +1,5 @@
 {
   "exceptions": [
-    "https://nodesecurity.io/advisories/338",
-    "https://nodesecurity.io/advisories/525"
+    "https://nodesecurity.io/advisories/338"
   ]
 }
