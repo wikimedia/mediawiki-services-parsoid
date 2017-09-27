@@ -8,6 +8,7 @@ require('../../core-upgrade.js');
 require('chai').should();
 
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
+var Util = require('../../lib/utils/Util.js').Util;
 var helpers = require('./test.helpers.js');
 
 describe('Linter Tests', function() {
@@ -17,6 +18,8 @@ describe('Linter Tests', function() {
 	// Parsing the `[[file:...]]` tags below may also require running the
 	// mock API to answer imageinfo queries.
 	var parsoidConfig = new ParsoidConfig(null, { defaultWiki: 'enwiki', loadWMF: true, linting: true });
+	// Undo freezing so we can tweak it below
+	parsoidConfig.linter = Util.clone(parsoidConfig.linter);
 	var parseWT = function(wt, opts) {
 		return helpers.parse(parsoidConfig, wt, opts).then(function(ret) {
 			return ret.env.lintLogger.buffer;
