@@ -676,6 +676,34 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "span");
 			});
 		});
+		it('should not trigger html5 misnesting when there is no misnested content', function() {
+			return parseWT('<span>foo\n\n</span>y').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misnested-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+			});
+		});
+		it('should not trigger html5 misnesting when misnested content is outside an a-tag (without link-trails)', function() {
+			return parseWT('[[Foo|<span>foo]]Bar</span>').then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+				result[1].should.have.a.property("type", "stripped-tag");
+			});
+		});
+		// Note that this is a false positive because of T177086 and fixing that will fix this.
+		// We expect this to be an edge case.
+		it('should trigger html5 misnesting when linktrails brings content inside an a-tag', function() {
+			return parseWT('[[Foo|<span>foo]]bar</span>').then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+				result[1].should.have.a.property("type", "stripped-tag");
+			});
+		});
 		it('should not trigger html5 misnesting for formatting tags', function() {
 			return parseWT('<small>foo\n\nbar').then(function(result) {
 				result.should.have.length(1);
