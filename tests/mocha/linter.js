@@ -712,5 +712,29 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "small");
 			});
 		});
+		it('should not trigger html5 misnesting for span if there is a nested span tag', function() {
+			return parseWT('<span>foo<span>boo</span>\n\nbar</span>').then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "stripped-tag");
+			});
+		});
+		it('should trigger html5 misnesting for span if there is a nested non-span tag', function() {
+			return parseWT('<span>foo<del>boo</del>\n\nbar</span>').then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "html5-misnesting");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "span");
+				result[1].should.have.a.property("type", "stripped-tag");
+			});
+		});
+		it('should trigger html5 misnesting for span if there is a nested unclosed span tag', function() {
+			return parseWT('<span>foo<span>boo\n\nbar</span>').then(function(result) {
+				result.should.have.length(3);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "html5-misnesting");
+				result[2].should.have.a.property("type", "stripped-tag");
+			});
+		});
 	});
 });
