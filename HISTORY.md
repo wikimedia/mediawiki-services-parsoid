@@ -1,3 +1,60 @@
+0.8.0 / 2017-10-13
+==================
+  Notable wt -> html changes:
+  * T43716: Parse and serialize language converter markup
+  * T64270: Support video and audio content
+  * T39902, T149794: Markup red links, disambiguation links in Parsoid HTML
+  * T122965: Support HTML5 elements in older browsers
+  * T173384: Improve handling of tokens in parser function targets
+  * T153885: Handle templated template names
+  * T151277: Handle [[Media:Foo.jpg]] syntax correctly
+  * Generalize removal of useless p-wrappers
+  * More permissive attribute name parsing
+    + match PHP parser's attribute sanitizer
+  * Remove dependence on native parser functions
+  * Stop using usePHPPreProcessor as a proxy for an existing mw api to parse extensions
+  * Several bug fixes
+
+  Notable html -> wt changes:
+  * T135667, T138492: Use improved format specifier for TemplateData enabling templates
+    to control formatting of transclusions after VE edits
+  * T153107: Fix unhandled detection of modified link content
+  * T136653: Handle interwiki shortcuts
+  * Cleanup in separator handling in the wikitext serializer
+  * Several bug fixes
+
+  API:
+  * Remove support for pb2html in the http api
+
+  Extensions:
+  * Cite:
+    - T159894: Add support for Cite's `responsive` parameter
+  * Gallery:
+    - Remove inline styling for vertical alignment in traditional galleries
+    - All media should scale in gallery
+
+  Dependencies:
+  * Upgrade service-runner, mediawiki-title
+  * Use uuid instead of node-uuid
+  * Upgrade several dependencies to deal with security advisories
+
+  Infrastructure:
+  * Migrate from jshint to eslint
+
+  Notable wikitext linting changes:
+  * Move linter config properties to the linter config object
+  * Only lint pages that have wikitext contentmodel
+  * Lint multiple colon escaped links (incorrect usage)
+  * Add an API endpoint to get lint errors for wikitext
+  * Turn off ignored-table-attr output
+  * Add detection for several wikitext patterns that render differently
+    in Tidy compared to a HTML5 based parser (Parsoid, RemexHTML).
+    This is only relevant if you want to fix pages before replacing
+    Tidy or if you want to use Parsoid HTML for non-edit purposes.
+
+  Other:
+  * Add code of conduct file to the repo
+
 0.7.1 / 2017-04-05
 ==================
   No changes.  New release to update nodejs dependency in the deb package.
