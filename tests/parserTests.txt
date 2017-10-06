@@ -1928,6 +1928,17 @@ No p-wrappable content
 <small><em></em></small><span><s><div>x</div></s></span>
 !! end
 
+# T177612: Parsoid-only test
+!! test
+Transclusion meta tags shouldn't trip Parsoid's useless p-wrapper stripping code
+!! wikitext
+{{echo|<span><div>x</div></span>}}
+x
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;span>&lt;div>x&lt;/div>&lt;/span>"}},"i":0}}]}'><div>x</div></span>
+<p>x</p>
+!! end
+
 !! test
 Block tag on one line (<blockquote>)
 !! wikitext
