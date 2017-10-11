@@ -684,6 +684,14 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "span");
 			});
 		});
+		it('should not trigger html5 misnesting when unclosed tag is inside a td/th/heading tags', function() {
+			return parseWT('=<span id="1">x=\n{|\n!<span id="2">z\n|-\n|<span>id="3"\n|}').then(function(result) {
+				result.should.have.length(3);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "missing-end-tag");
+				result[2].should.have.a.property("type", "missing-end-tag");
+			});
+		});
 		it('should not trigger html5 misnesting when misnested content is outside an a-tag (without link-trails)', function() {
 			return parseWT('[[Foo|<span>foo]]Bar</span>').then(function(result) {
 				result.should.have.length(2);
