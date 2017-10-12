@@ -19,6 +19,8 @@ var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
 
+var initTime;
+
 process.on('SIGUSR2', function() {
 	var heapdump = require('heapdump');
 	console.error('SIGUSR2 received! Writing snapshot.');
@@ -240,12 +242,22 @@ startsAtWikitext = function(argv, env, input) {
 
 var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain) {
 	var env;
+	var s1, s2;
+	s1 = Date.now();
 	return ParserEnv.getParserEnv(parsoidConfig, {
 		prefix: prefix,
 		domain: domain,
 		pageName: argv.page,
 	}).then(function(_env) {
 		env = _env;
+		env.startTime = s1;
+		if (initTime) {
+			// When used in lib/index.js as an exported module,
+			// this will be undefined. And, since we will be
+			// may be using this in a repl setup, init time is
+			// not as relevant.
+			env.bumpTimeUse("Init", initTime);
+		}
 
 		// fetch templates from enwiki by default.
 		if (argv.wgScriptPath) {
@@ -294,6 +306,9 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 		if (typeof input === 'string') {
 			return input;
 		}
+
+		s2 = Date.now();
+		env.bumpTimeUse("Setup Environment", s2 - s1);
 
 		if (argv.inputfile) {
 			// read input from the file, then process
@@ -348,6 +363,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			}
 			return startsAtHTML(argv, env, str, pb);
 		} else {
+			env.bumpTimeUse("Pre-parse (source fetch)", Date.now() - s2);
 			return startsAtWikitext(argv, env, str);
 		}
 	});
@@ -355,6 +371,7 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 
 if (require.main === module) {
 	(function() {
+		var start = Date.now();
 		var defaultModeStr = "Default conversion mode : --wt2html";
 
 		var opts = yargs.usage(
@@ -447,6 +464,8 @@ if (require.main === module) {
 				return -1;
 			}
 		}
+
+		initTime = Date.now() - start;
 
 		return parse(null, argv, pc, prefix, domain)
 		.then(function(res) {
