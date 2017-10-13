@@ -26,6 +26,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Afar"
 		},
 		"1": {
@@ -46,6 +47,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Abkhazian"
 		},
 		"2": {
@@ -59,6 +61,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Achinese"
 		},
 		"3": {
@@ -72,6 +75,7 @@
 					"sitename": "Википедие"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Adyghe"
 		},
 		"4": {
@@ -103,6 +107,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Afrikaans"
 		},
 		"5": {
@@ -130,6 +135,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Akan"
 		},
 		"6": {
@@ -164,6 +170,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Alemannisch"
 		},
 		"7": {
@@ -190,6 +197,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Amharic"
 		},
 		"8": {
@@ -209,6 +217,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Aragonese"
 		},
 		"9": {
@@ -249,6 +258,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Old English"
 		},
 		"10": {
@@ -298,6 +308,7 @@
 					"sitename": "ويكي الجامعة"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Arabic"
 		},
 		"11": {
@@ -311,6 +322,7 @@
 					"sitename": "ܘܝܩܝܦܕܝܐ"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Aramaic"
 		},
 		"12": {
@@ -324,6 +336,7 @@
 					"sitename": "ويكيبيديا"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Egyptian Arabic"
 		},
 		"13": {
@@ -357,6 +370,7 @@
 					"sitename": "ৱিকিউৎস"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Assamese"
 		},
 		"14": {
@@ -390,6 +404,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Asturian"
 		},
 		"15": {
@@ -403,6 +418,7 @@
 					"sitename": "Wikipetcia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Atikamekw"
 		},
 		"16": {
@@ -423,6 +439,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Avaric"
 		},
 		"17": {
@@ -449,6 +466,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Aymara"
 		},
 		"18": {
@@ -486,6 +504,7 @@
 					"sitename": "Vikimənbə"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Azerbaijani"
 		},
 		"19": {
@@ -499,6 +518,7 @@
 					"sitename": "ویکی‌پدیا"
 				}
 			],
+			"dir": "rtl",
 			"localname": "South Azerbaijani"
 		},
 		"20": {
@@ -518,6 +538,7 @@
 					"sitename": "Викидәреслек"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bashkir"
 		},
 		"21": {
@@ -531,6 +552,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bavarian"
 		},
 		"22": {
@@ -544,6 +566,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Samogitian"
 		},
 		"23": {
@@ -557,6 +580,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Central Bikol"
 		},
 		"24": {
@@ -594,6 +618,7 @@
 					"sitename": "Вікікрыніцы"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Belarusian"
 		},
 		"25": {
@@ -607,6 +632,7 @@
 					"sitename": "Вікіпэдыя"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Belarusian (Taraškievica orthography)"
 		},
 		"26": {
@@ -650,6 +676,7 @@
 					"sitename": "Уикиизточник"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bulgarian"
 		},
 		"27": {
@@ -670,6 +697,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bhojpuri"
 		},
 		"28": {
@@ -697,6 +725,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bislama"
 		},
 		"29": {
@@ -710,6 +739,7 @@
 					"sitename": "Wikipidia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Banjar"
 		},
 		"30": {
@@ -744,6 +774,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bambara"
 		},
 		"31": {
@@ -775,6 +806,7 @@
 					"sitename": "উইকিসংকলন"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bangla"
 		},
 		"32": {
@@ -802,6 +834,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tibetan"
 		},
 		"33": {
@@ -815,6 +848,7 @@
 					"sitename": "উইকিপিডিয়া"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bishnupriya"
 		},
 		"34": {
@@ -846,6 +880,7 @@
 					"sitename": "Wikimammenn"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Breton"
 		},
 		"35": {
@@ -889,6 +924,7 @@
 					"sitename": "Wikizvor"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Bosnian"
 		},
 		"36": {
@@ -902,6 +938,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Buginese"
 		},
 		"37": {
@@ -915,6 +952,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Russia Buriat"
 		},
 		"38": {
@@ -958,6 +996,7 @@
 					"sitename": "Viquitexts"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Catalan"
 		},
 		"39": {
@@ -971,6 +1010,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chavacano"
 		},
 		"40": {
@@ -984,6 +1024,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Min Dong Chinese"
 		},
 		"41": {
@@ -997,6 +1038,7 @@
 					"sitename": "Википеди"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chechen"
 		},
 		"42": {
@@ -1010,6 +1052,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cebuano"
 		},
 		"43": {
@@ -1037,6 +1080,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chamorro"
 		},
 		"44": {
@@ -1051,6 +1095,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Choctaw"
 		},
 		"45": {
@@ -1070,6 +1115,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cherokee"
 		},
 		"46": {
@@ -1083,6 +1129,7 @@
 					"sitename": "Tsétsêhéstâhese Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cheyenne"
 		},
 		"47": {
@@ -1096,6 +1143,7 @@
 					"sitename": "ویکیپیدیا"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Central Kurdish"
 		},
 		"48": {
@@ -1129,6 +1177,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Corsican"
 		},
 		"49": {
@@ -1156,6 +1205,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cree"
 		},
 		"50": {
@@ -1169,6 +1219,7 @@
 					"sitename": "Vikipediya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Crimean Turkish"
 		},
 		"51": {
@@ -1218,6 +1269,7 @@
 					"sitename": "Wikiverzita"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Czech"
 		},
 		"52": {
@@ -1237,6 +1289,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kashubian"
 		},
 		"53": {
@@ -1250,6 +1303,7 @@
 					"sitename": "Википєдїꙗ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Church Slavic"
 		},
 		"54": {
@@ -1269,6 +1323,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chuvash"
 		},
 		"55": {
@@ -1306,6 +1361,7 @@
 					"sitename": "Wicidestun"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Welsh"
 		},
 		"56": {
@@ -1343,6 +1399,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Danish"
 		},
 		"57": {
@@ -1398,6 +1455,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "German"
 		},
 		"58": {
@@ -1411,6 +1469,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Dinka"
 		},
 		"59": {
@@ -1424,6 +1483,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Zazaki"
 		},
 		"60": {
@@ -1437,6 +1497,7 @@
 					"sitename": "Wikipedija"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lower Sorbian"
 		},
 		"61": {
@@ -1450,6 +1511,7 @@
 					"sitename": "विकिपिडिया"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Doteli"
 		},
 		"62": {
@@ -1469,6 +1531,7 @@
 					"sitename": "ވިކިރަދީފު"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Divehi"
 		},
 		"63": {
@@ -1489,6 +1552,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Dzongkha"
 		},
 		"64": {
@@ -1502,6 +1566,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ewe"
 		},
 		"65": {
@@ -1557,6 +1622,7 @@
 					"sitename": "Βικιταξίδια"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Greek"
 		},
 		"66": {
@@ -1570,6 +1636,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Emiliano-Romagnolo"
 		},
 		"67": {
@@ -1625,6 +1692,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "English"
 		},
 		"68": {
@@ -1668,6 +1736,7 @@
 					"sitename": "Vikifontaro"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Esperanto"
 		},
 		"69": {
@@ -1723,6 +1792,7 @@
 					"sitename": "Wikiviajes"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Spanish"
 		},
 		"70": {
@@ -1760,6 +1830,7 @@
 					"sitename": "Vikitekstid"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Estonian"
 		},
 		"71": {
@@ -1791,6 +1862,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Basque"
 		},
 		"72": {
@@ -1804,6 +1876,7 @@
 					"sitename": "Güiquipeya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Extremaduran"
 		},
 		"73": {
@@ -1853,6 +1926,7 @@
 					"sitename": "ویکی‌سفر"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Persian"
 		},
 		"74": {
@@ -1866,6 +1940,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Fulah"
 		},
 		"75": {
@@ -1921,6 +1996,7 @@
 					"sitename": "Wikimatkat"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Finnish"
 		},
 		"76": {
@@ -1934,6 +2010,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Võro"
 		},
 		"77": {
@@ -1953,6 +2030,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Fijian"
 		},
 		"78": {
@@ -1978,6 +2056,7 @@
 					"sitename": "Wikiheimild"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Faroese"
 		},
 		"79": {
@@ -2033,6 +2112,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "French"
 		},
 		"80": {
@@ -2046,6 +2126,7 @@
 					"sitename": "Vouiquipèdia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Arpitan"
 		},
 		"81": {
@@ -2059,6 +2140,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Northern Frisian"
 		},
 		"82": {
@@ -2072,6 +2154,7 @@
 					"sitename": "Vichipedie"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Friulian"
 		},
 		"83": {
@@ -2097,6 +2180,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Western Frisian"
 		},
 		"84": {
@@ -2130,6 +2214,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Irish"
 		},
 		"85": {
@@ -2143,6 +2228,7 @@
 					"sitename": "Vikipediya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Gagauz"
 		},
 		"86": {
@@ -2156,6 +2242,7 @@
 					"sitename": "維基百科"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Gan Chinese"
 		},
 		"87": {
@@ -2175,6 +2262,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Scottish Gaelic"
 		},
 		"88": {
@@ -2212,6 +2300,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Galician"
 		},
 		"89": {
@@ -2225,6 +2314,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Gilaki"
 		},
 		"90": {
@@ -2251,6 +2341,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Guarani"
 		},
 		"91": {
@@ -2264,6 +2355,7 @@
 					"sitename": "विकिपीडिया"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Goan Konkani"
 		},
 		"92": {
@@ -2284,6 +2376,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Gothic"
 		},
 		"93": {
@@ -2322,6 +2415,7 @@
 					"sitename": "વિકિસ્રોત"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Gujarati"
 		},
 		"94": {
@@ -2341,6 +2435,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Manx"
 		},
 		"95": {
@@ -2360,6 +2455,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hausa"
 		},
 		"96": {
@@ -2373,6 +2469,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hakka Chinese"
 		},
 		"97": {
@@ -2386,6 +2483,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hawaiian"
 		},
 		"98": {
@@ -2435,6 +2533,7 @@
 					"sitename": "ויקימסע"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Hebrew"
 		},
 		"99": {
@@ -2478,6 +2577,7 @@
 					"sitename": "विकियात्रा"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hindi"
 		},
 		"100": {
@@ -2491,6 +2591,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Fiji Hindi"
 		},
 		"101": {
@@ -2505,6 +2606,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hiri Motu"
 		},
 		"102": {
@@ -2542,6 +2644,7 @@
 					"sitename": "Wikizvor"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Croatian"
 		},
 		"103": {
@@ -2561,6 +2664,7 @@
 					"sitename": "Wikisłownik"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Upper Sorbian"
 		},
 		"104": {
@@ -2581,6 +2685,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Haitian Creole"
 		},
 		"105": {
@@ -2625,6 +2730,7 @@
 					"sitename": "Wikiforrás"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Hungarian"
 		},
 		"106": {
@@ -2662,6 +2768,7 @@
 					"sitename": "Վիքիդարան"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Armenian"
 		},
 		"107": {
@@ -2676,6 +2783,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Herero"
 		},
 		"108": {
@@ -2701,6 +2809,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Interlingua"
 		},
 		"109": {
@@ -2738,6 +2847,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Indonesian"
 		},
 		"110": {
@@ -2764,6 +2874,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Interlingue"
 		},
 		"111": {
@@ -2777,6 +2888,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Igbo"
 		},
 		"112": {
@@ -2791,6 +2903,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sichuan Yi"
 		},
 		"113": {
@@ -2811,6 +2924,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Inupiaq"
 		},
 		"114": {
@@ -2824,6 +2938,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Iloko"
 		},
 		"115": {
@@ -2843,6 +2958,7 @@
 					"sitename": "Wikivortaro"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ido"
 		},
 		"116": {
@@ -2880,6 +2996,7 @@
 					"sitename": "Wikiheimild"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Icelandic"
 		},
 		"117": {
@@ -2935,6 +3052,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Italian"
 		},
 		"118": {
@@ -2954,6 +3072,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Inuktitut"
 		},
 		"119": {
@@ -3003,6 +3122,7 @@
 					"sitename": "ウィキバーシティ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Japanese"
 		},
 		"120": {
@@ -3016,6 +3136,7 @@
 					"sitename": "Wikipidia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Jamaican Creole English"
 		},
 		"121": {
@@ -3035,6 +3156,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lojban"
 		},
 		"122": {
@@ -3054,6 +3176,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Javanese"
 		},
 		"123": {
@@ -3085,6 +3208,7 @@
 					"sitename": "ვიკიციტატა"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Georgian"
 		},
 		"124": {
@@ -3098,6 +3222,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kara-Kalpak"
 		},
 		"125": {
@@ -3111,6 +3236,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kabyle"
 		},
 		"126": {
@@ -3124,6 +3250,7 @@
 					"sitename": "Уикипедиэ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kabardian"
 		},
 		"127": {
@@ -3137,6 +3264,7 @@
 					"sitename": "Wikipediya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kabiye"
 		},
 		"128": {
@@ -3150,6 +3278,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kongo"
 		},
 		"129": {
@@ -3163,6 +3292,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kikuyu"
 		},
 		"130": {
@@ -3177,6 +3307,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kuanyama"
 		},
 		"131": {
@@ -3209,6 +3340,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kazakh"
 		},
 		"132": {
@@ -3228,6 +3360,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kalaallisut"
 		},
 		"133": {
@@ -3253,6 +3386,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Khmer"
 		},
 		"134": {
@@ -3291,6 +3425,7 @@
 					"sitename": "ವಿಕಿಸೋರ್ಸ್"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kannada"
 		},
 		"135": {
@@ -3340,6 +3475,7 @@
 					"sitename": "위키배움터"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Korean"
 		},
 		"136": {
@@ -3353,6 +3489,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Komi-Permyak"
 		},
 		"137": {
@@ -3374,6 +3511,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kanuri"
 		},
 		"138": {
@@ -3387,6 +3525,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Karachay-Balkar"
 		},
 		"139": {
@@ -3420,6 +3559,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "rtl",
 			"localname": "Kashmiri"
 		},
 		"140": {
@@ -3433,6 +3573,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Colognian"
 		},
 		"141": {
@@ -3464,6 +3605,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kurdish"
 		},
 		"142": {
@@ -3477,6 +3619,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Komi"
 		},
 		"143": {
@@ -3503,6 +3646,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cornish"
 		},
 		"144": {
@@ -3534,6 +3678,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kyrgyz"
 		},
 		"145": {
@@ -3571,6 +3716,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Latin"
 		},
 		"146": {
@@ -3584,6 +3730,7 @@
 					"sitename": "Vikipedya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ladino"
 		},
 		"147": {
@@ -3617,6 +3764,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Luxembourgish"
 		},
 		"148": {
@@ -3630,6 +3778,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lak"
 		},
 		"149": {
@@ -3643,6 +3792,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lezghian"
 		},
 		"150": {
@@ -3656,6 +3806,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ganda"
 		},
 		"151": {
@@ -3693,6 +3844,7 @@
 					"sitename": "Wikibrónne"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Limburgish"
 		},
 		"152": {
@@ -3706,6 +3858,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ligurian"
 		},
 		"153": {
@@ -3719,6 +3872,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lombard"
 		},
 		"154": {
@@ -3745,6 +3899,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lingala"
 		},
 		"155": {
@@ -3764,6 +3919,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lao"
 		},
 		"156": {
@@ -3777,6 +3933,7 @@
 					"sitename": "ڤیکیپئدیا"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Northern Luri"
 		},
 		"157": {
@@ -3814,6 +3971,7 @@
 					"sitename": "Vikišaltiniai"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Lithuanian"
 		},
 		"158": {
@@ -3827,6 +3985,7 @@
 					"sitename": "Vikipedeja"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Latgalian"
 		},
 		"159": {
@@ -3853,6 +4012,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Latvian"
 		},
 		"160": {
@@ -3866,6 +4026,7 @@
 					"sitename": "विकिपिडिया"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Maithili"
 		},
 		"161": {
@@ -3879,6 +4040,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Basa Banyumasan"
 		},
 		"162": {
@@ -3892,6 +4054,7 @@
 					"sitename": "Википедиесь"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Moksha"
 		},
 		"163": {
@@ -3917,6 +4080,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Malagasy"
 		},
 		"164": {
@@ -3938,6 +4102,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Marshallese"
 		},
 		"165": {
@@ -3951,6 +4116,7 @@
 					"sitename": "Википедий"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Eastern Mari"
 		},
 		"166": {
@@ -3977,6 +4143,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Maori"
 		},
 		"167": {
@@ -3990,6 +4157,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Minangkabau"
 		},
 		"168": {
@@ -4021,6 +4189,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Macedonian"
 		},
 		"169": {
@@ -4058,6 +4227,7 @@
 					"sitename": "വിക്കിഗ്രന്ഥശാല"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Malayalam"
 		},
 		"170": {
@@ -4084,6 +4254,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Mongolian"
 		},
 		"171": {
@@ -4105,6 +4276,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "молдовеняскэ"
 		},
 		"172": {
@@ -4142,6 +4314,7 @@
 					"sitename": "विकिस्रोत"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Marathi"
 		},
 		"173": {
@@ -4155,6 +4328,7 @@
 					"sitename": "Википеди"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Western Mari"
 		},
 		"174": {
@@ -4180,6 +4354,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Malay"
 		},
 		"175": {
@@ -4199,6 +4374,7 @@
 					"sitename": "Wikizzjunarju"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Maltese"
 		},
 		"176": {
@@ -4213,6 +4389,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Creek"
 		},
 		"177": {
@@ -4226,6 +4403,7 @@
 					"sitename": "Biquipédia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Mirandese"
 		},
 		"178": {
@@ -4252,6 +4430,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Burmese"
 		},
 		"179": {
@@ -4265,6 +4444,7 @@
 					"sitename": "Википедиясь"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Erzya"
 		},
 		"180": {
@@ -4278,6 +4458,7 @@
 					"sitename": "ویکی‌پدیا"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Mazanderani"
 		},
 		"181": {
@@ -4311,6 +4492,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Nauru"
 		},
 		"182": {
@@ -4337,6 +4519,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Nāhuatl"
 		},
 		"183": {
@@ -4350,6 +4533,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Neapolitan"
 		},
 		"184": {
@@ -4383,6 +4567,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Low German"
 		},
 		"185": {
@@ -4396,6 +4581,7 @@
 					"sitename": "Wikipedie"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Low Saxon"
 		},
 		"186": {
@@ -4421,6 +4607,7 @@
 					"sitename": "विकिपुस्तक"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Nepali"
 		},
 		"187": {
@@ -4434,6 +4621,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Newari"
 		},
 		"188": {
@@ -4448,6 +4636,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ndonga"
 		},
 		"189": {
@@ -4497,6 +4686,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Dutch"
 		},
 		"190": {
@@ -4522,6 +4712,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Norwegian Nynorsk"
 		},
 		"191": {
@@ -4565,6 +4756,7 @@
 					"sitename": "Wikikilden"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Norwegian"
 		},
 		"192": {
@@ -4578,6 +4770,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Novial"
 		},
 		"193": {
@@ -4591,6 +4784,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Norman"
 		},
 		"194": {
@@ -4604,6 +4798,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Northern Sotho"
 		},
 		"195": {
@@ -4617,6 +4812,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Navajo"
 		},
 		"196": {
@@ -4630,6 +4826,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Nyanja"
 		},
 		"197": {
@@ -4655,6 +4852,7 @@
 					"sitename": "Wikilibres"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Occitan"
 		},
 		"198": {
@@ -4668,6 +4866,7 @@
 					"sitename": "Wikipedii"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Livvi-Karelian"
 		},
 		"199": {
@@ -4687,6 +4886,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Oromo"
 		},
 		"200": {
@@ -4712,6 +4912,7 @@
 					"sitename": "ଉଇକିପାଠାଗାର"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Odia"
 		},
 		"201": {
@@ -4725,6 +4926,7 @@
 					"sitename": "Википеди"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ossetic"
 		},
 		"202": {
@@ -4756,6 +4958,7 @@
 					"sitename": "ਵਿਕੀਸਰੋਤ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Punjabi"
 		},
 		"203": {
@@ -4769,6 +4972,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Pangasinan"
 		},
 		"204": {
@@ -4782,6 +4986,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Pampanga"
 		},
 		"205": {
@@ -4795,6 +5000,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Papiamento"
 		},
 		"206": {
@@ -4808,6 +5014,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Picard"
 		},
 		"207": {
@@ -4821,6 +5028,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Pennsylvania German"
 		},
 		"208": {
@@ -4834,6 +5042,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Palatine German"
 		},
 		"209": {
@@ -4854,6 +5063,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Pali"
 		},
 		"210": {
@@ -4867,6 +5077,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Norfuk / Pitkern"
 		},
 		"211": {
@@ -4916,6 +5127,7 @@
 					"sitename": "Wikipodróże"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Polish"
 		},
 		"212": {
@@ -4929,6 +5141,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Piedmontese"
 		},
 		"213": {
@@ -4948,6 +5161,7 @@
 					"sitename": "وکشنری"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Western Punjabi"
 		},
 		"214": {
@@ -4961,6 +5175,7 @@
 					"sitename": "Βικιπαίδεια"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Pontic"
 		},
 		"215": {
@@ -4987,6 +5202,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "rtl",
 			"localname": "Pashto"
 		},
 		"216": {
@@ -5042,6 +5258,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Portuguese"
 		},
 		"217": {
@@ -5075,6 +5292,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Quechua"
 		},
 		"218": {
@@ -5102,6 +5320,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Romansh"
 		},
 		"219": {
@@ -5115,6 +5334,7 @@
 					"sitename": "Vikipidiya"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Romani"
 		},
 		"220": {
@@ -5135,6 +5355,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Rundi"
 		},
 		"221": {
@@ -5184,6 +5405,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Romanian"
 		},
 		"222": {
@@ -5203,6 +5425,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Aromanian"
 		},
 		"223": {
@@ -5216,6 +5439,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tarantino"
 		},
 		"224": {
@@ -5271,6 +5495,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Russian"
 		},
 		"225": {
@@ -5284,6 +5509,7 @@
 					"sitename": "Вікіпедія"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Rusyn"
 		},
 		"226": {
@@ -5303,6 +5529,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kinyarwanda"
 		},
 		"227": {
@@ -5340,6 +5567,7 @@
 					"sitename": "विकिस्रोतः"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sanskrit"
 		},
 		"228": {
@@ -5359,6 +5587,7 @@
 					"sitename": "Бикитиэкэ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sakha"
 		},
 		"229": {
@@ -5379,6 +5608,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sardinian"
 		},
 		"230": {
@@ -5398,6 +5628,7 @@
 					"sitename": "Wikizziunariu"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sicilian"
 		},
 		"231": {
@@ -5411,6 +5642,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Scots"
 		},
 		"232": {
@@ -5437,6 +5669,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "rtl",
 			"localname": "Sindhi"
 		},
 		"233": {
@@ -5457,6 +5690,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Northern Sami"
 		},
 		"234": {
@@ -5476,6 +5710,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sango"
 		},
 		"235": {
@@ -5495,6 +5730,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Serbo-Croatian"
 		},
 		"236": {
@@ -5520,6 +5756,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sinhala"
 		},
 		"237": {
@@ -5553,6 +5790,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Simple English"
 		},
 		"238": {
@@ -5590,6 +5828,7 @@
 					"sitename": "Wikizdroje"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Slovak"
 		},
 		"239": {
@@ -5633,6 +5872,7 @@
 					"sitename": "Wikiverza"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Slovenian"
 		},
 		"240": {
@@ -5652,6 +5892,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Samoan"
 		},
 		"241": {
@@ -5672,6 +5913,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Shona"
 		},
 		"242": {
@@ -5691,6 +5933,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Somali"
 		},
 		"243": {
@@ -5728,6 +5971,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Albanian"
 		},
 		"244": {
@@ -5771,6 +6015,7 @@
 					"sitename": "Викизворник"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Serbian"
 		},
 		"245": {
@@ -5784,6 +6029,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sranan Tongo"
 		},
 		"246": {
@@ -5803,6 +6049,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Swati"
 		},
 		"247": {
@@ -5822,6 +6069,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Southern Sotho"
 		},
 		"248": {
@@ -5835,6 +6083,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Saterland Frisian"
 		},
 		"249": {
@@ -5867,6 +6116,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Sundanese"
 		},
 		"250": {
@@ -5922,6 +6172,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Swedish"
 		},
 		"251": {
@@ -5948,6 +6199,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Swahili"
 		},
 		"252": {
@@ -5961,6 +6213,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Silesian"
 		},
 		"253": {
@@ -6004,6 +6257,7 @@
 					"sitename": "விக்கிமூலம்"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tamil"
 		},
 		"254": {
@@ -6017,6 +6271,7 @@
 					"sitename": "ವಿಕಿಪೀಡಿಯ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tulu"
 		},
 		"255": {
@@ -6054,6 +6309,7 @@
 					"sitename": "వికీసోర్స్"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Telugu"
 		},
 		"256": {
@@ -6067,6 +6323,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tetum"
 		},
 		"257": {
@@ -6092,6 +6349,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tajik"
 		},
 		"258": {
@@ -6136,6 +6394,7 @@
 					"sitename": "วิกิซอร์ซ"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Thai"
 		},
 		"259": {
@@ -6155,6 +6414,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tigrinya"
 		},
 		"260": {
@@ -6188,6 +6448,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Turkmen"
 		},
 		"261": {
@@ -6213,6 +6474,7 @@
 					"sitename": "Wikibooks"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tagalog"
 		},
 		"262": {
@@ -6232,6 +6494,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tswana"
 		},
 		"263": {
@@ -6252,6 +6515,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tongan"
 		},
 		"264": {
@@ -6271,6 +6535,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tok Pisin"
 		},
 		"265": {
@@ -6314,6 +6579,7 @@
 					"sitename": "Vikikaynak"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Turkish"
 		},
 		"266": {
@@ -6333,6 +6599,7 @@
 					"sitename": "Wiktionary"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tsonga"
 		},
 		"267": {
@@ -6365,6 +6632,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tatar"
 		},
 		"268": {
@@ -6378,6 +6646,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tumbuka"
 		},
 		"269": {
@@ -6398,6 +6667,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Twi"
 		},
 		"270": {
@@ -6411,6 +6681,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tahitian"
 		},
 		"271": {
@@ -6424,6 +6695,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Tuvinian"
 		},
 		"272": {
@@ -6437,6 +6709,7 @@
 					"sitename": "Википедия"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Udmurt"
 		},
 		"273": {
@@ -6470,6 +6743,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "rtl",
 			"localname": "Uyghur"
 		},
 		"274": {
@@ -6519,6 +6793,7 @@
 					"sitename": "Вікімандри"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Ukrainian"
 		},
 		"275": {
@@ -6550,6 +6825,7 @@
 					"sitename": "وکی اقتباسات"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Urdu"
 		},
 		"276": {
@@ -6582,6 +6858,7 @@
 					"sitename": "Vikiiqtibos"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Uzbek"
 		},
 		"277": {
@@ -6595,6 +6872,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Venda"
 		},
 		"278": {
@@ -6620,6 +6898,7 @@
 					"sitename": "Wikisource"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Venetian"
 		},
 		"279": {
@@ -6633,6 +6912,7 @@
 					"sitename": "Vikipedii"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Veps"
 		},
 		"280": {
@@ -6676,6 +6956,7 @@
 					"sitename": "Wikivoyage"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Vietnamese"
 		},
 		"281": {
@@ -6689,6 +6970,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "West Flemish"
 		},
 		"282": {
@@ -6722,6 +7004,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Volapük"
 		},
 		"283": {
@@ -6748,6 +7031,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Walloon"
 		},
 		"284": {
@@ -6761,6 +7045,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Waray"
 		},
 		"285": {
@@ -6786,6 +7071,7 @@
 					"sitename": "Wikiquote"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Wolof"
 		},
 		"286": {
@@ -6799,6 +7085,7 @@
 					"sitename": "维基百科"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Wu Chinese"
 		},
 		"287": {
@@ -6812,6 +7099,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Kalmyk"
 		},
 		"288": {
@@ -6839,6 +7127,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Xhosa"
 		},
 		"289": {
@@ -6852,6 +7141,7 @@
 					"sitename": "ვიკიპედია"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Mingrelian"
 		},
 		"290": {
@@ -6877,6 +7167,7 @@
 					"sitename": "װיקיביבליאָטעק"
 				}
 			],
+			"dir": "rtl",
 			"localname": "Yiddish"
 		},
 		"291": {
@@ -6904,6 +7195,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Yoruba"
 		},
 		"292": {
@@ -6938,6 +7230,7 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Zhuang"
 		},
 		"293": {
@@ -6951,6 +7244,7 @@
 					"sitename": "Wikipedia"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Zeelandic"
 		},
 		"294": {
@@ -7000,6 +7294,7 @@
 					"sitename": "维基导游"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chinese"
 		},
 		"295": {
@@ -7013,6 +7308,7 @@
 					"sitename": "維基大典"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Classical Chinese"
 		},
 		"296": {
@@ -7052,6 +7348,7 @@
 					"sitename": "Wiki Tô·-su-kóan"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Chinese (Min Nan)"
 		},
 		"297": {
@@ -7065,6 +7362,7 @@
 					"sitename": "維基百科"
 				}
 			],
+			"dir": "ltr",
 			"localname": "Cantonese"
 		},
 		"298": {
@@ -7091,9 +7389,10 @@
 					"closed": ""
 				}
 			],
+			"dir": "ltr",
 			"localname": "Zulu"
 		},
-		"count": 913,
+		"count": 914,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7101,6 +7400,13 @@
 				"code": "advisory",
 				"sitename": "Advisory Board",
 				"closed": ""
+			},
+			{
+				"url": "https://am.wikimedia.org",
+				"dbname": "amwikimedia",
+				"code": "amwikimedia",
+				"sitename": "Վիքիմեդիա Հայաստան",
+				"fishbowl": ""
 			},
 			{
 				"url": "https://ar.wikimedia.org",
