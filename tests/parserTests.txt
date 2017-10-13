@@ -4833,8 +4833,11 @@ foo//example.com/Foo
 </p>
 !! end
 
+## html2wt and html2html will fail because we will prefer the :en: interwiki prefix over wikipedia:
 !! test
 External links: with no contents
+!! options
+parsoid=wt2html,wt2wt
 !! wikitext
 [http://en.wikipedia.org/wiki/Foo]
 
@@ -5962,11 +5965,11 @@ parsoid=html2wt
 !! wikitext
 [[Foo|Bar]]
 [[Foo|Bar]]
-[[wikipedia:Foo|Bar]]
-[[wikipedia:Foo|Bar]]
+[[:en:Foo|Bar]]
+[[:en:Foo|Bar]]
 
-[[wikipedia:European_Robin|European Robin]]
-[[wikipedia:European_Robin|European Robin]]
+[[:en:European_Robin|European Robin]]
+[[:en:European_Robin|European Robin]]
 !! end
 
 !! test
@@ -8611,8 +8614,11 @@ parsoid=wt2html,wt2wt,html2html
 <p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?" title="meatball:">MeatBall:</a></p>
 !! end
 
+## html2wt and html2html will fail because we will prefer the :en: interwiki prefix over wikipedia:
 !! test
 Interwiki link encoding conversion (T3636)
+!! options
+parsoid=wt2html,wt2wt
 !! wikitext
 *[[Wikipedia:ro:Olteni&#0355;a]]
 *[[Wikipedia:ro:Olteni&#355;a]]
@@ -8624,6 +8630,11 @@ Interwiki link encoding conversion (T3636)
 <ul>
 <li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
 <li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
+</ul>
+!! html/parsoid
+<ul>
+<li><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
+<li><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
 </ul>
 !! end
 
