@@ -180,7 +180,7 @@ describe('Linter Tests', function() {
 				result.should.have.length(1);
 				result[0].should.have.a.property('type', 'obsolete-tag');
 				result[0].should.not.have.a.property('templateInfo');
-				result[0].dsr.should.deep.equal([ 0, 47, 2, 2 ]);
+				result[0].dsr.should.deep.equal([ 24, 36, 4, 5 ]);
 			});
 		});
 	});
