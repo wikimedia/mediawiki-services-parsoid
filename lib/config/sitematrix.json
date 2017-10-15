@@ -2589,6 +2589,12 @@
 					"dbname": "hifwiki",
 					"code": "wiki",
 					"sitename": "Wikipedia"
+				},
+				{
+					"url": "https://hif.wiktionary.org",
+					"dbname": "hifwiktionary",
+					"code": "wiktionary",
+					"sitename": "Sabdkosh"
 				}
 			],
 			"dir": "ltr",
