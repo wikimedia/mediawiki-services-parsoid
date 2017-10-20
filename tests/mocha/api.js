@@ -827,7 +827,7 @@ describe('Parsoid API', function() {
 				// and it shouldn't have any data-parsoid in it
 				should.not.exist(p.getAttribute('data-parsoid'));
 				// The internal tranclusion should be presented as such
-				var tplp = p.childNodes[1];
+				var tplp = p.firstChild.nextSibling;
 				tplp.nodeName.should.equal('SPAN');
 				tplp.getAttribute('typeof').should.equal('mw:Transclusion');
 				// And not have data-parsoid, so it's used as new content
