@@ -745,4 +745,56 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+	describe('TIDY FONT BUG', function() {
+		var wtLines = [
+			"<font color='green'>[[Foo]]</font>",
+			"<font color='green'>[[Category:Boo]][[Foo]]</font>",
+			"<font color='green'>__NOTOC__[[Foo]]</font>",
+			"<font color='green'><!--boo-->[[Foo]]</font>",
+			"<font color='green'>[[Foo|bar]]</font>",
+			"<font color='green'>[[Foo|''bar'']]</font>",
+			"<font color='green'>[[Foo|''bar'' and boo]]</font>",
+			"<font color='green'>[[File:Foo.jpg|some caption]]</font>",
+			"<font color='green'>[[File:Foo.jpg|thumb|128px|some caption]]</font>",
+			"<font color='green'>[[Foo]]l</font>",
+			"<font color='green'>{{1x|[[Foo]]}}</font>",
+		];
+		it('should flag Tidy font fixups accurately when color attribute is present', function() {
+			return parseWT(wtLines.join('\n')).then(function(result) {
+				var n = wtLines.length;
+				result.should.have.length(2 * n);
+				for (var i = 0; i < 2 * n; i += 2) {
+					result[i].should.have.a.property("type", "obsolete-tag");
+					result[i + 1].should.have.a.property("type", "tidy-font-bug");
+				}
+			});
+		});
+		it('should not flag Tidy font fixups when color attribute is absent', function() {
+			return parseWT(wtLines.join('\n').replace(/ color='green'/g, '')).then(function(result) {
+				var n = wtLines.length;
+				result.should.have.length(n);
+				for (var i = 0; i < n; i += 1) {
+					result[i].should.have.a.property("type", "obsolete-tag");
+				}
+			});
+		});
+		var wtLines2 = [
+			"<font color='green'>[[Foo]][[Bar]]</font>",
+			"<font color='green'> [[Foo]]</font>",
+			"<font color='green'>[[Foo]] </font>",
+			"<font color='green'>[[Foo]]D</font>",
+			"<font color='green'>''[[Foo|bar]]''</font>",
+			"<font color='green'><span>[[Foo|bar]]</span></font>",
+			"<font color='green'><div>[[Foo|bar]]</div></font>",
+		];
+		it('should not flag Tidy font fixups when Tidy does not do the fixups', function() {
+			return parseWT(wtLines2.join('\n')).then(function(result) {
+				var n = wtLines2.length;
+				result.should.have.length(n);
+				for (var i = 0; i < n; i += 1) {
+					result[i].should.have.a.property("type", "obsolete-tag");
+				}
+			});
+		});
+	});
 });
