@@ -33,12 +33,12 @@ describe('ParserPipelineFactory', function() {
 				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);
 				doc.outerHTML.endsWith('</body></html>').should.equal(true);
 				// verify that body has only one <html> tag, one <body> tag, etc.
-				doc.childNodes.length.should.equal(2);// <!DOCTYPE> and <html>
+				DU.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
 				doc.firstChild.nodeName.should.equal('html');
 				doc.lastChild.nodeName.should.equal('HTML');
 				// <html> children should be <head> and <body>
 				var html = doc.documentElement;
-				html.childNodes.length.should.equal(2);
+				DU.hasNChildren(html, 2).should.equal(true);
 				html.firstChild.nodeName.should.equal('HEAD');
 				html.lastChild.nodeName.should.equal('BODY');
 				// <body> should have one child, <p>
@@ -58,12 +58,12 @@ describe('ParserPipelineFactory', function() {
 				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);
 				doc.outerHTML.endsWith('</body></html>').should.equal(true);
 				// verify that body has only one <html> tag, one <body> tag, etc.
-				doc.childNodes.length.should.equal(2);// <!DOCTYPE> and <html>
+				DU.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
 				doc.firstChild.nodeName.should.equal('html');
 				doc.lastChild.nodeName.should.equal('HTML');
 				// <html> children should be <head> and <body>
 				var html = doc.documentElement;
-				html.childNodes.length.should.equal(2);
+				DU.hasNChildren(html, 2).should.equal(true);
 				html.firstChild.nodeName.should.equal('HEAD');
 				html.lastChild.nodeName.should.equal('BODY');
 				// <body> should have one child, <table>
