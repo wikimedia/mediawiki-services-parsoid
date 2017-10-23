@@ -315,7 +315,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 		}
 
 		// Clone the array since it could be modified below
-		var nodes = Util.clone(node.childNodes);
+		var nodes = Array.from(node.childNodes);
 
 		for (var i = 0; i < changes.length; i++) {
 			var child = nodes[i];
