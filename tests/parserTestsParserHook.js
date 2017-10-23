@@ -24,8 +24,10 @@ var myLittleHelper = function(env, extToken, argDict, html, cb) {
 		});
 	};
 
+	var body = DU.ppToDOM(html);
+
 	var tokens = DU.buildDOMFragmentTokens(
-		env, extToken, html, addWrapperAttrs,
+		env, extToken, body, addWrapperAttrs,
 		{ setDSR: true, isForeignContent: true }
 	);
 
