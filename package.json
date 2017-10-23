@@ -1,7 +1,7 @@
 {
   "name": "parsoid",
   "description": "Mediawiki parser for the VisualEditor.",
-  "version": "0.7.1+git",
+  "version": "0.8.0",
   "license": "GPL-2.0+",
   "dependencies": {
     "async": "^0.9.2",

@@ -1,4 +1,4 @@
-0.8.0 / 2017-10-13
+0.8.0 / 2017-10-24
 ==================
   Notable wt -> html changes:
   * T43716: Parse and serialize language converter markup
@@ -20,6 +20,7 @@
     to control formatting of transclusions after VE edits
   * T153107: Fix unhandled detection of modified link content
   * T136653: Handle interwiki shortcuts
+  * T177784: Update reverse interwiki map to prefer language prefixes over others
   * Cleanup in separator handling in the wikitext serializer
   * Several bug fixes
 
@@ -37,6 +38,7 @@
   * Upgrade service-runner, mediawiki-title
   * Use uuid instead of node-uuid
   * Upgrade several dependencies to deal with security advisories
+  * Limit core-js shimming to what we need
 
   Infrastructure:
   * Migrate from jshint to eslint
