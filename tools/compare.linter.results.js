@@ -80,6 +80,8 @@ var highPriorityCats = [
 	"pwrap-bug-workaround",
 	"self-closed-tag",
 	"tidy-whitespace-bug",
+	"html5-misnesting",
+	"tidy-font-bug",
 ];
 
 var argv = opts.argv;
