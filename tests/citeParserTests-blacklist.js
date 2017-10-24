@@ -567,7 +567,7 @@ add("selser", "Bug 31374 regression check: nested strip items [0,0,0,4,0]", "{{#
 add("selser", "Bug 31374 regression check: nested strip items [3,0,0,0,0]", "\n<references group=Note />\n<references />");
 add("selser", "Bug 31374 regression check: nested strip items [0,0,0,2,0]", "{{#tag:ref|note<ref>reference</ref>|group=Note}}\n<references group=Note />1l28h2z\n<references />");
 add("selser", "Bug 31374 regression check: nested strip items [1,4,0,0,0]", "{{#tag:ref|note<ref>reference</ref>|group=Note}}\n\n5see0h<references group=Note />\n<references />");
-add("selser", "Bug 13073 regression check: wrapped <references> [0,3,3]", "<ref>\nfoo\n</ref>\n");
+add("selser", "Bug 13073 regression check: wrapped <references> [0,3,3]", "<ref>\nfoo\n</ref>");
 add("selser", "Bug 13073 regression check: wrapped <references> [1,0,3]", "<ref>\nfoo\n</ref>\n");
 add("selser", "Bug 13073 regression check: wrapped <references> [2,0,3]", "1eulfp2\n\n<ref>\nfoo\n</ref>\n");
 add("selser", "Bug 13073 regression check: wrapped <references> [0,4,1]", "<ref>\nfoo\n</ref>\n\n1uo6dw<div data-foobar=\"nadb4v\"><references /></div>");
@@ -575,7 +575,7 @@ add("selser", "Bug 13073 regression check: wrapped <references> [0,0,1]", "<ref>
 add("selser", "Bug 13073 regression check: wrapped <references> [0,3,1]", "<ref>\nfoo\n</ref><div data-foobar=\"1vxoixa\"><references /></div>");
 add("selser", "Bug 13073 regression check: wrapped <references> [0,4,0]", "<ref>\nfoo\n</ref>\n\nqffagq<div><references /></div>");
 add("selser", "Bug 13073 regression check: wrapped <references> [1,2,0]", "<ref>\nfoo\n</ref>\n\na07t9n\n<div><references /></div>");
-add("selser", "Bug 13073 regression check: wrapped <references> [0,0,4]", "<ref>\nfoo\n</ref>\n\n13gonk\n");
+add("selser", "Bug 13073 regression check: wrapped <references> [0,0,4]", "<ref>\nfoo\n</ref>\n\n13gonk");
 add("selser", "<ref> with no name and no content. [[3,0],4,0]", "<ref></ref>\n\nohfvpx");
 add("selser", "<ref> with no name and no content. [0,2,0]", "Bla.<ref></ref>\n\npn6x71\n");
 add("selser", "<ref> with no name and no content. [2,0,0]", "1otmssn\n\nBla.<ref></ref>");

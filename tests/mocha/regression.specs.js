@@ -46,7 +46,7 @@ describe('Regression Specs', function() {
 			// Without selser, we should see [[Foo|Foo]], since we only normalize
 			// for modified / new content, which requires selser for detection
 			return serialize(DU.parseHTML(editedHTML), null, {}).then(function(editedWT) {
-				editedWT.should.equal(wt + "\n\n[[Foo|Foo]]\n");
+				editedWT.should.equal(wt + "\n\n[[Foo|Foo]]");
 				// With selser, we should see [[Foo]]
 				var options = {
 					useSelser: true,
@@ -54,7 +54,7 @@ describe('Regression Specs', function() {
 					origDOM: origDOM,
 				};
 				return serialize(DU.parseHTML(editedHTML), null, options).then(function(editedWT) {
-					editedWT.should.equal(wt + "\n\n[[Foo]]\n");
+					editedWT.should.equal(wt + "\n\n[[Foo]]");
 				});
 			});
 		});

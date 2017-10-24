@@ -1527,7 +1527,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
-			.expect(validWikitextResponse('[[File:Foobar.jpg|Testing 123]]\n'))
+			.expect(validWikitextResponse('[[File:Foobar.jpg|Testing 123]]'))
 			.end(done);
 		});
 
@@ -1569,7 +1569,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
-			.expect(validWikitextResponse('[[File:Foobar.jpg]]\n'))
+			.expect(validWikitextResponse('[[File:Foobar.jpg]]'))
 			.end(done);
 		});
 
@@ -1611,7 +1611,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
-			.expect(validWikitextResponse('[[File:Foobar.jpg]]\n'))
+			.expect(validWikitextResponse('[[File:Foobar.jpg]]'))
 			.end(done);
 		});
 
