@@ -12,6 +12,7 @@ var fs = require('fs');
 var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
+var workerFarm = require('worker-farm');
 
 var parseJsPath = require.resolve('../lib/parse.js');
 var Util = require('../lib/utils/Util.js').Util;
@@ -112,6 +113,11 @@ var standardOpts = Util.addStandardOptions({
 	},
 	'verbose': {
 		description: 'Log at level "info" as well',
+		'boolean': true,
+		'default': false,
+	},
+	'useWorker': {
+		description: 'Use a worker farm',
 		'boolean': true,
 		'default': false,
 	},
@@ -249,6 +255,7 @@ var standardOpts = Util.addStandardOptions({
 		linting: argv.linting,
 		loadWMF: argv.loadWMF,
 		useBatchAPI: argv.useBatchAPI,
+		useWorker: argv.useWorker,
 	};
 
 	if (Util.booleanOption(argv.config)) {
@@ -360,7 +367,23 @@ var standardOpts = Util.addStandardOptions({
 			contentmodel: argv.contentmodel,
 			contentVersion: argv.contentVersion,
 		};
-		return require(parseJsPath)(obj);
+		if (parsoidOptions.useWorker) {
+			var farmOptions = {
+				maxConcurrentWorkers: 1,
+				maxConcurrentCallsPerWorker: 1,
+				maxCallTime: 2 * 60 * 1000,
+				maxRetries: 0,
+				autoStart: true,
+			};
+			var workers = workerFarm(farmOptions, parseJsPath);
+			var promiseWorkers = Promise.promisify(workers);
+			return promiseWorkers(obj)
+			.finally(function() {
+				workerFarm.end(workers);
+			});
+		} else {
+			return require(parseJsPath)(obj);
+		}
 	})
 	.then(function(out) {
 		var str;

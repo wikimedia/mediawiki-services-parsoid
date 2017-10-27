@@ -21,6 +21,8 @@ var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 parsoidOptions.useBatchAPI = true;
 parsoidOptions.linting = true;
+parsoidOptions.useWorker = true;
+parsoidOptions.cpu_workers = 1;
 
 var defaultContentVersion = '1.6.0';
 

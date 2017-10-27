@@ -8,6 +8,9 @@
 # - lib/config/ParsoidConfig.js for all the properties that you can configure
 #   here. Not all properties are documented here.
 
+# The number of http workers (as opposed to `cpu_workers` below)
+#num_workers: 1
+
 worker_heartbeat_timeout: 300000
 
 logging:
@@ -51,6 +54,13 @@ services:
           #        'X-Forwarded-Proto': 'https'
           # See below, defaults to true.
           #strictSSL: false
+
+        # Enable using compute workers to parse requests.
+        #useWorker: true
+        # The number of workers in the pool spawned by each http worker to
+        # call out for parsing.  Defaults to:
+        #   ceil(number of cpus / `num_workers`) + 1
+        #cpu_workers: 1
 
         # We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
         # for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
