@@ -449,7 +449,7 @@ if (require.main === module) {
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir);
 			}
-			nocksFile = dir + '/' + argv.page + '.js';
+			nocksFile = dir + '/' + encodeURIComponent(argv.page) + '.js';
 		}
 
 		if (argv.record) {
