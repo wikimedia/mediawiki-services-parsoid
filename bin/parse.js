@@ -259,11 +259,6 @@ var parse = exports.parse = function(input, argv, parsoidConfig, prefix, domain)
 			env.bumpTimeUse("Init", initTime);
 		}
 
-		// fetch templates from enwiki by default.
-		if (argv.wgScriptPath) {
-			env.conf.wiki.wgScriptPath = argv.wgScriptPath;
-		}
-
 		// Enable wikitext scrubbing
 		env.scrubWikitext = argv.scrubWikitext;
 

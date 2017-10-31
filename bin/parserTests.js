@@ -1443,7 +1443,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		wikiConf.fakeTimestamp = 123;
 		wikiConf.timezoneOffset = 0; // force utc for parsertests
 		wikiConf.server = 'http://example.org';
-		wikiConf.wgScriptPath = '/';
+		wikiConf.scriptpath = '/';
 		wikiConf.script = '/index.php';
 		wikiConf.articlePath = '/wiki/$1';
 		wikiConf.interwikiMap.clear();
