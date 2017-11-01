@@ -754,8 +754,6 @@ describe('Linter Tests', function() {
 			"<font color='green'>[[Foo|bar]]</font>",
 			"<font color='green'>[[Foo|''bar'']]</font>",
 			"<font color='green'>[[Foo|''bar'' and boo]]</font>",
-			"<font color='green'>[[File:Foo.jpg|some caption]]</font>",
-			"<font color='green'>[[File:Foo.jpg|thumb|128px|some caption]]</font>",
 			"<font color='green'>[[Foo]]l</font>",
 			"<font color='green'>{{1x|[[Foo]]}}</font>",
 		];
