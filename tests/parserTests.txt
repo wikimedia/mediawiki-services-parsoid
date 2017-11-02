@@ -22633,6 +22633,21 @@ a:b=>c xyz
 !! end
 
 !! test
+T179579: Nowiki and lc interaction
+!! options
+parsoid=wt2html
+language=sr
+!! wikitext
+-{</nowiki>123}-
+
+-{123<nowiki>|</nowiki>456}-
+!! html/parsoid
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"&amp;lt;/nowiki>123"}}' data-parsoid='{"fl":[],"src":"-{&lt;/nowiki>123}-"}'></span></p>
+
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"123&lt;span typeof=\"mw:Nowiki\" data-parsoid=&#39;{\"dsr\":[23,41,8,9]}&#39;>|&lt;/span>456"}}' data-parsoid='{"fl":[],"src":"-{123&lt;nowiki>|&lt;/nowiki>456}-"}'></span></p>
+!! end
+
+!! test
 T2529: Uncovered bullet
 !! wikitext
 * Foo {{bullet}}
