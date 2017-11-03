@@ -6350,7 +6350,7 @@ Accept "!!" in table data
 
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'></td></tr>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'></td></tr>
 </tbody></table>
 !! end
 
@@ -6626,7 +6626,7 @@ parsoid=wt2html,html2html
 !! html/parsoid
 <table><tbody>
 <tr>
-<td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|","autoInsertedEnd":true}'>[<a rel="mw:ExtLink" href="ftp://%7Cx" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
+<td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|","autoInsertedEnd":true}'>[<a rel="mw:ExtLink" href="ftp://%7Cx" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
 !! end
 
 !! test
@@ -6683,7 +6683,7 @@ parsoid=wt2html
 
 !! html/parsoid
 <table>
-<tbody><tr><td> style="color: red !important;" data-contrived="put this here </td><td data-parsoid='{"stx_v":"row","a":{"\"":null},"sa":{"\"":""},"autoInsertedEnd":true}'> foo</td></tr>
+<tbody><tr><td> style="color: red !important;" data-contrived="put this here </td><td data-parsoid='{"stx":"row","a":{"\"":null},"sa":{"\"":""},"autoInsertedEnd":true}'> foo</td></tr>
 </tbody></table>
 !! end
 
@@ -11492,9 +11492,9 @@ Abort table cell attribute parsing on wikilink
 
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> | three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td>
-<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'> three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td>
-<td> testing="<a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a>" | three </td><td data-parsoid='{"stx_v":"row","autoInsertedEnd":true}'> four</td></tr>
+<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> | three </td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'> four</td>
+<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'> three </td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'> four</td>
+<td> testing="<a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a>" | three </td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'> four</td></tr>
 </tbody></table>
 !! end
 
@@ -28325,17 +28325,17 @@ parsoid=html2wt
 <tbody>
 <tr><td>a
 b
-</td><td data-parsoid='{"stx_v":"row"}'>c</td></tr>
+</td><td data-parsoid='{"stx":"row"}'>c</td></tr>
 <tr><td><p>x</p>
-</td><td data-parsoid='{"stx_v":"row", "startTagSrc": "{{!}}{{!}}"}'>y</td></tr>
+</td><td data-parsoid='{"stx":"row", "startTagSrc": "{{!}}{{!}}"}'>y</td></tr>
 </tbody></table>
 <table>
 <tbody>
 <tr><th>a
 b
-</th><th data-parsoid='{"stx_v":"row"}'>c</th></tr>
+</th><th data-parsoid='{"stx":"row"}'>c</th></tr>
 <tr><th><p>x</h>
-</th><th data-parsoid='{"stx_v":"row"}'>y</th></tr>
+</th><th data-parsoid='{"stx":"row"}'>y</th></tr>
 </tbody></table>
 !! wikitext
 {|
