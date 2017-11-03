@@ -9449,7 +9449,7 @@ Handling html with a div self-closing tag
 !! html/parsoid
 <div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
-<div title="" data-parsoid='{"stx":"html","selfClose":true,"brokenHTMLTag":true}'></div>
+<div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="bar/" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></div>
