@@ -11362,6 +11362,15 @@ Templates with templated name
 <ul about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{echo|inner list}} ","href":"./Template:Inner_list"},"params":{},"i":0}}]}'><li> item 1</li></ul>
 !! end
 
+## Regression test; the output here isn't really that interesting.
+!! test
+Templates with templated name and top level template args
+!! wikitext
+{{1{{2{{{3}}}|4=5}}}}
+!! html/parsoid
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1{{2{{{3}}}|4=5}}"},"params":{},"i":0}}]}'>{{1{{2{{{3}}}|4=5}}}}</p>
+!! end
+
 # Parsoid markup is deliberate "broken". This is an edge case.
 # See long comment in TemplateHandler.js:convertAttribsToString.
 !! test
