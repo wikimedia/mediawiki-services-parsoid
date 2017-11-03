@@ -187,11 +187,6 @@
           "from": "readable-stream@^2.0.5",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz"
         },
-        "safe-buffer": {
-          "version": "5.1.1",
-          "from": "safe-buffer@~5.1.1",
-          "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz"
-        },
         "string_decoder": {
           "version": "1.0.3",
           "from": "string_decoder@~1.0.3",
@@ -200,9 +195,9 @@
       }
     },
     "bluebird": {
-      "version": "3.5.0",
-      "from": "bluebird@>=3.4.7 <4.0.0",
-      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.0.tgz"
+      "version": "3.5.1",
+      "from": "bluebird@>=3.5.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.1.tgz"
     },
     "body-parser": {
       "version": "1.18.2",
@@ -1266,9 +1261,9 @@
       "resolved": "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.5.0.tgz"
     },
     "hot-shots": {
-      "version": "4.7.0",
+      "version": "4.8.0",
       "from": "hot-shots@>=4.4.0 <5.0.0",
-      "resolved": "https://registry.npmjs.org/hot-shots/-/hot-shots-4.7.0.tgz"
+      "resolved": "https://registry.npmjs.org/hot-shots/-/hot-shots-4.8.0.tgz"
     },
     "htmlparser2": {
       "version": "3.8.3",
@@ -1500,7 +1495,7 @@
     },
     "js-yaml": {
       "version": "3.8.3",
-      "from": "js-yaml@>=3.8.1 <4.0.0",
+      "from": "js-yaml@3.8.3",
       "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.8.3.tgz"
     },
     "jshint": {
@@ -1580,11 +1575,6 @@
           "from": "readable-stream@^2.0.4",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz"
         },
-        "safe-buffer": {
-          "version": "5.1.1",
-          "from": "safe-buffer@>=5.1.1 <5.2.0",
-          "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz"
-        },
         "string_decoder": {
           "version": "1.0.3",
           "from": "string_decoder@>=1.0.3 <1.1.0",
@@ -1611,11 +1601,6 @@
           "version": "2.3.3",
           "from": "readable-stream@^2.0.5",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz"
-        },
-        "safe-buffer": {
-          "version": "5.1.1",
-          "from": "safe-buffer@~5.1.1",
-          "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz"
         },
         "string_decoder": {
           "version": "1.0.3",
@@ -1655,11 +1640,6 @@
           "version": "2.3.3",
           "from": "readable-stream@>=2.0.5 <3.0.0",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz"
-        },
-        "safe-buffer": {
-          "version": "5.1.1",
-          "from": "safe-buffer@~5.1.1",
-          "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz"
         },
         "string_decoder": {
           "version": "1.0.3",
@@ -1820,9 +1800,9 @@
       "resolved": "https://registry.npmjs.org/ms/-/ms-0.7.2.tgz"
     },
     "msgpack5": {
-      "version": "3.5.1",
+      "version": "3.6.0",
       "from": "msgpack5@>=3.3.0 <4.0.0",
-      "resolved": "https://registry.npmjs.org/msgpack5/-/msgpack5-3.5.1.tgz",
+      "resolved": "https://registry.npmjs.org/msgpack5/-/msgpack5-3.6.0.tgz",
       "dependencies": {
         "isarray": {
           "version": "1.0.0",
@@ -1833,11 +1813,6 @@
           "version": "2.3.3",
           "from": "readable-stream@^2.3.3",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz"
-        },
-        "safe-buffer": {
-          "version": "5.1.1",
-          "from": "safe-buffer@^5.1.1",
-          "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.1.tgz"
         },
         "string_decoder": {
           "version": "1.0.3",
@@ -2528,9 +2503,9 @@
       "resolved": "https://registry.npmjs.org/serve-static/-/serve-static-1.12.6.tgz"
     },
     "service-runner": {
-      "version": "2.3.0",
-      "from": "service-runner@2.3.0",
-      "resolved": "https://registry.npmjs.org/service-runner/-/service-runner-2.3.0.tgz"
+      "version": "2.4.0",
+      "from": "service-runner@2.4.0",
+      "resolved": "https://registry.npmjs.org/service-runner/-/service-runner-2.4.0.tgz"
     },
     "set-blocking": {
       "version": "2.0.0",
