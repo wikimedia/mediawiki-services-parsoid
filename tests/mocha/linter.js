@@ -777,6 +777,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		var wtLines2 = [
+			"<font color='green'></font>", // Regression test for T179757
 			"<font color='green'>[[Foo]][[Bar]]</font>",
 			"<font color='green'> [[Foo]]</font>",
 			"<font color='green'>[[Foo]] </font>",
