@@ -5680,7 +5680,7 @@
 		},
 		"233": {
 			"code": "se",
-			"name": "sámegiella",
+			"name": "davvisámegiella",
 			"site": [
 				{
 					"url": "https://se.wikipedia.org",
@@ -7398,7 +7398,7 @@
 			"dir": "ltr",
 			"localname": "Zulu"
 		},
-		"count": 914,
+		"count": 916,
 		"specials": [
 			{
 				"url": "https://advisory.wikimedia.org",
@@ -7571,6 +7571,13 @@
 				"dbname": "ecwikimedia",
 				"code": "ecwikimedia",
 				"sitename": "Wikimedistas de Ecuador",
+				"private": ""
+			},
+			{
+				"url": "https://electcom.wikimedia.org",
+				"dbname": "electcomwiki",
+				"code": "electcom",
+				"sitename": "Wikipedia",
 				"private": ""
 			},
 			{
