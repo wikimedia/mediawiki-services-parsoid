@@ -14809,6 +14809,28 @@ Alt image option should handle most kinds of wikitext without barfing
 <figure class="mw-default-size" typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"This is the image caption"},{"ck":"alt","ak":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}."}]}' data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["alt",{"html":"alt=This is a &lt;a rel=\"mw:WikiLink\" href=\"./Link\" title=\"Link\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"./Link\"},\"sa\":{\"href\":\"link\"},\"dsr\":[65,73,2,2]}&#39;>link&lt;/a> and a &lt;i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"dsr\":[80,106,null,null],\"pi\":[[{\"k\":\"1\"}]]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"&amp;#39;&amp;#39;bold template&amp;#39;&amp;#39;\"}},\"i\":0}}]}&#39;>bold template&lt;/i>."}]]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img alt="This is a link and a bold template." resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"alt":"This is a link and a bold template.","resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"alt":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}.","resource":"Image:Foobar.jpg"}}'/></a><figcaption>This is the image caption</figcaption></figure>
 !! end
 
+!! test
+Image with nested tables in caption
+!! wikitext
+[[File:Foobar.jpg|thumb|Foo<br />
+{|
+|
+{|
+|z
+|}
+|}
+]]
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Foo&lt;br/>\n{|\n|\n{|\n|z\n|}\n|}\n"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption data-parsoid='{"dsr":[null,50,null,null]}'>Foo<br data-parsoid='{"stx":"html","selfClose":true}'/>
+<table>
+<tbody><tr><td>
+<table>
+<tbody><tr><td>z</td></tr>
+</tbody></table></td></tr>
+</tbody></table>
+</figcaption></figure>
+!! end
+
 ###################
 # Conflicting image format options.
 # First option specified should 'win'.
