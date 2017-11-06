@@ -317,6 +317,7 @@ describe('Linter Tests', function() {
 		});
 	});
 
+	/*
 	describe('MIXED-CONTENT TEMPLATES', function() {
 		it('should lint mixed-content templates', function() {
 			return parseWT('{{1x|*}}hi').then(function(result) {
@@ -333,6 +334,7 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+	*/
 
 	describe('DELETABLE TABLE TAG', function() {
 		it('should identify deletable table tag for T161341 (1)', function() {
@@ -404,12 +406,12 @@ describe('Linter Tests', function() {
 				"|}",
 			].join('\n');
 			return parseWT(wt).then(function(result) {
-				result.should.have.length(2);
-				result[1].should.have.a.property("type", "deletable-table-tag");
-				result[1].should.not.have.a.property("templateInfo");
-				result[1].should.have.a.property("params");
-				result[1].params.should.have.a.property("name", "table");
-				result[1].dsr.should.deep.equal([ 29, 31, 0, 0 ]);
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "deletable-table-tag");
+				result[0].should.not.have.a.property("templateInfo");
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].dsr.should.deep.equal([ 29, 31, 0, 0 ]);
 			});
 		});
 	});
