@@ -67,6 +67,9 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "p");
 			});
 		});
+		it('should not flag tags where end tags are optional in the spec', function() {
+			return expectEmptyResults('<ul><li>x<li>y</ul><table><tr><th>heading 1<tr><td>col 1<td>col 2</table>');
+		});
 	});
 
 	describe('STRIPPED TAGS', function() {
