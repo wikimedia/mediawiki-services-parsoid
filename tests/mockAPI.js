@@ -269,7 +269,7 @@ var pnames = {
 // paramOrder fields at this point, so keeping these lean.
 var templateData = {
 	'Template:NoFormatWithParamOrder': {
-		'paramOrder': ['unused1', 'f1', 'unused2', 'f2', 'unused3'],
+		'paramOrder': ['f0', 'f1', 'unused2', 'f2', 'unused3'],
 	},
 	'Template:InlineTplNoParamOrder': {
 		'format': 'inline',
@@ -287,7 +287,7 @@ var templateData = {
 	},
 	'Template:WithParamOrderAndAliases': {
 		'params': {
-			'f1': { 'aliases': ['f3'] }
+			'f1': { 'aliases': ['f4','f3'] }
 		},
 		'paramOrder': ['f1','f2'],
 	},

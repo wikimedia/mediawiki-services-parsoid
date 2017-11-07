@@ -83,14 +83,14 @@ var tests = [
 		},
 	},
 
-	// 3. flipped f1 & f2 in data-parsoid
+	// 3. flipped f1 & f2 in data-parsoid + newly added f0
 	{
-		'name': 'Enforce param order',
-		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'name': 'Preserve original param order + smart insertion of new params',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f2"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder","href":"./Template:NoFormatWithParamOrder"},"params":{"f1":{"wt":"foo"},"f2":{"wt":"foo"},"f0":{"wt":"BOO"}},"i":0}}]}' + "'" + '>foo</span>',
 		'wt': {
-			'no_selser':   '{{NoFormatWithParamOrder|f2=foo|f1=foo}}',
-			'new_content': '{{NoFormatWithParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{NoFormatWithParamOrder|f1=BAR|f2=foo}}',
+			'no_selser':   '{{NoFormatWithParamOrder|f2=foo|f1=foo|f0=BOO}}',
+			'new_content': '{{NoFormatWithParamOrder|f0=BOO|f1=foo|f2=foo}}',
+			'edited':      '{{NoFormatWithParamOrder|f2=foo|f0=BOO|f1=BAR}}', // Preserve partial templatedata order
 		},
 	},
 
@@ -134,7 +134,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{InlineTplWithParamOrder\n|f2 = foo\n|f1 = foo\n}}',
 			'new_content': '{{InlineTplWithParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{InlineTplWithParamOrder|f1=BAR|f2=foo}}',
+			'edited':      '{{InlineTplWithParamOrder|f2=foo|f1=BAR}}',
 		},
 	},
 
@@ -145,7 +145,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{BlockTplWithParamOrder|f2=foo|f1=foo}}',
 			'new_content': '{{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}',
-			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}',
+			'edited':      '{{BlockTplWithParamOrder\n| f2 = foo\n| f1 = BAR\n}}',
 		},
 	},
 
@@ -167,7 +167,7 @@ var tests = [
 		'wt': {
 			'no_selser':   '{{BlockTplWithParamOrder|f2=foo|f1=foo}}SOME TEXT{{InlineTplNoParamOrder\n|f2 = foo\n|f1 = foo\n}}',
 			'new_content': '{{BlockTplWithParamOrder\n| f1 = foo\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f1=foo|f2=foo}}',
-			'edited':      '{{BlockTplWithParamOrder\n| f1 = BAR\n| f2 = foo\n}}SOME TEXT{{InlineTplNoParamOrder|f2=foo|f1=foo}}',
+			'edited':      '{{BlockTplWithParamOrder\n| f2 = foo\n| f1 = BAR\n}}SOME TEXT{{InlineTplNoParamOrder|f2=foo|f1=foo}}',
 		},
 	},
 
@@ -181,7 +181,18 @@ var tests = [
 			'edited':      '{{WithParamOrderAndAliases|f3=foo|f2=BAR}}',
 		},
 	},
-	// 12. Inline Formatted template 1
+	// 12. Alias sort order, with both original and alias params
+	// Even aliased parameters should appear in the original order by default.
+	{
+		'name': 'Enforce param order with aliases (aliases in original order)',
+		'html': '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f4"},{"k":"f3"},{"k":"f1"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"WithParamOrderAndAliases","href":"./Template:WithParamOrderAndAliases"},"params":{"f4":{"wt":"foo"},"f3":{"wt":"foo"},"f1":{"wt":"foo"}},"i":0}}]}' + "'" + '>foo</span>',
+		'wt': {
+			'no_selser':   '{{WithParamOrderAndAliases|f4=foo|f3=foo|f1=foo}}',
+			'new_content': '{{WithParamOrderAndAliases|f1=foo|f4=foo|f3=foo}}',
+			'edited':      '{{WithParamOrderAndAliases|f4=BAR|f3=foo|f1=foo}}',
+		},
+	},
+	// 13. Inline Formatted template 1
 	{
 		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_1","href":"./Template:InlineFormattedTpl_1"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
 		'wt': {
@@ -190,7 +201,7 @@ var tests = [
 			'edited':      'x {{InlineFormattedTpl_1|f1=|x=BAR}} y',
 		},
 	},
-	// 13. Inline Formatted template 2
+	// 14. Inline Formatted template 2
 	{
 		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_2","href":"./Template:InlineFormattedTpl_2"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
 		'wt': {
@@ -199,7 +210,7 @@ var tests = [
 			'edited':      'x \n{{InlineFormattedTpl_2 | f1 =  | x = BAR}} y',
 		},
 	},
-	// 14. Inline Formatted template 3
+	// 15. Inline Formatted template 3
 	{
 		'html': 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"x"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_3","href":"./Template:InlineFormattedTpl_3"},"params":{"f1":{"wt":""},"x":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span> y',
 		'wt': {
@@ -208,7 +219,7 @@ var tests = [
 			'edited':      'x {{InlineFormattedTpl_3| f1    = | x     = BAR}} y',
 		},
 	},
-	// 15. Custom block formatting 1
+	// 16. Custom block formatting 1
 	{
 		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_1","href":"./Template:BlockFormattedTpl_1"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
 		'wt': {
@@ -217,7 +228,7 @@ var tests = [
 			'edited':      'x{{BlockFormattedTpl_1\n| f1 = \n| f2 = BAR\n}}y', // normalized
 		},
 	},
-	// 16. Custom block formatting 2
+	// 17. Custom block formatting 2
 	{
 		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
 		'wt': {
@@ -226,7 +237,7 @@ var tests = [
 			'edited':      'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}\ny', // normalized
 		},
 	},
-	// 17. Custom block formatting 3
+	// 18. Custom block formatting 3
 	{
 		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_3","href":"./Template:BlockFormattedTpl_3"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
 		'wt': {
