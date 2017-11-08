@@ -8548,6 +8548,31 @@ Aðrir mótmælenda<nowiki/>[[söfnuður]]
 !! end
 
 !! test
+Parsoid link bracket escaping
+!! options
+parsoid=html2wt,html2html
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test" title="Test">Test</a></p>
+<p>[<a rel="mw:WikiLink" href="./Test" title="Test">Test</a>]</p>
+<p>[[<a rel="mw:WikiLink" href="./Test" title="Test">Test</a>]]</p>
+<p>[[[<a rel="mw:WikiLink" href="./Test" title="Test">Test</a>]]]</p>
+<p>[[[[<a rel="mw:WikiLink" href="./Test" title="Test">Test</a>]]]]</p>
+<p>[[[[[<a rel="mw:WikiLink" href="./Test" title="Test">Test</a>]]]]]</p>
+!! wikitext
+[[Test]]
+
+[<nowiki/>[[Test]]]
+
+[[[[Test]]]]
+
+[[[<nowiki/>[[Test]]]]]
+
+[[[[[[Test]]]]]]
+
+[[[[[<nowiki/>[[Test]]]]]]]
+!! end
+
+!! test
 Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved
 !! wikitext
 [[Foo|  bar]]
