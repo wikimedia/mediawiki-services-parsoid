@@ -14835,6 +14835,26 @@ Alt image option should handle most kinds of wikitext without barfing
 !! end
 
 !! test
+Image with table with attributes in caption
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|
+{| class="123" |
+|- class="456" |
+| ha
+|}
+]]
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n{| class=\"123\" |\n|- class=\"456\" |\n| ha\n|}\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{"href":"File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
+<table class="123">
+<tbody><tr class="456" data-parsoid='{"startTagSrc":"|-"}'>
+<td> ha</td></tr>
+</tbody></table>
+</figcaption></figure>
+!! end
+
+!! test
 Image with nested tables in caption
 !! wikitext
 [[File:Foobar.jpg|thumb|Foo<br />
