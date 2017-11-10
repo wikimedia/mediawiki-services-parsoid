@@ -301,264 +301,150 @@
         ]
       },
       {
-        "name": "numberofarticles",
-        "aliases": [
-          "NOMBRED'ARTICLES",
-          "NUMBEROFARTICLES",
-          "NOMBREARTICLES"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "numberoffiles",
-        "aliases": [
-          "NOMBRED'ARXIUS",
-          "NUMBEROFFILES",
-          "NOMBREFICHIÈRS"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "numberofusers",
-        "aliases": [
-          "NOMBRED'USUARIS",
-          "NUMBEROFUSERS",
-          "NOMBREUTILIZAIRES"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "numberofedits",
-        "aliases": [
-          "NOMBRED'EDICIONS",
-          "NUMBEROFEDITS",
-          "NOMBREEDICIONS",
-          "NOMBREMODIFS"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "pagename",
-        "aliases": [
-          "NOMDELAPLANA",
-          "PAGENAME",
-          "NOMPAGINA"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_right",
-        "aliases": [
-          "dreta",
-          "right",
-          "drecha"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_left",
-        "aliases": [
-          "esquerra",
-          "left",
-          "esquèrra",
-          "senèstra",
-          "gaucha"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_border",
-        "aliases": [
-          "vora",
-          "border",
-          "bordadura"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_link",
-        "aliases": [
-          "enllaç=$1",
-          "link=$1",
-          "ligam=$1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "displaytitle",
-        "aliases": [
-          "TÍTOL",
-          "DISPLAYTITLE",
-          "AFICHARTÍTOL"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "language",
-        "aliases": [
-          "#IDIOMA:",
-          "#LANGUAGE:",
-          "#LENGA:"
-        ]
-      },
-      {
-        "name": "special",
-        "aliases": [
-          "especial",
-          "special"
-        ]
-      },
-      {
-        "name": "defaultsort",
-        "aliases": [
-          "ORDENA:",
-          "DEFAULTSORT:",
-          "DEFAULTSORTKEY:",
-          "DEFAULTCATEGORYSORT:",
-          "CLAUDETRIADA:"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "pagesize",
-        "aliases": [
-          "MIDADELAPLANA",
-          "PAGESIZE",
-          "TALHAPAGINA"
-        ],
-        "case-sensitive": ""
-      },
-      {
         "name": "notoc",
         "aliases": [
+          "__CAPTAULA__",
+          "__NOTAULA__",
+          "__NOTOC__",
           "__CAPDETAULA__",
           "__PASCAPDESOMARI__",
-          "__PASCAPDETDM__",
-          "__NOTOC__"
+          "__PASCAPDETDM__"
         ]
       },
       {
         "name": "nogallery",
         "aliases": [
+          "__CAPGALERIA__",
+          "__NOGALERIA__",
+          "__NOGALLERY__",
           "__CAPDEGALARIÁ__",
           "__CAPDEGALARIA__",
-          "__PASCAPDEDEGALARIÁ__",
-          "__NOGALLERY__"
+          "__PASCAPDEDEGALARIÁ__"
         ]
       },
       {
         "name": "forcetoc",
         "aliases": [
+          "__FORÇATAULA__",
+          "__FORCETOC__",
           "__FORÇARTAULA__",
           "__FORÇARSOMARI__",
-          "__FORÇARTDM__",
-          "__FORCETOC__"
+          "__FORÇARTDM__"
         ]
       },
       {
         "name": "toc",
         "aliases": [
           "__TAULA__",
-          "__SOMARI__",
+          "__RESUM__",
           "__TDM__",
-          "__TOC__"
+          "__TOC__",
+          "__SOMARI__"
         ]
       },
       {
         "name": "noeditsection",
         "aliases": [
-          "__SECCIONNONEDITABLA__",
-          "__NOEDITSECTION__"
+          "__SECCIÓNOEDITABLE__",
+          "__SECCIONOEDITABLE__",
+          "__NOEDITSECTION__",
+          "__SECCIONNONEDITABLA__"
         ]
       },
       {
         "name": "currentmonth",
         "aliases": [
-          "MESCORRENT",
           "MESACTUAL",
           "CURRENTMONTH",
-          "CURRENTMONTH2"
+          "CURRENTMONTH2",
+          "MESCORRENT"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentmonthname",
         "aliases": [
-          "NOMMESCORRENT",
           "NOMMESACTUAL",
-          "CURRENTMONTHNAME"
+          "CURRENTMONTHNAME",
+          "NOMMESCORRENT"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentmonthnamegen",
         "aliases": [
-          "NOMGENMESCORRENT",
           "NOMGENMESACTUAL",
-          "CURRENTMONTHNAMEGEN"
+          "CURRENTMONTHNAMEGEN",
+          "NOMGENMESCORRENT"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentmonthabbrev",
         "aliases": [
-          "ABREVMESCORRENT",
           "ABREVMESACTUAL",
-          "CURRENTMONTHABBREV"
+          "CURRENTMONTHABBREV",
+          "ABREVMESCORRENT"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentday",
         "aliases": [
+          "DIAACTUAL",
+          "CURRENTDAY",
           "JORNCORRENT",
-          "JORNACTUAL",
-          "CURRENTDAY"
+          "JORNACTUAL"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentday2",
         "aliases": [
+          "DIAACTUAL2",
+          "CURRENTDAY2",
           "JORNCORRENT2",
-          "JORNACTUAL2",
-          "CURRENTDAY2"
+          "JORNACTUAL2"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentdayname",
         "aliases": [
+          "NOMDIAACTUAL",
+          "CURRENTDAYNAME",
           "NOMJORNCORRENT",
-          "NOMJORNACTUAL",
-          "CURRENTDAYNAME"
+          "NOMJORNACTUAL"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currentyear",
         "aliases": [
+          "ANYACTUAL",
+          "CURRENTYEAR",
           "ANNADACORRENTA",
-          "ANNADAACTUALA",
-          "CURRENTYEAR"
+          "ANNADAACTUALA"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currenttime",
         "aliases": [
+          "HORARICTUAL",
+          "CURRENTTIME",
           "DATACORRENTA",
-          "DATAACTUALA",
-          "CURRENTTIME"
+          "DATAACTUALA"
         ],
         "case-sensitive": ""
       },
       {
         "name": "currenthour",
         "aliases": [
+          "HORAACTUAL",
+          "CURRENTHOUR",
           "ORACORRENTA",
-          "ORAACTUALA",
-          "CURRENTHOUR"
+          "ORAACTUALA"
         ],
         "case-sensitive": ""
       },
@@ -598,48 +484,510 @@
       {
         "name": "localday",
         "aliases": [
-          "JORNLOCAL",
-          "LOCALDAY"
+          "DIALOCAL",
+          "LOCALDAY",
+          "JORNLOCAL"
         ],
         "case-sensitive": ""
       },
       {
         "name": "localday2",
         "aliases": [
-          "JORNLOCAL2",
-          "LOCALDAY2"
+          "DIALOCAL2",
+          "LOCALDAY2",
+          "JORNLOCAL2"
         ],
         "case-sensitive": ""
       },
       {
         "name": "localdayname",
         "aliases": [
-          "NOMJORNLOCAL",
-          "LOCALDAYNAME"
+          "NOMDIALOCAL",
+          "LOCALDAYNAME",
+          "NOMJORNLOCAL"
         ],
         "case-sensitive": ""
       },
       {
         "name": "localyear",
         "aliases": [
-          "ANNADALOCALA",
-          "LOCALYEAR"
+          "ANYLOCAL",
+          "LOCALYEAR",
+          "ANNADALOCALA"
         ],
         "case-sensitive": ""
       },
       {
         "name": "localtime",
         "aliases": [
-          "ORARILOCAL",
-          "LOCALTIME"
+          "HORARILOCAL",
+          "LOCALTIME",
+          "ORARILOCAL"
         ],
         "case-sensitive": ""
       },
       {
         "name": "localhour",
         "aliases": [
-          "ORALOCALA",
-          "LOCALHOUR"
+          "HORALOCAL",
+          "LOCALHOUR",
+          "ORALOCALA"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofarticles",
+        "aliases": [
+          "NOMBREARTICLES",
+          "NOMBRED'ARTICLES",
+          "NUMBEROFARTICLES"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberoffiles",
+        "aliases": [
+          "NOMBREFITXERS",
+          "NOMBRED'ARXIUS",
+          "NUMBEROFFILES",
+          "NOMBREFICHIÈRS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofusers",
+        "aliases": [
+          "NOMBREUSUARIS",
+          "NOMBRED'USUARIS",
+          "NUMBEROFUSERS",
+          "NOMBREUTILIZAIRES"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofedits",
+        "aliases": [
+          "NOMBREEDICIONS",
+          "NOMBRED'EDICIONS",
+          "NUMBEROFEDITS",
+          "NOMBREMODIFS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagename",
+        "aliases": [
+          "NOMPÀGINA",
+          "NOMPAGINA",
+          "NOMDELAPLANA",
+          "PAGENAME"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_thumbnail",
+        "aliases": [
+          "miniatura",
+          "thumb",
+          "thumbnail",
+          "vinheta"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_manualthumb",
+        "aliases": [
+          "miniatura=$1",
+          "thumbnail=$1",
+          "thumb=$1",
+          "vinheta=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_right",
+        "aliases": [
+          "dreta",
+          "right",
+          "drecha"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_left",
+        "aliases": [
+          "esquerra",
+          "left",
+          "esquèrra",
+          "senèstra",
+          "gaucha"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_none",
+        "aliases": [
+          "cap",
+          "none",
+          "neant",
+          "nonrés"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_width",
+        "aliases": [
+          "$1px"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_center",
+        "aliases": [
+          "center",
+          "centre",
+          "centrat"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_framed",
+        "aliases": [
+          "marc",
+          "frame",
+          "framed",
+          "enframed",
+          "quadre",
+          "enquagrat"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_frameless",
+        "aliases": [
+          "sense marc",
+          "frameless",
+          "sens_quadre"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_lang",
+        "aliases": [
+          "lang=$1",
+          "llengua=$1",
+          "idioma=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_page",
+        "aliases": [
+          "pàgina=$1",
+          "pàgina $1",
+          "page=$1",
+          "page $1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_upright",
+        "aliases": [
+          "redreçat",
+          "upright",
+          "redreçat=$1",
+          "upright=$1",
+          "redreçat $1",
+          "upright $1",
+          "redreça",
+          "redreça$1",
+          "redreça $1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_border",
+        "aliases": [
+          "vora",
+          "border",
+          "bordadura"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_baseline",
+        "aliases": [
+          "línia de base",
+          "baseline",
+          "linha_de_basa"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_sub",
+        "aliases": [
+          "sub",
+          "indici",
+          "ind"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_super",
+        "aliases": [
+          "super",
+          "sup",
+          "exp"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_top",
+        "aliases": [
+          "dalt",
+          "top",
+          "naut"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_top",
+        "aliases": [
+          "dalt-text",
+          "text-top",
+          "naut-tèxte",
+          "naut-txt"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_middle",
+        "aliases": [
+          "mitjà",
+          "middle",
+          "mitan"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_bottom",
+        "aliases": [
+          "baix",
+          "bottom",
+          "bas"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_text_bottom",
+        "aliases": [
+          "baix-text",
+          "text-bottom",
+          "bas-tèxte",
+          "bas-txt"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_link",
+        "aliases": [
+          "enllaç=$1",
+          "link=$1",
+          "ligam=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_alt",
+        "aliases": [
+          "alt=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "img_class",
+        "aliases": [
+          "class=$1"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "displaytitle",
+        "aliases": [
+          "TÍTOL",
+          "TITOL",
+          "DISPLAYTITLE",
+          "AFICHARTÍTOL"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "currentversion",
+        "aliases": [
+          "VERSIÓACTUAL",
+          "VERSIOACTUAL",
+          "CURRENTVERSION",
+          "VERSIONACTUALA"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "language",
+        "aliases": [
+          "#IDIOMA:",
+          "#LLENGUA:",
+          "#LANGUAGE:",
+          "#LENGA:"
+        ]
+      },
+      {
+        "name": "contentlanguage",
+        "aliases": [
+          "IDIOMACONTINGUT",
+          "LLENGUACONTINGUT",
+          "CONTENTLANGUAGE",
+          "CONTENTLANG",
+          "LENGACONTENGUT",
+          "LENGCONTENGUT"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesinnamespace",
+        "aliases": [
+          "PÀGINESENESPAINOMS:",
+          "PAGESINNAMESPACE:",
+          "PAGESINNS:",
+          "PAGINASDINSESPACI:"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "numberofadmins",
+        "aliases": [
+          "NOMBREADMINS",
+          "NUMBEROFADMINS"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "formatnum",
+        "aliases": [
+          "FORMATNOMBRE",
+          "FORMATNUM"
+        ]
+      },
+      {
+        "name": "padleft",
+        "aliases": [
+          "SEPARACIÓESQUERRA",
+          "SEPARACIOESQUERRA",
+          "PADLEFT",
+          "BORRATGEESQUÈRRA"
+        ]
+      },
+      {
+        "name": "padright",
+        "aliases": [
+          "SEPARACIÓDRETA",
+          "SEPARACIODRETA",
+          "PADRIGHT",
+          "BORRATGEDRECHA"
+        ]
+      },
+      {
+        "name": "special",
+        "aliases": [
+          "especial",
+          "special"
+        ]
+      },
+      {
+        "name": "defaultsort",
+        "aliases": [
+          "ORDENA:",
+          "DEFAULTSORT:",
+          "DEFAULTSORTKEY:",
+          "DEFAULTCATEGORYSORT:",
+          "CLAUDETRIADA:"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "filepath",
+        "aliases": [
+          "CAMÍ:",
+          "CAMI:",
+          "FILEPATH:",
+          "CAMIN:"
+        ]
+      },
+      {
+        "name": "tag",
+        "aliases": [
+          "etiqueta",
+          "marcador",
+          "tag",
+          "balisa"
+        ]
+      },
+      {
+        "name": "hiddencat",
+        "aliases": [
+          "__CATAMAGADA__",
+          "__HIDDENCAT__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesincategory",
+        "aliases": [
+          "PÀGINESENCATEGORIA",
+          "PAGINESENCATEGORIA",
+          "PAGINESENCAT",
+          "PAGESINCATEGORY",
+          "PAGESINCAT",
+          "PAGINASDINSCAT"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "pagesize",
+        "aliases": [
+          "MIDAPÀGINA",
+          "MIDAPAGINA",
+          "MIDADELAPLANA",
+          "PAGESIZE",
+          "TALHAPAGINA"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "noindex",
+        "aliases": [
+          "__CAPINDEX__",
+          "__NOINDEX__",
+          "__PASCAPDINDÈX__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "staticredirect",
+        "aliases": [
+          "__REDIRECCIÓESTATICA__",
+          "__REDIRECCIOESTATICA__",
+          "__STATICREDIRECT__",
+          "__REDIRECCIONESTATICA__"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "protectionlevel",
+        "aliases": [
+          "NIVELLPROTECCIÓ",
+          "NIVELLPROTECCIO",
+          "PROTECTIONLEVEL",
+          "NIVÈLDEPROTECCION"
         ],
         "case-sensitive": ""
       },
@@ -804,141 +1152,6 @@
           "NOMPAGINAARTICLEX",
           "SUBJECTPAGENAMEE",
           "ARTICLEPAGENAMEE"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_thumbnail",
-        "aliases": [
-          "vinheta",
-          "thumb",
-          "thumbnail"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_manualthumb",
-        "aliases": [
-          "vinheta=$1",
-          "thumbnail=$1",
-          "thumb=$1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_none",
-        "aliases": [
-          "neant",
-          "nonrés",
-          "none"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_center",
-        "aliases": [
-          "centrat",
-          "center",
-          "centre"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_framed",
-        "aliases": [
-          "quadre",
-          "enquagrat",
-          "frame",
-          "framed",
-          "enframed"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_frameless",
-        "aliases": [
-          "sens_quadre",
-          "frameless"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_upright",
-        "aliases": [
-          "redreça",
-          "redreça$1",
-          "redreça $1",
-          "upright",
-          "upright=$1",
-          "upright $1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_baseline",
-        "aliases": [
-          "linha_de_basa",
-          "baseline"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_sub",
-        "aliases": [
-          "indici",
-          "ind",
-          "sub"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_super",
-        "aliases": [
-          "exp",
-          "super",
-          "sup"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_top",
-        "aliases": [
-          "naut",
-          "top"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_text_top",
-        "aliases": [
-          "naut-tèxte",
-          "naut-txt",
-          "text-top"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_middle",
-        "aliases": [
-          "mitan",
-          "middle"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_bottom",
-        "aliases": [
-          "bas",
-          "bottom"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_text_bottom",
-        "aliases": [
-          "bas-tèxte",
-          "bas-txt",
-          "text-bottom"
         ],
         "case-sensitive": ""
       },
@@ -1165,14 +1378,6 @@
         "case-sensitive": ""
       },
       {
-        "name": "currentversion",
-        "aliases": [
-          "VERSIONACTUALA",
-          "CURRENTVERSION"
-        ],
-        "case-sensitive": ""
-      },
-      {
         "name": "urlencode",
         "aliases": [
           "ENCÒDAURL:",
@@ -1209,109 +1414,6 @@
           "MARCADIR",
           "DIRECTIONMARK",
           "DIRMARK"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "contentlanguage",
-        "aliases": [
-          "LENGACONTENGUT",
-          "LENGCONTENGUT",
-          "CONTENTLANGUAGE",
-          "CONTENTLANG"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "pagesinnamespace",
-        "aliases": [
-          "PAGINASDINSESPACI:",
-          "PAGESINNAMESPACE:",
-          "PAGESINNS:"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "numberofadmins",
-        "aliases": [
-          "NOMBREADMINS",
-          "NUMBEROFADMINS"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "formatnum",
-        "aliases": [
-          "FORMATNOMBRE",
-          "FORMATNUM"
-        ]
-      },
-      {
-        "name": "padleft",
-        "aliases": [
-          "BORRATGEESQUÈRRA",
-          "PADLEFT"
-        ]
-      },
-      {
-        "name": "padright",
-        "aliases": [
-          "BORRATGEDRECHA",
-          "PADRIGHT"
-        ]
-      },
-      {
-        "name": "filepath",
-        "aliases": [
-          "CAMIN:",
-          "FILEPATH:"
-        ]
-      },
-      {
-        "name": "tag",
-        "aliases": [
-          "balisa",
-          "tag"
-        ]
-      },
-      {
-        "name": "hiddencat",
-        "aliases": [
-          "__CATAMAGADA__",
-          "__HIDDENCAT__"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "pagesincategory",
-        "aliases": [
-          "PAGINASDINSCAT",
-          "PAGESINCATEGORY",
-          "PAGESINCAT"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "noindex",
-        "aliases": [
-          "__PASCAPDINDÈX__",
-          "__NOINDEX__"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "staticredirect",
-        "aliases": [
-          "__REDIRECCIONESTATICA__",
-          "__STATICREDIRECT__"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "protectionlevel",
-        "aliases": [
-          "NIVÈLDEPROTECCION",
-          "PROTECTIONLEVEL"
         ],
         "case-sensitive": ""
       },
@@ -1492,9 +1594,27 @@
         "case-sensitive": ""
       },
       {
+        "name": "invoke",
+        "aliases": [
+          "invoke"
+        ]
+      },
+      {
         "name": "calendar",
         "aliases": [
           "calendar"
+        ]
+      },
+      {
+        "name": "transcludelist",
+        "aliases": [
+          "transcludelist"
+        ]
+      },
+      {
+        "name": "nocollaborationhubtoc",
+        "aliases": [
+          "__NOCOLLABORATIONHUBTOC__"
         ]
       },
       {
@@ -1660,9 +1780,9 @@
         ]
       },
       {
-        "name": "invoke",
+        "name": "translation",
         "aliases": [
-          "invoke"
+          "translation"
         ]
       },
       {
@@ -1699,12 +1819,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ]
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ]
       },
       {
@@ -1772,42 +1886,6 @@
         "aliases": [
           "MSGNW:"
         ]
-      },
-      {
-        "name": "img_width",
-        "aliases": [
-          "$1px"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_lang",
-        "aliases": [
-          "lang=$1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_page",
-        "aliases": [
-          "page=$1",
-          "page $1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_alt",
-        "aliases": [
-          "alt=$1"
-        ],
-        "case-sensitive": ""
-      },
-      {
-        "name": "img_class",
-        "aliases": [
-          "class=$1"
-        ],
-        "case-sensitive": ""
       },
       {
         "name": "int",
@@ -2094,7 +2172,6 @@
       "tag",
       "formatdate",
       "displaytitle",
-      "invoke",
       "noexternallanglinks",
       "property",
       "statements",
@@ -2115,6 +2192,7 @@
       "target",
       "babel",
       "coordinates",
+      "invoke",
       "related",
       "PAGEBANNER",
       "categorytree"
@@ -2150,12 +2228,12 @@
       "base": "https://ca.wikipedia.org/wiki/Portada",
       "sitename": "Viquipèdia",
       "logo": "//ca.wikipedia.org/static/images/project-logos/cawiki.png",
-      "generator": "MediaWiki 1.30.0-wmf.1",
+      "generator": "MediaWiki 1.31.0-wmf.7",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
-      "hhvmversion": "3.18.2",
+      "hhvmversion": "3.18.6-dev",
       "dbtype": "mysql",
-      "dbversion": "10.0.29-MariaDB",
+      "dbversion": "10.0.23-MariaDB-log",
       "imagewhitelistenabled": "",
       "langconversion": "",
       "titleconversion": "",
@@ -2166,8 +2244,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "3fe82bc425739fdf9b3c5afd164d0d55d5a29437",
-      "git-branch": "wmf/1.30.0-wmf.1",
+      "git-hash": "03448d825f6e524508b2ac4d2a38ab3c6c788834",
+      "git-branch": "wmf/1.31.0-wmf.7",
       "case": "first-letter",
       "lang": "ca",
       "fallback": [
@@ -2182,7 +2260,7 @@
       "writeapi": "",
       "maxarticlesize": 2097152,
       "timezone": "Europe/Berlin",
-      "timeoffset": 120,
+      "timeoffset": 60,
       "articlepath": "/wiki/$1",
       "scriptpath": "/w",
       "script": "/w/index.php",
@@ -2190,7 +2268,7 @@
       "server": "//ca.wikipedia.org",
       "servername": "ca.wikipedia.org",
       "wikiid": "cawiki",
-      "time": "2017-05-17T22:58:15Z",
+      "time": "2017-11-10T02:16:50Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -2201,7 +2279,8 @@
         "imageHeight": 120,
         "captionLength": "",
         "showBytes": "",
-        "mode": "traditional"
+        "mode": "traditional",
+        "showDimensions": ""
       },
       "thumblimits": [
         120,
@@ -2250,6 +2329,28 @@
       "wmf-config": {
         "wmfMasterDatacenter": "eqiad"
       },
+      "citeresponsivereferences": "",
+      "linter": {
+        "high": [
+          "deletable-table-tag",
+          "html5-misnesting",
+          "pwrap-bug-workaround",
+          "self-closed-tag",
+          "tidy-font-bug",
+          "tidy-whitespace-bug"
+        ],
+        "medium": [
+          "bogus-image-options",
+          "fostered",
+          "misnested-tag",
+          "multi-colon-escape"
+        ],
+        "low": [
+          "missing-end-tag",
+          "obsolete-tag",
+          "stripped-tag"
+        ]
+      },
       "pageviewservice-supported-metrics": {
         "pageviews": {
           "pageviews": ""
@@ -2266,7 +2367,7 @@
     "interwikimap": [
       {
         "prefix": "acronym",
-        "url": "http://www.acronymfinder.com/af-query.asp?String=exact&Acronym=$1"
+        "url": "https://www.acronymfinder.com/$1.html"
       },
       {
         "prefix": "advisory",
@@ -2279,7 +2380,7 @@
       },
       {
         "prefix": "aew",
-        "url": "http://wiki.arabeyes.org/$1"
+        "url": "https://wiki.arabeyes.org/$1"
       },
       {
         "prefix": "appropedia",
@@ -2295,7 +2396,7 @@
       },
       {
         "prefix": "arxiv",
-        "url": "http://arxiv.org/abs/$1"
+        "url": "https://arxiv.org/abs/$1"
       },
       {
         "prefix": "atmwiki",
@@ -2324,6 +2425,10 @@
       {
         "prefix": "bibcode",
         "url": "http://adsabs.harvard.edu/abs/$1"
+      },
+      {
+        "prefix": "bibliowiki",
+        "url": "https://biblio.wiki/wiki/$1"
       },
       {
         "prefix": "bluwiki",
@@ -2648,7 +2753,7 @@
       },
       {
         "prefix": "freebsdman",
-        "url": "http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1"
+        "url": "https://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1"
       },
       {
         "prefix": "freeculturewiki",
@@ -3056,11 +3161,11 @@
       },
       {
         "prefix": "mwod",
-        "url": "http://www.merriam-webster.com/cgi-bin/dictionary?book=Dictionary&va=$1"
+        "url": "https://www.merriam-webster.com/dictionary/$1"
       },
       {
         "prefix": "mwot",
-        "url": "http://www.merriam-webster.com/cgi-bin/thesaurus?book=Thesaurus&va=$1"
+        "url": "https://www.merriam-webster.com/thesaurus/$1"
       },
       {
         "prefix": "nkcells",
@@ -3068,7 +3173,7 @@
       },
       {
         "prefix": "nara",
-        "url": "http://research.archives.gov/description/$1"
+        "url": "https://catalog.archives.gov/id/$1"
       },
       {
         "prefix": "nosmoke",
@@ -3114,10 +3219,6 @@
       {
         "prefix": "openwetware",
         "url": "http://openwetware.org/wiki/$1"
-      },
-      {
-        "prefix": "openwiki",
-        "url": "http://openwiki.com/?$1"
       },
       {
         "prefix": "opera7wiki",
@@ -3350,7 +3451,8 @@
       },
       {
         "prefix": "sharemap",
-        "url": "http://sharemap.org/$1"
+        "url": "https://sharemap.org/$1",
+        "protorel": ""
       },
       {
         "prefix": "silcode",
@@ -3358,7 +3460,7 @@
       },
       {
         "prefix": "slashdot",
-        "url": "http://slashdot.org/article.pl?sid=$1"
+        "url": "https://slashdot.org/article.pl?sid=$1"
       },
       {
         "prefix": "sourceforge",
@@ -3481,6 +3583,10 @@
         "url": "http://www.EasyTopicMaps.com/?page=$1"
       },
       {
+        "prefix": "toolforge",
+        "url": "https://tools.wmflabs.org/$1"
+      },
+      {
         "prefix": "toollabs",
         "url": "https://tools.wmflabs.org/$1"
       },
@@ -3555,7 +3661,7 @@
       },
       {
         "prefix": "vlos",
-        "url": "http://www.thuvienkhoahoc.com/tusach/$1"
+        "url": "https://tusach.thuvienkhoahoc.com/wiki/$1"
       },
       {
         "prefix": "vkol",
@@ -3641,7 +3747,7 @@
       },
       {
         "prefix": "wikilivres",
-        "url": "https://wikilivres.ca/wiki/$1"
+        "url": "https://biblio.wiki/wiki/$1"
       },
       {
         "prefix": "wikilivresru",
@@ -3759,6 +3865,11 @@
       {
         "prefix": "wlug",
         "url": "http://www.wlug.org.nz/$1"
+      },
+      {
+        "prefix": "wmam",
+        "local": "",
+        "url": "https://am.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmar",
@@ -3885,7 +3996,7 @@
       },
       {
         "prefix": "wmit",
-        "url": "http://wiki.wikimedia.it/wiki/$1"
+        "url": "https://wiki.wikimedia.it/wiki/$1"
       },
       {
         "prefix": "wmke",
@@ -4048,6 +4159,11 @@
         "prefix": "wm2017",
         "local": "",
         "url": "https://wikimania2017.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2018",
+        "local": "",
+        "url": "https://wikimania2018.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmania",
@@ -4215,6 +4331,12 @@
         "local": "",
         "language": "asturianu",
         "url": "https://ast.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "atj",
+        "local": "",
+        "language": "Atikamekw",
+        "url": "https://atj.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "av",
@@ -4406,7 +4528,7 @@
       {
         "prefix": "ckb",
         "local": "",
-        "language": "کوردیی ناوەندی",
+        "language": "کوردی",
         "url": "https://ckb.wikipedia.org/wiki/$1"
       },
       {
@@ -4468,6 +4590,12 @@
         "local": "",
         "language": "Deutsch",
         "url": "https://de.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "din",
+        "local": "",
+        "language": "Thuɔŋjäŋ",
+        "url": "https://din.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "diq",
@@ -4878,6 +5006,12 @@
         "url": "https://kbd.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "kbp",
+        "local": "",
+        "language": "Kabɩyɛ",
+        "url": "https://kbp.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "kg",
         "local": "",
         "language": "Kongo",
@@ -5258,7 +5392,7 @@
       {
         "prefix": "no",
         "local": "",
-        "language": "norsk bokmål",
+        "language": "norsk",
         "url": "https://no.wikipedia.org/wiki/$1"
       },
       {
@@ -5510,7 +5644,7 @@
       {
         "prefix": "se",
         "local": "",
-        "language": "sámegiella",
+        "language": "davvisámegiella",
         "url": "https://se.wikipedia.org/wiki/$1"
       },
       {
@@ -6335,7 +6469,7 @@
       },
       {
         "code": "ckb",
-        "*": "کوردیی ناوەندی"
+        "*": "کوردی"
       },
       {
         "code": "co",
@@ -6762,6 +6896,10 @@
         "*": "Адыгэбзэ"
       },
       {
+        "code": "kbp",
+        "*": "Kabɩyɛ"
+      },
+      {
         "code": "kg",
         "*": "Kongo"
       },
@@ -7127,7 +7265,7 @@
       },
       {
         "code": "no",
-        "*": "norsk bokmål"
+        "*": "norsk"
       },
       {
         "code": "nov",
@@ -7347,7 +7485,7 @@
       },
       {
         "code": "se",
-        "*": "sámegiella"
+        "*": "davvisámegiella"
       },
       {
         "code": "sei",
@@ -7396,6 +7534,14 @@
       {
         "code": "sk",
         "*": "slovenčina"
+      },
+      {
+        "code": "skr",
+        "*": "سرائیکی"
+      },
+      {
+        "code": "skr-arab",
+        "*": "سرائیکی"
       },
       {
         "code": "sl",
@@ -7474,6 +7620,10 @@
         "*": "தமிழ்"
       },
       {
+        "code": "tay",
+        "*": "Tayal"
+      },
+      {
         "code": "tcy",
         "*": "ತುಳು"
       },
@@ -7524,10 +7674,6 @@
       {
         "code": "to",
         "*": "lea faka-Tonga"
-      },
-      {
-        "code": "tokipona",
-        "*": "Toki Pona"
       },
       {
         "code": "tpi",
@@ -8972,6 +9118,12 @@
         ]
       },
       {
+        "realname": "PageData",
+        "aliases": [
+          "PageData"
+        ]
+      },
+      {
         "realname": "Search",
         "aliases": [
           "Cerca",
@@ -9263,6 +9415,12 @@
         ]
       },
       {
+        "realname": "ElectronPdf",
+        "aliases": [
+          "ElectronPdf"
+        ]
+      },
+      {
         "realname": "AbuseLog",
         "aliases": [
           "Registre_dels_abusos",
@@ -9325,6 +9483,19 @@
         ]
       },
       {
+        "realname": "LintErrors",
+        "aliases": [
+          "LintErrors"
+        ]
+      },
+      {
+        "realname": "CollabPad",
+        "aliases": [
+          "CollabPad",
+          "Collab_Pad"
+        ]
+      },
+      {
         "realname": "History",
         "aliases": [
           "History"
@@ -9340,12 +9511,6 @@
         "realname": "MobileDiff",
         "aliases": [
           "MobileDiff"
-        ]
-      },
-      {
-        "realname": "MobileEditor",
-        "aliases": [
-          "MobileEditor"
         ]
       },
       {
@@ -9516,14 +9681,16 @@
         ]
       },
       {
-        "realname": "Flow",
+        "realname": "StructuredDiscussions",
         "aliases": [
+          "StructuredDiscussions",
           "Flow"
         ]
       },
       {
-        "realname": "EnableFlow",
+        "realname": "EnableStructuredDiscussions",
         "aliases": [
+          "EnableStructuredDiscussions",
           "EnableFlow"
         ]
       },
@@ -9537,6 +9704,12 @@
         "realname": "DisambiguationPageLinks",
         "aliases": [
           "DisambiguationPageLinks"
+        ]
+      },
+      {
+        "realname": "SimulateTwoColEditConflict",
+        "aliases": [
+          "SimulateTwoColEditConflict"
         ]
       },
       {
@@ -9623,6 +9796,12 @@
         ]
       },
       {
+        "realname": "RunSingleJob",
+        "aliases": [
+          "RunSingleJob"
+        ]
+      },
+      {
         "realname": "Map",
         "aliases": [
           "Map"
@@ -9648,6 +9827,12 @@
           "Libre",
           "Book",
           "Collection"
+        ]
+      },
+      {
+        "realname": "RenderBook",
+        "aliases": [
+          "RenderBook"
         ]
       },
       {
@@ -9695,6 +9880,10 @@
     "defaultoptions": {
       "globaluserpage": true,
       "rcenhancedfilters-seen-highlight-button-counter": 0,
+      "echo-subscriptions-web-login-fail": true,
+      "echo-subscriptions-email-login-fail": true,
+      "echo-subscriptions-web-login-success": false,
+      "echo-subscriptions-email-login-success": true,
       "visualeditor-enable": 1,
       "visualeditor-betatempdisable": 0,
       "visualeditor-newwikitext": 0,
@@ -9738,10 +9927,10 @@
       "date": "default",
       "diffonly": 0,
       "disablemail": 0,
-      "editfont": "default",
+      "editfont": "monospace",
       "editondblclick": 0,
       "editsectiononrightclick": 0,
-      "enotifminoredits": 0,
+      "enotifminoredits": false,
       "enotifrevealaddr": 0,
       "enotifusertalkpages": 1,
       "enotifwatchlistpages": 0,
@@ -9762,6 +9951,7 @@
       "previewontop": 1,
       "rcdays": 7,
       "rcenhancedfilters": 0,
+      "rcenhancedfilters-disable": 0,
       "rclimit": 50,
       "rows": 25,
       "showhiddencats": false,
@@ -9786,6 +9976,7 @@
       "watchlisthidepatrolled": 0,
       "watchlisthidecategorization": 1,
       "watchlistreloadautomatically": 0,
+      "watchlistunwatchlinks": 0,
       "watchmoves": 0,
       "watchrollback": 0,
       "wllimit": 250,
@@ -9815,8 +10006,11 @@
       "echo-subscriptions-web-mention-success": false,
       "echo-subscriptions-email-emailuser": false,
       "echo-subscriptions-web-emailuser": true,
-      "timecorrection": "System|120",
+      "echo-subscriptions-email-article-reminder": false,
+      "echo-subscriptions-web-article-reminder": true,
+      "timecorrection": "System|60",
       "language": "ca",
+      "variant-en": "en",
       "variant-gan": "gan",
       "variant-iu": "iu",
       "variant-kk": "kk",
@@ -9846,9 +10040,8 @@
       "gadget-charinsert": 1,
       "gadget-AltresViccionari": 1,
       "gadget-purgetab": 1,
-      "gadget-visualeditor-signature": 1,
       "gadget-DocTabs": 1,
-      "multimediaviewer-enable": true,
+      "multimediaviewer-enable": 1,
       "popups": "0"
     },
     "variables": [

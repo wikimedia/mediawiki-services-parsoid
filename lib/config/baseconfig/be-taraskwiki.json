@@ -1322,9 +1322,27 @@
         "case-sensitive": ""
       },
       {
+        "name": "invoke",
+        "aliases": [
+          "invoke"
+        ]
+      },
+      {
         "name": "calendar",
         "aliases": [
           "calendar"
+        ]
+      },
+      {
+        "name": "transcludelist",
+        "aliases": [
+          "transcludelist"
+        ]
+      },
+      {
+        "name": "nocollaborationhubtoc",
+        "aliases": [
+          "__NOCOLLABORATIONHUBTOC__"
         ]
       },
       {
@@ -1490,9 +1508,9 @@
         ]
       },
       {
-        "name": "invoke",
+        "name": "translation",
         "aliases": [
-          "invoke"
+          "translation"
         ]
       },
       {
@@ -1529,12 +1547,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ]
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ]
       },
       {
@@ -1981,7 +1993,6 @@
       "tag",
       "formatdate",
       "displaytitle",
-      "invoke",
       "noexternallanglinks",
       "property",
       "statements",
@@ -2002,6 +2013,7 @@
       "target",
       "babel",
       "coordinates",
+      "invoke",
       "related",
       "categorytree"
     ],
@@ -2035,12 +2047,12 @@
       "base": "https://be-tarask.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0",
       "sitename": "Вікіпэдыя",
       "logo": "//be-tarask.wikipedia.org/static/images/project-logos/be_x_oldwiki.png",
-      "generator": "MediaWiki 1.30.0-wmf.1",
+      "generator": "MediaWiki 1.31.0-wmf.7",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
-      "hhvmversion": "3.18.2",
+      "hhvmversion": "3.18.6-dev",
       "dbtype": "mysql",
-      "dbversion": "10.0.29-MariaDB",
+      "dbversion": "10.0.32-MariaDB",
       "imagewhitelistenabled": "",
       "langconversion": "",
       "titleconversion": "",
@@ -2051,8 +2063,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "3fe82bc425739fdf9b3c5afd164d0d55d5a29437",
-      "git-branch": "wmf/1.30.0-wmf.1",
+      "git-hash": "03448d825f6e524508b2ac4d2a38ab3c6c788834",
+      "git-branch": "wmf/1.31.0-wmf.7",
       "case": "first-letter",
       "lang": "be-tarask",
       "fallback": [
@@ -2075,7 +2087,7 @@
       "server": "//be-tarask.wikipedia.org",
       "servername": "be-tarask.wikipedia.org",
       "wikiid": "be_x_oldwiki",
-      "time": "2017-05-17T22:58:13Z",
+      "time": "2017-11-10T02:16:48Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -2086,7 +2098,8 @@
         "imageHeight": 120,
         "captionLength": "",
         "showBytes": "",
-        "mode": "traditional"
+        "mode": "traditional",
+        "showDimensions": ""
       },
       "thumblimits": [
         120,
@@ -2138,13 +2151,17 @@
       "linter": {
         "high": [
           "deletable-table-tag",
+          "html5-misnesting",
           "pwrap-bug-workaround",
-          "self-closed-tag"
+          "self-closed-tag",
+          "tidy-font-bug",
+          "tidy-whitespace-bug"
         ],
         "medium": [
           "bogus-image-options",
           "fostered",
-          "misnested-tag"
+          "misnested-tag",
+          "multi-colon-escape"
         ],
         "low": [
           "missing-end-tag",
@@ -2168,7 +2185,7 @@
     "interwikimap": [
       {
         "prefix": "acronym",
-        "url": "http://www.acronymfinder.com/af-query.asp?String=exact&Acronym=$1"
+        "url": "https://www.acronymfinder.com/$1.html"
       },
       {
         "prefix": "advisory",
@@ -2181,7 +2198,7 @@
       },
       {
         "prefix": "aew",
-        "url": "http://wiki.arabeyes.org/$1"
+        "url": "https://wiki.arabeyes.org/$1"
       },
       {
         "prefix": "appropedia",
@@ -2197,7 +2214,7 @@
       },
       {
         "prefix": "arxiv",
-        "url": "http://arxiv.org/abs/$1"
+        "url": "https://arxiv.org/abs/$1"
       },
       {
         "prefix": "atmwiki",
@@ -2226,6 +2243,10 @@
       {
         "prefix": "bibcode",
         "url": "http://adsabs.harvard.edu/abs/$1"
+      },
+      {
+        "prefix": "bibliowiki",
+        "url": "https://biblio.wiki/wiki/$1"
       },
       {
         "prefix": "bluwiki",
@@ -2550,7 +2571,7 @@
       },
       {
         "prefix": "freebsdman",
-        "url": "http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1"
+        "url": "https://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1"
       },
       {
         "prefix": "freeculturewiki",
@@ -2958,11 +2979,11 @@
       },
       {
         "prefix": "mwod",
-        "url": "http://www.merriam-webster.com/cgi-bin/dictionary?book=Dictionary&va=$1"
+        "url": "https://www.merriam-webster.com/dictionary/$1"
       },
       {
         "prefix": "mwot",
-        "url": "http://www.merriam-webster.com/cgi-bin/thesaurus?book=Thesaurus&va=$1"
+        "url": "https://www.merriam-webster.com/thesaurus/$1"
       },
       {
         "prefix": "nkcells",
@@ -2970,7 +2991,7 @@
       },
       {
         "prefix": "nara",
-        "url": "http://research.archives.gov/description/$1"
+        "url": "https://catalog.archives.gov/id/$1"
       },
       {
         "prefix": "nosmoke",
@@ -3016,10 +3037,6 @@
       {
         "prefix": "openwetware",
         "url": "http://openwetware.org/wiki/$1"
-      },
-      {
-        "prefix": "openwiki",
-        "url": "http://openwiki.com/?$1"
       },
       {
         "prefix": "opera7wiki",
@@ -3252,7 +3269,8 @@
       },
       {
         "prefix": "sharemap",
-        "url": "http://sharemap.org/$1"
+        "url": "https://sharemap.org/$1",
+        "protorel": ""
       },
       {
         "prefix": "silcode",
@@ -3260,7 +3278,7 @@
       },
       {
         "prefix": "slashdot",
-        "url": "http://slashdot.org/article.pl?sid=$1"
+        "url": "https://slashdot.org/article.pl?sid=$1"
       },
       {
         "prefix": "sourceforge",
@@ -3383,6 +3401,10 @@
         "url": "http://www.EasyTopicMaps.com/?page=$1"
       },
       {
+        "prefix": "toolforge",
+        "url": "https://tools.wmflabs.org/$1"
+      },
+      {
         "prefix": "toollabs",
         "url": "https://tools.wmflabs.org/$1"
       },
@@ -3457,7 +3479,7 @@
       },
       {
         "prefix": "vlos",
-        "url": "http://www.thuvienkhoahoc.com/tusach/$1"
+        "url": "https://tusach.thuvienkhoahoc.com/wiki/$1"
       },
       {
         "prefix": "vkol",
@@ -3543,7 +3565,7 @@
       },
       {
         "prefix": "wikilivres",
-        "url": "https://wikilivres.ca/wiki/$1"
+        "url": "https://biblio.wiki/wiki/$1"
       },
       {
         "prefix": "wikilivresru",
@@ -3661,6 +3683,11 @@
       {
         "prefix": "wlug",
         "url": "http://www.wlug.org.nz/$1"
+      },
+      {
+        "prefix": "wmam",
+        "local": "",
+        "url": "https://am.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmar",
@@ -3787,7 +3814,7 @@
       },
       {
         "prefix": "wmit",
-        "url": "http://wiki.wikimedia.it/wiki/$1"
+        "url": "https://wiki.wikimedia.it/wiki/$1"
       },
       {
         "prefix": "wmke",
@@ -3950,6 +3977,11 @@
         "prefix": "wm2017",
         "local": "",
         "url": "https://wikimania2017.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wm2018",
+        "local": "",
+        "url": "https://wikimania2018.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmania",
@@ -4117,6 +4149,12 @@
         "local": "",
         "language": "asturianu",
         "url": "https://ast.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "atj",
+        "local": "",
+        "language": "Atikamekw",
+        "url": "https://atj.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "av",
@@ -4308,7 +4346,7 @@
       {
         "prefix": "ckb",
         "local": "",
-        "language": "کوردیی ناوەندی",
+        "language": "کوردی",
         "url": "https://ckb.wikipedia.org/wiki/$1"
       },
       {
@@ -4370,6 +4408,12 @@
         "local": "",
         "language": "Deutsch",
         "url": "https://de.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "din",
+        "local": "",
+        "language": "Thuɔŋjäŋ",
+        "url": "https://din.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "diq",
@@ -4780,6 +4824,12 @@
         "url": "https://kbd.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "kbp",
+        "local": "",
+        "language": "Kabɩyɛ",
+        "url": "https://kbp.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "kg",
         "local": "",
         "language": "Kongo",
@@ -5160,7 +5210,7 @@
       {
         "prefix": "no",
         "local": "",
-        "language": "norsk bokmål",
+        "language": "norsk",
         "url": "https://no.wikipedia.org/wiki/$1"
       },
       {
@@ -5412,7 +5462,7 @@
       {
         "prefix": "se",
         "local": "",
-        "language": "sámegiella",
+        "language": "davvisámegiella",
         "url": "https://se.wikipedia.org/wiki/$1"
       },
       {
@@ -6237,7 +6287,7 @@
       },
       {
         "code": "ckb",
-        "*": "کوردیی ناوەندی"
+        "*": "کوردی"
       },
       {
         "code": "co",
@@ -6664,6 +6714,10 @@
         "*": "Адыгэбзэ"
       },
       {
+        "code": "kbp",
+        "*": "Kabɩyɛ"
+      },
+      {
         "code": "kg",
         "*": "Kongo"
       },
@@ -7029,7 +7083,7 @@
       },
       {
         "code": "no",
-        "*": "norsk bokmål"
+        "*": "norsk"
       },
       {
         "code": "nov",
@@ -7249,7 +7303,7 @@
       },
       {
         "code": "se",
-        "*": "sámegiella"
+        "*": "davvisámegiella"
       },
       {
         "code": "sei",
@@ -7298,6 +7352,14 @@
       {
         "code": "sk",
         "*": "slovenčina"
+      },
+      {
+        "code": "skr",
+        "*": "سرائیکی"
+      },
+      {
+        "code": "skr-arab",
+        "*": "سرائیکی"
       },
       {
         "code": "sl",
@@ -7376,6 +7438,10 @@
         "*": "தமிழ்"
       },
       {
+        "code": "tay",
+        "*": "Tayal"
+      },
+      {
         "code": "tcy",
         "*": "ತುಳು"
       },
@@ -7426,10 +7492,6 @@
       {
         "code": "to",
         "*": "lea faka-Tonga"
-      },
-      {
-        "code": "tokipona",
-        "*": "Toki Pona"
       },
       {
         "code": "tpi",
@@ -8684,6 +8746,12 @@
         ]
       },
       {
+        "realname": "PageData",
+        "aliases": [
+          "PageData"
+        ]
+      },
+      {
         "realname": "Search",
         "aliases": [
           "Пошук",
@@ -8936,6 +9004,12 @@
         ]
       },
       {
+        "realname": "ElectronPdf",
+        "aliases": [
+          "ElectronPdf"
+        ]
+      },
+      {
         "realname": "AbuseLog",
         "aliases": [
           "AbuseLog"
@@ -8996,6 +9070,13 @@
         ]
       },
       {
+        "realname": "CollabPad",
+        "aliases": [
+          "CollabPad",
+          "Collab_Pad"
+        ]
+      },
+      {
         "realname": "History",
         "aliases": [
           "History"
@@ -9011,12 +9092,6 @@
         "realname": "MobileDiff",
         "aliases": [
           "MobileDiff"
-        ]
-      },
-      {
-        "realname": "MobileEditor",
-        "aliases": [
-          "MobileEditor"
         ]
       },
       {
@@ -9104,14 +9179,16 @@
         ]
       },
       {
-        "realname": "Flow",
+        "realname": "StructuredDiscussions",
         "aliases": [
+          "StructuredDiscussions",
           "Flow"
         ]
       },
       {
-        "realname": "EnableFlow",
+        "realname": "EnableStructuredDiscussions",
         "aliases": [
+          "EnableStructuredDiscussions",
           "EnableFlow"
         ]
       },
@@ -9125,6 +9202,12 @@
         "realname": "DisambiguationPageLinks",
         "aliases": [
           "DisambiguationPageLinks"
+        ]
+      },
+      {
+        "realname": "SimulateTwoColEditConflict",
+        "aliases": [
+          "SimulateTwoColEditConflict"
         ]
       },
       {
@@ -9200,6 +9283,12 @@
         ]
       },
       {
+        "realname": "RunSingleJob",
+        "aliases": [
+          "RunSingleJob"
+        ]
+      },
+      {
         "realname": "Map",
         "aliases": [
           "Map"
@@ -9222,6 +9311,12 @@
         "aliases": [
           "Book",
           "Collection"
+        ]
+      },
+      {
+        "realname": "RenderBook",
+        "aliases": [
+          "RenderBook"
         ]
       },
       {
@@ -9268,6 +9363,10 @@
     "defaultoptions": {
       "globaluserpage": true,
       "rcenhancedfilters-seen-highlight-button-counter": 0,
+      "echo-subscriptions-web-login-fail": true,
+      "echo-subscriptions-email-login-fail": true,
+      "echo-subscriptions-web-login-success": false,
+      "echo-subscriptions-email-login-success": true,
       "visualeditor-enable": 1,
       "visualeditor-betatempdisable": 0,
       "visualeditor-newwikitext": 0,
@@ -9304,10 +9403,10 @@
       "date": "default",
       "diffonly": 0,
       "disablemail": 0,
-      "editfont": "default",
+      "editfont": "monospace",
       "editondblclick": 0,
       "editsectiononrightclick": 0,
-      "enotifminoredits": 0,
+      "enotifminoredits": false,
       "enotifrevealaddr": 0,
       "enotifusertalkpages": 1,
       "enotifwatchlistpages": 0,
@@ -9328,6 +9427,7 @@
       "previewontop": 1,
       "rcdays": 7,
       "rcenhancedfilters": 0,
+      "rcenhancedfilters-disable": 0,
       "rclimit": 50,
       "rows": 25,
       "showhiddencats": false,
@@ -9352,6 +9452,7 @@
       "watchlisthidepatrolled": 0,
       "watchlisthidecategorization": 1,
       "watchlistreloadautomatically": 0,
+      "watchlistunwatchlinks": 0,
       "watchmoves": 0,
       "watchrollback": 0,
       "wllimit": 250,
@@ -9381,8 +9482,11 @@
       "echo-subscriptions-web-mention-success": false,
       "echo-subscriptions-email-emailuser": false,
       "echo-subscriptions-web-emailuser": true,
+      "echo-subscriptions-email-article-reminder": false,
+      "echo-subscriptions-web-article-reminder": true,
       "timecorrection": "System|180",
       "language": "be-tarask",
+      "variant-en": "en",
       "variant-gan": "gan",
       "variant-iu": "iu",
       "variant-kk": "kk",
@@ -9410,7 +9514,7 @@
       "gadget-wikify": 1,
       "gadget-BKL": 1,
       "gadget-ReferenceTooltips": 1,
-      "multimediaviewer-enable": true,
+      "multimediaviewer-enable": 1,
       "popups": "0"
     },
     "variables": [
