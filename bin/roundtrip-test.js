@@ -98,19 +98,9 @@ var plainFormat = function(err, prefix, title, results, profile) {
 	return output;
 };
 
-function encodeXmlEntities(str) {
-	return str.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
-}
-
-function encodeAttribute(str) {
-	return encodeXmlEntities(str).replace(/"/g, '&quot;');
-}
-
 var xmlFormat = function(err, prefix, title, results, profile) {
 	var i, result;
-	var article = encodeAttribute(prefix + ':' + title);
+	var article = Util.escapeHtml(prefix + ':' + title);
 	var output = '<testsuites>\n';
 	var outputTestSuite = function(selser) {
 		output += '<testsuite name="Roundtrip article ' + article;
@@ -124,7 +114,7 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 		outputTestSuite(false);
 		output += '<testcase name="entire article">';
 		output += '<error type="parserFailedToFinish">';
-		output += encodeXmlEntities(err.stack || err.toString());
+		output += Util.escapeHtml(err.stack || err.toString());
 		output += '</error></testcase>';
 	} else if (!results.length) {
 		outputTestSuite(false);
@@ -149,17 +139,17 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 				output += '<failure type="significantHtmlDiff">\n';
 
 				output += '<diff class="wt">\n';
-				output += encodeXmlEntities(result.wtDiff);
+				output += Util.escapeHtml(result.wtDiff);
 				output += '\n</diff>\n';
 
 				output += '<diff class="html">\n';
-				output += encodeXmlEntities(result.htmlDiff);
+				output += Util.escapeHtml(result.htmlDiff);
 				output += '\n</diff>\n';
 
 				output += '</failure>\n';
 			} else {
 				output += '<skipped type="insignificantWikitextDiff">\n';
-				output += encodeXmlEntities(result.wtDiff);
+				output += Util.escapeHtml(result.wtDiff);
 				output += '\n</skipped>\n';
 			}
 
