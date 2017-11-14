@@ -14855,6 +14855,22 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
+Image with table with rows from templates in caption
+!! wikitext
+[[File:Foobar.jpg|thumb|
+{|
+{{echo|{{!}} hi}}
+|}
+]]
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n{|\n{{echo|{{!}} hi}}\n|}\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{"href":"File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
+<table>
+<tbody about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}} hi"}},"i":0}},"\n"]}'><tr><td> hi</td></tr>
+</tbody></table>
+</figcaption></figure>
+!! end
+
+!! test
 Image with nested tables in caption
 !! wikitext
 [[File:Foobar.jpg|thumb|Foo<br />
