@@ -11,7 +11,6 @@
     "connect-busboy": "^0.0.2",
     "content-type": "git+https://github.com/wikimedia/content-type#master",
     "core-js": "^2.5.1",
-    "diff": "^1.0.7",
     "domino": "^2.0.0",
     "entities": "^1.1.1",
     "express": "^4.15.5",

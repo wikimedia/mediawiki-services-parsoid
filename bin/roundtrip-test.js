@@ -438,8 +438,8 @@ var checkIfSignificant = function(offsets, data) {
 		// Check if this is really a semantic diff
 		var oldHTML = getMatchingHTML(oldBody, offset[0], nlDiffs);
 		var newHTML = getMatchingHTML(newBody, offset[1], nlDiffs);
-		var diff = Diff.htmlDiff(oldHTML, newHTML, false, true, true);
-		if (diff.length > 0) {
+		var diff = Diff.patchDiff(oldHTML, newHTML);
+		if (diff !== null) {
 			// Normalize wts to check if we really have a semantic diff
 			var wt1 = normalizeWikitext(oldWt.substring(offset[0].start, offset[0].end));
 			var wt2 = normalizeWikitext(newWt.substring(offset[1].start, offset[1].end));

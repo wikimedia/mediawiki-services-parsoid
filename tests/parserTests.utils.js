@@ -334,7 +334,7 @@ var doDiff = function(actual, expected) {
 	// if colors are turned off.
 	var e = expected.normal.replace(/\xA0/g, '\u2423');
 	var a = actual.normal.replace(/\xA0/g, '\u2423');
-	return Diff.htmlDiff(e, a, true);
+	return Diff.colorDiff(e, a);
 };
 
 /**
