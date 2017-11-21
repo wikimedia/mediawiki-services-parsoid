@@ -614,6 +614,21 @@ Multiple definition (inside {{#tag:references}})
 
 !! end
 
+!! test
+T29694 - [] in reference names in HTML5 fragment mode
+!! config
+wgFragmentMode=[ 'html5' ]
+!! wikitext
+<ref name="[#foo] {bar} <baz>">[bar]</ref>
+!! html
+<sup id="cite_ref-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz_1-0" class="reference"><a href="#cite_note-[#foo]_{bar}_&lt;baz-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz-1"><span class="mw-cite-backlink"><a href="#cite_ref-[#foo]_{bar}_&lt;baz_1-0">↑</a></span> <span class="reference-text">"&gt;[bar]</span>
+</li>
+</ol></div>
+
+!! end
+
+
 #### ----------------------------------------------------------------
 #### Parsoid-only testing of Parsoid's impl of <ref> and <references>
 #### tags. Parsoid's output for these tags differs from that of the
