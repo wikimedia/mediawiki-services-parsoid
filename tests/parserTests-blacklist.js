@@ -1854,8 +1854,7 @@ add("selser", "Normalizations should be restricted to edited content [0,0,0,0,[2
 add("selser", "Normalizations should be restricted to edited content [1,2,0,0,0]", "a\n\nhg3nd9\n\n= =\nb");
 add("selser", "Normalizations should be restricted to edited content [1,2,2,3,0]", "a\n\ngerlhn\n\n1gcvetf\n\n= =\nb");
 add("selser", "4a. Table cells without escapable prefixes after edits manual", "{|\n| id=\"x\" | -\n|}");
-add("selser", "Section wrapping with template-generated sections (bad nesting 1) [[1,0,4,0],1,[3,0,0]]", "= 1 =\n1ccv4ok\n\n{{echo|1=\n= 2 =\nb\n== 2.1 ==\nc\n}}\n\nd\n\n\ne");
-add("selser", "Section wrapping with template-generated sections (bad nesting 2) [0,0,[3,0,[4]]]", "= 1 =\na\n\n{{echo|1=\n== 1.2 ==\nb\n= 2 =\nc\n}}\n\nd\n\n\nbl6xpg");
+add("selser", "Section wrapping with template-generated sections (bad nesting 2) [3,0,0,[3,0,0]]", "= 1 =\na\n\n{{echo|1=\n== 1.2 ==\nb\n= 2 =\nc\n}}\n\nd\n\n\ne");
 add("selser", "Section wrapping with editable lead section + div overlapping multiple sections [[4,3],[4,2,[2],0],[1,4,1,2],[4,0,1,3,0]]", "hrfp19\n\nn5dm7x\n\n1euy0ph\n\n1o3yomza\n<div style=\"border:1px solid red;\" data-foobar=\"188ni0p\">\nb\n\n== 1.1 ==\nc\n\n= 2 =\nd\n</div>o4asuo\ne\n1dh6a6e\n\n13vv0lg\n\nf\n\n== 3.1 ==\ng");
 
 // ### DO NOT REMOVE THIS LINE ### (end of automatically-generated section)

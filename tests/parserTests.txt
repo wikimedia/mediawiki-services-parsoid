@@ -29775,7 +29775,7 @@ e
 = 3 =
 f
 !! html/parsoid
-<section data-mw-section-id="1"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1"> 1 </h1>
 <p>a</p>
 
 </section><section data-mw-section-id="2"><h1 id="2"> 2 </h1>
@@ -29857,7 +29857,7 @@ c
 = 2 =
 d
 !! html/parsoid
-<section data-mw-section-id="1"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1"> 1 </h1>
 <p>a</p>
 
 <section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"dsr":[9,33,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"== 1.1 ==\nb"}},"i":0}}]}'> 1.1 </h2><span about="#mwt1">
@@ -29891,7 +29891,7 @@ d
 = 2 =
 e
 !! html/parsoid
-<section data-mw-section-id="1"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1"> 1 </h1>
 <p>a</p>
 
 <section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"dsr":[9,50,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"== 1.1 ==\nb\n=== 1.1.1 ===\nd"}},"i":0}},"\n"]}'> 1.1 </h2><span about="#mwt1">
@@ -29927,7 +29927,7 @@ d
 = 2 =
 e
 !! html/parsoid
-<section data-mw-section-id="1" data-parsoid="{}"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1" data-parsoid="{}"><h1 id="1"> 1 </h1>
 <p>a</p>
 
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"dsr":[9,60,0,0],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"x\n== 1.1 ==\nb\n==1.2==\nc\n===1.2.1===\nd"}},"i":0}},"\n"]}'>x</p><span about="#mwt1">
@@ -29966,7 +29966,7 @@ d
 = 3 =
 e
 !! html/parsoid
-<section data-mw-section-id="1"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1"> 1 </h1>
 <p>a</p>
 
 </section><section data-mw-section-id="-1"><h1 about="#mwt1" typeof="mw:Transclusion" id="2" data-parsoid='{"dsr":[9,45,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"= 2 =\nb\n== 2.1 ==\nc"}},"i":0}},"\n\nd\n\n"]}'> 2 </h1><span about="#mwt1">
@@ -30008,7 +30008,7 @@ d
 = 3 =
 e
 !! html/parsoid
-<section data-mw-section-id="1" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["= 1 =\na\n\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"== 1.2 ==\nb\n= 2 =\nc"}},"i":0}},"\n\nd\n\n"]}'><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["= 1 =\na\n\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"== 1.2 ==\nb\n= 2 =\nc"}},"i":0}},"\n\nd\n\n"]}'><h1 id="1"> 1 </h1>
 <p>a</p>
 
 <section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.2" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"== 1.2 ==\nb\n= 2 =\nc"}},"i":0}}]}'> 1.2 </h2><span about="#mwt1">
@@ -30145,4 +30145,28 @@ foo
 <h1 id="c" data-parsoid='{"stx":"html"}'>c</h1>
 
 </section><section data-mw-section-id="2"><h1 id="d"> d </h1></section>
+!! end
+
+!! test
+Lead section containing only whitespace and comments.
+!! options
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+
+<!-- this is a comment, presumably significant to editors -->
+= 1 =
+a
+
+= 2 =
+b
+!! html/parsoid
+<section data-mw-section-id="0" data-parsoid="{}">
+<!-- this is a comment, presumably significant to editors -->
+</section><section data-mw-section-id="1"><h1 id="1"> 1 </h1>
+<p>a</p>
+
+</section><section data-mw-section-id="2"><h1 id="2"> 2 </h1>
+<p>b</p></section>
 !! end
