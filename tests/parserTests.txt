@@ -28529,6 +28529,14 @@ parsoid=wt2html
 !! end
 
 !! test
+Catch regression when unpacking with trailing content
+!! wikitext
+{{echo|Foo <references/> bar}}
+!! html/parsoid
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Foo &lt;references/> bar"}},"i":0}}]}'>Foo </p><ol class="mw-references references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol><p about="#mwt2"> bar</p>
+!! end
+
+!! test
 Use data-parsoid.firstWikitextNode to compute newline constraints for template content
 !! options
 parsoid=html2wt
