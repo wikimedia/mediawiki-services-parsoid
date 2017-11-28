@@ -24,6 +24,28 @@ parsoidOptions.linting = true;
 
 var defaultContentVersion = '1.5.0';
 
+// section wrappers are a distraction from the main business of
+// this file which is to verify functionality of API end points
+// independent of what they are returning and computing.
+//
+// Verifying the correctness of content is actually the job of
+// parser tests and other tests.
+//
+// So, hide most of that that distraction in a helper.
+//
+// Right now, all uses of this helper have empty lead sections.
+// But, maybe in the future, this may change. So, retain the option.
+function validateDoc(doc, nodeName, emptyLead) {
+	var leadSection = doc.body.firstChild;
+	leadSection.nodeName.should.equal('SECTION');
+	if (emptyLead) {
+		// Could have whitespace and comments
+		leadSection.childElementCount.should.equal(0);
+	}
+	var nonEmptySection = emptyLead ? leadSection.nextSibling : leadSection;
+	nonEmptySection.firstChild.nodeName.should.equal(nodeName);
+}
+
 describe('Parsoid API', function() {
 	var api, runner;
 	var mockDomain = 'customwiki';
@@ -49,8 +71,7 @@ describe('Parsoid API', function() {
 			})
 			.expect(200)
 			.expect(function(res) {
-				var doc = domino.createDocument(res.text);
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(domino.createDocument(res.text), 'H2', true);
 			})
 			.end(done);
 		});
@@ -64,8 +85,7 @@ describe('Parsoid API', function() {
 			})
 			.expect(200)
 			.expect(function(res) {
-				var doc = domino.createDocument(res.text);
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(domino.createDocument(res.text), 'H2', true);
 			})
 			.end(done);
 		});
@@ -76,8 +96,7 @@ describe('Parsoid API', function() {
 			.field('wikitext', '== h2 ==')
 			.expect(200)
 			.expect(function(res) {
-				var doc = domino.createDocument(res.text);
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(domino.createDocument(res.text), 'H2', true);
 			})
 			.end(done);
 		});
@@ -499,7 +518,8 @@ describe('Parsoid API', function() {
 			request(api)
 			.get(mockDomain + '/v3/page/html/Main_Page/1')
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.textContent.should.equal('MediaWiki has been successfully installed.');
+				// SECTION -> P
+				doc.body.firstChild.firstChild.textContent.should.equal('MediaWiki has been successfully installed.');
 			}))
 			.end(done);
 		});
@@ -543,7 +563,7 @@ describe('Parsoid API', function() {
 				wikitext: "== h2 ==",
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -568,7 +588,7 @@ describe('Parsoid API', function() {
 				wikitext: "== h2 ==",
 			})
 			.expect(validPageBundleResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -599,7 +619,7 @@ describe('Parsoid API', function() {
 				},
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -659,7 +679,9 @@ describe('Parsoid API', function() {
 				wikitext: '',
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.children.length.should.equal(0);
+				doc.body.children.length.should.equal(1); // empty lead section
+				doc.body.firstChild.nodeName.should.equal('SECTION');
+				doc.body.firstChild.children.length.should.equal(0);
 			}))
 			.end(done);
 		});
@@ -681,7 +703,7 @@ describe('Parsoid API', function() {
 				wikitext: "== h2 ==",
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -693,7 +715,7 @@ describe('Parsoid API', function() {
 				wikitext: "== h2 ==",
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -712,7 +734,7 @@ describe('Parsoid API', function() {
 				},
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -731,7 +753,7 @@ describe('Parsoid API', function() {
 				},
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('H2');
+				validateDoc(doc, 'H2', true);
 			}))
 			.end(done);
 		});
@@ -799,10 +821,10 @@ describe('Parsoid API', function() {
 			.send({ wikitext: "{{echo|foo}}", subst: 'true' })
 			.expect(validHtmlResponse(function(doc) {
 				var body = doc.body;
-				// <body> should have one child, <p>
+				// <body> should have one child, <section>, the lead section
 				body.childElementCount.should.equal(1);
-				body.firstElementChild.nodeName.should.equal('P');
-				var p = body.firstElementChild;
+				var p = body.firstChild.firstChild;
+				p.nodeName.should.equal('P');
 				p.innerHTML.should.equal('foo');
 				// The <p> shouldn't be a template expansion, just a plain ol' one
 				should.not.exist(p.getAttribute('typeof'));
@@ -818,10 +840,10 @@ describe('Parsoid API', function() {
 			.send({ wikitext: "{{echo|foo {{echo|bar}} baz}}", subst: 'true' })
 			.expect(validHtmlResponse(function(doc) {
 				var body = doc.body;
-				// <body> should have one child, <p>
+				// <body> should have one child, <section>, the lead section
 				body.childElementCount.should.equal(1);
-				body.firstElementChild.nodeName.should.equal('P');
-				var p = body.firstElementChild;
+				var p = body.firstChild.firstChild;
+				p.nodeName.should.equal('P');
 				// The <p> shouldn't be a template expansion, just a plain ol' one
 				should.not.exist(p.getAttribute('typeof'));
 				// and it shouldn't have any data-parsoid in it

@@ -18,7 +18,7 @@ describe('ParserPipelineFactory', function() {
 	// There are also specific dependencies on enwiki contents
 	// (subpage support and the {Lowercase title}} template)
 	// which ought to be factored out and mocked, longer-term.
-	var parsoidConfig = new ParsoidConfig(null, { wrapSections: false, loadWMF: true, defaultWiki: 'enwiki' });
+	var parsoidConfig = new ParsoidConfig(null, { loadWMF: true, defaultWiki: 'enwiki' });
 	var parse = function(src, options) {
 		return helpers.parse(parsoidConfig, src, options).then(function(ret) {
 			return ret.doc;

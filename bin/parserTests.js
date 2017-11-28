@@ -705,11 +705,15 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 		}
 
 		// Process test-specific options
+		var defaults = {
+			scrubWikitext: MWParserEnvironment.prototype.scrubWikitext,
+			nativeGallery: MWParserEnvironment.prototype.nativeGallery,
+			wrapSections: false, // override for parser tests
+		};
 		var env = this.env;
-		['scrubWikitext', 'nativeGallery', 'wrapSections'].forEach(function(opt) {
-			env[opt] = item.options.parsoid &&
-			item.options.parsoid.hasOwnProperty(opt) ?
-				item.options.parsoid[opt] : MWParserEnvironment.prototype[opt];
+		Object.keys(defaults).forEach(function(opt) {
+			env[opt] = item.options.parsoid && item.options.parsoid.hasOwnProperty(opt) ?
+				item.options.parsoid[opt] : defaults[opt];
 		});
 
 		this.env.conf.wiki.responsiveReferences =
@@ -1007,9 +1011,6 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 
 		// Needed for bidi-char-scrubbing html2wt tests.
 		parsoidConfig.scrubBidiChars = true;
-
-		// Default to false and let individual tests opt in
-		parsoidConfig.wrapSections = false;
 
 		var extensions = parsoidConfig.defaultNativeExtensions.concat(ParserHook);
 

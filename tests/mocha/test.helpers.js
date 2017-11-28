@@ -8,6 +8,7 @@ var parse = function(parsoidConfig, src, options) {
 	return MWParserEnvironment.getParserEnv(parsoidConfig, {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
+		wrapSections: false,
 	}).then(function(env) {
 		if (options.tweakEnv) {
 			env = options.tweakEnv(env) || env;

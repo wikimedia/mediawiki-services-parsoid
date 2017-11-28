@@ -13,10 +13,10 @@ describe('Parsoid JS API', function() {
 			mode: 'wt2html',
 			parsoidOptions: {
 				loadWMF: true,
-				wrapSections: false,
 			},
 			envOptions: {
 				domain: 'en.wikipedia.org',
+				wrapSections: false,
 			},
 		})
 		.then(function(out) {

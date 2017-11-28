@@ -178,10 +178,10 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': false,
 		'default': null,
 	},
-	'noSectionWrap': {
-		description: 'Do not output <section> tags',
+	'wrapSections': {
+		description: 'Output <section> tags (default false)',
 		'boolean': true,
-		'default': false,
+		'default': false, // override the default in MWParserEnvironment.prototype since the wrappers are annoying in dev-mode
 	},
 });
 
@@ -270,10 +270,6 @@ var standardOpts = Util.addStandardOptions({
 		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
 	}
 
-	if (argv.noSectionWrap) {
-		parsoidOptions.wrapSections = !argv.noSectionWrap;
-	}
-
 	var nock, dir, nocksFile;
 	if (argv.record || argv.replay) {
 		prefix = prefix || 'enwiki';
@@ -301,6 +297,7 @@ var standardOpts = Util.addStandardOptions({
 		scrubWikitext: argv.scrubWikitext,
 		nativeGallery: argv.nativeGallery,
 		pageBundle: argv.pageBundle || argv.pboutfile,
+		wrapSections: argv.wrapSections,
 	};
 
 	return Promise.resolve()

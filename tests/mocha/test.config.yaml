@@ -2,7 +2,6 @@ services:
     - conf:
         loadWMF: true
         useSelser: true
-        wrapSections: false # section wrappers get in the way
         strictAcceptCheck: true
         #traceFlags:
         #   - 'wts'
