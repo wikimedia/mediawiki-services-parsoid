@@ -786,6 +786,8 @@ describe('Parsoid API', function() {
 				// v3 only returns children of <body>
 				res.body.html.body.should.not.match(/<body/);
 				res.body.html.body.should.match(/<p/);
+				// No section wrapping in body-only mode
+				res.body.html.body.should.not.match(/<section/);
 			})
 			.end(done);
 		});
@@ -802,6 +804,8 @@ describe('Parsoid API', function() {
 				// v3 only returns children of <body>
 				res.text.should.not.match(/<body/);
 				res.text.should.match(/<p/);
+				// No section wrapping in body-only mode
+				res.text.should.not.match(/<section/);
 			})
 			.end(done);
 		});
