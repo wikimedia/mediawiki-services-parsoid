@@ -4855,8 +4855,8 @@ parsoid=wt2html,wt2wt
 </p>
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo"></a></p>
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo">Bar</a></p>
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo"><span>Bar</span></a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo">Bar</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" title="wikipedia:Foo"><span>Bar</span></a></p>
 !! end
 
 !! test
@@ -8656,7 +8656,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" class="extiw" title="meatball:SoftSecurity">MeatBall:SoftSecurity</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" title="meatball:SoftSecurity">MeatBall:SoftSecurity</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" title="meatball:SoftSecurity">MeatBall:SoftSecurity</a></p>
 !! end
 
 !! test
@@ -8669,7 +8669,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl" class="extiw" title="meatball:">MeatBall:</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?" title="meatball:">MeatBall:</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?" title="meatball:">MeatBall:</a></p>
 !! end
 
 ## html2wt and html2html will fail because we will prefer the :en: interwiki prefix over wikipedia:
@@ -8691,8 +8691,8 @@ parsoid=wt2html,wt2wt
 </ul>
 !! html/parsoid
 <ul>
-<li><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
-<li><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
+<li><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
+<li><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/ro:Olteniţa" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteniţa</a></li>
 </ul>
 !! end
 
@@ -8721,7 +8721,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Main_Page#Is_this_great?" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#Is_this_great?"},"sa":{"href":"#Is this great?"}}'>#Is this great?</a>
 <a rel="mw:WikiLink" href="./Foo#Is_this_great?" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo#Is_this_great?"},"sa":{"href":"Foo#Is this great?"}}'>Foo#Is this great?</a>
-<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great?" title="meatball:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great?"},"sa":{"href":"meatball:Foo#Is this great?"},"isIW":true}'>meatball:Foo#Is this great?</a></p>
+<a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great?" title="meatball:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Foo#Is_this_great?"},"sa":{"href":"meatball:Foo#Is this great?"},"isIW":true}'>meatball:Foo#Is this great?</a></p>
 !! end
 
 !! test
@@ -8761,19 +8761,19 @@ Different interwiki prefixes mapping to the same URL
 
 [[  wikiPEdia :Foo]]
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">en:Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="//en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"//en.wikipedia.org/wiki/Foo"},"sa":{"href":":en:Foo"},"isIW":true}' title="en:Foo">Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">wikipedia:Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">wikipedia:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":":wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":":wikipedia:Foo"},"isIW":true}' title="wikipedia:Foo">Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":"wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/en:Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/en:Foo"},"sa":{"href":":wikipedia:en:Foo"},"isIW":true}' title="wikipedia:en:Foo">wikipedia:en:Foo</a></p>
 
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"  wikiPEdia :Foo"},"isIW":true}' title="wikipedia:Foo">  wikiPEdia :Foo</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"  wikiPEdia :Foo"},"isIW":true}' title="wikipedia:Foo">  wikiPEdia :Foo</a></p>
 !! end
 
 !! test
@@ -8793,9 +8793,9 @@ Interwiki links that cannot be represented in wiki syntax
 <a rel="nofollow" class="external text" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok">meatball:ok</a>
-<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok">ok with fragment</a>
-<a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well?" title="meatball:ok as well?">ok ending with ? mark</a>
+<p><a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok">meatball:ok</a>
+<a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok">ok with fragment</a>
+<a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well?" title="meatball:ok as well?">ok ending with ? mark</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/Foo?action=history">has query</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a></p>
 !! end
@@ -8808,7 +8808,7 @@ Interwiki links: trail
 <p><a href="http://en.wikipedia.org/wiki/Foo" class="extiw" title="wikipedia:Foo">Bar</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}' title="wikipedia:Foo">Bar</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"stx":"piped","a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"wikipedia:Foo"},"isIW":true,"tail":"r"}' title="wikipedia:Foo">Bar</a></p>
 !! end
 
 !! test
@@ -8862,7 +8862,7 @@ parsoid=wt2html,wt2wt,html2html
 <p><a href="http://www.usemod.com/cgi-bin/mb.pl?Hello" class="extiw" title="meatball:Hello">local:meatball:Hello</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.usemod.com/cgi-bin/mb.pl?Hello" title="meatball:Hello">local:meatball:Hello</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://www.usemod.com/cgi-bin/mb.pl?Hello" title="meatball:Hello">local:meatball:Hello</a></p>
 !! end
 
 !! test
@@ -8960,8 +8960,8 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
-<a rel="mw:ExtLink" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese"> zh : Chinese </a></p>
+<a rel="mw:WikiLink/InterWiki" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
+<a rel="mw:WikiLink/InterWiki" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese"> zh : Chinese </a></p>
 !! end
 
 !! test
@@ -8978,7 +8978,7 @@ parsoid=wt2html
 [[:::es:Spanish]]
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
+<p><a rel="mw:WikiLink/InterWiki" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
 [[::es:Spanish]]
 [[:::es:Spanish]]</p>
 !! end
@@ -9055,7 +9055,7 @@ parsoid=wt2html,wt2wt,html2html
 Blah blah blah
 [[zh:Chinese]]
 !! html/parsoid
-<p>Blah blah blah <a rel="mw:ExtLink" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese">zh:Chinese</a></p>
+<p>Blah blah blah <a rel="mw:WikiLink/InterWiki" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese">zh:Chinese</a></p>
 !! end
 
 ## PHP parser tests script needs an update
@@ -9069,7 +9069,7 @@ parsoid=wt2html,wt2wt,html2html
 Blah blah blah
 [[zh:Chinese]]
 !! html/parsoid
-<p>Blah blah blah <a rel="mw:ExtLink" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese">zh:Chinese</a></p>
+<p>Blah blah blah <a rel="mw:WikiLink/InterWiki" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese">zh:Chinese</a></p>
 !! end
 
 !! test
@@ -9156,7 +9156,7 @@ parsoid=wt2html,wt2wt,html2html
 </p><p><a href="/wiki/Ko:" title="Ko:">ko:</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/" title="es:">es:</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href="http://es.wikipedia.org/wiki/" title="es:">es:</a></p>
 <p><a rel="mw:WikiLink" href="./Ko:" title="Ko:">ko:</a></p>
 !! end
 
@@ -9184,7 +9184,7 @@ Blah blah blah
 </p>
 !! html/parsoid
 <p>Blah blah blah
-<a rel="mw:ExtLink" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">local:es:Spanish</a></p>
+<a rel="mw:WikiLink/InterWiki" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">local:es:Spanish</a></p>
 !! end
 
 !! test
@@ -15299,7 +15299,7 @@ T2648: Frameless image caption with an interwiki link
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a MeatBall:Link in it"><img alt="text with a MeatBall:Link in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"text with a [[MeatBall:Link]] in it"}]}' data-mw='{"caption":"text with a &lt;a rel=\"mw:ExtLink\" href=\"http://www.usemod.com/cgi-bin/mb.pl?Link\" title=\"meatball:Link\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"http://www.usemod.com/cgi-bin/mb.pl?Link\"},\"sa\":{\"href\":\"MeatBall:Link\"},\"isIW\":true,\"dsr\":[30,47,2,2]}&#39;>MeatBall:Link&lt;/a> in it"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"text with a [[MeatBall:Link]] in it"}]}' data-mw='{"caption":"text with a &lt;a rel=\"mw:WikiLink/InterWiki\" href=\"http://www.usemod.com/cgi-bin/mb.pl?Link\" title=\"meatball:Link\" data-parsoid=&#39;{\"stx\":\"simple\",\"a\":{\"href\":\"http://www.usemod.com/cgi-bin/mb.pl?Link\"},\"sa\":{\"href\":\"MeatBall:Link\"},\"isIW\":true,\"dsr\":[30,47,2,2]}&#39;>MeatBall:Link&lt;/a> in it"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
 !! end
 
 !! test
@@ -15310,7 +15310,7 @@ T2648: Frameless image caption with a piped interwiki link
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="text with a link in it"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"text with a [[MeatBall:Link|link]] in it"}]}' data-mw='{"caption":"text with a &lt;a rel=\"mw:ExtLink\" href=\"http://www.usemod.com/cgi-bin/mb.pl?Link\" title=\"meatball:Link\" data-parsoid=&#39;{\"stx\":\"piped\",\"a\":{\"href\":\"http://www.usemod.com/cgi-bin/mb.pl?Link\"},\"sa\":{\"href\":\"MeatBall:Link\"},\"isIW\":true,\"dsr\":[30,52,16,2]}&#39;>link&lt;/a> in it"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"text with a [[MeatBall:Link|link]] in it"}]}' data-mw='{"caption":"text with a &lt;a rel=\"mw:WikiLink/InterWiki\" href=\"http://www.usemod.com/cgi-bin/mb.pl?Link\" title=\"meatball:Link\" data-parsoid=&#39;{\"stx\":\"piped\",\"a\":{\"href\":\"http://www.usemod.com/cgi-bin/mb.pl?Link\"},\"sa\":{\"href\":\"MeatBall:Link\"},\"isIW\":true,\"dsr\":[30,52,16,2]}&#39;>link&lt;/a> in it"}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
 !! end
 
 !! test
@@ -18675,6 +18675,14 @@ parsoid=wt2html,wt2wt
 </p>
 !! html/parsoid
 <p><span style="margin: -0.125em -0.45em;  rgba(255, 0, 0, 0.3)">2013</span></p>
+!! end
+
+!! test
+Sanitizer: Avoid unnecessary percent encoded characters in WikiLink/InterWiki links
+!! wikitext
+[[MeatBall:Soft<>"Security]]
+!! html/parsoid
+<p><a rel="mw:WikiLink/InterWiki" href='http://www.usemod.com/cgi-bin/mb.pl?Soft&lt;>"Security' title='meatball:Soft&lt;>"Security' data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Soft&lt;>\"Security"},"sa":{"href":"MeatBall:Soft&lt;>\"Security"},"isIW":true}'>MeatBall:Soft&lt;>"Security</a></p>
 !! end
 
 !! test
