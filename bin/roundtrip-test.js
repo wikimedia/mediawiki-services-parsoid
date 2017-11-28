@@ -392,6 +392,10 @@ var checkIfSignificant = function(offsets, data) {
 	stripElementIds(oldBody.ownerDocument.body);
 	stripElementIds(newBody.ownerDocument.body);
 
+	// Strip section tags from the DOMs
+	DU.stripSectionTags(oldBody.ownerDocument.body);
+	DU.stripSectionTags(newBody.ownerDocument.body);
+
 	var i, offset;
 	var results = [];
 	// Use the full tests for fostered content.
