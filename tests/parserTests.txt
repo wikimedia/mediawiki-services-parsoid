@@ -16866,21 +16866,30 @@ http://example.com [[File:Foobar.jpg]]
 <p><a rel="mw:ExtLink" href="http://example.com">http://example.com</a> <figure-inline class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure-inline></p>
 !!end
 
+# Parsoid doesn't wt2wt this cleanly because it adds <nowiki>s.
 !! test
 Short headings with trailing space should match behavior of Parser::doHeadings (T21910)
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 === 
 The line above must have a trailing space!
 === <!--
 --> <!-- -->
 But just in case it doesn't...
-!! html
+!! html/php
 <h1><span class="mw-headline" id=".3D">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>The line above must have a trailing space!
 </p>
 <h1><span class="mw-headline" id=".3D_2">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>But just in case it doesn't...
 </p>
+!! html/parsoid
+<h1 id=".3D">=</h1> 
+<p>The line above must have a trailing space!</p>
+<h1 id=".3D_2">=</h1> <!--
+--> <!-- -->
+<p>But just in case it doesn't...</p>
 !! end
 
 !! test
@@ -24845,15 +24854,51 @@ Headings: 4b. No escaping needed (inside p-tags)
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p>===
-=foo= x
+<p>=foo= x
 =foo= <s></s>
 </p>
 !! wikitext
-===
 =foo= x
 =foo= <s></s>
+!! html/php
+<p>=foo= x
+=foo= <s></s>
+</p>
 !!end
+
+!! test
+Headings: 4c. Short headings (1)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>===
+</p>
+!! wikitext
+<nowiki>===</nowiki>
+!! html/php
+<p>===
+</p>
+!! end
+
+# in the html2wt direction we emit '= = =' or '=<nowiki>=</nowiki>='
+!! test
+Headings: 4d. Short headings (2)
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+===
+====
+=====
+!! html/php
+<h1><span class="mw-headline" id=".3D">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<h1><span class="mw-headline" id=".3D.3D">==</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: ==">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<h2><span class="mw-headline" id=".3D_2">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+
+!! html/parsoid
+<h1 id=".3D">=</h1>
+<h1 id=".3D.3D">==</h1>
+<h2 id=".3D_2">=</h2>
+!! end
 
 !! test
 Headings: 5. Empty headings
