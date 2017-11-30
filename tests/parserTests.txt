@@ -29989,8 +29989,43 @@ e
 # Because of section-wrapping and template-wrapping interactions,
 # the scope of the template is expanded so that the template markup
 # is valid in the presence of <section> tags.
+# This exercises the s1 is null scenario in the wrapSections code
 !! test
 Section wrapping with template-generated sections (bad nesting 1)
+!! options
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+<div>
+a
+
+{{echo|
+= 1 =
+b
+}}
+
+c
+</div>
+!! html/parsoid
+<section data-mw-section-id="-1"></section><section data-mw-section-id="-2"><div data-parsoid='{"stx":"html"}'>
+<p>a</p>
+
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n= 1 =\nb\n"}},"i":0}},"\n\nc\n"]}'>
+</span><section data-mw-section-id="-1" about="#mwt1"><h1 about="#mwt1" id="2"> 1 </h1><span about="#mwt1">
+</span><p about="#mwt1">b
+</p><span about="#mwt1">
+
+</span><p about="#mwt1">c</p><span about="#mwt1">
+</span></section></div></section>
+!! end
+
+# Because of section-wrapping and template-wrapping interactions,
+# the scope of the template is expanded so that the template markup
+# is valid in the presence of <section> tags.
+# This exercises the s1 is ancestor of s2 scenario in the wrapSections code
+!! test
+Section wrapping with template-generated sections (bad nesting 2)
 !! options
 parsoid={
   "wrapSections": true
@@ -30030,8 +30065,9 @@ e
 # so that template wrapping semantics are valid whether section
 # tags are retained or stripped. But, the template scope can expand
 # greatly when accounting for section tags.
+# This exercises the s1 and s2 are in different subtrees scenario
 !! test
-Section wrapping with template-generated sections (bad nesting 2)
+Section wrapping with template-generated sections (bad nesting 3)
 !! options
 parsoid={
   "wrapSections": true,
