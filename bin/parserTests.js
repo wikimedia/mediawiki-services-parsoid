@@ -691,13 +691,11 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 
 		if (item.options.title !== undefined &&
 				!Array.isArray(item.options.title)) {
-			// Strip the [[]] markers.
-			var title = item.options.title.replace(/^\[\[|\]\]$/g, '');
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.  Do this redundantly with the above
 			// so that we start from the defaultPageName when resolving
 			// absolute subpages.
-			this.env.initializeForPageName(title);
+			this.env.initializeForPageName(item.options.title);
 		}
 		// Page language matches "wiki language" (which is set by
 		// the item 'language' option).

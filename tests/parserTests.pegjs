@@ -210,9 +210,12 @@ an_option_value = v:(link_target_value / quoted_value / plain_value / json_value
     return v;
 }
 
-link_target_value = v:("[[" (c:[^\]]* { return c.join(''); }) "]]")
+link_target_value = "[[" v:[^\]]* "]]"
 {
-    return v.join('');
+    // Perhaps we should canonicalize the title?
+    // Protect with JSON.stringify just in case the link target starts with
+    // double-quote or open-brace.
+    return JSON.stringify(v.join(''));
 }
 
 quoted_value = [\"] v:( [^\\\"] / ("\\" c:. { return "\\"+c; } ) )* [\"]
