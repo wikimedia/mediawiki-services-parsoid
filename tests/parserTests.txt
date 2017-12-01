@@ -25128,15 +25128,22 @@ Headings: 4d. Short headings (2)
 !! options
 parsoid=wt2html,html2html
 !! wikitext
+=
+==
 ===
 ====
 =====
 !! html/php
+<p>=
+==
+</p>
 <h1><span class="mw-headline" id=".3D">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <h1><span class="mw-headline" id=".3D.3D">==</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: ==">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <h2><span class="mw-headline" id=".3D_2">=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: =">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 
 !! html/parsoid
+<p>=
+==</p>
 <h1 id="="><span id=".3D" typeof="mw:FallbackId"></span>=</h1>
 <h1 id="=="><span id=".3D.3D" typeof="mw:FallbackId"></span>==</h1>
 <h2 id="=_2"><span id=".3D_2" typeof="mw:FallbackId"></span>=</h2>
