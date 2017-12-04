@@ -22,7 +22,7 @@ var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 parsoidOptions.useBatchAPI = true;
 parsoidOptions.linting = true;
 
-var defaultContentVersion = '1.5.0';
+var defaultContentVersion = '1.6.0';
 
 // section wrappers are a distraction from the main business of
 // this file which is to verify functionality of API end points
@@ -255,7 +255,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept',
-				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.5.0"; q=0.5,' +
+				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.6.0"; q=0.5,' +
 				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
@@ -268,7 +268,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept',
-				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.5.0"; q=0.5,' +
+				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.6.0"; q=0.5,' +
 				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
@@ -300,7 +300,7 @@ describe('Parsoid API', function() {
 			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.1"')
 			.send({ wikitext: '{{echo|hi}}' })
 			.expect(200)
-			.expect(acceptableHtmlResponse('1.5.0'))
+			.expect(acceptableHtmlResponse('1.6.0'))
 			.end(done);
 		});
 
@@ -310,12 +310,12 @@ describe('Parsoid API', function() {
 			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.1"')
 			.send({ wikitext: '{{echo|hi}}' })
 			.expect(200)
-			.expect(acceptablePageBundleResponse('1.5.0'))
+			.expect(acceptablePageBundleResponse('1.6.0'))
 			.end(done);
 		});
 
 		it('should accept requests for content version 1.x (html)', function(done) {
-			var contentVersion = '1.5.0';
+			var contentVersion = '1.6.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
@@ -326,7 +326,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept requests for content version 1.x (pagebundle)', function(done) {
-			var contentVersion = '1.5.0';
+			var contentVersion = '1.6.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
@@ -1082,7 +1082,7 @@ describe('Parsoid API', function() {
 					},
 					"data-parsoid": {
 						headers: {
-							'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/1.5.0"',
+							'content-type': 'application/json;profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/1.6.0"',
 						},
 						body: {
 							"counter": 14,
@@ -1359,7 +1359,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.5.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.6.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1759,7 +1759,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should refuse an unknown conversion (1.x -> 2.x)', function(done) {
-			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.5.0"');
+			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.6.0"');
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')
@@ -1771,7 +1771,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should downgrade 2.x content to 1.x', function(done) {
-			var contentVersion = '1.5.0';
+			var contentVersion = '1.6.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
