@@ -801,4 +801,28 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+
+	describe('MULTIPLE UNCLOSED FORMATTING TAGS', function() {
+		it('should detect multiple unclosed small tags', function() {
+			return parseWT('<div><small>x</div><div><small>y</div>').then(function(result) {
+				result.should.have.length(3);
+				result[2].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[2].params.should.have.a.property("name", "small");
+			});
+		});
+		it('should detect multiple unclosed big tags', function() {
+			return parseWT('<div><big>x</div><div><big>y</div>').then(function(result) {
+				result.should.have.length(3);
+				result[2].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[2].params.should.have.a.property("name", "big");
+			});
+		});
+		it('should detect multiple unclosed big tags', function() {
+			return parseWT('<div><small><big><small><big>y</div>').then(function(result) {
+				result.should.have.length(5);
+				result[4].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[4].params.should.have.a.property("name", "small");
+			});
+		});
+	});
 });
