@@ -672,6 +672,22 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should accept an original title, other than main', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/')
+			.send({
+				original: {
+					title: 'Lint Page',
+				},
+			})
+			.expect(302)  // no revid or wikitext source provided
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Lint_Page/102');
+			})
+			.end(done);
+		});
+
 		it('should not require a title when empty wikitext is provided (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
