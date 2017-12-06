@@ -99,9 +99,6 @@ var runServices = function(options) {
 			// service-runner doesn't actually call close on the worker.
 			num_workers: 1,
 			worker_heartbeat_timeout: 2 * 60 * 1000,
-			logging: {
-				level: 'info',  // Default is 'warn'
-			},
 			services: services,
 		})
 		.then(function() {
