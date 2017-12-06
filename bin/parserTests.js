@@ -683,7 +683,7 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 
 		// Since we are reusing the 'env' object, set it to the default
 		// so that relative link prefix is back to "./"
-		this.env.initializeForPageName(this.env.defaultPageName);
+		this.env.initializeForPageName(this.env.conf.wiki.mainpage);
 
 		if (item.options.subpage !== undefined) {
 			this.env.conf.wiki.namespacesWithSubpages[0] = true;
@@ -693,7 +693,7 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 				!Array.isArray(item.options.title)) {
 			// This sets the page name as well as the relative link prefix
 			// for the rest of the parse.  Do this redundantly with the above
-			// so that we start from the defaultPageName when resolving
+			// so that we start from the wiki.mainpage when resolving
 			// absolute subpages.
 			this.env.initializeForPageName(item.options.title);
 		}

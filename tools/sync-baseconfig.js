@@ -57,7 +57,6 @@ var update = function(opts) {
 	return MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
-		pageName: MWParserEnvironment.prototype.defaultPageName,
 	})
 	.then(function(_env) {
 		env = _env;
