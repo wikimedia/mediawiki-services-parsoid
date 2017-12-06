@@ -466,6 +466,22 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should redirect title to latest revision (lint)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/lint/')
+			.send({
+				original: {
+					title: 'Lint_Page',
+				},
+			})
+			.expect(307)  // no revid or wikitext source provided
+			.expect(function(res) {
+				res.headers.should.have.property('location');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/page/lint/Lint_Page/102');
+			})
+			.end(done);
+		});
+
 	});
 
 	describe("wt2html", function() {
@@ -648,7 +664,7 @@ describe('Parsoid API', function() {
 					title: 'Main_Page',
 				},
 			})
-			.expect(302)  // no revid or wikitext source provided
+			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
@@ -664,7 +680,7 @@ describe('Parsoid API', function() {
 					title: 'Main_Page',
 				},
 			})
-			.expect(302)  // no revid or wikitext source provided
+			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
@@ -680,7 +696,7 @@ describe('Parsoid API', function() {
 					title: 'Lint Page',
 				},
 			})
-			.expect(302)  // no revid or wikitext source provided
+			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Lint_Page/102');
