@@ -18680,9 +18680,38 @@ parsoid=wt2html,wt2wt
 !! test
 Sanitizer: Avoid unnecessary percent encoded characters in WikiLink/InterWiki links
 !! wikitext
-[[MeatBall:Soft<>"Security]]
+[[meatball:Soft"Security]]
+!! html/php
+<p><a href="http://www.usemod.com/cgi-bin/mb.pl?Soft%22Security" class="extiw" title="meatball:Soft&quot;Security">meatball:Soft"Security</a>
+</p>
 !! html/parsoid
-<p><a rel="mw:WikiLink/InterWiki" href='http://www.usemod.com/cgi-bin/mb.pl?Soft&lt;>"Security' title='meatball:Soft&lt;>"Security' data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Soft&lt;>\"Security"},"sa":{"href":"MeatBall:Soft&lt;>\"Security"},"isIW":true}'>MeatBall:Soft&lt;>"Security</a></p>
+<p><a rel="mw:WikiLink/InterWiki" href='http://www.usemod.com/cgi-bin/mb.pl?Soft"Security' title='meatball:Soft"Security'>meatball:Soft"Security</a></p>
+!! end
+
+# the 'parsoid' options can go away once this bug is fixed
+!! test
+Sanitizer: angle brackets are invalid, even in interwiki links (T182338)
+!! options
+parsoid={
+  "suppressErrors": true
+}
+!! wikitext
+[[meatball:Foo<Bar]]
+[[meatball:Foo>Bar]]
+[[meatball:Foo&lt;bar]]
+[[meatball:Foo&gt;bar]]
+!! html/php
+<p>[[meatball:Foo&lt;Bar]]
+[[meatball:Foo&gt;Bar]]
+[[meatball:Foo&lt;bar]]
+[[meatball:Foo&gt;bar]]
+</p>
+!! html/parsoid
+<p>[[meatball:Foo&lt;Bar]]
+[[meatball:Foo&gt;Bar]]
+[[meatball:Foo&lt;bar]]
+[[meatball:Foo&gt;bar]]
+</p>
 !! end
 
 !! test
