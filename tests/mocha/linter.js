@@ -56,6 +56,15 @@ describe('Linter Tests', function() {
 				result[0].params.should.have.a.property("name", "div");
 			});
 		});
+		it('should lint missing end tags for quotes correctly', function() {
+			return parseWT("'''foo").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].dsr.should.deep.equal([ 0, 6, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+			});
+		});
 		it('should lint missing end tags found in transclusions correctly', function() {
 			return parseWT('{{1x|<div>foo<p>bar</div>}}').then(function(result) {
 				result.should.have.length(1);
