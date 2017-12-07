@@ -9227,10 +9227,12 @@ Blah blah blah
 # This tests the Parsoid bail-out code.
 !! test
 3. Other redirect variants
+!! options
+parsoid=wt2html
 !! wikitext
 #REDIRECT [[<nowiki>[[Bar]]</nowiki>]]
 !! html/parsoid
-<ol><li data-parsoid>REDIRECT [[[[Bar]]]]</li></ol>
+<ol><li>REDIRECT [[<span typeof="mw:Nowiki">[[Bar]]</span>]]</li></ol>
 !! end
 
 !! test
@@ -18688,13 +18690,8 @@ Sanitizer: Avoid unnecessary percent encoded characters in WikiLink/InterWiki li
 <p><a rel="mw:WikiLink/InterWiki" href='http://www.usemod.com/cgi-bin/mb.pl?Soft"Security' title='meatball:Soft"Security'>meatball:Soft"Security</a></p>
 !! end
 
-# the 'parsoid' options can go away once this bug is fixed
 !! test
 Sanitizer: angle brackets are invalid, even in interwiki links (T182338)
-!! options
-parsoid={
-  "suppressErrors": true
-}
 !! wikitext
 [[meatball:Foo<Bar]]
 [[meatball:Foo>Bar]]
@@ -18708,10 +18705,9 @@ parsoid={
 </p>
 !! html/parsoid
 <p>[[meatball:Foo&lt;Bar]]
-[[meatball:Foo&gt;Bar]]
-[[meatball:Foo&lt;bar]]
-[[meatball:Foo&gt;bar]]
-</p>
+[[meatball:Foo>Bar]]
+[[meatball:Foo<span typeof="mw:Entity" data-parsoid='{"src":"&amp;lt;","srcContent":"&lt;"}'>&lt;</span>bar]]
+[[meatball:Foo<span typeof="mw:Entity" data-parsoid='{"src":"&amp;gt;","srcContent":">"}'>></span>bar]]</p>
 !! end
 
 !! test
