@@ -49,6 +49,8 @@ services:
           #    uri: 'http://my.proxy:1234/'
           #    headers:  # optional
           #        'X-Forwarded-Proto': 'https'
+          # See below, defaults to true.
+          #strictSSL: false
 
         # We pre-define wikipedias as 'enwiki', 'dewiki' etc. Similarly
         # for other projects: 'enwiktionary', 'enwikiquote', 'enwikibooks',
@@ -90,6 +92,7 @@ services:
 
         # Require SSL certificates to be valid (default true)
         # Set to false when using self-signed SSL certificates
+        # Note that this can also be applied per wiki in the mwApis above
         #strictSSL: false
 
         # Use a different server for CSS style modules.
