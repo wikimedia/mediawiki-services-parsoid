@@ -824,24 +824,6 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it("should respect body parameter - b/c test for bodyOnly", function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send({
-				wikitext: "''foo''",
-				bodyOnly: 1,
-			})
-			.expect(validHtmlResponse())
-			.expect(function(res) {
-				// v3 only returns children of <body>
-				res.text.should.not.match(/<body/);
-				res.text.should.match(/<p/);
-				// No section wrapping in body-only mode
-				res.text.should.not.match(/<section/);
-			})
-			.end(done);
-		});
-
 		it('should include captured offsets', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
