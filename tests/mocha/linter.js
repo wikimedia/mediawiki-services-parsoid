@@ -833,6 +833,31 @@ describe('Linter Tests', function() {
 				result[4].params.should.have.a.property("name", "small");
 			});
 		});
+		it("should detect Tidy's smart auto-fixup of paired unclosed formatting tags", function() {
+			return parseWT('<b>foo<b>\n<code>foo <span>x</span> bar<code>').then(function(result) {
+				result.should.have.length(6);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[1].params.should.have.a.property("name", "b");
+				result[3].should.have.a.property("type", "missing-end-tag");
+				result[4].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[4].params.should.have.a.property("name", "code");
+			});
+		});
+		it("should not flag Tidy's smart auto-fixup of paired unclosed formatting tags where Tidy won't do it", function() {
+			return parseWT('<b>foo <b>\n<code>foo <span>x</span> <!--comment--><code>').then(function(result) {
+				result.forEach(function(r) {
+					r.should.not.have.a.property("type", "multiple-unclosed-formatting-tags");
+				});
+			});
+		});
+		it("should not flag Tidy's smart auto-fixup of paired unclosed tags for non-formatting tags", function() {
+			return parseWT('<span>foo<span>\n<div>foo <span>x</span> bar<div>').then(function(result) {
+				result.forEach(function(r) {
+					r.should.not.have.a.property("type", "multiple-unclosed-formatting-tags");
+				});
+			});
+		});
 	});
 	describe('MISC TIDY REPLACEMENT ISSUES', function() {
 		describe('Unclosed wikitext i/b in headings', function() {
