@@ -367,7 +367,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 	}
 
 	if (this.env.conf.parsoid.dumpFlags &&
-		this.env.conf.parsoid.dumpFlags.has("dom:post-changes")) {
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
 		DU.dumpDOM(body, 'Original DOM');
 	}
 
@@ -382,7 +382,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 	}
 
 	if (this.env.conf.parsoid.dumpFlags &&
-		this.env.conf.parsoid.dumpFlags.has("dom:post-changes")) {
+		this.env.conf.parsoid.dumpFlags.indexOf("dom:post-changes") !== -1) {
 		console.warn("Change tree : " + JSON.stringify(item.changes));
 		DU.dumpDOM(body, 'Edited DOM');
 	}
