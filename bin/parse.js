@@ -110,6 +110,11 @@ var standardOpts = Util.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
+	'verbose': {
+		description: 'Log at level "info" as well',
+		'boolean': true,
+		'default': false,
+	},
 
 	// These are ParsoidConfig properties
 
@@ -290,6 +295,11 @@ var standardOpts = Util.addStandardOptions({
 		}
 	}
 
+	var logLevels;
+	if (!argv.verbose) {
+		logLevels = ["fatal", "error", "warn"];
+	}
+
 	var envOptions = {
 		domain: domain,
 		prefix: prefix,
@@ -298,6 +308,7 @@ var standardOpts = Util.addStandardOptions({
 		nativeGallery: argv.nativeGallery,
 		pageBundle: argv.pageBundle || argv.pboutfile,
 		wrapSections: argv.wrapSections,
+		logLevels: logLevels,
 	};
 
 	return Promise.resolve()

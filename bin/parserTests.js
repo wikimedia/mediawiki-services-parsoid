@@ -1049,16 +1049,18 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 
 	var pc = new ParsoidConfig({ setup: setup }, parsoidOptions);
 
+	var logLevels;
+	if (Util.booleanOption(options.quiet)) {
+		logLevels = ["fatal", "error"];
+	}
+
 	// Create a new parser environment
-	return MWParserEnvironment.getParserEnv(pc, { prefix: 'enwiki' })
+	return MWParserEnvironment.getParserEnv(pc, {
+		prefix: 'enwiki',
+		logLevels: logLevels,
+	})
 	.then(function(env) {
 		this.env = env;
-
-		if (Util.booleanOption(options.quiet)) {
-			var logger = new ParsoidLogger(env);
-			logger.registerLoggingBackends(["fatal", "error"], pc);
-			env.setLogger(logger);
-		}
 
 		// Save default logger so we can be reset it after temporarily
 		// switching to the suppressLogger to suppress expected error
