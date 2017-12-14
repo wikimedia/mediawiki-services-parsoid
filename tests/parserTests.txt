@@ -12633,6 +12633,19 @@ parsoid=wt2html
 <p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,14,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}&#39;>foo&lt;/span>bar"}}'></span></p>
 !! end
 
+!! test
+Preprocessor precedence 17: template w/o target shouldn't prevent closing
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|hi {{}}}}
+!! html/php
+<p>hi {{}}
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi {{}}"}},"i":0}}]}'>hi {{}}</p>
+!! end
+
 ###
 ### Token Stream Patcher tests
 ###
