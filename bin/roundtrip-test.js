@@ -760,7 +760,9 @@ if (require.main === module) {
 			if (argv.parsoidURL) { return; }
 			// Start our own Parsoid server
 			var serviceWrapper = require('../tests/serviceWrapper.js');
-			var serverOpts = {};
+			var serverOpts = {
+				logging: { level: 'info' },
+			};
 			if (argv.apiURL) {
 				serverOpts.mockURL = argv.apiURL;
 				argv.domain = 'customwiki';

@@ -100,6 +100,7 @@ var runServices = function(options) {
 			num_workers: 1,
 			worker_heartbeat_timeout: 2 * 60 * 1000,
 			services: services,
+			logging: options.logging,
 		})
 		.then(function() {
 			return ret;
