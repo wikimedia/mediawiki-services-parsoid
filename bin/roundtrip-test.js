@@ -465,10 +465,15 @@ var checkIfSignificant = function(offsets, data) {
 	return results;
 };
 
+var UA = 'Roundtrip-Test';
+
 function parsoidPost(profile, options) {
 	var httpOptions = {
 		method: 'POST',
 		body: options.data,
+		headers: {
+			'User-Agent': UA,
+		},
 	};
 
 	var uri = options.uri + 'transform/';
@@ -480,17 +485,13 @@ function parsoidPost(profile, options) {
 		httpOptions.body.scrub_wikitext = true;
 		// We want to encode the request but *not* decode the response.
 		httpOptions.body = JSON.stringify(httpOptions.body);
-		httpOptions.headers = {
-			'Content-Type': 'application/json',
-		};
+		httpOptions.headers['Content-Type'] = 'application/json';
 	} else {  // wt2html
 		uri += 'wikitext/to/pagebundle/' + options.title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
-		httpOptions.headers = {
-			Accept: apiUtils.pagebundleContentType(null, options.contentVersion),
-		};
+		httpOptions.headers.Accept = apiUtils.pagebundleContentType(null, options.contentVersion);
 		// setting json here encodes the request *and* decodes the response.
 		httpOptions.json = true;
 	}
@@ -608,6 +609,9 @@ function runTests(title, options, formatter, cb) {
 		return Util.retryingHTTPRequest(10, {
 			method: 'GET',
 			uri: uri2,
+			headers: {
+				'User-Agent': UA,
+			},
 		});
 	}).spread(function(res, body) {
 		profile.start = Date.now();
