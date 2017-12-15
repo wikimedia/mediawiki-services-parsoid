@@ -852,8 +852,11 @@ describe('Linter Tests', function() {
 					result[0].params.should.have.a.property("ancestorName", "li");
 				});
 			});
-			it('should not detect single-line HTML tables in lists (2)', function() {
+			it('should not detect single-line HTML tables in lists', function() {
 				return expectEmptyResults("* <div><table><tr><td>x</td></tr></table></div>");
+			});
+			it('should not detect multiline HTML tables in ref tags', function() {
+				return expectEmptyResults("a <ref><table>\n<tr><td>b</td></tr>\n</table></ref> <references />");
 			});
 		});
 	});
