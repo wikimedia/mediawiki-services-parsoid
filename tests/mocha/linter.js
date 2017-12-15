@@ -40,6 +40,14 @@ describe('Linter Tests', function() {
 		});
 	};
 
+	var noLintsOfThisType = function(wt, type) {
+		return parseWT(wt).then(function(result) {
+			result.forEach(function(r) {
+				r.should.not.have.a.property("type", type);
+			});
+		});
+	};
+
 	describe('#Issues', function() {
 		it('should not lint any issues', function() {
 			return expectEmptyResults('foo');
@@ -783,6 +791,16 @@ describe('Linter Tests', function() {
 				result[4].params.should.have.a.property("name", "small");
 			});
 		});
+		it('should ignore unclosed small tags in tables', function() {
+			noLintsOfThisType('{|\n|<small>a\n|<small>b\n|}', "multiple-unclosed-formatting-tags");
+		});
+		it('should ignore unclosed small tags in tables but detect those outside it', function() {
+			return parseWT('<small>x\n{|\n|<small>a\n|<small>b\n|}\n<small>y').then(function(result) {
+				result.should.have.length(5);
+				result[4].should.have.a.property("type", "multiple-unclosed-formatting-tags");
+				result[4].params.should.have.a.property("name", "small");
+			});
+		});
 		it("should detect Tidy's smart auto-fixup of paired unclosed formatting tags", function() {
 			return parseWT('<b>foo<b>\n<code>foo <span>x</span> bar<code>').then(function(result) {
 				result.should.have.length(6);
@@ -795,18 +813,10 @@ describe('Linter Tests', function() {
 			});
 		});
 		it("should not flag Tidy's smart auto-fixup of paired unclosed formatting tags where Tidy won't do it", function() {
-			return parseWT('<b>foo <b>\n<code>foo <span>x</span> <!--comment--><code>').then(function(result) {
-				result.forEach(function(r) {
-					r.should.not.have.a.property("type", "multiple-unclosed-formatting-tags");
-				});
-			});
+			noLintsOfThisType('<b>foo <b>\n<code>foo <span>x</span> <!--comment--><code>', "multiple-unclosed-formatting-tags");
 		});
 		it("should not flag Tidy's smart auto-fixup of paired unclosed tags for non-formatting tags", function() {
-			return parseWT('<span>foo<span>\n<div>foo <span>x</span> bar<div>').then(function(result) {
-				result.forEach(function(r) {
-					r.should.not.have.a.property("type", "multiple-unclosed-formatting-tags");
-				});
-			});
+			noLintsOfThisType('<span>foo<span>\n<div>foo <span>x</span> bar<div>', "multiple-unclosed-formatting-tags");
 		});
 	});
 	describe('MISC TIDY REPLACEMENT ISSUES', function() {
