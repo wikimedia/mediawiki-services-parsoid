@@ -222,37 +222,6 @@ describe('Linter Tests', function() {
 		});
 	});
 
-	/*
-	describe('IGNORED TABLE ATTRIBUTES', function() {
-		it('should lint ignored table attributes correctly', function() {
-			return parseWT('{|\n|- foo\n|bar\n|}').then(function(result) {
-				result.should.have.length(1);
-				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.deep.equal([ 3, 14, 6, 0 ]);
-			});
-		});
-		it('should lint ignored table attributes found in transclusions correctly', function() {
-			return parseWT('{{1x|\n{{{!}}\n{{!}}- foo\n{{!}} bar\n{{!}}}\n}}').then(function(result) {
-				result.should.have.length(1);
-				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.deep.equal([ 0, 43, null, null]);
-				result[0].should.have.a.property("templateInfo");
-				result[0].templateInfo.should.have.a.property("name", "Template:1x");
-			});
-		});
-		it('should not lint whitespaces as ignored table attributes', function() {
-			return expectEmptyResults('{|\n|- \n| 1 ||style="text-align:left;"| p \n|}');
-		});
-		it('should lint as ignored table attributes', function() {
-			return parseWT('{|\n|- <!--bad attr-->attr\n|bar\n|}').then(function(result) {
-				result.should.have.length(1);
-				result[0].should.have.a.property("type", "ignored-table-attr");
-				result[0].dsr.should.deep.equal([ 3, 30, 22, 0 ]);
-			});
-		});
-	});
-	*/
-
 	describe('BOGUS IMAGE OPTIONS', function() {
 		it('should lint Bogus image options correctly', function() {
 			return parseWT('[[file:a.jpg|foo|bar]]').then(function(result) {
@@ -328,25 +297,6 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
-
-	/*
-	describe('MIXED-CONTENT TEMPLATES', function() {
-		it('should lint mixed-content templates', function() {
-			return parseWT('{{1x|*}}hi').then(function(result) {
-				result.should.have.length(1);
-				result[0].should.have.a.property("type", "mixed-content");
-				result[0].dsr.should.deep.equal([ 0, 10, null, null ]);
-			});
-		});
-		it('should lint multi-template', function() {
-			return parseWT('{{1x|*}}{{1x|hi}}').then(function(result) {
-				result.should.have.length(1);
-				result[0].should.have.a.property("type", "multi-template");
-				result[0].dsr.should.deep.equal([ 0, 17, null, null ]);
-			});
-		});
-	});
-	*/
 
 	describe('DELETABLE TABLE TAG', function() {
 		it('should identify deletable table tag for T161341 (1)', function() {
