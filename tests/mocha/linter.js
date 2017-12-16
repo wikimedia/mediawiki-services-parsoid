@@ -862,6 +862,25 @@ describe('Linter Tests', function() {
 					result[0].params.should.have.a.property("ancestorName", "li");
 				});
 			});
+			it('should detect multiline HTML tables in lists (3)', function() {
+				return parseWT("; <table><tr><td>x</td></tr>\n</table>").then(function(result) {
+					result.should.have.length(1);
+					result[0].should.have.a.property("type", "multiline-html-table-in-list");
+					result[0].params.should.have.a.property("name", "table");
+					result[0].params.should.have.a.property("ancestorName", "dt");
+				});
+			});
+			it('should detect multiline HTML tables in lists (4)', function() {
+				return parseWT(": <table><tr><td>x</td></tr>\n</table>").then(function(result) {
+					result.should.have.length(1);
+					result[0].should.have.a.property("type", "multiline-html-table-in-list");
+					result[0].params.should.have.a.property("name", "table");
+					result[0].params.should.have.a.property("ancestorName", "dd");
+				});
+			});
+			it('should not detect multiline HTML tables in HTML lists', function() {
+				return expectEmptyResults("<ul><li><table>\n<tr><td>x</td></tr>\n</table>\n</li></ul>");
+			});
 			it('should not detect single-line HTML tables in lists', function() {
 				return expectEmptyResults("* <div><table><tr><td>x</td></tr></table></div>");
 			});
