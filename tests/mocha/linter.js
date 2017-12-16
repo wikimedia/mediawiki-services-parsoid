@@ -819,74 +819,72 @@ describe('Linter Tests', function() {
 			noLintsOfThisType('<span>foo<span>\n<div>foo <span>x</span> bar<div>', "multiple-unclosed-formatting-tags");
 		});
 	});
-	describe('MISC TIDY REPLACEMENT ISSUES', function() {
-		describe('Unclosed wikitext i/b in headings', function() {
-			it('should detect unclosed wikitext i tags in headings', function() {
-				return parseWT("==foo<span>''a</span>==\nx").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "unclosed-quotes-in-heading");
-					result[0].params.should.have.a.property("name", "i");
-					result[0].params.should.have.a.property("ancestorName", "h2");
-				});
-			});
-			it('should detect unclosed wikitext b tags in headings', function() {
-				return parseWT("==foo<span>'''a</span>==\nx").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "unclosed-quotes-in-heading");
-					result[0].params.should.have.a.property("name", "b");
-					result[0].params.should.have.a.property("ancestorName", "h2");
-				});
-			});
-			it('should not detect unclosed HTML i/b tags in headings', function() {
-				return parseWT("==foo<span><i>a</span>==\nx\n==foo<span><b>a</span>==\ny").then(function(result) {
-					result.should.have.length(2);
-					result[0].should.have.a.property("type", "missing-end-tag");
-					result[1].should.have.a.property("type", "missing-end-tag");
-				});
+	describe('UNCLOSED WIKITEXT I/B tags in headings', function() {
+		it('should detect unclosed wikitext i tags in headings', function() {
+			return parseWT("==foo<span>''a</span>==\nx").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "unclosed-quotes-in-heading");
+				result[0].params.should.have.a.property("name", "i");
+				result[0].params.should.have.a.property("ancestorName", "h2");
 			});
 		});
-		describe('Multiline HTML tables in lists', function() {
-			it('should detect multiline HTML tables in lists (1)', function() {
-				return parseWT("* <table><tr><td>x</td></tr>\n</table>").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "multiline-html-table-in-list");
-					result[0].params.should.have.a.property("name", "table");
-					result[0].params.should.have.a.property("ancestorName", "li");
-				});
+		it('should detect unclosed wikitext b tags in headings', function() {
+			return parseWT("==foo<span>'''a</span>==\nx").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "unclosed-quotes-in-heading");
+				result[0].params.should.have.a.property("name", "b");
+				result[0].params.should.have.a.property("ancestorName", "h2");
 			});
-			it('should detect multiline HTML tables in lists (2)', function() {
-				return parseWT("* <div><table><tr><td>x</td></tr>\n</table></div>").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "multiline-html-table-in-list");
-					result[0].params.should.have.a.property("name", "table");
-					result[0].params.should.have.a.property("ancestorName", "li");
-				});
+		});
+		it('should not detect unclosed HTML i/b tags in headings', function() {
+			return parseWT("==foo<span><i>a</span>==\nx\n==foo<span><b>a</span>==\ny").then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[1].should.have.a.property("type", "missing-end-tag");
 			});
-			it('should detect multiline HTML tables in lists (3)', function() {
-				return parseWT("; <table><tr><td>x</td></tr>\n</table>").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "multiline-html-table-in-list");
-					result[0].params.should.have.a.property("name", "table");
-					result[0].params.should.have.a.property("ancestorName", "dt");
-				});
+		});
+	});
+	describe('MULTILINE HTML TABLES IN LISTS', function() {
+		it('should detect multiline HTML tables in lists (li)', function() {
+			return parseWT("* <table><tr><td>x</td></tr>\n</table>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "multiline-html-table-in-list");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].params.should.have.a.property("ancestorName", "li");
 			});
-			it('should detect multiline HTML tables in lists (4)', function() {
-				return parseWT(": <table><tr><td>x</td></tr>\n</table>").then(function(result) {
-					result.should.have.length(1);
-					result[0].should.have.a.property("type", "multiline-html-table-in-list");
-					result[0].params.should.have.a.property("name", "table");
-					result[0].params.should.have.a.property("ancestorName", "dd");
-				});
+		});
+		it('should detect multiline HTML tables in lists (table in div)', function() {
+			return parseWT("* <div><table><tr><td>x</td></tr>\n</table></div>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "multiline-html-table-in-list");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].params.should.have.a.property("ancestorName", "li");
 			});
-			it('should not detect multiline HTML tables in HTML lists', function() {
-				return expectEmptyResults("<ul><li><table>\n<tr><td>x</td></tr>\n</table>\n</li></ul>");
+		});
+		it('should detect multiline HTML tables in lists (dt)', function() {
+			return parseWT("; <table><tr><td>x</td></tr>\n</table>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "multiline-html-table-in-list");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].params.should.have.a.property("ancestorName", "dt");
 			});
-			it('should not detect single-line HTML tables in lists', function() {
-				return expectEmptyResults("* <div><table><tr><td>x</td></tr></table></div>");
+		});
+		it('should detect multiline HTML tables in lists (dd)', function() {
+			return parseWT(": <table><tr><td>x</td></tr>\n</table>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "multiline-html-table-in-list");
+				result[0].params.should.have.a.property("name", "table");
+				result[0].params.should.have.a.property("ancestorName", "dd");
 			});
-			it('should not detect multiline HTML tables in ref tags', function() {
-				return expectEmptyResults("a <ref><table>\n<tr><td>b</td></tr>\n</table></ref> <references />");
-			});
+		});
+		it('should not detect multiline HTML tables in HTML lists', function() {
+			return expectEmptyResults("<ul><li><table>\n<tr><td>x</td></tr>\n</table>\n</li></ul>");
+		});
+		it('should not detect single-line HTML tables in lists', function() {
+			return expectEmptyResults("* <div><table><tr><td>x</td></tr></table></div>");
+		});
+		it('should not detect multiline HTML tables in ref tags', function() {
+			return expectEmptyResults("a <ref><table>\n<tr><td>b</td></tr>\n</table></ref> <references />");
 		});
 	});
 });
