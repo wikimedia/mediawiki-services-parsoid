@@ -887,4 +887,60 @@ describe('Linter Tests', function() {
 			return expectEmptyResults("a <ref><table>\n<tr><td>b</td></tr>\n</table></ref> <references />");
 		});
 	});
+	describe('LINT ISSUES IN <ref> TAGS', function() {
+		it('should attribute linter issues to the ref tag', function() {
+			return parseWT('a <ref><b>x</ref> <references/>').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].dsr.should.deep.equal([ 7, 11, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+			});
+		});
+		it('should attribute linter issues to the ref tag even if references is templated', function() {
+			return parseWT('a <ref><b>x</ref> {{1x|<references/>}}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].dsr.should.deep.equal([ 7, 11, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+			});
+		});
+		it('should attribute linter issues to the ref tag even when ref and references are both templated', function() {
+			return parseWT('a <ref><b>x</ref> b <ref>{{1x|<b>x}}</ref> c {{1x|<ref><b>y</ref>}} {{1x|<references/>}}').then(function(result) {
+				result.should.have.length(3);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].dsr.should.deep.equal([ 7, 11, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "b");
+				result[1].should.have.a.property("type", "missing-end-tag");
+				result[1].dsr.should.deep.equal([ 25, 36, null, null]);
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("name", "b");
+				result[1].should.have.a.property("templateInfo");
+				result[1].templateInfo.should.have.a.property("name", "Template:1x");
+				result[2].should.have.a.property("type", "missing-end-tag");
+				result[2].dsr.should.deep.equal([ 45, 67, null, null]);
+				result[2].should.have.a.property("params");
+				result[2].params.should.have.a.property("name", "b");
+				result[2].should.have.a.property("templateInfo");
+				result[2].templateInfo.should.have.a.property("name", "Template:1x");
+			});
+		});
+		it('should attribute linter issues properly when ref tags are in non-templated references tag', function() {
+			return parseWT("a <ref><s>x</ref> b <ref name='x' /> <references> <ref name='x'>{{1x|<b>boo}}</ref> </references>").then(function(result) {
+				result.should.have.length(2);
+				result[0].should.have.a.property("type", "missing-end-tag");
+				result[0].dsr.should.deep.equal([ 7, 11, 3, 0 ]);
+				result[0].should.have.a.property("params");
+				result[0].params.should.have.a.property("name", "s");
+				result[1].should.have.a.property("type", "missing-end-tag");
+				result[1].dsr.should.deep.equal([ 64, 77, null, null]);
+				result[1].should.have.a.property("params");
+				result[1].params.should.have.a.property("name", "b");
+				result[1].should.have.a.property("templateInfo");
+				result[1].templateInfo.should.have.a.property("name", "Template:1x");
+			});
+		});
+	});
 });
