@@ -294,12 +294,16 @@ Template with colon
 ###
 ### Basic tests
 ###
+
 !! test
 Blank input
 !! wikitext
 !! html
 !! end
 
+## This isn't a great test in Parsoid since native template expansion in
+## parserTests takes us to the path of expansion loop detection, which isn't
+## present in production, since we don't do our own expansion.  See T64424
 !! test
 CircularRef
 !! wikitext
