@@ -1888,6 +1888,7 @@ IE conditional comments
 ###
 ### paragraph wrapping tests
 ###
+
 !! test
 No block tags
 !! wikitext
@@ -2128,9 +2129,26 @@ parsoid=wt2html
 <link rel="mw:PageProp/Category" href="./Category:A1"/><p>a</p>
 !! end
 
+!! test
+No paragraph necessary for SOL transparent template
+!! wikitext
+<span><div>foo</div></span>
+[[Category:Foo]]
+
+<span><div>foo</div></span>
+{{echo|[[Category:Foo]]}}
+!! html/parsoid
+<span data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>foo</div></span>
+<link rel="mw:PageProp/Category" href="./Category:Foo"/>
+
+<span data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>foo</div></span>
+<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]]"}},"i":0}}]}'/>
+!! end
+
 ###
 ### Preformatted text
 ###
+
 !! test
 Preformatted text
 !! wikitext
@@ -16177,7 +16195,8 @@ Bar
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
-<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'/></p>
+<p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
+<link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'/>
 <link rel="mw:PageProp/Category" href="./Category:Baz"/>
 !! end
 
