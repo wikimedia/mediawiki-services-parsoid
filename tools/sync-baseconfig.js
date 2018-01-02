@@ -9,7 +9,7 @@ require('../core-upgrade.js');
  * See: lib/config/baseconfig/README
  */
 
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
@@ -17,9 +17,10 @@ var yaml = require('js-yaml');
 var ConfigRequest = require('../lib/mw/ApiRequest.js').ConfigRequest;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
+var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 
-var update = function(opts) {
+var update = Promise.async(function *(opts) {
 	var prefix = opts.prefix || null;
 	var domain = opts.domain || null;
 
@@ -40,7 +41,7 @@ var update = function(opts) {
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
 		// Assuming Parsoid is the first service in the list
-		parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
@@ -53,29 +54,24 @@ var update = function(opts) {
 	var pc = new ParsoidConfig(null, parsoidOptions);
 	pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
-	var env;
-	return MWParserEnvironment.getParserEnv(pc, {
+	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
-	})
-	.then(function(_env) {
-		env = _env;
-		var wiki = env.conf.wiki;
-		return ConfigRequest.promise(wiki.apiURI, env, wiki.apiProxy);
-	})
-	.then(function(resultConf) {
-		var configDir = path.resolve(__dirname, '../lib/config');
-		var iwp = env.conf.wiki.iwp;
-		// HACK for be-tarask
-		if (iwp === 'be_x_oldwiki') { iwp = 'be-taraskwiki'; }
-		var localConfigFile = path.resolve(
-			configDir, './baseconfig/' + iwp + '.json'
-		);
-		var resultStr = JSON.stringify({ query: resultConf }, null, 2);
-		fs.writeFileSync(localConfigFile, resultStr, 'utf8');
-		console.log('Wrote', localConfigFile);
 	});
-};
+	var resultConf = yield ConfigRequest.promise(
+		env.conf.wiki.apiURI, env, env.conf.wiki.apiProxy
+	);
+	var configDir = path.resolve(__dirname, '../lib/config');
+	var iwp = env.conf.wiki.iwp;
+	// HACK for be-tarask
+	if (iwp === 'be_x_oldwiki') { iwp = 'be-taraskwiki'; }
+	var localConfigFile = path.resolve(
+		configDir, './baseconfig/' + iwp + '.json'
+	);
+	var resultStr = JSON.stringify({ query: resultConf }, null, 2);
+	yield fs.writeFile(localConfigFile, resultStr, 'utf8');
+	console.log('Wrote', localConfigFile);
+});
 
 var usage = 'Usage: $0 [options]\n' +
 	'Rewrites one cached siteinfo configuration.\n' +
@@ -98,11 +94,11 @@ var yopts = yargs.usage(usage, Util.addStandardOptions({
 	},
 }));
 
-(function() {
+Promise.async(function *() {
 	var argv = yopts.argv;
 	if (argv.help) {
 		yopts.showHelp();
 		return;
 	}
-	update(argv).done();
-}());
+	yield update(argv);
+})().done();
