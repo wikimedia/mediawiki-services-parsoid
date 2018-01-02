@@ -801,6 +801,9 @@ describe('Linter Tests', function() {
 				result[4].params.should.have.a.property("name", "small");
 			});
 		});
+		it('should not flag undetected misnesting of formatting tags as multiple unclosed formatting tags', function() {
+			return noLintsOfThisType('<br><small>{{1x|<div>\n*item 1\n</div>}}</small>', "multiple-unclosed-formatting-tags");
+		});
 		it("should detect Tidy's smart auto-fixup of paired unclosed formatting tags", function() {
 			return parseWT('<b>foo<b>\n<code>foo <span>x</span> bar<code>').then(function(result) {
 				result.should.have.length(6);
