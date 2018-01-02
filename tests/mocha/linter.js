@@ -792,7 +792,7 @@ describe('Linter Tests', function() {
 			});
 		});
 		it('should ignore unclosed small tags in tables', function() {
-			noLintsOfThisType('{|\n|<small>a\n|<small>b\n|}', "multiple-unclosed-formatting-tags");
+			return noLintsOfThisType('{|\n|<small>a\n|<small>b\n|}', "multiple-unclosed-formatting-tags");
 		});
 		it('should ignore unclosed small tags in tables but detect those outside it', function() {
 			return parseWT('<small>x\n{|\n|<small>a\n|<small>b\n|}\n<small>y').then(function(result) {
@@ -813,10 +813,10 @@ describe('Linter Tests', function() {
 			});
 		});
 		it("should not flag Tidy's smart auto-fixup of paired unclosed formatting tags where Tidy won't do it", function() {
-			noLintsOfThisType('<b>foo <b>\n<code>foo <span>x</span> <!--comment--><code>', "multiple-unclosed-formatting-tags");
+			return noLintsOfThisType('<b>foo <b>\n<code>foo <span>x</span> <!--comment--><code>', "multiple-unclosed-formatting-tags");
 		});
 		it("should not flag Tidy's smart auto-fixup of paired unclosed tags for non-formatting tags", function() {
-			noLintsOfThisType('<span>foo<span>\n<div>foo <span>x</span> bar<div>', "multiple-unclosed-formatting-tags");
+			return noLintsOfThisType('<span>foo<span>\n<div>foo <span>x</span> bar<div>', "multiple-unclosed-formatting-tags");
 		});
 	});
 	describe('UNCLOSED WIKITEXT I/B tags in headings', function() {
