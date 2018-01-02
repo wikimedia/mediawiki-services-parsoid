@@ -2215,6 +2215,11 @@
       "resolved": "https://registry.npmjs.org/pluralize/-/pluralize-1.2.1.tgz",
       "dev": true
     },
+    "pn": {
+      "version": "1.1.0",
+      "from": "pn@>=1.1.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/pn/-/pn-1.1.0.tgz"
+    },
     "prelude-ls": {
       "version": "1.1.2",
       "from": "prelude-ls@>=1.1.2 <1.2.0",
