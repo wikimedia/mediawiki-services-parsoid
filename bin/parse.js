@@ -8,7 +8,7 @@
 
 require('../core-upgrade.js');
 
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
@@ -196,7 +196,7 @@ var standardOpts = Util.addStandardOptions({
 	},
 });
 
-(function() {
+Promise.async(function *() {
 	var defaultModeStr = "Default conversion mode : --wt2html";
 
 	var opts = yargs.usage(
@@ -220,17 +220,17 @@ var standardOpts = Util.addStandardOptions({
 			oldtext: argv.oldtext,
 		};
 		if (argv.oldtextfile) {
-			selser.oldtext = fs.readFileSync(argv.oldtextfile, 'utf8');
+			selser.oldtext = yield fs.readFile(argv.oldtextfile, 'utf8');
 		}
 		if (selser.oldtext === null) {
 			throw new Error('Please provide original wikitext ' +
 				'(--oldtext or --oldtextfile). Selser requires that.');
 		}
 		if (argv.oldhtmlfile) {
-			selser.oldhtml = fs.readFileSync(argv.oldhtmlfile, 'utf8');
+			selser.oldhtml = yield fs.readFile(argv.oldhtmlfile, 'utf8');
 		}
 		if (argv.domdiff) {
-			selser.domdiff = fs.readFileSync(argv.domdiff, 'utf8');
+			selser.domdiff = yield fs.readFile(argv.domdiff, 'utf8');
 		}
 	}
 
@@ -238,7 +238,7 @@ var standardOpts = Util.addStandardOptions({
 	if (argv.pbin.length > 0) {
 		pb = JSON.parse(argv.pbin);
 	} else if (argv.pbinfile) {
-		pb = JSON.parse(fs.readFileSync(argv.pbinfile, 'utf8'));
+		pb = JSON.parse(yield fs.readFile(argv.pbinfile, 'utf8'));
 	}
 
 	var prefix = argv.prefix || null;
@@ -263,7 +263,7 @@ var standardOpts = Util.addStandardOptions({
 			path.resolve('.', argv.config) :
 			path.resolve(__dirname, '../config.yaml');
 		// Assuming Parsoid is the first service in the list
-		parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, argv);
@@ -284,16 +284,20 @@ var standardOpts = Util.addStandardOptions({
 
 	var nock, dir, nocksFile;
 	if (argv.record || argv.replay) {
-		prefix = prefix || 'enwiki';
+		if (!argv.pageName) {
+			throw new Error(
+				'pageName must be specified to use --record or --replay'
+			);
+		}
 		dir = path.resolve(__dirname, '../nocks/');
-		if (!fs.existsSync(dir)) {
-			fs.mkdirSync(dir);
+		if (!(yield fs.exists(dir))) {
+			yield fs.mkdir(dir);
 		}
-		dir = dir + '/' + prefix;
-		if (!fs.existsSync(dir)) {
-			fs.mkdirSync(dir);
+		dir = dir + '/' + (domain || prefix || 'enwiki');
+		if (!(yield fs.exists(dir))) {
+			yield fs.mkdir(dir);
 		}
-		nocksFile = dir + '/' + encodeURIComponent(argv.page) + '.js';
+		nocksFile = dir + '/' + encodeURIComponent(argv.pageName || 'stdin') + '.js';
 		if (argv.record) {
 			nock = require('nock');
 			nock.recorder.rec({ dont_print: true });
@@ -318,12 +322,11 @@ var standardOpts = Util.addStandardOptions({
 		logLevels: logLevels,
 	};
 
-	return Promise.resolve()
+	var input = yield Promise.resolve()
 	.then(function() {
 		if (argv.inputfile) {
 			// read input from the file, then process
-			var fileContents = fs.readFileSync(argv.inputfile, 'utf8');
-			return fileContents;
+			return fs.readFile(argv.inputfile, 'utf8');
 		}
 
 		// Send a message to stderr if there is no input for a while, since the
@@ -354,83 +357,68 @@ var standardOpts = Util.addStandardOptions({
 				throw new Error('Pages start at wikitext.');
 			}
 		});
-	})
-	.then(function(input) {
-		var obj = {
-			input: input,
-			mode: mode,
-			parsoidOptions: parsoidOptions,
-			envOptions: envOptions,
-			oldid: argv.oldid,
-			selser: selser,
-			pb: pb,
-			contentmodel: argv.contentmodel,
-			contentVersion: argv.contentVersion,
+	});
+	var obj = {
+		input: input,
+		mode: mode,
+		parsoidOptions: parsoidOptions,
+		envOptions: envOptions,
+		oldid: argv.oldid,
+		selser: selser,
+		pb: pb,
+		contentmodel: argv.contentmodel,
+		contentVersion: argv.contentVersion,
+	};
+	var out;
+	if (parsoidOptions.useWorker) {
+		var farmOptions = {
+			maxConcurrentWorkers: 1,
+			maxConcurrentCallsPerWorker: 1,
+			maxCallTime: 2 * 60 * 1000,
+			maxRetries: 0,
+			autoStart: true,
 		};
-		if (parsoidOptions.useWorker) {
-			var farmOptions = {
-				maxConcurrentWorkers: 1,
-				maxConcurrentCallsPerWorker: 1,
-				maxCallTime: 2 * 60 * 1000,
-				maxRetries: 0,
-				autoStart: true,
-			};
-			var workers = workerFarm(farmOptions, parseJsPath);
-			var promiseWorkers = Promise.promisify(workers);
-			return promiseWorkers(obj)
+		var workers = workerFarm(farmOptions, parseJsPath);
+		var promiseWorkers = Promise.promisify(workers);
+		out = yield promiseWorkers(obj)
 			.finally(function() {
 				workerFarm.end(workers);
 			});
+	} else {
+		out = yield require(parseJsPath)(obj);
+	}
+	var str;
+	if (['wt2html', 'html2html'].includes(mode)) {
+		var html = out.html;
+		var doc;
+		if (argv.pboutfile) {
+			yield fs.writeFile(argv.pboutfile, JSON.stringify(out.pb), 'utf8');
+		} else if (argv.pageBundle) {
+			// Stitch this back in, even though it was just extracted
+			doc = DU.parseHTML(html);
+			DU.injectPageBundle(doc, out.pb);
+			html = DU.toXML(doc);
+		}
+		if (argv.normalize) {
+			doc = DU.parseHTML(html);
+			str = DU.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
 		} else {
-			return require(parseJsPath)(obj);
+			str = html;
 		}
-	})
-	.then(function(out) {
-		var str;
-		if (['wt2html', 'html2html'].includes(mode)) {
-			var html = out.html;
-			var doc;
-			if (argv.pboutfile) {
-				fs.writeFileSync(argv.pboutfile, JSON.stringify(out.pb), 'utf8');
-			} else if (argv.pageBundle) {
-				// Stitch this back in, even though it was just extracted
-				doc = DU.parseHTML(html);
-				DU.injectPageBundle(doc, out.pb);
-				html = DU.toXML(doc);
-			}
-			if (argv.normalize) {
-				doc = DU.parseHTML(html);
-				str = DU.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
-			} else {
-				str = html;
-			}
-		} else {
-			str = out.wt;
-		}
-		var stdout = process.stdout;
-		stdout.write(str);
-		if (stdout.isTTY) {
-			stdout.write('\n');
-		}
-		if (argv.record) {
-			return new Promise(function(resolve, reject) {
-				var nockCalls = nock.recorder.play();
-				var stream = fs.createWriteStream(nocksFile);
-				stream.once('open', function() {
-					stream.write("var nock = require('nock');");
-					for (var i = 0; i < nockCalls.length; i++) {
-						stream.write(nockCalls[i]);
-					}
-					stream.end();
-				});
-				stream.once('error', function(e) {
-					reject(e);
-				});
-				stream.once('close', function() {
-					resolve();
-				});
-			});
-		}
-	})
-	.done();
-}());
+	} else {
+		str = out.wt;
+	}
+	var stdout = process.stdout;
+	stdout.write(str);
+	if (stdout.isTTY) {
+		stdout.write('\n');
+	}
+	if (argv.record) {
+		var nockCalls = nock.recorder.play();
+		yield fs.writeFile(
+			nocksFile,
+			"var nock = require('nock');\n" + nockCalls.join('\n'),
+			'utf8'
+		);
+	}
+})().done();
