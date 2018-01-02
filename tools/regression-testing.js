@@ -112,15 +112,15 @@ var opts = yargs.usage(usage, {
 		return checkout(argv.o);
 	}).then(function() {
 		return run(function(t, ret) {
-			if (ret.error) { throw ret.error; }
-			t.oresults = ret.results;
+			if (ret.output.error) { throw ret.output.error; }
+			t.oresults = ret.output.results;
 		});
 	}).then(function() {
 		return checkout(argv.c);
 	}).then(function() {
 		return run(function(t, ret) {
-			if (ret.error) { throw ret.error; }
-			compareResult(t, ret.results);
+			if (ret.output.error) { throw ret.output.error; }
+			compareResult(t, ret.output.results);
 		});
 	}).then(function() {
 		console.log('----------------------------');

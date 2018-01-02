@@ -13,7 +13,9 @@ var _run = function(test) {
 		prefix: test.prefix,
 		rtTestMode: true,
 		parsoidURL: parsoidURL,
-	}, rtTest.xmlFormat);
+	}, rtTest.xmlFormat).then(function(result) {
+		return result.output;
+	});
 };
 
 var runRoundTripTest = function(config, test) {

@@ -6,6 +6,7 @@ require('../core-upgrade.js');
 
 var domino = require('domino');
 var yargs = require('yargs');
+var zlib = require('pn/zlib');
 
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
@@ -13,8 +14,6 @@ var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
-
-var gzip = Promise.promisify(require('zlib').gzip, false);
 
 var defaultContentVersion = '1.6.0';
 
@@ -467,7 +466,7 @@ var checkIfSignificant = function(offsets, data) {
 
 var UA = 'Roundtrip-Test';
 
-function parsoidPost(profile, options) {
+var parsoidPost = Promise.async(function *(profile, options) {
 	var httpOptions = {
 		method: 'POST',
 		body: options.data,
@@ -497,35 +496,33 @@ function parsoidPost(profile, options) {
 	}
 	httpOptions.uri = uri;
 
-	return Util.retryingHTTPRequest(10, httpOptions)
-	.spread(function(_, body) {
-		var p = Promise.resolve();
-		// FIXME: Parse time was removed from profiling when we stopped
-		// sending the x-parsoid-performance header.
-		if (options.recordSizes) {
-			var pre = '';
-			if (options.profilePrefix) {
-				pre += options.profilePrefix + ':';
-			}
-			var str;
-			if (options.html2wt) {
-				pre += 'html:';
-				str = body;
-			} else {
-				pre += 'wt:';
-				str = body.html.body;
-			}
-			profile.size[pre + 'raw'] = str.length;
-			// Compress to record the gzipped size
-			p = gzip(str).then(function(gzippedbuf) {
-				profile.size[pre + 'gzip'] = gzippedbuf.length;
-			});
-		}
-		return p.then(function() { return body; });
-	});
-}
+	var result = yield Util.retryingHTTPRequest(10, httpOptions);
+	var body = result[1];
 
-function roundTripDiff(profile, parsoidOptions, data) {
+	// FIXME: Parse time was removed from profiling when we stopped
+	// sending the x-parsoid-performance header.
+	if (options.recordSizes) {
+		var pre = '';
+		if (options.profilePrefix) {
+			pre += options.profilePrefix + ':';
+		}
+		var str;
+		if (options.html2wt) {
+			pre += 'html:';
+			str = body;
+		} else {
+			pre += 'wt:';
+			str = body.html.body;
+		}
+		profile.size[pre + 'raw'] = str.length;
+		// Compress to record the gzipped size
+		var gzippedbuf = yield zlib.gzip(str);
+		profile.size[pre + 'gzip'] = gzippedbuf.length;
+	}
+	return body;
+});
+
+var roundTripDiff = Promise.async(function *(profile, parsoidOptions, data) {
 	var diff = Diff.diffLines(data.newWt, data.oldWt);
 	var offsets = Diff.convertDiffToOffsetPairs(diff);
 	if (!diff.length || !offsets.length) { return []; }
@@ -535,16 +532,16 @@ function roundTripDiff(profile, parsoidOptions, data) {
 		wt2html: true,
 		data: { wikitext: data.newWt, contentmodel: contentmodel },
 	}, parsoidOptions);
-	return parsoidPost(profile, options).then(function(body) {
-		data.newHTML = body.html;
-		data.newDp = body['data-parsoid'];
-		data.newMw = body['data-mw'];
-		return checkIfSignificant(offsets, data);
-	});
-}
+	var body = yield parsoidPost(profile, options);
+	data.newHTML = body.html;
+	data.newDp = body['data-parsoid'];
+	data.newMw = body['data-mw'];
+	return checkIfSignificant(offsets, data);
+});
 
-// Returns a Promise for a formatted string.  `cb` is optional.
-function runTests(title, options, formatter, cb) {
+// Returns a Promise for a object containing a formatted string and an
+// exitCode.
+var runTests = Promise.async(function *(title, options, formatter) {
 	// Only support lookups for WMF domains.  At some point we should rid
 	// ourselves of prefixes in this file entirely, but that'll take some
 	// coordination in rt.
@@ -556,7 +553,6 @@ function runTests(title, options, formatter, cb) {
 	// Preserve the default, but only if neither was provided.
 	if (!prefix && !domain) { domain = 'en.wikipedia.org'; }
 
-	var err;
 	if (domain && prefix) {
 		// All good.
 	} else if (!domain && prefix) {
@@ -564,7 +560,7 @@ function runTests(title, options, formatter, cb) {
 		if (parsoidConfig.mwApiMap.has(prefix)) {
 			domain = parsoidConfig.mwApiMap.get(prefix).domain;
 		} else {
-			err = new Error('Couldn\'t find the domain for prefix: ' + prefix);
+			throw new Error('Couldn\'t find the domain for prefix: ' + prefix);
 		}
 	} else if (!prefix && domain) {
 		// Get the prefix from the reverse mw api map.
@@ -576,18 +572,8 @@ function runTests(title, options, formatter, cb) {
 		}
 	} else {
 		// Should be unreachable.
-		err = new Error('No domain or prefix provided.');
+		throw new Error('No domain or prefix provided.');
 	}
-
-	var profile = { time: { total: 0, start: 0 }, size: {} };
-	var closeFormatter = function(e, results) {
-		var failure = e || results.some(function(r) {
-			return r.selser;
-		});
-		var output = formatter(e, prefix, title, results, profile);
-		return options.check ? { output: output, exitCode: failure ? 1 : 0 } :
-			output;
-	};
 
 	var uri = options.parsoidURL;
 	// make sure the Parsoid URI ends on /
@@ -599,40 +585,42 @@ function runTests(title, options, formatter, cb) {
 		title: encodeURIComponent(title),
 		contentVersion: options.contentVersion || defaultContentVersion,
 	};
+	var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
+	if (options.oldid) {
+		uri2 += '/' + options.oldid;
+	}
 
+	var profile = { time: { total: 0, start: 0 }, size: {} };
 	var data = {};
-	return Promise[err ? 'reject' : 'resolve'](err).then(function() {
-		var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
-		if (options.oldid) {
-			uri2 += '/' + options.oldid;
-		}
-		return Util.retryingHTTPRequest(10, {
+	var error;
+	var exitCode;
+	try {
+		var opts;
+		var req = yield Util.retryingHTTPRequest(10, {
 			method: 'GET',
 			uri: uri2,
 			headers: {
 				'User-Agent': UA,
 			},
 		});
-	}).spread(function(res, body) {
 		profile.start = Date.now();
 		// We may have been redirected to the latest revision.  Record the
 		// oldid for later use in selser.
-		data.oldid = res.request.path.replace(/^(.*)\//, '');
-		data.oldWt = body;
-		data.contentmodel = res.headers['x-contentmodel'] || 'wikitext';
+		data.oldid = req[0].request.path.replace(/^(.*)\//, '');
+		data.oldWt = req[1];
+		data.contentmodel = req[0].headers['x-contentmodel'] || 'wikitext';
 		// First, fetch the HTML for the requested page's wikitext
-		var opts = Object.assign({
+		opts = Object.assign({
 			wt2html: true,
 			recordSizes: true,
 			data: { wikitext: data.oldWt, contentmodel: data.contentmodel },
 		}, parsoidOptions);
-		return parsoidPost(profile, opts);
-	}).then(function(body) {
+		var body = yield parsoidPost(profile, opts);
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
 		data.oldMw = body['data-mw'];
 		// Now, request the wikitext for the obtained HTML
-		var opts = Object.assign({
+		opts = Object.assign({
 			html2wt: true,
 			recordSizes: true,
 			data: {
@@ -645,12 +633,8 @@ function runTests(title, options, formatter, cb) {
 				},
 			},
 		}, parsoidOptions);
-		return parsoidPost(profile, opts);
-	}).then(function(body) {
-		data.newWt = body;
-		return roundTripDiff(profile, parsoidOptions, data);
-	}).then(function(results) {
-		data.diffs = results;
+		data.newWt = yield parsoidPost(profile, opts);
+		data.diffs = yield roundTripDiff(profile, parsoidOptions, data);
 		// Once we have the diffs between the round-tripped wt,
 		// to test rt selser we need to modify the HTML and request
 		// the wt again to compare with selser, and then concat the
@@ -658,7 +642,7 @@ function runTests(title, options, formatter, cb) {
 		var newDocument = DU.parseHTML(data.oldHTML.body);
 		var newNode = newDocument.createComment('rtSelserEditTestComment');
 		newDocument.body.appendChild(newNode);
-		var opts = Object.assign({
+		opts = Object.assign({
 			html2wt: true,
 			useSelser: true,
 			oldid: data.oldid,
@@ -674,28 +658,30 @@ function runTests(title, options, formatter, cb) {
 			},
 			profilePrefix: 'selser',
 		}, parsoidOptions);
-		return parsoidPost(profile, opts);
-	}).then(function(body) {
-		var out = body;
+		var out = yield parsoidPost(profile, opts);
 		// Finish the total time now
 		// FIXME: Is the right place to end it?
 		profile.time.total = Date.now() - profile.time.start;
 		// Remove the selser trigger comment
 		data.newWt = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
-		return roundTripDiff(profile, parsoidOptions, data);
-	}).then(function(selserDiffs) {
+		var selserDiffs = yield roundTripDiff(profile, parsoidOptions, data);
 		selserDiffs.forEach(function(diff) {
 			diff.selser = true;
 		});
 		if (selserDiffs.length) {
 			data.diffs = data.diffs.concat(selserDiffs);
 		}
-		return data.diffs;
-	}).then(
-		closeFormatter.bind(null, null),
-		closeFormatter
-	).nodify(cb);
-}
+		exitCode = data.diffs.some(function(r) { return r.selser; }) ? 1 : 0;
+	} catch (e) {
+		error = e;
+		exitCode = 1;
+	}
+	var output = formatter(error, prefix, title, data.diffs, profile);
+	return {
+		output: output,
+		exitCode: exitCode,
+	};
+});
 
 
 if (require.main === module) {
@@ -746,7 +732,7 @@ if (require.main === module) {
 		},
 	};
 
-	(function() {
+	Promise.async(function *() {
 		var opts = yargs.usage(
 			'Usage: $0 [options] <page-title> \n' +
 			'The page title should be the "true title",' +
@@ -760,8 +746,7 @@ if (require.main === module) {
 		}
 		var title = String(argv._[0]);
 
-		Promise.resolve().then(function() {
-			if (argv.parsoidURL) { return; }
+		if (!argv.parsoidURL) {
 			// Start our own Parsoid server
 			var serviceWrapper = require('../tests/serviceWrapper.js');
 			var serverOpts = {
@@ -773,19 +758,21 @@ if (require.main === module) {
 			} else {
 				serverOpts.skipMock = true;
 			}
-			return serviceWrapper.runServices(serverOpts).then(function(ret) {
-				argv.parsoidURL = ret.parsoidURL;
-			});
-		}).then(function() {
-			var formatter = Util.booleanOption(argv.xml) ? xmlFormat : plainFormat;
-			return runTests(title, argv, formatter);
-		}).then(function(r) {
-			console.log(argv.check ? r.output : r);
-			process.exit(argv.check ? r.exitCode : 0);
-		}).done();
-	}());
+			var ret = yield serviceWrapper.runServices(serverOpts);
+			argv.parsoidURL = ret.parsoidURL;
+		}
+		var formatter = Util.booleanOption(argv.xml) ?
+			xmlFormat : plainFormat;
+		var r = yield runTests(title, argv, formatter);
+		console.log(r.output);
+		if (argv.check) {
+			process.exit(r.exitCode);
+		}
+	})().done();
 } else if (typeof module === 'object') {
 	module.exports.runTests = runTests;
-	module.exports.xmlFormat = xmlFormat;
+
 	module.exports.jsonFormat = jsonFormat;
+	module.exports.plainFormat = plainFormat;
+	module.exports.xmlFormat = xmlFormat;
 }
