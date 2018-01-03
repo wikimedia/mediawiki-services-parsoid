@@ -10,10 +10,12 @@ require('../core-upgrade.js');
  *  to tests/parse.js
  */
 
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
+
+var Promise = require('../lib/utils/promise.js');
 
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
@@ -21,7 +23,7 @@ var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWPars
 var Util = require('../lib/utils/Util.js').Util;
 
 
-var fetch = function(page, revid, opts) {
+var fetch = Promise.async(function *(page, revid, opts) {
 	var prefix = opts.prefix || null;
 	var domain = opts.domain || null;
 
@@ -32,14 +34,16 @@ var fetch = function(page, revid, opts) {
 		domain = 'en.wikipedia.org';
 	}
 
-	var parsoidOptions = {};
+	var parsoidOptions = {
+		loadWMF: opts.loadWMF,
+	};
 
 	if (Util.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
 		// Assuming Parsoid is the first service in the list
-		parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
@@ -52,30 +56,21 @@ var fetch = function(page, revid, opts) {
 	var pc = new ParsoidConfig(null, parsoidOptions);
 	pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
 
-	var env;
-	var target;
-	MWParserEnvironment.getParserEnv(pc, {
+	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
-	})
-	.then(function(_env) {
-		env = _env;
-		target = page ?
-			env.normalizeAndResolvePageTitle() : null;
-		return TemplateRequest.setPageSrcInfo(env, target, revid);
-	})
-	.then(function() {
-		if (opts.output) {
-			fs.writeFileSync(opts.output, env.page.src, 'utf8');
-		} else {
-			console.log(env.page.src);
-		}
-	}, function(e) {
-		console.error('Failed to fetch', target, revid);
-		console.error(e);
-	}).done();
-};
+	});
+	var target = page ?
+		env.normalizeAndResolvePageTitle() : null;
+	yield TemplateRequest.setPageSrcInfo(env, target, revid);
+
+	if (opts.output) {
+		yield fs.writeFile(opts.output, env.page.src, 'utf8');
+	} else {
+		console.log(env.page.src);
+	}
+});
 
 var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
@@ -107,9 +102,14 @@ var yopts = yargs.usage(usage, Util.addStandardOptions({
 		description: 'Page title to fetch (only if revid is not present)',
 		'boolean': false,
 	},
+	'loadWMF': {
+		description: 'Use WMF mediawiki API config',
+		'boolean': true,
+		'default': true,
+	},
 }));
 
-(function() {
+Promise.async(function *() {
 	var argv = yopts.argv;
 	var title = null;
 	var revid = null;
@@ -144,5 +144,5 @@ var yopts = yargs.usage(usage, Util.addStandardOptions({
 		return;
 	}
 
-	fetch(title, revid, argv);
-}());
+	yield fetch(title, revid, argv);
+})().done();
