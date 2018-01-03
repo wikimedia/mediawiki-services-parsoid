@@ -11,7 +11,7 @@ require('../core-upgrade.js');
 
 var serviceWrapper = require('../tests/serviceWrapper.js');
 var async = require('async');
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
@@ -95,9 +95,9 @@ function ParserTests(testFilePath, modes) {
  * @param {Object} argv
  * @return {Object}
  */
-ParserTests.prototype.getTests = function(argv) {
+ParserTests.prototype.getTests = Promise.async(function *(argv) {
 	// Startup by loading .txt test file
-	var testFile = fs.readFileSync(this.testFilePath, 'utf8');
+	var testFile = yield fs.readFile(this.testFilePath, 'utf8');
 
 	if (!Util.booleanOption(argv.cache)) {
 		// Cache not wanted, parse file and return object
@@ -112,9 +112,11 @@ ParserTests.prototype.getTests = function(argv) {
 
 	// Find out modification time of all files dependencies and then hash those
 	// to make a unique value using sha1.
-	var mtimes = fileDependencies.sort().map(function(file) {
-		return fs.statSync(file).mtime;
-	}).join('|');
+	var mtimes = (yield Promise.all(
+		fileDependencies.sort().map(function(file) {
+			return fs.stat(file);
+		})
+	)).map(function(stat) { return stat.mtime; }).join('|');
 
 	var sha1 = require('crypto')
 		.createHash('sha1')
@@ -125,7 +127,7 @@ ParserTests.prototype.getTests = function(argv) {
 	var cacheContent;
 	var cacheFileDigest;
 	try {
-		cacheContent = fs.readFileSync(this.cacheFilePath, 'utf8');
+		cacheContent = yield fs.readFile(this.cacheFilePath, 'utf8');
 		// Fetch previous digest
 		cacheFileDigest = cacheContent.match(/^CACHE: (\w+)\n/)[1];
 	} catch (e4) {
@@ -140,14 +142,14 @@ ParserTests.prototype.getTests = function(argv) {
 		// Write new file cache, content preprended with current digest
 		console.error("Cache file either not present or outdated");
 		var parse = this.parseTestCase(testFile);
-		fs.writeFileSync(this.cacheFilePath,
+		yield fs.writeFile(this.cacheFilePath,
 			"CACHE: " + sha1 + "\n" + JSON.stringify(parse),
 			'utf8'
 		);
 		// We can now return the parsed object
 		return parse;
 	}
-};
+});
 
 /**
  * @method
@@ -974,7 +976,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
  * @method
  * @param {Object} options
  */
-ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) {
+ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL) {
 	this.runDisabled = Util.booleanOption(options['run-disabled']);
 	this.runPHP = Util.booleanOption(options['run-php']);
 
@@ -989,9 +991,9 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 	}
 
 	this.testParserFilePath = path.join(__dirname, '../tests/parserTests.pegjs');
-	this.testParser = PEG.buildParser(fs.readFileSync(this.testParserFilePath, 'utf8'));
+	this.testParser = PEG.buildParser(yield fs.readFile(this.testParserFilePath, 'utf8'));
 
-	this.cases = this.getTests(options);
+	this.cases = yield this.getTests(options);
 
 	if (options.maxtests) {
 		var n = Number(options.maxtests);
@@ -1055,45 +1057,43 @@ ParserTests.prototype.main = Promise.method(function(options, mockAPIServerURL) 
 	}
 
 	// Create a new parser environment
-	return MWParserEnvironment.getParserEnv(pc, {
+	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: 'enwiki',
 		logLevels: logLevels,
-	})
-	.then(function(env) {
-		this.env = env;
+	});
+	this.env = env;
 
-		// Save default logger so we can be reset it after temporarily
-		// switching to the suppressLogger to suppress expected error
-		// messages.
-		this.defaultLogger = env.logger;
-		this.suppressLogger = new ParsoidLogger(env);
-		this.suppressLogger.registerLoggingBackends(["fatal"], pc);
+	// Save default logger so we can be reset it after temporarily
+	// switching to the suppressLogger to suppress expected error
+	// messages.
+	this.defaultLogger = env.logger;
+	this.suppressLogger = new ParsoidLogger(env);
+	this.suppressLogger.registerLoggingBackends(["fatal"], pc);
 
-		// Override env's `setLogger` to record if we see `fatal` or `error`
-		// while running parser tests.  (Keep it clean, folks!  Use
-		// "suppressError" option on the test if error is expected.)
-		this.loggedErrorCount = 0;
-		env.setLogger = (function(parserTests, superSetLogger) {
-			return function(_logger) {
-				superSetLogger.call(this, _logger);
-				this.log = function(level) {
-					if (_logger !== parserTests.suppressLogger &&
-						/^(fatal|error)\b/.test(level)) {
-						parserTests.loggedErrorCount++;
-					}
-					return _logger.log.apply(_logger, arguments);
-				};
+	// Override env's `setLogger` to record if we see `fatal` or `error`
+	// while running parser tests.  (Keep it clean, folks!  Use
+	// "suppressError" option on the test if error is expected.)
+	this.loggedErrorCount = 0;
+	env.setLogger = (function(parserTests, superSetLogger) {
+		return function(_logger) {
+			superSetLogger.call(this, _logger);
+			this.log = function(level) {
+				if (_logger !== parserTests.suppressLogger &&
+					/^(fatal|error)\b/.test(level)) {
+					parserTests.loggedErrorCount++;
+				}
+				return _logger.log.apply(_logger, arguments);
 			};
-		})(this, env.setLogger);
+		};
+	})(this, env.setLogger);
 
-		if (console.time && console.timeEnd) {
-			console.time('Execution time');
-		}
-		options.reportStart();
-		this.env.pageCache = this.articles;
-		this.comments = [];
-		return this.processCase(0, options, false);
-	}.bind(this));
+	if (console.time && console.timeEnd) {
+		console.time('Execution time');
+	}
+	options.reportStart();
+	this.env.pageCache = this.articles;
+	this.comments = [];
+	return this.processCase(0, options, false);
 });
 
 /**
@@ -1207,10 +1207,10 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 /**
  * @method
  */
-ParserTests.prototype.processCase = function(i, options, earlyExit) {
+ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyExit) {
 	if (i < this.cases.length && !earlyExit) {
 		var self = this;
-		return new Promise(function(resolve, reject) {
+		var ee = yield new Promise(function(resolve, reject) {
 			var item = self.cases[i];
 			self.processItem(item, options, function(err) {
 				// There are two types of errors that reach here.  The first is just
@@ -1224,20 +1224,18 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 					resolve(options['exit-unexpected'] && (err === exitUnexpected));
 				}
 			});
-		})
-		.then(function(ee) {
-			return self.processCase(i + 1, options, ee);
 		});
+		return self.processCase(i + 1, options, ee);
 	} else {
 		// update the blacklist, if requested
 		if (Util.booleanOption(options['rewrite-blacklist'])) {
 			var old;
-			if (fs.existsSync(this.blackListPath)) {
-				old = fs.readFileSync(this.blackListPath, 'utf8');
+			if (yield fs.exists(this.blackListPath)) {
+				old = yield fs.readFile(this.blackListPath, 'utf8');
 			} else {
 				// Use the preamble from one we know about ...
 				var defaultBlPath = path.join(__dirname, '../tests/parserTests-blacklist.js');
-				old = fs.readFileSync(defaultBlPath, 'utf8');
+				old = yield fs.readFile(defaultBlPath, 'utf8');
 			}
 			var shell = old.split(/^.*DO NOT REMOVE THIS LINE.*$/m);
 			var contents = shell[0];
@@ -1256,7 +1254,7 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
-			fs.writeFileSync(this.blackListPath, contents, 'utf8');
+			yield fs.writeFile(this.blackListPath, contents, 'utf8');
 		}
 
 		// Write updated tests from failed ones
@@ -1264,7 +1262,7 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 				Util.booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
 					'raw' : 'actualNormalized';
-			var parserTests = fs.readFileSync(this.testFilePath, 'utf8');
+			var parserTests = yield fs.readFile(this.testFilePath, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function(fail) {
 				if (options['update-tests'] || fail.unexpected) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
@@ -1274,7 +1272,7 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 						fail[updateFormat].replace(/\$/g, '$$$$'));
 				}
 			});
-			fs.writeFileSync(this.testFilePath, parserTests, 'utf8');
+			yield fs.writeFile(this.testFilePath, parserTests, 'utf8');
 		}
 
 		// print out the summary
@@ -1299,7 +1297,7 @@ ParserTests.prototype.processCase = function(i, options, earlyExit) {
 			file: this.testFileName,
 		};
 	}
-};
+});
 
 /**
  * @method
