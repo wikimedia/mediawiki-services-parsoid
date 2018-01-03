@@ -39,10 +39,11 @@ require('../core-upgrade.js');
 */
 
 var yargs = require('yargs');
-var childProcess = require('child_process');
-var async = require('async');
+var childProcess = require('pn/child_process');
 var path = require('path');
-var fs = require('fs');
+var fs = require('pn/fs');
+
+var Promise = require('../lib/utils/promise.js');
 
 var testDir = path.join(__dirname, '../tests/');
 var testFilesPath = path.join(testDir, 'parserTests.json');
@@ -54,7 +55,7 @@ var strip = function(s) {
 	return s.replace(/(^\s+)|(\s+$)/g, '');
 };
 
-(function() {
+Promise.async(function *() {
 	// Option parsing and helpful messages.
 	var usage = 'Usage: $0 <repo path> <branch name> <target>';
 	var opts = yargs.usage(usage, {
@@ -63,7 +64,7 @@ var strip = function(s) {
 	var argv = opts.argv;
 	if (argv.help || argv._.length < 2 || argv._.length > 3) {
 		opts.showHelp();
-		var morehelp = fs.readFileSync(__filename, 'utf8');
+		var morehelp = yield fs.readFile(__filename, 'utf8');
 		morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
 		console.log(morehelp.replace(/^ {3}/mg, ''));
 		return;
@@ -83,91 +84,73 @@ var strip = function(s) {
 	var oldhash = file.latestCommit;
 
 	var mwexec = function(cmd) {
-		return function(callback) {
+		// Execute `cmd` in the mwpath directory.
+		return new Promise(function(resolve, reject) {
 			console.log('>>>', cmd.join(' '));
 			childProcess.spawn(cmd[0], cmd.slice(1), {
 				cwd: mwpath,
 				env: process.env,
 				stdio: 'inherit',
 			}).on('close', function(code) {
-				callback(code === 0 ? null : code, code);
-			});
-		};
+				if (code === 0) {
+					resolve(code);
+				} else {
+					reject(code);
+				}
+			}).on('error', reject);
+		});
 	};
 
-	var q = [];
 	var pPARSERTESTS = path.join(__dirname, '..', 'tests', targetName);
 	var mwPARSERTESTS = path.join(mwpath, file.path);
 
 	// Fetch current Parsoid git hash.
-	var phash;
-	q.push(function(callback) {
-		childProcess.execFile('git', ['log', '--max-count=1', '--pretty=format:%H'], {
+	var result = yield childProcess.execFile(
+		'git', ['log', '--max-count=1', '--pretty=format:%H'], {
 			cwd: __dirname,
 			env: process.env,
-		}, function(error, stdout, stderr) {
-			if (error) { return callback(error.code || 1); }
-			phash = strip(stdout);
-			callback(null, 0);
-		});
-	});
-	q.push(function(callback) {
-		// A bit of user-friendly logging.
-		console.log('Parsoid git HEAD is', phash);
-		console.log('>>> cd', mwpath);
-		callback(null);
-	});
+		}).promise;
+	var phash = strip(result.stdout);
+
+	// A bit of user-friendly logging.
+	console.log('Parsoid git HEAD is', phash);
+	console.log('>>> cd', mwpath);
 
 	// Create a new mediawiki/core branch, based on the previous sync point.
-	q.push(mwexec('git fetch origin'.split(' ')));
-	q.push(mwexec(['git', 'checkout', '-b', branch, oldhash]));
-	var cleanup = function(callback) {
-		var qq = [
-			mwexec('git checkout master'.split(' ')),
-			mwexec(['git', 'branch', '-d', branch]),
-		];
-		async.series(qq, callback);
-	};
+	yield mwexec('git fetch origin'.split(' '));
+	yield mwexec(['git', 'checkout', '-b', branch, oldhash]);
 
 	// Copy our locally-modified parser tests over to mediawiki/core.
-	q.push(function(callback) {
-		// cp __dirname/parserTests.txt $mwpath/tests/parser
-		fs.readFile(pPARSERTESTS, function(err, data) {
-			if (err) { return cleanup(function() { callback(err); }); }
-			console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);
-			fs.writeFile(mwPARSERTESTS, data, function(err2) {
-				if (err2) { return cleanup(function() { callback(err2); }); }
-				callback();
-			});
-		});
-	});
+	// cp __dirname/parserTests.txt $mwpath/tests/parser
+	try {
+		var data = yield fs.readFile(pPARSERTESTS);
+		console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);
+		yield fs.writeFile(mwPARSERTESTS, data);
+	} catch (e) {
+		// cleanup
+		yield mwexec('git checkout master'.split(' '));
+		yield mwexec(['git', 'branch', '-d', branch]);
+		throw e;
+	}
 
 	// Make a new mediawiki/core commit with an appropriate message.
-	q.push(function(callback) {
-		var commitmsg = 'Sync up with Parsoid ' + targetName;
-		commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
-		mwexec(['git', 'commit', '-m', commitmsg, mwPARSERTESTS])(callback);
-	});
+	var commitmsg = 'Sync up with Parsoid ' + targetName;
+	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
+	yield mwexec(['git', 'commit', '-m', commitmsg, mwPARSERTESTS]);
 
-	// Ok, run these commands in series, stopping if any fail.
-	async.series(q, function(err, allresults) {
-		if (err) { process.exit(err); }
+	// ok, we were successful at making the commit.  Give further instructions.
+	console.log();
+	console.log('Success!  Now:');
+	console.log(' cd', mwpath);
+	console.log(' git rebase origin/master');
+	console.log(' .. fix any conflicts .. ');
+	console.log(' php tests/parser/parserTests.php');
+	console.log(' git review');
 
-		// ok, we were successful at making the commit.  Give further instructions.
-		console.log();
-		console.log('Success!  Now:');
-		console.log(' cd', mwpath);
-		console.log(' git rebase origin/master');
-		console.log(' .. fix any conflicts .. ');
-		console.log(' php tests/parser/parserTests.php');
-		console.log(' git review');
+	// XXX to rebase semi-automatically, we might do something like:
+	//  yield mwexec('git rebase origin/master'.split(' '));
+	// XXX but it seems rather confusing to do it this way, since the
+	// current working directory when we finish is still parsoid.
 
-		// XXX to rebase semi-automatically, we might do something like:
-		//  mwexec('git rebase origin/master'.split(' '))(function(err, code) {
-		//  });
-		// XXX but it seems rather confusing to do it this way, since the
-		// current working directory when we finish is still parsoid.
-
-		process.exit(0);
-	});
-}());
+	process.exit(0);
+})().done();
