@@ -10,10 +10,12 @@ require('../core-upgrade.js');
  * 2. latest matching HTML and data-parsoid for the revision from RESTBase
  */
 
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var yargs = require('yargs');
 var yaml = require('js-yaml');
+
+var Promise = require('../lib/utils/promise.js');
 
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
@@ -21,7 +23,7 @@ var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWPars
 var Util = require('../lib/utils/Util.js').Util;
 
 
-var fetch = function(page, revid, opts) {
+var fetch = Promise.async(function *(page, revid, opts) {
 	var prefix = opts.prefix || null;
 	var domain = opts.domain || null;
 	if (!prefix && !domain) {
@@ -35,7 +37,7 @@ var fetch = function(page, revid, opts) {
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
 		// Assuming Parsoid is the first service in the list
-		parsoidOptions = yaml.load(fs.readFileSync(p, 'utf8')).services[0].conf;
+		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
@@ -55,7 +57,6 @@ var fetch = function(page, revid, opts) {
 	}
 	pc.defaultWiki = prefix;
 
-	var env;
 	var outputPrefix = prefix + "." + page;
 	var rbOpts = {
 		uri: null,
@@ -65,52 +66,43 @@ var fetch = function(page, revid, opts) {
 		},
 	};
 
-	MWParserEnvironment.getParserEnv(pc, {
+	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
 		domain: domain,
 		pageName: page,
-	})
-	.then(function(_env) {
-		// Fetch wikitext from mediawiki API
-		env = _env;
-		var target = page ?
-			env.normalizeAndResolvePageTitle() : null;
-		return TemplateRequest.setPageSrcInfo(env, target, revid);
-	})
-	.then(function() {
-		fs.writeFileSync(outputPrefix + ".wt", env.page.src, 'utf8');
-	})
-	.then(function() {
-		// Fetch HTML from RESTBase
-		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.phpURLEncode(page) + (revid ? "/" + revid : "");
-		return Util.retryingHTTPRequest(2, rbOpts);
-	})
-	.then(function(resp) {
-		fs.writeFileSync(outputPrefix + ".html", resp[1], 'utf8');
-		return resp[0].headers.etag.replace(/"/g, '');
-	})
-	.then(function(etag) {
-		// Fetch matching data-parsoid form RESTBase
-		rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.phpURLEncode(page) + "/" + etag;
-		return Util.retryingHTTPRequest(2, rbOpts);
-	})
-	.then(function(resp) {
-		// RESTBase doesn't have the outer wrapper
-		// that the parse.js script expects
-		var pb = '{"parsoid":' + resp[1] + "}";
-		fs.writeFileSync(outputPrefix + ".pb.json", pb, 'utf8');
-	})
-	.done(function() {
-		console.log("If you are debugging a bug report on a VE edit, make desired edit to the HTML file and save to a new file.");
-		console.log("Then run the following script to generated edited wikitext");
-		console.log("parse.js --html2wt --selser --oldtextfile " + outputPrefix + ".wt"
-			+ " --oldhtmlfile " + outputPrefix + ".html"
-			+ " --pbinfile " + outputPrefix + ".pb.json"
-			+ " < edited.html > edited.wt");
 	});
-};
 
-var usage = 'Usage: $0 [options] <page-title> <optional-rev-id>\n';
+	// Fetch wikitext from mediawiki API
+	var target = page ?
+		env.normalizeAndResolvePageTitle() : null;
+	yield TemplateRequest.setPageSrcInfo(env, target, revid);
+	yield fs.writeFile(outputPrefix + ".wt", env.page.src, 'utf8');
+
+	// Fetch HTML from RESTBase
+	rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.phpURLEncode(page) + (revid ? "/" + revid : "");
+	var resp = yield Util.retryingHTTPRequest(2, rbOpts);
+	yield fs.writeFile(outputPrefix + ".html", resp[1], 'utf8');
+	var etag = resp[0].headers.etag.replace(/^W\//, '').replace(/"/g, '');
+
+	// Fetch matching data-parsoid form RESTBase
+	rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.phpURLEncode(page) + "/" + etag;
+	resp = yield Util.retryingHTTPRequest(2, rbOpts);
+
+	// RESTBase doesn't have the outer wrapper
+	// that the parse.js script expects
+	var pb = '{"parsoid":' + resp[1] + "}";
+	yield fs.writeFile(outputPrefix + ".pb.json", pb, 'utf8');
+
+	console.log("If you are debugging a bug report on a VE edit, make desired edit to the HTML file and save to a new file.");
+	console.log("Then run the following script to generated edited wikitext");
+	console.log("parse.js --html2wt --selser --oldtextfile "
+		+ outputPrefix + ".wt"
+		+ " --oldhtmlfile " + outputPrefix + ".html"
+		+ " --pbinfile " + outputPrefix + ".pb.json"
+		+ " < edited.html > edited.wt");
+});
+
+var usage = 'Usage: $0 [options] --title <page-title> [--revid <rev-id>]\n';
 var yopts = yargs.usage(usage, {
 	'config': {
 		description: "Path to a config.yaml file. Defaults to the server's config.yaml",
@@ -136,7 +128,7 @@ var yopts = yargs.usage(usage, {
 	},
 });
 
-(function() {
+Promise.async(function *() {
 	var argv = yopts.argv;
 	var title = argv.title;
 	var error;
@@ -160,5 +152,5 @@ var yopts = yargs.usage(usage, {
 		return;
 	}
 
-	fetch(title, argv.revid, argv);
-}());
+	yield fetch(title, argv.revid, argv);
+})().done();
