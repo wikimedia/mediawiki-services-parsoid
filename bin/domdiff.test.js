@@ -8,8 +8,9 @@ var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
+var Promise = require('../lib/utils/promise.js');
 var yargs = require('yargs');
-var fs = require('fs');
+var fs = require('pn/fs');
 
 var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
 	help: {
@@ -39,14 +40,14 @@ var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nPro
 	},
 });
 
-(function() {
+Promise.async(function *() {
 	var argv = opts.argv;
 	var oldhtml = argv.oldhtml;
 	var newhtml = argv.newhtml;
 
 	if (!oldhtml && argv._[0]) {
-		oldhtml = fs.readFileSync(argv._[0], 'utf8');
-		newhtml = fs.readFileSync(argv._[1], 'utf8');
+		oldhtml = yield fs.readFile(argv._[0], 'utf8');
+		newhtml = yield fs.readFile(argv._[1], 'utf8');
 	}
 
 	if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
@@ -79,4 +80,4 @@ var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nPro
 	});
 
 	process.exit(0);
-}());
+})().done();
