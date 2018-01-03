@@ -3,8 +3,11 @@
 'use strict';
 
 require('../core-upgrade.js');
-var fs = require('fs');
-var request = require('request');
+var fs = require('pn/fs');
+
+var Promise = require('../lib/utils/promise.js');
+var Util = require('../lib/utils/Util.js').Util;
+
 
 var wikis = [
 	{ prefix: 'enwiki', nowiki: 'nowiki added' },
@@ -21,19 +24,9 @@ var wikis = [
 	// { prefix: 'dewiki', nowiki: 'nowiki' },
 ];
 
-var processRes, fetchAll;
+var fetchAll;
 
-processRes = function(fetchArgs, out, err, resp, body) {
-	if (err || resp.statusCode !== 200) {
-		if (err) {
-			console.error('Error: ' + err);
-		}
-		if (resp) {
-			console.error('Status code: ' + resp.statusCode);
-		}
-		return;
-	}
-
+var processRes = Promise.async(function *(fetchArgs, out, body) {
 	// Accum titles
 	body = JSON.parse(body);
 	var stats = fetchArgs.wiki.stats;
@@ -64,18 +57,18 @@ processRes = function(fetchArgs, out, err, resp, body) {
 	if (resContinue) {
 		fetchArgs.opts.continue = resContinue.continue;
 		fetchArgs.opts.rccontinue = resContinue.rccontinue;
-		fetchAll(fetchArgs, out);
+		yield fetchAll(fetchArgs, out);
 	} else {
 		var fileName = './' + fetchArgs.prefix + '.rc_nowiki.txt';
 		console.warn('Got ' + out.length + ' titles from ' + fetchArgs.prefix + '; writing to ' + fileName);
 		for (var k in stats) {
 			console.warn(fetchArgs.prefix + " date: " + k + " had " + stats[k] + " nowikied edits");
 		}
-		fs.writeFileSync(fileName, out.join('\n') + '\n');
+		yield fs.writeFile(fileName, out.join('\n') + '\n');
 	}
-};
+});
 
-fetchAll = function(fetchArgs, out) {
+fetchAll = Promise.async(function *(fetchArgs, out) {
 	var requestOpts = {
 		method: 'GET',
 		followRedirect: true,
@@ -84,10 +77,11 @@ fetchAll = function(fetchArgs, out) {
 	};
 
 	// console.log('Fetching ' + fetchArgs.opts.rclimit + ' results from ' + fetchArgs.prefix + "; URI: " + fetchArgs.apiURI + "; opts: " + JSON.stringify(fetchArgs.opts));
-	request(requestOpts, processRes.bind(null, fetchArgs, out));
-};
+	var resp = yield Util.retryingHTTPRequest(2, requestOpts);
+	yield processRes(fetchArgs, out, resp[1]);
+});
 
-wikis.forEach(function(obj) {
+Promise.all(wikis.map(function(obj) {
 	var prefix = obj.prefix;
 	var domain = prefix.replace(/wiki/, '.wikipedia.org');
 	var opts = {
@@ -101,8 +95,8 @@ wikis.forEach(function(obj) {
 		rcshow: '!bot',
 		// Order from older to newer for a specific day
 		rcdir: 'newer',
-		rcstart: '2015-08-12T00:00:00Z',
-		rcend: '2015-08-13T23:59:59Z',
+		rcstart: '2018-01-01T00:00:00Z',
+		rcend: '2018-01-03T23:59:59Z',
 		// Get edits marked with a nowiki tag filter
 		rctag: obj.nowiki,
 		rclimit: 500,
@@ -119,5 +113,5 @@ wikis.forEach(function(obj) {
 		apiURI: 'http://' + domain + '/w/api.php',
 		opts: opts,
 	};
-	fetchAll(fetchArgs, []);
-});
+	return fetchAll(fetchArgs, []);
+})).done();
