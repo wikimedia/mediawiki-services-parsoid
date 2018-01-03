@@ -4,16 +4,14 @@
 
 require('../core-upgrade.js');
 
-var fs = require('fs');
+var fs = require('pn/fs');
 var path = require('path');
 var yargs = require('yargs');
-var childProcess = require('child_process');
+var childProcess = require('pn/child_process');
 
 var Promise = require('../lib/utils/promise.js');
 var serviceWrapper = require('../tests/serviceWrapper.js');
 var rtTest = require('../bin/roundtrip-test.js');
-
-var readFile = Promise.promisify(fs.readFile, false, fs);
 
 var usage = 'Usage: $0 -f <file> -o <sha> -c <sha>';
 var opts = yargs.usage(usage, {
@@ -46,7 +44,7 @@ var opts = yargs.usage(usage, {
 	// FIXME: Add an option for the regression url.
 });
 
-(function() {
+Promise.async(function *() {
 	var argv = opts.argv;
 
 	if (argv.help) {
@@ -60,31 +58,27 @@ var opts = yargs.usage(usage, {
 		return;
 	}
 
-	var checkout = Promise.method(function(commit) {
+	var checkout = Promise.async(function *(commit) {
 		console.log('Checking out: ' + commit);
-		return Promise.promisify(
-			childProcess.execFile, ['stdout', 'stderr'], childProcess
-		)('git', ['checkout', commit], {
+		yield childProcess.execFile('git', ['checkout', commit], {
 			cwd: path.join(__dirname, '..'),
-		});
+		}).promise;
 	});
 
 	var titles;
-	var run = Promise.method(function(handleResult) {
-		return serviceWrapper.runServices({ skipMock: true }).then(function(ret) {
-			// Do this serially for now.
-			return Promise.reduce(titles, function(_, t) {
-				return rtTest.runTests(t.title, {
-					prefix: t.prefix,
-					parsoidURL: ret.parsoidURL,
-					contentVersion: argv.contentVersion,
-				}, rtTest.jsonFormat).then(
-					handleResult.bind(null, t)
-				);
-			}, null).then(function() {
-				return ret.runner.stop();
-			});
-		});
+	var run = Promise.async(function *(handleResult) {
+		var ret = yield serviceWrapper.runServices({ skipMock: true });
+		// Do this serially for now.
+		yield Promise.reduce(titles, function(_, t) {
+			return rtTest.runTests(t.title, {
+				prefix: t.prefix,
+				parsoidURL: ret.parsoidURL,
+				contentVersion: argv.contentVersion,
+			}, rtTest.jsonFormat).then(
+				handleResult.bind(null, t)
+			);
+		}, null);
+		yield ret.runner.stop();
 	});
 
 	var summary = [];
@@ -101,31 +95,25 @@ var opts = yargs.usage(usage, {
 		}
 	};
 
-	readFile(argv.f, 'utf8').then(function(data) {
-		titles = data.trim().split('\n').map(function(l) {
-			var ind = l.indexOf(':');
-			return {
-				prefix: l.substr(0, ind),
-				title: l.substr(ind + 1).replace(/ \|.*$/, ''),
-			};
-		});
-		return checkout(argv.o);
-	}).then(function() {
-		return run(function(t, ret) {
-			if (ret.output.error) { throw ret.output.error; }
-			t.oresults = ret.output.results;
-		});
-	}).then(function() {
-		return checkout(argv.c);
-	}).then(function() {
-		return run(function(t, ret) {
-			if (ret.output.error) { throw ret.output.error; }
-			compareResult(t, ret.output.results);
-		});
-	}).then(function() {
-		console.log('----------------------------');
-		console.log('Pages needing investigation:');
-		console.log(summary);
-		process.exit(0);
-	}).done();
-}());
+	var data = yield fs.readFile(argv.f, 'utf8');
+	titles = data.trim().split('\n').map(function(l) {
+		var ind = l.indexOf(':');
+		return {
+			prefix: l.substr(0, ind),
+			title: l.substr(ind + 1).replace(/ \|.*$/, ''),
+		};
+	});
+	yield checkout(argv.o);
+	yield run(function(t, ret) {
+		if (ret.output.error) { throw ret.output.error; }
+		t.oresults = ret.output.results;
+	});
+	yield checkout(argv.c);
+	yield run(function(t, ret) {
+		if (ret.output.error) { throw ret.output.error; }
+		compareResult(t, ret.output.results);
+	});
+	console.log('----------------------------');
+	console.log('Pages needing investigation:');
+	console.log(summary);
+})().done();
