@@ -2149,6 +2149,31 @@ No paragraph necessary for SOL transparent template
 <link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]]"}},"i":0}}]}'/>
 !! end
 
+!! test
+Avoid expanding multiline sol transparent template ranges unnecessarily
+!! wikitext
+hi
+
+
+{{echo|<br/>
+}}
+
+[[Category:Ho]]
+!! html/php
+<p>hi
+</p><p><br />
+<br />
+</p>
+!! html/parsoid
+<p>hi</p>
+
+<p><br />
+<br about="#mwt1" typeof="mw:Transclusion" data-parsoid='{}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;br/>\n"}},"i":0}}]}'/><span about="#mwt1">
+</span></p>
+
+<link rel="mw:PageProp/Category" href="./Category:Ho" />
+!! end
+
 ###
 ### Preformatted text
 ###
