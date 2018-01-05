@@ -25,7 +25,6 @@
 		"lib/wt2html/tt/TokenHandler.js",
 		"lib/html2wt/WikitextSerializer.js",
 		"lib/html2wt/ConstrainedText.js",
-		"lib/html2wt/SerializerState.js",
-		"lib/api/ParsoidService.js"
+		"lib/html2wt/SerializerState.js"
 	]
 }

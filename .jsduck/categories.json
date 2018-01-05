@@ -3,12 +3,6 @@
 		"name": "Parsoid External APIs",
 		"groups": [
 			{
-				"name": "Server Interface",
-				"classes": [
-					"ParsoidService"
-				]
-			},
-			{
 				"name": "JavaScript Interface (experimental)",
 				"classes": [
 					"Parsoid"
