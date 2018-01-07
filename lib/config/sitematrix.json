@@ -7027,7 +7027,7 @@
 					"url": "https://wa.wiktionary.org",
 					"dbname": "wawiktionary",
 					"code": "wiktionary",
-					"sitename": "Wiktionary"
+					"sitename": "Wiccionaire"
 				},
 				{
 					"url": "https://wa.wikibooks.org",
@@ -7911,7 +7911,8 @@
 				"dbname": "transitionteamwiki",
 				"code": "transitionteam",
 				"sitename": "Transition Team Wiki",
-				"private": ""
+				"private": "",
+				"closed": ""
 			},
 			{
 				"url": "https://ua.wikimedia.org",
@@ -8041,7 +8042,8 @@
 				"url": "https://wikimania2017.wikimedia.org",
 				"dbname": "wikimania2017wiki",
 				"code": "wikimania2017",
-				"sitename": "Wikipedia"
+				"sitename": "Wikipedia",
+				"closed": ""
 			},
 			{
 				"url": "https://wikimania2018.wikimedia.org",
