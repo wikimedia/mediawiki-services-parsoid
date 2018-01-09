@@ -17386,6 +17386,15 @@ parsoid=wt2html,html2html
 <div id="title=" data-parsoid='{"stx":"html"}'>HTML rocks</div>
 !! end
 
+## QUESTION: Should this have ExpandedAttrs?
+!! test
+Extension tag in attribute value
+!! wikitext
+<span title="<translate>123</translate>">ok</span>
+!! html/parsoid
+<p><span title="123" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;translate>123&lt;/translate>"}}'>ok</span></p>
+!! end
+
 !! test
 table with multiple empty attribute values
 !! options

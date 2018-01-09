@@ -436,10 +436,15 @@ var parse = function(text, onlypst) {
 		return { text: text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1") };
 	}
 	// Render to html the contents of known extension tags
-	if (/<(indicator|section)/.test(text)) {
-		return { text: '\n' };
-	} else {
-		throw new Error("Unhandled extension type encountered in: " + text);
+	var match = text.match(/<([A-Za-z][^\t\n\v />\0]*)/);
+	switch ((match && match[1]) || '') {
+		case 'translate':
+			return { text: text };
+		case 'indicator':
+		case 'section':
+			return { text: '\n' };
+		default:
+			throw new Error("Unhandled extension type encountered in: " + text);
 	}
 };
 
