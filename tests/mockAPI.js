@@ -431,8 +431,16 @@ var querySiteinfo = function(body, cb) {
 };
 
 var parse = function(text, onlypst) {
-	var html = onlypst ? text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1") : '\n';
-	return { text: html };
+	// We're performing a subst
+	if (onlypst) {
+		return { text: text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1") };
+	}
+	// Render to html the contents of known extension tags
+	if (/<(indicator|section)/.test(text)) {
+		return { text: '\n' };
+	} else {
+		throw new Error("Unhandled extension type encountered in: " + text);
+	}
 };
 
 var missingTitles = new Set([
