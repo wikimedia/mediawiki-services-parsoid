@@ -746,6 +746,7 @@ if (require.main === module) {
 		}
 		var title = String(argv._[0]);
 
+		var ret = null;
 		if (!argv.parsoidURL) {
 			// Start our own Parsoid server
 			var serviceWrapper = require('../tests/serviceWrapper.js');
@@ -758,13 +759,16 @@ if (require.main === module) {
 			} else {
 				serverOpts.skipMock = true;
 			}
-			var ret = yield serviceWrapper.runServices(serverOpts);
+			ret = yield serviceWrapper.runServices(serverOpts);
 			argv.parsoidURL = ret.parsoidURL;
 		}
 		var formatter = Util.booleanOption(argv.xml) ?
 			xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
 		console.log(r.output);
+		if (ret !== null) {
+			yield ret.runner.stop();
+		}
 		if (argv.check) {
 			process.exit(r.exitCode);
 		}
