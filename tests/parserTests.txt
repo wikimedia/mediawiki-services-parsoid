@@ -25350,6 +25350,16 @@ a
 
 !! end
 
+!! test
+Headings: Used as horizontal rule
+!! options
+parsoid=wt2html
+!! wikitext
+===============
+!! html/parsoid
+<h6 id="==="><span id=".3D.3D.3D" typeof="mw:FallbackId"></span>===</h6>
+!! end
+
 #### --------------- Lists ---------------
 #### 0. Outside nests (*foo, etc.)
 #### 1. Nested inside html <ul><li>*foo</li></ul>
