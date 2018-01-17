@@ -1063,6 +1063,9 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 	});
 	this.env = env;
 
+	// A hint to enable some slow paths only while testing
+	env.immutable = true;
+
 	// Save default logger so we can be reset it after temporarily
 	// switching to the suppressLogger to suppress expected error
 	// messages.
