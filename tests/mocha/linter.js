@@ -945,5 +945,11 @@ describe('Linter Tests', function() {
 				result[1].templateInfo.should.have.a.property("name", "Template:1x");
 			});
 		});
+		it('should not get into a cycle trying to lint ref in ref', function() {
+			return parseWT("{{#tag:ref|<ref name='y' />|name='x'}}{{#tag:ref|<ref name='x' />|name='y'}}<ref name='x' />")
+			.then(function() {
+				return parseWT("{{#tag:ref|<ref name='x' />|name=x}}");
+			});
+		});
 	});
 });
