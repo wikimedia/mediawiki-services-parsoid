@@ -2723,6 +2723,17 @@ parsoid=wt2html
 !! end
 
 !! test
+Self-closed pre
+!! wikitext
+<pre />
+!! html/php
+<pre></pre>
+
+!! html/parsoid
+<pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{},"body":null}'></pre>
+!! end
+
+!! test
 Parsoid: Don't paragraph-wrap fosterable content even if table syntax is unbalanced
 !! options
 parsoid=wt2html
