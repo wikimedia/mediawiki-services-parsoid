@@ -5888,12 +5888,12 @@ Non-extlinks in brackets
 [foo <i>bar</i>]
 [fool's] errand
 [fool's errand]
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span>]
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span> bar]
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}"}'>foo</span> <i>bar</i>]
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}l&#39;s"}'>fool's</span>] errand
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"{{echo|foo}}l&#39;s"}'>fool's</span> errand]
-[<span typeof="mw:Placeholder" data-parsoid='{"src":"url={{echo|foo}}"}'>url=foo</span>]
+[<span about="#mwt19" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>]
+[<span about="#mwt20" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span> bar]
+[<span about="#mwt21" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span> <i>bar</i>]
+[<span about="#mwt22" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>l's] errand
+[<span about="#mwt23" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>l's errand]
+[url=<span about="#mwt24" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>]
 [url=<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>]
 [http:// bare protocols don't count]</p>
 !! end
@@ -17397,13 +17397,12 @@ parsoid=wt2html,html2html
 <div id="title=" data-parsoid='{"stx":"html"}'>HTML rocks</div>
 !! end
 
-## QUESTION: Should this have ExpandedAttrs?
 !! test
 Extension tag in attribute value
 !! wikitext
 <span title="<translate>123</translate>">ok</span>
 !! html/parsoid
-<p><span title="123" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;translate>123&lt;/translate>"}}'>ok</span></p>
+<p><span title="123" about="#mwt4" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;translate>123&lt;/translate>"}}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;translate typeof=\"mw:Extension/translate\" about=\"#mwt3\" data-parsoid=&apos;{\"dsr\":[13,39,2,2]}&apos; data-mw=&apos;{\"name\":\"translate\",\"attrs\":{},\"body\":{\"extsrc\":\"123\"}}&apos;>123&lt;/translate>"}]]}'>ok</span></p>
 !! end
 
 !! test
