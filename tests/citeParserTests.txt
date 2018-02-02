@@ -1169,10 +1169,6 @@ X{{echo|<ref>foo {{echo|<b>bar</b>}} and {{echo|baz}} boo</ref>}}
 </ol>
 !! end
 
-# This test only works in wt2html now as the <references /> are always generated
-# unless selser is active. Once T72722 is fixed, we should add a changes test
-# here to ensure that unrelated changes don't add the new <references />
-# when selser is active.
 !! test
 References: 9. Generate missing references list at the end
 !! wikitext
@@ -1189,12 +1185,29 @@ B <ref group="inexistent">bar</ref>
 !! end
 
 !! test
-References: 10. New <references/> shouldn't be added for unrelated edits.
+References: 10.1. New <references/> shouldn't be added for unrelated edits.
 !! options
 parsoid={
   "modes": ["selser"],
   "changes": [["#x", "remove"]],
   "selser": "noauto"
+}
+!! wikitext
+Unrelated text<span id="x"> that's going to disappear</span>.
+A <ref>foo</ref>
+!! wikitext/edited
+Unrelated text.
+A <ref>foo</ref>
+!! end
+
+!! test
+References: 10.2. New <references/> shouldn't be added for unrelated edits.
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [["#x", "remove"]],
+  "selser": "noauto",
+  "responsiveReferences": { "enabled": true, "threshold": 2 }
 }
 !! wikitext
 Unrelated text<span id="x"> that's going to disappear</span>.
