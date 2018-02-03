@@ -10,7 +10,6 @@
 require('../core-upgrade.js');
 
 var serviceWrapper = require('../tests/serviceWrapper.js');
-var async = require('async');
 var fs = require('pn/fs');
 var path = require('path');
 var Alea = require('alea');
@@ -172,33 +171,32 @@ ParserTests.prototype.parseTestCase = function(content) {
  * @param {string} mode
  * @param {Object} item
  * @param {Node} body
- * @param {Function} processWikitextCB
- * @param {Error|null} processWikitextCB.err
- * @param {string|null} processWikitextCB.res
+ * @return {Promise} a promise which will resolve to the wikitext
  */
-ParserTests.prototype.convertHtml2Wt = function(options, mode, item, body, processWikitextCB) {
-	var self = this;
-	return Promise.try(function() {
+ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, item, body) {
+	try {
 		var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
-			self.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
+			this.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
-			self.env.setPageSrcInfo(item.wikitext);
+			this.env.setPageSrcInfo(item.wikitext);
 		} else if (Util.booleanOption(options.use_source) && startsAtWikitext) {
-			self.env.setPageSrcInfo(item.wikitext);
+			this.env.setPageSrcInfo(item.wikitext);
 		} else {
-			self.env.setPageSrcInfo(null);
+			this.env.setPageSrcInfo(null);
 		}
-		var handler = self.env.getContentHandler();
-		return handler.fromHTML(self.env, body, (mode === 'selser'));
-	}).finally(function() {
-		self.env.setPageSrcInfo(null);
-		self.env.page.dom = null;
-	}).nodify(processWikitextCB);
-};
+		var handler = this.env.getContentHandler();
+		// yield and then return so our finally gets a chance to catch any
+		// exceptions thrown.
+		return (yield handler.fromHTML(this.env, body, (mode === 'selser')));
+	} finally {
+		this.env.setPageSrcInfo(null);
+		this.env.page.dom = null;
+	}
+});
 
 /**
  * @method
@@ -235,18 +233,16 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @param {Object} item
  * @param {Node} body
  * @param {Array} changelist
- * @param {Function} cb
- * @param {Error} cb.err
- * @param {Node} cb.body
+ * @return {Node} the altered body
  */
-ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
+ParserTests.prototype.applyChanges = function(item, body, changelist) {
 	var self = this;
 
 	// Seed the random-number generator based on the item title
 	var random = new Alea((item.seed || '') + (item.title || ''));
 
 	// Keep the changes in the item object
-	// to check for duplicates after the waterfall
+	// to check for duplicates while building tasks
 	item.changes = changelist;
 
 	// Helper function for getting a random string
@@ -389,9 +385,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
 		DU.dumpDOM(body, 'Edited DOM');
 	}
 
-	if (cb) {
-		cb(null, body);
-	}
+	return body;
 };
 
 /**
@@ -402,12 +396,11 @@ ParserTests.prototype.applyChanges = function(item, body, changelist, cb) {
  * @param {Object} options
  * @param {Object} item
  * @param {Node} body
- * @param {Function} cb
- * @param {Error|null} cb.err
- * @param {Node} cb.body
- * @param {Array} cb.changelist
+ * @return {Object} the body and change tree
+ * @return {Node} [return.body] The altered body
+ * @return {Array} [return.changeTree] The list of changes
  */
-ParserTests.prototype.generateChanges = function(options, item, body, cb) {
+ParserTests.prototype.generateChanges = function(options, item, body) {
 	var self = this;
 	var random = new Alea((item.seed || '') + (item.title || ''));
 
@@ -526,10 +519,20 @@ ParserTests.prototype.generateChanges = function(options, item, body, cb) {
 		item.duplicateChange = true;
 	}
 
-	cb(null, body, changeTree);
+	return { body: body, changeTree: changeTree };
 };
 
-ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
+/**
+ * @method
+ *
+ * Apply manually-specified changes, which are provided in a pseudo-jQuery
+ * format.
+ *
+ * @param {Node} body
+ * @param {Array} changes
+ * @return {Node} the changed body
+ */
+ParserTests.prototype.applyManualChanges = function(body, changes) {
 	var err = null;
 	// changes are specified using jquery methods.
 	//  [x,y,z...] becomes $(x)[y](z....)
@@ -642,38 +645,39 @@ ParserTests.prototype.applyManualChanges = function(body, changes, cb) {
 			fun.apply(el, change.slice(2));
 		});
 	});
-	if (err) { console.log(err.toString().red); }
-	cb(err, body);
+	if (err) {
+		console.log(err.toString().red);
+		throw err;
+	}
+	return body;
 };
 
 /**
  * @method
+ *
+ * Convert a wikitext string to an HTML Node.
+ *
  * @param {string} mode
  * @param {string} wikitext
- * @param {Function} processHtmlCB
- * @param {Error|null} processHtmlCB.err
- * @param {Node|null} processHtmlCB.body
+ * @return {Promise} a promise returning the body Node.
  */
-ParserTests.prototype.convertWt2Html = function(mode, wikitext, processHtmlCB) {
+ParserTests.prototype.convertWt2Html = Promise.async(function *(mode, wikitext) {
 	var env = this.env;
 	env.setPageSrcInfo(wikitext);
-	env.getContentHandler().toHTML(env)
-	.then(function(doc) {
-		return doc.body;
-	})
-	.nodify(processHtmlCB);
-};
+	var doc = yield env.getContentHandler().toHTML(env);
+	return doc.body;
+});
 
 /**
  * @method
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
- * @param {Function} endCb
+ * @return {Promise} a promise that is fulfilled when the test is complete
  */
-ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
+ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode) {
 	if (!('title' in item)) {
-		return endCb(new Error('Missing title from test case.'));
+		throw new Error('Missing title from test case.');
 	}
 
 	item.time = {};
@@ -728,13 +732,6 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 			{ enabled: false, threshold: 10 };
 	}
 
-	// Build a list of tasks for this test that will be passed to async.waterfall
-	var finishHandler = function(err) {
-		setImmediate(endCb, err);
-	};
-
-	var testTasks = [];
-
 	// Some useful booleans
 	var startsAtHtml = mode === 'html2html' || mode === 'html2wt';
 	var endsAtWikitext = mode === 'wt2wt' || mode === 'selser' || mode === 'html2wt';
@@ -743,45 +740,42 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	var parsoidOnly =
 		('html/parsoid' in item) ||
 		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
+	item.time.start = Date.now();
+	var body, wt;
 
 	// Source preparation
 	if (startsAtHtml) {
-		testTasks.push(function(cb) {
-			var html = item.html;
-			if (!parsoidOnly) {
-				// Strip some php output that has no wikitext representation
-				// (like .mw-editsection) and won't html2html roundtrip and
-				// therefore causes false failures.
-				html = DU.normalizePhpOutput(html);
-			}
-			cb(null, DU.parseHTML(html).body);
-		});
-		testTasks.push(this.convertHtml2Wt.bind(this, options, mode, item));
+		var html = item.html;
+		if (!parsoidOnly) {
+			// Strip some php output that has no wikitext representation
+			// (like .mw-editsection) and won't html2html roundtrip and
+			// therefore causes false failures.
+			html = DU.normalizePhpOutput(html);
+		}
+		body = DU.parseHTML(html).body;
+		wt = yield this.convertHtml2Wt(options, mode, item, body);
 	} else {  // startsAtWikitext
 		// Always serialize DOM to string and reparse before passing to wt2wt
 		if (item.cachedBODYstr === null) {
-			testTasks.push(this.convertWt2Html.bind(this, mode, item.wikitext));
+			body = yield this.convertWt2Html(mode, item.wikitext);
 			// Caching stage 1 - save the result of the first two stages
 			// so we can maybe skip them later
-			testTasks.push(function(body, cb) {
-				// Cache parsed HTML
-				item.cachedBODYstr = DU.toXML(body);
 
-				// - In wt2html mode, pass through original DOM
-				//   so that it is serialized just once.
-				// - In wt2wt and selser modes, pass through serialized and
-				//   reparsed DOM so that fostering/normalization effects
-				//   are reproduced.
-				if (mode === "wt2html") {
-					cb(null, body);
-				} else {
-					cb(null, DU.parseHTML(item.cachedBODYstr).body);
-				}
-			});
+			// Cache parsed HTML
+			item.cachedBODYstr = DU.toXML(body);
+
+			// - In wt2html mode, pass through original DOM
+			//   so that it is serialized just once.
+			// - In wt2wt and selser modes, pass through serialized and
+			//   reparsed DOM so that fostering/normalization effects
+			//   are reproduced.
+			if (mode === "wt2html") {
+				// body = body; // no-op
+			} else {
+				body = DU.parseHTML(item.cachedBODYstr).body;
+			}
 		} else {
-			testTasks.push(function(cb) {
-				cb(null, DU.parseHTML(item.cachedBODYstr).body);
-			});
+			body = DU.parseHTML(item.cachedBODYstr).body;
 		}
 	}
 
@@ -789,124 +783,103 @@ ParserTests.prototype.prepareTest = function(item, options, mode, endCb) {
 	if (mode === 'selser') {
 		if ((options.selser === 'noauto' || item.changetree === 'manual') &&
 			item.options.parsoid && item.options.parsoid.changes) {
-			testTasks.push(function(body, cb) {
-				// Ensure that we have this set here in case it hasn't been
-				// set in buildTasks because the 'selser=noauto' option was passed.
-				item.changetree = 'manual';
-				this.applyManualChanges(body, item.options.parsoid.changes, cb);
-			}.bind(this));
+			// Ensure that we have this set here in case it hasn't been
+			// set in buildTasks because the 'selser=noauto' option was passed.
+			item.changetree = 'manual';
+			body = this.applyManualChanges(body, item.options.parsoid.changes);
 		} else {
-			var changetree = options.changetree ? JSON.parse(options.changetree) : item.changetree;
-			if (changetree) {
-				testTasks.push(function(content, cb) {
-					cb(null, content, changetree);
-				});
+			var changeTree = options.changetree ? JSON.parse(options.changetree) : item.changetree;
+			var r;
+			if (changeTree) {
+				r = { body: body, changeTree: changeTree };
 			} else {
-				testTasks.push(this.generateChanges.bind(this, options, item));
+				r = this.generateChanges(options, item, body);
 			}
-			testTasks.push(this.applyChanges.bind(this, item));
+			body = this.applyChanges(item, r.body, r.changeTree);
 		}
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
-		testTasks.push(function(body, cb) {
-			item.changedHTMLStr = DU.toXML(body);
-			cb(null, DU.parseHTML(item.changedHTMLStr).body);
-		});
+		item.changedHTMLStr = DU.toXML(body);
+		body = DU.parseHTML(item.changedHTMLStr).body;
 	} else if (mode === 'wt2wt') {
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
-			testTasks.push(function(body, cb) {
-				this.applyManualChanges(body, item.options.parsoid.changes, cb);
-			}.bind(this));
+			body = this.applyManualChanges(body, item.options.parsoid.changes);
 		}
 	}
 
 	// Roundtrip stage
 	if (mode === 'wt2wt' || mode === 'selser') {
-		testTasks.push(this.convertHtml2Wt.bind(this, options, mode, item));
+		wt = yield this.convertHtml2Wt(options, mode, item, body);
 	} else if (mode === 'html2html') {
-		testTasks.push(this.convertWt2Html.bind(this, mode));
+		body = yield this.convertWt2Html(mode, wt);
 	}
 
 	// Processing stage
 	if (endsAtWikitext) {
-		testTasks.push(this.processSerializedWT.bind(this, item, options, mode));
+		yield this.processSerializedWT(item, options, mode, wt);
 	} else if (endsAtHtml) {
-		testTasks.push(this.processParsedHTML.bind(this, item, options, mode));
+		this.processParsedHTML(item, options, mode, body);
 	}
-
-	item.time.start = Date.now();
-	async.waterfall(testTasks, finishHandler);
-};
+});
 
 /**
  * @method
+ *
+ * Check the given HTML result against the expected result, and throw an
+ * exception if necessary.
+ *
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
  * @param {Node} body
- * @param {Function} cb
  */
-ParserTests.prototype.processParsedHTML = function(item, options, mode, body, cb) {
+ParserTests.prototype.processParsedHTML = function(item, options, mode, body) {
 	item.time.end = Date.now();
 	// Check the result vs. the expected result.
 	var checkPassed = this.checkHTML(item, body, options, mode);
 
-	// Now schedule the next test, if any
-	// Only pass an error if --exit-unexpected was set and there was an error
-	// Otherwise, pass undefined so that async.waterfall continues
-	var err = (options['exit-unexpected'] && !checkPassed) ?
-			exitUnexpected : null;
-	setImmediate(cb, err);
+	// Only throw an error if --exit-unexpected was set and there was an error
+	// Otherwise, continue running tests
+	if (options['exit-unexpected'] && !checkPassed) {
+		throw exitUnexpected;
+	}
 };
 
 /**
  * @method
+ *
+ * Check the given wikitext result against the expected result, and throw an
+ * exception if necessary.
+ *
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
  * @param {string} wikitext
- * @param {Function} cb
+ * @return {Promise} a promise that will be fulfilled when the result
+ *   has been checked.
  */
-ParserTests.prototype.processSerializedWT = function(item, options, mode, wikitext, cb) {
+ParserTests.prototype.processSerializedWT = Promise.async(function *(item, options, mode, wikitext) {
 	item.time.end = Date.now();
-
-	var self = this;
-	var checkAndReturn = function() {
-		// Check the result vs. the expected result.
-		var checkPassed = self.checkWikitext(item, wikitext, options, mode);
-
-		// Now schedule the next test, if any.
-		// Only pass an error if --exit-unexpected was set and there was an
-		// error. Otherwise, pass undefined so that async.waterfall continues
-		var err = (options['exit-unexpected'] && !checkPassed) ?
-				exitUnexpected : null;
-		setImmediate(cb, err);
-	};
 
 	if (mode === 'selser' && options.selser !== 'noauto') {
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
 			var body = DU.parseHTML(item.changedHTMLStr).body;
-			this.convertHtml2Wt(options, 'wt2wt', item, body, function(err, wt) {
-				if (err === null) {
-					item.resultWT = wt;
-				} else {
-					// FIXME: what's going on here? Error handling here is suspect.
-					self.env.log('warn', 'Convert html2wt erred!');
-					item.resultWT = item.wikitext;
-				}
-				return checkAndReturn();
-			});
-			// Async processing
-			return;
+			item.resultWT = yield this.convertHtml2Wt(options, 'wt2wt', item, body);
 		}
 	}
 
-	// Sync processing
-	return checkAndReturn();
-};
+	// Check the result vs. the expected result.
+	var checkPassed = this.checkWikitext(item, wikitext, options, mode);
+
+	// Only throw an error if --exit-unexpected was set and there was an error
+	// Otherwise, continue running tests
+	if (options['exit-unexpected'] && !checkPassed) {
+		throw exitUnexpected;
+	}
+});
 
 /**
  * @param {Object} item
@@ -974,7 +947,9 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 
 /**
  * @method
- * @param {Object} options
+ * @param {Object} [options]
+ * @param {String} [mockAPIServerURL]
+ * @return {Promise}
  */
 ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL) {
 	this.runDisabled = Util.booleanOption(options['run-disabled']);
@@ -1111,10 +1086,9 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
  *   current chain of methods that sometimes do something for selser
  *
  * @method
+ * @return {Promise}
  */
-ParserTests.prototype.buildTasks = function(item, targetModes, options) {
-	var tasks = [];
-	var self = this;
+ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, options) {
 	for (var i = 0; i < targetModes.length; i++) {
 		if (targetModes[i] === 'selser' && options.numchanges &&
 			options.selser !== 'noauto' && !options.changetree) {
@@ -1123,27 +1097,25 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 			// Prepend manual changes, if present, but not if 'selser' isn't
 			// in the explicit modes option.
 			if (item.options.parsoid && item.options.parsoid.changes) {
-				tasks.push(function(cb) {
-					newitem = Util.clone(item);
-					// Mutating the item here is necessary to output 'manual' in
-					// the test's title and to differentiate it for blacklist.
-					// It can only get here in two cases:
-					// * When there's no changetree specified in the command line,
-					//   buildTasks creates the items by cloning the original one,
-					//   so there should be no problem setting it.
-					//   In fact, it will override the existing 'manual' value
-					//   (lines 1765 and 1767).
-					// * When a changetree is specified in the command line and
-					//   it's 'manual', there shouldn't be a problem setting the
-					//   value here as no other items will be processed.
-					// Still, protect against changing a different copy of the item.
-					console.assert(newitem.changetree === 'manual' ||
-						newitem.changetree === undefined);
-					newitem.changetree = 'manual';
-					self.prepareTest(newitem, options, 'selser', function(err) {
-						setImmediate(cb, err);
-					});
-				});
+				newitem = Util.clone(item);
+				// Mutating the item here is necessary to output 'manual' in
+				// the test's title and to differentiate it for blacklist.
+				// It can only get here in two cases:
+				// * When there's no changetree specified in the command line,
+				//   buildTasks creates the items by cloning the original one,
+				//   so there should be no problem setting it.
+				//   In fact, it will override the existing 'manual' value
+				//   (lines 1765 and 1767).
+				// * When a changetree is specified in the command line and
+				//   it's 'manual', there shouldn't be a problem setting the
+				//   value here as no other items will be processed.
+				// Still, protect against changing a different copy of the item.
+				console.assert(
+					newitem.changetree === 'manual' ||
+					newitem.changetree === undefined
+				);
+				newitem.changetree = 'manual';
+				yield this.prepareTest(newitem, options, 'selser');
 			}
 			// And if that's all we want, next one.
 			if (item.options.parsoid && item.options.parsoid.selser === 'noauto') {
@@ -1153,38 +1125,25 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 			item.selserChangeTrees = new Array(options.numchanges);
 
 			// Prepend a selser test that appends a comment to the root node
-			tasks.push(function(cb) {
-				newitem = Util.clone(item);
-				newitem.changetree = 5;
-				self.prepareTest(newitem, options, 'selser', function(err) {
-					setImmediate(cb, err);
-				});
-			});
+			newitem = Util.clone(item);
+			newitem.changetree = 5;
+			yield this.prepareTest(newitem, options, 'selser');
 
-			var done = false;
 			for (var j = 0; j < item.selserChangeTrees.length; j++) {
-				// we create the function in the loop but are careful to
-				// bind loop variables i and j at function creation time
-				tasks.push(function(modeIndex, changesIndex, cb) {
-					if (done) {
-						setImmediate(cb);
-					} else {
-						newitem = Util.clone(item);
-						// Make sure we aren't reusing the one from manual changes
-						console.assert(newitem.changetree === undefined);
-						newitem.seed = changesIndex + '';
-						this.prepareTest(newitem, options, targetModes[modeIndex], function(err) {
-							if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
-								// Once we get a duplicate change tree, we can no longer
-								// generate and run new tests.  So, be done now!
-								done = true;
-							} else {
-								item.selserChangeTrees[changesIndex] = newitem.changes;
-							}
-							setImmediate(cb, err);
-						}.bind(this));
-					}
-				}.bind(this, i, j));
+				var modeIndex = i;
+				var changesIndex = j;
+				newitem = Util.clone(item);
+				// Make sure we aren't reusing the one from manual changes
+				console.assert(newitem.changetree === undefined);
+				newitem.seed = changesIndex + '';
+				yield this.prepareTest(newitem, options, targetModes[modeIndex]);
+				if (this.isDuplicateChangeTree(item.selserChangeTrees, newitem.changes)) {
+					// Once we get a duplicate change tree, we can no longer
+					// generate and run new tests.  So, be done now!
+					break;
+				} else {
+					item.selserChangeTrees[changesIndex] = newitem.changes;
+				}
 			}
 		} else {
 			if (targetModes[i] === 'selser' && options.selser === 'noauto') {
@@ -1193,42 +1152,45 @@ ParserTests.prototype.buildTasks = function(item, targetModes, options) {
 				if (item.options.parsoid && item.options.parsoid.changes) {
 					// If it does, we need to clone the item so that previous
 					// results don't clobber this one.
-					tasks.push(this.prepareTest.bind(this, Util.clone(item), options, targetModes[i]));
+					yield this.prepareTest(Util.clone(item), options, targetModes[i]);
 				} else {
 					// If it doesn't have manual changes, just skip it.
 					continue;
 				}
 			} else {
 				// A non-selser task, we can reuse the item.
-				tasks.push(this.prepareTest.bind(this, item, options, targetModes[i]));
+				yield this.prepareTest(item, options, targetModes[i]);
 			}
 		}
 	}
-	return tasks;
-};
+});
 
 /**
  * @method
+ * @return {Promise}
  */
 ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyExit) {
 	if (i < this.cases.length && !earlyExit) {
-		var self = this;
-		var ee = yield new Promise(function(resolve, reject) {
-			var item = self.cases[i];
-			self.processItem(item, options, function(err) {
-				// There are two types of errors that reach here.  The first is just
-				// a notification that a test failed.  We use the error propagation
-				// mechanism to get back to this point to print the summary.  The
-				// second type is an actual exception that we should hard fail on.
-				// exitUnexpected is a sentinel for the first type.
-				if (err && err !== exitUnexpected) {
-					reject(err);
-				} else {
-					resolve(options['exit-unexpected'] && (err === exitUnexpected));
-				}
-			});
-		});
-		return self.processCase(i + 1, options, ee);
+		var item = this.cases[i];
+		var err = null;
+		try {
+			yield this.processItem(item, options);
+		} catch (e) {
+			err = e;
+		}
+		// There are two types of errors that reach here.  The first is just
+		// a notification that a test failed.  We use the error propagation
+		// mechanism to get back to this point to print the summary.  The
+		// second type is an actual exception that we should hard fail on.
+		// exitUnexpected is a sentinel for the first type.
+		if (err && err !== exitUnexpected) {
+			throw err;
+		} else {
+			earlyExit = options['exit-unexpected'] && (err === exitUnexpected);
+		}
+		// FIXME: now that we're no longer using node-style callbacks,
+		// there's no reason we need to use recursion for this loop.
+		return this.processCase(i + 1, options, earlyExit);
 	} else {
 		// update the blacklist, if requested
 		if (Util.booleanOption(options['rewrite-blacklist'])) {
@@ -1305,10 +1267,10 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 /**
  * @method
  */
-ParserTests.prototype.processItem = function(item, options, nextCallback) {
+ParserTests.prototype.processItem = Promise.async(function *(item, options) { // eslint-disable-line require-yield
 	if (typeof item !== 'object') {
 		// this is a comment line in the file, ignore it.
-		return setImmediate(nextCallback);
+		return;
 	}
 
 	if (!item.options) { item.options = {}; }
@@ -1341,31 +1303,25 @@ ParserTests.prototype.processItem = function(item, options, nextCallback) {
 	switch (item.type) {
 		case 'article':
 			this.comments = [];
-			this.processArticle(item, nextCallback);
-			break;
+			return this.processArticle(item);
 		case 'test':
-			this.processTest(item, options, nextCallback);
-			break;
+			return this.processTest(item, options);
 		case 'comment':
 			this.comments.push(item.comment);
-			setImmediate(nextCallback);
-			break;
+			return;
 		case 'hooks':
 			this.comments = [];
 			this.env.log('warn', 'parserTests: Unhandled extension hook', JSON.stringify(item));
-			setImmediate(nextCallback);
-			break;
+			return;
 		case 'functionhooks':
 			this.comments = [];
 			this.env.log("warn", "parserTests: Unhandled functionhook", JSON.stringify(item));
-			setImmediate(nextCallback);
-			break;
+			return;
 		default:
 			this.comments = [];
-			setImmediate(nextCallback);
-			break;
+			return;
 	}
-};
+});
 
 /**
  * @method
@@ -1375,27 +1331,23 @@ ParserTests.prototype.processItem = function(item, options, nextCallback) {
  * @param {Object} item
  * @param {string} item.title
  * @param {string} item.text
- * @param {Function} cb
  */
-ParserTests.prototype.processArticle = function(item, cb) {
-	var err = null;
+ParserTests.prototype.processArticle = function(item) {
 	var key = this.env.normalizedTitleKey(item.title, false, true);
 	if (this.articles.hasOwnProperty(key)) {
-		err = new Error('Duplicate article: ' + item.title);
+		throw new Error('Duplicate article: ' + item.title);
 	} else {
 		this.articles[key] = item.text;
 	}
-	setImmediate(cb, err);
 };
 
 /**
  * @method
  */
-ParserTests.prototype.processTest = function(item, options, nextCallback) {
+ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	var targetModes = options.modes;
 	if (this.tests.has(item.title)) {
-		return setImmediate(nextCallback,
-			new Error('Duplicate titles: ' + item.title));
+		throw new Error('Duplicate titles: ' + item.title);
 	} else {
 		this.tests.add(item.title);
 	}
@@ -1407,7 +1359,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		// Skip test whose title does not match --filter
 		// or which is disabled or php-only
 		this.comments = [];
-		return setImmediate(nextCallback);
+		return;
 	}
 	// Add comments to following test.
 	item.comments = item.comments || this.comments;
@@ -1430,7 +1382,7 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		});
 	}
 	if (!targetModes.length) {
-		return setImmediate(nextCallback);
+		return;
 	}
 	// Honor language option in parserTests.txt
 	var prefix = item.options.language || 'enwiki';
@@ -1438,74 +1390,69 @@ ParserTests.prototype.processTest = function(item, options, nextCallback) {
 		// Convert to our enwiki.. format
 		prefix += 'wiki';
 	}
-	this.env.switchToConfig(prefix, function(err2) {
-		if (err2) { return nextCallback(err2); }
-		// TODO: set language variant
-		// adjust config to match that used for PHP tests
-		// see core/tests/parser/parserTest.inc:setupGlobals() for
-		// full set of config normalizations done.
-		var wikiConf = this.env.conf.wiki;
-		wikiConf.fakeTimestamp = 123;
-		wikiConf.timezoneOffset = 0; // force utc for parsertests
-		wikiConf.server = 'http://example.org';
-		wikiConf.scriptpath = '/';
-		wikiConf.script = '/index.php';
-		wikiConf.articlePath = '/wiki/$1';
-		wikiConf.interwikiMap.clear();
-		var iwl = PTUtils.iwl;
-		Object.keys(iwl).forEach(function(key) {
-			iwl[key].prefix = key;
-			wikiConf.interwikiMap.set(key, {});
-			Object.keys(iwl[key]).forEach(function(f) {
-				wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
-			});
-		});
-		// Cannot modify namespaces otherwise since baseConfig is deep frozen.
-		wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
-		// Add 'MemoryAlpha' namespace (T53680)
-		PTUtils.addNamespace(wikiConf, {
-			"id": 100,
-			"case": "first-letter",
-			"canonical": "MemoryAlpha",
-			"*": "MemoryAlpha",
-		});
-		// Testing
-		if (wikiConf.iwp === 'enwiki') {
-			PTUtils.addNamespace(wikiConf, {
-				"id": 4,
-				"case": "first-letter",
-				"subpages": "",
-				"canonical": "Project",
-				"*": "Base MW",
-			});
-			PTUtils.addNamespace(wikiConf, {
-				"id": 5,
-				"case": "first-letter",
-				"subpages": "",
-				"canonical": "Project talk",
-				"*": "Base MW talk",
-			});
-		}
-		// Update $wgInterwikiMagic flag
-		// default (undefined) setting is true
-		this.env.conf.wiki.interwikimagic =
-			item.options.wginterwikimagic === undefined ||
-			/^(1|true|)$/.test(item.options.wginterwikimagic);
+	yield this.env.switchToConfig(prefix);
 
-		async.series(this.buildTasks(item, targetModes, options),
-			nextCallback);
-	}.bind(this));
-};
+	// TODO: set language variant
+	// adjust config to match that used for PHP tests
+	// see core/tests/parser/parserTest.inc:setupGlobals() for
+	// full set of config normalizations done.
+	var wikiConf = this.env.conf.wiki;
+	wikiConf.fakeTimestamp = 123;
+	wikiConf.timezoneOffset = 0; // force utc for parsertests
+	wikiConf.server = 'http://example.org';
+	wikiConf.scriptpath = '/';
+	wikiConf.script = '/index.php';
+	wikiConf.articlePath = '/wiki/$1';
+	wikiConf.interwikiMap.clear();
+	var iwl = PTUtils.iwl;
+	Object.keys(iwl).forEach(function(key) {
+		iwl[key].prefix = key;
+		wikiConf.interwikiMap.set(key, {});
+		Object.keys(iwl[key]).forEach(function(f) {
+			wikiConf.interwikiMap.get(key)[f] = iwl[key][f];
+		});
+	});
+	// Cannot modify namespaces otherwise since baseConfig is deep frozen.
+	wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
+	// Add 'MemoryAlpha' namespace (T53680)
+	PTUtils.addNamespace(wikiConf, {
+		"id": 100,
+		"case": "first-letter",
+		"canonical": "MemoryAlpha",
+		"*": "MemoryAlpha",
+	});
+	// Testing
+	if (wikiConf.iwp === 'enwiki') {
+		PTUtils.addNamespace(wikiConf, {
+			"id": 4,
+			"case": "first-letter",
+			"subpages": "",
+			"canonical": "Project",
+			"*": "Base MW",
+		});
+		PTUtils.addNamespace(wikiConf, {
+			"id": 5,
+			"case": "first-letter",
+			"subpages": "",
+			"canonical": "Project talk",
+			"*": "Base MW talk",
+		});
+	}
+	// Update $wgInterwikiMagic flag
+	// default (undefined) setting is true
+	this.env.conf.wiki.interwikimagic =
+		item.options.wginterwikimagic === undefined ||
+		/^(1|true|)$/.test(item.options.wginterwikimagic);
+
+	yield this.buildTasks(item, targetModes, options);
+});
 
 // Start the mock api server and kick off parser tests
-Promise.resolve(null).then(function() {
+Promise.async(function *() {
 	var options = PTUtils.prepareOptions();
-	return serviceWrapper.runServices({ skipParsoid: true })
-	.then(function(ret) {
-		return [ ret.runner, options, ret.mockURL ];
-	});
-})
-.spread(function(runner, options, mockURL) {
+	var ret = yield serviceWrapper.runServices({ skipParsoid: true });
+	var runner = ret.runner;
+	var mockURL = ret.mockURL;
 	var testFilePaths;
 	if (options._[0]) {
 		testFilePaths = [path.resolve(process.cwd(), options._[0])];
@@ -1526,28 +1473,18 @@ Promise.resolve(null).then(function() {
 		loggedErrorCount: 0,
 		failures: 0,
 	};
-	return Promise.reduce(testFilePaths, function(exitCode, testFilePath) {
-		if (exitCode !== 0 && options['exit-unexpected']) { return exitCode; }
+	var exitCode = 0;
+	for (var i = 0; i < testFilePaths.length; i++) {
+		var testFilePath = testFilePaths[i];
 		var ptests = new ParserTests(testFilePath, options.modes);
-		return ptests.main(options, mockURL)
-		.then(function(result) {
-			Object.keys(stats).forEach(function(k) {
-				stats[k] += result.stats[k]; // Sum all stats
-			});
-			return exitCode || result.exitCode;
+		var result = yield ptests.main(options, mockURL);
+		Object.keys(stats).forEach(function(k) {
+			stats[k] += result.stats[k]; // Sum all stats
 		});
-	}, 0)
-	.then(function(exitCode) {
-		return [ runner, exitCode ];
-	})
-	.tap(function() {
-		options.reportSummary([], stats, null, stats.loggedErrorCount, null);
-	});
-})
-.spread(function(runner, exitCode) {
-	return runner.stop()
-	.then(function() {
-		process.exit(exitCode);
-	});
-})
-.done();
+		exitCode = exitCode || result.exitCode;
+		if (exitCode !== 0 && options['exit-unexpected']) { break; }
+	}
+	options.reportSummary([], stats, null, stats.loggedErrorCount, null);
+	yield runner.stop();
+	process.exit(exitCode);
+})().done();
