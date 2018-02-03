@@ -2227,9 +2227,9 @@
       "dev": true
     },
     "prfun": {
-      "version": "2.1.4",
-      "from": "prfun@>=2.1.4 <3.0.0",
-      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.1.4.tgz"
+      "version": "2.1.5",
+      "from": "prfun@2.1.5",
+      "resolved": "https://registry.npmjs.org/prfun/-/prfun-2.1.5.tgz"
     },
     "process-nextick-args": {
       "version": "1.0.7",
