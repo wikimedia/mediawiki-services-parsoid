@@ -935,8 +935,6 @@ add("html2wt", "Paragraphs inside blockquotes/divs (no extra line breaks)", "<bl
 add("html2wt", "Paragraphs inside blockquotes/divs (extra line break on close)", "<blockquote><div>Line one\nLine two\n\n</div></blockquote>\n");
 add("html2wt", "Paragraphs inside blockquotes/divs (extra line break on open and close)", "<blockquote><div>\nLine one\n\nLine two\n\n</div></blockquote>\n");
 add("html2wt", "Free external link invading image caption", "<div class=\"thumb tright\"><div class=\"thumbinner\" style=\"width:182px;\">http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg  <div class=\"thumbcaption\"><div class=\"magnify\">[/wiki/File:Foobar.jpg]</div>hello</div></div></div>\n");
-add("html2wt", "Multibyte character in padleft", "Æ-Hello\n");
-add("html2wt", "Multibyte character in padright", "Hello-Æ\n");
 add("html2wt", "formatdate parser function", "<span class=\"mw-formatted-date\" title=\"2009-03-24\">2009-03-24</span>\n");
 add("html2wt", "formatdate parser function, with default format", "<span class=\"mw-formatted-date\" title=\"2009-03-24\">March 24, 2009</span>\n");
 add("html2wt", "Spacing of numbers in formatted dates", "<span class=\"mw-formatted-date\" title=\"01-15\">January 15</span>\n");
@@ -963,7 +961,6 @@ add("html2wt", "nowiki inside link inside heading (T20295)", "== [[wiki/Foo|xyz]
 add("html2wt", "new support for bdi element (T33817)", "ולדימיר לנין (ברוסית: <bdi lang=\"ru\">Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי.\n");
 add("html2wt", "Ignore pipe between table row attributes", "{|\n| quux\n|- id=\"foo\" style=\"color: red\"\n| bar\n|}\n");
 add("html2wt", "Language parser function", "العربية\n");
-add("html2wt", "Padleft and padright as substr", "abc\nabc\n");
 add("html2wt", "Special parser function", "Special:Random\nSpecial:Badtitle\nSpecial:Foobar\n");
 add("html2wt", "Disable TOC", "Lead\n\n== Section 1 ==\n\n== Section 2 ==\n\n== Section 3 ==\n\n== Section 4 ==\n\n== Section 5 ==\n");
 add("html2wt", "Empty LI and TR nodes should not be stripped from top-level content", "* a\n*\n* b\n\n{|\n|-\n|foo\n|}\n");

@@ -23610,18 +23610,22 @@ language=fa
 Multibyte character in padleft
 !! wikitext
 {{padleft:-Hello|7|Æ}}
-!! html
+!! html/php
 <p>Æ-Hello
 </p>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padleft:-Hello","function":"padleft"},"params":{"1":{"wt":"7"},"2":{"wt":"Æ"}},"i":0}}]}'>Æ-Hello</p>
 !! end
 
 !! test
 Multibyte character in padright
 !! wikitext
 {{padright:Hello-|7|Æ}}
-!! html
+!! html/php
 <p>Hello-Æ
 </p>
+!! html/parsoid
+<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padright:Hello-","function":"padright"},"params":{"1":{"wt":"7"},"2":{"wt":"Æ"}},"i":0}}]}'>Hello-Æ</p>
 !! end
 
 !!test
@@ -24823,14 +24827,45 @@ Language parser function
 !! end
 
 !!test
+Padleft and padright (default 0-padding)
+!! wikitext
+{{padleft:xyz|5}}
+{{padright:xyz|5}}
+!! html/php
+<p>00xyz
+xyz00
+</p>
+!! html/parsoid
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padleft:xyz","function":"padleft"},"params":{"1":{"wt":"5"}},"i":0}}]}'>00xyz</span>
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padright:xyz","function":"padright"},"params":{"1":{"wt":"5"}},"i":0}}]}'>xyz00</span></p>
+!! end
+
+!!test
+Padleft and padright (partial fill)
+!! wikitext
+{{padleft:xyz|6|ab}}
+{{padright:xyz|6|ab}}
+!! html/php
+<p>abaxyz
+xyzaba
+</p>
+!! html/parsoid
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padleft:xyz","function":"padleft"},"params":{"1":{"wt":"6"},"2":{"wt":"ab"}},"i":0}}]}'>abaxyz</span>
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padright:xyz","function":"padright"},"params":{"1":{"wt":"6"},"2":{"wt":"ab"}},"i":0}}]}'>xyzaba</span></p>
+!! end
+
+!!test
 Padleft and padright as substr
 !! wikitext
 {{padleft:|3|abcde}}
 {{padright:|3|abcde}}
-!! html
+!! html/php
 <p>abc
 abc
 </p>
+!! html/parsoid
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padleft:","function":"padleft"},"params":{"1":{"wt":"3"},"2":{"wt":"abcde"}},"i":0}}]}'>abc</span>
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padright:","function":"padright"},"params":{"1":{"wt":"3"},"2":{"wt":"abcde"}},"i":0}}]}'>abc</span></p>
 !! end
 
 !!test
