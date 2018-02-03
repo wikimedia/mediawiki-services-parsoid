@@ -12,9 +12,6 @@
 	"--": [
 		".jsduck/external.js",
 		"lib/index.js",
-		"lib/logger/LogData.js",
-		"lib/logger/Logger.js",
-		"lib/logger/ParsoidLogger.js",
 		"lib/config/ParsoidConfig.js",
 		"lib/config/MWParserEnvironment.js",
 		"lib/config/WikiConfig.js",
