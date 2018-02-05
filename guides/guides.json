@@ -1,0 +1,11 @@
+{
+    "setup": {
+        "title": "Setting up Parsoid"
+    },
+    "devsetup": {
+        "title": "Setting up Parsoid for development"
+    },
+    "apiuse": {
+        "title": "Using Parsoid's API"
+    }
+}

@@ -40,6 +40,7 @@
     "eslint-plugin-jsdoc": "^3.0.2",
     "eslint-plugin-json": "^1.2.0",
     "istanbul": "^0.4.5",
+    "jsdoc": "^3.5.5",
     "mocha": "^2.5.3",
     "nock": "^8.2.1",
     "nsp": "^2.8.1",
@@ -64,7 +65,7 @@
     "cover-parserTests": "istanbul cover bin/parserTests.js --dir ./coverage/parserTests -- --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "coverage": "npm run cover-mocha && npm run cover-parserTests && istanbul report",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-    "doc": "jsduck --config jsduck.json",
+    "doc": "jsdoc -c jsdoc.json",
     "nsp": "nsp check"
   },
   "repository": {
