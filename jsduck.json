@@ -21,8 +21,6 @@
 		"lib/utils/Util.js",
 		"lib/utils/DOMUtils.js",
 		"lib/wt2html/parser.defines.js",
-		"lib/wt2html/TokenTransformManager.js",
-		"lib/wt2html/tt/TokenHandler.js",
 		"lib/html2wt/WikitextSerializer.js",
 		"lib/html2wt/ConstrainedText.js",
 		"lib/html2wt/SerializerState.js"

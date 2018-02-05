@@ -20,14 +20,7 @@
 					"MWParserEnvironment",
 					"ParsoidConfig",
 					"Util",
-					"WikiConfig",
-					"TokenHandler",
-					"TokenAccumulator",
-					"TokenTransformManager",
-					"SyncTokenTransformManager",
-					"AsyncTokenTransformManager",
-					"AttributeTransformManager",
-					"Frame"
+					"WikiConfig"
 				]
 			},
 			{
