@@ -82,6 +82,9 @@ var highPriorityCats = [
 	"tidy-whitespace-bug",
 	"html5-misnesting",
 	"tidy-font-bug",
+	"multiline-html-table-in-list",
+	"multiple-unclosed-formatting-tags",
+	"unclosed-quotes-in-heading",
 ];
 
 var argv = opts.argv;
@@ -149,7 +152,7 @@ highPriorityCats.forEach(function(cat) {
 // If count is below this threshold for all high priority categories,
 // we deem those wikis remex-ready. For now, hard-coded to zero, but
 // could potentially rely on a CLI option.
-var maxCountPerHighPriorityCategory = 0;
+var maxCountPerHighPriorityCategory = 10;
 var remexReadyWikis = [];
 wikis.forEach(function(w) {
 	if (!newResults[w]) {
@@ -172,7 +175,7 @@ wikis.forEach(function(w) {
 
 if (remexReadyWikis.length > 0) {
 	console.log('\n');
-	printer.printSectionHeader('Wikis with zero high-priority errors');
+	printer.printSectionHeader('Wikis with < 10 errors in all high priority categories');
 	printer.printTableHeader(['New', 'Changed?']);
 	for (var i = 0; i < remexReadyWikis.length; i++) {
 		printer.printTableRow([remexReadyWikis[i].name, remexReadyWikis[i].changed]);
