@@ -236,7 +236,6 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @return {Node} the altered body
  */
 ParserTests.prototype.applyChanges = function(item, body, changelist) {
-	var self = this;
 
 	// Seed the random-number generator based on the item title
 	var random = new Alea((item.seed || '') + (item.title || ''));
@@ -306,14 +305,14 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 		n.parentNode.insertBefore(newNode, n);
 	}
 
-	function removeNode(n) {
+	var removeNode = (n) => {
 		n.parentNode.removeChild(n);
-	}
+	};
 
-	function applyChangesInternal(node, changes) {
+	var applyChangesInternal = (node, changes) => {
 		if (!node) {
 			// FIXME: Generate change assignments dynamically
-			self.env.log("error", "no node in applyChangesInternal, ",
+			this.env.log("error", "no node in applyChangesInternal, ",
 					"HTML structure likely changed");
 			return;
 		}
@@ -339,7 +338,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 						if (DU.isElt(child)) {
 							child.setAttribute('data-foobar', randomString());
 						} else {
-							self.env.log("error", "Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
+							this.env.log("error", "Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
 						}
 						break;
 
@@ -362,7 +361,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 				}
 			}
 		}
-	}
+	};
 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.has("dom:post-changes")) {
@@ -401,7 +400,6 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
  * @return {Array} [return.changeTree] The list of changes
  */
 ParserTests.prototype.generateChanges = function(options, item, body) {
-	var self = this;
 	var random = new Alea((item.seed || '') + (item.title || ''));
 
 	/**
@@ -463,14 +461,14 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 			);
 	}
 
-	function hasChangeMarkers(list) {
+	var hasChangeMarkers = (list) => {
 		// If all recorded changes are 0, then nothing has been modified
 		return list.some(function(c) {
 			return Array.isArray(c) ? hasChangeMarkers(c) : (c > 0);
 		});
-	}
+	};
 
-	function genChangesInternal(node) {
+	var genChangesInternal = (node) => {
 		// Seed the random-number generator based on the item title
 		var changelist = [];
 		var children = node.childNodes;
@@ -480,7 +478,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 			var child = children[i];
 			var changeType = 0;
 
-			if (domSubtreeIsEditable(self.env, child)) {
+			if (domSubtreeIsEditable(this.env, child)) {
 				if (nodeIsUneditable(child) || random() < 0.5) {
 					// This call to random is a hack to preserve the current
 					// determined state of our blacklist entries after a
@@ -502,7 +500,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 		}
 
 		return hasChangeMarkers(changelist) ? changelist : 0;
-	}
+	};
 
 	var changeTree;
 	var numAttempts = 0;
@@ -511,7 +509,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 		changeTree = genChangesInternal(body);
 	} while (
 		numAttempts < 1000 &&
-		(changeTree.length === 0 || self.isDuplicateChangeTree(item.selserChangeTrees, changeTree))
+		(changeTree.length === 0 || this.isDuplicateChangeTree(item.selserChangeTrees, changeTree))
 	);
 
 	if (numAttempts === 1000) {
@@ -1206,7 +1204,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 			var contents = shell[0];
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(start of automatically-generated section)\n';
-			options.modes.forEach(function(mode) {
+			options.modes.forEach((mode) => {
 				contents += '\n// Blacklist for ' + mode + '\n';
 				this.stats.modes[mode].failList.forEach(function(fail) {
 					contents += 'add(' + JSON.stringify(mode) + ', ' +
@@ -1215,7 +1213,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 					contents += ');\n';
 				});
 				contents += '\n';
-			}.bind(this));
+			});
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
