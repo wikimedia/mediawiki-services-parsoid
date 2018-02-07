@@ -16,10 +16,8 @@
 			{
 				"name": "Core",
 				"classes": [
-					"DOMUtils",
 					"MWParserEnvironment",
 					"ParsoidConfig",
-					"Util",
 					"WikiConfig"
 				]
 			},
@@ -34,19 +32,6 @@
 					"ExtLinkText",
 					"MagicLinkText",
 					"WikiLinkText"
-				]
-			},
-			{
-				"name": "Tokens",
-				"classes": [
-					"CommentTk",
-					"EndTagTk",
-					"KV",
-					"NlTk",
-					"Params",
-					"SelfclosingTagTk",
-					"TagTk",
-					"Token"
 				]
 			}
 		]
