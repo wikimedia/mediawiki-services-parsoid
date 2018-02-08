@@ -21393,19 +21393,23 @@ RFC   983&#x20;987
 Centre-aligned image
 !! wikitext
 [[Image:foobar.jpg|centre]]
-!! html
+!! html/php
 <div class="center"><div class="floatnone"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></div></div>
 
-!!end
+!! html/parsoid
+<figure class="mw-default-size mw-halign-center" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"center","ak":"centre"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></figure>
+!! end
 
 !! test
 None-aligned image
 !! wikitext
 [[Image:foobar.jpg|none]]
-!! html
+!! html/php
 <div class="floatnone"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></div>
 
-!!end
+!! html/parsoid
+<figure class="mw-default-size mw-halign-none" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></figure>
+!! end
 
 !! test
 Width + Height sized image (using px) (height is ignored)
@@ -23588,9 +23592,11 @@ wgLinkHolderBatchSize=0
 Free external link invading image caption
 !! wikitext
 [[Image:Foobar.jpg|thumb|http://x|hello]]
-!! html
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>hello</div></div></div>
 
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"bogus","ak":"http://x"},{"ck":"caption","ak":"hello"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a><figcaption>hello</figcaption></figure>
 !! end
 
 !! test
@@ -29979,6 +29985,8 @@ Thumbnail output
 </div>
 </div>
 </div>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Thumb.png"><img resource="./File:Thumb.png" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a></figure>
 !! end
 
 !! test
