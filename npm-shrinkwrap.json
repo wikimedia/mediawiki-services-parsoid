@@ -1589,6 +1589,12 @@
         }
       }
     },
+    "jsdoc-wmf-theme": {
+      "version": "0.0.1",
+      "from": "git+https://github.com/cscott/jsdoc-wmf-theme.git",
+      "resolved": "git+https://github.com/cscott/jsdoc-wmf-theme.git#0a1f2ced7b1f8a1fac0fd45e2105816fe23c243f",
+      "dev": true
+    },
     "jshint": {
       "version": "2.9.4",
       "from": "jshint@>=2.8.0 <3.0.0",

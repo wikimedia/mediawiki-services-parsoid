@@ -2,9 +2,10 @@
     "opts": {
         "encoding": "utf8",
         "destination": "docs",
-        "packageX": "package.json",
+        "package": "package.json",
         "readme": "README.md",
         "recurse": true,
+        "template": "node_modules/jsdoc-wmf-theme",
         "tutorials": "guides"
     },
     "plugins": [
@@ -23,6 +24,10 @@
         "cleverLinks": true,
         "default": {
             "useLongnameInNav": true
+        },
+        "wmf": {
+            "maintitle": "Parsoid",
+            "repository": "https://github.com/wikimedia/parsoid"
         }
     }
 }

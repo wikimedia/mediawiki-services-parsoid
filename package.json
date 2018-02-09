@@ -41,6 +41,7 @@
     "eslint-plugin-json": "^1.2.0",
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",
+    "jsdoc-wmf-theme": "git+https://github.com/cscott/jsdoc-wmf-theme.git",
     "mocha": "^2.5.3",
     "nock": "^8.2.1",
     "nsp": "^2.8.1",
