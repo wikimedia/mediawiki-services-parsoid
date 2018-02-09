@@ -1190,15 +1190,24 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 		// there's no reason we need to use recursion for this loop.
 		return this.processCase(i + 1, options, earlyExit);
 	} else {
+		// Sanity check in case any tests were removed but we didn't update
+		// the blacklist
+		var blacklistChanged = false;
+		var allModes = options.wt2html && options.wt2wt && options.html2wt &&
+			options.html2html && options.selser &&
+			!(options.filter || options.regex || options.maxtests);
+
 		// update the blacklist, if requested
-		if (Util.booleanOption(options['rewrite-blacklist'])) {
-			var old;
+		if (allModes || Util.booleanOption(options['rewrite-blacklist'])) {
+			var old, oldExists;
 			if (yield fs.exists(this.blackListPath)) {
 				old = yield fs.readFile(this.blackListPath, 'utf8');
+				oldExists = true;
 			} else {
 				// Use the preamble from one we know about ...
 				var defaultBlPath = path.join(__dirname, '../tests/parserTests-blacklist.js');
 				old = yield fs.readFile(defaultBlPath, 'utf8');
+				oldExists = false;
 			}
 			var shell = old.split(/^.*DO NOT REMOVE THIS LINE.*$/m);
 			var contents = shell[0];
@@ -1217,7 +1226,11 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
-			yield fs.writeFile(this.blackListPath, contents, 'utf8');
+			if (Util.booleanOption(options['rewrite-blacklist'])) {
+				yield fs.writeFile(this.blackListPath, contents, 'utf8');
+			} else if (allModes && oldExists) {
+				blacklistChanged = (contents !== old);
+			}
 		}
 
 		// Write updated tests from failed ones
@@ -1242,11 +1255,14 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 		// note: these stats won't necessarily be useful if someone
 		// reimplements the reporting methods, since that's where we
 		// increment the stats.
-		var failures = options.reportSummary(options.modes, this.stats, this.testFileName, this.loggedErrorCount, this.testFilter);
+		var failures = options.reportSummary(
+			options.modes, this.stats, this.testFileName,
+			this.loggedErrorCount, this.testFilter, blacklistChanged
+		);
 
 		// we're done!
 		// exit status 1 == uncaught exception
-		var exitCode = failures ? 2 : 0;
+		var exitCode = failures || blacklistChanged ? 2 : 0;
 		if (Util.booleanOption(options['exit-zero'])) {
 			exitCode = 0;
 		}
@@ -1258,6 +1274,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 				loggedErrorCount: this.loggedErrorCount,
 			}, this.stats),
 			file: this.testFileName,
+			blacklistChanged: blacklistChanged,
 		};
 	}
 });
@@ -1471,6 +1488,7 @@ Promise.async(function *() {
 		loggedErrorCount: 0,
 		failures: 0,
 	};
+	var blacklistChanged = false;
 	var exitCode = 0;
 	for (var i = 0; i < testFilePaths.length; i++) {
 		var testFilePath = testFilePaths[i];
@@ -1479,10 +1497,11 @@ Promise.async(function *() {
 		Object.keys(stats).forEach(function(k) {
 			stats[k] += result.stats[k]; // Sum all stats
 		});
+		blacklistChanged = blacklistChanged || result.blacklistChanged;
 		exitCode = exitCode || result.exitCode;
 		if (exitCode !== 0 && options['exit-unexpected']) { break; }
 	}
-	options.reportSummary([], stats, null, stats.loggedErrorCount, null);
+	options.reportSummary([], stats, null, stats.loggedErrorCount, null, blacklistChanged);
 	yield runner.stop();
 	process.exit(exitCode);
 })().done();

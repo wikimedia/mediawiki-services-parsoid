@@ -47,8 +47,9 @@ var colorizeCount = function(count, color) {
  * @param {String} file
  * @param {Number} loggedErrorCount
  * @param {RegExp|null} testFilter
+ * @param {Boolean} blacklistChanged
  */
-var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter) {
+var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter, blacklistChanged) {
 	var curStr, mode, thisMode;
 	var failTotalTests = stats.failedTests;
 	var happiness = (
@@ -125,9 +126,19 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 		stats.failedTestsUnexpected +
 		loggedErrorCount
 	);
+
+	// If the blacklist changed, complain about it.
+	if (blacklistChanged) {
+		console.log("Blacklist changed!".red);
+	}
+
 	if (file === null) {
 		if (failures === 0) {
 			console.log('--> ' + 'NO UNEXPECTED RESULTS'.green + ' <--');
+			if (blacklistChanged) {
+				console.log("Perhaps some tests were deleted or renamed.");
+				console.log("Use `bin/parserTests.js --rewrite-blacklist` to update blacklist.");
+			}
 		} else {
 			console.log(('--> ' + failures + ' UNEXPECTED RESULTS. <--').red);
 		}
@@ -460,7 +471,7 @@ var reportStartXML = function() {};
  *
  * @inheritdoc reportSummary
  */
-var reportSummaryXML = function(modesRan, stats, file, loggedErrorCount, testFilter) {
+var reportSummaryXML = function(modesRan, stats, file, loggedErrorCount, testFilter, blacklistChanged) {
 	if (file === null) {
 		/* Summary for all tests; not included in XML format output. */
 		return;
@@ -721,7 +732,7 @@ PTUtils.prepareOptions = function() {
 		if (Util.booleanOption(options['rewrite-blacklist'])) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
-			// sanity checking (bug 51448 asks to be able to use --filter here)
+			// sanity checking (T53448 asks to be able to use --filter here)
 			if (options.filter || options.regex || options.maxtests || options['exit-unexpected']) {
 				console.log("\nERROR> can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected");
 				process.exit(1);
