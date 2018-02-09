@@ -26,14 +26,11 @@
 'use strict';
 
 var testBlackList = {};
-var add = function(testtype, title, raw) {  // eslint-disable-line
+var add = function(mode, title, raw) {  // eslint-disable-line
 	if (typeof (testBlackList[title]) !== 'object') {
-		testBlackList[title] = {
-			modes: [],
-			raw: raw,
-		};
+		testBlackList[title] = {};
 	}
-	testBlackList[title].modes.push(testtype);
+	testBlackList[title][mode] = raw;
 };
 
 // ### DO NOT REMOVE THIS LINE ### (start of automatically-generated section)

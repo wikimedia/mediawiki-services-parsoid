@@ -192,7 +192,7 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 	var blacklisted = false;
 	if (Util.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
-		if (mode === 'selser' && !options.changetree && bl[title].raw !== actual.raw) {
+		if (bl[title][mode] !== actual.raw) {
 			blacklisted = true;
 		} else {
 			if (!Util.booleanOption(options.quiet)) {
@@ -212,10 +212,11 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 
 	console.log('UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow);
 
+	if (blacklisted) {
+		console.log('Blacklisted, but the output changed!'.red);
+	}
+
 	if (mode === 'selser') {
-		if (blacklisted) {
-			console.log('Blacklisted, but the output changed!'.red);
-		}
 		if (item.hasOwnProperty('wt2wtPassed') && item.wt2wtPassed) {
 			console.log('Even worse, the non-selser wt2wt test passed!'.red);
 		} else if (actual && item.hasOwnProperty('wt2wtResult') &&
@@ -364,7 +365,7 @@ function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options,
 
 	var whitelist = false;
 	var tb = bl[title];
-	var expectFail = (tb ? tb.modes : []).indexOf(mode) >= 0;
+	var expectFail = (tb && tb.hasOwnProperty(mode));
 	var fail = (expected.normal !== actual.normal);
 	// Return whether the test was as expected, independent of pass/fail
 	var asExpected;
@@ -486,8 +487,7 @@ var reportFailureXML = function(stats, item, options, mode, title, actual, expec
 	var blacklisted = false;
 	if (Util.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
-		blacklisted = !(mode === 'selser' && !options.changetree &&
-			bl[title].raw !== actual.raw);
+		blacklisted = (bl[title][mode] === actual.raw);
 	}
 	if (!blacklisted) {
 		failEle += '<failure type="parserTestsDifferenceInOutputFailure">\n';
