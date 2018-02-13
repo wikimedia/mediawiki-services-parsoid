@@ -87,10 +87,9 @@ function ParserTests(testFilePath, modes) {
 }
 
 /**
- * @method
- *
  * Get an object holding our tests cases. Eventually from a cache file
  *
+ * @method
  * @param {Object} argv
  * @return {Object}
  */
@@ -151,8 +150,6 @@ ParserTests.prototype.getTests = Promise.async(function *(argv) {
 });
 
 /**
- * @method
- *
  * Parse content of tests case file given as plaintext
  *
  * @param {string} content
@@ -163,10 +160,9 @@ ParserTests.prototype.parseTestCase = function(content) {
 };
 
 /**
- * @method
- *
  * Convert a DOM to Wikitext.
  *
+ * @method
  * @param {Object} options
  * @param {string} mode
  * @param {Object} item
@@ -199,8 +195,6 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 });
 
 /**
- * @method
- *
  * For a selser test, check if a change we could make has already been tested in this round.
  * Used for generating unique tests.
  *
@@ -226,8 +220,6 @@ ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
 var staticRandomString = "ahseeyooxooZ8Oon0boh";
 
 /**
- * @method
- *
  * Make changes to a DOM in order to run a selser test on it.
  *
  * @param {Object} item
@@ -388,8 +380,6 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 };
 
 /**
- * @method
- *
  * Generate a change object for a document, so we can apply it during a selser test.
  *
  * @param {Object} options
@@ -521,8 +511,6 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 };
 
 /**
- * @method
- *
  * Apply manually-specified changes, which are provided in a pseudo-jQuery
  * format.
  *
@@ -651,10 +639,9 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 };
 
 /**
- * @method
- *
  * Convert a wikitext string to an HTML Node.
  *
+ * @method
  * @param {string} mode
  * @param {string} wikitext
  * @return {Promise} a promise returning the body Node.
@@ -822,8 +809,6 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 });
 
 /**
- * @method
- *
  * Check the given HTML result against the expected result, and throw an
  * exception if necessary.
  *
@@ -845,11 +830,10 @@ ParserTests.prototype.processParsedHTML = function(item, options, mode, body) {
 };
 
 /**
- * @method
- *
  * Check the given wikitext result against the expected result, and throw an
  * exception if necessary.
  *
+ * @method
  * @param {Object} item
  * @param {Object} options
  * @param {string} mode
@@ -1339,8 +1323,6 @@ ParserTests.prototype.processItem = Promise.async(function *(item, options) { //
 });
 
 /**
- * @method
- *
  * Process an article test case (i.e. the text of an article we need for a test)
  *
  * @param {Object} item
