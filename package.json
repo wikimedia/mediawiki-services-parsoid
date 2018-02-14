@@ -10,7 +10,7 @@
     "connect-busboy": "^0.0.2",
     "content-type": "git+https://github.com/wikimedia/content-type.git#master",
     "core-js": "^2.5.1",
-    "domino": "^2.0.0",
+    "domino": "^2.0.1",
     "entities": "^1.1.1",
     "express": "^4.15.5",
     "express-handlebars": "^3.0.0",
