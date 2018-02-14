@@ -170,7 +170,8 @@
     "babylon": {
       "version": "7.0.0-beta.19",
       "from": "babylon@7.0.0-beta.19",
-      "resolved": "https://registry.npmjs.org/babylon/-/babylon-7.0.0-beta.19.tgz"
+      "resolved": "https://registry.npmjs.org/babylon/-/babylon-7.0.0-beta.19.tgz",
+      "dev": true
     },
     "balanced-match": {
       "version": "0.4.2",
@@ -298,7 +299,8 @@
     "catharsis": {
       "version": "0.8.9",
       "from": "catharsis@>=0.8.9 <0.9.0",
-      "resolved": "https://registry.npmjs.org/catharsis/-/catharsis-0.8.9.tgz"
+      "resolved": "https://registry.npmjs.org/catharsis/-/catharsis-0.8.9.tgz",
+      "dev": true
     },
     "chai": {
       "version": "3.5.0",
@@ -815,7 +817,8 @@
     "escape-string-regexp": {
       "version": "1.0.5",
       "from": "escape-string-regexp@^1.0.2",
-      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz"
+      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz",
+      "dev": true
     },
     "escodegen": {
       "version": "1.8.1",
@@ -1516,19 +1519,28 @@
     "js2xmlparser": {
       "version": "3.0.0",
       "from": "js2xmlparser@>=3.0.0 <3.1.0",
-      "resolved": "https://registry.npmjs.org/js2xmlparser/-/js2xmlparser-3.0.0.tgz"
+      "resolved": "https://registry.npmjs.org/js2xmlparser/-/js2xmlparser-3.0.0.tgz",
+      "dev": true
     },
     "jsdoc": {
       "version": "3.5.5",
       "from": "jsdoc@3.5.5",
       "resolved": "https://registry.npmjs.org/jsdoc/-/jsdoc-3.5.5.tgz",
+      "dev": true,
       "dependencies": {
         "strip-json-comments": {
           "version": "2.0.1",
           "from": "strip-json-comments@>=2.0.1 <2.1.0",
-          "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz"
+          "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz",
+          "dev": true
         }
       }
+    },
+    "jsdoc-wmf-theme": {
+      "version": "0.0.1",
+      "from": "git+https://github.com/cscott/jsdoc-wmf-theme.git",
+      "resolved": "git+https://github.com/cscott/jsdoc-wmf-theme.git#0a1f2ced7b1f8a1fac0fd45e2105816fe23c243f",
+      "dev": true
     },
     "jshint": {
       "version": "2.9.4",
@@ -1644,7 +1656,8 @@
     "klaw": {
       "version": "2.0.0",
       "from": "klaw@>=2.0.0 <2.1.0",
-      "resolved": "https://registry.npmjs.org/klaw/-/klaw-2.0.0.tgz"
+      "resolved": "https://registry.npmjs.org/klaw/-/klaw-2.0.0.tgz",
+      "dev": true
     },
     "lcid": {
       "version": "1.0.0",
@@ -1720,7 +1733,8 @@
     "marked": {
       "version": "0.3.12",
       "from": "marked@>=0.3.6 <0.4.0",
-      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.12.tgz"
+      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.12.tgz",
+      "dev": true
     },
     "media-typer": {
       "version": "0.3.0",
@@ -1776,11 +1790,13 @@
       "version": "0.5.1",
       "from": "mkdirp@>=0.5.0 <0.6.0",
       "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "dev": true,
       "dependencies": {
         "minimist": {
           "version": "0.0.8",
           "from": "minimist@0.0.8",
-          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
+          "dev": true
         }
       }
     },
@@ -2463,11 +2479,13 @@
       "version": "0.2.1",
       "from": "requizzle@>=0.2.1 <0.3.0",
       "resolved": "https://registry.npmjs.org/requizzle/-/requizzle-0.2.1.tgz",
+      "dev": true,
       "dependencies": {
         "underscore": {
           "version": "1.6.0",
           "from": "underscore@>=1.6.0 <1.7.0",
-          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz"
+          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz",
+          "dev": true
         }
       }
     },
@@ -2759,7 +2777,8 @@
     "taffydb": {
       "version": "2.6.2",
       "from": "taffydb@2.6.2",
-      "resolved": "https://registry.npmjs.org/taffydb/-/taffydb-2.6.2.tgz"
+      "resolved": "https://registry.npmjs.org/taffydb/-/taffydb-2.6.2.tgz",
+      "dev": true
     },
     "text-table": {
       "version": "0.2.0",
@@ -2822,17 +2841,20 @@
     "underscore": {
       "version": "1.8.3",
       "from": "underscore@>=1.8.3 <1.9.0",
-      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.8.3.tgz"
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.8.3.tgz",
+      "dev": true
     },
     "underscore-contrib": {
       "version": "0.3.0",
       "from": "underscore-contrib@>=0.3.0 <0.4.0",
       "resolved": "https://registry.npmjs.org/underscore-contrib/-/underscore-contrib-0.3.0.tgz",
+      "dev": true,
       "dependencies": {
         "underscore": {
           "version": "1.6.0",
           "from": "underscore@1.6.0",
-          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz"
+          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz",
+          "dev": true
         }
       }
     },
@@ -2917,7 +2939,8 @@
     "xmlcreate": {
       "version": "1.0.2",
       "from": "xmlcreate@>=1.0.1 <2.0.0",
-      "resolved": "https://registry.npmjs.org/xmlcreate/-/xmlcreate-1.0.2.tgz"
+      "resolved": "https://registry.npmjs.org/xmlcreate/-/xmlcreate-1.0.2.tgz",
+      "dev": true
     },
     "xtend": {
       "version": "4.0.1",
