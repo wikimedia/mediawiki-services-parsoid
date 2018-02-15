@@ -31,9 +31,9 @@
   },
   "devDependencies": {
     "alea": "^0.0.9",
-    "chai": "^3.5.0",
+    "chai": "^4.1.2",
     "colors": "^1.1.2",
-    "coveralls": "^2.13.0",
+    "coveralls": "^3.0.0",
     "eslint": "^3.19.0",
     "eslint-config-node-services": "^2.1.1",
     "eslint-plugin-jsdoc": "^3.0.2",
@@ -41,10 +41,10 @@
     "istanbul": "^0.4.5",
     "jsdoc": "^3.5.5",
     "jsdoc-wmf-theme": "git+https://github.com/cscott/jsdoc-wmf-theme.git",
-    "mocha": "^2.5.3",
-    "nock": "^8.2.1",
+    "mocha": "^5.0.1",
+    "nock": "^9.1.6",
     "nsp": "^3.1.0",
-    "supertest": "^1.2.0"
+    "supertest": "^3.0.0"
   },
   "main": "lib/index.js",
   "bin": {
