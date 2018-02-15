@@ -33,8 +33,8 @@ var computeSHA1 = Promise.async(function *(targetName) {
 		return "<file not present>";
 	}
 	var contents = yield fs.readFile(targetPath);
-	return crypto.createHash('sha1').update(contents).digest('hex').
-		toLowerCase();
+	return crypto.createHash('sha1').update(contents).digest('hex')
+		.toLowerCase();
 });
 
 var fetch = function(targetName, gitCommit, skipCheck) {

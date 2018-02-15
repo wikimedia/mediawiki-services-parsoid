@@ -936,7 +936,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var normalizedOut = toWikiText ? out.replace(/\n+$/, '') : out;
 
 	var input = mode === 'selser' ? item.changedHTMLStr :
-			mode === 'html2wt' ? item.html : itemWikitext;
+		mode === 'html2wt' ? item.html : itemWikitext;
 	var expected = { normal: normalizedExpected, raw: itemWikitext };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
@@ -1237,7 +1237,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 		if (options['update-tests'] ||
 				Util.booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
-					'raw' : 'actualNormalized';
+				'raw' : 'actualNormalized';
 			var parserTests = yield fs.readFile(this.testFilePath, 'utf8');
 			this.stats.modes.wt2html.failList.forEach(function(fail) {
 				if (options['update-tests'] || fail.unexpected) {

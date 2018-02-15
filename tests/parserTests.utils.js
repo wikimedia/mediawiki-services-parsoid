@@ -197,8 +197,8 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 	};
 	stats.modes[mode].failList.push(fail);
 
-	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
-		replace('\n', ' ');
+	var extTitle = (title + (mode ? (' (' + mode + ')') : ''))
+		.replace('\n', ' ');
 
 	var blacklisted = false;
 	if (Util.booleanOption(options.blacklist) && expectFail) {
@@ -271,8 +271,8 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess, is
 		stats.passedTests++;
 		stats.modes[mode].passedTests++;
 	}
-	var extTitle = (title + (mode ? (' (' + mode + ')') : '')).
-		replace('\n', ' ');
+	var extTitle = (title + (mode ? (' (' + mode + ')') : ''))
+		.replace('\n', ' ');
 
 	if (Util.booleanOption(options.blacklist) && !expectSuccess) {
 		stats.passedTestsUnexpected++;

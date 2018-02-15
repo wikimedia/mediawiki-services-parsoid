@@ -29,10 +29,10 @@ describe('Regression Specs', function() {
 	// This spec ensures that we don't inadvertently break that requirement.
 	it('should use ./ prefixed urls for cite links', function() {
 		return parse('a [[Foo]] <ref>b</ref>').then(function(result) {
-			result.body.querySelector(".mw-ref a").getAttribute('href').
-				should.equal('./Main_Page#cite_note-1');
-			result.body.querySelector("#cite_note-1 a").getAttribute('href').
-				should.equal('./Main_Page#cite_ref-1');
+			result.body.querySelector(".mw-ref a").getAttribute('href')
+				.should.equal('./Main_Page#cite_note-1');
+			result.body.querySelector("#cite_note-1 a").getAttribute('href')
+				.should.equal('./Main_Page#cite_ref-1');
 		});
 	});
 

@@ -54,7 +54,7 @@ var fetch = Promise.async(function *(page, revid, opts) {
 	}
 
 	var pc = new ParsoidConfig(null, parsoidOptions);
-	pc.defaultWiki = prefix ? prefix : pc.reverseMwApiMap.get(domain);
+	pc.defaultWiki = prefix || pc.reverseMwApiMap.get(domain);
 
 	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,
