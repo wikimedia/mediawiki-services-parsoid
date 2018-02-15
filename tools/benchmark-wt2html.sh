@@ -5,8 +5,13 @@ OUTPUT="$1.times"
 PAGENAME=Barack_Obama
 
 if [ ! -x /usr/bin/time ]; then
-    echo "You need to install GNU time."
+    echo "You need to install GNU time (http://www.gnu.org/software/time)."
     echo "$ sudo apt-get install time"
+    exit 1
+fi
+if [ ! -x /usr/bin/bc ]; then
+    echo "You need to install GNU bc (http://ftp.gnu.org/gnu/bc/)."
+    echo "$ sudo apt-get install bc"
     exit 1
 fi
 
