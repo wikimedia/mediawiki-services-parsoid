@@ -809,7 +809,6 @@ add("html2wt", "Image with link parameter, wiki target", "[[File:Foobar.jpg|link
 add("html2wt", "Link to image page- image page normally doesn't exists, hence edit link\nAdd test with existing image page\n#<p><a href=\"/wiki/File:Test\" title=\"Image:Test\">Image:test</a>", "[/index.php?title=File:Test&action=edit&redlink=1 Image:test]\n");
 add("html2wt", "T20784  Link to non-existent image page with caption should use caption as link text", "[/index.php?title=File:Test&action=edit&redlink=1 caption]\n");
 add("html2wt", "Parsoid-specific image handling - simple image with size and middle alignment", "[[File:Foobar.jpg|middle|50x50px]]");
-add("html2wt", "Parsoid-specific image handling - thumbnail with specific size, halign, valign, and caption", "[[File:Foobar.jpg|right|middle|thumb|50x50px|caption]]\n");
 add("html2wt", "Parsoid-specific image handling - caption with a template in it", "[[File:Foobar.jpg|thumb|200x200px|This caption has a {{echo|transclusion}} in it.]]\n");
 add("html2wt", "Subpage link", "[[wiki/Subpage test/subpage|/subpage]]\n");
 add("html2wt", "Subpage noslash link", "[[wiki/Subpage test/subpage|subpage]]\n");
