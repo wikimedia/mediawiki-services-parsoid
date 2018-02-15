@@ -9,7 +9,6 @@ var fs = require('fs');
 var yaml = require('js-yaml');
 var path = require('path');
 var express = require('express');
-var bodyParser = require('body-parser');
 var crypto = require('crypto');
 
 var Promise = require('../lib/utils/promise.js');
@@ -76,7 +75,7 @@ var FILE_PROPS = {
 /* -------------------- web app access points below --------------------- */
 
 var app = express();
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 
 var mainPage = {
 	query: {
