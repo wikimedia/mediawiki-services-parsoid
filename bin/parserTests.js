@@ -959,7 +959,7 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		// NOTE: filter.toString() is required because a number-only arg
 		// shows up as a numeric type rather than a string.
 		// Ex: parserTests.js --filter 53221
-		var pattern = options.regex || Util.escapeRegExp(options.filter.toString());
+		var pattern = options.regex || JSUtils.escapeRegExp(options.filter.toString());
 		this.testFilter = new RegExp(pattern);
 	}
 
@@ -1242,8 +1242,8 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 			this.stats.modes.wt2html.failList.forEach(function(fail) {
 				if (options['update-tests'] || fail.unexpected) {
 					var exp = new RegExp("(" + /!!\s*test\s*/.source +
-						Util.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
-						")(" + Util.escapeRegExp(fail.expected) + ")", "m");
+						JSUtils.escapeRegExp(fail.title) + /(?:(?!!!\s*end)[\s\S])*/.source +
+						")(" + JSUtils.escapeRegExp(fail.expected) + ")", "m");
 					parserTests = parserTests.replace(exp, "$1" +
 						fail[updateFormat].replace(/\$/g, '$$$$'));
 				}
