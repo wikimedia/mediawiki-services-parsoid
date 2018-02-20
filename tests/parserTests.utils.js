@@ -18,8 +18,8 @@ var PTUtils = module.exports = {};
 /**
  * Colorize given number if <> 0
  *
- * @param {Number} count
- * @param {String} color
+ * @param {number} count
+ * @param {string} color
  */
 var colorizeCount = function(count, color) {
 	if (count === 0) {
@@ -40,14 +40,14 @@ var colorizeCount = function(count, color) {
 /**
  * @param {Array} modesRan
  * @param {Object} stats
- * @param {Number} stats.failedTests Number of failed tests due to differences in output
- * @param {Number} stats.passedTests Number of tests passed without any special consideration
- * @param {Number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
+ * @param {number} stats.failedTests Number of failed tests due to differences in output
+ * @param {number} stats.passedTests Number of tests passed without any special consideration
+ * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
- * @param {String} file
- * @param {Number} loggedErrorCount
+ * @param {string} file
+ * @param {number} loggedErrorCount
  * @param {RegExp|null} testFilter
- * @param {Boolean} blacklistChanged
+ * @param {boolean} blacklistChanged
  */
 var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter, blacklistChanged) {
 	var curStr, mode, thisMode;
@@ -178,12 +178,12 @@ var printWhitelistEntry = function(title, raw) {
  * @param {Object} stats
  * @param {Object} item
  * @param {Object} options
- * @param {String} mode
- * @param {String} title
+ * @param {string} mode
+ * @param {string} title
  * @param {Object} actual
  * @param {Object} expected
- * @param {Boolean} expectFail Whether this test was expected to fail (on blacklist)
- * @param {Boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
+ * @param {boolean} expectFail Whether this test was expected to fail (on blacklist)
+ * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
  * @param {Object} bl BlackList
  */
 var printFailure = function(stats, item, options, mode, title, actual, expected, expectFail, failureOnly, bl) {
@@ -257,10 +257,10 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
  * @param {Object} stats
  * @param {Object} item
  * @param {Object} options
- * @param {String} mode
- * @param {String} title
- * @param {Boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
- * @param {Boolean} isWhitelist Whether this success was due to a whitelisting
+ * @param {string} mode
+ * @param {string} title
+ * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
+ * @param {boolean} isWhitelist Whether this success was due to a whitelisting
  */
 var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
 	var quiet = Util.booleanOption(options.quiet);
@@ -357,7 +357,7 @@ var doDiff = function(actual, expected) {
  * @param {Object} stats
  * @param {Object} item
  * @param {Object} options
- * @param {String} mode
+ * @param {string} mode
  * @param {Object} expected
  * @param {Object} actual
  * @param {Function} pre
