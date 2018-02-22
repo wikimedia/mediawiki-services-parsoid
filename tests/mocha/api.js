@@ -479,7 +479,7 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/lint/Lint_Page/102');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/lint/Lint_Page/102');
 			})
 			.end(done);
 		});
@@ -669,7 +669,7 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1');
 			})
 			.end(done);
 		});
@@ -685,7 +685,7 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/pagebundle/Main_Page/1');
 			})
 			.end(done);
 		});
@@ -701,7 +701,7 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Lint_Page/102');
+				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/html/Lint_Page/102');
 			})
 			.end(done);
 		});
