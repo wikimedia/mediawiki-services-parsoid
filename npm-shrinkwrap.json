@@ -1689,7 +1689,7 @@
     "jsdoc-wmf-theme": {
       "version": "0.0.1",
       "from": "git+https://github.com/cscott/jsdoc-wmf-theme.git#master",
-      "resolved": "git+https://github.com/cscott/jsdoc-wmf-theme.git#4f8af139b13d3400481ed5579e82b472f4a07ff3",
+      "resolved": "git+https://github.com/cscott/jsdoc-wmf-theme.git#ff6f4c241db3f2c166d4df06f1a30aeb2304d69f",
       "dev": true
     },
     "jshint": {
