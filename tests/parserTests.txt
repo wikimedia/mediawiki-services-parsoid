@@ -4967,7 +4967,7 @@ URL in text: [http://example.com http://example.com]
 <p>URL in text: <a rel="nofollow" class="external text" href="http://example.com">http://example.com</a>
 </p>
 !! html/parsoid
-<p>URL in text: <a rel="mw:ExtLink" class="external free" href="http://example.com">http://example.com</a></p>
+<p>URL in text: <a rel="mw:ExtLink" class="external text" href="http://example.com">http://example.com</a></p>
 !! end
 
 !! test
@@ -5610,7 +5610,7 @@ Examples from RFC 2732, section 2:
 !! html/parsoid
 <p><a rel="mw:ExtLink" class="external free" href="http://[2404:130:0:1000::187:2]/index.php">http://[2404:130:0:1000::187:2]/index.php</a></p>
 
-<p>Examples from <a href="https://tools.ietf.org/html/rfc2373" rel="mw:ExtLink" class="external text">RFC 2373</a>, section 2.2:</p>
+<p>Examples from <a href="https://tools.ietf.org/html/rfc2373" rel="mw:ExtLink" class="external mw-magiclink">RFC 2373</a>, section 2.2:</p>
 <ul><li><a rel="mw:ExtLink" class="external free" href="http://[1080::8:800:200C:417A]/unicast">http://[1080::8:800:200C:417A]/unicast</a></li>
 <li><a rel="mw:ExtLink" class="external free" href="http://[FF01::101]/multicast">http://[FF01::101]/multicast</a></li>
 <li><a rel="mw:ExtLink" class="external free" href="http://[::1]/loopback">http://[::1]/loopback</a></li>
@@ -5618,7 +5618,7 @@ Examples from RFC 2732, section 2:
 <li><a rel="mw:ExtLink" class="external free" href="http://[::13.1.68.3]/ipv4compat">http://[::13.1.68.3]/ipv4compat</a></li>
 <li><a rel="mw:ExtLink" class="external free" href="http://[::FFFF:129.144.52.38]/ipv4compat">http://[::FFFF:129.144.52.38]/ipv4compat</a></li></ul>
 
-<p>Examples from <a href="https://tools.ietf.org/html/rfc2732" rel="mw:ExtLink" class="external text">RFC 2732</a>, section 2:</p>
+<p>Examples from <a href="https://tools.ietf.org/html/rfc2732" rel="mw:ExtLink" class="external mw-magiclink">RFC 2732</a>, section 2:</p>
 <ul><li><a rel="mw:ExtLink" class="external free" href="http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html">http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html</a></li>
 <li><a rel="mw:ExtLink" class="external free" href="http://[1080:0:0:0:8:800:200C:417A]/index.html">http://[1080:0:0:0:8:800:200C:417A]/index.html</a></li>
 <li><a rel="mw:ExtLink" class="external free" href="http://[3ffe:2a00:100:7031::1]">http://[3ffe:2a00:100:7031::1]</a></li>
@@ -5674,7 +5674,7 @@ Examples from RFC 2732, section 2:
 !! html/parsoid
 <p><a rel="mw:ExtLink" class="external text" href="http://[2404:130:0:1000::187:2]/index.php">test</a></p>
 
-<p>Examples from <a href="https://tools.ietf.org/html/rfc2373" rel="mw:ExtLink" class="external text">RFC 2373</a>, section 2.2:</p>
+<p>Examples from <a href="https://tools.ietf.org/html/rfc2373" rel="mw:ExtLink" class="external mw-magiclink">RFC 2373</a>, section 2.2:</p>
 <ul><li><a rel="mw:ExtLink" class="external text" href="http://[1080::8:800:200C:417A]">unicast</a></li>
 <li><a rel="mw:ExtLink" class="external text" href="http://[FF01::101]">multicast</a></li>
 <li><a rel="mw:ExtLink" class="external text" href="http://[::1]/">loopback</a></li>
@@ -5682,7 +5682,7 @@ Examples from RFC 2732, section 2:
 <li><a rel="mw:ExtLink" class="external text" href="http://[::13.1.68.3]">ipv4compat</a></li>
 <li><a rel="mw:ExtLink" class="external text" href="http://[::FFFF:129.144.52.38]">ipv4compat</a></li></ul>
 
-<p>Examples from <a href="https://tools.ietf.org/html/rfc2732" rel="mw:ExtLink" class="external text">RFC 2732</a>, section 2:</p>
+<p>Examples from <a href="https://tools.ietf.org/html/rfc2732" rel="mw:ExtLink" class="external mw-magiclink">RFC 2732</a>, section 2:</p>
 <ul><li><a rel="mw:ExtLink" class="external text" href="http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html">1</a></li>
 <li><a rel="mw:ExtLink" class="external text" href="http://[1080:0:0:0:8:800:200C:417A]/index.html">2</a></li>
 <li><a rel="mw:ExtLink" class="external text" href="http://[3ffe:2a00:100:7031::1]">3</a></li>
@@ -10919,7 +10919,7 @@ RFC 822
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc822">RFC 822</a>
 </p>
 !! html/parsoid
-<p><a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external text">RFC 822</a></p>
+<p><a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink">RFC 822</a></p>
 !! end
 
 !! test
@@ -10930,7 +10930,7 @@ This is RFC 822 but thisRFC 822 is not RFC 822linked.
 <p>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc822">RFC 822</a> but thisRFC 822 is not RFC 822linked.
 </p>
 !! html/parsoid
-<p>This is <a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external text">RFC 822</a> but thisRFC 822 is not RFC 822linked.</p>
+<p>This is <a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink">RFC 822</a> but thisRFC 822 is not RFC 822linked.</p>
 !! end
 
 !! test
@@ -10945,7 +10945,7 @@ RFC
 822
 </p>
 !! html/parsoid
-<p><a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external text">RFC <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 822</a>
+<p><a href="https://tools.ietf.org/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink">RFC <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 822</a>
 RFC
 822</p>
 !! end
@@ -11003,7 +11003,7 @@ PMID 1234
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a>
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external text">PMID 1234</a></p>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID 1234</a></p>
 !! end
 
 !! test
@@ -11014,7 +11014,7 @@ This is PMID 1234 but thisPMID 1234 is not PMID 1234linked.
 <p>This is <a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.
 </p>
 !! html/parsoid
-<p>This is <a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external text">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.</p>
+<p>This is <a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.</p>
 !! end
 
 !! test
@@ -11029,7 +11029,7 @@ PMID
 1234
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external text">PMID <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 1234</a>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 1234</a>
 PMID
 1234</p>
 !! end
@@ -15073,7 +15073,7 @@ T3887: A RFC with a thumbnail
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc12354">RFC 12354</a></div></div></div>
 
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is <a href="https://tools.ietf.org/html/rfc12354" rel="mw:ExtLink" class="external text">RFC 12354</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is <a href="https://tools.ietf.org/html/rfc12354" rel="mw:ExtLink" class="external mw-magiclink">RFC 12354</a></figcaption></figure>
 !! end
 
 !! test
@@ -21113,18 +21113,22 @@ T24905: <abbr> followed by ISBN followed by </a>
 Double RFC
 !! wikitext
 RFC RFC 1234
-!! html
+!! html/php
 <p>RFC <a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc1234">RFC 1234</a>
 </p>
+!! html/parsoid
+<p>RFC <a href="https://tools.ietf.org/html/rfc1234" rel="mw:ExtLink" class="external mw-magiclink">RFC 1234</a></p>
 !! end
 
 !! test
 Double RFC with a wiki link
 !! wikitext
 RFC [[RFC 1234]]
-!! html
+!! html/php
 <p>RFC <a href="/index.php?title=RFC_1234&amp;action=edit&amp;redlink=1" class="new" title="RFC 1234 (page does not exist)">RFC 1234</a>
 </p>
+!! html/parsoid
+<p>RFC <a rel="mw:WikiLink" href="./RFC_1234" title="RFC 1234">RFC 1234</a></p>
 !! end
 
 !! test
@@ -21135,7 +21139,7 @@ RFC   983&#x20;987
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc983">RFC 983</a>&#x20;987
 </p>
 !! html/parsoid
-<p><a href="https://tools.ietf.org/html/rfc983" rel="mw:ExtLink" class="external text" data-parsoid='{"stx":"magiclink"}'>RFC   983</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>987</p>
+<p><a href="https://tools.ietf.org/html/rfc983" rel="mw:ExtLink" class="external mw-magiclink" data-parsoid='{"stx":"magiclink"}'>RFC   983</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>987</p>
 !! end
 
 !! test
@@ -22642,8 +22646,8 @@ gopher://www.google.com
 !! html/parsoid
 <p><a rel="mw:ExtLink" class="external free" href="http://www.google.com">http://www.google.com</a>
 <a rel="mw:ExtLink" class="external free" href="gopher://www.google.com">gopher://www.google.com</a>
-<a rel="mw:ExtLink" class="external free" href="http://www.google.com">http://www.google.com</a>
-<a rel="mw:ExtLink" class="external free" href="gopher://www.google.com">gopher://www.google.com</a>
+<a rel="mw:ExtLink" class="external text" href="http://www.google.com">http://www.google.com</a>
+<a rel="mw:ExtLink" class="external text" href="gopher://www.google.com">gopher://www.google.com</a>
 <a rel="mw:ExtLink" class="external text" href="https://www.google.com">irc://www.google.com</a>
 <a rel="mw:ExtLink" class="external text" href="ftp://www.google.com">www.google.com/ftp://dir</a>
 <a rel="mw:ExtLink" class="external text" href="//www.google.com">www.google.com</a></p>
@@ -28437,8 +28441,8 @@ Magic links inside image captions (autolinked)
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a href="/wiki/Special:BookSources/123456789X" class="internal mw-magiclink-isbn">ISBN 123456789x</a></div></div></div>
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" class="external free" href="http://example.com">http://example.com</a></figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="https://tools.ietf.org/html/rfc1234" rel="mw:ExtLink" class="external text">RFC 1234</a></figcaption></figure>
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external text">PMID 1234</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="https://tools.ietf.org/html/rfc1234" rel="mw:ExtLink" class="external mw-magiclink">RFC 1234</a></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID 1234</a></figcaption></figure>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/123456789X" rel="mw:WikiLink">ISBN 123456789x</a></figcaption></figure>
 !! end
 
