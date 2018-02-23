@@ -32,12 +32,9 @@ var ParserHook = ParsoidConfig.loadExtension(
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
 
 /**
- * @class
- *
  * Main class for the test environment.
  *
- * @singleton
- * @private
+ * @class
  */
 function ParserTests(testFilePath, modes) {
 	var parseFilePath = path.parse(testFilePath);
