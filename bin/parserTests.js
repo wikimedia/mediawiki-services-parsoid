@@ -147,7 +147,7 @@ ParserTests.prototype.getTests = Promise.async(function *(argv) {
 });
 
 /**
- * Parse content of tests case file given as plaintext
+ * Parse content of tests case file given as plaintext.
  *
  * @param {string} content
  * @return {Array}
@@ -192,11 +192,12 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 });
 
 /**
- * For a selser test, check if a change we could make has already been tested in this round.
+ * For a selser test, check if a change we could make has already been
+ * tested in this round.
  * Used for generating unique tests.
  *
- * @param {Array} allChanges Already-tried changes
- * @param {Array} change Candidate change
+ * @param {Array} allChanges Already-tried changes.
+ * @param {Array} change Candidate change.
  * @return {boolean}
  */
 ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
@@ -222,7 +223,7 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @param {Object} item
  * @param {Node} body
  * @param {Array} changelist
- * @return {Node} the altered body
+ * @return {Node} The altered body.
  */
 ParserTests.prototype.applyChanges = function(item, body, changelist) {
 
@@ -382,9 +383,9 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
  * @param {Object} options
  * @param {Object} item
  * @param {Node} body
- * @return {Object} the body and change tree
- * @return {Node} [return.body] The altered body
- * @return {Array} [return.changeTree] The list of changes
+ * @return {Object} The body and change tree.
+ * @return {Node} [return.body] The altered body.
+ * @return {Array} [return.changeTree] The list of changes.
  */
 ParserTests.prototype.generateChanges = function(options, item, body) {
 	var random = new Alea((item.seed || '') + (item.title || ''));
@@ -513,7 +514,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
  *
  * @param {Node} body
  * @param {Array} changes
- * @return {Node} the changed body
+ * @return {Node} The changed body.
  */
 ParserTests.prototype.applyManualChanges = function(body, changes) {
 	var err = null;
@@ -1320,7 +1321,7 @@ ParserTests.prototype.processItem = Promise.async(function *(item, options) { //
 });
 
 /**
- * Process an article test case (i.e. the text of an article we need for a test)
+ * Process an article test case (ie the text of an article we need for a test).
  *
  * @param {Object} item
  * @param {string} item.title

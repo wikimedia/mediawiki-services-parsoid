@@ -16,7 +16,7 @@ var Util = require('../lib/utils/Util.js').Util;
 var PTUtils = module.exports = {};
 
 /**
- * Colorize given number if <> 0
+ * Colorize given number if <> 0.
  *
  * @param {number} count
  * @param {string} color
@@ -40,9 +40,9 @@ var colorizeCount = function(count, color) {
 /**
  * @param {Array} modesRan
  * @param {Object} stats
- * @param {number} stats.failedTests Number of failed tests due to differences in output
- * @param {number} stats.passedTests Number of tests passed without any special consideration
- * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting
+ * @param {number} stats.failedTests Number of failed tests due to differences in output.
+ * @param {number} stats.passedTests Number of tests passed without any special consideration.
+ * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting.
  * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
  * @param {string} file
  * @param {number} loggedErrorCount
@@ -182,9 +182,9 @@ var printWhitelistEntry = function(title, raw) {
  * @param {string} title
  * @param {Object} actual
  * @param {Object} expected
- * @param {boolean} expectFail Whether this test was expected to fail (on blacklist)
- * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff
- * @param {Object} bl BlackList
+ * @param {boolean} expectFail Whether this test was expected to fail (on blacklist).
+ * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff.
+ * @param {Object} bl BlackList.
  */
 var printFailure = function(stats, item, options, mode, title, actual, expected, expectFail, failureOnly, bl) {
 	stats.failedTests++;
@@ -259,8 +259,8 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
  * @param {Object} options
  * @param {string} mode
  * @param {string} title
- * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?)
- * @param {boolean} isWhitelist Whether this success was due to a whitelisting
+ * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?).
+ * @param {boolean} isWhitelist Whether this success was due to a whitelisting.
  */
 var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
 	var quiet = Util.booleanOption(options.quiet);
@@ -352,8 +352,8 @@ var doDiff = function(actual, expected) {
 /**
  * @param {Function} reportFailure
  * @param {Function} reportSuccess
- * @param {Object} bl BlackList
- * @param {Object} wl WhiteList
+ * @param {Object} bl BlackList.
+ * @param {Object} wl WhiteList.
  * @param {Object} stats
  * @param {Object} item
  * @param {Object} options
@@ -436,7 +436,7 @@ var reportStartOfTests = function() {
  *
  * @inheritdoc getActualExpected
  *
- * @return {string} The XML representation of the actual and expected outputs
+ * @return {string} The XML representation of the actual and expected outputs.
  */
 var getActualExpectedXML = function(actual, expected, getDiff) {
 	var returnStr = '';
