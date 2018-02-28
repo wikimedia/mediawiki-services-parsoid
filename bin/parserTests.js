@@ -599,6 +599,16 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 				this.removeChild(this.firstChild);
 			}
 		},
+		wrap: function(w) {
+			var frag = this.ownerDocument.createElement("div");
+			frag.innerHTML = w;
+			var first = frag.firstChild;
+			this.parentNode.replaceChild(first, this);
+			while (first.firstChild) {
+				first = first.firstChild;
+			}
+			first.appendChild(this);
+		}
 	};
 
 	changes.forEach(function(change) {

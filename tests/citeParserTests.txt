@@ -338,6 +338,7 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 
 ;refs
 <references group="参" />
+
 ;notes
 <references group="注" />
 !! html
