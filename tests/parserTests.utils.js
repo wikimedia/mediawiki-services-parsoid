@@ -20,21 +20,15 @@ var PTUtils = module.exports = {};
  *
  * @param {number} count
  * @param {string} color
+ * @return {string} Colorized count
  */
 var colorizeCount = function(count, color) {
-	if (count === 0) {
-		return count;
-	}
-
 	// We need a string to use colors methods
-	count = count.toString();
-
-	// FIXME there must be a wait to call a method by its name
-	if (count[color]) {
-		return count[color] + '';
-	} else {
-		return count;
+	var s = count.toString();
+	if (count === 0 || !s[color]) {
+		return s;
 	}
+	return s[color] + '';
 };
 
 /**
@@ -48,6 +42,7 @@ var colorizeCount = function(count, color) {
  * @param {number} loggedErrorCount
  * @param {RegExp|null} testFilter
  * @param {boolean} blacklistChanged
+ * @return {number} The number of failures.
  */
 var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter, blacklistChanged) {
 	var curStr, mode, thisMode;
@@ -185,6 +180,7 @@ var printWhitelistEntry = function(title, raw) {
  * @param {boolean} expectFail Whether this test was expected to fail (on blacklist).
  * @param {boolean} failureOnly Whether we should print only a failure message, or go on to print the diff.
  * @param {Object} bl BlackList.
+ * @return {boolean} True if the failure was expected.
  */
 var printFailure = function(stats, item, options, mode, title, actual, expected, expectFail, failureOnly, bl) {
 	stats.failedTests++;
@@ -261,6 +257,7 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
  * @param {string} title
  * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?).
  * @param {boolean} isWhitelist Whether this success was due to a whitelisting.
+ * @return {boolean} True if the success was expected.
  */
 var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
 	var quiet = Util.booleanOption(options.quiet);
@@ -316,6 +313,11 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess, is
  * @return {string}
  */
 var getActualExpected = function(actual, expected, getDiff) {
+	let mkVisible =
+		s => s.replace(/\n/g, '\u21b5\n'.white).replace(/\xA0/g, '\u2423'.white);
+	if (colors.mode === 'none') {
+		mkVisible = s => s;
+	}
 	var returnStr = '';
 	returnStr += 'RAW EXPECTED'.cyan + ':\n';
 	returnStr += expected.raw + '\n';
@@ -324,10 +326,10 @@ var getActualExpected = function(actual, expected, getDiff) {
 	returnStr += actual.raw + '\n';
 
 	returnStr += 'NORMALIZED EXPECTED'.magenta + ':\n';
-	returnStr += expected.normal + '\n';
+	returnStr += mkVisible(expected.normal) + '\n';
 
 	returnStr += 'NORMALIZED RENDERED'.magenta + ':\n';
-	returnStr += actual.normal + '\n';
+	returnStr += mkVisible(actual.normal) + '\n';
 
 	returnStr += 'DIFF'.cyan + ':\n';
 	returnStr += getDiff(actual, expected);
@@ -340,13 +342,17 @@ var getActualExpected = function(actual, expected, getDiff) {
  * @param {string} actual.normal
  * @param {Object} expected
  * @param {string} expected.normal
+ * @return {string} Colorized diff
  */
 var doDiff = function(actual, expected) {
 	// safe to always request color diff, because we set color mode='none'
 	// if colors are turned off.
 	var e = expected.normal.replace(/\xA0/g, '\u2423');
 	var a = actual.normal.replace(/\xA0/g, '\u2423');
-	return Diff.colorDiff(e, a);
+	return Diff.colorDiff(e, a, {
+		context: 2,
+		noColor: (colors.mode === 'none'),
+	});
 };
 
 /**
@@ -362,6 +368,7 @@ var doDiff = function(actual, expected) {
  * @param {Object} actual
  * @param {Function} pre
  * @param {Function} post
+ * @return {boolean} True if the result was as expected.
  */
 function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options, mode, expected, actual, pre, post) {
 	var title = item.title;  // Title may be modified here, so pass it on.
