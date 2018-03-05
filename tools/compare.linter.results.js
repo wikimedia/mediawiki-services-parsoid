@@ -62,7 +62,7 @@ require('../core-upgrade.js');
 var path = require('path');
 var yargs = require('yargs');
 
-var opts = yargs.usage("Usage $0 old-json-file new-json-file", {
+var opts = yargs.usage("Usage $0 [options] old-json-file new-json-file", {
 	help: {
 		description: 'Show this message',
 		'boolean': true,
@@ -72,6 +72,11 @@ var opts = yargs.usage("Usage $0 old-json-file new-json-file", {
 		description: 'Emit report in wikitext format for a wiki',
 		'boolean': true,
 		'default': false,
+	},
+	baseline_count: {
+		description: 'Baseline count for determinining remex-readiness',
+		'boolean': false,
+		'default': 25,
 	},
 });
 
@@ -152,7 +157,7 @@ highPriorityCats.forEach(function(cat) {
 // If count is below this threshold for all high priority categories,
 // we deem those wikis remex-ready. For now, hard-coded to zero, but
 // could potentially rely on a CLI option.
-var maxCountPerHighPriorityCategory = 10;
+var maxCountPerHighPriorityCategory = parseInt(argv.baseline_count, 10);
 var remexReadyWikis = [];
 wikis.forEach(function(w) {
 	if (!newResults[w]) {
@@ -175,7 +180,7 @@ wikis.forEach(function(w) {
 
 if (remexReadyWikis.length > 0) {
 	console.log('\n');
-	printer.printSectionHeader('Wikis with < 10 errors in all high priority categories');
+	printer.printSectionHeader('Wikis with < ' + argv.baseline_count + ' errors in all high priority categories');
 	printer.printTableHeader(['New', 'Changed?']);
 	for (var i = 0; i < remexReadyWikis.length; i++) {
 		printer.printTableRow([remexReadyWikis[i].name, remexReadyWikis[i].changed]);
