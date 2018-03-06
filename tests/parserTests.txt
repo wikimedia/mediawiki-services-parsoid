@@ -495,7 +495,6 @@ Extra newlines followed by heading
 a
 
 
-
 =b=
 [[a]]
 
@@ -28508,8 +28507,7 @@ parsoid=html2wt,wt2wt
 |<small>-</small>
 |<br />
 -
-|<br />
--
+|<br />-
 |}
 !! html/php+tidy
 <table>
@@ -28530,9 +28528,7 @@ parsoid=html2wt,wt2wt
 <p>-
 </p>
 </td>
-<td><br />
-<p>-
-</p>
+<td><br />-
 </td></tr></tbody></table>
 !! end
 
