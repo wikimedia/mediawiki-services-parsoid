@@ -598,7 +598,7 @@ var getOpts = function() {
 			description: 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). ' +
 				'Set to "noauto" to just run the tests with manual selser changes.',
 			'default': false,
-			'boolean': true,
+			'boolean': false,
 		},
 		'changetree': {
 			description: 'Changes to apply to parsed HTML to generate new HTML to be serialized (useful with selser)',
