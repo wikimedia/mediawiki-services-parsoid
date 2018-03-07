@@ -29941,6 +29941,9 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 <h2><span class="mw-headline" id="Foo_bar">Foo&#160;bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Foo bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <p><a href="#Foo_bar">#Foo&#160;bar</a>
 </p>
+!! html/parsoid
+<h2 id="Foo_bar"> Foo<span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>bar </h2>
+<p><a rel="mw:WikiLink" href="./Main_Page#Foo_bar" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#Foo_bar"},"sa":{"href":"#Foo&amp;nbsp;bar"}}'>#Foo bar</a></p>
 !! end
 
 !! test

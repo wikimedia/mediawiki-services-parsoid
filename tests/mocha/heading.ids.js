@@ -62,7 +62,7 @@ var headingsWithWtChars = [
 	[ "=Some '''bold''' and '''italic''' text=", 'Some_bold_and_italic_text' ],
 	[ "=Some {{1x|transclusion}} here=", 'Some_transclusion_here' ],
 	[ "={{1x|1=a and ''b'' and [[c]] and {{1x|1=d}} and e}}=", "a_and_b_and_c_and_d_and_e"],
-	[ "=Some {{convert|1|km}} here=", ["Some_1_kilometre_(0.62 mi)_here","Some_1_kilometre_.280.62.C2.A0mi.29_here"]],
+	[ "=Some {{convert|1|km}} here=", ["Some_1_kilometre_(0.62_mi)_here","Some_1_kilometre_.280.62_mi.29_here"]],
 ];
 runTests('Headings with wikitext', headingsWithWtChars, 'wikitext chars should be ignored in');
 
