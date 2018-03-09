@@ -37,7 +37,7 @@ services:
         mwApis:
         - # This is the only required parameter,
           # the URL of you MediaWiki API endpoint.
-          uri: 'http://localhost/w/api.php'
+          uri: 'https://wiki.icnsoft.org/api.php'
           # The "domain" is used for communication with Visual Editor
           # and RESTBase.  It defaults to the hostname portion of
           # the `uri` property above, but you can manually set it
