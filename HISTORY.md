@@ -1,3 +1,52 @@
+0.9.0 / 2018-03-23
+==================
+  Notable wt -> html changes
+  * Parsoid HTML version bumped to 1.6.1
+  * T114072: Add <section> wrappers to Parsoid output
+  * T118520: Use figure-inline instead of span for inline media
+  * Update Parsoid to generate modern HTML5 IDs w/ legacy fallback
+  * T58756: External links class= now setting free, text and autonumber
+  * T45094: Replace <span> with <sup> for references
+  * T97093: Use mw:WikiLink/Interwiki for interwiki links
+  * Permit extension tags in xmlish attribute values
+  * A number of bug fixes and crasher fixes
+
+  Notable html -> wt changes:
+  * Preserve original transclusion's parameter order
+  * T180930: Selser shouldn't reuse orig sep for autoinserted tags
+
+  Infrastructure:
+  * This release requires clients (VE, etc.) to return a 1.6.0 and
+    greater HTML version string in the header. If not, Parsoid will
+    return a HTTP 406. This can be fixed by updating VE (or relevant
+    clients) to a more recent version.
+  * T66003: Make strictSSL configurable per wiki as well
+  * Use pure compute workers for the request processing
+  * T123446: Bring back request timeouts
+  * Lots of changes to wikitext linting code including new
+    linter categories.
+
+  Extensions
+  * Match core's parsing of gallery dimensions
+  * Added <section> and <indicator> extension handling.
+
+  Performance fixes:
+  * Don't process token attributes unnecessarily
+  * T176728: Use replaceChild instead of insertBefore
+  * Performance fixes to domino, the html + dom library used in Parsoid
+
+  Dependencies:
+  * Upgrade eslint, domino, service-runner, request and many other
+    dev and non-dev dependencies
+
+  Cleanup:
+  * Get rid of the handleUnbalancedTables DOM pass
+  * The `normalize` post processor isn't needed any more
+  * More use of arrow functions, promises, async/yield, ES6 classes
+    in the codebase
+  * Switch from jsduck to jsdoc3 for documentation and use
+    new jsdoc-wmf-theme for documentation
+
 0.8.0 / 2017-10-24
 ==================
   Notable wt -> html changes:
