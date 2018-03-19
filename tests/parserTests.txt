@@ -30563,3 +30563,14 @@ foo ''  <!--c1--> italic <!--c2-->   '' and '''  <!--c3-->  bold  <!--c4-->  '''
 <a href="/wiki/Foo" title="Foo">  some text  </a>
 </p>
 !! end
+
+!! test
+Remove p tags surrounding a single element in a figcaption
+!! options
+parsoid=html2wt
+!! wikitext
+[[File:Foobar.jpg|right|200x200px|Caption]]
+!! html/parsoid
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption><p>Caption</p></figcaption></figure>
+!! end
+
