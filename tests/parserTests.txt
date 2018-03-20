@@ -3958,6 +3958,29 @@ should be left alone
 !! end
 
 !! test
+Definition Lists: Hacky use to indent tables (with content following table)
+!! wikitext
+:{|
+|foo
+|bar
+|} <!--c1--> this text should be part of the dl
+!! html/php+tidy
+<dl><dd><table>
+<tbody><tr>
+<td>foo
+</td>
+<td>bar
+</td></tr></tbody></table>  this text should be part of the dl</dd></dl>
+!! html/parsoid
+<dl><dd><table>
+<tbody><tr>
+<td>foo
+</td>
+<td>bar
+</td></tr></tbody></table> <!--c1--> this text should be part of the dl</dd></dl>
+!! end
+
+!! test
 Definition Lists: Hacky use to indent tables, with comments (T65979)
 !! wikitext
 <!-- foo -->
