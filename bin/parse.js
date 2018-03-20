@@ -17,6 +17,7 @@ var workerFarm = require('worker-farm');
 var parseJsPath = require.resolve('../lib/parse.js');
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var Promise = require('../lib/utils/promise.js');
 
 // Get some default values to display in argument descriptions
@@ -401,7 +402,7 @@ Promise.async(function *() {
 		}
 		if (argv.normalize) {
 			doc = DU.parseHTML(html);
-			str = DU.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
+			str = TestUtils.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
 		} else {
 			str = html;
 		}

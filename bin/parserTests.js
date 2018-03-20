@@ -14,12 +14,12 @@ var fs = require('pn/fs');
 var path = require('path');
 var Alea = require('alea');
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var Promise = require('../lib/utils/promise.js');
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
-var PTUtils = require('../tests/parserTests.utils.js');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
@@ -733,7 +733,7 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			// Strip some php output that has no wikitext representation
 			// (like .mw-editsection) and won't html2html roundtrip and
 			// therefore causes false failures.
-			html = DU.normalizePhpOutput(html);
+			html = TestUtils.normalizePhpOutput(html);
 		}
 		body = DU.parseHTML(html).body;
 		wt = yield this.convertHtml2Wt(options, mode, item, body);
@@ -872,15 +872,15 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 		('html/parsoid' in item) ||
 		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
 
-	normalizedOut = DU.normalizeOut(out, parsoidOnly);
+	normalizedOut = TestUtils.normalizeOut(out, parsoidOnly);
 	out = DU.toXML(out, { innerXML: true });
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
 			var normalDOM = DU.parseHTML(item.html).body;
-			normalizedExpected = DU.normalizeOut(normalDOM, parsoidOnly);
+			normalizedExpected = TestUtils.normalizeOut(normalDOM, parsoidOnly);
 		} else {
-			normalizedExpected = DU.normalizeHTML(item.html);
+			normalizedExpected = TestUtils.normalizeHTML(item.html);
 		}
 		item.cachedNormalizedHTML = normalizedExpected;
 	} else {
@@ -1399,7 +1399,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	wikiConf.script = '/index.php';
 	wikiConf.articlePath = '/wiki/$1';
 	wikiConf.interwikiMap.clear();
-	var iwl = PTUtils.iwl;
+	var iwl = TestUtils.iwl;
 	Object.keys(iwl).forEach(function(key) {
 		iwl[key].prefix = key;
 		wikiConf.interwikiMap.set(key, {});
@@ -1410,7 +1410,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	// Cannot modify namespaces otherwise since baseConfig is deep frozen.
 	wikiConf.siteInfo.namespaces = Util.clone(wikiConf.siteInfo.namespaces, true);
 	// Add 'MemoryAlpha' namespace (T53680)
-	PTUtils.addNamespace(wikiConf, {
+	TestUtils.addNamespace(wikiConf, {
 		"id": 100,
 		"case": "first-letter",
 		"canonical": "MemoryAlpha",
@@ -1418,14 +1418,14 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	});
 	// Testing
 	if (wikiConf.iwp === 'enwiki') {
-		PTUtils.addNamespace(wikiConf, {
+		TestUtils.addNamespace(wikiConf, {
 			"id": 4,
 			"case": "first-letter",
 			"subpages": "",
 			"canonical": "Project",
 			"*": "Base MW",
 		});
-		PTUtils.addNamespace(wikiConf, {
+		TestUtils.addNamespace(wikiConf, {
 			"id": 5,
 			"case": "first-letter",
 			"subpages": "",
@@ -1444,7 +1444,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 
 // Start the mock api server and kick off parser tests
 Promise.async(function *() {
-	var options = PTUtils.prepareOptions();
+	var options = TestUtils.prepareOptions();
 	var ret = yield serviceWrapper.runServices({ skipParsoid: true });
 	var runner = ret.runner;
 	var mockURL = ret.mockURL;

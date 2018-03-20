@@ -11,6 +11,7 @@ var zlib = require('pn/zlib');
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
@@ -304,7 +305,7 @@ var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	}
 	// No need to use ppToXML above since we're stripping
 	// data-* attributes anyways.
-	html = DU.normalizeOut(html);
+	html = TestUtils.normalizeOut(html);
 
 	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
 	// Do this always, not just when nlDiffs is true, because newline diffs
@@ -403,8 +404,8 @@ var checkIfSignificant = function(offsets, data) {
 		// Quick test for no semantic diffs
 		// If parsoid-normalized HTML for old and new wikitext is identical,
 		// the wt-diffs are purely syntactic.
-		var normalizedOld = DU.normalizeOut(oldBody, true);
-		var normalizedNew = DU.normalizeOut(newBody, true);
+		var normalizedOld = TestUtils.normalizeOut(oldBody, true);
+		var normalizedNew = TestUtils.normalizeOut(newBody, true);
 		if (normalizedOld === normalizedNew) {
 			for (i = 0; i < offsets.length; i++) {
 				offset = offsets[i];
