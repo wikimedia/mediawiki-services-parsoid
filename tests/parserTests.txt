@@ -9718,6 +9718,16 @@ parsoid
 !! end
 
 !! test
+Nested lists 10 (list and span siblings: wt2wt regression)
+!! wikitext
+*a <span>x</span>
+**b <span>y</span>
+!! html/parsoid
+<ul><li>a <span>x</span>
+<ul><li>b <span>y</span></li></ul></li></ul>
+!! end
+
+!! test
 2. Lists with start-of-line-transparent tokens before bullets: Template close
 !! wikitext
 *foo {{echo|bar

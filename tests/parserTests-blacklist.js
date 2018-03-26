@@ -648,6 +648,7 @@ add("html2wt", "Nested lists 6 (both elements empty)", "\n**\n");
 add("html2wt", "Nested lists 7 (skip initial nesting levels)", "*** foo\n");
 add("html2wt", "Nested lists 8 (multiple nesting transitions)", "* foo\n*** bar\n** baz\n* boo\n");
 add("html2wt", "1. Lists with start-of-line-transparent tokens before bullets: Comments", "* foo\n* bar\n* baz\n");
+add("html2wt", "Nested lists 10 (list and span siblings: wt2wt regression)", "* a <span>x</span>\n** b <span>y</span>\n");
 add("html2wt", "2. Lists with start-of-line-transparent tokens before bullets: Template close", "* foo bar\n* baz\n");
 add("html2wt", "List items are not parsed correctly following a <pre> block (T2785)", "* <pre>foo</pre>\n* <pre>bar</pre>\n* zar");
 add("html2wt", "List items from template", "* item 1\n* item 2\n\n* item 0\n* item 1\n* item 2\n\n* item 0\n* notSOL\n* item 1\n* item 2\n");
