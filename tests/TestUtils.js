@@ -47,9 +47,9 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)="[^\"]*"/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?"[^\"]*\\?"/g, '');
 		// single-quoted variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)='[^\']*'/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?'[^\']*\\?'/g, '');
 
 		// strip self-closed <nowiki /> because we frequently test WTS
 		// <nowiki> insertion by providing an html/parsoid section with the
