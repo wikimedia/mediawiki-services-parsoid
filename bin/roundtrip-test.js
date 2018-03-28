@@ -402,8 +402,8 @@ var checkIfSignificant = function(offsets, data) {
 	var i, offset;
 	var results = [];
 	// Use the full tests for fostered content.
-	// Fostered content => semantic diffs.
-	if (!/("|&quot;)fostered("|&quot;)\s*:\s*true\b/.test(oldBody.outerHTML)) {
+	// Fostered/misnested content => semantic diffs.
+	if (!/("|&quot;)(fostered|misnested)("|&quot;)\s*:\s*true\b/.test(oldBody.outerHTML)) {
 		// Quick test for no semantic diffs
 		// If parsoid-normalized HTML for old and new wikitext is identical,
 		// the wt-diffs are purely syntactic.
