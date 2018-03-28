@@ -41,6 +41,9 @@ var opts = yargs.usage(usage, {
 		description: 'The acceptable content version.',
 		boolean: false,
 	},
+	semanticOnly: {
+		boolean: false,
+	}
 	// FIXME: Add an option for the regression url.
 });
 
@@ -81,10 +84,17 @@ Promise.async(function *() {
 		yield ret.runner.stop();
 	});
 
+	var trimSyntactic = function(r) {
+		if (argv.semanticOnly) {
+			Object.keys(r).forEach((k) => { r[k].syntactic = undefined; });
+		}
+		return r;
+	};
+
 	var summary = [];
 	var compareResult = function(t, results) {
-		var oracle = JSON.stringify(t.oresults, null, '\t');
-		var commit = JSON.stringify(results, null, '\t');
+		var oracle = JSON.stringify(trimSyntactic(t.oresults), null, '\t');
+		var commit = JSON.stringify(trimSyntactic(results), null, '\t');
 		console.log(t.prefix, t.title);
 		if (commit === oracle) {
 			console.log('No changes!');
