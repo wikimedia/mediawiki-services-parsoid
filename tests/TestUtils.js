@@ -50,6 +50,8 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?"[^\"]*\\?"/g, '');
 		// single-quoted variant
 		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?'[^\']*\\?'/g, '');
+		// apos variant
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=&apos;.*?&apos;/g, '');
 
 		// strip self-closed <nowiki /> because we frequently test WTS
 		// <nowiki> insertion by providing an html/parsoid section with the
