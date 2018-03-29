@@ -307,9 +307,6 @@ var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	// data-* attributes anyways.
 	html = TestUtils.normalizeOut(html);
 
-	// Eliminate a source of indeterminacy from leaked strip markers
-	html = html.replace(/UNIQ-.*?-QINU/g, '');
-
 	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
 	// Do this always, not just when nlDiffs is true, because newline diffs
 	// can show up at extremities of other wt diffs.

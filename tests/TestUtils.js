@@ -44,14 +44,20 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 		throw new Error("normalizeOut input is not in standard serialized form");
 	}
 
+	// Eliminate a source of indeterminacy from leaked strip markers
+	out = out.replace(/UNIQ-.*?-QINU/g, '');
+
+	// And from the imagemap extension
+	out = out.replace(/<map name="ImageMap_[^"]*" id="ImageMap_[^"]*">/g, '<map>');
+
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?"[^\"]*\\?"/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\?"[^\"]*\\?"/g, '');
 		// single-quoted variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=\\?'[^\']*\\?'/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\?'[^\']*\\?'/g, '');
 		// apos variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|vocab|content|style)=&apos;.*?&apos;/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/g, '');
 
 		// strip self-closed <nowiki /> because we frequently test WTS
 		// <nowiki> insertion by providing an html/parsoid section with the
@@ -79,9 +85,9 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 	// Strip JSON attributes like data-mw and data-parsoid early so that
 	// comment stripping in normalizeNewlines does not match unbalanced
 	// comments in wikitext source.
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|class)="[^\"]*"/g, '');
+	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^\"]*"/g, '');
 	// single-quoted variant
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|vocab|content|class)='[^\']*'/g, '');
+	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^\']*'/g, '');
 	// strip typeof last
 	out = out.replace(/ typeof="[^\"]*"/g, '');
 
