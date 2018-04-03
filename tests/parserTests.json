@@ -20,5 +20,11 @@
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
 		"path": "tests/langParserTests.txt"
+	},
+	"poemParserTests.txt": {
+		"repo": "/wikimedia/mediawiki-extensions-Poem/",
+		"path": "tests/parser/parserTests.txt",
+		"expectedSHA1": "da480d0032f2b24a8c48bac5417f8c3bc52d48ee",
+		"latestCommit": "bc7b145051a0de0f3be0aa3d861cc8b633f99e11"
 	}
 }
