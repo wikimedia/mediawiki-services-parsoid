@@ -37,14 +37,14 @@ var myLittleHelper = function(env, extToken, argDict, html, cb) {
 var dumpHook = function(manager, pipelineOpts, extToken, cb) {
 	// All the interesting info is in data-mw.
 	var html = '<pre />';
-	var argDict = Util.getArgInfo(extToken).dict;
+	var argDict = Util.getExtArgInfo(extToken).dict;
 	myLittleHelper(manager.env, extToken, argDict, html, cb);
 };
 
 // Async processing means this isn't guaranteed to be in the right order.
 // Plus, parserTests reuses the environment so state is bound to clash.
 var staticTagHook = function(manager, pipelineOpts, extToken, cb) {
-	var argDict = Util.getArgInfo(extToken).dict;
+	var argDict = Util.getExtArgInfo(extToken).dict;
 	var html;
 	if (argDict.attrs.action === 'flush') {
 		html = '<p>' + this.state.buf + '</p>';
