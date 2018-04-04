@@ -293,7 +293,7 @@ const runTest = Promise.async(function *(domain, title, lang, options, formatter
 		if (!(yield fs.exists(dir))) {
 			yield fs.mkdir(dir);
 		}
-		nocksFile = `${dir}/lc-${encodeURIComponent(title)}.js`;
+		nocksFile = `${dir}/lc-${encodeURIComponent(title)}-${lang}.js`;
 		if (options.record) {
 			nock = require('nock');
 			nock.recorder.rec({ dont_print: true });
