@@ -14,9 +14,8 @@ var TagTk = defines.TagTk;
 describe('Sanitizer', function() {
 	it('should sanitize attributes according to php\'s getAttribsRegex', function() {
 		var fakeEnv = {};
-		var sanitizer = new Sanitizer(fakeEnv);
 		var name = 'testelement';
-		sanitizer.attrWhiteListCache[name] = new Set([
+		Sanitizer.attrWhiteListCache[name] = new Set([
 			'foo', 'עברית', '६', '搭𨋢', 'ńgh',
 		]);
 		var token = new TagTk(name);
@@ -26,7 +25,7 @@ describe('Sanitizer', function() {
 		token.setAttribute('६', 'bar');
 		token.setAttribute('搭𨋢', 'bar');
 		token.setAttribute('ńgh', 'bar');
-		token = sanitizer.sanitizeToken(token);
+		token = Sanitizer.sanitizeToken(fakeEnv, token);
 		token.getAttribute('foo').should.equal('bar');
 		should.equal(token.getAttribute('bar'), null);
 		token.getAttribute('עברית').should.equal('bar');
