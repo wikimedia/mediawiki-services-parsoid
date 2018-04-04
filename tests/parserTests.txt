@@ -20936,6 +20936,25 @@ File:Foobar.jpg
 !! end
 
 !! test
+Serialize gallery image captions on a line
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "nativeGallery": true
+}
+!! html/parsoid
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext"><p>hi</p><p>ho</p></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext">hi<br />ho</div></li>
+</ul>
+!! wikitext
+<gallery>
+File:Foobar.jpg| hi  ho 
+File:Foobar.jpg|hi<br />ho
+</gallery>
+!! end
+
+!! test
 HTML Hex character encoding (spells the word "JavaScript")
 !! options
 parsoid=wt2html,wt2wt,html2html
@@ -28937,7 +28956,7 @@ parsoid={
 !! html/parsoid
 <h2>foo<br/>bar</h2>
 !! wikitext
-== foo<br /> bar ==
+== foo<br />bar ==
 !! end
 
 !! test
