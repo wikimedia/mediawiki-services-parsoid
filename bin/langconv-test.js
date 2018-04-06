@@ -256,7 +256,7 @@ const extractText = function(env, document) {
 			return true;
 		}
 		if (/^(\.|\/wiki)\//.test(href)) {
-			const title = Util.decodeURI(href.replace(/^.*\//, ''));
+			const title = Util.decodeURIComponent(href.replace(/^.*\//, ''));
 			addSep(' ');
 			emit(`[${title}]`);
 			addSep(' ');
