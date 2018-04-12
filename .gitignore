@@ -18,3 +18,4 @@ coverage/
 contrib/
 extensions/
 nocks/
+deploy/
