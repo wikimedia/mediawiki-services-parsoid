@@ -416,6 +416,10 @@ var checkIfSignificant = function(offsets, data) {
 				});
 			}
 			return results;
+		} else {
+			// Uncomment to log the cause of the failure.  This is often useful
+			// for determining the root of non-determinism in rt.  See T151474
+			// console.log(Diff.diffLines(normalizedOld, normalizedNew));
 		}
 	}
 
