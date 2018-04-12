@@ -28186,7 +28186,7 @@ parsoid={
 !! html/parsoid
 <a rel="mw:WikiLink" href="./Football"><i>Foot</i></a><a rel="mw:WikiLink" href="./Football"><i>ball</i></a>
 !! wikitext
-[[Football|''Football'']]
+''[[Football]]''
 !! end
 
 !! test
@@ -28200,6 +28200,75 @@ parsoid={
 <a rel="mw:WikiLink" href="./Football">Foot</a><a rel="mw:WikiLink" href="./Football">ball</a>
 !! wikitext
 [[Football|Foot]][[Football|ball]]
+!! end
+
+!! test
+1. Move format tags outside of WikiLink
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Football"><i><b>Football</b></i></a>
+!! wikitext
+'''''[[Football]]'''''
+!! end
+
+!! test
+2. Move multiple format tags outside of WikiLink
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>
+!! wikitext
+<u>'''''[[Football]]'''''</u>
+!! end
+
+!! test
+3. Move format tags outside of WikiLink with mergable A tags
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Football"><i><b>Foot</b></i></a><a rel="mw:WikiLink" href="./Football"><i><b>ball</b></i></a>
+!! wikitext
+'''''[[Football]]'''''
+!! end
+
+!! test
+4. Move format tags outside of WikiLink while preserving formats already outside WikiLink
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<font color="red"><a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect"><u><b>Foo</b></u></a></font>
+!! wikitext
+<font color="red"><u>'''[[Foo]]'''</u></font>
+!! end
+
+!! test
+5. Do not move format tags outside of WikiLink which includes attributes color, style and class
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect"><font color="red">Foo</font></a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect"><span style="color: blue; font-size: 46px;">Foo></span></a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect"><span class="Bar">Foo</span></a>
+!! wikitext
+[[Foo|<font color="red">Foo</font>]]
+[[Foo|<span style="color: blue; font-size: 46px;">Foo></span>]]
+[[Foo|<span class="Bar">Foo</span>]]
 !! end
 
 #------------------------------
