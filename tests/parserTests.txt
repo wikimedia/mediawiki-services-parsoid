@@ -14686,6 +14686,25 @@ Image with nested tables in caption
 </figcaption></figure>
 !! end
 
+!! test
+Image with heading and horizontal rule in caption
+!! wikitext
+[[File:Foobar.jpg|thumb|
+=== Testing ===
+123
+--------------
+]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><h3><span class="mw-headline" id="Testing">Testing</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Testing">edit</a><span class="mw-editsection-bracket">]</span></span></h3> 123 <hr /></div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n=== Testing ===\n123\n--------------\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{"href":"File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
+<h3 id="Testing"> Testing </h3>
+123
+<hr data-parsoid='{"extra_dashes":10}'/>
+</figcaption></figure>
+!! end
+
 ###################
 # Conflicting image format options.
 # First option specified should 'win'.
