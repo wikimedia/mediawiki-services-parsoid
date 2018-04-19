@@ -28210,26 +28210,17 @@ parsoid={
   "scrubWikitext": true
 }
 !! html/parsoid
+<a rel="mw:WikiLink" href="./Football"><i>Football</i></a>
 <a rel="mw:WikiLink" href="./Football"><i><b>Football</b></i></a>
-!! wikitext
-'''''[[Football]]'''''
-!! end
-
-!! test
-2. Move multiple format tags outside of WikiLink
-!! options
-parsoid={
-  "modes": ["html2wt"],
-  "scrubWikitext": true
-}
-!! html/parsoid
 <a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>
 !! wikitext
+''[[Football]]''
+'''''[[Football]]'''''
 <u>'''''[[Football]]'''''</u>
 !! end
 
 !! test
-3. Move format tags outside of WikiLink with mergable A tags
+2. Move format tags outside of WikiLink with mergable A tags
 !! options
 parsoid={
   "modes": ["html2wt"],
@@ -28242,7 +28233,7 @@ parsoid={
 !! end
 
 !! test
-4. Move format tags outside of WikiLink while preserving formats already outside WikiLink
+3. Move format tags outside of WikiLink while preserving formats already outside WikiLink
 !! options
 parsoid={
   "modes": ["html2wt"],
@@ -28255,7 +28246,7 @@ parsoid={
 !! end
 
 !! test
-5. Do not move format tags outside of WikiLink which includes attributes color, style and class
+4. Do not move format tags outside of WikiLink which includes attributes color, style and class
 !! options
 parsoid={
   "modes": ["html2wt"],
