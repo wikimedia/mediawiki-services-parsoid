@@ -36,7 +36,6 @@ var add = function(mode, title, raw) {  // eslint-disable-line
 // ### DO NOT REMOVE THIS LINE ### (start of automatically-generated section)
 
 // Blacklist for wt2html
-add("wt2html", "Extra newlines between heading and content are swallowed", "<h1 id=\"b\" data-parsoid='{\"dsr\":[0,3,1,1]}'>b</h1>\n<p data-parsoid='{\"dsr\":[4,5,0,0]}'>\n<br data-parsoid='{\"dsr\":[5,5,0,0]}'/></p>\n\n<p data-parsoid='{\"dsr\":[7,12,0,0]}'><a rel=\"mw:WikiLink\" href=\"./A\" title=\"A\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./A\"},\"sa\":{\"href\":\"a\"},\"dsr\":[7,12,2,2]}'>a</a></p>");
 add("wt2html", "Non-word characters don't terminate tag names (T19663, T42670, T54022)", "&lt;blockquote|>a\n\n<p data-parsoid='{\"dsr\":[29,57,0,0]}'>&lt;b→> doesn't terminate &lt;/b→></p>\n\n<p data-parsoid='{\"dsr\":[59,87,0,0]}'>&lt;bä> doesn't terminate &lt;/bä></p>\n\n<p data-parsoid='{\"dsr\":[89,119,0,0]}'>&lt;boo> doesn't terminate &lt;/boo></p>\n\n<p data-parsoid='{\"dsr\":[121,155,0,0]}'>&lt;s.foo> doesn't terminate &lt;/s.foo></p>\n\n<p data-parsoid='{\"dsr\":[157,167,0,0]}'>&lt;sub-ID#1></p>");
 add("wt2html", "Non-word characters don't terminate tag names", "&lt;blockquote|>a\n\n<p data-parsoid='{\"dsr\":[29,57,0,0]}'>&lt;b→> doesn't terminate &lt;/b→></p>\n\n<p data-parsoid='{\"dsr\":[59,87,0,0]}'>&lt;bä> doesn't terminate &lt;/bä></p>\n\n<p data-parsoid='{\"dsr\":[89,119,0,0]}'>&lt;boo> doesn't terminate &lt;/boo></p>\n\n<p data-parsoid='{\"dsr\":[121,155,0,0]}'>&lt;s.foo> doesn't terminate &lt;/s.foo></p>\n\n<p data-parsoid='{\"dsr\":[157,167,0,0]}'>&lt;sub-ID#1></p>");
 add("wt2html", "Comment on its own line post-expand", "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>a\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[2,11,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"blank\",\"href\":\"./Template:Blank\"},\"params\":{},\"i\":0}}]}'></span><!---->\nb</p>");
@@ -213,7 +212,6 @@ add("wt2wt", "Build table with pipe as data", "{| class=\"wikitable\"\n!header\n
 add("wt2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]");
 add("wt2wt", "<nowiki> inside a link", "[[Main<nowiki> Page</nowiki><nowiki>]] </nowiki>[[Main Page|the main page <nowiki>[it's not very good]</nowiki>]]");
 add("wt2wt", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved", "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']");
-add("wt2wt", "Redirect followed by multiple newlines", "#REDIRECT [[Main Page]]\n\nA newline");
 add("wt2wt", "Handling html with a div self-closing tag", "<div title=\"\" />\n<div title=\"\" />\n<div title=\"\" />\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">");
 add("wt2wt", "Handling html with a br self-closing tag", "<br title=\"\" />\n<br title=\"\" />\n<br title=\"\" />\n<br title=\"bar\" />\n<br title=\"bar\" />\n<br title=\"bar/\">");
 add("wt2wt", "Horizontal ruler (should it add that extra space?)", "<hr />\n<hr />\nfoo <hr> bar");
@@ -280,7 +278,6 @@ add("wt2wt", "Image: upright option is ignored on inline and frame images (parso
 
 // Blacklist for html2html
 add("html2html", "Extra newlines followed by heading", "<p data-parsoid='{\"dsr\":[0,1,0,0]}'>a</p>\n<p data-parsoid='{\"dsr\":[2,3,0,0]}'>\n<br data-parsoid='{\"dsr\":[3,3,0,0]}'/></p>\n<h1 id=\"b\" data-parsoid='{\"dsr\":[4,9,1,1]}'> b </h1>\n<p data-parsoid='{\"dsr\":[10,54,0,0]}'>[/index.php?title=A&amp;action=edit&amp;redlink=1 a]</p>\n<p data-parsoid='{\"dsr\":[55,56,0,0]}'>\n<br data-parsoid='{\"dsr\":[56,56,0,0]}'/></p>\n<h1 id=\"b_2\" data-parsoid='{\"dsr\":[57,62,1,1]}'> b </h1>\n");
-add("html2html", "Extra newlines between heading and content are swallowed", "<h1 id=\"b\" data-parsoid='{\"dsr\":[0,5,1,1]}'> b </h1>\n<p data-parsoid='{\"dsr\":[6,50,0,0]}'>[/index.php?title=A&amp;action=edit&amp;redlink=1 a]</p>\n");
 add("html2html", "Italics and possessives (1)", "<p data-parsoid='{\"dsr\":[0,115,0,0]}'>obtained by <i data-parsoid='{\"dsr\":[12,91,2,2]}'>[/index.php?title=Lunar_Prospector&amp;action=edit&amp;redlink=1 Lunar Prospector]'</i>s gamma-ray spectrometer</p>\n");
 add("html2html", "Italics and possessives (3)", "<p data-parsoid='{\"dsr\":[0,421,0,0]}'>The first monolingual dictionary written in a Romance language was <i data-parsoid='{\"dsr\":[67,93,2,2]}'>Sebastián Covarrubias'</i> <i data-parsoid='{\"dsr\":[94,139,2,2]}'>Tesoro de la lengua castellana o española</i>, published in 1611 in Madrid. In 1612 the first edition of the <i data-parsoid='{\"dsr\":[203,310,2,2]}'>Vocabolario dell'[/index.php?title=Accademia_della_Crusca&amp;action=edit&amp;redlink=1 Accademia della Crusca]</i>, for Italian, was published. In 1690 in Rotterdam was published, posthumously, the <i data-parsoid='{\"dsr\":[394,420,2,2]}'>Dictionnaire Universel</i>.</p>\n");
 add("html2html", "Preformatted text", "<pre data-parsoid='{\"dsr\":[0,96,1,0]}'>This is some\nPreformatted text\nWith <i data-parsoid='{\"dsr\":[39,49,2,2]}'>italic</i>\nAnd <b data-parsoid='{\"dsr\":[55,65,3,3]}'>bold</b>\nAnd a <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[73,96,17,2]}'>link</a></pre>\n");
@@ -336,11 +333,10 @@ add("html2html", "Internal link with is link trail and link prefix", "<p data-pa
 add("html2html", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved", "<p data-parsoid='{\"dsr\":[0,18,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,18,11,2]}'>  bar</a></p>\n\n<p data-parsoid='{\"dsr\":[20,42,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[20,42,11,2]}'>  <i data-parsoid='{\"dsr\":[33,40,2,2]}'>bar</i></a></p>\n\n<p data-parsoid='{\"dsr\":[44,63,0,0]}'><a rel=\"mw:ExtLink\" class=\"external text\" href=\"http://wp.org\" data-parsoid='{\"targetOff\":59,\"contentOffsets\":[59,62],\"dsr\":[44,63,15,1]}'>foo</a></p>\n\n<p data-parsoid='{\"dsr\":[65,88,0,0]}'><a rel=\"mw:ExtLink\" class=\"external text\" href=\"http://wp.org\" data-parsoid='{\"targetOff\":80,\"contentOffsets\":[80,87],\"dsr\":[65,88,15,1]}'><i data-parsoid='{\"dsr\":[80,87,2,2]}'>foo</i></a></p>\n");
 add("html2html", "Space and question mark encoding in interlanguage links (T95473)", "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo_bar?\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo_bar?\"},\"sa\":{\"href\":\"es:Foo_bar?\"},\"dsr\":[15,30,null,null]}'/>");
 add("html2html", "Parsoid-specific test: Wikilinks with &nbsp; should RT properly", "<p data-parsoid='{\"dsr\":[0,52,0,0]}'>[/index.php?title=WW_II&amp;action=edit&amp;redlink=1 WW II]</p>\n");
-add("html2html", "Redirect followed by multiple newlines", "<link rel=\"mw:PageProp/redirect\" href=\"./Main_Page\" data-parsoid='{\"src\":\"#REDIRECT \",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[0,23,null,null]}'/>\n\n<p data-parsoid='{\"dsr\":[25,34,0,0]}'>A newline</p>");
 add("html2html", "<br> to <br />", "<p data-parsoid='{\"dsr\":[0,3,0,0]}'>123</p>\n");
 add("html2html", "Incorrecly removing closing slashes from correctly formed XHTML", "\n\n");
-add("html2html", "Failing to transform badly formed HTML into correct XHTML", "\n\n");
-add("html2html", "Handling html with a br self-closing tag", "\n\n");
+add("html2html", "Failing to transform badly formed HTML into correct XHTML", "\n<p data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[1,2,0,0]}'>\n<br data-parsoid='{\"dsr\":[2,2,0,0]}'/></p>\n");
+add("html2html", "Handling html with a br self-closing tag", "\n<p data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[1,2,0,0]}'>\n<br data-parsoid='{\"dsr\":[2,2,0,0]}'/></p>\n");
 add("html2html", "2. List embedded in a formatting tag in a misnested way", "<p data-parsoid='{\"dsr\":[0,23,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"dsr\":[0,15,7,8]}'></small>\n<small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[16,23,7,0]}'></small></p><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[23,36,0,8]}'>\n<ul data-parsoid='{\"dsr\":[24,27,0,0]}'><li data-parsoid='{\"dsr\":[24,27,1,0]}'> a</li></ul>\n</small>\n<ul data-parsoid='{\"dsr\":[37,55,0,0]}'><li data-parsoid='{\"dsr\":[37,55,1,0]}'> <small data-parsoid='{\"stx\":\"html\",\"dsr\":[39,55,7,8]}'>b</small></li></ul>\n");
 add("html2html", "Case-sensitive magic words, when cased differently, should just be template transclusions", "<p data-parsoid='{\"dsr\":[0,331,0,0]}'>[/index.php?title=Template:CurrentMonth&amp;action=edit&amp;redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&amp;action=edit&amp;redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&amp;action=edit&amp;redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&amp;action=edit&amp;redlink=1 Template:CurrentHour]</p>\n");
 add("html2html", "Nonexistent template", "<p data-parsoid='{\"dsr\":[0,108,0,0]}'>[/index.php?title=Template:Thistemplatedoesnotexist&amp;action=edit&amp;redlink=1 Template:Thistemplatedoesnotexist]</p>\n");
@@ -436,7 +432,8 @@ add("html2wt", "Paragraphs with newline spacing with non-empty white-space lines
 add("html2wt", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between", "----\na\nb\n\n----\na\nb\n\n----\na\n\nb\n\n----\na\n \n\nb\n\n----\n");
 add("html2wt", "Extra newlines: More paragraphs with indented comment", "a\n\n\nb\n");
 add("html2wt", "Extra newlines followed by heading", "a\n\n\n= b =\n[/index.php?title=A&action=edit&redlink=1 a]\n\n\n= b =\n");
-add("html2wt", "Extra newlines between heading and content are swallowed", "= b =\n[/index.php?title=A&action=edit&redlink=1 a]\n");
+add("html2wt", "Extra newlines between heading and content are swallowed (Parsoid does not)", "= b =\n\n\n\n[[a]]");
+add("html2wt", "Extra new lines before and after lists are preserved", "a\n\n\n* b\n\n\nc");
 add("html2wt", "Parsing an URL", "http://fr.wikipedia.org/wiki/🍺\n");
 add("html2wt", "Simple list", "* Item 1\n* Item 2\n");
 add("html2wt", "Italics and bold", "* plain\n* plain''italic''plain\n* plain''italic''plain''italic''plain\n* plain'''bold'''plain\n* plain'''bold'''plain'''bold'''plain\n* plain''italic''plain'''bold'''plain\n* plain'''bold'''plain''italic''plain\n* plain''italic'''bold-italic'''italic''plain\n* plain'''bold''bold-italic''bold'''plain\n* plain'''''bold-italic'''italic''plain\n* plain'''''bold-italic''bold'''plain\n* plain''italic'''bold-italic'''''plain\n* plain'''bold''bold-italic'''''plain\n* plain l'''italic''plain\n* plain l''''bold''' plain\n");
@@ -626,12 +623,11 @@ add("html2wt", "Parsoid-centric test: Whitespace in ext- and wiki-links should b
 add("html2wt", "Interwiki link with fragment (T4130)", "[[meatball:SoftSecurity#foo|MeatBall:SoftSecurity#foo]]\n");
 add("html2wt", "Escaping of interlanguage links (T129218, T156308)", "Blah blah blah\n[[:es:Spanish]]\n[[:zh:Chinese| zh : Chinese ]]");
 add("html2wt", "Parsoid-specific test: Wikilinks with &nbsp; should RT properly", "[/index.php?title=WW_II&action=edit&redlink=1 WW II]\n");
-add("html2wt", "Redirect followed by multiple newlines", "#REDIRECT [[Main Page]]\n\nA newline");
 add("html2wt", "<br> to <br />", "123\n");
 add("html2wt", "Incorrecly removing closing slashes from correctly formed XHTML", "\n\n");
-add("html2wt", "Failing to transform badly formed HTML into correct XHTML", "\n\n");
+add("html2wt", "Failing to transform badly formed HTML into correct XHTML", "\n\n\n");
 add("html2wt", "Handling html with a div self-closing tag", "<div title=\"\" />\n<div title=\"\" />\n<div title=\"\" />\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">");
-add("html2wt", "Handling html with a br self-closing tag", "\n\n");
+add("html2wt", "Handling html with a br self-closing tag", "\n\n\n");
 add("html2wt", "Horizontal ruler (should it add that extra space?)", "----\n----\nfoo \n---- bar\n");
 add("html2wt", "Horizontal ruler -- eats additional dashes on the same line", "----\n");
 add("html2wt", "Common list", "* Common list\n* item 2\n* item 3\n");
@@ -1022,9 +1018,20 @@ add("selser", "Extra newlines followed by heading [[4],4,2,2,3,4,[[3]],0,3,3,[2]
 add("selser", "Extra newlines followed by heading [4,4,[0,3],3,[2],0,0,3,2,0,1]", "1dcli6x\n\n1k4ub3v\n\n=1xzavjgb=\n[[a]]\n\n1bh3cza\n\n\n\n=b=");
 add("selser", "Extra newlines followed by heading [2,0,2,0,0,0,[[4]],2,[0,3],0,2]", "1g742p5\n\na\n\nmkx4u5\n\n\n\n=b=\n[[a|8527wl]]\n\nv5sv0o\n\n1fsgsfv\n\n=b=");
 add("selser", "Extra newlines followed by heading [2,3,0,2,2,0,[4],3,[4,2],0,4]", "1op6yaw\n\na\n\n\n\n\niv2cjo\n\n1qzfkb2\n\n=b=\nph5ntp\n\nor84qgy3754w\niv8j30");
-add("selser", "Extra newlines between heading and content are swallowed [4,0,2,0,[[2]]]", "190q6m0\n\n1pt9xk8\n\n\n\n\n[[a|wwueyoa]]");
-add("selser", "Extra newlines between heading and content are swallowed [2,3,2,3,4]", "1tu50a0\n\n=b=\nnv5325\n\n\n\n\n1jm30fd");
-add("selser", "Extra newlines between heading and content are swallowed [[4],3,1,0,4]", "=pyxfsa=\n\n\n\n\n\n1joti9v");
+add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [[4],4,0,0,[4]]", "=5vz55o=\n5ysrd5\n\n\n\n\n1r16ozp");
+add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [0,4,2,0,4]", "=b=\niplho9\n\nchn6bs\n\n\n\n\n6hw1lv");
+add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [0,0,[3,0],0,[[3]]]", "=b=\n\n\n\n\n[[a|<nowiki/>]]");
+add("selser", "Extra new lines before and after lists are preserved [0,0,[3,0],0,[4],3,3]", "a\n\n\n\n\n\n* i5gpmh");
+add("selser", "Extra new lines before and after lists are preserved [[3],4,[4,0],0,3,3,4]", "\niqom1p\n\n1b83i36\n\n1frutll");
+add("selser", "Extra new lines before and after lists are preserved [1,0,[0,3],4,0,0,2]", "a\n\nhegt06\n\n*b\n\n7por6f\n\n\n\nc");
+add("selser", "Extra new lines before and after lists are preserved [0,0,[4,1],3,4,4,0]", "a\n\nuwqbby\n\nswx0px\n\nz47jbr\n\n\n\nc");
+add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,[4],3,0]", "\n\n\n\n\n* ylz4o1\n\n\n\nc");
+add("selser", "Extra new lines before and after lists are preserved [1,0,1,0,3,0,[4,4,0]]", "a\n\n\n\n\n\np875331pu3vsk\nc");
+add("selser", "Extra new lines before and after lists are preserved [3,0,4,0,0,2,2]", "\n1v8rczn\n\n*b\n\n17m5f7l\n\njr84xz\n\n\n\nc");
+add("selser", "Extra new lines before and after lists are preserved [[3],3,2,3,[4],0,[0,3,2]]", "\nt98t4z\n\n\n\n\n* vj0fpy\n\n16l3wr9\nc");
+add("selser", "Extra new lines before and after lists are preserved [0,0,2,0,[1],0,[0,0,2]]", "a\n\ni63xq1\n\n\n\n*b\n\n\n\nw10opj\nc");
+add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,3,0,[0,0,4]]", "\n\n\n\n\n\n\n\nblmxw3");
+add("selser", "Extra new lines before and after lists are preserved [0,2,0,3,4,0,1]", "a\n\nr1rcmh\n\n\n\n\n1kpap7t\n\n\nc");
 add("selser", "Parsing an URL [[[2]],2,0]", "[[:fr:🍺|mwh6a1http://fr.wikipedia.org/wiki/🍺]]\n\nfj3cgh\n<!-- EasterEgg we love beer, better be able be able to link to it -->");
 add("selser", "Italics and bold: 5-quote opening sequence: (5,6) [[[2]]]", "''f2isaa'''foo''''''");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [1]", "{| data-foobar=\"1hy2782\"\n!''a!!''b\n|''a||''b\n|}");
@@ -1049,7 +1056,7 @@ add("selser", "Empty lines between lines with block tags [2,0,[0,1],3,2,0,0,4,2,
 add("selser", "Empty lines between lines with block tags [0,4,2,2,0,0,0,[3],4,3,0,0,0,2,2,1,4,2]", "<div></div>n23fa\n\n1t82bez\n\n\n\n\n15yhe4b\n<div></div>a\n\n1rdp6ou\n\nb\n\n<div>b</div>1xvd761\n\nd\n\nvlf4a8\n\n\n\n4xozs6\n\nnzhxyc<div>e</div>");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[0,0,2,0,0],0,0]", "3spi4chi\n\n\n\n1af3ip4\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [4,0,1,0,0]", "1ifiv62\n\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
-add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [3,0,[0,0,3,0,0],0,0]", "\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
+add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [3,0,[0,0,3,0,0],0,0]", "\n\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[3,0,0,0,0],0,3]", "ig6ro7hi\n\n\n\n{{echo|<br/>\n}}\n");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [1,0,[3,0,2,0,0],0,1]", "hi\n\n\n\n\n1f3k9n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [3,4,1,0,4]", "11c84ga\n\n\n\n{{echo|<br/>\n}}\n\n1uy04ef");
@@ -1348,9 +1355,7 @@ add("selser", "Different interwiki prefixes mapping to the same URL [4,3,[[2]],2
 add("selser", "Parsoid: recognize interwiki links without a target page [2,2,1]", "13h7yqp\n\n[[:es:]]\n\nn76wcf\n\n[[ko:]]");
 add("selser", "Parsoid: recognize interwiki links without a target page [[2],2,1]", "1fz9jlc[[:es:]]\n\n2alzzr\n\n[[ko:]]");
 add("selser", "Parsoid: recognize interwiki links without a target page [1,4,1]", "[[:es:]]\n\neviwhn\n\n[[ko:]]");
-add("selser", "Redirect followed by multiple newlines [0,0,1]", "#REDIRECT [[Main Page]]\n\n\nA newline");
 add("selser", "Redirect followed by multiple newlines [0,2,0]", "#REDIRECT [[Main Page]]\ng4oou8\n\n\n\nA newline");
-add("selser", "Redirect followed by multiple newlines [1,0,1]", "#REDIRECT [[Main Page]]\n\n\nA newline");
 add("selser", "Handling html with a div self-closing tag [0,0,4,0,1,0,1,0,3,4,3]", "<div title />\njvfv9u\n<div title=\"\" data-foobar=\"19amz5u\" />\n<div title=\"bar\" data-foobar=\"2c0zl1\" />\nunjgxk");
 add("selser", "Handling html with a div self-closing tag [0,2,3,0,1,3,4,0,0,0,2]", "<div title />z4hu3d\n\n<div title=\"\" data-foobar=\"1ejw30m\" />zpk4k0\n<div title=bar/>\n9vzhbx<div title=bar/ >");
 add("selser", "Handling html with a div self-closing tag [0,2,0,2,0,0,1,2,4,3,1]", "<div title />z1wu6q\n<div title/>prls0w\n<div title/ >\n<div title=\"bar\" data-foobar=\"17m8bl0\" />7xb62b\najpkh9<div title=\"bar/\" data-foobar=\"z4xusc\">");

@@ -513,17 +513,51 @@ a
 !! end
 
 !! test
-Extra newlines between heading and content are swallowed
+Extra newlines between heading and content are swallowed (Parsoid does not)
 !! wikitext
 =b=
 
 
 
 [[a]]
-!! html
+!! html/php+tidy
 <h1><span class="mw-headline" id="b">b</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p><a href="/index.php?title=A&amp;action=edit&amp;redlink=1" class="new" title="A (page does not exist)">a</a>
 </p>
+!! html/parsoid
+<h1 id="b">b</h1>
+<p>
+<br></p>
+
+<p><a rel="mw:WikiLink" href="./A" title="A">a</a></p>
+!! end
+
+!! test
+Extra new lines before and after lists are preserved
+!! wikitext
+a
+
+
+*b
+
+
+c
+!! html/php+tidy
+<p>a
+</p><p><br />
+</p>
+<ul><li>b</li></ul>
+<p><br />
+c
+</p>
+!! html/parsoid
+<p>a</p>
+<p>
+<br></p>
+<ul><li>b</li></ul>
+<p>
+<br>
+c</p>
 !! end
 
 !! test
