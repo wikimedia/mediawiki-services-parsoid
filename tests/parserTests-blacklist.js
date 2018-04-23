@@ -984,16 +984,19 @@ add("html2wt", "Lead section containing only whitespace and comments.", "\n<!-- 
 
 
 // Blacklist for selser
-add("selser", "Paragraphs with extra newline spacing [[3],4,2,3,[3,0,0],3,[0,3],0,2]", "\natfyec\n\n1kryict\n\nbar\n\n\n\nbaz\n\n19wbnqo\n\nbooz");
-add("selser", "Paragraphs with extra newline spacing [[4],4,[4],4,[0,3,4],4,0,0,[4]]", "ig00cj\n\ntexojj\n\n1m8256m\n\n1bnsxft\n\n139m36s\n\n1ob93o2\n\n\n\n\ng9l7i6");
-add("selser", "Paragraphs with extra newline spacing [0,2,1,3,[0,0,3],2,0,0,4]", "foo\n\nm8yeba\n\nbar\n\n\n\nn1usum\n\n\n\n\n1kzuzg7");
-add("selser", "Paragraphs with extra newline spacing [1,2,0,2,[0,4,0],0,0,0,[4]]", "foo\n\n3zfgv8\n\nbar\n\n1fjqbu9\n\n4r7i6n\nbaz\n\n\n\n\n2x64pq");
-add("selser", "Paragraphs with extra newline spacing [3,0,4,3,[0,0,4],2,4,3,0]", "\n1v4dgwd\n\n\n\n\n1gdvs6o\n\nmpvvk3\n\njj4zx7\n\nbooz");
-add("selser", "Paragraphs with extra newline spacing [3,4,3,0,[0,0,3],3,0,3,2]", "1357731\n\n\n\n\n\n\n1474dpy\n\nbooz");
-add("selser", "Paragraphs with extra newline spacing [[2],0,1,0,2,0,[4,0],3,[3]]", "d042mfoo\n\nbar\n\n161g3qj\n\n\n\nbaz\n\nbye4qx\n\n");
+add("selser", "Paragraphs with extra newline spacing [2,2,1,0,[2,0,2],4,3,4,2,0,4,0,2]", "1t4pc8b\n\na\n\nmzmf7w\n\nb (+2 nls)\n\nf6057g\n1qoub4r\nc (+3 nls)\n\n9tdij\n\nrntitb\n\n1od6qn7\n\nd (+4 nls)\n\nc5qflz\n\n3pd2e\n\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [3,0,0,2,3,0,4,2,3,0,0,0,1]", "\nb (+2 nls)\n\n1b0t6uz\n\n1ajz5vj\n\nr8ae0b\n\n\n\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [[3],4,2,3,[3,0,0],3,[0,3],0,2,2,2,4,1]", "\natfyec\n\n1kryict\n\nb (+2 nls)\n\n\n\nc (+3 nls)\n\n19wbnqo\n\nd (+4 nls)\n\nyzbqjt\n\n1qyf5s3\n\n\n\n\n1kfgiue\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [1,2,2,0,1,2,[0,1],3,2,0,3,0,2]", "a\n\n7vc2to\n\n1w94y59\n\nb (+2 nls)\n\n\nc (+3 nls)\n\n1cdstc5\n\n\n\ny5x3nn\n\nd (+4 nls)\n\n1nbh95t\n\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [[4],4,[4],4,[0,3,4],4,0,0,[4],4,1,0,[3,0,0]]", "ig00cj\n\ntexojj\n\n1m8256m\n\n1bnsxft\n\n139m36s\n\n1ob93o2\n\n\n\n\ng9l7i6\n\nay0qku\n\n\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [0,2,1,3,[0,0,3],2,0,0,4,4,4,3,2]", "a\n\nm8yeba\n\nb (+2 nls)\n\n\n\nn1usum\n\n\n\n\n1kzuzg7\n\n12iwau4\n\ndt80q8\n\n12is0gt\n\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [1,2,0,2,[0,4,0],0,0,0,[4],3,[3,0],2,[2,0,4]]", "a\n\n3zfgv8\n\nb (+2 nls)\n\n1fjqbu9\n\n4r7i6n\nc (+3 nls)\n\n\n\n\n2x64pq\n\n\n\n\n\n\n1mc151s\n\ngovjqb\n3uup4t");
+add("selser", "Paragraphs with extra newline spacing [4,4,3,0,[2,2,0],0,4,4,[4],4,2,2,1]", "15gzgsp\n\n1obb3hr\n\n1csmm8r\n1c13roj\nc (+3 nls)\n\n1vpxiwo\n\n146h93f\n\n92dqh4\n\nmqrod6\n\ni1t9xh\n\n\n\n\n1yynyv3\n\n\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [3,0,4,3,[0,0,4],2,4,3,0,0,1,0,3]", "\n1v4dgwd\n\n\n\n\n1gdvs6o\n\nmpvvk3\n\njj4zx7\n\nd (+4 nls)\n\n\n");
+add("selser", "Paragraphs with extra newline spacing [3,4,3,0,[0,0,3],3,0,3,2,0,3,4,[0,0,2]]", "1357731\n\n\n\n\n\n\n1474dpy\n\nd (+4 nls)\n\n1v0g2ru\n\n\n1t39btt\ne (+5 nls)");
+add("selser", "Paragraphs with extra newline spacing [[2],0,1,0,2,0,[4,0],3,[3],0,3,3,[3,4,2]]", "d042ma\n\nb (+2 nls)\n\n161g3qj\n\n\n\nc (+3 nls)\n\nbye4qx\n\ndnk1cq5hscq5\ne (+5 nls)");
 add("selser", "Paragraphs with newline spacing with comment lines in between [4,3,3,0,3,2,[0,4,0,0],0,0,0,[3,0,2,0,0,0,0],2,2,0,4,0,4,0,[2],0,2,0,[3],0,0,0,2,0,0,0,0,3,2,0,2,2,3,2,2,2,1,3,0]", "1h3m7jc\n\n1n3q66n\n\na\n1owmwff<!--More than 1 comment, still stripped-->\nb\n----\n<!--foo-->ylk2fs <!----> <!-- bar --> \nb\n\n1n98oc4\nzl603f\n----\nv21y30\n\n8k6pdj\n\n1gx4pu2b\n191rwx2\n----\n\n\n<!--foo-->1lppjjq\n\nb\n----\na\n\ngt27bw<!--foo-->\n\n68u0mk\n\n\n\nb\n\n6pmy2k\n\nom1jxu\n\n7ekj0d\n\na\n\n1t1a6pz\n\n\n<!--foo-->\nb\n----");
 add("selser", "Paragraphs with newline spacing with comment lines in between [1,2,3,0,0,2,[3,3,0,0],2,0,0,[4,0,4,0,0,4,3],4,0,3,1,3,4,0,[3],0,0,2,2,3,0,0,[2],0,3,0,[3],2,0,0,2,0,0,4,3,0,4,2,0]", "----9a9aev\n\n----1uc5qnr\n<!--More than 1 comment, still stripped-->\nb\n\n8km2xe\n----\n1fq5glq<!--foo-->11pyys5<!----> d8hwvy\n\nwu34uu\n----a\n\nkjv7m4\n\n----1a5a54q\ni7rc91\n\na<!--foo-->\n\nl6dbytb\n\n3h0ipm\n<!--foo-->\n\n1uodods\n\n\n\nb\n----os3art\n1uvcbc1\n\nz1qam9\n----");
-add("selser", "Paragraphs with newline spacing with comment lines in between [1,2,3,0,0,3,[4,4,0,0],0,0,3,[0,0,0,4,0,4,0],0,2,0,0,0,0,3,[2],4,0,2,0,3,2,0,4,0,2,0,2,0,0,3,3,3,4,0,0,3,[3,0,4,0,4],0,3]", "----eyukh4\n\n----1no7nqze1ckzv<!--More than 1 comment, still stripped-->\nb\n----a\n<nowiki> </nowiki><!--foo--> 1syvf2k 142qxd2 \nb\njw7bo0\n----\na\n<!--foo-->\n10wu05gb\n\nd9gdxr\n----i3zukr\na\n\n19cp69w<!--foo-->\n\n14z26ah\nsd810s\n----\nyp6hwc\n\na\n<!--foo-->\n1ifj9d4\n\na\n\n\n\n\n1m5s13h<!--foo-->1x0kemc\n");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,2,0,0,3,0,0,4,0,[4,0,2,0,0,0,3],0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,[2],0,2,0,3,0,0,4,2,3,3,2,0,4,2,0,2]", "----\nmkliel\n\na\n<!--foo-->\nb\n----a\n<!--foo--><!--More than 1 comment, still stripped-->\nb\n146tip9\n\nz6r3b8<!--foo-->1965vor <!----> <!-- bar -->\n----\na\n<!--foo-->\n\nrk7dq1\n\nb\n----\n\n\n<!--foo-->kc6bk1b\n1gqqbwl\n----\n\n<!--foo-->tll7t\n\n1wt5adc\n\n\n\nb\n\n11r7car\n\na\n\n19mw4f2\n\nz7iq4z\n\n\n\n<!--foo-->\nb\n1hmfplm\n----");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[2,2,3],0,3,3,0,0,2,4,[0,0,3,2,2,0,2],2,3,4,1,4,0,0,[3],0,2,4,2,2,4,4,0,0,0,0,2,0,2,2,1,3,1,3,4,2,2,0,0]", "----\ng36e94a\n11dlx4c<!--foo-->\n\na\n<!--foo--><!--More than 1 comment, still stripped-->\nb\nazrcj8\n----stwheu\n\na\n<nowiki> </nowiki><!--foo-->uftcuh<!---->bmic9y <!-- bar -->1xoedrl \nb\n\n9z7u4a\n\n1klsd4x\n\na\n\n1vfr7pj<!--foo-->\n\nvy443f\n----iem1wx\n\ngky8ue\n\na\n\n1qky2vm\n\n1604xi4\n\n1b5jc1i\n\nb\n----\n1a5ccsd\n\na\n\ngz9ue4<!--foo-->\n\n1k0x2qz\n\n\nb\n----ap04db\n\nzq3yy2\nvibe31\n\n\n\n<!--foo-->\nb\n----");
 add("selser", "Paragraphs with newline spacing with comment lines in between [0,0,[3,0,2],0,0,0,[0,0,3,2],3,0,3,3,0,3,3,3,2,3,0,4,0,0,3,0,3,0,2,4,0,0,0,[3],0,3,3,2,3,0,0,[3],0,0,3,0]", "----\n<!--foo-->hbadtm\nb\n----\na\n<!--foo-->raybd5\nb\n----\n31ggly\n\n1aqhjxe\n----a<!--foo-->lypcj9\n\n1aauj1v\n----\n\n1jwnlhm\n\n\n\nb\n----\n\n\n\n<!--foo-->\nb\n----");
@@ -1005,7 +1008,7 @@ add("selser", "Paragraphs with newline spacing with non-empty white-space lines 
 add("selser", "Paragraphs with newline spacing with non-empty white-space lines in between [1,0,0,0,3,3,4,0,[4],0,[0,0,3],2,4]", "----\na\n \ne6b9h\n\n8l9gt5\n \n \n\n\n\nzrjbtl\n\na5ysj");
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,3,[0,4,2],3,1,0,1,0,0,4,2,3,0,2,0,2,0,3,0,3,[3],2,2,0,3]", "----a\n<nowiki> </nowiki>yr5qjz28srt9\nb\n----\na\n <!--foo--><!--More than 1 comment doesn't disable stripping of this line!-->\nb\n----jmvx8c\n\nmjnkpc\n\na<!--foo-->g308yf\n <!--bar-->\nynd1v4\nb\n----\n\n13swl1v\n<nowiki> </nowiki>1g5ltxx\n\n\n <!--foo-->\n <!--bar-->\n \nb\n");
 add("selser", "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between [0,0,2,0,0,3,4,0,0,0,1,3,0,0,3,3,[4],0,2,2,0,2,2,0,0]", "----\nf5rix6\n\na\n <!--foo-->\nb\n----uopqok\n----\na<!--foo-->\n \n139oexj\n1ecdyhq\n----keec8u\na\n\nkzh9u\n \n52bsx7\n\n\n <!--foo-->\n <!--bar-->\n \nb\n----");
-add("selser", "Extra newlines: More paragraphs with indented comment [[4],3,[0,0,0,0,3]]", "7pgclg\n\n\n   <!--boo-->\n\n\n\n");
+add("selser", "Extra newlines: More paragraphs with indented comment [[4],3,[0,0,0,0,3]]", "7pgclg\n\n\n   <!--boo-->\n");
 add("selser", "Extra newlines: More paragraphs with indented comment [2,2,0]", "1gf4c1d\n\na\n\nq5xv6v\n\n\n   <!--boo-->\n\nb");
 add("selser", "Extra newlines followed by heading [3,0,2,4,3,4,2,4,[3,0],4,2]", "\n18dqugz\n\n\n\n\n1au1ohc\n\ncqz6qh\n\n144leth\n\n[[a]]\n\n1yqz0iy\n\n\n\nn3hesc\n\n1lsk5ug\n\n=b=");
 add("selser", "Extra newlines followed by heading [1,4,0,2,4,0,[2],4,2,3,1]", "a\n\nhcchdp\n\n\n\n\n13fudb8\n\n1c5x84v\n\nme9m64[[a]]\n\n94lskk\n\nlvoll1\n\n\n\n=b=");
@@ -1021,16 +1024,16 @@ add("selser", "Extra newlines followed by heading [2,3,0,2,2,0,[4],3,[4,2],0,4]"
 add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [[4],4,0,0,[4]]", "=5vz55o=\n5ysrd5\n\n\n\n\n1r16ozp");
 add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [0,4,2,0,4]", "=b=\niplho9\n\nchn6bs\n\n\n\n\n6hw1lv");
 add("selser", "Extra newlines between heading and content are swallowed (Parsoid does not) [0,0,[3,0],0,[[3]]]", "=b=\n\n\n\n\n[[a|<nowiki/>]]");
-add("selser", "Extra new lines before and after lists are preserved [0,0,[3,0],0,[4],3,3]", "a\n\n\n\n\n\n* i5gpmh");
+add("selser", "Extra new lines before and after lists are preserved [0,0,[3,0],0,[4],3,3]", "a\n\n\n\n\n* i5gpmh");
 add("selser", "Extra new lines before and after lists are preserved [[3],4,[4,0],0,3,3,4]", "\niqom1p\n\n1b83i36\n\n1frutll");
 add("selser", "Extra new lines before and after lists are preserved [1,0,[0,3],4,0,0,2]", "a\n\nhegt06\n\n*b\n\n7por6f\n\n\n\nc");
 add("selser", "Extra new lines before and after lists are preserved [0,0,[4,1],3,4,4,0]", "a\n\nuwqbby\n\nswx0px\n\nz47jbr\n\n\n\nc");
-add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,[4],3,0]", "\n\n\n\n\n* ylz4o1\n\n\n\nc");
+add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,[4],3,0]", "\n\n\n\n* ylz4o1\n\n\n\nc");
 add("selser", "Extra new lines before and after lists are preserved [1,0,1,0,3,0,[4,4,0]]", "a\n\n\n\n\n\np875331pu3vsk\nc");
 add("selser", "Extra new lines before and after lists are preserved [3,0,4,0,0,2,2]", "\n1v8rczn\n\n*b\n\n17m5f7l\n\njr84xz\n\n\n\nc");
 add("selser", "Extra new lines before and after lists are preserved [[3],3,2,3,[4],0,[0,3,2]]", "\nt98t4z\n\n\n\n\n* vj0fpy\n\n16l3wr9\nc");
-add("selser", "Extra new lines before and after lists are preserved [0,0,2,0,[1],0,[0,0,2]]", "a\n\ni63xq1\n\n\n\n*b\n\n\n\nw10opj\nc");
-add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,3,0,[0,0,4]]", "\n\n\n\n\n\n\n\nblmxw3");
+add("selser", "Extra new lines before and after lists are preserved [0,0,2,0,[1],0,[0,0,2]]", "a\n\ni63xq1\n\n\n\n*b\n\nw10opj\nc");
+add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,3,0,[0,0,4]]", "\n\n\n\n\n\n\nblmxw3");
 add("selser", "Extra new lines before and after lists are preserved [0,2,0,3,4,0,1]", "a\n\nr1rcmh\n\n\n\n\n1kpap7t\n\n\nc");
 add("selser", "Parsing an URL [[[2]],2,0]", "[[:fr:🍺|mwh6a1http://fr.wikipedia.org/wiki/🍺]]\n\nfj3cgh\n<!-- EasterEgg we love beer, better be able be able to link to it -->");
 add("selser", "Italics and bold: 5-quote opening sequence: (5,6) [[[2]]]", "''f2isaa'''foo''''''");
@@ -1054,11 +1057,9 @@ add("selser", "Empty lines between lines with block tags [1,0,2,3,3,0,2,0,0,0,[4
 add("selser", "Empty lines between lines with block tags [0,4,2,2,0,4,0,[2],0,[4],3,0,0,0,0,2,3,0]", "<div></div>vygiqc\n\nldw79x\n\n\n\n\n1g9ukkj\n<div></div>1j1f0la\n\n1qbabjmb\n<div>t9qray</div>\n\n<div>b</div>d\n1r0x9v4\n\n\n<div>e</div>");
 add("selser", "Empty lines between lines with block tags [2,0,[0,1],3,2,0,0,4,2,2,1,3,[4],2,0,1,4,0]", "1g3pf14<div></div>\n\n\n\ni9vzpw<div></div>a\n\nz5ck51\n\n1wncur\n14s5ttb<div>a</div>b<div>16mf5el</div>1yk2uy9\n\nd\n\n\n\n\n\n1hwh6qc<div>e</div>");
 add("selser", "Empty lines between lines with block tags [0,4,2,2,0,0,0,[3],4,3,0,0,0,2,2,1,4,2]", "<div></div>n23fa\n\n1t82bez\n\n\n\n\n15yhe4b\n<div></div>a\n\n1rdp6ou\n\nb\n\n<div>b</div>1xvd761\n\nd\n\nvlf4a8\n\n\n\n4xozs6\n\nnzhxyc<div>e</div>");
-add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[0,0,2,0,0],0,0]", "3spi4chi\n\n\n\n1af3ip4\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
+add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[0,0,2,0,0],0,0]", "3spi4chi\n\n1af3ip4\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [4,0,1,0,0]", "1ifiv62\n\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
-add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [3,0,[0,0,3,0,0],0,0]", "\n\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[3,0,0,0,0],0,3]", "ig6ro7hi\n\n\n\n{{echo|<br/>\n}}\n");
-add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [1,0,[3,0,2,0,0],0,1]", "hi\n\n\n\n\n1f3k9n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]");
 add("selser", "Avoid expanding multiline sol transparent template ranges unnecessarily [3,4,1,0,4]", "11c84ga\n\n\n\n{{echo|<br/>\n}}\n\n1uy04ef");
 add("selser", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,4,0,0,0,0,0,3,0,0,0,4,0,0,[3]]", "{{echo| }}a1v0rsn1{{echo|\n }}a\n\n{{echo|\n b}}\n{{echo|a\n }}b\n1ikarr6{{echo|a\n}} ");
 add("selser", "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,4,0,0,0,0,0,4,0,0,0,0,0,0,0]", "{{echo| }}a17f3ud6{{echo|\n }}a\n\n{{echo|\n b}}\n1kc5ntg{{echo|a\n }}b\n\n{{echo|a\n}} b");

@@ -307,23 +307,31 @@ This is a simple paragraph.
 !! test
 Paragraphs with extra newline spacing
 !! wikitext
-foo
+a
 
-bar
-
-
-baz
+b (+2 nls)
 
 
+c (+3 nls)
 
-booz
+
+
+d (+4 nls)
+
+
+
+
+e (+5 nls)
 !! html
-<p>foo
-</p><p>bar
+<p>a
+</p><p>b (+2 nls)
 </p><p><br />
-baz
+c (+3 nls)
 </p><p><br />
-</p><p>booz
+</p><p>d (+4 nls)
+</p><p><br />
+</p><p><br />
+e (+5 nls)
 </p>
 !! end
 
