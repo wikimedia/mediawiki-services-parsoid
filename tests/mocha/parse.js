@@ -261,6 +261,7 @@ describe('ParserPipelineFactory', function() {
 				var pb = DU.extractPageBundle(doc);
 				// verify dp wasn't bloated and
 				// id wasn't shadowed for div without id
+				// id wasn't shadowed for div without id
 				pb.parsoid.ids[divNoId].should.not.have.property("a");
 				pb.parsoid.ids[divNoId].should.not.have.property("sa");
 				return serialize(doc, pb);
@@ -268,6 +269,5 @@ describe('ParserPipelineFactory', function() {
 				wt.should.equal(origWt);
 			});
 		});
-
 	});
 });
