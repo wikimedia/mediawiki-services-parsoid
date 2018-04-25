@@ -47,8 +47,8 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 	// Eliminate a source of indeterminacy from leaked strip markers
 	out = out.replace(/UNIQ-.*?-QINU/g, '');
 
-	// And from the imagemap extension
-	out = out.replace(/<map name="ImageMap_[^"]*" id="ImageMap_[^"]*">/g, '<map>');
+	// And from the imagemap extension - the id attribute is not always around, it appears!
+	out = out.replace(/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?>/g, '<map>');
 
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
