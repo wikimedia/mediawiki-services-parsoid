@@ -568,6 +568,42 @@ c
 c</p>
 !! end
 
+# Parsoid regression test
+!!test
+Multiple newlines after tables are converted to p-br-p tags
+!!options
+parsoid=wt2html,wt2wt
+!!wikitext
+{|
+|x
+|}
+
+
+
+
+=b=
+!!html/php+tidy
+<table>
+<tbody><tr>
+<td>x
+</td></tr></tbody></table>
+<p><br />
+</p><p><br />
+</p>
+<h1><span class="mw-headline" id="b">b</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+!!html/parsoid
+<table>
+<tbody>
+<tr>
+<td>x</td>
+</tr>
+</tbody>
+</table>
+<p><br/></p>
+<p><br/></p>
+<h1 id="b">b</h1>
+!!end
+
 !! test
 Heading with line break in nowiki
 !! options

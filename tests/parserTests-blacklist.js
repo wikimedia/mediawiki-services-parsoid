@@ -1035,6 +1035,16 @@ add("selser", "Extra new lines before and after lists are preserved [[3],3,2,3,[
 add("selser", "Extra new lines before and after lists are preserved [0,0,2,0,[1],0,[0,0,2]]", "a\n\ni63xq1\n\n\n\n*b\n\nw10opj\nc");
 add("selser", "Extra new lines before and after lists are preserved [[3],0,[3,0],0,3,0,[0,0,4]]", "\n\n\n\n\n\n\nblmxw3");
 add("selser", "Extra new lines before and after lists are preserved [0,2,0,3,4,0,1]", "a\n\nr1rcmh\n\n\n\n\n1kpap7t\n\n\nc");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [2,0,[2,2],0,2,2,3]", "13iviia\n{|\n|x\n|}\nr2sd39\nw5b4gn\n2lgj9m\n\n\n\n\nmke54f\n");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [3,4,2,4,[2,0],0,0]", "1rz92sj\n\n117yh66\n\n\n\n\n1rjq6ux\n\n1xuebix\n\n=b=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [0,0,3,2,2,0,0]", "{|\n|x\n|}\nwp8x7e\n\n76lsks\n\n\n\n=b=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [[0,[2,0]],3,0,3,[4,0],4,[3]]", "{|\n<!--btzowv-->|x\n|}\n\n\n3vn9f5\n\nowyryw\n\n=<nowiki/>=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [4,0,4,4,2,3,0]", "15hlrwq\n\n1l1eg9u\n\n2dby1y\n\n13qrlj2\n\n\n\n=b=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [[4,2],2,4,0,0,0,[3]]", "{|<!--adovf--><!--1nubjnn-->\n|x\n|}\n18qoiqq\n1ih0ep6\n\n\n\n=<nowiki/>=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [2,0,1,2,2,0,2]", "1r5nhyh\n{|\n|x\n|}\n\n\n\n\n\njt2t6\n\n15dj9y2\n\n\n\n1eaa62s\n\n=b=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [[0,[1,0]],4,[0,1],2,0,2,0]", "{|\n|x\n|}\nlahcjt\n\n\n\n13eda25\n\n\n\n\ny0d4ch\n\n=b=");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [[3,[[4],0]],0,2,2,[4,2],4,3]", "{|\n|stjqon\n|}\n1vdw28g\n\n\n\n\n1i6elnc\n\nwd2gwsvr2xcq\n\ntinvx3");
+add("selser", "Multiple newlines after tables are converted to p-br-p tags [3,0,0,2,0,0,0]", "\n\n\n\n1na38kh\n\n\n\n=b=");
 add("selser", "Parsing an URL [[[2]],2,0]", "[[:fr:🍺|mwh6a1http://fr.wikipedia.org/wiki/🍺]]\n\nfj3cgh\n<!-- EasterEgg we love beer, better be able be able to link to it -->");
 add("selser", "Italics and bold: 5-quote opening sequence: (5,6) [[[2]]]", "''f2isaa'''foo''''''");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [1]", "{| data-foobar=\"1hy2782\"\n!''a!!''b\n|''a||''b\n|}");
