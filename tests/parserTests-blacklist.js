@@ -585,7 +585,6 @@ add("html2wt", "Build table with {{!}}", "{| class=\"wikitable\"\n!header\n!seco
 add("html2wt", "Build table with pipe as data", "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data\n| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>\n| style=\"color:red;\" |<nowiki>second data with |</nowiki>\n|-\n|<nowiki>data with |</nowiki>\n|<nowiki>second data with |</nowiki>\n|}\n");
 add("html2wt", "Build table with wikilink", "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data [[wiki/Main Page|linktext]]\n|second data [[wiki/Main Page|linktext]]\n|-\n|data\n|second data [[wiki/Main Page|link|text with pipe]]\n|}\n");
 add("html2wt", "Wikitext table with html-syntax row", "{|\n|foo\n|}");
-add("html2wt", "Wikitext lists can be nested inside HTML lists", "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>");
 add("html2wt", "Plain link, capitalized", "[[wiki/Main Page|Main Page]]\n");
 add("html2wt", "Plain link, uncapitalized", "[[wiki/Main Page|main Page]]\n");
 add("html2wt", "Piped link", "[[wiki/Main Page|The Main Page]]\n");
@@ -969,6 +968,7 @@ add("html2wt", "T73074: More fostering fun", "[[Category:Two]]\n<table><td></td>
 add("html2wt", "Parsoid should not accept invalid interwiki shortcuts", "[[news:Foo|Foo]]\n[news:Foo Foo]\n[news:Foo Foo]");
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]");
+add("html2wt", "Wikitext lists can be nested inside HTML lists", "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>");
 add("html2wt", "Empty LI (T49673)", "* a\n*\n*\n* b");
 add("html2wt", "Decoding of HTML entities in headings and links for IDs and link fragments (T103714)", "== A&B&amp;C&amp;amp;D&amp;amp;amp;E ==\n[[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]");
 add("html2wt", "HTML5 ids: fallback to legacy", "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]");
@@ -1326,6 +1326,8 @@ add("selser", "Build table with pipe as data [[4,[[[4],3,2],2,[0,[3],3],0,[0,1,[
 add("selser", "Build table with pipe as data [[0,1]]", "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}");
 add("selser", "Build table with pipe as data [[0,[[3,0,4],0,[3,2,4],0,0,3,[3,3,4],0]]]", "{| class=\"wikitable\"\n|gbqns6\n|- style=\"color:red;\"\n|1yui9cn\n|data\n|qqjnv4\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n|16m5q2m\n|}");
 add("selser", "Build table with pipe as data [[2,2]]", "{| class=\"wikitable\"<!--zawjqo-->\n<!--1on9zub-->!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}");
+add("selser", "Table with missing opening <tr> tag [[2,[[4,3],3]]]", "<table><!--1tf32as-->\n<td>1pozjc1</td></tr>\n</table>");
+add("selser", "Table with missing opening <tr> tag [[2,[0,3]]]", "<table><!--1ch5rmb-->\n<td>foo</td>\n</tr>\n</table>");
 add("selser", "Piped link with multiple pipe characters in link text [1]", "[[Main Page||The|Main|Page|]]");
 add("selser", "Piped link with multiple pipe characters in link text [2]", "zoince\n\n[[Main Page||The|Main|Page|]]");
 add("selser", "Piped link with multiple pipe characters in link text [[2]]", "3b7j8e[[Main Page||The|Main|Page|]]");
@@ -1440,8 +1442,6 @@ add("selser", "Unbalanced closing non-block tags don't break a list [[0,1]]", "<
 add("selser", "Unbalanced closing non-block tags don't break a list [[0,[4,0,0]]]", "<span>\n\n* j87csm\n*b</span>");
 add("selser", "Unbalanced closing non-block tags don't break a list [[0,[1,0,[2]]]]", "<span>\n*a<span>\n*guut7sb");
 add("selser", "Unbalanced closing non-block tags don't break a list [[3,[0,2,0]]]", "<span>\n\n*a</span><span>\n* 1ef95bs\n*b</span>");
-add("selser", "Table with missing opening <tr> tag [[2,[[4,3],3]]]", "<table><!--1tf32as-->\n<td>1pozjc1</td></tr>\n</table>");
-add("selser", "Table with missing opening <tr> tag [[2,[0,3]]]", "<table><!--1ch5rmb-->\n<td>foo</td>\n</tr>\n</table>");
 add("selser", "Template with invalid target containing tags [2]", "14gbmgd\n\n{{a<b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}");
 add("selser", "Template with invalid target containing tags [[3,3,3,0,4,0,2,0,0]]", "{{echo|foo}}122zygl{{echo|a}}iovjgt={{echo|b}}|a =b}}");
 add("selser", "Template with invalid target containing tags [[3,[4],2,0,0,0,3,0,0]]", "<b>bagzg7</b>x43r01|{{echo|foo}}|{{echo|a}}{{echo|b}}|a =b}}");
