@@ -1881,7 +1881,6 @@ add("selser", "HTML5 ids: fallback to legacy [2,4,2,2,[0,4],4,4,0,4,4,2,2,[4,2,[
 add("selser", "HTML5 ids: fallback to legacy [0,0,2,4,1,0,[4,3],0,[1,0],3,0,0,[2,2,[4],0,0,3,[3],2,0],3,0,0,4,3,3,0]", "==Foo bar==\n\nl3beyp\n\n==foo Bar==\nqkzffc\n\n==Тест==\n\n==1r9sd00==\n\n==тест==\n\n==Hey < # \" > % : '==\ntga6q3[[#Foo bar]]1uidjoh [[#foo Bar|xlw38e]] [[#Тест]][[#тест|<nowiki/>]]1ag3h0w [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n1ei6pgl\n");
 add("selser", "T90902: Normalize weird characters in section IDs [3,4,[1],4]", "1nz21r6\n\n[[#Foo bar]]\n\n15rebhj");
 add("selser", "T90902: Normalize weird characters in section IDs [3,2,1,0]", "16btgmm\n\n[[#Foo bar]]\n");
-add("selser", "Section wrapping with template-generated sections (bad nesting 3) [3,0,0,[3,0,0]]", "=1=\na\n\n{{echo|1=\n==1.2==\nb\n=2=\nc\n}}\n\nd\n\n\ne");
 add("selser", "Section wrapping with editable lead section + div overlapping multiple sections [[4,3],[4,2,[2],0],[1,4,1,2],[4,0,1,3,0]]", "hrfp19\n\nn5dm7x\n\n1euy0ph\n\n1o3yomza\n<div style=\"border:1px solid red;\" data-foobar=\"188ni0p\">\nb\n\n==1.1==\nc\n\n=2=\nd\n</div>o4asuo\ne\n1dh6a6e\n\n13vv0lg\n\nf\n\n==3.1==\ng");
 add("selser", "Selser preserves lack of newline before list and allows newline after the list [[4],0,[[4],0,3]]", "ai8wub\n*78uxxn\n");
 add("selser", "Selser preserves lack of newline before list and allows newline after the list [0,0,[1,0,3]]", "header\n*foo\n");
