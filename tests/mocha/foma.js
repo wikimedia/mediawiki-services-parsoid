@@ -12,6 +12,14 @@ const PARSOID_TEST_FOMA = process.env.PARSOID_TEST_FOMA || false;
 
 const langs = [
 	{
+		base: 'crh',
+		variants: [
+			['crh-latn', 'crh-cyrl'],
+			['crh-cyrl', 'crh-latn'],
+		],
+		examples: true,
+	},
+	{
 		base: 'en',
 		variants: [
 			['en', 'en-x-piglatin'],
