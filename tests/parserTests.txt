@@ -27818,7 +27818,7 @@ parsoid={
 
 == hi pal ==
 
-<!--foo-->  [[Category:A3]]
+<!--foo-->[[Category:A3]]
 
 == how goes it ==
 
@@ -29046,7 +29046,7 @@ parsoid={
 !! html/parsoid
 <h2> <link href="./Category:A2" rel="mw:PageProp/Category" />ok</h2>
 !! wikitext
- [[Category:A2]]
+[[Category:A2]]
 
 == ok ==
 !! end
