@@ -16,5 +16,9 @@
 		"path": "tests/parserTests.txt",
 		"expectedSHA1": "ffc81f4f852148c7903168d76dde52947c16bb70",
 		"latestCommit": "6ff9134b4b0e3cfd317afc7aaf343adda4c3897d"
+	},
+	"langParserTests.txt": {
+		"repo": "/wikimedia/mediawiki-services-parsoid/",
+		"path": "tests/langParserTests.txt"
 	}
 }

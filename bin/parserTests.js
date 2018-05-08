@@ -699,6 +699,10 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 		// the item 'language' option).
 		this.env.page.pagelanguage = this.env.conf.wiki.lang;
 		this.env.page.pagelanguagedir = this.env.conf.wiki.rtl ? 'rtl' : 'ltr';
+		if (!item.options.langconv) {
+			// variant conversion is disabled by default
+			this.env.variantLanguage = null;
+		}
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
 		if (item.options.wgallowexternalimages !== undefined &&
@@ -878,7 +882,7 @@ ParserTests.prototype.processSerializedWT = Promise.async(function *(item, optio
 ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var normalizedOut, normalizedExpected;
 	var parsoidOnly =
-		('html/parsoid' in item) ||
+		('html/parsoid' in item) || ('html/parsoid+langconv' in item) ||
 		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
 
 	const normOpts = {
@@ -1084,15 +1088,14 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
  * @return {Promise}
  */
 ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, options) {
-	for (var i = 0; i < targetModes.length; i++) {
+	for (let i = 0; i < targetModes.length; i++) {
 		if (targetModes[i] === 'selser' && options.numchanges &&
 			options.selser !== 'noauto' && !options.changetree) {
-			var newitem;
 
 			// Prepend manual changes, if present, but not if 'selser' isn't
 			// in the explicit modes option.
 			if (item.options.parsoid && item.options.parsoid.changes) {
-				newitem = Util.clone(item);
+				const newitem = Util.clone(item);
 				// Mutating the item here is necessary to output 'manual' in
 				// the test's title and to differentiate it for blacklist.
 				// It can only get here in two cases:
@@ -1120,13 +1123,13 @@ ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, o
 			item.selserChangeTrees = new Array(options.numchanges);
 
 			// Prepend a selser test that appends a comment to the root node
-			newitem = Util.clone(item);
+			let newitem = Util.clone(item);
 			newitem.changetree = 5;
 			yield this.prepareTest(newitem, options, 'selser');
 
-			for (var j = 0; j < item.selserChangeTrees.length; j++) {
-				var modeIndex = i;
-				var changesIndex = j;
+			for (let j = 0; j < item.selserChangeTrees.length; j++) {
+				const modeIndex = i;
+				const changesIndex = j;
 				newitem = Util.clone(item);
 				// Make sure we aren't reusing the one from manual changes
 				console.assert(newitem.changetree === undefined);
@@ -1153,6 +1156,12 @@ ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, o
 					continue;
 				}
 			} else {
+				if (targetModes[i] === 'wt2html' && 'html/parsoid+langconv' in item) {
+					const newitem = Util.clone(item);
+					newitem.options.langconv = true;
+					newitem.html = item['html/parsoid+langconv'];
+					yield this.prepareTest(newitem, options, targetModes[i]);
+				}
 				// A non-selser task, we can reuse the item.
 				yield this.prepareTest(item, options, targetModes[i]);
 			}
@@ -1402,7 +1411,8 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	}
 	yield this.env.switchToConfig(prefix);
 
-	// TODO: set language variant
+	this.env.variantLanguage = item.options.variant || null;
+
 	// adjust config to match that used for PHP tests
 	// see core/tests/parser/parserTest.inc:setupGlobals() for
 	// full set of config normalizations done.

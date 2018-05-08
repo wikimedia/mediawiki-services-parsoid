@@ -492,7 +492,8 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 	};
 	stats.modes[mode].failList.push(fail);
 
-	var extTitle = (title + (mode ? (' (' + mode + ')') : ''))
+	const mstr = item.options.langconv ? 'wt2html+langconv' : mode;
+	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
 		.replace('\n', ' ');
 
 	var blacklisted = false;
@@ -567,7 +568,8 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess, is
 		stats.passedTests++;
 		stats.modes[mode].passedTests++;
 	}
-	var extTitle = (title + (mode ? (' (' + mode + ')') : ''))
+	const mstr = item.options.langconv ? 'wt2html+langconv' : mode;
+	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
 		.replace('\n', ' ');
 
 	if (Util.booleanOption(options.blacklist) && !expectSuccess) {
