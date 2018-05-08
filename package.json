@@ -1,6 +1,6 @@
 {
   "name": "parsoid",
-  "description": "Mediawiki parser for the VisualEditor.",
+  "description": "A bidirectional runtime wikitext parser. Converts back and forth between wikitext and HTML/XML DOM with RDFa.",
   "version": "0.9.0",
   "license": "GPL-2.0+",
   "dependencies": {
