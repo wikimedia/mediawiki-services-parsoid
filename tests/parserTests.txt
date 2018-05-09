@@ -28311,6 +28311,22 @@ parsoid={
 ''[[Foo]]''
 !! end
 
+!! test
+6. Regression test: Manual edit test to ensure diff markers are not lost
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    ["i", "wrap", "<a href='./Foo' rel='mw:WikiLink'></a>"]
+  ]
+}
+!! wikitext
+''Foo''
+!! wikitext/edited
+''[[Foo]]''
+!! end
+
 #------------------------------
 # End of tag minimization tests
 #------------------------------
