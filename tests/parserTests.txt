@@ -28220,6 +28220,22 @@ parsoid={
 [[Foo|<span class="Bar">Foo</span>]]
 !! end
 
+!! test
+5. T194083 Regression test: Manual edit test that also enables scrubWikitext to move format tags outside wikilinks
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    ["a", "html", "<i>Foo</i>"]
+  ]
+}
+!! wikitext
+[[Foo]]
+!! wikitext/edited
+''[[Foo]]''
+!! end
+
 #------------------------------
 # End of tag minimization tests
 #------------------------------
