@@ -50,6 +50,9 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
 	// And from the imagemap extension - the id attribute is not always around, it appears!
 	out = out.replace(/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?>/g, '<map>');
 
+	// Normalize COINS ids -- they aren't stable
+	out = out.replace(/\s?id=['"]coins_\d+['"]/ig, '');
+
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
