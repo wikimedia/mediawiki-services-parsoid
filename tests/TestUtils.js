@@ -33,7 +33,7 @@ TestUtils.normalizeOut = function(out, parsoidOnly, preserveIEW) {
 		/(?:^|mw:DisplaySpace\s+)mw:Placeholder$/ :
 		/^mw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Nowiki|Transclusion|Entity)$/;
 	var body = this.unwrapSpansAndNormalizeIEW(out, stripTypeof, parsoidOnly, preserveIEW);
-	out = preserveIEW ? body.innerHTML : DU.toXML(body, { innerXML: true });
+	out = DU.toXML(body, { innerXML: true });
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
 	//  we know that attribute values will be surrounded with double quotes,
