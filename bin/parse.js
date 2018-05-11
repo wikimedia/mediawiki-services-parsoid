@@ -402,7 +402,10 @@ Promise.async(function *() {
 		}
 		if (argv.normalize) {
 			doc = DU.parseHTML(html);
-			str = TestUtils.normalizeOut(doc.body, (argv.normalize === 'parsoid'));
+			str = TestUtils.normalizeOut(doc.body, {
+				parsoidOnly: (argv.normalize === 'parsoid'),
+				scrubWikitext: (argv.scrubWikitext === 'parsoid')
+			});
 		} else {
 			str = html;
 		}

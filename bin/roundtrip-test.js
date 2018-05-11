@@ -404,8 +404,11 @@ var checkIfSignificant = function(offsets, data) {
 		// Quick test for no semantic diffs
 		// If parsoid-normalized HTML for old and new wikitext is identical,
 		// the wt-diffs are purely syntactic.
-		var normalizedOld = TestUtils.normalizeOut(oldBody, true);
-		var normalizedNew = TestUtils.normalizeOut(newBody, true);
+		//
+		// FIXME: abstract to ensure same opts are used for parsoidPost and normalizeOut
+		const normOpts = { parsoidOnly: true, scrubWikitext: true, rtTestMode: true };
+		const normalizedOld = TestUtils.normalizeOut(oldBody, normOpts);
+		const normalizedNew = TestUtils.normalizeOut(newBody, normOpts);
 		if (normalizedOld === normalizedNew) {
 			for (i = 0; i < offsets.length; i++) {
 				offset = offsets[i];

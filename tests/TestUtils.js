@@ -12,28 +12,65 @@ var yargs = require('yargs');
 var Diff = require('../lib/utils/Diff.js').Diff;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var Util = require('../lib/utils/Util.js').Util;
+var Normalizer = require('../lib/html2wt/normalizeDOM.js').Normalizer;
 
 var TestUtils = {};
 
 /**
- * Specialized normalization of the wiki parser output, mostly to ignore a few
- * known-ok differences.  If parsoidOnly is true-ish, then we allow more
- * markup through (like property and typeof attributes), for better
- * checking of parsoid-only test cases.
+ * Specialized normalization of the PHP parser & Parsoid output, to ignore
+ * a few known-ok differences in parser test runs.
  *
- * @param {string} out
- * @param {boolean} [parsoidOnly=false]
+ * This code is also used by the Parsoid round-trip testing code.
+ *
+ * If parsoidOnly is true-ish, we allow more markup through (like property
+ * and typeof attributes), for better checking of parsoid-only test cases.
+ *
+ * @param {string} domBody
+ * @param {Object} options
+ * @param {boolean} [options.parsoidOnly=false]
+ * @param {boolean} [options.preserveIEW=false]
+ * @param {boolean} [options.scrubWikitext=false]
+ * @param {boolean} [options.rtTestMode=false]
  * @return {string}
  */
-TestUtils.normalizeOut = function(out, parsoidOnly, preserveIEW) {
-	if (typeof (out) === 'string') {
-		out = DU.parseHTML(out).body;
+TestUtils.normalizeOut = function(domBody, options) {
+	if (!options) {
+		options = {};
 	}
+	const parsoidOnly = options.parsoidOnly;
+	const preserveIEW = options.preserveIEW;
+	if (typeof (domBody) === 'string') {
+		domBody = DU.parseHTML(domBody).body;
+	}
+
+	if (options.scrubWikitext) {
+		var mockState = {
+			// Mock env obj
+			//
+			// FIXME: This is ugly.
+			// (a) The normalizer shouldn't need the full env.
+			//     Pass options and a logger instead?
+			// (b) DOM diff code is using page-id for some reason.
+			//     That feels like a carryover of 2013 era code.
+			//     If possible, get rid of it and diff-mark dependency
+			//     on the env object.
+			env: {
+				log: () => {},
+				conf: { parsoid: {} },
+				page: { id: null },
+				scrubWikitext: true,
+			},
+			selserMode: false,
+			rtTestMode: options.rtTestMode,
+		};
+		domBody = (new Normalizer(mockState).normalizeDOM(domBody));
+	}
+
 	var stripTypeof = parsoidOnly ?
 		/(?:^|mw:DisplaySpace\s+)mw:Placeholder$/ :
 		/^mw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Nowiki|Transclusion|Entity)$/;
-	var body = this.unwrapSpansAndNormalizeIEW(out, stripTypeof, parsoidOnly, preserveIEW);
-	out = DU.toXML(body, { innerXML: true });
+	domBody = this.unwrapSpansAndNormalizeIEW(domBody, stripTypeof, parsoidOnly, preserveIEW);
+	var out = DU.toXML(domBody, { innerXML: true });
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
 	//  we know that attribute values will be surrounded with double quotes,
@@ -114,6 +151,7 @@ TestUtils.normalizeOut = function(out, parsoidOnly, preserveIEW) {
  *   The document `<body>` node to normalize.
  * @param {RegExp} [stripSpanTypeof]
  * @param {boolean} [parsoidOnly=false]
+ * @param {boolean} [preserveIEW=false]
  * @return {Node}
  */
 TestUtils.unwrapSpansAndNormalizeIEW = function(body, stripSpanTypeof, parsoidOnly, preserveIEW) {
@@ -653,7 +691,7 @@ function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options,
 	if (fail &&
 		Util.booleanOption(options.whitelist) &&
 		title in wl &&
-		TestUtils.normalizeOut(DU.parseHTML(wl[title]).body, parsoidOnly) ===  actual.normal
+		TestUtils.normalizeOut(DU.parseHTML(wl[title]).body, { parsoidOnly: parsoidOnly }) ===  actual.normal
 	) {
 		whitelist = true;
 		fail = false;
