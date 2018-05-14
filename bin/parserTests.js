@@ -881,14 +881,15 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var parsoidOnly =
 		('html/parsoid' in item) ||
 		(item.options.parsoid !== undefined && !item.options.parsoid.normalizePhp);
+	var preserveIEW = item.options.parsoid && item.options.parsoid.preserveIEW;
 
-	normalizedOut = TestUtils.normalizeOut(out, parsoidOnly);
+	normalizedOut = TestUtils.normalizeOut(out, parsoidOnly, preserveIEW);
 	out = DU.toXML(out, { innerXML: true });
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
 			var normalDOM = DU.parseHTML(item.html).body;
-			normalizedExpected = TestUtils.normalizeOut(normalDOM, parsoidOnly);
+			normalizedExpected = TestUtils.normalizeOut(normalDOM, parsoidOnly, preserveIEW);
 		} else {
 			normalizedExpected = TestUtils.normalizeHTML(item.html);
 		}

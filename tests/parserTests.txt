@@ -237,7 +237,7 @@ Weirdo titles!
 !!article
 Template:Bullet
 !!text
-* Bar
+*Bar
 !!endarticle
 
 !!article
@@ -3826,7 +3826,7 @@ Definition list with bracketed URL link
 !! test
 Definition list with wikilink containing colon
 !! wikitext
-; [[Help:FAQ]]:The least-read page on Wikipedia
+;[[Help:FAQ]]:The least-read page on Wikipedia
 !! html
 <dl><dt><a href="/index.php?title=Help:FAQ&amp;action=edit&amp;redlink=1" class="new" title="Help:FAQ (page does not exist)">Help:FAQ</a></dt>
 <dd>The least-read page on Wikipedia</dd></dl>
@@ -3837,19 +3837,19 @@ Definition list with wikilink containing colon
 !! test
 Definition list with news link containing colon
 !! wikitext
-;news:alt.wikipedia.rox: This isn't even a real newsgroup!
+;news:alt.wikipedia.rox :This isn't even a real newsgroup!
 !! html/php
-<dl><dt><a rel="nofollow" class="external free" href="news:alt.wikipedia.rox">news:alt.wikipedia.rox</a></dt>
+<dl><dt><a rel="nofollow" class="external free" href="news:alt.wikipedia.rox">news:alt.wikipedia.rox</a>&#160;</dt>
 <dd>This isn't even a real newsgroup!</dd></dl>
 
 !! html/parsoid
-<dl><dt>  <a rel="mw:ExtLink" class="external free" href="news:alt.wikipedia.rox" data-parsoid='{"stx":"url"}'>news:alt.wikipedia.rox</a></dt><dd data-parsoid='{"stx":"row"}'>This isn't even a real newsgroup!</dd></dl>
+<dl><dt><a rel="mw:ExtLink" class="external free" href="news:alt.wikipedia.rox" data-parsoid='{"stx":"url"}'>news:alt.wikipedia.rox</a></dt><dd data-parsoid='{"stx":"row"}'>This isn't even a real newsgroup!</dd></dl>
 !! end
 
 !! test
 Malformed definition list with colon
 !! wikitext
-;  news:alt.wikipedia.rox -- don't crash or enter an infinite loop
+;news:alt.wikipedia.rox -- don't crash or enter an infinite loop
 !! html
 <dl><dt><a rel="nofollow" class="external free" href="news:alt.wikipedia.rox">news:alt.wikipedia.rox</a> -- don't crash or enter an infinite loop</dt></dl>
 
@@ -4081,6 +4081,8 @@ should be left alone</p>
 
 !! test
 Definition Lists: Hacky use to indent tables, with comment before table
+!!options
+parsoid=wt2html
 !! wikitext
 ::<!-- foo -->{|
 |foo
@@ -4096,7 +4098,7 @@ Definition Lists: Hacky use to indent tables, with comment before table
 !! test
 Definition Lists: Hacky use to indent tables (WS-insensitive)
 !! wikitext
-: {|
+:{|
 |a
 |} 
 !! html/php
@@ -4106,9 +4108,9 @@ Definition Lists: Hacky use to indent tables (WS-insensitive)
 </td></tr></table></dd></dl>
 
 !! html/parsoid
-<dl><dd> <table>
+<dl><dd><table>
 <tbody><tr><td>a</td></tr>
-</tbody></table> </dd></dl>
+</tbody></table></dd></dl>
 !! end
 
 ## The PHP parser treats : items (dd) without a corresponding ; item (dt)
@@ -6109,7 +6111,7 @@ A table with nothing but a caption
 A table with caption with default-spaced attributes and a table row
 !! wikitext
 {|
-|+ style="color: red;" | caption1
+|+ style="color: red;" |caption1
 |-
 |foo
 |}
@@ -6393,8 +6395,8 @@ Accept "!!" in table data of mixed wikitext / html syntax
 Accept empty attributes in td/th cells (td/th cells starting with leading ||)
 !! wikitext
 {|
-!| h1
-|| a
+!|h1
+||a
 |}
 !! html
 <table>
@@ -6539,9 +6541,9 @@ Invalid attributes in table cell (T3830)
 Table cell attributes: Pipes protected by nowikis should be treated as a plain character
 !! wikitext
 {|
-| title="foo" |bar
-| title="foo<nowiki>|</nowiki>" |bar
-| title="foo<nowiki>|</nowiki>" bar
+|title="foo" |bar
+|title="foo<nowiki>|</nowiki>" |bar
+|title="foo<nowiki>|</nowiki>" bar
 |}
 !! html/php
 <table>
@@ -6976,7 +6978,7 @@ b
 Table cell with a single comment
 !! wikitext
 {|
-| <!-- c1 -->
+|<!-- c1 -->
 |a
 |}
 !! html
@@ -7256,8 +7258,8 @@ parsoid=wt2html,wt2wt
 
 !! html/parsoid
 <table>
-<tbody><tr><th> foo </th><th> bar
-<!-- foo -->  </th><td> baz </td><td> quux</td></tr>
+<tbody><tr><th>foo</th><th>bar
+<!-- foo --></th><td> baz </td><td>quux</td></tr>
 </tbody></table>
 !! end
 
@@ -9870,7 +9872,7 @@ parsoid
 !! test
 Parsoid: Test of whitespace serialization with Templated bullets
 !! options
-parsoid
+parsoid=wt2html
 !! wikitext
 * {{bullet}}
 !! html/parsoid
@@ -14690,7 +14692,7 @@ Image with nested tables in caption
 Image with heading and horizontal rule in caption
 !! wikitext
 [[File:Foobar.jpg|thumb|
-=== Testing ===
+===Testing===
 123
 --------------
 ]]
@@ -14699,7 +14701,7 @@ Image with heading and horizontal rule in caption
 
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n=== Testing ===\n123\n--------------\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{"href":"File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
-<h3 id="Testing"> Testing </h3>
+<h3 id="Testing">Testing</h3>
 123
 <hr data-parsoid='{"extra_dashes":10}'/>
 </figcaption></figure>
@@ -15996,8 +15998,8 @@ parsoid=wt2html
 !! test
 3. Categories and newlines: newline suppression for last list item should RT properly
 !! wikitext
-* a
-* b 
+*a
+*b
    
 [[Category:Foo]]
    
@@ -16012,8 +16014,8 @@ parsoid=wt2html
 
 [[Category:D]]
 !! html/parsoid
-<ul><li> a</li>
-<li> b</li></ul> 
+<ul><li>a</li>
+<li>b</li></ul>
    
 <link rel="mw:PageProp/Category" href="./Category:Foo"/>
    
@@ -16032,13 +16034,13 @@ parsoid=wt2html
 !! test
 4. Categories and newlines: newline suppression for last list item should RT properly
 !! wikitext
-* a
-**** b
+*a
+****b
 
 [[Category:Foo]]
 !! html/parsoid
-<ul><li> a
-<ul><li><ul><li><ul><li> b</li></ul></li></ul></li></ul></li></ul>
+<ul><li>a
+<ul><li><ul><li><ul><li>b</li></ul></li></ul></li></ul></li></ul>
 
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
 !! end
@@ -16049,18 +16051,18 @@ parsoid=wt2html
 !! options
 parsoid=wt2html
 !! wikitext
-* a
-** b
+*a
+**b
 [[Category:Foo]]
-* c
-** d
+*c
+**d
 [[Category:Foo]]
 !! html/parsoid
-<ul><li> a
-<ul><li> b
+<ul><li>a
+<ul><li>b
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul></li>
-<li> c
-<ul><li> d</li></ul></li></ul>
+<li>c
+<ul><li>d</li></ul></li></ul>
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
 !! end
 
@@ -16073,9 +16075,9 @@ parsoid=wt2html
 !! options
 parsoid=wt2html
 !! wikitext
-* a [[Category:Foo]]
+*a [[Category:Foo]]
 !! html/parsoid
-<ul><li>a <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
+<ul><li>a<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
 !! end
 
 # This test also demonstrates because of newline+category tunneling
@@ -16084,23 +16086,23 @@ parsoid=wt2html
 !! test
 7. Categories and newlines: migrateTrailingCategories dom pass should leave template content alone
 !! wikitext
-* {{echo|a
+*{{echo|a
 [[Category:Foo]]}}
 !! html/parsoid
-<ul><li> <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a
+<ul><li><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n[[Category:Foo]]"}},"i":0}}]}'>a
 </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/></li></ul>
 !! end
 
 !! test
 8. Categories and newlines: migrateTrailingCategories dom pass should not get tripped by intervening templates
 !! wikitext
-* a
+*a
 
 {{echo|[[Category:Foo]]
 [[Category:Bar]]}}
 [[Category:Baz]]
 !! html/parsoid
-<ul><li> a</li></ul>
+<ul><li>a</li></ul>
 
 <link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"[[Category:Foo]]\n[[Category:Bar]]"}},"i":0}}]}'/><span about="#mwt1">
 </span><link rel="mw:PageProp/Category" href="./Category:Bar" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Bar"},"sa":{"href":"Category:Bar"}}'/>
@@ -21344,9 +21346,9 @@ parsoid=wt2html
 !! test
 Definition list code coverage
 !! wikitext
-;title   : def
-;title : def
-;title: def
+;title   :def
+;title :def
+;title:def
 !! html/php
 <dl><dt>title  &#160;</dt>
 <dd>def</dd>
@@ -21356,9 +21358,9 @@ Definition list code coverage
 <dd>def</dd></dl>
 
 !! html/parsoid
-<dl><dt>title  <span typeof="mw:Placeholder"> </span></dt><dd> def</dd>
-<dt>title<span typeof="mw:Placeholder"> </span></dt><dd> def</dd>
-<dt>title</dt><dd> def</dd></dl>
+<dl><dt>title  <span typeof="mw:Placeholder"> </span></dt><dd>def</dd>
+<dt>title<span typeof="mw:Placeholder"> </span></dt><dd>def</dd>
+<dt>title</dt><dd>def</dd></dl>
 !! end
 
 !! test
@@ -24778,9 +24780,9 @@ Empty LI and TR nodes should be stripped from template content
 !! test
 Empty LI and TR nodes should not be stripped from top-level content
 !! wikitext
-* a
+*a
 *
-* b
+*b
 
 {|
 |-
@@ -24789,9 +24791,9 @@ Empty LI and TR nodes should not be stripped from top-level content
 |}
 !! html/parsoid
 <ul>
-<li> a</li>
+<li>a</li>
 <li class='mw-empty-elt'></li>
-<li> b</li>
+<li>b</li>
 </ul>
 <table>
 <tbody>
@@ -27002,13 +27004,13 @@ Encapsulate protected attributes from wt
 <div typeof="mw:placeholder stuff" data-mw="whoo" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true">foo</div>
 
 {| typeof="mw:placeholder stuff" data-mw="whoo" data-parsoid="weird" data-parsoid-other="no" about="time" rel="mw:true"
-| ok
+|ok
 |}
 !! html/parsoid
 <div data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
 
 <table data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">
-<tbody><tr><td data-parsoid='{"autoInsertedEnd":true}'> ok</td></tr>
+<tbody><tr><td data-parsoid='{"autoInsertedEnd":true}'>ok</td></tr>
 </tbody></table>
 !!end
 
@@ -28794,8 +28796,8 @@ parsoid={
 |}
 !! wikitext/edited
 {|
-!h1 !!h2 !!h3
-|c2 |||c3
+!h1!!h2!!h3
+|c2|||c3
 |}
 !!end
 
@@ -30880,10 +30882,15 @@ headings, and cells. HTML versions of the same should preserve whitespace.
 ##########################################################################
 !! test
 Trim whitespace in wikitext headings, list items, table captions, headings, and cells
+!! options
+parsoid={
+	"modes": ["wt2html"],
+	"preserveIEW": true
+}
 !! wikitext
 __NOTOC__
 ==    <!--c1-->  <!--c2--> Spaces   <!--c3--> <!--c4-->  ==
-==		<!--c2-->	<!--c2--> Tabs		<!--c3--><!--c4-->	==
+==		<!--c1-->	<!--c2--> Tabs		<!--c3--><!--c4-->	==
 *     <!--c1-->   <!--c2-->  List item <!--c3--> <!--c4-->
 ; <!--term to define--> term : <!--term's definition--> definition
 {|
@@ -30929,11 +30936,36 @@ __NOTOC__
 <td>Table Cell 1</td>
 <td>Table Cell 2
 </td></tr></tbody></table> foo</dd></dl>
+!! html/parsoid
+<meta property="mw:PageProp/notoc">
+<h2 id="Spaces"><!--c1--><!--c2-->Spaces<!--c3--><!--c4--></h2>
+<h2 id="Tabs"><!--c1--><!--c2-->Tabs<!--c3--><!--c4--></h2>
+<ul><li><!--c1--><!--c2-->List item<!--c3--><!--c4--></li></ul>
+<dl><dt><!--term to define-->term&nbsp;</dt><dd><!--term's definition-->definition</dd></dl>
+<table>
+<caption><!--c1--><!--c2-->Table Caption<!--c3--><!--c4--></caption>
+<tbody><tr>
+<th><!--c1--><!--c2-->Table Heading 1<!--c3--><!--c4--></th><th>Table Heading 2<!--c5--></th></tr>
+<tr>
+<td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2<!--c5--></td></tr>
+<tr>
+<td>class="foo"</td><td><!--c1--><!--c2-->Table Cell 3<!--c3--><!--c4--></td></tr>
+<tr>
+<td><!--c1-->testing <a rel="mw:WikiLink" href="./One" title="One">two</a> <!--c2--> | <!--c3--> some content</td></tr>
+</tbody></table>
+<dl><dd><table>
+  <tbody><tr><td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2<!--c5--></td></tr>
+  </tbody></table><p> foo   </p><!--c1--></dd></dl>
 !! end
 
 # Looks like <caption> is not accepted in HTML
 !! test
 Do not trim whitespace in HTML headings, list items, table captions, headings, and cells
+!! options
+parsoid={
+	"modes": ["wt2html"],
+	"preserveIEW": true
+}
 !! wikitext
 __NOTOC__
 <h2>    <!--c1-->   <!--c2--> Heading    <!--c3--> <!--c4-->  </h2>
@@ -30949,10 +30981,23 @@ __NOTOC__
 <tbody><tr><th>   Table Heading   </th><th></th></tr>
 <tr><td>   Table Cell   </td><th></th></tr>
 </tbody></table>
+!! html/parsoid
+<meta property="mw:PageProp/notoc"/>
+<h2 id="Heading">    <!--c1-->   <!--c2--> Heading    <!--c3--> <!--c4-->  </h2>
+<ul><li>     <!--c1-->   <!--c2-->  List item <!--c3--> <!--c4-->  </li></ul>
+<table>
+<tbody><tr><th> <!--c1--> <!--c2--> Table Heading <!--c3--> <!--c4--> </th><th></th></tr>
+<tr><td> <!--c1--> <!--c2--> Table Cell <!--c3--> <!--c4--> </td><th></th></tr>
+</tbody></table>
 !! end
 
 !! test
 Do not trim whitespace in links and quotes
+!! options
+parsoid={
+	"modes": ["wt2html"],
+	"preserveIEW": true
+}
 !! wikitext
 foo ''  <!--c1--> italic <!--c2-->   '' and '''  <!--c3-->  bold  <!--c4-->  '''
 [[Foo|  some text  ]]
@@ -30960,6 +31005,9 @@ foo ''  <!--c1--> italic <!--c2-->   '' and '''  <!--c3-->  bold  <!--c4-->  '''
 <p>foo <i>   italic    </i> and <b>    bold    </b>
 <a href="/wiki/Foo" title="Foo">  some text  </a>
 </p>
+!! html/parsoid
+<p>foo <i>  <!--c1--> italic <!--c2-->   </i> and <b>  <!--c3-->  bold  <!--c4-->  </b>
+<a rel="mw:WikiLink" href="./Foo" title="Foo">  some text  </a></p>
 !! end
 
 !! test

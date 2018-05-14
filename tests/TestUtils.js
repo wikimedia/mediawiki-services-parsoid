@@ -25,15 +25,15 @@ var TestUtils = {};
  * @param {boolean} [parsoidOnly=false]
  * @return {string}
  */
-TestUtils.normalizeOut = function(out, parsoidOnly) {
+TestUtils.normalizeOut = function(out, parsoidOnly, preserveIEW) {
 	if (typeof (out) === 'string') {
 		out = DU.parseHTML(out).body;
 	}
 	var stripTypeof = parsoidOnly ?
 		/(?:^|mw:DisplaySpace\s+)mw:Placeholder$/ :
 		/^mw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Nowiki|Transclusion|Entity)$/;
-	var body = this.normalizeIEW(out, stripTypeof, parsoidOnly);
-	out = DU.toXML(body, { innerXML: true });
+	var body = this.unwrapSpansAndNormalizeIEW(out, stripTypeof, parsoidOnly, preserveIEW);
+	out = preserveIEW ? body.innerHTML : DU.toXML(body, { innerXML: true });
 	// NOTE that we use a slightly restricted regexp for "attribute"
 	//  which works for the output of DOM serialization.  For example,
 	//  we know that attribute values will be surrounded with double quotes,
@@ -116,7 +116,7 @@ TestUtils.normalizeOut = function(out, parsoidOnly) {
  * @param {boolean} [parsoidOnly=false]
  * @return {Node}
  */
-TestUtils.normalizeIEW = function(body, stripSpanTypeof, parsoidOnly) {
+TestUtils.unwrapSpansAndNormalizeIEW = function(body, stripSpanTypeof, parsoidOnly, preserveIEW) {
 	var newlineAround = function(node) {
 		return node && /^(BODY|CAPTION|DIV|DD|DT|LI|P|TABLE|TR|TD|TH|TBODY|DL|OL|UL|H[1-6])$/.test(node.nodeName);
 	};
@@ -133,17 +133,11 @@ TestUtils.normalizeIEW = function(body, stripSpanTypeof, parsoidOnly) {
 		}
 	};
 	unwrapSpan = function(parent, node) {
-		var child, next, placeholder;
 		// first recurse to unwrap any spans in the immediate children.
 		cleanSpans(node);
 		// now unwrap this span.
-		placeholder = node.ownerDocument.createTextNode('XXX');
-		parent.replaceChild(placeholder, node);
-		for (child = node.firstChild; child; child = next) {
-			next = child.nextSibling;
-			parent.insertBefore(child, placeholder);
-		}
-		parent.removeChild(placeholder);
+		DU.migrateChildren(node, parent, node);
+		parent.removeChild(node);
 	};
 	var visit = function(node, stripLeadingWS, stripTrailingWS, inPRE) {
 		var child, next, prev;
@@ -151,7 +145,7 @@ TestUtils.normalizeIEW = function(body, stripSpanTypeof, parsoidOnly) {
 			// Preserve newlines in <pre> tags
 			inPRE = true;
 		}
-		if (DU.isText(node)) {
+		if (!preserveIEW && DU.isText(node)) {
 			if (!inPRE) {
 				node.data = node.data.replace(/\s+/g, ' ');
 			}
@@ -202,7 +196,7 @@ TestUtils.normalizeIEW = function(body, stripSpanTypeof, parsoidOnly) {
 				inPRE);
 			stripLeadingWS = false;
 		}
-		if (inPRE) { return node; }
+		if (inPRE || preserveIEW) { return node; }
 		// now add newlines around appropriate nodes.
 		for (child = node.firstChild; child; child = next) {
 			prev = child.previousSibling;
@@ -248,7 +242,7 @@ TestUtils.normalizePhpOutput = function(html) {
  */
 TestUtils.normalizeHTML = function(source) {
 	try {
-		var body = this.normalizeIEW(DU.parseHTML(source).body);
+		var body = this.unwrapSpansAndNormalizeIEW(DU.parseHTML(source).body);
 		var html = DU.toXML(body, { innerXML: true })
 			// a few things we ignore for now..
 			//  .replace(/\/wiki\/Main_Page/g, 'Main Page')
