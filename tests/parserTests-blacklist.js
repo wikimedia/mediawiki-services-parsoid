@@ -252,7 +252,7 @@ add("wt2wt", "Table attribute safety", "{|\n! style=\"<nowiki>border-width:expre
 add("wt2wt", "Parser hook: nested tags", "<tag><tag></tag><nowiki></tag></nowiki>");
 add("wt2wt", "Sanitizer: Validating that <meta> and <link> work, but only for Microdata", "<div itemscope=\"\">\n\t<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>");
 add("wt2wt", "Fuzz testing: Parser13", "{| \n| http: / a |\n|}");
-add("wt2wt", "Fuzz testing: Parser16", "{|\n!https://||||||\n|}");
+add("wt2wt", "Fuzz testing: Parser16", "{|\n!https://|| || ||\n|}");
 add("wt2wt", "Fuzz testing: Parser21", "{|\n!irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n|\n|}");
 add("wt2wt", "Fuzz testing: Parser22", "http://===r:::https://b\n\n{|\n|}");
 add("wt2wt", "Inline wiki vs wiki block nesting", "'''Bold paragraph'''\n\nNew wiki paragraph");
@@ -1051,7 +1051,7 @@ add("selser", "Quote balancing context should be restricted to td/th cells on th
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [2]", "1472tnt\n{|\n!''a!!''b\n|''a||''b\n|}");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[0,[2,0]]]", "{|\n<!--ozg58-->!''a!!''b\n|''a||''b\n|}");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[0,[[3,[2],3,[2],1],3]]]", "{|\n!p6mcdk''b\n|d0ix25''a|| data-foobar=\"4g8of5\" |''b\n|}");
-add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[4,[[[3],1,0,[[2]],0],0]]]", "{|<!--1w3puuv-->\n!!! data-foobar=\"1t3dkx\" |''b\n|''bnq9qla''||''b\n|}");
+add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[4,[[[3],1,0,[[2]],0],0]]]", "{|<!--1w3puuv-->\n! !! data-foobar=\"1t3dkx\" |''b\n|''bnq9qla''||''b\n|}");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[0,[[1,0,0,4,1],0]]]", "{|\n! data-foobar=\"s19poy\" |''a!!''b\n!vx4tlq\n| data-foobar=\"a1y3t4\" |''b''\n|}");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[4,[[[3],4,0,0,[3]],3]]]", "{|<!--1ypcdkj-->\n!\n!xj9ho5\n|''a||\n|}");
 add("selser", "Quote balancing context should be restricted to td/th cells on the same wikitext line [[4,1]]", "{|<!--1bnj6ev-->\n!''a!!''b\n|''a||''b\n|}");
@@ -1234,7 +1234,7 @@ add("selser", "Table td-cell syntax variations [2]", "1jwii2y\n{|\n|foo bar foo|
 add("selser", "Table td-cell syntax variations [[4,[1,4]]]", "{|<!--4cgz4o-->\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz<!--12mt387-->\n|}");
 add("selser", "Table td-cell syntax variations [1]", "{| data-foobar=\"1iarw18\"\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz\n|}");
 add("selser", "Table td-cell syntax variations [[3,[2,0]]]", "{|<!--kjgs8a-->\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz\n|}");
-add("selser", "Table td-cell syntax variations [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]", "{|<!--19byc9i-->\n|1rdjmx5\n|foo bar foo|baz\n|15gm5vi\n|foo bar foo||\n|1k8mu2s\n|style='color:red;'|baz\n||| data-foobar=\"15blb6e\" |baz<!--srur4b-->\n|}");
+add("selser", "Table td-cell syntax variations [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]", "{|<!--19byc9i-->\n|1rdjmx5\n|foo bar foo|baz\n|15gm5vi\n|foo bar foo||\n|1k8mu2s\n|style='color:red;'|baz\n| || data-foobar=\"15blb6e\" |baz<!--srur4b-->\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[4,0,0,1,0,0,0,4,4],0]]]", "{|\n|136i03d\n|foo bar foo|| data-foobar=\"1p5zg05\" |baz\n|style='color:red;'|baz\n|dnhd2o\n|szjqq8\n|}");
 add("selser", "Table td-cell syntax variations [[0,[1,4]]]", "{|\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz<!--1mu375u-->\n|}");
 add("selser", "Table td-cell syntax variations [[0,[[1,4,0,2,2,0,4,0,0],3]]]", "{|\n| data-foobar=\"1vo6ycz\" foo bar |baz\n|19o3nfe\n|foo bar foo\n|7m6oo8||baz\n|18jq9io\n|style='color:red;'|baz\n|57uz8w\n|style='color:red;'||baz\n|}");
@@ -1249,7 +1249,7 @@ add("selser", "Accept \"| !\" at start of line in tables (ignore !-attribute) [[
 add("selser", "Accept \"| !\" at start of line in tables (ignore !-attribute) [[2,2]]", "{|<!--1s8mzg5-->\n<!--1rradqq-->|-\n|!style=\"color:red\"|bar\n|}");
 add("selser", "Accept \"| !\" at start of line in tables (ignore !-attribute) [[4,[2,4]]]", "{|<!--1m6dz8p--><!--1q6udai-->\n|-\n|!style=\"color:red\"|bar<!--6x372r-->\n|}");
 add("selser", "Accept \"| !\" at start of line in tables (ignore !-attribute) [[0,2]]", "{|\n<!--329kt4-->|-\n|!style=\"color:red\"|bar\n|}");
-add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[4,[[0,0,4,3],4,[2,4,[2],[3],2,[3],[2],1],3,4,0]]]", "{|<!--thv0ap-->\n|-\n|style='color:red;'|+1\n|je9a5x<!--159s14c-->\n|-\n|1es89nf\n|lrqhh8||1vdyqyt2||\n|kmqcrp\n|||13gkdkf+2|| data-foobar=\"zh3ts2\" |-3<!--1ojj34v-->\n|}");
+add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[4,[[0,0,4,3],4,[2,4,[2],[3],2,[3],[2],1],3,4,0]]]", "{|<!--thv0ap-->\n|-\n|style='color:red;'|+1\n|je9a5x<!--159s14c-->\n|-\n|1es89nf\n|lrqhh8||1vdyqyt2||\n|kmqcrp\n| ||13gkdkf+2|| data-foobar=\"zh3ts2\" |-3<!--1ojj34v-->\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [1]", "{| data-foobar=\"1gl68m8\"\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n|1||2||3\n|1||+2||-3\n|-\n| +1\n| -1\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [2]", "1e44vh7\n{|\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n|1||2||3\n|1||+2||-3\n|-\n| +1\n| -1\n|}");
 add("selser", "Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/-  [[0,1]]", "{|\n|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n|1||2||3\n|1||+2||-3\n|-\n| +1\n| -1\n|}");
@@ -1327,7 +1327,7 @@ add("selser", "Build table with {{!}} [[4,2]]", "{{{!}} class=\"wikitable\"<!--1
 add("selser", "Build table with {{!}} [[2,2]]", "{{{!}} class=\"wikitable\"<!--y650rv-->\n<!--1uosyvo-->!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}");
 add("selser", "Build table with {{!}} [[4,1]]", "{{{!}} class=\"wikitable\"<!--1fkinqk-->\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}");
 add("selser", "Build table with {{!}} [[3,1]]", "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}");
-add("selser", "Build table with pipe as data [[4,[[[3],4,[2]],4,1,3,1,0,[2,[3],0],3]]]", "{| class=\"wikitable\"<!--xg0u8a-->\n!\n!d7701x\n!1tbn79zsecond header<!--1m7bm59-->\n|- style=\"color:red;\" data-foobar=\"r8fxpk\"\n|data|| style=\"color:red;\" |second data\n|- data-foobar=\"uclhfr\"\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n|5k1hnz\n|||||second data with |\n|}");
+add("selser", "Build table with pipe as data [[4,[[[3],4,[2]],4,1,3,1,0,[2,[3],0],3]]]", "{| class=\"wikitable\"<!--xg0u8a-->\n!\n!d7701x\n!1tbn79zsecond header<!--1m7bm59-->\n|- style=\"color:red;\" data-foobar=\"r8fxpk\"\n|data|| style=\"color:red;\" |second data\n|- data-foobar=\"uclhfr\"\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n|5k1hnz\n|| |||second data with |\n|}");
 add("selser", "Build table with pipe as data [[4,2]]", "{| class=\"wikitable\"<!--scocw0--><!--1pczk3f-->\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}");
 add("selser", "Build table with pipe as data [[3,2]]", "{| class=\"wikitable\"<!--vu7fc-->\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}");
 add("selser", "Build table with pipe as data [2]", "16o0w77\n{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}");
@@ -1700,6 +1700,12 @@ add("selser", "Fuzz testing: Parser13 [[4,[1]]]", "{|<!--mdbo58-->\n| http://a|\
 add("selser", "Fuzz testing: Parser13 [[4,0]]", "{|<!--mfod94-->\n| http://a|\n|}");
 add("selser", "Fuzz testing: Parser13 [[2,0]]", "{|<!--upaz27--> \n| http://a|\n|}");
 add("selser", "Fuzz testing: Parser16 [2]", "1jeb7ja\n{|\n!https://||||||");
+add("selser", "Fuzz testing: Parser16 [[0,[[0,2,0,0]]]]", "{|\n!https://\n!7nk0ln|| ||||\n|}");
+add("selser", "Fuzz testing: Parser16 [[3,2]]", "{|<!--9co2pf-->\n!https://||||||\n|}");
+add("selser", "Fuzz testing: Parser16 [[0,1]]", "{|\n!https://||||||\n|}");
+add("selser", "Fuzz testing: Parser16 [[3,[2]]]", "{|<!--v1br0f-->\n!https://||||||\n|}");
+add("selser", "Fuzz testing: Parser16 [[0,[[1,0,0,4]]]]", "{|\n! data-foobar=\"1dxiu2j\" |https://||||\n!1dxut7m\n|}");
+add("selser", "Fuzz testing: Parser16 [1]", "{| data-foobar=\"1j1pbvp\"\n!https://||||||\n|}");
 add("selser", "Fuzz testing: Parser21 [2]", "13y1bui\n{|\n!irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n|");
 add("selser", "Fuzz testing: Parser22 [[4],0,0]", "nr0us7\n\n{|");
 add("selser", "Fuzz testing: Parser22 [1,2,2]", "http://===r:::https://b\n\nfa9uov\n\n1qnwe6o\n{|");

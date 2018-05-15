@@ -25693,6 +25693,65 @@ parsoid=html2wt
 !! end
 
 !! test
+Tables: 5. Empty table cells should get whitespace to avoid need for nowikis
+!! options
+parsoid=html2wt
+!! html/parsoid
+<table><tr><td></td><td align="center" data-parsoid='{"stx":"row"}'></td><td data-parsoid='{"stx":"row"}'></td></tr></table>
+
+<table><tr><td></td><td align="center"></td><td></td></tr></table>
+
+<table><tr><td></td><td align="center" data-parsoid='{"stx":"row", "startTagSrc":"{{!}}{{!}}"}'></td><td data-parsoid='{"stx":"row"}'></td></tr></table>
+
+<table><tr><th></th><th align="center" data-parsoid='{"stx":"row"}'></th><th data-parsoid='{"stx":"row"}'></th></tr></table>
+!! wikitext
+{|
+| || align="center" | ||
+|}
+
+{|
+|
+| align="center" |
+|
+|}
+
+{|
+| {{!}}{{!}} align="center" | ||
+|}
+
+{|
+! !! align="center" | !!
+|}
+!! html/php+tidy
+<table>
+<tbody><tr>
+<td></td>
+<td align="center"></td>
+<td>
+</td></tr></tbody></table>
+<table>
+<tbody><tr>
+<td>
+</td>
+<td align="center">
+</td>
+<td>
+</td></tr></tbody></table>
+<table>
+<tbody><tr>
+<td></td>
+<td align="center"></td>
+<td>
+</td></tr></tbody></table>
+<table>
+<tbody><tr>
+<th></th>
+<th align="center"></th>
+<th>
+</th></tr></tbody></table>
+!! end
+
+!! test
 T97430: Don't emit empty nowiki pairs around marker meta tags
 !! options
 parsoid=html2wt
