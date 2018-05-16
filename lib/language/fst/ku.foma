@@ -142,6 +142,7 @@ regex CONVERT'KU'LATN;
 minimize net
 echo EXPECT[trans-ku-latn functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-ku-latn.att
 pop stack
 
@@ -155,6 +156,7 @@ regex LONGSAFE(CONVERT'KU'LATN .o. CONVERT'KU'ARAB);
 minimize net
 echo EXPECT[brack-ku-latn-ku-arab functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-ku-latn-ku-arab.att
 pop stack
 
@@ -168,6 +170,7 @@ regex LONGSAFE(CONVERT'KU'LATN .o. IDENTITY);
 minimize net
 echo EXPECT[brack-ku-latn-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-ku-latn-noop.att
 pop stack
 
@@ -181,6 +184,7 @@ regex CONVERT'KU'ARAB;
 minimize net
 echo EXPECT[trans-ku-arab functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-ku-arab.att
 pop stack
 
@@ -194,6 +198,7 @@ regex LONGSAFE(CONVERT'KU'ARAB .o. CONVERT'KU'LATN);
 minimize net
 echo EXPECT[brack-ku-arab-ku-latn functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-ku-arab-ku-latn.att
 pop stack
 
@@ -207,5 +212,6 @@ regex LONGSAFE(CONVERT'KU'ARAB .o. IDENTITY);
 minimize net
 echo EXPECT[brack-ku-arab-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-ku-arab-noop.att
 pop stack

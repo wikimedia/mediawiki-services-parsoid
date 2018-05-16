@@ -231,6 +231,7 @@ regex CONVERT'EN'X'PIGLATIN;
 minimize net
 echo EXPECT[trans-en-x-piglatin functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-en-x-piglatin.att
 pop stack
 
@@ -244,6 +245,7 @@ regex LONGSAFEWORD(CONVERT'EN'X'PIGLATIN .o. CONVERT'EN, BREAK);
 minimize net
 echo EXPECT[brack-en-x-piglatin-en functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-en-x-piglatin-en.att
 pop stack
 
@@ -257,6 +259,7 @@ regex LONGSAFEWORD(CONVERT'EN'X'PIGLATIN .o. IDENTITY, BREAK);
 minimize net
 echo EXPECT[brack-en-x-piglatin-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-en-x-piglatin-noop.att
 pop stack
 
@@ -270,6 +273,7 @@ regex CONVERT'EN;
 minimize net
 echo EXPECT[trans-en functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-en.att
 pop stack
 
@@ -283,6 +287,7 @@ regex LONGSAFEWORD(CONVERT'EN .o. CONVERT'EN'X'PIGLATIN, BREAK);
 minimize net
 echo EXPECT[brack-en-en-x-piglatin functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-en-en-x-piglatin.att
 pop stack
 
@@ -296,5 +301,6 @@ regex LONGSAFEWORD(CONVERT'EN .o. IDENTITY,BREAK);
 minimize net
 echo EXPECT[brack-en-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-en-noop.att
 pop stack

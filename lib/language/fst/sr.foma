@@ -68,6 +68,7 @@ regex CONVERT'SR'EL;
 minimize net
 echo EXPECT[trans-sr-el functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-sr-el.att
 pop stack
 
@@ -81,6 +82,7 @@ regex LONGSAFEWORD(CONVERT'SR'EL .o. CONVERT'SR'EC, BREAK);
 minimize net
 echo EXPECT[brack-sr-el-sr-ec functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-sr-el-sr-ec.att
 pop stack
 
@@ -94,6 +96,7 @@ regex LONGSAFEWORD(CONVERT'SR'EL .o. IDENTITY, BREAK);
 minimize net
 echo EXPECT[brack-sr-el-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-sr-el-noop.att
 pop stack
 
@@ -106,6 +109,7 @@ regex CONVERT'SR'EC;
 minimize net
 echo EXPECT[trans-sr-ec functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att trans-sr-ec.att
 pop stack
 
@@ -119,6 +123,7 @@ regex LONGSAFEWORD(CONVERT'SR'EC .o. CONVERT'SR'EL, BREAK);
 minimize net
 echo EXPECT[brack-sr-ec-sr-el functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-sr-ec-sr-el.att
 pop stack
 
@@ -132,5 +137,6 @@ regex LONGSAFEWORD(CONVERT'SR'EC .o. IDENTITY, BREAK);
 minimize net
 echo EXPECT[brack-sr-ec-noop functional]: 1 (1 = TRUE, 0 = FALSE)
 test functional
+byte machine
 write att brack-sr-ec-noop.att
 pop stack

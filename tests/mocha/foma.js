@@ -104,7 +104,7 @@ describe('Foma FST verification', function() {
 			});
 
 			// Now compile the .att files to .json files
-			describe("Building .json files", function() {
+			describe("Building .pfst files", function() {
 				l.variants.forEach(args => it(args.join(' '), function() {
 					const cp = childProcess.fork(
 						path.resolve(toolsDir, 'build-langconv-fst.js'),

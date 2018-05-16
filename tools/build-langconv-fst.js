@@ -6,86 +6,85 @@ require('../core-upgrade.js');
 
 /**
  * Compile an .att-format finite state transducer (as output by foma)
- * into an executable JS module or a compact JSON description of the
- * machine.
+ * into a compact byte-array representation which is directly executable.
+ * The input is expected to be a "byte machine", that is, unicode code units
+ * have already been decomposed into code points corresponding to UTF-8
+ * bytes.  Symbols used in the ATT file:
+ *  @0@      Epsilon ("no character").  Used in both input and output edges;
+ *           as an input edge this introduced nondeterminism.
+ *  <hh>    The input byte with hexadecimal value <hh>
+ *             ("00" should never appear in the ATT file; see below.)
+ *  @_IDENTITY_SYMBOL_@   Any character not named in the (implicit) alphabet
+ *  [[       Bracket characters, used to delimit "unsafe" strings in
+ *  ]]       "bracket machines'.
  *
- * Our descriptions treat Unicode codepoints natively; if you want to
- * run them on UTF-8 or UTF-16-encoded strings, you need to manually
- * compose the code units into code points.
+ * The output is a byte array.  We use a variable-length integer encoding:
+ *   0xxx xxxy -> the directly-encoded value (xxx xxxx)
+ *   1xxx xxxx -> (xxx xxxx) + 128 * ( 1 + <the value encoded by subsequent bytes>)
+ * For signed quantities, the least significant digit is used for a sign
+ * bit.  That is, to encode first:
+ *   from_signed(x) = (x >= 0) ? (2*x) : (-2*(x + 1) + 1);
+ * and when decoding:
+ *   to_signed(x) = (x & 1) ? (((x-1)/-2)-1) : (x/2);
+ * See [en:Variable-length_quantity#Zigzag_encoding] for details.
+ *
+ * Byte value 0x00 is used for "epsilon" edges.  Null characters are
+ *  disallowed in wikitext, and foma would have trouble handling them
+ *  natively since it is written in C with null-terminated strings.
+ *  As an input character this represents a non-deterministic transition;
+ *  as an output character it represents "no output".
+ *  If you wanted (for some reason) to allow null characters in the
+ *  input (which are not included in the "anything else" case), then
+ *  encode them as 0xC0 0x80 (aka "Modified UTF-8").  Similarly, if
+ *  you wanted to emit a null character, you should emit 0xC0 0x80.
+ *
+ * Byte values 0xF8 - 0xFF are disallowed in UTF-8.  We use them for
+ * special cases, as follows:
+ *  0xFF: EOF (the end of the input string).  Final states in the machine
+ *   are represented with an inchar=0xFF outchar=0x00 transition to a
+ *   unique "stop state" (aka state #1).  Non-final states have no outgoing
+ *   edge for input 0xFF.
+ *  0xFE: IDENTITY.  As an input character this matches any "anything else"
+ *   character.  As an output character it copies the input character.
+ *  0xFD: ]]
+ *  0xFC: [[  These bracketing characters should only appear as output
+ *   characters; they will never appear in the input.
+ *  0xF8: Padding character (see below).
+ *
+ * The byte array begins with an array of 256 bits (32 bytes).  A 1 in this
+ * array indicates that this byte value should be treated as
+ * "@_IDENTITY_SYMBOL_@" (that is, "anything else") and thus mapped to 0xFE.
+ * (Byte values 0x00 and 0xF8-0xFF will always have their bits set.)
+ *
+ * Following this, we have an array of states.  Each state is:
+ *   <# edges: variable unsigned int> <edge #0>, <edge #1>, etc
+ * Each edge is:
+ *   <inchar:1 byte> <outchar: 1 byte> <state #: variable signed int>
+ *
+ * Edges are sorted by <inchar> to allow binary search. All state #s
+ * are relative, refer to the start position of that state in the byte
+ * array, and are padded with trailing 0xF8 to the same size within
+ * each state.  If the first edge(s) have <inchar> = 0x00 then these edges
+ * represents possible epsilon transitions from this state (aka, these
+ * edge should be tried if subsequent execution from this state
+ * fails).  The first edge can always be examined to determine the
+ * (variable length) size of all edges in this state by counting the
+ * trailing 0xF8 bytes since only <inchar> should never be 0xF8.
  */
 
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
+const { StringDecoder } = require('string_decoder');
+
 const FST = require('../lib/language/FST.js');
 
-// NOTES
-// for JSON output of transducers.
-// emit = -1=>EPSILON, -2=>ID, -3=>LBRACKET, -4=>RBRACKET
-// nstate = -1 => EOF, -2 => reset()
-// save = -1 => don't save, -2 => epsilon case
-// no default case in chars, ANYTHING_ELSE gets range
-// eq: [[range,output],...] where range is [[min,max],[singleton],[min,max],...]
-// state:[/*0*/[[/*chars*/[1,2,3],/*save*/-1,/*emit*/65,/*nstate*/1],[...],...],
-// epsilon: [/*N*/[[/*empty*/],[/*save*/-1,/*emit*/-1,/*nstate*/2]]]
-
-const ANYTHING_ELSE = { identity:0,size:-1 }; // singleton object
-const LBRACKET = { bracket:'left' }; // special char
-const RBRACKET = { bracket:'right' }; // special char
-const EPSILON = { epsilon:true };
-const EOF = { eof:true }; // special input char
-const BUFFER = { buffer:0 }; // special output char
-const FAIL = { fail:true }; // special output char
-const MAX_CHAR = 0x10FFFF;
-
-// UTF-8 characters can be 1-4 bytes long
-const UTF8IDS = [
-	{ identity:0,size:1 },{ identity:0,size:2 },
-	{ identity:0,size:3 },{ identity:0,size:4 },
-];
-
-const isIdentity = c => typeof c !== 'number' && c.identity !== undefined;
-const isBuffer = c => typeof c !== 'number' && c.buffer !== undefined;
-const charType = (c) => {
-	return isIdentity(c) ? -10 : // always smallest/first
-		typeof c === 'number' ? -2 :
-		isBuffer(c) ? -3 :
-		[LBRACKET, RBRACKET, EPSILON, EOF, BUFFER, FAIL].indexOf(c);
-};
-
-const charCmp = (a,b) => {
-	// numeric char codes are "type -1"
-	const typeA = charType(a);
-	const typeB = charType(b);
-	let r = typeA - typeB;
-	if (r !== 0) { return r; }
-	if (typeof a === 'number') {
-		r = a - b;
-	}
-	if (isIdentity(a)) {
-		r = a.identity - b.identity;
-		if (r !== 0) { return r; }
-		r = a.size - b.size;
-	} else if (isBuffer(a)) {
-		r = a.buffer - b.buffer;
-	}
-	return r;
-};
-
-const charPretty = (c) => {
-	if (typeof c === 'number') { return String.fromCodePoint(c); }
-	if (c === ANYTHING_ELSE) { return '@ID@'; }
-	if (UTF8IDS.includes(c)) { return `@ID[${c.size}]@`; }
-	if (isIdentity(c)) { return `@ID${c.identity}[${c.size}]@`; }
-	if (isBuffer(c)) { return `@BUF${c.buffer}@`; }
-	if (c === LBRACKET) { return '@[[@'; }
-	if (c === RBRACKET) { return '@]]@'; }
-	if (c === EPSILON) { return '@0@'; }
-	if (c === EOF) { return '@EOF@'; }
-	if (c === FAIL) { return '@FAIL@'; }
-	console.assert(false, c);
-	return '@unk@';
-};
+const BYTE_EOF      = FST.constants.BYTE_EOF;
+const BYTE_IDENTITY = FST.constants.BYTE_IDENTITY;
+const BYTE_RBRACKET = FST.constants.BYTE_RBRACKET;
+const BYTE_LBRACKET = FST.constants.BYTE_LBRACKET;
+const BYTE_PADDING  = FST.constants.BYTE_PADDING;
+const BYTE_EPSILON  = FST.constants.BYTE_EPSILON;
 
 class DefaultMap extends Map {
 	constructor(makeDefaultValue) {
@@ -100,718 +99,419 @@ class DefaultMap extends Map {
 	}
 }
 
-class CharClass {
-	constructor() {
-		this.ranges = [];
-		this.anythingElse = false;
-	}
-	*[Symbol.iterator]() {
-		if (this.anythingElse) {
-			yield ANYTHING_ELSE;
-		}
-		for (const r of this.ranges) {
-			for (let i = r.min; i <= r.max; i++) { yield i; }
-		}
-	}
-	size() {
-		let sz = 0;
-		for (const r of this.ranges) {
-			sz += (r.max - r.min) + 1;
-		}
-		return sz;
-	}
-	toJSON() {
-		if (this.anythingElse) {
-			// Any range including the default case is represented by `null`
-			return null;
-		}
-		return this.ranges.map((r) => {
-			// Abbreviate one-element ranges.
-			return r.min === r.max ? r.min : [r.min, r.max];
-		});
-	}
-	toString() {
-		if (this.hasChar(0)) { // heuristic
-			return `[^${this.copy().invert().toString().slice(1)}`;
-		}
-		const s = this.ranges.map((r) => {
-			const [min,max] = Array.from(String.fromCodePoint(r.min, r.max));
-			return (r.min === r.max) ? min :
-				(r.min + 1 === r.max) ? `${min}${max}` :
-				`${min}-${max}`;
-		}).join('');
-		return '[' + s + ']';
-	}
-	copy() {
-		const c = new CharClass();
-		c.ranges = this.ranges.map(r => ({ min:r.min,max:r.max }));
-		c.anythingElse = this.anythingElse;
-		return c;
-	}
-	isEmpty() { return this.ranges.length === 0 && !this.anythingElse; }
-	invert() {
-		const nr = [];
-		let min = 0;
-		for (const r of this.ranges) {
-			if (min <= r.min - 1) {
-				nr.push({ min:min, max:r.min - 1 });
-			}
-			min = r.max + 1;
-		}
-		if (min < MAX_CHAR) {
-			nr.push({ min:min, max:MAX_CHAR });
-		}
-		this.ranges = nr;
-		this.anythingElse = !this.anythingElse;
-		return this;
-	}
-	hasChar(c) {
-		if (c === ANYTHING_ELSE) {
-			return this.anythingElse;
-		}
-		for (const r of this.ranges) {
-			if (r.min <= c) {
-				if (c <= r.max) { return true; }
-			} else {
-				break;
-			}
-		}
-		return false;
-	}
-	union(cc) {
-		for (const r of cc.ranges) {
-			this.ranges.push({ min:r.min,max:r.max }); // don't destroy cc
-		}
-		this.ranges.sort((a,b) => a.min - b.min);
-		if (this.ranges.length === 0) { return this; }
-		const nr = [];
-		let r0 = this.ranges[0];
-		for (let i = 1, l = this.ranges.length; i < l; i++) {
-			const r1 = this.ranges[i];
-			if (r0.max + 1 < r1.min) {
-				nr.push(r0);
-				r0 = r1;
-			} else if (r0.max < r1.max) {
-				r0.max = r1.max;
-			}
-		}
-		nr.push(r0);
-		this.ranges = nr;
-		if (cc.anythingElse) {
-			this.anythingElse = true;
-		}
-		return this;
-	}
-	subtract(cc) {
-		return this.invert().union(cc).invert();
-	}
-	addChar(c) {
-		if (c === ANYTHING_ELSE) {
-			this.anythingElse = true;
-			return;
-		}
-		let i = 0;
-		for (const l = this.ranges.length; i < l; i++) {
-			const r = this.ranges[i];
-			if (r.min <= c && c <= r.max) { return; }
-			if (c === r.max + 1) {
-				r.max++;
-				if (i + 1 < l) {
-					const r2 = this.ranges[i + 1];
-					if (r.max + 1 === r2.min) {
-						r.max = r2.max;
-						this.ranges.splice(i + 1, 1);
+// Splits input on `\r\n?|\n` without holding entire file in memory at once.
+function *readLines(inFile) {
+	const fd = fs.openSync(inFile, 'r');
+	try {
+		const buf = new Buffer(1024);
+		const decoder = new StringDecoder('utf8');
+		let line = '';
+		let sawCR = false;
+		while (true) {
+			const bytesRead = fs.readSync(fd, buf, 0, buf.length);
+			if (bytesRead === 0) { break; }
+			let lineStart = 0;
+			for (let i = 0; i < bytesRead; i++) {
+				if (buf[i] === 13 || buf[i] === 10) {
+					line += decoder.write(buf.slice(lineStart, i));
+					if (!(buf[i] === 10 && sawCR)) {
+						// skip over the zero-length "lines" caused by \r\n
+						yield line;
 					}
+					line = '';
+					lineStart = i + 1;
+					sawCR = (buf[i] === 13);
+				} else {
+					sawCR = false;
 				}
-				return;
 			}
-			if (c + 1 === r.min) {
-				r.min--;
-				return;
-			}
-			if (c < r.min) { break; }
+			line += decoder.write(buf.slice(lineStart, bytesRead));
 		}
-		this.ranges.splice(i, 0, { min:c, max:c });
+		line += decoder.end();
+		yield line;
+	} finally {
+		fs.closeSync(fd);
 	}
 }
 
-/**
- * Read in an .att-format FST file and parse it into our internal graph
- * format.
- */
-function snarfFile(inFile) {
-	const alphabet = new CharClass();
-	const statePairEdges = new DefaultMap(() => new DefaultMap(() => {
-		return [];
-	}));
-	const finalStates = new Set();
-	let maxState = 0;
-
-	const edgesByChar = new DefaultMap(() => new Set());
-	const charsFromState = new DefaultMap(() => new CharClass());
-
-	const mapChar = (c) => {
-		if (c === '@_IDENTITY_SYMBOL_@') {
-			return ANYTHING_ELSE;
-		} else if (c === '@0@') {
-			return EPSILON;
-		} else if (c === '[[') {
-			return LBRACKET;
-		} else if (c === ']]') {
-			return RBRACKET;
-		} else if (/^\[.*\]$/.test(c)) {
-			// Internal character; shouldn't really appear
-			return null;
-		} else {
-			// Should be a single codepoint.
-			console.assert(Array.from(c).length === 1, c);
-			return c.codePointAt(0);
-		}
-	};
-
-	const data = fs.readFileSync(inFile, 'utf-8').split(/\r?\n/g);
-	for (const line of data) {
+function readAttFile(inFile, handleState, handleFinal) {
+	let lastState = 0;
+	let edges = [];
+	const finalStates = [];
+	for (const line of readLines(inFile)) {
 		if (line.length === 0) { continue; }
 		const fields = line.split(/\t/g);
+		const state = +fields[0];
+		if (fields.length === 1 || state !== lastState) {
+			if (lastState >= 0) {
+				handleState(lastState, edges);
+				edges = [];
+				lastState = -1;
+			}
+		}
 		if (fields.length === 1) {
-			const fState = +fields[0];
-			charsFromState.getDefault(fState);
-			statePairEdges.getDefault(fState);
-			finalStates.add(fState);
-			continue;
-		}
-		console.assert(fields.length === 4);
-		const fromState = +fields[0];
-		const toState = +fields[1];
-		const inChar = fields[2];
-		const outChar = fields[3];
-		maxState = Math.max(maxState, fromState, toState);
-		const inCharCode = mapChar(inChar);
-		const outCharCode = mapChar(outChar);
-		if (inCharCode === LBRACKET || inCharCode === RBRACKET || inCharCode === null) {
-			console.assert(outCharCode === EPSILON, `${inFile}: ${line}`);
-			continue; // ignore these edges!
-		}
-		if (inCharCode !== EPSILON) {
-			alphabet.addChar(inCharCode);
-		}
-
-		// collect chars for each edge (to find chars that would fail)
-		if (inCharCode !== EPSILON) {
-			charsFromState.getDefault(fromState).addChar(inCharCode);
-		}
-
-		// collect edges for each char
-		// XXX this gets @ID@->b a->b and @ID@->@ID@ a->a, but not @ID@->a a->a
-		const mod = (inCharCode === outCharCode) ? '' : `${charPretty(outCharCode)};`;
-		// Keep epsilon edges separate from others
-		const eps = (inCharCode === EPSILON) ? 'EPS;' : '';
-		edgesByChar.getDefault(inCharCode).add(`${mod}${eps}${fromState}->${toState}`);
-		// collect character classes
-		const fromMap = statePairEdges.getDefault(fromState);
-		const cc = fromMap.getDefault(toState);
-		cc.push({
-			inCharCode,
-			// we're representing out as a *list* of output characters,
-			// not just one.
-			out: (outCharCode === EPSILON) ? [] :
-			[(inCharCode === outCharCode) ? ANYTHING_ELSE : outCharCode],
-		});
-	}
-	// add 'fail' edges
-	for (const fromState of statePairEdges.keys()) {
-		const chars = charsFromState.get(fromState) || new CharClass();
-		const missing = alphabet.copy().subtract(chars);
-		for (const c of missing) {
-			edgesByChar.getDefault(c).add(`${fromState}->FAIL`);
-		}
-	}
-	// ok, identify equivalent character classes
-	const eqClass = new DefaultMap(() => []);
-	for (var [charCode,transitions] of edgesByChar.entries()) {
-		const sorted = Array.from(transitions).sort().join('|');
-		eqClass.getDefault(sorted).push(charCode);
-	}
-	for (const charCodeList of eqClass.values()) {
-		charCodeList.sort(charCmp);
-	}
-
-	return {
-		alphabet, maxState, statePairEdges, finalStates, eqClass,
-	};
-}
-
-function mergeEqClasses(graph, pickRep) {
-	const { eqClass } = graph;
-	const wrapSpecial = func => ((list) => {
-		if (list.some(c => c === ANYTHING_ELSE)) { return ANYTHING_ELSE; }
-		if (list.some(c => c === EPSILON)) { return EPSILON; }
-		return func(list);
-	});
-	const pickFirst = wrapSpecial(list => list[0]);
-	pickRep = pickRep ? wrapSpecial(pickRep) : pickFirst;
-	const canon = new Map();
-	const first = new Set();
-	const alphabet = new CharClass();
-	const eqMap = new Map();
-	for (const charCodeList of eqClass.values()) {
-		first.add(pickFirst(charCodeList));
-		const rep = pickRep(charCodeList);
-		for (const c of charCodeList) { canon.set(c, rep); }
-		if (rep !== EPSILON) {
-			alphabet.addChar(rep);
-		}
-		// Record equivalencies in a convenient form.
-		eqMap.set(rep, charCodeList);
-	}
-	const statePairEdges = new Map();
-	for (var [fromState, fromMap] of graph.statePairEdges.entries()) {
-		statePairEdges.set(fromState, new Map());
-		for (var [toState,cc] of fromMap.entries()) {
-			console.assert(Array.isArray(cc));
-			statePairEdges.get(fromState).set(toState, cc.filter((e) => {
-				return first.has(e.inCharCode);
-			}).map((e) => {
-				console.assert(canon.has(e.inCharCode), e);
-				return { inCharCode: canon.get(e.inCharCode), out: e.out };
-			}));
-		}
-	}
-	return {
-		alphabet,
-		maxState: graph.maxState,
-		statePairEdges,
-		finalStates: graph.finalStates,
-		eqMap,
-	};
-}
-
-function emitJavaScriptNonDetTransducer(outFile, graph, justBrackets, emitJson) {
-	const jsonResult = {};
-	// Prologue
-	let result =
-		'/* AUTOMATICALLY GENERATED FILE, DO NOT EDIT */\n' +
-		'\n' +
-		'"use strict";\n' +
-		'\n' +
-		`module.exports = function(buf, start, end${justBrackets ? ', unicode' : ''}) {\n` +
-		'  start = start === undefined ? 0 : start;\n' +
-		'  end = end === undefined ? buf.length : end;\n' +
-		`  var state = ${FST.constants.STATE_INITIAL};\n` +
-		'  var idx = start;\n' +
-		'  var c, sz;\n' +
-		'  var outpos = 0;\n' +
-		'  var stack = [];\n' + (justBrackets ?
-			// Just track brackets.
-			'  var countCodePoints = !!unicode;\n' +
-			'  var result = [countCodePoints ? 0 : start];\n' +
-			'  var save = function(nstate) {\n' +
-			'    stack.push({ state: nstate, outpos: outpos, idx: idx - sz, resultLength: result.length });\n' +
-			'  };\n' +
-			'  var reset = function() {\n' +
-			'    var s = stack.pop();\n' +
-			'    state = s.state;\n' +
-			'    outpos = s.outpos;\n' +
-			'    result.length = s.resultLength;\n' +
-			'    idx = s.idx;\n' +
-			'  };\n'
-			: // Accumulate all output in chunks.
-			'  var chunk = { buf: new Buffer(1024), next: null };\n' +
-			'  var firstChunk = chunk;\n' +
-			'  var emit = function(code) {\n' +
-			'    if (outpos >= chunk.buf.length) {\n' +
-			'      chunk.next = { buf: new Buffer(chunk.buf.length * 2), next: null };\n' +
-			'      chunk = chunk.next;\n' +
-			'      outpos = 0;\n' +
-			'    }\n' +
-			'    chunk.buf[outpos++] = code;\n' +
-			'  };\n' +
-			'  var decode = function() {\n' +
-			'    chunk = null; // free memory as we go along\n' +
-			`    var decoder = new (require('string_decoder').StringDecoder)('utf8');\n` +
-			`    var result = '';\n` +
-			'    for (; firstChunk; firstChunk = firstChunk.next) {\n' +
-			'      result += decoder.write(firstChunk.buf);\n' +
-			'    }\n' +
-			'    result += decoder.end();\n' +
-			'    return result;\n' +
-			'  };\n' +
-			// Deterministic transducers won't end up using save/reset
-			'  // eslint-disable-next-line no-unused-vars\n' +
-			'  var save = function(nstate) {\n' +
-			'    stack.push({ state: nstate, outpos: outpos, idx: idx - sz, chunk: chunk });\n' +
-			'  };\n' +
-			'  // eslint-disable-next-line no-unused-vars\n' +
-			'  var reset = function() {\n' +
-			'    var s = stack.pop();\n' +
-			'    state = s.state;\n' +
-			'    outpos = s.outpos;\n' +
-			'    chunk = s.chunk;\n' +
-			'    chunk.next = null;\n' +
-			'    idx = s.idx;\n' +
-			'  };\n'
-		) +
-		'  while (true) {\n' +
-		'    if (idx < end) {\n' +
-		'      /* eslint-disable no-bitwise */\n' +
-		'      c = buf[idx];\n' +
-		'      if (c < 0x80) {\n' +
-		'        sz = 1;\n' +
-		'      } else if (c < 0xC2) {\n' +
-		'        throw new Error(\'Illegal UTF-8\');\n' +
-		'      } else if (c < 0xE0) {\n' +
-		'        c = ((c & 0x1F) << 6) + (buf[idx + 1] & 0x3F);\n' +
-		'        sz = 2;\n' +
-		'      } else if (c < 0xF0) {\n' +
-		'        c = ((c & 0x0F) << 12) + ((buf[idx + 1] & 0x3F) << 6) + (buf[idx + 2] & 0x3F);\n' +
-		'        sz = 3;\n' +
-		'      } else if (c < 0xF5) {\n' +
-		'        c = ((c & 0x7) << 18) + ((buf[idx + 1] & 0x3F) << 12) + ((buf[idx + 2] & 0x3F) << 6) + (buf[idx + 3] & 0x3F);\n' +
-		'        sz = 4;\n' +
-		'      } else {\n' +
-		'        throw new Error(\'Illegal UTF-8\');\n' +
-		'      }\n' +
-		'      /* eslint-enable no-bitwise */\n' +
-		'      idx += sz;\n' +
-		'    } else {\n' +
-		`      c = ${FST.constants.IN_EOF}; sz = 0; // EOF\n` +
-		'    }\n';
-
-	let inCharPretty = charPretty;
-	if (graph.eqMap) {
-		jsonResult.eq = [];
-		inCharPretty = c => charPretty(graph.eqMap.get(c)[0]);
-		result +=
-			'    var eq;\n' +
-			'    switch (c) {\n' +
-			`      case ${FST.constants.IN_EOF}: // ${JSON.stringify(charPretty(EOF))}\n` +
-			`        eq = ${FST.constants.IN_EOF};\n` +
-			'        break;\n';
-		for (var [rep,charCodeList] of graph.eqMap.entries()) {
-			if (rep === EPSILON) {
-				continue;
-			}
-			const hasDefault = charCodeList.some(c => c === ANYTHING_ELSE);
-			const chcls = new CharClass();
-			for (const c of charCodeList) {
-				chcls.addChar(c);
-				if (c === ANYTHING_ELSE) {
-					result += `      default: // ${JSON.stringify(charPretty(c))}\n`;
-				} else if (!hasDefault) {
-					console.assert(typeof c === 'number', c);
-					result += `      case ${c}: // ${JSON.stringify(charPretty(c))}\n`;
-				}
-			}
-			result +=
-				`        eq = ${rep === ANYTHING_ELSE ? FST.constants.IN_ANYTHING_ELSE : rep};\n` +
-				'        break;\n';
-			if (rep !== ANYTHING_ELSE) {
-				jsonResult.eq.push([chcls.toJSON(),rep]);
-			}
-		}
-		result +=
-			'    }\n';
-	}
-	const emit = (prefix, c, jsonCase) => {
-		if (c === EPSILON) {
-			jsonCase.emit = FST.constants.OUT_NONE;
-			return '';
-		}
-		if (c === FAIL) {
-			jsonCase.next = FST.constants.STATE_FAIL;
-			return `${prefix}reset();\n`;
-		}
-		const s = charPretty(c);
-		const b = Buffer.from(s, 'utf8');
-		if (justBrackets) {
-			if (c === LBRACKET || c === RBRACKET) {
-				jsonCase.emit = (c === LBRACKET) ?
-					FST.constants.OUT_LBRACKET :
-					FST.constants.OUT_RBRACKET;
-				return `${prefix}result.push(outpos);\n`;
-			} else if (c === ANYTHING_ELSE) {
-				jsonCase.emit = FST.constants.IN_ANYTHING_ELSE;
-				return `${prefix}outpos += countCodePoints ? 1 : sz;\n`;
-			} else {
-				console.assert(typeof c === 'number', c);
-				jsonCase.emit = c;
-				return `${prefix}outpos += ${b.length > 1 ? 'countCodePoints ? 1 : ' : ''}${b.length};\n`;
-			}
+			finalStates.push(state);
 		} else {
-			let result = '';
-			let comment = ` // ${JSON.stringify(charPretty(c))}`;
-			if (c === ANYTHING_ELSE) {
-				jsonCase.emit = FST.constants.OUT_IDENTITY;
-				result +=
-					`${prefix}while (sz) { emit(buf[idx - sz]); sz--; }${comment}\n`;
-			} else {
-				console.assert(typeof c === 'number', c);
-				jsonCase.emit = c;
-				for (let i = 0; i < b.length; i++) {
-					result += `${prefix}emit(${b[i]});${comment}\n`;
-					comment = '';
-				}
-			}
-			return result;
-		}
-	};
-	let maxState = -1;
-	const stateMap = new DefaultMap(() => maxState++);
-	const stateMapper = (s,v) => stateMap.getDefault(`${s}|${v}`);
-	const FINAL_STATE = graph.maxState + 1;
-	// force final state to be state #-1
-	stateMapper(FINAL_STATE,0);
-	// force initial state to be state #0
-	stateMapper(0,0);
-	// Verify constants are sane.
-	console.assert(stateMapper(FINAL_STATE,0) === FST.constants.STATE_EOF);
-	console.assert(stateMapper(0,0) === FST.constants.STATE_INITIAL);
-
-	result +=
-		'    switch (state) {\n';
-	jsonResult.state = [];
-	for (let state = 0; state <= graph.maxState + 1; state++) {
-		if (emitJson) { result = ''; /* memory management */ }
-		if (state === FINAL_STATE) {
-			/* final state */
-			result +=
-				`      case ${stateMapper(state,0)}: // State ${state} FINAL STATE\n`;
-			if (justBrackets) {
-				result +=
-					'        result.push(outpos);\n' +
-					'        return result;\n';
-			} else {
-				result +=
-					'        chunk.buf = chunk.buf.slice(0, outpos);\n' +
-					'        return decode();\n';
-			}
-			continue;
-		}
-		const fromMap = graph.statePairEdges.get(state);
-		// collect edges by char
-		const outByChar = new DefaultMap(() => []);
-		for (const c of graph.alphabet) {
-			outByChar.getDefault(c);
-		}
-		outByChar.getDefault(EOF); // ensure EOF is represented, too
-		for (var [toState,edges] of fromMap.entries()) {
-			for (const edge of edges) {
-				const { inCharCode,out } = edge;
-				console.assert(out.length <= 1);
-				outByChar.getDefault(inCharCode).push({
-					inCharCode,
-					toState,
-					out: out.length === 0 ? EPSILON : out[0],
-					variant:null,
-					max: null
-				});
-			}
-		}
-		const cases = [];
-		const epsCases = [];
-		const casesGet = (variant, key) => {
-			if (!cases[variant]) { cases[variant] = new DefaultMap(() => []); }
-			return cases[variant].getDefault(key);
-		};
-		let maxVariants = 0;
-		const toKey = v => `${v.toState};${v.variant};${v.variant < (v.max - 1)};${charPretty(v.out)}`;
-		for (var [inCharCode,list] of outByChar.entries()) {
-			list.sort((a,b) => {
-				const r = a.toState - b.toState;
-				if (r !== 0) { return r; }
-				return charCmp(a.out, b.out);
-			});
-			if (inCharCode !== EPSILON) {
-				maxVariants = Math.max(maxVariants, list.length);
-			}
-			list.forEach((v,i) => {
-				v.variant = i;
-				v.max = list.length;
-				if (inCharCode === EPSILON) {
-					epsCases.push(v);
-				} else {
-					casesGet(i, toKey(v)).push(v);
-				}
-			});
-			if (inCharCode === EOF && graph.finalStates.has(state)) {
-				// EOF isn't a FAIL if this is a final state
-				continue;
-			}
-			if (list.length === 0 && inCharCode !== EPSILON) {
-				// FAIL case.
-				casesGet(0, '<fail>').push({
-					inCharCode, toState: null, out: FAIL, variant: 0, max: 1
-				});
-			}
-		}
-		if (graph.finalStates.has(state)) {
-			// Add EOF cases to first variant.
-			casesGet(0, '<eof>').push({
-				inCharCode: EOF,
-				toState: FINAL_STATE,
-				out: EPSILON,
-				variant: 0,
-				max: 1
-			});
-		}
-		const totalVariants = maxVariants + epsCases.length;
-		for (let variant = 0; variant < totalVariants; variant++) {
-			const mappedState = stateMapper(state,variant);
-			const jsonState = { save: FST.constants.SAVE_NONE, cases: [] };
-			jsonResult.state[mappedState] = jsonState;
-			result +=
-				`      case ${mappedState}: // State ${state} variant ${variant}\n`;
-			if (state === 0 && variant === 0) {
-				// efficiency hack: truncate the stack since all strings
-				// will be accepted starting from initial state.
-				// (could truncate stack *whenever* we reach a state from
-				//  which all strings are guaranteed to be accepted)
-				// XXX SHOULD ESTABLISH THIS BY ANALYSIS, NOT JUST PERFORM
-				// THIS OPTIMIZATION BLINDLY.
-				result +=
-					'        stack.length = 0;\n';
-			}
-			if (variant >= maxVariants) {
-				// This is an epsilon variant
-				const eps = variant - maxVariants;
-				const jsonCase = {
-					save: FST.constants.SAVE_EPSILON,
-					// All characters, including EOF, should take this case.
-					chars: Array.from(graph.alphabet).map((c) => {
-						return (c === ANYTHING_ELSE) ?
-							FST.constants.IN_ANYTHING_ELSE :
-							c;
-					}).concat([FST.constants.IN_EOF]).sort((a,b) => a - b)
-				};
-				result +=
-					`        // EPSILON ${eps + 1}\n`;
-				if (eps < epsCases.length - 1) {
-					jsonState.save = stateMapper(state, variant + 1);
-					result +=
-						`        save(${jsonState.save});\n`;
-				}
-				jsonCase.next = stateMapper(epsCases[eps].toState,0);
-				result +=
-					'        idx -= sz;\n' +
-					emit('        ', epsCases[eps].out, jsonCase) +
-					`        state = ${jsonCase.next};\n` +
-					'        break;\n';
-				jsonState.cases.push(jsonCase);
-				continue;
-			}
-			if (epsCases.length) {
-				// if all else fails, try an epsilon
-				jsonState.save = stateMapper(state,maxVariants);
-				result +=
-					`        save(${jsonState.save});\n`;
-			}
-			result +=
-				`        switch (${graph.eqMap ? 'eq' : 'c'}) {\n`;
-			for (const list of cases[variant].values()) {
-				const jsonCase = { chars:[] };
-				jsonState.cases.push(jsonCase);
-				for (const v of list) {
-					const n =
-						(v.inCharCode === ANYTHING_ELSE) ? FST.constants.IN_ANYTHING_ELSE :
-						(v.inCharCode === EOF) ? FST.constants.IN_EOF :
-						v.inCharCode;
-					jsonCase.chars.push(n);
-				}
-				jsonCase.chars.sort((a,b) => a - b);
-				if (list.some(v => v.inCharCode === ANYTHING_ELSE)) {
-					result +=
-						'          default:\n';
-				} else {
-					for (const v of list) {
-						if (v.inCharCode === EOF) {
-							result +=
-								`          case ${FST.constants.IN_EOF}:\n`;
-							continue;
-						} else if (typeof v.inCharCode === 'number') {
-							result +=
-								`          case ${v.inCharCode}: // ${JSON.stringify(inCharPretty(v.inCharCode))}\n`;
-						} else {
-							console.assert(false, v.inCharCode);
-						}
-					}
-				}
-				const rep = list[0];
-				if (rep.variant < (rep.max - 1)) {
-					jsonCase.save = stateMapper(state,variant + 1);
-					result +=
-						`            save(${jsonCase.save});\n`;
-				}
-				result += emit(`            `, rep.out, jsonCase);
-				if (rep.out !== FAIL) {
-					jsonCase.next = stateMapper(rep.toState,0);
-					result +=
-						`            state = ${jsonCase.next};\n`;
-				}
-				result +=
-					'            break;\n';
-			}
-			result +=
-				'        }\n' +
-				'        break;\n';
+			console.assert(fields.length === 4);
+			const to = +fields[1];
+			const inChar = fields[2];
+			const outChar = fields[3];
+			edges.push({ to, inChar, outChar });
+			lastState = state;
 		}
 	}
-	result +=
-		'    }\n' + // switch
-		'  }\n' + // while
-		'};\n'; // function
-
-	// Convert an array of characters to a JSON "range" by offsetting
-	// the characters to be all non-negative, then using CharClass#toJSON,
-	// then removing the offset in the result.
-	const charToRange = (charArray) => {
-		const OFFSET = -FST.constants.IN_ANYTHING_ELSE;
-		const cc = new CharClass();
-		const add = n => (c => c + n);
-		for (const c of charArray.map(add(OFFSET))) { cc.addChar(c); }
-		return cc.toJSON().map((r) => {
-			if (Array.isArray(r)) {
-				return r.map(add(-OFFSET));
-			}
-			return r - OFFSET;
-		});
-	};
-	jsonResult.state = jsonResult.state.map(st => [
-		st.save === undefined ? FST.constants.SAVE_NONE : st.save,
-		st.cases.map(c => [
-			charToRange(c.chars),
-			c.save === undefined ? FST.constants.SAVE_NONE : c.save,
-			c.emit === undefined ? FST.constants.OUT_NONE : c.emit,
-			c.next
-		])
-	]);
-	if (outFile) {
-		// Convert spaces to tabs to conform w/ our style checker
-		result = result.replace(/^([ ]{2})+/mg, (s) => {
-			return '\t'.repeat(s.length / 2);
-		});
-		fs.writeFileSync(
-			outFile,
-			emitJson ? JSON.stringify(jsonResult) : result,
-			'utf-8'
-		);
+	if (lastState >= 0) {
+		handleState(lastState, edges);
 	}
-	return result;
+	if (handleFinal) {
+		handleFinal(finalStates);
+	}
 }
 
-function processOne(inFile, outFile, justBrackets) {
-	const graph = snarfFile(inFile);
+class DynamicBuffer {
+	constructor(chunkLength) {
+		this.chunkLength = chunkLength || 16384;
+		this.currBuff = new Buffer(this.chunkLength);
+		this.buffNum = 0;
+		this.offset = 0;
+		this.buffers = [ this.currBuff ];
+		this.lastLength = 0;
+	}
+	emit(b) {
+		console.assert(b !== undefined);
+		if (this.offset >= this.currBuff.length) {
+			this.buffNum++; this.offset = 0;
+			this._maybeCreateBuffers();
+			this.currBuff = this.buffers[this.buffNum];
+		}
+		this.currBuff[this.offset++] = b;
+		this._maybeUpdateLength();
+	}
+	emitUnsignedV(val, pad) {
+		const o = [];
+		/* eslint-disable no-bitwise */
+		o.push(val & 127);
+		for (val >>>= 7; val; val >>>= 7) {
+			o.push(128 | (--val & 127));
+		}
+		/* eslint-enable no-bitwise */
+		for (let j = o.length - 1; j >= 0; j--) {
+			this.emit(o[j]);
+		}
+		if (pad !== undefined) {
+			for (let j = o.length; j < pad; j++) {
+				this.emit(BYTE_PADDING);
+			}
+		}
+	}
+	emitSignedV(val, pad) {
+		if (val >= 0) {
+			val *= 2;
+		} else {
+			val = (-val) * 2 - 1;
+		}
+		this.emitUnsignedV(val, pad);
+	}
+	position() {
+		return this.offset + this.buffNum * this.chunkLength;
+	}
+	length() {
+		return this.lastLength + (this.buffers.length - 1) * this.chunkLength;
+	}
+	truncate() {
+		this.lastLength = this.offset;
+		this.buffers.length = this.buffNum + 1;
+	}
+	_maybeCreateBuffers() {
+		while (this.buffNum >= this.buffers.length) {
+			this.buffers.push(new Buffer(this.chunkLength));
+			this.lastLength = 0;
+		}
+	}
+	_maybeUpdateLength() {
+		if (
+			this.offset > this.lastLength &&
+			this.buffNum === this.buffers.length - 1
+		) {
+			this.lastLength = this.offset;
+		}
+	}
+	seek(pos) {
+		console.assert(pos !== undefined);
+		this.buffNum = Math.floor(pos / this.chunkLength);
+		this.offset = pos - (this.buffNum * this.chunkLength);
+		this._maybeCreateBuffers();
+		this.currBuff = this.buffers[this.buffNum];
+		this._maybeUpdateLength();
+	}
+	read() {
+		if (this.offset >= this.currBuff.length) {
+			this.buffNum++; this.offset = 0;
+			this._maybeCreateBuffers();
+			this.currBuff = this.buffers[this.buffNum];
+		}
+		const b = this.currBuff[this.offset++];
+		this._maybeUpdateLength();
+		return b;
+	}
+	readUnsignedV(skipPad) {
+		let b = this.read();
+		/* eslint-disable no-bitwise */
+		let val = b & 127;
+		while (b & 128) {
+			val += 1;
+			b = this.read();
+			val = (val << 7) + (b & 127);
+		}
+		/* eslint-enable no-bitwise */
+		if (skipPad) {
+			let p = this.position();
+			while (p < this.length()) {
+				if (this.read() !== BYTE_PADDING) { break; }
+				p = this.position();
+			}
+			this.seek(p);
+		}
+		return val;
+	}
+	readSignedV(skipPad) {
+		const v = this.readUnsignedV(skipPad);
+		/* eslint-disable no-bitwise */
+		if (v & 1) {
+			return -(v >>> 1) - 1;
+		} else {
+			return (v >>> 1);
+		}
+		/* eslint-enable no-bitwise */
+	}
+	writeFile(outFile) {
+		const fd = fs.openSync(outFile, 'w');
+		try {
+			let i;
+			for (i = 0; i < this.buffers.length - 1; i++) {
+				fs.writeSync(fd, this.buffers[i]);
+			}
+			fs.writeSync(fd, this.buffers[i], 0, this.lastLength);
+		} finally {
+			fs.closeSync(fd);
+		}
+	}
+}
+
+function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
 	if (justBrackets === undefined) {
 		justBrackets = /\bbrack-/.test(inFile);
 	}
-
-	let eqCnt = 0;
-	const ntGraph = mergeEqClasses(graph, (list => eqCnt++));
-
-	if (/\.json$/.test(outFile)) {
-		emitJavaScriptNonDetTransducer(outFile, ntGraph, justBrackets, true);
-	} else {
-		emitJavaScriptNonDetTransducer(outFile, ntGraph, justBrackets);
+	if (maxStateBytes === undefined) {
+		maxStateBytes = 8;
 	}
+
+	let finalStates;
+	const alphabet = new Set();
+	const sym2byte = function(sym) {
+		if (sym === '@_IDENTITY_SYMBOL_@') { return BYTE_IDENTITY; }
+		if (sym === '@0@') { return BYTE_EPSILON; }
+		if (sym === '[[') { return BYTE_LBRACKET; }
+		if (sym === ']]') { return BYTE_RBRACKET; }
+		if (/^[0-9A-F][0-9A-F]$/i.test(sym)) {
+			const b = Number.parseInt(sym, 16);
+			console.assert(b !== 0 && b < 0xF8);
+			return b;
+		}
+		console.assert(false, `Bad symbol: ${sym}`);
+	};
+	// Quickly read through once in order to pull out the set of final states
+	// and the alphabet
+	readAttFile(inFile, (state, edges) => {
+		for (const e of edges) {
+			alphabet.add(sym2byte(e.inChar));
+			alphabet.add(sym2byte(e.outChar));
+		}
+	}, (fs) => {
+		finalStates = new Set(fs);
+	});
+	// Anything not in `alphabet` is going to be treated as 'anything else'
+	// but we want to force 0x00 and 0xF8-0xFF to be treated as 'anything else'
+	alphabet.delete(0);
+	for (let i = 0xF8; i < 0xFF; i++) { alphabet.delete(i); }
+	// Emit a magic number; make it a multiple of 8 bytes to keep the
+	// "anything else" table word-aligned.
+	const out = new DynamicBuffer();
+	out.emit(0x70); out.emit(0x46); out.emit(0x53); out.emit(0x54);
+	out.emit(0x00); out.emit(0x57); out.emit(0x4D); out.emit(0x00);
+	// Emit the initial "anything else" table
+	for (let i = 0; i < 0x100; i += 8) {
+		let val = 0;
+		for (let j = 7; j >= 0; j--) {
+			/* eslint-disable no-bitwise */
+			val = (val << 1) | (alphabet.has(i + j) ? 0 : 1);
+			/* eslint-enable no-bitwise */
+		}
+		out.emit(val);
+	}
+	// Ok, now read through and build the output array
+	let synState = -1;
+	const stateMap = new Map();
+	// Reserve the EOF state (0 in output)
+	stateMap.set(synState--, out.position());
+	out.emitUnsignedV(0);
+	const processState = (state, edges) => {
+		console.assert(!stateMap.has(state));
+		stateMap.set(state, out.position());
+		edges.sort((a,b) => a.inByte - b.inByte);
+		out.emitUnsignedV(edges.length);
+		edges.forEach((e) => {
+			out.emit(e.inByte);
+			out.emit(e.outByte);
+			out.emitSignedV(e.to, maxStateBytes);
+		});
+	};
+	readAttFile(inFile, (state, edges) => {
+		// Map characters to bytes
+		edges = edges.map((e) => {
+			return {
+				to: e.to,
+				inByte: sym2byte(e.inChar),
+				outByte: sym2byte(e.outChar),
+			};
+		});
+		// If this is a final state, add a synthetic EOF edge
+		if (finalStates.has(state)) {
+			edges.push({ to: -1, inByte: BYTE_EOF, outByte: BYTE_EPSILON });
+		}
+		// Collect edges and figure out if we need to split the state
+		// (if there are multiple edges with the same non-epsilon inByte).
+		const edgeMap = new DefaultMap(() => []);
+		for (const e of edges) {
+			edgeMap.getDefault(e.inByte).push(e);
+		}
+		// For each inByte with multiple outgoing edges, replace those
+		// edges with a single edge:
+		//  { to: newState, inChar: e.inByte, outChar: BYTE_EPSILON }
+		// ...and then create a new state with edges:
+		//  [{ to: e[n].to, inChar: BYTE_EPSILON, outChar: e[n].outChar},...]
+		const extraStates = [];
+		for (const [inByte, e] of edgeMap.entries()) {
+			if (inByte !== BYTE_EPSILON && e.length > 1) {
+				const nstate = synState--;
+				extraStates.push({
+					state: nstate,
+					edges: e.map((ee) => {
+						return {
+							to: ee.to,
+							inByte: BYTE_EPSILON,
+							outByte: ee.outByte,
+						};
+					}),
+				});
+				edgeMap.set(inByte, [{
+					to: nstate,
+					inByte: inByte,
+					outByte: BYTE_EPSILON
+				}]);
+			}
+		}
+		processState(state, [].concat.apply([], Array.from(edgeMap.values())));
+		extraStates.forEach((extra) => {
+			processState(extra.state, extra.edges);
+		});
+	});
+	// Rarely a state will not be mentioned in the .att file except
+	// in the list of final states; check this & process at the end.
+	finalStates.forEach((state) => {
+		if (!stateMap.has(state)) {
+			processState(state, [
+				{ to: -1, inByte: BYTE_EOF, outByte: BYTE_EPSILON }
+			]);
+		}
+	});
+	// Fixup buffer to include relative offsets to states
+	const state0pos = stateMap.get(-1);
+	out.seek(state0pos);
+	while (out.position() < out.length()) {
+		const nEdges = out.readUnsignedV();
+		const edge0 = out.position();
+		for (let i = 0; i < nEdges; i++) {
+			const p = edge0 + i * (2 + maxStateBytes) + 2;
+			out.seek(p);
+			const state = out.readSignedV();
+			out.seek(p);
+			console.assert(stateMap.has(state), `${state} not found`);
+			out.emitSignedV(stateMap.get(state) - p, maxStateBytes);
+		}
+		out.seek(edge0 + nEdges * (2 + maxStateBytes));
+	}
+	// Now iteratively narrow the field widths until the file is as small
+	// as it can be.
+	while (true) {
+		let trimmed = 0;
+		stateMap.clear();
+		const widthMap = new Map();
+		out.seek(state0pos);
+		while (out.position() < out.length()) {
+			const statePos = out.position();
+			stateMap.set(statePos, statePos - trimmed);
+			const nEdges = out.readUnsignedV();
+			let minPadding = maxStateBytes;
+			let fieldWidth = maxStateBytes;
+			for (let i = 0; i < nEdges; i++) {
+				out.read(); out.read();
+				fieldWidth = out.position();
+				out.readSignedV();
+				const p = out.position();
+				out.seek(fieldWidth);
+				out.readSignedV(true);
+				const cnt = out.position() - p;
+				fieldWidth = out.position() - fieldWidth;
+				minPadding = Math.min(minPadding, cnt);
+			}
+			widthMap.set(statePos, fieldWidth - minPadding);
+			trimmed += minPadding * nEdges;
+		}
+		stateMap.set(out.position(), out.position() - trimmed);
+
+		if (trimmed === 0) { break; /* nothing left to do */ }
+		if (verbose) { console.log('.'); }
+
+		out.seek(state0pos);
+		while (out.position() < out.length()) {
+			const statePos = out.position();
+			console.assert(stateMap.has(statePos) && widthMap.has(statePos));
+			const nWidth = widthMap.get(statePos);
+
+			const nEdges = out.readUnsignedV();
+			let edge0 = out.position();
+
+			let nPos = stateMap.get(statePos);
+			out.seek(nPos);
+			out.emitUnsignedV(nEdges);
+			nPos = out.position();
+
+			for (let i = 0; i < nEdges; i++) {
+				out.seek(edge0);
+				const inByte = out.read();
+				const outByte = out.read();
+				let toPos = out.position();
+				toPos += out.readSignedV(true);
+				console.assert(stateMap.has(toPos), toPos);
+				toPos = stateMap.get(toPos);
+				edge0 = out.position();
+
+				out.seek(nPos);
+				out.emit(inByte);
+				out.emit(outByte);
+				toPos -= out.position();
+				out.emitSignedV(toPos, nWidth);
+				nPos = out.position();
+			}
+			out.seek(edge0);
+		}
+		out.seek(stateMap.get(out.position()));
+		out.truncate();
+	}
+
+	// Done!
+	out.writeFile(outFile);
 }
 
 function main() {
@@ -871,7 +571,8 @@ function main() {
 			}
 			processOne(
 				path.join(baseDir, `${f}.att`),
-				path.join(baseDir, `${f}.json`)
+				path.join(baseDir, `${f}.pfst`),
+				argv.verbose
 			);
 		}
 	} else {
