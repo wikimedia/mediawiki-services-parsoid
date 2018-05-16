@@ -16003,14 +16003,30 @@ parsoid=wt2html
    
 [[Category:Bar]]
 [[Category:Baz]]
+
+:c
+
+[[Category:C]]
+
+;d
+
+[[Category:D]]
 !! html/parsoid
 <ul><li> a</li>
 <li> b</li></ul> 
    
-<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
+<link rel="mw:PageProp/Category" href="./Category:Foo"/>
    
-<link rel="mw:PageProp/Category" href="./Category:Bar" data-parsoid='{"stx":"simple","a":{"href":"./Category:Bar"},"sa":{"href":"Category:Bar"}}'/>
-<link rel="mw:PageProp/Category" href="./Category:Baz" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:Baz"}}'/>
+<link rel="mw:PageProp/Category" href="./Category:Bar"/>
+<link rel="mw:PageProp/Category" href="./Category:Baz"/>
+
+<dl><dd>c</dd></dl>
+
+<link rel="mw:PageProp/Category" href="./Category:C"/>
+
+<dl><dt>d</dt></dl>
+
+<link rel="mw:PageProp/Category" href="./Category:D"/>
 !! end
 
 !! test
