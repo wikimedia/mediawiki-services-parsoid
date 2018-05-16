@@ -43,6 +43,19 @@ const langs = [
 		],
 		examples: true,
 	},
+	{
+		base: 'zh',
+		variants: [
+			['zh-tw','zh-cn','zh-hans'],
+			['zh-hk','zh-hans'],
+			['zh-mo','zh-hans'],
+			['zh-hant','zh-hans'],
+			['zh-cn','zh-tw','zh-hant'],
+			['zh-sg','zh-hant'],
+			['zh-my','zh-hant'],
+			['zh-hans','zh-hant'],
+		],
+	},
 ];
 
 describe('Foma FST verification', function() {

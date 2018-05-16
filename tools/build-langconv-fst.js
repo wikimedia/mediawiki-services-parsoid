@@ -550,7 +550,7 @@ function main() {
 				description: 'Converts trans-{conversion}, brack-{conversion}-noop, and brack-{conversion}-{inverse} in default locations',
 				alias: 'l',
 				conflicts: 'file',
-				nargs: 2,
+				array: true,
 			},
 			'brackets': {
 				description: 'Emit a bracket-location machine',
@@ -563,7 +563,7 @@ function main() {
 				alias: 'v',
 				boolean: true,
 			},
-		}).example('$0 -l tolatin tocyrillic');
+		}).example('$0 -l sr-ec sr-el');
 	const argv = yopts.argv;
 	if (argv.help) {
 		yopts.showHelp();
@@ -574,12 +574,12 @@ function main() {
 		processOne(argv.file, argv.output, argv.brackets);
 	} else if (argv.language) {
 		const convertLang = argv.language[0];
-		const inverseLang = argv.language[1];
+		const inverseLangs = argv.language.slice(1);
 		const baseDir = path.join(__dirname, '..', 'lib', 'language', 'fst');
 		for (const f of [
 			`trans-${convertLang}`,
 			`brack-${convertLang}-noop`,
-			`brack-${convertLang}-${inverseLang}` ]) {
+		].concat(inverseLangs.map(inv => `brack-${convertLang}-${inv}`))) {
 			if (argv.verbose) {
 				console.log(f);
 			}
