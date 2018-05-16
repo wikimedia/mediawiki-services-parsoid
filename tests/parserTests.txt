@@ -26298,8 +26298,6 @@ bar <span><nowiki>[[foo]]</nowiki></span>
 !!end
 
 #### ----------------------- PRE --------------------------
-#### 1. Leading whitespace in SOL context should be escaped
-#### ------------------------------------------------------
 !! test
 1. Leading whitespace in SOL context should be escaped
 !! options
@@ -26412,7 +26410,7 @@ parsoid=html2wt
  ==foo==
 !! end
 
-!!test
+!! test
 T95794: nowiki escaping should account for leading space at start-of-line in an indent-pre block
 !! options
 parsoid=html2wt
@@ -26424,6 +26422,51 @@ parsoid=html2wt
 !! wikitext
  * foo
  * bar
+!! end
+
+!! test
+Whitespace scrubbing in SOL position should account for SOL-sensitive wikitext markup
+!! options
+parsoid = {
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<p> foo</p>
+<p> %foo</p>
+<p> *foo</p>
+<p> #foo</p>
+<p> =foo=</p>
+<p><link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid="{}"> *foo</p>
+<p> <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid="{}">*foo</p>
+<p> <!--boo-->*foo</p>
+<p><!--boo--> *foo</p>
+<p><!--a--> <!--b--> <!--c--> <!--d--> <!--e--> foo</p>
+<p><!--a--> <!--b--> <!--c--> <!--d--> <!--e--> *foo</p>
+!! wikitext
+foo
+
+%foo
+
+<nowiki/>*foo
+
+<nowiki/>#foo
+
+<nowiki/>=foo=
+
+[[Category:Foo]]
+<nowiki/>*foo
+
+ [[Category:Foo]]
+<nowiki>*</nowiki>foo
+
+<nowiki/><!--boo-->*foo
+
+<!--boo--><nowiki/>*foo
+
+<!--a--><!--b--><!--c--><!--d--><!--e-->foo
+
+<!--a--><nowiki/><!--b--><!--c--><!--d--><!--e-->*foo
 !! end
 
 #### --------------- Behavior Switches --------------------
