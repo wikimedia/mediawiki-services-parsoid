@@ -69,7 +69,7 @@
     "coverage": "npm run cover-mocha && npm run cover-parserTests && npm run cover-roundtrip && istanbul report",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "doc": "jsdoc -c jsdoc.json",
-    "nsp": "node -e 'process.exit(/v4[.]/.test(process.version) ? 0 : 1)' || nsp check"
+    "nsp": "nsp check"
   },
   "repository": {
     "type": "git",
