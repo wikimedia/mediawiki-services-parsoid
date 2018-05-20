@@ -4,6 +4,7 @@
 
 require('../core-upgrade.js');
 
+require('colors');
 var domino = require('domino');
 var yargs = require('yargs');
 var zlib = require('pn/zlib');
@@ -387,10 +388,14 @@ function normalizeWikitext(wt, opts) {
 // Get diff substrings from offsets
 var formatDiff = function(oldWt, newWt, offset, context) {
 	return [
-		'----',
-		oldWt.substring(offset[0].start - context, offset[0].end + context),
-		'++++',
-		newWt.substring(offset[1].start - context, offset[1].end + context),
+		'------',
+		oldWt.substring(offset[0].start - context, offset[0].start).blue +
+		oldWt.substring(offset[0].start, offset[0].end).green +
+		oldWt.substring(offset[0].end, offset[0].end + context).blue,
+		'++++++',
+		newWt.substring(offset[1].start - context, offset[1].start).blue +
+		newWt.substring(offset[1].start, offset[1].end).red +
+		newWt.substring(offset[1].end, offset[1].end + context).blue,
 	].join('\n');
 };
 
@@ -509,6 +514,7 @@ var checkIfSignificant = function(offsets, data) {
 			var wt1 = normalizeWikitext(oldWt.substring(offset[0].start, offset[0].end), { newlines: true, postDiff: true });
 			var wt2 = normalizeWikitext(newWt.substring(offset[1].start, offset[1].end), { newlines: true, postDiff: true });
 			if (wt1 !== wt2) {
+
 				// Syntatic diff + provide context for semantic diffs
 				thisResult.type = 'fail';
 				thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 25);
