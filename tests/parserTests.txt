@@ -3335,6 +3335,38 @@ a
 
 !! end
 
+!! test
+2h. Indent pre in tables
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+{|
+ !
+ foo
+ !
+ bar
+ |}
+!! html/php
+<table>
+<tr>
+<th>
+<pre>foo
+</pre>
+</th>
+<th>
+<pre>bar
+</pre>
+</th></tr></table>
+
+!! html/parsoid
+<table>
+ <tbody><tr><th>
+<pre>foo</pre>
+</th><th>
+<pre>bar</pre>
+</th></tr></tbody></table>
+!! end
+
 !!test
 3a. Indent-Pre and block tags (single-line html)
 !! wikitext
