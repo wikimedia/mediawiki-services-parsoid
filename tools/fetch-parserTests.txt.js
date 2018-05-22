@@ -38,11 +38,14 @@ var computeSHA1 = Promise.async(function *(targetName) {
 });
 
 var fetch = function(targetName, gitCommit, skipCheck) {
-	console.log('Fetching parserTests.txt from mediawiki/core');
 	var file = testFiles[targetName];
+	var path = file.repo + (gitCommit || file.latestCommit) + '/' + file.path;
+
+	console.log('Fetching ' + targetName + ' history from ' + path);
+
 	var url = {
 		host: 'raw.githubusercontent.com',
-		path: file.repo + (gitCommit || file.latestCommit) + '/' + file.path,
+		path: path,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
 	return new Promise(function(resolve, reject) {
@@ -86,13 +89,15 @@ var checkAndUpdate = Promise.async(function *(targetName) {
 });
 
 var forceUpdate = Promise.async(function *(targetName) {
-	console.log('Fetching parserTests.txt history from mediawiki/core');
 	var file = testFiles[targetName];
+	var path = '/repos' + file.repo + 'commits?path=' + file.path;
+
+	console.log('Fetching ' + targetName + ' history from ' + path);
 
 	// fetch the history page
 	var url = {
 		host: 'api.github.com',
-		path: '/repos' + file.repo + 'commits?path=' + file.path,
+		path: path,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
 	var gitCommit = JSON.parse(yield new Promise(function(resolve, reject) {
