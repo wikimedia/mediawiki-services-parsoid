@@ -16110,7 +16110,21 @@ parsoid=wt2html
 !! end
 
 !! test
-9. Categories and newlines: should behave properly with linkprefix (T87753)
+Categories and newlines: migrateTrailingCategories dom pass should not get tripped by comments and whitespace
+!! wikitext
+*a
+
+[[Category:Bar]]<!--boo1--> <!--boo2-->
+[[Category:Baz]]<!--boo3--> <!--boo4-->
+!! html/parsoid
+<ul><li>a</li></ul>
+
+<link rel="mw:PageProp/Category" href="./Category:Bar"/><!--boo1--> <!--boo2-->
+<link rel="mw:PageProp/Category" href="./Category:Baz"/><!--boo3--> <!--boo4-->
+!! end
+
+!! test
+Categories and newlines: should behave properly with linkprefix (T87753)
 !! options
 language=ar
 !! wikitext
@@ -16130,7 +16144,7 @@ foo bar</p>
 !! end
 
 !! test
-10. No regressions on internal links following category (T174639)
+No regressions on internal links following category (T174639)
 !! options
 parsoid=wt2html,html2html
 !! wikitext
