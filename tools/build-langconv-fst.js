@@ -35,41 +35,44 @@ require('../core-upgrade.js');
  *  as an output character it represents "no output".
  *  If you wanted (for some reason) to allow null characters in the
  *  input (which are not included in the "anything else" case), then
- *  encode them as 0xC0 0x80 (aka "Modified UTF-8").  Similarly, if
- *  you wanted to emit a null character, you should emit 0xC0 0x80.
+ *  encode them as 0xC0 0x80 (aka "Modified UTF-8").  [Similarly, if
+ *  you wanted to emit a null character, you could emit 0xC0 0x80,
+ *  although emitting 0x00 directly ought to work fine as well.]
  *
  * Byte values 0xF8 - 0xFF are disallowed in UTF-8.  We use them for
  * special cases, as follows:
  *  0xFF: EOF (the end of the input string).  Final states in the machine
  *   are represented with an inchar=0xFF outchar=0x00 transition to a
- *   unique "stop state" (aka state #1).  Non-final states have no outgoing
+ *   unique "stop state" (aka state #0).  Non-final states have no outgoing
  *   edge for input 0xFF.
- *  0xFE: IDENTITY.  As an input character this matches any "anything else"
- *   character.  As an output character it copies the input character.
+ *  0xFE: IDENTITY.  As an output character it copies the input character.
  *  0xFD: ]]
  *  0xFC: [[  These bracketing characters should only appear as output
  *   characters; they will never appear in the input.
- *  0xF8: Padding character (see below).
  *
- * The byte array begins with an array of 256 bits (32 bytes).  A 1 in this
- * array indicates that this byte value should be treated as
- * "@_IDENTITY_SYMBOL_@" (that is, "anything else") and thus mapped to 0xFE.
- * (Byte values 0x00 and 0xF8-0xFF will always have their bits set.)
+ * The byte array begins with eight "magic bytes" to help identify the
+ * file format.
  *
- * Following this, we have an array of states.  Each state is:
- *   <# edges: variable unsigned int> <edge #0>, <edge #1>, etc
+ * Following this, we have an array of states.  State #0 is the unique
+ * "final state"; state #1 is the unique start state.  Each state is:
+ *   <# of bytes in each edge: variable unsigned int>
+ *   <# edges: variable unsigned int>
+ *   <edge #0>
+ *   <edge #1>
+ *   etc
  * Each edge is:
- *   <inchar:1 byte> <outchar: 1 byte> <state #: variable signed int>
+ *   <in byte: 1 byte>
+ *   <out byte: 1 byte>
+ *   <target state: variable signed int>
+ *   <padding, if necessary to reach proper # of bytes in each edge>
  *
- * Edges are sorted by <inchar> to allow binary search. All state #s
- * are relative, refer to the start position of that state in the byte
- * array, and are padded with trailing 0xF8 to the same size within
- * each state.  If the first edge(s) have <inchar> = 0x00 then these edges
- * represents possible epsilon transitions from this state (aka, these
+ * Edges are sorted by <in byte> to allow binary search. All target
+ * states are relative, refer to the start position of that state in
+ * the byte array, and are padded to the same size within each state.
+ * If the first edge(s) have <in byte> = 0x00 then these edges
+ * represent possible epsilon transitions from this state (aka, these
  * edge should be tried if subsequent execution from this state
- * fails).  The first edge can always be examined to determine the
- * (variable length) size of all edges in this state by counting the
- * trailing 0xF8 bytes since only <inchar> should never be 0xF8.
+ * fails).
  */
 
 const fs = require('fs');
@@ -79,11 +82,11 @@ const { StringDecoder } = require('string_decoder');
 
 const FST = require('../lib/language/FST.js');
 
-const BYTE_EOF      = FST.constants.BYTE_EOF;
 const BYTE_IDENTITY = FST.constants.BYTE_IDENTITY;
 const BYTE_RBRACKET = FST.constants.BYTE_RBRACKET;
 const BYTE_LBRACKET = FST.constants.BYTE_LBRACKET;
-const BYTE_PADDING  = FST.constants.BYTE_PADDING;
+const BYTE_FAIL     = FST.constants.BYTE_FAIL;
+const BYTE_EOF      = FST.constants.BYTE_EOF;
 const BYTE_EPSILON  = FST.constants.BYTE_EPSILON;
 
 class DefaultMap extends Map {
@@ -200,7 +203,7 @@ class DynamicBuffer {
 		}
 		if (pad !== undefined) {
 			for (let j = o.length; j < pad; j++) {
-				this.emit(BYTE_PADDING);
+				this.emit(0 /* padding */);
 			}
 		}
 	}
@@ -254,7 +257,7 @@ class DynamicBuffer {
 		this._maybeUpdateLength();
 		return b;
 	}
-	readUnsignedV(skipPad) {
+	readUnsignedV() {
 		let b = this.read();
 		/* eslint-disable no-bitwise */
 		let val = b & 127;
@@ -264,18 +267,10 @@ class DynamicBuffer {
 			val = (val << 7) + (b & 127);
 		}
 		/* eslint-enable no-bitwise */
-		if (skipPad) {
-			let p = this.position();
-			while (p < this.length()) {
-				if (this.read() !== BYTE_PADDING) { break; }
-				p = this.position();
-			}
-			this.seek(p);
-		}
 		return val;
 	}
-	readSignedV(skipPad) {
-		const v = this.readUnsignedV(skipPad);
+	readSignedV() {
+		const v = this.readUnsignedV();
 		/* eslint-disable no-bitwise */
 		if (v & 1) {
 			return -(v >>> 1) - 1;
@@ -298,12 +293,12 @@ class DynamicBuffer {
 	}
 }
 
-function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
+function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 	if (justBrackets === undefined) {
 		justBrackets = /\bbrack-/.test(inFile);
 	}
-	if (maxStateBytes === undefined) {
-		maxStateBytes = 8;
+	if (maxEdgeBytes === undefined) {
+		maxEdgeBytes = 10;
 	}
 
 	let finalStates;
@@ -333,37 +328,48 @@ function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
 	// Anything not in `alphabet` is going to be treated as 'anything else'
 	// but we want to force 0x00 and 0xF8-0xFF to be treated as 'anything else'
 	alphabet.delete(0);
-	for (let i = 0xF8; i < 0xFF; i++) { alphabet.delete(i); }
-	// Emit a magic number; make it a multiple of 8 bytes to keep the
-	// "anything else" table word-aligned.
+	for (let i = 0xF8; i <= 0xFF; i++) { alphabet.delete(i); }
+	// Emit a magic number.
 	const out = new DynamicBuffer();
 	out.emit(0x70); out.emit(0x46); out.emit(0x53); out.emit(0x54);
 	out.emit(0x00); out.emit(0x57); out.emit(0x4D); out.emit(0x00);
-	// Emit the initial "anything else" table
-	for (let i = 0; i < 0x100; i += 8) {
-		let val = 0;
-		for (let j = 7; j >= 0; j--) {
-			/* eslint-disable no-bitwise */
-			val = (val << 1) | (alphabet.has(i + j) ? 0 : 1);
-			/* eslint-enable no-bitwise */
-		}
-		out.emit(val);
-	}
 	// Ok, now read through and build the output array
 	let synState = -1;
 	const stateMap = new Map();
 	// Reserve the EOF state (0 in output)
 	stateMap.set(synState--, out.position());
 	out.emitUnsignedV(0);
+	out.emitUnsignedV(0);
 	const processState = (state, edges) => {
 		console.assert(!stateMap.has(state));
 		stateMap.set(state, out.position());
-		edges.sort((a,b) => a.inByte - b.inByte);
-		out.emitUnsignedV(edges.length);
-		edges.forEach((e) => {
+		out.emitUnsignedV(maxEdgeBytes);
+		// First emit epsilon edges
+		const r = edges.filter(e => e.inByte === BYTE_EPSILON);
+		// Then emit a sorted table of inByte transitions, omitting repeated
+		// entries (so it's a range map)
+		// Note that BYTE_EOF is always either FAIL or a transition to a unique
+		// state, so we can always treat values lower than the first entry
+		// or higher than the last entry as FAIL.
+		const edgeMap = new Map(edges.map(e => [e.inByte, e]));
+		let lastEdge = { outByte: BYTE_FAIL, to: state };
+		for (let i = 1; i <= BYTE_EOF; i++) {
+			let e = (alphabet.has(i) || i === BYTE_EOF) ?
+				edgeMap.get(i) : edgeMap.get(BYTE_IDENTITY);
+			if (!e) { e = { outByte: BYTE_FAIL, to: state }; }
+			// where possible remap outByte to IDENTITY to maximize chances
+			// of adjacent states matching
+			const out = (i === e.outByte) ? BYTE_IDENTITY : e.outByte;
+			if (out !== lastEdge.outByte || e.to !== lastEdge.to) {
+				lastEdge = { inByte: i, outByte: out, to: e.to };
+				r.push(lastEdge);
+			}
+		}
+		out.emitUnsignedV(r.length);
+		r.forEach((e) => {
 			out.emit(e.inByte);
 			out.emit(e.outByte);
-			out.emitSignedV(e.to, maxStateBytes);
+			out.emitSignedV(e.to, maxEdgeBytes - 2 /* for inByte/outByte */);
 		});
 	};
 	readAttFile(inFile, (state, edges) => {
@@ -429,17 +435,18 @@ function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
 	const state0pos = stateMap.get(-1);
 	out.seek(state0pos);
 	while (out.position() < out.length()) {
+		const edgeWidth = out.readUnsignedV();
 		const nEdges = out.readUnsignedV();
 		const edge0 = out.position();
 		for (let i = 0; i < nEdges; i++) {
-			const p = edge0 + i * (2 + maxStateBytes) + 2;
+			const p = edge0 + i * edgeWidth + /* inByte/outByte: */ 2;
 			out.seek(p);
 			const state = out.readSignedV();
 			out.seek(p);
 			console.assert(stateMap.has(state), `${state} not found`);
-			out.emitSignedV(stateMap.get(state) - p, maxStateBytes);
+			out.emitSignedV(stateMap.get(state) - p, edgeWidth - 2);
 		}
-		out.seek(edge0 + nEdges * (2 + maxStateBytes));
+		out.seek(edge0 + nEdges * edgeWidth);
 	}
 	// Now iteratively narrow the field widths until the file is as small
 	// as it can be.
@@ -451,22 +458,28 @@ function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
 		while (out.position() < out.length()) {
 			const statePos = out.position();
 			stateMap.set(statePos, statePos - trimmed);
+			const edgeWidth = out.readUnsignedV();
+			const widthPos = out.position();
 			const nEdges = out.readUnsignedV();
-			let minPadding = maxStateBytes;
-			let fieldWidth = maxStateBytes;
+			let maxWidth = 0;
+			const edge0 = out.position();
 			for (let i = 0; i < nEdges; i++) {
-				out.read(); out.read();
-				fieldWidth = out.position();
-				out.readSignedV();
-				const p = out.position();
-				out.seek(fieldWidth);
-				out.readSignedV(true);
-				const cnt = out.position() - p;
-				fieldWidth = out.position() - fieldWidth;
-				minPadding = Math.min(minPadding, cnt);
+				const p = edge0 + i * edgeWidth;
+				out.seek(p);
+				out.read(); out.read(); out.readSignedV();
+				const thisWidth = out.position() - p;
+				maxWidth = Math.max(maxWidth, thisWidth);
 			}
-			widthMap.set(statePos, fieldWidth - minPadding);
-			trimmed += minPadding * nEdges;
+			widthMap.set(statePos, maxWidth);
+			trimmed += (edgeWidth - maxWidth) * nEdges;
+			if (maxWidth !== edgeWidth) {
+				out.seek(statePos);
+				out.emitUnsignedV(maxWidth);
+				trimmed += (out.position() - widthPos);
+				out.seek(statePos);
+				out.emitUnsignedV(edgeWidth);
+			}
+			out.seek(edge0 + nEdges * edgeWidth);
 		}
 		stateMap.set(out.position(), out.position() - trimmed);
 
@@ -479,32 +492,33 @@ function processOne(inFile, outFile, verbose, justBrackets, maxStateBytes) {
 			console.assert(stateMap.has(statePos) && widthMap.has(statePos));
 			const nWidth = widthMap.get(statePos);
 
+			const oldWidth = out.readUnsignedV();
 			const nEdges = out.readUnsignedV();
-			let edge0 = out.position();
+			const edge0 = out.position();
 
 			let nPos = stateMap.get(statePos);
 			out.seek(nPos);
+			out.emitUnsignedV(nWidth);
 			out.emitUnsignedV(nEdges);
 			nPos = out.position();
 
 			for (let i = 0; i < nEdges; i++) {
-				out.seek(edge0);
+				out.seek(edge0 + i * oldWidth);
 				const inByte = out.read();
 				const outByte = out.read();
 				let toPos = out.position();
-				toPos += out.readSignedV(true);
+				toPos += out.readSignedV();
 				console.assert(stateMap.has(toPos), toPos);
 				toPos = stateMap.get(toPos);
-				edge0 = out.position();
 
 				out.seek(nPos);
 				out.emit(inByte);
 				out.emit(outByte);
 				toPos -= out.position();
-				out.emitSignedV(toPos, nWidth);
+				out.emitSignedV(toPos, nWidth - 2);
 				nPos = out.position();
 			}
-			out.seek(edge0);
+			out.seek(edge0 + nEdges * oldWidth);
 		}
 		out.seek(stateMap.get(out.position()));
 		out.truncate();
