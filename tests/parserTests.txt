@@ -3345,6 +3345,11 @@ parsoid=wt2html,html2html
  foo
  !
  bar
+ |-
+ |
+ baz
+ {{!}}
+ bam
  |}
 !! html/php
 <table>
@@ -3356,7 +3361,16 @@ parsoid=wt2html,html2html
 <th>
 <pre>bar
 </pre>
-</th></tr></table>
+</th></tr>
+<tr>
+<td>
+<pre>baz
+</pre>
+</td>
+<td>
+<pre>bam
+</pre>
+</td></tr></table>
 
 !! html/parsoid
 <table>
@@ -3364,7 +3378,12 @@ parsoid=wt2html,html2html
 <pre>foo</pre>
 </th><th>
 <pre>bar</pre>
-</th></tr></tbody></table>
+</th></tr><tr>
+ <td>
+<pre>baz</pre>
+</td><td data-parsoid='{"startTagSrc":"{{!}}"}'>
+<pre>bam</pre>
+</td></tr></tbody></table>
 !! end
 
 !!test
