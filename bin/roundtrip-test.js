@@ -456,8 +456,8 @@ var checkIfSignificant = function(offsets, data) {
 	stripElementIds(newBody.ownerDocument.body);
 
 	// Strip section tags from the DOMs
-	DU.stripSectionTags(oldBody.ownerDocument.body);
-	DU.stripSectionTags(newBody.ownerDocument.body);
+	DU.stripSectionTagsAndFallbackIds(oldBody.ownerDocument.body);
+	DU.stripSectionTagsAndFallbackIds(newBody.ownerDocument.body);
 
 	var i, offset;
 	var results = [];

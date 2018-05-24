@@ -222,8 +222,7 @@ TestUtils.unwrapSpansAndNormalizeIEW = function(body, stripSpanTypeof, parsoidOn
 		// Skip over the empty mw:FallbackId <span> and strip leading WS
 		// on the other side of it.
 		if (/^H[1-6]$/.test(node.nodeName) &&
-			child && child.nodeName === 'SPAN' &&
-			child.getAttribute('typeof') === 'mw:FallbackId') {
+			child && DU.isFallbackIdSpan(child)) {
 			child = child.nextSibling;
 		}
 		for (; child; child = next) {

@@ -249,8 +249,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 		var newNode;
 
 		// Don't separate legacy IDs from their H? node.
-		if (n.nodeName === 'SPAN' &&
-			n.getAttribute('typeof') === 'mw:FallbackId') {
+		if (DU.isFallbackIdSpan(n)) {
 			n = n.nextSibling || n.parentNode;
 		}
 

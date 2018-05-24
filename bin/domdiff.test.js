@@ -58,6 +58,9 @@ Promise.async(function *() {
 	var oldDOM = DU.parseHTML(oldhtml).body;
 	var newDOM = DU.parseHTML(newhtml).body;
 
+	DU.stripSectionTagsAndFallbackIds(oldDOM);
+	DU.stripSectionTagsAndFallbackIds(newDOM);
+
 	var dummyEnv = {
 		conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
 		page: { id: null },
