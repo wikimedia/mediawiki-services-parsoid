@@ -8990,6 +8990,14 @@ parsoid=wt2html,wt2wt
 <p><a rel="mw:WikiLink" href="./Constructor:foo" title="Constructor:foo" data-parsoid='{"stx":"simple","a":{"href":"./Constructor:foo"},"sa":{"href":"constructor:foo"}}'>constructor:foo</a></p>
 !! end
 
+!! test
+Template parameter named "constructor"
+!! wikitext
+{{echo|  constructor =  |hi}}
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"constructor","named":true,"spc":["  "," ","","  "]},{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi"},"constructor":{"wt":""}},"i":0}}]}'>hi</p>
+!! end
+
 !! article
 ko:
 !! text
