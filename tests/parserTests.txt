@@ -6776,8 +6776,8 @@ parsoid={
 |}
 !! wikitext/edited
 {| <span>boo</span> style='border:1px solid black'
-|  <span>boo</span> style='color:blue'  |abc
-|<span>boo</span> style='color:blue'|xyz
+|  <span>boo</span> style='color:blue'  | abc
+|<span>boo</span> style='color:blue'| xyz
 |}
 !! end
 
