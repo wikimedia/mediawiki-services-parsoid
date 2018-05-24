@@ -12915,6 +12915,24 @@ Templates: Support for templates generating attributes and content
 </tbody></table>
 !!end
 
+!! article
+Template:attribute_from_template
+!! text
+class="123"
+!! endarticle
+
+!! test
+Table cell with attribute before expanded attribute
+!! wikitext
+{|
+| align="center" {{attribute_from_template}} |456
+|}
+!! html/parsoid
+<table>
+<tbody><tr><td align="center" class="123" about="#mwt2" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"class","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[]],\"dsr\":[20,47,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"attribute_from_template\",\"href\":\"./Template:Attribute_from_template\"},\"params\":{},\"i\":0}}]}&apos;>class=\"123\"&lt;/span>"},{"html":""}]]}'>456</td></tr>
+</tbody></table>
+!! end
+
 !! test
 1. Entities and nowikis inside templated attributes should be handled correctly
 !! wikitext
