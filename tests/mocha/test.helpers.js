@@ -25,10 +25,12 @@ var parse = Promise.async(function *(parsoidConfig, src, options) {
 
 var serialize = Promise.async(function *(parsoidConfig, doc, pb, options) {
 	options = options || {};
-	var env = yield MWParserEnvironment.getParserEnv(parsoidConfig, {
+	var envOptions = {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
-	});
+	};
+	DU.extractInlinedContentVersion(doc, envOptions);
+	var env = yield MWParserEnvironment.getParserEnv(parsoidConfig, envOptions);
 	if (options.tweakEnv) {
 		env = options.tweakEnv(env) || env;
 	}
