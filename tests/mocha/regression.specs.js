@@ -60,4 +60,72 @@ describe('Regression Specs', function() {
 		});
 	});
 
+	it('should ensure edited lists, headings, table cells preserve original whitespace in some scenarios', function() {
+		var wt = [
+			"* item",
+			"* <!--cmt--> item",
+			"* <div>item</div>",
+			"* [[Link|item]]",
+			"== heading ==",
+			"== <!--cmt--> heading ==",
+			"== <div>heading</div> ==",
+			"== [[Link|heading]] ==",
+			"{|",
+			"| cell",
+			"| <!--cmt--> cell",
+			"| <div>cell</div>",
+			"| [[Link|cell]]",
+			"|}"
+		].join('\n');
+		return parse(wt).then(function(result) {
+			var origDOM = result.body;
+			var editedHTML = origDOM.innerHTML.replace(/item/g, 'edited item').replace(/heading/g, 'edited heading').replace(/cell/g, 'edited cell');
+
+			// Without selser, we should see normalized wikitext
+			return serialize(DU.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+				editedWT.should.equal([
+					"*edited item",
+					"*<!--cmt-->edited item",
+					"*<div>edited item</div>",
+					"*[[Link|edited item]]",
+					"",
+					"==edited heading==",
+					"==<!--cmt-->edited heading==",
+					"==<div>edited heading</div>==",
+					"==[[Link|edited heading]]==",
+					"{|",
+					"|edited cell",
+					"|<!--cmt-->edited cell",
+					"|<div>edited cell</div>",
+					"|[[Link|edited cell]]",
+					"|}"
+				].join('\n'));
+				// With selser, we should have whitespace heuristics applied
+				var options = {
+					useSelser: true,
+					pageSrc: wt,
+					origDOM: origDOM,
+				};
+				return serialize(DU.parseHTML(editedHTML), null, options).then(function(editedWT) {
+					editedWT.should.equal([
+						"* edited item",
+						"* <!--cmt-->edited item",
+						"* <div>edited item</div>",
+						"* [[Link|edited item]]",
+						"== edited heading ==",
+						"== <!--cmt-->edited heading ==",
+						"== <div>edited heading</div> ==",
+						"== [[Link|edited heading]] ==",
+						"{|",
+						"| edited cell",
+						"| <!--cmt-->edited cell",
+						"| <div>edited cell</div>",
+						"| [[Link|edited cell]]",
+						"|}"
+					].join('\n'));
+				});
+			});
+		});
+	});
+
 });
