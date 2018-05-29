@@ -17,7 +17,7 @@ var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
 
-var defaultContentVersion = '1.6.1';
+var defaultContentVersion = '1.7.0';
 
 function displayDiff(type, count) {
 	var pad = (10 - type.length);  // Be positive!

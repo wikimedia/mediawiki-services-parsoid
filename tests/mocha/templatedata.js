@@ -17,7 +17,7 @@ var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
 var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 
 var api, runner;
-var defaultContentVersion = '1.6.1';
+var defaultContentVersion = '1.7.0';
 var mockDomain = 'customwiki';
 
 function verifyTransformation(newHTML, origHTML, origWT, expectedWT, done, dpVersion) {
