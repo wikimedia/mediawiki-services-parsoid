@@ -75,6 +75,7 @@ describe('Regression Specs', function() {
 			"| <!--cmt--> cell",
 			"| <div>cell</div>",
 			"| [[Link|cell]]",
+			"|  unedited c1  || cell ||  unedited c3  || cell",
 			"|}"
 		].join('\n');
 		return parse(wt).then(function(result) {
@@ -98,6 +99,7 @@ describe('Regression Specs', function() {
 					"|<!--cmt-->edited cell",
 					"|<div>edited cell</div>",
 					"|[[Link|edited cell]]",
+					"|unedited c1||edited cell||unedited c3||edited cell",
 					"|}"
 				].join('\n'));
 				// With selser, we should have whitespace heuristics applied
@@ -121,6 +123,7 @@ describe('Regression Specs', function() {
 						"| <!--cmt-->edited cell",
 						"| <div>edited cell</div>",
 						"| [[Link|edited cell]]",
+						"|  unedited c1  || edited cell || unedited c3 || edited cell",
 						"|}"
 					].join('\n'));
 				});
