@@ -10,6 +10,12 @@ node_js:
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
+before_install:
+    - npm i -g npm@3
+
+install:
+    - npm i --no-optional
+
 script: travis_wait npm run-script coverage
 
 after_success: npm run-script coveralls
