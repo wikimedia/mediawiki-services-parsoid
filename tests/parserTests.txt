@@ -2719,12 +2719,9 @@ parsoid=wt2html
 <pre>x</pre>
 &lt;pre <table></table>
 !! html/parsoid
-<pre about="#mwt1" typeof="mw:Transclusion mw:Extension/pre" data-parsoid='{"a":{"&lt;pre":null},"sa":{"&lt;pre":""},"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
+<pre typeof="mw:Transclusion mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html","a":{"&lt;pre":null},"sa":{"&lt;pre":""},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
-
-<p>&lt;pre </p>
-
-<table></table>
+<span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>&lt;pre </span><table data-parsoid='{"stx":"html"}'></table>
 !! end
 
 !! test
@@ -27161,64 +27158,64 @@ plain text</pre>
 plain text
 !!end
 
-!!test
+!! test
 1. Ensure fostered text content is wrapped in element nodes
-!!options
+!! options
 parsoid=wt2html
 !! wikitext
 <table>hi</table><table>ho</table>
+!! html/php+tidy
+hi<table></table>ho<table></table>
 !! html/parsoid
-<p>hi</p>
-<table></table>
-<p>ho</p>
-<table></table>
-!!end
+<span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>hi</span><table data-parsoid='{"stx":"html"}'></table><span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>ho</span><table data-parsoid='{"stx":"html"}'></table>
+!! end
 
-!!test
+!! test
 2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost)
-!!options
+!! options
 parsoid=wt2html,wt2wt
 !! wikitext
 <table>
 <tr> || ||
 <td> a
 </table>
+!! html/php+tidy
+ || ||
+<table>
+<tbody><tr><td> a
+</td></tr></tbody></table>
 !! html/parsoid
-<p> || ||
-</p><table>
-<tbody><tr><td> a</td></tr>
-</tbody></table>
-!!end
+<span data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'> || ||
+</span><table data-parsoid='{"stx":"html"}'>
+<tbody><tr data-parsoid='{"stx":"html","autoInsertedEnd":true}'><td data-parsoid='{"stx":"html","autoInsertedEnd":true}'> a
+</td></tr></tbody></table>
+!! end
 
-!!test
+!! test
 Encapsulation properly handles null DSR information from foster box
-!!options
+!! options
 parsoid=wt2html,wt2wt
 !! wikitext
 {{echo|<table>foo<tr><td>bar</td></tr></table>}}
 !! html/parsoid
 <span typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;<table>foo<tr><td>bar</td></tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</span><table><tbody><tr><td>bar</td></tr></tbody></table>
-!!end
+!! end
 
-!!test
+!! test
 1. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|foo<tr><td>bar</td></tr>}}</table>
+!! html/php+tidy
+foo<table><tbody><tr><td>bar</td></tr></tbody></table>
 !! html/parsoid
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo<tr><td>bar</td></tr>&quot;}},&quot;i&quot;:0}},&quot;</table>&quot;]}">foo</p><table>
-<tbody>
-<tr>
-<td>bar</td>
-</tr>
-</tbody>
-</table>
-!!end
+<span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;tr>&lt;td>bar&lt;/td>&lt;/tr>"}},"i":0}},"&lt;/table>"]}'>foo</span><table about="#mwt2" data-parsoid='{"stx":"html}'><tbody><tr><td>bar</td></tr></tbody></table>
+!! end
 
-!!test
+!! test
 2. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div>{{echo|foo}}</div><tr><td>bar</td></tr></table>
@@ -27231,11 +27228,11 @@ parsoid=wt2wt,wt2html
 </tr>
 </tbody>
 </table>
-!!end
+!! end
 
-!!test
+!! test
 3. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
@@ -27250,11 +27247,11 @@ parsoid=wt2wt,wt2html
 </tr>
 </tbody>
 </table>
-!!end
+!! end
 
-!!test
+!! test
 4. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><div><p>{{echo|foo</p></div><tr><td>}}bar</td></tr></table>
@@ -27269,52 +27266,33 @@ parsoid=wt2wt,wt2html
 </tr>
 </tbody>
 </table>
-!!end
+!! end
 
-!!test
+!! test
 5. Encapsulate foster-parented transclusion content
 !!options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo}}</tr></table>
+!! html/php+tidy
+foo<table><tbody><tr><td><div><p>foo</p></div></td></tr></tbody></table>
 !! html/parsoid
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo&quot;}},&quot;i&quot;:0}},&quot;</tr></table>&quot;]}">foo</p>
-<table>
-<tbody>
-<tr>
-<td>
-<div>
-<p>foo</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-!!end
+<span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;tr>&lt;td>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;/td>foo"}},"i":0}},"&lt;/tr>&lt;/table>"]}'>foo</span><table about="#mwt2" data-parsoid='{"stx":"html"}'><tbody><tr><td><div><p>foo</p></div></td></tr></tbody></table>
+!! end
 
-!!test
+!! test
 6. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table><tr><td><div><p>{{echo|foo</p></div></td>foo</tr></table>}}<p>ok</p>
+!! html/php+tidy
+foo<table><tbody><tr><td><div><p>foo</p></div></td></tr></tbody></table><p>ok</p>
 !! html/parsoid
-<p typeof="mw:Transclusion" data-mw="{&quot;parts&quot;:[&quot;<table><tr><td><div><p>&quot;,{&quot;template&quot;:{&quot;target&quot;:{&quot;wt&quot;:&quot;echo&quot;,&quot;href&quot;:&quot;./Template:Echo&quot;},&quot;params&quot;:{&quot;1&quot;:{&quot;wt&quot;:&quot;foo</p></div></td>foo</tr></table>&quot;}},&quot;i&quot;:0}}]}">foo</p>
-<table>
-<tbody>
-<tr>
-<td>
-<div>
-<p>foo</p>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-<p>ok</p>
-!!end
+<span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;tr>&lt;td>&lt;div>&lt;p>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;/p>&lt;/div>&lt;/td>foo&lt;/tr>&lt;/table>"}},"i":0}}]}'>foo</span><table about="#mwt2" data-parsoid='{"stx":"html"}'><tbody><tr><td><div><p>foo</p></div></td></tr></tbody></table><p data-parsoid='{"stx":"html"}'>ok</p>
+!! end
 
-!!test
+!! test
 7. Encapsulate foster-parented transclusion content
 !!options
 parsoid=wt2wt,wt2html
@@ -27329,13 +27307,13 @@ parsoid=wt2wt,wt2html
 </tr>
 </tbody>
 </table>
-!!end
+!! end
 
 # Note that the wt is broken on purpose: the = should be {{=}} if you
 # don't want it to be a template parameter key.
-!!test
+!! test
 8. Encapsulate foster-parented transclusion content
-!!options
+!! options
 parsoid=wt2wt,wt2html
 !! wikitext
 {{echo|a
@@ -27343,30 +27321,36 @@ parsoid=wt2wt,wt2html
 |-
 |b
 |}
-!! html/parsoid
-<p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n"}},"i":0}}]}'>a</p>
-<span> </span>
-<p typeof="mw:Transclusion" data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"style":{"wt":"&#39;color:red&#39;"}},"i":0}},"\n|-\n|b\n|}"]}'>{{{1}}}</p>
+!! html/php+tidy
+<p>a
+</p>
 <table>
-<tbody>
-<tr>
-<td>b</td>
-</tr>
-</tbody>
-</table>
-!!end
 
-!!test
+<tbody><tr>
+<td>b
+</td></tr></tbody></table>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a\n"}},"i":0}}]}'>a</p><span about="#mwt1">
+</span><span about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE","pi":[[{"k":"style","named":true}]]}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"style":{"wt":"&apos;color:red&apos;"}},"i":0}},"\n|-\n|b\n|}"]}'>{{{1}}}</span><table about="#mwt3">
+<tbody><tr>
+<td>b
+</td></tr></tbody></table>
+!! end
+
+!! test
 9. Encapsulate foster-parented transclusion content
 !!options
 parsoid=wt2wt,wt2html
 !! wikitext
 <table>{{echo|hi</table>hello}}
+!! html/php+tidy
+hi<table></table><p>hello
+</p>
 !! html/parsoid
-<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}' data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1"}]]}'>hi</p><table about="#mwt2" data-parsoid='{"stx":"html"}'></table><p about="#mwt2">hello</p>
-!!end
+<span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;/table>hello"}},"i":0}}]}'>hi</span><table about="#mwt2"></table><p about="#mwt2">hello</p>
+!! end
 
-!!test
+!! test
 Table in fosterable position
 !!options
 parsoid=wt2html
@@ -27384,7 +27368,7 @@ parsoid=wt2html
 
 <table>
 </table>
-!!end
+!! end
 
 # Parsoid only for T66747
 !! test
