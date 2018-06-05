@@ -3410,24 +3410,24 @@ parsoid=wt2html,html2html
 </pre>
 !! end
 
-!!test
+!! test
 3b. Indent-Pre and block tags (multi-line html)
 !! wikitext
  a <span>foo</span>
- b <div> foo </div>
-!! html
+<!-- comment --> b <div> foo </div>
+!! html/php
 <pre>a <span>foo</span>
 </pre>
  b <div> foo </div>
 
 !! html/parsoid
 <pre>a <span data-parsoid='{"stx":"html"}'>foo</span></pre>
- b <div data-parsoid='{"stx":"html"}'> foo </div>
+<!-- comment --> <p>b </p><div data-parsoid='{"stx":"html"}'> foo </div>
 !! html/php+tidy
 <pre>a <span>foo</span>
 </pre><p>
  b </p><div> foo </div>
-!!end
+!! end
 
 !!test
 3c. Indent-Pre and block tags (pre-content on separate line)

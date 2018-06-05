@@ -1115,6 +1115,7 @@ add("selser", "Templates: Handle comments in the target [0,4,0,4,0,4,0,0,0]", "{
 add("selser", "Templates: Handle comments in the target [0,3,0,0,0,2,0,0,0]", "{{echo\n<!-- should be ignored -->\n|foo}}{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n1efeuy2\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}");
 add("selser", "Templates: Handle comments in the target [0,3,0,3,0,0,0,2,0]", "{{echo\n<!-- should be ignored -->\n|foo}}{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n1st49h4\n\n{{<!-- should be ignored -->echo|foo}}");
 add("selser", "Templates: Handle comments in the target [0,0,0,4,0,0,0,3,0]", "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\nyqfzta\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}{{<!-- should be ignored -->echo|foo}}");
+add("selser", "3b. Indent-Pre and block tags (multi-line html) [0,4,4,0,0,4]", " a <span>foo</span>\nb6nk6z\n\nwj9je4<nowiki> </nowiki>b \n\niyjoxe");
 add("selser", "4. Indent-Pre and extension tags 5", "<nowiki> </nowiki>a <tag />");
 add("selser", "4. Indent-Pre and extension tags [2,0]", "1x7gem9\n\n a <tag />");
 add("selser", "5a. White-space in indent-pre [[0,0,4]]", " a<br />\n fforbc");
