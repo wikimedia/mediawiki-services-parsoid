@@ -1,3 +1,9 @@
+==================
+0.8.1 / 2018-06-05
+==================
+  * Upgraded node modules to deal with nsp advisories
+
+==================
 0.8.0 / 2017-10-24
 ==================
   Notable wt -> html changes:
