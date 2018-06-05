@@ -2,6 +2,7 @@
   "exceptions": [
     "https://nodesecurity.io/advisories/338",
     // Not affected, https://github.com/expressjs/express/issues/3431
-    "https://nodesecurity.io/advisories/535"
+    "https://nodesecurity.io/advisories/535",
+    "https://nodesecurity.io/advisories/577"
   ]
 }
