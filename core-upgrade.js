@@ -13,3 +13,4 @@ require('core-js/fn/array/includes');
 // v6
 require('core-js/fn/object/entries');
 require('core-js/fn/string/pad-start');
+require('core-js/fn/string/pad-end');
