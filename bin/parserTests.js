@@ -943,7 +943,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 /**
  * @method
  * @param {Object} [options]
- * @param {String} [mockAPIServerURL]
+ * @param {string} [mockAPIServerURL]
  * @return {Promise}
  */
 ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL) {
