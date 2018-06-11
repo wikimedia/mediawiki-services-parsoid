@@ -9,15 +9,15 @@ const fs = require('pn/fs');
 const path = require('path');
 const yargs = require('yargs');
 
-const ApiRequest = require('../lib/mw/ApiRequest.js').ApiRequest;
-const Diff = require('../lib/utils/Diff.js').Diff;
-const DOMTraverser = require('../lib/utils/DOMTraverser.js').DOMTraverser;
+const { ApiRequest, DoesNotExistError } = require('../lib/mw/ApiRequest.js');
+const { Diff } = require('../lib/utils/Diff.js');
+const { DOMTraverser } = require('../lib/utils/DOMTraverser.js');
 const DU = require('../lib/utils/DOMUtils.js').DOMUtils;
-const MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
-const ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
+const { MWParserEnvironment } = require('../lib/config/MWParserEnvironment.js');
+const { ParsoidConfig } = require('../lib/config/ParsoidConfig.js');
 const Promise = require('../lib/utils/promise.js');
-const TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
-const Util = require('../lib/utils/Util.js').Util;
+const { TemplateRequest } = require('../lib/mw/ApiRequest.js');
+const { Util } = require('../lib/utils/Util.js');
 
 const jsonFormat = function(error, domain, title, lang, options, results) {
 	if (error) { return { error: error.stack || error.toString() }; }
@@ -27,19 +27,20 @@ const jsonFormat = function(error, domain, title, lang, options, results) {
 
 const plainFormat = function(error, domain, title, lang, options, results) {
 	if (error) { return error.stack || error.toString(); }
+	const article = `${domain} ${title} ${lang || ''}`;
 	const diff = Diff.colorDiff(results.php, results.parsoid, {
 		context: 1,
 		noColor: (colors.mode === 'none'),
 		diffCount: true,
 	});
 	if (diff.count === 0) { return ''; }
-	return `${diff.output}\n${diff.count} different words found.`;
+	return `== ${article} ==\n${diff.output}\n${diff.count} different words found.\n`;
 };
 
 const xmlFormat = function(error, domain, title, lang, options, results) {
-	const article = Util.escapeHtml(`${domain} ${title} ${lang || ''}`);
+	const article = `${domain} ${title} ${lang || ''}`;
 	let output = '<testsuites>\n';
-	output += `<testsuite name="Variant ${article}">\n`;
+	output += `<testsuite name="Variant ${Util.escapeHtml(article)}">\n`;
 	output += `<testcase name="revision ${results.revid}">\n`;
 	if (error) {
 		output += '<error type="parserFailedToFinish">';
@@ -59,6 +60,10 @@ const xmlFormat = function(error, domain, title, lang, options, results) {
 	output += '</testsuite>\n';
 	output += '</testsuites>\n';
 	return output;
+};
+
+const silentFormat = function(error, domain, title, lang, options, results) {
+	return '';
 };
 
 class PHPVariantRequest extends ApiRequest {
@@ -109,6 +114,12 @@ class PHPVariantRequest extends ApiRequest {
 		} else {
 			this._processListeners(error, data.parse);
 		}
+	}
+	_errorObj(data, requestStr, defaultMsg) {
+		if (data && data.error && data.error.code === 'missingtitle') {
+			return new DoesNotExistError(this.title);
+		}
+		return super._errorObj(data, requestStr, defaultMsg);
 	}
 }
 
@@ -176,6 +187,34 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 	};
 });
 
+const hrefToTitle = function(href) {
+	return Util.decodeURIComponent(href.replace(/^(\.\.?|\/wiki)\//, ''))
+		.replace(/_/g, ' ');
+};
+
+const nodeHrefToTitle = function(node, suppressCategory) {
+	const href = node && node.getAttribute('href');
+	if (!href) { return null; }
+	const title = hrefToTitle(href);
+	if (suppressCategory) {
+		const categoryMatch = title.match(/^([^:]+)[:]/);
+		if (categoryMatch) { return null; /* skip it */ }
+	}
+	return title;
+};
+
+/**
+ * Pull a list of local titles from wikilinks in a Parsoid HTML document.
+ */
+const spiderDocument = function(env, document) {
+	const redirect = document.querySelector('link[rel~="mw:PageProp/redirect"]');
+	const nodes = redirect ? [ redirect ] :
+		Array.from(document.querySelectorAll('a[rel~="mw:WikiLink"][href]'));
+	return new Set(
+		nodes.map(node => nodeHrefToTitle(node, true)).filter(t => t !== null)
+	);
+};
+
 /**
  * Pull "just the text" from an HTML document, normalizing whitespace
  * differences and suppressing places where Parsoid and PHP output
@@ -204,12 +243,29 @@ const extractText = function(env, document) {
 		addSep(m[3]);
 		return true;
 	});
+	dt.addHandler('div', (node) => {
+		if (node.classList.contains('magnify') &&
+			node.parentNode &&
+			node.parentNode.classList.contains('thumbcaption')) {
+			// Skip the "magnify" link, which PHP has and Parsoid doesn't.
+			return node.nextSibling;
+		}
+		return true;
+	});
 	/* These are the block elements which we delimit with newlines (aka,
 	 * we ensure they start on a line of their own). */
 	var forceBreak = () => { addSep('\n'); return true; };
-	for (const el of ['p','li','div','table','tr','h1','h2','h3','h4','h5','h6']) {
+	for (const el of ['p','li','div','table','tr','h1','h2','h3','h4','h5','h6','figure', 'figcaption']) {
 		dt.addHandler(el, forceBreak);
 	}
+	dt.addHandler('div', (node) => {
+		if (node.classList.contains('thumbcaption')) {
+			// <figcaption> (Parsoid) is marked as forceBreak,
+			// so thumbcaption (PHP) should be, too.
+			forceBreak();
+		}
+		return true;
+	});
 	/* Separate table columns with spaces */
 	dt.addHandler('td', () => { addSep(' '); return true; });
 	/* Suppress reference numbers and linkback text */
@@ -231,6 +287,18 @@ const extractText = function(env, document) {
 		}
 		return true;
 	});
+	dt.addHandler('figcaption', (node) => {
+		/* Captions are suppressed in PHP for:
+		 * figure[typeof~="mw:Image/Frameless"], figure[typeof~="mw:Image"]
+		 * See Note 5 of https://www.mediawiki.org/wiki/Specs/HTML/1.7.0#Images
+		 */
+		if (DU.hasTypeOf(node.parentNode, 'mw:Image/Frameless') ||
+			DU.hasTypeOf(node.parentNode, 'mw:Image')) {
+			// Skip caption contents, since they don't appear in PHP output.
+			return node.nextSibling;
+		}
+		return true;
+	});
 	/* Show the targets of wikilinks, since the titles should be
 	 * language-converted too. */
 	dt.addHandler('a', (node) => {
@@ -245,9 +313,9 @@ const extractText = function(env, document) {
 		if (m) {
 			href = `/wiki/${m[1]}`;
 		}
-		// Local links to this page
+		// Local links to this page, or self-links
 		m = /^#/.test(href);
-		if (m) {
+		if (m || node.classList.contains('mw-selflink')) {
 			const title = encodeURIComponent(env.page.name);
 			href = `/wiki/${title}${href}`;
 		}
@@ -255,11 +323,26 @@ const extractText = function(env, document) {
 		if (node.classList.contains('external')) {
 			return true;
 		}
-		if (/^(\.|\/wiki)\//.test(href)) {
-			const title = Util.decodeURIComponent(href.replace(/^.*\//, ''));
+		if (/^(\.\.?|\/wiki)\//.test(href)) {
+			const title = hrefToTitle(href);
 			addSep(' ');
 			emit(`[${title}]`);
 			addSep(' ');
+		}
+		return true;
+	});
+	dt.addHandler('link', (node) => {
+		const rel = node.getAttribute('rel') || '';
+		if (/\bmw:PageProp\/redirect\b/.test(rel)) {
+			// Given Parsoid output, emulate PHP output for redirects.
+			forceBreak();
+			emit('Redirect to:');
+			forceBreak();
+			const title = nodeHrefToTitle(node);
+			emit(`[${title}]`);
+			addSep(' ');
+			emit(title);
+			return node.nextSibling;
 		}
 		return true;
 	});
@@ -267,7 +350,45 @@ const extractText = function(env, document) {
 	return buf;
 };
 
-const runTest = Promise.async(function *(domain, title, lang, options, formatter) {
+// Wrap an asynchronous function in code to record/replay network requests
+const nocksWrap = function(f) {
+	return Promise.async(function *(domain, title, lang, options, formatter) {
+		let nock, dir, nocksFile;
+		if (options.record || options.replay) {
+			dir = path.resolve(__dirname, '../nocks/');
+			if (!(yield fs.exists(dir))) {
+				yield fs.mkdir(dir);
+			}
+			dir = `${dir}/${domain}`;
+			if (!(yield fs.exists(dir))) {
+				yield fs.mkdir(dir);
+			}
+			nocksFile = `${dir}/lc-${encodeURIComponent(title)}-${lang}.js`;
+			if (options.record) {
+				nock = require('nock');
+				nock.recorder.rec({ dont_print: true });
+			} else {
+				require(nocksFile);
+			}
+		}
+		try {
+			return (yield f(domain, title, lang, options, formatter));
+		} finally {
+			if (options.record) {
+				const nockCalls = nock.recorder.play();
+				yield fs.writeFile(
+					nocksFile,
+					`'use strict';\nlet nock = require('nock');\n${nockCalls.join('\n')}`,
+					'utf8'
+				);
+				nock.recorder.clear();
+				nock.restore();
+			}
+		}
+	});
+};
+
+const runTest = nocksWrap(Promise.async(function *(domain, title, lang, options, formatter) {
 	// Step 0: Configuration & setup
 	const parsoidOptions = {
 		loadWMF: true,
@@ -283,25 +404,6 @@ const runTest = Promise.async(function *(domain, title, lang, options, formatter
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, options);
 	Util.setDebuggingFlags(parsoidOptions, options);
 	Util.setColorFlags(options);
-
-	let nock, dir, nocksFile;
-	if (options.record || options.replay) {
-		dir = path.resolve(__dirname, '../nocks/');
-		if (!(yield fs.exists(dir))) {
-			yield fs.mkdir(dir);
-		}
-		dir = `${dir}/${domain}`;
-		if (!(yield fs.exists(dir))) {
-			yield fs.mkdir(dir);
-		}
-		nocksFile = `${dir}/lc-${encodeURIComponent(title)}-${lang}.js`;
-		if (options.record) {
-			nock = require('nock');
-			nock.recorder.rec({ dont_print: true });
-		} else {
-			require(nocksFile);
-		}
-	}
 
 	const parsoidConfig = new ParsoidConfig(null, parsoidOptions);
 	const env = yield MWParserEnvironment.getParserEnv(parsoidConfig, envOptions);
@@ -331,19 +433,13 @@ const runTest = Promise.async(function *(domain, title, lang, options, formatter
 	});
 	const exitCode = (phpText === parsoidText) ? 0 : 1;
 
-	if (options.record) {
-		const nockCalls = nock.recorder.play();
-		yield fs.writeFile(
-			nocksFile,
-			`'use strict';\nlet nock = require('nock');\n${nockCalls.join('\n')}`,
-			'utf8'
-		);
-	}
 	return {
 		output,
 		exitCode,
+		// List of local titles, in case we are spidering test cases
+		linkedTitles: spiderDocument(env, parsoidDoc.document),
 	};
-});
+}));
 
 if (require.main === module) {
 	const standardOpts = Util.addStandardOptions({
@@ -397,6 +493,16 @@ if (require.main === module) {
 			'boolean': true,
 			'default': false,
 		},
+		'spider': {
+			description: 'Spider <number> additional pages past the given one',
+			'boolean': false,
+			'default': 0,
+		},
+		'silent': {
+			description: 'Skip output (used with --record --spider to load caches)',
+			'boolean': true,
+			'default': false,
+		},
 		'verbose': {
 			description: 'Log at level "info" as well',
 			'boolean': true,
@@ -443,25 +549,58 @@ if (require.main === module) {
 			ret = yield serviceWrapper.runServices(serverOpts);
 			argv.parsoidURL = ret.parsoidURL;
 		}
-		const formatter = Util.booleanOption(argv.xml) ?
-			xmlFormat : plainFormat;
+		const formatter =
+			Util.booleanOption(argv.silent) ? silentFormat :
+			Util.booleanOption(argv.xml) ? xmlFormat :
+			plainFormat;
 		const domain = argv.domain || 'sr.wikipedia.org';
+		const queue = [title];
+		const titlesDone = new Set();
+		let exitCode = 0;
 		let r;
-		try {
-			r = yield runTest(domain, title, lang, argv, formatter);
-		} catch (e) {
-			r = {
-				error: true,
-				output: formatter(e, domain, title, lang, argv),
-				exitCode: 2,
-			};
+		for (let i = 0; i < queue.length; i++) {
+			if (titlesDone.has(queue[i])) {
+				continue; // duplicate title
+			}
+			if (argv.spider > 1 && argv.verbose) {
+				console.log('%s (%d/%d)', queue[i], titlesDone.size, argv.spider);
+			}
+			try {
+				r = yield runTest(domain, queue[i], lang, argv, formatter);
+			} catch (e) {
+				if (e instanceof DoesNotExistError && argv.spider > 1) {
+					// Ignore page-not-found if we are spidering.
+					continue;
+				}
+				r = {
+					error: true,
+					output: formatter(e, domain, queue[i], lang, argv),
+					exitCode: 2,
+				};
+			}
+			exitCode = Math.max(exitCode, r.exitCode);
+			if (r.output) {
+				console.log(r.output);
+			}
+			// optionally, spider
+			if (argv.spider > 1) {
+				if (!r.error) {
+					titlesDone.add(queue[i]);
+					for (const t of r.linkedTitles) {
+						if (/:/.test(t)) { continue; /* hack: no namespaces */ }
+						queue.push(t);
+					}
+				}
+				if (titlesDone.size >= argv.spider) {
+					break; /* done! */
+				}
+			}
 		}
-		console.log(r.output);
 		if (ret !== null) {
 			yield ret.runner.stop();
 		}
-		if (argv.check || r.error) {
-			process.exit(r.exitCode);
+		if (argv.check || exitCode > 1) {
+			process.exit(exitCode);
 		}
 	})().done();
 } else if (typeof module === 'object') {
