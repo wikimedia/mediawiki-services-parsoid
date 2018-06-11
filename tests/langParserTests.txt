@@ -123,3 +123,33 @@ abcdшђжчћ
 !! html/parsoid+langconv
 <p data-mw-variant-lang="sr-ec"><span typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[{"l":"sr-ec","t":"abcdшђжчћ"},{"l":"sr-el","t":"abcdšđžčć"}],"rt":true}'>abcdšđžčć</span></p>
 !! end
+
+!! test
+External links should be converted, unless they "look like a URL".
+!! options
+language=sr variant=sr-ec
+!! wikitext
+[http://example.com abcd]
+
+[http://example.com http://foo.com]
+
+http://example.com
+
+[http://example.com -{abcd}-]
+!! html/php+tidy
+<p><a rel="nofollow" class="external text" href="http://example.com">абцд</a>
+</p><p><a rel="nofollow" class="external text" href="http://example.com">http://foo.com</a>
+</p><p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>
+</p><p><a rel="nofollow" class="external text" href="http://example.com">abcd</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink" class="external text" href="http://example.com">abcd</a></p>
+<p><a rel="mw:ExtLink" class="external text" href="http://example.com">http://foo.com</a></p>
+<p><a rel="mw:ExtLink" class="external free" href="http://example.com">http://example.com</a></p>
+<p><a rel="mw:ExtLink" class="external text" href="http://example.com"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'></span></a></p>
+!! html/parsoid+langconv
+<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" class="external text" href="http://example.com">абцд</a></p>
+<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" class="external text" href="http://example.com">http://foo.com</a></p>
+<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" class="external free" href="http://example.com">http://example.com</a></p>
+<p data-mw-variant-lang="sr-ec"><a rel="mw:ExtLink" class="external text" href="http://example.com"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'>abcd</span></a></p>
+!! end
