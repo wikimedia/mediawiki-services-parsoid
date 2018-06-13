@@ -115,7 +115,7 @@ class PHPVariantRequest extends ApiRequest {
 const phpFetch = Promise.async(function *(env, title, revid) {
 	const parse = yield new Promise((resolve, reject) => {
 		const req = new PHPVariantRequest(
-			env, title, env.variantLanguage, revid
+			env, title, env.htmlVariantLanguage, revid
 		);
 		req.once('src', (err, src) => {
 			return err ? reject(err) : resolve(src);
@@ -158,7 +158,7 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 		uri,
 		headers: {
 			'User-Agent': env.userAgent,
-			'Accept-Language': env.variantLanguage,
+			'Accept-Language': env.htmlVariantLanguage,
 		}
 	});
 	// We may have been redirected to the latest revision. Record oldid.
@@ -276,7 +276,8 @@ const runTest = Promise.async(function *(domain, title, lang, options, formatter
 		domain,
 		pageName: title,
 		userAgent: 'LangConvTest',
-		variantLanguage: lang || null,
+		wtVariantLanguage: options.sourceVariant || null,
+		htmlVariantLanguage: lang || null,
 		logLevels: options.verbose ? undefined : ["fatal", "error", "warn"],
 	};
 	Util.setTemplatingAndProcessingFlags(parsoidOptions, options);
@@ -346,6 +347,12 @@ const runTest = Promise.async(function *(domain, title, lang, options, formatter
 
 if (require.main === module) {
 	const standardOpts = Util.addStandardOptions({
+		sourceVariant: {
+			description: 'Force conversion to assume the given variant for' +
+				' the source wikitext',
+			boolean: false,
+			default: null,
+		},
 		domain: {
 			description: 'Which wiki to use; e.g. "sr.wikipedia.org" for' +
 				' Serbian wikipedia',

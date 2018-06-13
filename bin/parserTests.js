@@ -701,7 +701,8 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 		this.env.page.pagelanguagedir = this.env.conf.wiki.rtl ? 'rtl' : 'ltr';
 		if (!item.options.langconv) {
 			// variant conversion is disabled by default
-			this.env.variantLanguage = null;
+			this.env.wtVariantLanguage = null;
+			this.env.htmlVariantLanguage = null;
 		}
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
@@ -1411,7 +1412,8 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	}
 	yield this.env.switchToConfig(prefix);
 
-	this.env.variantLanguage = item.options.variant || null;
+	this.env.wtVariantLanguage = item.options.sourceVariant || null;
+	this.env.htmlVariantLanguage = item.options.variant || null;
 
 	// adjust config to match that used for PHP tests
 	// see core/tests/parser/parserTest.inc:setupGlobals() for

@@ -224,6 +224,52 @@ var redlinksPage = {
 	},
 };
 
+var variantPage = {
+	query: {
+		pages: {
+			'104': {
+				pageid: 104,
+				ns: 0,
+				title: "Variant Page",
+				revisions: [
+					{
+						revid: 104,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': 'абвг abcd',
+					},
+				],
+				pagelanguage: 'sr',
+				pagelanguagedir: 'ltr',
+			},
+		},
+	},
+};
+
+var noVariantPage = {
+	query: {
+		pages: {
+			'105': {
+				pageid: 105,
+				ns: 0,
+				title: "No Variant Page",
+				revisions: [
+					{
+						revid: 105,
+						parentid: 0,
+						contentmodel: 'wikitext',
+						contentformat: 'text/x-wiki',
+						'*': 'абвг abcd\n__NOCONTENTCONVERT__',
+					},
+				],
+				pagelanguage: 'sr',
+				pagelanguagedir: 'ltr',
+			},
+		},
+	},
+};
+
 var revisionPage = {
 	query: {
 		pages: {
@@ -497,6 +543,10 @@ var availableActions = {
 				return cb(null , lintPage);
 			} else if (body.revids === '103' || body.titles === 'Redlinks_Page') {
 				return cb(null , redlinksPage);
+			} else if (body.revids === '104' || body.titles === 'Variant_Page') {
+				return cb(null , variantPage);
+			} else if (body.revids === '105' || body.titles === 'No_Variant_Page') {
+				return cb(null , noVariantPage);
 			} else {
 				return cb(null, { query: { pages: {
 					'-1': {
