@@ -699,7 +699,10 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 		// the item 'language' option).
 		this.env.page.pagelanguage = this.env.conf.wiki.lang;
 		this.env.page.pagelanguagedir = this.env.conf.wiki.rtl ? 'rtl' : 'ltr';
-		if (!item.options.langconv) {
+		if (item.options.langconv) {
+			this.env.wtVariantLanguage = item.options.sourceVariant || null;
+			this.env.htmlVariantLanguage = item.options.variant || null;
+		} else {
 			// variant conversion is disabled by default
 			this.env.wtVariantLanguage = null;
 			this.env.htmlVariantLanguage = null;
@@ -1411,9 +1414,6 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 		prefix += 'wiki';
 	}
 	yield this.env.switchToConfig(prefix);
-
-	this.env.wtVariantLanguage = item.options.sourceVariant || null;
-	this.env.htmlVariantLanguage = item.options.variant || null;
 
 	// adjust config to match that used for PHP tests
 	// see core/tests/parser/parserTest.inc:setupGlobals() for
