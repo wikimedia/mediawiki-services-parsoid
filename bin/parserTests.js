@@ -1160,6 +1160,11 @@ ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, o
 					continue;
 				}
 			} else {
+				// The order here is important, in that cloning `item` should
+				// happen before `item` is used in `prepareTest()`, since
+				// we cache some properties (`cachedBODYstr`,
+				// `cachedNormalizedHTML`) that should be cleared before use
+				// in `newitem`.
 				if (targetModes[i] === 'wt2html' && 'html/parsoid+langconv' in item) {
 					const newitem = Util.clone(item);
 					newitem.options.langconv = true;
