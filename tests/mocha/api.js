@@ -1140,6 +1140,41 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should not perform variant conversion for get w/ invalid variant specified (html)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/Variant_Page/104')
+			.set('Accept-Language', 'sr-BOGUS') // this doesn't exist
+			.expect('Content-Language', 'sr')
+			.expect('Vary', /\bAccept-Language\b/i)
+			.expect(validHtmlResponse((doc) => {
+				doc.body.textContent.should.equal('абвг abcd');
+			}))
+			.end(done);
+		});
+
+		it('should not perform variant conversion for get w/ invalid variant specified (pagebundle)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/Variant_Page/104')
+			.set('Accept-Language', 'sr-BOGUS') // this doesn't exist
+			.expect(validPageBundleResponse((doc) => {
+				doc.body.textContent.should.equal('абвг abcd');
+			}))
+			.expect((res) => {
+				// HTTP headers should not be set.
+				const vary1 = res.headers.vary || '';
+				vary1.should.not.match(/\bAccept-Language\b/i);
+				const lang1 = res.headers['content-language'] || '';
+				lang1.should.equal('');
+				// But vary/language headers should be set in JSON body.
+				const headers = res.body.html.headers;
+				const vary2 = headers.vary || '';
+				vary2.should.match(/\bAccept-Language\b/i);
+				const lang2 = headers['content-language'];
+				lang2.should.equal('sr');
+			})
+			.end(done);
+		});
+
 		it('should perform variant conversion for get (html)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/html/Variant_Page/104')
@@ -2173,6 +2208,27 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should refuse variant conversion on en page', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+			.send({
+				updates: {
+					variant: { target: 'sr-el' },
+				},
+				original: {
+					revid: 1,
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+						},
+						body: '<p>абвг abcd</p>',
+					},
+				},
+			})
+			.expect(400)
+			.end(done);
+		});
+
 		it('should accept the original and do variant conversion (given oldid)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
@@ -2240,6 +2296,43 @@ describe('Parsoid API', function() {
 				const headers = res.body.html.headers;
 				headers.should.have.property('content-language');
 				headers['content-language'].should.equal('sr-el');
+				headers.should.have.property('vary');
+				headers.vary.should.match(/\bAccept-Language\b/i);
+			})
+			.end(done);
+		});
+
+		it('should not perform variant conversion w/ invalid variant (given pagelanguage)', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+			.set('Content-Language', 'sr')
+			.set('Accept-Language', 'sr-BOGUS')
+			.send({
+				updates: {
+					variant: { /* target implicit from accept-language */ },
+				},
+				original: {
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+						},
+						body: '<p>абвг abcd</p>',
+					},
+				},
+			})
+			.expect((res) => {
+				// We don't actually require the result to have data-parsoid
+				// if the input didn't have data-parsoid; hack the result
+				// in order to make validPageBundleResponse() pass.
+				res.body['data-parsoid'].body = {};
+			})
+			.expect(validPageBundleResponse(function(doc) {
+				doc.body.textContent.should.equal('абвг abcd');
+			}))
+			.expect((res) => {
+				const headers = res.body.html.headers;
+				headers.should.have.property('content-language');
+				headers['content-language'].should.equal('sr');
 				headers.should.have.property('vary');
 				headers.vary.should.match(/\bAccept-Language\b/i);
 			})
