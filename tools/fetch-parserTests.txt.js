@@ -39,13 +39,13 @@ var computeSHA1 = Promise.async(function *(targetName) {
 
 var fetch = function(targetName, gitCommit, skipCheck) {
 	var file = testFiles[targetName];
-	var path = file.repo + (gitCommit || file.latestCommit) + '/' + file.path;
+	var filePath = file.repo + (gitCommit || file.latestCommit) + '/' + file.path;
 
-	console.log('Fetching ' + targetName + ' history from ' + path);
+	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
 	var url = {
 		host: 'raw.githubusercontent.com',
-		path: path,
+		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
 	return new Promise(function(resolve, reject) {
@@ -90,14 +90,14 @@ var checkAndUpdate = Promise.async(function *(targetName) {
 
 var forceUpdate = Promise.async(function *(targetName) {
 	var file = testFiles[targetName];
-	var path = '/repos' + file.repo + 'commits?path=' + file.path;
+	var filePath = '/repos' + file.repo + 'commits?path=' + file.path;
 
-	console.log('Fetching ' + targetName + ' history from ' + path);
+	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
 	// fetch the history page
 	var url = {
 		host: 'api.github.com',
-		path: path,
+		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
 	var gitCommit = JSON.parse(yield new Promise(function(resolve, reject) {
