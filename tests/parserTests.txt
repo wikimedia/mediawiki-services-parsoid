@@ -63,6 +63,12 @@ FOO
 !!endarticle
 
 !! article
+Template:redirect to foo
+!! text
+#REDIRECT [[Template:Foo]]
+!! endarticle
+
+!! article
 Template:Blank
 !! text
 !! endarticle
@@ -109,6 +115,14 @@ Template:echo
 {{{1}}}
 !! endarticle
 
+!! article
+Template:echo3
+!! text
+{{{1}}}
+{{{1}}}
+{{{1}}}
+!! endarticle
+
 // For Serbian; localize Template namespace
 !! article
 Шаблон:Echo
@@ -126,6 +140,12 @@ Template:echo_with_span
 Template:echo_with_div
 !! text
 <div>{{{1}}}</div>
+!! endarticle
+
+!! article
+Template:echo with depth
+!! text
+{{echo|{{{1}}}}}
 !! endarticle
 
 !! article
@@ -1899,6 +1919,39 @@ b
 !! html
 <p>a
 </p><p>b
+</p>
+!! end
+
+!! test
+post-expand include size being exceeded
+!! options
+maxincludesize=20
+!! wikitext
+{{echo3|1234567890}}
+!! html
+<p><a href="/wiki/Template:Echo3" title="Template:Echo3">Template:Echo3</a><!-- WARNING: template omitted, post-expand include size too large -->
+</p>
+!! end
+
+!! test
+max template depth being reached
+!! options
+maxtemplatedepth=1
+!! wikitext
+{{echo with depth|too deep!}}
+!! html
+<p><span class="error">Template recursion depth limit exceeded (1)</span>
+</p>
+!! end
+
+!! test
+multiple templates that are redirects
+!! wikitext
+{{redirect to foo}}
+{{redirect to foo}}
+!! html
+<p>FOO
+FOO
 </p>
 !! end
 
@@ -6663,7 +6716,7 @@ Element attributes with double ! should not be broken up by <th>
 !! html/php
 <table>
 <tr>
-<td><div style="color: red !important;" data-contrived="put this here &#124;&#124;">hi</div>
+<td><div style="color: red&#32;!important;" data-contrived="put this here &#124;&#124;">hi</div>
 </td></tr></table>
 
 !! html/parsoid
@@ -6684,7 +6737,7 @@ parsoid=wt2html
 !! html/php
 <table>
 <tr>
-<td>style="color: red !important;" data-contrived="put this here</td>
+<td>style="color: red&#160;!important;" data-contrived="put this here</td>
 <td>foo
 </td></tr></table>
 
@@ -11493,6 +11546,17 @@ Template from main namespace
 {{:Main Page}}
 !! html
 <p>blah blah
+</p>
+!! end
+
+!! test
+Template from non-includable namespace
+!! options
+wgNonincludableNamespaces=10
+!! wikitext
+{{echo|uh oh!}}
+!! html
+<p><a href="/wiki/Template:Echo" title="Template:Echo">Template:Echo</a>
 </p>
 !! end
 
@@ -18386,6 +18450,27 @@ this is a '''test'''
 <p>this is a <b>test</b></p>
 !! end
 
+!! test
+Parser hook: horizontal rule inside extension tag that outputs <pre>
+!! wikitext
+<tag>
+Hello
+<hr/>
+Goodbye
+</tag>
+!! html/php
+<pre>
+'
+Hello
+<hr/>
+Goodbye
+'
+array (
+)
+</pre>
+
+!! end
+
 ###
 ### (see tests/parser/parserTestsParserHook.php for the <statictag> extension)
 ###
@@ -18673,7 +18758,7 @@ Punctuation: CSS !important (T13874)
 !! wikitext
 <div style="width:50% !important">important</div>
 !! html
-<div style="width:50% !important">important</div>
+<div style="width:50%&#32;!important">important</div>
 
 !!end
 
@@ -18682,7 +18767,7 @@ Punctuation: CSS ! important (T13874; with space after)
 !! wikitext
 <div style="width:50% ! important">important</div>
 !! html
-<div style="width:50% ! important">important</div>
+<div style="width:50%&#32;! important">important</div>
 
 !!end
 
@@ -23965,10 +24050,10 @@ Play a bit with r67090 and T5158
 <div style="width:50%&#160;!important">&nbsp;</div>
 <div style="border : solid;">&nbsp;</div>
 !! html/php
-<div style="width:50% !important">&#160;</div>
+<div style="width:50%&#32;!important">&#160;</div>
 <div style="width:50% !important">&#160;</div>
 <div style="width:50% !important">&#160;</div>
-<div style="border&#160;: solid;">&#160;</div>
+<div style="border&#32;: solid;">&#160;</div>
 
 !! html/parsoid
 <div style="width:50% !important" data-parsoid='{"stx":"html"}'><span typeof="mw:Entity" data-parsoid='{"srcContent":" "}'> </span></div>
@@ -23976,6 +24061,15 @@ Play a bit with r67090 and T5158
 <div style="width:50% !important" data-parsoid='{"stx":"html","a":{"style":"width:50% !important"},"sa":{"style":"width:50%&amp;#160;!important"}}'><span typeof="mw:Entity" data-parsoid='{"srcContent":" "}'> </span></div>
 <div style="border : solid;" data-parsoid='{"stx":"html"}'><span typeof="mw:Entity" data-parsoid='{"srcContent":" "}'> </span></div>
 
+!! end
+
+!! test
+T5158: Test for French spaces in attributes
+!! wikitext
+<br style=" clear : both ; " />
+!! html/php
+<p><br style="clear&#32;: both&#32;;" />
+</p>
 !! end
 
 !! test
@@ -24658,6 +24752,17 @@ abc
 !! html/parsoid
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padleft:","function":"padleft"},"params":{"1":{"wt":"3"},"2":{"wt":"abcde"}},"i":0}}]}'>abc</span>
 <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"padright:","function":"padright"},"params":{"1":{"wt":"3"},"2":{"wt":"abcde"}},"i":0}}]}'>abc</span></p>
+!! end
+
+!! test
+Padleft and padright with non-numerical length (T180403)
+!! wikitext
+{{padleft:abcdef|junk}}
+{{padright:abcdef|junk}}
+!! html/php
+<p>abcdef
+abcdef
+</p>
 !! end
 
 !!test
