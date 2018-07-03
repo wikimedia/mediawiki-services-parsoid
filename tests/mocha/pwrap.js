@@ -6,11 +6,11 @@ require('../../core-upgrade.js');
 
 require('chai').should();
 var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
-var pWrapDOM = require('../../lib/wt2html/pp/processors/pwrap.js').pWrapDOM;
+var pWrapDOM = require('../../lib/wt2html/pp/processors/pwrap.js').pwrap;
 
 var verifyPWrap = function(html, expectedOutput) {
 	var doc = DU.parseHTML(html);
-	pWrapDOM(doc);
+	pWrapDOM(doc.body);
 	doc.body.innerHTML.should.equal(expectedOutput);
 };
 
