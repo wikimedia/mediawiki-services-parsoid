@@ -952,4 +952,37 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+	describe('DIV-SPAN-FLIP-TIDY-BUG', function() {
+		it('should not trigger this lint when there are no style or class attributes', function() {
+			return expectEmptyResults("<span><div>x</div></span>");
+		});
+		it('should trigger this lint when there is a style or class attribute (1)', function() {
+			return parseWT("<span class='x'><div>x</div></span>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misc-tidy-replacement-issues");
+				result[0].params.should.have.a.property("subtype", "div-span-flip");
+			});
+		});
+		it('should trigger this lint when there is a style or class attribute (2)', function() {
+			return parseWT("<span style='x'><div>x</div></span>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misc-tidy-replacement-issues");
+				result[0].params.should.have.a.property("subtype", "div-span-flip");
+			});
+		});
+		it('should trigger this lint when there is a style or class attribute (3)', function() {
+			return parseWT("<span><div class='x'>x</div></span>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misc-tidy-replacement-issues");
+				result[0].params.should.have.a.property("subtype", "div-span-flip");
+			});
+		});
+		it('should trigger this lint when there is a style or class attribute (4)', function() {
+			return parseWT("<span><div style='x'>x</div></span>").then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "misc-tidy-replacement-issues");
+				result[0].params.should.have.a.property("subtype", "div-span-flip");
+			});
+		});
+	});
 });
