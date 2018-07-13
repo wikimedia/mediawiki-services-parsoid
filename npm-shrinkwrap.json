@@ -756,9 +756,9 @@
       "dev": true
     },
     "domino": {
-      "version": "2.0.2",
-      "from": "domino@2.0.2",
-      "resolved": "https://registry.npmjs.org/domino/-/domino-2.0.2.tgz"
+      "version": "2.0.3",
+      "from": "domino@2.0.3",
+      "resolved": "https://registry.npmjs.org/domino/-/domino-2.0.3.tgz"
     },
     "domutils": {
       "version": "1.5.1",
@@ -1619,9 +1619,9 @@
       }
     },
     "jsdoc-wmf-theme": {
-      "version": "0.0.1",
-      "from": "git+https://github.com/cscott/jsdoc-wmf-theme.git#master",
-      "resolved": "git+https://github.com/cscott/jsdoc-wmf-theme.git#ff6f4c241db3f2c166d4df06f1a30aeb2304d69f",
+      "version": "0.0.2",
+      "from": "jsdoc-wmf-theme@0.0.2",
+      "resolved": "https://registry.npmjs.org/jsdoc-wmf-theme/-/jsdoc-wmf-theme-0.0.2.tgz",
       "dev": true
     },
     "jsdoctypeparser": {
