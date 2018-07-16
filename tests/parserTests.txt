@@ -2046,8 +2046,6 @@ x
 
 !! test
 Block tag on one line (<blockquote>)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 a <blockquote>foo</blockquote>
 
@@ -2079,8 +2077,6 @@ b </p><div>foo</div>
 
 !! test
 Block tag on both lines (<blockquote>)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 a <blockquote>foo</blockquote>
 
@@ -2494,8 +2490,6 @@ Bar
 
 !! test
 T17491: <ins>/<del> in blockquote
-!! options
-parsoid=wt2html
 !! wikitext
 <blockquote>
 Foo <del>bar</del> <ins>baz</ins> quux
@@ -2515,8 +2509,6 @@ Foo <del>bar</del> <ins>baz</ins> quux
 
 !! test
 T17491: <ins>/<del> in blockquote (2)
-!! options
-parsoid=wt2html
 !! wikitext
 <blockquote>Foo <del>bar</del> <ins>baz</ins> quux
 </blockquote>
@@ -3533,8 +3525,6 @@ parsoid=wt2html,html2html
 
 !! test
 3a. Indent-Pre and block tags (single-line html)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
  a <p> foo </p>
  b <div> foo </div>
@@ -23501,8 +23491,6 @@ B</strong>
 # T8200: <blockquote> should behave like <div> with respect to line breaks
 !! test
 T8200: paragraphs inside blockquotes (no extra line breaks)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <blockquote>Line one
 
@@ -23518,8 +23506,6 @@ Line two</p></blockquote>
 
 !! test
 T8200: paragraphs inside blockquotes (extra line break on open)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <blockquote>
 Line one
@@ -23540,8 +23526,6 @@ Line two</p></blockquote>
 
 !! test
 T8200: paragraphs inside blockquotes (extra line break on close)
-!! options
-parsoid=wt2html,html2html
 !! wikitext
 <blockquote>Line one
 
