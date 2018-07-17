@@ -12881,6 +12881,18 @@ parsoid
 <p about="#mwt223" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"Bar"}},"i":0}}]}'>Bar</p>
 !!end
 
+!! test
+Templates: Scopes should not be expanded unnecessarily
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{echo|<div>a</div>}}b{{echo|
+<div>c</div>}}
+!! html
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;div>a&lt;/div>"}},"i":0}}]}'>a</div><p>b</p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;div>c&lt;/div>"}},"i":0}}]}'>
+</span><div about="#mwt2">c</div>
+!! end
+
 !!test
 Templates: Inline Text: 1. Multiple template uses
 !! wikitext
