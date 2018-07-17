@@ -6160,6 +6160,15 @@ Normal text. '''''Bold italic text.''''' Normal text.
 </p>
 !! end
 
+!! test
+Quotes wrapping HTML table
+!! wikitext
+'''<table><tr><td>hi</td></tr></table>'''
+!! html/php+tidy
+<b><table><tbody><tr><td>hi</td></tr></tbody></table></b>
+!! html/parsoid
+<b><table data-parsoid='{"stx":"html"}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'>hi</td></tr></tbody></table></b>
+!! end
 
 # Parsoid inserts an empty bold tag pair at the end of the line, that the PHP
 # parser strips. The wikitext contains just the first half of the bold
