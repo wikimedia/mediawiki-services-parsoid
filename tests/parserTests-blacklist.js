@@ -331,7 +331,7 @@ add("html2html", "<br> to <br />", "<p data-parsoid='{\"dsr\":[0,3,0,0]}'>123</p
 add("html2html", "Incorrecly removing closing slashes from correctly formed XHTML", "\n\n");
 add("html2html", "Failing to transform badly formed HTML into correct XHTML", "\n<p data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[1,2,0,0]}'>\n<br data-parsoid='{\"dsr\":[2,2,0,0]}'/></p>\n");
 add("html2html", "Handling html with a br self-closing tag", "\n<p data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[1,2,0,0]}'>\n<br data-parsoid='{\"dsr\":[2,2,0,0]}'/></p>\n");
-add("html2html", "2. List embedded in a formatting tag in a misnested way", "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p><p data-parsoid='{\"dsr\":[7,7,0,0]}'></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>");
+add("html2html", "2. List embedded in a formatting tag in a misnested way", "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>");
 add("html2html", "Case-sensitive magic words, when cased differently, should just be template transclusions", "<p data-parsoid='{\"dsr\":[0,331,0,0]}'>[/index.php?title=Template:CurrentMonth&amp;action=edit&amp;redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&amp;action=edit&amp;redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&amp;action=edit&amp;redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&amp;action=edit&amp;redlink=1 Template:CurrentHour]</p>\n");
 add("html2html", "Nonexistent template", "<p data-parsoid='{\"dsr\":[0,108,0,0]}'>[/index.php?title=Template:Thistemplatedoesnotexist&amp;action=edit&amp;redlink=1 Template:Thistemplatedoesnotexist]</p>\n");
 add("html2html", "Template with invalid target containing wikilink", "<p data-parsoid='{\"dsr\":[0,17,0,0]}'>{{<a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[2,15,2,2]}'>Main Page</a>}}</p>");
@@ -1512,16 +1512,9 @@ add("selser", "List interrupted by empty line or heading [3,0,3,4,0,0,1]", "\n1a
 add("selser", "List interrupted by empty line or heading [3,0,2,4,2,0,[[2]]]", "\n1t8zafz\n\n**bar\n\n1b32yqy\n\nux8im\n\n==A heading==\n*cfr1ezAnother list item");
 add("selser", "List interrupted by empty line or heading [[1],3,3,0,[3],0,[1]]", "*foo\n\n==<nowiki/>==\n*Another list item");
 add("selser", "List interrupted by empty line or heading [[[4]],3,2,0,1,4,1]", "*f3o1md\n\n1g01lsb\n\n**bar\n==A heading==\n11s9oe7\n\n*Another list item");
-add("selser", "2. List embedded in a formatting tag in a misnested way [3,2,4,[1,0,[4]]]", "1882yzv\n\n\n\n164jsjh\n\n*a\n*io0so4");
-add("selser", "2. List embedded in a formatting tag in a misnested way [3,0,2,[0,0,[[2]]]]", "\n\n1w7z5w0\n\n*a\n*13znn9nb</small>");
-add("selser", "2. List embedded in a formatting tag in a misnested way [[2],2,2,[[3],0,3]]", "53sgzr<small>\n\n10zw4bq\n\n\n\n1xjwqd5\n\n\n");
-add("selser", "2. List embedded in a formatting tag in a misnested way [0,0,0,[[[4]],0,2]]", "<small>\n*uzodpq\n* 185r6cr\n*b</small>");
-add("selser", "2. List embedded in a formatting tag in a misnested way [3,0,2,[[[3]],3,4]]", "\n\n1gwzg1d\n\n** 17at3fb");
-add("selser", "2. List embedded in a formatting tag in a misnested way [2,0,0,[[1],3,4]]", "1gry7es\n\n<small>\n*a* y2wwjm");
-add("selser", "2. List embedded in a formatting tag in a misnested way [0,2,0,[4,3,2]]", "<small>\n\n5msl87\n\n\n\n* nbeafw\n* 659c64\n*b</small>");
-add("selser", "2. List embedded in a formatting tag in a misnested way [1,0,0,[[2],0,4]]", "<small>\nfyis85\n*a\n* corgwr");
-add("selser", "2. List embedded in a formatting tag in a misnested way [4,0,0,2]", "1b6dyno\n\n\n\n1m9phqj\n\n*a\n*b</small>");
-add("selser", "2. List embedded in a formatting tag in a misnested way [0,2,0,1]", "<small>\n\n1b57fr\n\n\n*a\n*b</small>");
+add("selser", "2. List embedded in a formatting tag in a misnested way [0,0,[0,4,[2]]]", "<small>\n*a* uzodpq\n*185r6crb</small>");
+add("selser", "2. List embedded in a formatting tag in a misnested way [2,0,[[[2]],3,4]]", "1gry7es\n\n<small>\n*kyzxi8a* y2wwjm");
+add("selser", "2. List embedded in a formatting tag in a misnested way [1,0,[[[2]],0,4]]", "<small>\n*fyis85a\n* corgwr");
 add("selser", "Template with invalid target containing tags [2]", "14gbmgd\n\n{{a<b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}");
 add("selser", "Template with invalid target containing tags [[3,3,3,0,4,0,2,0,0]]", "{{echo|foo}}122zygl{{echo|a}}iovjgt={{echo|b}}|a =b}}");
 add("selser", "Template with invalid target containing tags [[3,[4],2,0,0,0,3,0,0]]", "<b>bagzg7</b>x43r01|{{echo|foo}}|{{echo|a}}{{echo|b}}|a =b}}");

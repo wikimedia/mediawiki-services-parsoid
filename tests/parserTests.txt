@@ -10227,7 +10227,7 @@ parsoid=wt2html,wt2wt,html2html
 </small></p><small></small><ul><small><li>a</li>
 </small><li><small>b</small></li></ul>
 !! html/parsoid
-<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p><p></p>
+<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p>
 <ul><small data-parsoid='{"stx":"html","autoInsertedEnd":true,"autoInsertedStart":true}'><li>a</li></small>
 <li><small data-parsoid='{"stx":"html","autoInsertedStart":true}'>b</small></li></ul>
 !! end
