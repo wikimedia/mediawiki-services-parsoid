@@ -1181,6 +1181,10 @@ TestUtils.iwl = {
 		local: '',
 		protorel: '',
 	},
+	stats: {
+		local: '',
+		url: 'https://stats.wikimedia.org/$1'
+	}
 };
 
 TestUtils.addNamespace = function(wikiConf, name) {
