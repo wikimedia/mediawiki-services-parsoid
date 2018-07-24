@@ -28781,6 +28781,23 @@ parsoid={
 ''[[Foo]]''
 !! end
 
+!! test
+7. T194083 Regression test: Manual edit test to ensure nested diff markers aren't inserted
+!! options
+parsoid={
+  "modes": ["selser"],
+  "scrubWikitext": true,
+  "changes": [
+    ["div", "after", "\n<p><a href='./Foo' rel='mw:WikiLink'>Foo </a>, placeholder</p>"]
+  ]
+}
+!! wikitext
+<div>placeholder</div>
+!! wikitext/edited
+<div>placeholder</div>
+[[Foo]] , placeholder
+!! end
+
 #------------------------------
 # End of tag minimization tests
 #------------------------------
