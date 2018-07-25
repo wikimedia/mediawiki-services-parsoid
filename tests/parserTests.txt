@@ -10232,6 +10232,22 @@ parsoid=wt2html,wt2wt,html2html
 <li><small data-parsoid='{"stx":"html","autoInsertedStart":true}'>b</small></li></ul>
 !! end
 
+# Output is ugly because of all the misnested tag fixups.
+!! test
+3. List embedded in a formatting tag in a misnested way
+!! wikitext
+<small>
+
+** 123</small>
+!! html/php+tidy
+<p><small>
+</small></p><small></small><ul><small></small><li><small></small><ul><small></small><li><small>123</small></li></ul></li></ul>
+!! html/parsoid
+<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p>
+
+<ul><li><ul><li data-parsoid='{}'><small data-parsoid='{"stx":"html","autoInsertedStart":true}'> 123</small></li></ul></li></ul>
+!! end
+
 ###
 ### Magic Words
 ###
