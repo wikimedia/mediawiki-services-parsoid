@@ -237,7 +237,31 @@ var tests = [
 			'edited':      'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}\ny', // normalized
 		},
 	},
-	// 18. Custom block formatting 3
+	// 18. Custom block formatting 3 - T199849
+	{
+		'html': 'x\n<span about="#mwt1" typeof="mw:Transclusion" data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>\ny',
+		'wt': {
+			'new_content': 'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = foo\n}}\ny', // normalized
+			'edited':      'x\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}\ny', // normalized
+		},
+	},
+	// 19. Custom block formatting 3 - T199849
+	{
+		'html': 'x\n<span about="#mwt1" typeof="mw:Transclusion" data-mw=' + "'" + '{"parts":["X", {"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}, "Y"]}' + "'" + '>something</span>\ny',
+		'wt': {
+			'new_content': 'x\nX\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = foo\n}}\nY\ny', // normalized
+			'edited':      'x\nX\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}\nY\ny', // normalized
+		},
+	},
+	// 19. Custom block formatting 3 - T199849
+	{
+		'html': 'x\n<span about="#mwt1" typeof="mw:Transclusion" data-mw=' + "'" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"g1":{"wt":""},"g2":{"wt":""}},"i":0}}, {"template":{"target":{"wt":"BlockFormattedTpl_2","href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":1}}]}' + "'" + '>something</span><!--cmt-->\ny',
+		'wt': {
+			'new_content': 'x\n{{BlockFormattedTpl_2\n| g1 = \n| g2 = \n}}\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = foo\n}}<!--cmt-->\ny', // normalized
+			'edited':      'x\n{{BlockFormattedTpl_2\n| g1 = \n| g2 = \n}}\n{{BlockFormattedTpl_2\n| f1 = \n| f2 = BAR\n}}<!--cmt-->\ny', // normalized
+		},
+	},
+	// 20. Custom block formatting 4
 	{
 		'html': 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' + "'" + '{"pi":[[{"k":"f1"},{"k":"f2"}]]}' + "' data-mw='" + '{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_3","href":"./Template:BlockFormattedTpl_3"},"params":{"f1":{"wt":""},"f2":{"wt":"foo"}},"i":0}}]}' + "'" + '>something</span>y',
 		'wt': {
@@ -287,9 +311,11 @@ describe('[TemplateData]', function() {
 		name += ': ';
 
 		// Non-selser test
-		it(name + 'Default non-selser serialization should ignore templatedata', function(done) {
-			verifyTransformation(html, null, null, test.wt.no_selser, done);
-		});
+		if (test.wt.no_selser) {
+			it(name + 'Default non-selser serialization should ignore templatedata', function(done) {
+				verifyTransformation(html, null, null, test.wt.no_selser, done);
+			});
+		}
 
 		// New content test
 		it(name + 'Serialization of new content (no data-parsoid) should respect templatedata', function(done) {
