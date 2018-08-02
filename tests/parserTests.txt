@@ -2864,6 +2864,22 @@ parsoid=wt2html
 <p data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>&lt;pre </p><table data-parsoid='{"stx":"html"}'></table>
 !! end
 
+## Similar to the above, but shows the difference between extension and html tags
+!! test
+Less than in attribute position
+!! wikitext
+<pre <pre>123</pre>
+
+<div <div>123</div>
+!! html/php+tidy
+<pre>123</pre><p>
+&lt;div </p><div>123</div>
+!! html/parsoid
+<pre typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"&lt;pre":""},"body":{"extsrc":"123"}}'>123</pre><p>
+
+&lt;div </p><div>123</div>
+!! end
+
 !! test
 Parsoid: handle pre with space after attribute
 !! options
