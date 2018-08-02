@@ -2843,6 +2843,10 @@ Barack Obama <President> of the United States
 !! end
 
 ## Remex doesn't account for fostered content.
+## The difference between Parsoid and the PHP parser can be attributed to core
+## commit 674e8388cba and 710618f89af in Parsoid's repo.  Parsoid doesn't
+## tokenize unmatched extension tags that shadow html tags as strings to ease
+## an escaping mechanism.  See the comment in `maybeExtensionTag`.
 !! test
 Handle broken pre-like tags (T66025)
 !! options
@@ -2861,7 +2865,7 @@ parsoid=wt2html
 !! html/parsoid
 <pre typeof="mw:Transclusion mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html","a":{"&lt;pre":null},"sa":{"&lt;pre":""},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
-<p data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>&lt;pre </p><table data-parsoid='{"stx":"html"}'></table>
+<pre data-parsoid='{"stx":"html","src":"&lt;pre &lt;/table>","tagWidths":[13,0],"a":{"&lt;":null,"table":null},"sa":{"&lt;":"","table":""},"fostered":true,"autoInsertedEnd":true}'></pre><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'></table>
 !! end
 
 ## Similar to the above, but shows the difference between extension and html tags
@@ -9581,10 +9585,32 @@ Handling html with a div self-closing tag
 !! html/parsoid
 <div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
-<div title="" data-parsoid='{"stx":"html","selfClose":true}'></div>
+<div title="" data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
 <div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
 <div title="bar" data-parsoid='{"stx":"html","selfClose":true}'></div>
-<div title="bar/" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></div>
+<div title="bar/" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></div></div>
+!! end
+
+!! test
+Elements with solidus in various attribute positions
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+<div cla/ss="123">ha</div>
+
+<div / class="123">ha</div>
+
+<div class= / "123">ha</div>
+!! html/php+tidy
+<div>ha</div>
+<div class="123">ha</div>
+<div class="/">ha</div>
+!! html/parsoid
+<div data-parsoid='{"stx":"html","a":{"cla":null,"ss":null},"sa":{"cla":"","ss":"123"}}'>ha</div>
+
+<div class="123" data-parsoid='{"stx":"html"}'>ha</div>
+
+<div class="/" data-parsoid='{"stx":"html","a":{"\"123\"":null},"sa":{"\"123\"":""}}'>ha</div>
 !! end
 
 !! test
@@ -14234,11 +14260,20 @@ a<nowiki / >b
 c<nowiki />d
 
 e<nowiki/ >f
-!! html
-<p><span typeof="mw:Nowiki">&lt;div&gt;[[foo]]</span></p>
-<p>ab</p>
-<p>cd</p>
-<p>ef</p>
+!! html/php+tidy
+<p>&lt;div&gt;[[foo]]
+</p><p>a&lt;nowiki / &gt;b
+</p><p>cd
+</p><p>e&lt;nowiki/ &gt;f
+</p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">&lt;div>[[foo]]</span></p>
+
+<p>a&lt;nowiki / >b</p>
+
+<p>c<span typeof="mw:Nowiki"></span>d</p>
+
+<p>e&lt;nowiki/ >f</p>
 !! end
 
 !! test
