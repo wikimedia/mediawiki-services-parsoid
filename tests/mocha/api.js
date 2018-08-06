@@ -567,6 +567,16 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should get from a title and revision (html, pre-mcr)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/Old_Response/999')
+			.expect(validHtmlResponse(function(doc) {
+				// SECTION -> P
+				doc.body.firstChild.firstChild.textContent.should.equal('MediaWiki was successfully installed.');
+			}))
+			.end(done);
+		});
+
 		it('should get from a title and revision (html, json content)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/html/JSON_Page/101')
