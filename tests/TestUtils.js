@@ -1198,6 +1198,10 @@ TestUtils.iwl = {
 	stats: {
 		local: '',
 		url: 'https://stats.wikimedia.org/$1'
+	},
+	gerrit: {
+		local: '',
+		url: 'https://gerrit.wikimedia.org/$1'
 	}
 };
 
