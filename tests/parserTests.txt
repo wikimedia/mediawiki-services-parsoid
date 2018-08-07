@@ -17782,9 +17782,9 @@ Media link
 <a href="http://example.com/images/0/00/Video.ogv" class="internal" title="Video.ogv">Media:Video.ogv</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a>
-<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv">Media:Video.ogv</a>
-<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" title="Video.ogv" data-parsoid='{"a":{"namespace":"Media"},"sa":{"namespace":":Media"}}'>Media:Video.ogv</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">Media:Foobar.jpg</a>
+<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" resource="./Media:Video.ogv" title="Video.ogv">Media:Video.ogv</a>
+<a rel="mw:MediaLink" href="//example.com/images/0/00/Video.ogv" resource="./Media:Video.ogv" title="Video.ogv" data-parsoid='{"a":{"resource":"./Media:Video.ogv"},"sa":{"resource":":Media:Video.ogv"}}'>Media:Video.ogv</a></p>
 !! end
 
 !! test
@@ -17795,7 +17795,24 @@ Media link with text
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">A neat file to look at</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+!! end
+
+!! test
+Localized media link
+!! options
+language=is
+!! wikitext
+[[Miðill:Foobar.jpg]]
+
+[[Miðill:Foobar.jpg|Icelandic]]
+!! html/php
+<p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Miðill:Foobar.jpg</a>
+</p><p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Icelandic</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Miðill:Foobar.jpg" title="Foobar.jpg">Miðill:Foobar.jpg</a></p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Miðill:Foobar.jpg" title="Foobar.jpg">Icelandic</a></p>
 !! end
 
 # FIXME: this is still bad HTML tag nesting
@@ -17813,7 +17830,53 @@ parsoid=wt2html,html2html
 !! html/php+tidy
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link</a></p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg"><div style="display:none">" onmouseover="alert(document.cookie)" onfoo="</div></a>
 !! html/parsoid
-<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">Safe Link</a></p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg"><div style="display:none" data-parsoid='{"stx":"html"}'>" onmouseover="alert(document.cookie)" onfoo="</div></a>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">Safe Link</a></p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg"><div style="display:none" data-parsoid='{"stx":"html"}'>" onmouseover="alert(document.cookie)" onfoo="</div></a>
+!! end
+
+!! test
+Media link from missing resource (parsoid-only)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg">Bat!</a>
+!! wikitext
+[[Media:Foobar.jpg|Bat!]]
+!! end
+
+!! test
+Media link from missing resource, localized (parsoid-only)
+!! options
+parsoid=html2wt
+language=is
+!! html/parsoid
+<a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg">Bat!</a>
+!! wikitext
+[[Miðill:Foobar.jpg|Bat!]]
+!! end
+
+# This is a sanity test to ensure we don't crash or choke when given
+# old cached 1.7.0 HTML for media links; we don't require that the
+# result be "valid" because wt2wt was completely broken in 1.7.0
+!! test
+Media link from old 1.7.0 DOM spec (crash test, parsoid-only) T198511
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>This is what Parsoid would emit (and we still handle this HTML fine):</p>
+<p><a rel="mw:MediaLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+<p>But VisualEditor would mangle the rel attribute, and give us back this:</p>
+<p><a rel="mw:ExtLink" href="//example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+<p>But at least we don't crash when trying to handle the mangled HTML!</p>
+!! wikitext
+This is what Parsoid would emit (and we still handle this HTML fine):
+
+[[Media:Foobar.jpg|A neat file to look at]]
+
+But VisualEditor would mangle the rel attribute, and give us back this:
+
+[//example.com/images/3/3a/Foobar.jpg A neat file to look at]
+
+But at least we don't crash when trying to handle the mangled HTML!
 !! end
 
 !! test
@@ -17826,8 +17889,8 @@ Media link to nonexistent file (T3702)
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such_file.jpg" class="new" title="No such file.jpg">Media:No_such file.jpg</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:MediaLink" href="./Special:FilePath/No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such.jpg"},"sa":{"fileName":"No such.jpg"}}'>Media:No such.jpg</a>
-<a rel="mw:MediaLink" href="./Special:FilePath/No_such_file.jpg" title="No such file.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"fileName":"No_such_file.jpg"},"sa":{"fileName":"No_such file.jpg"}}'>Media:No_such file.jpg</a></p>
+<p><a rel="mw:MediaLink" href="./Special:FilePath/No_such.jpg" resource="./Media:No_such.jpg" title="No such.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"resource":"./Media:No_such.jpg"},"sa":{"resource":"Media:No such.jpg"}}'>Media:No such.jpg</a>
+<a rel="mw:MediaLink" href="./Special:FilePath/No_such_file.jpg" resource="./Media:No_such_file.jpg" title="No such file.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}' data-parsoid='{"a":{"resource":"./Media:No_such_file.jpg"},"sa":{"resource":"Media:No_such file.jpg"}}'>Media:No_such file.jpg</a></p>
 !! end
 
 !! test
