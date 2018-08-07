@@ -1025,11 +1025,19 @@ C <sup about="#mwt6" class="mw-ref" id="cite_ref-foo_1-2" rel="dc:references" ty
 !! end
 
 !! test
-References: 1. references tag without any refs should be handled properly
+References: 1a. references tag without any refs should be handled properly
 !! wikitext
 <references />
 !! html/parsoid
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{}}'></ol>
+!! end
+
+!! test
+References: 1b. references tag without any refs should be handled properly
+!! wikitext
+<references></references>
+!! html/parsoid
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt2" data-mw='{"name":"references","attrs":{},"body":{"html":""}}'></ol>
 !! end
 
 !! test
