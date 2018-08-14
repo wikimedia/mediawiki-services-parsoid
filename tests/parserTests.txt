@@ -8844,7 +8844,7 @@ Interwiki links that cannot be represented in wiki syntax
 !! html/parsoid
 <p><a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok">meatball:ok</a>
 <a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok">ok with fragment</a>
-<a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well?" title="meatball:ok as well?">ok ending with ? mark</a>
+<a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well%3F" title="meatball:ok as well?">ok ending with ? mark</a>
 <a rel="mw:ExtLink" class="external text" href="http://de.wikipedia.org/wiki/Foo?action=history">has query</a>
 <a rel="mw:ExtLink" class="external text" href="http://de.wikipedia.org/wiki/#foo">is just fragment</a></p>
 !! end
@@ -8925,6 +8925,17 @@ parsoid=wt2html,wt2wt,html2html
 </p>
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo">local:local:local:local:mi:local:Foo</a></p>
+!! end
+
+!! test
+Interwiki link with percent encoded target
+!! wikitext
+[[:es:Nueva Guip%C3%BAzcoa|Nueva Guipúzcoa]]
+!! html/php
+<p><a href="http://es.wikipedia.org/wiki/Nueva_Guip%C3%BAzcoa" class="extiw" title="es:Nueva Guipúzcoa">Nueva Guipúzcoa</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink/Interwiki" href="http://es.wikipedia.org/wiki/Nueva%20Guipúzcoa" title="es:Nueva Guipúzcoa" data-parsoid='{"stx":"piped","a":{"href":"http://es.wikipedia.org/wiki/Nueva%20Guipúzcoa"},"sa":{"href":":es:Nueva Guip%C3%BAzcoa"},"isIW":true}'>Nueva Guipúzcoa</a></p>
 !! end
 
 ###
