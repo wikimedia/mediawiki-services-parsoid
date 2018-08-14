@@ -12110,7 +12110,7 @@ Un-closed <includeonly>
 <includeonly>
 !! html/php
 !! html/parsoid
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>"}'/>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>"}' data-mw='{"src":"&lt;includeonly>"}'/>
 !! end
 
 ## We used to, but no longer wt2wt this test since the default serializer
@@ -12147,7 +12147,7 @@ some
 <meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><ul><li>stuff</li>
 <li>here</li></ul>
 
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><h3 id="here">here</h3>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}' data-mw='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><h3 id="here">here</h3>
 
 !! end
 
@@ -12799,7 +12799,7 @@ parsoid=wt2html
 |c
 |}
 !!html/parsoid
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><table about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"{{{b}}}":null},"sa":{"{{{b}}}":""}}' data-mw='{"attribs":[[{"txt":"{{{b}}}","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[31,38,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"b\"},\"params\":{},\"i\":0}}]}&#39;>{{{b}}}&lt;/span>"},{"html":""}]]}'>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}' data-mw='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><table about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"{{{b}}}":null},"sa":{"{{{b}}}":""}}' data-mw='{"attribs":[[{"txt":"{{{b}}}","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[31,38,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"b\"},\"params\":{},\"i\":0}}]}&#39;>{{{b}}}&lt;/span>"},{"html":""}]]}'>
 <tbody><tr><td>c</td></tr>
 </tbody></table>
 !!end
@@ -27508,7 +27508,7 @@ New element inserted (without intervening newlines) after an old sol-transparent
 !! options
 parsoid=html2wt
 !! html/parsoid
-<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>foo&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><p>new para</p>
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>foo&lt;/includeonly>"}' data-mw='{"src":"&lt;includeonly>foo&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><p>new para</p>
 
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{}'/><h1>new heading</h1>
 !! wikitext
