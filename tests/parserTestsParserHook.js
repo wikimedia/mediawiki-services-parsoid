@@ -12,7 +12,7 @@ var myLittleHelper = function(env, extToken, argDict, html, cb) {
 	var tsr = extToken.dataAttribs.tsr;
 
 	if (!extToken.dataAttribs.tagWidths[1]) {
-		argDict.body = null;  // Serialize to self-closing.
+		argDict.body = undefined;  // Serialize to self-closing.
 	}
 
 	var addWrapperAttrs = function(firstNode) {
