@@ -20,6 +20,7 @@ var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
+const ParsoidExtApi = require('../lib/config/extapi.js').versionCheck('^0.9.0');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
@@ -1478,6 +1479,25 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 			(item.options.parsoid && item.options.parsoid.responsiveReferences) ||
 			// The default for parserTests
 			{ enabled: false, threshold: 10 };
+
+		// Emulate PHP parser's tag hook to tunnel content past the sanitizer
+		if (item.options.styletag) {
+			this.env.conf.wiki.registerExtension(function() {
+				this.config = {
+					tags: [
+						{
+							name: 'style',
+							toDOM: function(state, content, args) {
+								const attrs = args.map(kv => kv.k + "=" + kv.v).join(' ');
+								return ParsoidExtApi.returnHtml(state,
+									"<style" + (attrs ? ' ' + attrs : '') + ">" + content + "</style>"
+								);
+							}
+						},
+					],
+				};
+			});
+		}
 	}
 
 	yield this.buildTasks(item, targetModes, options);

@@ -211,4 +211,10 @@ describe('Regression Specs', function() {
 		});
 	});
 
+	it('should not wrap templatestyles style tags in p-wrappers', function() {
+		var wt = "<templatestyles src='Template:Quote/styles.css'/><div>foo</div>";
+		return parse(wt).then(function(doc) {
+			return doc.body.firstChild.nodeName.should.equal("STYLE");
+		});
+	});
 });

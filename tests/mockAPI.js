@@ -545,6 +545,11 @@ var parse = function(text, onlypst) {
 	// Render to html the contents of known extension tags
 	var match = text.match(/<([A-Za-z][^\t\n\v />\0]*)/);
 	switch ((match && match[1]) || '') {
+		// FIXME: this isn't really used by the mocha tests
+		// since some mocha tests hit the production db, but
+		// when we fix that, they should go through this.
+		case 'templatestyles':
+			return "<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>"; // Silliness
 		case 'translate':
 			return { text: text };
 		case 'indicator':
