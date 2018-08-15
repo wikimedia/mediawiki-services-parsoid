@@ -219,4 +219,25 @@ describe('Regression Specs', function() {
 			return doc.body.firstChild.nodeName.should.equal("STYLE");
 		});
 	});
+
+	it('should deduplicate templatestyles style tags', function() {
+		var wt = [
+			'<templatestyles src="Template:Quote/styles.css" /><span>a</span>',
+			'<templatestyles src="Template:Quote/styles.css" /><span>b</span>'
+		].join('\n');
+		return parse(wt).then(function(doc) {
+			var firstStyle = doc.body.firstChild.firstChild; // the first child is a p-wrap
+			firstStyle.nodeName.should.equal("STYLE");
+			var secondStyle = firstStyle.nextSibling.nextSibling.nextSibling;
+			secondStyle.nodeName.should.equal("LINK");
+			secondStyle.getAttribute('rel').should.equal('mw-deduplicated-inline-style');
+			secondStyle.getAttribute('href').should.equal('mw-data:' + firstStyle.getAttribute('data-mw-deduplicate'));
+			['about','typeof','data-mw','data-parsoid'].forEach(function(k) {
+				(secondStyle.getAttribute(k) !== null).should.equal(true);
+			});
+			return serialize(doc, null, { useSelser: false }).then(function(rtWT) {
+				rtWT.should.equal(wt);
+			});
+		});
+	});
 });
