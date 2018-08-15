@@ -2834,7 +2834,7 @@ two">hi</pre>
 <pre class="one two">hi</pre>
 
 !! html/parsoid
-<pre typeof="mw:Extension/pre" about="#mwt2" class="one two" data-mw='{"name":"pre","attrs":{"class":"one two"},"body":{"extsrc":"hi"}}'>hi</pre>
+<pre class="one two" typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"class":"one two"},"body":{"extsrc":"hi"}}'>hi</pre>
 !! end
 
 !! test
@@ -2869,7 +2869,7 @@ parsoid=wt2html
 <pre>x</pre>
 &lt;pre <table></table>
 !! html/parsoid
-<pre typeof="mw:Transclusion mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html","a":{"&lt;pre":null},"sa":{"&lt;pre":""},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
+<pre typeof="mw:Extension/pre mw:Transclusion" about="#mwt2" data-parsoid='{"stx":"html","a":{"&lt;pre":null},"sa":{"&lt;pre":""},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre &lt;pre>x&lt;/pre>"}},"i":0}}]}'>x</pre>
 
 <pre data-parsoid='{"stx":"html","src":"&lt;pre &lt;/table>","tagWidths":[13,0],"a":{"&lt;":null,"table":null},"sa":{"&lt;":"","table":""},"fostered":true,"autoInsertedEnd":true}'></pre><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'></table>
 !! end
@@ -3681,7 +3681,7 @@ array (
  <pre class="123">hi</pre>
 
 !! html/parsoid
- <pre typeof="mw:Extension/pre" about="#mwt2" class="123" data-mw='{"name":"pre","attrs":{"class":"123"},"body":{"extsrc":"hi"}}'>hi</pre>
+ <pre class="123" typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"class":"123"},"body":{"extsrc":"hi"}}'>hi</pre>
 !! end
 
 !!test
@@ -12729,7 +12729,7 @@ array (
 <li><span typeof="mw:Nowiki">foo-{bar}bat</span></li>
 <li><span typeof="mw:Transclusion mw:Nowiki" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;nowiki>foo-{bar}bat&lt;/nowiki>"}},"i":0}}]}'>foo-{bar}bat</span></li>
 <li><pre typeof="mw:Extension/pre" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'>foo-{bar}bat</pre></li>
-<li><pre typeof="mw:Transclusion mw:Extension/pre" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre>foo-{bar}bat&lt;/pre>"}},"i":0}}]}'>foo-{bar}bat</pre></li>
+<li><pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;pre>foo-{bar}bat&lt;/pre>"}},"i":0}}]}'>foo-{bar}bat</pre></li>
 </ul>
 <pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'></pre> <pre typeof="mw:Extension/tag mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;tag>foo-{bar}bat&lt;/tag>"}},"i":0}}]}'></pre>
 !! end
@@ -20062,8 +20062,8 @@ parsoid=wt2html
 <pre dir="&#10;"></pre>
 
 !! html/parsoid
-<pre typeof="mw:Extension/pre" about="#mwt2" dir="
-" data-mw='{"name":"pre","attrs":{"dir":"\n"},"body":{"extsrc":""}}'></pre>
+<pre dir="
+" typeof="mw:Extension/pre" about="#mwt2"data-mw='{"name":"pre","attrs":{"dir":"\n"},"body":{"extsrc":""}}'></pre>
 !! end
 
 !! test
@@ -20089,7 +20089,7 @@ Templates in extension attributes are not expanded
 <pre dir="{{echo|ltr}}"></pre>
 
 !! html/parsoid
-<pre typeof="mw:Extension/pre" about="#mwt2" dir="{{echo|ltr}}" data-mw='{"name":"pre","attrs":{"dir":"{{echo|ltr}}"},"body":{"extsrc":""}}'></pre>
+<pre dir="{{echo|ltr}}" typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"dir":"{{echo|ltr}}"},"body":{"extsrc":""}}'></pre>
 !! end
 
 !! test
