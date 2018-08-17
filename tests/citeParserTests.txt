@@ -1486,12 +1486,12 @@ CircularRef
 !! end
 
 !! test
-bug 13673 <ref> with direction "rtl"
-!! input
+T15673: <ref> with direction "rtl"
+!! wikitext
 <ref dir="rtl">TEST</ref>
 
 <references />
-!! result
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1499,15 +1499,19 @@ bug 13673 <ref> with direction "rtl"
 </li>
 </ol></div>
 
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1" class="mw-cite-dir-rtl"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">TEST</span></li></ol>
 !! end
 
 !! test
-bug 13673 <ref> with direction "ltr"
-!! input
+T15673: <ref> with direction "ltr"
+!! wikitext
 <ref dir="ltr">TEST</ref>
 
 <references />
-!! result
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1515,16 +1519,19 @@ bug 13673 <ref> with direction "ltr"
 </li>
 </ol></div>
 
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"ltr"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1" class="mw-cite-dir-ltr"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">TEST</span></li></ol>
 !! end
 
-
 !! test
-bug 13673 <ref> with direction "LTR", keeps upper case
-!! input
+T15673: <ref> with direction "LTR", keeps upper case
+!! wikitext
 <ref dir="LTR">TEST</ref>
 
 <references />
-!! result
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1532,16 +1539,19 @@ bug 13673 <ref> with direction "LTR", keeps upper case
 </li>
 </ol></div>
 
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"LTR"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1" class="mw-cite-dir-ltr"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">TEST</span></li></ol>
 !! end
 
-
 !! test
-bug 13673 <ref> with direction "nonsense", strip invalid dir attribute and shows error
-!! input
+T15673: <ref> with direction "nonsense", strip invalid dir attribute and shows error
+!! wikitext
 <ref dir="nonsense">TEST</ref>
 
 <references />
-!! result
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1549,15 +1559,19 @@ bug 13673 <ref> with direction "nonsense", strip invalid dir attribute and shows
 </li>
 </ol></div>
 
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"nonsense"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">TEST</span></li></ol>
 !! end
 
-
 !! test
-Direction is supported when specifying name and group
-!! input
-<ref dir="ltr" name="a" group=note>TEST</ref>
-<references group=note/>
-!! result
+T15673: Direction is supported when specifying name and group
+!! wikitext
+<ref dir="ltr" name="a" group="note">TEST</ref>
+
+<references group="note" />
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;note 1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1565,8 +1579,11 @@ Direction is supported when specifying name and group
 </li>
 </ol></div>
 
-!! end
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"ltr","name":"a","group":"note"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Main_Page#cite_note-a-1" style="counter-reset: mw-Ref 1;" data-mw-group="note"><span class="mw-reflink-text">[note 1]</span></a></sup></p>
 
+<ol class="mw-references references" data-mw-group="note" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{"group":"note"}}'><li about="#cite_note-a-1" id="cite_note-a-1" class="mw-cite-dir-ltr"><a href="./Main_Page#cite_ref-a_1-0" data-mw-group="note" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">TEST</span></li></ol>
+!! end
 
 ## Just to catch regressions in Parsoid's tree-building / p-wrapping
 !! test
@@ -1596,6 +1613,12 @@ ghi<ref name="r1" dir="rtl">jkl</ref>mno
 </li>
 </ol></div>
 
+!! html/parsoid
+<p>abc<sup about="#mwt3" class="mw-ref" id="cite_ref-r1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1"}}'><a href="./Main_Page#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>def</p>
+
+<p>ghi<sup about="#mwt6" class="mw-ref" id="cite_ref-r1_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1","dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-r1-1"}}'><a href="./Main_Page#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>mno</p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-r1-1" id="cite_note-r1-1" class="mw-cite-dir-rtl"><span rel="mw:referencedBy"><a href="./Main_Page#cite_ref-r1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Main_Page#cite_ref-r1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-r1-1" class="mw-reference-text">jkl</span></li></ol>
 !! end
 
 !! test
@@ -1615,4 +1638,10 @@ ghi<ref name="r1">jkl</ref>mno
 </li>
 </ol></div>
 
+!! html/parsoid
+<p>abc<sup about="#mwt3" class="mw-ref" id="cite_ref-r1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1","dir":"rtl"}}'><a href="./Main_Page#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>def</p>
+
+<p>ghi<sup about="#mwt7" class="mw-ref" id="cite_ref-r1_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1"},"body":{"id":"mw-reference-text-cite_note-r1-1"}}'><a href="./Main_Page#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>mno</p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-r1-1" id="cite_note-r1-1"><span rel="mw:referencedBy"><a href="./Main_Page#cite_ref-r1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Main_Page#cite_ref-r1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-r1-1" class="mw-reference-text">jkl</span></li></ol>
 !! end
