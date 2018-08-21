@@ -1485,6 +1485,89 @@ CircularRef
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">Hi <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"CircularRef","href":"./Template:CircularRef"},"params":{},"i":0}}]}'></span></span></li></ol>
 !! end
 
+!! test
+bug 13673 <ref> with direction "rtl"
+!! input
+<ref dir="rtl">TEST</ref>
+
+<references />
+!! result
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1" class="mw-cite-dir-rtl"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
+</li>
+</ol></div>
+
+!! end
+
+!! test
+bug 13673 <ref> with direction "ltr"
+!! input
+<ref dir="ltr">TEST</ref>
+
+<references />
+!! result
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
+</li>
+</ol></div>
+
+!! end
+
+
+!! test
+bug 13673 <ref> with direction "LTR", keeps upper case
+!! input
+<ref dir="LTR">TEST</ref>
+
+<references />
+!! result
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
+</li>
+</ol></div>
+
+!! end
+
+
+!! test
+bug 13673 <ref> with direction "nonsense", strip invalid dir attribute and shows error
+!! input
+<ref dir="nonsense">TEST</ref>
+
+<references />
+!! result
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; dir attribute "nonsense" is unknown. Must be ltr or rtl</span></span>
+</li>
+</ol></div>
+
+!! end
+
+
+!! test
+Direction is supported when specifying name and group
+!! input
+<ref dir="ltr" name="a" group=note>TEST</ref>
+<references group=note/>
+!! result
+<p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;note 1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-a-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">TEST</span>
+</li>
+</ol></div>
+
+!! end
+
+
 ## Just to catch regressions in Parsoid's tree-building / p-wrapping
 !! test
 Ref with block content in formatting tag
