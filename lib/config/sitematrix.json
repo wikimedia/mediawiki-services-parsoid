@@ -5634,13 +5634,13 @@
 		},
 		"232": {
 			"code": "sat",
-			"name": "Santali",
+			"name": "ᱥᱟᱱᱛᱟᱲᱤ",
 			"site": [
 				{
 					"url": "https://sat.wikipedia.org",
 					"dbname": "satwiki",
 					"code": "wiki",
-					"sitename": "Wikipedia"
+					"sitename": "ᱣᱤᱠᱤᱯᱤᱰᱤᱭᱟ"
 				}
 			],
 			"dir": "ltr",
@@ -7454,7 +7454,7 @@
 			"dir": "ltr",
 			"localname": "Zulu"
 		},
-		"count": 927,
+		"count": 928,
 		"specials": [
 			{
 				"url": "https://advisors.wikimedia.org",
@@ -7668,6 +7668,13 @@
 				"dbname": "fiwikimedia",
 				"code": "fiwikimedia",
 				"sitename": "Wikimedia Suomi"
+			},
+			{
+				"url": "https://fixcopyright.wikipedia.org",
+				"dbname": "fixcopyrightwiki",
+				"code": "fixcopyright",
+				"sitename": "Wikipedia",
+				"fishbowl": ""
 			},
 			{
 				"url": "https://foundation.wikimedia.org",
