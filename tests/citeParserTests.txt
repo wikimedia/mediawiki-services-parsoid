@@ -1578,3 +1578,41 @@ Ref with block content in formatting tag
 <p><i>hi<sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></i></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"><div data-parsoid='{"stx":"html"}'>ho</div></span></li></ol>
 !! end
+
+!! test
+T196827: Use the dir parameter only from the full definition of a named ref tag
+!! wikitext
+abc<ref name="r1" />def
+
+ghi<ref name="r1" dir="rtl">jkl</ref>mno
+
+<references />
+!! html/php
+<p>abc<sup id="cite_ref-r1_1-0" class="reference"><a href="#cite_note-r1-1">&#91;1&#93;</a></sup>def
+</p><p>ghi<sup id="cite_ref-r1_1-1" class="reference"><a href="#cite_note-r1-1">&#91;1&#93;</a></sup>mno
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-r1-1" class="mw-cite-dir-rtl"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-r1_1-0">1.0</a></sup> <sup><a href="#cite_ref-r1_1-1">1.1</a></sup></span> <span class="reference-text">jkl</span>
+</li>
+</ol></div>
+
+!! end
+
+!! test
+T196827: Ignore the dir parameter from the first use, which is not a full definition, and use the dir value from the full definition of a named ref tag
+!! wikitext
+abc<ref name="r1" dir="rtl" />def
+
+ghi<ref name="r1">jkl</ref>mno
+
+<references />
+!! html/php
+<p>abc<sup id="cite_ref-r1_1-0" class="reference"><a href="#cite_note-r1-1">&#91;1&#93;</a></sup>def
+</p><p>ghi<sup id="cite_ref-r1_1-1" class="reference"><a href="#cite_note-r1-1">&#91;1&#93;</a></sup>mno
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-r1-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-r1_1-0">1.0</a></sup> <sup><a href="#cite_ref-r1_1-1">1.1</a></sup></span> <span class="reference-text">jkl</span>
+</li>
+</ol></div>
+
+!! end
