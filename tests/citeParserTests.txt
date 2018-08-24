@@ -33,7 +33,7 @@ Simple <ref>, with <references/>
 !! wikitext
 Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>
 
-<references/>
+<references />
 !! html
 <p>Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
@@ -43,7 +43,6 @@ Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>
 </ol></div>
 
 !! end
-
 
 !! article
 Template:Simple template
@@ -73,7 +72,7 @@ Templating<ref>{{simple template}}</ref>
 !! wikitext
 Templating<ref><nowiki>{{simple template}}</nowiki></ref>
 
-<references/>
+<references />
 !! html
 <p>Templating<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
@@ -90,7 +89,7 @@ Templating<ref><nowiki>{{simple template}}</nowiki></ref>
 !! wikitext
 Templating<nowiki><ref>{{simple template}}</ref></nowiki>
 
-<references/>
+<references />
 !! html
 <p>Templating&lt;ref&gt;{{simple template}}&lt;/ref&gt;
 </p><p><br />
@@ -102,7 +101,7 @@ Templating<nowiki><ref>{{simple template}}</ref></nowiki>
 !! wikitext
 Templating<!--<ref>{{simple template}}</ref>-->
 
-<references/>
+<references />
 !! html
 <p>Templating
 </p><p><br />
@@ -114,7 +113,7 @@ Templating<!--<ref>{{simple template}}</ref>-->
 !! wikitext
 Templating<ref>Text<!--comment--></ref>
 
-<references/>
+<references />
 !! html
 <p>Templating<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
@@ -132,7 +131,7 @@ Templating<ref>Text<!--comment--></ref>
 
 <gallery>Image:Foobar.jpg</gallery>
 
-<references/>
+<references />
 !! html
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
@@ -176,9 +175,9 @@ Ref with content followed by blank ref
 !! wikitext
 <ref name="blank">content</ref>
 
-<ref name="blank"/>
+<ref name="blank" />
 
-<references/>
+<references />
 !! html
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
@@ -193,11 +192,11 @@ Ref with content followed by blank ref
 !! test
 Blank ref followed by ref with content
 !! wikitext
-<ref name="blank"/>
+<ref name="blank" />
 
 <ref name="blank">content</ref>
 
-<references/>
+<references />
 !! html
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
@@ -216,7 +215,7 @@ Regression: non-blank ref "0" followed by ref with content
 
 <ref name="blank">content</ref>
 
-<references/>
+<references />
 !! html
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
@@ -235,7 +234,7 @@ Regression sanity check: non-blank ref "1" followed by ref with content
 
 <ref name="blank">content</ref>
 
-<references/>
+<references />
 !! html
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
@@ -312,10 +311,10 @@ no text was provided for refs named <code>blankwithnoreference</code></span></li
 Simple <ref>, with <references/> in group
 !! wikitext
 Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>
-Wikipedia rocks!<ref group=note>Proceeds of Rockology, vol. XXI</ref>
+Wikipedia rocks!<ref group="note">Proceeds of Rockology, vol. XXI</ref>
 
-<references/>
-<references group=note/>
+<references />
+<references group="note" />
 !! html
 <p>Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 Wikipedia rocks!<sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;note 1&#93;</a></sup>
@@ -362,7 +361,7 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 !! test
 <ref> defined in <references>
 !! wikitext
-<ref name="foo"/>
+<ref name="foo" />
 
 <references>
 <ref name="foo">BAR</ref>
@@ -380,7 +379,7 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 !! test
 <ref> defined in <references> called with #tag
 !! wikitext
-<ref name="foo"/>
+<ref name="foo" />
 
 {{#tag:references|
 <ref name="foo">BAR</ref>
@@ -398,10 +397,10 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 !! test
 <ref> defined in <references> error conditions
 !! wikitext
-<ref name="foo" group="2"/>
+<ref name="foo" group="2" />
 
 <references group="2">
-<ref name="foo"/>
+<ref name="foo" />
 <ref name="unused">BAR</ref>
 <ref name="foo" group="1">bad group</ref>
 <ref>BAR BAR</ref>
@@ -430,7 +429,7 @@ wa' cha' wej loS vagh jav Soch chorgh Hut wa'maH
 !! wikitext
 Wikipedia rocks!<ref group="klingon">Proceeds of Rockology, vol. XXI</ref>
 
-<references group="klingon"/>
+<references group="klingon" />
 !! html
 <p>Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;wa&#39;&#93;</a></sup>
 </p>
@@ -445,7 +444,7 @@ Wikipedia rocks!<ref group="klingon">Proceeds of Rockology, vol. XXI</ref>
 Bug 31374 regression check: nested strip items
 !! wikitext
 {{#tag:ref|note<ref>reference</ref>|group=Note}}
-<references group=Note />
+<references group="Note" />
 <references />
 !! html
 <p><sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;Note 1&#93;</a></sup>
@@ -548,8 +547,8 @@ invalid names, e.g. too many</span>
 !! test
 Multiple definition (outside <references/>)
 !! wikitext
-<ref name=a>abc</ref>
-<ref name=a>def</ref>
+<ref name="a">abc</ref>
+<ref name="a">def</ref>
 <references />
 !! html
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
@@ -565,10 +564,10 @@ Multiple definition (outside <references/>)
 !! test
 Multiple definition (inside <references/>)
 !! wikitext
-<ref name=a />
+<ref name="a" />
 <references>
-<ref name=a>abc</ref>
-<ref name=a>def</ref>
+<ref name="a">abc</ref>
+<ref name="a">def</ref>
 </references>
 !! html
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
@@ -583,9 +582,9 @@ Multiple definition (inside <references/>)
 !! test
 Multiple definition (mixed outside/inside)
 !! wikitext
-<ref name=a>abc</ref>
+<ref name="a">abc</ref>
 <references>
-<ref name=a>def</ref>
+<ref name="a">def</ref>
 </references>
 !! html
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
@@ -600,10 +599,10 @@ Multiple definition (mixed outside/inside)
 !! test
 Multiple definition (inside {{#tag:references}})
 !! wikitext
-<ref name=a />
+<ref name="a" />
 {{#tag:references|
-<ref name=a>abc</ref>
-<ref name=a>def</ref>
+<ref name="a">abc</ref>
+<ref name="a">def</ref>
 }}
 !! html
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
