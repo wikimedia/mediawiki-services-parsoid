@@ -12102,6 +12102,10 @@ some
 </noinclude>*stuff
 *here
 
+<noinclude>
+some</noinclude>* stuff
+* here
+
 <includeonly>can have stuff</includeonly>===here===
 
 !! html/php
@@ -12110,6 +12114,10 @@ some
 </p>
 <ul><li>stuff</li>
 <li>here</li></ul>
+<p><br />
+some* stuff
+</p>
+<ul><li>here</li></ul>
 <h3><span class="mw-headline" id="here">here</span></h3>
 
 !! html/parsoid
@@ -12119,6 +12127,10 @@ some
 <p>some</p>
 <meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><ul><li>stuff</li>
 <li>here</li></ul>
+
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
+<p>some<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>* stuff</p>
+<ul><li>here</li></ul>
 
 <meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}' data-mw='{"src":"&lt;includeonly>can have stuff&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><h3 id="here">here</h3>
 
