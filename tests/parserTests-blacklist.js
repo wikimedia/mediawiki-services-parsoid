@@ -1904,6 +1904,8 @@ add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,[2,0]]]"
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[0,1]]", "{|\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[3,[[0,2,0,0],2]]]", "{|\n|-\n|1lab92f\n|\n|{{echo|style='color:red'}}|foo<!--1p2o1fy-->\n|}");
 add("selser", "Empty TD followed by TD with tpl-generated attribute [[4,1]]", "{|<!--1k187m5-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}");
+add("selser", "Indented table with blank lines in between (T85627) [2,[0,[[[0,4]],3]]]", "1mniifd \n{|\n |foo\n<nowiki> </nowiki>b3wl3g \n|}");
+add("selser", "Indented table with blank lines in between (T85627) [0,[0,[0,2]]]", " {|\n |foo\n \n <!--ai2ytz-->\n |}");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[[0,2],2,0,1,2]]", "<span> l5rmhw<s>x</span>z3jn5s </s>\n''' ''x'''8w414u ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [1]", "<span> <s>x</span> </s>\n''' ''x''' ''");
 add("selser", "Improperly nested inline or quotes tags with whitespace in between [[0,1,2,[0,2],0]]", "<span> <s>x</span> </s>15iw3qy\n''' h1vxth''x''' ''");

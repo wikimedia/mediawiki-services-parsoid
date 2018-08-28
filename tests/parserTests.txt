@@ -2897,33 +2897,6 @@ parsoid=wt2html
 <pre typeof="mw:Extension/pre" about="#mwt2" style="width:50%;" data-mw='{"name":"pre","attrs":{"style":"width:50%;"},"body":{"extsrc":"{{echo|foo}}"}}'>{{echo|foo}}</pre>
 !! end
 
-# TODO / maybe: fix wt2wt for this
-!! test
-Parsoid: Don't paragraph-wrap fosterable content
-!! options
-parsoid=wt2html
-!! wikitext
-{|
-<td></td>
-<td></td>
-
-
-
-|}
-!! html
-<table>
-
-<tbody>
-<tr>
-<td></td>
-
-<td></td></tr>
-
-
-
-</tbody></table>
-!! end
-
 !! test
 Self-closed pre
 !! wikitext
@@ -27385,28 +27358,29 @@ Indented table with an empty td
 
 !!end
 
-## We have some newline diffs RT-ing this edge case
-## and it is not important enough -- we seem to be emitting
-## at most 2 newlines after a </tr> and this is unrelated to
-## the issue from T85627 that this is testing.
-!!test
+!! test
 Indented table with blank lines in between (T85627)
-!! options
-parsoid=wt2html
 !! wikitext
  {|
  |foo
  
  
  |}
-!! html
+!! html/php
 <table>
-
 <tr>
 <td>foo
+<p><br /> 
+</p>
 </td></tr></table>
 
-!!end
+!! html/parsoid
+ <table>
+ <tbody><tr><td>foo
+ <p>
+ <br /></p></td></tr>
+ </tbody></table>
+!! end
 
 !!test
 Indented block & table
