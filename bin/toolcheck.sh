@@ -21,13 +21,14 @@ TMPWT=$(tempfile -s wt)
 TMPORIG=$(tempfile -s orig)
 TMPEDIT=$(tempfile -s edit)
 TMPPB=$(tempfile -s pb)
+
 # inline data-parsoid
 echo "<p>foo</p><p>boo</p>" | tee $TMPWT | node $BIN/parse.js | tee $TMPORIG |
     sed -e "s/foo/bar/g" > $TMPEDIT
 node $BIN/parse.js --selser --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 
 # data-parsoid in separate files
-node $BIN/parse.js --pboutfile $TMPPB --contentVersion 2.0.0 < $TMPWT |
+node $BIN/parse.js --pboutfile $TMPPB < $TMPWT |
     tee $TMPORIG | sed -e "s/foo/bar/g" > $TMPEDIT
 node $BIN/parse.js --pbinfile $TMPPB --selser \
     --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT

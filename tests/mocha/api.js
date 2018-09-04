@@ -179,7 +179,7 @@ describe('Parsoid API', function() {
 				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + contentVersion + '"'
 			);
 			res.body['data-parsoid'].should.have.property('body');
-			if (semver.gte(contentVersion, '2.0.0')) {
+			if (semver.gte(contentVersion, '999.0.0')) {
 				res.body.should.have.property('data-mw');
 				res.body['data-mw'].should.have.property('headers');
 				res.body['data-mw'].headers.should.have.property('content-type');
@@ -253,12 +253,12 @@ describe('Parsoid API', function() {
 		});
 
 		it('should prefer higher quality (html)', function(done) {
-			var contentVersion = '2.0.0';
+			var contentVersion = '999.0.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept',
 				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/1.8.0"; q=0.5,' +
-				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"; q=0.8')
+				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
 			.expect(acceptableHtmlResponse(contentVersion))
@@ -266,12 +266,12 @@ describe('Parsoid API', function() {
 		});
 
 		it('should prefer higher quality (pagebundle)', function(done) {
-			var contentVersion = '2.0.0';
+			var contentVersion = '999.0.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept',
 				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.8.0"; q=0.5,' +
-				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"; q=0.8')
+				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion))
@@ -366,8 +366,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should accept requests for content version 2.x (html)', function(done) {
-			var contentVersion = '2.0.0';
+		it('should accept requests for content version 999.x (html)', function(done) {
+			var contentVersion = '999.0.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
@@ -377,15 +377,15 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should accept requests for content version 2.x (pagebundle)', function(done) {
-			var contentVersion = '2.0.0';
+		it('should accept requests for content version 999.x (pagebundle)', function(done) {
+			var contentVersion = '999.0.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
 			.send({ wikitext: '{{echo|hi}}' })
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
-				// In 2.x, data-mw is in the pagebundle.
+				// In 999.x, data-mw is in the pagebundle.
 				html.should.not.match(/\s+data-mw\s*=\s*['"]/);
 			}))
 			.end(done);
@@ -442,8 +442,8 @@ describe('Parsoid API', function() {
 				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + defaultContentVersion + '"'
 			);
 			res.body['data-parsoid'].should.have.property('body');
-			// TODO: Check data-mw when 2.x is the default.
-			console.assert(!semver.gte(defaultContentVersion, '2.0.0'));
+			// TODO: Check data-mw when 999.x is the default.
+			console.assert(!semver.gte(defaultContentVersion, '999.0.0'));
 			var doc = domino.createDocument(res.body.html.body);
 			if (expectFunc) {
 				return expectFunc(doc, res.body['data-parsoid'].body);
@@ -1762,7 +1762,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1791,7 +1791,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1821,7 +1821,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1850,7 +1850,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1884,7 +1884,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -1926,7 +1926,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
@@ -1968,7 +1968,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
@@ -2010,7 +2010,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
@@ -2137,11 +2137,11 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should refuse an unknown conversion (1.x -> 2.x)', function(done) {
+		it('should refuse an unknown conversion (1.x -> 999.x)', function(done) {
 			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/1.8.0"');
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
-			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')
+			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"')
 			.send({
 				previous: previousRevHTML,
 			})
@@ -2149,7 +2149,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should downgrade 2.x content to 1.x', function(done) {
+		it('should downgrade 999.x content to 1.x', function(done) {
 			var contentVersion = '1.8.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
@@ -2169,7 +2169,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
