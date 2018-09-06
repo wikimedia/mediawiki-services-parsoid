@@ -2185,6 +2185,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept the original and update the redlinks', function(done) {
+			// Keep this on an older version to show that it's preserved
+			// through the transformation.
+			var contentVersion = '1.7.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 			.send({
@@ -2200,13 +2203,14 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"',
 						},
 						body: '<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected">Redirected</a></p>',
 					},
 				},
 			})
-			.expect(validPageBundleResponse(function(doc) {
+			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
+				var doc = domino.createDocument(html);
 				doc.body.querySelectorAll('a').length.should.equal(3);
 				var redLinks = doc.body.querySelectorAll('.new');
 				redLinks.length.should.equal(1);
