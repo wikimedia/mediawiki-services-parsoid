@@ -15,7 +15,7 @@ var fs = require('pn/fs');
 var path = require('path');
 
 var downloadUrl = 'https://en.wikipedia.org/w/api.php?action=sitematrix&format=json';
-var filename = path.join(__dirname, '/../lib/config/sitematrix.json');
+var filename = path.join(__dirname, '/../lib/config/wmf.sitematrix.json');
 
 Promise.async(function *() {
 	var resp = yield Util.retryingHTTPRequest(1, {

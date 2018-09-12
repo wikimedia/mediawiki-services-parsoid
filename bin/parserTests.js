@@ -989,7 +989,7 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 	var setup = function(parsoidConfig) {
 		// Init early so we can overwrite it here.
 		parsoidConfig.loadWMF = false;
-		parsoidConfig.initMwApiMap();
+		parsoidConfig.loadWMFApiMap();
 
 		parsoidConfig.useBatchAPI = true;
 
