@@ -860,7 +860,7 @@ var reportResultXML = function() {
 		stats.modes[mode].result += '</testcase>';
 	}
 
-	var args = Array.prototype.slice.call(arguments);
+	var args = Array.from(arguments);
 	args = [ reportFailureXML, reportSuccessXML ].concat(args, pre, post);
 	printResult.apply(this, args);
 

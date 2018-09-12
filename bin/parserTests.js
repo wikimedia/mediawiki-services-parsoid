@@ -589,7 +589,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 			var what = !optSelector ? [ this ] :
 				!DU.isElt(this) ? [ this ] /* text node hack! */ :
 				this.querySelectorAll(optSelector);
-			Array.prototype.forEach.call(what, function(node) {
+			Array.from(what).forEach((node) => {
 				if (node.parentNode) { node.parentNode.removeChild(node); }
 			});
 		},
@@ -624,7 +624,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 		}
 		if (change[1] === 'contents') {
 			change = change.slice(1);
-			els = Array.prototype.reduce.call(els, function(acc, el) {
+			els = Array.from(els).reduce((acc, el) => {
 				acc.push.apply(acc, el.childNodes);
 				return acc;
 			}, []);
@@ -634,7 +634,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 			err = new Error('bad mutator function: ' + change[1]);
 			return;
 		}
-		Array.prototype.forEach.call(els, function(el) {
+		Array.from(els).forEach((el) => {
 			fun.apply(el, change.slice(2));
 		});
 	});

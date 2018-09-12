@@ -30,26 +30,25 @@ var processRes = Promise.async(function *(fetchArgs, out, body) {
 	// Accum titles
 	body = JSON.parse(body);
 	var stats = fetchArgs.wiki.stats;
-	Array.prototype.reduce.call(body.query ? body.query.recentchanges : [],
-		function(titles, e) {
-			// If it is a VE edit, grab it!
-			if (e.tags.indexOf('visualeditor') >= 0) {
-				var date = e.timestamp.replace(/T.*$/, '');
-				if (!stats[date]) {
-					stats[date] = 0;
-				}
-				stats[date] += 1;
-				titles.push("DATE: " + e.timestamp + "; DIFF: " + fetchArgs.apiURI.replace(/api.php/, 'index.php') +
+	Array.from(body.query ? body.query.recentchanges : []).reduce((titles, e) => {
+		// If it is a VE edit, grab it!
+		if (e.tags.indexOf('visualeditor') >= 0) {
+			var date = e.timestamp.replace(/T.*$/, '');
+			if (!stats[date]) {
+				stats[date] = 0;
+			}
+			stats[date] += 1;
+			titles.push("DATE: " + e.timestamp + "; DIFF: " + fetchArgs.apiURI.replace(/api.php/, 'index.php') +
 					'?title=' + encodeURIComponent(e.title) +
 					'&diff=' + encodeURIComponent(e.revid) +
 					'&oldid=' + encodeURIComponent(e.old_revid));
-			}
+		}
 
-			// TODO: Classify the nowiki-introduced diff according
-			// to the type of nowiki it is.
+		// TODO: Classify the nowiki-introduced diff according
+		// to the type of nowiki it is.
 
-			return titles;
-		},
+		return titles;
+	},
 		out);
 
 	// More to fetch?
