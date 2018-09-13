@@ -756,9 +756,9 @@
       "dev": true
     },
     "domino": {
-      "version": "2.0.3",
-      "from": "domino@2.0.3",
-      "resolved": "https://registry.npmjs.org/domino/-/domino-2.0.3.tgz"
+      "version": "2.1.0",
+      "from": "domino@2.1.0",
+      "resolved": "https://registry.npmjs.org/domino/-/domino-2.1.0.tgz"
     },
     "domutils": {
       "version": "1.5.1",
