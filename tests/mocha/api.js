@@ -1532,7 +1532,7 @@ describe('Parsoid API', function() {
 				original: {
 					html: {
 						headers: {
-							// content-type is omitted to ensure we got it from the mw:html:version meta
+							'content-type': 'text/html; profile="mediawiki.org/specs/html/1.1.1"',
 						},
 						body: "<!DOCTYPE html>\n<html prefix=\"dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/\" about=\"http://localhost/index.php/Special:Redirect/revision/1\"><head prefix=\"mwr: http://localhost/index.php/Special:Redirect/\"><meta property=\"mw:articleNamespace\" content=\"0\"/><link rel=\"dc:replaces\" resource=\"mwr:revision/0\"/><meta property=\"dc:modified\" content=\"2014-09-12T22:46:59.000Z\"/><meta about=\"mwr:user/0\" property=\"dc:title\" content=\"MediaWiki default\"/><link rel=\"dc:contributor\" resource=\"mwr:user/0\"/><meta property=\"mw:revisionSHA1\" content=\"8e0aa2f2a7829587801db67d0424d9b447e09867\"/><meta property=\"dc:description\" content=\"\"/><link rel=\"dc:isVersionOf\" href=\"http://localhost/index.php/Main_Page\"/><title>Main_Page</title><base href=\"http://localhost/index.php/\"/><link rel=\"stylesheet\" href=\"//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector\"/></head><body id=\"mwAA\" lang=\"en\" class=\"mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki\" dir=\"ltr\"><p id=\"mwAQ\"><strong id=\"mwAg\">MediaWiki has been successfully installed.</strong></p>\n\n<p id=\"mwAw\">Consult the <a rel=\"mw:ExtLink\" href=\"//meta.wikimedia.org/wiki/Help:Contents\" id=\"mwBA\">User's Guide</a> for information on using the wiki software.</p>\n\n<h2 id=\"mwBQ\"> Getting started </h2>\n<ul id=\"mwBg\"><li id=\"mwBw\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings\" id=\"mwCA\">Configuration settings list</a></li>\n<li id=\"mwCQ\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ\" id=\"mwCg\">MediaWiki FAQ</a></li>\n<li id=\"mwCw\"> <a rel=\"mw:ExtLink\" href=\"https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce\" id=\"mwDA\">MediaWiki release mailing list</a></li>\n<li id=\"mwDQ\"> <a rel=\"mw:ExtLink\" href=\"//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources\" id=\"mwDg\">Localise MediaWiki for your language</a></li></ul></body></html>",
 					},
@@ -2119,6 +2119,63 @@ describe('Parsoid API', function() {
 				html: "a".repeat(parsoidOptions.limits.html2wt.maxHTMLSize + 1),
 			})
 			.expect(413)
+			.end(done);
+		});
+
+		// T202666
+		it('should downgrade the original version before attempting to serialize', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="1.8.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><video controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></video></span></figure-inline></p></body></html>',
+				original: {
+					title: 'Doesnotexist',
+					revid: 6789,  // Necessary for selser
+					wikitext: {
+						body: "[[File:Selser was used.oga]]",
+					},
+					'data-parsoid': {
+						body: {
+							"ids": {
+								"mwAA": { "dsr": [0,47,0,0] },
+								"mwAQ": { "dsr": [0,45,0,0] },
+								"mwAg": { "optList": [], "dsr": [0,45,null,null] },
+								"mwAw": {},
+								"mwBA": { "a": { "height": "32", "width": "220", "resource": "./File:Mozart_Symphony_36_KV_425_Linz_4.oga" }, "sa": { "resource": "File:Selser was not used.oga" } },
+								"mwBQ": {},
+								"mwBg": {}
+							}
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Selser was used.oga]]'))
+			.end(done);
+		});
+
+		it('should fail to downgrade the original version for an unknown transition', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="1.8.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
+				original: {
+					title: 'Doesnotexist',
+					'data-parsoid': { body: { "ids": {} } },
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2222.0.0"',
+						},
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
+					},
+				},
+			})
+			.expect(400)
 			.end(done);
 		});
 
