@@ -29,8 +29,8 @@ var serialize = Promise.async(function *(parsoidConfig, doc, pb, options) {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
 	};
-	var inlineContentVersion = DU.extractInlinedContentVersion(doc);
-	if (inlineContentVersion !== null) { envOptions.originalVersion = inlineContentVersion; }
+	var vEdited = DU.extractInlinedContentVersion(doc);
+	if (vEdited !== null) { envOptions.inputContentVersion = vEdited; }
 	var env = yield MWParserEnvironment.getParserEnv(parsoidConfig, envOptions);
 	if (options.tweakEnv) {
 		env = options.tweakEnv(env) || env;
