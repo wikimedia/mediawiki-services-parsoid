@@ -123,8 +123,8 @@
 # Start of PreHandler unit tests
 
 ! Verify pre handler in wikitext
-{"type":"COMMENT","value":"comment&#x2D;&#x3E; foo\n bar\n<!&#x2D;&#x2D;comment&#x2D;&#x3E; \n baz","dataAttribs":{"tsr":[0,42]}}
+{"type":"CommentTk","value":"comment&#x2D;&#x3E; foo\n bar\n<!&#x2D;&#x2D;comment&#x2D;&#x3E; \n baz","dataAttribs":{"tsr":[0,42]}}
 {"type":"EOFTk"}
-[{"type":"COMMENT","value":"comment&#x2D;&#x3E; foo\n bar\n<!&#x2D;&#x2D;comment&#x2D;&#x3E; \n baz","dataAttribs":{"tsr":[0,42]}},{"type":"EOFTk"}]
+[{"type":"CommentTk","value":"comment&#x2D;&#x3E; foo\n bar\n<!&#x2D;&#x2D;comment&#x2D;&#x3E; \n baz","dataAttribs":{"tsr":[0,42]}},{"type":"EOFTk"}]
 
 # End of PreHandler unit tests

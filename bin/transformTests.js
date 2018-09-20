@@ -148,7 +148,7 @@ MockTTM.prototype.removeTransform = function(rank, type, name) {
 };
 
 MockTTM.prototype.getTransforms = function(token, minRank) {
-	var tkType = MockTTM.tkConstructorToTkTypeMap[token.type];
+	var tkType = MockTTM.tkConstructorToTkTypeMap[token.constructor.name];
 	var key = tokenTransformersKey(tkType, token.name);
 	var tts = this.tokenTransformers[key] || [];
 	if (this.defaultTransformers.length > 0) {
@@ -207,6 +207,7 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 				}
 				var token = JSON.parse(line);
 				if (token.constructor !== String) {	// cast object to token type
+					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 					token.prototype = token.constructor = defines[token.type];
 				}
 				var res = { token: token };
@@ -299,6 +300,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 						}
 						var token = JSON.parse(line);
 						if (token.constructor !== String) {	// cast object to token type
+							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 							token.prototype = token.constructor = defines[token.type];
 						}
 						var ts = this.getTransforms(token, 2.0);
