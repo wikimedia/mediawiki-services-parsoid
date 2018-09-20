@@ -101,7 +101,7 @@ var ScriptUtils = {
 						'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
 						'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
 						'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
-						'dom:fixups', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
+						'dom:fixups', 'dom:media', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
 						'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
 						'dom:downgrade'
 					]);
