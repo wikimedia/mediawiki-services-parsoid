@@ -69,7 +69,6 @@ var runServices = function(options) {
 					loadWMF: true,
 					useSelser: true,
 					rtTestMode: true,
-					strictAcceptCheck: true,
 				}),
 			};
 			if (ret.mockURL) {

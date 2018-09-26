@@ -2,7 +2,6 @@ services:
     - conf:
         loadWMF: true
         useSelser: true
-        strictAcceptCheck: true
         #traceFlags:
         #   - 'wts'
         #   - 'selser'
