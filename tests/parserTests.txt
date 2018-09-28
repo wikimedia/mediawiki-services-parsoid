@@ -13687,19 +13687,24 @@ Parser Functions: 2. Nested use (only outermost should be marked up)
 ## Note that the templates inside the references are not wrapped
 !! test
 Template nested in extension tag in template
+!! options
+language=zh
 !! wikitext
 {{echo|hi<ref>[[ho|{{echo|hi}}]]</ref>}}
 {{echo|hi<ref>[http://test.com?q={{echo|ho}}]</ref>}}
+{{echo|hi<ref>-{ho|{{echo|hi}}}-</ref>}}
 <references />
 !! html/parsoid
-<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;ref>[[ho|{{echo|hi}}]]&lt;/ref>"}},"i":0}}]}'>hi</span><sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<span about="#mwt8" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;ref>[http://test.com?q={{echo|ho}}]&lt;/ref>"}},"i":0}}]}'>hi</span><sup about="#mwt8" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-2"}}'><a href="./Main_Page#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup></p>
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt13" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"><a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"stx":"piped","a":{"href":"./Ho"},"sa":{"href":"ho"}}'>hi</a></span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Main_Page#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text"><a rel="mw:ExtLink" class="external autonumber" href="http://test.com?q=ho"></a></span></li></ol>
+<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;ref>[[ho|{{echo|hi}}]]&lt;/ref>"}},"i":0}}]}'>hi</span><sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Wikipedia:首页#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<span about="#mwt8" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;ref>[http://test.com?q={{echo|ho}}]&lt;/ref>"}},"i":0}}]}'>hi</span><sup about="#mwt8" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-2"}}'><a href="./Wikipedia:首页#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup>
+<span about="#mwt13" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"hi&lt;ref>-{ho|{{echo|hi}}}-&lt;/ref>"}},"i":0}}]}'>hi</span><sup about="#mwt13" class="mw-ref" id="cite_ref-3" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-3"}}'><a href="./Wikipedia:首页#cite_note-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt17" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Wikipedia:首页#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"><a rel="mw:WikiLink" href="./Ho" title="Ho">hi</a></span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Wikipedia:首页#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text"><a rel="mw:ExtLink" class="external autonumber" href="http://test.com?q=ho"></a></span></li><li about="#cite_note-3" id="cite_note-3"><a href="./Wikipedia:首页#cite_ref-3" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-3" class="mw-reference-text"><span typeof="mw:LanguageVariant" data-mw-variant='{"filter":{"l":["ho"],"t":"hi"}}'></span></span></li></ol>
 !! end
 
 ###
 ### Pre-save transform tests
 ###
+
 !! test
 pre-save transform: subst:
 !! options
