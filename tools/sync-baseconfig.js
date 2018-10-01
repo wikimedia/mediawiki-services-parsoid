@@ -58,9 +58,7 @@ var update = Promise.async(function *(opts) {
 		prefix: prefix,
 		domain: domain,
 	});
-	var resultConf = yield ConfigRequest.promise(
-		env.conf.wiki.apiURI, env, env.conf.wiki.apiProxy
-	);
+	var resultConf = yield ConfigRequest.promise(env);
 	var configDir = path.resolve(__dirname, '../lib/config');
 	var iwp = env.conf.wiki.iwp;
 	// HACK for be-tarask
