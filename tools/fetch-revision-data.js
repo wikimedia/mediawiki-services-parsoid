@@ -50,7 +50,7 @@ var fetch = Promise.async(function *(page, revid, opts) {
 	var pc = new ParsoidConfig(null, parsoidOptions);
 	if (!prefix) {
 		// domain has been provided
-		prefix = pc.reverseMwApiMap.get(domain);
+		prefix = pc.getPrefixFor(domain);
 	} else if (!domain) {
 		// prefix has been set
 		domain = pc.mwApiMap.get(prefix).domain;

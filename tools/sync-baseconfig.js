@@ -52,7 +52,7 @@ var update = Promise.async(function *(opts) {
 	}
 
 	var pc = new ParsoidConfig(null, parsoidOptions);
-	pc.defaultWiki = prefix || pc.reverseMwApiMap.get(domain);
+	pc.defaultWiki = prefix || pc.getPrefixFor(domain);
 
 	var env = yield MWParserEnvironment.getParserEnv(pc, {
 		prefix: prefix,

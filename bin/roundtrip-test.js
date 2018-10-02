@@ -654,11 +654,10 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		}
 	} else if (!prefix && domain) {
 		// Get the prefix from the reverse mw api map.
-		if (parsoidConfig.reverseMwApiMap.has(domain)) {
-			prefix = parsoidConfig.reverseMwApiMap.get(domain);
-		} else {
-			// `prefix` is only used for reporting.
-			options.prefix = options.domain;
+		prefix = parsoidConfig.getPrefixFor(domain);
+		if (!prefix) {
+			// Bogus, but `prefix` is only used for reporting.
+			prefix = domain;
 		}
 	} else {
 		// Should be unreachable.
