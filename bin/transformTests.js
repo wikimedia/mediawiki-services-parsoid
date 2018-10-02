@@ -98,6 +98,7 @@ MockTTM.prototype._cmpTransformations = function(a, b) {
 };
 
 MockTTM.prototype.addTransform = function(transformation, debugName, rank, type, name) {
+	this.pipelineModified = true;
 
 	var t = {
 		rank: rank,
@@ -135,6 +136,7 @@ function removeMatchingTransform(transformers, rank) {
 }
 
 MockTTM.prototype.removeTransform = function(rank, type, name) {
+	this.pipelineModified = true;
 	if (type === 'any') {
 		// Remove from default transformers
 		removeMatchingTransform(this.defaultTransformers, rank);
@@ -202,28 +204,27 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 				break;
 			case '{':
 			default:
-				if (!result) {
-					result = { tokens: [] };
-				}
 				var token = JSON.parse(line);
 				if (token.constructor !== String) {	// cast object to token type
 					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 					token.prototype = token.constructor = defines[token.type];
 				}
-				var res = { token: token };
+
+				var res;
 				var ts = this.getTransforms(token, 2.0);
+
 				// Push the token through the transformations till it morphs
 				var j = ts.first;
+				this.pipelineModified = false;
 				var numTransforms = ts.transforms.length;
-				while (j < numTransforms && (token === res.token)) {
+				while (j < numTransforms && !this.pipelineModified) {
 					var transformer = ts.transforms[j];
 					if (transformerName === transformer.name.substr(0, transformerName.length)) {
 						// Transform the token.
-						res = transformer.transform(token, this);
-						if (res.tokens) {
-							result.tokens = result.tokens.concat(res.tokens);
-						} else if (res.token && res.token !== token) {
-							result.tokens = result.tokens.concat(res.token);
+						result = res = transformer.transform(token, this);
+						var resT = res.tokens && !res.tokens.rank && res.tokens.length === 1 && res.tokens[0];
+						if (resT !== token) {
+							break;
 						}
 					}
 					j++;
@@ -295,28 +296,26 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 						break;
 					case '{':
 					default:
-						if (!result) {
-							result = { tokens: [] };
-						}
 						var token = JSON.parse(line);
 						if (token.constructor !== String) {	// cast object to token type
 							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 							token.prototype = token.constructor = defines[token.type];
 						}
+
+						var res;
 						var ts = this.getTransforms(token, 2.0);
-						var res = { token: token };
 
 						// Push the token through the transformations till it morphs
 						var j = ts.first;
+						this.pipelineModified = false;
 						var numTransforms = ts.transforms.length;
-						while (j < numTransforms && (token === res.token)) {
+						while (j < numTransforms && !this.pipelineModified) {
 							var transformer = ts.transforms[j];
 							// Transform the token.
-							res = transformer.transform(token, this);
-							if (res.tokens) {
-								result.tokens = result.tokens.concat(res.tokens);
-							} else if (res.token && res.token !== token) {
-								result.tokens = result.tokens.concat(res.token);
+							result = res = transformer.transform(token, this);
+							var resT = res.tokens && !res.tokens.rank && res.tokens.length === 1 && res.tokens[0];
+							if (resT !== token) {
+								break;
 							}
 							j++;
 						}
