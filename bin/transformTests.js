@@ -34,7 +34,7 @@ Technical details:
 
  To create a test from an existing wikitext page, run the following
  commands, for example:
- $ node bin/parse.js --genTest QuoteTransformer,quoteTestFile.txt --pageName 'skating' < /dev/null > /dev/null
+ $ node bin/parse.js --genTest QuoteTransformer --genTestOut quoteTestFile.txt --pageName 'skating' < /dev/null > /dev/null
 
  For command line options and required parameters, type:
  $ node bin/transformerTest.js --help
@@ -42,6 +42,16 @@ Technical details:
  An example command line to validate and performance test the 'skating'
  wikipage created as a QuoteTransformer test:
  $ node bin/transformTests.js --log --QuoteTransformer --inputFile quoteTestFile.txt
+
+ There are also manually-written unit tests, which are run as follows:
+ $ node bin/transformTests.js --manual --ListHandler --inputFile tests/transformTests.txt
+
+ There are a number of tests in tests/transform directory.  To regenerate
+ these, use:
+ $ tools/regen-transformTests.sh
+
+ To run these pregenerated tests, use:
+ $ npm run transformTests
 */
 
 'use strict';

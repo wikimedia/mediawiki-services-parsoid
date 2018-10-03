@@ -10,7 +10,7 @@
 #
 # To execute this test, choose a transformer such as ListHandler and
 # the from the command line in the parsoid directory, type:
-# $ node bin/transformerTest.js --manual --ListHandler --inputFile tests/transformerTests.txt
+# $ node bin/transformTest.js --manual --ListHandler --inputFile tests/transformTests.txt
 #
 # Only the ListHandler section will be processed and report passed or failed tests
 
