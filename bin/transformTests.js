@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
 Token transform unit test system
 
@@ -171,6 +172,7 @@ MockTTM.prototype.getTransforms = function(token, minRank) {
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
 MockTTM.prototype.ProcessTestFile = function(fileName) {
+	var numFailures = 0;
 	var transformerName;
 	var testName;
 	var result;
@@ -195,6 +197,7 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 					if (stringResult === line) {
 						console.log(testName + ' ==> passed\n');
 					} else {
+						numFailures++;
 						console.log(testName + ' ==> failed');
 						console.log('line to debug => ' + line);
 						console.log('result line ===> ' + stringResult + "\n");
@@ -232,6 +235,7 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 				break;
 		}
 	}
+	return numFailures;
 };
 
 // Because tokens are processed in pipelines which can execute out of
@@ -276,6 +280,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 	var testLines = testFile.split('\n');
 	var pipeLines = CreatePipelines(testLines);
 	var pipeLinesLength = pipeLines.length;
+	var numFailures = 0;
 	for (var index = 0; index < pipeLinesLength; index++) {
 		if (pipeLines[index] !== undefined) {
 			tokenTransformer.manager.pipelineId = index;
@@ -288,6 +293,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 						if (stringResult === line) {
 							console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
 						} else {
+							numFailures++;
 							console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> failed');
 							console.log('line to debug => ' + line);
 							console.log('result line ===> ' + stringResult + "\n");
@@ -324,18 +330,21 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 			}
 		}
 	}
+	return numFailures;
 };
 
 MockTTM.prototype.unitTest = function(tokenTransformer, testFile) {
 	console.log('Starting stand alone unit test running file ' + testFile + '\n');
-	tokenTransformer.manager.ProcessTestFile(testFile);
+	var numFailures = tokenTransformer.manager.ProcessTestFile(testFile);
 	console.log('Ending stand alone unit test running file ' + testFile + '\n');
+	return numFailures;
 };
 
 MockTTM.prototype.wikitextTest = function(tokenTransformer, testFile) {
 	console.log('Starting stand alone wikitext test running file ' + testFile + '\n');
-	tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, testFile);
+	var numFailures = tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, testFile);
 	console.log('Ending stand alone wikitext test running file ' + testFile + '\n');
+	return numFailures;
 };
 
 var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/filename', {
@@ -386,11 +395,13 @@ var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/
 });
 
 function selectTestType(commandLine, manager, handler) {
+	var numFailures;
 	if (commandLine.manual) {
-		manager.unitTest(handler, commandLine.inputFile);
+		numFailures = manager.unitTest(handler, commandLine.inputFile);
 	} else {
-		manager.wikitextTest(handler, commandLine.inputFile);
+		numFailures = manager.wikitextTest(handler, commandLine.inputFile);
 	}
+	return numFailures;
 }
 
 function runTests() {
@@ -421,34 +432,40 @@ function runTests() {
 	var manager = new MockTTM(mockEnv, {});
 
 	var startTime = Date.now();
+	var numFailures = 0;
 
 	if (argv.QuoteTransformer) {
 		var qt = new QuoteTransformer(manager, {});
-		selectTestType(argv, manager, qt);
+		numFailures = selectTestType(argv, manager, qt);
 	} else if (argv.ListHandler) {
 		var lh = new ListHandler(manager, {});
-		selectTestType(argv, manager, lh);
+		numFailures = selectTestType(argv, manager, lh);
 	} else if (argv.ParagraphWrapper) {
 		var pw = new ParagraphWrapper(manager, {});
-		selectTestType(argv, manager, pw);
+		numFailures = selectTestType(argv, manager, pw);
 	} else if (argv.PreHandler) {
 		var ph = new PreHandler(manager, {});
-		selectTestType(argv, manager, ph);
+		numFailures = selectTestType(argv, manager, ph);
 	} else if (argv.TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
-		selectTestType(argv, manager, tsp);
+		numFailures = selectTestType(argv, manager, tsp);
 	} else if (argv.BehaviorSwitchHandler) {
 		var bsh = new BehaviorSwitchHandler(manager, {});
-		selectTestType(argv, manager, bsh);
+		numFailures = selectTestType(argv, manager, bsh);
 	} else if (argv.SanitizerHandler) {
 		var sh = new SanitizerHandler(manager, {});
-		selectTestType(argv, manager, sh);
+		numFailures = selectTestType(argv, manager, sh);
 	} else {
 		console.log("No valid TransformerName was specified");
+		numFailures++;
 	}
 
 	var totalTime = Date.now() - startTime;
 	console.log('Total transformer execution time = ' + totalTime + ' milliseconds');
+	if (numFailures) {
+		console.log('Total failures:', numFailures);
+		process.exit(1);
+	}
 }
 
 runTests();
