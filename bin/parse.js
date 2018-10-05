@@ -53,6 +53,11 @@ var standardOpts = Util.addStandardOptions({
 		description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
 		'default': false,
 	},
+	'body_only': {
+		description: 'Just return the body, without any normalizations as in --normalize',
+		'boolean': true,
+		'default': false,
+	},
 	'config': {
 		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,
@@ -369,6 +374,7 @@ Promise.async(function *() {
 		pb: pb,
 		contentmodel: argv.contentmodel,
 		contentVersion: argv.contentVersion,
+		body_only: argv.body_only,
 	};
 	var out;
 	if (parsoidOptions.useWorker) {
