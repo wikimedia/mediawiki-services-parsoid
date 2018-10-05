@@ -68,12 +68,18 @@ var Util = require('../lib/utils/Util.js').Util;
 var yargs = require('yargs');
 var fs = require('fs');
 
+var cachedState = false;
+var cachedTestLines = '';
+var cachedPipeLines = '';
+var cachedPipeLinesLength = [];
+
 function MockTTM(env, options) {
 	this.env = env;
 	this.pipelineId = 0;
 	this.options = options;
 	this.defaultTransformers = [];	// any transforms
 	this.tokenTransformers   = {};	// non-any transforms
+	this.tokenTime = 0; // floating-point value (# ms)
 }
 
 MockTTM.prototype.log = function() {
@@ -181,13 +187,28 @@ MockTTM.prototype.getTransforms = function(token, minRank) {
 
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
-MockTTM.prototype.ProcessTestFile = function(fileName) {
-	var numFailures = 0;
+MockTTM.prototype.ProcessTestFile = function(opts) {
 	var transformerName;
 	var testName;
 	var result;
-	var testFile = fs.readFileSync(fileName, 'utf8');
-	var testLines = testFile.split('\n');
+	var testFile;
+	var testLines;
+	var numFailures = 0;
+
+	if (opts.timingMode) {
+		if (cachedState === false) {
+			cachedState = true;
+			testFile = fs.readFileSync(opts.inputFile, 'utf8');
+			testLines = testFile.split('\n');
+			cachedTestLines = testLines;
+		} else {
+			testLines = cachedTestLines;
+		}
+	} else {
+		testFile = fs.readFileSync(opts.inputFile, 'utf8');
+		testLines = testFile.split('\n');
+	}
+
 	for (var index = 0; index < testLines.length; index++) {
 		var line = testLines[index];
 		switch (line.charAt(0)) {
@@ -205,7 +226,9 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 				if (result !== undefined && result.tokens.length !== 0) {
 					var stringResult = JSON.stringify(result.tokens);
 					if (stringResult === line) {
-						console.log(testName + ' ==> passed\n');
+						if (!opts.timingMode) {
+							console.log(testName + ' ==> passed\n');
+						}
 					} else {
 						numFailures++;
 						console.log(testName + ' ==> failed');
@@ -222,7 +245,7 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 					token.prototype = token.constructor = defines[token.type];
 				}
-
+				var s = process.hrtime();
 				var res;
 				var ts = this.getTransforms(token, 2.0);
 
@@ -242,6 +265,11 @@ MockTTM.prototype.ProcessTestFile = function(fileName) {
 					}
 					j++;
 				}
+				var diff = process.hrtime(s);
+				// NOTE: This is a bit of an overkill since no token transformer
+				// will take more than 1 second, but this is guaranteed correct
+				// in all scenarios.
+				this.tokenTime += (diff[0] * 1e9 + diff[1]) / 1000000; // # milliseconds
 				break;
 		}
 	}
@@ -284,12 +312,34 @@ function CreatePipelines(lines) {
 
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
-MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
+MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 	var result;
-	var testFile = fs.readFileSync(fileName, 'utf8');
-	var testLines = testFile.split('\n');
-	var pipeLines = CreatePipelines(testLines);
-	var pipeLinesLength = pipeLines.length;
+	var testFile;
+	var testLines;
+	var pipeLines;
+	var pipeLinesLength;
+
+	if (opts.timingMode) {
+		if (cachedState === false) {
+			cachedState = true;
+			testFile = fs.readFileSync(opts.inputFile, 'utf8');
+			testLines = testFile.split('\n');
+			pipeLines = CreatePipelines(testLines);
+			pipeLinesLength = pipeLines.length;
+			cachedTestLines = testLines;
+			cachedPipeLines = pipeLines;
+			cachedPipeLinesLength = pipeLinesLength;
+		} else {
+			testLines = cachedTestLines;
+			pipeLines = cachedPipeLines;
+			pipeLinesLength = cachedPipeLinesLength;
+		}
+	} else {
+		testFile = fs.readFileSync(opts.inputFile, 'utf8');
+		testLines = testFile.split('\n');
+		pipeLines = CreatePipelines(testLines);
+		pipeLinesLength = pipeLines.length;
+	}
 	var numFailures = 0;
 	for (var index = 0; index < pipeLinesLength; index++) {
 		if (pipeLines[index] !== undefined) {
@@ -301,7 +351,9 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 					case '[':	// desired result json string for test result verification
 						var stringResult = JSON.stringify(result.tokens);
 						if (stringResult === line) {
-							console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
+							if (!opts.timingMode) {
+								console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
+							}
 						} else {
 							numFailures++;
 							console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> failed');
@@ -317,7 +369,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 							token.prototype = token.constructor = defines[token.type];
 						}
-
+						var s = process.hrtime();
 						var res;
 						var ts = this.getTransforms(token, 2.0);
 
@@ -335,6 +387,11 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 							}
 							j++;
 						}
+						var diff = process.hrtime(s);
+						// NOTE: This is a bit of an overkill since no token transformer
+						// will take more than 1 second, but this is guaranteed correct
+						// in all scenarios.
+						this.tokenTime += (diff[0] * 1e9 + diff[1]) / 1000000; // # milliseconds
 						break;
 				}
 			}
@@ -343,18 +400,24 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, fileName) {
 	return numFailures;
 };
 
-MockTTM.prototype.unitTest = function(tokenTransformer, testFile) {
-	console.log('Starting stand alone unit test running file ' + testFile + '\n');
-	var numFailures = tokenTransformer.manager.ProcessTestFile(testFile);
-	console.log('Ending stand alone unit test running file ' + testFile + '\n');
-	return numFailures;
+MockTTM.prototype.unitTest = function(tokenTransformer, opts) {
+	if (!opts.timingMode) {
+		console.log('Starting stand alone unit test running file ' + opts.inputFile + '\n');
+	}
+	tokenTransformer.manager.ProcessTestFile(opts);
+	if (!opts.timingMode) {
+		console.log('Ending stand alone unit test running file ' + opts.inputFile + '\n');
+	}
 };
 
-MockTTM.prototype.wikitextTest = function(tokenTransformer, testFile) {
-	console.log('Starting stand alone wikitext test running file ' + testFile + '\n');
-	var numFailures = tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, testFile);
-	console.log('Ending stand alone wikitext test running file ' + testFile + '\n');
-	return numFailures;
+MockTTM.prototype.wikitextTest = function(tokenTransformer, opts) {
+	if (!opts.timingMode) {
+		console.log('Starting stand alone wikitext test running file ' + opts.inputFile + '\n');
+	}
+	tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, opts);
+	if (!opts.timingMode) {
+		console.log('Ending stand alone wikitext test running file ' + opts.inputFile + '\n');
+	}
 };
 
 var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/filename', {
@@ -364,7 +427,10 @@ var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/
 			'test validation. See tests/transformTests.txt to examine and run',
 			'a manual test. The --manual flag is optional defaulting to parsoid',
 			'generated test format (which has machine generated context to aid',
-			'in debugging. The --log option provides additional debug content.',
+			'in debugging. The --timingMode flag disables console output and',
+			'caches the file IO and related text processing and then iterates',
+			'the test 10000 times',
+			' The --log option provides additional debug content.',
 			'Current handlers supported are: QuoteTransformer, ListHandler',
 			'ParagraphWrapper, PreHandler.',
 			'TokenStreamPatcher, BehaviorSwitchHandler and SanitizerHandler are',
@@ -404,12 +470,18 @@ var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/
 	}
 });
 
-function selectTestType(commandLine, manager, handler) {
-	var numFailures;
-	if (commandLine.manual) {
-		numFailures = manager.unitTest(handler, commandLine.inputFile);
-	} else {
-		numFailures = manager.wikitextTest(handler, commandLine.inputFile);
+function selectTestType(opts, manager, handler) {
+	var numFailures = 0;
+	var iterator = 1;
+	if (opts.timingMode) {
+		iterator = 10000;
+	}
+	while (iterator--) {
+		if (opts.manual) {
+			numFailures += manager.unitTest(handler, opts);
+		} else {
+			numFailures += manager.wikitextTest(handler, opts);
+		}
 	}
 	return numFailures;
 }
@@ -440,6 +512,10 @@ function runTests() {
 	}
 
 	var manager = new MockTTM(mockEnv, {});
+
+	if (argv.timingMode) {
+		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
+	}
 
 	var startTime = Date.now();
 	var numFailures = 0;
@@ -472,6 +548,7 @@ function runTests() {
 
 	var totalTime = Date.now() - startTime;
 	console.log('Total transformer execution time = ' + totalTime + ' milliseconds');
+	console.log('Total time processing tokens     = ' + manager.tokenTime + ' milliseconds');
 	if (numFailures) {
 		console.log('Total failures:', numFailures);
 		process.exit(1);
