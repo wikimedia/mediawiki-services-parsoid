@@ -118,6 +118,13 @@ var headingTests = [
 runTests('Headings', headingTests);
 
 var quoteTests = [
+	{
+		wt: "''a''\n'''b'''",
+		specs: [
+			{ selector: 'p > i', dsrContent: ["''a''", "''", "''"] },
+			{ selector: 'p > b', dsrContent: ["'''b'''", "'''", "'''"] },
+		],
+	},
 ];
 runTests('Quotes', quoteTests);
 
