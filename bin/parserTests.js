@@ -677,6 +677,10 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 	// These changes are for environment options that change between runs of
 	// different **modes**.  See `processTest` for changes per test.
 	if (item.options) {
+		// Reset uid so that blacklist output doesn't depend on which modes
+		// are being run before comparison.
+		this.env.initUID();
+
 		// Page language matches "wiki language" (which is set by
 		// the item 'language' option).
 		this.env.page.pagelanguage = this.env.conf.wiki.lang;
