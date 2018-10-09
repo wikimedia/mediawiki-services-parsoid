@@ -243,7 +243,7 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 				var token = JSON.parse(line);
 				if (token.constructor !== String) {	// cast object to token type
 					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-					token.prototype = token.constructor = defines[token.type];
+					Object.setPrototypeOf(token, defines[token.type].prototype);
 				}
 				var s = process.hrtime();
 				var res;
@@ -367,7 +367,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 						var token = JSON.parse(line);
 						if (token.constructor !== String) {	// cast object to token type
 							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-							token.prototype = token.constructor = defines[token.type];
+							Object.setPrototypeOf(token, defines[token.type].prototype);
 						}
 						var s = process.hrtime();
 						var res;
