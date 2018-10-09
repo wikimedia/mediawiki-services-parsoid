@@ -674,27 +674,9 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 
 	item.time = {};
 
+	// These changes are for environment options that change between runs of
+	// different **modes**.  See `processTest` for changes per test.
 	if (item.options) {
-		console.assert(item.options.extensions === undefined);
-
-		this.env.conf.wiki.namespacesWithSubpages[0] = false;
-
-		// Since we are reusing the 'env' object, set it to the default
-		// so that relative link prefix is back to "./"
-		this.env.initializeForPageName(this.env.conf.wiki.mainpage);
-
-		if (item.options.subpage !== undefined) {
-			this.env.conf.wiki.namespacesWithSubpages[0] = true;
-		}
-
-		if (item.options.title !== undefined &&
-				!Array.isArray(item.options.title)) {
-			// This sets the page name as well as the relative link prefix
-			// for the rest of the parse.  Do this redundantly with the above
-			// so that we start from the wiki.mainpage when resolving
-			// absolute subpages.
-			this.env.initializeForPageName(item.options.title);
-		}
 		// Page language matches "wiki language" (which is set by
 		// the item 'language' option).
 		this.env.page.pagelanguage = this.env.conf.wiki.lang;
@@ -707,29 +689,6 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			this.env.wtVariantLanguage = null;
 			this.env.htmlVariantLanguage = null;
 		}
-
-		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
-		if (item.options.wgallowexternalimages !== undefined &&
-				!/^(1|true|)$/.test(item.options.wgallowexternalimages)) {
-			this.env.conf.wiki.allowExternalImages = undefined;
-		}
-
-		// Process test-specific options
-		var defaults = {
-			scrubWikitext: MWParserEnvironment.prototype.scrubWikitext,
-			nativeGallery: MWParserEnvironment.prototype.nativeGallery,
-			wrapSections: false, // override for parser tests
-		};
-		var env = this.env;
-		Object.keys(defaults).forEach(function(opt) {
-			env[opt] = item.options.parsoid && item.options.parsoid.hasOwnProperty(opt) ?
-				item.options.parsoid[opt] : defaults[opt];
-		});
-
-		this.env.conf.wiki.responsiveReferences =
-			(item.options.parsoid && item.options.parsoid.responsiveReferences) ||
-			// The default for parserTests
-			{ enabled: false, threshold: 10 };
 	}
 
 	// Some useful booleans
@@ -1470,6 +1429,52 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	this.env.conf.wiki.interwikimagic =
 		item.options.wginterwikimagic === undefined ||
 		/^(1|true|)$/.test(item.options.wginterwikimagic);
+
+	if (item.options) {
+		console.assert(item.options.extensions === undefined);
+
+		this.env.conf.wiki.namespacesWithSubpages[0] = false;
+
+		// Since we are reusing the 'env' object, set it to the default
+		// so that relative link prefix is back to "./"
+		this.env.initializeForPageName(this.env.conf.wiki.mainpage);
+
+		if (item.options.subpage !== undefined) {
+			this.env.conf.wiki.namespacesWithSubpages[0] = true;
+		}
+
+		if (item.options.title !== undefined &&
+				!Array.isArray(item.options.title)) {
+			// This sets the page name as well as the relative link prefix
+			// for the rest of the parse.  Do this redundantly with the above
+			// so that we start from the wiki.mainpage when resolving
+			// absolute subpages.
+			this.env.initializeForPageName(item.options.title);
+		}
+
+		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
+		if (item.options.wgallowexternalimages !== undefined &&
+				!/^(1|true|)$/.test(item.options.wgallowexternalimages)) {
+			this.env.conf.wiki.allowExternalImages = undefined;
+		}
+
+		// Process test-specific options
+		var defaults = {
+			scrubWikitext: MWParserEnvironment.prototype.scrubWikitext,
+			nativeGallery: MWParserEnvironment.prototype.nativeGallery,
+			wrapSections: false, // override for parser tests
+		};
+		var env = this.env;
+		Object.keys(defaults).forEach(function(opt) {
+			env[opt] = item.options.parsoid && item.options.parsoid.hasOwnProperty(opt) ?
+				item.options.parsoid[opt] : defaults[opt];
+		});
+
+		this.env.conf.wiki.responsiveReferences =
+			(item.options.parsoid && item.options.parsoid.responsiveReferences) ||
+			// The default for parserTests
+			{ enabled: false, threshold: 10 };
+	}
 
 	yield this.buildTasks(item, targetModes, options);
 });
