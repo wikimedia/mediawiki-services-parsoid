@@ -223,7 +223,7 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 				testName = line.substr(2);
 				break;
 			case '[':	// desired result json string for test result verification
-				if (result !== undefined && result.tokens.length !== 0) {
+				if (result !== undefined) {
 					var stringResult = JSON.stringify(result.tokens);
 					if (stringResult === line) {
 						if (!opts.timingMode) {
@@ -349,18 +349,20 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 				var line = testLines[(pipeLines[index])[element]].substr(36);
 				switch (line.charAt(0)) {
 					case '[':	// desired result json string for test result verification
-						var stringResult = JSON.stringify(result.tokens);
-						if (stringResult === line) {
-							if (!opts.timingMode) {
-								console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
+						if (result !== undefined) {
+							var stringResult = JSON.stringify(result.tokens);
+							if (stringResult === line) {
+								if (!opts.timingMode) {
+									console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
+								}
+							} else {
+								numFailures++;
+								console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> failed');
+								console.log('line to debug => ' + line);
+								console.log('result line ===> ' + stringResult + "\n");
 							}
-						} else {
-							numFailures++;
-							console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> failed');
-							console.log('line to debug => ' + line);
-							console.log('result line ===> ' + stringResult + "\n");
+							result = undefined;
 						}
-						result = undefined;
 						break;
 					case '{':
 					default:
@@ -510,6 +512,15 @@ function runTests() {
 			log: () => {} // this disables detailed logging
 		};
 	}
+
+	// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
+	mockEnv.conf = {};
+	mockEnv.conf.wiki = {};
+	var bswRegexpSource = "\\/(?:NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT)";
+	mockEnv.conf.wiki.bswPagePropRegexp = new RegExp(
+		'(?:^|\\s)mw:PageProp/' + bswRegexpSource + '(?=$|\\s)'
+	);
+	// Hack ends
 
 	var manager = new MockTTM(mockEnv, {});
 
