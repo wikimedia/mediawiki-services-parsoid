@@ -1981,7 +1981,7 @@ add("selser", "Normalizations should be restricted to edited content [0,4,0,0,0]
 add("selser", "Normalizations should be restricted to edited content [2,2,0,4,3]", "1vh4ms8\n\na\n\nod7ux5\n\n= =\n1uifckl");
 add("selser", "Normalizations should be restricted to edited content [[4],0,2,2,4]", "3izdel\n\n39av1d\n\n= =\n19zejoe\n1lhiigu");
 add("selser", "Normalizations should be restricted to edited content [3,2,0,3,4]", "1uxa73u\n\n= =\n189d5ag");
-add("selser", "Normalizations should be restricted to edited content [0,0,2,0,[3]]", "a\n\nyd7rm3\n\n= =\n");
+add("selser", "Normalizations should be restricted to edited content [0,0,2,0,[3]]", "a\n\nyd7rm3\n\n= =\n<br />");
 add("selser", "Normalizations should be restricted to edited content [3,4,0,2,3]", "1h6mhx8\n\n= =\n11zo3iz\n");
 add("selser", "Normalizations should be restricted to edited content [1,2,0,0,0]", "a\n\nhg3nd9\n\n= =\nb");
 add("selser", "Normalizations should be restricted to edited content [1,2,2,3,0]", "a\n\ngerlhn\n\n1gcvetf\n\n= =\nb");

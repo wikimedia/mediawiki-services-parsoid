@@ -30932,6 +30932,128 @@ parsoid={
 !! end
 
 !! test
+Ignore empty <p></p> when scrubWikitext is false
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": false
+}
+!! html/parsoid
+<div>1</div>
+<p>a</p><p></p><p>b</p>
+<div>2</div>
+<p>a</p>
+<p></p>
+<p>b</p>
+<div>3</div>
+<p>a</p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p>b</p>
+!! wikitext
+<div>1</div>
+a
+
+b
+<div>2</div>
+a
+
+b
+<div>3</div>
+a
+
+b
+!! html/php+tidy
+<div>1</div>
+<p>a
+</p><p>b
+</p>
+<div>2</div>
+<p>a
+</p><p>b
+</p>
+<div>3</div>
+<p>a
+</p><p>b
+</p>
+!! end
+
+!! test
+Normalize empty paragraphs to HTML form that html2wt expects
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<div>1</div>
+<p>a</p><p></p><p>b</p>
+<div>2</div>
+<p>a</p>
+<p></p>
+<p>b</p>
+<div>3</div>
+<p>a</p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p>b</p>
+<div>4</div>
+<p>a</p>
+<p></p>
+<div>foo</div>
+!! wikitext
+<div>1</div>
+a
+
+
+b
+<div>2</div>
+a
+
+
+b
+<div>3</div>
+a
+
+
+
+
+
+b
+<div>4</div>
+a
+
+<br />
+<div>foo</div>
+!! html/php+tidy
+<div>1</div>
+<p>a
+</p><p><br />
+b
+</p>
+<div>2</div>
+<p>a
+</p><p><br />
+b
+</p>
+<div>3</div>
+<p>a
+</p><p><br />
+</p><p><br />
+</p><p>b
+</p>
+<div>4</div>
+<p>a
+</p><p><br />
+</p>
+<div>foo</div>
+!! end
+
+!! test
 Escape nowiki DOM elements
 !! options
 parsoid=html2wt
