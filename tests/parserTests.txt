@@ -30004,15 +30004,14 @@ parsoid={
   "modes": ["selser"],
   "scrubWikitext": true,
   "changes": [
-    [ "#x", "after", "<h1><i></i></h1>\n<p> x<b></b></p>"]
+    [ "#x", "after", "<h1><i></i></h1>\n<p> bar<b></b></p>"]
   ]
 }
 !! wikitext
-<span id="x">foo</span>
+<div id="x">foo</div>
 !! wikitext/edited
-<span id="x">foo</span>
-
-x
+<div id="x">foo</div>
+bar
 !! end
 
 !! test
