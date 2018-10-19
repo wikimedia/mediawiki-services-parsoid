@@ -24873,6 +24873,27 @@ __TOC__
 !! end
 
 !! test
+T198618: script element in ToC
+!! options
+wgRawHtml=1
+!! wikitext
+__TOC__
+==<html><script>alert(1);</script></html>Script<html><script>alert(1);</script></html>==
+!! html/php
+<div id="toc" class="toc"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none"/><div class="toctitle" lang="en" dir="ltr"><h2>Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Script"><span class="tocnumber">1</span> <span class="toctext">Script</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Script"><script>alert(1);</script>Script<script>alert(1);</script></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Script">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+
+!! html/parsoid
+<meta property="mw:PageProp/toc" data-parsoid='{}'/>
+<h2 id="Script" data-parsoid='{}'><script typeof="mw:Extension/html" about="#mwt4" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;script>alert(1);&lt;/script>"}}'>alert(1);</script>Script<script typeof="mw:Extension/html" about="#mwt6" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;script>alert(1);&lt;/script>"}}'>alert(1);</script></h2>
+!! end
+
+!! test
 Empty <p> tag in TOC, removed by Sanitizer (T92892)
 !! wikitext
 __TOC__
