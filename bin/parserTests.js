@@ -1498,6 +1498,21 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 				};
 			});
 		}
+
+		if (item.options.wgrawhtml === '1') {
+			this.env.conf.wiki.registerExtension(function() {
+				this.config = {
+					tags: [
+						{
+							name: 'html',
+							toDOM: function(state, content, args) {
+								return ParsoidExtApi.returnHtml(state, content);
+							}
+						},
+					],
+				};
+			});
+		}
 	}
 
 	yield this.buildTasks(item, targetModes, options);

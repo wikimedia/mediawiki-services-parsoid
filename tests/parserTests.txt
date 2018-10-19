@@ -21728,6 +21728,8 @@ wgRawHtml=1
 !! html/php
 <p><script>alert(1);</script>
 </p>
+!! html/parsoid
+<p><script typeof="mw:Extension/html" about="#mwt3" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;script>alert(1);&lt;/script>"}}'>alert(1);</script></p>
 !! end
 
 !! test
