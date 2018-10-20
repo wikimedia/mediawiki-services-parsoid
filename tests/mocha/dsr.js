@@ -133,6 +133,10 @@ var tableTests = [
 runTests('Tables', tableTests);
 
 var preTests = [
+	{
+		wt: " Preformatted text ",
+		specs: [{ selector: 'body > pre', dsrContent: [" Preformatted text ", " ", ""] }],
+	},
 ];
 runTests('Indent-Pre', preTests);
 
