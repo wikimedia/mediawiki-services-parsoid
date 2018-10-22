@@ -2945,6 +2945,11 @@
       "from": "which-module@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/which-module/-/which-module-1.0.0.tgz"
     },
+    "wikimedia-langconv": {
+      "version": "0.0.0",
+      "from": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#master",
+      "resolved": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#84872586506a36962bb75dde8fd2de75231cfe43"
+    },
     "wordwrap": {
       "version": "0.0.3",
       "from": "wordwrap@>=0.0.2 <0.1.0",
