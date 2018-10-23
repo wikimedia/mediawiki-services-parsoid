@@ -211,6 +211,8 @@ describe('Regression Specs', function() {
 		});
 	});
 
+	// NOTE: This test assumes that the MediaWiki API doesn't return any
+	// trailing content after the <style> tag, namely a newline.
 	it('should not wrap templatestyles style tags in p-wrappers', function() {
 		var wt = "<templatestyles src='Template:Quote/styles.css'/><div>foo</div>";
 		return parse(wt).then(function(doc) {

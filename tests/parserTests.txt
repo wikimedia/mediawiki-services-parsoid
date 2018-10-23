@@ -30799,6 +30799,24 @@ bar
 !! end
 
 !! test
+Extension returning multiple nodes starting with a style tag roundtrips
+!! options
+wgRawHtml=1
+!! wikitext
+<table>
+{{echo|<html><style>.hi { color: red; }</style>
+</html>}}
+<tr><td class="hi">ho</td></tr>
+</table>
+!! html/parsoid
+<p about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;html>&lt;style>.hi { color: red; }&lt;/style>\n&lt;/html>"}},"i":0}},"\n&lt;tr>&lt;td class=\"hi\">ho&lt;/td>&lt;/tr>\n&lt;/table>"]}'><style typeof="mw:Extension/html" about="#mwt4" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;style>.hi { color: red; }&lt;/style>\n"}}'>.hi { color: red; }</style><span about="#mwt4">
+</span></p><table about="#mwt5" data-parsoid='{"stx":"html"}'>
+
+<tbody><tr><td class="hi">ho</td></tr>
+</tbody></table>
+!! end
+
+!! test
 Decoding of HTML entities in headings and links for IDs and link fragments (T103714)
 !! config
 wgFragmentMode=[ 'html5', 'legacy' ]
