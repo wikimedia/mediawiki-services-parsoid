@@ -430,7 +430,7 @@ var formatters = {
 	},
 };
 
-var preProcess = function(text, revid) {
+var preProcess = function(text, revid, formatversion) {
 	var match = text.match(/{{echo\|(.*?)}}/);
 	if (match) {
 		return { wikitext: match[1] };
@@ -541,10 +541,13 @@ var querySiteinfo = function(body, cb) {
 	cb(null, require('../lib/config/baseconfig/enwiki.json'));
 };
 
-var parse = function(text, onlypst) {
+var parse = function(text, onlypst, formatversion) {
+	var fmt = (text) => {
+		return { text: (formatversion === 2) ? text : { "*": text } };
+	};
 	// We're performing a subst
 	if (onlypst) {
-		return { text: text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1") };
+		return fmt(text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1"));
 	}
 	// Render to html the contents of known extension tags
 	var match = text.match(/<([A-Za-z][^\t\n\v />\0]*)/);
@@ -553,12 +556,12 @@ var parse = function(text, onlypst) {
 		// since some mocha tests hit the production db, but
 		// when we fix that, they should go through this.
 		case 'templatestyles':
-			return "<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>"; // Silliness
+			return fmt("<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>"); // Silliness
 		case 'translate':
-			return { text: text };
+			return fmt(text);
 		case 'indicator':
 		case 'section':
-			return { text: '\n' };
+			return fmt('\n');
 		default:
 			throw new Error("Unhandled extension type encountered in: " + text);
 	}
@@ -589,16 +592,19 @@ var pageProps = function(titles) {
 
 var availableActions = {
 	parse: function(body, cb) {
-		var result = parse(body.text, body.onlypst);
-		cb(null, { parse: { text: { '*': result.text } } });
+		var formatversion = +(body.formatversion || 1);
+		var result = parse(body.text, body.onlypst, formatversion);
+		cb(null, { parse: result });
 	},
 
 	query: function(body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
+			console.assert(formatversion === 1);
 			return querySiteinfo(body, cb);
 		}
 		if (body.prop === "info|revisions") {
+			console.assert(formatversion === 1);
 			if (body.revids === "1" || body.titles === "Main_Page") {
 				return cb(null , mainPage);
 			} else if (body.revids === "2" || body.titles === "Junk_Page") {
@@ -685,7 +691,8 @@ var availableActions = {
 	},
 
 	expandtemplates: function(body, cb) {
-		var res = preProcess(body.text, body.revid);
+		var formatversion = +(body.formatversion || 1);
+		var res = preProcess(body.text, body.revid, formatversion);
 		if (res === null) {
 			cb(new Error('Sorry!'));
 		} else {
@@ -694,6 +701,7 @@ var availableActions = {
 	},
 
 	'parsoid-batch': function(body, cb) {
+		var formatversion = +(body.formatversion || 1);
 		var batch;
 		try {
 			batch = JSON.parse(body.batch);
@@ -706,7 +714,7 @@ var availableActions = {
 			var res = null;
 			switch (b.action) {
 				case 'preprocess':
-					res = preProcess(b.text, b.revid);
+					res = preProcess(b.text, b.revid, formatversion);
 					break;
 				case 'imageinfo':
 					var txopts = b.txopts || {};
@@ -714,7 +722,7 @@ var availableActions = {
 					// NOTE: Return early here since a null is acceptable.
 					return (ii !== null) ? ii.result : null;
 				case 'parse':
-					res = parse(b.text);
+					res = parse(b.text, /* onlypst*/false, formatversion);
 					break;
 				case 'pageprops':
 					res = pageProps(b.titles);
