@@ -476,7 +476,11 @@ function selectTestType(opts, manager, handler) {
 	var numFailures = 0;
 	var iterator = 1;
 	if (opts.timingMode) {
-		iterator = 10000;
+		if (opts.iterationCount) {
+			iterator = opts.iterationCount;
+		} else {
+			iterator = 10000;
+		}
 	}
 	while (iterator--) {
 		if (opts.manual) {
