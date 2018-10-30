@@ -7,7 +7,7 @@ require('../core-upgrade.js');
 var Normalizer = require('../lib/html2wt/normalizeDOM.js').Normalizer;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var Promise = require('../lib/utils/promise.js');
-var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var yargs = require('yargs');
 var fs = require('pn/fs');
 
@@ -45,7 +45,7 @@ Promise.async(function *() {
 		html = yield fs.readFile(argv._[0], 'utf8');
 	}
 
-	if (Util.booleanOption(argv.help) || !html) {
+	if (ScriptUtils.booleanOption(argv.help) || !html) {
 		opts.showHelp();
 		return;
 	}

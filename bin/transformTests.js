@@ -64,7 +64,7 @@ var PreHandler = require('../lib/wt2html/tt/PreHandler.js').PreHandler;
 var TokenStreamPatcher = require('../lib/wt2html/tt/TokenStreamPatcher.js').TokenStreamPatcher;
 var BehaviorSwitchHandler = require('../lib/wt2html/tt/BehaviorSwitchHandler.js').BehaviorSwitchHandler;
 var SanitizerHandler = require('../lib/wt2html/tt/Sanitizer.js').SanitizerHandler;
-var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var yargs = require('yargs');
 var fs = require('fs');
 
@@ -495,7 +495,7 @@ function selectTestType(opts, manager, handler) {
 function runTests() {
 	var argv = opts.argv;
 
-	if (Util.booleanOption(argv.help)) {
+	if (ScriptUtils.booleanOption(argv.help)) {
 		opts.showHelp();
 		return;
 	}

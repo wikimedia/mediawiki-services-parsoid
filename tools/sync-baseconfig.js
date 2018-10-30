@@ -18,7 +18,7 @@ var ConfigRequest = require('../lib/mw/ApiRequest.js').ConfigRequest;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Promise = require('../lib/utils/promise.js');
-var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
 var update = Promise.async(function *(opts) {
 	var prefix = opts.prefix || null;
@@ -36,7 +36,7 @@ var update = Promise.async(function *(opts) {
 		fetchConfig: true,
 	};
 
-	if (Util.booleanOption(opts.config)) {
+	if (ScriptUtils.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
@@ -44,8 +44,8 @@ var update = Promise.async(function *(opts) {
 		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
-	Util.setDebuggingFlags(parsoidOptions, opts);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, opts);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, opts);
 
 	if (parsoidOptions.localsettings) {
 		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
@@ -75,7 +75,7 @@ var usage = 'Usage: $0 [options]\n' +
 	'Rewrites one cached siteinfo configuration.\n' +
 	'Use --domain or --prefix to select which one to rewrite.';
 
-var yopts = yargs.usage(usage, Util.addStandardOptions({
+var yopts = yargs.usage(usage, ScriptUtils.addStandardOptions({
 	'config': {
 		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,

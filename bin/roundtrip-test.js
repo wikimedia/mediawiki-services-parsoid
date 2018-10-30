@@ -11,6 +11,7 @@ var zlib = require('pn/zlib');
 
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var apiUtils = require('../lib/api/apiUtils');
@@ -564,7 +565,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 	}
 	httpOptions.uri = uri;
 
-	var result = yield Util.retryingHTTPRequest(10, httpOptions);
+	var result = yield ScriptUtils.retryingHTTPRequest(10, httpOptions);
 	var body = result[1];
 
 	// FIXME: Parse time was removed from profiling when we stopped
@@ -685,7 +686,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	var exitCode;
 	try {
 		var opts;
-		var req = yield Util.retryingHTTPRequest(10, {
+		var req = yield ScriptUtils.retryingHTTPRequest(10, {
 			method: 'GET',
 			uri: uri2,
 			headers: {
@@ -851,7 +852,7 @@ if (require.main === module) {
 			ret = yield serviceWrapper.runServices(serverOpts);
 			argv.parsoidURL = ret.parsoidURL;
 		}
-		var formatter = Util.booleanOption(argv.xml) ?
+		var formatter = ScriptUtils.booleanOption(argv.xml) ?
 			xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
 		console.log(r.output);

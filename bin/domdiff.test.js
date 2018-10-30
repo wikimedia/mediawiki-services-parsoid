@@ -5,7 +5,7 @@
 require('../core-upgrade.js');
 
 var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;
-var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var Promise = require('../lib/utils/promise.js');
@@ -50,7 +50,7 @@ Promise.async(function *() {
 		newhtml = yield fs.readFile(argv._[1], 'utf8');
 	}
 
-	if (Util.booleanOption(argv.help) || !oldhtml || !newhtml) {
+	if (ScriptUtils.booleanOption(argv.help) || !oldhtml || !newhtml) {
 		opts.showHelp();
 		return;
 	}
@@ -62,7 +62,7 @@ Promise.async(function *() {
 	DU.stripSectionTagsAndFallbackIds(newDOM);
 
 	var dummyEnv = {
-		conf: { parsoid: { debug: Util.booleanOption(argv.debug) }, wiki: {} },
+		conf: { parsoid: { debug: ScriptUtils.booleanOption(argv.debug) }, wiki: {} },
 		page: { id: null },
 	};
 
@@ -77,7 +77,7 @@ Promise.async(function *() {
 	(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 
 	DU.dumpDOM(newDOM, 'DIFF-marked DOM', {
-		quiet: !!Util.booleanOption(argv.quiet),
+		quiet: !!ScriptUtils.booleanOption(argv.quiet),
 		storeDiffMark: true,
 		env: dummyEnv,
 	});

@@ -12,6 +12,7 @@ var yargs = require('yargs');
 var Diff = require('../lib/utils/Diff.js').Diff;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var Normalizer = require('../lib/html2wt/normalizeDOM.js').Normalizer;
 
 var TestUtils = {};
@@ -497,12 +498,12 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 		.replace('\n', ' ');
 
 	var blacklisted = false;
-	if (Util.booleanOption(options.blacklist) && expectFail) {
+	if (ScriptUtils.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
 		if (bl[title][mode] !== actual.raw) {
 			blacklisted = true;
 		} else {
-			if (!Util.booleanOption(options.quiet)) {
+			if (!ScriptUtils.booleanOption(options.quiet)) {
 				console.log('EXPECTED FAIL'.red + ': ' + extTitle.yellow);
 			}
 			return true;
@@ -541,7 +542,7 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 		console.log('INPUT'.cyan + ':');
 		console.log(actual.input + '\n');
 		console.log(options.getActualExpected(actual, expected, options.getDiff));
-		if (Util.booleanOption(options.printwhitelist)) {
+		if (ScriptUtils.booleanOption(options.printwhitelist)) {
 			printWhitelistEntry(title, actual.raw);
 		}
 	}
@@ -560,7 +561,7 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
  * @return {boolean} True if the success was expected.
  */
 var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
-	var quiet = Util.booleanOption(options.quiet);
+	var quiet = ScriptUtils.booleanOption(options.quiet);
 	if (isWhitelist) {
 		stats.passedTestsWhitelisted++;
 		stats.modes[mode].passedTestsWhitelisted++;
@@ -572,7 +573,7 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess, is
 	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
 		.replace('\n', ' ');
 
-	if (Util.booleanOption(options.blacklist) && !expectSuccess) {
+	if (ScriptUtils.booleanOption(options.blacklist) && !expectSuccess) {
 		stats.passedTestsUnexpected++;
 		stats.modes[mode].passedTestsUnexpected++;
 		console.log('UNEXPECTED PASS'.green.inverse +
@@ -674,7 +675,7 @@ var doDiff = function(actual, expected) {
 function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options, mode, expected, actual, pre, post) {
 	var title = item.title;  // Title may be modified here, so pass it on.
 
-	var quick = Util.booleanOption(options.quick);
+	var quick = ScriptUtils.booleanOption(options.quick);
 	var parsoidOnly =
 		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
@@ -690,7 +691,7 @@ function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options,
 	var asExpected;
 
 	if (fail &&
-		Util.booleanOption(options.whitelist) &&
+		ScriptUtils.booleanOption(options.whitelist) &&
 		title in wl &&
 		TestUtils.normalizeOut(DU.parseHTML(wl[title]).body, { parsoidOnly: parsoidOnly }) ===  actual.normal
 	) {
@@ -804,7 +805,7 @@ var reportFailureXML = function(stats, item, options, mode, title, actual, expec
 	stats.modes[mode].failedTests++;
 	var failEle = '';
 	var blacklisted = false;
-	if (Util.booleanOption(options.blacklist) && expectFail) {
+	if (ScriptUtils.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
 		blacklisted = (bl[title][mode] === actual.raw);
 	}
@@ -874,7 +875,7 @@ var reportResultXML = function() {
  * @return {Object}
  */
 var getOpts = function() {
-	var standardOpts = Util.addStandardOptions({
+	var standardOpts = ScriptUtils.addStandardOptions({
 		'wt2html': {
 			description: 'Wikitext -> HTML(DOM)',
 			'default': false,
@@ -1030,14 +1031,14 @@ TestUtils.prepareOptions = function() {
 		process.exit(0);
 	}
 
-	Util.setColorFlags(options);
+	ScriptUtils.setColorFlags(options);
 
 	if (!(options.wt2wt || options.wt2html || options.html2wt || options.html2html || options.selser)) {
 		options.wt2wt = true;
 		options.wt2html = true;
 		options.html2html = true;
 		options.html2wt = true;
-		if (Util.booleanOption(options['rewrite-blacklist'])) {
+		if (ScriptUtils.booleanOption(options['rewrite-blacklist'])) {
 			// turn on all modes by default for --rewrite-blacklist
 			options.selser = true;
 			// sanity checking (T53448 asks to be able to use --filter here)

@@ -20,8 +20,7 @@ var Promise = require('../lib/utils/promise.js');
 var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
-var Util = require('../lib/utils/Util.js').Util;
-
+var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
 var fetch = Promise.async(function *(page, revid, opts) {
 	var prefix = opts.prefix || null;
@@ -38,7 +37,7 @@ var fetch = Promise.async(function *(page, revid, opts) {
 		loadWMF: opts.loadWMF,
 	};
 
-	if (Util.booleanOption(opts.config)) {
+	if (ScriptUtils.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
@@ -46,8 +45,8 @@ var fetch = Promise.async(function *(page, revid, opts) {
 		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
-	Util.setDebuggingFlags(parsoidOptions, opts);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, opts);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, opts);
 
 	if (parsoidOptions.localsettings) {
 		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
@@ -76,7 +75,7 @@ var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
 
-var yopts = yargs.usage(usage, Util.addStandardOptions({
+var yopts = yargs.usage(usage, ScriptUtils.addStandardOptions({
 	'output': {
 		description: "Write page to given file",
 	},

@@ -19,6 +19,7 @@ var Promise = require('../lib/utils/promise.js');
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
 var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 const ParsoidExtApi = require('../lib/config/extapi.js').versionCheck('^0.9.0');
 
@@ -95,7 +96,7 @@ ParserTests.prototype.getTests = Promise.async(function *(argv) {
 	// Startup by loading .txt test file
 	var testFile = yield fs.readFile(this.testFilePath, 'utf8');
 
-	if (!Util.booleanOption(argv.cache)) {
+	if (!ScriptUtils.booleanOption(argv.cache)) {
 		// Cache not wanted, parse file and return object
 		return this.parseTestCase(testFile);
 	}
@@ -177,7 +178,7 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 		}
 		if (mode === 'selser') {
 			this.env.setPageSrcInfo(item.wikitext);
-		} else if (Util.booleanOption(options.use_source) && startsAtWikitext) {
+		} else if (ScriptUtils.booleanOption(options.use_source) && startsAtWikitext) {
 			this.env.setPageSrcInfo(item.wikitext);
 		} else {
 			this.env.setPageSrcInfo(null);
@@ -919,8 +920,8 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
  * @return {Promise}
  */
 ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL) {
-	this.runDisabled = Util.booleanOption(options['run-disabled']);
-	this.runPHP = Util.booleanOption(options['run-php']);
+	this.runDisabled = ScriptUtils.booleanOption(options['run-disabled']);
+	this.runPHP = ScriptUtils.booleanOption(options['run-php']);
 
 	// test case filtering
 	this.testFilter = null; // null is the 'default' by definition
@@ -947,8 +948,8 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 
 	var parsoidOptions = {};
 
-	Util.setDebuggingFlags(parsoidOptions, options);
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, options);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, options);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, options);
 
 	var setup = function(parsoidConfig) {
 		// Init early so we can overwrite it here.
@@ -994,7 +995,7 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 	var pc = new ParsoidConfig({ setup: setup }, parsoidOptions);
 
 	var logLevels;
-	if (Util.booleanOption(options.quiet)) {
+	if (ScriptUtils.booleanOption(options.quiet)) {
 		logLevels = ["fatal", "error"];
 	}
 
@@ -1177,7 +1178,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 			!(options.filter || options.regex || options.maxtests);
 
 		// update the blacklist, if requested
-		if (allModes || Util.booleanOption(options['rewrite-blacklist'])) {
+		if (allModes || ScriptUtils.booleanOption(options['rewrite-blacklist'])) {
 			var old, oldExists;
 			if (yield fs.exists(this.blackListPath)) {
 				old = yield fs.readFile(this.blackListPath, 'utf8');
@@ -1205,7 +1206,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 			contents += '// ### DO NOT REMOVE THIS LINE ### ';
 			contents += '(end of automatically-generated section)';
 			contents += shell[2];
-			if (Util.booleanOption(options['rewrite-blacklist'])) {
+			if (ScriptUtils.booleanOption(options['rewrite-blacklist'])) {
 				yield fs.writeFile(this.blackListPath, contents, 'utf8');
 			} else if (allModes && oldExists) {
 				blacklistChanged = (contents !== old);
@@ -1214,7 +1215,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 
 		// Write updated tests from failed ones
 		if (options['update-tests'] ||
-				Util.booleanOption(options['update-unexpected'])) {
+				ScriptUtils.booleanOption(options['update-unexpected'])) {
 			var updateFormat = (options['update-tests'] === 'raw') ?
 				'raw' : 'actualNormalized';
 			var parserTests = yield fs.readFile(this.testFilePath, 'utf8');
@@ -1242,7 +1243,7 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 		// we're done!
 		// exit status 1 == uncaught exception
 		var exitCode = failures || blacklistChanged ? 2 : 0;
-		if (Util.booleanOption(options['exit-zero'])) {
+		if (ScriptUtils.booleanOption(options['exit-zero'])) {
 			exitCode = 0;
 		}
 

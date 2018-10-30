@@ -21,7 +21,7 @@ var TemplateRequest = require('../lib/mw/ApiRequest.js').TemplateRequest;
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Util = require('../lib/utils/Util.js').Util;
-
+var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
 var fetch = Promise.async(function *(page, revid, opts) {
 	var prefix = opts.prefix || null;
@@ -32,7 +32,7 @@ var fetch = Promise.async(function *(page, revid, opts) {
 
 	var parsoidOptions = {};
 
-	if (Util.booleanOption(opts.config)) {
+	if (ScriptUtils.booleanOption(opts.config)) {
 		var p = (typeof (opts.config) === 'string') ?
 			path.resolve('.', opts.config) :
 			path.resolve(__dirname, '../config.yaml');
@@ -40,8 +40,8 @@ var fetch = Promise.async(function *(page, revid, opts) {
 		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, opts);
-	Util.setDebuggingFlags(parsoidOptions, opts);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, opts);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, opts);
 
 	if (parsoidOptions.localsettings) {
 		parsoidOptions.localsettings = path.resolve(__dirname, parsoidOptions.localsettings);
@@ -80,13 +80,13 @@ var fetch = Promise.async(function *(page, revid, opts) {
 
 	// Fetch HTML from RESTBase
 	rbOpts.uri = "https://" + domain + "/api/rest_v1/page/html/" + Util.phpURLEncode(page) + (revid ? "/" + revid : "");
-	var resp = yield Util.retryingHTTPRequest(2, rbOpts);
+	var resp = yield ScriptUtils.retryingHTTPRequest(2, rbOpts);
 	yield fs.writeFile(outputPrefix + ".html", resp[1], 'utf8');
 	var etag = resp[0].headers.etag.replace(/^W\//, '').replace(/"/g, '');
 
 	// Fetch matching data-parsoid form RESTBase
 	rbOpts.uri = "https://" + domain + "/api/rest_v1/page/data-parsoid/" + Util.phpURLEncode(page) + "/" + etag;
-	resp = yield Util.retryingHTTPRequest(2, rbOpts);
+	resp = yield ScriptUtils.retryingHTTPRequest(2, rbOpts);
 
 	// RESTBase doesn't have the outer wrapper
 	// that the parse.js script expects

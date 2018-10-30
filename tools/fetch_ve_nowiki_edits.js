@@ -6,8 +6,7 @@ require('../core-upgrade.js');
 var fs = require('pn/fs');
 
 var Promise = require('../lib/utils/promise.js');
-var Util = require('../lib/utils/Util.js').Util;
-
+var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
 var wikis = [
 	{ prefix: 'enwiki', nowiki: 'nowiki added' },
@@ -76,7 +75,7 @@ fetchAll = Promise.async(function *(fetchArgs, out) {
 	};
 
 	// console.log('Fetching ' + fetchArgs.opts.rclimit + ' results from ' + fetchArgs.prefix + "; URI: " + fetchArgs.apiURI + "; opts: " + JSON.stringify(fetchArgs.opts));
-	var resp = yield Util.retryingHTTPRequest(2, requestOpts);
+	var resp = yield ScriptUtils.retryingHTTPRequest(2, requestOpts);
 	yield processRes(fetchArgs, out, resp[1]);
 });
 

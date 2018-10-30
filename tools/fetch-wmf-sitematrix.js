@@ -9,7 +9,7 @@
 require('../core-upgrade.js');
 
 var Promise = require('../lib/utils/promise.js');
-var Util = require('../lib/utils/Util.js').Util;
+var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
 var fs = require('pn/fs');
 var path = require('path');
@@ -18,7 +18,7 @@ var downloadUrl = 'https://en.wikipedia.org/w/api.php?action=sitematrix&format=j
 var filename = path.join(__dirname, '/../lib/config/wmf.sitematrix.json');
 
 Promise.async(function *() {
-	var resp = yield Util.retryingHTTPRequest(1, {
+	var resp = yield ScriptUtils.retryingHTTPRequest(1, {
 		url: downloadUrl,
 		json: true,
 	});

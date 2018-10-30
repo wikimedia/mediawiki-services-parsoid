@@ -15,15 +15,15 @@ var yaml = require('js-yaml');
 var workerFarm = require('worker-farm');
 
 var parseJsPath = require.resolve('../lib/parse.js');
-var Util = require('../lib/utils/Util.js').Util;
 var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var Promise = require('../lib/utils/promise.js');
 
 // Get some default values to display in argument descriptions
 var ParserEnvProto = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment.prototype;
 
-var standardOpts = Util.addStandardOptions({
+var standardOpts = ScriptUtils.addStandardOptions({
 	'wt2html': {
 		description: 'Wikitext -> HTML',
 		'boolean': true,
@@ -212,7 +212,7 @@ Promise.async(function *() {
 
 	var argv = opts.parse(process.argv);
 
-	if (Util.booleanOption(argv.help)) {
+	if (ScriptUtils.booleanOption(argv.help)) {
 		opts.showHelp();
 		return;
 	}
@@ -264,7 +264,7 @@ Promise.async(function *() {
 		useWorker: argv.useWorker,
 	};
 
-	if (Util.booleanOption(argv.config)) {
+	if (ScriptUtils.booleanOption(argv.config)) {
 		var p = (typeof (argv.config) === 'string') ?
 			path.resolve('.', argv.config) :
 			path.resolve(__dirname, '../config.yaml');
@@ -272,8 +272,8 @@ Promise.async(function *() {
 		parsoidOptions = yaml.load(yield fs.readFile(p, 'utf8')).services[0].conf;
 	}
 
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, argv);
-	Util.setDebuggingFlags(parsoidOptions, argv);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, argv);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, argv);
 
 	// Offline shortcut
 	if (argv.offline) {

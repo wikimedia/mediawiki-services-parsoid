@@ -18,6 +18,7 @@ const { ParsoidConfig } = require('../lib/config/ParsoidConfig.js');
 const Promise = require('../lib/utils/promise.js');
 const { TemplateRequest } = require('../lib/mw/ApiRequest.js');
 const { Util } = require('../lib/utils/Util.js');
+const { ScriptUtils } = require('../tools/ScriptUtils.js');
 
 const jsonFormat = function(error, domain, title, lang, options, results) {
 	if (error) { return { error: error.stack || error.toString() }; }
@@ -164,7 +165,7 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 	if (options.oldid) {
 		uri += `/${options.oldid}`;
 	}
-	const resp = yield Util.retryingHTTPRequest(10, {
+	const resp = yield ScriptUtils.retryingHTTPRequest(10, {
 		method: 'GET',
 		uri,
 		headers: {
@@ -401,9 +402,9 @@ const runTest = nocksWrap(Promise.async(function *(domain, title, lang, options,
 		htmlVariantLanguage: lang || null,
 		logLevels: options.verbose ? undefined : ["fatal", "error", "warn"],
 	};
-	Util.setTemplatingAndProcessingFlags(parsoidOptions, options);
-	Util.setDebuggingFlags(parsoidOptions, options);
-	Util.setColorFlags(options);
+	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, options);
+	ScriptUtils.setDebuggingFlags(parsoidOptions, options);
+	ScriptUtils.setColorFlags(options);
 
 	const parsoidConfig = new ParsoidConfig(null, parsoidOptions);
 	const env = yield MWParserEnvironment.getParserEnv(parsoidConfig, envOptions);
@@ -442,7 +443,7 @@ const runTest = nocksWrap(Promise.async(function *(domain, title, lang, options,
 }));
 
 if (require.main === module) {
-	const standardOpts = Util.addStandardOptions({
+	const standardOpts = ScriptUtils.addStandardOptions({
 		sourceVariant: {
 			description: 'Force conversion to assume the given variant for' +
 				' the source wikitext',
@@ -550,8 +551,8 @@ if (require.main === module) {
 			argv.parsoidURL = ret.parsoidURL;
 		}
 		const formatter =
-			Util.booleanOption(argv.silent) ? silentFormat :
-			Util.booleanOption(argv.xml) ? xmlFormat :
+			ScriptUtils.booleanOption(argv.silent) ? silentFormat :
+			ScriptUtils.booleanOption(argv.xml) ? xmlFormat :
 			plainFormat;
 		const domain = argv.domain || 'sr.wikipedia.org';
 		const queue = [title];
