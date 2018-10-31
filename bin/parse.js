@@ -165,7 +165,7 @@ var standardOpts = ScriptUtils.addStandardOptions({
 		'boolean': false,
 		'default': null,
 	},
-	'contentVersion': {
+	'outputContentVersion': {
 		description: 'The acceptable content version.',
 		'boolean': false,
 		'default': ParserEnvProto.outputContentVersion,
@@ -373,7 +373,7 @@ Promise.async(function *() {
 		selser: selser,
 		pb: pb,
 		contentmodel: argv.contentmodel,
-		contentVersion: argv.contentVersion,
+		outputContentVersion: argv.outputContentVersion,
 		body_only: argv.body_only,
 	};
 	var out;

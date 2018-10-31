@@ -559,7 +559,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
-		httpOptions.headers.Accept = apiUtils.pagebundleContentType(options.contentVersion);
+		httpOptions.headers.Accept = apiUtils.pagebundleContentType(options.outputContentVersion);
 		// setting json here encodes the request *and* decodes the response.
 		httpOptions.json = true;
 	}
@@ -673,7 +673,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	var parsoidOptions = {
 		uri: uri + domain + '/v3/',
 		title: encodeURIComponent(title),
-		contentVersion: options.contentVersion || defaultContentVersion,
+		outputContentVersion: options.outputContentVersion || defaultContentVersion,
 	};
 	var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
 	if (options.oldid) {
@@ -809,7 +809,7 @@ if (require.main === module) {
 			boolean: false,
 			default: '',
 		},
-		contentVersion: {
+		outputContentVersion: {
 			description: 'The acceptable content version.',
 			boolean: false,
 			default: defaultContentVersion,

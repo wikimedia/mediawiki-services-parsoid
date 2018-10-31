@@ -37,7 +37,7 @@ var opts = yargs.usage(usage, {
 		'default': 'master',
 		alias: 'c',
 	},
-	contentVersion: {
+	outputContentVersion: {
 		description: 'The acceptable content version.',
 		boolean: false,
 	},
@@ -76,7 +76,7 @@ Promise.async(function *() {
 			return rtTest.runTests(t.title, {
 				prefix: t.prefix,
 				parsoidURL: ret.parsoidURL,
-				contentVersion: argv.contentVersion,
+				outputContentVersion: argv.outputContentVersion,
 			}, rtTest.jsonFormat).then(
 				handleResult.bind(null, t)
 			);
