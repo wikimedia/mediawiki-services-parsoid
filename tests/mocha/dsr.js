@@ -129,6 +129,14 @@ var quoteTests = [
 runTests('Quotes', quoteTests);
 
 var tableTests = [
+	{
+		wt: '{|\n|-\n|A\n|}',
+		specs: [
+			{ selector: 'body > table', dsrContent: ['{|\n|-\n|A\n|}', '{|', '|}'] },
+			{ selector: 'body > table > tbody > tr', dsrContent: ['|-\n|A', '|-', ''] },
+			{ selector: 'body > table > tbody > tr > td', dsrContent: ['|A', '|', ''] },
+		],
+	},
 ];
 runTests('Tables', tableTests);
 
