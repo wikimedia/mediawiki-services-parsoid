@@ -1,8 +1,9 @@
 'use strict';
 
 var ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.9.0');
-var Util = ParsoidExtApi.Util;
+var PipelineUtils = ParsoidExtApi.PipelineUtils;
 var DU = ParsoidExtApi.DOMUtils;
+var Util = ParsoidExtApi.Util;
 
 /**
  * See tests/parser/parserTestsParserHook.php in core.
@@ -25,8 +26,7 @@ var myLittleHelper = function(env, extToken, argDict, html, cb) {
 	};
 
 	var body = DU.ppToDOM(html);
-
-	var tokens = DU.buildDOMFragmentTokens(
+	var tokens = PipelineUtils.buildDOMFragmentTokens(
 		env, extToken, body, addWrapperAttrs,
 		{ setDSR: true, isForeignContent: true }
 	);
