@@ -5,7 +5,7 @@
 require('../../core-upgrade.js');
 
 var should = require("chai").should();
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
@@ -23,7 +23,7 @@ function validateSpec(wt, doc, spec) {
 	var body = doc.body;
 	var elts = body.querySelectorAll(spec.selector);
 	elts.length.should.equal(1);
-	var dp = DU.getDataParsoid(elts[0]);
+	var dp = DOMDataUtils.getDataParsoid(elts[0]);
 	var dsr = dp.dsr;
 	should.exist(dsr);
 	dsr.should.be.an.instanceof(Array);

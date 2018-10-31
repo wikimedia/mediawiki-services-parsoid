@@ -7,7 +7,7 @@ require('../../core-upgrade.js');
 
 require("chai").should();
 
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var DOMTraverser = require('../../lib/utils/DOMTraverser.js').DOMTraverser;
 var helpers = require('./test.helpers.js');
@@ -41,7 +41,7 @@ describe('Cleanup DOM pass', function() {
 			};
 			var domVisitor = new DOMTraverser(env);
 			var autoInsValidation = function(node) {
-				var autoInsEnd = DU.getDataParsoid(node).autoInsertedEnd;
+				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.equal('undefined');
 				return true;
 			};
@@ -80,7 +80,7 @@ describe('Cleanup DOM pass', function() {
 			};
 			var domVisitor = new DOMTraverser(env);
 			var autoInsValidation = function(node) {
-				var autoInsEnd = DU.getDataParsoid(node).autoInsertedEnd;
+				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.equal('undefined');
 				return true;
 			};
@@ -129,7 +129,7 @@ describe('Cleanup DOM pass', function() {
 			};
 			var domVisitor = new DOMTraverser(env);
 			var autoInsValidation = function(node) {
-				var autoInsEnd = DU.getDataParsoid(node).autoInsertedEnd;
+				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.not.equal('undefined');
 				return true;
 			};

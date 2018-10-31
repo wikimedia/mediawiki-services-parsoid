@@ -4,7 +4,7 @@
 "use strict";
 
 var Parsoid = require('../../');
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var DOMUtils = require('../../lib/utils/DOMUtils.js').DOMUtils;
 
 describe('Parsoid JS API', function() {
 	it('converts empty wikitext to HTML', function() {
@@ -20,7 +20,7 @@ describe('Parsoid JS API', function() {
 			},
 		})
 		.then(function(out) {
-			var doc = DU.parseHTML(out.html);
+			var doc = DOMUtils.parseHTML(out.html);
 			doc.should.have.property('outerHTML');
 			doc.body.children.length.should.equal(0);
 		});
@@ -37,7 +37,7 @@ describe('Parsoid JS API', function() {
 			},
 		})
 		.then(function(out) {
-			var doc = DU.parseHTML(out.html);
+			var doc = DOMUtils.parseHTML(out.html);
 			doc.should.have.property('outerHTML');
 		});
 	});

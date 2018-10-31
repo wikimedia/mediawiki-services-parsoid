@@ -12,8 +12,11 @@ var zlib = require('pn/zlib');
 var Promise = require('../lib/utils/promise.js');
 var Util = require('../lib/utils/Util.js').Util;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
-var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
+var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var TestUtils = require('../tests/TestUtils.js').TestUtils;
+var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
 var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
@@ -187,10 +190,10 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 // Find the subset of leaf/non-leaf nodes whose DSR ranges
 // span the wikitext range provided as input.
 var findMatchingNodes = function(node, range) {
-	console.assert(DU.isElt(node));
+	console.assert(DOMUtils.isElt(node));
 
 	// Skip subtrees that are outside our target range
-	var dp = DU.getDataParsoid(node);
+	var dp = DOMDataUtils.getDataParsoid(node);
 	if (!Util.isValidDSR(dp.dsr) || dp.dsr[0] > range.end || dp.dsr[1] < range.start) {
 		return [];
 	}
@@ -201,7 +204,7 @@ var findMatchingNodes = function(node, range) {
 	}
 
 	// Cannot inspect template content subtree at a finer grained level
-	if (DU.isFirstEncapsulationWrapperNode(node)) {
+	if (WTUtils.isFirstEncapsulationWrapperNode(node)) {
 		return [node];
 	}
 
@@ -219,8 +222,8 @@ var findMatchingNodes = function(node, range) {
 	var offset = dp.dsr[0];
 	var c = node.firstChild;
 	while (c) {
-		if (DU.isElt(c)) {
-			dp = DU.getDataParsoid(c);
+		if (DOMUtils.isElt(c)) {
+			dp = DOMDataUtils.getDataParsoid(c);
 			var dsr = dp.dsr;
 			if (Util.isValidDSR(dsr)) {
 				if (dsr[1] >= range.start) {
@@ -261,7 +264,7 @@ var findMatchingNodes = function(node, range) {
 				}
 			}
 		} else {
-			var len = DU.isText(c) ? c.nodeValue.length : DU.decodedCommentLength(c);
+			var len = DOMUtils.isText(c) ? c.nodeValue.length : WTUtils.decodedCommentLength(c);
 			if (offset + len >= range.start) {
 				// We have an overlap!
 				elts.push(c);
@@ -275,8 +278,8 @@ var findMatchingNodes = function(node, range) {
 		}
 
 		// Skip over encapsulated content
-		if (DU.isFirstEncapsulationWrapperNode(c)) {
-			c = DU.skipOverEncapsulatedContent(c);
+		if (WTUtils.isFirstEncapsulationWrapperNode(c)) {
+			c = WTUtils.skipOverEncapsulatedContent(c);
 		} else {
 			c = c.nextSibling;
 		}
@@ -304,7 +307,7 @@ var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	var out = findMatchingNodes(body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
 		// node need not be an element always!
-		html += DU.toXML(out[i], { smartQuote: false });
+		html += ContentUtils.toXML(out[i], { smartQuote: false });
 	}
 	// No need to use ppToXML above since we're stripping
 	// data-* attributes anyways.
@@ -403,7 +406,7 @@ var formatDiff = function(oldWt, newWt, offset, context) {
 
 function stripElementIds(node) {
 	while (node) {
-		if (DU.isElt(node)) {
+		if (DOMUtils.isElt(node)) {
 			var id = node.getAttribute('id');
 			if (/^mw[\w-]{2,}$/.test(id)) {
 				node.removeAttribute('id');
@@ -441,11 +444,11 @@ var checkIfSignificant = function(offsets, data) {
 	var newBody = domino.createDocument(data.newHTML.body).body;
 
 	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
-	DU.applyPageBundle(oldBody.ownerDocument, {
+	DOMDataUtils.applyPageBundle(oldBody.ownerDocument, {
 		parsoid: data.oldDp.body,
 		mw: data.oldMw && data.oldMw.body,
 	});
-	DU.applyPageBundle(newBody.ownerDocument, {
+	DOMDataUtils.applyPageBundle(newBody.ownerDocument, {
 		parsoid: data.newDp.body,
 		mw: data.newMw && data.newMw.body,
 	});
@@ -458,8 +461,8 @@ var checkIfSignificant = function(offsets, data) {
 	stripElementIds(newBody.ownerDocument.body);
 
 	// Strip section tags from the DOMs
-	DU.stripSectionTagsAndFallbackIds(oldBody.ownerDocument.body);
-	DU.stripSectionTagsAndFallbackIds(newBody.ownerDocument.body);
+	ContentUtils.stripSectionTagsAndFallbackIds(oldBody.ownerDocument.body);
+	ContentUtils.stripSectionTagsAndFallbackIds(newBody.ownerDocument.body);
 
 	var i, offset;
 	var results = [];
@@ -489,8 +492,8 @@ var checkIfSignificant = function(offsets, data) {
 
 	// Do this after the quick test above because in `parsoidOnly`
 	// normalization, data-mw is not stripped.
-	DU.visitDOM(oldBody, DU.loadDataAttribs);
-	DU.visitDOM(newBody, DU.loadDataAttribs);
+	DOMUtils.visitDOM(oldBody, DOMDataUtils.loadDataAttribs);
+	DOMUtils.visitDOM(newBody, DOMDataUtils.loadDataAttribs);
 
 	// Now, proceed with full blown diffs
 	for (i = 0; i < offsets.length; i++) {
@@ -730,7 +733,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		// to test rt selser we need to modify the HTML and request
 		// the wt again to compare with selser, and then concat the
 		// resulting diffs to the ones we got from basic rt
-		var newDocument = DU.parseHTML(data.oldHTML.body);
+		var newDocument = DOMUtils.parseHTML(data.oldHTML.body);
 		var newNode = newDocument.createComment('rtSelserEditTestComment');
 		newDocument.body.appendChild(newNode);
 		opts = Object.assign({

@@ -11,8 +11,9 @@ const yargs = require('yargs');
 
 const { ApiRequest, DoesNotExistError } = require('../lib/mw/ApiRequest.js');
 const { Diff } = require('../lib/utils/Diff.js');
+const { DOMDataUtils } = require('../lib/utils/DOMDataUtils.js');
 const { DOMTraverser } = require('../lib/utils/DOMTraverser.js');
-const DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+const { DOMUtils } = require('../lib/utils/DOMUtils.js');
 const { MWParserEnvironment } = require('../lib/config/MWParserEnvironment.js');
 const { ParsoidConfig } = require('../lib/config/ParsoidConfig.js');
 const Promise = require('../lib/utils/promise.js');
@@ -133,7 +134,7 @@ const phpFetch = Promise.async(function *(env, title, revid) {
 			return err ? reject(err) : resolve(src);
 		});
 	});
-	const document = DU.parseHTML(parse.text['*']);
+	const document = DOMUtils.parseHTML(parse.text['*']);
 	const displaytitle = parse.displaytitle;
 	revid = parse.revid;
 	return {
@@ -180,7 +181,7 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 		throw new Error(`Can\'t fetch Parsoid source: ${uri}`);
 	}
 	const oldid = res.request.path.replace(/^(.*)\//, '');
-	const document = DU.parseHTML(body);
+	const document = DOMUtils.parseHTML(body);
 	return {
 		document,
 		revid: oldid,
@@ -293,8 +294,8 @@ const extractText = function(env, document) {
 		 * figure[typeof~="mw:Image/Frameless"], figure[typeof~="mw:Image"]
 		 * See Note 5 of https://www.mediawiki.org/wiki/Specs/HTML/1.7.0#Images
 		 */
-		if (DU.hasTypeOf(node.parentNode, 'mw:Image/Frameless') ||
-			DU.hasTypeOf(node.parentNode, 'mw:Image')) {
+		if (DOMDataUtils.hasTypeOf(node.parentNode, 'mw:Image/Frameless') ||
+			DOMDataUtils.hasTypeOf(node.parentNode, 'mw:Image')) {
 			// Skip caption contents, since they don't appear in PHP output.
 			return node.nextSibling;
 		}

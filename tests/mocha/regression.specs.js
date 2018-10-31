@@ -4,8 +4,8 @@
 
 require('../../core-upgrade.js');
 require("chai").should();
+var DOMUtils = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var helpers = require('./test.helpers.js');
 
 // FIXME: MWParserEnvironment.getParserEnv and switchToConfig both require
@@ -45,7 +45,7 @@ describe('Regression Specs', function() {
 
 			// Without selser, we should see [[Foo|Foo]], since we only normalize
 			// for modified / new content, which requires selser for detection
-			return serialize(DU.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+			return serialize(DOMUtils.parseHTML(editedHTML), null, {}).then(function(editedWT) {
 				editedWT.should.equal(wt + "\n\n[[Foo|Foo]]");
 				// With selser, we should see [[Foo]]
 				var options = {
@@ -53,7 +53,7 @@ describe('Regression Specs', function() {
 					pageSrc: wt,
 					origDOM: origDOM,
 				};
-				return serialize(DU.parseHTML(editedHTML), null, options).then(function(editedWT) {
+				return serialize(DOMUtils.parseHTML(editedHTML), null, options).then(function(editedWT) {
 					editedWT.should.equal(wt + "\n\n[[Foo]]");
 				});
 			});
@@ -84,7 +84,7 @@ describe('Regression Specs', function() {
 			var editedHTML = origDOM.innerHTML.replace(/item/g, 'edited item').replace(/heading/g, 'edited heading').replace(/cell/g, 'edited cell');
 
 			// Without selser, we should see normalized wikitext
-			return serialize(DU.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+			return serialize(DOMUtils.parseHTML(editedHTML), null, {}).then(function(editedWT) {
 				editedWT.should.equal([
 					"*edited item",
 					"*<!--cmt-->edited item",
@@ -110,7 +110,7 @@ describe('Regression Specs', function() {
 					pageSrc: wt,
 					origDOM: origDOM,
 				};
-				return serialize(DU.parseHTML(editedHTML), null, options).then(function(editedWT) {
+				return serialize(DOMUtils.parseHTML(editedHTML), null, options).then(function(editedWT) {
 					editedWT.should.equal([
 						"* edited item",
 						"* <!--cmt-->edited item",
@@ -160,7 +160,7 @@ describe('Regression Specs', function() {
 			var options = {
 				useSelser: true,
 				pageSrc: wt,
-				origDOM: DU.parseHTML(origBody).body,
+				origDOM: DOMUtils.parseHTML(origBody).body,
 			};
 			// Whitespace heuristics are enabled
 			return serialize(doc, null, options).then(function(editedWT) {
@@ -184,7 +184,7 @@ describe('Regression Specs', function() {
 				// Pretend we are in 1.6.1 version to disable whitespace heuristics
 				doc.body.innerHTML = editedHTML;
 				doc.head.innerHTML = origHeader.replace(/2.0.0/, '1.6.1');
-				options.origDOM = DU.parseHTML(origBody).body;
+				options.origDOM = DOMUtils.parseHTML(origBody).body;
 
 				// Whitespace heuristics are disabled, but selser's
 				// buildSep heuristics will do the magic for non-text

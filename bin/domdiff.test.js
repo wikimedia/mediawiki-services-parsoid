@@ -6,7 +6,8 @@ require('../core-upgrade.js');
 
 var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
-var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
+var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var Promise = require('../lib/utils/promise.js');
 var yargs = require('yargs');
@@ -55,11 +56,11 @@ Promise.async(function *() {
 		return;
 	}
 
-	var oldDOM = DU.parseHTML(oldhtml).body;
-	var newDOM = DU.parseHTML(newhtml).body;
+	var oldDOM = DOMUtils.parseHTML(oldhtml).body;
+	var newDOM = DOMUtils.parseHTML(newhtml).body;
 
-	DU.stripSectionTagsAndFallbackIds(oldDOM);
-	DU.stripSectionTagsAndFallbackIds(newDOM);
+	ContentUtils.stripSectionTagsAndFallbackIds(oldDOM);
+	ContentUtils.stripSectionTagsAndFallbackIds(newDOM);
 
 	var dummyEnv = {
 		conf: { parsoid: { debug: ScriptUtils.booleanOption(argv.debug) }, wiki: {} },
@@ -76,7 +77,7 @@ Promise.async(function *() {
 
 	(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 
-	DU.dumpDOM(newDOM, 'DIFF-marked DOM', {
+	ContentUtils.dumpDOM(newDOM, 'DIFF-marked DOM', {
 		quiet: !!ScriptUtils.booleanOption(argv.quiet),
 		storeDiffMark: true,
 		env: dummyEnv,

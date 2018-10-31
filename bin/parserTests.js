@@ -13,8 +13,10 @@ var serviceWrapper = require('../tests/serviceWrapper.js');
 var fs = require('pn/fs');
 var path = require('path');
 var Alea = require('alea');
-var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
+var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
 var TestUtils = require('../tests/TestUtils.js').TestUtils;
+var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
 var Promise = require('../lib/utils/promise.js');
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var PEG = require('pegjs');
@@ -174,7 +176,7 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
-			this.env.page.dom = DU.parseHTML(item.cachedBODYstr).body;
+			this.env.page.dom = DOMUtils.parseHTML(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
 			this.env.setPageSrcInfo(item.wikitext);
@@ -251,7 +253,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 		var newNode;
 
 		// Don't separate legacy IDs from their H? node.
-		if (DU.isFallbackIdSpan(n)) {
+		if (WTUtils.isFallbackIdSpan(n)) {
 			n = n.nextSibling || n.parentNode;
 		}
 
@@ -278,13 +280,13 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 				break;
 			case 'BODY': wrapperName = 'P'; break;
 			default:
-				if (DU.isBlockNodeWithVisibleWT(n)) {
+				if (WTUtils.isBlockNodeWithVisibleWT(n)) {
 					wrapperName = 'P';
 				}
 				break;
 		}
 
-		if (DU.isFosterablePosition(n) && n.parentNode.nodeName !== 'TR') {
+		if (DOMUtils.isFosterablePosition(n) && n.parentNode.nodeName !== 'TR') {
 			newNode = ownerDoc.createComment(str);
 		} else if (wrapperName) {
 			newNode = ownerDoc.createElement(wrapperName);
@@ -326,7 +328,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 					// Change node wrapper
 					// (sufficient to insert a random attr)
 					case 1:
-						if (DU.isElt(child)) {
+						if (DOMUtils.isElt(child)) {
 							child.setAttribute('data-foobar', randomString());
 						} else {
 							this.env.log("error", "Buggy changetree. changetype 1 (modify attribute) cannot be applied on text/comment nodes.");
@@ -356,7 +358,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.has("dom:post-changes")) {
-		DU.dumpDOM(body, 'Original DOM');
+		ContentUtils.dumpDOM(body, 'Original DOM');
 	}
 
 	if (item.changes === 5) {
@@ -372,7 +374,7 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 	if (this.env.conf.parsoid.dumpFlags &&
 		this.env.conf.parsoid.dumpFlags.has("dom:post-changes")) {
 		console.warn("Change tree : " + JSON.stringify(item.changes));
-		DU.dumpDOM(body, 'Edited DOM');
+		ContentUtils.dumpDOM(body, 'Edited DOM');
 	}
 
 	return body;
@@ -398,8 +400,8 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 	 * Currently true for template and extension content, and for entities.
 	 */
 	function domSubtreeIsEditable(env, node) {
-		return !DU.isElt(node) ||
-			(!DU.isEncapsulationWrapper(node) &&
+		return !DOMUtils.isElt(node) ||
+			(!WTUtils.isEncapsulationWrapper(node) &&
 			node.getAttribute("typeof") !== "mw:Entity" &&
 			// Deleting these div wrappers is tantamount to removing the
 			// reference tag encaption wrappers, which results in errors.
@@ -415,7 +417,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 	 */
 	function nodeIsUneditable(node) {
 		// Text and comment nodes are always editable
-		if (!DU.isElt(node)) {
+		if (!DOMUtils.isElt(node)) {
 			return false;
 		}
 
@@ -534,16 +536,16 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 				tbl = this.ownerDocument.createElement('table');
 				tbl.innerHTML = html;
 				// <tbody> is implicitly added when inner html is set to <tr>..</tr>
-				DU.migrateChildren(tbl.firstChild, this.parentNode, this.nextSibling);
+				DOMUtils.migrateChildren(tbl.firstChild, this.parentNode, this.nextSibling);
 			} else if (this.parentNode.nodeName === 'TR') {
 				tbl = this.ownerDocument.createElement('table');
 				tbl.innerHTML = '<tbody><tr></tr></tbody>';
 				tbl.firstChild.firstChild.innerHTML = html;
-				DU.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this.nextSibling);
+				DOMUtils.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this.nextSibling);
 			} else {
 				div = this.ownerDocument.createElement('div');
 				div.innerHTML = html;
-				DU.migrateChildren(div, this.parentNode, this.nextSibling);
+				DOMUtils.migrateChildren(div, this.parentNode, this.nextSibling);
 			}
 		},
 		attr: function(name, val) {
@@ -555,16 +557,16 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 				tbl = this.ownerDocument.createElement('table');
 				tbl.innerHTML = html;
 				// <tbody> is implicitly added when inner html is set to <tr>..</tr>
-				DU.migrateChildren(tbl.firstChild, this.parentNode, this);
+				DOMUtils.migrateChildren(tbl.firstChild, this.parentNode, this);
 			} else if (this.parentNode.nodeName === 'TR') {
 				tbl = this.ownerDocument.createElement('table');
 				tbl.innerHTML = '<tbody><tr></tr></tbody>';
 				tbl.firstChild.firstChild.innerHTML = html;
-				DU.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this);
+				DOMUtils.migrateChildren(tbl.firstChild.firstChild, this.parentNode, this);
 			} else {
 				div = this.ownerDocument.createElement('div');
 				div.innerHTML = html;
-				DU.migrateChildren(div, this.parentNode, this);
+				DOMUtils.migrateChildren(div, this.parentNode, this);
 			}
 		},
 		removeAttr: function(name) {
@@ -589,7 +591,7 @@ ParserTests.prototype.applyManualChanges = function(body, changes) {
 			// just include them by default (jquery excludes them, which
 			// is less useful)
 			var what = !optSelector ? [ this ] :
-				!DU.isElt(this) ? [ this ] /* text node hack! */ :
+				!DOMUtils.isElt(this) ? [ this ] /* text node hack! */ :
 				this.querySelectorAll(optSelector);
 			Array.from(what).forEach((node) => {
 				if (node.parentNode) { node.parentNode.removeChild(node); }
@@ -717,7 +719,7 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			// therefore causes false failures.
 			html = TestUtils.normalizePhpOutput(html);
 		}
-		body = DU.parseHTML(html).body;
+		body = DOMUtils.parseHTML(html).body;
 		wt = yield this.convertHtml2Wt(options, mode, item, body);
 	} else {  // startsAtWikitext
 		// Always serialize DOM to string and reparse before passing to wt2wt
@@ -727,7 +729,7 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			// so we can maybe skip them later
 
 			// Cache parsed HTML
-			item.cachedBODYstr = DU.toXML(body);
+			item.cachedBODYstr = ContentUtils.toXML(body);
 
 			// - In wt2html mode, pass through original DOM
 			//   so that it is serialized just once.
@@ -737,10 +739,10 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			if (mode === "wt2html") {
 				// body = body; // no-op
 			} else {
-				body = DU.parseHTML(item.cachedBODYstr).body;
+				body = DOMUtils.parseHTML(item.cachedBODYstr).body;
 			}
 		} else {
-			body = DU.parseHTML(item.cachedBODYstr).body;
+			body = DOMUtils.parseHTML(item.cachedBODYstr).body;
 		}
 	}
 
@@ -764,8 +766,8 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 		}
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
-		item.changedHTMLStr = DU.toXML(body);
-		body = DU.parseHTML(item.changedHTMLStr).body;
+		item.changedHTMLStr = ContentUtils.toXML(body);
+		body = DOMUtils.parseHTML(item.changedHTMLStr).body;
 	} else if (mode === 'wt2wt') {
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
@@ -828,7 +830,7 @@ ParserTests.prototype.processSerializedWT = Promise.async(function *(item, optio
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
-			var body = DU.parseHTML(item.changedHTMLStr).body;
+			var body = DOMUtils.parseHTML(item.changedHTMLStr).body;
 			item.resultWT = yield this.convertHtml2Wt(options, 'wt2wt', item, body);
 		}
 	}
@@ -861,11 +863,11 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	};
 
 	normalizedOut = TestUtils.normalizeOut(out, normOpts);
-	out = DU.toXML(out, { innerXML: true });
+	out = ContentUtils.toXML(out, { innerXML: true });
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
-			var normalDOM = DU.parseHTML(item.html).body;
+			var normalDOM = DOMUtils.parseHTML(item.html).body;
 			normalizedExpected = TestUtils.normalizeOut(normalDOM, normOpts);
 		} else {
 			normalizedExpected = TestUtils.normalizeHTML(item.html);
@@ -1492,7 +1494,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'style',
 							toDOM: Promise.method(function(state, content, args) {
-								const doc = DU.parseHTML('');
+								const doc = DOMUtils.parseHTML('');
 								const style = doc.createElement('style');
 								style.innerHTML = content;
 								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.manager.env, style, args);
@@ -1512,7 +1514,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'html',
 							toDOM: Promise.method(function(state, content, args) {
-								return DU.parseHTML(content);
+								return DOMUtils.parseHTML(content);
 							}),
 						},
 					],

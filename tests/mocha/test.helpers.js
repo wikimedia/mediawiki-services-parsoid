@@ -1,6 +1,7 @@
 'use strict';
 
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../../lib/utils/DOMDataUtils.js').DOMDataUtils;
+var DOMUtils = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var MWParserEnvironment = require('../../lib/config/MWParserEnvironment.js').MWParserEnvironment;
 var Promise = require('../../lib/utils/promise.js');
 
@@ -29,7 +30,7 @@ var serialize = Promise.async(function *(parsoidConfig, doc, pb, options) {
 		prefix: options.prefix || 'enwiki',
 		pageName: options.pageName || 'Main_Page',
 	};
-	var vEdited = DU.extractInlinedContentVersion(doc);
+	var vEdited = DOMUtils.extractInlinedContentVersion(doc);
 	if (vEdited !== null) { envOptions.inputContentVersion = vEdited; }
 	var env = yield MWParserEnvironment.getParserEnv(parsoidConfig, envOptions);
 	if (options.tweakEnv) {
@@ -41,9 +42,9 @@ var serialize = Promise.async(function *(parsoidConfig, doc, pb, options) {
 	if (options.contentmodel) {
 		env.page.meta.revision.contentmodel = options.contentmodel;
 	}
-	pb = pb || DU.extractPageBundle(doc);
+	pb = pb || DOMDataUtils.extractPageBundle(doc);
 	if (pb) {
-		DU.applyPageBundle(doc, pb);
+		DOMDataUtils.applyPageBundle(doc, pb);
 	}
 	if (options.useSelser) {
 		env.page.src = options.pageSrc;

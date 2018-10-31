@@ -15,7 +15,9 @@ var yaml = require('js-yaml');
 var workerFarm = require('worker-farm');
 
 var parseJsPath = require.resolve('../lib/parse.js');
-var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
+var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
+var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
+var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var Promise = require('../lib/utils/promise.js');
@@ -396,12 +398,12 @@ Promise.async(function *() {
 			yield fs.writeFile(argv.pboutfile, JSON.stringify(out.pb), 'utf8');
 		} else if (argv.pageBundle) {
 			// Stitch this back in, even though it was just extracted
-			doc = DU.parseHTML(html);
-			DU.injectPageBundle(doc, out.pb);
-			html = DU.toXML(doc);
+			doc = DOMUtils.parseHTML(html);
+			DOMDataUtils.injectPageBundle(doc, out.pb);
+			html = ContentUtils.toXML(doc);
 		}
 		if (argv.normalize) {
-			doc = DU.parseHTML(html);
+			doc = DOMUtils.parseHTML(html);
 			str = TestUtils.normalizeOut(doc.body, {
 				parsoidOnly: (argv.normalize === 'parsoid'),
 				scrubWikitext: (argv.scrubWikitext === 'parsoid')

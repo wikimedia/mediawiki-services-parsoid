@@ -7,7 +7,8 @@ require('../../core-upgrade.js');
 
 require("chai").should();
 var url = require('url');
-var DU = require('../../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../../lib/utils/DOMDataUtils.js').DOMDataUtils;
+var DOMUtils = require('../../lib/utils/DOMUtils.js').DOMUtils;
 var ParsoidConfig = require('../../lib/config/ParsoidConfig.js').ParsoidConfig;
 var helpers = require('./test.helpers.js');
 
@@ -33,12 +34,12 @@ describe('ParserPipelineFactory', function() {
 				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);
 				doc.outerHTML.endsWith('</body></html>').should.equal(true);
 				// verify that body has only one <html> tag, one <body> tag, etc.
-				DU.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
+				DOMUtils.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
 				doc.firstChild.nodeName.should.equal('html');
 				doc.lastChild.nodeName.should.equal('HTML');
 				// <html> children should be <head> and <body>
 				var html = doc.documentElement;
-				DU.hasNChildren(html, 2).should.equal(true);
+				DOMUtils.hasNChildren(html, 2).should.equal(true);
 				html.firstChild.nodeName.should.equal('HEAD');
 				html.lastChild.nodeName.should.equal('BODY');
 				// <body> should have one child, <p>
@@ -58,12 +59,12 @@ describe('ParserPipelineFactory', function() {
 				doc.outerHTML.startsWith('<!DOCTYPE html><html').should.equal(true);
 				doc.outerHTML.endsWith('</body></html>').should.equal(true);
 				// verify that body has only one <html> tag, one <body> tag, etc.
-				DU.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
+				DOMUtils.hasNChildren(doc, 2).should.equal(true); // <!DOCTYPE> and <html>
 				doc.firstChild.nodeName.should.equal('html');
 				doc.lastChild.nodeName.should.equal('HTML');
 				// <html> children should be <head> and <body>
 				var html = doc.documentElement;
-				DU.hasNChildren(html, 2).should.equal(true);
+				DOMUtils.hasNChildren(html, 2).should.equal(true);
 				html.firstChild.nodeName.should.equal('HEAD');
 				html.lastChild.nodeName.should.equal('BODY');
 				// <body> should have one child, <table>
@@ -258,7 +259,7 @@ describe('ParserPipelineFactory', function() {
 				child = child.nextSibling;
 				var divNoId = child.getAttribute("id");
 				divNoId.should.match(/^mw[\w-]{2,}$/);
-				var pb = DU.extractPageBundle(doc);
+				var pb = DOMDataUtils.extractPageBundle(doc);
 				// verify dp wasn't bloated and
 				// id wasn't shadowed for div without id
 				pb.parsoid.ids[divNoId].should.not.have.property("a");
