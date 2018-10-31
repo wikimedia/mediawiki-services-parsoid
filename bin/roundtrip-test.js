@@ -559,7 +559,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
-		httpOptions.headers.Accept = apiUtils.pagebundleContentType(null, options.contentVersion);
+		httpOptions.headers.Accept = apiUtils.pagebundleContentType(options.contentVersion);
 		// setting json here encodes the request *and* decodes the response.
 		httpOptions.json = true;
 	}
