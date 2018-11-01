@@ -329,6 +329,8 @@ Promise.async(function *() {
 
 		// Send a message to stderr if there is no input for a while, since the
 		// convention that --pageName must be used with </dev/null is confusing.
+		// Note: To run code in WebStorm where </dev/null is not possible to set,
+		// and WebStorm hangs on waiting for stdin, comment out this block of code temporarily
 		var stdinTimer = setTimeout(function() {
 			console.error('Waiting for stdin...');
 		}, 1000);

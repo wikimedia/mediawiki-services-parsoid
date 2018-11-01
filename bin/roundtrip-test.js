@@ -17,6 +17,7 @@ var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 
 var defaultContentVersion = '2.0.0';
 
@@ -693,7 +694,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 				'User-Agent': UA,
 			},
 		});
-		profile.start = Date.now();
+		profile.time.start = JSUtils.startTime();
 		// We may have been redirected to the latest revision.  Record the
 		// oldid for later use in selser.
 		data.oldid = req[0].request.path.replace(/^(.*)\//, '');
@@ -751,7 +752,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		var out = yield parsoidPost(profile, opts);
 		// Finish the total time now
 		// FIXME: Is the right place to end it?
-		profile.time.total = Date.now() - profile.time.start;
+		profile.time.total = JSUtils.elapsedTime(profile.time.start);
 		// Remove the selser trigger comment
 		data.newWt = out.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
 		var selserDiffs = yield roundTripDiff(profile, parsoidOptions, data);

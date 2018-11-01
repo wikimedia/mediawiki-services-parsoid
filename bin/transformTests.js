@@ -65,6 +65,7 @@ var TokenStreamPatcher = require('../lib/wt2html/tt/TokenStreamPatcher.js').Toke
 var BehaviorSwitchHandler = require('../lib/wt2html/tt/BehaviorSwitchHandler.js').BehaviorSwitchHandler;
 var SanitizerHandler = require('../lib/wt2html/tt/Sanitizer.js').SanitizerHandler;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var yargs = require('yargs');
 var fs = require('fs');
 
@@ -80,6 +81,9 @@ function MockTTM(env, options) {
 	this.defaultTransformers = [];	// any transforms
 	this.tokenTransformers   = {};	// non-any transforms
 	this.tokenTime = 0; // floating-point value (# ms)
+	this.addXformTime = 0;
+	this.removeXformTime = 0;
+	this.getXformTime = 0;
 }
 
 MockTTM.prototype.log = function() {
@@ -115,6 +119,7 @@ MockTTM.prototype._cmpTransformations = function(a, b) {
 };
 
 MockTTM.prototype.addTransform = function(transformation, debugName, rank, type, name) {
+	var s = JSUtils.startTime();
 	this.pipelineModified = true;
 
 	var t = {
@@ -141,6 +146,7 @@ MockTTM.prototype.addTransform = function(transformation, debugName, rank, type,
 		tArray.push(t);
 		tArray.sort(this._cmpTransformations);
 	}
+	this.addXformTime += JSUtils.elapsedTime(s);
 };
 
 function removeMatchingTransform(transformers, rank) {
@@ -153,6 +159,7 @@ function removeMatchingTransform(transformers, rank) {
 }
 
 MockTTM.prototype.removeTransform = function(rank, type, name) {
+	var s = JSUtils.startTime();
 	this.pipelineModified = true;
 	if (type === 'any') {
 		// Remove from default transformers
@@ -164,9 +171,11 @@ MockTTM.prototype.removeTransform = function(rank, type, name) {
 			removeMatchingTransform(tArray, rank);
 		}
 	}
+	this.removeXformTime += JSUtils.elapsedTime(s);
 };
 
 MockTTM.prototype.getTransforms = function(token, minRank) {
+	var s = JSUtils.startTime();
 	var tkType = MockTTM.tkConstructorToTkTypeMap[token.constructor.name];
 	var key = tokenTransformersKey(tkType, token.name);
 	var tts = this.tokenTransformers[key] || [];
@@ -182,6 +191,7 @@ MockTTM.prototype.getTransforms = function(token, minRank) {
 			i += 1;
 		}
 	}
+	this.getXformTime += JSUtils.elapsedTime(s);
 	return { first: i, transforms: tts, empty: i >= tts.length };
 };
 
@@ -245,7 +255,7 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 					Object.setPrototypeOf(token, defines[token.type].prototype);
 				}
-				var s = process.hrtime();
+				var s = JSUtils.startTime();
 				var res;
 				var ts = this.getTransforms(token, 2.0);
 
@@ -265,11 +275,7 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 					}
 					j++;
 				}
-				var diff = process.hrtime(s);
-				// NOTE: This is a bit of an overkill since no token transformer
-				// will take more than 1 second, but this is guaranteed correct
-				// in all scenarios.
-				this.tokenTime += (diff[0] * 1e9 + diff[1]) / 1000000; // # milliseconds
+				this.tokenTime += JSUtils.elapsedTime(s);
 				break;
 		}
 	}
@@ -371,7 +377,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
 							Object.setPrototypeOf(token, defines[token.type].prototype);
 						}
-						var s = process.hrtime();
+						var s = JSUtils.startTime();
 						var res;
 						var ts = this.getTransforms(token, 2.0);
 
@@ -389,11 +395,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 							}
 							j++;
 						}
-						var diff = process.hrtime(s);
-						// NOTE: This is a bit of an overkill since no token transformer
-						// will take more than 1 second, but this is guaranteed correct
-						// in all scenarios.
-						this.tokenTime += (diff[0] * 1e9 + diff[1]) / 1000000; // # milliseconds
+						this.tokenTime += JSUtils.elapsedTime(s);
 						break;
 				}
 			}
@@ -532,7 +534,7 @@ function runTests() {
 		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
 	}
 
-	var startTime = Date.now();
+	var startTime = JSUtils.startTime();
 	var numFailures = 0;
 
 	if (argv.QuoteTransformer) {
@@ -561,9 +563,12 @@ function runTests() {
 		numFailures++;
 	}
 
-	var totalTime = Date.now() - startTime;
-	console.log('Total transformer execution time = ' + totalTime + ' milliseconds');
-	console.log('Total time processing tokens     = ' + manager.tokenTime + ' milliseconds');
+	var totalTime = JSUtils.elapsedTime(startTime);
+	console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');
+	console.log('Total time processing tokens     = ' + manager.tokenTime.toFixed(3) + ' milliseconds');
+	console.log('Total time adding transformers   = ' + manager.addXformTime.toFixed(3) + ' milliseconds');
+	console.log('Total time removing transformers = ' + manager.removeXformTime.toFixed(3) + ' milliseconds');
+	console.log('Total time getting transformers  = ' + manager.getXformTime.toFixed(3) + ' milliseconds');
 	if (numFailures) {
 		console.log('Total failures:', numFailures);
 		process.exit(1);
