@@ -1395,6 +1395,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 	wikiConf.scriptpath = '/';
 	wikiConf.script = '/index.php';
 	wikiConf.articlePath = '/wiki/$1';
+	wikiConf.baseURI = wikiConf.server + wikiConf.articlePath.replace(/\$1/, '');
 	wikiConf.interwikiMap.clear();
 	var iwl = TestUtils.iwl;
 	Object.keys(iwl).forEach(function(key) {
@@ -1456,6 +1457,8 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 			// so that we start from the wiki.mainpage when resolving
 			// absolute subpages.
 			this.env.initializeForPageName(item.options.title);
+		} else {
+			this.env.initializeForPageName('Parser test');
 		}
 
 		this.env.conf.wiki.allowExternalImages = [ '' ]; // all allowed
