@@ -205,7 +205,6 @@ add("wt2wt", "Table cell attributes: Pipes protected by nowikis should be treate
 add("wt2wt", "Build table with {{!}}", "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\"{{!}}second data\n{{!}}}");
 add("wt2wt", "Build table with pipe as data", "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>|| style=\"color:red;\" |second data with |\n|-\n||<nowiki>data with |</nowiki>|||second data with |\n|}");
 add("wt2wt", "Parsoid: Row-syntax table headings followed by comment & table cells", "{|\n!foo||bar\n<!-- foo -->||baz||quux\n|}");
-add("wt2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]");
 add("wt2wt", "<nowiki> inside a link", "[[Main<nowiki> Page</nowiki><nowiki>]] </nowiki>[[Main Page|the main page <nowiki>[it's not very good]</nowiki>]]");
 add("wt2wt", "<pre> inside a link", "[[Main<pre> Page</pre><nowiki>]] </nowiki>[[Main Page|the main page <pre>[it's not very good]</pre>]]\n");
 add("wt2wt", "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved", "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']");
@@ -298,7 +297,6 @@ add("html2html", "Plain link, capitalized", "<p data-parsoid='{\"dsr\":[0,28,0,0
 add("html2html", "Plain link, uncapitalized", "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>main Page</a></p>\n");
 add("html2html", "Piped link", "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>The Main Page</a></p>\n");
 add("html2html", "Piped link with comment in link text", "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>The Main Page</a></p>\n");
-add("html2html", "Piped link with multiple pipe characters in link text", "<p data-parsoid='{\"dsr\":[0,46,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[0,46,12,2]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[12,44,8,9]}'>|The|Main|Page|</span></a></p>");
 add("html2html", "Broken link", "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>[/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1 Zigzagzogzagzig]</p>\n");
 add("html2html", "Broken link with fragment", "<p data-parsoid='{\"dsr\":[0,76,0,0]}'>[/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1 Zigzagzogzagzig#zug]</p>\n");
 add("html2html", "Special page link with fragment", "<p data-parsoid='{\"dsr\":[0,54,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Special:Version#anchor\" title=\"Wiki/Special:Version\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Special:Version#anchor\"},\"sa\":{\"href\":\"wiki/Special:Version#anchor\"},\"dsr\":[0,54,30,2]}'>Special:Version#anchor</a></p>\n");
@@ -586,7 +584,6 @@ add("html2wt", "Plain link, capitalized", "[[wiki/Main Page|Main Page]]\n");
 add("html2wt", "Plain link, uncapitalized", "[[wiki/Main Page|main Page]]\n");
 add("html2wt", "Piped link", "[[wiki/Main Page|The Main Page]]\n");
 add("html2wt", "Piped link with comment in link text", "[[wiki/Main Page|The Main Page]]\n");
-add("html2wt", "Piped link with multiple pipe characters in link text", "[[Main Page|<nowiki>|The|Main|Page|</nowiki>]]");
 add("html2wt", "Broken link", "[/index.php?title=Zigzagzogzagzig&action=edit&redlink=1 Zigzagzogzagzig]\n");
 add("html2wt", "Broken link with fragment", "[/index.php?title=Zigzagzogzagzig&action=edit&redlink=1 Zigzagzogzagzig#zug]\n");
 add("html2wt", "Special page link with fragment", "[[wiki/Special:Version#anchor|Special:Version#anchor]]\n");
@@ -1410,9 +1407,6 @@ add("selser", "Parsoid: Row-syntax table headings followed by comment & table ce
 add("selser", "Parsoid: Row-syntax table headings followed by comment & table cells [[3,1]]", "{|\n!foo||bar\n<!-- foo -->  ||baz||quux\n|}");
 add("selser", "Table with missing opening <tr> tag [[2,[[4,3],3]]]", "<table><!--1tf32as-->\n<td>1pozjc1</td></tr>\n</table>");
 add("selser", "Table with missing opening <tr> tag [[2,[0,3]]]", "<table><!--1ch5rmb-->\n<td>foo</td>\n</tr>\n</table>");
-add("selser", "Piped link with multiple pipe characters in link text [1]", "[[Main Page||The|Main|Page|]]");
-add("selser", "Piped link with multiple pipe characters in link text [2]", "zoince\n\n[[Main Page||The|Main|Page|]]");
-add("selser", "Piped link with multiple pipe characters in link text [[2]]", "3b7j8e[[Main Page||The|Main|Page|]]");
 add("selser", "Link containing an ampersand [1,4,1,0,[3,0,0]]", "[[Foo & bar]]\n\n71pv75\n\n[[Foo & bar]]\n\n&amp;amp; bar]]");
 add("selser", "Link containing an ampersand [4,4,1,0,4]", "10rlyhs\n\n1hk3bkz\n\n[[Foo & bar]]\n\n1xcmlsj");
 add("selser", "Link containing an ampersand [2,2,1,4,0]", "1080zid\n\n[[Foo & bar]]\n\nlt126k\n\n[[Foo & bar]]\n\n41y8y7\n\n[[Foo &amp;amp; bar]]");
