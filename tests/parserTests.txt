@@ -28916,6 +28916,27 @@ Image: Invalid title as link
 !! end
 
 !! test
+Various link types in alt and link options
+!! wikitext
+[[File:Foobar.jpg|link=[[Main Page]]|alt=[[Main Page]]|caption]]
+
+[[File:Foobar.jpg|link=[[Media:Thumb.png]]|alt=[[Media:Thumb.png]]|caption]]
+
+[[File:Foobar.jpg|link=[[wikipedia:Foo]]|alt=[[wikipedia:Foo]]|caption]]
+!! html/php+tidy
+<p><a href="/wiki/Main_Page" title="caption"><img alt="Main Page" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p><p><a href="/wiki/Media:Thumb.png" title="caption"><img alt="Media:Thumb.png" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p><p><a href="http://en.wikipedia.org/wiki/Foo" title="caption"><img alt="wikipedia:Foo" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./Main_Page" data-parsoid='{"a":{"href":"./Main_Page"},"sa":{"href":"link=[[Main Page]]"}}'><img alt="Main Page" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"alt":"Main Page","resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"alt":"alt=[[Main Page]]","resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
+
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./Media:Thumb.png" data-parsoid='{"a":{"href":"./Media:Thumb.png"},"sa":{"href":"link=[[Media:Thumb.png]]"}}'><img alt="Media:Thumb.png" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"alt":"Media:Thumb.png","resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"alt":"alt=[[Media:Thumb.png]]","resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
+
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="http://en.wikipedia.org/wiki/Foo" data-parsoid='{"a":{"href":"http://en.wikipedia.org/wiki/Foo"},"sa":{"href":"link=[[wikipedia:Foo]]"}}'><img alt="wikipedia:Foo" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"alt":"wikipedia:Foo","resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"alt":"alt=[[wikipedia:Foo]]","resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
+!! end
+
+!! test
 Lists: Serialize correctly even when list content is wrapped in p-tags (like VE does)
 !! options
 parsoid=html2wt
