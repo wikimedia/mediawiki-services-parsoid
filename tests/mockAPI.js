@@ -594,6 +594,7 @@ var availableActions = {
 	},
 
 	query: function(body, cb) {
+		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
 			return querySiteinfo(body, cb);
 		}
@@ -632,27 +633,51 @@ var availableActions = {
 			}
 		}
 		if (body.prop === 'imageinfo') {
-			var response = { query: { pages: {} } };
+			var response = { query: { } };
 			var filename = body.titles;
 			var tonum = (x) => {
 				return (x === null || x === undefined) ? undefined : (+x);
 			};
 			var ii = imageInfo(filename, tonum(body.iiurlwidth), tonum(body.iiurlheight), false);
+			var p;
 			if (ii === null) {
-				response.query.pages['-1'] = {
+				p = {
 					ns: 6,
 					title: filename,
 					missing: '',
 					imagerepository: '',
+					imageinfo: [{
+						size: 0,
+						width: 0,
+						height: 0,
+						filemissing: '',
+						mime: null,
+						mediatype: null
+					}],
 				};
+				if (formatversion === 2) {
+					p.missing = p.imageinfo.filemissing = true;
+					p.badfile = false;
+				}
 			} else {
-				response.query.normalized = [{ from: filename, to: ii.normPagename }];
-				response.query.pages['1'] = {
+				if (filename !== ii.normPagename) {
+					response.query.normalized = [{ from: filename, to: ii.normPagename }];
+				}
+				p = {
 					pageid: 1,
 					ns: 6,
 					title: ii.normPagename,
 					imageinfo: [ii.result],
 				};
+				if (formatversion === 2) {
+					p.badfile = false;
+				}
+			}
+			if (formatversion === 2) {
+				response.query.pages = [ p ];
+			} else {
+				response.query.pages = { };
+				response.query.pages[p.pageid || '-1'] = p;
 			}
 			return cb(null, response);
 		}
