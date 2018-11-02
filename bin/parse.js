@@ -140,13 +140,6 @@ var standardOpts = ScriptUtils.addStandardOptions({
 		'boolean': true,
 		'default': true,
 	},
-	'useBatchAPI': {
-		description: 'Turn on/off the API batching system',
-		// Since I picked a null default (to let the default config setting be the default),
-		// I cannot make this a boolean option.
-		'boolean': false,
-		'default': null,
-	},
 
 	// These are MWParserEnvironment properties
 
@@ -260,7 +253,6 @@ Promise.async(function *() {
 	var parsoidOptions = {
 		linting: argv.linting,
 		loadWMF: argv.loadWMF,
-		useBatchAPI: argv.useBatchAPI,
 		useWorker: argv.useWorker,
 	};
 

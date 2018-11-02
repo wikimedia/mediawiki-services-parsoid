@@ -946,7 +946,9 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		}
 	}
 
-	var parsoidOptions = {};
+	// Default to using batch API, but allow setTemplatingAndProcessingFlags
+	// to override it from command-line options.
+	var parsoidOptions = { useBatchAPI: true };
 
 	ScriptUtils.setDebuggingFlags(parsoidOptions, options);
 	ScriptUtils.setTemplatingAndProcessingFlags(parsoidOptions, options);
@@ -955,8 +957,6 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		// Init early so we can overwrite it here.
 		parsoidConfig.loadWMF = false;
 		parsoidConfig.loadWMFApiMap();
-
-		parsoidConfig.useBatchAPI = true;
 
 		// Needed for bidi-char-scrubbing html2wt tests.
 		parsoidConfig.scrubBidiChars = true;

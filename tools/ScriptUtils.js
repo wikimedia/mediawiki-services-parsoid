@@ -394,6 +394,13 @@ var ScriptUtils = {
 				'boolean': true,
 				'default': false,
 			},
+			'useBatchAPI': {
+				description: 'Turn on/off the API batching system',
+				// Since I picked a null default (to let the default config setting be the default),
+				// I cannot make this a boolean option.
+				'boolean': false,
+				'default': null,
+			},
 			// handled by `setColorFlags`
 			'color': {
 				description: 'Enable color output Ex: --no-color',

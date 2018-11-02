@@ -356,6 +356,9 @@ var revisionPage = {
 var fnames = {
 	'Image:Foobar.jpg': 'Foobar.jpg',
 	'File:Foobar.jpg': 'Foobar.jpg',
+	'Archivo:Foobar.jpg': 'Foobar.jpg',
+	'Mynd:Foobar.jpg': 'Foobar.jpg',
+	'Датотека:Foobar.jpg': 'Foobar.jpg',
 	'Image:Foobar.svg': 'Foobar.svg',
 	'File:Foobar.svg': 'Foobar.svg',
 	'Image:Thumb.png': 'Thumb.png',
@@ -468,8 +471,8 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 	if (props.hasOwnProperty('duration')) {
 		result.duration = props.duration;
 	}
-	// The batch api always generates thumbs
-	if (useBatchAPI &&
+	// The batch api always generates thumbs, as does the videoinfo handler
+	if ((useBatchAPI || result.mediatype === 'VIDEO') &&
 			(theight === undefined || theight === null) &&
 			(twidth === undefined || twidth === null)) {
 		twidth = width;
@@ -497,6 +500,7 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 				theight = Math.round(height * twidth / width);
 			}
 		}
+		console.assert(typeof (twidth) === 'number');
 		var urlWidth = twidth;
 		if (twidth > width) {
 			// The PHP api won't enlarge a bitmap ... but the batch api will.
@@ -630,7 +634,10 @@ var availableActions = {
 		if (body.prop === 'imageinfo') {
 			var response = { query: { pages: {} } };
 			var filename = body.titles;
-			var ii = imageInfo(filename, body.iiurlwidth, body.iiurlheight, false);
+			var tonum = (x) => {
+				return (x === null || x === undefined) ? undefined : (+x);
+			};
+			var ii = imageInfo(filename, tonum(body.iiurlwidth), tonum(body.iiurlheight), false);
 			if (ii === null) {
 				response.query.pages['-1'] = {
 					ns: 6,
