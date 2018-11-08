@@ -57,13 +57,6 @@ Technical details:
 'use strict';
 
 var TokenTypes = require('../lib/tokens/TokenTypes.js');
-var QuoteTransformer = require('../lib/wt2html/tt/QuoteTransformer.js').QuoteTransformer;
-var ListHandler = require('../lib/wt2html/tt/ListHandler.js').ListHandler;
-var ParagraphWrapper = require('../lib/wt2html/tt/ParagraphWrapper.js').ParagraphWrapper;
-var PreHandler = require('../lib/wt2html/tt/PreHandler.js').PreHandler;
-var TokenStreamPatcher = require('../lib/wt2html/tt/TokenStreamPatcher.js').TokenStreamPatcher;
-var BehaviorSwitchHandler = require('../lib/wt2html/tt/BehaviorSwitchHandler.js').BehaviorSwitchHandler;
-var SanitizerHandler = require('../lib/wt2html/tt/Sanitizer.js').SanitizerHandler;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var yargs = require('yargs');
@@ -424,7 +417,7 @@ MockTTM.prototype.wikitextTest = function(tokenTransformer, opts) {
 	}
 };
 
-var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/filename', {
+var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFile /path/filename', {
 	help: {
 		description: [
 			'transformTest.js supports parsoid generated and manually created',
@@ -451,39 +444,26 @@ var opts = yargs.usage('Usage: $0 [options] --TransformerName --inputFile /path/
 		'boolean': true,
 		'default': false
 	},
-	QuoteTransformer: {
-		description: 'Run QuoteTransformer tests'
+	transformer: {
+		description: 'Provide the name of the transformer to test',
+		'boolean': false,
+		'default': null
 	},
-	ListHandler: {
-		description: 'Run ListHandler tests'
+	timingMode: {
+		description: 'Run tests in performance timing mode',
+		'boolean': true,
+		'default': false
 	},
-	ParagraphWrapper: {
-		description: 'Run ParagraphWrapper tests'
+	iterationCount: {
+		description: 'How many iterations to run in timing mode?',
+		'boolean': false,
+		'default': 10000
 	},
-	PreHandler: {
-		description: 'Run PreHandler tests'
-	},
-	TokenStreamPatcher: {
-		description: 'Run TokenStreamPatcher tests'
-	},
-	BehaviorSwitchHandler: {
-		description: 'Run BehaviorSwitchHandler tests'
-	},
-	SanitizerHandler: {
-		description: 'Run SanitizerHandler tests'
-	}
 });
 
 function selectTestType(opts, manager, handler) {
 	var numFailures = 0;
-	var iterator = 1;
-	if (opts.timingMode) {
-		if (opts.iterationCount) {
-			iterator = opts.iterationCount;
-		} else {
-			iterator = 10000;
-		}
-	}
+	var iterator = opts.timingMode ? Math.round(opts.iterationCount) : 1;
 	while (iterator--) {
 		if (opts.manual) {
 			numFailures += manager.unitTest(handler, opts);
@@ -499,25 +479,25 @@ function runTests() {
 
 	if (ScriptUtils.booleanOption(argv.help)) {
 		opts.showHelp();
-		return;
+		process.exit(1);
 	}
 
 	if (!argv.inputFile) {
-		console.log("must specify [--manual] [--log] --TransformerName --inputFile /path/filename");
-		console.log('type: "node bin/transformerTests.js --help" for more information');
-		return;
+		opts.showHelp();
+		process.exit(1);
 	}
 
-	var mockEnv;
-	if (argv.log) {
-		mockEnv = {
-			log: MockTTM.prototype.log
-		};
-	} else {
-		mockEnv = {
-			log: () => {} // this disables detailed logging
-		};
+	if (argv.timingMode) {
+		if (typeof argv.iterationCount !== 'number' || argv.iterationCount < 1) {
+			console.log("Iteration count should be a number > 0");
+			process.exit(1);
+		}
+		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
 	}
+
+	var mockEnv = {
+		log: argv.log ? MockTTM.prototype.log : () => {}
+	};
 
 	// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
 	mockEnv.conf = {};
@@ -529,48 +509,26 @@ function runTests() {
 	// Hack ends
 
 	var manager = new MockTTM(mockEnv, {});
-
-	if (argv.timingMode) {
-		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
-	}
-
-	var startTime = JSUtils.startTime();
-	var numFailures = 0;
-
-	if (argv.QuoteTransformer) {
-		var qt = new QuoteTransformer(manager, {});
-		numFailures = selectTestType(argv, manager, qt);
-	} else if (argv.ListHandler) {
-		var lh = new ListHandler(manager, {});
-		numFailures = selectTestType(argv, manager, lh);
-	} else if (argv.ParagraphWrapper) {
-		var pw = new ParagraphWrapper(manager, {});
-		numFailures = selectTestType(argv, manager, pw);
-	} else if (argv.PreHandler) {
-		var ph = new PreHandler(manager, {});
-		numFailures = selectTestType(argv, manager, ph);
-	} else if (argv.TokenStreamPatcher) {
-		var tsp = new TokenStreamPatcher(manager, {});
-		numFailures = selectTestType(argv, manager, tsp);
-	} else if (argv.BehaviorSwitchHandler) {
-		var bsh = new BehaviorSwitchHandler(manager, {});
-		numFailures = selectTestType(argv, manager, bsh);
-	} else if (argv.SanitizerHandler) {
-		var sh = new SanitizerHandler(manager, {});
-		numFailures = selectTestType(argv, manager, sh);
-	} else {
-		console.log("No valid TransformerName was specified");
-		numFailures++;
-	}
-
-	var totalTime = JSUtils.elapsedTime(startTime);
-	console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');
-	console.log('Total time processing tokens     = ' + manager.tokenTime.toFixed(3) + ' milliseconds');
-	console.log('Total time adding transformers   = ' + manager.addXformTime.toFixed(3) + ' milliseconds');
-	console.log('Total time removing transformers = ' + manager.removeXformTime.toFixed(3) + ' milliseconds');
-	console.log('Total time getting transformers  = ' + manager.getXformTime.toFixed(3) + ' milliseconds');
-	if (numFailures) {
-		console.log('Total failures:', numFailures);
+	try {
+		var startTime = JSUtils.startTime();
+		var TransformerModule = require('../lib/wt2html/tt/' + argv.transformer + '.js')[argv.transformer];
+		var numFailures = selectTestType(argv, manager, new TransformerModule(manager, {}));
+		var totalTime = JSUtils.elapsedTime(startTime);
+		console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');
+		console.log('Total time processing tokens     = ' + manager.tokenTime.toFixed(3) + ' milliseconds');
+		console.log('Total time adding transformers   = ' + manager.addXformTime.toFixed(3) + ' milliseconds');
+		console.log('Total time removing transformers = ' + manager.removeXformTime.toFixed(3) + ' milliseconds');
+		console.log('Total time getting transformers  = ' + manager.getXformTime.toFixed(3) + ' milliseconds');
+		if (numFailures) {
+			console.log('Total failures:', numFailures);
+			process.exit(1);
+		}
+	} catch (e) {
+		if (!argv.transformer) {
+			console.log("Please provide a valid transformer name");
+		} else {
+			console.log("Transformer " + argv.transformer + " does not exist");
+		}
 		process.exit(1);
 	}
 }
