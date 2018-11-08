@@ -26802,6 +26802,33 @@ parsoid=html2wt
 !! end
 
 !! test
+Tables: 4e. Escape }
+!! options
+parsoid=html2wt
+!! html/parsoid
+<table>
+<tr><td>}</td></tr>
+<tr><td>x</td><td data-parsoid='{"stx":"row"}'>}</td></tr></table>
+</table>
+!! wikitext
+{|
+|<nowiki>}</nowiki>
+|-
+|x||}
+|}
+!! html/php
+<table>
+<tr>
+<td>}
+</td></tr>
+<tr>
+<td>x</td>
+<td>}
+</td></tr></table>
+
+!! end
+
+!! test
 Tables: 5. Empty table cells should get whitespace to avoid need for nowikis
 !! options
 parsoid=html2wt
@@ -30693,6 +30720,7 @@ parsoid={
 <tr><td>a</td></tr>
 <tr><td>-</td></tr>
 <tr><td>+</td></tr>
+<tr><td>}</td></tr>
 </table>
 !! wikitext
 {|
@@ -30701,6 +30729,8 @@ parsoid={
 |<nowiki>-</nowiki>
 |-
 |<nowiki>+</nowiki>
+|-
+|<nowiki>}</nowiki>
 |}
 !! end
 
@@ -30716,6 +30746,7 @@ parsoid={
 <tr><td>a</td></tr>
 <tr><td>-</td></tr>
 <tr><td>+</td></tr>
+<tr><td>}</td></tr>
 </table>
 !! wikitext
 {|
@@ -30724,6 +30755,8 @@ parsoid={
 | -
 |-
 | +
+|-
+| }
 |}
 !! end
 
