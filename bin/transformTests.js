@@ -56,7 +56,7 @@ Technical details:
 
 'use strict';
 
-var defines = require('../lib/wt2html/parser.defines.js');
+var TokenTypes = require('../lib/tokens/TokenTypes.js');
 var QuoteTransformer = require('../lib/wt2html/tt/QuoteTransformer.js').QuoteTransformer;
 var ListHandler = require('../lib/wt2html/tt/ListHandler.js').ListHandler;
 var ParagraphWrapper = require('../lib/wt2html/tt/ParagraphWrapper.js').ParagraphWrapper;
@@ -252,8 +252,8 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 			default:
 				var token = JSON.parse(line);
 				if (token.constructor !== String) {	// cast object to token type
-					console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-					Object.setPrototypeOf(token, defines[token.type].prototype);
+					console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
+					Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
 				}
 				var s = JSUtils.startTime();
 				var res;
@@ -374,8 +374,8 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 					default:
 						var token = JSON.parse(line);
 						if (token.constructor !== String) {	// cast object to token type
-							console.assert(defines[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-							Object.setPrototypeOf(token, defines[token.type].prototype);
+							console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
+							Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
 						}
 						var s = JSUtils.startTime();
 						var res;

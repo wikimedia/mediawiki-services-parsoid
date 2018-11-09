@@ -7,9 +7,7 @@ require('../../core-upgrade.js');
 var should = require('chai').should();
 
 var Sanitizer = require('../../lib/wt2html/tt/Sanitizer').Sanitizer;
-var defines = require('../../lib/wt2html/parser.defines.js');
-
-var TagTk = defines.TagTk;
+const { TagTk } = require('../../lib/tokens/TokenTypes.js');
 
 describe('Sanitizer', function() {
 	it('should sanitize attributes according to php\'s getAttribsRegex', function() {
