@@ -149,6 +149,13 @@ var preTests = [
 runTests('Indent-Pre', preTests);
 
 var htmlEltTests = [
+	{
+		wt:"<small>'''bold'''</small>",
+		specs: [
+			{ selector: 'body > p', dsrContent: ["<small>'''bold'''</small>", "", ""] },
+			{ selector: 'body > p > small', dsrContent: ["<small>'''bold'''</small>", "<small>", "</small>"] }
+		],
+	},
 ];
 runTests('HTML elements', htmlEltTests);
 
