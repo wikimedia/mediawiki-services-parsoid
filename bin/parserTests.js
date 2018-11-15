@@ -1492,10 +1492,12 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'style',
 							toDOM: function(state, content, args) {
-								const attrs = args.map(kv => kv.k + "=" + kv.v).join(' ');
-								return ParsoidExtApi.returnHtml(state,
-									"<style" + (attrs ? ' ' + attrs : '') + ">" + content + "</style>"
-								);
+								const doc = DU.parseHTML('');
+								const style = doc.createElement('style');
+								style.innerHTML = content;
+								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.manager.env, style, args);
+								doc.body.appendChild(style);
+								return ParsoidExtApi.returnDoc(state, doc);
 							}
 						},
 					],
@@ -1510,7 +1512,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'html',
 							toDOM: function(state, content, args) {
-								return ParsoidExtApi.returnHtml(state, content);
+								return ParsoidExtApi.returnDoc(state, DU.parseHTML(content));
 							}
 						},
 					],
