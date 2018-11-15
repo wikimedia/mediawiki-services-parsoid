@@ -19280,8 +19280,8 @@ Parser hook: static parser hook not inside a comment
 hello, world
 </p>
 !! html/parsoid
-<p><span typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{},"body":{"extsrc":"hello, world"}}' data-parsoid='{}' about="#mwt2"></span></p>
-<p typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{"action":"flush"}}' data-parsoid='{}' about="#mwt4">hello, world</p>
+<p><span typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{},"body":{"extsrc":"hello, world"}}' about="#mwt2"></span></p>
+<p><span typeof="mw:Extension/statictag" data-mw='{"name":"statictag","attrs":{"action":"flush"}}' about="#mwt4">hello, world</span></p>
 !! end
 
 !! test
@@ -19294,7 +19294,7 @@ Parser hook: static parser hook inside a comment
 </p>
 !! html/parsoid
 <!-- <statictag&#x3E;hello, world</statictag&#x3E; -->
-<p typeof='mw:Extension/statictag' data-mw='{"name":"statictag","attrs":{"action":"flush"}}' data-parsoid='{}' about='#mwt2'></p>
+<p><span typeof='mw:Extension/statictag' data-mw='{"name":"statictag","attrs":{"action":"flush"}}' data-parsoid='{}' about='#mwt2'></span></p>
 !! end
 
 # Nested template calls; this case was broken by Parser.php rev 1.506,
