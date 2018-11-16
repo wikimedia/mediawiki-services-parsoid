@@ -170,10 +170,10 @@ var xmlFormat = function(err, prefix, title, results, profile) {
 		output += '<perfstats>\n';
 		Object.keys(profile).forEach(function(type) {
 			Object.keys(profile[type]).forEach(function(prop) {
-				output += '<perfstat type="' + DU.encodeXml(type) + ':';
-				output += DU.encodeXml(prop);
+				output += '<perfstat type="' + TestUtils.encodeXml(type) + ':';
+				output += TestUtils.encodeXml(prop);
 				output += '">';
-				output += DU.encodeXml(profile[type][prop].toString());
+				output += TestUtils.encodeXml(profile[type][prop].toString());
 				output += '</perfstat>\n';
 			});
 		});

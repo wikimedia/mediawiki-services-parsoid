@@ -7,6 +7,7 @@
 require('../core-upgrade.js');
 
 var colors = require('colors');
+var entities = require('entities');
 var yargs = require('yargs');
 
 var Diff = require('../lib/utils/Diff.js').Diff;
@@ -16,6 +17,16 @@ var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var Normalizer = require('../lib/html2wt/normalizeDOM.js').Normalizer;
 
 var TestUtils = {};
+
+/**
+ * Little helper function for encoding XML entities.
+ *
+ * @param {string} string
+ * @return {string}
+ */
+TestUtils.encodeXml = function(string) {
+	return entities.encodeXML(string);
+};
 
 /**
  * Specialized normalization of the PHP parser & Parsoid output, to ignore
@@ -751,19 +762,19 @@ var getActualExpectedXML = function(actual, expected, getDiff) {
 	var returnStr = '';
 
 	returnStr += 'RAW EXPECTED:\n';
-	returnStr += DU.encodeXml(expected.raw) + '\n\n';
+	returnStr += TestUtils.encodeXml(expected.raw) + '\n\n';
 
 	returnStr += 'RAW RENDERED:\n';
-	returnStr += DU.encodeXml(actual.raw) + '\n\n';
+	returnStr += TestUtils.encodeXml(actual.raw) + '\n\n';
 
 	returnStr += 'NORMALIZED EXPECTED:\n';
-	returnStr += DU.encodeXml(expected.normal) + '\n\n';
+	returnStr += TestUtils.encodeXml(expected.normal) + '\n\n';
 
 	returnStr += 'NORMALIZED RENDERED:\n';
-	returnStr += DU.encodeXml(actual.normal) + '\n\n';
+	returnStr += TestUtils.encodeXml(actual.normal) + '\n\n';
 
 	returnStr += 'DIFF:\n';
-	returnStr += DU.encodeXml(getDiff(actual, expected, false));
+	returnStr += TestUtils.encodeXml(getDiff(actual, expected, false));
 
 	return returnStr;
 };
@@ -842,7 +853,7 @@ var reportSuccessXML = function(stats, item, options, mode, title, expectSuccess
 var reportResultXML = function() {
 	function pre(stats, mode, title, time) {
 		var testcaseEle;
-		testcaseEle = '<testcase name="' + DU.encodeXml(title) + '" ';
+		testcaseEle = '<testcase name="' + TestUtils.encodeXml(title) + '" ';
 		testcaseEle += 'assertions="1" ';
 
 		var timeTotal;
