@@ -1,21 +1,21 @@
 'use strict';
 
 const ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.9.0');
-const { DOMUtils: DU, returnDoc } = ParsoidExtApi;
+const { DOMUtils: DU, Promise } = ParsoidExtApi;
 
 /**
  * See tests/parser/ParserTestParserHook.php in core.
  */
 
-const dumpHook = function(state, content, args) {
-	return returnDoc(state, DU.parseHTML('<pre />'));
-};
+const dumpHook = Promise.method(function(state, content, args) {
+	return DU.parseHTML('<pre />');
+});
 
-const staticTagHook = function(state, content, args) {
+const staticTagHook = Promise.method(function(state, content, args) {
 	// FIXME: Choose a better DOM representation that doesn't mess with
 	// newline constraints.
-	return returnDoc(state, DU.parseHTML('<span />'));
-};
+	return DU.parseHTML('<span />');
+});
 
 const staticTagPostProcessor = function(node, obj) {
 	if (DU.isElt(node)) {

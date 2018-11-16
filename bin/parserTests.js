@@ -1491,14 +1491,14 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 					tags: [
 						{
 							name: 'style',
-							toDOM: function(state, content, args) {
+							toDOM: Promise.method(function(state, content, args) {
 								const doc = DU.parseHTML('');
 								const style = doc.createElement('style');
 								style.innerHTML = content;
 								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.manager.env, style, args);
 								doc.body.appendChild(style);
-								return ParsoidExtApi.returnDoc(state, doc);
-							}
+								return doc;
+							}),
 						},
 					],
 				};
@@ -1511,9 +1511,9 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 					tags: [
 						{
 							name: 'html',
-							toDOM: function(state, content, args) {
-								return ParsoidExtApi.returnDoc(state, DU.parseHTML(content));
-							}
+							toDOM: Promise.method(function(state, content, args) {
+								return DU.parseHTML(content);
+							}),
 						},
 					],
 				};
