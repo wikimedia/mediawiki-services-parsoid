@@ -1435,7 +1435,7 @@ Non-word characters don't terminate tag names
 !! end
 
 ###
-### See tests/parser/parserTestsParserHook.php for the <tåg> extension)
+### See tests/parser/ParserTestParserHook.php for the <tåg> extension)
 ### This checks that HTML5 tags (with non-word characters in the tag
 ### name) make it safely through the parser -- the Sanitizer will
 ### munge them later, as it should.
@@ -18996,7 +18996,7 @@ Tags which are hidden from tidiers cannot pass through the Sanitizer
 !! end
 
 ###
-### Parser hooks (see tests/parser/parserTestsParserHook.php for the <tag> extension)
+### Parser hooks (see tests/parser/ParserTestParserHook.php for the <tag> extension)
 ###
 
 !! test
@@ -19266,7 +19266,7 @@ array (
 !! end
 
 ###
-### (see tests/parser/parserTestsParserHook.php for the <statictag> extension)
+### (see tests/parser/ParserTestParserHook.php for the <statictag> extension)
 ###
 
 !! test

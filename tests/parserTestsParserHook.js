@@ -18,24 +18,17 @@ const staticTagHook = function(state, content, args) {
 };
 
 const staticTagPostProcessor = function(node, obj) {
-	let child = node.firstChild;
-	while (child !== null) {
-		const nextChild = child.nextSibling;
-		if (DU.isElt(child)) {
-			const typeOf = child.getAttribute('typeOf');
-			if ((/(?:^|\s)mw:Extension\/statictag(?=$|\s)/).test(typeOf)) {
-				const dataMw = DU.getDataMw(child);
-				if (dataMw.attrs.action === 'flush') {
-					child.appendChild(child.ownerDocument.createTextNode(obj.buf));
-					obj.buf = '';
-				} else {
-					obj.buf += dataMw.body.extsrc;
-				}
-			} else if (child.hasChildNodes()) {
-				staticTagPostProcessor(child, obj);
+	if (DU.isElt(node)) {
+		const typeOf = node.getAttribute('typeOf');
+		if ((/(?:^|\s)mw:Extension\/statictag(?=$|\s)/).test(typeOf)) {
+			const dataMw = DU.getDataMw(node);
+			if (dataMw.attrs.action === 'flush') {
+				node.appendChild(node.ownerDocument.createTextNode(obj.buf));
+				obj.buf = '';
+			} else {
+				obj.buf += dataMw.body.extsrc;
 			}
 		}
-		child = nextChild;
 	}
 };
 
@@ -51,7 +44,7 @@ module.exports = function() {
 			wt2htmlPostProcessor: (body, env, options, atTopLevel) => {
 				if (atTopLevel) {
 					const obj = { buf: '' };
-					staticTagPostProcessor(body, obj);
+					DU.visitDOM(body, staticTagPostProcessor, obj);
 				}
 			},
 		},
