@@ -94,18 +94,40 @@ var ScriptUtils = {
 
 		if (cliOpts.genTest) {
 			if (cliOpts.genTest === true) {
-				console.warn("Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler --genTestOut TestFileName', to turn it on.");
-			} else if (cliOpts.genTestOut === true || !cliOpts.genTestOut) {
-				console.warn("Output file name required for test generation. Use --genTestOut TestFileName.");
+				console.warn("Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler', to turn it on.");
 			} else {
-				parsoidOptions.generateFlags = { "handler": cliOpts.genTest, "fileName": cliOpts.genTestOut };
-				var handlers = new Set([
-					'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
-					'TokenStreamPatcher', 'BehaviorSwitchHandler',
-					'SanitizerHandler'
-				]);
-				console.assert(handlers.has(parsoidOptions.generateFlags.handler),
+				if (cliOpts.genTest.slice(0,4) === 'dom:') {
+					var domHandlers = new Set([
+						'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
+						'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
+						'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
+						'dom:fixups', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
+						'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
+						'dom:downgrade'
+					]);
+					parsoidOptions.generateFlags = {
+						"handlers": ScriptUtils.splitFlags(cliOpts.genTest),
+						"directory": cliOpts.genDirectory,
+						"pageName": cliOpts.pageName,
+						"fragments": cliOpts.genTestFragments
+					};
+					parsoidOptions.generateFlags.handlers.forEach(function(handler) {
+						console.assert(domHandlers.has(handler),
+							'No matching DOM handler named ' + handler + ' found, exiting.');
+					});
+
+				} else {
+					var handlers = new Set([
+						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
+						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler'
+					]);
+					parsoidOptions.generateFlags = {
+						"handler": cliOpts.genTest,
+						"fileName": cliOpts.genTestOut
+					};
+					console.assert(handlers.has(parsoidOptions.generateFlags.handler),
 						'No matching token handler named ' + parsoidOptions.generateFlags.handler + ' found, exiting.');
+				}
 			}
 		}
 
@@ -208,9 +230,9 @@ var ScriptUtils = {
 	 */
 	genTestUsageHelp: function() {
 		return [
-			"Generate Test Files",
+			"Generate Test Files for token transforms and DOM transforms",
 			"-------------------",
-			"- Generates transformTest.js compatible output files",
+			"- Generates transformTest.js compatible output files for token transformers",
 			"- example: --genTest ListHandler --genTestOut listTestFile.txt",
 			"- Supported transformers/handlers:",
 			"  * QuoteTransformer  : records quote transforms",
@@ -218,7 +240,17 @@ var ScriptUtils = {
 			"  * ParagraphWrapper  : records paragraph transforms",
 			"  * TokenStreamPatcher : records token stream patch transforms",
 			"  * BehaviorSwitchHandler : records behavior switch transforms",
-			"  * SanitizerHandler  : records sanitizer transforms"
+			"  * SanitizerHandler  : records sanitizer transforms",
+			" ",
+			"- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers",
+			"- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi",
+			"- Supported DOM transforms/handlers:",
+			"    dom:dpload, dom:fostered, dom:process-fixups, dom:normalize",
+			"    dom:pwrap, dom:migrate-metas, dom:pres, dom:migrate-nls",
+			"    dom:dsr, dom:tplwrap, dom:dom-unpack, dom:tag:cite, dom:tag:poem",
+			"    dom:fixups, dom:sections, dom:heading-ids, dom:lang-converter",
+			"    dom:strip-metas, dom:cleanup, dom:linkclasses, dom:redlinks",
+			"    dom:downgrade"
 		].join('\n');
 	},
 
@@ -341,7 +373,7 @@ var ScriptUtils = {
 				description: 'Dump state. Use --dump=help for supported options',
 			},
 			'genTest': {
-				description: 'Generates token transformer tests. Use --genTest=help for supported options',
+				description: 'Generates token transformer and DOM pass tests. Use --genTest=help for supported options',
 				'default': '',
 				'boolean': false,
 			},
@@ -349,6 +381,16 @@ var ScriptUtils = {
 				description: 'Output file to use for token transformer tests',
 				'default': '',
 				'boolean': false,
+			},
+			'genDirectory': {
+				description: 'Output directory to use for DOM tests',
+				'default': '',
+				'boolean': false,
+			},
+			'genTestFragments': {
+				description: 'Enable fragment generation in DOM genTest output',
+				'default': false,
+				'boolean': true,
 			},
 			// handled by `setTemplatingAndProcessingFlags`
 			'fetchConfig': {
