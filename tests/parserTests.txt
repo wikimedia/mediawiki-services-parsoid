@@ -31075,6 +31075,21 @@ b
 !! end
 
 !! test
+Templated content should be skipped over by normalization
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"SomeTemplate1","href":"./Template:SomeTemplate1"},"params":{"1":{"wt":"boo"}},"i":0}}]}'>foobar</p><p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"SomeTemplate2","href":"./Template:SomeTemplate2"},"params":{"1":{"wt":"booboo"}},"i":0}}]}'>foobar</p><span about="#mwt2">
+</span><p about="#mwt2"></p><span about="#mwt2">
+</span>
+!! wikitext
+{{SomeTemplate1|boo}}{{SomeTemplate2|booboo}}
+!! end
+
+!! test
 Escape nowiki DOM elements
 !! options
 parsoid=html2wt
