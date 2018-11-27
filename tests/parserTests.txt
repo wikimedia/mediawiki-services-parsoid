@@ -31135,6 +31135,33 @@ b
 !! end
 
 !! test
+Empty paragraphs (marked with mw-empty-elt) found in source should not be normalized away
+!! options
+parsoid={
+  "modes": ["html2wt"],
+  "scrubWikitext": true
+}
+!! html/parsoid
+<table>
+<tbody>
+<tr>
+<td><div>foo
+</div>
+<p class="mw-empty-elt"></p>
+</td>
+</tr>
+</tbody>
+<caption></caption>
+</table>
+!! wikitext
+{|
+|<div>foo
+</div>
+|+
+|}
+!! end
+
+!! test
 Templated content should be skipped over by normalization
 !! options
 parsoid={
