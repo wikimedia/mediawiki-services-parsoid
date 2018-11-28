@@ -231,7 +231,7 @@ var ScriptUtils = {
 	genTestUsageHelp: function() {
 		return [
 			"Generate Test Files for token transforms and DOM transforms",
-			"-------------------",
+			"-----------------------------------------------------------",
 			"- Generates transformTest.js compatible output files for token transformers",
 			"- example: --genTest ListHandler --genTestOut listTestFile.txt",
 			"- Supported transformers/handlers:",
