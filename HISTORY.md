@@ -1,3 +1,65 @@
+0.10.0 / 2018-12-05
+===================
+  Notable wt -> html changes
+  * Parsoid HTML version bumped to 2.0.0
+  * Support for the Content Negotiation Protocol for negotiating HTML content versions
+  * Implement RFC T157418: Trim whitespace in wikitext headings, lists, tables
+  * Added support for template styles
+  * Expose content inside <includeonly> to editors via data-mw attribute
+  * Support directionality for references
+  * A bunch of cleanup and bug fixes in paragraph wrapping for improved compliance
+    with PHP parser output. Move to DOM based p-wrapping of unwrapped bare text
+  * Remove `html5-legacy` mode of ID generation
+  * Media-related:
+    - Use <audio> elements for rendering audio files
+    - Use `resource` attribute for [[Media:....]] links
+    - Image alt and link options can contain arbitrary wikitext which is stripped
+    - Support more link types in file alt/link options
+    - Increase the default height of mw:Audio to 32px
+    - Stop adding valign classes to block media
+    - Parse more block constructs in media captions
+  * A number of bug fixes and crasher fixes
+
+  Notable html -> wt changes:
+  * Scrub DOM to convert <p></p> sequences to NL-emitting normal forms
+    This now translates empty lines entered in VE to empty lines in wikitext
+  * Add new lines before and after lists in wikitext
+  * Improve templatedata spec compliance wrt leading and trailing newlines
+  * Avoid piped links in more cases by moving formatting outside the link
+  * Handle | chars in hrefs
+  * Handle } in table cells
+  * Serialize empty table cells with a single whitespace character
+  * Don't force paragraphs inside blockquotes to serialize on a new line
+  * Distinguish between inserted & deleted diff markers
+
+  Infrastructure:
+  * Make the Sanitizer "static" and decouple it from the parsing pipeline
+  * Removed < node v6 compatibility
+  * Migrate to jsdoc instead of jsduck for documentation
+  * Allow users to dynamically configure new wikis
+  * Addressed nsp-triggered security advisories
+  * Updated domino and other dependencies
+
+  Extensions
+  * Cleanup of the extension API to reduce exposure of Parsoid internals
+  * Migrated native Parsoid extensions to the updated extension API
+  * Native Parsoid implementation of <poem>
+
+  Performance fixes:
+  * Mostly minor tweaks:
+    - Performance improvements in the TokenTransformManager
+    - Add a fast path to avoid unnecessarily retokenizing the extlink href
+    - Test for a valid protocol before attempting to tokenize extlink content
+    - Ensure ref.cachedHtml isn't being regenerated needlessly
+    - Suppress autoInsertedEnd flags where not required
+
+  Cleanup:
+  * Split up large utility classes into smaller functional groups
+  * More native ES6 classes
+  * More native ES6 syntax (let, const, yield)
+  * A whole bunch of dead code removed
+  * Cleanup return types in Token Transformers
+
 0.9.0 / 2018-03-23
 ==================
   Notable wt -> html changes

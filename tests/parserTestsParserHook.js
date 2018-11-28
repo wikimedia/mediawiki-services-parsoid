@@ -1,6 +1,6 @@
 'use strict';
 
-const ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.9.0');
+const ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.10.0');
 const { DOMDataUtils, DOMUtils, Promise } = ParsoidExtApi;
 
 /**
