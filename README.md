@@ -39,7 +39,7 @@ And some helpful getting-started guides are at
 https://doc.wikimedia.org/Parsoid/master/
 
 An example of a library that builds on Parsoid output to offer an API that
-mimic's mwparserfromhell in JavaScript can be found at,
+mimics mwparserfromhell in JavaScript can be found at,
 https://github.com/wikimedia/parsoid-jsapi
 
 License
