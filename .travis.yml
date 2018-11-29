@@ -10,6 +10,14 @@ node_js:
     # From the nvm docs, "this installs the latest version of node".
     - "node"
 
+# FIXME: Node.js v11.x introduced a difference with how timers are run that
+# results in some about ids in blacklisted tests being off.  Needs
+# investigation but, regardless, should be fixed by T206222
+# See https://github.com/nodejs/node/pull/22842
+matrix:
+  allow_failures:
+  - node_js: "node"
+
 before_install:
     - npm i -g npm@3
 
