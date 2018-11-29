@@ -106,7 +106,7 @@ class DefaultMap extends Map {
 function *readLines(inFile) {
 	const fd = fs.openSync(inFile, 'r');
 	try {
-		const buf = new Buffer(1024);
+		const buf = Buffer.alloc(1024);
 		const decoder = new StringDecoder('utf8');
 		let line = '';
 		let sawCR = false;
@@ -174,7 +174,7 @@ function readAttFile(inFile, handleState, handleFinal) {
 class DynamicBuffer {
 	constructor(chunkLength) {
 		this.chunkLength = chunkLength || 16384;
-		this.currBuff = new Buffer(this.chunkLength);
+		this.currBuff = Buffer.alloc(this.chunkLength);
 		this.buffNum = 0;
 		this.offset = 0;
 		this.buffers = [ this.currBuff ];
@@ -227,7 +227,7 @@ class DynamicBuffer {
 	}
 	_maybeCreateBuffers() {
 		while (this.buffNum >= this.buffers.length) {
-			this.buffers.push(new Buffer(this.chunkLength));
+			this.buffers.push(Buffer.alloc(this.chunkLength));
 			this.lastLength = 0;
 		}
 	}

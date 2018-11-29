@@ -39,6 +39,8 @@
     "no-nested-ternary": 0,
     "no-unmodified-loop-condition": 0,
 
+    "no-buffer-constructor": 1,
+
     "jsdoc/newline-after-description": [0, "never"],
   }
 }
