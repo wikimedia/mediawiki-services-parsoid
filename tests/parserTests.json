@@ -2,8 +2,8 @@
 	"parserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "184e6c91aa1ee9a6392321f4ddaa28c0c42c2bed",
-		"latestCommit": "fbe6b633b72e24a292fed936556a146bd72d0be7"
+		"expectedSHA1": "14969d45b33bf40fbfb03274c71c645bac4904c0",
+		"latestCommit": "76396ff888e134fdcb86be0560c9f51acce577bb"
 	},
 	"citeParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Cite/",
