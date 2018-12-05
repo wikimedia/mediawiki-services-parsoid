@@ -202,6 +202,14 @@ describe('Parsoid API', function() {
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/0.0.0"')
 			.send({ wikitext: '== h2 ==' })
 			.expect(406)
+			.expect(function(res) {
+				res.error.text.should.equal(
+					'Not acceptable.\n' +
+					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/2.0.0&quot;\n' +
+					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/1.8.0&quot;\n' +
+					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/999.0.0&quot;\n'
+				);
+			})
 			.end(done);
 		});
 
@@ -211,6 +219,14 @@ describe('Parsoid API', function() {
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/HTML/0.0.0"')
 			.send({ wikitext: '== h2 ==' })
 			.expect(406)
+			.expect(function(res) {
+				JSON.parse(res.error.text).error.should.equal(
+					'Not acceptable.\n' +
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"\n' +
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.8.0"\n' +
+					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"\n'
+				);
+			})
 			.end(done);
 		});
 
