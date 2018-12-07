@@ -1385,7 +1385,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 		// Convert to our enwiki.. format
 		prefix += 'wiki';
 	}
-	yield this.env.switchToConfig(prefix);
+	yield this.env.switchToConfig(prefix, true);
 
 	// adjust config to match that used for PHP tests
 	// see core/tests/parser/parserTest.inc:setupGlobals() for
