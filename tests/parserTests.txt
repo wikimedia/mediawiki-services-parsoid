@@ -18066,17 +18066,17 @@ parsoid=wt2html,html2html
 !! end
 
 # FIXME Parsoid doesn't actually match PHP here.
-# Probably we should use the synthetic <foo /> or <indicator>
-# extensions for this test, which are enabled when running parser tests.
 !! test
 Extension tag in attribute value
+!! options
+wgRawHtml=1
 !! wikitext
-<span title="<translate>123</translate>">ok</span>
-!! html/php+disabled
-<p>&lt;span title="&lt;translate&gt;123&lt;/translate&gt;"&gt;ok&lt;/span&gt;
+<span title="<html><div>123</div></html>">ok</span>
+!! html/php+tidy
+<p><span title="&lt;div&gt;123&lt;/div&gt;">ok</span>
 </p>
 !! html/parsoid
-<p><span title="123" about="#mwt4" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;translate>123&lt;/translate>"}}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;translate typeof=\"mw:Extension/translate\" about=\"#mwt3\" data-parsoid=&apos;{\"dsr\":[13,39,2,2]}&apos; data-mw=&apos;{\"name\":\"translate\",\"attrs\":{},\"body\":{\"extsrc\":\"123\"}}&apos;>123&lt;/translate>"}]]}'>ok</span></p>
+<p><span title="123" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;html>&lt;div>123&lt;/div>&lt;/html>"}}'>ok</span></p>
 !! end
 
 !! test
