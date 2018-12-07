@@ -8414,9 +8414,24 @@ title=[[0]]
 <nowiki> inside a link
 !! wikitext
 [[Main<nowiki> Page</nowiki>]] [[Main Page|the main page <nowiki>[it's not very good]</nowiki>]]
-!! html
+!! html/php+tidy
 <p>[[Main Page]] <a href="/wiki/Main_Page" title="Main Page">the main page [it's not very good]</a>
 </p>
+!! html/parsoid
+<p>[[Main<span typeof="mw:Nowiki"> Page</span>]] <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">the main page <span typeof="mw:Nowiki">[it's not very good]</span></a></p>
+!! end
+
+## Parsoid doesn't get this right and even fails wt2html because, when doing the
+## normalization for comparison, the html serialization / re-parse doesn't
+## roundtrip.  This is T49963
+!! test
+<pre> inside a link
+!! wikitext
+[[Main<pre> Page</pre>]] [[Main Page|the main page <pre>[it's not very good]</pre>]]
+!! html/php+tidy
+<p>[[Main</p><pre> Page</pre><p>]] <a href="/wiki/Main_Page" title="Main Page">the main page </a></p><a href="/wiki/Main_Page" title="Main Page"><pre>[it's not very good]</pre></a>
+!! html/parsoid
+<p>[[Main</p><pre typeof="mw:Extension/pre" about="#mwt4" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":" Page"}}'> Page</pre><p>]] <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">the main page <pre typeof="mw:Extension/pre" about="#mwt6" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"[it&apos;s not very good]"}}'>[it's not very good]</pre></a></p>
 !! end
 
 !! test
