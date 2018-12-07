@@ -70,7 +70,7 @@ Promise.async(function *() {
 	if (argv.debug) {
 		var logger = new ParsoidLogger(dummyEnv);
 		logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
-		dummyEnv.log = logger.log.bind(logger);
+		dummyEnv.log = (...args) => logger.log(...args);
 	} else {
 		dummyEnv.log = function() {};
 	}

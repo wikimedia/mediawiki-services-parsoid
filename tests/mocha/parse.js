@@ -25,7 +25,7 @@ describe('ParserPipelineFactory', function() {
 			return ret.doc;
 		});
 	};
-	var serialize = helpers.serialize.bind(null, parsoidConfig);
+	var serialize = (doc, pb, opts) => helpers.serialize(parsoidConfig, doc, pb, opts);
 
 	describe('parse()', function() {
 		it('should create a sane document from a short string', function() {

@@ -18,7 +18,7 @@ var parse = function(src, options) {
 	});
 };
 
-var serialize = helpers.serialize.bind(null, parsoidConfig);
+var serialize = (doc, pb, opts) => helpers.serialize(parsoidConfig, doc, pb, opts);
 
 // These are regression specs for when we fix bugs that cannot be easily
 // verified with the parser tests framework

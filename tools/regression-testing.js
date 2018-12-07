@@ -78,7 +78,7 @@ Promise.async(function *() {
 				parsoidURL: ret.parsoidURL,
 				outputContentVersion: argv.outputContentVersion,
 			}, rtTest.jsonFormat).then(
-				handleResult.bind(null, t)
+				ret => handleResult(t, ret)
 			);
 		}, null);
 		yield ret.runner.stop();

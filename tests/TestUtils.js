@@ -1097,7 +1097,7 @@ TestUtils.prepareOptions = function() {
 	if (typeof options.reportResult !== 'function') {
 		// default result reporting is standard out,
 		// see printResult for documentation of the default.
-		options.reportResult = printResult.bind(null, options.reportFailure, options.reportSuccess);
+		options.reportResult = (...args) => printResult(options.reportFailure, options.reportSuccess, ...args);
 	}
 
 	if (typeof options.getDiff !== 'function') {
