@@ -18076,7 +18076,7 @@ wgRawHtml=1
 <p><span title="&lt;div&gt;123&lt;/div&gt;">ok</span>
 </p>
 !! html/parsoid
-<p><span title="123" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;html>&lt;div>123&lt;/div>&lt;/html>"}}'>ok</span></p>
+<p><span title="123" about="#mwt4" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":"123"},"sa":{"title":"&lt;html>&lt;div>123&lt;/div>&lt;/html>"}}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;div typeof=\"mw:Extension/html\" about=\"#mwt3\" data-parsoid=&apos;{\"dsr\":[13,40,2,2]}&apos; data-mw=&apos;{\"name\":\"html\",\"attrs\":{},\"body\":{\"extsrc\":\"&amp;lt;div>123&amp;lt;/div>\"}}&apos;>123&lt;/div>"}]]}'>ok</span></p>
 !! end
 
 !! test
