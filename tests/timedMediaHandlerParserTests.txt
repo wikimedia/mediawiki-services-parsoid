@@ -26,10 +26,6 @@ Simple thumbed video
 
 !! test
 Video in a <gallery>
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery>
 File:Video.ogv

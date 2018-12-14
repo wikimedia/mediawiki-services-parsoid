@@ -1472,7 +1472,6 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 		// Process test-specific options
 		var defaults = {
 			scrubWikitext: MWParserEnvironment.prototype.scrubWikitext,
-			nativeGallery: MWParserEnvironment.prototype.nativeGallery,
 			wrapSections: false, // override for parser tests
 		};
 		var env = this.env;

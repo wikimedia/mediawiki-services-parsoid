@@ -126,13 +126,15 @@ Templating<ref>Text<!--comment--></ref>
 
 !! test
 <references> after <gallery> (bug 6164)
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <ref>one</ref>
 
 <gallery>Image:Foobar.jpg</gallery>
 
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -147,6 +149,14 @@ Templating<ref>Text<!--comment--></ref>
 </li>
 </ol></div>
 
+!! html/parsoid
+<p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt9" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext"></div></li>
+</ul>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">one</span></li></ol>
 !! end
 
 !! test

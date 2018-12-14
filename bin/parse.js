@@ -180,11 +180,6 @@ var standardOpts = ScriptUtils.addStandardOptions({
 		'boolean': true,
 		'default': false,
 	},
-	'nativeGallery': {
-		description: 'Omit extsrc from gallery.',
-		'boolean': true,
-		'default': false,
-	},
 	'contentmodel': {
 		description: 'The content model of the input.  Defaults to "wikitext" but extensions may support others (for example, "json").',
 		'boolean': false,
@@ -316,7 +311,6 @@ Promise.async(function *() {
 		prefix: prefix,
 		pageName: argv.pageName,
 		scrubWikitext: argv.scrubWikitext,
-		nativeGallery: argv.nativeGallery,
 		pageBundle: argv.pageBundle || argv.pboutfile,
 		wrapSections: argv.wrapSections,
 		logLevels: logLevels,

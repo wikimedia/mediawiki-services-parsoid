@@ -15222,10 +15222,6 @@ Alt image option should handle most kinds of wikitext without barfing
 
 !! test
 Ampersand in alt attribute (T206940)
-!! options
-parsoid = {
-  "nativeGallery": true
-}
 !! wikitext
 [[File:Foobar.jpg|alt=&amp;amp;]]
 
@@ -15260,7 +15256,6 @@ File:Foobar.jpg|alt=&amp;amp;
 Link with encoded pipe in alt option
 !! options
 parsoid={
-  "nativeGallery": true,
   "modes": ["wt2html", "html2html"]
 }
 !! wikitext
@@ -15291,6 +15286,8 @@ File:Foobar.jpg|alt=http://testing.123?4=5&vert;6|caption
 
 !! test
 Italics markup in alt attribute (T206940)
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 [[File:Foobar.jpg|alt=''x''|caption]]
 
@@ -15314,7 +15311,7 @@ File:Foobar.jpg|alt=''x''|caption
 <p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"alt","ak":"alt=&apos;&apos;x&apos;&apos;"},{"ck":"caption","ak":"caption"}]}' data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img alt="x" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"alt":"x","resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"alt":"alt=&apos;&apos;x&apos;&apos;","resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
 
 <!-- consistency with gallery extension -->
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|alt=&apos;&apos;x&apos;&apos;|caption\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
 <li class="gallerybox">
 <div class="thumb"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img alt="x" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div>
 <div class="gallerytext">caption</div>
@@ -15322,8 +15319,12 @@ File:Foobar.jpg|alt=''x''|caption
 </ul>
 !! end
 
+## FIXME: This test can be dropped when Parsoid content versions 2.0.0 / 1.8.0
+## are no longer in storage.
 !! test
 Nowiki markup in alt attribute (T206940)
+!! options
+parsoid=html2wt
 !! wikitext
 [[File:Foobar.jpg|alt=<nowiki>''</nowiki>x<nowiki>''</nowiki>|caption]]
 
@@ -15357,10 +15358,6 @@ File:Foobar.jpg|alt=<nowiki>''</nowiki>x<nowiki>''</nowiki>|caption
 
 !! test
 Nowiki markup in alt attribute (edited html, no data-parsoid) (T206940)
-!! options
-parsoid = {
-  "nativeGallery": true
-}
 !! wikitext
 [[File:Foobar.jpg|alt=<nowiki>''x''</nowiki>|caption]]
 
@@ -15392,8 +15389,12 @@ File:Foobar.jpg|alt=<nowiki>''x''</nowiki>|caption
 </ul>
 !! end
 
+## FIXME: This test can be dropped when Parsoid content versions 2.0.0 / 1.8.0
+## are no longer in storage.
 !! test
 Ampersand in link attribute (T206940)
+!! options
+parsoid=html2wt
 !! wikitext
 [[File:Foobar.jpg|link=Foo &amp; bar]]
 
@@ -15425,10 +15426,6 @@ File:Foobar.jpg|link=Foo &amp; bar
 
 !! test
 Ampersand in link attribute (edited html, no data-parsoid) (T206940)
-!! options
-parsoid = {
-  "nativeGallery": true
-}
 !! wikitext
 [[File:Foobar.jpg|link=Foo_&_bar]]
 
@@ -15460,6 +15457,8 @@ File:Foobar.jpg|link=Foo_&_bar
 
 !! test
 Italics markup in link attribute (T206940)
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 [[Foo''s bar''s]]
 
@@ -15503,7 +15502,7 @@ File:Foobar.jpg|link=''Main Page''|caption2
 <p><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"link","ak":"link=&apos;&apos;Main Page&apos;&apos;"},{"ck":"caption","ak":"caption2"}]}' data-mw='{"caption":"caption2"}'><a href="./Main_Page" data-parsoid='{"a":{"href":"./Main_Page"},"sa":{"href":"link=&apos;&apos;Main Page&apos;&apos;"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline></p>
 
 <!-- consistency with gallery extension -->
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=Foo&apos;&apos;s bar&apos;&apos;s|caption1\nFile:Foobar.jpg|link=&apos;&apos;Main Page&apos;&apos;|caption2\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
 <li class="gallerybox">
 <div class="thumb"><figure-inline typeof="mw:Image"><a href="./Foos_bars"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div>
 <div class="gallerytext">caption1</div>
@@ -15515,8 +15514,12 @@ File:Foobar.jpg|link=''Main Page''|caption2
 </ul>
 !! end
 
+## FIXME: This test can be dropped when Parsoid content versions 2.0.0 / 1.8.0
+## are no longer in storage.
 !! test
 Nowiki markup in link attribute (T206940)
+!! options
+parsoid=html2wt
 !! wikitext
 [[File:Foobar.jpg|link=Foo<nowiki>''</nowiki>s_bar<nowiki>''</nowiki>s|caption]]
 
@@ -15550,10 +15553,6 @@ File:Foobar.jpg|link=Foo<nowiki>''</nowiki>s_bar<nowiki>''</nowiki>s|caption
 
 !! test
 Nowiki markup in link attribute (edited html, no data-parsoid) (T206940)
-!! options
-parsoid = {
-  "nativeGallery": true
-}
 !! wikitext
 [[File:Foobar.jpg|link=Foo<nowiki>''s_bar''</nowiki>s|caption]]
 
@@ -15608,7 +15607,7 @@ File:Foobar.jpg|link=https://example.com?foo&params=bar
 <p><figure-inline class="mw-default-size" typeof="mw:Image"><a href="https://example.com?foo&amp;params=bar"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure-inline></p>
 
 <!-- consistency with gallery extension -->
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=https://example.com?foo&amp;params=bar\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
 <li class="gallerybox">
 <div class="thumb"><figure-inline typeof="mw:Image"><a href="https://example.com?foo&amp;params=bar"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div>
 <div class="gallerytext"></div>
@@ -21385,7 +21384,7 @@ File:File:Foobar.jpg
 </ul>
 
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" type="123" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"type":"123","summary":"345"},"body":{"extsrc":"\nFile:File:Foobar.jpg\n"}}'>
+<ul class="gallery mw-gallery-traditional" type="123" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"type":"123","summary":"345"},"body":{}}'>
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Error mw:Image"><a href="./File:File:Foobar.jpg"><img resource="./File:File:Foobar.jpg" src="./Special:FilePath/File:Foobar.jpg" height="120" width="120"/></a></figure-inline></div><div class="gallerytext"></div></li>
 </ul>
 !! end
@@ -21395,8 +21394,7 @@ File:File:Foobar.jpg
 Gallery
 !! options
 parsoid={
-  "modes": ["wt2html"],
-  "nativeGallery": true
+  "modes": ["wt2html"]
 }
 !! wikitext
 <gallery>
@@ -21462,8 +21460,7 @@ image4    |300px| centre
 Gallery (with options, html)
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery widths="70px" heights="40px" perrow="2" caption="Foo [[Main Page]]">
@@ -21520,12 +21517,12 @@ image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
 </ul>
 !! end
 
+## FIXME: This test can be dropped when Parsoid content versions 2.0.0 / 1.8.0
+## are no longer in storage.
 !! test
 Gallery (with options, extsrc)
 !! options
-parsoid={
-  "nativeGallery": false
-}
+parsoid=html2wt
 !! wikitext
 <gallery widths="70px" heights="40px" perrow="2" caption="Foo [[Main Page]]">
 File:Nonexistent.jpg|caption
@@ -21597,7 +21594,7 @@ File:Foobar.jpg
 </ul>
 
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"widths":"70","heights":"40"},"body":{"extsrc":"\nFile:Foobar.jpg\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"widths":"70","heights":"40"},"body":{}}'>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70"/></a></figure-inline></div><div class="gallerytext"></div></li>
 </ul>
 !! end
@@ -21618,7 +21615,7 @@ File:Foobar.jpg
 </ul>
 
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"widths":"70em","heights":"40em"},"body":{"extsrc":"\nFile:Foobar.jpg\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"widths":"70em","heights":"40em"},"body":{}}'>
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext"></div></li>
 </ul>
 !! end
@@ -21627,8 +21624,7 @@ File:Foobar.jpg
 Gallery with link that has fragment
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery>
@@ -21667,10 +21663,6 @@ image:foobar.jpg|link=Main Page#section|caption
 
 !! test
 Gallery with template inside caption
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery caption="{{echo|hi}}">
 File:Foobar.jpg|{{echo|ho}}
@@ -21698,8 +21690,7 @@ File:Foobar.jpg|{{echo|ho}}
 Gallery with wikitext inside gallery caption
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery caption="# This should not be a list item
@@ -21730,10 +21721,6 @@ File:Foobar.jpg|Image caption
 
 !! test
 Gallery with wikitext inside caption
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery>
 File:Foobar.jpg|alt=galleryalt|[[File:Foobar.jpg|alt=inneralt|20x20px|desc]]
@@ -21766,10 +21753,6 @@ File:Foobar.jpg|alt=galleryalt|{{Test|unamedParam|alt=param}}
 
 !! test
 Gallery (with showfilename option)
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery showfilename="">
 File:Nonexistent.jpg|caption
@@ -21825,8 +21808,7 @@ some <b>caption</b> <a href="/wiki/Main_Page" title="Main Page">Main Page</a>
 Gallery (with namespace-less filenames)
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery>
@@ -21870,10 +21852,6 @@ foobar.jpg
 
 !! test
 Gallery override link with wikilink (T36852)
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery>
 File:Foobar.jpg|alt=galleryalt|link=Wikilink
@@ -21895,10 +21873,6 @@ File:Foobar.jpg|alt=galleryalt|link=Wikilink
 
 !! test
 Gallery override link with absolute external link (T36852)
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery>
 File:Foobar.jpg|alt=galleryalt|link=http://www.example.org
@@ -21918,10 +21892,13 @@ File:Foobar.jpg|alt=galleryalt|link=http://www.example.org
 </ul>
 !! end
 
+## Putting the caption at the end here runs into T49646 on the php side
+## so reducing the modes this runs in Parsoid
 !! test
 Gallery override link with absolute external link with LanguageConverter
 !! options
 language=zh
+parsoid=wt2html,html2html
 !! wikitext
 <gallery>
 File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
@@ -21938,7 +21915,7 @@ File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
 </ul>
 
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Image"><a href="http://www.example.org"><img alt="galleryalt" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext">caption</div></li>
 </ul>
 !! end
@@ -21947,8 +21924,7 @@ File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
 Gallery override link with malicious javascript (T36852)
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery>
@@ -21974,8 +21950,7 @@ File:Foobar.jpg|alt=galleryalt|link=" onclick="alert('malicious javascript code!
 Gallery with invalid title as link (T45964)
 !! options
 parsoid={
-  "modes": ["wt2html", "html2html"],
-  "nativeGallery": true
+  "modes": ["wt2html", "html2html"]
 }
 !! wikitext
 <gallery>
@@ -22000,8 +21975,7 @@ File:Foobar.jpg|link=<
 Serialize gallery without attrs in data-mw
 !! options
 parsoid={
-  "modes": ["html2wt"],
-  "nativeGallery": true
+  "modes": ["html2wt"]
 }
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","body":{}}'>
@@ -22016,10 +21990,6 @@ File:Test.png
 
 !! test
 Gallery with class and style attributes
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery class="center" style="text-align: center;">
 File:Foobar.jpg
@@ -22041,10 +22011,6 @@ File:Foobar.jpg
 
 !! test
 Gallery in slideshow mode
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery mode="slideshow" showthumbnails="">
 File:Foobar.jpg
@@ -22066,10 +22032,6 @@ File:Foobar.jpg
 
 !! test
 Gallery in packed mode
-!! options
-parsoid={
-  "nativeGallery": true
-}
 !! wikitext
 <gallery mode="packed">
 File:Foobar.jpg
@@ -22093,8 +22055,7 @@ File:Foobar.jpg
 Serialize gallery image captions on a line
 !! options
 parsoid={
-  "modes": ["html2wt"],
-  "nativeGallery": true
+  "modes": ["html2wt"]
 }
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
@@ -23916,10 +23877,11 @@ language=zh variant=zh-cn
 Don't break gallery if language converter markup is inside.
 !! options
 language=zh
+parsoid=wt2html,html2html
 !! wikitext
 <gallery>
-File:foobar.jpg|[[File:foobar.jpg|20px|desc|alt=-{R|foo}-|-{R|bar}-]]|alt=-{R|bat}-
-File:foobar.jpg|{{Test|unamedParam|alt=-{R|param}-}}|alt=galleryalt
+File:Foobar.jpg|alt=-{R|bat}-|[[File:foobar.jpg|20px|desc|alt=-{R|foo}-|-{R|bar}-]]
+File:Foobar.jpg|alt=galleryalt|{{Test|unamedParam|alt=-{R|param}-}}
 </gallery>
 !! html/php
 <ul class="gallery mw-gallery-traditional">
@@ -23940,7 +23902,7 @@ File:foobar.jpg|{{Test|unamedParam|alt=-{R|param}-}}|alt=galleryalt
 </ul>
 
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt6" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:foobar.jpg|[[File:foobar.jpg|20px|desc|alt=-{R|foo}-|-{R|bar}-]]|alt=-{R|bat}-\nFile:foobar.jpg|{{Test|unamedParam|alt=-{R|param}-}}|alt=galleryalt\n"}}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt6" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext"><figure-inline typeof="mw:Image" data-mw='{"caption":"&lt;span typeof=\"mw:LanguageVariant\" data-mw-variant=&#39;{\"disabled\":{\"t\":\"bar\"}}&#39; data-parsoid=&#39;{\"fl\":[\"R\"],\"dsr\":[68,77,null,2]}&#39;>&lt;/span>"}'><a href="./File:Foobar.jpg"><img alt="" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="2" width="20"/></a></figure-inline></div></li>
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Image"><a href="./File:Foobar.jpg"><img alt="galleryalt" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></figure-inline></div><div class="gallerytext"><span about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Test","href":"./Template:Test"},"params":{"1":{"wt":"unamedParam"},"alt":{"wt":"-{R|param}-"}},"i":0}}]}'>This is a test template</span></div></li>
 </ul>
