@@ -62,6 +62,7 @@ var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var yargs = require('yargs');
 var fs = require('fs');
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
+const { NlTk, EOFTk } = require('../lib/tokens/TokenTypes.js');
 
 var cachedState = false;
 var cachedTestLines = '';
@@ -72,115 +73,21 @@ function MockTTM(env, options) {
 	this.env = env;
 	this.pipelineId = 0;
 	this.options = options;
-	this.defaultTransformers = [];	// any transforms
-	this.tokenTransformers   = {};	// non-any transforms
 	this.tokenTime = 0; // floating-point value (# ms)
-	this.addXformTime = 0;
-	this.removeXformTime = 0;
-	this.getXformTime = 0;
 }
 
-// Map of: token constructor ==> transfomer type
-// Used for returning active transformers for a token
-MockTTM.tkConstructorToTkTypeMap = {
-	"String": "text",
-	"NlTk": "newline",
-	"CommentTk": "comment",
-	"EOFTk": "end",
-	"TagTk": "tag",
-	"EndTagTk": "tag",
-	"SelfclosingTagTk": "tag",
-};
-
-function tokenTransformersKey(tkType, tagName) {
-	return (tkType === 'tag') ? "tag:" + tagName : tkType;
-}
-
-MockTTM.prototype._cmpTransformations = function(a, b) {
-	return a.rank - b.rank;
-};
-
-MockTTM.prototype.addTransform = function(transformation, debugName, rank, type, name) {
-	var s = JSUtils.startTime();
-	this.pipelineModified = true;
-
-	var t = {
-		rank: rank,
-		name: debugName,
-		transform: transformation
-	};
-
-	if (type === 'any') {
-		// Record the any transformation
-		this.defaultTransformers.push(t);
-	} else {
-		var key = tokenTransformersKey(type, name);
-		var tArray = this.tokenTransformers[key];
-		if (!tArray) {
-			tArray = this.tokenTransformers[key] = [];
-		}
-
-		// assure no duplicate transformers
-		console.assert(tArray.every(function(tr) {
-			return tr.rank !== t.rank;
-		}), "Trying to add a duplicate transformer: " + t.name);
-
-		tArray.push(t);
-		tArray.sort(this._cmpTransformations);
+var getToken = function(line) {
+	var token = JSON.parse(line);
+	if (token.constructor !== String) {	// cast object to token type
+		console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
+		Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
 	}
-	this.addXformTime += JSUtils.elapsedTime(s);
-};
-
-function removeMatchingTransform(transformers, rank) {
-	var i = 0;
-	var n = transformers.length;
-	while (i < n && rank !== transformers[i].rank) {
-		i++;
-	}
-	transformers.splice(i, 1);
-}
-
-MockTTM.prototype.removeTransform = function(rank, type, name) {
-	var s = JSUtils.startTime();
-	this.pipelineModified = true;
-	if (type === 'any') {
-		// Remove from default transformers
-		removeMatchingTransform(this.defaultTransformers, rank);
-	} else {
-		var key = tokenTransformersKey(type, name);
-		var tArray = this.tokenTransformers[key];
-		if (tArray) {
-			removeMatchingTransform(tArray, rank);
-		}
-	}
-	this.removeXformTime += JSUtils.elapsedTime(s);
-};
-
-MockTTM.prototype.getTransforms = function(token, minRank) {
-	var s = JSUtils.startTime();
-	var tkType = MockTTM.tkConstructorToTkTypeMap[token.constructor.name];
-	var key = tokenTransformersKey(tkType, token.name);
-	var tts = this.tokenTransformers[key] || [];
-	if (this.defaultTransformers.length > 0) {
-		tts = tts.concat(this.defaultTransformers);
-		tts.sort(this._cmpTransformations);
-	}
-
-	var i = 0;
-	if (minRank !== undefined) {
-		// skip transforms <= minRank
-		while (i < tts.length && tts[i].rank <= minRank) {
-			i += 1;
-		}
-	}
-	this.getXformTime += JSUtils.elapsedTime(s);
-	return { first: i, transforms: tts, empty: i >= tts.length };
+	return token;
 };
 
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
-MockTTM.prototype.ProcessTestFile = function(opts) {
-	var transformerName;
+MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts) {
 	var testName;
 	var result;
 	var testFile;
@@ -201,6 +108,7 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 		testLines = testFile.split('\n');
 	}
 
+	let testEnabled = true;
 	for (var index = 0; index < testLines.length; index++) {
 		var line = testLines[index];
 		switch (line.charAt(0)) {
@@ -209,12 +117,15 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 			case '':	// empty line
 				break;
 			case ':':
-				transformerName = line.substr(2);
+				testEnabled = (line.replace(/^:\s*|\s*$/, '') === transformerName);
 				break;
 			case '!':	// start of test with name
 				testName = line.substr(2);
 				break;
 			case '[':	// desired result json string for test result verification
+				if (!testEnabled) {
+					break;
+				}
 				if (result !== undefined) {
 					var stringResult = JSON.stringify(result.tokens);
 					if (stringResult === line) {
@@ -232,32 +143,10 @@ MockTTM.prototype.ProcessTestFile = function(opts) {
 				break;
 			case '{':
 			default:
-				var token = JSON.parse(line);
-				if (token.constructor !== String) {	// cast object to token type
-					console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-					Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
+				if (!testEnabled) {
+					break;
 				}
-				var s = JSUtils.startTime();
-				var res;
-				var ts = this.getTransforms(token, 2.0);
-
-				// Push the token through the transformations till it morphs
-				var j = ts.first;
-				this.pipelineModified = false;
-				var numTransforms = ts.transforms.length;
-				while (j < numTransforms && !this.pipelineModified) {
-					var transformer = ts.transforms[j];
-					if (transformerName === transformer.name.substr(0, transformerName.length)) {
-						// Transform the token.
-						result = res = transformer.transform(token, this);
-						var resT = res.tokens && !res.tokens.rank && res.tokens.length === 1 && res.tokens[0];
-						if (resT !== token) {
-							break;
-						}
-					}
-					j++;
-				}
-				this.tokenTime += JSUtils.elapsedTime(s);
+				result = this.processToken(transformer, getToken(line));
 				break;
 		}
 	}
@@ -298,9 +187,35 @@ function CreatePipelines(lines) {
 	return pipelines;
 }
 
+MockTTM.prototype.processToken = function(transformer, token) {
+	let res;
+	const s = JSUtils.startTime();
+	if (token.constructor === NlTk) {
+		res = transformer.onNewline(token);
+	} else if (token.constructor === EOFTk) {
+		res = transformer.onEnd(token);
+	} else {
+		res = transformer.onTag(token);
+	}
+
+	let modified = false;
+	if (res !== token &&
+		(!res.tokens || res.tokens.length !== 1 || res.tokens[0] !== token)
+	) {
+		modified = true;
+	}
+
+	if (!modified && !res.skip && transformer.active) {
+		res = transformer.onAny(token);
+	}
+
+	this.tokenTime += JSUtils.elapsedTime(s);
+	return res;
+};
+
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
-MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
+MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
 	var result;
 	var testFile;
 	var testLines;
@@ -331,7 +246,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 	var numFailures = 0;
 	for (var index = 0; index < pipeLinesLength; index++) {
 		if (pipeLines[index] !== undefined) {
-			tokenTransformer.manager.pipelineId = index;
+			transformer.manager.pipelineId = index;
 			var pipeLength = pipeLines[index].length;
 			for (var element = 0; element < pipeLength; element++) {
 				var line = testLines[(pipeLines[index])[element]].substr(36);
@@ -354,30 +269,7 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 						break;
 					case '{':
 					default:
-						var token = JSON.parse(line);
-						if (token.constructor !== String) {	// cast object to token type
-							console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-							Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
-						}
-						var s = JSUtils.startTime();
-						var res;
-						var ts = this.getTransforms(token, 2.0);
-
-						// Push the token through the transformations till it morphs
-						var j = ts.first;
-						this.pipelineModified = false;
-						var numTransforms = ts.transforms.length;
-						while (j < numTransforms && !this.pipelineModified) {
-							var transformer = ts.transforms[j];
-							// Transform the token.
-							result = res = transformer.transform(token, this);
-							var resT = res.tokens && !res.tokens.rank && res.tokens.length === 1 && res.tokens[0];
-							if (resT !== token) {
-								break;
-							}
-							j++;
-						}
-						this.tokenTime += JSUtils.elapsedTime(s);
+						result = this.processToken(transformer, getToken(line));
 						break;
 				}
 			}
@@ -386,11 +278,11 @@ MockTTM.prototype.ProcessWikitextFile = function(tokenTransformer, opts) {
 	return numFailures;
 };
 
-MockTTM.prototype.unitTest = function(tokenTransformer, opts) {
+MockTTM.prototype.unitTest = function(tokenTransformer, transformerName, opts) {
 	if (!opts.timingMode) {
 		console.log('Starting stand alone unit test running file ' + opts.inputFile + '\n');
 	}
-	tokenTransformer.manager.ProcessTestFile(opts);
+	tokenTransformer.manager.ProcessTestFile(tokenTransformer, transformerName, opts);
 	if (!opts.timingMode) {
 		console.log('Ending stand alone unit test running file ' + opts.inputFile + '\n');
 	}
@@ -450,12 +342,12 @@ var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]]
 	},
 });
 
-function selectTestType(opts, manager, handler) {
+function selectTestType(opts, manager, transformerName, handler) {
 	var numFailures = 0;
 	var iterator = opts.timingMode ? Math.round(opts.iterationCount) : 1;
 	while (iterator--) {
 		if (opts.manual) {
-			numFailures += manager.unitTest(handler, opts);
+			numFailures += manager.unitTest(handler, transformerName, opts);
 		} else {
 			numFailures += manager.wikitextTest(handler, opts);
 		}
@@ -489,13 +381,10 @@ function runTests() {
 	try {
 		var startTime = JSUtils.startTime();
 		var TransformerModule = require('../lib/wt2html/tt/' + argv.transformer + '.js')[argv.transformer];
-		var numFailures = selectTestType(argv, manager, new TransformerModule(manager, {}));
+		var numFailures = selectTestType(argv, manager, argv.transformer, new TransformerModule(manager, {}));
 		var totalTime = JSUtils.elapsedTime(startTime);
 		console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');
 		console.log('Total time processing tokens     = ' + manager.tokenTime.toFixed(3) + ' milliseconds');
-		console.log('Total time adding transformers   = ' + manager.addXformTime.toFixed(3) + ' milliseconds');
-		console.log('Total time removing transformers = ' + manager.removeXformTime.toFixed(3) + ' milliseconds');
-		console.log('Total time getting transformers  = ' + manager.getXformTime.toFixed(3) + ' milliseconds');
 		if (numFailures) {
 			console.log('Total failures:', numFailures);
 			process.exit(1);
