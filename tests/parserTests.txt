@@ -1249,6 +1249,17 @@ parsoid=wt2html,wt2wt
 </td></tr></tbody></table>
 !! end
 
+!! test
+Bold conversion test
+!! wikitext
+a b'''c ''d e'''f'' g h'''i ''j
+!! options
+parsoid=wt2html
+!! html+tidy
+<p>a b'<i>c </i>d e<b>f<i> g h</i></b><i>i </i>j
+</p>
+!! end
+
 ###
 ### Non-html5 tags
 ###
