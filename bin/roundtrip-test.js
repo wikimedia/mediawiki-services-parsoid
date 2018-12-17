@@ -492,8 +492,8 @@ var checkIfSignificant = function(offsets, data) {
 
 	// Do this after the quick test above because in `parsoidOnly`
 	// normalization, data-mw is not stripped.
-	DOMUtils.visitDOM(oldBody, DOMDataUtils.loadDataAttribs);
-	DOMUtils.visitDOM(newBody, DOMDataUtils.loadDataAttribs);
+	DOMDataUtils.visitAndLoadDataAttribs(oldBody);
+	DOMDataUtils.visitAndLoadDataAttribs(newBody);
 
 	// Now, proceed with full blown diffs
 	for (i = 0; i < offsets.length; i++) {
