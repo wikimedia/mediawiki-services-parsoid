@@ -527,7 +527,7 @@ function runTests() {
 		if (!argv.transformer) {
 			console.log("Please provide a valid transformer name");
 		} else {
-			console.log("Transformer " + argv.transformer + " does not exist");
+			console.log("Exception running transformer " + argv.transformer, e);
 		}
 		process.exit(1);
 	}
