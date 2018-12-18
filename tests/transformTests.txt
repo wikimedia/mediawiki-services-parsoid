@@ -18,16 +18,16 @@
 # Start of QuoteTransformer unit tests
 
 ! Verify '''''foo''''' wikitext
-{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''''"}],"dataAttribs":{"tsr":[0,5]}}
+{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''''"},{"k":"preceding-2chars","v":""}],"dataAttribs":{"tsr":[0,5]}}
 "foo"
-{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''''"}],"dataAttribs":{"tsr":[8,13]}}
+{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''''"},{"k":"preceding-2chars","v":"oo"}],"dataAttribs":{"tsr":[8,13]}}
 {"type":"NlTk","dataAttribs":{"tsr":[13,14]}}
 [{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{"tsr":[0,2]}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[2,5]}},"foo",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[8,11]}},{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{"tsr":[11,13]}},{"type":"NlTk","dataAttribs":{"tsr":[13,14]}}]
 
 ! Verify '''bar''' wikitext
-{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"}],"dataAttribs":{"tsr":[0,3]}}
+{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"},{"k":"preceding-2chars","v":"ar"}],"dataAttribs":{"tsr":[0,3]}}
 "bar"
-{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"}],"dataAttribs":{"tsr":[6,9]}}
+{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"},{"k":"preceding-2chars","v":"ar"}],"dataAttribs":{"tsr":[6,9]}}
 {"type":"NlTk","dataAttribs":{"tsr":[9,10]}}
 [{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[0,3]}},"bar",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[6,9]}},{"type":"NlTk","dataAttribs":{"tsr":[9,10]}}]
 
@@ -39,7 +39,7 @@
 [{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{"tsr":[0,2]}},"song",{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{"tsr":[6,8]}},{"type":"NlTk","dataAttribs":{"tsr":[8,9]}}]
 
 ! Verify '''bell'' unbalanced quotes wikitext
-{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"}],"dataAttribs":{"tsr":[0,3]}}
+{"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "'''"},{"k":"preceding-2chars","v":"ar"}],"dataAttribs":{"tsr":[0,3]}}
 "bell"
 {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value", "v": "''"}],"dataAttribs":{"tsr":[7,9]}}
 {"type":"NlTk","dataAttribs":{"tsr":[9,10]}}
