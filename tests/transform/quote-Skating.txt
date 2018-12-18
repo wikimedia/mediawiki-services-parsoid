@@ -1,8 +1,8 @@
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{},"value":"'''''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''''"}],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink/Interwiki"},{"k":"href","v":"https://en.wiktionary.org/wiki/skating"},{"k":"title","v":"wiktionary:skating"}],"dataAttribs":{"stx":"piped","a":{"href":"https://en.wiktionary.org/wiki/skating"},"sa":{"href":"wiktionary:skating"},"isIW":true}}
 0-gen/QuoteTransformer      | IN  | "skating"
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{},"value":"'''''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''''"}],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | " in Wiktionary, the free dictionary."
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}
@@ -10,15 +10,15 @@
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}}
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[22,23]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink/Interwiki"},{"k":"href","v":"https://en.wiktionary.org/wiki/skating"},{"k":"title","v":"wiktionary:skating"}],"dataAttribs":{"stx":"piped","a":{"href":"https://en.wiktionary.org/wiki/skating"},"sa":{"href":"wiktionary:skating"},"isIW":true}},"skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{}}," in Wiktionary, the free dictionary.",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}},{"type":"NlTk","dataAttribs":{"tsr":[22,23]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{"tsr":[24,27]},"value":"'''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"}],"dataAttribs":{"tsr":[24,27]}}
 0-gen/QuoteTransformer      | IN  | "Skating"
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{"tsr":[34,37]},"value":"'''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"}],"dataAttribs":{"tsr":[34,37]}}
 0-gen/QuoteTransformer      | IN  | " involves any sports or recreational activity which consists of traveling on surfaces or on ice using skates."
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[146,147]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[24,27]}},"Skating",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[34,37]}}," involves any sports or recreational activity which consists of traveling on surfaces or on ice using skates.",{"type":"NlTk","dataAttribs":{"tsr":[146,147]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{},"value":"'''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"}],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | "Skating"
-0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[],"dataAttribs":{},"value":"'''"}
+0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"}],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | ". "
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"br","attribs":[],"dataAttribs":{"stx":"html","selfClose":true}}
 0-gen/QuoteTransformer      | IN  | " "

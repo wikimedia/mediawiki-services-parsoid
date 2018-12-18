@@ -3,9 +3,11 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"table","attribs":[{"k":"role","v":"presentation"},{"k":"class","v":"mbox-small plainlinks sistersitebox"},{"k":"style","v":"background-color:#f9f9f9;border:1px solid #aaa;color:#000"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[0,22],"src":"{{wiktionary|skating}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"wiktionary\",\"href\":\"./Template:Wiktionary\"},\"params\":{\"1\":{\"wt\":\"skating\"}}},\"paramInfos\":[{\"k\":\"1\",\"srcOffsets\":[13,13,13,20]}]}"}}},{"type":"TagTk","name":"table","attribs":[{"k":"role","v":"presentation"},{"k":"class","v":"mbox-small plainlinks sistersitebox"},{"k":"style","v":"background-color:#f9f9f9;border:1px solid #aaa;color:#000"}],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}}
@@ -21,6 +23,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text plainlist"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"}],"dataAttribs":{"stx":"html"}},{"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}},{"type":"TagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":""},{"k":"resource","v":"./File:Wiktionary-logo-en-v2.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/commons/thumb/9/99/Wiktionary-logo-en-v2.svg/40px-Wiktionary-logo-en-v2.svg.png"},{"k":"data-file-width","v":"512"},{"k":"data-file-height","v":"512"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"40"},{"k":"width","v":"40"}],"dataAttribs":{"a":{"alt":"","resource":"./File:Wiktionary-logo-en-v2.svg","height":"40","width":"40"},"sa":{"alt":"alt=","resource":"File:Wiktionary-logo-en-v2.svg"}}},{"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | "Look up "
@@ -50,7 +53,9 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[22,23]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[23,24]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[24,27]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text plainlist"}],"dataAttribs":{"stx":"html"}},"Look up ",{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink/Interwiki"},{"k":"href","v":"https://en.wiktionary.org/wiki/skating"},{"k":"title","v":"wiktionary:skating"}],"dataAttribs":{"stx":"piped","a":{"href":"https://en.wiktionary.org/wiki/skating"},"sa":{"href":"wiktionary:skating"},"isIW":true}},"skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{}}," in Wiktionary, the free dictionary.",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}},{"type":"NlTk","dataAttribs":{"tsr":[22,23]}},{"type":"NlTk","dataAttribs":{"tsr":[23,24]}}]
 0-gen/ParagraphWrapper      | IN  | "Skating"
@@ -60,7 +65,9 @@
 0-gen/ParagraphWrapper      | IN  | " involves any sports or recreational activity which consists of traveling on surfaces or on ice using skates."
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[146,147]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[147,148]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | "There are several different kinds of skating"
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"p","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[24,27]}},"Skating",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{"tsr":[34,37]}}," involves any sports or recreational activity which consists of traveling on surfaces or on ice using skates.",{"type":"EndTagTk","name":"p","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[146,147]}},{"type":"NlTk","dataAttribs":{"tsr":[147,148]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"span","attribs":[{"k":"typeof","v":"mw:DisplaySpace mw:Placeholder"}],"dataAttribs":{"src":" ","tsr":[192,192],"isDisplayHack":true}}
@@ -72,10 +79,16 @@
 0-gen/ParagraphWrapper      | IN  | ":"
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[194,195]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[195,196]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[196,209],"src":"{{TOC right}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"TOC right\",\"href\":\"./Template:TOC_right\"},\"params\":{}},\"paramInfos\":[]}"}}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"p","attribs":[],"dataAttribs":{}},"There are several different kinds of skating",{"type":"TagTk","name":"span","attribs":[{"k":"typeof","v":"mw:DisplaySpace mw:Placeholder"}],"dataAttribs":{"src":" ","tsr":[192,192],"isDisplayHack":true}}," ",{"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{"tsr":[193,193],"isDisplayHack":true}},":",{"type":"EndTagTk","name":"p","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[194,195]}},{"type":"NlTk","dataAttribs":{"tsr":[195,196]}}]
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"div","attribs":[{"k":"style","v":"clear: right; margin-bottom: .5em; float: right; padding: .5em 0 .8em 1.4em; background: none; width: auto;"}],"dataAttribs":{"stx":"html"}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"style","attribs":[{"k":"data-mw-deduplicate","v":"TemplateStyles:r872693300"},{"k":"data-parsoid","v":"{\"tsr\":[0,54],\"src\":\"<templatestyles src=\\\"Template:TOC_right/styles.css\\\" />\"}"},{"k":"data-mw","v":"{\"name\":\"templatestyles\",\"attrs\":{\"src\":\"Template:TOC_right/styles.css\"}}"},{"k":"typeof","v":"mw:DOMFragment"}],"dataAttribs":{"tmp":{"setDSR":true},"src":"<templatestyles src=\"Template:TOC_right/styles.css\" />","html":"mwf1","tagWidths":[54,0]}}
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"style","attribs":[],"dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"div","attribs":[{"k":"class","v":"tocright  "},{"k":"style","v":""}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"property","v":"mw:PageProp/toc"}],"dataAttribs":{"src":"__TOC__","magicSrc":"__TOC__"}}
 0-gen/ParagraphWrapper      | OUT | []
@@ -84,14 +97,17 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[null,209]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[209,210]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[210,211]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213]}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[196,209],"src":"{{TOC right}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"TOC right\",\"href\":\"./Template:TOC_right\"},\"params\":{}},\"paramInfos\":[]}"}}},{"type":"TagTk","name":"div","attribs":[{"k":"style","v":"clear: right; margin-bottom: .5em; float: right; padding: .5em 0 .8em 1.4em; background: none; width: auto;"}],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"property","v":"mw:PageProp/toc"}],"dataAttribs":{"src":"__TOC__","magicSrc":"__TOC__"}},{"type":"EndTagTk","name":"div","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[null,209]}},{"type":"NlTk","dataAttribs":{"tsr":[209,210]}},{"type":"NlTk","dataAttribs":{"tsr":[210,211]}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[196,209],"src":"{{TOC right}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"TOC right\",\"href\":\"./Template:TOC_right\"},\"params\":{}},\"paramInfos\":[]}"}}},{"type":"TagTk","name":"style","attribs":[{"k":"data-mw-deduplicate","v":"TemplateStyles:r872693300"},{"k":"data-parsoid","v":"{\"tsr\":[0,54],\"src\":\"<templatestyles src=\\\"Template:TOC_right/styles.css\\\" />\"}"},{"k":"data-mw","v":"{\"name\":\"templatestyles\",\"attrs\":{\"src\":\"Template:TOC_right/styles.css\"}}"},{"k":"typeof","v":"mw:DOMFragment"}],"dataAttribs":{"tmp":{"setDSR":true},"src":"<templatestyles src=\"Template:TOC_right/styles.css\" />","html":"mwf1","tagWidths":[54,0]}},{"type":"EndTagTk","name":"style","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"div","attribs":[{"k":"class","v":"tocright  "},{"k":"style","v":""}],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"property","v":"mw:PageProp/toc"}],"dataAttribs":{"src":"__TOC__","magicSrc":"__TOC__"}},{"type":"EndTagTk","name":"div","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[null,209]}},{"type":"NlTk","dataAttribs":{"tsr":[209,210]}},{"type":"NlTk","dataAttribs":{"tsr":[210,211]}}]
 0-gen/ParagraphWrapper      | IN  | " Ice "
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[218,220]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[220,221]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[221,221]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213]}}," Ice ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[218,220]}},{"type":"NlTk","dataAttribs":{"tsr":[220,221]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[221,222]}}
@@ -105,6 +121,7 @@
 0-gen/ParagraphWrapper      | IN  | ", moving on ice by using ice skates"
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[272,273]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[273,273]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[221,221]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[221,222]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Ice_skating"},{"k":"title","v":"Ice skating"}],"dataAttribs":{"tsr":[222,237],"stx":"simple","a":{"href":"./Ice_skating"},"sa":{"href":"Ice skating"}}},"Ice skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", moving on ice by using ice skates",{"type":"NlTk","dataAttribs":{"tsr":[272,273]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[273,275]}}
@@ -120,6 +137,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[372,373]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[373,375]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[273,273]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[273,275]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Figure_skating"},{"k":"title","v":"Figure skating"}],"dataAttribs":{"tsr":[275,293],"stx":"simple","a":{"href":"./Figure_skating"},"sa":{"href":"Figure skating"}}},"Figure skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a sport in which individuals, duos, or groups perform on figure skates on ice",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[372,373]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Speed_skating"},{"k":"title","v":"Speed skating"}],"dataAttribs":{"tsr":[375,392],"stx":"simple","a":{"href":"./Speed_skating"},"sa":{"href":"Speed skating"}}}
@@ -133,6 +151,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[510,511]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[511,513]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[373,375]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Speed_skating"},{"k":"title","v":"Speed skating"}],"dataAttribs":{"tsr":[375,392],"stx":"simple","a":{"href":"./Speed_skating"},"sa":{"href":"Speed skating"}}},"Speed skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a competitive form of ice skating in which the competitors race each other in traveling a certain distance on skates",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[510,511]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Tour_skating"},{"k":"title","v":"Tour skating"}],"dataAttribs":{"tsr":[513,529],"stx":"simple","a":{"href":"./Tour_skating"},"sa":{"href":"Tour skating"}}}
@@ -152,7 +171,9 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[604,605]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[605,606]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[511,513]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Tour_skating"},{"k":"title","v":"Tour skating"}],"dataAttribs":{"tsr":[513,529],"stx":"simple","a":{"href":"./Tour_skating"},"sa":{"href":"Tour skating"}}},"Tour skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a sport and recreational form of long distance ice skating on natural ice",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[604,605]}},{"type":"NlTk","dataAttribs":{"tsr":[605,606]}}]
 0-gen/ParagraphWrapper      | IN  | " Hard surface "
@@ -160,6 +181,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[622,624]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[624,625]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[625,625]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608]}}," Hard surface ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[622,624]}},{"type":"NlTk","dataAttribs":{"tsr":[624,625]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[625,626]}}
@@ -173,6 +195,7 @@
 0-gen/ParagraphWrapper      | IN  | ", the traveling on surfaces with roller skates"
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[690,691]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[691,691]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[625,625]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[625,626]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Roller_skating"},{"k":"title","v":"Roller skating"}],"dataAttribs":{"tsr":[626,644],"stx":"simple","a":{"href":"./Roller_skating"},"sa":{"href":"Roller skating"}}},"Roller skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", the traveling on surfaces with roller skates",{"type":"NlTk","dataAttribs":{"tsr":[690,691]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[691,693]}}
@@ -186,6 +209,7 @@
 0-gen/ParagraphWrapper      | IN  | ", traveling on surfaces with skates having one line of wheels"
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[772,773]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[773,773]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[691,691]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[691,693]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_skating"},{"k":"title","v":"Inline skating"}],"dataAttribs":{"tsr":[693,711],"stx":"simple","a":{"href":"./Inline_skating"},"sa":{"href":"Inline skating"}}},"Inline skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", traveling on surfaces with skates having one line of wheels",{"type":"NlTk","dataAttribs":{"tsr":[772,773]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[773,776]}}
@@ -201,6 +225,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[910,911]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[911,914]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[773,773]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[773,776]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Freestyle_slalom_skating"},{"k":"title","v":"Freestyle slalom skating"}],"dataAttribs":{"tsr":[776,804],"stx":"simple","a":{"href":"./Freestyle_slalom_skating"},"sa":{"href":"Freestyle slalom skating"}}},"Freestyle slalom skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a field of inline skating that involves performing tricks around a straight line of equally spaced cones",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[910,911]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Vert_skating"},{"k":"title","v":"Vert skating"}],"dataAttribs":{"tsr":[914,930],"stx":"simple","a":{"href":"./Vert_skating"},"sa":{"href":"Vert skating"}}}
@@ -214,6 +239,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[967,968]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[968,971]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[911,914]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Vert_skating"},{"k":"title","v":"Vert skating"}],"dataAttribs":{"tsr":[914,930],"stx":"simple","a":{"href":"./Vert_skating"},"sa":{"href":"Vert skating"}}},"Vert skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", riding inline skates on a vert ramp",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[967,968]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Aggressive_inline_skating"},{"k":"title","v":"Aggressive inline skating"}],"dataAttribs":{"tsr":[971,1000],"stx":"simple","a":{"href":"./Aggressive_inline_skating"},"sa":{"href":"Aggressive inline skating"}}}
@@ -227,6 +253,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1094,1095]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1095,1098]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[968,971]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Aggressive_inline_skating"},{"k":"title","v":"Aggressive inline skating"}],"dataAttribs":{"tsr":[971,1000],"stx":"simple","a":{"href":"./Aggressive_inline_skating"},"sa":{"href":"Aggressive inline skating"}}},"Aggressive inline skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", inline skating executed on specially designed inline skates with focus on grinding and spins",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1094,1095]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_speed_skating"},{"k":"title","v":"Inline speed skating"}],"dataAttribs":{"tsr":[1098,1122],"stx":"simple","a":{"href":"./Inline_speed_skating"},"sa":{"href":"Inline speed skating"}}}
@@ -242,6 +269,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1167,1168]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1095,1098]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_speed_skating"},{"k":"title","v":"Inline speed skating"}],"dataAttribs":{"tsr":[1098,1122],"stx":"simple","a":{"href":"./Inline_speed_skating"},"sa":{"href":"Inline speed skating"}}},"Inline speed skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", the roller sport of racing on inline skates",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1167,1168]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1168,1170]}}
@@ -257,6 +285,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1297,1298]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1298,1300]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1168,1170]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Artistic_roller_skating"},{"k":"title","v":"Artistic roller skating"}],"dataAttribs":{"tsr":[1170,1197],"stx":"simple","a":{"href":"./Artistic_roller_skating"},"sa":{"href":"Artistic roller skating"}}},"Artistic roller skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a sport similar to figure skating but where contestants run on roller skates instead of ice skates",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1297,1298]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Road_skating"},{"k":"title","v":"Road skating"}],"dataAttribs":{"tsr":[1300,1316],"stx":"simple","a":{"href":"./Road_skating"},"sa":{"href":"Road skating"}}}
@@ -272,6 +301,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1448,1449]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1298,1300]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Road_skating"},{"k":"title","v":"Road skating"}],"dataAttribs":{"tsr":[1300,1316],"stx":"simple","a":{"href":"./Road_skating"},"sa":{"href":"Road skating"}}},"Road skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", the sport of skating (inline skating or roller skating) on roads, much like road cycling. It shares much with inline speed skating",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1448,1449]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1449,1450]}}
@@ -289,7 +319,9 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1547,1548]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1548,1549]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1449,1450]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skateboarding"},{"k":"title","v":"Skateboarding"}],"dataAttribs":{"tsr":[1450,1467],"stx":"simple","a":{"href":"./Skateboarding"},"sa":{"href":"Skateboarding"}}},"Skateboarding",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", an action sport which involves riding and performing tricks using a skateboard",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1547,1548]}},{"type":"NlTk","dataAttribs":{"tsr":[1548,1549]}}]
 0-gen/ParagraphWrapper      | IN  | " Snow "
@@ -297,6 +329,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1557,1559]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1560,1560]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551]}}," Snow ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1557,1559]}},{"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1560,1561]}}
@@ -314,7 +347,9 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1633,1634]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1634,1635]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1560,1560]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1560,1561]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Snow_skating"},{"k":"title","v":"Snow skating"}],"dataAttribs":{"tsr":[1561,1577],"stx":"simple","a":{"href":"./Snow_skating"},"sa":{"href":"Snow skating"}}},"Snow skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", using a hybrid of a skateboard and a snowboard on snow",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1633,1634]}},{"type":"NlTk","dataAttribs":{"tsr":[1634,1635]}}]
 0-gen/ParagraphWrapper      | IN  | " See also "
@@ -322,6 +357,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1647,1649]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1650,1650]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637]}}," See also ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1647,1649]}},{"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1650,1651]}}
@@ -335,6 +371,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1672,1673]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1673,1674]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1650,1650]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1650,1651]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Outline_of_sports"},{"k":"title","v":"Outline of sports"}],"dataAttribs":{"tsr":[1651,1672],"stx":"simple","a":{"href":"./Outline_of_sports"},"sa":{"href":"Outline of sports"}}},"Outline of sports",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1672,1673]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skate_(disambiguation)"},{"k":"title","v":"Skate (disambiguation)"}],"dataAttribs":{"tsr":[1674,1700],"stx":"simple","a":{"href":"./Skate_(disambiguation)"},"sa":{"href":"Skate (disambiguation)"}}}
@@ -346,6 +383,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1700,1701]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1701,1702]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1673,1674]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skate_(disambiguation)"},{"k":"title","v":"Skate (disambiguation)"}],"dataAttribs":{"tsr":[1674,1700],"stx":"simple","a":{"href":"./Skate_(disambiguation)"},"sa":{"href":"Skate (disambiguation)"}}},"Skate (disambiguation)",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1700,1701]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_rink_(disambiguation)"},{"k":"title","v":"Skating rink (disambiguation)"}],"dataAttribs":{"tsr":[1702,1735],"stx":"simple","a":{"href":"./Skating_rink_(disambiguation)"},"sa":{"href":"Skating rink (disambiguation)"}}}
@@ -357,6 +395,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1735,1736]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1736,1737]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1701,1702]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_rink_(disambiguation)"},{"k":"title","v":"Skating rink (disambiguation)"}],"dataAttribs":{"tsr":[1702,1735],"stx":"simple","a":{"href":"./Skating_rink_(disambiguation)"},"sa":{"href":"Skating rink (disambiguation)"}}},"Skating rink (disambiguation)",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1735,1736]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skater_(disambiguation)"},{"k":"title","v":"Skater (disambiguation)"}],"dataAttribs":{"tsr":[1737,1764],"stx":"simple","a":{"href":"./Skater_(disambiguation)"},"sa":{"href":"Skater (disambiguation)"}}}
@@ -368,6 +407,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1764,1765]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1765,1766]}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1736,1737]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skater_(disambiguation)"},{"k":"title","v":"Skater (disambiguation)"}],"dataAttribs":{"tsr":[1737,1764],"stx":"simple","a":{"href":"./Skater_(disambiguation)"},"sa":{"href":"Skater (disambiguation)"}}},"Skater (disambiguation)",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1764,1765]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_system"},{"k":"title","v":"Skating system"}],"dataAttribs":{"tsr":[1766,1784],"stx":"simple","a":{"href":"./Skating_system"},"sa":{"href":"Skating system"}}}
@@ -385,13 +425,17 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1808,1809]}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt3"}],"dataAttribs":{"tsr":[1809,1827],"src":"{{disambiguation}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"disambiguation\",\"href\":\"./Template:Disambiguation\"},\"params\":{}},\"paramInfos\":[]}"}}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"table","attribs":[{"k":"id","v":"\ndisambigbox"},{"k":"class","v":"metadata plainlinks dmbox \ndmbox-disambig "},{"k":"style","v":""},{"k":"role","v":"presentation"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1765,1766]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_system"},{"k":"title","v":"Skating system"}],"dataAttribs":{"tsr":[1766,1784],"stx":"simple","a":{"href":"./Skating_system"},"sa":{"href":"Skating system"}}},"Skating system",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:EmptyLine"}],"dataAttribs":{"tokens":[{"type":"NlTk","dataAttribs":{"tsr":[1784,1785]}},{"type":"NlTk","dataAttribs":{"tsr":[1785,1786]}}]}},{"type":"SelfclosingTagTk","name":"link","attribs":[{"k":"rel","v":"mw:PageProp/Category"},{"k":"href","v":"./Category:Skating#%20"}],"dataAttribs":{"tsr":[1786,1808],"stx":"piped","a":{"href":"./Category:Skating"},"sa":{"href":"Category:Skating"}}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1808,1809]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt3"}],"dataAttribs":{"tsr":[1809,1827],"src":"{{disambiguation}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"disambiguation\",\"href\":\"./Template:Disambiguation\"},\"params\":{}},\"paramInfos\":[]}"}}},{"type":"TagTk","name":"table","attribs":[{"k":"id","v":"\ndisambigbox"},{"k":"class","v":"metadata plainlinks dmbox \ndmbox-disambig "},{"k":"style","v":""},{"k":"role","v":"presentation"}],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"},{"k":"style","v":"padding: 2px 0 2px 0.4em;"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | " "
@@ -409,6 +453,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text"},{"k":"style","v":"padding: 0.25em 0.4em; font-style: italic; "}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"},{"k":"style","v":"padding: 2px 0 2px 0.4em;"}],"dataAttribs":{"stx":"html"}}," ",{"type":"TagTk","name":"figure-inline","attribs":[{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"30px"},{"ck":"alt","ak":"alt=Disambiguation icon"}]}},{"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./File:Disambig_gray.svg"}],"dataAttribs":{"a":{"href":"./File:Disambig_gray.svg"},"sa":{"href":"File:Disambig gray.svg"}}},{"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":"Disambiguation icon"},{"k":"resource","v":"./File:Disambig_gray.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/en/thumb/5/5f/Disambig_gray.svg/30px-Disambig_gray.svg.png"},{"k":"data-file-width","v":"220"},{"k":"data-file-height","v":"168"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"23"},{"k":"width","v":"30"}],"dataAttribs":{"a":{"alt":"Disambiguation icon","resource":"./File:Disambig_gray.svg","height":"23","width":"30"},"sa":{"alt":"alt=Disambiguation icon","resource":"File:Disambig gray.svg"}}},{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | " "
@@ -462,10 +507,13 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text"},{"k":"style","v":"padding: 0.25em 0.4em; font-style: italic; "}],"dataAttribs":{"stx":"html"}}," ",{"type":"TagTk","name":"div","attribs":[{"k":"class","v":"shortdescription nomobile noexcerpt noprint searchaux"},{"k":"style","v":"display:none"}],"dataAttribs":{"stx":"html"}},"Disambiguation page providing links to articles with similar titles",{"type":"EndTagTk","name":"div","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"link","attribs":[{"k":"rel","v":"mw:PageProp/Category"},{"k":"href","v":"./Category:Disambiguation_pages_with_short_description"}],"dataAttribs":{"stx":"simple","a":{"href":"./Category:Disambiguation_pages_with_short_description"},"sa":{"href":"Category:Disambiguation pages with short description"}}},"This ",{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Help:Disambiguation"},{"k":"title","v":"Help:Disambiguation"}],"dataAttribs":{"stx":"piped","a":{"href":"./Help:Disambiguation"},"sa":{"href":"Help:Disambiguation"}}},"disambiguation",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}," page lists  articles associated with the title ",{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},"Skating",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},". ",{"type":"SelfclosingTagTk","name":"br","attribs":[],"dataAttribs":{"stx":"html","selfClose":true}}," ",{"type":"TagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}},"If an ",{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:ExtLink"},{"k":"href","v":"//en.wikipedia.org/w/index.php?title=Special:WhatLinksHere/Skating&namespace=0"}],"dataAttribs":{"targetOff":728,"contentOffsets":[728,741]}},"internal link",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}," led you here, you may wish to change the link to point directly to the intended article.",{"type":"EndTagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}}," ",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"property","v":"mw:PageProp/disambiguation"}],"dataAttribs":{"src":"__DISAMBIG__","magicSrc":"__DISAMBIG__"}}
