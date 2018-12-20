@@ -18,6 +18,7 @@ class MockEnv {
 			},
 		};
 		this.log = argv.log ? this._log : this._emptyLog;
+		this.wrapSections = true; // always wrap sections!
 	}
 
 	_emptyLog() {}
