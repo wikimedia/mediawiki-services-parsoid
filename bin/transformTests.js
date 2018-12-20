@@ -61,6 +61,7 @@ var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var yargs = require('yargs');
 var fs = require('fs');
+var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var cachedState = false;
 var cachedTestLines = '';
@@ -78,18 +79,6 @@ function MockTTM(env, options) {
 	this.removeXformTime = 0;
 	this.getXformTime = 0;
 }
-
-MockTTM.prototype.log = function() {
-	var output = arguments[0];
-	for (var index = 1; index < arguments.length; index++) {
-		if (typeof arguments[index] === 'function') {
-			output = output + ' ' + arguments[index]();
-		} else {
-			output = output + ' ' + arguments[index];
-		}
-	}
-	console.log(output);
-};
 
 // Map of: token constructor ==> transfomer type
 // Used for returning active transformers for a token
@@ -495,19 +484,7 @@ function runTests() {
 		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
 	}
 
-	var mockEnv = {
-		log: argv.log ? MockTTM.prototype.log : () => {}
-	};
-
-	// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
-	mockEnv.conf = {};
-	mockEnv.conf.wiki = {};
-	var bswRegexpSource = "\\/(?:NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT)";
-	mockEnv.conf.wiki.bswPagePropRegexp = new RegExp(
-		'(?:^|\\s)mw:PageProp/' + bswRegexpSource + '(?=$|\\s)'
-	);
-	// Hack ends
-
+	var mockEnv = new MockEnv(argv);
 	var manager = new MockTTM(mockEnv, {});
 	try {
 		var startTime = JSUtils.startTime();

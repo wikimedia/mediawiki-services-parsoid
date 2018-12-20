@@ -36,13 +36,14 @@ Technical details:
 
 'use strict';
 
+var fs = require('fs');
+var yargs = require('yargs');
+
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
-// var DU = require('../lib/utils/DOMUtils.js').DOMUtils;
 var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
-var yargs = require('yargs');
-var fs = require('fs');
+var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 // processors
 var requireProcessor = function(p) {
@@ -77,11 +78,6 @@ var cachedFilePre = '';
 var cachedFilePost = '';
 
 function MockDOMPostProcessor(env, options) {
-	env.conf = {};
-	env.conf.parsoid = {};
-	env.conf.parsoid.rtTestMode = false;
-	env.page = {};
-	env.page.src = "testing testing testing testing";
 	this.env = env;
 	this.pipelineId = 0;
 	this.options = options;
@@ -272,19 +268,7 @@ function runTests() {
 		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
 	}
 
-	var mockEnv = {
-		log: argv.log ? MockDOMPostProcessor.prototype.log : () => {}
-	};
-
-	// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
-	mockEnv.conf = {};
-	mockEnv.conf.wiki = {};
-	var bswRegexpSource = "\\/(?:NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT)";
-	mockEnv.conf.wiki.bswPagePropRegexp = new RegExp(
-		'(?:^|\\s)mw:PageProp/' + bswRegexpSource + '(?=$|\\s)'
-	);
-	// Hack ends
-
+	var mockEnv = new MockEnv(argv);
 	var manager = new MockDOMPostProcessor(mockEnv, {});
 
 	console.log('Selected dom transformer = ' +  argv.transformer);
