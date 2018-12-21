@@ -12,6 +12,7 @@ class MockEnv {
 				bswPagePropRegexp: new RegExp(
 					'(?:^|\\s)mw:PageProp/' + bswRegexpSource + '(?=$|\\s)'
 				),
+				magicWordCanonicalName: function() { return "toc"; }	// mock function returns string for BehaviorSwitchHandler
 			},
 			parsoid: {
 				rtTestMode: false,
@@ -19,6 +20,8 @@ class MockEnv {
 		};
 		this.log = argv.log ? this._log : this._emptyLog;
 		this.wrapSections = true; // always wrap sections!
+
+		this.setVariable = function(variable, state) { this[variable] = state; };	// mock function to set variable state for BehaviorSwitchHandler
 	}
 
 	_emptyLog() {}
