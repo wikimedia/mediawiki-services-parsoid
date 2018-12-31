@@ -1497,7 +1497,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 								const doc = DOMUtils.parseHTML('');
 								const style = doc.createElement('style');
 								style.innerHTML = content;
-								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.manager.env, style, args);
+								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.env, style, args);
 								doc.body.appendChild(style);
 								return doc;
 							}),
