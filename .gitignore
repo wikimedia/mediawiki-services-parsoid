@@ -19,3 +19,7 @@ contrib/
 extensions/
 nocks/
 deploy/
+
+composer.lock
+vendor/
+doc/

@@ -1,0 +1,26 @@
+# Doxyfile for Parsoid
+#
+# See <http://www.doxygen.nl/manual/config.html>
+# for help on how to use this file to configure Doxygen.
+PROJECT_NAME           = "Parsoid"
+PROJECT_BRIEF          = "A bidirectional parser between wikitext and HTML5"
+OUTPUT_DIRECTORY       = doc
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+WARN_NO_PARAMDOC       = YES
+INPUT                  = src/README.md src/
+FILE_PATTERNS          = *.php
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = src/README.md
+# FILTER_PATTERNS        = *md=build/doxygen_escape.sh
+HTML_DYNAMIC_SECTIONS  = YES
+GENERATE_TREEVIEW      = YES
+TREEVIEW_WIDTH         = 250
+GENERATE_LATEX         = NO
+HAVE_DOT               = YES
+DOT_FONTNAME           = Helvetica
+DOT_FONTSIZE           = 10
+TEMPLATE_RELATIONS     = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+DOT_MULTI_TARGETS      = YES

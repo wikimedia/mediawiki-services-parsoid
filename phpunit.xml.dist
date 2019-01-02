@@ -1,0 +1,14 @@
+<phpunit colors="true"
+	beStrictAboutTestsThatDoNotTestAnything="true"
+	beStrictAboutOutputDuringTests="true">
+	<testsuites>
+		<testsuite name="Parsoid Tests">
+			<directory>./tests</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./src</directory>
+		</whitelist>
+	</filter>
+</phpunit>

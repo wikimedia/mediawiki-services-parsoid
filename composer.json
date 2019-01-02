@@ -1,0 +1,53 @@
+{
+	"name": "wikimedia/parsoid",
+	"description": "Parsoid (a bidirectional parser between wikitext and HTML5) - ported from the Node.js version",
+	"keywords": ["mediawiki", "parsoid"],
+	"homepage": "https://www.mediawiki.org/wiki/Parsoid",
+	"authors": [
+		{
+			"name": "Wikimedia Parsing Team and the broader MediaWiki community",
+			"homepage": "https://www.mediawiki.org/wiki/Parsoid"
+		}
+	],
+	"license": "GPL-2.0+",
+	"support": {
+		"irc": "irc://irc.freenode.net/mediawiki-parsoid",
+		"wiki": "https://www.mediawiki.org/wiki/Parsoid"
+	},
+	"require": {
+		"composer/semver": "1.4.2",
+		"mediawiki/minus-x": "0.3.1",
+		"php": ">=7.0.0",
+		"wikimedia/assert": "0.2.2",
+		"wikimedia/remex-html": "1.0.2"
+	},
+	"require-dev": {
+		"jakub-onderka/php-parallel-lint": "1.0.0",
+		"jakub-onderka/php-console-highlighter": "0.3.2",
+		"mediawiki/mediawiki-codesniffer": "23.0.0",
+		"phpunit/phpunit": "4.8.36 || ^6.5"
+	},
+	"autoload": {
+		"psr-4": {
+			"Parsoid\\": "src/"
+		}
+	},
+	"scripts": {
+		"test": [
+			"parallel-lint . --exclude vendor --exclude node_modules",
+			"phpcs -p -s",
+			"minus-x check .",
+			"phpunit"
+		],
+		"fix": [
+			"minus-x fix .",
+			"phpcbf"
+		],
+		"cover": "phpunit --coverage-html coverage"
+	},
+	"config": {
+		"optimize-autoloader": true
+	},
+	"extra": {
+	}
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki" />
+	<file>.</file>
+	<arg name="extensions" value="php,php5,inc" />
+	<arg name="encoding" value="UTF-8" />
+	<exclude-pattern>vendor</exclude-pattern>
+	<rule ref="Internal.NoCodeFound">
+		<exclude-pattern>*/src/*</exclude-pattern>
+	</rule>
+	<exclude-pattern>coverage</exclude-pattern>
+	<exclude-pattern>doc/html</exclude-pattern>
+</ruleset>
