@@ -109,7 +109,7 @@ Video with different thumb image
 !! wikitext
 [[File:Video.ogv|thumbnail=Foobar.jpg]]
 !! html/php
-<div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
 
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Video/Thumb" data-mw='{"thumb":"Foobar.jpg"}'><span><video poster="//example.com/images/3/3a/Foobar.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type="application/ogg" data-file-width="320" data-file-height="240"/></video></span></figure>

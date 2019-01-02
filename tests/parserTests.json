@@ -2,20 +2,20 @@
 	"parserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "14969d45b33bf40fbfb03274c71c645bac4904c0",
-		"latestCommit": "76396ff888e134fdcb86be0560c9f51acce577bb"
+		"expectedSHA1": "5d81bfdbb38f894d03639d9e292f2b7fabe9f9dd",
+		"latestCommit": "d3d9b4f09c820e97b57011569f40f474360dac5d"
 	},
 	"citeParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Cite/",
 		"path": "tests/parser/citeParserTests.txt",
-		"expectedSHA1": "f9c8789ed8b3b82e81f9ca8e11108f059acf5fa5",
-		"latestCommit": "1d687e23f35342c0d83325d17c90d547a8d1a0d4"
+		"expectedSHA1": "d6cda843a4a1b74c06ff4d8f3f685862e78dcb4d",
+		"latestCommit": "c23cd59a53092267b9f83161743849e1afc39152"
 	},
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
 		"path": "tests/parserTests.txt",
-		"expectedSHA1": "ffc81f4f852148c7903168d76dde52947c16bb70",
-		"latestCommit": "6ff9134b4b0e3cfd317afc7aaf343adda4c3897d"
+		"expectedSHA1": "798902a65983a3b77b0903c4d37c779de35a1fa5",
+		"latestCommit": "ecb25fc12a9d84ed8775aa6784047436ee57f0c3"
 	},
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
