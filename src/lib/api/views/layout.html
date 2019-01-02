@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		{{{headers}}}
+		<script>
+			// Work around the set base element.
+			var els = [{ src: '/static/css/style.css', css: true }];
+			{{{javascripts}}}
+			function load(o) {
+				var el = document.createElement(o.css ? 'link' : 'script');
+				if (o.css) {
+					el.setAttribute('type', 'text/css');
+					el.setAttribute('rel', 'stylesheet');
+				}
+				el.setAttribute(o.css ? 'href' : 'src',
+					window.location.origin + o.src);
+				document.write(el.outerHTML);
+			}
+			els.forEach(load);
+		</script>
+	</head>
+	<body>
+		{{{body}}}
+	</body>
+</html>

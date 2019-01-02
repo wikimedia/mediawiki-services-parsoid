@@ -1,0 +1,13 @@
+ins {
+	background: #ff9191;
+	text-decoration: none;
+}
+
+del {
+	background: #99ff7e;
+	text-decoration: none;
+}
+
+.red {
+	color: red;
+}
