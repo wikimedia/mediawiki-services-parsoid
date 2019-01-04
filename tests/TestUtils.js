@@ -16,7 +16,7 @@ var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var Util = require('../lib/utils/Util.js').Util;
 var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
-var Normalizer = require('../lib/html2wt/normalizeDOM.js').Normalizer;
+var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
 
 var TestUtils = {};
 
@@ -77,7 +77,7 @@ TestUtils.normalizeOut = function(domBody, options) {
 			selserMode: false,
 			rtTestMode: options.rtTestMode,
 		};
-		domBody = (new Normalizer(mockState).normalizeDOM(domBody));
+		domBody = (new DOMNormalizer(mockState).normalize(domBody));
 	}
 
 	var stripTypeof = parsoidOnly ?
