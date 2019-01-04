@@ -5803,7 +5803,7 @@
 					"url": "https://shn.wikipedia.org",
 					"dbname": "shnwiki",
 					"code": "wiki",
-					"sitename": "Wikipedia"
+					"sitename": "ဝီႇၶီႇၽီးတီးယႃး"
 				}
 			],
 			"dir": "ltr",
@@ -7474,7 +7474,7 @@
 			"dir": "ltr",
 			"localname": "Zulu"
 		},
-		"count": 932,
+		"count": 933,
 		"specials": [
 			{
 				"url": "https://advisors.wikimedia.org",
@@ -7756,7 +7756,8 @@
 				"dbname": "internalwiki",
 				"code": "internal",
 				"sitename": "Internal",
-				"private": ""
+				"private": "",
+				"closed": ""
 			},
 			{
 				"url": "https://wikitech.wikimedia.org",
@@ -8020,6 +8021,12 @@
 				"dbname": "test2wiki",
 				"code": "test2",
 				"sitename": "Wikipedia"
+			},
+			{
+				"url": "https://test-commons.wikimedia.org",
+				"dbname": "testcommonswiki",
+				"code": "testcommons",
+				"sitename": "Test Wikimedia Commons"
 			},
 			{
 				"url": "https://test.wikidata.org",
