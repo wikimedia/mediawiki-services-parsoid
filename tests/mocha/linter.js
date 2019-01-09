@@ -985,4 +985,20 @@ describe('Linter Tests', function() {
 			});
 		});
 	});
+	describe('WIKILINK IN EXTERNAL LINK', function() {
+		it('should lint wikilink in external link correctly', function() {
+			return parseWT('[http://google.com This is [[Google]]\'s search page]').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "wikilink-in-extlink");
+				result[0].dsr.should.deep.equal([0, 52, 19, 1]);
+			});
+		});
+		it('should lint wikilink in external link correctly', function() {
+			return parseWT('[http://stackexchange.com is the official website for [[Stack Exchange]]]').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "wikilink-in-extlink");
+				result[0].dsr.should.deep.equal([ 0, 73, 26, 1 ]);
+			});
+		});
+	});
 });
