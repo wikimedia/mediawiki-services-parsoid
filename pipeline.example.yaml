@@ -1,0 +1,20 @@
+# This is a sample configuration file for pipeline construction
+#
+# Supports two yaml arrays (phpTokenTransformers and phpDOMTransformers).
+# All other information is silently ignored.
+#
+# Every token transformer named in phpTokenTransformers will have
+# the PHP version of the transformer inserted instead of the JS version
+# in the pipeline.
+#
+# Every DOM transformer named in phpDOMTransformers will have the
+# PHP version of the transformer inserted instead of the JS version
+# in the DOMPostProcessing pass.
+
+phpTokenTransformers:
+  - ParagraphWrapper
+  - QuoteTransformer
+
+phpDOMTransformers:
+  - PWrap-NOT_YET_SUPPORTED
+  - WrapSections-NOT_YET_SUPPORTED
