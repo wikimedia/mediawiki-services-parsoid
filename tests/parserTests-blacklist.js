@@ -970,14 +970,6 @@ add("html2wt", "Empty LI (T49673)", "* a\n*\n*\n* b");
 add("html2wt", "Decoding of HTML entities in headings and links for IDs and link fragments (T103714)", "== A&B&amp;C&amp;amp;D&amp;amp;amp;E ==\n[[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]");
 add("html2wt", "HTML5 ids: fallback to legacy", "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]");
 add("html2wt", "T90902: Normalize weird characters in section IDs", "== Foo&nbsp;bar ==\n[[#Foo&nbsp;bar]]");
-add("html2wt", "Section wrapping for well-nested sections (no leading content)", "= 1 =\na\n\n= 2 =\nb\n\n== 2.1 ==\nc\n\n== 2.2 ==\nd\n\n=== 2.2.1 ===\ne\n\n= 3 =\nf\n");
-add("html2wt", "Section wrapping for well-nested sections (with leading content)", "Para 1.\n\nPara 2 with a <div>nested in it</div>\n\nPara 3.\n\n= 1 =\na\n\n= 2 =\nb\n\n== 2.1 ==\nc\n");
-add("html2wt", "Section wrapping with template-generated sections (good nesting 1)", "= 1 =\na\n\n{{echo|1=\n==1.1==\nb\n}}\n\n== 1.2 ==\nc\n\n= 2 =\nd");
-add("html2wt", "Section wrapping with template-generated sections (bad nesting 2)", "= 1 =\na\n\n{{echo|1=\n=2=\nb\n==2.1==\nc\n}}\n\nd\n\n= 3 =\ne");
-add("html2wt", "Section wrapping with uneditable lead section + div wrapping multiple sections", "foo\n\n<div style=\"border:1px solid red;\">\n= 1 =\na\n\n== 1.1 ==\nb\n\n= 2 =\nc\n</div>\n\n= 3 =\nd\n\n== 3.1 ==\ne\n");
-add("html2wt", "Section wrapping with editable lead section + div overlapping multiple sections", "foo\n\n= 1 =\na\n<div style=\"border:1px solid red;\">\nb\n\n== 1.1 ==\nc\n\n= 2 =\nd\n</div>\ne\n\n= 3 =\nf\n\n== 3.1 ==\ng\n");
-add("html2wt", "HTML header tags should not be wrapped in section tags", "foo\n\n<h1>a</h1>\n\n= b =\n\n<h1>c</h1>\n\n= d =\n");
-add("html2wt", "Lead section containing only whitespace and comments.", "\n<!-- this is a comment, presumably significant to editors -->\n= 1 =\na\n\n= 2 =\nb");
 
 
 // Blacklist for selser
