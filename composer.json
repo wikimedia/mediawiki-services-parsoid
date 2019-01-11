@@ -9,7 +9,7 @@
 			"homepage": "https://www.mediawiki.org/wiki/Parsoid"
 		}
 	],
-	"license": "GPL-2.0+",
+	"license": "GPL-2.0-or-later",
 	"support": {
 		"irc": "irc://irc.freenode.net/mediawiki-parsoid",
 		"wiki": "https://www.mediawiki.org/wiki/Parsoid"
