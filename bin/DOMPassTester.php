@@ -51,6 +51,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
+use Parsoid\Wt2Html\PP\Processors\WrapSections;
 
 $wgCachedState = false;
 $wgCachedFilePre = '';
@@ -153,7 +154,7 @@ class DOMPassTester {
 				cleanupFormattingTagFixup( $body, $this->env );
 				break;
 			case 'sections' :
-				wrapSections( $body, $this->env, null );
+				( new WrapSections() )->run( $body, $this->env );
 				break;
 			case 'pwrap' :
 				( new PWrap() )->run( $body, $this->env );
@@ -292,7 +293,7 @@ function wfRunTests( $argc, $argv ) {
 		return;
 	}
 
-	$mockEnv = new MockEnv( [] );
+	$mockEnv = new MockEnv( [ "wrapSections" => true ] );
 	$manager = new DOMPassTester( $mockEnv, [] );
 
 	if ( isset( $opts['timingMode'] ) ) {

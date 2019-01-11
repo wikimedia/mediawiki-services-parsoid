@@ -6,6 +6,7 @@ use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
+use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 
@@ -61,6 +62,9 @@ switch ( $transformerName ) {
 		break;
 	case 'HandlePres':
 		$transformer = new HandlePres();
+		break;
+	case 'WrapSections':
+		$transformer = new WrapSections();
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );

@@ -1,22 +1,48 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+// Minimal testing on the php-prototype branch.
+// Needs more rigorous testing.
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\JSUtils as JSUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-$arrayMap = JSUtils::arrayMap;
-$lastItem = JSUtils::lastItem;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\WTUtils;
+
+use DOMElement;
+use DOMNode;
 
 class WrapSections {
-	public function createNewSection( $state, $rootNode, $sectionStack, $tplInfo, $currSection, $node, $newLevel, $pseudoSection ) {
+	/**
+	 * Get page source between the requested offsets
+	 *
+	 * @param Env $env
+	 * @param int $s
+	 * @param int $e
+	 * @return string
+	 */
+	private function getSrc( Env $env, int $s, int $e ): string {
+		return mb_substr( $env->getPageMainContent(), $s, $e - $s );
+	}
+
+	/**
+	 * Create a new section element
+	 *
+	 * @param array &$state
+	 * @param DOMElement $rootNode
+	 * @param array &$sectionStack
+	 * @param array|null $tplInfo
+	 * @param array|null $currSection
+	 * @param DOMNode $node
+	 * @param int $newLevel
+	 * @param bool $pseudoSection
+	 * @return array
+	 */
+	private function createNewSection( array &$state, DOMElement $rootNode, array &$sectionStack,
+		?array $tplInfo, ?array $currSection, DOMNode $node, int $newLevel, bool $pseudoSection
+	): array {
 		/* Structure for regular (editable or not) sections
 		 *   <section data-mw-section-id="..">
 		 *     <h*>..</h*>
@@ -28,33 +54,34 @@ class WrapSections {
 		$section = [
 			'level' => $newLevel,
 			// useful during debugging, unrelated to the data-mw-section-id
-			'debug_id' => $state->count++,
-			'container' => $state->doc->createElement( 'section' )
+			'debug_id' => $state['count']++,
+			'container' => $state['doc']->createElement( 'section' )
 		];
 
 		/* Step 1. Get section stack to the right nesting level
 		 * 1a. Pop stack till we have a higher-level section.
 		 */
-		$stack = $sectionStack;
-		while ( count( $stack ) > 0 && $newLevel <= $lastItem( $stack )->level ) {
+		$stack = &$sectionStack;
+		while ( count( $stack ) > 0 && $newLevel <= end( $stack )['level'] ) {
 			array_pop( $stack );
 		}
 
 		/* 1b. Push current section onto stack if it is a higher-level section */
-		if ( $currSection && $newLevel > $currSection->level ) {
+		if ( $currSection && $newLevel > $currSection['level'] ) {
 			$stack[] = $currSection;
 		}
 
 		/* Step 2: Add new section where it belongs: a parent section OR body */
-		$parentSection = ( count( $stack ) > 0 ) ? $lastItem( $stack ) : null;
+		$parentSection = count( $stack ) > 0 ? end( $stack ) : null;
 		if ( $parentSection ) {
-			$parentSection->container->appendChild( $section->container );
+			// print "Appending to " . $parentSection['debug_id'] . '\n';
+			$parentSection['container']->appendChild( $section['container'] );
 		} else {
-			$rootNode->insertBefore( $section->container, $node );
+			$rootNode->insertBefore( $section['container'], $node );
 		}
 
 		/* Step 3: Add <h*> to the <section> */
-		$section->container->appendChild( $node );
+		$section['container']->appendChild( $node );
 
 		/* Step 4: Assign data-mw-section-id attribute
 		 *
@@ -73,23 +100,33 @@ class WrapSections {
 		 * The code here handles uneditable sections because of templating.
 		 */
 		if ( $pseudoSection ) {
-			$section->container->setAttribute( 'data-mw-section-id', -2 );
-		} elseif ( $state->inTemplate ) {
-			$section->container->setAttribute( 'data-mw-section-id', -1 );
+			$section['container']->setAttribute( 'data-mw-section-id', '-2' );
+		} elseif ( $state['inTemplate'] ) {
+			$section['container']->setAttribute( 'data-mw-section-id', '-1' );
 		} else {
-			$section->container->setAttribute( 'data-mw-section-id', $state->sectionNumber );
+			$section['container']->setAttribute( 'data-mw-section-id', (string)$state['sectionNumber'] );
 		}
 
 		/* Ensure that template continuity is not broken if the section
 		 * tags aren't stripped by a client */
-		if ( $tplInfo && $node !== $tplInfo->first ) {
-			$section->container->setAttribute( 'about', $tplInfo->about );
+		if ( $tplInfo && $node !== $tplInfo['first'] ) {
+			$section['container']->setAttribute( 'about', $tplInfo['about'] );
 		}
 
 		return $section;
 	}
 
-	public function wrapSectionsInDOM( $state, $currSection, $rootNode ) {
+	/**
+	 * Walk the DOM and add <section> wrappers where required.
+	 * This is the workhorse code that wrapSections relies on.
+	 *
+	 * @param array &$state
+	 * @param array|null $currSection
+	 * @param DOMElement $rootNode
+	 * @return int
+	 */
+	private function wrapSectionsInDOM( array &$state, ?array $currSection,
+		DOMElement $rootNode ): int {
 		$tplInfo = null;
 		$sectionStack = [];
 		$highestSectionLevel = 7;
@@ -99,18 +136,19 @@ class WrapSections {
 			$addedNode = false;
 
 			// Track entry into templated output
-			if ( !$state->inTemplate && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-				$about = $node->getAttribute( 'about' ) || '';
-				$state->inTemplate = true;
+			if ( !$state['inTemplate'] && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+				$about = $node->getAttribute( 'about' ) ?? '';
+				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
+				$state['inTemplate'] = true;
 				$tplInfo = [
 					'first' => $node,
 					'about' => $about,
-					'last' => $lastItem( WTUtils::getAboutSiblings( $node, $about ) )
+					'last' => end( $aboutSiblings )
 				];
 			}
 
-			if ( preg_match( '/^H[1-6]$/', $node->nodeName ) ) {
-				$level = Number( $node->nodeName[ 1 ] );
+			if ( preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+				$level = (int)$node->nodeName[1];
 
 				// HTML <h*> tags don't get section numbers!
 				if ( !WTUtils::isLiteralHTMLNode( $node ) ) {
@@ -119,19 +157,20 @@ class WrapSections {
 					// see T213468 where this more-complicated behavior was
 					// added to match core's eccentricities.
 					$dp = DOMDataUtils::getDataParsoid( $node );
-					if ( $dp && $dp->tmp && $dp->tmp->headingIndex ) {
-						$state->sectionNumber = $dp->tmp->headingIndex;
+					if ( isset( $dp->tmp->headingIndex ) ) {
+						$state['sectionNumber'] = $dp->tmp->headingIndex;
 					}
 					if ( $level < $highestSectionLevel ) {
 						$highestSectionLevel = $level;
 					}
-					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack, $tplInfo, $currSection, $node, $level );
+					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack,
+						$tplInfo, $currSection, $node, $level, false );
 					$addedNode = true;
 				}
 			} elseif ( DOMUtils::isElt( $node ) ) {
 				// If we find a higher level nested section,
 				// (a) Make current section non-editable
-				// (b) There are 2 options here.
+				// (b) There are 2 $options here.
 				// Best illustrated with an example
 				// Consider the wiktiext below.
 				// <div>
@@ -140,39 +179,40 @@ class WrapSections {
 				// </div>
 				// c
 				// =2=
-				// 1. Create a new pseudo-section to wrap 'node'
+				// 1. Create a new pseudo-section to wrap '$node'
 				// There will be a <section> around the <div> which includes 'c'.
-				// 2. Don't create the pseudo-section by setting 'currSection = null'
+				// 2. Don't create the pseudo-section by setting '$currSection = null'
 				// But, this can leave some content outside any top-level section.
 				// 'c' will not be in any section.
 				// The code below implements strategy 1.
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
-				if ( $currSection && $nestedHighestSectionLevel <= $currSection->level ) {
-					$currSection->container->setAttribute( 'data-mw-section-id', -1 );
-					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack, $tplInfo, $currSection, $node, $nestedHighestSectionLevel, true );
+				if ( $currSection && $nestedHighestSectionLevel <= $currSection['level'] ) {
+					$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
+					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack,
+						$tplInfo, $currSection, $node, $nestedHighestSectionLevel, true );
 					$addedNode = true;
 				}
 			}
 
 			if ( $currSection && !$addedNode ) {
-				$currSection->container->appendChild( $node );
+				$currSection['container']->appendChild( $node );
 			}
 
-			if ( $tplInfo && $tplInfo->first === $node ) {
-				$tplInfo->firstSection = $currSection;
+			if ( $tplInfo && $tplInfo['first'] === $node ) {
+				$tplInfo['firstSection'] = $currSection;
 			}
 
 			// Track exit from templated output
-			if ( $tplInfo && $tplInfo->last === $node ) {
-				// The opening node and closing node of the template
+			if ( $tplInfo && $tplInfo['last'] === $node ) {
+				// The opening $node and closing $node of the template
 				// are in different sections! This might require resolution.
-				if ( $currSection !== $tplInfo->firstSection ) {
-					$tplInfo->lastSection = $currSection;
-					$state->tplsAndExtsToExamine[] = $tplInfo;
+				if ( $currSection !== $tplInfo['firstSection'] ) {
+					$tplInfo['lastSection'] = $currSection;
+					$state['tplsAndExtsToExamine'][] = $tplInfo;
 				}
 
 				$tplInfo = null;
-				$state->inTemplate = false;
+				$state['inTemplate'] = false;
 			}
 
 			$node = $next;
@@ -181,142 +221,180 @@ class WrapSections {
 		// The last section embedded in a non-body DOM element
 		// should always be marked non-editable since it will have
 		// the closing tag (ex: </div>) showing up in the source editor
-		// which we cannot support in a visual editing environment.
+		// which we cannot support in a visual editing $environment.
 		if ( $currSection && !DOMUtils::isBody( $rootNode ) ) {
-			$currSection->container->setAttribute( 'data-mw-section-id', -1 );
+			$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
 		}
 
 		return $highestSectionLevel;
 	}
 
-	public function getDSR( $tplInfo, $node, $start ) {
-		if ( $node->nodeName !== 'SECTION' ) {
-			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr || DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr;
-			return ( $start ) ? $dsr[ 0 ] : $dsr[ 1 ];
+	/**
+	 * Get opening/closing DSR offset for the subtree rooted at $node.
+	 * This handles scenarios where $node is a section or template wrapper
+	 * and if a section, when it has leading/trailing non-element nodes
+	 * that don't have recorded DSR values.
+	 *
+	 * @param array $tplInfo
+	 * @param DOMElement $node
+	 * @param bool $start
+	 * @return int
+	 */
+	private function getDSR( array $tplInfo, DOMElement $node, bool $start ): int {
+		if ( $node->nodeName !== 'section' ) {
+			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ??
+				DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
+			return $start ? $dsr[0] : $dsr[1];
 		}
 
 		$offset = 0;
-		$c = ( $start ) ? $node->firstChild : $node->lastChild;
+		$c = $start ? $node->firstChild : $node->lastChild;
 		while ( $c ) {
 			if ( !DOMUtils::isElt( $c ) ) {
-				$offset += count( $c->textContent );
+				$offset += mb_strlen( $c->textContent );
 			} else {
-				return $this->getDSR( $tplInfo, $c, $start ) + ( ( $start ) ? -$offset : $offset );
+				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
 			}
-			$c = ( $start ) ? $c->nextSibling : $c->previousSibling;
+			$c = $start ? $c->nextSibling : $c->previousSibling;
 		}
 
 		return -1;
 	}
 
-	public function resolveTplExtSectionConflicts( $state ) {
-		$self = $this;
-		$state->tplsAndExtsToExamine->forEach( function ( $tplInfo ) use ( &$arrayMap, &$DOMUtils, &$self, &$DOMDataUtils, &$state, &$Util ) {
-				$s1 = $tplInfo->firstSection && $tplInfo->firstSection->container; // could be undefined
-				$s2 = $tplInfo->lastSection->container; // guaranteed to be non-null
+	/**
+	 * Section wrappers and template/extension wrappers can conflict because
+	 * of partial overlaps. This method identifies those conflicts and fixes up
+	 * the template/extension encapsulation by expanding those ranges as necessary.
+	 * This algorithm is not fully foolproof and there are known edge case bugs.
+	 * See phabricator for these open bugs.
+	 *
+	 * @param array &$state
+	 */
+	private function resolveTplExtSectionConflicts( array &$state ) {
+		foreach ( $state['tplsAndExtsToExamine'] as $tplInfo ) {
+			// could be null
+			if ( isset( $tplInfo['firstSection'] ) &&
+				isset( $tplInfo['firstSection']['container'] )
+			) {
+				$s1 = $tplInfo['firstSection']['container'];
+			} else {
+				$s1 = null;
+			}
 
-				// Find a common ancestor of s1 and s2 (could be s1)
-				$s2Ancestors = $arrayMap( DOMUtils::pathToRoot( $s2 ) );
-				$s1Ancestors = [];
-				$ancestor = null;
-				$i = null;
-				if ( $s1 ) {
-					for ( $ancestor = $s1;  !$s2Ancestors->has( $ancestor );  $ancestor = $ancestor->parentNode ) {
-						$s1Ancestors[] = $ancestor;
-					}
-					// ancestor is now the common ancestor of s1 and s2
+			// guaranteed to be non-null
+			$s2 = $tplInfo['lastSection']['container'];
+
+			// Find a common ancestor of s1 and s2 (could be s1)
+			$s2Ancestors = DOMUtils::pathToRoot( $s2 );
+			$s1Ancestors = [];
+			$ancestor = null;
+			$i = 0;
+			if ( $s1 ) {
+				$ancestor = $s1;
+				while ( !in_array( $ancestor, $s2Ancestors, true ) ) {
 					$s1Ancestors[] = $ancestor;
-					$i = $s2Ancestors->get( $ancestor );
+					$ancestor = $ancestor->parentNode;
 				}
+				// ancestor is now the common ancestor of s1 and s2
+				$s1Ancestors[] = $ancestor;
+				$i = array_search( $ancestor, $s2Ancestors, true );
+			}
 
-				$n = null;
-$tplDsr = null;
-$dmw = null;
-				if ( !$s1 || $ancestor === $s1 ) {
-					// Scenario 1: s1 is s2's ancestor OR s1 doesn't exist.
-					// In either case, s2 only covers part of the transcluded content.
-					// But, s2 could also include content that follows the transclusion.
-					// If so, append the content of the section after the last node
-					// to data-mw.parts.
-					if ( $tplInfo->last->nextSibling ) {
-						$newTplEndOffset = $self->getDSR( $tplInfo, $s2, false ); // will succeed because it traverses non-tpl content
-						$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr;
-						$tplEndOffset = $tplDsr[ 1 ];
-						$dmw = DOMDataUtils::getDataMw( $tplInfo->first );
-						if ( DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
-							if ( $dmw->parts ) { $dmw->parts[] = $state->getSrc( $tplEndOffset, $newTplEndOffset );
-				   }
-						} else { /* Extension */
-							// https://phabricator.wikimedia.org/T184779
-							$dmw->extSuffix = $state->getSrc( $tplEndOffset, $newTplEndOffset );
-						}
-						// Update DSR
-						$tplDsr[ 1 ] = $newTplEndOffset;
-
-						// Set about attributes on all children of s2 - add span wrappers if required
-						$span = null;
-						for ( $n = $tplInfo->last->nextSibling;  $n;  $n = $n->nextSibling ) {
-							if ( DOMUtils::isElt( $n ) ) {
-								$n->setAttribute( 'about', $tplInfo->about );
-								$span = null;
-							} else {
-								if ( !$span ) {
-									$span = $state->doc->createElement( 'span' );
-									$span->setAttribute( 'about', $tplInfo->about );
-									$n->parentNode->replaceChild( $span, $n );
-								}
-								$span->appendChild( $n );
-								$n = $span; // to ensure n.nextSibling is correct
-							}
-						}
-					}
-				} else {
-					// Scenario 2: s1 and s2 are in different subtrees
-					// Find children of the common ancestor that are on the
-					// path from s1 -> ancestor and s2 -> ancestor
-					$newS1 = $s1Ancestors[ count( $s1Ancestors ) - 2 ]; // length >= 2 since we know ancestors != s1
-					$newS2 = $s2Ancestors->item( $i - 1 ); // i >= 1 since we know s2 is not s1's ancestor
-					$newAbout = $state->env->newAboutId(); // new about id for the new wrapping layer
-
-					// Ensure that all children from newS1 and newS2 have about attrs set
-					for ( $n = $newS1;  $n !== $newS2->nextSibling;  $n = $n->nextSibling ) {
-						$n->setAttribute( 'about', $newAbout );
-					}
-
-					// Update transclusion info
-					$dsr1 = $self->getDSR( $tplInfo, $newS1, true ); // will succeed because it traverses non-tpl content
-					$dsr2 = $self->getDSR( $tplInfo, $newS2, false ); // will succeed because it traverses non-tpl content
-					$tplDP = DOMDataUtils::getDataParsoid( $tplInfo->first );
-					$tplDsr = $tplDP->dsr;
-					$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo->first ) );
-					if ( DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
+			if ( !$s1 || $ancestor === $s1 ) {
+				// Scenario 1: s1 is s2's ancestor OR s1 doesn't exist.
+				// In either case, s2 only covers part of the transcluded content.
+				// But, s2 could also include content that follows the transclusion.
+				// If so, append the content of the section after the last $node
+				// to data-mw.parts.
+				if ( $tplInfo['last']->nextSibling ) {
+					$newTplEndOffset = $this->getDSR( $tplInfo, $s2, false );
+					// The next line will succeed because it traverses non-tpl content
+					$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
+					$tplEndOffset = $tplDsr[1];
+					$dmw = DOMDataUtils::getDataMw( $tplInfo['first'] );
+					if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 						if ( $dmw->parts ) {
-							array_unshift( $dmw->parts, $state->getSrc( $dsr1, $tplDsr[ 0 ] ) );
-							$dmw->parts[] = $state->getSrc( $tplDsr[ 1 ], $dsr2 );
+							$dmw->parts[] = $this->getSrc( $state['env'], $tplEndOffset, $newTplEndOffset );
 						}
-						DOMDataUtils::setDataMw( $newS1, $dmw );
-						$newS1->setAttribute( 'typeof', 'mw:Transclusion' );
-						// Copy the template's parts-information object
-						// which has white-space information for formatting
-						// the transclusion and eliminates dirty-diffs.
-						DOMDataUtils::setDataParsoid( $newS1, [ 'pi' => $tplDP->pi, 'dsr' => [ $dsr1, $dsr2 ] ] );
-					} else { /* extension */
+					} else { /* Extension */
 						// https://phabricator.wikimedia.org/T184779
-						$dmw->extPrefix = $state->getSrc( $dsr1, $tplDsr[ 0 ] );
-						$dmw->extSuffix = $state->getSrc( $tplDsr[ 1 ], $dsr2 );
-						DOMDataUtils::setDataMw( $newS1, $dmw );
-						$newS1->setAttribute( 'typeof', $tplInfo->first->getAttribute( 'typeof' ) || '' );
-						DOMDataUtils::setDataParsoid( $newS1, [ 'dsr' => [ $dsr1, $dsr2 ] ] );
+						$dmw->extSuffix = $this->getSrc( $state['env'], $tplEndOffset, $newTplEndOffset );
+					}
+					// Update DSR
+					$tplDsr[1] = $newTplEndOffset;
+
+					// Set about attributes on all children of s2 - add span wrappers if required
+					$span = null;
+					for ( $n = $tplInfo['last']->nextSibling; $n; $n = $n->nextSibling ) {
+						if ( DOMUtils::isElt( $n ) ) {
+							$n->setAttribute( 'about', $tplInfo['about'] );
+							$span = null;
+						} else {
+							if ( !$span ) {
+								$span = $state['doc']->createElement( 'span' );
+								$span->setAttribute( 'about', $tplInfo['about'] );
+								$n->parentNode->replaceChild( $span, $n );
+							}
+							$span->appendChild( $n );
+							$n = $span; // to ensure n->nextSibling is correct
+						}
 					}
 				}
+			} else {
+				// Scenario 2: s1 and s2 are in different subtrees
+				// Find children of the common ancestor that are on the
+				// path from s1 -> ancestor and s2 -> ancestor
+				$newS1 = $s1Ancestors[count( $s1Ancestors ) - 2]; // length >= 2 since we know ancestors != s1
+				$newS2 = $s2Ancestors[$i - 1]; // i >= 1 since we know s2 is not s1's ancestor
+				$newAbout = $state['env']->newAboutId(); // new about id for the new wrapping layer
+
+				// Ensure that all children from newS1 and newS2 have about attrs set
+				for ( $n = $newS1; $n !== $newS2->nextSibling; $n = $n->nextSibling ) {
+					$n->setAttribute( 'about', $newAbout );
+				}
+
+				// Update transclusion info
+				$dsr1 = $this->getDSR( $tplInfo, $newS1, true );  // Traverses non-tpl content => will succeed
+				$dsr2 = $this->getDSR( $tplInfo, $newS2, false ); // Traverses non-tpl content => will succeed
+				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
+				$tplDsr = $tplDP->dsr;
+				$dmw = clone DOMDataUtils::getDataMw( $tplInfo['first'] );
+				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
+					if ( $dmw->parts ) {
+						array_unshift( $dmw->parts, $this->getSrc( $state['env'], $dsr1, $tplDsr[0] ) );
+						$dmw->parts[] = $this->getSrc( $state['env'], $tplDsr[1], $dsr2 );
+					}
+					DOMDataUtils::setDataMw( $newS1, $dmw );
+					$newS1->setAttribute( 'typeof', 'mw:Transclusion' );
+					// Copy the template's parts-information object
+					// which has white-space information for formatting
+					// the transclusion and eliminates dirty-diffs.
+					$dp = (object)[ 'pi' => $tplDP->pi, 'dsr' => [ $dsr1, $dsr2 ] ];
+					DOMDataUtils::setDataParsoid( $newS1, $dp );
+				} else { /* extension */
+					// https://phabricator.wikimedia.org/T184779
+					$dmw->extPrefix = $this->getSrc( $state['env'], $dsr1, $tplDsr[0] );
+					$dmw->extSuffix = $this->getSrc( $state['env'], $tplDsr[1], $dsr2 );
+					DOMDataUtils::setDataMw( $newS1, $dmw );
+					$newS1->setAttribute( 'typeof', $tplInfo['first']->getAttribute( 'typeof' ) );
+					$dp = (object)[ 'dsr' => [ $dsr1, $dsr2 ] ];
+					DOMDataUtils::setDataParsoid( $newS1, $dp );
+				}
+			}
 		}
-		);
 	}
 
 	/**
+	 * DOM Postprocessor entry function to walk DOM rooted at $rootNode
+	 * and add <section> wrappers as necessary.
+	 * Implements the algorithm documented @ mw:Parsing/Notes/Section_Wrapping
+	 *
+	 * @param DOMElement $rootNode
+	 * @param Env $env
+	 * @param array|null $options
 	 */
-	public function run( $rootNode, $env, $options ) {
-		if ( !$env->wrapSections ) {
+	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ) {
+		if ( !$env->getWrapSections() ) {
 			return;
 		}
 
@@ -329,9 +407,9 @@ $dmw = null;
 			'level' => 6,
 			'lead' => true
 		];
-		$leadSection->container->setAttribute( 'data-mw-section-id', 0 );
+		$leadSection['container']->setAttribute( 'data-mw-section-id', '0' );
 
-		// Global state
+		// Global $state
 		$state = [
 			'env' => $env,
 			'count' => 1,
@@ -339,22 +417,15 @@ $dmw = null;
 			'rootNode' => $rootNode,
 			'sectionNumber' => 0,
 			'inTemplate' => false,
-			'tplsAndExtsToExamine' => [],
-			'getSrc' => function ( $s, $e ) {
-				return substr( $this->env->page->src, $s, $e/*CHECK THIS*/ );
-			}
+			'tplsAndExtsToExamine' => []
 		];
 		$this->wrapSectionsInDOM( $state, $leadSection, $rootNode );
 
 		// There will always be a lead section, even if sometimes it only
 		// contains whitespace + comments.
-		$rootNode->insertBefore( $leadSection->container, $rootNode->firstChild );
+		$rootNode->insertBefore( $leadSection['container'], $rootNode->firstChild );
 
 		// Resolve template conflicts after all sections have been added to the DOM
 		$this->resolveTplExtSectionConflicts( $state );
 	}
 }
-
-$module->exports = [
-	'WrapSections' => $WrapSections
-];
