@@ -1,42 +1,67 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+<?php
+declare( strict_types = 1 );
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\WikitextConstants as WikitextConstants;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-$isRenderingTransparentNode = function ( $n ) use ( &$DOMUtils, &$WikitextConstants ) {return ( DOMUtils::isText( $n ) && preg_match( '/^\s*$/', $n->nodeValue ) )
-|| WikitextConstants\HTML\MetaTags::has( $n->nodeName ) || DOMUtils::isComment( $n );
-};
+use Parsoid\Config\Env;
+use Parsoid\Config\WikitextConstants;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMDataUtils;
+
+use \DOMNode;
+use \DOMElement;
 
 class PWrap {
-	public function isSplittableTag( $n ) {
+	/**
+	 * Flattens an array with other arrays for elements into
+	 * an array without nested arrays.
+	 *
+	 * @param array[] $a
+	 * @return array
+	 */
+	private function flatten( array $a ): array {
+		return $a === [] ? [] : array_merge( ...$a );
+	}
+
+	/**
+	 * This is equivalent to DOMUtils.emitsSolTransparentSingleLineWT except
+	 * for the single line constraint.
+	 *
+	 * @param DOMNode $n
+	 * @return bool
+	 */
+	private function emitsSolTransparentWT( DOMNode $n ): bool {
+		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/', $n->nodeValue ) ||
+			DOMUtils::isComment( $n ) ||
+			isset( WikitextConstants::$HTML['MetaTags'][$n->nodeName] );
+	}
+
+	/**
+	 * Can we split the subtree rooted at $n into multiple adjacent
+	 * subtrees rooted in a clone of $n where each of those subtrees
+	 * get a contiguous subset of $n's children?
+	 *
+	 * This is probably equivalent to asking if this node supports the
+	 * adoption agency algorithm in the HTML5 spec.
+	 *
+	 * @param DOMNode $n
+	 * @return bool
+	 */
+	private function isSplittableTag( DOMNode $n ): bool {
 		// Seems safe to split span, sub, sup, cite tags
-		//
-		// These are the only 4 tags that are in HTML5Depurate's
-		// list of inline tags that are not self-closing and that
-		// can embed tags inside them.
 		//
 		// However, if we want to mimic Parsoid and HTML5 spec
 		// precisely, we should only use isFormattingElt(n)
 		return DOMUtils::isFormattingElt( $n );
 	}
 
-	// Flattens an array with other arrays for elements into
-	// an array without nested arrays
-	public function flatten( $a ) {
-		$ret = [];
-		for ( $i = 0;  $i < count( $a );  $i++ ) {
-			$ret = $ret->concat( $a[ $i ] );
-		}
-		return $ret;
-	}
-
-	// Does the subtree rooted at 'n' have a block tag in it?
-	public function hasBlockTag( $n ) {
+	/**
+	 * Does the subtree $rooted at 'n' have a block tag in it?
+	 *
+	 * @param DOMNode $n
+	 * @return bool
+	 */
+	private function hasBlockTag( DOMNode $n ): bool {
 		$c = $n->firstChild;
 		while ( $c ) {
 			if ( DOMUtils::isBlockNode( $n ) || $this->hasBlockTag( $c ) ) {
@@ -47,95 +72,112 @@ class PWrap {
 		return false;
 	}
 
-	// mergeRuns merges split subtrees that
-	// have identical PWrap properties
-	public function mergeRuns( $n, $a ) {
-		$curr = null;
+	/**
+	 * Merge a contiguous run of split subtrees that have identical pwrap properties
+	 *
+	 * @param DOMElement $n
+	 * @param array $a
+	 * @return array
+	 */
+	private function mergeRuns( DOMElement $n, array $a ): array {
 		$ret = [];
 		// This flag should be transferred to the rightmost
 		// clone of this node in the loop below.
-		$origAIEnd = DOMDataUtils::getDataParsoid( $n )->autoInsertedEnd;
-		$a->forEach( function ( $v ) use ( &$curr, &$n, &$ret, &$DOMDataUtils ) {
-				if ( !$curr ) {
-					$curr = [ 'PWrap' => $v::PWrap, 'node' => $n ];
-					$ret[] = $curr;
-				} elseif ( $curr::PWrap === null ) {
-					$curr::PWrap = $v::PWrap;
-				} elseif ( $curr::PWrap !== $v::PWrap && $v::PWrap !== null ) {
-					DOMDataUtils::getDataParsoid( $curr->node )->autoInsertedEnd = true;
-					$cnode = $n->clone();
-					$cnode->removeAttribute( DOMDataUtils\DataObjectAttrName() );
-					$curr = [ 'PWrap' => $v::PWrap, 'node' => $cnode ];
-					DOMDataUtils::getDataParsoid( $curr->node )->autoInsertedStart = true;
-					$ret[] = $curr;
-				}
-				$curr->node->appendChild( $v->node );
+		$origAIEnd = isset( DOMDataUtils::getDataParsoid( $n )->autoInsertedEnd );
+		$i = -1;
+		foreach ( $a as $v ) {
+			if ( $i < 0 ) {
+				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $n ];
+				$i++;
+			} elseif ( $ret[$i]['pwrap'] === null ) {
+				$ret[$i]['pwrap'] = $v['pwrap'];
+			} elseif ( $ret[$i]['pwrap'] !== $v['pwrap'] && $v['pwrap'] !== null ) {
+				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
+				$cnode = $n->cloneNode();
+				$cnode->removeAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $cnode ];
+				$i++;
+				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedStart = true;
+			}
+			$ret[$i]['node']->appendChild( $v['node'] );
 		}
-		);
-		if ( $curr ) {
-			DOMDataUtils::getDataParsoid( $curr->node )->autoInsertedEnd = $origAIEnd;
+
+		if ( $i >= 0 ) {
+			DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = $origAIEnd;
 		}
 		return $ret;
 	}
 
-	// split does the split operation described in the outline of
-	// the algorithm below.
-	public function split( $n ) {
-		if ( $isRenderingTransparentNode( $n ) ) {
+	/**
+	 * Implements the split operation described in the algorithm below.
+	 *
+	 * @param DOMNode $n
+	 * @return array
+	 */
+	private function split( DOMNode $n ): array {
+		if ( $this->emitsSolTransparentWT( $n ) ) {
 			// The null stuff here is mainly to support mw:EndTag metas getting in
 			// the way of runs and causing unnecessary wrapping.
-			return [ [ 'PWrap' => null, 'node' => $n ] ];
+			return [ [ 'pwrap' => null, 'node' => $n ] ];
 		} elseif ( DOMUtils::isText( $n ) ) {
-			return [ [ 'PWrap' => true, 'node' => $n ] ];
-		} elseif ( !$this->isSplittableTag( $n ) || !count( $n->childNodes ) ) {
+			return [ [ 'pwrap' => true, 'node' => $n ] ];
+		} elseif ( !$this->isSplittableTag( $n ) || count( $n->childNodes ) === 0 ) {
 			// block tag OR non-splittable inline tag
-			return [ [ 'PWrap' => !DOMUtils::isBlockNode( $n ) && !$this->hasBlockTag( $n ), 'node' => $n ] ];
+			return [
+				[ 'pwrap' => !DOMUtils::isBlockNode( $n ) && !$this->hasBlockTag( $n ), 'node' => $n ]
+			];
 		} else {
 			// splittable inline tag
 			// split for each child and merge runs
-			return $this->mergeRuns( $n, $this->flatten( array_map( $n->childNodes, function ( $c ) {return explode( $c, $this );
-   } ) ) );
+			$children = $n->childNodes;
+			$splits = [];
+			foreach ( $children as $child ) {
+				$splits[] = $this->split( $child );
+			}
+			return $this->mergeRuns( $n, $this->flatten( $splits ) );
 		}
 	}
 
-	// Wrap children of 'root' with paragraph tags while
-	// so that the final output has the following properties:
-	//
-	// 1. A paragraph will have at least one non-whitespace text
-	// node or an non-block element node in its subtree.
-	//
-	// 2. Two paragraph nodes aren't siblings of each other.
-	//
-	// 3. If a child of root is not a paragraph node, it is one of:
-	// - a white-space only text node
-	// - a comment node
-	// - a block element
-	// - a splittable inline element which has some block node
-	// on *all* paths from it to all leaves in its subtree.
-	// - a non-splittable inline element which has some block node
-	// on *some* path from it to a leaf in its subtree.
-	//
-	//
-	// This output is generated with the following algorithm
-	//
-	// 1. Block nodes are skipped over
-	// 2. Non-splittable inline nodes that have a block tag
-	// in its subtree are skipped over.
-	// 3. A splittable inline node, I, that has at least one block tag
-	// in its subtree is split into multiple tree such that
-	// * each new tree is rooted in I
-	// * the trees alternate between two kinds
-	// (a) it has no block node inside
-	// => PWrap is true
-	// (b) all paths from I to its leaves have some block node inside
-	// => PWrap is false
-	// 4. A paragraph tag is wrapped around adjacent runs of comment nodes,
-	// text nodes, and an inline node that has no block node embedded inside.
-	// This paragraph tag does not start with a white-space-only text node
-	// or a comment node. The current algorithm does not ensure that it doesn't
-	// end with one of those either, but that is a potential future enhancement.
-
-	public function pWrap( $root ) {
+	/**
+	 * Wrap children of '$root' with paragraph tags while
+	 * so that the final output has the following properties:
+	 *
+	 * 1. A paragraph will have at least one non-whitespace text
+	 * node or an non-block element node in its subtree.
+	 *
+	 * 2. Two paragraph nodes aren't siblings of each other.
+	 *
+	 * 3. If a child of $root is not a paragraph node, it is one of:
+	 * - a white-space only text node
+	 * - a comment node
+	 * - a block element
+	 * - a splittable inline element which has some block node
+	 *   on *all* paths from it to all leaves in its subtree.
+	 * - a non-splittable inline element which has some block node
+	 *   on *some* path from it to a leaf in its subtree.
+	 *
+	 * This output is generated with the following algorithm
+	 *
+	 * 1. Block nodes are skipped over
+	 * 2. Non-splittable inline nodes that have a block tag
+	 *    in its subtree are skipped over.
+	 * 3. A splittable inline node, I, that has at least one block tag
+	 *    in its subtree is split into multiple tree such that
+	 *    - each new tree is $rooted in I
+	 *    - the trees alternate between two kinds
+	 *    (a) it has no block node inside
+	 *        => pwrap is true
+	 *    (b) all paths from I to its leaves have some block node inside
+	 *        => pwrap is false
+	 * 4. A paragraph tag is wrapped around adjacent runs of comment nodes,
+	 *    text nodes, and an inline node that has no block node embedded inside.
+	 *    This paragraph tag does not start with a white-space-only text node
+	 *    or a comment node. The current algorithm does not ensure that it doesn't
+	 *    end with one of those either, but that is a potential future enhancement.
+	 *
+	 * @param DOMNode $root
+	 */
+	private function pWrapDOM( DOMNode $root ) {
 		$p = null;
 		$c = $root->firstChild;
 		while ( $c ) {
@@ -143,40 +185,45 @@ class PWrap {
 			if ( DOMUtils::isBlockNode( $c ) ) {
 				$p = null;
 			} else {
-				explode( $c, $this )->forEach( function ( $v ) use ( &$root, &$next, &$isRenderingTransparentNode ) {
-						$n = $v->node;
-						if ( $v::PWrap === false ) {
-							$p = null;
-							$root->insertBefore( $n, $next );
-						} elseif ( $isRenderingTransparentNode( $n ) ) {
-							if ( $p ) {
-								$p->appendChild( $n );
-							} else {
-								$root->insertBefore( $n, $next );
-							}
-						} else {
-							if ( !$p ) {
-								$p = $root->ownerDocument->createElement( 'P' );
-								$root->insertBefore( $p, $next );
-							}
+				$vs = $this->split( $c );
+				foreach ( $vs as $v ) {
+					$n = $v['node'];
+					if ( $v['pwrap'] === false ) {
+						$p = null;
+						$root->insertBefore( $n, $next );
+					} elseif ( $this->emitsSolTransparentWT( $n ) ) {
+						if ( $p ) {
 							$p->appendChild( $n );
+						} else {
+							$root->insertBefore( $n, $next );
 						}
+					} else {
+						if ( !$p ) {
+							$p = $root->ownerDocument->createElement( 'p' );
+							$root->insertBefore( $p, $next );
+						}
+						$p->appendChild( $n );
+					}
 				}
-				);
 			}
 			$c = $next;
 		}
 	}
 
-	// This function walks the DOM tree rooted at 'root'
-	// and uses pWrap to add appropriate paragraph wrapper
-	// tags around children of nodes with tag name 'tagName'.
-	public function pWrapInsideTag( $root, $tagName ) {
+	/**
+	 * This function walks the DOM tree $rooted at '$root'
+	 * and uses pWrapDOM to add appropriate paragraph wrapper
+	 * tags around children of nodes with tag name '$tagName'.
+	 *
+	 * @param DOMElement $root
+	 * @param string $tagName
+	 */
+	private function pWrapInsideTag( DOMElement $root, string $tagName ) {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c->nodeName === $tagName ) {
-				$this->pWrap( $c );
+				$this->pWrapDOM( $c );
 			} elseif ( DOMUtils::isElt( $c ) ) {
 				$this->pWrapInsideTag( $c, $tagName );
 			}
@@ -184,14 +231,16 @@ class PWrap {
 		}
 	}
 
-	// Wrap children of <body> as well as children of
-	// <blockquote> found anywhere in the DOM tree.
-	public function run( $root, $env, $options ) {
-		$this->pWrap( $root );
-		$this->pWrapInsideTag( $root, 'BLOCKQUOTE' );
+	/**
+	 * Wrap children of <body> as well as children of
+	 * <blockquote> found anywhere in the DOM tree.
+	 *
+	 * @param DOMElement $root
+	 * @param Env $env
+	 * @param array|null $options
+	 */
+	public function run( DOMElement $root, Env $env, $options = [] ) {
+		$this->pWrapDOM( $root );
+		$this->pWrapInsideTag( $root, 'blockquote' );
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->PWrap = $PWrap;
 }

@@ -50,6 +50,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
+use Parsoid\Wt2Html\PP\Processors\PWrap;
 
 $wgCachedState = false;
 $wgCachedFilePre = '';
@@ -155,7 +156,7 @@ class DOMPassTester {
 				wrapSections( $body, $this->env, null );
 				break;
 			case 'pwrap' :
-				pwrapDOM( $body, $this->env, null );
+				( new PWrap() )->run( $body, $this->env );
 				break;
 		}
 

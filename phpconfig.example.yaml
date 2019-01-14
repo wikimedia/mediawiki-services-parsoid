@@ -20,7 +20,7 @@ phpTokenTransformers:
   - QuoteTransformer
 
 phpDOMTransformers:
-  - PWrap-NOT_YET_SUPPORTED
+  - PWrap
   - WrapSections-NOT_YET_SUPPORTED
   - ComputeDSR
   - HandlePres
