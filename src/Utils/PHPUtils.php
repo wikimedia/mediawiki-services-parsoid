@@ -67,4 +67,32 @@ class PHPUtils {
 		return json_decode( $o );
 	}
 
+	/**
+	 * Convert array to associative array usable as a read-only Set.
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	public static function makeSet( $a ) {
+		$set = [];
+		foreach ( $a as $e ) {
+			$set[$e] = true;
+		}
+
+		return $set;
+	}
+
+	/**
+	 * Convert array to associative array usable as a key-value Map
+	 * @param array $a
+	 * @return array
+	 */
+	public static function makeMap( $a ) {
+		$map = [];
+		foreach ( $a as $e ) {
+			$map[$e[0]] = $e[1];
+		}
+
+		return $map;
+	}
 }
