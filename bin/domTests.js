@@ -46,8 +46,8 @@ var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 // processors
-var requireProcessor = function(p) {
-	return require('../lib/wt2html/pp/processors/' + p + '.js')[p];
+var requireProcessor = function(p, className) {
+	return require('../lib/wt2html/pp/processors/' + p + '.js')[className || p];
 };
 
 // processors markFosteredContent and processTreeBuilderfixups test files
@@ -59,7 +59,7 @@ var requireProcessor = function(p) {
 var migrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas');
 var handlePres = requireProcessor('handlePres');
 var migrateTrailingNLs = requireProcessor('migrateTrailingNLs');
-var computeDSR = requireProcessor('computeDSR');
+var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
 var wrapTemplates = requireProcessor('wrapTemplates');
 var wrapSections = requireProcessor('wrapSections');
 var addExtLinkClasses = requireProcessor('addExtLinkClasses');
@@ -147,7 +147,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 	if (opts.transformer === 'dsr') {
 		var dp = DOMDataUtils.getDataParsoid(body);
 		if (dp.dsr) { opts.sourceOffsets = dp.dsr; }
-		computeDSR(body, env, opts, true);
+		(new ComputeDSR()).run(body, env, opts);
 	} else if (opts.transformer === 'migrate-metas') {
 		migrateTemplateMarkerMetas(body, env);
 	} else if (opts.transformer === 'pres') {
