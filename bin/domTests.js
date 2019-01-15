@@ -65,7 +65,7 @@ var WrapSections = requireProcessor('wrapSections', 'WrapSections');
 var AddExtLinkClasses = requireProcessor('addExtLinkClasses', 'AddExtLinkClasses');
 var PWrap = requireProcessor('PWrap');
 var processTreeBuilderFixups = requireProcessor('processTreeBuilderFixups');
-var markFosteredContent = requireProcessor('markFosteredContent');
+var MarkFosteredContent = requireProcessor('markFosteredContent', 'MarkFosteredContent');
 
 // handlers
 var requireHandlers = function(file) {
@@ -166,7 +166,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 	} else if (opts.transformer === 'process-fixups') { // known failure, pre and post do not match
 		processTreeBuilderFixups(body, env);
 	} else if (opts.transformer === 'fostered') { // known failure, pre and post do not match
-		markFosteredContent(body, env);
+		(new MarkFosteredContent()).run(body, env, opts);
 	} else if (opts.transformer === 'heading-ids') {
 		headings.genAnchors(body, env);
 	}
