@@ -73,7 +73,7 @@
     "coverage": "npm run cover-mocha && npm run cover-parserTests && npm run cover-roundtrip && istanbul report",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "doc": "jsdoc -c jsdoc.json",
-    "nsp": "echo nsp has been shut down but 'npm audit' requires npm >= 6"
+    "nsp": "echo 'nsp has been shut down but npm audit requires npm >= 6'"
   },
   "repository": {
     "type": "git",
