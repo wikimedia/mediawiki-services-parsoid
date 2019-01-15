@@ -62,7 +62,7 @@ var migrateTrailingNLs = requireProcessor('migrateTrailingNLs');
 var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
 var wrapTemplates = requireProcessor('wrapTemplates');
 var WrapSections = requireProcessor('wrapSections', 'WrapSections');
-var addExtLinkClasses = requireProcessor('addExtLinkClasses');
+var AddExtLinkClasses = requireProcessor('addExtLinkClasses', 'AddExtLinkClasses');
 var PWrap = requireProcessor('PWrap');
 var processTreeBuilderFixups = requireProcessor('processTreeBuilderFixups');
 var markFosteredContent = requireProcessor('markFosteredContent');
@@ -160,9 +160,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 	} else if (opts.transformer === 'sections') {
 		(new WrapSections()).run(body, env, opts);
 	} else if (opts.transformer === 'linkclasses') { // known failure, pre and post do not match
-		var doc = {};
-		doc.body = body;
-		addExtLinkClasses(env, doc);	// the parameters require access to the document.body?
+		(new AddExtLinkClasses()).run(body, env, opts);
 	} else if (opts.transformer === 'pwrap') {
 		(new PWrap()).run(body, env, opts);
 	} else if (opts.transformer === 'process-fixups') { // known failure, pre and post do not match
