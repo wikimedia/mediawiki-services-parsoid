@@ -57,7 +57,7 @@ var requireProcessor = function(p, className) {
 // correctness of porting.
 
 var migrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas');
-var handlePres = requireProcessor('handlePres');
+var HandlePres = requireProcessor('handlePres', 'HandlePres');
 var migrateTrailingNLs = requireProcessor('migrateTrailingNLs');
 var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
 var wrapTemplates = requireProcessor('wrapTemplates');
@@ -151,7 +151,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 	} else if (opts.transformer === 'migrate-metas') {
 		migrateTemplateMarkerMetas(body, env);
 	} else if (opts.transformer === 'pres') {
-		handlePres(body, env);
+		(new HandlePres()).run(body, env, opts);
 	} else if (opts.transformer === 'migrate-nls') {
 		migrateTrailingNLs(body, env);
 	} else if (opts.transformer === 'tplwrap') { // fails, pre matches, but fails at
