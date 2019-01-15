@@ -60,7 +60,7 @@ var migrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas');
 var HandlePres = requireProcessor('handlePres', 'HandlePres');
 var migrateTrailingNLs = requireProcessor('migrateTrailingNLs');
 var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
-var wrapTemplates = requireProcessor('wrapTemplates');
+var WrapTemplates = requireProcessor('wrapTemplates', 'WrapTemplates');
 var WrapSections = requireProcessor('wrapSections', 'WrapSections');
 var AddExtLinkClasses = requireProcessor('addExtLinkClasses', 'AddExtLinkClasses');
 var PWrap = requireProcessor('PWrap');
@@ -156,7 +156,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		migrateTrailingNLs(body, env);
 	} else if (opts.transformer === 'tplwrap') { // fails, pre matches, but fails at
 		// findTopLevelNonOverlappingRanges (processors/wrapTemplates.js:500:12)
-		wrapTemplates(body, env, opts);
+		(new WrapTemplates()).run(body, env, opts);
 	} else if (opts.transformer === 'sections') {
 		(new WrapSections()).run(body, env, opts);
 	} else if (opts.transformer === 'linkclasses') { // known failure, pre and post do not match
