@@ -64,7 +64,7 @@ var wrapTemplates = requireProcessor('wrapTemplates');
 var WrapSections = requireProcessor('wrapSections', 'WrapSections');
 var AddExtLinkClasses = requireProcessor('addExtLinkClasses', 'AddExtLinkClasses');
 var PWrap = requireProcessor('PWrap');
-var processTreeBuilderFixups = requireProcessor('processTreeBuilderFixups');
+var ProcessTreeBuilderFixups = requireProcessor('processTreeBuilderFixups', 'ProcessTreeBuilderFixups');
 var MarkFosteredContent = requireProcessor('markFosteredContent', 'MarkFosteredContent');
 
 // handlers
@@ -164,7 +164,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 	} else if (opts.transformer === 'pwrap') {
 		(new PWrap()).run(body, env, opts);
 	} else if (opts.transformer === 'process-fixups') { // known failure, pre and post do not match
-		processTreeBuilderFixups(body, env);
+		(new ProcessTreeBuilderFixups()).run(body, env, opts);
 	} else if (opts.transformer === 'fostered') { // known failure, pre and post do not match
 		(new MarkFosteredContent()).run(body, env, opts);
 	} else if (opts.transformer === 'heading-ids') {
