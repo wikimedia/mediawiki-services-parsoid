@@ -5,12 +5,13 @@
 require('../../core-upgrade.js');
 
 require('chai').should();
-var DOMUtils = require('../../lib/utils/DOMUtils.js').DOMUtils;
-var pWrapDOM = require('../../lib/wt2html/pp/processors/pwrap.js').pwrap;
+const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
+const { PWrap } = require('../../lib/wt2html/pp/processors/pwrap.js');
 
+const PWrapper = new PWrap();
 var verifyPWrap = function(html, expectedOutput) {
 	var doc = DOMUtils.parseHTML(html);
-	pWrapDOM(doc.body);
+	PWrapper.run(doc.body);
 	doc.body.innerHTML.should.equal(expectedOutput);
 };
 

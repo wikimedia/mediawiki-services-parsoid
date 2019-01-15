@@ -63,7 +63,7 @@ var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
 var wrapTemplates = requireProcessor('wrapTemplates');
 var WrapSections = requireProcessor('wrapSections', 'WrapSections');
 var addExtLinkClasses = requireProcessor('addExtLinkClasses');
-var pWrap = requireProcessor('pwrap');
+var PWrap = requireProcessor('PWrap');
 var processTreeBuilderFixups = requireProcessor('processTreeBuilderFixups');
 var markFosteredContent = requireProcessor('markFosteredContent');
 
@@ -164,7 +164,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		doc.body = body;
 		addExtLinkClasses(env, doc);	// the parameters require access to the document.body?
 	} else if (opts.transformer === 'pwrap') {
-		pWrap(body, env, opts, true);
+		(new PWrap()).run(body, env, opts);
 	} else if (opts.transformer === 'process-fixups') { // known failure, pre and post do not match
 		processTreeBuilderFixups(body, env);
 	} else if (opts.transformer === 'fostered') { // known failure, pre and post do not match
