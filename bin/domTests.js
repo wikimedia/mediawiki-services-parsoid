@@ -56,7 +56,7 @@ var requireProcessor = function(p, className) {
 // by domTests.js and domTests.php maybe compared and of value in determining
 // correctness of porting.
 
-var migrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas');
+var MigrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas', 'MigrateTemplateMarkerMetas');
 var HandlePres = requireProcessor('handlePres', 'HandlePres');
 var MigrateTrailingNLs = requireProcessor('migrateTrailingNLs', 'MigrateTrailingNLs');
 var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
@@ -149,7 +149,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		if (dp.dsr) { opts.sourceOffsets = dp.dsr; }
 		(new ComputeDSR()).run(body, env, opts);
 	} else if (opts.transformer === 'migrate-metas') {
-		migrateTemplateMarkerMetas(body, env);
+		(new MigrateTemplateMarkerMetas()).run(body, env, opts);
 	} else if (opts.transformer === 'pres') {
 		(new HandlePres()).run(body, env, opts);
 	} else if (opts.transformer === 'migrate-nls') {
