@@ -6,7 +6,7 @@ require('../../core-upgrade.js');
 
 require('chai').should();
 const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
-const { PWrap } = require('../../lib/wt2html/pp/processors/pwrap.js');
+const { PWrap } = require('../../lib/wt2html/pp/processors/PWrap.js');
 
 const PWrapper = new PWrap();
 var verifyPWrap = function(html, expectedOutput) {

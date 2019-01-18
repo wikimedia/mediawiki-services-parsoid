@@ -46,8 +46,8 @@ var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 // processors
-var requireProcessor = function(p, className) {
-	return require('../lib/wt2html/pp/processors/' + p + '.js')[className || p];
+var requireProcessor = function(p) {
+	return require('../lib/wt2html/pp/processors/' + p + '.js')[p];
 };
 
 // processors markFosteredContent and processTreeBuilderfixups test files
@@ -56,16 +56,16 @@ var requireProcessor = function(p, className) {
 // by domTests.js and domTests.php maybe compared and of value in determining
 // correctness of porting.
 
-var MigrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas', 'MigrateTemplateMarkerMetas');
-var HandlePres = requireProcessor('handlePres', 'HandlePres');
-var MigrateTrailingNLs = requireProcessor('migrateTrailingNLs', 'MigrateTrailingNLs');
-var ComputeDSR = requireProcessor('computeDSR', 'ComputeDSR');
-var WrapTemplates = requireProcessor('wrapTemplates', 'WrapTemplates');
-var WrapSections = requireProcessor('wrapSections', 'WrapSections');
-var AddExtLinkClasses = requireProcessor('addExtLinkClasses', 'AddExtLinkClasses');
+var MigrateTemplateMarkerMetas = requireProcessor('MigrateTemplateMarkerMetas');
+var HandlePres = requireProcessor('HandlePres');
+var MigrateTrailingNLs = requireProcessor('MigrateTrailingNLs');
+var ComputeDSR = requireProcessor('ComputeDSR');
+var WrapTemplates = requireProcessor('WrapTemplates');
+var WrapSections = requireProcessor('WrapSections');
+var AddExtLinkClasses = requireProcessor('AddExtLinkClasses');
 var PWrap = requireProcessor('PWrap');
-var ProcessTreeBuilderFixups = requireProcessor('processTreeBuilderFixups', 'ProcessTreeBuilderFixups');
-var MarkFosteredContent = requireProcessor('markFosteredContent', 'MarkFosteredContent');
+var ProcessTreeBuilderFixups = requireProcessor('ProcessTreeBuilderFixups');
+var MarkFosteredContent = requireProcessor('MarkFosteredContent');
 
 // handlers
 var requireHandlers = function(file) {
