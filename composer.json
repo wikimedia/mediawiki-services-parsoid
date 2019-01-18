@@ -29,7 +29,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Parsoid\\": "src/"
+			"Parsoid\\": "src/",
+			"Tests\\": "tests/"
 		}
 	},
 	"scripts": {
