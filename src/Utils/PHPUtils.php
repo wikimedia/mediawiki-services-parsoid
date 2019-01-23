@@ -1,15 +1,12 @@
 <?php
 
-namespace Parsoid\Lib\PHPUtils;
+namespace Parsoid\Utils;
 
 /**
 * This file contains Parsoid-independent PHP helper functions.
 * Over time, more functions can be migrated out of various other files here.
 * @module
 */
-
-// Port based on git-commit: <423eb7f04eea94b69da1cefe7bf0b27385781371>
-// Not tested, all code that is not ported has assert or PORT-FIXME
 
 class PHPUtils {
 	public static function object() {
@@ -73,7 +70,7 @@ class PHPUtils {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function makeSet( $a ) {
+	public static function makeSet( array $a ) {
 		$set = [];
 		foreach ( $a as $e ) {
 			$set[$e] = true;
@@ -87,12 +84,21 @@ class PHPUtils {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function makeMap( $a ) {
+	public static function makeMap( array $a ) {
 		$map = [];
 		foreach ( $a as $e ) {
 			$map[$e[0]] = $e[1];
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Helper to get last item of the array
+	 * @param mixed[] $a
+	 * @return object
+	 */
+	public static function lastItem( array $a ) {
+		return $a[count( $a ) - 1];
 	}
 }
