@@ -205,7 +205,7 @@ MockTTM.prototype.processToken = function(transformer, token) {
 		modified = true;
 	}
 
-	if (!modified && !res.skip && transformer.active) {
+	if (!modified && !res.skipOnAny && transformer.onAnyEnabled) {
 		res = transformer.onAny(token);
 	}
 
