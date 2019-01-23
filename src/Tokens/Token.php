@@ -1,195 +1,213 @@
-/** @module tokens/Token */
+<?php
 
-'use strict';
-
-const KV = require('./KV.js').KV;
+namespace Parsoid\Tokens;
 
 /**
  * Catch-all class for all token types.
- * @abstract
- * @class
  */
-class Token {
+abstract class Token {
+	/** @var string Type identifier of this token.
+	 * All subclasses should assign this a non-null value. */
+	protected $type;
+
+	/** @var array Attributes of this token
+	 * This is represented an array of KV objects
+	 * TODO: Expand on this.
+	 */
+	protected $attribs = [];
+
+	/** @var array Data attributes for this token
+	 * This is represented an associative key-value array
+	 * TODO: Expand on this.
+	 */
+	protected $dataAttribs = [];
+
+	/**
+	 * Returns a string key for this token
+	 * @return string
+	 */
+	public function getType() {
+		return $this->type;
+	}
+
 	/**
 	 * Generic set attribute method.
 	 *
-	 * @param {string} name
-	 * @param {any} value
+	 * @param string $name
+	 *    Always a string when used this way.
+	 *    The more complex form (where the key is a non-string) are found when
+	 *    KV objects are constructed in the tokenizer.
+	 * @param object $value
 	 */
-	addAttribute(name, value) {
-		this.attribs.push(new KV(name, value));
+	public function addAttribute( $name, $value ) {
+		$this->attribs[] = new KV( $name, $value );
 	}
 
 	/**
 	 * Generic set attribute method with support for change detection.
 	 * Set a value and preserve the original wikitext that produced it.
 	 *
-	 * @param {string} name
-	 * @param {any} value
-	 * @param {any} origValue
+	 * @param string $name
+	 * @param object $value
+	 * @param object $origValue
 	 */
-	addNormalizedAttribute(name, value, origValue) {
-		this.addAttribute(name, value);
-		this.setShadowInfo(name, value, origValue);
+	public function addNormalizedAttribute( $name, $value, $origValue ) {
+		$this->addAttribute( $name, $value );
+		$this->setShadowInfo( $name, $value, $origValue );
 	}
 
 	/**
 	 * Generic attribute accessor.
 	 *
-	 * @param {string} name
-	 * @return {any}
+	 * @param string $name
+	 * @return object
 	 */
-	getAttribute(name) {
-		return KV.lookup(this.attribs, name);
+	public function getAttribute( $name ) {
+		return KV::lookup( $this->attribs, $name );
 	}
 
 	/**
 	 * Set an unshadowed attribute.
 	 *
-	 * @param {string} name
-	 * @param {any} value
+	 * @param string $name
+	 * @param object $value
 	 */
-	setAttribute(name, value) {
+	public function setAttribute( $name, $value ) {
 		// First look for the attribute and change the last match if found.
-		for (var i = this.attribs.length - 1; i >= 0; i--) {
-			var kv = this.attribs[i];
-			var k = kv.k;
-			if (k.constructor === String && k.toLowerCase() === name) {
-				kv.v = value;
-				this.attribs[i] = kv;
+		for ( $i = count( $this->attribs ) - 1; $i >= 0; $i-- ) {
+			$kv = $this->attribs[$i];
+			$k = $kv->k;
+			if ( is_string( $k ) && mb_strtolower( $k ) === $name ) {
+				$kv->v = $value;
+				$this->attribs[$i] = $kv;
 				return;
 			}
 		}
 		// Nothing found, just add the attribute
-		this.addAttribute(name, value);
+		$this->addAttribute( $name, $value );
 	}
 
+	// PORT-FIXME: Need another pair of eyes to verify this
 	/**
 	 * Store the original value of an attribute in a token's dataAttribs.
 	 *
-	 * @param {string} name
-	 * @param {any} value
-	 * @param {any} origValue
+	 * @param string $name
+	 * @param object $value
+	 * @param object $origValue
 	 */
-	setShadowInfo(name, value, origValue) {
+	public function setShadowInfo( $name, $value, $origValue ) {
 		// Don't shadow if value is the same or the orig is null
-		if (value !== origValue && origValue !== null) {
-			if (!this.dataAttribs.a) {
-				this.dataAttribs.a = {};
+		if ( $value !== $origValue && $origValue !== null ) {
+			if ( !isset( $this->dataAttribs['a'] ) ) {
+				$this->dataAttribs['a'] = [];
 			}
-			this.dataAttribs.a[name] = value;
-			if (!this.dataAttribs.sa) {
-				this.dataAttribs.sa = {};
+			$this->dataAttribs['a'][$name] = $value;
+			if ( !isset( $this->dataAttribs['sa'] ) ) {
+				$this->dataAttribs['sa'] = [];
 			}
-			if (origValue !== undefined) {
-				this.dataAttribs.sa[name] = origValue;
-			}
+			$this->dataAttribs['sa'][$name] = $origValue;
 		}
 	}
 
+	// PORT-FIXME: Need another pair of eyes to verify this
 	/**
 	 * Attribute info accessor for the wikitext serializer. Performs change
 	 * detection and uses unnormalized attribute values if set. Expects the
 	 * context to be set to a token.
 	 *
-	 * @param {string} name
-	 * @return {Object} Information about the shadow info attached to this attribute.
-	 * @return {any} return.value
-	 * @return {boolean} return.modified Whether the attribute was changed between parsing and now.
-	 * @return {boolean} return.fromsrc Whether we needed to get the source of the attribute to round-trip it.
+	 * @param string $name
+	 * @return object Information about the shadow info attached to this attribute.
 	 */
-	getAttributeShadowInfo(name) {
-		var curVal = this.getAttribute(name);
+	public function getAttributeShadowInfo( $name ) {
+		$curVal = $this->getAttribute( $name );
 
 		// Not the case, continue regular round-trip information.
-		if (this.dataAttribs.a === undefined ||
-				this.dataAttribs.a[name] === undefined) {
-			return {
-				value: curVal,
+		if ( !array_key_exists( 'a', $this->dataAttribs ) ||
+			!array_key_exists( $name, $this->dataAttribs['a'] )
+		) {
+			return [
+				"value" => $curVal,
 				// Mark as modified if a new element
-				modified: Object.keys(this.dataAttribs).length === 0,
-				fromsrc: false,
-			};
-		} else if (this.dataAttribs.a[name] !== curVal) {
-			return {
-				value: curVal,
-				modified: true,
-				fromsrc: false,
-			};
-		} else if (this.dataAttribs.sa === undefined ||
-				this.dataAttribs.sa[name] === undefined) {
-			return {
-				value: curVal,
-				modified: false,
-				fromsrc: false,
-			};
+				"modified" => (array)$this->dataAttribs !== [],
+				"fromsrc" => false
+			];
+		} elseif ( $this->dataAttribs['a'][$name] !== $curVal ) {
+			return [
+				"value" => $curVal,
+				"modified" => true,
+				"fromsrc" => false
+			];
+		} elseif ( !array_key_exists( 'sa', $this->dataAttribs ) ||
+			!array_key_exists( $name, $this->dataAttribs['sa'] )
+		) {
+			return [
+				"value" => $curVal,
+				"modified" => false,
+				"fromsrc" => false
+			];
 		} else {
-			return {
-				value: this.dataAttribs.sa[name],
-				modified: false,
-				fromsrc: true,
-			};
+			return [
+				"value" => $this->dataAttribs['sa'][$name],
+				"modified" => false,
+				"fromsrc" => true
+			];
 		}
 	}
 
 	/**
 	 * Completely remove all attributes with this name.
 	 *
-	 * @param {string} name
+	 * @param string $name
 	 */
-	removeAttribute(name) {
-		var out = [];
-		var attribs = this.attribs;
-		for (var i = 0, l = attribs.length; i < l; i++) {
-			var kv = attribs[i];
-			if (kv.k.toLowerCase() !== name) {
-				out.push(kv);
+	public function removeAttribute( $name ) {
+		$out = [];
+		$attribs = $this->attribs;
+		// FIXME: Could use array_filter
+		for ( $i = 0, $l = count( $attribs ); $i < $l; $i++ ) {
+			$kv = $attribs[$i];
+			if ( mb_strtolower( $kv->k ) !== $name ) {
+				$out[] = $kv;
 			}
 		}
-		this.attribs = out;
+		$this->attribs = $out;
 	}
 
 	/**
 	 * Add a space-separated property value.
+	 * These are Parsoid-added attributes, not something present in source.
+	 * So, only a regular ASCII space characters will be used here.
 	 *
-	 * @param {string} name
-	 * @param {any} value The value to add to the attribute.
+	 * @param string $name The attribute name
+	 * @param string $value The value to add to the attribute
 	 */
-	addSpaceSeparatedAttribute(name, value) {
-		var curVal = KV.lookupKV(this.attribs, name);
-		var vals;
-		if (curVal !== null) {
-			vals = curVal.v.split(/\s+/);
-			for (var i = 0, l = vals.length; i < l; i++) {
-				if (vals[i] === value) {
-					// value is already included, nothing to do.
-					return;
-				}
+	public function addSpaceSeparatedAttribute( $name, $value ) {
+		$curVal = $this->getAttribute( $this->attribs );
+		if ( $curVal !== null ) {
+			if ( preg_match( '/(?:^|\s)' . preg_quote( $value, '/' ) . '(?:\s|$)/', $curVal->v ) ) {
+				// value is already included, nothing to do.
+				return;
 			}
+
 			// Value was not yet included in the existing attribute, just add
 			// it separated with a space
-			this.setAttribute(curVal.k, curVal.v + ' ' + value);
+			$this->setAttribute( $curVal->k, $curVal->v . ' ' . $value );
 		} else {
 			// the attribute did not exist at all, just add it
-			this.addAttribute(name, value);
+			$this->addAttribute( $name, $value );
 		}
 	}
 
 	/**
 	 * Get the wikitext source of a token.
 	 *
-	 * @param {MWParserEnvironment} env
-	 * @return {string}
+	 * @param MockEnv $env
+	 * @return string
 	 */
-	getWTSource(env) {
-		var tsr = this.dataAttribs.tsr;
-		console.assert(Array.isArray(tsr), 'Expected token to have tsr info.');
-		return env.page.src.substring(tsr[0], tsr[1]);
+	public function getWTSource( $env ) {
+		$tsr = $this->dataAttribs['tsr'] ?? null;
+		if ( !is_array( $tsr ) ) {
+			throw new InvalidTokenException( 'Expected token to have tsr info.' );
+		}
+		return substr( $env->page->src, $tsr[0], $tsr[1] );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		Token: Token
-	};
 }

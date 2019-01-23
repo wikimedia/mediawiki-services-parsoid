@@ -1,40 +1,28 @@
-/** @module tokens/EndTagTk */
+<?php
 
-'use strict';
-
-const Token = require('./Token.js').Token;
+namespace Parsoid\Tokens;
 
 /**
- * HTML end tag token.
- * @class
- * @extends ~Token
+ * Represents an HTML end tag token
  */
 class EndTagTk extends Token {
-	/*
-	* @param {string} name
-	* @param {KV[]} attribs
-	* @param {Object} dataAttribs
-	*/
-	constructor(name, attribs, dataAttribs) {
-		super();
-		/** @type {string} */
-		this.name = name;
-		/** @type {KV[]} */
-		this.attribs = attribs || [];
-		/** @type {Object} */
-		this.dataAttribs = dataAttribs || {};
+	protected $type = 'EndTagTk';
+
+	/**
+	 * @param string $name
+	 * @param KV[] $attribs
+	 * @param array $dataAttribs
+	 */
+	public function __construct( $name, array $attribs = [], array $dataAttribs = [] ) {
+		$this->name = $name;
+		$this->attribs = $attribs;
+		$this->dataAttribs = $dataAttribs;
 	}
 
 	/**
-	 * @return {string}
+	 * return object
 	 */
-	toJSON() {
-		return Object.assign({ type: 'EndTagTk' }, this);
+	public function toJSON() {
+		throw new \BadMethodCallException( 'Not yet ported' );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		EndTagTk: EndTagTk
-	};
 }

@@ -1,40 +1,28 @@
-/** @module tokens/SelfclosingTagTk */
+<?php
 
-'use strict';
-
-const Token = require('./Token.js').Token;
+namespace Parsoid\Tokens;
 
 /**
- * HTML tag token for a self-closing tag (like a br or hr).
- * @class
- * @extends ~Token
+ * Token for a self-closing tag (HTML or otherwise)
  */
 class SelfclosingTagTk extends Token {
+	protected $type = "SelfclosingTagTk";
+
 	/**
-	 * @param {string} name
-	 * @param {KV[]} attribs
-	 * @param {Object} dataAttribs
+	 * @param string $name
+	 * @param KV[] $attribs
+	 * @param array $dataAttribs
 	 */
-	constructor(name, attribs, dataAttribs) {
-		super();
-		/** @type {string} */
-		this.name = name;
-		/** @type {KV[]} */
-		this.attribs = attribs || [];
-		/** @type {Object} */
-		this.dataAttribs = dataAttribs || {};
+	public function __construct( $name, array $attribs = [], array $dataAttribs = [] ) {
+		$this->name = $name;
+		$this->attribs = $attribs;
+		$this->dataAttribs = $dataAttribs;
 	}
 
 	/**
-	 * @return {string}
+	 * return object
 	 */
-	toJSON() {
-		return Object.assign({ type: 'SelfclosingTagTk' }, this);
+	public function toJSON() {
+		throw new \BadMethodCallException( 'Not yet ported' );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		SelfclosingTagTk: SelfclosingTagTk
-	};
 }

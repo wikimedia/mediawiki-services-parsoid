@@ -1,40 +1,28 @@
-/** @module tokens/TagTk */
+<?php
 
-'use strict';
-
-const Token = require('./Token.js').Token;
+namespace Parsoid\Tokens;
 
 /**
- * HTML tag token.
- * @class
- * @extends ~Token
+ * HTML tag token
  */
 class TagTk extends Token {
+	protected $type = "TagTk";
+
 	/**
-	 * @param {string} name
-	 * @param {KV[]} attribs
-	 * @param {Object} dataAttribs Data-parsoid object.
+	 * @param string $name
+	 * @param KV[] $attribs
+	 * @param array $dataAttribs data-parsoid object
 	 */
-	constructor(name, attribs, dataAttribs) {
-		super();
-		/** @type {string} */
-		this.name = name;
-		/** @type {KV[]} */
-		this.attribs = attribs || [];
-		/** @type {Object} */
-		this.dataAttribs = dataAttribs || {};
+	public function __construct( $name, array $attribs = [], array $dataAttribs = [] ) {
+		$this->name = $name;
+		$this->attribs = $attribs;
+		$this->dataAttribs = $dataAttribs;
 	}
 
 	/**
-	 * @return {string}
+	 * return object
 	 */
-	toJSON() {
-		return Object.assign({ type: 'TagTk' }, this);
+	public function toJSON() {
+		throw new \BadMethodCallException( 'Not yet ported' );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		TagTk: TagTk
-	};
 }

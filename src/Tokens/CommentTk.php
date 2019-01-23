@@ -1,36 +1,27 @@
-/** @module tokens/CommentTk */
+<?php
 
-'use strict';
-
-const Token = require('./Token.js').Token;
+namespace Parsoid\Tokens;
 
 /**
- * @class
- * @extends ~Token
+ * Represents a comment
  */
 class CommentTk extends Token {
+	protected $type = 'CommentTk';
+
 	/**
-	 * @param {string} value
-	 * @param {Object} dataAttribs data-parsoid object.
+	 * @param string $value
+	 * @param array $dataAttribs
 	 */
-	constructor(value, dataAttribs) {
-		super();
-		/** @type {string} */
-		this.value = value;
-		// won't survive in the DOM, but still useful for token serialization
-		if (dataAttribs !== undefined) {
-			/** @type {Object} */
-			this.dataAttribs = dataAttribs;
-		}
+	public function __construct( $value, array $dataAttribs = [] ) {
+		$this->value = $value;
+
+		// Won't survive in the DOM, but still useful for token serialization
+		// FIXME: verify if this is still required given that html->wt doesn't
+		// use tokens anymore. That was circa 2012 serializer code.
+		$this->dataAttribs = $dataAttribs;
 	}
 
-	toJSON() {
-		return Object.assign({ type: 'CommentTk' }, this);
+	public function toJSON() {
+		throw new \BadMethodCallException( 'Not yet ported' );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		CommentTk: CommentTk
-	};
 }

@@ -1,53 +1,67 @@
-/** @module tokens/KV */
+<?php
 
-'use strict';
+namespace Parsoid\Tokens;
 
 /**
- * @class
- *
- * Key-value pair.
+ * Represents a Key-value pair.
  */
 class KV {
+	/** @var mixed Commonly a string, but where the key might be templated,
+	 *  this can be an array of tokens even. */
+	public $k;
+
+	/** @var mixed string, Token, or an array of tokens even */
+	public $v;
+
 	/**
-	 * @param {any} k
-	 * @param {any} v
-	 * @param {Array} srcOffsets The source offsets.
+	 * @param mixed $k
+	 *     Commonly a string, but where the key might be templated,
+	 *     this can be an array of tokens even.
+	 * @param mixed $v
+	 *     The value: string, token, of an array of tokens
+	 * @param array|null $srcOffsets wikitext source offsets
+	 * @param string|null $vsrc wikitext source
 	 */
-	constructor(k, v, srcOffsets) {
-		/** Key. */
-		this.k = k;
-		/** Value. */
-		this.v = v;
-		if (srcOffsets) {
-			/** The source offsets. */
-			this.srcOffsets = srcOffsets;
-		}
+	public function __construct( $k, $v, array $srcOffsets = null, $vsrc = null ) {
+		$this->k = $k;
+		$this->v = $v;
+		$this->srcOffsets = $srcOffsets;
+		$this->vsrc = $vsrc;
 	}
 
-	static lookupKV(kvs, key) {
-		if (!kvs) {
+	/**
+	 * Lookup a string key in a KV array and return the first matching KV object
+	 *
+	 * @param array $kvs
+	 * @param string $key
+	 * @return KV|null
+	 */
+	public static function lookupKV( array $kvs, $key ) {
+		if ( $kvs === null ) {
 			return null;
 		}
-		var kv;
-		for (var i = 0, l = kvs.length; i < l; i++) {
-			kv = kvs[i];
-			if (kv.k.constructor === String && kv.k.trim() === key) {
-				// found, return it.
-				return kv;
+
+		foreach ( $kvs as $kv ) {
+			// PORT-FIXME: JS trim() will remove non-ASCII spaces (such as NBSP) too,
+			// while PHP's won't. Does that matter?
+			if ( is_string( $kv->k ) && trim( $kv->k ) === $key ) {
+				return $kv;
 			}
 		}
-		// nothing found!
+
 		return null;
 	}
 
-	static lookup(kvs, key) {
-		var kv = this.lookupKV(kvs, key);
-		return kv === null ? null : kv.v;
+	/**
+	 * Lookup a string key (first occurrence) in a KV array
+	 * and return the value of the KV object
+	 *
+	 * @param array $kvs
+	 * @param string $key
+	 * @return mixed
+	 */
+	public static function lookup( array $kvs, $key ) {
+		$kv = self::lookupKV( $kvs, $key );
+		return $kv === null ? null : $kv->v;
 	}
-}
-
-if (typeof module === "object") {
-	module.exports = {
-		KV: KV
-	};
 }

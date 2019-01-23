@@ -1,17 +1,17 @@
-/** @module tokens/EOFTk */
+<?php
 
-'use strict';
+namespace Parsoid\Tokens;
 
-const Token = require('./Token.js').Token;
-
+/**
+ * Represents EOF
+ */
 class EOFTk extends Token {
-	toJSON() {
-		return Object.assign({ type: 'EOFTk' }, this);
-	}
-}
+	protected $type = 'EOFTk';
 
-if (typeof module === "object") {
-	module.exports = {
-		EOFTk: EOFTk
-	};
+	public function __construct() {
+	}
+
+	public function toJSON() {
+		throw new \BadMethodCallException( 'Not yet ported' );
+	}
 }
