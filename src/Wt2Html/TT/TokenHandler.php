@@ -3,6 +3,7 @@
 
 namespace Parsoid\Wt2html\TT;
 
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\TokenUtils;
 

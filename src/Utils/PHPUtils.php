@@ -46,7 +46,7 @@ class PHPUtils {
 	 * json_encode wrapper function
 	 * - unscapes slashes and unicode
 	 *
-	 * @param object $o
+	 * @param mixed $o
 	 * @return string
 	 */
 	public static function jsonEncode( $o ) {

@@ -35,9 +35,9 @@ class CommentTk extends Token {
 	 */
 	public function jsonSerialize() {
 		return [
-			"type" => $this->type,
-			"value" => $this->value,
-			"dataAttribs" => $this->dataAttribs
+			'type' => $this->type,
+			'value' => $this->value,
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }

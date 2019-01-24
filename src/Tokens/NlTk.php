@@ -6,7 +6,7 @@ namespace Parsoid\Tokens;
  * Newline token.
  */
 class NlTk extends Token {
-	protected $type = "NlTk";
+	protected $type = 'NlTk';
 
 	/** @var array Data attributes for this token
 	 * This is represented an associative key-value array
@@ -38,8 +38,8 @@ class NlTk extends Token {
 	 */
 	public function jsonSerialize() {
 		return [
-			"type" => $this->type,
-			"dataAttribs" => $this->dataAttribs
+			'type' => $this->type,
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }

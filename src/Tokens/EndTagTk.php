@@ -39,10 +39,10 @@ class EndTagTk extends Token {
 	 */
 	public function jsonSerialize() {
 		return [
-			"type" => $this->type,
-			"name" => $this->name,
-			"attribs" => $this->attribs,
-			"dataAttribs" => $this->dataAttribs
+			'type' => $this->type,
+			'name' => $this->name,
+			'attribs' => $this->attribs,
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }

@@ -16,7 +16,7 @@ class EOFTk extends Token {
 	 */
 	public function jsonSerialize() {
 		return [
-			"type" => $this->type
+			'type' => $this->type
 		];
 	}
 }

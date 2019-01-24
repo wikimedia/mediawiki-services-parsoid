@@ -6,7 +6,7 @@ namespace Parsoid\Tokens;
  * HTML tag token
  */
 class TagTk extends Token {
-	protected $type = "TagTk";
+	protected $type = 'TagTk';
 
 	/** @var string Name of the end tag */
 	public $name;
@@ -39,10 +39,10 @@ class TagTk extends Token {
 	 */
 	public function jsonSerialize() {
 		return [
-			"type" => $this->type,
-			"name" => $this->name,
-			"attribs" => $this->attribs,
-			"dataAttribs" => $this->dataAttribs
+			'type' => $this->type,
+			'name' => $this->name,
+			'attribs' => $this->attribs,
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }
