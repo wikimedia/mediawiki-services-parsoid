@@ -94,11 +94,12 @@ class PHPUtils {
 	}
 
 	/**
+	 * PORT-FIXME: To be removed once all uses of this have disappeared
 	 * Helper to get last item of the array
 	 * @param mixed[] $a
 	 * @return object
 	 */
 	public static function lastItem( array $a ) {
-		return $a[count( $a ) - 1];
+		throw new \BadMethodCallException( 'Use end( $a ) instead' );
 	}
 }
