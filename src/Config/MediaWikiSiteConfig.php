@@ -1,0 +1,521 @@
+<?php
+
+namespace Parsoid\Config;
+
+use Config;
+use Language;
+use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
+use MWNamespace;
+// use Parsoid\Config\SiteConfig;
+// use Parsoid\Logger\LogData;
+// use Parsoid\Utils\Util;
+use Psr\Log\LoggerInterface;
+use User;
+
+/**
+ * Site-level configuration for Parsoid
+ *
+ * This includes both global configuration and wiki-level configuration.
+ *
+ * @todo This belongs in MediaWiki, not Parsoid. We'll move it there when we
+ *  get to the point of integrating the two.
+ */
+class MediaWikiSiteConfig extends SiteConfig {
+
+	/** @var Config MediaWiki configuration object */
+	private $config;
+
+	/** @var Language */
+	private $contLang;
+
+	/** @var LoggerInterface|null */
+	private $traceLogger, $dumpLogger;
+
+	/** @var string|null */
+	private $baseUri, $relativeLinkPrefix, $bswRegexp, $bswPagePropRegexp;
+
+	/** @var string|null|bool */
+	private $linkTrailRegex = false;
+
+	/** @var array|null */
+	private $interwikiMap, $variants, $magicWords, $mwAliases;
+
+	/**
+	 * Quote a title regex
+	 *
+	 * Assumes '/' as the delimiter, and replaces spaces or underscores with
+	 * `[ _]` so either will be matched.
+	 *
+	 * @param string $s
+	 * @return string
+	 */
+	private static function quoteTitleRe( $s ) {
+		$s = preg_quote( $s, '/' );
+		$s = strtr( $s, [
+			' ' => '[ _]',
+			'_' => '[ _]',
+		] );
+		return $s;
+	}
+
+	public function __construct() {
+		$services = MediaWikiServices::getInstance();
+		$this->config = $services->getMainConfig();
+		$this->contLang = $services->getContentLanguage();
+	}
+
+	/** @inheritDoc */
+	public function getLogger() {
+		if ( $this->logger === null ) {
+			$this->logger = LoggerFactory::getInstance( 'Parsoid' );
+		}
+		return $this->logger;
+	}
+
+	/** @inheritDoc */
+	public function getTraceLogger() {
+		if ( $this->traceLogger === null ) {
+			$this->traceLogger = LoggerFactory::getInstance( 'ParsoidTrace' );
+		}
+		return $this->traceLogger;
+	}
+
+	/** @inheritDoc */
+	public function hasTraceFlag( $flag ) {
+		// @todo: Implement this
+		return false;
+	}
+
+	/** @inheritDoc */
+	public function getDumpLogger() {
+		if ( $this->dumpLogger === null ) {
+			$this->dumpLogger = LoggerFactory::getInstance( 'ParsoidDump' );
+		}
+		return $this->dumpLogger;
+	}
+
+	/** @inheritDoc */
+	public function hasDumpFlag( $flag ) {
+		// @todo: Implement this
+		return false;
+	}
+
+	public function linting() {
+		// @todo: Add $wgParsoidLinting to MW's DefaultSettings.php
+		return $this->config->has( 'ParsoidLinting' )
+			? $this->config->get( 'ParsoidLinting' )
+			: parent::linting();
+	}
+
+	public function metrics() {
+		return MediaWikiServices::getInstance()->getStatsdDataFactory();
+	}
+
+	public function allowExternalImages() {
+		return $this->config->get( 'AllowExternalImages' );
+	}
+
+	/**
+	 * Determine the article base URI and relative prefix
+	 *
+	 * Populates `$this->baseUri` and `$this->relativeLinkPrefix` based on
+	 * `$wgServer` and `$wgArticlePath`, by splitting it at the last '/' in the
+	 * path portion.
+	 */
+	private function determineArticlePath() {
+		$url = $this->config->get( 'Server' ) . $this->config->get( 'ArticlePath' );
+
+		if ( substr( $url, -2 ) !== '$1' ) {
+			throw new \UnexpectedValueException( "Article path '$url' does not have '$1' at the end" );
+		}
+		$url = substr( $url, 0, -2 );
+
+		$bits = wfParseUrl( $url );
+		if ( !$bits ) {
+			throw new \UnexpectedValueException( "Failed to parse article path '$url'" );
+		}
+
+		if ( empty( $bits['path'] ) ) {
+			$path = '/';
+		} else {
+			$path = wfRemoveDotSegments( $bits['path'] );
+		}
+
+		$relParts = [ 'query' => true, 'fragment' => true ];
+		$base = array_diff_key( $bits, $relParts );
+		$rel = array_intersect_key( $bits, $relParts );
+
+		$i = strrpos( $path, '/' );
+		$base['path'] = substr( $path, 0, $i + 1 );
+		$rel['path'] = '.' . substr( $path, $i );
+
+		$this->baseUri = wfAssembleUrl( $base );
+		$this->relativeLinkPrefix = wfAssembleUrl( $rel );
+	}
+
+	public function baseURI() {
+		if ( $this->baseUri === null ) {
+			$this->determineArticlePath();
+		}
+		return $this->baseUri;
+	}
+
+	public function relativeLinkPrefix() {
+		if ( $this->relativeLinkPrefix === null ) {
+			$this->determineArticlePath();
+		}
+		return $this->relativeLinkPrefix;
+	}
+
+	public function bswPagePropRegexp() {
+		if ( $this->bswPagePropRegexp === null ) {
+			// [0] is the case-insensitive part, [1] is the case-sensitive part
+			$regex = MediaWikiServices::getInstance()->getMagicWordFactory()
+				->getDoubleUnderscoreArray()->getBaseRegex();
+			if ( $regex[0] === '' ) {
+				unset( $regex[0] );
+			} else {
+				$regex[0] = '(?i:' . $regex[0] . ')';
+			}
+			if ( $regex[1] === '' ) {
+				unset( $regex[1] );
+			}
+
+			if ( $regex ) {
+				$this->bswRegexp = implode( '|', $regex );
+			} else {
+				// No magic words? Return a failing regex
+				$this->bswRegexp = '(?!)';
+			}
+			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp/(?:' . $this->bswRegexp . ')(?=$|\\s)/uS';
+		}
+		return $this->bswPagePropRegexp;
+	}
+
+	/** @inheritDoc */
+	public function canonicalNamespaceId( $name ) {
+		$ret = MWNamespace::getCanonicalIndex( $name );
+		return $ret === false ? null : $ret;
+	}
+
+	/** @inheritDoc */
+	public function namespaceId( $name ) {
+		$ret = $this->contLang->getNsIndex( $name );
+		return $ret === false ? null : $ret;
+	}
+
+	/** @inheritDoc */
+	public function namespaceName( $ns ) {
+		$ret = $this->contLang->getFormattedNsText( $ns );
+		return $ret === '' && $ns !== NS_MAIN ? null : $ret;
+	}
+
+	/** @inheritDoc */
+	public function namespaceHasSubpages( $ns ) {
+		return MWNamespace::hasSubpages( $ns );
+	}
+
+	public function interwikiMagic() {
+		return $this->config->get( 'InterwikiMagic' );
+	}
+
+	public function interwikiMap() {
+		// Unfortunate that this mostly duplicates \ApiQuerySiteinfo::appendInterwikiMap()
+		if ( $this->interwikiMap === null ) {
+			$this->interwikiMap = [];
+
+			$getPrefixes = MediaWikiServices::getInstance()->getInterwikiLookup()->getAllPrefixes( $local );
+			$langNames = Language::fetchLanguageNames();
+			$extraLangPrefixes = $this->config->get( 'ExtraInterlanguageLinkPrefixes' );
+			$localInterwikis = $this->config->get( 'LocalInterwikis' );
+
+			foreach ( $getPrefixes as $row ) {
+				$prefix = $row['iw_prefix'];
+				$val = [];
+				$val['prefix'] = $prefix;
+				$val['url'] = wfExpandUrl( $row['iw_url'], PROTO_CURRENT );
+
+				if ( substr( $row['iw_url'], 0, 2 ) == '//' ) {
+					$val['protorel'] = substr( $row['iw_url'], 0, 2 ) == '//';
+				}
+				if ( isset( $row['iw_local'] ) && $row['iw_local'] == '1' ) {
+					$val['local'] = true;
+				}
+				if ( isset( $langNames[$prefix] ) ) {
+					$val['language'] = true;
+				}
+				if ( in_array( $prefix, $localInterwikis ) ) {
+					$val['localinterwiki'] = true;
+				}
+				if ( in_array( $prefix, $extraLangPrefixes ) ) {
+					$val['extralanglink'] = true;
+
+					$linktext = wfMessage( "interlanguage-link-$prefix" );
+					if ( !$linktext->isDisabled() ) {
+						$val['linktext'] = $linktext->text();
+					}
+				}
+
+				$this->interwikiMap[$prefix] = $val;
+			}
+		}
+		return $this->interwikiMap;
+	}
+
+	public function iwp() {
+		return wfWikiID();
+	}
+
+	public function linkPrefixRegex() {
+		if ( !$this->contLang->linkPrefixExtension() ) {
+			return null;
+		}
+		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/u';
+	}
+
+	public function linkTrailRegex() {
+		if ( $this->linkTrailRegex === false ) {
+			$trail = $this->contLang->linkTrail();
+			$trail = str_replace( '(.*)$', '', $trail );
+			if ( strpos( $trail, '()' ) !== false ) {
+				// Empty regex from zh-hans
+				$this->linkTrailRegex = null;
+			} else {
+				$this->linkTrailRegex = $trail;
+			}
+		}
+		return $this->linkTrailRegex;
+	}
+
+	/** @inheritDoc */
+	public function logLinterData( LogData $logData ) {
+		// @todo: Document this hook in MediaWiki
+		Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $logData ] );
+	}
+
+	public function lang() {
+		return $this->config->get( 'LanguageCode' );
+	}
+
+	public function mainpage() {
+		return Title::newMainPage()->getPrefixedText();
+	}
+
+	public function responsiveReferences() {
+		// @todo This is from the Cite extension, which shouldn't be known about by core
+		return [
+			'enabled' => $this->config->has( 'CiteResponsiveReferences' ),
+			'threshold' => 10,
+		];
+	}
+
+	public function rtl() {
+		return $this->contLang->isRTL();
+	}
+
+	public function script() {
+		return $this->config->get( 'Script' );
+	}
+
+	public function scriptpath() {
+		return $this->config->get( 'ScriptPath' );
+	}
+
+	public function server() {
+		return $this->config->get( 'Server' );
+	}
+
+	public function solTransparentWikitextRegexp() {
+		// cscott sadly says: Note that this depends on the precise
+		// localization of the magic words of this particular wiki.
+
+		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+		$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
+		if ( $category !== 'Category' ) {
+			$category = "(?:$category|Category)";
+		}
+		$this->bswPagePropRegexp(); // populate $this->bswRegexp
+
+		return '!' .
+			'^[ \t\n\r\0\x0b]*' .
+			'(?:' .
+			  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+			')?' .
+			'(?:' .
+			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
+			  '__(?:' . $this->bswRegexp . ')__|' .
+			  Util::COMMENT_REGEXP . '|' .
+			  '[ \t\n\r\0\x0b]' .
+			')*$!i';
+	}
+
+	public function solTransparentWikitextNoWsRegexp() {
+		// cscott sadly says: Note that this depends on the precise
+		// localization of the magic words of this particular wiki.
+
+		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+		$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
+		if ( $category !== 'Category' ) {
+			$category = "(?:$category|Category)";
+		}
+		$this->bswPagePropRegexp(); // populate $this->bswRegexp
+
+		return '!' .
+			'((?:' .
+			  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+			')?' .
+			'(?:' .
+			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
+			  '__(?:' . $this->bswRegexp . ')__|' .
+			  Util::COMMENT_REGEXP .
+			')*)!i';
+	}
+
+	public function timezoneOffset() {
+		return $this->config->get( 'LocalTZoffset' );
+	}
+
+	public function variants() {
+		if ( $this->variants === null ) {
+			$this->variants = [];
+
+			$langNames = LanguageConverter::$languagesWithVariants;
+			if ( $this->config->get( 'DisableLangConversion' ) ) {
+				// Ensure result is empty if language conversion is disabled.
+				$langNames = [];
+			}
+
+			foreach ( $langNames as $langCode ) {
+				$lang = Language::factory( $langCode );
+				if ( $lang->getConverter() instanceof FakeConverter ) {
+					// Only languages which do not return instances of
+					// FakeConverter implement language conversion.
+					continue;
+				}
+
+				$variants = $lang->getVariants();
+				foreach ( $variants as $v ) {
+					$fallbacks = $lang->getConverter()->getVariantFallbacks( $v );
+					if ( !is_array( $fallbacks ) ) {
+						$fallbacks = [ $fallbacks ];
+					}
+					$this->variants[$v] = [
+						'base' => $langCode,
+						'fallbacks' => $fallbacks,
+					];
+				}
+			}
+		}
+		return $this->variants;
+	}
+
+	public function widthOption() {
+		return $this->config->get( 'ThumbLimits' )[User::getDefaultOption( 'thumbsize' )];
+	}
+
+	private function populateMagicWords() {
+		if ( $this->magicWords === null ) {
+			$this->magicWords = [];
+			$this->mwAliases = [];
+
+			foreach (
+				MediaWikiServices::getInstance()->getContentLanguage()->getMagicWords()
+				as $magicword => $aliases
+			) {
+				$caseSensitive = array_shift( $aliases );
+				foreach ( $aliases as $alias ) {
+					$this->mwAliases[$magicword][] = $alias;
+					if ( !$caseSensitive ) {
+						$alias = mb_strtolower( $alias );
+						$this->mwAliases[$magicword][] = $alias;
+					}
+					$this->magicWords[$alias] = $magicword;
+				}
+			}
+		}
+	}
+
+	public function magicWords() {
+		$this->populateMagicWords();
+		return $this->magicWords;
+	}
+
+	public function mwAliases() {
+		$this->populateMagicWords();
+		return $this->mwAliases;
+	}
+
+	/** @inheritDoc */
+	public function getMagicPatternMatcher( array $words ) {
+		$words = MediaWikiServices::getInstance()->getMagicWordFactory()
+			->newArray( $words );
+		return function ( $text ) use ( $words ) {
+			$ret = $words->matchVariableStartToEnd( $text );
+			if ( $ret[0] === false ) {
+				return null;
+			} else {
+				return [ 'k' => $ret[0], 'v' => $ret[1] ];
+			}
+		};
+	}
+
+	/** @inheritDoc */
+	public function getExtResourceURLPatternMatcher() {
+		$nsAliases = [
+			'Special',
+			$this->quoteTitleRe( $this->contLang->getNsText( NS_SPECIAL ) )
+		];
+		foreach (
+			array_merge( $this->config->get( 'NamespaceAliases' ), $this->contLang->getNamespaceAliases() )
+			as $name => $ns
+		) {
+			if ( $ns === NS_SPECIAL ) {
+				$nsAliases[] = $this->quoteTitleRe( $name );
+			}
+		}
+		$nsAliases = implode( '|', array_unique( $nsAliases ) );
+
+		$pageAliases = implode( '|', array_map( [ $this, 'quoteTitleRe' ], array_merge(
+			[ 'Booksources' ],
+			$this->contLang->getSpecialPageAliases['Booksources'] ?? []
+		) ) );
+
+		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
+		// being disabled")
+		$pats = [
+			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
+				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
+			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
+			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
+		];
+		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
+		return function ( $text ) use ( $pats, $regex ) {
+			if ( preg_match( $regex, $text, $m ) ) {
+				foreach ( $pats as $k => $re ) {
+					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
+						return [ $k, $m[$k] ];
+					}
+				}
+			}
+			return false;
+		};
+	}
+
+	/** @inheritDoc */
+	public function hasValidProtocol( $potentialLink ) {
+		$protocols = $this->config->get( 'UrlProtocols' );
+		$regex = '!^(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
+		return (bool)preg_match( $regex, $potentialLink );
+	}
+
+	/** @inheritDoc */
+	public function findValidProtocol( $potentialLink ) {
+		$protocols = $this->config->get( 'UrlProtocols' );
+		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
+		return (bool)preg_match( $regex, $potentialLink );
+	}
+
+}
