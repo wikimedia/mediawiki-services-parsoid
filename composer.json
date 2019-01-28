@@ -20,7 +20,7 @@
 	"require": {
 		"composer/semver": "1.4.2",
 		"mediawiki/minus-x": "0.3.1",
-		"php": ">=7.0.0",
+		"php": ">=7.1.0",
 		"wikimedia/assert": "0.2.2",
 		"wikimedia/remex-html": "1.0.2"
 	},
@@ -28,7 +28,7 @@
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
 		"mediawiki/mediawiki-codesniffer": "24.0.0",
-		"phpunit/phpunit": "4.8.36 || ^6.5"
+		"phpunit/phpunit": "^6.5"
 	},
 	"autoload": {
 		"psr-4": {
