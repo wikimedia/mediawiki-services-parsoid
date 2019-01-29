@@ -1,95 +1,99 @@
+<?php
+
 /**
  * This file contains general utilities for:
  * (a) querying token properties and token types
  * (b) manipulating tokens, individually and as collections.
  *
- * @module
  */
 
-'use strict';
+namespace Parsoid\Utils;
 
-require('../../core-upgrade.js');
+require_once __DIR__ . '/../vendor/autoload.php';
 
-var Consts = require('../config/WikitextConstants.js').WikitextConstants;
-var JSUtils = require('./jsutils.js').JSUtils;
-const { KV, TagTk, EndTagTk, SelfclosingTagTk, NlTk, EOFTk, CommentTk } = require('../tokens/TokenTypes.js');
+use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Tokens\Token;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\SelfclosingTagTk;
 
-var lastItem = JSUtils.lastItem;
+class TokenUtils {
+	const SOL_TRANSPARENT_LINK_REGEX = '/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/';
 
-var TokenQueryUtils = {
 	/**
 	 * Determine if a tag is block-level or not.
 	 *
 	 * `<video>` is removed from block tags, since it can be phrasing content.
 	 * This is necessary for it to render inline.
+	 * @param string $name
+	 * @return bool
 	 */
-	isBlockTag: function(name) {
-		name = name.toUpperCase();
-		return name !== 'VIDEO' && Consts.HTML.HTML4BlockTags.has(name);
-	},
+	public static function isBlockTag( $name ) {
+		return $name !== 'video' && isset( Consts::$HTML['HTML4BlockTags'][$name] );
+	}
 
 	/**
 	 * In the PHP parser, these block tags open block-tag scope
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php).
+	 * @param string $name
+	 * @return bool
 	 */
-	tagOpensBlockScope: function(name) {
-		return Consts.BlockScopeOpenTags.has(name.toUpperCase());
-	},
+	public static function tagOpensBlockScope( $name ) {
+		return isset( Consts::$BlockScopeOpenTags[$name] );
+	}
 
 	/**
 	 * In the PHP parser, these block tags close block-tag scope
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php).
+	 * @param string $name
+	 * @return bool
 	 */
-	tagClosesBlockScope: function(name) {
-		return Consts.BlockScopeCloseTags.has(name.toUpperCase());
-	},
+	public static function tagClosesBlockScope( $name ) {
+		return isset( Consts::$BlockScopeCloseTags[$name] );
+	}
 
-	isTemplateToken: function(token) {
-		return token && token.constructor === SelfclosingTagTk && token.name === 'template';
-	},
+	/**
+	 * Is this a template token?
+	 * @param Token|null $token
+	 * @return bool
+	 */
+	public static function isTemplateToken( $token ) {
+		return $token && $token instanceof SelfclosingTagTk && $token->name === 'template';
+	}
 
 	/**
 	 * Determine whether the current token was an HTML tag in wikitext.
 	 *
-	 * @return {boolean}
+	 * @param Token|string $token
+	 * @return bool
 	 */
-	isHTMLTag: function(token) {
-		switch (token.constructor) {
-			case String:
-			case NlTk:
-			case CommentTk:
-			case EOFTk:
-				return false;
-			case TagTk:
-			case EndTagTk:
-			case SelfclosingTagTk:
-				return token.dataAttribs.stx === 'html';
-			default:
-				console.assert(false, 'Unhandled token type');
-		}
-	},
+	public static function isHTMLTag( $token ) {
+		return !is_string( $token ) &&
+			( $token instanceof TagTk ||
+			$token instanceof EndTagTk ||
+			$token instanceof SelfClosingTagTk ) &&
+			( $token->dataAttribs['stx'] === 'html' );
+	}
 
-	isDOMFragmentType: function(typeOf) {
+/*---------------
+	public static function isDOMFragmentType(typeOf) {
 		return /(?:^|\s)mw:DOMFragment(\/sealed\/\w+)?(?=$|\s)/.test(typeOf);
-	},
+	}
 
-	isTableTag: function(token) {
+	public static function isTableTag(token) {
 		var tc = token.constructor;
 		return (tc === TagTk || tc === EndTagTk) &&
 			Consts.HTML.TableTags.has(token.name.toUpperCase());
-	},
+	}
 
-	/** @property {RegExp} */
-	solTransparentLinkRegexp: /(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/,
-
-	isSolTransparentLinkTag: function(token) {
+	public static function isSolTransparentLinkTag(token) {
 		var tc = token.constructor;
 		return (tc === SelfclosingTagTk || tc === TagTk || tc === EndTagTk) &&
 			token.name === 'link' &&
-			this.solTransparentLinkRegexp.test(token.getAttribute('rel'));
-	},
+			preg_match($self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute('rel'));
+	}
 
-	isBehaviorSwitch: function(env, token) {
+	public static function isBehaviorSwitch(env, token) {
 		return token.constructor === SelfclosingTagTk && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
 			token.name === 'behavior-switch' ||
@@ -98,13 +102,13 @@ var TokenQueryUtils = {
 			(token.name === 'meta' &&
 				env.conf.wiki.bswPagePropRegexp.test(token.getAttribute('property')))
 		);
-	},
+	}
 
-	/**
+	//
 	 * This should come close to matching
 	 * {@link DOMUtils.emitsSolTransparentSingleLineWT}
-	 */
-	isSolTransparent: function(env, token) {
+	//
+	public static function isSolTransparent(env, token) {
 		var tc = token.constructor;
 		if (tc === String) {
 			return token.match(/^[ \t]*$/);
@@ -119,25 +123,23 @@ var TokenQueryUtils = {
 		} else {  // only metas left
 			return token.dataAttribs.stx !== 'html';
 		}
-	},
+	}
 
-	isEmptyLineMetaToken: function(token) {
+	public static function isEmptyLineMetaToken(token) {
 		return token.constructor === SelfclosingTagTk &&
 			token.name === "meta" &&
 			token.getAttribute("typeof") === "mw:EmptyLine";
-	},
+	}
 
-	isEntitySpanToken: function(token) {
+	public static function isEntitySpanToken(token) {
 		return token.constructor === TagTk && token.name === 'span' &&
 			token.getAttribute('typeof') === 'mw:Entity';
-	},
-};
+	}
 
-var OtherTokenUtils = {
-	/**
-	 * Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
-	 */
-	newlinesToNlTks: function(str, tsr0) {
+	//
+	* Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
+	//
+	public static function newlinesToNlTks(str, tsr0) {
 		var toks = str.split(/\n|\r\n/);
 		var ret = [];
 		var tsr = tsr0;
@@ -154,9 +156,9 @@ var OtherTokenUtils = {
 		}
 		ret.push(toks[i]);
 		return ret;
-	},
+	}
 
-	shiftTokenTSR: function(tokens, offset, clearIfUnknownOffset) {
+	public static function shiftTokenTSR(tokens, offset, clearIfUnknownOffset) {
 		// Bail early if we can
 		if (offset === 0) {
 			return;
@@ -241,12 +243,12 @@ var OtherTokenUtils = {
 					break;
 			}
 		}
-	},
+	}
 
-	/**
+	//
 	 * Strip include tags, and the contents of includeonly tags as well.
-	 */
-	stripIncludeTokens: function(tokens) {
+	//
+	public static function stripIncludeTokens(tokens) {
 		var toks = [];
 		var includeOnly = false;
 		for (var i = 0; i < tokens.length; i++) {
@@ -269,9 +271,9 @@ var OtherTokenUtils = {
 			}
 		}
 		return toks;
-	},
+	}
 
-	tokensToString: function(tokens, strict, opts) {
+	public static function tokensToString(tokens, strict, opts) {
 		var out = '';
 		if (!opts) {
 			opts = {};
@@ -321,9 +323,9 @@ var OtherTokenUtils = {
 			}
 		}
 		return out;
-	},
+	}
 
-	flattenAndAppendToks: function(array, prefix, t) {
+	public static function flattenAndAppendToks(array, prefix, t) {
 		if (Array.isArray(t) || t.constructor === String) {
 			if (t.length > 0) {
 				if (prefix) {
@@ -339,13 +341,13 @@ var OtherTokenUtils = {
 		}
 
 		return array;
-	},
+	}
 
-	/**
+	//
 	 * Convert an array of key-value pairs into a hash of keys to values. For
 	 * duplicate keys, the last entry wins.
-	 */
-	kvToHash: function(kvs, convertValuesToString, useSrc) {
+	//
+	public static function kvToHash(kvs, convertValuesToString, useSrc) {
 		if (!kvs) {
 			console.warn("Invalid kvs!: " + JSON.stringify(kvs, null, 2));
 			return Object.create(null);
@@ -362,12 +364,12 @@ var OtherTokenUtils = {
 			res[key.toLowerCase()] = this.tokenTrim(val);
 		}
 		return res;
-	},
+	}
 
-	/**
+	//
 	 * Trim space and newlines from leading and trailing text tokens.
-	 */
-	tokenTrim: function(tokens) {
+	//
+	public static function tokenTrim(tokens) {
 		if (!Array.isArray(tokens)) {
 			return tokens;
 		}
@@ -427,12 +429,12 @@ var OtherTokenUtils = {
 		}
 
 		return tokens;
-	},
+	}
 
-	/**
+	//
 	 * Strip EOFTk token from token chunk.
-	 */
-	stripEOFTkfromTokens: function(tokens) {
+	//
+	public static function stripEOFTkfromTokens(tokens) {
 		// this.dp( 'stripping end or whitespace tokens' );
 		if (!Array.isArray(tokens)) {
 			tokens = [ tokens ];
@@ -448,9 +450,9 @@ var OtherTokenUtils = {
 		}
 
 		return tokens;
-	},
+	}
 
-	placeholder: function(content, dataAttribs, endAttribs) {
+	public static function placeholder(content, dataAttribs, endAttribs) {
 		if (content === null) {
 			return [
 				new SelfclosingTagTk('meta', [
@@ -466,11 +468,6 @@ var OtherTokenUtils = {
 				new EndTagTk('span', [], endAttribs),
 			];
 		}
-	},
-};
-
-var TokenUtils = Object.assign({}, TokenQueryUtils, OtherTokenUtils);
-
-if (typeof module === "object") {
-	module.exports.TokenUtils = TokenUtils;
+	}
+------------------------------------------- */
 }
