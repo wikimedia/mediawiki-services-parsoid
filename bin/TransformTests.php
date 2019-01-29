@@ -54,10 +54,12 @@ Technical details:
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+require_once __DIR__ . '/../tests/MockEnv.php';
+
 use Parsoid\Tests\MockEnv;
 
-use Parsoid\PHPUtils\PHPUtils;
-use Parsoid\Utils\Util;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
@@ -72,21 +74,6 @@ $wgCachedPipeLines = '';
 $wgCachedPipeLinesLength = [];
 
 /**
- * Create a map from an array
- *
- * @param array $a
- * @return array
- */
-function wfMakeMap( $a ) {
-	$map = [];
-	foreach ( $a as $e ) {
-		$map[$e[0]] = $e[1];
-	}
-
-	return $map;
-}
-
-/**
  * Create key value set from an array
  *
  * @param array $a
@@ -99,6 +86,7 @@ function wfKvsFromArray( $a ) {
 			$e["k"],
 			$e["v"],
 			isset( $e["srcOffsets"] ) ? $e["srcOffsets"] : null,
+			isset( $e["ksrc"] ) ? $e["ksrc"] : null,
 			isset( $e["vsrc"] ) ? $e["vsrc"] : null
 		);
 	};
@@ -128,7 +116,7 @@ function wfGetToken( $line ) {
 		switch ( $jsTk['type'] ) {
 			case "SelfclosingTagTk":
 				$token = new SelfclosingTagTk( $jsTk['name'], wfKvsFromArray( $jsTk['attribs'] ),
-					 $jsTk['dataAttribs'] );
+					$jsTk['dataAttribs'] );
 				break;
 			case "TagTk":
 				$token = new TagTk( $jsTk['name'], wfKvsFromArray( $jsTk['attribs'] ),
@@ -169,15 +157,7 @@ class TransformTests {
 		$this->env = $env;
 		$this->pipelineId = 0;
 		$this->options = $options;
-		$this->console = new console;
 		$this->tokenTime = 0;
-		$this->init();
-	}
-
-	/**
-	 * Initializer for class
-	 */
-	public function init() {
 	}
 
 	/**
@@ -191,7 +171,12 @@ class TransformTests {
 	 */
 	public function processToken( $transformer, $token ) {
 		$startTime = PHPUtils::getStartHRTime();
-		$tkType = Util::getType( $token );
+		if ( $token instanceof Token ) {
+			$tkType = $token->getType();
+		} else {
+			$tkType = "String";
+		}
+
 		if ( $tkType === "NlTk" ) {
 			$res = $transformer->onNewline( $token );
 		} elseif ( $tkType === "EOFTk" ) {
@@ -207,7 +192,8 @@ class TransformTests {
 			$modified = true;
 		}
 
-		if ( !$modified && ( !is_array( $res ) || !isset( $res['skip'] ) ) && $transformer->active ) {
+		if ( !$modified && ( !is_array( $res ) || !isset( $res['skip'] ) )
+			&& $transformer->onAnyEnabled ) {
 			$res = $transformer->onAny( $token );
 		}
 
@@ -218,10 +204,11 @@ class TransformTests {
 	/**
 	 * Process test file
 	 *
+	 * @param object $transformer
 	 * @param object $commandLine
 	 * @return number
 	 */
-	public function processTestFile( $commandLine ) {
+	public function processTestFile( $transformer, $commandLine ) {
 		global $wgCachedState;
 		global $wgCachedTestLines;
 		$numFailures = 0;
@@ -255,13 +242,14 @@ class TransformTests {
 				case ' ':	// blank character at start of line
 				case '':		// empty line
 				case ':':
+					// $testEnabled = preg_replace('/^:\s*|\s*$/', '', $line) === $transformerName;
 					break;
 				case '!':	// start of test with name
 					$testName = substr( $line, 2 );
 					break;
 				case '[':	// desired result json string for test result verification
 					if ( isset( $result ) && count( $result['tokens'] ) !== 0 ) {
-						$stringResult = PHPUtils::json_encode( $result['tokens'] );
+						$stringResult = PHPUtils::jsonEncode( $result['tokens'] );
 						# print "SR  : $stringResult\n";
 						# print "LINE: $line\n";
 						$line = preg_replace( '/{}/', '[]', $line );
@@ -383,7 +371,7 @@ class TransformTests {
 				$line = substr( $testLines[$p[$element]], 36 );
 				switch ( $line{0} ) {
 					case '[':	// desired result json string for test result verification
-						$stringResult = PHPUtils::json_encode( $result['tokens'] );
+						$stringResult = PHPUtils::jsonEncode( $result['tokens'] );
 						# print "SR  : $stringResult\n";
 						$line = preg_replace( '/{}/', '[]', $line );
 						$stringResult = preg_replace( '/{}/', '[]', $stringResult );
@@ -423,7 +411,7 @@ class TransformTests {
 			wfLog( "Starting stand alone unit test running file " .
 				$commandLine->inputFile . "\n\n" );
 		}
-		$numFailures = $tokenTransformer->manager->processTestFile( $commandLine );
+		$numFailures = $tokenTransformer->manager->processTestFile( $tokenTransformer, $commandLine );
 		if ( !isset( $commandLine->timingMode ) ) {
 			wfLog( "Ending stand alone unit test running file " .
 				$commandLine->inputFile . "\n\n" );
@@ -544,7 +532,7 @@ function wfRunTests( $argc, $argv ) {
 	}
 
 	$mockEnv = new MockEnv( $opts );
-	$manager = new MockTTM( $mockEnv, [] );
+	$manager = new TransformTests( $mockEnv, [] );
 
 	if ( isset( $opts->timingMode ) ) {
 		wfLog( "Timing Mode enabled, no console output expected till test completes\n" );
@@ -553,11 +541,11 @@ function wfRunTests( $argc, $argv ) {
 	$startTime = PHPUtils::getStartHRTime();
 
 	if ( isset( $opts->QuoteTransformer ) ) {
-		$qt = new Parsoid\Lib\Wt2html\TT\QuoteTransformer( $manager, function () {
+		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, function () {
   } );
 		$numFailures = wfSselectTestType( $opts, $manager, $qt );
 	} elseif ( isset( $opts->ParagraphWrapper ) ) {
-		$pw = new Parsoid\Lib\Wt2html\TT\ParagraphWrapper( $manager, function () {
+		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, function () {
   } );
 		$numFailures = wfSselectTestType( $opts, $manager, $pw );
 	}

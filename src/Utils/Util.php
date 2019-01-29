@@ -31,7 +31,7 @@ class Util {
 	 * @return object
 	 */
 	private static function internalExtend( $target, $obj ) {
-		throw new BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
+		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
 		/*
 		$allKeys = array_merge( get_object_vars( $target ), get_object_vars( $obj ) );
 		for ( $i = 0, $numKeys = $allKeys->length; $i < $numKeys; $i++ ) {
@@ -52,7 +52,7 @@ class Util {
 	 * @return object
 	 */
 	public static function extendProps( $tgt, $subject /* FIXME: use spread operator */ ) {
-		throw new BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
+		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
 		/*	function internalExtend(target, obj) {
 				var allKeys = [].concat(Object.keys(target), Object.keys(obj));
 				for (var i = 0, numKeys = allKeys.length; i < numKeys; i++) {
@@ -112,7 +112,7 @@ class Util {
 	public static function isVoidElement( $name ) {
 		// PORT-FIXME: Remove after porting is complete
 		if ( strtolower( $name ) !== $name ) {
-			throw new BadMethodCallException( "Use lowercase tag names" );
+			throw new \BadMethodCallException( "Use lowercase tag names" );
 		}
 		return Consts::$HTML['VoidTags'][ $name ];
 	}
@@ -135,7 +135,7 @@ class Util {
 	 * @return object
 	 */
 	public static function clone( $obj, $deepClone ) {
-		throw new BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
+		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
 	/*	if (deepClone === undefined) {
 			deepClone = true;
 		}
@@ -240,7 +240,7 @@ class Util {
 		} else {
 			return obj;
 		} */
-		throw new BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
+		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
 	}
 
 	/**
@@ -249,7 +249,7 @@ class Util {
 	 * @return string
 	 */
 	public static function phpURLEncode( $txt ) {
-		throw new BadMethodCallException( 'Use urlencode( $txt ) instead' );
+		throw new \BadMethodCallException( 'Use urlencode( $txt ) instead' );
 	}
 
 	/**
@@ -265,7 +265,7 @@ class Util {
 			try {
 				// PORT-FIXME: JS code here was decodeURI(m);
 				return urldecode( $match[1] );
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				return $m;
 			}
 		}, $s );
@@ -283,7 +283,7 @@ class Util {
 			try {
 				// PORT-FIXME: JS code here was decodeURIComponent(m);
 				return rawurldecode( $m );
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				return $m;
 			}
 		}, $s );
@@ -340,7 +340,7 @@ class Util {
 	 */
 	public static function makeHash( $arr ) {
 		// PORT-FIXME: Remove after porting is complete
-		throw new BadMethodCallException( "This function should not be used.\n" .
+		throw new \BadMethodCallException( "This function should not be used.\n" .
 			"On the JS side, this was only needed for M/W API requests." );
 	}
 
@@ -375,7 +375,7 @@ class Util {
 			/&[#0-9a-zA-Z]+;/g,
 			match => entities.decodeHTML5(match)
 		); */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Util {
 				return match;
 			}
 		}); */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -416,7 +416,7 @@ class Util {
 	public static function escapeHtml( $s ) {
 		// PORT-FIXME this relies on javascript entities node module
 /*		return s.replace(/["'&<>]/g, entities.encodeHTML5); */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -435,7 +435,7 @@ class Util {
 			if (c === 'A0') { return '&nbsp;'; } // special-case common usage
 			return '&#x' + c + ';';
 		}).join(''); */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -454,7 +454,7 @@ class Util {
 		} else {
 			return true;
 		} */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -474,7 +474,7 @@ class Util {
 				body: { extsrc: Util.extractExtBody(extToken) },
 			},
 		}; */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -496,7 +496,7 @@ class Util {
 			}
 		}
 		return dimensions; */
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 	}
 
 	/**
@@ -572,7 +572,7 @@ class Util {
 	 * @return string BCP47 language code.
 	 */
 	public static function bcp47n( $code ) {
-		throw new BadMethodCallException( "Not yet ported" );
+		throw new \BadMethodCallException( "Not yet ported" );
 		// PORT_FIXME
 		/*
 		var codeSegment = code.split('-');

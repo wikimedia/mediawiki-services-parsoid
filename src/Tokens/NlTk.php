@@ -8,6 +8,12 @@ namespace Parsoid\Tokens;
 class NlTk extends Token {
 	protected $type = "NlTk";
 
+	/** @var array Data attributes for this token
+	 * This is represented an associative key-value array
+	 * TODO: Expand on this.
+	 */
+	public $dataAttribs = [];
+
 	/**
 	 * @param array|null $tsr
 	 *    TSR ("tag source range") represents the (start, end) wikitext

@@ -11,6 +11,12 @@ class CommentTk extends Token {
 	/** @var string Comment text */
 	public $value;
 
+	/** @var array Data attributes for this token
+	 * This is represented an associative key-value array
+	 * TODO: Expand on this.
+	 */
+	public $dataAttribs = [];
+
 	/**
 	 * @param string $value
 	 * @param array $dataAttribs

@@ -10,18 +10,6 @@ abstract class Token implements \JsonSerializable {
 	 * All subclasses should assign this a non-null value. */
 	protected $type;
 
-	/** @var array Attributes of this token
-	 * This is represented an array of KV objects
-	 * TODO: Expand on this.
-	 */
-	protected $attribs = [];
-
-	/** @var array Data attributes for this token
-	 * This is represented an associative key-value array
-	 * TODO: Expand on this.
-	 */
-	protected $dataAttribs = [];
-
 	/**
 	 * @return array
 	 */
@@ -65,7 +53,7 @@ abstract class Token implements \JsonSerializable {
 	 * Generic attribute accessor.
 	 *
 	 * @param string $name
-	 * @return object
+	 * @return mixed
 	 */
 	public function getAttribute( $name ) {
 		return KV::lookup( $this->attribs, $name );
@@ -75,7 +63,7 @@ abstract class Token implements \JsonSerializable {
 	 * Set an unshadowed attribute.
 	 *
 	 * @param string $name
-	 * @param object $value
+	 * @param mixed $value
 	 */
 	public function setAttribute( $name, $value ) {
 		// First look for the attribute and change the last match if found.

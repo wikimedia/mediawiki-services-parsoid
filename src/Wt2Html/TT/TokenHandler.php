@@ -3,6 +3,8 @@
 
 namespace Parsoid\Wt2html\TT;
 
+use Parsoid\Tokens\Token;
+
 /**
  * @class
  */
@@ -23,12 +25,12 @@ class TokenHandler {
 		// This is set/reset by the token handlers at various points
 		// in the token stream based on what is encountered.
 		// This only enables/disables the onAny handler.
-		$this->active = true;
+		$this->onAnyEnabled = true;
 	}
 
 	/**
 	 * This handler is called for EOF tokens only
-	 * @param token $token EOF token to be processed
+	 * @param Token $token EOF token to be processed
 	 * @return object
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
@@ -41,7 +43,7 @@ class TokenHandler {
 
 	/**
 	 * This handler is called for newline tokens only
-	 * @param token $token Newline token to be processed
+	 * @param Token $token Newline token to be processed
 	 * @return object
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
@@ -57,7 +59,7 @@ class TokenHandler {
 	 * The handler may choose to process only specific kinds of tokens.
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
-	 * @param token $token Token to be processed
+	 * @param Token $token Token to be processed
 	 * @return object
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
@@ -76,7 +78,7 @@ class TokenHandler {
 	 * (c) this handlers 'active' flag is set to false (can be set by any
 	 *     of the handlers).
 	 *
-	 * @param token $token Token to be processed
+	 * @param Token $token Token to be processed
 	 * @return object
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }

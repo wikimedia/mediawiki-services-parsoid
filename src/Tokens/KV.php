@@ -29,11 +29,15 @@ class KV implements \JsonSerializable {
 	 * @param mixed $v
 	 *     The value: string, token, of an array of tokens
 	 * @param array|null $srcOffsets wikitext source offsets
+	 * @param mixed|null $ksrc
+	 * @param mixed|null $vsrc
 	 */
-	public function __construct( $k, $v, array $srcOffsets = null ) {
+	public function __construct( $k, $v, array $srcOffsets = null, $ksrc = null, $vsrc = null ) {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
+		$this->ksrc = $ksrc;
+		$this->vsrc = $vsrc;
 	}
 
 	/**

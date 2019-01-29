@@ -5,7 +5,7 @@
 // This will need much more solid mocking if it is to be used more extensively
 // for standalone testing of the Parsoid/PHP composer library.
 
-namespace Tests;
+namespace Parsoid\tests;
 
 class MockEnv {
 	/**
