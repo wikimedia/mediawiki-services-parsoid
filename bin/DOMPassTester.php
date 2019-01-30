@@ -16,7 +16,7 @@ Purpose:
 
 Technical details:
  The test validator and handler runtime emulates the normal
- Parsoid DOMPostProcessoer behavior.
+ Parsoid DOMPostProcessor behavior.
 
  To create a test from an existing wikitext page, run the following
  commands, for example:
@@ -27,7 +27,7 @@ Technical details:
 
  An example command line to validate and performance test the 'Hampi'
  wikipage created as a dom:dsr test:
- $ node bin/domTests.php --timingMode --iterationCount 99 --transformer dsr --inputFile Hampi
+ $ node bin/domTests.php --timingMode --iterationCount 99 --transformer dsr --inputFilePrefix Hampi
 
  Optional command line options to aid in debugging are:
  --log --trace dsr   (causes the computeDSR.php code to emit execution trace output)
@@ -42,19 +42,19 @@ Technical details:
  $ npm run transformTests
 */
 
-namespace Parsoid\Bin;
-
 require_once __DIR__ . '/../vendor/autoload.php';
+
+require_once __DIR__ . '/../tests/MockEnv.php';
 
 use RemexHtml\DOM;
 use RemexHtml\Tokenizer;
 use RemexHtml\TreeBuilder;
 use RemexHtml\Serializer;
 
-use Parsoid\Tests\MockEnv;
 use Parsoid\Config\WikitextConstants;
-use Parsoid\PHPUtils\PHPUtils;
-use Parsoid\Utils\DU;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 
 $wgCachedState = false;
 $wgCachedFilePre = '';
@@ -62,7 +62,6 @@ $wgCachedFilePost = '';
 $wgLogFlag = false;
 
 WikitextConstants::init();
-DU::init();
 
 /**
  * Log message to output
@@ -79,7 +78,7 @@ function wfLog( $msg ) {
  * @param string $text
  * @return object
  */
-function buildDOM( $domBuilder, $text ) {
+function wfBuildDOM( $domBuilder, $text ) {
 	$treeBuilder = new TreeBuilder\TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
 	$dispatcher = new TreeBuilder\Dispatcher( $treeBuilder );
 	$tokenizer = new Tokenizer\Tokenizer( $dispatcher, $text, [] );
@@ -119,9 +118,9 @@ class DOMPassTester {
 
 		if ( $wgCachedState == false ) {
 			$wgCachedState = true;
-			$testFilePre = file_get_contents( $opts->inputFile . '-' .
+			$testFilePre = file_get_contents( $opts->inputFilePrefix . '-' .
 				$opts->transformer . '-pre.txt' );
-			$testFilePost = file_get_contents( $opts->inputFile . '-' .
+			$testFilePost = file_get_contents( $opts->inputFilePrefix . '-' .
 				$opts->transformer . '-post.txt' );
 
 			$testFilePre = mb_convert_encoding( $testFilePre, 'UTF-8',
@@ -139,13 +138,19 @@ class DOMPassTester {
 		$domBuilder = new DOM\DOMBuilder;
 		$serializer = new DOM\DOMSerializer( $domBuilder, new Serializer\HtmlFormatter );
 
-		$dom = buildDOM( $domBuilder, $testFilePre );
+		$dom = wfBuildDOM( $domBuilder, $testFilePre );
+		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
 
 		if ( $opts->firstRun ) {
-			$domPre = $serializer->getResult();
+			// REMEX BUG? Remove extra newline
+			$body->lastChild->parentNode->removeChild( $body->lastChild );
 
-			// hack to add html and head tags and adjust closing /body and add /html tag and newline
-			$testFilePre = "<html><head></head>" . substr( $testFilePre, 0, -8 ) . "\n</body></html>";
+			$domPre = $serializer->getResult();
+			// Do this after serialization for comparing against pre-dom-pass
+			DOMDataUtils::visitAndLoadDataAttribs( $body );
+
+			// hack to add html and head tags and adjust closing /body and add /html tag
+			$testFilePre = "<html><head></head>" . substr( $testFilePre, 0, -8 ) . "</body></html>";
 
 			if ( $testFilePre === $domPre ) {
 				wfLog( "DOM pre output matches genTest Pre output\n" );
@@ -160,27 +165,25 @@ class DOMPassTester {
 		}
 
 		$startTime = PHPUtils::getStartHRTime();
-
 		switch ( $opts->transformer ) {
 			case 'dsr':
-				$body = $dom->getElementsByTagName( 'body' )->item( 0 );
 				// genTest must specify dsr sourceOffsets as data-parsoid info
-				$dp = DU::getDataParsoid( $body );
-				if ( $dp['dsr'] ) {
+				$dp = DOMDataUtils::getDataParsoid( $body );
+				if ( isset( $dp['dsr'] ) ) {
 					$options = [ 'sourceOffsets' => $dp['dsr'], 'attrExpansion' => false ];
 				} else {
 					$options = [ 'attrExpansion' => false ];
 				}
-				computeDSR( $body, $this->env, $options );
+				( new ComputeDSR() )->run( $body, $this->env, $options );
 				break;
 			case 'cleanupFormattingTagFixup':
-				cleanupFormattingTagFixup( $dom->getElementsByTagName( 'body' )->item( 0 ), $this->env );
+				cleanupFormattingTagFixup( $body, $this->env );
 				break;
 			case 'sections' :
-				wrapSections( $dom->getElementsByTagName( 'body' )->item( 0 ), $this->env, null );
+				wrapSections( $body, $this->env, null );
 				break;
 			case 'pwrap' :
-				pwrapDOM( $dom->getElementsByTagName( 'body' )->item( 0 ), $this->env, null );
+				pwrapDOM( $body, $this->env, null );
 				break;
 		}
 
@@ -189,6 +192,8 @@ class DOMPassTester {
 		if ( $opts->firstRun ) {
 			$opts->firstRun = false;
 
+			// Do this before serialization for comparing against post-dom-pass
+			DOMDataUtils::visitAndStoreDataAttribs( $body );
 			$domPost = $serializer->getResult();
 
 			// hack to add html and head tags and adjust closing /body and add /html tag and newline
@@ -230,7 +235,7 @@ class DOMPassTester {
 		}
 
 		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Starting wikitext dom test, file = " . $opts->inputFile .
+			wfLog( "Starting wikitext dom test, file = " . $opts->inputFilePrefix .
 				"-" . $opts->transformer . "-pre.txt and -post.txt\n\n" );
 		}
 
@@ -239,7 +244,7 @@ class DOMPassTester {
 		}
 
 		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Ending wikitext dom test, file = " . $opts->inputFile . "-" .
+			wfLog( "Ending wikitext dom test, file = " . $opts->inputFilePrefix . "-" .
 				$opts->transformer . "-pre.txt and -post.txt\n\n" );
 		}
 		return $numFailures;
@@ -258,7 +263,7 @@ class DOMPassTester {
  * @param array $argv
  * @return object
  */
-function processArguments( $argc, $argv ) {
+function wfProcessArguments( $argc, $argv ) {
 	$opts = (object)[];
 	$last = false;
 	for ( $index = 1; $index < $argc; $index++ ) {
@@ -291,10 +296,10 @@ function processArguments( $argc, $argv ) {
  * @param array $argv
  * @return number
  */
-function runTests( $argc, $argv ) {
+function wfRunTests( $argc, $argv ) {
 	$numFailures = 0;
 
-	$opts = processArguments( $argc, $argv );
+	$opts = wfProcessArguments( $argc, $argv );
 	if ( !isset( $opts->debug_dump ) ) {
 		$opts->debug_dump = false;
 	}
@@ -302,20 +307,20 @@ function runTests( $argc, $argv ) {
 
 	if ( isset( $opts->help ) ) {
 		wfLog( "must specify [--timingMode] [--iterationCount=XXX]" .
-			" --transformer NAME --inputFile path/wikiName\n" );
+			" --transformer NAME --inputFilePrefix path/pageNamePrefix\n" );
 		wfLog( "Default iteration count is 50 if not specified\n" );
 		wfLog( "use --debug_dump to create pre and post dom serialized" .
 			" output to temporaryPrePhp.txt and ...PostPhp.txt\n" );
 		return;
 	}
 
-	if ( !isset( $opts->inputFile ) ) {
-		wfLog( "must specify --transformer NAME --inputFile /path/wikiName\n" );
+	if ( !isset( $opts->inputFilePrefix ) ) {
+		wfLog( "must specify --transformer NAME --inputFilePrefix path/pageNamePrefix\n" );
 		wfLog( "Run node bin/domTests.php --help for more information\n" );
 		return;
 	}
 
-	$mockEnv = new MockEnv( $opts );
+	$mockEnv = new Tests\MockEnv( $opts );
 	$manager = new DOMPassTester( $mockEnv, [] );
 
 	if ( isset( $opts->timingMode ) ) {
@@ -340,4 +345,4 @@ function runTests( $argc, $argv ) {
 	}
 }
 
-runTests( $argc, $argv );
+wfRunTests( $argc, $argv );

@@ -24,7 +24,7 @@ Technical details:
 
  An example command line to validate and performance test the 'Hampi'
  wikipage created as a dom:dsr test:
- $ node bin/domTests.js --log --timingMode --iterationCount 99 --transformer dsr --inputFile Hampi
+ $ node bin/domTests.js --log --timingMode --iterationCount 99 --transformer dsr --inputFilePrefix Hampi
 
  There are a number of tests in tests/transform directory.  To regenerate
  these, use:
@@ -107,8 +107,8 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 
 	if (cachedState === false) {
 		cachedState = true;
-		testFilePre = fs.readFileSync(opts.inputFile + '-' + opts.transformer + '-pre.txt', 'utf8');
-		testFilePost = fs.readFileSync(opts.inputFile + '-' + opts.transformer + '-post.txt', 'utf8');
+		testFilePre = fs.readFileSync(opts.inputFilePrefix + '-' + opts.transformer + '-pre.txt', 'utf8');
+		testFilePost = fs.readFileSync(opts.inputFilePrefix + '-' + opts.transformer + '-post.txt', 'utf8');
 		// Hack to fix trailing newline being moved by domino around the final </body> tag, remove when fixed in domino
 		if (testFilePre[testFilePre.length - 1] === '\n') { testFilePre = testFilePre.slice(0, -1); }
 		if (testFilePost[testFilePost.length - 1] === '\n') { testFilePost = testFilePost.slice(0, -1); }
@@ -199,18 +199,18 @@ MockDOMPostProcessor.prototype.wikitextTest = function(opts) {
 	var iterator = opts.timingMode ? Math.round(opts.iterationCount) : 1;
 	while (iterator--) {
 		if (!opts.timingMode) {
-			console.log('Starting wikitext dom test, files = ' + opts.inputFile + '-' + opts.transformer + '-pre.txt and ...-post.txt');
+			console.log('Starting wikitext dom test, files = ' + opts.inputFilePrefix + '-' + opts.transformer + '-pre.txt and ...-post.txt');
 		}
 		numFailures += this.processWikitextFile(opts);
 
 		if (!opts.timingMode) {
-			console.log('Ending wikitext dom test, files = ' + opts.inputFile + '-' + opts.transformer + '-pre.txt and ...-post.txt\n');
+			console.log('Ending wikitext dom test, files = ' + opts.inputFilePrefix + '-' + opts.transformer + '-pre.txt and ...-post.txt\n');
 		}
 	}
 	return numFailures;
 };
 
-var opts = yargs.usage('Usage: $0 [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFile /path/filename', {
+var opts = yargs.usage('Usage: $0 [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFilePrefix /path/filename', {
 	help: {
 		description: [
 			'domTest.js supports parsoid generated test validation.',
@@ -253,7 +253,7 @@ function runTests() {
 		process.exit(1);
 	}
 
-	if (!argv.inputFile) {
+	if (!argv.inputFilePrefix) {
 		opts.showHelp();
 		process.exit(1);
 	}
