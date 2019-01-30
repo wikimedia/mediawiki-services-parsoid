@@ -1,141 +1,193 @@
+<?php
+
+namespace Parsoid\Utils;
+
+use DOMNode;
+
+use Parsoid\Config\WikitextConstants as Consts;
+
 /**
  * These utilites pertain to extracting / modifying wikitext information from the DOM.
- * @module
  */
-
-'use strict';
-
-const Consts = require('../config/WikitextConstants.js').WikitextConstants;
-const { DOMDataUtils } = require('./DOMDataUtils.js');
-const { DOMUtils } = require('./DOMUtils.js');
-const { JSUtils } = require('./jsutils.js');
-const { TokenUtils } = require('./TokenUtils.js');
-const { Util } = require('./Util.js');
-
-const lastItem = JSUtils.lastItem;
-
 class WTUtils {
+	const FIRST_ENCAP_REGEXP =
+		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#';
+
 	/**
 	 * Check whether a node's data-parsoid object includes
 	 * an indicator that the original wikitext was a literal
-	 * HTML element (like table or p).
+	 * HTML element (like table or p)
 	 *
-	 * @param {Object} dp
-	 *   @param {string|undefined} [dp.stx]
+	 * @param array $dp
+	 * @return bool
 	 */
-	static hasLiteralHTMLMarker(dp) {
-		return dp.stx === 'html';
+	public static function hasLiteralHTMLMarker( $dp ) {
+		return isset( $dp['stx'] ) && $dp['stx'] === 'html';
 	}
 
 	/**
 	 * Run a node through {@link #hasLiteralHTMLMarker}.
+	 * @param DOMNode|null $node
+	 * @return bool
 	 */
-	static isLiteralHTMLNode(node) {
-		return (node &&
-			DOMUtils.isElt(node) &&
-			this.hasLiteralHTMLMarker(DOMDataUtils.getDataParsoid(node)));
-	}
-
-	static isZeroWidthWikitextElt(node) {
-		return Consts.ZeroWidthWikitextTags.has(node.nodeName) &&
-			!this.isLiteralHTMLNode(node);
+	public static function isLiteralHTMLNode( $node ) {
+		return ( $node &&
+			DOMUtils::isElt( $node ) &&
+			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
 	}
 
 	/**
-	 * Is `node` a block node that is also visible in wikitext?
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isZeroWidthWikitextElt( DOMNode $node ) {
+		return Consts::$ZeroWidthWikitextTags[$node->nodeName] &&
+			!self::isLiteralHTMLNode( $node );
+	}
+
+	/**
+	 * Is `$node` a block node that is also visible in wikitext?
 	 * An example of an invisible block node is a `<p>`-tag that
 	 * Parsoid generated, or a `<ul>`, `<ol>` tag.
 	 *
-	 * @param {Node} node
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isBlockNodeWithVisibleWT(node) {
-		return DOMUtils.isBlockNode(node) && !this.isZeroWidthWikitextElt(node);
+	public static function isBlockNodeWithVisibleWT( DOMNode $node ) {
+		return DOMUtils::isBlockNode( $node ) && !self::isZeroWidthWikitextElt( $node );
 	}
 
 	/**
-	 * Helper functions to detect when an A-node uses [[..]]/[..]/... style
+	 * Helper functions to detect when an A-$node uses [[..]]/[..]/... style
 	 * syntax (for wikilinks, ext links, url links). rel-type is not sufficient
 	 * anymore since mw:ExtLink is used for all the three link syntaxes.
+	 *
+	 * @param DOMNode $node
+	 * @param array $dp
+	 * @return bool
 	 */
-	static usesWikiLinkSyntax(aNode, dp) {
-		if (dp === undefined) {
-			dp = DOMDataUtils.getDataParsoid(aNode);
+	public static function usesWikiLinkSyntax( DOMNode $node, $dp ) {
+		// FIXME: Optimization from ComputeDSR to avoid refetching this property
+		// Is it worth the unnecessary code here?
+		if ( !$dp ) {
+			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when dp.stx value is not present
-		return aNode.getAttribute("rel") === "mw:WikiLink" ||
-			(dp.stx && dp.stx !== "url" && dp.stx !== "magiclink");
+		// for when dp['stx'] value is not present
+		return $node->getAttribute( "rel" ) === "mw:WikiLink" ||
+			( isset( $dp['stx'] ) && $dp['stx'] !== "url" && $dp['stx'] !== "magiclink" );
 	}
 
-	static usesExtLinkSyntax(aNode, dp) {
-		if (dp === undefined) {
-			dp = DOMDataUtils.getDataParsoid(aNode);
+	/**
+	 * Helper function to detect when an A-node uses ext-link syntax.
+	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
+	 * multiple link types
+	 *
+	 * @param DOMNode $node
+	 * @param array $dp
+	 * @return bool
+	 */
+	public static function usesExtLinkSyntax( DOMNode $node, $dp ) {
+		// FIXME: Optimization from ComputeDSR to avoid refetching this property
+		// Is it worth the unnecessary code here?
+		if ( !$dp ) {
+			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when dp.stx value is not present
-		return aNode.getAttribute("rel") === "mw:ExtLink" &&
-			(!dp.stx || (dp.stx !== "url" && dp.stx !== "magiclink"));
+		// for when $dp['stx'] value is not present
+		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
+			( !isset( $dp['stx'] ) || ( $dp['stx'] !== "url" && $dp['stx'] !== "magiclink" ) );
 	}
 
-	static usesURLLinkSyntax(aNode, dp) {
-		if (dp === undefined) {
-			dp = DOMDataUtils.getDataParsoid(aNode);
+	/**
+	 * Helper function to detect when an A-node uses url-link syntax.
+	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
+	 * multiple link types
+	 *
+	 * @param DOMNode $node
+	 * @param array $dp
+	 * @return bool
+	 */
+	public static function usesURLLinkSyntax( DOMNode $node, $dp ) {
+		// FIXME: Optimization from ComputeDSR to avoid refetching this property
+		// Is it worth the unnecessary code here?
+		if ( !$dp ) {
+			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when dp.stx value is not present
-		return aNode.getAttribute("rel") === "mw:ExtLink" &&
-			dp.stx && dp.stx === "url";
+		// for when $dp['stx'] value is not present
+		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
+			isset( $dp['stx'] ) && $dp['stx'] === "url";
 	}
 
-	static usesMagicLinkSyntax(aNode, dp) {
-		if (dp === undefined) {
-			dp = DOMDataUtils.getDataParsoid(aNode);
+	/**
+	 * Helper function to detect when an A-node uses magic-link syntax.
+	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
+	 * multiple link types
+	 *
+	 * @param DOMNode $node
+	 * @param array $dp
+	 * @return bool
+	 */
+	public static function usesMagicLinkSyntax( DOMNode $node, $dp ) {
+		if ( !$dp ) {
+			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when dp.stx value is not present
-		return aNode.getAttribute("rel") === "mw:ExtLink" &&
-			dp.stx && dp.stx === "magiclink";
+		// for when $dp['stx'] value is not present
+		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
+			isset( $dp['stx'] ) && $dp['stx'] === "magiclink";
 	}
 
 	/**
 	 * Check whether a meta's typeof indicates that it is a template expansion.
 	 *
-	 * @param {string} nType
+	 * @param string $nType
+	 * @return bool
 	 */
-	static isTplMetaType(nType) {
-		return Util.TPL_META_TYPE_REGEXP.test(nType);
+	public static function isTplMetaType( $nType ) {
+		return preg_match( Util::TPL_META_TYPE_REGEXP, $nType );
 	}
 
 	/**
 	 * Check whether a typeof indicates that it signifies an
 	 * expanded attribute.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static hasExpandedAttrsType(node) {
-		var nType = node.getAttribute('typeof');
-		return (/(?:^|\s)mw:ExpandedAttrs(\/[^\s]+)*(?=$|\s)/).test(nType);
+	public static function hasExpandedAttrsType( DOMNode $node ) {
+		$nType = $node->getAttribute( 'typeof' );
+		return preg_match( '#(?:^|\s)mw:ExpandedAttrs(/[^\s]+)*(?=$|\s)#', $nType );
 	}
 
 	/**
 	 * Check whether a node is a meta tag that signifies a template expansion.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isTplMarkerMeta(node) {
+	public static function isTplMarkerMeta( DOMNode $node ) {
 		return (
-			node.nodeName === "META" &&
-			this.isTplMetaType(node.getAttribute("typeof"))
+			$node->nodeName === "meta" &&
+			self::isTplMetaType( $node->getAttribute( "typeof" ) )
 		);
 	}
 
 	/**
 	 * Check whether a node is a meta signifying the start of a template expansion.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isTplStartMarkerMeta(node) {
-		if (node.nodeName === "META") {
-			var t = node.getAttribute("typeof");
-			return this.isTplMetaType(t) && !/\/End(?=$|\s)/.test(t);
+	public static function isTplStartMarkerMeta( DOMNode $node ) {
+		if ( $node->nodeName === "meta" ) {
+			$t = $node->getAttribute( "typeof" );
+			return self::isTplMetaType( $t ) && !preg_match( '#/End(?=$|\s)#', $t );
 		} else {
 			return false;
 		}
@@ -145,12 +197,13 @@ class WTUtils {
 	 * Check whether a node is a meta signifying the end of a template
 	 * expansion.
 	 *
-	 * @param {Node} n
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isTplEndMarkerMeta(n) {
-		if (n.nodeName === "META") {
-			var t = n.getAttribute("typeof");
-			return this.isTplMetaType(t) && /\/End(?=$|\s)/.test(t);
+	public static function isTplEndMarkerMeta( DOMNode $node ) {
+		if ( $node->nodeName === "meta" ) {
+			$t = $node->getAttribute( "typeof" );
+			return self::isTplMetaType( $t ) && preg_match( '#/End(?=$|\s)#', $t );
 		} else {
 			return false;
 		}
@@ -158,138 +211,171 @@ class WTUtils {
 
 	/**
 	 * Find the first wrapper element of encapsulated content.
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	static findFirstEncapsulationWrapperNode(node) {
-		if (!this.hasParsoidAboutId(node)) {
+	public static function findFirstEncapsulationWrapperNode( DOMNode $node ) {
+		if ( !self::hasParsoidAboutId( $node ) ) {
 			return null;
 		}
-		var about = node.getAttribute('about');
-		var prev = node;
+		$about = $node->getAttribute( 'about' );
+		$prev = $node;
 		do {
-			node = prev;
-			prev = DOMUtils.previousNonDeletedSibling(node);
-		} while (prev && DOMUtils.isElt(prev) && prev.getAttribute('about') === about);
-		return this.isFirstEncapsulationWrapperNode(node) ? node : null;
+			$node = $prev;
+			$prev = DOMUtils::previousNonDeletedSibling( $node );
+		} while ( $prev && DOMUtils::isElt( $prev ) && $prev->getAttribute( 'about' ) === $about );
+		return self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
 	}
 
 	/**
-	 * This tests whether a DOM node is a new node added during an edit session
-	 * or an existing node from parsed wikitext.
+	 * This tests whether a DOM $node is a new $node added during an edit session
+	 * or an existing $node from parsed wikitext.
 	 *
 	 * As written, this function can only be used on non-template/extension content
-	 * or on the top-level nodes of template/extension content. This test will
-	 * return the wrong results on non-top-level nodes of template/extension content.
+	 * or on the top-level $nodes of template/extension content. This test will
+	 * return the wrong results on non-top-level $nodes of template/extension content.
 	 *
-	 * @param {Node} node
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isNewElt(node) {
-		// We cannot determine newness on text/comment nodes.
-		if (!DOMUtils.isElt(node)) {
+	public static function isNewElt( DOMNode $node ) {
+		// We cannot determine newness on text/comment $nodes.
+		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
 
 		// For template/extension content, newness should be
-		// checked on the encapsulation wrapper node.
-		node = this.findFirstEncapsulationWrapperNode(node) || node;
-		return !!DOMDataUtils.getDataParsoid(node).tmp.isNew;
+		// checked on the encapsulation wrapper $node.
+		$node = self::findFirstEncapsulationWrapperNode( $node ) ?? $node;
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		return isset( $dp['tmp']['isNew'] );
 	}
 
 	/**
 	 * Check whether a pre is caused by indentation in the original wikitext.
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isIndentPre(node) {
-		return node.nodeName === "PRE" && !this.isLiteralHTMLNode(node);
+	public static function isIndentPre( DOMNode $node ) {
+		return $node->nodeName === "pre" && !self::isLiteralHTMLNode( $node );
 	}
 
-	static isInlineMedia(n) {
-		return DOMUtils.isElt(n) && (/\bmw:(?:Image|Video|Audio)\b/).test(n.getAttribute("typeof")) &&
-			n.nodeName === 'FIGURE-INLINE';
+	/**
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isInlineMedia( DOMNode $node ) {
+		return $node->nodeName === 'figure-inline' &&
+			preg_match( '/\bmw:(?:Image|Video|Audio)\b/', $node->getAttribute( "typeof" ) );
 	}
 
-	static isGeneratedFigure(n) {
-		return DOMUtils.isElt(n) && (/(^|\s)mw:(?:Image|Video|Audio)(\s|$|\/)/).test(n.getAttribute("typeof"));
+	/**
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isGeneratedFigure( DOMNode $node ) {
+		return DOMUtils::isElt( $node ) &&
+			preg_match( '#(^|\s)mw:(?:Image|Video|Audio)(\s|$|/)#', $node->getAttribute( "typeof" ) );
 	}
 
 	/**
 	 * Find how much offset is necessary for the DSR of an
 	 * indent-originated pre tag.
 	 *
-	 * @param {TextNode} textNode
-	 * @return {number}
+	 * @param DOMNode $textNode
+	 * @return int
 	 */
-	static indentPreDSRCorrection(textNode) {
+	public static function indentPreDSRCorrection( DOMNode $textNode ) {
 		// NOTE: This assumes a text-node and doesn't check that it is one.
 		//
 		// FIXME: Doesn't handle text nodes that are not direct children of the pre
-		if (this.isIndentPre(textNode.parentNode)) {
-			var numNLs;
-			if (textNode.parentNode.lastChild === textNode) {
+		if ( self::isIndentPre( $textNode->parentNode ) ) {
+			if ( $textNode->parentNode->lastChild === $textNode ) {
 				// We dont want the trailing newline of the last child of the pre
 				// to contribute a pre-correction since it doesn't add new content
 				// in the pre-node after the text
-				numNLs = (textNode.nodeValue.match(/\n./g) || []).length;
+				$numNLs = preg_match_all( '/\n./', $textNode->nodeValue );
 			} else {
-				numNLs = (textNode.nodeValue.match(/\n/g) || []).length;
+				$numNLs = preg_match_all( '/\n/', $textNode->nodeValue );
 			}
-			return numNLs;
+			return $numNLs;
 		} else {
 			return 0;
 		}
 	}
 
 	/**
-	 * Check if node is an ELEMENT node belongs to a template/extension.
+	 * Check if $node is an ELEMENT $node belongs to a template/extension.
 	 *
 	 * NOTE: Use with caution. This technique works reliably for the
 	 * root level elements of tpl-content DOM subtrees since only they
 	 * are guaranteed to be  marked and nested content might not
 	 * necessarily be marked.
 	 *
-	 * @param {Node} node
-	 * @return {boolean}
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static hasParsoidAboutId(node) {
-		if (DOMUtils.isElt(node)) {
-			var about = node.getAttribute('about');
+	public static function hasParsoidAboutId( DOMNode $node ) {
+		if ( DOMUtils::isElt( $node ) ) {
+			$about = $node->getAttribute( 'about' );
 			// SSS FIXME: Verify that our DOM spec clarifies this
 			// expectation on about-ids and that our clients respect this.
-			return about && Util.isParsoidObjectId(about);
+			return $about && Util::isParsoidObjectId( $about );
 		} else {
 			return false;
 		}
 	}
 
-	static isRedirectLink(node) {
-		return DOMUtils.isElt(node) && node.nodeName === 'LINK' &&
-			/\bmw:PageProp\/redirect\b/.test(node.getAttribute('rel'));
-	}
-
-	static isCategoryLink(node) {
-		return DOMUtils.isElt(node) && node.nodeName === 'LINK' &&
-			/\bmw:PageProp\/Category\b/.test(node.getAttribute('rel'));
-	}
-
-	static isSolTransparentLink(node) {
-		return DOMUtils.isElt(node) && node.nodeName === 'LINK' &&
-			TokenUtils.solTransparentLinkRegexp.test(node.getAttribute('rel'));
+	/**
+	 * Does $node represent a redirect link?
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isRedirectLink( DOMNode $node ) {
+		return $node->nodeName === 'link' &&
+			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
 	}
 
 	/**
-	 * Check if 'node' emits wikitext that is sol-transparent in wikitext form.
+	 * Does $node represent a category link?
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isCategoryLink( DOMNode $node ) {
+		return $node->nodeName === 'link' &&
+			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
+	}
+
+	/**
+	 * Does $node represent a link that is sol-transparent?
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isSolTransparentLink( DOMNode $node ) {
+		return $node->nodeName === 'link' &&
+			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
+	}
+
+	/**
+	 * Check if '$node' emits wikitext that is sol-transparent in wikitext form.
 	 * This is a test for wikitext that doesn't introduce line breaks.
 	 *
-	 * Comment, whitespace text nodes, category links, redirect links, behavior
+	 * Comment, whitespace text $nodes, category links, redirect links, behavior
 	 * switches, and include directives currently satisfy this definition.
 	 *
 	 * This should come close to matching TokenUtils.isSolTransparent()
 	 *
-	 * @param {Node} node
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static emitsSolTransparentSingleLineWT(node) {
-		if (DOMUtils.isText(node)) {
+	public static function emitsSolTransparentSingleLineWT( DOMNode $node ) {
+		if ( DOMUtils::isText( $node ) ) {
 			// NB: We differ here to meet the nl condition.
-			return node.nodeValue.match(/^[ \t]*$/);
-		} else if (this.isRenderingTransparentNode(node)) {
+			return preg_match( '/^[ \t]*$/', $node->nodeValue );
+		} elseif ( self::isRenderingTransparentNode( $node ) ) {
 			// NB: The only metas in a DOM should be for behavior switches and
 			// include directives, other than explicit HTML meta tags. This
 			// differs from our counterpart in Util where ref meta tokens
@@ -300,135 +386,172 @@ class WTUtils {
 		}
 	}
 
-	static isFallbackIdSpan(node) {
-		return node.nodeName === 'SPAN' && node.getAttribute('typeof') === 'mw:FallbackId';
+	/**
+	 * This is the span added to headings to add fallback ids for when legacy
+	 * and HTML5 ids don't match up. This prevents broken links to legacy ids.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isFallbackIdSpan( DOMNode $node ) {
+		return $node->nodeName === 'span' && $node->getAttribute( 'typeof' ) === 'mw:FallbackId';
 	}
 
 	/**
-	 * These are primarily 'metadata'-like nodes that don't show up in output rendering.
+	 * These are primarily 'metadata'-like $nodes that don't show up in output rendering.
 	 * - In Parsoid output, they are represented by link/meta tags.
 	 * - In the PHP parser, they are completely stripped from the input early on.
-	 *   Because of this property, these rendering-transparent nodes are also
+	 *   Because of this property, these rendering-transparent $nodes are also
 	 *   SOL-transparent for the purposes of parsing behavior.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isRenderingTransparentNode(node) {
+	public static function isRenderingTransparentNode( DOMNode $node ) {
 		// FIXME: Can we change this entire thing to
-		// DOMUtils.isComment(node) ||
-		// DOMUtils.getDataParsoid(node).stx !== 'html' &&
-		//   (node.nodeName === 'META' || node.nodeName === 'LINK')
+		// DOMUtils::isComment($node) ||
+		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
+		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
 		//
-		var typeOf = DOMUtils.isElt(node) && node.getAttribute('typeof');
-		return DOMUtils.isComment(node) ||
-			this.isSolTransparentLink(node) ||
-			// Catch-all for everything else.
-			(node.nodeName === 'META' &&
-				// (Start|End)Tag metas clone data-parsoid from the tokens
-				// they're shadowing, which trips up on the stx check.
-				// TODO: Maybe that data should be nested in a property?
-				(/(mw:StartTag)|(mw:EndTag)/.test(typeOf) || DOMDataUtils.getDataParsoid(node).stx !== 'html')) ||
-			this.isFallbackIdSpan(node);
+		$typeOf = DOMUtils::isElt( $node ) && $node->getAttribute( 'typeof' );
+		return DOMUtils::isComment( $node ) ||
+			self::isSolTransparentLink( $node ) || (
+				// Catch-all for everything else.
+				$node->nodeName === 'meta' && (
+					// (Start|End)Tag metas clone data-parsoid from the tokens
+					// they're shadowing, which trips up on the stx check.
+					// TODO: Maybe that data should be nested in a property?
+					preg_match( '/(mw:StartTag)|(mw:EndTag)/', $typeOf ) ||
+					!isset( DOMDataUtils::getDataParsoid( $node )["stx"] ) ||
+					DOMDataUtils::getDataParsoid( $node )["stx"] !== 'html'
+				)
+			) || self::isFallbackIdSpan( $node );
 	}
 
 	/**
-	 * Is node nested inside a table tag that uses HTML instead of native
+	 * Is $node nested inside a table tag that uses HTML instead of native
 	 * wikitext?
-	 * @param {Node} node
-	 * @return {boolean}
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static inHTMLTableTag(node) {
-		var p = node.parentNode;
-		while (DOMUtils.isTableTag(p)) {
-			if (this.isLiteralHTMLNode(p)) {
+	public static function inHTMLTableTag( DOMNode $node ) {
+		$p = $node->parentNode;
+		while ( DOMUtils::isTableTag( $p ) ) {
+			if ( self::isLiteralHTMLNode( $p ) ) {
 				return true;
-			} else if (p.nodeName === 'TABLE') {
+			} elseif ( $p->nodeName === 'table' ) {
 				// Don't cross <table> boundaries
 				return false;
 			}
-			p = p.parentNode;
+			$p = $p->parentNode;
 		}
 
 		return false;
 	}
 
-	static FIRST_ENCAP_REGEXP() { return /(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(\/[^\s]+)))(?=$|\s)/; }
-
 	/**
-	 * Is node the first wrapper element of encapsulated content?
-	 */
-	static isFirstEncapsulationWrapperNode(node) {
-		return DOMUtils.isElt(node) &&
-			this.FIRST_ENCAP_REGEXP().test(node.getAttribute('typeof'));
-	}
-
-	/**
-	 * Is node an encapsulation wrapper elt?
+	 * Is $node the first wrapper element of encapsulated content?
 	 *
-	 * All root-level nodes of generated content are considered
-	 * encapsulation wrappers and share an about-id.
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static isEncapsulationWrapper(node) {
-		// True if it has an encapsulation type or while walking backwards
-		// over elts with identical about ids, we run into a node with an
-		// encapsulation type.
-		if (!DOMUtils.isElt(node)) {
-			return false;
-		}
-
-		return this.findFirstEncapsulationWrapperNode(node) !== null;
-	}
-
-	static isDOMFragmentWrapper(node) {
-		return DOMUtils.isElt(node) &&
-			TokenUtils.isDOMFragmentType(node.getAttribute('typeof'));
-	}
-
-	static isSealedFragmentOfType(node, type) {
-		if (!DOMUtils.isElt(node)) {
-			return false;
-		}
-		const re = new RegExp('(?:^|\\s)mw:DOMFragment\\/sealed\\/' + type + '(?=$|\\s)');
-		return re.test(node.getAttribute('typeof'));
-	}
-
-	static isParsoidSectionTag(node) {
-		return node.nodeName === 'SECTION' &&
-			node.getAttribute('data-mw-section-id') !== null;
+	public static function isFirstEncapsulationWrapperNode( DOMNode $node ) {
+		return DOMUtils::isElt( $node ) &&
+			preg_match( self::FIRST_ENCAP_REGEXP, $node->getAttribute( 'typeof' ) );
 	}
 
 	/**
-	 * Is the node from extension content?
-	 * @param {Node} node
-	 * @param {string} extType
-	 * @return {boolean}
+	 * Is $node an encapsulation wrapper elt?
+	 *
+	 * All root-level $nodes of generated content are considered
+	 * encapsulation wrappers and share an about-id.
+	 *
+	 * @param DOMNode $node
+	 * @return bool
 	 */
-	static fromExtensionContent(node, extType) {
-		var parentNode = node.parentNode;
-		var extReg = new RegExp('\\bmw:Extension\\/' + extType + '\\b');
-		while (parentNode && !DOMUtils.atTheTop(parentNode)) {
-			if (extReg.test(parentNode.getAttribute('typeof'))) {
+	public static function isEncapsulationWrapper( DOMNode $node ) {
+		// True if it has an encapsulation type or while walking backwards
+		// over elts with identical about ids, we run into a $node with an
+		// encapsulation type.
+		if ( !DOMUtils::isElt( $node ) ) {
+			return false;
+		}
+
+		return self::findFirstEncapsulationWrapperNode( $node ) !== null;
+	}
+
+	/**
+	 * Is $node a DOMFragment wrapper?
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isDOMFragmentWrapper( DOMNode $node ) {
+		return DOMUtils::isElt( $node ) &&
+			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
+	}
+
+	/**
+	 * Is $node a sealed DOMFragment of a specific type?
+	 *
+	 * @param DOMNode $node
+	 * @param string $type
+	 * @return bool
+	 */
+	public static function isSealedFragmentOfType( DOMNode $node, $type ) {
+		if ( !DOMUtils::isElt( $node ) ) {
+			return false;
+		}
+		$re = '#(?:^|\s)mw:DOMFragment/sealed/' . preg_quote( $type ) . '(?=$|\s)#';
+		return preg_match( $re, $node->getAttribute( 'typeof' ) );
+	}
+
+	/**
+	 * Is $node a Parsoid-generated <section> tag?
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isParsoidSectionTag( DOMNode $node ) {
+		return $node->nodeName === 'section' &&
+			$node->getAttribute( 'data-mw-section-id' ) !== null;
+	}
+
+	/**
+	 * Is the $node from extension content?
+	 * @param DOMNode $node
+	 * @param string $extType
+	 * @return bool
+	 */
+	public static function fromExtensionContent( DOMNode $node, $extType ) {
+		$parentNode = $node->parentNode;
+		$extRE = '#\bmw:Extension/' . preg_quote( $extType ) . '\b#';
+		while ( $parentNode && !DOMUtils::atTheTop( $parentNode ) ) {
+			if ( preg_match( $extRE, $parentNode->getAttribute( 'typeof' ) ) ) {
 				return true;
 			}
-			parentNode = parentNode.parentNode;
+			$parentNode = $parentNode->parentNode;
 		}
 		return false;
 	}
 
 	/**
-	 * Compute, when possible, the wikitext source for a node in
+	 * Compute, when possible, the wikitext source for a $node in
 	 * an environment env. Returns null if the source cannot be
 	 * extracted.
-	 * @param {MWParserEnvironment} env
-	 * @param {Node} node
+	 * @param MockEnv $env
+	 * @param DOMNode $node
+	 * @return string
 	 */
-	static getWTSource(env, node) {
-		var data = DOMDataUtils.getDataParsoid(node);
-		var dsr = (undefined !== data) ? data.dsr : null;
-		return dsr && Util.isValidDSR(dsr) ?
-			env.page.src.substring(dsr[0], dsr[1]) : null;
+	public static function getWTSource( $env, $node ) {
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$dsr = $dp['dsr'] ?? null;
+		return $dsr && Util::isValidDSR( $dsr ) ? substr( $env->page->src, $dsr[0], $dsr[1] ) : null;
 	}
 
 	/**
-	 * Gets all siblings that follow 'node' that have an 'about' as
+	 * Gets all siblings that follow '$node' that have an 'about' as
 	 * their about id.
 	 *
 	 * This is used to fetch transclusion/extension content by using
@@ -440,160 +563,165 @@ class WTUtils {
 	 * The only exception to this adjacency rule is IEW nodes in
 	 * fosterable positions (in tables) which are not span-wrapped to
 	 * prevent them from getting fostered out.
+	 *
+	 * @param DOMNode $node
+	 * @param string $about
+	 * @return DOMNode[]
 	 */
-	static getAboutSiblings(node, about) {
-		var nodes = [node];
+	public static function getAboutSiblings( DOMNode $node, $about ) {
+		$nodes = [ $node ];
 
-		if (!about) {
-			return nodes;
+		if ( !$about ) {
+			return $nodes;
 		}
 
-		node = node.nextSibling;
-		while (node && (
-			DOMUtils.isElt(node) && node.getAttribute('about') === about ||
-				DOMUtils.isFosterablePosition(node) && !DOMUtils.isElt(node) && DOMUtils.isIEW(node)
-		)) {
-			nodes.push(node);
-			node = node.nextSibling;
+		$node = $node->nextSibling;
+		while ( $node && (
+			DOMUtils::isElt( $node ) && $node->getAttribute( 'about' ) === $about ||
+				DOMUtils::isFosterablePosition( $node ) && !DOMUtils::isElt( $node ) && DOMUtils::isIEW( $node )
+		) ) {
+			$nodes[] = $node;
+			$node = $node->nextSibling;
 		}
 
 		// Remove already consumed trailing IEW, if any
-		while (nodes.length && DOMUtils.isIEW(lastItem(nodes))) {
-			nodes.pop();
+		while ( count( $nodes ) > 0 && DOMUtils::isIEW( $nodes[count( $nodes ) - 1] ) ) {
+			array_pop( $nodes );
 		}
 
-		return nodes;
+		return $nodes;
 	}
 
 	/**
-	 * This function is only intended to be used on encapsulated nodes
+	 * This function is only intended to be used on encapsulated $nodes
 	 * (Template/Extension/Param content).
 	 *
-	 * Given a 'node' that has an about-id, it is assumed that it is generated
+	 * Given a '$node' that has an about-id, it is assumed that it is generated
 	 * by templates or extensions.  This function skips over all
 	 * following content nodes and returns the first non-template node
 	 * that follows it.
+	 *
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	static skipOverEncapsulatedContent(node) {
-		var about = node.getAttribute('about');
-		if (about) {
-			return lastItem(this.getAboutSiblings(node, about)).nextSibling;
+	public static function skipOverEncapsulatedContent( DOMNode $node ) {
+		$about = $node->getAttribute( 'about' );
+		if ( $about ) {
+			// Guaranteed not to be empty. It will at least include $node.
+			$aboutSiblings = self::getAboutSiblings( $node, $about );
+			return end( $aboutSiblings )->nextSibling;
 		} else {
-			return node.nextSibling;
+			return $node->nextSibling;
 		}
 	}
 
-	// Comment encoding/decoding.
-	//
-	//  * Some relevant phab tickets: T94055, T70146, T60184, T95039
-	//
-	// The wikitext comment rule is very simple: <!-- starts a comment,
-	// and --> ends a comment.  This means we can have almost anything as the
-	// contents of a comment (except the string "-->", but see below), including
-	// several things that are not valid in HTML5 comments:
-	//
-	//  * For one, the html5 comment parsing algorithm [0] leniently accepts
-	//    --!> as a closing comment tag, which differs from the php+tidy combo.
-	//
-	//  * If the comment's data matches /^-?>/, html5 will end the comment.
-	//    For example, <!-->stuff<--> breaks up as
-	//    <!--> (the comment) followed by, stuff<--> (as text).
-	//
-	//  * Finally, comment data shouldn't contain two consecutive hyphen-minus
-	//    characters (--), nor end in a hyphen-minus character (/-$/) as defined
-	//    in the spec [1].
-	//
-	// We work around all these problems by using HTML entity encoding inside
-	// the comment body.  The characters -, >, and & must be encoded in order
-	// to prevent premature termination of the comment by one of the cases
-	// above.  Encoding other characters is optional; all entities will be
-	// decoded during wikitext serialization.
-	//
-	// In order to allow *arbitrary* content inside a wikitext comment,
-	// including the forbidden string "-->" we also do some minimal entity
-	// decoding on the wikitext.  We are also limited by our inability
-	// to encode DSR attributes on the comment node, so our wikitext entity
-	// decoding must be 1-to-1: that is, there must be a unique "decoded"
-	// string for every wikitext sequence, and for every decoded string there
-	// must be a unique wikitext which creates it.
-	//
-	// The basic idea here is to replace every string ab*c with the string with
-	// one more b in it.  This creates a string with no instance of "ac",
-	// so you can use 'ac' to encode one more code point.  In this case
-	// a is "--&", "b" is "amp;", and "c" is "gt;" and we use ac to
-	// encode "-->" (which is otherwise unspeakable in wikitext).
-	//
-	// Note that any user content which does not match the regular
-	// expression /--(>|&(amp;)*gt;)/ is unchanged in its wikitext
-	// representation, as shown in the first two examples below.
-	//
-	// User-authored comment text    Wikitext       HTML5 DOM
-	// --------------------------    -------------  ----------------------
-	// & - >                         & - >          &amp; &#43; &gt;
-	// Use &gt; here                 Use &gt; here  Use &amp;gt; here
-	// -->                           --&gt;         &#43;&#43;&gt;
-	// --&gt;                        --&amp;gt;     &#43;&#43;&amp;gt;
-	// --&amp;gt;                    --&amp;amp;gt; &#43;&#43;&amp;amp;gt;
-	//
-	// [0] http://www.w3.org/TR/html5/syntax.html#comment-start-state
-	// [1] http://www.w3.org/TR/html5/syntax.html#comments
-
 	/**
+	 * Comment encoding/decoding.
+	 *
+	 * * Some relevant phab tickets: T94055, T70146, T60184, T95039
+	 *
+	 * The wikitext comment rule is very simple: <!-- starts a comment,
+	 * and --> ends a comment.  This means we can have almost anything as the
+	 * contents of a comment (except the string "-->", but see below), including
+	 * several things that are not valid in HTML5 comments:
+	 *
+	 * * For one, the html5 comment parsing algorithm [0] leniently accepts
+	 * --!> as a closing comment tag, which differs from the php+tidy combo.
+	 *
+	 * * If the comment's data matches /^-?>/, html5 will end the comment.
+	 *    For example, <!-->stuff<--> breaks up as
+	 *    <!--> (the comment) followed by, stuff<--> (as text).
+	 *
+	 *  * Finally, comment data shouldn't contain two consecutive hyphen-minus
+	 *    characters (--), nor end in a hyphen-minus character (/-$/) as defined
+	 *    in the spec [1].
+	 *
+	 * We work around all these problems by using HTML entity encoding inside
+	 * the comment body.  The characters -, >, and & must be encoded in order
+	 * to prevent premature termination of the comment by one of the cases
+	 * above.  Encoding other characters is optional; all entities will be
+	 * decoded during wikitext serialization.
+	 *
+	 * In order to allow *arbitrary* content inside a wikitext comment,
+	 * including the forbidden string "-->" we also do some minimal entity
+	 * decoding on the wikitext.  We are also limited by our inability
+	 * to encode DSR attributes on the comment $node, so our wikitext entity
+	 * decoding must be 1-to-1: that is, there must be a unique "decoded"
+	 * string for every wikitext sequence, and for every decoded string there
+	 * must be a unique wikitext which creates it.
+	 *
+	 * The basic idea here is to replace every string ab*c with the string with
+	 * one more b in it.  This creates a string with no instance of "ac",
+	 * so you can use 'ac' to encode one more code point.  In this case
+	 * a is "--&", "b" is "amp;", and "c" is "gt;" and we use ac to
+	 * encode "-->" (which is otherwise unspeakable in wikitext).
+	 *
+	 * Note that any user content which does not match the regular
+	 * expression /--(>|&(amp;)*gt;)/ is unchanged in its wikitext
+	 * representation, as shown in the first two examples below.
+	 *
+	 * User-authored comment text    Wikitext       HTML5 DOM
+	 * --------------------------    -------------  ----------------------
+	 * & - >                         & - >          &amp; &#43; &gt;
+	 * Use &gt; here                 Use &gt; here  Use &amp;gt; here
+	 * -->                           --&gt;         &#43;&#43;&gt;
+	 * --&gt;                        --&amp;gt;     &#43;&#43;&amp;gt;
+	 * --&amp;gt;                    --&amp;amp;gt; &#43;&#43;&amp;amp;gt;
+	 *
+	 * [0] http://www.w3.org/TR/html5/syntax.html#comment-start-state
+	 * [1] http://www.w3.org/TR/html5/syntax.html#comments
+	 *
 	 * Map a wikitext-escaped comment to an HTML DOM-escaped comment.
-	 * @param {string} comment Wikitext-escaped comment.
-	 * @return {string} DOM-escaped comment.
+	 *
+	 * @param string $comment Wikitext-escaped comment.
+	 * @return string DOM-escaped comment.
 	 */
-	static encodeComment(comment) {
+	public static function encodeComment( $comment ) {
 		// Undo wikitext escaping to obtain "true value" of comment.
-		var trueValue = comment
-			.replace(/--&(amp;)*gt;/g, Util.decodeWtEntities);
+		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/g', Util::decodeWtEntities, $comment );
+
 		// Now encode '-', '>' and '&' in the "true value" as HTML entities,
 		// so that they can be safely embedded in an HTML comment.
 		// This part doesn't have to map strings 1-to-1.
-		return trueValue
-			.replace(/[->&]/g, Util.entityEncodeAll);
+		return preg_replace_callback( '/[->&]/g', Util::entityEncodeAll, $trueValue );
 	}
 
 	/**
 	 * Map an HTML DOM-escaped comment to a wikitext-escaped comment.
-	 * @param {string} comment DOM-escaped comment.
-	 * @return {string} Wikitext-escaped comment.
+	 * @param string $comment DOM-escaped comment.
+	 * @return string Wikitext-escaped comment.
 	 */
-	static decodeComment(comment) {
+	public static function decodeComment( $comment ) {
 		// Undo HTML entity escaping to obtain "true value" of comment.
-		var trueValue = Util.decodeWtEntities(comment);
+		$trueValue = Util::decodeWtEntities( $comment );
+
 		// ok, now encode this "true value" of the comment in such a way
 		// that the string "-->" never shows up.  (See above.)
-		return trueValue
-			.replace(/--(&(amp;)*gt;|>)/g, function(s) {
-				return s === '-->' ? '--&gt;' : '--&amp;' + s.slice(3);
-			});
+		return preg_replace_callback( '/--(&(amp;)*gt;|>)/g', function ( $s ) {
+				return $s === '-->' ? '--&gt;' : '--&amp;' . substr( $s, 3 );
+		}, $trueValue );
 	}
 
 	/**
 	 * Utility function: we often need to know the wikitext DSR length for
 	 * an HTML DOM comment value.
-	 * @param {Node} node A comment node containing a DOM-escaped comment.
-	 * @return {number} The wikitext length necessary to encode this comment,
+	 *
+	 * @param DOMNode $node A comment node containing a DOM-escaped comment.
+	 * @return int The wikitext length necessary to encode this comment,
 	 *   including 7 characters for the `<!--` and `-->` delimiters.
 	 */
-	static decodedCommentLength(node) {
-		console.assert(DOMUtils.isComment(node));
+	public static function decodedCommentLength( DOMNode $node ) {
 		// Add 7 for the "<!--" and "-->" delimiters in wikitext.
-		return this.decodeComment(node.data).length + 7;
+		return mb_strlen( $node->textContent ) + 7;
 	}
 
 	/**
 	 * Escape `<nowiki>` tags.
 	 *
-	 * @param {string} text
-	 * @return {string}
+	 * @param string $text
+	 * @return string
 	 */
-	static escapeNowikiTags(text) {
-		return text.replace(/<(\/?nowiki\s*\/?\s*)>/gi, '&lt;$1&gt;');
+	public static function escapeNowikiTags( $text ) {
+		return preg_replace( '#<(/?nowiki\s*/?\s*)>/gi#', '&lt;$1&gt;', $text );
 	}
-}
-
-if (typeof module === "object") {
-	module.exports.WTUtils = WTUtils;
 }
