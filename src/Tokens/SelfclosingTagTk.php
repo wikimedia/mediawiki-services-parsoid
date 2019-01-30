@@ -8,6 +8,9 @@ namespace Parsoid\Tokens;
 class SelfclosingTagTk extends Token {
 	protected $type = "SelfclosingTagTk";
 
+	/** @var string Name of the end tag */
+	public $name;
+
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs

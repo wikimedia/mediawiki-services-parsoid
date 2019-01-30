@@ -128,7 +128,7 @@ abstract class Token {
 			return [
 				"value" => $curVal,
 				// Mark as modified if a new element
-				"modified" => (array)$this->dataAttribs !== [],
+				"modified" => $this->dataAttribs !== [],
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataAttribs['a'][$name] !== $curVal ) {

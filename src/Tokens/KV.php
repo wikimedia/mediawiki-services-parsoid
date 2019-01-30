@@ -13,6 +13,15 @@ class KV {
 	/** @var mixed string, Token, or an array of tokens even */
 	public $v;
 
+	/** @var int[]|null wikitext source offsets */
+	public $srcOffsets;
+
+	/** @var string|null wikitext source */
+	public $ksrc;
+
+	/** @var string|null wikitext source */
+	public $vsrc;
+
 	/**
 	 * @param mixed $k
 	 *     Commonly a string, but where the key might be templated,
@@ -20,23 +29,21 @@ class KV {
 	 * @param mixed $v
 	 *     The value: string, token, of an array of tokens
 	 * @param array|null $srcOffsets wikitext source offsets
-	 * @param string|null $vsrc wikitext source
 	 */
-	public function __construct( $k, $v, array $srcOffsets = null, $vsrc = null ) {
+	public function __construct( $k, $v, array $srcOffsets = null ) {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
-		$this->vsrc = $vsrc;
 	}
 
 	/**
 	 * Lookup a string key in a KV array and return the first matching KV object
 	 *
-	 * @param array $kvs
+	 * @param array|null $kvs
 	 * @param string $key
 	 * @return KV|null
 	 */
-	public static function lookupKV( array $kvs, $key ) {
+	public static function lookupKV( $kvs, $key ) {
 		if ( $kvs === null ) {
 			return null;
 		}

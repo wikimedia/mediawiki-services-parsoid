@@ -8,6 +8,9 @@ namespace Parsoid\Tokens;
 class TagTk extends Token {
 	protected $type = "TagTk";
 
+	/** @var string Name of the end tag */
+	public $name;
+
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs

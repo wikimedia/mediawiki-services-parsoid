@@ -4,7 +4,6 @@ namespace Parsoid\Tokens;
 
 /**
  * Newline token.
- * @class
  */
 class NlTk extends Token {
 	protected $type = "NlTk";
@@ -15,7 +14,7 @@ class NlTk extends Token {
 	 *    offsets for a token (in this case, the newline)
 	 * @param array $dataAttribs
 	 */
-	public function __construct( array $tsr, array $dataAttribs = [] ) {
+	public function __construct( $tsr, array $dataAttribs = [] ) {
 		if ( $tsr ) {
 			$this->dataAttribs = [ "tsr" => $tsr ];
 		} elseif ( $dataAttribs ) {

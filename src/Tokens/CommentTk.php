@@ -8,6 +8,9 @@ namespace Parsoid\Tokens;
 class CommentTk extends Token {
 	protected $type = 'CommentTk';
 
+	/** @var string Comment text */
+	public $value;
+
 	/**
 	 * @param string $value
 	 * @param array $dataAttribs
