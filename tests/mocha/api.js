@@ -206,7 +206,6 @@ describe('Parsoid API', function() {
 				res.error.text.should.equal(
 					'Not acceptable.\n' +
 					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/2.0.0&quot;\n' +
-					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/1.8.0&quot;\n' +
 					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/999.0.0&quot;\n'
 				);
 			})
@@ -223,7 +222,6 @@ describe('Parsoid API', function() {
 				JSON.parse(res.error.text).error.should.equal(
 					'Not acceptable.\n' +
 					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"\n' +
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/1.8.0"\n' +
 					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"\n'
 				);
 			})
@@ -312,27 +310,6 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		// Note the old profile used here is obsolete after 1.2.x
-		// TODO: Remove these tests when 1.x is no longer supported.
-
-		it('should not return content for requests for < 1.6.x because of sections (html)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.1"')
-			.send({ wikitext: '{{echo|hi}}' })
-			.expect(406)
-			.end(done);
-		});
-
-		it('should not return content for requests for < 1.6.x because of sections (pagebundle)', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.set('Accept', 'text/html; profile="mediawiki.org/specs/html/1.2.1"')
-			.send({ wikitext: '{{echo|hi}}' })
-			.expect(406)
-			.end(done);
-		});
-
 		it('should accept requests for content version 2.x (html)', function(done) {
 			var contentVersion = '2.0.0';
 			request(api)
@@ -381,36 +358,6 @@ describe('Parsoid API', function() {
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
-			}))
-			.end(done);
-		});
-
-		it('should accept requests for old content version 1.8.x (html)', function(done) {
-			var contentVersion = '1.8.0';
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
-			.send({ wikitext: '[[File:Audio.oga]]' })
-			.expect(200)
-			.expect(acceptableHtmlResponse(contentVersion, function(html) {
-				var doc = domino.createDocument(html);
-				doc.querySelectorAll('audio').length.should.equal(0);
-				doc.querySelectorAll('video').length.should.equal(1);
-			}))
-			.end(done);
-		});
-
-		it('should accept requests for old content version 1.8.x (pagebundle)', function(done) {
-			var contentVersion = '1.8.0';
-			request(api)
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
-			.send({ wikitext: '[[File:Audio.oga]]' })
-			.expect(200)
-			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
-				var doc = domino.createDocument(html);
-				doc.querySelectorAll('audio').length.should.equal(0);
-				doc.querySelectorAll('video').length.should.equal(1);
 			}))
 			.end(done);
 		});
@@ -2138,48 +2085,11 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		// T202666
-		it('should downgrade the original version before attempting to serialize', function(done) {
-			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
-			.send({
-				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="1.8.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><video controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></video></span></figure-inline></p></body></html>',
-				original: {
-					title: 'Doesnotexist',
-					revid: 6789,  // Necessary for selser
-					wikitext: {
-						body: "[[File:Selser was used.oga]]",
-					},
-					'data-parsoid': {
-						body: {
-							"ids": {
-								"mwAA": { "dsr": [0,47,0,0] },
-								"mwAQ": { "dsr": [0,45,0,0] },
-								"mwAg": { "optList": [], "dsr": [0,45,null,null] },
-								"mwAw": {},
-								"mwBA": { "a": { "height": "32", "width": "220", "resource": "./File:Mozart_Symphony_36_KV_425_Linz_4.oga" }, "sa": { "resource": "File:Selser was not used.oga" } },
-								"mwBQ": {},
-								"mwBg": {}
-							}
-						},
-					},
-					html: {
-						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
-						},
-						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
-					},
-				},
-			})
-			.expect(validWikitextResponse('[[File:Selser was used.oga]]'))
-			.end(done);
-		});
-
 		it('should fail to downgrade the original version for an unknown transition', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
-				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="1.8.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
 				original: {
 					title: 'Doesnotexist',
 					'data-parsoid': { body: { "ids": {} } },
@@ -2187,7 +2097,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2222.0.0"',
 						},
-						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2222.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
 					},
 				},
 			})
@@ -2308,50 +2218,10 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should downgrade 2.x content to 1.8.x', function(done) {
-			var contentVersion = '1.8.0';
-			request(api)
-			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
-			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
-			.send({
-				original: {
-					title: 'Doesnotexist',
-					'data-parsoid': {
-						body: {
-							"ids": {
-								"mwAA": { "dsr": [0,47,0,0] },
-								"mwAQ": { "dsr": [0,45,0,0] },
-								"mwAg": { "optList": [], "dsr": [0,45,null,null] },
-								"mwAw": {},
-								"mwBA": { "a": { "height": "32", "width": "220", "resource": "./File:Mozart_Symphony_36_KV_425_Linz_4.oga" }, "sa": { "resource": "File:Mozart Symphony 36 KV 425 Linz 4.oga" } },
-								"mwBQ": {},
-								"mwBg": {}
-							}
-						},
-					},
-					html: {
-						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
-						},
-						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
-					},
-				},
-			})
-			.expect(200)
-			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
-				var doc = domino.createDocument(html);
-				var meta = doc.querySelector('meta[property="mw:html:version"]');
-				meta.getAttribute('content').should.equal(contentVersion);
-				doc.querySelectorAll('audio').length.should.equal(0);
-				doc.querySelectorAll('video').length.should.equal(1);
-			}))
-			.end(done);
-		});
-
 		it('should accept the original and update the redlinks', function(done) {
-			// Keep this on an older version to show that it's preserved
+			// FIXME: Keep this on an older version to show that it's preserved
 			// through the transformation.
-			var contentVersion = '1.7.0';
+			var contentVersion = '2.0.0';
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 			.send({
