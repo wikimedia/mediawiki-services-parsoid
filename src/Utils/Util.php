@@ -5,8 +5,6 @@
 // Not tested, all code that is not ported throws exceptions or has a PORT-FIXME comment.
 namespace Parsoid\Utils;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use Parsoid\Config\WikitextConstants as Consts;
 
 /**

@@ -190,7 +190,7 @@ class DOMUtils {
 	 * @param DOMNode|null $ancestor
 	 *   $ancestor should be an ancestor of $node.
 	 *   If null, we'll walk to the document root.
-	 * @return DOMNode
+	 * @return DOMNode[]
 	 */
 	public static function pathToAncestor( DOMNode $node, DOMNode $ancestor = null ) {
 		$path = [];

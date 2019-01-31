@@ -9,8 +9,6 @@
 
 namespace Parsoid\Utils;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
@@ -72,14 +70,21 @@ class TokenUtils {
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
 			$token instanceof SelfClosingTagTk ) &&
-			( $token->dataAttribs['stx'] === 'html' );
+			isset( $token->dataAttribs['stx'] ) &&
+			$token->dataAttribs['stx'] === 'html';
+	}
+
+	/**
+	 * Is the typeof a DOMFragment type value?
+	 *
+	 * @param string $typeOf
+	 * @return bool
+	 */
+	public static function isDOMFragmentType( $typeOf ) {
+		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
 	}
 
 /*---------------
-	public static function isDOMFragmentType(typeOf) {
-		return /(?:^|\s)mw:DOMFragment(\/sealed\/\w+)?(?=$|\s)/.test(typeOf);
-	}
-
 	public static function isTableTag(token) {
 		var tc = token.constructor;
 		return (tc === TagTk || tc === EndTagTk) &&
