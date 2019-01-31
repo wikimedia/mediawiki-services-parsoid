@@ -41,6 +41,7 @@
     "eslint-plugin-jsdoc": "^3.6.3",
     "eslint-plugin-json": "^1.2.0",
     "istanbul": "^0.4.5",
+    "js2php": "git+https://github.com/cscott/js2php.git#a45dbd46d4bf61c109d5c5f9a414ae35a90f3a61",
     "jsdoc": "^3.5.5",
     "jsdoc-wmf-theme": "0.0.2",
     "mocha": "^5.1.1",
