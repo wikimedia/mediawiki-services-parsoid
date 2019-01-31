@@ -1,27 +1,29 @@
+<?php
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade.js');
+use Parsoid\semver as semver;
+use Parsoid\qs as qs;
+use Parsoid\cType as cType;
 
-var semver = require('semver');
-var qs = require('querystring');
-var cType = require('content-type');
+$ContentUtils = require '../utils/ContentUtils.js'::ContentUtils;
+$DOMDataUtils = require '../utils/DOMDataUtils.js'::DOMDataUtils;
+$DOMUtils = require '../utils/DOMUtils.js'::DOMUtils;
+$Promise = require '../utils/promise.js';
+$Util = require '../utils/Util.js'::Util;
+$PegTokenizer = require '../wt2html/tokenizer.js'::PegTokenizer;
+$PHPParseRequest = require '../mw/ApiRequest.js'::PHPParseRequest;
 
-var ContentUtils = require('../utils/ContentUtils.js').ContentUtils;
-var DOMDataUtils = require('../utils/DOMDataUtils.js').DOMDataUtils;
-var DOMUtils = require('../utils/DOMUtils.js').DOMUtils;
-var Promise = require('../utils/promise.js');
-var Util = require('../utils/Util.js').Util;
-var PegTokenizer = require('../wt2html/tokenizer.js').PegTokenizer;
-var PHPParseRequest = require('../mw/ApiRequest.js').PHPParseRequest;
-
-const { LanguageConverter } = require('../language/LanguageConverter');
+$temp0 = require '../language/LanguageConverter';
+$LanguageConverter = $temp0::LanguageConverter;
 
 /**
  * @alias module:api/apiUtils
  */
-var apiUtils = module.exports = { };
+$apiUtils = $module->exports = [];
 
 /**
  * Send a redirect response with optional code and a relative URL.
@@ -30,13 +32,14 @@ var apiUtils = module.exports = { };
  * @param {string} path
  * @param {number} [httpStatus]
  */
-apiUtils.relativeRedirect = function(res, path, httpStatus) {
-	if (res.headersSent) { return; }
-	var args = [path];
-	if (typeof httpStatus === 'number') {
-		args.unshift(httpStatus);
+$apiUtils->relativeRedirect = function ( $res, $path, $httpStatus ) {
+	if ( $res->headersSent ) { return;
+ }
+	$args = [ $path ];
+	if ( gettype( $httpStatus ) === 'number' ) {
+		array_unshift( $args, $httpStatus );
 	}
-	res.redirect.apply(res, args);
+	call_user_func_array( [ $res, 'redirect' ], $args );
 };
 
 /**
@@ -46,10 +49,11 @@ apiUtils.relativeRedirect = function(res, path, httpStatus) {
  * @param {string} field
  * @param {string} value
  */
-apiUtils.setHeader = function(res, field, value) {
-	console.assert(value !== undefined);
-	if (res.headersSent) { return; }
-	res.set(field, value);
+$apiUtils->setHeader = function ( $res, $field, $value ) {
+	Assert::invariant( $value !== null );
+	if ( $res->headersSent ) { return;
+ }
+	$res->set( $field, $value );
 };
 
 /**
@@ -64,10 +68,11 @@ apiUtils.setHeader = function(res, field, value) {
  * @param {string} [headers.vary] Vary header contents.
  * @param {boolean} [omitEscape] Be explicit about omitting escaping.
  */
-apiUtils.htmlResponse = function(res, body, status, headers, omitEscape) {
-	if (res.headersSent) { return; }
-	if (typeof status === 'number') {
-		res.status(status);
+$apiUtils->htmlResponse = function ( $res, $body, $status, $headers, $omitEscape ) use ( &$apiUtils, &$Util ) {
+	if ( $res->headersSent ) { return;
+ }
+	if ( gettype( $status ) === 'number' ) {
+		$res->status( $status );
 	}
 	// The `headers` arg will only be null if we are on the error response path,
 	// in which case precise content-language/vary values don't matter much.
@@ -75,19 +80,20 @@ apiUtils.htmlResponse = function(res, body, status, headers, omitEscape) {
 	// The given values match the defaults in
 	// MWParserEnvironment#htmlContentLanguage() and
 	// MWParserEnvironment#htmlVary()
-	if (!headers) { headers = { "content-language": "en", "vary": "Accept" }; }
-	const contentType = headers['content-type'] || 'text/html; charset=utf-8';
-	console.assert(/^text\/html;/.test(contentType));
-	apiUtils.setHeader(res, 'Content-Type', contentType);
-	apiUtils.setHeader(res, 'Content-Language', headers['content-language']);
-	apiUtils.setHeader(res, 'Vary', headers.vary);
+	if ( !$headers ) { $headers = [ 'content-language' => 'en', 'vary' => 'Accept' ];
+ }
+	$contentType = $headers[ 'content-type' ] || 'text/html; charset=utf-8';
+	Assert::invariant( preg_match( '/^text\/html;/', $contentType ) );
+	$apiUtils->setHeader( $res, 'Content-Type', $contentType );
+	$apiUtils->setHeader( $res, 'Content-Language', $headers[ 'content-language' ] );
+	$apiUtils->setHeader( $res, 'Vary', $headers->vary );
 	// Explicit cast, since express varies response encoding by argument type
 	// though that's probably offset by setting the header above
-	body = String(body);
-	if (!omitEscape) {
-		body = Util.escapeHtml(body);
+	$body = String( $body );
+	if ( !$omitEscape ) {
+		$body = Util::escapeHtml( $body );
 	}
-	res.send(body);  // Default string encoding for send is text/html
+	$res->send( $body ); // Default string encoding for send is text/html
 };
 
 /**
@@ -98,17 +104,18 @@ apiUtils.htmlResponse = function(res, body, status, headers, omitEscape) {
  * @param {number} [status] HTTP status code.
  * @param {string} [contentType] A more specific type to use.
  */
-apiUtils.plainResponse = function(res, text, status, contentType) {
-	if (res.headersSent) { return; }
-	if (typeof status === 'number') {
-		res.status(status);
+$apiUtils->plainResponse = function ( $res, $text, $status, $contentType ) use ( &$apiUtils ) {
+	if ( $res->headersSent ) { return;
+ }
+	if ( gettype( $status ) === 'number' ) {
+		$res->status( $status );
 	}
-	contentType = contentType || 'text/plain; charset=utf-8';
-	console.assert(/^text\/plain;/.test(contentType));
-	apiUtils.setHeader(res, 'Content-Type', contentType);
+	$contentType = $contentType || 'text/plain; charset=utf-8';
+	Assert::invariant( preg_match( '/^text\/plain;/', $contentType ) );
+	$apiUtils->setHeader( $res, 'Content-Type', $contentType );
 	// Explicit cast, since express varies response encoding by argument type
 	// though that's probably offset by setting the header above
-	res.send(String(text));
+	$res->send( String( $text ) );
 };
 
 /**
@@ -119,15 +126,16 @@ apiUtils.plainResponse = function(res, text, status, contentType) {
  * @param {number} [status] HTTP status code.
  * @param {string} [contentType] A more specific type to use.
  */
-apiUtils.jsonResponse = function(res, json, status, contentType) {
-	if (res.headersSent) { return; }
-	if (typeof status === 'number') {
-		res.status(status);
+$apiUtils->jsonResponse = function ( $res, $json, $status, $contentType ) use ( &$apiUtils ) {
+	if ( $res->headersSent ) { return;
+ }
+	if ( gettype( $status ) === 'number' ) {
+		$res->status( $status );
 	}
-	contentType = contentType || 'application/json; charset=utf-8';
-	console.assert(/^application\/json;/.test(contentType));
-	apiUtils.setHeader(res, 'Content-Type', contentType);
-	res.json(json);
+	$contentType = $contentType || 'application/json; charset=utf-8';
+	Assert::invariant( preg_match( '/^application\/json;/', $contentType ) );
+	$apiUtils->setHeader( $res, 'Content-Type', $contentType );
+	$res->json( $json );
 };
 
 /**
@@ -137,9 +145,10 @@ apiUtils.jsonResponse = function(res, json, status, contentType) {
  * @param {string} view
  * @param {Object} locals
  */
-apiUtils.renderResponse = function(res, view, locals) {
-	if (res.headersSent) { return; }
-	res.render(view, locals);
+$apiUtils->renderResponse = function ( $res, $view, $locals ) {
+	if ( $res->headersSent ) { return;
+ }
+	$res->render( $view, $locals );
 };
 
 /**
@@ -149,23 +158,23 @@ apiUtils.renderResponse = function(res, view, locals) {
  * @param {string} text
  * @param {number} [status]
  */
-apiUtils.errorResponse = function(res, text, status) {
-	if (typeof status !== 'number') {
-		status = 500;
+$apiUtils->errorResponse = function ( $res, $text, $status ) use ( &$apiUtils ) {
+	if ( gettype( $status ) !== 'number' ) {
+		$status = 500;
 	}
-	switch (res.locals.errorEnc) {
+	switch ( $res->locals->errorEnc ) {
 		case 'html':
-			apiUtils.htmlResponse(res, text, status);
-			break;
+		$apiUtils->htmlResponse( $res, $text, $status );
+		break;
 		case 'json':
-			text = { error: text };
-			apiUtils.jsonResponse(res, text, status);
-			break;
+		$text = [ 'error' => $text ];
+		$apiUtils->jsonResponse( $res, $text, $status );
+		break;
 		case 'plain':
-			apiUtils.plainResponse(res, text, status);
-			break;
+		$apiUtils->plainResponse( $res, $text, $status );
+		break;
 		default:
-			throw new Error('Unknown response type: ' + res.locals.errorEnc);
+		throw new Error( 'Unknown response type: ' . $res->locals->errorEnc );
 	}
 };
 
@@ -175,15 +184,15 @@ apiUtils.errorResponse = function(res, text, status) {
  * @param {MWParserEnvironment} env
  * @param {Error} err
  */
-apiUtils.errorHandler = function(env, err) {
-	if (err.type === 'MaxConcurrentCallsError') {
-		err.suppressLoggingStack = true;
-		err.httpStatus = 503;
-	} else if (err.type === 'TimeoutError') {
-		err.suppressLoggingStack = true;
-		err.httpStatus = 504;
+$apiUtils->errorHandler = function ( $env, $err ) {
+	if ( $err->type === 'MaxConcurrentCallsError' ) {
+		$err->suppressLoggingStack = true;
+		$err->httpStatus = 503;
+	} elseif ( $err->type === 'TimeoutError' ) {
+		$err->suppressLoggingStack = true;
+		$err->httpStatus = 504;
 	}
-	env.log('fatal/request', err);
+	$env->log( 'fatal/request', $err );
 };
 
 /**
@@ -192,10 +201,11 @@ apiUtils.errorHandler = function(env, err) {
  * @param {MWParserEnvironment} env
  * @param {Promise|any} promiseOrValue
  */
-apiUtils.errorWrapper = function(env, promiseOrValue) {
-	return Promise.resolve(promiseOrValue).catch(function(err) {
-		apiUtils.errorHandler(env, err);
-	});
+$apiUtils->errorWrapper = function ( $env, $promiseOrValue ) use ( &$Promise, &$apiUtils ) {
+	return Promise::resolve( $promiseOrValue )->catch( function ( $err ) use ( &$apiUtils, &$env ) {
+			$apiUtils->errorHandler( $env, $err );
+	}
+	);
 };
 
 /**
@@ -209,22 +219,22 @@ apiUtils.errorWrapper = function(env, promiseOrValue) {
  * @param {string} target
  * @param {string} wt
  */
-apiUtils.substTopLevelTemplates = function(env, target, wt) {
-	var tokenizer = new PegTokenizer(env);
-	var tokens = tokenizer.tokenizeSync(wt);
-	var tsrIncr = 0;
-	for (var i = 0; i < tokens.length; i++) {
-		if (tokens[i].name === 'template') {
-			var tsr = tokens[i].dataAttribs.tsr;
-			wt = wt.substring(0, tsr[0] + tsrIncr) +
-				'{{subst:' +
-				wt.substring(tsr[0] + tsrIncr + 2);
-			tsrIncr += 6;
+$apiUtils->substTopLevelTemplates = function ( $env, $target, $wt ) use ( &$PegTokenizer, &$PHPParseRequest ) {
+	$tokenizer = new PegTokenizer( $env );
+	$tokens = $tokenizer->tokenizeSync( $wt );
+	$tsrIncr = 0;
+	for ( $i = 0;  $i < count( $tokens );  $i++ ) {
+		if ( $tokens[ $i ]->name === 'template' ) {
+			$tsr = $tokens[ $i ]->dataAttribs->tsr;
+			$wt = $wt->substring( 0, $tsr[ 0 ] + $tsrIncr )
+. '{{subst:'
+. $wt->substring( $tsr[ 0 ] + $tsrIncr + 2 );
+			$tsrIncr += 6;
 		}
 	}
 	// Now pass it to the MediaWiki API with onlypst set so that it
 	// subst's the templates.
-	return PHPParseRequest.promise(env, target, wt, true);
+	return PHPParseRequest::promise( $env, $target, $wt, true );
 };
 
 /**
@@ -232,8 +242,8 @@ apiUtils.substTopLevelTemplates = function(env, target, wt) {
  *
  * @param {MWParserEnvironment} env
  */
-apiUtils.wikitextContentType = function(env) {
-	return 'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/' + env.wikitextVersion + '"';
+$apiUtils->wikitextContentType = function ( $env ) {
+	return 'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/' . $env->wikitextVersion . '"';
 };
 
 /**
@@ -241,8 +251,8 @@ apiUtils.wikitextContentType = function(env) {
  *
  * @param {string} outputContentVersion
  */
-apiUtils.htmlContentType = function(outputContentVersion) {
-	return 'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + outputContentVersion + '"';
+$apiUtils->htmlContentType = function ( $outputContentVersion ) {
+	return 'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' . $outputContentVersion . '"';
 };
 
 /**
@@ -250,8 +260,8 @@ apiUtils.htmlContentType = function(outputContentVersion) {
  *
  * @param {string} outputContentVersion
  */
-apiUtils.pagebundleContentType = function(outputContentVersion) {
-	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + outputContentVersion + '"';
+$apiUtils->pagebundleContentType = function ( $outputContentVersion ) {
+	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' . $outputContentVersion . '"';
 };
 
 /**
@@ -259,8 +269,8 @@ apiUtils.pagebundleContentType = function(outputContentVersion) {
  *
  * @param {string} outputContentVersion
  */
-apiUtils.dataParsoidContentType = function(outputContentVersion) {
-	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + outputContentVersion + '"';
+$apiUtils->dataParsoidContentType = function ( $outputContentVersion ) {
+	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' . $outputContentVersion . '"';
 };
 
 /**
@@ -268,8 +278,8 @@ apiUtils.dataParsoidContentType = function(outputContentVersion) {
  *
  * @param {string} outputContentVersion
  */
-apiUtils.dataMwContentType = function(outputContentVersion) {
-	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' + outputContentVersion + '"';
+$apiUtils->dataMwContentType = function ( $outputContentVersion ) {
+	return 'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' . $outputContentVersion . '"';
 };
 
 /**
@@ -278,11 +288,11 @@ apiUtils.dataMwContentType = function(outputContentVersion) {
  * @param {Object} revision
  * @return {Object}
  */
-apiUtils.extractPageBundle = function(revision) {
-	return {
-		parsoid: revision['data-parsoid'] && revision['data-parsoid'].body,
-		mw: revision['data-mw'] && revision['data-mw'].body,
-	};
+$apiUtils->extractPageBundle = function ( $revision ) {
+	return [
+		'parsoid' => $revision[ 'data-parsoid' ] && $revision[ 'data-parsoid' ]->body,
+		'mw' => $revision[ 'data-mw' ] && $revision[ 'data-mw' ]->body
+	];
 };
 
 /**
@@ -291,20 +301,21 @@ apiUtils.extractPageBundle = function(revision) {
  * @param {Object} pb
  * @param {string} originalVersion
  */
-apiUtils.validatePageBundle = function(pb, originalVersion) {
-	var err;
-	if (!pb.parsoid || pb.parsoid.constructor !== Object || !pb.parsoid.ids) {
-		err = new Error('Invalid data-parsoid was provided.');
-		err.httpStatus = 400;
-		err.suppressLoggingStack = true;
-		throw err;
+$apiUtils->validatePageBundle = function ( $pb, $originalVersion ) use ( &$semver ) {
+	$err = null;
+	if ( !$pb->parsoid || $pb->parsoid->constructor !== $Object || !$pb->parsoid->ids ) {
+		$err = new Error( 'Invalid data-parsoid was provided.' );
+		$err->httpStatus = 400;
+		$err->suppressLoggingStack = true;
+		throw $err;
 	}
-	if (semver.satisfies(originalVersion, '^999.0.0') &&
-			(!pb.mw || pb.mw.constructor !== Object || !pb.mw.ids)) {
-		err = new Error('Invalid data-mw was provided.');
-		err.httpStatus = 400;
-		err.suppressLoggingStack = true;
-		throw err;
+	if ( semver::satisfies( $originalVersion, '^999.0.0' )
+&& ( !$pb->mw || $pb->mw->constructor !== $Object || !$pb->mw->ids )
+	) {
+		$err = new Error( 'Invalid data-mw was provided.' );
+		$err->httpStatus = 400;
+		$err->suppressLoggingStack = true;
+		throw $err;
 	}
 };
 
@@ -315,11 +326,11 @@ apiUtils.validatePageBundle = function(pb, originalVersion) {
  * @param {string} text
  * @param {number} [httpStatus]
  */
-apiUtils.fatalRequest = function(env, text, httpStatus) {
-	var err = new Error(text);
-	err.httpStatus = httpStatus || 404;
-	err.suppressLoggingStack = true;
-	env.log('fatal/request', err);
+$apiUtils->fatalRequest = function ( $env, $text, $httpStatus ) {
+	$err = new Error( $text );
+	$err->httpStatus = $httpStatus || 404;
+	$err->suppressLoggingStack = true;
+	$env->log( 'fatal/request', $err );
 };
 
 /**
@@ -328,19 +339,19 @@ apiUtils.fatalRequest = function(env, text, httpStatus) {
  * @param {Object} html
  * @return {string|null}
  */
-apiUtils.versionFromType = function(html) {
-	var ct = html.headers && html.headers['content-type'];
-	if (ct) {
+$apiUtils->versionFromType = function ( $html ) use ( &$cType, &$apiUtils ) {
+	$ct = $html->headers && $html->headers[ 'content-type' ];
+	if ( $ct ) {
 		try {
-			var t = cType.parse(ct);
-			var profile = t.parameters && t.parameters.profile;
-			if (profile) {
-				var p = apiUtils.parseProfile(profile, 'html');
-				return p && p.version;
+			$t = cType::parse( $ct );
+			$profile = $t->parameters && $t->parameters->profile;
+			if ( $profile ) {
+				$p = $apiUtils->parseProfile( $profile, 'html' );
+				return $p && $p->version;
 			} else {
 				return null;
 			}
-		} catch (e) {
+		} catch ( Exception $e ) {
 			return null;
 		}
 	} else {
@@ -348,8 +359,8 @@ apiUtils.versionFromType = function(html) {
 	}
 };
 
-var oldSpec = /^mediawiki.org\/specs\/(html)\/(\d+\.\d+\.\d+)$/;
-var newSpec = /^https:\/\/www.mediawiki.org\/wiki\/Specs\/(HTML|pagebundle)\/(\d+\.\d+\.\d+)$/;
+$oldSpec = /* RegExp */ '/^mediawiki.org\/specs\/(html)\/(\d+\.\d+\.\d+)$/';
+$newSpec = /* RegExp */ '/^https:\/\/www.mediawiki.org\/wiki\/Specs\/(HTML|pagebundle)\/(\d+\.\d+\.\d+)$/';
 
 /**
  * Used to extract the format and content version from a profile.
@@ -360,18 +371,19 @@ var newSpec = /^https:\/\/www.mediawiki.org\/wiki\/Specs\/(HTML|pagebundle)\/(\d
  *   where the pagebundle didn't have a spec.
  * @return {Object|null}
  */
-apiUtils.parseProfile = function(profile, format) {
-	var match = newSpec.exec(profile);
+$apiUtils->parseProfile = function ( $profile, $format ) use ( &$newSpec, &$oldSpec ) {
+	$match = $newSpec->exec( $profile );
 	// TODO(arlolra): Remove when this version is no longer supported.
-	if (!match) {
-		match = oldSpec.exec(profile);
-		if (match) { match[1] = format; }
+	if ( !$match ) {
+		$match = $oldSpec->exec( $profile );
+		if ( $match ) { $match[ 1 ] = $format;
+  }
 	}
-	if (match) {
-		return {
-			format: match[1].toLowerCase(),
-			version: match[2],
-		};
+	if ( $match ) {
+		return [
+			'format' => strtolower( $match[ 1 ] ),
+			'version' => $match[ 2 ]
+		];
 	} else {
 		return null;
 	}
@@ -385,40 +397,43 @@ apiUtils.parseProfile = function(profile, format) {
  * @param {Array} acceptableTypes
  * @return {boolean}
  */
-apiUtils.validateAndSetOutputContentVersion = function(res, acceptableTypes) {
-	var env = res.locals.env;
-	var opts = res.locals.opts;
+$apiUtils->validateAndSetOutputContentVersion = function ( $res, $acceptableTypes ) use ( &$oldSpec, &$apiUtils ) {
+	$env = $res->locals->env;
+	$opts = $res->locals->opts;
 
 	// `acceptableTypes` is already sorted by quality.
-	return !acceptableTypes.length || acceptableTypes.some(function(t) {
-		var profile = t.parameters && t.parameters.profile;
-		if ((opts.format === 'html' && t.type === 'text/html') ||
-				(opts.format === 'pagebundle' && t.type === 'application/json') ||
-				// 'pagebundle' is sending 'text/html' in older versions
-				oldSpec.exec(profile)) {
-			if (profile) {
-				var p = apiUtils.parseProfile(profile, opts.format);
-				if (p && (opts.format === p.format)) {
-					var contentVersion = env.resolveContentVersion(p.version);
-					if (contentVersion !== null) {
-						env.setOutputContentVersion(contentVersion);
-						return true;
+	return !count( $acceptableTypes ) || $acceptableTypes->some( function ( $t ) use ( &$opts, &$oldSpec, &$apiUtils, &$env ) {
+				$profile = $t->parameters && $t->parameters->profile;
+				if ( ( $opts->format === 'html' && $t->type === 'text/html' )
+|| ( $opts->format === 'pagebundle' && $t->type === 'application/json' )
+|| // 'pagebundle' is sending 'text/html' in older versions
+						$oldSpec->exec( $profile )
+				) {
+					if ( $profile ) {
+						$p = $apiUtils->parseProfile( $profile, $opts->format );
+						if ( $p && ( $opts->format === $p->format ) ) {
+							$contentVersion = $env->resolveContentVersion( $p->version );
+							if ( $contentVersion !== null ) {
+								$env->setOutputContentVersion( $contentVersion );
+								return true;
+							} else {
+								return false;
+							}
+						} else {
+							return false;
+						}
 					} else {
-						return false;
+						return true;
 					}
+				} elseif ( $t->type === '*/*'
+|| ( $opts->format === 'html' && $t->type === 'text/*' )
+				) {
+					return true;
 				} else {
 					return false;
 				}
-			} else {
-				return true;
-			}
-		} else if (t.type === '*/*' ||
-				(opts.format === 'html' && t.type === 'text/*')) {
-			return true;
-		} else {
-			return false;
-		}
-	});
+	}
+		);
 };
 
 /**
@@ -426,20 +441,24 @@ apiUtils.validateAndSetOutputContentVersion = function(res, acceptableTypes) {
  *
  * @private
  */
-apiUtils._redirect = function(req, res, target, httpStatus, processRedirect) {
-	var locals = res.locals;
-	var path = processRedirect([
-		'',
-		locals.env.conf.parsoid.mwApiMap.get(locals.iwp).domain,
-		'v3',
-		(req.method === 'POST' ? 'transform/' + locals.opts.from + '/to' : 'page'),
-		locals.opts.format,
-		encodeURIComponent(target),
-	].join('/'));
+$apiUtils->_redirect = function ( $req, $res, $target, $httpStatus, $processRedirect ) use ( &$apiUtils ) {
+	$locals = $res->locals;
+	$path = $processRedirect( implode(
+
+			'/', [
+				'',
+				$locals->env->conf->parsoid->mwApiMap->get( $locals->iwp )->domain,
+				'v3',
+				( ( $req->method === 'POST' ) ? 'transform/' . $locals->opts->from . '/to' : 'page' ),
+				$locals->opts->format,
+				encodeURIComponent( $target )
+			]
+		)
+	);
 
 	// Don't cache redirect requests
-	apiUtils.setHeader(res, 'Cache-Control', 'private,no-cache,s-maxage=0');
-	apiUtils.relativeRedirect(res, path, httpStatus);
+	$apiUtils->setHeader( $res, 'Cache-Control', 'private,no-cache,s-maxage=0' );
+	$apiUtils->relativeRedirect( $res, $path, $httpStatus );
 };
 
 /**
@@ -448,26 +467,27 @@ apiUtils._redirect = function(req, res, target, httpStatus, processRedirect) {
  * @param {Request} req
  * @param {Response} res
  */
-apiUtils.redirectToOldid = function(req, res) {
-	var env = res.locals.env;
-	var target = env.normalizeAndResolvePageTitle();
+$apiUtils->redirectToOldid = function ( $req, $res ) use ( &$qs ) {
+	$env = $res->locals->env;
+	$target = $env->normalizeAndResolvePageTitle();
 	// Preserve the request method since we currently don't allow GETing the
 	// "lint" format.  See T169006
-	var httpStatus = (req.method === 'GET') ? 302 : 307;
-	return this._redirect(req, res, target, httpStatus, function(redirPath) {
-		var revid = env.page.meta.revision.revid;
-		redirPath += '/' + revid;
-		if (Object.keys(req.query).length > 0) {
-			redirPath += '?' + qs.stringify(req.query);
-		}
-		var format = res.locals.opts.format;
-		env.log('info', 'redirecting to revision', revid, 'for', format);
-		var metrics = env.conf.parsoid.metrics;
-		if (metrics) {
-			metrics.increment('redirectToOldid.' + format.toLowerCase());
-		}
-		return redirPath;
-	});
+	$httpStatus = ( $req->method === 'GET' ) ? 302 : 307;
+	return $this->_redirect( $req, $res, $target, $httpStatus, function ( $redirPath ) use ( &$env, &$qs, &$req, &$res ) {
+			$revid = $env->page->meta->revision->revid;
+			$redirPath += '/' . $revid;
+			if ( count( Object::keys( $req->query ) ) > 0 ) {
+				$redirPath += '?' . qs::stringify( $req->query );
+			}
+			$format = $res->locals->opts->format;
+			$env->log( 'info', 'redirecting to revision', $revid, 'for', $format );
+			$metrics = $env->conf->parsoid->metrics;
+			if ( $metrics ) {
+				$metrics->increment( 'redirectToOldid.' . strtolower( $format ) );
+			}
+			return $redirPath;
+	}
+	);
 };
 
 /**
@@ -476,11 +496,12 @@ apiUtils.redirectToOldid = function(req, res) {
  * @param {Request} req
  * @param {Response} res
  */
-apiUtils._redirectToPage = function(title, req, res) {
-	return this._redirect(req, res, title, undefined, function(path) {
-		res.locals.env.log('info', 'redirecting to ', path);
-		return path;
-	});
+$apiUtils->_redirectToPage = function ( $title, $req, $res ) {
+	return $this->_redirect( $req, $res, $title, null, function ( $path ) use ( &$res ) {
+			$res->locals->env->log( 'info', 'redirecting to ', $path );
+			return $path;
+	}
+	);
 };
 
 /**
@@ -489,28 +510,17 @@ apiUtils._redirectToPage = function(title, req, res) {
  * @param {Document} doc
  * @param {Object} pb
  */
-var downgrade999to2 = function(doc, pb) {
+$downgrade999to2 = function ( $doc, $pb ) use ( &$DOMDataUtils ) {
 	// Effectively, skip applying data-parsoid.  Note that if we were to
 	// support a pb2html downgrade, we'd need to apply the full thing,
 	// but that would create complications where ids would be left behind.
 	// See the comment in around `DOMDataUtils.applyPageBundle`
-	DOMDataUtils.applyPageBundle(doc, { parsoid: { ids: {} }, mw: pb.mw });
+	DOMDataUtils::applyPageBundle( $doc, [ 'parsoid' => [ 'ids' => [] ], 'mw' => $pb->mw ] );
 	// Now, modify the pagebundle to the expected form.  This is important
 	// since, at least in the serialization path, the original pb will be
 	// applied to the modified content and its presence could cause lost
 	// deletions.
-	pb.mw = { ids: {} };
-};
-
-/**
- * Downgrade content from 2.x to 1.x.
- *
- * @param {Document} doc
- * @param {Object} pb
- */
-var downgrade2to1 = function(doc, pb) {
-	// Replace audio elements with videos
-	ContentUtils.replaceAudioWithVideo(doc);
+	$pb->mw = [ 'ids' => [] ];
 };
 
 /**
@@ -520,13 +530,12 @@ var downgrade2to1 = function(doc, pb) {
  * @param {string} to
  * @return {Object|undefined}
  */
-apiUtils.findDowngrade = function(from, to) {
+$apiUtils->findDowngrade = function ( $from, $to ) use ( &$downgrade999to2, &$semver ) {
 	return [
-		{ from: '999.0.0', to: '2.0.0', func: downgrade999to2 },
-		{ from: '2.0.0', to: '1.0.0', func: downgrade2to1 },
-	].find(a =>
-		semver.satisfies(from, '^' + a.from) &&
-		semver.satisfies(to, '^' + a.to)
+		[ 'from' => '999.0.0', 'to' => '2.0.0', 'func' => $downgrade999to2 ]
+	]->find( function ( $a ) use ( &$semver, &$from, &$to ) {return semver::satisfies( $from, '^' . $a->from )
+&& semver::satisfies( $to, '^' . $a->to );
+	}
 	);
 };
 
@@ -539,15 +548,17 @@ apiUtils.findDowngrade = function(from, to) {
  * @param {string} version
  * @return {Object}
  */
-apiUtils.doDowngrade = function(downgrade, metrics, revision, version) {
-	if (metrics) { metrics.increment(`downgrade.from.${downgrade.from}.to.${downgrade.to}`); }
-	const doc = DOMUtils.parseHTML(revision.html.body);
-	const pb = apiUtils.extractPageBundle(revision);
-	apiUtils.validatePageBundle(pb, version);
-	const start = Date.now();
-	downgrade.func(doc, pb);
-	if (metrics) { metrics.endTiming('downgrade.time', start); }
-	return { doc, pb };
+$apiUtils->doDowngrade = function ( $downgrade, $metrics, $revision, $version ) use ( &$DOMUtils, &$apiUtils ) {
+	if ( $metrics ) { $metrics->increment( "downgrade.from.{$downgrade->from}.to.{$downgrade->to}" );
+ }
+	$doc = DOMUtils::parseHTML( $revision->html->body );
+	$pb = $apiUtils->extractPageBundle( $revision );
+	$apiUtils->validatePageBundle( $pb, $version );
+	$start = time();
+	$downgrade->func( $doc, $pb );
+	if ( $metrics ) { $metrics->endTiming( 'downgrade.time', $start );
+ }
+	return [ 'doc' => $doc, 'pb' => $pb ];
 };
 
 /**
@@ -560,16 +571,20 @@ apiUtils.doDowngrade = function(downgrade, metrics, revision, version) {
  * @param {Response} res
  * @param {string} [contentmodel]
  */
-apiUtils.returnDowngrade = function(downgrade, metrics, env, revision, res, contentmodel) {
-	const { doc, pb } = apiUtils.doDowngrade(downgrade, metrics, revision, env.inputContentVersion);
+$apiUtils->returnDowngrade = function ( $downgrade, $metrics, $env, $revision, $res, $contentmodel ) use ( &$apiUtils, &$ContentUtils, &$DOMUtils ) {
+	$temp1 = $apiUtils->doDowngrade( $downgrade, $metrics, $revision, $env->inputContentVersion );
+$doc = $temp1->doc;
+$pb = $temp1->pb;
 	// Match the http-equiv meta to the content-type header
-	var meta = doc.querySelector('meta[property="mw:html:version"]');
-	if (meta) { meta.setAttribute('content', env.outputContentVersion); }
+	$meta = $doc->querySelector( 'meta[property="mw:html:version"]' );
+	if ( $meta ) { $meta->setAttribute( 'content', $env->outputContentVersion );
+ }
 	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
-	var html = ContentUtils.toXML(res.locals.body_only ? doc.body : doc, {
-		innerXML: res.locals.body_only,
-	});
-	apiUtils.wt2htmlRes(res, html, pb, contentmodel, DOMUtils.findHttpEquivHeaders(doc), env.outputContentVersion);
+	$html = ContentUtils::toXML( ( $res->locals->body_only ) ? $doc->body : $doc, [
+			'innerXML' => $res->locals->body_only
+		]
+	);
+	$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->outputContentVersion );
 };
 
 /**
@@ -580,71 +595,77 @@ apiUtils.returnDowngrade = function(downgrade, metrics, env, revision, res, cont
  * @param {Response} res
  * @param {string} [contentmodel]
  */
-apiUtils.updateRedLinks = Promise.async(function *(env, revision, res, contentmodel) {
-	var doc = DOMUtils.parseHTML(revision.html.body);
-	var pb = apiUtils.extractPageBundle(revision);
-	apiUtils.validatePageBundle(pb, env.inputContentVersion);
+$apiUtils->updateRedLinks = /* async */function ( $env, $revision, $res, $contentmodel ) use ( &$DOMUtils, &$apiUtils, &$ContentUtils ) {
+	$doc = DOMUtils::parseHTML( $revision->html->body );
+	$pb = $apiUtils->extractPageBundle( $revision );
+	$apiUtils->validatePageBundle( $pb, $env->inputContentVersion );
 	// Note: this only works if the configured wiki has the ParsoidBatchAPI
 	// extension installed.
-	yield ContentUtils.addRedLinks(env, doc);
+	// Note: this only works if the configured wiki has the ParsoidBatchAPI
+	// extension installed.
+	/* await */ ContentUtils::addRedLinks( $env, $doc );
 	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
-	var html = ContentUtils.toXML(res.locals.body_only ? doc.body : doc, {
-		innerXML: res.locals.body_only,
-	});
+	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
+	$html = ContentUtils::toXML( ( $res->locals->body_only ) ? $doc->body : $doc, [
+			'innerXML' => $res->locals->body_only
+		]
+	);
 	// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
-	apiUtils.wt2htmlRes(res, html, pb, contentmodel, DOMUtils.findHttpEquivHeaders(doc), env.inputContentVersion);
-});
+	// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
+	$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->inputContentVersion );
+};
 
-apiUtils.languageConversion = function(env, revision, res, contentmodel, targetVariant, sourceVariant) {
-	var doc = DOMUtils.parseHTML(revision.html.body);
-	var pb = apiUtils.extractPageBundle(revision);
+$apiUtils->languageConversion = function ( $env, $revision, $res, $contentmodel, $targetVariant, $sourceVariant ) use ( &$DOMUtils, &$apiUtils, &$LanguageConverter, &$ContentUtils ) {
+	$doc = DOMUtils::parseHTML( $revision->html->body );
+	$pb = $apiUtils->extractPageBundle( $revision );
 	// We deliberately don't validate the page bundle, since language
 	// conversion can be done w/o data-parsoid or data-mw
 
 	// XXX handle x-roundtrip
-	env.htmlVariantLanguage = targetVariant;
-	env.wtVariantLanguage = sourceVariant;
+	$env->htmlVariantLanguage = $targetVariant;
+	$env->wtVariantLanguage = $sourceVariant;
 
 	// env.page.pagelanguage must be set; this is done in routes.js
-	if (env.langConverterEnabled()) {
+	if ( $env->langConverterEnabled() ) {
 		// Note that `maybeConvert` could still be a no-op, in case the
 		// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
 		// is a base language code or otherwise invalid.
-		LanguageConverter.maybeConvert(
-			env, doc, targetVariant, sourceVariant
+		LanguageConverter::maybeConvert(
+			$env, $doc, $targetVariant, $sourceVariant
 		);
 		// Ensure there's a <head>
-		if (!doc.head) {
-			doc.documentElement
-				.insertBefore(doc.createElement('head'), doc.body);
+		if ( !$doc->head ) {
+			$doc->documentElement->
+			insertBefore( $doc->createElement( 'head' ), $doc->body );
 		}
 		// Update content-language and vary headers.
-		const ensureHeader = (h) => {
-			let el = doc.querySelector(`meta[http-equiv="${h}"i]`);
-			if (!el) {
-				el = doc.createElement('meta');
-				el.setAttribute('http-equiv', h);
-				doc.head.appendChild(el);
+		$ensureHeader = function ( $h ) use ( &$doc ) {
+			$el = $doc->querySelector( "meta[http-equiv=\"{$h}\"i]" );
+			if ( !$el ) {
+				$el = $doc->createElement( 'meta' );
+				$el->setAttribute( 'http-equiv', $h );
+				$doc->head->appendChild( $el );
 			}
-			return el;
+			return $el;
 		};
-		ensureHeader('content-language')
-			.setAttribute('content', env.htmlContentLanguage());
-		ensureHeader('vary')
-			.setAttribute('content', env.htmlVary());
+		$ensureHeader( 'content-language' )->
+		setAttribute( 'content', $env->htmlContentLanguage() );
+		$ensureHeader( 'vary' )->
+		setAttribute( 'content', $env->htmlVary() );
 		// Serialize & emit.
-		const html = ContentUtils.toXML(res.locals.body_only ? doc.body : doc, {
-			innerXML: res.locals.body_only,
-		});
+		$html = ContentUtils::toXML( ( $res->locals->body_only ) ? $doc->body : $doc, [
+				'innerXML' => $res->locals->body_only
+			]
+		);
 		// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
-		apiUtils.wt2htmlRes(res, html, pb, contentmodel, DOMUtils.findHttpEquivHeaders(doc), env.inputContentVersion);
+		$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->inputContentVersion );
 	} else {
 		// Return 400 if you request LanguageConversion for a page which
 		// didn't set `Vary: Accept-Language`.
-		const err = new Error("LanguageConversion is not enabled on this article.");
-		err.httpStatus = 400;
-		err.suppressLoggingStack = true;
-		throw err;
+		$err = new Error( 'LanguageConversion is not enabled on this article.' );
+		$err->httpStatus = 400;
+		$err->suppressLoggingStack = true;
+		throw $err;
 	}
 };
 
@@ -658,52 +679,55 @@ apiUtils.languageConversion = function(env, revision, res, contentmodel, targetV
  * @param {Object} headers
  * @param {string} outputContentVersion
  */
-apiUtils.wt2htmlRes = function(res, html, pb, contentmodel, headers, outputContentVersion) {
-	if (pb) {
-		var response = {
-			contentmodel: contentmodel,
-			html: {
-				headers: Object.assign({
-					'content-type': apiUtils.htmlContentType(outputContentVersion),
-				}, headers),
-				body: html,
-			},
-			'data-parsoid': {
-				headers: { 'content-type': apiUtils.dataParsoidContentType(outputContentVersion) },
-				body: pb.parsoid,
-			},
-		};
-		if (semver.satisfies(outputContentVersion, '^999.0.0')) {
-			response['data-mw'] = {
-				headers: { 'content-type': apiUtils.dataMwContentType(outputContentVersion) },
-				body: pb.mw,
-			};
+$apiUtils->wt2htmlRes = function ( $res, $html, $pb, $contentmodel, $headers, $outputContentVersion ) use ( &$apiUtils, &$semver ) {
+	if ( $pb ) {
+		$response = [
+			'contentmodel' => $contentmodel,
+			'html' => [
+				'headers' => Object::assign( [
+						'content-type' => $apiUtils->htmlContentType( $outputContentVersion )
+					], $headers
+				),
+				'body' => $html
+			],
+			'data-parsoid' => [
+				'headers' => [ 'content-type' => $apiUtils->dataParsoidContentType( $outputContentVersion ) ],
+				'body' => $pb->parsoid
+			]
+		];
+		if ( semver::satisfies( $outputContentVersion, '^999.0.0' ) ) {
+			$response[ 'data-mw' ] = [
+				'headers' => [ 'content-type' => $apiUtils->dataMwContentType( $outputContentVersion ) ],
+				'body' => $pb->mw
+			];
 		}
-		apiUtils.jsonResponse(res, response, undefined, apiUtils.pagebundleContentType(outputContentVersion));
+		$apiUtils->jsonResponse( $res, $response, null, $apiUtils->pagebundleContentType( $outputContentVersion ) );
 	} else {
-		apiUtils.htmlResponse(res, html, undefined, Object.assign({
-			'content-type': apiUtils.htmlContentType(outputContentVersion),
-		}, headers), true);
+		$apiUtils->htmlResponse( $res, $html, null, Object::assign( [
+					'content-type' => $apiUtils->htmlContentType( $outputContentVersion )
+				], $headers
+			), true
+		);
 	}
 };
 
 /**
  * @return {boolean}
  */
-apiUtils.shouldScrub = function(req, def) {
+$apiUtils->shouldScrub = function ( $req, $def ) {
 	// Check hasOwnProperty to avoid overwriting the default when
 	// this isn't set.  `scrubWikitext` was renamed in RESTBase to
 	// `scrub_wikitext`.  Support both for backwards compatibility,
 	// but prefer the newer form.
-	if (req.body.hasOwnProperty('scrub_wikitext')) {
-		return !(!req.body.scrub_wikitext || req.body.scrub_wikitext === 'false');
-	} else if (req.query.hasOwnProperty('scrub_wikitext')) {
-		return !(!req.query.scrub_wikitext || req.query.scrub_wikitext === 'false');
-	} else if (req.body.hasOwnProperty('scrubWikitext')) {
-		return !(!req.body.scrubWikitext || req.body.scrubWikitext === 'false');
-	} else if (req.query.hasOwnProperty('scrubWikitext')) {
-		return !(!req.query.scrubWikitext || req.query.scrubWikitext === 'false');
+	if ( $req->body->hasOwnProperty( 'scrub_wikitext' ) ) {
+		return !( !$req->body->scrub_wikitext || $req->body->scrub_wikitext === 'false' );
+	} elseif ( $req->query->hasOwnProperty( 'scrub_wikitext' ) ) {
+		return !( !$req->query->scrub_wikitext || $req->query->scrub_wikitext === 'false' );
+	} elseif ( $req->body->hasOwnProperty( 'scrubWikitext' ) ) {
+		return !( !$req->body->scrubWikitext || $req->body->scrubWikitext === 'false' );
+	} elseif ( $req->query->hasOwnProperty( 'scrubWikitext' ) ) {
+		return !( !$req->query->scrubWikitext || $req->query->scrubWikitext === 'false' );
 	} else {
-		return def;
+		return $def;
 	}
 };

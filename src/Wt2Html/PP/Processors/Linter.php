@@ -1,23 +1,29 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * DOM pass that walks the DOM tree, detects specific wikitext patterns,
  * and emits them as linter events via the lint/* logger type.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-const { WikitextConstants: Consts } = require('../../../config/WikitextConstants.js');
-const { DOMDataUtils } = require('../../../utils/DOMDataUtils.js');
-const { DOMUtils } = require('../../../utils/DOMUtils.js');
-const { JSUtils } = require('../../../utils/jsutils.js');
-const { Util } = require('../../../utils/Util.js');
-const { WTUtils } = require('../../../utils/WTUtils.js');
+use Parsoid\WikitextConstants as Consts;
+use Parsoid\DOMDataUtils as DOMDataUtils;
+use Parsoid\DOMUtils as DOMUtils;
+use Parsoid\JSUtils as JSUtils;
+use Parsoid\Util as Util;
+use Parsoid\WTUtils as WTUtils;
 
 class Linter {
-	constructor() {
-		this.tagsWithChangedMisnestingBehavior = null;
-		this.obsoleteTagsRE = null;
+	public function __construct() {
+		$this->tagsWithChangedMisnestingBehavior = null;
+		$this->obsoleteTagsRE = null;
 	}
+	public $tagsWithChangedMisnestingBehavior;
+	public $obsoleteTagsRE;
 
 	/* ------------------------------------------------------------------------------
 	 * We are trying to find HTML5 tags that have different behavior compared to HTML4
@@ -57,44 +63,45 @@ class Linter {
 	 * https://phabricator.wikimedia.org/T176363#3628173 verifies that this list of
 	 * tags all demonstrate this behavior.
 	 * ------------------------------------------------------------------------------ */
-	getTagsWithChangedMisnestingBehavior() {
-		if (!this.tagsWithChangedMisnestingBehavior) {
-			this.tagsWithChangedMisnestingBehavior = new Set();
-			Consts.HTML.HTML5Tags.forEach((t) => {
-				if (Consts.Sanitizer.TagWhiteList.has(t) &&
-					!Consts.HTML.HTML4BlockTags.has(t) &&
-					!Consts.HTML.FormattingTags.has(t) &&
-					!Consts.HTML.VoidTags.has(t)
-				) {
-					this.tagsWithChangedMisnestingBehavior.add(t);
-				}
-			});
+	public function getTagsWithChangedMisnestingBehavior() {
+		if ( !$this->tagsWithChangedMisnestingBehavior ) {
+			$this->tagsWithChangedMisnestingBehavior = new Set();
+			Consts\HTML\HTML5Tags::forEach( function ( $t ) use ( &$Consts ) {
+					if ( Consts\Sanitizer\TagWhiteList::has( $t )
+&& !Consts\HTML\HTML4BlockTags::has( $t )
+&& !Consts\HTML\FormattingTags::has( $t )
+&& !Consts\HTML\VoidTags::has( $t )
+					) {
+						$this->tagsWithChangedMisnestingBehavior->add( $t );
+					}
+			}
+			);
 		}
 
-		return this.tagsWithChangedMisnestingBehavior;
+		return $this->tagsWithChangedMisnestingBehavior;
 	}
 
-	leftMostDescendent(node, match) {
-		if (!DOMUtils.isElt(node)) {
+	public function leftMostDescendent( $node, $match ) {
+		if ( !DOMUtils::isElt( $node ) ) {
 			return null;
 		}
 
-		if (DOMUtils.isMarkerMeta(node, 'mw:Placeholder/StrippedTag')) {
-			return DOMDataUtils.getDataParsoid(node).name === match.nodeName ? node : null;
+		if ( DOMUtils::isMarkerMeta( $node, 'mw:Placeholder/StrippedTag' ) ) {
+			return ( DOMDataUtils::getDataParsoid( $node )->name === $match->nodeName ) ? $node : null;
 		}
 
-		if (node.nodeName === match.nodeName) {
-			var dp = DOMDataUtils.getDataParsoid(node);
-			if (DOMDataUtils.getDataParsoid(match).stx === dp.stx && dp.autoInsertedStart) {
-				if (dp.autoInsertedEnd) {
-					return this.getNextMatchingNode(node, match);
+		if ( $node->nodeName === $match->nodeName ) {
+			$dp = DOMDataUtils::getDataParsoid( $node );
+			if ( DOMDataUtils::getDataParsoid( $match )->stx === $dp->stx && $dp->autoInsertedStart ) {
+				if ( $dp->autoInsertedEnd ) {
+					return $this->getNextMatchingNode( $node, $match );
 				} else {
-					return node;
+					return $node;
 				}
 			}
 		}
 
-		return this.leftMostDescendent(node.firstChild, match);
+		return $this->leftMostDescendent( $node->firstChild, $match );
 	}
 
 	/**
@@ -103,101 +110,101 @@ class Linter {
 	 * as necessary to find it.
 	 * @private
 	 */
-	getNextMatchingNode(node, match) {
-		if (DOMUtils.isBody(node)) {
+	public function getNextMatchingNode( $node, $match ) {
+		if ( DOMUtils::isBody( $node ) ) {
 			return null;
 		}
 
-		if (node.nextSibling) {
-			return this.leftMostDescendent(DOMUtils.nextNonSepSibling(node), match);
+		if ( $node->nextSibling ) {
+			return $this->leftMostDescendent( DOMUtils::nextNonSepSibling( $node ), $match );
 		}
 
-		return this.getNextMatchingNode(node.parentNode, match);
+		return $this->getNextMatchingNode( $node->parentNode, $match );
 	}
 
 	/**
 	 * @param {MWParserEnvironment} env
 	 * @param {Object} tplInfo Template info.
-	 * @return {string}
+	 * @return string
 	 * @private
 	 */
-	findEnclosingTemplateName(env, tplInfo) {
-		if (!tplInfo) {
-			return undefined;
+	public function findEnclosingTemplateName( $env, $tplInfo ) {
+		if ( !$tplInfo ) {
+			return null;
 		}
 
-		var typeOf = tplInfo.first.getAttribute('typeof');
-		if (!/(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
-			return undefined;
+		$typeOf = $tplInfo->first->getAttribute( 'typeof' );
+		if ( !preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+			return null;
 		}
-		var dmw = DOMDataUtils.getDataMw(tplInfo.first);
-		if (dmw.parts && dmw.parts.length === 1) {
-			var p0 = dmw.parts[0];
-			var name;
-			if (p0.template && p0.template.target.href) {  // Could be "function"
-				name = p0.template.target.href.replace(/^\.\//, '');
+		$dmw = DOMDataUtils::getDataMw( $tplInfo->first );
+		if ( $dmw->parts && count( $dmw->parts ) === 1 ) {
+			$p0 = $dmw->parts[ 0 ];
+			$name = null;
+			if ( $p0->template && $p0->template->target->href ) { // Could be "function"
+				$name = preg_replace( '/^\.\//', '', $p0->template->target->href, 1 );
 			} else {
-				name = (p0.template || p0.templatearg).target.wt.trim();
+				$name = trim( ( $p0->template || $p0->templatearg )->target->wt );
 			}
-			return { name: name };
+			return [ 'name' => $name ];
 		} else {
-			return { multiPartTemplateBlock: true };
+			return [ 'multiPartTemplateBlock' => true ];
 		}
 	}
 
-	findLintDSR(tplLintInfo, tplInfo, nodeDSR, updateNodeDSR) {
-		if (tplLintInfo || (tplInfo && !Util.isValidDSR(nodeDSR))) {
-			return tplInfo.dsr;
+	public function findLintDSR( $tplLintInfo, $tplInfo, $nodeDSR, $updateNodeDSR ) {
+		if ( $tplLintInfo || ( $tplInfo && !Util::isValidDSR( $nodeDSR ) ) ) {
+			return $tplInfo->dsr;
 		} else {
-			return updateNodeDSR ? updateNodeDSR(nodeDSR) : nodeDSR;
+			return ( $updateNodeDSR ) ? $updateNodeDSR( $nodeDSR ) : $nodeDSR;
 		}
 	}
 
-	hasIdenticalNestedTag(node, name) {
-		var c = node.firstChild;
-		while (c) {
-			if (c.nodeName === name && !DOMDataUtils.getDataParsoid(c).autoInsertedInd) {
+	public function hasIdenticalNestedTag( $node, $name ) {
+		$c = $node->firstChild;
+		while ( $c ) {
+			if ( $c->nodeName === $name && !DOMDataUtils::getDataParsoid( $c )->autoInsertedInd ) {
 				return true;
 			}
 
-			if (DOMUtils.isElt(c)) {
-				return this.hasIdenticalNestedTag(c, name);
+			if ( DOMUtils::isElt( $c ) ) {
+				return $this->hasIdenticalNestedTag( $c, $name );
 			}
 
-			c = c.nextSibling;
+			$c = $c->nextSibling;
 		}
 
 		return false;
 	}
 
-	hasMisnestableContent(node, name) {
+	public function hasMisnestableContent( $node, $name ) {
 		// For A, TD, TH, H* tags, Tidy doesn't seem topropagate
 		// the unclosed tag outside these tags.
 		// No need to check for tr/table since content cannot show up there
-		if (DOMUtils.isBody(node) || /^(A|TD|TH|H\d)$/.test(node.nodeName)) {
+		if ( DOMUtils::isBody( $node ) || preg_match( '/^(A|TD|TH|H\d)$/', $node->nodeName ) ) {
 			return false;
 		}
 
-		var next = DOMUtils.nextNonSepSibling(node);
-		if (!next) {
-			return this.hasMisnestableContent(node.parentNode, name);
+		$next = DOMUtils::nextNonSepSibling( $node );
+		if ( !$next ) {
+			return $this->hasMisnestableContent( $node->parentNode, $name );
 		}
 
-		var contentNode;
-		if (next.nodeName === 'P' && !WTUtils.isLiteralHTMLNode(next)) {
-			contentNode = DOMUtils.firstNonSepChild(next);
+		$contentNode = null;
+		if ( $next->nodeName === 'P' && !WTUtils::isLiteralHTMLNode( $next ) ) {
+			$contentNode = DOMUtils::firstNonSepChild( $next );
 		} else {
-			contentNode = next;
+			$contentNode = $next;
 		}
 
-		return contentNode &&
-			// If the first "content" node we find is a matching
+		return $contentNode
+&& // If the first "content" node we find is a matching
 			// stripped tag, we have nothing that can get misnested
-			!(DOMUtils.isMarkerMeta(contentNode, 'mw:Placeholder/StrippedTag') &&
-			DOMDataUtils.getDataParsoid(contentNode).name === name);
+			!( DOMUtils::isMarkerMeta( $contentNode, 'mw:Placeholder/StrippedTag' )
+&& DOMDataUtils::getDataParsoid( $contentNode )->name === $name );
 	}
 
-	endTagOptional(node) {
+	public function endTagOptional( $node ) {
 		// See https://www.w3.org/TR/html5/syntax.html#optional-tags
 		//
 		// End tags for tr/td/th/li are entirely optional since they
@@ -215,14 +222,14 @@ class Linter {
 		// For the other tags in that w3c spec section, I haven't reasoned
 		// through when exactly they are optional. Not handling that complexity
 		// for now since those are likely uncommon use cases in our corpus.
-		return /^(TR|TD|TH|LI)$/.test(node.nodeName);
+		return preg_match( '/^(TR|TD|TH|LI)$/', $node->nodeName );
 	}
 
-	getHeadingAncestor(node) {
-		while (node && !/^H[1-6]$/.test(node.nodeName)) {
-			node = node.parentNode;
+	public function getHeadingAncestor( $node ) {
+		while ( $node && !preg_match( '/^H[1-6]$/', $node->nodeName ) ) {
+			$node = $node->parentNode;
 		}
-		return node;
+		return $node;
 	}
 
 	/*
@@ -232,19 +239,19 @@ class Linter {
 	 * unclosed opening tag as a closing tag. But, a HTML5 parser won't do this.
 	 * So, detect this pattern and flag for linter fixup.
 	 */
-	matchedOpenTagPairExists(c, dp) {
-		var lc = c.lastChild;
-		if (!lc || lc.nodeName !== c.nodeName) {
+	public function matchedOpenTagPairExists( $c, $dp ) {
+		$lc = $c->lastChild;
+		if ( !$lc || $lc->nodeName !== $c->nodeName ) {
 			return false;
 		}
 
-		var lcDP = DOMDataUtils.getDataParsoid(lc);
-		if (!lcDP.autoInsertedEnd || lcDP.stx !== dp.stx) {
+		$lcDP = DOMDataUtils::getDataParsoid( $lc );
+		if ( !$lcDP->autoInsertedEnd || $lcDP->stx !== $dp->stx ) {
 			return false;
 		}
 
-		var prev = lc.previousSibling;
-		if (DOMUtils.isText(prev) && !/\s$/.test(prev.data)) {
+		$prev = $lc->previousSibling;
+		if ( DOMUtils::isText( $prev ) && !preg_match( '/\s$/', $prev->data ) ) {
 			return true;
 		}
 
@@ -267,104 +274,105 @@ class Linter {
 	 * 6. multiple-unclosed-formatting-tags
 	 * 7. unclosed-quotes-in-heading
 	 */
-	logTreeBuilderFixup(env, c, dp, tplInfo) {
+	public function logTreeBuilderFixup( $env, $c, $dp, $tplInfo ) {
 		// This might have been processed as part of
 		// misnested-tag category identification.
-		if ((dp.tmp || {}).linted) {
+		if ( ( $dp->tmp || [] )->linted ) {
 			return;
 		}
 
-		var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 		// During DSR computation, stripped meta tags
 		// surrender their width to its previous sibling.
 		// We record the original DSR in the tmp attribute
 		// for that reason.
-		var dsr = this.findLintDSR(templateInfo, tplInfo, dp.tmp.origDSR || dp.dsr);
-		var lintObj;
-		if (DOMUtils.isMarkerMeta(c, 'mw:Placeholder/StrippedTag')) {
-			lintObj = { dsr: dsr, templateInfo: templateInfo, params: { name: dp.name } };
-			env.log('lint/stripped-tag', lintObj);
+		$dsr = $this->findLintDSR( $templateInfo, $tplInfo, $dp->tmp->origDSR || $dp->dsr );
+		$lintObj = null;
+		if ( DOMUtils::isMarkerMeta( $c, 'mw:Placeholder/StrippedTag' ) ) {
+			$lintObj = [ 'dsr' => $dsr, 'templateInfo' => $templateInfo, 'params' => [ 'name' => $dp->name ] ];
+			$env->log( 'lint/stripped-tag', $lintObj );
 		}
 
 		// Dont bother linting for auto-inserted start/end or self-closing-tag if:
 		// 1. c is a void element
-		//    Void elements won't have auto-inserted start/end tags
-		//    and self-closing versions are valid for them.
+		// Void elements won't have auto-inserted start/end tags
+		// and self-closing versions are valid for them.
 		//
 		// 2. c is tbody (FIXME: don't remember why we have this exception)
 		//
 		// 3. c is not an HTML element (unless they are i/b quotes)
 		//
 		// 4. c doesn't have DSR info and doesn't come from a template either
-		var cNodeName = c.nodeName.toLowerCase();
-		var ancestor;
-		if (!Util.isVoidElement(cNodeName) &&
-			cNodeName !== 'tbody' &&
-			(WTUtils.hasLiteralHTMLMarker(dp) || DOMUtils.isQuoteElt(c)) &&
-			(tplInfo || dsr)) {
+		$cNodeName = strtolower( $c->nodeName );
+		$ancestor = null;
+		if ( !Util::isVoidElement( $cNodeName )
+&& $cNodeName !== 'tbody'
+&& ( WTUtils::hasLiteralHTMLMarker( $dp ) || DOMUtils::isQuoteElt( $c ) )
+&& ( $tplInfo || $dsr )
+		) {
 
-			if (dp.selfClose && cNodeName !== 'meta') {
-				lintObj = {
-					dsr: dsr,
-					templateInfo: templateInfo,
-					params: { name: cNodeName },
-				};
-				env.log('lint/self-closed-tag', lintObj);
+			if ( $dp->selfClose && $cNodeName !== 'meta' ) {
+				$lintObj = [
+					'dsr' => $dsr,
+					'templateInfo' => $templateInfo,
+					'params' => [ 'name' => $cNodeName ]
+				];
+				$env->log( 'lint/self-closed-tag', $lintObj );
 				// The other checks won't pass - no need to test them.
 				return;
 			}
 
-			if (dp.autoInsertedEnd === true && (tplInfo || dsr[2] > 0)) {
-				lintObj = {
-					dsr: dsr,
-					templateInfo: templateInfo,
-					params: { name: cNodeName },
-				};
+			if ( $dp->autoInsertedEnd === true && ( $tplInfo || $dsr[ 2 ] > 0 ) ) {
+				$lintObj = [
+					'dsr' => $dsr,
+					'templateInfo' => $templateInfo,
+					'params' => [ 'name' => $cNodeName ]
+				];
 
 				// FIXME: This literal html marker check is strictly not required
 				// (a) we've already checked that above and know that isQuoteElt is
-				//     not one of our tags.
+				// not one of our tags.
 				// (b) none of the tags in the list have native wikitext syntax =>
-				//     they will show up as literal html tags.
+				// they will show up as literal html tags.
 				// But, in the interest of long-term maintenance in the face of
 				// changes (to wikitext or html specs), let us make it explicit.
-				if (WTUtils.hasLiteralHTMLMarker(dp) &&
-					this.getTagsWithChangedMisnestingBehavior().has(c.nodeName) &&
-					this.hasMisnestableContent(c, c.nodeName) &&
-					// Tidy WTF moment here!
-					// I don't know why Tidy does something very different
-					// when there is an identical nested tag here.
-					//
-					// <p><span id='1'>a<span>X</span></p><p>b</span></p>
-					//      vs.
-					// <p><span id='1'>a</p><p>b</span></p>  OR
-					// <p><span id='1'>a<del>X</del></p><p>b</span></p>
-					//
-					// For the first snippet, Tidy only wraps "a" with the id='1' span
-					// For the second and third snippets, Tidy wraps "b" with the id='1' span as well.
-					//
-					// For the corresponding wikitext that generates the above token stream,
-					// Parsoid (and Remex) won't wrap 'b' with the id=1' span at all.
-					!this.hasIdenticalNestedTag(c, c.nodeName)
+				if ( WTUtils::hasLiteralHTMLMarker( $dp )
+&& $this->getTagsWithChangedMisnestingBehavior()->has( $c->nodeName )
+&& $this->hasMisnestableContent( $c, $c->nodeName )
+&& // Tidy WTF moment here!
+						// I don't know why Tidy does something very different
+						// when there is an identical nested tag here.
+						//
+						// <p><span id='1'>a<span>X</span></p><p>b</span></p>
+						// vs.
+						// <p><span id='1'>a</p><p>b</span></p>  OR
+						// <p><span id='1'>a<del>X</del></p><p>b</span></p>
+						//
+						// For the first snippet, Tidy only wraps "a" with the id='1' span
+						// For the second and third snippets, Tidy wraps "b" with the id='1' span as well.
+						//
+						// For the corresponding wikitext that generates the above token stream,
+						// Parsoid (and Remex) won't wrap 'b' with the id=1' span at all.
+						!$this->hasIdenticalNestedTag( $c, $c->nodeName )
 				) {
-					env.log('lint/html5-misnesting', lintObj);
-				} else if (!WTUtils.hasLiteralHTMLMarker(dp) && DOMUtils.isQuoteElt(c) && (ancestor = this.getHeadingAncestor(c.parentNode))) {
-					lintObj.params.ancestorName = ancestor.nodeName.toLowerCase();
-					env.log('lint/unclosed-quotes-in-heading', lintObj);
+					$env->log( 'lint/html5-misnesting', $lintObj );
+				} elseif ( !WTUtils::hasLiteralHTMLMarker( $dp ) && DOMUtils::isQuoteElt( $c ) && ( $ancestor = $this->getHeadingAncestor( $c->parentNode ) ) ) {
+					$lintObj->params->ancestorName = strtolower( $ancestor->nodeName );
+					$env->log( 'lint/unclosed-quotes-in-heading', $lintObj );
 				} else {
-					var adjNode = this.getNextMatchingNode(c, c);
-					if (adjNode) {
-						var adjDp = DOMDataUtils.getDataParsoid(adjNode);
-						if (!adjDp.tmp) {
-							adjDp.tmp = {};
+					$adjNode = $this->getNextMatchingNode( $c, $c );
+					if ( $adjNode ) {
+						$adjDp = DOMDataUtils::getDataParsoid( $adjNode );
+						if ( !$adjDp->tmp ) {
+							$adjDp->tmp = [];
 						}
-						adjDp.tmp.linted = true;
-						env.log('lint/misnested-tag', lintObj);
-					} else if (!this.endTagOptional(c) && !dp.autoInsertedStart) {
-						lintObj.params.inTable = DOMUtils.hasAncestorOfName(c, 'TABLE');
-						env.log('lint/missing-end-tag', lintObj);
-						if (Consts.HTML.FormattingTags.has(c.nodeName) && this.matchedOpenTagPairExists(c, dp)) {
-							env.log('lint/multiple-unclosed-formatting-tags', lintObj);
+						$adjDp->tmp->linted = true;
+						$env->log( 'lint/misnested-tag', $lintObj );
+					} elseif ( !$this->endTagOptional( $c ) && !$dp->autoInsertedStart ) {
+						$lintObj->params->inTable = DOMUtils::hasAncestorOfName( $c, 'TABLE' );
+						$env->log( 'lint/missing-end-tag', $lintObj );
+						if ( Consts\HTML\FormattingTags::has( $c->nodeName ) && $this->matchedOpenTagPairExists( $c, $dp ) ) {
+							$env->log( 'lint/multiple-unclosed-formatting-tags', $lintObj );
 						}
 					}
 				}
@@ -384,21 +392,21 @@ class Linter {
 	 *
 	 * Here 'foo' gets fostered out.
 	 */
-	logFosteredContent(env, node, dp, tplInfo) {
-		var maybeTable = node.nextSibling;
-		var clear = false;
+	public function logFosteredContent( $env, $node, $dp, $tplInfo ) {
+		$maybeTable = $node->nextSibling;
+		$clear = false;
 
-		while (maybeTable && maybeTable.nodeName !== 'TABLE') {
-			if (tplInfo && maybeTable === tplInfo.last) {
-				clear = true;
+		while ( $maybeTable && $maybeTable->nodeName !== 'TABLE' ) {
+			if ( $tplInfo && $maybeTable === $tplInfo->last ) {
+				$clear = true;
 			}
-			maybeTable = maybeTable.nextSibling;
+			$maybeTable = $maybeTable->nextSibling;
 		}
 
-		if (!maybeTable) {
+		if ( !$maybeTable ) {
 			return null;
-		} else if (clear && tplInfo) {
-			tplInfo.clear = true;
+		} elseif ( $clear && $tplInfo ) {
+			$tplInfo->clear = true;
 		}
 
 		// In pathological cases, we might walk past fostered nodes
@@ -406,54 +414,55 @@ class Linter {
 		// other errors downstream. So, walk back to that first node
 		// and ignore this fostered content error. The new node will
 		// trigger fostered content lint error.
-		if (!tplInfo && WTUtils.hasParsoidAboutId(maybeTable) &&
-			!WTUtils.isFirstEncapsulationWrapperNode(maybeTable)
+		if ( !$tplInfo && WTUtils::hasParsoidAboutId( $maybeTable )
+&& !WTUtils::isFirstEncapsulationWrapperNode( $maybeTable )
 		) {
-			var tplNode = WTUtils.findFirstEncapsulationWrapperNode(maybeTable);
-			if (tplNode !== null) {
-				return tplNode;
+			$tplNode = WTUtils::findFirstEncapsulationWrapperNode( $maybeTable );
+			if ( $tplNode !== null ) {
+				return $tplNode;
 			}
 
 			// We got misled by the about id on 'maybeTable'.
 			// Let us carry on with regularly scheduled programming.
 		}
 
-		var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-		var lintObj = {
-			dsr: this.findLintDSR(templateInfo, tplInfo, DOMDataUtils.getDataParsoid(maybeTable).dsr),
-			templateInfo: templateInfo
-		};
-		env.log('lint/fostered', lintObj);
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $maybeTable )->dsr ),
+			'templateInfo' => $templateInfo
+		];
+		$env->log( 'lint/fostered', $lintObj );
 
-		return maybeTable;
+		return $maybeTable;
 	}
 
-	logObsoleteHTMLTags(env, c, dp, tplInfo) {
-		if (!this.obsoleteTagsRE) {
-			var elts = [];
-			Consts.HTML.OlderHTMLTags.forEach((tag) =>  {
-				// Looks like all existing editors let editors add the <big> tag.
-				// VE has a button to add <big>, it seems so does the WikiEditor
-				// and JS wikitext editor. So, don't flag BIG as an obsolete tag.
-				if (tag !== 'BIG') {
-					elts.push(tag);
-				}
-			});
-			this.obsoleteTagsRE = new RegExp('^(' + elts.join('|') + ')$');
+	public function logObsoleteHTMLTags( $env, $c, $dp, $tplInfo ) {
+		if ( !$this->obsoleteTagsRE ) {
+			$elts = [];
+			Consts\HTML\OlderHTMLTags::forEach( function ( $tag ) use ( &$elts ) {
+					// Looks like all existing editors let editors add the <big> tag.
+					// VE has a button to add <big>, it seems so does the WikiEditor
+					// and JS wikitext editor. So, don't flag BIG as an obsolete tag.
+					if ( $tag !== 'BIG' ) {
+						$elts[] = $tag;
+					}
+			}
+			);
+			$this->obsoleteTagsRE = new RegExp( '^(' . implode( '|', $elts ) . ')$' );
 		}
 
-		var templateInfo;
-		if (!(dp.autoInsertedStart && dp.autoInsertedEnd) && this.obsoleteTagsRE.test(c.nodeName)) {
-			templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-			var lintObj = {
-				dsr: this.findLintDSR(templateInfo, tplInfo, dp.dsr),
-				templateInfo: templateInfo,
-				params: { name: c.nodeName.toLowerCase() },
-			};
-			env.log('lint/obsolete-tag', lintObj);
+		$templateInfo = null;
+		if ( !( $dp->autoInsertedStart && $dp->autoInsertedEnd ) && preg_match( $this->obsoleteTagsRE, $c->nodeName ) ) {
+			$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+			$lintObj = [
+				'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ),
+				'templateInfo' => $templateInfo,
+				'params' => [ 'name' => strtolower( $c->nodeName ) ]
+			];
+			$env->log( 'lint/obsolete-tag', $lintObj );
 		}
 
-		if (c.nodeName === 'FONT' && c.getAttribute('color')) {
+		if ( $c->nodeName === 'FONT' && $c->getAttribute( 'color' ) ) {
 			/* ----------------------------------------------------------
 			 * Tidy migrates <font> into the link in these cases
 			 *     <font>[[Foo]]</font>
@@ -478,34 +487,35 @@ class Linter {
 			 * specifies a link colour because the link no longer renders
 			 * as blue/red but in the font-specified colour.
 			 * ---------------------------------------------------------- */
-			var tidyFontBug = c.firstChild !== null;
-			var haveLink = false;
-			for (var n = c.firstChild; n; n = n.nextSibling) {
-				if (n.nodeName !== 'A' &&
-					!WTUtils.isRenderingTransparentNode(n) &&
-					!(n.nodeName === 'META' && Util.TPL_META_TYPE_REGEXP.test(n.getAttribute('typeof')))
+			$tidyFontBug = $c->firstChild !== null;
+			$haveLink = false;
+			for ( $n = $c->firstChild;  $n;  $n = $n->nextSibling ) {
+				if ( $n->nodeName !== 'A'
+&& !WTUtils::isRenderingTransparentNode( $n )
+&& !( $n->nodeName === 'META' && preg_match( Util\TPL_META_TYPE_REGEXP, $n->getAttribute( 'typeof' ) ) )
 				) {
-					tidyFontBug = false;
+					$tidyFontBug = false;
 					break;
 				}
 
-				if (n.nodeName === 'A' || n.nodeName === 'FIGURE') {
-					if (!haveLink) {
-						haveLink = true;
+				if ( $n->nodeName === 'A' || $n->nodeName === 'FIGURE' ) {
+					if ( !$haveLink ) {
+						$haveLink = true;
 					} else {
-						tidyFontBug = false;
+						$tidyFontBug = false;
 						break;
 					}
 				}
 			}
 
-			if (tidyFontBug) {
-				templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-				env.log('lint/tidy-font-bug', {
-					dsr: this.findLintDSR(templateInfo, tplInfo, dp.dsr),
-					templateInfo: templateInfo,
-					params: { name: 'font' },
-				});
+			if ( $tidyFontBug ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$env->log( 'lint/tidy-font-bug', [
+						'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ),
+						'templateInfo' => $templateInfo,
+						'params' => [ 'name' => 'font' ]
+					]
+				);
 			}
 		}
 	}
@@ -514,21 +524,23 @@ class Linter {
 	 * Log bogus (=unrecognized) media options
 	 * See - https://www.mediawiki.org/wiki/Help:Images#Syntax
 	 */
-	logBogusMediaOptions(env, c, dp, tplInfo) {
-		if (WTUtils.isGeneratedFigure(c) && dp.optList) {
-			var items = [];
-			dp.optList.forEach((item) => {
-				if (item.ck === "bogus") {
-					items.push(item.ak);
-				}
-			});
-			if (items.length) {
-				var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-				env.log('lint/bogus-image-options', {
-					dsr: this.findLintDSR(templateInfo, tplInfo, dp.dsr),
-					templateInfo: templateInfo,
-					params: { items: items },
-				});
+	public function logBogusMediaOptions( $env, $c, $dp, $tplInfo ) {
+		if ( WTUtils::isGeneratedFigure( $c ) && $dp->optList ) {
+			$items = [];
+			$dp->optList->forEach( function ( $item ) use ( &$items ) {
+					if ( $item->ck === 'bogus' ) {
+						$items[] = $item->ak;
+					}
+			}
+			);
+			if ( count( $items ) ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$env->log( 'lint/bogus-image-options', [
+						'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ),
+						'templateInfo' => $templateInfo,
+						'params' => [ 'items' => $items ]
+					]
+				);
 			}
 		}
 	}
@@ -551,42 +563,43 @@ class Linter {
 	 *   |}
 	 *   |}
 	*/
-	logDeletableTables(env, c, dp, tplInfo) {
-		if (c.nodeName === 'TABLE') {
-			var prev = DOMUtils.previousNonSepSibling(c);
-			if (prev && prev.nodeName === 'TABLE' && DOMDataUtils.getDataParsoid(prev).autoInsertedEnd) {
-				var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-				var dsr = this.findLintDSR(templateInfo, tplInfo, dp.dsr, (nodeDSR) => {
-					// Identify the dsr-span of the opening tag
-					// of the table that needs to be deleted
-					var x = Util.clone(nodeDSR);
-					if (x[2]) {
-						x[1] = x[0] + x[2];
-						x[2] = 0;
-						x[3] = 0;
-					}
-					return x;
-				});
-				var lintObj = {
-					dsr: dsr,
-					templateInfo: templateInfo,
-					params: { name: 'table' },
-				};
-				env.log('lint/deletable-table-tag', lintObj);
+	public function logDeletableTables( $env, $c, $dp, $tplInfo ) {
+		if ( $c->nodeName === 'TABLE' ) {
+			$prev = DOMUtils::previousNonSepSibling( $c );
+			if ( $prev && $prev->nodeName === 'TABLE' && DOMDataUtils::getDataParsoid( $prev )->autoInsertedEnd ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$dsr = $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr, function ( $nodeDSR ) use ( &$Util ) {
+						// Identify the dsr-span of the opening tag
+						// of the table that needs to be deleted
+						$x = Util::clone( $nodeDSR );
+						if ( $x[ 2 ] ) {
+							$x[ 1 ] = $x[ 0 ] + $x[ 2 ];
+							$x[ 2 ] = 0;
+							$x[ 3 ] = 0;
+						}
+						return $x;
+				}
+				);
+				$lintObj = [
+					'dsr' => $dsr,
+					'templateInfo' => $templateInfo,
+					'params' => [ 'name' => 'table' ]
+				];
+				$env->log( 'lint/deletable-table-tag', $lintObj );
 			}
 		}
 	}
 
-	findMatchingChild(node, filter) {
-		var c = node.firstChild;
-		while (c && !filter(c)) {
-			c = c.nextSibling;
+	public function findMatchingChild( $node, $filter ) {
+		$c = $node->firstChild;
+		while ( $c && !$filter( $c ) ) {
+			$c = $c->nextSibling;
 		}
 
-		return c;
+		return $c;
 	}
 
-	hasNoWrapCSS(node) {
+	public function hasNoWrapCSS( $node ) {
 		// In the general case, this CSS can come from a class,
 		// or from a <style> tag or a stylesheet or even from JS code.
 		// But, for now, we are restricting this inspection to inline CSS
@@ -596,55 +609,56 @@ class Linter {
 		// Special case for enwiki that has Template:nowrap which
 		// assigns class='nowrap' with CSS white-space:nowrap in
 		// MediaWiki:Common.css
-		return /nowrap/.test(node.getAttribute('style')) ||
-			/(^|\s)nowrap($|\s)/.test(node.getAttribute('class'));
+		return preg_match( '/nowrap/', $node->getAttribute( 'style' ) )
+|| preg_match( '/(^|\s)nowrap($|\s)/', $node->getAttribute( 'class' ) );
 	}
 
-	logBadPWrapping(env, node, dp, tplInfo) {
-		if (!DOMUtils.isBlockNode(node) && DOMUtils.isBlockNode(node.parentNode) && this.hasNoWrapCSS(node)) {
-			var p = this.findMatchingChild(node, e => e.nodeName === 'P');
-			if (p) {
-				var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-				var lintObj = {
-					dsr: this.findLintDSR(templateInfo, tplInfo, dp.dsr),
-					templateInfo: templateInfo,
-					params: { root: node.parentNode.nodeName, child: node.nodeName },
-				};
-				env.log('lint/pwrap-bug-workaround', lintObj);
+	public function logBadPWrapping( $env, $node, $dp, $tplInfo ) {
+		if ( !DOMUtils::isBlockNode( $node ) && DOMUtils::isBlockNode( $node->parentNode ) && $this->hasNoWrapCSS( $node ) ) {
+			$p = $this->findMatchingChild( $node, function ( $e ) {return $e->nodeName === 'P';
+   } );
+			if ( $p ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$lintObj = [
+					'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ),
+					'templateInfo' => $templateInfo,
+					'params' => [ 'root' => $node->parentNode->nodeName, 'child' => $node->nodeName ]
+				];
+				$env->log( 'lint/pwrap-bug-workaround', $lintObj );
 			}
 		}
 	}
 
-	logTidyDivSpanFlip(env, node, dp, tplInfo) {
-		if (node.nodeName !== 'SPAN') {
+	public function logTidyDivSpanFlip( $env, $node, $dp, $tplInfo ) {
+		if ( $node->nodeName !== 'SPAN' ) {
 			return;
 		}
 
-		const fc = DOMUtils.firstNonSepChild(node);
-		if (!fc || fc.nodeName !== 'DIV') {
+		$fc = DOMUtils::firstNonSepChild( $node );
+		if ( !$fc || $fc->nodeName !== 'DIV' ) {
 			return;
 		}
 
 		// No style/class attributes -- so, this won't affect rendering
-		if (!node.getAttribute('class') && !node.getAttribute('style') &&
-			!fc.getAttribute('class') && !fc.getAttribute('style')
+		if ( !$node->getAttribute( 'class' ) && !$node->getAttribute( 'style' )
+&& !$fc->getAttribute( 'class' ) && !$fc->getAttribute( 'style' )
 		) {
 			return;
 		}
 
-		var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-		var lintObj = {
-			dsr: this.findLintDSR(templateInfo, tplInfo, dp.dsr),
-			templateInfo: templateInfo,
-			params: { subtype: 'div-span-flip' },
-		};
-		env.log('lint/misc-tidy-replacement-issues', lintObj);
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ),
+			'templateInfo' => $templateInfo,
+			'params' => [ 'subtype' => 'div-span-flip' ]
+		];
+		$env->log( 'lint/misc-tidy-replacement-issues', $lintObj );
 	}
 
-	logTidyWhitespaceBug(env, node, dp, tplInfo) {
+	public function logTidyWhitespaceBug( $env, $node, $dp, $tplInfo ) {
 		// We handle a run of nodes in one shot.
 		// No need to reprocess repeatedly.
-		if (dp && dp.tmp.processedTidyWSBug) {
+		if ( $dp && $dp->tmp->processedTidyWSBug ) {
 			return;
 		}
 
@@ -657,125 +671,128 @@ class Linter {
 		// If so, editors would need to edit this run of nodes to introduce
 		// whitespace breaks as necessary so that HTML5 browsers get that
 		// same opportunity when Tidy is removed.
-		var s, ws;
-		var nowrapNodes = [];
-		var startNode = node;
-		var haveTidyBug = false;
-		var runLength = 0;
+		$s = null;
+$ws = null;
+		$nowrapNodes = [];
+		$startNode = $node;
+		$haveTidyBug = false;
+		$runLength = 0;
 
 		// <br>, <wbr>, <hr> break a line
-		while (node && !DOMUtils.isBlockNode(node) && !/^(H|B|WB)R$/.test(node.nodeName)) {
-			if (DOMUtils.isText(node) || !this.hasNoWrapCSS(node)) {
+		while ( $node && !DOMUtils::isBlockNode( $node ) && !preg_match( '/^(H|B|WB)R$/', $node->nodeName ) ) {
+			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
-				s = node.textContent;
-				ws = s.match(/\s/);
-				if (ws) {
-					runLength += ws.index;
-					nowrapNodes.push({ node: node, tidybug: false, hasLeadingWS: /^\s/.test(s) });
+				$s = $node->textContent;
+				$ws = preg_match( '/\s/', $s );
+				if ( $ws ) {
+					$runLength += $ws->index;
+					$nowrapNodes[] = [ 'node' => $node, 'tidybug' => false, 'hasLeadingWS' => preg_match( '/^\s/', $s ) ];
 					break;
 				} else {
-					nowrapNodes.push({ node: node, tidybug: false });
-					runLength += s.length;
+					$nowrapNodes[] = [ 'node' => $node, 'tidybug' => false ];
+					$runLength += count( $s );
 				}
 			} else {
 				// Find last non-comment child of node
-				var last = node.lastChild;
-				while (last && DOMUtils.isComment(last)) {
-					last = last.previousSibling;
+				$last = $node->lastChild;
+				while ( $last && DOMUtils::isComment( $last ) ) {
+					$last = $last->previousSibling;
 				}
 
-				var bug = false; // Set this explicitly always (because vars aren't block-scoped)
-				if (last && DOMUtils.isText(last) && /\s$/.test(last.data)) {
+				$bug = false; // Set this explicitly always (because vars aren't block-scoped)
+				if ( $last && DOMUtils::isText( $last ) && preg_match( '/\s$/', $last->data ) ) {
 					// In this scenario, when Tidy hoists the whitespace to
 					// after the node, that whitespace is not subject to the
 					// nowrap CSS => browsers can break content there.
 					//
 					// But, non-Tidy libraries won't hoist the whitespace.
 					// So, browsers don't have a place to break content.
-					bug = true;
-					haveTidyBug = true;
+					$bug = true;
+					$haveTidyBug = true;
 				}
 
-				nowrapNodes.push({ node: node, tidybug: bug });
-				runLength += node.textContent.length;
+				$nowrapNodes[] = [ 'node' => $node, 'tidybug' => $bug ];
+				$runLength += count( $node->textContent );
 			}
 
 			// Don't cross template boundaries at the top-level
-			if (tplInfo && tplInfo.last === node) {
+			if ( $tplInfo && $tplInfo->last === $node ) {
 				// Exiting a top-level template
 				break;
-			} else if (!tplInfo && WTUtils.findFirstEncapsulationWrapperNode(node)) {
+			} elseif ( !$tplInfo && WTUtils::findFirstEncapsulationWrapperNode( $node ) ) {
 				// Entering a top-level template
 				break;
 			}
 
 			// Move to the next non-comment sibling
-			node = node.nextSibling;
-			while (node && DOMUtils.isComment(node)) {
-				node = node.nextSibling;
+			$node = $node->nextSibling;
+			while ( $node && DOMUtils::isComment( $node ) ) {
+				$node = $node->nextSibling;
 			}
 		}
 
-		var markProcessedNodes = function() { // Helper
-			nowrapNodes.forEach((o) => {
-				if (DOMUtils.isElt(o.node)) {
-					DOMDataUtils.getDataParsoid(o.node).tmp.processedTidyWSBug = true;
-				}
-			});
+		$markProcessedNodes = function () use ( &$nowrapNodes, &$DOMUtils, &$DOMDataUtils ) { // Helper
+			$nowrapNodes->forEach( function ( $o ) use ( &$DOMUtils, &$DOMDataUtils ) {
+					if ( DOMUtils::isElt( $o->node ) ) {
+						DOMDataUtils::getDataParsoid( $o->node )->tmp->processedTidyWSBug = true;
+					}
+			}
+			);
 		};
 
-		if (!haveTidyBug) {
+		if ( !$haveTidyBug ) {
 			// Mark processed nodes and bail
-			markProcessedNodes();
+			$markProcessedNodes();
 			return;
 		}
 
 		// Find run before startNode that doesn't have a whitespace break
-		var prev = startNode.previousSibling;
-		while (prev && !DOMUtils.isBlockNode(prev)) {
-			if (!DOMUtils.isComment(prev)) {
-				s = prev.textContent;
+		$prev = $startNode->previousSibling;
+		while ( $prev && !DOMUtils::isBlockNode( $prev ) ) {
+			if ( !DOMUtils::isComment( $prev ) ) {
+				$s = $prev->textContent;
 				// Find the last \s in the string
-				ws = s.match(/\s[^\s]*$/);
-				if (ws) {
-					runLength += (s.length - ws.index - 1); // -1 for the \s
+				$ws = preg_match( '/\s[^\s]*$/', $s );
+				if ( $ws ) {
+					$runLength += ( count( $s ) - $ws->index - 1 ); // -1 for the \s
 					break;
 				} else {
-					runLength += s.length;
+					$runLength += count( $s );
 				}
 			}
-			prev = prev.previousSibling;
+			$prev = $prev->previousSibling;
 		}
 
-		if (runLength < env.conf.parsoid.linter.tidyWhitespaceBugMaxLength) {
+		if ( $runLength < $env->conf->parsoid->linter->tidyWhitespaceBugMaxLength ) {
 			// Mark processed nodes and bail
-			markProcessedNodes();
+			$markProcessedNodes();
 			return;
 		}
 
 		// For every node where Tidy hoists whitespace,
 		// emit an event to flag a whitespace fixup opportunity.
-		var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-		var n = nowrapNodes.length - 1;
-		nowrapNodes.forEach((o, i) => {
-			if (o.tidybug && i < n && !nowrapNodes[i + 1].hasLeadingWS) {
-				var lintObj = {
-					dsr: this.findLintDSR(templateInfo, tplInfo, DOMDataUtils.getDataParsoid(o.node).dsr),
-					templateInfo: templateInfo,
-					params: {
-						node: o.node.nodeName,
-						sibling: o.node.nextSibling.nodeName,
-					},
-				};
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$n = count( $nowrapNodes ) - 1;
+		$nowrapNodes->forEach( function ( $o, $i ) use ( &$n, &$nowrapNodes, &$templateInfo, &$tplInfo, &$DOMDataUtils, &$env ) {
+				if ( $o->tidybug && $i < $n && !$nowrapNodes[ $i + 1 ]->hasLeadingWS ) {
+					$lintObj = [
+						'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $o->node )->dsr ),
+						'templateInfo' => $templateInfo,
+						'params' => [
+							'node' => $o->node->nodeName,
+							'sibling' => $o->node->nextSibling->nodeName
+						]
+					];
 
-				env.log('lint/tidy-whitespace-bug', lintObj);
-			}
-		});
+					$env->log( 'lint/tidy-whitespace-bug', $lintObj );
+				}
+		}
+		);
 
-		markProcessedNodes();
+		$markProcessedNodes();
 	}
 
-	detectMultipleUnclosedFormattingTags(lints) {
+	public function detectMultipleUnclosedFormattingTags( $lints ) {
 		// Detect multiple-unclosed-formatting-tags errors.
 		//
 		// Since unclosed <small> and <big> tags accumulate their effects
@@ -784,55 +801,56 @@ class Linter {
 		// break pretty spectacularly with Remex.
 		//
 		// Ex: https://it.wikipedia.org/wiki/Hubert_H._Humphrey_Metrodome?oldid=93017491#Note
-		var firstUnclosedTag = {
-			small: null,
-			big: null,
-		};
-		var multiUnclosedTagName = null;
-		lints.find((item) => {
-			// Unclosed tags in tables don't leak out of the table
-			if (item.type === 'missing-end-tag' && !item.params.inTable) {
-				if (item.params.name === 'small' || item.params.name === 'big') {
-					var tagName = item.params.name;
-					if (!firstUnclosedTag[tagName]) {
-						firstUnclosedTag[tagName] = item;
-					} else {
-						multiUnclosedTagName = tagName;
-						return true;
+		$firstUnclosedTag = [
+			'small' => null,
+			'big' => null
+		];
+		$multiUnclosedTagName = null;
+		$lints->find( function ( $item ) use ( &$firstUnclosedTag ) {
+				// Unclosed tags in tables don't leak out of the table
+				if ( $item->type === 'missing-end-tag' && !$item->params->inTable ) {
+					if ( $item->params->name === 'small' || $item->params->name === 'big' ) {
+						$tagName = $item->params->name;
+						if ( !$firstUnclosedTag[ $tagName ] ) {
+							$firstUnclosedTag[ $tagName ] = $item;
+						} else {
+							$multiUnclosedTagName = $tagName;
+							return true;
+						}
 					}
 				}
-			}
-			return false;
-		});
+				return false;
+		}
+		);
 
-		if (multiUnclosedTagName) {
-			var item = firstUnclosedTag[multiUnclosedTagName];
-			lints.push({
-				type: 'multiple-unclosed-formatting-tags',
-				params: item.params,
-				dsr: item.dsr,
-				templateInfo: item.templateInfo,
-			});
+		if ( $multiUnclosedTagName ) {
+			$item = $firstUnclosedTag[ $multiUnclosedTagName ];
+			$lints[] = [
+				'type' => 'multiple-unclosed-formatting-tags',
+				'params' => $item->params,
+				'dsr' => $item->dsr,
+				'templateInfo' => $item->templateInfo
+			];
 		}
 	}
 
-	postProcessLints(lints) {
-		this.detectMultipleUnclosedFormattingTags(lints);
+	public function postProcessLints( $lints ) {
+		$this->detectMultipleUnclosedFormattingTags( $lints );
 	}
 
-	getWikitextListItemAncestor(node) {
-		while (node && !DOMUtils.isListItem(node)) {
-			node = node.parentNode;
+	public function getWikitextListItemAncestor( $node ) {
+		while ( $node && !DOMUtils::isListItem( $node ) ) {
+			$node = $node->parentNode;
 		}
-		return (node && !WTUtils.isLiteralHTMLNode(node) && !WTUtils.fromExtensionContent(node, 'references')) ? node : null;
+		return ( $node && !WTUtils::isLiteralHTMLNode( $node ) && !WTUtils::fromExtensionContent( $node, 'references' ) ) ? $node : null;
 	}
 
-	logPHPParserBug(env, node, dp, tplInfo) {
-		var li;
-		if (!WTUtils.isLiteralHTMLNode(node) ||
-			node.nodeName !== 'TABLE' ||
-			!(li = this.getWikitextListItemAncestor(node)) ||
-			!/\n/.test(node.outerHTML)
+	public function logPHPParserBug( $env, $node, $dp, $tplInfo ) {
+		$li = null;
+		if ( !WTUtils::isLiteralHTMLNode( $node )
+|| $node->nodeName !== 'TABLE'
+|| !( $li = $this->getWikitextListItemAncestor( $node ) )
+|| !preg_match( '/\n/', $node->outerHTML )
 		) {
 			return;
 		}
@@ -840,107 +858,108 @@ class Linter {
 		// We have an HTML table nested inside a list
 		// that has a newline break in its outer HTML
 		// => we are in trouble with the PHP Parser + Remex combo
-		var templateInfo = this.findEnclosingTemplateName(env, tplInfo);
-		var lintObj = {
-			dsr: this.findLintDSR(templateInfo, tplInfo, DOMDataUtils.getDataParsoid(node).dsr),
-			templateInfo: templateInfo,
-			params: {
-				name: 'table',
-				ancestorName: li.nodeName.toLowerCase(),
-			}
-		};
-		env.log('lint/multiline-html-table-in-list', lintObj);
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $node )->dsr ),
+			'templateInfo' => $templateInfo,
+			'params' => [
+				'name' => 'table',
+				'ancestorName' => strtolower( $li->nodeName )
+			]
+		];
+		$env->log( 'lint/multiline-html-table-in-list', $lintObj );
 	}
 
-	logWikitextFixups(node, env, tplInfo) {
-		var dp = DOMDataUtils.getDataParsoid(node);
+	public function logWikitextFixups( $node, $env, $tplInfo ) {
+		$dp = DOMDataUtils::getDataParsoid( $node );
 
-		this.logTreeBuilderFixup(env, node, dp, tplInfo);
-		this.logDeletableTables(env, node, dp, tplInfo); // For T161341
-		this.logBadPWrapping(env, node, dp, tplInfo);    // For T161306
-		this.logObsoleteHTMLTags(env, node, dp, tplInfo);
-		this.logBogusMediaOptions(env, node, dp, tplInfo);
-		this.logTidyWhitespaceBug(env, node, dp, tplInfo);
-		this.logTidyDivSpanFlip(env, node, dp, tplInfo);
+		$this->logTreeBuilderFixup( $env, $node, $dp, $tplInfo );
+		$this->logDeletableTables( $env, $node, $dp, $tplInfo ); // For T161341
+		$this->logBadPWrapping( $env, $node, $dp, $tplInfo ); // For T161306
+		$this->logObsoleteHTMLTags( $env, $node, $dp, $tplInfo );
+		$this->logBogusMediaOptions( $env, $node, $dp, $tplInfo );
+		$this->logTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
+		$this->logTidyDivSpanFlip( $env, $node, $dp, $tplInfo );
 
 		// When an HTML table is nested inside a list and if any part of the table
 		// is on a new line, the PHP parser misnests the list and the table.
 		// Tidy fixes the misnesting one way (puts table inside/outside the list)
 		// HTML5 parser fix it another way (list expands to rest of the page!)
-		this.logPHPParserBug(env, node, dp, tplInfo);
+		$this->logPHPParserBug( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
-		if (dp.fostered && !WTUtils.isRenderingTransparentNode(node)) {
-			return this.logFosteredContent(env, node, dp, tplInfo);
+		if ( $dp->fostered && !WTUtils::isRenderingTransparentNode( $node ) ) {
+			return $this->logFosteredContent( $env, $node, $dp, $tplInfo );
 		} else {
 			return null;
 		}
 	}
 
-	findLints(root, env, tplInfo) {
-		var node = root.firstChild;
-		while (node !== null) {
-			if (!DOMUtils.isElt(node)) {
-				node = node.nextSibling;
+	public function findLints( $root, $env, $tplInfo ) {
+		$node = $root->firstChild;
+		while ( $node !== null ) {
+			if ( !DOMUtils::isElt( $node ) ) {
+				$node = $node->nextSibling;
 				continue;
 			}
 
-			var nodeTypeOf = node.getAttribute('typeof');
+			$nodeTypeOf = $node->getAttribute( 'typeof' );
 
 			// !tplInfo check is to protect against templated content in
 			// extensions which might in turn be nested in templated content.
-			if (!tplInfo && WTUtils.isFirstEncapsulationWrapperNode(node)) {
-				tplInfo = {
-					first: node,
-					last: JSUtils.lastItem(WTUtils.getAboutSiblings(node, node.getAttribute("about"))),
-					dsr: DOMDataUtils.getDataParsoid(node).dsr,
-					isTemplated: /\bmw:Transclusion\b/.test(nodeTypeOf),
-					clear: false,
-				};
+			if ( !$tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+				$tplInfo = [
+					'first' => $node,
+					'last' => JSUtils::lastItem( WTUtils::getAboutSiblings( $node, $node->getAttribute( 'about' ) ) ),
+					'dsr' => DOMDataUtils::getDataParsoid( $node )->dsr,
+					'isTemplated' => preg_match( '/\bmw:Transclusion\b/', $nodeTypeOf ),
+					'clear' => false
+				];
 			}
 
-			var nextNode;
-			var nativeExt;
-			var match = (nodeTypeOf || '').match(/\bmw:Extension\/(.+?)\b/);
-			if (match &&
-				(nativeExt = env.conf.wiki.extConfig.tags.get(match[1])) &&
-				nativeExt.lintHandler
+			$nextNode = null;
+			$nativeExt = null;
+			$match = preg_match( '/\bmw:Extension\/(.+?)\b/', ( $nodeTypeOf || '' ) );
+			if ( $match
+&& ( $nativeExt = $env->conf->wiki->extConfig->tags->get( $match[ 1 ] ) )
+&& $nativeExt->lintHandler
 			) { // Let native extensions lint their content
-				nextNode = nativeExt.lintHandler(node, env, tplInfo, (...args) => this.findLints(...args));
+				$nextNode = $nativeExt->lintHandler( $node, $env, $tplInfo, function ( ...$args ) {return $this->findLints( ...$args );
+	   } );
 			} else { // Default node handler
 				// Lint this node
-				nextNode = this.logWikitextFixups(node, env, tplInfo);
-				if (tplInfo && tplInfo.clear) {
-					tplInfo = null;
+				$nextNode = $this->logWikitextFixups( $node, $env, $tplInfo );
+				if ( $tplInfo && $tplInfo->clear ) {
+					$tplInfo = null;
 				}
 
 				// Lint subtree
-				if (!nextNode) {
-					this.findLints(node, env, tplInfo);
+				if ( !$nextNode ) {
+					$this->findLints( $node, $env, $tplInfo );
 				}
 			}
 
-			if (tplInfo && tplInfo.last === node) {
-				tplInfo = null;
+			if ( $tplInfo && $tplInfo->last === $node ) {
+				$tplInfo = null;
 			}
 
-			node = nextNode || node.nextSibling;
+			$node = $nextNode || $node->nextSibling;
 		}
 	}
 
 	/**
 	 */
-	run(body, env, options) {
+	public function run( $body, $env, $options ) {
 		// Skip linting if we cannot lint it
-		if (!env.page.hasLintableContentModel()) {
+		if ( !$env->page->hasLintableContentModel() ) {
 			return;
 		}
 
-		this.findLints(body, env);
-		this.postProcessLints(env.lintLogger.buffer);
+		$this->findLints( $body, $env );
+		$this->postProcessLints( $env->lintLogger->buffer );
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.Linter = Linter;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->Linter = $Linter;
 }

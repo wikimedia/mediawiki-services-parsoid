@@ -1,50 +1,61 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-const TokenHandler = require('./TokenHandler.js');
-const { PipelineUtils } = require('../../utils/PipelineUtils.js');
-const { TagTk, EOFTk, SelfclosingTagTk, EndTagTk } = require('../../tokens/TokenTypes.js');
+use Parsoid\TokenHandler as TokenHandler;
+use Parsoid\PipelineUtils as PipelineUtils;
+use Parsoid\TagTk as TagTk;
+use Parsoid\EOFTk as EOFTk;
+use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
+use Parsoid\EndTagTk as EndTagTk;
 
 /**
  * @class
  * @extends module:wt2html/tt/TokenHandler
  */
 class DOMFragmentBuilder extends TokenHandler {
-	constructor(manager, options) {
-		super(manager, options);
-		this.manager.addTransform(
-			(scopeToken, prevToken, cb) => this.buildDOMFragment(scopeToken, cb),
+	public function __construct( $manager, $options ) {
+		parent::__construct( $manager, $options );
+		$this->manager->addTransform(
+			function ( $scopeToken, $cb ) {return $this->buildDOMFragment( $scopeToken, $cb );
+   },
 			'buildDOMFragment',
-			DOMFragmentBuilder.scopeRank(),
+			self::scopeRank(),
 			'tag',
 			'mw:dom-fragment-token'
 		);
 	}
 
-	static scopeRank() { return 1.99; }
+	public static function scopeRank() {
+ return 1.99;
+ }
 
 	/**
-     * Can/should content represented in 'toks' be processed in its own DOM scope?
+		* Can/should content represented in 'toks' be processed in its own DOM scope?
 	 * 1. No reason to spin up a new pipeline for plain text
 	 * 2. In some cases, if templates need not be nested entirely within the
 	 *    boundary of the token, we cannot process the contents in a new scope.
 	 */
-	subpipelineUnnecessary(toks, contextTok) {
-		for (let i = 0, n = toks.length; i < n; i++) {
-			const t = toks[i];
-			const tc = t.constructor;
+	public function subpipelineUnnecessary( $toks, $contextTok ) {
+		for ( $i = 0,  $n = count( $toks );  $i < $n;  $i++ ) {
+			$t = $toks[ $i ];
+			$tc = $t->constructor;
 
 			// For wikilinks and extlinks, templates should be properly nested
 			// in the content section. So, we can process them in sub-pipelines.
 			// But, for other context-toks, we back out. FIXME: Can be smarter and
 			// detect proper template nesting, but, that can be a later enhancement
 			// when dom-scope-tokens are used in other contexts.
-			if (contextTok && contextTok.name !== 'wikilink' && contextTok.name !== 'extlink' &&
-				tc === SelfclosingTagTk &&
-				t.name === 'meta' && t.getAttribute("typeof") === "mw:Transclusion") {
+			if ( $contextTok && $contextTok->name !== 'wikilink' && $contextTok->name !== 'extlink'
+&& $tc === SelfclosingTagTk::class
+&& $t->name === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:Transclusion'
+			) {
 				return true;
-			} else if (tc === TagTk || tc === EndTagTk || tc === SelfclosingTagTk) {
+			} elseif ( $tc === TagTk::class || $tc === EndTagTk::class || $tc === SelfclosingTagTk::class ) {
 				// Since we encountered a complex token, we'll process this
 				// in a subpipeline.
 				return false;
@@ -55,61 +66,64 @@ class DOMFragmentBuilder extends TokenHandler {
 		return true;
 	}
 
-	buildDOMFragment(scopeToken, cb) {
-		const content = scopeToken.getAttribute("content");
-		if (this.subpipelineUnnecessary(content, scopeToken.getAttribute('contextTok'))) {
+	public function buildDOMFragment( $scopeToken, $cb ) {
+		$content = $scopeToken->getAttribute( 'content' );
+		if ( $this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) ) ) {
 			// New pipeline not needed. Pass them through
-			cb({ tokens: typeof content === "string" ? [content] : content, async: false });
+			$cb( [ 'tokens' => ( gettype( $content ) === 'string' ) ? [ $content ] : $content, 'async' => false ] );
 		} else {
 			// First thing, signal that the results will be available asynchronously
-			cb({ async: true });
+			$cb( [ 'async' => true ] );
 
 			// Source offsets of content
-			const srcOffsets = scopeToken.getAttribute("srcOffsets");
+			$srcOffsets = $scopeToken->getAttribute( 'srcOffsets' );
 
 			// Without source offsets for the content, it isn't possible to
 			// compute DSR and template wrapping in content. So, users of
 			// mw:dom-fragment-token should always set offsets on content
 			// that comes from the top-level document.
-			console.assert(
-				this.options.inTemplate || !!srcOffsets,
-				"Processing top-level content without source offsets"
+			Assert::invariant(
+				$this->options->inTemplate || (bool)$srcOffsets,
+				'Processing top-level content without source offsets'
 			);
 
-			const pipelineOpts = {
-				inlineContext: scopeToken.getAttribute('inlineContext'),
-				inPHPBlock: scopeToken.getAttribute('inPHPBlock'),
-				expandTemplates: this.options.expandTemplates,
-				inTemplate: this.options.inTemplate,
-			};
+			$pipelineOpts = [
+				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ),
+				'inPHPBlock' => $scopeToken->getAttribute( 'inPHPBlock' ),
+				'expandTemplates' => $this->options->expandTemplates,
+				'inTemplate' => $this->options->inTemplate
+			];
 
 			// Process tokens
-			PipelineUtils.processContentInPipeline(
-				this.manager.env,
-				this.manager.frame,
+			PipelineUtils::processContentInPipeline(
+				$this->manager->env,
+				$this->manager->frame,
 				// Append EOF
-				content.concat([new EOFTk()]),
-				{
-					pipelineType: "tokens/x-mediawiki/expanded",
-					pipelineOpts: pipelineOpts,
-					srcOffsets: srcOffsets,
-					documentCB: dom => this.wrapDOMFragment(cb, scopeToken, pipelineOpts, dom),
-				}
+				$content->concat( [ new EOFTk() ] ),
+				[
+					'pipelineType' => 'tokens/x-mediawiki/expanded',
+					'pipelineOpts' => $pipelineOpts,
+					'srcOffsets' => $srcOffsets,
+					'documentCB' => function ( $dom ) use ( &$cb, &$scopeToken, &$pipelineOpts ) {return $this->wrapDOMFragment( $cb, $scopeToken, $pipelineOpts, $dom );
+		   },
+					'sol' => true
+				]
 			);
 		}
 	}
 
-	wrapDOMFragment(cb, scopeToken, pipelineOpts, dom) {
+	public function wrapDOMFragment( $cb, $scopeToken, $pipelineOpts, $dom ) {
 		// Pass through pipeline options
-		const toks = PipelineUtils.buildDOMFragmentTokens(this.manager.env, scopeToken, dom.body, {
-			pipelineOpts,
-		});
+		$toks = PipelineUtils::buildDOMFragmentTokens( $this->manager->env, $scopeToken, $dom->body, [
+				'pipelineOpts' => $pipelineOpts
+			]
+		);
 
 		// Nothing more to send cb after this
-		cb({ tokens: toks, async: false });
+		$cb( [ 'tokens' => $toks, 'async' => false ] );
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.DOMFragmentBuilder = DOMFragmentBuilder;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->DOMFragmentBuilder = $DOMFragmentBuilder;
 }

@@ -1,19 +1,21 @@
+<?php
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-require('../core-upgrade.js');
+$ParserEnv = require './config/MWParserEnvironment.js'::MWParserEnvironment;
+$ParsoidConfig = require './config/ParsoidConfig.js'::ParsoidConfig;
+$TemplateRequest = require './mw/ApiRequest.js'::TemplateRequest;
+$ContentUtils = require './utils/ContentUtils.js'::ContentUtils;
+$DOMDataUtils = require './utils/DOMDataUtils.js'::DOMDataUtils;
+$DOMUtils = require './utils/DOMUtils.js'::DOMUtils;
+$Promise = require './utils/promise.js';
+$JSUtils = require './utils/jsutils.js'::JSUtils;
 
-var ParserEnv = require('./config/MWParserEnvironment.js').MWParserEnvironment;
-var ParsoidConfig = require('./config/ParsoidConfig.js').ParsoidConfig;
-var TemplateRequest = require('./mw/ApiRequest.js').TemplateRequest;
-var ContentUtils = require('./utils/ContentUtils.js').ContentUtils;
-var DOMDataUtils = require('./utils/DOMDataUtils.js').DOMDataUtils;
-var DOMUtils = require('./utils/DOMUtils.js').DOMUtils;
-var Promise = require('./utils/promise.js');
-var JSUtils = require('./utils/jsutils.js').JSUtils;
-
-var _toHTML, _fromHTML;
+$_toHTML = null;
+$_fromHTML = null;
 
 /**
  * Transform content-model to html
@@ -33,35 +35,38 @@ var _toHTML, _fromHTML;
  *     was done or could be done
  *   @return {Object} [return.pb] If pageBundle was requested
  */
-_toHTML = Promise.async(function *(obj, env, str) {
+$_toHTML = /* async */function ( $obj, $env, $str ) use ( &$ContentUtils, &$DOMUtils ) {
 	// `str` will be `undefined` when we fetched page source and info,
 	// which we don't want to overwrite.
-	if (str !== undefined) {
-		env.setPageSrcInfo(str);
+	if ( $str !== null ) {
+		$env->setPageSrcInfo( $str );
 	}
-	var handler = env.getContentHandler(obj.contentmodel);
-	var doc = yield handler.toHTML(env);
-	var out;
-	if (env.pageBundle) {
-		out = ContentUtils.extractDpAndSerialize(obj.body_only ? doc.body : doc, {
-			innerXML: obj.body_only,
-		});
+	$handler = $env->getContentHandler( $obj->contentmodel );
+	$doc = /* await */ $handler->toHTML( $env );
+	$out = null;
+	if ( $env->pageBundle ) {
+		$out = ContentUtils::extractDpAndSerialize( ( $obj->body_only ) ? $doc->body : $doc, [
+				'innerXML' => $obj->body_only
+			]
+		);
 	} else {
-		out = {
-			html: ContentUtils.toXML(obj.body_only ? doc.body : doc, {
-				innerXML: obj.body_only,
-			}),
-		};
+		$out = [
+			'html' => ContentUtils::toXML( ( $obj->body_only ) ? $doc->body : $doc, [
+					'innerXML' => $obj->body_only
+				]
+			)
+		];
 	}
 
-	if (env.conf.parsoid.linting) {
-		out.lint = env.lintLogger.buffer;
-		yield env.log("end/parse"); // wait for linter logging to complete
-	}
-	out.contentmodel = (obj.contentmodel || env.page.getContentModel());
-	out.headers = DOMUtils.findHttpEquivHeaders(doc);
-	return out;
-});
+	if ( $env->conf->parsoid->linting ) {
+		$out->lint = $env->lintLogger->buffer;
+		/* await */ $env->log( 'end/parse' ); // wait for linter logging to complete
+	}// wait for linter logging to complete
+
+	$out->contentmodel = ( $obj->contentmodel || $env->page->getContentModel() );
+	$out->headers = DOMUtils::findHttpEquivHeaders( $doc );
+	return $out;
+};
 
 /**
  * Transform html to requested content-model
@@ -74,28 +79,28 @@ _toHTML = Promise.async(function *(obj, env, str) {
  * @return {Promise} Assuming we're ending at wt
  *   @return {string} return.wt
  */
-_fromHTML = Promise.async(function *(obj, env, html, pb) {
-	var useSelser = (obj.selser !== undefined);
-	var doc = DOMUtils.parseHTML(html);
-	pb = pb || DOMDataUtils.extractPageBundle(doc);
-	if (useSelser && env.page.dom) {
-		pb = pb || DOMDataUtils.extractPageBundle(env.page.dom.ownerDocument);
-		if (pb) {
-			DOMDataUtils.applyPageBundle(env.page.dom.ownerDocument, pb);
+$_fromHTML = /* async */function ( $obj, $env, $html, $pb ) use ( &$DOMUtils, &$DOMDataUtils ) {
+	$useSelser = ( $obj->selser !== null );
+	$doc = DOMUtils::parseHTML( $html );
+	$pb = $pb || DOMDataUtils::extractPageBundle( $doc );
+	if ( $useSelser && $env->page->dom ) {
+		$pb = $pb || DOMDataUtils::extractPageBundle( $env->page->dom->ownerDocument );
+		if ( $pb ) {
+			DOMDataUtils::applyPageBundle( $env->page->dom->ownerDocument, $pb );
 		}
 	}
-	if (pb) {
-		DOMDataUtils.applyPageBundle(doc, pb);
+	if ( $pb ) {
+		DOMDataUtils::applyPageBundle( $doc, $pb );
 	}
-	var handler = env.getContentHandler(obj.contentmodel);
-	var out = yield handler.fromHTML(env, doc.body, useSelser);
-	return { wt: out };
-});
+	$handler = $env->getContentHandler( $obj->contentmodel );
+	$out = /* await */ $handler->fromHTML( $env, $doc->body, $useSelser );
+	return [ 'wt' => $out ];
+};
 
 /**
  * Map of JSON.stringified parsoidOptions to ParsoidConfig
  */
-var configCache = new Map();
+$configCache = new Map();
 
 /**
  * Parse wikitext (or html) to html (or wikitext).
@@ -118,103 +123,104 @@ var configCache = new Map();
  *
  * @return {Promise}
  */
-module.exports = Promise.async(function *(obj) {
-	var start = JSUtils.startTime();
+$module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCache, &$ParsoidConfig, &$ParserEnv, &$DOMUtils, &$ContentUtils, &$_fromHTML, &$_toHTML, &$TemplateRequest ) {
+		$start = JSUtils::startTime();
 
-	// Enforce the contraints of passing to a worker
-	obj = JSON.parse(JSON.stringify(obj));
+		// Enforce the contraints of passing to a worker
+		$obj = json_decode( json_encode( $obj ) );
 
-	var hash = JSON.stringify(obj.parsoidOptions);
-	var parsoidConfig;
-	if (obj.cacheConfig && configCache.has(hash)) {
-		parsoidConfig = configCache.get(hash);
-	} else {
-		parsoidConfig = new ParsoidConfig(null, obj.parsoidOptions);
-		if (obj.cacheConfig) {
-			configCache.set(hash, parsoidConfig);
-			// At present, we don't envision using the cache with multiple
-			// configurations.  Prevent it from growing unbounded inadvertently.
-			console.assert(configCache.size === 1, 'Config properties changed.');
-		}
-	}
-
-	var env = yield ParserEnv.getParserEnv(parsoidConfig, obj.envOptions);
-	env.startTime = start;
-	var s1 = JSUtils.startTime();
-	env.bumpTimeUse("Setup Environment", s1 - start, 'Init');
-	env.log('info', 'started ' + obj.mode);
-	try {
-
-		if (obj.oldid) {
-			env.page.meta.revision.revid = obj.oldid;
+		$hash = json_encode( $obj->parsoidOptions );
+		$parsoidConfig = null;
+		if ( $obj->cacheConfig && $configCache->has( $hash ) ) {
+			$parsoidConfig = $configCache->get( $hash );
+		} else {
+			$parsoidConfig = new ParsoidConfig( null, $obj->parsoidOptions );
+			if ( $obj->cacheConfig ) {
+				$configCache->set( $hash, $parsoidConfig );
+				// At present, we don't envision using the cache with multiple
+				// configurations.  Prevent it from growing unbounded inadvertently.
+				Assert::invariant( $configCache->size === 1, 'Config properties changed.' );
+			}
 		}
 
-		var out;
-		if (['html2wt', 'html2html', 'selser'].includes(obj.mode)) {
-			// Selser
-			var selser = obj.selser;
-			if (selser !== undefined) {
-				if (selser.oldtext !== null) {
-					env.setPageSrcInfo(selser.oldtext);
+		$env = /* await */ ParserEnv::getParserEnv( $parsoidConfig, $obj->envOptions );
+		$env->startTime = $start;
+		$s1 = JSUtils::startTime();
+		$env->bumpTimeUse( 'Setup Environment', $s1 - $start, 'Init' );
+		$env->log( 'info', 'started ' . $obj->mode );
+		try {
+
+			if ( $obj->oldid ) {
+				$env->page->meta->revision->revid = $obj->oldid;
+			}
+
+			$out = null;
+			if ( [ 'html2wt', 'html2html', 'selser' ]->includes( $obj->mode ) ) {
+				// Selser
+				$selser = $obj->selser;
+				if ( $selser !== null ) {
+					if ( $selser->oldtext !== null ) {
+						$env->setPageSrcInfo( $selser->oldtext );
+					}
+					if ( $selser->oldhtml ) {
+						$env->page->dom = DOMUtils::parseHTML( $selser->oldhtml )->body;
+					}
+					if ( $selser->domdiff ) {
+						// FIXME: need to load diff markers from attributes
+						$env->page->domdiff = [
+							'isEmpty' => false,
+							'dom' => ContentUtils::ppToDOM( $selser->domdiff )
+						];
+						throw new Error( 'this is broken' );
+					}
 				}
-				if (selser.oldhtml) {
-					env.page.dom = DOMUtils.parseHTML(selser.oldhtml).body;
+				$html = $obj->input;
+				$env->bumpSerializerResourceUse( 'htmlSize', count( $env ) );
+				$out = /* await */ $_fromHTML( $obj, $env, $html, $obj->pb );
+				return ( $obj->mode === 'html2html' ) ? $_toHTML( $obj, $env, $out->wt ) : $out;
+			} else { /* wt2html, wt2wt */
+				// The content version to output
+				if ( $obj->outputContentVersion ) {
+					$env->setOutputContentVersion( $obj->outputContentVersion );
 				}
-				if (selser.domdiff) {
-					// FIXME: need to load diff markers from attributes
-					env.page.domdiff = {
-						isEmpty: false,
-						dom: ContentUtils.ppToDOM(selser.domdiff),
-					};
-					throw new Error('this is broken');
+
+				if ( $obj->reuseExpansions ) {
+					$env->cacheReusableExpansions( $obj->reuseExpansions );
 				}
-			}
-			var html = obj.input;
-			env.bumpSerializerResourceUse('htmlSize', html.length);
-			out = yield _fromHTML(obj, env, html, obj.pb);
-			return obj.mode === 'html2html' ? _toHTML(obj, env, out.wt) : out;
-		} else { /* wt2html, wt2wt */
-			// The content version to output
-			if (obj.outputContentVersion) {
-				env.setOutputContentVersion(obj.outputContentVersion);
-			}
 
-			if (obj.reuseExpansions) {
-				env.cacheReusableExpansions(obj.reuseExpansions);
-			}
+				$wt = $obj->input;
 
-			var wt = obj.input;
-
-			// Always fetch page info if we have an oldid
-			if (obj.oldid || wt === undefined) {
-				var target = env.normalizeAndResolvePageTitle();
-				yield TemplateRequest.setPageSrcInfo(env, target, obj.oldid);
-				env.bumpTimeUse("Pre-parse (source fetch)", JSUtils.elapsedTime(s1), 'Init');
-				// Ensure that we don't env.page.reset() when calling
-				// env.setPageSrcInfo(wt) in _toHTML()
-				if (wt !== undefined) {
-					env.page.src = wt;
-					wt = undefined;
+				// Always fetch page info if we have an oldid
+				if ( $obj->oldid || $wt === null ) {
+					$target = $env->normalizeAndResolvePageTitle();
+					/* await */ TemplateRequest::setPageSrcInfo( $env, $target, $obj->oldid );
+					$env->bumpTimeUse( 'Pre-parse (source fetch)', JSUtils::elapsedTime( $s1 ), 'Init' );
+					// Ensure that we don't env.page.reset() when calling
+					// env.setPageSrcInfo(wt) in _toHTML()
+					if ( $wt !== null ) {
+						$env->page->src = $wt;
+						$wt = null;
+					}
 				}
-			}
 
-			var wikitextSize = wt !== undefined ? wt.length : env.page.src.length;
-			env.bumpParserResourceUse('wikitextSize', wikitextSize);
-			if (parsoidConfig.metrics) {
-				var mstr = obj.envOptions.pageWithOldid ? 'pageWithOldid' : 'wt';
-				parsoidConfig.metrics.timing(`wt2html.${mstr}.size.input`, wikitextSize);
-			}
+				$wikitextSize = ( $wt !== null ) ? count( $wt ) : count( $env->page->src );
+				$env->bumpParserResourceUse( 'wikitextSize', $wikitextSize );
+				if ( $parsoidConfig->metrics ) {
+					$mstr = ( $obj->envOptions->pageWithOldid ) ? 'pageWithOldid' : 'wt';
+					$parsoidConfig->metrics->timing( "wt2html.{$mstr}.size.input", $wikitextSize );
+				}
 
-			// Explicitly setting the pagelanguage can override the fetched one
-			if (obj.pagelanguage) {
-				env.page.pagelanguage = obj.pagelanguage;
-			}
+				// Explicitly setting the pagelanguage can override the fetched one
+				if ( $obj->pagelanguage ) {
+					$env->page->pagelanguage = $obj->pagelanguage;
+				}
 
-			out = yield _toHTML(obj, env, wt);
-			return obj.mode === 'wt2html' ? out : _fromHTML(obj, env, out.html);
+				$out = /* await */ $_toHTML( $obj, $env, $wt );
+				return ( $obj->mode === 'wt2html' ) ? $out : $_fromHTML( $obj, $env, $out->html );
+			}
+		} finally {
+			$end = JSUtils::elapsedTime( $start );
+			/* await */ $env->log( 'info', "completed {$obj->mode} in {$end}ms" );
 		}
-	} finally {
-		var end = JSUtils.elapsedTime(start);
-		yield env.log('info', `completed ${obj.mode} in ${end}ms`);
-	}
-}, 1);
+}, 1
+);

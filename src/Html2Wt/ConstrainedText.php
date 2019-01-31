@@ -1,3 +1,7 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Chunk-based serialization support.
  *
@@ -13,61 +17,12 @@
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-const { DOMDataUtils } = require('../utils/DOMDataUtils.js');
-const { DOMUtils } = require('../utils/DOMUtils.js');
-const { JSUtils } = require('../utils/jsutils.js');
-const { Util } = require('../utils/Util.js');
-
-/**
- * This adds necessary escapes to a line of chunks.  We provide
- * the `ConstrainedText#escape` function with its left and right
- * context, and it can determine what escapes are needed.
- *
- * The `line` parameter is an array of `ConstrainedText` *chunks*
- * which make up a line (or part of a line, in some cases of nested
- * processing).
- * @param {ConstrainedText[]} line
- * @return {string}
- */
-var escapeLine = function(line) {
-	// The left context will be precise (that is, it is the result
-	// of `ConstrainedText#escape` and will include any escapes
-	// triggered by chunks on the left), but the right context
-	// is just the (unescaped) text property from the chunk.
-	// As we work left to right we will piece together a fully-escaped
-	// string.  Be careful not to shoot yourself in the foot -- if the
-	// escaped text is significantly different from the chunk's `text`
-	// property, the preceding chunk may not have made the correct
-	// decisions about emitting an escape suffix.  We could solve
-	// this by looping until the state converges (or until we detect
-	// a loop) but for now let's hope that's not necessary.
-	var state = {
-		leftContext: '',
-		rightContext: line.map(function(ct) { return ct.text; }).join(''),
-		line: line,
-		pos: 0,
-	};
-	var safeLeft = '';
-	for (state.pos = 0; state.pos < line.length; state.pos++) {
-		var chunk = line[state.pos];
-		// Process the escapes for this chunk, given escaped previous chunk
-		state.rightContext = state.rightContext.slice(chunk.text.length);
-		var thisEscape = chunk.escape(state);
-		state.leftContext +=
-			(thisEscape.prefix || '') + thisEscape.text + (thisEscape.suffix || '');
-		if (thisEscape.greedy) {
-			// protect the left context: this will be matched greedily
-			// by this chunk, so there's no chance that a subsequent
-			// token will include this in its prefix.
-			safeLeft += state.leftContext;
-			state.leftContext = '';
-		}
-	}
-	// right context should be empty here.
-	return safeLeft + state.leftContext;
-};
+use Parsoid\DOMDataUtils as DOMDataUtils;
+use Parsoid\DOMUtils as DOMUtils;
+use Parsoid\JSUtils as JSUtils;
+use Parsoid\Util as Util;
 
 /**
  * A chunk of wikitext output.  This base class contains the
@@ -77,28 +32,86 @@ var escapeLine = function(line) {
  * The chunk is serialized with the `escape` method, which might
  * alter the wikitext in order to ensure it doesn't run together
  * with its context (usually by adding `<nowiki>` tags).
- * @class ConstrainedText
- * @param {Object} args Options.
- * @param {string} args.text The text string associated with this chunk.
- * @param {Node} args.node The DOM {@link Node} associated with this chunk.
- * @param {string} [args.prefix]
- *  The prefix string to add if the start of the chunk doesn't match its
- *  constraints.
- * @param {string} [args.suffix]
- *  The suffix string to add if the end of the chunk doesn't match its
- *  constraints.
+ *
+ * The main entry point is the static function `ConstrainedText.escapeLine()`.
  */
-
 class ConstrainedText {
-	constructor(args) {
-		this.text = args.text;
-		this.node = args.node;
-		if (args.prefix !== undefined || args.suffix !== undefined) {
+	/**
+	 * This adds necessary escapes to a line of chunks.  We provide
+	 * the `ConstrainedText#escape` function with its left and right
+	 * context, and it can determine what escapes are needed.
+	 *
+	 * The `line` parameter is an array of `ConstrainedText` *chunks*
+	 * which make up a line (or part of a line, in some cases of nested
+	 * processing).
+	 * @param {ConstrainedText[]} line
+	 * @return string
+	 * @static
+	 */
+	public static function escapeLine( $line ) {
+		// The left context will be precise (that is, it is the result
+		// of `ConstrainedText#escape` and will include any escapes
+		// triggered by chunks on the left), but the right context
+		// is just the (unescaped) text property from the chunk.
+		// As we work left to right we will piece together a fully-escaped
+		// string.  Be careful not to shoot yourself in the foot -- if the
+		// escaped text is significantly different from the chunk's `text`
+		// property, the preceding chunk may not have made the correct
+		// decisions about emitting an escape suffix.  We could solve
+		// this by looping until the state converges (or until we detect
+		// a loop) but for now let's hope that's not necessary.
+		$state = [
+			'leftContext' => '',
+			'rightContext' => implode( '', array_map( $line, function ( $ct ) { return $ct->text;
+   } ) ),
+			'line' => $line,
+			'pos' => 0
+		];
+		$safeLeft = '';
+		for ( $state->pos = 0;  $state->pos < count( $line );  $state->pos++ ) {
+			$chunk = $line[ $state->pos ];
+			// Process the escapes for this chunk, given escaped previous chunk
+			$state->rightContext = array_slice( $state->rightContext, count( $chunk->text ) );
+			$thisEscape = $chunk->escape( $state );
+			$state->leftContext +=
+			( $thisEscape->prefix || '' ) + $thisEscape->text + ( $thisEscape->suffix || '' );
+			if ( $thisEscape->greedy ) {
+				// protect the left context: this will be matched greedily
+				// by this chunk, so there's no chance that a subsequent
+				// token will include this in its prefix.
+				$safeLeft += $state->leftContext;
+				$state->leftContext = '';
+			}
+		}
+		// right context should be empty here.
+		return $safeLeft + $state->leftContext;
+	}
+
+	/**
+	 * @param {Object} args Options.
+	 * @param {string} args.text The text string associated with this chunk.
+	 * @param {Node} args.node The DOM {@link Node} associated with this chunk.
+	 * @param {string} [args.prefix]
+	 *  The prefix string to add if the start of the chunk doesn't match its
+	 *  constraints.
+	 * @param {string} [args.suffix]
+	 *  The suffix string to add if the end of the chunk doesn't match its
+	 *  constraints.
+	 */
+	public function __construct( $args ) {
+		$this->text = $args->text;
+		$this->node = $args->node;
+		if ( $args->prefix !== null || $args->suffix !== null ) {
 			// save space in the object in the common case of no prefix/suffix
-			this.prefix = args.prefix;
-			this.suffix = args.suffix;
+			$this->prefix = $args->prefix;
+			$this->suffix = $args->suffix;
 		}
 	}
+	public $text;
+	public $node;
+
+	public $prefix;
+	public $suffix;
 
 	/**
 	 * Ensure that the argument `o`, which is perhaps a string, is a instance of
@@ -106,12 +119,13 @@ class ConstrainedText {
 	 * @param {string|ConstrainedText} o
 	 * @param {Node} node
 	 *   The DOM {@link Node} corresponding to `o`.
-	 * @return {ConstrainedText}
+	 * @return ConstrainedText
 	 * @static
 	 */
-	static cast(o, node) {
-		if (o instanceof ConstrainedText) { return o; }
-		return new ConstrainedText({ text: o || '', node: node });
+	public static function cast( $o, $node ) {
+		if ( $o instanceof $ConstrainedText ) { return $o;
+  }
+		return new ConstrainedText( [ 'text' => $o || '', 'node' => $node ] );
 	}
 
 	/**
@@ -125,31 +139,31 @@ class ConstrainedText {
 	 * @return {string} [return.prefix].
 	 * @return {string} [return.suffix].
 	 */
-	escape(state) {
+	public function escape( $state ) {
 		// default implementation: no escaping, no prefixes or suffixes.
-		return { text: this.text, prefix: this.prefix, suffix: this.suffix };
+		return [ 'text' => $this->text, 'prefix' => $this->prefix, 'suffix' => $this->suffix ];
 	}
 
 	/**
 	 * Simple equality.  This enforces type equality (ie subclasses are not equal).
 	 * @param {Object} ct
-	 * @return {boolean}
+	 * @return bool
 	 */
-	equals(ct) {
-		return this === ct ||
-			(this.constructor === ConstrainedText &&
-				ct.constructor === ConstrainedText &&
-				this.text === ct.text);
+	public function equals( $ct ) {
+		return $this === $ct
+|| ( $this->constructor === $ConstrainedText
+&& $ct->constructor === $ConstrainedText
+&& $this->text === $ct->text );
 	}
 
 	/**
 	 * Useful shortcut: execute a regular expression on the raw wikitext.
 	 * @param {RegExp} re
-	 * @return {Array|null}
+	 * @return Array|null
 	 *  An Array containing the matched results or null if there were no matches.
 	 */
-	match(re) {
-		return this.text.match(re);
+	public function match( $re ) {
+		return preg_match( $re, $this->text );
 	}
 
 	/**
@@ -173,22 +187,25 @@ class ConstrainedText {
 	 */
 	// Main dispatch point: iterate through registered subclasses, asking
 	// each if they can handle this node (by invoking `_fromSelSer`).
-	static fromSelSer(text, node, dataParsoid, env, opts) {
+	public static function fromSelSer( $text, $node, $dataParsoid, $env, $opts ) {
 		// We define parent types before subtypes, so search the list backwards
 		// to be sure we check subtypes before parent types.
-		var types = this._types;
-		for (var i = types.length - 1; i >= 0; i--) {
-			var ct = types[i]._fromSelSer &&
-				types[i]._fromSelSer(text, node, dataParsoid, env, opts);
-			if (!ct) { continue; }
-			if (!Array.isArray(ct)) { ct = [ct]; }
+		$types = $this->_types;
+		for ( $i = count( $types ) - 1;  $i >= 0;  $i-- ) {
+			$ct = $types[ $i ]->_fromSelSer
+&& $types[ $i ]->_fromSelSer( $text, $node, $dataParsoid, $env, $opts );
+			if ( !$ct ) { continue;
+   }
+			if ( !is_array( $ct ) ) { $ct = [ $ct ];
+   }
 			// tag these chunks as coming from selser
-			ct.forEach(function(t) { t.selser = true; });
-			return ct;
+			$ct->forEach( function ( $t ) { $t->selser = true;
+   } );
+			return $ct;
 		}
 		// ConstrainedText._fromSelSer should handle everything which reaches it
 		// so nothing should make it here.
-		throw new Error("Should never happen.");
+		throw new Error( 'Should never happen.' );
 	}
 
 	/**
@@ -201,72 +218,72 @@ class ConstrainedText {
 	 * @static
 	 * @private
 	 */
-	static _fromSelSer(text, node, dataParsoid, env, opts) {
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env, $opts ) {
 		// look at leftmost and rightmost children, it may be that we need
 		// to turn these into ConstrainedText chunks in order to preserve
 		// the proper escape conditions on the prefix/suffix text.
-		var firstChild = DOMUtils.firstNonDeletedChild(node);
-		var lastChild = DOMUtils.lastNonDeletedChild(node);
-		var firstChildDp = firstChild && DOMDataUtils.getDataParsoid(firstChild);
-		var lastChildDp = lastChild && DOMDataUtils.getDataParsoid(lastChild);
-		var prefixChunks = [];
-		var suffixChunks = [];
-		var len;
-		var ignorePrefix = opts && opts.ignorePrefix;
-		var ignoreSuffix = opts && opts.ignoreSuffix;
+		$firstChild = DOMUtils::firstNonDeletedChild( $node );
+		$lastChild = DOMUtils::lastNonDeletedChild( $node );
+		$firstChildDp = $firstChild && DOMDataUtils::getDataParsoid( $firstChild );
+		$lastChildDp = $lastChild && DOMDataUtils::getDataParsoid( $lastChild );
+		$prefixChunks = [];
+		$suffixChunks = [];
+		$len = null;
+		$ignorePrefix = $opts && $opts->ignorePrefix;
+		$ignoreSuffix = $opts && $opts->ignoreSuffix;
 		// check to see if first child's DSR start is the same as this node's
 		// DSR start.  If so, the first child is exposed to the (modified)
 		// left-hand context, and so recursively convert it to the proper
 		// list of specialized chunks.
-		if (!ignorePrefix &&
-			firstChildDp && Util.isValidDSR(firstChildDp.dsr) &&
-			dataParsoid.dsr[0] === firstChildDp.dsr[0]) {
-			len = firstChildDp.dsr[1] - firstChildDp.dsr[0];
-			prefixChunks = ConstrainedText.fromSelSer(
-				text.slice(0, len), firstChild, firstChildDp, env,
+		if ( !$ignorePrefix
+&& $firstChildDp && Util::isValidDSR( $firstChildDp->dsr )
+&& $dataParsoid->dsr[ 0 ] === $firstChildDp->dsr[ 0 ]
+		) {
+			$len = $firstChildDp->dsr[ 1 ] - $firstChildDp->dsr[ 0 ];
+			$prefixChunks = self::fromSelSer(
+				array_slice( $text, 0, $len/*CHECK THIS*/ ), $firstChild, $firstChildDp, $env,
 				// this child node's right context will be protected:
-				{ ignoreSuffix: true }
+				[ 'ignoreSuffix' => true ]
 			);
-			text = text.slice(len);
+			$text = array_slice( $text, $len );
 		}
 		// check to see if last child's DSR end is the same as this node's
 		// DSR end.  If so, the last child is exposed to the (modified)
 		// right-hand context, and so recursively convert it to the proper
 		// list of specialized chunks.
-		if (!ignoreSuffix && lastChild !== firstChild &&
-			lastChildDp && Util.isValidDSR(lastChildDp.dsr) &&
-			dataParsoid.dsr[1] === lastChildDp.dsr[1]) {
-			len = lastChildDp.dsr[1] - lastChildDp.dsr[0];
-			suffixChunks = ConstrainedText.fromSelSer(
-				text.slice(-len), lastChild, lastChildDp, env,
+		if ( !$ignoreSuffix && $lastChild !== $firstChild
+&& $lastChildDp && Util::isValidDSR( $lastChildDp->dsr )
+&& $dataParsoid->dsr[ 1 ] === $lastChildDp->dsr[ 1 ]
+		) {
+			$len = $lastChildDp->dsr[ 1 ] - $lastChildDp->dsr[ 0 ];
+			$suffixChunks = self::fromSelSer(
+				array_slice( $text, -$len ), $lastChild, $lastChildDp, $env,
 				// this child node's left context will be protected:
-				{ ignorePrefix: true }
+				[ 'ignorePrefix' => true ]
 			);
-			text = text.slice(0, -len);
+			$text = array_slice( $text, 0, -$len/*CHECK THIS*/ );
 		}
 		// glue together prefixChunks, whatever's left of `text`, and suffixChunks
-		var chunks = [ ConstrainedText.cast(text, node) ];
-		chunks = prefixChunks.concat(chunks, suffixChunks);
+		$chunks = [ self::cast( $text, $node ) ];
+		$chunks = $prefixChunks->concat( $chunks, $suffixChunks );
 		// top-level chunks only:
-		if (!(ignorePrefix || ignoreSuffix)) {
+		if ( !( $ignorePrefix || $ignoreSuffix ) ) {
 			// ensure that the first chunk belongs to `node` in order to
 			// emit separators correctly before `node`
-			if (chunks[0].node !== node) {
-				chunks.unshift(ConstrainedText.cast('', node));
+			if ( $chunks[ 0 ]->node !== $node ) {
+				array_unshift( $chunks, self::cast( '', $node ) );
 			}
 			// set 'noSep' flag on all but the first chunk, so we don't get
 			// extra separators from `SSP.emitChunk`
-			chunks.forEach(function(t, i) {
-				if (i > 0) { t.noSep = true; }
-			});
+			$chunks->forEach( function ( $t, $i ) {
+					if ( $i > 0 ) { $t->noSep = true;
+		   }
+			}
+			);
 		}
-		return chunks;
+		return $chunks;
 	}
 }
-
-var matcher = function(re, invert) {
-	return function(context) { return re.test(context) ? !invert : invert; };
-};
 
 /**
  * This subclass allows specification of a regular expression for
@@ -284,27 +301,37 @@ var matcher = function(re, invert) {
  * @param {RegExp} args.goodSuffix
  */
 class RegExpConstrainedText extends ConstrainedText {
-	constructor(args) {
-		super(args);
-		this.prefix = args.prefix !== undefined ? args.prefix : '<nowiki/>';
-		this.suffix = args.suffix !== undefined ? args.suffix : '<nowiki/>';
+	public function __construct( $args ) {
+		parent::__construct( $args );
+		$this->prefix = ( $args->prefix !== null ) ? $args->prefix : '<nowiki/>';
+		$this->suffix = ( $args->suffix !== null ) ? $args->suffix : '<nowiki/>';
 		// functions which return true if escape prefix/suffix need to be added
-		this.prefixMatcher = args.goodPrefix ? matcher(args.goodPrefix, true) :
-			args.badPrefix ? matcher(args.badPrefix, false) : false;
-		this.suffixMatcher = args.goodSuffix ? matcher(args.goodSuffix, true) :
-			args.badSuffix ? matcher(args.badSuffix, false) : false;
+		$matcher = function ( $re, $invert ) {return ( function ( $context ) use ( &$re, &$invert ) {
+				return ( preg_match( $re, $context ) ) ? !$invert : $invert;
+		} );
+		};
+		$this->prefixMatcher = ( $args->goodPrefix ) ? $matcher( $args->goodPrefix, true ) :
+		( $args->badPrefix ) ? $matcher( $args->badPrefix, false ) : false;
+		$this->suffixMatcher = ( $args->goodSuffix ) ? $matcher( $args->goodSuffix, true ) :
+		( $args->badSuffix ) ? $matcher( $args->badSuffix, false ) : false;
 	}
+	public $prefix;
+	public $suffix;
 
-	/** @inheritdoc */
-	escape(state) {
-		var result = { text: this.text };
-		if (this.prefixMatcher && this.prefixMatcher(state.leftContext)) {
-			result.prefix = this.prefix;
+	public $prefixMatcher;
+
+	public $suffixMatcher;
+
+	/** @inheritDoc */
+	public function escape( $state ) {
+		$result = [ 'text' => $this->text ];
+		if ( $this->prefixMatcher && $this->prefixMatcher( $state->leftContext ) ) {
+			$result->prefix = $this->prefix;
 		}
-		if (this.suffixMatcher && this.suffixMatcher(state.rightContext)) {
-			result.suffix = this.suffix;
+		if ( $this->suffixMatcher && $this->suffixMatcher( $state->rightContext ) ) {
+			$result->suffix = $this->suffix;
 		}
-		return result;
+		return $result;
 	}
 }
 
@@ -319,45 +346,47 @@ class RegExpConstrainedText extends ConstrainedText {
  *   The type of the link, as described by the `rel` attribute.
  */
 class WikiLinkText extends RegExpConstrainedText {
-	constructor(text, node, wikiConfig, type) {
+	public function __construct( $text, $node, $wikiConfig, $type ) {
 		// category links/external links/images don't use link trails or prefixes
-		var noTrails = !/^mw:WikiLink(\/Interwiki)?$/.test(type);
-		var badPrefix = /(^|[^\[])(\[\[)*\[$/;
-		if (!noTrails && wikiConfig.linkPrefixRegex) {
-			badPrefix = JSUtils.rejoin('(', wikiConfig.linkPrefixRegex, ')|(', badPrefix, ')');
+		$noTrails = !preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $type );
+		$badPrefix = /* RegExp */ '/(^|[^\[])(\[\[)*\[$/';
+		if ( !$noTrails && $wikiConfig->linkPrefixRegex ) {
+			$badPrefix = JSUtils::rejoin( '(', $wikiConfig->linkPrefixRegex, ')|(', $badPrefix, ')' );
 		}
-		super({
-			text: text,
-			node: node,
-			badPrefix: badPrefix,
-			badSuffix: noTrails ? undefined : wikiConfig.linkTrailRegex,
-		});
+		parent::__construct( [
+				'text' => $text,
+				'node' => $node,
+				'badPrefix' => $badPrefix,
+				'badSuffix' => ( $noTrails ) ? null : $wikiConfig->linkTrailRegex
+			]
+		);
 		// We match link trails greedily when they exist.
-		if (!(noTrails || /\]$/.test(text))) {
-			this.greedy = true;
+		if ( !( $noTrails || preg_match( '/\]$/', $text ) ) ) {
+			$this->greedy = true;
 		}
 	}
+	public $greedy;
 
-	escape(state) {
-		var r = super.escape(state);
+	public function escape( $state ) {
+		$r = parent::escape( $state );
 		// If previous token was also a WikiLink, its linktrail will
 		// eat up any possible linkprefix characters, so we don't need
 		// a <nowiki> in this case.  (Eg: [[a]]-[[b]] in iswiki; the -
 		// character is both a link prefix and a link trail, but it gets
 		// preferentially associated with the [[a]] as a link trail.)
-		r.greedy = this.greedy;
-		return r;
+		$r->greedy = $this->greedy;
+		return $r;
 	}
 
-	static _fromSelSer(text, node, dataParsoid, env) {
-		var type = node.getAttribute('rel') || '';
-		var stx = dataParsoid.stx || '';
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env ) {
+		$type = $node->getAttribute( 'rel' ) || '';
+		$stx = $dataParsoid->stx || '';
 		// TODO: Leaving this for backwards compatibility, remove when 1.5 is no longer bound
-		if (type === 'mw:ExtLink') {
-			type = 'mw:WikiLink/Interwiki';
+		if ( $type === 'mw:ExtLink' ) {
+			$type = 'mw:WikiLink/Interwiki';
 		}
-		if (/^mw:WikiLink(\/Interwiki)?$/.test(type) && /^(simple|piped)$/.test(stx)) {
-			return new WikiLinkText(text, node, env.conf.wiki, type);
+		if ( preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $type ) && preg_match( '/^(simple|piped)$/', $stx ) ) {
+			return new WikiLinkText( $text, $node, $env->conf->wiki, $type );
 		}
 	}
 }
@@ -373,34 +402,22 @@ class WikiLinkText extends RegExpConstrainedText {
  *   The type of the link, as described by the `rel` attribute.
  */
 class ExtLinkText extends ConstrainedText {
-	constructor(text, node, wikiConfig, type) {
-		super({
-			text: text,
-			node: node,
-		});
+	public function __construct( $text, $node, $wikiConfig, $type ) {
+		parent::__construct( [
+				'text' => $text,
+				'node' => $node
+			]
+		);
 	}
 
-	static _fromSelSer(text, node, dataParsoid, env) {
-		var type = node.getAttribute('rel') || '';
-		var stx = dataParsoid.stx || '';
-		if (type === 'mw:ExtLink' && !/^(simple|piped)$/.test(stx)) {
-			return new ExtLinkText(text, node, env.conf.wiki, type);
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env ) {
+		$type = $node->getAttribute( 'rel' ) || '';
+		$stx = $dataParsoid->stx || '';
+		if ( $type === 'mw:ExtLink' && !preg_match( '/^(simple|piped)$/', $stx ) ) {
+			return new ExtLinkText( $text, $node, $env->conf->wiki, $type );
 		}
 	}
 }
-
-// build regexps representing the trailing context for an autourl link
-// This regexp comes from the PHP parser's EXT_LINK_URL_CLASS regexp.
-var EXT_LINK_URL_CLASS = /[^\[\]<>"\x00-\x20\x7F\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]/.source.slice(1, -1);
-// This set of trailing punctuation comes from Parser.php::makeFreeExternalLink
-var TRAILING_PUNCT = /[,;\\.:!?]/.source.slice(1, -1);
-var NOT_LTGTNBSP = /(?!&(lt|gt|nbsp|#x0*(3[CcEe]|[Aa]0)|#0*(60|62|160));)/.source;
-var NOT_QQ = /(?!'')/.source;
-
-var PAREN_AUTOURL_BAD_SUFFIX = new RegExp("^" + NOT_LTGTNBSP + NOT_QQ + "[" + TRAILING_PUNCT + "]*[" + EXT_LINK_URL_CLASS + TRAILING_PUNCT + "]");
-// if the URL has an doesn't have an open paren in it, TRAILING PUNCT will
-// include ')' as well.
-var NOPAREN_AUTOURL_BAD_SUFFIX = new RegExp("^" + NOT_LTGTNBSP + NOT_QQ + "[" + TRAILING_PUNCT + "\\)]*[" + EXT_LINK_URL_CLASS + TRAILING_PUNCT + "\\)]");
 
 /**
  * An autolink to an external resource, like `http://example.com`.
@@ -410,34 +427,59 @@ var NOPAREN_AUTOURL_BAD_SUFFIX = new RegExp("^" + NOT_LTGTNBSP + NOT_QQ + "[" + 
  * @param {Node} node
  */
 class AutoURLLinkText extends RegExpConstrainedText {
-	constructor(url, node) {
-		super({
-			text: url,
-			node: node,
-			// there's a \b boundary at start, and first char of url is a word char
-			badPrefix: /\w$/,
-			badSuffix: /\(/.test(url) ? PAREN_AUTOURL_BAD_SUFFIX : NOPAREN_AUTOURL_BAD_SUFFIX,
-		});
+	public function __construct( $url, $node ) {
+		parent::__construct( [
+				'text' => $url,
+				'node' => $node,
+				// there's a \b boundary at start, and first char of url is a word char
+				'badPrefix' => /* RegExp */ '/\w$/',
+				'badSuffix' => self::badSuffix( $url )
+			]
+		);
 	}
 
-	static _fromSelSer(text, node, dataParsoid, env) {
-		if ((node.tagName === 'A' && dataParsoid.stx === 'url') ||
-			(node.tagName === 'IMG' && dataParsoid.type === 'extlink')) {
-			return new AutoURLLinkText(text, node);
+	public static function badSuffix( $url ) {
+		// Cache the constructed regular expressions.
+		if ( $this->_badSuffix ) { return $this->_badSuffix( $url );
+  }
+		// build regexps representing the trailing context for an autourl link
+		// This regexp comes from the PHP parser's EXT_LINK_URL_CLASS regexp.
+		$EXT_LINK_URL_CLASS = substr( '[^\[\]<>"\x00-\x20\x7F\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]', 1, -1 );
+		// This set of trailing punctuation comes from Parser.php::makeFreeExternalLink
+		$TRAILING_PUNCT = substr( '[,;\\\.:!?]', 1, -1 );
+		$NOT_LTGTNBSP = '(?!&(lt|gt|nbsp|#x0*(3[CcEe]|[Aa]0)|#0*(60|62|160));)';
+		$NOT_QQ = "(?!'')";
+
+		$PAREN_AUTOURL_BAD_SUFFIX = new RegExp( '^' . $NOT_LTGTNBSP . $NOT_QQ . '[' . $TRAILING_PUNCT . ']*[' . $EXT_LINK_URL_CLASS . $TRAILING_PUNCT . ']' );
+		// if the URL has an doesn't have an open paren in it, TRAILING PUNCT will
+		// include ')' as well.
+		$NOPAREN_AUTOURL_BAD_SUFFIX = new RegExp( '^' . $NOT_LTGTNBSP . $NOT_QQ . '[' . $TRAILING_PUNCT . '\)]*[' . $EXT_LINK_URL_CLASS . $TRAILING_PUNCT . '\)]' );
+		$this->_badSuffix = function ( $url ) use ( &$url, &$PAREN_AUTOURL_BAD_SUFFIX, &$NOPAREN_AUTOURL_BAD_SUFFIX ) {
+			return ( preg_match( '/\(/', $url ) ) ? $PAREN_AUTOURL_BAD_SUFFIX : $NOPAREN_AUTOURL_BAD_SUFFIX;
+		};
+		return $this->_badSuffix( $url );
+	}
+
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env ) {
+		if ( ( $node->tagName === 'A' && $dataParsoid->stx === 'url' )
+|| ( $node->tagName === 'IMG' && $dataParsoid->type === 'extlink' )
+		) {
+			return new AutoURLLinkText( $text, $node );
 		}
 	}
 
 	// Special case for entities which "leak off the end".
-	escape(state) {
-		var r = super.escape(state);
+	public function escape( $state ) {
+		$r = parent::escape( $state );
 		// If the text ends with an incomplete entity, be careful of
 		// suffix text which could complete it.
-		if (!r.suffix &&
-			(/&[#0-9a-zA-Z]*$/.test(r.text)) &&
-			(/^[#0-9a-zA-Z]*;/.test(state.rightContext))) {
-			r.suffix = this.suffix;
+		if ( !$r->suffix
+&& ( preg_match( '/&[#0-9a-zA-Z]*$/', $r->text ) )
+&& ( preg_match( '/^[#0-9a-zA-Z]*;/', $state->rightContext ) )
+		) {
+			$r->suffix = $this->suffix;
 		}
-		return r;
+		return $r;
 	}
 }
 
@@ -449,20 +491,21 @@ class AutoURLLinkText extends RegExpConstrainedText {
  * @param {Node} node
  */
 class MagicLinkText extends RegExpConstrainedText {
-	constructor(text, node) {
-		super({
-			text: text,
-			node: node,
-			// there are \b boundaries on either side, and first/last characters
-			// are word characters.
-			badPrefix: /\w$/,
-			badSuffix: /^\w/,
-		});
+	public function __construct( $text, $node ) {
+		parent::__construct( [
+				'text' => $text,
+				'node' => $node,
+				// there are \b boundaries on either side, and first/last characters
+				// are word characters.
+				'badPrefix' => /* RegExp */ '/\w$/',
+				'badSuffix' => /* RegExp */ '/^\w/'
+			]
+		);
 	}
 
-	static _fromSelSer(text, node, dataParsoid, env) {
-		if (dataParsoid.stx === 'magiclink') {
-			return new MagicLinkText(text, node);
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env ) {
+		if ( $dataParsoid->stx === 'magiclink' ) {
+			return new MagicLinkText( $text, $node );
 		}
 	}
 }
@@ -475,18 +518,19 @@ class MagicLinkText extends RegExpConstrainedText {
  * @param {Node} node
  */
 class LanguageVariantText extends RegExpConstrainedText {
-	constructor(text, node) {
-		super({
-			text: text,
-			node: node,
-			// at sol vertical bars immediately preceding cause problems in tables
-			badPrefix: /^\|$/,
-		});
+	public function __construct( $text, $node ) {
+		parent::__construct( [
+				'text' => $text,
+				'node' => $node,
+				// at sol vertical bars immediately preceding cause problems in tables
+				'badPrefix' => /* RegExp */ '/^\|$/'
+			]
+		);
 	}
 
-	static _fromSelSer(text, node, dataParsoid, env) {
-		if (node.getAttribute('typeof') === 'mw:LanguageVariant') {
-			return new LanguageVariantText(text, node);
+	public static function _fromSelSer( $text, $node, $dataParsoid, $env ) {
+		if ( $node->getAttribute( 'typeof' ) === 'mw:LanguageVariant' ) {
+			return new LanguageVariantText( $text, $node );
 		}
 	}
 }
@@ -500,21 +544,20 @@ class LanguageVariantText extends RegExpConstrainedText {
  * `ConstrainedText.fromSelSer` by factoring some of its work into
  * `ConstrainedText._fromSelSer`.
  */
-ConstrainedText._types = [
+ConstrainedText::_types = [
 	// Base class is first, as a special case
-	ConstrainedText,
+	$ConstrainedText,
 	// All concrete subclasses of ConstrainedText
-	WikiLinkText, ExtLinkText, AutoURLLinkText,
-	MagicLinkText, LanguageVariantText,
+	$WikiLinkText, $ExtLinkText, $AutoURLLinkText,
+	$MagicLinkText, $LanguageVariantText
 ];
 
-module.exports = {
-	ConstrainedText: ConstrainedText,
-	RegExpConstrainedText: RegExpConstrainedText,
-	AutoURLLinkText: AutoURLLinkText,
-	ExtLinkText: ExtLinkText,
-	LanguageVariantText: LanguageVariantText,
-	MagicLinkText: MagicLinkText,
-	WikiLinkText: WikiLinkText,
-	escapeLine: escapeLine,
-};
+$module->exports = [
+	'ConstrainedText' => $ConstrainedText,
+	'RegExpConstrainedText' => $RegExpConstrainedText,
+	'AutoURLLinkText' => $AutoURLLinkText,
+	'ExtLinkText' => $ExtLinkText,
+	'LanguageVariantText' => $LanguageVariantText,
+	'MagicLinkText' => $MagicLinkText,
+	'WikiLinkText' => $WikiLinkText
+];

@@ -1,12 +1,15 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module wt2html/Params */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade.js');
+use Parsoid\Promise as Promise;
+use Parsoid\KV as KV;
 
-var Promise = require('../utils/promise.js');
-const { KV } = require('../tokens/TokenTypes.js');
-var TokenUtils = require('../utils/TokenUtils.js').TokenUtils;
+$TokenUtils = require '../utils/TokenUtils.js'::TokenUtils;
 
 /**
  * A parameter object wrapper, essentially an array of key/value pairs with a
@@ -15,84 +18,93 @@ var TokenUtils = require('../utils/TokenUtils.js').TokenUtils;
  * @class
  * @extends Array
  */
-class Params extends Array {
-	constructor(params) {
-		super(params.length);
-		for (var i = 0; i < params.length; i++) {
-			this[i] = params[i];
+class Params extends array {
+	public function __construct( $params ) {
+		parent::__construct( count( $params ) );
+		for ( $i = 0;  $i < count( $params );  $i++ ) {
+			$this[ $i ] = $params[ $i ];
 		}
-		this.argDict = null;
-		this.namedArgsDict = null;
+		$this->argDict = null;
+		$this->namedArgsDict = null;
 	}
+	public $i;
 
-	dict() {
-		if (this.argDict === null) {
-			var res = {};
-			for (var i = 0, l = this.length; i < l; i++) {
-				var kv = this[i];
-				var key = TokenUtils.tokensToString(kv.k).trim();
-				res[key] = kv.v;
+	public $argDict;
+	public $namedArgsDict;
+
+	public function dict() {
+		if ( $this->argDict === null ) {
+			$res = [];
+			for ( $i = 0,  $l = count( $this );  $i < $l;  $i++ ) {
+				$kv = $this[ $i ];
+				$key = trim( TokenUtils::tokensToString( $kv->k ) );
+				$res[ $key ] = $kv->v;
 			}
-			this.argDict = res;
+			$this->argDict = $res;
 		}
-		return this.argDict;
+		return $this->argDict;
 	}
 
-	named() {
-		if (this.namedArgsDict === null) {
-			var n = 1;
-			var out = {};
-			var namedArgs = {};
+	public function named() {
+		if ( $this->namedArgsDict === null ) {
+			$n = 1;
+			$out = [];
+			$namedArgs = [];
 
-			for (var i = 0, l = this.length; i < l; i++) {
+			for ( $i = 0,  $l = count( $this );  $i < $l;  $i++ ) {
 				// FIXME: Also check for whitespace-only named args!
-				var k = this[i].k;
-				var v = this[i].v;
-				if (k.constructor === String) {
-					k = k.trim();
+				$k = $this[ $i ]->k;
+				$v = $this[ $i ]->v;
+				if ( $k->constructor === $String ) {
+					$k = trim( $k );
 				}
-				if (!k.length &&
-					// Check for blank named parameters
-					this[i].srcOffsets[1] === this[i].srcOffsets[2]) {
-					out[n.toString()] = v;
-					n++;
-				} else if (k.constructor === String) {
-					namedArgs[k] = true;
-					out[k] = v;
+				if ( !count( $k )
+&& // Check for blank named parameters
+						$this[ $i ]->srcOffsets[ 1 ] === $this[ $i ]->srcOffsets[ 2 ]
+				) {
+					$out[ $n->toString() ] = $v;
+					$n++;
+				} elseif ( $k->constructor === $String ) {
+					$namedArgs[ $k ] = true;
+					$out[ $k ] = $v;
 				} else {
-					k = TokenUtils.tokensToString(k).trim();
-					namedArgs[k] = true;
-					out[k] = v;
+					$k = trim( TokenUtils::tokensToString( $k ) );
+					$namedArgs[ $k ] = true;
+					$out[ $k ] = $v;
 				}
 			}
-			this.namedArgsDict = { namedArgs: namedArgs, dict: out };
+			$this->namedArgsDict = [ 'namedArgs' => $namedArgs, 'dict' => $out ];
 		}
 
-		return this.namedArgsDict;
+		return $this->namedArgsDict;
 	}
 
 	/**
 	 * Expand a slice of the parameters using the supplied get options.
-	 * @return {Promise}
+	 * @return Promise
 	 */
-	getSlice(options, start, end) {
-		var args = this.slice(start, end);
-		return Promise.all(args.map(Promise.async(function *(kv) { // eslint-disable-line require-yield
-			var k = kv.k;
-			var v = kv.v;
-			if (Array.isArray(v) && v.length === 1 && v[0].constructor === String) {
-				// remove String from Array
-				kv = new KV(k, v[0], kv.srcOffsets);
-			} else if (v.constructor !== String) {
-				kv = new KV(k, TokenUtils.tokensToString(v), kv.srcOffsets);
-			}
-			return kv;
-		})));
+	public function getSlice( $options, $start, $end ) {
+		$args = array_slice( $this, $start, $end/*CHECK THIS*/ );
+		return Promise::all( array_map( $args, /* async */function ( $kv ) { // eslint-disable-line require-yield
+					$k = $kv->k;
+					$v = $kv->v;
+					if ( is_array( $v ) && count( $v ) === 1 && $v[ 0 ]->constructor === $String ) {
+						// remove String from Array
+						$kv = new KV( $k, $v[ 0 ], $kv->srcOffsets );
+					} elseif ( $v->constructor !== $String ) {
+						$kv = new KV( $k, TokenUtils::tokensToString( $v ), $kv->srcOffsets );
+					}
+					return $kv;
+		}
+
+			)
+
+		);
 	}
 }
 
-if (typeof module === "object") {
-	module.exports = {
-		Params: Params,
-	};
+if ( gettype( $module ) === 'object' ) {
+	$module->exports = [
+		'Params' => $Params
+	];
 }

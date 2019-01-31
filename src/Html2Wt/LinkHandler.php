@@ -1,228 +1,254 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Serializes link markup.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade.js');
+use Parsoid\url as url;
 
-var url = require('url');
+use Parsoid\CT as CT;
 
-var CT = require('./ConstrainedText.js');
-var ContentUtils = require('../utils/ContentUtils.js').ContentUtils;
-var DiffUtils = require('./DiffUtils.js').DiffUtils;
-var DOMDataUtils = require('../utils/DOMDataUtils.js').DOMDataUtils;
-var DOMUtils = require('../utils/DOMUtils.js').DOMUtils;
-var JSUtils = require('../utils/jsutils.js').JSUtils;
-var Promise = require('../utils/promise.js');
-var TokenUtils = require('../utils/TokenUtils.js').TokenUtils;
-var Util = require('../utils/Util.js').Util;
-var WTUtils = require('../utils/WTUtils.js').WTUtils;
+$ContentUtils = require '../utils/ContentUtils.js'::ContentUtils;
+$DiffUtils = require './DiffUtils.js'::DiffUtils;
+$DOMDataUtils = require '../utils/DOMDataUtils.js'::DOMDataUtils;
+$DOMUtils = require '../utils/DOMUtils.js'::DOMUtils;
+$JSUtils = require '../utils/jsutils.js'::JSUtils;
+$Promise = require '../utils/promise.js';
+$TokenUtils = require '../utils/TokenUtils.js'::TokenUtils;
+$Util = require '../utils/Util.js'::Util;
+$WTUtils = require '../utils/WTUtils.js'::WTUtils;
+$temp0 = require '../html2wt/WTSUtils.js';
+$WTSUtils = $temp0::WTSUtils;
 
-var AutoURLLinkText = CT.AutoURLLinkText;
-var ExtLinkText = CT.ExtLinkText;
-var MagicLinkText = CT.MagicLinkText;
-var WikiLinkText = CT.WikiLinkText;
-var lastItem = JSUtils.lastItem;
+$AutoURLLinkText = CT\AutoURLLinkText;
+$ExtLinkText = CT\ExtLinkText;
+$MagicLinkText = CT\MagicLinkText;
+$WikiLinkText = CT\WikiLinkText;
+$lastItem = JSUtils::lastItem;
 
-var REDIRECT_TEST_RE = /^([ \t\n\r\0\x0b])*$/;
-
+$REDIRECT_TEST_RE = /* RegExp */ '/^([ \t\n\r\0\x0b])*$/';
 
 /**
  * Strip a string suffix if it matches.
  */
-var stripSuffix = function(text, suffix) {
-	var sLen = suffix.length;
-	if (sLen && text.substr(-sLen) === suffix) {
-		return text.substr(0, text.length - sLen);
+$stripSuffix = function ( $text, $suffix ) {
+	$sLen = count( $suffix );
+	if ( $sLen && substr( $text, -$sLen ) === $suffix ) {
+		return substr( $text, 0, count( $text ) - $sLen );
 	} else {
-		return text;
+		return $text;
 	}
 };
 
-var splitLinkContentString = function(contentString, dp, target) {
-	var tail = dp.tail;
-	var prefix = dp.prefix;
+$splitLinkContentString = function ( $contentString, $dp, $target ) use ( &$stripSuffix ) {
+	$tail = $dp->tail;
+	$prefix = $dp->prefix;
 
-	if (tail && contentString.substr(contentString.length - tail.length) === tail) {
+	if ( $tail && substr( $contentString, count( $contentString ) - count( $tail ) ) === $tail ) {
 		// strip the tail off the content
-		contentString = stripSuffix(contentString, tail);
-	} else if (tail) {
-		tail = '';
+		$contentString = $stripSuffix( $contentString, $tail );
+	} elseif ( $tail ) {
+		$tail = '';
 	}
 
-	if (prefix && contentString.substr(0, prefix.length) === prefix) {
-		contentString = contentString.substr(prefix.length);
-	} else if (prefix) {
-		prefix = '';
+	if ( $prefix && substr( $contentString, 0, count( $prefix ) ) === $prefix ) {
+		$contentString = substr( $contentString, count( $prefix ) );
+	} elseif ( $prefix ) {
+		$prefix = '';
 	}
 
-	return {
-		contentString: contentString || '',
-		tail: tail || '',
-		prefix: prefix || '',
-	};
+	return [
+		'contentString' => $contentString || '',
+		'tail' => $tail || '',
+		'prefix' => $prefix || ''
+	];
 };
 
 // Helper function for munging protocol-less absolute URLs:
 // If this URL is absolute, but doesn't contain a protocol,
 // try to find a localinterwiki protocol that would work.
-var getHref = function(env, node) {
-	var href = node.getAttribute('href') || '';
-	if (/^\/[^\/]/.test(href)) {
+$getHref = function ( $env, $node ) use ( &$url ) {
+	$href = $node->getAttribute( 'href' ) || '';
+	if ( preg_match( '/^\/[^\/]/', $href ) ) {
 		// protocol-less but absolute.  let's find a base href
-		var bases = [];
-		var nhref;
-		env.conf.wiki.interwikiMap.forEach(function(interwikiInfo, prefix) {
-			if (interwikiInfo.localinterwiki !== undefined &&
-				interwikiInfo.url !== undefined) {
-				// this is a possible base href
-				bases.push(interwikiInfo.url);
-			}
-		});
-		for (var i = 0; i < bases.length; i++) {
+		$bases = [];
+		$nhref = null;
+		$env->conf->wiki->interwikiMap->forEach( function ( $interwikiInfo, $prefix ) use ( &$bases ) {
+				if ( $interwikiInfo->localinterwiki !== null
+&& $interwikiInfo->url !== null
+				) {
+					// this is a possible base href
+					$bases[] = $interwikiInfo->url;
+				}
+		}
+		);
+		for ( $i = 0;  $i < count( $bases );  $i++ ) {
 			// evaluate the url relative to this base
-			nhref = url.resolve(bases[i], href);
+			$nhref = url::resolve( $bases[ $i ], $href );
 			// can this match the pattern?
-			var re = '^' +
-				bases[i].split('$1').map(JSUtils.escapeRegExp).join('[\\s\\S]*') +
-				'$';
-			if (new RegExp(re).test(nhref)) {
-				return nhref;
+			$re = '^'
+. implode( '[\s\S]*', array_map( explode( '$1', $bases[ $i ] ), JSUtils::escapeRegExp ) )
+. '$';
+			if ( preg_match( new RegExp( $re ), $nhref ) ) {
+				return $nhref;
 			}
 		}
 	}
-	return href;
+	return $href;
 };
 
-function normalizeIWP(str) {
-	return str.toLowerCase().trim().replace(/^:/, '');
+function normalizeIWP( $str ) {
+	return preg_replace( '/^:/', '', trim( strtolower( $str ) ), 1 );
 }
 
-var escapeLinkTarget = function(linkTarget, state) {
+$escapeLinkTarget = function ( $linkTarget, $state ) use ( &$Util ) {
 	// Entity-escape the content.
-	linkTarget = Util.escapeWtEntities(linkTarget);
-	return {
-		linkTarget: linkTarget,
+	$linkTarget = Util::escapeWtEntities( $linkTarget );
+	return [
+		'linkTarget' => $linkTarget,
 		// Is this an invalid link?
-		invalidLink: !state.env.isValidLinkTarget(linkTarget) ||
-			// `isValidLinkTarget` omits fragments (the part after #) so,
+		'invalidLink' => !$state->env->isValidLinkTarget( $linkTarget )
+|| // `isValidLinkTarget` omits fragments (the part after #) so,
 			// even though "|" is an invalid character, we still need to ensure
 			// it doesn't appear in there.  The percent encoded version is fine
 			// in the fragment, since it won't break the parse.
-			/\|/.test(linkTarget)
-	};
+			preg_match( '/\|/', $linkTarget )
+	];
 };
 
 // Helper function for getting RT data from the tokens
-var getLinkRoundTripData = Promise.async(function *(env, node, state) {
-	var dp = DOMDataUtils.getDataParsoid(node);
-	var wiki = env.conf.wiki;
-	var rtData = {
-		type: null, // could be null
-		href: null, // filled in below
-		origHref: null, // filled in below
-		target: null, // filled in below
-		tail: dp.tail || '',
-		prefix: dp.prefix || '',
-		content: {},  // string or tokens
-	};
+$getLinkRoundTripData = /* async */function ( $env, $node, $state ) use ( &$DOMDataUtils, &$DOMUtils, &$getHref, &$DiffUtils, &$splitLinkContentString, &$escapeLinkTarget, &$Util ) {
+	$dp = DOMDataUtils::getDataParsoid( $node );
+	$wiki = $env->conf->wiki;
+	$rtData = [
+		'type' => null, // could be null
+		'href' => null, // filled in below
+		'origHref' => null, // filled in below
+		'target' => null, // filled in below
+		'tail' => $dp->tail || '',
+		'prefix' => $dp->prefix || '',
+		'content' => []
+	];
 
 	// Figure out the type of the link
-	var rel = node.getAttribute('rel');
-	if (rel) {
+	// string or tokens
+
+	// Figure out the type of the link
+	$rel = $node->getAttribute( 'rel' );
+	if ( $rel ) {
 		// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
 		// Everything else defaults to ExtLink during serialization (unless it is
 		// serializable to a wikilink)
-		var typeMatch = rel.match(/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)[^\s]*)\b/);
-		if (typeMatch) {
-			rtData.type = typeMatch[1];
+		$typeMatch = preg_match( '/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)[^\s]*)\b/', $rel );
+		if ( $typeMatch ) {
+			$rtData->type = $typeMatch[ 1 ];
 			// Strip link subtype info
-			if (/^mw:(Wiki|Ext)Link\//.test(rtData.type)) {
-				rtData.type = 'mw:' + typeMatch[2];
+			// Strip link subtype info
+			if ( preg_match( '/^mw:(Wiki|Ext)Link\//', $rtData->type ) ) {
+				$rtData->type = 'mw:' . $typeMatch[ 2 ];
 			}
 		}
 	}
 
 	// Default link type if nothing else is set
-	if (rtData.type === null && !DOMUtils.selectMediaElt(node)) {
-		rtData.type = 'mw:ExtLink';
+	// Default link type if nothing else is set
+	if ( $rtData->type === null && !DOMUtils::selectMediaElt( $node ) ) {
+		$rtData->type = 'mw:ExtLink';
 	}
 
 	// Get href, and save the token's "real" href for comparison
-	var href = getHref(env, node);
-	rtData.origHref = href;
-	rtData.href = href.replace(/^(\.\.?\/)+/, '');
+	// Get href, and save the token's "real" href for comparison
+	$href = $getHref( $env, $node );
+	$rtData->origHref = $href;
+	$rtData->href = preg_replace( '/^(\.\.?\/)+/', '', $href, 1 );
 
 	// WikiLinks should be relative (but see below); fixup the link type
 	// if a WikiLink has an absolute URL.
 	// (This may get converted back to a WikiLink below, in the interwiki
 	// handling code.)
-	if (rtData.type === 'mw:WikiLink' &&
-		(/^(\w+:)?\/\//.test(rtData.href) || /^\//.test(rtData.origHref))) {
-		rtData.type = 'mw:ExtLink';
+	// WikiLinks should be relative (but see below); fixup the link type
+	// if a WikiLink has an absolute URL.
+	// (This may get converted back to a WikiLink below, in the interwiki
+	// handling code.)
+	if ( $rtData->type === 'mw:WikiLink'
+&& ( preg_match( '/^(\w+:)?\/\//', $rtData->href ) || preg_match( '/^\//', $rtData->origHref ) )
+	) {
+		$rtData->type = 'mw:ExtLink';
 	}
 
 	// Now get the target from rt data
-	rtData.target = yield state.serializer.serializedAttrVal(node, 'href');
+	// Now get the target from rt data
+	$rtData->target = /* await */ $state->serializer->serializedAttrVal( $node, 'href' );
 
 	// Check if the link content has been modified or is newly inserted content.
 	// FIXME: This will only work with selser of course. Hard to test without selser.
-	if (state.inModifiedContent || DiffUtils.hasDiffMark(node, env, 'subtree-changed')) {
-		rtData.contentModified = true;
+	// Check if the link content has been modified or is newly inserted content.
+	// FIXME: This will only work with selser of course. Hard to test without selser.
+	if ( $state->inModifiedContent || DiffUtils::hasDiffMark( $node, $env, 'subtree-changed' ) ) {
+		$rtData->contentModified = true;
 	}
 
 	// Get the content string or tokens
-	var contentParts;
-	if (node.hasChildNodes() && DOMUtils.allChildrenAreText(node)) {
-		var contentString = node.textContent;
-		if (rtData.target.value && rtData.target.value !== contentString) {
+	// Get the content string or tokens
+	$contentParts = null;
+	if ( $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node ) ) {
+		$contentString = $node->textContent;
+		if ( $rtData->target->value && $rtData->target->value !== $contentString ) {
 			// Try to identify a new potential tail
-			contentParts = splitLinkContentString(contentString, dp, rtData.target);
-			rtData.content.string = contentParts.contentString;
-			rtData.tail = contentParts.tail;
-			rtData.prefix = contentParts.prefix;
+			$contentParts = $splitLinkContentString( $contentString, $dp, $rtData->target );
+			$rtData->content->string = $contentParts->contentString;
+			$rtData->tail = $contentParts->tail;
+			$rtData->prefix = $contentParts->prefix;
 		} else {
-			rtData.tail = '';
-			rtData.prefix = '';
-			rtData.content.string = contentString;
+			$rtData->tail = '';
+			$rtData->prefix = '';
+			$rtData->content->string = $contentString;
 		}
-	} else if (node.hasChildNodes()) {
-		rtData.contentNode = node;
-	} else if (/^mw:PageProp\/redirect$/.test(rtData.type)) {
-		rtData.isRedirect = true;
-		rtData.prefix = dp.src ||
-			((wiki.mwAliases.redirect[0] || '#REDIRECT') + ' ');
+	} elseif ( $node->hasChildNodes() ) {
+		$rtData->contentNode = $node;
+	} elseif ( preg_match( '/^mw:PageProp\/redirect$/', $rtData->type ) ) {
+		$rtData->isRedirect = true;
+		$rtData->prefix = $dp->src
+|| ( ( $wiki->mwAliases->redirect[ 0 ] || '#REDIRECT' ) . ' ' );
 	}
 
 	// Update link type based on additional analysis.
 	// What might look like external links might be serializable as a wikilink.
-	var target = rtData.target;
+	// Update link type based on additional analysis.
+	// What might look like external links might be serializable as a wikilink.
+	$target = $rtData->target;
 
 	// mw:MediaLink annotations are considered authoritative
 	// and interwiki link matches aren't made for these
-	if (/\bmw:MediaLink\b/.test(rtData.type)) {
+	// mw:MediaLink annotations are considered authoritative
+	// and interwiki link matches aren't made for these
+	if ( preg_match( '/\bmw:MediaLink\b/', $rtData->type ) ) {
 		// Parse title from resource attribute (see analog in image handling)
-		var resource = yield state.serializer.serializedAttrVal(node, 'resource');
-		if (resource.value === null) {
+		$resource = /* await */ $state->serializer->serializedAttrVal( $node, 'resource' );
+		if ( $resource->value === null ) {
 			// from non-parsoid HTML: try to reconstruct resource from href?
 			// (See similar code which tries to guess resource from <img src>)
-			var mediaPrefix = wiki.namespaceNames[wiki.namespaceIds.get('media')];
-			resource = {
-				value: mediaPrefix + ':' + rtData.origHref.replace(/.*\//, ''),
-				fromsrc: false,
-				modified: false,
-			};
+			$mediaPrefix = $wiki->namespaceNames[ $wiki->namespaceIds->get( 'media' ) ];
+			$resource = [
+				'value' => $mediaPrefix . ':' . preg_replace( '/.*\//', '', $rtData->origHref, 1 ),
+				'fromsrc' => false,
+				'modified' => false
+			];
 		}
-		rtData.target = resource;
-		rtData.href = rtData.target.value.replace(/^(\.\.?\/)+/, '');
-		return rtData;
+		$rtData->target = $resource;
+		$rtData->href = preg_replace( '/^(\.\.?\/)+/', '', $rtData->target->value, 1 );
+		return $rtData;
 	}
 
 	// Check if the href matches any of our interwiki URL patterns
-	var interWikiMatch = wiki.interWikiMatcher().match(href);
-	if (interWikiMatch
+	// Check if the href matches any of our interwiki URL patterns
+	$interWikiMatch = preg_match( $href, $wiki->interWikiMatcher() );
+	if ( $interWikiMatch
 		// Question mark is a valid title char, so it won't fail the test below,
 		// but gets percent encoded on the way out since it has special
 		// semantics in a url.  That will break the url we're serializing, so
@@ -231,79 +257,100 @@ var getLinkRoundTripData = Promise.async(function *(env, node, state) {
 		// changes, we can reduce this by always stripping off the fragment
 		// identifier, since in "html5" mode, that isn't encoded.  At present,
 		// we can only do that if we know it's a local interwiki link.
-		&& !/\?/.test(interWikiMatch[1])
+		 && // Question mark is a valid title char, so it won't fail the test below,
+			// but gets percent encoded on the way out since it has special
+			// semantics in a url.  That will break the url we're serializing, so
+			// protect it.
+			// FIXME: If ever the default value for $wgExternalInterwikiFragmentMode
+			// changes, we can reduce this by always stripping off the fragment
+			// identifier, since in "html5" mode, that isn't encoded.  At present,
+			// we can only do that if we know it's a local interwiki link.
+			!preg_match( '/\?/', $interWikiMatch[ 1 ] )
 		// Ensure we have a valid link target, otherwise falling back to extlink
 		// is preferable, since it won't serialize as a link.
-		&& (!interWikiMatch[1].length ||
-			!escapeLinkTarget(interWikiMatch[1], state).invalidLink)
+		 && // Ensure we have a valid link target, otherwise falling back to extlink
+			// is preferable, since it won't serialize as a link.
+			( !count( $interWikiMatch[ 1 ] )
+|| !$escapeLinkTarget( $interWikiMatch[ 1 ], $state )->invalidLink )
 		// ExtLinks should have content to convert.
-		&& (rtData.type !== 'mw:ExtLink' || rtData.content.string || rtData.contentNode)
-		&& (dp.isIW || target.modified || rtData.contentModified)) {
+		 && // ExtLinks should have content to convert.
+			( $rtData->type !== 'mw:ExtLink' || $rtData->content->string || $rtData->contentNode )
+&& ( $dp->isIW || $target->modified || $rtData->contentModified )
+	) {
 		// External link that is really an interwiki link. Convert it.
 		// TODO: Leaving this for backwards compatibility, remove when 1.5 is no longer bound
-		if (rtData.type === 'mw:ExtLink') {
-			rtData.type = 'mw:WikiLink';
+		if ( $rtData->type === 'mw:ExtLink' ) {
+			$rtData->type = 'mw:WikiLink';
 		}
-		rtData.isInterwiki = true;
+		$rtData->isInterwiki = true;
 		// could this be confused with a language link?
-		var iwi = wiki.interwikiMap.get(normalizeIWP(interWikiMatch[0]));
-		rtData.isInterwikiLang = iwi && iwi.language !== undefined;
+		// could this be confused with a language link?
+		$iwi = $wiki->interwikiMap->get( normalizeIWP( $interWikiMatch[ 0 ] ) );
+		$rtData->isInterwikiLang = $iwi && $iwi->language !== null;
 		// is this our own wiki?
-		rtData.isLocal = iwi && iwi.localinterwiki !== undefined;
+		// is this our own wiki?
+		$rtData->isLocal = $iwi && $iwi->localinterwiki !== null;
 		// strip off localinterwiki prefixes
-		var localPrefix = '';
-		var oldPrefix;
-		while (true) {  // eslint-disable-line
-			oldPrefix = target.value.slice(localPrefix.length).match(/^(:?[^:]+):/);
-			if (!oldPrefix) {
+		// strip off localinterwiki prefixes
+		$localPrefix = '';
+		$oldPrefix = null;
+		while ( true ) { // eslint-disable-line
+			$oldPrefix = preg_match( '/^(:?[^:]+):/', array_slice( $target->value, count( $localPrefix ) ) );
+			if ( !$oldPrefix ) {
 				break;
 			}
-			iwi = wiki.interwikiMap.get(
-				Util.normalizeNamespaceName(oldPrefix[1].replace(/^:/, ''))
+			$iwi = $wiki->interwikiMap->get(
+				Util::normalizeNamespaceName( preg_replace( '/^:/', '', $oldPrefix[ 1 ], 1 ) )
 			);
-			if (!iwi || iwi.localinterwiki === undefined) {
+			if ( !$iwi || $iwi->localinterwiki === null ) {
 				break;
 			}
-			localPrefix += oldPrefix[1] + ':';
+			$localPrefix += $oldPrefix[ 1 ] . ':';
 		}
 
-		if (target.fromsrc && !target.modified) {
+		if ( $target->fromsrc && !$target->modified ) {
+
 			// Leave the target alone!
-		} else if (/\bmw:PageProp\/Language\b/.test(rtData.type)) {
-			target.value = interWikiMatch.join(':').replace(/^:/, '');
-		} else if (
-			oldPrefix && ( // Should we preserve the old prefix?
-				oldPrefix[1].toLowerCase() === interWikiMatch[0].toLowerCase() ||
-				// Check if the old prefix mapped to the same URL as
-				// the new one. Use the old one if that's the case.
-				// Example: [[w:Foo]] vs. [[:en:Foo]]
-				(wiki.interwikiMap.get(normalizeIWP(oldPrefix[1])) || {}).url ===
-					(wiki.interwikiMap.get(normalizeIWP(interWikiMatch[0])) || {}).url
-			)
+		} else { // Leave the target alone!
+		if ( preg_match( '/\bmw:PageProp\/Language\b/', $rtData->type ) ) {
+			$target->value = preg_replace( '/^:/', '', implode( ':', $interWikiMatch ), 1 );
+		} elseif (
+			$oldPrefix && // Should we preserve the old prefix?
+				strtolower( $oldPrefix[ 1 ] ) === strtolower( $interWikiMatch[ 0 ] )
+|| // Check if the old prefix mapped to the same URL as
+					// the new one. Use the old one if that's the case.
+					// Example: [[w:Foo]] vs. [[:en:Foo]]
+					( $wiki->interwikiMap->get( normalizeIWP( $oldPrefix[ 1 ] ) ) || [] )->url
+=== ( $wiki->interwikiMap->get( normalizeIWP( $interWikiMatch[ 0 ] ) ) || [] )->url
 		) {
+
 			// Reuse old prefix capitalization
-			if (Util.decodeWtEntities(target.value.substr(oldPrefix[1].length + 1)) !== interWikiMatch[1]) {
+			if ( Util::decodeWtEntities( substr( $target->value, count( $oldPrefix[ 1 ] ) + 1 ) ) !== $interWikiMatch[ 1 ] ) {
 				// Modified, update target.value.
-				target.value = localPrefix + oldPrefix[1] + ':' + interWikiMatch[1];
+				$target->value = $localPrefix + $oldPrefix[ 1 ] . ':' . $interWikiMatch[ 1 ];
 			}
 			// Ensure that we generate an interwiki link and not a language link!
-			if (rtData.isInterwikiLang && !(/^:/.test(target.value))) {
-				target.value = ':' + target.value;
+			// Ensure that we generate an interwiki link and not a language link!
+			if ( $rtData->isInterwikiLang && !( preg_match( '/^:/', $target->value ) ) ) {
+				$target->value = ':' . $target->value;
 			}
 			// Else: preserve old encoding
-		} else if (rtData.isLocal) {
+		} else { // Else: preserve old encoding
+		if ( $rtData->isLocal ) {
 			// - interwikiMatch will be ":en", ":de", etc.
 			// - This tests whether the interwiki-like link is actually
-			//   a local wikilink.
-			target.value = interWikiMatch[1];
-			rtData.isInterwiki = rtData.isInterwikiLang = false;
+			// a local wikilink.
+			$target->value = $interWikiMatch[ 1 ];
+			$rtData->isInterwiki = $rtData->isInterwikiLang = false;
 		} else {
-			target.value = interWikiMatch.join(':');
+			$target->value = implode( ':', $interWikiMatch );
+		}
+		}
 		}
 	}
 
-	return rtData;
-});
+	return $rtData;
+};
 
 /**
  * The provided URL is already percent-encoded -- but it may still
@@ -312,14 +359,17 @@ var getLinkRoundTripData = Promise.async(function *(env, node, state) {
  * though!
  * @private
  */
-var escapeExtLinkURL = function(urlStr) {
+$escapeExtLinkURL = function ( $urlStr ) {
 	// this regexp is the negation of EXT_LINK_URL_CLASS in the PHP parser
-	return urlStr.replace(/[\]\[<>"\x00-\x20\x7F\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]|-(?=\{)/g, function(m) {
-		return Util.entityEncodeAll(m);
-	}).replace(
+	return preg_replace(
+
 		// IPv6 host names are bracketed with [].  Entity-decode these.
-		/^([a-z][^:\/]*:)?\/\/&#x5B;([0-9a-f:.]+)&#x5D;(:\d|\/|$)/i,
-		'$1//[$2]$3'
+		'/^([a-z][^:\/]*:)?\/\/&#x5B;([0-9a-f:.]+)&#x5D;(:\d|\/|$)/i',
+		'$1//[$2]$3', preg_replace( '/[\]\[<>"\x00-\x20\x7F\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]|-(?=\{)/', function ( $m ) {
+				return Util::entityEncodeAll( $m );
+		}, $urlStr ),
+
+		 1
 	);
 };
 
@@ -327,129 +377,139 @@ var escapeExtLinkURL = function(urlStr) {
  * Add a colon escape to a wikilink target string if needed.
  * @private
  */
-var addColonEscape = function(env, linkTarget, linkData) {
-	var linkTitle = env.makeTitleFromText(linkTarget);
-	if ((linkTitle.getNamespace().isCategory() || linkTitle.getNamespace().isFile())
-		&& linkData.type === 'mw:WikiLink'
-		&& !/^:/.test(linkTarget)) {
+$addColonEscape = function ( $env, $linkTarget, $linkData ) {
+	$linkTitle = $env->makeTitleFromText( $linkTarget );
+	if ( ( $linkTitle->getNamespace()->isCategory() || $linkTitle->getNamespace()->isFile() )
+&& $linkData->type === 'mw:WikiLink'
+&& !preg_match( '/^:/', $linkTarget )
+	) {
 		// Escape category and file links
-		return ':' + linkTarget;
+		return ':' . $linkTarget;
 	} else {
-		return linkTarget;
+		return $linkTarget;
 	}
 };
 
-var isURLLink = function(env, node, linkData) {
-	var target = linkData.target;
+$isURLLink = function ( $env, $node, $linkData ) use ( &$DOMUtils, &$getHref, &$Util ) {
+	$target = $linkData->target;
 
 	// Get plain text content, if any
-	var contentStr = node.hasChildNodes() &&
-		DOMUtils.allChildrenAreText(node) ? node.textContent : null;
+	$contentStr = ( $node->hasChildNodes()
+&& DOMUtils::allChildrenAreText( $node )
+	) ? $node->textContent : null;
 	// First check if we can serialize as an URL link
-	return contentStr &&
-			// Can we minimize this?
-			(target.value === contentStr  || getHref(env, node) === contentStr) &&
-			// protocol-relative url links not allowed in text
-			// (see autourl rule in peg tokenizer, T32269)
-			!(/^\/\//).test(contentStr) && Util.isProtocolValid(contentStr, env);
+	return $contentStr
+&& // Can we minimize this?
+		( $target->value === $contentStr || $getHref( $env, $node ) === $contentStr )
+&& // protocol-relative url links not allowed in text
+		// (see autourl rule in peg tokenizer, T32269)
+		!preg_match( ( '/^\/\//' ), $contentStr ) && Util::isProtocolValid( $contentStr, $env );
 };
 
 // Figure out if we need a piped or simple link
-var isSimpleWikiLink = function(env, dp, target, linkData) {
-	var canUseSimple = false;
-	var contentString = linkData.content.string;
+$isSimpleWikiLink = function ( $env, $dp, $target, $linkData ) use ( &$Util ) {
+	$canUseSimple = false;
+	$contentString = $linkData->content->string;
 
 	// Would need to pipe for any non-string content.
 	// Preserve unmodified or non-minimal piped links.
-	if (contentString !== undefined
-		&& (target.modified || linkData.contentModified || dp.stx !== 'piped')
+	if ( $contentString !== null
+&& ( $target->modified || $linkData->contentModified || $dp->stx !== 'piped' )
 		// Relative links are not simple
-		&& !contentString.match(/^\.\//)) {
+		 && !preg_match( '/^\.\//', $contentString )
+	) {
 		// Strip colon escapes from the original target as that is
 		// stripped when deriving the content string.
-		var strippedTargetValue = target.value.replace(/^:/, '');
-		var decodedTarget = Util.decodeWtEntities(strippedTargetValue);
+		$strippedTargetValue = preg_replace( '/^:/', '', $target->value, 1 );
+		$decodedTarget = Util::decodeWtEntities( $strippedTargetValue );
 		// Deal with the protocol-relative link scenario as well
-		var hrefHasProto = /^(\w+:)?\/\//.test(linkData.href);
+		$hrefHasProto = preg_match( '/^(\w+:)?\/\//', $linkData->href );
 
 		// Normalize content string and decoded target before comparison.
 		// Piped links don't come down this path => it is safe to normalize both.
-		contentString = contentString.replace(/_/g, ' ');
-		decodedTarget = decodedTarget.replace(/_/g, ' ');
+		$contentString = preg_replace( '/_/', ' ', $contentString );
+		$decodedTarget = preg_replace( '/_/', ' ', $decodedTarget );
 
 		// See if the (normalized) content matches the
 		// target, either shadowed or actual.
-		canUseSimple = (
-			contentString === decodedTarget
-			// try wrapped in forward slashes in case they were stripped
-		|| ('/' + contentString + '/') === decodedTarget
-			// normalize as titles and compare
-		|| env.normalizedTitleKey(contentString, true) === decodedTarget.replace(/[\s_]+/g, '_')
-			// Relative link
-		|| (env.conf.wiki.namespacesWithSubpages[env.page.ns] &&
-			(/^\.\.\/.*[^\/]$/.test(strippedTargetValue) &&
-			contentString === env.resolveTitle(strippedTargetValue)) ||
-			(/^\.\.\/.*?\/$/.test(strippedTargetValue) &&
-			contentString === strippedTargetValue.replace(/^(?:\.\.\/)+(.*?)\/$/, '$1')))
-			// if content == href this could be a simple link... eg [[Foo]].
-			// but if href is an absolute url with protocol, this won't
-			// work: [[http://example.com]] is not a valid simple link!
-		|| (!hrefHasProto &&
-				// Always compare against decoded uri because
+		$canUseSimple =
+		$contentString === $decodedTarget
+		// try wrapped in forward slashes in case they were stripped
+		 || ( '/' . $contentString . '/' ) === $decodedTarget
+		// normalize as titles and compare
+		 || $env->normalizedTitleKey( $contentString, true ) === preg_replace( '/[\s_]+/', '_', $decodedTarget )
+		// Relative link
+		 || ( $env->conf->wiki->namespacesWithSubpages[ $env->page->ns ]
+&& ( preg_match( '/^\.\.\/.*[^\/]$/', $strippedTargetValue )
+&& $contentString === $env->resolveTitle( $strippedTargetValue ) )
+|| ( preg_match( '/^\.\.\/.*?\/$/', $strippedTargetValue )
+&& $contentString === preg_replace( '/^(?:\.\.\/)+(.*?)\/$/', '$1', $strippedTargetValue, 1 ) ) )
+		// if content == href this could be a simple link... eg [[Foo]].
+		// but if href is an absolute url with protocol, this won't
+		// work: [[http://example.com]] is not a valid simple link!
+		 || ( !$hrefHasProto
+&& // Always compare against decoded uri because
 				// <a rel="mw:WikiLink" href="7%25 Solution">7%25 Solution</a></p>
 				// should serialize as [[7% Solution|7%25 Solution]]
-				(contentString === Util.decodeURIComponent(linkData.href) ||
-				// normalize with underscores for comparison with href
-				env.normalizedTitleKey(contentString, true) === Util.decodeURIComponent(linkData.href)))
-		);
+				( $contentString === Util::decodeURIComponent( $linkData->href )
+|| // normalize with underscores for comparison with href
+					$env->normalizedTitleKey( $contentString, true ) === Util::decodeURIComponent( $linkData->href ) ) );
 	}
 
-	return canUseSimple;
+	return $canUseSimple;
 };
 
-var serializeAsWikiLink = Promise.async(function *(node, state, linkData) {
-	var contentParts;
-	var contentSrc = '';
-	var isPiped = false;
-	var requiresEscaping = true;
-	var env = state.env;
-	var wiki = env.conf.wiki;
-	var oldSOLState = state.onSOL;
-	var target = linkData.target;
-	var dp = DOMDataUtils.getDataParsoid(node);
+$serializeAsWikiLink = /* async */function ( $node, $state, $linkData ) use ( &$DOMDataUtils, &$Util, &$splitLinkContentString, &$escapeLinkTarget, &$DOMUtils, &$isSimpleWikiLink, &$WTUtils, &$addColonEscape, &$isURLLink, &$AutoURLLinkText, &$REDIRECT_TEST_RE, &$WikiLinkText ) {
+	$contentParts = null;
+	$contentSrc = '';
+	$isPiped = false;
+	$requiresEscaping = true;
+	$env = $state->env;
+	$wiki = $env->conf->wiki;
+	$oldSOLState = $state->onSOL;
+	$target = $linkData->target;
+	$dp = DOMDataUtils::getDataParsoid( $node );
 
 	// Decode any link that did not come from the source (data-mw/parsoid)
 	// Links that come from data-mw/data-parsoid will be true titles,
 	// but links that come from hrefs will need to be url-decoded.
 	// Ex: <a href="/wiki/A%3Fb">Foobar</a>
-	if (!target.fromsrc) {
+	// Decode any link that did not come from the source (data-mw/parsoid)
+	// Links that come from data-mw/data-parsoid will be true titles,
+	// but links that come from hrefs will need to be url-decoded.
+	// Ex: <a href="/wiki/A%3Fb">Foobar</a>
+	if ( !$target->fromsrc ) {
 		// Omit fragments from decoding
-		var hash = target.value.indexOf('#');
-		if (hash > -1) {
-			target.value = Util.decodeURIComponent(target.value.substring(0, hash)) + target.value.substring(hash);
+		$hash = array_search( '#', $target->value );
+		if ( $hash > -1 ) {
+			$target->value = Util::decodeURIComponent( $target->value->substring( 0, $hash ) ) + $target->value->substring( $hash );
 		} else {
-			target.value = Util.decodeURIComponent(target.value);
+			$target->value = Util::decodeURIComponent( $target->value );
 		}
 	}
 
 	// Special-case handling for category links
-	if (linkData.type === 'mw:PageProp/Category') {
+	// Special-case handling for category links
+	if ( $linkData->type === 'mw:PageProp/Category' ) {
 		// Split target and sort key
-		var targetParts = target.value.match(/^([^#]*)#(.*)/);
+		$targetParts = preg_match( '/^([^#]*)#(.*)/', $target->value );
 
-		if (targetParts) {
-			target.value = targetParts[1]
-				.replace(/^(\.\.?\/)*/, '')
-				.replace(/_/g, ' ');
+		if ( $targetParts ) {
+			$target->value = preg_replace(
+
+				'/_/', ' ', preg_replace(
+					'/^(\.\.?\/)*/', '', $targetParts[ 1 ], 1 )
+			);
 			// FIXME: Reverse `Sanitizer.sanitizeTitleURI(strContent).replace(/#/g, '%23');`
-			var strContent = Util.decodeURIComponent(targetParts[2]);
-			contentParts = splitLinkContentString(strContent, dp);
-			linkData.content.string = contentParts.contentString;
-			dp.tail = linkData.tail = contentParts.tail;
-			dp.prefix = linkData.prefix = contentParts.prefix;
+			// FIXME: Reverse `Sanitizer.sanitizeTitleURI(strContent).replace(/#/g, '%23');`
+			$strContent = Util::decodeURIComponent( $targetParts[ 2 ] );
+			$contentParts = $splitLinkContentString( $strContent, $dp );
+			$linkData->content->string = $contentParts->contentString;
+			$dp->tail = $linkData->tail = $contentParts->tail;
+			$dp->prefix = $linkData->prefix = $contentParts->prefix;
 		} else { // No sort key, will serialize to simple link
 			// Normalize the content string
-			linkData.content.string = target.value.replace(/^\.\//, '').replace(/_/g, ' ');
+			$linkData->content->string = preg_replace( '/_/', ' ', preg_replace( '/^\.\//', '', $target->value, 1 ) );
 		}
 
 		// Special-case handling for template-affected sort keys
@@ -457,123 +517,141 @@ var serializeAsWikiLink = Promise.async(function *(node, state, linkData) {
 		// we need to fully shadow the sort key.
 		// if ( !target.modified ) {
 		// The target and source key was not modified
-		var sortKeySrc =
-			yield state.serializer.serializedAttrVal(node, 'mw:sortKey');
-		if (sortKeySrc.value !== null) {
-			linkData.contentNode = undefined;
-			linkData.content.string = sortKeySrc.value;
+		// Special-case handling for template-affected sort keys
+		// FIXME: sort keys cannot be modified yet, but if they are,
+		// we need to fully shadow the sort key.
+		// if ( !target.modified ) {
+		// The target and source key was not modified
+		$sortKeySrc =
+		/* await */ $state->serializer->serializedAttrVal( $node, 'mw:sortKey' );
+		if ( $sortKeySrc->value !== null ) {
+			$linkData->contentNode = null;
+			$linkData->content->string = $sortKeySrc->value;
 			// TODO: generalize this flag. It is already used by
 			// getAttributeShadowInfo. Maybe use the same
 			// structure as its return value?
-			linkData.content.fromsrc = true;
+			// TODO: generalize this flag. It is already used by
+			// getAttributeShadowInfo. Maybe use the same
+			// structure as its return value?
+			$linkData->content->fromsrc = true;
 		}
 		// }
-	} else if (linkData.type === 'mw:PageProp/Language') {
+	} else { // }
+	if ( $linkData->type === 'mw:PageProp/Language' ) {
 		// Fix up the the content string
 		// TODO: see if linkData can be cleaner!
-		if (linkData.content.string === undefined) {
-			linkData.content.string = Util.decodeWtEntities(target.value);
+		if ( $linkData->content->string === null ) {
+			$linkData->content->string = Util::decodeWtEntities( $target->value );
 		}
+	}
 	}
 
 	// The string value of the content, if it is plain text.
-	var linkTarget, escapedTgt;
-	if (linkData.isRedirect) {
-		linkTarget = target.value;
-		if (target.modified || !target.fromsrc) {
-			linkTarget = linkTarget.replace(/^(\.\.?\/)*/, '').replace(/_/g, ' ');
-			escapedTgt = escapeLinkTarget(linkTarget, state);
-			linkTarget = escapedTgt.linkTarget;
+	// The string value of the content, if it is plain text.
+	$linkTarget = null;
+$escapedTgt = null;
+	if ( $linkData->isRedirect ) {
+		$linkTarget = $target->value;
+		if ( $target->modified || !$target->fromsrc ) {
+			$linkTarget = preg_replace( '/_/', ' ', preg_replace( '/^(\.\.?\/)*/', '', $linkTarget, 1 ) );
+			$escapedTgt = $escapeLinkTarget( $linkTarget, $state );
+			$linkTarget = $escapedTgt->linkTarget;
 			// Determine if it's a redirect to a category, in which case
 			// it needs a ':' on front to distingish from a category link.
-			var categoryMatch = linkTarget.match(/^([^:]+)[:]/);
-			if (categoryMatch) {
-				var ns = wiki.namespaceIds.get(Util.normalizeNamespaceName(categoryMatch[1]));
-				if (ns === wiki.canonicalNamespaces.category) {
+			// Determine if it's a redirect to a category, in which case
+			// it needs a ':' on front to distingish from a category link.
+			$categoryMatch = preg_match( '/^([^:]+)[:]/', $linkTarget );
+			if ( $categoryMatch ) {
+				$ns = $wiki->namespaceIds->get( Util::normalizeNamespaceName( $categoryMatch[ 1 ] ) );
+				if ( $ns === $wiki->canonicalNamespaces->category ) {
 					// Check that the next node isn't a category link,
 					// in which case we don't want the ':'.
-					var nextNode = node.nextSibling;
-					if (!(
-						nextNode && DOMUtils.isElt(nextNode) && nextNode.nodeName === "LINK" &&
-						nextNode.getAttribute('rel') === "mw:PageProp/Category" &&
-						nextNode.getAttribute('href') === node.getAttribute('href')
-					)) {
-						linkTarget = ':' + linkTarget;
+					$nextNode = $node->nextSibling;
+					if ( !$nextNode && DOMUtils::isElt( $nextNode ) && $nextNode->nodeName === 'LINK'
+&& $nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category'
+&& $nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
+					) {
+						$linkTarget = ':' . $linkTarget;
 					}
 				}
 			}
 		}
-	} else if (isSimpleWikiLink(env, dp, target, linkData)) {
+	} elseif ( $isSimpleWikiLink( $env, $dp, $target, $linkData ) ) {
 		// Simple case
-		if (!target.modified && !linkData.contentModified) {
-			linkTarget = target.value.replace(/^\.\//, '');
+		if ( !$target->modified && !$linkData->contentModified ) {
+			$linkTarget = preg_replace( '/^\.\//', '', $target->value, 1 );
 		} else {
 			// If token has templated attrs or is a subpage, use target.value
 			// since content string will be drastically different.
-			if (WTUtils.hasExpandedAttrsType(node) ||
-				/(^|\/)\.\.\//.test(target.value)) {
-				linkTarget = target.value.replace(/^\.\//, '');
+			if ( WTUtils::hasExpandedAttrsType( $node )
+|| preg_match( '/(^|\/)\.\.\//', $target->value )
+			) {
+				$linkTarget = preg_replace( '/^\.\//', '', $target->value, 1 );
 			} else {
-				escapedTgt = escapeLinkTarget(linkData.content.string, state);
-				if (!escapedTgt.invalidLink) {
-					linkTarget = addColonEscape(env, escapedTgt.linkTarget, linkData);
+				$escapedTgt = $escapeLinkTarget( $linkData->content->string, $state );
+				if ( !$escapedTgt->invalidLink ) {
+					$linkTarget = $addColonEscape( $env, $escapedTgt->linkTarget, $linkData );
 				} else {
-					linkTarget = escapedTgt.linkTarget;
+					$linkTarget = $escapedTgt->linkTarget;
 				}
 			}
-			if (linkData.isInterwikiLang && !/^[:]/.test(linkTarget) &&
-				linkData.type !== 'mw:PageProp/Language') {
+			if ( $linkData->isInterwikiLang && !preg_match( '/^[:]/', $linkTarget )
+&& $linkData->type !== 'mw:PageProp/Language'
+			) {
 				// ensure interwiki links can't be confused with
 				// interlanguage links.
-				linkTarget = ':' + linkTarget;
+				$linkTarget = ':' . $linkTarget;
 			}
 		}
-	} else if (isURLLink(state.env, node, linkData)/* && !linkData.isInterwiki */) {
+	} elseif ( $isURLLink( $state->env, $node, $linkData )/* && !linkData.isInterwiki */ ) { /* && !linkData.isInterwiki */
 		// Uncomment the above check if we want [[wikipedia:Foo|http://en.wikipedia.org/wiki/Foo]]
 		// for '<a href="http://en.wikipedia.org/wiki/Foo">http://en.wikipedia.org/wiki/Foo</a>'
-		linkData.linkType = "mw:URLLink";
+		$linkData->linkType = 'mw:URLLink';
 	} else {
 		// Emit piped wikilink syntax
-		isPiped = true;
+		$isPiped = true;
 
 		// First get the content source
-		if (linkData.contentNode) {
-			var cs = yield state.serializeLinkChildrenToString(
-				linkData.contentNode,
-				state.serializer.wteHandlers.wikilinkHandler
+		// First get the content source
+		if ( $linkData->contentNode ) {
+			$cs = /* await */ $state->serializeLinkChildrenToString(
+				$linkData->contentNode,
+				$state->serializer->wteHandlers->wikilinkHandler
 			);
 			// strip off the tail and handle the pipe trick
-			contentParts = splitLinkContentString(cs, dp);
-			contentSrc = contentParts.contentString;
-			dp.tail = contentParts.tail;
-			linkData.tail = contentParts.tail;
-			dp.prefix = contentParts.prefix;
-			linkData.prefix = contentParts.prefix;
-			requiresEscaping = false;
+			// strip off the tail and handle the pipe trick
+			$contentParts = $splitLinkContentString( $cs, $dp );
+			$contentSrc = $contentParts->contentString;
+			$dp->tail = $contentParts->tail;
+			$linkData->tail = $contentParts->tail;
+			$dp->prefix = $contentParts->prefix;
+			$linkData->prefix = $contentParts->prefix;
+			$requiresEscaping = false;
 		} else {
-			contentSrc = linkData.content.string || '';
-			requiresEscaping = !linkData.content.fromsrc;
+			$contentSrc = $linkData->content->string || '';
+			$requiresEscaping = !$linkData->content->fromsrc;
 		}
 
-		if (contentSrc === '' &&
-			linkData.type !== 'mw:PageProp/Category') {
+		if ( $contentSrc === ''
+&& $linkData->type !== 'mw:PageProp/Category'
+		) {
 			// Protect empty link content from PST pipe trick
-			contentSrc = '<nowiki/>';
-			requiresEscaping = false;
+			$contentSrc = '<nowiki/>';
+			$requiresEscaping = false;
 		}
 
-		linkTarget = target.value;
-		if (target.modified || !target.fromsrc) {
+		$linkTarget = $target->value;
+		if ( $target->modified || !$target->fromsrc ) {
 			// Links starting with ./ shouldn't get _ replaced with ' '
-			var linkContentIsRelative =
-				linkData.content && linkData.content.string &&
-				linkData.content.string.match(/^\.\//);
-			linkTarget = linkTarget.replace(/^(\.\.?\/)*/, '');
-			if (!linkData.isInterwiki && !linkContentIsRelative) {
-				linkTarget = linkTarget.replace(/_/g, ' ');
+			$linkContentIsRelative =
+			$linkData->content && $linkData->content->string
+&& preg_match( '/^\.\//', $linkData->content->string );
+			$linkTarget = preg_replace( '/^(\.\.?\/)*/', '', $linkTarget, 1 );
+			if ( !$linkData->isInterwiki && !$linkContentIsRelative ) {
+				$linkTarget = preg_replace( '/_/', ' ', $linkTarget );
 			}
-			escapedTgt = escapeLinkTarget(linkTarget, state);
-			linkTarget = escapedTgt.linkTarget;
+			$escapedTgt = $escapeLinkTarget( $linkTarget, $state );
+			$linkTarget = $escapedTgt->linkTarget;
 		}
 
 		// If we are reusing the target from source, we don't
@@ -584,130 +662,151 @@ var serializeAsWikiLink = Promise.async(function *(node, state, linkData) {
 		// colon-escaping seems a bit tricky when the reused
 		// target has encoded entities that won't resolve to
 		// valid titles.
-		if ((!escapedTgt || !escapedTgt.invalidLink) && !target.fromsrc) {
-			linkTarget = addColonEscape(env, linkTarget, linkData);
+		// If we are reusing the target from source, we don't
+		// need to worry about colon-escaping because it will
+		// be in the right form already.
+		//
+		// Trying to eliminate this check and always check for
+		// colon-escaping seems a bit tricky when the reused
+		// target has encoded entities that won't resolve to
+		// valid titles.
+		if ( ( !$escapedTgt || !$escapedTgt->invalidLink ) && !$target->fromsrc ) {
+			$linkTarget = $addColonEscape( $env, $linkTarget, $linkData );
 		}
 	}
-	if (linkData.linkType === "mw:URLLink") {
-		state.emitChunk(new AutoURLLinkText(node.textContent, node), node);
+	if ( $linkData->linkType === 'mw:URLLink' ) {
+		$state->emitChunk( new AutoURLLinkText( $node->textContent, $node ), $node );
 		return;
 	}
 
-	if (linkData.isRedirect) {
+	if ( $linkData->isRedirect ) {
 		// Drop duplicates
-		if (state.redirectText !== null) {
+		if ( $state->redirectText !== null ) {
 			return;
 		}
 
 		// Buffer redirect text if it is not in start of file position
-		if (!REDIRECT_TEST_RE.test(state.out + state.currLine.text)) {
-			state.redirectText = linkData.prefix + '[[' + linkTarget + ']]';
-			state.emitChunk('', node);  // Flush seperators for this node
+		// Buffer redirect text if it is not in start of file position
+		if ( !preg_match( $REDIRECT_TEST_RE, $state->out + $state->currLine->text ) ) {
+			$state->redirectText = $linkData->prefix . '[[' . $linkTarget . ']]';
+			$state->emitChunk( '', $node ); // Flush seperators for this node
+			// Flush seperators for this node
 			return;
 		}
 
 		// Set to some non-null string
-		state.redirectText = 'unbuffered';
+		// Set to some non-null string
+		$state->redirectText = 'unbuffered';
 	}
 
-	var pipedText;
-	if (escapedTgt && escapedTgt.invalidLink) {
+	$pipedText = null;
+	if ( $escapedTgt && $escapedTgt->invalidLink ) {
 		// If the link target was invalid, instead of emitting an invalid link,
 		// omit the link and serialize just the content instead. But, log the
 		// invalid html for Parsoid clients to investigate later.
-		state.env.log("error/html2wt/link", "Bad title text", node.outerHTML);
+		$state->env->log( 'error/html2wt/link', 'Bad title text', $node->outerHTML );
 
 		// For non-piped content, use the original invalid link text
-		pipedText = isPiped ? contentSrc : linkTarget;
+		// For non-piped content, use the original invalid link text
+		$pipedText = ( $isPiped ) ? $contentSrc : $linkTarget;
 
-		if (requiresEscaping) {
+		if ( $requiresEscaping ) {
 			// Escape the text in the old sol context
-			state.onSOL = oldSOLState;
-			pipedText = state.serializer.wteHandlers.escapeWikiText(pipedText, { node: node });
+			$state->onSOL = $oldSOLState;
+			$pipedText = $state->serializer->wteHandlers->escapeWikiText( $state, $pipedText, [ 'node' => $node ] );
 		}
-		state.emitChunk(linkData.prefix + pipedText + linkData.tail, node);
+		$state->emitChunk( $linkData->prefix + $pipedText + $linkData->tail, $node );
 	} else {
-		if (isPiped && requiresEscaping) {
+		if ( $isPiped && $requiresEscaping ) {
 			// We are definitely not in sol context since content
 			// will be preceded by "[[" or "[" text in target wikitext.
-			pipedText = '|' + state.serializer.wteHandlers.escapeLinkContent(contentSrc, false, node);
-		} else if (isPiped) {
-			pipedText = '|' + contentSrc;
+			$pipedText = '|' . $state->serializer->wteHandlers->escapeLinkContent( $state, $contentSrc, false, $node, false );
+		} elseif ( $isPiped ) {
+			$pipedText = '|' . $contentSrc;
 		} else {
-			pipedText = '';
+			$pipedText = '';
 		}
-		state.emitChunk(new WikiLinkText(
-			linkData.prefix + '[[' + linkTarget + pipedText + ']]' + linkData.tail,
-			node, wiki, linkData.type), node);
+		$state->emitChunk( new WikiLinkText(
+				$linkData->prefix . '[[' . $linkTarget . $pipedText . ']]' . $linkData->tail,
+				$node, $wiki, $linkData->type
+			), $node
+		);
 	}
-});
+};
 
-var serializeAsExtLink = Promise.async(function *(node, state, linkData) {
-	var target = linkData.target;
-	var urlStr = target.value;
-	if (target.modified || !target.fromsrc) {
+$serializeAsExtLink = /* async */function ( $node, $state, $linkData ) use ( &$escapeExtLinkURL, &$isURLLink, &$AutoURLLinkText, &$WikiLinkText, &$ExtLinkText, &$MagicLinkText ) {
+	$target = $linkData->target;
+	$urlStr = $target->value;
+	if ( $target->modified || !$target->fromsrc ) {
 		// We expect modified hrefs to be percent-encoded already, so
 		// don't need to encode them here any more. Unmodified hrefs are
 		// just using the original encoding anyway.
 		// BUT we do have to encode certain special wikitext
 		// characters (like []) which aren't necessarily
 		// percent-encoded because they are valid in URLs and HTML5
-		urlStr = escapeExtLinkURL(urlStr);
+		$urlStr = $escapeExtLinkURL( $urlStr );
 	}
 
-	if (isURLLink(state.env, node, linkData)) {
+	if ( $isURLLink( $state->env, $node, $linkData ) ) {
 		// Serialize as URL link
-		state.emitChunk(new AutoURLLinkText(urlStr, node), node);
+		$state->emitChunk( new AutoURLLinkText( $urlStr, $node ), $node );
 		return;
 	}
 
-	var wiki = state.env.conf.wiki;
+	$wiki = $state->env->conf->wiki;
 
 	// TODO: match vs. interwikis too
-	var magicLinkMatch = wiki.ExtResourceURLPatternMatcher.match(Util.decodeURI(linkData.origHref));
-	var pureHashMatch = /^#/.test(urlStr);
+	// TODO: match vs. interwikis too
+	$magicLinkMatch = preg_match( Util::decodeURI( $linkData->origHref ), $wiki::ExtResourceURLPatternMatcher );
+	$pureHashMatch = preg_match( '/^#/', $urlStr );
 	// Fully serialize the content
-	var contentStr = yield state.serializeLinkChildrenToString(
-		node,
-		pureHashMatch ?
-			state.serializer.wteHandlers.wikilinkHandler :
-			state.serializer.wteHandlers.aHandler
+	// Fully serialize the content
+	$contentStr = /* await */ $state->serializeLinkChildrenToString(
+		$node,
+		( $pureHashMatch ) ?
+		$state->serializer->wteHandlers->wikilinkHandler :
+		$state->serializer->wteHandlers->aHandler
 	);
 	// First check for ISBN/RFC/PMID links. We rely on selser to
 	// preserve non-minimal forms.
-	if (magicLinkMatch) {
-		var serializer = wiki.ExtResourceSerializer[magicLinkMatch[0]];
-		var serialized = serializer(magicLinkMatch, target.value, contentStr);
-		if (serialized[0] === '[') {
+	// First check for ISBN/RFC/PMID links. We rely on selser to
+	// preserve non-minimal forms.
+	if ( $magicLinkMatch ) {
+		$serializer = $wiki::ExtResourceSerializer[ $magicLinkMatch[ 0 ] ];
+		$serialized = $serializer( $magicLinkMatch, $target->value, $contentStr );
+		if ( $serialized[ 0 ] === '[' ) {
 			// Serialization as a magic link failed (perhaps the
 			// content string wasn't appropriate).
-			state.emitChunk(
-				magicLinkMatch[0] === 'ISBN' ?
-					new WikiLinkText(serialized, node, wiki, 'mw:WikiLink') :
-					new ExtLinkText(serialized, node, wiki, 'mw:ExtLink'),
-				node
+			$state->emitChunk(
+				( $magicLinkMatch[ 0 ] === 'ISBN' ) ?
+				new WikiLinkText( $serialized, $node, $wiki, 'mw:WikiLink' ) :
+				new ExtLinkText( $serialized, $node, $wiki, 'mw:ExtLink' ),
+				$node
 			);
 		} else {
-			state.emitChunk(new MagicLinkText(serialized, node), node);
+			$state->emitChunk( new MagicLinkText( $serialized, $node ), $node );
 		}
 		return;
-	// There is an interwiki for RFCs, but strangely none for PMIDs.
-	} else {
+		// There is an interwiki for RFCs, but strangely none for PMIDs.
+	} else { // There is an interwiki for RFCs, but strangely none for PMIDs.
+
 		// serialize as auto-numbered external link
 		// [http://example.com]
-		var linktext, Construct;
+		$linktext = null;
+$Construct = null;
 		// If it's just anchor text, serialize as an internal link.
-		if (pureHashMatch) {
-			Construct = WikiLinkText;
-			linktext = '[[' + urlStr + (contentStr ? '|' + contentStr : '') + ']]';
+		// If it's just anchor text, serialize as an internal link.
+		if ( $pureHashMatch ) {
+			$Construct = $WikiLinkText;
+			$linktext = '[[' . $urlStr . ( ( $contentStr ) ? '|' . $contentStr : '' ) . ']]';
 		} else {
-			Construct = ExtLinkText;
-			linktext = '[' + urlStr + (contentStr ? ' ' + contentStr : '') + ']';
+			$Construct = $ExtLinkText;
+			$linktext = '[' . $urlStr . ( ( $contentStr ) ? ' ' . $contentStr : '' ) . ']';
 		}
-		state.emitChunk(new Construct(linktext, node, wiki, linkData.type), node);
+		$state->emitChunk( new Construct( $linktext, $node, $wiki, $linkData->type ), $node );
 		return;
 	}
-});
+};
 
 /**
  * Main link handler.
@@ -715,101 +814,108 @@ var serializeAsExtLink = Promise.async(function *(node, state, linkData) {
  * @param {Node} node
  * @return {Promise}
  */
-var linkHandler = Promise.async(function *(node) {
+$linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$serializeAsWikiLink, &$serializeAsExtLink, &$DOMUtils, &$escapeExtLinkURL, &$getHref, &$ExtLinkText ) {
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
-	var env = this.env;
-	var state = this.state;
-	var wiki = env.conf.wiki;
+	$env = $this->env;
+	$state = $this->state;
+	$wiki = $env->conf->wiki;
 
 	// Get the rt data from the token and tplAttrs
-	var linkData = yield getLinkRoundTripData(env, node, state);
-	var linkType = linkData.type;
-	if (wiki.ExtResourceURLPatternMatcher.match(Util.decodeURI(linkData.origHref))) {
+	// Get the rt data from the token and tplAttrs
+	$linkData = /* await */ $getLinkRoundTripData( $env, $node, $state );
+	$linkType = $linkData->type;
+	if ( preg_match( Util::decodeURI( $linkData->origHref ), $wiki::ExtResourceURLPatternMatcher ) ) {
 		// Override the 'rel' type if this is a magic link
-		linkType = 'mw:ExtLink';
+		$linkType = 'mw:ExtLink';
 	}
-	if (linkType !== null && linkData.target.value !== null) {
+	if ( $linkType !== null && $linkData->target->value !== null ) {
 		// We have a type and target info
-		if (/^mw:WikiLink|mw:MediaLink$/.test(linkType) ||
-			TokenUtils.solTransparentLinkRegexp.test(linkType)) {
+		if ( preg_match( '/^mw:WikiLink|mw:MediaLink$/', $linkType )
+|| preg_match( TokenUtils::solTransparentLinkRegexp, $linkType )
+		) {
 			// [[..]] links: normal, category, redirect, or lang links
 			// (except images)
-			return (yield serializeAsWikiLink(node, state, linkData));
-		} else if (linkType === 'mw:ExtLink') {
+			return ( /* await */ $serializeAsWikiLink( $node, $state, $linkData ) );
+		} elseif ( $linkType === 'mw:ExtLink' ) {
 			// [..] links, autolinks, ISBN, RFC, PMID
-			return (yield serializeAsExtLink(node, state, linkData));
+			return ( /* await */ $serializeAsExtLink( $node, $state, $linkData ) );
 		} else {
-			throw new Error('Unhandled link serialization scenario: ' +
-							node.outerHTML);
+			throw new Error( 'Unhandled link serialization scenario: '
+. $node->outerHTML
+			);
 		}
 	} else {
-		var safeAttr = new Set(["href", "rel", "class", "title"]);
-		var isComplexLink = function(attributes) {
-			for (var i = 0; i < attributes.length; i++) {
-				var attr = attributes.item(i);
+		$safeAttr = new Set( [ 'href', 'rel', 'class', 'title' ] );
+		$isComplexLink = function ( $attributes ) use ( &$safeAttr ) {
+			for ( $i = 0;  $i < count( $attributes );  $i++ ) {
+				$attr = $attributes->item( $i );
 				// XXX: Don't drop rel and class in every case once a tags are
 				// actually supported in the MW default config?
-				if (attr.name && !safeAttr.has(attr.name)) {
+				// XXX: Don't drop rel and class in every case once a tags are
+				// actually supported in the MW default config?
+				if ( $attr->name && !$safeAttr->has( $attr->name ) ) {
 					return true;
 				}
 			}
 			return false;
 		};
 
-		var isFigure = false;
-		if (isComplexLink(node.attributes)) {
-			env.log("error/html2wt/link", "Encountered", node.outerHTML,
-					"-- serializing as extlink and dropping <a> attributes unsupported in wikitext.");
+		$isFigure = false;
+		if ( $isComplexLink( $node->attributes ) ) {
+			$env->log( 'error/html2wt/link', 'Encountered', $node->outerHTML,
+				'-- serializing as extlink and dropping <a> attributes unsupported in wikitext.'
+			);
 		} else {
-			var media = DOMUtils.selectMediaElt(node);
-			isFigure = !!(media && media.parentElement === node);
+			$media = DOMUtils::selectMediaElt( $node );
+			$isFigure = (bool)( $media && $media->parentElement === $node );
 		}
 
-		var hrefStr;
-		if (isFigure) {
+		$hrefStr = null;
+		if ( $isFigure ) {
 			// this is a basic html figure: <a><img></a>
-			return (yield state.serializer.figureHandler(node));
+			return ( /* await */ $state->serializer->figureHandler( $node ) );
 		} else {
 			// href is already percent-encoded, etc., but it might contain
 			// spaces or other wikitext nasties.  escape the nasties.
-			hrefStr = escapeExtLinkURL(getHref(env, node));
-			var handler = state.serializer.wteHandlers.aHandler;
-			var str = yield state.serializeLinkChildrenToString(node, handler);
-			var chunk;
-			if (!hrefStr) {
+			$hrefStr = $escapeExtLinkURL( $getHref( $env, $node ) );
+			$handler = $state->serializer->wteHandlers->aHandler;
+			$str = /* await */ $state->serializeLinkChildrenToString( $node, $handler );
+			$chunk = null;
+			if ( !$hrefStr ) {
 				// Without an href, we just emit the string as text.
 				// However, to preserve targets for anchor links,
 				// serialize as a span with a name.
-				var name = node.getAttribute('name');
-				if (name) {
-					var doc = node.ownerDocument;
-					var span = doc.createElement('span');
-					span.setAttribute('name', name);
-					span.appendChild(doc.createTextNode(str));
-					chunk = span.outerHTML;
+				$name = $node->getAttribute( 'name' );
+				if ( $name ) {
+					$doc = $node->ownerDocument;
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'name', $name );
+					$span->appendChild( $doc->createTextNode( $str ) );
+					$chunk = $span->outerHTML;
 				} else {
-					chunk = str;
+					$chunk = $str;
 				}
 			} else {
-				chunk = new ExtLinkText('[' + hrefStr + ' ' + str + ']',
-										node, wiki, 'mw:ExtLink');
+				$chunk = new ExtLinkText( '[' . $hrefStr . ' ' . $str . ']',
+					$node, $wiki, 'mw:ExtLink'
+				);
 			}
-			state.emitChunk(chunk, node);
+			$state->emitChunk( $chunk, $node );
 		}
 	}
-});
+};
 
-function eltNameFromMediaType(type) {
-	switch (type) {
+function eltNameFromMediaType( $type ) {
+	switch ( $type ) {
 		case 'mw:Audio':
-			return 'AUDIO';
+		return 'AUDIO';
 		case 'mw:Video':
-			return 'VIDEO';
+		return 'VIDEO';
 		default:
-			return 'IMG';
+		return 'IMG';
 	}
 }
 
@@ -830,462 +936,597 @@ function eltNameFromMediaType(type) {
  * @param {Node} node
  * @return {Promise}
  */
-var figureHandler = Promise.async(function *(node) {
-	var env = this.env;
-	var state = this.state;
-	var outerElt = node;
+$figureHandler = /* async */function ( $node ) use ( &$WTSUtils, &$AutoURLLinkText, &$DOMDataUtils, &$ContentUtils, &$Promise, &$lastItem, &$WikiLinkText ) {
+	$env = $this->env;
+	$state = $this->state;
+	$outerElt = $node;
 
-	var typeOf = node.getAttribute('typeof') || '';
-	var match = typeOf.match(/(?:^|\s)(mw:(?:Image|Video|Audio))(?:\/(\w*))?(?:\s|$)/);
-	var rdfaType = match && match[1] || '';
-	var format = match && match[2] || '';
+	$mediaTypeInfo = WTSUtils::getMediaType( $node );
+	$temp1 = $mediaTypeInfo;
+$rdfaType = $temp1->rdfaType;
+	$temp2 = $mediaTypeInfo;
+$format = $temp2->format;
 
-	var eltName = eltNameFromMediaType(rdfaType);
-	var elt = node.querySelector(eltName);
+	$eltName = eltNameFromMediaType( $rdfaType );
+	$elt = $node->querySelector( $eltName );
 	// TODO: Remove this when version 1.7.0 of the content is no longer supported
-	if (!elt && rdfaType === 'mw:Audio') {
-		eltName = 'VIDEO';
-		elt = node.querySelector(eltName);
+	// TODO: Remove this when version 1.7.0 of the content is no longer supported
+	if ( !$elt && $rdfaType === 'mw:Audio' ) {
+		$eltName = 'VIDEO';
+		$elt = $node->querySelector( $eltName );
 	}
 
-	var linkElt = null;
+	$linkElt = null;
 	// parent of elt is probably the linkElt
-	if (elt &&
-			(elt.parentElement.tagName === 'A' ||
-			(elt.parentElement.tagName === 'SPAN' &&
-			elt.parentElement !== outerElt))) {
-		linkElt = elt.parentElement;
+	// parent of elt is probably the linkElt
+	if ( $elt
+&& ( $elt->parentElement->tagName === 'A'
+|| ( $elt->parentElement->tagName === 'SPAN'
+&& $elt->parentElement !== $outerElt ) )
+	) {
+		$linkElt = $elt->parentElement;
 	}
 
 	// FIGCAPTION or last child (which is not the linkElt) is the caption.
-	var captionElt = node.querySelector('FIGCAPTION');
-	if (!captionElt) {
-		for (captionElt = node.lastElementChild;
-			captionElt;
-			captionElt = captionElt.previousElementSibling) {
-			if (captionElt !== linkElt && captionElt !== elt &&
-				/^(SPAN|DIV)$/.test(captionElt.tagName)) {
+	// FIGCAPTION or last child (which is not the linkElt) is the caption.
+	$captionElt = $node->querySelector( 'FIGCAPTION' );
+	if ( !$captionElt ) {
+		for ( $captionElt = $node->lastElementChild;
+			$captionElt;
+			$captionElt = $captionElt->previousElementSibling
+		) {
+			if ( $captionElt !== $linkElt && $captionElt !== $elt
+&& preg_match( '/^(SPAN|DIV)$/', $captionElt->tagName )
+			) {
 				break;
 			}
 		}
 	}
 
 	// special case where `node` is the ELT tag itself!
-	if (node.tagName === eltName) {
-		linkElt = captionElt = null;
-		outerElt = elt = node;
+	// special case where `node` is the ELT tag itself!
+	if ( $node->tagName === $eltName ) {
+		$linkElt = $captionElt = null;
+		$outerElt = $elt = $node;
+	}
+
+	// Maybe this is "missing" media, i.e. a redlink
+	// Maybe this is "missing" media, i.e. a redlink
+	$isMissing = false;
+	if ( !$elt
+&& preg_match( '/^FIGURE/', $outerElt->nodeName )
+&& $outerElt->firstChild && $outerElt->firstChild->nodeName === 'A'
+&& $outerElt->firstChild->firstChild && $outerElt->firstChild->firstChild->nodeName === 'SPAN'
+	) {
+		$linkElt = $outerElt->firstChild;
+		$elt = $linkElt->firstChild;
+		$isMissing = true;
 	}
 
 	// The only essential thing is the ELT tag!
-	if (!elt) {
-		env.log("error/html2wt/figure",
-			"In WSP.figureHandler, node does not have any " + eltName + " elements:",
-			node.outerHTML);
-		state.emitChunk('', node);
+	// The only essential thing is the ELT tag!
+	if ( !$elt ) {
+		$env->log( 'error/html2wt/figure',
+			'In WSP.figureHandler, node does not have any ' . $eltName . ' elements:',
+			$node->outerHTML
+		);
+		$state->emitChunk( '', $node );
 		return;
 	}
 
 	// Try to identify the local title to use for this image.
-	var resource = yield this.serializedImageAttrVal(outerElt, elt, 'resource');
-	if (resource.value === null) {
+	// Try to identify the local title to use for this image.
+	$resource = /* await */ $this->serializedImageAttrVal( $outerElt, $elt, 'resource' );
+	if ( $resource->value === null ) {
 		// from non-parsoid HTML: try to reconstruct resource from src?
 		// (this won't work for manual-thumb images)
-		var src = elt.getAttribute('src');
-		if (!src) {
-			env.log("error/html2wt/figure",
-					"In WSP.figureHandler, img does not have resource or src:",
-					node.outerHTML);
-			state.emitChunk('', node);
-			return;
-		}
-		if (/^https?:/.test(src)) {
-			// external image link, presumably $wgAllowExternalImages=true
-			state.emitChunk(new AutoURLLinkText(src, node), node);
-			return;
-		}
-		resource = {
-			value: src,
-			fromsrc: false,
-			modified: false,
-		};
-	}
-	if (!resource.fromsrc) {
-		resource.value = resource.value.replace(/^(\.\.?\/)+/, '');
-	}
-
-	var nopts = [];
-	var outerDP = outerElt ? DOMDataUtils.getDataParsoid(outerElt) : {};
-	var outerDMW = outerElt ? DOMDataUtils.getDataMw(outerElt) : {};
-	var mwAliases = state.env.conf.wiki.mwAliases;
-
-	// Try to identify the local title to use for the link.
-	var link;
-	if (linkElt && linkElt.hasAttribute('href')) {
-		link = yield state.serializer.serializedImageAttrVal(outerElt, linkElt, 'href');
-		if (!link.fromsrc) {
-			if (linkElt.getAttribute('href') ===
-				elt.getAttribute('resource')) {
-				// default link: same place as resource
-				link = resource;
-			}
-			link.value = link.value.replace(/^(\.\.?\/)+/, '');
-		}
-	} else {
-		// Otherwise, just try and get it from data-mw
-		link = yield state.serializer.getAttributeValueAsShadowInfo(outerElt, 'href');
-	}
-
-	// Reconstruct the caption
-	if (!captionElt && typeof outerDMW.caption === 'string') {
-		captionElt = outerElt.ownerDocument.createElement('div');
-		ContentUtils.ppToDOM(outerDMW.caption, { node: captionElt, markNew: true });
-		// Needs a parent node in order for WTS to be happy:
-		// DocumentFragment to the rescue!
-		outerElt.ownerDocument.createDocumentFragment().appendChild(captionElt);
-	}
-
-	var caption = null;
-	if (captionElt) {
-		caption = yield state.serializeCaptionChildrenToString(
-			captionElt, state.serializer.wteHandlers.wikilinkHandler
-		);
-	}
-
-	// Fetch the alt (if any)
-	var alt =
-		yield state.serializer.serializedImageAttrVal(outerElt, elt, 'alt');
-	// Fetch the lang (if any)
-	var lang =
-		yield state.serializer.serializedImageAttrVal(outerElt, elt, 'lang');
-
-	// Ok, start assembling options, beginning with link & alt & lang
-	var linkCond = (link && link.value !== resource.value) ||
-		// Other media don't have links in output.  This is a special
-		// case for images w/ link=
-		(!link && eltName === 'IMG');
-	[
-		{ name: 'link', value: link, cond: linkCond },
-		{ name: 'alt',  value: alt,  cond: alt.value !== null },
-		{ name: 'lang', value: lang, cond: lang.value !== null },
-	].forEach(function(o) {
-		if (!o.cond) { return; }
-		if (o.value && o.value.fromsrc) {
-			nopts.push({
-				ck: o.name,
-				ak: [ o.value.value ],
-			});
-		} else {
-			let value = o.value ? o.value.value : '';
-			if (o.value && /^(link|alt)$/.test(o.name)) {
-				// see wt2html/tt/LinkHandler.js: link and alt are whitelisted
-				// for accepting arbitrary wikitext, even though it is stripped
-				// to a string before emitting.
-				value = state.serializer.wteHandlers.escapeLinkContent(value, false, node);
-			}
-			nopts.push({
-				ck: o.name,
-				v: value,
-				ak: mwAliases['img_' + o.name],
-			});
-		}
-	});
-
-	// Handle class-signified options
-	var classes = outerElt ? outerElt.classList : [];
-	var extra = []; // 'extra' classes
-	var val;
-
-	for (var ix = 0; ix < classes.length; ix++) {
-		switch (classes[ix]) {
-			case 'mw-halign-none':
-			case 'mw-halign-right':
-			case 'mw-halign-left':
-			case 'mw-halign-center':
-				val = classes[ix].replace(/^mw-halign-/, '');
-				nopts.push({
-					ck: val,
-					ak: mwAliases['img_' + val],
-				});
-				break;
-
-			case 'mw-valign-top':
-			case 'mw-valign-middle':
-			case 'mw-valign-baseline':
-			case 'mw-valign-sub':
-			case 'mw-valign-super':
-			case 'mw-valign-text-top':
-			case 'mw-valign-bottom':
-			case 'mw-valign-text-bottom':
-				val = classes[ix].replace(/^mw-valign-/, '')
-				.replace(/-/g, '_');
-				nopts.push({
-					ck: val,
-					ak: mwAliases['img_' + val],
-				});
-				break;
-
-			case 'mw-image-border':
-				nopts.push({
-					ck: 'border',
-					ak: mwAliases.img_border,
-				});
-				break;
-
-			case 'mw-default-size':
-			case 'mw-default-audio-height':
-				// handled below
-				break;
-
-			default:
-				extra.push(classes[ix]);
-				break;
-		}
-	}
-
-	if (extra.length) {
-		nopts.push({
-			ck: 'class',
-			v: extra.join(' '),
-			ak: mwAliases.img_class,
-		});
-	}
-
-	var paramFromDataMw = Promise.async(function *(o) {
-		var v = outerDMW[o.prop];
-		if (v !== undefined) {
-			var ak = yield state.serializer.getAttributeValue(
-				outerElt, o.ck, mwAliases[o.alias]
+		$src = $elt->getAttribute( 'src' );
+		if ( !$src ) {
+			$env->log( 'error/html2wt/figure',
+				'In WSP.figureHandler, img does not have resource or src:',
+				$node->outerHTML
 			);
-			nopts.push({
-				ck: o.ck,
-				ak: ak,
-				v: v,
-			});
+			$state->emitChunk( '', $node );
+			return;
 		}
-	});
-
-	yield Promise.map([
-		{ prop: 'thumb', ck: 'manualthumb', alias: 'img_manualthumb' },
-		{ prop: 'page',  ck: 'page',        alias: 'img_page' },
-		// mw:Video specific
-		{ prop: 'starttime', ck: 'starttime', alias: 'timedmedia_starttime' },
-		{ prop: 'endtime', ck: 'endtime', alias: 'timedmedia_endtime' },
-		{ prop: 'thumbtime', ck: 'thumbtime', alias: 'timedmedia_thumbtime' },
-	], paramFromDataMw);
-
-	if (outerDMW.thumb !== undefined) { format = ''; }
-	switch (format) {
-		case 'Thumb':
-			nopts.push({
-				ck: 'thumbnail',
-				ak: yield state.serializer.getAttributeValue(
-					outerElt, 'thumbnail', mwAliases.img_thumbnail
-				)
-			});
-			break;
-		case 'Frame':
-			nopts.push({
-				ck: 'framed',
-				ak: yield state.serializer.getAttributeValue(
-					outerElt, 'framed', mwAliases.img_framed
-				)
-			});
-			break;
-		case 'Frameless':
-			nopts.push({
-				ck: 'frameless',
-				ak: yield state.serializer.getAttributeValue(
-					outerElt, 'frameless', mwAliases.img_frameless
-				)
-			});
-			break;
+		if ( preg_match( '/^https?:/', $src ) ) {
+			// external image link, presumably $wgAllowExternalImages=true
+			$state->emitChunk( new AutoURLLinkText( $src, $node ), $node );
+			return;
+		}
+		$resource = [
+			'value' => $src,
+			'fromsrc' => false,
+			'modified' => false
+		];
+	}
+	if ( !$resource->fromsrc ) {
+		$resource->value = preg_replace( '/^(\.\.?\/)+/', '', $resource->value, 1 );
 	}
 
-	// Get the user-specified height from wikitext
-	var wh =
-		yield state.serializer.serializedImageAttrVal(outerElt, elt, 'height');
-	// Get the user-specified width from wikitext
-	var ww =
-		yield state.serializer.serializedImageAttrVal(outerElt, elt, 'width');
+	$nopts = [];
+	$outerDP = ( $outerElt ) ? DOMDataUtils::getDataParsoid( $outerElt ) : [];
+	$outerDMW = ( $outerElt ) ? DOMDataUtils::getDataMw( $outerElt ) : [];
+	$mwAliases = $state->env->conf->wiki->mwAliases;
 
-	var getOpt = function(key) {
-		if (!outerDP.optList) {
+	$getOpt = function ( $key ) use ( &$outerDP ) {
+		if ( !$outerDP->optList ) {
 			return null;
 		}
-		return outerDP.optList.find(function(o) { return o.ck === key; });
+		return $outerDP->optList->find( function ( $o ) use ( &$key ) { return $o->ck === $key;
+  } );
 	};
-	var getLastOpt = function(key) {
-		var o = outerDP.optList || [];
-		for (var i = o.length - 1; i >= 0; i--) {
-			if (o[i].ck === key) {
-				return o[i];
+	$getLastOpt = function ( $key ) use ( &$outerDP ) {
+		$o = $outerDP->optList || [];
+		for ( $i = count( $o ) - 1;  $i >= 0;  $i-- ) {
+			if ( $o[ $i ]->ck === $key ) {
+				return $o[ $i ];
 			}
 		}
 		return null;
 	};
-	var sizeUnmodified = ww.fromDataMW || (!ww.modified && !wh.modified);
-	var upright = getOpt('upright');
+
+	// Try to identify the local title to use for the link.
+	// Try to identify the local title to use for the link.
+	$link = null;
+
+	$linkFromDataMw = WTSUtils::getAttrFromDataMw( $outerDMW, 'link', true );
+	if ( $linkFromDataMw !== null ) {
+		// "link" attribute on the `outerElt` takes precedence
+		if ( $linkFromDataMw[ 1 ]->html !== null ) {
+			$link = /* await */ $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'link' );
+		} else {
+			$link = [
+				'value' => "link={$linkFromDataMw[ 1 ]->txt}",
+				'modified' => false,
+				'fromsrc' => false,
+				'fromDataMW' => true
+			];
+		}
+	} elseif ( $linkElt && $linkElt->hasAttribute( 'href' ) ) {
+		$link = /* await */ $state->serializer->serializedImageAttrVal( $outerElt, $linkElt, 'href' );
+		if ( !$link->fromsrc ) {
+			if ( $linkElt->getAttribute( 'href' )
+=== $elt->getAttribute( 'resource' )
+			) {
+				// default link: same place as resource
+				$link = $resource;
+			}
+			$link->value = preg_replace( '/^(\.\.?\/)+/', '', $link->value, 1 );
+		}
+	} else {
+		// Otherwise, just try and get it from data-mw
+		$link = /* await */ $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'href' );
+	}
+
+	if ( $link && !$link->modified && !$link->fromsrc ) {
+		$linkOpt = $getOpt( 'link' );
+		if ( $linkOpt ) {
+			$link->fromsrc = true;
+			$link->value = $linkOpt->ak;
+		}
+	}
+
+	// Reconstruct the caption
+	// Reconstruct the caption
+	if ( !$captionElt && gettype( $outerDMW->caption ) === 'string' ) {
+		$captionElt = $outerElt->ownerDocument->createElement( 'div' );
+		ContentUtils::ppToDOM( $outerDMW->caption, [ 'node' => $captionElt, 'markNew' => true ] );
+		// Needs a parent node in order for WTS to be happy:
+		// DocumentFragment to the rescue!
+		// Needs a parent node in order for WTS to be happy:
+		// DocumentFragment to the rescue!
+		$outerElt->ownerDocument->createDocumentFragment()->appendChild( $captionElt );
+	}
+
+	$caption = null;
+	if ( $captionElt ) {
+		$caption = /* await */ $state->serializeCaptionChildrenToString(
+			$captionElt, $state->serializer->wteHandlers->mediaOptionHandler
+		);
+	}
+
+	// Fetch the alt (if any)
+	// Fetch the alt (if any)
+	$alt =
+	/* await */ $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'alt' );
+	// Fetch the lang (if any)
+	// Fetch the lang (if any)
+	$lang =
+	/* await */ $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'lang' );
+
+	// Ok, start assembling options, beginning with link & alt & lang
+	// Other media don't have links in output.
+	// Ok, start assembling options, beginning with link & alt & lang
+	// Other media don't have links in output.
+	$linkCond = $elt->nodeName === 'IMG' && ( !$link || $link->value !== $resource->value );
+
+	// "alt" for non-image is handle below
+	// "alt" for non-image is handle below
+	$altCond = $alt->value !== null && $elt->nodeName === 'IMG';
+
+	[
+		[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
+		[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
+		[ 'name' => 'lang', 'value' => $lang, 'cond' => $lang->value !== null ]
+	]->forEach( function ( $o ) use ( &$nopts, &$state, &$node ) {
+			if ( !$o->cond ) { return;
+   }
+			if ( $o->value && $o->value->fromsrc ) {
+				$nopts[] = [
+					'ck' => $o->name,
+					'ak' => [ $o->value->value ]
+				];
+			} else {
+				$value = ( $o->value ) ? $o->value->value : '';
+				if ( $o->value && preg_match( '/^(link|alt)$/', $o->name ) ) {
+					// see wt2html/tt/LinkHandler.js: link and alt are whitelisted
+					// for accepting arbitrary wikitext, even though it is stripped
+					// to a string before emitting.
+					$value = $state->serializer->wteHandlers->escapeLinkContent( $state, $value, false, $node, true );
+				}
+				$nopts[] = [
+					'ck' => $o->name,
+					'v' => $value,
+					'ak' => $mwAliases[ 'img_' . $o->name ]
+				];
+			}
+	}
+	);
+
+	// Handle class-signified options
+	// Handle class-signified options
+	$classes = ( $outerElt ) ? $outerElt->classList : [];
+	$extra = []; // 'extra' classes
+	// 'extra' classes
+	$val = null;
+
+	for ( $ix = 0;  $ix < count( $classes );  $ix++ ) {
+		switch ( $classes[ $ix ] ) {
+			case 'mw-halign-none':
+
+			case 'mw-halign-right':
+
+			case 'mw-halign-left':
+
+			case 'mw-halign-center':
+			$val = preg_replace( '/^mw-halign-/', '', $classes[ $ix ], 1 );
+			$nopts[] = [
+				'ck' => $val,
+				'ak' => $mwAliases[ 'img_' . $val ]
+			];
+			break;
+
+			case 'mw-valign-top':
+
+			case 'mw-valign-middle':
+
+			case 'mw-valign-baseline':
+
+			case 'mw-valign-sub':
+
+			case 'mw-valign-super':
+
+			case 'mw-valign-text-top':
+
+			case 'mw-valign-bottom':
+
+			case 'mw-valign-text-bottom':
+			$val = preg_replace(
+				'/-/', '_', preg_replace( '/^mw-valign-/', '', $classes[ $ix ], 1 ) );
+			$nopts[] = [
+				'ck' => $val,
+				'ak' => $mwAliases[ 'img_' . $val ]
+			];
+			break;
+
+			case 'mw-image-border':
+			$nopts[] = [
+				'ck' => 'border',
+				'ak' => $mwAliases->img_border
+			];
+			break;
+
+			case 'mw-default-size':
+
+			case 'mw-default-audio-height':
+			// handled below
+			break;
+
+			default:
+			$extra[] = $classes[ $ix ];
+			break;
+		}
+	}
+
+	if ( count( $extra ) ) {
+		$nopts[] = [
+			'ck' => 'class',
+			'v' => implode( ' ', $extra ),
+			'ak' => $mwAliases->img_class
+		];
+	}
+
+	$paramFromDataMw = /* async */function ( $o ) use ( &$outerDMW, &$WTSUtils, &$state, &$outerElt, &$mwAliases, &$nopts ) {
+		$v = $outerDMW[ $o->prop ];
+		if ( $v === null ) {
+			$a = WTSUtils::getAttrFromDataMw( $outerDMW, $o->ck, true );
+			if ( $a !== null && $a[ 1 ]->html === null ) { $v = $a[ 1 ]->txt;
+   }
+		}
+		if ( $v !== null ) {
+			$ak = /* await */ $state->serializer->getAttributeValue(
+				$outerElt, $o->ck, $mwAliases[ $o->alias ]
+			);
+			$nopts[] = [
+				'ck' => $o->ck,
+				'ak' => $ak,
+				'v' => $v
+			];
+			// Piggyback this here ...
+			// Piggyback this here ...
+			if ( $o->prop === 'thumb' ) { $format = '';
+   }
+		}
+	};
+
+	$mwParams = [
+		[ 'prop' => 'thumb', 'ck' => 'manualthumb', 'alias' => 'img_manualthumb' ],
+		[ 'prop' => 'page', 'ck' => 'page', 'alias' => 'img_page' ],
+		// mw:Video specific
+		[ 'prop' => 'starttime', 'ck' => 'starttime', 'alias' => 'timedmedia_starttime' ],
+		[ 'prop' => 'endtime', 'ck' => 'endtime', 'alias' => 'timedmedia_endtime' ],
+		[ 'prop' => 'thumbtime', 'ck' => 'thumbtime', 'alias' => 'timedmedia_thumbtime' ]
+	];
+
+	// "alt" for images is handled above
+	// "alt" for images is handled above
+	if ( $elt->nodeName !== 'IMG' ) {
+		$mwParams = $mwParams->concat( [
+				[ 'prop' => 'link', 'ck' => 'link', 'alias' => 'img_link' ],
+				[ 'prop' => 'alt', 'ck' => 'alt', 'alias' => 'img_alt' ]
+			]
+		);
+	}
+
+	/* await */ Promise::map( $mwParams, $paramFromDataMw );
+
+	switch ( $format ) {
+		case 'Thumb':
+		$nopts[] = [
+			'ck' => 'thumbnail',
+			'ak' => /* await */ $state->serializer->getAttributeValue(
+				$outerElt, 'thumbnail', $mwAliases->img_thumbnail
+			)
+		];
+		break;
+		case 'Frame':
+		$nopts[] = [
+			'ck' => 'framed',
+			'ak' => /* await */ $state->serializer->getAttributeValue(
+				$outerElt, 'framed', $mwAliases->img_framed
+			)
+		];
+		break;
+		case 'Frameless':
+		$nopts[] = [
+			'ck' => 'frameless',
+			'ak' => /* await */ $state->serializer->getAttributeValue(
+				$outerElt, 'frameless', $mwAliases->img_frameless
+			)
+		];
+		break;
+	}
+
+	// Get the user-specified height from wikitext
+	// Get the user-specified height from wikitext
+	$wh =
+	/* await */ $state->serializer->serializedImageAttrVal( $outerElt, $elt, "{( $isMissing ) ? 'data-' : ''}height" );
+	// Get the user-specified width from wikitext
+	// Get the user-specified width from wikitext
+	$ww =
+	/* await */ $state->serializer->serializedImageAttrVal( $outerElt, $elt, "{( $isMissing ) ? 'data-' : ''}width" );
+
+	$sizeUnmodified = $ww->fromDataMW || ( !$ww->modified && !$wh->modified );
+	$upright = $getOpt( 'upright' );
 
 	// XXX: Infer upright factor from default size for all thumbs by default?
 	// Better for scaling with user prefs, but requires knowledge about
 	// default used in VE.
-	if (sizeUnmodified && upright
+	// XXX: Infer upright factor from default size for all thumbs by default?
+	// Better for scaling with user prefs, but requires knowledge about
+	// default used in VE.
+	if ( $sizeUnmodified && $upright
 		// Only serialize upright where it is actually respected
 		// This causes some dirty diffs, but makes sure that we don't
 		// produce nonsensical output after a type switch.
 		// TODO: Only strip if type was actually modified.
-		&& format in { 'Frameless': 1, 'Thumb': 1 }) {
+		 && // Only serialize upright where it is actually respected
+			// This causes some dirty diffs, but makes sure that we don't
+			// produce nonsensical output after a type switch.
+			// TODO: Only strip if type was actually modified.
+			isset( [ 'Frameless' => 1, 'Thumb' => 1 ][ $format ] )
+	) {
 		// preserve upright option
-		nopts.push({
-			ck: upright.ck,
-			ak: [upright.ak],  // FIXME: don't use ak here!
-		});
-	}
+		$nopts[] = [
+			'ck' => $upright->ck,
+			'ak' => [ $upright->ak ]
+		];
+	}// FIXME: don't use ak here!
 
-	if (!(outerElt && outerElt.classList.contains('mw-default-size'))) {
-		var size = getLastOpt('width');
-		var sizeString = (size && size.ak) || (ww.fromDataMW && ww.value);
-		if (sizeUnmodified && sizeString) {
+	if ( !( $outerElt && $outerElt->classList->contains( 'mw-default-size' ) ) ) {
+		$size = $getLastOpt( 'width' );
+		$sizeString = ( $size && $size->ak ) || ( $ww->fromDataMW && $ww->value );
+		if ( $sizeUnmodified && $sizeString ) {
 			// preserve original width/height string if not touched
-			nopts.push({
-				ck: 'width',
-				v: sizeString,  // original size string
-				ak: ['$1'],  // don't add px or the like
-			});
-		} else {
-			var bbox = null;
+			$nopts[] = [
+				'ck' => 'width',
+				'v' => $sizeString, // original size string
+				'ak' => [ '$1' ]
+			];
+		} else { // don't add px or the like
+
+			$bbox = null;
 			// Serialize to a square bounding box
-			if (ww.value !== null && ww.value !== ''
-				&& ww.value !== undefined) {
-				bbox = +ww.value;
+			// Serialize to a square bounding box
+			if ( $ww->value !== null && $ww->value !== ''
+&& $ww->value !== null
+			) {
+				$bbox = +$ww->value;
 			}
-			if (wh.value !== null && wh.value !== '' && wh.value !== undefined &&
-				// As with "mw-default-size", editing clients should remove the
-				// "mw-default-audio-height" if they want to factor a defined
-				// height into the bounding box size.  However, note that, at
-				// present, a defined height for audio is ignored while parsing,
-				// so this only has the effect of modifying the width.
-				(rdfaType !== 'mw:Audio' ||
-					!outerElt.classList.contains('mw-default-audio-height'))) {
-				var height = +wh.value;
-				if (bbox === null || height > bbox) {
-					bbox = height;
+			if ( $wh->value !== null && $wh->value !== '' && $wh->value !== null
+&& // As with "mw-default-size", editing clients should remove the
+					// "mw-default-audio-height" if they want to factor a defined
+					// height into the bounding box size.  However, note that, at
+					// present, a defined height for audio is ignored while parsing,
+					// so this only has the effect of modifying the width.
+					( $rdfaType !== 'mw:Audio'
+|| !$outerElt->classList->contains( 'mw-default-audio-height' ) )
+			) {
+				$height = +$wh->value;
+				if ( $bbox === null || $height > $bbox ) {
+					$bbox = $height;
 				}
 			}
-			if (bbox !== null) {
-				nopts.push({
-					ck: 'width',
+			if ( $bbox !== null ) {
+				$nopts[] = [
+					'ck' => 'width',
 					// MediaWiki interprets 100px as a width
 					// restriction only, so we need to make the bounding
 					// box explicitly square (100x100px). The 'px' is
 					// added by the alias though, and can be localized.
-					v:  bbox + 'x' + bbox,
-					ak: mwAliases.img_width,  // adds the 'px' suffix
-				});
+					'v' => $bbox . 'x' . $bbox,
+					'ak' => $mwAliases->img_width
+				];
 			}
 		}
-	}
+	}// adds the 'px' suffix
 
-	var opts = outerDP.optList || []; // original wikitext options
+	$opts = $outerDP->optList || []; // original wikitext options
 
 	// Add bogus options from old optlist in order to round-trip cleanly (T64500)
-	opts.forEach(function(o) {
-		if (o.ck === 'bogus') {
-			nopts.push({
-				ck: 'bogus',
-				ak: [ o.ak ],
-			});
-		}
-	});
+	// original wikitext options
+
+	// Add bogus options from old optlist in order to round-trip cleanly (T64500)
+	$opts->forEach( function ( $o ) use ( &$nopts ) {
+			if ( $o->ck === 'bogus' ) {
+				$nopts[] = [
+					'ck' => 'bogus',
+					'ak' => [ $o->ak ]
+				];
+			}
+	}
+	);
 
 	// Put the caption last, by default.
-	if (typeof (caption) === 'string') {
-		nopts.push({
-			ck: 'caption',
-			ak: [caption],
-		});
+	// Put the caption last, by default.
+	if ( gettype( $caption ) === 'string' ) {
+		$nopts[] = [
+			'ck' => 'caption',
+			'ak' => [ $caption ]
+		];
 	}
 
 	// ok, sort the new options to match the order given in the old optlist
 	// and try to match up the aliases used
-	var changed = false;
-	nopts.forEach(function(no) {
-		// Make sure we have an array here. Default in data-parsoid is
-		// actually a string.
-		// FIXME: don't reuse ak for two different things!
-		if (!Array.isArray(no.ak)) {
-			no.ak = [no.ak];
-		}
-
-		no.sortId = opts.length;
-		var idx = opts.findIndex(function(o) {
-			return o.ck === no.ck &&
-				// for bogus options, make sure the source matches too.
-				(o.ck !== 'bogus' || o.ak === no.ak[0]);
-		});
-		if (idx < 0) {
-			// Preferred words are first in the alias list
-			// (but not in old versions of mediawiki).
-			no.ak = state.env.conf.wiki.useOldAliasOrder ?
-				lastItem(no.ak) : no.ak[0];
-			changed = true;
-			return; /* new option */
-		}
-
-		no.sortId = idx;
-		// use a matching alias, if there is one
-		var a = no.ak.find(function(b) {
-			// note the trim() here; that allows us to snarf eccentric
-			// whitespace from the original option wikitext
-			if ('v' in no) { b = b.replace('$1', no.v); }
-			return b === String(opts[idx].ak).trim();
-		});
-		// use the alias (incl whitespace) from the original option wikitext
-		// if found; otherwise use the last alias given (English default by
-		// convention that works everywhere).
-		// TODO: use first alias (localized) instead for RTL languages (T53852)
-		if (a !== undefined && no.ck !== 'caption') {
-			no.ak = opts[idx].ak;
-			no.v = undefined; // prevent double substitution
-		} else {
-			no.ak = lastItem(no.ak);
-			if (!(no.ck === 'caption' && a !== undefined)) {
-				changed = true;
+	// ok, sort the new options to match the order given in the old optlist
+	// and try to match up the aliases used
+	$changed = false;
+	$nopts->forEach( function ( $no ) use ( &$opts, &$state, &$lastItem ) {
+			// Make sure we have an array here. Default in data-parsoid is
+			// actually a string.
+			// FIXME: don't reuse ak for two different things!
+			if ( !is_array( $no->ak ) ) {
+				$no->ak = [ $no->ak ];
 			}
-		}
-	});
+
+			$no->sortId = count( $opts );
+			$idx = $opts->findIndex( function ( $o ) use ( &$no ) {
+					return $o->ck === $no->ck
+&& // for bogus options, make sure the source matches too.
+						( $o->ck !== 'bogus' || $o->ak === $no->ak[ 0 ] );
+			}
+			);
+			if ( $idx < 0 ) {
+				// Preferred words are first in the alias list
+				// (but not in old versions of mediawiki).
+				$no->ak = ( $state->env->conf->wiki->useOldAliasOrder ) ?
+				$lastItem( $no->ak ) : $no->ak[ 0 ];
+				$changed = true;
+				return; /* new option */
+			}/* new option */
+
+			$no->sortId = $idx;
+			// use a matching alias, if there is one
+			// use a matching alias, if there is one
+			$a = $no->ak->find( function ( $b ) use ( &$no ) {
+					// note the trim() here; that allows us to snarf eccentric
+					// whitespace from the original option wikitext
+					if ( isset( $no[ 'v' ] ) ) { $b = str_replace( '$1', $no->v, $b );
+		   }
+					return $b === trim( String( $opts[ $idx ]->ak ) );
+			}
+			);
+			// use the alias (incl whitespace) from the original option wikitext
+			// if found; otherwise use the last alias given (English default by
+			// convention that works everywhere).
+			// TODO: use first alias (localized) instead for RTL languages (T53852)
+			// use the alias (incl whitespace) from the original option wikitext
+			// if found; otherwise use the last alias given (English default by
+			// convention that works everywhere).
+			// TODO: use first alias (localized) instead for RTL languages (T53852)
+			if ( $a !== null && $no->ck !== 'caption' ) {
+				$no->ak = $opts[ $idx ]->ak;
+				$no->v = null; // prevent double substitution
+			} else { // prevent double substitution
+
+				$no->ak = $lastItem( $no->ak );
+				if ( !( $no->ck === 'caption' && $a !== null ) ) {
+					$changed = true;
+				}
+			}
+	}
+	);
 
 	// Filter out bogus options if the image options/caption have changed.
-	if (changed) {
-		nopts = nopts.filter(function(no) { return no.ck !== 'bogus'; });
+	// Filter out bogus options if the image options/caption have changed.
+	if ( $changed ) {
+		$nopts = $nopts->filter( function ( $no ) { return $no->ck !== 'bogus';
+  } );
 		// empty captions should get filtered out in this case, too (T64264)
-		nopts = nopts.filter(function(no) {
-			return !(no.ck === 'caption' && no.ak === '');
-		});
+		// empty captions should get filtered out in this case, too (T64264)
+		$nopts = $nopts->filter( function ( $no ) {
+				return !( $no->ck === 'caption' && $no->ak === '' );
+		}
+		);
 	}
 
 	// sort!
-	nopts.sort(function(a, b) { return a.sortId - b.sortId; });
+	// sort!
+	$nopts->sort( function ( $a, $b ) { return $a->sortId - $b->sortId;
+ } );
 
 	// emit all the options as wikitext!
-	var wikitext = '[[' + resource.value;
-	nopts.forEach(function(o) {
-		wikitext += '|';
-		if (o.v !== undefined) {
-			wikitext += o.ak.replace('$1', o.v);
-		} else {
-			wikitext += o.ak;
-		}
-	});
-	wikitext += ']]';
+	// emit all the options as wikitext!
+	$wikitext = '[[' . $resource->value;
+	$nopts->forEach( function ( $o ) {
+			$wikitext += '|';
+			if ( $o->v !== null ) {
+				$wikitext += str_replace( '$1', $o->v, $o->ak );
+			} else {
+				$wikitext += $o->ak;
+			}
+	}
+	);
+	$wikitext += ']]';
 
-	state.emitChunk(
-		new WikiLinkText(wikitext, node, state.env.conf.wiki, rdfaType),
-		node);
-});
+	$state->emitChunk(
+		new WikiLinkText( $wikitext, $node, $state->env->conf->wiki, $rdfaType ),
+		$node
+	);
+};
 
-
-if (typeof module === "object") {
-	module.exports.linkHandler = linkHandler;
-	module.exports.figureHandler = figureHandler;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->linkHandler = $linkHandler;
+	$module->exports->figureHandler = $figureHandler;
 }

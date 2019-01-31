@@ -1,10 +1,14 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-var DOMDataUtils = require('../../../utils/DOMDataUtils.js').DOMDataUtils;
-var DOMUtils = require('../../../utils/DOMUtils.js').DOMUtils;
-var WTUtils = require('../../../utils/WTUtils.js').WTUtils;
+$DOMDataUtils = require '../../../utils/DOMDataUtils.js'::DOMDataUtils;
+$DOMUtils = require '../../../utils/DOMUtils.js'::DOMUtils;
+$WTUtils = require '../../../utils/WTUtils.js'::WTUtils;
 
 /**
  * For the following wikitext (called the "LI hack"):
@@ -22,108 +26,117 @@ var WTUtils = require('../../../utils/WTUtils.js').WTUtils;
  * asterisk `*` absent, should indeed expand into two nodes in the
  * DOM.
  */
-function handleLIHack(node, env) {
-	var prevNode = node.previousSibling;
+function handleLIHack( $node, $env ) {
+	global $WTUtils;
+	global $DOMUtils;
+	global $DOMDataUtils;
+	$prevNode = $node->previousSibling;
 
-	if (WTUtils.isLiteralHTMLNode(node) &&
-		prevNode !== null &&
-		prevNode.nodeName === 'LI' &&
-		!WTUtils.isLiteralHTMLNode(prevNode) &&
-		DOMUtils.nodeEssentiallyEmpty(prevNode)) {
+	if ( WTUtils::isLiteralHTMLNode( $node )
+&& $prevNode !== null
+&& $prevNode->nodeName === 'LI'
+&& !WTUtils::isLiteralHTMLNode( $prevNode )
+&& DOMUtils::nodeEssentiallyEmpty( $prevNode )
+	) {
 
-		var dp = DOMDataUtils.getDataParsoid(node);
-		var typeOf = node.getAttribute('typeof') || '';
-		var liHackSrc = WTUtils.getWTSource(env, prevNode);
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$typeOf = $node->getAttribute( 'typeof' ) || '';
+		$liHackSrc = WTUtils::getWTSource( $env, $prevNode );
 
-		if (/(?:^|\s)mw:Transclusion(?=$|\s)/.test(typeOf)) {
-			var dataMW = DOMDataUtils.getDataMw(node);
-			if (dataMW.parts) { dataMW.parts.unshift(liHackSrc); }
+		if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+			$dataMW = DOMDataUtils::getDataMw( $node );
+			if ( $dataMW->parts ) { array_unshift( $dataMW->parts, $liHackSrc );
+   }
 		} else {
 			// We have to store the extra information in order to
 			// reconstruct the original source for roundtripping.
-			dp.liHackSrc = liHackSrc;
+			$dp->liHackSrc = $liHackSrc;
 		}
 
 		// Update the dsr. Since we are coalescing the first
 		// node with the second (or, more precisely, deleting
 		// the first node), we have to update the second DSR's
 		// starting point and start tag width.
-		var nodeDSR = dp.dsr;
-		var prevNodeDSR = DOMDataUtils.getDataParsoid(prevNode).dsr;
+		$nodeDSR = $dp->dsr;
+		$prevNodeDSR = DOMDataUtils::getDataParsoid( $prevNode )->dsr;
 
-		if (nodeDSR && prevNodeDSR) {
-			dp.dsr = [
-				prevNodeDSR[0],
-				nodeDSR[1],
-				nodeDSR[2] + prevNodeDSR[1] - prevNodeDSR[0],
-				nodeDSR[3],
+		if ( $nodeDSR && $prevNodeDSR ) {
+			$dp->dsr = [
+				$prevNodeDSR[ 0 ],
+				$nodeDSR[ 1 ],
+				$nodeDSR[ 2 ] + $prevNodeDSR[ 1 ] - $prevNodeDSR[ 0 ],
+				$nodeDSR[ 3 ]
 			];
 		}
 
 		// Delete the duplicated <li> node.
-		prevNode.parentNode.removeChild(prevNode);
+		$prevNode->parentNode->removeChild( $prevNode );
 	}
 
 	return true;
 }
 
-function getMigrationInfo(c) {
-	var tplRoot = WTUtils.findFirstEncapsulationWrapperNode(c);
-	if (tplRoot !== null) {
+function getMigrationInfo( $c ) {
+	global $WTUtils;
+	$tplRoot = WTUtils::findFirstEncapsulationWrapperNode( $c );
+	if ( $tplRoot !== null ) {
 		// Check if everything between tplRoot and c is migratable.
-		var prev = tplRoot.previousSibling;
-		while (c !== prev) {
-			if (!WTUtils.isCategoryLink(c) &&
-				!(c.nodeName === 'SPAN' && /^\s*$/.test(c.textContent))) {
-				return { tplRoot: tplRoot, migratable: false };
+		$prev = $tplRoot->previousSibling;
+		while ( $c !== $prev ) {
+			if ( !WTUtils::isCategoryLink( $c )
+&& !( $c->nodeName === 'SPAN' && preg_match( '/^\s*$/', $c->textContent ) )
+			) {
+				return [ 'tplRoot' => $tplRoot, 'migratable' => false ];
 			}
 
-			c = c.previousSibling;
+			$c = $c->previousSibling;
 		}
 	}
 
-	return { tplRoot: tplRoot, migratable: true };
+	return [ 'tplRoot' => $tplRoot, 'migratable' => true ];
 }
 
-function findLastMigratableNode(li) {
-	var sentinel = null;
-	var c = DOMUtils.lastNonSepChild(li);
+function findLastMigratableNode( $li ) {
+	global $DOMUtils;
+	global $WTUtils;
+	$sentinel = null;
+	$c = DOMUtils::lastNonSepChild( $li );
 	// c is known to be a category link.
 	// fail fast in parser tests if something changes.
-	console.assert(WTUtils.isCategoryLink(c));
-	while (c) {
+	Assert::invariant( WTUtils::isCategoryLink( $c ) );
+	while ( $c ) {
 		// Handle template units first
-		var info = getMigrationInfo(c);
-		if (!info.migratable) {
+		$info = getMigrationInfo( $c );
+		if ( !$info->migratable ) {
 			break;
-		} else if (info.tplRoot !== null) {
-			c = info.tplRoot;
+		} elseif ( $info->tplRoot !== null ) {
+			$c = $info->tplRoot;
 		}
 
-		if (DOMUtils.isText(c)) {
+		if ( DOMUtils::isText( $c ) ) {
 			// Update sentinel if we hit a newline.
 			// We want to migrate these newlines and
 			// everything following them out of 'li'.
-			if (/\n\s*$/.test(c.nodeValue)) {
-				sentinel = c;
+			if ( preg_match( '/\n\s*$/', $c->nodeValue ) ) {
+				$sentinel = $c;
 			}
 
 			// If we didn't hit pure whitespace, we are done!
-			if (!/^\s*$/.test(c.nodeValue)) {
+			if ( !preg_match( '/^\s*$/', $c->nodeValue ) ) {
 				break;
 			}
-		} else if (DOMUtils.isComment(c)) {
-			sentinel = c;
-		} else if (!WTUtils.isCategoryLink(c)) {
+		} elseif ( DOMUtils::isComment( $c ) ) {
+			$sentinel = $c;
+		} elseif ( !WTUtils::isCategoryLink( $c ) ) {
 			// We are done if we hit anything but text
 			// or category links.
 			break;
 		}
 
-		c = c.previousSibling;
+		$c = $c->previousSibling;
 	}
 
-	return sentinel;
+	return $sentinel;
 }
 
 /**
@@ -137,9 +150,12 @@ function findLastMigratableNode(li) {
  * this pattern is extremely common (some list at the end of the page
  * followed by a list of categories for the page).
  */
-function migrateTrailingCategories(li, env, unused, tplInfo) {
+function migrateTrailingCategories( $li, $env, $unused, $tplInfo ) {
+	global $DOMUtils;
+	global $WTUtils;
+	global $DOMDataUtils;
 	// * Don't bother fixing up template content when processing the full page
-	if (tplInfo) {
+	if ( $tplInfo ) {
 		return true;
 	}
 
@@ -147,93 +163,94 @@ function migrateTrailingCategories(li, env, unused, tplInfo) {
 	// (categories preceded by newlines),
 	// * migrate it out of the outermost list
 	// * and fix up the DSR of list items and list along the rightmost path.
-	if (li.nextSibling === null && DOMUtils.isList(li.parentNode) &&
-		WTUtils.isCategoryLink(DOMUtils.lastNonSepChild(li))) {
+	if ( $li->nextSibling === null && DOMUtils::isList( $li->parentNode )
+&& WTUtils::isCategoryLink( DOMUtils::lastNonSepChild( $li ) )
+	) {
 
 		// Find the outermost list -- content will be moved after it
-		var outerList = li.parentNode;
-		while (DOMUtils.isListItem(outerList.parentNode)) {
-			var p = outerList.parentNode;
+		$outerList = $li->parentNode;
+		while ( DOMUtils::isListItem( $outerList->parentNode ) ) {
+			$p = $outerList->parentNode;
 			// Bail if we find ourself on a path that is not the rightmost path.
-			if (p.nextSibling !== null) {
+			if ( $p->nextSibling !== null ) {
 				return true;
 			}
-			outerList = p.parentNode;
+			$outerList = $p->parentNode;
 		}
 
 		// Find last migratable node
-		var sentinel = findLastMigratableNode(li);
-		if (!sentinel) {
+		$sentinel = findLastMigratableNode( $li );
+		if ( !$sentinel ) {
 			return true;
 		}
 
 		// Migrate (and update DSR)
-		var c = li.lastChild;
-		var liDsr = DOMDataUtils.getDataParsoid(li).dsr;
-		var newEndDsr = -1; // dummy to eliminate useless null checks
-		while (true) {  // eslint-disable-line
-			if (DOMUtils.isElt(c)) {
-				var dsr = DOMDataUtils.getDataParsoid(c).dsr;
-				newEndDsr = dsr ? dsr[0] : -1;
-				outerList.parentNode.insertBefore(c, outerList.nextSibling);
-			} else if (DOMUtils.isText(c)) {
-				if (/^\s*$/.test(c.nodeValue)) {
-					newEndDsr -= c.data.length;
-					outerList.parentNode.insertBefore(c, outerList.nextSibling);
+		$c = $li->lastChild;
+		$liDsr = DOMDataUtils::getDataParsoid( $li )->dsr;
+		$newEndDsr = -1; // dummy to eliminate useless null checks
+		while ( true ) { // eslint-disable-line
+			if ( DOMUtils::isElt( $c ) ) {
+				$dsr = DOMDataUtils::getDataParsoid( $c )->dsr;
+				$newEndDsr = ( $dsr ) ? $dsr[ 0 ] : -1;
+				$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
+			} elseif ( DOMUtils::isText( $c ) ) {
+				if ( preg_match( '/^\s*$/', $c->nodeValue ) ) {
+					$newEndDsr -= count( $c->data );
+					$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 				} else {
 					// Split off the newlines into its own node and migrate it
-					var nls = c.data;
-					c.data = c.data.replace(/\s+$/, '');
-					nls = nls.substring(c.data.length);
-					var nlNode = c.ownerDocument.createTextNode(nls);
-					outerList.parentNode.insertBefore(nlNode, outerList.nextSibling);
-					newEndDsr -= nls.length;
+					$nls = $c->data;
+					$c->data = preg_replace( '/\s+$/', '', $c->data, 1 );
+					$nls = $nls->substring( count( $nls ) );
+					$nlNode = $c->ownerDocument->createTextNode( $nls );
+					$outerList->parentNode->insertBefore( $nlNode, $outerList->nextSibling );
+					$newEndDsr -= count( $nls );
 				}
-			} else if (DOMUtils.isComment(c)) {
-				newEndDsr -= WTUtils.decodedCommentLength(c);
-				outerList.parentNode.insertBefore(c, outerList.nextSibling);
+			} elseif ( DOMUtils::isComment( $c ) ) {
+				$newEndDsr -= WTUtils::decodedCommentLength( $c );
+				$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 			}
 
-			if (c === sentinel) {
+			if ( $c === $sentinel ) {
 				break;
 			}
 
-			c = li.lastChild;
+			$c = $li->lastChild;
 		}
 
 		// Update DSR of all listitem & list nodes till
 		// we hit the outermost list we started with.
-		var delta;
-		if (liDsr && newEndDsr >= 0) {
-			delta = liDsr[1] - newEndDsr;
+		$delta = null;
+		if ( $liDsr && $newEndDsr >= 0 ) {
+			$delta = $liDsr[ 1 ] - $newEndDsr;
 		}
 
 		// If there is no delta to adjust dsr by, we are done
-		if (!delta) {
+		if ( !$delta ) {
 			return true;
 		}
 
 		// Fix DSR along the rightmost path to outerList
-		var list;
-		while (outerList !== list) {
-			list = li.parentNode;
-			liDsr = DOMDataUtils.getDataParsoid(li).dsr;
-			if (liDsr) {
-				liDsr[1] -= delta;
+		$list = null;
+		while ( $outerList !== $list ) {
+			$list = $li->parentNode;
+			$liDsr = DOMDataUtils::getDataParsoid( $li )->dsr;
+			if ( $liDsr ) {
+				$liDsr[ 1 ] -= $delta;
 			}
 
-			var listDsr = DOMDataUtils.getDataParsoid(list).dsr;
-			if (listDsr) {
-				listDsr[1] -= delta;
+			$listDsr = DOMDataUtils::getDataParsoid( $list )->dsr;
+			if ( $listDsr ) {
+				$listDsr[ 1 ] -= $delta;
 			}
-			li = list.parentNode;
+			$li = $list->parentNode;
 		}
 	}
 
 	return true;
 }
 
-if (typeof module === "object") {
-	module.exports.handleLIHack = handleLIHack;
-	module.exports.migrateTrailingCategories = migrateTrailingCategories;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->handleLIHack = $handleLIHack;
+	$module->exports->migrateTrailingCategories = $migrateTrailingCategories;
 }

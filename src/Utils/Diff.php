@@ -1,206 +1,231 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Diff tools.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-var simpleDiff = require('simplediff');
+use Parsoid\simpleDiff as simpleDiff;
 
-var Util = require('./Util.js').Util;
+$Util = require './Util.js'::Util;
 
 /** @namespace */
-var Diff = {};
+$Diff = [];
 
 /** @func */
-Diff.convertDiffToOffsetPairs = function(diff, srcLengths, outLengths) {
-	var currentPair;
-	var pairs = [];
-	var srcOff = 0;
-	var outOff = 0;
-	var srcIndex = 0;
-	var outIndex = 0;
-	diff.forEach(function(change) {
-		var pushPair = function(pair, start) {
-			if (!pair.added) {
-				pair.added = { start: start, end: start };
-			} else if (!pair.removed) {
-				pair.removed = { start: start, end: start };
-			}
-			pairs.push([ pair.removed, pair.added ]);
-			currentPair = {};
-		};
+Diff::convertDiffToOffsetPairs = function ( $diff, $srcLengths, $outLengths ) {
+	$currentPair = null;
+	$pairs = [];
+	$srcOff = 0;
+	$outOff = 0;
+	$srcIndex = 0;
+	$outIndex = 0;
+	$diff->forEach( function ( $change ) use ( &$pairs, &$outLengths, &$outIndex, &$srcLengths, &$srcIndex, &$currentPair, &$srcOff, &$outOff ) {
+			$pushPair = function ( $pair, $start ) use ( &$pairs ) {
+				if ( !$pair->added ) {
+					$pair->added = [ 'start' => $start, 'end' => $start ];
+				} elseif ( !$pair->removed ) {
+					$pair->removed = [ 'start' => $start, 'end' => $start ];
+				}
+				$pairs[] = [ $pair->removed, $pair->added ];
+				$currentPair = [];
+			};
 
-		// Use original line lengths;
-		var srcLen = 0;
-		var outLen = 0;
-		change[1].forEach(function() {
-			if (change[0] === '+') {
-				outLen += outLengths[outIndex];
-				outIndex++;
-			} else if (change[0] === '-') {
-				srcLen += srcLengths[srcIndex];
-				srcIndex++;
+			// Use original line lengths;
+			$srcLen = 0;
+			$outLen = 0;
+			$change[ 1 ]->forEach( function () use ( &$change, &$outLengths, &$outIndex, &$srcLengths, &$srcIndex ) {
+					if ( $change[ 0 ] === '+' ) {
+						$outLen += $outLengths[ $outIndex ];
+						$outIndex++;
+					} elseif ( $change[ 0 ] === '-' ) {
+						$srcLen += $srcLengths[ $srcIndex ];
+						$srcIndex++;
+					} else {
+						$srcLen += $srcLengths[ $srcIndex ];
+						$outLen += $outLengths[ $outIndex ];
+						$srcIndex++;
+						$outIndex++;
+					}
+			}
+			);
+
+			if ( !$currentPair ) {
+				$currentPair = [];
+			}
+
+			if ( $change[ 0 ] === '+' ) {
+				if ( $currentPair->added ) {
+					$pushPair( $currentPair, $srcOff ); // srcOff used for adding pair.removed
+				}
+
+				$currentPair->added = [ 'start' => $outOff ];
+				$outOff += $outLen;
+				$currentPair->added->end = $outOff;
+
+				if ( $currentPair->removed ) {
+					$pushPair( $currentPair );
+				}
+			} elseif ( $change[ 0 ] === '-' ) {
+				if ( $currentPair->removed ) {
+					$pushPair( $currentPair, $outOff ); // outOff used for adding pair.added
+				}
+
+				$currentPair->removed = [ 'start' => $srcOff ];
+				$srcOff += $srcLen;
+				$currentPair->removed->end = $srcOff;
+
+				if ( $currentPair->added ) {
+					$pushPair( $currentPair );
+				}
 			} else {
-				srcLen += srcLengths[srcIndex];
-				outLen += outLengths[outIndex];
-				srcIndex++;
-				outIndex++;
+				if ( $currentPair->added || $currentPair->removed ) {
+					$pushPair( $currentPair, ( $currentPair->added ) ? $srcOff : $outOff );
+				}
+
+				$srcOff += $srcLen;
+				$outOff += $outLen;
 			}
-		});
-
-		if (!currentPair) {
-			currentPair = {};
-		}
-
-		if (change[0] === '+') {
-			if (currentPair.added) {
-				pushPair(currentPair, srcOff); // srcOff used for adding pair.removed
-			}
-
-			currentPair.added = { start: outOff };
-			outOff += outLen;
-			currentPair.added.end = outOff;
-
-			if (currentPair.removed) {
-				pushPair(currentPair);
-			}
-		} else if (change[0] === '-') {
-			if (currentPair.removed) {
-				pushPair(currentPair, outOff); // outOff used for adding pair.added
-			}
-
-			currentPair.removed = { start: srcOff };
-			srcOff += srcLen;
-			currentPair.removed.end = srcOff;
-
-			if (currentPair.added) {
-				pushPair(currentPair);
-			}
-		} else {
-			if (currentPair.added || currentPair.removed) {
-				pushPair(currentPair, currentPair.added ? srcOff : outOff);
-			}
-
-			srcOff += srcLen;
-			outOff += outLen;
-		}
-	});
-	return pairs;
+	}
+	);
+	return $pairs;
 };
 
 /** @func */
-Diff.convertChangesToXML = function(changes) {
-	var result = [];
-	for (var i = 0; i < changes.length; i++) {
-		var change = changes[i];
-		if (change[0] === '+') {
-			result.push('<ins>');
-		} else if (change[0] === '-') {
-			result.push('<del>');
+Diff::convertChangesToXML = function ( $changes ) {
+	$result = [];
+	for ( $i = 0;  $i < count( $changes );  $i++ ) {
+		$change = $changes[ $i ];
+		if ( $change[ 0 ] === '+' ) {
+			$result[] = '<ins>';
+		} elseif ( $change[ 0 ] === '-' ) {
+			$result[] = '<del>';
 		}
 
-		result.push(Util.escapeHtml(change[1].join('')));
+		$result[] = Util::escapeHtml( implode( '', $change[ 1 ] ) );
 
-		if (change[0] === '+') {
-			result.push('</ins>');
-		} else if (change[0] === '-') {
-			result.push('</del>');
+		if ( $change[ 0 ] === '+' ) {
+			$result[] = '</ins>';
+		} elseif ( $change[ 0 ] === '-' ) {
+			$result[] = '</del>';
 		}
 	}
-	return result.join('');
+	return implode( '', $result );
 };
 
-var diffTokens = function(oldString, newString, tokenize) {
-	if (oldString === newString) {
-		return [['=', [newString]]];
+$diffTokens = function ( $oldString, $newString, $tokenize ) use ( &$simpleDiff ) {
+	if ( $oldString === $newString ) {
+		return [ [ '=', [ $newString ] ] ];
 	} else {
-		return simpleDiff.diff(tokenize(oldString), tokenize(newString));
+		return simpleDiff::diff( $tokenize( $oldString ), $tokenize( $newString ) );
 	}
 };
 
 /** @func */
-Diff.diffWords = function(oldString, newString) {
+Diff::diffWords = function ( $oldString, $newString ) use ( &$diffTokens ) {
 	// This is a complicated regexp, but it improves on the naive \b by:
 	// * keeping tag-like things (<pre>, <a, </a>, etc) together
 	// * keeping possessives and contractions (don't, etc) together
 	// * ensuring that newlines always stay separate, so we don't
-	//   have diff chunks that contain multiple newlines
-	//   (ie, "remove \n\n" followed by "add \n", instead of
-	//   "keep \n", "remove \n")
-	var wordTokenize =
-		value => value.split(/((?:<\/?)?\w+(?:'\w+|>)?|\s(?:(?!\n)\s)*)/g).filter(
+	// have diff chunks that contain multiple newlines
+	// (ie, "remove \n\n" followed by "add \n", instead of
+	// "keep \n", "remove \n")
+	$wordTokenize =
+	function ( $value ) {return preg_split( "/((?:<\\/?)?\\w+(?:'\\w+|>)?|\\s(?:(?!\\n)\\s)*)/", $value )->filter(
 			// For efficiency, filter out zero-length strings from token list
-			s => s !== ''
+			function ( $s ) {return $s !== '';
+   }
 		);
-	return diffTokens(oldString, newString, wordTokenize);
-};
-
-/** @func */
-Diff.diffLines = function(oldString, newString) {
-	var lineTokenize = function(value) {
-		return value.split(/^/m).map(function(line) {
-			return line.replace(/\r$/g, '\n');
-		});
 	};
-	return diffTokens(oldString, newString, lineTokenize);
+	return $diffTokens( $oldString, $newString, $wordTokenize );
 };
 
 /** @func */
-Diff.colorDiff = function(a, b, options) {
-	const context = options && options.context;
-	let diffs = 0;
-	let buf = '';
-	let before = '';
-	const visibleWs = s => s.replace(/[ \xA0]/g,'\u2423');
-	const funcs = (options && options.html) ? {
-		'+': s => '<font color="green">' + Util.escapeHtml(visibleWs(s)) + '</font>',
-		'-': s => '<font color="red">' + Util.escapeHtml(visibleWs(s)) + '</font>',
-		'=': s => Util.escapeHtml(s),
-	} : (options && options.noColor) ? {
-		'+': s => '{+' + s + '+}',
-		'-': s => '{-' + s + '-}',
-		'=': s => s,
-	} : {
+Diff::diffLines = function ( $oldString, $newString ) use ( &$diffTokens ) {
+	$lineTokenize = function ( $value ) {
+		return array_map( preg_split( '/^/m', $value ), function ( $line ) {
+				return preg_replace( '/\r$/', "\n", $line );
+		}
+		);
+	};
+	return $diffTokens( $oldString, $newString, $lineTokenize );
+};
+
+/** @func */
+Diff::colorDiff = function ( $a, $b, $options ) use ( &$Util, &$Diff ) {
+	$context = $options && $options->context;
+	$diffs = 0;
+	$buf = '';
+	$before = '';
+	$visibleWs = function ( $s ) {return preg_replace( '/[ \xA0]/', "␣", $s );
+ };
+	$funcs = ( $options && $options->html ) ? [
+		'+' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="green">' . Util::escapeHtml( $visibleWs( $s ) ) . '</font>';
+  },
+		'-' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="red">' . Util::escapeHtml( $visibleWs( $s ) ) . '</font>';
+  },
+		'=' => function ( $s ) use ( &$Util ) {return Util::escapeHtml( $s );
+  }
+	] : ( $options && $options->noColor ) ? [
+		'+' => function ( $s ) {return '{+' . $s . '+}';
+  },
+		'-' => function ( $s ) {return '{-' . $s . '-}';
+  },
+		'=' => function ( $s ) {return $s;
+  }
+	] : [
 		// add '' to workaround color bug; make spaces visible
-		'+': s => visibleWs(s).green + '',
-		'-': s => visibleWs(s).red + '',
-		'=': s => s,
-	};
-	const NL = (options && options.html) ? '<br/>\n' : '\n';
-	const DIFFSEP = (options && options.separator) || NL;
-	const visibleNL = '\u21b5';
-	for (const change of Diff.diffWords(a, b)) {
-		const op = change[0];
-		const value = change[1].join('');
-		if (op !== '=') {
-			diffs++;
-			buf += before;
-			before = '';
-			buf += value.split('\n').map((s,i,arr) => {
-				if (i !== (arr.length - 1)) { s += visibleNL; }
-				return s ? funcs[op](s) : s;
-			}).join(NL);
+		'+' => function ( $s ) use ( &$visibleWs ) {return $visibleWs( $s )->green . '';
+  },
+		'-' => function ( $s ) use ( &$visibleWs ) {return $visibleWs( $s )->red . '';
+  },
+		'=' => function ( $s ) {return $s;
+  }
+	];
+	$NL = ( $options && $options->html ) ? "<br/>\n" : "\n";
+	$DIFFSEP = ( $options && $options->separator ) || $NL;
+	$visibleNL = "↵";
+	foreach ( Diff::diffWords( $a, $b ) as $change => $___ ) {
+		$op = $change[ 0 ];
+		$value = implode( '', $change[ 1 ] );
+		if ( $op !== '=' ) {
+			$diffs++;
+			$buf += $before;
+			$before = '';
+			$buf += implode(
+
+				$NL, array_map( explode( "\n", $value ), function ( $s, $i, $arr ) {
+						if ( $i !== ( count( $arr ) - 1 ) ) { $s += $visibleNL;
+			   }
+						return ( $s ) ? $funcs[ $op ]( $s ) : $s;
+				}
+				)
+
+			);
 		} else {
-			if (context) {
-				const lines = value.split('\n');
-				if (lines.length > 2 * (context + 1)) {
-					const first = lines.slice(0, context + 1).join(NL);
-					const last = lines.slice(lines.length - context - 1).join(NL);
-					if (diffs > 0) {
-						buf += first + NL;
+			if ( $context ) {
+				$lines = explode( "\n", $value );
+				if ( count( $lines ) > 2 * ( $context + 1 ) ) {
+					$first = implode( $NL, array_slice( $lines, 0, $context + 1/*CHECK THIS*/ ) );
+					$last = implode( $NL, array_slice( $lines, count( $lines ) - $context - 1 ) );
+					if ( $diffs > 0 ) {
+						$buf += $first + $NL;
 					}
-					before = (diffs > 0 ? DIFFSEP : '') + last;
+					$before = ( ( $diffs > 0 ) ? $DIFFSEP : '' ) + $last;
 					continue;
 				}
 			}
-			buf += value;
+			$buf += $value;
 		}
 	}
-	if (options && options.diffCount) {
-		return { count: diffs, output: buf };
+	if ( $options && $options->diffCount ) {
+		return [ 'count' => $diffs, 'output' => $buf ];
 	}
-	return (diffs > 0) ? buf : '';
+	return ( $diffs > 0 ) ? $buf : '';
 };
 
 /**
@@ -208,122 +233,128 @@ Diff.colorDiff = function(a, b, options) {
  * without the header and no newline warning.
  * @private
  */
-var createPatch = function(diff) {
-	var ret = [];
+$createPatch = function ( $diff ) {
+	$ret = [];
 
-	diff.push({ value: '', lines: [] });  // Append an empty value to make cleanup easier
+	$diff[] = [ 'value' => '', 'lines' => [] ]; // Append an empty value to make cleanup easier
 
 	// Formats a given set of lines for printing as context lines in a patch
-	function contextLines(lines) {
-		return lines.map(function(entry) { return ' ' + entry; });
+	function contextLines( $lines ) {
+		return array_map( $lines, function ( $entry ) { return ' ' . $entry;
+  } );
 	}
 
-	var oldRangeStart = 0;
-	var newRangeStart = 0;
-	var curRange = [];
-	var oldLine = 1;
-	var newLine = 1;
+	$oldRangeStart = 0;
+	$newRangeStart = 0;
+	$curRange = [];
+	$oldLine = 1;
+	$newLine = 1;
 
-	for (var i = 0; i < diff.length; i++) {
-		var current = diff[i];
-		var lines = current.lines || current.value.replace(/\n$/, '').split('\n');
-		current.lines = lines;
+	for ( $i = 0;  $i < count( $diff );  $i++ ) {
+		$current = $diff[ $i ];
+		$lines = $current->lines || explode( "\n", preg_replace( '/\n$/', '', $current->value, 1 ) );
+		$current->lines = $lines;
 
-		if (current.added || current.removed) {
+		if ( $current->added || $current->removed ) {
 			// If we have previous context, start with that
-			if (!oldRangeStart) {
-				var prev = diff[i - 1];
-				oldRangeStart = oldLine;
-				newRangeStart = newLine;
+			if ( !$oldRangeStart ) {
+				$prev = $diff[ $i - 1 ];
+				$oldRangeStart = $oldLine;
+				$newRangeStart = $newLine;
 
-				if (prev) {
-					curRange = contextLines(prev.lines.slice(-4));
-					oldRangeStart -= curRange.length;
-					newRangeStart -= curRange.length;
+				if ( $prev ) {
+					$curRange = contextLines( array_slice( $prev->lines, -4 ) );
+					$oldRangeStart -= count( $curRange );
+					$newRangeStart -= count( $curRange );
 				}
 			}
 
 			// Output our changes
-			curRange.push.apply(curRange, lines.map(function(entry) {
-				return (current.added ? '+' : '-') + entry;
-			}));
+			call_user_func_array( [ $curRange, 'push' ], array_map( $lines, function ( $entry ) {
+						return ( ( $current->added ) ? '+' : '-' ) + $entry;
+			}
+				)
+
+			);
 
 			// Track the updated file position
-			if (current.added) {
-				newLine += lines.length;
+			if ( $current->added ) {
+				$newLine += count( $lines );
 			} else {
-				oldLine += lines.length;
+				$oldLine += count( $lines );
 			}
 		} else {
 			// Identical context lines. Track line changes
-			if (oldRangeStart) {
+			if ( $oldRangeStart ) {
 				// Close out any changes that have been output (or join overlapping)
-				if (lines.length <= 8 && i < diff.length - 2) {
+				if ( count( $lines ) <= 8 && $i < count( $diff ) - 2 ) {
 					// Overlapping
-					curRange.push.apply(curRange, contextLines(lines));
+					call_user_func_array( [ $curRange, 'push' ], contextLines( $lines ) );
 				} else {
 					// end the range and output
-					var contextSize = Math.min(lines.length, 4);
-					ret.push(
-						'@@ -' + oldRangeStart + ',' + (oldLine - oldRangeStart + contextSize)
-						+ ' +' + newRangeStart + ',' + (newLine - newRangeStart + contextSize)
-						+ ' @@');
-					ret.push.apply(ret, curRange);
-					ret.push.apply(ret, contextLines(lines.slice(0, contextSize)));
+					$contextSize = min( count( $lines ), 4 );
+					$ret[] =
+					'@@ -' . $oldRangeStart . ',' . ( $oldLine - $oldRangeStart + $contextSize )
+. ' +' . $newRangeStart . ',' . ( $newLine - $newRangeStart + $contextSize )
+. ' @@';
+					call_user_func_array( [ $ret, 'push' ], $curRange );
+					call_user_func_array( [ $ret, 'push' ], contextLines( array_slice( $lines, 0, $contextSize/*CHECK THIS*/ ) ) );
 
-					oldRangeStart = 0;
-					newRangeStart = 0;
-					curRange = [];
+					$oldRangeStart = 0;
+					$newRangeStart = 0;
+					$curRange = [];
 				}
 			}
-			oldLine += lines.length;
-			newLine += lines.length;
+			$oldLine += count( $lines );
+			$newLine += count( $lines );
 		}
 	}
 
-	return ret.join('\n') + '\n';
+	return implode( "\n", $ret ) . "\n";
 };
 
 /** @func */
-Diff.patchDiff = function(a, b) {
+Diff::patchDiff = function ( $a, $b ) use ( &$createPatch ) {
 	// Essentially lifted from jsDiff@1.4.0's PatchDiff.tokenize
-	var patchTokenize = function(value) {
-		var ret = [];
-		var linesAndNewlines = value.split(/(\n|\r\n)/);
+	$patchTokenize = function ( $value ) {
+		$ret = [];
+		$linesAndNewlines = preg_split( '/(\n|\r\n)/', $value );
 		// Ignore the final empty token that occurs if the string ends with a new line
-		if (!linesAndNewlines[linesAndNewlines.length - 1]) {
-			linesAndNewlines.pop();
+		if ( !$linesAndNewlines[ count( $linesAndNewlines ) - 1 ] ) {
+			array_pop( $linesAndNewlines );
 		}
 		// Merge the content and line separators into single tokens
-		for (var i = 0; i < linesAndNewlines.length; i++) {
-			var line = linesAndNewlines[i];
-			if (i % 2) {
-				ret[ret.length - 1] += line;
+		for ( $i = 0;  $i < count( $linesAndNewlines );  $i++ ) {
+			$line = $linesAndNewlines[ $i ];
+			if ( $i % 2 ) {
+				$ret[ count( $ret ) - 1 ] += $line;
 			} else {
-				ret.push(line);
+				$ret[] = $line;
 			}
 		}
-		return ret;
+		return $ret;
 	};
-	var diffs = 0;
-	var diff = diffTokens(a, b, patchTokenize)
-	.map(function(change) {
-		var value = change[1].join('');
-		switch (change[0]) {
-			case '+':
-				diffs++;
-				return { value: value, added: true };
-			case '-':
-				diffs++;
-				return { value: value, removed: true };
-			default:
-				return { value: value };
+	$diffs = 0;
+	$diff = array_map( diffTokens( $a, $b, $patchTokenize ),
+		function ( $change ) {
+			$value = implode( '', $change[ 1 ] );
+			switch ( $change[ 0 ] ) {
+				case '+':
+				$diffs++;
+				return [ 'value' => $value, 'added' => true ];
+				case '-':
+				$diffs++;
+				return [ 'value' => $value, 'removed' => true ];
+				default:
+				return [ 'value' => $value ];
+			}
 		}
-	});
-	if (!diffs) { return null; }
-	return createPatch(diff);
+	);
+	if ( !$diffs ) { return null;
+ }
+	return $createPatch( $diff );
 };
 
-if (typeof module === "object") {
-	module.exports.Diff = Diff;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->Diff = $Diff;
 }

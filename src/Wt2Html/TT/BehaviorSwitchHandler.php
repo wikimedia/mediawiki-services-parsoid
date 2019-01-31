@@ -1,10 +1,15 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-const { Util } = require('../../utils/Util.js');
-const TokenHandler = require('./TokenHandler.js');
-const { KV,SelfclosingTagTk } = require('../../tokens/TokenTypes.js');
+use Parsoid\Util as Util;
+use Parsoid\TokenHandler as TokenHandler;
+use Parsoid\KV as KV;
+use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
 
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
@@ -13,40 +18,30 @@ const { KV,SelfclosingTagTk } = require('../../tokens/TokenTypes.js');
  * @extends module:wt2html/tt/TokenHandler
  */
 class BehaviorSwitchHandler extends TokenHandler {
-	constructor(manager, options) {
-		super(manager, options);
-		this.manager.addTransform(
-			(token, prevToken, cb) => this.onBehaviorSwitch(token),
-			'BehaviorSwitchHandler:onBehaviorSwitch',
-			BehaviorSwitchHandler.rank(),
-			'tag',
-			'behavior-switch'
-		);
-	}
-
-	static rank() { return 2.14; }
-
 	/**
 	 * Main handler.
 	 * See {@link TokenTransformManager#addTransform}'s transformation parameter.
 	 */
-	onBehaviorSwitch(token) {
-		const env = this.manager.env;
-		const magicWord = env.conf.wiki.magicWordCanonicalName(token.attribs[0].v);
+	public function onBehaviorSwitch( $token ) {
+		$env = $this->manager->env;
+		$magicWord = $env->conf->wiki->magicWordCanonicalName( $token->attribs[ 0 ]->v );
 
-		env.setVariable(magicWord, true);
+		$env->setVariable( $magicWord, true );
 
-		const metaToken = new SelfclosingTagTk(
+		$metaToken = new SelfclosingTagTk(
 			'meta',
-			[ new KV('property', 'mw:PageProp/' + magicWord) ],
-			Util.clone(token.dataAttribs)
+			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
+			Util::clone( $token->dataAttribs )
 		);
 
-		return { tokens: [ metaToken ] };
+		return [ 'tokens' => [ $metaToken ] ];
+	}
+
+	public function onTag( $token ) {
+		return ( $token->name === 'behavior-switch' ) ? $this->onBehaviorSwitch( $token ) : $token;
 	}
 }
 
-
-if (typeof module === "object") {
-	module.exports.BehaviorSwitchHandler = BehaviorSwitchHandler;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->BehaviorSwitchHandler = $BehaviorSwitchHandler;
 }

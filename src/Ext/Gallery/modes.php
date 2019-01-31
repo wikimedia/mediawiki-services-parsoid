@@ -1,219 +1,301 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-var coreutil = require('util');
-var domino = require('domino');
+use Parsoid\domino as domino;
 
-var ParsoidExtApi = module.parent.parent.require('./extapi.js').versionCheck('^0.10.0');
-var DOMUtils = ParsoidExtApi.DOMUtils;
-var JSUtils = ParsoidExtApi.JSUtils;
+$ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
+$temp0 = $ParsoidExtApi;
+$DOMDataUtils = $temp0::DOMDataUtils;
+$DOMUtils = $temp0::DOMUtils;
+$JSUtils = $temp0::JSUtils;
+$Util = $temp0::Util;
 
 /**
  * @class
  */
-var Traditional = function(options) {
-	Object.assign(this, options);
-};
-
-Traditional.prototype.mode = 'traditional';
-Traditional.prototype.scale = 1;
-Traditional.prototype.padding = { thumb: 30, box: 5, border: 8 };
-
-var appendAttr = function(ul, k, v) {
-	var val = ul.getAttribute(k) || '';
-	if (val) { val += ' '; }
-	ul.setAttribute(k, val + v);
-};
-
-Traditional.prototype.ul = function(opts, doc) {
-	var ul = doc.createElement('ul');
-	var cl = 'gallery mw-gallery-' + opts.mode;
-	ul.setAttribute('class', cl);
-	Object.keys(opts.attrs).forEach(function(k) {
-		appendAttr(ul, k, opts.attrs[k]);
-	});
-	doc.body.appendChild(ul);
-	this.perRow(opts, ul);
-	this.setAdditionalOptions(opts, ul);
-	return ul;
-};
-
-Traditional.prototype.perRow = function(opts, ul) {
-	if (opts.imagesPerRow > 0) {
-		var padding = this.padding;
-		var total = opts.imageWidth + padding.thumb + padding.box + padding.border;
-		total *= opts.imagesPerRow;
-		appendAttr(ul, 'style', [
-			'max-width: ' + total + 'px;',
-			'_width: ' + total + 'px;',
-		].join(' '));
+class Traditional {
+	public function __construct() {
+		$this->mode = 'traditional';
+		$this->scale = 1;
+		$this->padding = [ 'thumb' => 30, 'box' => 5, 'border' => 8 ];
 	}
-};
+	public $mode;
+	public $scale;
+	public $padding;
 
-Traditional.prototype.setAdditionalOptions = function(opts, ul) {};
+	public function MODE() {
+ return $this->mode;
+ }
+	public function SCALE() {
+ return $this->scale;
+ }
+	public function PADDING() {
+ return $this->padding;
+ }
 
-Traditional.prototype.caption = function(opts, doc, ul, caption) {
-	var li = doc.createElement('li');
-	li.setAttribute('class', 'gallerycaption');
-	DOMUtils.migrateChildrenBetweenDocs(caption, li);
-	ul.appendChild(doc.createTextNode('\n'));
-	ul.appendChild(li);
-};
-
-Traditional.prototype.dimensions = function(opts) {
-	return `${opts.imageWidth}x${opts.imageHeight}px`;
-};
-
-Traditional.prototype.scaleMedia = function(opts, wrapper) {
-	return opts.imageWidth;
-};
-
-Traditional.prototype.thumbWidth = function(width) {
-	return width + this.padding.thumb;
-};
-
-Traditional.prototype.thumbHeight = function(height) {
-	return height + this.padding.thumb;
-};
-
-Traditional.prototype.thumbStyle = function(width, height) {
-	var style = [`width: ${this.thumbWidth(width)}px;`];
-	if (this.mode === 'traditional') {
-		style.push(`height: ${this.thumbHeight(height)}px;`);
+	public function appendAttr( $ul, $k, $v ) {
+		$val = $ul->getAttribute( $k ) || '';
+		if ( $val ) { $val += ' ';
+  }
+		$ul->setAttribute( $k, $val + $v );
 	}
-	return style.join(' ');
-};
 
-Traditional.prototype.boxWidth = function(width) {
-	return this.thumbWidth(width) + this.padding.box;
-};
-
-Traditional.prototype.boxStyle = function(width, height) {
-	return `width: ${this.boxWidth(width)}px;`;
-};
-
-Traditional.prototype.galleryText = function(doc, box, gallerytext, width) {
-	var div = doc.createElement('div');
-	div.setAttribute('class', 'gallerytext');
-	if (gallerytext) {
-		DOMUtils.migrateChildrenBetweenDocs(gallerytext, div);
+	public function ul( $opts, $doc ) {
+		$ul = $doc->createElement( 'ul' );
+		$cl = 'gallery mw-gallery-' . $this::MODE();
+		$ul->setAttribute( 'class', $cl );
+		Object::keys( $opts->attrs )->forEach( function ( $k ) use ( &$ul, &$opts ) {
+				$this->appendAttr( $ul, $k, $opts->attrs[ $k ] );
+		}
+		);
+		$doc->body->appendChild( $ul );
+		$this->perRow( $opts, $ul );
+		$this->setAdditionalOptions( $opts, $ul );
+		return $ul;
 	}
-	box.appendChild(div);
-};
 
-Traditional.prototype.line = function(opts, doc, ul, o) {
-	var width = this.scaleMedia(opts, o.thumb);
-	var height = opts.imageHeight;
+	public function perRow( $opts, $ul ) {
+		if ( $opts->imagesPerRow > 0 ) {
+			$padding = $this::PADDING();
+			$total = $opts->imageWidth + $padding->thumb + $padding->box + $padding->border;
+			$total *= $opts->imagesPerRow;
+			$this->appendAttr( $ul, 'style', implode(
 
-	var box = doc.createElement('li');
-	box.setAttribute('class', 'gallerybox');
-	box.setAttribute('style', this.boxStyle(width, height));
-
-	var thumb = doc.createElement('div');
-	thumb.setAttribute('class', 'thumb');
-	thumb.setAttribute('style', this.thumbStyle(width, height));
-
-	var wrapper = doc.createElement('figure-inline');
-	wrapper.setAttribute('typeof', o.rdfaType);
-	DOMUtils.migrateChildrenBetweenDocs(o.thumb, wrapper);
-	thumb.appendChild(wrapper);
-
-	box.appendChild(thumb);
-	this.galleryText(doc, box, o.gallerytext, width);
-	ul.appendChild(doc.createTextNode('\n'));
-	ul.appendChild(box);
-};
-
-Traditional.prototype.render = function(opts, caption, lines) {
-	var doc = domino.createDocument();
-	var ul = this.ul(opts, doc);
-	if (caption) {
-		this.caption(opts, doc, ul, caption);
+					' ', [
+						'max-width: ' . $total . 'px;',
+						'_width: ' . $total . 'px;'
+					]
+				)
+			);
+		}
 	}
-	lines.forEach(l => this.line(opts, doc, ul, l));
-	ul.appendChild(doc.createTextNode('\n'));
-	return doc;
-};
 
-/**
- * @class
- * @extends ~Traditional
- */
-var Packed = function(options) {
-	Traditional.call(this, options);
-};
-coreutil.inherits(Packed, Traditional);
+	public function setAdditionalOptions( $opts, $ul ) {
+ }
 
-Packed.prototype.mode = 'packed';
-Packed.prototype.scale = 1.5;
-Packed.prototype.padding = { thumb: 0, box: 2, border: 8 };
-
-Packed.prototype.perRow = function() {};
-
-Packed.prototype.dimensions = function(opts) {
-	return `x${Math.trunc(opts.imageHeight * this.scale)}px`;
-};
-
-Packed.prototype.scaleMedia = function(opts, wrapper) {
-	var elt = DOMUtils.selectMediaElt(wrapper);
-	var width = parseInt(elt.getAttribute('width'), 10);
-	if (Number.isNaN(width)) {
-		width = opts.imageWidth;
-	} else {
-		width = Math.trunc(width / this.scale);
+	public function caption( $opts, $doc, $ul, $caption ) {
+		$li = $doc->createElement( 'li' );
+		$li->setAttribute( 'class', 'gallerycaption' );
+		DOMUtils::migrateChildrenBetweenDocs( $caption, $li );
+		$ul->appendChild( $doc->createTextNode( "\n" ) );
+		$ul->appendChild( $li );
 	}
-	elt.setAttribute('width', width);
-	elt.setAttribute('height', opts.imageHeight);
-	return width;
-};
 
-Packed.prototype.galleryText = function(doc, box, gallerytext, width) {
-	if (!/packed-(hover|overlay)/.test(this.mode)) {
-		Traditional.prototype.galleryText.call(this, doc, box, gallerytext);
-		return;
+	public function dimensions( $opts ) {
+		return "{$opts->imageWidth}x{$opts->imageHeight}px";
 	}
-	if (!gallerytext) {
-		return;
+
+	public function scaleMedia( $opts, $wrapper ) {
+		return $opts->imageWidth;
 	}
-	var div = doc.createElement('div');
-	div.setAttribute('class', 'gallerytext');
-	DOMUtils.migrateChildrenBetweenDocs(gallerytext, div);
-	var wrapper = doc.createElement('div');
-	wrapper.setAttribute('class', 'gallerytextwrapper');
-	wrapper.setAttribute('style', `width: ${width - 20}px;`);
-	wrapper.appendChild(div);
-	box.appendChild(wrapper);
-};
+
+	public function thumbWidth( $width ) {
+		return $width + $this::PADDING()->thumb;
+	}
+
+	public function thumbHeight( $height ) {
+		return $height + $this::PADDING()->thumb;
+	}
+
+	public function thumbStyle( $width, $height ) {
+		$style = [ "width: {$this->thumbWidth( $width )}px;" ];
+		if ( $this::MODE() === 'traditional' ) {
+			$style[] = "height: {$this->thumbHeight( $height )}px;";
+		}
+		return implode( ' ', $style );
+	}
+
+	public function boxWidth( $width ) {
+		return $this->thumbWidth( $width ) + $this::PADDING()->box;
+	}
+
+	public function boxStyle( $width, $height ) {
+		return "width: {$this->boxWidth( $width )}px;";
+	}
+
+	public function galleryText( $doc, $box, $gallerytext, $width ) {
+		$div = $doc->createElement( 'div' );
+		$div->setAttribute( 'class', 'gallerytext' );
+		if ( $gallerytext ) {
+			DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
+		}
+		$box->appendChild( $div );
+	}
+
+	public function line( $opts, $doc, $ul, $o ) {
+		$width = $this->scaleMedia( $opts, $o->thumb );
+		$height = $opts->imageHeight;
+
+		$box = $doc->createElement( 'li' );
+		$box->setAttribute( 'class', 'gallerybox' );
+		$box->setAttribute( 'style', $this->boxStyle( $width, $height ) );
+
+		$thumb = $doc->createElement( 'div' );
+		$thumb->setAttribute( 'class', 'thumb' );
+		$thumb->setAttribute( 'style', $this->thumbStyle( $width, $height ) );
+
+		$wrapper = $doc->createElement( 'figure-inline' );
+		$wrapper->setAttribute( 'typeof', $o->rdfaType );
+		// FIXME: Probably want to copy over "data-parsoid" here as well
+		// so that the `optList` is preserved for roundtripping but since
+		// shadowed information is dropped anyways inside encapsulations,
+		// we can leave that until a general solution for T211895 / T151367
+		// is hashed out.
+		DOMDataUtils::setDataMw( $wrapper, Util::clone( DOMDataUtils::getDataMw( $o->thumb ) ) );
+		// Store temporarily, otherwise these get clobbered after rendering by
+		// the call to `DOMDataUtils.visitAndLoadDataAttribs()` in `toDOM`.
+		DOMDataUtils::storeDataAttribs( $wrapper );
+		DOMUtils::migrateChildrenBetweenDocs( $o->thumb, $wrapper );
+		$thumb->appendChild( $wrapper );
+
+		$box->appendChild( $thumb );
+		$this->galleryText( $doc, $box, $o->gallerytext, $width );
+		$ul->appendChild( $doc->createTextNode( "\n" ) );
+		$ul->appendChild( $box );
+	}
+
+	public function render( $opts, $caption, $lines ) {
+		$doc = domino::createDocument();
+		$ul = $this->ul( $opts, $doc );
+		if ( $caption ) {
+			$this->caption( $opts, $doc, $ul, $caption );
+		}
+		$lines->forEach( function ( $l ) use ( &$opts, &$doc, &$ul ) {return $this->line( $opts, $doc, $ul, $l );
+  } );
+		$ul->appendChild( $doc->createTextNode( "\n" ) );
+		return $doc;
+	}
+}
 
 /**
  * @class
  * @extends ~Traditional
  */
-var Slideshow = function(options) {
-	Traditional.call(this, options);
-};
-coreutil.inherits(Slideshow, Traditional);
+class NoLines extends Traditional {
+	public function __construct() {
+		parent::__construct();
+		$this->mode = 'nolines';
+		$this->padding = [ 'thumb' => 0, 'box' => 5, 'border' => 4 ];
+	}
+	public $mode;
+	public $padding;
 
-Slideshow.prototype.setAdditionalOptions = function(opts, ul) {
-	ul.setAttribute('data-showthumbnails', opts.showthumbnails ? "1" : "");
-};
+}
 
-Slideshow.prototype.perRow = function() {};
+/**
+ * @class
+ * @extends ~Traditional
+ */
+class Slideshow extends Traditional {
+	public function __construct() {
+		parent::__construct();
+		$this->mode = 'slideshow';
+	}
+	public $mode;
+
+	public function setAdditionalOptions( $opts, $ul ) {
+		$ul->setAttribute( 'data-showthumbnails', ( $opts->showthumbnails ) ? '1' : '' );
+	}
+	public function perRow() {
+ }
+}
+
+/**
+ * @class
+ * @extends ~Traditional
+ */
+class Packed extends Traditional {
+	public function __construct() {
+		parent::__construct();
+		$this->mode = 'packed';
+		$this->scale = 1.5;
+		$this->padding = [ 'thumb' => 0, 'box' => 2, 'border' => 8 ];
+	}
+	public $mode;
+	public $scale;
+	public $padding;
+
+	public function perRow() {
+ }
+
+	public function dimensions( $opts ) {
+		return "x{Math::trunc( $opts->imageHeight * $this::SCALE() )}px";
+	}
+
+	public function scaleMedia( $opts, $wrapper ) {
+		$elt = $wrapper->firstChild->firstChild;
+		$width = intval( $elt->getAttribute( 'width' ), 10 );
+		if ( Number::isNaN( $width ) ) {
+			$width = $opts->imageWidth;
+		} else {
+			$width = Math::trunc( $width / $this::SCALE() );
+		}
+		$elt->setAttribute( 'width', $width );
+		$elt->setAttribute( 'height', $opts->imageHeight );
+		return $width;
+	}
+
+	public function galleryText( $doc, $box, $gallerytext, $width ) {
+		if ( !preg_match( '/packed-(hover|overlay)/', $this::MODE() ) ) {
+			call_user_func( [ Traditional::prototype, 'galleryText' ], $doc, $box, $gallerytext );
+			return;
+		}
+		if ( !$gallerytext ) {
+			return;
+		}
+		$div = $doc->createElement( 'div' );
+		$div->setAttribute( 'class', 'gallerytext' );
+		DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
+		$wrapper = $doc->createElement( 'div' );
+		$wrapper->setAttribute( 'class', 'gallerytextwrapper' );
+		$wrapper->setAttribute( 'style', "width: {$width - 20}px;" );
+		$wrapper->appendChild( $div );
+		$box->appendChild( $wrapper );
+	}
+}
+
+/**
+ * @class
+ * @extends ~Packed
+ */
+class PackedHover extends Packed {
+	public function __construct() {
+		parent::__construct();
+		$this->mode = 'packed-hover';
+	}
+	public $mode;
+
+}
+
+/**
+ * @class
+ * @extends ~Packed
+ */
+class PackedOverlay extends Packed {
+	public function __construct() {
+		parent::__construct();
+		$this->mode = 'packed-overlay';
+	}
+	public $mode;
+
+}
 
 /** @namespace */
-var modes = JSUtils.mapObject({
-	traditional: new Traditional({}),
-	nolines: new Traditional({
-		mode: 'nolines',
-		padding: { thumb: 0, box: 5, border: 4 },
-	}),
-	slideshow: new Slideshow({ mode: 'slideshow' }),
-	packed: new Packed({}),
-	'packed-hover': new Packed({ mode: 'packed-hover' }),
-	'packed-overlay': new Packed({ mode: 'packed-overlay' }),
-});
+$modes = JSUtils::mapObject( [
+		'traditional' => new Traditional(),
+		'nolines' => new NoLines(),
+		'slideshow' => new Slideshow(),
+		'packed' => new Packed(),
+		'packed-hover' => new PackedHover(),
+		'packed-overlay' => new PackedOverlay()
+	]
+);
 
-if (typeof module === 'object') {
-	module.exports = modes;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports = $modes;
 }

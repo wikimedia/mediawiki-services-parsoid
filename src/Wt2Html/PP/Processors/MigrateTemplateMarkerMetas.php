@@ -1,11 +1,15 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-const { WikitextConstants: Consts } = require('../../../config/WikitextConstants.js');
-const { DOMDataUtils } = require('../../../utils/DOMDataUtils.js');
-const { DOMUtils } = require('../../../utils/DOMUtils.js');
-const { WTUtils } = require('../../../utils/WTUtils.js');
+use Parsoid\WikitextConstants as Consts;
+use Parsoid\DOMDataUtils as DOMDataUtils;
+use Parsoid\DOMUtils as DOMUtils;
+use Parsoid\WTUtils as WTUtils;
 
 class MigrateTemplateMarkerMetas {
 	/**
@@ -21,60 +25,62 @@ class MigrateTemplateMarkerMetas {
 	 * @param {Node} node
 	 * @param {MWParserEnvironment} env
 	 */
-	migrateTemplateMarkerMetas(node, env) {
-		let c = node.firstChild;
-		while (c) {
-			const sibling = c.nextSibling;
-			if (c.hasChildNodes()) {
-				this.migrateTemplateMarkerMetas(c, env);
+	public function migrateTemplateMarkerMetas( $node, $env ) {
+		$c = $node->firstChild;
+		while ( $c ) {
+			$sibling = $c->nextSibling;
+			if ( $c->hasChildNodes() ) {
+				$this->migrateTemplateMarkerMetas( $c, $env );
 			}
-			c = sibling;
+			$c = $sibling;
 		}
 
 		// No migration out of BODY
-		if (DOMUtils.isBody(node)) {
+		if ( DOMUtils::isBody( $node ) ) {
 			return;
 		}
 
-		var firstChild = DOMUtils.firstNonSepChild(node);
-		if (firstChild && WTUtils.isTplEndMarkerMeta(firstChild)) {
+		$firstChild = DOMUtils::firstNonSepChild( $node );
+		if ( $firstChild && WTUtils::isTplEndMarkerMeta( $firstChild ) ) {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
-			const tagWidth = Consts.WtTagWidths.get(node.nodeName);
-			if ((tagWidth && tagWidth[0] === 0 && !WTUtils.isLiteralHTMLNode(node)) ||
-					DOMDataUtils.getDataParsoid(node).autoInsertedStart) {
-				const sentinel = firstChild;
+			$tagWidth = Consts\WtTagWidths::get( $node->nodeName );
+			if ( ( $tagWidth && $tagWidth[ 0 ] === 0 && !WTUtils::isLiteralHTMLNode( $node ) )
+|| DOMDataUtils::getDataParsoid( $node )->autoInsertedStart
+			) {
+				$sentinel = $firstChild;
 				do {
-					firstChild = node.firstChild;
-					node.parentNode.insertBefore(firstChild, node);
-				} while (sentinel !== firstChild);
+					$firstChild = $node->firstChild;
+					$node->parentNode->insertBefore( $firstChild, $node );
+				} while ( $sentinel !== $firstChild );
 			}
 		}
 
-		let lastChild = DOMUtils.lastNonSepChild(node);
-		if (lastChild && WTUtils.isTplStartMarkerMeta(lastChild)) {
+		$lastChild = DOMUtils::lastNonSepChild( $node );
+		if ( $lastChild && WTUtils::isTplStartMarkerMeta( $lastChild ) ) {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.
-			const tagWidth = Consts.WtTagWidths.get(node.nodeName);
-			if ((tagWidth && tagWidth[1] === 0 && !WTUtils.isLiteralHTMLNode(node)) ||
-					// Except, don't migrate out of a table since the end meta
+			$tagWidth = Consts\WtTagWidths::get( $node->nodeName );
+			if ( ( $tagWidth && $tagWidth[ 1 ] === 0 && !WTUtils::isLiteralHTMLNode( $node ) )
+|| // Except, don't migrate out of a table since the end meta
 					// marker may have been fostered and this is more likely to
 					// result in a flipped range that isn't enclosed.
-					(DOMDataUtils.getDataParsoid(node).autoInsertedEnd && node.nodeName !== 'TABLE')) {
-				const sentinel = lastChild;
+					( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd && $node->nodeName !== 'TABLE' )
+			) {
+				$sentinel = $lastChild;
 				do {
-					lastChild = node.lastChild;
-					node.parentNode.insertBefore(lastChild, node.nextSibling);
-				} while (sentinel !== lastChild);
+					$lastChild = $node->lastChild;
+					$node->parentNode->insertBefore( $lastChild, $node->nextSibling );
+				} while ( $sentinel !== $lastChild );
 			}
 		}
 	}
 
-	run(root, env, opts) {
-		this.migrateTemplateMarkerMetas(root, env);
+	public function run( $root, $env, $opts ) {
+		$this->migrateTemplateMarkerMetas( $root, $env );
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.MigrateTemplateMarkerMetas = MigrateTemplateMarkerMetas;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->MigrateTemplateMarkerMetas = $MigrateTemplateMarkerMetas;
 }

@@ -1,105 +1,110 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Perform post-processing steps on an already-built HTML DOM.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade');
 
-var domino = require('domino');
-var events = require('events');
-var url = require('url');
-var util = require('util');
-var semver = require('semver');
-var fs = require('fs');
 
-var ContentUtils = require('../utils/ContentUtils.js').ContentUtils;
-var DOMDataUtils = require('../utils/DOMDataUtils.js').DOMDataUtils;
-var Util = require('../utils/Util.js').Util;
-var DOMTraverser = require('../utils/DOMTraverser.js').DOMTraverser;
-var LanguageConverter = require('../language/LanguageConverter').LanguageConverter;
-var Promise = require('../utils/promise.js');
-var JSUtils = require('../utils/jsutils.js').JSUtils;
+use Parsoid\domino as domino;
+use Parsoid\events as events;
+use Parsoid\url as url;
+use Parsoid\util as util;
+use Parsoid\fs as fs;
+
+$ContentUtils = require( '../utils/ContentUtils.js' )::ContentUtils;
+$DOMDataUtils = require( '../utils/DOMDataUtils.js' )::DOMDataUtils;
+$Util = require( '../utils/Util.js' )::Util;
+$DOMTraverser = require( '../utils/DOMTraverser.js' )::DOMTraverser;
+$LanguageConverter = require( '../language/LanguageConverter' )::LanguageConverter;
+$Promise = require( '../utils/promise.js' );
+$JSUtils = require( '../utils/jsutils.js' )::JSUtils;
 
 // processors
-var requireProcessor = function(p) {
-	return require('./pp/processors/' + p + '.js')[p];
+$requireProcessor = function ( $p ) {
+	return require( './pp/processors/' . $p . '.js' )[ $p ];
 };
-var markFosteredContent = requireProcessor('markFosteredContent');
-var linter = requireProcessor('linter');
-var processTreeBuilderFixups = requireProcessor('processTreeBuilderFixups');
-var migrateTemplateMarkerMetas = requireProcessor('migrateTemplateMarkerMetas');
-var handlePres = requireProcessor('handlePres');
-var migrateTrailingNLs = requireProcessor('migrateTrailingNLs');
-var computeDSR = requireProcessor('computeDSR');
-var wrapTemplates = requireProcessor('wrapTemplates');
-var wrapSections = requireProcessor('wrapSections');
-var addExtLinkClasses = requireProcessor('addExtLinkClasses');
-var pWrap = requireProcessor('pwrap');
+$MarkFosteredContent = $requireProcessor( 'MarkFosteredContent' );
+$Linter = $requireProcessor( 'Linter' );
+$ProcessTreeBuilderFixups = $requireProcessor( 'ProcessTreeBuilderFixups' );
+$MigrateTemplateMarkerMetas = $requireProcessor( 'MigrateTemplateMarkerMetas' );
+$HandlePres = $requireProcessor( 'HandlePres' );
+$MigrateTrailingNLs = $requireProcessor( 'MigrateTrailingNLs' );
+$ComputeDSR = $requireProcessor( 'ComputeDSR' );
+$WrapTemplates = $requireProcessor( 'WrapTemplates' );
+$WrapSections = $requireProcessor( 'WrapSections' );
+$AddExtLinkClasses = $requireProcessor( 'AddExtLinkClasses' );
+$PWrap = $requireProcessor( 'PWrap' );
+$AddMediaInfo = $requireProcessor( 'AddMediaInfo' );
 
 // handlers
-var requireHandlers = function(file) {
-	return require('./pp/handlers/' + file + '.js');
+$requireHandlers = function ( $file ) {
+	return require( './pp/handlers/' . $file . '.js' );
 };
 
-var CleanUp = requireHandlers('cleanup');
-var headings = requireHandlers('headings');
-var unpackDOMFragments = requireHandlers('unpackDOMFragments').unpackDOMFragments;
-var TableFixups = requireHandlers('tableFixups').TableFixups;
-var handleLinkNeighbours = requireHandlers('handleLinkNeighbours').handleLinkNeighbours;
-var liFixups = requireHandlers('liFixups');
-var dedupeStyles = requireHandlers('deduplicateStyles');
-var prepareDOM = requireHandlers('prepareDOM');
+$CleanUp = $requireHandlers( 'cleanup' );
+$headings = $requireHandlers( 'headings' );
+$unpackDOMFragments = $requireHandlers( 'unpackDOMFragments' )->unpackDOMFragments;
+$TableFixups = $requireHandlers( 'tableFixups' )::TableFixups;
+$handleLinkNeighbours = $requireHandlers( 'handleLinkNeighbours' )->handleLinkNeighbours;
+$liFixups = $requireHandlers( 'liFixups' );
+$dedupeStyles = $requireHandlers( 'deduplicateStyles' );
+$prepareDOM = $requireHandlers( 'prepareDOM' );
 
 // map from mediawiki metadata names to RDFa property names
-var metadataMap = {
-	ns: {
-		property: 'mw:pageNamespace',
-		content: '%d',
-	},
-	id: {
-		property: 'mw:pageId',
-		content: '%d',
-	},
+$metadataMap = [
+	'ns' => [
+		'property' => 'mw:pageNamespace',
+		'content' => '%d'
+	],
+	'id' => [
+		'property' => 'mw:pageId',
+		'content' => '%d'
+	],
 
 	// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
 
 	// 'rev_revid' is used to set the overall subject of the document, we don't
 	// need to add a specific <meta> or <link> element for it.
 
-	rev_parentid: {
-		rel: 'dc:replaces',
-		resource: 'mwr:revision/%d',
-	},
-	rev_timestamp: {
-		property: 'dc:modified',
-		content: function(m) {
-			return new Date(m.get('rev_timestamp')).toISOString();
-		},
-	},
-	rev_sha1: {
-		property: 'mw:revisionSHA1',
-		content: '%s',
-	},
-};
+	'rev_parentid' => [
+		'rel' => 'dc:replaces',
+		'resource' => 'mwr:revision/%d'
+	],
+	'rev_timestamp' => [
+		'property' => 'dc:modified',
+		'content' => function ( $m ) {
+			return new Date( $m->get( 'rev_timestamp' ) )->toISOString();
+		}
+	],
+	'rev_sha1' => [
+		'property' => 'mw:revisionSHA1',
+		'content' => '%s'
+	]
+];
 
 // Sanity check for dom behavior: we are
 // relying on DOM level 4 getAttribute. In level 4, getAttribute on a
 // non-existing key returns null instead of the empty string.
-var testDom = domino.createWindow('<h1>Hello world</h1>').document;
-if (testDom.body.getAttribute('somerandomstring') === '') {
-	throw 'Your DOM version appears to be out of date! \n' +
-			'Please run npm update in the js directory.';
+$testDom = domino::createWindow( '<h1>Hello world</h1>' )->document;
+if ( $testDom->body->getAttribute( 'somerandomstring' ) === '' ) {
+	throw "Your DOM version appears to be out of date! \n"
+.		'Please run npm update in the js directory.';
 }
 
 /**
  * Create an element in the document.head with the given attrs.
  */
-function appendToHead(document, tagName, attrs) {
-	var elt = document.createElement(tagName);
-	DOMDataUtils.addAttributes(elt, attrs || Object.create(null));
-	document.head.appendChild(elt);
+function appendToHead( $document, $tagName, $attrs ) {
+	global $DOMDataUtils;
+	$elt = $document->createElement( $tagName );
+	DOMDataUtils::addAttributes( $elt, $attrs || [] );
+	$document->head->appendChild( $elt );
 }
 
 /**
@@ -108,11 +113,34 @@ function appendToHead(document, tagName, attrs) {
  * @param {MWParserEnvironment} env
  * @param {Object} options
  */
-function DOMPostProcessor(env, options) {
-	events.EventEmitter.call(this);
-	this.env = env;
-	this.options = options;
-	this.seenIds = new Set();
+function DOMPostProcessor( $env, $options ) {
+	global $DOMTraverser;
+	global $prepareDOM;
+	global $MarkFosteredContent;
+	global $ProcessTreeBuilderFixups;
+	global $PWrap;
+	global $MigrateTemplateMarkerMetas;
+	global $HandlePres;
+	global $MigrateTrailingNLs;
+	global $ComputeDSR;
+	global $WrapTemplates;
+	global $handleLinkNeighbours;
+	global $unpackDOMFragments;
+	global $liFixups;
+	global $TableFixups;
+	global $dedupeStyles;
+	global $AddMediaInfo;
+	global $headings;
+	global $WrapSections;
+	global $LanguageConverter;
+	global $Linter;
+	global $CleanUp;
+	global $AddExtLinkClasses;
+	global $ContentUtils;
+	call_user_func( [ $events, 'EventEmitter' ] );
+	$this->env = $env;
+	$this->options = $options;
+	$this->seenIds = new Set();
 
 	/* ---------------------------------------------------------------------------
 	 * FIXME:
@@ -136,51 +164,56 @@ function DOMPostProcessor(env, options) {
 	 *    developers to pay attention to how they construct pipelines.
 	 * --------------------------------------------------------------------------- */
 
-	this.processors = [];
-	var addPP = (name, shortcut, proc, skipNested) => {
-		this.processors.push({
-			name: name,
-			shortcut: shortcut || name,
-			proc: proc,
-			skipNested: skipNested,
-		});
+	$this->processors = [];
+	$addPP = function ( $name, $shortcut, $proc, $skipNested ) {
+		$this->processors[] = [
+			'name' => $name,
+			'shortcut' => $shortcut || $name,
+			'proc' => $proc,
+			'skipNested' => $skipNested
+		];
+
+
+
+
+		;
 	};
 
 	// DOM traverser that runs before the in-order DOM handlers.
-	var dataParsoidLoader = new DOMTraverser(env);
-	dataParsoidLoader.addHandler(null, prepareDOM.prepareDOM);
+	$dataParsoidLoader = new DOMTraverser( $env );
+	$dataParsoidLoader->addHandler( null, $prepareDOM->prepareDOM );
 
 	// Common post processing
-	addPP('dpLoader', 'dpload',
-		(node, env, opts, atTopLevel) => dataParsoidLoader.traverse(node, env, opts, atTopLevel)
+	$addPP( 'dpLoader', 'dpload',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$dataParsoidLoader ) {return  $dataParsoidLoader->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
-	addPP('markFosteredContent', 'fostered', markFosteredContent);
-	addPP('processTreeBuilderFixups', 'process-fixups', processTreeBuilderFixups);
-	addPP('normalize', null, (body) => { body.normalize(); });
-	addPP('pWrap', 'pwrap', pWrap, true);
+	$addPP( 'MarkFosteredContent', 'fostered', function ( ...$args ) use ( &$MarkFosteredContent ) {return  ( new MarkFosteredContent() )->run( ...$args ); } );
+	$addPP( 'ProcessTreeBuilderFixups', 'process-fixups', function ( ...$args ) use ( &$ProcessTreeBuilderFixups ) {return  ( new ProcessTreeBuilderFixups() )->run( ...$args ); } );
+	$addPP( 'normalize', null, function ( $body ) { $body->normalize();  } );
+	$addPP( 'PWrap', 'pwrap', function ( ...$args ) use ( &$PWrap ) {return  ( new PWrap() )->run( ...$args ); }, true );
 
-	// Run this after 'processTreeBuilderFixups' because the mw:StartTag
+	// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
 	// and mw:EndTag metas would otherwise interfere with the
 	// firstChild/lastChild check that this pass does.
-	addPP('migrateTemplateMarkerMetas', 'migrate-metas', migrateTemplateMarkerMetas);
-	addPP('handlePres', 'pres', handlePres);
-	addPP('migrateTrailingNLs', 'migrate-nls', migrateTrailingNLs);
+	$addPP( 'migrateTemplateMarkerMetas', 'migrate-metas', function ( ...$args ) use ( &$MigrateTemplateMarkerMetas ) {return  ( new MigrateTemplateMarkerMetas() )->run( ...$args ); } );
+	$addPP( 'HandlePres', 'pres', function ( ...$args ) use ( &$HandlePres ) {return  ( new HandlePres() )->run( ...$args ); } );
+	$addPP( 'MigrateTrailingNLs', 'migrate-nls', function ( ...$args ) use ( &$MigrateTrailingNLs ) {return  ( new MigrateTrailingNLs() )->run( ...$args ); } );
 
-	if (!options.inTemplate) {
+	if ( !$options->inTemplate ) {
 		// dsr computation and tpl encap are only relevant for top-level content
-		addPP('computeDSR', 'dsr', computeDSR);
-		addPP('wrapTemplates', 'tplwrap', wrapTemplates);
+		$addPP( 'ComputeDSR', 'dsr', function ( ...$args ) use ( &$ComputeDSR ) {return  ( new ComputeDSR() )->run( ...$args ); } );
+		$addPP( 'WrapTemplates', 'tplwrap', function ( ...$args ) use ( &$WrapTemplates ) {return  ( new WrapTemplates() )->run( ...$args ); } );
 	}
 
 	// 1. Link prefixes and suffixes
 	// 2. Unpack DOM fragments
 	// FIXME: Picked a terse 'v' varname instead of trying to find
 	// a suitable name that addresses both functions above.
-	const v = new DOMTraverser(env);
-	v.addHandler('a', handleLinkNeighbours);
-	v.addHandler(null, unpackDOMFragments);
-	addPP('linkNbrs+unpackDOMFragments', 'dom-unpack',
-		(node, env, opts, atTopLevel) => v.traverse(node, env, opts, atTopLevel)
+	$v = new DOMTraverser( $env );
+	$v->addHandler( 'a', $handleLinkNeighbours );
+	$v->addHandler( null, $unpackDOMFragments );
+	$addPP( 'linkNbrs+unpackDOMFragments', 'dom-unpack',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$v ) {return  $v->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
 
 	// FIXME: There are two potential ordering problems here.
@@ -241,412 +274,556 @@ function DOMPostProcessor(env, options) {
 	//   by analyzing what the DOM postprocessor does and see if it introduces
 	//   potential ordering issues.
 
-	env.conf.wiki.extConfig.domProcessors.forEach(function(extProcs) {
-		addPP('tag:' + extProcs.extName, null, extProcs.procs.wt2htmlPostProcessor);
-	});
+	$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) use ( &$addPP ) {
+			$addPP( 'tag:' . $extProcs->extName, null, $extProcs->procs->wt2htmlPostProcessor );
+		}
+	);
 
-	const fixupsVisitor = new DOMTraverser(env);
+	$fixupsVisitor = new DOMTraverser( $env );
 	// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
-	fixupsVisitor.addHandler('li', liFixups.handleLIHack);
-	fixupsVisitor.addHandler('li', liFixups.migrateTrailingCategories);
-	fixupsVisitor.addHandler('dt', liFixups.migrateTrailingCategories);
-	fixupsVisitor.addHandler('dd', liFixups.migrateTrailingCategories);
+	$fixupsVisitor->addHandler( 'li', $liFixups->handleLIHack );
+	$fixupsVisitor->addHandler( 'li', $liFixups->migrateTrailingCategories );
+	$fixupsVisitor->addHandler( 'dt', $liFixups->migrateTrailingCategories );
+	$fixupsVisitor->addHandler( 'dd', $liFixups->migrateTrailingCategories );
 	// 2. Fix up issues from templated table cells and table cell attributes
-	const tableFixer = new TableFixups(env);
-	fixupsVisitor.addHandler('td', (node, env) => tableFixer.stripDoubleTDs(node, env));
-	fixupsVisitor.addHandler('td', (node, env) => tableFixer.handleTableCellTemplates(node, env));
-	fixupsVisitor.addHandler('th', (node, env) => tableFixer.handleTableCellTemplates(node, env));
-	// 3. Add heading anchors
-	fixupsVisitor.addHandler(null, headings.genAnchors);
-	// 4. Deduplicate template styles
+	$tableFixer = new TableFixups( $env );
+	$fixupsVisitor->addHandler( 'td', function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->stripDoubleTDs( $node, $env ); } );
+	$fixupsVisitor->addHandler( 'td', function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); } );
+	$fixupsVisitor->addHandler( 'th', function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); } );
+	// 3. Deduplicate template styles
 	//   (should run after dom-fragment expansion + after extension post-processors)
-	fixupsVisitor.addHandler('style', dedupeStyles.dedupe);
-	addPP('(li+table)Fixups+headings', 'fixups',
-		(node, env, opts, atTopLevel) => fixupsVisitor.traverse(node, env, opts, atTopLevel),
+	$fixupsVisitor->addHandler( 'style', $dedupeStyles->dedupe );
+	$addPP( '(li+table)Fixups', 'fixups',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$fixupsVisitor ) {return  $fixupsVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
+		true
+	);
+
+	// This is run at all levels since, for now, we don't have a generic
+	// solution to running top level passes on HTML stashed in data-mw.
+	// See T214994 for that.
+	//
+	// Also, the gallery extension's "packed" mode would otherwise need a
+	// post-processing pass to scale media after it has been fetched.  That
+	// introduces an ordering dependency that may or may not complicate things.
+	$addPP( 'addMediaInfo', 'media', AddMediaInfo::addMediaInfo );
+
+	// Benefits from running after determining which media are redlinks
+	$headingsVisitor = new DOMTraverser( $env );
+	$headingsVisitor->addHandler( null, $headings->genAnchors );
+	$addPP( 'heading gen anchor', 'headings',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingsVisitor ) {return  $headingsVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
 		true
 	);
 
 	// Add <section> wrappers around sections
-	addPP('wrapSections', 'sections', wrapSections, true);
+	$addPP( 'WrapSections', 'sections', function ( ...$args ) use ( &$WrapSections ) {return  ( new WrapSections() )->run( ...$args ); }, true );
 
 	// Make heading IDs unique
-	const headingVisitor = new DOMTraverser(env);
-	headingVisitor.addHandler(null, (node, env) => headings.dedupeHeadingIds(this.seenIds, node, env));
-	addPP('heading id uniqueness', 'heading-ids',
-		(node, env, opts, atTopLevel) => headingVisitor.traverse(node, env, opts, atTopLevel),
+	$headingVisitor = new DOMTraverser( $env );
+	$headingVisitor->addHandler( null, function ( $node, $env ) use ( &$env, &$headings ) {return  $headings->dedupeHeadingIds( $this->seenIds, $node, $env ); } );
+	$addPP( 'heading id uniqueness', 'heading-ids',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingVisitor ) {return  $headingVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
 		true
 	);
 
 	// Language conversion
-	addPP('LanguageConverter', 'lang-converter', (rootNode, env, options) => {
-		LanguageConverter.maybeConvert(
-			env, rootNode.ownerDocument,
-			env.htmlVariantLanguage, env.wtVariantLanguage
-		);
-	}, true /* skipNested */);
+	$addPP( 'LanguageConverter', 'lang-converter', function ( $rootNode, $env, $options ) use ( &$env, &$options, &$LanguageConverter ) {
+			LanguageConverter::maybeConvert(
+				$env, $rootNode->ownerDocument,
+				$env->htmlVariantLanguage, $env->wtVariantLanguage
+			);
+		}, true/* skipNested */
+	);
 
-	if (env.conf.parsoid.linting) {
-		addPP('linter', null, linter, true);
+	if ( $env->conf->parsoid->linting ) {
+		$addPP( 'linter', null, function ( ...$args ) use ( &$Linter ) {return  ( new Linter() )->run( ...$args ); }, true );
 	}
 
 	// Strip marker metas -- removes left over marker metas (ex: metas
 	// nested in expanded tpl/extension output).
-	const markerMetasVisitor = new DOMTraverser(env);
-	markerMetasVisitor.addHandler('meta', CleanUp.stripMarkerMetas);
-	addPP('stripMarkerMetas', 'strip-metas',
-		(node, env, opts, atTopLevel) => markerMetasVisitor.traverse(node, env, opts, atTopLevel)
+	$markerMetasVisitor = new DOMTraverser( $env );
+	$markerMetasVisitor->addHandler( 'meta', CleanUp::stripMarkerMetas );
+	$addPP( 'stripMarkerMetas', 'strip-metas',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$markerMetasVisitor ) {return  $markerMetasVisitor->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
 
-	const cleanupVisitor = new DOMTraverser(env);
+	$cleanupVisitor = new DOMTraverser( $env );
 	// Strip empty elements from template content
-	cleanupVisitor.addHandler(null, CleanUp.handleEmptyElements);
+	$cleanupVisitor->addHandler( null, CleanUp::handleEmptyElements );
 	// Save data.parsoid into data-parsoid html attribute.
 	// Make this its own thing so that any changes to the DOM
 	// don't affect other handlers that run alongside it.
-	cleanupVisitor.addHandler(null, CleanUp.cleanupAndSaveDataParsoid);
-	addPP('handleEmptyElts+cleanupAndSaveDP', 'cleanup',
-		(node, env, opts, atTopLevel) => cleanupVisitor.traverse(node, env, opts, atTopLevel)
+	$cleanupVisitor->addHandler( null, CleanUp::cleanupAndSaveDataParsoid );
+	$addPP( 'handleEmptyElts+cleanupAndSaveDP', 'cleanup',
+		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$cleanupVisitor ) {return  $cleanupVisitor->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
 
-	addPP('addExtLinkClasses', 'linkclasses', function(rootNode, env, options) {
-		return addExtLinkClasses(env, rootNode.ownerDocument);
-	}, true);
-
+	$addPP( 'AddExtLinkClasses', 'linkclasses', function ( ...$args ) use ( &$AddExtLinkClasses ) {return  ( new AddExtLinkClasses() )->run( ...$args ); }, true );
 	// (Optional) red links
-	addPP('addRedLinks', 'redlinks', function(rootNode, env, options) {
-		if (env.conf.parsoid.useBatchAPI) {
-			// Async; returns promise for completion.
-			return ContentUtils.addRedLinks(env, rootNode.ownerDocument);
-		}
-	}, true);
-
-	// (Optional) downgrade
-	addPP('downgrade2to1', 'downgrade', function(rootNode, env, options) {
-		if (semver.lt(env.outputContentVersion, '2.0.0')) {
-			return ContentUtils.replaceAudioWithVideo(rootNode.ownerDocument);
-		}
-	}, true);
+	$addPP( 'addRedLinks', 'redlinks', function ( $rootNode, $env, $options ) use ( &$env, &$options, &$ContentUtils ) {
+			if ( $env->conf->parsoid->useBatchAPI ) {
+				// Async; returns promise for completion.
+				return ContentUtils::addRedLinks( $env, $rootNode->ownerDocument );
+			}
+		}, true
+	);
 }
 
 // Inherit from EventEmitter
-util.inherits(DOMPostProcessor, events.EventEmitter);
+util::inherits( $DOMPostProcessor, events\EventEmitter );
 
 /**
  * Debugging aid: set pipeline id
  */
-DOMPostProcessor.prototype.setPipelineId = function(id) {
-	this.pipelineId = id;
+DOMPostProcessor::prototype::setPipelineId = function ( $id ) {
+	$this->pipelineId = $id;
 };
 
-DOMPostProcessor.prototype.setSourceOffsets = function(start, end) {
-	this.options.sourceOffsets = [start, end];
+DOMPostProcessor::prototype::setSourceOffsets = function ( $start, $end ) {
+	$this->options->sourceOffsets = [ $start, $end ];
 };
 
-DOMPostProcessor.prototype.resetState = function(opts) {
-	this.atTopLevel = opts && opts.toplevel;
-	this.env.page.meta.displayTitle = null;
-	this.seenIds.clear();
+DOMPostProcessor::prototype::resetState = function ( $opts ) {
+	$this->atTopLevel = $opts && $opts->toplevel;
+	$this->env->page->meta->displayTitle = null;
+	$this->seenIds->clear();
 };
 
 // FIXME: consider moving to DOMUtils or MWParserEnvironment.
-DOMPostProcessor.addMetaData = function(env, document) {
+DOMPostProcessor::addMetaData = function ( $env, $document ) use ( &$url, &$metadataMap, &$util, &$DOMDataUtils, &$Util ) {
 	// add <head> element if it was missing
-	if (!document.head) {
-		document.documentElement
-			.insertBefore(document.createElement('head'), document.body);
+	if ( !$document->head ) {
+		$document->documentElement->
+		insertBefore( $document->createElement( 'head' ), $document->body );
 	}
 
 	// add mw: and mwr: RDFa prefixes
-	var prefixes = [
+	$prefixes = [
 		'dc: http://purl.org/dc/terms/',
-		'mw: http://mediawiki.org/rdf/',
+		'mw: http://mediawiki.org/rdf/'
 	];
 	// add 'http://' to baseURI if it was missing
-	var mwrPrefix = url.resolve('http://',
-		env.conf.wiki.baseURI + 'Special:Redirect/');
-	document.documentElement.setAttribute('prefix', prefixes.join(' '));
-	document.head.setAttribute('prefix', 'mwr: ' + mwrPrefix);
+	$mwrPrefix = url::resolve( 'http://',
+		$env->conf->wiki->baseURI . 'Special:Redirect/'
+	);
+	$document->documentElement->setAttribute( 'prefix', implode( ' ', $prefixes ) );
+	$document->head->setAttribute( 'prefix', 'mwr: ' . $mwrPrefix );
 
 	// add <head> content based on page meta data:
 
 	// Set the charset first.
-	appendToHead(document, 'meta', { charset: 'utf-8' });
+	appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
 
 	// collect all the page meta data (including revision metadata) in 1 object
-	var m = new Map();
-	Object.keys(env.page.meta || {}).forEach(function(k) {
-		m.set(k, env.page.meta[k]);
-	});
-	// include some other page properties
-	["ns", "id"].forEach(function(p) {
-		m.set(p, env.page[p]);
-	});
-	var rev = m.get('revision');
-	Object.keys(rev || {}).forEach(function(k) {
-		m.set('rev_' + k, rev[k]);
-	});
-	// use the metadataMap to turn collected data into <meta> and <link> tags.
-	m.forEach(function(g, f) {
-		var mdm = metadataMap[f];
-		if (!m.has(f) || m.get(f) === null || m.get(f) === undefined || !mdm) {
-			return;
+	$m = new Map();
+	Object::keys( $env->page->meta || [] )->forEach( function ( $k ) use ( &$m, &$env ) {
+			$m->set( $k, $env->page->meta[ $k ] );
 		}
-		// generate proper attributes for the <meta> or <link> tag
-		var attrs = Object.create(null);
-		Object.keys(mdm).forEach(function(k) {
-			// evaluate a function, or perform sprintf-style formatting, or
-			// use string directly, depending on value in metadataMap
-			var v = (typeof (mdm[k]) === 'function') ? mdm[k](m) :
-				mdm[k].indexOf('%') >= 0 ? util.format(mdm[k], m.get(f)) :
-				mdm[k];
-			attrs[k] = v;
-		});
-		// <link> is used if there's a resource or href attribute.
-		appendToHead(document,
-			(attrs.resource || attrs.href) ? 'link' : 'meta',
-			attrs);
-	});
-	if (m.has('rev_revid')) {
-		document.documentElement.setAttribute(
-			'about', mwrPrefix + 'revision/' + m.get('rev_revid'));
+	);
+	// include some other page properties
+	[ 'ns', 'id' ]->forEach( function ( $p ) use ( &$m, &$env ) {
+			$m->set( $p, $env->page[ $p ] );
+		}
+	);
+	$rev = $m->get( 'revision' );
+	Object::keys( $rev || [] )->forEach( function ( $k ) use ( &$m, &$rev ) {
+			$m->set( 'rev_' . $k, $rev[ $k ] );
+		}
+	);
+	// use the metadataMap to turn collected data into <meta> and <link> tags.
+	$m->forEach( function ( $g, $f ) use ( &$metadataMap, &$m, &$util, &$document ) {
+			$mdm = $metadataMap[ $f ];
+			if ( !$m->has( $f ) || $m->get( $f ) === null || $m->get( $f ) === null || !$mdm ) {
+				return;
+			}
+			// generate proper attributes for the <meta> or <link> tag
+			$attrs = [];
+			Object::keys( $mdm )->forEach( function ( $k ) use ( &$mdm, &$m, &$util, &$f, &$attrs ) {
+					// evaluate a function, or perform sprintf-style formatting, or
+					// use string directly, depending on value in metadataMap
+					$v = ( gettype( $mdm[ $k ] ) === 'function' ) ? $mdm[ $k ]( $m ) :
+					( array_search( '%', $mdm[ $k ] ) >= 0 ) ? util::format( $mdm[ $k ], $m->get( $f ) ) :
+					$mdm[ $k ];
+					$attrs[ $k ] = $v;
+				}
+			);
+			// <link> is used if there's a resource or href attribute.
+			appendToHead( $document,
+				( $attrs->resource || $attrs->href ) ? 'link' : 'meta',
+				$attrs
+			);
+		}
+	);
+	if ( $m->has( 'rev_revid' ) ) {
+		$document->documentElement->setAttribute(
+			'about', $mwrPrefix . 'revision/' . $m->get( 'rev_revid' )
+		);
 	}
 
 	// Normalize before comparison
-	if (env.conf.wiki.mainpage.replace(/_/g, ' ') === env.page.name.replace(/_/g, ' ')) {
-		appendToHead(document, 'meta', {
-			'property': 'isMainPage',
-			'content': true,
-		});
+	if ( preg_replace( '/_/', ' ', $env->conf->wiki->mainpage ) === preg_replace( '/_/', ' ', $env->page->name ) ) {
+		appendToHead( $document, 'meta', [
+				'property' => 'isMainPage',
+				'content' => true
+			]
+		);
 	}
 
 	// Set the parsoid content-type strings
 	// FIXME: Should we be using http-equiv for this?
-	appendToHead(document, 'meta', {
-		'property': 'mw:html:version',
-		'content': env.outputContentVersion,
-	});
-	var wikiPageUrl = env.conf.wiki.baseURI +
-		env.page.name.split('/').map(encodeURIComponent).join('/');
-	appendToHead(document, 'link',
-		{ rel: 'dc:isVersionOf', href: wikiPageUrl });
+	appendToHead( $document, 'meta', [
+			'property' => 'mw:html:version',
+			'content' => $env->outputContentVersion
+		]
+	);
+	$wikiPageUrl = $env->conf->wiki->baseURI
++		implode( '/', array_map( explode( '/', $env->page->name ), $encodeURIComponent ) );
+	appendToHead( $document, 'link',
+		[ 'rel' => 'dc:isVersionOf', 'href' => $wikiPageUrl ]
+	);
 
-	document.title = env.page.meta.displayTitle || env.page.meta.title || '';
+	$document->title = $env->page->meta->displayTitle || $env->page->meta->title || '';
 
 	// Add base href pointing to the wiki root
-	appendToHead(document, 'base', { href: env.conf.wiki.baseURI });
+	appendToHead( $document, 'base', [ 'href' => $env->conf->wiki->baseURI ] );
 
 	// Hack: link styles
-	var modules = new Set([
-		'mediawiki.legacy.commonPrint,shared',
-		'mediawiki.skinning.content.parsoid',
-		'mediawiki.skinning.interface',
-		'skins.vector.styles',
-		'site.styles',
-	]);
+	$modules = new Set( [
+			'mediawiki.legacy.commonPrint,shared',
+			'mediawiki.skinning.content.parsoid',
+			'mediawiki.skinning.interface',
+			'skins.vector.styles',
+			'site.styles'
+		]
+	);
 	// Styles from native extensions
-	env.conf.wiki.extConfig.styles.forEach(function(mo) {
-		modules.add(mo);
-	});
+	$env->conf->wiki->extConfig->styles->forEach( function ( $mo ) use ( &$modules ) {
+			$modules->add( $mo );
+		}
+	);
 	// Styles from modules returned from preprocessor / parse requests
-	if (env.page.extensionModuleStyles) {
-		env.page.extensionModuleStyles.forEach(function(mo) {
-			modules.add(mo);
-		});
+	if ( $env->page->extensionModuleStyles ) {
+		$env->page->extensionModuleStyles->forEach( function ( $mo ) use ( &$modules ) {
+				$modules->add( $mo );
+			}
+		);
 	}
-	var styleURI = env.getModulesLoadURI() +
-		'?modules=' + encodeURIComponent(Array.from(modules).join('|')) + '&only=styles&skin=vector';
-	appendToHead(document, 'link', { rel: 'stylesheet', href: styleURI });
+	$styleURI = $env->getModulesLoadURI()
+.		'?modules=' . encodeURIComponent( implode( '|', Array::from( $modules ) ) ) . '&only=styles&skin=vector';
+	appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
 
 	// Stick data attributes in the head
-	if (env.pageBundle) {
-		DOMDataUtils.injectPageBundle(document, DOMDataUtils.getDataParsoid(document).pagebundle);
+	if ( $env->pageBundle ) {
+		DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getDataParsoid( $document )->pagebundle );
 	}
 
 	// html5shiv
-	var shiv = document.createElement('script');
-	var src =  env.getModulesLoadURI() + '?modules=html5shiv&only=scripts&skin=vector&sync=1';
-	shiv.setAttribute('src', src);
-	var fi = document.createElement('script');
-	fi.appendChild(document.createTextNode('html5.addElements(\'figure-inline\');'));
-	var comment = document.createComment(
-		'[if lt IE 9]>' + shiv.outerHTML + fi.outerHTML + '<![endif]'
+	$shiv = $document->createElement( 'script' );
+	$src = $env->getModulesLoadURI() . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
+	$shiv->setAttribute( 'src', $src );
+	$fi = $document->createElement( 'script' );
+	$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
+	$comment = $document->createComment(
+		'[if lt IE 9]>' . $shiv->outerHTML . $fi->outerHTML . '<![endif]'
 	);
-	document.head.appendChild(comment);
+	$document->head->appendChild( $comment );
 
-	var lang = env.page.pagelanguage || env.conf.wiki.lang || 'en';
-	var dir = env.page.pagelanguagedir || (env.conf.wiki.rtl ? "rtl" : "ltr");
+	$lang = $env->page->pagelanguage || $env->conf->wiki->lang || 'en';
+	$dir = $env->page->pagelanguagedir || ( ( $env->conf->wiki->rtl ) ? 'rtl' : 'ltr' );
 
 	// Indicate whether LanguageConverter is enabled, so that downstream
 	// caches can split on variant (if necessary)
-	appendToHead(document, 'meta', {
-		'http-equiv': 'content-language',
-		'content': env.htmlContentLanguage(),
-	});
-	appendToHead(document, 'meta', {
-		'http-equiv': 'vary',
-		'content': env.htmlVary(),
-	});
+	appendToHead( $document, 'meta', [
+			'http-equiv' => 'content-language',
+			'content' => $env->htmlContentLanguage()
+		]
+	);
+	appendToHead( $document, 'meta', [
+			'http-equiv' => 'vary',
+			'content' => $env->htmlVary()
+		]
+	);
 
 	// Indicate language & directionality on body
-	document.body.setAttribute('lang', Util.bcp47(lang));
-	document.body.classList.add('mw-content-' + dir);
-	document.body.classList.add('sitedir-' + dir);
-	document.body.classList.add(dir);
-	document.body.setAttribute('dir', dir);
+	$document->body->setAttribute( 'lang', Util::bcp47( $lang ) );
+	$document->body->classList->add( 'mw-content-' . $dir );
+	$document->body->classList->add( 'sitedir-' . $dir );
+	$document->body->classList->add( $dir );
+	$document->body->setAttribute( 'dir', $dir );
 
 	// Set 'mw-body-content' directly on the body.
 	// This is the designated successor for #bodyContent in core skins.
-	document.body.classList.add('mw-body-content');
+	$document->body->classList->add( 'mw-body-content' );
 	// Set 'parsoid-body' to add the desired layout styling from Vector.
-	document.body.classList.add('parsoid-body');
+	$document->body->classList->add( 'parsoid-body' );
 	// Also, add the 'mediawiki' class.
 	// Some Mediawiki:Common.css seem to target this selector.
-	document.body.classList.add('mediawiki');
+	$document->body->classList->add( 'mediawiki' );
 	// Set 'mw-parser-output' directly on the body.
 	// Templates target this class as part of the TemplateStyles RFC
-	document.body.classList.add('mw-parser-output');
+	$document->body->classList->add( 'mw-parser-output' );
 };
 
-function processDumpAndGentestFlags(psd, body, shortcut, opts, preOrPost) {
+function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost ) {
+	global $ContentUtils;
+	global $fs;
 	// We don't support --dump & --genTest flags at the same time.
 	// Only one or the other can be used and if both are present,
 	// dumping takes precedence.
-	if (psd.dumpFlags && psd.dumpFlags.has('dom:' + preOrPost + '-' + shortcut)) {
-		ContentUtils.dumpDOM(body, 'DOM: ' + preOrPost + '-' + shortcut, opts);
-	} else if (psd.generateFlags && psd.generateFlags.handlers) {
-		opts.quiet = true;
-		psd.generateFlags.handlers.forEach(function(handler) {
-			if (handler === ('dom:' + shortcut)) {
-				opts.outStream = fs.createWriteStream(psd.generateFlags.directory + psd.generateFlags.pageName + '-' + shortcut + '-' + preOrPost + '.txt');
-				opts.dumpFragmentMap = psd.generateFlags.fragments;
-				ContentUtils.dumpDOM(body, 'DOM: ' + preOrPost + '-' + shortcut, opts);
+	if ( $psd->dumpFlags && $psd->dumpFlags->has( 'dom:' . $preOrPost . '-' . $shortcut ) ) {
+		ContentUtils::dumpDOM( $body, 'DOM: ' . $preOrPost . '-' . $shortcut, $opts );
+	} elseif ( $psd->generateFlags && $psd->generateFlags->handlers ) {
+		$opts->quiet = true;
+		$psd->generateFlags->handlers->forEach( function ( $handler ) use ( &$shortcut, &$opts, &$fs, &$preOrPost, &$psd, &$ContentUtils, &$body ) {
+				if ( $handler === ( 'dom:' . $shortcut ) ) {
+					$opts->outStream = fs::createWriteStream( $psd->generateFlags->directory + $psd->generateFlags->pageName . '-' . $shortcut . '-' . $preOrPost . '.txt' );
+					$opts->dumpFragmentMap = $psd->generateFlags->fragments;
+					ContentUtils::dumpDOM( $body, 'DOM: ' . $preOrPost . '-' . $shortcut, $opts );
+				}
 			}
-		});
+		);
 	}
 }
 
-DOMPostProcessor.prototype.doPostProcess = Promise.async(function *(document) {
-	var env = this.env;
+DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$DOMDataUtils, &$JSUtils ) {
+	$env = $this->env;
 
-	var psd = env.conf.parsoid;
-	if (psd.dumpFlags && psd.dumpFlags.has("dom:post-builder")) {
-		ContentUtils.dumpDOM(document.body, 'DOM: after tree builder');
+	$psd = $env->conf->parsoid;
+	if ( $psd->dumpFlags && $psd->dumpFlags->has( 'dom:post-builder' ) ) {
+		ContentUtils::dumpDOM( $document->body, 'DOM: after tree builder' );
 	}
 
-	var tracePP = psd.traceFlags && (psd.traceFlags.has("time/dompp") || psd.traceFlags.has("time"));
+	$tracePP = $psd->traceFlags && ( $psd->traceFlags->has( 'time/dompp' ) || $psd->traceFlags->has( 'time' ) );
 
 	// Holder for data-* attributes
-	if (this.atTopLevel && env.pageBundle) {
-		DOMDataUtils.setDataParsoid(document, {
-			pagebundle: {
-				parsoid: { counter: -1, ids: {} },
-				mw: { ids: {} },
-			},
-		});
+	// Holder for data-* attributes
+	if ( $this->atTopLevel && $env->pageBundle ) {
+		DOMDataUtils::setDataParsoid( $document, [
+				'pagebundle' => [
+					'parsoid' => [ 'counter' => -1, 'ids' => [] ],
+					'mw' => [ 'ids' => [] ]
+				]
+			]
+		);
 	}
 
-	var startTime, endTime, prefix, logLevel, resourceCategory;
-	if (tracePP) {
-		if (this.atTopLevel) {
-			prefix = "TOP";
+	$startTime = null; $endTime = null; $prefix = null; $logLevel = null; $resourceCategory = null;
+	if ( $tracePP ) {
+		if ( $this->atTopLevel ) {
+			$prefix = 'TOP';
 			// Turn off DOM pass timing tracing on non-top-level documents
-			logLevel = "trace/time/dompp";
-			resourceCategory = "DOMPasses:TOP";
+			// Turn off DOM pass timing tracing on non-top-level documents
+			$logLevel = 'trace/time/dompp';
+			$resourceCategory = 'DOMPasses:TOP';
 		} else {
-			prefix = "---";
-			logLevel = "debug/time/dompp";
-			resourceCategory = "DOMPasses:NESTED";
+			$prefix = '---';
+			$logLevel = 'debug/time/dompp';
+			$resourceCategory = 'DOMPasses:NESTED';
 		}
-		startTime = JSUtils.startTime();
-		env.log(logLevel, prefix + "; start=" + startTime);
+		$startTime = JSUtils::startTime();
+		$env->log( $logLevel, $prefix . '; start=' . $startTime );
 	}
 
-	if (this.atTopLevel && psd.generateFlags && psd.generateFlags.handlers) {
+	if ( $this->atTopLevel && $psd->generateFlags && $psd->generateFlags->handlers ) {
 		// Pre-set data-parsoid.dsr for <body>
-		// Useful for genTest mode for computeDSR tests
+		// Useful for genTest mode for ComputeDSR tests
 		//
 		// NOTE: This runs immediately after tree building and before
 		// dp-loader has run => we cannot use dom utils to set this on
 		// the cached node.data.parsoid object.
-		const bodyDP = DOMDataUtils.getJSONAttribute(document.body, 'data-parsoid', {});
-		bodyDP.dsr = [0, env.page.src.length, 0, 0];
-		DOMDataUtils.setJSONAttribute(document.body, 'data-parsoid', bodyDP);
+		$bodyDP = DOMDataUtils::getJSONAttribute( $document->body, 'data-parsoid', [] );
+		$bodyDP->dsr = [ 0, count( $env->page->src ), 0, 0 ];
+		DOMDataUtils::setJSONAttribute( $document->body, 'data-parsoid', $bodyDP );
 	}
 
-	for (var i = 0; i < this.processors.length; i++) {
-		var pp = this.processors[i];
-		if (pp.skipNested && !this.atTopLevel) {
+	for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
+		$pp = $this->processors[ $i ];
+		if ( $pp->skipNested && !$this->atTopLevel ) {
 			continue;
 		}
 		try {
-			var body = document.body;
+			$body = $document->body;
 
 			// Trace
-			var ppStart, ppElapsed, ppName;
-			if (tracePP) {
-				ppName = pp.name + ' '.repeat(pp.name.length < 30 ? 30 - pp.name.length : 0);
-				ppStart = JSUtils.startTime();
-				env.log(logLevel, prefix + "; " + ppName + " start");
+			// Trace
+			$ppStart = null; $ppElapsed = null; $ppName = null;
+			if ( $tracePP ) {
+				$ppName = $pp->name + ' '->repeat( ( count( $pp->name ) < 30 ) ? 30 - count( $pp->name ) : 0 );
+				$ppStart = JSUtils::startTime();
+				$env->log( $logLevel, $prefix . '; ' . $ppName . ' start' );
 			}
-			var opts;
-			if (this.atTopLevel) {
-				opts = {
-					env: env,
-					dumpFragmentMap: true,
-					outerHTML: true
-				};
-				processDumpAndGentestFlags(psd, body, pp.shortcut, opts, 'pre');
+			$opts = null;
+			if ( $this->atTopLevel ) {
+				$opts = [
+					'env' => $env,
+					'dumpFragmentMap' => true,
+					'outerHTML' => true
+				];
+				processDumpAndGentestFlags( $psd, $body, $pp->shortcut, $opts, 'pre' );
 			}
 
-			var ret = pp.proc(document.body, env, this.options, this.atTopLevel);
-			if (ret) {
+			$ret = $pp->proc( $document->body, $env, $this->options, $this->atTopLevel );
+			if ( $ret ) {
 				// Processors can return a Promise iff they need to be async.
-				yield ret;
+				/* await */ $ret;
 			}
 
-			if (this.atTopLevel) {
-				processDumpAndGentestFlags(psd, body, pp.shortcut, opts, 'post');
+			if ( $this->atTopLevel ) {
+				processDumpAndGentestFlags( $psd, $body, $pp->shortcut, $opts, 'post' );
 			}
-			if (tracePP) {
-				ppElapsed = JSUtils.elapsedTime(ppStart);
-				env.log(logLevel, prefix + "; " + ppName + " end; time = " + ppElapsed.toFixed(5));
-				env.bumpTimeUse(resourceCategory, ppElapsed, 'DOM');
+			if ( $tracePP ) {
+				$ppElapsed = JSUtils::elapsedTime( $ppStart );
+				$env->log( $logLevel, $prefix . '; ' . $ppName . ' end; time = ' . $ppElapsed->toFixed( 5 ) );
+				$env->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
 			}
-		} catch (e) {
-			env.log('fatal', e);
+		} catch ( Exception $e ) {
+			$env->log( 'fatal', $e );
 			return;
 		}
 	}
-	if (tracePP) {
-		endTime = JSUtils.startTime();
-		env.log(logLevel, prefix + "; end=" + endTime.toFixed(5) + "; time = " + JSUtils.elapsedTime(startTime).toFixed(5));
+	if ( $tracePP ) {
+		$endTime = JSUtils::startTime();
+		$env->log( $logLevel, $prefix . '; end=' . $endTime->toFixed( 5 ) . '; time = ' . JSUtils::elapsedTime( $startTime )->toFixed( 5 ) );
 	}
 
 	// For sub-pipeline documents, we are done.
 	// For the top-level document, we generate <head> and add it.
-	if (this.atTopLevel) {
-		DOMPostProcessor.addMetaData(env, document);
-		if (psd.traceFlags && psd.traceFlags.has('time')) {
-			env.printTimeProfile();
+	// For sub-pipeline documents, we are done.
+	// For the top-level document, we generate <head> and add it.
+	if ( $this->atTopLevel ) {
+		DOMPostProcessor::addMetaData( $env, $document );
+		if ( $psd->traceFlags && $psd->traceFlags->has( 'time' ) ) {
+			$env->printTimeProfile();
 		}
-		if (psd.dumpFlags && psd.dumpFlags.has('wt2html:limits')) {
-			env.printParserResourceUsage({ 'HTML Size': document.outerHTML.length });
+		if ( $psd->dumpFlags && $psd->dumpFlags->has( 'wt2html:limits' ) ) {
+			$env->printParserResourceUsage( [ 'HTML Size' => count( $document->outerHTML ) ] );
 		}
 	}
 
-	this.emit('document', document);
-});
+	$this->emit( 'document', $document );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
 
 /**
  * Register for the 'document' event, normally emitted from the HTML5 tree
  * builder.
  */
-DOMPostProcessor.prototype.addListenersOn = function(emitter) {
-	emitter.addListener('document', (document) => {
-		this.doPostProcess(document).done();
-	});
+DOMPostProcessor::prototype::addListenersOn = function ( $emitter ) {
+	$emitter->addListener( 'document', function ( $document ) {
+			$this->doPostProcess( $document )->done();
+		}
+	);
 };
 
-if (typeof module === "object") {
-	module.exports.DOMPostProcessor = DOMPostProcessor;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->DOMPostProcessor = $DOMPostProcessor;
 }

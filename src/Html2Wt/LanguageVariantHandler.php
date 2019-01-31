@@ -1,30 +1,35 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Serializes language variant markup, like `-{ ... }-`.
  * @module
  */
 
-"use strict";
+namespace Parsoid;
 
-var Consts = require('../config/WikitextConstants.js').WikitextConstants;
-var DOMDataUtils = require('../utils/DOMDataUtils.js').DOMDataUtils;
-var Promise = require('../utils/promise.js');
-var Util = require('../utils/Util.js').Util;
-var LanguageVariantText = require('./ConstrainedText.js').LanguageVariantText;
+$Consts = require( '../config/WikitextConstants.js' )::WikitextConstants;
+$DOMDataUtils = require( '../utils/DOMDataUtils.js' )::DOMDataUtils;
+$Promise = require( '../utils/promise.js' );
+$Util = require( '../utils/Util.js' )::Util;
+$LanguageVariantText = require( './ConstrainedText.js' )::LanguageVariantText;
 
-var expandSpArray = function(a) {
-	var result = [];
-	if (Array.isArray(a)) {
-		a.forEach(function(el) {
-			if (typeof (el) === 'number') {
-				for (var i = 0; i < el; i++) {
-					result.push('');
+$expandSpArray = function ( $a ) {
+	$result = [];
+	if ( is_array( $a ) ) {
+		$a->forEach( function ( $el ) use ( &$result ) {
+				if ( gettype( $el ) === 'number' ) {
+					for ( $i = 0;  $i < $el;  $i++ ) {
+						$result[] = '';
+					}
+				} else {
+					$result[] = $el;
 				}
-			} else {
-				result.push(el);
 			}
-		});
+		);
 	}
-	return result;
+	return $result;
 };
 
 /**
@@ -33,182 +38,461 @@ var expandSpArray = function(a) {
  * @return {Promise}
  */
 // should be called with this == instance of WikitextSerializer
-var languageVariantHandler = Promise.async(function *(node) {
-	var state = this.state;
-	var dataMWV = DOMDataUtils.getJSONAttribute(node, 'data-mw-variant', {});
-	var dp = DOMDataUtils.getDataParsoid(node);
-	var flSp = expandSpArray(dp.flSp);
-	var textSp = expandSpArray(dp.tSp);
-	var trailingSemi = false;
-	var text;
-	var flags;
-	var originalFlags = (dp.fl || []).reduce(function(m, k, idx) {
-		if (!m.has(k)) { m.set(k, idx); }
-		return m;
-	}, new Map());
-	var result = '$E|'; // "error" flag
+$languageVariantHandler = /* async */function ( $node ) use ( &$DOMDataUtils, &$expandSpArray, &$Util, &$LanguageVariantText ) {
+	$state = $this->state;
+	$dataMWV = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', [] );
+	$dp = DOMDataUtils::getDataParsoid( $node );
+	$flSp = $expandSpArray( $dp->flSp );
+	$textSp = $expandSpArray( $dp->tSp );
+	$trailingSemi = false;
+	$text = null;
+	$flags = null;
+	$originalFlags = array_reduce( ( $dp->fl || [] ), function ( $m, $k, $idx ) {
+			if ( !$m->has( $k ) ) { $m->set( $k, $idx );  }
+			return $m;
+		}, new Map()
+	)
+
+
+	;
+	$result = '$E|'; // "error" flag
 
 	// Backwards-compatibility: `bidir` => `twoway` ; `unidir` => `oneway`
-	if (dataMWV.bidir) {
-		dataMWV.twoway = dataMWV.bidir;
-		delete dataMWV.bidir;
+	// "error" flag
+
+	// Backwards-compatibility: `bidir` => `twoway` ; `unidir` => `oneway`
+	if ( $dataMWV->bidir ) {
+		$dataMWV->twoway = $dataMWV->bidir;
+		unset( $dataMWV->bidir );
 	}
-	if (dataMWV.unidir) {
-		dataMWV.oneway = dataMWV.undir;
-		delete dataMWV.unidir;
+	if ( $dataMWV->unidir ) {
+		$dataMWV->oneway = $dataMWV->undir;
+		unset( $dataMWV->unidir );
 	}
 
-	flags = Object.keys(dataMWV).reduce(function(f, k) {
-		if (Consts.LCNameMap.has(k)) {
-			f.add(Consts.LCNameMap.get(k));
-		}
-		return f;
-	}, new Set());
-	var maybeDeleteFlag = function(f) {
-		if (!originalFlags.has(f)) { flags.delete(f); }
+	$flags = array_reduce( Object::keys( $dataMWV ), function ( $f, $k ) {
+			if ( Consts\LCNameMap::has( $k ) ) {
+				$f->add( Consts\LCNameMap::get( $k ) );
+			}
+			return $f;
+		}, new Set()
+	)
+
+
+
+
+	;
+	$maybeDeleteFlag = function ( $f ) use ( &$originalFlags, &$flags ) {
+		if ( !$originalFlags->has( $f ) ) { $flags->delete( $f );  }
 	};
 
 	// Tweak flag set to account for implicitly-enabled flags.
-	if (node.tagName !== 'META') {
-		flags.add('$S');
+	// Tweak flag set to account for implicitly-enabled flags.
+	if ( $node->tagName !== 'META' ) {
+		$flags->add( '$S' );
 	}
-	if (!flags.has('$S') && !flags.has('T') && dataMWV.filter === undefined) {
-		flags.add('H');
+	if ( !$flags->has( '$S' ) && !$flags->has( 'T' ) && $dataMWV->filter === null ) {
+		$flags->add( 'H' );
 	}
-	if (flags.size === 1 && flags.has('$S')) {
-		maybeDeleteFlag('$S');
-	} else if (flags.has('D')) {
+	if ( $flags->size === 1 && $flags->has( '$S' ) ) {
+		$maybeDeleteFlag( '$S' );
+	} elseif ( $flags->has( 'D' ) ) {
 		// Weird: Only way to hide a 'describe' rule is to write -{D;A|...}-
-		if (flags.has('$S')) {
-			if (flags.has('A')) {
-				flags.add('H');
+		if ( $flags->has( '$S' ) ) {
+			if ( $flags->has( 'A' ) ) {
+				$flags->add( 'H' );
 			}
-			flags.delete('A');
+			$flags->delete( 'A' );
 		} else {
-			flags.add('A');
-			flags.delete('H');
+			$flags->add( 'A' );
+			$flags->delete( 'H' );
 		}
-	} else if (flags.has('T')) {
-		if (flags.has('A') && !flags.has('$S')) {
-			flags.delete('A');
-			flags.add('H');
+	} elseif ( $flags->has( 'T' ) ) {
+		if ( $flags->has( 'A' ) && !$flags->has( '$S' ) ) {
+			$flags->delete( 'A' );
+			$flags->add( 'H' );
 		}
-	} else if (flags.has('A')) {
-		if (flags.has('$S')) {
-			maybeDeleteFlag('$S');
-		} else if (flags.has('H')) {
-			maybeDeleteFlag('A');
+	} elseif ( $flags->has( 'A' ) ) {
+		if ( $flags->has( '$S' ) ) {
+			$maybeDeleteFlag( '$S' );
+		} elseif ( $flags->has( 'H' ) ) {
+			$maybeDeleteFlag( 'A' );
 		}
-	} else if (flags.has('R')) {
-		maybeDeleteFlag('$S');
-	} else if (flags.has('-')) {
-		maybeDeleteFlag('H');
+	} elseif ( $flags->has( 'R' ) ) {
+		$maybeDeleteFlag( '$S' );
+	} elseif ( $flags->has( '-' ) ) {
+		$maybeDeleteFlag( 'H' );
 	}
 
 	// Helper function: serialize a DOM string; returns a Promise
-	var ser = function(t, opts) {
-		var options = Object.assign({
-			env: state.env,
-			onSOL: false
-		}, opts || {});
-		return state.serializer.serializeHTML(options, t);
+	// Helper function: serialize a DOM string; returns a Promise
+	$ser = function ( $t, $opts ) use ( &$state ) {
+		$options = Object::assign( [
+				'env' => $state->env,
+				'onSOL' => false
+			], $opts || []
+		);
+		return $state->serializer->serializeHTML( $options, $t );
 	};
 
 	// Helper function: protect characters not allowed in language names.
-	var protectLang = function(l) {
-		if (/^[a-z][-a-z]+$/.test(l)) { return l; }
-		return '<nowiki>' + Util.escapeWtEntities(l) + '</nowiki>';
+	// Helper function: protect characters not allowed in language names.
+	$protectLang = function ( $l ) use ( &$Util ) {
+		if ( preg_match( '/^[a-z][-a-z]+$/', $l ) ) { return $l;  }
+		return '<nowiki>' . Util::escapeWtEntities( $l ) . '</nowiki>';
 	};
 
 	// Helper function: combine the three parts of the -{ }- string
-	var combine = function(flagStr, bodyStr, useTrailingSemi) {
-		if (flagStr || /\|/.test(bodyStr)) { flagStr += '|'; }
-		if (useTrailingSemi !== false) { bodyStr += ';' + useTrailingSemi; }
-		return flagStr + bodyStr;
+	// Helper function: combine the three parts of the -{ }- string
+	$combine = function ( $flagStr, $bodyStr, $useTrailingSemi ) {
+		if ( $flagStr || preg_match( '/\|/', $bodyStr ) ) { $flagStr += '|';  }
+		if ( $useTrailingSemi !== false ) { $bodyStr += ';' . $useTrailingSemi;  }
+		return $flagStr + $bodyStr;
 	};
 
 	// Canonicalize combinations of flags.
-	var sortedFlags = function(flags, noFilter, protectFunc) {
-		var s = Array.from(flags).filter(function(f) {
-			// Filter out internal-use-only flags
-			if (noFilter) { return true; }
-			return !/^[$]/.test(f);
-		}).sort(function(a, b) {
-			var ai = originalFlags.has(a) ? originalFlags.get(a) : -1;
-			var bi = originalFlags.has(b) ? originalFlags.get(b) : -1;
-			return ai - bi;
-		}).map(function(f) {
-			// Reinsert the original whitespace around the flag (if any)
-			var i = originalFlags.get(f);
-			var p = protectFunc ? protectFunc(f) : f;
-			if (i !== undefined && (2 * i + 1) < flSp.length) {
-				return flSp[2 * i] + p + flSp[2 * i + 1];
-			}
-			return p;
-		}).join(';');
-		if (2 * originalFlags.size + 1 === flSp.length) {
-			if (flSp.length > 1 || s.length) { s += ';'; }
-			s += flSp[2 * originalFlags.size];
+	// Canonicalize combinations of flags.
+	$sortedFlags = function ( $flags, $noFilter, $protectFunc ) use ( &$flags, &$originalFlags, &$flSp ) {
+		$s = implode(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			';', array_map( Array::from( $flags )->filter( function ( $f ) {
+						// Filter out internal-use-only flags
+						if ( $noFilter ) { return true;  }
+						return !preg_match( '/^[$]/', $f );
+					}
+				)->sort( function ( $a, $b ) {
+						$ai = ( $originalFlags->has( $a ) ) ? $originalFlags->get( $a ) : -1;
+						$bi = ( $originalFlags->has( $b ) ) ? $originalFlags->get( $b ) : -1;
+						return $ai - $bi;
+					}
+				), function ( $f ) {
+					// Reinsert the original whitespace around the flag (if any)
+					$i = $originalFlags->get( $f );
+					$p = ( $protectFunc ) ? protectFunc( $f ) : $f;
+					if ( $i !== null && ( 2 * $i + 1 ) < count( $flSp ) ) {
+						return $flSp[ 2 * $i ] + $p + $flSp[ 2 * $i + 1 ];
+					}
+					return $p;
+				}
+			)
+
+
+
+
+
+
+
+		);
+		if ( 2 * $originalFlags->size + 1 === count( $flSp ) ) {
+			if ( count( $flSp ) > 1 || count( $s ) ) { $s += ';';  }
+			$s += $flSp[ 2 * $originalFlags->size ];
 		}
-		return s;
+		return $s;
 	};
 
-	if (dataMWV.filter && dataMWV.filter.l) {
+	if ( $dataMWV->filter && $dataMWV->filter->l ) {
 		// "Restrict possible variants to a limited set"
-		text = yield ser(dataMWV.filter.t, { protect: /\}-/ });
-		console.assert(flags.size === 0);
-		result = combine(
-			sortedFlags(dataMWV.filter.l, true, protectLang),
-			text,
-			false /* no trailing semi */);
-	} else if (dataMWV.disabled || dataMWV.name) {
+		$text = /* await */ $ser( $dataMWV->filter->t, [ 'protect' => /* RegExp */ '/\}-/' ] );
+		Assert::invariant( $flags->size === 0 );
+		$result = $combine(
+			$sortedFlags( $dataMWV->filter->l, true, $protectLang ),
+			$text,
+			false/* no trailing semi */
+		);
+	} else /* no trailing semi */
+	if ( $dataMWV->disabled || $dataMWV->name ) {
 		// "Raw" / protect contents from language converter
-		text = yield ser((dataMWV.disabled || dataMWV.name).t, { protect: /\}-/ });
-		if (!/[:;|]/.test(text)) {
-			maybeDeleteFlag('R');
+		$text = /* await */ $ser( ( $dataMWV->disabled || $dataMWV->name )->t, [ 'protect' => /* RegExp */ '/\}-/' ] );
+		if ( !preg_match( '/[:;|]/', $text ) ) {
+			$maybeDeleteFlag( 'R' );
 		}
-		result = combine(sortedFlags(flags), text, false);
-	} else if (Array.isArray(dataMWV.twoway)) {
+		$result = $combine( $sortedFlags( $flags ), $text, false );
+	} elseif ( is_array( $dataMWV->twoway ) ) {
 		// Two-way rules (most common)
-		if (textSp.length % 3 === 1) {
-			trailingSemi = textSp[textSp.length - 1];
+		if ( count( $textSp ) % 3 === 1 ) {
+			$trailingSemi = $textSp[ count( $textSp ) - 1 ];
 		}
-		var b = (dataMWV.twoway[0] && dataMWV.twoway[0].l === '*') ?
-			dataMWV.twoway.slice(0, 1) :
-			dataMWV.twoway;
-		text = (yield Promise.all(b.map(Promise.async(function *(rule, idx) {
-			var text = yield ser(rule.t, { protect: /;|\}-/ });
-			if (rule.l === '*') {
-				trailingSemi = false;
-				return text;
-			}
-			var ws = (3 * idx + 2 < textSp.length) ?
-				textSp.slice(3 * idx, 3 * (idx + 1)) :
-				[ (idx > 0) ? ' ' : '', '', '' ];
-			return ws[0] + protectLang(rule.l) + ws[1] + ':' + ws[2] + text;
-		})))).join(';');
-		// suppress output of default flag ('S')
-		maybeDeleteFlag('$S');
-		result = combine(sortedFlags(flags), text, trailingSemi);
-	} else if (Array.isArray(dataMWV.oneway)) {
-		// One-way rules (uncommon)
-		if (textSp.length % 4 === 1) {
-			trailingSemi = textSp[textSp.length - 1];
-		}
-		text = (yield Promise.all(dataMWV.oneway.map(Promise.async(function *(rule, idx) {
-			var from = yield ser(rule.f, { protect: /:|;|=>|\}-/ });
-			var to = yield ser(rule.t, { protect: /;|\}-/ });
-			var ws = (4 * idx + 3 < textSp.length) ?
-				textSp.slice(4 * idx, 4 * (idx + 1)) :
-				[ '', '', '', '' ];
-			return ws[0] + from + '=>' + ws[1] + protectLang(rule.l) +
-				ws[2] + ':' + ws[3] + to;
-		})))).join(';');
-		result = combine(sortedFlags(flags), text, trailingSemi);
-	}
-	state.emitChunk(new LanguageVariantText('-{' + result + '}-', node), node);
-});
+		$b = ( $dataMWV->twoway[ 0 ] && $dataMWV->twoway[ 0 ]->l === '*' ) ?
+		array_slice( $dataMWV->twoway, 0, 1/*CHECK THIS*/ ) :
+		$dataMWV->twoway;
+		$text = implode(
 
-if (typeof module === 'object') {
-	module.exports.languageVariantHandler = languageVariantHandler;
+
+
+
+
+
+
+
+
+			';', ( /* await */ Promise::all( array_map( $b, /* async */function ( $rule, $idx ) {
+						$text = /* await */ ser( $rule->t, [ 'protect' => /* RegExp */ '/;|\}-/' ] );
+						if ( $rule->l === '*' ) {
+							$trailingSemi = false;
+							return $text;
+						}
+						$ws = ( 3 * $idx + 2 < count( $textSp ) ) ?
+						array_slice( $textSp, 3 * $idx, 3 * ( $idx + 1 )/*CHECK THIS*/ ) :
+						[ ( $idx > 0 ) ? ' ' : '', '', '' ];
+						return $ws[ 0 ] + protectLang( $rule->l ) + $ws[ 1 ] . ':' . $ws[ 2 ] . $text;
+					}
+
+
+
+
+
+
+
+
+
+				)
+
+
+
+
+
+
+
+
+
+			) )
+		);
+		// suppress output of default flag ('S')
+		// suppress output of default flag ('S')
+		$maybeDeleteFlag( '$S' );
+		$result = $combine( $sortedFlags( $flags ), $text, $trailingSemi );
+	} elseif ( is_array( $dataMWV->oneway ) ) {
+		// One-way rules (uncommon)
+		if ( count( $textSp ) % 4 === 1 ) {
+			$trailingSemi = $textSp[ count( $textSp ) - 1 ];
+		}
+		$text = implode(
+
+
+
+
+
+
+
+			';', ( /* await */ Promise::all( array_map( $dataMWV->oneway, /* async */function ( $rule, $idx ) {
+						$from = /* await */ ser( $rule->f, [ 'protect' => /* RegExp */ '/:|;|=>|\}-/' ] );
+						$to = /* await */ ser( $rule->t, [ 'protect' => /* RegExp */ '/;|\}-/' ] );
+						$ws = ( 4 * $idx + 3 < count( $textSp ) ) ?
+						array_slice( $textSp, 4 * $idx, 4 * ( $idx + 1 )/*CHECK THIS*/ ) :
+						[ '', '', '', '' ];
+						return $ws[ 0 ] + $from . '=>' . $ws[ 1 ] . protectLang( $rule->l )
+.							$ws[ 2 ] . ':' . $ws[ 3 ] . $to;
+					}
+
+
+
+
+
+
+
+				)
+
+
+
+
+
+
+
+			) )
+		);
+		$result = $combine( $sortedFlags( $flags ), $text, $trailingSemi );
+	}
+	$state->emitChunk( new LanguageVariantText( '-{' . $result . '}-', $node ), $node );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->languageVariantHandler = $languageVariantHandler;
 }

@@ -1,66 +1,70 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Serbian (Српски / Srpski) specific code.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade.js');
-
-const { Language } = require('./Language.js');
-const { LanguageConverter } = require('./LanguageConverter.js');
-const { ReplacementMachine } = require('wikimedia-langconv');
+use Parsoid\Language as Language;
+use Parsoid\LanguageConverter as LanguageConverter;
+use Parsoid\ReplacementMachine as ReplacementMachine;
 
 class SrConverter extends LanguageConverter {
-	loadDefaultTables() {
-		this.mTables = new ReplacementMachine('sr', 'sr-ec', 'sr-el');
+	public function loadDefaultTables() {
+		$this->mTables = new ReplacementMachine( 'sr', 'sr-ec', 'sr-el' );
 	}
 	// do not try to find variants for usernames
-	findVariantLink(link, nt, ignoreOtherCond) {
-		const ns = nt.getNamespace();
-		if (ns.isUser() || ns.isUserTalk) {
-			return { nt, link };
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+		$ns = $nt->getNamespace();
+		if ( $ns->isUser() || $ns->isUserTalk ) {
+			return [ 'nt' => $nt, 'link' => $link ];
 		}
 		// FIXME check whether selected language is 'sr'
-		return super.findVariantLink(link, nt, ignoreOtherCond);
+		return parent::findVariantLink( $link, $nt, $ignoreOtherCond );
 	}
 
 	/**
 	 * Guess if a text is written in Cyrillic or Latin.
 	 * Overrides LanguageConverter::guessVariant()
 	 */
-	guessVariant(text, variant) {
-		return this.guessVariantParsoid(text, variant);
+	public function guessVariant( $text, $variant ) {
+		return $this->guessVariantParsoid( $text, $variant );
 	}
 
 	// Variant based on the ReplacementMachine's bracketing abilities
-	guessVariantParsoid(text, variant) {
-		const r = [];
-		for (const code of this.mTables.codes) {
-			for (const othercode of this.mTables.codes) {
-				if (code === othercode) { return; }
-				r.push({
-					code,
-					othercode,
-					stats: this.mTables.countBrackets(text, code, othercode),
-				});
+	public function guessVariantParsoid( $text, $variant ) {
+		$r = [];
+		foreach ( $this->mTables->codes as $code => $___ ) {
+			foreach ( $this->mTables->codes as $othercode => $___ ) {
+				if ( $code === $othercode ) { return;
+	   }
+				$r[] = [
+					'code' => $code,
+					'othercode' => $othercode,
+					'stats' => $this->mTables->countBrackets( $text, $code, $othercode )
+				];
 			}
 		}
-		r.sort((a,b) => a.stats.unsafe - b.stats.unsafe);
-		return r[0].othercode === variant;
+		$r->sort( function ( $a, $b ) {return $a->stats->unsafe - $b->stats->unsafe;
+  } );
+		return $r[ 0 ]->othercode === $variant;
 	}
 
 	// Faithful translation of PHP heuristic
-	guessVariantPHP(text, variant) {
+	public function guessVariantPHP( $text, $variant ) {
 		// XXX: Should use the `u` regexp flag, in Node 6
 		// but for these particular regexps it's actually not needed.
 		// http://node.green/#ES2015-syntax-RegExp--y--and--u--flags--u--flag
-		const numCyrillic = text.match(/[шђчћжШЂЧЋЖ]/g).length;
-		const numLatin = text.match(/[šđčćžŠĐČĆŽ]/g).length;
-		if (variant === 'sr-ec') {
-			return numCyrillic > numLatin;
-		} else if (variant === 'sr-el') {
-			return numLatin > numCyrillic;
+		$numCyrillic = count( preg_match_all( "/[шђчћжШЂЧЋЖ]/", $text, $FIXME ) );
+		$numLatin = count( preg_match_all( "/[šđčćžŠĐČĆŽ]/", $text, $FIXME ) );
+		if ( $variant === 'sr-ec' ) {
+			return $numCyrillic > $numLatin;
+		} elseif ( $variant === 'sr-el' ) {
+			return $numLatin > $numCyrillic;
 		} else {
 			return false;
 		}
@@ -68,23 +72,27 @@ class SrConverter extends LanguageConverter {
 }
 
 class LanguageSr extends Language {
-	constructor() {
-		super();
-		const variants = ['sr', 'sr-ec', 'sr-el'];
-		const variantfallbacks = new Map([
-			['sr','sr-ec'],
-			['sr-ec','sr'],
-			['sr-el','sr']
-		]);
-		const flags = new Map([
-			['S', 'S'], ['писмо', 'S'], ['pismo', 'S'],
-			['W', 'W'], ['реч', 'W'], ['reč', 'W'], ['ријеч', 'W'],
-			['riječ', 'W']
-		]);
-		this.mConverter = new SrConverter(
-			this, 'sr', variants, variantfallbacks, flags
+	public function __construct() {
+		parent::__construct();
+		$variants = [ 'sr', 'sr-ec', 'sr-el' ];
+		$variantfallbacks = new Map( [
+				[ 'sr', 'sr-ec' ],
+				[ 'sr-ec', 'sr' ],
+				[ 'sr-el', 'sr' ]
+			]
+		);
+		$flags = new Map( [
+				[ 'S', 'S' ], [ "писмо", 'S' ], [ 'pismo', 'S' ],
+				[ 'W', 'W' ], [ "реч", 'W' ], [ "reč", 'W' ], [ "ријеч", 'W' ],
+				[ "riječ", 'W' ]
+			]
+		);
+		$this->mConverter = new SrConverter(
+			$this, 'sr', $variants, $variantfallbacks, $flags
 		);
 	}
+	public $mConverter;
+
 }
 
-module.exports = LanguageSr;
+$module->exports = $LanguageSr;

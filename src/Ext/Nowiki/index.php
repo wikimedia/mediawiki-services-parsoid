@@ -1,84 +1,100 @@
+<?php
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Nowiki treats anything inside it as plain text.
  * @module ext/Nowiki
  */
 
-'use strict';
+namespace Parsoid;
 
-const domino = require('domino');
+use Parsoid\domino as domino;
 
-const ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.10.0');
+$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 
-const { Promise, Util, DOMUtils, WTUtils, DOMDataUtils } = ParsoidExtApi;
+$temp0 = $ParsoidExtApi;
+$Promise = $temp0::Promise;
+$Util = $temp0::Util;
+$DOMUtils = $temp0::DOMUtils;
+$WTUtils = $temp0::WTUtils;
+$DOMDataUtils = $temp0::DOMDataUtils;
 
-const toDOM = Promise.method(function(state, txt, extArgs) {
-	const doc = domino.createDocument();
-	const span = doc.createElement('span');
-	span.setAttribute('typeof', 'mw:Nowiki');
+$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$domino, &$Util, &$DOMDataUtils ) {
+		$doc = domino::createDocument();
+		$span = $doc->createElement( 'span' );
+		$span->setAttribute( 'typeof', 'mw:Nowiki' );
 
-	txt.split(/(&[#0-9a-zA-Z]+;)/).forEach(function(t, i) {
-		if (i % 2 === 1) {
-			const cc = Util.decodeWtEntities(t);
-			if (cc.length < 3) {
-				// This should match the output of the "htmlentity" rule
-				// in the tokenizer.
-				const entity = doc.createElement('span');
-				entity.setAttribute('typeof', 'mw:Entity');
-				DOMDataUtils.setDataParsoid(entity, {
-					src: t,
-					srcContent: cc,
-				});
-				entity.appendChild(doc.createTextNode(cc));
-				span.appendChild(entity);
-				return;
-			}
-			// else, fall down there
+		preg_split( '/(&[#0-9a-zA-Z]+;)/', $txt )->forEach( function ( $t, $i ) use ( &$Util, &$doc, &$DOMDataUtils, &$span ) {
+				if ( $i % 2 === 1 ) {
+					$cc = Util::decodeWtEntities( $t );
+					if ( count( $cc ) < 3 ) {
+						// This should match the output of the "htmlentity" rule
+						// in the tokenizer.
+						$entity = $doc->createElement( 'span' );
+						$entity->setAttribute( 'typeof', 'mw:Entity' );
+						DOMDataUtils::setDataParsoid( $entity, [
+								'src' => $t,
+								'srcContent' => $cc
+							]
+						);
+						$entity->appendChild( $doc->createTextNode( $cc ) );
+						$span->appendChild( $entity );
+						return;
+					}
+					// else, fall down there
+				}
+				$span->appendChild( $doc->createTextNode( $t ) );
 		}
-		span.appendChild(doc.createTextNode(t));
-	});
+		);
 
-	span.normalize();
-	doc.body.appendChild(span);
-	return doc;
-});
+		$span->normalize();
+		$doc->body->appendChild( $span );
+		return $doc;
+}
+);
 
-const serialHandler = {
-	handle: Promise.async(function *(node, state, wrapperUnmodified) {
-		if (!node.hasChildNodes()) {
-			state.hasSelfClosingNowikis = true;
-			state.emitChunk('<nowiki/>', node);
+$serialHandler = [
+	'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$DOMUtils, &$WTUtils ) {
+		if ( !$node->hasChildNodes() ) {
+			$state->hasSelfClosingNowikis = true;
+			$state->emitChunk( '<nowiki/>', $node );
 			return;
 		}
-		state.emitChunk('<nowiki>', node);
-		for (var child = node.firstChild; child; child = child.nextSibling) {
-			if (DOMUtils.isElt(child)) {
-				if (DOMUtils.isDiffMarker(child)) {
+		$state->emitChunk( '<nowiki>', $node );
+		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
+			if ( DOMUtils::isElt( $child ) ) {
+				if ( DOMUtils::isDiffMarker( $child ) ) {
+
 					/* ignore */
-				} else if (child.nodeName === 'SPAN' &&
-						child.getAttribute('typeof') === 'mw:Entity') {
-					yield state.serializer._serializeNode(child);
+				} else { /* ignore */
+				if ( $child->nodeName === 'SPAN'
+&& $child->getAttribute( 'typeof' ) === 'mw:Entity'
+				) {
+					/* await */ $state->serializer->_serializeNode( $child );
 				} else {
-					state.emitChunk(child.outerHTML, node);
+					$state->emitChunk( $child->outerHTML, $node );
 				}
-			} else if (DOMUtils.isText(child)) {
-				state.emitChunk(WTUtils.escapeNowikiTags(child.nodeValue), child);
+				}
+			} elseif ( DOMUtils::isText( $child ) ) {
+				$state->emitChunk( WTUtils::escapeNowikiTags( $child->nodeValue ), $child );
 			} else {
-				yield state.serializer._serializeNode(child);
+				/* await */ $state->serializer->_serializeNode( $child );
 			}
 		}
-		state.emitChunk('</nowiki>', node);
-	}),
-};
+		$state->emitChunk( '</nowiki>', $node );
+	}
 
-module.exports = function() {
-	this.config = {
-		tags: [
-			{
-				name: 'nowiki',
-				toDOM,
+];
+
+$module->exports = function () use ( &$toDOM, &$serialHandler ) {
+	$this->config = [
+		'tags' => [
+			[
+				'name' => 'nowiki',
+				'toDOM' => $toDOM,
 				// FIXME: This'll also be called on type mw:Extension/nowiki
-				serialHandler,
-			},
-		],
-	};
+				'serialHandler' => $serialHandler
+			]
+		]
+	];
 };

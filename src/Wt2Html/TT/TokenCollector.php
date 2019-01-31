@@ -1,10 +1,19 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 
-'use strict';
+namespace Parsoid;
 
-const TokenHandler = require('./TokenHandler.js');
-const lastItem = require('../../utils/jsutils.js').JSUtils.lastItem;
-const { TagTk, EndTagTk, SelfclosingTagTk, EOFTk } = require('../../tokens/TokenTypes.js');
+use Parsoid\TokenHandler as TokenHandler;
+
+$lastItem = require '../../utils/jsutils.js'::JSUtils::lastItem;
+$temp0 = require '../../tokens/TokenTypes.js';
+$TagTk = $temp0::TagTk;
+$EndTagTk = $temp0::EndTagTk;
+$SelfclosingTagTk = $temp0::SelfclosingTagTk;
+$EOFTk = $temp0::EOFTk;
 
 /**
  * Small utility class that encapsulates the common 'collect all tokens
@@ -17,39 +26,46 @@ const { TagTk, EndTagTk, SelfclosingTagTk, EOFTk } = require('../../tokens/Token
  * @extends module:wt2html/tt/TokenHandler
  */
 class TokenCollector extends TokenHandler {
-	constructor(manager, options) {
-		super(manager, options);
-		this.scopeStack = [];
-		this.manager.addTransform(
-			(token, prevToken, cb) => this._onDelimiterToken(token, cb),
-			'TokenCollector:_onDelimiterToken', this.RANK(), this.TYPE(), this.NAME());
+	public function __construct( $manager, $options ) {
+		parent::__construct( $manager, $options );
+		$this->onAnyEnabled = false;
+		$this->scopeStack = [];
+	}
+	public $onAnyEnabled;
+	public $scopeStack;
+
+	public function onTag( $token ) {
+		return ( $token->name === $this::NAME() ) ? $this->_onDelimiterToken( $token ) : $token;
 	}
 
-	/**
-	 * Register any collector with slightly lower priority than the start/end token type
-	 * XXX: This feels a bit hackish, a list-of-registrations per rank might be
-	 * better.
-	 *
-	 * Don't make this delta much larger- could lead to conflicts in the
-	 * ExtensionContentCollector for example.
-	 * @private
-	 */
-	static _ANYDELTA() { return 0.00000001; }
+	public function onEnd( $token ) {
+		return ( $this->onAnyEnabled ) ? $this->_onDelimiterToken( $token ) : $token;
+	}
 
-	// Numerical rank of the tranform.
-	RANK() { throw new Error('Not implemented'); }
+	public function onAny( $token ) {
+		return $this->_onAnyToken( $token );
+	}
+
 	// Token type to register for ('tag', 'text' etc)
-	TYPE() { throw new Error('Not implemented'); }
+	public function TYPE() {
+ throw new Error( 'Not implemented' );
+ }
 	// (optional, only for token type 'tag'): tag name.
-	NAME() { throw new Error('Not implemented'); }
+	public function NAME() {
+ throw new Error( 'Not implemented' );
+ }
 	// Match the 'end' tokens as closing tag as well (accept unclosed sections).
-	TOEND() { throw new Error('Not implemented'); }
+	public function TOEND() {
+ throw new Error( 'Not implemented' );
+ }
 	// FIXME: Document this!?
-	ACKEND() { throw new Error('Not implemented'); }
+	public function ACKEND() {
+ throw new Error( 'Not implemented' );
+ }
 
 	// Transform function
-	transformation() {
-		console.assert(false, 'Transformation not implemented!');
+	public function transformation() {
+		Assert::invariant( false, 'Transformation not implemented!' );
 	}
 
 	/**
@@ -57,76 +73,71 @@ class TokenCollector extends TokenHandler {
 	 * XXX: Adjust to sync phase callback when that is modified!
 	 * @private
 	 */
-	_onDelimiterToken(token, cb) {
-		var haveOpenTag = this.scopeStack.length > 0;
-		var tc = token.constructor;
-		if (tc === TagTk) {
-			if (this.scopeStack.length === 0) {
+	public function _onDelimiterToken( $token ) {
+		$haveOpenTag = count( $this->scopeStack ) > 0;
+		$tc = $token->constructor;
+		if ( $tc === $TagTk ) {
+			if ( count( $this->scopeStack ) === 0 ) {
+				$this->onAnyEnabled = true;
 				// Set up transforms
-				this.manager.env.log('debug', 'starting collection on ', token);
-				this.manager.addTransform(
-					(token, prevToken, cb) => this._onAnyToken(token, cb),
-					'TokenCollector:_onAnyToken', this.RANK() + TokenCollector._ANYDELTA(), 'any');
-				this.manager.addTransform(
-					(token, prevToken, cb) => this._onDelimiterToken(token, cb),
-					'TokenCollector:_onDelimiterToken:end', this.RANK(), 'end');
+				$this->manager->env->log( 'debug', 'starting collection on ', $token );
 			}
 
 			// Push a new scope
-			var newScope = [];
-			this.scopeStack.push(newScope);
-			newScope.push(token);
+			$newScope = [];
+			$this->scopeStack[] = $newScope;
+			$newScope[] = $token;
 
-			return { };
-		} else if (tc === SelfclosingTagTk) {
+			return [];
+		} elseif ( $tc === $SelfclosingTagTk ) {
 			// We need to handle <ref /> for example, so call the handler.
-			return this.transformation([token, token]);
-		} else if (haveOpenTag) {
+			return $this->transformation( [ $token, $token ] );
+		} elseif ( $haveOpenTag ) {
 			// EOFTk or EndTagTk
-			this.manager.env.log('debug', 'finishing collection on ', token);
+			$this->manager->env->log( 'debug', 'finishing collection on ', $token );
 
 			// Pop top scope and push token onto it
-			var activeTokens = this.scopeStack.pop();
-			activeTokens.push(token);
+			$activeTokens = array_pop( $this->scopeStack );
+			$activeTokens[] = $token;
 
 			// clean up
-			if (this.scopeStack.length === 0 || token.constructor === EOFTk) {
-				this.manager.removeTransform(this.RANK() + TokenCollector._ANYDELTA(), 'any');
-				this.manager.removeTransform(this.RANK(), 'end');
+			if ( count( $this->scopeStack ) === 0 || $token->constructor === $EOFTk ) {
+				$this->onAnyEnabled = false;
 			}
 
-			if (tc === EndTagTk) {
+			if ( $tc === $EndTagTk ) {
 				// Transformation can be either sync or async, but receives all collected
 				// tokens instead of a single token.
-				return this.transformation(activeTokens);
+				return $this->transformation( $activeTokens );
 				// XXX sync version: return tokens
 			} else {
 				// EOF -- collapse stack!
-				var allToks = [];
-				for (var i = 0, n = this.scopeStack.length; i < n; i++) {
-					allToks = allToks.concat(this.scopeStack[i]);
+				$allToks = [];
+				for ( $i = 0,  $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
+					$allToks = $allToks->concat( $this->scopeStack[ $i ] );
 				}
-				allToks = allToks.concat(activeTokens);
+				$allToks = $allToks->concat( $activeTokens );
 
-				var res = this.TOEND() ? this.transformation(allToks) : { tokens: allToks };
-				if (res.tokens && res.tokens.length &&
-						lastItem(res.tokens).constructor !== EOFTk) {
-					this.manager.env.log("error", this.NAME(), "handler dropped the EOFTk!");
+				$res = ( $this::TOEND() ) ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
+				if ( $res->tokens && count( $res->tokens )
+&& $lastItem( $res->tokens )->constructor !== $EOFTk
+				) {
+					$this->manager->env->log( 'error', $this::NAME(), 'handler dropped the EOFTk!' );
 
 					// preserve the EOFTk
-					res.tokens.push(token);
+					$res->tokens[] = $token;
 				}
 
-				return res;
+				return $res;
 			}
 		} else {
 			// EndTagTk should be the only one that can reach here.
-			console.assert(token.constructor === EndTagTk, "Expected an end tag.");
-			if (this.ACKEND()) {
-				return this.transformation([ token ]);
+			Assert::invariant( $token->constructor === $EndTagTk, 'Expected an end tag.' );
+			if ( $this::ACKEND() ) {
+				return $this->transformation( [ $token ] );
 			} else {
 				// An unbalanced end tag. Ignore it.
-				return { tokens: [ token ] };
+				return [ 'tokens' => [ $token ] ];
 			}
 		}
 	}
@@ -137,13 +148,13 @@ class TokenCollector extends TokenHandler {
 	 * token is reached.
 	 * @private
 	 */
-	_onAnyToken(token, cb) {
+	public function _onAnyToken( $token ) {
 		// Simply collect anything ordinary in between
-		lastItem(this.scopeStack).push(token);
-		return { };
+		lastItem( $this->scopeStack )[] = $token;
+		return [];
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.TokenCollector = TokenCollector;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->TokenCollector = $TokenCollector;
 }

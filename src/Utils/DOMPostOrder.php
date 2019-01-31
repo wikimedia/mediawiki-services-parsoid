@@ -1,38 +1,42 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Post-order DOM traversal helper.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
 /**
  * Non-recursive post-order traversal of a DOM tree.
  * @param {Node} root
  * @param {Function} visitFunc Called in post-order on each node.
  */
-function DOMPostOrder(root, visitFunc) {
-	let node = root;
-	while (true) {
+function DOMPostOrder( $root, $visitFunc ) {
+	$node = $root;
+	while ( true ) {
 		// Find leftmost (grand)child, and visit that first.
-		while (node.firstChild) {
-			node = node.firstChild;
+		while ( $node->firstChild ) {
+			$node = $node->firstChild;
 		}
-		visitFunc(node);
-		while (true) {
-			if (node === root) {
+		$visitFunc( $node );
+		while ( true ) {
+			if ( $node === $root ) {
 				return; // Visiting the root is the last thing we do.
 			}
 			/* Look for right sibling to continue traversal. */
-			if (node.nextSibling) {
-				node = node.nextSibling;
+			if ( $node->nextSibling ) {
+				$node = $node->nextSibling;
 				/* Loop back and visit its leftmost (grand)child first. */
 				break;
 			}
 			/* Visit parent only after we've run out of right siblings. */
-			node = node.parentNode;
-			visitFunc(node);
+			$node = $node->parentNode;
+			$visitFunc( $node );
 		}
 	}
 }
 
-module.exports.DOMPostOrder = DOMPostOrder;
+$module->exports->DOMPostOrder = $DOMPostOrder;

@@ -1,39 +1,43 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * English ( / Pig Latin) conversion code.
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-require('../../core-upgrade.js');
-
-const { Language } = require('./Language.js');
-const { LanguageConverter } = require('./LanguageConverter.js');
-const { ReplacementMachine } = require('wikimedia-langconv');
+use Parsoid\Language as Language;
+use Parsoid\LanguageConverter as LanguageConverter;
+use Parsoid\ReplacementMachine as ReplacementMachine;
 
 class EnConverter extends LanguageConverter {
-	loadDefaultTables() {
-		this.mTables = new ReplacementMachine('en', 'en', 'en-x-piglatin');
+	public function loadDefaultTables() {
+		$this->mTables = new ReplacementMachine( 'en', 'en', 'en-x-piglatin' );
 	}
 	// do not try to find variants for usernames
-	findVariantLink(link, nt, ignoreOtherCond) {
-		const ns = nt.getNamespace();
-		if (ns.isUser() || ns.isUserTalk) {
-			return { nt, link };
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+		$ns = $nt->getNamespace();
+		if ( $ns->isUser() || $ns->isUserTalk ) {
+			return [ 'nt' => $nt, 'link' => $link ];
 		}
 		// FIXME check whether selected language is 'sr'
-		return super.findVariantLink(link, nt, ignoreOtherCond);
+		return parent::findVariantLink( $link, $nt, $ignoreOtherCond );
 	}
 }
 
 class LanguageEn extends Language {
-	constructor() {
-		super();
-		const variants = ['en', 'en-x-piglatin'];
-		this.mConverter = new EnConverter(
-			this, 'en', variants
+	public function __construct() {
+		parent::__construct();
+		$variants = [ 'en', 'en-x-piglatin' ];
+		$this->mConverter = new EnConverter(
+			$this, 'en', $variants
 		);
 	}
+	public $mConverter;
+
 }
 
-module.exports = LanguageEn;
+$module->exports = $LanguageEn;

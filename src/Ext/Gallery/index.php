@@ -1,3 +1,7 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Implements the php parser's `renderImageGallery` natively.
  *
@@ -13,230 +17,306 @@
  * @module ext/Gallery
  */
 
-'use strict';
+namespace Parsoid;
 
-const ParsoidExtApi = module.parent.require('./extapi.js').versionCheck('^0.10.0');
-const {
-	DOMDataUtils,
-	DOMUtils,
-	parseWikitextToDOM,
-	Promise,
-	Sanitizer,
-	SanitizerConstants,
-	TokenUtils,
-	Util,
-} = ParsoidExtApi;
+$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
+$temp0 =
 
-var modes = require('./modes.js');
+$ParsoidExtApi;
+$DOMDataUtils = $temp0::DOMDataUtils; $DOMUtils = $temp0::
+DOMUtils; $parseWikitextToDOM = $temp0->
+parseWikitextToDOM; $Promise = $temp0::
+Promise; $Sanitizer = $temp0::
+Sanitizer; $SanitizerConstants = $temp0::
+SanitizerConstants; $TokenUtils = $temp0::
+TokenUtils; $Util = $temp0::
+Util;
+
+$modes = require './modes.js';
 
 /**
  * @class
  */
-var Opts = function(env, attrs) {
-	Object.assign(this, env.conf.wiki.siteInfo.general.galleryoptions);
+class Opts {
+	public function __construct( $env, $attrs ) {
+		Object::assign( $this, $env->conf->wiki->siteInfo->general->galleryoptions );
 
-	var perrow = parseInt(attrs.perrow, 10);
-	if (!Number.isNaN(perrow)) { this.imagesPerRow = perrow; }
+		$perrow = intval( $attrs->perrow, 10 );
+		if ( !Number::isNaN( $perrow ) ) { $this->imagesPerRow = $perrow;
+  }
 
-	var maybeDim = Util.parseMediaDimensions(String(attrs.widths), true);
-	if (maybeDim && Util.validateMediaParam(maybeDim.x)) {
-		this.imageWidth = maybeDim.x;
-	}
-
-	maybeDim = Util.parseMediaDimensions(String(attrs.heights), true);
-	if (maybeDim && Util.validateMediaParam(maybeDim.x)) {
-		this.imageHeight = maybeDim.x;
-	}
-
-	var mode = (attrs.mode || '').toLowerCase();
-	if (modes.has(mode)) { this.mode = mode; }
-
-	this.showfilename = (attrs.showfilename !== undefined);
-	this.showthumbnails = (attrs.showthumbnails !== undefined);
-	this.caption = attrs.caption;
-
-	// TODO: Good contender for T54941
-	var validUlAttrs = SanitizerConstants.attrWhiteList.ul;
-	this.attrs = Object.keys(attrs)
-	.filter(function(k) { return validUlAttrs.includes(k); })
-	.reduce(function(o, k) {
-		o[k] = (k === 'style') ? Sanitizer.checkCss(attrs[k]) : attrs[k];
-		return o;
-	}, {});
-};
-
-// FIXME: This is too permissive.  The php implementation only calls
-// `replaceInternalLinks` on the gallery caption.  We should have a new
-// tokenizing rule that only tokenizes text / wikilink.
-var pCaption = Promise.async(function *(data) {
-	const { state }  = data;
-	var options = state.extToken.getAttribute('options');
-	var caption = options.find(function(kv) {
-		return kv.k === 'caption';
-	});
-	if (caption === undefined || !caption.v) { return null; }
-	const doc = yield parseWikitextToDOM(
-		state,
-		caption.v,
-		caption.srcOffsets.slice(2),
-		{
-			extTag: 'gallery',
-			expandTemplates: true,
-			inTemplate: state.parseContext.inTemplate,
-			// FIXME: This needs more analysis.  Maybe it's inPHPBlock
-			inlineContext: true,
+		$maybeDim = Util::parseMediaDimensions( String( $attrs->widths ), true );
+		if ( $maybeDim && Util::validateMediaParam( $maybeDim->x ) ) {
+			$this->imageWidth = $maybeDim->x;
 		}
-	);
-	// Store before `migrateChildrenBetweenDocs` in render
-	DOMDataUtils.visitAndStoreDataAttribs(doc.body);
-	return doc.body;
-});
 
-var pLine = Promise.async(function *(data, obj) {
-	const { state, opts } = data;
-	const env = state.env;
+		$maybeDim = Util::parseMediaDimensions( String( $attrs->heights ), true );
+		if ( $maybeDim && Util::validateMediaParam( $maybeDim->x ) ) {
+			$this->imageHeight = $maybeDim->x;
+		}
 
-	// Regexp from php's `renderImageGallery`
-	var matches = obj.line.match(/^([^|]+)(\|(?:.*))?$/);
-	if (!matches) { return null; }
+		$mode = strtolower( $attrs->mode || '' );
+		if ( $modes->has( $mode ) ) { $this->mode = $mode;
+  }
 
-	var text = matches[1];
-	var caption = matches[2] || '';
+		$this->showfilename = ( $attrs->showfilename !== null );
+		$this->showthumbnails = ( $attrs->showthumbnails !== null );
+		$this->caption = $attrs->caption;
 
-	// TODO: % indicates rawurldecode.
-
-	var title = env.makeTitleFromText(text,
-			env.conf.wiki.canonicalNamespaces.file, true);
-
-	if (title === null || !title.getNamespace().isFile()) {
-		return null;
+		// TODO: Good contender for T54941
+		$validUlAttrs = SanitizerConstants::attrWhiteList::ul;
+		$this->attrs = array_reduce( Object::keys( $attrs )->
+			filter( function ( $k ) { return $validUlAttrs->includes( $k );
+   } ),
+			function ( $o, $k ) {
+				$o[ $k ] = ( $k === 'style' ) ? Sanitizer::checkCss( $attrs[ $k ] ) : $attrs[ $k ];
+				return $o;
+			}, []
+		);
 	}
+	public $attrs;
+	public $imagesPerRow;
 
-	// FIXME: Try to confirm `file` isn't going to break WikiLink syntax.
-	// See the check for 'FIGURE' below.
-	var file = title.getPrefixedDBKey();
+	public $imageWidth;
 
-	var mode = modes.get(opts.mode);
+	public $imageHeight;
 
-	// NOTE: We add "none" here so that this renders in the block form
-	// (ie. figure) for an easier structure to manipulate.
-	var start = '[[';
-	var middle = '|' + mode.dimensions(opts) + '|none';
-	var end = ']]';
-	var wt = start + file + middle + caption + end;
+	public $mode;
 
-	// This is all in service of lining up the caption
-	var diff = file.length - matches[1].length;
-	var startOffset = obj.offset - start.length - diff - middle.length;
-	var srcOffsets = [startOffset, startOffset + wt.length];
+	public $showfilename;
+	public $showthumbnails;
+	public $caption;
 
-	const doc = yield parseWikitextToDOM(state, wt, srcOffsets, {
-		extTag: 'gallery',
-		expandTemplates: true,
-		inTemplate: state.parseContext.inTemplate,
-		// FIXME: This needs more analysis.  Maybe it's inPHPBlock
-		inlineContext: true,
-	});
+}
 
-	var body = doc.body;
-
-	var thumb = body.firstChild;
-	if (thumb.nodeName !== 'FIGURE') {
-		return null;
+/**
+ * Native Parsoid implementation of the Gallery extension.
+ */
+class Gallery {
+	public function __construct() {
+		$this->config = [
+			'tags' => [
+				[
+					'name' => 'gallery',
+					'toDOM' => self::toDOM,
+					'modifyArgDict' => self::modifyArgDict,
+					'serialHandler' => self::serialHandler()
+				]
+			],
+			'styles' => [ 'mediawiki.page.gallery.styles' ]
+		];
 	}
+	public $config;
 
-	var rdfaType = thumb.getAttribute('typeof');
-
-	// Clean it out for reuse later
-	while (body.firstChild) { body.firstChild.remove(); }
-
-	var figcaption = thumb.querySelector('figcaption');
-	if (!figcaption) {
-		figcaption = doc.createElement('figcaption');
-	} else {
-		figcaption.remove();
-	}
-
-	if (opts.showfilename) {
-		var galleryfilename = doc.createElement('a');
-		galleryfilename.setAttribute('href', env.makeLink(title));
-		galleryfilename.setAttribute('class', 'galleryfilename galleryfilename-truncate');
-		galleryfilename.setAttribute('title', file);
-		galleryfilename.appendChild(doc.createTextNode(file));
-		figcaption.insertBefore(galleryfilename, figcaption.firstChild);
-	}
-
-	var gallerytext = !/^\s*$/.test(figcaption.innerHTML) && figcaption;
-	if (gallerytext) {
+	public static function pCaption( $data ) {
+		$temp1 = $data;
+$state = $temp1->state;
+		$options = $state->extToken->getAttribute( 'options' );
+		$caption = $options->find( function ( $kv ) {
+				return $kv->k === 'caption';
+		}
+		);
+		if ( $caption === null || !$caption->v ) { return null;
+  }
+		// `normalizeExtOptions` messes up src offsets, so we do our own
+		// normalization to avoid parsing sol blocks
+		$capV = preg_replace( '/[\t\r\n ]/', ' ', $caption->vsrc );
+		$doc = /* await */ $parseWikitextToDOM(
+			$state,
+			$capV,
+			array_slice( $caption->srcOffsets, 2 ),
+			[
+				'extTag' => 'gallery',
+				'expandTemplates' => true,
+				'inTemplate' => $state->parseContext->inTemplate,
+				// FIXME: This needs more analysis.  Maybe it's inPHPBlock
+				'inlineContext' => true
+			],
+			false// Gallery captions are deliberately not parsed in SOL context
+		);
 		// Store before `migrateChildrenBetweenDocs` in render
-		DOMDataUtils.visitAndStoreDataAttribs(gallerytext);
+		DOMDataUtils::visitAndStoreDataAttribs( $doc->body );
+		return $doc->body;
 	}
-	return { thumb: thumb, gallerytext: gallerytext, rdfaType: rdfaType };
-});
 
-const toDOM = function(state, content, args) {
-	const attrs = TokenUtils.kvToHash(args, true);
-	const opts = new Opts(state.env, attrs);
+	public static function pLine( $data, $obj ) {
+		$temp2 = $data;
+$state = $temp2->state;
+$opts = $temp2->opts;
+		$env = $state->env;
 
-	// Pass this along the promise chain ...
-	const data = {
-		state,
-		opts,
-	};
+		// Regexp from php's `renderImageGallery`
+		$matches = preg_match( '/^([^|]+)(\|(?:.*))?$/', $obj->line );
+		if ( !$matches ) { return null;
+  }
 
-	const dataAttribs = state.extToken.dataAttribs;
-	let offset = dataAttribs.tsr[0] + dataAttribs.tagWidths[0];
+		$text = $matches[ 1 ];
+		$caption = $matches[ 2 ] || '';
 
-	// Prepare the lines for processing
-	const lines = content.split('\n')
-	.map(function(line, ind) {
-		const obj = { line: line, offset: offset };
-		offset += line.length + 1;  // For the nl
-		return obj;
-	})
-	.filter(function(obj, ind, arr) {
-		return !((ind === 0 || ind === arr.length - 1) && /^\s*$/.test(obj.line));
-	});
+		// TODO: % indicates rawurldecode.
 
-	return Promise.join(
-		(opts.caption === undefined) ? null : pCaption(data),
-		Promise.map(lines, line => pLine(data, line))
-	)
-	.then(function(ret) {
-		// Drop invalid lines like "References: 5."
-		const oLines = ret[1].filter(function(o) {
-			return o !== null;
-		});
-		const mode = modes.get(opts.mode);
-		const doc = mode.render(opts, ret[0], oLines);
-		// Reload now that `migrateChildrenBetweenDocs` is done
-		DOMDataUtils.visitAndLoadDataAttribs(doc.body);
-		return doc;
-	});
-};
+		$title = $env->makeTitleFromText( $text,
+			$env->conf->wiki->canonicalNamespaces->file, true
+		);
 
-var contentHandler = Promise.async(function *(node, state) {
-	var content = '\n';
-	for (var child = node.firstChild; child; child = child.nextSibling) {
-		switch (child.nodeType) {
-			case child.ELEMENT_NODE:
+		if ( $title === null || !$title->getNamespace()->isFile() ) {
+			return null;
+		}
+
+		// FIXME: Try to confirm `file` isn't going to break WikiLink syntax.
+		// See the check for 'FIGURE' below.
+		$file = $title->getPrefixedDBKey();
+
+		$mode = $modes->get( $opts->mode );
+
+		// NOTE: We add "none" here so that this renders in the block form
+		// (ie. figure) for an easier structure to manipulate.
+		$start = '[[';
+		$middle = '|' . $mode->dimensions( $opts ) . '|none';
+		$end = ']]';
+		$wt = $start + $file + $middle + $caption + $end;
+
+		// This is all in service of lining up the caption
+		$diff = count( $file ) - count( $matches[ 1 ] );
+		$startOffset = $obj->offset - strlen( $start ) - $diff - count( $middle );
+		$srcOffsets = [ $startOffset, $startOffset + count( $wt ) ];
+
+		$doc = /* await */ $parseWikitextToDOM(
+			$state,
+			$wt,
+			$srcOffsets,
+			[
+				'extTag' => 'gallery',
+				'expandTemplates' => true,
+				'inTemplate' => $state->parseContext->inTemplate,
+				// FIXME: This needs more analysis.  Maybe it's inPHPBlock
+				'inlineContext' => true
+			],
+			true// sol
+		);
+
+		$body = $doc->body;
+
+		$thumb = $body->firstChild;
+		if ( $thumb->nodeName !== 'FIGURE' ) {
+			return null;
+		}
+
+		$rdfaType = $thumb->getAttribute( 'typeof' );
+
+		// Clean it out for reuse later
+		while ( $body->firstChild ) { $body->firstChild->remove();
+  }
+
+		$figcaption = $thumb->querySelector( 'figcaption' );
+		if ( !$figcaption ) {
+			$figcaption = $doc->createElement( 'figcaption' );
+		} else {
+			$figcaption->remove();
+		}
+
+		if ( $opts->showfilename ) {
+			$galleryfilename = $doc->createElement( 'a' );
+			$galleryfilename->setAttribute( 'href', $env->makeLink( $title ) );
+			$galleryfilename->setAttribute( 'class', 'galleryfilename galleryfilename-truncate' );
+			$galleryfilename->setAttribute( 'title', $file );
+			$galleryfilename->appendChild( $doc->createTextNode( $file ) );
+			$figcaption->insertBefore( $galleryfilename, $figcaption->firstChild );
+		}
+
+		$gallerytext = !preg_match( '/^\s*$/', $figcaption->innerHTML ) && $figcaption;
+		if ( $gallerytext ) {
+			// Store before `migrateChildrenBetweenDocs` in render
+			DOMDataUtils::visitAndStoreDataAttribs( $gallerytext );
+		}
+		return [ 'thumb' => $thumb, 'gallerytext' => $gallerytext, 'rdfaType' => $rdfaType ];
+	}
+
+	public static function toDOM( $state, $content, $args ) {
+		$attrs = TokenUtils::kvToHash( $args, true );
+		$opts = new Opts( $state->env, $attrs );
+
+		// Pass this along the promise chain ...
+		$data = [
+			'state' => $state,
+			'opts' => $opts
+		];
+
+		$dataAttribs = $state->extToken->dataAttribs;
+		$offset = $dataAttribs->tsr[ 0 ] + $dataAttribs->tagWidths[ 0 ];
+
+		// Prepare the lines for processing
+		$lines = array_map( explode( "\n", $content ),
+			function ( $line, $ind ) {
+				$obj = [ 'line' => $line, 'offset' => $offset ];
+				$offset += count( $line ) + 1; // For the nl
+				// For the nl
+				return $obj;
+			}
+		)
+
+		->
+		filter( function ( $obj, $ind, $arr ) {
+				return !( ( $ind === 0 || $ind === count( $arr ) - 1 ) && preg_match( '/^\s*$/', $obj->line ) );
+		}
+		);
+
+		return Promise::join(
+			( $opts->caption === null ) ? null : self::pCaption( $data ),
+			Promise::map( $lines, function ( $line ) use ( &$data ) {return Gallery::pLine( $data, $line );
+   } )
+		)->
+		then( function ( $ret ) use ( &$modes, &$opts, &$DOMDataUtils ) {
+				// Drop invalid lines like "References: 5."
+				$oLines = $ret[ 1 ]->filter( function ( $o ) {
+						return $o !== null;
+				}
+				);
+				$mode = $modes->get( $opts->mode );
+				$doc = $mode->render( $opts, $ret[ 0 ], $oLines );
+				// Reload now that `migrateChildrenBetweenDocs` is done
+				DOMDataUtils::visitAndLoadDataAttribs( $doc->body );
+				return $doc;
+		}
+		);
+	}
+
+	public static function contentHandler( $node, $state ) {
+		$content = "\n";
+		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
+			switch ( $child->nodeType ) {
+				case $child::ELEMENT_NODE:
 				// Ignore if it isn't a "gallerybox"
-				if (child.nodeName !== 'LI' ||
-						child.getAttribute('class') !== 'gallerybox') {
+				if ( $child->nodeName !== 'LI'
+|| $child->getAttribute( 'class' ) !== 'gallerybox'
+				) {
 					break;
 				}
-				var thumb = child.querySelector('.thumb');
-				if (!thumb) { break; }
-				var elt = DOMUtils.selectMediaElt(thumb);
-				var resource = null;
-				if (elt) {
+				$thumb = $child->querySelector( '.thumb' );
+				if ( !$thumb ) { break;
+	   }
+				// FIXME: The below would benefit from a refactoring that
+				// assumes the figure structure, as in the link handler.
+				$elt = DOMUtils::selectMediaElt( $thumb );
+				if ( $elt ) {
 					// FIXME: Should we preserve the original namespace?  See T151367
-					resource = elt.getAttribute('resource');
-					if (resource !== null) {
-						content += resource.replace(/^\.\//, '');
-						var alt = elt.getAttribute('alt');
-						if (alt !== null) {
-							content += '|alt=' + state.serializer.wteHandlers.escapeLinkContent(alt, false, child);
+					$resource = $elt->getAttribute( 'resource' );
+					if ( $resource !== null ) {
+						$content += preg_replace( '/^\.\//', '', $resource, 1 );
+						// FIXME: Serializing of these attributes should
+						// match the link handler so that values stashed in
+						// data-mw aren't ignored.
+						$alt = $elt->getAttribute( 'alt' );
+						if ( $alt !== null ) {
+							$content += '|alt=' . $state->serializer->wteHandlers->escapeLinkContent( $state, $alt, false, $child, true );
+						}
+						// The first "a" is for the link, hopefully.
+						$a = $thumb->querySelector( 'a' );
+						if ( $a ) {
+							$href = $a->getAttribute( 'href' );
+							if ( $href !== null && $href !== $resource ) {
+								$content += '|link=' . $state->serializer->wteHandlers->escapeLinkContent( $state, preg_replace( '/^\.\//', '', $href, 1 ), false, $child, true );
+							}
 						}
 					}
 				} else {
@@ -244,112 +324,101 @@ var contentHandler = Promise.async(function *(node, state) {
 					// returning mw:Error (apierror-filedoesnotexist) as
 					// plaintext.  Continue to serialize this content until
 					// that version is no longer supported.
-					content += thumb.textContent;
+					$content += $thumb->textContent;
 				}
-				// The first "a" is for the link, hopefully.
-				var a = thumb.querySelector('a');
-				if (a) {
-					var href = a.getAttribute('href');
-					if (href !== null && href !== resource) {
-						content += '|link=' + state.serializer.wteHandlers.escapeLinkContent(href.replace(/^\.\//, ''), false, child);
+				$gallerytext = $child->querySelector( '.gallerytext' );
+				if ( $gallerytext ) {
+					$showfilename = $gallerytext->querySelector( '.galleryfilename' );
+					if ( $showfilename ) {
+						$showfilename->remove(); // Destructive to the DOM!
 					}
-				}
-				var gallerytext = child.querySelector('.gallerytext');
-				if (gallerytext) {
-					var showfilename = gallerytext.querySelector('.galleryfilename');
-					if (showfilename) {
-						showfilename.remove();  // Destructive to the DOM!
-					}
-					state.singleLineContext.enforce();
-					var caption =
-						yield state.serializeCaptionChildrenToString(
-							gallerytext,
-							state.serializer.wteHandlers.wikilinkHandler
-						);
-					state.singleLineContext.pop();
+					$state->singleLineContext->enforce();
+					$caption =
+					/* await */ $state->serializeCaptionChildrenToString(
+						$gallerytext,
+						$state->serializer->wteHandlers->wikilinkHandler
+					);
+					array_pop( $state->singleLineContext );
 					// Drop empty captions
-					if (!/^\s*$/.test(caption)) {
-						content += '|' + caption;
+					if ( !preg_match( '/^\s*$/', $caption ) ) {
+						$content += '|' . $caption;
 					}
 				}
-				content += '\n';
+				$content += "\n";
 				break;
-			case child.TEXT_NODE:
-			case child.COMMENT_NODE:
+				case $child::TEXT_NODE:
+
+				case $child::COMMENT_NODE:
 				// Ignore it
 				break;
-			default:
-				console.assert(false, 'Should not be here!');
+				default:
+				Assert::invariant( false, 'Should not be here!' );
 				break;
-		}
-	}
-	return content;
-});
-
-var serialHandler = {
-	handle: Promise.async(function *(node, state, wrapperUnmodified) {
-		var dataMw = DOMDataUtils.getDataMw(node);
-		dataMw.attrs = dataMw.attrs || {};
-		// Handle the "gallerycaption" first
-		var galcaption = node.querySelector('li.gallerycaption');
-		if (galcaption &&
-				// FIXME: VE should signal to use the HTML by removing the
-				// `caption` from data-mw.
-				typeof dataMw.attrs.caption !== 'string') {
-			dataMw.attrs.caption =
-				yield state.serializeCaptionChildrenToString(
-					galcaption,
-					state.serializer.wteHandlers.wikilinkHandler
-				);
-		}
-		var startTagSrc =
-			yield state.serializer.serializeExtensionStartTag(node, state);
-
-		if (!dataMw.body) {
-			return startTagSrc;  // We self-closed this already.
-		} else {
-			var content;
-			// FIXME: VE should signal to use the HTML by removing the
-			// `extsrc` from the data-mw.
-			if (typeof dataMw.body.extsrc === 'string') {
-				content = dataMw.body.extsrc;
-			} else {
-				content = yield contentHandler(node, state);
 			}
-			return startTagSrc + content + '</' + dataMw.name + '>';
 		}
-	}),
-};
-
-const modifyArgDict = function(env, argDict) {
-	// FIXME: Only remove after VE switches to editing HTML.
-	if (env.nativeGallery) {
-		// Remove extsrc from native extensions
-		argDict.body.extsrc = undefined;
-
-		// Remove the caption since it's redundant with the HTML
-		// and we prefer editing it there.
-		argDict.attrs.caption = undefined;
+		return $content;
 	}
-};
 
-/**
- * Native Parsoid implementation of the Gallery extension.
- */
-var Gallery = function() {
-	this.config = {
-		tags: [
-			{
-				name: 'gallery',
-				toDOM,
-				modifyArgDict,
-				serialHandler,
-			},
-		],
-		styles: ['mediawiki.page.gallery.styles'],
-	};
-};
+	public static function serialHandler() {
+		return [
+			'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$DOMDataUtils ) {
+				$dataMw = DOMDataUtils::getDataMw( $node );
+				$dataMw->attrs = $dataMw->attrs || [];
+				// Handle the "gallerycaption" first
+				// Handle the "gallerycaption" first
+				$galcaption = $node->querySelector( 'li.gallerycaption' );
+				if ( $galcaption
+&& // FIXME: VE should signal to use the HTML by removing the
+						// `caption` from data-mw.
+						gettype( $dataMw->attrs->caption ) !== 'string'
+				) {
+					$dataMw->attrs->caption =
+					/* await */ $state->serializeCaptionChildrenToString(
+						$galcaption,
+						$state->serializer->wteHandlers->mediaOptionHandler
+					);
+				}
+				$startTagSrc =
+				/* await */ $state->serializer->serializeExtensionStartTag( $node, $state );
 
-if (typeof module === 'object') {
-	module.exports = Gallery;
+				if ( !$dataMw->body ) {
+					return $startTagSrc; // We self-closed this already.
+				} else { // We self-closed this already.
+
+					$content = null;
+					// FIXME: VE should signal to use the HTML by removing the
+					// `extsrc` from the data-mw.
+					// FIXME: VE should signal to use the HTML by removing the
+					// `extsrc` from the data-mw.
+					if ( gettype( $dataMw->body->extsrc ) === 'string' ) {
+						$content = $dataMw->body->extsrc;
+					} else {
+						$content = /* await */ Gallery::contentHandler( $node, $state );
+					}
+					return $startTagSrc + $content . '</' . $dataMw->name . '>';
+				}
+			}
+
+		];
+	}
+
+	public static function modifyArgDict( $env, $argDict ) {
+		// FIXME: Only remove after VE switches to editing HTML.
+		if ( $env->conf->parsoid->nativeGallery ) {
+			// Remove extsrc from native extensions
+			$argDict->body->extsrc = null;
+
+			// Remove the caption since it's redundant with the HTML
+			// and we prefer editing it there.
+			$argDict->attrs->caption = null;
+		}
+	}
+}
+
+Gallery::pLine = /* async */Gallery::pLine;
+Gallery::pCaption = /* async */Gallery::pCaption;
+Gallery::contentHandler = /* async */Gallery::contentHandler;
+
+if ( gettype( $module ) === 'object' ) {
+	$module->exports = $Gallery;
 }

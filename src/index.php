@@ -1,11 +1,12 @@
-'use strict';
+<?php // lint >= 99.9
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
+namespace Parsoid;
 
-require('../core-upgrade.js');
-
-var path = require('path');
-var json = require('../package.json');
-var parseJs = require('./parse.js');
-var ParsoidService = require('./api/ParsoidService.js');
+use Parsoid\path as path;
+use Parsoid\json as json;
+use Parsoid\parseJs as parseJs;
+use Parsoid\ParsoidService as ParsoidService;
 
 /**
  * Main entry point for Parsoid's JavaScript API.
@@ -19,17 +20,17 @@ var ParsoidService = require('./api/ParsoidService.js');
  * @namespace
  * @module
  */
-var Parsoid = module.exports = {
+$Parsoid = $module->exports = [
 	/** Name of the NPM package. */
-	name: json.name,
+	'name' => json::name,
 	/** Version of the NPM package. */
-	version: json.version,
+	'version' => json::version,
 	/**
 	 * Expose parse method.
 	 * @see module:parse
 	 */
-	parse: parseJs,
-};
+	'parse' => parseJs::class
+];
 
 /**
  * Start an API service worker as part of a service-runner service.
@@ -38,19 +39,20 @@ var Parsoid = module.exports = {
  * @return {Promise} A Promise for an `http.Server`.
  * @func module:index~apiServiceWorker
  */
-Parsoid.apiServiceWorker = function apiServiceWorker(options) {
-	var parsoidOptions = Object.assign({
-		// Pull these out since the name "metrics" conflicts between
-		// configuration and the instantiated object.
-		parent: {
-			logging: options.config.logging,
-			metrics: options.config.metrics,
-		},
-	}, options.config, { logging: undefined, metrics: undefined });
+Parsoid::apiServiceWorker = function /* apiServiceWorker */( $options ) use ( &$path, &$ParsoidService ) {
+	$parsoidOptions = Object::assign( [
+			// Pull these out since the name "metrics" conflicts between
+			// configuration and the instantiated object.
+			'parent' => [
+				'logging' => $options->config->logging,
+				'metrics' => $options->config->metrics
+			]
+		], $options->config, [ 'logging' => null, 'metrics' => null ]
+	);
 	// For backwards compatibility, and to continue to support non-static
 	// configs for the time being.
-	if (parsoidOptions.localsettings) {
-		parsoidOptions.localsettings = path.resolve(options.appBasePath, parsoidOptions.localsettings);
+	if ( $parsoidOptions->localsettings ) {
+		$parsoidOptions->localsettings = path::resolve( $options->appBasePath, $parsoidOptions->localsettings );
 	}
-	return ParsoidService.init(parsoidOptions, options.logger);
+	return ParsoidService::init( $parsoidOptions, $options->logger );
 };

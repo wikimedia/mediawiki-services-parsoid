@@ -1,3 +1,7 @@
+<?php
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * This class is an attempt to fixup the token stream to reparse strings
  * as tokens that failed to parse in the tokenizer because of sol or
@@ -10,44 +14,36 @@
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-const { PegTokenizer } = require('../tokenizer.js');
-const { TemplateHandler } = require('./TemplateHandler.js');
-const { TokenUtils } = require('../../utils/TokenUtils.js');
+use Parsoid\PegTokenizer as PegTokenizer;
+use Parsoid\TemplateHandler as TemplateHandler;
+use Parsoid\TokenUtils as TokenUtils;
 
-// define some constructor shortcuts
-const { KV, TagTk, EndTagTk, SelfclosingTagTk, CommentTk } = require('../../tokens/TokenTypes.js');
+use Parsoid\KV as KV;
+use Parsoid\TagTk as TagTk;
+use Parsoid\EndTagTk as EndTagTk;
+use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
+use Parsoid\CommentTk as CommentTk;
 
 /**
  * @class
  * @extends module:wt2html/tt/TemplateHandler~TemplateHandler
  */
 class TokenStreamPatcher extends TemplateHandler {
-	static NL_RANK()  { return 2.001; }
-	static ANY_RANK() { return 2.002; }
-	static END_RANK() { return 2.003; }
 
-	constructor(manager, options) {
-		super(manager, Object.assign({ tsp:true }, options));
-		this.tokenizer = new PegTokenizer(this.env);
-		this.manager.addTransform(
-			(token, prevToken, cb) => this.onNewline(token),
-			'TokenStreamPatcher:onNewline', TokenStreamPatcher.NL_RANK(), 'newline');
-		this.manager.addTransform(
-			(token, prevToken, cb) => this.onEnd(token),
-			'TokenStreamPatcher:onEnd', TokenStreamPatcher.END_RANK(), 'end');
-		this.manager.addTransform(
-			(token, prevToken, cb) => this.onAny(token),
-			'TokenStreamPatcher:onAny', TokenStreamPatcher.ANY_RANK(), 'any');
-		this.reset();
+	public function __construct( $manager, $options ) {
+		parent::__construct( $manager, Object::assign( [ 'tsp' => true ], $options ) );
+		$this->tokenizer = new PegTokenizer( $this->env );
+		$this->reset();
 	}
+	public $tokenizer;
 
-	reset() {
-		this.srcOffset = 0;
-		this.sol = true;
-		this.tokenBuf = [];
-		this.wikiTableNesting = 0;
+	public function reset() {
+		$this->srcOffset = 0;
+		$this->sol = true;
+		$this->tokenBuf = [];
+		$this->wikiTableNesting = 0;
 		// This marker tries to track the most recent table-cell token (td/th)
 		// that was converted to string. For those, we want to get rid
 		// of their corresponding mw:TSRMarker meta tag.
@@ -58,45 +54,47 @@ class TokenStreamPatcher extends TemplateHandler {
 		// 1. When we clear a mw:TSRMarker corresponding to the token set earlier
 		// 2. When we change table nesting
 		// 3. When we hit a tr/td/th/caption token that wasn't converted to string
-		this.lastConvertedTableCellToken = null;
+		$this->lastConvertedTableCellToken = null;
 	}
 
-	onNewline(token) {
-		this.manager.env.log("trace/tsp", this.manager.pipelineId, function() { return JSON.stringify(token); });
-		this.srcOffset = (token.dataAttribs.tsr || [null, null])[1];
-		this.sol = true;
-		this.tokenBuf.push(token);
-		return { tokens: [] };
+	public function onNewline( $token ) {
+		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId, function () { return json_encode( $token );
+  } );
+		$this->srcOffset = ( $token->dataAttribs->tsr || [ null, null ] )[ 1 ];
+		$this->sol = true;
+		$this->tokenBuf[] = $token;
+		return [ 'tokens' => [] ];
 	}
 
-	onEnd(token) {
-		this.reset();
-		return { tokens: [token] };
+	public function onEnd( $token ) {
+		$res = $this->onAny( $token );
+		$this->reset();
+		return $res;
 	}
 
-	clearSOL() {
+	public function clearSOL() {
 		// clear tsr and sol flag
-		this.srcOffset = null;
-		this.sol = false;
+		$this->srcOffset = null;
+		$this->sol = false;
 	}
 
-	_convertTokenToString(token) {
-		var da = token.dataAttribs;
-		var tsr = da ? da.tsr : null;
+	public function _convertTokenToString( $token ) {
+		$da = $token->dataAttribs;
+		$tsr = ( $da ) ? $da->tsr : null;
 
-		if (tsr && tsr[1] > tsr[0]) {
+		if ( $tsr && $tsr[ 1 ] > $tsr[ 0 ] ) {
 			// > will only hold if these are valid numbers
-			var str = this.manager.env.page.src.substring(tsr[0], tsr[1]);
+			$str = $this->manager->env->page->src->substring( $tsr[ 0 ], $tsr[ 1 ] );
 			// sol === false ensures that the pipe will not be parsed as a <td> again
-			var toks = this.tokenizer.tokenizeSync(str, { sol: false });
-			toks.pop(); // pop EOFTk
+			$toks = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] );
+			array_pop( $toks ); // pop EOFTk
 			// Update tsr
-			TokenUtils.shiftTokenTSR(toks, tsr[0]);
+			TokenUtils::shiftTokenTSR( $toks, $tsr[ 0 ] );
 
-			var ret = [];
-			for (var i = 0; i < toks.length; i++) {
-				var t = toks[i];
-				if (!t) {
+			$ret = [];
+			for ( $i = 0;  $i < count( $toks );  $i++ ) {
+				$t = $toks[ $i ];
+				if ( !$t ) {
 					continue;
 				}
 
@@ -109,185 +107,192 @@ class TokenStreamPatcher extends TemplateHandler {
 				// https://gerrit.wikimedia.org/r/#/c/105018/
 				// All of these need uniform handling. To be addressed separately
 				// if this proves to be a real problem on production pages.
-				if (t.constructor === SelfclosingTagTk && t.name === 'template') {
-					t = TemplateHandler.prototype.processSpecialMagicWord.call(this, t) || t;
+				if ( $t->constructor === SelfclosingTagTk::class && $t->name === 'template' ) {
+					$t = call_user_func( [ TemplateHandler::prototype, 'processSpecialMagicWord' ], $t ) || $t;
 				}
-				ret = ret.concat(t);
+				$ret = $ret->concat( $t );
 			}
-			return ret;
-		} else if (da.autoInsertedStart && da.autoInsertedEnd) {
-			return [""];
+			return $ret;
+		} elseif ( $da->autoInsertedStart && $da->autoInsertedEnd ) {
+			return [ '' ];
 		} else {
 			// SSS FIXME: What about "!!" and "||"??
-			switch (token.name) {
-				case 'td' : return ["|"];
-				case 'th' : return ["!"];
-				case 'tr' : return ["|-"];
-				case 'caption' :
-					return [token.constructor === TagTk ? '|+' : ''];
+			switch ( $token->name ) {
+				case 'td':
+				return [ '|' ];
+				case 'th':
+				return [ '!' ];
+				case 'tr':
+				return [ '|-' ];
+				case 'caption':
+				return [ ( $token->constructor === TagTk::class ) ? '|+' : '' ];
 				case 'table':
-					if (token.constructor === EndTagTk) {
-						return ["|}"];
-					}
+				if ( $token->constructor === EndTagTk::class ) {
+					return [ '|}' ];
+				}
 			}
 
 			// No conversion if we get here
-			return [token];
+			return [ $token ];
 		}
 	}
 
-	onAny(token) {
-		this.manager.env.log("trace/tsp", this.manager.pipelineId, function() { return JSON.stringify(token); });
+	public function onAny( $token ) {
+		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId, function () { return json_encode( $token );
+  } );
 
-		var tokens = [token];
-		switch (token.constructor) {
-			case String:
-				// While we are buffering newlines to suppress them
-				// in case we see a category, buffer all intervening
-				// white-space as well.
-				if (this.tokenBuf.length > 0 && /^\s*$/.test(token)) {
-					this.tokenBuf.push(token);
-					return { tokens: [] };
-				}
+		$tokens = [ $token ];
+		switch ( $token->constructor ) {
+			case $String:
+			// While we are buffering newlines to suppress them
+			// in case we see a category, buffer all intervening
+			// white-space as well.
+			if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/', $token ) ) {
+				$this->tokenBuf[] = $token;
+				return [ 'tokens' => [] ];
+			}
 
-				// TRICK #1:
-				// Attempt to match "{|" after a newline and convert
-				// it to a table token.
-				if (this.sol) {
-					if (this.atTopLevel && token.match(/^\{\|/)) {
-						// Reparse string with the 'table_start_tag' rule
-						// and shift tsr of result tokens by source offset
-						const retoks = this.tokenizer.tokenizeAs(token, 'table_start_tag');
-						if (retoks instanceof Error) {
-							// XXX: The string begins with table start syntax,
-							// we really shouldn't be here.  Anything else on the
-							// line would get swallowed up as attributes.
-							this.manager.env.log('error', 'Failed to tokenize table start tag.');
-							this.clearSOL();
-						} else {
-							TokenUtils.shiftTokenTSR(retoks, this.srcOffset, true);
-							tokens = retoks;
-							this.wikiTableNesting++;
-							this.lastConvertedTableCellToken = null;
-						}
-					} else if (token.match(/^\s*$/)) {
-						// White-space doesn't change SOL state
-						// Update srcOffset
-						this.srcOffset += token.length;
+			// TRICK #1:
+			// Attempt to match "{|" after a newline and convert
+			// it to a table token.
+			if ( $this->sol ) {
+				if ( $this->atTopLevel && preg_match( '/^\{\|/', $token ) ) {
+					// Reparse string with the 'table_start_tag' rule
+					// and shift tsr of result tokens by source offset
+					$retoks = $this->tokenizer->tokenizeAs( $token, 'table_start_tag', /* sol */true );
+					if ( $retoks instanceof $Error ) {
+						// XXX: The string begins with table start syntax,
+						// we really shouldn't be here.  Anything else on the
+						// line would get swallowed up as attributes.
+						$this->manager->env->log( 'error', 'Failed to tokenize table start tag.' );
+						$this->clearSOL();
 					} else {
-						this.clearSOL();
+						TokenUtils::shiftTokenTSR( $retoks, $this->srcOffset, true );
+						$tokens = $retoks;
+						$this->wikiTableNesting++;
+						$this->lastConvertedTableCellToken = null;
 					}
+				} elseif ( preg_match( '/^\s*$/', $token ) ) {
+					// White-space doesn't change SOL state
+					// Update srcOffset
+					$this->srcOffset += count( $token );
 				} else {
-					this.clearSOL();
+					$this->clearSOL();
 				}
-				break;
+			} else {
+				$this->clearSOL();
+			}
+			break;
 
-			case CommentTk:
-				// Comments don't change SOL state
-				// Update srcOffset
-				this.srcOffset = (token.dataAttribs.tsr || [null, null])[1];
-				break;
+			case CommentTk::class:
+			// Comments don't change SOL state
+			// Update srcOffset
+			$this->srcOffset = ( $token->dataAttribs->tsr || [ null, null ] )[ 1 ];
+			break;
 
-			case SelfclosingTagTk:
-				if (token.name === 'meta' && token.dataAttribs.stx !== 'html') {
-					this.srcOffset = (token.dataAttribs.tsr || [null, null])[1];
-					var typeOf = token.getAttribute('typeof');
-					if (typeOf === 'mw:TSRMarker' && this.lastConvertedTableCellToken !== null &&
-						this.lastConvertedTableCellToken.name === token.getAttribute('data-etag')) {
-						// Swallow the token and clear the marker
-						this.lastConvertedTableCellToken = null;
-						return { tokens: [] };
-					} else if (this.tokenBuf.length > 0 && typeOf === 'mw:Transclusion') {
-						// If we have buffered newlines, we might very well encounter
-						// a category link, so continue buffering.
-						this.tokenBuf.push(token);
-						return { tokens: [] };
-					}
-				} else if (token.name === 'link' &&
-					token.getAttribute('rel') === 'mw:PageProp/Category') {
-					// Replace buffered newline & whitespace tokens with mw:EmptyLine
-					// meta-tokens. This tunnels them through the rest of the transformations
-					// without affecting them. During HTML building, they are expanded
-					// back to newlines / whitespace.
-					var n = this.tokenBuf.length;
-					if (n > 0) {
-						var i = 0;
-						while (i < n && this.tokenBuf[i].constructor !== SelfclosingTagTk) {
-							i++;
-						}
-
-						var toks = [
-							new SelfclosingTagTk("meta",
-								[new KV('typeof', 'mw:EmptyLine')], {
-									tokens: this.tokenBuf.slice(0, i),
-								}),
-						];
-						if (i < n) {
-							toks.push(this.tokenBuf[i]);
-							if (i + 1 < n) {
-								toks.push(new SelfclosingTagTk("meta",
-									[new KV('typeof', 'mw:EmptyLine')], {
-										tokens: this.tokenBuf.slice(i + 1),
-									})
-								);
-							}
-						}
-						tokens = toks.concat(tokens);
-						this.tokenBuf = [];
-					}
-					this.clearSOL();
-				} else {
-					this.clearSOL();
+			case SelfclosingTagTk::class:
+			if ( $token->name === 'meta' && $token->dataAttribs->stx !== 'html' ) {
+				$this->srcOffset = ( $token->dataAttribs->tsr || [ null, null ] )[ 1 ];
+				$typeOf = $token->getAttribute( 'typeof' );
+				if ( $typeOf === 'mw:TSRMarker' && $this->lastConvertedTableCellToken !== null
+&& $this->lastConvertedTableCellToken->name === $token->getAttribute( 'data-etag' )
+				) {
+					// Swallow the token and clear the marker
+					$this->lastConvertedTableCellToken = null;
+					return [ 'tokens' => [] ];
+				} elseif ( count( $this->tokenBuf ) > 0 && $typeOf === 'mw:Transclusion' ) {
+					// If we have buffered newlines, we might very well encounter
+					// a category link, so continue buffering.
+					$this->tokenBuf[] = $token;
+					return [ 'tokens' => [] ];
 				}
-				break;
+			} elseif ( $token->name === 'link'
+&& $token->getAttribute( 'rel' ) === 'mw:PageProp/Category'
+			) {
+				// Replace buffered newline & whitespace tokens with mw:EmptyLine
+				// meta-tokens. This tunnels them through the rest of the transformations
+				// without affecting them. During HTML building, they are expanded
+				// back to newlines / whitespace.
+				$n = count( $this->tokenBuf );
+				if ( $n > 0 ) {
+					$i = 0;
+					while ( $i < $n && $this->tokenBuf[ $i ]->constructor !== SelfclosingTagTk::class ) {
+						$i++;
+					}
 
-			case TagTk:
-				if (this.atTopLevel && !TokenUtils.isHTMLTag(token)) {
-					if (token.name === 'table') {
-						this.lastConvertedTableCellToken = null;
-						this.wikiTableNesting++;
-					} else if (['td', 'th', 'tr', 'caption'].indexOf(token.name) !== -1) {
-						if (this.wikiTableNesting === 0) {
-							if (token.name === 'td' || token.name === 'th') {
-								this.lastConvertedTableCellToken = token;
-							}
-							tokens = this._convertTokenToString(token);
-						} else {
-							this.lastConvertedTableCellToken = null;
+					$toks = [
+						new SelfclosingTagTk( 'meta',
+							[ new KV( 'typeof', 'mw:EmptyLine' ) ], [
+								'tokens' => array_slice( $this->tokenBuf, 0, $i/*CHECK THIS*/ )
+							]
+						)
+					];
+					if ( $i < $n ) {
+						$toks[] = $this->tokenBuf[ $i ];
+						if ( $i + 1 < $n ) {
+							$toks[] = new SelfclosingTagTk( 'meta',
+								[ new KV( 'typeof', 'mw:EmptyLine' ) ], [
+									'tokens' => array_slice( $this->tokenBuf, $i + 1 )
+								]
+							);
 						}
 					}
+					$tokens = $toks->concat( $tokens );
+					$this->tokenBuf = [];
 				}
-				this.clearSOL();
-				break;
+				$this->clearSOL();
+			} else {
+				$this->clearSOL();
+			}
+			break;
 
-			case EndTagTk:
-				if (this.atTopLevel && !TokenUtils.isHTMLTag(token)) {
-					if (this.wikiTableNesting > 0) {
-						if (token.name === 'table') {
-							this.lastConvertedTableCellToken = null;
-							this.wikiTableNesting--;
+			case TagTk::class:
+			if ( $this->atTopLevel && !TokenUtils::isHTMLTag( $token ) ) {
+				if ( $token->name === 'table' ) {
+					$this->lastConvertedTableCellToken = null;
+					$this->wikiTableNesting++;
+				} elseif ( array_search( $token->name, [ 'td', 'th', 'tr', 'caption' ] ) !== -1 ) {
+					if ( $this->wikiTableNesting === 0 ) {
+						if ( $token->name === 'td' || $token->name === 'th' ) {
+							$this->lastConvertedTableCellToken = $token;
 						}
-					} else if (token.name === 'table' || token.name === 'caption') {
-						// Convert this to "|}"
-						tokens = this._convertTokenToString(token);
+						$tokens = $this->_convertTokenToString( $token );
+					} else {
+						$this->lastConvertedTableCellToken = null;
 					}
 				}
-				this.clearSOL();
-				break;
+			}
+			$this->clearSOL();
+			break;
+
+			case EndTagTk::class:
+			if ( $this->atTopLevel && !TokenUtils::isHTMLTag( $token ) ) {
+				if ( $this->wikiTableNesting > 0 ) {
+					if ( $token->name === 'table' ) {
+						$this->lastConvertedTableCellToken = null;
+						$this->wikiTableNesting--;
+					}
+				} elseif ( $token->name === 'table' || $token->name === 'caption' ) {
+					// Convert this to "|}"
+					$tokens = $this->_convertTokenToString( $token );
+				}
+			}
+			$this->clearSOL();
+			break;
 
 			default:
-				break;
+			break;
 		}
 
 		// Emit buffered newlines (and a transclusion meta-token, if any)
-		if (this.tokenBuf.length > 0) {
-			tokens = this.tokenBuf.concat(tokens);
-			this.tokenBuf = [];
+		if ( count( $this->tokenBuf ) > 0 ) {
+			$tokens = $this->tokenBuf->concat( $tokens );
+			$this->tokenBuf = [];
 		}
-		return { tokens: tokens };
+		return [ 'tokens' => $tokens ];
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.TokenStreamPatcher = TokenStreamPatcher;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->TokenStreamPatcher = $TokenStreamPatcher;
 }

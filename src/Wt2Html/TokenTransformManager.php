@@ -1,3 +1,7 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * Token transformation managers with a (mostly) abstract
  * TokenTransformManager base class and AsyncTokenTransformManager and
@@ -15,30 +19,31 @@
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-const fs = require('fs');
-const events = require('events');
-const { JSUtils } = require('../utils/jsutils.js');
-const Promise = require('../utils/promise.js');
-const { PipelineUtils } = require('../utils/PipelineUtils.js');
-const { TokenUtils } = require('../utils/TokenUtils.js');
-const { Params } = require('./Params.js');
-const { KV, EOFTk } = require('../tokens/TokenTypes.js');
+use Parsoid\fs as fs;
+use Parsoid\JSUtils as JSUtils;
+use Parsoid\Promise as Promise;
+use Parsoid\PipelineUtils as PipelineUtils;
+use Parsoid\TokenUtils as TokenUtils;
+use Parsoid\Params as Params;
+use Parsoid\KV as KV;
+use Parsoid\EOFTk as EOFTk;
 
-function verifyTokensIntegrity(env, ret) {
+function verifyTokensIntegrity( $env, $ret ) {
+	global $undefined;
 	// Only the following forms are valid (T187848):
 	// {async:true} -- used to signal the start of an async pipeline
 	// {async:true|false,tokens:[...]} -- used in sync/async generic code
 	// {tokens:[...]} -- most common
-	console.assert(!Array.isArray(ret));
-	console.assert(ret.async === undefined || ret.async === true || ret.async === false);
-	console.assert(ret.token === undefined); // legacy form, no longer used
-	console.assert(
-		Array.isArray(ret.tokens) ||
-		(ret.tokens === undefined && ret.async === true)
+	Assert::invariant( !is_array( $ret ) );
+	Assert::invariant( $ret->async === null || $ret->async === true || $ret->async === false );
+	Assert::invariant( $ret->token === null ); // legacy form, no longer used
+	Assert::invariant(
+		is_array( $ret->tokens )
+|| ( $ret->tokens === null && $ret->async === true )
 	);
-	return ret;
+	return $ret;
 }
 
 /**
@@ -47,38 +52,53 @@ function verifyTokensIntegrity(env, ret) {
  * @class
  * @extends EventEmitter
  */
-class TokenTransformManager extends events.EventEmitter {
+class TokenTransformManager extends undefined {
 	/**
 	 * @param {MWParserEnvironment} env
 	 * @param {Object} options
 	 */
-	constructor(env, options) {
-		super();
-		this.env = env;
-		this.options = options;
-		this.defaultTransformers = [];	// any transforms
-		this.tokenTransformers   = {};	// non-any transforms
-		this.cachedTransformers  = {};	// merged any + non-any transforms
-		this.pipelineModified = false;
+	public function __construct( $env, $options ) {
+		parent::__construct();
+		$this->env = $env;
+		$this->options = $options;
+		$this->defaultTransformers = []; // any transforms
+		$this->tokenTransformers = []; // non-any transforms
+		$this->cachedTransformers = []; // merged any + non-any transforms
+		$this->pipelineModified = false;
 	}
+	public $env;
+	public $options;
+	public $defaultTransformers;
+	public $tokenTransformers;
+	public $cachedTransformers;
+	public $pipelineModified;
 
 	// Map of: token constructor ==> transfomer type
 	// Used for returning active transformers for a token
-	static tkConstructorToTkTypeMap(c) {
-		switch (c) {
-			case "String": return "text";
-			case "NlTk": return "newline";
-			case "CommentTk": return "comment";
-			case "EOFTk": return "end";
-			case "TagTk": // fall through
-			case "EndTagTk": // fall through
-			case "SelfclosingTagTk": return "tag";
+	public static function tkConstructorToTkTypeMap( $c ) {
+		switch ( $c ) {
+			case 'String':
+			return 'text';
+			case 'NlTk':
+			return 'newline';
+			case 'CommentTk':
+			return 'comment';
+			case 'EOFTk':
+			return 'end';
+			case 'TagTk':
+			// fall through
+
+			case 'EndTagTk':
+			// fall through
+
+			case 'SelfclosingTagTk':
+			return 'tag';
 		}
-		console.assert(false, c);
+		Assert::invariant( false, $c );
 	}
 
-	static tokenTransformersKey(tkType, tagName) {
-		return (tkType === 'tag') ? "tag:" + tagName : tkType;
+	public static function tokenTransformersKey( $tkType, $tagName ) {
+		return ( $tkType === 'tag' ) ? 'tag:' . $tagName : $tkType;
 	}
 
 	/**
@@ -89,31 +109,31 @@ class TokenTransformManager extends events.EventEmitter {
 	 *
 	 * @param {EventEmitter} tokenEmitter Token event emitter.
 	 */
-	addListenersOn(tokenEmitter) {
-		tokenEmitter.addListener('chunk', this.onChunk.bind(this));
-		tokenEmitter.addListener('end', this.onEndEvent.bind(this));
+	public function addListenersOn( $tokenEmitter ) {
+		$tokenEmitter->addListener( 'chunk', $this->onChunk->bind( $this ) );
+		$tokenEmitter->addListener( 'end', $this->onEndEvent->bind( $this ) );
 	}
 
 	/**
 	 * Predicate for sorting transformations by ascending rank.
 	 * @private
 	 */
-	static _cmpTransformations(a, b) {
-		return a.rank - b.rank;
+	public static function _cmpTransformations( $a, $b ) {
+		return $a->rank - $b->rank;
 	}
 
 	// Use a new method to create this to prevent the closure
 	// from holding onto more state than necessary.
-	timeTracer(transform, traceName) {
-		const self = this;
-		return function() {
-			const s = JSUtils.startTime();
-			const ret = transform.apply(this, arguments);
-			const t = JSUtils.elapsedTime(s);
-			self.env.bumpTimeUse(traceName, t, "TT");
-			self.env.bumpCount(traceName);
-			self.lastTokenTime = t;
-			return ret;
+	public function timeTracer( $transform, $traceName ) {
+		$self = $this;
+		return function () use ( &$JSUtils, &$self, &$traceName ) {
+			$s = JSUtils::startTime();
+			$ret = call_user_func_array( 'transform', $arguments );
+			$t = JSUtils::elapsedTime( $s );
+			$self->env->bumpTimeUse( $traceName, $t, 'TT' );
+			$self->env->bumpCount( $traceName );
+			$self->lastTokenTime = $t;
+			return $ret;
 		};
 	}
 
@@ -121,13 +141,13 @@ class TokenTransformManager extends events.EventEmitter {
 	 * Add a transform registration.
 	 *
 	 * @param {Function} transformation
-	 *   @param {Token} transformation.token
-	 *   @param {Object} transformation.frame
-	 *   @param {Function} transformation.cb
-	 *     @param {Object} transformation.cb.result
-	 *       @param {Token[]} transformation.cb.result.tokens
-	 *   @param {Object} transformation.return
-	 *     @param {Token[]} transformation.return.tokens
+	 * @param {Token} transformation.token
+	 * @param {Object} transformation.frame
+	 * @param {Function} transformation.cb
+	 * @param {Object} transformation.cb.result
+	 * @param {Token[]} transformation.cb.result.tokens
+	 * @param {Object} transformation.return
+	 * @param {Token[]} transformation.return.tokens
 	 * @param {string} debugName
 	 *   Debug string to identify the transformer in a trace.
 	 * @param {number} rank A number in [0,3) with:
@@ -140,67 +160,71 @@ class TokenTransformManager extends events.EventEmitter {
 	 * @param {string} name
 	 *   Tag name for tags, omitted for non-tags
 	 */
-	addTransform(transformation, debugName, rank, type, name) {
-		const traceFlags = this.env.conf.parsoid.traceFlags;
-		const traceTime = traceFlags && traceFlags.has("time");
-		if (traceTime) {
-			transformation = this.timeTracer(transformation, debugName);
+	public function addTransform( $transformation, $debugName, $rank, $type, $name ) {
+		$traceFlags = $this->env->conf->parsoid->traceFlags;
+		$traceTime = $traceFlags && $traceFlags->has( 'time' );
+		if ( $traceTime ) {
+			$transformation = $this->timeTracer( $transformation, $debugName );
 		}
-		const t = {
-			rank: rank,
-			name: debugName,
-			transform: transformation,
-		};
+		$t = [
+			'rank' => $rank,
+			'name' => $debugName,
+			'transform' => $transformation
+		];
 
-		this.pipelineModified = true;
+		$this->pipelineModified = true;
 
-		if (type === 'any') {
+		if ( $type === 'any' ) {
 			// Record the any transformation
-			this.defaultTransformers.push(t);
+			$this->defaultTransformers[] = $t;
 
 			// clear cache
-			this.cachedTransformers = {};
+			$this->cachedTransformers = [];
 		} else {
-			const key = TokenTransformManager.tokenTransformersKey(type, name);
-			let tArray = this.tokenTransformers[key];
-			if (!tArray) {
-				tArray = this.tokenTransformers[key] = [];
+			$key = self::tokenTransformersKey( $type, $name );
+			$tArray = $this->tokenTransformers[ $key ];
+			if ( !$tArray ) {
+				$tArray = $this->tokenTransformers[ $key ] = [];
 			}
 
 			// assure no duplicate transformers
-			console.assert(tArray.every(function(tr) {
-				return tr.rank !== t.rank;
-			}), "Trying to add a duplicate transformer: " + t.name);
+			Assert::invariant( $tArray->every( function ( $tr ) use ( &$t ) {
+						return $tr->rank !== $t->rank;
+			}
+				), 'Trying to add a duplicate transformer: ' . $t->name
+			);
 
-			tArray.push(t);
-			tArray.sort(TokenTransformManager._cmpTransformations);
+			$tArray[] = $t;
+			$tArray->sort( self::_cmpTransformations );
 
 			// clear the relevant cache entry
-			this.cachedTransformers[key] = null;
+			$this->cachedTransformers[ $key ] = null;
 		}
 	}
 
 	// Helper to register transforms that return a promise for the value,
 	// instead of invoking the callback synchronously.
-	addTransformP(context, transformation, debugName, rank, type, name) {
-		this.addTransform(function(token, prevToken, cb) {
-			// this is an async transformation
-			cb({ async: true });
-			// invoke the transformation to get a promise
-			transformation.call(context, token)
-				.then(result => cb(result))
-				.done();
-		}, debugName, rank, type, name);
+	public function addTransformP( $context, $transformation, $debugName, $rank, $type, $name ) {
+		$this->addTransform( function ( $token, $cb ) {
+				// this is an async transformation
+				$cb( [ 'async' => true ] );
+				// invoke the transformation to get a promise
+				call_user_func( 'transformation', $token )->
+				then( function ( $result ) use ( &$cb ) {return $cb( $result );
+	   } )->
+				done();
+		}, $debugName, $rank, $type, $name
+		);
 	}
 
 	/** @private */
-	static removeMatchingTransform(transformers, rank) {
-		let i = 0;
-		const n = transformers.length;
-		while (i < n && rank !== transformers[i].rank) {
-			i++;
+	public static function removeMatchingTransform( $transformers, $rank ) {
+		$i = 0;
+		$n = count( $transformers );
+		while ( $i < $n && $rank !== $transformers[ $i ]->rank ) {
+			$i++;
 		}
-		transformers.splice(i, 1);
+		array_splice( $transformers, $i, 1 );
 	}
 
 	/**
@@ -216,25 +240,25 @@ class TokenTransformManager extends events.EventEmitter {
 	 * @param {string} name
 	 *   Tag name for tags, omitted for non-tags.
 	 */
-	removeTransform(rank, type, name) {
-		this.pipelineModified = true;
-		if (type === 'any') {
+	public function removeTransform( $rank, $type, $name ) {
+		$this->pipelineModified = true;
+		if ( $type === 'any' ) {
 			// Remove from default transformers
-			TokenTransformManager.removeMatchingTransform(
-				this.defaultTransformers, rank
+			self::removeMatchingTransform(
+				$this->defaultTransformers, $rank
 			);
 
 			// clear cache
-			this.cachedTransformers = {};
+			$this->cachedTransformers = [];
 		} else {
-			const key = TokenTransformManager.tokenTransformersKey(type, name);
-			const tArray = this.tokenTransformers[key];
-			if (tArray) {
-				TokenTransformManager.removeMatchingTransform(tArray, rank);
+			$key = self::tokenTransformersKey( $type, $name );
+			$tArray = $this->tokenTransformers[ $key ];
+			if ( $tArray ) {
+				self::removeMatchingTransform( $tArray, $rank );
 			}
 
 			// clear the relevant cache entry
-			this.cachedTransformers[key] = null;
+			$this->cachedTransformers[ $key ] = null;
 		}
 	}
 
@@ -242,29 +266,29 @@ class TokenTransformManager extends events.EventEmitter {
 	 * Get all transforms for a given token.
 	 * @private
 	 */
-	_getTransforms(token, minRank) {
-		const tkType = TokenTransformManager.tkConstructorToTkTypeMap(token.constructor.name);
-		const key = TokenTransformManager.tokenTransformersKey(tkType, token.name);
-		console.assert(tkType, key);
-		let tts = this.cachedTransformers[key];
-		if (!tts) {
+	public function _getTransforms( $token, $minRank ) {
+		$tkType = self::tkConstructorToTkTypeMap( $token->constructor->name );
+		$key = self::tokenTransformersKey( $tkType, $token->name );
+		Assert::invariant( $tkType, $key );
+		$tts = $this->cachedTransformers[ $key ];
+		if ( !$tts ) {
 			// generate and cache -- dont cache if there are no default transformers
-			tts = this.tokenTransformers[key] || [];
-			if (this.defaultTransformers.length > 0) {
-				tts = tts.concat(this.defaultTransformers);
-				tts.sort(TokenTransformManager._cmpTransformations);
-				this.cachedTransformers[key] = tts;
+			$tts = $this->tokenTransformers[ $key ] || [];
+			if ( count( $this->defaultTransformers ) > 0 ) {
+				$tts = $tts->concat( $this->defaultTransformers );
+				$tts->sort( self::_cmpTransformations );
+				$this->cachedTransformers[ $key ] = $tts;
 			}
 		}
 
-		let i = 0;
-		if (minRank !== undefined) {
+		$i = 0;
+		if ( $minRank !== null ) {
 			// skip transforms <= minRank
-			while (i < tts.length && tts[i].rank <= minRank) {
-				i += 1;
+			while ( $i < count( $tts ) && $tts[ $i ]->rank <= $minRank ) {
+				$i += 1;
 			}
 		}
-		return { first: i, transforms: tts, empty: i >= tts.length };
+		return [ 'first' => $i, 'transforms' => $tts, 'empty' => $i >= count( $tts ) ];
 	}
 }
 
@@ -272,76 +296,87 @@ class TokenTransformManager extends events.EventEmitter {
 
 
 class AccumChain {
-	constructor(ttm, parentCB) {
-		this.ttm = ttm;
-		this.debugId = 0;
+	public function __construct( $ttm, $parentCB ) {
+		$this->ttm = $ttm;
+		$this->debugId = 0;
 
 		// Shared accum-chain state accessible to synchronous transforms in maybeSyncReturn
-		this.state = {
+		$this->state = [
 			// Indicates we are still in the transformTokens loop
-			transforming: true,
+			'transforming' => true,
 			// debug id for this expansion
-			c: 'c-' + AccumChain._counter++,
-		};
+			'c' => 'c-' . self::_counter++
+		];
 
-		this.numNodes = 0;
-		this.addNode(parentCB);
+		$this->numNodes = 0;
+		$this->addNode( $parentCB );
 
 		// Local accum for synchronously returned fully processed tokens
-		this.firstAccum = [];
-		this.firstAccum.append = (chunk) => {
+		$this->firstAccum = [];
+		$this->firstAccum->append = function ( $chunk ) {
 			// All tokens in firstAccum are fully processed
-			this.firstAccum.push.apply(this.firstAccum, chunk);
+			call_user_func_array( [ $this->firstAccum, 'push' ], $chunk );
 		};
-		this.accum = this.firstAccum;
+		$this->accum = $this->firstAccum;
 	}
+	public $ttm;
+	public $debugId;
 
-	initRes() {
-		this.state.res = {};
+	public $state;
+
+	public $numNodes;
+
+	public $firstAccum;
+	public $append;
+
+	public $accum;
+
+	public function initRes() {
+		$this->state->res = [];
 	}
-	addNode(cb) {
-		if (!cb) {
+	public function addNode( $cb ) {
+		if ( !$cb ) {
 			// cb will be passed in for the very first accumulator.
 			// For every other node in the chain, the callback will
 			// be the previous accumulator's sibling callback.
-			cb = this.next.receiveToksFromSibling.bind(this.next);
-			this.accum = this.next;
+			$cb = $this->next->receiveToksFromSibling->bind( $this->next );
+			$this->accum = $this->next;
 		}
 
 		// 'newAccum' is never used unless we hit async mode.
 		// Even though maybeAsyncCB references newAccum via cbs.parentCB,
 		// that code path is exercised only when async mode is entered,
 		// so we are all good on that front.
-		const newAccum = new TokenAccumulator(this.ttm, cb);
-		const cbs = { parentCB: newAccum.receiveToksFromChild.bind(newAccum) };
-		cbs.self = this.ttm.maybeSyncReturn.bind(this.ttm, this.state, cbs);
+		$newAccum = new TokenAccumulator( $this->ttm, $cb );
+		$cbs = [ 'parentCB' => $newAccum->receiveToksFromChild->bind( $newAccum ) ];
+		$cbs->self = $this->ttm->maybeSyncReturn->bind( $this->ttm, $this->state, $cbs );
 
 		// console.warn("--> ATT-" + this.ttm.pipelineId + " new link in chain");
-		this.next = newAccum;
-		this.maybeAsyncCB = cbs.self;
-		this.numNodes++;
+		$this->next = $newAccum;
+		$this->maybeAsyncCB = $cbs->self;
+		$this->numNodes++;
 	}
-	push(tok) {
+	public function push( $tok ) {
 		// Token is fully processed for this phase, so make sure to set
 		// phaseEndRank. The TokenAccumulator checks the rank and coalesces
 		// consecutive chunks of equal rank.
-		if (this.accum === this.firstAccum) {
-			this.firstAccum.push(tok);
+		if ( $this->accum === $this->firstAccum ) {
+			$this->firstAccum[] = $tok;
 		} else {
-			const chunk = [tok];
-			chunk.rank = this.ttm.phaseEndRank;
-			this.accum.append(chunk);
+			$chunk = [ $tok ];
+			$chunk->rank = $this->ttm->phaseEndRank;
+			$this->accum->append( $chunk );
 		}
 	}
-	append(toks) {
-		this.accum.append(toks);
+	public function append( $toks ) {
+		$this->accum->append( $toks );
 	}
 }
 
 // Debug counter, provides an UID for transformTokens calls so that callbacks
 // associated with it can be identified in debugging output as c-XXX across
 // all instances of the Async TTM.
-AccumChain._counter = 0;
+AccumChain::_counter = 0;
 
 /**
  *
@@ -356,29 +391,35 @@ AccumChain._counter = 0;
  * @extends ~TokenTransformManager
  */
 class AsyncTokenTransformManager extends TokenTransformManager {
-	constructor(env, options, pipeFactory, phaseEndRank, attributeType) {
-		super(env, options);
-		this.pipeFactory = pipeFactory;
-		this.phaseEndRank = phaseEndRank;
-		this.attributeType = attributeType;
-		this.setFrame(null, null, []);
-		this.traceType = "trace/async:" + phaseEndRank;
-		this.pipelineId = null;
+	public function __construct( $env, $options, $pipeFactory, $phaseEndRank, $attributeType ) {
+		parent::__construct( $env, $options );
+		$this->pipeFactory = $pipeFactory;
+		$this->phaseEndRank = $phaseEndRank;
+		$this->attributeType = $attributeType;
+		$this->setFrame( null, null, [] );
+		$this->traceType = 'trace/async:' . $phaseEndRank;
+		$this->pipelineId = null;
 	}
+	public $pipeFactory;
+	public $phaseEndRank;
+	public $attributeType;
+
+	public $traceType;
+	public $pipelineId;
 
 	/**
 	 * Debugging aid: set pipeline id
 	 */
-	setPipelineId(id) {
-		this.pipelineId = id;
+	public function setPipelineId( $id ) {
+		$this->pipelineId = $id;
 	}
 
 	/**
 	 * Reset state between uses.
 	 */
-	reset() {
-		this.tailAccumulator = null;
-		this.tokenCB = this.emitChunk.bind(this);
+	public function reset() {
+		$this->tailAccumulator = null;
+		$this->tokenCB = $this->emitChunk->bind( $this );
 	}
 
 	/**
@@ -388,35 +429,35 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 * @param {Frame} parentFrame
 	 * @param {string|null} title
 	 */
-	setFrame(parentFrame, title, args) {
-		this.env.log('debug', 'AsyncTokenTransformManager.setFrame', title, args);
+	public function setFrame( $parentFrame, $title, $args ) {
+		$this->env->log( 'debug', 'AsyncTokenTransformManager.setFrame', $title, $args );
 
 		// Reset accumulators
-		this.reset();
+		$this->reset();
 
 		// now actually set up the frame
-		if (parentFrame) {
-			if (title === null) {
+		if ( $parentFrame ) {
+			if ( $title === null ) {
 				// attribute, simply reuse the parent frame
-				this.frame = parentFrame;
+				$this->frame = $parentFrame;
 			} else {
-				this.frame = parentFrame.newChild(title, this, args);
+				$this->frame = $parentFrame->newChild( $title, $this, $args );
 			}
 		} else {
-			this.frame = new Frame(title, this, args);
+			$this->frame = new Frame( $title, $this, $args );
 		}
 	}
 
-	checkForEOFTkErrors(tokens, atEnd) {
-		if (this.frame.depth === 0 && tokens && tokens.length) {
-			const last = atEnd && JSUtils.lastItem(tokens);
-			if (last && last.constructor !== EOFTk) {
-				this.env.log("error", "EOFTk went missing in AsyncTokenTransformManager");
-				tokens.push(new EOFTk());
+	public function checkForEOFTkErrors( $tokens, $atEnd ) {
+		if ( $this->frame->depth === 0 && $tokens && count( $tokens ) ) {
+			$last = $atEnd && JSUtils::lastItem( $tokens );
+			if ( $last && $last->constructor !== EOFTk::class ) {
+				$this->env->log( 'error', 'EOFTk went missing in AsyncTokenTransformManager' );
+				$tokens[] = new EOFTk();
 			}
-			for (let i = 0, l = tokens.length; i < l - 1; i++) {
-				if (tokens[i] && tokens[i].constructor === EOFTk) {
-					this.env.log("error", "EOFTk in the middle of chunk");
+			for ( $i = 0,  $l = count( $tokens );  $i < $l - 1;  $i++ ) {
+				if ( $tokens[ $i ] && $tokens[ $i ]->constructor === EOFTk::class ) {
+					$this->env->log( 'error', 'EOFTk in the middle of chunk' );
 				}
 			}
 		}
@@ -428,35 +469,35 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 * @param {Object} ret The chunk we're returning from the transform.
 	 * @private
 	 */
-	emitChunk(ret) {
-		this.env.log('debug', 'AsyncTokenTransformManager.emitChunk', ret);
+	public function emitChunk( $ret ) {
+		$this->env->log( 'debug', 'AsyncTokenTransformManager.emitChunk', $ret );
 		// This method is often the root of the call stack, so makes a good point
 		// for a try/catch to ensure error handling.
 		try {
 			// Check if an EOFTk went missing
-			this.checkForEOFTkErrors(ret.tokens, !ret.async);
-			this.emit('chunk', ret.tokens);
-			if (ret.async) {
+			$this->checkForEOFTkErrors( $ret->tokens, !$ret->async );
+			$this->emit( 'chunk', $ret->tokens );
+			if ( $ret->async ) {
 				// Our work is done here, but more async tokens are yet to come.
 				//
 				// Allow accumulators to bypass their callbacks and go directly
 				// through emitChunk for those future token chunks.
-				return this.emitChunk.bind(this);
+				return $this->emitChunk->bind( $this );
 			} else {
-				this.emit('end');
-				this.reset(); // Reset accumulators
+				$this->emit( 'end' );
+				$this->reset(); // Reset accumulators
 			}
-		} catch (e) {
-			this.env.log("fatal", e);
+		} catch ( Exception $e ) {
+			$this->env->log( 'fatal', $e );
 		}
 	}
 
 	/**
 	 * Simple wrapper that processes all tokens passed in.
 	 */
-	process(tokens) {
-		this.onChunk(tokens);
-		this.onEndEvent();
+	public function process( $tokens ) {
+		$this->onChunk( $tokens );
+		$this->onEndEvent();
 	}
 
 	/**
@@ -466,29 +507,29 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 * @param {Array} tokens
 	 * @private
 	 */
-	onChunk(tokens) {
+	public function onChunk( $tokens ) {
 		// Set top-level callback to next transform phase
-		const res = this.transformTokens(tokens, this.tokenCB);
-		verifyTokensIntegrity(this.env, res);
-		this.env.log('debug', 'AsyncTokenTransformManager onChunk', res.async ? 'async' : 'sync', res.tokens);
-		if (!res.tokens.rank) {
-			res.tokens.rank = this.phaseEndRank;
+		$res = $this->transformTokens( $tokens, $this->tokenCB );
+		verifyTokensIntegrity( $this->env, $res );
+		$this->env->log( 'debug', 'AsyncTokenTransformManager onChunk', ( $res->async ) ? 'async' : 'sync', $res->tokens );
+		if ( !$res->tokens->rank ) {
+			$res->tokens->rank = $this->phaseEndRank;
 		}
 
 		// Emit or append the returned tokens
-		if (!this.tailAccumulator) {
-			this.env.log('debug', 'emitting');
-			this.emit('chunk', res.tokens);
+		if ( !$this->tailAccumulator ) {
+			$this->env->log( 'debug', 'emitting' );
+			$this->emit( 'chunk', $res->tokens );
 		} else {
 			// console.warn("--> ATT-" + this.pipelineId + " appending: " + JSON.stringify(res.tokens));
-			this.env.log('debug', 'appending to tail');
-			this.tailAccumulator.append(res.tokens);
+			$this->env->log( 'debug', 'appending to tail' );
+			$this->tailAccumulator->append( $res->tokens );
 		}
 
 		// Update the tail of the current accumulator chain
-		if (res.asyncAccum) {
-			this.tailAccumulator = res.asyncAccum;
-			this.tokenCB = res.asyncAccum.receiveToksFromSibling.bind(res.asyncAccum);
+		if ( $res->asyncAccum ) {
+			$this->tailAccumulator = $res->asyncAccum;
+			$this->tokenCB = $res->asyncAccum->receiveToksFromSibling->bind( $res->asyncAccum );
 		}
 	}
 
@@ -499,25 +540,25 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 * synchronous.
 	 * @private
 	 */
-	onEndEvent() {
-		if (this.tailAccumulator) {
-			this.env.log(
-				this.traceType, this.pipelineId,
+	public function onEndEvent() {
+		if ( $this->tailAccumulator ) {
+			$this->env->log(
+				$this->traceType, $this->pipelineId,
 				'AsyncTokenTransformManager.onEndEvent: calling siblingDone',
-				this.frame.title
+				$this->frame->title
 			);
-			this.tailAccumulator.siblingDone();
+			$this->tailAccumulator->siblingDone();
 		} else {
 			// nothing was asynchronous, so we'll have to emit end here.
-			this.env.log(
-				this.traceType, this.pipelineId,
+			$this->env->log(
+				$this->traceType, $this->pipelineId,
 				'AsyncTokenTransformManager.onEndEvent: synchronous done',
-				this.frame.title
+				$this->frame->title
 			);
-			this.emit('end');
+			$this->emit( 'end' );
 
 			// Reset accumulators
-			this.reset();
+			$this->reset();
 		}
 	}
 
@@ -539,100 +580,102 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 * @return {TokenAccumulator|null} return.asyncAccum
 	 *   The tail TokenAccumulator, or else `null`.
 	 */
-	transformTokens(tokens, parentCB) {
+	public function transformTokens( $tokens, $parentCB ) {
 		// Trivial case
-		if (tokens.length === 0) {
-			return { tokens: tokens, asyncAccum: null };
+		if ( count( $tokens ) === 0 ) {
+			return [ 'tokens' => $tokens, 'asyncAccum' => null ];
 		}
 
 		// Time tracing related state
-		const traceFlags = this.env.conf.parsoid.traceFlags;
-		const traceTime = traceFlags && traceFlags.has('time');
-		const startTime = traceTime && JSUtils.startTime();
-		let tokenTimes = 0;
+		$traceFlags = $this->env->conf->parsoid->traceFlags;
+		$traceTime = $traceFlags && $traceFlags->has( 'time' );
+		$startTime = $traceTime && JSUtils::startTime();
+		$tokenTimes = 0;
 
 		// New accumulator chain
-		const accumChain = new AccumChain(this, parentCB);
+		$accumChain = new AccumChain( $this, $parentCB );
 
 		// Stack of token arrays to process
 		// Initialize to the token array that was passed in
-		const workStack = [];
-		workStack.pushChunk = function(toks) {
-			this.push(toks);
-			toks.eltIndex = 0;
+		$workStack = [];
+		$workStack->pushChunk = function ( $toks ) {
+			$this[] = $toks;
+			$toks->eltIndex = 0;
 		};
 
-		workStack.pushChunk(tokens);
+		$workStack->pushChunk( $tokens );
 
-		const inputRank = tokens.rank || 0;
-		while (workStack.length > 0) {
-			const curChunk = JSUtils.lastItem(workStack);
+		$inputRank = $tokens->rank || 0;
+		while ( count( $workStack ) > 0 ) {
+			$curChunk = JSUtils::lastItem( $workStack );
 
 			// Once the chunk is processed, switch to a new accum
 			// if it has async mode set since it might generate more
 			// tokens that have to be appended to the accum associated with it.
-			if (curChunk.eltIndex === curChunk.length) {
-				if (curChunk.inAsyncMode) {
-					accumChain.addNode();
+			if ( $curChunk->eltIndex === count( $curChunk ) ) {
+				if ( $curChunk->inAsyncMode ) {
+					$accumChain->addNode();
 				}
 
 				// remove processed chunk
-				workStack.pop();
+				array_pop( $workStack );
 				continue;
 			}
 
-			let token = curChunk[curChunk.eltIndex++];
-			const minRank = curChunk.rank || inputRank;
+			$token = $curChunk[ $curChunk->eltIndex++ ];
+			$minRank = $curChunk->rank || $inputRank;
 
-			console.assert(!Array.isArray(token));
+			Assert::invariant( !is_array( $token ) );
 
-			this.env.log(this.traceType, this.pipelineId, function() { return JSON.stringify(token); });
+			$this->env->log( $this->traceType, $this->pipelineId, function () { return json_encode( $token );
+   } );
 
-			const ts = this._getTransforms(token, minRank);
+			$ts = $this->_getTransforms( $token, $minRank );
 
-			if (ts.empty) {
+			if ( $ts->empty ) {
 				// nothing to do for this token
-				accumChain.push(token);
+				$accumChain[] = $token;
 			} else {
-				let res, resTokens;
-				for (let j = ts.first, lts = ts.transforms.length; j < lts; j++) {
-					const transformer = ts.transforms[j];
+				$res = null;
+$resTokens = null;
+				for ( $j = $ts->first,  $lts = count( $ts->transforms );  $j < $lts;  $j++ ) {
+					$transformer = $ts->transforms[ $j ];
 
 					// shared state is only used when we are still in this transfomer loop.
 					// In that scenario, it is safe to reset this each time around
 					// since s.res.tokens is retrieved after the transformation is done.
-					accumChain.initRes();
+					$accumChain->initRes();
 
 					// Transform the token.  This will call accumChain.maybeAsyncCB either
 					// with tokens or with an async signal.  In either case,
 					// state tokens will be populated.
-					transformer.transform(token, null /* prevToken */, accumChain.maybeAsyncCB);
-					if (traceTime) {
-						tokenTimes += this.lastTokenTime;
+					$transformer->transform( $token, $accumChain->maybeAsyncCB );
+					if ( $traceTime ) {
+						$tokenTimes += $this->lastTokenTime;
 					}
 
-					res = accumChain.state.res;
-					resTokens = res.tokens;
+					$res = $accumChain->state->res;
+					$resTokens = $res->tokens;
 
 					// Check the result, which is changed using the
 					// maybeSyncReturn callback
-					if (resTokens && resTokens.length) {
-						if (resTokens.length === 1) {
-							const soleToken = resTokens[0];
-							if (token === soleToken && !resTokens.rank) {
+					if ( $resTokens && count( $resTokens ) ) {
+						if ( count( $resTokens ) === 1 ) {
+							$soleToken = $resTokens[ 0 ];
+							if ( $token === $soleToken && !$resTokens->rank ) {
 								// token not modified, continue with transforms.
 								continue;
-							} else if (
-								resTokens.rank === this.phaseEndRank ||
-								(
-									soleToken.constructor === String &&
-									!this.tokenTransformers.text
-								)
+							} elseif (
+								$resTokens->rank === $this->phaseEndRank
+||
+									$soleToken->constructor === $String
+&& !$this->tokenTransformers->text
 							) {
+
 								// Fast path for text token, and nothing to do for it
 								// Abort processing, but treat token as done.
-								token = soleToken;
-								resTokens.rank = this.phaseEndRank;
+								$token = $soleToken;
+								$resTokens->rank = $this->phaseEndRank;
 								break;
 							}
 						}
@@ -642,56 +685,57 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 						// Could be fixed.
 						//
 						// token(s) were potentially modified
-						if (!resTokens.rank || resTokens.rank < this.phaseEndRank) {
+						if ( !$resTokens->rank || $resTokens->rank < $this->phaseEndRank ) {
 							// There might still be something to do for these
 							// tokens. Prepare them for the workStack.
-							const oldRank = resTokens.rank;
+							$oldRank = $resTokens->rank;
 							// Don't apply earlier transforms to results of a
 							// transformer to avoid loops and keep the
 							// execution model sane.
-							resTokens.rank = oldRank || transformer.rank;
+							$resTokens->rank = $oldRank || $transformer->rank;
 							// resTokens.rank = Math.max( resTokens.rank || 0, transformer.rank );
-							if (res.async) {
-								resTokens.inAsyncMode = true;
+							if ( $res->async ) {
+								$resTokens->inAsyncMode = true;
 								// don't trigger activeAccum switch / _makeNextAccum call below
-								res.async = false;
+								$res->async = false;
 							}
 
 							// console.warn("--> ATT" + this.pipelineId + ": new work chunk" + JSON.stringify(resTokens));
-							workStack.pushChunk(resTokens);
+							$workStack->pushChunk( $resTokens );
 
-							if (this.debug) {
+							if ( $this->debug ) {
 								// Avoid expensive map and slice if we dont need to.
-								this.env.log(
+								$this->env->log(
 									'debug',
 									'workStack',
-									accumChain.state.c,
-									resTokens.rank,
+									$accumChain->state->c,
+									$resTokens->rank,
 									// Filter out processed tokens
-									workStack.map(a => a.slice(a.eltIndex))
+									array_map( $workStack, function ( $a ) {return array_slice( $a, $a->eltIndex );
+						   } )
 								);
 							}
 						} else {
 							// resTokens.rank === this.phaseEndRank
 							// No need to process them any more => accum. them.
-							accumChain.append(resTokens);
+							$accumChain->append( $resTokens );
 						}
 					}
 
 					// Abort processing for this token
-					token = null;
+					$token = null;
 					break;
 				}
 
-				if (token !== null) {
+				if ( $token !== null ) {
 					// token is done.
 					// push to accumulator
-					accumChain.push(token);
+					$accumChain[] = $token;
 				}
 
-				if (res.async) {
-					this.env.log('debug', 'res.async, creating new TokenAccumulator', accumChain.state.c);
-					accumChain.addNode();
+				if ( $res->async ) {
+					$this->env->log( 'debug', 'res.async, creating new TokenAccumulator', $accumChain->state->c );
+					$accumChain->addNode();
 				}
 			}
 		}
@@ -700,32 +744,32 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 
 		// we are no longer transforming, maybeSyncReturn needs to follow the
 		// async code path
-		accumChain.state.transforming = false;
+		$accumChain->state->transforming = false;
 
 		// All tokens in firstAccum are fully processed
-		const firstAccum = accumChain.firstAccum;
-		firstAccum.rank = this.phaseEndRank;
+		$firstAccum = $accumChain->firstAccum;
+		$firstAccum->rank = $this->phaseEndRank;
 
-		this.env.log(
+		$this->env->log(
 			'debug',
 			'firstAccum',
-			accumChain.numNodes > 1 ? 'async' : 'sync',
-			accumChain.state.c,
-			firstAccum
+			( $accumChain->numNodes > 1 ) ? 'async' : 'sync',
+			$accumChain->state->c,
+			$firstAccum
 		);
 
-		if (traceTime) {
-			this.env.bumpTimeUse("AsyncTTM (Partial)", (JSUtils.startTime() - startTime - tokenTimes), "TTM");
+		if ( $traceTime ) {
+			$this->env->bumpTimeUse( 'AsyncTTM (Partial)', ( JSUtils::startTime() - $startTime - $tokenTimes ), 'TTM' );
 		}
 
 		// Return finished tokens directly to caller, and indicate if further
 		// async actions are outstanding. The caller needs to point a sibling to
 		// the returned accumulator, or call .siblingDone() to mark the end of a
 		// chain.
-		return {
-			tokens: firstAccum,
-			asyncAccum: accumChain.numNodes > 1 ? accumChain.accum : null,
-		};
+		return [
+			'tokens' => $firstAccum,
+			'asyncAccum' => ( $accumChain->numNodes > 1 ) ? $accumChain->accum : null
+		];
 	}
 
 	/**
@@ -737,77 +781,78 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 	 *
 	 * @private
 	 */
-	maybeSyncReturn(s, cbs, ret) {
-		ret = verifyTokensIntegrity(this.env, ret);
+	public function maybeSyncReturn( $s, $cbs, $ret ) {
+		$ret = verifyTokensIntegrity( $this->env, $ret );
 
-		if (s.transforming) {
+		if ( $s->transforming ) {
 			// transformTokens is still ongoing, handle as sync return by
 			// collecting the results in s.res
-			this.env.log('debug', 'maybeSyncReturn transforming', s.c, ret);
-			if (ret.tokens && ret.tokens.length > 0) {
-				if (s.res.tokens) {
-					const newRank = ret.tokens.rank;
-					const oldRank = s.res.tokens.rank;
-					s.res.tokens = JSUtils.pushArray(s.res.tokens, ret.tokens);
-					if (oldRank && newRank) {
+			$this->env->log( 'debug', 'maybeSyncReturn transforming', $s->c, $ret );
+			if ( $ret->tokens && count( $ret->tokens ) > 0 ) {
+				if ( $s->res->tokens ) {
+					$newRank = $ret->tokens->rank;
+					$oldRank = $s->res->tokens->rank;
+					$s->res->tokens = JSUtils::pushArray( $s->res->tokens, $ret->tokens );
+					if ( $oldRank && $newRank ) {
 						// Conservatively set the overall rank to the minimum.
 						// This assumes that multi-pass expansion for some tokens
 						// is safe. We might want to revisit that later.
-						s.res.tokens.rank = Math.min(oldRank, newRank);
+						$s->res->tokens->rank = min( $oldRank, $newRank );
 					}
 				} else {
-					s.res = ret;
+					$s->res = $ret;
 				}
 			}
 
-			s.res.async = ret.async;
+			$s->res->async = $ret->async;
 		} else {
 			// Since the original transformTokens call is already done, we have to
 			// re-start application of any remaining transforms here.
-			this.env.log('debug', 'maybeSyncReturn async', s.c, ret);
-			const asyncCB = cbs.parentCB;
-			const tokens = ret.tokens;
-			if (tokens) {
-				if (tokens.length &&
-					(!tokens.rank || tokens.rank < this.phaseEndRank) &&
-					!(tokens.length === 1 && tokens[0].constructor === String)) {
+			$this->env->log( 'debug', 'maybeSyncReturn async', $s->c, $ret );
+			$asyncCB = $cbs->parentCB;
+			$tokens = $ret->tokens;
+			if ( $tokens ) {
+				if ( count( $tokens )
+&& ( !$tokens->rank || $tokens->rank < $this->phaseEndRank )
+&& !( count( $tokens ) === 1 && $tokens[ 0 ]->constructor === $String )
+				) {
 					// Re-process incomplete tokens
-					this.env.log(
+					$this->env->log(
 						'debug',
 						'maybeSyncReturn: recursive transformTokens',
-						this.frame.title, ret.tokens
+						$this->frame->title, $ret->tokens
 					);
 
 					// Set up a new child callback with its own callback state
-					const _cbs = { parentCB: cbs.parentCB };
-					const childCB = this.maybeSyncReturn.bind(this, s, _cbs);
-					_cbs.self = childCB;
+					$_cbs = [ 'parentCB' => $cbs->parentCB ];
+					$childCB = $this->maybeSyncReturn->bind( $this, $s, $_cbs );
+					$_cbs->self = $childCB;
 
-					const res = this.transformTokens(ret.tokens, childCB);
-					ret.tokens = res.tokens;
-					if (res.asyncAccum) {
+					$res = $this->transformTokens( $ret->tokens, $childCB );
+					$ret->tokens = $res->tokens;
+					if ( $res->asyncAccum ) {
 						// Insert new child accumulator chain- any further chunks from
 						// the transform will be passed as sibling to the last accum
 						// in this chain, and the new chain will pass its results to
 						// the former parent accumulator.
 
-						if (!ret.async) {
+						if ( !$ret->async ) {
 							// There will be no more input to the child pipeline
-							res.asyncAccum.siblingDone();
+							$res->asyncAccum->siblingDone();
 
 							// We need to indicate that more results will follow from
 							// the child pipeline.
-							ret.async = true;
+							$ret->async = true;
 						} else {
 							// More tokens will follow from original expand.
 							// Need to return results of recursive expand *before* further
 							// async results, so we simply pass further results to the
 							// last accumulator in the new chain.
-							cbs.parentCB = res.asyncAccum.receiveToksFromSibling.bind(res.asyncAccum);
+							$cbs->parentCB = $res->asyncAccum->receiveToksFromSibling->bind( $res->asyncAccum );
 						}
 					}
 				}
-			} else if (ret.async === true) {
+			} elseif ( $ret->async === true ) {
 				// No tokens, was supposed to indicate async processing but came
 				// too late.
 				// TODO: Track down sources for these (unnecessary) calls and try
@@ -815,20 +860,19 @@ class AsyncTokenTransformManager extends TokenTransformManager {
 				return;
 			}
 
-			if (!ret.tokens.rank) {
-				ret.tokens.rank = this.phaseEndRank;
+			if ( !$ret->tokens->rank ) {
+				$ret->tokens->rank = $this->phaseEndRank;
 			}
-			asyncCB(ret);
+			$asyncCB( $ret );
 
-			if (ret.async) {
+			if ( $ret->async ) {
 				// Pass reference to maybeSyncReturn to TokenAccumulators to allow
 				// them to call directly
-				return cbs.self;
+				return $cbs->self;
 			}
 		}
 	}
 }
-
 
 // In-order, synchronous transformer (phase 1 and 3)
 
@@ -840,53 +884,74 @@ class AsyncTokenTransformManager extends TokenTransformManager {
  * @extends ~TokenTransformManager
  */
 class SyncTokenTransformManager extends TokenTransformManager {
-	constructor(env, options, pipeFactory, phaseEndRank, attributeType) {
-		super(env, options);
-		this.pipeFactory = pipeFactory;
-		this.phaseEndRank = phaseEndRank;
-		this.attributeType = attributeType;
-		this.traceType = "trace/sync:" + phaseEndRank;
-		this.pipelineId = null;
+	public function __construct( $env, $options, $pipeFactory, $phaseEndRank, $attributeType ) {
+		parent::__construct( $env, $options );
+		$this->pipeFactory = $pipeFactory;
+		$this->phaseEndRank = $phaseEndRank;
+		$this->attributeType = $attributeType;
+		$this->traceType = 'trace/sync:' . $phaseEndRank;
+		$this->pipelineId = null;
 	}
+	public $pipeFactory;
+	public $phaseEndRank;
+	public $attributeType;
+	public $traceType;
+	public $pipelineId;
 
 	/**
 	 * Debugging aid: set pipeline id
 	 */
-	setPipelineId(id) {
-		this.pipelineId = id;
+	public function setPipelineId( $id ) {
+		$this->pipelineId = $id;
 	}
 
 	/**
 	 * @param {Token[]} tokens
 	 */
-	process(tokens) {
-		this.onChunk(tokens);
-		this.onEndEvent();
+	public function process( $tokens ) {
+		$this->onChunk( $tokens );
+		$this->onEndEvent();
 	}
 
 	/** @private */
-	generateTest(transformer, token, res) {
-		let generateFlags = this.env.conf.parsoid.generateFlags;
-		const handlerName = generateFlags.handler;
-		if (handlerName && handlerName === transformer.name.slice(0, handlerName.length)) {
-			let streamHandle = generateFlags.streamHandle;
-			if (streamHandle === undefined) {
+	public function generateTest( $transformer, $token, $res ) {
+		$generateFlags = $this->env->conf->parsoid->generateFlags;
+		$handlerName = $generateFlags->handler;
+		if ( $handlerName && $handlerName === $transformer->constructor->name ) {
+			$streamHandle = $generateFlags->streamHandle;
+			if ( $streamHandle === null ) {
 				// create token transformer/handler test file here to retain the WriteStream object type in testStream
-				streamHandle = fs.createWriteStream(generateFlags.fileName);
-				if (streamHandle) {
-					generateFlags = Object.assign(generateFlags, { "streamHandle": streamHandle });
+				$streamHandle = fs::createWriteStream( $generateFlags->fileName );
+				if ( $streamHandle ) {
+					$generateFlags = Object::assign( $generateFlags, [ 'streamHandle' => $streamHandle ] );
 				} else {
-					console.assert(false, "--genTest option unable to create output file [" + generateFlags.fileName + "]\n");
+					Assert::invariant( false, '--genTest option unable to create output file [' . $generateFlags->fileName . "]\n" );
 				}
 			}
-			const resultString = (this.pipelineId + "-gen/" + handlerName + " ".repeat(20)).slice(0, 27);
-			const inputToken = resultString + " | IN  | " + JSON.stringify(token) + "\n";
-			streamHandle.write(inputToken);
-			if (res.tokens) {
-				const outputTokens = resultString + " | OUT | " + JSON.stringify(res.tokens) + "\n";
-				streamHandle.write(outputTokens);
+			$resultString = array_slice( ( $this->pipelineId . '-gen/' . $handlerName . ' '->repeat( 20 ) ), 0, 27/*CHECK THIS*/ );
+			$inputToken = $resultString . ' | IN  | ' . json_encode( $token ) . "\n";
+			$streamHandle->write( $inputToken );
+			if ( $res->tokens ) {
+				$outputTokens = $resultString . ' | OUT | ' . json_encode( $res->tokens ) . "\n";
+				$streamHandle->write( $outputTokens );
 			}
 		}
+	}
+
+	public function computeTraceNames() {
+		$traceNames = [];
+		$this->transformers->forEach( function ( $transformer, $i ) use ( &$traceNames ) {
+				$baseName = $transformer->constructor->name . ':';
+				$traceNames[] = [
+					$baseName . 'onNewline',
+					$baseName . 'onEnd',
+					$baseName . 'onTag',
+					$baseName . 'onAny'
+				];
+		}
+		);
+
+		$this->traceNames = $traceNames;
 	}
 
 	/**
@@ -896,110 +961,60 @@ class SyncTokenTransformManager extends TokenTransformManager {
 	 * @private
 	 * @param {Token[]} tokens
 	 */
-	onChunk(tokens) {
-
+	public function onChunk( $tokens ) {
 		// Trivial case
-		if (tokens.length === 0) {
-			this.emit('chunk', tokens);
+		if ( count( $tokens ) === 0 ) {
+			$this->emit( 'chunk', $tokens );
 			return;
 		}
 
-		this.env.log('debug', 'SyncTokenTransformManager.onChunk, input: ', tokens);
+		// Tracing, timing, and unit-test generation related state
+		$env = $this->env;
+		$genFlags = $env->conf->parsoid->generateFlags;
+		$traceFlags = $env->conf->parsoid->traceFlags;
+		$traceState = null;
+		$startTime = null;
+		if ( $traceFlags || $genFlags ) {
+			$traceState = [
+				'tokenTimes' => 0,
+				'traceFlags' => $traceFlags,
+				'traceTime' => $traceFlags && $traceFlags->has( 'time' ),
+				'tracer' => function ( $token, $transformer ) use ( &$env ) {
+					$env->log(
+						$this->traceType, $this->pipelineId, $transformer->constructor->name,
+						function () {return json_encode( $token );
+			   }
+					);
+				},
+				'genFlags' => $genFlags,
+				'genTest' => function ( $transformer, $token, $res ) {return $this->generateTest( $transformer, $token, $res );
+	   }
+			];
 
-		const localAccum = [];
-
-		// Time tracing related state
-		let tokenTimes = 0;
-		const traceFlags = this.env.conf.parsoid.traceFlags;
-		const traceTime = traceFlags && traceFlags.has('time');
-		const startTime = traceTime && JSUtils.startTime();
-
-		// Stack of token arrays to process
-		// Initialize to the token array that was passed in
-		const workStack = [];
-		workStack.pushChunk = function(toks) {
-			this.push(toks);
-			toks.eltIndex = 0;
-		};
-		workStack.pushChunk(tokens);
-
-		while (workStack.length > 0) {
-			const curChunk = JSUtils.lastItem(workStack);
-			const minRank = curChunk.rank || this.phaseEndRank - 1;
-			const token = curChunk[curChunk.eltIndex++];
-			if (curChunk.eltIndex === curChunk.length) {
-				// remove processed chunk
-				workStack.pop();
+			if ( !$this->traceNames ) {
+				$this->computeTraceNames();
 			}
+			if ( $traceState->traceTime ) {
+				$startTime = JSUtils::startTime();
+			}
+		}
 
-			this.env.log(
-				this.traceType, this.pipelineId,
-				() => JSON.stringify(token)
-			);
-			console.assert(!Array.isArray(token), token);
-
-			let transformer;
-			const ts = this._getTransforms(token, minRank);
-			let res = { tokens: [token] };
-
-			// Push the token through the transformations till it morphs
-			let j = ts.first;
-			const numTransforms = ts.transforms.length;
-			let modified = false;
-			this.pipelineModified = false;
-			while (j < numTransforms && !this.pipelineModified) {
-				transformer = ts.transforms[j];
-				// Transform the token.
-				res = transformer.transform(token, this.prevToken, null /* cb */);
-				if (traceTime) {
-					tokenTimes += this.lastTokenTime;
-				}
-				const resT = res.tokens && !res.tokens.rank &&
-					res.tokens.length === 1 && res.tokens[0];
-				if (resT !== token) {
-					modified = true;
-					if (this.env.conf.parsoid.generateFlags && this.env.conf.parsoid.generateFlags.handler) {
-						this.generateTest(transformer, token, res);
+		$this->transformers->forEach( function ( $transformer, $i ) use ( &$traceState, &$env ) {
+				if ( !$transformer->disabled ) {
+					if ( $traceState ) {
+						$traceState->traceNames = $this->traceNames[ $i ];
 					}
-					break;
+					$tokens = $transformer->processTokensSync( $env, $tokens, $traceState );
 				}
-				j++;
-			}
-
-			if (!(modified || this.pipelineModified)) {
-				localAccum.push(token);
-				this.prevToken = token;
-			} else if (res.tokens && res.tokens.length) {
-				if (token.constructor === EOFTk &&
-					JSUtils.lastItem(res.tokens).constructor !== EOFTk) {
-					this.env.log("error", "EOFTk was dropped by " + transformer.name);
-					// fix it up for now by adding it back in
-					res.tokens.push(token);
-				}
-				// Splice in the returned tokens (while replacing the original
-				// token), and process them next.
-				const resTokens = res.tokens;
-				if (!resTokens.rank) {
-					resTokens.rank = transformer.rank;
-				}
-				workStack.pushChunk(resTokens);
-			} else {
-				if (token.constructor === EOFTk) {
-					this.env.log("error", "EOFTk was dropped by " + transformer.name);
-					localAccum.push(new EOFTk());
-				}
-				this.prevToken = token;
-			}
 		}
+		);
 
-		if (traceTime) {
-			this.env.bumpTimeUse("SyncTTM", (JSUtils.startTime() - startTime - tokenTimes), "TTM");
+		if ( $traceState && $traceState->traceTime ) {
+			$this->env->bumpTimeUse( 'SyncTTM', ( JSUtils::startTime() - $startTime - $traceState->tokenTimes ), 'TTM' );
 		}
-		localAccum.rank = this.phaseEndRank;
-		this.env.log('debug', 'SyncTokenTransformManager.onChunk: emitting ', localAccum);
-		this.emit('chunk', localAccum);
+		$tokens->rank = $this->phaseEndRank;
+		$this->emit( 'chunk', $tokens );
 	}
-
 
 	/**
 	 * Callback for the end event emitted from the tokenizer.
@@ -1008,22 +1023,20 @@ class SyncTokenTransformManager extends TokenTransformManager {
 	 * synchronous.
 	 * @private
 	 */
-	onEndEvent() {
-		this.env.log(this.traceType, this.pipelineId, 'SyncTokenTransformManager.onEndEvent');
+	public function onEndEvent() {
+		$this->env->log( $this->traceType, $this->pipelineId, 'SyncTokenTransformManager.onEndEvent' );
 
 		// This phase is fully synchronous, so just pass the end along and prepare
 		// for the next round.
-		this.prevToken = null;
 		try {
-			this.emit('end');
-		} catch (e) {
-			this.env.log("fatal", e);
+			$this->emit( 'end' );
+		} catch ( Exception $e ) {
+			$this->env->log( 'fatal', $e );
 		}
 	}
 }
 
 // AttributeTransformManager
-
 
 /**
  * Utility transformation manager for attributes, using an attribute
@@ -1040,16 +1053,23 @@ class AttributeTransformManager {
 	 * @param {TokenTransformManager} manager
 	 * @param {Object} options
 	 */
-	constructor(manager, options) {
-		this.manager = manager;
-		this.options = options;
-		this.frame = this.manager.frame;
-		this.expandedKVs = [];
-		this._async = false;
+	public function __construct( $manager, $options ) {
+		$this->manager = $manager;
+		$this->options = $options;
+		$this->frame = $this->manager->frame;
+		$this->expandedKVs = [];
+		$this->_async = false;
 	}
+	public $manager;
+	public $options;
+	public $frame;
+	public $expandedKVs;
+	public $_async;
 
 	// A few constants
-	static _toType() { return 'tokens/x-mediawiki/expanded'; }
+	public static function _toType() {
+ return 'tokens/x-mediawiki/expanded';
+ }
 
 	/**
 	 * Expand both key and values of all key/value pairs. Used for generic
@@ -1060,81 +1080,86 @@ class AttributeTransformManager {
 	 * @return {boolean} return.async - will this expansion happy async-ly?
 	 * @return {Promise} return.promises - if async, the promises to do the work
 	 */
-	process(attributes) {
+	public function process( $attributes ) {
 		// Transform each argument (key and value), and handle asynchronous returns
 		// map-then-yield in order to let the individual attributes execute async
 		// For performance reasons, avoid a yield if possible (common case where
 		// no async expansion is necessary).
-		this._async = false;
-		const p = attributes.map(this._processOne, this);
-		return {
-			async: this._async,
-			promises: this._async ? Promise.all(p) : null,
-		};
+		$this->_async = false;
+		$p = array_map( $attributes, $this->_processOne );
+		return [
+			'async' => $this->_async,
+			'promises' => ( $this->_async ) ? Promise::all( $p ) : null
+		];
 	}
 
-	getNewKVs(attributes) {
-		const newKVs = [];
-		newKVs.length = attributes.length;
-		attributes.forEach((curr, i) => {
-			// newKVs[i] = Util.clone(curr, true);
-			newKVs[i] = new KV(curr.k, curr.v, curr.srcOffsets);
-		});
-		this.expandedKVs.forEach((curr) => {
-			const i = curr.index;
-			newKVs[i].k = curr.k || newKVs[i].k;
-			newKVs[i].v = curr.v || newKVs[i].v;
-		});
-		return newKVs;
+	public function getNewKVs( $attributes ) {
+		$newKVs = [];
+		count( $newKVs ) = count( $attributes );
+		$attributes->forEach( function ( $curr, $i ) use ( &$newKVs, &$KV ) {
+				// newKVs[i] = Util.clone(curr, true);
+				$newKVs[ $i ] = new KV( $curr->k, $curr->v, $curr->srcOffsets );
+		}
+		);
+		$this->expandedKVs->forEach( function ( $curr ) use ( &$newKVs ) {
+				$i = $curr->index;
+				$newKVs[ $i ]->k = $curr->k || $newKVs[ $i ]->k;
+				$newKVs[ $i ]->v = $curr->v || $newKVs[ $i ]->v;
+		}
+		);
+		return $newKVs;
 	}
 
 	/** @private */
-	_processOne(cur, i) {
-		const k = cur.k;
-		let v = cur.v;
+	public function _processOne( $cur, $i ) {
+		$k = $cur->k;
+		$v = $cur->v;
 
-		if (!v) {
-			cur.v = v = '';
+		if ( !$v ) {
+			$cur->v = $v = '';
 		}
 
 		// fast path for string-only attributes
-		if (k.constructor === String && v.constructor === String) {
+		if ( $k->constructor === $String && $v->constructor === $String ) {
 			return;
 		}
 
-		let p;
-		let n = v.length;
-		if (Array.isArray(v) && (n > 1 || (n === 1 && v[0].constructor !== String))) {
+		$p = null;
+		$n = strlen( $v );
+		if ( is_array( $v ) && ( $n > 1 || ( $n === 1 && $v[ 0 ]->constructor !== $String ) ) ) {
 			// transform the value
-			this._async = true;
-			p = this.frame.expand(v, {
-				expandTemplates: this.options.expandTemplates,
-				inTemplate: this.options.inTemplate,
-				type: AttributeTransformManager._toType(),
-			}).then((tokens) => {
-				this.expandedKVs.push({ index: i, v: TokenUtils.stripEOFTkfromTokens(tokens) });
-			});
+			$this->_async = true;
+			$p = $this->frame->expand( $v, [
+					'expandTemplates' => $this->options->expandTemplates,
+					'inTemplate' => $this->options->inTemplate,
+					'type' => self::_toType()
+				]
+			)->then( function ( $tokens ) {
+					$this->expandedKVs[] = [ 'index' => $i, 'v' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
+			}
+			);
 		}
 
-		n = k.length;
-		if (Array.isArray(k) && (n > 1 || (n === 1 && k[0].constructor !== String))) {
+		$n = count( $k );
+		if ( is_array( $k ) && ( $n > 1 || ( $n === 1 && $k[ 0 ]->constructor !== $String ) ) ) {
 			// transform the key
-			this._async = true;
-			p = Promise.join(p, this.frame.expand(k, {
-				expandTemplates: this.options.expandTemplates,
-				inTemplate: this.options.inTemplate,
-				type: AttributeTransformManager._toType(),
-			}).then(
-				(tokens) => {
-					this.expandedKVs.push({ index: i, k: TokenUtils.stripEOFTkfromTokens(tokens) });
-				}
-			));
+			$this->_async = true;
+			$p = Promise::join( $p, $this->frame->expand( $k, [
+						'expandTemplates' => $this->options->expandTemplates,
+						'inTemplate' => $this->options->inTemplate,
+						'type' => self::_toType()
+					]
+				)->then(
+					function ( $tokens ) {
+						$this->expandedKVs[] = [ 'index' => $i, 'k' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
+					}
+				)
+			);
 		}
 
-		return p;
+		return $p;
 	}
 }
-
 
 /* ******************************* TokenAccumulator ************************* */
 
@@ -1154,17 +1179,24 @@ class TokenAccumulator {
 	 * @param {TokenTransformManager} manager
 	 * @param {Function} parentCB The callback to call after we've finished accumulating.
 	 */
-	constructor(manager, parentCB) {
-		this.uid = TokenAccumulator._tid++; // useful for debugging
-		this.manager = manager;
-		this.parentCB = parentCB;
-		this.siblingChunks = [];
-		this.waitForChild = true;
-		this.waitForSibling = true;
+	public function __construct( $manager, $parentCB ) {
+		$this->uid = self::_tid++; // useful for debugging
+		$this->manager = $manager;
+		$this->parentCB = $parentCB;
+		$this->siblingChunks = [];
+		$this->waitForChild = true;
+		$this->waitForSibling = true;
 	}
+	public $manager;
+	public $parentCB;
+	public $uid;
 
-	setParentCB(cb) {
-		this.parentCB = cb;
+	public $siblingChunks;
+	public $waitForChild;
+	public $waitForSibling;
+
+	public function setParentCB( $cb ) {
+		$this->parentCB = $cb;
 	}
 
 	/**
@@ -1174,27 +1206,27 @@ class TokenAccumulator {
 	 *
 	 * @param {Array} tokens
 	 */
-	concatTokens(tokens) {
+	public function concatTokens( $tokens ) {
 		// console.warn("\nTA-"+this.uid+" concatTokens", JSON.stringify(tokens));
-		if (!tokens.length) {
+		if ( !count( $tokens ) ) {
 			// Nothing to do
 			return;
 		}
 
-		let lastChunk = JSUtils.lastItem(this.siblingChunks);
-		if (!tokens.rank) {
-			this.manager.env.log('error/tta/conc/rank/none', tokens);
-			tokens.rank = this.manager.phaseEndRank;
+		$lastChunk = JSUtils::lastItem( $this->siblingChunks );
+		if ( !$tokens->rank ) {
+			$this->manager->env->log( 'error/tta/conc/rank/none', $tokens );
+			$tokens->rank = $this->manager->phaseEndRank;
 		}
-		if (!lastChunk) {
-			this.siblingChunks.push(tokens);
-		} else if (tokens.rank === lastChunk.rank) {
-			lastChunk = JSUtils.pushArray(this.siblingChunks.pop(), tokens);
-			lastChunk.rank = tokens.rank;
-			this.siblingChunks.push(lastChunk);
+		if ( !$lastChunk ) {
+			$this->siblingChunks[] = $tokens;
+		} elseif ( $tokens->rank === $lastChunk->rank ) {
+			$lastChunk = JSUtils::pushArray( array_pop( $this->siblingChunks ), $tokens );
+			$lastChunk->rank = $tokens->rank;
+			$this->siblingChunks[] = $lastChunk;
 		} else {
-			this.manager.env.log('trace/tta/conc/rank/differs', tokens, lastChunk.rank);
-			this.siblingChunks.push(tokens);
+			$this->manager->env->log( 'trace/tta/conc/rank/differs', $tokens, $lastChunk->rank );
+			$this->siblingChunks[] = $tokens;
 		}
 	}
 
@@ -1203,17 +1235,18 @@ class TokenAccumulator {
 	 *
 	 * @param {boolean} async
 	 */
-	emitTokens(async) {
-		if (this.siblingChunks.length) {
-			for (let i = 0, len = this.siblingChunks.length; i < len; i++) {
-				this._callParentCB({
-					tokens: this.siblingChunks[i],
-					async: (i < len - 1) ? true : async,
-				});
+	public function emitTokens( $async ) {
+		if ( count( $this->siblingChunks ) ) {
+			for ( $i = 0,  $len = count( $this->siblingChunks );  $i < $len;  $i++ ) {
+				$this->_callParentCB( [
+						'tokens' => $this->siblingChunks[ $i ],
+						'async' => ( $i < $len - 1 ) ? true : $async
+					]
+				);
 			}
-			this.siblingChunks = [];
+			$this->siblingChunks = [];
 		} else {
-			this._callParentCB({ tokens: [], async: async });
+			$this->_callParentCB( [ 'tokens' => [], 'async' => $async ] );
 		}
 	}
 
@@ -1223,36 +1256,37 @@ class TokenAccumulator {
 	 * @param {Object} ret
 	 * @param {Array} ret.tokens
 	 * @param {boolean} ret.async
-	 * @return {Function|null} New parent callback for caller or falsy value.
+	 * @return Function|null New parent callback for caller or falsy value.
 	 */
-	receiveToksFromChild(ret) {
-		ret = verifyTokensIntegrity(this.manager.env, ret);
+	public function receiveToksFromChild( $ret ) {
+		$ret = verifyTokensIntegrity( $this->manager->env, $ret );
 		// console.warn("\nTA-" + this.uid + "; c: " + this.waitForChild + "; s: " + this.waitForSibling + " <-- from child: " + JSON.stringify(ret));
 		// Empty tokens are used to signal async, so they don't need to be in the
 		// same rank
-		if (ret.tokens.length && !ret.tokens.rank) {
-			this.manager.env.log('error/tta/child/rank/none', ret.tokens);
-			ret.tokens.rank = this.manager.phaseEndRank;
+		if ( count( $ret->tokens ) && !$ret->tokens->rank ) {
+			$this->manager->env->log( 'error/tta/child/rank/none', $ret->tokens );
+			$ret->tokens->rank = $this->manager->phaseEndRank;
 		}
 
 		// Send async if child or sibling haven't finished or if there's sibling
 		// tokens waiting
-		if (!ret.async && this.siblingChunks.length
-			&& this.siblingChunks[0].rank === ret.tokens.rank) {
-			const tokens = JSUtils.pushArray(ret.tokens, this.siblingChunks.shift());
-			tokens.rank = ret.tokens.rank;
-			ret.tokens = tokens;
+		if ( !$ret->async && count( $this->siblingChunks )
+&& $this->siblingChunks[ 0 ]->rank === $ret->tokens->rank
+		) {
+			$tokens = JSUtils::pushArray( $ret->tokens, array_shift( $this->siblingChunks ) );
+			$tokens->rank = $ret->tokens->rank;
+			$ret->tokens = $tokens;
 		}
-		const async = ret.async || this.waitForSibling || (this.siblingChunks.length > 0);
-		this._callParentCB({ tokens: ret.tokens, async: async });
+		$async = $ret->async || $this->waitForSibling || ( count( $this->siblingChunks ) > 0 );
+		$this->_callParentCB( [ 'tokens' => $ret->tokens, 'async' => $async ] );
 
-		if (!ret.async) {
+		if ( !$ret->async ) {
 			// Child is all done => can pass along sibling toks as well
 			// since any tokens we receive now will already be in order
 			// and no buffering is necessary.
-			this.waitForChild = false;
-			if (this.siblingChunks.length) {
-				this.emitTokens(this.waitForSibling);
+			$this->waitForChild = false;
+			if ( count( $this->siblingChunks ) ) {
+				$this->emitTokens( $this->waitForSibling );
 			}
 		}
 
@@ -1265,44 +1299,44 @@ class TokenAccumulator {
 	 * @param {Object} ret
 	 * @param {Array} ret.tokens
 	 * @param {boolean} ret.async
-	 * @return {Function|null} New parent callback for caller or falsy value.
+	 * @return Function|null New parent callback for caller or falsy value.
 	 */
-	receiveToksFromSibling(ret) {
-		ret = verifyTokensIntegrity(this.manager.env, ret);
+	public function receiveToksFromSibling( $ret ) {
+		$ret = verifyTokensIntegrity( $this->manager->env, $ret );
 
-		if (!ret.async) {
-			this.waitForSibling = false;
+		if ( !$ret->async ) {
+			$this->waitForSibling = false;
 		}
 
-		if (this.waitForChild) {
+		if ( $this->waitForChild ) {
 			// Just continue to accumulate sibling tokens.
-			this.concatTokens(ret.tokens);
-			this.manager.env.log(
+			$this->concatTokens( $ret->tokens );
+			$this->manager->env->log(
 				'debug',
 				'TokenAccumulator._receiveToksFromSibling: async=',
-				ret.async,
+				$ret->async,
 				', this.outstanding=',
-				(this.waitForChild + this.waitForSibling),
+				( $this->waitForChild + $this->waitForSibling ),
 				', this.siblingChunks=',
-				this.siblingChunks,
+				$this->siblingChunks,
 				' frame.title=',
-				this.manager.frame.title
+				$this->manager->frame->title
 			);
-		} else if (this.waitForSibling) {
+		} elseif ( $this->waitForSibling ) {
 			// Sibling is not yet done, but child is. Return own parentCB to
 			// allow the sibling to go direct, and call back parent with
 			// tokens. The internal accumulator is empty at this stage, as its
 			// tokens got passed to the parent when the child was done.
-			if (ret.tokens.length && !ret.tokens.rank) {
-				this.manager.env.log('debug', 'TokenAccumulator.receiveToksFromSibling without rank', ret.tokens);
-				ret.tokens.rank = this.manager.phaseEndRank;
+			if ( count( $ret->tokens ) && !$ret->tokens->rank ) {
+				$this->manager->env->log( 'debug', 'TokenAccumulator.receiveToksFromSibling without rank', $ret->tokens );
+				$ret->tokens->rank = $this->manager->phaseEndRank;
 			}
-			return this._callParentCB(ret);
+			return $this->_callParentCB( $ret );
 		} else {
 			// console.warn("TA-" + this.uid + " --ALL DONE!--");
 			// All done
-			this.concatTokens(ret.tokens);
-			this.emitTokens(false);
+			$this->concatTokens( $ret->tokens );
+			$this->emitTokens( false );
 			return null;
 		}
 	}
@@ -1310,20 +1344,20 @@ class TokenAccumulator {
 	/**
 	 * Mark the sibling as done (normally at the tail of a chain).
 	 */
-	siblingDone() {
-		this.receiveToksFromSibling({ tokens: [], async: false });
+	public function siblingDone() {
+		$this->receiveToksFromSibling( [ 'tokens' => [], 'async' => false ] );
 	}
 
 	/**
-	 * @return {Function}
+	 * @return Function
 	 */
-	_callParentCB(ret) {
+	public function _callParentCB( $ret ) {
 		// console.warn("\nTA-" + this.uid + "; c: " + this.waitForChild + "; s: " + this.waitForSibling + " --> _callParentCB: " + JSON.stringify(ret));
-		const cb = this.parentCB(ret);
-		if (cb) {
-			this.parentCB = cb;
+		$cb = $this->parentCB( $ret );
+		if ( $cb ) {
+			$this->parentCB = $cb;
 		}
-		return this.parentCB;
+		return $this->parentCB;
 	}
 
 	/**
@@ -1331,10 +1365,10 @@ class TokenAccumulator {
 	 *
 	 * @param {Token} token
 	 */
-	push(token) {
+	public function push( $token ) {
 		// Treat a token push as a token-receive from a sibling
 		// in whatever async state the accum is currently in.
-		return this.receiveToksFromSibling({ tokens: [token], async: this.waitForSibling });
+		return $this->receiveToksFromSibling( [ 'tokens' => [ $token ], 'async' => $this->waitForSibling ] );
 	}
 
 	/**
@@ -1342,15 +1376,14 @@ class TokenAccumulator {
 	 *
 	 * @param {Token[]} tokens
 	 */
-	append(tokens) {
+	public function append( $tokens ) {
 		// Treat tokens append as a token-receive from a sibling
 		// in whatever async state the accum is currently in.
-		return this.receiveToksFromSibling({ tokens: tokens, async: this.waitForSibling });
+		return $this->receiveToksFromSibling( [ 'tokens' => $tokens, 'async' => $this->waitForSibling ] );
 	}
 }
 
-TokenAccumulator._tid = 0;
-
+TokenAccumulator::_tid = 0;
 
 // Frame
 
@@ -1368,25 +1401,31 @@ TokenAccumulator._tid = 0;
  */
 
 class Frame {
-	constructor(title, manager, args, parentFrame) {
-		this.title = title;
-		this.manager = manager;
-		this.args = new Params(args);
+	public function __construct( $title, $manager, $args, $parentFrame ) {
+		$this->title = $title;
+		$this->manager = $manager;
+		$this->args = new Params( $args );
 
-		if (parentFrame) {
-			this.parentFrame = parentFrame;
-			this.depth = parentFrame.depth + 1;
+		if ( $parentFrame ) {
+			$this->parentFrame = $parentFrame;
+			$this->depth = $parentFrame->depth + 1;
 		} else {
-			this.parentFrame = null;
-			this.depth = 0;
+			$this->parentFrame = null;
+			$this->depth = 0;
 		}
 	}
+	public $title;
+	public $manager;
+	public $args;
+
+	public $parentFrame;
+	public $depth;
 
 	/**
 	 * Create a new child frame.
 	 */
-	newChild(title, manager, args) {
-		return new Frame(title, manager, args, this);
+	public function newChild( $title, $manager, $args ) {
+		return new Frame( $title, $manager, $args, $this );
 	}
 
 	/**
@@ -1395,29 +1434,31 @@ class Frame {
 	 * XXX: Support different input formats, expansion phases / flags and more
 	 * output formats.
 	 *
-	 * @return {Promise} A promise which will be resolved with the expanded
+	 * @return Promise A promise which will be resolved with the expanded
 	 *  chunk of tokens.
 	 */
-	expand(chunk, options) {
-		const outType = options.type;
-		console.assert(outType === 'tokens/x-mediawiki/expanded', "Expected tokens/x-mediawiki/expanded type");
-		this.manager.env.log('debug', 'Frame.expand', chunk);
+	public function expand( $chunk, $options ) {
+		$outType = $options->type;
+		Assert::invariant( $outType === 'tokens/x-mediawiki/expanded', 'Expected tokens/x-mediawiki/expanded type' );
+		$this->manager->env->log( 'debug', 'Frame.expand', $chunk );
 
-		const cb = JSUtils.mkPromised(
-			options.cb
-			// XXX ignores the `err` parameter in callback.  This isn't great!
-				? function(err, val) { options.cb(val); } // eslint-disable-line handle-callback-err
-				: undefined
+		$cb = JSUtils::mkPromised(
+			( $options->cb
+				// XXX ignores the `err` parameter in callback.  This isn't great!
+			) ? function ( $err, $val ) use ( &$options ) { $options->cb( $val );
+   }// eslint-disable-line handle-callback-err
+			 :
+			null
 		);
-		if (!chunk.length || chunk.constructor === String) {
+		if ( !count( $chunk ) || $chunk->constructor === $String ) {
 			// Nothing to do
-			cb(null, chunk);
-			return cb.promise;
+			$cb( null, $chunk );
+			return $cb->promise;
 		}
 
-		if (options.asyncCB) {
+		if ( $options->asyncCB ) {
 			// Signal (potentially) asynchronous expansion to parent.
-			options.asyncCB({ async: true });
+			$options->asyncCB( [ 'async' => true ] );
 		}
 
 		// Downstream template uses should be tracked and wrapped only if:
@@ -1425,44 +1466,45 @@ class Frame {
 		// - not in a template use context   Ex: {{ .. | {{ here }} | .. }}
 		// - the attribute use is wrappable  Ex: [[ ... | {{ .. link text }} ]]
 
-		const opts = {
+		$opts = [
 			// XXX: use input type
-			pipelineType: this.manager.attributeType || 'tokens/x-mediawiki',
-			pipelineOpts: {
-				isInclude: this.depth > 0,
-				expandTemplates: options.expandTemplates,
-				inTemplate: options.inTemplate,
-			},
-		};
+			'pipelineType' => $this->manager->attributeType || 'tokens/x-mediawiki',
+			'pipelineOpts' => [
+				'isInclude' => $this->depth > 0,
+				'expandTemplates' => $options->expandTemplates,
+				'inTemplate' => $options->inTemplate
+			],
+			'sol' => true
+		];
 
 		// In the name of interface simplicity, we accumulate all emitted
 		// chunks in a single accumulator.
-		const eventState = { options: options, accum: [], cb: cb };
-		opts.chunkCB = this.onThunkEvent.bind(this, eventState, true);
-		opts.endCB = this.onThunkEvent.bind(this, eventState, false);
-		opts.tplArgs = { name: null };
+		$eventState = [ 'options' => $options, 'accum' => [], 'cb' => $cb ];
+		$opts->chunkCB = $this->onThunkEvent->bind( $this, $eventState, true );
+		$opts->endCB = $this->onThunkEvent->bind( $this, $eventState, false );
+		$opts->tplArgs = [ 'name' => null ];
 
-		const content = chunk;
-		if (JSUtils.lastItem(chunk).constructor !== EOFTk) {
-			content.push(new EOFTk());
+		$content = $chunk;
+		if ( JSUtils::lastItem( $chunk )->constructor !== EOFTk::class ) {
+			$content[] = new EOFTk();
 		}
 
 		// XXX should use `PipelineUtils#promiseToProcessContent` for better error handling.
-		PipelineUtils.processContentInPipeline(this.manager.env, this, content, opts);
-		return cb.promise;
+		PipelineUtils::processContentInPipeline( $this->manager->env, $this, $content, $opts );
+		return $cb->promise;
 	}
 
 	/**
 	 * Event handler for chunk conversion pipelines.
 	 * @private
 	 */
-	onThunkEvent(state, notYetDone, ret) {
-		if (notYetDone) {
-			state.accum = JSUtils.pushArray(state.accum, TokenUtils.stripEOFTkfromTokens(ret));
-			this.manager.env.log('debug', 'Frame.onThunkEvent accum:', state.accum);
+	public function onThunkEvent( $state, $notYetDone, $ret ) {
+		if ( $notYetDone ) {
+			$state->accum = JSUtils::pushArray( $state->accum, TokenUtils::stripEOFTkfromTokens( $ret ) );
+			$this->manager->env->log( 'debug', 'Frame.onThunkEvent accum:', $state->accum );
 		} else {
-			this.manager.env.log('debug', 'Frame.onThunkEvent:', state.accum);
-			state.cb(null, state.accum);
+			$this->manager->env->log( 'debug', 'Frame.onThunkEvent:', $state->accum );
+			$state->cb( null, $state->accum );
 		}
 	}
 
@@ -1472,37 +1514,38 @@ class Frame {
 	 *
 	 * @param {string} title
 	 */
-	loopAndDepthCheck(title, maxDepth, ignoreLoop) {
-		if (this.depth > maxDepth) {
+	public function loopAndDepthCheck( $title, $maxDepth, $ignoreLoop ) {
+		if ( $this->depth > $maxDepth ) {
 			// Too deep
 			return 'Error: Expansion depth limit exceeded at ';
 		}
-		if (ignoreLoop) { return false; }
-		let elem = this;
+		if ( $ignoreLoop ) { return false;
+  }
+		$elem = $this;
 		do {
-			if (elem.title === title) {
+			if ( $elem->title === $title ) {
 				// Loop detected
 				return 'Error: Expansion loop detected at ';
 			}
-			elem = elem.parentFrame;
-		} while (elem);
+			$elem = $elem->parentFrame;
+		} while ( $elem );
 		// No loop detected.
 		return false;
 	}
 
-	_getID(options) {
-		if (!options || !options.cb) {
-			console.trace();
-			console.warn('Error in Frame._getID: no cb in options!');
+	public function _getID( $options ) {
+		if ( !$options || !$options->cb ) {
+			$console->trace();
+			$console->warn( 'Error in Frame._getID: no cb in options!' );
 		} else {
-			return options.cb(this);
+			return $options->cb( $this );
 		}
 	}
 }
 
-if (typeof module === "object") {
-	module.exports.AsyncTokenTransformManager = AsyncTokenTransformManager;
-	module.exports.SyncTokenTransformManager = SyncTokenTransformManager;
-	module.exports.AttributeTransformManager = AttributeTransformManager;
-	module.exports.TokenAccumulator = TokenAccumulator;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->AsyncTokenTransformManager = $AsyncTokenTransformManager;
+	$module->exports->SyncTokenTransformManager = $SyncTokenTransformManager;
+	$module->exports->AttributeTransformManager = $AttributeTransformManager;
+	$module->exports->TokenAccumulator = $TokenAccumulator;
 }

@@ -1,3 +1,6 @@
+<?php // lint >= 99.9
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /** @module */
 /**
  * Logger backend for linter.
@@ -5,26 +8,27 @@
  * logs them (console, external service).
  */
 
-'use strict';
+namespace Parsoid;
 
-var LintRequest = require('../mw/ApiRequest.js').LintRequest;
-var Promise = require('../utils/promise.js');
+$LintRequest = require '../mw/ApiRequest.js'::LintRequest;
+$Promise = require '../utils/promise.js';
 
 /**
  * @class
  */
-var LintLogger = function(env) {
-	this._env = env;
-	this.buffer = [];
+$LintLogger = function ( $env ) {
+	$this->_env = $env;
+	$this->buffer = [];
 };
 
-LintLogger.prototype._lintError = function() {
-	var env = this._env;
-	var args = arguments;
+LintLogger::prototype::_lintError = function () {
+	$env = $this->_env;
+	$args = $arguments;
 	// Call this async since recursive sync calls to the logger are suppressed
-	process.nextTick(function() {
-		env.log.apply(env, args);
-	});
+	$process->nextTick( function () {
+			call_user_func_array( [ $env, 'log' ], $args );
+	}
+	);
 };
 
 /**
@@ -32,102 +36,110 @@ LintLogger.prototype._lintError = function() {
  * @param {LogData} logData
  * @return {Promise}
  */
-LintLogger.prototype.logLintOutput = Promise.async(function *(logData) {
-	var env = this._env;
-	var enabledBuffer;
+LintLogger::prototype::logLintOutput = /* async */function ( $logData ) use ( &$LintRequest ) {
+	$env = $this->_env;
+	$enabledBuffer = null;
 	try {
-		if (env.conf.parsoid.linting === true) {
-			enabledBuffer = this.buffer;  // Everything is enabled
-		} else if (Array.isArray(env.conf.parsoid.linting)) {
-			enabledBuffer = this.buffer.filter(function(item) {
-				return env.conf.parsoid.linting.indexOf(item.type) !== -1;
-			});
+		if ( $env->conf->parsoid->linting === true ) {
+			$enabledBuffer = $this->buffer; // Everything is enabled
+		} else { // Everything is enabled
+		if ( is_array( $env->conf->parsoid->linting ) ) {
+			$enabledBuffer = $this->buffer->filter( function ( $item ) {
+					return array_search( $item->type, $env->conf->parsoid->linting ) !== -1;
+			}
+			);
 		} else {
-			console.assert(false, 'Why are we here? Linting is disabled.');
+			Assert::invariant( false, 'Why are we here? Linting is disabled.' );
+		}
 		}
 
-		this.buffer = [];
+		$this->buffer = [];
 
-		if (env.page.id % env.conf.parsoid.linter.apiSampling !== 0) {
+		if ( $env->page->id % $env->conf->parsoid->linter->apiSampling !== 0 ) {
 			return;
 		}
 
 		// Skip linting if we cannot lint it
-		if (!env.page.hasLintableContentModel()) {
+		// Skip linting if we cannot lint it
+		if ( !$env->page->hasLintableContentModel() ) {
 			return;
 		}
 
-		if (!env.conf.parsoid.linter.sendAPI) {
-			enabledBuffer.forEach(function(item) {
-				// Call this async, since recursive sync calls to the logger
-				// are suppressed.  This messes up the ordering, as you'd
-				// expect, but since it's only for debugging it should be
-				// acceptable.
-				process.nextTick(function() {
-					env.log('warn/lint/' + item.type, item);
-				});
-			});
+		if ( !$env->conf->parsoid->linter->sendAPI ) {
+			$enabledBuffer->forEach( function ( $item ) use ( &$env ) {
+					// Call this async, since recursive sync calls to the logger
+					// are suppressed.  This messes up the ordering, as you'd
+					// expect, but since it's only for debugging it should be
+					// acceptable.
+					$process->nextTick( function () use ( &$env, &$item ) {
+							$env->log( 'warn/lint/' . $item->type, $item );
+					}
+					);
+			}
+			);
 			return;
 		}
 
-		if (!env.conf.wiki.linterEnabled) {
+		if ( !$env->conf->wiki->linterEnabled ) {
 			// If it's not installed, we can't send a request,
 			// so skip.
 			return;
 		}
 
-		if (!env.pageWithOldid) {
+		if ( !$env->pageWithOldid ) {
 			// We only want to send to the MW API if this was a request to
 			// parse the full page.
 			return;
 		}
 
 		// Only send the request if it the latest revision
-		if (env.page.meta.revision.revid === env.page.latest) {
+		// Only send the request if it the latest revision
+		if ( $env->page->meta->revision->revid === $env->page->latest ) {
 			try {
-				var data = yield LintRequest.promise(env, JSON.stringify(enabledBuffer));
-				if (data.error) { env.log('error/lint/api', data.error); }
-			} catch (ee) {
-				env.log('error/lint/api', ee);
+				$data = /* await */ LintRequest::promise( $env, json_encode( $enabledBuffer ) );
+				if ( $data->error ) { $env->log( 'error/lint/api', $data->error );
+	   }
+			} catch ( Exception $ee ) {
+				$env->log( 'error/lint/api', $ee );
 			}
 		}
-	} catch (e) {
-		this._lintError('error/lint/api', "Error in logLintOutput: ", e);
+	} catch ( Exception $e ) {
+		$this->_lintError( 'error/lint/api', 'Error in logLintOutput: ', $e );
 	}
-});
+};
 
 /**
  * @method
  * @param {LogData} logData
  * @return {Promise}
  */
-LintLogger.prototype.linterBackend = Promise.async(function *(logData) { // eslint-disable-line require-yield
+LintLogger::prototype::linterBackend = /* async */function ( $logData ) { // eslint-disable-line require-yield
 	// Wrap in try-catch-finally so we can more accurately
 	// pin errors to specific logging backends
 	try {
-		var lintObj = logData.logObject[0];
+		$lintObj = $logData->logObject[ 0 ];
 
-		var msg = {
-			type: logData.logType.match(/lint\/(.*)/)[1],
-			params: lintObj.params || {},
-		};
+		$msg = [
+			'type' => preg_match( '/lint\/(.*)/', $logData->logType )[ 1 ],
+			'params' => $lintObj->params || []
+		];
 
-		var dsr = lintObj.dsr;
-		if (dsr) {
-			msg.dsr = dsr;
-			if (lintObj.templateInfo) {
-				msg.templateInfo = lintObj.templateInfo;
+		$dsr = $lintObj->dsr;
+		if ( $dsr ) {
+			$msg->dsr = $dsr;
+			if ( $lintObj->templateInfo ) {
+				$msg->templateInfo = $lintObj->templateInfo;
 			}
 
-			this.buffer.push(msg);
+			$this->buffer[] = $msg;
 		} else {
-			this._lintError('error/lint', 'Missing DSR; msg=', msg);
+			$this->_lintError( 'error/lint', 'Missing DSR; msg=', $msg );
 		}
-	} catch (e) {
-		this._lintError('error/lint', 'Error in linterBackend: ', e);
+	} catch ( Exception $e ) {
+		$this->_lintError( 'error/lint', 'Error in linterBackend: ', $e );
 	}
-});
+};
 
-if (typeof module === "object") {
-	module.exports.LintLogger = LintLogger;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->LintLogger = $LintLogger;
 }
