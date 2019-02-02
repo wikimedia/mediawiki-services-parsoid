@@ -13284,6 +13284,14 @@ Templates: Links: 5. Nested templates (only outermost template should be marked)
 </p>
 !!end
 
+!! test
+File with template filename
+!! wikitext
+[[File:{{echo|Foobar.jpg}}]]
+!! html/parsoid
+<p><figure-inline class="mw-default-size" typeof="mw:Image mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[7,26,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"Foobar.jpg\"}},\"i\":0}}]}&apos;>Foobar.jpg&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:{{echo|Foobar.jpg}}"}}'/></a></figure-inline></p>
+!! end
+
 !!test
 Templates: HTML Tag: 1. Generation of HTML attr. key
 !! wikitext
