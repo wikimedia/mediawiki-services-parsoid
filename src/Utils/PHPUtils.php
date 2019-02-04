@@ -9,21 +9,17 @@ namespace Parsoid\Utils;
 */
 
 class PHPUtils {
-	public static function object() {
-		return new stdClass();
-	}
-
 	/**
 	 * Convert a counter to a Base64 encoded string.
 	 * Padding is stripped. \,+ are replaced with _,- respectively.
 	 * Warning: Max integer is 2^31 - 1 for bitwise operations.
-	 * @param { $n }
-	 * @return { string }
+	 * @param int $n
+	 * @return string
 	 */
 	public static function counterToBase64( $n ) {
 		$arr = [];
 		do {
-			push_array( $arr, ( $n & 0xff ) );
+			array_unshift( $arr, $n & 0xff );
 			$n >>= 8;
 		} while ( $n > 0 );
 		return rtrim( strtr( base64_encode( $arr ), '+/', '-_' ), '=' );
@@ -31,7 +27,7 @@ class PHPUtils {
 
 	/**
 	 * Return accurate system time
-	 * @return { time in seconds since Jan 1 1970 GMT accurate to the microsecond }
+	 * @return int time in seconds since Jan 1 1970 GMT accurate to the microsecond
 	 */
 	public static function getStartHRTime() {
 		return microtime( true );
@@ -39,8 +35,8 @@ class PHPUtils {
 
 	/**
 	 * Return millisecond accurate system time differential
-	 * @param { $previousTime }
-	 * @return { milliseconds }
+	 * @param int $previousTime
+	 * @return int milliseconds
 	 */
 	public static function getHRTimeDifferential( $previousTime ) {
 		return ( microtime( true ) - $previousTime ) * 1000;
@@ -48,20 +44,23 @@ class PHPUtils {
 
 	/**
 	 * json_encode wrapper function
-	 * @param { $o }
-	 * @return { string }
+	 * - unscapes slashes and unicode
+	 *
+	 * @param object $o
+	 * @return string
 	 */
 	public static function jsonEncode( $o ) {
 		return json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 	}
 
 	/**
-	 * json_dencode wrapper function
-	 * @param { $o }
-	 * @return { DOM fragment }
+	 * json_decode wrapper function
+	 * @param string $str String to decode into the json object
+	 * @param bool $assoc Controls whether to parse as an an associative array - defaults to true
+	 * @return object
 	 */
-	public static function jsonDecode( $o ) {
-		return json_decode( $o );
+	public static function jsonDecode( $str, $assoc = true ) {
+		return json_decode( $str, $assoc );
 	}
 
 	/**
