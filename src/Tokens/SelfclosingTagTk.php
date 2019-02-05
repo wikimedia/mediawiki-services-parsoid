@@ -23,9 +23,14 @@ class SelfclosingTagTk extends Token {
 	}
 
 	/**
-	 * return object
+	 * @return array
 	 */
-	public function toJSON() {
-		throw new \BadMethodCallException( 'Not yet ported' );
+	public function jsonSerialize() {
+		return [
+			"type" => $this->type,
+			"name" => $this->name,
+			"attribs" => $this->attribs,
+			"dataAttribs" => $this->dataAttribs
+		];
 	}
 }

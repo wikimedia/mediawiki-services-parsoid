@@ -5,7 +5,7 @@ namespace Parsoid\Tokens;
 /**
  * Represents a Key-value pair.
  */
-class KV {
+class KV implements \JsonSerializable {
 	/** @var mixed Commonly a string, but where the key might be templated,
 	 *  this can be an array of tokens even. */
 	public $k;
@@ -70,5 +70,22 @@ class KV {
 	public static function lookup( array $kvs, $key ) {
 		$kv = self::lookupKV( $kvs, $key );
 		return $kv === null ? null : $kv->v;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		$ret = [ "k" => $this->k, "v" => $this->v ];
+		if ( $this->srcOffsets ) {
+			$ret["srcOffsets"] = $this->srcOffsets;
+		}
+		if ( $this->ksrc ) {
+			$ret["ksrc"] = $this->ksrc;
+		}
+		if ( $this->vsrc ) {
+			$ret["vsrc"] = $this->vsrc;
+		}
+		return $ret;
 	}
 }

@@ -24,7 +24,14 @@ class CommentTk extends Token {
 		$this->dataAttribs = $dataAttribs;
 	}
 
-	public function toJSON() {
-		throw new \BadMethodCallException( 'Not yet ported' );
+	/**
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return [
+			"type" => $this->type,
+			"value" => $this->value,
+			"dataAttribs" => $this->dataAttribs
+		];
 	}
 }

@@ -27,7 +27,13 @@ class NlTk extends Token {
 		}
 	}
 
-	public function toJSON() {
-		throw new \BadMethodCallException( 'Not yet ported' );
+	/**
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return [
+			"type" => $this->type,
+			"dataAttribs" => $this->dataAttribs
+		];
 	}
 }

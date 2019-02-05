@@ -5,7 +5,7 @@ namespace Parsoid\Tokens;
 /**
  * Catch-all class for all token types.
  */
-abstract class Token {
+abstract class Token implements \JsonSerializable {
 	/** @var string Type identifier of this token.
 	 * All subclasses should assign this a non-null value. */
 	protected $type;
@@ -21,6 +21,11 @@ abstract class Token {
 	 * TODO: Expand on this.
 	 */
 	protected $dataAttribs = [];
+
+	/**
+	 * @return array
+	 */
+	abstract public function jsonSerialize();
 
 	/**
 	 * Returns a string key for this token

@@ -11,7 +11,12 @@ class EOFTk extends Token {
 	public function __construct() {
 	}
 
-	public function toJSON() {
-		throw new \BadMethodCallException( 'Not yet ported' );
+	/**
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return [
+			"type" => $this->type
+		];
 	}
 }
