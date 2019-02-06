@@ -1,14 +1,8 @@
 <?php
-/**
- * MediaWiki-compatible italic/bold handling as a token stream transformation.
- * @module - port of javascript QuoteTransformer.js to php
- */
 
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\PHPUtils;
-
-// use Parsoid\Utils\Util;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
@@ -36,9 +30,7 @@ function array_flatten( $array ) {
 }
 
 /**
- * @class
- * @extends module:wt2html/tt/TokenHandler
- * @constructor
+ * MediaWiki-compatible italic/bold handling as a token stream transformation.
  */
 class QuoteTransformer extends TokenHandler {
 	/**

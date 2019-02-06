@@ -20,7 +20,7 @@ class TokenHandler {
 		$this->atTopLevel = false;
 
 		// This is set if the token handler is disabled for the entire pipeline.
-		$this->switchedOff = false;
+		$this->disabled = false;
 
 		// This is set/reset by the token handlers at various points
 		// in the token stream based on what is encountered.
@@ -95,5 +95,110 @@ class TokenHandler {
 	 */
 	public function resetState( $opts ) {
 		$this->atTopLevel = $opts && $opts->toplevel;
+	}
+
+	/* -------------------------- PORT-FIXME ------------------------------
+	 * We should benchmark a version of this function
+	 * without any of the tracing code in it. There are upto 4 untaken branches
+	 * that are executed in the hot loop for every single token. Unlike V8,
+	 * this code will not be JIT-ted to eliminate that overhead.
+	 *
+	 * In the common case where tokens come through functions unmodified
+	 * because of hitting default identity handlers, these 4 extra branches
+	 * could potentially amount to something. That might be partially ameliorated
+	 * by the fact that most modern processors have branch prediction and these
+	 * branches will always fail and so might not be such a big deal.
+	 *
+	 * In any case, worth a performance test after the port.
+	 * -------------------------------------------------------------------- */
+	/**
+	 * Push an input array of tokens through the transformer
+	 * and return the transformed tokens
+	 *
+	 * @param MockEnv $env Parser Environment
+	 * @param array $tokens The array of tokens to process
+	 * @param array $traceState Tracing related state
+	 * @return array the array of transformed tokens
+	 */
+	public function processTokensSync( $env, array $tokens, array $traceState ) {
+		$genFlags = $traceState && $traceState['genFlags'];
+		$traceFlags = $traceState && $traceState['traceFlags'];
+		$traceTime = $traceState && $traceState['traceTime'];
+		$accum = [];
+		foreach ( $tokens as $token ) {
+			if ( $traceFlags ) {
+				$traceState->tracer( $token, $this );
+			}
+
+			$res = null;
+			$modified = false;
+			$notString = !is_string( $token );
+			if ( $traceTime ) {
+				$s = PHPUtils::getStartHRTime();
+				if ( $notString && $token instanceof NlTk ) {
+					$res = $this->onNewline( $token );
+					$traceName = $traceState['traceNames'][0];
+				} elseif ( $notString && $token instanceof EOFTk ) {
+					$res = $this->onEnd( $token );
+					$traceName = $traceState['traceNames'][1];
+				} else {
+					$res = $this->onTag( $token );
+					$traceName = $traceState['traceNames'][2];
+				}
+				$t = PHPUtils::getHRTimeDifferential( $s );
+				$env->bumpTimeUse( $traceName, $t, "TT" );
+				$env->bumpCount( $traceName );
+				$traceState['tokenTimes'] += $t;
+			} else {
+				if ( $notString && $token instanceof NlTk ) {
+					$res = $this->onNewline( $token );
+				} elseif ( $notString && $token instanceof EOFTk ) {
+					$res = $this->onEnd( $token );
+				} else {
+					$res = $this->onTag( $token );
+				}
+			}
+
+			if ( $res !== $token &&
+				( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
+			) {
+				$resTokens = $res['tokens'];
+				$modified = true;
+			}
+
+			if ( !$modified && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) && $this->onAnyEnabled ) {
+				if ( $traceTime ) {
+					$s = PHPUtils::getStartHRTime();
+					$traceName = $traceState['traceNames'][3];
+					$res = $this->onAny( $token );
+					$t = PHPUtils::getHRTimeDifferential( $s );
+					$env->bumpTimeUse( $traceName, $t, "TT" );
+					$env->bumpCount( $traceName );
+					$traceState['tokenTimes'] += $t;
+				} else {
+					$res = $this->onAny( $token );
+				}
+				if ( $res !== $token &&
+					( !$res['tokens'] || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
+				) {
+					$resTokens = $res['tokens'];
+					$modified = true;
+				}
+			}
+
+			if ( $genFlags && isset( $genFlags['handler'] ) ) {
+				// No matter whether token changed or not, emit a test line.
+				// This makes for more reliable verification of ported code.
+				$traceState['genTest']( $this, $token, $res );
+			}
+
+			if ( !$modified ) {
+				$accum[] = $token;
+			} elseif ( $resTokens && count( $resTokens ) > 0 ) {
+				$accum = array_merge( $accum, $resTokens );
+			}
+		}
+
+		return $accum;
 	}
 }
