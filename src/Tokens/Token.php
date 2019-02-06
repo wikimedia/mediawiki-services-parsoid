@@ -203,4 +203,64 @@ abstract class Token implements \JsonSerializable {
 		}
 		return substr( $env->page->src, $tsr[0], $tsr[1] );
 	}
+
+	/**
+	 * Create key value set from an array
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	private static function kvsFromArray( $a ) {
+		$kvs = [];
+		foreach ( $a as $e ) {
+			$kvs[] = new KV(
+				$e["k"],
+				$e["v"],
+				isset( $e["srcOffsets"] ) ? $e["srcOffsets"] : null,
+				isset( $e["ksrc"] ) ? $e["ksrc"] : null,
+				isset( $e["vsrc"] ) ? $e["vsrc"] : null
+			);
+		};
+		return $kvs;
+	}
+
+	/**
+	 * Get a token from some a JSON string
+	 *
+	 * @param string $str
+	 * @return Token|string
+	 */
+	public static function getToken( $str ) {
+		$jsTk = json_decode( $str, true );
+		if ( is_string( $jsTk ) ) {
+			$token = $jsTk;
+		} else {
+			switch ( $jsTk['type'] ) {
+				case "SelfclosingTagTk":
+					$token = new SelfclosingTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
+						$jsTk['dataAttribs'] );
+					break;
+				case "TagTk":
+					$token = new TagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
+						 $jsTk['dataAttribs'] );
+					break;
+				case "EndTagTk":
+					$token = new EndTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
+						 $jsTk['dataAttribs'] );
+					break;
+				case "NlTk":
+					$token = new NlTk( isset( $jsTk['dataAttribs']['tsr'] ) ?
+						 $jsTk['dataAttribs']['tsr'] : null, $jsTk['dataAttribs'] );
+					break;
+				case "EOFTk":
+					$token = new EOFTk();
+					break;
+				case "CommentTk":
+					$token = new CommentTk( $jsTk["value"], $jsTk['dataAttribs'] );
+					break;
+			}
+		}
+
+		return $token;
+	}
 }

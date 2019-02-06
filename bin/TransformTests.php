@@ -60,12 +60,7 @@ use Parsoid\Tests\MockEnv;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Tokens\Token;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EOFTk;
 
 $wgCachedState = false;
@@ -74,72 +69,12 @@ $wgCachedPipeLines = '';
 $wgCachedPipeLinesLength = [];
 
 /**
- * Create key value set from an array
- *
- * @param array $a
- * @return array
- */
-function wfKvsFromArray( $a ) {
-	$kvs = [];
-	foreach ( $a as $e ) {
-		$kvs[] = new KV(
-			$e["k"],
-			$e["v"],
-			isset( $e["srcOffsets"] ) ? $e["srcOffsets"] : null,
-			isset( $e["ksrc"] ) ? $e["ksrc"] : null,
-			isset( $e["vsrc"] ) ? $e["vsrc"] : null
-		);
-	};
-	return $kvs;
-}
-
-/**
  * Write text to the console
  *
  * @param string $msg
  */
 function wfLog( $msg ) {
 	print $msg;
-}
-
-/**
- * Get a token from some HTML text
- *
- * @param string $line
- * @return object
- */
-function wfGetToken( $line ) {
-	$jsTk = json_decode( $line, true );
-	if ( gettype( $jsTk ) === "string" ) {
-		$token = $jsTk;
-	} else {
-		switch ( $jsTk['type'] ) {
-			case "SelfclosingTagTk":
-				$token = new SelfclosingTagTk( $jsTk['name'], wfKvsFromArray( $jsTk['attribs'] ),
-					$jsTk['dataAttribs'] );
-				break;
-			case "TagTk":
-				$token = new TagTk( $jsTk['name'], wfKvsFromArray( $jsTk['attribs'] ),
-					 $jsTk['dataAttribs'] );
-				break;
-			case "EndTagTk":
-				$token = new EndTagTk( $jsTk['name'], wfKvsFromArray( $jsTk['attribs'] ),
-					 $jsTk['dataAttribs'] );
-				break;
-			case "NlTk":
-				$token = new NlTk( isset( $jsTk['dataAttribs']['tsr'] ) ?
-					 $jsTk['dataAttribs']['tsr'] : null, $jsTk['dataAttribs'] );
-				break;
-			case "EOFTk":
-				$token = new EOFTk();
-				break;
-			case "CommentTk":
-				$token = new CommentTk( $jsTk["value"], $jsTk['dataAttribs'] );
-				break;
-		}
-	}
-
-	return $token;
 }
 
 // Mock environment for token transformers
@@ -171,15 +106,11 @@ class TransformTests {
 	 */
 	public function processToken( $transformer, $token ) {
 		$startTime = PHPUtils::getStartHRTime();
-		if ( $token instanceof Token ) {
-			$tkType = $token->getType();
-		} else {
-			$tkType = "String";
-		}
+		$notString = !is_string( $token );
 
-		if ( $tkType === "NlTk" ) {
+		if ( $notString && $token instanceof NlTk ) {
 			$res = $transformer->onNewline( $token );
-		} elseif ( $tkType === "EOFTk" ) {
+		} elseif ( $notString && $token instanceof EOFTk ) {
 			$res = $transformer->onEnd( $token );
 		} else {
 			$res = $transformer->onTag( $token );
@@ -192,8 +123,9 @@ class TransformTests {
 			$modified = true;
 		}
 
-		if ( !$modified && ( !is_array( $res ) || !isset( $res['skip'] ) )
-			&& $transformer->onAnyEnabled ) {
+		if ( !$modified && ( !is_array( $res ) || empty( $res['skipOnAny'] ) )
+			&& $transformer->onAnyEnabled
+		) {
 			$res = $transformer->onAny( $token );
 		}
 
@@ -205,10 +137,11 @@ class TransformTests {
 	 * Process test file
 	 *
 	 * @param object $transformer
+	 * @param string $transformerName name of the transformer being tested
 	 * @param object $commandLine
 	 * @return number
 	 */
-	public function processTestFile( $transformer, $commandLine ) {
+	public function processTestFile( $transformer, $transformerName, $commandLine ) {
 		global $wgCachedState;
 		global $wgCachedTestLines;
 		$numFailures = 0;
@@ -232,6 +165,7 @@ class TransformTests {
 		}
 
 		$countTestLines = count( $testLines );
+		$testEnabled = true;
 		for ( $index = 0; $index < $countTestLines; $index++ ) {
 			$line = $testLines[$index];
 			if ( mb_strlen( $line ) < 1 ) {
@@ -241,13 +175,18 @@ class TransformTests {
 				case '#':	// comment line
 				case ' ':	// blank character at start of line
 				case '':		// empty line
+					break;
 				case ':':
-					// $testEnabled = preg_replace('/^:\s*|\s*$/', '', $line) === $transformerName;
+					$testEnabled = preg_replace( '/^:\s*|\s*$/', '', $line ) === $transformerName;
 					break;
 				case '!':	// start of test with name
 					$testName = substr( $line, 2 );
 					break;
 				case '[':	// desired result json string for test result verification
+					if ( !$testEnabled ) {
+						break;
+					}
+
 					if ( isset( $result ) && count( $result['tokens'] ) !== 0 ) {
 						$stringResult = PHPUtils::jsonEncode( $result['tokens'] );
 						# print "SR  : $stringResult\n";
@@ -269,8 +208,11 @@ class TransformTests {
 					break;
 				case '{':
 				default:
+					if ( !$testEnabled ) {
+						break;
+					}
 					# print "PROCESSING $line\n";
-					$token = wfGetToken( $line );
+					$token = Token::getToken( $line );
 					$result = $this->processToken( $transformer, $token );
 					break;
 			}
@@ -390,7 +332,7 @@ class TransformTests {
 					case '{':
 					default:
 						# print "PROCESSING $line\n";
-						$token = wfGetToken( $line );
+						$token = Token::getToken( $line );
 						$result = $this->processToken( $transformer, $token );
 						break;
 				}
@@ -403,15 +345,17 @@ class TransformTests {
 	 * Process unit test file
 	 *
 	 * @param object $tokenTransformer
+	 * @param string $transformerName name of the transformer being tested
 	 * @param object $commandLine
 	 * @return number
 	 */
-	public function unitTest( $tokenTransformer, $commandLine ) {
+	public function unitTest( $tokenTransformer, $transformerName, $commandLine ) {
 		if ( !isset( $commandLine->timingMode ) ) {
 			wfLog( "Starting stand alone unit test running file " .
 				$commandLine->inputFile . "\n\n" );
 		}
-		$numFailures = $tokenTransformer->manager->processTestFile( $tokenTransformer, $commandLine );
+		$numFailures = $tokenTransformer->manager->processTestFile( $tokenTransformer,
+			$transformerName, $commandLine );
 		if ( !isset( $commandLine->timingMode ) ) {
 			wfLog( "Ending stand alone unit test running file " .
 				$commandLine->inputFile . "\n\n" );
@@ -445,10 +389,11 @@ class TransformTests {
  *
  * @param object $commandLine
  * @param object $manager
+ * @param string $transformerName name of the transformer being tested
  * @param object $handler
  * @return number
  */
-function wfSselectTestType( $commandLine, $manager, $handler ) {
+function wfSelectTestType( $commandLine, $manager, $transformerName, $handler ) {
 	$iterator = 1;
 	$numFailures = 0;
 	if ( isset( $commandLine->timingMode ) ) {
@@ -460,7 +405,7 @@ function wfSselectTestType( $commandLine, $manager, $handler ) {
 	}
 	while ( $iterator-- ) {
 		if ( isset( $commandLine->manual ) ) {
-			$numFailures = $manager->unitTest( $handler, $commandLine );
+			$numFailures = $manager->unitTest( $handler, $transformerName, $commandLine );
 		} else {
 			$numFailures = $manager->wikitextTest( $handler, $commandLine );
 		}
@@ -543,28 +488,28 @@ function wfRunTests( $argc, $argv ) {
 	if ( isset( $opts->QuoteTransformer ) ) {
 		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, function () {
   } );
-		$numFailures = wfSselectTestType( $opts, $manager, $qt );
+		$numFailures = wfSelectTestType( $opts, $manager, "QuoteTransformer", $qt );
 	} elseif ( isset( $opts->ParagraphWrapper ) ) {
 		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, function () {
   } );
-		$numFailures = wfSselectTestType( $opts, $manager, $pw );
+		$numFailures = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
 	}
 	/*
 	  else if ($opts->ListHandler) {
 		var lh = new ListHandler(manager, {});
-		wfSselectTestType(argv, manager, lh);
+		wfSelectTestType(argv, manager, lh);
 	} else if ($opts->PreHandler) {
 		var ph = new PreHandler(manager, {});
-		wfSselectTestType(argv, manager, ph);
+		wfSelectTestType(argv, manager, ph);
 	} else if ($opts->TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
-		wfSselectTestType(argv, manager, tsp);
+		wfSelectTestType(argv, manager, tsp);
 	} else if ($opts->BehaviorSwitchHandler) {
 		var bsh = new BehaviorSwitchHandler(manager, {});
-		wfSselectTestType(argv, manager, bsh);
+		wfSelectTestType(argv, manager, bsh);
 	} else if ($opts->SanitizerHandler) {
 		var sh = new SanitizerHandler(manager, {});
-		wfSselectTestType(argv, manager, sh);
+		wfSelectTestType(argv, manager, sh);
 	} */ else {
 		wfLog( 'No valid TransformerName was specified' );
 		$numFailures++;
