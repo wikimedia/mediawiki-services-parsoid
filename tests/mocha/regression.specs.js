@@ -220,6 +220,16 @@ describe('Regression Specs', function() {
 		});
 	});
 
+	// For https://phabricator.wikimedia.org/T208901
+	it('should not split p-wrappers around templatestyles', function() {
+		var wt = 'abc {{1x|<templatestyles src="Template:Quote/styles.css" /> def}} ghi [[File:Foo.jpg|thumb|250px]]';
+		return parse(wt).then(function(doc) {
+			const body = doc.body;
+			body.firstChild.nodeName.should.equal("P");
+			DOMUtils.nextNonSepSibling(body.firstChild).nodeName.should.equal("FIGURE");
+		});
+	});
+
 	it('should deduplicate templatestyles style tags', function() {
 		var wt = [
 			'<templatestyles src="Template:Quote/styles.css" /><span>a</span>',
