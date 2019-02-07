@@ -486,12 +486,10 @@ function wfRunTests( $argc, $argv ) {
 	$startTime = PHPUtils::getStartHRTime();
 
 	if ( isset( $opts->QuoteTransformer ) ) {
-		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, function () {
-  } );
+		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "QuoteTransformer", $qt );
 	} elseif ( isset( $opts->ParagraphWrapper ) ) {
-		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, function () {
-  } );
+		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
 	}
 	/*

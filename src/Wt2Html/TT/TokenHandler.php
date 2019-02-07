@@ -11,12 +11,12 @@ use Parsoid\Tokens\Token;
 class TokenHandler {
 	/**
 	 * @param TokenTransformManager $manager The manager for this stage of the parse.
-	 * @param Object $options Any options for the expander.
+	 * @param array $options Any options for the expander.
 	 */
-	public function __construct( $manager, $options ) {
+	public function __construct( $manager, array $options ) {
 		$this->manager = $manager;
 		$this->env = $manager->env;
-		$this->options = [ $options ];
+		$this->options = $options;
 		$this->atTopLevel = false;
 
 		// This is set if the token handler is disabled for the entire pipeline.

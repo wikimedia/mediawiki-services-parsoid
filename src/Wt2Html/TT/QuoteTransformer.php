@@ -37,9 +37,9 @@ class QuoteTransformer extends TokenHandler {
 	 * Class constructor
 	 *
 	 * @param object $manager manager environment
-	 * @param object $options options
+	 * @param array $options options
 	 */
-	public function __construct( $manager, $options ) {
+	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->reset();
 	}
