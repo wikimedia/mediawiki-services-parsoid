@@ -4,6 +4,7 @@
 namespace Parsoid\Wt2html\TT;
 
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\TokenUtils;
 
 /**
  * @class
@@ -132,13 +133,13 @@ class TokenHandler {
 
 			$res = null;
 			$modified = false;
-			$notString = !is_string( $token );
+			$tt = TokenUtils::getTokenType( $token );
 			if ( $traceTime ) {
 				$s = PHPUtils::getStartHRTime();
-				if ( $notString && $token instanceof NlTk ) {
+				if ( $tt === 'NlTk' ) {
 					$res = $this->onNewline( $token );
 					$traceName = $traceState['traceNames'][0];
-				} elseif ( $notString && $token instanceof EOFTk ) {
+				} elseif ( $tt === 'EOFTk' ) {
 					$res = $this->onEnd( $token );
 					$traceName = $traceState['traceNames'][1];
 				} else {
@@ -150,9 +151,9 @@ class TokenHandler {
 				$env->bumpCount( $traceName );
 				$traceState['tokenTimes'] += $t;
 			} else {
-				if ( $notString && $token instanceof NlTk ) {
+				if ( $tt === 'NlTk' ) {
 					$res = $this->onNewline( $token );
-				} elseif ( $notString && $token instanceof EOFTk ) {
+				} elseif ( $tt === 'EOFTk' ) {
 					$res = $this->onEnd( $token );
 				} else {
 					$res = $this->onTag( $token );

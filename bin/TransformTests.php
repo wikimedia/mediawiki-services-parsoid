@@ -59,9 +59,8 @@ require_once __DIR__ . '/../tests/MockEnv.php';
 use Parsoid\Tests\MockEnv;
 
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\Token;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\EOFTk;
 
 $wgCachedState = false;
 $wgCachedTestLines = '';
@@ -106,11 +105,11 @@ class TransformTests {
 	 */
 	public function processToken( $transformer, $token ) {
 		$startTime = PHPUtils::getStartHRTime();
-		$notString = !is_string( $token );
+		$tt = TokenUtils::getTokenType( $token );
 
-		if ( $notString && $token instanceof NlTk ) {
+		if ( $tt === 'NlTk' ) {
 			$res = $transformer->onNewline( $token );
-		} elseif ( $notString && $token instanceof EOFTk ) {
+		} elseif ( $tt === 'EOFTk' ) {
 			$res = $transformer->onEnd( $token );
 		} else {
 			$res = $transformer->onTag( $token );

@@ -19,6 +19,26 @@ class TokenUtils {
 	const SOL_TRANSPARENT_LINK_REGEX = '/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/';
 
 	/**
+	 * Gets a string type value for a token
+	 * @param Token|string $token
+	 * @return string
+	 */
+	public static function getTokenType( $token ) {
+		return is_string( $token ) ? 'string' : $token->getType();
+	}
+
+	/**
+	 * Checks if a token is of a specific type (primitive string
+	 * or one of the token types)
+	 * @param Token|string $token
+	 * @param string $expectedType
+	 * @return bool
+	 */
+	public static function isOfType( $token, $expectedType ) {
+		return self::getTokenType( $token ) === $expectedType;
+	}
+
+	/**
 	 * Determine if a tag is block-level or not.
 	 *
 	 * `<video>` is removed from block tags, since it can be phrasing content.
@@ -84,58 +104,87 @@ class TokenUtils {
 		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
 	}
 
-/*---------------
-	public static function isTableTag(token) {
-		var tc = token.constructor;
-		return (tc === TagTk || tc === EndTagTk) &&
-			Consts.HTML.TableTags.has(token.name.toUpperCase());
+	/**
+	 * Is the token a table tag?
+	 *
+	 * @param Token|string $token
+	 * @return bool
+	 */
+	public static function isTableTag( $token ) {
+		$tc = self::getTokenType( $token );
+		return ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+			isset( Consts::$HTML['TableTags'][$token->name] );
 	}
 
-	public static function isSolTransparentLinkTag(token) {
-		var tc = token.constructor;
-		return (tc === SelfclosingTagTk || tc === TagTk || tc === EndTagTk) &&
-			token.name === 'link' &&
-			preg_match($self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute('rel'));
+	/**
+	 * Determine if token is a transparent link tag
+	 *
+	 * @param Token|string $token
+	 * @return bool
+	 */
+	public static function isSolTransparentLinkTag( $token ) {
+		$tc = self::getTokenType( $token );
+		return ( $tc === 'SelfclosingTagTk' || $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+			$token->name === 'link' &&
+			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) );
 	}
 
-	public static function isBehaviorSwitch(env, token) {
-		return token.constructor === SelfclosingTagTk && (
+	/**
+	 * Does this token represent a behavior switch?
+	 *
+	 * @param object $env
+	 * @param Token|string $token
+	 * @return bool
+	 */
+	public static function isBehaviorSwitch( $env, $token ) {
+		return self::isOfType( $token, 'SelfclosingTagTk' ) && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
-			token.name === 'behavior-switch' ||
+			$token->name === 'behavior-switch' ||
 			// After BehaviorSwitchHandler
 			// (ie. ListHandler, ParagraphWrapper, etc.)
-			(token.name === 'meta' &&
-				env.conf.wiki.bswPagePropRegexp.test(token.getAttribute('property')))
-		);
+			( $token->name === 'meta' &&
+				preg_match( $env->conf->wiki->bswPagePropRegexp, $token->getAttribute( 'property' ) ) )
+			);
 	}
 
-	//
+	/**
 	 * This should come close to matching
-	 * {@link DOMUtils.emitsSolTransparentSingleLineWT}
-	//
-	public static function isSolTransparent(env, token) {
-		var tc = token.constructor;
-		if (tc === String) {
-			return token.match(/^[ \t]*$/);
-		} else if (this.isSolTransparentLinkTag(token)) {
+	 * {@link DOMUtils.emitsSolTransparentSingleLineWT},
+	 * without the single line caveat.
+	 * @param object $env
+	 * @param Token|string $token
+	 * @return bool
+	 */
+	public static function isSolTransparent( $env, $token ) {
+		$tt = self::getTokenType( $token );
+		if ( $tt === 'string' ) {
+			return preg_match( '/^\s*$/', $token );
+		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
-		} else if (tc === CommentTk) {
+		} elseif ( $tt === 'CommentTk' ) {
 			return true;
-		} else if (this.isBehaviorSwitch(env, token)) {
+		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
 			return true;
-		} else if (tc !== SelfclosingTagTk || token.name !== 'meta') {
+		} elseif ( $tt !== 'SelfclosingTagTk' || $token->name !== 'meta' ) {
 			return false;
 		} else {  // only metas left
-			return token.dataAttribs.stx !== 'html';
+			return !( isset( $token->dataAttribs->stx ) && $token->dataAttribs->stx === 'html' );
 		}
 	}
 
-	public static function isEmptyLineMetaToken(token) {
-		return token.constructor === SelfclosingTagTk &&
-			token.name === "meta" &&
-			token.getAttribute("typeof") === "mw:EmptyLine";
+	/**
+	 * Is token a transparent link tag?
+	 *
+	 * @param Token $token
+	 * @return bool
+	 */
+	public static function isEmptyLineMetaToken( $token ) {
+		return self::isOfType( $token, 'SelfclosingTagTk' ) &&
+			$token->name === 'meta' &&
+			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
 	}
 
+/**
 	public static function isEntitySpanToken(token) {
 		return token.constructor === TagTk && token.name === 'span' &&
 			token.getAttribute('typeof') === 'mw:Entity';
