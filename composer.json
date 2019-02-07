@@ -1,7 +1,10 @@
 {
 	"name": "wikimedia/parsoid",
 	"description": "Parsoid (a bidirectional parser between wikitext and HTML5) - ported from the Node.js version",
-	"keywords": ["mediawiki", "parsoid"],
+	"keywords": [
+		"mediawiki",
+		"parsoid"
+	],
 	"homepage": "https://www.mediawiki.org/wiki/Parsoid",
 	"authors": [
 		{
@@ -24,7 +27,7 @@
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
-		"mediawiki/mediawiki-codesniffer": "23.0.0",
+		"mediawiki/mediawiki-codesniffer": "24.0.0",
 		"phpunit/phpunit": "4.8.36 || ^6.5"
 	},
 	"autoload": {
@@ -49,6 +52,5 @@
 	"config": {
 		"optimize-autoloader": true
 	},
-	"extra": {
-	}
+	"extra": {}
 }
