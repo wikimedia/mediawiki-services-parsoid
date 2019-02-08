@@ -51,13 +51,13 @@
 # Start of ListHandler unit tests
 
 ! Verify start of list item in wikitext
-{"type":"TagTk","name":"listItem","attribs":[],"dataAttribs":{"tsr":[0,1]},"bullets":["*"]}
+{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[0,1]}}
 [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[0,0]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[0,1]}}]
 
 ! Verify single depth list item in wikitext
 " A newline"
 {"type":"NlTk","dataAttribs":{"tsr":[11,12]}}
-{"type":"TagTk","name":"listItem","attribs":[],"dataAttribs":{"tsr":[12,13]},"bullets":["*"]}
+{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[12,13]}}
 [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[11,12]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[12,13]}}]
 
 ! Verify a second single depth list item in wikitext
@@ -67,19 +67,19 @@
 [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[23,24]}},"marks the end of the list. Of course"]
 
 ! Verify single depth list terminates on a newline in wikitext
-{"type":"TagTk","name":"listItem","attribs":[],"dataAttribs":{"tsr":[61,62]},"bullets":["*"]}
+{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[61,62]}}
 [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[61,61]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[61,62]}}]
 
 ! Verify single depth list item after text on newline in wikitext
 " you can"
 {"type":"NlTk","dataAttribs":{"tsr":[70,71]}}
-{"type":"TagTk","name":"listItem","attribs":[],"dataAttribs":{"tsr":[71,72]},"bullets":["*"]}
+{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[71,72]}}
 [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[70,71]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[71,72]}}]
 
 ! Verify a second single depth list item in wikitext
 " start again."
 {"type":"NlTk","dataAttribs":{"tsr":[85,86]}}
-{"type":"TagTk","name":"listItem","attribs":[],"dataAttribs":{"tsr":[86,88]},"bullets":["*","*"]}
+{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*","*"]}],"dataAttribs":{"tsr":[86,88]}}
 [{"type":"NlTk","dataAttribs":{"tsr":[85,86]}},{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[86,86]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[86,88]}}]
 
 ! Verify a double depth list item in wikitext
