@@ -16,22 +16,24 @@ class MockEnv {
 	public function __construct( $opts, $pageSrc = "Some dummy source wikitext for testing." ) {
 		$this->logFlag = isset( $opts->log );
 		$this->wrapSections = true; // Always add <section> wrappers
-		$this->page = (object)[ "src" => $pageSrc ];
-		$this->conf = (object)[ "parsoid" => (object)[ "rtTestMode" => false ] ];
-		$this->conf->wiki = [
-			// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
-			"bswPagePropRegexp" =>
-				'/(?:^|\\s)mw:PageProp\/(?:' .
-					'NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|' .
-					'NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|' .
-					'NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|' .
-					'NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT' .
-				')(?=$|\\s)/',
-			// Mock function for BehaviorSwitchHandler
-			"magicWordCanonicalName" => function () {
-				return "toc";
-			}
-		];
+		$this->page = new \stdClass();
+		$this->page->src = $pageSrc;
+		$this->conf = new \stdClass();
+		$this->conf->parsoid = new \stdClass();
+		$this->conf->parsoid->rtTestMode = false;
+		$this->conf->wiki = new \stdClass();
+		// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
+		$this->conf->wiki->bswPagePropRegexp =
+			'/(?:^|\\s)mw:PageProp\/(?:' .
+				'NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|' .
+				'NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|' .
+				'NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|' .
+				'NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT' .
+			')(?=$|\\s)/';
+		// Mock function for BehaviorSwitchHandler
+		$this->conf->wiki->magicWordCanonicalName = function () {
+			return "toc";
+		};
 	}
 
 	/**
