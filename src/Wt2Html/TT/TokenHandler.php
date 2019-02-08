@@ -122,17 +122,18 @@ class TokenHandler {
 	 * @param array $traceState Tracing related state
 	 * @return array the array of transformed tokens
 	 */
-	public function processTokensSync( $env, array $tokens, array $traceState ) {
-		$genFlags = $traceState && $traceState['genFlags'];
-		$traceFlags = $traceState && $traceState['traceFlags'];
-		$traceTime = $traceState && $traceState['traceTime'];
+	public function processTokensSync( $env, array $tokens, array $traceState = [] ) {
+		$genFlags = $traceState['genFlags'] ?? null;
+		$traceFlags = $traceState['traceFlags'] ?? null;
+		$traceTime = $traceState['traceTime'] ?? false;
 		$accum = [];
 		foreach ( $tokens as $token ) {
 			if ( $traceFlags ) {
-				$traceState->tracer( $token, $this );
+				$traceState['tracer']( $token, $this );
 			}
 
 			$res = null;
+			$resTokens = null; // Not needed but helpful for code comprehension
 			$modified = false;
 			$tt = TokenUtils::getTokenType( $token );
 			if ( $traceTime ) {
@@ -164,7 +165,7 @@ class TokenHandler {
 			if ( $res !== $token &&
 				( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
 			) {
-				$resTokens = $res['tokens'];
+				$resTokens = $res['tokens'] ?? null;
 				$modified = true;
 			}
 
@@ -181,9 +182,9 @@ class TokenHandler {
 					$res = $this->onAny( $token );
 				}
 				if ( $res !== $token &&
-					( !$res['tokens'] || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
+					( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
 				) {
-					$resTokens = $res['tokens'];
+					$resTokens = $res['tokens'] ?? null;
 					$modified = true;
 				}
 			}
