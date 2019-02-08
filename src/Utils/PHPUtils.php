@@ -17,17 +17,17 @@ class PHPUtils {
 	 * @return string
 	 */
 	public static function counterToBase64( $n ) {
-		$arr = [];
+		$str = '';
 		do {
-			array_unshift( $arr, $n & 0xff );
-			$n >>= 8;
+			$str = chr( $n & 0xff ) . $str;
+			$n = $n >> 8;
 		} while ( $n > 0 );
-		return rtrim( strtr( base64_encode( $arr ), '+/', '-_' ), '=' );
+		return rtrim( strtr( base64_encode( $str ), '+/', '-_' ), '=' );
 	}
 
 	/**
 	 * Return accurate system time
-	 * @return int time in seconds since Jan 1 1970 GMT accurate to the microsecond
+	 * @return float time in seconds since Jan 1 1970 GMT accurate to the microsecond
 	 */
 	public static function getStartHRTime() {
 		return microtime( true );
@@ -35,8 +35,8 @@ class PHPUtils {
 
 	/**
 	 * Return millisecond accurate system time differential
-	 * @param int $previousTime
-	 * @return int milliseconds
+	 * @param float $previousTime
+	 * @return float milliseconds
 	 */
 	public static function getHRTimeDifferential( $previousTime ) {
 		return ( microtime( true ) - $previousTime ) * 1000;
@@ -57,7 +57,7 @@ class PHPUtils {
 	 * json_decode wrapper function
 	 * @param string $str String to decode into the json object
 	 * @param bool $assoc Controls whether to parse as an an associative array - defaults to true
-	 * @return object
+	 * @return mixed
 	 */
 	public static function jsonDecode( $str, $assoc = true ) {
 		return json_decode( $str, $assoc );
