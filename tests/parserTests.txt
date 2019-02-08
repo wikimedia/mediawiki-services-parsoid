@@ -12144,13 +12144,16 @@ Template:Includes3
 </p>
 !! end
 
+# FIXME: Parsoid's markup for this is quite ugly.
 !! test
 <includeonly> and <noinclude> on a page
 !! wikitext
 Foo<noinclude>zar</noinclude><includeonly>bar</includeonly>
-!! html
+!! html/php+tidy
 <p>Foozar
 </p>
+!! html/parsoid
+<p>Foo<meta typeof="mw:Includes/NoInclude" data-parsoid="{}"/>zar</p><meta typeof="mw:Includes/NoInclude/End" data-parsoid="{}"/><meta typeof="mw:Includes/IncludeOnly" data-mw='{"src":"&lt;includeonly>bar&lt;/includeonly>"}' data-parsoid="{}"/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid="{}"/>
 !! end
 
 !! test
@@ -32862,6 +32865,33 @@ parsoid={
 <section data-mw-section-id="-1"><h2 id="This_is_section_9,_even_though_it's_in_a_caption" data-parsoid="{}"><span id="This_is_section_9.2C_even_though_it.27s_in_a_caption" typeof="mw:FallbackId"></span>This is section 9, even though it's in a caption</h2>
 </section></figcaption></figure>
 </section><section data-mw-section-id="10"><h2 id="PHP_section=10" data-parsoid="{}"><span id="PHP_section.3D10" typeof="mw:FallbackId" data-parsoid='{"dsr":[412,412]}'></span>PHP section=10</h2></section>
+!! end
+
+!! test
+T215628: Section numbering and <includeonly> and <noinclude> on a page
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+==PHP section=1==
+<noinclude>
+==PHP section=2==
+</noinclude>
+==PHP section=3==
+<includeonly>
+==This is not counted as section 4==
+</includeonly>
+==PHP section=4==
+!! html/php+tidy
+
+<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D2">PHP section=2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: PHP section=2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D4">PHP section=4</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: PHP section=4">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+PARSOID HAS A BUG HERE: T215628
 !! end
 
 ##########################################################################
