@@ -59,7 +59,6 @@ require_once __DIR__ . '/../tests/MockEnv.php';
 use Parsoid\Tests\MockEnv;
 
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\Token;
 
 $wgCachedState = false;
@@ -95,44 +94,6 @@ class TransformTests {
 	}
 
 	/**
-	 * Process token
-	 * Use the TokenTransformManager.js guts (extracted essential functionality)
-	 * to dispatch each token to the registered token transform function
-	 *
-	 * @param object $transformer
-	 * @param token $token
-	 * @return object
-	 */
-	public function processToken( $transformer, $token ) {
-		$startTime = PHPUtils::getStartHRTime();
-		$tt = TokenUtils::getTokenType( $token );
-
-		if ( $tt === 'NlTk' ) {
-			$res = $transformer->onNewline( $token );
-		} elseif ( $tt === 'EOFTk' ) {
-			$res = $transformer->onEnd( $token );
-		} else {
-			$res = $transformer->onTag( $token );
-		}
-
-		$modified = false;
-		if ( $res !== $token &&
-			( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
-		) {
-			$modified = true;
-		}
-
-		if ( !$modified && ( !is_array( $res ) || empty( $res['skipOnAny'] ) )
-			&& $transformer->onAnyEnabled
-		) {
-			$res = $transformer->onAny( $token );
-		}
-
-		$this->tokenTime += PHPUtils::getHRTimeDifferential( $startTime );
-		return $res;
-	}
-
-	/**
 	 * Process test file
 	 *
 	 * @param object $transformer
@@ -165,6 +126,7 @@ class TransformTests {
 
 		$countTestLines = count( $testLines );
 		$testEnabled = true;
+		$input = [];
 		for ( $index = 0; $index < $countTestLines; $index++ ) {
 			$line = $testLines[$index];
 			if ( mb_strlen( $line ) < 1 ) {
@@ -186,33 +148,32 @@ class TransformTests {
 						break;
 					}
 
-					if ( isset( $result ) && count( $result['tokens'] ) !== 0 ) {
-						$stringResult = PHPUtils::jsonEncode( $result['tokens'] );
-						# print "SR  : $stringResult\n";
-						# print "LINE: $line\n";
-						$line = preg_replace( '/{}/', '[]', $line );
-						$stringResult = preg_replace( '/{}/', '[]', $stringResult );
-						if ( $stringResult === $line ) {
-							if ( !isset( $commandLine->timingMode ) ) {
-								wfLog( $testName . " ==> passed\n\n" );
-							}
-						} else {
-							$numFailures++;
-							wfLog( $testName . " ==> failed\n" );
-							wfLog( "line to debug => " . $line . "\n" );
-							wfLog( "result line ===> " . $stringResult . "\n" );
+					$result = $transformer->processTokensSync( null, $input, [] );
+					$stringResult = PHPUtils::jsonEncode( $result );
+					# print "SR  : $stringResult\n";
+					# print "LINE: $line\n";
+					$line = preg_replace( '/{}/', '[]', $line );
+					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
+					if ( $stringResult === $line ) {
+						if ( !isset( $commandLine->timingMode ) ) {
+							wfLog( $testName . " ==> passed\n\n" );
 						}
+					} else {
+						$numFailures++;
+						wfLog( $testName . " ==> failed\n" );
+						wfLog( "line to debug => " . $line . "\n" );
+						wfLog( "result line ===> " . $stringResult . "\n" );
 					}
-					$result = null;
+					$input = [];
 					break;
 				case '{':
 				default:
 					if ( !$testEnabled ) {
 						break;
 					}
+
 					# print "PROCESSING $line\n";
-					$token = Token::getToken( PHPUtils::jsonDecode( $line ) );
-					$result = $this->processToken( $transformer, $token );
+					$input[] = Token::getToken( PHPUtils::jsonDecode( $line ) );
 					break;
 			}
 		}
@@ -308,32 +269,31 @@ class TransformTests {
 			$transformer->manager->pipelineId = $i;
 			$p = $pipeLines[$i];
 			$pLen = count( $p );
-			for ( $element = 0; $element < $pLen; $element++ ) {
-				$line = substr( $testLines[$p[$element]], 36 );
-				switch ( $line{0} ) {
-					case '[':	// desired result json string for test result verification
-						$stringResult = PHPUtils::jsonEncode( $result['tokens'] );
-						# print "SR  : $stringResult\n";
-						$line = preg_replace( '/{}/', '[]', $line );
-						$stringResult = preg_replace( '/{}/', '[]', $stringResult );
-						if ( $stringResult === $line ) {
-							if ( !isset( $commandLine->timingMode ) ) {
-								wfLog( "line " . ( $p[$element] + 1 ) . " ==> passed\n\n" );
-							}
-						} else {
-							$numFailures++;
-							wfLog( "line " . ( $p[$element] + 1 ) . " ==> failed\n" );
-							wfLog( "line to debug => " . $line . "\n" );
-							wfLog( "result line ===> " . $stringResult . "\n" );
+			$input = [];
+			for ( $j = 0; $j < $pLen; $j++ ) {
+				preg_match( '/^.*(IN|OUT)\s*\|\s*(.*)$/', $testLines[$p[$j]], $matches );
+				$isInput = $matches[1] === 'IN';
+				$line = $matches[2];
+				if ( $isInput ) {
+					$input[] = Token::getToken( PHPUtils::jsonDecode( $line ) );
+				} else {
+					$result = $transformer->processTokensSync( null, $input, [] );
+
+					// desired result json string for test result verification
+					$stringResult = PHPUtils::jsonEncode( $result );
+					$line = preg_replace( '/{}/', '[]', $line );
+					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
+					if ( $stringResult === $line ) {
+						if ( !isset( $commandLine->timingMode ) ) {
+							wfLog( "line " . ( $p[$j] + 1 ) . " ==> passed\n\n" );
 						}
-						$result = null;
-						break;
-					case '{':
-					default:
-						# print "PROCESSING $line\n";
-						$token = Token::getToken( PHPUtils::jsonDecode( $line ) );
-						$result = $this->processToken( $transformer, $token );
-						break;
+					} else {
+						$numFailures++;
+						wfLog( "line " . ( $p[$j] + 1 ) . " ==> failed\n" );
+						wfLog( "line to debug => " . $line . "\n" );
+						wfLog( "result line ===> " . $stringResult . "\n" );
+					}
+					$input = [];
 				}
 			}
 		}

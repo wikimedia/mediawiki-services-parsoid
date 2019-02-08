@@ -87,10 +87,10 @@ class KV implements \JsonSerializable {
 		if ( $this->srcOffsets ) {
 			$ret["srcOffsets"] = $this->srcOffsets;
 		}
-		if ( $this->ksrc ) {
+		if ( $this->ksrc !== null ) { // can be ""
 			$ret["ksrc"] = $this->ksrc;
 		}
-		if ( $this->vsrc ) {
+		if ( $this->vsrc !== null ) { // can be ""
 			$ret["vsrc"] = $this->vsrc;
 		}
 		return $ret;

@@ -10,13 +10,17 @@
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"}],"dataAttribs":{"stx":"html"}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"},{"k":"data-mw","v":"{\"attribs\":[[\"alt\",{\"txt\":\"\"}],[\"link\",{\"txt\":\"\"}]]}"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"span","attribs":[],"dataAttribs":{}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./Special:FilePath/Wiktionary-logo-en-v2.svg"}],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":""},{"k":"resource","v":"./File:Wiktionary-logo-en-v2.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/commons/thumb/9/99/Wiktionary-logo-en-v2.svg/40px-Wiktionary-logo-en-v2.svg.png"},{"k":"data-file-width","v":"512"},{"k":"data-file-height","v":"512"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"40"},{"k":"width","v":"40"}],"dataAttribs":{"a":{"alt":"","resource":"./File:Wiktionary-logo-en-v2.svg","height":"40","width":"40"},"sa":{"alt":"alt=","resource":"File:Wiktionary-logo-en-v2.svg"}}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"span","attribs":[{"k":"resource","v":"./File:Wiktionary-logo-en-v2.svg"},{"k":"data-width","v":40},{"k":"data-height","v":40}],"dataAttribs":{"a":{"resource":"./File:Wiktionary-logo-en-v2.svg"},"sa":{"resource":"File:Wiktionary-logo-en-v2.svg"}}}
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | "File:Wiktionary-logo-en-v2.svg"
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}}
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
@@ -25,7 +29,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text plainlist"}],"dataAttribs":{"stx":"html"}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"}],"dataAttribs":{"stx":"html"}},{"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}},{"type":"TagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":""},{"k":"resource","v":"./File:Wiktionary-logo-en-v2.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/commons/thumb/9/99/Wiktionary-logo-en-v2.svg/40px-Wiktionary-logo-en-v2.svg.png"},{"k":"data-file-width","v":"512"},{"k":"data-file-height","v":"512"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"40"},{"k":"width","v":"40"}],"dataAttribs":{"a":{"alt":"","resource":"./File:Wiktionary-logo-en-v2.svg","height":"40","width":"40"},"sa":{"alt":"alt=","resource":"File:Wiktionary-logo-en-v2.svg"}}},{"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"}],"dataAttribs":{"stx":"html"}},{"type":"TagTk","name":"figure-inline","attribs":[{"k":"class","v":"noviewer"},{"k":"typeof","v":"mw:Image"},{"k":"data-mw","v":"{\"attribs\":[[\"alt\",{\"txt\":\"\"}],[\"link\",{\"txt\":\"\"}]]}"}],"dataAttribs":{"optList":[{"ck":"width","ak":"40x40px"},{"ck":"class","ak":"class=noviewer"},{"ck":"alt","ak":"alt="},{"ck":"link","ak":"link=\n    "}]}},{"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./Special:FilePath/Wiktionary-logo-en-v2.svg"}],"dataAttribs":{}},{"type":"TagTk","name":"span","attribs":[{"k":"resource","v":"./File:Wiktionary-logo-en-v2.svg"},{"k":"data-width","v":40},{"k":"data-height","v":40}],"dataAttribs":{"a":{"resource":"./File:Wiktionary-logo-en-v2.svg"},"sa":{"resource":"File:Wiktionary-logo-en-v2.svg"}}},"File:Wiktionary-logo-en-v2.svg",{"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | "Look up "
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"i","attribs":[],"dataAttribs":{}}
@@ -100,7 +104,7 @@
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[210,211]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213],"tmp":{"headingIndex":1}}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[196,209],"src":"{{TOC right}}","tmp":{"tplarginfo":"{\"dict\":{\"target\":{\"wt\":\"TOC right\",\"href\":\"./Template:TOC_right\"},\"params\":{}},\"paramInfos\":[]}"}}},{"type":"TagTk","name":"style","attribs":[{"k":"data-mw-deduplicate","v":"TemplateStyles:r872693300"},{"k":"data-parsoid","v":"{\"tsr\":[0,54],\"src\":\"<templatestyles src=\\\"Template:TOC_right/styles.css\\\" />\"}"},{"k":"data-mw","v":"{\"name\":\"templatestyles\",\"attrs\":{\"src\":\"Template:TOC_right/styles.css\"}}"},{"k":"typeof","v":"mw:DOMFragment"}],"dataAttribs":{"tmp":{"setDSR":true},"src":"<templatestyles src=\"Template:TOC_right/styles.css\" />","html":"mwf1","tagWidths":[54,0]}},{"type":"EndTagTk","name":"style","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"div","attribs":[{"k":"class","v":"tocright  "},{"k":"style","v":""}],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"property","v":"mw:PageProp/toc"}],"dataAttribs":{"src":"__TOC__","magicSrc":"__TOC__"}},{"type":"EndTagTk","name":"div","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt2"}],"dataAttribs":{"tsr":[null,209]}},{"type":"NlTk","dataAttribs":{"tsr":[209,210]}},{"type":"NlTk","dataAttribs":{"tsr":[210,211]}}]
 0-gen/ParagraphWrapper      | IN  | " Ice "
 0-gen/ParagraphWrapper      | OUT | []
@@ -109,7 +113,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[220,221]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[221,221]}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213]}}," Ice ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[218,220]}},{"type":"NlTk","dataAttribs":{"tsr":[220,221]}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[211,213],"tmp":{"headingIndex":1}}}," Ice ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[218,220]}},{"type":"NlTk","dataAttribs":{"tsr":[220,221]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[221,222]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Ice_skating"},{"k":"title","v":"Ice skating"}],"dataAttribs":{"tsr":[222,237],"stx":"simple","a":{"href":"./Ice_skating"},"sa":{"href":"Ice skating"}}}
@@ -174,7 +178,7 @@
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[605,606]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608],"tmp":{"headingIndex":2}}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[511,513]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Tour_skating"},{"k":"title","v":"Tour skating"}],"dataAttribs":{"tsr":[513,529],"stx":"simple","a":{"href":"./Tour_skating"},"sa":{"href":"Tour skating"}}},"Tour skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", a sport and recreational form of long distance ice skating on natural ice",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[604,605]}},{"type":"NlTk","dataAttribs":{"tsr":[605,606]}}]
 0-gen/ParagraphWrapper      | IN  | " Hard surface "
 0-gen/ParagraphWrapper      | OUT | []
@@ -183,7 +187,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[624,625]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[625,625]}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608]}}," Hard surface ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[622,624]}},{"type":"NlTk","dataAttribs":{"tsr":[624,625]}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[606,608],"tmp":{"headingIndex":2}}}," Hard surface ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[622,624]}},{"type":"NlTk","dataAttribs":{"tsr":[624,625]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[625,626]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Roller_skating"},{"k":"title","v":"Roller skating"}],"dataAttribs":{"tsr":[626,644],"stx":"simple","a":{"href":"./Roller_skating"},"sa":{"href":"Roller skating"}}}
@@ -322,7 +326,7 @@
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1548,1549]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551],"tmp":{"headingIndex":3}}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1449,1450]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skateboarding"},{"k":"title","v":"Skateboarding"}],"dataAttribs":{"tsr":[1450,1467],"stx":"simple","a":{"href":"./Skateboarding"},"sa":{"href":"Skateboarding"}}},"Skateboarding",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", an action sport which involves riding and performing tricks using a skateboard",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1547,1548]}},{"type":"NlTk","dataAttribs":{"tsr":[1548,1549]}}]
 0-gen/ParagraphWrapper      | IN  | " Snow "
 0-gen/ParagraphWrapper      | OUT | []
@@ -331,7 +335,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1560,1560]}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551]}}," Snow ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1557,1559]}},{"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1549,1551],"tmp":{"headingIndex":3}}}," Snow ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1557,1559]}},{"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1560,1561]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Snow_skating"},{"k":"title","v":"Snow skating"}],"dataAttribs":{"tsr":[1561,1577],"stx":"simple","a":{"href":"./Snow_skating"},"sa":{"href":"Snow skating"}}}
@@ -350,7 +354,7 @@
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1634,1635]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637],"tmp":{"headingIndex":4}}}
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1560,1560]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1560,1561]}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Snow_skating"},{"k":"title","v":"Snow skating"}],"dataAttribs":{"tsr":[1561,1577],"stx":"simple","a":{"href":"./Snow_skating"},"sa":{"href":"Snow skating"}}},"Snow skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},", using a hybrid of a skateboard and a snowboard on snow",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[1633,1634]}},{"type":"NlTk","dataAttribs":{"tsr":[1634,1635]}}]
 0-gen/ParagraphWrapper      | IN  | " See also "
 0-gen/ParagraphWrapper      | OUT | []
@@ -359,7 +363,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[1650,1650]}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637]}}," See also ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1647,1649]}},{"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1635,1637],"tmp":{"headingIndex":4}}}," See also ",{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1647,1649]}},{"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}]
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[1650,1651]}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Outline_of_sports"},{"k":"title","v":"Outline of sports"}],"dataAttribs":{"tsr":[1651,1672],"stx":"simple","a":{"href":"./Outline_of_sports"},"sa":{"href":"Outline of sports"}}}
@@ -440,11 +444,15 @@
 0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | " "
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"figure-inline","attribs":[{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"30px"},{"ck":"alt","ak":"alt=Disambiguation icon"}]}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"figure-inline","attribs":[{"k":"typeof","v":"mw:Image"},{"k":"data-mw","v":"{\"attribs\":[[\"alt\",{\"txt\":\"Disambiguation icon\"}]]}"}],"dataAttribs":{"optList":[{"ck":"width","ak":"30px"},{"ck":"alt","ak":"alt=Disambiguation icon"}]}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./File:Disambig_gray.svg"}],"dataAttribs":{"a":{"href":"./File:Disambig_gray.svg"},"sa":{"href":"File:Disambig gray.svg"}}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./Special:FilePath/Disambig_gray.svg"}],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
-0-gen/ParagraphWrapper      | IN  | {"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":"Disambiguation icon"},{"k":"resource","v":"./File:Disambig_gray.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/en/thumb/5/5f/Disambig_gray.svg/30px-Disambig_gray.svg.png"},{"k":"data-file-width","v":"220"},{"k":"data-file-height","v":"168"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"23"},{"k":"width","v":"30"}],"dataAttribs":{"a":{"alt":"Disambiguation icon","resource":"./File:Disambig_gray.svg","height":"23","width":"30"},"sa":{"alt":"alt=Disambiguation icon","resource":"File:Disambig gray.svg"}}}
+0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"span","attribs":[{"k":"resource","v":"./File:Disambig_gray.svg"},{"k":"data-width","v":30}],"dataAttribs":{"a":{"resource":"./File:Disambig_gray.svg"},"sa":{"resource":"File:Disambig gray.svg"}}}
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | "File:Disambig gray.svg"
+0-gen/ParagraphWrapper      | OUT | []
+0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
@@ -455,7 +463,7 @@
 0-gen/ParagraphWrapper      | IN  | {"type":"NlTk","dataAttribs":{}}
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-text"},{"k":"style","v":"padding: 0.25em 0.4em; font-style: italic; "}],"dataAttribs":{"stx":"html"}}
-0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"},{"k":"style","v":"padding: 2px 0 2px 0.4em;"}],"dataAttribs":{"stx":"html"}}," ",{"type":"TagTk","name":"figure-inline","attribs":[{"k":"typeof","v":"mw:Image"}],"dataAttribs":{"optList":[{"ck":"width","ak":"30px"},{"ck":"alt","ak":"alt=Disambiguation icon"}]}},{"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./File:Disambig_gray.svg"}],"dataAttribs":{"a":{"href":"./File:Disambig_gray.svg"},"sa":{"href":"File:Disambig gray.svg"}}},{"type":"SelfclosingTagTk","name":"img","attribs":[{"k":"alt","v":"Disambiguation icon"},{"k":"resource","v":"./File:Disambig_gray.svg"},{"k":"src","v":"//upload.wikimedia.org/wikipedia/en/thumb/5/5f/Disambig_gray.svg/30px-Disambig_gray.svg.png"},{"k":"data-file-width","v":"220"},{"k":"data-file-height","v":"168"},{"k":"data-file-type","v":"drawing"},{"k":"height","v":"23"},{"k":"width","v":"30"}],"dataAttribs":{"a":{"alt":"Disambiguation icon","resource":"./File:Disambig_gray.svg","height":"23","width":"30"},"sa":{"alt":"alt=Disambiguation icon","resource":"File:Disambig gray.svg"}}},{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
+0-gen/ParagraphWrapper      | OUT | [{"type":"TagTk","name":"td","attribs":[{"k":"class","v":"mbox-image"},{"k":"style","v":"padding: 2px 0 2px 0.4em;"}],"dataAttribs":{"stx":"html"}}," ",{"type":"TagTk","name":"figure-inline","attribs":[{"k":"typeof","v":"mw:Image"},{"k":"data-mw","v":"{\"attribs\":[[\"alt\",{\"txt\":\"Disambiguation icon\"}]]}"}],"dataAttribs":{"optList":[{"ck":"width","ak":"30px"},{"ck":"alt","ak":"alt=Disambiguation icon"}]}},{"type":"TagTk","name":"a","attribs":[{"k":"href","v":"./Special:FilePath/Disambig_gray.svg"}],"dataAttribs":{}},{"type":"TagTk","name":"span","attribs":[{"k":"resource","v":"./File:Disambig_gray.svg"},{"k":"data-width","v":30}],"dataAttribs":{"a":{"resource":"./File:Disambig_gray.svg"},"sa":{"resource":"File:Disambig gray.svg"}}},"File:Disambig gray.svg",{"type":"EndTagTk","name":"span","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"figure-inline","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/ParagraphWrapper      | IN  | " "
 0-gen/ParagraphWrapper      | OUT | []
 0-gen/ParagraphWrapper      | IN  | {"type":"TagTk","name":"div","attribs":[{"k":"class","v":"shortdescription nomobile noexcerpt noprint searchaux"},{"k":"style","v":"display:none"}],"dataAttribs":{"stx":"html"}}

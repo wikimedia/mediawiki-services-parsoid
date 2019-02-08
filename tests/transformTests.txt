@@ -58,13 +58,13 @@
 " A newline"
 {"type":"NlTk","dataAttribs":{"tsr":[11,12]}}
 {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[12,13]}}
-[{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[11,12]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[12,13]}}]
+[" A newline",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[11,12]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[12,13]}}]
 
 ! Verify a second single depth list item in wikitext
 " in a list"
 {"type":"NlTk","dataAttribs":{"tsr":[23,24]}}
 "marks the end of the list. Of course"
-[{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[23,24]}},"marks the end of the list. Of course"]
+[" in a list",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[23,24]}},"marks the end of the list. Of course"]
 
 ! Verify single depth list terminates on a newline in wikitext
 {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[61,62]}}
@@ -74,19 +74,19 @@
 " you can"
 {"type":"NlTk","dataAttribs":{"tsr":[70,71]}}
 {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*"]}],"dataAttribs":{"tsr":[71,72]}}
-[{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[70,71]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[71,72]}}]
+[" you can",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[70,71]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[71,72]}}]
 
 ! Verify a second single depth list item in wikitext
 " start again."
 {"type":"NlTk","dataAttribs":{"tsr":[85,86]}}
 {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets", "v": ["*","*"]}],"dataAttribs":{"tsr":[86,88]}}
-[{"type":"NlTk","dataAttribs":{"tsr":[85,86]}},{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[86,86]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[86,88]}}]
+[" start again.",{"type":"NlTk","dataAttribs":{"tsr":[85,86]}},{"type":"TagTk","name":"ul","attribs":[],"dataAttribs":{"tsr":[86,86]}},{"type":"TagTk","name":"li","attribs":[],"dataAttribs":{"tsr":[86,88]}}]
 
 ! Verify a double depth list item in wikitext
 " and go deeper by a level too"
 {"type":"NlTk","dataAttribs":{"tsr":[117,118]}}
 {"type":"EOFTk"}
-[{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[117,118]}},{"type":"EOFTk"}]
+[" and go deeper by a level too",{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"li","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"ul","attribs":[],"dataAttribs":{}},{"type":"NlTk","dataAttribs":{"tsr":[117,118]}},{"type":"EOFTk"}]
 
 # End of ListHandler unit tests
 

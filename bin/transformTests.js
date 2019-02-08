@@ -62,7 +62,6 @@ var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var TokenUtils = require('../lib/utils/TokenUtils.js').TokenUtils;
-const { NlTk, EOFTk } = require('../lib/tokens/TokenTypes.js');
 
 var cachedState = false;
 var cachedTestLines = '';
@@ -84,7 +83,6 @@ var getToken = function(str) {
 // to dispatch each token to the registered token transform function
 MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts) {
 	var testName;
-	var result;
 	var testFile;
 	var testLines;
 	var numFailures = 0;
@@ -104,6 +102,8 @@ MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts)
 	}
 
 	let testEnabled = true;
+	let input = [];
+	let result, stringResult;
 	for (var index = 0; index < testLines.length; index++) {
 		var line = testLines[index];
 		switch (line.charAt(0)) {
@@ -121,27 +121,26 @@ MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts)
 				if (!testEnabled) {
 					break;
 				}
-				if (result !== undefined) {
-					var stringResult = JSON.stringify(result.tokens);
-					if (stringResult === line) {
-						if (!opts.timingMode) {
-							console.log(testName + ' ==> passed\n');
-						}
-					} else {
-						numFailures++;
-						console.log(testName + ' ==> failed');
-						console.log('line to debug => ' + line);
-						console.log('result line ===> ' + stringResult + "\n");
+				result = transformer.processTokensSync(null, input, []);
+				stringResult = JSON.stringify(result);
+				if (stringResult === line) {
+					if (!opts.timingMode) {
+						console.log(testName + ' ==> passed\n');
 					}
+				} else {
+					numFailures++;
+					console.log(testName + ' ==> failed');
+					console.log('line to debug => ' + line);
+					console.log('result line ===> ' + stringResult + "\n");
 				}
-				result = undefined;
+				input = [];
 				break;
 			case '{':
 			default:
 				if (!testEnabled) {
 					break;
 				}
-				result = this.processToken(transformer, getToken(line));
+				input.push(getToken(line));
 				break;
 		}
 	}
@@ -182,36 +181,9 @@ function CreatePipelines(lines) {
 	return pipelines;
 }
 
-MockTTM.prototype.processToken = function(transformer, token) {
-	let res;
-	const s = JSUtils.startTime();
-	if (token.constructor === NlTk) {
-		res = transformer.onNewline(token);
-	} else if (token.constructor === EOFTk) {
-		res = transformer.onEnd(token);
-	} else {
-		res = transformer.onTag(token);
-	}
-
-	let modified = false;
-	if (res !== token &&
-		(!res.tokens || res.tokens.length !== 1 || res.tokens[0] !== token)
-	) {
-		modified = true;
-	}
-
-	if (!modified && !res.skipOnAny && transformer.onAnyEnabled) {
-		res = transformer.onAny(token);
-	}
-
-	this.tokenTime += JSUtils.elapsedTime(s);
-	return res;
-};
-
 // Use the TokenTransformManager.js guts (extracted essential functionality)
 // to dispatch each token to the registered token transform function
 MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
-	var result;
 	var testFile;
 	var testLines;
 	var pipeLines;
@@ -239,33 +211,33 @@ MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
 		pipeLinesLength = pipeLines.length;
 	}
 	var numFailures = 0;
-	for (var index = 0; index < pipeLinesLength; index++) {
-		if (pipeLines[index] !== undefined) {
-			transformer.manager.pipelineId = index;
-			var pipeLength = pipeLines[index].length;
-			for (var element = 0; element < pipeLength; element++) {
-				var line = testLines[(pipeLines[index])[element]].substr(36);
-				switch (line.charAt(0)) {
-					case '[':	// desired result json string for test result verification
-						if (result !== undefined) {
-							var stringResult = JSON.stringify(result.tokens);
-							if (stringResult === line) {
-								if (!opts.timingMode) {
-									console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> passed\n');
-								}
-							} else {
-								numFailures++;
-								console.log('line ' + ((pipeLines[index])[element] + 1) + ' ==> failed');
-								console.log('line to debug => ' + line);
-								console.log('result line ===> ' + stringResult + "\n");
-							}
-							result = undefined;
+	let input = [];
+	for (var i = 0; i < pipeLinesLength; i++) {
+		if (pipeLines[i] !== undefined) {
+			transformer.manager.pipelineId = i;
+			var pipeLength = pipeLines[i].length;
+			for (var j = 0; j < pipeLength; j++) {
+				const index = pipeLines[i][j];
+				const matches = testLines[index].match(/^.*(IN|OUT)\s*\|\s*(.*)$/);
+				const isInput = matches[1] === 'IN';
+				const line = matches[2];
+				if (isInput) {
+					input.push(getToken(line));
+				} else {
+					// desired result json string for test result verification
+					const result = transformer.processTokensSync(null, input, []);
+					const stringResult = JSON.stringify(result);
+					if (stringResult === line) {
+						if (!opts.timingMode) {
+							console.log('line ' + (pipeLines[i][j] + 1) + ' ==> passed\n');
 						}
-						break;
-					case '{':
-					default:
-						result = this.processToken(transformer, getToken(line));
-						break;
+					} else {
+						numFailures++;
+						console.log('line ' + (pipeLines[i][j] + 1) + ' ==> failed');
+						console.log('line to debug => ' + line);
+						console.log('result line ===> ' + stringResult + "\n");
+					}
+					input = [];
 				}
 			}
 		}
