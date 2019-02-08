@@ -34,7 +34,7 @@ class NlTk extends Token {
 	}
 
 	/**
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function jsonSerialize() {
 		return [

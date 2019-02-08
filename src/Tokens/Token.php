@@ -11,7 +11,7 @@ abstract class Token implements \JsonSerializable {
 	protected $type;
 
 	/**
-	 * @return array
+	 * @inheritDoc
 	 */
 	abstract public function jsonSerialize();
 

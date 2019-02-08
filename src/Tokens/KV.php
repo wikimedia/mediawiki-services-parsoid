@@ -77,7 +77,7 @@ class KV implements \JsonSerializable {
 	}
 
 	/**
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function jsonSerialize() {
 		$ret = [ "k" => $this->k, "v" => $this->v ];
