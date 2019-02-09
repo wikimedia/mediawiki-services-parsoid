@@ -73,6 +73,9 @@ class KV implements \JsonSerializable {
 	 */
 	public static function lookup( array $kvs, $key ) {
 		$kv = self::lookupKV( $kvs, $key );
+		// PORT_FIXME: Potential bug lurking here ... if $kv->v is an array
+		// this will return a copy, which if modified will not reflect
+		// in the original KV object.
 		return $kv === null ? null : $kv->v;
 	}
 

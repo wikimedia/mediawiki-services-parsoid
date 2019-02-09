@@ -216,25 +216,32 @@ abstract class Token implements \JsonSerializable {
 			$kvs[] = new KV(
 				$e["k"],
 				$e["v"],
-				isset( $e["srcOffsets"] ) ? $e["srcOffsets"] : null,
-				isset( $e["ksrc"] ) ? $e["ksrc"] : null,
-				isset( $e["vsrc"] ) ? $e["vsrc"] : null
+				$e["srcOffsets"] ?? null,
+				$e["ksrc"] ?? null,
+				$e["vsrc"] ?? null
 			);
 		};
 		return $kvs;
 	}
 
+	private static function rebuildNestedTokens( &$a ) {
+		foreach ( $a as $k => $v ) {
+			$a[$k] = self::getToken( $v );
+		}
+	}
+
 	/**
 	 * Get a token from some a JSON string
 	 *
-	 * @param string $str
-	 * @return Token|string
+	 * @param mixed $jsTk
+	 * @return mixed
 	 */
-	public static function getToken( $str ) {
-		$jsTk = json_decode( $str, true );
-		if ( is_string( $jsTk ) ) {
-			$token = $jsTk;
-		} else {
+	public static function getToken( $jsTk ) {
+		if ( !$jsTk ) {
+			return $jsTk;
+		}
+
+		if ( is_array( $jsTk ) && isset( $jsTk['type'] ) ) {
 			switch ( $jsTk['type'] ) {
 				case "SelfclosingTagTk":
 					$token = new SelfclosingTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
@@ -258,6 +265,25 @@ abstract class Token implements \JsonSerializable {
 				case "CommentTk":
 					$token = new CommentTk( $jsTk["value"], $jsTk['dataAttribs'] );
 					break;
+				default:
+					// Looks like data-parsoid can have a 'type' property in some cases
+					// We can change that usage and then throw an exception here
+					$token = &$jsTk;
+			}
+		} elseif ( is_array( $jsTk ) ) {
+			$token = &$jsTk;
+		} else {
+			$token = $jsTk;
+		}
+
+		if ( is_array( $token ) ) {
+			self::rebuildNestedTokens( $token );
+		} else {
+			if ( !empty( $token->attribs ) ) {
+				self::rebuildNestedTokens( $token->attribs );
+			}
+			if ( !empty( $token->dataAttribs ) ) {
+				self::rebuildNestedTokens( $token->dataAttribs );
 			}
 		}
 

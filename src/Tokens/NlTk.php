@@ -21,15 +21,10 @@ class NlTk extends Token {
 	 * @param array $dataAttribs
 	 */
 	public function __construct( $tsr, array $dataAttribs = [] ) {
-		if ( $tsr ) {
-			$this->dataAttribs = [ "tsr" => $tsr ];
-		} elseif ( $dataAttribs ) {
-			// PORT-FIXME: This clause doesn't exist on the JS side
-			// but is required for transformTests.php code to construct
-			// complete tokens from a JSON blob.
-			// See https://gerrit.wikimedia.org/r/c/mediawiki/services/parsoid/+/486189/1/src/Tokens/NlTk.php
-			// for Brad's suggestions.
+		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
+		} elseif ( $tsr ) {
+			$this->dataAttribs = [ "tsr" => $tsr ];
 		}
 	}
 

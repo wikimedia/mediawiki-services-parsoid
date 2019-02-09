@@ -56,12 +56,12 @@ Technical details:
 
 'use strict';
 
-var TokenTypes = require('../lib/tokens/TokenTypes.js');
-var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
-var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var yargs = require('yargs');
 var fs = require('fs');
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
+var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
+var TokenUtils = require('../lib/utils/TokenUtils.js').TokenUtils;
 const { NlTk, EOFTk } = require('../lib/tokens/TokenTypes.js');
 
 var cachedState = false;
@@ -76,13 +76,8 @@ function MockTTM(env, options) {
 	this.tokenTime = 0; // floating-point value (# ms)
 }
 
-var getToken = function(line) {
-	var token = JSON.parse(line);
-	if (token.constructor !== String) {	// cast object to token type
-		console.assert(TokenTypes[token.type] !== undefined, "Incorrect type [" + token.type + "] specified in test file\n");
-		Object.setPrototypeOf(token, TokenTypes[token.type].prototype);
-	}
-	return token;
+var getToken = function(str) {
+	return JSON.parse(str, (k, v) => TokenUtils.getToken(v));
 };
 
 // Use the TokenTransformManager.js guts (extracted essential functionality)

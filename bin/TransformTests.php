@@ -211,7 +211,7 @@ class TransformTests {
 						break;
 					}
 					# print "PROCESSING $line\n";
-					$token = Token::getToken( $line );
+					$token = Token::getToken( PHPUtils::jsonDecode( $line ) );
 					$result = $this->processToken( $transformer, $token );
 					break;
 			}
@@ -331,7 +331,7 @@ class TransformTests {
 					case '{':
 					default:
 						# print "PROCESSING $line\n";
-						$token = Token::getToken( $line );
+						$token = Token::getToken( PHPUtils::jsonDecode( $line ) );
 						$result = $this->processToken( $transformer, $token );
 						break;
 				}
