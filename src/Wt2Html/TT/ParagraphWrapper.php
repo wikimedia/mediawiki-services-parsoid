@@ -58,8 +58,8 @@ class ParagraphWrapper extends TokenHandler {
 		}
 
 		// Disable p-wrapper
-		$this->switchedOff = isset( $this->options->inlineContext )
-			|| isset( $this->options->inPHPBlock );
+		$this->disabled = !empty( $this->options['inlineContext'] )
+			|| !empty( $this->options['inPHPBlock'] );
 		$this->reset();
 	}
 
@@ -210,7 +210,7 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = 0; $i < $countOut; $i++ ) {
 				$t = $out[$i];
 				$tt = TokenUtils::getTokenType( $t );
-				if ( $tt !== 'string' && $t->name === 'meta' ) {
+				if ( ( $tt === 'SelfclosingTagTk' || $tt === 'TagTk' ) && $t->name === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
@@ -250,7 +250,7 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = count( $out ) - 1; $i > -1; $i-- ) {
 				$t = $out[$i];
 				$tt = TokenUtils::getTokenType( $t );
-				if ( $tt !== 'string' && $t->name === 'meta' ) {
+				if ( ( $tt === 'SelfclosingTagTk' || $tt === 'TagTk' ) && $t->name === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything after it is sol-transparent.

@@ -144,7 +144,8 @@ class QuoteTransformer extends TokenHandler {
 			"trace/quote",
 			$this->manager->pipelineId,
 			"QUOTE |",
-			function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+			function () use ( $token ) {
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
@@ -235,7 +236,7 @@ class QuoteTransformer extends TokenHandler {
 					$firstspace = $i;
 				} elseif ( $lastchar !== ' ' ) {
 					if ( $secondtolastchar === ' ' && $firstsingleletterword === -1 ) {
-						$firstsingleletterword = i;
+						$firstsingleletterword = $i;
 						// if firstsingleletterword is set, we don't need
 						// to look at the options options, so we can bail early
 						break;
