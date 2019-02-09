@@ -34,7 +34,7 @@ class NlTk extends Token {
 	public function jsonSerialize() {
 		return [
 			'type' => $this->type,
-			'dataAttribs' => $this->dataAttribs
+			'dataAttribs' => $this->serializedDataAttribs()
 		];
 	}
 }

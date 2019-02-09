@@ -42,7 +42,7 @@ class TagTk extends Token {
 			'type' => $this->type,
 			'name' => $this->name,
 			'attribs' => $this->attribs,
-			'dataAttribs' => $this->dataAttribs
+			'dataAttribs' => $this->serializedDataAttribs()
 		];
 	}
 }

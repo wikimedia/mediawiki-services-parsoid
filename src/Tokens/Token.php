@@ -289,4 +289,18 @@ abstract class Token implements \JsonSerializable {
 
 		return $token;
 	}
+
+	protected function serializedDataAttribs() {
+		// UGH!
+		if ( $this->dataAttribs === [] ) {
+			return new \stdClass();
+		}
+
+		$ret = $this->dataAttribs;
+		if ( isset( $ret['tmp'] ) && $ret['tmp'] === [] ) {
+			$ret['tmp'] = new \stdClass();
+		}
+
+		return $ret;
+	}
 }

@@ -37,7 +37,7 @@ class CommentTk extends Token {
 		return [
 			'type' => $this->type,
 			'value' => $this->value,
-			'dataAttribs' => $this->dataAttribs
+			'dataAttribs' => $this->serializedDataAttribs()
 		];
 	}
 }
