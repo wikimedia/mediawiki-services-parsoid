@@ -30483,6 +30483,28 @@ parsoid= {
 |}
 !! end
 
+## Don't necessarily expect this to roundtrip, but run serialization to catch crashers
+!! test
+File in link scenarios
+!! options
+parsoid={
+  "modes": ["wt2html","html2wt"],
+  "suppressErrors": true
+}
+!! wikitext
+[http://www.google.com [[File:Foobar.jpg|123]]]
+
+[http://www.google.com [[File:Foobar.jpg|thumb|123]]]
+!! html/php+tidy
+<p><a rel="nofollow" class="external text" href="http://www.google.com"></a><a href="/wiki/File:Foobar.jpg" class="image" title="123"><img alt="123" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
+</p>
+<a rel="nofollow" class="external text" href="http://www.google.com"></a><div class="thumb tright"><a rel="nofollow" class="external text" href="http://www.google.com"></a><div class="thumbinner" style="width:182px;"><a rel="nofollow" class="external text" href="http://www.google.com"></a><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>123</div></div></div>
+!! html/parsoid
+<p><a rel="mw:ExtLink" class="external text" href="http://www.google.com" data-parsoid='{"targetOff":23,"contentOffsets":[23,46]}'><figure-inline class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"caption","ak":"123"}]}' data-mw='{"caption":"123"}'></figure-inline></a><a href="./File:Foobar.jpg" data-parsoid='{"misnested":true}'><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"},"misnested":true}'/></a></p>
+
+<a rel="mw:ExtLink" class="external autonumber" href="http://www.google.com" data-parsoid='{"targetOff":72,"contentOffsets":[72,101]}'></a><figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"123"}]}'><a rel="mw:ExtLink" class="external autonumber" href="http://www.google.com" data-parsoid='{"targetOff":72,"contentOffsets":[72,101]}'></a><a href="./File:Foobar.jpg" data-parsoid='{"misnested":true}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"},"misnested":true}'/></a><figcaption data-parsoid='{"misnested":true}'>123</figcaption></figure>
+!! end
+
 # --------------------------------------------
 # Tests spec'ing wikitext serialization norms |
 # --------------------------------------------

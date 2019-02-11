@@ -967,6 +967,7 @@ add("html2wt", "Parsoid should not accept invalid interwiki shortcuts", "[[news:
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]");
 add("html2wt", "Wikitext lists can be nested inside HTML lists", "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>");
+add("html2wt", "File in link scenarios", "[http://www.google.com][[File:Foobar.jpg|1941x1941px]]\n\n[http://www.google.com][[File:Foobar.jpg|thumb|123]]");
 add("html2wt", "Empty LI (T49673)", "* a\n*\n*\n* b");
 add("html2wt", "Decoding of HTML entities in headings and links for IDs and link fragments (T103714)", "== A&B&amp;C&amp;amp;D&amp;amp;amp;E ==\n[[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]");
 add("html2wt", "HTML5 ids: fallback to legacy", "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]");
