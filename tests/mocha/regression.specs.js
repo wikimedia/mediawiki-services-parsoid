@@ -183,7 +183,7 @@ describe('Regression Specs', function() {
 
 				// Pretend we are in 1.6.1 version to disable whitespace heuristics
 				doc.body.innerHTML = editedHTML;
-				doc.head.innerHTML = origHeader.replace(/2.0.0/, '1.6.1');
+				doc.head.innerHTML = origHeader.replace(/2\.\d+\.\d+/, '1.6.1');
 				options.origDOM = DOMUtils.parseHTML(origBody).body;
 
 				// Whitespace heuristics are disabled, but selser's
