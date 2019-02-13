@@ -43,6 +43,7 @@ function runTests(name, tests) {
 			var wt = test.wt;
 			it('should be valid for ' + JSON.stringify(wt), function() {
 				return parse(wt).then(function(doc) {
+					DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 					test.specs.forEach(spec => validateSpec(wt, doc, spec));
 				});
 			});

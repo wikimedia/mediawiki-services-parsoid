@@ -34,6 +34,7 @@ describe('Cleanup DOM pass', function() {
 			"|}",
 		].join('\n');
 		return parse(origWt).then(function(doc) {
+			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var table = doc.body.firstChild;
 			var env = {
 				log: function() {
@@ -73,6 +74,7 @@ describe('Cleanup DOM pass', function() {
 			"# Item 2",
 		].join('\n');
 		return parse(origWt).then(function(doc) {
+			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var fragment = doc.body.firstChild;
 			var env = {
 				log: function() {
@@ -122,6 +124,7 @@ describe('Cleanup DOM pass', function() {
 			"</ol>",
 		].join('\n');
 		return parse(origWt).then(function(doc) {
+			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var fragment = doc.body.firstChild;
 			var env = {
 				log: function() {
