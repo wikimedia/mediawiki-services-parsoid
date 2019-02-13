@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
@@ -13,7 +14,7 @@ class KV implements \JsonSerializable {
 	/** @var mixed string, Token, or an array of tokens even */
 	public $v;
 
-	/** @var int[]|null wikitext source offsets */
+	/** @var int[]|null wikitext source offsets (Unicode char units) */
 	public $srcOffsets;
 
 	/** @var string|null wikitext source */
@@ -28,11 +29,11 @@ class KV implements \JsonSerializable {
 	 *     this can be an array of tokens even.
 	 * @param mixed $v
 	 *     The value: string, token, of an array of tokens
-	 * @param array|null $srcOffsets wikitext source offsets
+	 * @param int[]|null $srcOffsets wikitext source offsets (Unicode char units)
 	 * @param mixed|null $ksrc
 	 * @param mixed|null $vsrc
 	 */
-	public function __construct( $k, $v, array $srcOffsets = null, $ksrc = null, $vsrc = null ) {
+	public function __construct( $k, $v, $srcOffsets = null, $ksrc = null, $vsrc = null ) {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
@@ -43,11 +44,11 @@ class KV implements \JsonSerializable {
 	/**
 	 * Lookup a string key in a KV array and return the first matching KV object
 	 *
-	 * @param array|null $kvs
+	 * @param KV[]|null $kvs
 	 * @param string $key
 	 * @return KV|null
 	 */
-	public static function lookupKV( $kvs, $key ) {
+	public static function lookupKV( $kvs, string $key ) {
 		if ( $kvs === null ) {
 			return null;
 		}
@@ -67,11 +68,11 @@ class KV implements \JsonSerializable {
 	 * Lookup a string key (first occurrence) in a KV array
 	 * and return the value of the KV object
 	 *
-	 * @param array $kvs
+	 * @param KV[] $kvs
 	 * @param string $key
 	 * @return mixed
 	 */
-	public static function lookup( array $kvs, $key ) {
+	public static function lookup( array $kvs, string $key ) {
 		$kv = self::lookupKV( $kvs, $key );
 		// PORT_FIXME: Potential bug lurking here ... if $kv->v is an array
 		// this will return a copy, which if modified will not reflect

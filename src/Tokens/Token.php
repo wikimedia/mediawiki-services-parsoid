@@ -1,6 +1,9 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
+
+use Parsoid\Tests\MockEnv;
 
 /**
  * Catch-all class for all token types.
@@ -16,10 +19,19 @@ abstract class Token implements \JsonSerializable {
 	abstract public function jsonSerialize();
 
 	/**
+	 * Get a name for the token.
+	 * Derived classes can override this.
+	 * @return string
+	 */
+	public function getName(): string {
+		return $this->type;
+	}
+
+	/**
 	 * Returns a string key for this token
 	 * @return string
 	 */
-	public function getType() {
+	public function getType(): string {
 		return $this->type;
 	}
 
@@ -30,9 +42,9 @@ abstract class Token implements \JsonSerializable {
 	 *    Always a string when used this way.
 	 *    The more complex form (where the key is a non-string) are found when
 	 *    KV objects are constructed in the tokenizer.
-	 * @param object $value
+	 * @param mixed $value
 	 */
-	public function addAttribute( $name, $value ) {
+	public function addAttribute( string $name, $value ) {
 		$this->attribs[] = new KV( $name, $value );
 	}
 
@@ -41,10 +53,10 @@ abstract class Token implements \JsonSerializable {
 	 * Set a value and preserve the original wikitext that produced it.
 	 *
 	 * @param string $name
-	 * @param object $value
-	 * @param object $origValue
+	 * @param mixed $value
+	 * @param mixed $origValue
 	 */
-	public function addNormalizedAttribute( $name, $value, $origValue ) {
+	public function addNormalizedAttribute( string $name, $value, $origValue ) {
 		$this->addAttribute( $name, $value );
 		$this->setShadowInfo( $name, $value, $origValue );
 	}
@@ -55,7 +67,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function getAttribute( $name ) {
+	public function getAttribute( string $name ) {
 		return KV::lookup( $this->attribs, $name );
 	}
 
@@ -65,7 +77,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $name
 	 * @param mixed $value
 	 */
-	public function setAttribute( $name, $value ) {
+	public function setAttribute( string $name, $value ) {
 		// First look for the attribute and change the last match if found.
 		for ( $i = count( $this->attribs ) - 1; $i >= 0; $i-- ) {
 			$kv = $this->attribs[$i];
@@ -85,20 +97,20 @@ abstract class Token implements \JsonSerializable {
 	 * Store the original value of an attribute in a token's dataAttribs.
 	 *
 	 * @param string $name
-	 * @param object $value
-	 * @param object $origValue
+	 * @param mixed $value
+	 * @param mixed $origValue
 	 */
-	public function setShadowInfo( $name, $value, $origValue ) {
+	public function setShadowInfo( string $name, $value, $origValue ) {
 		// Don't shadow if value is the same or the orig is null
 		if ( $value !== $origValue && $origValue !== null ) {
-			if ( !isset( $this->dataAttribs['a'] ) ) {
-				$this->dataAttribs['a'] = [];
+			if ( !isset( $this->dataAttribs->a ) ) {
+				$this->dataAttribs->a = [];
 			}
-			$this->dataAttribs['a'][$name] = $value;
-			if ( !isset( $this->dataAttribs['sa'] ) ) {
-				$this->dataAttribs['sa'] = [];
+			$this->dataAttribs->a[$name] = $value;
+			if ( !isset( $this->dataAttribs->sa ) ) {
+				$this->dataAttribs->sa = [];
 			}
-			$this->dataAttribs['sa'][$name] = $origValue;
+			$this->dataAttribs->sa[$name] = $origValue;
 		}
 	}
 
@@ -109,14 +121,14 @@ abstract class Token implements \JsonSerializable {
 	 * context to be set to a token.
 	 *
 	 * @param string $name
-	 * @return object Information about the shadow info attached to this attribute.
+	 * @return mixed Information about the shadow info attached to this attribute.
 	 */
-	public function getAttributeShadowInfo( $name ) {
+	public function getAttributeShadowInfo( string $name ) {
 		$curVal = $this->getAttribute( $name );
 
 		// Not the case, continue regular round-trip information.
-		if ( !array_key_exists( 'a', $this->dataAttribs ) ||
-			!array_key_exists( $name, $this->dataAttribs['a'] )
+		if ( !property_exists( $this->dataAttribs, 'a' ) ||
+			!array_key_exists( $name, $this->dataAttribs->a )
 		) {
 			return [
 				"value" => $curVal,
@@ -124,14 +136,14 @@ abstract class Token implements \JsonSerializable {
 				"modified" => $this->dataAttribs !== [],
 				"fromsrc" => false
 			];
-		} elseif ( $this->dataAttribs['a'][$name] !== $curVal ) {
+		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {
 			return [
 				"value" => $curVal,
 				"modified" => true,
 				"fromsrc" => false
 			];
-		} elseif ( !array_key_exists( 'sa', $this->dataAttribs ) ||
-			!array_key_exists( $name, $this->dataAttribs['sa'] )
+		} elseif ( !property_exists( $this->dataAttribs, 'sa' ) ||
+			!array_key_exists( $name, $this->dataAttribs->sa )
 		) {
 			return [
 				"value" => $curVal,
@@ -140,7 +152,7 @@ abstract class Token implements \JsonSerializable {
 			];
 		} else {
 			return [
-				"value" => $this->dataAttribs['sa'][$name],
+				"value" => $this->dataAttribs->sa[$name],
 				"modified" => false,
 				"fromsrc" => true
 			];
@@ -152,7 +164,7 @@ abstract class Token implements \JsonSerializable {
 	 *
 	 * @param string $name
 	 */
-	public function removeAttribute( $name ) {
+	public function removeAttribute( string $name ) {
 		$out = [];
 		$attribs = $this->attribs;
 		// FIXME: Could use array_filter
@@ -173,7 +185,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $name The attribute name
 	 * @param string $value The value to add to the attribute
 	 */
-	public function addSpaceSeparatedAttribute( $name, $value ) {
+	public function addSpaceSeparatedAttribute( string $name, string $value ) {
 		$curVal = $this->getAttribute( $this->attribs );
 		if ( $curVal !== null ) {
 			if ( preg_match( '/(?:^|\s)' . preg_quote( $value, '/' ) . '(?:\s|$)/', $curVal->v ) ) {
@@ -196,8 +208,8 @@ abstract class Token implements \JsonSerializable {
 	 * @param MockEnv $env
 	 * @return string
 	 */
-	public function getWTSource( $env ) {
-		$tsr = $this->dataAttribs['tsr'] ?? null;
+	public function getWTSource( MockEnv $env ): string {
+		$tsr = $this->dataAttribs->tsr ?? null;
 		if ( !is_array( $tsr ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
@@ -210,7 +222,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param array $a
 	 * @return array
 	 */
-	private static function kvsFromArray( $a ) {
+	private static function kvsFromArray( array $a ): array {
 		$kvs = [];
 		foreach ( $a as $e ) {
 			$kvs[] = new KV(
@@ -224,10 +236,14 @@ abstract class Token implements \JsonSerializable {
 		return $kvs;
 	}
 
-	private static function rebuildNestedTokens( &$a ) {
-		foreach ( $a as $k => $v ) {
-			$a[$k] = self::getToken( $v );
+	/**
+	 * @param mixed $a
+	 */
+	private static function rebuildNestedTokens( $a ) {
+		foreach ( $a as &$v ) {
+			$v = self::getToken( $v );
 		}
+		unset( $v ); // Future-proof protection
 	}
 
 	/**
@@ -242,28 +258,30 @@ abstract class Token implements \JsonSerializable {
 		}
 
 		if ( is_array( $jsTk ) && isset( $jsTk['type'] ) ) {
+			$da = isset( $jsTk['dataAttribs'] ) ? (object)$jsTk['dataAttribs'] : null;
+			if ( $da ) {
+				if ( isset( $da->tmp ) ) {
+					$da->tmp = (object)$da->tmp;
+				}
+			}
 			switch ( $jsTk['type'] ) {
 				case "SelfclosingTagTk":
-					$token = new SelfclosingTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
-						$jsTk['dataAttribs'] );
+					$token = new SelfclosingTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
 					break;
 				case "TagTk":
-					$token = new TagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
-						 $jsTk['dataAttribs'] );
+					$token = new TagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
 					break;
 				case "EndTagTk":
-					$token = new EndTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ),
-						 $jsTk['dataAttribs'] );
+					$token = new EndTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
 					break;
 				case "NlTk":
-					$token = new NlTk( isset( $jsTk['dataAttribs']['tsr'] ) ?
-						 $jsTk['dataAttribs']['tsr'] : null, $jsTk['dataAttribs'] );
+					$token = new NlTk( $jsTk['dataAttribs']['tsr'] ?? null, $da );
 					break;
 				case "EOFTk":
 					$token = new EOFTk();
 					break;
 				case "CommentTk":
-					$token = new CommentTk( $jsTk["value"], $jsTk['dataAttribs'] );
+					$token = new CommentTk( $jsTk["value"], $da );
 					break;
 				default:
 					// Looks like data-parsoid can have a 'type' property in some cases
@@ -288,19 +306,5 @@ abstract class Token implements \JsonSerializable {
 		}
 
 		return $token;
-	}
-
-	protected function serializedDataAttribs() {
-		// UGH!
-		if ( $this->dataAttribs === [] ) {
-			return new \stdClass();
-		}
-
-		$ret = $this->dataAttribs;
-		if ( isset( $ret['tmp'] ) && $ret['tmp'] === [] ) {
-			$ret['tmp'] = new \stdClass();
-		}
-
-		return $ret;
 	}
 }

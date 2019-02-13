@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
@@ -8,23 +9,22 @@ namespace Parsoid\Tokens;
 class NlTk extends Token {
 	protected $type = 'NlTk';
 
-	/** @var array Data attributes for this token
-	 * This is represented an associative key-value array
+	/** @var object Data attributes for this token
 	 * TODO: Expand on this.
 	 */
-	public $dataAttribs = [];
+	public $dataAttribs;
 
 	/**
-	 * @param array|null $tsr
+	 * @param int[]|null $tsr
 	 *    TSR ("tag source range") represents the (start, end) wikitext
-	 *    offsets for a token (in this case, the newline)
-	 * @param array $dataAttribs
+	 *    offsets for a token (in this case, the newline) in Unicode char units
+	 * @param object|null $dataAttribs
 	 */
-	public function __construct( $tsr, array $dataAttribs = [] ) {
+	public function __construct( $tsr, $dataAttribs = null ) {
 		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
 		} elseif ( $tsr ) {
-			$this->dataAttribs = [ "tsr" => $tsr ];
+			$this->dataAttribs = (object)[ "tsr" => $tsr ];
 		}
 	}
 
@@ -34,7 +34,7 @@ class NlTk extends Token {
 	public function jsonSerialize() {
 		return [
 			'type' => $this->type,
-			'dataAttribs' => $this->serializedDataAttribs()
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }

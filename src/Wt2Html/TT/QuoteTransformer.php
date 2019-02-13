@@ -77,13 +77,13 @@ class QuoteTransformer extends TokenHandler {
 	 * @return array
 	 */
 	public function onTag( $token ) {
-		$tkName = isset( $token->name ) ? $token->name : "";
+		$tkName = is_string( $token ) ? '' : $token->getName();
 		if ( $tkName === 'mw-quote' ) {
 			return $this->onQuote( $token );
 		} elseif ( $tkName === 'td' || $tkName === 'th' ) {
 			return $this->processQuotes( $token );
 		} else {
-			return [ "tokens" => [ $token ] ];
+			return $token;
 		}
 	}
 
@@ -172,7 +172,7 @@ class QuoteTransformer extends TokenHandler {
 	public function processQuotes( $token ) {
 		if ( !$this->onAnyEnabled ) {
 			// Nothing to do, quick abort.
-			return [ "tokens" => [ $token ] ];
+			return $token;
 		}
 
 		$this->manager->env->log(
@@ -184,11 +184,11 @@ class QuoteTransformer extends TokenHandler {
 			}
 		);
 
-		if ( ( !is_string( $token ) ) &&
-			isset( $token->name ) &&
-			( $token->name === 'td' || $token->name === 'th' ) &&
-			$token->dataAttribs['stx'] === 'html' ) {
-			return [ "tokens" => [ $token ] ];
+		if ( !is_string( $token ) &&
+			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
+			$token->dataAttribs->stx === 'html'
+ ) {
+			return $token;
 		}
 
 		// count number of bold and italics
@@ -301,12 +301,11 @@ class QuoteTransformer extends TokenHandler {
 		// we're going to convert it to a single plain text ' plus an italic tag
 		$this->chunks[$i - 1][] = "'";
 		$oldbold = $this->chunks[$i][0];
-		$tsr = $oldbold->dataAttribs && isset( $oldbold->dataAttribs['tsr'] )
-			? $oldbold->dataAttribs['tsr'] : null;
+		$tsr = $oldbold->dataAttribs->tsr ?? null;
 		if ( $tsr ) {
 			$tsr = [ $tsr[0] + 1, $tsr[1] ];
 		}
-		$newbold = new SelfclosingTagTk( 'mw-quote', [], [ "tsr" => $tsr ] );
+		$newbold = new SelfclosingTagTk( 'mw-quote', [], (object)[ "tsr" => $tsr ] );
 		$newbold->setAttribute( "value", "''" ); // italic!
 		$this->chunks[$i] = [ $newbold ];
 	}
@@ -402,15 +401,15 @@ class QuoteTransformer extends TokenHandler {
 		}
 		if ( $state === 'b' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs['autoInsertedEnd'] = true;
+			$this->last["b"]->dataAttribs->autoInsertedEnd = true;
 		}
 		if ( $state === 'i' || $state === 'bi' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'i' );
-			$this->last["i"]->dataAttribs['autoInsertedEnd'] = true;
+			$this->last["i"]->dataAttribs->autoInsertedEnd = true;
 		}
 		if ( $state === 'bi' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs['autoInsertedEnd'] = true;
+			$this->last["b"]->dataAttribs->autoInsertedEnd = true;
 		}
 	}
 
@@ -428,28 +427,27 @@ class QuoteTransformer extends TokenHandler {
 		$result = [];
 		$oldtag = $this->chunks[$chunk][0];
 		// make tsr
-		$tsr = $oldtag->dataAttribs && isset( $oldtag->dataAttribs['tsr'] )
-			? $oldtag->dataAttribs['tsr'] : null;
+		$tsr = $oldtag->dataAttribs->tsr ?? null;
 		$startpos = $tsr ? $tsr[0] : null;
 		$endpos = $tsr ? $tsr[1] : null;
 		$numTags = count( $tags );
 		for ( $i = 0; $i < $numTags; $i++ ) {
 			if ( $tsr ) {
 				if ( $i === 0 && $ignoreBogusTwo ) {
-					$this->last[$tags[$i]->name]->dataAttribs['autoInsertedEnd'] = true;
+					$this->last[$tags[$i]->getName()]->dataAttribs->autoInsertedEnd = true;
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
-					$tags[$i]->dataAttribs['autoInsertedStart'] = true;
-				} elseif ( $tags[$i]->name === 'b' ) {
-					$tags[$i]->dataAttribs['tsr'] = [ $startpos, $startpos + 3 ];
-					$startpos = $tags[$i]->dataAttribs['tsr'][1];
-				} elseif ( $tags[$i]->name === 'i' ) {
-					$tags[$i]->dataAttribs['tsr'] = [ $startpos, $startpos + 2 ];
-					$startpos = $tags[$i]->dataAttribs['tsr'][1];
+					$tags[$i]->dataAttribs->autoInsertedStart = true;
+				} elseif ( $tags[$i]->getName() === 'b' ) {
+					$tags[$i]->dataAttribs->tsr = [ $startpos, $startpos + 3 ];
+					$startpos = $tags[$i]->dataAttribs->tsr[1];
+				} elseif ( $tags[$i]->getName() === 'i' ) {
+					$tags[$i]->dataAttribs->tsr = [ $startpos, $startpos + 2 ];
+					$startpos = $tags[$i]->dataAttribs->tsr[1];
 				} else {
 					error_log( 'unexpected final else clause encountered' );
 				}
 			}
-			$this->last[$tags[$i]->name] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];
+			$this->last[$tags[$i]->getName()] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];
 			$result[] = $tags[$i];
 		}
 		if ( $tsr ) {

@@ -76,7 +76,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isTemplateToken( $token ) {
-		return $token && $token instanceof SelfclosingTagTk && $token->name === 'template';
+		return $token && $token instanceof SelfclosingTagTk && $token->getName() === 'template';
 	}
 
 	/**
@@ -90,8 +90,8 @@ class TokenUtils {
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
 			$token instanceof SelfClosingTagTk ) &&
-			isset( $token->dataAttribs['stx'] ) &&
-			$token->dataAttribs['stx'] === 'html';
+			isset( $token->dataAttribs->stx ) &&
+			$token->dataAttribs->stx === 'html';
 	}
 
 	/**
@@ -113,7 +113,7 @@ class TokenUtils {
 	public static function isTableTag( $token ) {
 		$tc = self::getTokenType( $token );
 		return ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
-			isset( Consts::$HTML['TableTags'][$token->name] );
+			isset( Consts::$HTML['TableTags'][$token->getName()] );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class TokenUtils {
 	public static function isSolTransparentLinkTag( $token ) {
 		$tc = self::getTokenType( $token );
 		return ( $tc === 'SelfclosingTagTk' || $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
-			$token->name === 'link' &&
+			$token->getName() === 'link' &&
 			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) );
 	}
 
@@ -139,10 +139,10 @@ class TokenUtils {
 	public static function isBehaviorSwitch( $env, $token ) {
 		return self::isOfType( $token, 'SelfclosingTagTk' ) && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
-			$token->name === 'behavior-switch' ||
+			$token->getName() === 'behavior-switch' ||
 			// After BehaviorSwitchHandler
 			// (ie. ListHandler, ParagraphWrapper, etc.)
-			( $token->name === 'meta' &&
+			( $token->getName() === 'meta' &&
 				preg_match( $env->conf->wiki->bswPagePropRegexp, $token->getAttribute( 'property' ) ) )
 			);
 	}
@@ -165,7 +165,7 @@ class TokenUtils {
 			return true;
 		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
 			return true;
-		} elseif ( $tt !== 'SelfclosingTagTk' || $token->name !== 'meta' ) {
+		} elseif ( $tt !== 'SelfclosingTagTk' || $token->getName() !== 'meta' ) {
 			return false;
 		} else {  // only metas left
 			return !( isset( $token->dataAttribs->stx ) && $token->dataAttribs->stx === 'html' );
@@ -180,7 +180,7 @@ class TokenUtils {
 	 */
 	public static function isEmptyLineMetaToken( $token ) {
 		return self::isOfType( $token, 'SelfclosingTagTk' ) &&
-			$token->name === 'meta' &&
+			$token->getName() === 'meta' &&
 			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
 	}
 

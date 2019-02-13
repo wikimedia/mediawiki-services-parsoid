@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
@@ -11,23 +12,22 @@ class CommentTk extends Token {
 	/** @var string Comment text */
 	public $value;
 
-	/** @var array Data attributes for this token
-	 * This is represented an associative key-value array
+	/** @var object Data attributes for this token
 	 * TODO: Expand on this.
 	 */
-	public $dataAttribs = [];
+	public $dataAttribs;
 
 	/**
 	 * @param string $value
-	 * @param array $dataAttribs
+	 * @param object|null $dataAttribs
 	 */
-	public function __construct( $value, array $dataAttribs = [] ) {
+	public function __construct( string $value, $dataAttribs = null ) {
 		$this->value = $value;
 
 		// Won't survive in the DOM, but still useful for token serialization
 		// FIXME: verify if this is still required given that html->wt doesn't
 		// use tokens anymore. That was circa 2012 serializer code.
-		$this->dataAttribs = $dataAttribs;
+		$this->dataAttribs = $dataAttribs ?? (object)[];
 	}
 
 	/**
@@ -37,7 +37,7 @@ class CommentTk extends Token {
 		return [
 			'type' => $this->type,
 			'value' => $this->value,
-			'dataAttribs' => $this->serializedDataAttribs()
+			'dataAttribs' => $this->dataAttribs
 		];
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
@@ -22,7 +23,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function hasLiteralHTMLMarker( $dp ) {
-		return isset( $dp['stx'] ) && $dp['stx'] === 'html';
+		return isset( $dp->stx ) && $dp->stx === 'html';
 	}
 
 	/**
@@ -74,9 +75,9 @@ class WTUtils {
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when dp['stx'] value is not present
+		// for when dp->stx value is not present
 		return $node->getAttribute( "rel" ) === "mw:WikiLink" ||
-			( isset( $dp['stx'] ) && $dp['stx'] !== "url" && $dp['stx'] !== "magiclink" );
+			( isset( $dp->stx ) && $dp->stx !== "url" && $dp->stx !== "magiclink" );
 	}
 
 	/**
@@ -96,9 +97,9 @@ class WTUtils {
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when $dp['stx'] value is not present
+		// for when $dp->stx value is not present
 		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
-			( !isset( $dp['stx'] ) || ( $dp['stx'] !== "url" && $dp['stx'] !== "magiclink" ) );
+			( !isset( $dp->stx ) || ( $dp->stx !== "url" && $dp->stx !== "magiclink" ) );
 	}
 
 	/**
@@ -118,9 +119,9 @@ class WTUtils {
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when $dp['stx'] value is not present
+		// for when $dp->stx value is not present
 		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
-			isset( $dp['stx'] ) && $dp['stx'] === "url";
+			isset( $dp->stx ) && $dp->stx === "url";
 	}
 
 	/**
@@ -138,9 +139,9 @@ class WTUtils {
 		}
 
 		// SSS FIXME: This requires to be made more robust
-		// for when $dp['stx'] value is not present
+		// for when $dp->stx value is not present
 		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
-			isset( $dp['stx'] ) && $dp['stx'] === "magiclink";
+			isset( $dp->stx ) && $dp->stx === "magiclink";
 	}
 
 	/**
@@ -248,7 +249,7 @@ class WTUtils {
 		// checked on the encapsulation wrapper $node.
 		$node = self::findFirstEncapsulationWrapperNode( $node ) ?? $node;
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		return isset( $dp['tmp']['isNew'] );
+		return isset( $dp->tmp->isNew );
 	}
 
 	/**
@@ -546,7 +547,7 @@ class WTUtils {
 	 */
 	public static function getWTSource( $env, $node ) {
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$dsr = $dp['dsr'] ?? null;
+		$dsr = $dp->dsr ?? null;
 		return $dsr && Util::isValidDSR( $dsr ) ? substr( $env->page->src, $dsr[0], $dsr[1] ) : null;
 	}
 

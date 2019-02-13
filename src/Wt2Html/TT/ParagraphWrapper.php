@@ -210,7 +210,7 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = 0; $i < $countOut; $i++ ) {
 				$t = $out[$i];
 				$tt = TokenUtils::getTokenType( $t );
-				if ( ( $tt === 'SelfclosingTagTk' || $tt === 'TagTk' ) && $t->name === 'meta' ) {
+				if ( $tt !== 'string' && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
@@ -250,7 +250,7 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = count( $out ) - 1; $i > -1; $i-- ) {
 				$t = $out[$i];
 				$tt = TokenUtils::getTokenType( $t );
-				if ( ( $tt === 'SelfclosingTagTk' || $tt === 'TagTk' ) && $t->name === 'meta' ) {
+				if ( $tt !== 'string' && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
@@ -392,7 +392,7 @@ class ParagraphWrapper extends TokenHandler {
 		 } );
 		$res = null;
 		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'TagTk' && $token->name === 'pre' && !TokenUtils::isHTMLTag( $token ) ) {
+		if ( $tc === 'TagTk' && $token->getName() === 'pre' && !TokenUtils::isHTMLTag( $token ) ) {
 			if ( $this->inBlockElem ) {
 				$this->currLine['tokens'][] = ' ';
 				return [ 'tokens' => [] ];
@@ -408,7 +408,9 @@ class ParagraphWrapper extends TokenHandler {
 				// skip ensures this doesn't hit the AnyHandler
 				return [ 'tokens' => $this->processBuffers( $token, true ), 'skipOnAny' => true ];
 			}
-		} elseif ( $tc === 'EndTagTk' && $token->name === 'pre' && !TokenUtils::isHTMLTag( $token ) ) {
+		} elseif ( $tc === 'EndTagTk' && $token->getName() === 'pre' &&
+			!TokenUtils::isHTMLTag( $token )
+		) {
 			if ( $this->inBlockElem && !$this->inPre ) {
 				// No pre-tokens inside block tags -- swallow it.
 				return [ 'tokens' => [] ];
@@ -452,7 +454,7 @@ class ParagraphWrapper extends TokenHandler {
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
 			// a new paragraph by itself.
-			( TokenUtils::isSolTransparent( $this->env, $token ) || $token->name === 'style' )
+			( TokenUtils::isSolTransparent( $this->env, $token ) || $token->getName() === 'style' )
 		) {
 			if ( $this->newLineCount === 0 ) {
 				$this->currLine['tokens'][] = $token;
@@ -475,7 +477,7 @@ class ParagraphWrapper extends TokenHandler {
 			}
 		} else {
 			if ( $tc !== 'string' ) {
-				$name = $token->name;
+				$name = $token->getName();
 				if ( ( isset( self::$wgBlockElems[$name] ) && $tc !== 'EndTagTk' ) ||
 					( isset( self::$wgAntiBlockElems[$name] ) && $tc === 'EndTagTk' ) ||
 					isset( self::$wgAlwaysSuppress[$name] ) ) {

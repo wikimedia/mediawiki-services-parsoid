@@ -1,10 +1,11 @@
 <?php
+declare( strict_types = 1 );
 
-// Port based on git-commit: <423eb7f04eea94b69da1cefe7bf0b27385781371>
-// Initial porting, partially complete
-// Not tested, all code that is not ported has Exception or PORT-FIXME
+// Not tested, all code that is not ported throws Exception or has PORT-FIXME
 
 namespace Parsoid\Utils;
+
+use Parsoid\Tests\MockEnv;
 
 use DOMDocument;
 use DOMElement;
@@ -21,11 +22,11 @@ class DOMDataUtils {
 	 * Get data object from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return array
+	 * @return object
 	 */
-	public static function &getNodeData( DOMElement $node ) {
+	public static function getNodeData( DOMElement $node ) {
 		if ( !isset( $node->dataobject ) ) {
-			$node->dataobject = [];
+			$node->dataobject = (object)[];
 		}
 		return $node->dataobject;
 	}
@@ -34,31 +35,31 @@ class DOMDataUtils {
 	 * Get data parsoid info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return array
+	 * @return object
 	 */
-	public static function &getDataParsoid( DOMElement $node ) {
-		$data = &self::getNodeData( $node );
-		if ( !isset( $data['parsoid'] ) ) {
-			$data['parsoid'] = [];
+	public static function getDataParsoid( DOMElement $node ) {
+		$data = self::getNodeData( $node );
+		if ( !isset( $data->parsoid ) ) {
+			$data->parsoid = (object)[];
 		}
-		if ( !isset( $data['parsoid']['tmp'] ) ) {
-			$data['parsoid']['tmp'] = [];
+		if ( !isset( $data->parsoid->tmp ) ) {
+			$data->parsoid->tmp = (object)[];
 		}
-		return $data['parsoid'];
+		return $data->parsoid;
 	}
 
 	/**
 	 * Get data meta wiki info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return array
+	 * @return object
 	 */
-	public static function &getDataMw( DOMElement $node ) {
-		$data = &self::getNodeData( $node );
-		if ( !isset( $data['mw'] ) ) {
-			$data['mw'] = [];
+	public static function getDataMw( DOMElement $node ) {
+		$data = self::getNodeData( $node );
+		if ( !isset( $data->mw ) ) {
+			$data->mw = (object)[];
 		}
-		return $data['mw'];
+		return $data->mw;
 	}
 
 	/**
@@ -67,37 +68,37 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @return bool
 	 */
-	public static function validDataMw( DOMElement $node ) {
-		return self::getDataMw( $node ) !== [];
+	public static function validDataMw( DOMElement $node ): bool {
+		return (array)self::getDataMw( $node ) !== [];
 	}
 
 	/** Set data parsoid info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @param array &$dp data-parsoid
+	 * @param object $dp data-parsoid
 	 */
-	public static function setDataParsoid( DOMElement $node, array &$dp ) {
-		$data = &self::getNodeData( $node );
-		$data['parsoid'] =& $dp;
+	public static function setDataParsoid( DOMElement $node, $dp ) {
+		$data = self::getNodeData( $node );
+		$data->parsoid = $dp;
 	}
 
 	/** Set data meta wiki info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @param array &$dmw data-mw
+	 * @param object $dmw data-mw
 	 */
-	public static function setDataMw( DOMElement $node, array &$dmw ) {
-		$data = &self::getNodeData( $node );
-		$data['mw'] =& $dmw;
+	public static function setDataMw( DOMElement $node, $dmw ) {
+		$data = self::getNodeData( $node );
+		$data->mw = $dmw;
 	}
 
 	/** Set node data.
 	 *
 	 * @param DOMElement $node node
-	 * @param array &$data data
+	 * @param object $data data
 	 */
-	public static function setNodeData( DOMElement $node, array &$data ) {
-		$node->dataobject =& $data;
+	public static function setNodeData( DOMElement $node, $data ) {
+		$node->dataobject = $data;
 	}
 
 	/**
@@ -108,7 +109,7 @@ class DOMDataUtils {
 	 * @param mixed $defaultVal
 	 * @return mixed
 	 */
-	public static function getJSONAttribute( DOMElement $node, $name, $defaultVal ) {
+	public static function getJSONAttribute( DOMElement $node, string $name, $defaultVal ) {
 		$attVal = $node->getAttribute( $name );
 		if ( !$attVal ) {
 			return $defaultVal;
@@ -129,7 +130,7 @@ class DOMDataUtils {
 	 * @param string $name Name of the attribute.
 	 * @param mixed $obj value of the attribute to
 	 */
-	public static function setJSONAttribute( DOMElement $node, $name, $obj ) {
+	public static function setJSONAttribute( DOMElement $node, string $name, $obj ) {
 		$val = $obj === [] ? '{}' : PHPUtils::jsonEncode( $obj );
 		$node->setAttribute( $name, $val );
 	}
@@ -143,17 +144,17 @@ class DOMDataUtils {
 	 *
 	 * @param DOMElement $node node
 	 * @param string $name Name of the attribute.
-	 * @param string $val val
+	 * @param mixed $val val
 	 */
-	public static function setShadowInfo( DOMElement $node, $name, $val ) {
-		$dp = &self::getDataParsoid( $node );
-		if ( !isset( $dp['a'] ) ) {
-			$dp['a'] = [];
+	public static function setShadowInfo( DOMElement $node, string $name, $val ) {
+		$dp = self::getDataParsoid( $node );
+		if ( !isset( $dp->a ) ) {
+			$dp->a = [];
 		}
-		if ( !isset( $dp['sa'] ) ) {
-			$dp['sa'] = [];
+		if ( !isset( $dp->sa ) ) {
+			$dp->sa = [];
 		}
-		$dp['a'][$name] = $val;
+		$dp->a[$name] = $val;
 	}
 
 	/**
@@ -161,33 +162,33 @@ class DOMDataUtils {
 	 *
 	 * If the new value ($val) for the key ($name) is different from the
 	 * original value ($origVal):
-	 * - the new value is recorded in data-parsoid['a'] and
-	 * - the original value is recorded in data-parsoid['sa']
+	 * - the new value is recorded in data-parsoid->a and
+	 * - the original value is recorded in data-parsoid->sa
 	 *
 	 * @param DOMElement $node node
 	 * @param string $name Name of the attribute.
-	 * @param string $val val
+	 * @param mixed $val val
 	 * @param mixed $origVal original value (null is a valid value)
 	 */
-	public static function setShadowInfoIfModified( DOMElement $node, $name, $val, $origVal ) {
+	public static function setShadowInfoIfModified( DOMElement $node, string $name, $val, $origVal ) {
 		if ( $val === $origVal || $origVal === null ) {
 			return;
 		}
-		$dp = &self::getDataParsoid( $node );
-		if ( !isset( $dp['a'] ) ) {
-			$dp['a'] = [];
+		$dp = self::getDataParsoid( $node );
+		if ( !isset( $dp->a ) ) {
+			$dp->a = [];
 		}
-		if ( !isset( $dp['sa'] ) ) {
-			$dp['sa'] = [];
+		if ( !isset( $dp->sa ) ) {
+			$dp->sa = [];
 		}
-		$dp['a'][$name] = $val;
 		// FIXME: This is a hack to not overwrite already shadowed info.
 		// We should either fix the call site that depends on this
 		// behaviour to do an explicit check, or double down on this
 		// by porting it to the token method as well.
-		if ( !array_key_exists( $name, $dp['a'] ) ) {
-			$dp['sa'][$name] = $origVal;
+		if ( !array_key_exists( $name, $dp->a ) ) {
+			$dp->sa[$name] = $origVal;
 		}
+		$dp->a[$name] = $val;
 	}
 
 	/**
@@ -210,10 +211,10 @@ class DOMDataUtils {
 	 *
 	 * @param DOMElement $node node
 	 * @param string $name Name of the attribute.
-	 * @param string $val value
-	 * @param string $origVal original value
+	 * @param mixed $val value
+	 * @param mixed $origVal original value
 	 */
-	public static function addNormalizedAttribute( DOMElement $node, $name, $val, $origVal ) {
+	public static function addNormalizedAttribute( DOMElement $node, string $name, $val, $origVal ) {
 		$node->setAttribute( $name, $val );
 		self::setShadowInfo( $node, $name, $val, $origVal );
 	}
@@ -225,7 +226,7 @@ class DOMDataUtils {
 	 * @param string $type type
 	 * @return bool
 	 */
-	public static function hasTypeOf( DOMNode $node, $type ) {
+	public static function hasTypeOf( DOMNode $node, string $type ): bool {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
@@ -245,7 +246,7 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @param string $type type
 	 */
-	public static function addTypeOf( DOMElement $node, $type ) {
+	public static function addTypeOf( DOMElement $node, string $type ) {
 		$typeOf = $node->getAttribute( 'typeof' );
 		if ( $typeOf ) {
 			$types = explode( ' ', $typeOf );
@@ -268,7 +269,7 @@ class DOMDataUtils {
 	 * @param string $type type
 	 * @return boolean
 	 */
-	public static function removeTypeOf( DOMElement $node, $type ) {
+	public static function removeTypeOf( DOMElement $node, string $type ) {
 		$typeOf = $node->getAttribute( 'typeof' );
 		$notType = function ( $t ) use( $type ) {
 			return $t !== $type;
@@ -299,25 +300,25 @@ class DOMDataUtils {
 	public static function storeInPageBundle( DOMElement $node, MockEnv $env, $data ) {
 		$uid = $node->getAttribute( 'id' );
 		$document = $node->ownerDocument;
-		$dp = &self::getDataParsoid( $document );
-		$pb = &$dp['pagebundle'];
-		$docDp = &$pb['parsoid'];
+		$dp = self::getDataParsoid( $document );
+		$pb = $dp->pagebundle;
+		$docDp = $pb->parsoid;
 		$origId = $uid;
-		if ( array_key_exists( $uid, $docDp['ids'] ) ) {
+		if ( array_key_exists( $uid, $docDp->ids ) ) {
 			$uid = null;
 			// FIXME: Protect mw ids while tokenizing to avoid false positives.
 			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
 		}
 		if ( !$uid ) {
 			do {
-				$docDp['counter'] += 1;
-				$uid = 'mw' . PHPUtils::counterToBase64( $docDp['counter'] );
+				$docDp->counter += 1;
+				$uid = 'mw' . PHPUtils::counterToBase64( $docDp->counter );
 			} while ( $document->getElementById( $uid ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
-		$docDp['ids'][$uid] = &$data['parsoid'];
-		if ( array_key_exists( 'mw', $data ) ) {
-			$pb['mw']['ids'][$uid] = &$data['mw'];
+		$docDp->ids[$uid] = $data->parsoid;
+		if ( isset( $data->mw ) ) {
+			$pb->mw->ids[$uid] = $data->mw;
 		}
 	}
 
@@ -368,7 +369,7 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @param bool $markNew identify and mark newly inserted elements
 	 */
-	public static function visitAndLoadDataAttribs( DOMElement $node, $markNew = false ) {
+	public static function visitAndLoadDataAttribs( DOMElement $node, bool $markNew = false ) {
 		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $markNew );
 	}
 
@@ -383,21 +384,19 @@ class DOMDataUtils {
 	 * @param DOMNode $node node
 	 * @param bool $markNew markNew
 	 */
-	public static function loadDataAttribs( DOMNode $node, $markNew ) {
+	public static function loadDataAttribs( DOMNode $node, bool $markNew ) {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
-		$dp = self::getJSONAttribute( $node, 'data-parsoid', [] );
+		$dp = (object)self::getJSONAttribute( $node, 'data-parsoid', [] );
 		if ( $markNew ) {
-			if ( !isset( $dp['tmp'] ) ) {
-				$dp['tmp'] = [];
-			}
-			$dp['tmp']['isNew'] = $node->getAttribute( 'data-parsoid' ) === null;
+			$dp->tmp = (object)( $dp->tmp ?? [] );
+			$dp->tmp->isNew = $node->getAttribute( 'data-parsoid' ) === null;
 		}
 		self::setDataParsoid( $node, $dp );
 		// PORT-FIXME: Disable till we get T204608 implemented
 		// $node->removeAttribute( 'data-parsoid' );
-		$dmw = self::getJSONAttribute( $node, 'data-mw', [] );
+		$dmw = (object)self::getJSONAttribute( $node, 'data-mw', [] );
 		self::setDataMw( $node, $dmw );
 		// PORT-FIXME: Disable till we get T204608 implemented
 		// $node->removeAttribute( 'data-mw' );
@@ -427,10 +426,10 @@ class DOMDataUtils {
 			// A sanity check
 			throw new \Exception( 'Sanity check failed' );
 		}
-		$dp = &self::getDataParsoid( $node );
+		$dp = self::getDataParsoid( $node );
 		// Don't modify `options`, they're reused.
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
-		if ( !empty( $dp['tmp']['isNew'] ) ) {
+		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,
 			// that's already been loaded once.
 			//
@@ -451,10 +450,10 @@ class DOMDataUtils {
 			// nodes, which aren't going to serialize well.  You better know
 			// of what you do.
 			if ( empty( $options['keepTmp'] ) ) {
-				unset( $dp['tmp'] );
+				unset( $dp->tmp );
 			}
 			if ( !empty( $options['storeInPageBundle'] ) ) {
-				$data = [ 'parsoid' => $dp ];
+				$data = (object)[ 'parsoid' => $dp ];
 			} else {
 				self::setJSONAttribute( $node, 'data-parsoid', $dp );
 			}
@@ -465,8 +464,8 @@ class DOMDataUtils {
 				// The pagebundle didn't have data-mw before 999.x
 				// PORT-FIXME - semver equivalent code required
 				$semver->satisfies( $options['env']->outputContentVersion, '^999.0.0' ) ) {
-				$data = $data ?: [];
-				$data[ 'mw' ] = &self::getDataMw( $node );
+				$data = $data ?: (object)[];
+				$data->mw = self::getDataMw( $node );
 			} else {
 				self::setJSONAttribute( $node, 'data-mw', self::getDataMw( $node ) );
 			}
