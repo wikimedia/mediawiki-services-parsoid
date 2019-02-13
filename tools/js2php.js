@@ -31,6 +31,12 @@ const remapName = function(f) {
 	}).join('/');
 };
 
+const rewriteFile = Promise.async(function *(filename, search, replace) {
+	var contents = yield fs.readFile(filename, 'utf8');
+	contents = contents.replace(search, replace);
+	yield fs.writeFile(filename, contents, 'utf8');
+});
+
 Promise.async(function *() {
 	const files = (yield childProcess.execFile(
 		'git', ['ls-files'], {
@@ -44,7 +50,7 @@ Promise.async(function *() {
 		if (!(yield fs.exists(newFile))) { continue; /* Skip this */ }
 		/* check for the watermark string; only overwrite if it is present */
 		/* this ensures we don't overwrite actually-ported files */
-		if (!WATERMARK_RE.test(fs.readFileSync(newFile, 'utf8'))) { continue; }
+		if (!WATERMARK_RE.test(yield fs.readFile(newFile, 'utf8'))) { continue; }
 
 		/* run our translation tool! */
 		// console.log(oldFile);
@@ -58,9 +64,56 @@ Promise.async(function *() {
 					cwd: BASEDIR,
 					env: process.env,
 				}).promise;
-		} catch (e) {
+		} catch (e1) {
 			console.log(`SKIPPING ${oldFile}`);
+			continue;
 		}
+		// Now run phpcbf, but it's allowed to return non-zero
+		try {
+			yield childProcess.execFile(
+				path.join(BASEDIR, 'vendor', 'bin', 'phpcbf'), [
+					newFile,
+				]).promise;
+		} catch (e2) { /* of course there were code style issues */ }
+		// Comment length warnings are bogus...
+		yield rewriteFile(
+			newFile, /^<\?php\n/,
+			'$&// phpcs:disable Generic.Files.LineLength.TooLong\n'
+		);
+		// So, were we successful?  If not, disable phpcs for this file.
+		var codeStyleErrors = false;
+		try {
+			yield childProcess.execFile(
+				path.join(BASEDIR, 'vendor', 'bin', 'phpcs'), [
+					newFile,
+				]).promise;
+		} catch (e3) {
+			codeStyleErrors = true;
+			yield rewriteFile(
+				newFile, /^<\?php\n/,
+				'$&// phpcs:ignoreFile\n'
+			);
+		}
+		// Same idea, but for lint errors
+		var lintErrors = false;
+		try {
+			yield childProcess.execFile(
+				path.join(BASEDIR, 'vendor', 'bin', 'parallel-lint'), [
+					newFile,
+				]).promise;
+		} catch (e4) {
+			lintErrors = true;
+			yield rewriteFile(
+				newFile, /^<\?php\n/,
+				'<?php // lint >= 99.9\n'
+			);
+		}
+		process.stdout.write(
+			codeStyleErrors ?
+				(lintErrors ? 'X' : '^') :
+				(lintErrors ? 'v' : '.')
+		);
 	}
+	process.stdout.write('\n');
 	console.log('all done');
 })().done();
