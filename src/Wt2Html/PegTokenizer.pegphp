@@ -4,6 +4,7 @@
  * end event. Tokens map to HTML tags as far as possible, with custom tokens
  * used where further processing on the token stream is needed.
  */
+/* REMOVE THIS COMMENT AFTER PORTING */
 {
 
     var pegIncludes = options.pegIncludes;
@@ -29,6 +30,16 @@
     var stops = new tu.SyntaxStops();
 
     var prevOffset = 0;
+    var headingIndex = 0;
+
+    // Assertions are not safe in the tokenizer, since we catch exceptions
+    // thrown and treat it as a "failed match" and backtrack.  Nobody ever
+    // sees the assertion failure.  Work around this by using a special
+    // assertion method for tokenizer code.
+    var assert = function(condition, text) {
+      if (condition) { return; }
+      env.log('fatal', text || "Tokenizer assertion failure");
+    };
 
     // Some shorthands for legibility
     var startOffset = function() {
@@ -223,7 +234,7 @@
             }
             break;
         default:
-            console.assert(false, 'Should not be reachable.');
+            assert(false, 'Should not be reachable.');
         }
 
         peg$currPos += skipLen;
@@ -248,7 +259,7 @@
             TokenUtils.shiftTokenTSR(extContentToks, dp.tsr[0] + dp.tagWidths[0]);
             return [t].concat(extContentToks);
         } else {
-            console.assert(false, 'Should not be reachable.');
+            assert(false, 'Should not be reachable.');
         }
     };
 }
@@ -536,8 +547,14 @@ heading = & "=" // guard, to make sure '='+ will match.
 
         var tsr = tsrOffsets('start');
         tsr[1] += level;
+        // Match PHP behavior by (a) making headingIndex part of tokenizer
+        // state(don't reuse pipeline!) and (b) assigning the index when
+        // ==*== is tokenized, even if we're inside a template argument
+        // or other context which won't end up putting the heading
+        // on the output page.  T213468/T214538
+        headingIndex++;
         return [
-          new TagTk('h' + level, [], { tsr: tsr }),
+          new TagTk('h' + level, [], { tsr: tsr, tmp: { headingIndex } }),
         ].concat(c, [
           new EndTagTk('h' + level, [], { tsr: [endTPos - level, endTPos] }),
           spc,
@@ -1362,6 +1379,9 @@ quote = quotes:$("''" "'"*) {
     var tsr = tsrOffsets();
     tsr[0] += plainticks;
     var mwq = new SelfclosingTagTk('mw-quote', [new KV('value', quotes.substring(plainticks))], { tsr: tsr });
+    if (quotes.length > 2) {
+        mwq.addAttribute('preceding-2chars', input.substring(tsr[0] - 2, tsr[0]));
+    }
     result.push(mwq);
     return result;
 }
@@ -1625,8 +1645,7 @@ li = bullets:list_char+
     // Leave bullets as an array -- list handler expects this
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
-    var li = new TagTk('listItem', [], { tsr: tsr });
-    li.bullets = bullets;
+    var li = new TagTk('listItem', [new KV('bullets', bullets)], { tsr: tsr });
     return [ li ].concat(c || []);
 }
 
@@ -1646,8 +1665,7 @@ hacky_dl_uses = bullets:":"+
     // Leave bullets as an array -- list handler expects this
     var tsr = tsrOffsets('start');
     tsr[1] += bullets.length;
-    var li = new TagTk('listItem', [], { tsr: tsr });
-    li.bullets = bullets;
+    var li = new TagTk('listItem', [new KV('bullets', bullets)], { tsr: tsr });
     return tu.flattenIfArray([li, tbl || [], line || []]);
 }
 
@@ -1664,16 +1682,16 @@ dtdd
     &eolf {
         // Leave bullets as an array -- list handler expects this
         // TSR: +1 for the leading ";"
-        var numBullets = bullets.length + 1;
-        var tsr = tsrOffsets('start');
+        const numBullets = bullets.length + 1;
+        const tsr = tsrOffsets('start');
         tsr[1] += numBullets;
-        var li1 = new TagTk('listItem', [], { tsr: tsr });
-        li1.bullets = bullets.slice();
-        li1.bullets.push(";");
+        const li1Bullets = bullets.slice();
+        li1Bullets.push(";");
+        const li1 = new TagTk('listItem', [new KV('bullets', li1Bullets)], { tsr: tsr });
         // TSR: -1 for the intermediate ":"
-        var li2 = new TagTk('listItem', [], { tsr: [cpos - 1, cpos], stx: 'row' });
-        li2.bullets = bullets.slice();
-        li2.bullets.push(":");
+        const li2Bullets = bullets.slice();
+        li2Bullets.push(":");
+        const li2 = new TagTk('listItem', [new KV('bullets', li2Bullets)], { tsr: [cpos - 1, cpos], stx: 'row' });
 
         return [ li1 ].concat(c || [], [ li2 ], d || []);
     }
@@ -1788,7 +1806,7 @@ table_start_tag "table_start_tag"
     b:"{" p:pipe
     // ok to normalize away stray |} on rt (see T59360)
     & { return stops.push('table', false); }
-    ta:(table_attributes / &{ console.assert(false); return false; })
+    ta:(table_attributes / &{ assert(false); return false; })
     tsEndPos:("" { stops.pop('table'); return endOffset(); })
     s2:space*
     {
@@ -1826,7 +1844,7 @@ table_row_tag
     ! { return stops.onStack('tableDataBlock'); }
     p:pipe dashes:$"-"+
     & { return stops.push('table', false); }
-    a:(table_attributes / &{ console.assert(false); return false; })
+    a:(table_attributes / &{ assert(false); return false; })
     tagEndPos:("" { stops.pop('table'); return endOffset(); })
     {
         var coms = tu.popComments(a);
@@ -2111,8 +2129,9 @@ sol_prefix
   = newlineToken
   / & {
       // Use the sol flag only at the start of the input
-      // NOTE: Explicitly check for 'false' and not a falsy value
-      return endOffset() === 0 && options.sol !== false;
+      // Flag should always be an actual boolean (not falsy or undefined)
+      assert(typeof options.sol === 'boolean');
+      return endOffset() === 0 && options.sol;
   } { return []; }
 
 empty_line_with_comments

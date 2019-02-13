@@ -19,14 +19,15 @@ const MAPPING = {
 	'wt2html': 'Wt2Html',
 	'tt': 'TT',
 	'pp': 'PP',
+	'pegTokenizer.pegjs': 'PegTokenizer.pegphp',
 };
 const BASEDIR = path.join(__dirname, '..');
 
 const remapName = function(f) {
 	return f.split(/[/]/g).map(function(piece, idx, arr) {
 		var isLast = (idx + 1) >= arr.length;
-		if (isLast) { return piece.replace(/[.]js$/, '.php'); }
 		if (MAPPING[piece]) { return MAPPING[piece]; }
+		if (isLast) { return piece.replace(/[.]js$/, '.php'); }
 		return piece.slice(0, 1).toUpperCase() + piece.slice(1);
 	}).join('/');
 };
@@ -53,14 +54,16 @@ Promise.async(function *() {
 		if (!WATERMARK_RE.test(yield fs.readFile(newFile, 'utf8'))) { continue; }
 
 		/* run our translation tool! */
-		// console.log(oldFile);
+		var isPeg = /\.pegjs$/.test(oldFile);
 		try {
-			yield childProcess.execFile(
-				path.join(BASEDIR, 'node_modules', '.bin', 'js2php'), [
+			var args = (isPeg ? [ '--braced' ] : [])
+				.concat([
 					'--namespace', 'Parsoid',
 					'--watermark', WATERMARK,
 					oldFile, newFile,
-				], {
+				]);
+			yield childProcess.execFile(
+				path.join(BASEDIR, 'node_modules', '.bin', 'js2php'), args, {
 					cwd: BASEDIR,
 					env: process.env,
 				}).promise;
@@ -68,6 +71,7 @@ Promise.async(function *() {
 			console.log(`SKIPPING ${oldFile}`);
 			continue;
 		}
+		if (isPeg) { continue; }
 		// Now run phpcbf, but it's allowed to return non-zero
 		try {
 			yield childProcess.execFile(
