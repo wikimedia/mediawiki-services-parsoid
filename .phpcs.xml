@@ -1,20 +1,23 @@
 <?xml version="1.0"?>
 <ruleset>
+	<file>.</file>
+	<arg name="extensions" value="php,php5,inc" />
+	<arg name="encoding" value="UTF-8" />
+	<exclude-pattern>coverage</exclude-pattern>
+	<exclude-pattern>doc/html</exclude-pattern>
+	<exclude-pattern>vendor</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 		<exclude name="MediaWiki.PHP70Features" />
 		<exclude name="MediaWiki.PHP71Features" />
 	</rule>
-	<file>.</file>
-	<arg name="extensions" value="php,php5,inc" />
-	<arg name="encoding" value="UTF-8" />
-	<exclude-pattern>vendor</exclude-pattern>
 	<rule ref="Internal.NoCodeFound">
 		<exclude-pattern>*/src/*</exclude-pattern>
 		<exclude-pattern>*/bin/*</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
 		<exclude-pattern>*/tools/*</exclude-pattern>
 	</rule>
-	<exclude-pattern>coverage</exclude-pattern>
-	<exclude-pattern>doc/html</exclude-pattern>
+	<rule ref="MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName">
+		<exclude-pattern>tests/spec</exclude-pattern>
+	</rule>
 </ruleset>

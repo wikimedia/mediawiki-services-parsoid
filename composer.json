@@ -28,7 +28,9 @@
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
 		"mediawiki/mediawiki-codesniffer": "24.0.0",
-		"phpunit/phpunit": "^6.5"
+		"phpspec/phpspec": "^5.0",
+		"phpunit/phpunit": "^6.5",
+		"wikimedia/testing-access-wrapper": "~1.0"
 	},
 	"autoload": {
 		"psr-4": {
@@ -41,7 +43,8 @@
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
-			"phpunit"
+			"phpunit",
+			"phpspec run -v"
 		],
 		"fix": [
 			"minus-x fix .",
