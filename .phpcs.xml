@@ -2,6 +2,7 @@
 <ruleset>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
+		<exclude name="MediaWiki.PHP70Features.ScalarTypeHintUsage" />
 	</rule>
 	<file>.</file>
 	<arg name="extensions" value="php,php5,inc" />
