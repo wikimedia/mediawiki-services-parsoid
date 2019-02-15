@@ -176,7 +176,7 @@ var standardOpts = ScriptUtils.addStandardOptions({
 		'default': false,
 	},
 	'scrubWikitext': {
-		description: 'Apply wikitext scrubbing while serializing.',
+		description: 'Apply wikitext scrubbing while serializing.  This is also used for a mode of normalization (--normalize) applied when parsing.',
 		'boolean': true,
 		'default': false,
 	},
@@ -400,7 +400,7 @@ Promise.async(function *() {
 			doc = DOMUtils.parseHTML(html);
 			str = TestUtils.normalizeOut(doc.body, {
 				parsoidOnly: (argv.normalize === 'parsoid'),
-				scrubWikitext: (argv.scrubWikitext === 'parsoid')
+				scrubWikitext: argv.scrubWikitext,
 			});
 		} else {
 			str = html;
