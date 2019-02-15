@@ -15,17 +15,17 @@ use Parsoid\Utils\DataBag;
 class MockEnv {
 	/**
 	 * Construct a mock environment object for use in tests
-	 * @param object $opts
-	 * @param string $pageSrc Wikitext source for the current title
+	 * @param array $opts
+	 * @param string|null $pageSrc Wikitext source for the current title
 	 */
 	public function __construct( array $opts, $pageSrc = "Some dummy source wikitext for testing." ) {
 		$this->logFlag = $opts['log'] ?? false;
-		$this->wrapSections = true; // Always add <section> wrappers
+		$this->wrapSections = $opts['wrapSections'] ?? false;
 		$this->page = new \stdClass();
 		$this->page->src = $pageSrc;
 		$this->conf = new \stdClass();
 		$this->conf->parsoid = new \stdClass();
-		$this->conf->parsoid->rtTestMode = false;
+		$this->conf->parsoid->rtTestMode = $opts['rtTestMode'] ?? false;
 		$this->conf->wiki = new \stdClass();
 		// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
 		$this->conf->wiki->bswPagePropRegexp =
@@ -95,7 +95,7 @@ class MockEnv {
 					$output = $output . ' ' . $args[$index];
 				}
 			}
-			echo $output . "\n";
+			fwrite( STDERR, $output . "\n" );
 		}
 	}
 }
