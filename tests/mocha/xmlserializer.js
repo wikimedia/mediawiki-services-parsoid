@@ -4,6 +4,7 @@
 
 var domino = require('domino');
 var XMLSerializer = require('../../lib/wt2html/XMLSerializer.js');
+require('chai').should();
 
 describe('XML Serializer', function() {
 
