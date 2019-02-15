@@ -50,7 +50,7 @@ describe('XML Serializer', function() {
 
 	it('should handle expanded attrs properly while capturing offsets', function() {
 		var html = '<html><head><title>hi</title><body>' +
-			'<div style="color:red" about="#mwt2" typeof="mw:ExpandedAttrs" id="mwAQ" data-mw=\'{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[12,30,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;color:red&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">color:red&lt;/span>"}]]}\'>boo</div>' +
+			'<div style="color:red" about="#mwt2" typeof="mw:ExpandedAttrs" id="mwAQ" data-mw=\'{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\\"#mwt1\\" typeof=\\"mw:Transclusion\\" data-parsoid=\\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[12,30,null,null]}\\" data-mw=\\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;color:red&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\\">color:red&lt;/span>"}]]}\'>boo</div>' +
 			'<p id="mwAg">next!</p>' +
 			'</body></html>';
 		var doc = domino.createDocument(html);
@@ -62,9 +62,9 @@ describe('XML Serializer', function() {
 		var ret = XMLSerializer.serialize(doc, options);
 		ret.should.have.property('offsets');
 		ret.offsets.should.have.property('mwAQ');
-		ret.offsets.mwAQ.html.should.eql([0, 676]);
+		ret.offsets.mwAQ.html.should.eql([0, 684]);
 		ret.offsets.should.have.property('mwAg');
-		ret.offsets.mwAg.html.should.eql([676, 698]);
+		ret.offsets.mwAg.html.should.eql([684, 706]);
 	});
 
 	it('should handle extension content nested in templates while capturing offsets', function() {
