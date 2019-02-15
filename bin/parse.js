@@ -397,8 +397,7 @@ Promise.async(function *() {
 			html = ContentUtils.toXML(doc);
 		}
 		if (argv.normalize) {
-			doc = DOMUtils.parseHTML(html);
-			str = TestUtils.normalizeOut(doc.body, {
+			str = TestUtils.normalizeOut(html, {
 				parsoidOnly: (argv.normalize === 'parsoid'),
 				scrubWikitext: argv.scrubWikitext,
 			});

@@ -5,9 +5,12 @@
 require('../core-upgrade.js');
 
 var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
+var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
 var Promise = require('../lib/utils/promise.js');
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
+var TestUtils = require('../tests/TestUtils.js').TestUtils;
+
 var yargs = require('yargs');
 var fs = require('pn/fs');
 
@@ -62,7 +65,8 @@ Promise.async(function *() {
 		rtTestMode: argv.rtTestMode
 	};
 
-	const domBody = ContentUtils.ppToDOM(html);
+	const domBody = TestUtils.mockEnvDoc(html).body;
+	DOMDataUtils.visitAndLoadDataAttribs(domBody);
 	const normalizedBody = (new DOMNormalizer(mockState).normalize(domBody));
 
 	ContentUtils.dumpDOM(normalizedBody, 'Normalized DOM', { env: mockState.env, storeDiffMark: true });

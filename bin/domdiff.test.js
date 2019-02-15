@@ -7,7 +7,7 @@ require('../core-upgrade.js');
 var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
-var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
+var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
 var Promise = require('../lib/utils/promise.js');
 var yargs = require('yargs');
@@ -56,8 +56,8 @@ Promise.async(function *() {
 		return;
 	}
 
-	var oldDOM = DOMUtils.parseHTML(oldhtml).body;
-	var newDOM = DOMUtils.parseHTML(newhtml).body;
+	var oldDOM = TestUtils.mockEnvDoc(oldhtml).body;
+	var newDOM = TestUtils.mockEnvDoc(newhtml).body;
 
 	ContentUtils.stripSectionTagsAndFallbackIds(oldDOM);
 	ContentUtils.stripSectionTagsAndFallbackIds(newDOM);

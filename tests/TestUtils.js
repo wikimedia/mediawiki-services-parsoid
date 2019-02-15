@@ -54,8 +54,13 @@ TestUtils.normalizeOut = function(domBody, options) {
 	}
 	const parsoidOnly = options.parsoidOnly;
 	const preserveIEW = options.preserveIEW;
+
 	if (typeof (domBody) === 'string') {
-		domBody = DOMUtils.parseHTML(domBody).body;
+		if (options.scrubWikitext) {
+			domBody = TestUtils.mockEnvDoc(domBody).body;
+		} else {
+			domBody = DOMUtils.parseHTML(domBody).body;
+		}
 	}
 
 	if (options.scrubWikitext) {
@@ -1221,6 +1226,15 @@ TestUtils.addNamespace = function(wikiConf, name) {
 	wikiConf.canonicalNamespaces[Util.normalizeNamespaceName(name.canonical ? name.canonical : name['*'])] = Number(nsid);
 	wikiConf.namespacesWithSubpages[nsid] = true;
 	wikiConf.siteInfo.namespaces[nsid] = name;
+};
+
+// NOTE: This a potential gotcha when it comes to the port.
+// Much like `env.createDocument()`, a reference to $doc is going to have to
+// be held onto so that the attached environment doesn't get GC'd.
+TestUtils.mockEnvDoc = function(html) {
+	const doc = DOMUtils.parseHTML(html);
+	DOMDataUtils.setDocEnv(doc);
+	return doc;
 };
 
 if (typeof module === "object") {

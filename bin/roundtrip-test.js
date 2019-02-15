@@ -3,9 +3,8 @@
 'use strict';
 
 require('../core-upgrade.js');
-
 require('colors');
-var domino = require('domino');
+
 var yargs = require('yargs');
 var zlib = require('pn/zlib');
 
@@ -440,8 +439,8 @@ var checkIfSignificant = function(offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
 
-	var oldBody = domino.createDocument(data.oldHTML.body).body;
-	var newBody = domino.createDocument(data.newHTML.body).body;
+	var oldBody = TestUtils.mockEnvDoc(data.oldHTML.body).body;
+	var newBody = TestUtils.mockEnvDoc(data.newHTML.body).body;
 
 	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
 	DOMDataUtils.applyPageBundle(oldBody.ownerDocument, {

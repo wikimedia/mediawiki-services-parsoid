@@ -8,13 +8,13 @@ const { DOMDataUtils, DOMUtils, Promise } = ParsoidExtApi;
  */
 
 const dumpHook = Promise.method(function(state, content, args) {
-	return DOMUtils.parseHTML('<pre />');
+	return state.env.createDocument('<pre />');
 });
 
 const staticTagHook = Promise.method(function(state, content, args) {
 	// FIXME: Choose a better DOM representation that doesn't mess with
 	// newline constraints.
-	return DOMUtils.parseHTML('<span />');
+	return state.env.createDocument('<span />');
 });
 
 const staticTagPostProcessor = function(node, obj) {

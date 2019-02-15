@@ -13,9 +13,7 @@ var helpers = require('./test.helpers.js');
 // will require some changes to ParsoidConfig and MWParserEnvironment.
 var parsoidConfig = new ParsoidConfig(null, { loadWMF: true, defaultWiki: 'enwiki' });
 var parse = function(src, options) {
-	return helpers.parse(parsoidConfig, src, options).then(function(ret) {
-		return ret.doc;
-	});
+	return helpers.parse(parsoidConfig, src, options);
 };
 
 var serialize = (doc, pb, opts) => helpers.serialize(parsoidConfig, doc, pb, opts);
@@ -28,7 +26,8 @@ describe('Regression Specs', function() {
 	// we should use a similar format for internal cite urls.
 	// This spec ensures that we don't inadvertently break that requirement.
 	it('should use ./ prefixed urls for cite links', function() {
-		return parse('a [[Foo]] <ref>b</ref>').then(function(result) {
+		return parse('a [[Foo]] <ref>b</ref>').then(function(ret) {
+			const { doc: result } = ret;
 			result.body.querySelector(".mw-ref a").getAttribute('href')
 				.should.equal('./Main_Page#cite_note-1');
 			result.body.querySelector("#cite_note-1 a").getAttribute('href')
@@ -38,14 +37,18 @@ describe('Regression Specs', function() {
 
 	it('should prevent regression of T153107', function() {
 		var wt = '[[Foo|bar]]';
-		return parse(wt).then(function(result) {
+		return parse(wt).then(function(ret) {
+			const { doc: result, env } = ret;
+
 			var origDOM = result.body;
 			// This is mimicking a copy/paste in an editor
 			var editedHTML = origDOM.innerHTML + origDOM.innerHTML.replace(/bar/, 'Foo');
 
 			// Without selser, we should see [[Foo|Foo]], since we only normalize
 			// for modified / new content, which requires selser for detection
-			return serialize(DOMUtils.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+
+			const doc = env.createDocument(editedHTML);
+			return serialize(doc, null, {}).then(function(editedWT) {
 				editedWT.should.equal(wt + "\n\n[[Foo|Foo]]");
 				// With selser, we should see [[Foo]]
 				var options = {
@@ -53,7 +56,9 @@ describe('Regression Specs', function() {
 					pageSrc: wt,
 					origDOM: origDOM,
 				};
-				return serialize(DOMUtils.parseHTML(editedHTML), null, options).then(function(editedWT) {
+
+				const doc2 = env.createDocument(editedHTML);
+				return serialize(doc2, null, options).then(function(editedWT) {
 					editedWT.should.equal(wt + "\n\n[[Foo]]");
 				});
 			});
@@ -79,12 +84,16 @@ describe('Regression Specs', function() {
 			"|  unedited c1  || cell ||  unedited c3  ||   unedited c4",
 			"|}"
 		].join('\n');
-		return parse(wt).then(function(result) {
+		return parse(wt).then(function(ret) {
+			const { doc: result, env } = ret;
+
 			var origDOM = result.body;
 			var editedHTML = origDOM.innerHTML.replace(/item/g, 'edited item').replace(/heading/g, 'edited heading').replace(/cell/g, 'edited cell');
 
 			// Without selser, we should see normalized wikitext
-			return serialize(DOMUtils.parseHTML(editedHTML), null, {}).then(function(editedWT) {
+
+			const doc = env.createDocument(editedHTML);
+			return serialize(doc, null, {}).then(function(editedWT) {
 				editedWT.should.equal([
 					"*edited item",
 					"*<!--cmt-->edited item",
@@ -110,7 +119,9 @@ describe('Regression Specs', function() {
 					pageSrc: wt,
 					origDOM: origDOM,
 				};
-				return serialize(DOMUtils.parseHTML(editedHTML), null, options).then(function(editedWT) {
+
+				const doc2 = env.createDocument(editedHTML);
+				return serialize(doc2, null, options).then(function(editedWT) {
 					editedWT.should.equal([
 						"* edited item",
 						"* <!--cmt-->edited item",
@@ -151,16 +162,19 @@ describe('Regression Specs', function() {
 			"| [[Link|cell]]",
 			"|}"
 		].join('\n');
-		return parse(wt).then(function(doc) {
+		return parse(wt).then(function(ret) {
+			const { doc, env } = ret;
+
 			var origHeader = doc.head.innerHTML;
 			var origBody = doc.body.innerHTML;
 			var editedHTML = origBody.replace(/item/g, 'edited item').replace(/heading/g, 'edited heading').replace(/cell/g, 'edited cell');
 			doc.body.innerHTML = editedHTML;
 
+			const origDoc = env.createDocument(origBody);
 			var options = {
 				useSelser: true,
 				pageSrc: wt,
-				origDOM: DOMUtils.parseHTML(origBody).body,
+				origDOM: origDoc.body,
 			};
 			// Whitespace heuristics are enabled
 			return serialize(doc, null, options).then(function(editedWT) {
@@ -184,7 +198,7 @@ describe('Regression Specs', function() {
 				// Pretend we are in 1.6.1 version to disable whitespace heuristics
 				doc.body.innerHTML = editedHTML;
 				doc.head.innerHTML = origHeader.replace(/2\.\d+\.\d+/, '1.6.1');
-				options.origDOM = DOMUtils.parseHTML(origBody).body;
+				options.origDOM = env.createDocument(origBody).body;
 
 				// Whitespace heuristics are disabled, but selser's
 				// buildSep heuristics will do the magic for non-text
@@ -215,16 +229,16 @@ describe('Regression Specs', function() {
 	// trailing content after the <style> tag, namely a newline.
 	it('should not wrap templatestyles style tags in p-wrappers', function() {
 		var wt = "<templatestyles src='Template:Quote/styles.css'/><div>foo</div>";
-		return parse(wt).then(function(doc) {
-			return doc.body.firstChild.nodeName.should.equal("STYLE");
+		return parse(wt).then(function(ret) {
+			return ret.doc.body.firstChild.nodeName.should.equal("STYLE");
 		});
 	});
 
 	// For https://phabricator.wikimedia.org/T208901
 	it('should not split p-wrappers around templatestyles', function() {
 		var wt = 'abc {{1x|<templatestyles src="Template:Quote/styles.css" /> def}} ghi [[File:Foo.jpg|thumb|250px]]';
-		return parse(wt).then(function(doc) {
-			const body = doc.body;
+		return parse(wt).then(function(ret) {
+			const body = ret.doc.body;
 			body.firstChild.nodeName.should.equal("P");
 			DOMUtils.nextNonSepSibling(body.firstChild).nodeName.should.equal("FIGURE");
 		});
@@ -235,7 +249,8 @@ describe('Regression Specs', function() {
 			'<templatestyles src="Template:Quote/styles.css" /><span>a</span>',
 			'<templatestyles src="Template:Quote/styles.css" /><span>b</span>'
 		].join('\n');
-		return parse(wt).then(function(doc) {
+		return parse(wt).then(function(ret) {
+			const { doc } = ret;
 			var firstStyle = doc.body.firstChild.firstChild; // the first child is a p-wrap
 			firstStyle.nodeName.should.equal("STYLE");
 			var secondStyle = firstStyle.nextSibling.nextSibling.nextSibling;

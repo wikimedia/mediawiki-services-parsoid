@@ -176,7 +176,7 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 		if (startsAtWikitext) {
 			// FIXME: All tests share an env.
 			// => we need to initialize this each time over here.
-			this.env.page.dom = DOMUtils.parseHTML(item.cachedBODYstr).body;
+			this.env.page.dom = this.env.createDocument(item.cachedBODYstr).body;
 		}
 		if (mode === 'selser') {
 			this.env.setPageSrcInfo(item.wikitext);
@@ -719,7 +719,7 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			// therefore causes false failures.
 			html = TestUtils.normalizePhpOutput(html);
 		}
-		body = DOMUtils.parseHTML(html).body;
+		body = this.env.createDocument(html).body;
 		wt = yield this.convertHtml2Wt(options, mode, item, body);
 	} else {  // startsAtWikitext
 		// Always serialize DOM to string and reparse before passing to wt2wt
@@ -739,10 +739,10 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 			if (mode === "wt2html") {
 				// body = body; // no-op
 			} else {
-				body = DOMUtils.parseHTML(item.cachedBODYstr).body;
+				body = this.env.createDocument(item.cachedBODYstr).body;
 			}
 		} else {
-			body = DOMUtils.parseHTML(item.cachedBODYstr).body;
+			body = this.env.createDocument(item.cachedBODYstr).body;
 		}
 	}
 
@@ -767,7 +767,7 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 		// Save the modified DOM so we can re-test it later
 		// Always serialize to string and reparse before passing to selser/wt2wt
 		item.changedHTMLStr = ContentUtils.toXML(body);
-		body = DOMUtils.parseHTML(item.changedHTMLStr).body;
+		body = this.env.createDocument(item.changedHTMLStr).body;
 	} else if (mode === 'wt2wt') {
 		// handle a 'changes' option if present.
 		if (item.options.parsoid && item.options.parsoid.changes) {
@@ -830,7 +830,7 @@ ParserTests.prototype.processSerializedWT = Promise.async(function *(item, optio
 		if (item.changetree === 5) {
 			item.resultWT = item.wikitext;
 		} else {
-			var body = DOMUtils.parseHTML(item.changedHTMLStr).body;
+			var body = this.env.createDocument(item.changedHTMLStr).body;
 			item.resultWT = yield this.convertHtml2Wt(options, 'wt2wt', item, body);
 		}
 	}
@@ -867,8 +867,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 
 	if (item.cachedNormalizedHTML === null) {
 		if (parsoidOnly) {
-			var normalDOM = DOMUtils.parseHTML(item.html).body;
-			normalizedExpected = TestUtils.normalizeOut(normalDOM, normOpts);
+			normalizedExpected = TestUtils.normalizeOut(item.html, normOpts);
 		} else {
 			normalizedExpected = TestUtils.normalizeHTML(item.html);
 		}
@@ -1493,7 +1492,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'style',
 							toDOM: Promise.method(function(state, content, args) {
-								const doc = DOMUtils.parseHTML('');
+								const doc = state.env.createDocument();
 								const style = doc.createElement('style');
 								style.innerHTML = content;
 								ParsoidExtApi.Sanitizer.applySanitizedArgs(state.env, style, args);
@@ -1513,7 +1512,7 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 						{
 							name: 'html',
 							toDOM: Promise.method(function(state, content, args) {
-								return DOMUtils.parseHTML(content);
+								return state.env.createDocument(content);
 							}),
 						},
 					],

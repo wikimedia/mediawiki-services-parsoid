@@ -3,16 +3,18 @@
 /* global describe, it */
 
 require('../../core-upgrade.js');
-
 require('chai').should();
-const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
+
+const { DOMDataUtils } = require('../../lib/utils/DOMDataUtils.js');
+const { TestUtils } = require('../TestUtils.js');
 const { PWrap } = require('../../lib/wt2html/pp/processors/PWrap.js');
 
 const PWrapper = new PWrap();
+const re = new RegExp(` ${DOMDataUtils.DataObjectAttrName()}="\\d+"`, 'g');
 var verifyPWrap = function(html, expectedOutput) {
-	var doc = DOMUtils.parseHTML(html);
+	var doc = TestUtils.mockEnvDoc(html);
 	PWrapper.run(doc.body);
-	doc.body.innerHTML.should.equal(expectedOutput);
+	doc.body.innerHTML.replace(re, '').should.equal(expectedOutput);
 };
 
 var noPWrapperTests = [
