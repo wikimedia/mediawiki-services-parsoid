@@ -1720,3 +1720,15 @@ ghi<ref name="r1">jkl</ref>mno
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-r1-1" id="cite_note-r1-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-r1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-r1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-r1-1" class="mw-reference-text">jkl</span></li></ol>
 !! end
+
+!! test
+Similarly named refs with identical bodies
+!! wikitext
+1 <ref name="1">1</ref> 2 <ref name="1">1</ref>
+
+<references />
+!! html/parsoid
+<p>1 <sup about="#mwt7" class="mw-ref" id="cite_ref-1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"1"},"body":{"id":"mw-reference-text-cite_note-1-1"}}'><a href="./Parser_test#cite_note-1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup> 2 <sup about="#mwt9" class="mw-ref" id="cite_ref-1_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"1"},"body":{"id":"mw-reference-text-cite_note-1-1"}}'><a href="./Parser_test#cite_note-1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1-1" id="cite_note-1-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-1-1" class="mw-reference-text" data-parsoid="{}">1</span></li></ol>
+!! end
