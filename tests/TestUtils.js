@@ -13,6 +13,7 @@ var yargs = require('yargs');
 var Diff = require('../lib/utils/Diff.js').Diff;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
 var DOMUtils = require('../lib/utils/DOMUtils.js').DOMUtils;
+var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var Util = require('../lib/utils/Util.js').Util;
 var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
@@ -77,7 +78,9 @@ TestUtils.normalizeOut = function(domBody, options) {
 			selserMode: false,
 			rtTestMode: options.rtTestMode,
 		};
+		DOMDataUtils.visitAndLoadDataAttribs(domBody);
 		domBody = (new DOMNormalizer(mockState).normalize(domBody));
+		DOMDataUtils.visitAndStoreDataAttribs(domBody);
 	}
 
 	var stripTypeof = parsoidOnly ?
