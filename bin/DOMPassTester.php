@@ -51,7 +51,6 @@ use RemexHtml\Tokenizer;
 use RemexHtml\TreeBuilder;
 use RemexHtml\Serializer;
 
-use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
@@ -60,8 +59,6 @@ $wgCachedState = false;
 $wgCachedFilePre = '';
 $wgCachedFilePost = '';
 $wgLogFlag = false;
-
-WikitextConstants::init();
 
 /**
  * Log message to output
