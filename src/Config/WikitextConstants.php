@@ -1,12 +1,6 @@
 <?php
 
-// Port based on commit be94723313eb63af09bda9bd9775039b9b866442
-// Minimal testing on the php-prototype branch.
-// Needs more rigorous testing.
-
 namespace Parsoid\Config;
-
-require_once __DIR__ . "/../Utils/PHPUtils.php";
 
 use Parsoid\Utils\PHPUtils;
 
@@ -14,6 +8,7 @@ class WikitextConstants {
 	public static $Media;
 	public static $Sanitizer;
 	public static $HTMLTagsWithWTEquivalents;
+	public static $WikitextTagsWithTrimmableWS;
 	public static $HTMLTagsRequiringSOLContext;
 	public static $WTQuoteTags;
 	public static $WeakIndentPreSuppressingTags;
@@ -22,6 +17,7 @@ class WikitextConstants {
 	public static $BlockScopeOpenTags;
 	public static $BlockScopeCloseTags;
 	public static $HTML;
+	public static $WTTagsWithNoClosingTags;
 	public static $Output;
 	public static $WtTagWidths;
 	public static $ZeroWidthWikitextTags;
@@ -126,6 +122,17 @@ class WikitextConstants {
 			"table", "td", "th", "tr", "caption",
 		] );
 
+		/**
+		 * These HTML tags come from native wikitext markup and
+		 * (as long as they are not literal HTML tags in the wikitext source)
+		 * should have whitespace trimmed from their content.
+		 */
+		self::$WikitextTagsWithTrimmableWS = PHPUtils::makeSet( [
+			"h1", "h2", "h3", "h4", "h5", "h6",
+			"ol", "li", "ul", "dd", "dl", "dt",
+			"td", "th", "caption"
+		] );
+
 		# These HTML tags will be generated only if
 		# the corresponding wikitext occurs in a SOL context.
 		self::$HTMLTagsRequiringSOLContext = PHPUtils::makeSet( [
@@ -207,6 +214,14 @@ class WikitextConstants {
 				"title", "tr", "track", "u", "ul", "var", "video", "wbr",
 			] ),
 
+			/**
+			 * https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2
+			 * @type {Set}
+			 */
+			'MetaTags' => PHPUtils::makeSet( [
+				"base", "link", "meta", "noscript", "script", "style", "template", "title"
+			] ),
+
 			# From http://www.w3.org/TR/html5-diff/#obsolete-elements
 			# SSS FIXME: basefont is missing here, but looks like the PHP parser
 			# does not support it anyway and treats it as plain text.  So, skipping
@@ -223,7 +238,7 @@ class WikitextConstants {
 			] ),
 
 			# From https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
-			# However, you probably want to use `Util.isBlockTag()`, where some
+			# However, you probably want to use `TokenUtils.isBlockTag()`, where some
 			# exceptions are being made.
 			'HTML4BlockTags' => PHPUtils::makeSet( [
 				'div', 'p',
@@ -234,7 +249,7 @@ class WikitextConstants {
 				# HTML5 heading content
 				'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup',
 				# HTML5 sectioning content
-				'article', 'aside', 'body', 'nav', 'section', 'footer', 'header',
+				'article', 'aside', 'nav', 'section', 'footer', 'header',
 				'figure', 'figcaption', 'fieldset', 'details', 'blockquote',
 				# other
 				'hr', 'button', 'canvas', 'center', 'col', 'colgroup', 'embed',
@@ -298,6 +313,15 @@ class WikitextConstants {
 				'track', 'wbr',
 			] ),
 		];
+
+		/**
+		 * These HTML tags have native wikitext representations.
+		 * The wikitext equivalents do not have closing tags.
+		 * @type {Set}
+		 */
+		self::$WTTagsWithNoClosingTags = PHPUtils::makeSet( [
+			"pre", "li", "dt", "dd", "hr", "tr", "td", "th"
+		] );
 
 		self::$Output = [
 			'FlaggedEmptyElts' => PHPUtils::makeSet( [
