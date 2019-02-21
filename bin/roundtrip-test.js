@@ -306,10 +306,11 @@ var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	var out = findMatchingNodes(body, offsetRange);
 	for (var i = 0; i < out.length; i++) {
 		// node need not be an element always!
-		html += ContentUtils.toXML(out[i], { smartQuote: false });
+		const node = out[i];
+		DOMDataUtils.visitAndStoreDataAttribs(node);
+		html += ContentUtils.toXML(node, { smartQuote: false });
+		DOMDataUtils.visitAndLoadDataAttribs(node);
 	}
-	// No need to use ppToXML above since we're stripping
-	// data-* attributes anyways.
 	html = TestUtils.normalizeOut(html);
 
 	// Normalize away <br/>'s added by Parsoid because of newlines in wikitext.
