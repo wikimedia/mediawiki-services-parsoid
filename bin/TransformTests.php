@@ -420,7 +420,7 @@ function wfProcessArguments( $argc, $argv ) {
 function wfRunTests( $argc, $argv ) {
 	$numFailures = 0;
 
-   $opts = wfProcessArguments( $argc, $argv );
+	$opts = wfProcessArguments( $argc, $argv );
 
 	if ( isset( $opts->help ) ) {
 		wfLog( "must specify [--manual] [--log] [--timingMode]" .
@@ -450,14 +450,14 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( isset( $opts->ParagraphWrapper ) ) {
 		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
+	} elseif ( isset( $opts->PreHandler ) ) {
+		$pw = new Parsoid\Wt2Html\TT\PreHandler( $manager, [] );
+		$numFailures = wfSelectTestType( $opts, $manager, "PreHandler", $pw );
 	}
 	/*
 	  else if ($opts->ListHandler) {
 		var lh = new ListHandler(manager, {});
 		wfSelectTestType(argv, manager, lh);
-	} else if ($opts->PreHandler) {
-		var ph = new PreHandler(manager, {});
-		wfSelectTestType(argv, manager, ph);
 	} else if ($opts->TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
 		wfSelectTestType(argv, manager, tsp);

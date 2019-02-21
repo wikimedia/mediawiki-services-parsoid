@@ -1,43 +1,103 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
 
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\TokenHandler as TokenHandler;
-use Parsoid\WTUtils as WTUtils;
-use Parsoid\TagTk as TagTk;
-use Parsoid\EndTagTk as EndTagTk;
-use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
-use Parsoid\NlTk as NlTk;
-use Parsoid\EOFTk as EOFTk;
-use Parsoid\CommentTk as CommentTk;
+/**
+PRE handling.
+
+PRE-handling relies on the following 5-state FSM.
+
+States
+------
+```
+SOL           -- start-of-line
+(white-space, comments, meta-tags are all SOL transparent)
+PRE           -- we might need a pre-block
+(if we enter the PRE_COLLECT state)
+PRE_COLLECT   -- we will need to generate a pre-block and are collecting
+content for it.
+MULTILINE_PRE -- we might need to extend the pre-block to multiple lines.
+(depending on whether we see a white-space tok or not)
+IGNORE        -- nothing to do for the rest of the line.
+```
+
+Transitions
+-----------
+
+In the transition table below, purge is just a shortcut for:
+"pass on collected tokens to the callback and reset (getResultAndReset)"
+```
++ --------------+-----------------+---------------+--------------------------+
+| Start state   |     Token       | End state     |  Action                  |
++ --------------+-----------------+---------------+--------------------------+
+| SOL           | --- nl      --> | SOL           | purge                    |
+| SOL           | --- eof     --> | SOL           | purge                    |
+| SOL           | --- ws      --> | PRE           | save whitespace token(##)|
+| SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
+| SOL           | --- other   --> | IGNORE        | purge                    |
++ --------------+-----------------+---------------+--------------------------+
+| PRE           | --- nl      --> | SOL           | purge                    |
+| PRE           |  html-blk tag   | IGNORE        | purge                    |
+|               |  wt-table tag   |               |                          |
+| PRE           | --- eof     --> | SOL           | purge                    |
+| PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
+| PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
++ --------------+-----------------+---------------+--------------------------+
+| PRE_COLLECT   | --- nl      --> | MULTILINE_PRE | save nl token            |
+| PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
+| PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-prepurge (#)         |
+| PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
++ --------------+-----------------+---------------+--------------------------+
+| MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
+| MULTILINE_PRE | --- eof     --> | SOL           | gen-pre                  |
+| MULTILINE_PRE | --- ws      --> | PRE_COLLECT   | pop saved nl token (##)  |
+|               |                 |               | TOKS = SOL-TR-TOKS + tok |
+| MULTILINE_PRE | --- sol-tr  --> | MULTILINE_PRE | SOL-TR-TOKS << tok       |
+| MULTILINE_PRE | --- any     --> | IGNORE        | gen-pre                  |
++ --------------+-----------------+---------------+--------------------------+
+| IGNORE        | --- nl      --> | SOL           | purge                    |
+| IGNORE        | --- eof     --> | SOL           | purge                    |
++ --------------+-----------------+---------------+--------------------------+
+
+# If we've collected any tokens from previous lines, generate a pre. This
+line gets purged.
+
+## In these states, check if the whitespace token is a single space or has
+additional chars (white-space or non-whitespace) -- if yes, slice it off
+and pass it through the FSM
+ */
+
+namespace Parsoid\Wt2Html\TT;
+
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EndTagTk;
 
 /**
  * @class
- * @extends module:wt2html/tt/TokenHandler
+ * @extends wt2html/tt/TokenHandler
  */
 class PreHandler extends TokenHandler {
 	// FSM states
-	public static function STATE_SOL() {
- return 1;
- }
-	public static function STATE_PRE() {
- return 2;
- }
-	public static function STATE_PRE_COLLECT() {
- return 3;
- }
-	public static function STATE_MULTILINE_PRE() {
- return 4;
- }
-	public static function STATE_IGNORE() {
- return 5;
- }
+	const STATE_SOL = 1;
+	const STATE_PRE = 2;
+	const STATE_PRE_COLLECT = 3;
+	const STATE_MULTILINE_PRE = 4;
+	const STATE_IGNORE = 5;
 
-	// debug string output of FSM states
-	public static function STATE_STR() {
+	private $state;
+	private $lastNlTk;
+	private $preTSR;
+	private $tokens;
+	private $preCollectCurrentLine;
+	private $preWSToken;
+	private $multiLinePreWSToken;
+	private $solTransparentTokens;
+
+	/**
+	 * debug string output of FSM states
+	 * @return array
+	 */
+	private static function stateStr(): array {
 		return [
 			1 => 'sol        ',
 			2 => 'pre        ',
@@ -47,14 +107,25 @@ class PreHandler extends TokenHandler {
 		];
 	}
 
-	public function __construct( $manager, $options ) {
+	/**
+	 * Class constructor
+	 *
+	 * @param object $manager manager environment
+	 * @param array $options options
+	 */
+	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->resetState();
+		$this->resetState( $options );
 	}
 
 	// FIXME: Needed because of shared pipelines in parser tests
-	public function resetState() {
-		if ( $this->options->inlineContext || $this->options->inPHPBlock ) {
+	/**
+	 * Resets the state based on options parameter
+	 *
+	 * @param object $opts
+	 */
+	public function resetState( $opts ) {
+		if ( !empty( $opts['inlineContext'] ) || !empty( $opts['inPHPBlock'] ) ) {
 			$this->disabled = true;
 		} else {
 			$this->disabled = false;
@@ -62,8 +133,13 @@ class PreHandler extends TokenHandler {
 		}
 	}
 
-	public function reset( $enableAnyHandler ) {
-		$this->state = PreHandler\STATE_SOL();
+	/**
+	 * Resets the FSM state with optional any handler enabled
+	 *
+	 * @param bool $enableAnyHandler
+	 */
+	private function reset( bool $enableAnyHandler ) {
+		$this->state = self::STATE_SOL;
 		$this->lastNlTk = null;
 		// Initialize to zero to deal with indent-pre
 		// on the very first line where there is no
@@ -79,30 +155,47 @@ class PreHandler extends TokenHandler {
 		}
 	}
 
-	public function moveToIgnoreState() {
+	/**
+	 * Switches the FSM to STATE_IGNORE
+	 */
+	private function moveToIgnoreState() {
 		$this->onAnyEnabled = false;
-		$this->state = PreHandler\STATE_IGNORE();
+		$this->state = self::STATE_IGNORE;
 	}
 
-	public function popLastNL( $ret ) {
+	/**
+	 * Pops the last new line from the $ret array
+	 *
+	 * @param array &$ret
+	 */
+	private function popLastNL( array &$ret ) {
 		if ( $this->lastNlTk ) {
 			$ret[] = $this->lastNlTk;
 			$this->lastNlTk = null;
 		}
 	}
 
-	public function resetPreCollectCurrentLine() {
+	/**
+	 * Removes multiline-pre-ws token when multi-line pre has been specified
+	 */
+	private function resetPreCollectCurrentLine() {
 		if ( count( $this->preCollectCurrentLine ) > 0 ) {
-			$this->tokens = $this->tokens->concat( $this->preCollectCurrentLine );
+			$this->tokens = array_merge( $this->tokens, $this->preCollectCurrentLine );
 			$this->preCollectCurrentLine = [];
-			// Since the multi-line pre materialized, the multilinee-pre-ws token
+			// Since the multi-line pre materialized, the multiline-pre-ws token
 			// should be discarded so that it is not emitted after <pre>..</pre>
 			// is generated (see processPre).
 			$this->multiLinePreWSToken = null;
 		}
 	}
 
-	public function encounteredBlockWhileCollecting( $token ) {
+	/**
+	 * If a blocking token sequence is encountered with collecting, cleanup state
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
+	private function encounteredBlockWhileCollecting( $token ): array {
 		$env = $this->manager->env;
 		$ret = [];
 		$mlp = null;
@@ -114,27 +207,34 @@ class PreHandler extends TokenHandler {
 			$this->multiLinePreWSToken = null;
 		}
 
-		if ( count( $this->tokens ) > 0 ) {
-			$i = count( $this->tokens ) - 1;
-			while ( $i > 0 && TokenUtils::isSolTransparent( $env, $this->tokens[ $i ] ) ) { $i--;
-   }
-			$solToks = array_splice( $this->tokens, ( $i ) );
+		$i = count( $this->tokens );
+		if ( $i > 0 ) {
+			$i--;
+			while ( $i > 0 && TokenUtils::isSolTransparent( $env, $this->tokens[$i] ) ) {
+				$i--;
+			}
+			$solToks = array_splice( $this->tokens, $i );
 			$this->lastNlTk = array_shift( $solToks );
-			Assert::invariant( $this->lastNlTk && $this->lastNlTk->constructor === NlTk::class );
-			$ret = $this->processPre( null )->concat( $solToks );
+			// assert( $this->lastNlTk && get_class( $this->lastNlTk ) === NlTk::class );
+			$ret = array_merge( $this->processPre( null ), $solToks );
 		}
 
 		if ( $this->preWSToken || $mlp ) {
-			$ret[] = $this->preWSToken || $mlp;
+			$ret[] = !is_null( $this->preWSToken ) ? $this->preWSToken : $mlp;
 			$this->preWSToken = null;
 		}
 
 		$this->resetPreCollectCurrentLine();
-		$ret = $ret->concat( $this->getResultAndReset( $token ) );
-		return $ret;
+		return array_merge( $ret, $this->getResultAndReset( $token ) );
 	}
 
-	public function getResultAndReset( $token ) {
+	/**
+	 * Get results and cleanup state
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
+	private function getResultAndReset( $token ): array {
 		$this->popLastNL( $this->tokens );
 
 		$ret = $this->tokens;
@@ -143,7 +243,7 @@ class PreHandler extends TokenHandler {
 			$this->preWSToken = null;
 		}
 		if ( count( $this->solTransparentTokens ) > 0 ) {
-			$ret = $ret->concat( $this->solTransparentTokens );
+			$ret = array_merge( $ret, $this->solTransparentTokens );
 			$this->solTransparentTokens = [];
 		}
 		$ret[] = $token;
@@ -153,16 +253,22 @@ class PreHandler extends TokenHandler {
 		return $ret;
 	}
 
-	public function processPre( $token ) {
+	/**
+	 * Process a pre
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
+	private function processPre( $token ): array {
 		$ret = [];
 
 		// pre only if we have tokens to enclose
 		if ( count( $this->tokens ) > 0 ) {
 			$da = null;
 			if ( $this->preTSR !== -1 ) {
-				$da = [ 'tsr' => [ $this->preTSR, $this->preTSR + 1 ] ];
+				$da = (object)[ 'tsr' => [ $this->preTSR, $this->preTSR + 1 ] ];
 			}
-			$ret = [ new TagTk( 'pre', [], $da ) ]->concat( $this->tokens, new EndTagTk( 'pre' ) );
+			$ret = array_merge( [ new TagTk( 'pre', [], $da ) ], $this->tokens, [ new EndTagTk( 'pre' ) ] );
 		}
 
 		// emit multiline-pre WS token
@@ -173,7 +279,7 @@ class PreHandler extends TokenHandler {
 		$this->popLastNL( $ret );
 
 		// sol-transparent toks
-		$ret = $ret->concat( $this->solTransparentTokens );
+		$ret = array_merge( $ret, $this->solTransparentTokens );
 
 		// push the the current token
 		if ( $token !== null ) {
@@ -187,18 +293,32 @@ class PreHandler extends TokenHandler {
 		return $ret;
 	}
 
+	/**
+	 * Initialize a pre TSR
+	 *
+	 * @param Token $nltk
+	 * @return int
+	 */
+	private function initPreTSR( $nltk ): int {
+		$da = $nltk->dataAttribs;
+		// tsr[1] can never be zero, so safe to use da.tsr[1] to check for null/undefined
+		return ( $da && isset( $da->tsr ) && $da->tsr[ 1 ] !== null ) ? $da->tsr[ 1 ] : -1;
+	}
+
+	/**
+	 * Handler onNewLine processing
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
 	public function onNewline( $token ) {
 		$env = $this->manager->env;
 
-		function initPreTSR( $nltk ) {
-			$da = $nltk->dataAttribs;
-			// tsr[1] can never be zero, so safe to use da.tsr[1] to check for null/undefined
-			return ( $da && $da->tsr && $da->tsr[ 1 ] ) ? $da->tsr[ 1 ] : -1;
-		}
-
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
-			PreHandler\STATE_STR()[ $this->state ], '|', function () { return json_encode( $token );
-   }
+			self::stateStr()[ $this->state ], '|',
+			function () use ( $token ) {
+				return json_encode( $token );
+			}
 		);
 
 		// Whenever we move into SOL-state, init preTSR to
@@ -210,80 +330,87 @@ class PreHandler extends TokenHandler {
 		// for what this flag is about.
 		$skipOnAny = false;
 		switch ( $this->state ) {
-			case PreHandler\STATE_SOL():
+			case self::STATE_SOL:
 			$ret = $this->getResultAndReset( $token );
 			$skipOnAny = true;
-			$this->preTSR = initPreTSR( $token );
+			$this->preTSR = self::initPreTSR( $token );
 			break;
 
-			case PreHandler\STATE_PRE():
+			case self::STATE_PRE:
 			$ret = $this->getResultAndReset( $token );
 			$skipOnAny = true;
-			$this->preTSR = initPreTSR( $token );
-			$this->state = PreHandler\STATE_SOL();
+			$this->preTSR = self::initPreTSR( $token );
+			$this->state = self::STATE_SOL;
 			break;
 
-			case PreHandler\STATE_PRE_COLLECT():
+			case self::STATE_PRE_COLLECT:
 			$this->resetPreCollectCurrentLine();
 			$this->lastNlTk = $token;
-			$this->state = PreHandler\STATE_MULTILINE_PRE();
+			$this->state = self::STATE_MULTILINE_PRE;
 			break;
 
-			case PreHandler\STATE_MULTILINE_PRE():
+			case self::STATE_MULTILINE_PRE:
 			$this->preWSToken = null;
 			$this->multiLinePreWSToken = null;
 			$ret = $this->processPre( $token );
 			$skipOnAny = true;
-			$this->preTSR = initPreTSR( $token );
-			$this->state = PreHandler\STATE_SOL();
+			$this->preTSR = self::initPreTSR( $token );
+			$this->state = self::STATE_SOL;
 			break;
 
-			case PreHandler\STATE_IGNORE():
+			case self::STATE_IGNORE:
 			$ret = [ $token ];
 			$skipOnAny = true;
 			$this->reset( true );
-			$this->preTSR = initPreTSR( $token );
+			$this->preTSR = self::initPreTSR( $token );
 			break;
 		}
 
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () { return json_encode( $ret );
-   }
+			function () use ( $ret ) {
+				return json_encode( $ret );
+			}
 		);
 
 		return [ 'tokens' => $ret, 'skipOnAny' => $skipOnAny ];
 	}
 
+	/**
+	 * Handler onEnd processing
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
 	public function onEnd( $token ) {
 		if ( !$this->onAnyEnabled ) {
 			return $token;
 		}
 
 		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
-			PreHandler\STATE_STR()[ $this->state ], '|', function () { return json_encode( $token );
-   }
+			self::stateStr()[ $this->state ], '|',
+			function () use ( $token ) {
+				return json_encode( $token );
+			}
 		);
 
 		$ret = [];
 		$skipOnAny = false;
 		switch ( $this->state ) {
-			case PreHandler\STATE_SOL():
+			case self::STATE_SOL:
+			case self::STATE_PRE:
+				$ret = $this->getResultAndReset( $token );
+				$skipOnAny = true;
+				break;
 
-			case PreHandler\STATE_PRE():
-			$ret = $this->getResultAndReset( $token );
-			$skipOnAny = true;
-			break;
-
-			case PreHandler\STATE_PRE_COLLECT():
-
-			case PreHandler\STATE_MULTILINE_PRE():
-			$this->preWSToken = null;
-			$this->multiLinePreWSToken = null;
-			$this->resetPreCollectCurrentLine();
-			$ret = $this->processPre( $token );
-			$skipOnAny = true;
-			break;
+			case self::STATE_PRE_COLLECT:
+			case self::STATE_MULTILINE_PRE:
+				$this->preWSToken = null;
+				$this->multiLinePreWSToken = null;
+				$this->resetPreCollectCurrentLine();
+				$ret = $this->processPre( $token );
+				$skipOnAny = true;
+				break;
 		}
 
 		// reset for next use of this pipeline!
@@ -291,52 +418,56 @@ class PreHandler extends TokenHandler {
 
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () { return json_encode( $ret );
-   }
+			function () use ( $ret ){
+				return json_encode( $ret );
+			}
 		);
 
 		return [ 'tokens' => $ret, 'skipOnAny' => $skipOnAny ];
 	}
 
-	public function onSyncTTMEnd( $token ) {
-		if ( $this->state !== PreHandler\STATE_IGNORE() ) {
-			$this->manager->env->log( 'error', 'Not IGNORE! Cannot get here:',
-				$this->state, ';', json_encode( $token )
-			);
-			$this->reset( false );
-			return [ 'tokens' => [ $token ] ];
-		}
-
-		$this->reset( true );
-		return [ 'tokens' => [ $token ] ];
-	}
-
-	public function getUpdatedPreTSR( $tsr, $token ) {
-		$tc = $token->constructor;
-		if ( $tc === CommentTk::class ) {
+	/**
+	 * Get updated pre TSR value
+	 *
+	 * @param int $tsr
+	 * @param Token $token
+	 * @return int
+	 */
+	private function getUpdatedPreTSR( int $tsr, $token ): int {
+		$tc = TokenUtils::getTokenType( $token );
+		if ( $tc === 'CommentTk' ) {
 			// comment length has 7 added for "<!--" and "-->" deliminters
 			// (see WTUtils.decodedCommentLength() -- but that takes a node not a token)
-			$tsr = ( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr[ 1 ] : ( ( $tsr === -1 ) ? -1 : count( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
-		} elseif ( $tc === SelfclosingTagTk::class ) {
+			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr[ 1 ] :
+				( ( $tsr === -1 ) ? -1 : count( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
+		} elseif ( $tc === 'SelfclosingTagTk' ) {
 			// meta-tag (cannot compute)
 			$tsr = -1;
 		} elseif ( $tsr !== -1 ) {
 			// string
-			$tsr += count( $token );
+			$tsr += mb_strlen( $token );
 		}
 		return $tsr;
 	}
 
+	/**
+	 * Handle onAny processing
+	 *
+	 * @param Token $token
+	 * @return array
+	 */
 	public function onAny( $token ) {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
-			PreHandler\STATE_STR()[ $this->state ], '|', function () { return json_encode( $token );
-   }
+			self::stateStr()[ $this->state ], '|',
+			function () use ( $token ) {
+				return json_encode( $token );
+			}
 		);
 
-		if ( $this->state === PreHandler\STATE_IGNORE() ) {
-			$env->log( 'error', function () {
+		if ( $this->state === self::STATE_IGNORE ) {
+			$env->log( 'error', function () use ( $token ) {
 					return '!ERROR! IGNORE! Cannot get here: ' . json_encode( $token );
 			}
 			);
@@ -345,41 +476,39 @@ class PreHandler extends TokenHandler {
 
 		$skipOnAny = false;
 		$ret = [];
-		$tc = $token->constructor;
-		if ( $tc === EOFTk::class ) {
+		$tc = TokenUtils::getTokenType( $token );
+		if ( $tc === 'EOFTk' ) {
 			switch ( $this->state ) {
-				case PreHandler\STATE_SOL():
+				case self::STATE_SOL:
+				case self::STATE_PRE:
+					$ret = $this->getResultAndReset( $token );
+					$skipOnAny = true;
+					break;
 
-				case PreHandler\STATE_PRE():
-				$ret = $this->getResultAndReset( $token );
-				$skipOnAny = true;
-				break;
-
-				case PreHandler\STATE_PRE_COLLECT():
-
-				case PreHandler\STATE_MULTILINE_PRE():
-				$this->preWSToken = null;
-				$this->multiLinePreWSToken = null;
-				$this->resetPreCollectCurrentLine();
-				$ret = $this->processPre( $token );
-				$skipOnAny = true;
-				break;
+				case self::STATE_PRE_COLLECT:
+				case self::STATE_MULTILINE_PRE:
+					$this->preWSToken = null;
+					$this->multiLinePreWSToken = null;
+					$this->resetPreCollectCurrentLine();
+					$ret = $this->processPre( $token );
+					$skipOnAny = true;
+					break;
 			}
 
 			// reset for next use of this pipeline!
 			$this->reset( false );
 		} else {
 			switch ( $this->state ) {
-				case PreHandler\STATE_SOL():
-				if ( ( $tc === $String ) && preg_match( '/^ /', $token ) ) {
+				case self::STATE_SOL:
+				if ( ( $tc === 'string' ) && preg_match( '/^ /', $token ) ) {
 					$ret = $this->tokens;
 					$this->tokens = [];
 					$this->preWSToken = $token[ 0 ];
-					$this->state = PreHandler\STATE_PRE();
+					$this->state = self::STATE_PRE;
 					if ( !preg_match( '/^ $/', $token ) ) {
 						// Treat everything after the first space
 						// as a new token
-						$this->onAny( array_slice( $token, 1 ) );
+						$this->onAny( mb_substr( $token, 1 ) );
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
 					// continue watching ...
@@ -393,24 +522,25 @@ class PreHandler extends TokenHandler {
 				}
 				break;
 
-				case PreHandler\STATE_PRE():
+				case self::STATE_PRE:
 				if ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
 					$this->solTransparentTokens[] = $token;
-				} elseif ( TokenUtils::isTableTag( $token )
-|| ( TokenUtils::isHTMLTag( $token ) && TokenUtils::isBlockTag( $token->name ) )
+				} elseif ( TokenUtils::isTableTag( $token ) ||
+					( TokenUtils::isHTMLTag( $token ) && TokenUtils::isBlockTag( $token->getName() ) )
 				) {
 					$ret = $this->getResultAndReset( $token );
 					$skipOnAny = true;
 					$this->moveToIgnoreState();
 				} else {
-					$this->preCollectCurrentLine = $this->solTransparentTokens->concat( $token );
+					$this->preCollectCurrentLine = $this->solTransparentTokens;
+					$this->preCollectCurrentLine[] = $token;
 					$this->solTransparentTokens = [];
-					$this->state = PreHandler\STATE_PRE_COLLECT();
+					$this->state = self::STATE_PRE_COLLECT;
 				}
 				break;
 
-				case PreHandler\STATE_PRE_COLLECT():
-				if ( $token->name && TokenUtils::isBlockTag( $token->name ) ) {
+				case self::STATE_PRE_COLLECT:
+				if ( $tc !== 'string' && TokenUtils::isBlockTag( $token->getName() ) ) {
 					$ret = $this->encounteredBlockWhileCollecting( $token );
 					$skipOnAny = true;
 					$this->moveToIgnoreState();
@@ -420,21 +550,21 @@ class PreHandler extends TokenHandler {
 				}
 				break;
 
-				case PreHandler\STATE_MULTILINE_PRE():
-				if ( ( $tc === $String ) && preg_match( '/^ /', $token ) ) {
+				case self::STATE_MULTILINE_PRE:
+				if ( ( $tc === 'string' ) && preg_match( '/^ /', $token ) ) {
 					$this->popLastNL( $this->tokens );
-					$this->state = PreHandler\STATE_PRE_COLLECT();
+					$this->state = self::STATE_PRE_COLLECT;
 					$this->preWSToken = null;
 
 					// Pop buffered sol-transparent tokens
-					$this->tokens = $this->tokens->concat( $this->solTransparentTokens );
+					$this->tokens = array_merge( $this->tokens, $this->solTransparentTokens );
 					$this->solTransparentTokens = [];
 
 					// check if token is single-space or more
 					$this->multiLinePreWSToken = $token[ 0 ];
 					if ( !preg_match( '/^ $/', $token ) ) {
 						// Treat everything after the first space as a new token
-						$this->onAny( array_slice( $token, 1 ) );
+						$this->onAny( mb_substr( $token, 1 ) );
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
 					$this->solTransparentTokens[] = $token;
@@ -449,14 +579,11 @@ class PreHandler extends TokenHandler {
 
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () { return json_encode( $ret );
-   }
+			function () use ( $ret ) {
+				return json_encode( $ret );
+			}
 		);
 
 		return [ 'tokens' => $ret, 'skipOnAny' => $skipOnAny ];
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->PreHandler = $PreHandler;
 }

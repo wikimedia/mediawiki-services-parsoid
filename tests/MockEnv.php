@@ -10,7 +10,7 @@ namespace Parsoid\tests;
 class MockEnv {
 	/**
 	 * Construct a mock environment object for use in tests
-	 * @param array $opts
+	 * @param object $opts
 	 * @param string $pageSrc Wikitext source for the current title
 	 */
 	public function __construct( $opts, $pageSrc = "Some dummy source wikitext for testing." ) {
@@ -48,6 +48,21 @@ class MockEnv {
 			for ( $index = 0; $index < $numArgs; $index++ ) {
 				if ( is_callable( $args[$index] ) ) {
 					$output = $output . ' ' . $args[$index]();
+				} elseif ( is_array( $args[$index] ) ) {
+					$output = $output . '[';
+					$elements = count( $args[$index] );
+					for ( $i = 0; $i < $elements; $i++ ) {
+						if ( $i > 0 ) {
+							$output = $output . ',';
+						}
+						if ( is_string( $args[$index][$i] ) ) {
+							$output = $output . '"' . $args[$index][$i] . '"';
+						} else {
+							// PORT_FIXME the JS output is '[Object object] but we output the actual token class
+							$output = $output . json_encode( $args[$index][$i] );
+						}
+					}
+					$output = $output . ']';
 				} else {
 					$output = $output . ' ' . $args[$index];
 				}

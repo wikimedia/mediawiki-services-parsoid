@@ -8,6 +8,7 @@ use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
+use Parsoid\Wt2Html\TT\PreHandler;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -52,6 +53,9 @@ switch ( $transformerName ) {
 		break;
 	case "ParagraphWrapper":
 		$transformer = new ParagraphWrapper( $manager, $pipelineOpts );
+		break;
+	case "PreHandler":
+		$transformer = new PreHandler( $manager, $pipelineOpts );
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );
