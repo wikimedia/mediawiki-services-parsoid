@@ -270,10 +270,11 @@ class XMLSerializer {
 	 *
 	 * @param DOMNode $node
 	 * @param array $options
-	 *   - smartQuote (bool, default true)
-	 *   - innerXML (bool, default false)
-	 *   - captureOffsets (bool, default false)
-	 * @return array|null An array with the following data:
+	 *   - smartQuote (bool, default true): use single quotes for attributes when that's less escaping
+	 *   - innerXML (bool, default false): only serialize the contents of $node, exclude $node itself
+	 *   - captureOffsets (bool, default false): return tag position data (see below)
+	 *   - addDoctype (bool default true): prepend a DOCTYPE when a full HTML document is serialized
+	 * @return array An array with the following data:
 	 *   - html: the serialized HTML
 	 *   - offsets: the start and end position of each element in the HTML, in a
 	 *     [ $uid => [ 'html' => [ $start, $end ] ], ... ] format where $uid is the element's
@@ -288,6 +289,7 @@ class XMLSerializer {
 			'smartQuote' => true,
 			'innerXML' => false,
 			'captureOffsets' => false,
+			'addDoctype' => true,
 		];
 		if ( $node instanceof DOMDocument ) {
 			$node = $node->documentElement;
@@ -309,7 +311,7 @@ class XMLSerializer {
 			self::serializeToString( $node, $options, $accum );
 		}
 		// Ensure there's a doctype for documents.
-		if ( !$options['innerXML'] && $node->nodeName === 'html' ) {
+		if ( !$options['innerXML'] && $node->nodeName === 'html' && $options['addDoctype'] ) {
 			$out['html'] = "<!DOCTYPE html>\n" . $out['html'];
 		}
 		// Drop the bookkeeping

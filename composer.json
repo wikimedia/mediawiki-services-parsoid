@@ -24,6 +24,7 @@
 		"php": ">=7.1.0",
 		"psr/log": "1.0.2",
 		"wikimedia/assert": "0.2.2",
+		"wikimedia/css-sanitizer": "2.0.1",
 		"wikimedia/remex-html": "2.0.2"
 	},
 	"require-dev": {
@@ -50,7 +51,7 @@
 			"phpcs -p -s",
 			"minus-x check .",
 			"phpunit",
-			"phpspec run -v"
+			"phpspec run -v --ansi"
 		],
 		"fix": [
 			"minus-x fix .",
