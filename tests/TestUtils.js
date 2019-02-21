@@ -83,7 +83,7 @@ TestUtils.normalizeOut = function(domBody, options) {
 			selserMode: false,
 			rtTestMode: options.rtTestMode,
 		};
-		DOMDataUtils.visitAndLoadDataAttribs(domBody);
+		DOMDataUtils.visitAndLoadDataAttribs(domBody, { markNew: true });
 		domBody = (new DOMNormalizer(mockState).normalize(domBody));
 		DOMDataUtils.visitAndStoreDataAttribs(domBody);
 	}
@@ -107,7 +107,7 @@ TestUtils.normalizeOut = function(domBody, options) {
 	out = out.replace(/UNIQ-.*?-QINU/g, '');
 
 	// And from the imagemap extension - the id attribute is not always around, it appears!
-	out = out.replace(/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?>/g, '<map>');
+	out = out.replace(/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/g, '<map>');
 
 	// Normalize COINS ids -- they aren't stable
 	out = out.replace(/\s?id=['"]coins_\d+['"]/ig, '');
