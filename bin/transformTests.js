@@ -85,6 +85,7 @@ MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts)
 	var testName;
 	var testFile;
 	var testLines;
+	var numPasses = 0;
 	var numFailures = 0;
 
 	if (opts.timingMode) {
@@ -124,14 +125,17 @@ MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts)
 				result = transformer.processTokensSync(null, input, []);
 				stringResult = JSON.stringify(result);
 				if (stringResult === line) {
+					numPasses++;
 					if (!opts.timingMode) {
-						console.log(testName + ' ==> passed\n');
+						if (opts.verbose) {
+							console.log(testName + ' ==> passed\n');
+						}
 					}
 				} else {
 					numFailures++;
 					console.log(testName + ' ==> failed');
 					console.log('line to debug => ' + line);
-					console.log('result line ===> ' + stringResult + "\n");
+					console.log('result line ===> ' + stringResult);
 				}
 				input = [];
 				break;
@@ -144,7 +148,8 @@ MockTTM.prototype.ProcessTestFile = function(transformer, transformerName, opts)
 				break;
 		}
 	}
-	return numFailures;
+
+	return { passes: numPasses, fails: numFailures };
 };
 
 // Because tokens are processed in pipelines which can execute out of
@@ -210,6 +215,7 @@ MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
 		pipeLines = CreatePipelines(testLines);
 		pipeLinesLength = pipeLines.length;
 	}
+	var numPasses = 0;
 	var numFailures = 0;
 	let input = [];
 	for (var i = 0; i < pipeLinesLength; i++) {
@@ -228,41 +234,51 @@ MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
 					const result = transformer.processTokensSync(null, input, []);
 					const stringResult = JSON.stringify(result);
 					if (stringResult === line) {
+						numPasses++;
 						if (!opts.timingMode) {
-							console.log('line ' + (pipeLines[i][j] + 1) + ' ==> passed\n');
+							if (opts.verbose) {
+								console.log('line ' + (pipeLines[i][j] + 1) + ' ==> passed');
+							}
 						}
 					} else {
 						numFailures++;
 						console.log('line ' + (pipeLines[i][j] + 1) + ' ==> failed');
 						console.log('line to debug => ' + line);
-						console.log('result line ===> ' + stringResult + "\n");
+						console.log('result line ===> ' + stringResult);
 					}
 					input = [];
 				}
 			}
 		}
 	}
-	return numFailures;
+
+	if (!opts.verbose) {
+		process.stdout.write('\n');
+	}
+
+	return { passes: numPasses, fails: numFailures };
 };
 
 MockTTM.prototype.unitTest = function(tokenTransformer, transformerName, opts) {
 	if (!opts.timingMode) {
-		console.log('Starting stand alone unit test running file ' + opts.inputFile + '\n');
+		console.log('Starting stand alone unit test running file ' + opts.inputFile);
 	}
-	tokenTransformer.manager.ProcessTestFile(tokenTransformer, transformerName, opts);
+	var results = tokenTransformer.manager.ProcessTestFile(tokenTransformer, transformerName, opts);
 	if (!opts.timingMode) {
-		console.log('Ending stand alone unit test running file ' + opts.inputFile + '\n');
+		console.log('Ending stand alone unit test running file ' + opts.inputFile);
 	}
+	return results;
 };
 
 MockTTM.prototype.wikitextTest = function(tokenTransformer, opts) {
 	if (!opts.timingMode) {
-		console.log('Starting stand alone wikitext test running file ' + opts.inputFile + '\n');
+		console.log('Starting stand alone wikitext test running file ' + opts.inputFile);
 	}
-	tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, opts);
+	var results = tokenTransformer.manager.ProcessWikitextFile(tokenTransformer, opts);
 	if (!opts.timingMode) {
-		console.log('Ending stand alone wikitext test running file ' + opts.inputFile + '\n');
+		console.log('Ending stand alone wikitext test running file ' + opts.inputFile);
 	}
+	return results;
 };
 
 var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFile /path/filename', {
@@ -292,6 +308,11 @@ var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]]
 		'boolean': true,
 		'default': false
 	},
+	verbose: {
+		description: 'print pass status for every single line',
+		'boolean': true,
+		'default': false
+	},
 	transformer: {
 		description: 'Provide the name of the transformer to test',
 		'boolean': false,
@@ -310,16 +331,16 @@ var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]]
 });
 
 function selectTestType(opts, manager, transformerName, handler) {
-	var numFailures = 0;
-	var iterator = opts.timingMode ? Math.round(opts.iterationCount) : 1;
-	while (iterator--) {
+	var results;
+	var i = opts.timingMode ? Math.round(opts.iterationCount) : 1;
+	while (i--) {
 		if (opts.manual) {
-			numFailures += manager.unitTest(handler, transformerName, opts);
+			results = manager.unitTest(handler, transformerName, opts);
 		} else {
-			numFailures += manager.wikitextTest(handler, opts);
+			results = manager.wikitextTest(handler, opts);
 		}
 	}
-	return numFailures;
+	return results;
 }
 
 function runTests() {
@@ -348,12 +369,15 @@ function runTests() {
 	try {
 		var startTime = JSUtils.startTime();
 		var TransformerModule = require('../lib/wt2html/tt/' + argv.transformer + '.js')[argv.transformer];
-		var numFailures = selectTestType(argv, manager, argv.transformer, new TransformerModule(manager, {}));
+		var results = selectTestType(argv, manager, argv.transformer, new TransformerModule(manager, {}));
 		var totalTime = JSUtils.elapsedTime(startTime);
 		console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');
 		console.log('Total time processing tokens     = ' + manager.tokenTime.toFixed(3) + ' milliseconds');
-		if (numFailures) {
-			console.log('Total failures:', numFailures);
+		console.log('----------------------');
+		console.log('Total passes   :', results.passes);
+		console.log('Total failures :', results.fails);
+		console.log('----------------------');
+		if (results.fails) {
 			process.exit(1);
 		}
 	} catch (e) {

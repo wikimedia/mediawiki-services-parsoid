@@ -1,8 +1,5 @@
 <?php
 
-/* Starting point for transformerTests.php
-*/
-
 /*
 Token transform unit test system
 
@@ -94,6 +91,7 @@ class TransformTests {
 	public function processTestFile( $transformer, $transformerName, $commandLine ) {
 		global $wgCachedState;
 		global $wgCachedTestLines;
+		$numPasses = 0;
 		$numFailures = 0;
 
 		if ( isset( $commandLine['timingMode'] ) ) {
@@ -145,8 +143,11 @@ class TransformTests {
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
 					if ( $stringResult === $line ) {
-						if ( !isset( $commandLine['timingMode'] ) ) {
-							print $testName . " ==> passed\n\n";
+						$numPasses++;
+						if ( empty( $commandLine['timingMode'] ) &&
+							!empty( $commandLine['verbose'] )
+						) {
+							print $testName . " ==> passed\n";
 						}
 					} else {
 						$numFailures++;
@@ -167,7 +168,8 @@ class TransformTests {
 					break;
 			}
 		}
-		return $numFailures;
+
+		return [ "passes" => $numPasses, "fails" => $numFailures ];
 	}
 
 	/**
@@ -223,6 +225,7 @@ class TransformTests {
 		global $wgCachedTestLines;
 		global $wgCachedPipeLines;
 		global $wgCachedPipeLinesLength;
+		$numPasses = 0;
 		$numFailures = 0;
 
 		if ( isset( $commandLine['timingMode'] ) ) {
@@ -284,8 +287,11 @@ class TransformTests {
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
 					if ( $stringResult === $line ) {
-						if ( !isset( $commandLine['timingMode'] ) ) {
-							print "line " . ( $p[$j] + 1 ) . " ==> passed\n\n";
+						$numPasses++;
+						if ( empty( $commandLine['timingMode'] ) &&
+							!empty( $commandLine['verbose'] )
+						) {
+							print "line " . ( $p[$j] + 1 ) . " ==> passed\n";
 						}
 					} else {
 						$numFailures++;
@@ -297,7 +303,8 @@ class TransformTests {
 				}
 			}
 		}
-		return $numFailures;
+
+		return [ "passes" => $numPasses, "fails" => $numFailures ];
 	}
 
 	/**
@@ -311,15 +318,15 @@ class TransformTests {
 	public function unitTest( $tokenTransformer, $transformerName, $commandLine ) {
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Starting stand alone unit test running file " .
-				$commandLine['inputFile'] . "\n\n";
+				$commandLine['inputFile'] . "\n";
 		}
-		$numFailures = $tokenTransformer->manager->processTestFile( $tokenTransformer,
+		$results = $tokenTransformer->manager->processTestFile( $tokenTransformer,
 			$transformerName, $commandLine );
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Ending stand alone unit test running file " .
-				$commandLine['inputFile'] . "\n\n";
+				$commandLine['inputFile'] . "\n";
 		}
-		return $numFailures;
+		return $results;
 	}
 
 	/**
@@ -332,14 +339,14 @@ class TransformTests {
 	public function wikitextTest( $tokenTransformer, $commandLine ) {
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Starting stand alone wikitext test running file " .
-				$commandLine['inputFile'] . "\n\n";
+				$commandLine['inputFile'] . "\n";
 		}
-		$numFailures = $tokenTransformer->manager->processWikitextFile( $tokenTransformer, $commandLine );
+		$results = $tokenTransformer->manager->processWikitextFile( $tokenTransformer, $commandLine );
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Ending stand alone wikitext test running file " .
-				$commandLine['inputFile'] . "\n\n";
+				$commandLine['inputFile'] . "\n";
 		}
-		return $numFailures;
+		return $results;
 	}
 }
 
@@ -353,23 +360,22 @@ class TransformTests {
  * @return number
  */
 function wfSelectTestType( $commandLine, $manager, $transformerName, $handler ) {
-	$iterator = 1;
-	$numFailures = 0;
+	$i = 1;
 	if ( isset( $commandLine['timingMode'] ) ) {
 		if ( isset( $commandLine['iterationCount'] ) ) {
-			$iterator = $commandLine['iterationCount'];
+			$i = $commandLine['iterationCount'];
 		} else {
-			$iterator = 10000;  // defaults to 10000 iterations
+			$i = 10000;  // defaults to 10000 iterations
 		}
 	}
-	while ( $iterator-- ) {
+	while ( $i-- ) {
 		if ( isset( $commandLine['manual'] ) ) {
-			$numFailures = $manager->unitTest( $handler, $transformerName, $commandLine );
+			$results = $manager->unitTest( $handler, $transformerName, $commandLine );
 		} else {
-			$numFailures = $manager->wikitextTest( $handler, $commandLine );
+			$results = $manager->wikitextTest( $handler, $commandLine );
 		}
 	}
-	return $numFailures;
+	return $results;
 }
 
 /**
@@ -420,12 +426,10 @@ function wfProcessArguments( int $argc, array $argv ): array {
  * @return number
  */
 function wfRunTests( $argc, $argv ) {
-	$numFailures = 0;
-
 	$opts = wfProcessArguments( $argc, $argv );
 
 	if ( isset( $opts['help'] ) ) {
-		print "must specify [--manual] [--log] [--breakLine 123] [--timingMode]" .
+		print "must specify [--manual] [--log] [--breakLine 123] [--timingMode] [--verbose]" .
 			" [--iterationCount=XXX] --TransformerName --inputFile /path/filename\n";
 		return;
 	}
@@ -447,21 +451,22 @@ function wfRunTests( $argc, $argv ) {
 	$startTime = PHPUtils::getStartHRTime();
 
 	$transformer = $opts['transformer'] ?? '';
+	$results = [];
 	if ( $transformer === 'QuoteTransformer' ) {
 		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, [] );
-		$numFailures = wfSelectTestType( $opts, $manager, "QuoteTransformer", $qt );
+		$results = wfSelectTestType( $opts, $manager, "QuoteTransformer", $qt );
 	} elseif ( $transformer === 'ParagraphWrapper' ) {
 		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, [] );
-		$numFailures = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
+		$results = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
 	} elseif ( isset( $opts->PreHandler ) ) {
 		$pw = new Parsoid\Wt2Html\TT\PreHandler( $manager, [] );
-		$numFailures = wfSelectTestType( $opts, $manager, "PreHandler", $pw );
+		$results = wfSelectTestType( $opts, $manager, "PreHandler", $pw );
 	} elseif ( $transformer === 'BehaviorSwitchHandler' ) {
 		$pw = new Parsoid\Wt2Html\TT\BehaviorSwitchHandler( $manager, [] );
-		$numFailures = wfSelectTestType( $opts, $manager, "BehaviorSwitchHandler", $pw );
+		$results = wfSelectTestType( $opts, $manager, "BehaviorSwitchHandler", $pw );
 	} elseif ( $transformer === 'ListHandler' ) {
 		$pw = new Parsoid\Wt2Html\TT\ListHandler( $manager, [] );
-		$numFailures = wfSelectTestType( $opts, $manager, "ListHandler", $pw );
+		$results = wfSelectTestType( $opts, $manager, "ListHandler", $pw );
 	}
 	/*
 	} else if ($opts->TokenStreamPatcher) {
@@ -475,15 +480,19 @@ function wfRunTests( $argc, $argv ) {
 		wfSelectTestType(argv, manager, sh);
 	} */ else {
 		print 'No valid TransformerName was specified\n';
-		$numFailures++;
+		exit( 1 );
 }
 
 	$totalTime = PHPUtils::getHRTimeDifferential( $startTime );
 	print 'Total transformer execution time = ' . $totalTime . " milliseconds\n";
 	print 'Total time processing tokens     = ' . round( $manager->tokenTime, 3 ) .
 		" milliseconds\n";
-	if ( $numFailures ) {
-		print 'Total failures: ' . $numFailures;
+	print "----------------------\n";
+	print 'Total passes   : ' . $results['passes'] . "\n";
+	print 'Total failures : ' . $results['fails'] . "\n";
+	print "----------------------\n";
+	if ( $results['fails'] > 0 ) {
+		print 'Total failures: ' . $results['fails'];
 		exit( 1 );
 	}
 }

@@ -37,8 +37,12 @@ class KV implements \JsonSerializable {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
-		$this->ksrc = $ksrc;
-		$this->vsrc = $vsrc;
+		if ( $ksrc ) {
+			$this->ksrc = $ksrc;
+		}
+		if ( $vsrc ) {
+			$this->vsrc = $vsrc;
+		}
 	}
 
 	/**
@@ -88,10 +92,10 @@ class KV implements \JsonSerializable {
 		if ( $this->srcOffsets ) {
 			$ret["srcOffsets"] = $this->srcOffsets;
 		}
-		if ( $this->ksrc !== null ) { // can be ""
+		if ( $this->ksrc ) {
 			$ret["ksrc"] = $this->ksrc;
 		}
-		if ( $this->vsrc !== null ) { // can be ""
+		if ( $this->vsrc ) {
 			$ret["vsrc"] = $this->vsrc;
 		}
 		return $ret;
