@@ -46,6 +46,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 require_once __DIR__ . '/../tests/MockEnv.php';
 
+use Parsoid\Tests\MockEnv;
+
 use RemexHtml\DOM;
 use RemexHtml\Tokenizer;
 use RemexHtml\TreeBuilder;
@@ -58,15 +60,6 @@ use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 $wgCachedState = false;
 $wgCachedFilePre = '';
 $wgCachedFilePost = '';
-$wgLogFlag = false;
-
-/**
- * Log message to output
- * @param string $msg
- */
-function wfLog( $msg ) {
-	print $msg;
-}
 
 /**
  * Get a token from some HTML text
@@ -147,14 +140,14 @@ class DOMPassTester {
 
 			// Ignore trailing newline diffs
 			if ( preg_replace( '#\n$#', '', $testFilePre ) === $domPre ) {
-				wfLog( "DOM pre output matches genTest Pre output\n" );
+				print "DOM pre output matches genTest Pre output\n";
 			} else {
-				wfLog( "DOM pre output DOES NOT match genTest Pre output\n" );
+				print "DOM pre output DOES NOT match genTest Pre output\n";
 			}
 
 			if ( $opts->debug_dump ) {
 				file_put_contents( 'temporaryPrePhp.txt', $domPre );
-				wfLog( "temporaryPrePhp.txt saved!\n" );
+				print "temporaryPrePhp.txt saved!\n";
 			}
 		}
 
@@ -193,15 +186,15 @@ class DOMPassTester {
 
 			// Ignore trailing newline diffs
 			if ( preg_replace( '#\n$#', '', $testFilePost ) === $domPost ) {
-				wfLog( "DOM post transform output matches genTest Post output\n" );
+				print "DOM post transform output matches genTest Post output\n";
 			} else {
-				wfLog( "DOM post transform output DOES NOT match genTest Post output\n" );
+				print "DOM post transform output DOES NOT match genTest Post output\n";
 				$numFailures++;
 			}
 
 			if ( $opts->debug_dump ) {
 				file_put_contents( 'temporaryPostPhp.txt', $domPost );
-				wfLog( "temporaryPostPhp.txt saved!\n" );
+				print "temporaryPostPhp.txt saved!\n";
 			}
 		}
 
@@ -227,56 +220,58 @@ class DOMPassTester {
 			}
 		}
 
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Starting wikitext dom test, file = " . $opts->inputFilePrefix .
-				"-" . $opts->transformer . "-pre.txt and -post.txt\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Starting wikitext dom test, file = " . $opts->inputFilePrefix .
+				"-" . $opts->transformer . "-pre.txt and -post.txt\n\n";
 		}
 
 		while ( $iterator-- ) {
 			$numFailures += $this->processWikitextFile( $opts );
 		}
 
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Ending wikitext dom test, file = " . $opts->inputFilePrefix . "-" .
-				$opts->transformer . "-pre.txt and -post.txt\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Ending wikitext dom test, file = " . $opts->inputFilePrefix . "-" .
+				$opts->transformer . "-pre.txt and -post.txt\n\n";
 		}
 		return $numFailures;
 	}
 }
 
 /**
- * processArguments handles a subset of javascript yargs like processing for command line
+ * ProcessArguments handles a subset of javascript yargs like processing for command line
  * parameters setting object elements to the key name. If no value follows the key,
  * it is set to true, otherwise it is set to the value. The key can be followed by a
- * space then value, or an equals symbol then the value. Parameters that are not
- * preceded with -- are stored in the element _array at their argv index as text.
- * There is no security checking for the text being processed by the dangerous eval() function.
+ * space then value, or an equals symbol then the value.
  *
  * @param number $argc
  * @param array $argv
- * @return object
+ * @return array
  */
-function wfProcessArguments( $argc, $argv ) {
-	$opts = (object)[];
+function wfProcessArguments( int $argc, array $argv ): array {
+	$opts = [];
 	$last = false;
-	for ( $index = 1; $index < $argc; $index++ ) {
-		$text = $argv[$index];
+	for ( $i = 1; $i < $argc; $i++ ) {
+		$text = $argv[$i];
 		if ( '--' === substr( $text, 0, 2 ) ) {
 			$assignOffset = strpos( $text, '=', 3 );
 			if ( $assignOffset === false ) {
 				$key = substr( $text, 2 );
 				$last = $key;
-				eval( '$opts->' . $key . '=true;' );
+				$opts[$key] = true;
 			} else {
 				$value = substr( $text, $assignOffset + 1 );
 				$key = substr( $text, 2, $assignOffset - 2 );
 				$last = false;
-				eval( '$opts->' . $key . '=\'' . $value . '\';' );
+				$opts[$key] = $value;
 			}
-		} elseif ( $last === false ) {
-				eval( '$opts->_array[' . ( $index - 1 ) . ']=\'' . $text . '\';' );
+		} elseif ( $last ) {
+			$opts[$last] = $text;
+			$last = false;
 		} else {
-				eval( '$opts->' . $last . '=\'' . $text . '\';' );
+			// There are no free args supported right now
+			// So, keep things simple
+			print "Unknown arg " . $argv[$i] . "\n";
+			exit( 1 );
 		}
 	}
 	return $opts;
@@ -293,34 +288,34 @@ function wfRunTests( $argc, $argv ) {
 	$numFailures = 0;
 
 	$opts = wfProcessArguments( $argc, $argv );
-	if ( !isset( $opts->debug_dump ) ) {
-		$opts->debug_dump = false;
+	if ( !isset( $opts['debug_dump'] ) ) {
+		$opts['debug_dump'] = false;
 	}
-	$opts->firstRun = true;
+	$opts['firstRun'] = true;
 
-	if ( isset( $opts->help ) ) {
-		wfLog( "must specify [--timingMode] [--iterationCount=XXX]" .
-			" --transformer NAME --inputFilePrefix path/pageNamePrefix\n" );
-		wfLog( "Default iteration count is 50 if not specified\n" );
-		wfLog( "use --debug_dump to create pre and post dom serialized" .
-			" output to temporaryPrePhp.txt and ...PostPhp.txt\n" );
+	if ( isset( $opts['help'] ) ) {
+		print "must specify [--timingMode] [--iterationCount=XXX]" .
+			" --transformer NAME --inputFilePrefix path/pageNamePrefix\n";
+		print "Default iteration count is 50 if not specified\n";
+		print "use --debug_dump to create pre and post dom serialized" .
+			" output to temporaryPrePhp.txt and ...PostPhp.txt\n";
 		return;
 	}
 
-	if ( !isset( $opts->inputFilePrefix ) ) {
-		wfLog( "must specify --transformer NAME --inputFilePrefix path/pageNamePrefix\n" );
-		wfLog( "Run node bin/domTests.php --help for more information\n" );
+	if ( !isset( $opts['inputFilePrefix'] ) ) {
+		print "must specify --transformer NAME --inputFilePrefix path/pageNamePrefix\n";
+		print "Run node bin/domTests.php --help for more information\n";
 		return;
 	}
 
-	$mockEnv = new Tests\MockEnv( $opts );
+	$mockEnv = new MockEnv( [] );
 	$manager = new DOMPassTester( $mockEnv, [] );
 
-	if ( isset( $opts->timingMode ) ) {
-		wfLog( "Timing Mode enabled, no console output expected till test completes\n" );
+	if ( isset( $opts['timingMode'] ) ) {
+		print "Timing Mode enabled, no console output expected till test completes\n";
 	}
 
-	wfLog( "Selected dom transformer = " . $opts->transformer . "\n" );
+	print "Selected dom transformer = " . $opts['transformer'] . "\n";
 
 	$startTime = PHPUtils::getStartHRTime();
 
@@ -328,12 +323,12 @@ function wfRunTests( $argc, $argv ) {
 
 	$totalTime = PHPUtils::getHRTimeDifferential( $startTime );
 
-	wfLog( "Total DOM test execution time        = " . $totalTime . " milliseconds\n" );
-	wfLog( "Total time processing DOM transforms = " . round( $manager->transformTime, 3 ) .
-		" milliseconds\n" );
+	print "Total DOM test execution time        = " . $totalTime . " milliseconds\n";
+	print "Total time processing DOM transforms = " . round( $manager->transformTime, 3 ) .
+		" milliseconds\n";
 
 	if ( $numFailures ) {
-		wfLog( 'Total failures: ' . $numFailures );
+		print 'Total failures: ' . $numFailures;
 		exit( 1 );
 	}
 }

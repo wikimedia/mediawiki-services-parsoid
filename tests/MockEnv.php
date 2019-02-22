@@ -13,8 +13,8 @@ class MockEnv {
 	 * @param object $opts
 	 * @param string $pageSrc Wikitext source for the current title
 	 */
-	public function __construct( $opts, $pageSrc = "Some dummy source wikitext for testing." ) {
-		$this->logFlag = isset( $opts->log );
+	public function __construct( array $opts, $pageSrc = "Some dummy source wikitext for testing." ) {
+		$this->logFlag = $opts['log'] ?? false;
 		$this->wrapSections = true; // Always add <section> wrappers
 		$this->page = new \stdClass();
 		$this->page->src = $pageSrc;

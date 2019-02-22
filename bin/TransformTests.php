@@ -57,23 +57,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../tests/MockEnv.php';
 
 use Parsoid\Tests\MockEnv;
-
-use Parsoid\Utils\PHPUtils;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
 
 $wgCachedState = false;
 $wgCachedTestLines = '';
 $wgCachedPipeLines = '';
 $wgCachedPipeLinesLength = [];
-
-/**
- * Write text to the console
- *
- * @param string $msg
- */
-function wfLog( $msg ) {
-	print $msg;
-}
 
 // Mock environment for token transformers
 class TransformTests {
@@ -106,10 +96,10 @@ class TransformTests {
 		global $wgCachedTestLines;
 		$numFailures = 0;
 
-		if ( isset( $commandLine->timingMode ) ) {
+		if ( isset( $commandLine['timingMode'] ) ) {
 			if ( $wgCachedState == false ) {
 				$wgCachedState = true;
-				$testFile = file_get_contents( $commandLine->inputFile );
+				$testFile = file_get_contents( $commandLine['inputFile'] );
 				$testFile = mb_convert_encoding( $testFile, 'UTF-8',
 					mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 				$testLines = explode( "\n", $testFile );
@@ -118,7 +108,7 @@ class TransformTests {
 				$testLines = $wgCachedTestLines;
 			}
 		} else {
-			$testFile = file_get_contents( $commandLine->inputFile );
+			$testFile = file_get_contents( $commandLine['inputFile'] );
 			$testFile = mb_convert_encoding( $testFile, 'UTF-8',
 				mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 			$testLines = explode( "\n", $testFile );
@@ -155,14 +145,14 @@ class TransformTests {
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
 					if ( $stringResult === $line ) {
-						if ( !isset( $commandLine->timingMode ) ) {
-							wfLog( $testName . " ==> passed\n\n" );
+						if ( !isset( $commandLine['timingMode'] ) ) {
+							print $testName . " ==> passed\n\n";
 						}
 					} else {
 						$numFailures++;
-						wfLog( $testName . " ==> failed\n" );
-						wfLog( "line to debug => " . $line . "\n" );
-						wfLog( "result line ===> " . $stringResult . "\n" );
+						print $testName . " ==> failed\n";
+						print "line to debug => " . $line . "\n";
+						print "result line ===> " . $stringResult . "\n";
 					}
 					$input = [];
 					break;
@@ -235,10 +225,10 @@ class TransformTests {
 		global $wgCachedPipeLinesLength;
 		$numFailures = 0;
 
-		if ( isset( $commandLine->timingMode ) ) {
+		if ( isset( $commandLine['timingMode'] ) ) {
 			if ( $wgCachedState == false ) {
 				$wgCachedState = true;
-				$testFile = file_get_contents( $commandLine->inputFile );
+				$testFile = file_get_contents( $commandLine['inputFile'] );
 				$testFile = mb_convert_encoding( $testFile, 'UTF-8',
 					mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 				$testLines = explode( "\n", $testFile );
@@ -253,7 +243,7 @@ class TransformTests {
 				$numPipelines = $wgCachedPipeLinesLength;
 			}
 		} else {
-			$testFile = file_get_contents( $commandLine->inputFile );
+			$testFile = file_get_contents( $commandLine['inputFile'] );
 			$testFile = mb_convert_encoding( $testFile, 'UTF-8',
 				mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 			$testLines = explode( "\n", $testFile );
@@ -284,14 +274,14 @@ class TransformTests {
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
 					if ( $stringResult === $line ) {
-						if ( !isset( $commandLine->timingMode ) ) {
-							wfLog( "line " . ( $p[$j] + 1 ) . " ==> passed\n\n" );
+						if ( !isset( $commandLine['timingMode'] ) ) {
+							print "line " . ( $p[$j] + 1 ) . " ==> passed\n\n";
 						}
 					} else {
 						$numFailures++;
-						wfLog( "line " . ( $p[$j] + 1 ) . " ==> failed\n" );
-						wfLog( "line to debug => " . $line . "\n" );
-						wfLog( "result line ===> " . $stringResult . "\n" );
+						print "line " . ( $p[$j] + 1 ) . " ==> failed\n";
+						print "line to debug => " . $line . "\n";
+						print "result line ===> " . $stringResult . "\n";
 					}
 					$input = [];
 				}
@@ -309,15 +299,15 @@ class TransformTests {
 	 * @return number
 	 */
 	public function unitTest( $tokenTransformer, $transformerName, $commandLine ) {
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Starting stand alone unit test running file " .
-				$commandLine->inputFile . "\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Starting stand alone unit test running file " .
+				$commandLine['inputFile'] . "\n\n";
 		}
 		$numFailures = $tokenTransformer->manager->processTestFile( $tokenTransformer,
 			$transformerName, $commandLine );
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Ending stand alone unit test running file " .
-				$commandLine->inputFile . "\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Ending stand alone unit test running file " .
+				$commandLine['inputFile'] . "\n\n";
 		}
 		return $numFailures;
 	}
@@ -330,14 +320,14 @@ class TransformTests {
 	 * @return number
 	 */
 	public function wikitextTest( $tokenTransformer, $commandLine ) {
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Starting stand alone wikitext test running file " .
-				$commandLine->inputFile . "\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Starting stand alone wikitext test running file " .
+				$commandLine['inputFile'] . "\n\n";
 		}
 		$numFailures = $tokenTransformer->manager->processWikitextFile( $tokenTransformer, $commandLine );
-		if ( !isset( $commandLine->timingMode ) ) {
-			wfLog( "Ending stand alone wikitext test running file " .
-				$commandLine->inputFile . "\n\n" );
+		if ( !isset( $commandLine['timingMode'] ) ) {
+			print "Ending stand alone wikitext test running file " .
+				$commandLine['inputFile'] . "\n\n";
 		}
 		return $numFailures;
 	}
@@ -355,15 +345,15 @@ class TransformTests {
 function wfSelectTestType( $commandLine, $manager, $transformerName, $handler ) {
 	$iterator = 1;
 	$numFailures = 0;
-	if ( isset( $commandLine->timingMode ) ) {
-		if ( isset( $commandLine->iterationCount ) ) {
-			$iterator = $commandLine->iterationCount;
+	if ( isset( $commandLine['timingMode'] ) ) {
+		if ( isset( $commandLine['iterationCount'] ) ) {
+			$iterator = $commandLine['iterationCount'];
 		} else {
 			$iterator = 10000;  // defaults to 10000 iterations
 		}
 	}
 	while ( $iterator-- ) {
-		if ( isset( $commandLine->manual ) ) {
+		if ( isset( $commandLine['manual'] ) ) {
 			$numFailures = $manager->unitTest( $handler, $transformerName, $commandLine );
 		} else {
 			$numFailures = $manager->wikitextTest( $handler, $commandLine );
@@ -376,35 +366,37 @@ function wfSelectTestType( $commandLine, $manager, $transformerName, $handler ) 
  * ProcessArguments handles a subset of javascript yargs like processing for command line
  * parameters setting object elements to the key name. If no value follows the key,
  * it is set to true, otherwise it is set to the value. The key can be followed by a
- * space then value, or an equals symbol then the value. Parameters that are not
- * preceded with -- are stored in the element _array at their argv index as text.
- *  There is no security checking for the text being processed by the dangerous eval() function.
+ * space then value, or an equals symbol then the value.
  *
  * @param number $argc
  * @param array $argv
- * @return object
+ * @return array
  */
-function wfProcessArguments( $argc, $argv ) {
-	$opts = (object)[];
+function wfProcessArguments( int $argc, array $argv ): array {
+	$opts = [];
 	$last = false;
-	for ( $index = 1; $index < $argc; $index++ ) {
-		$text = $argv[$index];
+	for ( $i = 1; $i < $argc; $i++ ) {
+		$text = $argv[$i];
 		if ( '--' === substr( $text, 0, 2 ) ) {
 			$assignOffset = strpos( $text, '=', 3 );
 			if ( $assignOffset === false ) {
 				$key = substr( $text, 2 );
 				$last = $key;
-				eval( '$opts->' . $key . '=true;' );
+				$opts[$key] = true;
 			} else {
 				$value = substr( $text, $assignOffset + 1 );
 				$key = substr( $text, 2, $assignOffset - 2 );
 				$last = false;
-				eval( '$opts->' . $key . '=\'' . $value . '\';' );
+				$opts[$key] = $value;
 			}
-		} elseif ( $last === false ) {
-				eval( '$opts->_array[' . ( $index - 1 ) . ']=\'' . $text . '\';' );
+		} elseif ( $last ) {
+			$opts[$last] = $text;
+			$last = false;
 		} else {
-				eval( '$opts->' . $last . '=\'' . $text . '\';' );
+			// There are no free args supported right now
+			// So, keep things simple
+			print "Unknown arg " . $argv[$i] . "\n";
+			exit( 1 );
 		}
 	}
 	return $opts;
@@ -422,32 +414,33 @@ function wfRunTests( $argc, $argv ) {
 
 	$opts = wfProcessArguments( $argc, $argv );
 
-	if ( isset( $opts->help ) ) {
-		wfLog( "must specify [--manual] [--log] [--timingMode]" .
-			" [--iterationCount=XXX] --TransformerName --inputFile /path/filename" );
+	if ( isset( $opts['help'] ) ) {
+		print "must specify [--manual] [--log] [--timingMode]" .
+			" [--iterationCount=XXX] --TransformerName --inputFile /path/filename\n";
 		return;
 	}
 
-	if ( !isset( $opts->inputFile ) ) {
-		wfLog( "must specify [--manual] [--log] --TransformerName" .
-			" --inputFile /path/filename\n" );
-		wfLog( "Run 'node bin/transformerTests.js --help' for more information\n" );
+	if ( !isset( $opts['inputFile'] ) ) {
+		print "must specify [--manual] [--log] --transformer NAME" .
+			" --inputFile /path/filename\n";
+		print "Run 'node bin/transformerTests.js --help' for more information\n";
 		return;
 	}
 
-	$mockEnv = new MockEnv( $opts );
+	$mockEnv = new MockEnv( [] );
 	$manager = new TransformTests( $mockEnv, [] );
 
-	if ( isset( $opts->timingMode ) ) {
-		wfLog( "Timing Mode enabled, no console output expected till test completes\n" );
+	if ( isset( $opts['timingMode'] ) ) {
+		print "Timing Mode enabled, no console output expected till test completes\n";
 	}
 
 	$startTime = PHPUtils::getStartHRTime();
 
-	if ( isset( $opts->QuoteTransformer ) ) {
+	$transformer = $opts['transformer'] ?? '';
+	if ( $transformer === 'QuoteTransformer' ) {
 		$qt = new Parsoid\Wt2Html\TT\QuoteTransformer( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "QuoteTransformer", $qt );
-	} elseif ( isset( $opts->ParagraphWrapper ) ) {
+	} elseif ( $transformer === 'ParagraphWrapper' ) {
 		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
 	} elseif ( isset( $opts->PreHandler ) ) {
@@ -468,16 +461,16 @@ function wfRunTests( $argc, $argv ) {
 		var sh = new SanitizerHandler(manager, {});
 		wfSelectTestType(argv, manager, sh);
 	} */ else {
-		wfLog( 'No valid TransformerName was specified' );
+		print 'No valid TransformerName was specified\n';
 		$numFailures++;
 }
 
 	$totalTime = PHPUtils::getHRTimeDifferential( $startTime );
-	wfLog( 'Total transformer execution time = ' . $totalTime . " milliseconds\n" );
-	wfLog( 'Total time processing tokens     = ' . round( $manager->tokenTime, 3 ) .
-		" milliseconds\n" );
+	print 'Total transformer execution time = ' . $totalTime . " milliseconds\n";
+	print 'Total time processing tokens     = ' . round( $manager->tokenTime, 3 ) .
+		" milliseconds\n";
 	if ( $numFailures ) {
-		wfLog( 'Total failures: ' . $numFailures );
+		print 'Total failures: ' . $numFailures;
 		exit( 1 );
 	}
 }
