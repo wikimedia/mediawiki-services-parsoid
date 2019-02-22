@@ -49,8 +49,8 @@ require_once __DIR__ . '/../tests/MockEnv.php';
 use RemexHtml\DOM;
 use RemexHtml\Tokenizer;
 use RemexHtml\TreeBuilder;
-use RemexHtml\Serializer;
 
+use Parsoid\Wt2Html\XMLSerializer;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
@@ -133,7 +133,6 @@ class DOMPassTester {
 		}
 
 		$domBuilder = new DOM\DOMBuilder;
-		$serializer = new DOM\DOMSerializer( $domBuilder, new Serializer\HtmlFormatter );
 
 		$dom = wfBuildDOM( $domBuilder, $testFilePre );
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
@@ -142,14 +141,12 @@ class DOMPassTester {
 			// REMEX BUG? Remove extra newline
 			$body->lastChild->parentNode->removeChild( $body->lastChild );
 
-			$domPre = $serializer->getResult();
+			$domPre = XMLSerializer::serialize( $body )['html'];
 			// Do this after serialization for comparing against pre-dom-pass
 			DOMDataUtils::visitAndLoadDataAttribs( $body );
 
-			// hack to add html and head tags and adjust closing /body and add /html tag
-			$testFilePre = "<html><head></head>" . substr( $testFilePre, 0, -8 ) . "</body></html>";
-
-			if ( $testFilePre === $domPre ) {
+			// Ignore trailing newline diffs
+			if ( preg_replace( '#\n$#', '', $testFilePre ) === $domPre ) {
 				wfLog( "DOM pre output matches genTest Pre output\n" );
 			} else {
 				wfLog( "DOM pre output DOES NOT match genTest Pre output\n" );
@@ -166,8 +163,8 @@ class DOMPassTester {
 			case 'dsr':
 				// genTest must specify dsr sourceOffsets as data-parsoid info
 				$dp = DOMDataUtils::getDataParsoid( $body );
-				if ( isset( $dp['dsr'] ) ) {
-					$options = [ 'sourceOffsets' => $dp['dsr'], 'attrExpansion' => false ];
+				if ( isset( $dp->dsr ) ) {
+					$options = [ 'sourceOffsets' => $dp->dsr, 'attrExpansion' => false ];
 				} else {
 					$options = [ 'attrExpansion' => false ];
 				}
@@ -190,13 +187,12 @@ class DOMPassTester {
 			$opts->firstRun = false;
 
 			// Do this before serialization for comparing against post-dom-pass
-			DOMDataUtils::visitAndStoreDataAttribs( $body );
-			$domPost = $serializer->getResult();
+			// PORT-FIXME: Disable till T204608 is implemented
+			// DOMDataUtils::visitAndStoreDataAttribs( $body );
+			$domPost = XMLSerializer::serialize( $body )['html'];
 
-			// hack to add html and head tags and adjust closing /body and add /html tag and newline
-			$testFilePost = "<html><head></head>" . substr( $testFilePost, 0, -8 ) . "\n</body></html>";
-
-			if ( $testFilePost === $domPost ) {
+			// Ignore trailing newline diffs
+			if ( preg_replace( '#\n$#', '', $testFilePost ) === $domPost ) {
 				wfLog( "DOM post transform output matches genTest Post output\n" );
 			} else {
 				wfLog( "DOM post transform output DOES NOT match genTest Post output\n" );
