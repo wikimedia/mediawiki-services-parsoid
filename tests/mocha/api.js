@@ -2294,6 +2294,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
+			.expect(200)
 			.expect((res) => {
 				// We don't actually require the result to have data-parsoid
 				// if the input didn't have data-parsoid; hack the result
@@ -2331,6 +2332,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
+			.expect(200)
 			.expect((res) => {
 				// We don't actually require the result to have data-parsoid
 				// if the input didn't have data-parsoid; hack the result
@@ -2368,6 +2370,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
+			.expect(200)
 			.expect((res) => {
 				// We don't actually require the result to have data-parsoid
 				// if the input didn't have data-parsoid; hack the result
