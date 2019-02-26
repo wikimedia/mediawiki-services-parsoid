@@ -1233,7 +1233,7 @@ TestUtils.addNamespace = function(wikiConf, name) {
 // be held onto so that the attached environment doesn't get GC'd.
 TestUtils.mockEnvDoc = function(html) {
 	const doc = DOMUtils.parseHTML(html);
-	DOMDataUtils.setDocEnv(doc);
+	DOMDataUtils.setDocBag(doc);
 	return doc;
 };
 
