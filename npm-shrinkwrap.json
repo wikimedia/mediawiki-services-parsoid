@@ -1598,6 +1598,20 @@
       "from": "js-yaml@3.8.3",
       "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.8.3.tgz"
     },
+    "js2php": {
+      "version": "0.1.7",
+      "from": "git+https://github.com/cscott/js2php.git#da730e8bef61448d66efcb6291f71429b60e4a10",
+      "resolved": "git+https://github.com/cscott/js2php.git#da730e8bef61448d66efcb6291f71429b60e4a10",
+      "dev": true,
+      "dependencies": {
+        "espree": {
+          "version": "2.2.5",
+          "from": "espree@>=2.2.3 <2.3.0",
+          "resolved": "https://registry.npmjs.org/espree/-/espree-2.2.5.tgz",
+          "dev": true
+        }
+      }
+    },
     "js2xmlparser": {
       "version": "3.0.0",
       "from": "js2xmlparser@>=3.0.0 <3.1.0",
