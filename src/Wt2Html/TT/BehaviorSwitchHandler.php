@@ -1,15 +1,11 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Util as Util;
-use Parsoid\TokenHandler as TokenHandler;
-use Parsoid\KV as KV;
-use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
 
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
@@ -19,29 +15,45 @@ use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
  */
 class BehaviorSwitchHandler extends TokenHandler {
 	/**
+	 * Class constructor
+	 *
+	 * @param object $manager manager environment
+	 * @param array $options options
+	 */
+	public function __construct( $manager, array $options ) {
+		parent::__construct( $manager, $options );
+	}
+
+	/**
 	 * Main handler.
 	 * See {@link TokenTransformManager#addTransform}'s transformation parameter.
+	 *
+	 * @param Token $token
+	 * @return array
 	 */
-	public function onBehaviorSwitch( $token ) {
+	public function onBehaviorSwitch( Token $token ): array {
 		$env = $this->manager->env;
-		$magicWord = $env->conf->wiki->magicWordCanonicalName( $token->attribs[ 0 ]->v );
+		$magicWord = call_user_func( $env->conf->wiki->magicWordCanonicalName, $token->attribs[ 0 ]->v );
 
 		$env->setVariable( $magicWord, true );
 
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
-			Util::clone( $token->dataAttribs )
+			clone $token->dataAttribs   // shallow clone dataAttribs
 		);
 
 		return [ 'tokens' => [ $metaToken ] ];
 	}
 
-	public function onTag( $token ) {
-		return ( $token->name === 'behavior-switch' ) ? $this->onBehaviorSwitch( $token ) : $token;
+	/**
+	 * Handle onTag processing
+	 *
+	 * @param Token $token
+	 * @return Token
+	 */
+	public function onTag( Token $token ) {
+		$name = is_string( $token ) ? $token : $token->getName();
+		return ( $name === 'behavior-switch' ) ? $this->onBehaviorSwitch( $token ) : $token;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->BehaviorSwitchHandler = $BehaviorSwitchHandler;
 }

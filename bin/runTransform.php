@@ -10,6 +10,7 @@ use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Parsoid\Wt2Html\TT\PreHandler;
 use Parsoid\Wt2Html\TT\ListHandler;
+use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -57,6 +58,9 @@ switch ( $transformerName ) {
 		break;
 	case "PreHandler":
 		$transformer = new PreHandler( $manager, $pipelineOpts );
+		break;
+	case "BehaviorSwitchHandler":
+		$transformer = new BehaviorSwitchHandler( $manager, $pipelineOpts );
 		break;
 	case "ListHandler":
 		$transformer = new ListHandler( $manager, $pipelineOpts );

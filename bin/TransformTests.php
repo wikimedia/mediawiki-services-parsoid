@@ -431,14 +431,14 @@ function wfRunTests( $argc, $argv ) {
 	if ( isset( $opts['help'] ) ) {
 		print "must specify [--manual] [--log] [--breakLine 123] [--timingMode] [--verbose]" .
 			" [--iterationCount=XXX] --TransformerName --inputFile /path/filename\n";
-		return;
+		exit( 1 );
 	}
 
 	if ( !isset( $opts['inputFile'] ) ) {
 		print "must specify [--manual] [--log] --transformer NAME" .
 			" --inputFile /path/filename\n";
 		print "Run 'node bin/transformerTests.js --help' for more information\n";
-		return;
+		exit( 1 );
 	}
 
 	$mockEnv = new MockEnv( $opts );
@@ -458,7 +458,7 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( $transformer === 'ParagraphWrapper' ) {
 		$pw = new Parsoid\Wt2Html\TT\ParagraphWrapper( $manager, [] );
 		$results = wfSelectTestType( $opts, $manager, "ParagraphWrapper", $pw );
-	} elseif ( isset( $opts->PreHandler ) ) {
+	} elseif ( $transformer === 'PreHandler' ) {
 		$pw = new Parsoid\Wt2Html\TT\PreHandler( $manager, [] );
 		$results = wfSelectTestType( $opts, $manager, "PreHandler", $pw );
 	} elseif ( $transformer === 'BehaviorSwitchHandler' ) {
@@ -472,9 +472,6 @@ function wfRunTests( $argc, $argv ) {
 	} else if ($opts->TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
 		wfSelectTestType(argv, manager, tsp);
-	} else if ($opts->BehaviorSwitchHandler) {
-		var bsh = new BehaviorSwitchHandler(manager, {});
-		wfSelectTestType(argv, manager, bsh);
 	} else if ($opts->SanitizerHandler) {
 		var sh = new SanitizerHandler(manager, {});
 		wfSelectTestType(argv, manager, sh);

@@ -36,7 +36,8 @@ class MockEnv {
 				'NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT' .
 			')(?=$|\\s)/';
 		// Mock function for BehaviorSwitchHandler
-		$this->conf->wiki->magicWordCanonicalName = function () {
+		// $this->conf->wiki->magicWordCanonicalName = 'magicWordCanonicalName';
+		$this->conf->wiki->magicWordCanonicalName = function ( $param ) {
 			return "toc";
 		};
 	}
@@ -62,6 +63,17 @@ class MockEnv {
 		$doc = DOMUtils::parseHTML( $html );
 		$this->referenceDataObject( $doc );
 		return $doc;
+	}
+
+	/**
+	 * BehaviorSwitchHandler support function that adds a property named by
+	 * $variable and sets it to $state
+	 *
+	 * @param string $variable
+	 * @param mixed $state
+	 */
+	public function setVariable( string $variable, $state ) {
+		$this->{ $variable } = $state;
 	}
 
 	/**
