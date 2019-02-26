@@ -2971,8 +2971,8 @@
     },
     "worker-farm": {
       "version": "1.6.0",
-      "from": "worker-farm@1.6.0",
-      "resolved": "https://registry.npmjs.org/worker-farm/-/worker-farm-1.6.0.tgz"
+      "from": "git+https://github.com/arlolra/node-worker-farm.git#queue",
+      "resolved": "git+https://github.com/arlolra/node-worker-farm.git#8e7b2b40bdcff0d106372cf95acdf52557b741a0"
     },
     "wrap-ansi": {
       "version": "2.1.0",
