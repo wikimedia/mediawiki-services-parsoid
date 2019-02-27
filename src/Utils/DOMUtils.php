@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 // Changes synced with commit 4772f44c
 // Initial porting, partially complete
@@ -8,6 +9,12 @@ namespace Parsoid\Utils;
 
 use DOMDocument;
 use DOMNode;
+
+use RemexHtml\DOM\DOMBuilder;
+use RemexHtml\Tokenizer\Tokenizer;
+use RemexHtml\TreeBuilder\TreeBuilder;
+use RemexHtml\TreeBuilder\Dispatcher;
+
 use Parsoid\Config\WikitextConstants;
 
 /**
@@ -26,15 +33,20 @@ class DOMUtils {
 	 * @param string $html
 	 * @return DOMDocument
 	 */
-	public static function parseHTML( $html ) {
-		throw new \BadMethodCallException( "Not yet ported" );
-/*		if (!html.match(/^<(?:!doctype|html|body)/i)) {
+	public static function parseHTML( string $html ): DOMDocument {
+		if ( !preg_match( '/^<(?:!doctype|html|body)/i', $html ) ) {
 			// Make sure that we parse fragments in the body. Otherwise comments,
 			// link and meta tags end up outside the html element or in the head
-			// element.s
-			html = '<body>' + html;
+			// elements.
+			$html = '<body>' . $html;
 		}
-		return domino.createDocument(html); */
+
+		$domBuilder = new DOMBuilder;
+		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
+		$dispatcher = new Dispatcher( $treeBuilder );
+		$tokenizer = new Tokenizer( $dispatcher, $html, [] );
+		$tokenizer->execute( [] );
+		return $domBuilder->getFragment();
 	}
 
 	/**

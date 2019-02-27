@@ -5,7 +5,12 @@
 // This will need much more solid mocking if it is to be used more extensively
 // for standalone testing of the Parsoid/PHP composer library.
 
-namespace Parsoid\tests;
+namespace Parsoid\Tests;
+
+use DOMDocument;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DataBag;
 
 class MockEnv {
 	/**
@@ -34,6 +39,29 @@ class MockEnv {
 		$this->conf->wiki->magicWordCanonicalName = function () {
 			return "toc";
 		};
+	}
+
+	/**
+	 * FIXME: This function could be given a better name to reflect what it does.
+	 *
+	 * @param DOMDocument $doc
+	 * @param DataBag|null $bag
+	 */
+	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ) {
+		DOMDataUtils::setDocBag( $doc, $bag );
+
+		// Prevent GC from collecting the PHP wrapper around the libxml doc
+		$this->liveDocs[] = $doc;
+	}
+
+	/**
+	 * @param string $html
+	 * @return DOMDocument
+	 */
+	public function createDocument( string $html ): DOMDocument {
+		$doc = DOMUtils::parseHTML( $html );
+		$this->referenceDataObject( $doc );
+		return $doc;
 	}
 
 	/**

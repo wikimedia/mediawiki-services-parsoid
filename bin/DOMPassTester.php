@@ -48,10 +48,6 @@ require_once __DIR__ . '/../tests/MockEnv.php';
 
 use Parsoid\Tests\MockEnv;
 
-use RemexHtml\DOM;
-use RemexHtml\Tokenizer;
-use RemexHtml\TreeBuilder;
-
 use Parsoid\Wt2Html\XMLSerializer;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMDataUtils;
@@ -60,21 +56,6 @@ use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 $wgCachedState = false;
 $wgCachedFilePre = '';
 $wgCachedFilePost = '';
-
-/**
- * Get a token from some HTML text
- *
- * @param object $domBuilder
- * @param string $text
- * @return object
- */
-function wfBuildDOM( $domBuilder, $text ) {
-	$treeBuilder = new TreeBuilder\TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
-	$dispatcher = new TreeBuilder\Dispatcher( $treeBuilder );
-	$tokenizer = new Tokenizer\Tokenizer( $dispatcher, $text, [] );
-	$tokenizer->execute( [] );
-	return $domBuilder->getFragment();
-}
 
 class DOMPassTester {
 	public $t;
@@ -125,9 +106,7 @@ class DOMPassTester {
 			$testFilePost = $wgCachedFilePost;
 		}
 
-		$domBuilder = new DOM\DOMBuilder;
-
-		$dom = wfBuildDOM( $domBuilder, $testFilePre );
+		$dom = $this->env->createDocument( $testFilePre );
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
 
 		if ( $opts['firstRun'] ) {
@@ -180,8 +159,7 @@ class DOMPassTester {
 			$opts['firstRun'] = false;
 
 			// Do this before serialization for comparing against post-dom-pass
-			// PORT-FIXME: Disable till T204608 is implemented
-			// DOMDataUtils::visitAndStoreDataAttribs( $body );
+			DOMDataUtils::visitAndStoreDataAttribs( $body );
 			$domPost = XMLSerializer::serialize( $body )['html'];
 
 			// Ignore trailing newline diffs

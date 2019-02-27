@@ -5,18 +5,42 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use Parsoid\Tests\MockEnv;
-
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+
+use Parsoid\Tests\MockEnv;
+use Wikimedia\Assert\Assert;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
  */
 class DOMDataUtils {
-	// The following getters and setters load from the .dataobject store,
-	// with the intention of eventually moving them off the nodes themselves.
+	const DATA_OBJECT_ATTR_NAME = 'data-object-id';
+
+	/**
+	 * @internal
+	 *
+	 * WARNING: Don't use this directly, I guess except for in mocking.
+	 * Instead, you should be calling `$env->createDocument()` if you need it.
+	 *
+	 * @param DOMDocument $doc
+	 * @param DataBag|null $bag
+	 */
+	public static function setDocBag( DOMDocument $doc, ?DataBag $bag = null ) {
+		$doc->bag = $bag ?? new DataBag();
+	}
+
+	/**
+	 * Does this node have any attributes?
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	public static function noAttrs( DOMElement $node ): bool {
+		$numAttrs = count( $node->attributes );
+		return $numAttrs === 0 ||
+			( $numAttrs === 1 && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) );
+	}
 
 	/**
 	 * Get data object from a node.
@@ -25,10 +49,26 @@ class DOMDataUtils {
 	 * @return object
 	 */
 	public static function getNodeData( DOMElement $node ) {
-		if ( !isset( $node->dataobject ) ) {
-			$node->dataobject = (object)[];
+		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			self::setNodeData( $node, (object)[] );
 		}
-		return $node->dataobject;
+		$bag = $node->ownerDocument->bag;
+		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
+		$dataObject = $bag->getObject( (int)$docId );
+		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
+		Assert::invariant( !isset( $dataObject->stored ), 'Trying to fetch node data without loading!' );
+		return $dataObject;
+	}
+
+	/**
+	 * Set node data.
+	 *
+	 * @param DOMElement $node node
+	 * @param object $data data
+	 */
+	public static function setNodeData( DOMElement $node, $data ) {
+		$docId = $node->ownerDocument->bag->stashObject( $data );
+		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
 	}
 
 	/**
@@ -90,15 +130,6 @@ class DOMDataUtils {
 	public static function setDataMw( DOMElement $node, $dmw ) {
 		$data = self::getNodeData( $node );
 		$data->mw = $dmw;
-	}
-
-	/** Set node data.
-	 *
-	 * @param DOMElement $node node
-	 * @param object $data data
-	 */
-	public static function setNodeData( DOMElement $node, $data ) {
-		$node->dataobject = $data;
 	}
 
 	/**
@@ -286,6 +317,15 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Get this document's pagebundle object
+	 * @param DOMDocument $doc
+	 * @return object
+	 */
+	public static function getPageBundle( DOMDocument $doc ) {
+		return $doc->bag->getPageBundle();
+	}
+
+	/**
 	 * Removes the `data-*` attribute from a node, and migrates the data to the
 	 * document's JSON store. Generates a unique id with the following format:
 	 * ```
@@ -300,8 +340,7 @@ class DOMDataUtils {
 	public static function storeInPageBundle( DOMElement $node, MockEnv $env, $data ) {
 		$uid = $node->getAttribute( 'id' );
 		$document = $node->ownerDocument;
-		$dp = self::getDataParsoid( $document );
-		$pb = $dp->pagebundle;
+		$pb = self::getPageBundle( $document );
 		$docDp = $pb->parsoid;
 		$origId = $uid;
 		if ( array_key_exists( $uid, $docDp->ids ) ) {
@@ -388,18 +427,18 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
+		// Reset the node data object's stored state, since we're reloading it
+		self::setNodeData( $node, (object)[] );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', [] );
 		if ( $markNew ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
 			$dp->tmp->isNew = $node->getAttribute( 'data-parsoid' ) === null;
 		}
 		self::setDataParsoid( $node, $dp );
-		// PORT-FIXME: Disable till we get T204608 implemented
-		// $node->removeAttribute( 'data-parsoid' );
+		$node->removeAttribute( 'data-parsoid' );
 		$dmw = self::getJSONAttribute( $node, 'data-mw', [] );
 		self::setDataMw( $node, $dmw );
-		// PORT-FIXME: Disable till we get T204608 implemented
-		// $node->removeAttribute( 'data-mw' );
+		$node->removeAttribute( 'data-mw' );
 	}
 
 	/**
@@ -422,12 +461,9 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
-		if ( !empty( $options['discardDataParsoid'] ) && !empty( $options['keepTmp'] ) ) {
-			// A sanity check
-			throw new \Exception( 'Sanity check failed' );
-		}
+		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
+			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
-		// Don't modify `options`, they're reused.
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,
@@ -446,12 +482,14 @@ class DOMDataUtils {
 		}
 		$data = null;
 		if ( !$discardDataParsoid ) {
-			// WARNING: keeping tmp might be a bad idea.  It can have DOM
-			// nodes, which aren't going to serialize well.  You better know
-			// of what you do.
-			if ( empty( $options['keepTmp'] ) ) {
+			if ( !empty( $options['keepTmp'] ) ) {
+				if ( isset( $dp->tmp->tplRanges ) ) {
+					unset( $dp->tmp->tplRanges );
+				}
+			} else {
 				unset( $dp->tmp );
 			}
+
 			if ( !empty( $options['storeInPageBundle'] ) ) {
 				$data = (object)[ 'parsoid' => $dp ];
 			} else {
@@ -474,5 +512,12 @@ class DOMDataUtils {
 		if ( $data !== null ) {
 			self::storeInPageBundle( $node, $options['env'], $data );
 		}
+
+		// Indicate that this node's data has been stored so that if we try
+		// to access it after the fact we're aware and remove the attribute
+		// since it's no longer needed.
+		$nd = self::getNodeData( $node );
+		$nd->stored = true;
+		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
 }
