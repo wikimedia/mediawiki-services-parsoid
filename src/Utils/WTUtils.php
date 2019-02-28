@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
+use DOMComment;
+use DOMElement;
 use DOMNode;
 
 use Parsoid\Config\WikitextConstants as Consts;
@@ -19,10 +21,10 @@ class WTUtils {
 	 * an indicator that the original wikitext was a literal
 	 * HTML element (like table or p)
 	 *
-	 * @param array $dp
+	 * @param object $dp
 	 * @return bool
 	 */
-	public static function hasLiteralHTMLMarker( $dp ) {
+	public static function hasLiteralHTMLMarker( $dp ): bool {
 		return isset( $dp->stx ) && $dp->stx === 'html';
 	}
 
@@ -31,7 +33,7 @@ class WTUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isLiteralHTMLNode( $node ) {
+	public static function isLiteralHTMLNode( ?DOMNode $node ): bool {
 		return ( $node &&
 			DOMUtils::isElt( $node ) &&
 			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
@@ -41,8 +43,8 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isZeroWidthWikitextElt( DOMNode $node ) {
-		return Consts::$ZeroWidthWikitextTags[$node->nodeName] &&
+	public static function isZeroWidthWikitextElt( DOMNode $node ): bool {
+		return isset( Consts::$ZeroWidthWikitextTags[$node->nodeName] ) &&
 			!self::isLiteralHTMLNode( $node );
 	}
 
@@ -54,7 +56,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isBlockNodeWithVisibleWT( DOMNode $node ) {
+	public static function isBlockNodeWithVisibleWT( DOMNode $node ): bool {
 		return DOMUtils::isBlockNode( $node ) && !self::isZeroWidthWikitextElt( $node );
 	}
 
@@ -63,11 +65,11 @@ class WTUtils {
 	 * syntax (for wikilinks, ext links, url links). rel-type is not sufficient
 	 * anymore since mw:ExtLink is used for all the three link syntaxes.
 	 *
-	 * @param DOMNode $node
-	 * @param array $dp
+	 * @param DOMElement $node
+	 * @param object $dp
 	 * @return bool
 	 */
-	public static function usesWikiLinkSyntax( DOMNode $node, $dp ) {
+	public static function usesWikiLinkSyntax( DOMElement $node, $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -85,11 +87,11 @@ class WTUtils {
 	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
 	 * multiple link types
 	 *
-	 * @param DOMNode $node
-	 * @param array $dp
+	 * @param DOMElement $node
+	 * @param object $dp
 	 * @return bool
 	 */
-	public static function usesExtLinkSyntax( DOMNode $node, $dp ) {
+	public static function usesExtLinkSyntax( DOMElement $node, $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -107,11 +109,11 @@ class WTUtils {
 	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
 	 * multiple link types
 	 *
-	 * @param DOMNode $node
-	 * @param array $dp
+	 * @param DOMElement $node
+	 * @param object $dp
 	 * @return bool
 	 */
-	public static function usesURLLinkSyntax( DOMNode $node, $dp ) {
+	public static function usesURLLinkSyntax( DOMElement $node, $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -129,11 +131,11 @@ class WTUtils {
 	 * rel attribute is not sufficient anymore since mw:ExtLink is used for
 	 * multiple link types
 	 *
-	 * @param DOMNode $node
-	 * @param array $dp
+	 * @param DOMElement $node
+	 * @param object $dp
 	 * @return bool
 	 */
-	public static function usesMagicLinkSyntax( DOMNode $node, $dp ) {
+	public static function usesMagicLinkSyntax( DOMElement $node, $dp ): bool {
 		if ( !$dp ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
@@ -150,20 +152,20 @@ class WTUtils {
 	 * @param string $nType
 	 * @return bool
 	 */
-	public static function isTplMetaType( $nType ) {
-		return preg_match( Util::TPL_META_TYPE_REGEXP, $nType );
+	public static function isTplMetaType( string $nType ): bool {
+		return (bool)preg_match( Util::TPL_META_TYPE_REGEXP, $nType );
 	}
 
 	/**
 	 * Check whether a typeof indicates that it signifies an
 	 * expanded attribute.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @return bool
 	 */
-	public static function hasExpandedAttrsType( DOMNode $node ) {
+	public static function hasExpandedAttrsType( DOMElement $node ): bool {
 		$nType = $node->getAttribute( 'typeof' );
-		return preg_match( '#(?:^|\s)mw:ExpandedAttrs(/[^\s]+)*(?=$|\s)#', $nType );
+		return (bool)preg_match( '#(?:^|\s)mw:ExpandedAttrs(/[^\s]+)*(?=$|\s)#', $nType );
 	}
 
 	/**
@@ -172,7 +174,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isTplMarkerMeta( DOMNode $node ) {
+	public static function isTplMarkerMeta( DOMNode $node ): bool {
 		return (
 			$node->nodeName === "meta" &&
 			self::isTplMetaType( $node->getAttribute( "typeof" ) )
@@ -185,7 +187,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isTplStartMarkerMeta( DOMNode $node ) {
+	public static function isTplStartMarkerMeta( DOMNode $node ): bool {
 		if ( $node->nodeName === "meta" ) {
 			$t = $node->getAttribute( "typeof" );
 			return self::isTplMetaType( $t ) && !preg_match( '#/End(?=$|\s)#', $t );
@@ -201,7 +203,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isTplEndMarkerMeta( DOMNode $node ) {
+	public static function isTplEndMarkerMeta( DOMNode $node ): bool {
 		if ( $node->nodeName === "meta" ) {
 			$t = $node->getAttribute( "typeof" );
 			return self::isTplMetaType( $t ) && preg_match( '#/End(?=$|\s)#', $t );
@@ -212,10 +214,10 @@ class WTUtils {
 
 	/**
 	 * Find the first wrapper element of encapsulated content.
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @return DOMNode|null
 	 */
-	public static function findFirstEncapsulationWrapperNode( DOMNode $node ) {
+	public static function findFirstEncapsulationWrapperNode( DOMElement $node ): ?DOMNode {
 		if ( !self::hasParsoidAboutId( $node ) ) {
 			return null;
 		}
@@ -239,7 +241,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isNewElt( DOMNode $node ) {
+	public static function isNewElt( DOMNode $node ): bool {
 		// We cannot determine newness on text/comment $nodes.
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
@@ -257,7 +259,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isIndentPre( DOMNode $node ) {
+	public static function isIndentPre( DOMNode $node ): bool {
 		return $node->nodeName === "pre" && !self::isLiteralHTMLNode( $node );
 	}
 
@@ -265,7 +267,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isInlineMedia( DOMNode $node ) {
+	public static function isInlineMedia( DOMNode $node ): bool {
 		return $node->nodeName === 'figure-inline' &&
 			preg_match( '/\bmw:(?:Image|Video|Audio)\b/', $node->getAttribute( "typeof" ) );
 	}
@@ -274,7 +276,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isGeneratedFigure( DOMNode $node ) {
+	public static function isGeneratedFigure( DOMNode $node ): bool {
 		return DOMUtils::isElt( $node ) &&
 			preg_match( '#(^|\s)mw:(?:Image|Video|Audio)(\s|$|/)#', $node->getAttribute( "typeof" ) );
 	}
@@ -286,7 +288,7 @@ class WTUtils {
 	 * @param DOMNode $textNode
 	 * @return int
 	 */
-	public static function indentPreDSRCorrection( DOMNode $textNode ) {
+	public static function indentPreDSRCorrection( DOMNode $textNode ): int {
 		// NOTE: This assumes a text-node and doesn't check that it is one.
 		//
 		// FIXME: Doesn't handle text nodes that are not direct children of the pre
@@ -316,7 +318,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function hasParsoidAboutId( DOMNode $node ) {
+	public static function hasParsoidAboutId( DOMNode $node ): bool {
 		if ( DOMUtils::isElt( $node ) ) {
 			$about = $node->getAttribute( 'about' );
 			// SSS FIXME: Verify that our DOM spec clarifies this
@@ -333,7 +335,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isRedirectLink( DOMNode $node ) {
+	public static function isRedirectLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
 			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
 	}
@@ -344,7 +346,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isCategoryLink( DOMNode $node ) {
+	public static function isCategoryLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
 			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
 	}
@@ -355,7 +357,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isSolTransparentLink( DOMNode $node ) {
+	public static function isSolTransparentLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
 			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
 	}
@@ -372,7 +374,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function emitsSolTransparentSingleLineWT( DOMNode $node ) {
+	public static function emitsSolTransparentSingleLineWT( DOMNode $node ): bool {
 		if ( DOMUtils::isText( $node ) ) {
 			// NB: We differ here to meet the nl condition.
 			return preg_match( '/^[ \t]*$/', $node->nodeValue );
@@ -394,7 +396,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isFallbackIdSpan( DOMNode $node ) {
+	public static function isFallbackIdSpan( DOMNode $node ): bool {
 		return $node->nodeName === 'span' && $node->getAttribute( 'typeof' ) === 'mw:FallbackId';
 	}
 
@@ -408,7 +410,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isRenderingTransparentNode( DOMNode $node ) {
+	public static function isRenderingTransparentNode( DOMNode $node ): bool {
 		// FIXME: Can we change this entire thing to
 		// DOMUtils::isComment($node) ||
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
@@ -436,7 +438,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function inHTMLTableTag( DOMNode $node ) {
+	public static function inHTMLTableTag( DOMNode $node ): bool {
 		$p = $node->parentNode;
 		while ( DOMUtils::isTableTag( $p ) ) {
 			if ( self::isLiteralHTMLNode( $p ) ) {
@@ -457,7 +459,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isFirstEncapsulationWrapperNode( DOMNode $node ) {
+	public static function isFirstEncapsulationWrapperNode( DOMNode $node ): bool {
 		return DOMUtils::isElt( $node ) &&
 			preg_match( self::FIRST_ENCAP_REGEXP, $node->getAttribute( 'typeof' ) );
 	}
@@ -471,7 +473,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isEncapsulationWrapper( DOMNode $node ) {
+	public static function isEncapsulationWrapper( DOMNode $node ): bool {
 		// True if it has an encapsulation type or while walking backwards
 		// over elts with identical about ids, we run into a $node with an
 		// encapsulation type.
@@ -488,7 +490,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isDOMFragmentWrapper( DOMNode $node ) {
+	public static function isDOMFragmentWrapper( DOMNode $node ): bool {
 		return DOMUtils::isElt( $node ) &&
 			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
 	}
@@ -500,7 +502,7 @@ class WTUtils {
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function isSealedFragmentOfType( DOMNode $node, $type ) {
+	public static function isSealedFragmentOfType( DOMNode $node, string $type ): bool {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
@@ -514,7 +516,7 @@ class WTUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isParsoidSectionTag( DOMNode $node ) {
+	public static function isParsoidSectionTag( DOMNode $node ): bool {
 		return $node->nodeName === 'section' &&
 			$node->getAttribute( 'data-mw-section-id' ) !== null;
 	}
@@ -525,7 +527,7 @@ class WTUtils {
 	 * @param string $extType
 	 * @return bool
 	 */
-	public static function fromExtensionContent( DOMNode $node, $extType ) {
+	public static function fromExtensionContent( DOMNode $node, string $extType ): bool {
 		$parentNode = $node->parentNode;
 		$extRE = '#\bmw:Extension/' . preg_quote( $extType ) . '\b#';
 		while ( $parentNode && !DOMUtils::atTheTop( $parentNode ) ) {
@@ -542,12 +544,14 @@ class WTUtils {
 	 * an environment env. Returns null if the source cannot be
 	 * extracted.
 	 * @param MockEnv $env
-	 * @param DOMNode $node
-	 * @return string
+	 * @param DOMElement $node
+	 * @return string|null
 	 */
-	public static function getWTSource( $env, $node ) {
+	public static function getWTSource( $env, DOMElement $node ): ?string {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dsr = $dp->dsr ?? null;
+		// PORT-FIXME: We could probably change the null return to ''
+		// Just need to verify that coe that uses this won't break
 		return $dsr && Util::isValidDSR( $dsr ) ? substr( $env->page->src, $dsr[0], $dsr[1] ) : null;
 	}
 
@@ -569,7 +573,7 @@ class WTUtils {
 	 * @param string $about
 	 * @return DOMNode[]
 	 */
-	public static function getAboutSiblings( DOMNode $node, $about ) {
+	public static function getAboutSiblings( DOMNode $node, string $about ): array {
 		$nodes = [ $node ];
 
 		if ( !$about ) {
@@ -602,10 +606,10 @@ class WTUtils {
 	 * following content nodes and returns the first non-template node
 	 * that follows it.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @return DOMNode|null
 	 */
-	public static function skipOverEncapsulatedContent( DOMNode $node ) {
+	public static function skipOverEncapsulatedContent( DOMElement $node ): ?DOMNode {
 		$about = $node->getAttribute( 'about' );
 		if ( $about ) {
 			// Guaranteed not to be empty. It will at least include $node.
@@ -677,7 +681,7 @@ class WTUtils {
 	 * @param string $comment Wikitext-escaped comment.
 	 * @return string DOM-escaped comment.
 	 */
-	public static function encodeComment( $comment ) {
+	public static function encodeComment( string $comment ): string {
 		// Undo wikitext escaping to obtain "true value" of comment.
 		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/g', Util::decodeWtEntities, $comment );
 
@@ -692,7 +696,7 @@ class WTUtils {
 	 * @param string $comment DOM-escaped comment.
 	 * @return string Wikitext-escaped comment.
 	 */
-	public static function decodeComment( $comment ) {
+	public static function decodeComment( string $comment ): string {
 		// Undo HTML entity escaping to obtain "true value" of comment.
 		$trueValue = Util::decodeWtEntities( $comment );
 
@@ -707,11 +711,11 @@ class WTUtils {
 	 * Utility function: we often need to know the wikitext DSR length for
 	 * an HTML DOM comment value.
 	 *
-	 * @param DOMNode $node A comment node containing a DOM-escaped comment.
+	 * @param DOMComment $node A comment node containing a DOM-escaped comment.
 	 * @return int The wikitext length necessary to encode this comment,
 	 *   including 7 characters for the `<!--` and `-->` delimiters.
 	 */
-	public static function decodedCommentLength( DOMNode $node ) {
+	public static function decodedCommentLength( DOMComment $node ): int {
 		// Add 7 for the "<!--" and "-->" delimiters in wikitext.
 		return mb_strlen( $node->textContent ) + 7;
 	}
@@ -722,7 +726,7 @@ class WTUtils {
 	 * @param string $text
 	 * @return string
 	 */
-	public static function escapeNowikiTags( $text ) {
+	public static function escapeNowikiTags( string $text ): string {
 		return preg_replace( '#<(/?nowiki\s*/?\s*)>/gi#', '&lt;$1&gt;', $text );
 	}
 }
