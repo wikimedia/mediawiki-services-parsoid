@@ -2278,11 +2278,6 @@
       "resolved": "https://registry.npmjs.org/pathval/-/pathval-1.1.0.tgz",
       "dev": true
     },
-    "pegjs": {
-      "version": "0.8.0",
-      "from": "git+https://github.com/tstarling/pegjs.git#fork",
-      "resolved": "git+https://github.com/tstarling/pegjs.git#36d584bd7bbc564c86c058c5dfe8053b1fe1d584"
-    },
     "performance-now": {
       "version": "2.1.0",
       "from": "performance-now@>=2.1.0 <3.0.0",
@@ -2963,6 +2958,11 @@
       "version": "0.0.0",
       "from": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#master",
       "resolved": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#84872586506a36962bb75dde8fd2de75231cfe43"
+    },
+    "wikipeg": {
+      "version": "1.0.2",
+      "from": "wikipeg@1.0.2",
+      "resolved": "https://registry.npmjs.org/wikipeg/-/wikipeg-1.0.2.tgz"
     },
     "wordwrap": {
       "version": "0.0.3",

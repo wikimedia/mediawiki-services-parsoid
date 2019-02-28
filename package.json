@@ -17,7 +17,6 @@
     "js-yaml": "^3.8.3",
     "mediawiki-title": "^0.6.5",
     "negotiator": "git+https://github.com/arlolra/negotiator.git#full-parse-access",
-    "pegjs": "git+https://github.com/tstarling/pegjs.git#fork",
     "pn": "^1.1.0",
     "prfun": "^2.1.5",
     "request": "^2.86.0",
@@ -27,6 +26,7 @@
     "simplediff": "^0.1.1",
     "uuid": "^3.2.1",
     "wikimedia-langconv": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#master",
+    "wikipeg": "^1.0.2",
     "worker-farm": "git+https://github.com/arlolra/node-worker-farm.git#queue",
     "yargs": "^7.1.0"
   },

@@ -64,7 +64,7 @@ function generateRules(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
 	var ast = tokenizer.parseTokenizer();
-	var visitor = require('pegjs/lib/compiler/visitor');
+	var visitor = require('wikipeg/lib/compiler/visitor');
 
 	// Current code style seems to use spaces in the tokenizer.
 	var tab = '    ';
@@ -109,6 +109,9 @@ function generateRules(opts) {
 			addVar(node.label);
 			visit(node.expression);
 		},
+		labeled_param: function(node) {
+			addVar(node.label);
+		},
 		named: function(node) {
 			addVar(node.name);
 			visit(node.expression);
@@ -127,7 +130,7 @@ function generateCallgraph(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
 	var ast = tokenizer.parseTokenizer();
-	var visitor = require('pegjs/lib/compiler/visitor');
+	var visitor = require('wikipeg/lib/compiler/visitor');
 	var edges = [];
 	var currentRuleName;
 
@@ -158,7 +161,7 @@ function listOrphans(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
 	var ast = tokenizer.parseTokenizer();
-	var visitor = require('pegjs/lib/compiler/visitor');
+	var visitor = require('wikipeg/lib/compiler/visitor');
 
 	var rules = {};
 
