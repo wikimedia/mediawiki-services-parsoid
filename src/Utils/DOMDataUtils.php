@@ -115,7 +115,7 @@ class DOMDataUtils {
 			return $defaultVal;
 		}
 		try {
-			return PHPUtils::jsonDecode( $attVal, true );
+			return PHPUtils::jsonDecode( $attVal, false );
 		} catch ( Exception $e ) {
 			error_log( 'ERROR: Could not decode attribute-val ' . $attVal .
 				' for ' . $name . ' on node ' . $node->outerHTML );
@@ -149,12 +149,12 @@ class DOMDataUtils {
 	public static function setShadowInfo( DOMElement $node, string $name, $val ) {
 		$dp = self::getDataParsoid( $node );
 		if ( !isset( $dp->a ) ) {
-			$dp->a = [];
+			$dp->a = (object)[];
 		}
 		if ( !isset( $dp->sa ) ) {
-			$dp->sa = [];
+			$dp->sa = (object)[];
 		}
-		$dp->a[$name] = $val;
+		$dp->a->$name = $val;
 	}
 
 	/**
@@ -176,19 +176,19 @@ class DOMDataUtils {
 		}
 		$dp = self::getDataParsoid( $node );
 		if ( !isset( $dp->a ) ) {
-			$dp->a = [];
+			$dp->a = (object)[];
 		}
 		if ( !isset( $dp->sa ) ) {
-			$dp->sa = [];
+			$dp->sa = (object)[];
 		}
 		// FIXME: This is a hack to not overwrite already shadowed info.
 		// We should either fix the call site that depends on this
 		// behaviour to do an explicit check, or double down on this
 		// by porting it to the token method as well.
-		if ( !array_key_exists( $name, $dp->a ) ) {
-			$dp->sa[$name] = $origVal;
+		if ( !property_exists( $dp->a, $name ) ) {
+			$dp->sa->$name = $origVal;
 		}
-		$dp->a[$name] = $val;
+		$dp->a->$name = $val;
 	}
 
 	/**
@@ -339,14 +339,14 @@ class DOMDataUtils {
 
 	/**
 	 * @param DOMDocument $doc doc
-	 * @return array|null
+	 * @return object|null
 	 */
 	public static function extractPageBundle( DOMDocument $doc ) {
 		$pb = null;
 		$dpScriptElt = $doc->getElementById( 'mw-pagebundle' );
 		if ( $dpScriptElt ) {
 			$dpScriptElt->parentNode->removeChild( $dpScriptElt );
-			$pb = PHPUtils::jsonDecode( $dpScriptElt->text, true );
+			$pb = PHPUtils::jsonDecode( $dpScriptElt->text, false );
 		}
 		return $pb;
 	}
@@ -388,7 +388,7 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
-		$dp = (object)self::getJSONAttribute( $node, 'data-parsoid', [] );
+		$dp = self::getJSONAttribute( $node, 'data-parsoid', [] );
 		if ( $markNew ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
 			$dp->tmp->isNew = $node->getAttribute( 'data-parsoid' ) === null;
@@ -396,7 +396,7 @@ class DOMDataUtils {
 		self::setDataParsoid( $node, $dp );
 		// PORT-FIXME: Disable till we get T204608 implemented
 		// $node->removeAttribute( 'data-parsoid' );
-		$dmw = (object)self::getJSONAttribute( $node, 'data-mw', [] );
+		$dmw = self::getJSONAttribute( $node, 'data-mw', [] );
 		self::setDataMw( $node, $dmw );
 		// PORT-FIXME: Disable till we get T204608 implemented
 		// $node->removeAttribute( 'data-mw' );
