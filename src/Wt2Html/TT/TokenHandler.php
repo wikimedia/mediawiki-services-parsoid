@@ -6,6 +6,7 @@ namespace Parsoid\Wt2html\TT;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Tokens\EOFTk;
 
 /**
  * @class
@@ -32,14 +33,14 @@ class TokenHandler {
 
 	/**
 	 * This handler is called for EOF tokens only
-	 * @param Token $token EOF token to be processed
+	 * @param EOFTk $token EOF token to be processed
 	 * @return object
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
 	 *    if 'skip' is set, onAny handler is skipped
 	 */
-	public function onEnd( $token ) {
+	public function onEnd( EOFTk $token ) {
 		return $token;
 	}
 

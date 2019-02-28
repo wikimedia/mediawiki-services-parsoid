@@ -9,6 +9,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Parsoid\Wt2Html\TT\PreHandler;
+use Parsoid\Wt2Html\TT\ListHandler;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -56,6 +57,9 @@ switch ( $transformerName ) {
 		break;
 	case "PreHandler":
 		$transformer = new PreHandler( $manager, $pipelineOpts );
+		break;
+	case "ListHandler":
+		$transformer = new ListHandler( $manager, $pipelineOpts );
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );

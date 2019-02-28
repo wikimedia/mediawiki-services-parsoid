@@ -178,7 +178,7 @@ class TransformTests {
 	 * The processWikitextFile function uses the pipeline IDs to ensure
 	 * that all token processing for each pipeline occurs in order to completion.
 	 *
-	 * @param object $lines
+	 * @param array $lines
 	 * @return array
 	 */
 	private static function createPipelines( $lines ) {
@@ -267,6 +267,16 @@ class TransformTests {
 				if ( $isInput ) {
 					$input[] = Token::getToken( PHPUtils::jsonDecode( $line ) );
 				} else {
+
+					// Allow debugger breaking on a specific line in a test file
+					if ( !empty( $commandLine['breakLine'] ) ) {
+						$lineToBreakOn = intval( $commandLine['breakLine'] );
+						$lineNumber = $p[$j] + 1;
+						if ( $lineToBreakOn === $lineNumber ) {
+							$tempValue = 0; // Set breakpoint here <=======
+						}
+					}
+
 					$result = $transformer->processTokensSync( null, $input, [] );
 
 					// desired result json string for test result verification
@@ -336,7 +346,7 @@ class TransformTests {
 /**
  * Select test type of unit test or wiki text test
  *
- * @param object $commandLine
+ * @param array $commandLine
  * @param object $manager
  * @param string $transformerName name of the transformer being tested
  * @param object $handler
@@ -415,7 +425,7 @@ function wfRunTests( $argc, $argv ) {
 	$opts = wfProcessArguments( $argc, $argv );
 
 	if ( isset( $opts['help'] ) ) {
-		print "must specify [--manual] [--log] [--timingMode]" .
+		print "must specify [--manual] [--log] [--breakLine 123] [--timingMode]" .
 			" [--iterationCount=XXX] --TransformerName --inputFile /path/filename\n";
 		return;
 	}
@@ -427,7 +437,7 @@ function wfRunTests( $argc, $argv ) {
 		return;
 	}
 
-	$mockEnv = new MockEnv( [] );
+	$mockEnv = new MockEnv( $opts );
 	$manager = new TransformTests( $mockEnv, [] );
 
 	if ( isset( $opts['timingMode'] ) ) {
@@ -446,11 +456,14 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( isset( $opts->PreHandler ) ) {
 		$pw = new Parsoid\Wt2Html\TT\PreHandler( $manager, [] );
 		$numFailures = wfSelectTestType( $opts, $manager, "PreHandler", $pw );
+	} elseif ( $transformer === 'BehaviorSwitchHandler' ) {
+		$pw = new Parsoid\Wt2Html\TT\BehaviorSwitchHandler( $manager, [] );
+		$numFailures = wfSelectTestType( $opts, $manager, "BehaviorSwitchHandler", $pw );
+	} elseif ( $transformer === 'ListHandler' ) {
+		$pw = new Parsoid\Wt2Html\TT\ListHandler( $manager, [] );
+		$numFailures = wfSelectTestType( $opts, $manager, "ListHandler", $pw );
 	}
 	/*
-	  else if ($opts->ListHandler) {
-		var lh = new ListHandler(manager, {});
-		wfSelectTestType(argv, manager, lh);
 	} else if ($opts->TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
 		wfSelectTestType(argv, manager, tsp);
