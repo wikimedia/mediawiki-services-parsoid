@@ -108,10 +108,10 @@ class DOMPassTester {
 
 		if ( $wgCachedState == false ) {
 			$wgCachedState = true;
-			$testFilePre = file_get_contents( $opts->inputFilePrefix . '-' .
-				$opts->transformer . '-pre.txt' );
-			$testFilePost = file_get_contents( $opts->inputFilePrefix . '-' .
-				$opts->transformer . '-post.txt' );
+			$testFilePre = file_get_contents( $opts['inputFilePrefix'] . '-' .
+				$opts['transformer'] . '-pre.txt' );
+			$testFilePost = file_get_contents( $opts['inputFilePrefix'] . '-' .
+				$opts['transformer'] . '-post.txt' );
 
 			$testFilePre = mb_convert_encoding( $testFilePre, 'UTF-8',
 				mb_detect_encoding( $testFilePre, 'UTF-8, ISO-8859-1', true ) );
@@ -130,7 +130,7 @@ class DOMPassTester {
 		$dom = wfBuildDOM( $domBuilder, $testFilePre );
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
 
-		if ( $opts->firstRun ) {
+		if ( $opts['firstRun'] ) {
 			// REMEX BUG? Remove extra newline
 			$body->lastChild->parentNode->removeChild( $body->lastChild );
 
@@ -145,14 +145,14 @@ class DOMPassTester {
 				print "DOM pre output DOES NOT match genTest Pre output\n";
 			}
 
-			if ( $opts->debug_dump ) {
+			if ( $opts['debug_dump'] ) {
 				file_put_contents( 'temporaryPrePhp.txt', $domPre );
 				print "temporaryPrePhp.txt saved!\n";
 			}
 		}
 
 		$startTime = PHPUtils::getStartHRTime();
-		switch ( $opts->transformer ) {
+		switch ( $opts['transformer'] ) {
 			case 'dsr':
 				// genTest must specify dsr sourceOffsets as data-parsoid info
 				$dp = DOMDataUtils::getDataParsoid( $body );
@@ -176,8 +176,8 @@ class DOMPassTester {
 
 		$this->transformTime += PHPUtils::getHRTimeDifferential( $startTime );
 
-		if ( $opts->firstRun ) {
-			$opts->firstRun = false;
+		if ( $opts['firstRun'] ) {
+			$opts['firstRun'] = false;
 
 			// Do this before serialization for comparing against post-dom-pass
 			// PORT-FIXME: Disable till T204608 is implemented
@@ -192,7 +192,7 @@ class DOMPassTester {
 				$numFailures++;
 			}
 
-			if ( $opts->debug_dump ) {
+			if ( $opts['debug_dump'] ) {
 				file_put_contents( 'temporaryPostPhp.txt', $domPost );
 				print "temporaryPostPhp.txt saved!\n";
 			}
@@ -211,27 +211,27 @@ class DOMPassTester {
 		$numFailures = 0;
 		$iterator = 1;
 
-		if ( isset( $opts->timingMode ) ) {
-			$opts->firstRun = true;
-			if ( isset( $opts->iterationCount ) ) {
-				$iterator = $opts->iterationCount;
+		if ( isset( $opts['timingMode'] ) ) {
+			$opts['firstRun'] = true;
+			if ( isset( $opts['iterationCount'] ) ) {
+				$iterator = $opts['iterationCount'];
 			} else {
 				$iterator = 50;  // defaults to 50 interations
 			}
 		}
 
-		if ( !isset( $commandLine['timingMode'] ) ) {
-			print "Starting wikitext dom test, file = " . $opts->inputFilePrefix .
-				"-" . $opts->transformer . "-pre.txt and -post.txt\n\n";
+		if ( !isset( $opts['timingMode'] ) ) {
+			print "Starting wikitext dom test, file = " . $opts['inputFilePrefix'] .
+				"-" . $opts['transformer'] . "-pre.txt and -post.txt\n\n";
 		}
 
 		while ( $iterator-- ) {
 			$numFailures += $this->processWikitextFile( $opts );
 		}
 
-		if ( !isset( $commandLine['timingMode'] ) ) {
-			print "Ending wikitext dom test, file = " . $opts->inputFilePrefix . "-" .
-				$opts->transformer . "-pre.txt and -post.txt\n\n";
+		if ( !isset( $opts['timingMode'] ) ) {
+			print "Ending wikitext dom test, file = " . $opts['inputFilePrefix'] . "-" .
+				$opts['transformer'] . "-pre.txt and -post.txt\n\n";
 		}
 		return $numFailures;
 	}
