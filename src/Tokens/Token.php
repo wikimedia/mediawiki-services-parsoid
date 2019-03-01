@@ -72,6 +72,16 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
+	 * Generic attribute accessor.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function hasAttribute( string $name ) {
+		return KV::lookupKV( $this->attribs, $name ) !== null;
+	}
+
+	/**
 	 * Set an unshadowed attribute.
 	 *
 	 * @param string $name
