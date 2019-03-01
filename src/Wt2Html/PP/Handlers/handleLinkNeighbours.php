@@ -132,7 +132,7 @@ $findAndHandleNeighbour = function ( $env, $goForward, $regex, $node, $baseAbout
 function handleLinkNeighbours( $node, $env ) {
 	global $DOMDataUtils;
 	global $WTUtils;
-	$rel = $node->getAttribute( 'rel' );
+	$rel = $node->getAttribute( 'rel' ) || '';
 	if ( !preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel ) ) {
 		return true;
 	}

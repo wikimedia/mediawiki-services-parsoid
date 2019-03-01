@@ -221,9 +221,8 @@ class ConversionTraverser extends DOMTraverser {
 	public function anyHandler( $node, $env, $atTopLevel, $tplInfo ) {
 		/* Look for `lang` attributes */
 		if ( DOMUtils::isElt( $node ) ) {
-			$lang = $node->getAttribute( 'lang' );
-			if ( $lang ) {
-
+			if ( $node->hasAttribute( 'lang' ) ) {
+				$lang = $node->getAttribute( 'lang' ); // eslint-disable-line no-unused-vars
 				// XXX validate lang! override fromLang?
 				// this.fromLang = lang;
 			}
@@ -242,7 +241,7 @@ class ConversionTraverser extends DOMTraverser {
 	}
 	public function aHandler( $node, $env, $atTopLevel, $tplInfo ) {
 		// Is this a wikilink?  If so, extract title & convert it
-		$rel = $node->getAttribute( 'rel' );
+		$rel = $node->getAttribute( 'rel' ) || '';
 		if ( $rel === 'mw:WikiLink' ) {
 			$href = preg_replace( '/^(\.\.?\/)+/', '', $node->getAttribute( 'href' ), 1 );
 			$fromPage = Util::decodeURI( $href );
@@ -255,7 +254,7 @@ class ConversionTraverser extends DOMTraverser {
 				$node->setAttribute( 'data-mw-variant-orig', $fromPage );
 				$toPage = docFragToString( $toPageFrag, true/* force */ );
 			}
-			if ( $node->getAttribute( 'title' ) ) {
+			if ( $node->hasAttribute( 'title' ) ) {
 				$node->setAttribute( 'title', preg_replace( '/_/', ' ', $toPage ) );
 			}
 			$node->setAttribute( 'href', "./{$toPage}" );

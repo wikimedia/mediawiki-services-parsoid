@@ -143,6 +143,7 @@ class TokenUtils {
 			// After BehaviorSwitchHandler
 			// (ie. ListHandler, ParagraphWrapper, etc.)
 			( $token->getName() === 'meta' &&
+				$token->hasAttribute( 'property' ) &&
 				preg_match( $env->conf->wiki->bswPagePropRegexp, $token->getAttribute( 'property' ) ) )
 			);
 	}

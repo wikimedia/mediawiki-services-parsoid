@@ -122,7 +122,7 @@ DOMTraverser::prototype::traverse = function ( $workNode, $env, $options, $atTop
 				// may have expanded ranges.
 				 && !WTUtils::isParsoidSectionTag( $workNode )
 			) {
-				$about = $workNode->getAttribute( 'about' );
+				$about = $workNode->getAttribute( 'about' ) || '';
 				$tplInfo = [
 					'first' => $workNode,
 					'last' => JSUtils::lastItem( WTUtils::getAboutSiblings( $workNode, $about ) ),

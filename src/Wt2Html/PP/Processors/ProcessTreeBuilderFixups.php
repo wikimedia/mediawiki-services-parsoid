@@ -105,9 +105,9 @@ class ProcessTreeBuilderFixups {
 			if ( DOMUtils::isElt( $c ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $c );
 				if ( $c->nodeName === 'META' ) {
-					$metaType = $c->getAttribute( 'typeof' );
+					$metaType = $c->getAttribute( 'typeof' ) || '';
 					if ( $metaType === 'mw:StartTag' ) {
-						$dataStag = $c->getAttribute( 'data-stag' );
+						$dataStag = $c->getAttribute( 'data-stag' ) || '';
 						$data = explode( ':', $dataStag );
 						$expectedName = $data[ 0 ];
 						$prevSibling = $c->previousSibling;
@@ -254,12 +254,12 @@ $expectedName = null;
 						$dp->autoInsertedStart = true;
 					}
 				} elseif ( $cNodeName === 'meta' ) {
-					$type = $c->getAttribute( 'typeof' );
+					$type = $c->getAttribute( 'typeof' ) || '';
 					if ( $type === 'mw:EndTag' ) {
 						// Got an mw:EndTag meta element, see if the previous sibling
 						// is the corresponding element.
 						$sibling = $c->previousSibling;
-						$expectedName = $c->getAttribute( 'data-etag' );
+						$expectedName = $c->getAttribute( 'data-etag' ) || '';
 						if ( !$sibling || strtolower( $sibling->nodeName ) !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping

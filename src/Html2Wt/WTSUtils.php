@@ -110,7 +110,7 @@ class WTSUtils {
 	 * @return {boolean} return.fromsrc Whether we got the value from source-based roundtripping.
 	 */
 	public static function getAttributeShadowInfo( $node, $name ) {
-		return $this->getShadowInfo( $node, $name, $node->getAttribute( $name ) );
+		return $this->getShadowInfo( $node, $name, ( $node->hasAttribute( $name ) ) ? $node->getAttribute( $name ) : null );
 	}
 
 	public static function commentWT( $comment ) {

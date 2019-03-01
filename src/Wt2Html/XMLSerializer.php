@@ -239,7 +239,7 @@ class XMLSerializer {
 			}
 		} else {
 			/** @var DOMElement $node */
-			$newUid = $node->getAttribute( 'id' );
+			$newUid = $node->hasAttribute( 'id' ) ? $node->getAttribute( 'id' ) : null;
 			// Encapsulated siblings don't have generated ids (but may have an id),
 			// so associate them with preceding content.
 			if ( $newUid && $newUid !== $out['uid'] && !$out['last'] ) {

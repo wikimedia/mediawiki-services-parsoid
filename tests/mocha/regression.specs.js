@@ -258,7 +258,7 @@ describe('Regression Specs', function() {
 			secondStyle.getAttribute('rel').should.equal('mw-deduplicated-inline-style');
 			secondStyle.getAttribute('href').should.equal('mw-data:' + firstStyle.getAttribute('data-mw-deduplicate'));
 			['about','typeof','data-mw','data-parsoid'].forEach(function(k) {
-				(secondStyle.getAttribute(k) !== null).should.equal(true);
+				secondStyle.hasAttribute(k).should.equal(true);
 			});
 			return serialize(doc, null, { useSelser: false }).then(function(rtWT) {
 				rtWT.should.equal(wt);

@@ -1509,14 +1509,11 @@ WikitextSerializer::prototype::serializeExtensionStartTag = /* async */function 
 
 	);
 
-	$about = $node->getAttribute( 'about' );
-	$type = $node->getAttribute( 'typeof' );
-
-	if ( $about ) {
-		$extTok->addAttribute( 'about', $about );
+	if ( $node->hasAttribute( 'about' ) ) {
+		$extTok->addAttribute( 'about', $node->getAttribute( 'about' ) );
 	}
-	if ( $type ) {
-		$extTok->addAttribute( 'typeof', $type );
+	if ( $node->hasAttribute( 'typeof' ) ) {
+		$extTok->addAttribute( 'typeof', $node->getAttribute( 'typeof' ) );
 	}
 
 	$attrStr = /* await */ $this->_serializeAttributes( $node, $extTok );
@@ -1526,9 +1523,6 @@ WikitextSerializer::prototype::serializeExtensionStartTag = /* async */function 
 	}
 	return $src + ( ( $dataMw->body ) ? '>' : ' />' );
 }
-
-
-
 
 
 

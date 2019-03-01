@@ -18,10 +18,10 @@ function stripMarkerMetas( $node, $env ) {
 	global $DOMDataUtils;
 	$rtTestMode = $env->conf->parsoid->rtTestMode;
 
-	$metaType = $node->getAttribute( 'typeof' );
-	if ( !$metaType ) {
+	if ( !$node->hasAttribute( 'typeof' ) ) {
 		return true;
 	}
+	$metaType = $node->getAttribute( 'typeof' );
 
 	// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 	// element attached to it. So, check if the node has data-mw,
@@ -159,7 +159,7 @@ function cleanupAndSaveDataParsoid( $node, $env, $atTopLevel, $tplInfo ) {
 	// handle the HTML markup.
 	$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr );
 	$isPageProp = ( $node->nodeName === 'META'
-&&		preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) ) );
+&&		preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) || '' ) );
 	if ( $validDSR && !$isPageProp ) {
 		$dp->src = null;
 	} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || !$dp->tsr ) ) {
@@ -193,7 +193,7 @@ function cleanupAndSaveDataParsoid( $node, $env, $atTopLevel, $tplInfo ) {
 		// and associated ids (we cannot add an about id on the nowiki-ed
 		// content since that would be a text node).
 		if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node )
-&&				preg_match( '/^mw:Nowiki$/', $node->getAttribute( 'typeof' ) )
+&&				preg_match( '/^mw:Nowiki$/', $node->getAttribute( 'typeof' ) || '' )
 		) {
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
 			// Replace the span with an empty text node.

@@ -54,7 +54,9 @@ class DOMDataUtils {
 		}
 		$bag = $node->ownerDocument->bag;
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
-		$dataObject = $bag->getObject( (int)$docId );
+		if ( $docId !== '' ) {
+			$dataObject = $bag->getObject( (int)$docId );
+		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
 		Assert::invariant( !isset( $dataObject->stored ), 'Trying to fetch node data without loading!' );
 		return $dataObject;
@@ -141,10 +143,10 @@ class DOMDataUtils {
 	 * @return mixed
 	 */
 	public static function getJSONAttribute( DOMElement $node, string $name, $defaultVal ) {
-		$attVal = $node->getAttribute( $name );
-		if ( !$attVal ) {
+		if ( !$node->hasAttribute( $name ) ) {
 			return $defaultVal;
 		}
+		$attVal = $node->getAttribute( $name );
 		try {
 			return PHPUtils::jsonDecode( $attVal, false );
 		} catch ( Exception $e ) {
@@ -265,12 +267,12 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
-		$typeOfs = $node->getAttribute( 'typeof' );
-		if ( !$typeOfs ) {
+		if ( !$node->hasAttribute( 'typeof' ) ) {
 			return false;
 		}
-		$types = explode( ' ', $typeOfs );
-		return array_search( $type, $types ) !== false;
+		$typeOfs = $node->getAttribute( 'typeof' );
+		$types = preg_split( '/\s+/', $typeOfs );
+		return in_array( $type, $types, true );
 	}
 
 	/**
@@ -283,9 +285,9 @@ class DOMDataUtils {
 	 */
 	public static function addTypeOf( DOMElement $node, string $type ): void {
 		$typeOf = $node->getAttribute( 'typeof' );
-		if ( $typeOf ) {
-			$types = explode( ' ', $typeOf );
-			if ( array_search( $type, $types ) !== false ) {
+		if ( $typeOf !== '' ) {
+			$types = preg_split( '/\s+/', $typeOf );
+			if ( !in_array( $type, $types, true ) ) {
 				// not in type set yet, so add it.
 				$types[] = $type;
 			}
@@ -305,13 +307,11 @@ class DOMDataUtils {
 	 */
 	public static function removeTypeOf( DOMElement $node, string $type ): void {
 		$typeOf = $node->getAttribute( 'typeof' );
-		$notType = function ( $t ) use ( $type ) {
-			return $t !== $type;
-		};
-		if ( $typeOf ) {
-			$types = array_filter( explode( ' ', $typeOf ), "notType" );
-
-			if ( $types->length ) {
+		if ( $typeOf !== '' ) {
+			$types = array_filter( preg_split( '/\s+/', $typeOf ), function ( $t ) use ( $type ) {
+				return $t !== $type;
+			} );
+			if ( count( $types ) > 0 ) {
 				$node->setAttribute( 'typeof', implode( ' ', $types ) );
 			} else {
 				$node->removeAttribute( 'typeof' );
@@ -435,7 +435,7 @@ class DOMDataUtils {
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', (object)[] );
 		if ( $markNew ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
-			$dp->tmp->isNew = $node->getAttribute( 'data-parsoid' ) === null;
+			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );

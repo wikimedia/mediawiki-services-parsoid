@@ -145,7 +145,7 @@ class WrapTemplates {
 		$range = [
 			'startElem' => $startElem,
 			'endElem' => $endMeta,
-			'id' => Util::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ),
+			'id' => Util::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) || '' ),
 			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr[ 0 ],
 			'flipped' => false
 		];
@@ -289,7 +289,7 @@ class WrapTemplates {
 			$meta->parentNode->removeChild( $meta );
 		} else {
 			// Remove mw:* from the typeof.
-			$type = $meta->getAttribute( 'typeof' );
+			$type = $meta->getAttribute( 'typeof' ) || '';
 			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/', '', $type );
 			$meta->setAttribute( 'typeof', $type );
 		}
@@ -686,7 +686,7 @@ $ranges = null;
 			$n = $range->start;
 			$e = $range->end;
 			$startElem = $range->startElem;
-			$about = $startElem->getAttribute( 'about' );
+			$about = $startElem->getAttribute( 'about' ) || '';
 
 			while ( $n ) {
 				$next = $n->nextSibling;
@@ -740,8 +740,8 @@ $ranges = null;
 			// This ensures that VE will still "edit-protect" this template
 			// and not allow its content to be edited directly.
 			if ( $startElem !== $encapInfo->target ) {
-				$t1 = $startElem->getAttribute( 'typeof' );
-				$t2 = $encapInfo->target->getAttribute( 'typeof' );
+				$t1 = $startElem->getAttribute( 'typeof' ) || '';
+				$t2 = $encapInfo->target->getAttribute( 'typeof' ) || '';
 				$encapInfo->target->setAttribute( 'typeof', ( $t2 ) ? $t1 . ' ' . $t2 : $t1 );
 			}
 
@@ -938,7 +938,7 @@ $ranges = null;
 			$nextSibling = $elem->nextSibling;
 
 			if ( DOMUtils::isElt( $elem ) ) {
-				$type = $elem->getAttribute( 'typeof' );
+				$type = $elem->getAttribute( 'typeof' ) || '';
 				$metaMatch = ( $type ) ? preg_match( Util\TPL_META_TYPE_REGEXP, $type ) : null;
 
 				// Ignore templates without tsr.
@@ -955,7 +955,7 @@ $ranges = null;
 				if ( $metaMatch && ( DOMDataUtils::getDataParsoid( $elem )->tsr || preg_match( '/\/End(?=$|\s)/', $type ) ) ) {
 					$metaType = $metaMatch[ 1 ];
 
-					$about = $elem->getAttribute( 'about' );
+					$about = $elem->getAttribute( 'about' ) || '';
 					$aboutRef = $tpls[ $about ];
 					// Is this a start marker?
 					if ( !preg_match( '/\/End(?=$|\s)/', $metaType ) ) {

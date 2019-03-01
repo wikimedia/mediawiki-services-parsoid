@@ -628,7 +628,7 @@ function treatAsPPTransition( $node ) {
 && !WTUtils::isLiteralHTMLNode( $node )
 && !WTUtils::isEncapsulationWrapper( $node )
 && !WTUtils::isSolTransparentLink( $node )
-&& !( preg_match( '/^mw:Includes\//', $node->getAttribute( 'typeof' ) ) );
+&& !( preg_match( '/^mw:Includes\//', $node->getAttribute( 'typeof' ) || '' ) );
 }
 
 function isPPTransition( $node ) {
@@ -1264,8 +1264,8 @@ $tagHandlers = JSUtils::mapObject( [
 		],
 		'meta' => [
 			'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$DOMDataUtils, &$Util, &$WTUtils, &$_htmlElementHandler ) {
-				$type = $node->getAttribute( 'typeof' );
-				$property = $node->getAttribute( 'property' );
+				$type = $node->getAttribute( 'typeof' ) || '';
+				$property = $node->getAttribute( 'property' ) || '';
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				$dmw = DOMDataUtils::getDataMw( $node );
 
@@ -1356,7 +1356,10 @@ $tagHandlers = JSUtils::mapObject( [
 			,
 			'sepnls' => [
 				'before' => function ( $node, $otherNode ) use ( &$DOMDataUtils, &$WTUtils ) {
-					$type = $node->getAttribute( 'typeof' ) || $node->getAttribute( 'property' );
+					$type =
+					( $node->hasAttribute( 'typeof' ) ) ? $node->getAttribute( 'typeof' ) :
+					( $node->hasAttribute( 'property' ) ) ? $node->getAttribute( 'property' ) :
+					null;
 					if ( $type && preg_match( '/mw:PageProp\/categorydefaultsort/', $type ) ) {
 						if ( $otherNode->nodeName === 'P' && DOMDataUtils::getDataParsoid( $otherNode )->stx !== 'html' ) {
 							// Since defaultsort is outside the p-tag, we need 2 newlines
@@ -1368,7 +1371,7 @@ $tagHandlers = JSUtils::mapObject( [
 					} elseif ( WTUtils::isNewElt( $node )
 && // Placeholder metas don't need to be serialized on their own line
 							( $node->nodeName !== 'META'
-|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) ) )
+|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) || '' ) )
 					) {
 						return [ 'min' => 1 ];
 					} else {
@@ -1380,7 +1383,7 @@ $tagHandlers = JSUtils::mapObject( [
 					if ( WTUtils::isNewElt( $node )
 && // Placeholder metas don't need to be serialized on their own line
 							( $node->nodeName !== 'META'
-|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) ) )
+|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) || '' ) )
 					) {
 						return [ 'min' => 1 ];
 					} else {
@@ -1393,7 +1396,7 @@ $tagHandlers = JSUtils::mapObject( [
 			'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$DOMDataUtils, &$DOMUtils, &$Util, &$_htmlElementHandler, &$WTSUtils ) {
 				$env = $state->env;
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				$type = $node->getAttribute( 'typeof' );
+				$type = $node->getAttribute( 'typeof' ) || '';
 				$contentSrc = $node->textContent || $node->innerHTML;
 				if ( isRecognizedSpanWrapper( $type ) ) {
 					if ( $type === 'mw:Nowiki' ) {

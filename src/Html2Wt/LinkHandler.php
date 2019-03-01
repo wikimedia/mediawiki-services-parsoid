@@ -139,8 +139,11 @@ $getLinkRoundTripData = /* async */function ( $env, $node, $state ) use ( &$DOMD
 	// string or tokens
 
 	// Figure out the type of the link
-	$rel = $node->getAttribute( 'rel' );
-	if ( $rel ) {
+	if ( $node->hasAttribute( 'rel' ) ) {
+		$rel = $node->getAttribute( 'rel' );
+		// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
+		// Everything else defaults to ExtLink during serialization (unless it is
+		// serializable to a wikilink)
 		// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
 		// Everything else defaults to ExtLink during serialization (unless it is
 		// serializable to a wikilink)
@@ -888,8 +891,8 @@ $linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$ser
 				// Without an href, we just emit the string as text.
 				// However, to preserve targets for anchor links,
 				// serialize as a span with a name.
-				$name = $node->getAttribute( 'name' );
-				if ( $name ) {
+				if ( $node->hasAttribute( 'name' ) ) {
+					$name = $node->getAttribute( 'name' );
 					$doc = $node->ownerDocument;
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'name', $name );
@@ -1020,8 +1023,7 @@ $format = $temp2->format;
 	if ( $resource->value === null ) {
 		// from non-parsoid HTML: try to reconstruct resource from src?
 		// (this won't work for manual-thumb images)
-		$src = $elt->getAttribute( 'src' );
-		if ( !$src ) {
+		if ( !$elt->hasAttribute( 'src' ) ) {
 			$env->log( 'error/html2wt/figure',
 				'In WSP.figureHandler, img does not have resource or src:',
 				$node->outerHTML
@@ -1029,6 +1031,7 @@ $format = $temp2->format;
 			$state->emitChunk( '', $node );
 			return;
 		}
+		$src = $elt->getAttribute( 'src' );
 		if ( preg_match( '/^https?:/', $src ) ) {
 			// external image link, presumably $wgAllowExternalImages=true
 			$state->emitChunk( new AutoURLLinkText( $src, $node ), $node );

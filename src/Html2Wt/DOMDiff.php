@@ -135,7 +135,7 @@ class DOMDiff {
 				if ( $htmlA && $htmlB && !$this->treeEquals( $htmlA, $htmlB, true ) ) {
 					return false;
 				} elseif ( !$htmlA || !$htmlB ) {
-					$type = $nodeA->getAttribute( 'typeof' );
+					$type = $nodeA->getAttribute( 'typeof' ) || '';
 					$match = preg_match( '/mw:Extension\/(\w+)\b/', $type );
 					$extName = ( $match ) ? $match[ 1 ] : '---';
 					// Log error

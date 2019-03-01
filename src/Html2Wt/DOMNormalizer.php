@@ -416,17 +416,18 @@ class DOMNormalizer {
 
 		$blockingAttrs = [ 'color', 'style', 'class' ];
 
-		$nodeHref = $node->getAttribute( 'href' );
-		if ( $nodeHref === null ) {
+		if ( !$node->hasAttribute( 'href' ) ) {
 			$this->env->log( 'error/normalize', 'href is missing from a tag', $node->outerHTML );
 			return $node;
 		}
+		$nodeHref = $node->getAttribute( 'href' );
+
 		// If there are no tags to swap, we are done
 		if ( $firstChild && DOMUtils::isElt( $firstChild )
 && // No reordering possible with multiple children
 				$fcNextSibling === null
 && // Do not normalize WikiLinks with these attributes
-				!$blockingAttrs->some( function ( $attr ) use ( &$firstChild ) { return $firstChild->getAttribute( $attr );
+				!$blockingAttrs->some( function ( $attr ) use ( &$firstChild ) { return $firstChild->hasAttribute( $attr );
 	   } )
 && // Compare textContent to the href, noting that this matching doesn't handle all
 				// possible simple-wiki-link scenarios that isSimpleWikiLink in link handler tackles
@@ -529,7 +530,7 @@ class DOMNormalizer {
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
 			// negative test.
-			if ( preg_match( '/^mw:WikiLink$/', $node->getAttribute( 'rel' ) ) && $this->stripIfEmpty( $node ) !== $node ) {
+			if ( preg_match( '/^mw:WikiLink$/', $node->getAttribute( 'rel' ) || '' ) && $this->stripIfEmpty( $node ) !== $node ) {
 				return $next;
 			}
 			$this->moveTrailingSpacesOut( $node );
@@ -570,7 +571,7 @@ class DOMNormalizer {
 		} elseif ( $node->nodeName === 'P' && !WTUtils::isLiteralHTMLNode( $node )
 && // Don't normalize empty p-nodes that came from source
 				// FIXME: See T210647
-				!preg_match( '/\bmw-empty-elt\b/', $node->getAttribute( 'class' ) )
+				!preg_match( '/\bmw-empty-elt\b/', $node->getAttribute( 'class' ) || '' )
 && // Don't apply normalization to <p></p> nodes that
 				// were generated through deletions or other normalizations.
 				// FIXME: This trick fails for non-selser mode since

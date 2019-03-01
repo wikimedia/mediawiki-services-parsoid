@@ -16,11 +16,11 @@ function dedupe( $node, $env ) {
 		$env->styleTagKeys = new Set();
 	}
 
-	$key = $node->getAttribute( 'data-mw-deduplicate' );
-	if ( !$key ) {
+	if ( !$node->hasAttribute( 'data-mw-deduplicate' ) ) {
 		// Not a templatestyles <style> tag
 		return true;
 	}
+	$key = $node->getAttribute( 'data-mw-deduplicate' );
 
 	if ( !$env->styleTagKeys->has( $key ) ) {
 		// Not a dupe

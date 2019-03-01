@@ -78,7 +78,7 @@ function processNowikis( $node ) {
 			continue;
 		}
 
-		if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) ) ) {
+		if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
 			processNowikis( $c );
 			$c = $c->nextSibling;
 			continue;
@@ -121,7 +121,7 @@ $_domPostProcessor = function ( $node, $env, $options, $atTopLevel ) use ( &$DOM
 	$c = $node->firstChild;
 	while ( $c ) {
 		if ( DOMUtils::isElt( $c ) ) {
-			if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) ) ) {
+			if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
 				// In nowikis, replace newlines with <br/>.
 				// Cannot do it before parsing because <br/> will get escaped!
 				processNowikis( $c );

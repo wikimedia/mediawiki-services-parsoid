@@ -39,7 +39,7 @@ class HandlePres {
 			$nextChild = $n->nextSibling; // store this before n is possibly deleted
 			if ( !$indentPresHandled && DOMUtils::isElt( $n )
 && TokenUtils::tagOpensBlockScope( $n->nodeName )
-&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
+&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) || '' )
 || WTUtils::isLiteralHTMLNode( $n ) )
 			) {
 				// This is a special case in the php parser for $inBlockquote

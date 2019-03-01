@@ -686,12 +686,13 @@ $PipelineUtils = [
 			$nodes = null; $expAccum = null;
 			while ( $node ) {
 				if ( DOMUtils::isElt( $node ) ) {
-					$typeOf = $node->getAttribute( 'typeof' );
-					$about = $node->getAttribute( 'about' );
-					if ( ( preg_match( '/(?:^|\s)(?:mw:(?:Transclusion(?=$|\s)|Extension\/))/', $typeOf ) && $about )
+					$typeOf = $node->getAttribute( 'typeof' ) || '';
+					if ( ( preg_match( '/(?:^|\s)(?:mw:(?:Transclusion(?=$|\s)|Extension\/))/', $typeOf ) && $node->hasAttribute( 'about' ) )
 ||							preg_match( '/(?:^|\s)(?:mw:(?:Image|Video|Audio)(?:(?=$|\s)|\/))/', $typeOf )
 					) {
 						$dp = DOMDataUtils::getDataParsoid( $node );
+						$about = ( $node->hasAttribute( 'about' ) ) ?
+						$node->getAttribute( 'about' ) : null;
 						$nodes = WTUtils::getAboutSiblings( $node, $about );
 
 						$key = null;

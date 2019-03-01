@@ -61,7 +61,7 @@ class DiffUtils {
 	 * This annotation is added by the DOMDiff pass.
 	 */
 	public static function isDeletedBlockNode( $node ) {
-		return $this->maybeDeletedNode( $node ) && $node->getAttribute( 'data-is-block' );
+		return $this->maybeDeletedNode( $node ) && $node->hasAttribute( 'data-is-block' );
 	}
 
 	public static function directChildrenChanged( $node, $env ) {

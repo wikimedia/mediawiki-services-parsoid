@@ -98,7 +98,7 @@ function hoistTransclusionInfo( $env, $child, $tdNode ) {
 	global $DOMDataUtils;
 	global $Util;
 	global $DOMUtils;
-	$aboutId = $child->getAttribute( 'about' );
+	$aboutId = $child->getAttribute( 'about' ) || '';
 	// Hoist all transclusion information from the child
 	// to the parent tdNode.
 	$tdNode->setAttribute( 'typeof', $child->getAttribute( 'typeof' ) );
@@ -209,7 +209,7 @@ TableFixups::prototype::collectAttributishContent = function ( $env, $node, $tem
 			// to do here!
 			return $buildRes();
 		} else {
-			$typeOf = $child->getAttribute( 'typeof' );
+			$typeOf = $child->getAttribute( 'typeof' ) || '';
 			if ( preg_match( '/^mw:Entity$/', $typeOf ) ) {
 				$buf[] = $child->textContent;
 			} elseif ( preg_match( '/^mw:Nowiki$/', $typeOf ) ) {
@@ -237,7 +237,7 @@ TableFixups::prototype::collectAttributishContent = function ( $env, $node, $tem
 				// We encountered a transclusion wrapper
 				$buf[] = $child->textContent;
 				$transclusionNode = $child;
-			} elseif ( $transclusionNode && $typeOf === null
+			} elseif ( $transclusionNode && ( !$child->hasAttribute( 'typeOf' ) )
 && $child->getAttribute( 'about' ) === $transclusionNode->getAttribute( 'about' )
 && DOMUtils::allChildrenAreTextOrComments( $child )
 			) {
@@ -354,15 +354,14 @@ TableFixups::prototype::reparseTemplatedAttributes = function ( $env, $node, $te
 
 function needsReparsing( $node ) {
 	global $DOMUtils;
-	global $Util;
+	global $WTUtils;
 	$testRE = ( $node->nodeName === 'TD' ) ? /* RegExp */ '/[|]/' : /* RegExp */ '/[!|]/';
 	$child = $node->firstChild;
 	while ( $child ) {
 		if ( DOMUtils::isText( $child ) && preg_match( $testRE, $child->textContent ) ) {
 			return true;
 		} elseif ( $child->nodeName === 'SPAN' ) {
-			$about = $child->getAttribute( 'about' );
-			if ( $about && Util::isParsoidObjectId( $about ) && preg_match( $testRE, $child->textContent ) ) {
+			if ( WTUtils::hasParsoidAboutId( $child ) && preg_match( $testRE, $child->textContent ) ) {
 				return true;
 			}
 		}

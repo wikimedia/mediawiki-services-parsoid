@@ -893,9 +893,9 @@ describe('Parsoid API', function() {
 				p.nodeName.should.equal('P');
 				p.innerHTML.should.equal('foo');
 				// The <p> shouldn't be a template expansion, just a plain ol' one
-				should.not.exist(p.getAttribute('typeof'));
+				p.hasAttribute('typeof').should.equal(false);
 				// and it shouldn't have any data-parsoid in it
-				should.not.exist(p.getAttribute('data-parsoid'));
+				p.hasAttribute('data-parsoid').should.equal(false);
 			}))
 			.end(done);
 		});
@@ -911,15 +911,15 @@ describe('Parsoid API', function() {
 				var p = body.firstChild.firstChild;
 				p.nodeName.should.equal('P');
 				// The <p> shouldn't be a template expansion, just a plain ol' one
-				should.not.exist(p.getAttribute('typeof'));
+				p.hasAttribute('typeof').should.equal(false);
 				// and it shouldn't have any data-parsoid in it
-				should.not.exist(p.getAttribute('data-parsoid'));
+				p.hasAttribute('data-parsoid').should.equal(false);
 				// The internal tranclusion should be presented as such
 				var tplp = p.firstChild.nextSibling;
 				tplp.nodeName.should.equal('SPAN');
 				tplp.getAttribute('typeof').should.equal('mw:Transclusion');
 				// And not have data-parsoid, so it's used as new content
-				should.not.exist(tplp.getAttribute('data-parsoid'));
+				tplp.hasAttribute('data-parsoid').should.equal(false);
 			}))
 			.end(done);
 		});

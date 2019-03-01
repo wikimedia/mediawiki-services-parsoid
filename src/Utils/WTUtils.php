@@ -417,7 +417,7 @@ class WTUtils {
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
 		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
 		//
-		$typeOf = DOMUtils::isElt( $node ) && $node->getAttribute( 'typeof' );
+		$typeOf = DOMUtils::isElt( $node ) ? $node->getAttribute( 'typeof' ) : '';
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
@@ -519,7 +519,7 @@ class WTUtils {
 	 */
 	public static function isParsoidSectionTag( DOMNode $node ): bool {
 		return $node->nodeName === 'section' &&
-			$node->getAttribute( 'data-mw-section-id' ) !== null;
+			$node->hasAttribute( 'data-mw-section-id' );
 	}
 
 	/**
@@ -611,8 +611,8 @@ class WTUtils {
 	 * @return DOMNode|null
 	 */
 	public static function skipOverEncapsulatedContent( DOMElement $node ): ?DOMNode {
-		$about = $node->getAttribute( 'about' );
-		if ( $about ) {
+		if ( $node->hasAttribute( 'about' ) ) {
+			$about = $node->getAttribute( 'about' );
 			// Guaranteed not to be empty. It will at least include $node.
 			$aboutSiblings = self::getAboutSiblings( $node, $about );
 			return end( $aboutSiblings )->nextSibling;

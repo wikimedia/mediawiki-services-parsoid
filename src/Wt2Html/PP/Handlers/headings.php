@@ -32,7 +32,7 @@ function genAnchors( $node, $env ) {
 	// So, it can preserve the existing id if any. However, in Parsoid, we are
 	// generating a <h* id="anchor-id-here"> ..</h*> => we either overwrite or
 	// preserve the existing id and use it for TOC, etc. We choose to preserve it.
-	if ( $node->getAttribute( 'id' ) !== null ) {
+	if ( $node->hasAttribute( 'id' ) ) {
 		DOMDataUtils::getDataParsoid( $node )->reusedId = true;
 		return true;
 	}

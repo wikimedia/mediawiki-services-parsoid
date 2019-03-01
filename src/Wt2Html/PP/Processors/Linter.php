@@ -462,7 +462,7 @@ class Linter {
 			$env->log( 'lint/obsolete-tag', $lintObj );
 		}
 
-		if ( $c->nodeName === 'FONT' && $c->getAttribute( 'color' ) ) {
+		if ( $c->nodeName === 'FONT' && $c->hasAttribute( 'color' ) ) {
 			/* ----------------------------------------------------------
 			 * Tidy migrates <font> into the link in these cases
 			 *     <font>[[Foo]]</font>
@@ -492,7 +492,7 @@ class Linter {
 			for ( $n = $c->firstChild;  $n;  $n = $n->nextSibling ) {
 				if ( $n->nodeName !== 'A'
 && !WTUtils::isRenderingTransparentNode( $n )
-&& !( $n->nodeName === 'META' && preg_match( Util\TPL_META_TYPE_REGEXP, $n->getAttribute( 'typeof' ) ) )
+&& !WTUtils::isTplMarkerMeta( $n )
 				) {
 					$tidyFontBug = false;
 					break;
@@ -609,8 +609,8 @@ class Linter {
 		// Special case for enwiki that has Template:nowrap which
 		// assigns class='nowrap' with CSS white-space:nowrap in
 		// MediaWiki:Common.css
-		return preg_match( '/nowrap/', $node->getAttribute( 'style' ) )
-|| preg_match( '/(^|\s)nowrap($|\s)/', $node->getAttribute( 'class' ) );
+		return preg_match( '/nowrap/', $node->getAttribute( 'style' ) || '' )
+|| preg_match( '/(^|\s)nowrap($|\s)/', $node->getAttribute( 'class' ) || '' );
 	}
 
 	public function logBadPWrapping( $env, $node, $dp, $tplInfo ) {
@@ -640,8 +640,8 @@ class Linter {
 		}
 
 		// No style/class attributes -- so, this won't affect rendering
-		if ( !$node->getAttribute( 'class' ) && !$node->getAttribute( 'style' )
-&& !$fc->getAttribute( 'class' ) && !$fc->getAttribute( 'style' )
+		if ( !$node->hasAttribute( 'class' ) && !$node->hasAttribute( 'style' )
+&& !$fc->hasAttribute( 'class' ) && !$fc->hasAttribute( 'style' )
 		) {
 			return;
 		}
@@ -931,7 +931,7 @@ $ws = null;
 			if ( !$tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 				$tplInfo = [
 					'first' => $node,
-					'last' => JSUtils::lastItem( WTUtils::getAboutSiblings( $node, $node->getAttribute( 'about' ) ) ),
+					'last' => JSUtils::lastItem( WTUtils::getAboutSiblings( $node, $node->getAttribute( 'about' ) || '' ) ),
 					'dsr' => DOMDataUtils::getDataParsoid( $node )->dsr,
 					'isTemplated' => preg_match( '/\bmw:Transclusion\b/', $nodeTypeOf ),
 					'clear' => false

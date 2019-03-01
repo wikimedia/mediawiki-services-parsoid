@@ -100,7 +100,7 @@ class WrapSections {
 
 			// Track entry into templated output
 			if ( !$state->inTemplate && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-				$about = $node->getAttribute( 'about' );
+				$about = $node->getAttribute( 'about' ) || '';
 				$state->inTemplate = true;
 				$tplInfo = [
 					'first' => $node,
@@ -305,7 +305,7 @@ $dmw = null;
 						$dmw->extPrefix = $state->getSrc( $dsr1, $tplDsr[ 0 ] );
 						$dmw->extSuffix = $state->getSrc( $tplDsr[ 1 ], $dsr2 );
 						DOMDataUtils::setDataMw( $newS1, $dmw );
-						$newS1->setAttribute( 'typeof', $tplInfo->first->getAttribute( 'typeof' ) );
+						$newS1->setAttribute( 'typeof', $tplInfo->first->getAttribute( 'typeof' ) || '' );
 						DOMDataUtils::setDataParsoid( $newS1, [ 'dsr' => [ $dsr1, $dsr2 ] ] );
 					}
 				}

@@ -195,7 +195,7 @@ const hrefToTitle = function(href) {
 };
 
 const nodeHrefToTitle = function(node, suppressCategory) {
-	const href = node && node.getAttribute('href');
+	const href = node && node.hasAttribute('href') && node.getAttribute('href');
 	if (!href) { return null; }
 	const title = hrefToTitle(href);
 	if (suppressCategory) {

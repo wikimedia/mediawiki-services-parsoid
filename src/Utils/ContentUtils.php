@@ -212,14 +212,11 @@ class ContentUtils {
 		$wikiLinks = Array::from( $doc->body->querySelectorAll( 'a[rel~="mw:WikiLink"]' ) );
 
 		$titleSet = array_reduce( $wikiLinks, function ( $s, $a ) {
-				$title = $a->getAttribute( 'title' );
 				// Magic links, at least, don't have titles
-				// Magic links, at least, don't have titles
-				if ( $title !== null ) { $s->add( $title );  }
+				if ( $a->hasAttribute( 'title' ) ) { $s->add( $a->getAttribute( 'title' ) );  }
 				return $s;
 			}, new Set()
 		)
-
 
 
 
@@ -238,8 +235,8 @@ class ContentUtils {
 			}
 		);
 		$wikiLinks->forEach( function ( $a ) use ( &$titleMap, &$undefined, &$env ) {
+				if ( !$a->hasAttribute( 'title' ) ) { return;  }
 				$k = $a->getAttribute( 'title' );
-				if ( $k === null ) { return;  }
 				$data = $titleMap->get( $k );
 				if ( $data === null ) {
 					$err = true;

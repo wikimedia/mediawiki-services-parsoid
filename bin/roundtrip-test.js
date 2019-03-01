@@ -407,7 +407,7 @@ var formatDiff = function(oldWt, newWt, offset, context) {
 function stripElementIds(node) {
 	while (node) {
 		if (DOMUtils.isElt(node)) {
-			var id = node.getAttribute('id');
+			var id = node.getAttribute('id') || '';
 			if (/^mw[\w-]{2,}$/.test(id)) {
 				node.removeAttribute('id');
 			}

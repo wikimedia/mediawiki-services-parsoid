@@ -119,8 +119,8 @@ function fixAbouts( $env, $node, $aboutIdMap ) {
 	$c = $node->firstChild;
 	while ( $c ) {
 		if ( DOMUtils::isElt( $c ) ) {
-			$cAbout = $c->getAttribute( 'about' );
-			if ( $cAbout ) {
+			if ( $c->hasAttribute( 'about' ) ) {
+				$cAbout = $c->getAttribute( 'about' );
 				// Update about
 				$newAbout = $aboutIdMap->get( $cAbout );
 				if ( !$newAbout ) {
