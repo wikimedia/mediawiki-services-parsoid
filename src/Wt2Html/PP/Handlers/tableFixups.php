@@ -54,7 +54,7 @@ TableFixups::prototype::stripDoubleTDs = function ( $node, $env ) use ( &$WTUtil
 && DOMUtils::nodeEssentiallyEmpty( $node )
 &&
 			// FIXME: will not be set for nested templates
-			preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $nextNode->getAttribute( 'typeof' ) )
+			DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' )
 || // Hacky work-around for nested templates
 				preg_match( '/^{{.*?}}$/', DOMDataUtils::getDataParsoid( $nextNode )->src )
 	) {
@@ -384,8 +384,7 @@ TableFixups::prototype::handleTableCellTemplates = function ( $node, $env ) use 
 
 	if ( !$hasAttrs ) {
 		$about = $node->getAttribute( 'about' );
-		$typeOf = $node->getAttribute( 'typeof' );
-		$templateWrapper = ( preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $typeOf ) ) ?
+		$templateWrapper = ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) ?
 		$node : null;
 		$this->reparseTemplatedAttributes( $env, $node, $templateWrapper );
 	}

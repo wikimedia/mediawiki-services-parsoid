@@ -835,8 +835,7 @@ $ranges = null;
 								$a->args->i = $infoIndex;
 							}
 							$infoIndex++;
-							$type = $startElem->getAttribute( 'typeof' );
-							return ( preg_match( '/(^|\s)mw:Param(\s|$)/', $type ) ) ?
+							return ( DOMUtils::hasTypeOf( $startElem, 'mw:Param' ) ) ?
 							[ 'templatearg' => $a->args ] :
 							[ 'template' => $a->args ];
 						}

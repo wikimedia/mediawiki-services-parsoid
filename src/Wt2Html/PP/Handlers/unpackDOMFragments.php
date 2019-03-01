@@ -164,10 +164,8 @@ function unpackDOMFragments( $node, $env ) {
 	if ( !DOMUtils::isElt( $node ) ) { return true;
  }
 
-	$typeOf = $node->getAttribute( 'typeof' );
-
 	// sealed fragments shouldn't make it past this point
-	if ( !preg_match( '/(?:^|\s)mw:DOMFragment(?=$|\s)/', $typeOf ) ) { return true;
+	if ( !DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) { return true;
  }
 
 	$dp = DOMDataUtils::getDataParsoid( $node );
@@ -206,7 +204,7 @@ function unpackDOMFragments( $node, $env ) {
 
 	$contentNode = $dummyNode->firstChild;
 
-	if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+	if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 		// Ensure our `firstChild` is an element to add annotation.  At present,
 		// we're unlikely to end up with translusion annotations on fragments
 		// where span wrapping hasn't occurred (ie. link contents, since that's
@@ -241,14 +239,13 @@ function unpackDOMFragments( $node, $env ) {
 	// TODO: Make sure that is the only reason for not having a DSR here.
 	$dsr = $dp->dsr;
 	if ( $dsr && ( $dp->tmp->setDSR || $dp->tmp->fromCache || $dp->fostered ) ) {
-		$type = $contentNode->getAttribute( 'typeof' );
 		$cnDP = DOMDataUtils::getDataParsoid( $contentNode );
-		if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $type ) ) {
+		if ( DOMUtils::hasTypeOf( $contentNode, 'mw:Transclusion' ) ) {
 			// FIXME: An old comment from c28f137 said we just use dsr[0] and
 			// dsr[1] since tag-widths will be incorrect for reuse of template
 			// expansions.  The comment was removed in ca9e760.
 			$cnDP->dsr = [ $dsr[ 0 ], $dsr[ 1 ] ];
-		} elseif ( preg_match( '/(?:^|\s)mw:(Nowiki|Extension(\/[^\s]+))(?=$|\s)/', $type ) ) {
+		} elseif ( DOMUtils::matchTypeOf( $contentNode, /* RegExp */ '/^mw:(Nowiki|Extension(\/[^\s]+))$/' ) !== null ) {
 			$cnDP->dsr = $dsr;
 		} else { // non-transcluded images
 			$cnDP->dsr = [ $dsr[ 0 ], $dsr[ 1 ], 2, 2 ];

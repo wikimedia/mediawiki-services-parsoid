@@ -13,6 +13,8 @@ use RemexHtml\TreeBuilder\Dispatcher;
 
 use Parsoid\Config\WikitextConstants;
 
+use Wikimedia\Assert\Assert;
+
 /**
 * DOM utilities for querying the DOM. This is largely independent of Parsoid
 * although some Parsoid details (diff markers, TokenUtils, inline content version)
@@ -292,13 +294,67 @@ class DOMUtils {
 	 * Determine whether the node matches the given nodeName and attribute value.
 	 * Returns true if node name matches and the attribute equals "typeof"
 	 *
-	 * @param DOMNode $n
-	 * @param string $name
-	 * @param string $type
-	 * @return bool
+	 * @param DOMNode $n The node to test
+	 * @param string $name The expected nodeName of $n
+	 * @param string $typeRe Regular expression matching the expected value of
+	 *   `typeof` attribute.
+	 * @return ?string The matching `typeof` value, or `null` if there is
+	 *   no match.
 	 */
-	public static function isNodeOfType( DOMNode $n, string $name, string $type ): bool {
-		return $n->nodeName === $name && $n->getAttribute( 'typeof' ) === $type;
+	public static function matchNameAndTypeOf( DOMNode $n, string $name, string $typeRe ): ?string {
+		return $n->nodeName === $name ? self::matchTypeOf( $n, $typeRe ) : null;
+	}
+
+	/**
+	 * Determine whether the node matches the given nodeName and typeof
+	 * attribute value; the typeof is given as string.
+	 *
+	 * @param DOMNode $n
+	 * @param string $name node name to test for
+	 * @param string $type Expected value of "typeof" attribute (literal string)
+	 * @return bool True if the node matches.
+	 */
+	public static function hasNameAndTypeOf( DOMNode $n, string $name, string $type ) {
+		return self::matchNameAndTypeOf(
+			$n, $name, '/^' . preg_quote( $type, '/' ) . '$/'
+		) !== null;
+	}
+
+	/**
+	 * Determine whether the node matches the given `typeof` attribute value.
+	 *
+	 * @param DOMNode $n The node to test
+	 * @param string $typeRe Regular expression matching the expected value of
+	 *   the `typeof` attribute.
+	 * @return ?string The matching `typeof` value, or `null` if there is
+	 *   no match.
+	 */
+	public static function matchTypeOf( DOMNode $n, string $typeRe ): ?string {
+		if ( !( self::isElt( $n ) && $n->hasAttribute( 'typeof' ) ) ) {
+			return null;
+		}
+		foreach ( preg_split( '/\s+/', $n->getAttribute( 'typeof' ), -1, PREG_SPLIT_NO_EMPTY ) as $ty ) {
+			$count = preg_match( $typeRe, $ty );
+			Assert::invariant( $count !== false, "Bad regexp" );
+			if ( $count ) {
+				return $ty;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Determine whether the node matches the given typeof attribute value.
+	 *
+	 * @param DOMNode $n
+	 * @param string $type Expected value of "typeof" attribute, as a literal
+	 *   string.
+	 * @return bool True if the node matches.
+	 */
+	public static function hasTypeOf( DOMNode $n, string $type ) {
+		return self::matchTypeOf(
+			$n, '/^' . preg_quote( $type, '/' ) . '$/'
+		) !== null;
 	}
 
 	/**
@@ -376,7 +432,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isMarkerMeta( DOMNode $n, string $type ): bool {
-		return self::isNodeOfType( $n, 'meta', $type );
+		return self::hasNameAndTypeOf( $n, 'meta', $type );
 	}
 
 	// FIXME: This would ideally belong in DiffUtils.js

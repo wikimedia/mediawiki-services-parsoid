@@ -318,8 +318,7 @@ class WikiLinkHandler extends TokenHandler {
 && TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) )
 						) {
 							$firstNode = $env->fragmentMap->get( $t->dataAttribs->html )[ 0 ];
-							return $firstNode && DOMUtils::isElt( $firstNode )
-&& preg_match( '/\bmw:(Nowiki|Extension)/', $firstNode->getAttribute( 'typeof' ) );
+							return DOMUtils::matchTypeOf( $firstNode, /* RegExp */ '/^mw:(Nowiki|Extension)/' ) !== null;
 						}
 						return false;
 		}

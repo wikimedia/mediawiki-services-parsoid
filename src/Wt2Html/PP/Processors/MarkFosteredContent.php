@@ -131,7 +131,7 @@ $fosteredTransclusions = null;
 			$sibling = $c->nextSibling;
 			$fosteredTransclusions = false;
 
-			if ( DOMUtils::isNodeOfType( $c, 'TABLE', 'mw:FosterBox' ) ) {
+			if ( DOMUtils::hasNameAndTypeOf( $c, 'TABLE', 'mw:FosterBox' ) ) {
 				$inPTag = DOMUtils::hasAncestorOfName( $c->parentNode, 'p' );
 				$fosterContentHolder = $this->getFosterContentHolder( $c->ownerDocument, $inPTag );
 

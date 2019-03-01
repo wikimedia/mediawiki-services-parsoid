@@ -166,8 +166,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function hasExpandedAttrsType( DOMElement $node ): bool {
-		$nType = $node->getAttribute( 'typeof' );
-		return (bool)preg_match( '#(?:^|\s)mw:ExpandedAttrs(/[^\s]+)*(?=$|\s)#', $nType );
+		return DOMUtils::matchTypeOf( $node, '/^mw:ExpandedAttrs(\/[^\s]+)*$/' ) !== null;
 	}
 
 	/**
@@ -177,10 +176,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplMarkerMeta( DOMNode $node ): bool {
-		return (
-			$node->nodeName === "meta" &&
-			self::isTplMetaType( $node->getAttribute( "typeof" ) )
-		);
+		return DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP ) !== null;
 	}
 
 	/**
@@ -190,12 +186,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplStartMarkerMeta( DOMNode $node ): bool {
-		if ( $node->nodeName === "meta" ) {
-			$t = $node->getAttribute( "typeof" );
-			return self::isTplMetaType( $t ) && !preg_match( '#/End(?=$|\s)#', $t );
-		} else {
-			return false;
-		}
+		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
+		return $t !== null && !preg_match( '#/End$#', $t );
 	}
 
 	/**
@@ -206,12 +198,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplEndMarkerMeta( DOMNode $node ): bool {
-		if ( $node->nodeName === "meta" ) {
-			$t = $node->getAttribute( "typeof" );
-			return self::isTplMetaType( $t ) && preg_match( '#/End(?=$|\s)#', $t );
-		} else {
-			return false;
-		}
+		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
+		return $t !== null && preg_match( '#/End$#', $t );
 	}
 
 	/**
@@ -270,8 +258,9 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isInlineMedia( DOMNode $node ): bool {
-		return $node->nodeName === 'figure-inline' &&
-			preg_match( '/\bmw:(?:Image|Video|Audio)\b/', $node->getAttribute( "typeof" ) );
+		return DOMUtils::matchNameAndTypeOf(
+			$node, 'figure-inline', '/^mw:(Image|Video|Audio)$/'
+		) !== null;
 	}
 
 	/**
@@ -279,8 +268,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isGeneratedFigure( DOMNode $node ): bool {
-		return DOMUtils::isElt( $node ) &&
-			preg_match( '#(^|\s)mw:(?:Image|Video|Audio)(\s|$|/)#', $node->getAttribute( "typeof" ) );
+		return DOMUtils::matchNameAndTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#' ) !== null;
 	}
 
 	/**
@@ -399,7 +387,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isFallbackIdSpan( DOMNode $node ): bool {
-		return $node->nodeName === 'span' && $node->getAttribute( 'typeof' ) === 'mw:FallbackId';
+		return DOMUtils::hasNameAndTypeOf( $node, 'span', 'mw:FallbackId' );
 	}
 
 	/**
@@ -426,7 +414,7 @@ class WTUtils {
 					// (Start|End)Tag metas clone data-parsoid from the tokens
 					// they're shadowing, which trips up on the stx check.
 					// TODO: Maybe that data should be nested in a property?
-					preg_match( '/(mw:StartTag)|(mw:EndTag)/', $typeOf ) ||
+					DOMUtils::matchTypeOf( $node, '/^mw:(StartTag|EndTag)$/' ) !== null ||
 					!isset( DOMDataUtils::getDataParsoid( $node )["stx"] ) ||
 					DOMDataUtils::getDataParsoid( $node )["stx"] !== 'html'
 				)
@@ -462,8 +450,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isFirstEncapsulationWrapperNode( DOMNode $node ): bool {
-		return DOMUtils::isElt( $node ) &&
-			preg_match( self::FIRST_ENCAP_REGEXP, $node->getAttribute( 'typeof' ) );
+		return DOMUtils::matchTypeOf( $node, self::FIRST_ENCAP_REGEXP ) !== null;
 	}
 
 	/**
@@ -505,11 +492,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isSealedFragmentOfType( DOMNode $node, string $type ): bool {
-		if ( !DOMUtils::isElt( $node ) ) {
-			return false;
-		}
-		$re = '#(?:^|\s)mw:DOMFragment/sealed/' . preg_quote( $type ) . '(?=$|\s)#';
-		return preg_match( $re, $node->getAttribute( 'typeof' ) );
+		return DOMUtils::hasTypeOf( $node, "mw:DOMFragment/sealed/$type" );
 	}
 
 	/**
@@ -531,9 +514,8 @@ class WTUtils {
 	 */
 	public static function fromExtensionContent( DOMNode $node, string $extType ): bool {
 		$parentNode = $node->parentNode;
-		$extRE = '#\bmw:Extension/' . preg_quote( $extType ) . '\b#';
 		while ( $parentNode && !DOMUtils::atTheTop( $parentNode ) ) {
-			if ( preg_match( $extRE, $parentNode->getAttribute( 'typeof' ) ) ) {
+			if ( DOMUtils::hasTypeOf( $parentNode, "mw:Extension/$extType" ) ) {
 				return true;
 			}
 			$parentNode = $parentNode->parentNode;

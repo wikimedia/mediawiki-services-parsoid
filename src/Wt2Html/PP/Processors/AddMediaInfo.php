@@ -9,6 +9,7 @@ namespace Parsoid;
 use Parsoid\Promise as Promise;
 
 use Parsoid\DOMDataUtils as DOMDataUtils;
+use Parsoid\DOMUtils as DOMUtils;
 use Parsoid\WTSUtils as WTSUtils;
 use Parsoid\Sanitizer as Sanitizer;
 use Parsoid\PegTokenizer as PegTokenizer;
@@ -467,8 +468,8 @@ class AddMediaInfo {
 	 * @param {Object} dataMw
 	 */
 	public static function addErrors( $container, $errs, $dataMw ) {
-		$typeOf = $container->getAttribute( 'typeof' );
-		if ( !preg_match( '/\bmw:Error\b/', $typeOf ) ) {
+		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
+			$typeOf = $container->getAttribute( 'typeof' ) || '';
 			$typeOf = "mw:Error{( count( $typeOf ) ) ? ' ' : ''}{$typeOf}";
 			$container->setAttribute( 'typeof', $typeOf );
 		}
@@ -595,13 +596,13 @@ class AddMediaInfo {
 		// false positivies in link-in-link scenarios but, in those cases, link
 		// content would already have been processed to dom in a subpipeline
 		// and would necessitate filtering here anyways.
-		$containers = $containers->filter( function ( $c ) {
+		$containers = $containers->filter( function ( $c ) use ( &$DOMUtils ) {
 				return $c->firstChild && $c->firstChild->nodeName === 'A'
 &&					$c->firstChild->firstChild && $c->firstChild->firstChild->nodeName === 'SPAN'
 &&					// The media element may remain a <span> if we hit an error
 					// below so use the annotation as another indicator of having
 					// already been processed.
-					!preg_match( '/\bmw:Error\b/', $c->getAttribute( 'typeof' ) );
+					!DOMUtils::hasTypeOf( $c, 'mw:Error' );
 			}
 		);
 

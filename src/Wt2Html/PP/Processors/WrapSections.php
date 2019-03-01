@@ -243,7 +243,7 @@ $dmw = null;
 						$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr;
 						$tplEndOffset = $tplDsr[ 1 ];
 						$dmw = DOMDataUtils::getDataMw( $tplInfo->first );
-						if ( preg_match( '/mw:Transclusion/', $tplInfo->first->getAttribute( 'typeof' ) ) ) {
+						if ( DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
 							if ( $dmw->parts ) { $dmw->parts[] = $state->getSrc( $tplEndOffset, $newTplEndOffset );
 				   }
 						} else { /* Extension */
@@ -289,7 +289,7 @@ $dmw = null;
 					$tplDP = DOMDataUtils::getDataParsoid( $tplInfo->first );
 					$tplDsr = $tplDP->dsr;
 					$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo->first ) );
-					if ( preg_match( '/mw:Transclusion/', $tplInfo->first->getAttribute( 'typeof' ) ) ) {
+					if ( DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
 						if ( $dmw->parts ) {
 							array_unshift( $dmw->parts, $state->getSrc( $dsr1, $tplDsr[ 0 ] ) );
 							$dmw->parts[] = $state->getSrc( $tplDsr[ 1 ], $dsr2 );

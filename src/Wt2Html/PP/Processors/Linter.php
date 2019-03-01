@@ -133,8 +133,7 @@ class Linter {
 			return null;
 		}
 
-		$typeOf = $tplInfo->first->getAttribute( 'typeof' );
-		if ( !preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+		if ( !DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
 			return null;
 		}
 		$dmw = DOMDataUtils::getDataMw( $tplInfo->first );
@@ -924,8 +923,6 @@ $ws = null;
 				continue;
 			}
 
-			$nodeTypeOf = $node->getAttribute( 'typeof' );
-
 			// !tplInfo check is to protect against templated content in
 			// extensions which might in turn be nested in templated content.
 			if ( !$tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
@@ -933,16 +930,17 @@ $ws = null;
 					'first' => $node,
 					'last' => JSUtils::lastItem( WTUtils::getAboutSiblings( $node, $node->getAttribute( 'about' ) || '' ) ),
 					'dsr' => DOMDataUtils::getDataParsoid( $node )->dsr,
-					'isTemplated' => preg_match( '/\bmw:Transclusion\b/', $nodeTypeOf ),
+					'isTemplated' => DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ),
 					'clear' => false
 				];
 			}
 
 			$nextNode = null;
 			$nativeExt = null;
-			$match = preg_match( '/\bmw:Extension\/(.+?)\b/', ( $nodeTypeOf || '' ) );
+			$match = DOMUtils::matchTypeOf( $node, /* RegExp */ '/^mw:Extension\/(.+?)$/' );
+			$prefixLen = strlen( 'mw:Extension/' );
 			if ( $match
-&& ( $nativeExt = $env->conf->wiki->extConfig->tags->get( $match[ 1 ] ) )
+&& ( $nativeExt = $env->conf->wiki->extConfig->tags->get( array_slice( $match, $prefixLen ) ) )
 && $nativeExt->lintHandler
 			) { // Let native extensions lint their content
 				$nextNode = $nativeExt->lintHandler( $node, $env, $tplInfo, function ( ...$args ) {return $this->findLints( ...$args );

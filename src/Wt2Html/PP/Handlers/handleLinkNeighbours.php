@@ -131,6 +131,7 @@ $findAndHandleNeighbour = function ( $env, $goForward, $regex, $node, $baseAbout
  */
 function handleLinkNeighbours( $node, $env ) {
 	global $DOMDataUtils;
+	global $DOMUtils;
 	global $WTUtils;
 	$rel = $node->getAttribute( 'rel' ) || '';
 	if ( !preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel ) ) {
@@ -149,7 +150,7 @@ $dataMW = null;
 		}
 		if ( count( $prefix->src ) > 0 ) {
 			$dp->prefix = $prefix->src;
-			if ( preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $node->getAttribute( 'typeof' ) ) ) {
+			if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 				// only necessary if we're the first
 				$dataMW = DOMDataUtils::getDataMw( $node );
 				if ( $dataMW->parts ) { array_unshift( $dataMW->parts, $prefix->src );
@@ -176,9 +177,7 @@ $dataMW = null;
 				// only if we're the last. otherwise can assume
 				// template encapsulation will handle it
 				$wrapper = WTUtils::findFirstEncapsulationWrapperNode( $node );
-				if ( $wrapper !== null
-&& preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $wrapper->getAttribute( 'typeof' ) )
-				) {
+				if ( $wrapper !== null && DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ) {
 					$dataMW = DOMDataUtils::getDataMw( $wrapper );
 					if ( $dataMW->parts ) { $dataMW->parts[] = $trail->src;
 		   }
