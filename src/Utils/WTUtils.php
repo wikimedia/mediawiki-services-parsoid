@@ -319,7 +319,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function hasParsoidAboutId( DOMNode $node ): bool {
-		if ( DOMUtils::isElt( $node ) ) {
+		if ( DOMUtils::isElt( $node ) && $node->hasAttribute( 'about' ) ) {
 			$about = $node->getAttribute( 'about' );
 			// SSS FIXME: Verify that our DOM spec clarifies this
 			// expectation on about-ids and that our clients respect this.
