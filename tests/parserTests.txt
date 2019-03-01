@@ -26188,12 +26188,12 @@ parsoid=html2wt
 <h2>=foo=</h2>
 <h3>=foo=</h3>
 
-<h1 data-parsoid=''>=foo=</h1>
-<h2 data-parsoid=''>=foo=</h2>
-<h3 data-parsoid=''>=foo=</h3>
-<h4 data-parsoid=''>=foo=</h4>
-<h5 data-parsoid=''>=foo=</h5>
-<h6 data-parsoid=''>=foo=</h6>
+<h1 data-parsoid='{}'>=foo=</h1>
+<h2 data-parsoid='{}'>=foo=</h2>
+<h3 data-parsoid='{}'>=foo=</h3>
+<h4 data-parsoid='{}'>=foo=</h4>
+<h5 data-parsoid='{}'>=foo=</h5>
+<h6 data-parsoid='{}'>=foo=</h6>
 !! wikitext
 = =foo= =
 
