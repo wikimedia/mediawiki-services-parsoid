@@ -1,17 +1,17 @@
 <?php
+declare( strict_types = 1 );
 
 /**
  * Create list tag around list items and map wiki bullet levels to html
  */
 
-declare( strict_types = 1 );
-
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 
 /**
  * @class
@@ -71,24 +71,20 @@ class ListHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return array|Token
 	 */
-	public function onTag( $token ) {
-		if ( is_string( $token ) ) {
-			return $token;
-		}
+	public function onTag( Token $token ) {
 		return ( $token->getName() === 'listItem' ) ? $this->onListItem( $token ) : $token;
 	}
 
 	/**
 	 * Handle onAny processing
 	 *
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return array
 	 */
 	public function onAny( $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'ANY:',  function () use ( $token ) { return json_encode( $token );
-			}
-		);
+		 } );
 		$tc = TokenUtils::getTokenType( $token );
 		$tokens = null;
 
@@ -212,8 +208,7 @@ class ListHandler extends TokenHandler {
 	public function onEnd( EOFTk $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'END:', function () use ( $token ) { return json_encode( $token );
-			}
-		);
+		 } );
 
 		$this->listFrames = [];
 		if ( !$this->currListFrame ) {
@@ -229,7 +224,8 @@ class ListHandler extends TokenHandler {
 	/**
 	 * Handle close list processing
 	 *
-	 * @param Token $token
+	 * FIXME: Check if string can come through here
+	 * @param Token|string $token
 	 * @return array
 	 */
 	private function closeLists( $token ): array {
@@ -262,7 +258,7 @@ class ListHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	private function onListItem( $token ): array {
+	private function onListItem( Token $token ): array {
 		$tc = TokenUtils::getTokenType( $token );
 		if ( $tc === 'TagTk' ) {
 			$this->onAnyEnabled = true;
@@ -271,7 +267,8 @@ class ListHandler extends TokenHandler {
 				// Attempts to mimic findColonNoLinks in the php parser.
 				$bullets = $token->getAttribute( 'bullets' );
 				if ( end( $bullets ) === ':'
-					&& $this->currListFrame['numOpenTags'] > 0 ) {
+					&& $this->currListFrame['numOpenTags'] > 0
+				) {
 					return [ 'tokens' => [ ':' ] ];
 				}
 			} else {
@@ -312,7 +309,7 @@ class ListHandler extends TokenHandler {
 	 * @param object $dp2
 	 * @return array
 	 */
-	private function pushList( array $container, $dp1, $dp2 ):array {
+	private function pushList( array $container, $dp1, $dp2 ): array {
 		$this->currListFrame['endtags'][] = new EndTagTk( $container['list'] );
 		$this->currListFrame['endtags'][] = new EndTagTk( $container['item'] );
 
@@ -371,24 +368,18 @@ class ListHandler extends TokenHandler {
 	public function doListItem( array $bs, array $bn, $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'BEGIN:', function () use ( $token ) { return json_encode( $token );
-			}
-		);
+		 } );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
 		$dp = $token->dataAttribs;
 
-		$tsr = $dp->tsr ?? null;
-
-		$makeDP = function ( $k, $j ) use ( &$tsr, &$Util, &$dp ) {
-			$newTSR = null;
+		$makeDP = function ( $k, $j ) use ( $dp ) {
+			$newDP = (object)(array)$dp; // shallow clone
+			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
-				$newTSR = [ $tsr[ 0 ] + $k, $tsr[ 0 ] + $j ];
-			} else {
-				return $dp;
+				$newDP->tsr = [ $tsr[ 0 ] + $k, $tsr[ 0 ] + $j ];
 			}
-			$newDP = (object)(array)$dp;    // shallow clone
-			$newDP->tsr = $newTSR;
 			return $newDP;
 		};
 
@@ -399,9 +390,8 @@ class ListHandler extends TokenHandler {
 
 		// emit close tag tokens for closed lists
 		$this->env->log( 'trace/list', $this->manager->pipelineId, function () use ( $bs, $bn ) {
-				return '    bs: ' . json_encode( $bs ) . '; bn: ' . json_encode( $bn );
-		}
-		);
+			return '    bs: ' . json_encode( $bs ) . '; bn: ' . json_encode( $bn );
+		} );
 
 		if ( count( $prefix ) === count( $bs ) && count( $bn ) === count( $bs ) ) {
 			$this->env->log( 'trace/list', $this->manager->pipelineId, '    -> no nesting change' );
@@ -527,8 +517,7 @@ class ListHandler extends TokenHandler {
 
 				$tokens = array_merge( $tokens, $this->pushList(
 					$this->bullet_chars_map[ $bn[ $i ] ], $listDP, $listItemDP
-					)
-				);
+				) );
 			}
 			$res = $tokens;
 		}
@@ -540,8 +529,7 @@ class ListHandler extends TokenHandler {
 
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'RET:', function () use ( $res ) { return json_encode( $res );
-			}
-		);
+		 } );
 		return $res;
 	}
 }

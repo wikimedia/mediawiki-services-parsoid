@@ -1,23 +1,21 @@
 <?php
-/**
- * Insert paragraph tags where needed -- smartly and carefully
- * -- there is much fun to be had mimicking "wikitext visual newlines"
- * behavior as implemented by the PHP parser.
- * @module
- */
+declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
-use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 
 /**
- * @class
- * @extends module:wt2html/tt/TokenHandler
- * @constructor
+ * Insert paragraph tags where needed -- smartly and carefully
+ * -- there is much fun to be had mimicking "wikitext visual newlines"
+ * behavior as implemented by the PHP parser.
  */
 class ParagraphWrapper extends TokenHandler {
 	private $inPre;
@@ -36,9 +34,9 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Constructor for paragraph wrapper.
 	 * @param object $manager manager enviroment
-	 * @param object $options various configuration options
+	 * @param array $options various configuration options
 	 */
-	public function __construct( $manager, $options ) {
+	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->inPre = false;
 		$this->hasOpenPTag = false;
@@ -48,7 +46,7 @@ class ParagraphWrapper extends TokenHandler {
 		$this->newLineCount = 0;
 		$this->currLine = null;
 
-// These are defined in the php parser's `BlockLevelPass`
+		// These are defined in the php parser's `BlockLevelPass`
 		if ( is_null( self::$wgBlockElems ) ) {
 			self::$wgBlockElems = PHPUtils::makeSet( [ 'table', 'h1', 'h2', 'h3', 'h4',
 			'h5', 'h6', 'pre', 'p', 'ul', 'ol', 'dl' ] );
@@ -66,20 +64,20 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Determine whether the token is on a new line or end of file
 	 *
-	 * @param Token $token token
-	 * @return object
+	 * @param NlTk $token token
+	 * @return Token|array
 	 */
-	public function onNewline( $token ) {
+	public function onNewline( NlTk $token ) {
 		return $this->inPre ? $token : $this->onNewLineOrEOF( $token );
 	}
 
 	/**
 	 * Determine whether the token is on a new line or end of file (duplicate?)
 	 *
-	 * @param Token $token token
-	 * @return object
+	 * @param EOFTk $token token
+	 * @return Token|array
 	 */
-	public function onEnd( $token ) {
+	public function onEnd( EOFTk $token ) {
 		return $this->onNewLineOrEOF( $token );
 	}
 
@@ -138,11 +136,11 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Process the current buffer contents and token provided
 	 *
-	 * @param Token $token token
+	 * @param Token|string $token token
 	 * @param bool $flushCurrentLine option to flush current line or preserve it
-	 * @return string
+	 * @return array
 	 */
-	private function processBuffers( $token, $flushCurrentLine ) {
+	private function processBuffers( $token, bool $flushCurrentLine ): array {
 		$res = $this->processPendingNLs();
 		$this->currLine['tokens'][] = $token;
 		if ( $flushCurrentLine ) {
@@ -158,9 +156,9 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Process and flush existing buffer contents
 	 *
-	 * @return string
+	 * @return array
 	 */
-	private function flushBuffers() {
+	private function flushBuffers(): array {
 		// Assertion to catch bugs in p-wrapping; both cannot be true.
 		if ( $this->newLineCount > 0 ) {
 			$this->manager->env->log( 'error/p-wrap', 'Failed assertion in flushBuffers: newline-count:',
@@ -179,9 +177,9 @@ class ParagraphWrapper extends TokenHandler {
 	 * Discare a newline token from buffer
 	 *
 	 * @param array &$out array to process and update
-	 * @return string
+	 * @return Token|string
 	 */
-	public function discardOneNlTk( &$out ) {
+	public function discardOneNlTk( array &$out ) {
 		$i = 0;
 		$n = count( $this->nlWsTokens );
 		while ( $i < $n ) {
@@ -193,6 +191,7 @@ class ParagraphWrapper extends TokenHandler {
 			}
 			$i++;
 		}
+
 		return "";
 	}
 
@@ -251,7 +250,7 @@ class ParagraphWrapper extends TokenHandler {
 				$t = $out[$i];
 				$tt = TokenUtils::getTokenType( $t );
 				if ( $tt !== 'string' && $t->getName() === 'meta' ) {
-					$typeOf = $t->getAttribute( 'typeof' );
+					$typeOf = $t->getAttribute( 'typeof' ) ?? '';
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
 						// Don't include the sol-transparent tags OR the start tag.
@@ -284,7 +283,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @param Token $token token
 	 * @return array
 	 */
-	public function onNewLineOrEOF( $token ) {
+	public function onNewLineOrEOF( Token $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
 			function () use( $token ) {
 			return PHPUtils::jsonEncode( $token );
@@ -326,7 +325,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @return array
 	 */
-	public function processPendingNLs() {
+	public function processPendingNLs(): array {
 		$resToks = $this->tokenBuffer;
 		$newLineCount = $this->newLineCount;
 		$nlTk = null;
@@ -382,10 +381,10 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Process onAny token types
 	 *
-	 * @param Token $token token
+	 * @param Token|string $token token
 	 * @return array
 	 */
-	public function onAny( $token ) {
+	public function onAny( $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'ANY   |',
 			function () use( $token ) {
 			return PHPUtils::jsonEncode( $token );

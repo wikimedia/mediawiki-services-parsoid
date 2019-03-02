@@ -1,12 +1,13 @@
 <?php
-/** @module */
+declare( strict_types = 1 );
 
 namespace Parsoid\Wt2html\TT;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
 
 /**
  * @class
@@ -34,7 +35,7 @@ class TokenHandler {
 	/**
 	 * This handler is called for EOF tokens only
 	 * @param EOFTk $token EOF token to be processed
-	 * @return object
+	 * @return EOFTk|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
@@ -47,13 +48,13 @@ class TokenHandler {
 	/**
 	 * This handler is called for newline tokens only
 	 * @param Token $token Newline token to be processed
-	 * @return object
+	 * @return NlTk|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
 	 *    if 'skip' is set, onAny handler is skipped
 	 */
-	public function onNewline( $token ) {
+	public function onNewline( NlTk $token ) {
 		return $token;
 	}
 
@@ -63,13 +64,13 @@ class TokenHandler {
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
 	 * @param Token $token Token to be processed
-	 * @return object
+	 * @return Token|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
 	 *    if 'skip' is set, onAny handler is skipped
 	 */
-	public function onTag( $token ) {
+	public function onTag( Token $token ) {
 		return $token;
 	}
 
@@ -81,8 +82,8 @@ class TokenHandler {
 	 * (c) this handlers 'active' flag is set to false (can be set by any
 	 *     of the handlers).
 	 *
-	 * @param Token $token Token to be processed
-	 * @return object
+	 * @param Token|string $token Token to be processed
+	 * @return Token|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
@@ -94,10 +95,10 @@ class TokenHandler {
 	/**
 	 * Resets the state based on parameter
 	 *
-	 * @param object $opts Any options for the expander.
+	 * @param array $opts Any options for the expander.
 	 */
-	public function resetState( $opts ) {
-		$this->atTopLevel = $opts && $opts->toplevel;
+	public function resetState( array $opts ) {
+		$this->atTopLevel = $opts && $opts['toplevel'];
 	}
 
 	/* -------------------------- PORT-FIXME ------------------------------
@@ -145,21 +146,28 @@ class TokenHandler {
 				} elseif ( $tt === 'EOFTk' ) {
 					$res = $this->onEnd( $token );
 					$traceName = $traceState['traceNames'][1];
-				} else {
+				} elseif ( !is_string( $token ) ) {
 					$res = $this->onTag( $token );
 					$traceName = $traceState['traceNames'][2];
+				} else {
+					$traceName = null;
+					$res = $token;
 				}
-				$t = PHPUtils::getHRTimeDifferential( $s );
-				$env->bumpTimeUse( $traceName, $t, "TT" );
-				$env->bumpCount( $traceName );
-				$traceState['tokenTimes'] += $t;
+				if ( $traceName ) {
+					$t = PHPUtils::getHRTimeDifferential( $s );
+					$env->bumpTimeUse( $traceName, $t, "TT" );
+					$env->bumpCount( $traceName );
+					$traceState['tokenTimes'] += $t;
+				}
 			} else {
 				if ( $tt === 'NlTk' ) {
 					$res = $this->onNewline( $token );
 				} elseif ( $tt === 'EOFTk' ) {
 					$res = $this->onEnd( $token );
-				} else {
+				} elseif ( !is_string( $token ) ) {
 					$res = $this->onTag( $token );
+				} else {
+					$res = $token;
 				}
 			}
 

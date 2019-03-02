@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 /**
 PRE handling.
@@ -69,8 +70,11 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 
 /**
  * @class
@@ -122,9 +126,9 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Resets the state based on options parameter
 	 *
-	 * @param object $opts
+	 * @param array $opts
 	 */
-	public function resetState( $opts ) {
+	public function resetState( array $opts ) {
 		if ( !empty( $opts['inlineContext'] ) || !empty( $opts['inPHPBlock'] ) ) {
 			$this->disabled = true;
 		} else {
@@ -195,7 +199,7 @@ class PreHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	private function encounteredBlockWhileCollecting( $token ): array {
+	private function encounteredBlockWhileCollecting( Token $token ): array {
 		$env = $this->manager->env;
 		$ret = [];
 		$mlp = null;
@@ -231,7 +235,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Get results and cleanup state
 	 *
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return array
 	 */
 	private function getResultAndReset( $token ): array {
@@ -256,7 +260,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Process a pre
 	 *
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return array
 	 */
 	private function processPre( $token ): array {
@@ -296,10 +300,10 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Initialize a pre TSR
 	 *
-	 * @param Token $nltk
+	 * @param NlTk $nltk
 	 * @return int
 	 */
-	private function initPreTSR( $nltk ): int {
+	private function initPreTSR( NlTk $nltk ): int {
 		$da = $nltk->dataAttribs;
 		// tsr[1] can never be zero, so safe to use da.tsr[1] to check for null/undefined
 		return ( $da && isset( $da->tsr ) && $da->tsr[ 1 ] !== null ) ? $da->tsr[ 1 ] : -1;
@@ -308,10 +312,10 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Handler onNewLine processing
 	 *
-	 * @param Token $token
+	 * @param NlTk $token
 	 * @return array
 	 */
-	public function onNewline( $token ) {
+	public function onNewline( NlTk $token ): array {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
@@ -379,10 +383,10 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Handler onEnd processing
 	 *
-	 * @param Token $token
-	 * @return array
+	 * @param EOFTk $token
+	 * @return Token|array
 	 */
-	public function onEnd( $token ) {
+	public function onEnd( EOFTk $token ) {
 		if ( !$this->onAnyEnabled ) {
 			return $token;
 		}
@@ -430,7 +434,7 @@ class PreHandler extends TokenHandler {
 	 * Get updated pre TSR value
 	 *
 	 * @param int $tsr
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return int
 	 */
 	private function getUpdatedPreTSR( int $tsr, $token ): int {
@@ -453,10 +457,10 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Handle onAny processing
 	 *
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return array
 	 */
-	public function onAny( $token ) {
+	public function onAny( $token ): array {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
@@ -468,9 +472,8 @@ class PreHandler extends TokenHandler {
 
 		if ( $this->state === self::STATE_IGNORE ) {
 			$env->log( 'error', function () use ( $token ) {
-					return '!ERROR! IGNORE! Cannot get here: ' . json_encode( $token );
-			}
-			);
+				return '!ERROR! IGNORE! Cannot get here: ' . json_encode( $token );
+			} );
 			return $token;
 		}
 

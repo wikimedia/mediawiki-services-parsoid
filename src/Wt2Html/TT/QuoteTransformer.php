@@ -1,12 +1,16 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Tokens\Token;
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Wikimedia\Assert\Assert;
 
 /**
  * PORT-FIXME: Maybe we need to look at all uses of flatten
@@ -17,7 +21,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
  * @param array $array array
  * @return array
  */
-function array_flatten( $array ) {
+function array_flatten( array $array ): array {
 	$ret = [];
 	foreach ( $array as $key => $value ) {
 		if ( is_array( $value ) ) {
@@ -74,9 +78,9 @@ class QuoteTransformer extends TokenHandler {
 	/**
 	 * Handles mw-quote tokens and td/th tokens
 	 * @param Token $token
-	 * @return array
+	 * @return Token|array
 	 */
-	public function onTag( $token ) {
+	public function onTag( Token $token ) {
 		$tkName = is_string( $token ) ? '' : $token->getName();
 		if ( $tkName === 'mw-quote' ) {
 			return $this->onQuote( $token );
@@ -89,42 +93,43 @@ class QuoteTransformer extends TokenHandler {
 
 	/**
 	 * On encountering a NlTk, processes quotes on the current line
-	 * @param Token $token
-	 * @return Token[]|Token
+	 * @param NlTk Token $token
+	 * @return NlTk|array
 	 */
-	public function onNewline( $token ) {
+	public function onNewline( NlTk $token ) {
 		return $this->processQuotes( $token );
 	}
 
 	/**
 	 * On encountering an EOFTk, processes quotes on the current line
-	 * @param Token $token
-	 * @return Token[]|Token
+	 * @param EOFTk $token
+	 * @return Token|array
 	 */
-	public function onEnd( $token ) {
+	public function onEnd( EOFTk $token ) {
 		return $this->processQuotes( $token );
 	}
 
 	/**
 	 * Handle onAny tags.
 	 *
-	 * @param token $token token
-	 * @return array
+	 * @param Token|string $token token
+	 * @return Token|string|array
 	 */
 	public function onAny( $token ) {
 		$this->manager->env->log(
 			"trace/quote",
 			$this->manager->pipelineId,
 			"ANY |",
-			function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+			function () use ( $token ) {
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
 		if ( $this->onAnyEnabled ) {
 			$this->currentChunk[] = $token;
-			return null;
+			return [];
 		} else {
-			return [ "tokens" => [ $token ] ];
+			return $token;
 		}
 	}
 
@@ -134,10 +139,10 @@ class QuoteTransformer extends TokenHandler {
 	 * appropriate tag tokens is deferred until the next NEWLINE token triggers
 	 * processQuotes.
 	 *
-	 * @param object $token token
+	 * @param Token $token token
 	 * @return array
 	 */
-	public function onQuote( $token ) {
+	public function onQuote( Token $token ) {
 		$v = $token->getAttribute( 'value' );
 		$qlen = strlen( $v );
 		$this->manager->env->log(
@@ -155,21 +160,19 @@ class QuoteTransformer extends TokenHandler {
 			$this->startNewChunk();
 			$this->currentChunk[] = $token;
 			$this->startNewChunk();
-		} else {
-			error_log( 'should be transformed by tokenizer' );
 		}
 
-		return null;
+		return [];
 	}
 
 	/**
 	 * Handle NEWLINE tokens, which trigger the actual quote analysis on the
 	 * collected quote tokens so far.
 	 *
-	 * @param object $token token
-	 * @return array
+	 * @param Token $token token
+	 * @return Token|array
 	 */
-	public function processQuotes( $token ) {
+	public function processQuotes( Token $token ) {
 		if ( !$this->onAnyEnabled ) {
 			// Nothing to do, quick abort.
 			return $token;
@@ -187,7 +190,7 @@ class QuoteTransformer extends TokenHandler {
 		if ( !is_string( $token ) &&
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
 			$token->dataAttribs->stx === 'html'
- ) {
+		) {
 			return $token;
 		}
 
@@ -196,9 +199,7 @@ class QuoteTransformer extends TokenHandler {
 		$numitalics = 0;
 		$chunkCount = count( $this->chunks );
 		for ( $i = 1; $i < $chunkCount; $i += 2 ) {
-			if ( count( $this->chunks[$i] ) !== 1 ) {	// quote token
-				error_log( 'expected 1 quote token' );
-			}
+			Assert::invariant( count( $this->chunks[$i] ) === 1, 'Expected a single token in the chunk' ); // quote token
 			$qlen = strlen( $this->chunks[$i][0]->getAttribute( "value" ) );
 			if ( $qlen === 2 || $qlen === 5 ) {
 				$numitalics++;
@@ -290,13 +291,11 @@ class QuoteTransformer extends TokenHandler {
 	 *
 	 * @param int $i index into chunks
 	 */
-	public function convertBold( $i ) {
+	public function convertBold( int $i ) {
 		// this should be a bold tag.
-		if ( !( $i > 0 && count( $this->chunks[$i] ) === 1
-			&& strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) === 3 )
-		) {
-			error_log( 'this should be a bold tag' );
-		}
+		Assert::invariant( $i > 0 && count( $this->chunks[$i] ) === 1
+			&& strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) === 3,
+			'this should be a bold tag' );
 
 		// we're going to convert it to a single plain text ' plus an italic tag
 		$this->chunks[$i - 1][] = "'";
@@ -320,9 +319,7 @@ class QuoteTransformer extends TokenHandler {
 
 		$chunkCount = count( $this->chunks );
 		for ( $i = 1; $i < $chunkCount; $i += 2 ) {
-			if ( count( $this->chunks[$i] ) !== 1 ) {
-				error_log( 'expected count chunks[i] == 1' );
-			}
+			Assert::invariant( count( $this->chunks[$i] ) === 1, 'expected count chunks[i] == 1' );
 			$qlen = strlen( $this->chunks[$i][0]->getAttribute( "value" ) );
 			if ( $qlen === 2 ) {
 				if ( $state === 'i' ) {
@@ -337,7 +334,7 @@ class QuoteTransformer extends TokenHandler {
 						new EndTagTk( 'b' ),
 						new EndTagTk( 'i' ),
 						new TagTk( 'b' ),
-					], "bogus two" );
+					], true );
 					$state = 'b';
 				} elseif ( $state === 'both' ) {
 					$this->quoteToTag( $lastboth, [ new TagTk( 'b' ), new TagTk( 'i' ) ] );
@@ -360,7 +357,7 @@ class QuoteTransformer extends TokenHandler {
 						new EndTagTk( 'i' ),
 						new EndTagTk( 'b' ),
 						new TagTk( 'i' ),
-					], "bogus two" );
+					], true );
 					$state = 'i';
 				} elseif ( $state === 'both' ) {
 					$this->quoteToTag( $lastboth, [ new TagTk( 'i' ), new TagTk( 'b' ) ] );
@@ -420,10 +417,8 @@ class QuoteTransformer extends TokenHandler {
 	 * @param array $tags token
 	 * @param bool $ignoreBogusTwo optional defaulß
 	 */
-	public function quoteToTag( $chunk, $tags, $ignoreBogusTwo = false ) {
-		if ( count( $this->chunks[$chunk] ) !== 1 ) {
-			error_log( 'expected count chunks[i] == 1' );
-		}
+	public function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ) {
+		Assert::invariant( count( $this->chunks[$chunk] ) === 1, 'expected count chunks[i] == 1' );
 		$result = [];
 		$oldtag = $this->chunks[$chunk][0];
 		// make tsr
@@ -443,17 +438,13 @@ class QuoteTransformer extends TokenHandler {
 				} elseif ( $tags[$i]->getName() === 'i' ) {
 					$tags[$i]->dataAttribs->tsr = [ $startpos, $startpos + 2 ];
 					$startpos = $tags[$i]->dataAttribs->tsr[1];
-				} else {
-					error_log( 'unexpected final else clause encountered' );
 				}
 			}
 			$this->last[$tags[$i]->getName()] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];
 			$result[] = $tags[$i];
 		}
 		if ( $tsr ) {
-			if ( $startpos !== $endpos ) {
-				error_log( 'Start: $startpos !== end: $endpos' );
-			}
+			Assert::invariant( $startpos === $endpos, 'Start: $startpos !== end: $endpos' );
 		}
 		$this->chunks[$chunk] = $result;
 	}
