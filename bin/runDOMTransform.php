@@ -3,11 +3,10 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Parsoid\Tests\MockEnv;
+use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
-use Parsoid\Wt2Html\XMLSerializer;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -18,10 +17,12 @@ if ( $argc < 3 ) {
 	throw new \Exception( "Missing command-line arguments: 3 expected, $argc provided" );
 }
 
+$transformerName = $argv[1];
+$htmlFileName = $argv[2];
+
 /**
  * Read HTML from STDIN and build DOM
  */
-$transformerName = $argv[1];
 $optsString = file_get_contents( 'php://stdin' );
 $opts = PHPUtils::jsonDecode( $optsString );
 
@@ -33,13 +34,14 @@ $env = new MockEnv( [
 	"pageContent" => $opts['pageContent'] ?? null,
 ] );
 
-$html = file_get_contents( $argv[2] );
+$html = file_get_contents( $htmlFileName );
 $html = mb_convert_encoding( $html, 'UTF-8',
 	mb_detect_encoding( $html, 'UTF-8, ISO-8859-1', true ) );
-$dom = $env->createDocument( $html );
-$body = $dom->getElementsByTagName( 'body' )->item( 0 );
-// fwrite( STDERR, "\nIN DOM :" . XMLSerializer::serialize( $body )['html'] . "\n" );
-DOMDataUtils::visitAndLoadDataAttribs( $body );
+$body = ContentUtils::ppToDOM( $env, $html, [ 'reinsertFosterableContent' => true ] );
+
+// fwrite(STDERR,
+// "---REHYDRATED DOM---\n" .
+// ContentUtils::ppToXML( $body, [ 'keepTmp' => true ] ) . "\n------");
 
 $manager = new stdclass();
 $manager->env = $env;
@@ -66,10 +68,15 @@ switch ( $transformerName ) {
 $transformer->run( $body, $manager->env, $opts );
 
 /**
- * Serialize output to DOM
+ * Serialize output to DOM while tunneling fosterable content
+ * to prevent it from getting fostered on parse to DOM
  */
-DOMDataUtils::visitAndStoreDataAttribs( $body, [ "keepTmp" => true ] );
-$out = XMLSerializer::serialize( $body )['html'];
+$out = ContentUtils::ppToXML( $body, [ 'keepTmp' => true, 'tunnelFosteredContent' => true ] );
+
+/**
+ * Remove the input DOM file to eliminate clutter
+ */
+unlink( $htmlFileName );
 
 /**
  * Write DOM to file

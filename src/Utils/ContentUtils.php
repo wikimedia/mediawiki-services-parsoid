@@ -9,6 +9,7 @@ use DOMElement;
 
 use Parsoid\Config\Env;
 use Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Assert\Assert;
 
 /**
  * These utilities are for processing content that's generated
@@ -39,6 +40,44 @@ class ContentUtils {
 		return self::toXML( $node, $options );
 	}
 
+	private static function reinsertFosterableContent( DOMNode $node ): void {
+		if ( !DOMUtils::isElt( $node ) ) {
+			return;
+		}
+
+		$dataFosteredAttr = $node->getAttribute( 'data-fostered' );
+		if ( $dataFosteredAttr ) {
+			$tunneledContent = PHPUtils::jsonDecode( $dataFosteredAttr );
+			$idx = 0;
+			$child = $node->firstChild;
+			$c = array_shift( $tunneledContent );
+			while ( $c ) {
+				Assert::invariant( $child,
+					'Bad DOM encountered. Cannot reinsert fosterable content!' );
+				$next = $child->nextSibling;
+				if ( $c['idx'] === $idx ) {
+					Assert::invariant( DOMUtils::isComment( $child ),
+						'Expected placeholder comment!' );
+					if ( empty( $c['text'] ) ) {
+						// parse & transfer over
+						$fc = DOMUtils::parseHTML( $c['content'] );
+						// FIXME: Update after DOMCompat lands
+						$fcBody = $fc->getElementsByTagName( 'body' )->item( 0 );
+						DOMUtils::migrateChildrenBetweenDocs( $fcBody, $node, $child );
+						$node->removeChild( $child );
+					} else {
+						$fc = $node->ownerDocument->createTextNode( $c['content'] );
+						$node->replaceChild( $fc, $child );
+					}
+					$c = array_shift( $tunneledContent );
+				}
+				$child = $next;
+				$idx++;
+			}
+			$node->removeAttribute( 'data-fostered' );
+		}
+	}
+
 	/**
 	 * .dataobject aware HTML parser, to be used in the DOM
 	 * post-processing phase.
@@ -50,14 +89,26 @@ class ContentUtils {
 	 */
 	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMNode {
 		$options = $options ?? [];
-		$node = $options['node'];
+		$node = $options['node'] ?? null;
 		if ( $node === null ) {
 			$node = $env->createDocument( $html )->body;
 		} else {
 			// PORT-FIXME: Needs updating after DOMCompat patch lands
 			$node->innerHTML = $html;
 		}
-		DOMDataUtils::visitAndLoadDataAttribs( $node, $options['markNew'] );
+
+		$markNew = $options['markNew'] ?? false;
+		if ( $options['reinsertFosterableContent'] ) {
+			DOMUtils::visitDOM( $node, function ( $node, ...$args ) {
+				// untunnel fostered content
+				self::reinsertFosterableContent( $node );
+
+				// load data attribs
+				DOMDataUtils::loadDataAttribs( $node, ...$args );
+			}, $markNew );
+		} else {
+			DOMUtils::visitDOM( $node, [ DOMDataUtils::class, 'loadDataAttribs' ], $markNew );
+		}
 		return $node;
 	}
 

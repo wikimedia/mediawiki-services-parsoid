@@ -10,7 +10,9 @@ use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use DOMText;
+use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 
@@ -105,6 +107,40 @@ class XMLSerializer {
 	 */
 	private static function serializeToString( DOMNode $node, array $options, callable $accum ): void {
 		$child = null;
+		if ( !empty( $options['tunnelFosteredContent'] ) &&
+			isset( WikitextConstants::$HTML['FosterablePosition'][$node->nodeName] )
+		) {
+			// Tunnel fosterable content in a data-fostered attribute
+			$ownerDoc = $node->ownerDocument;
+			$allowedTags = WikitextConstants::$HTML['TableContentModels'][$node->nodeName];
+			$idx = 0;
+			$tunneledContent = [];
+			$child = $node->firstChild;
+			while ( $child ) {
+				$next = $child->nextSibling;
+				/* If a node is going to get fostered, extract it to the data-fostered
+				 * attribute and replace it with an empty placeholder comment.
+				 * NOTE: we are unconditionally tunnelling text nodes without checking for WS.
+				 * It just keeps thing simple without having to deal with what is considered WS
+				 * in JS, PHP, HTML5.
+				 */
+				if ( DOMUtils::isText( $child ) ) {
+					$tunneledContent[] = [ 'idx' => $idx, 'text' => true, 'content' => $child->data ];
+					$node->replaceChild( $ownerDoc->createComment( '' ), $child );
+				} elseif ( DOMUtils::isElt( $child ) && !in_array( $child->nodeName, $allowedTags ) ) {
+					$tunneledContent[] = [ 'idx' => $idx,
+						'content' => self::serialize( $child )['html']
+					];
+					$node->replaceChild( $ownerDoc->createComment( '' ), $child );
+				}
+				$child = $next;
+				$idx++;
+			}
+
+			if ( count( $tunneledContent ) > 0 ) {
+				$node->setAttribute( 'data-fostered', PHPUtils::jsonEncode( $tunneledContent ) );
+			}
+		}
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				/** @var DOMElement $node */

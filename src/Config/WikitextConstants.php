@@ -291,7 +291,15 @@ class WikitextConstants {
 
 			'ListItemTags' => PHPUtils::makeSet( [ 'li', 'dd', 'dt' ] ),
 
-			'FosterablePosition' => PHPUtils::makeSet( [ 'table', 'tbody', 'tr' ] ),
+			'FosterablePosition' => PHPUtils::makeSet( [ 'table', 'thead', 'tbody', 'tfoot', 'tr' ] ),
+
+			'TableContentModels' => [
+				'table' => [ 'caption', 'colgroup', 'thead', 'tbody', 'tr', 'tfoot' ],
+				'thead' => [ 'tr' ],
+				'tbody' => [ 'tr' ],
+				'tfoot' => [ 'tr' ],
+				'tr'    => [ 'td', 'th' ]
+			],
 
 			'TableTags' => PHPUtils::makeSet( [
 				'table', 'tbody', 'thead', 'tfoot', 'caption', 'th', 'tr', 'td',
