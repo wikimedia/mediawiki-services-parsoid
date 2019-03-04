@@ -1000,5 +1000,14 @@ describe('Linter Tests', function() {
 				result[0].dsr.should.deep.equal([ 0, 73, 26, 1 ]);
 			});
 		});
+		it('should lint wikilink in external link correctly', function() {
+			return parseWT('{{1x|foo <div> and [http://google.com [[Google]] bar] baz </div>}}').then(function(result) {
+				result.should.have.length(1);
+				result[0].should.have.a.property("type", "wikilink-in-extlink");
+				result[0].dsr.should.deep.equal([ 0, 66, null, null ]);
+				result[0].should.have.a.property("templateInfo");
+				result[0].templateInfo.should.have.a.property("name", "Template:1x");
+			});
+		});
 	});
 });
