@@ -16,6 +16,9 @@
 
 namespace Parsoid;
 
+use Parsoid\fs as fs;
+use Parsoid\path as path;
+use Parsoid\yaml as yaml;
 use Parsoid\Promise as Promise;
 
 $PegTokenizer = require './tokenizer.js'::PegTokenizer;
@@ -53,8 +56,19 @@ $globalPipelineId = 0;
  * @param {MWParserEnvironment} env
  */
 function ParserPipelineFactory( $env ) {
+	global $path;
+	global $fs;
+	global $yaml;
 	$this->pipelineCache = [];
 	$this->env = $env;
+
+	$configFile = path::resolve( $__dirname, '../../pipeline.yaml' );
+	try {
+		$yamlStr = fs::readFileSync( $configFile, 'utf8' );
+		$this->pipelineConfig = yaml::load( $yamlStr );
+	} catch ( Exception $e ) {
+		$this->pipelineConfig = null;
+	}
 }
 
 /**
@@ -283,9 +297,22 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 				$stage->transformers = [];
 				// Create (and implicitly register) transforms
 				$transforms = $stageData[ 2 ];
+				$PHPBuffer = null;
+$PHPTransformer = null;
 				for ( $j = 0;  $j < count( $transforms );  $j++ ) {
-					$t = new $transforms[ $j ]( $stage, $options );
-					$stage->transformers[] = $t;
+					$T = $transforms[ $j ];
+					if ( $this->pipelineConfig
+&& array_search( T::name, ( $this->pipelineConfig->phpTokenTransformers || [] ) ) >= 0
+					) {
+						if ( !$PHPBuffer ) {
+							$PHPBuffer = require './tt/PHPBuffer.js'::PHPBuffer;
+							$PHPTransformer = require './tt/PHPTransformer.js'::PHPTransformer;
+							$stage->transformers[] = new PHPBuffer( $stage, $options );
+						}
+						$stage->transformers[] = new PHPTransformer( $stage, T::name, $options );
+					} else {
+						$stage->transformers[] = new T( $stage, $options );
+					}
 				}
 			}
 		}

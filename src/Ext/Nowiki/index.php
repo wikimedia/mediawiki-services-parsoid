@@ -8,8 +8,6 @@
 
 namespace Parsoid;
 
-use Parsoid\domino as domino;
-
 $ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 
 $temp0 = $ParsoidExtApi;
@@ -19,8 +17,8 @@ $DOMUtils = $temp0::DOMUtils;
 $WTUtils = $temp0::WTUtils;
 $DOMDataUtils = $temp0::DOMDataUtils;
 
-$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$domino, &$Util, &$DOMDataUtils ) {
-		$doc = domino::createDocument();
+$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$Util, &$DOMDataUtils ) {
+		$doc = $state->env->createDocument();
 		$span = $doc->createElement( 'span' );
 		$span->setAttribute( 'typeof', 'mw:Nowiki' );
 

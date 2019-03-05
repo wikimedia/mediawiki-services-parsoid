@@ -814,7 +814,7 @@ $Construct = null;
  * @param {Node} node
  * @return {Promise}
  */
-$linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$serializeAsWikiLink, &$serializeAsExtLink, &$DOMUtils, &$escapeExtLinkURL, &$getHref, &$ExtLinkText ) {
+$linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$serializeAsWikiLink, &$serializeAsExtLink, &$DOMDataUtils, &$DOMUtils, &$escapeExtLinkURL, &$getHref, &$ExtLinkText ) {
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
@@ -848,7 +848,7 @@ $linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$ser
 			);
 		}
 	} else {
-		$safeAttr = new Set( [ 'href', 'rel', 'class', 'title' ] );
+		$safeAttr = new Set( [ 'href', 'rel', 'class', 'title', DOMDataUtils\DataObjectAttrName() ] );
 		$isComplexLink = function ( $attributes ) use ( &$safeAttr ) {
 			for ( $i = 0;  $i < count( $attributes );  $i++ ) {
 				$attr = $attributes->item( $i );
@@ -1111,7 +1111,7 @@ $format = $temp2->format;
 	// Reconstruct the caption
 	if ( !$captionElt && gettype( $outerDMW->caption ) === 'string' ) {
 		$captionElt = $outerElt->ownerDocument->createElement( 'div' );
-		ContentUtils::ppToDOM( $outerDMW->caption, [ 'node' => $captionElt, 'markNew' => true ] );
+		ContentUtils::ppToDOM( $env, $outerDMW->caption, [ 'node' => $captionElt, 'markNew' => true ] );
 		// Needs a parent node in order for WTS to be happy:
 		// DocumentFragment to the rescue!
 		// Needs a parent node in order for WTS to be happy:

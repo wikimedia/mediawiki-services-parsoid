@@ -510,7 +510,7 @@ $origPb = null;
 				$downgrade = apiUtils::findDowngrade( $vOriginal, $vEdited );
 				if ( $downgrade && $opts->from === 'pagebundle' ) { // Downgrades are only for pagebundle
 					$oldDoc = null;
-					( ( ( function () use ( &$apiUtils, &$downgrade, &$metrics, &$original, &$vOriginal ) { $temp0 = apiUtils::doDowngrade( $downgrade, $metrics, $original, $vOriginal );
+					( ( ( function () use ( &$apiUtils, &$downgrade, &$metrics, &$env, &$original, &$vOriginal ) { $temp0 = apiUtils::doDowngrade( $downgrade, $metrics, $env, $original, $vOriginal );
 $oldDoc = $temp0->doc;
 $origPb = $temp0->pb;
 return null;
@@ -651,7 +651,113 @@ return null;
 		);
 	};
 
-	$pb2pb = /* async */function ( $req, $res ) use ( &$apiUtils, &$metrics, &$parsoidConfig, &$TemplateRequest, &$semver, &$DOMUtils, &$DOMDataUtils, &$ContentUtils, &$wt2html ) { // eslint-disable-line require-yield
+	$languageConversion = /* async */function ( $res, $revision, $contentmodel ) use ( &$apiUtils, &$TemplateRequest, &$parse, &$parsoidOptions ) {
+		$env = $res->locals->env;
+		$opts = $res->locals->opts;
+
+		$target = $opts->updates->variant->target || $res->locals->envOptions->htmlVariantLanguage;
+		$source = $opts->updates->variant->source;
+
+		if ( gettype( $target ) !== 'string' ) {
+			return apiUtils::fatalRequest( $env, 'Target variant is required.', 400 );
+		}
+		if ( !( $source === null || $source === null || gettype( $source ) === 'string' ) ) {
+			return apiUtils::fatalRequest( $env, 'Bad source variant.', 400 );
+		}
+
+		$pb = apiUtils::extractPageBundle( $revision );
+		// We deliberately don't validate the page bundle, since language
+		// conversion can be done w/o data-parsoid or data-mw
+
+		// XXX handle x-roundtrip
+		// env.htmlVariantLanguage = target;
+		// env.wtVariantLanguage = source;
+		// We deliberately don't validate the page bundle, since language
+		// conversion can be done w/o data-parsoid or data-mw
+
+		// XXX handle x-roundtrip
+		// env.htmlVariantLanguage = target;
+		// env.wtVariantLanguage = source;
+
+		if ( $res->locals->pagelanguage ) {
+			$env->page->pagelanguage = $res->locals->pagelanguage;
+		} elseif ( $revision->revid ) {
+			// fetch pagelanguage from original pageinfo
+			/* await */ TemplateRequest::setPageSrcInfo( $env, $revision->title, $revision->revid );
+		} else {
+			return apiUtils::fatalRequest( $env, 'Unknown page language.', 400 );
+		}
+
+		if ( $env->langConverterEnabled() ) {
+			$temp1 = /* await */ $parse( [
+					'input' => $revision->html->body,
+					'mode' => 'variant',
+					'parsoidOptions' => $parsoidOptions,
+					'envOptions' => $res->locals->envOptions,
+					'oldid' => $res->locals->oldid,
+					'contentmodel' => $contentmodel,
+					'body_only' => $res->locals->body_only,
+					'cacheConfig' => true,
+					'pagelanguage' => $env->page->pagelanguage,
+					'variant' => [ 'source' => $source, 'target' => $target ]
+				]
+			);
+$html = $temp1->html;
+$headers = $temp1->headers;
+
+			// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
+			// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
+			apiUtils::wt2htmlRes( $res, $html, $pb, $contentmodel, $headers, $env->inputContentVersion );
+		} else {
+			// Return 400 if you request LanguageConversion for a page which
+			// didn't set `Vary: Accept-Language`.
+			$err = new Error( 'LanguageConversion is not enabled on this article.' );
+			$err->httpStatus = 400;
+			$err->suppressLoggingStack = true;
+			throw $err;
+		}
+	};
+
+	/**
+	 * Update red links on a document.
+	 *
+	 * @param {Response} res
+	 * @param {Object} revision
+	 * @param {string} [contentmodel]
+	 */
+	$updateRedLinks = /* async */function ( $res, $revision, $contentmodel ) use ( &$apiUtils, &$parsoidConfig, &$parse, &$parsoidOptions ) {
+		$env = $res->locals->env;
+
+		$pb = apiUtils::extractPageBundle( $revision );
+		apiUtils::validatePageBundle( $pb, $env->inputContentVersion );
+
+		if ( $parsoidConfig->useBatchAPI ) {
+			$temp2 = /* await */ $parse( [
+					'input' => $revision->html->body,
+					'mode' => 'redlinks',
+					'parsoidOptions' => $parsoidOptions,
+					'envOptions' => $res->locals->envOptions,
+					'oldid' => $res->locals->oldid,
+					'contentmodel' => $contentmodel,
+					'body_only' => $res->locals->body_only,
+					'cacheConfig' => true
+				]
+			);
+$html = $temp2->html;
+$headers = $temp2->headers;
+
+			// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
+			// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
+			apiUtils::wt2htmlRes( $res, $html, $pb, $contentmodel, $headers, $env->inputContentVersion );
+		} else {
+			$err = new Error( 'Batch API is not enabled.' );
+			$err->httpStatus = 500;
+			$err->suppressLoggingStack = true;
+			throw $err;
+		}
+	};
+
+	$pb2pb = /* async */function ( $req, $res ) use ( &$apiUtils, &$metrics, &$updateRedLinks, &$languageConversion, &$semver, &$DOMUtils, &$DOMDataUtils, &$ContentUtils, &$wt2html ) { // eslint-disable-line require-yield
 		$env = $res->locals->env;
 		$opts = $res->locals->opts;
 
@@ -687,29 +793,9 @@ return null;
 			if ( $opts->updates->redlinks ) {
 				// Q(arlolra): Should redlinks be more complex than a bool?
 				// See gwicke's proposal at T114413#2240381
-				Assert::invariant( $parsoidConfig->useBatchAPI );
-				return apiUtils::updateRedLinks( $env, $revision, $res, $contentmodel );
+				return $updateRedLinks( $res, $revision, $contentmodel );
 			} elseif ( $opts->updates->variant ) {
-				$target = $opts->updates->variant->target
-|| $res->locals->envOptions->htmlVariantLanguage;
-				$source = $opts->updates->variant->source;
-				if ( gettype( $target ) !== 'string' ) {
-					return apiUtils::fatalRequest( $env, 'Target variant is required.', 400 );
-				}
-				if ( !( $source === null || $source === null || gettype( $source ) === 'string' ) ) {
-					return apiUtils::fatalRequest( $env, 'Bad source variant.', 400 );
-				}
-				if ( $res->locals->pagelanguage ) {
-					$env->page->pagelanguage = $res->locals->pagelanguage;
-				} elseif ( $revision->revid ) {
-					// fetch pagelanguage from original pageinfo
-					/* await */ TemplateRequest::setPageSrcInfo( $env, $revision->title, $revision->revid );
-				} else {
-					return apiUtils::fatalRequest( $env, 'Unknown page language.', 400 );
-				}
-				return apiUtils::languageConversion(
-					$env, $revision, $res, $contentmodel, $target, $source
-				);
+				return $languageConversion( $res, $revision, $contentmodel );
 			}
 			Assert::invariant( false, 'Should not be reachable.' );
 		}

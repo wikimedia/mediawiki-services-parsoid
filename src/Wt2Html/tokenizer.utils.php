@@ -9,18 +9,22 @@
 
 namespace Parsoid;
 
-$JSUtils = require '../utils/jsutils.js'::JSUtils;
-$temp0 = require '../tokens/TokenTypes.js';
-$KV = $temp0::KV;
-$TagTk = $temp0::TagTk;
-$EndTagTk = $temp0::EndTagTk;
-$SelfclosingTagTk = $temp0::SelfclosingTagTk;
-$CommentTk = $temp0::CommentTk;
+use Parsoid\JSUtils as JSUtils;
+use Parsoid\KV as KV;
+use Parsoid\TagTk as TagTk;
+use Parsoid\EndTagTk as EndTagTk;
+use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
+use Parsoid\CommentTk as CommentTk;
 
 $tu = $module->exports = [
 
-	'flattenIfArray' => function ( $a ) {
-		function internalFlatten( $e, $res ) {
+	'PREPROC_BRACE_BRACE' => 1, // {{ ... }}
+	'PREPROC_BRACE_DASH' => 2, // -{ ... }-
+	'PREPROC_BRACKET_BRACKET' => 3, // [[ ... ]]
+	'PREPROC_BROKEN' => 4, // unclosed
+
+	'flattenIfArray' => function ( $a ) use ( &$undefined ) {
+		function internalFlatten( $e, $res ) use ( &$undefined ) {
 			// Don't bother flattening if we dont have an array
 			if ( !is_array( $e ) ) {
 				return $e;
@@ -171,20 +175,19 @@ $tu = $module->exports = [
 	 * Those inner rules are then exited, so that the outer rule can
 	 * handle the end marker.
 	 */
-	'inlineBreaks' => function ( $input, $pos, $stops ) {
+	'inlineBreaks' => function ( $input, $pos, $stops ) use ( &$tu ) {
 		$c = $input[ $pos ];
-		if ( !preg_match( '/[=|!{}:;\r\n[\]<\-]/', $c ) ) {
+		if ( !preg_match( '/[=|!{}:;\r\n[\]\-]/', $c ) ) {
 			return false;
 		}
 
-		$counters = $stops->counters;
 		switch ( $c ) {
 			case '=':
 			if ( $stops->onStack( 'arrow' ) && $input[ $pos + 1 ] === '>' ) {
 				return true;
 			}
 			return $stops->onStack( 'equal' )
-|| $counters->h
+|| $stops->onStack( 'h' )
 && ( $pos === count( $input ) - 1
 					// possibly more equals followed by spaces or comments
 					 || preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->)[^])*-->)*(?:[\r\n]|$)/',
@@ -200,7 +203,7 @@ $tu = $module->exports = [
 && preg_match( '/[}|]/', $input[ $pos + 1 ] ) );
 			case '!':
 			return $stops->onStack( 'th' ) !== false
-&& !$stops->onCount( 'templatedepth' )
+&& !$stops->onStack( 'templatedepth' )
 && $input[ $pos + 1 ] === '!';
 			case '{':
 			// {{!}} pipe templates..
@@ -211,13 +214,16 @@ $tu = $module->exports = [
 && substr( $input, $pos, 10 ) === '{{!}}{{!}}' );
 
 			case '}':
-			return substr( $input, $pos, 2 ) === $stops->onStack( 'preproc' );
+			$c2 = $input[ $pos + 1 ];
+			$preproc = $stops->onStack( 'preproc' );
+			return ( $c2 === '}' && $preproc === $tu::PREPROC_BRACE_BRACE )
+|| ( $c2 === '-' && $preproc === $tu::PREPROC_BRACE_DASH );
 			case ':':
-			return $counters->colon
+			return $stops->onStack( 'colon' )
 && !$stops->onStack( 'extlink' )
-&& !$stops->onCount( 'templatedepth' )
+&& !$stops->onStack( 'templatedepth' )
 && !$stops->onStack( 'linkdesc' )
-&& !( $stops->onStack( 'preproc' ) === '}-' );
+&& !( $stops->onStack( 'preproc' ) === $tu::PREPROC_BRACE_DASH );
 			case ';':
 			return $stops->onStack( 'semicolon' );
 			case "\r":
@@ -266,11 +272,8 @@ $tu = $module->exports = [
 			case ']':
 			if ( $stops->onStack( 'extlink' ) ) { return true;
    }
-			return substr( $input, $pos, 2 ) === $stops->onStack( 'preproc' );
-			case '<':
-			return ( $counters->noinclude && substr( $input, $pos, 12 ) === '</noinclude>' )
-|| ( $counters->includeonly && substr( $input, $pos, 14 ) === '</includeonly>' )
-|| ( $counters->onlyinclude && substr( $input, $pos, 14 ) === '</onlyinclude>' );
+			return $stops->onStack( 'preproc' ) === $tu::PREPROC_BRACKET_BRACKET
+&& $input[ $pos + 1 ] === ']';
 			default:
 			throw new Error( 'Unhandled case!' );
 		}
@@ -287,7 +290,7 @@ $tu = $module->exports = [
 			} elseif ( is_array( $kv->k ) && !$kv->v ) {
 				// all should be comments
 				if ( $kv->k->some( function ( $k ) use ( &$CommentTk ) {
-							return !( $k instanceof $CommentTk );
+							return !( $k instanceof CommentTk::class );
 				}
 					)
 				) { break;
@@ -298,7 +301,7 @@ $tu = $module->exports = [
 			}
 		}
 		// ensure we found a comment
-		while ( count( $buf ) && !( $buf[ 0 ] instanceof $CommentTk ) ) {
+		while ( count( $buf ) && !( $buf[ 0 ] instanceof CommentTk::class ) ) {
 			array_shift( $buf );
 		}
 		if ( count( $buf ) ) {
@@ -321,7 +324,7 @@ $tu = $module->exports = [
 	},
 
 	'enforceParserResourceLimits' => function ( $env, $token ) use ( &$TagTk, &$SelfclosingTagTk ) {
-		if ( $token && ( $token->constructor === $TagTk || $token->constructor === $SelfclosingTagTk ) ) {
+		if ( $token && ( $token->constructor === TagTk::class || $token->constructor === SelfclosingTagTk::class ) ) {
 			switch ( $token->name ) {
 				case 'listItem':
 				$env->bumpParserResourceUse( 'listItem' );
@@ -338,10 +341,9 @@ $tu = $module->exports = [
 		}
 	},
 
+	'protectAttrsRegExp' => new RegExp( "^(about|data-mw.*|data-parsoid.*|data-x.*|{DOMDataUtils\DataObjectAttrName()}|property|rel|typeof)\$", 'i' ),
 	'protectAttrs' => function ( $name ) {
-		return preg_replace(
-			'/^(about|data-mw.*|data-parsoid.*|data-x.*|property|rel|typeof)$/i',
-			'data-x-$1', $name, 1 );
+		return str_replace( $this->protectAttrsRegExp, 'data-x-$1', $name );
 	},
 
 	'isIncludeTag' => function ( $name ) {
@@ -362,41 +364,16 @@ $tu = $module->exports = [
  * @class
  */
 function SyntaxStops() {
-	$this->counters = [];
 	$this->stacks = [];
 	$this->key = '';
-	$this->_counterKey = '';
-	$this->_stackKey = '';
 }
-
-SyntaxStops::prototype::inc = function ( $flag ) {
-	if ( $this->counters[ $flag ] !== null ) {
-		$this->counters[ $flag ]++;
-	} else {
-		$this->counters[ $flag ] = 1;
-	}
-	$this->_updateCounterKey();
-	return true;
-};
-
-SyntaxStops::prototype::dec = function ( $flag ) {
-	if ( $this->counters[ $flag ] !== null ) {
-		$this->counters[ $flag ]--;
-	}
-	$this->_updateCounterKey();
-	return false;
-};
-
-SyntaxStops::prototype::onCount = function ( $flag ) {
-	return $this->counters[ $flag ];
-};
 
 /**
  * A stack for nested, but not cumulative syntactic stops.
  * Example: '=' is allowed in values of template arguments, even if those
  * are nested in attribute names.
  */
-SyntaxStops::prototype::push = function ( $name, $value ) {
+SyntaxStops::prototype::push = function ( $name, $value ) use ( &$undefined ) {
 	if ( $this->stacks[ $name ] === null ) {
 		$this->stacks[ $name ] = [ $value ];
 	} else {
@@ -406,7 +383,7 @@ SyntaxStops::prototype::push = function ( $name, $value ) {
 	return count( $this->stacks[ $name ] ); // always truthy
 };
 
-SyntaxStops::prototype::pop = function ( $name ) {
+SyntaxStops::prototype::pop = function ( $name ) use ( &$undefined ) {
 	if ( $this->stacks[ $name ] !== null ) {
 		array_pop( $this->stacks[ $name ] );
 	} else {
@@ -416,7 +393,7 @@ SyntaxStops::prototype::pop = function ( $name ) {
 	return false;
 };
 
-SyntaxStops::prototype::popTo = function ( $name, $len ) {
+SyntaxStops::prototype::popTo = function ( $name, $len ) use ( &$undefined ) {
 	if ( $this->stacks[ $name ] === null ) {
 		throw 'SyntaxStops.popTo: unknown stop for ' . $name;
 	} elseif ( count( $this->stacks[ $name ] ) < ( $len - 1 ) ) {
@@ -428,7 +405,7 @@ SyntaxStops::prototype::popTo = function ( $name, $len ) {
 	return false;
 };
 
-SyntaxStops::prototype::onStack = function ( $name ) use ( &$JSUtils ) {
+SyntaxStops::prototype::onStack = function ( $name ) use ( &$undefined, &$JSUtils ) {
 	$stack = $this->stacks[ $name ];
 	if ( $stack === null || count( $stack ) === 0 ) {
 		return false;
@@ -437,31 +414,15 @@ SyntaxStops::prototype::onStack = function ( $name ) use ( &$JSUtils ) {
 	}
 };
 
-SyntaxStops::prototype::_updateKey = function () {
-	$this->_updateCounterKey();
-	$this->_updateStackKey();
-};
-
-SyntaxStops::prototype::_updateCounterKey = function () {
-	$counters = '';
-	foreach ( $this->counters as $k => $___ ) {
-		if ( $this->counters[ $k ] > 0 ) {
-			$counters += 'c' . $k;
-		}
-	}
-	$this->_counterKey = $counters;
-	$this->key = $this->_counterKey + $this->_stackKey;
-};
-
 SyntaxStops::prototype::_updateStackKey = function () {
 	$stackStops = '';
-	foreach ( $this->stacks as $k => $___ ) {
-		if ( $this->onStack( $k ) ) {
-			$stackStops += 's' . $k;
+	foreach ( $this->stacks as $key => $___ ) {
+		$value = $this->onStack( $key );
+		if ( $value !== false ) {
+			$stackStops += "\n" . $key . "\n" . ( +$value );
 		}
 	}
-	$this->_stackKey = $stackStops;
-	$this->key = $this->_counterKey + $this->_stackKey;
+	$this->key = $stackStops;
 };
 
 $tu::SyntaxStops = $SyntaxStops;

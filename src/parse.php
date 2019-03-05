@@ -6,6 +6,7 @@
 namespace Parsoid;
 
 $ParserEnv = require './config/MWParserEnvironment.js'::MWParserEnvironment;
+$LanguageConverter = require './language/LanguageConverter'::LanguageConverter;
 $ParsoidConfig = require './config/ParsoidConfig.js'::ParsoidConfig;
 $TemplateRequest = require './mw/ApiRequest.js'::TemplateRequest;
 $ContentUtils = require './utils/ContentUtils.js'::ContentUtils;
@@ -79,9 +80,9 @@ $_toHTML = /* async */function ( $obj, $env, $str ) use ( &$ContentUtils, &$DOMU
  * @return {Promise} Assuming we're ending at wt
  *   @return {string} return.wt
  */
-$_fromHTML = /* async */function ( $obj, $env, $html, $pb ) use ( &$DOMUtils, &$DOMDataUtils ) {
+$_fromHTML = /* async */function ( $obj, $env, $html, $pb ) use ( &$DOMDataUtils ) {
 	$useSelser = ( $obj->selser !== null );
-	$doc = DOMUtils::parseHTML( $html );
+	$doc = $env->createDocument( $html );
 	$pb = $pb || DOMDataUtils::extractPageBundle( $doc );
 	if ( $useSelser && $env->page->dom ) {
 		$pb = $pb || DOMDataUtils::extractPageBundle( $env->page->dom->ownerDocument );
@@ -95,6 +96,66 @@ $_fromHTML = /* async */function ( $obj, $env, $html, $pb ) use ( &$DOMUtils, &$
 	$handler = $env->getContentHandler( $obj->contentmodel );
 	$out = /* await */ $handler->fromHTML( $env, $doc->body, $useSelser );
 	return [ 'wt' => $out ];
+};
+
+/**
+ * @param {Object} obj See below
+ * @param {MWParserEnvironment} env
+ * @param {string} html
+ */
+$_languageConversion = function ( $obj, $env, $html ) use ( &$LanguageConverter, &$ContentUtils, &$DOMUtils ) {
+	$doc = $env->createDocument( $html );
+	// Note that `maybeConvert` could still be a no-op, in case the
+	// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
+	// is a base language code or otherwise invalid.
+	LanguageConverter::maybeConvert(
+		$env, $doc, $obj->variant->target, $obj->variant->source
+	);
+	// Ensure there's a <head>
+	if ( !$doc->head ) {
+		$doc->documentElement->
+		insertBefore( $doc->createElement( 'head' ), $doc->body );
+	}
+	// Update content-language and vary headers.
+	$ensureHeader = function ( $h ) use ( &$doc ) {
+		$el = $doc->querySelector( "meta[http-equiv=\"{$h}\"i]" );
+		if ( !$el ) {
+			$el = $doc->createElement( 'meta' );
+			$el->setAttribute( 'http-equiv', $h );
+			$doc->head->appendChild( $el );
+		}
+		return $el;
+	};
+	$ensureHeader( 'content-language' )->
+	setAttribute( 'content', $env->htmlContentLanguage() );
+	$ensureHeader( 'vary' )->
+	setAttribute( 'content', $env->htmlVary() );
+	// Serialize & emit.
+	return [
+		'html' => ContentUtils::toXML( ( $obj->body_only ) ? $doc->body : $doc, [
+				'innerXML' => $obj->body_only
+			]
+		),
+		'headers' => DOMUtils::findHttpEquivHeaders( $doc )
+	];
+};
+
+$_updateRedLinks = /* async */function ( $obj, $env, $html ) use ( &$ContentUtils, &$DOMUtils ) {
+	$doc = $env->createDocument( $html );
+	// Note: this only works if the configured wiki has the ParsoidBatchAPI
+	// extension installed.
+	// Note: this only works if the configured wiki has the ParsoidBatchAPI
+	// extension installed.
+	/* await */ ContentUtils::addRedLinks( $env, $doc );
+	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
+	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
+	return [
+		'html' => ContentUtils::toXML( ( $obj->body_only ) ? $doc->body : $doc, [
+				'innerXML' => $obj->body_only
+			]
+		),
+		'headers' => DOMUtils::findHttpEquivHeaders( $doc )
+	];
 };
 
 /**
@@ -119,11 +180,12 @@ $configCache = new Map();
  * @param {string} [obj.outputContentVersion]
  * @param {Object} [obj.reuseExpansions]
  * @param {string} [obj.pagelanguage]
+ * @param {Object} [obj.variant]
  * @param {Function} [cb] Optional node-style callback
  *
  * @return {Promise}
  */
-$module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCache, &$ParsoidConfig, &$ParserEnv, &$DOMUtils, &$ContentUtils, &$_fromHTML, &$_toHTML, &$TemplateRequest ) {
+$module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCache, &$ParsoidConfig, &$ParserEnv, &$_languageConversion, &$_updateRedLinks, &$ContentUtils, &$_fromHTML, &$_toHTML, &$TemplateRequest ) {
 		$start = JSUtils::startTime();
 
 		// Enforce the contraints of passing to a worker
@@ -155,7 +217,12 @@ $module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCa
 			}
 
 			$out = null;
-			if ( [ 'html2wt', 'html2html', 'selser' ]->includes( $obj->mode ) ) {
+			if ( $obj->mode === 'variant' ) {
+				$env->page->pagelanguage = $obj->pagelanguage;
+				return $_languageConversion( $obj, $env, $obj->input );
+			} elseif ( $obj->mode === 'redlinks' ) {
+				return $_updateRedLinks( $obj, $env, $obj->input );
+			} elseif ( [ 'html2wt', 'html2html', 'selser' ]->includes( $obj->mode ) ) {
 				// Selser
 				$selser = $obj->selser;
 				if ( $selser !== null ) {
@@ -163,13 +230,13 @@ $module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCa
 						$env->setPageSrcInfo( $selser->oldtext );
 					}
 					if ( $selser->oldhtml ) {
-						$env->page->dom = DOMUtils::parseHTML( $selser->oldhtml )->body;
+						$env->page->dom = $env->createDocument( $selser->oldhtml )->body;
 					}
 					if ( $selser->domdiff ) {
 						// FIXME: need to load diff markers from attributes
 						$env->page->domdiff = [
 							'isEmpty' => false,
-							'dom' => ContentUtils::ppToDOM( $selser->domdiff )
+							'dom' => ContentUtils::ppToDOM( $env, $selser->domdiff )
 						];
 						throw new Error( 'this is broken' );
 					}

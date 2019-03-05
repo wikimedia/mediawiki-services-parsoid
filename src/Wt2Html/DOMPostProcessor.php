@@ -141,6 +141,7 @@ function DOMPostProcessor( $env, $options ) {
 	$this->env = $env;
 	$this->options = $options;
 	$this->seenIds = new Set();
+	$this->seenDataIds = new Set();
 
 	/* ---------------------------------------------------------------------------
 	 * FIXME:
@@ -181,7 +182,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	// DOM traverser that runs before the in-order DOM handlers.
 	$dataParsoidLoader = new DOMTraverser( $env );
-	$dataParsoidLoader->addHandler( null, $prepareDOM->prepareDOM );
+	$dataParsoidLoader->addHandler( null, function ( ...$args ) use ( &$prepareDOM ) {return  $prepareDOM->prepareDOM( $this->seenDataIds, ...$args ); } );
 
 	// Common post processing
 	$addPP( 'dpLoader', 'dpload',
@@ -347,6 +348,8 @@ function DOMPostProcessor( $env, $options ) {
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$markerMetasVisitor ) {return  $markerMetasVisitor->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
 
+	$addPP( 'AddExtLinkClasses', 'linkclasses', function ( ...$args ) use ( &$AddExtLinkClasses ) {return  ( new AddExtLinkClasses() )->run( ...$args ); }, true );
+
 	$cleanupVisitor = new DOMTraverser( $env );
 	// Strip empty elements from template content
 	$cleanupVisitor->addHandler( null, CleanUp::handleEmptyElements );
@@ -358,7 +361,6 @@ function DOMPostProcessor( $env, $options ) {
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$cleanupVisitor ) {return  $cleanupVisitor->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
 
-	$addPP( 'AddExtLinkClasses', 'linkclasses', function ( ...$args ) use ( &$AddExtLinkClasses ) {return  ( new AddExtLinkClasses() )->run( ...$args ); }, true );
 	// (Optional) red links
 	$addPP( 'addRedLinks', 'redlinks', function ( $rootNode, $env, $options ) use ( &$env, &$options, &$ContentUtils ) {
 			if ( $env->conf->parsoid->useBatchAPI ) {
@@ -387,6 +389,7 @@ DOMPostProcessor::prototype::resetState = function ( $opts ) {
 	$this->atTopLevel = $opts && $opts->toplevel;
 	$this->env->page->meta->displayTitle = null;
 	$this->seenIds->clear();
+	$this->seenDataIds->clear();
 };
 
 // FIXME: consider moving to DOMUtils or MWParserEnvironment.
@@ -514,7 +517,7 @@ DOMPostProcessor::addMetaData = function ( $env, $document ) use ( &$url, &$meta
 
 	// Stick data attributes in the head
 	if ( $env->pageBundle ) {
-		DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getDataParsoid( $document )->pagebundle );
+		DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
 	}
 
 	// html5shiv
@@ -585,7 +588,7 @@ function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost )
 	}
 }
 
-DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$DOMDataUtils, &$JSUtils ) {
+DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils ) {
 	$env = $this->env;
 
 	$psd = $env->conf->parsoid;
@@ -594,18 +597,6 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 	}
 
 	$tracePP = $psd->traceFlags && ( $psd->traceFlags->has( 'time/dompp' ) || $psd->traceFlags->has( 'time' ) );
-
-	// Holder for data-* attributes
-	// Holder for data-* attributes
-	if ( $this->atTopLevel && $env->pageBundle ) {
-		DOMDataUtils::setDataParsoid( $document, [
-				'pagebundle' => [
-					'parsoid' => [ 'counter' => -1, 'ids' => [] ],
-					'mw' => [ 'ids' => [] ]
-				]
-			]
-		);
-	}
 
 	$startTime = null; $endTime = null; $prefix = null; $logLevel = null; $resourceCategory = null;
 	if ( $tracePP ) {
@@ -627,13 +618,7 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 	if ( $this->atTopLevel && $psd->generateFlags && $psd->generateFlags->handlers ) {
 		// Pre-set data-parsoid.dsr for <body>
 		// Useful for genTest mode for ComputeDSR tests
-		//
-		// NOTE: This runs immediately after tree building and before
-		// dp-loader has run => we cannot use dom utils to set this on
-		// the cached node.data.parsoid object.
-		$bodyDP = DOMDataUtils::getJSONAttribute( $document->body, 'data-parsoid', [] );
-		$bodyDP->dsr = [ 0, count( $env->page->src ), 0, 0 ];
-		DOMDataUtils::setJSONAttribute( $document->body, 'data-parsoid', $bodyDP );
+		DOMDataUtils::getDataParsoid( $document->body )->dsr = [ 0, count( $env->page->src ), 0, 0 ];
 	}
 
 	for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
@@ -657,7 +642,7 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 				$opts = [
 					'env' => $env,
 					'dumpFragmentMap' => true,
-					'outerHTML' => true
+					'keepTmp' => true
 				];
 				processDumpAndGentestFlags( $psd, $body, $pp->shortcut, $opts, 'pre' );
 			}
@@ -702,22 +687,6 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 
 	$this->emit( 'document', $document );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -6,8 +6,6 @@
 
 namespace Parsoid;
 
-use Parsoid\domino as domino;
-
 $ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 $temp0 = $ParsoidExtApi;
 $DOMDataUtils = $temp0::DOMDataUtils;
@@ -159,8 +157,8 @@ class Traditional {
 		$ul->appendChild( $box );
 	}
 
-	public function render( $opts, $caption, $lines ) {
-		$doc = domino::createDocument();
+	public function render( $env, $opts, $caption, $lines ) {
+		$doc = $env->createDocument();
 		$ul = $this->ul( $opts, $doc );
 		if ( $caption ) {
 			$this->caption( $opts, $doc, $ul, $caption );

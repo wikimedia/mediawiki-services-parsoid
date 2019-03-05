@@ -266,14 +266,14 @@ $opts = $temp2->opts;
 			Promise::map( $lines, function ( $line ) use ( &$data ) {return Gallery::pLine( $data, $line );
    } )
 		)->
-		then( function ( $ret ) use ( &$modes, &$opts, &$DOMDataUtils ) {
+		then( function ( $ret ) use ( &$modes, &$opts, &$state, &$DOMDataUtils ) {
 				// Drop invalid lines like "References: 5."
 				$oLines = $ret[ 1 ]->filter( function ( $o ) {
 						return $o !== null;
 				}
 				);
 				$mode = $modes->get( $opts->mode );
-				$doc = $mode->render( $opts, $ret[ 0 ], $oLines );
+				$doc = $mode->render( $state->env, $opts, $ret[ 0 ], $oLines );
 				// Reload now that `migrateChildrenBetweenDocs` is done
 				DOMDataUtils::visitAndLoadDataAttribs( $doc->body );
 				return $doc;

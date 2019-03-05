@@ -109,13 +109,12 @@ class ProcessTreeBuilderFixups {
 					if ( $metaType === 'mw:StartTag' ) {
 						$dataStag = $c->getAttribute( 'data-stag' );
 						$data = explode( ':', $dataStag );
-						$cdp = DOMDataUtils::getDataParsoid( $c );
 						$expectedName = $data[ 0 ];
 						$prevSibling = $c->previousSibling;
 						if ( ( $prevSibling && strtolower( $prevSibling->nodeName ) !== $expectedName )
 || ( !$prevSibling && strtolower( $c->parentNode->nodeName ) !== $expectedName )
 						) {
-							if ( $c && $cdp->stx !== 'html'
+							if ( $c && $dp->stx !== 'html'
 && ( $expectedName === 'td'
 || $expectedName === 'tr'
 || $expectedName === 'th' )
@@ -131,11 +130,11 @@ class ProcessTreeBuilderFixups {
 								//
 								// Also, do the paragraph wrapping on the DOM.
 								$origTxt = null;
-								if ( $cdp->tsr
-&& $cdp->tsr[ 0 ] !== null && $cdp->tsr[ 1 ] !== null
+								if ( $dp->tsr
+&& $dp->tsr[ 0 ] !== null && $dp->tsr[ 1 ] !== null
 && $env->page->src
 								) {
-									$origTxt = $env->page->src->substring( $cdp->tsr[ 0 ], $cdp->tsr[ 1 ] );
+									$origTxt = $env->page->src->substring( $dp->tsr[ 0 ], $dp->tsr[ 1 ] );
 									$origTxtNode = $c->ownerDocument->createTextNode( $origTxt );
 									$c->parentNode->insertBefore( $origTxtNode, $c );
 								} else {
@@ -162,7 +161,7 @@ break;
 									);
 								}
 							} else {
-								$this->addPlaceholderMeta( $env, $c, $dp, $expectedName, [ 'start' => true, 'tsr' => $cdp->tsr ] );
+								$this->addPlaceholderMeta( $env, $c, $dp, $expectedName, [ 'start' => true, 'tsr' => $dp->tsr ] );
 							}
 						}
 						$this->deleteShadowMeta( $c );

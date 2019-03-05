@@ -48,8 +48,8 @@ $PARSE_ERROR_HTML =
  * @return {Document}
  * @method
  */
-JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$DOMUtils, &$PARSE_ERROR_HTML, &$DOMDataUtils, &$addMetaData ) {
-		$document = DOMUtils::parseHTML( '<!DOCTYPE html><html><body>' );
+JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$PARSE_ERROR_HTML, &$DOMDataUtils, &$addMetaData ) {
+		$document = $env->createDocument( '<!DOCTYPE html><html><body>' );
 		$rootValueTable = null;
 		$objectTable = null;
 		$objectRow = null;
@@ -137,18 +137,11 @@ JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$DOMUtils
 			$src = json_decode( $env->page->src );
 			$rootValueTable( $document->body, $src );
 		} catch ( Exception $e ) {
-			$document = DOMUtils::parseHTML( $PARSE_ERROR_HTML );
+			$document = $env->createDocument( $PARSE_ERROR_HTML );
 		}
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
 		if ( $env->pageBundle ) {
-			DOMDataUtils::setDataParsoid( $document, [
-					'pagebundle' => [
-						'parsoid' => [ 'counter' => -1, 'ids' => [] ],
-						'mw' => [ 'ids' => [] ]
-					]
-				]
-			);
 			DOMDataUtils::visitAndStoreDataAttribs( $document->body, [
 					'storeInPageBundle' => $env->pageBundle,
 					'env' => $env

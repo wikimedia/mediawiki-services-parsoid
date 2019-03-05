@@ -179,9 +179,8 @@ function unpackDOMFragments( $node, $env ) {
 	Assert::invariant( preg_match( '/^mwf/', $dp->html ) );
 
 	$nodes = $env->fragmentMap->get( $dp->html );
-	$n0dp = DOMDataUtils::getDataParsoid( $nodes[ 0 ] );
 
-	if ( $n0dp->tmp && $n0dp->tmp->isHtmlExt ) {
+	if ( $dp->tmp && $dp->tmp->isHtmlExt ) {
 		// FIXME: This is a silly workaround for foundationwiki which has the
 		// "html" extension tag which lets through arbitrary content and
 		// often does so in a way that doesn't consider that we'd like to
@@ -195,7 +194,7 @@ function unpackDOMFragments( $node, $env ) {
 		// for the entire parse, so no adoption is needed.  See T179082
 		$html = implode( '', array_map( $nodes, function ( $n ) {return ContentUtils::toXML( $n );
   } ) );
-		ContentUtils::ppToDOM( $html, [ 'node' => $dummyNode ] );
+		ContentUtils::ppToDOM( $env, $html, [ 'node' => $dummyNode ] );
 	} else {
 		$nodes->forEach( function ( $n ) use ( &$dummyNode ) {
 				$imp = $dummyNode->ownerDocument->importNode( $n, true );

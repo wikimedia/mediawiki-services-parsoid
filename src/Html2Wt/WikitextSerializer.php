@@ -69,7 +69,8 @@ $IGNORED_ATTRIBUTES = new Set( [
 		'data-ve-changed',
 		'data-parsoid-changed',
 		'data-parsoid-diff',
-		'data-parsoid-serialize'
+		'data-parsoid-serialize',
+		DOMDataUtils\DataObjectAttrName()
 	]
 );
 
@@ -176,7 +177,7 @@ class WikitextSerializer {
  */
 WikitextSerializer::prototype::serializeHTML = /* async */function ( $opts, $html ) use ( &$ContentUtils ) {
 	$opts->logType = $this->logType;
-	$body = ContentUtils::ppToDOM( $html, [ 'markNew' => true ] );
+	$body = ContentUtils::ppToDOM( $this->env, $html, [ 'markNew' => true ] );
 	return /* await */ ( new WikitextSerializer( $opts ) )->serializeDOM( $body );
 }
 

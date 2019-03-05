@@ -8,6 +8,7 @@ namespace Parsoid;
 
 $DOMDataUtils = require '../../../utils/DOMDataUtils.js'::DOMDataUtils;
 $DOMUtils = require '../../../utils/DOMUtils.js'::DOMUtils;
+$Util = require '../../../utils/Util.js'::Util;
 
 /**
  * Migrate data-parsoid attributes into a property on each DOM node.
@@ -17,13 +18,22 @@ $DOMUtils = require '../../../utils/DOMUtils.js'::DOMUtils;
  * avoid fostering. Piggy-backing the reconversion here to avoid excess
  * DOM traversals.
  */
-function prepareDOM( $node, $env ) {
+function prepareDOM( $seenDataIds, $node, $env ) {
 	global $DOMUtils;
 	global $DOMDataUtils;
+	global $Util;
 	if ( DOMUtils::isElt( $node ) ) {
-		// Load data-(parsoid|mw) attributes that came in from the tokenizer
-		// and remove them from the DOM.
-		DOMDataUtils::loadDataAttribs( $node );
+		// Deduplicate docIds that come from splitting nodes because of
+		// content model violations when treebuilding.
+		$docId = $node->getAttribute( DOMDataUtils\DataObjectAttrName() );
+		if ( $docId !== null ) {
+			if ( $seenDataIds->has( $docId ) ) {
+				$data = DOMDataUtils::getNodeData( $node );
+				DOMDataUtils::setNodeData( $node, Util::clone( $data, true ) );
+			} else {
+				$seenDataIds->add( $docId );
+			}
+		}
 		// Set title to display when present (last one wins).
 		if ( $node->nodeName === 'META'
 && $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'

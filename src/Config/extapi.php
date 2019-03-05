@@ -38,10 +38,10 @@ use Parsoid\SanitizerConstants as SanitizerConstants;
  * @param {boolean} sol
  * @return {Document}
  */
-$parseWikitextToDOM = /* async */function ( $state, $wikitext, $srcOffsets, $parseOpts, $sol ) use ( &$DOMUtils, &$PipelineUtils ) {
+$parseWikitextToDOM = /* async */function ( $state, $wikitext, $srcOffsets, $parseOpts, $sol ) use ( &$PipelineUtils ) {
 	$doc = null;
 	if ( !$wikitext ) {
-		$doc = DOMUtils::parseHTML( '' );
+		$doc = $state->env->createDocument();
 	} else {
 		// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
 		// The DOM will get unwrapped and integrated  when processing the top level document.

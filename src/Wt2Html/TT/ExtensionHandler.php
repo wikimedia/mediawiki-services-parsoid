@@ -8,7 +8,6 @@ namespace Parsoid;
 
 use Parsoid\TokenHandler as TokenHandler;
 use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
 use Parsoid\TokenUtils as TokenUtils;
 use Parsoid\Util as Util;
 use Parsoid\PipelineUtils as PipelineUtils;
@@ -41,7 +40,7 @@ class ExtensionHandler extends TokenHandler {
 		$errType = '';
 		$errObj = [];
 		if ( $err ) {
-			$doc = DOMUtils::parseHTML( '<span></span>' );
+			$doc = $this->env->createDocument( '<span></span>' );
 			$doc->body->firstChild->appendChild( $doc->createTextNode( $extToken->getAttribute( 'source' ) ) );
 			$errType = 'mw:Error ';
 			// Provide some info in data-mw in case some client can do something with it.
@@ -175,7 +174,7 @@ class ExtensionHandler extends TokenHandler {
 			$this->fetchExpandedExtension(
 				$token->getAttribute( 'source' ),
 				$cb,
-				function ( $err, $html ) use ( &$token, &$cb, &$DOMUtils ) {
+				function ( $err, $html ) use ( &$token, &$cb, &$env ) {
 					// FIXME: This is a hack to account for the php parser's
 					// gratuitous trailing newlines after parse requests.
 					// Trimming keeps the top-level nodes length down to just
@@ -183,7 +182,7 @@ class ExtensionHandler extends TokenHandler {
 					// representation as it's tunnelled through to the dom.
 					if ( !$err && $token->getAttribute( 'name' ) === 'templatestyles' ) { $html = trim( $html );
 		   }
-					$this->parseExtensionHTML( $token, $cb, $err, ( $err ) ? null : DOMUtils::parseHTML( $html ) );
+					$this->parseExtensionHTML( $token, $cb, $err, ( $err ) ? null : $env->createDocument( $html ) );
 				}
 			);
 		} else {
@@ -257,11 +256,15 @@ class ExtensionHandler extends TokenHandler {
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
 			$dp->tsr = Util::clone( $state->token->dataAttribs->tsr );
 			$dp->src = $state->token->dataAttribs->src;
-			$dp->tmp->isHtmlExt = $state->isHtmlExt;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 
 		$toks = PipelineUtils::buildDOMFragmentTokens( $env, $state->token, $body, $opts );
+
+		if ( $state->isHtmlExt ) {
+			$toks[ 0 ]->dataAttribs->tmp = $toks[ 0 ]->dataAttribs->tmp || [];
+			$toks[ 0 ]->dataAttribs->tmp->isHtmlExt = true;
+		}
 
 		$cb( [ 'tokens' => $toks ] );
 	}

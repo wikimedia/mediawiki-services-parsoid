@@ -21,7 +21,8 @@ $ignoreAttributes = new Set( [
 		// Discovered via: /mnt/bugs/2013-05-01T09:43:14.960Z-Reverse_innovation
 		// 'data-parsoid',
 		'data-parsoid-diff',
-		'about'
+		'about',
+		DOMDataUtils\DataObjectAttrName()
 	]
 );
 
@@ -160,7 +161,12 @@ class DOMDiff {
 				}
 			} elseif ( $kA === 'html' && $options->inDmwBody ) {
 				// For 'html' attributes, parse string and recursively compare DOM
-				if ( !$this->treeEquals( ContentUtils::ppToDOM( $vA, [ 'markNew' => true ] ), ContentUtils::ppToDOM( $vB, [ 'markNew' => true ] ), true ) ) {
+				if ( !$this->treeEquals(
+						ContentUtils::ppToDOM( $this->env, $vA, [ 'markNew' => true ] ),
+						ContentUtils::ppToDOM( $this->env, $vB, [ 'markNew' => true ] ),
+						true
+					)
+				) {
 					return false;
 				}
 			} elseif ( $vA->constructor === $Object || is_array( $vA ) ) {

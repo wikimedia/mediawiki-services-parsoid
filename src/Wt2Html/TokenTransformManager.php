@@ -931,8 +931,8 @@ class SyncTokenTransformManager extends TokenTransformManager {
 			$resultString = array_slice( ( $this->pipelineId . '-gen/' . $handlerName . ' '->repeat( 20 ) ), 0, 27/*CHECK THIS*/ );
 			$inputToken = $resultString . ' | IN  | ' . json_encode( $token ) . "\n";
 			$streamHandle->write( $inputToken );
-			if ( $res->tokens ) {
-				$outputTokens = $resultString . ' | OUT | ' . json_encode( $res->tokens ) . "\n";
+			if ( ( $res === $token ) || $res->tokens ) {
+				$outputTokens = $resultString . ' | OUT | ' . json_encode( $res->tokens || [ $res ] ) . "\n";
 				$streamHandle->write( $outputTokens );
 			}
 		}
@@ -999,10 +999,13 @@ class SyncTokenTransformManager extends TokenTransformManager {
 			}
 		}
 
-		$this->transformers->forEach( function ( $transformer, $i ) use ( &$traceState, &$env ) {
+		$this->transformers->forEach( function ( $transformer, $i ) use ( &$traceState, &$tokens, &$env ) {
 				if ( !$transformer->disabled ) {
 					if ( $traceState ) {
 						$traceState->traceNames = $this->traceNames[ $i ];
+					}
+					if ( count( $tokens ) === 0 ) {
+						return;
 					}
 					$tokens = $transformer->processTokensSync( $env, $tokens, $traceState );
 				}

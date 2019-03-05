@@ -63,7 +63,9 @@ class PWrap {
 					$curr::PWrap = $v::PWrap;
 				} elseif ( $curr::PWrap !== $v::PWrap && $v::PWrap !== null ) {
 					DOMDataUtils::getDataParsoid( $curr->node )->autoInsertedEnd = true;
-					$curr = [ 'PWrap' => $v::PWrap, 'node' => $n->clone() ];
+					$cnode = $n->clone();
+					$cnode->removeAttribute( DOMDataUtils\DataObjectAttrName() );
+					$curr = [ 'PWrap' => $v::PWrap, 'node' => $cnode ];
 					DOMDataUtils::getDataParsoid( $curr->node )->autoInsertedStart = true;
 					$ret[] = $curr;
 				}

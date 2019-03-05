@@ -44,26 +44,23 @@ class ContentUtils {
 	public static function ppToXML( $node, $options ) {
 		// We really only want to pass along `options.keepTmp`
 		DOMDataUtils::visitAndStoreDataAttribs( $node, $options );
-		if ( $options && $options->outerHTML ) {
-			return $node->outerHTML;
-		} else {
-			return $this->toXML( $node, $options );
-		}
+		return $this->toXML( $node, $options );
 	}
 
 	/**
 	 * .dataobject aware HTML parser, to be used in the DOM
 	 * post-processing phase.
 	 *
+	 * @param {MWParserEnvironment} env
 	 * @param {string} html
 	 * @param {Object} [options]
 	 * @return {Node}
 	 */
-	public static function ppToDOM( $html, $options ) {
+	public static function ppToDOM( $env, $html, $options ) {
 		$options = $options || [];
 		$node = $options->node;
 		if ( $node === null ) {
-			$node = DOMUtils::parseHTML( $html )->body;
+			$node = $env->createDocument( $html )->body;
 		} else {
 			$node->innerHTML = $html;
 		}

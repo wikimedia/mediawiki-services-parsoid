@@ -5,8 +5,6 @@
 
 namespace Parsoid;
 
-use Parsoid\domino as domino;
-
 use Parsoid\apiUtils as apiUtils;
 
 $ContentUtils = require '../utils/ContentUtils.js'::ContentUtils;
@@ -16,9 +14,9 @@ $JSUtils = require '../utils/jsutils.js'::JSUtils;
 $Util = require '../utils/Util.js'::Util;
 $TemplateRequest = require '../mw/ApiRequest.js'::TemplateRequest;
 
-$roundTripDiff = function ( $env, $req, $res, $useSelser, $doc ) use ( &$domino, &$ContentUtils, &$Util, &$Diff ) {
+$roundTripDiff = function ( $env, $req, $res, $useSelser, $doc ) use ( &$ContentUtils, &$Util, &$Diff ) {
 	// Re-parse the HTML to uncover foster-parenting issues
-	$doc = domino::createDocument( $doc->outerHTML );
+	$doc = $env->createDocument( $doc->outerHTML );
 
 	$handler = $env->getContentHandler();
 	return $handler->fromHTML( $env, $doc->body, $useSelser )->then( function ( $out ) use ( &$doc, &$ContentUtils, &$Util, &$Diff, &$env, &$req ) {

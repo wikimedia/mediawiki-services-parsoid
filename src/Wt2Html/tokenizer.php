@@ -21,11 +21,6 @@ use Parsoid\util as util;
 
 $JSUtils = require '../utils/jsutils.js'::JSUtils;
 
-// allow dumping compiled tokenizer to disk, for debugging.
-$PARSOID_DUMP_TOKENIZER = $process->env->PARSOID_DUMP_TOKENIZER || false;
-// allow dumping tokenizer rules (only) to disk, for linting.
-$PARSOID_DUMP_TOKENIZER_RULES = $process->env->PARSOID_DUMP_TOKENIZER_RULES || false;
-
 /**
  * Includes passed to the tokenizer, so that it does not need to require those
  * on each call. They are available as pegArgs.pegIncludes, and are unpacked
@@ -69,19 +64,35 @@ $pegIncludes::PegTokenizer = $PegTokenizer;
 // Inherit from EventEmitter
 util::inherits( $PegTokenizer, events\EventEmitter );
 
-PegTokenizer::prototype::src = '';
+PegTokenizer::prototype::readSource = function () use ( &$path, &$fs ) {
+	$pegSrcPath = implode( $__dirname, $path );
+	return fs::readFileSync( $pegSrcPath, 'utf8' );
+};
 
-PegTokenizer::prototype::initTokenizer = function () use ( &$path, &$fs, &$PEG, &$PARSOID_DUMP_TOKENIZER_RULES, &$PARSOID_DUMP_TOKENIZER ) {
+PegTokenizer::prototype::parseTokenizer = function () use ( &$PEG ) {
+	$src = $this->readSource();
+	return PEG::parser::parse( $src );
+};
+
+PegTokenizer::prototype::compileTokenizer = function ( $ast ) use ( &$PEG ) {
+	$compiler = PEG::compiler;
 	$env = $this->env;
 
-	// Construct a singleton static tokenizer.
-	$pegSrcPath = implode( $__dirname, $path );
-	$this->src = fs::readFileSync( $pegSrcPath, 'utf8' );
-
-	// FIXME: Don't report infinite loops, i.e. repeated subexpressions which
+	// Don't report infinite loops, i.e. repeated subexpressions which
 	// can match the empty string, since our grammar gives several false
 	// positives (or perhaps true positives).
-	unset( PEG::compiler::passes->check->reportInfiniteLoops );
+	$passes = [
+		'check' => [
+			$compiler->passes->check->reportMissingRules,
+			$compiler->passes->check->reportLeftRecursion
+		],
+		'transform' => [
+			$compiler->passes->transform->removeProxyRules
+		],
+		'generate' => [
+			$compiler->passes->generate->astToRegAllocJS
+		]
+	];
 
 	function cacheRuleHook( $opts ) {
 		$maxVisitCount = 20;
@@ -156,103 +167,35 @@ PegTokenizer::prototype::initTokenizer = function () use ( &$path, &$fs, &$PEG, 
 		);
 	}
 
-	if ( $PARSOID_DUMP_TOKENIZER_RULES ) {
-		$visitor = require 'pegjs/lib/compiler/visitor';
-		$ast = PEG::parser::parse( $this->src );
-		// Current code style seems to use spaces in the tokenizer.
-		$tab = '    ';
-		// Add some eslint overrides and define globals.
-		$rulesSource = "/* eslint-disable indent,camelcase,no-unused-vars */\n";
-		$rulesSource += "\n'use strict';\n\n";
-		$rulesSource += "var options, location, input, text, peg\$cache, peg\$currPos;\n";
-		// Prevent redefinitions of variables involved in choice expressions
-		$seen = new Set();
-		$addVar = function ( $name ) use ( &$seen, &$tab ) {
-			if ( !$seen->has( $name ) ) {
-				$rulesSource += $tab . 'var ' . $name . " = null;\n";
-				$seen->add( $name );
-			}
-		};
-		// Collect all the code blocks in the AST.
-		$dumpCode = function ( $node ) use ( &$tab ) {
-			if ( $node->code ) {
-				// remove trailing whitespace for single-line predicates
-				$code = preg_replace( '/[ \t]+$/', '', $node->code, 1 );
-				// wrap with a function, to prevent spurious errors caused
-				// by redeclarations or multiple returns in a block.
-				$rulesSource += $tab . "(function() {\n" . $code . "\n"
-. $tab . "})();\n";
-			}
-		};
-		$visit = $visitor->build( [
-				'initializer' => function ( $node ) {
-					if ( $node->code ) {
-						$rulesSource += $node->code . "\n";
-					}
-				},
-				'semantic_and' => $dumpCode,
-				'semantic_node' => $dumpCode,
-				'rule' => function ( $node ) use ( &$seen, &$visit ) {
-					$rulesSource += 'function rule_' . $node->name . "() {\n";
-					$seen->clear();
-					$visit( $node->expression );
-					$rulesSource += "}\n";
-				},
-				'labeled' => function ( $node ) use ( &$addVar, &$visit ) {
-					$addVar( $node->label );
-					$visit( $node->expression );
-				},
-				'named' => function ( $node ) use ( &$addVar, &$visit ) {
-					$addVar( $node->name );
-					$visit( $node->expression );
-				},
-				'action' => function ( $node ) use ( &$visit, &$dumpCode ) {
-					$visit( $node->expression );
-					$dumpCode( $node );
-				}
-			]
-		);
-		$visit( $ast );
-		// Write rules to file.
-		$rulesFilename = implode( $__dirname, $path );
-		fs::writeFileSync( $rulesFilename, $rulesSource, 'utf8' );
-	}
+	$options = [
+		'cache' => true,
+		'trackLineAndColumn' => false,
+		'output' => 'source',
+		'cacheRuleHook' => $cacheRuleHook,
+		'cacheInitHook' => $cacheInitHook,
+		'allowedStartRules' => [
+			'start',
+			'table_start_tag',
+			'url',
+			'row_syntax_table_args',
+			'table_attributes',
+			'generic_newline_attributes',
+			'tplarg_or_template_or_bust',
+			'extlink'
+		],
+		'allowedStreamRules' => [
+			'start_async'
+		],
+		'trace' => false
+	];
 
-	$tokenizerSource = PEG::buildParser( $this->src, [
-			'cache' => true,
-			'trackLineAndColumn' => false,
-			'output' => 'source',
-			'cacheRuleHook' => $cacheRuleHook,
-			'cacheInitHook' => $cacheInitHook,
-			'allowedStartRules' => [
-				'start',
-				'table_start_tag',
-				'url',
-				'row_syntax_table_args',
-				'table_attributes',
-				'generic_newline_attributes',
-				'tplarg_or_template_or_bust',
-				'extlink'
-			],
-			'allowedStreamRules' => [
-				'start_async'
-			]
-		]
-	);
+	return $compiler->compile( $this->parseTokenizer(), $passes, $options );
+};
 
-	if ( !$PARSOID_DUMP_TOKENIZER ) {
-		// eval is not evil in the case of a grammar-generated tokenizer.
-		PegTokenizer::prototype::tokenizer = new function( 'return ' . $tokenizerSource )(); // eslint-disable-line
-	} else {
-		// Optionally save & require the tokenizer source
-		$tokenizerSource =
-		"require('../../core-upgrade.js');\n"
-. 'module.exports = ' . $tokenizerSource;
-		// write tokenizer to a file.
-		$tokenizerFilename = implode( $__dirname, $path );
-		fs::writeFileSync( $tokenizerFilename, $tokenizerSource, 'utf8' );
-		PegTokenizer::prototype::tokenizer = require $tokenizerFilename;
-	}
+PegTokenizer::prototype::initTokenizer = function () {
+	$tokenizerSource = $this->compileTokenizer( $this->parseTokenizer() );
+	// eval is not evil in the case of a grammar-generated tokenizer.
+	PegTokenizer::prototype::tokenizer = new function( 'return ' . $tokenizerSource )(); // eslint-disable-line
 };
 
 /**
@@ -446,11 +389,7 @@ PegTokenizer::prototype::tokenizeTableCellAttributes = function ( $text, $sol ) 
 	return $this->tokenizeAs( $text, 'row_syntax_table_args', $sol );
 };
 
-if ( $require->main === $module ) {
-	$PARSOID_DUMP_TOKENIZER = true;
-	$PARSOID_DUMP_TOKENIZER_RULES = true;
-	new PegTokenizer()->initTokenizer();
-} elseif ( gettype( $module ) === 'object' ) {
-	$module->exports->PegTokenizer = $PegTokenizer;
-	$module->exports->pegIncludes = $pegIncludes;
-}
+$module->exports = [
+	'PegTokenizer' => $PegTokenizer,
+	'pegIncludes' => $pegIncludes
+];

@@ -25,8 +25,8 @@ use Parsoid\JSUtils as JSUtils;
 use Parsoid\WTSUtils as WTSUtils;
 use Parsoid\WTUtils as WTUtils;
 
-$wtIgnorableAttrs = new Set( [ 'data-parsoid', 'id', 'title' ] );
-$htmlIgnorableAttrs = new Set( [ 'data-parsoid' ] );
+$wtIgnorableAttrs = new Set( [ 'data-parsoid', 'id', 'title', DOMDataUtils\DataObjectAttrName() ] );
+$htmlIgnorableAttrs = new Set( [ 'data-parsoid', DOMDataUtils\DataObjectAttrName() ] );
 $specializedAttribHandlers = JSUtils::mapObject( [
 		'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB, $options ) use ( &$JSUtils ) {
 			return JSUtils::deepEquals( $dmwA, $dmwB );
@@ -35,13 +35,16 @@ $specializedAttribHandlers = JSUtils::mapObject( [
 );
 
 function similar( $a, $b ) {
+	global $DOMUtils;
 	global $DiffUtils;
 	global $wtIgnorableAttrs;
 	global $specializedAttribHandlers;
 	global $WTUtils;
 	global $htmlIgnorableAttrs;
 	if ( $a->nodeName === 'A' ) {
-		return DiffUtils::attribsEquals( $a, $b, $wtIgnorableAttrs, $specializedAttribHandlers );
+		// FIXME: Similar to 1ce6a98, DOMUtils.nextNonDeletedSibling is being
+		// used in this file where maybe DOMUtils.nextNonSepSibling belongs.
+		return DOMUtils::isElt( $b ) && DiffUtils::attribsEquals( $a, $b, $wtIgnorableAttrs, $specializedAttribHandlers );
 	} else {
 		$aIsHtml = WTUtils::isLiteralHTMLNode( $a );
 		$bIsHtml = WTUtils::isLiteralHTMLNode( $b );
@@ -555,7 +558,7 @@ class DOMNormalizer {
 			return $node;
 
 			// Font tags without any attributes
-		} elseif ( $node->nodeName === 'FONT' && count( $node->attributes ) === 0 ) {
+		} elseif ( $node->nodeName === 'FONT' && DOMDataUtils::noAttrs( $node ) ) {
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );

@@ -286,7 +286,10 @@ $PipelineUtils = [
 			$out = [];
 			for ( $j = 0,  $m = count( $attrs );  $j < $m;  $j++ ) {
 				$a = $attrs->item( $j );
-				$out[] = new KV( $a->name, $a->value );
+				// Not super important since they'll be overwritten in prepareDOM.js
+				if ( ![ 'data-parsoid', DOMDataUtils\DataObjectAttrName() ]->includes( $a->name ) ) {
+					$out[] = new KV( $a->name, $a->value );
+				}
 			}
 			return [ 'attrs' => $out, 'dataAttrs' => DOMDataUtils::getDataParsoid( $node ) ];
 		}
@@ -422,19 +425,35 @@ $PipelineUtils = [
 			$wrapperName = $node->nodeName;
 		}
 
+		// Assumed to only be called on nodes that have had data
+		// attributes stored.
+		if ( DOMUtils::isElt( $node ) ) {
+			Assert::invariant( !$node->hasAttribute( DOMDataUtils\DataObjectAttrName() ) );
+		}
+
 		$workNode = null;
 		if ( !DOMUtils::isElt( $node ) ) {
 			$workNode = $node->ownerDocument->createElement( $wrapperName );
-		} elseif ( $node->hasChildNodes() || $wrapperName !== $node->nodeName ) {
+		} elseif ( $wrapperName !== $node->nodeName ) {
 			// Create a copy of the node without children
 			$workNode = $node->ownerDocument->createElement( $wrapperName );
-			// copy over attributes
+			// Copy over attributes
 			for ( $j = 0;  $j < count( $node->attributes );  $j++ ) {
 				$attribute = $node->attributes->item( $j );
-				if ( $attribute->name !== 'typeof' ) {
+				// "typeof" is ignored since it'll be remove below.
+				// "data-parsoid" will be overwritten with `dataAttribs` when
+				// the token gets to the tree builder, so skip it.  It's
+				// present on the `node` since it has already had its data
+				// attributes stored.
+				if ( ![ 'typeof', 'data-parsoid' ]->includes( $attribute->name ) ) {
 					$workNode->setAttribute( $attribute->name, $attribute->value );
 				}
 			}
+		} else {
+			// Shallow clone since we don't want to convert the whole tree
+			// to tokens.
+			$workNode = $node->clone( false );
+
 			// dataAttribs are not copied over so that we don't inject
 			// broken tsr or dsr values. This also lets these tokens pass
 			// through the sanitizer as stx.html is not set.
@@ -447,15 +466,13 @@ $PipelineUtils = [
 			//
 			// We've filed T204279 to look into all this, but for now we'll do
 			// the safe thing and preserve dataAttribs where it makes sense.
-			if ( $wrapperName === $node->nodeName ) {
-				$dp = Object::assign( [], DOMDataUtils::getDataParsoid( $node ), [
-						'tsr' => null
-					]
-				);
-				DOMDataUtils::setDataParsoid( $workNode, $dp );
-			}
-		} else {
-			$workNode = $node;
+			//
+			// As indicated above, data attributes have already been stored
+			// for `node` so we need to peel them off for the purpose of
+			// cloning.
+			$storedDp = DOMDataUtils::getJSONAttribute( $node, 'data-parsoid', [] );
+			$storedDp->tsr = null;
+			DOMDataUtils::setDataParsoid( $workNode, $storedDp );
 		}
 
 		$tokens = [];

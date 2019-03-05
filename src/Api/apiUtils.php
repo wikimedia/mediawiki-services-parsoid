@@ -17,9 +17,6 @@ $Util = require '../utils/Util.js'::Util;
 $PegTokenizer = require '../wt2html/tokenizer.js'::PegTokenizer;
 $PHPParseRequest = require '../mw/ApiRequest.js'::PHPParseRequest;
 
-$temp0 = require '../language/LanguageConverter';
-$LanguageConverter = $temp0::LanguageConverter;
-
 /**
  * @alias module:api/apiUtils
  */
@@ -544,14 +541,15 @@ $apiUtils->findDowngrade = function ( $from, $to ) use ( &$downgrade999to2, &$se
  *
  * @param {Object} downgrade
  * @param {Object} [metrics]
+ * @param {MWParserEnvironment} env
  * @param {Object} revision
  * @param {string} version
  * @return {Object}
  */
-$apiUtils->doDowngrade = function ( $downgrade, $metrics, $revision, $version ) use ( &$DOMUtils, &$apiUtils ) {
+$apiUtils->doDowngrade = function ( $downgrade, $metrics, $env, $revision, $version ) use ( &$apiUtils ) {
 	if ( $metrics ) { $metrics->increment( "downgrade.from.{$downgrade->from}.to.{$downgrade->to}" );
  }
-	$doc = DOMUtils::parseHTML( $revision->html->body );
+	$doc = $env->createDocument( $revision->html->body );
 	$pb = $apiUtils->extractPageBundle( $revision );
 	$apiUtils->validatePageBundle( $pb, $version );
 	$start = time();
@@ -572,9 +570,9 @@ $apiUtils->doDowngrade = function ( $downgrade, $metrics, $revision, $version ) 
  * @param {string} [contentmodel]
  */
 $apiUtils->returnDowngrade = function ( $downgrade, $metrics, $env, $revision, $res, $contentmodel ) use ( &$apiUtils, &$ContentUtils, &$DOMUtils ) {
-	$temp1 = $apiUtils->doDowngrade( $downgrade, $metrics, $revision, $env->inputContentVersion );
-$doc = $temp1->doc;
-$pb = $temp1->pb;
+	$temp0 = $apiUtils->doDowngrade( $downgrade, $metrics, $env, $revision, $env->inputContentVersion );
+$doc = $temp0->doc;
+$pb = $temp0->pb;
 	// Match the http-equiv meta to the content-type header
 	$meta = $doc->querySelector( 'meta[property="mw:html:version"]' );
 	if ( $meta ) { $meta->setAttribute( 'content', $env->outputContentVersion );
@@ -585,88 +583,6 @@ $pb = $temp1->pb;
 		]
 	);
 	$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->outputContentVersion );
-};
-
-/**
- * Update red links on a document.
- *
- * @param {MWParserEnvironment} env
- * @param {Object} revision
- * @param {Response} res
- * @param {string} [contentmodel]
- */
-$apiUtils->updateRedLinks = /* async */function ( $env, $revision, $res, $contentmodel ) use ( &$DOMUtils, &$apiUtils, &$ContentUtils ) {
-	$doc = DOMUtils::parseHTML( $revision->html->body );
-	$pb = $apiUtils->extractPageBundle( $revision );
-	$apiUtils->validatePageBundle( $pb, $env->inputContentVersion );
-	// Note: this only works if the configured wiki has the ParsoidBatchAPI
-	// extension installed.
-	// Note: this only works if the configured wiki has the ParsoidBatchAPI
-	// extension installed.
-	/* await */ ContentUtils::addRedLinks( $env, $doc );
-	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
-	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
-	$html = ContentUtils::toXML( ( $res->locals->body_only ) ? $doc->body : $doc, [
-			'innerXML' => $res->locals->body_only
-		]
-	);
-	// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
-	// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
-	$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->inputContentVersion );
-};
-
-$apiUtils->languageConversion = function ( $env, $revision, $res, $contentmodel, $targetVariant, $sourceVariant ) use ( &$DOMUtils, &$apiUtils, &$LanguageConverter, &$ContentUtils ) {
-	$doc = DOMUtils::parseHTML( $revision->html->body );
-	$pb = $apiUtils->extractPageBundle( $revision );
-	// We deliberately don't validate the page bundle, since language
-	// conversion can be done w/o data-parsoid or data-mw
-
-	// XXX handle x-roundtrip
-	$env->htmlVariantLanguage = $targetVariant;
-	$env->wtVariantLanguage = $sourceVariant;
-
-	// env.page.pagelanguage must be set; this is done in routes.js
-	if ( $env->langConverterEnabled() ) {
-		// Note that `maybeConvert` could still be a no-op, in case the
-		// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
-		// is a base language code or otherwise invalid.
-		LanguageConverter::maybeConvert(
-			$env, $doc, $targetVariant, $sourceVariant
-		);
-		// Ensure there's a <head>
-		if ( !$doc->head ) {
-			$doc->documentElement->
-			insertBefore( $doc->createElement( 'head' ), $doc->body );
-		}
-		// Update content-language and vary headers.
-		$ensureHeader = function ( $h ) use ( &$doc ) {
-			$el = $doc->querySelector( "meta[http-equiv=\"{$h}\"i]" );
-			if ( !$el ) {
-				$el = $doc->createElement( 'meta' );
-				$el->setAttribute( 'http-equiv', $h );
-				$doc->head->appendChild( $el );
-			}
-			return $el;
-		};
-		$ensureHeader( 'content-language' )->
-		setAttribute( 'content', $env->htmlContentLanguage() );
-		$ensureHeader( 'vary' )->
-		setAttribute( 'content', $env->htmlVary() );
-		// Serialize & emit.
-		$html = ContentUtils::toXML( ( $res->locals->body_only ) ? $doc->body : $doc, [
-				'innerXML' => $res->locals->body_only
-			]
-		);
-		// Since this an update, return the `inputContentVersion` as the `outputContentVersion`
-		$apiUtils->wt2htmlRes( $res, $html, $pb, $contentmodel, DOMUtils::findHttpEquivHeaders( $doc ), $env->inputContentVersion );
-	} else {
-		// Return 400 if you request LanguageConversion for a page which
-		// didn't set `Vary: Accept-Language`.
-		$err = new Error( 'LanguageConversion is not enabled on this article.' );
-		$err->httpStatus = 400;
-		$err->suppressLoggingStack = true;
-		throw $err;
-	}
 };
 
 /**

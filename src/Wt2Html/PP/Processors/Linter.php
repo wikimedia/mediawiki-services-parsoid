@@ -870,6 +870,26 @@ $ws = null;
 		$env->log( 'lint/multiline-html-table-in-list', $lintObj );
 	}
 
+	// HTML tags can be nested but this is not the case for <a> tags
+	// which when nested outputs the <a> tags adjacent to each other
+	// In the example below, [[Google]] is a wikilink that is nested
+	// in the outer external link
+	// [http://google.com This is [[Google]]'s search page]
+	public function logWikilinksInExtlinks( $env, $c, $dp, $tplInfo ) {
+		$sibling = $c->nextSibling;
+		if ( $c->nodeName === 'A' && $sibling !== null && $sibling->nodeName === 'A'
+&& $c->getAttribute( 'rel' ) === 'mw:ExtLink' && $sibling->getAttribute( 'rel' ) === 'mw:WikiLink'
+&& DOMDataUtils::getDataParsoid( $sibling )->misnested === true
+		) {
+			$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+			$lintObj = [
+				'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ),
+				'templateInfo' => $templateInfo
+			];
+			$env->log( 'lint/wikilink-in-extlink', $lintObj );
+		}
+	}
+
 	public function logWikitextFixups( $node, $env, $tplInfo ) {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
@@ -886,6 +906,7 @@ $ws = null;
 		// Tidy fixes the misnesting one way (puts table inside/outside the list)
 		// HTML5 parser fix it another way (list expands to rest of the page!)
 		$this->logPHPParserBug( $env, $node, $dp, $tplInfo );
+		$this->logWikilinksInExtlinks( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
 		if ( $dp->fostered && !WTUtils::isRenderingTransparentNode( $node ) ) {

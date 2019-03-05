@@ -41,15 +41,15 @@ class FromHTML {
 			);
 		}
 		if ( $needsOldDOM ) {
-			$p = $p->then( function () use ( &$env, &$DOMUtils, &$ContentUtils ) {
+			$p = $p->then( function () use ( &$env, &$ContentUtils ) {
 					if ( $env->page->src === null ) {
 						// The src fetch failed or we never had an oldid.
 						// We'll just fallback to non-selser.
 						return;
 					}
 					return $env->getContentHandler()->toHTML( $env )->
-					then( function ( $doc ) use ( &$env, &$DOMUtils, &$ContentUtils ) {
-							$env->page->dom = DOMUtils::parseHTML( ContentUtils::toXML( $doc ) )->body;
+					then( function ( $doc ) use ( &$env, &$ContentUtils ) {
+							$env->page->dom = $env->createDocument( ContentUtils::toXML( $doc ) )->body;
 					}
 					)->
 					catch( function ( $err ) use ( &$env ) {

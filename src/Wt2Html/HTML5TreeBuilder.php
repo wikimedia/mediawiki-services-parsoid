@@ -30,6 +30,9 @@ $SelfclosingTagTk = $temp0::SelfclosingTagTk;
 $NlTk = $temp0::NlTk;
 $EOFTk = $temp0::EOFTk;
 $CommentTk = $temp0::CommentTk;
+$temp1 = require '../utils/DOMDataUtils.js';
+$DOMDataUtils = $temp1::DOMDataUtils;
+$Bag = $temp1::Bag;
 
 /**
  * @class
@@ -67,10 +70,11 @@ TreeBuilder::prototype::setPipelineId = function ( $id ) {
 	$this->pipelineId = $id;
 };
 
-TreeBuilder::prototype::resetState = function () use ( &$HTMLParser ) {
+TreeBuilder::prototype::resetState = function () use ( &$Bag, &$HTMLParser ) {
 	// Reset vars
 	$this->tagId = 1; // Assigned to start/self-closing tags
 	$this->inTransclusion = false;
+	$this->bag = new Bag();
 
 	/* --------------------------------------------------------------------
 	 * Crude tracking of whether we are in a table
@@ -158,7 +162,12 @@ TreeBuilder::prototype::onEnd = function () use ( &$EOFTk ) {
 	if ( $this->lastToken && $this->lastToken->constructor !== $EOFTk ) {
 		$this->env->log( 'error', 'EOFTk was lost in page', $this->env->page->name );
 	}
-	$this->emit( 'document', $this->parser->document() );
+
+	// Special case where we can't call `env.createDocument()`
+	$doc = $this->parser->document();
+	$this->env->referenceDataObject( $doc, $this->bag );
+	$this->emit( 'document', $doc );
+
 	$this->emit( 'end' );
 	$this->resetState();
 };
@@ -180,11 +189,28 @@ TreeBuilder::prototype::_att = function ( $maybeAttribs ) {
 	);
 };
 
+// Keep this in sync with `DOMDataUtils.setNodeData()`
+TreeBuilder::prototype::stashDataAttribs = function ( $attribs, $dataAttribs ) {
+	$data = [ 'parsoid' => $dataAttribs ];
+	$attribs = $attribs->filter( function ( $attr ) use ( &$data ) {
+			if ( $attr->k === 'data-mw' ) {
+				Assert::invariant( $data->mw === null );
+				$data->mw = json_decode( $attr->v );
+				return false;
+			}
+			return true;
+	}
+	);
+	$docId = $this->bag->stashObject( $data );
+	$attribs[] = [ 'k' => DOMDataUtils\DataObjectAttrName(), 'v' => $docId ];
+	return $attribs;
+};
+
 /**
  * Adapt the token format to internal HTML tree builder format, call the actual
  * html tree builder by emitting the token.
  */
-TreeBuilder::prototype::processToken = function ( $token ) use ( &$TagTk, &$SelfclosingTagTk, &$NlTk, &$TokenUtils, &$Util, &$EndTagTk, &$CommentTk, &$EOFTk ) {
+TreeBuilder::prototype::processToken = function ( $token ) use ( &$TagTk, &$SelfclosingTagTk, &$NlTk, &$Util, &$TokenUtils, &$EndTagTk, &$CommentTk, &$EOFTk ) {
 	if ( $this->pipelineId === 0 ) {
 		$this->env->bumpParserResourceUse( 'token' );
 	}
@@ -205,11 +231,7 @@ TreeBuilder::prototype::processToken = function ( $token ) use ( &$TagTk, &$Self
 		$dataAttribs->tmp->tagId = $this->tagId++;
 	}
 
-	// Always insert data-parsoid
-	$attribs = $attribs->concat( [
-			[ 'k' => 'data-parsoid', 'v' => json_encode( $dataAttribs ) ]
-		]
-	);
+	$attribs = $this->stashDataAttribs( $attribs, $dataAttribs );
 
 	$this->env->log( 'trace/html', $this->pipelineId, function () {
 			return json_encode( $token );
@@ -266,9 +288,8 @@ $data = null;
 			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 			$attrs = [
 				[ 'nodeName' => 'typeof', 'nodeValue' => 'mw:StartTag' ],
-				[ 'nodeName' => 'data-stag', 'nodeValue' => $tName . ':' . $dataAttribs->tmp->tagId ],
-				[ 'nodeName' => 'data-parsoid', 'nodeValue' => json_encode( $dataAttribs ) ]
-			];
+				[ 'nodeName' => 'data-stag', 'nodeValue' => $tName . ':' . $dataAttribs->tmp->tagId ]
+			]->concat( $this->_att( $this->stashDataAttribs( [], Util::clone( $dataAttribs ) ) ) );
 			$this->insertToken( [
 					'type' => 'Comment',
 					'data' => json_encode( [
@@ -335,13 +356,12 @@ $data = null;
 		}
 		$this->insertToken( [ 'type' => 'EndTag', 'name' => $tName ] );
 		if ( $dataAttribs && !$dataAttribs->autoInsertedEnd ) {
+			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 			$attrs = $this->_att( $attribs )->concat( [
 					[ 'nodeName' => 'typeof', 'nodeValue' => 'mw:EndTag' ],
-					[ 'nodeName' => 'data-etag', 'nodeValue' => $tName ],
-					[ 'nodeName' => 'data-parsoid', 'nodeValue' => json_encode( $dataAttribs ) ]
+					[ 'nodeName' => 'data-etag', 'nodeValue' => $tName ]
 				]
 			);
-			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 			$this->insertToken( [
 					'type' => 'Comment',
 					'data' => json_encode( [

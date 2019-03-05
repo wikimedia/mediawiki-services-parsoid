@@ -224,8 +224,8 @@ class ConstrainedText {
 		// the proper escape conditions on the prefix/suffix text.
 		$firstChild = DOMUtils::firstNonDeletedChild( $node );
 		$lastChild = DOMUtils::lastNonDeletedChild( $node );
-		$firstChildDp = $firstChild && DOMDataUtils::getDataParsoid( $firstChild );
-		$lastChildDp = $lastChild && DOMDataUtils::getDataParsoid( $lastChild );
+		$firstChildDp = DOMUtils::isElt( $firstChild ) && DOMDataUtils::getDataParsoid( $firstChild );
+		$lastChildDp = DOMUtils::isElt( $lastChild ) && DOMDataUtils::getDataParsoid( $lastChild );
 		$prefixChunks = [];
 		$suffixChunks = [];
 		$len = null;

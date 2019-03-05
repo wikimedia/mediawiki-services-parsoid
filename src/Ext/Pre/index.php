@@ -9,8 +9,6 @@
 
 namespace Parsoid;
 
-use Parsoid\domino as domino;
-
 $ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 
 $temp0 = $ParsoidExtApi;
@@ -19,8 +17,8 @@ $DOMDataUtils = $temp0::DOMDataUtils;
 $Sanitizer = $temp0::Sanitizer;
 $Promise = $temp0::Promise;
 
-$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$domino, &$Sanitizer, &$DOMDataUtils, &$Util ) {
-		$doc = domino::createDocument();
+$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$Sanitizer, &$DOMDataUtils, &$Util ) {
+		$doc = $state->env->createDocument();
 		$pre = $doc->createElement( 'pre' );
 
 		Sanitizer::applySanitizedArgs( $state->env, $pre, $extArgs );

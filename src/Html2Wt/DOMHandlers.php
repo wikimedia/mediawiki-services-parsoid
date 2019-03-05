@@ -328,7 +328,10 @@ function isTplListWithoutSharedPrefix( $node ) {
 }
 
 function isBuilderInsertedElt( $node ) {
+	global $DOMUtils;
 	global $DOMDataUtils;
+	if ( !DOMUtils::isElt( $node ) ) { return false;
+ }
 	$dp = DOMDataUtils::getDataParsoid( $node );
 	return $dp && $dp->autoInsertedStart && $dp->autoInsertedEnd;
 }
@@ -924,8 +927,8 @@ $tagHandlers = JSUtils::mapObject( [
 				$thHandler = function ( $state, $text, $opts ) use ( &$state, &$node ) {return $state->serializer->wteHandlers->thHandler( $node, $state, $text, $opts );
 				};
 
-				$nextTh = DOMUtils::nextNonDeletedSibling( $node );
-				$nextUsesRowSyntax = $nextTh && DOMDataUtils::getDataParsoid( $nextTh )->stx === 'row';
+				$nextTh = DOMUtils::nextNonSepSibling( $node );
+				$nextUsesRowSyntax = DOMUtils::isElt( $nextTh ) && DOMDataUtils::getDataParsoid( $nextTh )->stx === 'row';
 
 				// For empty cells, emit a single whitespace to make wikitext
 				// more readable as well as to eliminate potential misparses.
@@ -1003,8 +1006,8 @@ $tagHandlers = JSUtils::mapObject( [
 				$tdHandler = function ( $state, $text, $opts ) use ( &$state, &$node, &$inWideTD ) {return $state->serializer->wteHandlers->tdHandler( $node, $inWideTD, $state, $text, $opts );
 				};
 
-				$nextTd = DOMUtils::nextNonDeletedSibling( $node );
-				$nextUsesRowSyntax = $nextTd && DOMDataUtils::getDataParsoid( $nextTd )->stx === 'row';
+				$nextTd = DOMUtils::nextNonSepSibling( $node );
+				$nextUsesRowSyntax = DOMUtils::isElt( $nextTd ) && DOMDataUtils::getDataParsoid( $nextTd )->stx === 'row';
 
 				// For empty cells, emit a single whitespace to make wikitext
 				// more readable as well as to eliminate potential misparses.
@@ -1433,8 +1436,9 @@ $tagHandlers = JSUtils::mapObject( [
 						}
 					}
 				} else {
-					$kvs = WTSUtils::getAttributeKVArray( $node )->filter( function ( $kv ) {
+					$kvs = WTSUtils::getAttributeKVArray( $node )->filter( function ( $kv ) use ( &$DOMDataUtils ) {
 							return !preg_match( '/^data-parsoid/', $kv->k )
+&& ( $kv->k !== DOMDataUtils\DataObjectAttrName() )
 && !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/', $kv->v ) );
 					}
 					);
