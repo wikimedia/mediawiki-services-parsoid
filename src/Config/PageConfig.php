@@ -87,19 +87,9 @@ abstract class PageConfig {
 	abstract public function getRevisionSize(): ?int;
 
 	/**
-	 * The slot roles present in the revision
-	 * @return string[]
+	 * The revision's content
+	 * @return PageContent|null
 	 */
-	abstract public function getRevisionSlotRoles(): array;
-
-	/**
-	 * The revision's slot's content
-	 * @param string $role
-	 * @return array|null If an array, has the following fields:
-	 *  - model: Content model
-	 *  - format: Content format
-	 *  - text: Content text
-	 */
-	abstract public function getRevisionContent( string $role ): ?array;
+	abstract public function getRevisionContent(): ?PageContent;
 
 }

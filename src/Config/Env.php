@@ -17,20 +17,25 @@ class Env {
 	/** @var PageConfig */
 	private $pageConfig;
 
+	/** @var DataAccess */
+	private $dataAccess;
+
 	/** @var bool */
 	private $wrapSections = true;
 
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
+	 * @param DataAccess $dataAccess
 	 * @param array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 */
 	public function __construct(
-		SiteConfig $siteConfig, PageConfig $pageConfig, array $options = []
+		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
 	) {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
+		$this->dataAccess = $dataAccess;
 		$this->wrapSections = !empty( $options['wrapSections'] );
 	}
 
@@ -48,6 +53,14 @@ class Env {
 	 */
 	public function getPageConfig(): PageConfig {
 		return $this->pageConfig;
+	}
+
+	/**
+	 * Get the data access object
+	 * @return DataAccess
+	 */
+	public function getDataAccess(): DataAccess {
+		return $this->dataAccess;
 	}
 
 	/**
