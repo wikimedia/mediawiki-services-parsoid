@@ -41,7 +41,7 @@ class MediaWikiPageConfig extends PageConfig {
 		$this->revision = $revision;
 	}
 
-	public function hasLintableContentModel() {
+	public function hasLintableContentModel(): bool {
 		// @todo Check just the main slot, or all slots, or what?
 		$content = $this->getRevisionContent( SlotRecord::MAIN );
 		return $content && (
@@ -50,31 +50,31 @@ class MediaWikiPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getTitle() {
+	public function getTitle(): string {
 		return $this->title->getPrefixedText();
 	}
 
 	/** @inheritDoc */
-	public function getNs() {
+	public function getNs(): int {
 		return $this->title->getNamespace();
 	}
 
 	/** @inheritDoc */
-	public function getPageId() {
+	public function getPageId(): int {
 		return $this->title->getArticleID();
 	}
 
 	/** @inheritDoc */
-	public function getPageLanguage() {
+	public function getPageLanguage(): string {
 		return $this->title->getPageLanguage()->getCode();
 	}
 
 	/** @inheritDoc */
-	public function getPageLanguageDir() {
+	public function getPageLanguageDir(): string {
 		return $this->title->getPageLanguage()->getDir();
 	}
 
-	private function getRevision() {
+	private function getRevision(): ?RevisionRecord {
 		if ( $this->revision === null ) {
 			$this->revision = false;
 			$rev = call_user_func(
@@ -90,57 +90,57 @@ class MediaWikiPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionId() {
+	public function getRevisionId(): ?int {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getId() : null;
 	}
 
 	/** @inheritDoc */
-	public function getParentRevisionId() {
+	public function getParentRevisionId(): ?int {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getParentId() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionTimestamp() {
+	public function getRevisionTimestamp(): string {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getTimestamp() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionUser() {
+	public function getRevisionUser(): ?string {
 		$rev = $this->getRevision();
 		$user = $rev ? $rev->getUser() : null;
 		return $user ? $user->getName() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionUserId() {
+	public function getRevisionUserId(): ?int {
 		$rev = $this->getRevision();
 		$user = $rev ? $rev->getUser() : null;
 		return $user ? $user->getId() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionSha1() {
+	public function getRevisionSha1(): ?string {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getSha1() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionSize() {
+	public function getRevisionSize(): ?int {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getSize() : null;
 	}
 
 	/** @inheritDoc */
-	public function getRevisionSlotRoles() {
+	public function getRevisionSlotRoles(): array {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getSlotRoles() : [];
 	}
 
 	/** @inheritDoc */
-	public function getRevisionContent( $role ) {
+	public function getRevisionContent( $role ): ?array {
 		$rev = $this->getRevision();
 		try {
 			$content = $rev ? $rev->getContent( $role ) : null;

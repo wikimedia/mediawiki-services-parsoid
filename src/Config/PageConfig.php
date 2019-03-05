@@ -11,85 +11,85 @@ abstract class PageConfig {
 	 * Whether the page has a lintable content model
 	 * @return bool
 	 */
-	abstract public function hasLintableContentModel();
+	abstract public function hasLintableContentModel(): bool;
 
 	/**
 	 * The page's title, as a string.
 	 * @return string With namespace, spaces not underscores
 	 */
-	abstract public function getTitle();
+	abstract public function getTitle(): string;
 
 	/**
 	 * The page's namespace ID
 	 * @return int
 	 */
-	abstract public function getNs();
+	abstract public function getNs(): int;
 
 	/**
 	 * The page's ID, if any
 	 * @return int 0 if the page doesn't exist
 	 */
-	abstract public function getPageId();
+	abstract public function getPageId(): int;
 
 	/**
 	 * The page's language code
 	 * @return string
 	 */
-	abstract public function getPageLanguage();
+	abstract public function getPageLanguage(): string;
 
 	/**
 	 * The page's language direction
 	 * @return string 'ltr' or 'rtl'
 	 */
-	abstract public function getPageLanguageDir();
+	abstract public function getPageLanguageDir(): string;
 
 	/**
 	 * The revision's ID, if any
 	 * @return int|null
 	 */
-	abstract public function getRevisionId();
+	abstract public function getRevisionId(): ?int;
 
 	/**
 	 * The revision's parent ID, if any
 	 * @return int|null
 	 */
-	abstract public function getParentRevisionId();
+	abstract public function getParentRevisionId(): ?int;
 
 	/**
 	 * The revision's timestamp, if any
 	 * @return string "YYYYMMDDHHIISS" format
 	 */
-	abstract public function getRevisionTimestamp();
+	abstract public function getRevisionTimestamp(): string;
 
 	/**
 	 * The revision's author's user name, if any
 	 * @return string|null
 	 */
-	abstract public function getRevisionUser();
+	abstract public function getRevisionUser(): ?string;
 
 	/**
 	 * The revision's author's user ID, if any
 	 * @return int|null 0 if the user is not registered
 	 */
-	abstract public function getRevisionUserId();
+	abstract public function getRevisionUserId(): ?int;
 
 	/**
 	 * The revision's SHA1 checksum, if any
 	 * @return string|null Hex encoded
 	 */
-	abstract public function getRevisionSha1();
+	abstract public function getRevisionSha1(): ?string;
 
 	/**
 	 * The revision's length, if known
 	 * @return int|null Bytes
 	 */
-	abstract public function getRevisionSize();
+	abstract public function getRevisionSize(): ?int;
 
 	/**
 	 * The slot roles present in the revision
 	 * @return string[]
 	 */
-	abstract public function getRevisionSlotRoles();
+	abstract public function getRevisionSlotRoles(): array;
 
 	/**
 	 * The revision's slot's content
@@ -99,6 +99,6 @@ abstract class PageConfig {
 	 *  - format: Content format
 	 *  - text: Content text
 	 */
-	abstract public function getRevisionContent( $role );
+	abstract public function getRevisionContent( $role ): ?array;
 
 }

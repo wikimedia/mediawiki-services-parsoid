@@ -26,7 +26,7 @@ abstract class SiteConfig {
 	 * General log channel
 	 * @return LoggerInterface
 	 */
-	public function getLogger() {
+	public function getLogger(): LoggerInterface {
 		if ( $this->logger === null ) {
 			$this->logger = new NullLogger;
 		}
@@ -37,7 +37,7 @@ abstract class SiteConfig {
 	 * Log channel for traces
 	 * @return LoggerInterface
 	 */
-	public function getTraceLogger() {
+	public function getTraceLogger(): LoggerInterface {
 		return $this->getLogger();
 	}
 
@@ -49,7 +49,7 @@ abstract class SiteConfig {
 	 * @param string $flag Flag name.
 	 * @return bool
 	 */
-	public function hasTraceFlag( $flag ) {
+	public function hasTraceFlag( string $flag ): bool {
 		return false;
 	}
 
@@ -57,7 +57,7 @@ abstract class SiteConfig {
 	 * Log channel for dumps
 	 * @return LoggerInterface
 	 */
-	public function getDumpLogger() {
+	public function getDumpLogger(): LoggerInterface {
 		return $this->getLogger();
 	}
 
@@ -71,7 +71,7 @@ abstract class SiteConfig {
 	 * @param string $flag Flag name.
 	 * @return bool
 	 */
-	public function hasDumpFlag( $flag ) {
+	public function hasDumpFlag( string $flag ): bool {
 		return false;
 	}
 
@@ -85,7 +85,7 @@ abstract class SiteConfig {
 	 *  then this should go away.
 	 * @return bool
 	 */
-	public function usePHPPreProcessor() {
+	public function usePHPPreProcessor(): bool {
 		return true;
 	}
 
@@ -93,7 +93,7 @@ abstract class SiteConfig {
 	 * Test in rt test mode (changes some parse & serialization strategies)
 	 * @return bool
 	 */
-	public function rtTestMode() {
+	public function rtTestMode(): bool {
 		return false;
 	}
 
@@ -102,7 +102,7 @@ abstract class SiteConfig {
 	 * template parameters data.
 	 * @return bool
 	 */
-	public function addHTMLTemplateParameters() {
+	public function addHTMLTemplateParameters(): bool {
 		return false;
 	}
 
@@ -122,7 +122,7 @@ abstract class SiteConfig {
 	 *  method instead of using StatsdDataFactoryInterface directly?
 	 * @return StatsdDataFactoryInterface|null
 	 */
-	public function metrics() {
+	public function metrics(): ?StatsdDataFactoryInterface {
 		return null;
 	}
 
@@ -131,7 +131,7 @@ abstract class SiteConfig {
 	 * in the html -> wt serialization pass.
 	 * @return bool
 	 */
-	public function scrubBidiChars() {
+	public function scrubBidiChars(): bool {
 		return false;
 	}
 
@@ -146,7 +146,7 @@ abstract class SiteConfig {
 	 * Whether to allow inline image pointing to other websites
 	 * @return bool
 	 */
-	abstract public function allowExternalImages();
+	abstract public function allowExternalImages(): bool;
 
 	/**
 	 * Site base URI
@@ -155,7 +155,7 @@ abstract class SiteConfig {
 	 *
 	 * @return string
 	 */
-	abstract public function baseURI();
+	abstract public function baseURI(): string;
 
 	/**
 	 * Prefix for relative links
@@ -168,7 +168,7 @@ abstract class SiteConfig {
 	 *
 	 * @return string
 	 */
-	public function relativeLinkPrefix() {
+	public function relativeLinkPrefix(): string {
 		return './';
 	}
 
@@ -176,7 +176,7 @@ abstract class SiteConfig {
 	 * Regex matching all double-underscore magic words
 	 * @return string
 	 */
-	abstract public function bswPagePropRegexp();
+	abstract public function bswPagePropRegexp(): string;
 
 	/**
 	 * Map a canonical namespace name to its index
@@ -185,7 +185,7 @@ abstract class SiteConfig {
 	 * @param string $name all-lowercase and with underscores rather than spaces.
 	 * @return int|null
 	 */
-	abstract public function canonicalNamespaceId( $name );
+	abstract public function canonicalNamespaceId( string $name ): ?int;
 
 	/**
 	 * Map a namespace name to its index
@@ -194,7 +194,7 @@ abstract class SiteConfig {
 	 * @param string $name
 	 * @return int|null
 	 */
-	abstract public function namespaceId( $name );
+	abstract public function namespaceId( string $name ): ?int;
 
 	/**
 	 * Map a namespace index to its preferred name
@@ -203,7 +203,7 @@ abstract class SiteConfig {
 	 * @param int $ns
 	 * @return string|null
 	 */
-	abstract public function namespaceName( $ns );
+	abstract public function namespaceName( int $ns ): ?string;
 
 	/**
 	 * Test if a namespace has subpages
@@ -212,13 +212,13 @@ abstract class SiteConfig {
 	 * @param int $ns
 	 * @return bool
 	 */
-	abstract public function namespaceHasSubpages( $ns );
+	abstract public function namespaceHasSubpages( int $ns ): bool;
 
 	/**
 	 * Treat language links as magic connectors, not inline links
 	 * @return bool
 	 */
-	abstract public function interwikiMagic();
+	abstract public function interwikiMagic(): bool;
 
 	/**
 	 * Interwiki link data
@@ -233,33 +233,33 @@ abstract class SiteConfig {
 	 *   - linktext: (string, optional) For "extra language links", the link text.
 	 *  (booleans marked "optional" must be omitted if false)
 	 */
-	abstract public function interwikiMap();
+	abstract public function interwikiMap(): array;
 
 	/**
 	 * Wiki identifier, for cache keys.
 	 * Should match a key in mwApiMap()?
 	 * @return string
 	 */
-	abstract public function iwp();
+	abstract public function iwp(): string;
 
 	/**
 	 * Link prefix regular expression.
 	 * @return string|null
 	 */
-	abstract public function linkPrefixRegex();
+	abstract public function linkPrefixRegex(): ?string;
 
 	/**
 	 * Link trail regular expression.
 	 * @return string|null
 	 */
-	abstract public function linkTrailRegex();
+	abstract public function linkTrailRegex(): ?string;
 
 	/**
 	 * Log linter data.
 	 * @note This replaces JS linterEnabled.
 	 * @param LogData $logData
 	 */
-	public function logLinterData( LogData $logData ) {
+	public function logLinterData( LogData $logData ): void {
 		// In MW, call a hook that the Linter extension will listen on
 	}
 
@@ -267,13 +267,13 @@ abstract class SiteConfig {
 	 * Wiki language code.
 	 * @return string
 	 */
-	abstract public function lang();
+	abstract public function lang(): string;
 
 	/**
 	 * Main page title
 	 * @return string
 	 */
-	abstract public function mainpage();
+	abstract public function mainpage(): string;
 
 	/**
 	 * Responsive references configuration
@@ -281,51 +281,51 @@ abstract class SiteConfig {
 	 *  - enabled: (bool) Whether it's enabled
 	 *  - threshold: (int) Threshold
 	 */
-	abstract public function responsiveReferences();
+	abstract public function responsiveReferences(): array;
 
 	/**
 	 * Whether the wiki language is right-to-left
 	 * @return bool
 	 */
-	abstract public function rtl();
+	abstract public function rtl(): bool;
 
 	/**
 	 * The URL path to index.php.
 	 * @return string
 	 */
-	abstract public function script();
+	abstract public function script(): string;
 
 	/**
 	 * The base wiki path
 	 * @return string
 	 */
-	abstract public function scriptpath();
+	abstract public function scriptpath(): string;
 
 	/**
 	 * The base URL of the server.
 	 * @return string
 	 */
-	abstract public function server();
+	abstract public function server(): string;
 
 	/**
 	 * A regex matching a line containing just whitespace, comments, and
 	 * sol transparent links and behavior switches.
 	 * @return string
 	 */
-	abstract public function solTransparentWikitextRegexp();
+	abstract public function solTransparentWikitextRegexp(): string;
 
 	/**
 	 * A regex matching a line containing just comments and
 	 * sol transparent links and behavior switches.
 	 * @return string
 	 */
-	abstract public function solTransparentWikitextNoWsRegexp();
+	abstract public function solTransparentWikitextNoWsRegexp(): string;
 
 	/**
 	 * The wiki's time zone offset
 	 * @return int Minutes east of UTC
 	 */
-	abstract public function timezoneOffset();
+	abstract public function timezoneOffset(): int;
 
 	/**
 	 * Language variant information
@@ -333,25 +333,25 @@ abstract class SiteConfig {
 	 *   - base: (string) Base language code (e.g. "zh")
 	 *   - fallbacks: (string[]) Fallback variants
 	 */
-	abstract public function variants();
+	abstract public function variants(): array;
 
 	/**
 	 * Default thumbnail width
 	 * @return int
 	 */
-	abstract public function widthOption();
+	abstract public function widthOption(): int;
 
 	/**
 	 * List all magic words by alias
 	 * @return string[] Keys are aliases, values are canonical names.
 	 */
-	abstract public function magicWords();
+	abstract public function magicWords(): array;
 
 	/**
 	 * List all magic words by canonical name
 	 * @return string[][] Keys are canonical names, values are arrays of aliases.
 	 */
-	abstract public function mwAliases();
+	abstract public function mwAliases(): array;
 
 	/**
 	 * Get canonical magicword name for the input word.
@@ -359,7 +359,7 @@ abstract class SiteConfig {
 	 * @param string $word
 	 * @return string|null
 	 */
-	public function magicWordCanonicalName( $word ) {
+	public function magicWordCanonicalName( string $word ): ?string {
 		$mws = $this->magicWords();
 		return $mws[$word] ?? $mws[mb_strtolower( $word )] ?? null;
 	}
@@ -370,7 +370,7 @@ abstract class SiteConfig {
 	 * @param string $word
 	 * @return bool
 	 */
-	public function isMagicWord( $word ) {
+	public function isMagicWord( string $word ): bool {
 		return $this->magicWordCanonicalName( $word ) !== null;
 	}
 
@@ -388,7 +388,7 @@ abstract class SiteConfig {
 	 * @param string[] $words Magic words to match
 	 * @return callable
 	 */
-	abstract public function getMagicPatternMatcher( array $words );
+	abstract public function getMagicPatternMatcher( array $words ): callable;
 
 	/**
 	 * Matcher for RFC/PMID URL patterns, returning the type and number.
@@ -398,21 +398,21 @@ abstract class SiteConfig {
 	 *
 	 * @return callable
 	 */
-	abstract public function getExtResourceURLPatternMatcher();
+	abstract public function getExtResourceURLPatternMatcher(): callable;
 
 	/**
 	 * Matcher for valid protocols, must be anchored at start of string.
 	 * @param string $potentialLink
 	 * @return bool Whether $potentialLink begins with a valid protocol
 	 */
-	abstract public function hasValidProtocol( $potentialLink );
+	abstract public function hasValidProtocol( string $potentialLink ): bool;
 
 	/**
 	 * Matcher for valid protocols, may occur at any point within string.
 	 * @param string $potentialLink
 	 * @return bool Whether $potentialLink contains a valid protocol
 	 */
-	abstract public function findValidProtocol( $potentialLink );
+	abstract public function findValidProtocol( string $potentialLink ): bool;
 
 	/**@}*/
 
@@ -420,7 +420,7 @@ abstract class SiteConfig {
 	 * Fake timestamp, for unit tests.
 	 * @return int|null Unix timestamp, or null to not fake it
 	 */
-	public function fakeTimestamp() {
+	public function fakeTimestamp(): ?int {
 		return null;
 	}
 

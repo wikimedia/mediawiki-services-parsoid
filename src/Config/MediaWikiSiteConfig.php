@@ -50,7 +50,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	 * @param string $s
 	 * @return string
 	 */
-	private static function quoteTitleRe( $s ) {
+	private static function quoteTitleRe( string $s ): string {
 		$s = preg_quote( $s, '/' );
 		$s = strtr( $s, [
 			' ' => '[ _]',
@@ -66,7 +66,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getLogger() {
+	public function getLogger(): LoggerInterface {
 		if ( $this->logger === null ) {
 			$this->logger = LoggerFactory::getInstance( 'Parsoid' );
 		}
@@ -74,7 +74,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getTraceLogger() {
+	public function getTraceLogger(): LoggerInterface {
 		if ( $this->traceLogger === null ) {
 			$this->traceLogger = LoggerFactory::getInstance( 'ParsoidTrace' );
 		}
@@ -82,13 +82,13 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasTraceFlag( $flag ) {
+	public function hasTraceFlag( string $flag ): bool {
 		// @todo: Implement this
 		return false;
 	}
 
 	/** @inheritDoc */
-	public function getDumpLogger() {
+	public function getDumpLogger(): LoggerInterface {
 		if ( $this->dumpLogger === null ) {
 			$this->dumpLogger = LoggerFactory::getInstance( 'ParsoidDump' );
 		}
@@ -96,7 +96,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasDumpFlag( $flag ) {
+	public function hasDumpFlag( string $flag ): bool {
 		// @todo: Implement this
 		return false;
 	}
@@ -108,11 +108,11 @@ class MediaWikiSiteConfig extends SiteConfig {
 			: parent::linting();
 	}
 
-	public function metrics() {
+	public function metrics(): ?StatsdDataFactoryInterface {
 		return MediaWikiServices::getInstance()->getStatsdDataFactory();
 	}
 
-	public function allowExternalImages() {
+	public function allowExternalImages(): bool {
 		return $this->config->get( 'AllowExternalImages' );
 	}
 
@@ -123,7 +123,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	 * `$wgServer` and `$wgArticlePath`, by splitting it at the last '/' in the
 	 * path portion.
 	 */
-	private function determineArticlePath() {
+	private function determineArticlePath(): void {
 		$url = $this->config->get( 'Server' ) . $this->config->get( 'ArticlePath' );
 
 		if ( substr( $url, -2 ) !== '$1' ) {
@@ -154,21 +154,21 @@ class MediaWikiSiteConfig extends SiteConfig {
 		$this->relativeLinkPrefix = wfAssembleUrl( $rel );
 	}
 
-	public function baseURI() {
+	public function baseURI(): string {
 		if ( $this->baseUri === null ) {
 			$this->determineArticlePath();
 		}
 		return $this->baseUri;
 	}
 
-	public function relativeLinkPrefix() {
+	public function relativeLinkPrefix(): string {
 		if ( $this->relativeLinkPrefix === null ) {
 			$this->determineArticlePath();
 		}
 		return $this->relativeLinkPrefix;
 	}
 
-	public function bswPagePropRegexp() {
+	public function bswPagePropRegexp(): string {
 		if ( $this->bswPagePropRegexp === null ) {
 			// [0] is the case-insensitive part, [1] is the case-sensitive part
 			$regex = MediaWikiServices::getInstance()->getMagicWordFactory()
@@ -194,33 +194,33 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function canonicalNamespaceId( $name ) {
+	public function canonicalNamespaceId( string $name ): ?int {
 		$ret = MWNamespace::getCanonicalIndex( $name );
 		return $ret === false ? null : $ret;
 	}
 
 	/** @inheritDoc */
-	public function namespaceId( $name ) {
+	public function namespaceId( string $name ): ?int {
 		$ret = $this->contLang->getNsIndex( $name );
 		return $ret === false ? null : $ret;
 	}
 
 	/** @inheritDoc */
-	public function namespaceName( $ns ) {
+	public function namespaceName( int $ns ): ?string {
 		$ret = $this->contLang->getFormattedNsText( $ns );
 		return $ret === '' && $ns !== NS_MAIN ? null : $ret;
 	}
 
 	/** @inheritDoc */
-	public function namespaceHasSubpages( $ns ) {
+	public function namespaceHasSubpages( int $ns ): bool {
 		return MWNamespace::hasSubpages( $ns );
 	}
 
-	public function interwikiMagic() {
+	public function interwikiMagic(): bool {
 		return $this->config->get( 'InterwikiMagic' );
 	}
 
-	public function interwikiMap() {
+	public function interwikiMap(): array {
 		// Unfortunate that this mostly duplicates \ApiQuerySiteinfo::appendInterwikiMap()
 		if ( $this->interwikiMap === null ) {
 			$this->interwikiMap = [];
@@ -263,18 +263,18 @@ class MediaWikiSiteConfig extends SiteConfig {
 		return $this->interwikiMap;
 	}
 
-	public function iwp() {
+	public function iwp(): string {
 		return wfWikiID();
 	}
 
-	public function linkPrefixRegex() {
+	public function linkPrefixRegex(): ?string {
 		if ( !$this->contLang->linkPrefixExtension() ) {
 			return null;
 		}
 		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/u';
 	}
 
-	public function linkTrailRegex() {
+	public function linkTrailRegex(): ?string {
 		if ( $this->linkTrailRegex === false ) {
 			$trail = $this->contLang->linkTrail();
 			$trail = str_replace( '(.*)$', '', $trail );
@@ -289,20 +289,20 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( LogData $logData ) {
+	public function logLinterData( LogData $logData ): void {
 		// @todo: Document this hook in MediaWiki
 		Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $logData ] );
 	}
 
-	public function lang() {
+	public function lang(): string {
 		return $this->config->get( 'LanguageCode' );
 	}
 
-	public function mainpage() {
+	public function mainpage(): string {
 		return Title::newMainPage()->getPrefixedText();
 	}
 
-	public function responsiveReferences() {
+	public function responsiveReferences(): array {
 		// @todo This is from the Cite extension, which shouldn't be known about by core
 		return [
 			'enabled' => $this->config->has( 'CiteResponsiveReferences' ),
@@ -310,23 +310,23 @@ class MediaWikiSiteConfig extends SiteConfig {
 		];
 	}
 
-	public function rtl() {
+	public function rtl(): bool {
 		return $this->contLang->isRTL();
 	}
 
-	public function script() {
+	public function script(): string {
 		return $this->config->get( 'Script' );
 	}
 
-	public function scriptpath() {
+	public function scriptpath(): string {
 		return $this->config->get( 'ScriptPath' );
 	}
 
-	public function server() {
+	public function server(): string {
 		return $this->config->get( 'Server' );
 	}
 
-	public function solTransparentWikitextRegexp() {
+	public function solTransparentWikitextRegexp(): string {
 		// cscott sadly says: Note that this depends on the precise
 		// localization of the magic words of this particular wiki.
 
@@ -351,7 +351,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 			')*$!i';
 	}
 
-	public function solTransparentWikitextNoWsRegexp() {
+	public function solTransparentWikitextNoWsRegexp(): string {
 		// cscott sadly says: Note that this depends on the precise
 		// localization of the magic words of this particular wiki.
 
@@ -374,11 +374,11 @@ class MediaWikiSiteConfig extends SiteConfig {
 			')*)!i';
 	}
 
-	public function timezoneOffset() {
+	public function timezoneOffset(): int {
 		return $this->config->get( 'LocalTZoffset' );
 	}
 
-	public function variants() {
+	public function variants(): array {
 		if ( $this->variants === null ) {
 			$this->variants = [];
 
@@ -412,11 +412,11 @@ class MediaWikiSiteConfig extends SiteConfig {
 		return $this->variants;
 	}
 
-	public function widthOption() {
+	public function widthOption(): int {
 		return $this->config->get( 'ThumbLimits' )[User::getDefaultOption( 'thumbsize' )];
 	}
 
-	private function populateMagicWords() {
+	private function populateMagicWords(): void {
 		if ( $this->magicWords === null ) {
 			$this->magicWords = [];
 			$this->mwAliases = [];
@@ -438,18 +438,18 @@ class MediaWikiSiteConfig extends SiteConfig {
 		}
 	}
 
-	public function magicWords() {
+	public function magicWords(): array {
 		$this->populateMagicWords();
 		return $this->magicWords;
 	}
 
-	public function mwAliases() {
+	public function mwAliases(): array {
 		$this->populateMagicWords();
 		return $this->mwAliases;
 	}
 
 	/** @inheritDoc */
-	public function getMagicPatternMatcher( array $words ) {
+	public function getMagicPatternMatcher( array $words ): callable {
 		$words = MediaWikiServices::getInstance()->getMagicWordFactory()
 			->newArray( $words );
 		return function ( $text ) use ( $words ) {
@@ -463,7 +463,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getExtResourceURLPatternMatcher() {
+	public function getExtResourceURLPatternMatcher(): callable {
 		$nsAliases = [
 			'Special',
 			$this->quoteTitleRe( $this->contLang->getNsText( NS_SPECIAL ) )
@@ -505,14 +505,14 @@ class MediaWikiSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasValidProtocol( $potentialLink ) {
+	public function hasValidProtocol( string $potentialLink ): bool {
 		$protocols = $this->config->get( 'UrlProtocols' );
 		$regex = '!^(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
 		return (bool)preg_match( $regex, $potentialLink );
 	}
 
 	/** @inheritDoc */
-	public function findValidProtocol( $potentialLink ) {
+	public function findValidProtocol( string $potentialLink ): bool {
 		$protocols = $this->config->get( 'UrlProtocols' );
 		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
 		return (bool)preg_match( $regex, $potentialLink );
