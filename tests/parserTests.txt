@@ -25141,12 +25141,12 @@ HTML5 data attributes
 !! test
 Strip reserved data attributes
 !! wikitext
-<div data-mw="foo" data-parsoid="bar" data-mw-someext="baz" data-ok="fred" data-ooui="xyzzy" data-bad:ns="ns">d</div>
+<div data-mw="foo" data-parsoid="bar" data-mw-someext="baz" data-ok="fred" data-object-id="123" data-ooui="xyzzy" data-bad:ns="ns">d</div>
 !! html/php
-<div data-ok="fred">d</div>
+<div data-ok="fred" data-object-id="123">d</div>
 
 !! html/parsoid
-<div data-x-data-mw="foo" data-x-data-parsoid="bar" data-x-data-mw-someext="baz" data-ok="fred" data-parsoid='{"stx":"html","a":{"data-ooui":null,"data-bad:ns":null},"sa":{"data-ooui":"xyzzy","data-bad:ns":"ns"}}'>d</div>
+<div data-x-data-mw="foo" data-x-data-parsoid="bar" data-x-data-mw-someext="baz" data-ok="fred" data-x-data-object-id="123" data-parsoid='{"stx":"html","a":{"data-ooui":null,"data-bad:ns":null},"sa":{"data-ooui":"xyzzy","data-bad:ns":"ns"}}'>d</div>
 !! end
 
 !! test
