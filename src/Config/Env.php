@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use DOMDocument;
+use DOMNode;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DataBag;
@@ -33,6 +34,9 @@ class Env {
 
 	/** @var array */
 	private $behaviorSwitches = [];
+
+	/** @var array Maps fragment id to the fragment forest (array of DOMNodes)  */
+	private $fragmentMap = [];
 
 	/**
 	 * @param SiteConfig $siteConfig
@@ -102,6 +106,9 @@ class Env {
 	 */
 	public function createDocument( string $html ): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html );
+		// PORT-FIXME: Use DOMCompat utility once that lands
+		$doc->head = $doc->getElementsByTagName( 'head' )->item( 0 );
+		$doc->body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		$this->referenceDataObject( $doc );
 		return $doc;
 	}
@@ -150,6 +157,30 @@ class Env {
 	 */
 	public function getPageMainContent(): string {
 		return $this->pageConfig->getRevisionContent()->getContent( 'main' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFragmentMap(): array {
+		return $this->fragmentMap;
+	}
+
+	/**
+	 * @param string $id Fragment id
+	 * @return DOMNode[]
+	 */
+	public function getFragment( string $id ) {
+		return $this->fragmentMap[$id];
+	}
+
+	/**
+	 * @param string $id Fragment id
+	 * @param DOMNode[] $forest DOM forest (contiguous array of DOM trees)
+	 *   to store against the fragment id
+	 */
+	public function setFragment( string $id, array $forest ): void {
+		$this->fragmentMap[$id] = $forest;
 	}
 
 	/**

@@ -1,10 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-// Changes synced with commit 4772f44c
-// Initial porting, partially complete
-// Not fully tested, though many functions moved from DU.php were tested by domTests.php
-
 namespace Parsoid\Utils;
 
 use DOMDocument;

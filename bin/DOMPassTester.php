@@ -45,9 +45,9 @@ Technical details:
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Parsoid\Tests\MockEnv;
-use Parsoid\Wt2Html\XMLSerializer;
-use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 
 $wgCachedState = false;
@@ -105,24 +105,29 @@ class DOMPassTester {
 
 		$dom = $this->env->createDocument( $testFilePre );
 		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
+		DOMDataUtils::visitAndLoadDataAttribs( $body );
+		$dumpOpts = [];
 
 		if ( $opts['firstRun'] ) {
 			// REMEX BUG? Remove extra newline
 			$body->lastChild->parentNode->removeChild( $body->lastChild );
-
-			$domPre = XMLSerializer::serialize( $body )['html'];
-			// Do this after serialization for comparing against pre-dom-pass
-			DOMDataUtils::visitAndLoadDataAttribs( $body );
+			$dumpOpts = [
+				'quiet' => true,
+				'dumpFragmentMap' => false,
+				'keepTmp' => true,
+				'outBuffer' => ''
+			];
+			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '#\n$#', '', $testFilePre ) === $domPre ) {
+			if ( preg_replace( '#\n$#', '', $testFilePre ) === $dumpOpts['outBuffer'] ) {
 				print "DOM pre output matches genTest Pre output\n";
 			} else {
 				print "DOM pre output DOES NOT match genTest Pre output\n";
 			}
 
 			if ( $opts['debug_dump'] ) {
-				file_put_contents( 'temporaryPrePhp.txt', $domPre );
+				file_put_contents( 'temporaryPrePhp.txt', $dumpOpts['outBuffer'] );
 				print "temporaryPrePhp.txt saved!\n";
 			}
 		}
@@ -155,12 +160,11 @@ class DOMPassTester {
 		if ( $opts['firstRun'] ) {
 			$opts['firstRun'] = false;
 
-			// Do this before serialization for comparing against post-dom-pass
-			DOMDataUtils::visitAndStoreDataAttribs( $body );
-			$domPost = XMLSerializer::serialize( $body )['html'];
+			$dumpOpts['outBuffer'] = '';
+			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '#\n$#', '', $testFilePost ) === $domPost ) {
+			if ( preg_replace( '#\n$#', '', $testFilePost ) === $dumpOpts['outBuffer'] ) {
 				print "DOM post transform output matches genTest Post output\n";
 			} else {
 				print "DOM post transform output DOES NOT match genTest Post output\n";
@@ -168,7 +172,7 @@ class DOMPassTester {
 			}
 
 			if ( $opts['debug_dump'] ) {
-				file_put_contents( 'temporaryPostPhp.txt', $domPost );
+				file_put_contents( 'temporaryPostPhp.txt', $dumpOpts['outBuffer'] );
 				print "temporaryPostPhp.txt saved!\n";
 			}
 		}

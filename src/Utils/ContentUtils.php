@@ -1,106 +1,109 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+<?php
+declare( strict_types = 1 );
+
+namespace Parsoid\Utils;
+
+use DOMDocument;
+use DOMNode;
+use DOMElement;
+
+use Parsoid\Config\Env;
+use Parsoid\Wt2Html\XMLSerializer;
+
 /**
  * These utilities are for processing content that's generated
  * by parsing source input (ex: wikitext)
- *
- * @module
  */
-
-namespace Parsoid;
-
-
-
-use Parsoid\Promise as Promise;
-use Parsoid\XMLSerializer as XMLSerializer;
-use Parsoid\Batcher as Batcher;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
-
 class ContentUtils {
 	/**
 	 * XML Serializer.
 	 *
-	 * @param {Node} node
-	 * @param {Object} [options] XMLSerializer options.
-	 * @return {string}
+	 * @param DOMNode $node
+	 * @param array $options XMLSerializer options.
+	 * @return string
 	 */
-	public static function toXML( $node, $options ) {
-		return XMLSerializer::serialize( $node, $options )->html;
+	public static function toXML( DOMNode $node, array $options = [] ): string {
+		return XMLSerializer::serialize( $node, $options )['html'];
 	}
 
 	/**
-	 * .dataobject aware XML serializer, to be used in the DOM
-	 * post-processing phase.
+	 * dataobject aware XML serializer, to be used in the DOM post-processing phase.
 	 *
-	 * @param {Node} node
-	 * @param {Object} [options]
-	 * @return {string}
+	 * @param DOMNode $node
+	 * @param array $options
+	 * @return string
 	 */
-	public static function ppToXML( $node, $options ) {
-		// We really only want to pass along `options.keepTmp`
+	public static function ppToXML( DOMNode $node, array $options = [] ): string {
+		// We really only want to pass along `$options['keepTmp']`
 		DOMDataUtils::visitAndStoreDataAttribs( $node, $options );
-		return $this->toXML( $node, $options );
+		return self::toXML( $node, $options );
 	}
 
 	/**
 	 * .dataobject aware HTML parser, to be used in the DOM
 	 * post-processing phase.
 	 *
-	 * @param {MWParserEnvironment} env
-	 * @param {string} html
-	 * @param {Object} [options]
-	 * @return {Node}
+	 * @param Env $env
+	 * @param string $html
+	 * @param array $options
+	 * @return DOMNode
 	 */
-	public static function ppToDOM( $env, $html, $options ) {
-		$options = $options || [];
-		$node = $options->node;
+	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMNode {
+		$options = $options ?? [];
+		$node = $options['node'];
 		if ( $node === null ) {
 			$node = $env->createDocument( $html )->body;
 		} else {
+			// PORT-FIXME: Needs updating after DOMCompat patch lands
 			$node->innerHTML = $html;
 		}
-		DOMDataUtils::visitAndLoadDataAttribs( $node, $options->markNew );
+		DOMDataUtils::visitAndLoadDataAttribs( $node, $options['markNew'] );
 		return $node;
 	}
 
 	/**
 	 * Pull the data-parsoid script element out of the doc before serializing.
 	 *
-	 * @param {Node} node
-	 * @param {Object} [options] XMLSerializer options.
-	 * @return {string}
+	 * @param DOMNode $node
+	 * @param array $options XMLSerializer options.
+	 * @return array
 	 */
-	public static function extractDpAndSerialize( $node, $options ) {
-		if ( !$options ) { $options = [];  }
-		$options->captureOffsets = true;
-		$pb = DOMDataUtils::extractPageBundle( ( DOMUtils::isBody( $node ) ) ? $node->ownerDocument : $node );
+	public static function extractDpAndSerialize( DOMNode $node, array $options = [] ): array {
+		$options = $options ?? [];
+		$options['captureOffsets'] = true;
+
+		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
+		$pb = DOMDataUtils::extractPageBundle( $doc );
 		$out = XMLSerializer::serialize( $node, $options );
+
 		// Add the wt offsets.
-		Object::keys( $out->offsets )->forEach( function ( $key ) use ( &$pb, &$Util, &$out ) {
-				$dp = $pb->parsoid->ids[ $key ];
-				Assert::invariant( $dp );
-				if ( Util::isValidDSR( $dp->dsr ) ) {
-					$out->offsets[ $key ]->wt = array_slice( $dp->dsr, 0, 2/*CHECK THIS*/ );
-				}
+		foreach ( $out['offsets'] as $key => &$value ) {
+			$dp = $pb->parsoid->ids[ $key ];
+			if ( Util::isValidDSR( $dp->dsr ) ) {
+				$value['wt'] = array_slice( $dp->dsr, 0, 2 );
 			}
-		);
-		$pb->parsoid->sectionOffsets = $out->offsets;
-		Object::assign( $out, [ 'pb' => $pb, 'offsets' => null ] );
+		}
+
+		$pb->parsoid->sectionOffsets = &$out['offsets'];
+		$out['pb'] = $pb;
+		unset( $out['offsets'] );
+
 		return $out;
 	}
 
-	public static function stripSectionTagsAndFallbackIds( $node ) {
+	/**
+	 * Strip Parsoid-inserted section wrappers and fallback id spans with
+	 * HTML4 ids for headings from the DOM.
+	 *
+	 * @param DOMElement $node
+	 */
+	public static function stripSectionTagsAndFallbackIds( DOMElement $node ): void {
 		$n = $node->firstChild;
 		while ( $n ) {
 			$next = $n->nextSibling;
 			if ( DOMUtils::isElt( $n ) ) {
 				// Recurse into subtree before stripping this
-				$this->stripSectionTagsAndFallbackIds( $n );
+				self::stripSectionTagsAndFallbackIds( $n );
 
 				// Strip <section> tags
 				if ( WTUtils::isParsoidSectionTag( $n ) ) {
@@ -117,88 +120,96 @@ class ContentUtils {
 		}
 	}
 
-	/**
-	 * Dump the DOM with attributes.
-	 *
-	 * @param {Node} rootNode
-	 * @param {string} title
-	 * @param {Object} [options]
-	 */
-	public static function dumpDOM( $rootNode, $title, $options ) {
-		$DiffUtils = null;
-		$options = $options || [];
-		if ( $options->storeDiffMark || $options->dumpFragmentMap ) { Assert::invariant( $options->env );  }
-
-		function cloneData( $node, $clone ) use ( &$DOMUtils, &$DOMDataUtils, &$Util, &$options, &$DiffUtils ) {
-			if ( !DOMUtils::isElt( $node ) ) { return;  }
-			$d = DOMDataUtils::getNodeData( $node );
-			DOMDataUtils::setNodeData( $clone, Util::clone( $d ) );
-			if ( $options->storeDiffMark ) {
-				if ( !$DiffUtils ) {
-					$DiffUtils = require( '../html2wt/DiffUtils.js' )::DiffUtils;
-				}
-				DiffUtils::storeDiffMark( $clone, $options->env );
-			}
-			$node = $node->firstChild;
-			$clone = $clone->firstChild;
-			while ( $node ) {
-				cloneData( $node, $clone );
-				$node = $node->nextSibling;
-				$clone = $clone->nextSibling;
-			}
+	private static function cloneData( DOMNode $node, DOMNode $clone, array $options ): void {
+		if ( !DOMUtils::isElt( $node ) ) {
+			return;
 		}
 
-		function emit( $buf, $opts ) {
-			if ( isset( $opts[ 'outBuffer' ] ) ) {
-				$opts->outBuffer += implode( "\n", $buf );
-			} elseif ( $opts->outStream ) {
-				$opts->outStream->write( implode( "\n", $buf ) . "\n" );
-			} else {
-				$console->warn( implode( "\n", $buf ) );
-			}
+		$d = DOMDataUtils::getNodeData( $node );
+		DOMDataUtils::setNodeData( $clone,  clone $d );
+		if ( !empty( $options['storeDiffMark'] ) ) {
+			DiffUtils::storeDiffMark( $clone, $options['env'] );
 		}
-
-		// cloneNode doesn't clone data => walk DOM to clone it
-		$clonedRoot = $rootNode->cloneNode( true );
-		cloneData( $rootNode, $clonedRoot );
-
-		$buf = [];
-		if ( !$options->quiet ) {
-			$buf[] = '----- ' . $title . ' -----';
+		$node = $node->firstChild;
+		$clone = $clone->firstChild;
+		while ( $node ) {
+			self::cloneData( $node, $clone, $options );
+			$node = $node->nextSibling;
+			$clone = $clone->nextSibling;
 		}
+	}
 
-		$buf[] = ContentUtils::ppToXML( $clonedRoot, $options );
-		emit( $buf, $options );
-
-		// Dump cached fragments
-		if ( $options->dumpFragmentMap ) {
-			Array::from( $options->env->fragmentMap->keys() )->forEach( function ( $k ) use ( &$options ) {
-					$buf = [];
-					$buf[] = '='->repeat( 15 );
-					$buf[] = 'FRAGMENT ' . $k;
-					$buf[] = '';
-					emit( $buf, $options );
-
-					$newOpts = Object::assign( [], $options, [ 'dumpFragmentMap' => false, 'quiet' => true ] );
-					$fragment = $options->env->fragmentMap->get( $k );
-					ContentUtils::dumpDOM( ( is_array( $fragment ) ) ? $fragment[ 0 ] : $fragment, '', $newOpts );
-				}
-			);
-		}
-
-		if ( !$options->quiet ) {
-			emit( [ '-'->repeat( count( $title ) + 12 ) ], $options );
+	private static function emit( array $buf, array &$opts ): void {
+		$str = implode( "\n", $buf );
+		if ( isset( $opts['outBuffer'] ) ) {
+			$opts['outBuffer'] .= $str;
+		} elseif ( isset( $opts['outStream'] ) ) {
+			$opts['outStream']->write( $str . "\n" );
+		} else {
+			print $str;
 		}
 	}
 
 	/**
+	 * Dump the DOM with attributes.
+	 *
+	 * @param DOMElement $rootNode
+	 * @param string $title
+	 * @param array &$options
+	 */
+	public static function dumpDOM(
+		DOMElement $rootNode, string $title, array &$options = []
+	): void {
+		$options = $options ?? [];
+		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
+			Assert::invariant( isset( $options['env'] ) );
+		}
+
+		// cloneNode doesn't clone data => walk DOM to clone it
+		$clonedRoot = $rootNode->cloneNode( true );
+		self::cloneData( $rootNode, $clonedRoot, $options );
+
+		$buf = [];
+		if ( empty( $options['quiet'] ) ) {
+			$buf[] = '----- ' . $title . ' -----';
+		}
+
+		$buf[] = self::ppToXML( $clonedRoot, $options );
+		self::emit( $buf, $options );
+
+		// Dump cached fragments
+		if ( !empty( $options['dumpFragmentMap'] ) ) {
+			foreach ( $options['env']->getFragmentMap() as $k => $fragment ) {
+				$buf = [];
+				$buf[] = str_repeat( '=', 15 );
+				$buf[] = 'FRAGMENT ' . $k;
+				$buf[] = '';
+				self::emit( $buf, $options );
+
+				$newOpts = $options;
+				$newOpts['dumpFragmentMap'] = false;
+				$newOpts['quiet'] = true;
+				self::dumpDOM( is_array( $fragment ) ? $fragment[ 0 ] : $fragment, '', $newOpts );
+			}
+		}
+
+		if ( empty( $options['quiet'] ) ) {
+			self::emit( [ str_repeat( '-', count( $title ) + 12 ) ], $options );
+		}
+	}
+
+	/**
+	 * PORT-FIXME: NOT YET PORTED
+	 *
 	 * Add red links to a document.
 	 *
-	 * @param {MWParserEnvironment} env
-	 * @param {Document} doc
+	 * @param object $env
+	 * @param DOMDocument $doc
 	 */
-	public static function addRedLinksG( $env, $doc ) {
-		/** @private */
+	public static function addRedLinks( $env, $doc ) {
+		throw new \BadMethodCallException( 'NOT YET PORTED' );
+
+		/* -----------------------------------------------------------------------
 		$processPage = function ( $page ) use ( &$undefined ) {
 			return [
 				'missing' => $page->missing !== null,
@@ -216,18 +227,16 @@ class ContentUtils {
 				if ( $a->hasAttribute( 'title' ) ) { $s->add( $a->getAttribute( 'title' ) );  }
 				return $s;
 			}, new Set()
-		)
-
-
-
-		;
+		);
 
 		$titles = Array::from( $titleSet->values() );
 		if ( count( $titles ) === 0 ) { return;  }
 
 		$titleMap = new Map();
-		( /* await */ Batcher::getPageProps( $env, $titles ) )->forEach( function ( $r ) use ( &$titleMap, &$processPage ) {
-				Object::keys( $r->batchResponse )->forEach( function ( $t ) use ( &$r, &$titleMap, &$processPage ) {
+		(  Batcher::getPageProps( $env, $titles ) )->forEach( function ( $r )
+			use ( &$titleMap, &$processPage ) {
+				Object::keys( $r->batchResponse )->forEach( function ( $t )
+					use ( &$r, &$titleMap, &$processPage) {
 						$o = $r->batchResponse[ $t ];
 						$titleMap->set( $o->title, $processPage( $o ) );
 					}
@@ -280,12 +289,6 @@ class ContentUtils {
 				}
 			}
 		);
+		----------------------------------------------------------------------- */
 	}
-}
-
-// This is clunky, but we don't have async/await until Node >= 7 (T206035)
-ContentUtils::addRedLinks = /* async */ContentUtils::addRedLinksG;
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->ContentUtils = $ContentUtils;
 }

@@ -120,17 +120,20 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		testFilePost = cachedFilePost;
 	}
 
-	opts.quiet = true;
-	opts.dumpFragmentMap = false;
-	opts.outBuffer = '';
-	opts.outerHTML = true;
-
-	var body = TestUtils.mockEnvDoc(testFilePre).body;
+	const body = TestUtils.mockEnvDoc(testFilePre).body;
 	DOMDataUtils.visitAndLoadDataAttribs(body);
-	ContentUtils.dumpDOM(body, '', opts);
+	let dumpOpts = {};
 
 	if (this.first === true) {
-		if (opts.outBuffer === testFilePre) {
+		dumpOpts = {
+			quiet: true,
+			dumpFragmentMap: false,
+			keepTmp: true,
+			outBuffer: '',
+		};
+		ContentUtils.dumpDOM(body, '', dumpOpts);
+
+		if (dumpOpts.outBuffer === testFilePre) {
 			console.log('comparison of pre files match');
 		} else {
 			console.log('comparison of pre files DID NOT match');
@@ -138,7 +141,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		}
 
 		if (opts.debug_dump) {
-			fs.writeFileSync('temporaryPre.txt', opts.outBuffer);
+			fs.writeFileSync('temporaryPre.txt', dumpOpts.outBuffer);
 			console.log('temporaryPre.txt saved!');
 		}
 	}
@@ -174,12 +177,13 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 
 	this.transformTime += JSUtils.elapsedTime(s);
 
-	opts.outBuffer = '';
-	ContentUtils.dumpDOM(body, '', opts);
-
 	if (this.first === true) {
 		this.first = false;
-		if (opts.outBuffer === testFilePost) {
+
+		dumpOpts.outBuffer = '';
+		ContentUtils.dumpDOM(body, '', dumpOpts);
+
+		if (dumpOpts.outBuffer === testFilePost) {
 			console.log('comparison of post files match');
 		} else {
 			console.log('comparison of post files DID NOT match');
@@ -187,7 +191,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		}
 
 		if (opts.debug_dump) {
-			fs.writeFileSync('temporaryPost.txt', opts.outBuffer);
+			fs.writeFileSync('temporaryPost.txt', dumpOpts.outBuffer);
 			console.log('temporaryPost saved!');
 		}
 	}
