@@ -225,7 +225,9 @@ abstract class Token implements \JsonSerializable {
 		if ( !is_array( $tsr ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
-		return substr( $env->getPageMainContent(), $tsr[0], $tsr[1] );
+		$from = $tsr[ 0 ];
+		$to = $tsr[ 1 ] - $from;
+		return mb_substr( $env->getPageMainContent(), $from, $to );
 	}
 
 	/**

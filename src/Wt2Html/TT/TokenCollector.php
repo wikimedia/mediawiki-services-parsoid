@@ -1,19 +1,16 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\TokenHandler as TokenHandler;
-
-$lastItem = require '../../utils/jsutils.js'::JSUtils::lastItem;
-$temp0 = require '../../tokens/TokenTypes.js';
-$TagTk = $temp0::TagTk;
-$EndTagTk = $temp0::EndTagTk;
-$SelfclosingTagTk = $temp0::SelfclosingTagTk;
-$EOFTk = $temp0::EOFTk;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Tokens\Token;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\EndTagTk;
+use Wikimedia\Assert\Assert;
 
 /**
  * Small utility class that encapsulates the common 'collect all tokens
@@ -23,60 +20,93 @@ $EOFTk = $temp0::EOFTk;
  * would wreak havoc with this kind of collector.
  *
  * @class
- * @extends module:wt2html/tt/TokenHandler
  */
 class TokenCollector extends TokenHandler {
-	public function __construct( $manager, $options ) {
+	protected $onAnyEnabled;
+	protected $scopeStack;
+
+	/**
+	 * TokenCollector constructor.
+	 * @param object $manager
+	 * @param array $options
+	 */
+	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->onAnyEnabled = false;
 		$this->scopeStack = [];
 	}
-	public $onAnyEnabled;
-	public $scopeStack;
 
-	public function onTag( $token ) {
-		return ( $token->name === $this::NAME() ) ? $this->_onDelimiterToken( $token ) : $token;
+	/**
+	 * @param Token $token
+	 * @return array|Token
+	 */
+	public function onTag( Token $token ) {
+		return ( $token->getName() === $this::name() ) ? $this->onDelimiterToken( $token ) : $token;
 	}
 
-	public function onEnd( $token ) {
-		return ( $this->onAnyEnabled ) ? $this->_onDelimiterToken( $token ) : $token;
+	/**
+	 * @param EOFTk $token
+	 * @return array|EOFTk
+	 */
+	public function onEnd( EOFTk $token ) {
+		return ( $this->onAnyEnabled ) ? $this->onDelimiterToken( $token ) : $token;
 	}
 
+	/**
+	 * @param Token|string $token
+	 * @return array|Token
+	 */
 	public function onAny( $token ) {
-		return $this->_onAnyToken( $token );
+		return $this->onAnyToken( $token );
 	}
 
-	// Token type to register for ('tag', 'text' etc)
-	public function TYPE() {
- throw new Error( 'Not implemented' );
- }
-	// (optional, only for token type 'tag'): tag name.
-	public function NAME() {
- throw new Error( 'Not implemented' );
- }
-	// Match the 'end' tokens as closing tag as well (accept unclosed sections).
-	public function TOEND() {
- throw new Error( 'Not implemented' );
- }
-	// FIXME: Document this!?
-	public function ACKEND() {
- throw new Error( 'Not implemented' );
- }
+	// Methods that must be subclassed, probably can be removed from PHP port
+	// PORT-FIXME
+	/**
+	 * Token type to register for ('tag', 'text' etc)
+	 */
+	public function type() {
+		throw new \BadMethodCallException( 'Not implemented' );
+	}
 
-	// Transform function
-	public function transformation() {
-		Assert::invariant( false, 'Transformation not implemented!' );
+	/**
+	 * (optional, only for token type 'tag'): tag name.
+	 */
+	public function name() {
+		throw new \BadMethodCallException( 'Not implemented' );
+	}
+
+	/**
+	 * Match the 'end' tokens as closing tag as well (accept unclosed sections).
+	 */
+	public function toEnd() {
+		throw new \BadMethodCallException( 'Not implemented' );
+	}
+
+	/**
+	 * FIXME: Document this
+	 */
+	public function ackEnd() {
+		throw new \BadMethodCallException( 'Not implemented' );
+	}
+
+	/**
+	 * FIXME: Document this
+	 * @param array $array
+	 */
+	public function transformation( array $array ) {
+		throw new \BadMethodCallException( 'Transformation not implemented!' );
 	}
 
 	/**
 	 * Handle the delimiter token.
 	 * XXX: Adjust to sync phase callback when that is modified!
-	 * @private
+	 * @param $token
+	 * @return array
 	 */
-	public function _onDelimiterToken( $token ) {
+	private function onDelimiterToken( Token $token ) : array {
 		$haveOpenTag = count( $this->scopeStack ) > 0;
-		$tc = $token->constructor;
-		if ( $tc === $TagTk ) {
+		if ( $token instanceof TagTk ) {
 			if ( count( $this->scopeStack ) === 0 ) {
 				$this->onAnyEnabled = true;
 				// Set up transforms
@@ -85,11 +115,11 @@ class TokenCollector extends TokenHandler {
 
 			// Push a new scope
 			$newScope = [];
-			$this->scopeStack[] = $newScope;
+			$this->scopeStack[] = &$newScope;
 			$newScope[] = $token;
 
 			return [];
-		} elseif ( $tc === $SelfclosingTagTk ) {
+		} elseif ( $token instanceof SelfclosingTagTk ) {
 			// We need to handle <ref /> for example, so call the handler.
 			return $this->transformation( [ $token, $token ] );
 		} elseif ( $haveOpenTag ) {
@@ -101,11 +131,11 @@ class TokenCollector extends TokenHandler {
 			$activeTokens[] = $token;
 
 			// clean up
-			if ( count( $this->scopeStack ) === 0 || $token->constructor === $EOFTk ) {
+			if ( count( $this->scopeStack ) === 0 || $token instanceof EOFTk ) {
 				$this->onAnyEnabled = false;
 			}
 
-			if ( $tc === $EndTagTk ) {
+			if ( $token instanceof EndTagTk ) {
 				// Transformation can be either sync or async, but receives all collected
 				// tokens instead of a single token.
 				return $this->transformation( $activeTokens );
@@ -114,26 +144,30 @@ class TokenCollector extends TokenHandler {
 				// EOF -- collapse stack!
 				$allToks = [];
 				for ( $i = 0,  $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
-					$allToks = $allToks->concat( $this->scopeStack[ $i ] );
+					$allToks = array_merge( $allToks, $this->scopeStack[ $i ] );
 				}
-				$allToks = $allToks->concat( $activeTokens );
+				$allToks = array_merge( $allToks, $activeTokens );
 
-				$res = ( $this::TOEND() ) ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
-				if ( $res->tokens && count( $res->tokens )
-&& $lastItem( $res->tokens )->constructor !== $EOFTk
-				) {
-					$this->manager->env->log( 'error', $this::NAME(), 'handler dropped the EOFTk!' );
+				$res = ( $this->toEnd() ) ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
+				if ( isset( $res->tokens ) ) {
+					if ( count( $res->tokens )
+					// PORT-FIXME verify this actually is equivalent **** WARNING!!!
+					// && $lastItem( $res->tokens )->constructor !== $EOFTk
+						&& TokenUtils::getTokenType( end( $res->tokens ) ) !== 'EOFTk'
+					) {
+						$this->manager->env->log( 'error', $this::name(), 'handler dropped the EOFTk!' );
 
-					// preserve the EOFTk
-					$res->tokens[] = $token;
+						// preserve the EOFTk
+						$res->tokens[] = $token;
+					}
 				}
 
 				return $res;
 			}
 		} else {
 			// EndTagTk should be the only one that can reach here.
-			Assert::invariant( $token->constructor === $EndTagTk, 'Expected an end tag.' );
-			if ( $this::ACKEND() ) {
+			Assert::invariant( $token instanceof EndTagTk, 'Expected an end tag.' );
+			if ( $this->ackEnd() ) {
 				return $this->transformation( [ $token ] );
 			} else {
 				// An unbalanced end tag. Ignore it.
@@ -146,15 +180,73 @@ class TokenCollector extends TokenHandler {
 	 * Handle 'any' token in between delimiter tokens. Activated when
 	 * encountering the delimiter token, and collects all tokens until the end
 	 * token is reached.
-	 * @private
+	 * @param Token|string $token
+	 * @return array
 	 */
-	public function _onAnyToken( $token ) {
+	private function onAnyToken( $token ) : array {
 		// Simply collect anything ordinary in between
-		lastItem( $this->scopeStack )[] = $token;
+		// PORT-FIXME verify this actually is equivalent **** WARNING!!!
+		// lastItem( $this->scopeStack )[] = $token;
+		// end( $this->scopeStack )[] = $token; // end( ) does not return a reference as needed here.
+		$arrayLen = count( $this->scopeStack );
+		$this->scopeStack[ $arrayLen - 1 ][] = $token;
 		return [];
 	}
-}
 
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->TokenCollector = $TokenCollector;
+	/**
+	 * This helper function will build a meta token in the right way for these tags.
+	 * @param object $manager
+	 * @param string $tokenName
+	 * @param bool $isEnd
+	 * @param array $tsr
+	 * @param string $src
+	 * @return SelfclosingTagTk
+	 */
+	public static function buildMetaToken( $manager, $tokenName, $isEnd, $tsr, $src )
+		: SelfclosingTagTk {
+		if ( $isEnd ) {
+			$tokenName .= '/End';
+		}
+
+		$stringOrFalse = false;
+		if ( $tsr ) {
+			$pageSrc = $manager->env->getPageMainContent();
+			$from = $tsr[ 0 ];
+			$to = $tsr[ 1 ] - $from;
+			$stringOrFalse = mb_substr( $pageSrc, $from, $to );
+			if ( $stringOrFalse === false ) {
+				$stringOrFalse = '';
+			}
+		}
+
+		return new SelfclosingTagTk( 'meta',
+			[ new KV( 'typeof', $tokenName ) ],
+			$tsr ? (object)[ 'tsr' => $tsr, 'src' => $stringOrFalse ] : (object)[ 'src' => $src ]
+		);
+	}
+
+	/**
+	 * @param object $manager
+	 * @param string $tokenName
+	 * @param Token $startDelim
+	 * @param Token $endDelim
+	 * @return SelfclosingTagTk
+	 */
+	public static function buildStrippedMetaToken( $manager, $tokenName, $startDelim, $endDelim )
+		: SelfclosingTagTk {
+		$da = $startDelim->dataAttribs;
+		$tsr0 = $da ? $da->tsr : null;
+		$t0 = $tsr0 ? $tsr0[ 0 ] : null;
+		$t1 = null;
+
+		if ( $endDelim ) {
+			$da = $endDelim ? $endDelim->dataAttribs : null;
+			$tsr1 = $da ? $da->tsr : null;
+			$t1 = $tsr1 ? $tsr1[ 1 ] : null;
+		} else {
+			$t1 = mb_strlen( $manager->env->getPageMainContent() );
+		}
+
+		return self::buildMetaToken( $manager, $tokenName, false, [ $t0, $t1 ], '' );
+	}
 }

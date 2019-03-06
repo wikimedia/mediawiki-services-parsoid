@@ -43,10 +43,10 @@ class KV implements \JsonSerializable {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
-		if ( $ksrc ) {
+		if ( isset( $ksrc ) ) {
 			$this->ksrc = $ksrc;
 		}
-		if ( $vsrc ) {
+		if ( isset( $vsrc ) ) {
 			$this->vsrc = $vsrc;
 		}
 	}
@@ -98,10 +98,10 @@ class KV implements \JsonSerializable {
 		if ( $this->srcOffsets ) {
 			$ret["srcOffsets"] = $this->srcOffsets;
 		}
-		if ( $this->ksrc ) {
+		if ( isset( $this->ksrc ) ) {
 			$ret["ksrc"] = $this->ksrc;
 		}
-		if ( $this->vsrc ) {
+		if ( isset( $this->vsrc ) ) {
 			$ret["vsrc"] = $this->vsrc;
 		}
 		return $ret;

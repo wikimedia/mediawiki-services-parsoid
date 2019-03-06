@@ -120,7 +120,7 @@ var ScriptUtils = {
 					var handlers = new Set([
 						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
 						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
-						'PreHandler'
+						'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude'
 					]);
 					parsoidOptions.generateFlags = {
 						"handler": cliOpts.genTest,
@@ -243,6 +243,7 @@ var ScriptUtils = {
 			"  * BehaviorSwitchHandler : records behavior switch transforms",
 			"  * SanitizerHandler  : records sanitizer transforms",
 			"  * PreHandler        : generates pre-block as needed contextually",
+			"  * NoIncludeOnly     : 3 tags, IncludeOnly, OnlyInclude and NoInclude for templates",
 			" ",
 			"- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers",
 			"- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi",

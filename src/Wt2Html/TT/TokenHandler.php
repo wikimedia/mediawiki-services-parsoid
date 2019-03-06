@@ -7,7 +7,6 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Wt2html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 
 class TokenHandler {
@@ -24,7 +23,7 @@ class TokenHandler {
 	protected $onAnyEnabled;
 
 	/**
-	 * @param TokenTransformManager $manager The manager for this stage of the parse.
+	 * @param object $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
 	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */

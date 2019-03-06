@@ -360,11 +360,32 @@ function runTests() {
 		console.log("\nTiming Mode enabled, no console output expected till test completes\n");
 	}
 
-	var mockEnv = new MockEnv(argv);
+	// look for the wikitext source file in the same path with a .wt file extension
+	// and load that so transformers that reference the wikitext source have the actual text.
+	var fileName = argv.inputFile.replace(/\.[^.$]+$/, '') + '.wt';
+	var mockEnv;
+	if (fs.existsSync(fileName)) {
+		var testFileWt = fs.readFileSync(fileName, 'utf8');
+		mockEnv = new MockEnv(argv, testFileWt);
+	} else {
+		mockEnv = new MockEnv(argv);
+	}
+
 	var manager = new MockTTM(mockEnv, {});
 	try {
 		var startTime = JSUtils.startTime();
-		var TransformerModule = require('../lib/wt2html/tt/' + argv.transformer + '.js')[argv.transformer];
+		var TransformerModule;
+
+		switch (argv.transformer) {
+			case 'NoInclude':
+			case 'IncludeOnly':
+			case 'OnlyInclude':
+				TransformerModule = require('../lib/wt2html/tt/NoIncludeOnly.js')[argv.transformer];
+				break;
+			default:
+				TransformerModule = require('../lib/wt2html/tt/' + argv.transformer + '.js')[argv.transformer];
+		}
+
 		var results = selectTestType(argv, manager, argv.transformer, new TransformerModule(manager, {}));
 		var totalTime = JSUtils.elapsedTime(startTime);
 		console.log('Total transformer execution time = ' + totalTime.toFixed(3) + ' milliseconds');

@@ -8,6 +8,7 @@ use DOMNode;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -257,12 +258,16 @@ class Env {
 						$output = $output . '"' . $args[$index][$i] . '"';
 					} else {
 						// PORT_FIXME the JS output is '[Object object] but we output the actual token class
-						$output = $output . json_encode( $args[$index][$i] );
+						$output = $output . PHPUtils::jsonEncode( $args[$index][$i] );
 					}
 				}
 				$output = $output . ']';
 			} else {
-				$output = $output . ' ' . $args[$index];
+				if ( is_string( $args[$index] ) ) {
+					$output = $output . ' ' . $args[$index];
+				} else {
+					$output = $output . PHPUtils::jsonEncode( $args[$index] );
+				}
 			}
 		}
 		$logger->debug( $output );

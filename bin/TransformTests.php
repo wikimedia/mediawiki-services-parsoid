@@ -96,8 +96,6 @@ class TransformTests {
 			if ( $wgCachedState == false ) {
 				$wgCachedState = true;
 				$testFile = file_get_contents( $commandLine['inputFile'] );
-				$testFile = mb_convert_encoding( $testFile, 'UTF-8',
-					mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 				$testLines = explode( "\n", $testFile );
 				$wgCachedTestLines = $testLines;
 			} else {
@@ -105,8 +103,6 @@ class TransformTests {
 			}
 		} else {
 			$testFile = file_get_contents( $commandLine['inputFile'] );
-			$testFile = mb_convert_encoding( $testFile, 'UTF-8',
-				mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 			$testLines = explode( "\n", $testFile );
 		}
 
@@ -140,6 +136,8 @@ class TransformTests {
 					# print "LINE: $line\n";
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
+					// remove false \\ from sequences like <\\/includeonly> and <includeonly \\/>
+					// $stringResult = preg_replace( '/(\\\\)+\//', '/', $stringResult );
 					if ( $stringResult === $line ) {
 						$numPasses++;
 						if ( empty( $commandLine['timingMode'] ) &&
@@ -230,8 +228,6 @@ class TransformTests {
 			if ( $wgCachedState == false ) {
 				$wgCachedState = true;
 				$testFile = file_get_contents( $commandLine['inputFile'] );
-				$testFile = mb_convert_encoding( $testFile, 'UTF-8',
-					mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 				$testLines = explode( "\n", $testFile );
 				$pipeLines = self::createPipelines( $testLines );
 				$numPipelines = count( $pipeLines );
@@ -245,8 +241,6 @@ class TransformTests {
 			}
 		} else {
 			$testFile = file_get_contents( $commandLine['inputFile'] );
-			$testFile = mb_convert_encoding( $testFile, 'UTF-8',
-				mb_detect_encoding( $testFile, 'UTF-8, ISO-8859-1', true ) );
 			$testLines = explode( "\n", $testFile );
 			$pipeLines = self::createPipelines( $testLines );
 			$numPipelines = count( $pipeLines );
@@ -284,6 +278,8 @@ class TransformTests {
 					$stringResult = PHPUtils::jsonEncode( $result );
 					$line = preg_replace( '/{}/', '[]', $line );
 					$stringResult = preg_replace( '/{}/', '[]', $stringResult );
+					// remove false \\ from sequences like <\\/includeonly> and <includeonly \\/>
+					// $stringResult = preg_replace( '/(\\\\)+\//', '/', $stringResult );
 					if ( $stringResult === $line ) {
 						$numPasses++;
 						if ( empty( $commandLine['timingMode'] ) &&
@@ -440,7 +436,16 @@ function wfRunTests( $argc, $argv ) {
 		exit( 1 );
 	}
 
-	$mockEnv = new MockEnv( $opts );
+	// look for the wikitext source file in the same path with a .wt file extension
+	// and load that so transformers that reference the wikitext source have the actual text.
+	$fileName = preg_replace( "/\.[^.]+$/", "", $opts['inputFile'] ) . '.wt';
+	if ( file_exists( $fileName ) ) {
+		$testFileWt = file_get_contents( $fileName );
+		$mockEnv = new MockEnv( array_merge( $opts, [ 'pageContent' => $testFileWt ] ) );
+	} else {
+		$mockEnv = new MockEnv( $opts );
+	}
+
 	$manager = new TransformTests( $mockEnv, [] );
 
 	if ( isset( $opts['timingMode'] ) ) {
@@ -466,6 +471,15 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( $transformer === 'ListHandler' ) {
 		$pw = new Parsoid\Wt2Html\TT\ListHandler( $manager, [] );
 		$results = wfSelectTestType( $opts, $manager, "ListHandler", $pw );
+	} elseif ( $transformer === 'NoInclude' ) {
+		$pw = new Parsoid\Wt2Html\TT\NoInclude( $manager, [ 'isInclude' => false ] );
+		$results = wfSelectTestType( $opts, $manager, 'NoInclude', $pw );
+	} elseif ( $transformer === 'IncludeOnly' ) {
+		$pw = new Parsoid\Wt2Html\TT\IncludeOnly( $manager, [ 'isInclude' => false ] );
+		$results = wfSelectTestType( $opts, $manager, 'IncludeOnly', $pw );
+	} elseif ( $transformer === 'OnlyInclude' ) {
+		$pw = new Parsoid\Wt2Html\TT\OnlyInclude( $manager, [ 'isInclude' => false ] );
+		$results = wfSelectTestType( $opts, $manager, 'OnlyInclude', $pw );
 	}
 	/*
 	} else if ($opts->TokenStreamPatcher) {

@@ -11,6 +11,9 @@ use Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Parsoid\Wt2Html\TT\PreHandler;
 use Parsoid\Wt2Html\TT\ListHandler;
 use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
+use Parsoid\Wt2Html\TT\NoInclude;
+use Parsoid\Wt2Html\TT\IncludeOnly;
+use Parsoid\Wt2Html\TT\OnlyInclude;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -62,6 +65,15 @@ switch ( $transformerName ) {
 		break;
 	case "ListHandler":
 		$transformer = new ListHandler( $manager, $pipelineOpts );
+		break;
+	case 'NoInclude':
+		$transformer = new NoInclude( $manager, $pipelineOpts );
+		break;
+	case 'IncludeOnly':
+		$transformer = new IncludeOnly( $manager, $pipelineOpts );
+		break;
+	case 'OnlyInclude':
+		$transformer = new OnlyInclude( $manager, $pipelineOpts );
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );
