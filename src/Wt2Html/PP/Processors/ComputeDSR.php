@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\PP\Processors;
 
 use DOMNode;
+use \stdClass as StdClass;
 
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Utils\DOMUtils;
@@ -53,10 +54,10 @@ class ComputeDSR {
 	 * Do $parsoidData->tsr values span the entire DOM subtree rooted at $n?
 	 *
 	 * @param DOMNode $n
-	 * @param object $parsoidData
+	 * @param StdClass $parsoidData
 	 * @return bool
 	 */
-	private function tsrSpansTagDOM( DOMNode $n, $parsoidData ): bool {
+	private function tsrSpansTagDOM( DOMNode $n, StdClass $parsoidData ): bool {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
 		$name = $n->nodeName;
@@ -141,10 +142,10 @@ class ComputeDSR {
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
 	 * @param DOMNode $node
-	 * @param object|null $dp
+	 * @param StdClass|null $dp
 	 * @return int[]
 	 */
-	private function computeATagWidth( DOMNode $node, $dp ): ?array {
+	private function computeATagWidth( DOMNode $node, ?StdClass $dp ): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
 		 *
@@ -200,10 +201,10 @@ class ComputeDSR {
 	 *
 	 * @param int[] $widths
 	 * @param DOMNode $node
-	 * @param object $dp
+	 * @param StdClass $dp
 	 * @return int[]
 	 */
-	private function computeTagWidths( array $widths, DOMNode $node, $dp ): array {
+	private function computeTagWidths( array $widths, DOMNode $node, StdClass $dp ): array {
 		if ( isset( $dp->tagWidths ) ) {
 			return $dp->tagWidths;
 		}
@@ -244,7 +245,7 @@ class ComputeDSR {
 		return [ $stWidth, $etWidth ];
 	}
 
-	private function trace( $env, ...$args ) {
+	private function trace( $env, ...$args ): void {
 		$env->log( "trace/dsr", function () use ( $args ) {
 			$buf = '';
 			foreach ( $args as $arg ) {
@@ -282,7 +283,9 @@ class ComputeDSR {
 	 * @param array $opts
 	 * @return int[]
 	 */
-	private function computeNodeDSR( $env, DOMNode $node, $s, $e, int $dsrCorrection, array $opts ) {
+	private function computeNodeDSR(
+		$env, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
+	): array {
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
 		}
@@ -746,12 +749,12 @@ class ComputeDSR {
 	 *
 	 * @param DOMNode $rootNode The root of the tree for which DSR has to be computed
 	 * @param MockEnv $env The environment/context for the parse pipeline
-	 * @param array $options Options governing DSR computation
+	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, $env->page->src->length]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
-	public function run( DOMNode $rootNode, $env, array $options = [] ) {
+	public function run( DOMNode $rootNode, $env, ?array $options = [] ): void {
 		$startOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][0] : 0;
 		$endOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][1] :
 			mb_strlen( $env->page->src );

@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use \stdClass as StdClass;
+
 /**
  * Represents a comment
  */
@@ -19,9 +21,9 @@ class CommentTk extends Token {
 
 	/**
 	 * @param string $value
-	 * @param object|null $dataAttribs
+	 * @param StdClass|null $dataAttribs
 	 */
-	public function __construct( string $value, $dataAttribs = null ) {
+	public function __construct( string $value, ?StdClass $dataAttribs = null ) {
 		$this->value = $value;
 
 		// Won't survive in the DOM, but still useful for token serialization
@@ -33,7 +35,7 @@ class CommentTk extends Token {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'type' => $this->type,
 			'value' => $this->value,

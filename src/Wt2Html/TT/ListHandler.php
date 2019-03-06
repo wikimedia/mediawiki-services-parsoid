@@ -1,11 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * Create list tag around list items and map wiki bullet levels to html
- */
-
 namespace Parsoid\Wt2Html\TT;
+
+use \stdClass as StdClass;
 
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\EndTagTk;
@@ -14,8 +12,7 @@ use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 
 /**
- * @class
- * @extends module:wt2html/tt/TokenHandler
+ * Create list tag around list items and map wiki bullet levels to html
  */
 class ListHandler extends TokenHandler {
 	private $listFrames;
@@ -52,7 +49,7 @@ class ListHandler extends TokenHandler {
 	/**
 	 * Resets the list handler
 	 */
-	public function reset() {
+	public function reset(): void {
 		$this->onAnyEnabled = false;
 		$this->nestedTableCount = 0;
 		$this->resetCurrListFrame();
@@ -61,7 +58,7 @@ class ListHandler extends TokenHandler {
 	/**
 	 * Resets the current list frame
 	 */
-	private function resetCurrListFrame() {
+	private function resetCurrListFrame(): void {
 		$this->currListFrame = null;
 	}
 
@@ -305,11 +302,11 @@ class ListHandler extends TokenHandler {
 	 * Push a list
 	 *
 	 * @param array $container
-	 * @param object $dp1
-	 * @param object $dp2
+	 * @param StdClass $dp1
+	 * @param StdClass $dp2
 	 * @return array
 	 */
-	private function pushList( array $container, $dp1, $dp2 ): array {
+	private function pushList( array $container, StdClass $dp1, StdClass $dp2 ): array {
 		$this->currListFrame['endtags'][] = new EndTagTk( $container['list'] );
 		$this->currListFrame['endtags'][] = new EndTagTk( $container['item'] );
 
@@ -351,7 +348,7 @@ class ListHandler extends TokenHandler {
 	 * @param string $b
 	 * @return boolean
 	 */
-	private function isDtDd( $a, $b ) {
+	private function isDtDd( string $a, string $b ): bool {
 		$ab = [ $a, $b ];
 		sort( $ab );
 		return ( $ab[ 0 ] === ':' && $ab[ 1 ] === ';' );
@@ -365,7 +362,7 @@ class ListHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	public function doListItem( array $bs, array $bn, $token ): array {
+	public function doListItem( array $bs, array $bn, Token $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'BEGIN:', function () use ( $token ) { return json_encode( $token );
 		 } );

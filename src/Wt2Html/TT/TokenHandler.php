@@ -9,9 +9,6 @@ use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 
-/**
- * @class
- */
 class TokenHandler {
 	/**
 	 * @param TokenTransformManager $manager The manager for this stage of the parse.
@@ -97,7 +94,7 @@ class TokenHandler {
 	 *
 	 * @param array $opts Any options for the expander.
 	 */
-	public function resetState( array $opts ) {
+	public function resetState( array $opts ): void {
 		$this->atTopLevel = $opts && $opts['toplevel'];
 	}
 
@@ -121,10 +118,10 @@ class TokenHandler {
 	 *
 	 * @param MockEnv $env Parser Environment
 	 * @param array $tokens The array of tokens to process
-	 * @param array $traceState Tracing related state
+	 * @param array|null $traceState Tracing related state
 	 * @return array the array of transformed tokens
 	 */
-	public function processTokensSync( $env, array $tokens, array $traceState = [] ) {
+	public function processTokensSync( $env, array $tokens, ?array $traceState = [] ): array {
 		$genFlags = $traceState['genFlags'] ?? null;
 		$traceFlags = $traceState['traceFlags'] ?? null;
 		$traceTime = $traceState['traceTime'] ?? false;

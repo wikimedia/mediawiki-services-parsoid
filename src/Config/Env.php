@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
@@ -37,7 +38,7 @@ class Env {
 	 * Get the site config
 	 * @return SiteConfig
 	 */
-	public function getSiteConfig() : SiteConfig {
+	public function getSiteConfig(): SiteConfig {
 		return $this->siteConfig;
 	}
 
@@ -45,7 +46,7 @@ class Env {
 	 * Get the page config
 	 * @return PageConfig
 	 */
-	public function getPageConfig() : PageConfig {
+	public function getPageConfig(): PageConfig {
 		return $this->pageConfig;
 	}
 
@@ -54,7 +55,7 @@ class Env {
 	 * @todo Does this actually belong here?
 	 * @return bool
 	 */
-	public function getWrapSections() : bool {
+	public function getWrapSections(): bool {
 		return $this->wrapSections;
 	}
 
@@ -64,7 +65,7 @@ class Env {
 	 * @param string $prefix
 	 * @param mixed ...$args
 	 */
-	public function log( string $prefix, ...$args ) {
+	public function log( string $prefix, ...$args ): void {
 		$logger = $this->getSiteConfig()->getLogger();
 		if ( $logger instanceof \Psr\Log\NullLogger ) {
 			// No need to build the string if it's going to be thrown away anyway.

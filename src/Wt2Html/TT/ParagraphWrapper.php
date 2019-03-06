@@ -95,7 +95,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * are collapsed and emitted. Wherever tokens are buffered/emitted, verify that this
 	 *  order is preserved.
 	 */
-	public function reset() {
+	public function reset(): void {
 		$this->resetBuffers();
 		$this->resetCurrLine();
 		$this->hasOpenPTag = false;
@@ -109,7 +109,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * Reset the token buffer and new line info
 	 *
 	 */
-	public function resetBuffers() {
+	public function resetBuffers(): void {
 		$this->tokenBuffer = [];
 		$this->nlWsTokens = [];
 		$this->newLineCount = 0;
@@ -119,7 +119,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * Reset the current line info
 	 *
 	 */
-	public function resetCurrLine() {
+	public function resetCurrLine(): void {
 		if ( $this->currLine && $this->currLine['openMatch'] || $this->currLine['closeMatch'] ) {
 			$this->inBlockElem = !$this->currLine['closeMatch'];
 		}
@@ -192,6 +192,7 @@ class ParagraphWrapper extends TokenHandler {
 			$i++;
 		}
 
+		// FIXME: We should return null and fix callers
 		return "";
 	}
 
@@ -200,7 +201,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @param array &$out array to process and update
 	 */
-	public function openPTag( &$out ) {
+	public function openPTag( array &$out ): void {
 		if ( !$this->hasOpenPTag ) {
 			$tplStartIndex = -1;
 			// Be careful not to expand template ranges unnecessarily.
@@ -241,7 +242,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @param array &$out array to process and update
 	 */
-	public function closeOpenPTag( &$out ) {
+	public function closeOpenPTag( array &$out ): void {
 		if ( $this->hasOpenPTag ) {
 			$tplEndIndex = -1;
 			// Be careful not to expand template ranges unnecessarily.

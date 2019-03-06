@@ -140,7 +140,7 @@ class MediaWikiPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionContent( $role ): ?array {
+	public function getRevisionContent( string $role ): ?array {
 		$rev = $this->getRevision();
 		try {
 			$content = $rev ? $rev->getContent( $role ) : null;

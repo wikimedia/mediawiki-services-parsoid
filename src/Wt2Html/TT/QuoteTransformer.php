@@ -52,7 +52,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Reset the buffering of chunks
 	 *
 	 */
-	public function reset() {
+	public function reset(): void {
 		// Chunks alternate between quote tokens and sequences of non-quote
 		// tokens.  The quote tokens are later replaced with the actual tag
 		// token for italic or bold.  The first chunk is a non-quote chunk.
@@ -70,7 +70,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Make a copy of the token context
 	 *
 	 */
-	private function startNewChunk() {
+	private function startNewChunk(): void {
 		$this->chunks[] = $this->currentChunk;
 		$this->currentChunk = [];
 	}
@@ -142,7 +142,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param Token $token token
 	 * @return array
 	 */
-	public function onQuote( Token $token ) {
+	public function onQuote( Token $token ): array {
 		$v = $token->getAttribute( 'value' );
 		$qlen = strlen( $v );
 		$this->manager->env->log(
@@ -291,7 +291,7 @@ class QuoteTransformer extends TokenHandler {
 	 *
 	 * @param int $i index into chunks
 	 */
-	public function convertBold( int $i ) {
+	public function convertBold( int $i ): void {
 		// this should be a bold tag.
 		Assert::invariant( $i > 0 && count( $this->chunks[$i] ) === 1
 			&& strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) === 3,
@@ -313,7 +313,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Convert quote tokens to tags, using the same state machine as the
 	 * PHP parser uses.
 	 */
-	public function convertQuotesToTags() {
+	public function convertQuotesToTags(): void {
 		$lastboth = -1;
 		$state = '';
 
@@ -417,7 +417,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param array $tags token
 	 * @param bool $ignoreBogusTwo optional defaulß
 	 */
-	public function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ) {
+	public function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ): void {
 		Assert::invariant( count( $this->chunks[$chunk] ) === 1, 'expected count chunks[i] == 1' );
 		$result = [];
 		$oldtag = $this->chunks[$chunk][0];

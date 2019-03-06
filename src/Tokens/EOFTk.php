@@ -15,7 +15,7 @@ class EOFTk extends Token {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'type' => $this->type
 		];

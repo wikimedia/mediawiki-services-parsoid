@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
@@ -99,6 +100,6 @@ abstract class PageConfig {
 	 *  - format: Content format
 	 *  - text: Content text
 	 */
-	abstract public function getRevisionContent( $role ): ?array;
+	abstract public function getRevisionContent( string $role ): ?array;
 
 }

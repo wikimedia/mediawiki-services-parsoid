@@ -6,6 +6,7 @@ namespace Parsoid\Utils;
 use DOMComment;
 use DOMElement;
 use DOMNode;
+use \stdClass as StdClass;
 
 use Parsoid\Config\WikitextConstants as Consts;
 
@@ -21,10 +22,10 @@ class WTUtils {
 	 * an indicator that the original wikitext was a literal
 	 * HTML element (like table or p)
 	 *
-	 * @param object $dp
+	 * @param StdClass $dp
 	 * @return bool
 	 */
-	public static function hasLiteralHTMLMarker( $dp ): bool {
+	public static function hasLiteralHTMLMarker( StdClass $dp ): bool {
 		return isset( $dp->stx ) && $dp->stx === 'html';
 	}
 
@@ -66,10 +67,10 @@ class WTUtils {
 	 * anymore since mw:ExtLink is used for all the three link syntaxes.
 	 *
 	 * @param DOMElement $node
-	 * @param object $dp
+	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesWikiLinkSyntax( DOMElement $node, $dp ): bool {
+	public static function usesWikiLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -88,10 +89,10 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param object $dp
+	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesExtLinkSyntax( DOMElement $node, $dp ): bool {
+	public static function usesExtLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -110,10 +111,10 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param object $dp
+	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesURLLinkSyntax( DOMElement $node, $dp ): bool {
+	public static function usesURLLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -132,10 +133,10 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param object $dp
+	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesMagicLinkSyntax( DOMElement $node, $dp ): bool {
+	public static function usesMagicLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
 		if ( !$dp ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 		}

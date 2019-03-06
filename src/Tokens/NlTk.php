@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use \stdClass as StdClass;
+
 /**
  * Newline token.
  */
@@ -18,9 +20,9 @@ class NlTk extends Token {
 	 * @param int[]|null $tsr
 	 *    TSR ("tag source range") represents the (start, end) wikitext
 	 *    offsets for a token (in this case, the newline) in Unicode char units
-	 * @param object|null $dataAttribs
+	 * @param StdClass|null $dataAttribs
 	 */
-	public function __construct( $tsr, $dataAttribs = null ) {
+	public function __construct( ?array $tsr, ?StdClass $dataAttribs = null ) {
 		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
 		} elseif ( $tsr ) {
@@ -31,7 +33,7 @@ class NlTk extends Token {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return [
 			'type' => $this->type,
 			'dataAttribs' => $this->dataAttribs

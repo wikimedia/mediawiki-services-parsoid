@@ -1,15 +1,5 @@
 <?php
-/**
- * Stand-alone XMLSerializer for DOM3 documents
- *
- * The output is identical to standard XHTML5 DOM serialization, as given by
- * http://www.w3.org/TR/html-polyglot/
- * and
- * https://html.spec.whatwg.org/multipage/syntax.html#serialising-html-fragments
- * except that we may quote attributes with single quotes, *only* where that would
- * result in more compact output than the standard double-quoted serialization.
- * @module
- */
+declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html;
 
@@ -97,7 +87,7 @@ class XMLSerializer {
 	 * @param string $whitelist String with the characters that should be encoded
 	 * @return string
 	 */
-	private static function encodeHtmlEntities( $raw, $whitelist ) {
+	private static function encodeHtmlEntities( string $raw, string $whitelist ): string {
 		$encodings = array_intersect_key( self::$entityEncodings, array_flip( str_split( $whitelist ) ) );
 		return strtr( $raw, $encodings );
 	}
@@ -113,7 +103,7 @@ class XMLSerializer {
 	 *   - $flag: (string|null) 'start' or 'end' (??)
 	 * @return void
 	 */
-	private function serializeToString( DOMNode $node, array $options, callable $accum ) {
+	private function serializeToString( DOMNode $node, array $options, callable $accum ): void {
 		$child = null;
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
@@ -227,8 +217,8 @@ class XMLSerializer {
 	 *   or the final part of a self-closing element.
 	 */
 	private static function accumOffsets(
-		array &$out, $bit, DOMNode $node, $flag = null
-	) {
+		array &$out, string $bit, DOMNode $node, ?string $flag = null
+	): void {
 		if ( DOMUtils::isBody( $node ) ) {
 			$out['html'] .= $bit;
 			if ( $flag === 'start' ) {
@@ -283,7 +273,7 @@ class XMLSerializer {
 	 *   - smartQuote (bool, default true)
 	 *   - innerXML (bool, default false)
 	 *   - captureOffsets (bool, default false)
-	 * @return array An array with the following data:
+	 * @return array|null An array with the following data:
 	 *   - html: the serialized HTML
 	 *   - offsets: the start and end position of each element in the HTML, in a
 	 *     [ $uid => [ 'html' => [ $start, $end ] ], ... ] format where $uid is the element's
@@ -293,7 +283,7 @@ class XMLSerializer {
 	 *     sibling. The positions are relative to the end of the opening <body> tag
 	 *     (the DOCTYPE header is not counted), and only present when the captureOffsets flag is set.
 	 */
-	public static function serialize( DOMNode $node, array $options = [] ) : array {
+	public static function serialize( DOMNode $node, ?array $options = [] ): array {
 		$options += [
 			'smartQuote' => true,
 			'innerXML' => false,
@@ -304,10 +294,10 @@ class XMLSerializer {
 		}
 		$out = [ 'html' => '', 'offsets' => [], 'start' => null, 'uid' => null, 'last' => null ];
 		$accum = $options['captureOffsets']
-			? function ( $bit, $node, $flag = null ) use ( &$out ) {
+			? function ( string $bit, DOMNode $node, ?string $flag = null ) use ( &$out ): void {
 				self::accumOffsets( $out, $bit, $node, $flag );
 			}
-			: function ( $bit ) use ( &$out ) {
+			: function ( string $bit ) use ( &$out ): void {
 				$out['html'] .= $bit;
 			};
 

@@ -58,7 +58,7 @@ class DOMUtils {
 	 * @param callable $handler
 	 * @param mixed ...$args
 	 */
-	public static function visitDOM( DOMNode $node, callable $handler, ...$args ) {
+	public static function visitDOM( DOMNode $node, callable $handler, ...$args ): void {
 		// PORT-FIXME determine how to call a function passed as parameter recursively
 		$handler( $node, ...$args );
 		$node = $node->firstChild;
@@ -75,7 +75,9 @@ class DOMUtils {
 	 * @param DOMNode $to Destination node. Children of $from will be added here
 	 * @param DOMNode|null $beforeNode Add the children before this node.
 	 */
-	public static function migrateChildren( DOMNode $from, DOMNode $to, DOMNode $beforeNode = null ) {
+	public static function migrateChildren(
+		DOMNode $from, DOMNode $to, DOMNode $beforeNode = null
+	): void {
 		while ( $from->firstChild ) {
 			$to->insertBefore( $from->firstChild, $beforeNode );
 		}
@@ -90,9 +92,9 @@ class DOMUtils {
 	 * @param DOMNode $to
 	 * @param bool|null $beforeNode
 	 */
-	public static function migrateChildrenBetweenDocs( DOMNode $from,
-		DOMNode $to, DOMNode $beforeNode = null
-	) {
+	public static function migrateChildrenBetweenDocs(
+		DOMNode $from, DOMNode $to, DOMNode $beforeNode = null
+	): void {
 		$n = $from->firstChild;
 		$destDoc = $to->ownerDocument;
 		while ( $n ) {
@@ -107,7 +109,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isElt( $node ) {
+	public static function isElt( ?DOMNode $node ): bool {
 		return $node && $node->nodeType === XML_ELEMENT_NODE;
 	}
 
@@ -117,7 +119,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isText( $node ) {
+	public static function isText( ?DOMNode $node ): bool {
 		return $node && $node->nodeType === XML_TEXT_NODE;
 	}
 
@@ -127,7 +129,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isComment( $node ) {
+	public static function isComment( ?DOMNode $node ): bool {
 		return $node && $node->nodeType === XML_COMMENT_NODE;
 	}
 
@@ -136,7 +138,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isBlockNode( $node ) {
+	public static function isBlockNode( ?DOMNode $node ): bool {
 		return $node && TokenUtils::isBlockTag( $node->nodeName );
 	}
 
@@ -145,7 +147,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isFormattingElt( $node ) {
+	public static function isFormattingElt( ?DOMNode $node ): bool {
 		return $node && isset( WikitextConstants::$HTML['FormattingTags'][$node->nodeName] );
 	}
 
@@ -154,7 +156,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isQuoteElt( $node ) {
+	public static function isQuoteElt( ?DOMNode $node ): bool {
 		return $node && isset( WikitextConstants::$WTQuoteTags[$node->nodeName] );
 	}
 
@@ -163,7 +165,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isBody( $node ) {
+	public static function isBody( ?DOMNode $node ): bool {
 		return $node && $node->nodeName === 'body';
 	}
 
@@ -181,7 +183,9 @@ class DOMUtils {
 	 * @param bool $countDiffMarkers
 	 * @return bool
 	 */
-	public static function hasNChildren( DOMNode $node, $nchildren, $countDiffMarkers = false ) {
+	public static function hasNChildren(
+		DOMNode $node, int $nchildren, bool $countDiffMarkers = false
+	): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			if ( !$countDiffMarkers && self::isDiffMarker( $child ) ) {
 				continue;
@@ -204,7 +208,7 @@ class DOMUtils {
 	 *   If null, we'll walk to the document root.
 	 * @return DOMNode[]
 	 */
-	public static function pathToAncestor( DOMNode $node, DOMNode $ancestor = null ) {
+	public static function pathToAncestor( DOMNode $node, ?DOMNode $ancestor = null ): array {
 		$path = [];
 		while ( $node && $node !== $ancestor ) {
 			$path[] = $node;
@@ -219,7 +223,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode[]
 	 */
-	public static function pathToRoot( DOMNode $node ) {
+	public static function pathToRoot( DOMNode $node ): array {
 		return self::pathToAncestor( $node, null );
 	}
 
@@ -232,7 +236,7 @@ class DOMUtils {
 	 * @param bool $left indicates whether to go backwards, use previousSibling instead of nextSibling.
 	 * @return DOMNode[]
 	 */
-	public static function pathToSibling( DOMNode $node, DOMNode $sibling, $left ) {
+	public static function pathToSibling( DOMNode $node, DOMNode $sibling, bool $left ): array {
 		$path = [];
 		while ( $node && $node !== $sibling ) {
 			$path[] = $node;
@@ -249,7 +253,7 @@ class DOMUtils {
 	 * @param DOMNode $n2 Expected later sibling.
 	 * @return bool
 	 */
-	public static function inSiblingOrder( DOMNode $n1, DOMNode $n2 ) {
+	public static function inSiblingOrder( DOMNode $n1, DOMNode $n2 ): bool {
 		while ( $n1 && $n1 !== $n2 ) {
 			$n1 = $n1->nextSibling;
 		}
@@ -266,7 +270,7 @@ class DOMUtils {
 	 * @param DOMNode $n2
 	 * @return bool
 	 */
-	public static function isAncestorOf( DOMNode $n1, DOMNode $n2 ) {
+	public static function isAncestorOf( DOMNode $n1, DOMNode $n2 ): bool {
 		while ( $n2 && $n2 !== $n1 ) {
 			$n2 = $n2->parentNode;
 		}
@@ -280,7 +284,7 @@ class DOMUtils {
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function hasAncestorOfName( DOMNode $node, $name ) {
+	public static function hasAncestorOfName( DOMNode $node, string $name ): bool {
 		while ( $node && $node->nodeName !== $name ) {
 			$node = $node->parentNode;
 		}
@@ -296,7 +300,7 @@ class DOMUtils {
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function isNodeOfType( DOMNode $n, $name, $type ) {
+	public static function isNodeOfType( DOMNode $n, string $name, string $type ): bool {
 		return $n->nodeName === $name && $n->getAttribute( 'typeof' ) === $type;
 	}
 
@@ -306,7 +310,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isFosterablePosition( $n ) {
+	public static function isFosterablePosition( ?DOMNode $n ): bool {
 		return $n && isset( WikitextConstants::$HTML['FosterablePosition'][$n->parentNode->nodeName] );
 	}
 
@@ -316,7 +320,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isList( $n ) {
+	public static function isList( ?DOMNode $n ): bool {
 		return $n && isset( WikitextConstants::$HTML['ListTags'][$n->nodeName] );
 	}
 
@@ -326,7 +330,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isListItem( $n ) {
+	public static function isListItem( ?DOMNode $n ): bool {
 		return $n && isset( WikitextConstants::$HTML['ListItemTags'][$n->nodeName] );
 	}
 
@@ -336,7 +340,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isListOrListItem( $n ) {
+	public static function isListOrListItem( ?DOMNode $n ): bool {
 		return self::isList( $n ) || self::isListItem( $n );
 	}
 
@@ -346,7 +350,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isNestedInListItem( $n ) {
+	public static function isNestedInListItem( ?DOMNode $n ): bool {
 		$parentNode = $n->parentNode;
 		while ( $parentNode ) {
 			if ( self::isListItem( $parentNode ) ) {
@@ -363,7 +367,7 @@ class DOMUtils {
 	 * @param DOMNode|null $n
 	 * @return bool
 	 */
-	public static function isNestedListOrListItem( $n ) {
+	public static function isNestedListOrListItem( ?DOMNode $n ): bool {
 		return self::isListOrListItem( $n ) && self::isNestedInListItem( $n );
 	}
 
@@ -374,7 +378,7 @@ class DOMUtils {
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function isMarkerMeta( DOMNode $n, $type ) {
+	public static function isMarkerMeta( DOMNode $n, string $type ): bool {
 		return self::isNodeOfType( $n, 'meta', $type );
 	}
 
@@ -387,7 +391,7 @@ class DOMUtils {
 	 * @param string $mark
 	 * @return bool
 	 */
-	public static function isDiffMarker( $node, $mark ) {
+	public static function isDiffMarker( ?DOMNode $node, string $mark ): bool {
 		if ( !$node ) {
 			return false;
 		}
@@ -406,7 +410,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function hasElementChild( DOMNode $node ) {
+	public static function hasElementChild( DOMNode $node ): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			if ( self::isElt( $child ) ) {
 				return true;
@@ -421,7 +425,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function hasBlockElementDescendant( DOMNode $node ) {
+	public static function hasBlockElementDescendant( DOMNode $node ): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			if ( self::isElt( $child ) &&
 				( self::isBlockNode( $child ) || // Is a block-level node
@@ -439,7 +443,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isIEW( $node ) {
+	public static function isIEW( ?DOMNode $node ): bool {
 		// ws-only
 		return self::isText( $node ) && preg_match( '/^\s*$/', $node->nodeValue );
 	}
@@ -450,7 +454,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isDocumentFragment( $node ) {
+	public static function isDocumentFragment( ?DOMNode $node ): bool {
 		return $node && $node->nodeType === XML_DOCUMENT_FRAG_NODE;
 	}
 
@@ -460,7 +464,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function atTheTop( $node ) {
+	public static function atTheTop( ?DOMNode $node ): bool {
 		return self::isDocumentFragment( $node ) || self::isBody( $node );
 	}
 
@@ -470,7 +474,7 @@ class DOMUtils {
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isContentNode( $node ) {
+	public static function isContentNode( ?DOMNode $node ): bool {
 		return !self::isComment( $node ) &&
 			!self::isIEW( $node ) &&
 			!self::isDiffMarker( $node );
@@ -483,7 +487,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function firstNonSepChild( DOMNode $node ) {
+	public static function firstNonSepChild( DOMNode $node ): ?DOMNode {
 		$child = $node->firstChild;
 		while ( $child && !self::isContentNode( $child ) ) {
 			$child = $child->nextSibling;
@@ -498,7 +502,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function lastNonSepChild( DOMNode $node ) {
+	public static function lastNonSepChild( DOMNode $node ): ?DOMNode {
 		$child = $node->lastChild;
 		while ( $child && !self::isContentNode( $child ) ) {
 			$child = $child->previousSibling;
@@ -512,7 +516,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function previousNonSepSibling( DOMNode $node ) {
+	public static function previousNonSepSibling( DOMNode $node ): ?DOMNode {
 		$prev = $node->previousSibling;
 		while ( $prev && !self::isContentNode( $prev ) ) {
 			$prev = $prev->previousSibling;
@@ -526,7 +530,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function nextNonSepSibling( DOMNode $node ) {
+	public static function nextNonSepSibling( DOMNode $node ): ?DOMNode {
 		$next = $node->nextSibling;
 		while ( $next && !self::isContentNode( $next ) ) {
 			$next = $next->nextSibling;
@@ -540,7 +544,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return int
 	 */
-	public static function numNonDeletedChildNodes( DOMNode $node ) {
+	public static function numNonDeletedChildNodes( DOMNode $node ): int {
 		$n = 0;
 		$child = $node->firstChild;
 		while ( $child ) {
@@ -558,7 +562,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function firstNonDeletedChild( DOMNode $node ) {
+	public static function firstNonDeletedChild( DOMNode $node ): ?DOMNode {
 		$child = $node->firstChild;
 		// FIXME: This is ignoring both inserted/deleted
 		while ( $child && self::isDiffMarker( $child ) ) {
@@ -573,7 +577,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function lastNonDeletedChild( DOMNode $node ) {
+	public static function lastNonDeletedChild( DOMNode $node ): ?DOMNode {
 		$child = $node->lastChild;
 		// FIXME: This is ignoring both inserted/deleted
 		while ( $child && self::isDiffMarker( $child ) ) {
@@ -588,7 +592,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function nextNonDeletedSibling( DOMNode $node ) {
+	public static function nextNonDeletedSibling( DOMNode $node ): ?DOMNode {
 		$node = $node->nextSibling;
 		while ( $node && self::isDiffMarker( $node ) ) { // FIXME: This is ignoring both inserted/deleted
 			$node = $node->nextSibling;
@@ -602,7 +606,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function previousNonDeletedSibling( DOMNode $node ) {
+	public static function previousNonDeletedSibling( DOMNode $node ): ?DOMNode {
 		$node = $node->previousSibling;
 		while ( $node && self::isDiffMarker( $node ) ) { // FIXME: This is ignoring both inserted/deleted
 			$node = $node->previousSibling;
@@ -616,7 +620,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function allChildrenAreTextOrComments( DOMNode $node ) {
+	public static function allChildrenAreTextOrComments( DOMNode $node ): bool {
 		$child = $node->firstChild;
 		while ( $child ) {
 			if ( !self::isDiffMarker( $child )
@@ -636,7 +640,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function allChildrenAreText( DOMNode $node ) {
+	public static function allChildrenAreText( DOMNode $node ): bool {
 		$child = $node->firstChild;
 		while ( $child ) {
 			if ( !self::isDiffMarker( $child ) && !self::isText( $child ) ) {
@@ -655,7 +659,7 @@ class DOMUtils {
 	 * @param bool $strict
 	 * @return bool
 	 */
-	public static function nodeEssentiallyEmpty( DOMNode $node, $strict = false ) {
+	public static function nodeEssentiallyEmpty( DOMNode $node, bool $strict = false ): bool {
 		$n = $node->firstChild;
 		while ( $n ) {
 			if ( self::isElt( $n ) && !self::isDiffMarker( $n ) ) {
@@ -680,7 +684,7 @@ class DOMUtils {
 	 * @param string $tagName
 	 * @return bool
 	 */
-	public static function treeHasElement( DOMNode $node, $tagName ) {
+	public static function treeHasElement( DOMNode $node, string $tagName ): bool {
 		$node = $node->firstChild;
 		while ( $node ) {
 			if ( self::isElt( $node ) ) {
@@ -699,7 +703,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isTableTag( DOMNode $node ) {
+	public static function isTableTag( DOMNode $node ): bool {
 		return isset( WikitextConstants::$HTML['TableTags'][$n->nodeName] );
 	}
 
@@ -709,7 +713,7 @@ class DOMUtils {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function selectMediaElt( DOMNode $node ) {
+	public static function selectMediaElt( DOMNode $node ): ?DOMNode {
 		throw new \BadMethodCallException( "Not yet ported" );
 /*
 From Brad:
@@ -727,7 +731,7 @@ You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
 	 * @param DOMDocument $doc
 	 * @return DOMNode|null
 	 */
-	public static function findHttpEquivHeaders( DOMDocument $doc ) {
+	public static function findHttpEquivHeaders( DOMDocument $doc ): ?DOMNode {
 		throw new \BadMethodCallException( "Not yet ported" );
 /*
 From Brad:
@@ -747,7 +751,7 @@ You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
 	 * @param DOMDocument $doc
 	 * @return string|null
 	 */
-	public static function extractInlinedContentVersion( DOMDocument $doc ) {
+	public static function extractInlinedContentVersion( DOMDocument $doc ): ?string {
 		throw new \BadMethodCallException( "Not yet ported" );
 /*
 From Brad:

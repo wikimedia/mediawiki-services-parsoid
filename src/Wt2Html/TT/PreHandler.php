@@ -1,6 +1,16 @@
 <?php
 declare( strict_types = 1 );
 
+namespace Parsoid\Wt2Html\TT;
+
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
+
 /**
 PRE handling.
 
@@ -63,23 +73,8 @@ line gets purged.
 
 ## In these states, check if the whitespace token is a single space or has
 additional chars (white-space or non-whitespace) -- if yes, slice it off
-and pass it through the FSM
- */
-
-namespace Parsoid\Wt2Html\TT;
-
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\WTUtils;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-
-/**
- * @class
- * @extends wt2html/tt/TokenHandler
- */
+and pass it through the FSM.
+*/
 class PreHandler extends TokenHandler {
 	// FSM states
 	const STATE_SOL = 1;
@@ -128,7 +123,7 @@ class PreHandler extends TokenHandler {
 	 *
 	 * @param array $opts
 	 */
-	public function resetState( array $opts ) {
+	public function resetState( array $opts ): void {
 		if ( !empty( $opts['inlineContext'] ) || !empty( $opts['inPHPBlock'] ) ) {
 			$this->disabled = true;
 		} else {
@@ -142,7 +137,7 @@ class PreHandler extends TokenHandler {
 	 *
 	 * @param bool $enableAnyHandler
 	 */
-	private function reset( bool $enableAnyHandler ) {
+	private function reset( bool $enableAnyHandler ): void {
 		$this->state = self::STATE_SOL;
 		$this->lastNlTk = null;
 		// Initialize to zero to deal with indent-pre
@@ -162,7 +157,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Switches the FSM to STATE_IGNORE
 	 */
-	private function moveToIgnoreState() {
+	private function moveToIgnoreState(): void {
 		$this->onAnyEnabled = false;
 		$this->state = self::STATE_IGNORE;
 	}
@@ -172,7 +167,7 @@ class PreHandler extends TokenHandler {
 	 *
 	 * @param array &$ret
 	 */
-	private function popLastNL( array &$ret ) {
+	private function popLastNL( array &$ret ): void {
 		if ( $this->lastNlTk ) {
 			$ret[] = $this->lastNlTk;
 			$this->lastNlTk = null;
@@ -182,7 +177,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Removes multiline-pre-ws token when multi-line pre has been specified
 	 */
-	private function resetPreCollectCurrentLine() {
+	private function resetPreCollectCurrentLine(): void {
 		if ( count( $this->preCollectCurrentLine ) > 0 ) {
 			$this->tokens = array_merge( $this->tokens, $this->preCollectCurrentLine );
 			$this->preCollectCurrentLine = [];

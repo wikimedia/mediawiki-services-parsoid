@@ -52,7 +52,7 @@ class KV implements \JsonSerializable {
 	 * @param string $key
 	 * @return KV|null
 	 */
-	public static function lookupKV( $kvs, string $key ) {
+	public static function lookupKV( ?array $kvs, string $key ): ?KV {
 		if ( $kvs === null ) {
 			return null;
 		}
@@ -72,11 +72,11 @@ class KV implements \JsonSerializable {
 	 * Lookup a string key (first occurrence) in a KV array
 	 * and return the value of the KV object
 	 *
-	 * @param KV[] $kvs
+	 * @param KV[]|null $kvs
 	 * @param string $key
 	 * @return mixed
 	 */
-	public static function lookup( array $kvs, string $key ) {
+	public static function lookup( ?array $kvs, string $key ) {
 		$kv = self::lookupKV( $kvs, $key );
 		// PORT_FIXME: Potential bug lurking here ... if $kv->v is an array
 		// this will return a copy, which if modified will not reflect
@@ -87,7 +87,7 @@ class KV implements \JsonSerializable {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		$ret = [ "k" => $this->k, "v" => $this->v ];
 		if ( $this->srcOffsets ) {
 			$ret["srcOffsets"] = $this->srcOffsets;

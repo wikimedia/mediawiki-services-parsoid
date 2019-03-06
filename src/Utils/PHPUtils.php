@@ -16,7 +16,7 @@ class PHPUtils {
 	 * @param int $n
 	 * @return string
 	 */
-	public static function counterToBase64( $n ) {
+	public static function counterToBase64( int $n ): string {
 		$str = '';
 		do {
 			$str = chr( $n & 0xff ) . $str;
@@ -29,7 +29,7 @@ class PHPUtils {
 	 * Return accurate system time
 	 * @return float time in seconds since Jan 1 1970 GMT accurate to the microsecond
 	 */
-	public static function getStartHRTime() {
+	public static function getStartHRTime(): float {
 		return microtime( true );
 	}
 
@@ -38,7 +38,7 @@ class PHPUtils {
 	 * @param float $previousTime
 	 * @return float milliseconds
 	 */
-	public static function getHRTimeDifferential( $previousTime ) {
+	public static function getHRTimeDifferential( float $previousTime ): float {
 		return ( microtime( true ) - $previousTime ) * 1000;
 	}
 
@@ -49,7 +49,7 @@ class PHPUtils {
 	 * @param mixed $o
 	 * @return string
 	 */
-	public static function jsonEncode( $o ) {
+	public static function jsonEncode( $o ): string {
 		return json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 	}
 
@@ -59,7 +59,7 @@ class PHPUtils {
 	 * @param bool $assoc Controls whether to parse as an an associative array - defaults to true
 	 * @return mixed
 	 */
-	public static function jsonDecode( $str, $assoc = true ) {
+	public static function jsonDecode( string $str, bool $assoc = true ) {
 		return json_decode( $str, $assoc );
 	}
 
@@ -69,7 +69,7 @@ class PHPUtils {
 	 * @param array $a
 	 * @return array
 	 */
-	public static function makeSet( array $a ) {
+	public static function makeSet( array $a ): array {
 		return array_fill_keys( $a, true );
 	}
 
@@ -106,7 +106,7 @@ class PHPUtils {
 	 * PORT-FIXME: To be removed once all uses of this have disappeared
 	 * Helper to get last item of the array
 	 * @param mixed[] $a
-	 * @return object
+	 * @return mixed
 	 */
 	public static function lastItem( array $a ) {
 		throw new \BadMethodCallException( 'Use end( $a ) instead' );

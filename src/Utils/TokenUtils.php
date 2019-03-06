@@ -23,7 +23,7 @@ class TokenUtils {
 	 * @param Token|string $token
 	 * @return string
 	 */
-	public static function getTokenType( $token ) {
+	public static function getTokenType( $token ): string {
 		return is_string( $token ) ? 'string' : $token->getType();
 	}
 
@@ -34,7 +34,7 @@ class TokenUtils {
 	 * @param string $expectedType
 	 * @return bool
 	 */
-	public static function isOfType( $token, $expectedType ) {
+	public static function isOfType( $token, string $expectedType ): bool {
 		return self::getTokenType( $token ) === $expectedType;
 	}
 
@@ -46,7 +46,7 @@ class TokenUtils {
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function isBlockTag( $name ) {
+	public static function isBlockTag( string $name ): bool {
 		return $name !== 'video' && isset( Consts::$HTML['HTML4BlockTags'][$name] );
 	}
 
@@ -56,7 +56,7 @@ class TokenUtils {
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function tagOpensBlockScope( $name ) {
+	public static function tagOpensBlockScope( string $name ): bool {
 		return isset( Consts::$BlockScopeOpenTags[$name] );
 	}
 
@@ -66,16 +66,16 @@ class TokenUtils {
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function tagClosesBlockScope( $name ) {
+	public static function tagClosesBlockScope( string $name ): bool {
 		return isset( Consts::$BlockScopeCloseTags[$name] );
 	}
 
 	/**
 	 * Is this a template token?
-	 * @param Token|null $token
+	 * @param Token|string|null $token
 	 * @return bool
 	 */
-	public static function isTemplateToken( $token ) {
+	public static function isTemplateToken( $token ): bool {
 		return $token && $token instanceof SelfclosingTagTk && $token->getName() === 'template';
 	}
 
@@ -85,7 +85,7 @@ class TokenUtils {
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isHTMLTag( $token ) {
+	public static function isHTMLTag( $token ): bool {
 		return !is_string( $token ) &&
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
@@ -100,7 +100,7 @@ class TokenUtils {
 	 * @param string $typeOf
 	 * @return bool
 	 */
-	public static function isDOMFragmentType( $typeOf ) {
+	public static function isDOMFragmentType( string $typeOf ): bool {
 		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
 	}
 
@@ -110,7 +110,7 @@ class TokenUtils {
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isTableTag( $token ) {
+	public static function isTableTag( $token ): bool {
 		$tc = self::getTokenType( $token );
 		return ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
 			isset( Consts::$HTML['TableTags'][$token->getName()] );
@@ -122,7 +122,7 @@ class TokenUtils {
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isSolTransparentLinkTag( $token ) {
+	public static function isSolTransparentLinkTag( $token ): bool {
 		$tc = self::getTokenType( $token );
 		return ( $tc === 'SelfclosingTagTk' || $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
 			$token->getName() === 'link' &&
@@ -132,11 +132,11 @@ class TokenUtils {
 	/**
 	 * Does this token represent a behavior switch?
 	 *
-	 * @param object $env
+	 * @param MockEnv $env
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isBehaviorSwitch( $env, $token ) {
+	public static function isBehaviorSwitch( $env, $token ): bool {
 		return self::isOfType( $token, 'SelfclosingTagTk' ) && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
 			$token->getName() === 'behavior-switch' ||
@@ -151,11 +151,11 @@ class TokenUtils {
 	 * This should come close to matching
 	 * {@link DOMUtils.emitsSolTransparentSingleLineWT},
 	 * without the single line caveat.
-	 * @param object $env
+	 * @param MockEnv $env
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isSolTransparent( $env, $token ) {
+	public static function isSolTransparent( $env, $token ): bool {
 		$tt = self::getTokenType( $token );
 		if ( $tt === 'string' ) {
 			return preg_match( '/^\s*$/', $token );
@@ -175,10 +175,10 @@ class TokenUtils {
 	/**
 	 * Is token a transparent link tag?
 	 *
-	 * @param Token $token
+	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isEmptyLineMetaToken( $token ) {
+	public static function isEmptyLineMetaToken( $token ): bool {
 		return self::isOfType( $token, 'SelfclosingTagTk' ) &&
 			$token->getName() === 'meta' &&
 			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
