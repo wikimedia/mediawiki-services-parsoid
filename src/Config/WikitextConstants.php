@@ -369,39 +369,39 @@ class WikitextConstants {
 		self::$ZeroWidthWikitextTags = PHPUtils::makeSet( [] );
 
 		# Map LanguageConverter wikitext flags to readable JSON field names.
-		self::$LCFlagMap = PHPUtils::makeMap( [
+		self::$LCFlagMap = [
 			# These first three flags are used internally during flag processing,
 			# but should never appear in the output wikitext, so we prepend them
 			# with '$'.
 
 			# 'S': Show converted text
-			[ '$S', 'show' ],
+			'$S' => 'show',
 			# '+': Add conversion rule
-			[ '$+', 'add' ],
+			'$+' => 'add',
 			# 'E': Error in the given flags
-			[ '$E', 'error' ],
+			'$E' => 'error',
 
 			# These rest of these are valid flags in wikitext.
 
 			# 'A': add conversion rule *and show converted text* (implies S)
-			[ 'A', 'add' ],
+			'A' => 'add',
 			# 'T': Convert and override page title
-			[ 'T', 'title' ],
+			'T' => 'title',
 			# 'R': Disable language conversion (exclusive flag)
-			[ 'R', 'disabled' ],
+			'R' => 'disabled',
 			# 'D': Describe conversion rule (without adding to table)
-			[ 'D', 'describe' ],
+			'D' => 'describe',
 			# '-': Remove existing conversion rule (exclusive flag)
-			[ '-', 'remove' ],
+			'-' => 'remove',
 			# 'H': add rule for convert code (but no display in placed code )
-			[ 'H', '' ], # this is handled implicitly as a lack of 'show'
+			'H' => '', # this is handled implicitly as a lack of 'show'
 			# 'N': Output current variant name (exclusive flag)
-			[ 'N', 'name' ],
-		] );
+			'N' => 'name',
+		];
 
 		# Map JSON field names to LanguageConverter wikitext flags.
 		# This information is derived from LCFlagMap and set below.
-		self::$LCNameMap = PHPUtils::makeMap( [] );
+		self::$LCNameMap = [];
 
 		# Derived information from 'WtTagWidths'
 		foreach ( self::$WtTagWidths as $tag => $widths ) {
