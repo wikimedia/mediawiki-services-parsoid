@@ -22,3 +22,5 @@ phpTokenTransformers:
 phpDOMTransformers:
   - PWrap-NOT_YET_SUPPORTED
   - WrapSections-NOT_YET_SUPPORTED
+  - ComputeDSR
+  - HandlePres

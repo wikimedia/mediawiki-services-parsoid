@@ -1,17 +1,23 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\WTUtils as WTUtils;
+use DOMNode;
+
+use Parsoid\Tests\MockEnv;
+
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\WTUtils;
 
 class HandlePres {
-	public function fixedIndentPreText( $str, $isLastChild ) {
+	/**
+	 * @param string $str
+	 * @param bool $isLastChild
+	 * @return string
+	 */
+	public function fixedIndentPreText( string $str, bool $isLastChild ): string {
 		if ( $isLastChild ) {
 			return preg_replace( '/\n(?!$)/', "\n ", $str );
 		} else {
@@ -19,8 +25,12 @@ class HandlePres {
 		}
 	}
 
-	public function reinsertLeadingSpace( $elt, $isLastChild ) {
-		for ( $c = $elt->firstChild;  $c;  $c = $c->nextSibling ) {
+	/**
+	 * @param DOMElement $elt
+	 * @param bool $isLastChild
+	 */
+	public function reinsertLeadingSpace( DOMElement $elt, bool $isLastChild ) {
+		for ( $c = $elt->firstChild; $c; $c = $c->nextSibling ) {
 			$last = ( $c->nextSibling === null );
 			if ( DOMUtils::isText( $c ) ) {
 				$c->data = $this->fixedIndentPreText( $c->data, $isLastChild && $last );
@@ -31,19 +41,23 @@ class HandlePres {
 		}
 	}
 
-	public function findAndHandlePres( $elt, $indentPresHandled ) {
+	/**
+	 * @param DOMNode $elt
+	 * @param bool $indentPresHandled
+	 */
+	public function findAndHandlePres( DOMNode $elt, bool $indentPresHandled ) {
 		$nextChild = null;
 		$blocklevel = false;
-		for ( $n = $elt->firstChild;  $n;  $n = $nextChild ) {
+		for ( $n = $elt->firstChild; $n; $n = $nextChild ) {
 			$processed = false;
 			$nextChild = $n->nextSibling; // store this before n is possibly deleted
 			if ( !$indentPresHandled && DOMUtils::isElt( $n )
-&& TokenUtils::tagOpensBlockScope( $n->nodeName )
-&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) || '' )
-|| WTUtils::isLiteralHTMLNode( $n ) )
+				&& TokenUtils::tagOpensBlockScope( $n->nodeName )
+				&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
+					|| WTUtils::isLiteralHTMLNode( $n ) )
 			) {
-				// This is a special case in the php parser for $inBlockquote
-				$blocklevel = ( $n->nodeName === 'BLOCKQUOTE' );
+				// This is a special case in the legacy parser for $inBlockquote
+				$blocklevel = ( $n->nodeName === 'blockquote' );
 				$this->deleteIndentPreFromDOM( $n, $blocklevel );
 				$processed = true;
 			}
@@ -51,27 +65,30 @@ class HandlePres {
 		}
 	}
 
-	/* --------------------------------------------------------------
+	/**
 	 * Block tags change the behaviour of indent-pres.  This behaviour
 	 * cannot be emulated till the DOM is built if we are to avoid
 	 * having to deal with unclosed/mis-nested tags in the token stream.
 	 *
 	 * This goes through the DOM looking for special kinds of
-	 * block tags (as determined by the PHP parser behavior -- which
+	 * block tags (as determined by the legacy parser behavior -- which
 	 * has its own notion of block-tag which overlaps with, but is
 	 * different from, the HTML block tag notion.
 	 *
 	 * Wherever such a block tag is found, any Parsoid-inserted
 	 * pre-tags are removed.
-	 * -------------------------------------------------------------- */
-	public function deleteIndentPreFromDOM( $node, $blocklevel ) {
+	 *
+	 * @param DOMNode $node
+	 * @param bool $blocklevel
+	 */
+	public function deleteIndentPreFromDOM( DOMNode $node, bool $blocklevel ) {
 		$document = $node->ownerDocument;
 		$c = $node->firstChild;
 		while ( $c ) {
 			// get sibling before DOM is modified
 			$cSibling = $c->nextSibling;
 
-			if ( $c->nodeName === 'PRE' && !WTUtils::isLiteralHTMLNode( $c ) ) {
+			if ( $c->nodeName === 'pre' && !WTUtils::isLiteralHTMLNode( $c ) ) {
 				$f = $document->createDocumentFragment();
 
 				// space corresponding to the 'pre'
@@ -83,7 +100,8 @@ class HandlePres {
 					$next = $cChild->nextSibling;
 					if ( DOMUtils::isText( $cChild ) ) {
 						// new child with fixed up text
-						$cChild = $document->createTextNode( $this->fixedIndentPreText( $cChild->data, $next === null ) );
+						$fixed = $this->fixedIndentPreText( $cChild->nodeValue, $next === null );
+						$cChild = $document->createTextNode( $fixed );
 					} elseif ( DOMUtils::isElt( $cChild ) ) {
 						// recursively process all text nodes to make
 						// sure every new line gets a space char added back.
@@ -102,7 +120,7 @@ class HandlePres {
 				$node->insertBefore( $f, $c );
 				// delete the pre
 				$c->parentNode->removeChild( $c );
-			} elseif ( !TokenUtils::tagClosesBlockScope( strtolower( $c->nodeName ) ) ) {
+			} elseif ( !TokenUtils::tagClosesBlockScope( $c->nodeName ) ) {
 				$this->deleteIndentPreFromDOM( $c, $blocklevel );
 			}
 
@@ -110,11 +128,11 @@ class HandlePres {
 		}
 	}
 
-	public function run( $body, $env ) {
+	/**
+	 * @param DOMNode $body
+	 * @param MockEnv $env
+	 */
+	public function run( DOMNode $body, MockEnv $env ) {
 		$this->findAndHandlePres( $body, false );
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->HandlePres = $HandlePres;
 }

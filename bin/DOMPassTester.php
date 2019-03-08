@@ -49,6 +49,7 @@ use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
+use Parsoid\Wt2Html\PP\Processors\HandlePres;
 
 $wgCachedState = false;
 $wgCachedFilePre = '';
@@ -143,6 +144,9 @@ class DOMPassTester {
 					$options = [ 'attrExpansion' => false ];
 				}
 				( new ComputeDSR() )->run( $body, $this->env, $options );
+				break;
+			case 'pres':
+				( new HandlePres() )->run( $body, $this->env, $options );
 				break;
 			case 'cleanupFormattingTagFixup':
 				cleanupFormattingTagFixup( $body, $this->env );

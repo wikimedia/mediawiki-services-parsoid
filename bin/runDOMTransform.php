@@ -7,6 +7,7 @@ use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
+use Parsoid\Wt2Html\PP\Processors\HandlePres;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -57,6 +58,9 @@ switch ( $transformerName ) {
 		break;
 	case 'ComputeDSR':
 		$transformer = new ComputeDSR();
+		break;
+	case 'HandlePres':
+		$transformer = new HandlePres();
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );
