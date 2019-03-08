@@ -3,6 +3,11 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
+use DOMDocument;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DataBag;
+
 /**
  * Environment/Envelope class for Parsoid
  *
@@ -20,8 +25,14 @@ class Env {
 	/** @var DataAccess */
 	private $dataAccess;
 
+	/** @var DOMDocument[] */
+	private $liveDocs = [];
+
 	/** @var bool */
 	private $wrapSections = true;
+
+	/** @var array */
+	private $behaviorSwitches = [];
 
 	/**
 	 * @param SiteConfig $siteConfig
@@ -65,11 +76,69 @@ class Env {
 
 	/**
 	 * Whether `<section>` wrappers should be added.
-	 * @todo Does this actually belong here?
+	 * @todo Does this actually belong here? Should it be a behavior switch?
 	 * @return bool
 	 */
 	public function getWrapSections(): bool {
 		return $this->wrapSections;
+	}
+
+	/**
+	 * FIXME: This function could be given a better name to reflect what it does.
+	 *
+	 * @param DOMDocument $doc
+	 * @param DataBag|null $bag
+	 */
+	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ) {
+		DOMDataUtils::setDocBag( $doc, $bag );
+
+		// Prevent GC from collecting the PHP wrapper around the libxml doc
+		$this->liveDocs[] = $doc;
+	}
+
+	/**
+	 * @param string $html
+	 * @return DOMDocument
+	 */
+	public function createDocument( string $html ): DOMDocument {
+		$doc = DOMUtils::parseHTML( $html );
+		$this->referenceDataObject( $doc );
+		return $doc;
+	}
+
+	/**
+	 * BehaviorSwitchHandler support function that adds a property named by
+	 * $variable and sets it to $state
+	 *
+	 * @deprecated Use setBehaviorSwitch() instead.
+	 * @param string $variable
+	 * @param mixed $state
+	 */
+	public function setVariable( string $variable, $state ): void {
+		$this->setBehaviorSwitch( $variable, $state );
+	}
+
+	/**
+	 * Record a behavior switch.
+	 *
+	 * @todo Does this belong here, or on some equivalent to MediaWiki's ParserOutput?
+	 * @param string $switch Switch name
+	 * @param mixed $state Relevant state data to record
+	 */
+	public function setBehaviorSwitch( string $switch, $state ): void {
+		$this->behaviorSwitches[$switch] = $state;
+	}
+
+	/**
+	 * Fetch the state of a previously-recorded behavior switch.
+	 *
+	 * @todo Does this belong here, or on some equivalent to MediaWiki's ParserOutput?
+	 * @param string $switch Switch name
+	 * @param mixed|null $default Default value if the switch was never set
+	 * @return mixed State data that was previously passed to setBehaviorSwitch(), or $default
+	 */
+	public function getBehaviorSwitch( string $switch, $default = null ) {
+		return $this->behaviorSwitches[$switch] ?? $default;
 	}
 
 	/**

@@ -36,8 +36,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Parsoid\\": "src/",
-			"Tests\\": "tests/"
+			"Parsoid\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Parsoid\\Tests\\": [ "tests/mocks/", "tests/phpunit/" ]
 		}
 	},
 	"scripts": {
