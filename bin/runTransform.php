@@ -16,26 +16,25 @@ if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
 }
 
-if ( $argc < 2 ) {
+if ( $argc < 3 ) {
+	fwrite( STDERR, "Usage: php runTransform.php <transformerName> <fileName>\n" );
 	throw new \Exception( "Provide the transformer name as the first arg." );
 }
 
-/**
- * Read pipeline options + tokens from STDIN
- */
-$input_file = 'php://stdin';
 $transformerName = $argv[1];
-$lines = explode( "\n", file_get_contents( $input_file ) );
-$optsString = array_shift( $lines );
-$pipelineOpts = PHPUtils::jsonDecode( $optsString );
-if ( !$pipelineOpts ) {
-	throw new \Exception( "Missing pipeline opts in first line of stdin" );
-}
-// fwrite(STDERR, $optsString . "\n");
+$tokenFileName = $argv[2];
+
+/**
+ * Read pipeline options from STDIN
+ */
+$opts = PHPUtils::jsonDecode( file_get_contents( 'php://stdin' ) );
+$pipelineOpts = $opts['pipeline'];
+$pageSrc = $opts['pageSrc'];
 
 /**
  * Decode the json-encoded strings to build tokens
  */
+$lines = explode( "\n", file_get_contents( $tokenFileName ) );
 $tokens = [];
 foreach ( $lines as $line ) {
 	$tokens[] = Token::getToken( PHPUtils::jsonDecode( $line ) );
@@ -46,7 +45,7 @@ foreach ( $lines as $line ) {
  */
 $transformer = null;
 $manager = (object)[];
-$manager->env = new MockEnv( [] );
+$manager->env = new MockEnv( [ "pageSrc" => $pageSrc ] );
 $manager->pipelineId = 0;
 $manager->options = [];
 switch ( $transformerName ) {
@@ -85,6 +84,11 @@ foreach ( $tokens as $t ) {
 	$output .= PHPUtils::jsonEncode( $t );
 	$output .= "\n";
 }
+
+/**
+ * Remove the input token file to eliminate clutter
+ */
+unlink( $tokenFileName );
 
 /**
  * Write serialized tokens to STDOUT
