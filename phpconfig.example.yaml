@@ -10,6 +10,10 @@
 # Every DOM transformer named in phpDOMTransformers will have the
 # PHP version of the transformer inserted instead of the JS version
 # in the DOMPostProcessing pass.
+#
+# bin/parse.js, bin/parserTests.js, bin/roundtrip-test.js all accept
+# the --phpConfigFile <file> option on the commandline to pass in
+# a config file such as this.
 
 phpTokenTransformers:
   - ParagraphWrapper

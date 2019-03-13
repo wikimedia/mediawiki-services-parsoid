@@ -824,6 +824,11 @@ if (require.main === module) {
 			default: false,
 			alias: 'c',
 		},
+		phpConfigFile: {
+			description: 'PHP config to splice into the JS pipelines',
+			'boolean': false,
+			'default': null,
+		},
 	};
 
 	Promise.async(function *() {
@@ -846,6 +851,13 @@ if (require.main === module) {
 			var serviceWrapper = require('../tests/serviceWrapper.js');
 			var serverOpts = {
 				logging: { level: 'info' },
+				parsoidOptions: {
+					useBatchAPI: true,
+					loadWMF: true,
+					useSelser: true,
+					rtTestMode: true,
+					phpConfigFile: argv.phpConfigFile,
+				}
 			};
 			if (argv.apiURL) {
 				serverOpts.mockURL = argv.apiURL;
