@@ -8309,6 +8309,15 @@ Plain link to URL with link text
 !! end
 
 !! test
+Plain link to URL containing special characters, with link text (see T213950).
+!! wikitext
+[[http://www.example.com/?q=%7Babc%7D Link text]]
+!! html
+<p>[<a rel="nofollow" class="external text" href="http://www.example.com/?q=%7Babc%7D">Link text</a>]
+</p>
+!! end
+
+!! test
 Plain link to protocol-relative URL
 !! wikitext
 [[//www.example.com]]
