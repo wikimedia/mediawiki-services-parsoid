@@ -9,8 +9,8 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use \stdClass as StdClass;
-
 use Wikimedia\Assert\Assert;
+use Parsoid\Config\Env;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
@@ -337,10 +337,10 @@ class DOMDataUtils {
 	 * but attempts to keep user defined ids.
 	 *
 	 * @param DOMElement $node node
-	 * @param MockEnv $env environment
+	 * @param Env $env environment
 	 * @param StdClass $data data
 	 */
-	public static function storeInPageBundle( DOMElement $node, $env, StdClass $data ): void {
+	public static function storeInPageBundle( DOMElement $node, Env $env, StdClass $data ): void {
 		$uid = $node->getAttribute( 'id' );
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );

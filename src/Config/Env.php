@@ -142,6 +142,17 @@ class Env {
 	}
 
 	/**
+	 * FIXME: Once we remove the hardcoded slot name here,
+	 * the name of this method could be updated, if necessary.
+	 *
+	 * Shortcut method to get page source
+	 * @return string
+	 */
+	public function getPageMainContent(): string {
+		return $this->pageConfig->getRevisionContent()->getContent( 'main' );
+	}
+
+	/**
 	 * Deprecated logging function.
 	 * @deprecated Use $this->getSiteConfig()->getLogger() instead.
 	 * @param string $prefix

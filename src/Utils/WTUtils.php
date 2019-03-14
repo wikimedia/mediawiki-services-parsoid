@@ -8,6 +8,7 @@ use DOMElement;
 use DOMNode;
 use \stdClass as StdClass;
 
+use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 
 /**
@@ -544,16 +545,17 @@ class WTUtils {
 	 * Compute, when possible, the wikitext source for a $node in
 	 * an environment env. Returns null if the source cannot be
 	 * extracted.
-	 * @param MockEnv $env
+	 * @param Env $env
 	 * @param DOMElement $node
 	 * @return string|null
 	 */
-	public static function getWTSource( $env, DOMElement $node ): ?string {
+	public static function getWTSource( Env $env, DOMElement $node ): ?string {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dsr = $dp->dsr ?? null;
 		// PORT-FIXME: We could probably change the null return to ''
 		// Just need to verify that coe that uses this won't break
-		return $dsr && Util::isValidDSR( $dsr ) ? substr( $env->page->src, $dsr[0], $dsr[1] ) : null;
+		return $dsr && Util::isValidDSR( $dsr ) ?
+			substr( $env->getPageMainContent(), $dsr[0], $dsr[1] ) : null;
 	}
 
 	/**

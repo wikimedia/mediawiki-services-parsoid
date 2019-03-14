@@ -27,13 +27,11 @@ $opts = PHPUtils::jsonDecode( $optsString );
 
 // Build a mock env with the bare mininum info that we know
 // DOM processors are currently using.
-$env = new MockEnv(
-	[
-		"wrapSections" => empty( $opts['wrapSections' ] ) ? false : true ,
-		"rtTestMode" => $opts['rtTestMode'] ?? false
-	],
-	$opts['pageSrc'] ?? 'Some dummy source'
-);
+$env = new MockEnv( [
+	"wrapSections" => !empty( $opts['wrapSections' ] ),
+	"rtTestMode" => $opts['rtTestMode'] ?? false,
+	"pageContent" => $opts['pageContent'] ?? null,
+] );
 
 $html = file_get_contents( $argv[2] );
 $html = mb_convert_encoding( $html, 'UTF-8',

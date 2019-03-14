@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Parsoid\Config\Env;
+
 /**
  * Catch-all class for all token types.
  */
@@ -213,15 +215,15 @@ abstract class Token implements \JsonSerializable {
 	/**
 	 * Get the wikitext source of a token.
 	 *
-	 * @param MockEnv $env
+	 * @param Env $env
 	 * @return string
 	 */
-	public function getWTSource( $env ): string {
+	public function getWTSource( Env $env ): string {
 		$tsr = $this->dataAttribs->tsr ?? null;
 		if ( !is_array( $tsr ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
-		return substr( $env->page->src, $tsr[0], $tsr[1] );
+		return substr( $env->getPageMainContent(), $tsr[0], $tsr[1] );
 	}
 
 	/**

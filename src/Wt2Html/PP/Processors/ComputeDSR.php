@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\PP\Processors;
 use DOMNode;
 use \stdClass as StdClass;
 
+use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
@@ -275,7 +276,7 @@ class ComputeDSR {
 	 * [s,e) -- if defined, start/end position of wikitext source that generated
 	 *          node's subtree
 	 *
-	 * @param MockEnv $env
+	 * @param Env $env
 	 * @param DOMNode $node node to process
 	 * @param int|null $s start position, inclusive
 	 * @param int|null $e end position, exclusive
@@ -284,7 +285,7 @@ class ComputeDSR {
 	 * @return int[]
 	 */
 	private function computeNodeDSR(
-		$env, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
+		Env $env, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
 	): array {
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
@@ -299,7 +300,7 @@ class ComputeDSR {
 		// the child dom are indeed identical.  Alternatively, we could
 		// explicitly code this check before everything and bypass this.
 		$cs = $ce;
-		$rtTestMode = $env->conf->parsoid->rtTestMode;
+		$rtTestMode = $env->getSiteConfig()->rtTestMode();
 
 		$child = $node->lastChild;
 		while ( $child !== null ) {
@@ -578,7 +579,7 @@ class ComputeDSR {
 					if ( $ce < 0 ) {
 						if ( !$fosteredNode ) {
 							$env->log( "warn/dsr/negative",
-								"Negative DSR for $node: " . $node->nodeName . "; resetting to zero" );
+								"Negative DSR for node: " . $node->nodeName . "; resetting to zero" );
 						}
 						$ce = 0;
 					}
@@ -600,7 +601,7 @@ class ComputeDSR {
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
-						$dp->dbsrc = substr( $env->page->src, $cs, $ce );
+						$dp->dbsrc = substr( $env->getPageMainContent(), $cs, $ce );
 						return $str;
 					} );
 				}
@@ -648,7 +649,7 @@ class ComputeDSR {
 								// debug info
 								if ( $siblingDP->dsr[1] ) {
 									$siblingDP->dbsrc =
-										substr( $env->page->src, $newCE, $siblingDP->dsr[1] );
+										substr( $env->getPageMainContent(), $newCE, $siblingDP->dsr[1] );
 								}
 								return $str;
 							} );
@@ -748,16 +749,16 @@ class ComputeDSR {
 	 * Computes DSR ranges for every node of a DOM tree.
 	 *
 	 * @param DOMNode $rootNode The root of the tree for which DSR has to be computed
-	 * @param MockEnv $env The environment/context for the parse pipeline
+	 * @param Env $env The environment/context for the parse pipeline
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
-	 *                  [0, $env->page->src->length]
+	 *                  [0, $env->getPageMainContent()->length]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
-	public function run( DOMNode $rootNode, $env, ?array $options = [] ): void {
+	public function run( DOMNode $rootNode, Env $env, ?array $options = [] ): void {
 		$startOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][0] : 0;
 		$endOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][1] :
-			mb_strlen( $env->page->src );
+			mb_strlen( $env->getPageMainContent() );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];

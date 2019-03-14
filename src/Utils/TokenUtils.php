@@ -9,6 +9,7 @@
 
 namespace Parsoid\Utils;
 
+use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
@@ -132,11 +133,11 @@ class TokenUtils {
 	/**
 	 * Does this token represent a behavior switch?
 	 *
-	 * @param MockEnv $env
+	 * @param Env $env
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isBehaviorSwitch( $env, $token ): bool {
+	public static function isBehaviorSwitch( Env $env, $token ): bool {
 		return self::isOfType( $token, 'SelfclosingTagTk' ) && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
 			$token->getName() === 'behavior-switch' ||
@@ -144,7 +145,7 @@ class TokenUtils {
 			// (ie. ListHandler, ParagraphWrapper, etc.)
 			( $token->getName() === 'meta' &&
 				$token->hasAttribute( 'property' ) &&
-				preg_match( $env->conf->wiki->bswPagePropRegexp, $token->getAttribute( 'property' ) ) )
+				preg_match( $env->getSiteConfig()->bswPagePropRegexp(), $token->getAttribute( 'property' ) ) )
 			);
 	}
 
@@ -152,11 +153,11 @@ class TokenUtils {
 	 * This should come close to matching
 	 * {@link DOMUtils.emitsSolTransparentSingleLineWT},
 	 * without the single line caveat.
-	 * @param MockEnv $env
+	 * @param Env $env
 	 * @param Token|string $token
 	 * @return bool
 	 */
-	public static function isSolTransparent( $env, $token ): bool {
+	public static function isSolTransparent( Env $env, $token ): bool {
 		$tt = self::getTokenType( $token );
 		if ( $tt === 'string' ) {
 			return preg_match( '/^\s*$/', $token );

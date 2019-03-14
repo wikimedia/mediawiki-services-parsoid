@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2html\TT;
 
+use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
@@ -116,12 +117,12 @@ class TokenHandler {
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
 	 *
-	 * @param MockEnv $env Parser Environment
+	 * @param Env $env Parser Environment
 	 * @param array $tokens The array of tokens to process
 	 * @param array|null $traceState Tracing related state
 	 * @return array the array of transformed tokens
 	 */
-	public function processTokensSync( $env, array $tokens, ?array $traceState = [] ): array {
+	public function processTokensSync( Env $env, array $tokens, ?array $traceState = [] ): array {
 		$genFlags = $traceState['genFlags'] ?? null;
 		$traceFlags = $traceState['traceFlags'] ?? null;
 		$traceTime = $traceState['traceTime'] ?? false;

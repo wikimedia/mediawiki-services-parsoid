@@ -28,7 +28,6 @@ $tokenFileName = $argv[2];
  */
 $opts = PHPUtils::jsonDecode( file_get_contents( 'php://stdin' ) );
 $pipelineOpts = $opts['pipeline'];
-$pageSrc = $opts['pageSrc'];
 
 /**
  * Decode the json-encoded strings to build tokens
@@ -44,7 +43,7 @@ foreach ( $lines as $line ) {
  */
 $transformer = null;
 $manager = (object)[];
-$manager->env = new MockEnv( [ "pageSrc" => $pageSrc ] );
+$manager->env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
 $manager->pipelineId = 0;
 $manager->options = [];
 switch ( $transformerName ) {
