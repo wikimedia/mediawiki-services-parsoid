@@ -9,7 +9,6 @@
 
 namespace Parsoid;
 
-use Parsoid\JSUtils as JSUtils;
 use Parsoid\KV as KV;
 use Parsoid\TagTk as TagTk;
 use Parsoid\EndTagTk as EndTagTk;
@@ -17,11 +16,6 @@ use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
 use Parsoid\CommentTk as CommentTk;
 
 $tu = $module->exports = [
-
-	'PREPROC_BRACE_BRACE' => 1, // {{ ... }}
-	'PREPROC_BRACE_DASH' => 2, // -{ ... }-
-	'PREPROC_BRACKET_BRACKET' => 3, // [[ ... ]]
-	'PREPROC_BROKEN' => 4, // unclosed
 
 	'flattenIfArray' => function ( $a ) use ( &$undefined ) {
 		function internalFlatten( $e, $res ) use ( &$undefined ) {
@@ -175,70 +169,67 @@ $tu = $module->exports = [
 	 * Those inner rules are then exited, so that the outer rule can
 	 * handle the end marker.
 	 */
-	'inlineBreaks' => function ( $input, $pos, $stops ) use ( &$tu ) {
+	'inlineBreaks' => function ( $input, $pos, $stops ) {
 		$c = $input[ $pos ];
-		if ( !preg_match( '/[=|!{}:;\r\n[\]\-]/', $c ) ) {
-			return false;
-		}
 
 		switch ( $c ) {
 			case '=':
-			if ( $stops->onStack( 'arrow' ) && $input[ $pos + 1 ] === '>' ) {
+			if ( $stops->arrow && $input[ $pos + 1 ] === '>' ) {
 				return true;
 			}
-			return $stops->onStack( 'equal' )
-|| $stops->onStack( 'h' )
+			return $stops->equal
+|| $stops->h
 && ( $pos === count( $input ) - 1
 					// possibly more equals followed by spaces or comments
 					 || preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->)[^])*-->)*(?:[\r\n]|$)/',
 							substr( $input, $pos + 1 )
 						) );
 			case '|':
-			return ( $stops->onStack( 'templateArg' )
-&& !$stops->onStack( 'extTag' ) )
-|| $stops->onStack( 'tableCellArg' )
-|| $stops->onStack( 'linkdesc' )
-|| ( $stops->onStack( 'table' )
+			return ( $stops->templateArg
+&& !$stops->extTag )
+|| $stops->tableCellArg
+|| $stops->linkdesc
+|| ( $stops->table
 && $pos < count( $input ) - 1
 && preg_match( '/[}|]/', $input[ $pos + 1 ] ) );
 			case '!':
-			return $stops->onStack( 'th' ) !== false
-&& !$stops->onStack( 'templatedepth' )
+			return $stops->th
+&& !$stops->templatedepth
 && $input[ $pos + 1 ] === '!';
 			case '{':
 			// {{!}} pipe templates..
 			// FIXME: Presumably these should mix with and match | above.
-			return ( $stops->onStack( 'tableCellArg' )
+			return ( $stops->tableCellArg
 && substr( $input, $pos, 5 ) === '{{!}}' )
-|| ( $stops->onStack( 'table' )
+|| ( $stops->table
 && substr( $input, $pos, 10 ) === '{{!}}{{!}}' );
 
 			case '}':
 			$c2 = $input[ $pos + 1 ];
-			$preproc = $stops->onStack( 'preproc' );
-			return ( $c2 === '}' && $preproc === $tu::PREPROC_BRACE_BRACE )
-|| ( $c2 === '-' && $preproc === $tu::PREPROC_BRACE_DASH );
+			$preproc = $stops->preproc;
+			return ( $c2 === '}' && $preproc === '}}' )
+|| ( $c2 === '-' && $preproc === '}-' );
 			case ':':
-			return $stops->onStack( 'colon' )
-&& !$stops->onStack( 'extlink' )
-&& !$stops->onStack( 'templatedepth' )
-&& !$stops->onStack( 'linkdesc' )
-&& !( $stops->onStack( 'preproc' ) === $tu::PREPROC_BRACE_DASH );
+			return $stops->colon
+&& !$stops->extlink
+&& !$stops->templatedepth
+&& !$stops->linkdesc
+&& !( $stops->preproc === '}-' );
 			case ';':
-			return $stops->onStack( 'semicolon' );
+			return $stops->semicolon;
 			case "\r":
-			return $stops->onStack( 'table' )
+			return $stops->table
 && preg_match( '/\r\n?\s*[!|]/', substr( $input, $pos ) );
 			case "\n":
 			// The code below is just a manual / efficient
 			// version of this check.
 			//
-			// stops.onStack('table') && /^\n\s*[!|]/.test(input.substr(pos));
+			// stops.table && /^\n\s*[!|]/.test(input.substr(pos));
 			//
 			// It eliminates a substr on the string and eliminates
 			// a potential perf problem since "\n" and the inline_breaks
 			// test is common during tokenization.
-			if ( !$stops->onStack( 'table' ) ) {
+			if ( !$stops->table ) {
 				return false;
 			}
 
@@ -262,17 +253,17 @@ $tu = $module->exports = [
 			// This is a special case in php's doTableStuff, added in
 			// response to T2553.  If it encounters a `[[`, it bails on
 			// parsing attributes and interprets it all as content.
-			return $stops->onStack( 'tableCellArg' )
+			return $stops->tableCellArg
 && substr( $input, $pos, 2 ) === '[[';
 			case '-':
 			// Same as above: a special case in doTableStuff, added
 			// as part of T153140
-			return $stops->onStack( 'tableCellArg' )
+			return $stops->tableCellArg
 && substr( $input, $pos, 2 ) === '-{';
 			case ']':
-			if ( $stops->onStack( 'extlink' ) ) { return true;
+			if ( $stops->extlink ) { return true;
    }
-			return $stops->onStack( 'preproc' ) === $tu::PREPROC_BRACKET_BRACKET
+			return $stops->preproc === ']]'
 && $input[ $pos + 1 ] === ']';
 			default:
 			throw new Error( 'Unhandled case!' );
@@ -350,79 +341,3 @@ $tu = $module->exports = [
 		return $name === 'includeonly' || $name === 'noinclude' || $name === 'onlyinclude';
 	}
 ];
-
-/**
- * Syntax stops: Avoid eating significant tokens for higher-level rules
- * in nested inline rules.
- *
- * Flags for specific parse environments (inside tables, links etc). Flags
- * trigger syntactic stops in the inline_breaks rule, which
- * terminates inline and attribute matches. Flags merely reduce the number
- * of rules needed: The grammar is still context-free as the
- * rules can just be unrolled for all combinations of environments
- * at the cost of a much larger grammar.
- * @class
- */
-function SyntaxStops() {
-	$this->stacks = [];
-	$this->key = '';
-}
-
-/**
- * A stack for nested, but not cumulative syntactic stops.
- * Example: '=' is allowed in values of template arguments, even if those
- * are nested in attribute names.
- */
-SyntaxStops::prototype::push = function ( $name, $value ) use ( &$undefined ) {
-	if ( $this->stacks[ $name ] === null ) {
-		$this->stacks[ $name ] = [ $value ];
-	} else {
-		$this->stacks[ $name ][] = $value;
-	}
-	$this->_updateStackKey();
-	return count( $this->stacks[ $name ] ); // always truthy
-};
-
-SyntaxStops::prototype::pop = function ( $name ) use ( &$undefined ) {
-	if ( $this->stacks[ $name ] !== null ) {
-		array_pop( $this->stacks[ $name ] );
-	} else {
-		throw 'SyntaxStops.pop: unknown stop for ' . $name;
-	}
-	$this->_updateStackKey();
-	return false;
-};
-
-SyntaxStops::prototype::popTo = function ( $name, $len ) use ( &$undefined ) {
-	if ( $this->stacks[ $name ] === null ) {
-		throw 'SyntaxStops.popTo: unknown stop for ' . $name;
-	} elseif ( count( $this->stacks[ $name ] ) < ( $len - 1 ) ) {
-		throw 'SyntaxStops.popTo: stop stack too short for ' . $name;
-	} else {
-		count( $this->stacks[ $name ] ) = $len - 1;
-	}
-	$this->_updateStackKey();
-	return false;
-};
-
-SyntaxStops::prototype::onStack = function ( $name ) use ( &$undefined, &$JSUtils ) {
-	$stack = $this->stacks[ $name ];
-	if ( $stack === null || count( $stack ) === 0 ) {
-		return false;
-	} else {
-		return JSUtils::lastItem( $stack );
-	}
-};
-
-SyntaxStops::prototype::_updateStackKey = function () {
-	$stackStops = '';
-	foreach ( $this->stacks as $key => $___ ) {
-		$value = $this->onStack( $key );
-		if ( $value !== false ) {
-			$stackStops += "\n" . $key . "\n" . ( +$value );
-		}
-	}
-	$this->key = $stackStops;
-};
-
-$tu::SyntaxStops = $SyntaxStops;

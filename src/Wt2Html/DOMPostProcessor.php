@@ -41,6 +41,7 @@ $WrapSections = $requireProcessor( 'WrapSections' );
 $AddExtLinkClasses = $requireProcessor( 'AddExtLinkClasses' );
 $PWrap = $requireProcessor( 'PWrap' );
 $AddMediaInfo = $requireProcessor( 'AddMediaInfo' );
+$PHPDOMTransform = null;
 
 // handlers
 $requireHandlers = function ( $file ) {
@@ -196,7 +197,7 @@ function DOMPostProcessor( $env, $options ) {
 	// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
 	// and mw:EndTag metas would otherwise interfere with the
 	// firstChild/lastChild check that this pass does.
-	$addPP( 'migrateTemplateMarkerMetas', 'migrate-metas', function ( ...$args ) use ( &$MigrateTemplateMarkerMetas ) {return  ( new MigrateTemplateMarkerMetas() )->run( ...$args ); } );
+	$addPP( 'MigrateTemplateMarkerMetas', 'migrate-metas', function ( ...$args ) use ( &$MigrateTemplateMarkerMetas ) {return  ( new MigrateTemplateMarkerMetas() )->run( ...$args ); } );
 	$addPP( 'HandlePres', 'pres', function ( ...$args ) use ( &$HandlePres ) {return  ( new HandlePres() )->run( ...$args ); } );
 	$addPP( 'MigrateTrailingNLs', 'migrate-nls', function ( ...$args ) use ( &$MigrateTrailingNLs ) {return  ( new MigrateTrailingNLs() )->run( ...$args ); } );
 
@@ -306,7 +307,7 @@ function DOMPostProcessor( $env, $options ) {
 	// Also, the gallery extension's "packed" mode would otherwise need a
 	// post-processing pass to scale media after it has been fetched.  That
 	// introduces an ordering dependency that may or may not complicate things.
-	$addPP( 'addMediaInfo', 'media', AddMediaInfo::addMediaInfo );
+	$addPP( 'AddMediaInfo', 'media', AddMediaInfo::addMediaInfo );
 
 	// Benefits from running after determining which media are redlinks
 	$headingsVisitor = new DOMTraverser( $env );
@@ -362,7 +363,7 @@ function DOMPostProcessor( $env, $options ) {
 	);
 
 	// (Optional) red links
-	$addPP( 'addRedLinks', 'redlinks', function ( $rootNode, $env, $options ) use ( &$env, &$options, &$ContentUtils ) {
+	$addPP( 'AddRedLinks', 'redlinks', function ( $rootNode, $env, $options ) use ( &$env, &$options, &$ContentUtils ) {
 			if ( $env->conf->parsoid->useBatchAPI ) {
 				// Async; returns promise for completion.
 				return ContentUtils::addRedLinks( $env, $rootNode->ownerDocument );
@@ -588,7 +589,7 @@ function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost )
 	}
 }
 
-DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils ) {
+DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMTransform, &$requireProcessor ) {
 	$env = $this->env;
 
 	$psd = $env->conf->parsoid;
@@ -621,15 +622,14 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 		DOMDataUtils::getDataParsoid( $document->body )->dsr = [ 0, count( $env->page->src ), 0, 0 ];
 	}
 
+	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
+	$phpDOMTransformers = $pipelineConfig && $pipelineConfig->phpDOMTransformers || null;
 	for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
 		$pp = $this->processors[ $i ];
 		if ( $pp->skipNested && !$this->atTopLevel ) {
 			continue;
 		}
 		try {
-			$body = $document->body;
-
-			// Trace
 			// Trace
 			$ppStart = null; $ppElapsed = null; $ppName = null;
 			if ( $tracePP ) {
@@ -644,17 +644,27 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 					'dumpFragmentMap' => true,
 					'keepTmp' => true
 				];
-				processDumpAndGentestFlags( $psd, $body, $pp->shortcut, $opts, 'pre' );
+				processDumpAndGentestFlags( $psd, $document->body, $pp->shortcut, $opts, 'pre' );
 			}
 
-			$ret = $pp->proc( $document->body, $env, $this->options, $this->atTopLevel );
-			if ( $ret ) {
-				// Processors can return a Promise iff they need to be async.
-				/* await */ $ret;
+			if ( $phpDOMTransformers && array_search( $pp->name, $phpDOMTransformers ) >= 0 ) {
+				// Run the PHP version of this DOM transformation
+				if ( !$PHPDOMTransform ) {
+					$PHPDOMTransform = new ( $requireProcessor( 'PHPDOMTransform' ) )();
+				}
+				// Overwrite!
+				// Overwrite!
+				$document = PHPDOMTransform::run( $pp->name, $document->body, $env, $this->options, $this->atTopLevel );
+			} else {
+				$ret = $pp->proc( $document->body, $env, $this->options, $this->atTopLevel );
+				if ( $ret ) {
+					// Processors can return a Promise iff they need to be async.
+					/* await */ $ret;
+				}
 			}
 
 			if ( $this->atTopLevel ) {
-				processDumpAndGentestFlags( $psd, $body, $pp->shortcut, $opts, 'post' );
+				processDumpAndGentestFlags( $psd, $document->body, $pp->shortcut, $opts, 'post' );
 			}
 			if ( $tracePP ) {
 				$ppElapsed = JSUtils::elapsedTime( $ppStart );
@@ -687,6 +697,15 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 
 	$this->emit( 'document', $document );
 }
+
+
+
+
+
+
+
+
+
 
 
 

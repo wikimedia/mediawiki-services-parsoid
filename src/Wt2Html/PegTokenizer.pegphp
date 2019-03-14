@@ -27,7 +27,6 @@
 	$lastItem = JSUtils::lastItem;
 
 	$inlineBreaks = $tu->inlineBreaks;
-	$stops = new $tu::SyntaxStops();
 
 	$prevOffset = 0;
 	$headingIndex = 0;
@@ -107,21 +106,18 @@
 	     * closing outer templates.
 	     * --------------------------------------------------------------------- */
 
-	$isXMLTag = function ( $name, $block ) use ( &$env, &$tu, &$TokenUtils, &$constants, &$stops ) {
-		$lName = strtolower( $name );
+	$isXMLTag = function ( $name, $block ) use ( &$TokenUtils, &$constants ) {
 		$uName = strtoupper( $name );
-
-		$isInstalledExt = $env->conf->wiki->extConfig->tags->has( $lName );
-		$isIncludeTag = $tu->isIncludeTag( $lName );
-
-		$isHtmlTag = ( $block ) ?
+		return ( $block ) ?
 		TokenUtils::isBlockTag( $uName ) :
 		$constants::HTML::HTML5Tags::has( $uName ) || $constants::HTML::OlderHTMLTags::has( $uName );
+	};
 
-		// WARNING: Be careful to pop this when `isXMLTag` is used.
-		array_push( $stops, 'extTag', $isInstalledExt );
-
-		return $isHtmlTag || $isInstalledExt || $isIncludeTag;
+	$isExtTag = function ( $name ) use ( &$env, &$tu ) {
+		$lName = strtolower( $name );
+		$isInstalledExt = $env->conf->wiki->extConfig->tags->has( $lName );
+		$isIncludeTag = $tu->isIncludeTag( $lName );
+		return $isInstalledExt || $isIncludeTag;
 	};
 
 	$maybeExtensionTag = function ( $t ) use ( &$env, &$tu, &$EndTagTk, &$SelfclosingTagTk, &$TagTk, &$pipelineOpts, &$endOffset, &$assert, &$KV, &$PegTokenizer, &$TokenUtils ) {
@@ -391,18 +387,17 @@ nested_block = !inline_breaks b:block {return $b; }
  */
 nested_block_in_table
   =
-    // avoid recursion via nested_block_in_table, as that can lead to stack
-    // overflow in large tables
-    // See https://phabricator.wikimedia.org/T59670
-    & {return array_push( $stops, 'tableDataBlock', true ); }
     // XXX: don't rely on a lame look-ahead like this; use syntax stops
     // instead, so that multi-line th content followed by a line prefixed with
     // a comment is also handled. Alternatively, implement a sol look-behind
     // assertion accepting spaces and comments.
-    !(sol (space* sol)? space* (pipe / "!")) b:nested_block {
-	array_pop( $stops );
+    !(sol (space* sol)? space* (pipe / "!"))
+
+    // avoid recursion via nested_block_in_table, as that can lead to stack
+    // overflow in large tables
+    // See https://phabricator.wikimedia.org/T59670
+    b:nested_block<tableDataBlock> {
 	return $b; }
-  / & {return array_pop( $stops ); }
 
 /*
  * Line-based block constructs.
@@ -459,7 +454,41 @@ br = s:optionalSpaceToken &newline {
 	); }
 
 inline_breaks
-  = & {return inlineBreaks( $input, endOffset(), $stops ); }
+  = & [=|!{}:;\r\n[\]\-]
+    (
+        extTag: <extTag>
+        h: <h>
+        extlink: <extlink>
+        templatedepth: <templatedepth>
+        preproc: <preproc>
+        equal: <equal>
+        table: <table>
+        templateArg: <templateArg>
+        tableCellArg: <tableCellArg>
+        semicolon: <semicolon>
+        arrow: <arrow>
+        linkdesc: <linkdesc>
+        colon: <colon>
+        th: <th>
+        & {
+	return inlineBreaks( $input, endOffset(), [
+			'extTag' => $extTag,
+			'h' => $h,
+			'extlink' => $extlink,
+			'templatedepth' => $templatedepth,
+			'preproc' => $preproc,
+			'equal' => $equal,
+			'table' => $table,
+			'templateArg' => $templateArg,
+			'tableCellArg' => $tableCellArg,
+			'semicolon' => $semicolon,
+			'arrow' => $arrow,
+			'linkdesc' => $linkdesc,
+			'colon' => $colon,
+			'th' => $th
+		]
+	); }
+    )
 
 inlineline
   = c:(urltext
@@ -468,9 +497,7 @@ inlineline
 	return $tu->flattenStringlist( $c ); }
 
 inline_element
-  = & '<' r:( xmlish_tag
-          / comment
-          ) {return $r; }
+  =   & '<' r:( xmlish_tag / comment ) {return $r; }
     / & '{' r:tplarg_or_template {return $r; }
     / & "-{" r:lang_variant_or_tpl {return $r; }
     // FIXME: The php parser's replaceInternalLinks2 splits on [[, resulting
@@ -488,10 +515,9 @@ inline_element
 heading = & "=" // guard, to make sure '='+ will match.
           // XXX: Also check to end to avoid inline parsing?
     r:(
-     & {return array_push( $stops, 'h', true ); }
      s:$'='+ // moved in here to make s accessible to inner action
      ce:(
-       (ill:inlineline? {return $ill || []; })
+       (ill:inlineline<h>? {return $ill || []; })
        $'='+
      )?
      & {return $ce || count( $s ) > 2; }
@@ -502,7 +528,6 @@ heading = & "=" // guard, to make sure '='+ will match.
 	$c = null;
 	$e = null;
 	$level = null;
-	array_pop( $stops );
 	if ( $ce ) {
 		$c = $ce[ 0 ];
 		$e = $ce[ 1 ];
@@ -516,9 +541,9 @@ heading = & "=" // guard, to make sure '='+ will match.
 	}
 	$level = min( 6, $level );
 	// convert surplus equals into text
-	// FIXME: Manipulating a potentially cached result (c) can lead to
-	// subtle breakage!
 	if ( count( $s ) > $level ) {
+		// Avoid modifying a cached result
+		$c = Util::clone( $c, false );
 		$extras1 = substr( $s, 0, count( $s ) - $level );
 		if ( $c[ 0 ]->constructor === $String ) {
 			$c[ 0 ] = $extras1 + $c[ 0 ];
@@ -527,6 +552,8 @@ heading = & "=" // guard, to make sure '='+ will match.
 		}
 	}
 	if ( count( $e ) > $level ) {
+		// Avoid modifying a cached result
+		$c = Util::clone( $c, false );
 		$extras2 = substr( $e, 0, count( $e ) - $level );
 		$lastElem = lastItem( $c );
 		if ( $lastElem->constructor === $String ) {
@@ -551,7 +578,6 @@ heading = & "=" // guard, to make sure '='+ will match.
 			$spc
 		]
 	); }
-    / & {return array_pop( $stops ); }
     ) {return $r; }
 
 
@@ -597,7 +623,7 @@ behavior_text = $( !'__' [^'"<~[{\n\r:;\]}|!=] )+
  **************************************************************/
 
 autolink
-  = ! {return $stops->onStack( 'extlink' ); }
+  = ! <extlink>
     // this must be a word boundary, so previous character must be non-word
     ! {return preg_match( '/\w/', $input[ endOffset() - 1 ] || '' ); }
   r:(
@@ -609,12 +635,11 @@ autolink
     / isbn) {return $r; }
 
 extlink "extlink"
-  = ! {return $stops->onStack( 'extlink' ); } // extlink cannot be nested
+  = ! <extlink> // extlink cannot be nested
   r:(
         "["
-        & {return array_push( $stops, 'extlink', true ); }
         addr:(url_protocol urladdr / "")
-        target:(extlink_preprocessor_text / "")
+        target:(extlink_preprocessor_text<extlink> / "")
         & {
 	// Protocol must be valid and there ought to be at least one
 	// post-protocol character.  So strip last char off target
@@ -627,9 +652,8 @@ extlink "extlink"
 	return Util::isProtocolValid( array_slice( $flat, 0, -1 ), $env ); }
         sp:$( space / unispace )*
         targetOff:( "" {return endOffset(); })
-        content:inlineline?
+        content:inlineline<extlink>?
         "]" {
-	array_pop( $stops );
 	return [
 		new SelfclosingTagTk( 'extlink', [
 				new KV( 'href', $tu->flattenString( [ $addr, $target ] ) ),
@@ -642,7 +666,6 @@ extlink "extlink"
 			]
 		)
 	]; }
-      / "[" & {return array_pop( $stops ); }
     ) {return $r; }
 
 autoref
@@ -804,39 +827,29 @@ urladdr
  * and close as we find them.
  */
 tplarg_or_template
-  = &'{{' &{
+  = &'{{'
+    templatedepth:<templatedepth>
+    &{
 	// Refuse to recurse beyond `maxDepth` levels. Default in the PHP parser
 	// is $wgMaxTemplateDepth = 40; This is to prevent crashing from
 	// buggy wikitext with lots of unclosed template calls, as in
 	// eswiki/Usuario:C%C3%A1rdenas/PRUEBAS?oldid=651094
-	if ( $stops->onStack( 'templatedepth' ) === false
-||			$stops->onStack( 'templatedepth' ) < $env->conf->parsoid->maxDepth
-	) {
-		return true;
-	} else {
-		return false;
-	}} t:tplarg_or_template_guarded {return $t; }
+	return $templatedepth + 1 < $env->conf->parsoid->maxDepth; }
+    t:tplarg_or_template_guarded<templatedepth++> {return $t; }
 
 tplarg_or_template_guarded
-  = &{
-	$templatedepth = $stops->onStack( 'templatedepth' );
-	return array_push( $stops, 'templatedepth', ( $templatedepth === false ) ? 1 : $templatedepth + 1 ); }
-    r:( &('{{' &('{{{'+ !'{') tplarg) a:(template/broken_template) {return $a; }
+  = r:( &('{{' &('{{{'+ !'{') tplarg) a:(template/broken_template) {return $a; }
       / a:$('{' &('{{{'+ !'{'))? b:tplarg {return [ $a ]->concat( $b ); }
       / a:$('{' &('{{' !'{'))? b:template {return [ $a ]->concat( $b ); }
       / a:broken_template {return $a; }
     ) {
-	array_pop( $stops );
 	return $r; }
-    / & {return array_pop( $stops ); }
 
 tplarg_or_template_or_bust "tplarg_or_template_or_bust"
     = r:(tplarg_or_template / .)+ {return $tu->flattenIfArray( $r ); }
 
 template
-  = stopLen:("" {return array_push( $stops, 'preproc', $tu::PREPROC_BRACE_BRACE ); })
-    t:( template_preproc / &{return $stops->popTo( 'preproc', $stopLen ); } )
-    {$stops->popTo( 'preproc', $stopLen ); return $t; }
+  = template_preproc<&preproc="}}">
 
 // The PHP preprocessor maintains a single stack of "closing token we
 // are currently looking for", with no backtracking.  This means that
@@ -855,25 +868,25 @@ template
 // but again, `template` is used in many different contexts; `tlb` isn't
 // necessarily the right one to recursively invoke.  Instead we get the
 // broken template off of the PEGjs production stack by returning immediately
-// after `{{`, but we leave a "broken token" on top of the preprocessor
-// stops stack to indicate we're "still in" the {{ context and shouldn't
-// ever inlineBreak for any closing tokens above this one.  For example:
+// after `{{`, but we set the "preproc" reference parameter to false (the
+// reference parameter feature having been introduced for this sole purpose)
+// to indicate to the parent rule that we're "still in" the {{ context and
+// shouldn't ever inlineBreak for any closing tokens above this one.  For
+// example:
 //   [[Foo{{Bar]]
 // This will match as:
 //   wikilink->text,template->text             --> FAILS looking for }}
-//     backtracks, popping "]]" and "}}" off preproc stack
+//     backtracks, popping "bracket_bracket" and "brace_brace" off preproc stack
 //   wikilink->text,broken_template,text       --> FAILS looking for ]]
-//     backtracks, popping "]]" and "broken" off preproc stack
+//     backtracks, popping "bracket_bracket" and false off preproc stack
 //   broken_wikilink,text,broken_template,text --> OK
-//     with ["broken", "broken"] left on the preproc stops stack
-// Note that we use stops.popTo() to make sure the preproc stack is
-// cleaned up properly during backtracking, even if there were broken-FOO
-// productions taken which (deliberately) left elements on the preproc stack.
+//     with [false, false] left on the preproc stack
 
 broken_template
-  = &"{{" &{return array_push( $stops, 'preproc', $tu::PREPROC_BROKEN ); }
-    // for broken-template,  deliberately fail to pop the preproc stops stack
-    t:"{{" {return $t; }
+  = preproc:<&preproc>
+    t:"{{" {
+	$preproc->set( null );
+	return $t; }
 
 template_preproc
   = "{{" nl_comment_space*
@@ -897,9 +910,7 @@ template_preproc
 	return $obj; } / $('{{' space_or_newline* '}}')
 
 tplarg
-  = stopLen:("" {return array_push( $stops, 'preproc', $tu::PREPROC_BRACE_BRACE ); })
-    t:(tplarg_preproc / &{return $stops->popTo( 'preproc', $stopLen ); } )
-    {$stops->popTo( 'preproc', $stopLen ); return $t; }
+  = tplarg_preproc<&preproc="}}">
 
 tplarg_preproc
   = "{{{"
@@ -957,34 +968,17 @@ template_param
 	return new KV( '', '', [ startOffset(), startOffset(), startOffset(), endOffset() ] ); }
 
 template_param_name
-  = & {return array_push( $stops, 'equal', true ); }
-    tpt:(template_param_text / &'=' {return ''; })
+  = tpt:(template_param_text<equal> / &'=' {return ''; })
     {
-	array_pop( $stops );
 	return $tpt; }
 
-  / & {return array_pop( $stops ); }
-
 template_param_value
-  = & {return array_push( $stops, 'equal', false ); }
-    tpt:template_param_text
+  = tpt:template_param_text<equal=false>
     {
-	array_pop( $stops );
 	return [ 'tokens' => $tpt, 'srcOffsets' => tsrOffsets() ]; }
-  / & {return array_pop( $stops ); }
 
 template_param_text
-  = & {// re-enable tables within template parameters
-	array_push( $stops, 'table', false );
-	array_push( $stops, 'extlink', false );
-	array_push( $stops, 'templateArg', true );
-	array_push( $stops, 'tableCellArg', false );
-	return true; }
-    il:(nested_block / newlineToken)+ {
-	array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
+  = il:(nested_block<table=false, extlink=false, templateArg=true, tableCellArg=false> / newlineToken)+ {
 	// il is guaranteed to be an array -- so, tu.flattenIfArray will
 	// always return an array
 	$r = $tu->flattenIfArray( $il );
@@ -992,11 +986,6 @@ template_param_text
 		$r = $r[ 0 ];
 	}
 	return $r; }
-  / & {array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
-	return false; }
 
 //// Language converter block markup of language variants: -{ ... }-
 
@@ -1012,14 +1001,14 @@ lang_variant_or_tpl
   / &'-{' a:lang_variant {return $a; }
 
 broken_lang_variant
-  = &{return array_push( $stops, 'preproc', $tu::PREPROC_BROKEN ); }
-    // for broken-lang-variant, deliberately fail to pop the stops stack
-    r:"-{" {return $r; }
+  = r:"-{"
+    preproc:<&preproc>
+    {
+	$preproc->set( null );
+	return $r; }
 
 lang_variant
-  = stopLen:("" {return array_push( $stops, 'preproc', $tu::PREPROC_BRACE_DASH ); })
-    lv:(lang_variant_preproc / &{return $stops->popTo( 'preproc', $stopLen ); })
-    {$stops->popTo( 'preproc', $stopLen ); return $lv; }
+  = lang_variant_preproc<&preproc="}-">
   / broken_lang_variant
 
 lang_variant_preproc
@@ -1240,15 +1229,11 @@ lang_variant_text
     {return [ 'tokens' => $tu->flattenStringlist( $tokens || [] ), 'srcOffsets' => [ $start, $end ] ]; }
 
 lang_variant_text_no_semi
-  = & {return array_push( $stops, 'semicolon', true ); }
-    lvtext:lang_variant_text
-    {array_pop( $stops ); return $lvtext; }
-  / & {return array_pop( $stops ); }
+  = lvtext:lang_variant_text<semicolon>
+    {return $lvtext; }
 
 lang_variant_text_no_semi_or_arrow
-  = & {return array_push( $stops, 'arrow', true ); }
-    lvtext:lang_variant_text_no_semi {array_pop( $stops ); return $lvtext; }
-  / & {return array_pop( $stops ); }
+  = lvtext:lang_variant_text_no_semi<arrow> {return $lvtext; }
 
 wikilink_content
   = ( pipe startPos:("" {return endOffset(); }) lt:link_text? {
@@ -1257,18 +1242,19 @@ wikilink_content
 	return $maybeContent; } )*
 
 wikilink
-  = stopLen:("" {return array_push( $stops, 'preproc', $tu::PREPROC_BRACKET_BRACKET ); })
-    w:(wikilink_preproc / &{return $stops->popTo( 'preproc', $stopLen ); })
-    {$stops->popTo( 'preproc', $stopLen ); return $w; }
-  / broken_wikilink
+  = wikilink_preproc<&preproc="]]">
+    / broken_wikilink
 
 // `broken-link` (see [[:mw:Preprocessor_ABNF]]), but careful because the
-// second bracket could start an extlink.  Deliberately leave entry
-// on preproc stack since we haven't seen a double-close bracket.
+// second bracket could start an extlink.  Set preproc to false as a reference
+// parameter in the parent since we haven't seen a double-close bracket.
 // (See full explanation above broken_template production.)
 broken_wikilink
-  = &"[[" &{return array_push( $stops, 'preproc', $tu::PREPROC_BROKEN ); }
-    a:("[" (extlink / "[")) {return $a; }
+  = &"[["
+    preproc:<&preproc>
+    &{$preproc->set( null ); return true; }
+    a:("[" (extlink / "[")) {
+	return $a; }
 
 wikilink_preproc
   = "[["
@@ -1307,12 +1293,11 @@ wikilink_preproc
 	return [ $obj ]; }
 
 // Tables are allowed inside image captions.
-link_text
-  = & {
-	// Suppress the flag temporarily in this rule to consume the '=' here.
-	array_push( $stops, 'equal', false );
-	return array_push( $stops, 'linkdesc', true ); }
-    c:(  // This group is similar to "block_line" but "list_item"
+// Suppress the equal flag temporarily in this rule to consume the '=' here.
+link_text = link_text_parameterized<equal = false, linkdesc = true>
+
+link_text_parameterized
+  = c:(  // This group is similar to "block_line" but "list_item"
          // is omitted since `doBlockLevels` happens after
          // `replaceInternalLinks2`, where newlines are stripped.
          (sol (heading / hr / full_table_in_link_caption))
@@ -1321,10 +1306,7 @@ link_text
           r:( inline_element / '[' text_char+ ']' $(&(!']' / ']]')) / . ) {return $r; }
          )
     )+ {
-	array_pop( $stops );
-	array_pop( $stops );
 	return $tu->flattenStringlist( $c ); }
-    / & {array_pop( $stops ); return array_pop( $stops ); }
 
 /* Generic quote rule for italic and bold, further processed in a token
  * stream transformation in doQuotes. Relies on NlTk tokens being emitted
@@ -1362,11 +1344,11 @@ quote = quotes:$("''" "'"*) {
  ***********************************************************/
 
 extension_tag =
-  &{return !$stops->onStack( 'extTag' ); }
+  !<extTag>
   extToken:xmlish_tag
   // Account for `maybeExtensionTag` returning unmatched start / end tags
-  &{return ( ( is_array( $extToken ) ) ? $extToken[ 0 ] : $extToken )->name === 'extension'; }
-  {return $extToken; }
+  &{return $extToken[ 0 ]->name === 'extension'; }
+  {return $extToken[ 0 ]; }
 
 nowiki
   = extToken:extension_tag
@@ -1400,37 +1382,42 @@ tag_name = $([A-Za-z] tag_name_chars*)
 space_or_newline_or_solidus = space_or_newline / (s:"/" !">" {return $s; })
 
 xmlish_tag
-  = & {
-	// By the time we get to `doTableStuff` in the php parser, we've already
-	// safely encoded element attributes. See 55313f4e in core.
-	array_push( $stops, 'table', false );
-	array_push( $stops, 'tableCellArg', false );
-	return true; }
-    "<" end:"/"?
-    name:$(tn:tag_name & {
-	return isXMLTag( $tn, false ); // NOTE: 'extTag' stop was pushed.
-	})
-    attribs:generic_newline_attributes
+  = "<" tag:(xmlish_tag_opened<isBlock=false, extTag> / xmlish_tag_opened<isBlock=false, extTag=false>)
+    {return $tag; }
+
+xmlish_tag_opened
+  = end:"/"?
+    name: tag_name
+    extTag: <extTag>
+    isBlock: <isBlock>
+    & {
+	if ( $extTag ) {
+		return isExtTag( $name );
+	} else {
+		return isXMLTag( $name, $isBlock );
+	}}
+    // By the time we get to `doTableStuff` in the php parser, we've already
+    // safely encoded element attributes. See 55313f4e in core.
+    attribs:generic_newline_attributes<table=false, tableCellArg=false>
     space_or_newline_or_solidus* // No need to preserve this -- canonicalize on RT via dirty diff
     selfclose:"/"?
     space* // not preserved - canonicalized on RT via dirty diff
-    ">" {
-	array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
-
+    ">"
+    {
 	$lcName = strtolower( $name );
 
 	// Extension tags don't necessarily have the same semantics as html tags,
 	// so don't treat them as void elements.
-	$isVoidElt = Util::isVoidElement( $lcName ) && !$env->conf->wiki->extConfig->tags->has( $lcName );
+	$isVoidElt = Util::isVoidElement( $lcName ) && !$extTag;
 
 	// Support </br>
 	if ( $lcName === 'br' && $end ) {
 		$end = null;
 	}
 
-	$res = $tu->buildXMLTag( $name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, tsrOffsets() );
+	$tsr = tsrOffsets();
+	$tsr[ 0 ]--; // For "<" matched at the start of xmlish_tag rule
+	$res = $tu->buildXMLTag( $name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr );
 
 	// change up data-attribs in one scenario
 	// void-elts that aren't self-closed ==> useful for accurate RT-ing
@@ -1439,9 +1426,8 @@ xmlish_tag
 		$res->dataAttribs->noClose = true;
 	}
 
-	return maybeExtensionTag( $res ); }
-    / "<" "/"? tag_name & {return array_pop( $stops ); }
-    / & {array_pop( $stops ); return array_pop( $stops ); }
+	$met = maybeExtensionTag( $res );
+	return ( is_array( $met ) ) ? $met : [ $met ]; }
 
 /*
  * A variant of xmlish_tag, but also checks if the tag name is a block-level
@@ -1450,28 +1436,8 @@ xmlish_tag
  * following paragraphs.
  */
 block_tag
-  = & {
-	// By the time we get to `doTableStuff` in the php parser, we've already
-	// safely encoded element attributes. See 55313f4e in core.
-	array_push( $stops, 'table', false );
-	array_push( $stops, 'tableCellArg', false );
-	return true; }
-    "<" end:"/"?
-    name:$(tn:tag_name & {
-	return isXMLTag( $tn, true ); // NOTE: 'extTag' stop was pushed.
-	})
-    attribs:generic_newline_attributes
-    space_or_newline_or_solidus*
-    selfclose:"/"?
-    ">" {
-	array_pop( $stops );
-	array_pop( $stops );
-	array_pop( $stops );
-	$t = $tu->buildXMLTag( $name, strtolower( $name ), $attribs, $end, !!$selfclose, tsrOffsets() );
-	$met = maybeExtensionTag( $t );
-	return ( is_array( $met ) ) ? $met : [ $met ]; }
-    / "<" "/"? tag_name & {return array_pop( $stops ); }
-    / & {array_pop( $stops ); return array_pop( $stops ); }
+  = "<" tag:(xmlish_tag_opened<isBlock, extTag> / xmlish_tag_opened<isBlock, extTag=false>)
+    {return $tag; }
 
 // A generic attribute that can span multiple lines.
 generic_newline_attribute
@@ -1527,7 +1493,11 @@ table_attribute
 // be found anywhere in xmlish tags.  This is a divergence from html5 tokenizing
 // which happily permits it in attribute positions.  Extension tags being the
 // exception, since they're stripped beforehand.
-less_than = $(&{return $stops->onStack( 'extTag' ); } "<")
+less_than =
+  $(
+    &<extTag>
+    "<"
+  )
 
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
@@ -1649,11 +1619,8 @@ dtdd
 list_char = [*#:;]
 
 inlineline_break_on_colon
-  = & {return array_push( $stops, 'colon', true ); }
-    ill:inlineline
-    & {array_pop( $stops ); return true; }
+  = ill:inlineline<colon>
     {return $ill; }
-    / & {return array_pop( $stops ); }
 
 /******************************************************************************
  * Tables
@@ -1708,40 +1675,33 @@ inlineline_break_on_colon
 
 full_table_in_link_caption
   = (! inline_breaks / & '{{!}}' )
-    r:(
-        // Note that "linkdesc" is suppressed here to provide a nested parsing
-        // context in which to parse the table.  Otherwise, we may break on
-        // on pipes in the `table_start_tag` and `table_row_tag` attributes.
-        // However, as a result, this can be more permissive than the current
-        // php implementation, but likelier to match the users intent.
-        & {array_push( $stops, 'linkdesc', false ); return array_push( $stops, 'table', true ); }
-        tbl:(
-            table_start_tag optionalNewlines
-            // Accept multiple end tags since a nested table may have been
-            // opened in the table content line.
-            ((sol (table_content_line / tplarg_or_template) optionalNewlines)*
-            sol table_end_tag)+
-        ){
-	array_pop( $stops );
-	array_pop( $stops );
+    // Note that "linkdesc" is suppressed here to provide a nested parsing
+    // context in which to parse the table.  Otherwise, we may break on
+    // on pipes in the `table_start_tag` and `table_row_tag` attributes.
+    // However, as a result, this can be more permissive than the current
+    // php implementation, but likelier to match the users intent.
+    r: full_table_in_link_caption_parameterized<linkdesc=false, table> {
+	return $r; }
+
+full_table_in_link_caption_parameterized
+  = tbl:(
+        table_start_tag optionalNewlines
+        // Accept multiple end tags since a nested table may have been
+        // opened in the table content line.
+        ((sol (table_content_line / tplarg_or_template) optionalNewlines)*
+        sol table_end_tag)+
+    ){
 	return $tbl; }
-      / & {array_pop( $stops ); return array_pop( $stops ); }
-    ) {return $r; }
 
 // This rule assumes start-of-line position!
 table_line
   = (! inline_breaks / & '{{!}}' )
-    r:(
-        & {return array_push( $stops, 'table', true ); }
-        tl:(
-             table_start_tag optionalNewlines
-           / table_content_line optionalNewlines
-           / table_end_tag
-        ) {
-	array_pop( $stops );
+    tl:(
+         table_start_tag optionalNewlines
+       / table_content_line<table> optionalNewlines
+       / table_end_tag
+    ) {
 	return $tl; }
-      / & {return array_pop( $stops ); }
-    ) {return $r; }
 
 table_content_line = (space / comment)* (
     table_heading_tags
@@ -1755,9 +1715,8 @@ table_start_tag "table_start_tag"
     startPos:("" {return endOffset(); })
     b:"{" p:pipe
     // ok to normalize away stray |} on rt (see T59360)
-    & {return array_push( $stops, 'table', false ); }
-    ta:(table_attributes / &{assert( false ); return false; })
-    tsEndPos:("" {array_pop( $stops ); return endOffset(); })
+    ta:(table_attributes<table=false> / &{assert( false ); return false; })
+    tsEndPos:("" {return endOffset(); })
     s2:space*
     {
 	$coms = $tu->popComments( $ta );
@@ -1780,7 +1739,7 @@ table_start_tag "table_start_tag"
 // FIXME: Not sure if we want to support it, but this should allow columns.
 table_caption_tag
     // avoid recursion via nested_block_in_table
-  = ! {return $stops->onStack( 'tableDataBlock' ); }
+  = ! <tableDataBlock>
     p:pipe "+"
     args:row_syntax_table_args?
     tagEndPos:("" {return endOffset(); })
@@ -1789,11 +1748,10 @@ table_caption_tag
 
 table_row_tag
   = // avoid recursion via nested_block_in_table
-    ! {return $stops->onStack( 'tableDataBlock' ); }
+    ! <tableDataBlock>
     p:pipe dashes:$"-"+
-    & {return array_push( $stops, 'table', false ); }
-    a:(table_attributes / &{assert( false ); return false; })
-    tagEndPos:("" {array_pop( $stops ); return endOffset(); })
+    a:(table_attributes<table=false> / &{assert( false ); return false; })
+    tagEndPos:("" {return endOffset(); })
     {
 	$coms = $tu->popComments( $a );
 	if ( $coms ) {
@@ -1819,8 +1777,10 @@ table_row_tag
 tds
   = ( pp:( pipe_pipe / p:pipe & row_syntax_table_args {return $p; } )
       tdt:table_data_tag {
-	// FIXME: Manipulating a potentially cached result (tdt) can lead to
-	// subtle breakage!
+	// Avoid modifying a cached result
+	$tdt = array_slice( $tdt, 0 );
+	$tdt[ 0 ] = Util::clone( $tdt[ 0 ] );
+
 	$da = $tdt[ 0 ]->dataAttribs;
 	$da->stx = 'row';
 	$da->tsr[ 0 ] -= count( $pp ); // include "||"
@@ -1833,13 +1793,15 @@ tds
 
 table_data_tags
     // avoid recursion via nested_block_in_table
-  = ! {return $stops->onStack( 'tableDataBlock' ); }
+  = ! <tableDataBlock>
     p:pipe
     ![+-] td:table_data_tag
     tagEndPos:("" {return endOffset(); })
     tds:tds {
-	// FIXME: Manipulating a potentially cached result (td) can lead to
-	// subtle breakage!
+	// Avoid modifying a cached result
+	$td = array_slice( $td, 0 );
+	$td[ 0 ] = Util::clone( $td[ 0 ] );
+
 	$da = $td[ 0 ]->dataAttribs;
 	$da->tsr[ 0 ] -= count( $p ); // include "|"
 	if ( $p !== '|' ) {
@@ -1857,13 +1819,16 @@ table_data_tag
     {
 	return $tu->buildTableTokens( 'td', '|', $arg, [ startOffset(), $tagEndPos ], endOffset(), $td ); }
 
-table_heading_tags
+table_heading_tags = table_heading_tags_parameterized<&th>
+
+table_heading_tags_parameterized
   = "!"
-    & {return array_push( $stops, 'th', endOffset() ); }
-    th:table_heading_tag
-    ths:( pp:("!!" / pipe_pipe) tht:table_heading_tag {
-	// FIXME: Manipulating a potentially cached result (tht) can lead to
-	// subtle breakage!
+    thTag:table_heading_tag
+    thTags:( pp:("!!" / pipe_pipe) tht:table_heading_tag {
+	// Avoid modifying a cached result
+	$tht = array_slice( $tht, 0 );
+	$tht[ 0 ] = Util::clone( $tht[ 0 ] );
+
 	$da = $tht[ 0 ]->dataAttribs;
 	$da->stx = 'row';
 	$da->tsr[ 0 ] -= count( $pp ); // include "!!" or "||"
@@ -1874,25 +1839,24 @@ table_heading_tags
 	}
 	return $tht; }
     )* {
-	array_pop( $stops );
-	// FIXME: Here too!
-	$th[ 0 ]->dataAttribs->tsr[ 0 ]--; // include "!"
-	return $th->concat( $ths ); }
-    / & {return ( $stops->onStack( 'th' ) !== false ) ? array_pop( $stops ) : false; }
+	$thTag = array_slice( $thTag, 0 );
+	$thTag[ 0 ] = Util::clone( $thTag[ 0 ] );
+	$thTag[ 0 ]->dataAttribs->tsr[ 0 ]--; // include "!"
+	return $thTag->concat( $thTags ); }
 
 table_heading_tag
   = arg:row_syntax_table_args?
     tagEndPos:("" {return endOffset(); })
-    c:( & {
-	// This SyntaxStop is only true until we hit the end of the line.
-	if ( $stops->onStack( 'th' ) !== false
-&&			preg_match( '/\n/', $input->substring( $stops->onStack( 'th' ), endOffset() ) )
-	) {
+    c:(
+        th:<&th>
+        d:nested_block_in_table {
+	if ( $th->get() !== false && preg_match( '/\n/', text() ) ) {
 		// There's been a newline. Remove the break and continue
 		// tokenizing nested_block_in_tables.
-		array_pop( $stops );
+		$th->set( false );
 	}
-	return true; } d:nested_block_in_table {return $d; } )* {
+	return $d; }
+    )* {
 	return $tu->buildTableTokens( 'th', '!', $arg, [ startOffset(), $tagEndPos ], endOffset(), $c ); }
 
 table_end_tag
@@ -1910,11 +1874,8 @@ table_end_tag
  * match if followed by double pipe (row-based syntax).
  */
 row_syntax_table_args
-  = & {return array_push( $stops, 'tableCellArg', true ); }
-    as:table_attributes s:space* p:pipe !pipe {
-	array_pop( $stops );
+  = as:table_attributes<tableCellArg> s:space* p:pipe !pipe {
 	return [ $as, $s, $p ]; }
-    / & {return array_pop( $stops ); }
 
 
 /*******************************************************************
@@ -2050,13 +2011,7 @@ optionalNewlines
 		return [];
 	}}
 
-comment_or_includes = (comment / (
-    ( & {return array_push( $stops, 'sol_il', true ); }
-      i:include_limits
-      & {array_pop( $stops ); return true; }
-    ) {return $i; }
-    / & {return array_pop( $stops ); }
-  ))*
+comment_or_includes = (comment / include_limits<sol_il>)*
 
 sol = (empty_line_with_comments / sol_prefix) comment_or_includes
 
@@ -2101,8 +2056,9 @@ nl_comment_space = newlineToken / comment_space
 include_limits =
   & ("<" "/"? n:$[oyinclude]i+ & {return $tu->isIncludeTag( strtolower( $n ) ); })
   il:xmlish_tag
+  sol_il: <sol_il>
   & {
-	$il = ( is_array( $il ) ) ? $il[ 0 ] : $il;
+	$il = $il[ 0 ];
 	$lname = strtolower( $il->name );
 	if ( !$tu->isIncludeTag( $lname ) ) { return false;  }
 	// Preserve SOL where necessary (for onlyinclude and noinclude)
@@ -2110,7 +2066,7 @@ include_limits =
 	// the toplevel content and we rely on the php preprocessor to expand
 	// templates, so we shouldn't ever be tokenizing inInclude.
 	// Last line should be empty (except for comments)
-	if ( $lname !== 'includeonly' && $stops->onStack( 'sol_il' ) && $il->constructor === $TagTk ) {
+	if ( $lname !== 'includeonly' && $sol_il && $il->constructor === $TagTk ) {
 		$dp = $il->dataAttribs;
 		$inclContent = $dp->src->substring( $dp->tagWidths[ 0 ], count( $dp->src ) - $dp->tagWidths[ 1 ] );
 		$last = lastItem( explode( "\n", $inclContent ) );
@@ -2156,19 +2112,19 @@ wikilink_preprocessor_text
 extlink_preprocessor_text
   // added special separator character class inline: separates url from
   // description / text
-  = & {
-	// Prevent breaking on pipes when we're in a link description.
-	// See the test, 'Images with the "|" character in the comment'.
-	return array_push( $stops, 'linkdesc', false ); }
-  r:( $[^'<~[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
-  / !inline_breaks s:( directive / no_punctuation_char / [&|{\-] ) {return $s; }
-  // !inline_breaks no_punctuation_char
-  / $([.:,] !(space / eolf))
-  / $(['] ![']) // single quotes are ok, double quotes are bad
-  )+ {
-	array_pop( $stops );
+  =
+    // Prevent breaking on pipes when we're in a link description.
+    // See the test, 'Images with the "|" character in the comment'.
+    extlink_preprocessor_text_parameterized<linkdesc=false>
+
+extlink_preprocessor_text_parameterized
+  = r:( $[^'<~[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
+    / !inline_breaks s:( directive / no_punctuation_char / [&|{\-] ) {return $s; }
+    // !inline_breaks no_punctuation_char
+    / $([.:,] !(space / eolf))
+    / $(['] ![']) // single quotes are ok, double quotes are bad
+    )+ {
 	return $tu->flattenString( $r ); }
-  / & {return array_pop( $stops ); }
 
 // Attribute values with preprocessor support
 

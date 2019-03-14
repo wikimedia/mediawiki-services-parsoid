@@ -3,7 +3,7 @@
 // phpcs:disable Generic.Files.LineLength.TooLong
 /* REMOVE THIS COMMENT AFTER PORTING */
 /**
- * Tokenizer for wikitext, using {@link https://pegjs.org/ PEG.js} and a
+ * Tokenizer for wikitext, using WikiPEG and a
  * separate PEG grammar file
  * (pegTokenizer.pegjs)
  *
@@ -87,74 +87,101 @@ PegTokenizer::prototype::compileTokenizer = function ( $ast ) use ( &$PEG ) {
 			$compiler->passes->check->reportLeftRecursion
 		],
 		'transform' => [
-			$compiler->passes->transform->removeProxyRules
+			$compiler->passes->transform->analyzeParams
 		],
 		'generate' => [
 			$compiler->passes->generate->astToRegAllocJS
 		]
 	];
 
-	function cacheRuleHook( $opts ) {
-		$maxVisitCount = 20;
-		return [
-			'start' => implode(
-
-				"\n", [
-					implode(
-
-						'', [
-							'var checkCache = visitCounts[', $opts->startPos,
-							'] > ', $maxVisitCount, ';'
-						]
-					),
-					'var cached, bucket, key;',
-					'if (checkCache) {',
-					implode(
-
-						'', [
-							'  key = (', $opts->variantIndex, '+',
-							$opts->variantCount, '*', $opts->ruleIndex,
-							').toString() + stops.key;'
-						]
-					),
-					implode(
-
-						'', [
-							'  bucket = ', $opts->startPos, ';'
-						]
-					),
-					'  if ( !peg$cache[bucket] ) { peg$cache[bucket] = {}; }',
-					'  cached = peg$cache[bucket][key];',
-					'} else {',
-					'  visitCounts[' . $opts->startPos . ']++;',
-					'}'
-				]
-			),
-			'hitCondition' => 'cached',
-			'nextPos' => 'cached.nextPos',
-			'result' => 'cached.result',
-			'store' => implode(
-
-				"\n", [
-					'if (checkCache) {',
-					implode(
-
-						'', [
-							'  peg$cache[bucket][key] = { nextPos: ', $opts->endPos, ', ',
-							'result: ',
-							( $env && $env->immutable ) ? implode(
-
-								'', [
-									'JSUtils.deepFreeze(', $opts->result, ')'
-								]
-							) : $opts->result,
-							' };'
-						]
-					),
-					'}'
-				]
-			)
+	function cacheRuleHook( $opts ) use ( &$env ) {
+		$keyParts = [
+			$opts->variantIndex + $opts->variantCount * ( $opts->ruleIndex + $opts->ruleCount )
 		];
+		if ( count( $opts->params ) ) {
+			$keyParts = $keyParts->concat( $opts->params );
+		}
+		$key = null;
+		if ( count( $keyParts ) === 1 ) {
+			$key = $keyParts[ 0 ];
+		} else {
+			$key = '[' . implode( ', ', $keyParts ) . '].join(":")';
+		}
+
+		$maxVisitCount = 20;
+		$cacheBits = [];
+		$cacheBits->start =
+		implode(
+
+			"\n", [
+				implode(
+
+					'', [
+						'var checkCache = visitCounts[', $opts->startPos,
+						'] > ', $maxVisitCount, ';'
+					]
+				),
+				'var cached, bucket, key;',
+				'if (checkCache) {',
+				implode(
+
+					'', [
+						'  key = ' . $key . ';'
+					]
+				),
+				implode(
+
+					'', [
+						'  bucket = ', $opts->startPos, ';'
+					]
+				),
+				'  if ( !peg$cache[bucket] ) { peg$cache[bucket] = {}; }',
+				'  cached = peg$cache[bucket][key];',
+				'  if (cached) {',
+				'    peg$currPos = cached.nextPos;'
+			]->
+			concat( $opts->loadRefs )->
+			concat( [
+					'    return cached.result;',
+					'  }'
+				]
+			)->concat( $opts->saveRefs )->
+			concat( [
+					'} else {',
+					'  visitCounts[' . $opts->startPos . ']++;'
+				]
+			)->
+			concat( [ '}' ] )
+		);
+
+		$result = null;
+		if ( $env && $env->immutable ) {
+			$result = 'JSUtils.deepFreeze(' . $opts->result . ')';
+		} else {
+			$result = $opts->result;
+		}
+		$cacheBits->store =
+		[ 'if (checkCache) {' ]->
+		concat( [
+				'  cached = peg$cache[bucket][key] = {',
+				'    nextPos: ' . $opts->endPos . ','
+			]
+		);
+		if ( count( $opts->storeRefs ) ) {
+			$cacheBits->store[] = '    refs: {},';
+		}
+		$cacheBits->store = implode(
+
+			"\n", $cacheBits->store->concat(
+				[
+					'    result: ' . $result . ',',
+					'  };'
+				]
+			)->concat( $opts->storeRefs )->
+			concat( [ '}' ] )
+		);
+
+		return $cacheBits;
 	}
 
 	function cacheInitHook( $opts ) {

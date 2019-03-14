@@ -82,28 +82,9 @@ class WikiLinkHandler extends TokenHandler {
 	 *
 	 * @return Object The target info.
 	 */
-	public function getWikiLinkTargetInfo( $token, $hrefKV ) {
+	public function getWikiLinkTargetInfo( $token, $href, $hrefSrc ) {
 		$env = $this->manager->env;
-
-		$info = [
-			'href' => TokenUtils::tokensToString( $hrefKV->v ),
-			'hrefSrc' => $hrefKV->vsrc
-		];
-
-		if ( is_array( $hrefKV->v ) && $hrefKV->v->some( function ( $t ) use ( &$Token, &$TokenUtils, &$env, &$token, &$DOMUtils ) {
-						if ( $t instanceof Token::class
-&& TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) )
-						) {
-							$firstNode = $env->fragmentMap->get( $token->dataAttribs->html )[ 0 ];
-							return $firstNode && DOMUtils::isElt( $firstNode )
-&& preg_match( '/\bmw:(Nowiki|Extension)/', $firstNode->getAttribute( 'typeof' ) );
-						}
-						return false;
-		}
-				)
-		) {
-			throw new Error( 'Xmlish tags in title position are invalid.' );
-		}
+		$info = [ 'href' => $href, 'hrefSrc' => $hrefSrc ];
 
 		if ( preg_match( '/^:/', $info->href ) ) {
 			$info->fromColonEscapedText = true;
@@ -156,11 +137,9 @@ class WikiLinkHandler extends TokenHandler {
 					// Empty title => main page (T66167)
 					$info->title = $env->makeTitleFromURLDecodedStr( $env->conf->wiki->mainpage );
 				} else {
-					$info->href = $hrefBits->title;
+					$info->href = ( ( preg_match( '/:/', $hrefBits->title ) ) ? ':' : '' ) + $hrefBits->title;
 					// Recurse!
-					$hrefKV = new KV( 'href', ( ( preg_match( '/:/', $info->href ) ) ? ':' : '' ) + $info->href );
-					$hrefKV->vsrc = $info->hrefSrc;
-					$info = $this->getWikiLinkTargetInfo( $token, $hrefKV );
+					$info = $this->getWikiLinkTargetInfo( $token, $info->href, $info->hrefSrc );
 					$info->localprefix = $nsPrefix
 + ( ( $info->localprefix ) ? ( ':' . $info->localprefix ) : '' );
 				}
@@ -308,38 +287,15 @@ class WikiLinkHandler extends TokenHandler {
 	public function onWikiLinkG( $token ) {
 		$env = $this->manager->env;
 		$hrefKV = KV::lookupKV( $token->attribs, 'href' );
-		$target = null;
-
-		try {
-			$target = $this->getWikiLinkTargetInfo( $token, $hrefKV );
-		} catch ( Exception $e ) {
-			// Invalid title
-			$target = null;
-		}
-
-		if ( !$target ) {
-			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
-		}
-
-		// First check if the expanded href contains a pipe.
-		if ( preg_match( '/[|]/', $target->href ) ) {
-			// It does. This 'href' was templated and also returned other
-			// parameters separated by a pipe. We don't have any sane way to
-			// handle such a construct currently, so prevent people from editing
-			// it.
-			// TODO: add useful debugging info for editors ('if you would like to
-			// make this content editable, then fix template X..')
-			// TODO: also check other parameters for pipes!
-			return [ 'tokens' => TokenUtils::placeholder( null, $token->dataAttribs ) ];
-		}
+		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
 
 		// Don't allow internal links to pages containing PROTO:
 		// See Parser::replaceInternalLinks2()
-		if ( $env->conf->wiki->hasValidProtocol( $target->href ) ) {
+		if ( $env->conf->wiki->hasValidProtocol( $hrefTokenStr ) ) {
 			// NOTE: Tokenizing this as src seems little suspect
 			$src = '[' . array_reduce( array_slice( $token->attribs, 1 ), function ( $prev, $next ) {
 						return $prev . '|' . TokenUtils::tokensToString( $next->v );
-			}, $target->href
+			}, $hrefTokenStr
 				)
 
 			 . ']';
@@ -355,6 +311,41 @@ class WikiLinkHandler extends TokenHandler {
 			$tokens = [ '[' ]->concat( $extToks, ']' );
 			$tokens->rank = self::rank() - 0.002; // Magic rank, since extlink is -0.001
 			return [ 'tokens' => $tokens ];
+		}
+
+		if ( is_array( $hrefKV->v ) && $hrefKV->v->some( function ( $t ) use ( &$Token, &$TokenUtils, &$env, &$DOMUtils ) {
+						if ( $t instanceof Token::class
+&& TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) )
+						) {
+							$firstNode = $env->fragmentMap->get( $t->dataAttribs->html )[ 0 ];
+							return $firstNode && DOMUtils::isElt( $firstNode )
+&& preg_match( '/\bmw:(Nowiki|Extension)/', $firstNode->getAttribute( 'typeof' ) );
+						}
+						return false;
+		}
+				)
+		) {
+			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
+		}
+
+		$target = null;
+		try {
+			$target = $this->getWikiLinkTargetInfo( $token, $hrefTokenStr, $hrefKV->vsrc );
+		} catch ( Exception $e ) {
+			// Invalid title
+			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
+		}
+
+		// First check if the expanded href contains a pipe.
+		if ( preg_match( '/[|]/', $target->href ) ) {
+			// It does. This 'href' was templated and also returned other
+			// parameters separated by a pipe. We don't have any sane way to
+			// handle such a construct currently, so prevent people from editing
+			// it.
+			// TODO: add useful debugging info for editors ('if you would like to
+			// make this content editable, then fix template X..')
+			// TODO: also check other parameters for pipes!
+			return [ 'tokens' => TokenUtils::placeholder( null, $token->dataAttribs ) ];
 		}
 
 		// Ok, it looks like we have a sane href. Figure out which handler to use.
