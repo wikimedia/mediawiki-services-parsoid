@@ -1,10 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../tests/MockEnv.php';
 
 use Parsoid\Tests\MockEnv;
-
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
