@@ -41,6 +41,12 @@ yargs.options({
 		'default': '-',
 		'alias': 'o'
 	},
+
+	'php': {
+		description: 'Use the PHP grammar',
+		'boolean': true,
+		'default': false,
+	},
 });
 
 yargs.help();
@@ -56,14 +62,16 @@ function getOutputStream(opts) {
 function generateSource(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
-	var source = tokenizer.compileTokenizer(tokenizer.parseTokenizer());
+	var pegOpts = { php: opts.php };
+	var source = tokenizer.compileTokenizer(tokenizer.parseTokenizer(pegOpts), pegOpts);
 	file.write(source, 'utf8');
 }
 
 function generateRules(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
-	var ast = tokenizer.parseTokenizer();
+	var pegOpts = { php: opts.php };
+	var ast = tokenizer.parseTokenizer(pegOpts);
 	var visitor = require('wikipeg/lib/compiler/visitor');
 
 	// Current code style seems to use spaces in the tokenizer.
@@ -129,7 +137,8 @@ function generateRules(opts) {
 function generateCallgraph(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
-	var ast = tokenizer.parseTokenizer();
+	var pegOpts = { php: opts.php };
+	var ast = tokenizer.parseTokenizer(pegOpts);
 	var visitor = require('wikipeg/lib/compiler/visitor');
 	var edges = [];
 	var currentRuleName;
@@ -160,7 +169,8 @@ function generateCallgraph(opts) {
 function listOrphans(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
-	var ast = tokenizer.parseTokenizer();
+	var pegOpts = { php: opts.php };
+	var ast = tokenizer.parseTokenizer(pegOpts);
 	var visitor = require('wikipeg/lib/compiler/visitor');
 
 	var rules = {};

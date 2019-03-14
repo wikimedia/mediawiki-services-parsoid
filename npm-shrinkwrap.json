@@ -2960,9 +2960,9 @@
       "resolved": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#84872586506a36962bb75dde8fd2de75231cfe43"
     },
     "wikipeg": {
-      "version": "1.0.2",
-      "from": "wikipeg@1.0.2",
-      "resolved": "https://registry.npmjs.org/wikipeg/-/wikipeg-1.0.2.tgz"
+      "version": "2.0.1",
+      "from": "wikipeg@2.0.1",
+      "resolved": "https://registry.npmjs.org/wikipeg/-/wikipeg-2.0.1.tgz"
     },
     "wordwrap": {
       "version": "0.0.3",

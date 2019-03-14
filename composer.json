@@ -39,7 +39,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Parsoid\\": "src/"
+			"Parsoid\\": "src/",
+			"WikiPEG\\": "node_modules/wikipeg/src"
 		}
 	},
 	"autoload-dev": {
