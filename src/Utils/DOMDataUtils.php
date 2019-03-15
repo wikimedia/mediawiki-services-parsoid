@@ -147,11 +147,12 @@ class DOMDataUtils {
 			return $defaultVal;
 		}
 		$attVal = $node->getAttribute( $name );
-		try {
-			return PHPUtils::jsonDecode( $attVal, false );
-		} catch ( Exception $e ) {
+		$decoded = PHPUtils::jsonDecode( $attVal, false );
+		if ( $decoded !== null ) {
+			return $decoded;
+		} else {
 			error_log( 'ERROR: Could not decode attribute-val ' . $attVal .
-				' for ' . $name . ' on node ' . $node->outerHTML );
+				' for ' . $name . ' on node ' . $node->nodeName );
 			return $defaultVal;
 		}
 	}
