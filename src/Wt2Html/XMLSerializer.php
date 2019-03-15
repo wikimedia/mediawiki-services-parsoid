@@ -103,7 +103,7 @@ class XMLSerializer {
 	 *   - $flag: (string|null) 'start' or 'end' (??)
 	 * @return void
 	 */
-	private function serializeToString( DOMNode $node, array $options, callable $accum ): void {
+	private static function serializeToString( DOMNode $node, array $options, callable $accum ): void {
 		$child = null;
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
