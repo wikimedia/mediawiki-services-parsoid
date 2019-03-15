@@ -300,7 +300,7 @@ class Util {
 		// PORT-FIXME: Once token classes are ported, check if dataAttribs is
 		// going to be an associative array or an object and update this accordingly.
 		$tagWidths = $token->dataAttribs->tagWidths;
-		return substr( $src, $tagWidths[0], strlen( $src ) - $tagWidths[1] );
+		return mb_substr( $src, $tagWidths[0], -$tagWidths[1] );
 	}
 
 	/**

@@ -601,7 +601,7 @@ class ComputeDSR {
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
-						$dp->dbsrc = substr( $env->getPageMainContent(), $cs, $ce );
+						$dp->dbsrc = mb_substr( $env->getPageMainContent(), $cs, $ce - $cs );
 						return $str;
 					} );
 				}
@@ -649,7 +649,7 @@ class ComputeDSR {
 								// debug info
 								if ( $siblingDP->dsr[1] ) {
 									$siblingDP->dbsrc =
-										substr( $env->getPageMainContent(), $newCE, $siblingDP->dsr[1] );
+										mb_substr( $env->getPageMainContent(), $newCE, $siblingDP->dsr[1] - $newCE );
 								}
 								return $str;
 							} );

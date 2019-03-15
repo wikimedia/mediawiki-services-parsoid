@@ -553,9 +553,9 @@ class WTUtils {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dsr = $dp->dsr ?? null;
 		// PORT-FIXME: We could probably change the null return to ''
-		// Just need to verify that coe that uses this won't break
+		// Just need to verify that code that uses this won't break
 		return $dsr && Util::isValidDSR( $dsr ) ?
-			substr( $env->getPageMainContent(), $dsr[0], $dsr[1] ) : null;
+			mb_substr( $env->getPageMainContent(), $dsr[0], $dsr[1] - $dsr[0] ) : null;
 	}
 
 	/**
