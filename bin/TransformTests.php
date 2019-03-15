@@ -134,7 +134,7 @@ class TransformTests {
 						break;
 					}
 
-					$result = $transformer->processTokensSync( null, $input, [] );
+					$result = $transformer->processTokensSync( $this->env, $input, [] );
 					$stringResult = PHPUtils::jsonEncode( $result );
 					# print "SR  : $stringResult\n";
 					# print "LINE: $line\n";
@@ -278,7 +278,7 @@ class TransformTests {
 						}
 					}
 
-					$result = $transformer->processTokensSync( null, $input, [] );
+					$result = $transformer->processTokensSync( $this->env, $input, [] );
 
 					// desired result json string for test result verification
 					$stringResult = PHPUtils::jsonEncode( $result );

@@ -252,10 +252,6 @@ MockTTM.prototype.ProcessWikitextFile = function(transformer, opts) {
 		}
 	}
 
-	if (!opts.verbose) {
-		process.stdout.write('\n');
-	}
-
 	return { passes: numPasses, fails: numFailures };
 };
 
