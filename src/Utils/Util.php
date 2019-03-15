@@ -365,17 +365,15 @@ class Util {
 	 * decode these HTML-only entity forms.
 	 *
 	 * @param string $text
-	 * @return {string}
+	 * @return string
 	 */
-	public static function decodeWtEntities( $text ) {
+	public static function decodeWtEntities( string $text ): string {
 		// HTML5 allows semicolon-less entities which wikitext does not:
 		// in wikitext all entities must end in a semicolon.
-		// PORT-FIXME this relies on javascript entities node module
-/*		return text.replace(
-			/&[#0-9a-zA-Z]+;/g,
-			match => entities.decodeHTML5(match)
-		); */
-		throw new \BadMethodCallException( "Not yet ported" );
+		// PHP currently doesn't decode semicolon-less entities (see
+		// https://bugs.php.net/bug.php?id=77769 ) but we've got a
+		// unit test which would fail if it ever started to.
+		return html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'utf-8' );
 	}
 
 	/**
@@ -388,22 +386,20 @@ class Util {
 	 * @param string $text
 	 * @return string
 	 */
-	public static function escapeWtEntities( $text ) {
-		// [CSA] replace with entities.encode( text, 2 )?
-		// but that would encode *all* ampersands, where we apparently just want
-		// to encode ampersands that precede valid entities.
-		// PORT-FIXME this relies on javascript entities node module
-/*		return text.replace(/&[#0-9a-zA-Z]+;/g, function(match) {
-			var decodedChar = entities.decodeHTML5(match);
-			if (decodedChar !== match) {
-				// Escape the and
-				return '&amp;' + match.substr(1);
+	public static function escapeWtEntities( string $text ): string {
+		// We just want to encode ampersands that precede valid entities.
+		// (And note that semicolon-less entities aren't valid wikitext.)
+		return preg_replace_callback( '/&[#0-9a-zA-Z]+;/', function ( $match ) {
+			$m = $match[0];
+			$decodedChar = self::decodeWtEntities( $m );
+			if ( $decodedChar !== $m ) {
+				// Escape the ampersand
+				return '&amp;' . substr( $m, 1 );
 			} else {
 				// Not an entity, just return the string
-				return match;
+				return $m;
 			}
-		}); */
-		throw new \BadMethodCallException( "Not yet ported" );
+		}, $text );
 	}
 
 	/**
@@ -411,31 +407,35 @@ class Util {
 	 *
 	 *
 	 * @param string $s
-	 * @return
+	 * @return string
 	 */
-	public static function escapeHtml( $s ) {
-		// PORT-FIXME this relies on javascript entities node module
-/*		return s.replace(/["'&<>]/g, entities.encodeHTML5); */
-		throw new \BadMethodCallException( "Not yet ported" );
+	public static function escapeHtml( string $s ): string {
+		// Only encodes five characters: " ' & < >
+		return htmlspecialchars( $s, ENT_QUOTES | ENT_HTML5 );
 	}
 
 	/**
 	 * Encode all characters as entity references.  This is done to make
 	 * characters safe for wikitext (regardless of whether they are
-	 * HTML-safe).
+	 * HTML-safe). Typically only called with single-codepoint strings.
 	 * @param string $s
 	 * @return string
 	 */
-	public static function entityEncodeAll( $s ) {
-		// this is surrogate-aware
-		// PORT-FIXME
-/*		return Array.from(s).map(function(c) {
-			c = c.codePointAt(0).toString(16).toUpperCase();
-			if (c.length === 1) { c = '0' + c; } // convention
-			if (c === 'A0') { return '&nbsp;'; } // special-case common usage
-			return '&#x' + c + ';';
-		}).join(''); */
-		throw new \BadMethodCallException( "Not yet ported" );
+	public static function entityEncodeAll( string $s ): string {
+		// This is Unicode aware.
+		static $conventions = [
+			// We always use at least two characters for the hex code
+			'&#x0;' => '&#x00;', '&#x1;' => '&#x01;', '&#x2;' => '&#x02;', '&#x3;' => '&#x03;',
+			'&#x4;' => '&#x04;', '&#x5;' => '&#x05;', '&#x6;' => '&#x06;', '&#x7;' => '&#x07;',
+			'&#x8;' => '&#x08;', '&#x9;' => '&#x09;', '&#xA;' => '&#x0A;', '&#xB;' => '&#x0B;',
+			'&#xC;' => '&#x0C;', '&#xD;' => '&#x0D;', '&#xE;' => '&#x0E;', '&#xF;' => '&#x0F;',
+			// By convention we use &nbsp; where possible
+			'&#xA0;' => '&nbsp;',
+		];
+
+		return strtr( mb_encode_numericentity(
+			$s, [ 0, 0x10ffff, 0, ~0 ], 'utf-8', true
+		), $conventions );
 	}
 
 	/**

@@ -686,12 +686,16 @@ class WTUtils {
 	 */
 	public static function encodeComment( string $comment ): string {
 		// Undo wikitext escaping to obtain "true value" of comment.
-		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/g', Util::decodeWtEntities, $comment );
+		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/', function ( $m ) {
+				return Util::decodeWtEntities( $m[0] );
+		}, $comment );
 
 		// Now encode '-', '>' and '&' in the "true value" as HTML entities,
 		// so that they can be safely embedded in an HTML comment.
 		// This part doesn't have to map strings 1-to-1.
-		return preg_replace_callback( '/[->&]/g', Util::entityEncodeAll, $trueValue );
+		return preg_replace_callback( '/[->&]/', function ( $m ) {
+			return Util::entityEncodeAll( $m[0] );
+		}, $trueValue );
 	}
 
 	/**
@@ -705,7 +709,8 @@ class WTUtils {
 
 		// ok, now encode this "true value" of the comment in such a way
 		// that the string "-->" never shows up.  (See above.)
-		return preg_replace_callback( '/--(&(amp;)*gt;|>)/g', function ( $s ) {
+		return preg_replace_callback( '/--(&(amp;)*gt;|>)/', function ( $m ) {
+			$s = $m[0];
 				return $s === '-->' ? '--&gt;' : '--&amp;' . substr( $s, 3 );
 		}, $trueValue );
 	}
@@ -720,7 +725,7 @@ class WTUtils {
 	 */
 	public static function decodedCommentLength( DOMComment $node ): int {
 		// Add 7 for the "<!--" and "-->" delimiters in wikitext.
-		return mb_strlen( $node->textContent ) + 7;
+		return mb_strlen( self::decodeComment( $node->nodeValue ) ) + 7;
 	}
 
 	/**

@@ -18031,6 +18031,17 @@ I always thought &xacute; was a cute letter.
 !! end
 
 !! test
+Text with HTML5 semicolon-less entity (should not decode)
+!! wikitext
+&ampamp;
+!! html/php+tidy
+<p>&amp;ampamp;
+</p>
+!! html/parsoid
+<p>&amp;ampamp;</p>
+!! end
+
+!! test
 HTML5 tags
 !! wikitext
 <data value="5">five</data>
