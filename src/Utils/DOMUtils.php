@@ -41,10 +41,10 @@ class DOMUtils {
 			$html = '<body>' . $html;
 		}
 
-		$domBuilder = new DOMBuilder;
+		$domBuilder = new DOMBuilder( [ 'suppressHtmlNamespace' => true ] );
 		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
 		$dispatcher = new Dispatcher( $treeBuilder );
-		$tokenizer = new Tokenizer( $dispatcher, $html, [] );
+		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
 		$tokenizer->execute( [] );
 		return $domBuilder->getFragment();
 	}

@@ -24,7 +24,7 @@
 		"php": ">=7.1.0",
 		"psr/log": "1.0.2",
 		"wikimedia/assert": "0.2.2",
-		"wikimedia/remex-html": "1.0.2"
+		"wikimedia/remex-html": "2.0.2"
 	},
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "1.0.0",
