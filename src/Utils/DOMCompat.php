@@ -9,8 +9,6 @@ use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use DOMNodeList;
-use DOMXPath;
-use Parsoid\Utils\DOMCompat\SelectorToXPath;
 use Parsoid\Utils\DOMCompat\TokenList;
 use Parsoid\Wt2Html\XMLSerializer;
 use RemexHtml\DOM\DOMBuilder;
@@ -19,6 +17,7 @@ use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Zest\Zest;
 
 /**
  * Helper class that provides missing DOM level 3 methods for the PHP DOM classes.
@@ -126,7 +125,8 @@ class DOMCompat {
 	 */
 	public static function getElementById( DOMNode $node, string $id ): ?DOMElement {
 		Assert::parameterType( 'DOMDocument|DOMDocumentFragment', $node, '$node' );
-		return self::querySelector( $node, "#$id" );
+		$elements = Zest::getElementsById( $node, $id );
+		return $elements[0] ?? null;
 	}
 
 	/**
@@ -143,7 +143,7 @@ class DOMCompat {
 	 */
 	public static function getElementsByTagName( DOMNode $node, string $tagName ): DOMNodeList {
 		Assert::parameterType( 'DOMDocument|DOMElement', $node, '$node' );
-		return self::querySelectorAll( $node, "$tagName" );
+		return Zest::getElementsByTagName( $node, $tagName );
 	}
 
 	/**
@@ -168,11 +168,7 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselector
 	 */
 	public static function querySelector( DOMNode $node, string $selector ): ?DOMElement {
-		Assert::parameterType( 'DOMDocument|DOMDocumentFragment|DOMElement', $node, '$node' );
-		$xpathExpression = SelectorToXPath::convert( $selector );
-		$xpathExpression = "($xpathExpression)[1]";
-		$xpath = new DOMXPath( $node->ownerDocument ?: $node );
-		return $xpath->query( $xpathExpression, $node )->item( 0 ) ?: null;
+		return self::querySelectorAll( $node, $selector )[0] ?? null;
 	}
 
 	/**
@@ -183,11 +179,9 @@ class DOMCompat {
 	 * @note Note that unlike the spec this method is not guaranteed to return a DOMNodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing DOMElements.
 	 */
-	public static function querySelectorAll( DOMNode $node, string $selector ): DOMNodeList {
+	public static function querySelectorAll( DOMNode $node, string $selector ): array {
 		Assert::parameterType( 'DOMDocument|DOMDocumentFragment|DOMElement', $node, '$node' );
-		$xpathExpression = SelectorToXPath::convert( $selector );
-		$xpath = new DOMXPath( $node->ownerDocument ?: $node );
-		return $xpath->query( $xpathExpression, $node );
+		return Zest::find( $selector, $node );
 	}
 
 	/**
