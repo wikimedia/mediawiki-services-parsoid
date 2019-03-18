@@ -144,10 +144,12 @@ abstract class SiteConfig {
 	 */
 
 	/**
-	 * Whether to allow inline image pointing to other websites
-	 * @return bool
+	 * Allowed external image URL prefixes.
+	 *
+	 * @return string[] The empty array matches no URLs. The empty string matches
+	 *  all URLs.
 	 */
-	abstract public function allowExternalImages(): bool;
+	abstract public function allowedExternalImagePrefixes(): array;
 
 	/**
 	 * Site base URI

@@ -58,8 +58,8 @@ class MockSiteConfig extends SiteConfig {
 		return $this->rtTestMode;
 	}
 
-	public function allowExternalImages(): bool {
-		return true;
+	public function allowedExternalImagePrefixes(): array {
+		return [];
 	}
 
 	public function baseURI(): string {

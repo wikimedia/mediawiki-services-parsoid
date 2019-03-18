@@ -112,8 +112,13 @@ class MediaWikiSiteConfig extends SiteConfig {
 		return MediaWikiServices::getInstance()->getStatsdDataFactory();
 	}
 
-	public function allowExternalImages(): bool {
-		return $this->config->get( 'AllowExternalImages' );
+	public function allowedExternalImagePrefixes(): array {
+		if ( $this->config->get( 'AllowExternalImages' ) ) {
+			return [ '' ];
+		} else {
+			$allowFrom = $this->config->get( 'AllowExternalImagesFrom' );
+			return $allowFrom ? (array)$allowFrom : [];
+		}
 	}
 
 	/**
