@@ -532,7 +532,7 @@ class MediaWikiSiteConfig extends SiteConfig {
 
 		$pageAliases = implode( '|', array_map( [ $this, 'quoteTitleRe' ], array_merge(
 			[ 'Booksources' ],
-			$this->contLang->getSpecialPageAliases['Booksources'] ?? []
+			$this->contLang->getSpecialPageAliases()['Booksources'] ?? []
 		) ) );
 
 		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links

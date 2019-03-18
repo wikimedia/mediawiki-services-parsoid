@@ -119,7 +119,7 @@ class MediaWikiPageConfig extends PageConfig implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionTimestamp(): string {
+	public function getRevisionTimestamp(): ?string {
 		$rev = $this->getRevision();
 		return $rev ? $rev->getTimestamp() : null;
 	}

@@ -13,8 +13,8 @@ class MockPageContent implements PageContent {
 	 * @param array $data Page content data. Keys are roles, values are arrays or strings.
 	 *  A string value is considered as an array [ 'content' => $value ]. Array keys are:
 	 *   - content: (string) The slot's content.
-	 *   - model: (string, default 'wikitext') The slot's content model.
-	 *   - format: (string, default 'text/x-wiki') The slot's content format.
+	 *   - contentmodel: (string, default 'wikitext') The slot's content model.
+	 *   - contentformat: (string, default 'text/x-wiki') The slot's content format.
 	 */
 	public function __construct( array $data ) {
 		foreach ( $data as $role => $v ) {
@@ -41,13 +41,13 @@ class MockPageContent implements PageContent {
 	/** @inheritDoc */
 	public function getModel( string $role ): string {
 		$this->checkRole( $role );
-		return $this->data[$role]['model'] ?? 'wikitext';
+		return $this->data[$role]['contentmodel'] ?? 'wikitext';
 	}
 
 	/** @inheritDoc */
 	public function getFormat( string $role ): string {
 		$this->checkRole( $role );
-		return $this->data[$role]['model'] ?? 'text/x-wiki';
+		return $this->data[$role]['contentformat'] ?? 'text/x-wiki';
 	}
 
 	/** @inheritDoc */

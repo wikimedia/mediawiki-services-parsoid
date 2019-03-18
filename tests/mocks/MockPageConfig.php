@@ -59,7 +59,7 @@ class MockPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionTimestamp(): string {
+	public function getRevisionTimestamp(): ?string {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 

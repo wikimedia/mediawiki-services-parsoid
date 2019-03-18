@@ -25,6 +25,7 @@
 		"psr/log": "1.0.2",
 		"wikimedia/assert": "0.2.2",
 		"wikimedia/remex-html": "2.0.2",
+		"wikimedia/scoped-callback": "3.0.0",
 		"wikimedia/zest-css": "1.1.1"
 	},
 	"require-dev": {
@@ -46,6 +47,7 @@
 	"autoload-dev": {
 		"psr-4": {
 			"Parsoid\\Tests\\": [ "tests/mocks/", "tests/phpunit/" ],
+			"Parsoid\\Tests\\ApiEnv\\": [ "tests/ApiEnv/" ],
 			"Parsoid\\Tests\\Porting\\": "tests/porting"
 		}
 	},

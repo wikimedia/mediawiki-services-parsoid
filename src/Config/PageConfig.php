@@ -58,9 +58,9 @@ abstract class PageConfig {
 
 	/**
 	 * The revision's timestamp, if any
-	 * @return string "YYYYMMDDHHIISS" format
+	 * @return string|null "YYYYMMDDHHIISS" format
 	 */
-	abstract public function getRevisionTimestamp(): string;
+	abstract public function getRevisionTimestamp(): ?string;
 
 	/**
 	 * The revision's author's user name, if any
