@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Parsoid\Tests\MockEnv;
 use Parsoid\Tokens\Token;
+use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
@@ -80,7 +81,9 @@ if ( !$transformer->disabled ) {
 $output = "";
 foreach ( $tokens as $t ) {
 	$output .= PHPUtils::jsonEncode( $t );
-	$output .= "\n";
+	if ( !( $t instanceof EOFTk ) ) {
+		$output .= "\n";
+	}
 }
 
 /**
@@ -91,5 +94,5 @@ unlink( $tokenFileName );
 /**
  * Write serialized tokens to STDOUT
  */
-// fwrite(STDERR, "RET: $output\n");
+// fwrite(STDERR, "RET:----\n$output\n----");
 print $output;
