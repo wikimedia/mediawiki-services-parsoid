@@ -25,7 +25,6 @@ Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Proceeds of Rockology, vol. XXI</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -41,7 +40,6 @@ Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Proceeds of Rockology, vol. XXI</span>
 </li>
 </ol></div>
-
 !! end
 
 !! article
@@ -64,7 +62,6 @@ Templating<ref>{{simple template}}</ref>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">A <i>simple</i> template.</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -80,7 +77,6 @@ Templating<ref><nowiki>{{simple template}}</nowiki></ref>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">{{simple template}}</span>
 </li>
 </ol></div>
-
 !! end
 
 
@@ -121,7 +117,6 @@ Templating<ref>Text<!--comment--></ref>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Text</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -148,7 +143,6 @@ parsoid=wt2html,html2html
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">one</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -168,7 +162,6 @@ parsoid=wt2html,html2html
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">elite</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -196,7 +189,6 @@ Ref with content followed by blank ref
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">content</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -215,7 +207,6 @@ Blank ref followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">content</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -234,7 +225,6 @@ Regression: non-blank ref "0" followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">0 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "blank" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -253,7 +243,6 @@ Regression sanity check: non-blank ref "1" followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">1 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "blank" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -277,7 +266,6 @@ Ref names containing a number
 <li id="cite_note-test123-3"><span class="mw-cite-backlink"><a href="#cite_ref-test123_3-0">↑</a></span> <span class="reference-text">Three</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -292,7 +280,6 @@ T184912: Consistent normalization of consecutive underscores
 <li id="cite_note-x_x-1"><span class="mw-cite-backlink"><a href="#cite_ref-x_x_1-0">↑</a></span> <span class="reference-text">example</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -328,7 +315,6 @@ no text was provided for refs named <code>bar</code></span></li>
 <li id="cite_note-blankwithnoreference-3"><span class="mw-cite-backlink"><a href="#cite_ref-blankwithnoreference_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
 no text was provided for refs named <code>blankwithnoreference</code></span></li>
 </ol></div>
-
 !! end
 
 !! test
@@ -384,7 +370,6 @@ Wikipedia rocks!<sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#
 <li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">Proceeds of Rockology, vol. XXI</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -412,7 +397,6 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 <li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">note b</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -430,7 +414,6 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 <li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="reference-text">BAR</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -448,7 +431,6 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 <li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="reference-text">BAR</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -494,7 +476,6 @@ Wikipedia rocks!<ref group="klingon">Proceeds of Rockology, vol. XXI</ref>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Proceeds of Rockology, vol. XXI</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -513,7 +494,6 @@ Consecutive whitespace in custom link label message should not create empty []
 <li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">2nd</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -533,7 +513,6 @@ Bug 31374 regression check: nested strip items
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">reference</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -553,7 +532,6 @@ foo
 foo</span>
 </li>
 </ol></div></div>
-
 !! end
 
 !! test
@@ -585,7 +563,6 @@ Bla.<sup id="cite_ref-void_1-0" class="reference"><a href="#cite_note-void-1">&#
 <li id="cite_note-void-1"><span class="mw-cite-backlink"><a href="#cite_ref-void_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
 no text was provided for refs named <code>void</code></span></li>
 </ol></div>
-
 !! end
 
 !! test
@@ -606,7 +583,6 @@ Page two.<ref follow="beginning">Second page footnote text.</ref>
 <li id="cite_note-beginning-1"><span class="mw-cite-backlink"><a href="#cite_ref-beginning_1-0">↑</a></span> <span class="reference-text">First page footnote text. Second page footnote text.</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -634,7 +610,6 @@ Multiple definition (outside <references/>)
 <li id="cite_note-a-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_1-0">1.0</a></sup> <sup><a href="#cite_ref-a_1-1">1.1</a></sup></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -652,7 +627,6 @@ Multiple definition (inside <references/>)
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -669,7 +643,6 @@ Multiple definition (mixed outside/inside)
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -687,7 +660,6 @@ Multiple definition (inside {{#tag:references}})
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
-
 !! end
 
 # Parsoid doesn't rt cleanly because name attribute is actually broken
@@ -705,7 +677,6 @@ parsoid=wt2html
 <li id="cite_note-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz-1"><span class="mw-cite-backlink"><a href="#cite_ref-[#foo]_{bar}_&lt;baz_1-0">↑</a></span> <span class="reference-text">"&gt;[bar]</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref" id="cite_ref-[#foo]_{bar}_&lt;baz_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"[#foo] {bar} &lt;baz"},"body":{"id":"mw-reference-text-cite_note-[#foo]_{bar}_&lt;baz-1"}}'><a href="./Parser_test#cite_note-[#foo]_{bar}_&lt;baz-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt3" data-mw='{"name":"references","attrs":{},"autoGenerated":true}'><li about="#cite_note-[#foo]_{bar}_&lt;baz-1" id="cite_note-[#foo]_{bar}_&lt;baz-1"><a href="./Parser_test#cite_ref-[#foo]_{bar}_&lt;baz_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-[#foo]_{bar}_&lt;baz-1" class="mw-reference-text" data-parsoid="{}">">[bar]</span></li></ol>
@@ -725,7 +696,6 @@ wgFragmentMode=[ 'html5' ]
 <li id="cite_note-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz&gt;-1"><span class="mw-cite-backlink"><a href="#cite_ref-[#foo]_{bar}_&lt;baz&gt;_1-0">↑</a></span> <span class="reference-text">[bar]</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref" id="cite_ref-[#foo]_{bar}_&lt;baz>_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"[#foo] {bar} &lt;baz>"},"body":{"id":"mw-reference-text-cite_note-[#foo]_{bar}_&lt;baz>-1"}}'><a href="./Parser_test#cite_note-[#foo]_{bar}_&lt;baz>-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt3" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-[#foo]_{bar}_&lt;baz>-1" id="cite_note-[#foo]_{bar}_&lt;baz>-1"><a href="./Parser_test#cite_ref-[#foo]_{bar}_&lt;baz>_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-[#foo]_{bar}_&lt;baz>-1" class="mw-reference-text" data-parsoid="{}">[bar]</span></li></ol>
@@ -1044,7 +1014,6 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 <li id="cite_note-&#123;&#123;echo&#124;a&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-{{echo|a}}_1-0">↑</a></span> <span class="reference-text">foo</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup class="mw-ref" id="cite_ref-{{echo|a}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"{{echo|a}}"},"body":{"id":"mw-reference-text-cite_note-{{echo|a}}-1"}}'><a href="./Parser_test#cite_note-{{echo|a}}-1"><span class="mw-reflink-text">[1]</span></a></sup>
 </p>
@@ -1073,7 +1042,6 @@ parsoid=wt2html,html2html
 <li id="cite_note-a_&amp;_b-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_&amp;_b_1-0">1.0</a></sup> <sup><a href="#cite_ref-a_&amp;_b_1-1">1.1</a></sup></span> <span class="reference-text">foo</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p>1 <sup about="#mwt3" class="mw-ref" id="cite_ref-a_&amp;_b_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a &amp; b"},"body":{"id":"mw-reference-text-cite_note-a_&amp;_b-1"}}'><a href="./Parser_test#cite_note-a_&amp;_b-1"><span class="mw-reflink-text">[1]</span></a></sup> 2 <sup about="#mwt4" class="mw-ref" id="cite_ref-a_&amp;_b_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a &amp; b"}}'><a href="./Parser_test#cite_note-a_&amp;_b-1"><span class="mw-reflink-text">[1]</span></a></sup>
 </p>
@@ -1219,7 +1187,6 @@ References: 6. <references /> from a transclusion
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
 </li>
 </ol></div>
-
 !! html/php+tidy
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> </p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
@@ -1331,7 +1298,6 @@ parsoid=wt2html,html2html
 <li id="cite_note-test_&amp;_me_&#123;&#123;echo&#124;foo&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-test_&amp;_me_{{echo|foo}}_1-0">↑</a></span> <span class="reference-text">hi</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref" id="cite_ref-test_&amp;_me_{{echo|foo}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test &amp; me {{echo|foo}}"},"body":{"id":"mw-reference-text-cite_note-test_&amp;_me_{{echo|foo}}-1"}}'><a href="./Parser_test#cite_note-test_&amp;_me_{{echo|foo}}-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
@@ -1573,7 +1539,6 @@ T15673: <ref> with direction "rtl"
 <li id="cite_note-1" class="mw-cite-dir-rtl"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -1593,7 +1558,6 @@ T15673: <ref> with direction "ltr"
 <li id="cite_note-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"ltr"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -1613,7 +1577,6 @@ T15673: <ref> with direction "LTR", keeps upper case
 <li id="cite_note-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"LTR"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -1633,7 +1596,6 @@ T15673: <ref> with direction "nonsense", strip invalid dir attribute and shows e
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">TEST<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; dir attribute "nonsense" is unknown. Must be ltr or rtl</span></span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"nonsense"},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -1653,7 +1615,6 @@ T15673: Direction is supported when specifying name and group
 <li id="cite_note-a-1" class="mw-cite-dir-ltr"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">TEST</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p><sup about="#mwt4" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"dir":"ltr","name":"a","group":"note"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;" data-mw-group="note"><span class="mw-reflink-text">[note 1]</span></a></sup></p>
 
@@ -1687,7 +1648,6 @@ ghi<ref name="r1" dir="rtl">jkl</ref>mno
 <li id="cite_note-r1-1" class="mw-cite-dir-rtl"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-r1_1-0">1.0</a></sup> <sup><a href="#cite_ref-r1_1-1">1.1</a></sup></span> <span class="reference-text">jkl</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p>abc<sup about="#mwt3" class="mw-ref" id="cite_ref-r1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1"}}'><a href="./Parser_test#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>def</p>
 
@@ -1712,7 +1672,6 @@ ghi<ref name="r1">jkl</ref>mno
 <li id="cite_note-r1-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-r1_1-0">1.0</a></sup> <sup><a href="#cite_ref-r1_1-1">1.1</a></sup></span> <span class="reference-text">jkl</span>
 </li>
 </ol></div>
-
 !! html/parsoid
 <p>abc<sup about="#mwt3" class="mw-ref" id="cite_ref-r1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"r1","dir":"rtl"}}'><a href="./Parser_test#cite_note-r1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>def</p>
 
