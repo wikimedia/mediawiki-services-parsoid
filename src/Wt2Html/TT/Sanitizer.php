@@ -1189,7 +1189,7 @@ Sanitizer::sanitizeTitleURI = function ( $title, $isInterwiki ) use ( &$Sanitize
 	$bits = explode( '#', $title );
 	$anchor = null;
 	if ( count( $bits ) > 1 ) { // split at first '#'
-		$anchor = $title->substring( count( $bits[ 0 ] ) + 1 );
+		$anchor = substr( $title, count( $bits[ 0 ] ) + 1 );
 		$title = $bits[ 0 ];
 	}
 	$title = preg_replace( '/[%? \[\]#|<>]/', function ( $m ) {

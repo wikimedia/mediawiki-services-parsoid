@@ -327,7 +327,7 @@ class DOMNormalizer {
 		$endsInSpace = DOMUtils::isText( $last ) && preg_match( '/\s+$/', $last->nodeValue );
 		// Conditional on rtTestMode to reduce the noise in testing.
 		if ( !$this->inRtTestMode && $endsInSpace ) {
-			$last->nodeValue = $last->nodeValue->substring( 0, $endsInSpace->index );
+			$last->nodeValue = substr( $last->nodeValue, 0, $endsInSpace->index/*CHECK THIS*/ );
 			// Try to be a little smarter and drop the spaces if possible.
 			if ( $next && ( !DOMUtils::isText( $next ) || !preg_match( '/^\s+/', $next->nodeValue ) ) ) {
 				if ( !DOMUtils::isText( $next ) ) {

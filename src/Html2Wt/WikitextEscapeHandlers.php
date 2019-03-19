@@ -38,7 +38,7 @@ function hasBlocksOnLine( $node, $first ) {
 	// special case for firstNode:
 	// we're at sol so ignore possible \n at first char
 	if ( $first ) {
-		if ( preg_match( '/\n/', $node->textContent->substring( 1 ) ) ) {
+		if ( preg_match( '/\n/', substr( $node->textContent, 1 ) ) ) {
 			return false;
 		}
 		$node = $node->nextSibling;
@@ -292,7 +292,7 @@ class WikitextEscapeHandlers {
 		// If 'text' remained outside of any non-string tokens,
 		// it does not need nowiking.
 		if ( $lastToken === $text || ( gettype( $lastToken ) === 'string'
-&& $text === $lastToken->substring( count( $lastToken ) - count( $text ) ) )
+&& $text === substr( $lastToken, count( $lastToken ) - count( $text ) ) )
 		) {
 			return false;
 		}
@@ -353,13 +353,13 @@ class WikitextEscapeHandlers {
 				// Since this will not parse to a real extlink,
 				// update buf with the wikitext src for this token.
 				$tsr = $t->dataAttribs->tsr;
-				$buf = $str->substring( $tsr[ 0 ], $tsr[ 1 ] ) + $buf;
+				$buf = substr( $str, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ ) + $buf;
 			} else {
 				// We have no other smarts => be conservative.
 				return true;
 			}
 
-			if ( $text === $buf->substring( count( $buf ) - count( $text ) ) ) {
+			if ( $text === substr( $buf, count( $buf ) - count( $text ) ) ) {
 				// 'text' emerged unscathed
 				return false;
 			}
@@ -628,7 +628,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// Now put back the escaping we removed above
-				$tSrc = WTUtils::escapeNowikiTags( $text->substring( $tsr[ 0 ], $tsr[ 1 ] ) );
+				$tSrc = WTUtils::escapeNowikiTags( substr( $text, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ ) );
 				switch ( $t->constructor ) {
 					case NlTk::class:
 					$buf += $tSrc;
@@ -1004,7 +1004,7 @@ class WikitextEscapeHandlers {
 				$type = $t->getAttribute( 'typeof' );
 				if ( $type && preg_match( '/\bmw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Entity)\b/', $type ) ) {
 					$i += 2;
-					appendStr( $arg->substring( $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ] ), $last, false );
+					appendStr( substr( $arg, $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ]/*CHECK THIS*/ ), $last, false );
 					continue;
 				} elseif ( $type === 'mw:Nowiki' ) {
 					$i++;
@@ -1020,7 +1020,7 @@ class WikitextEscapeHandlers {
 						// braces and brackets pairs (which is done in appendStr),
 						// but only if they weren't explicitly protected in the
 						// passed wikitext.
-						$substr = $arg->substring( $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ] );
+						$substr = substr( $arg, $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ]/*CHECK THIS*/ );
 						appendStr( $substr, $last, !preg_match( '/<nowiki>[^<]*<\/nowiki>/', $substr ) );
 					}
 					continue;
@@ -1042,7 +1042,7 @@ class WikitextEscapeHandlers {
 					$errors[] = 'Toks: ' . json_encode( $tokens );
 					$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
 				}
-				appendStr( $arg->substring( $da->tsr[ 0 ], $da->tsr[ 1 ] ), $last, false );
+				appendStr( substr( $arg, $da->tsr[ 0 ], $da->tsr[ 1 ]/*CHECK THIS*/ ), $last, false );
 				break;
 
 				case SelfclosingTagTk::class:
@@ -1052,7 +1052,7 @@ class WikitextEscapeHandlers {
 					$errors[] = 'Toks: ' . json_encode( $tokens );
 					$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
 				}
-				$tkSrc = $arg->substring( $da->tsr[ 0 ], $da->tsr[ 1 ] );
+				$tkSrc = substr( $arg, $da->tsr[ 0 ], $da->tsr[ 1 ]/*CHECK THIS*/ );
 				// Replace pipe by an entity. This is not completely safe.
 				if ( $t->name === 'extlink' || $t->name === 'urllink' ) {
 					$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [

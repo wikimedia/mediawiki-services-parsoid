@@ -29,7 +29,7 @@ $buildMetaToken = function ( $manager, $tokenName, $isEnd, $tsr, $src ) use ( &$
 
 	return new SelfclosingTagTk( 'meta',
 		[ new KV( 'typeof', $tokenName ) ],
-		( $tsr ) ? [ 'tsr' => $tsr, 'src' => $manager->env->page->src->substring( $tsr[ 0 ], $tsr[ 1 ] ) ] : [ 'src' => $src ]
+		( $tsr ) ? [ 'tsr' => $tsr, 'src' => substr( $manager->env->page->src, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ ) ] : [ 'src' => $src ]
 	);
 };
 

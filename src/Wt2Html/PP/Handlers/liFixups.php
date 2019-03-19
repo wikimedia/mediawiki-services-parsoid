@@ -201,7 +201,7 @@ function migrateTrailingCategories( $li, $env, $unused, $tplInfo ) {
 					// Split off the newlines into its own node and migrate it
 					$nls = $c->data;
 					$c->data = preg_replace( '/\s+$/', '', $c->data, 1 );
-					$nls = $nls->substring( count( $nls ) );
+					$nls = substr( $nls, count( $c->data ) );
 					$nlNode = $c->ownerDocument->createTextNode( $nls );
 					$outerList->parentNode->insertBefore( $nlNode, $outerList->nextSibling );
 					$newEndDsr -= count( $nls );

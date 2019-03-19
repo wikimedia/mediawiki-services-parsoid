@@ -172,7 +172,7 @@ $metaTokens = null;
 			// - Record the wikitext between the token and the transclusion
 			// as an unwrappedWT data-parsoid attribute of the start-meta.
 			$dp = $startMeta->dataAttribs;
-			$dp->unwrappedWT = $env->page->src->substring( $token->dataAttribs->tsr[ 0 ], $dp->tsr[ 0 ] );
+			$dp->unwrappedWT = substr( $env->page->src, $token->dataAttribs->tsr[ 0 ], $dp->tsr[ 0 ]/*CHECK THIS*/ );
 
 			// unwrappedWT will be added to the data-mw.parts array which makes
 			// this a multi-template-content-block.

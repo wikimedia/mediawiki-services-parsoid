@@ -325,7 +325,7 @@ class WrapTemplates {
 		if ( count( $tplArray ) > 0 ) {
 			$prevTplInfo = $lastItem( $tplArray );
 			if ( $prevTplInfo->dsr[ 1 ] < $dsr[ 0 ] ) {
-				$tplArray[] = [ 'wt' => $env->page->src->substring( $prevTplInfo->dsr[ 1 ], $dsr[ 0 ] ) ];
+				$tplArray[] = [ 'wt' => substr( $env->page->src, $prevTplInfo->dsr[ 1 ], $dsr[ 0 ]/*CHECK THIS*/ ) ];
 			}
 		}
 
@@ -803,13 +803,13 @@ $ranges = null;
 					// content. During html -> wt serialization, newline constraints for
 					// this entire block has to be determined relative to this node.
 					$encapInfo->dp->firstWikitextNode = $this->findFirstTemplatedNode( $range );
-					$tplArray = [ [ 'wt' => $env->page->src->substring( $dp1->dsr[ 0 ], $firstTplInfo->dsr[ 0 ] ) ] ]->concat( $tplArray );
+					$tplArray = [ [ 'wt' => substr( $env->page->src, $dp1->dsr[ 0 ], $firstTplInfo->dsr[ 0 ]/*CHECK THIS*/ ) ] ]->concat( $tplArray );
 				}
 
 				// Add any trailing wikitext
 				$lastTplInfo = $lastItem( $tplArray );
 				if ( $lastTplInfo->dsr[ 1 ] < $dp1->dsr[ 1 ] ) {
-					$tplArray[] = [ 'wt' => $env->page->src->substring( $lastTplInfo->dsr[ 1 ], $dp1->dsr[ 1 ] ) ];
+					$tplArray[] = [ 'wt' => substr( $env->page->src, $lastTplInfo->dsr[ 1 ], $dp1->dsr[ 1 ]/*CHECK THIS*/ ) ];
 				}
 
 				// Extract the key orders for the templates
@@ -908,7 +908,7 @@ $ranges = null;
 					$encapInfo->dp->dsr[ 0 ] = $dp1->dsr[ 0 ];
 					$encapInfo->dp->dsr[ 1 ] = $dp1->dsr[ 1 ];
 				}
-				$encapInfo->dp->src = $env->page->src->substring( $encapInfo->dp->dsr[ 0 ], $encapInfo->dp->dsr[ 1 ] );
+				$encapInfo->dp->src = substr( $env->page->src, $encapInfo->dp->dsr[ 0 ], $encapInfo->dp->dsr[ 1 ]/*CHECK THIS*/ );
 			}
 
 			// Remove startElem (=range.startElem) if a meta.  If a meta,

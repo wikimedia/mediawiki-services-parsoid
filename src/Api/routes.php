@@ -346,7 +346,7 @@ $module->exports = function /* routes */( $parsoidConfig, $processLogger, $parso
 			// Get localized redirect matching regexp
 			$reSrc = $env->conf->wiki->getMagicWordMatcher( 'redirect' )->source;
 			$reSrc = '^[ \t\n\r\0\x0b]*'
-. $reSrc->substring( 1, count( $reSrc ) - 1 ) . // Strip ^ and $
+. substr( $reSrc, 1, count( $reSrc ) - 1/*CHECK THIS*/ ) . // Strip ^ and $
 				'[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?'
 . '\[\[([^\]]+)\]\]';
 			$re = new RegExp( $reSrc, 'i' );

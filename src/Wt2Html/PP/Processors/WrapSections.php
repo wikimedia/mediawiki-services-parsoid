@@ -341,7 +341,7 @@ $dmw = null;
 			'inTemplate' => false,
 			'tplsAndExtsToExamine' => [],
 			'getSrc' => function ( $s, $e ) {
-				return $this->env->page->src->substring( $s, $e );
+				return substr( $this->env->page->src, $s, $e/*CHECK THIS*/ );
 			}
 		];
 		$this->wrapSectionsInDOM( $state, $leadSection, $rootNode );

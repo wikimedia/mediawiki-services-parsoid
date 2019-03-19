@@ -174,7 +174,7 @@ class MigrateTrailingNLs {
 					if ( $partialContent ) {
 						$nls = $n->data;
 						$n->data = preg_replace( '/\n+$/', '', $n->data, 1 );
-						$nls = $nls->substring( count( $nls ) );
+						$nls = substr( $nls, count( $n->data ) );
 						$n = $n->ownerDocument->createTextNode( $nls );
 						$partialContent = false;
 					}

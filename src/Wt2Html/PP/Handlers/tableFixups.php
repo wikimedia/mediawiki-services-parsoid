@@ -115,7 +115,7 @@ function hoistTransclusionInfo( $env, $child, $tdNode ) {
 
 	// Get the td and content source up to the transclusion start
 	if ( $dp->dsr[ 0 ] < $childDP->dsr[ 0 ] ) {
-		array_unshift( $parts, $env->page->src->substring( $dp->dsr[ 0 ], $childDP->dsr[ 0 ] ) );
+		array_unshift( $parts, substr( $env->page->src, $dp->dsr[ 0 ], $childDP->dsr[ 0 ]/*CHECK THIS*/ ) );
 	}
 
 	// Add wikitext for the table cell content following the
@@ -124,7 +124,7 @@ function hoistTransclusionInfo( $env, $child, $tdNode ) {
 	// guaranteed to have a dsr that covers the transclusion
 	// itself.
 	if ( $childDP->dsr[ 1 ] < $dp->dsr[ 1 ] ) {
-		$parts[] = $env->page->src->substring( $childDP->dsr[ 1 ], $dp->dsr[ 1 ] );
+		$parts[] = substr( $env->page->src, $childDP->dsr[ 1 ], $dp->dsr[ 1 ]/*CHECK THIS*/ );
 	}
 
 	// Save the new data-mw on the tdNode

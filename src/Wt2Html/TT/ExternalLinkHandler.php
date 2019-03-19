@@ -243,7 +243,7 @@ $aStart = null;
 				// and we need src without those spaces.
 				$tsr0a = $dataAttribs->tsr[ 0 ] + 1;
 				$tsr1a = $dataAttribs->targetOff - count( $token->getAttribute( 'spaces' ) || '' );
-				$aStart->addNormalizedAttribute( 'href', $href, $env->page->src->substring( $tsr0a, $tsr1a ) );
+				$aStart->addNormalizedAttribute( 'href', $href, substr( $env->page->src, $tsr0a, $tsr1a/*CHECK THIS*/ ) );
 			} else {
 				$aStart->addAttribute( 'href', $href );
 			}

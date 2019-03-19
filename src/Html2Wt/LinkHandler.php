@@ -485,7 +485,7 @@ $serializeAsWikiLink = /* async */function ( $node, $state, $linkData ) use ( &$
 		// Omit fragments from decoding
 		$hash = array_search( '#', $target->value );
 		if ( $hash > -1 ) {
-			$target->value = Util::decodeURIComponent( $target->value->substring( 0, $hash ) ) + $target->value->substring( $hash );
+			$target->value = Util::decodeURIComponent( substr( $target->value, 0, $hash/*CHECK THIS*/ ) ) + substr( $target->value, $hash );
 		} else {
 			$target->value = Util::decodeURIComponent( $target->value );
 		}

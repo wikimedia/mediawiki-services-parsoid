@@ -39,9 +39,9 @@ class ProcessTreeBuilderFixups {
 
 		if ( !$src ) {
 			if ( $dp->tsr ) {
-				$src = $env->page->src->substring( $dp->tsr[ 0 ], $dp->tsr[ 1 ] );
+				$src = substr( $env->page->src, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
 			} elseif ( $opts->tsr ) {
-				$src = $env->page->src->substring( $opts->tsr[ 0 ], $opts->tsr[ 1 ] );
+				$src = substr( $env->page->src, $opts->tsr[ 0 ], $opts->tsr[ 1 ]/*CHECK THIS*/ );
 			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
 				if ( $opts->start ) {
 					$src = '<' . $name . '>';
@@ -134,7 +134,7 @@ class ProcessTreeBuilderFixups {
 && $dp->tsr[ 0 ] !== null && $dp->tsr[ 1 ] !== null
 && $env->page->src
 								) {
-									$origTxt = $env->page->src->substring( $dp->tsr[ 0 ], $dp->tsr[ 1 ] );
+									$origTxt = substr( $env->page->src, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
 									$origTxtNode = $c->ownerDocument->createTextNode( $origTxt );
 									$c->parentNode->insertBefore( $origTxtNode, $c );
 								} else {

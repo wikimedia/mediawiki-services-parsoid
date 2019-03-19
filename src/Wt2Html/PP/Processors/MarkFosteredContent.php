@@ -63,7 +63,7 @@ class MarkFosteredContent {
 		// and thus the table, are in the transclusion.
 		$s = $this->createNodeWithAttributes( $fosterBox->ownerDocument, 'meta', [
 				'about' => $aboutId,
-				'id' => $aboutId->substring( 1 ),
+				'id' => substr( $aboutId, 1 ),
 				'typeof' => 'mw:Transclusion'
 			]
 		);

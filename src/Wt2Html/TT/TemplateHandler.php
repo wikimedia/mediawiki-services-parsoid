@@ -509,7 +509,7 @@ class TemplateHandler extends TokenHandler {
 						// Check if they combined
 						$offset = count( $buf ) - count( $t ) - count( $match[ 1 ] );
 						if ( $offset > 0 ) {
-							$re = new RegExp( '^' . $prefix->substring( $offset ), 'i' );
+							$re = new RegExp( '^' . substr( $prefix, $offset ), 'i' );
 						}
 						return true;
 					}
@@ -1089,8 +1089,8 @@ $n = null;
 			$kSrc = null;
 $vSrc = null;
 			if ( $srcOffsets ) {
-				$kSrc = $src->substring( $srcOffsets[ 0 ], $srcOffsets[ 1 ] );
-				$vSrc = $src->substring( $srcOffsets[ 2 ], $srcOffsets[ 3 ] );
+				$kSrc = substr( $src, $srcOffsets[ 0 ], $srcOffsets[ 1 ]/*CHECK THIS*/ );
+				$vSrc = substr( $src, $srcOffsets[ 2 ], $srcOffsets[ 3 ]/*CHECK THIS*/ );
 			} else {
 				$kSrc = $params[ $i ]->k;
 				$vSrc = $params[ $i ]->v;
@@ -1166,7 +1166,7 @@ $vSrc = null;
 
 		$tplTgtSrcOffsets = $params[ 0 ]->srcOffsets;
 		if ( $tplTgtSrcOffsets ) {
-			$tplTgtWT = $src->substring( $tplTgtSrcOffsets[ 0 ], $tplTgtSrcOffsets[ 1 ] );
+			$tplTgtWT = substr( $src, $tplTgtSrcOffsets[ 0 ], $tplTgtSrcOffsets[ 1 ]/*CHECK THIS*/ );
 			return [
 				'dict' => [
 					'target' => [

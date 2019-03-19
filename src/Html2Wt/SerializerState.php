@@ -216,7 +216,7 @@ class SerializerState {
 	 */
 	public function getOrigSrc( $start, $end ) {
 		Assert::invariant( $this->selserMode );
-		return $this->env->page->src->substring( $start, $end );
+		return substr( $this->env->page->src, $start, $end/*CHECK THIS*/ );
 	}
 
 	/**
@@ -462,7 +462,7 @@ class SerializerState {
 						) {
 							$res = ConstrainedText::cast( ( $match[ 1 ] || '' )
 . '<nowiki>' . $match[ 2 ][ 0 ] . '</nowiki>'
-. $match[ 2 ]->substring( 1 ), $node
+. substr( $match[ 2 ], 1 ), $node
 							);
 						}
 					}

@@ -223,9 +223,9 @@ $apiUtils->substTopLevelTemplates = function ( $env, $target, $wt ) use ( &$PegT
 	for ( $i = 0;  $i < count( $tokens );  $i++ ) {
 		if ( $tokens[ $i ]->name === 'template' ) {
 			$tsr = $tokens[ $i ]->dataAttribs->tsr;
-			$wt = $wt->substring( 0, $tsr[ 0 ] + $tsrIncr )
+			$wt = substr( $wt, 0, $tsr[ 0 ] + $tsrIncr/*CHECK THIS*/ )
 . '{{subst:'
-. $wt->substring( $tsr[ 0 ] + $tsrIncr + 2 );
+. substr( $wt, $tsr[ 0 ] + $tsrIncr + 2 );
 			$tsrIncr += 6;
 		}
 	}

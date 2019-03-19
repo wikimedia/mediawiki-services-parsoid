@@ -147,7 +147,7 @@
 			return $t; // not text()
 
 			case $SelfclosingTagTk:
-			$dp->src = $input->substring( $dp->tsr[ 0 ], $dp->tsr[ 1 ] );
+			$dp->src = substr( $input, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
 			$dp->tagWidths = [ $dp->tsr[ 1 ] - $dp->tsr[ 0 ], 0 ];
 			if ( $isIncludeTag ) {
 				return $t;
@@ -155,12 +155,12 @@
 			break;
 			case $TagTk:
 			$tsr0 = $dp->tsr[ 0 ];
-			$endTagRE = new RegExp( '^[\s\S]*?(</\s*' . $tagName . '\s*>)', 'mi' );
-			$restOfInput = $input->substring( $tsr0 );
+			$endTagRE = new RegExp( '^[\s\S]*?(</' . $tagName . '\s*>)', 'i' );
+			$restOfInput = substr( $input, $tsr0 );
 			$tagContent = preg_match( $endTagRE, $restOfInput );
 
 			if ( !$tagContent ) {
-				$dp->src = $input->substring( $dp->tsr[ 0 ], $dp->tsr[ 1 ] );
+				$dp->src = substr( $input, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
 				$dp->tagWidths = [ $dp->tsr[ 1 ] - $dp->tsr[ 0 ], 0 ];
 				if ( $isIncludeTag ) {
 					return $t;
@@ -205,9 +205,9 @@
 				//
 				// Expand `extSrc` as long as there is a <tagName> found in the
 				// extension source body.
-				$s = $extSrc->substring( $endOffset() - $tsr0 );
-				while ( $s && preg_match( new RegExp( '<' . $tagName . '[^/<>]*>' ), $s ) ) {
-					$tagContent = preg_match( $endTagRE, $restOfInput->substring( count( $restOfInput ) ) );
+				$s = substr( $extSrc, endOffset() - $tsr0 );
+				while ( $s && preg_match( new RegExp( '<' . $tagName . '[^/<>]*>', 'i' ), $s ) ) {
+					$tagContent = preg_match( $endTagRE, substr( $restOfInput, count( $extSrc ) ) );
 					if ( $tagContent ) {
 						$s = $tagContent[ 0 ];
 						$endTagWidth = count( $tagContent[ 1 ] );
@@ -249,7 +249,7 @@
 			);
 		} elseif ( $isIncludeTag ) {
 			// Parse ext-content, strip eof, and shift tsr
-			$extContent = $dp->src->substring( $dp->tagWidths[ 0 ], count( $dp->src ) - $dp->tagWidths[ 1 ] );
+			$extContent = substr( $dp->src, $dp->tagWidths[ 0 ], count( $dp->src ) - $dp->tagWidths[ 1 ]/*CHECK THIS*/ );
 			$extContentToks = ( new PegTokenizer( $env ) )->tokenizeSync( $extContent );
 			if ( $dp->tagWidths[ 1 ] > 0 ) {
 				$extContentToks = TokenUtils::stripEOFTkfromTokens( $extContentToks );
@@ -1041,7 +1041,7 @@ lang_variant_preproc
 	if ( !$env->langConverterEnabled() ) {
 		return [ '-{', $ts[ 0 ]->text->tokens, '}-' ];
 	}
-	$lvsrc = $input->substring( $lv0, $lv1 );
+	$lvsrc = substr( $input, $lv0, $lv1/*CHECK THIS*/ );
 	$attribs = [];
 
 	// Do a deep clone since we may be destructively modifying
@@ -1238,7 +1238,7 @@ lang_variant_text_no_semi_or_arrow
 wikilink_content
   = ( pipe startPos:("" {return endOffset(); }) lt:link_text? {
 	$maybeContent = new KV( 'mw:maybeContent', $lt, [ $startPos, endOffset() ] );
-	$maybeContent->vsrc = $input->substring( $startPos, endOffset() );
+	$maybeContent->vsrc = substr( $input, $startPos, endOffset()/*CHECK THIS*/ );
 	return $maybeContent; } )*
 
 wikilink
@@ -1281,7 +1281,7 @@ wikilink_preproc
 	}
 	$obj = new SelfclosingTagTk( 'wikilink' );
 	$hrefKV = new KV( 'href', $target );
-	$hrefKV->vsrc = $input->substring( startOffset() + 2, $tpos );
+	$hrefKV->vsrc = substr( $input, startOffset() + 2, $tpos/*CHECK THIS*/ );
 	// XXX: Point to object with path, revision and input information
 	// obj.source = input;
 	$obj->attribs[] = $hrefKV;
@@ -1326,14 +1326,14 @@ quote = quotes:$("''" "'"*) {
 		$plainticks = count( $quotes ) - 5;
 	}
 	if ( $plainticks > 0 ) {
-		$result[] = $quotes->substring( 0, $plainticks );
+		$result[] = substr( $quotes, 0, $plainticks/*CHECK THIS*/ );
 	}
 	// mw-quote token Will be consumed in token transforms
 	$tsr = tsrOffsets();
 	$tsr[ 0 ] += $plainticks;
-	$mwq = new SelfclosingTagTk( 'mw-quote', [ new KV( 'value', $quotes->substring( $plainticks ) ) ], [ 'tsr' => $tsr ] );
+	$mwq = new SelfclosingTagTk( 'mw-quote', [ new KV( 'value', substr( $quotes, $plainticks ) ) ], [ 'tsr' => $tsr ] );
 	if ( count( $quotes ) > 2 ) {
-		$mwq->addAttribute( 'preceding-2chars', $input->substring( $tsr[ 0 ] - 2, $tsr[ 0 ] ) );
+		$mwq->addAttribute( 'preceding-2chars', substr( $input, $tsr[ 0 ] - 2, $tsr[ 0 ]/*CHECK THIS*/ ) );
 	}
 	$result[] = $mwq;
 	return $result; }
@@ -1455,12 +1455,12 @@ generic_newline_attribute
 	}
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd->value, [ $namePos0, $namePos, $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ] ] );
-		$res->vsrc = $input->substring( $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ] );
+		$res->vsrc = substr( $input, $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ]/*CHECK THIS*/ );
 	} else {
 		$res = new KV( $name, '', [ $namePos0, $namePos, $namePos, $namePos ] );
 	}
 	if ( is_array( $name ) ) {
-		$res->ksrc = $input->substring( $namePos0, $namePos );
+		$res->ksrc = substr( $input, $namePos0, $namePos/*CHECK THIS*/ );
 	}
 	return $res; }
 
@@ -1480,12 +1480,12 @@ table_attribute
 	}
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd->value, [ $namePos0, $namePos, $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ] ] );
-		$res->vsrc = $input->substring( $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ] );
+		$res->vsrc = substr( $input, $vd->srcOffsets[ 0 ], $vd->srcOffsets[ 1 ]/*CHECK THIS*/ );
 	} else {
 		$res = new KV( $name, '', [ $namePos0, $namePos, $namePos, $namePos ] );
 	}
 	if ( is_array( $name ) ) {
-		$res->ksrc = $input->substring( $namePos0, $namePos );
+		$res->ksrc = substr( $input, $namePos0, $namePos/*CHECK THIS*/ );
 	}
 	return $res; }
 
@@ -1786,7 +1786,7 @@ tds
 	$da->tsr[ 0 ] -= count( $pp ); // include "||"
 	if ( $pp !== '||' || ( $da->startTagSrc && $da->startTagSrc !== $pp ) ) {
 		// Variation from default
-		$da->startTagSrc = $pp + ( ( $da->startTagSrc ) ? $da->startTagSrc->substring( 1 ) : '' );
+		$da->startTagSrc = $pp + ( ( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );
 	}
 	return $tdt; }
     )*
@@ -1835,7 +1835,7 @@ table_heading_tags_parameterized
 
 	if ( $pp !== '!!' || ( $da->startTagSrc && $da->startTagSrc !== $pp ) ) {
 		// Variation from default
-		$da->startTagSrc = $pp + ( ( $da->startTagSrc ) ? $da->startTagSrc->substring( 1 ) : '' );
+		$da->startTagSrc = $pp + ( ( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );
 	}
 	return $tht; }
     )* {
@@ -2068,7 +2068,7 @@ include_limits =
 	// Last line should be empty (except for comments)
 	if ( $lname !== 'includeonly' && $sol_il && $il->constructor === $TagTk ) {
 		$dp = $il->dataAttribs;
-		$inclContent = $dp->src->substring( $dp->tagWidths[ 0 ], count( $dp->src ) - $dp->tagWidths[ 1 ] );
+		$inclContent = substr( $dp->src, $dp->tagWidths[ 0 ], count( $dp->src ) - $dp->tagWidths[ 1 ]/*CHECK THIS*/ );
 		$last = lastItem( explode( "\n", $inclContent ) );
 		if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {
 			return false;

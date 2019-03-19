@@ -1643,7 +1643,7 @@ WikitextSerializer::prototype::_serializeText = function ( $res, $node, $omitEsc
 		$match = preg_match( $this->separatorREs->sepPrefixWithNlsRE, $res );
 		if ( $match ) {
 			$state->appendSep( $match[ 0 ] );
-			$res = $res->substring( count( $res ) );
+			$res = substr( $res, count( $match[ 0 ] ) );
 		}
 	}
 

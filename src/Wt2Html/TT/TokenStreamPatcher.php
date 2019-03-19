@@ -84,7 +84,7 @@ class TokenStreamPatcher extends TemplateHandler {
 
 		if ( $tsr && $tsr[ 1 ] > $tsr[ 0 ] ) {
 			// > will only hold if these are valid numbers
-			$str = $this->manager->env->page->src->substring( $tsr[ 0 ], $tsr[ 1 ] );
+			$str = substr( $this->manager->env->page->src, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ );
 			// sol === false ensures that the pipe will not be parsed as a <td> again
 			$toks = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] );
 			array_pop( $toks ); // pop EOFTk
