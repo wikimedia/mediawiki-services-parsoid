@@ -71,7 +71,7 @@ function generateRules(opts) {
 	// Add some eslint overrides and define globals.
 	var rulesSource = '/* eslint-disable indent,camelcase,no-unused-vars */\n';
 	rulesSource += "\n'use strict';\n\n";
-	rulesSource += 'var options, location, input, text, peg$cache, peg$currPos;\n';
+	rulesSource += 'var options, location, input, text, peg$cache, peg$currPos, peg$savedPos;\n';
 	// Prevent redefinitions of variables involved in choice expressions
 	var seen = new Set();
 	var addVar = function(name) {
