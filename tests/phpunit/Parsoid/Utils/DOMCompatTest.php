@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Parsoid\Utils\DomCompat;
+namespace Test\Parsoid\Utils;
 
 use DOMDocument;
 use DOMElement;
