@@ -85,13 +85,21 @@ class PreHandler extends TokenHandler {
 	const STATE_MULTILINE_PRE = 4;
 	const STATE_IGNORE = 5;
 
+	/** @var int */
 	private $state;
+	/** @var ?NlTk */
 	private $lastNlTk;
+	/** @var int */
 	private $preTSR;
+	/** @var array<Token> */
 	private $tokens;
+	/** @var array<Token> */
 	private $preCollectCurrentLine;
+	/** @var ?Token */
 	private $preWSToken;
+	/** @var ?Token */
 	private $multiLinePreWSToken;
+	/** @var array<Token> */
 	private $solTransparentTokens;
 
 	/**
@@ -439,7 +447,7 @@ class PreHandler extends TokenHandler {
 			// comment length has 7 added for "<!--" and "-->" deliminters
 			// (see WTUtils.decodedCommentLength() -- but that takes a node not a token)
 			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr[ 1 ] :
-				( ( $tsr === -1 ) ? -1 : count( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
+				( ( $tsr === -1 ) ? -1 : mb_strlen( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			// meta-tag (cannot compute)
 			$tsr = -1;
@@ -454,9 +462,9 @@ class PreHandler extends TokenHandler {
 	 * Handle onAny processing
 	 *
 	 * @param Token|string $token
-	 * @return array
+	 * @return Token|array
 	 */
-	public function onAny( $token ): array {
+	public function onAny( $token ) {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
