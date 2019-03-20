@@ -3,13 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html;
 
-use DOMAttr;
-use DOMComment;
 use DOMDocument;
-use DOMDocumentFragment;
-use DOMElement;
 use DOMNode;
-use DOMText;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\WTUtils;
@@ -120,12 +115,13 @@ class XMLSerializer {
 					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
 				} elseif ( DOMUtils::isElt( $child ) && !in_array( $child->nodeName, $allowedTags ) ) {
 					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
+					'@phan-var \DOMElement $child'; // @var \DOMElement $child
 					$attrs = $child->attributes;
 					$len = $attrs->length;
 					$as = [];
 					for ( $i = 0;  $i < $len;  $i++ ) {
-						/** @var DOMAttr $attr */
 						$attr = $attrs->item( $i );
+						'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
 						$as[] = [ 'nodeName' => $attr->name, 'nodeValue' => $attr->value ];
 					}
 					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as );
@@ -136,7 +132,7 @@ class XMLSerializer {
 		}
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				/** @var DOMElement $node */
+				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				$child = $node->firstChild;
 				$attrs = $node->attributes;
 				// DOMNamedNodeMap did not implement Countable until PHP 7.2
@@ -145,8 +141,8 @@ class XMLSerializer {
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
 				for ( $i = 0;  $i < $len;  $i++ ) {
-					/** @var DOMAttr $attr */
 					$attr = $attrs->item( $i );
+					'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
 
 					if ( $options['smartQuote']
 						// More double quotes than single quotes in value?
@@ -175,11 +171,11 @@ class XMLSerializer {
 						// * < to \3c in <style>
 						// ...
 						if ( $child ) {
-							$accum( $child->data, $node );
+							$accum( $child->nodeValue, $node );
 						}
 					} else {
 						if ( $child && isset( self::$newlineStrippingElements[ $localName ] )
-							&& $child->nodeType === XML_TEXT_NODE && preg_match( '/^\n/', $child->data )
+							&& $child->nodeType === XML_TEXT_NODE && preg_match( '/^\n/', $child->nodeValue )
 						) {
 							/* If current node is a pre, textarea, or listing element,
 							 * and the first child node of the element, if any, is a
@@ -201,7 +197,8 @@ class XMLSerializer {
 
 			case XML_DOCUMENT_NODE:
 			case XML_DOCUMENT_FRAG_NODE:
-				/** @var DOMDocument|DOMDocumentFragment $node */
+				'@phan-var \DOMDocument|\DOMDocumentFragment $node';
+				// @var \DOMDocument|\DOMDocumentFragment $node
 				$child = $node->firstChild;
 				while ( $child ) {
 					self::serializeToString( $child, $options, $accum );
@@ -210,7 +207,7 @@ class XMLSerializer {
 				return;
 
 			case XML_TEXT_NODE:
-				/** @var DOMText $node */
+				'@phan-var \DOMText $node'; // @var \DOMText $node
 				$accum( self::encodeHtmlEntities( $node->data, '<&' ), $node );
 				return;
 
@@ -221,7 +218,7 @@ class XMLSerializer {
 				// a "well-formed" XML comment.  But we use entity encoding when
 				// we create the comment node to ensure that node.data will always
 				// be okay; see DOMUtils.encodeComment().
-				/** @var DOMComment $node */
+				'@phan-var \DOMComment $node'; // @var \DOMComment $node
 				$accum( '<!--' . $node->data . '-->', $node );
 				return;
 
@@ -267,7 +264,7 @@ class XMLSerializer {
 				$out['offsets'][$out['uid']]['html'][1] += mb_strlen( $bit, 'UTF-8' );
 			}
 		} else {
-			/** @var DOMElement $node */
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$newUid = $node->hasAttribute( 'id' ) ? $node->getAttribute( 'id' ) : null;
 			// Encapsulated siblings don't have generated ids (but may have an id),
 			// so associate them with preceding content.
@@ -313,7 +310,7 @@ class XMLSerializer {
 	 *     sibling. The positions are relative to the end of the opening <body> tag
 	 *     (the DOCTYPE header is not counted), and only present when the captureOffsets flag is set.
 	 */
-	public static function serialize( DOMNode $node, ?array $options = [] ): array {
+	public static function serialize( DOMNode $node, array $options = [] ): array {
 		$options += [
 			'smartQuote' => true,
 			'innerXML' => false,
