@@ -31,6 +31,8 @@
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
 		"mediawiki/mediawiki-codesniffer": "24.0.0",
+		"mediawiki/mediawiki-phan-config": "0.4.0",
+		"phan/phan": "^1.2",
 		"phpspec/phpspec": "^5.0",
 		"phpunit/phpunit": "^6.5",
 		"wikimedia/testing-access-wrapper": "~1.0"
@@ -51,16 +53,20 @@
 			"phpcs -p -s",
 			"minus-x check .",
 			"phpunit",
-			"phpspec run -v --ansi"
+			"phpspec run -v --ansi",
+			"echo @phan"
 		],
 		"fix": [
 			"minus-x fix .",
 			"phpcbf"
 		],
-		"cover": "phpunit --coverage-html coverage"
+		"cover": "phpunit --coverage-html coverage",
+		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser"
 	},
 	"config": {
 		"optimize-autoloader": true
 	},
-	"extra": {}
+	"extra": {
+		"phan": "1.2.4"
+	}
 }
