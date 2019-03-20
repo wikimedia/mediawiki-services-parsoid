@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable MediaWiki.Commenting.FunctionComment.DefaultNullTypeParam -- T218324, T218816
 declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
@@ -7,33 +8,38 @@ namespace Parsoid\Tokens;
  * Represents a Key-value pair.
  */
 class KV implements \JsonSerializable {
-	/** @var mixed Commonly a string, but where the key might be templated,
-	 *  this can be an array of tokens even. */
+	/** Commonly a string, but where the key might be templated,
+	 *  this can be an array of tokens even.
+	 * @var string|array<Token>
+	 */
 	public $k;
 
-	/** @var mixed string, Token, or an array of tokens even */
+	/** @var string|Token|array<Token> */
 	public $v;
 
-	/** @var int[]|null wikitext source offsets (Unicode char units) */
+	/** @var ?array<int> wikitext source offsets (Unicode char units) */
 	public $srcOffsets;
 
-	/** @var string|null wikitext source */
+	/** @var ?string wikitext source */
 	public $ksrc;
 
-	/** @var string|null wikitext source */
+	/** @var ?string wikitext source */
 	public $vsrc;
 
 	/**
-	 * @param mixed $k
+	 * @param string|array<Token> $k
 	 *     Commonly a string, but where the key might be templated,
 	 *     this can be an array of tokens even.
-	 * @param mixed $v
+	 * @param string|Token|array<Token> $v
 	 *     The value: string, token, of an array of tokens
-	 * @param int[]|null $srcOffsets wikitext source offsets (Unicode char units)
-	 * @param mixed|null $ksrc
-	 * @param mixed|null $vsrc
+	 * @param ?array<int> $srcOffsets wikitext source offsets (Unicode char units)
+	 * @param ?string $ksrc
+	 * @param ?string $vsrc
 	 */
-	public function __construct( $k, $v, $srcOffsets = null, $ksrc = null, $vsrc = null ) {
+	public function __construct(
+		$k, $v, ?array $srcOffsets = null,
+		?string $ksrc = null, ?string $vsrc = null
+	) {
 		$this->k = $k;
 		$this->v = $v;
 		$this->srcOffsets = $srcOffsets;
@@ -48,9 +54,9 @@ class KV implements \JsonSerializable {
 	/**
 	 * Lookup a string key in a KV array and return the first matching KV object
 	 *
-	 * @param KV[]|null $kvs
+	 * @param ?array<KV> $kvs
 	 * @param string $key
-	 * @return KV|null
+	 * @return ?KV
 	 */
 	public static function lookupKV( ?array $kvs, string $key ): ?KV {
 		if ( $kvs === null ) {
@@ -72,9 +78,9 @@ class KV implements \JsonSerializable {
 	 * Lookup a string key (first occurrence) in a KV array
 	 * and return the value of the KV object
 	 *
-	 * @param KV[]|null $kvs
+	 * @param ?array<KV> $kvs
 	 * @param string $key
-	 * @return mixed
+	 * @return string|Token|array<Token>
 	 */
 	public static function lookup( ?array $kvs, string $key ) {
 		$kv = self::lookupKV( $kvs, $key );

@@ -9,6 +9,11 @@ use Parsoid\Config\Env;
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
+	/** @var object */
+	public $dataAttribs;
+	/** @var array<KV> */
+	public $attribs;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -61,7 +66,7 @@ abstract class Token implements \JsonSerializable {
 	 * Generic attribute accessor.
 	 *
 	 * @param string $name
-	 * @return mixed
+	 * @return string|Token|array<Token>
 	 */
 	public function getAttribute( string $name ) {
 		return KV::lookup( $this->attribs, $name );
@@ -139,7 +144,8 @@ abstract class Token implements \JsonSerializable {
 			return [
 				"value" => $curVal,
 				// Mark as modified if a new element
-				"modified" => $this->dataAttribs !== [],
+				// NOTE: strict equality will not work in this comparison
+				"modified" => ( $this->dataAttribs != (object)[] ),
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {
@@ -192,7 +198,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $value The value to add to the attribute
 	 */
 	public function addSpaceSeparatedAttribute( string $name, string $value ): void {
-		$curVal = $this->getAttribute( $this->attribs );
+		$curVal = KV::lookupKV( $this->attribs, $name );
 		if ( $curVal !== null ) {
 			if ( preg_match( '/(?:^|\s)' . preg_quote( $value, '/' ) . '(?:\s|$)/', $curVal->v ) ) {
 				// value is already included, nothing to do.
