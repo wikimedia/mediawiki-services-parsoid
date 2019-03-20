@@ -59,8 +59,9 @@ class DOMUtils {
 		$handler( $node, ...$args );
 		$node = $node->firstChild;
 		while ( $node ) {
+			$next = $node->nextSibling;
 			self::visitDOM( $node, $handler, ...$args );
-			$node = $node->nextSibling;
+			$node = $next;
 		}
 	}
 

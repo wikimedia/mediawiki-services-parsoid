@@ -732,4 +732,51 @@ class WTUtils {
 	public static function escapeNowikiTags( string $text ): string {
 		return preg_replace( '#<(/?nowiki\s*/?\s*)>/gi#', '&lt;$1&gt;', $text );
 	}
+
+	/**
+	 * @param string $typeOf
+	 * @param array $attrs
+	 * @return $string
+	 */
+	public static function fosterCommentData( string $typeOf, array $attrs ): string {
+		return json_encode( [
+			'@type' => $typeOf,
+			'attrs' => $attrs
+		] );
+	}
+
+	/**
+	 * @param Env $env
+	 * @param DOMNode $node
+	 * @return DOMNode|null
+	 */
+	public static function reinsertFosterableContent( Env $env, DOMNode $node ): ?DOMNode {
+		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/', $node->data ) ) {
+			// Convert serialized meta tags back from comments.
+			// We use this trick because comments won't be fostered,
+			// providing more accurate information about where tags are expected
+			// to be found.
+			$data = json_decode( $node->data );
+			if ( $data === null ) {
+				// not a valid json attribute, do nothing
+				return null;
+			}
+			$type = $data->{'@type'};
+			if ( preg_match( '/^mw:/', $type ) ) {
+				$meta = $node->ownerDocument->createElement( 'meta' );
+				foreach ( $data->attrs as $attr ) {
+					try {
+						$meta->setAttribute( $attr->nodeName, $attr->nodeValue );
+					} catch ( Exception $e ) {
+						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
+							$attr->nodeName
+						);
+					}
+				}
+				$node->parentNode->replaceChild( $meta, $node );
+				return $meta;
+			}
+		}
+		return null;
+	}
 }

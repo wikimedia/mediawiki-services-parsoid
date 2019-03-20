@@ -12,7 +12,6 @@ use DOMNode;
 use DOMText;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 
@@ -110,35 +109,29 @@ class XMLSerializer {
 		if ( !empty( $options['tunnelFosteredContent'] ) &&
 			isset( WikitextConstants::$HTML['FosterablePosition'][$node->nodeName] )
 		) {
-			// Tunnel fosterable content in a data-fostered attribute
+			// Tunnel fosterable metas as comments.
+			// This is analogous to what is done when treebuilding.
 			$ownerDoc = $node->ownerDocument;
 			$allowedTags = WikitextConstants::$HTML['TableContentModels'][$node->nodeName];
-			$idx = 0;
-			$tunneledContent = [];
 			$child = $node->firstChild;
 			while ( $child ) {
 				$next = $child->nextSibling;
-				/* If a node is going to get fostered, extract it to the data-fostered
-				 * attribute and replace it with an empty placeholder comment.
-				 * NOTE: we are unconditionally tunnelling text nodes without checking for WS.
-				 * It just keeps thing simple without having to deal with what is considered WS
-				 * in JS, PHP, HTML5.
-				 */
 				if ( DOMUtils::isText( $child ) ) {
-					$tunneledContent[] = [ 'idx' => $idx, 'text' => true, 'content' => $child->data ];
-					$node->replaceChild( $ownerDoc->createComment( '' ), $child );
+					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
 				} elseif ( DOMUtils::isElt( $child ) && !in_array( $child->nodeName, $allowedTags ) ) {
-					$tunneledContent[] = [ 'idx' => $idx,
-						'content' => self::serialize( $child )['html']
-					];
-					$node->replaceChild( $ownerDoc->createComment( '' ), $child );
+					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
+					$attrs = $child->attributes;
+					$len = $attrs->length;
+					$as = [];
+					for ( $i = 0;  $i < $len;  $i++ ) {
+						/** @var DOMAttr $attr */
+						$attr = $attrs->item( $i );
+						$as[] = [ 'nodeName' => $attr->name, 'nodeValue' => $attr->value ];
+					}
+					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as );
+					$node->replaceChild( $ownerDoc->createComment( $comment ), $child );
 				}
 				$child = $next;
-				$idx++;
-			}
-
-			if ( count( $tunneledContent ) > 0 ) {
-				$node->setAttribute( 'data-fostered', PHPUtils::jsonEncode( $tunneledContent ) );
 			}
 		}
 		switch ( $node->nodeType ) {

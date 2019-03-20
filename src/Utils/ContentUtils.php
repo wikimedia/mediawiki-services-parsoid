@@ -40,44 +40,6 @@ class ContentUtils {
 		return self::toXML( $node, $options );
 	}
 
-	private static function reinsertFosterableContent( DOMNode $node ): void {
-		if ( !DOMUtils::isElt( $node ) ) {
-			return;
-		}
-
-		$dataFosteredAttr = $node->getAttribute( 'data-fostered' );
-		if ( $dataFosteredAttr ) {
-			$tunneledContent = PHPUtils::jsonDecode( $dataFosteredAttr );
-			$idx = 0;
-			$child = $node->firstChild;
-			$c = array_shift( $tunneledContent );
-			while ( $c ) {
-				Assert::invariant( $child,
-					'Bad DOM encountered. Cannot reinsert fosterable content!' );
-				$next = $child->nextSibling;
-				if ( $c['idx'] === $idx ) {
-					Assert::invariant( DOMUtils::isComment( $child ),
-						'Expected placeholder comment!' );
-					if ( empty( $c['text'] ) ) {
-						// parse & transfer over
-						$fc = DOMUtils::parseHTML( $c['content'] );
-						// FIXME: Update after DOMCompat lands
-						$fcBody = $fc->getElementsByTagName( 'body' )->item( 0 );
-						DOMUtils::migrateChildrenBetweenDocs( $fcBody, $node, $child );
-						$node->removeChild( $child );
-					} else {
-						$fc = $node->ownerDocument->createTextNode( $c['content'] );
-						$node->replaceChild( $fc, $child );
-					}
-					$c = array_shift( $tunneledContent );
-				}
-				$child = $next;
-				$idx++;
-			}
-			$node->removeAttribute( 'data-fostered' );
-		}
-	}
-
 	/**
 	 * .dataobject aware HTML parser, to be used in the DOM
 	 * post-processing phase.
@@ -99,15 +61,16 @@ class ContentUtils {
 
 		$markNew = $options['markNew'] ?? false;
 		if ( $options['reinsertFosterableContent'] ) {
-			DOMUtils::visitDOM( $node, function ( $node, ...$args ) {
+			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
-				self::reinsertFosterableContent( $node );
+				$meta = WTUtils::reinsertFosterableContent( $env, $n );
+				$n = ( $meta !== null ) ? $meta : $n;
 
 				// load data attribs
-				DOMDataUtils::loadDataAttribs( $node, ...$args );
+				DOMDataUtils::loadDataAttribs( $n, ...$args );
 			}, $markNew );
 		} else {
-			DOMUtils::visitDOM( $node, [ DOMDataUtils::class, 'loadDataAttribs' ], $markNew );
+			DOMDataUtils::visitAndLoadDataAttribs( $node, $markNew );
 		}
 		return $node;
 	}
