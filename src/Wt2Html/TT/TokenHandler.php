@@ -7,15 +7,31 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Wt2html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 
 class TokenHandler {
+	protected $manager;
+	/** @var Env */
+	protected $env;
+	/** @var array */
+	protected $options;
+	/** @var bool */
+	protected $atTopLevel;
+	/** @var bool */
+	protected $disabled;
+	/** @var bool */
+	protected $onAnyEnabled;
+
 	/**
 	 * @param TokenTransformManager $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
+		$manager, array $options
+	) {
 		$this->manager = $manager;
+		// @phan-suppress-next-line PhanUndeclaredClassProperty
 		$this->env = $manager->env;
 		$this->options = $options;
 		$this->atTopLevel = false;
@@ -44,7 +60,7 @@ class TokenHandler {
 
 	/**
 	 * This handler is called for newline tokens only
-	 * @param Token $token Newline token to be processed
+	 * @param NlTk $token Newline token to be processed
 	 * @return NlTk|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }

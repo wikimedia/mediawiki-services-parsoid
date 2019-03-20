@@ -223,4 +223,24 @@ class Env {
 		$logger->debug( $output );
 	}
 
+	/**
+	 * Update a profile timer.
+	 *
+	 * @param string $resource
+	 * @param mixed $time
+	 * @param mixed $cat
+	 */
+	public function bumpTimeUse( string $resource, $time, $cat ) {
+		throw new \BadMethodCallException( 'not yet ported' );
+	}
+
+	/**
+	 * Update a profile counter.
+	 *
+	 * @param string $resource
+	 * @param int $n The amount to increment the counter; defaults to 1.
+	 */
+	public function bumpCount( string $resource, int $n = 1 ) {
+		throw new \BadMethodCallException( 'not yet ported' );
+	}
 }
