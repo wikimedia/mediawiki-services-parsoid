@@ -37,6 +37,26 @@ function array_flatten( array $array ): array {
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
  */
 class QuoteTransformer extends TokenHandler {
+	/** Chunks alternate between quote tokens and sequences of non-quote
+	 * tokens.  The quote tokens are later replaced with the actual tag
+	 * token for italic or bold.  The first chunk is a non-quote chunk.
+	 * @var array
+	 */
+	private $chunks;
+
+	/**
+	 * The current chunk we're accumulating into.
+	 * @var array
+	 */
+	private $currentChunk;
+
+	/**
+	 * Last italic / last bold open tag seen.  Used to add autoInserted flags
+	 * where necessary.
+	 * @var array
+	 */
+	private $last;
+
 	/**
 	 * Class constructor
 	 *
@@ -93,7 +113,7 @@ class QuoteTransformer extends TokenHandler {
 
 	/**
 	 * On encountering a NlTk, processes quotes on the current line
-	 * @param NlTk Token $token
+	 * @param NlTk $token
 	 * @return NlTk|array
 	 */
 	public function onNewline( NlTk $token ) {
@@ -413,9 +433,9 @@ class QuoteTransformer extends TokenHandler {
 	/**
 	 * Convert italics/bolds into tags.
 	 *
-	 * @param number $chunk chunk buffer
+	 * @param int $chunk chunk buffer
 	 * @param array $tags token
-	 * @param bool $ignoreBogusTwo optional defaulß
+	 * @param bool $ignoreBogusTwo optional defaults to false
 	 */
 	public function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ): void {
 		Assert::invariant( count( $this->chunks[$chunk] ) === 1, 'expected count chunks[i] == 1' );
