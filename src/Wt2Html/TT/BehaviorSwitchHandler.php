@@ -6,21 +6,21 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Wt2html\TokenTransformManager;
 
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
- *
- * @class
- * @extends module:wt2html/tt/TokenHandler
  */
 class BehaviorSwitchHandler extends TokenHandler {
 	/**
 	 * Class constructor
 	 *
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
+		$manager, array $options
+	) {
 		parent::__construct( $manager, $options );
 	}
 
@@ -48,7 +48,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 	 * Handle onTag processing
 	 *
 	 * @param Token $token
-	 * @return Token
+	 * @return Token|array
 	 */
 	public function onTag( Token $token ) {
 		$name = is_string( $token ) ? $token : $token->getName();
