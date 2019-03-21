@@ -9,8 +9,6 @@ use \stdClass as StdClass;
  * Newline token.
  */
 class NlTk extends Token {
-	protected $type = 'NlTk';
-
 	/** @var object Data attributes for this token
 	 * TODO: Expand on this.
 	 */

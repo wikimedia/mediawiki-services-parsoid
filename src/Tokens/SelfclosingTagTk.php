@@ -9,8 +9,6 @@ use \stdClass as StdClass;
  * Token for a self-closing tag (HTML or otherwise)
  */
 class SelfclosingTagTk extends Token {
-	protected $type = 'SelfclosingTagTk';
-
 	/** @var string Name of the end tag */
 	private $name;
 
