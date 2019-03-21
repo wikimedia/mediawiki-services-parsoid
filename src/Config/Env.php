@@ -32,10 +32,13 @@ class Env {
 	/** @var bool */
 	private $wrapSections = true;
 
-	/** @var array */
+	/** @var array<string,mixed> */
 	private $behaviorSwitches = [];
 
-	/** @var array Maps fragment id to the fragment forest (array of DOMNodes)  */
+	/**
+	 * Maps fragment id to the fragment forest (array of DOMNodes).
+	 * @var array<string,DOMNode[]>
+	 */
 	private $fragmentMap = [];
 
 	/**
@@ -160,7 +163,7 @@ class Env {
 	}
 
 	/**
-	 * @return array
+	 * @return array<string,DOMNode[]>
 	 */
 	public function getFragmentMap(): array {
 		return $this->fragmentMap;
@@ -170,7 +173,7 @@ class Env {
 	 * @param string $id Fragment id
 	 * @return DOMNode[]
 	 */
-	public function getFragment( string $id ) {
+	public function getFragment( string $id ): array {
 		return $this->fragmentMap[$id];
 	}
 
@@ -230,7 +233,7 @@ class Env {
 	 * @param mixed $time
 	 * @param mixed $cat
 	 */
-	public function bumpTimeUse( string $resource, $time, $cat ) {
+	public function bumpTimeUse( string $resource, $time, $cat ): void {
 		throw new \BadMethodCallException( 'not yet ported' );
 	}
 
@@ -240,7 +243,7 @@ class Env {
 	 * @param string $resource
 	 * @param int $n The amount to increment the counter; defaults to 1.
 	 */
-	public function bumpCount( string $resource, int $n = 1 ) {
+	public function bumpCount( string $resource, int $n = 1 ): void {
 		throw new \BadMethodCallException( 'not yet ported' );
 	}
 }
