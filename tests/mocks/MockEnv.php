@@ -32,4 +32,9 @@ class MockEnv extends Env {
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $opts );
 	}
 
+	public function bumpTimeUse( string $resource, $time, $cat ): void {
+	}
+
+	public function bumpCount( string $resource, int $n = 1 ): void {
+	}
 }
