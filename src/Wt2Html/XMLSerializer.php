@@ -124,7 +124,7 @@ class XMLSerializer {
 						'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
 						$as[] = [ 'nodeName' => $attr->name, 'nodeValue' => $attr->value ];
 					}
-					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as );
+					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as, true );
 					$node->replaceChild( $ownerDoc->createComment( $comment ), $child );
 				}
 				$child = $next;

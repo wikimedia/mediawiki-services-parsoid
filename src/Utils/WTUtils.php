@@ -739,29 +739,40 @@ class WTUtils {
 	}
 
 	/**
+	 * Conditional encoding is because, while treebuilding, the value goes
+	 * directly from token to dom node without the comment itself being
+	 * stringified and parsed where the comment encoding would be necessary.
+	 *
 	 * @param string $typeOf
 	 * @param array $attrs
+	 * @param bool $encode
 	 * @return $string
 	 */
-	public static function fosterCommentData( string $typeOf, array $attrs ): string {
-		return json_encode( [
+	public static function fosterCommentData( string $typeOf, array $attrs, bool $encode ): string {
+		$str = json_encode( [
 			'@type' => $typeOf,
 			'attrs' => $attrs
 		] );
+		if ( $encode ) {
+			$str = self::encodeComment( $str );
+		}
+		return $str;
 	}
 
 	/**
 	 * @param Env $env
 	 * @param DOMNode $node
+	 * @param bool $decode
 	 * @return DOMNode|null
 	 */
-	public static function reinsertFosterableContent( Env $env, DOMNode $node ): ?DOMNode {
+	public static function reinsertFosterableContent( Env $env, DOMNode $node, bool $decode ):
+			?DOMNode {
 		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/', $node->data ) ) {
 			// Convert serialized meta tags back from comments.
 			// We use this trick because comments won't be fostered,
 			// providing more accurate information about where tags are expected
 			// to be found.
-			$data = json_decode( $node->data );
+			$data = json_decode( $decode ? self::decodeComment( $node->data ) : $node->data );
 			if ( $data === null ) {
 				// not a valid json attribute, do nothing
 				return null;

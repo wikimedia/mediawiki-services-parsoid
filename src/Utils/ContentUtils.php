@@ -63,7 +63,7 @@ class ContentUtils {
 		if ( $options['reinsertFosterableContent'] ) {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
-				$meta = WTUtils::reinsertFosterableContent( $env, $n );
+				$meta = WTUtils::reinsertFosterableContent( $env, $n, true );
 				$n = ( $meta !== null ) ? $meta : $n;
 
 				// load data attribs
