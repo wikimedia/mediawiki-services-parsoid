@@ -41,6 +41,9 @@ class Env {
 	 */
 	private $fragmentMap = [];
 
+	/** @var int used to generate uids as needed during this parse */
+	private $uid = 1;
+
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
@@ -88,6 +91,30 @@ class Env {
 	 */
 	public function getWrapSections(): bool {
 		return $this->wrapSections;
+	}
+
+	/**
+	 * Generate a new uid
+	 * @return int
+	 */
+	public function generateUID(): int {
+		return $this->uid++;
+	}
+
+	/**
+	 * Generate a new object id
+	 * @return string
+	 */
+	public function newObjectId(): string {
+		return "mwt" . $this->generateUID();
+	}
+
+	/**
+	 * Generate a new about id
+	 * @return string
+	 */
+	public function newAboutId(): string {
+		return "#" . $this->newObjectId();
 	}
 
 	/**
@@ -245,5 +272,23 @@ class Env {
 	 */
 	public function bumpCount( string $resource, int $n = 1 ): void {
 		throw new \BadMethodCallException( 'not yet ported' );
+	}
+
+	/**
+	 * Is the language converted enabled on this page?
+	 * @return bool
+	 */
+	public function langConverterEnabled(): bool {
+		$lang = $this->pageConfig->getPageLanguage();
+		if ( !$lang ) {
+			$lang = $this->siteConfig->lang();
+		}
+		if ( !$lang ) {
+			$lang = 'en';
+		}
+		// Is this missing??
+		// return this.conf.wiki.langConverterEnabled.has(lang);
+
+		throw new \BadMethodCallException( 'Not implemented yet' );
 	}
 }
