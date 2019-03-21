@@ -3,19 +3,22 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
 use DOMNode;
 use \stdClass as StdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
-use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 
 class ComputeDSR {
 	/**
-	 * For an explanation of what TSR is, see dom.computeDSR.js
+	 * For an explanation of what TSR is, see ComputeDSR::computeNodeDSR()
 	 *
 	 * TSR info on all these tags are only valid for the opening tag.
 	 * (closing tags dont have attrs since tree-builder strips them
@@ -97,7 +100,8 @@ class ComputeDSR {
 		 *
 		 * 3. Other scenarios .. to be added
 		 */
-		if ( $node->nodeName === 'a' && (
+		if ( $node->nodeName === 'a' &&
+			 $node instanceof DOMElement /* for phan */ && (
 				WTUtils::usesURLLinkSyntax( $node, null ) ||
 				WTUtils::usesMagicLinkSyntax( $node, null )
 			)
@@ -142,11 +146,11 @@ class ComputeDSR {
 	 * Compute wikitext string lengths that contribute to this
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @param StdClass|null $dp
-	 * @return int[]
+	 * @return int[]|null
 	 */
-	private function computeATagWidth( DOMNode $node, ?StdClass $dp ): ?array {
+	private function computeATagWidth( DOMElement $node, ?StdClass $dp ): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
 		 *
@@ -228,9 +232,11 @@ class ComputeDSR {
 				if ( $stWidth === null ) {
 					// we didn't have a tsr to tell us how wide this tag was.
 					if ( $nodeName === 'a' ) {
+						'@phan-var DOMElement $node'; // @var DOMElement $node
 						$wtTagWidth = $this->computeATagWidth( $node, $dp );
 						$stWidth = $wtTagWidth ? $wtTagWidth[0] : null;
 					} elseif ( $nodeName === 'li' || $nodeName === 'dd' ) {
+						'@phan-var DOMElement $node'; // @var DOMElement $node
 						$stWidth = $this->computeListEltWidth( $node );
 					} elseif ( $wtTagWidth ) {
 						$stWidth = $wtTagWidth[0];
@@ -319,6 +325,7 @@ class ComputeDSR {
 			if ( !$rtTestMode ) {
 				$next = $child->nextSibling;
 				if ( $next && DOMUtils::isElt( $next ) ) {
+					'@phan-var DOMElement $next'; // @var DOMElement $next
 					$ndp = DOMDataUtils::getDataParsoid( $next );
 					if ( isset( $ndp->src ) &&
 						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#', $next->getAttribute( "typeof" ) )
@@ -328,8 +335,7 @@ class ComputeDSR {
 							$correction = mb_strlen( $ndp->src );
 							$ce += $correction;
 							$dsrCorrection = $correction;
-							# if (Util::isValidDSR($ndp->dsr))
-							if ( DOMUtils::isValidDSR( $ndp->dsr ) ) {
+							if ( Util::isValidDSR( $ndp->dsr ) ) {
 								// Record original DSR for the meta tag
 								// since it will now get corrected to zero width
 								// since child acquires its width->
@@ -356,9 +362,10 @@ class ComputeDSR {
 					">=" .
 					( DOMUtils::isElt( $child ) ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
 					( DOMUtils::isElt( $child ) ?
-						// PORT-FIXME: PHP DOM does not have an outerHTML property
-						( $child->nodeName === 'meta' ? $child->outerHTML : $child->nodeName ) :
-						PHPUtils::jsonEncode( $child->data )
+					( $child->nodeName === 'meta' &&
+					  $child instanceof DOMElement /* for phan */ ?
+					  DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
+						PHPUtils::jsonEncode( $child->nodeValue )
 					) . " with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
 			} );
 
@@ -368,11 +375,13 @@ class ComputeDSR {
 					$cs = $ce - mb_strlen( $child->textContent ) - WTUtils::indentPreDSRCorrection( $child );
 				}
 			} elseif ( $cType === XML_COMMENT_NODE ) {
+				'@phan-var \DOMComment $child'; // @var \DOMComment $child
 				if ( $ce !== null ) {
 					// Decode HTML entities & re-encode as wikitext to find length
 					$cs = $ce - WTUtils::decodedCommentLength( $child );
 				}
 			} elseif ( $cType === XML_ELEMENT_NODE ) {
+				'@phan-var DOMElement $child'; // @var DOMElement $child
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
@@ -417,6 +426,7 @@ class ComputeDSR {
 							// Update table-end syntax using info from the meta tag
 							$prev = $child->previousSibling;
 							if ( $prev && $prev->nodeName === "table" ) {
+								'@phan-var DOMElement $prev'; // @var DOMElement $prev
 								$prevDP = DOMDataUtils::getDataParsoid( $prev );
 								if ( !WTUtils::hasLiteralHTMLMarker( $prevDP ) ) {
 									if ( isset( $dp->endTagSrc ) ) {
@@ -529,6 +539,7 @@ class ComputeDSR {
 						// nested subtree that could account for the DSR span.
 						$newDsr = [ $ccs, $cce ];
 					} elseif ( $child->nodeName === 'a'
+						&& $child instanceof DOMElement // redundant but helps phan
 						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
 						&& ( !isset( $dp->stx ) || $dp->stx !== "piped" ) ) {
 						/* -------------------------------------------------------------
@@ -596,7 +607,7 @@ class ComputeDSR {
 						$dp->dsr = [ $cs, $ce, $stWidth, $etWidth ];
 					}
 
-					$env->log( "trace/dsr", function () use ( $env, $child, $cs, $ce, $cTypeOf ) {
+					$env->log( "trace/dsr", function () use ( $env, $child, $cs, $ce, $cTypeOf, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
@@ -620,8 +631,10 @@ class ComputeDSR {
 							$newCE = $newCE + mb_strlen( $sibling->textContent ) +
 								WTUtils::indentPreDSRCorrection( $sibling );
 						} elseif ( $nType === XML_COMMENT_NODE ) {
+							'@phan-var \DOMComment $sibling'; // @var \DOMComment $sibling
 							$newCE += WTUtils::decodedCommentLength( $sibling );
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
+							'@phan-var DOMElement $sibling'; // @var DOMElement $sibling
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
 
 							if ( !isset( $siblingDP->dsr ) ) {
@@ -748,14 +761,14 @@ class ComputeDSR {
 	/**
 	 * Computes DSR ranges for every node of a DOM tree.
 	 *
-	 * @param DOMNode $rootNode The root of the tree for which DSR has to be computed
+	 * @param DOMElement $rootNode The root of the tree for which DSR has to be computed
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, $env->getPageMainContent()->length]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
-	public function run( DOMNode $rootNode, Env $env, ?array $options = [] ): void {
+	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
 		$startOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][0] : 0;
 		$endOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][1] :
 			mb_strlen( $env->getPageMainContent() );

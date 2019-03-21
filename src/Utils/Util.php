@@ -322,7 +322,7 @@ class Util {
 	 * @param bool $all Also check the widths of the container tag
 	 * @return bool
 	 */
-	public static function isValidDSR( $dsr, $all ) {
+	public static function isValidDSR( array $dsr, bool $all = false ): bool {
 	/*	const isValidOffset = n => typeof (n) === 'number' && n >= 0;
 		return dsr &&
 			isValidOffset(dsr[0]) && isValidOffset(dsr[1]) &&
