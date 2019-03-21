@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\NlTk;
@@ -184,7 +185,7 @@ class ParagraphWrapper extends TokenHandler {
 		$n = count( $this->nlWsTokens );
 		while ( $i < $n ) {
 			$t = array_shift( $this->nlWsTokens );
-			if ( TokenUtils::getTokenType( $t ) === 'NlTk' ) {
+			if ( $t instanceof NlTk ) {
 				return $t;
 			} else {
 				$out[] = $t;
@@ -209,8 +210,7 @@ class ParagraphWrapper extends TokenHandler {
 			$countOut = count( $out );
 			for ( $i = 0; $i < $countOut; $i++ ) {
 				$t = $out[$i];
-				$tt = TokenUtils::getTokenType( $t );
-				if ( $tt !== 'string' && $t->getName() === 'meta' ) {
+				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
@@ -225,7 +225,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens
 				// and leave them out of the p-wrapping.
-				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && $tt !== 'NlTk' ) {
+				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !$t instanceof NlTk ) {
 					break;
 				}
 			}
@@ -249,8 +249,7 @@ class ParagraphWrapper extends TokenHandler {
 			// Look for open markers before closing.
 			for ( $i = count( $out ) - 1; $i > -1; $i-- ) {
 				$t = $out[$i];
-				$tt = TokenUtils::getTokenType( $t );
-				if ( $tt !== 'string' && $t->getName() === 'meta' ) {
+				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' ) ?? '';
 					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
@@ -266,7 +265,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens
 				// and leave them out of the p-wrapping.
-				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && $tt !== 'NlTk' ) {
+				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !$t instanceof NlTk ) {
 					break;
 				}
 			}
@@ -304,7 +303,7 @@ class ParagraphWrapper extends TokenHandler {
 
 		$this->tokenBuffer = array_merge( $this->tokenBuffer, $l['tokens'] );
 
-		if ( TokenUtils::isOfType( $token, 'EOFTk' ) ) {
+		if ( $token instanceof EOFTk ) {
 			$this->nlWsTokens[] = $token;
 			$this->closeOpenPTag( $this->tokenBuffer );
 			$res = $this->processPendingNLs();
@@ -391,8 +390,9 @@ class ParagraphWrapper extends TokenHandler {
 			return PHPUtils::jsonEncode( $token );
 		 } );
 		$res = null;
-		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'TagTk' && $token->getName() === 'pre' && !TokenUtils::isHTMLTag( $token ) ) {
+		if ( $token instanceof TagTk && $token->getName() === 'pre'
+			 && !TokenUtils::isHTMLTag( $token )
+		) {
 			if ( $this->inBlockElem ) {
 				$this->currLine['tokens'][] = ' ';
 				return [ 'tokens' => [] ];
@@ -408,7 +408,7 @@ class ParagraphWrapper extends TokenHandler {
 				// skip ensures this doesn't hit the AnyHandler
 				return [ 'tokens' => $this->processBuffers( $token, true ), 'skipOnAny' => true ];
 			}
-		} elseif ( $tc === 'EndTagTk' && $token->getName() === 'pre' &&
+		} elseif ( $token instanceof EndTagTk && $token->getName() === 'pre' &&
 			!TokenUtils::isHTMLTag( $token )
 		) {
 			if ( $this->inBlockElem && !$this->inPre ) {
@@ -427,7 +427,7 @@ class ParagraphWrapper extends TokenHandler {
 				// skip ensures this doesn't hit the AnyHandler
 				return [ 'tokens' => $res, 'skipOnAny' => true ];
 			}
-		} elseif ( $tc === 'EOFTk' || $this->inPre ) {
+		} elseif ( $token instanceof EOFTk || $this->inPre ) {
 			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
 				function () use( $token ) {
 					return PHPUtils::jsonEncode( $token );
@@ -436,7 +436,8 @@ class ParagraphWrapper extends TokenHandler {
 			$res = [ $token ];
 			// skip ensures this doesn't hit the AnyHandler
 			return [ 'tokens' => $res, 'skipOnAny' => true ];
-		} elseif ( $tc === 'CommentTk' || $tc === 'string' && preg_match( '/^[\t ]*$/', $token )
+		} elseif ( $token instanceof CommentTk
+			|| is_string( $token ) && preg_match( '/^[\t ]*$/', 	$token )
 			|| TokenUtils::isEmptyLineMetaToken( $token )
 		) {
 			if ( $this->newLineCount === 0 ) {
@@ -450,7 +451,7 @@ class ParagraphWrapper extends TokenHandler {
 				$this->nlWsTokens[] = $token;
 				return [ 'tokens' => [] ];
 			}
-		} elseif ( $tc !== 'string' &&
+		} elseif ( !is_string( $token ) &&
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
 			// a new paragraph by itself.
@@ -476,15 +477,15 @@ class ParagraphWrapper extends TokenHandler {
 				return [ 'tokens' => $this->processBuffers( $token, false ), 'skipOnAny' => true ];
 			}
 		} else {
-			if ( $tc !== 'string' ) {
+			if ( !is_string( $token ) ) {
 				$name = $token->getName();
-				if ( ( isset( self::$wgBlockElems[$name] ) && $tc !== 'EndTagTk' ) ||
-					( isset( self::$wgAntiBlockElems[$name] ) && $tc === 'EndTagTk' ) ||
+				if ( ( isset( self::$wgBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
+					( isset( self::$wgAntiBlockElems[$name] ) && $token instanceof EndTagTk ) ||
 					isset( self::$wgAlwaysSuppress[$name] ) ) {
 					$this->currLine['openMatch'] = true;
 				}
-				if ( ( isset( self::$wgBlockElems[$name] ) && $tc === 'EndTagTk' ) ||
-					( isset( self::$wgAntiBlockElems[$name] ) && $tc !== 'EndTagTk' ) ||
+				if ( ( isset( self::$wgBlockElems[$name] ) && $token instanceof EndTagTk ) ||
+					( isset( self::$wgAntiBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
 					isset( self::$wgNeverSuppress[$name] ) ) {
 					$this->currLine['closeMatch'] = true;
 				}

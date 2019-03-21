@@ -48,7 +48,7 @@ class SelfclosingTagTk extends Token {
 	 */
 	public function jsonSerialize(): array {
 		return [
-			'type' => $this->type,
+			'type' => $this->getType(),
 			'name' => $this->name,
 			'attribs' => $this->attribs,
 			'dataAttribs' => $this->dataAttribs

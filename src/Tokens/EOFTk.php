@@ -7,8 +7,6 @@ namespace Parsoid\Tokens;
  * Represents EOF
  */
 class EOFTk extends Token {
-	protected $type = 'EOFTk';
-
 	public function __construct() {
 	}
 
@@ -17,7 +15,7 @@ class EOFTk extends Token {
 	 */
 	public function jsonSerialize(): array {
 		return [
-			'type' => $this->type
+			'type' => $this->getType()
 		];
 	}
 }

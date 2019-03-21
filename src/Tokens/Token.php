@@ -9,10 +9,6 @@ use Parsoid\Config\Env;
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	/** @var string Type identifier of this token.
-	 * All subclasses should assign this a non-null value. */
-	protected $type;
-
 	/**
 	 * @inheritDoc
 	 */
@@ -24,7 +20,7 @@ abstract class Token implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getName(): string {
-		return $this->type;
+		return $this->getType();
 	}
 
 	/**
@@ -32,7 +28,7 @@ abstract class Token implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getType(): string {
-		return $this->type;
+		return ( new \ReflectionClass( $this ) )->getShortName();
 	}
 
 	/**

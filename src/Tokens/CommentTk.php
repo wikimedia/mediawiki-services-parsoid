@@ -9,8 +9,6 @@ use \stdClass as StdClass;
  * Represents a comment
  */
 class CommentTk extends Token {
-	protected $type = 'CommentTk';
-
 	/** @var string Comment text */
 	public $value;
 
@@ -37,7 +35,7 @@ class CommentTk extends Token {
 	 */
 	public function jsonSerialize(): array {
 		return [
-			'type' => $this->type,
+			'type' => $this->getType(),
 			'value' => $this->value,
 			'dataAttribs' => $this->dataAttribs
 		];

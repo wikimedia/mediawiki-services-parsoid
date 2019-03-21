@@ -11,6 +11,7 @@ namespace Parsoid\Utils;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
@@ -26,17 +27,6 @@ class TokenUtils {
 	 */
 	public static function getTokenType( $token ): string {
 		return is_string( $token ) ? 'string' : $token->getType();
-	}
-
-	/**
-	 * Checks if a token is of a specific type (primitive string
-	 * or one of the token types)
-	 * @param Token|string $token
-	 * @param string $expectedType
-	 * @return bool
-	 */
-	public static function isOfType( $token, string $expectedType ): bool {
-		return self::getTokenType( $token ) === $expectedType;
 	}
 
 	/**
@@ -112,8 +102,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isTableTag( $token ): bool {
-		$tc = self::getTokenType( $token );
-		return ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+		return ( $token instanceof TagTk || $token instanceof EndTagTk ) &&
 			isset( Consts::$HTML['TableTags'][$token->getName()] );
 	}
 
@@ -124,8 +113,11 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isSolTransparentLinkTag( $token ): bool {
-		$tc = self::getTokenType( $token );
-		return ( $tc === 'SelfclosingTagTk' || $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+		return (
+				$token instanceof SelfclosingTagTk ||
+				$token instanceof TagTk ||
+				$token instanceof EndTagTk
+			) &&
 			$token->getName() === 'link' &&
 			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) );
 	}
@@ -138,7 +130,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isBehaviorSwitch( Env $env, $token ): bool {
-		return self::isOfType( $token, 'SelfclosingTagTk' ) && (
+		return $token instanceof SelfclosingTagTk && (
 			// Before BehaviorSwitchHandler (ie. PreHandler, etc.)
 			$token->getName() === 'behavior-switch' ||
 			// After BehaviorSwitchHandler
@@ -158,16 +150,15 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isSolTransparent( Env $env, $token ): bool {
-		$tt = self::getTokenType( $token );
-		if ( $tt === 'string' ) {
+		if ( is_string( $token ) ) {
 			return preg_match( '/^\s*$/', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
-		} elseif ( $tt === 'CommentTk' ) {
+		} elseif ( $token instanceof CommentTk ) {
 			return true;
 		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
 			return true;
-		} elseif ( $tt !== 'SelfclosingTagTk' || $token->getName() !== 'meta' ) {
+		} elseif ( !$token instanceof SelfclosingTagTk || $token->getName() !== 'meta' ) {
 			return false;
 		} else {  // only metas left
 			return !( isset( $token->dataAttribs->stx ) && $token->dataAttribs->stx === 'html' );
@@ -181,7 +172,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isEmptyLineMetaToken( $token ): bool {
-		return self::isOfType( $token, 'SelfclosingTagTk' ) &&
+		return $token instanceof SelfclosingTagTk &&
 			$token->getName() === 'meta' &&
 			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
 	}

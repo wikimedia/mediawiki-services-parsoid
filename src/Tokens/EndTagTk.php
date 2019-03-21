@@ -9,8 +9,6 @@ use \stdClass as StdClass;
  * Represents an HTML end tag token
  */
 class EndTagTk extends Token {
-	protected $type = 'EndTagTk';
-
 	/** @var string Name of the end tag */
 	private $name;
 
@@ -48,7 +46,7 @@ class EndTagTk extends Token {
 	 */
 	public function jsonSerialize(): array {
 		return [
-			'type' => $this->type,
+			'type' => $this->getType(),
 			'name' => $this->name,
 			'attribs' => $this->attribs,
 			'dataAttribs' => $this->dataAttribs

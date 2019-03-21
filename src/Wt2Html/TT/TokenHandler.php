@@ -8,7 +8,6 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
 
 class TokenHandler {
 	/**
@@ -135,13 +134,12 @@ class TokenHandler {
 			$res = null;
 			$resTokens = null; // Not needed but helpful for code comprehension
 			$modified = false;
-			$tt = TokenUtils::getTokenType( $token );
 			if ( $traceTime ) {
 				$s = PHPUtils::getStartHRTime();
-				if ( $tt === 'NlTk' ) {
+				if ( $token instanceof NlTk ) {
 					$res = $this->onNewline( $token );
 					$traceName = $traceState['traceNames'][0];
-				} elseif ( $tt === 'EOFTk' ) {
+				} elseif ( $token instanceof EOFTk ) {
 					$res = $this->onEnd( $token );
 					$traceName = $traceState['traceNames'][1];
 				} elseif ( !is_string( $token ) ) {
@@ -158,9 +156,9 @@ class TokenHandler {
 					$traceState['tokenTimes'] += $t;
 				}
 			} else {
-				if ( $tt === 'NlTk' ) {
+				if ( $token instanceof NlTk ) {
 					$res = $this->onNewline( $token );
-				} elseif ( $tt === 'EOFTk' ) {
+				} elseif ( $token instanceof EOFTk ) {
 					$res = $this->onEnd( $token );
 				} elseif ( !is_string( $token ) ) {
 					$res = $this->onTag( $token );

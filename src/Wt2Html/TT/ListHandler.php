@@ -8,6 +8,7 @@ use \stdClass as StdClass;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 
@@ -82,7 +83,6 @@ class ListHandler extends TokenHandler {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'ANY:',  function () use ( $token ) { return json_encode( $token );
 		 } );
-		$tc = TokenUtils::getTokenType( $token );
 		$tokens = null;
 
 		if ( !$this->currListFrame ) {
@@ -91,13 +91,13 @@ class ListHandler extends TokenHandler {
 			//
 			// Since we are not in a list within the table, nothing to do.
 			// Just send the token back unchanged.
-			if ( $tc === 'EndTagTk' && $token->getName() === 'table' ) {
+			if ( $token instanceof EndTagTk && $token->getName() === 'table' ) {
 				if ( $this->nestedTableCount === 0 ) {
 					$this->currListFrame = array_pop( $this->listFrames );
 				} else {
 					$this->nestedTableCount--;
 				}
-			} elseif ( $tc === 'TagTk' && $token->getName() === 'table' ) {
+			} elseif ( $token instanceof TagTk && $token->getName() === 'table' ) {
 				$this->nestedTableCount++;
 			}
 
@@ -106,16 +106,16 @@ class ListHandler extends TokenHandler {
 
 		// Keep track of open tags per list frame in order to prevent colons
 		// starting lists illegally. Php's findColonNoLinks.
-		if ( $tc === 'TagTk'
+		if ( $token instanceof TagTk
 			// Table tokens will push the frame and remain balanced.
 			// They're safe to ignore in the bookkeeping.
 			&& $token->getName() !== 'table' ) {
 			$this->currListFrame['numOpenTags'] += 1;
-		} elseif ( $tc === 'EndTagTk' && $this->currListFrame['numOpenTags'] > 0 ) {
+		} elseif ( $token instanceof EndTagTk && $this->currListFrame['numOpenTags'] > 0 ) {
 			$this->currListFrame['numOpenTags'] -= 1;
 		}
 
-		if ( $tc === 'EndTagTk' ) {
+		if ( $token instanceof EndTagTk ) {
 			if ( $token->getName() === 'table' ) {
 				// close all open lists and pop a frame
 				$ret = $this->closeLists( $token );
@@ -135,7 +135,7 @@ class ListHandler extends TokenHandler {
 		}
 
 		if ( $this->currListFrame['atEOL'] ) {
-			if ( $tc !== 'NlTk' && TokenUtils::isSolTransparent( $this->env, $token ) ) {
+			if ( !$token instanceof NlTk && TokenUtils::isSolTransparent( $this->env, $token ) ) {
 				// Hold on to see where the token stream goes from here
 				// - another list item, or
 				// - end of list
@@ -152,7 +152,7 @@ class ListHandler extends TokenHandler {
 			}
 		}
 
-		if ( $tc === 'NlTk' ) {
+		if ( $token instanceof NlTk ) {
 			$this->currListFrame['atEOL'] = true;
 			$this->currListFrame['nlTk'] = $token;
 			// php's findColonNoLinks is run in doBlockLevels, which examines
@@ -162,7 +162,7 @@ class ListHandler extends TokenHandler {
 			return [ 'tokens' => [] ];
 		}
 
-		if ( $tc === 'TagTk' ) {
+		if ( $token instanceof TagTk ) {
 			if ( $token->getName() === 'table' ) {
 				$this->listFrames[] = $this->currListFrame;
 				$this->resetCurrListFrame();
@@ -256,8 +256,7 @@ class ListHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function onListItem( Token $token ): array {
-		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'TagTk' ) {
+		if ( $token instanceof TagTk ) {
 			$this->onAnyEnabled = true;
 			if ( $this->currListFrame ) {
 				// Ignoring colons inside tags to prevent illegal overlapping.
@@ -465,7 +464,7 @@ class ListHandler extends TokenHandler {
 
 			for ( $i = $prefixLen + $prefixCorrection;  $i < count( $bn );  $i++ ) {
 				if ( !$this->bullet_chars_map[ $bn[ $i ] ] ) {
-					throw 'Unknown node prefix ' . $prefix[ $i ];
+					throw new \Exception( 'Unknown node prefix ' . $prefix[ $i ] );
 				}
 
 				// Each list item in the chain gets one bullet.

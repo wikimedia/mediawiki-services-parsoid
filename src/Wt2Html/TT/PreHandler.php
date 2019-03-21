@@ -5,9 +5,11 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 
@@ -433,13 +435,12 @@ class PreHandler extends TokenHandler {
 	 * @return int
 	 */
 	private function getUpdatedPreTSR( int $tsr, $token ): int {
-		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'CommentTk' ) {
+		if ( $token instanceof CommentTk ) {
 			// comment length has 7 added for "<!--" and "-->" deliminters
 			// (see WTUtils.decodedCommentLength() -- but that takes a node not a token)
 			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr[ 1 ] :
 				( ( $tsr === -1 ) ? -1 : count( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
-		} elseif ( $tc === 'SelfclosingTagTk' ) {
+		} elseif ( $token instanceof SelfclosingTagTk ) {
 			// meta-tag (cannot compute)
 			$tsr = -1;
 		} elseif ( $tsr !== -1 ) {
@@ -474,8 +475,7 @@ class PreHandler extends TokenHandler {
 
 		$skipOnAny = false;
 		$ret = [];
-		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'EOFTk' ) {
+		if ( $token instanceof EOFTk ) {
 			switch ( $this->state ) {
 				case self::STATE_SOL:
 				case self::STATE_PRE:
@@ -498,7 +498,7 @@ class PreHandler extends TokenHandler {
 		} else {
 			switch ( $this->state ) {
 				case self::STATE_SOL:
-				if ( ( $tc === 'string' ) && preg_match( '/^ /', $token ) ) {
+				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
 					$ret = $this->tokens;
 					$this->tokens = [];
 					$this->preWSToken = $token[ 0 ];
@@ -538,7 +538,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 				case self::STATE_PRE_COLLECT:
-				if ( $tc !== 'string' && TokenUtils::isBlockTag( $token->getName() ) ) {
+				if ( !is_string( $token ) && TokenUtils::isBlockTag( $token->getName() ) ) {
 					$ret = $this->encounteredBlockWhileCollecting( $token );
 					$skipOnAny = true;
 					$this->moveToIgnoreState();
@@ -549,7 +549,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 				case self::STATE_MULTILINE_PRE:
-				if ( ( $tc === 'string' ) && preg_match( '/^ /', $token ) ) {
+				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
 					$this->popLastNL( $this->tokens );
 					$this->state = self::STATE_PRE_COLLECT;
 					$this->preWSToken = null;

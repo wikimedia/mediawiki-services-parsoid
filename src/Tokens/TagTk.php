@@ -9,8 +9,6 @@ use \stdClass as StdClass;
  * HTML tag token
  */
 class TagTk extends Token {
-	protected $type = 'TagTk';
-
 	/** @var string Name of the end tag */
 	private $name;
 
@@ -48,7 +46,7 @@ class TagTk extends Token {
 	 */
 	public function jsonSerialize(): array {
 		return [
-			'type' => $this->type,
+			'type' => $this->getType(),
 			'name' => $this->name,
 			'attribs' => $this->attribs,
 			'dataAttribs' => $this->dataAttribs
