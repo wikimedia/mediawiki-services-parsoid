@@ -38,6 +38,7 @@ class WTUtils {
 	public static function isLiteralHTMLNode( ?DOMNode $node ): bool {
 		return ( $node &&
 			DOMUtils::isElt( $node ) &&
+			$node instanceof \DOMElement /* for phan */ &&
 			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
 	}
 
@@ -216,7 +217,11 @@ class WTUtils {
 		do {
 			$node = $prev;
 			$prev = DOMUtils::previousNonDeletedSibling( $node );
-		} while ( $prev && DOMUtils::isElt( $prev ) && $prev->getAttribute( 'about' ) === $about );
+		} while (
+			$prev && DOMUtils::isElt( $prev ) &&
+			$prev instanceof \DOMElement /* for phan */ &&
+			$prev->getAttribute( 'about' ) === $about
+		);
 		return self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
 	}
 
@@ -236,6 +241,7 @@ class WTUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
+		'@phan-var DOMElement $node'; // @var DOMElement $node
 
 		// For template/extension content, newness should be
 		// checked on the encapsulation wrapper $node.
@@ -268,7 +274,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isGeneratedFigure( DOMNode $node ): bool {
-		return DOMUtils::matchNameAndTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#' ) !== null;
+		return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#' ) !== null;
 	}
 
 	/**
@@ -309,7 +315,11 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function hasParsoidAboutId( DOMNode $node ): bool {
-		if ( DOMUtils::isElt( $node ) && $node->hasAttribute( 'about' ) ) {
+		if (
+			DOMUtils::isElt( $node ) &&
+			$node instanceof \DOMElement /* for phan */ &&
+			$node->hasAttribute( 'about' )
+		) {
 			$about = $node->getAttribute( 'about' );
 			// SSS FIXME: Verify that our DOM spec clarifies this
 			// expectation on about-ids and that our clients respect this.
@@ -327,6 +337,7 @@ class WTUtils {
 	 */
 	public static function isRedirectLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
+			$node instanceof \DOMElement /* for phan */ &&
 			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
 	}
 
@@ -338,6 +349,7 @@ class WTUtils {
 	 */
 	public static function isCategoryLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
+			$node instanceof \DOMElement /* for phan */ &&
 			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
 	}
 
@@ -349,6 +361,7 @@ class WTUtils {
 	 */
 	public static function isSolTransparentLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
+			$node instanceof \DOMElement /* for phan */ &&
 			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
 	}
 
@@ -406,17 +419,22 @@ class WTUtils {
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
 		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
 		//
-		$typeOf = DOMUtils::isElt( $node ) ? $node->getAttribute( 'typeof' ) : '';
+		$typeOf = (
+			DOMUtils::isElt( $node ) &&
+			$node instanceof \DOMElement /* for phan */
+		) ?	$node->getAttribute( 'typeof' ) : '';
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
-				$node->nodeName === 'meta' && (
+				$node->nodeName === 'meta' &&
+				$node instanceof \DOMElement /* for phan */ &&
+				(
 					// (Start|End)Tag metas clone data-parsoid from the tokens
 					// they're shadowing, which trips up on the stx check.
 					// TODO: Maybe that data should be nested in a property?
 					DOMUtils::matchTypeOf( $node, '/^mw:(StartTag|EndTag)$/' ) !== null ||
-					!isset( DOMDataUtils::getDataParsoid( $node )["stx"] ) ||
-					DOMDataUtils::getDataParsoid( $node )["stx"] !== 'html'
+					!isset( DOMDataUtils::getDataParsoid( $node )->stx ) ||
+					DOMDataUtils::getDataParsoid( $node )->stx !== 'html'
 				)
 			) || self::isFallbackIdSpan( $node );
 	}
@@ -469,7 +487,7 @@ class WTUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
-
+		'@phan-var DOMElement $node'; // @var DOMElement $node
 		return self::findFirstEncapsulationWrapperNode( $node ) !== null;
 	}
 
@@ -481,6 +499,7 @@ class WTUtils {
 	 */
 	public static function isDOMFragmentWrapper( DOMNode $node ): bool {
 		return DOMUtils::isElt( $node ) &&
+			$node instanceof \DOMElement /* for phan */ &&
 			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
 	}
 
@@ -503,6 +522,7 @@ class WTUtils {
 	 */
 	public static function isParsoidSectionTag( DOMNode $node ): bool {
 		return $node->nodeName === 'section' &&
+			$node instanceof \DOMElement /* for phan */ &&
 			$node->hasAttribute( 'data-mw-section-id' );
 	}
 
@@ -567,7 +587,9 @@ class WTUtils {
 
 		$node = $node->nextSibling;
 		while ( $node && (
-			DOMUtils::isElt( $node ) && $node->getAttribute( 'about' ) === $about ||
+			DOMUtils::isElt( $node ) &&
+			$node instanceof \DOMElement /* for phan */ &&
+			$node->getAttribute( 'about' ) === $about ||
 				DOMUtils::isFosterablePosition( $node ) && !DOMUtils::isElt( $node ) && DOMUtils::isIEW( $node )
 		) ) {
 			$nodes[] = $node;
@@ -728,7 +750,7 @@ class WTUtils {
 	 * @param string $typeOf
 	 * @param array $attrs
 	 * @param bool $encode
-	 * @return $string
+	 * @return string
 	 */
 	public static function fosterCommentData( string $typeOf, array $attrs, bool $encode ): string {
 		$str = json_encode( [
@@ -749,12 +771,12 @@ class WTUtils {
 	 */
 	public static function reinsertFosterableContent( Env $env, DOMNode $node, bool $decode ):
 			?DOMNode {
-		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/', $node->data ) ) {
+		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/', $node->nodeValue ) ) {
 			// Convert serialized meta tags back from comments.
 			// We use this trick because comments won't be fostered,
 			// providing more accurate information about where tags are expected
 			// to be found.
-			$data = json_decode( $decode ? self::decodeComment( $node->data ) : $node->data );
+			$data = json_decode( $decode ? self::decodeComment( $node->nodeValue ) : $node->nodeValue );
 			if ( $data === null ) {
 				// not a valid json attribute, do nothing
 				return null;
@@ -765,7 +787,7 @@ class WTUtils {
 				foreach ( $data->attrs as $attr ) {
 					try {
 						$meta->setAttribute( $attr->nodeName, $attr->nodeValue );
-					} catch ( Exception $e ) {
+					} catch ( \Exception $e ) {
 						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
 							$attr->nodeName
 						);
