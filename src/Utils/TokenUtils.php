@@ -1,10 +1,10 @@
 <?php
+declare( strict_types = 1 );
 
 /**
  * This file contains general utilities for:
  * (a) querying token properties and token types
  * (b) manipulating tokens, individually and as collections.
- *
  */
 
 namespace Parsoid\Utils;
@@ -12,6 +12,7 @@ namespace Parsoid\Utils;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
@@ -177,6 +178,102 @@ class TokenUtils {
 			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
 	}
 
+	/**
+	 * Shift TSR of a token
+	 *
+	 * Port warning: in JS this was sometimes called with $offset=undefined, which meant do
+	 * nothing by default, except if there was a third parameter set to true, in which case it
+	 * meant the same thing as $offset = null. We can't pass in undefined in PHP, so this should
+	 * usually be handled with isset() is the caller. But isset() returns true if the variable is
+	 * null, so let's use false instead of null for whatever the previous code meant by a null
+	 * offset.
+	 *
+	 * @param Token[] $tokens
+	 * @param int|false $offset
+	 */
+	public static function shiftTokenTSR( array $tokens, $offset ): void {
+		// Bail early if we can
+		if ( $offset === 0 ) {
+			return;
+		}
+
+		// JS b/c
+		if ( $offset === null ) {
+			$offset = false;
+		}
+
+		// update/clear tsr
+		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
+			$t = $tokens[$i];
+			switch ( is_object( $t ) ? get_class( $t ) : null ) {
+				case TagTk::class:
+				case SelfclosingTagTk::class:
+				case NlTk::class:
+				case CommentTk::class:
+				case EndTagTk::class:
+					$da = $tokens[$i]->dataAttribs;
+					$tsr = $da->tsr;
+					if ( $tsr ) {
+						if ( $offset !== false ) {
+							$da->tsr = [ $tsr[0] + $offset, $tsr[1] + $offset ];
+						} else {
+							$da->tsr = null;
+						}
+					}
+
+					// SSS FIXME: offset will always be available in
+					// chunky-tokenizer mode in which case we wont have
+					// buggy offsets below.  The null scenario is only
+					// for when the token-stream-patcher attempts to
+					// reparse a string -- it is likely to only patch up
+					// small string fragments and the complicated use cases
+					// below should not materialize.
+
+					// target offset
+					if ( $offset && $da->targetOff ) {
+						$da->targetOff += $offset;
+					}
+
+					// content offsets for ext-links
+					if ( $offset && $da->contentOffsets ) {
+						$da->contentOffsets[0] += $offset;
+						$da->contentOffsets[1] += $offset;
+					}
+
+					// end offset for pre-tag
+					if ( $offset && $da->endpos ) {
+						$da->endpos += $offset;
+					}
+
+					// Process attributes
+					if ( isset( $t->attribs ) ) {
+						for ( $j = 0,  $m = count( $t->attribs );  $j < $m;  $j++ ) {
+							$a = $t->attribs[$j];
+							if ( is_array( $a->k ) ) {
+								self::shiftTokenTSR( $a->k, $offset );
+							}
+							if ( is_array( $a->v ) ) {
+								self::shiftTokenTSR( $a->v, $offset );
+							}
+
+							// src offsets used to set mw:TemplateParams
+							if ( $offset === null ) {
+								$a->srcOffsets = null;
+							} elseif ( $a->srcOffsets ) {
+								for ( $k = 0;  $k < count( $a->srcOffsets );  $k++ ) {
+									$a->srcOffsets[$k] += $offset;
+								}
+							}
+						}
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
 /**
 	public static function isEntitySpanToken(token) {
 		return token.constructor === TagTk && token.name === 'span' &&
@@ -203,93 +300,6 @@ class TokenUtils {
 		}
 		ret.push(toks[i]);
 		return ret;
-	}
-
-	public static function shiftTokenTSR(tokens, offset, clearIfUnknownOffset) {
-		// Bail early if we can
-		if (offset === 0) {
-			return;
-		}
-
-		// offset should either be a valid number or null
-		if (offset === undefined) {
-			if (clearIfUnknownOffset) {
-				offset = null;
-			} else {
-				return;
-			}
-		}
-
-		// update/clear tsr
-		for (var i = 0, n = tokens.length; i < n; i++) {
-			var t = tokens[i];
-			switch (t && t.constructor) {
-				case TagTk:
-				case SelfclosingTagTk:
-				case NlTk:
-				case CommentTk:
-				case EndTagTk:
-					var da = tokens[i].dataAttribs;
-					var tsr = da.tsr;
-					if (tsr) {
-						if (offset !== null) {
-							da.tsr = [tsr[0] + offset, tsr[1] + offset];
-						} else {
-							da.tsr = null;
-						}
-					}
-
-					// SSS FIXME: offset will always be available in
-					// chunky-tokenizer mode in which case we wont have
-					// buggy offsets below.  The null scenario is only
-					// for when the token-stream-patcher attempts to
-					// reparse a string -- it is likely to only patch up
-					// small string fragments and the complicated use cases
-					// below should not materialize.
-
-					// target offset
-					if (offset && da.targetOff) {
-						da.targetOff += offset;
-					}
-
-					// content offsets for ext-links
-					if (offset && da.contentOffsets) {
-						da.contentOffsets[0] += offset;
-						da.contentOffsets[1] += offset;
-					}
-
-					// end offset for pre-tag
-					if (offset && da.endpos) {
-						da.endpos += offset;
-					}
-
-					//  Process attributes
-					if (t.attribs) {
-						for (var j = 0, m = t.attribs.length; j < m; j++) {
-							var a = t.attribs[j];
-							if (Array.isArray(a.k)) {
-								this.shiftTokenTSR(a.k, offset, clearIfUnknownOffset);
-							}
-							if (Array.isArray(a.v)) {
-								this.shiftTokenTSR(a.v, offset, clearIfUnknownOffset);
-							}
-
-							// src offsets used to set mw:TemplateParams
-							if (offset === null) {
-								a.srcOffsets = null;
-							} else if (a.srcOffsets) {
-								for (var k = 0; k < a.srcOffsets.length; k++) {
-									a.srcOffsets[k] += offset;
-								}
-							}
-						}
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
 	}
 
 	//
