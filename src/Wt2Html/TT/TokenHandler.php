@@ -46,6 +46,14 @@ class TokenHandler {
 	}
 
 	/**
+	 * Is this transformer disabled?
+	 * @return bool
+	 */
+	public function isDisabled(): bool {
+		return $this->disabled;
+	}
+
+	/**
 	 * This handler is called for EOF tokens only
 	 * @param EOFTk $token EOF token to be processed
 	 * @return EOFTk|array

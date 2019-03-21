@@ -70,7 +70,7 @@ switch ( $transformerName ) {
 /**
  * Transform the input tokens to output tokens
  */
-if ( !$transformer->disabled ) {
+if ( !$transformer->isDisabled() ) {
 	// fwrite(STDERR, "$transformerName running ...\n");
 	$tokens = $transformer->processTokensSync( $manager->env, $tokens, [] );
 }
