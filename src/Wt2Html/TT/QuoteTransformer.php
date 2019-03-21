@@ -9,6 +9,7 @@ use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Wt2html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
@@ -60,10 +61,12 @@ class QuoteTransformer extends TokenHandler {
 	/**
 	 * Class constructor
 	 *
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
+		$manager, array $options
+	) {
 		parent::__construct( $manager, $options );
 		$this->reset();
 	}
