@@ -207,4 +207,20 @@ class PHPUtils {
 		}
 	}
 
+	/**
+	 * Append an array to an accumulator using the most efficient method
+	 * available. Makes sure that accumulation is O(n).
+	 *
+	 * @param array &$dest Destination array
+	 * @param array $source Array to merge
+	 */
+	public static function pushArray( array &$dest, array $source ): void {
+		if ( count( $dest ) < count( $source ) ) {
+			$dest = array_merge( $dest, $source );
+		} else {
+			foreach ( $source as $item ) {
+				$dest[] = $item;
+			}
+		}
+	}
 }
