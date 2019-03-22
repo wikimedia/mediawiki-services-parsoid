@@ -28397,6 +28397,23 @@ parsoid=html2wt
 [[es:Toxine_bactérienne]]
 !! end
 
+# Regression test for T219023
+!! test
+Emit simple non-piped link where possible
+!! options
+parsoid=html2wt
+!! html/parsoid
+<a rel='mw:WikiLink' href='./VisualEditor'>VisualEditor</a>
+<a rel='mw:WikiLink' href='./VisualEditor'>visualEditor</a>
+<a rel='mw:WikiLink' href='./VisualEditor link'>VisualEditor link</a>
+<a rel='mw:WikiLink' href='./VisualEditor link'>visualEditor link</a>
+!! wikitext
+[[VisualEditor]]
+[[visualEditor]]
+[[VisualEditor link]]
+[[visualEditor link]]
+!! end
+
 !! test
 Image: Modifying size of an image (1)
 !! options
