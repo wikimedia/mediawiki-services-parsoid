@@ -9,6 +9,7 @@ namespace Parsoid;
 $DOMDataUtils = require '../../../utils/DOMDataUtils.js'::DOMDataUtils;
 $DOMUtils = require '../../../utils/DOMUtils.js'::DOMUtils;
 $Util = require '../../../utils/Util.js'::Util;
+$WTUtils = require '../../../utils/WTUtils.js'::WTUtils;
 
 /**
  * Migrate data-parsoid attributes into a property on each DOM node.
@@ -22,6 +23,7 @@ function prepareDOM( $seenDataIds, $node, $env ) {
 	global $DOMUtils;
 	global $DOMDataUtils;
 	global $Util;
+	global $WTUtils;
 	if ( DOMUtils::isElt( $node ) ) {
 		// Deduplicate docIds that come from splitting nodes because of
 		// content model violations when treebuilding.
@@ -40,38 +42,10 @@ function prepareDOM( $seenDataIds, $node, $env ) {
 		) {
 			$env->page->meta->displayTitle = $node->getAttribute( 'content' );
 		}
-	} elseif ( DOMUtils::isComment( $node ) && preg_match( '/^\{[^]+\}$/', $node->data ) ) {
-		// Convert serialized meta tags back from comments.
-		// We use this trick because comments won't be fostered,
-		// providing more accurate information about where tags are expected
-		// to be found.
-		$data = null;
-$type = null;
-		try {
-			$data = json_decode( $node->data );
-			$type = $data[ '@type' ];
-		} catch ( Exception $e ) {
-			// not a valid json attribute, do nothing
-			return true;
-		}
-		if ( preg_match( '/^mw:/', $type ) ) {
-			$meta = $node->ownerDocument->createElement( 'meta' );
-			$data->attrs->forEach( function ( $attr ) use ( &$meta, &$env ) {
-					try {
-						$meta->setAttribute( $attr->nodeName, $attr->nodeValue );
-					} catch ( Exception $e ) {
-						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
-							$attr->nodeName
-						);
-					}
-			}
-			);
-			$node->parentNode->replaceChild( $meta, $node );
-			return $meta;
-		}
-
+		return true;
 	}
-	return true;
+	$meta = WTUtils::reinsertFosterableContent( $env, $node, false );
+	return ( $meta !== null ) ? $meta : true;
 }
 
 if ( gettype( $module ) === 'object' ) {

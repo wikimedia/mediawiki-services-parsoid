@@ -19,6 +19,7 @@ use Parsoid\util as util;
 
 $HTMLParser = require 'domino'->impl->HTMLParser;
 $TokenUtils = require '../utils/TokenUtils.js'::TokenUtils;
+$WTUtils = require '../utils/WTUtils.js'::WTUtils;
 $Util = require '../utils/Util.js'::Util;
 $JSUtils = require '../utils/jsutils.js'::JSUtils;
 $SanitizerConstants = require './tt/Sanitizer.js'::SanitizerConstants;
@@ -210,7 +211,7 @@ TreeBuilder::prototype::stashDataAttribs = function ( $attribs, $dataAttribs ) {
  * Adapt the token format to internal HTML tree builder format, call the actual
  * html tree builder by emitting the token.
  */
-TreeBuilder::prototype::processToken = function ( $token ) use ( &$TagTk, &$SelfclosingTagTk, &$NlTk, &$Util, &$TokenUtils, &$EndTagTk, &$CommentTk, &$EOFTk ) {
+TreeBuilder::prototype::processToken = function ( $token ) use ( &$TagTk, &$SelfclosingTagTk, &$NlTk, &$Util, &$WTUtils, &$TokenUtils, &$EndTagTk, &$CommentTk, &$EOFTk ) {
 	if ( $this->pipelineId === 0 ) {
 		$this->env->bumpParserResourceUse( 'token' );
 	}
@@ -292,12 +293,7 @@ $data = null;
 			]->concat( $this->_att( $this->stashDataAttribs( [], Util::clone( $dataAttribs ) ) ) );
 			$this->insertToken( [
 					'type' => 'Comment',
-					'data' => json_encode( [
-							'@type' => 'mw:shadow',
-							'attrs' => $attrs
-						]
-					)
-
+					'data' => WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
 				]
 			);
 		}
@@ -329,12 +325,7 @@ $data = null;
 				}
 				$this->insertToken( [
 						'type' => 'Comment',
-						'data' => json_encode( [
-								'@type' => $tTypeOf,
-								'attrs' => $this->_att( $attribs )
-							]
-						)
-
+						'data' => WTUtils::fosterCommentData( $tTypeOf, $this->_att( $attribs ), false )
 					]
 				);
 				break;
@@ -364,12 +355,7 @@ $data = null;
 			);
 			$this->insertToken( [
 					'type' => 'Comment',
-					'data' => json_encode( [
-							'@type' => 'mw:shadow',
-							'attrs' => $attrs
-						]
-					)
-
+					'data' => WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
 				]
 			);
 		}

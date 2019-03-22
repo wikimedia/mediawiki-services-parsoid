@@ -414,6 +414,13 @@ $isSimpleWikiLink = function ( $env, $dp, $target, $linkData ) use ( &$Util ) {
 	$canUseSimple = false;
 	$contentString = $linkData->content->string;
 
+	// FIXME (SSS):
+	// 1. Revisit this logic to see if all these checks
+	// are still relevant or whether this can be simplified somehow.
+	// 2. There are also duplicate computations for env.normalizedTitleKey(..)
+	// and Util.decodeURIComponent(..) that could be removed.
+	// 3. This could potentially be refactored as if-then chains.
+
 	// Would need to pipe for any non-string content.
 	// Preserve unmodified or non-minimal piped links.
 	if ( $contentString !== null
@@ -423,7 +430,9 @@ $isSimpleWikiLink = function ( $env, $dp, $target, $linkData ) use ( &$Util ) {
 	) {
 		// Strip colon escapes from the original target as that is
 		// stripped when deriving the content string.
-		$strippedTargetValue = preg_replace( '/^:/', '', $target->value, 1 );
+		// Strip ./ prefixes as well since they are relative link prefixes
+		// added to all titles.
+		$strippedTargetValue = preg_replace( '/^(:|\.\/)/', '', $target->value, 1 );
 		$decodedTarget = Util::decodeWtEntities( $strippedTargetValue );
 		// Deal with the protocol-relative link scenario as well
 		$hrefHasProto = preg_match( '/^(\w+:)?\/\//', $linkData->href );
