@@ -107,7 +107,7 @@ class DOMPassTester {
 		}
 
 		$dom = $this->env->createDocument( $testFilePre );
-		$body = $dom->getElementsByTagName( 'body' )->item( 0 );
+		$body = $dom->body;
 		DOMDataUtils::visitAndLoadDataAttribs( $body );
 		$dumpOpts = [];
 

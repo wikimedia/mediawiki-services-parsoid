@@ -55,8 +55,8 @@ class ContentUtils {
 		if ( $node === null ) {
 			$node = $env->createDocument( $html )->body;
 		} else {
-			// PORT-FIXME: Needs updating after DOMCompat patch lands
-			$node->innerHTML = $html;
+			Assert::invariant( $node instanceof DOMElement );
+			DOMCompat::setInnerHTML( $node, $html );
 		}
 
 		$markNew = $options['markNew'] ?? false;

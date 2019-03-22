@@ -5,9 +5,10 @@ namespace Parsoid\Config;
 
 use DOMDocument;
 use DOMNode;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DataBag;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -142,9 +143,8 @@ class Env {
 	 */
 	public function createDocument( string $html ): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html );
-		// PORT-FIXME: Use DOMCompat utility once that lands
-		$doc->head = $doc->getElementsByTagName( 'head' )->item( 0 );
-		$doc->body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		$doc->head = DOMCompat::getHead( $doc );
+		$doc->body = DOMCompat::getBody( $doc );
 		$this->referenceDataObject( $doc );
 		return $doc;
 	}

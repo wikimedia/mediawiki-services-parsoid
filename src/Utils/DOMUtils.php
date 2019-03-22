@@ -767,14 +767,7 @@ class DOMUtils {
 	 * @return DOMNode|null
 	 */
 	public static function selectMediaElt( DOMNode $node ): ?DOMNode {
-		throw new \BadMethodCallException( "Not yet ported" );
-/*
-From Brad:
-https://secure.php.net/manual/en/book.dom.php doesn't have querySelector()
-You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
-[1]: https://secure.php.net/manual/en/class.domxpath.php
-*/
-// return node.querySelector( 'img, video, audio' );
+		return DOMCompat::querySelector( $node, 'img, video, audio' );
 	}
 
 	/**
@@ -782,22 +775,15 @@ You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
 	 * vary headers, if present
 	 *
 	 * @param DOMDocument $doc
-	 * @return DOMNode|null
+	 * @return DOMNode[]
 	 */
-	public static function findHttpEquivHeaders( DOMDocument $doc ): ?DOMNode {
-		throw new \BadMethodCallException( "Not yet ported" );
-/*
-From Brad:
-https://secure.php.net/manual/en/book.dom.php doesn't have querySelector()
-You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
-[1]: https://secure.php.net/manual/en/class.domxpath.php
-*/
-/*		return Array.from(doc.querySelectorAll('meta[http-equiv][content]'))
-			.reduce((r,el) => {
-			r[el.getAttribute('http-equiv').toLowerCase()] =
-				el.getAttribute('content');
-			return r;
-		}, {}); */
+	public static function findHttpEquivHeaders( DOMDocument $doc ): array {
+		$elts = DOMCompat::querySelectorAll( $doc, 'meta[http-equiv][content]' );
+		$r = [];
+		foreach ( $elts as $el ) {
+			$r[strtolower( $el->getAttribute( 'http-equiv' ) )] = $el->getAttribute( 'content' );
+		};
+		return $r;
 	}
 
 	/**
@@ -805,15 +791,8 @@ You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
 	 * @return string|null
 	 */
 	public static function extractInlinedContentVersion( DOMDocument $doc ): ?string {
-		throw new \BadMethodCallException( "Not yet ported" );
-/*
-From Brad:
-https://secure.php.net/manual/en/book.dom.php doesn't have querySelector()
-You could use DOMXPath[1] instead, or just recurse like treeHasElement() does.
-[1]: https://secure.php.net/manual/en/class.domxpath.php
-*/
-/*		var el = doc.querySelector('meta[property="mw:html:version"]');
-		return el ? el.getAttribute('content') : null; */
+		$el = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
+		return $el ? $el->getAttribute( 'content' ) : null;
 	}
 
 }

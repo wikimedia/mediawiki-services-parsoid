@@ -356,7 +356,7 @@ class DOMDataUtils {
 			do {
 				$docDp->counter += 1;
 				$uid = 'mw' . PHPUtils::counterToBase64( $docDp->counter );
-			} while ( $document->getElementById( $uid ) );
+			} while ( DOMCompat::getElementById( $document, $uid ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
 		$docDp->ids[$uid] = $data->parsoid;
@@ -386,7 +386,7 @@ class DOMDataUtils {
 	 */
 	public static function extractPageBundle( DOMDocument $doc ): ?StdClass {
 		$pb = null;
-		$dpScriptElt = $doc->getElementById( 'mw-pagebundle' );
+		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
 		if ( $dpScriptElt ) {
 			$dpScriptElt->parentNode->removeChild( $dpScriptElt );
 			$pb = PHPUtils::jsonDecode( $dpScriptElt->text, false );
