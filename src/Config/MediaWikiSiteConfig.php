@@ -3,7 +3,9 @@
 namespace Parsoid\Config;
 
 use Config;
+use FakeConverter;
 use Language;
+use LanguageConverter;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MWNamespace;
@@ -317,6 +319,18 @@ class MediaWikiSiteConfig extends SiteConfig {
 
 	public function rtl(): bool {
 		return $this->contLang->isRTL();
+	}
+
+	/** @inheritDoc */
+	public function langConverterEnabled( string $lang ): bool {
+		try {
+			return !$this->config->get( 'DisableLangConversion' ) &&
+				in_array( $lang, LanguageConverter::$languagesWithVariants, true ) &&
+				!Language::factory( $lang )->getConverter() instanceof FakeConverter;
+		} catch ( \MWException $ex ) {
+			// Probably a syntactically invalid language code
+			return false;
+		}
 	}
 
 	public function script(): string {

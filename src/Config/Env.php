@@ -296,9 +296,6 @@ class Env {
 		if ( !$lang ) {
 			$lang = 'en';
 		}
-		// Is this missing??
-		// return this.conf.wiki.langConverterEnabled.has(lang);
-
-		throw new \BadMethodCallException( 'Not implemented yet' );
+		return $this->siteConfig->langConverterEnabled( $lang );
 	}
 }

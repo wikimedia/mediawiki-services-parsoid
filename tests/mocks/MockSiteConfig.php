@@ -131,6 +131,11 @@ class MockSiteConfig extends SiteConfig {
 		return false;
 	}
 
+	/** @inheritDoc */
+	public function langConverterEnabled( string $lang ): bool {
+		return false;
+	}
+
 	public function script(): string {
 		return '/wx/index.php';
 	}

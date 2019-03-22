@@ -293,6 +293,13 @@ abstract class SiteConfig {
 	abstract public function rtl(): bool;
 
 	/**
+	 * Whether language converter is enabled for the specified language
+	 * @param string $lang Language code
+	 * @return bool
+	 */
+	abstract public function langConverterEnabled( string $lang ): bool;
+
+	/**
 	 * The URL path to index.php.
 	 * @return string
 	 */
