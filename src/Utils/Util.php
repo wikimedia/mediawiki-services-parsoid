@@ -1,12 +1,11 @@
 <?php
+declare( strict_types = 1 );
 
-// Port based on git-commit: <423eb7f04eea94b69da1cefe7bf0b27385781371>
-// Initial porting, partially complete.
-// Not tested, all code that is not ported throws exceptions or has a PORT-FIXME comment.
 namespace Parsoid\Utils;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Tokens\Token;
 
 /**
  * This file contains general utilities for token transforms.
@@ -20,7 +19,6 @@ class Util {
 	/**
 	 * Regexp for checking marker metas typeofs representing
 	 * transclusion markup or template param markup.
-	 * @property RegExp
 	 */
 	const TPL_META_TYPE_REGEXP = '#(?:^|\s)(mw:(?:Transclusion|Param)(?:/End)?)(?=$|\s)#';
 
@@ -86,9 +84,8 @@ class Util {
 	 * @param string $aboutId aboud ID string
 	 * @return string
 	 */
-	public static function stripParsoidIdPrefix( $aboutId ) {
+	public static function stripParsoidIdPrefix( string $aboutId ): string {
 		// 'mwt' is the prefix used for new ids
-		// return $aboutId->replace(/^#?mwt/, '');
 		return preg_replace( '/^#?mwt/', '', $aboutId );
 	}
 
@@ -98,19 +95,18 @@ class Util {
 	 * @param string $aboutId aboud ID string
 	 * @return bool
 	 */
-	public static function isParsoidObjectId( $aboutId ) {
+	public static function isParsoidObjectId( string $aboutId ): bool {
 		// 'mwt' is the prefix used for new ids
-		// return aboutId.match(/^#mwt/);
-		return preg_match( '/^#mwt/', $aboutId );
+		return (bool)preg_match( '/^#mwt/', $aboutId );
 	}
 
 	/**
 	 * Determine if the named tag is void (can not have content).
 	 *
 	 * @param string $name tag name
-	 * @return string
+	 * @return bool
 	 */
-	public static function isVoidElement( $name ) {
+	public static function isVoidElement( string $name ): bool {
 		// PORT-FIXME: Remove after porting is complete
 		if ( strtolower( $name ) !== $name ) {
 			throw new \BadMethodCallException( "Use lowercase tag names" );
@@ -261,13 +257,13 @@ class Util {
 	 * @param string $s URI to be decoded
 	 * @return string
 	 */
-	public static function decodeURI( $s ) {
+	public static function decodeURI( string $s ): string {
 		return preg_replace_callback( '/(%[0-9a-fA-F][0-9a-fA-F])/', function ( $match ) {
 			try {
 				// PORT-FIXME: JS code here was decodeURI(m);
 				return urldecode( $match[1] );
 			} catch ( \Exception $e ) {
-				return $m;
+				return $match;
 			}
 		}, $s );
 	}
@@ -279,13 +275,13 @@ class Util {
 	 * @param string $s URI to be decoded
 	 * @return string
 	 */
-	public static function decodeURIComponent( $s ) {
+	public static function decodeURIComponent( string $s ): string {
 		return preg_replace_callback( '/(%[0-9a-fA-F][0-9a-fA-F])/', function ( $match ) {
 			try {
 				// PORT-FIXME: JS code here was decodeURIComponent(m);
-				return rawurldecode( $m );
+				return rawurldecode( $match );
 			} catch ( \Exception $e ) {
-				return $m;
+				return $match;
 			}
 		}, $s );
 	}
@@ -293,13 +289,11 @@ class Util {
 	/**
 	 * Extract extension source from the token
 	 *
-	 * @param token $token token
+	 * @param Token $token token
 	 * @return string
 	 */
-	public static function extractExtBody( $token ) {
+	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
-		// PORT-FIXME: Once token classes are ported, check if dataAttribs is
-		// going to be an associative array or an object and update this accordingly.
 		$tagWidths = $token->dataAttribs->tagWidths;
 		return mb_substr( $src, $tagWidths[0], -$tagWidths[1] );
 	}
@@ -307,11 +301,11 @@ class Util {
 	/**
 	 * Helper function checks numeric values
 	 *
-	 * @param any $n checks parameters for numeric type and value zero or positive
+	 * @param ?int $n checks parameters for numeric type and value zero or positive
 	 * @return bool
 	 */
-	private static function isValidOffset( $n ) {
-		return is_numeric( $n ) && $n >= 0;
+	private static function isValidOffset( ?int $n ): bool {
+		return $n !== null && $n >= 0;
 	}
 
 	/**
@@ -324,13 +318,10 @@ class Util {
 	 * @return bool
 	 */
 	public static function isValidDSR( array $dsr, bool $all = false ): bool {
-	/*	const isValidOffset = n => typeof (n) === 'number' && n >= 0;
-		return dsr &&
-			isValidOffset(dsr[0]) && isValidOffset(dsr[1]) &&
-			(!all || (isValidOffset(dsr[2]) && isValidOffset(dsr[3]))); */
 		return $dsr &&
-			isValidOffset( $dsr[0] ) && isValidOffset( $dsr[1] ) &&
-			( !$all || ( isValidOffset( $dsr[2] ) && isValidOffset( $dsr[3] ) ) );
+			self::isValidOffset( $dsr[0] ?? null ) && self::isValidOffset( $dsr[1] ?? null ) &&
+			( !$all || ( self::isValidOffset( $dsr[2] ?? null ) && self::isValidOffset( $dsr[3] ?? null )
+			) );
 	}
 
 	/**
@@ -353,7 +344,7 @@ class Util {
 	 * @param string $name Non-normalized namespace name.
 	 * @return string
 	 */
-	public static function normalizeNamespaceName( $name ) {
+	public static function normalizeNamespaceName( string $name ): string {
 		return str_replace( ' ', '_', strtolower( $name ) );
 	}
 
@@ -443,11 +434,11 @@ class Util {
 	 * Determine whether the protocol of a link is potentially valid. Use the
 	 * environment's per-wiki config to do so.
 	 *
-	 * @param string $linkTarget
+	 * @param mixed $linkTarget
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function isProtocolValid( $linkTarget, Env $env ) {
+	public static function isProtocolValid( $linkTarget, Env $env ): bool {
 		$siteConf = $env->getSiteConfig();
 		if ( is_string( $linkTarget ) ) {
 			return $siteConf->hasValidProtocol( $linkTarget );
@@ -505,22 +496,28 @@ class Util {
 	 * @param int $num
 	 * @return bool
 	 */
-	public static function validateMediaParam( $num ) {
+	public static function validateMediaParam( int $num ): bool {
 		return $num > 0;
 	}
 
 	/**
+	 * FIXME: Is this needed??
+	 *
 	 * Extract content in a backwards compatible way
 	 *
 	 * @param object $revision
-	 * @return any
+	 * @return object
 	 */
 	public static function getStar( $revision ) {
+		/*
 		$content = $revision;
 		if ( $revision && isset( $revision->slots ) ) {
 			$content = $revision->slots->main;
 		}
 		return $content;
+		*/
+		throw new \BadMethodCallException( "This method shouldn't be needed. " .
+			"But, port this if you really need it." );
 	}
 
 	/**
@@ -539,13 +536,7 @@ class Util {
 	 * 2. '"', though allowed in Chuvash, is disallowed.
 	 * 3. '-', though allowed in Icelandic (possibly due to a bug), is disallowed.
 	 * 4. '1', though allowed in Lak (possibly due to a bug), is disallowed.
-	 * @property {RegExp}
 	 */
-/*	$linkTrailRegex: new RegExp(
-		'^[^\0-`{÷ĀĈ-ČĎĐĒĔĖĚĜĝĠ-ĪĬ-įĲĴ-ĹĻ-ĽĿŀŅņŉŊŌŎŏŒŔŖ-ŘŜŝŠŤŦŨŪ-ŬŮŲ-ŴŶŸ' +
-		'ſ-ǤǦǨǪ-Ǯǰ-ȗȜ-ȞȠ-ɘɚ-ʑʓ-ʸʽ-̂̄-΅·΋΍΢Ϗ-ЯѐѝѠѢѤѦѨѪѬѮѰѲѴѶѸѺ-ѾҀ-҃҅-ҐҒҔҕҘҚҜ-ҠҤ-ҪҬҭҰҲ' +
-		'Ҵ-ҶҸҹҼ-ҿӁ-ӗӚ-ӜӞӠ-ӢӤӦӪ-ӲӴӶ-ՠֈ-׏׫-ؠً-ٳٵ-ٽٿ-څڇ-ڗڙ-ڨڪ-ڬڮڰ-ڽڿ-ۅۈ-ۊۍ-۔ۖ-਀਄਋-਎਑਒' +
-		'਩਱਴਷਺਻਽੃-੆੉੊੎-੘੝੟-੯ੴ-჏ჱ-ẼẾ-​\u200d-‒—-‗‚‛”--\ufffd\ufffd]+$'), */
 	public static $linkTrailRegex =
 		'/^[^\0-`{÷ĀĈ-ČĎĐĒĔĖĚĜĝĠ-ĪĬ-įĲĴ-ĹĻ-ĽĿŀŅņŉŊŌŎŏŒŔŖ-ŘŜŝŠŤŦŨŪ-ŬŮŲ-ŴŶŸ' .
 		'ſ-ǤǦǨǪ-Ǯǰ-ȗȜ-ȞȠ-ɘɚ-ʑʓ-ʸʽ-̂̄-΅·΋΍΢Ϗ-ЯѐѝѠѢѤѦѨѪѬѮѰѲѴѶѸѺ-ѾҀ-҃҅-ҐҒҔҕҘҚҜ-ҠҤ-ҪҬҭҰҲ' .
@@ -558,8 +549,8 @@ class Util {
 	 * @param string $text
 	 * @return bool
 	 */
-	public static function isLinkTrail( $text ) {
-		return $text && preg_match( $self::linkTrailRegex, $text );
+	public static function isLinkTrail( string $text ): bool {
+		return $text !== '' && preg_match( self::$linkTrailRegex, $text );
 	}
 
 	/**
