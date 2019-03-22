@@ -6,7 +6,8 @@ namespace Parsoid\Utils;
 use \stdClass as StdClass;
 
 class DataBag {
-	/** @var array A map of node data-object-id ids to data objects.
+	/**
+	 * @var array A map of node data-object-id ids to data objects.
 	 * This map is used during DOM processing to avoid having to repeatedly
 	 * json-parse/json-serialize data-parsoid and data-mw attributes.
 	 * This map is initialized when a DOM is created/parsed/refreshed.
@@ -21,7 +22,7 @@ class DataBag {
 	private $pageBundle;
 
 	public function __construct() {
-		$this->dataobject = [];
+		$this->dataObject = [];
 		$this->docId = 0;
 		$this->pageBundle = (object)[
 			"parsoid" => (object)[ "counter" => -1, "ids" => [] ],
