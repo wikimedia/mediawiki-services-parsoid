@@ -411,6 +411,30 @@ abstract class SiteConfig {
 	abstract public function getMagicPatternMatcher( array $words ): callable;
 
 	/**
+	 * Determine whether a given name, which must have already been converted
+	 * to lower case, is a valid extension tag name.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	abstract public function isExtensionTag( string $name ): bool;
+
+	/**
+	 * Get an array of defined extension tags, with the lower case name in the
+	 * key, the value arbitrary.
+	 *
+	 * @return array
+	 */
+	abstract public function getExtensionTagNameMap(): array;
+
+	/**
+	 * Get the maximum template depth
+	 *
+	 * @return int
+	 */
+	abstract public function getMaxTemplateDepth(): int;
+
+	/**
 	 * Matcher for RFC/PMID URL patterns, returning the type and number.
 	 *
 	 * The match method takes a string and returns false on no match or a tuple

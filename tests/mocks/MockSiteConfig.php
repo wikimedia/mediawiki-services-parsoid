@@ -189,6 +189,42 @@ class MockSiteConfig extends SiteConfig {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
+	public function getExtensionTagNameMap(): array {
+		return [
+			'pre' => true,
+			'nowiki' => true,
+			'gallery' => true,
+			'indicator' => true,
+			'timeline' => true,
+			'hiero' => true,
+			'charinsert' => true,
+			'ref' => true,
+			'references' => true,
+			'inputbox' => true,
+			'imagemap' => true,
+			'source' => true,
+			'syntaxhighlight' => true,
+			'poem' => true,
+			'section' => true,
+			'score' => true,
+			'templatedata' => true,
+			'math' => true,
+			'ce' => true,
+			'chem' => true,
+			'graph' => true,
+			'maplink' => true,
+			'categorytree' => true,
+		];
+	}
+
+	public function isExtensionTag( string $name ): bool {
+		return isset( $this->getExtensionTagNameMap()[$name] );
+	}
+
+	public function getMaxTemplateDepth(): int {
+		return 40;
+	}
+
 	/** @inheritDoc */
 	public function getExtResourceURLPatternMatcher(): callable {
 		throw new \BadMethodCallException( 'Not implemented' );

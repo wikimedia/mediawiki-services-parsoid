@@ -45,6 +45,9 @@ class MediaWikiSiteConfig extends SiteConfig {
 	/** @var array|null */
 	private $interwikiMap, $variants, $magicWords, $mwAliases;
 
+	/** @var array */
+	private $extensionTags;
+
 	/**
 	 * Quote a title regex
 	 *
@@ -486,6 +489,29 @@ class MediaWikiSiteConfig extends SiteConfig {
 				return [ 'k' => $ret[0], 'v' => $ret[1] ];
 			}
 		};
+	}
+
+	private function populateExtensionTags(): void {
+		$parser = MediaWikiServices::getInstance()->getParser();
+		$this->extensionTags = array_fill_keys( $parser->getTags(), true );
+	}
+
+	public function isExtensionTag( $name ): bool {
+		if ( $this->extensionTags === null ) {
+			$this->populateExtensionTags();
+		}
+		return isset( $this->extensionTags[$name] );
+	}
+
+	public function getExtensionTagNameMap(): array {
+		if ( $this->extensionTags === null ) {
+			$this->populateExtensionTags();
+		}
+		return $this->extensionTags;
+	}
+
+	public function getMaxTemplateDepth(): int {
+		return (int)$this->config->get( 'MaxTemplateDepth' );
 	}
 
 	/** @inheritDoc */
