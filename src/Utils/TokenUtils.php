@@ -93,7 +93,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isDOMFragmentType( string $typeOf ): bool {
-		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
+		return (bool)preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class TokenUtils {
 				$token instanceof EndTagTk
 			) &&
 			$token->getName() === 'link' &&
-			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) );
+			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) ?? '' );
 	}
 
 	/**
@@ -138,8 +138,9 @@ class TokenUtils {
 			// (ie. ListHandler, ParagraphWrapper, etc.)
 			( $token->getName() === 'meta' &&
 				$token->hasAttribute( 'property' ) &&
-				preg_match( $env->getSiteConfig()->bswPagePropRegexp(), $token->getAttribute( 'property' ) ) )
-			);
+				preg_match( $env->getSiteConfig()->bswPagePropRegexp(),
+					$token->getAttribute( 'property' ) ?? '' )
+			) );
 	}
 
 	/**
@@ -152,7 +153,7 @@ class TokenUtils {
 	 */
 	public static function isSolTransparent( Env $env, $token ): bool {
 		if ( is_string( $token ) ) {
-			return preg_match( '/^\s*$/', $token );
+			return (bool)preg_match( '/^\s*$/', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
 		} elseif ( $token instanceof CommentTk ) {
