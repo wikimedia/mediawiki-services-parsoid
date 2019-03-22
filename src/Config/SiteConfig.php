@@ -385,6 +385,16 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Get a regexp matching a localized magic word, given its id.
+	 *
+	 * FIXME: misleading function name
+	 *
+	 * @param string $id
+	 * @return string
+	 */
+	abstract public function getMagicWordMatcher( string $id ): string;
+
+	/**
 	 * Get a matcher function for fetching values out of interpolated magic words,
 	 * ie those with `$1` in their aliases.
 	 *

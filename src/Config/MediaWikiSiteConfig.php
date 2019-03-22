@@ -2,6 +2,8 @@
 
 namespace Parsoid\Config;
 
+// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
+
 use Config;
 use FakeConverter;
 use Language;
@@ -465,6 +467,11 @@ class MediaWikiSiteConfig extends SiteConfig {
 	public function mwAliases(): array {
 		$this->populateMagicWords();
 		return $this->mwAliases;
+	}
+
+	public function getMagicWordMatcher( string $id ): string {
+		return MediaWikiServices::getInstance()->getMagicWordFactory()
+			->get( $id )->getRegexStartToEnd();
 	}
 
 	/** @inheritDoc */

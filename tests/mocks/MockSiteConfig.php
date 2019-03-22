@@ -176,6 +176,14 @@ class MockSiteConfig extends SiteConfig {
 		return [ 'toc' => [ 'toc' ] ];
 	}
 
+	public function getMagicWordMatcher( string $id ): string {
+		if ( $id === 'toc' ) {
+			return '/^TOC$/';
+		} else {
+			return '/(?!)/';
+		}
+	}
+
 	/** @inheritDoc */
 	public function getMagicPatternMatcher( array $words ): callable {
 		throw new \BadMethodCallException( 'Not implemented' );
