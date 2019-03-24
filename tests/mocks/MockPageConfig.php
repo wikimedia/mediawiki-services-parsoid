@@ -35,7 +35,7 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getPageId(): int {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return 1;
 	}
 
 	/** @inheritDoc */

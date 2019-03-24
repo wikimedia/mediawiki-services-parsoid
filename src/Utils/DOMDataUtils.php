@@ -39,6 +39,7 @@ class DOMDataUtils {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			self::setNodeData( $node, (object)[] );
 		}
+		/** @var $bag DataBag */
 		$bag = $node->ownerDocument->bag;
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
 		if ( $docId !== '' ) {

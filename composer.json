@@ -26,7 +26,9 @@
 		"wikimedia/assert": "0.2.2",
 		"wikimedia/remex-html": "2.0.2",
 		"wikimedia/scoped-callback": "3.0.0",
-		"wikimedia/zest-css": "1.1.1"
+		"wikimedia/zest-css": "1.1.1",
+		"ext-dom": "*",
+		"ext-json": "*"
 	},
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "1.0.0",

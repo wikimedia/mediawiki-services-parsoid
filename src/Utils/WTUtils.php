@@ -378,7 +378,7 @@ class WTUtils {
 	public static function emitsSolTransparentSingleLineWT( DOMNode $node ): bool {
 		if ( DOMUtils::isText( $node ) ) {
 			// NB: We differ here to meet the nl condition.
-			return preg_match( '/^[ \t]*$/', $node->nodeValue );
+			return (bool)preg_match( '/^[ \t]*$/', $node->nodeValue );
 		} elseif ( self::isRenderingTransparentNode( $node ) ) {
 			// NB: The only metas in a DOM should be for behavior switches and
 			// include directives, other than explicit HTML meta tags. This
@@ -606,11 +606,11 @@ class WTUtils {
 	 * following content nodes and returns the first non-template node
 	 * that follows it.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	public static function skipOverEncapsulatedContent( DOMElement $node ): ?DOMNode {
-		if ( $node->hasAttribute( 'about' ) ) {
+	public static function skipOverEncapsulatedContent( DOMNode $node ): ?DOMNode {
+		if ( $node instanceof DOMElement && $node->hasAttribute( 'about' ) ) {
 			$about = $node->getAttribute( 'about' );
 			// Guaranteed not to be empty. It will at least include $node.
 			$aboutSiblings = self::getAboutSiblings( $node, $about );

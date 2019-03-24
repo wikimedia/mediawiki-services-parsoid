@@ -1,20 +1,32 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Html2Wt;
 
-use Parsoid\ContentUtils as ContentUtils;
-use Parsoid\DiffUtils as DiffUtils;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\JSUtils as JSUtils;
-use Parsoid\WTUtils as WTUtils;
+use Parsoid\Config\Env;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\WTUtils;
+use Wikimedia\Assert\Assert;
+use Parsoid\DiffUtils;
+use \DOMNode;
+use \DOMElement;
+use \DOMDocument;
+use stdClass;
 
-// These attributes are ignored for equality purposes if they are added to a node.
-$ignoreAttributes = new Set( [
+/**
+ * A DOM diff helper class.
+ *
+ * Compares two DOMs and annotates a copy of the passed-in DOM with change
+ * information for the selective serializer.
+ */
+class DOMDiff {
+
+	// These attributes are ignored for equality purposes if they are added to a node.
+	const IGNORE_ATTRIBUTES = [
 		// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
 		// moved around without their content which occasionally leads to incorrect
 		// DSR being used by selser.  Hard to describe a reduced test case here.
@@ -22,51 +34,82 @@ $ignoreAttributes = new Set( [
 		// 'data-parsoid',
 		'data-parsoid-diff',
 		'about',
-		DOMDataUtils\DataObjectAttrName()
-	]
-);
+		DOMDataUtils::DATA_OBJECT_ATTR_NAME,
+	];
 
-function nextNonTemplateSibling( $node ) {
-	global $WTUtils;
-	return ( WTUtils::isEncapsulationWrapper( $node ) ) ? WTUtils::skipOverEncapsulatedContent( $node ) : $node->nextSibling;
-}
-
-/**
- * A DOM diff helper class.
- *
- * Compares two DOMs and annotates a copy of the passed-in DOM with change
- * information for the selective serializer.
- * @class
- * @param {MWParserEnvironment} env
- */
-class DOMDiff {
-	public function __construct( $env ) {
-		$this->env = $env;
-		$this->debug = function ( ...$args ) use ( &$env ) {return $env->log( 'trace/domdiff', ...$args );
-  };
-		$this->specializedAttribHandlers = JSUtils::mapObject( [
-				'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {return $this->dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB );
-	   },
-				'data-parsoid' => function ( $nodeA, $dpA, $nodeB, $dpB, $options ) use ( &$JSUtils ) {
-					return JSUtils::deepEquals( $dpA, $dpB );
-				}
-			]
-		);
-	}
+	/**
+	 * @var Env
+	 */
 	public $env;
-	public $debug;
+
+	/**
+	 * @var array
+	 */
 	public $specializedAttribHandlers;
+
+	/**
+	 * @var DOMDocument
+	 */
+	private $domA;
+
+	/**
+	 * @var DOMDocument
+	 */
+	private $domB;
+
+	/**
+	 * @param DOMNode $node
+	 * @return DOMNode|null
+	 */
+	private function nextNonTemplateSibling( DOMNode $node ): ?DOMNode {
+		if ( WTUtils::isEncapsulationWrapper( $node ) ) {
+			return WTUtils::skipOverEncapsulatedContent( $node );
+		}
+		return $node->nextSibling;
+	}
+
+	/**
+	 * @param mixed ...$args
+	 */
+	private function debug( ...$args ): void {
+		$this->env->log( 'trace/domdiff', ...$args );
+	}
+
+	/**
+	 * DOMDiff constructor.
+	 * @param Env $env
+	 */
+	public function __construct( Env $env ) {
+		$this->env = $env;
+		$this->specializedAttribHandlers = [
+			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
+				return $this->dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB );
+			},
+			'data-parsoid' => function ( $nodeA, $dpA, $nodeB, $dpB ) {
+				return $dpA == $dpB;
+			},
+		];
+	}
 
 	/**
 	 * Diff two HTML documents, and add / update data-parsoid-diff attributes with
 	 * change information.
+	 *
+	 * @param DOMElement $nodeA
+	 * @param DOMElement $nodeB
+	 * @return array
 	 */
-	public function diff( $nodeA, $nodeB ) {
+	public function diff( DOMElement $nodeA, DOMElement $nodeB ): array {
 		$this->domA = $nodeA->ownerDocument;
 		$this->domB = $nodeB->ownerDocument;
 
 		// The root nodes are equal, call recursive differ
-		$this->debug( "ORIG:\n", $nodeA->outerHTML, "\nNEW :\n", $nodeB->outerHTML );
+		$this->debug(
+			"ORIG:\n",
+			DOMCompat::getOuterHTML( $nodeA ),
+			"\nNEW :\n",
+			DOMCompat::getOuterHTML( $nodeB )
+		);
 		$foundChange = $this->doDOMDiff( $nodeA, $nodeB );
 		return [ 'isEmpty' => !$foundChange ];
 	}
@@ -76,9 +119,17 @@ class DOMDiff {
 	 * - independent of order of attributes in data-mw
 	 * - html attributes are parsed to DOM and recursively compared
 	 * - for id attributes, the DOM fragments are fetched and compared.
+	 *
+	 * @param DOMNode $nodeA
+	 * @param stdClass $dmwA
+	 * @param DOMNode $nodeB
+	 * @param stdClass $dmwB
+	 * @return bool
 	 */
-	public function dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB ) {
-		return $this->_dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB, [
+	public function dataMWEquals(
+		DOMNode $nodeA, stdClass $dmwA, DOMNode $nodeB, stdClass $dmwB
+	): bool {
+		return $this->realDataMWEquals( $nodeA, (array)$dmwA, $nodeB, (array)$dmwB, [
 				'isTopLevel' => true,
 				'inDmwBody' => false
 			]
@@ -89,11 +140,19 @@ class DOMDiff {
 	 * According to MediaWiki_DOM_spec, `id` and `html` attributes are acceptable
 	 * formats in `data-mw.body` and in those contexts, they reference DOMs and
 	 * we are going to treat them as such.
-	 * @private
+	 *
+	 * @param DOMNode $nodeA
+	 * @param array $dmwA
+	 * @param DOMNode $nodeB
+	 * @param array $dmwB
+	 * @param array $options
+	 * @return bool
 	 */
-	public function _dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB, $options ) {
-		$keysA = Object::keys( $dmwA );
-		$keysB = Object::keys( $dmwB );
+	private function realDataMWEquals(
+		DOMNode $nodeA, array $dmwA, DOMNode $nodeB, array $dmwB, array $options
+	): bool {
+		$keysA = array_keys( $dmwA );
+		$keysB = array_keys( $dmwB );
 
 		// Some quick checks
 		if ( count( $keysA ) !== count( $keysB ) ) {
@@ -103,8 +162,8 @@ class DOMDiff {
 		}
 
 		// Sort keys so we can traverse array and compare keys
-		$keysA->sort();
-		$keysB->sort();
+		sort( $keysA );
+		sort( $keysB );
 		for ( $i = 0;  $i < count( $keysA );  $i++ ) {
 			$kA = $keysA[ $i ];
 			$kB = $keysB[ $i ];
@@ -124,33 +183,37 @@ class DOMDiff {
 				}
 			} elseif ( $vA->constructor !== $vB->constructor ) {
 				return false;
-			} elseif ( $kA === 'id' && $options->inDmwBody ) {
+			} elseif ( $kA === 'id' && ( $options['inDmwBody'] ?? null ) ) {
 				// For <refs> in <references> the element id can refer to the
 				// global DOM, not the owner document DOM.
-				$htmlA = $nodeA->ownerDocument->getElementById( $vA )
-|| $this->domA->getElementById( $vA );
-				$htmlB = $nodeB->ownerDocument->getElementById( $vB )
-|| $this->domB->getElementById( $vB );
+				$htmlA = DOMCompat::getElementById( $nodeA->ownerDocument, $vA ) ?:
+					DOMCompat::getElementById( $this->domA, $vA );
+				$htmlB = DOMCompat::getElementById( $nodeB->ownerDocument, $vB ) ?:
+					DOMCompat::getElementById( $this->domB, $vB );
 
 				if ( $htmlA && $htmlB && !$this->treeEquals( $htmlA, $htmlB, true ) ) {
 					return false;
 				} elseif ( !$htmlA || !$htmlB ) {
-					$type = $nodeA->getAttribute( 'typeof' ) || '';
+					if ( $nodeA instanceof DOMElement ) {
+						$type = $nodeA->getAttribute( 'typeof' ) ?: '';
+					} else {
+						$type = '';
+					}
 					$match = preg_match( '/mw:Extension\/(\w+)\b/', $type );
 					$extName = ( $match ) ? $match[ 1 ] : '---';
 					// Log error
 					if ( !$htmlA ) {
-						$this->env->log( 'error/domdiff/orig/' . $extName,
-							'extension src id ' . json_encode( $vA )
-. ' points to non-existent element for:',
-							$nodeA->outerHTML
+						$this->env->log(
+							'error/domdiff/orig/' . $extName,
+							'extension src id ' . PHPUtils::jsonEncode( $vA ) . ' points to non-existent element for:',
+							DOMCompat::getOuterHTML( $nodeA )
 						);
 					}
 					if ( !$htmlB ) {
-						$this->env->log( 'error/domdiff/edited/' . $extName,
-							'extension src id ' . json_encode( $vB )
-. ' points to non-existent element for:',
-							$nodeB->outerHTML
+						$this->env->log(
+							'error/domdiff/edited/' . $extName,
+							'extension src id ' . PHPUtils::jsonEncode( $vB ) . ' points to non-existent element for:',
+							DOMUtils::assertElt( $nodeB ) && DOMCompat::getOuterHTML( $nodeB )
 						);
 					}
 
@@ -159,7 +222,7 @@ class DOMDiff {
 						return false;
 					}
 				}
-			} elseif ( $kA === 'html' && $options->inDmwBody ) {
+			} elseif ( $kA === 'html' && ( $options['inDmwBody'] ?? null ) ) {
 				// For 'html' attributes, parse string and recursively compare DOM
 				if ( !$this->treeEquals(
 						ContentUtils::ppToDOM( $this->env, $vA, [ 'markNew' => true ] ),
@@ -169,10 +232,10 @@ class DOMDiff {
 				) {
 					return false;
 				}
-			} elseif ( $vA->constructor === $Object || is_array( $vA ) ) {
+			} elseif ( is_object( $vA ) || is_array( $vA ) ) {
 				// For 'array' and 'object' attributes, recursively apply _dataMWEquals
-				$inDmwBody = $options->isTopLevel && $kA === 'body';
-				if ( !$this->_dataMWEquals( $nodeA, $vA, $nodeB, $vB, [ 'inDmwBody' => $inDmwBody ] ) ) {
+				$inDmwBody = ( $options['isTopLevel'] ?? null ) && $kA === 'body';
+				if ( !$this->realDataMWEquals( $nodeA, $vA, $nodeB, $vB, [ 'inDmwBody' => $inDmwBody ] ) ) {
 					return false;
 				}
 			} elseif ( $vA !== $vB ) {
@@ -188,27 +251,35 @@ class DOMDiff {
 
 	/**
 	 * Test if two DOM nodes are equal.
-	 * @param {Node} nodeA
-	 * @param {Node} nodeB
-	 * @param {boolean} deep
+	 *
+	 * @param DOMNode $nodeA
+	 * @param DOMNode $nodeB
+	 * @param bool $deep
 	 * @return bool
 	 */
-	public function treeEquals( $nodeA, $nodeB, $deep ) {
+	public function treeEquals( DOMNode $nodeA, DOMNode $nodeB, bool $deep ): bool {
 		if ( $nodeA->nodeType !== $nodeB->nodeType ) {
 			return false;
 		} elseif ( DOMUtils::isText( $nodeA ) ) {
 			// In the past we've had bugs where we let non-primitive strings
 			// leak into our DOM.  Safety first:
-			Assert::invariant( $nodeA->nodeValue === $nodeA->nodeValue->valueOf() );
-			Assert::invariant( $nodeB->nodeValue === $nodeB->nodeValue->valueOf() );
+			Assert::invariant( $nodeA->nodeValue === (string)$nodeA->nodeValue, '' );
+			Assert::invariant( $nodeB->nodeValue === (string)$nodeB->nodeValue, '' );
 			// ok, now do the comparison.
 			return $nodeA->nodeValue === $nodeB->nodeValue;
 		} elseif ( DOMUtils::isComment( $nodeA ) ) {
-			return WTUtils::decodeComment( $nodeA->data ) === WTUtils::decodeComment( $nodeB->data );
+			return WTUtils::decodeComment( $nodeA->nodeValue ) ===
+				WTUtils::decodeComment( $nodeB->nodeValue );
 		} elseif ( DOMUtils::isElt( $nodeA ) ) {
 			// Compare node name and attribute length
 			if ( $nodeA->nodeName !== $nodeB->nodeName
-|| !DiffUtils::attribsEquals( $nodeA, $nodeB, $ignoreAttributes, $this->specializedAttribHandlers )
+				|| !$nodeA instanceof DOMElement || !$nodeB instanceof DOMElement
+				|| !DiffUtils::attribsEquals(
+					$nodeA,
+					$nodeB,
+					self::IGNORE_ATTRIBUTES,
+					$this->specializedAttribHandlers
+				)
 			) {
 				return false;
 			}
@@ -216,7 +287,7 @@ class DOMDiff {
 			// Passed all tests, element node itself is equal.
 			if ( $deep ) {
 				$childA = null;
-$childB = null;
+				$childB = null;
 				// Compare # of children, since that's fast.
 				// (Avoid de-optimizing DOM by using node#childNodes)
 				for ( $childA = $nodeA->firstChild, $childB = $nodeB->firstChild;
@@ -225,7 +296,7 @@ $childB = null;
 				) {
 
 					/* don't look inside children yet, just look at # of children */
-	   }
+				}
 
 				if ( $childA || $childB ) {
 					return false; /* nodes have different # of children */
@@ -244,6 +315,8 @@ $childB = null;
 			// Did not find a diff yet, so the trees must be equal.
 			return true;
 		}
+		Assert::invariant( false, 'we shouldn\'t get here' );
+		return false;
 	}
 
 	/**
@@ -260,21 +333,33 @@ $childB = null;
 	 *
 	 * TODO:
 	 * Assume typical CSS white-space, so ignore ws diffs in non-pre content.
+	 *
+	 * @param DOMNode $baseParentNode
+	 * @param DOMNode $newParentNode
+	 * @return bool
 	 */
-	public function doDOMDiff( $baseParentNode, $newParentNode ) {
+	public function doDOMDiff( DOMNode $baseParentNode, DOMNode $newParentNode ): bool {
 		$dd = $this;
 
-		function debugOut( $nodeA, $nodeB, $laPrefix ) use ( &$dd, &$DOMUtils ) {
+		$debugOut = function ( $nodeA, $nodeB, $laPrefix = null ) use ( &$dd, &$DOMUtils ) {
 			$laPrefix = $laPrefix || '';
-			$dd->env->log( 'trace/domdiff', function () use ( &$laPrefix, &$DOMUtils, &$nodeA ) {
-					return '--> A' . $laPrefix . ':' . ( ( DOMUtils::isElt( $nodeA ) ) ? $nodeA->outerHTML : json_encode( $nodeA->nodeValue ) );
-			}
+			$dd->env->log(
+				'trace/domdiff',
+				function () use ( &$laPrefix, &$DOMUtils, &$nodeA ) {
+					return '--> A' . $laPrefix . ':' .
+						( ( DOMUtils::isElt( $nodeA ) ) ?
+							DOMCompat::getOuterHTML( $nodeA ) : PHPUtils::jsonEncode( $nodeA->nodeValue ) );
+				}
 			);
-			$dd->env->log( 'trace/domdiff', function () use ( &$laPrefix, &$DOMUtils, &$nodeB ) {
-					return '--> B' . $laPrefix . ':' . ( ( DOMUtils::isElt( $nodeB ) ) ? $nodeB->outerHTML : json_encode( $nodeB->nodeValue ) );
-			}
+			$dd->env->log(
+				'trace/domdiff',
+				function () use ( &$laPrefix, &$DOMUtils, &$nodeB ) {
+					return '--> B' . $laPrefix . ':' .
+						( ( DOMUtils::isElt( $nodeB ) ) ?
+							DOMCompat::getOuterHTML( $nodeB ) : PHPUtils::jsonEncode( $nodeB->nodeValue ) );
+				}
 			);
-		}
+		};
 
 		// Perform a relaxed version of the recursive treeEquals algorithm that
 		// allows for some minor differences and tries to produce a sensible diff
@@ -284,11 +369,10 @@ $childB = null;
 		$lookaheadNode = null;
 		$subtreeDiffers = null;
 		$foundDiffOverall = false;
-		$dontAdvanceNewNode = false;
 
 		while ( $baseNode && $newNode ) {
 			$dontAdvanceNewNode = false;
-			debugOut( $baseNode, $newNode );
+			$debugOut( $baseNode, $newNode );
 			// shallow check first
 			if ( !$this->treeEquals( $baseNode, $newNode, false ) ) {
 				$this->debug( '-- not equal --' );
@@ -303,9 +387,9 @@ $childB = null;
 					$this->debug( '--lookahead in new dom--' );
 					$lookaheadNode = $newNode->nextSibling;
 					while ( $lookaheadNode ) {
-						debugOut( $baseNode, $lookaheadNode, 'new' );
-						if ( DOMUtils::isContentNode( $lookaheadNode )
-&& $this->treeEquals( $baseNode, $lookaheadNode, true )
+						$debugOut( $baseNode, $lookaheadNode, 'new' );
+						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
+							$this->treeEquals( $baseNode, $lookaheadNode, true )
 						) {
 							// mark skipped-over nodes as inserted
 							$markNode = $newNode;
@@ -318,7 +402,7 @@ $childB = null;
 							$newNode = $lookaheadNode;
 							break;
 						}
-						$lookaheadNode = nextNonTemplateSibling( $lookaheadNode );
+						$lookaheadNode = self::nextNonTemplateSibling( $lookaheadNode );
 					}
 				}
 
@@ -328,9 +412,9 @@ $childB = null;
 					$this->debug( '--lookahead in old dom--' );
 					$lookaheadNode = $baseNode->nextSibling;
 					while ( $lookaheadNode ) {
-						debugOut( $lookaheadNode, $newNode, 'old' );
-						if ( DOMUtils::isContentNode( $lookaheadNode )
-&& $this->treeEquals( $lookaheadNode, $newNode, true )
+						$debugOut( $lookaheadNode, $newNode, 'old' );
+						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
+							$this->treeEquals( $lookaheadNode, $newNode, true )
 						) {
 							$this->debug( '--found diff: deleted--' );
 							// mark skipped-over nodes as deleted
@@ -346,23 +430,25 @@ $childB = null;
 							// between block nodes).
 							$isBlockNode = WTUtils::isBlockNodeWithVisibleWT( $lookaheadNode );
 						}
-						$lookaheadNode = nextNonTemplateSibling( $lookaheadNode );
+						$lookaheadNode = self::nextNonTemplateSibling( $lookaheadNode );
 					}
 				}
 
 				if ( !$foundDiff ) {
-					if ( !DOMUtils::isElt( $savedNewNode ) ) {
+					if ( !( $savedNewNode instanceof DOMElement ) ) {
 						$this->debug( '--found diff: modified text/comment--' );
 						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
-					} elseif ( $savedNewNode->nodeName === $baseNode->nodeName
-&& DOMDataUtils::getDataParsoid( $savedNewNode )->stx === DOMDataUtils::getDataParsoid( $baseNode )->stx
+					} elseif ( $savedNewNode->nodeName === $baseNode->nodeName &&
+						DOMUtils::assertElt( $baseNode ) &&
+						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
+						( DOMDataUtils::getDataParsoid( $baseNode )->stx ?? null )
 					) {
 						// Identical wrapper-type, but modified.
 						// Mark modified-wrapper, and recurse.
 						$this->debug( '--found diff: modified-wrapper--' );
 						$this->markNode( $savedNewNode, 'modified-wrapper' );
-						if ( !WTUtils::isEncapsulationWrapper( $baseNode )
-&& !WTUtils::isEncapsulationWrapper( $savedNewNode )
+						if ( !WTUtils::isEncapsulationWrapper( $baseNode ) &&
+							!WTUtils::isEncapsulationWrapper( $savedNewNode )
 						) {
 							// Dont recurse into template-like-content
 							$subtreeDiffers = $this->doDOMDiff( $baseNode, $savedNewNode );
@@ -387,7 +473,9 @@ $childB = null;
 				$this->markNode( $newParentNode, 'children-changed' );
 
 				$foundDiffOverall = true;
-			} elseif ( !WTUtils::isEncapsulationWrapper( $baseNode ) && !WTUtils::isEncapsulationWrapper( $newNode ) ) {
+			} elseif ( !WTUtils::isEncapsulationWrapper( $baseNode ) &&
+				!WTUtils::isEncapsulationWrapper( $newNode )
+			) {
 				$this->debug( '--shallow equal: recursing--' );
 				// Recursively diff subtrees if not template-like content
 				$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
@@ -400,9 +488,9 @@ $childB = null;
 
 			// And move on to the next pair (skipping over template HTML)
 			if ( $baseNode && $newNode ) {
-				$baseNode = nextNonTemplateSibling( $baseNode );
+				$baseNode = self::nextNonTemplateSibling( $baseNode );
 				if ( !$dontAdvanceNewNode ) {
-					$newNode = nextNonTemplateSibling( $newNode );
+					$newNode = self::nextNonTemplateSibling( $newNode );
 				}
 			}
 		}
@@ -412,7 +500,7 @@ $childB = null;
 			$this->debug( '--found trailing new node: inserted--' );
 			$this->markNode( $newNode, 'inserted' );
 			$foundDiffOverall = true;
-			$newNode = nextNonTemplateSibling( $newNode );
+			$newNode = self::nextNonTemplateSibling( $newNode );
 		}
 
 		// If there are extra base nodes, something was deleted. Mark the parent as
@@ -441,14 +529,18 @@ $childB = null;
 	 * Helpers
 	 * ***************************************************/
 
-	/** @private */
-	public function markNode( $node, $mark, $blockNodeDeleted ) {
+	/**
+	 * @param DOMNode $node
+	 * @param string $mark
+	 * @param bool $blockNodeDeleted
+	 */
+	private function markNode( DOMNode $node, string $mark, bool $blockNodeDeleted = false ) {
 		$meta = null;
 		if ( $mark === 'deleted' ) {
 			// insert a meta tag marking the place where content used to be
 			$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
-			if ( DOMUtils::isElt( $node ) ) {
+			if ( $node instanceof DOMElement ) {
 				DiffUtils::setDiffMark( $node, $this->env, $mark );
 			} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
 				if ( $mark !== 'inserted' ) {
@@ -457,8 +549,8 @@ $childB = null;
 					);
 				}
 				$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-			} elseif ( $node->nodeType !== $node::DOCUMENT_NODE
-&& $node->nodeType !== $node::DOCUMENT_TYPE_NODE
+			} elseif ( $node->nodeType !== XML_DOCUMENT_NODE &&
+				$node->nodeType !== XML_DOCUMENT_TYPE_NODE
 			) {
 				$this->env->log( 'error/domdiff', 'Unhandled node type', $node->nodeType, 'in markNode!' );
 			}
@@ -472,8 +564,4 @@ $childB = null;
 			$this->markNode( $node->parentNode, 'children-changed' );
 		}
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->DOMDiff = $DOMDiff;
 }

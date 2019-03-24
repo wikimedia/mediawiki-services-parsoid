@@ -1,105 +1,142 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/**
- * @module
- */
+<?php
+declare( strict_types = 1 );
 
 namespace Parsoid;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use \DOMElement;
+use \DOMNode;
+use \stdClass;
 
 class DiffUtils {
 	/**
 	 * Get a node's diff marker.
 	 *
-	 * @param {Node} node
-	 * @param {MWParserEnvironment} env
-	 * @return Object|null
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return stdClass|null
 	 */
-	public static function getDiffMark( $node, $env ) {
-		if ( !DOMUtils::isElt( $node ) ) { return null;
-  }
+	public static function getDiffMark( DOMElement $node, Env $env ): ?stdClass {
+		if ( !DOMUtils::isElt( $node ) ) {
+			return null;
+		}
+
 		$data = DOMDataUtils::getNodeData( $node );
-		$dpd = $data[ 'parsoid-diff' ];
-		return ( $dpd && $dpd->id === $env->page->id ) ? $dpd : null;
+		$dpd = $data->{'parsoid-diff'} ?? null;
+		return ( $dpd && $dpd->id === $env->getPageConfig()->getPageId() ) ? $dpd : null;
 	}
 
 	/**
 	 * Check that the diff markers on the node exist and are recent.
 	 *
-	 * @param {Node} node
-	 * @param {MWParserEnvironment} env
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool
 	 */
-	public static function hasDiffMarkers( $node, $env ) {
-		return $this->getDiffMark( $node, $env ) !== null || DOMUtils::isDiffMarker( $node );
+	public static function hasDiffMarkers( DOMElement $node, Env $env ): bool {
+		return self::getDiffMark( $node, $env ) !== null || DOMUtils::isDiffMarker( $node );
 	}
 
-	public static function hasDiffMark( $node, $env, $mark ) {
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @param string $mark
+	 * @return bool
+	 */
+	public static function hasDiffMark( DOMElement $node, Env $env, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
 		if ( $mark === 'deleted' || ( $mark === 'inserted' && !DOMUtils::isElt( $node ) ) ) {
 			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
 		} else {
-			$diffMark = $this->getDiffMark( $node, $env );
+			$diffMark = self::getDiffMark( $node, $env );
 			return $diffMark && array_search( $mark, $diffMark->diff ) >= 0;
 		}
 	}
 
-	public static function hasInsertedDiffMark( $node, $env ) {
-		return $this->hasDiffMark( $node, $env, 'inserted' );
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool
+	 */
+	public static function hasInsertedDiffMark( DOMElement $node, Env $env ): bool {
+		return self::hasDiffMark( $node, $env, 'inserted' );
 	}
 
-	public static function maybeDeletedNode( $node ) {
+	/**
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	public static function maybeDeletedNode( DOMElement $node ): bool {
 		return $node && DOMUtils::isElt( $node ) && DOMUtils::isDiffMarker( $node, 'deleted' );
 	}
 
 	/**
 	 * Is node a mw:DiffMarker node that represents a deleted block node?
 	 * This annotation is added by the DOMDiff pass.
+	 *
+	 * @param DOMElement $node
+	 * @return bool
 	 */
-	public static function isDeletedBlockNode( $node ) {
-		return $this->maybeDeletedNode( $node ) && $node->hasAttribute( 'data-is-block' );
+	public static function isDeletedBlockNode( DOMElement $node ): bool {
+		return self::maybeDeletedNode( $node ) && $node->hasAttribute( 'data-is-block' );
 	}
 
-	public static function directChildrenChanged( $node, $env ) {
-		return $this->hasDiffMark( $node, $env, 'children-changed' );
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool
+	 */
+	public static function directChildrenChanged( DOMElement $node, Env $env ): bool {
+		return self::hasDiffMark( $node, $env, 'children-changed' );
 	}
 
-	public static function onlySubtreeChanged( $node, $env ) {
-		$dmark = $this->getDiffMark( $node, $env );
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool
+	 */
+	public static function onlySubtreeChanged( DOMElement $node, Env $env ): bool {
+		$dmark = self::getDiffMark( $node, $env );
 		return $dmark && $dmark->diff->every( function /* subTreechangeMarker */( $mark ) {
 					return $mark === 'subtree-changed' || $mark === 'children-changed';
 		}
 			);
 	}
 
-	public static function addDiffMark( $node, $env, $mark ) {
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @param string $mark
+	 */
+	public static function addDiffMark( DOMElement $node, Env $env, string $mark ): void {
 		if ( $mark === 'deleted' || $mark === 'moved' ) {
-			$this->prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
+			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
 			if ( $mark !== 'inserted' ) {
 				$env->log( 'error', 'BUG! CHANGE-marker for ', $node->nodeType, ' node is: ', $mark );
 			}
-			$this->prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
+			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
-			$this->setDiffMark( $node, $env, $mark );
+			self::setDiffMark( $node, $env, $mark );
 		}
 	}
 
 	/**
 	 * Set a diff marker on a node.
 	 *
-	 * @param {Node} node
-	 * @param {MWParserEnvironment} env
-	 * @param {string} change
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @param string $change
 	 */
-	public static function setDiffMark( $node, $env, $change ) {
-		if ( !DOMUtils::isElt( $node ) ) { return;
-  }
-		$dpd = $this->getDiffMark( $node, $env );
+	public static function setDiffMark( DOMElement $node, Env $env, string $change ): void {
+		if ( !DOMUtils::isElt( $node ) ) {
+			return;
+		}
+
+		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {
 			// Diff is up to date, append this change if it doesn't already exist
 			if ( array_search( $change, $dpd->diff ) === -1 ) {
@@ -107,24 +144,24 @@ class DiffUtils {
 			}
 		} else {
 			// Was an old diff entry or no diff at all, reset
-			$dpd = [
+			$dpd = (object)[ // FIXME object or array?
 				// The base page revision this change happened on
-				'id' => $env->page->id,
+				'id' => $env->getPageConfig()->getPageId(),
 				'diff' => [ $change ]
 			];
 		}
-		DOMDataUtils::getNodeData( $node )[ 'parsoid-diff' ] = $dpd;
+		DOMDataUtils::getNodeData( $node )->{'parsoid-diff'} = $dpd;
 	}
 
 	/**
 	 * Store a diff marker on a node in a data attibute.
 	 * Only to be used for dumping.
 	 *
-	 * @param {Node} node
-	 * @param {MWParserEnvironment} env
+	 * @param DOMElement $node
+	 * @param Env $env
 	 */
-	public static function storeDiffMark( $node, $env ) {
-		$dpd = $this->getDiffMark( $node, $env );
+	public static function storeDiffMark( DOMElement $node, Env $env ): void {
+		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {
 			DOMDataUtils::setJSONAttribute( $node, 'data-parsoid-diff', $dpd );
 		}
@@ -133,11 +170,11 @@ class DiffUtils {
 	/**
 	 * Insert a meta element with the passed-in typeof attribute before a node.
 	 *
-	 * @param {Node} node
-	 * @param {string} type
-	 * @return Element The new meta.
+	 * @param DOMNode $node
+	 * @param string $type
+	 * @return DOMElement
 	 */
-	public static function prependTypedMeta( $node, $type ) {
+	public static function prependTypedMeta( DOMNode $node, string $type ): DOMElement {
 		$meta = $node->ownerDocument->createElement( 'meta' );
 		$meta->setAttribute( 'typeof', $type );
 		$node->parentNode->insertBefore( $meta, $node );
@@ -145,55 +182,67 @@ class DiffUtils {
 	}
 
 	/**
-	 * Attribute equality test.
-	 * @param {Node} nodeA
-	 * @param {Node} nodeB
-	 * @param {Set} [ignoreableAttribs] Set of attributes that should be ignored.
-	 * @param {Map} [specializedAttribHandlers] Map of attributes with specialized equals handlers.
+	 * @param DOMElement $node
+	 * @param array $ignoreableAttribs
+	 * @return stdClass
 	 */
-	public static function attribsEquals( $nodeA, $nodeB, $ignoreableAttribs, $specializedAttribHandlers ) {
+	private static function arrayToHash( DOMElement $node, array $ignoreableAttribs ): stdClass {
+		$attrs = $node->attributes ?? [];
+		$h = [];
+		$count = 0;
+		for ( $j = 0,  $n = count( $attrs );  $j < $n;  $j++ ) {
+			$a = $attrs->item( $j );
+			'@phan-var \DOMAttr $a'; // @var \DOMAttr $a
+			if ( !in_array( $a->name, $ignoreableAttribs ) ) {
+				$count++;
+				$h[ $a->name ] = $a->value;
+			}
+		}
+		// If there's no special attribute handler, we want a straight
+		// comparison of these.
+		if ( !in_array( 'data-parsoid', $ignoreableAttribs ) ) {
+			$h[ 'data-parsoid' ] = DOMDataUtils::getDataParsoid( $node );
+			$count++;
+		}
+		if ( !in_array( 'data-mw', $ignoreableAttribs ) && DOMDataUtils::validDataMw( $node ) ) {
+			$h[ 'data-mw' ] = DOMDataUtils::getDataMw( $node );
+			$count++;
+		}
+		return (object)[ 'h' => $h, 'count' => $count ];
+	}
+
+	/**
+	 * Attribute equality test.
+	 *
+	 * @param DOMElement $nodeA
+	 * @param DOMElement $nodeB
+	 * @param array $ignoreableAttribs
+	 * @param array $specializedAttribHandlers
+	 * @return bool
+	 */
+	public static function attribsEquals(
+		DOMElement $nodeA, DOMElement $nodeB, array $ignoreableAttribs, array $specializedAttribHandlers
+	): bool {
 		if ( !$ignoreableAttribs ) {
-			$ignoreableAttribs = new Set();
+			$ignoreableAttribs = [];
 		}
 		if ( !$specializedAttribHandlers ) {
-			$specializedAttribHandlers = new Map();
+			$specializedAttribHandlers = [];
 		}
 
-		function arrayToHash( $node ) use ( &$ignoreableAttribs, &$DOMDataUtils ) {
-			$attrs = $node->attributes || [];
-			$h = [];
-			$count = 0;
-			for ( $j = 0,  $n = count( $attrs );  $j < $n;  $j++ ) {
-				$a = $attrs->item( $j );
-				if ( !$ignoreableAttribs->has( $a->name ) ) {
-					$count++;
-					$h[ $a->name ] = $a->value;
-				}
-			}
-			// If there's no special attribute handler, we want a straight
-			// comparison of these.
-			if ( !$ignoreableAttribs->has( 'data-parsoid' ) ) {
-				$h[ 'data-parsoid' ] = DOMDataUtils::getDataParsoid( $node );
-				$count++;
-			}
-			if ( !$ignoreableAttribs->has( 'data-mw' ) && DOMDataUtils::validDataMw( $node ) ) {
-				$h[ 'data-mw' ] = DOMDataUtils::getDataMw( $node );
-				$count++;
-			}
-			return [ 'h' => $h, 'count' => $count ];
-		}
-
-		$xA = arrayToHash( $nodeA );
-		$xB = arrayToHash( $nodeB );
+		$xA = self::arrayToHash( $nodeA, $ignoreableAttribs );
+		$xB = self::arrayToHash( $nodeB, $ignoreableAttribs );
 
 		if ( $xA->count !== $xB->count ) {
 			return false;
 		}
 
 		$hA = $xA->h;
-		$keysA = Object::keys( $hA )->sort();
+		$keysA = array_keys( $hA );
+		asort( $keysA );
 		$hB = $xB->h;
-		$keysB = Object::keys( $hB )->sort();
+		$keysB = array_keys( $hB );
+		asort( $keysB );
 
 		for ( $i = 0;  $i < $xA->count;  $i++ ) {
 			$k = $keysA[ $i ];
@@ -201,7 +250,7 @@ class DiffUtils {
 				return false;
 			}
 
-			$attribEquals = $specializedAttribHandlers->get( $k );
+			$attribEquals = $specializedAttribHandlers[$k] ?? null;
 			if ( $attribEquals ) {
 				// Use a specialized compare function, if provided
 				if ( !$hA[ $k ] || !$hB[ $k ] || !$attribEquals( $nodeA, $hA[ $k ], $nodeB, $hB[ $k ] ) ) {
@@ -214,8 +263,4 @@ class DiffUtils {
 
 		return true;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->DiffUtils = $DiffUtils;
 }
