@@ -5,6 +5,7 @@
 // Not tested, all code that is not ported throws exceptions or has a PORT-FIXME comment.
 namespace Parsoid\Utils;
 
+use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 
 /**
@@ -114,7 +115,7 @@ class Util {
 		if ( strtolower( $name ) !== $name ) {
 			throw new \BadMethodCallException( "Use lowercase tag names" );
 		}
-		return Consts::$HTML['VoidTags'][ $name ];
+		return isset( Consts::$HTML['VoidTags'][ $name ] );
 	}
 
 	/**
@@ -443,18 +444,16 @@ class Util {
 	 * environment's per-wiki config to do so.
 	 *
 	 * @param string $linkTarget
-	 * @param object $env
+	 * @param Env $env
 	 * @return bool
 	 */
-	public static function isProtocolValid( $linkTarget, $env ) {
-		// PORT-FIXME
-/*		var wikiConf = env.conf.wiki;
-		if (typeof linkTarget === 'string') {
-			return wikiConf.hasValidProtocol(linkTarget);
+	public static function isProtocolValid( $linkTarget, Env $env ) {
+		$siteConf = $env->getSiteConfig();
+		if ( is_string( $linkTarget ) ) {
+			return $siteConf->hasValidProtocol( $linkTarget );
 		} else {
 			return true;
-		} */
-		throw new \BadMethodCallException( "Not yet ported" );
+		}
 	}
 
 	/**
