@@ -51,7 +51,7 @@ function parse(input) {
 		immutable: false,
 		langConverterEnabled: () => true, // true always
 		bumpParserResourceUse: nop,
-		newAboutId: () => -1, // -1 always
+		newAboutId: () => '#1', // #1 always
 	};
 	const tokenizer = new PegTokenizer.PegTokenizer(env);
 	tokenizer.initTokenizer();
