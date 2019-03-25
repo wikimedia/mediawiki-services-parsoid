@@ -7,11 +7,15 @@ declare( strict_types = 1 );
  * (b) manipulating tokens, individually and as collections.
  */
 
+// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
+
 namespace Parsoid\Utils;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
@@ -275,6 +279,37 @@ class TokenUtils {
 		}
 	}
 
+	/**
+	 * Strip EOFTk token from token chunk.
+	 *
+	 * @param array &$tokens
+	 */
+	public static function stripEOFTkFromTokens( &$tokens ) {
+		$tokens = (array)$tokens;
+		$n = count( $tokens );
+		if ( $n && $tokens[$n - 1] instanceof EOFTk ) {
+			array_pop( $tokens );
+		}
+	}
+
+	public static function placeholder( $content, $dataAttribs, $endAttribs ) {
+		if ( $content === null ) {
+			return [
+				new SelfclosingTagTk( 'meta', [
+					new KV( 'typeof', 'mw:Placeholder' ),
+				], $dataAttribs ),
+			];
+		} else {
+			return [
+				new TagTk( 'span', [
+					new KV( 'typeof', 'mw:Placeholder' ),
+				], $dataAttribs ),
+				$content,
+				new EndTagTk( 'span', [], $endAttribs ),
+			];
+		}
+	}
+
 /**
 	public static function isEntitySpanToken(token) {
 		return token.constructor === TagTk && token.name === 'span' &&
@@ -489,43 +524,5 @@ class TokenUtils {
 		return tokens;
 	}
 
-	//
-	 * Strip EOFTk token from token chunk.
-	//
-	public static function stripEOFTkfromTokens(tokens) {
-		// this.dp( 'stripping end or whitespace tokens' );
-		if (!Array.isArray(tokens)) {
-			tokens = [ tokens ];
-		}
-		if (!tokens.length) {
-			return tokens;
-		}
-		// Strip 'end' token
-		if (tokens.length && lastItem(tokens).constructor === EOFTk) {
-			var rank = tokens.rank;
-			tokens = tokens.slice(0, -1);
-			tokens.rank = rank;
-		}
-
-		return tokens;
-	}
-
-	public static function placeholder(content, dataAttribs, endAttribs) {
-		if (content === null) {
-			return [
-				new SelfclosingTagTk('meta', [
-					new KV('typeof', 'mw:Placeholder'),
-				], dataAttribs),
-			];
-		} else {
-			return [
-				new TagTk('span', [
-					new KV('typeof', 'mw:Placeholder'),
-				], dataAttribs),
-				content,
-				new EndTagTk('span', [], endAttribs),
-			];
-		}
-	}
 ------------------------------------------- */
 }
