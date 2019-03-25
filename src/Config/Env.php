@@ -9,6 +9,8 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DataBag;
 
+// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
+
 /**
  * Environment/Envelope class for Parsoid
  *
@@ -276,6 +278,10 @@ class Env {
 	 */
 	public function bumpCount( string $resource, int $n = 1 ): void {
 		throw new \BadMethodCallException( 'not yet ported' );
+	}
+
+	public function bumpParserResourceUse( $resource, $count = 1 ) {
+		// FIXME: not yet implemented
 	}
 
 	/**
