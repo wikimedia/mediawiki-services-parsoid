@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\PP\Processors;
 
 use DOMNode;
+use DOMElement;
 
-use Parsoid\Tests\MockEnv;
-
+use Parsoid\Config\Env;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
@@ -29,11 +29,11 @@ class HandlePres {
 	 * @param DOMElement $elt
 	 * @param bool $isLastChild
 	 */
-	public function reinsertLeadingSpace( DOMElement $elt, bool $isLastChild ) {
+	public function reinsertLeadingSpace( DOMElement $elt, bool $isLastChild ): void {
 		for ( $c = $elt->firstChild; $c; $c = $c->nextSibling ) {
 			$last = ( $c->nextSibling === null );
 			if ( DOMUtils::isText( $c ) ) {
-				$c->data = $this->fixedIndentPreText( $c->data, $isLastChild && $last );
+				$c->nodeValue = $this->fixedIndentPreText( $c->nodeValue, $isLastChild && $last );
 			} else {
 				// recurse
 				$this->reinsertLeadingSpace( $c, $isLastChild && $last );
@@ -45,7 +45,7 @@ class HandlePres {
 	 * @param DOMNode $elt
 	 * @param bool $indentPresHandled
 	 */
-	public function findAndHandlePres( DOMNode $elt, bool $indentPresHandled ) {
+	public function findAndHandlePres( DOMNode $elt, bool $indentPresHandled ): void {
 		$nextChild = null;
 		$blocklevel = false;
 		for ( $n = $elt->firstChild; $n; $n = $nextChild ) {
@@ -81,7 +81,7 @@ class HandlePres {
 	 * @param DOMNode $node
 	 * @param bool $blocklevel
 	 */
-	public function deleteIndentPreFromDOM( DOMNode $node, bool $blocklevel ) {
+	public function deleteIndentPreFromDOM( DOMNode $node, bool $blocklevel ): void {
 		$document = $node->ownerDocument;
 		$c = $node->firstChild;
 		while ( $c ) {
@@ -130,9 +130,9 @@ class HandlePres {
 
 	/**
 	 * @param DOMNode $body
-	 * @param MockEnv $env
+	 * @param Env $env
 	 */
-	public function run( DOMNode $body, MockEnv $env ) {
+	public function run( DOMNode $body, Env $env ): void {
 		$this->findAndHandlePres( $body, false );
 	}
 }

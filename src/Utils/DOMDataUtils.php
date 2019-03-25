@@ -8,7 +8,7 @@ namespace Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use \stdClass as StdClass;
+use stdClass as StdClass;
 use Wikimedia\Assert\Assert;
 use Parsoid\Config\Env;
 

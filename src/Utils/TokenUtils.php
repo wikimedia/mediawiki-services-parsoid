@@ -11,6 +11,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
+use stdClass as StdClass;
+
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
@@ -281,10 +283,11 @@ class TokenUtils {
 
 	/**
 	 * Strip EOFTk token from token chunk.
+	 * The EOFTk is expected to be the last token of the chunk.
 	 *
 	 * @param array &$tokens
 	 */
-	public static function stripEOFTkFromTokens( &$tokens ) {
+	public static function stripEOFTkFromTokens( array &$tokens ): void {
 		$tokens = (array)$tokens;
 		$n = count( $tokens );
 		if ( $n && $tokens[$n - 1] instanceof EOFTk ) {
@@ -292,20 +295,34 @@ class TokenUtils {
 		}
 	}
 
-	public static function placeholder( $content, $dataAttribs, $endAttribs ) {
+	/**
+	 * Create placeholder tokens for some content. This is just an escape hatch
+	 * for scenarios where we don't have a good representation for this content
+	 * and just want to render it without providing any editing support for it.
+	 * Content with mw:Placeholder typeof attribute will be ignored by
+	 * editing clients and they are expected to not modify it either.
+	 *
+	 * @param ?string $content
+	 * @param StdClass $openTagAttribs
+	 * @param StdClass $closeTagAttribs
+	 * @return array
+	 */
+	public static function placeholder(
+		?string $content, StdClass $openTagAttribs, StdClass $closeTagAttribs
+	): array {
 		if ( $content === null ) {
 			return [
 				new SelfclosingTagTk( 'meta', [
 					new KV( 'typeof', 'mw:Placeholder' ),
-				], $dataAttribs ),
+				], $openTagAttribs ),
 			];
 		} else {
 			return [
 				new TagTk( 'span', [
 					new KV( 'typeof', 'mw:Placeholder' ),
-				], $dataAttribs ),
+				], $openTagAttribs ),
 				$content,
-				new EndTagTk( 'span', [], $endAttribs ),
+				new EndTagTk( 'span', [], $closeTagAttribs ),
 			];
 		}
 	}

@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use \stdClass as StdClass;
+use stdClass as StdClass;
 
 /**
  * Represents an HTML end tag token

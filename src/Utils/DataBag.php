@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use \stdClass as StdClass;
+use stdClass as StdClass;
 
 class DataBag {
 	/**

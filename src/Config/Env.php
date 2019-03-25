@@ -280,8 +280,15 @@ class Env {
 		throw new \BadMethodCallException( 'not yet ported' );
 	}
 
-	public function bumpParserResourceUse( $resource, $count = 1 ) {
-		// FIXME: not yet implemented
+	/**
+	 * Bump usage of some limited parser resource
+	 * (ex: tokens, # transclusions, # list items, etc.)
+	 *
+	 * @param string $resource
+	 * @param int $count How much of the resource is used?
+	 */
+	public function bumpParserResourceUse( string $resource, int $count = 1 ): void {
+		throw new \BadMethodCallException( 'not yet ported' );
 	}
 
 	/**

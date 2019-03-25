@@ -57,7 +57,7 @@ class TokenList implements Iterator {
 
 	/**
 	 * Add CSS classes to the element.
-	 * @param string[] ...$tokens List of classes to add
+	 * @param string ...$tokens List of classes to add
 	 * @see https://dom.spec.whatwg.org/#dom-domtokenlist-add
 	 */
 	public function add( string ...$tokens ): void {
@@ -76,7 +76,7 @@ class TokenList implements Iterator {
 
 	/**
 	 * Remove CSS classes from the element.
-	 * @param string[] ...$tokens List of classes to remove
+	 * @param string ...$tokens List of classes to remove
 	 * @see https://dom.spec.whatwg.org/#dom-domtokenlist-remove
 	 */
 	public function remove( string ...$tokens ): void {

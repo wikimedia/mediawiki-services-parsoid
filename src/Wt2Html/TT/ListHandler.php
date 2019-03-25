@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use \stdClass as StdClass;
+use stdClass as StdClass;
 
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\EndTagTk;

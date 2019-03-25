@@ -6,7 +6,7 @@ namespace Parsoid\Utils;
 use DOMComment;
 use DOMElement;
 use DOMNode;
-use \stdClass as StdClass;
+use stdClass as StdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;

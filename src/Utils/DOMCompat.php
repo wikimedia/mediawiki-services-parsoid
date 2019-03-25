@@ -135,7 +135,7 @@ class DOMCompat {
 	 * and the lack of DOMElement::getElementsByTagName().
 	 * @param DOMDocument|DOMElement $node
 	 * @param string $tagName
-	 * @return DOMElement[]
+	 * @return DOMNodeList
 	 * @see https://dom.spec.whatwg.org/#dom-document-getelementsbytagname
 	 * @see https://dom.spec.whatwg.org/#dom-element-getelementsbytagname
 	 * @note Note that unlike the spec this method is not guaranteed to return a DOMNodeList
