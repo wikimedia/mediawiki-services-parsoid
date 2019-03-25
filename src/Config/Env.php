@@ -44,6 +44,9 @@ class Env {
 	/** @var int used to generate uids as needed during this parse */
 	private $uid = 1;
 
+	/** @var bool[] */
+	public $traceFlags;
+
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
@@ -58,6 +61,7 @@ class Env {
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
 		$this->wrapSections = !empty( $options['wrapSections'] );
+		$this->traceFlags = $options['traceFlags'] ?? [];
 	}
 
 	/**
