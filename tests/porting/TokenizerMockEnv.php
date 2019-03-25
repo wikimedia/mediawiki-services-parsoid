@@ -14,10 +14,10 @@ class TokenizerMockEnv extends MockEnv {
 	}
 
 	/**
-	 * Peg this to -1 to keep things simple in testing the tokenizer
+	 * Peg this to 1 to keep things simple in testing the tokenizer
 	 * This should match the mock in dump_tokens.js.
 	 */
-	public function newAboutId(): int {
-		return -1;
+	public function newAboutId(): string {
+		return '#1';
 	}
 }
