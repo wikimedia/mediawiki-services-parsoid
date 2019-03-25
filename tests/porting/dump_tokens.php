@@ -33,8 +33,16 @@ $env = new TokenizerMockEnv( [
 	"siteConfig" => new TokenizerMockSiteConfig( $opts )
 ] );
 
-$inputFile = $argv[1];
-$input = file_get_contents( $inputFile );
+if ( isset( $argv[1] ) ) {
+	$inputFile = $argv[1];
+} else {
+	$inputFile = '-';
+}
+if ( $inputFile === '-' ) {
+	$input = stream_get_contents( STDIN );
+} else {
+	$input = file_get_contents( $inputFile );
+}
 if ( $input === false ) {
 	fwrite( STDERR, "Unable to open input file \"$inputFile\"\n" );
 	exit( 1 );
@@ -45,20 +53,31 @@ $tokens = parse( $env, $input );
 // $file.php.jsoffset.tokens will be compared with $file.js.tokens
 // and where they differ, it would be useful to look at the original
 // tokens as emitted by the PHP tokenizer
-$fp_byte = fopen( $inputFile . 'php.byteoffset.tokens', 'w' );
+if ( $inputFile !== '-' ) {
+	$fp_byte = fopen( $inputFile . '.php.byteoffset.tokens', 'w' );
+} else {
+	$fp_byte = null;
+}
+
 foreach ( $tokens as $t ) {
-	fwrite( $fp_byte, json_encode( $t ) . "\n" );
+	if ( $fp_byte ) {
+		fwrite( $fp_byte, json_encode( $t ) . "\n" );
+	}
 	$offsets = [];
 	if ( isset( $t->dataAttribs['tsr'] ) ) {
 		$offsets[] = &$t->dataAttribs['tsr'][0];
 		$offsets[] = &$t->dataAttribs['tsr'][1];
 	}
 }
-fclose( $fp_byte );
 
 PHPUtils::convertOffsets( $input, 'byte', 'ucs2', $offsets );
-$fp_ucs = fopen( $inputFile . 'php.jsoffset.tokens', 'w' );
+
+if ( $inputFile === '-' ) {
+	$fp_ucs = STDOUT;
+} else {
+	$fp_ucs = fopen( $inputFile . '.php.jsoffset.tokens', 'w' );
+}
+
 foreach ( $tokens as $t ) {
 	fwrite( $fp_ucs, json_encode( $t ) . "\n" );
 }
-fclose( $fp_ucs );

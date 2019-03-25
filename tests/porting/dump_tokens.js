@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const PegTokenizer = require('../../lib/wt2html/tokenizer.js');
+const getStream = require('get-stream');
 
 function parse(input) {
 	function nop() {}
@@ -66,7 +67,16 @@ function parse(input) {
 	return tokens;
 }
 
-const inputFile = process.argv[2];
-const input = fs.readFileSync(inputFile, 'utf8');
-const tokens = parse(input);
-fs.writeFileSync(inputFile + ".js.tokens", tokens.map(t => JSON.stringify(t)).join('\n'));
+let inputStream, outputStream;
+
+if (process.argv[2]) {
+	inputStream = fs.createReadStream(process.argv[2], { encoding: 'utf8' });
+	outputStream = fs.createWriteStream(process.argv[2] + ".js.tokens", { encoding: 'utf8' });
+} else {
+	inputStream = process.stdin;
+	outputStream = process.stdout;
+}
+getStream(inputStream).then(function(input) {
+	const tokens = parse(input);
+	outputStream.write(tokens.map(t => JSON.stringify(t)).join('\n') + '\n');
+});
