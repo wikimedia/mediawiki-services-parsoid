@@ -89,7 +89,7 @@ class DOMUtils {
 	 * If 'beforeNode' is null, the nodes are appended at the end.
 	 * @param DOMNode $from
 	 * @param DOMNode $to
-	 * @param bool|null $beforeNode
+	 * @param DOMNode|null $beforeNode
 	 */
 	public static function migrateChildrenBetweenDocs(
 		DOMNode $from, DOMNode $to, DOMNode $beforeNode = null
@@ -207,7 +207,7 @@ class DOMUtils {
 	 *   If null, we'll walk to the document root.
 	 * @return DOMNode[]
 	 */
-	public static function pathToAncestor( DOMNode $node, ?DOMNode $ancestor = null ): array {
+	public static function pathToAncestor( DOMNode $node, DOMNode $ancestor = null ): array {
 		$path = [];
 		while ( $node && $node !== $ancestor ) {
 			$path[] = $node;
@@ -440,11 +440,11 @@ class DOMUtils {
 	/**
 	 * Check a node to see whether it's a diff marker.
 	 *
-	 * @param DOMNode|null $node
-	 * @param string $mark
+	 * @param ?DOMNode $node
+	 * @param string|null $mark
 	 * @return bool
 	 */
-	public static function isDiffMarker( ?DOMNode $node, string $mark ): bool {
+	public static function isDiffMarker( ?DOMNode $node, string $mark = null ): bool {
 		if ( !$node ) {
 			return false;
 		}
@@ -741,7 +741,7 @@ class DOMUtils {
 		$node = $node->firstChild;
 		while ( $node ) {
 			if ( self::isElt( $node ) ) {
-				if ( $node->nodeName === tagName || self::treeHasElement( $node, $tagName ) ) {
+				if ( $node->nodeName === $tagName || self::treeHasElement( $node, $tagName ) ) {
 					return true;
 				}
 			}
@@ -757,7 +757,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isTableTag( DOMNode $node ): bool {
-		return isset( WikitextConstants::$HTML['TableTags'][$n->nodeName] );
+		return isset( WikitextConstants::$HTML['TableTags'][$node->nodeName] );
 	}
 
 	/**
