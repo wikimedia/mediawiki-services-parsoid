@@ -43,6 +43,8 @@ class DOMDataUtils {
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
 		if ( $docId !== '' ) {
 			$dataObject = $bag->getObject( (int)$docId );
+		} else {
+			$dataObject = null; // Make phan happy
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
 		Assert::invariant( !isset( $dataObject->stored ), 'Trying to fetch node data without loading!' );
@@ -241,7 +243,7 @@ class DOMDataUtils {
 		DOMElement $node, string $name, $val, $origVal
 	): void {
 		$node->setAttribute( $name, $val );
-		self::setShadowInfo( $node, $name, $val, $origVal );
+		self::setShadowInfoIfModified( $node, $name, $val, $origVal );
 	}
 
 	/**
@@ -357,7 +359,7 @@ class DOMDataUtils {
 	 * @param StdClass $obj object
 	 */
 	public static function injectPageBundle( DOMDocument $doc, StdClass $obj ): void {
-		$pb = $obj === [] ? '{}' : PHPUtils::jsonEncode( $obj );
+		$pb = PHPUtils::jsonEncode( $obj );
 		$script = $doc->createElement( 'script' );
 		self::addAttributes( $script, [
 			'id' => 'mw-pagebundle',
@@ -390,7 +392,7 @@ class DOMDataUtils {
 	 * @param array $pb page bundle
 	 */
 	public static function applyPageBundle( DOMDocument $doc, array $pb ) {
-		throw new BadMethodCallException( 'Not yet ported' );
+		throw new \BadMethodCallException( 'Not yet ported' );
 	}
 
 	/**
