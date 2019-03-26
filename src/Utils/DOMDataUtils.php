@@ -19,19 +19,6 @@ class DOMDataUtils {
 	const DATA_OBJECT_ATTR_NAME = 'data-object-id';
 
 	/**
-	 * @internal
-	 *
-	 * WARNING: Don't use this directly, I guess except for in mocking.
-	 * Instead, you should be calling `$env->createDocument()` if you need it.
-	 *
-	 * @param DOMDocument $doc
-	 * @param DataBag|null $bag
-	 */
-	public static function setDocBag( DOMDocument $doc, ?DataBag $bag = null ) {
-		$doc->bag = $bag ?? new DataBag();
-	}
-
-	/**
 	 * Does this node have any attributes?
 	 * @param DOMElement $node
 	 * @return bool

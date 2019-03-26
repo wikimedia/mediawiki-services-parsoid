@@ -7,7 +7,6 @@ use DOMDocument;
 use DOMNode;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
@@ -130,8 +129,8 @@ class Env {
 	 * @param DOMDocument $doc
 	 * @param DataBag|null $bag
 	 */
-	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ) {
-		DOMDataUtils::setDocBag( $doc, $bag );
+	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ): void {
+		$doc->bag = $bag ?? new DataBag();
 
 		// Prevent GC from collecting the PHP wrapper around the libxml doc
 		$this->liveDocs[] = $doc;
