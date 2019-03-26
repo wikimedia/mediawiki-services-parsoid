@@ -120,7 +120,7 @@ var ScriptUtils = {
 					var handlers = new Set([
 						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
 						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
-						'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude'
+						'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude',
 					]);
 					parsoidOptions.generateFlags = {
 						"handler": cliOpts.genTest,

@@ -152,21 +152,21 @@ class PHPUtils {
 		// PHP actually supports balanced delimiters (ie open paren on left
 		// and close paren on right).
 		switch ( $startDelimiter ) {
-		case '(':
-			$endDelimiter = ')';
-			break;
-		case '[':
-			$endDelimiter = ']';
-			break;
-		case '{':
-			$endDelimiter = '}';
-			break;
-		case '<':
-			$endDelimiter = '>';
-			break;
-		default:
-			$endDelimiter = $startDelimiter;
-			break;
+			case '(':
+				$endDelimiter = ')';
+				break;
+			case '[':
+				$endDelimiter = ']';
+				break;
+			case '{':
+				$endDelimiter = '}';
+				break;
+			case '<':
+				$endDelimiter = '>';
+				break;
+			default:
+				$endDelimiter = $startDelimiter;
+				break;
 		}
 		$endDelimiterPos = strrpos( $re, $endDelimiter );
 		Assert::invariant(
@@ -191,5 +191,15 @@ class PHPUtils {
 		return implode( '', array_map( function ( $c ) use ( $newDelimiter ) {
 			return ( $c === $newDelimiter ) ? ( '\\' . $c ) : $c;
 		}, $matches[0] ) );
+	}
+
+	/**
+	 * encodeURIComponent (JS compatible) function form stack overflow post
+	 * @param string $str
+	 * @return string
+	 */
+	public static function encodeURIComponent( $str ) {
+		$revert = [ '%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')' ];
+		return strtr( rawurlencode( $str ), $revert );
 	}
 }

@@ -599,7 +599,10 @@ class TokenUtils {
 	) {
 		$out = '';
 		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
-			$token = $tokens[ $i ];
+			// PORT-FIXME: Why are they null? JS version has a null check as well
+			// which indicates that this may not be a porting related thing but
+			// worth verifying.
+			$token = $tokens[ $i ] ?? null;
 			if ( !$token ) {
 				continue;
 			} elseif ( is_string( $token ) ) {

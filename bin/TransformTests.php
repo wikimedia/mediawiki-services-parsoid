@@ -480,14 +480,14 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( $transformer === 'OnlyInclude' ) {
 		$pw = new Parsoid\Wt2Html\TT\OnlyInclude( $manager, [ 'isInclude' => false ] );
 		$results = wfSelectTestType( $opts, $manager, 'OnlyInclude', $pw );
+	} elseif ( $transformer === 'Sanitizer' ) {
+		$pw = new Parsoid\Wt2Html\TT\Sanitizer( $manager, [ 'inTemplate' => false ] );
+		$results = wfSelectTestType( $opts, $manager, "Sanitizer", $pw );
 	}
 	/*
 	} else if ($opts->TokenStreamPatcher) {
 		var tsp = new TokenStreamPatcher(manager, {});
 		wfSelectTestType(argv, manager, tsp);
-	} else if ($opts->SanitizerHandler) {
-		var sh = new SanitizerHandler(manager, {});
-		wfSelectTestType(argv, manager, sh);
 	} */ else {
 		print 'No valid TransformerName was specified\n';
 		exit( 1 );

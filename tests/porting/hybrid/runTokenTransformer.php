@@ -15,6 +15,7 @@ use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 use Parsoid\Wt2Html\TT\NoInclude;
 use Parsoid\Wt2Html\TT\IncludeOnly;
 use Parsoid\Wt2Html\TT\OnlyInclude;
+use Parsoid\Wt2Html\TT\Sanitizer;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -74,6 +75,9 @@ switch ( $transformerName ) {
 		break;
 	case 'OnlyInclude':
 		$transformer = new OnlyInclude( $manager, $pipelineOpts );
+		break;
+	case 'SanitizerHandler':
+		$transformer = new Sanitizer( $manager, $pipelineOpts );
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );
