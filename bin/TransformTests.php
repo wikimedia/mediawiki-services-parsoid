@@ -257,7 +257,7 @@ class TransformTests {
 				continue;
 			}
 
-			$transformer->manager->pipelineId = $i;
+			$this->pipelineId = $i;
 			$p = $pipeLines[$i];
 			$pLen = count( $p );
 			$input = [];
@@ -318,7 +318,7 @@ class TransformTests {
 			print "Starting stand alone unit test running file " .
 				$commandLine['inputFile'] . "\n";
 		}
-		$results = $tokenTransformer->manager->processTestFile( $tokenTransformer,
+		$results = $this->processTestFile( $tokenTransformer,
 			$transformerName, $commandLine );
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Ending stand alone unit test running file " .
@@ -339,7 +339,8 @@ class TransformTests {
 			print "Starting stand alone wikitext test running file " .
 				$commandLine['inputFile'] . "\n";
 		}
-		$results = $tokenTransformer->manager->processWikitextFile( $tokenTransformer, $commandLine );
+		$results = $this->processWikitextFile(
+			$tokenTransformer, $commandLine );
 		if ( !isset( $commandLine['timingMode'] ) ) {
 			print "Ending stand alone wikitext test running file " .
 				$commandLine['inputFile'] . "\n";
