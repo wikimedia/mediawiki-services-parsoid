@@ -327,6 +327,152 @@ class TokenUtils {
 		}
 	}
 
+	/**
+	 * Convert string offsets
+	 *
+	 * Offset types are:
+	 *  - 'byte': Bytes (UTF-8 encoding), e.g. PHP `substr()` or `strlen()`.
+	 *  - 'char': Unicode code points (encoding irrelevant), e.g. PHP `mb_substr()` or `mb_strlen()`.
+	 *  - 'ucs2': 16-bit code units (UTF-16 encoding), e.g. JavaScript `.substring()` or `.length`.
+	 *
+	 * Offsets that are mid-Unicode character are "rounded" up to the next full
+	 * character, i.e. the output offset will always point to the start of a
+	 * Unicode code point (or just past the end of the string). Offsets outside
+	 * the string are "rounded" to 0 or just-past-the-end.
+	 *
+	 * @note When constructing the array of offsets to pass to this method,
+	 *  populate it with references as `$offsets[] = &$var;`.
+	 *
+	 * @param string $s Unicode string the offsets are offsets into, UTF-8 encoded.
+	 * @param string $from Offset type to convert from.
+	 * @param string $to Offset type to convert to.
+	 * @param int[] $offsets References to the offsets to convert.
+	 */
+	public static function convertOffsets(
+		string $s, string $from, string $to, array $offsets
+	): void {
+		static $valid = [ 'byte', 'char', 'ucs2' ];
+		if ( !in_array( $from, $valid, true ) ) {
+			throw new \InvalidArgumentException( 'Invalid $from' );
+		}
+		if ( !in_array( $to, $valid, true ) ) {
+			throw new \InvalidArgumentException( 'Invalid $to' );
+		}
+
+		$i = 0;
+		$offsetCt = count( $offsets );
+		if ( $offsetCt === 0 ) { // Nothing to do
+			return;
+		}
+		sort( $offsets, SORT_NUMERIC );
+
+		$bytePos = 0;
+		$ucs2Pos = 0;
+		$charPos = 0;
+		$fromPos = &${$from . 'Pos'};
+		$toPos = &${$to . 'Pos'};
+
+		$byteLen = strlen( $s );
+		while ( $bytePos < $byteLen ) {
+			// Update offsets that we've reached
+			while ( $offsets[$i] <= $fromPos ) {
+				$offsets[$i] = $toPos;
+				if ( ++$i >= $offsetCt ) {
+					return;
+				}
+			}
+
+			// Update positions
+			++$charPos;
+			$c = ord( $s[$bytePos] ) & 0xf8;
+			switch ( $c ) {
+				case 0x00: case 0x08: case 0x10: case 0x18:
+				case 0x20: case 0x28: case 0x30: case 0x38:
+				case 0x40: case 0x48: case 0x50: case 0x58:
+				case 0x60: case 0x68: case 0x70: case 0x78:
+					++$bytePos;
+					++$ucs2Pos;
+					break;
+
+				case 0xc0: case 0xc8: case 0xd0: case 0xd8:
+					$bytePos += 2;
+					++$ucs2Pos;
+					break;
+
+				case 0xe0: case 0xe8:
+					$bytePos += 3;
+					++$ucs2Pos;
+					break;
+
+				case 0xf0:
+					$bytePos += 4;
+					$ucs2Pos += 2;
+					break;
+
+				default:
+					throw new \InvalidArgumentException( '$s is not UTF-8' );
+			}
+		}
+
+		// Convert any offsets past the end of the string to the length of the
+		// string.
+		while ( $i < $offsetCt ) {
+			$offsets[$i] = $toPos;
+			++$i;
+		}
+	}
+
+	/**
+	 * Convert offsets in a token array
+	 *
+	 * @see TokenUtils::convertOffsets()
+	 *
+	 * @param string $s
+	 * @param string $from
+	 * @param string $to
+	 * @param array $tokens
+	 */
+	public static function convertTokenOffsets( string $s, string $from, string $to, array $tokens
+	) : void {
+		$offsets = [];
+		self::collectOffsets( $offsets, $tokens );
+		self::convertOffsets( $s, $from, $to, $offsets );
+	}
+
+	private static function pushOffsets( &$dest, &$source ) {
+		foreach ( $source as &$offset ) {
+			$dest[] =& $offset;
+		}
+	}
+
+	private static function collectOffsets( &$offsets, $input ) {
+		if ( is_array( $input ) ) {
+			foreach ( $input as $token ) {
+				self::collectOffsets( $offsets, $token );
+			}
+		} elseif ( $input instanceof KV ) {
+			self::collectOffsets( $offsets, $input->k );
+			self::collectOffsets( $offsets, $input->v );
+			if ( $input->srcOffsets ) {
+				self::pushOffsets( $offsets, $input->srcOffsets );
+			}
+		} elseif ( $input instanceof Token ) {
+			if ( isset( $input->dataAttribs->tsr ) ) {
+				self::pushOffsets( $offsets, $input->dataAttribs->tsr );
+			}
+			if ( isset( $input->dataAttribs->targetOff ) ) {
+				$offsets[] =& $input->dataAttribs->targetOff;
+			}
+			if ( isset( $input->dataAttribs->contentOffsets ) ) {
+				self::pushOffsets( $offsets, $input->dataAttribs->contentOffsets );
+			}
+			if ( isset( $input->dataAttribs->tokens ) ) {
+				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
+			}
+			self::collectOffsets( $offsets, $input->attribs );
+		}
+	}
+
 /**
 	public static function isEntitySpanToken(token) {
 		return token.constructor === TagTk && token.name === 'span' &&

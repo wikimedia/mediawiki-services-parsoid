@@ -2,6 +2,7 @@
 
 namespace Parsoid\Tests\Porting;
 
+use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Utils\PHPUtils;
 
@@ -18,7 +19,7 @@ function parse( TokenizerMockEnv $env, string $input ): array {
 	$tokens = [];
 	$tokenizer->tokenizeSync( $input, [
 		'cb' => function ( $t ) use ( &$tokens ) {
-			$tokens[] = $t;
+			PHPUtils::pushArray( $tokens, $t );
 		},
 		'pegTokenizer' => $tokenizer,
 		'pipelineOffset' => 0,
@@ -61,16 +62,10 @@ if ( $inputFile !== '-' ) {
 
 foreach ( $tokens as $t ) {
 	if ( $fp_byte ) {
-		fwrite( $fp_byte, json_encode( $t ) . "\n" );
-	}
-	$offsets = [];
-	if ( isset( $t->dataAttribs['tsr'] ) ) {
-		$offsets[] = &$t->dataAttribs['tsr'][0];
-		$offsets[] = &$t->dataAttribs['tsr'][1];
+		fwrite( $fp_byte, PHPUtils::jsonEncode( $t ) . "\n" );
 	}
 }
-
-PHPUtils::convertOffsets( $input, 'byte', 'ucs2', $offsets );
+TokenUtils::convertTokenOffsets( $input, 'byte', 'ucs2', $tokens );
 
 if ( $inputFile === '-' ) {
 	$fp_ucs = STDOUT;
@@ -79,5 +74,5 @@ if ( $inputFile === '-' ) {
 }
 
 foreach ( $tokens as $t ) {
-	fwrite( $fp_ucs, json_encode( $t ) . "\n" );
+	fwrite( $fp_ucs, PHPUtils::jsonEncode( $t ) . "\n" );
 }

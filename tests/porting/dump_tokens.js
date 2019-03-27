@@ -3,6 +3,7 @@
 const fs = require('fs');
 const PegTokenizer = require('../../lib/wt2html/tokenizer.js');
 const getStream = require('get-stream');
+const { JSUtils } = require('../../lib/utils/jsutils');
 
 function parse(input) {
 	function nop() {}
@@ -55,9 +56,9 @@ function parse(input) {
 	};
 	const tokenizer = new PegTokenizer.PegTokenizer(env);
 	tokenizer.initTokenizer();
-	const tokens = [];
+	let tokens = [];
 	tokenizer.tokenizeSync(input, {
-		cb: t => tokens.push(t),
+		cb: (t) => { tokens = JSUtils.pushArray(tokens, t); },
 		pegTokenizer: tokenizer,
 		pipelineOffset: 0,
 		env: env,

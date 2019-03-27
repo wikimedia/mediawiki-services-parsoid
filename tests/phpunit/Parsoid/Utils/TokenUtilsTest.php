@@ -2,12 +2,12 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
 
-class PHPUtilsTest extends \PHPUnit\Framework\TestCase {
+class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers PHPUtils::convertOffsets()
+	 * @covers TokenUtils::convertOffsets()
 	 * @dataProvider provideConvertOffsets
 	 */
 	public function testConvertOffsets( $str, $from, $to, $input, $expect ) {
@@ -17,7 +17,7 @@ class PHPUtilsTest extends \PHPUnit\Framework\TestCase {
 		}
 		unset( $v );
 
-		PHPUtils::convertOffsets( $str, $from, $to, $offsets );
+		TokenUtils::convertOffsets( $str, $from, $to, $offsets );
 		$this->assertSame( $expect, $offsets, "$from → $to" );
 	}
 
