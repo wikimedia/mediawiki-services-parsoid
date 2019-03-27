@@ -11,6 +11,8 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\WTUtils;
 
+use Wikimedia\Assert\Assert;
+
 use DOMElement;
 use DOMNode;
 
@@ -137,6 +139,7 @@ class WrapSections {
 
 			// Track entry into templated output
 			if ( !$state['inTemplate'] && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				$about = $node->getAttribute( 'about' ) ?? '';
 				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 				$state['inTemplate'] = true;
@@ -253,6 +256,7 @@ class WrapSections {
 			if ( !DOMUtils::isElt( $c ) ) {
 				$offset += mb_strlen( $c->textContent );
 			} else {
+				'@phan-var \DOMElement $c'; // @var \DOMElement $c
 				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
@@ -352,6 +356,10 @@ class WrapSections {
 				for ( $n = $newS1; $n !== $newS2->nextSibling; $n = $n->nextSibling ) {
 					$n->setAttribute( 'about', $newAbout );
 				}
+
+				// $newS2 is $s2, or its ancestor
+				Assert::invariant( DOMUtils::isElt( $s2 ), "DOMElement expected." );
+				'@phan-var \DOMElement $newS2'; // @var \DOMElement $newS2
 
 				// Update transclusion info
 				$dsr1 = $this->getDSR( $tplInfo, $newS1, true );  // Traverses non-tpl content => will succeed

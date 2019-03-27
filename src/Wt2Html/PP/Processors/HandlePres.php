@@ -34,8 +34,9 @@ class HandlePres {
 			$last = ( $c->nextSibling === null );
 			if ( DOMUtils::isText( $c ) ) {
 				$c->nodeValue = $this->fixedIndentPreText( $c->nodeValue, $isLastChild && $last );
-			} else {
+			} elseif ( DOMUtils::isElt( $c ) ) {
 				// recurse
+				'@phan-var \DOMElement $c'; // @var \DOMElement $c
 				$this->reinsertLeadingSpace( $c, $isLastChild && $last );
 			}
 		}
@@ -51,15 +52,17 @@ class HandlePres {
 		for ( $n = $elt->firstChild; $n; $n = $nextChild ) {
 			$processed = false;
 			$nextChild = $n->nextSibling; // store this before n is possibly deleted
-			if ( !$indentPresHandled && DOMUtils::isElt( $n )
-				&& TokenUtils::tagOpensBlockScope( $n->nodeName )
-				&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
-					|| WTUtils::isLiteralHTMLNode( $n ) )
-			) {
-				// This is a special case in the legacy parser for $inBlockquote
-				$blocklevel = ( $n->nodeName === 'blockquote' );
-				$this->deleteIndentPreFromDOM( $n, $blocklevel );
-				$processed = true;
+			if ( !$indentPresHandled && DOMUtils::isElt( $n ) ) {
+				'@phan-var \DOMElement $n'; // @var \DOMElement $n
+				if ( TokenUtils::tagOpensBlockScope( $n->nodeName )
+					&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
+						|| WTUtils::isLiteralHTMLNode( $n ) )
+				) {
+					// This is a special case in the legacy parser for $inBlockquote
+					$blocklevel = ( $n->nodeName === 'blockquote' );
+					$this->deleteIndentPreFromDOM( $n, $blocklevel );
+					$processed = true;
+				}
 			}
 			$this->findAndHandlePres( $n, $indentPresHandled || $processed );
 		}
@@ -105,6 +108,7 @@ class HandlePres {
 					} elseif ( DOMUtils::isElt( $cChild ) ) {
 						// recursively process all text nodes to make
 						// sure every new line gets a space char added back.
+						'@phan-var \DOMElement $cChild'; // @var \DOMElement $cChild
 						$this->reinsertLeadingSpace( $cChild, $next === null );
 					}
 					$f->appendChild( $cChild );
