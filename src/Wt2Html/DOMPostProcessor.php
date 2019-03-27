@@ -44,18 +44,17 @@ $AddMediaInfo = $requireProcessor( 'AddMediaInfo' );
 $PHPDOMTransform = null;
 
 // handlers
-$requireHandlers = function ( $file ) {
-	return require( './pp/handlers/' . $file . '.js' );
+$requireHandlers = function ( $h ) {
+	return require( './pp/handlers/' . $h . '.js' )[ $h ];
 };
-
-$CleanUp = $requireHandlers( 'cleanup' );
-$headings = $requireHandlers( 'headings' );
-$unpackDOMFragments = $requireHandlers( 'unpackDOMFragments' )->unpackDOMFragments;
-$TableFixups = $requireHandlers( 'tableFixups' )::TableFixups;
-$handleLinkNeighbours = $requireHandlers( 'handleLinkNeighbours' )->handleLinkNeighbours;
-$liFixups = $requireHandlers( 'liFixups' );
-$dedupeStyles = $requireHandlers( 'deduplicateStyles' );
-$prepareDOM = $requireHandlers( 'prepareDOM' );
+$CleanUp = $requireHandlers( 'CleanUp' );
+$DedupeStyles = $requireHandlers( 'DedupeStyles' );
+$HandleLinkNeighbours = $requireHandlers( 'HandleLinkNeighbours' );
+$Headings = $requireHandlers( 'Headings' );
+$LiFixups = $requireHandlers( 'LiFixups' );
+$PrepareDOM = $requireHandlers( 'PrepareDOM' );
+$TableFixups = $requireHandlers( 'TableFixups' );
+$UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
 
 // map from mediawiki metadata names to RDFa property names
 $metadataMap = [
@@ -116,7 +115,7 @@ function appendToHead( $document, $tagName, $attrs ) {
  */
 function DOMPostProcessor( $env, $options ) {
 	global $DOMTraverser;
-	global $prepareDOM;
+	global $PrepareDOM;
 	global $MarkFosteredContent;
 	global $ProcessTreeBuilderFixups;
 	global $PWrap;
@@ -125,13 +124,13 @@ function DOMPostProcessor( $env, $options ) {
 	global $MigrateTrailingNLs;
 	global $ComputeDSR;
 	global $WrapTemplates;
-	global $handleLinkNeighbours;
-	global $unpackDOMFragments;
-	global $liFixups;
+	global $HandleLinkNeighbours;
+	global $UnpackDOMFragments;
+	global $LiFixups;
 	global $TableFixups;
-	global $dedupeStyles;
+	global $DedupeStyles;
 	global $AddMediaInfo;
-	global $headings;
+	global $Headings;
 	global $WrapSections;
 	global $LanguageConverter;
 	global $Linter;
@@ -183,7 +182,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	// DOM traverser that runs before the in-order DOM handlers.
 	$dataParsoidLoader = new DOMTraverser( $env );
-	$dataParsoidLoader->addHandler( null, function ( ...$args ) use ( &$prepareDOM ) {return  $prepareDOM->prepareDOM( $this->seenDataIds, ...$args ); } );
+	$dataParsoidLoader->addHandler( null, function ( ...$args ) use ( &$PrepareDOM ) {return  PrepareDOM::prepareDOM( $this->seenDataIds, ...$args ); } );
 
 	// Common post processing
 	$addPP( 'dpLoader', 'dpload',
@@ -212,8 +211,8 @@ function DOMPostProcessor( $env, $options ) {
 	// FIXME: Picked a terse 'v' varname instead of trying to find
 	// a suitable name that addresses both functions above.
 	$v = new DOMTraverser( $env );
-	$v->addHandler( 'a', $handleLinkNeighbours );
-	$v->addHandler( null, $unpackDOMFragments );
+	$v->addHandler( 'a', HandleLinkNeighbours::handleLinkNeighbours );
+	$v->addHandler( null, UnpackDOMFragments::unpackDOMFragments );
 	$addPP( 'linkNbrs+unpackDOMFragments', 'dom-unpack',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$v ) {return  $v->traverse( $node, $env, $opts, $atTopLevel ); }
 	);
@@ -283,10 +282,10 @@ function DOMPostProcessor( $env, $options ) {
 
 	$fixupsVisitor = new DOMTraverser( $env );
 	// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
-	$fixupsVisitor->addHandler( 'li', $liFixups->handleLIHack );
-	$fixupsVisitor->addHandler( 'li', $liFixups->migrateTrailingCategories );
-	$fixupsVisitor->addHandler( 'dt', $liFixups->migrateTrailingCategories );
-	$fixupsVisitor->addHandler( 'dd', $liFixups->migrateTrailingCategories );
+	$fixupsVisitor->addHandler( 'li', LiFixups::handleLIHack );
+	$fixupsVisitor->addHandler( 'li', LiFixups::migrateTrailingCategories );
+	$fixupsVisitor->addHandler( 'dt', LiFixups::migrateTrailingCategories );
+	$fixupsVisitor->addHandler( 'dd', LiFixups::migrateTrailingCategories );
 	// 2. Fix up issues from templated table cells and table cell attributes
 	$tableFixer = new TableFixups( $env );
 	$fixupsVisitor->addHandler( 'td', function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->stripDoubleTDs( $node, $env ); } );
@@ -294,7 +293,7 @@ function DOMPostProcessor( $env, $options ) {
 	$fixupsVisitor->addHandler( 'th', function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); } );
 	// 3. Deduplicate template styles
 	//   (should run after dom-fragment expansion + after extension post-processors)
-	$fixupsVisitor->addHandler( 'style', $dedupeStyles->dedupe );
+	$fixupsVisitor->addHandler( 'style', DedupeStyles::dedupe );
 	$addPP( '(li+table)Fixups', 'fixups',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$fixupsVisitor ) {return  $fixupsVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
 		true
@@ -311,7 +310,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	// Benefits from running after determining which media are redlinks
 	$headingsVisitor = new DOMTraverser( $env );
-	$headingsVisitor->addHandler( null, $headings->genAnchors );
+	$headingsVisitor->addHandler( null, Headings::genAnchors );
 	$addPP( 'heading gen anchor', 'headings',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingsVisitor ) {return  $headingsVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
 		true
@@ -322,7 +321,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	// Make heading IDs unique
 	$headingVisitor = new DOMTraverser( $env );
-	$headingVisitor->addHandler( null, function ( $node, $env ) use ( &$env, &$headings ) {return  $headings->dedupeHeadingIds( $this->seenIds, $node, $env ); } );
+	$headingVisitor->addHandler( null, function ( $node, $env ) use ( &$env, &$Headings ) {return  Headings::dedupeHeadingIds( $this->seenIds, $node, $env ); } );
 	$addPP( 'heading id uniqueness', 'heading-ids',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingVisitor ) {return  $headingVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
 		true
