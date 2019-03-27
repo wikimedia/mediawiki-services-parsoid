@@ -47,6 +47,12 @@ yargs.options({
 		'boolean': true,
 		'default': false,
 	},
+
+	'trace': {
+		description: 'Generate code that logs rule transitions to stdout',
+		'boolean': true,
+		'default': false,
+	},
 });
 
 yargs.help();
@@ -62,7 +68,10 @@ function getOutputStream(opts) {
 function generateSource(opts) {
 	var file = getOutputStream(opts);
 	var tokenizer = new PegTokenizer();
-	var pegOpts = { php: opts.php };
+	var pegOpts = {
+		php: opts.php,
+		trace: opts.trace
+	};
 	var source = tokenizer.compileTokenizer(tokenizer.parseTokenizer(pegOpts), pegOpts);
 	file.write(source, 'utf8');
 }
