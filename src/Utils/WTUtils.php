@@ -115,7 +115,7 @@ class WTUtils {
 	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesURLLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
+	public static function usesURLLinkSyntax( DOMElement $node, StdClass $dp = null ): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -137,7 +137,7 @@ class WTUtils {
 	 * @param StdClass|null $dp
 	 * @return bool
 	 */
-	public static function usesMagicLinkSyntax( DOMElement $node, ?StdClass $dp ): bool {
+	public static function usesMagicLinkSyntax( DOMElement $node, StdClass $dp = null ): bool {
 		if ( !$dp ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
