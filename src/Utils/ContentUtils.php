@@ -55,7 +55,7 @@ class ContentUtils {
 		if ( $node === null ) {
 			$node = $env->createDocument( $html )->body;
 		} else {
-			Assert::invariant( $node instanceof DOMElement );
+			DOMUtils::assertElt( $node );
 			DOMCompat::setInnerHTML( $node, $html );
 		}
 

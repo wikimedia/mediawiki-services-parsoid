@@ -36,7 +36,7 @@ class HandlePres {
 				$c->nodeValue = $this->fixedIndentPreText( $c->nodeValue, $isLastChild && $last );
 			} elseif ( DOMUtils::isElt( $c ) ) {
 				// recurse
-				'@phan-var \DOMElement $c'; // @var \DOMElement $c
+				DOMUtils::assertElt( $c );
 				$this->reinsertLeadingSpace( $c, $isLastChild && $last );
 			}
 		}
@@ -53,7 +53,7 @@ class HandlePres {
 			$processed = false;
 			$nextChild = $n->nextSibling; // store this before n is possibly deleted
 			if ( !$indentPresHandled && DOMUtils::isElt( $n ) ) {
-				'@phan-var \DOMElement $n'; // @var \DOMElement $n
+				DOMUtils::assertElt( $n );
 				if ( TokenUtils::tagOpensBlockScope( $n->nodeName )
 					&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
 						|| WTUtils::isLiteralHTMLNode( $n ) )
@@ -108,7 +108,7 @@ class HandlePres {
 					} elseif ( DOMUtils::isElt( $cChild ) ) {
 						// recursively process all text nodes to make
 						// sure every new line gets a space char added back.
-						'@phan-var \DOMElement $cChild'; // @var \DOMElement $cChild
+						DOMUtils::assertElt( $cChild );
 						$this->reinsertLeadingSpace( $cChild, $next === null );
 					}
 					$f->appendChild( $cChild );

@@ -8,8 +8,6 @@ use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 
-use Wikimedia\Assert\Assert;
-
 use \DOMNode;
 use \DOMElement;
 
@@ -129,8 +127,7 @@ class PWrap {
 				[ 'pwrap' => !DOMUtils::isBlockNode( $n ) && !$this->hasBlockTag( $n ), 'node' => $n ]
 			];
 		} else {
-			Assert::invariant( DOMUtils::isElt( $n ), "DOMElement expected." );
-			'@phan-var \DOMElement $n'; // @var \DOMElement $n
+			DOMUtils::assertElt( $n );
 			// splittable inline tag
 			// split for each child and merge runs
 			$children = $n->childNodes;
@@ -229,7 +226,7 @@ class PWrap {
 			if ( $c->nodeName === $tagName ) {
 				$this->pWrapDOM( $c );
 			} elseif ( DOMUtils::isElt( $c ) ) {
-				'@phan-var \DOMElement $c'; // @var \DOMElement $c
+				DOMUtils::assertElt( $c );
 				$this->pWrapInsideTag( $c, $tagName );
 			}
 			$c = $next;

@@ -115,7 +115,7 @@ class XMLSerializer {
 					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
 				} elseif ( DOMUtils::isElt( $child ) && !in_array( $child->nodeName, $allowedTags ) ) {
 					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
-					'@phan-var \DOMElement $child'; // @var \DOMElement $child
+					DOMUtils::assertElt( $child );
 					$attrs = $child->attributes;
 					$len = $attrs->length;
 					$as = [];
@@ -132,7 +132,7 @@ class XMLSerializer {
 		}
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				'@phan-var \DOMElement $node'; // @var \DOMElement $node
+				DOMUtils::assertElt( $node );
 				$child = $node->firstChild;
 				$attrs = $node->attributes;
 				// DOMNamedNodeMap did not implement Countable until PHP 7.2
@@ -264,7 +264,7 @@ class XMLSerializer {
 				$out['offsets'][$out['uid']]['html'][1] += mb_strlen( $bit, 'UTF-8' );
 			}
 		} else {
-			'@phan-var \DOMElement $node'; // @var \DOMElement $node
+			DOMUtils::assertElt( $node );
 			$newUid = $node->hasAttribute( 'id' ) ? $node->getAttribute( 'id' ) : null;
 			// Encapsulated siblings don't have generated ids (but may have an id),
 			// so associate them with preceding content.

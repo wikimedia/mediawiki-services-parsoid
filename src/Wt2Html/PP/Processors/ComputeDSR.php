@@ -101,7 +101,7 @@ class ComputeDSR {
 		 * 3. Other scenarios .. to be added
 		 */
 		if ( $node->nodeName === 'a' &&
-			 $node instanceof DOMElement /* for phan */ && (
+			 DOMUtils::assertElt( $node ) && (
 				WTUtils::usesURLLinkSyntax( $node, null ) ||
 				WTUtils::usesMagicLinkSyntax( $node, null )
 			)
@@ -232,11 +232,11 @@ class ComputeDSR {
 				if ( $stWidth === null ) {
 					// we didn't have a tsr to tell us how wide this tag was.
 					if ( $nodeName === 'a' ) {
-						'@phan-var DOMElement $node'; // @var DOMElement $node
+						DOMUtils::assertElt( $node );
 						$wtTagWidth = $this->computeATagWidth( $node, $dp );
 						$stWidth = $wtTagWidth ? $wtTagWidth[0] : null;
 					} elseif ( $nodeName === 'li' || $nodeName === 'dd' ) {
-						'@phan-var DOMElement $node'; // @var DOMElement $node
+						DOMUtils::assertElt( $node );
 						$stWidth = $this->computeListEltWidth( $node );
 					} elseif ( $wtTagWidth ) {
 						$stWidth = $wtTagWidth[0];
@@ -325,7 +325,7 @@ class ComputeDSR {
 			if ( !$rtTestMode ) {
 				$next = $child->nextSibling;
 				if ( $next && DOMUtils::isElt( $next ) ) {
-					'@phan-var DOMElement $next'; // @var DOMElement $next
+					DOMUtils::assertElt( $next );
 					$ndp = DOMDataUtils::getDataParsoid( $next );
 					if ( isset( $ndp->src ) &&
 						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#', $next->getAttribute( "typeof" ) )
@@ -363,7 +363,7 @@ class ComputeDSR {
 					( DOMUtils::isElt( $child ) ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
 					( DOMUtils::isElt( $child ) ?
 					( $child->nodeName === 'meta' &&
-					  $child instanceof DOMElement /* for phan */ ?
+					  DOMUtils::assertElt( $child ) ?
 					  DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
 						PHPUtils::jsonEncode( $child->nodeValue )
 					) . " with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
@@ -381,7 +381,7 @@ class ComputeDSR {
 					$cs = $ce - WTUtils::decodedCommentLength( $child );
 				}
 			} elseif ( $cType === XML_ELEMENT_NODE ) {
-				'@phan-var DOMElement $child'; // @var DOMElement $child
+				DOMUtils::assertElt( $child );
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
@@ -426,7 +426,7 @@ class ComputeDSR {
 							// Update table-end syntax using info from the meta tag
 							$prev = $child->previousSibling;
 							if ( $prev && $prev->nodeName === "table" ) {
-								'@phan-var DOMElement $prev'; // @var DOMElement $prev
+								DOMUtils::assertElt( $prev );
 								$prevDP = DOMDataUtils::getDataParsoid( $prev );
 								if ( !WTUtils::hasLiteralHTMLMarker( $prevDP ) ) {
 									if ( isset( $dp->endTagSrc ) ) {
@@ -539,7 +539,7 @@ class ComputeDSR {
 						// nested subtree that could account for the DSR span.
 						$newDsr = [ $ccs, $cce ];
 					} elseif ( $child->nodeName === 'a'
-						&& $child instanceof DOMElement // redundant but helps phan
+						&& DOMUtils::assertElt( $child )
 						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
 						&& ( !isset( $dp->stx ) || $dp->stx !== "piped" ) ) {
 						/* -------------------------------------------------------------
@@ -634,7 +634,7 @@ class ComputeDSR {
 							'@phan-var \DOMComment $sibling'; // @var \DOMComment $sibling
 							$newCE += WTUtils::decodedCommentLength( $sibling );
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
-							'@phan-var DOMElement $sibling'; // @var DOMElement $sibling
+							DOMUtils::assertElt( $sibling );
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
 
 							if ( !isset( $siblingDP->dsr ) ) {

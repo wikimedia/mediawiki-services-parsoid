@@ -38,7 +38,7 @@ class WTUtils {
 	public static function isLiteralHTMLNode( ?DOMNode $node ): bool {
 		return ( $node &&
 			DOMUtils::isElt( $node ) &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
 	}
 
@@ -219,7 +219,7 @@ class WTUtils {
 			$prev = DOMUtils::previousNonDeletedSibling( $node );
 		} while (
 			$prev && DOMUtils::isElt( $prev ) &&
-			$prev instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $prev ) &&
 			$prev->getAttribute( 'about' ) === $about
 		);
 		return self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
@@ -241,7 +241,7 @@ class WTUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
-		'@phan-var DOMElement $node'; // @var DOMElement $node
+		DOMUtils::assertElt( $node );
 
 		// For template/extension content, newness should be
 		// checked on the encapsulation wrapper $node.
@@ -317,7 +317,7 @@ class WTUtils {
 	public static function hasParsoidAboutId( DOMNode $node ): bool {
 		if (
 			DOMUtils::isElt( $node ) &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			$node->hasAttribute( 'about' )
 		) {
 			$about = $node->getAttribute( 'about' );
@@ -337,7 +337,7 @@ class WTUtils {
 	 */
 	public static function isRedirectLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
 	}
 
@@ -349,7 +349,7 @@ class WTUtils {
 	 */
 	public static function isCategoryLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
 	}
 
@@ -361,7 +361,7 @@ class WTUtils {
 	 */
 	public static function isSolTransparentLink( DOMNode $node ): bool {
 		return $node->nodeName === 'link' &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
 	}
 
@@ -421,13 +421,13 @@ class WTUtils {
 		//
 		$typeOf = (
 			DOMUtils::isElt( $node ) &&
-			$node instanceof \DOMElement /* for phan */
+			DOMUtils::assertElt( $node )
 		) ?	$node->getAttribute( 'typeof' ) : '';
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
 				$node->nodeName === 'meta' &&
-				$node instanceof \DOMElement /* for phan */ &&
+				DOMUtils::assertElt( $node ) &&
 				(
 					// (Start|End)Tag metas clone data-parsoid from the tokens
 					// they're shadowing, which trips up on the stx check.
@@ -487,7 +487,7 @@ class WTUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
-		'@phan-var DOMElement $node'; // @var DOMElement $node
+		DOMUtils::assertElt( $node );
 		return self::findFirstEncapsulationWrapperNode( $node ) !== null;
 	}
 
@@ -499,7 +499,7 @@ class WTUtils {
 	 */
 	public static function isDOMFragmentWrapper( DOMNode $node ): bool {
 		return DOMUtils::isElt( $node ) &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
 	}
 
@@ -522,7 +522,7 @@ class WTUtils {
 	 */
 	public static function isParsoidSectionTag( DOMNode $node ): bool {
 		return $node->nodeName === 'section' &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			$node->hasAttribute( 'data-mw-section-id' );
 	}
 
@@ -588,7 +588,7 @@ class WTUtils {
 		$node = $node->nextSibling;
 		while ( $node && (
 			DOMUtils::isElt( $node ) &&
-			$node instanceof \DOMElement /* for phan */ &&
+			DOMUtils::assertElt( $node ) &&
 			$node->getAttribute( 'about' ) === $about ||
 				DOMUtils::isFosterablePosition( $node ) && !DOMUtils::isElt( $node ) && DOMUtils::isIEW( $node )
 		) ) {

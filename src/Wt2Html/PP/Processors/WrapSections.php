@@ -11,8 +11,6 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\WTUtils;
 
-use Wikimedia\Assert\Assert;
-
 use DOMElement;
 use DOMNode;
 
@@ -139,7 +137,7 @@ class WrapSections {
 
 			// Track entry into templated output
 			if ( !$state['inTemplate'] && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-				'@phan-var \DOMElement $node'; // @var \DOMElement $node
+				DOMUtils::assertElt( $node );
 				$about = $node->getAttribute( 'about' ) ?? '';
 				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 				$state['inTemplate'] = true;
@@ -151,6 +149,7 @@ class WrapSections {
 			}
 
 			if ( preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+				DOMUtils::assertElt( $node ); // headings are elements
 				$level = (int)$node->nodeName[1];
 
 				// HTML <h*> tags don't get section numbers!
@@ -171,6 +170,7 @@ class WrapSections {
 					$addedNode = true;
 				}
 			} elseif ( DOMUtils::isElt( $node ) ) {
+				DOMUtils::assertElt( $node );
 				// If we find a higher level nested section,
 				// (a) Make current section non-editable
 				// (b) There are 2 $options here.
@@ -256,7 +256,7 @@ class WrapSections {
 			if ( !DOMUtils::isElt( $c ) ) {
 				$offset += mb_strlen( $c->textContent );
 			} else {
-				'@phan-var \DOMElement $c'; // @var \DOMElement $c
+				DOMUtils::assertElt( $c );
 				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
@@ -358,8 +358,8 @@ class WrapSections {
 				}
 
 				// $newS2 is $s2, or its ancestor
-				Assert::invariant( DOMUtils::isElt( $s2 ), "DOMElement expected." );
-				'@phan-var \DOMElement $newS2'; // @var \DOMElement $newS2
+				DOMUtils::assertElt( $s2 );
+				DOMUtils::assertElt( $newS2 );
 
 				// Update transclusion info
 				$dsr1 = $this->getDSR( $tplInfo, $newS1, true );  // Traverses non-tpl content => will succeed

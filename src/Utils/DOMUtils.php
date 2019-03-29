@@ -112,6 +112,21 @@ class DOMUtils {
 		return $node && $node->nodeType === XML_ELEMENT_NODE;
 	}
 
+	// phpcs doesn't like @phan-assert...
+	// phpcs:disable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
+	/**
+	 * Assert that this is a DOM element node.
+	 * This is primarily to help phan analyze variable types.
+	 * @phan-assert \DOMElement $node
+	 * @param DOMNode|null $node
+	 * @return bool Always returns true
+	 */
+	public static function assertElt( ?DOMNode $node ): bool {
+		Assert::invariant( self::isElt( $node ), "Expected an element" );
+		return true;
+	}
+	// phpcs:enable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
+
 	/**
 	 * Check whether this is a DOM text node.
 	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
