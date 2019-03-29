@@ -37,4 +37,7 @@ class MockEnv extends Env {
 
 	public function bumpCount( string $resource, int $n = 1 ): void {
 	}
+
+	public function bumpParserResourceUse( string $resource, int $count = 1 ): void {
+	}
 }
