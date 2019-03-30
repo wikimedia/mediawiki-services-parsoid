@@ -11953,9 +11953,11 @@ Template:Includes2
 <onlyinclude> being included
 !! wikitext
 {{Includes2}}
-!! html
+!! html/php+tidy
 <p>Foo
 </p>
+!! html/parsoid
+<p><meta typeof="mw:Transclusion mw:Includes/OnlyInclude" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"Includes2","href":"./Template:Includes2"},"params":{},"i":0}}]}'/><span about="#mwt1">Foo</span><meta typeof="mw:Includes/OnlyInclude/End" about="#mwt1"/></p>
 !! end
 
 
@@ -11969,9 +11971,11 @@ Template:Includes3
 <onlyinclude> and <includeonly> being included
 !! wikitext
 {{Includes3}}
-!! html
+!! html/php+tidy
 <p>Foo
 </p>
+!! html/parsoid
+<p><meta typeof="mw:Transclusion mw:Includes/OnlyInclude" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"Includes3","href":"./Template:Includes3"},"params":{},"i":0}}]}'/><span about="#mwt1">Foo</span><meta typeof="mw:Includes/OnlyInclude/End" about="#mwt1"/></p>
 !! end
 
 # FIXME: Parsoid's markup for this is quite ugly.

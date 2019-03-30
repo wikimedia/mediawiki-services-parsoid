@@ -117,7 +117,7 @@ add("wt2html", "subst: does not work during normal parse", "<p about=\"#mwt1\" t
 add("wt2html", "message transform: magic variables", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,12,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SITENAME\",\"function\":\"sitename\"},\"params\":{},\"i\":0}}]}'>MediaWiki</p>");
 add("wt2html", "message transform: should not transform wiki markup", "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><i data-parsoid='{\"dsr\":[0,8,2,2]}'>test</i></p>");
 add("wt2html", "message transform: <noinclude> in transcluded template (T6926)", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,12,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Includes\",\"href\":\"./Template:Includes\"},\"params\":{},\"i\":0}}]}'>Foobar</p>");
-add("wt2html", "message transform: <onlyinclude> in transcluded template (T6926)", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Includes2\",\"href\":\"./Template:Includes2\"},\"params\":{},\"i\":0}}]}'>Foo<meta typeof=\"mw:Includes/OnlyInclude/End\"/></p>");
+add("wt2html", "message transform: <onlyinclude> in transcluded template (T6926)", "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><meta typeof=\"mw:Transclusion mw:Includes/OnlyInclude\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Includes2\",\"href\":\"./Template:Includes2\"},\"params\":{},\"i\":0}}]}'/><span about=\"#mwt1\">Foo</span><meta typeof=\"mw:Includes/OnlyInclude/End\" about=\"#mwt1\"/></p>");
 add("wt2html", "{{#special:}} page name, known", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,26,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</p>");
 add("wt2html", "{{#special:}} page name with subpage, known", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,32,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges/param\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</p>");
 add("wt2html", "{{#special:}} page name, unknown", "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,31,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:foobar nonexistent\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</p>");
@@ -711,8 +711,6 @@ add("html2wt", "T2041: Template parameters shown as broken links", "<nowiki>{{{p
 add("html2wt", "int keyword", "You have lots of money (not!).\n");
 add("html2wt", "int keyword - non-existing message", "⧼var⧽\n");
 add("html2wt", "<includeonly> and <noinclude> being included", "Foobar\n");
-add("html2wt", "<onlyinclude> being included", "Foo\n");
-add("html2wt", "<onlyinclude> and <includeonly> being included", "Foo\n");
 add("html2wt", "Un-closed <noinclude>", "");
 add("html2wt", "<onlyinclude> on a page", "Foobar\n");
 add("html2wt", "Un-closed <onlyinclude>", "");
