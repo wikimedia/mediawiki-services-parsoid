@@ -130,6 +130,8 @@ class Env {
 	 * @param DataBag|null $bag
 	 */
 	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ): void {
+		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$doc->bag = $bag ?? new DataBag();
 
 		// Prevent GC from collecting the PHP wrapper around the libxml doc

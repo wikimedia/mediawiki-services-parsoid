@@ -11,12 +11,25 @@ use DOMNode;
 use stdClass as StdClass;
 use Wikimedia\Assert\Assert;
 use Parsoid\Config\Env;
+use Parsoid\Utils\DataBag; // phpcs:ignore
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
  */
 class DOMDataUtils {
 	const DATA_OBJECT_ATTR_NAME = 'data-object-id';
+
+	/**
+	 * Return the dynamic "bag" property of a DOMDocument.
+	 * @param DOMDocument $doc
+	 * @return DataBag
+	 */
+	private static function getBag( DOMDocument $doc ): DataBag {
+		// This is a dynamic property; it is not declared.
+		// All references go through here so we can suppress phan's complaint.
+		// @phan-suppress-next-line PhanUndeclaredProperty
+		return $doc->bag;
+	}
 
 	/**
 	 * Does this node have any attributes?
@@ -39,8 +52,7 @@ class DOMDataUtils {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			self::setNodeData( $node, (object)[] );
 		}
-		/** @var $bag DataBag */
-		$bag = $node->ownerDocument->bag;
+		$bag = self::getBag( $node->ownerDocument );
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
 		if ( $docId !== '' ) {
 			$dataObject = $bag->getObject( (int)$docId );
@@ -48,6 +60,7 @@ class DOMDataUtils {
 			$dataObject = null; // Make phan happy
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
+		'@phan-var StdClass $dataObject'; // @var StdClass $dataObject
 		Assert::invariant( !isset( $dataObject->stored ), 'Trying to fetch node data without loading!' );
 		return $dataObject;
 	}
@@ -59,7 +72,7 @@ class DOMDataUtils {
 	 * @param StdClass $data data
 	 */
 	public static function setNodeData( DOMElement $node, StdClass $data ): void {
-		$docId = $node->ownerDocument->bag->stashObject( $data );
+		$docId = self::getBag( $node->ownerDocument )->stashObject( $data );
 		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
 	}
 
@@ -258,6 +271,7 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
+		DOMUtils::assertElt( $node );
 		if ( !$node->hasAttribute( 'typeof' ) ) {
 			return false;
 		}
@@ -316,7 +330,7 @@ class DOMDataUtils {
 	 * @return StdClass
 	 */
 	public static function getPageBundle( DOMDocument $doc ): StdClass {
-		return $doc->bag->getPageBundle();
+		return self::getBag( $doc )->getPageBundle();
 	}
 
 	/**
@@ -367,7 +381,7 @@ class DOMDataUtils {
 			'type' => 'application/x-mw-pagebundle'
 		] );
 		$script->appendChild( $doc->createTextNode( $pb ) );
-		$doc->head->appendChild( $script );
+		DOMCompat::getHead( $doc )->appendChild( $script );
 	}
 
 	/**
@@ -379,7 +393,7 @@ class DOMDataUtils {
 		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
 		if ( $dpScriptElt ) {
 			$dpScriptElt->parentNode->removeChild( $dpScriptElt );
-			$pb = PHPUtils::jsonDecode( $dpScriptElt->text, false );
+			$pb = PHPUtils::jsonDecode( $dpScriptElt->textContent, false );
 		}
 		return $pb;
 	}
@@ -439,10 +453,10 @@ class DOMDataUtils {
 	/**
 	 * Walk DOM from node downward calling storeDataAttribs
 	 *
-	 * @param DOMElement $node node
+	 * @param DOMNode $node node
 	 * @param array $options options
 	 */
-	public static function visitAndStoreDataAttribs( DOMElement $node, array $options = [] ): void {
+	public static function visitAndStoreDataAttribs( DOMNode $node, array $options = [] ): void {
 		DOMUtils::visitDOM( $node, [ self::class, 'storeDataAttribs' ], $options );
 	}
 
@@ -493,6 +507,7 @@ class DOMDataUtils {
 			}
 		}
 		// Strip invalid data-mw attributes
+		$semver = null; // PORT-FIXME see below
 		if ( self::validDataMw( $node ) ) {
 			if ( !empty( $options['storeInPageBundle'] ) && isset( $options['env'] ) &&
 				// The pagebundle didn't have data-mw before 999.x
