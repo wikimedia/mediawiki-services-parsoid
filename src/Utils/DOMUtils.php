@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Utils;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 
 use RemexHtml\DOM\DOMBuilder;
@@ -117,7 +118,7 @@ class DOMUtils {
 	/**
 	 * Assert that this is a DOM element node.
 	 * This is primarily to help phan analyze variable types.
-	 * @phan-assert \DOMElement $node
+	 * @phan-assert DOMElement $node
 	 * @param DOMNode|null $node
 	 * @return bool Always returns true
 	 */
@@ -345,7 +346,7 @@ class DOMUtils {
 	 *   no match.
 	 */
 	public static function matchTypeOf( DOMNode $n, string $typeRe ): ?string {
-		if ( !( self::isElt( $n ) && $n->hasAttribute( 'typeof' ) ) ) {
+		if ( !( $n instanceof DOMElement && $n->hasAttribute( 'typeof' ) ) ) {
 			return null;
 		}
 		foreach ( preg_split( '/\s+/', $n->getAttribute( 'typeof' ), -1, PREG_SPLIT_NO_EMPTY ) as $ty ) {
@@ -468,6 +469,7 @@ class DOMUtils {
 			return self::isMarkerMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
 			return $node->nodeName === 'meta' &&
+				self::assertElt( $node ) &&
 				preg_match( '#\bmw:DiffMarker/\w*\b#', $node->getAttribute( 'typeof' ) );
 		}
 	}
@@ -778,10 +780,10 @@ class DOMUtils {
 	/**
 	 * Returns a media element nested in `node`
 	 *
-	 * @param DOMNode $node
-	 * @return DOMNode|null
+	 * @param DOMElement $node
+	 * @return DOMElement|null
 	 */
-	public static function selectMediaElt( DOMNode $node ): ?DOMNode {
+	public static function selectMediaElt( DOMElement $node ): ?DOMElement {
 		return DOMCompat::querySelector( $node, 'img, video, audio' );
 	}
 
