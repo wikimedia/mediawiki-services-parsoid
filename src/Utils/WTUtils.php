@@ -37,8 +37,7 @@ class WTUtils {
 	 */
 	public static function isLiteralHTMLNode( ?DOMNode $node ): bool {
 		return ( $node &&
-			DOMUtils::isElt( $node ) &&
-			DOMUtils::assertElt( $node ) &&
+			$node instanceof DOMElement &&
 			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
 	}
 
@@ -218,8 +217,8 @@ class WTUtils {
 			$node = $prev;
 			$prev = DOMUtils::previousNonDeletedSibling( $node );
 		} while (
-			$prev && DOMUtils::isElt( $prev ) &&
-			DOMUtils::assertElt( $prev ) &&
+			$prev &&
+			$prev instanceof DOMElement &&
 			$prev->getAttribute( 'about' ) === $about
 		);
 		return self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
@@ -316,8 +315,7 @@ class WTUtils {
 	 */
 	public static function hasParsoidAboutId( DOMNode $node ): bool {
 		if (
-			DOMUtils::isElt( $node ) &&
-			DOMUtils::assertElt( $node ) &&
+			$node instanceof DOMElement &&
 			$node->hasAttribute( 'about' )
 		) {
 			$about = $node->getAttribute( 'about' );
@@ -419,10 +417,7 @@ class WTUtils {
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
 		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
 		//
-		$typeOf = (
-			DOMUtils::isElt( $node ) &&
-			DOMUtils::assertElt( $node )
-		) ?	$node->getAttribute( 'typeof' ) : '';
+		$typeOf = ( $node instanceof DOMElement ) ? $node->getAttribute( 'typeof' ) : '';
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
@@ -498,8 +493,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isDOMFragmentWrapper( DOMNode $node ): bool {
-		return DOMUtils::isElt( $node ) &&
-			DOMUtils::assertElt( $node ) &&
+		return $node instanceof DOMElement &&
 			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
 	}
 
@@ -587,8 +581,7 @@ class WTUtils {
 
 		$node = $node->nextSibling;
 		while ( $node && (
-			DOMUtils::isElt( $node ) &&
-			DOMUtils::assertElt( $node ) &&
+			$node instanceof DOMElement &&
 			$node->getAttribute( 'about' ) === $about ||
 				DOMUtils::isFosterablePosition( $node ) && !DOMUtils::isElt( $node ) && DOMUtils::isIEW( $node )
 		) ) {
