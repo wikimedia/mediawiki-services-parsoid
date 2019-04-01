@@ -65,7 +65,8 @@
 			"phpcbf"
 		],
 		"cover": "phpunit --coverage-html coverage",
-		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser"
+		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser",
+		"regen-php-tokenizer": "npm run regen-php-tokenizer"
 	},
 	"config": {
 		"optimize-autoloader": true
