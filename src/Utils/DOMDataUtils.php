@@ -420,6 +420,7 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
+		DOMUtils::assertElt( $node );
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, (object)[] );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', (object)[] );
@@ -454,6 +455,7 @@ class DOMDataUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
+		DOMUtils::assertElt( $node );
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
