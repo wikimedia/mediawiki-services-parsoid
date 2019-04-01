@@ -26,6 +26,7 @@ class PegTokenizer extends EventEmitter {
 	private $traceTime;
 	private $options;
 	private $offsets;
+	private $pipelineId;
 
 	/** @var Grammar */
 	private $grammar;
