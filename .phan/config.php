@@ -2,7 +2,7 @@
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['target_php_version'] = '7.2';
-$cfg['directory_list'] = [ 'src','tests', 'vendor' ];
+$cfg['directory_list'] = [ 'src','tests', 'vendor', '.phan/stubs' ];
 $cfg['exclude_file_regex'] = '@^vendor/jakub-onderka/php-parallel-lint@';
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
