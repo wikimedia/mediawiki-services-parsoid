@@ -266,8 +266,10 @@ class TokenUtils {
 							// src offsets used to set mw:TemplateParams
 							if ( $offset === null ) {
 								$a->srcOffsets = null;
-							} elseif ( $a->srcOffsets ) {
+							} elseif ( $a->srcOffsets !== null ) {
 								for ( $k = 0;  $k < count( $a->srcOffsets );  $k++ ) {
+									// phpcs:disable Generic.Files.LineLength.TooLong
+									// @phan-suppress-next-line PhanTypeArraySuspiciousNullable https://github.com/phan/phan/issues/805
 									$a->srcOffsets[$k] += $offset;
 								}
 							}
