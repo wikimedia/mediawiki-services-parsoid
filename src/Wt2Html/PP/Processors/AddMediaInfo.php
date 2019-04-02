@@ -800,6 +800,10 @@ class AddMediaInfo {
 
 		;
 	}
+
+	public function run( ...$args ) {
+		return AddMediaInfo::addMediaInfo( ...$args );
+	}
 }
 
 // This pattern is used elsewhere

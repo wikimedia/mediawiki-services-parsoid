@@ -7,6 +7,7 @@ namespace Parsoid;
 
 $ParserEnv = require './config/MWParserEnvironment.js'::MWParserEnvironment;
 $LanguageConverter = require './language/LanguageConverter'::LanguageConverter;
+$AddRedLinks = require './wt2html/pp/processors/AddRedLinks'::AddRedLinks;
 $ParsoidConfig = require './config/ParsoidConfig.js'::ParsoidConfig;
 $TemplateRequest = require './mw/ApiRequest.js'::TemplateRequest;
 $ContentUtils = require './utils/ContentUtils.js'::ContentUtils;
@@ -140,13 +141,13 @@ $_languageConversion = function ( $obj, $env, $html ) use ( &$LanguageConverter,
 	];
 };
 
-$_updateRedLinks = /* async */function ( $obj, $env, $html ) use ( &$ContentUtils, &$DOMUtils ) {
+$_updateRedLinks = /* async */function ( $obj, $env, $html ) use ( &$AddRedLinks, &$ContentUtils, &$DOMUtils ) {
 	$doc = $env->createDocument( $html );
 	// Note: this only works if the configured wiki has the ParsoidBatchAPI
 	// extension installed.
 	// Note: this only works if the configured wiki has the ParsoidBatchAPI
 	// extension installed.
-	/* await */ ContentUtils::addRedLinks( $env, $doc );
+	/* await */ AddRedLinks::addRedLinks( $env, $doc );
 	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 	// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 	return [

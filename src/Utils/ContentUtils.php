@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use DOMDocument;
 use DOMNode;
 use DOMElement;
 
@@ -215,97 +214,4 @@ class ContentUtils {
 		}
 	}
 
-	/**
-	 * PORT-FIXME: NOT YET PORTED
-	 *
-	 * Add red links to a document.
-	 *
-	 * @param object $env
-	 * @param DOMDocument $doc
-	 */
-	public static function addRedLinks( $env, $doc ) {
-		throw new \BadMethodCallException( 'NOT YET PORTED' );
-
-		/* -----------------------------------------------------------------------
-		$processPage = function ( $page ) use ( &$undefined ) {
-			return [
-				'missing' => $page->missing !== null,
-				'known' => $page->known !== null,
-				'redirect' => $page->redirect !== null,
-				'disambiguation' => $page->pageprops
-&&					$page->pageprops->disambiguation !== null
-			];
-		};
-
-		$wikiLinks = Array::from( $doc->body->querySelectorAll( 'a[rel~="mw:WikiLink"]' ) );
-
-		$titleSet = array_reduce( $wikiLinks, function ( $s, $a ) {
-				// Magic links, at least, don't have titles
-				if ( $a->hasAttribute( 'title' ) ) { $s->add( $a->getAttribute( 'title' ) );  }
-				return $s;
-			}, new Set()
-		);
-
-		$titles = Array::from( $titleSet->values() );
-		if ( count( $titles ) === 0 ) { return;  }
-
-		$titleMap = new Map();
-		(  Batcher::getPageProps( $env, $titles ) )->forEach( function ( $r )
-			use ( &$titleMap, &$processPage ) {
-				Object::keys( $r->batchResponse )->forEach( function ( $t )
-					use ( &$r, &$titleMap, &$processPage) {
-						$o = $r->batchResponse[ $t ];
-						$titleMap->set( $o->title, $processPage( $o ) );
-					}
-				);
-			}
-		);
-		$wikiLinks->forEach( function ( $a ) use ( &$titleMap, &$undefined, &$env ) {
-				if ( !$a->hasAttribute( 'title' ) ) { return;  }
-				$k = $a->getAttribute( 'title' );
-				$data = $titleMap->get( $k );
-				if ( $data === null ) {
-					$err = true;
-					// Unfortunately, normalization depends on db state for user
-					// namespace aliases, depending on gender choices.  Workaround
-					// it by trying them all.
-					$title = $env->makeTitleFromURLDecodedStr( $k, null, true );
-					if ( $title !== null ) {
-						$ns = $title->getNamespace();
-						if ( $ns->isUser() || $ns->isUserTalk() ) {
-							$key = ':' . preg_replace( '/_/', ' ', $title->_key );
-							$err = !( $env->conf->wiki->siteInfo->namespacealiases || [] )->
-							some( function ( $a ) use ( &$a, &$ns, &$titleMap, &$key ) {
-									if ( $a->id === $ns->_id && $titleMap->has( $a[ '*' ] + $key ) ) {
-										$data = $titleMap->get( $a[ '*' ] + $key );
-										return true;
-									}
-									return false;
-								}
-							);
-						}
-					}
-					if ( $err ) {
-						$env->log( 'warn', 'We should have data for the title: ' . $k );
-						return;
-					}
-				}
-				$a->removeAttribute( 'class' ); // Clear all
-				if ( $data->missing && !$data->known ) {
-					$a->classList->add( 'new' );
-				}
-				if ( $data->redirect ) {
-					$a->classList->add( 'mw-redirect' );
-				}
-				// Jforrester suggests that, "ideally this'd be a registry so that
-				// extensions could, er, extend this functionality – this is an
-				// API response/CSS class that is provided by the Disambigutation
-				// extension."
-				if ( $data->disambiguation ) {
-					$a->classList->add( 'mw-disambig' );
-				}
-			}
-		);
-		----------------------------------------------------------------------- */
-	}
 }
