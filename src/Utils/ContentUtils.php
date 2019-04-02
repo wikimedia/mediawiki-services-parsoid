@@ -8,6 +8,7 @@ use DOMNode;
 use DOMElement;
 
 use Parsoid\Config\Env;
+use Parsoid\Html2Wt\DiffUtils;
 use Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\Assert\Assert;
 
@@ -53,7 +54,7 @@ class ContentUtils {
 		$options = $options ?? [];
 		$node = $options['node'] ?? null;
 		if ( $node === null ) {
-			$node = $env->createDocument( $html )->body;
+			$node = DOMCompat::getBody( $env->createDocument( $html ) );
 		} else {
 			DOMUtils::assertElt( $node );
 			DOMCompat::setInnerHTML( $node, $html );
@@ -115,7 +116,7 @@ class ContentUtils {
 		$n = $node->firstChild;
 		while ( $n ) {
 			$next = $n->nextSibling;
-			if ( DOMUtils::isElt( $n ) ) {
+			if ( $n instanceof DOMElement ) {
 				// Recurse into subtree before stripping this
 				self::stripSectionTagsAndFallbackIds( $n );
 
@@ -138,6 +139,8 @@ class ContentUtils {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
+		DOMUtils::assertElt( $node );
+		DOMUtils::assertElt( $clone );
 
 		$d = DOMDataUtils::getNodeData( $node );
 		DOMDataUtils::setNodeData( $clone,  clone $d );
@@ -176,7 +179,7 @@ class ContentUtils {
 	): void {
 		$options = $options ?? [];
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
-			Assert::invariant( isset( $options['env'] ) );
+			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
 
 		// cloneNode doesn't clone data => walk DOM to clone it
@@ -208,7 +211,7 @@ class ContentUtils {
 		}
 
 		if ( empty( $options['quiet'] ) ) {
-			self::emit( [ str_repeat( '-', count( $title ) + 12 ) ], $options );
+			self::emit( [ str_repeat( '-', mb_strlen( $title ) + 12 ) ], $options );
 		}
 	}
 
