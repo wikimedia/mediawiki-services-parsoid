@@ -144,8 +144,9 @@ class Env {
 	 */
 	public function createDocument( string $html ): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html );
-		$doc->head = DOMCompat::getHead( $doc );
-		$doc->body = DOMCompat::getBody( $doc );
+		// Cache the head and body.
+		DOMCompat::getHead( $doc );
+		DOMCompat::getBody( $doc );
 		$this->referenceDataObject( $doc );
 		return $doc;
 	}

@@ -40,11 +40,19 @@ class DOMCompat {
 	 * @param DOMDocument $document
 	 * @return DOMElement|null
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-body
+	 * @suppress PhanUndeclaredProperty
 	 */
 	public static function getBody( DOMDocument $document ): ?DOMElement {
+		// Use an undeclared dynamic property as a cache.
+		// WARNING: this will not be updated if (for some reason) the
+		// document body changes.
+		if ( isset( $document->body ) ) {
+			return $document->body;
+		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var DOMElement $element */
 			if ( $element->nodeName === 'body' || $element->nodeName === 'frameset' ) {
+				$document->body = $element; // Caching!
 				return $element;
 			}
 		}
@@ -57,11 +65,19 @@ class DOMCompat {
 	 * @param DOMDocument $document
 	 * @return DOMElement|null
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-head
+	 * @suppress PhanUndeclaredProperty
 	 */
 	public static function getHead( DOMDocument $document ): ?DOMElement {
+		// Use an undeclared dynamic property as a cache.
+		// WARNING: this will not be updated if (for some reason) the
+		// document head changes.
+		if ( isset( $document->head ) ) {
+			return $document->head;
+		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var DOMElement $element */
 			if ( $element->nodeName === 'head' ) {
+				$document->head = $element; // Caching!
 				return $element;
 			}
 		}
