@@ -11,7 +11,6 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
-use Parsoid\DiffUtils;
 use \DOMNode;
 use \DOMElement;
 use \DOMDocument;

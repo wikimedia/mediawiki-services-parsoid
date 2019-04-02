@@ -2,14 +2,14 @@
 namespace spec\Parsoid\Utils;
 
 use Parsoid\Config\Env;
+use Parsoid\Html2Wt\DiffUtils;
 use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 use PhpSpec\Exception\Example\FailureException;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Subject;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\DiffUtils;
 
 class DOMUtilsSpec extends ObjectBehavior {
 

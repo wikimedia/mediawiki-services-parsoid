@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Html2Wt;
 
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
