@@ -55,12 +55,13 @@
 	},
 	"scripts": {
 		"test": [
+			"@ensure-tokenizer",
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
 			"phpunit",
 			"phpspec run -v --ansi",
-			"echo @phan"
+			"@phan"
 		],
 		"fix": [
 			"minus-x fix .",
@@ -68,7 +69,8 @@
 		],
 		"cover": "phpunit --coverage-html coverage",
 		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser",
-		"regen-php-tokenizer": "npm run regen-php-tokenizer"
+		"regen-php-tokenizer": "npm run regen-php-tokenizer",
+		"ensure-tokenizer": "if test ! -d node_modules/wikipeg ; then if which npm ; then npm install wikipeg ; else git clone https://gerrit.wikimedia.org/r/wikipeg node_modules/wikipeg ; fi ; fi"
 	},
 	"config": {
 		"optimize-autoloader": true
