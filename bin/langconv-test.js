@@ -223,7 +223,7 @@ const spiderDocument = function(env, document) {
  * deliberately differs.
  */
 const extractText = function(env, document) {
-	var dt = new DOMTraverser(env);
+	var dt = new DOMTraverser();
 	var sep = '';
 	var buf = '';
 	/* We normalize all whitespace in text nodes to a single space. We

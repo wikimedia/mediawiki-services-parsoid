@@ -9,10 +9,6 @@ use DOMNode;
  * Non-recursive post-order traversal of a DOM tree.
  */
 class DOMPostOrder {
-	// Porting note: the JS version's DOMPostOrder() function is replaced by the class method
-	// DOMPostOrder::traverse(). PHP functions cannot be namespaced or autoloaded with makes
-	// them annoying to work with.
-
 	/**
 	 * Non-recursive post-order traversal of a DOM tree.
 	 * @param DOMNode $root
@@ -42,5 +38,4 @@ class DOMPostOrder {
 			}
 		}
 	}
-
 }

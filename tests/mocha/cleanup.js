@@ -36,11 +36,7 @@ describe('Cleanup DOM pass', function() {
 		return parse(origWt).then(function(doc) {
 			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var table = doc.body.firstChild;
-			var env = {
-				log: function() {
-				}
-			};
-			var domVisitor = new DOMTraverser(env);
+			var domVisitor = new DOMTraverser();
 			var autoInsValidation = function(node) {
 				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.equal('undefined');
@@ -76,11 +72,7 @@ describe('Cleanup DOM pass', function() {
 		return parse(origWt).then(function(doc) {
 			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var fragment = doc.body.firstChild;
-			var env = {
-				log: function() {
-				}
-			};
-			var domVisitor = new DOMTraverser(env);
+			var domVisitor = new DOMTraverser();
 			var autoInsValidation = function(node) {
 				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.equal('undefined');
@@ -126,11 +118,7 @@ describe('Cleanup DOM pass', function() {
 		return parse(origWt).then(function(doc) {
 			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
 			var fragment = doc.body.firstChild;
-			var env = {
-				log: function() {
-				}
-			};
-			var domVisitor = new DOMTraverser(env);
+			var domVisitor = new DOMTraverser();
 			var autoInsValidation = function(node) {
 				var autoInsEnd = DOMDataUtils.getDataParsoid(node).autoInsertedEnd;
 				(typeof autoInsEnd).should.not.equal('undefined');

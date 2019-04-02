@@ -7,7 +7,6 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMTraverser;
 use StdClass;
 
@@ -18,7 +17,7 @@ class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 	 * @covers \Parsoid\Utils\DOMTraverser::addHandler
 	 * @covers \Parsoid\Utils\DOMTraverser::traverse
 	 */
-	public function testTraverse( $callback, $nodeName, $env, $skipCheckIfAttached, $expectedTrace ) {
+	public function testTraverse( $callback, $nodeName, $env, $expectedTrace ) {
 		$html = <<<'HTML'
 <html><body>
 	<div id="x1">
@@ -38,7 +37,7 @@ HTML;
 		$doc->loadHTML( $html );
 
 		$trace = [];
-		$traverser = new DOMTraverser( $env, $skipCheckIfAttached );
+		$traverser = new DOMTraverser();
 		$traverser->addHandler( $nodeName, $callback );
 		$traverser->addHandler( null, function (
 			DOMNode $node, Env $env, bool $atTopLevel, ?StdClass $tplInfo
@@ -54,6 +53,7 @@ HTML;
 
 	public function provideTraverse() {
 		$basicEnv = new MockEnv( [] );
+
 		$expectError = $this->getMockBuilder( MockEnv::class )
 			->setConstructorArgs( [ [] ] )
 			->setMethods( [ 'log' ] )
@@ -81,7 +81,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return true' => [
@@ -90,7 +89,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return first child' => [
@@ -102,7 +100,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
 			],
 			'return next sibling' => [
@@ -114,7 +111,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return null' => [
@@ -126,7 +122,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x2', 'x2_1' ],
 			],
 			'return another node' => [
@@ -140,7 +135,6 @@ HTML;
 				},
 				'nodeName' => null,
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'new', 'x2', 'x2_1' ],
 			],
 			'name filter' => [
@@ -152,32 +146,7 @@ HTML;
 				},
 				'nodeName' => 'div',
 				'env' => $basicEnv,
-				'skipCheckIfAttached' => true,
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
-			],
-			'no skipCheckIfAttached' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?StdClass $tplInfo ) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
-						DOMCompat::remove( $node );
-					}
-					return true;
-				},
-				'nodeName' => null,
-				'env' => $expectError,
-				'skipCheckIfAttached' => false,
-				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
-			],
-			'skipCheckIfAttached' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?StdClass $tplInfo ) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
-						DOMCompat::remove( $node );
-					}
-					return true;
-				},
-				'nodeName' => null,
-				'env' => $dontExpectError,
-				'skipCheckIfAttached' => true,
-				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
 			],
 		];
 	}
