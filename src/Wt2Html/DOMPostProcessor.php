@@ -181,7 +181,7 @@ function DOMPostProcessor( $env, $options ) {
 	};
 
 	// DOM traverser that runs before the in-order DOM handlers.
-	$dataParsoidLoader = new DOMTraverser( $env );
+	$dataParsoidLoader = new DOMTraverser();
 	$dataParsoidLoader->addHandler( null, function ( ...$args ) use ( &$PrepareDOM ) {return  PrepareDOM::prepareDOM( $this->seenDataIds, ...$args ); } );
 
 	// Common post processing
@@ -210,7 +210,7 @@ function DOMPostProcessor( $env, $options ) {
 	// 2. Unpack DOM fragments
 	// FIXME: Picked a terse 'v' varname instead of trying to find
 	// a suitable name that addresses both functions above.
-	$v = new DOMTraverser( $env );
+	$v = new DOMTraverser();
 	$v->addHandler( 'a', HandleLinkNeighbours::handleLinkNeighbours );
 	$v->addHandler( null, UnpackDOMFragments::unpackDOMFragments );
 	$addPP( 'linkNbrs+unpackDOMFragments', 'dom-unpack',
@@ -280,7 +280,7 @@ function DOMPostProcessor( $env, $options ) {
 		}
 	);
 
-	$fixupsVisitor = new DOMTraverser( $env );
+	$fixupsVisitor = new DOMTraverser();
 	// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
 	$fixupsVisitor->addHandler( 'li', LiFixups::handleLIHack );
 	$fixupsVisitor->addHandler( 'li', LiFixups::migrateTrailingCategories );
@@ -309,7 +309,7 @@ function DOMPostProcessor( $env, $options ) {
 	$addPP( 'AddMediaInfo', 'media', AddMediaInfo::addMediaInfo );
 
 	// Benefits from running after determining which media are redlinks
-	$headingsVisitor = new DOMTraverser( $env );
+	$headingsVisitor = new DOMTraverser();
 	$headingsVisitor->addHandler( null, Headings::genAnchors );
 	$addPP( 'heading gen anchor', 'headings',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingsVisitor ) {return  $headingsVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
@@ -320,7 +320,7 @@ function DOMPostProcessor( $env, $options ) {
 	$addPP( 'WrapSections', 'sections', function ( ...$args ) use ( &$WrapSections ) {return  ( new WrapSections() )->run( ...$args ); }, true );
 
 	// Make heading IDs unique
-	$headingVisitor = new DOMTraverser( $env );
+	$headingVisitor = new DOMTraverser();
 	$headingVisitor->addHandler( null, function ( $node, $env ) use ( &$env, &$Headings ) {return  Headings::dedupeHeadingIds( $this->seenIds, $node, $env ); } );
 	$addPP( 'heading id uniqueness', 'heading-ids',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$headingVisitor ) {return  $headingVisitor->traverse( $node, $env, $opts, $atTopLevel ); },
@@ -342,7 +342,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	// Strip marker metas -- removes left over marker metas (ex: metas
 	// nested in expanded tpl/extension output).
-	$markerMetasVisitor = new DOMTraverser( $env );
+	$markerMetasVisitor = new DOMTraverser();
 	$markerMetasVisitor->addHandler( 'meta', CleanUp::stripMarkerMetas );
 	$addPP( 'stripMarkerMetas', 'strip-metas',
 		function ( $node, $env, $opts, $atTopLevel ) use ( &$env, &$markerMetasVisitor ) {return  $markerMetasVisitor->traverse( $node, $env, $opts, $atTopLevel ); }
@@ -350,7 +350,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	$addPP( 'AddExtLinkClasses', 'linkclasses', function ( ...$args ) use ( &$AddExtLinkClasses ) {return  ( new AddExtLinkClasses() )->run( ...$args ); }, true );
 
-	$cleanupVisitor = new DOMTraverser( $env );
+	$cleanupVisitor = new DOMTraverser();
 	// Strip empty elements from template content
 	$cleanupVisitor->addHandler( null, CleanUp::handleEmptyElements );
 	// Save data.parsoid into data-parsoid html attribute.

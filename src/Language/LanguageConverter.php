@@ -167,13 +167,12 @@ function docFragToString( $docFrag, $force ) {
 
 class ConversionTraverser extends DOMTraverser {
 	/**
-	 * @param {MWParserEnvironment} env
 	 * @param {string} toLang
 	 * @param {LanguageGuesser} guesser
 	 * @param {ReplacementMachine} machine
 	 */
-	public function __construct( $env, $toLang, $guesser, $machine ) {
-		parent::__construct( $env );
+	public function __construct( $toLang, $guesser, $machine ) {
+		parent::__construct();
 		/** Target language for conversion. */
 		$this->toLang = $toLang;
 		/** Oracle to determine "original language" for round-tripping. */
@@ -190,19 +189,27 @@ class ConversionTraverser extends DOMTraverser {
 		// XXX: <cite> ought to probably be handled more generically
 		// as extension output, not special-cased as a HTML tag.
 		foreach ( [ 'code', 'script', 'pre', 'cite' ] as $el => $___ ) {
-			$this->addHandler( $el, $this->noConvertHandler, $this );
+			$this->addHandler( $el, function ( ...$args ) {return $this->noConvertHandler( ...$args );
+   } );
 		}
 		// Setting/saving the language context
-		$this->addHandler( null, $this->anyHandler, $this );
-		$this->addHandler( 'p', $this->langContextHandler, $this );
-		$this->addHandler( 'body', $this->langContextHandler, $this );
+		$this->addHandler( null, function ( ...$args ) {return $this->anyHandler( ...$args );
+  } );
+		$this->addHandler( 'p', function ( ...$args ) {return $this->langContextHandler( ...$args );
+  } );
+		$this->addHandler( 'body', function ( ...$args ) {return $this->langContextHandler( ...$args );
+  } );
 		// Converting #text, <a> nodes, and title/alt attributes
-		$this->addHandler( '#text', $this->textHandler, $this );
-		$this->addHandler( 'a', $this->aHandler, $this );
-		$this->addHandler( null, $this->attrHandler, $this );
+		$this->addHandler( '#text', function ( ...$args ) {return $this->textHandler( ...$args );
+  } );
+		$this->addHandler( 'a', function ( ...$args ) {return $this->aHandler( ...$args );
+  } );
+		$this->addHandler( null, function ( ...$args ) {return $this->attrHandler( ...$args );
+  } );
 		// LanguageConverter markup
 		foreach ( [ 'meta', 'div', 'span' ] as $el => $___ ) {
-			$this->addHandler( $el, $this->lcHandler, $this );
+			$this->addHandler( $el, function ( ...$args ) {return $this->lcHandler( ...$args );
+   } );
 		}
 	}
 	/** Target language for conversion. */
@@ -511,7 +518,7 @@ class LanguageConverter {
 				$langconv->getMachine(), $rootNode, $targetVariant
 			);
 		}
-		new ConversionTraverser( $env, $targetVariant, $guesser, $langconv->getMachine() )->
+		new ConversionTraverser( $targetVariant, $guesser, $langconv->getMachine() )->
 		traverse( $rootNode, $env, null, true );
 
 		if ( $metrics ) {

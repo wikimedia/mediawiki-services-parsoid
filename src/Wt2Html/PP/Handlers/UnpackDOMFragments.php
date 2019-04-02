@@ -49,7 +49,7 @@ class UnpackDOMFragments {
 
 		$resetDSR = false;
 		$currOffset = 0;
-		$dsrFixer = new DOMTraverser( $env, true );
+		$dsrFixer = new DOMTraverser();
 		$fixHandler = function ( $node ) use ( &$DOMUtils, &$DOMDataUtils ) {
 			if ( DOMUtils::isElt( $node ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
