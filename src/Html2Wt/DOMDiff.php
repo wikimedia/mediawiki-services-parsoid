@@ -102,13 +102,14 @@ class DOMDiff {
 		$this->domA = $nodeA->ownerDocument;
 		$this->domB = $nodeB->ownerDocument;
 
+		$this->debug( function () use( $nodeA, $nodeB ) {
+			return "ORIG:\n" .
+				DOMCompat::getOuterHTML( $nodeA ) .
+				"\nNEW :\n" .
+				DOMCompat::getOuterHTML( $nodeB );
+		} );
+
 		// The root nodes are equal, call recursive differ
-		$this->debug(
-			"ORIG:\n",
-			DOMCompat::getOuterHTML( $nodeA ),
-			"\nNEW :\n",
-			DOMCompat::getOuterHTML( $nodeB )
-		);
 		$foundChange = $this->doDOMDiff( $nodeA, $nodeB );
 		return [ 'isEmpty' => !$foundChange ];
 	}
