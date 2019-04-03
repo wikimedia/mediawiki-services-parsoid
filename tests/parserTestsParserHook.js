@@ -32,6 +32,15 @@ const staticTagPostProcessor = function(node, obj) {
 	}
 };
 
+class DOMPostProcessor {
+	run(body, env, options, atTopLevel) {
+		if (atTopLevel) {
+			const obj = { buf: '' };
+			DOMUtils.visitDOM(body, staticTagPostProcessor, obj);
+		}
+	}
+}
+
 // Tag constructor
 module.exports = function() {
 	this.config = {
@@ -41,12 +50,7 @@ module.exports = function() {
 			{ name: 'statictag', toDOM: staticTagHook },
 		],
 		domProcessors: {
-			wt2htmlPostProcessor: (body, env, options, atTopLevel) => {
-				if (atTopLevel) {
-					const obj = { buf: '' };
-					DOMUtils.visitDOM(body, staticTagPostProcessor, obj);
-				}
-			},
+			wt2htmlPostProcessor: DOMPostProcessor,
 		},
 	};
 };

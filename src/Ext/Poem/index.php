@@ -113,25 +113,27 @@ function processNowikis( $node ) {
 // FIXME: We could expand the parseTokenContentsToDOM helper to let us
 // pass in a handler that post-processes the DOM immediately,
 // instead of in the end.
-$_domPostProcessor = function ( $node, $env, $options, $atTopLevel ) use ( &$DOMUtils, &$_domPostProcessor ) {
-	if ( !$atTopLevel ) {
-		return;
-	}
-
-	$c = $node->firstChild;
-	while ( $c ) {
-		if ( DOMUtils::isElt( $c ) ) {
-			if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
-				// In nowikis, replace newlines with <br/>.
-				// Cannot do it before parsing because <br/> will get escaped!
-				processNowikis( $c );
-			} else {
-				$_domPostProcessor( $c, $env, $options, $atTopLevel );
-			}
+class DOMPostProcessor {
+	public function run( $node, $env, $options, $atTopLevel ) {
+		if ( !$atTopLevel ) {
+			return;
 		}
-		$c = $c->nextSibling;
+
+		$c = $node->firstChild;
+		while ( $c ) {
+			if ( DOMUtils::isElt( $c ) ) {
+				if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
+					// In nowikis, replace newlines with <br/>.
+					// Cannot do it before parsing because <br/> will get escaped!
+					processNowikis( $c );
+				} else {
+					$this->run( $c, $env, $options, $atTopLevel );
+				}
+			}
+			$c = $c->nextSibling;
+		}
 	}
-};
+}
 
 /*
 const serialHandler = {
@@ -145,11 +147,11 @@ handle: Promise.method(function(node, state, wrapperUnmodified) {
 };
 */
 
-$module->exports = function () use ( &$_domPostProcessor, &$toDOM ) {
+$module->exports = function () use ( &$toDOM ) {
 	$this->config = [
 		'name' => 'poem',
 		'domProcessors' => [
-			'wt2htmlPostProcessor' => $_domPostProcessor
+			'wt2htmlPostProcessor' => $DOMPostProcessor
 		],
 		'tags' => [
 			[

@@ -12,7 +12,7 @@ namespace Parsoid;
 
 use Parsoid\Ref as Ref;
 use Parsoid\References as References;
-use Parsoid\ReferencesData as ReferencesData;
+use Parsoid\RefProcessor as RefProcessor;
 
 /**
  * Native Parsoid implementation of the Cite extension
@@ -23,8 +23,7 @@ class Cite {
 		$this->config = [
 			'name' => 'cite',
 			'domProcessors' => [
-				'wt2htmlPostProcessor' => function ( ...$args ) {return $this->_wt2htmlPostProcessor( ...$args );
-	   },
+				'wt2htmlPostProcessor' => RefProcessor::class,
 				'html2wtPreProcessor' => function ( ...$args ) {return $this->_html2wtPreProcessor( ...$args );
 	   }
 			],
@@ -53,17 +52,6 @@ class Cite {
 		];
 	}
 	public $config;
-
-	/**
-	 * wt -> html DOM PostProcessor
-	 */
-	public function _wt2htmlPostProcessor( $body, $env, $options, $atTopLevel ) {
-		if ( $atTopLevel ) {
-			$refsData = new ReferencesData( $env );
-			References::_processRefs( $env, $refsData, $body );
-			References::insertMissingReferencesIntoDOM( $refsData, $body );
-		}
-	}
 
 	/**
 	 * html -> wt DOM PreProcessor

@@ -11,7 +11,6 @@ namespace Parsoid;
 
 
 
-use Parsoid\domino as domino;
 use Parsoid\events as events;
 use Parsoid\url as url;
 use Parsoid\util as util;
@@ -66,7 +65,6 @@ $UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
  */
 function DOMPostProcessor( $env, $options ) {
 	global $TableFixups;
-	global $DOMTraverser;
 	global $PrepareDOM;
 	global $MarkFosteredContent;
 	global $ProcessTreeBuilderFixups;
@@ -89,6 +87,7 @@ function DOMPostProcessor( $env, $options ) {
 	global $CleanUp;
 	global $AddExtLinkClasses;
 	global $AddRedLinks;
+	global $DOMTraverser;
 	call_user_func( [ $events, 'EventEmitter' ] );
 
 	$this->env = $env;
@@ -119,28 +118,6 @@ function DOMPostProcessor( $env, $options ) {
 	 *    not straightforward right now. So, this note is a warning to future
 	 *    developers to pay attention to how they construct pipelines.
 	 * --------------------------------------------------------------------------- */
-
-	$this->processors = [];
-
-	$setupProcessors = function ( $ps ) use ( &$DOMTraverser ) {
-		$ps->forEach( function ( $p ) use ( &$DOMTraverser ) {
-				if ( $p->omit ) { return;  }
-				if ( !$p->name ) { $p->name = $p::Processor::name;  }
-				if ( !$p->shortcut ) { $p->shortcut = $p->name;  }
-				if ( gettype( $p->proc ) !== 'function' ) { // FIXME: Extensions ...
-					if ( $p->isTraverser ) {
-						$t = new DOMTraverser();
-						$p->handlers->forEach( function ( $h ) use ( &$t ) {return  $t->addHandler( $h->nodeName, $h->action ); } );
-						$p->proc = function ( ...$args ) use ( &$t ) {return  $t->traverse( ...$args ); };
-					} else {
-						$c = new $p::Processor();
-						$p->proc = function ( ...$args ) use ( &$c ) {return  $c->run( ...$args ); };
-					}
-				}
-				$this->processors[] = $p;
-			}
-		);
-	};
 
 	$processors = [
 		// DOM traverser that runs before the in-order DOM handlers.
@@ -218,8 +195,6 @@ function DOMPostProcessor( $env, $options ) {
 		]
 	];
 
-	$setupProcessors( $processors );
-
 	// FIXME: There are two potential ordering problems here.
 	//
 	// 1. unpackDOMFragment should always run immediately
@@ -277,10 +252,10 @@ function DOMPostProcessor( $env, $options ) {
 	//   So, perhaps one way of catching these problems would be in code review
 	//   by analyzing what the DOM postprocessor does and see if it introduces
 	//   potential ordering issues.
-	$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) {
-			$this->processors[] = [
+	$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) use ( &$processors ) {
+			$processors[] = [
 				'name' => 'tag:' . $extProcs->extName,
-				'proc' => $extProcs->procs->wt2htmlPostProcessor
+				'Processor' => $extProcs->procs->wt2htmlPostProcessor
 			];
 
 
@@ -288,152 +263,167 @@ function DOMPostProcessor( $env, $options ) {
 		}
 	);
 
-	$processors = [
-		[
-			'name' => '(li+table)Fixups',
-			'shortcut' => 'fixups',
-			'isTraverser' => true,
-			'skipNested' => true,
-			'handlers' => [
-				// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
-				[
-					'nodeName' => 'li',
-					'action' => LiFixups::handleLIHack
-				],
-				[
-					'nodeName' => 'li',
-					'action' => LiFixups::migrateTrailingCategories
-				],
-				[
-					'nodeName' => 'dt',
-					'action' => LiFixups::migrateTrailingCategories
-				],
-				[
-					'nodeName' => 'dd',
-					'action' => LiFixups::migrateTrailingCategories
-				],
-				// 2. Fix up issues from templated table cells and table cell attributes
-				[
-					'nodeName' => 'td',
-					'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->stripDoubleTDs( $node, $env ); }
-				],
-				[
-					'nodeName' => 'td',
-					'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
-				],
-				[
-					'nodeName' => 'th',
-					'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
-				],
-				// 3. Deduplicate template styles
-				//   (should run after dom-fragment expansion + after extension post-processors)
-				[
-					'nodeName' => 'style',
-					'action' => DedupeStyles::dedupe
+	$processors = $processors->concat( [
+			[
+				'name' => '(li+table)Fixups',
+				'shortcut' => 'fixups',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
+					[
+						'nodeName' => 'li',
+						'action' => LiFixups::handleLIHack
+					],
+					[
+						'nodeName' => 'li',
+						'action' => LiFixups::migrateTrailingCategories
+					],
+					[
+						'nodeName' => 'dt',
+						'action' => LiFixups::migrateTrailingCategories
+					],
+					[
+						'nodeName' => 'dd',
+						'action' => LiFixups::migrateTrailingCategories
+					],
+					// 2. Fix up issues from templated table cells and table cell attributes
+					[
+						'nodeName' => 'td',
+						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->stripDoubleTDs( $node, $env ); }
+					],
+					[
+						'nodeName' => 'td',
+						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
+					],
+					[
+						'nodeName' => 'th',
+						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
+					],
+					// 3. Deduplicate template styles
+					//   (should run after dom-fragment expansion + after extension post-processors)
+					[
+						'nodeName' => 'style',
+						'action' => DedupeStyles::dedupe
+					]
 				]
-			]
-		],
-		// This is run at all levels since, for now, we don't have a generic
-		// solution to running top level passes on HTML stashed in data-mw.
-		// See T214994 for that.
-		//
-		// Also, the gallery extension's "packed" mode would otherwise need a
-		// post-processing pass to scale media after it has been fetched.  That
-		// introduces an ordering dependency that may or may not complicate things.
-		[
-			'Processor' => $AddMediaInfo,
-			'shortcut' => 'media'
-		],
-		// Benefits from running after determining which media are redlinks
-		[
-			'name' => 'heading gen anchor',
-			'shortcut' => 'headings',
-			'isTraverser' => true,
-			'skipNested' => true,
-			'handlers' => [
-				[
-					'nodeName' => null,
-					'action' => Headings::genAnchors
+			],
+			// This is run at all levels since, for now, we don't have a generic
+			// solution to running top level passes on HTML stashed in data-mw.
+			// See T214994 for that.
+			//
+			// Also, the gallery extension's "packed" mode would otherwise need a
+			// post-processing pass to scale media after it has been fetched.  That
+			// introduces an ordering dependency that may or may not complicate things.
+			[
+				'Processor' => $AddMediaInfo,
+				'shortcut' => 'media'
+			],
+			// Benefits from running after determining which media are redlinks
+			[
+				'name' => 'heading gen anchor',
+				'shortcut' => 'headings',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => Headings::genAnchors
+					]
 				]
-			]
-		],
-		// Add <section> wrappers around sections
-		[
-			'Processor' => $WrapSections,
-			'shortcut' => 'sections',
-			'skipNested' => true
-		],
-		// Make heading IDs unique
-		[
-			'name' => 'heading id uniqueness',
-			'shortcut' => 'heading-ids',
-			'isTraverser' => true,
-			'skipNested' => true,
-			'handlers' => [
-				[
-					'nodeName' => null,
-					'action' => function ( $node, $env ) use ( &$env, &$Headings ) {return  Headings::dedupeHeadingIds( $this->seenIds, $node, $env ); }
+			],
+			// Add <section> wrappers around sections
+			[
+				'Processor' => $WrapSections,
+				'shortcut' => 'sections',
+				'skipNested' => true
+			],
+			// Make heading IDs unique
+			[
+				'name' => 'heading id uniqueness',
+				'shortcut' => 'heading-ids',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => function ( $node, $env ) use ( &$env, &$Headings ) {return  Headings::dedupeHeadingIds( $this->seenIds, $node, $env ); }
+					]
 				]
-			]
-		],
-		// Language conversion
-		[
-			'Processor' => $LangConverter,
-			'shortcut' => 'lang-converter',
-			'skipNested' => true
-		],
-		[
-			'Processor' => $Linter,
-			'omit' => !$env->conf->parsoid->linting,
-			'skipNested' => true
-		],
-		// Strip marker metas -- removes left over marker metas (ex: metas
-		// nested in expanded tpl/extension output).
-		[
-			'name' => 'stripMarkerMetas',
-			'shortcut' => 'strip-metas',
-			'isTraverser' => true,
-			'handlers' => [
-				[
-					'nodeName' => 'meta',
-					'action' => CleanUp::stripMarkerMetas
+			],
+			// Language conversion
+			[
+				'Processor' => $LangConverter,
+				'shortcut' => 'lang-converter',
+				'skipNested' => true
+			],
+			[
+				'Processor' => $Linter,
+				'omit' => !$env->conf->parsoid->linting,
+				'skipNested' => true
+			],
+			// Strip marker metas -- removes left over marker metas (ex: metas
+			// nested in expanded tpl/extension output).
+			[
+				'name' => 'stripMarkerMetas',
+				'shortcut' => 'strip-metas',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'meta',
+						'action' => CleanUp::stripMarkerMetas
+					]
 				]
-			]
-		],
-		[
-			'Processor' => $AddExtLinkClasses,
-			'shortcut' => 'linkclasses',
-			'skipNested' => true
-		],
-		[
-			'name' => 'handleEmptyElts+cleanupAndSaveDP',
-			'shortcut' => 'cleanup',
-			'isTraverser' => true,
-			'handlers' => [
-				// Strip empty elements from template content
-				[
-					'nodeName' => null,
-					'action' => CleanUp::handleEmptyElements
-				],
-				// Save data.parsoid into data-parsoid html attribute.
-				// Make this its own thing so that any changes to the DOM
-				// don't affect other handlers that run alongside it.
-				[
-					'nodeName' => null,
-					'action' => CleanUp::cleanupAndSaveDataParsoid
+			],
+			[
+				'Processor' => $AddExtLinkClasses,
+				'shortcut' => 'linkclasses',
+				'skipNested' => true
+			],
+			[
+				'name' => 'handleEmptyElts+cleanupAndSaveDP',
+				'shortcut' => 'cleanup',
+				'isTraverser' => true,
+				'handlers' => [
+					// Strip empty elements from template content
+					[
+						'nodeName' => null,
+						'action' => CleanUp::handleEmptyElements
+					],
+					// Save data.parsoid into data-parsoid html attribute.
+					// Make this its own thing so that any changes to the DOM
+					// don't affect other handlers that run alongside it.
+					[
+						'nodeName' => null,
+						'action' => CleanUp::cleanupAndSaveDataParsoid
+					]
 				]
+			],
+			// (Optional) red links
+			[
+				'Processor' => $AddRedLinks,
+				'shortcut' => 'redlinks',
+				'omit' => !$env->conf->parsoid->useBatchAPI,
+				'skipNested' => true
 			]
-		],
-		// (Optional) red links
-		[
-			'Processor' => $AddRedLinks,
-			'shortcut' => 'redlinks',
-			'omit' => !$env->conf->parsoid->useBatchAPI,
-			'skipNested' => true
 		]
-	];
+	);
 
-	$setupProcessors( $processors );
+	$this->processors = $processors->filter( function ( $p ) use ( &$DOMTraverser ) {
+			if ( $p->omit ) { return false;  }
+			if ( !$p->name ) { $p->name = $p::Processor::name;  }
+			if ( !$p->shortcut ) { $p->shortcut = $p->name;  }
+			if ( $p->isTraverser ) {
+				$t = new DOMTraverser();
+				$p->handlers->forEach( function ( $h ) use ( &$t ) {return  $t->addHandler( $h->nodeName, $h->action ); } );
+				$p->proc = function ( ...$args ) use ( &$t ) {return  $t->traverse( ...$args ); };
+			} else {
+				$c = new $p::Processor();
+				$p->proc = function ( ...$args ) use ( &$c ) {return  $c->run( ...$args ); };
+			}
+			return true;
+		}
+	);
 }
 
 // Inherit from EventEmitter

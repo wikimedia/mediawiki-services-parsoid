@@ -4,7 +4,7 @@
 /* REMOVE THIS COMMENT AFTER PORTING */
 namespace Parsoid;
 
-$ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
+$ParsoidExtApi = $module->parent->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 $temp0 = $ParsoidExtApi;
 $ContentUtils = $temp0::ContentUtils;
 $Sanitizer = $temp0::Sanitizer;
