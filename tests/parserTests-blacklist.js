@@ -270,6 +270,8 @@ add("wt2wt", "2. Ensure fostered text content is wrapped in element nodes (traps
 add("wt2wt", "8. Encapsulate foster-parented transclusion content", "{{echo|a\n}}\n{|{{echo|style='color:red'}}\n|-\n|b\n|}\n");
 add("wt2wt", "T73074: More fostering fun", "[[Category:Two]]\n<table><td></td></tr>{{echo|<tr>}}<!--c-->[[Category:Two]]");
 add("wt2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]");
+add("wt2wt", "WTS of edited autolink surrounded by square brackets (T220018)", "[http://example.com<nowiki>]</nowiki>");
+add("wt2wt", "WTS of edited external link surrounded by square brackets (T220018)", "[[http://example.com foo]]");
 add("wt2wt", "T88318: p-wrapped dash in table.", "{|\n!-\n!-\n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}");
 add("wt2wt", "Empty LI (T49673)", "*a\n*\n*\n*b");
 
@@ -964,6 +966,8 @@ add("html2wt", "T73074: More fostering fun", "[[Category:Two]]\n<table><td></td>
 add("html2wt", "Parsoid should not accept invalid interwiki shortcuts", "[[news:Foo|Foo]]\n[news:Foo Foo]\n[news:Foo Foo]");
 add("html2wt", "Image: upright option (parsoid)", "[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|caption]]\n[[File:Foobar.jpg|thumb|500x500px|caption]]\n");
 add("html2wt", "Image: upright option is ignored on inline and frame images (parsoid)", "[[File:Foobar.jpg|500x500px|caption]]");
+add("html2wt", "WTS of an autolink surrounded by square brackets (T220018)", "[http://example.com<nowiki>]</nowiki>");
+add("html2wt", "WTS of an external link surrounded by square brackets (T220018)", "[[http://example.com foo]]");
 add("html2wt", "Wikitext lists can be nested inside HTML lists", "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>");
 add("html2wt", "File in link scenarios", "[http://www.google.com][[File:Foobar.jpg|1941x1941px]]\n\n[http://www.google.com][[File:Foobar.jpg|thumb|123]]");
 add("html2wt", "Empty LI (T49673)", "* a\n*\n*\n* b");
@@ -1942,6 +1946,8 @@ add("selser", "T73074: More fostering fun [3,[[[2],0]]]", "<table><td>pu1bhl</td
 add("selser", "T73074: More fostering fun [0,[[[3],0]]]", "<table>{{echo|<tr>}}<!--c-->[[Category:Two]]");
 add("selser", "Image: upright option is ignored on inline and frame images (parsoid) [1]", "[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");
 add("selser", "Image: upright option is ignored on inline and frame images (parsoid) [2]", "15di39b\n\n[[File:Foobar.jpg|500x500px|upright=0.5|caption]]");
+add("selser", "WTS of edited autolink surrounded by square brackets (T220018) manual", "[http://example.com<nowiki>]</nowiki>");
+add("selser", "WTS of edited external link surrounded by square brackets (T220018) manual", "[[http://example.com foo]]");
 add("selser", "T88318: p-wrapped dash in table. [[0,[1,4,3,3,[0,2,3,[2,4,1],2,0],0]]]", "{|\n!-\n!- <!--usa9ns-->\n|-\n|tzi4oq\n|<small>-</small>\n|m13ytj<br />1iev8v\n-\n|16lw3g9\n|<br />-\n|}");
 add("selser", "T88318: p-wrapped dash in table. [[4,1]]", "{|<!--gjh37d-->\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}");
 add("selser", "T88318: p-wrapped dash in table. [[2,2]]", "{|<!--kjm4z3-->\n<!--56si7s-->!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}");

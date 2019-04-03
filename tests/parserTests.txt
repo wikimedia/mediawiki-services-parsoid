@@ -29487,6 +29487,58 @@ http://example.com <nowiki>http://example.com</nowiki> is not a link.
 !! end
 
 !! test
+WTS of an autolink surrounded by square brackets (T220018)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>[<a rel="mw:ExtLink" href="http://example.com">http://example.com</a>]</p>
+!! wikitext
+<nowiki>[</nowiki>http://example.com]
+!! end
+
+!! test
+WTS of edited autolink surrounded by square brackets (T220018)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "a", "before", "[" ],
+    [ "a", "after", "]" ]
+  ]
+}
+!! wikitext
+http://example.com
+!! wikitext/edited
+<nowiki>[</nowiki>http://example.com]
+!! end
+
+!! test
+WTS of an external link surrounded by square brackets (T220018)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>[<a rel="mw:ExtLink" href="http://example.com">foo</a>]</p>
+!! wikitext
+<nowiki>[</nowiki>[http://example.com foo]]
+!! end
+
+!! test
+WTS of edited external link surrounded by square brackets (T220018)
+!! options
+parsoid={
+  "modes": ["wt2wt"],
+  "changes": [
+    [ "a", "before", "[" ],
+    [ "a", "after", "]" ]
+  ]
+}
+!! wikitext
+[http://example.com foo]
+!! wikitext/edited
+<nowiki>[</nowiki>[http://example.com foo]]
+!! end
+
+!! test
 Magic links inside links (not autolinked)
 !! wikitext
 [[Foo|http://example.com]]
