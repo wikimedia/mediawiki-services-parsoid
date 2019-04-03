@@ -2,6 +2,8 @@
 
 namespace Parsoid\Utils;
 
+use Wikimedia\Assert\Assert;
+
 /**
 * This file contains Parsoid-independent PHP helper functions.
 * Over time, more functions can be migrated out of various other files here.
@@ -127,5 +129,67 @@ class PHPUtils {
 				$dest[] = $item;
 			}
 		}
+	}
+
+	/**
+	 * Helper for joining pieces of regular expressions together.  This
+	 * safely strips delimiters from regular expression strings, while
+	 * ensuring that the result is safely escaped for the new delimiter
+	 * you plan to use (see the `$delimiter` argument to `preg_quote`).
+	 *
+	 * @param string $re The regular expression to strip
+	 * @param string|null $newDelimiter Optional delimiter which will be
+	 *   used when recomposing this stripped regular expression into a
+	 *   new regular expression.
+	 * @return string The regular expression without delimiters or flags
+	 */
+	public static function reStrip( string $re, ?string $newDelimiter = null ): string {
+		// Believe it or not, PHP allows leading whitespace in the $re
+		// tested with C's "isspace", which is [ \f\n\r\t\v]
+		$re = preg_replace( '/^[ \f\n\r\t\v]+/', '', $re );
+		Assert::invariant( strlen( $re ) > 0, "empty regexp" );
+		$startDelimiter = $re[0];
+		// PHP actually supports balanced delimiters (ie open paren on left
+		// and close paren on right).
+		switch ( $startDelimiter ) {
+		case '(':
+			$endDelimiter = ')';
+			break;
+		case '[':
+			$endDelimiter = ']';
+			break;
+		case '{':
+			$endDelimiter = '}';
+			break;
+		case '<':
+			$endDelimiter = '>';
+			break;
+		default:
+			$endDelimiter = $startDelimiter;
+			break;
+		}
+		$endDelimiterPos = strrpos( $re, $endDelimiter );
+		Assert::invariant(
+			$endDelimiterPos !== false && $endDelimiterPos > 0,
+			"can't find end delimiter"
+		);
+		$flags = substr( $re, $endDelimiterPos + 1 );
+		Assert::invariant(
+			preg_match( '/^[imsxADSUXJu \n]*$/', $flags ) === 1,
+			"unexpected flags"
+		);
+		$stripped = substr( $re, 1, $endDelimiterPos - 1 );
+		if (
+			$newDelimiter === null ||
+			$startDelimiter === $newDelimiter ||
+			$endDelimiter === $newDelimiter
+		) {
+			return $stripped; // done!
+		}
+		// escape the new delimiter
+		preg_match_all( '/[^\\\\]|\\\\./s', $stripped, $matches );
+		return implode( '', array_map( function ( $c ) use ( $newDelimiter ) {
+			return ( $c === $newDelimiter ) ? ( '\\' . $c ) : $c;
+		}, $matches[0] ) );
 	}
 }

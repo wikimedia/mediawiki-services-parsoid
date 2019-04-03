@@ -21,6 +21,12 @@ class MockSiteConfig extends SiteConfig {
 	public function __construct( array $opts ) {
 		$this->rtTestMode = !empty( $opts['rtTestMode'] );
 
+		if ( isset( $opts['linkPrefixRegex'] ) ) {
+			$this->linkPrefixRegex = $opts['linkPrefixRegex'];
+		}
+		if ( isset( $opts['linkTrailRegex'] ) ) {
+			$this->linkTrailRegex = $opts['linkTrailRegex'];
+		}
 		if ( !empty( $opts['log'] ) ) {
 			$this->setLogger( new class extends AbstractLogger {
 				/** @inheritDoc */
@@ -108,12 +114,14 @@ class MockSiteConfig extends SiteConfig {
 		return 'mywiki';
 	}
 
+	private $linkPrefixRegex = null;
 	public function linkPrefixRegex(): ?string {
-		return null;
+		return $this->linkPrefixRegex;
 	}
 
+	private $linkTrailRegex = '/^([a-z]+)/sD'; // enwiki default
 	public function linkTrailRegex(): ?string {
-		return '/^([a-z]+)/sD';
+		return $this->linkTrailRegex;
 	}
 
 	public function lang(): string {
