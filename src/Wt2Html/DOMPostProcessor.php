@@ -58,57 +58,6 @@ $PrepareDOM = $requireHandlers( 'PrepareDOM' );
 $TableFixups = $requireHandlers( 'TableFixups' );
 $UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
 
-// map from mediawiki metadata names to RDFa property names
-$metadataMap = [
-	'ns' => [
-		'property' => 'mw:pageNamespace',
-		'content' => '%d'
-	],
-	'id' => [
-		'property' => 'mw:pageId',
-		'content' => '%d'
-	],
-
-	// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
-
-	// 'rev_revid' is used to set the overall subject of the document, we don't
-	// need to add a specific <meta> or <link> element for it.
-
-	'rev_parentid' => [
-		'rel' => 'dc:replaces',
-		'resource' => 'mwr:revision/%d'
-	],
-	'rev_timestamp' => [
-		'property' => 'dc:modified',
-		'content' => function ( $m ) {
-			return new Date( $m->get( 'rev_timestamp' ) )->toISOString();
-		}
-	],
-	'rev_sha1' => [
-		'property' => 'mw:revisionSHA1',
-		'content' => '%s'
-	]
-];
-
-// Sanity check for dom behavior: we are
-// relying on DOM level 4 getAttribute. In level 4, getAttribute on a
-// non-existing key returns null instead of the empty string.
-$testDom = domino::createWindow( '<h1>Hello world</h1>' )->document;
-if ( $testDom->body->getAttribute( 'somerandomstring' ) === '' ) {
-	throw "Your DOM version appears to be out of date! \n"
-.		'Please run npm update in the js directory.';
-}
-
-/**
- * Create an element in the document.head with the given attrs.
- */
-function appendToHead( $document, $tagName, $attrs ) {
-	global $DOMDataUtils;
-	$elt = $document->createElement( $tagName );
-	DOMDataUtils::addAttributes( $elt, $attrs || [] );
-	$document->head->appendChild( $elt );
-}
-
 /**
  * @class
  * @extends EventEmitter
@@ -507,6 +456,48 @@ DOMPostProcessor::prototype::resetState = function ( $opts ) {
 	$this->seenIds->clear();
 	$this->seenDataIds->clear();
 };
+
+// map from mediawiki metadata names to RDFa property names
+$metadataMap = [
+	'ns' => [
+		'property' => 'mw:pageNamespace',
+		'content' => '%d'
+	],
+	'id' => [
+		'property' => 'mw:pageId',
+		'content' => '%d'
+	],
+
+	// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
+
+	// 'rev_revid' is used to set the overall subject of the document, we don't
+	// need to add a specific <meta> or <link> element for it.
+
+	'rev_parentid' => [
+		'rel' => 'dc:replaces',
+		'resource' => 'mwr:revision/%d'
+	],
+	'rev_timestamp' => [
+		'property' => 'dc:modified',
+		'content' => function ( $m ) {
+			return new Date( $m->get( 'rev_timestamp' ) )->toISOString();
+		}
+	],
+	'rev_sha1' => [
+		'property' => 'mw:revisionSHA1',
+		'content' => '%s'
+	]
+];
+
+/**
+ * Create an element in the document.head with the given attrs.
+ */
+function appendToHead( $document, $tagName, $attrs ) {
+	global $DOMDataUtils;
+	$elt = $document->createElement( $tagName );
+	DOMDataUtils::addAttributes( $elt, $attrs || [] );
+	$document->head->appendChild( $elt );
+}
 
 // FIXME: consider moving to DOMUtils or MWParserEnvironment.
 DOMPostProcessor::addMetaData = function ( $env, $document ) use ( &$url, &$metadataMap, &$util, &$DOMDataUtils, &$Util ) {
