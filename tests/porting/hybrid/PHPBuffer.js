@@ -2,9 +2,9 @@
 
 'use strict';
 
-const { lastItem } = require('../../utils/jsutils.js').JSUtils;
-const TokenHandler = require('./TokenHandler.js');
-const { EOFTk } = require('../../tokens/TokenTypes.js');
+const { lastItem } = require('../../../lib/utils/jsutils.js').JSUtils;
+const TokenHandler = require('../../../lib/wt2html/tt/TokenHandler.js');
+const { EOFTk } = require('../../../lib/tokens/TokenTypes.js');
 
 /**
  * Buffers tokens from the JS code for downstream PHP transformers.

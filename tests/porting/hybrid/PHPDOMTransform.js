@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
-const { ContentUtils } = require('../../../utils/ContentUtils.js');
+const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
 
 class PHPDOMTransform {
 	run(transformerName, root, env, options, atTopLevel) {
@@ -26,7 +26,7 @@ class PHPDOMTransform {
 		fs.writeFileSync(fileName, html);
 
 		const res = childProcess.spawnSync("php", [
-			path.resolve(__dirname, "../../../../bin/runDOMTransform.php"),
+			path.resolve(__dirname, "runDOMTransform.php"),
 			transformerName,
 			fileName
 		], { input: JSON.stringify(opts) });

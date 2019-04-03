@@ -5,8 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
-const TokenHandler = require('./TokenHandler.js');
-const { TokenUtils } = require('../../utils/TokenUtils.js');
+const TokenHandler = require('../../../lib/wt2html/tt/TokenHandler.js');
+const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
 
 /**
  * Wrapper that invokes a PHP token transformer to do the work
@@ -34,7 +34,7 @@ class PHPTransformer extends TokenHandler {
 			pageContent: this.manager.env.page.src
 		};
 		const res = childProcess.spawnSync("php", [
-			path.resolve(__dirname, "../../../bin/runTransform.php"),
+			path.resolve(__dirname, "runTransform.php"),
 			this.transformerName,
 			fileName,
 		], { input: JSON.stringify(opts) });
