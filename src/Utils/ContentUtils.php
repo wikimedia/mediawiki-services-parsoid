@@ -60,7 +60,7 @@ class ContentUtils {
 		}
 
 		$markNew = $options['markNew'] ?? false;
-		if ( $options['reinsertFosterableContent'] ) {
+		if ( $options['reinsertFosterableContent'] ?? false ) {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
 				$meta = WTUtils::reinsertFosterableContent( $env, $n, true );

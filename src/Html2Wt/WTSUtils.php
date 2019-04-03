@@ -1,42 +1,55 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Html2Wt;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\DiffUtils as DiffUtils;
-use Parsoid\WTUtils as WTUtils;
-use Parsoid\KV as KV;
-use Parsoid\TagTk as TagTk;
-use Parsoid\EndTagTk as EndTagTk;
+use DOMElement;
+use DOMNode;
+use Parsoid\Config\Env;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\WTUtils;
+use stdClass;
+use Wikimedia\Assert\Assert;
 
-/** @namespace */
 class WTSUtils {
-	public static function isValidSep( $sep ) {
-		return preg_match( '/^(\s|<!--([^\-]|-(?!->))*-->)*$/', $sep );
+	/**
+	 * @param string $sep
+	 * @return bool
+	 */
+	public static function isValidSep( string $sep ): bool {
+		/* TODO (Anomie)
+		You might be able to simplify the regex a bit using a no-backtracking group:
+		'/^(?>\s*<!--.*?-->)*\s*$/s'
+		Although I'm not sure that'll actually run faster.*/
+		return (bool)preg_match( '/^(\s|<!--([^\-]|-(?!->))*-->)*$/', $sep );
 	}
 
-	public static function hasValidTagWidths( $dsr ) {
-		return $dsr
-&& gettype( $dsr[ 2 ] ) === 'number' && $dsr[ 2 ] >= 0
-&& gettype( $dsr[ 3 ] ) === 'number' && $dsr[ 3 ] >= 0;
+	/**
+	 * @param array $dsr
+	 * @return bool
+	 */
+	public static function hasValidTagWidths( array $dsr ): bool {
+		return isset( $dsr[2], $dsr[3] ) && $dsr[2] >= 0 && $dsr[3] >= 0;
 	}
 
 	/**
 	 * Get the attributes on a node in an array of KV objects.
 	 *
-	 * @param {Node} node
+	 * @param DOMElement $node
 	 * @return KV[]
 	 */
-	public static function getAttributeKVArray( $node ) {
+	public static function getAttributeKVArray( DOMElement $node ): array {
 		$attribs = $node->attributes;
 		$kvs = [];
 		for ( $i = 0,  $l = count( $attribs );  $i < $l;  $i++ ) {
 			$attrib = $attribs->item( $i );
+			'@phan-var \DOMAttr $attrib'; // @var \DOMAttr $attrib
 			$kvs[] = new KV( $attrib->name, $attrib->value );
 		}
 		return $kvs;
@@ -44,47 +57,68 @@ class WTSUtils {
 
 	/**
 	 * Create a `TagTk` corresponding to a DOM node.
+	 *
+	 * @param DOMElement $node
+	 * @return TagTk
 	 */
-	public static function mkTagTk( $node ) {
-		$attribKVs = $this->getAttributeKVArray( $node );
-		return new TagTk( strtolower( $node->nodeName ), $attribKVs, DOMDataUtils::getDataParsoid( $node ) );
+	public static function mkTagTk( DOMElement $node ): TagTk {
+		$attribKVs = self::getAttributeKVArray( $node );
+		return new TagTk(
+			$node->nodeName,
+			$attribKVs,
+			DOMDataUtils::getDataParsoid( $node )
+		);
 	}
 
 	/**
 	 * Create a `EndTagTk` corresponding to a DOM node.
+	 *
+	 * @param DOMElement $node
+	 * @return EndTagTk
 	 */
-	public static function mkEndTagTk( $node ) {
-		$attribKVs = $this->getAttributeKVArray( $node );
-		return new EndTagTk( strtolower( $node->nodeName ), $attribKVs, DOMDataUtils::getDataParsoid( $node ) );
+	public static function mkEndTagTk( DOMElement $node ): EndTagTk {
+		$attribKVs = self::getAttributeKVArray( $node );
+		return new EndTagTk(
+			$node->nodeName,
+			$attribKVs,
+			DOMDataUtils::getDataParsoid( $node )
+		);
 	}
 
 	/**
 	 * For new elements, attrs are always considered modified.  However, For
 	 * old elements, we only consider an attribute modified if we have shadow
 	 * info for it and it doesn't match the current value.
-	 * @return {Object}
-	 * @return {any} return.value
-	 * @return {boolean} return.modified If the value of the attribute changed since we parsed the wikitext.
-	 * @return {boolean} return.fromsrc Whether we got the value from source-based roundtripping.
+	 * Returns array with data:
+	 * [
+	 * value => mixed,
+	 * modified => bool (If the value of the attribute changed since we parsed the wikitext),
+	 * fromsrc => bool (Whether we got the value from source-based roundtripping)
+	 * ]
+	 *
+	 * @param DOMElement $node
+	 * @param string $name
+	 * @param string $curVal
+	 * @return array
 	 */
-	public static function getShadowInfo( $node, $name, $curVal ) {
+	public static function getShadowInfo( DOMElement $node, string $name, string $curVal ): array {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Not the case, continue regular round-trip information.
-		if ( $dp->a === null || $dp->a[ $name ] === null ) {
+		if ( $dp->a === null || $dp->a[$name] === null ) {
 			return [
 				'value' => $curVal,
 				// Mark as modified if a new element
 				'modified' => WTUtils::isNewElt( $node ),
 				'fromsrc' => false
 			];
-		} elseif ( $dp->a[ $name ] !== $curVal ) {
+		} elseif ( $dp->a[$name] !== $curVal ) {
 			return [
 				'value' => $curVal,
 				'modified' => true,
 				'fromsrc' => false
 			];
-		} elseif ( $dp->sa === null || $dp->sa[ $name ] === null ) {
+		} elseif ( $dp->sa === null || $dp->sa[$name] === null ) {
 			return [
 				'value' => $curVal,
 				'modified' => false,
@@ -92,7 +126,7 @@ class WTSUtils {
 			];
 		} else {
 			return [
-				'value' => $dp->sa[ $name ],
+				'value' => $dp->sa[$name],
 				'modified' => false,
 				'fromsrc' => true
 			];
@@ -101,30 +135,50 @@ class WTSUtils {
 
 	/**
 	 * Get shadowed information about an attribute on a node.
+	 * Returns array with data:
+	 * [
+	 * value => mixed,
+	 * modified => bool (If the value of the attribute changed since we parsed the wikitext),
+	 * fromsrc => bool (Whether we got the value from source-based roundtripping)
+	 * ]
 	 *
-	 * @param {Node} node
-	 * @param {string} name
-	 * @return {Object}
-	 * @return {any} return.value
-	 * @return {boolean} return.modified If the value of the attribute changed since we parsed the wikitext.
-	 * @return {boolean} return.fromsrc Whether we got the value from source-based roundtripping.
+	 * @param DOMElement $node
+	 * @param string $name
+	 * @return array
 	 */
-	public static function getAttributeShadowInfo( $node, $name ) {
-		return $this->getShadowInfo( $node, $name, ( $node->hasAttribute( $name ) ) ? $node->getAttribute( $name ) : null );
+	public static function getAttributeShadowInfo( DOMElement $node, string $name ): array {
+		return self::getShadowInfo(
+			$node,
+			$name,
+			( $node->hasAttribute( $name ) ) ? $node->getAttribute( $name ) : null
+		);
 	}
 
-	public static function commentWT( $comment ) {
+	/**
+	 * @param string $comment
+	 * @return string
+	 */
+	public static function commentWT( string $comment ): string {
 		return '<!--' . WTUtils::decodeComment( $comment ) . '-->';
 	}
 
 	/**
 	 * Emit the start tag source when not round-trip testing, or when the node is
 	 * not marked with autoInsertedStart.
+	 *
+	 * @param string $src
+	 * @param DOMElement $node
+	 * @param stdClass $state
+	 * @param bool $dontEmit
+	 * @return bool
 	 */
-	public static function emitStartTag( $src, $node, $state, $dontEmit ) {
+	public static function emitStartTag(
+		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
+	): bool {
 		if ( !$state->rtTestMode || !DOMDataUtils::getDataParsoid( $node )->autoInsertedStart ) {
 			if ( !$dontEmit ) {
-				$state->emitChunk( $src, $node );
+				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
+				// PORT-FIXME $state->emitChunk( $src, $node );
 			}
 			return true;
 		} else {
@@ -136,11 +190,20 @@ class WTSUtils {
 	/**
 	 * Emit the start tag source when not round-trip testing, or when the node is
 	 * not marked with autoInsertedStart.
+	 *
+	 * @param string $src
+	 * @param DOMElement $node
+	 * @param stdClass $state
+	 * @param bool $dontEmit
+	 * @return bool
 	 */
-	public static function emitEndTag( $src, $node, $state, $dontEmit ) {
+	public static function emitEndTag(
+		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
+	): bool {
 		if ( !$state->rtTestMode || !DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd ) {
 			if ( !$dontEmit ) {
-				$state->emitChunk( $src, $node );
+				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
+				// PORT-FIXME $state->emitChunk( $src, $node );
 			}
 			return true;
 		} else {
@@ -154,11 +217,16 @@ class WTSUtils {
 	 * deleted? While looking for next, we look past DOM nodes that are
 	 * transparent in rendering. (See emitsSolTransparentSingleLineWT for
 	 * which nodes.)
+	 *
+	 * @param DOMNode $origNode
+	 * @param bool $before
+	 * @return bool
 	 */
-	public static function nextToDeletedBlockNodeInWT( $origNode, $before ) {
+	public static function nextToDeletedBlockNodeInWT( DOMNode $origNode, bool $before ): bool {
 		if ( !$origNode || DOMUtils::isBody( $origNode ) ) {
 			return false;
 		}
+		DOMUtils::assertElt( $origNode );
 
 		while ( true ) { // eslint-disable-line
 			// Find the nearest node that shows up in HTML (ignore nodes that show up
@@ -166,7 +234,7 @@ class WTSUtils {
 			// whitespace is being ignored, but that whitespace occurs between block nodes).
 			$node = $origNode;
 			do {
-				$node = ( $before ) ? $node->previousSibling : $node->nextSibling;
+				$node = $before ? $node->previousSibling : $node->nextSibling;
 				if ( DiffUtils::maybeDeletedNode( $node ) ) {
 					return DiffUtils::isDeletedBlockNode( $node );
 				}
@@ -190,50 +258,60 @@ class WTSUtils {
 
 	/**
 	 * Check if whitespace preceding this node would NOT trigger an indent-pre.
+	 *
+	 * @param DOMNode $node
+	 * @param DOMNode $sepNode
+	 * @return bool
 	 */
-	public static function precedingSpaceSuppressesIndentPre( $node, $sepNode ) {
+	public static function precedingSpaceSuppressesIndentPre( DOMNode $node, DOMNode $sepNode ): bool {
 		if ( $node !== $sepNode && DOMUtils::isText( $node ) ) {
 			// if node is the same as sepNode, then the separator text
 			// at the beginning of it has been stripped out already, and
 			// we cannot use it to test it for indent-pre safety
-			return preg_match( '/^[ \t]*\n/', $node->nodeValue );
-		} elseif ( $node->nodeName === 'BR' ) {
+			return (bool)preg_match( '/^[ \t]*\n/', $node->nodeValue );
+		} elseif ( $node->nodeName === 'br' ) {
 			return true;
 		} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+			DOMUtils::assertElt( $node );
 			// Dont try any harder than this
-			return ( !$node->hasChildNodes() ) || preg_match( '/^\n/', $node->innerHTML );
+			return !$node->hasChildNodes() || preg_match( '/^\n/', DOMCompat::getInnerHTML( $node ) );
 		} else {
 			return WTUtils::isBlockNodeWithVisibleWT( $node );
 		}
 	}
 
-	public static function traceNodeName( $node ) {
+	/**
+	 * @param DOMNode $node
+	 * @return string
+	 */
+	public static function traceNodeName( DOMNode $node ) {
 		switch ( $node->nodeType ) {
-			case $node::ELEMENT_NODE:
-			return ( DOMUtils::isDiffMarker( $node ) ) ?
-			'DIFF_MARK' : 'NODE: ' . $node->nodeName;
-			case $node::TEXT_NODE:
-			return 'TEXT: ' . json_encode( $node->nodeValue );
-			case $node::COMMENT_NODE:
-			return 'CMT : ' . json_encode( self::commentWT( $node->nodeValue ) );
+			case XML_ELEMENT_NODE:
+				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . $node->nodeName;
+			case XML_TEXT_NODE:
+				return 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue );
+			case XML_COMMENT_NODE:
+				return 'CMT : ' . PHPUtils::jsonEncode( self::commentWT( $node->nodeValue ) );
 			default:
-			return $node->nodeName;
+				return $node->nodeName;
 		}
 	}
 
 	/**
 	 * In selser mode, check if an unedited node's wikitext from source wikitext
 	 * is reusable as is.
-	 * @param {MWParserEnvironment} env
-	 * @param {Node} node
+	 *
+	 * @param Env $env
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function origSrcValidInEditedContext( $env, $node ) {
+	public static function origSrcValidInEditedContext( Env $env, DOMNode $node ): bool {
 		$prev = null;
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
 			return DOMUtils::isBody( $node->parentNode ) && !$node->previousSibling;
-		} elseif ( $node->nodeName === 'TH' || $node->nodeName === 'TD' ) {
+		} elseif ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
+			DOMUtils::assertElt( $node );
 			// The wikitext representation for them is dependent
 			// on cell position (first cell is always single char).
 
@@ -244,9 +322,9 @@ class WTSUtils {
 			}
 
 			// If previous sibling is unmodified, nothing to worry about.
-			if ( !DOMUtils::isDiffMarker( $prev )
-&& !DiffUtils::hasInsertedDiffMark( $prev, $env )
-&& !DiffUtils::directChildrenChanged( $prev, $env )
+			if ( !DOMUtils::isDiffMarker( $prev ) &&
+				!DiffUtils::hasInsertedDiffMark( $prev, $env ) &&
+				!DiffUtils::directChildrenChanged( $prev, $env )
 			) {
 				return true;
 			}
@@ -255,7 +333,9 @@ class WTSUtils {
 			// showed up on the same line via the "||" or "!!" syntax, nothing
 			// to worry about.
 			return DOMDataUtils::getDataParsoid( $node )->stx !== 'row';
-		} elseif ( $node->nodeName === 'TR' && !DOMDataUtils::getDataParsoid( $node )->startTagSrc ) {
+		} elseif ( $node->nodeName === 'tr' && DOMUtils::assertElt( $node ) &&
+			!DOMDataUtils::getDataParsoid( $node )->startTagSrc
+		) {
 			// If this <tr> didn't have a startTagSrc, it would have been
 			// the first row of a table in original wikitext. So, it is safe
 			// to reuse the original source for the row (without a "|-") as long as
@@ -288,9 +368,7 @@ class WTSUtils {
 
 			// If a previous sibling was modified, we can't reuse the start dsr.
 			while ( $prev ) {
-				if ( DOMUtils::isDiffMarker( $prev )
-|| DiffUtils::hasInsertedDiffMark( $prev, $env )
-				) {
+				if ( DOMUtils::isDiffMarker( $prev ) || DiffUtils::hasInsertedDiffMark( $prev, $env ) ) {
 					return false;
 				}
 				$prev = $prev->previousSibling;
@@ -305,38 +383,55 @@ class WTSUtils {
 	/**
 	 * Extracts the media type from attribute string
 	 *
-	 * @param {Node} node
-	 * @return Object
+	 * @param DOMElement $node
+	 * @return array
 	 */
-	public static function getMediaType( $node ) {
-		$typeOf = $node->getAttribute( 'typeof' ) || '';
-		$match = preg_match( '/(?:^|\s)(mw:(?:Image|Video|Audio))(?:\/(\w*))?(?:\s|$)/', $typeOf );
+	public static function getMediaType( DOMElement $node ): array {
+		$typeOf = $node->getAttribute( 'typeof' );
+		preg_match( '/(?:^|\s)(mw:(?:Image|Video|Audio))(?:\/(\w*))?(?:\s|$)/', $typeOf, $matches );
 		return [
-			'rdfaType' => $match && $match[ 1 ] || '',
-			'format' => $match && $match[ 2 ] || ''
+			'rdfaType' => $matches[1] ?? '',
+			'format' => $matches[2] ?? '',
 		];
 	}
 
 	/**
-	 * @param {Object} dataMw
-	 * @param {string} key
-	 * @param {boolean} keep
-	 * @return Array|null
+	 * @param stdClass $dataMw
+	 * @param string $key
+	 * @param bool $keep
+	 * @return array|null
 	 */
-	public static function getAttrFromDataMw( $dataMw, $key, $keep ) {
-		$arr = $dataMw->attribs || [];
-		$i = $arr->findIndex( function ( $a ) use ( &$key ) {return ( $a[ 0 ] === $key || $a[ 0 ]->txt === $key );
-  } );
-		if ( $i < 0 ) { return null;
-  }
-		$ret = $arr[ $i ];
-		if ( !$keep && $ret[ 1 ]->html === null ) {
+	public static function getAttrFromDataMw(
+		stdClass $dataMw /* PORT-FIXME */, string $key, bool $keep
+	): ?array {
+		$arr = $dataMw->attribs ?: [];
+		$i = false;
+		// PORT-FIXME $i = $arr->findIndex( function ( $a ) use ( &$key ) {
+		// PORT-FIXME     return ( $a[0] === $key || $a[0]->txt === $key );
+		// PORT-FIXME }
+		// PORT-FIXME a few lines below should do the same as comment above (copied from JS)
+		foreach ( $arr as $k => $a ) {
+			if ( is_string( $a[0] ) ) {
+				$txt = $a[0];
+			} elseif ( is_object( $a[0] ) ) {
+				$txt = $a[0]->txt ?? null;
+			} else {
+				Assert::invariant( false, 'Control should never get here!' );
+				break;
+			}
+			if ( $txt === $key ) {
+				$i = $k;
+				break;
+			}
+		}
+		if ( $i === false ) {
+			return null;
+		}
+
+		$ret = $arr[$i];
+		if ( !$keep && $ret[1]->html === null ) {
 			array_splice( $arr, $i, 1 );
 		}
 		return $ret;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->WTSUtils = $WTSUtils;
 }

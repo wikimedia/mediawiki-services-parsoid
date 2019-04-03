@@ -50,11 +50,17 @@ class Env {
 	public $traceFlags;
 
 	/**
+	 * @var bool
+	 */
+	private $scrubWikitext;
+
+	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
 	 * @param array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
+	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
@@ -62,6 +68,7 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
+		$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
 	}
@@ -306,5 +313,13 @@ class Env {
 			$lang = 'en';
 		}
 		return $this->siteConfig->langConverterEnabled( $lang );
+	}
+
+	/**
+	 * Indicates emit "clean" wikitext compared to what we would if we didn't normalize HTML
+	 * @return bool
+	 */
+	public function shouldScrubWikitext(): bool {
+		return $this->scrubWikitext;
 	}
 }

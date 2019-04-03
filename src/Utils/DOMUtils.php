@@ -185,6 +185,15 @@ class DOMUtils {
 	}
 
 	/**
+	 * Determine whether this is a removed DOM node but DOMNode object yet
+	 * @param DOMNode|null $node
+	 * @return bool
+	 */
+	public static function isRemoved( ?DOMNode $node ): bool {
+		return !$node || !isset( $node->nodeType );
+	}
+
+	/**
 	 * PORT-FIXME: Is this necessary with PHP DOM unlike Domino in JS?
 	 *
 	 * Test the number of children this node has without using

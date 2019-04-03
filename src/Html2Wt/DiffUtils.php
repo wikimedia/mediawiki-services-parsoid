@@ -3,25 +3,26 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Html2Wt;
 
+use DOMElement;
+use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
-use \DOMElement;
-use \DOMNode;
-use \stdClass;
+use stdClass;
 
 class DiffUtils {
 	/**
 	 * Get a node's diff marker.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @return stdClass|null
 	 */
-	public static function getDiffMark( DOMElement $node, Env $env ): ?stdClass {
+	public static function getDiffMark( DOMNode $node, Env $env ): ?stdClass {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return null;
 		}
+		DOMUtils::assertElt( $node );
 
 		$data = DOMDataUtils::getNodeData( $node );
 		$dpd = $data->{'parsoid-diff'} ?? null;
@@ -31,21 +32,21 @@ class DiffUtils {
 	/**
 	 * Check that the diff markers on the node exist and are recent.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function hasDiffMarkers( DOMElement $node, Env $env ): bool {
+	public static function hasDiffMarkers( DOMNode $node, Env $env ): bool {
 		return self::getDiffMark( $node, $env ) !== null || DOMUtils::isDiffMarker( $node );
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param string $mark
 	 * @return bool
 	 */
-	public static function hasDiffMark( DOMElement $node, Env $env, string $mark ): bool {
+	public static function hasDiffMark( DOMNode $node, Env $env, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
 		if ( $mark === 'deleted' || ( $mark === 'inserted' && !DOMUtils::isElt( $node ) ) ) {
@@ -57,19 +58,19 @@ class DiffUtils {
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function hasInsertedDiffMark( DOMElement $node, Env $env ): bool {
+	public static function hasInsertedDiffMark( DOMNode $node, Env $env ): bool {
 		return self::hasDiffMark( $node, $env, 'inserted' );
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function maybeDeletedNode( DOMElement $node ): bool {
+	public static function maybeDeletedNode( DOMNode $node ): bool {
 		return $node && DOMUtils::isElt( $node ) && DOMUtils::isDiffMarker( $node, 'deleted' );
 	}
 
@@ -77,19 +78,20 @@ class DiffUtils {
 	 * Is node a mw:DiffMarker node that represents a deleted block node?
 	 * This annotation is added by the DOMDiff pass.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function isDeletedBlockNode( DOMElement $node ): bool {
-		return self::maybeDeletedNode( $node ) && $node->hasAttribute( 'data-is-block' );
+	public static function isDeletedBlockNode( DOMNode $node ): bool {
+		return self::maybeDeletedNode( $node ) && DOMUtils::assertElt( $node ) &&
+			$node->hasAttribute( 'data-is-block' );
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function directChildrenChanged( DOMElement $node, Env $env ): bool {
+	public static function directChildrenChanged( DOMNode $node, Env $env ): bool {
 		return self::hasDiffMark( $node, $env, 'children-changed' );
 	}
 
@@ -107,11 +109,11 @@ class DiffUtils {
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param string $mark
 	 */
-	public static function addDiffMark( DOMElement $node, Env $env, string $mark ): void {
+	public static function addDiffMark( DOMNode $node, Env $env, string $mark ): void {
 		if ( $mark === 'deleted' || $mark === 'moved' ) {
 			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
@@ -127,14 +129,15 @@ class DiffUtils {
 	/**
 	 * Set a diff marker on a node.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param string $change
 	 */
-	public static function setDiffMark( DOMElement $node, Env $env, string $change ): void {
+	public static function setDiffMark( DOMNode $node, Env $env, string $change ): void {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
+		DOMUtils::assertElt( $node );
 
 		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {

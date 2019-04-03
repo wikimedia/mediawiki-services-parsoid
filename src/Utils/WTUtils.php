@@ -246,7 +246,7 @@ class WTUtils {
 		// checked on the encapsulation wrapper $node.
 		$node = self::findFirstEncapsulationWrapperNode( $node ) ?? $node;
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		return isset( $dp->tmp->isNew );
+		return !empty( $dp->tmp->isNew );
 	}
 
 	/**
@@ -342,12 +342,12 @@ class WTUtils {
 	/**
 	 * Does $node represent a category link?
 	 *
-	 * @param DOMNode $node
+	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isCategoryLink( DOMNode $node ): bool {
-		return $node->nodeName === 'link' &&
-			DOMUtils::assertElt( $node ) &&
+	public static function isCategoryLink( ?DOMNode $node ): bool {
+		return $node instanceof DOMelement &&
+			$node->nodeName === 'link' &&
 			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
 	}
 
