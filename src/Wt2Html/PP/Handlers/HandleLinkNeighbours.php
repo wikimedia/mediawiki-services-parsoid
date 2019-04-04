@@ -1,31 +1,36 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\WTUtils as WTUtils;
+use DOMElement;
+use DOMNode;
+
+use Wikimedia\Assert\Assert;
+
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\WTUtils;
 
 class HandleLinkNeighbours {
 	/**
 	 * Function for fetching the link prefix based on a link node.
-	 *
 	 * The content will be reversed, so be ready for that.
-	 * @private
+	 *
+	 * @param Env $env
+	 * @param DOMNode $node
+	 * @return array|null
 	 */
-	public static function getLinkPrefix( $env, $node ) {
+	private static function getLinkPrefix( Env $env, DOMNode $node ): ?array {
 		$baseAbout = null;
-		$regex = $env->conf->wiki->linkPrefixRegex;
+		$regex = $env->getSiteConfig()->linkPrefixRegex();
 
 		if ( !$regex ) {
 			return null;
 		}
 
-		if ( $node !== null && WTUtils::hasParsoidAboutId( $node ) ) {
+		if ( $node instanceof DOMElement && WTUtils::hasParsoidAboutId( $node ) ) {
 			$baseAbout = $node->getAttribute( 'about' );
 		}
 
@@ -35,17 +40,20 @@ class HandleLinkNeighbours {
 
 	/**
 	 * Function for fetching the link trail based on a link node.
-	 * @private
+	 *
+	 * @param Env $env
+	 * @param DOMNode $node
+	 * @return array|null
 	 */
-	public static function getLinkTrail( $env, $node ) {
+	private static function getLinkTrail( Env $env, DOMNode $node ): ?array {
 		$baseAbout = null;
-		$regex = $env->conf->wiki->linkTrailRegex;
+		$regex = $env->getSiteConfig()->linkTrailRegex();
 
 		if ( !$regex ) {
 			return null;
 		}
 
-		if ( $node !== null && WTUtils::hasParsoidAboutId( $node ) ) {
+		if ( $node instanceof DOMElement && WTUtils::hasParsoidAboutId( $node ) ) {
 			$baseAbout = $node->getAttribute( 'about' );
 		}
 
@@ -55,67 +63,72 @@ class HandleLinkNeighbours {
 
 	/**
 	 * Abstraction of both link-prefix and link-trail searches.
-	 * @private
+	 *
+	 * @param Env $env
+	 * @param bool $goForward
+	 * @param ?string $regex
+	 * @param ?DOMNode $node
+	 * @param ?string $baseAbout
+	 * @return array
 	 */
-	public static function findAndHandleNeighbour( $env, $goForward, $regex, $node, $baseAbout ) {
+	private static function findAndHandleNeighbour(
+		Env $env, bool $goForward, string $regex, ?DOMNode $node,
+		?string $baseAbout
+	): array {
 		$value = null;
 		$nextNode = ( $goForward ) ? 'nextSibling' : 'previousSibling';
 		$innerNode = ( $goForward ) ? 'firstChild' : 'lastChild';
-		$getInnerNeighbour = ( $goForward ) ?
-		self::getLinkTrail :
-		self::getLinkPrefix;
+		$getInnerNeighbour = ( $goForward ) ? 'getLinkTrail' : 'getLinkPrefix';
 		$result = [ 'content' => [], 'src' => '' ];
 
 		while ( $node !== null ) {
-			$nextSibling = $node[ $nextNode ];
+			$nextSibling = $node->{ $nextNode };
 			$document = $node->ownerDocument;
 
 			if ( DOMUtils::isText( $node ) ) {
-				$matches = preg_match( $regex, $node->nodeValue );
 				$value = [ 'content' => $node, 'src' => $node->nodeValue ];
-				if ( $matches !== null ) {
-					$value->src = $matches[ 0 ];
-					if ( $value->src === $node->nodeValue ) {
+				if ( preg_match( $regex, $node->nodeValue, $matches ) ) {
+					$value['src'] = $matches[ 0 ];
+					if ( $value['src'] === $node->nodeValue ) {
 						// entire node matches linkprefix/trail
-						$value->content = $node;
 						$node->parentNode->removeChild( $node );
 					} else {
 						// part of node matches linkprefix/trail
-						$value->content = $document->createTextNode( $matches[ 0 ] );
-						$node->parentNode->replaceChild( $document->createTextNode( str_replace( $regex, '', $node->nodeValue ) ), $node );
+						$value['content'] = $document->createTextNode( $matches[ 0 ] );
+						$tn = $document->createTextNode( preg_replace( $regex, '', $node->nodeValue ) );
+						$node->parentNode->replaceChild( $tn, $node );
 					}
 				} else {
-					$value->content = null;
 					break;
 				}
-			} elseif ( WTUtils::hasParsoidAboutId( $node )
-&& $baseAbout !== '' && $baseAbout !== null
-&& $node->getAttribute( 'about' ) === $baseAbout
+			} elseif ( $node instanceof DOMElement
+				&& WTUtils::hasParsoidAboutId( $node )
+				&& $baseAbout !== '' && $baseAbout !== null
+				&& $node->getAttribute( 'about' ) === $baseAbout
 			) {
-				$value = $getInnerNeighbour( $env, $node[ $innerNode ] );
+				$value = self::{ $getInnerNeighbour }( $env, $node->{ $innerNode } );
 			} else {
 				break;
 			}
 
-			if ( $value->content !== null ) {
-				if ( $value->content instanceof $Array ) {
-					$result->content = $result->content->concat( $value->content );
-				} else {
-					$result->content[] = $value->content;
-				}
+			Assert::invariant( $value['content'] !== null, 'Expected array or node.' );
 
-				if ( $goForward ) {
-					$result->src += $value->src;
-				} else {
-					$result->src = $value->src + $result->src;
-				}
-
-				if ( $value->src !== $node->nodeValue ) {
-					break;
-				}
+			if ( is_array( $value['content'] ) ) {
+				$result['content'] += $value['content'];
 			} else {
+				$result['content'][] = $value['content'];
+			}
+
+			if ( $goForward ) {
+				$result['src'] .= $value['src'];
+			} else {
+				$result['src'] = $value['src'] . $result['src'];
+			}
+
+			if ( $value['src'] !== $node->nodeValue ) {
 				break;
 			}
+
 			$node = $nextSibling;
 		}
 
@@ -125,61 +138,69 @@ class HandleLinkNeighbours {
 	/**
 	 * Workhorse function for bringing linktrails and link prefixes into link content.
 	 * NOTE that this function mutates the node's siblings on either side.
+	 *
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @return bool|mixed
 	 */
-	public static function handleLinkNeighbours( $node, $env ) {
-		$rel = $node->getAttribute( 'rel' ) || '';
+	public static function handler( DOMNode $node, Env $env ) {
+		DOMUtils::assertElt( $node );
+
+		$rel = $node->getAttribute( 'rel' );
 		if ( !preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel ) ) {
 			return true;
 		}
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$ix = null;
-$dataMW = null;
+		$dataMW = null;
 		$prefix = self::getLinkPrefix( $env, $node );
 		$trail = self::getLinkTrail( $env, $node );
 
-		if ( $prefix && $prefix->content ) {
-			for ( $ix = 0;  $ix < count( $prefix->content );  $ix++ ) {
-				$node->insertBefore( $prefix->content[ $ix ], $node->firstChild );
+		if ( is_array( $prefix ) && $prefix['content'] ) {
+			for ( $ix = 0;  $ix < count( $prefix['content'] );  $ix++ ) {
+				$node->insertBefore( $prefix['content'][ $ix ], $node->firstChild );
 			}
-			if ( count( $prefix->src ) > 0 ) {
-				$dp->prefix = $prefix->src;
+			if ( mb_strlen( $prefix['src'] ) > 0 ) {
+				$dp->prefix = $prefix['src'];
 				if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 					// only necessary if we're the first
 					$dataMW = DOMDataUtils::getDataMw( $node );
-					if ( $dataMW->parts ) { array_unshift( $dataMW->parts, $prefix->src );
-		   }
+					if ( $dataMW->parts ) {
+						array_unshift( $dataMW->parts, $prefix['src'] );
+					}
 				}
 				if ( $dp->dsr ) {
-					$dp->dsr[ 0 ] -= count( $prefix->src );
-					$dp->dsr[ 2 ] += count( $prefix->src );
+					$dp->dsr[ 0 ] -= mb_strlen( $prefix['src'] );
+					$dp->dsr[ 2 ] += mb_strlen( $prefix['src'] );
 				}
 			}
 		}
 
-		if ( $trail && $trail->content && count( $trail->content ) ) {
-			for ( $ix = 0;  $ix < count( $trail->content );  $ix++ ) {
-				$node->appendChild( $trail->content[ $ix ] );
+		if ( is_array( $trail ) && $trail['content'] && count( $trail['content'] ) > 0 ) {
+			for ( $ix = 0;  $ix < count( $trail['content'] );  $ix++ ) {
+				$node->appendChild( $trail['content'][ $ix ] );
 			}
-			if ( count( $trail->src ) > 0 ) {
-				$dp->tail = $trail->src;
+			if ( mb_strlen( $trail['src'] ) > 0 ) {
+				$dp->tail = $trail['src'];
 				$about = $node->getAttribute( 'about' );
 				if ( WTUtils::hasParsoidAboutId( $node )
-&& count( WTUtils::getAboutSiblings( $node, $about ) ) === 1
+					&& count( WTUtils::getAboutSiblings( $node, $about ) ) === 1
 				) {
 					// search back for the first wrapper but
 					// only if we're the last. otherwise can assume
 					// template encapsulation will handle it
 					$wrapper = WTUtils::findFirstEncapsulationWrapperNode( $node );
-					if ( $wrapper !== null && DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ) {
+					if ( $wrapper instanceof DOMElement && DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ) {
 						$dataMW = DOMDataUtils::getDataMw( $wrapper );
-						if ( $dataMW->parts ) { $dataMW->parts[] = $trail->src;
-			   }
+						if ( $dataMW->parts ) {
+							$dataMW->parts[] = $trail['src'];
+						}
 					}
 				}
-				if ( $dp->dsr ) {
-					$dp->dsr[ 1 ] += count( $trail->src );
-					$dp->dsr[ 3 ] += count( $trail->src );
+				if ( isset( $dp->dsr ) ) {
+					$dp->dsr[ 1 ] += mb_strlen( $trail['src'] );
+					$dp->dsr[ 3 ] += mb_strlen( $trail['src'] );
 				}
 			}
 			// indicate that the node's tail siblings have been consumed
@@ -188,8 +209,4 @@ $dataMW = null;
 			return true;
 		}
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->HandleLinkNeighbours = $HandleLinkNeighbours;
 }

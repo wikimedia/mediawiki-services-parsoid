@@ -5,12 +5,13 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
-// use Parsoid\Utils\DOMTraverser;
+use Parsoid\Utils\DOMTraverser;
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
+use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -75,6 +76,13 @@ switch ( $transformerName ) {
 		break;
 	case 'AddExtLinkClasses':
 		$transformer = new AddExtLinkClasses();
+		break;
+	case 'HandleLinkNeighbours':
+		$isTraverser = true;
+		$transformer = new DOMTraverser();
+		$transformer->addHandler( 'a', function ( ...$args ) {
+			return HandleLinkNeighbours::handler( ...$args );
+		} );
 		break;
 	default:
 		throw new \Exception( "Unsupported!" );
