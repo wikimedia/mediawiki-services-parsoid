@@ -142,7 +142,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function langConverterEnabled( string $lang ): bool {
-		return false;
+		return true;
 	}
 
 	public function script(): string {
@@ -241,7 +241,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function hasValidProtocol( string $potentialLink ): bool {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return preg_match( '#^(https?:|//)#', $potentialLink );
 	}
 
 	/** @inheritDoc */

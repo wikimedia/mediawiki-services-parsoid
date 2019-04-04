@@ -5,21 +5,28 @@
 # a config file such as this.
 
 wt2html:
-   Tokenizer: false
+   PegTokenizer: false
    TT:
      ParagraphWrapper: false
      QuoteTransformer: false
      PreHandler: false
      ListHandler: false
+     BehaviorSwitchHandler: false
+     NoInclude: false
+     IncludeOnly: false
+     OnlyInclude: false
    DOM:
      PWrap: false
      ComputeDSR: false
      WrapSections: false
+     HandlePres: false
+     AddExtLinkClasses: false
 
 html2wt:
   DOMDiff: false
   DOMNormalizer: false
 
+# This is not yet supported
 exts:
   Cite: false
   Poem: false

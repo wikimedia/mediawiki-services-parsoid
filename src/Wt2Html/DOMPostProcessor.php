@@ -38,7 +38,7 @@ $MarkFosteredContent = $requireProcessor( 'MarkFosteredContent' );
 $MigrateTemplateMarkerMetas = $requireProcessor( 'MigrateTemplateMarkerMetas' );
 $MigrateTrailingNLs = $requireProcessor( 'MigrateTrailingNLs' );
 $Normalize = $requireProcessor( 'Normalize' );
-$PHPDOMTransform = null;
+$PHPDOMPass = null;
 $ProcessTreeBuilderFixups = $requireProcessor( 'ProcessTreeBuilderFixups' );
 $PWrap = $requireProcessor( 'PWrap' );
 $WrapSections = $requireProcessor( 'WrapSections' );
@@ -685,7 +685,7 @@ function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost )
 	}
 }
 
-DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMTransform ) {
+DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMPass ) {
 	$env = $this->env;
 
 	$psd = $env->conf->parsoid;
@@ -745,12 +745,12 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 
 			if ( $phpDOMTransformers && $phpDOMTransformers[ $pp->name ] ) {
 				// Run the PHP version of this DOM transformation
-				if ( !$PHPDOMTransform ) {
-					$PHPDOMTransform = new ( require( '../../tests/porting/hybrid/PHPDOMTransform.js' )::PHPDOMTransform )();
+				if ( !$PHPDOMPass ) {
+					$PHPDOMPass = new ( require( '../../tests/porting/hybrid/PHPDOMPass.js' )::PHPDOMPass )();
 				}
 				// Overwrite!
 				// Overwrite!
-				$document = PHPDOMTransform::run( $pp->name, $document->body, $env, $this->options, $this->atTopLevel );
+				$document = PHPDOMPass::wt2htmlPP( $pp->name, $document->body, $env, $this->options, $this->atTopLevel );
 			} else {
 				$ret = $pp->proc( $document->body, $env, $this->options, $this->atTopLevel );
 				if ( $ret ) {

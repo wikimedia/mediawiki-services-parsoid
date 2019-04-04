@@ -246,7 +246,8 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 	$options = $defaultOptions( $options );
 
 	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
-	$phpTokenTransformers = $pipelineConfig && $pipelineConfig->wt2html && $pipelineConfig->wt2html->TT || null;
+	$phpComponents = $pipelineConfig && $pipelineConfig->wt2html;
+	$phpTokenTransformers = $phpComponents && $phpComponents::TT || null;
 
 	$recipe = $this->recipes[ $type ];
 	if ( !$recipe ) {
@@ -254,6 +255,9 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 		throw 'Error while trying to construct pipeline for ' . $type;
 	}
 	$stages = [];
+	$PHPBuffer = null;
+$PHPTokenTransform = null;
+$PHPPipelineStage = null;
 	for ( $i = 0,  $l = count( $recipe );  $i < $l;  $i++ ) {
 		// create the stage
 		$stageData = $recipe[ $i ];
@@ -266,41 +270,56 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 			$stage = $this->makePipeline( $stageData, $newOpts );
 		} else {
 			Assert::invariant( count( $stageData[ 1 ] ) <= 2 );
-			$stage = new ( $stageData[ 0 ] )( $this->env, $options, $this, $stageData[ 1 ][ 0 ], $stageData[ 1 ][ 1 ] );
-			if ( count( $stageData ) >= 3 ) {
-				// FIXME: This code here adds the 'transformers' property to every stage
-				// behind the back of that stage.  There are two alternatives to this:
-				//
-				// 1. Add 'recordTransformer' and 'getTransformers' functions to every stage.
-				// But, seems excessive compared to current approach where the stages
-				// aren't concerned with unnecessary details of state maintained for
-				// the purposes of top-level orchestration.
-				// 2. Alternatively, we could also maintain this information as a separate
-				// object rather than tack it onto '.transformers' property of each stage.
-				// this.stageTransformers = [
-				// [stage1-transformers],
-				// [stage2-transformers],
-				// ...
-				// ];
 
-				$stage->transformers = [];
-				// Create (and implicitly register) transforms
-				$transforms = $stageData[ 2 ];
-				$PHPBuffer = null;
-$PHPTransformer = null;
-				for ( $j = 0;  $j < count( $transforms );  $j++ ) {
-					$T = $transforms[ $j ];
-					if ( $phpTokenTransformers && $phpTokenTransformers[ T::name ] ) {
-						// Run the PHP version of this token transformation
-						if ( !$PHPBuffer ) {
-							// Add a buffer before the first PHP transformer
-							$PHPBuffer = require '../../tests/porting/hybrid/PHPBuffer.js'::PHPBuffer;
-							$PHPTransformer = require '../../tests/porting/hybrid/PHPTransformer.js'::PHPTransformer;
-							$stage->transformers[] = new PHPBuffer( $stage, $options );
+			if ( $phpComponents && $phpComponents[ $stageData[ 0 ]->name ] ) {
+				if ( !$PHPPipelineStage ) {
+					$PHPPipelineStage = require '../../tests/porting/hybrid/PHPPipelineStage.js'::PHPPipelineStage;
+				}
+				$stage = new PHPPipelineStage( $this->env, $this, $stageData[ 0 ]->name, $options );
+				$stage->phaseEndRank = $stageData[ 1 ][ 0 ];
+				$stage->pipelineType = $stageData[ 1 ][ 1 ];
+				// If you run a higher level pipeline component in PHP, we are forcing
+				// all sub-transforms to run in PHP as well. Just keeps things simpler.
+				// This only affects stages 1,2,3 involving the Sync or Async Token Transformers.
+				if ( count( $stageData ) >= 3 ) {
+					$stage->transformers = array_map( $stageData[ 2 ], function ( $T ) {return T::name;
+		   } );
+				}
+			} else {
+				$stage = new ( $stageData[ 0 ] )( $this->env, $options, $this, $stageData[ 1 ][ 0 ], $stageData[ 1 ][ 1 ] );
+				if ( count( $stageData ) >= 3 ) {
+					// FIXME: This code here adds the 'transformers' property to every stage
+					// behind the back of that stage.  There are two alternatives to this:
+					//
+					// 1. Add 'recordTransformer' and 'getTransformers' functions to every stage.
+					// But, seems excessive compared to current approach where the stages
+					// aren't concerned with unnecessary details of state maintained for
+					// the purposes of top-level orchestration.
+					// 2. Alternatively, we could also maintain this information as a separate
+					// object rather than tack it onto '.transformers' property of each stage.
+					// this.stageTransformers = [
+					// [stage1-transformers],
+					// [stage2-transformers],
+					// ...
+					// ];
+
+					$stage->transformers = [];
+					// Create (and implicitly register) transforms
+					$transforms = $stageData[ 2 ];
+					for ( $j = 0;  $j < count( $transforms );  $j++ ) {
+						$T = $transforms[ $j ];
+						if ( $phpTokenTransformers && $phpTokenTransformers[ T::name ] ) {
+							// Run the PHP version of this token transformation
+							if ( !$PHPBuffer ) {
+								// Add a buffer before the first PHP transformer
+								$PHPBuffer = require '../../tests/porting/hybrid/PHPBuffer.js'::PHPBuffer;
+								$PHPTokenTransform = require '../../tests/porting/hybrid/PHPTokenTransform.js'::PHPTokenTransform;
+								$stage->transformers[] = new PHPBuffer( $stage, $options );
+							}
+							$stage->transformers[] = new PHPTokenTransform( $this->env, $stage, T::name, $options );
+						} else {
+							$stage->transformers[] = new T( $stage, $options );
 						}
-						$stage->transformers[] = new PHPTransformer( $stage, T::name, $options );
-					} else {
-						$stage->transformers[] = new T( $stage, $options );
 					}
 				}
 			}

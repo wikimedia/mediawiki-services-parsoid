@@ -99,6 +99,8 @@ $HEADING_NOWIKI_REGEXP = JSUtils::rejoin(
 	/* RegExp */ '/<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/'
 );
 
+$PHPDOMPass = null;
+
 /**
  * Serializes a chunk of tokens or an HTML DOM to MediaWiki's wikitext flavor.
  *
@@ -2405,7 +2407,7 @@ WikitextSerializer::prototype::_stripUnnecessaryQuoteNowikis = function ( $line 
  * Serialize an HTML DOM document.
  * WARNING: You probably want to use {@link FromHTML.serializeDOM} instead.
  */
-WikitextSerializer::prototype::serializeDOM = /* async */function ( $body, $selserMode ) use ( &$DOMUtils, &$ContentUtils, &$DOMNormalizer ) {
+WikitextSerializer::prototype::serializeDOM = /* async */function ( $body, $selserMode ) use ( &$DOMUtils, &$ContentUtils, &$PHPDOMPass, &$DOMNormalizer ) {
 	Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
 	// `editedDoc` is simply body's ownerDocument.  However, since we make
 	// recursive calls to WikitextSerializer.prototype.serializeDOM with elements from dom fragments
@@ -2433,7 +2435,15 @@ WikitextSerializer::prototype::serializeDOM = /* async */function ( $body, $sels
 
 	// Normalize the DOM
 	// Normalize the DOM
-	( new DOMNormalizer( $state ) )->normalize( $body );
+	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
+	if ( $pipelineConfig && $pipelineConfig->html2wt && $pipelineConfig->html2wt->DOMNormalizer ) {
+		if ( !$PHPDOMPass ) {
+			$PHPDOMPass = require( '../../tests/porting/hybrid/PHPDOMPass.js' )::PHPDOMPass;
+		}
+		$body = ( new PHPDOMPass() )->normalizeDOM( $state, $body );
+	} else {
+		( new DOMNormalizer( $state ) )->normalize( $body );
+	}
 
 	$psd = $this->env->conf->parsoid;
 	if ( $psd->dumpFlags && $psd->dumpFlags->has( 'dom:post-normal' ) ) {
@@ -2529,6 +2539,14 @@ WikitextSerializer::prototype::serializeDOM = /* async */function ( $body, $sels
 
 	return $state->out;
 }
+
+
+
+
+
+
+
+
 
 
 

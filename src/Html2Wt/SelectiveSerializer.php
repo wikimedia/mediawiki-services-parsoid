@@ -18,6 +18,8 @@ use Parsoid\DOMUtils as DOMUtils;
 use Parsoid\Promise as Promise;
 use Parsoid\WikitextSerializer as WikitextSerializer;
 
+$PHPDOMPass = null;
+
 /**
  * If we have the page source (this.env.page.src), we use the selective
  * serialization method, only reporting the serialized wikitext for parts of
@@ -91,7 +93,17 @@ $domDiffStart = null;
 				ContentUtils::stripSectionTagsAndFallbackIds( $body );
 				ContentUtils::stripSectionTagsAndFallbackIds( $this->env->page->dom );
 
-				$diff = ( new DOMDiff( $this->env ) )->diff( $this->env->page->dom, $body );
+				$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
+				if ( $pipelineConfig && $pipelineConfig->html2wt && $pipelineConfig->html2wt->DOMDiff ) {
+					if ( !$PHPDOMPass ) {
+						$PHPDOMPass = require '../../tests/porting/hybrid/PHPDOMPass.js'::PHPDOMPass;
+					}
+					$ret = ( new PHPDOMPass() )->diff( $this->env, $this->env->page->dom, $body );
+					$diff = $ret->diff;
+					$body = $ret->dom;
+				} else {
+					$diff = ( new DOMDiff( $this->env ) )->diff( $this->env->page->dom, $body );
+				}
 
 				if ( $metrics ) {
 					$metrics->endTiming( 'html2wt.selser.domDiff', $domDiffStart );

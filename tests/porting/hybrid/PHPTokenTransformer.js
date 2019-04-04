@@ -14,15 +14,15 @@ const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
  * @class
  * @extends module:wt2html/tt/TokenHandler
  */
-class PHPTransformer extends TokenHandler {
-	constructor(manager, name, options) {
+class PHPTokenTransformer extends TokenHandler {
+	constructor(env, manager, name, options) {
 		super(manager, options);
 		this.transformerName = name;
 	}
 
 	processTokensSync(env, tokens, traceState) {
 		if (!(/^\w+$/.test(this.transformerName))) {
-			console.error("Transformer name failed sanity check.");
+			console.error("Transformer name " + this.transformerName + " failed sanity check.");
 			process.exit(-1);
 		}
 
@@ -34,7 +34,7 @@ class PHPTransformer extends TokenHandler {
 			pageContent: this.manager.env.page.src
 		};
 		const res = childProcess.spawnSync("php", [
-			path.resolve(__dirname, "runTransform.php"),
+			path.resolve(__dirname, "runTokenTransformer.php"),
 			this.transformerName,
 			fileName,
 		], { input: JSON.stringify(opts) });
@@ -53,5 +53,5 @@ class PHPTransformer extends TokenHandler {
 }
 
 if (typeof module === "object") {
-	module.exports.PHPTransformer = PHPTransformer;
+	module.exports.PHPTokenTransformer = PHPTokenTransformer;
 }
