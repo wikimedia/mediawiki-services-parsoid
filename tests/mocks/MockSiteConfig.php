@@ -112,7 +112,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function linkTrailRegex(): ?string {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return '/^([a-z]+)/sD';
 	}
 
 	public function lang(): string {
