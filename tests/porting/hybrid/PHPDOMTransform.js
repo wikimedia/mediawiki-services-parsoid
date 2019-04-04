@@ -12,14 +12,14 @@ class PHPDOMTransform {
 			process.exit(-1);
 		}
 
-		const opts = this.options || {};
-		// These are the only env properties used by DOM processors
-		// in wt2html/pp/processors/*. Handlers may use other properties.
-		// We can cross that bridge when we get there.
-		opts.wrapSections = env.wrapSections;
-		opts.rtTestMode = env.conf.parsoid.rtTestMode;
-		opts.pageContent = env.page.src;
-		opts.sourceOffsets = options.sourceOffsets;
+		const hackyEnvOpts = {
+			// These are the only env properties used by DOM processors
+			// in wt2html/pp/processors/*. Handlers may use other properties.
+			// We can cross that bridge when we get there.
+			wrapSections: env.wrapSections,
+			rtTestMode: env.conf.parsoid.rtTestMode,
+			pageContent: env.page.src,
+		};
 
 		const html = ContentUtils.ppToXML(root, { tunnelFosteredContent: true, keepTmp: true });
 		const fileName = `/tmp/${transformerName}.${process.pid}.html`;
@@ -28,8 +28,14 @@ class PHPDOMTransform {
 		const res = childProcess.spawnSync("php", [
 			path.resolve(__dirname, "runDOMTransform.php"),
 			transformerName,
-			fileName
-		], { input: JSON.stringify(opts) });
+			fileName,
+		], {
+			input: JSON.stringify({
+				hackyEnvOpts,
+				atTopLevel: !!atTopLevel,  // Force bool before serializing
+				runOptions: options || {},
+			}),
+		});
 
 		const stdout = res.stdout.toString();
 		const stderr = res.stderr.toString();

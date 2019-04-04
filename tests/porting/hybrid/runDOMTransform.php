@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
+// use Parsoid\Utils\DOMTraverser;
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
@@ -26,15 +27,19 @@ $htmlFileName = $argv[2];
 /**
  * Read HTML from STDIN and build DOM
  */
-$optsString = file_get_contents( 'php://stdin' );
-$opts = PHPUtils::jsonDecode( $optsString );
+$input = file_get_contents( 'php://stdin' );
+$json = PHPUtils::jsonDecode( $input );
+
+$hackyEnvOpts = $json['hackyEnvOpts'];
+$atTopLevel = $json['atTopLevel'];
+$runOptions = $json['runOptions'];
 
 // Build a mock env with the bare mininum info that we know
 // DOM processors are currently using.
 $env = new MockEnv( [
-	"wrapSections" => !empty( $opts['wrapSections' ] ),
-	"rtTestMode" => $opts['rtTestMode'] ?? false,
-	"pageContent" => $opts['pageContent'] ?? null,
+	"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
+	"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
+	"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
 ] );
 
 $html = file_get_contents( $htmlFileName );
@@ -54,6 +59,7 @@ $manager->options = [];
  * Build the requested transformer
  */
 $transformer = null;
+$isTraverser = false;
 switch ( $transformerName ) {
 	case 'PWrap':
 		$transformer = new PWrap();
@@ -77,7 +83,11 @@ switch ( $transformerName ) {
 /**
  * Transform the input DOM
  */
-$transformer->run( $body, $manager->env, $opts );
+if ( $isTraverser ) {
+	$transformer->traverse( $body, $manager->env, $runOptions, $atTopLevel, null );
+} else {
+	$transformer->run( $body, $manager->env, $runOptions, $atTopLevel );
+}
 
 /**
  * Serialize output to DOM while tunneling fosterable content
