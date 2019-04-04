@@ -153,7 +153,7 @@ class Linter {
 
 	public function findLintDSR( $tplLintInfo, $tplInfo, $nodeDSR, $updateNodeDSR ) {
 		if ( $tplLintInfo || ( $tplInfo && !Util::isValidDSR( $nodeDSR ) ) ) {
-			return $tplInfo->dsr;
+			return DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr;
 		} else {
 			return ( $updateNodeDSR ) ? $updateNodeDSR( $nodeDSR ) : $nodeDSR;
 		}

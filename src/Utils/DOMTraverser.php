@@ -102,25 +102,28 @@ class DOMTraverser {
 		DOMNode $workNode, Env $env, array $options, bool $atTopLevel, ?StdClass $tplInfo
 	) {
 		while ( $workNode !== null ) {
-			if ( DOMUtils::isElt( $workNode ) ) {
-				/** @var DOMElement $workNode */
-
+			if ( $workNode instanceof DOMElement ) {
 				// Identify the first template/extension node.
 				// You'd think the !tplInfo check isn't necessary since
 				// we don't have nested transclusions, however, you can
 				// get extensions in transclusions.
 				if ( !$tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $workNode )
+					// Ensure this isn't just a meta marker, since we might
+					// not be traversing after encapsulation.  Note that the
+					// valid data-mw assertion is the same test as used in
+					// cleanup.
+					&& ( !WTUtils::isTplMarkerMeta( $workNode ) || DOMDataUtils::validDataMw( $workNode ) )
 					// Encapsulation info on sections should not be used to
 					// traverse with since it's designed to be dropped and
 					// may have expanded ranges.
 					&& !WTUtils::isParsoidSectionTag( $workNode )
 				) {
 					DOMUtils::assertElt( $workNode );
-					$about = $workNode->getAttribute( 'about' ) ?: '';
+					$about = $workNode->getAttribute( 'about' );
+					$aboutSiblings = WTUtils::getAboutSiblings( $workNode, $about );
 					$tplInfo = (object)[
 						'first' => $workNode,
-						'last' => PHPUtils::lastItem( WTUtils::getAboutSiblings( $workNode, $about ) ),
-						'dsr' => DOMDataUtils::getDataParsoid( $workNode )->dsr,
+						'last' => end( $aboutSiblings ),
 						'clear' => false,
 					];
 				}
