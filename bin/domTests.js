@@ -120,8 +120,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		testFilePost = cachedFilePost;
 	}
 
-	const body = TestUtils.mockEnvDoc(testFilePre).body;
-	DOMDataUtils.visitAndLoadDataAttribs(body);
+	const body = TestUtils.ppToDOM(testFilePre).body;
 	let dumpOpts = {};
 
 	if (this.first === true) {

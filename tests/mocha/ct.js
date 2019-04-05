@@ -268,8 +268,7 @@ describe('ConstrainedText', () => {
 			if (t.linkTrailRegex) {
 				env.conf.wiki.linkTrailRegex = t.linkTrailRegex;
 			}
-			const doc = TestUtils.mockEnvDoc(t.html);
-			DOMDataUtils.visitAndLoadDataAttribs(doc.body);
+			const doc = TestUtils.ppToDOM(t.html);
 			const node = doc.body.firstChild;
 			const dataParsoid = DOMDataUtils.getDataParsoid(node);
 

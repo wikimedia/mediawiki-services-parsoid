@@ -12,7 +12,7 @@ const { PWrap } = require('../../lib/wt2html/pp/processors/PWrap.js');
 const PWrapper = new PWrap();
 const re = new RegExp(` ${DOMDataUtils.DataObjectAttrName()}="\\d+"`, 'g');
 var verifyPWrap = function(html, expectedOutput) {
-	var doc = TestUtils.mockEnvDoc(html);
+	var doc = TestUtils.ppToDOM(html);
 	PWrapper.run(doc.body);
 	doc.body.innerHTML.replace(re, '').should.equal(expectedOutput);
 };

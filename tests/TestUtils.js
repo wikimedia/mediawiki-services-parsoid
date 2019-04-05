@@ -1237,6 +1237,14 @@ TestUtils.mockEnvDoc = function(html) {
 	return doc;
 };
 
+// Simplified equivalent of ContentUtils.ppToDOM
+TestUtils.ppToDOM = function(html, options) {
+	options = options || { markNew: true };
+	const doc = TestUtils.mockEnvDoc(html);
+	DOMDataUtils.visitAndLoadDataAttribs(doc.body, options.markNew);
+	return doc;
+};
+
 if (typeof module === "object") {
 	module.exports.TestUtils = TestUtils;
 }

@@ -12,8 +12,8 @@ const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
 const { TestUtils } = require('../../tests/TestUtils.js');
 
 const parseAndDiff = function(a, b) {
-	const oldDOM = TestUtils.mockEnvDoc(a).body;
-	const newDOM = TestUtils.mockEnvDoc(b).body;
+	const oldDOM = TestUtils.ppToDOM(a).body;
+	const newDOM = TestUtils.ppToDOM(b).body;
 
 	const dummyEnv = {
 		conf: { parsoid: {}, wiki: {} },

@@ -56,8 +56,8 @@ Promise.async(function *() {
 		return;
 	}
 
-	var oldDOM = TestUtils.mockEnvDoc(oldhtml).body;
-	var newDOM = TestUtils.mockEnvDoc(newhtml).body;
+	var oldDOM = TestUtils.ppToDOM(oldhtml).body;
+	var newDOM = TestUtils.ppToDOM(newhtml).body;
 
 	ContentUtils.stripSectionTagsAndFallbackIds(oldDOM);
 	ContentUtils.stripSectionTagsAndFallbackIds(newDOM);
