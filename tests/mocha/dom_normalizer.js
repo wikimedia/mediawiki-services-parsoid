@@ -70,6 +70,10 @@ const noDiffMarkerSpecsWithScrubWikitext = [
 				'<h2>H2<link href="Category:A1" rel="mw:PageProp/Category"/></h2>',
 				'<h2>H2</h2><link href="Category:A1" rel="mw:PageProp/Category"/>'
 			],
+			[
+				'<h2><meta property="mw:PageProp/toc"/> ok</h2>',
+				'<meta property="mw:PageProp/toc"/><h2>ok</h2>',
+			],
 		],
 	},
 	{
@@ -107,14 +111,46 @@ const noDiffMarkerSpecsWithScrubWikitext = [
 			],
 		],
 	},
+	{
+		desc: "Formatting tags in links",
+		stripDiffMarkers: true,
+		scrubWikitext: true,
+		tests: [
+			// Reordered HTML serializable to simplified form
+			[
+				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>',
+				'<u><i><b><a rel="mw:WikiLink" href="./Football">Football</a></b></i></u>',
+			],
+			// Reordered HTML changes semantics
+			[
+				'<a rel="mw:WikiLink" href="./Football"><i color="brown">Football</i></a>',
+				'<a rel="mw:WikiLink" href="./Football"><i color="brown">Football</i></a>',
+			],
+			// Reordered HTML NOT serializable to simplified form
+			[
+				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Soccer</b></i></u></a>',
+				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Soccer</b></i></u></a>',
+			],
+		],
+	},
+	{
+		desc: "Escapable prefixes in table cells",
+		stripDiffMarkers: true,
+		scrubWikitext: true,
+		tests: [
+			[
+				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
+				'<table><tbody><tr><td> +</td><td> -</td></tr></tbody></table>',
+			],
+		],
+	},
 	// More to come
 ];
 
 const noDiffMarkerSpecsWithoutScrubWikitext = [
 	{
-		// No change in results compared no-scrub
+		// No change in results compared to no-scrub
 		desc: "Minimizable tags",
-		stripDiffMarkers: true,
 		scrubWikitext: false,
 		tests: [
 			[ "<i>X</i><i>Y</i>", "<i>XY</i>" ],
@@ -124,7 +160,6 @@ const noDiffMarkerSpecsWithoutScrubWikitext = [
 	},
 	{
 		desc: "Headings",
-		stripDiffMarkers: true,
 		scrubWikitext: false,
 		tests: [
 			[
@@ -133,11 +168,41 @@ const noDiffMarkerSpecsWithoutScrubWikitext = [
 			],
 		],
 	},
+	{
+		desc: "Tables",
+		scrubWikitext: false,
+		tests: [
+			[
+				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
+				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
+			],
+		],
+	},
+	{
+		desc: "Links",
+		scrubWikitext: false,
+		tests: [
+			[
+				'<a data-parsoid="{}" href="FootBall">Foot</a><a href="FootBall">Ball</a>',
+				// NOTE: we are stripping data-parsoid before comparing output in our testing.
+				// Hence the difference in output.
+				'<a href="FootBall">Foot</a><a href="FootBall">Ball</a>',
+			],
+			[
+				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>',
+				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>',
+			],
+			[
+				'<a rel="mw:WikiLink" href="./Foo">Foo </a>bar',
+				'<a rel="mw:WikiLink" href="./Foo">Foo </a>bar'
+			],
+		],
+	},
 ];
 
 describe('DOM Normalization (No Diff Markers, Scrub Wikitext): ', function() {
 	noDiffMarkerSpecsWithScrubWikitext.forEach(function(s) {
-		var desc = s.desc;
+		const desc = s.desc;
 		it('should succeed for ' + JSON.stringify(desc), function() {
 			s.tests.forEach(function(t) {
 				return parseAndNormalize(t[0], s).should.equal(t[1]);
@@ -146,9 +211,9 @@ describe('DOM Normalization (No Diff Markers, Scrub Wikitext): ', function() {
 	});
 });
 
-describe('DOM Normalization (No Diff Markers, No Scrub Wikitext): ', function() {
+describe('DOM Normalization (No Scrub Wikitext): ', function() {
 	noDiffMarkerSpecsWithoutScrubWikitext.forEach(function(s) {
-		var desc = s.desc;
+		const desc = s.desc;
 		it('should succeed for ' + JSON.stringify(desc), function() {
 			s.tests.forEach(function(t) {
 				return parseAndNormalize(t[0], s).should.equal(t[1]);
