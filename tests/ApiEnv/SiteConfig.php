@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Tests\ApiEnv;
 
 use Parsoid\Config\SiteConfig as ISiteConfig;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
@@ -85,7 +86,7 @@ class SiteConfig extends ISiteConfig {
 						}, $message );
 
 						fprintf( STDERR, "[%s] %s %s\n", $level, $message,
-							json_encode( $context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+							PHPUtils::jsonEncode( $context )
 						);
 					} else {
 						fprintf( STDERR, "[%s] %s\n", $level, $message );

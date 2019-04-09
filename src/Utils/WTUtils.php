@@ -746,7 +746,7 @@ class WTUtils {
 	 * @return string
 	 */
 	public static function fosterCommentData( string $typeOf, array $attrs, bool $encode ): string {
-		$str = json_encode( [
+		$str = PHPUtils::jsonEncode( [
 			'@type' => $typeOf,
 			'attrs' => $attrs
 		] );

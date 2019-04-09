@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html\TT;
 
 use stdClass as StdClass;
 
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
@@ -79,7 +80,7 @@ class ListHandler extends TokenHandler {
 	 */
 	public function onAny( $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'ANY:',  function () use ( $token ) { return json_encode( $token );
+			'ANY:',  function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 		 } );
 		$tokens = null;
 
@@ -182,7 +183,7 @@ class ListHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'END:', function () use ( $token ) { return json_encode( $token );
+			'END:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 		 } );
 
 		$this->listFrames = [];
@@ -341,7 +342,7 @@ class ListHandler extends TokenHandler {
 	 */
 	public function doListItem( array $bs, array $bn, Token $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'BEGIN:', function () use ( $token ) { return json_encode( $token );
+			'BEGIN:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 		 } );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
@@ -364,7 +365,7 @@ class ListHandler extends TokenHandler {
 
 		// emit close tag tokens for closed lists
 		$this->env->log( 'trace/list', $this->manager->pipelineId, function () use ( $bs, $bn ) {
-			return '    bs: ' . json_encode( $bs ) . '; bn: ' . json_encode( $bn );
+			return '    bs: ' . PHPUtils::jsonEncode( $bs ) . '; bn: ' . PHPUtils::jsonEncode( $bn );
 		} );
 
 		if ( count( $prefix ) === count( $bs ) && count( $bn ) === count( $bs ) ) {
@@ -502,7 +503,7 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->atEOL = false;
 
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'RET:', function () use ( $res ) { return json_encode( $res );
+			'RET:', function () use ( $res ) { return PHPUtils::jsonEncode( $res );
 		 } );
 		return $res;
 	}

@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Tokens\CommentTk;
@@ -326,7 +327,7 @@ class PreHandler extends TokenHandler {
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
 			self::stateStr()[ $this->state ], '|',
 			function () use ( $token ) {
-				return json_encode( $token );
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
@@ -378,7 +379,7 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
 			function () use ( $ret ) {
-				return json_encode( $ret );
+				return PHPUtils::jsonEncode( $ret );
 			}
 		);
 
@@ -399,7 +400,7 @@ class PreHandler extends TokenHandler {
 		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
 			self::stateStr()[ $this->state ], '|',
 			function () use ( $token ) {
-				return json_encode( $token );
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
@@ -428,7 +429,7 @@ class PreHandler extends TokenHandler {
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
 			function () use ( $ret ){
-				return json_encode( $ret );
+				return PHPUtils::jsonEncode( $ret );
 			}
 		);
 
@@ -470,13 +471,13 @@ class PreHandler extends TokenHandler {
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
 			self::stateStr()[ $this->state ], '|',
 			function () use ( $token ) {
-				return json_encode( $token );
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
 		if ( $this->state === self::STATE_IGNORE ) {
 			$env->log( 'error', function () use ( $token ) {
-				return '!ERROR! IGNORE! Cannot get here: ' . json_encode( $token );
+				return '!ERROR! IGNORE! Cannot get here: ' . PHPUtils::jsonEncode( $token );
 			} );
 			return $token;
 		}
@@ -586,7 +587,7 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
 			function () use ( $ret ) {
-				return json_encode( $ret );
+				return PHPUtils::jsonEncode( $ret );
 			}
 		);
 

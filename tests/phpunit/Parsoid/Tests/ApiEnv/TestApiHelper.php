@@ -2,6 +2,7 @@
 
 namespace Parsoid\Tests\ApiEnv;
 
+use Parsoid\Utils\PHPUtils;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\ScopedCallback;
 
@@ -47,7 +48,7 @@ class TestApiHelper extends ApiHelper {
 	 * @param array $params API request parameters
 	 */
 	public static function writeRequestFile( string $filename, array $params ): void {
-		$out = json_encode( $params ) . "\n";
+		$out = PHPUtils::jsonEncode( $params ) . "\n";
 
 		$ch = curl_init( 'https://en.wikipedia.org/w/api.php' );
 		if ( !$ch ) {

@@ -3,6 +3,7 @@
 namespace Parsoid\Tests;
 
 use Parsoid\Config\SiteConfig;
+use Parsoid\Utils\PHPUtils;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
@@ -36,7 +37,7 @@ class MockSiteConfig extends SiteConfig {
 						}, $message );
 
 						fprintf( STDERR, "[%s] %s %s\n", $level, $message,
-							json_encode( $context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+							PHPUtils::jsonEncode( $context )
 						);
 					} else {
 						fprintf( STDERR, "[%s] %s\n", $level, $message );

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tests\ApiEnv;
 
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageContent;
@@ -135,7 +136,7 @@ class DataAccess implements IDataAccess {
 		}
 		$data = $this->api->makeRequest( [
 			'action' => 'parsoid-batch',
-			'batch' => json_encode( $batches ),
+			'batch' => PHPUtils::jsonEncode( $batches ),
 		] );
 
 		$ret = array_fill_keys( array_keys( $files ), null );
