@@ -237,18 +237,18 @@ class TokenUtils {
 					// below should not materialize.
 
 					// target offset
-					if ( $offset && $da->targetOff ) {
+					if ( $offset && isset( $da->targetOff ) ) {
 						$da->targetOff += $offset;
 					}
 
 					// content offsets for ext-links
-					if ( $offset && $da->contentOffsets ) {
+					if ( $offset && isset( $da->contentOffsets ) ) {
 						$da->contentOffsets[0] += $offset;
 						$da->contentOffsets[1] += $offset;
 					}
 
 					// end offset for pre-tag
-					if ( $offset && $da->endpos ) {
+					if ( $offset && isset( $da->endpos ) ) {
 						$da->endpos += $offset;
 					}
 
