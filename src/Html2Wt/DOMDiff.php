@@ -518,7 +518,7 @@ class DOMDiff {
 	 * @param string $mark
 	 * @param bool $blockNodeDeleted
 	 */
-	private function markNode( DOMNode $node, string $mark, bool $blockNodeDeleted = false ) {
+	private function markNode( DOMNode $node, string $mark, bool $blockNodeDeleted = false ): void {
 		$meta = null;
 		if ( $mark === 'deleted' ) {
 			// insert a meta tag marking the place where content used to be

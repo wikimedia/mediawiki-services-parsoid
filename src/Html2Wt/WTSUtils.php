@@ -284,7 +284,7 @@ class WTSUtils {
 	 * @param DOMNode $node
 	 * @return string
 	 */
-	public static function traceNodeName( DOMNode $node ) {
+	public static function traceNodeName( DOMNode $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . $node->nodeName;

@@ -228,11 +228,11 @@ class DOMNormalizer {
 
 	/**
 	 * Transfer all of b's children to a and delete b.
-	 * @param DOMNode $a
-	 * @param DOMNode $b
-	 * @return DOMNode
+	 * @param DOMElement $a
+	 * @param DOMElement $b
+	 * @return DOMElement
 	 */
-	public function merge( DOMNode $a, DOMNode $b ) {
+	public function merge( DOMElement $a, DOMElement $b ): DOMElement {
 		$sentinel = $b->firstChild;
 
 		// Migrate any intermediate nodes (usually 0 / 1 diff markers)
@@ -272,11 +272,11 @@ class DOMNormalizer {
 
 	/**
 	 * b is a's sole non-deleted child.  Switch them around.
-	 * @param DOMNode $a
-	 * @param DOMNode $b
-	 * @return DOMNode
+	 * @param DOMElement $a
+	 * @param DOMElement $b
+	 * @return DOMElement
 	 */
-	public function swap( DOMNode $a, DOMNode $b ) {
+	public function swap( DOMElement $a, DOMElement $b ): DOMElement {
 		DOMUtils::migrateChildren( $b, $a );
 		$a->parentNode->insertBefore( $b, $a );
 		$b->appendChild( $a );
@@ -295,10 +295,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @param bool $rtl
 	 */
-	public function hoistLinks( DOMNode $node, bool $rtl ): void {
+	public function hoistLinks( DOMElement $node, bool $rtl ): void {
 		$sibling = self::firstChild( $node, $rtl );
 		$hasHoistableContent = false;
 
@@ -402,9 +402,9 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 */
-	public function stripBRs( DOMNode $node ): void {
+	public function stripBRs( DOMElement $node ): void {
 		$child = $node->firstChild;
 		while ( $child ) {
 			$next = $child->nextSibling;
@@ -412,7 +412,7 @@ class DOMNormalizer {
 				// replace <br/> with a single space
 				$node->removeChild( $child );
 				$node->insertBefore( $node->ownerDocument->createTextNode( ' ' ), $next );
-			} elseif ( DOMUtils::isElt( $child ) ) {
+			} elseif ( $child instanceof DOMElement ) {
 				$this->stripBRs( $child );
 			}
 			$child = $next;
@@ -513,9 +513,10 @@ class DOMNormalizer {
 			$node->textContent === preg_replace( '/^\.\//', '', $nodeHref, 1 )
 		) {
 			for ( $child = DOMUtils::firstNonDeletedChild( $node );
-				 $child && DOMUtils::isFormattingElt( $child );
+				 DOMUtils::isFormattingElt( $child );
 				 $child = DOMUtils::firstNonDeletedChild( $node )
 			) {
+				DOMUtils::assertElt( $child );
 				$this->swap( $node, $child );
 			}
 			return $firstChild;
@@ -596,6 +597,7 @@ class DOMNormalizer {
 
 		// Headings
 		if ( preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+			DOMUtils::assertElt( $node );
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
 			$this->stripBRs( $node );
@@ -715,6 +717,8 @@ class DOMNormalizer {
 
 		// Since 'a' and 'b' make a rewriteable tag-pair, we are good to go.
 		if ( self::mergable( $a, $b ) ) {
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$a = $this->merge( $a, $b );
 			// The new a's children have new siblings. So let's look
 			// at a again. But their grandkids haven't changed,
@@ -724,6 +728,8 @@ class DOMNormalizer {
 		}
 
 		if ( self::swappable( $a, $b ) ) {
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$a = $this->merge( $this->swap( $a, DOMUtils::firstNonDeletedChild( $a ) ), $b );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
@@ -732,6 +738,8 @@ class DOMNormalizer {
 		}
 
 		if ( self::swappable( $b, $a ) ) {
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$a = $this->merge( $a, $this->swap( $b, DOMUtils::firstNonDeletedChild( $b ) ) );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
@@ -802,11 +810,12 @@ class DOMNormalizer {
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info
-// $console->warn( '--- Nested inserted dom-diff flags ---' );
-// $console->warn( 'Node:',
-// ( DOMUtils::isElt( $node ) ) ? ContentUtils::ppToXML( $node ) : $node->textContent
-// );
-// $console->warn( "Node's parent:", ContentUtils::ppToXML( $node->parentNode ) );
+					// PORT-FIXME: Dumping is not done yet
+					// $console->warn( '--- Nested inserted dom-diff flags ---' );
+					// $console->warn( 'Node:',
+					// ( DOMUtils::isElt( $node ) ) ? ContentUtils::ppToXML( $node ) : $node->textContent
+					// );
+					// $console->warn( "Node's parent:", ContentUtils::ppToXML( $node->parentNode ) );
 					$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
 					ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
