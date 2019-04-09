@@ -612,7 +612,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		$name = TokenizerUtils::protectAttrs( $name );
   	}
   	if ( $vd !== null ) {
-  		$res = new KV( $name, $vd['value'], [ $namePos0, $namePos, $vd->srcOffsets[0], $vd->srcOffsets[1] ] );
+  		$res = new KV( $name, $vd['value'], [ $namePos0, $namePos, $vd['srcOffsets'][0], $vd['srcOffsets'][1] ] );
   		$res->vsrc = substr( $this->input, $vd['srcOffsets'][0], $vd['srcOffsets'][1]  - $vd['srcOffsets'][0] );
   	} else {
   		$res = new KV( $name, '', [ $namePos0, $namePos, $namePos, $namePos ] );
@@ -1082,11 +1082,11 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// Insert target as first positional attribute, so that it can be
   		// generically expanded. The TemplateHandler then needs to shift it out
   		// again.
-  		$kvs[] = new KV( TokenizerUtils::flattenIfArray( $target->tokens ), '', $target->srcOffsets );
+  		$kvs[] = new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets'] );
   
   		foreach ( $params as $o ) {
   			$s = $o['srcOffsets'];
-  			$kvs[] = new KV( '', TokenizerUtils::flattenIfArray( $o->tokens ), [ $s[ 0 ], $s[ 0 ], $s[ 0 ], $s[ 1 ] ] );
+  			$kvs[] = new KV( '', TokenizerUtils::flattenIfArray( $o['tokens'] ), [ $s[ 0 ], $s[ 0 ], $s[ 0 ], $s[ 1 ] ] );
   		}
   
   		$obj = new SelfclosingTagTk( 'templatearg', $kvs, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text() ] );
