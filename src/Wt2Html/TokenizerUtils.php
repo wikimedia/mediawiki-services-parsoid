@@ -92,7 +92,7 @@ class TokenizerUtils {
 		return $out;
 	}
 
-	public static function getAttrVal( string $value, int $start, int $end ) {
+	public static function getAttrVal( $value, int $start, int $end ) {
 		return [ 'value' => $value, 'srcOffsets' => [ $start, $end ] ];
 	}
 
