@@ -246,7 +246,7 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 	$options = $defaultOptions( $options );
 
 	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
-	$phpTokenTransformers = $pipelineConfig && $pipelineConfig->phpTokenTransformers || null;
+	$phpTokenTransformers = $pipelineConfig && $pipelineConfig->wt2html && $pipelineConfig->wt2html->TT || null;
 
 	$recipe = $this->recipes[ $type ];
 	if ( !$recipe ) {
@@ -290,12 +290,12 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 $PHPTransformer = null;
 				for ( $j = 0;  $j < count( $transforms );  $j++ ) {
 					$T = $transforms[ $j ];
-					if ( $phpTokenTransformers && array_search( T::name, $phpTokenTransformers ) >= 0 ) {
+					if ( $phpTokenTransformers && $phpTokenTransformers[ T::name ] ) {
 						// Run the PHP version of this token transformation
 						if ( !$PHPBuffer ) {
 							// Add a buffer before the first PHP transformer
-							$PHPBuffer = require './tt/PHPBuffer.js'::PHPBuffer;
-							$PHPTransformer = require './tt/PHPTransformer.js'::PHPTransformer;
+							$PHPBuffer = require '../../tests/porting/hybrid/PHPBuffer.js'::PHPBuffer;
+							$PHPTransformer = require '../../tests/porting/hybrid/PHPTransformer.js'::PHPTransformer;
 							$stage->transformers[] = new PHPBuffer( $stage, $options );
 						}
 						$stage->transformers[] = new PHPTransformer( $stage, T::name, $options );

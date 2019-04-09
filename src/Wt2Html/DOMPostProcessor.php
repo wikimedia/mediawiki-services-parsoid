@@ -685,7 +685,7 @@ function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost )
 	}
 }
 
-DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMTransform, &$requireProcessor ) {
+DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMTransform ) {
 	$env = $this->env;
 
 	$psd = $env->conf->parsoid;
@@ -719,7 +719,7 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 	}
 
 	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
-	$phpDOMTransformers = $pipelineConfig && $pipelineConfig->phpDOMTransformers || null;
+	$phpDOMTransformers = $pipelineConfig && $pipelineConfig->wt2html && $pipelineConfig->wt2html->DOM || null;
 	for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
 		$pp = $this->processors[ $i ];
 		if ( $pp->skipNested && !$this->atTopLevel ) {
@@ -743,10 +743,10 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 				processDumpAndGentestFlags( $psd, $document->body, $pp->shortcut, $opts, 'pre' );
 			}
 
-			if ( $phpDOMTransformers && array_search( $pp->name, $phpDOMTransformers ) >= 0 ) {
+			if ( $phpDOMTransformers && $phpDOMTransformers[ $pp->name ] ) {
 				// Run the PHP version of this DOM transformation
 				if ( !$PHPDOMTransform ) {
-					$PHPDOMTransform = new ( $requireProcessor( 'PHPDOMTransform' ) )();
+					$PHPDOMTransform = new ( require( '../../tests/porting/hybrid/PHPDOMTransform.js' )::PHPDOMTransform )();
 				}
 				// Overwrite!
 				// Overwrite!
