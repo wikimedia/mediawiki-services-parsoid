@@ -798,7 +798,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a66($s, $s2, $bl) {
   
-  		return array_merge( $s, $s2 ?: [], $bl );
+  		return array_merge( $s, $s2 ?: [], is_array( $bl ) ? $bl : [ $bl ] );
   	
   }
   private function a67($tag) {

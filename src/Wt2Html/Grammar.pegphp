@@ -457,7 +457,7 @@ block_lines =
 	// eat an empty line before the block
 	s2:(os:optionalSpaceToken so:sol { return array_merge( $os, $so ); })?
 	bl:block_line {
-		return array_merge( $s, $s2 ?: [], $bl );
+		return array_merge( $s, $s2 ?: [], is_array( $bl ) ? $bl : [ $bl ] );
 	}
 
 // Horizontal rules
