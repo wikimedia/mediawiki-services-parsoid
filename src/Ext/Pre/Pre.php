@@ -1,23 +1,24 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+declare( strict_types = 1 );
+
+namespace Parsoid\Ext\Pre;
+
+use DOMDocument;
+use Parsoid\Ext\ExtensionTag;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\TT\ParserState;
+use Parsoid\Wt2Html\TT\Sanitizer;
+
 /**
  * The `<pre>` extension tag shadows the html pre tag, but has different
  * semantics.  It treats anything inside it as plaintext.
- * @module ext/Pre
  */
+class Pre implements ExtensionTag {
 
-namespace Parsoid;
-
-$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-
-$temp0 = $ParsoidExtApi;
-$Util = $temp0::Util;
-$DOMDataUtils = $temp0::DOMDataUtils;
-$Sanitizer = $temp0::Sanitizer;
-$Promise = $temp0::Promise;
-
-$toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$Sanitizer, &$DOMDataUtils, &$Util ) {
+	/** @inheritDoc */
+	public function toDOM( ParserState $state, string $txt, array $extArgs ): DOMDocument {
 		$doc = $state->env->createDocument();
 		$pre = $doc->createElement( 'pre' );
 
@@ -26,9 +27,9 @@ $toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$Sanitizer,
 
 		// Support nowikis in pre.  Do this before stripping newlines, see test,
 		// "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)"
-		$txt = preg_replace( '/<nowiki\s*>([^]*?)<\/nowiki\s*>/', '$1', $txt );
+		$txt = preg_replace( '/<nowiki\s*>(.*?)<\/nowiki\s*>/s', '$1', $txt );
 
-		// Strip leading newline to match php parser.  This is probably because
+		// Strip leading newline to match legacy php parser.  This is probably because
 		// it doesn't do xml serialization accounting for `newlineStrippingElements`
 		// Of course, this leads to indistinguishability between n=0 and n=1
 		// newlines, but that only seems to affect parserTests output.  Rendering
@@ -39,19 +40,21 @@ $toDOM = Promise::method( function ( $state, $txt, $extArgs ) use ( &$Sanitizer,
 		$txt = Util::decodeWtEntities( $txt );
 
 		$pre->appendChild( $doc->createTextNode( $txt ) );
-		$doc->body->appendChild( $pre );
+		DOMCompat::getBody( $doc )->appendChild( $pre );
 
 		return $doc;
-}
-);
+	}
 
-$module->exports = function () use ( &$toDOM ) {
-	$this->config = [
-		'tags' => [
-			[
-				'name' => 'pre',
-				'toDOM' => $toDOM
+	/** @return array */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'pre',
+					'class' => self::class,
+				]
 			]
-		]
-	];
-};
+		];
+	}
+
+}

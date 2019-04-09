@@ -181,7 +181,7 @@ class Env {
 	 * @param string $html
 	 * @return DOMDocument
 	 */
-	public function createDocument( string $html ): DOMDocument {
+	public function createDocument( string $html = '' ): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html );
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
