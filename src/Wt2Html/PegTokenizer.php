@@ -161,7 +161,8 @@ class PegTokenizer extends EventEmitter {
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,
 			'startRule' => 'start',
-			'sol' => true
+			'sol' => true,
+			'env' => $this->env
 		];
 		$start = null;
 		if ( $this->traceTime ) {
