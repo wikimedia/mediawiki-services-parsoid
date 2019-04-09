@@ -42,7 +42,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   		$tokenizer = $this->options['pegTokenizer'];
   		$this->pipelineOpts = $tokenizer->getOptions();
-  		$this->pipelineOffset = $this->pipelineOpts['pipelineOffset'] ?? 0;
+  		$this->pipelineOffset = $this->options['pipelineOffset'] ?? 0;
   		$this->extTags = $this->siteConfig->getExtensionTagNameMap();
   	}
   
