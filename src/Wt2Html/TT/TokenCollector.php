@@ -18,10 +18,8 @@ use Wikimedia\Assert\Assert;
  * end-of-input'. Only supported for synchronous in-order transformation
  * stages (SyncTokenTransformManager), as async out-of-order expansions
  * would wreak havoc with this kind of collector.
- *
- * @class
  */
-class TokenCollector extends TokenHandler {
+abstract class TokenCollector extends TokenHandler {
 	protected $onAnyEnabled;
 	protected $scopeStack;
 
@@ -35,6 +33,37 @@ class TokenCollector extends TokenHandler {
 		$this->onAnyEnabled = false;
 		$this->scopeStack = [];
 	}
+
+	/**
+	 * Token type to register for ('tag', 'text' etc)
+	 * @return string
+	 */
+	abstract public function type(): string;
+
+	/**
+	 * (optional, only for token type 'tag'): tag name.
+	 * @return string
+	 */
+	abstract public function name(): string;
+
+	/**
+	 * Match the 'end' tokens as closing tag as well (accept unclosed sections).
+	 * @return bool
+	 */
+	abstract public function toEnd(): bool;
+
+	/**
+	 * FIXME: Document this
+	 * @return bool
+	 */
+	abstract public function ackEnd(): bool;
+
+	/**
+	 * FIXME: Document this
+	 * @param array $array
+	 * @return array
+	 */
+	abstract public function transformation( array $array ): array;
 
 	/**
 	 * @param Token $token
@@ -58,44 +87,6 @@ class TokenCollector extends TokenHandler {
 	 */
 	public function onAny( $token ) {
 		return $this->onAnyToken( $token );
-	}
-
-	// Methods that must be subclassed, probably can be removed from PHP port
-	// PORT-FIXME
-	/**
-	 * Token type to register for ('tag', 'text' etc)
-	 */
-	public function type() {
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/**
-	 * (optional, only for token type 'tag'): tag name.
-	 */
-	public function name() {
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/**
-	 * Match the 'end' tokens as closing tag as well (accept unclosed sections).
-	 */
-	public function toEnd() {
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/**
-	 * FIXME: Document this
-	 */
-	public function ackEnd() {
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/**
-	 * FIXME: Document this
-	 * @param array $array
-	 */
-	public function transformation( array $array ) {
-		throw new \BadMethodCallException( 'Transformation not implemented!' );
 	}
 
 	/**
@@ -148,17 +139,17 @@ class TokenCollector extends TokenHandler {
 				}
 				$allToks = array_merge( $allToks, $activeTokens );
 
-				$res = ( $this->toEnd() ) ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
-				if ( isset( $res->tokens ) ) {
-					if ( count( $res->tokens )
+				$res = $this->toEnd() ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
+				if ( isset( $res['tokens'] ) ) {
+					if ( count( $res['tokens'] )
 					// PORT-FIXME verify this actually is equivalent **** WARNING!!!
 					// && $lastItem( $res->tokens )->constructor !== $EOFTk
-						&& TokenUtils::getTokenType( end( $res->tokens ) ) !== 'EOFTk'
+						&& TokenUtils::getTokenType( end( $res['tokens'] ) ) !== 'EOFTk'
 					) {
 						$this->manager->env->log( 'error', $this::name(), 'handler dropped the EOFTk!' );
 
 						// preserve the EOFTk
-						$res->tokens[] = $token;
+						$res['tokens'][] = $token;
 					}
 				}
 

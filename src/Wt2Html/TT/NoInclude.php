@@ -1,17 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * Simple noinclude implementation. Strips all tokens in
- * noinclude sections.
- */
-
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
 
 /**
- * @class
+ * Simple noinclude implementation.
+ * Strips all tokens in noinclude sections.
  */
 class NoInclude extends TokenCollector {
 	/**
