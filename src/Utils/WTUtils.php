@@ -417,7 +417,6 @@ class WTUtils {
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
 		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
 		//
-		$typeOf = ( $node instanceof DOMElement ) ? $node->getAttribute( 'typeof' ) : '';
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.

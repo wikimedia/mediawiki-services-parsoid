@@ -142,7 +142,7 @@ class DiffUtils {
 		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {
 			// Diff is up to date, append this change if it doesn't already exist
-			if ( array_search( $change, $dpd->diff ) === -1 ) {
+			if ( array_search( $change, $dpd->diff ) === false ) {
 				$dpd->diff[] = $change;
 			}
 		} else {

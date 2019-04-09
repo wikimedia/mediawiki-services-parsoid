@@ -181,7 +181,7 @@ class DOMDiff {
 				if ( $vA !== $vB ) {
 					return false;
 				}
-			} elseif ( $vA->constructor !== $vB->constructor ) {
+			} elseif ( gettype( $vA ) !== gettype( $vB ) ) {
 				return false;
 			} elseif ( $kA === 'id' && ( $options['inDmwBody'] ?? null ) ) {
 				// For <refs> in <references> the element id can refer to the
@@ -200,7 +200,7 @@ class DOMDiff {
 						$type = '';
 					}
 					$match = preg_match( '/mw:Extension\/(\w+)\b/', $type );
-					$extName = ( $match ) ? $match[ 1 ] : '---';
+					$extName = $match ? $match[ 1 ] : '---';
 					// Log error
 					if ( !$htmlA ) {
 						$this->env->log(
@@ -235,7 +235,13 @@ class DOMDiff {
 			} elseif ( is_object( $vA ) || is_array( $vA ) ) {
 				// For 'array' and 'object' attributes, recursively apply _dataMWEquals
 				$inDmwBody = ( $options['isTopLevel'] ?? null ) && $kA === 'body';
-				if ( !$this->realDataMWEquals( $nodeA, $vA, $nodeB, $vB, [ 'inDmwBody' => $inDmwBody ] ) ) {
+				if ( !$this->realDataMWEquals(
+					$nodeA,
+					(array)$vA,
+					$nodeB,
+					(array)$vB,
+					[ 'inDmwBody' => $inDmwBody ]
+				) ) {
 					return false;
 				}
 			} elseif ( $vA !== $vB ) {
@@ -339,28 +345,6 @@ class DOMDiff {
 	 * @return bool
 	 */
 	public function doDOMDiff( DOMNode $baseParentNode, DOMNode $newParentNode ): bool {
-		$dd = $this;
-
-		$debugOut = function ( $nodeA, $nodeB, $laPrefix = null ) use ( &$dd, &$DOMUtils ) {
-			$laPrefix = $laPrefix || '';
-			$dd->env->log(
-				'trace/domdiff',
-				function () use ( &$laPrefix, &$DOMUtils, &$nodeA ) {
-					return '--> A' . $laPrefix . ':' .
-						( ( DOMUtils::isElt( $nodeA ) ) ?
-							DOMCompat::getOuterHTML( $nodeA ) : PHPUtils::jsonEncode( $nodeA->nodeValue ) );
-				}
-			);
-			$dd->env->log(
-				'trace/domdiff',
-				function () use ( &$laPrefix, &$DOMUtils, &$nodeB ) {
-					return '--> B' . $laPrefix . ':' .
-						( ( DOMUtils::isElt( $nodeB ) ) ?
-							DOMCompat::getOuterHTML( $nodeB ) : PHPUtils::jsonEncode( $nodeB->nodeValue ) );
-				}
-			);
-		};
-
 		// Perform a relaxed version of the recursive treeEquals algorithm that
 		// allows for some minor differences and tries to produce a sensible diff
 		// marking using heuristics like look-ahead on siblings.
@@ -372,7 +356,7 @@ class DOMDiff {
 
 		while ( $baseNode && $newNode ) {
 			$dontAdvanceNewNode = false;
-			$debugOut( $baseNode, $newNode );
+			$this->debugOut( $baseNode, $newNode );
 			// shallow check first
 			if ( !$this->treeEquals( $baseNode, $newNode, false ) ) {
 				$this->debug( '-- not equal --' );
@@ -387,7 +371,7 @@ class DOMDiff {
 					$this->debug( '--lookahead in new dom--' );
 					$lookaheadNode = $newNode->nextSibling;
 					while ( $lookaheadNode ) {
-						$debugOut( $baseNode, $lookaheadNode, 'new' );
+						$this->debugOut( $baseNode, $lookaheadNode, 'new' );
 						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
 							$this->treeEquals( $baseNode, $lookaheadNode, true )
 						) {
@@ -412,7 +396,7 @@ class DOMDiff {
 					$this->debug( '--lookahead in old dom--' );
 					$lookaheadNode = $baseNode->nextSibling;
 					while ( $lookaheadNode ) {
-						$debugOut( $lookaheadNode, $newNode, 'old' );
+						$this->debugOut( $lookaheadNode, $newNode, 'old' );
 						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
 							$this->treeEquals( $lookaheadNode, $newNode, true )
 						) {
@@ -563,5 +547,28 @@ class DOMDiff {
 		if ( $mark === 'deleted' || $mark === 'inserted' ) {
 			$this->markNode( $node->parentNode, 'children-changed' );
 		}
+	}
+
+	/**
+	 * @param DOMNode $nodeA
+	 * @param DOMNode $nodeB
+	 * @param string $laPrefix
+	 */
+	private function debugOut( DOMNode $nodeA, DOMNode $nodeB, string $laPrefix = '' ): void {
+		$this->env->log(
+			'trace/domdiff',
+			'--> A' . $laPrefix . ':' .
+				( $nodeA instanceof DOMElement
+					? DOMCompat::getOuterHTML( $nodeA )
+					: PHPUtils::jsonEncode( $nodeA->nodeValue ) )
+		);
+
+		$this->env->log(
+			'trace/domdiff',
+			'--> B' . $laPrefix . ':' .
+				( $nodeB instanceof DOMElement
+					? DOMCompat::getOuterHTML( $nodeB )
+					: PHPUtils::jsonEncode( $nodeB->nodeValue ) )
+		);
 	}
 }
