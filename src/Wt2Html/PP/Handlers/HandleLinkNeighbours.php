@@ -169,7 +169,7 @@ class HandleLinkNeighbours {
 					}
 				}
 				if ( !empty( $dp->dsr ) ) {
-					$len = mb_strlen( $prefix['src'] );
+					$len = strlen( $prefix['src'] );
 					$dp->dsr->start -= $len;
 					$dp->dsr->openWidth += $len;
 				}
@@ -198,7 +198,7 @@ class HandleLinkNeighbours {
 					}
 				}
 				if ( !empty( $dp->dsr ) ) {
-					$len = mb_strlen( $trail['src'] );
+					$len = strlen( $trail['src'] );
 					$dp->dsr->end += $len;
 					$dp->dsr->closeWidth += $len;
 				}

@@ -10,6 +10,7 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\Frame;
@@ -27,7 +28,7 @@ class WrapSections {
 	 * @return string
 	 */
 	private function getSrc( Frame $frame, int $s, int $e ): string {
-		return mb_substr( $frame->getSrcText(), $s, $e - $s );
+		return PHPUtils::safeSubstr( $frame->getSrcText(), $s, $e - $s );
 	}
 
 	/**
@@ -257,7 +258,7 @@ class WrapSections {
 		$c = $start ? $node->firstChild : $node->lastChild;
 		while ( $c ) {
 			if ( !DOMUtils::isElt( $c ) ) {
-				$offset += mb_strlen( $c->textContent );
+				$offset += strlen( $c->textContent );
 			} else {
 				DOMUtils::assertElt( $c );
 				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );

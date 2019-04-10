@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -25,8 +26,8 @@ class DomSourceRange extends SourceRange {
 
 	/**
 	 * Create a new DOM source offset.
-	 * @param int|null $start The starting index (unicode code points, inclusive)
-	 * @param int|null $end The ending index (unicode code points, exclusive)
+	 * @param int|null $start The starting index (UTF-8 byte count, inclusive)
+	 * @param int|null $end The ending index (UTF-8 byte count, exclusive)
 	 * @param int|null $openWidth The width of the open container tag
 	 * @param int|null $closeWidth The width of the close container tag
 	 */
@@ -44,7 +45,7 @@ class DomSourceRange extends SourceRange {
 	 * @return string
 	 */
 	public function innerSubstr( string $str ): string {
-		return mb_substr( $str, $this->innerStart(), $this->innerLength() );
+		return PHPUtils::safeSubstr( $str, $this->innerStart(), $this->innerLength() );
 	}
 
 	/**

@@ -168,7 +168,7 @@ class MigrateTrailingNLs {
 						$firstEltToMigrate = $n;
 						$partialContent = false;
 						// all whitespace is moved
-						$tsrCorrection += mb_strlen( $n->nodeValue );
+						$tsrCorrection += strlen( $n->nodeValue );
 					} elseif ( preg_match( '/\n$/', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;

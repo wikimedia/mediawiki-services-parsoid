@@ -162,7 +162,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				return $t; // not text()
   
   			case SelfclosingTagTk::class:
-  				$dp->src = $dp->tsr->rawSubstr( $this->input );
+  				$dp->src = $dp->tsr->substr( $this->input );
   				$dp->extTagOffsets = new DomSourceRange(
   					$dp->tsr->start, $dp->tsr->end,
   					$dp->tsr->length(), 0
@@ -177,7 +177,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
   
   				if ( !$tagContentFound ) {
-  					$dp->src = $dp->tsr->rawSubstr( $this->input );
+  					$dp->src = $dp->tsr->substr( $this->input );
   					$dp->extTagOffsets = new DomSourceRange(
   						$dp->tsr->start, $dp->tsr->end,
   						$dp->tsr->length(), 0
@@ -631,12 +631,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	$nameSO = new SourceRange( $namePos0, $namePos );
   	if ( $vd !== null ) {
   		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
-  		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
+  		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
   	} else {
   		$res = new KV( $name, '', $nameSO->expandTsrK() );
   	}
   	if ( is_array( $name ) ) {
-  		$res->ksrc = $nameSO->rawSubstr( $this->input );
+  		$res->ksrc = $nameSO->substr( $this->input );
   	}
   	return $res;
   
@@ -670,12 +670,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	$nameSO = new SourceRange( $namePos0, $namePos );
   	if ( $vd !== null ) {
   		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
-  		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
+  		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
   	} else {
   		$res = new KV( $name, '', $nameSO->expandTsrK() );
   	}
   	if ( is_array( $name ) ) {
-  		$res->ksrc = $nameSO->rawSubstr( $this->input );
+  		$res->ksrc = $nameSO->substr( $this->input );
   	}
   	return $res;
   
@@ -1171,7 +1171,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		$obj = new SelfclosingTagTk( 'wikilink' );
   		$tsr = new SourceRange( $spos, $tpos );
   		$hrefKV = new KV( 'href', $target, $tsr->expandTsrV() );
-  		$hrefKV->vsrc = $tsr->rawSubstr( $this->input );
+  		$hrefKV->vsrc = $tsr->substr( $this->input );
   		// XXX: Point to object with path, revision and input information
   		// obj.source = input;
   		$obj->attribs[] = $hrefKV;

@@ -225,7 +225,7 @@ class TokenStreamPatcher extends TokenHandler {
 					} elseif ( preg_match( '/^\s*$/', $token ) ) {
 						// White-space doesn't change SOL state
 						// Update srcOffset
-						$this->srcOffset += mb_strlen( $token );
+						$this->srcOffset += strlen( $token );
 					} else {
 						$this->clearSOL();
 					}

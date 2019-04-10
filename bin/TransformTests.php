@@ -111,7 +111,7 @@ class TransformTests {
 		$input = [];
 		for ( $index = 0; $index < $countTestLines; $index++ ) {
 			$line = $testLines[$index];
-			if ( mb_strlen( $line ) < 1 ) {
+			if ( strlen( $line ) === 0 ) {
 				continue;
 			}
 			switch ( $line[0] ) {

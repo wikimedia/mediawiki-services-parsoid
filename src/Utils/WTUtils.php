@@ -11,6 +11,7 @@ use stdClass;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Ext\ExtensionTag;
+use Parsoid\Tokens\CommentTk;
 use Parsoid\Wt2Html\Frame;
 
 /**
@@ -720,13 +721,20 @@ class WTUtils {
 	 * Utility function: we often need to know the wikitext DSR length for
 	 * an HTML DOM comment value.
 	 *
-	 * @param DOMComment $node A comment node containing a DOM-escaped comment.
-	 * @return int The wikitext length necessary to encode this comment,
-	 *   including 7 characters for the `<!--` and `-->` delimiters.
+	 * @param DOMComment|CommentTk|string $node A comment node containing a DOM-escaped comment.
+	 * @return int The wikitext length in UTF-8 bytes necessary to encode this
+	 *   comment, including 7 characters for the `<!--` and `-->` delimiters.
 	 */
-	public static function decodedCommentLength( DOMComment $node ): int {
+	public static function decodedCommentLength( $node ): int {
 		// Add 7 for the "<!--" and "-->" delimiters in wikitext.
-		return mb_strlen( self::decodeComment( $node->nodeValue ) ) + 7;
+		if ( $node instanceof DOMComment ) {
+			$value = $node->nodeValue;
+		} elseif ( $node instanceof CommentTk ) {
+			$value = $node->value;
+		} else {
+			$value = $node;
+		}
+		return strlen( self::decodeComment( $value ) ) + 7;
 	}
 
 	/**

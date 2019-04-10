@@ -6,6 +6,7 @@ namespace Parsoid\Tokens;
 use stdClass;
 
 use Parsoid\Wt2Html\Frame;
+use Wikimedia\Assert\Assert;
 
 /**
  * Catch-all class for all token types.
@@ -245,6 +246,7 @@ abstract class Token implements \JsonSerializable {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
 		$srcText = $frame->getSrcText();
+		Assert::invariant( $tsr->end >= $tsr->start, 'Bad TSR' );
 		return $tsr->substr( $srcText );
 	}
 

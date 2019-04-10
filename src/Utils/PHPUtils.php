@@ -132,6 +132,122 @@ class PHPUtils {
 	}
 
 	/**
+	 * Return a substring, asserting that it is valid UTF-8.
+	 * By default we assuming the full string was valid UTF-8, which allows
+	 * us to look at the first and last bytes to make this check.
+	 * You can check the entire string if you are feeling paranoid; it
+	 * will take O(N) time (where N is the length of the substring) but
+	 * do does the substring operation.
+	 *
+	 * If the substring would start beyond the end of the string or
+	 * end before the start of the string, then this function will
+	 * return the empty string (as would JavaScript); note that the
+	 * native `substr` would return `false` in this case.
+	 *
+	 * Using this helper instead of native `substr` is
+	 * useful during the PHP port to verify that we don't break up
+	 * Unicode codepoints by the switch from JavaScript UCS-2 offsets
+	 * to PHP UTF-8 byte offsets.
+	 *
+	 * @param string $s The (sub)string to check
+	 * @param int $start The starting offset (in bytes). If negative, the
+	 *  offset is counted from the end of the string.
+	 * @param int|null $length (optional) The maximum length of the returned
+	 *  string. If negative, the end position is counted from the end of
+	 *  the string.
+	 * @param bool $checkEntireString Whether to do a slower verification
+	 *   of the entire string, not just the edges. Defaults to false.
+	 * @return string The checked substring
+	 */
+	public static function safeSubstr(
+		string $s, int $start, ?int $length = null,
+		bool $checkEntireString = false
+	): string {
+		if ( $length === null ) {
+			$ss = substr( $s, $start );
+		} else {
+			$ss = substr( $s, $start, $length );
+		}
+		if ( $ss === false ) {
+			$ss = '';
+		}
+		if ( strlen( $ss ) === 0 ) {
+			return $ss;
+		}
+		$firstChar = ord( $ss );
+		Assert::invariant(
+			( $firstChar & 0xC0 ) !== 0x80,
+			'Bad UTF-8 at start of string'
+		);
+		$i = 0;
+		// This next loop won't step off the front of the string because we've
+		// already asserted that the first character is not 10xx xxxx
+		do {
+			$i--;
+			Assert::invariant(
+				$i > -5,
+				// This should never happen, assuming the original string
+				// was valid UTF-8
+				'Bad UTF-8 at end of string (>4 byte sequence)'
+			);
+			$lastChar = ord( substr( $ss, $i, 1 ) );
+		} while ( ( $lastChar & 0xC0 ) === 0x80 );
+		if ( ( $lastChar & 0x80 ) === 0 ) {
+			Assert::invariant(
+				// This shouldn't happen, assuming original string was valid
+				$i === -1, 'Bad UTF-8 at end of string (1 byte sequence)'
+			);
+		} elseif ( ( $lastChar & 0xE0 ) === 0xC0 ) {
+			Assert::invariant(
+				$i === -2, 'Bad UTF-8 at end of string (2 byte sequence)'
+			);
+		} elseif ( ( $lastChar & 0xF0 ) === 0xE0 ) {
+			Assert::invariant(
+				$i === -3, 'Bad UTF-8 at end of string (3 byte sequence)'
+			);
+		} elseif ( ( $lastChar & 0xF8 ) === 0xF0 ) {
+			Assert::invariant(
+				$i === -4, 'Bad UTF-8 at end of string (4 byte sequence)'
+			);
+		} else {
+			Assert::invariant(
+				// This shouldn't happen, assuming original string was valid
+				false, 'Bad UTF-8 at end of string'
+			);
+		}
+		if ( $checkEntireString ) {
+			// We did the head/tail checks first because they give better
+			// diagnostics in the common case where we broke UTF-8 by
+			// the substring operation.
+			self::assertValidUTF8( $ss );
+		}
+		return $ss;
+	}
+
+	/**
+	 * Helper for verifying a valid UTF-8 encoding.  Using
+	 * safeSubstr() is a more efficient way of doing this check in
+	 * most places, where you can assume that the original string was
+	 * valid UTF-8.  This function does a complete traversal of the
+	 * string, in time proportional to the length of the string.
+	 *
+	 * @param string $s The string to check.
+	 */
+	public static function assertValidUTF8( string $s ): void {
+		// Slow complete O(N) check for UTF-8 validity
+		$r = preg_match( "/^(?:
+			[\\x00-\\x7F] |
+			[\\xC0-\\xDF][\\x80-\\xBF] |
+			[\\xE0-\\xEF][\\x80-\\xBF]{2} |
+			[\\xF0-\\xF7][\\x80-\\xBF]{3}
+		)*$/xS", $s );
+		Assert::invariant(
+			$r === 1,
+			'Bad UTF-8 (full string verification)'
+		);
+	}
+
+	/**
 	 * Helper for joining pieces of regular expressions together.  This
 	 * safely strips delimiters from regular expression strings, while
 	 * ensuring that the result is safely escaped for the new delimiter

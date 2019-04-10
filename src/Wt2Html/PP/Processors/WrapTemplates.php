@@ -142,7 +142,7 @@ class WrapTemplates {
 			$n = $endNode->previousSibling;
 			while ( $n && !$n instanceof DOMElement ) {
 				if ( $n instanceof DOMText ) {
-					$offset += mb_strlen( $n->nodeValue );
+					$offset += strlen( $n->nodeValue );
 				} else {
 					// A comment
 					$offset += WTUtils::decodedCommentLength( $n );
@@ -159,7 +159,7 @@ class WrapTemplates {
 
 			if ( $dsr && is_int( $dsr->end ?? null ) ) {
 				$len = $endNode instanceof DOMText
-					? mb_strlen( $endNode->nodeValue )
+					? strlen( $endNode->nodeValue )
 					: WTUtils::decodedCommentLength( $endNode );
 				$dsr = new DomSourceRange( $dsr->end + $offset, $dsr->end + $offset + $len, null, null );
 			}
@@ -404,7 +404,7 @@ class WrapTemplates {
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
 				$tplArray[] = (object)[
-					'wt' => mb_substr( $frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
+					'wt' => substr( $frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
 				];
 			}
 		}
@@ -950,7 +950,7 @@ class WrapTemplates {
 					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => mb_substr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
+						(object)[ 'wt' => substr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
 					);
 				}
 
@@ -959,7 +959,7 @@ class WrapTemplates {
 				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
 					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[
-						'wt' => mb_substr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
+						'wt' => substr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
 					];
 				}
 
@@ -1066,7 +1066,7 @@ class WrapTemplates {
 					$encapInfo->dp->dsr->end = $dp1->dsr->end;
 				}
 				$width = $encapInfo->dp->dsr->end - $encapInfo->dp->dsr->start;
-				$encapInfo->dp->src = mb_substr(
+				$encapInfo->dp->src = substr(
 					$frame->getSrcText(),
 					$encapInfo->dp->dsr->start,
 					$width

@@ -236,7 +236,7 @@ class QuoteTransformer extends TokenHandler {
 				}
 
 				$ctxPrevToken = $this->chunks[$i][0]->getAttribute( 'preceding-2chars' );
-				$lastCharIndex = mb_strlen( $ctxPrevToken );
+				$lastCharIndex = strlen( $ctxPrevToken );
 				if ( $lastCharIndex >= 1 ) {
 					$lastchar = $ctxPrevToken[$lastCharIndex - 1];
 				} else {

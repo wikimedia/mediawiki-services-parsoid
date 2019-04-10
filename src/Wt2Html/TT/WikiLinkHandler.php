@@ -225,13 +225,13 @@ class WikiLinkHandler extends TokenHandler {
 			$tsr = $rlink->dataAttribs->tsr;
 			preg_match( '/^([^#]*)(#)/', $src, $srcMatch );
 			$ntokens = strlen( $srcMatch[1] ) ? [ $srcMatch[1] ] : [];
-			$hashPos = $tsr->start + mb_strlen( $srcMatch[1] );
+			$hashPos = $tsr->start + strlen( $srcMatch[1] );
 			$tsr0 = new SourceRange( $hashPos, $hashPos + 1 );
 			$li = new TagTk( 'listItem', [
 				new KV( 'bullets', '#', $tsr0->expandTsrV() )
 			], (object)[ 'tsr' => $tsr0 ] );
 			$ntokens[] = $li;
-			$ntokens[] = mb_substr( $src, mb_strlen( $srcMatch[0] ) );
+			$ntokens[] = substr( $src, strlen( $srcMatch[0] ) );
 			return [ 'tokens' => array_merge( $ntokens, $r['tokens'] ) ];
 		}
 	}

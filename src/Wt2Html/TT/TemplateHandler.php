@@ -266,6 +266,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $canonicalFunctionName !== null ) {
 			// Extract toks that make up pfArg
 			$pfArgToks = null;
+			// PORTING XXX shouldn't we be preg_quote'ing this?
 			$re = '/^(.*?)' . $prefix . '/i';
 
 			// Because of the lenient stringifying above, we need to find the
@@ -283,9 +284,10 @@ class TemplateHandler extends TokenHandler {
 				preg_match( $re, $buf, $match );
 				if ( $match ) {
 					// Check if they combined
-					$offset = mb_strlen( $buf ) - mb_strlen( $t ) - mb_strlen( $match[1] );
+					$offset = strlen( $buf ) - strlen( $t ) - strlen( $match[1] );
 					if ( $offset > 0 ) {
-						$re = '/^' . mb_substr( $prefix, $offset ) . '/i';
+						// PORTING XXX shouldn't we be preg_quote'ing this?
+						$re = '/^' . substr( $prefix, $offset ) . '/i';
 					}
 					$index = $i;
 					break;
@@ -334,7 +336,7 @@ class TemplateHandler extends TokenHandler {
 				'prefix' => $canonicalFunctionName,
 				'magicWordType' => $magicWordType,
 				'target' => 'pf_' . $canonicalFunctionName,
-				'pfArg' => mb_substr( $target, mb_strlen( $prefix ) + 1 ),
+				'pfArg' => substr( $target, strlen( $prefix ) + 1 ),
 				'pfArgToks' => $pfArgToks,
 				'srcOffsets' => $srcOffsets,
 			];
@@ -622,7 +624,7 @@ class TemplateHandler extends TokenHandler {
 					'expandTemplates' => false,
 					'extTag' => $this->options['extTag'] ?? null
 				],
-				'srcOffsets' => new SourceRange( 0, mb_strlen( $src ) ),
+				'srcOffsets' => new SourceRange( 0, strlen( $src ) ),
 				'tplArgs' => $tplArgs,
 				'sol' => true
 			]

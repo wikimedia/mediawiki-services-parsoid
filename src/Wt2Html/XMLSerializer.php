@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMNode;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 
@@ -231,7 +232,8 @@ class XMLSerializer {
 	 * Add data to an output/memory array (used when serialize() was called with the
 	 * captureOffsets flag).
 	 * @param array &$out Output array, see {@link self::serialize()} for details on the
-	 *   'html' and 'offset' fields. The other fields (positions are 0-based):
+	 *   'html' and 'offset' fields. The other fields (positions are 0-based
+	 *   and refer to UTF-8 byte indices):
 	 *   - start: position in the HTML of the end of the opening tag of <body>
 	 *   - last: (DOMNode) last "about sibling" of the currently processed element
 	 *     (see {@link WTUtils::getAboutSiblings()}
@@ -248,7 +250,8 @@ class XMLSerializer {
 		if ( DOMUtils::isBody( $node ) ) {
 			$out['html'] .= $bit;
 			if ( $flag === 'start' ) {
-				$out['start'] = mb_strlen( $out['html'], 'UTF-8' );
+				PHPUtils::assertValidUTF8( $out['html'] );
+				$out['start'] = strlen( $out['html'] );
 			} elseif ( $flag === 'end' ) {
 				$out['start'] = null;
 				$out['uid'] = null;
@@ -261,7 +264,8 @@ class XMLSerializer {
 			// is the node itself but options.innerXML is true.
 			$out['html'] .= $bit;
 			if ( $out['uid'] !== null ) {
-				$out['offsets'][$out['uid']]['html'][1] += mb_strlen( $bit, 'UTF-8' );
+				PHPUtils::assertValidUTF8( $bit );
+				$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 			}
 		} else {
 			DOMUtils::assertElt( $node );
@@ -283,11 +287,13 @@ class XMLSerializer {
 			}
 			Assert::invariant( $out['uid'] !== null, 'uid cannot be null' );
 			if ( !isset( $out['offsets'][$out['uid']] ) ) {
-				$dt = mb_strlen( $out['html'], 'UTF-8' ) - $out['start'];
+				PHPUtils::assertValidUTF8( $out['html'] );
+				$dt = strlen( $out['html'] ) - $out['start'];
 				$out['offsets'][$out['uid']] = [ 'html' => [ $dt, $dt ] ];
 			}
+			PHPUtils::assertValidUTF8( $bit );
 			$out['html'] .= $bit;
-			$out['offsets'][$out['uid']]['html'][1] += mb_strlen( $bit, 'UTF-8' );
+			$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 		}
 	}
 

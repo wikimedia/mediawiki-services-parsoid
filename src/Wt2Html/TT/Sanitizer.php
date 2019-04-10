@@ -1342,7 +1342,7 @@ class Sanitizer extends TokenHandler {
 		$bits = explode( '#', $title );
 		$anchor = null;
 		if ( count( $bits ) > 1 ) { // split at first '#'
-			$anchor = mb_substr( $title, mb_strlen( $bits[0] ) + 1 );
+			$anchor = substr( $title, strlen( $bits[0] ) + 1 );
 			$title = $bits[0];
 		}
 		$title = preg_replace_callback(

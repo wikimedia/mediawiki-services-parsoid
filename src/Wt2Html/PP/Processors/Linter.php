@@ -883,7 +883,7 @@ class Linter {
 				// No CSS property that affects whitespace.
 				$s = $node->textContent;
 				if ( preg_match( '/^([^\s]*)\s/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace?
-					$runLength += mb_strlen( $m[1] );
+					$runLength += strlen( $m[1] );
 					$nowrapNodes[] = [
 						'node' => $node,
 						'tidybug' => false,
@@ -892,7 +892,7 @@ class Linter {
 					break;
 				} else {
 					$nowrapNodes[] = [ 'node' => $node, 'tidybug' => false ];
-					$runLength += mb_strlen( $s );
+					$runLength += strlen( $s );
 				}
 			} else {
 				// Find last non-comment child of node
@@ -916,7 +916,7 @@ class Linter {
 				}
 
 				$nowrapNodes[] = [ 'node' => $node, 'tidybug' => $bug ];
-				$runLength += mb_strlen( $node->textContent );
+				$runLength += strlen( $node->textContent );
 			}
 
 			// Don't cross template boundaries at the top-level
@@ -959,10 +959,10 @@ class Linter {
 				$s = $prev->textContent;
 				// Find the last \s in the string
 				if ( preg_match( '/\s([^\s]*)$/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?
-					$runLength += mb_strlen( $m[1] );
+					$runLength += strlen( $m[1] );
 					break;
 				} else {
-					$runLength += mb_strlen( $s );
+					$runLength += strlen( $s );
 				}
 			}
 			$prev = $prev->previousSibling;

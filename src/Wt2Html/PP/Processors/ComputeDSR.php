@@ -191,7 +191,7 @@ class ComputeDSR {
 					// @phan-suppress-next-line PhanTypeExpectedObjectPropAccess
 					$href = $dp->sa['href'] ?? null;
 					if ( $href ) {
-						return [ mb_strlen( $href ) + 3, 2 ];
+						return [ strlen( $href ) + 3, 2 ];
 					} else {
 						return null;
 					}
@@ -349,7 +349,7 @@ class ComputeDSR {
 					) {
 						if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
 							isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
-							$correction = mb_strlen( $ndp->src );
+							$correction = strlen( $ndp->src );
 							$ce += $correction;
 							$dsrCorrection = $correction;
 							if ( Util::isValidDSR( $ndp->dsr ?? null ) ) {
@@ -389,7 +389,7 @@ class ComputeDSR {
 			if ( $cType === XML_TEXT_NODE ) {
 				if ( $ce !== null ) {
 					// This code is replicated below. Keep both in sync.
-					$cs = $ce - mb_strlen( $child->textContent ) - WTUtils::indentPreDSRCorrection( $child );
+					$cs = $ce - strlen( $child->textContent ) - WTUtils::indentPreDSRCorrection( $child );
 				}
 			} elseif ( $cType === XML_COMMENT_NODE ) {
 				'@phan-var \DOMComment $child'; // @var \DOMComment $child
@@ -423,7 +423,7 @@ class ComputeDSR {
 				if ( !$rtTestMode && $ce !== null && !empty( $dp->autoInsertedEnd ) &&
 					DOMUtils::isQuoteElt( $child )
 				) {
-					$correction = 3 + mb_strlen( $child->nodeName );
+					$correction = 3 + strlen( $child->nodeName );
 					if ( $correction === $dsrCorrection ) {
 						$ce -= $correction;
 						$dsrCorrection = 0;
@@ -483,7 +483,7 @@ class ComputeDSR {
 					} elseif ( preg_match( '#^mw:Placeholder(/\w*)?$#', $cTypeOf ) &&
 						$ce !== null && $dp->src
 					) {
-						$cs = $ce - mb_strlen( $dp->src );
+						$cs = $ce - strlen( $dp->src );
 					} else {
 						$property = $child->getAttribute( "property" );
 						if ( $property && preg_match( '/mw:objectAttr/', $property ) ) {
@@ -497,12 +497,12 @@ class ComputeDSR {
 						unset( $dp->extTagOffsets );
 					}
 				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
-					$cs = $ce - mb_strlen( $dp->src );
+					$cs = $ce - strlen( $dp->src );
 				} else {
 					if ( preg_match( '/^mw:Placeholder(\/\w*)?$/', $cTypeOf ) &&
 						$ce !== null && $dp->src
 					) {
-						$cs = $ce - mb_strlen( $dp->src );
+						$cs = $ce - strlen( $dp->src );
 					} else {
 						// Non-meta tags
 						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
@@ -633,7 +633,7 @@ class ComputeDSR {
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
-							$dp->dbsrc = mb_substr( $frame->getSrcText(), $cs, $ce - $cs );
+							$dp->dbsrc = substr( $frame->getSrcText(), $cs, $ce - $cs );
 						}
 						return $str;
 					} );
@@ -650,7 +650,7 @@ class ComputeDSR {
 					while ( $newCE !== null && $sibling && !WTUtils::isTplStartMarkerMeta( $sibling ) ) {
 						$nType = $sibling->nodeType;
 						if ( $nType === XML_TEXT_NODE ) {
-							$newCE = $newCE + mb_strlen( $sibling->textContent ) +
+							$newCE = $newCE + strlen( $sibling->textContent ) +
 								WTUtils::indentPreDSRCorrection( $sibling );
 						} elseif ( $nType === XML_COMMENT_NODE ) {
 							'@phan-var \DOMComment $sibling'; // @var \DOMComment $sibling
@@ -684,7 +684,7 @@ class ComputeDSR {
 								// debug info
 								if ( $siblingDP->dsr->end ) {
 									$siblingDP->dbsrc =
-										mb_substr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
+										substr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
 								}
 								return $str;
 							} );
@@ -749,7 +749,7 @@ class ComputeDSR {
 						// in indent-pres, and mw:EndTag markers won't have a text $node
 						// for its previous sibling), but, for sake of maintenance sanity,
 						// replicating code from above.
-						$cs = $ce - mb_strlen( $prevText ) - WTUtils::indentPreDSRCorrection( $prevChild );
+						$cs = $ce - strlen( $prevText ) - WTUtils::indentPreDSRCorrection( $prevChild );
 						$ce = $cs;
 					}
 
@@ -787,13 +787,13 @@ class ComputeDSR {
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
-	 *                  [0, mb_strlen($frame->getSrcText())]
+	 *                  [0, strlen($frame->getSrcText())]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
 	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
 		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
-		$endOffset = $options['sourceOffsets']->end ?? mb_strlen( $frame->getSrcText() );
+		$endOffset = $options['sourceOffsets']->end ?? strlen( $frame->getSrcText() );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];

@@ -426,15 +426,15 @@ class PreHandler extends TokenHandler {
 	private function getUpdatedPreTSR( int $tsr, $token ): int {
 		if ( $token instanceof CommentTk ) {
 			// comment length has 7 added for "<!--" and "-->" deliminters
-			// (see WTUtils.decodedCommentLength() -- but that takes a node not a token)
+			// (see WTUtils.decodedCommentLength)
 			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr->end :
-				( ( $tsr === -1 ) ? -1 : mb_strlen( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
+				( ( $tsr === -1 ) ? -1 : WTUtils::decodedCommentLength( $token ) + $tsr );
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			// meta-tag (cannot compute)
 			$tsr = -1;
 		} elseif ( $tsr !== -1 ) {
 			// string
-			$tsr += mb_strlen( $token );
+			$tsr += strlen( $token );
 		}
 		return $tsr;
 	}
@@ -470,7 +470,7 @@ class PreHandler extends TokenHandler {
 				if ( !preg_match( '/^ $/', $token ) ) {
 					// Treat everything after the first space
 					// as a new token
-					$this->onAny( mb_substr( $token, 1 ) );
+					$this->onAny( substr( $token, 1 ) );
 				}
 			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
 				// continue watching ...
@@ -523,7 +523,7 @@ class PreHandler extends TokenHandler {
 				$this->multiLinePreWSToken = $token[ 0 ];
 				if ( !preg_match( '/^ $/', $token ) ) {
 					// Treat everything after the first space as a new token
-					$this->onAny( mb_substr( $token, 1 ) );
+					$this->onAny( substr( $token, 1 ) );
 				}
 			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
 				$this->solTransparentTokens[] = $token;

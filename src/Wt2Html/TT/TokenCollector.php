@@ -6,10 +6,10 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
@@ -211,7 +211,7 @@ abstract class TokenCollector extends TokenHandler {
 			$tsr1 = $da ? $da->tsr : null;
 			$t1 = $tsr1 ? $tsr1->end : null;
 		} else {
-			$t1 = mb_strlen( $manager->getFrame()->getSrcText() );
+			$t1 = strlen( $manager->getFrame()->getSrcText() );
 		}
 
 		return self::buildMetaToken( $manager, $tokenName, false, new SourceRange( $t0, $t1 ), '' );

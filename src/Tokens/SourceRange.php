@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -24,8 +25,8 @@ class SourceRange implements \JsonSerializable {
 
 	/**
 	 * Create a new source offset range.
-	 * @param int|null $start The starting index (unicode code points, inclusive)
-	 * @param int|null $end The ending index (unicode code points, exclusive)
+	 * @param int|null $start The starting index (UTF-8 byte count, inclusive)
+	 * @param int|null $end The ending index (UTF-8 byte count, exclusive)
 	 */
 	public function __construct( ?int $start, ?int $end ) {
 		$this->start = $start;
@@ -73,17 +74,11 @@ class SourceRange implements \JsonSerializable {
 	 * @return string
 	 */
 	public function substr( string $str ): string {
-		return mb_substr( $str, $this->start, $this->length() );
-	}
-
-	/**
-	 * Temporary alternate of substr for use in the tokenizer, which already
-	 * uses UTF-8 byte offsets.
-	 * @param string $str The source text string
-	 * @return string
-	 */
-	public function rawSubstr( string $str ): string {
-		return substr( $str, $this->start, $this->length() );
+		$start = $this->start;
+		$length = $this->length();
+		Assert::invariant( ( $start ?? -1 ) >= 0, "Bad SourceRange start" );
+		Assert::invariant( ( $length ?? -1 ) >= 0, "Bad SourceRange length" );
+		return PHPUtils::safeSubstr( $str, $start, $length );
 	}
 
 	/**

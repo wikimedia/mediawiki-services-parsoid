@@ -223,7 +223,7 @@ class LiFixups {
 						// Split off the newlines into its own node and migrate it
 						$nls = $c->nodeValue;
 						$c->nodeValue = preg_replace( '/\s+$/', '', $c->nodeValue, 1 );
-						$nls = mb_substr( $nls, mb_strlen( $c->nodeValue ) );
+						$nls = substr( $nls, strlen( $c->nodeValue ) );
 						$nlNode = $c->ownerDocument->createTextNode( $nls );
 						$outerList->parentNode->insertBefore( $nlNode, $outerList->nextSibling );
 						$newEndDsr -= strlen( $nls );

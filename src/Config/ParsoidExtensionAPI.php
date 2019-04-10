@@ -151,9 +151,8 @@ class ParsoidExtensionAPI {
 	public function parseTokenContentsToDOM( $extArgs, $leadingWS, $wikitext, $parseOpts ) {
 		$dataAttribs = $this->extToken->dataAttribs;
 		$extTagOffsets = $dataAttribs->extTagOffsets;
-		// PORT_FIXME: should be converted to strlen after byte offsets patch lands
 		$srcOffsets = new SourceRange(
-			$extTagOffsets->innerStart() + mb_strlen( $leadingWS ),
+			$extTagOffsets->innerStart() + strlen( $leadingWS ),
 			$extTagOffsets->innerEnd()
 		);
 
