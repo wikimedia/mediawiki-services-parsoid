@@ -155,7 +155,7 @@ class ContentUtils {
 	}
 
 	private static function emit( array $buf, array &$opts ): void {
-		$str = implode( "\n", $buf );
+		$str = implode( "\n", $buf ) . "\n";
 		if ( isset( $opts['outBuffer'] ) ) {
 			$opts['outBuffer'] .= $str;
 		} elseif ( isset( $opts['outStream'] ) ) {

@@ -1,71 +1,30 @@
-#!/usr/bin/env node
+<?php
 
-'use strict';
+// PORT-FIXME: Incomplete. Doesn't support CLI flags of the JS version
 
-require('../core-upgrade.js');
+require_once __DIR__ . '/../vendor/autoload.php';
 
-var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
-var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
-var Promise = require('../lib/utils/promise.js');
-var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
-var yargs = require('yargs');
-var fs = require('pn/fs');
+use Parsoid\Html2Wt\DOMNormalizer;
+use Parsoid\Tests\MockEnv;
+use Parsoid\Utils\ContentUtils;
 
-var opts = yargs.usage("Usage: $0 [options] [html-file]\n\nProvide either inline html OR 1 file", {
-	help: {
-		description: 'Show this message',
-		'boolean': true,
-		'default': false,
-	},
-	enableSelserMode: {
-		description: [
-			'Run in selser mode (but dom-diff markers are not loaded).',
-			'This just forces more normalization code to run.',
-			'So, this is "fake selser" mode till we are able to load diff markers from attributes'
-		].join(' '),
-		'boolean': true,
-		'default': false,
-	},
-	rtTestMode: {
-		description: 'in round-trip testing mode?',
-		'boolean': true,
-		'default': false,
-	},
-	html: {
-		description: 'html',
-		'boolean': false,
-		'default': '',
-	},
-});
+$html = file_get_contents( $argv[1] );
 
-Promise.async(function *() {
-	var argv = opts.argv;
-	var html = argv.html;
-	if (!html && argv._[0]) {
-		html = yield fs.readFile(argv._[0], 'utf8');
-	}
+$mockEnv = new MockEnv( [] );
+$mockState = (object)[
+	"env" => $mockEnv,
+	"selserMode" => true,
+	"rtTestMode" => false,
+];
+$body = ContentUtils::ppToDOM( $mockEnv, $html, [ "markNew" => true ] );
 
-	if (ScriptUtils.booleanOption(argv.help) || !html) {
-		opts.showHelp();
-		return;
-	}
+$norm = new DOMNormalizer( $mockState );
+$norm->normalize( $body );
 
-	var mockState = {
-		// Mock env obj
-		env: {
-			log: () => {},
-			conf: { parsoid: {}, wiki: {} },
-			page: { id: null },
-			scrubWikitext: true,
-		},
-		selserMode: argv.enableSelserMode,
-		rtTestMode: argv.rtTestMode
-	};
-
-	const domBody = ContentUtils.ppToDOM(html);
-	const normalizedBody = (new DOMNormalizer(mockState).normalize(domBody));
-
-	ContentUtils.dumpDOM(normalizedBody, 'Normalized DOM', { env: mockState.env, storeDiffMark: true });
-
-	process.exit(0);
-})().done();
+$opts = [ 'env' => $mockEnv,
+	'keepTmp' => true,
+	'storeDiffMark' => true,
+	'tunnelFosteredContent' => true,
+];
+ContentUtils::dumpDOM( $body, 'DOM post-normalization', $opts );
+print "\n";
