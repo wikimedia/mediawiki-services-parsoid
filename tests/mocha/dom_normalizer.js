@@ -6,18 +6,15 @@
 require('../../core-upgrade.js');
 require('chai').should();
 
+const { MockEnv } = require('../MockEnv');
 const { DOMNormalizer } = require('../../lib/html2wt/DOMNormalizer.js');
 const { ContentUtils } = require('../../lib/utils/ContentUtils.js');
 const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
-const { TestUtils } = require('../../tests/TestUtils.js');
 
 const parseAndNormalize = function(html, opts) {
-	const dummyEnv = {
+	const dummyEnv = new MockEnv({
 		scrubWikitext: opts.scrubWikitext,
-		conf: { parsoid: {}, wiki: {} },
-		page: { id: null },
-		log: function() {},
-	};
+	}, null);
 
 	const dummyState = {
 		env: dummyEnv,
@@ -25,7 +22,7 @@ const parseAndNormalize = function(html, opts) {
 		rtTestMode: false
 	};
 
-	const body = TestUtils.ppToDOM(html).body;
+	const body = ContentUtils.ppToDOM(dummyEnv, html, { markNew: true });
 	(new DOMNormalizer(dummyState)).normalize(body);
 
 	if (opts.stripDiffMarkers) {

@@ -18,6 +18,7 @@ var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var Util = require('../lib/utils/Util.js').Util;
 var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
 var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
+var MockEnv = require('./MockEnv.js').MockEnv;
 
 var TestUtils = {};
 
@@ -55,37 +56,32 @@ TestUtils.normalizeOut = function(domBody, options) {
 	const parsoidOnly = options.parsoidOnly;
 	const preserveIEW = options.preserveIEW;
 
-	if (typeof (domBody) === 'string') {
-		if (options.scrubWikitext) {
-			domBody = TestUtils.mockEnvDoc(domBody).body;
-		} else {
-			domBody = DOMUtils.parseHTML(domBody).body;
-		}
-	}
-
 	if (options.scrubWikitext) {
+		// Mock env obj
+		//
+		// FIXME: This is ugly.
+		// (a) The normalizer shouldn't need the full env.
+		//     Pass options and a logger instead?
+		// (b) DOM diff code is using page-id for some reason.
+		//     That feels like a carryover of 2013 era code.
+		//     If possible, get rid of it and diff-mark dependency
+		//     on the env object.
+		const env = new MockEnv({ scrubWikitext: true }, null);
+		if (typeof (domBody) === 'string') {
+			domBody = env.createDocument(domBody).body;
+		}
 		var mockState = {
-			// Mock env obj
-			//
-			// FIXME: This is ugly.
-			// (a) The normalizer shouldn't need the full env.
-			//     Pass options and a logger instead?
-			// (b) DOM diff code is using page-id for some reason.
-			//     That feels like a carryover of 2013 era code.
-			//     If possible, get rid of it and diff-mark dependency
-			//     on the env object.
-			env: {
-				log: () => {},
-				conf: { parsoid: {} },
-				page: { id: null },
-				scrubWikitext: true,
-			},
+			env,
 			selserMode: false,
 			rtTestMode: options.rtTestMode,
 		};
 		DOMDataUtils.visitAndLoadDataAttribs(domBody, { markNew: true });
 		domBody = (new DOMNormalizer(mockState).normalize(domBody));
 		DOMDataUtils.visitAndStoreDataAttribs(domBody);
+	} else {
+		if (typeof (domBody) === 'string') {
+			domBody = DOMUtils.parseHTML(domBody).body;
+		}
 	}
 
 	var stripTypeof = parsoidOnly ?
@@ -1226,23 +1222,6 @@ TestUtils.addNamespace = function(wikiConf, name) {
 	wikiConf.canonicalNamespaces[Util.normalizeNamespaceName(name.canonical ? name.canonical : name['*'])] = Number(nsid);
 	wikiConf.namespacesWithSubpages[nsid] = true;
 	wikiConf.siteInfo.namespaces[nsid] = name;
-};
-
-// NOTE: This a potential gotcha when it comes to the port.
-// Much like `env.createDocument()`, a reference to $doc is going to have to
-// be held onto so that the attached environment doesn't get GC'd.
-TestUtils.mockEnvDoc = function(html) {
-	const doc = DOMUtils.parseHTML(html);
-	DOMDataUtils.setDocBag(doc);
-	return doc;
-};
-
-// Simplified equivalent of ContentUtils.ppToDOM
-TestUtils.ppToDOM = function(html, options) {
-	options = options || { markNew: true };
-	const doc = TestUtils.mockEnvDoc(html);
-	DOMDataUtils.visitAndLoadDataAttribs(doc.body, options.markNew);
-	return doc;
 };
 
 if (typeof module === "object") {

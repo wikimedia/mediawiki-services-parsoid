@@ -43,7 +43,6 @@ var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var DOMDataUtils = require('../lib/utils/DOMDataUtils.js').DOMDataUtils;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
-var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 // processors
@@ -120,7 +119,7 @@ MockDOMPostProcessor.prototype.processWikitextFile = function(opts) {
 		testFilePost = cachedFilePost;
 	}
 
-	const body = TestUtils.ppToDOM(testFilePre).body;
+	const body = ContentUtils.ppToDOM(env, testFilePre);
 	let dumpOpts = {};
 
 	if (this.first === true) {

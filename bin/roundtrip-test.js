@@ -20,6 +20,7 @@ var apiUtils = require('../lib/api/apiUtils');
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 var Diff = require('../lib/utils/Diff.js').Diff;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
+var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var defaultContentVersion = '2.1.0';
 
@@ -440,8 +441,10 @@ var checkIfSignificant = function(offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
 
-	var oldBody = TestUtils.mockEnvDoc(data.oldHTML.body).body;
-	var newBody = TestUtils.mockEnvDoc(data.newHTML.body).body;
+	const dummyEnv = new MockEnv({}, null);
+
+	var oldBody = dummyEnv.createDocument(data.oldHTML.body).body;
+	var newBody = dummyEnv.createDocument(data.newHTML.body).body;
 
 	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
 	DOMDataUtils.applyPageBundle(oldBody.ownerDocument, {

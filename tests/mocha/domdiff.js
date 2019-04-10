@@ -6,20 +6,17 @@
 require('../../core-upgrade.js');
 require('chai').should();
 
+const { MockEnv } = require('../MockEnv');
 const { DOMDiff } = require('../../lib/html2wt/DOMDiff.js');
 const { DOMUtils } = require('../../lib/utils/DOMUtils.js');
 const { DOMDataUtils } = require('../../lib/utils/DOMDataUtils.js');
-const { TestUtils } = require('../../tests/TestUtils.js');
+const { ContentUtils } = require('../../lib/utils/ContentUtils.js');
 
 const parseAndDiff = function(a, b) {
-	const oldDOM = TestUtils.ppToDOM(a).body;
-	const newDOM = TestUtils.ppToDOM(b).body;
+	const dummyEnv = new MockEnv({}, null);
 
-	const dummyEnv = {
-		conf: { parsoid: {}, wiki: {} },
-		page: { id: null },
-		log: function() {},
-	};
+	const oldDOM = ContentUtils.ppToDOM(dummyEnv, a, { markNew: true });
+	const newDOM = ContentUtils.ppToDOM(dummyEnv, b, { markNew: true });
 
 	(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 

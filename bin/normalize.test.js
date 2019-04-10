@@ -8,7 +8,7 @@ var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
 var Promise = require('../lib/utils/promise.js');
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
-var TestUtils = require('../tests/TestUtils.js').TestUtils;
+var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var yargs = require('yargs');
 var fs = require('pn/fs');
@@ -52,19 +52,17 @@ Promise.async(function *() {
 		return;
 	}
 
+	const env = new MockEnv({
+		scrubWikitext: true,
+	}, null);
+
 	var mockState = {
-		// Mock env obj
-		env: {
-			log: () => {},
-			conf: { parsoid: {}, wiki: {} },
-			page: { id: null },
-			scrubWikitext: true,
-		},
+		env,
 		selserMode: argv.enableSelserMode,
-		rtTestMode: argv.rtTestMode
+		rtTestMode: argv.rtTestMode,
 	};
 
-	const domBody = TestUtils.ppToDOM(html).body;
+	const domBody = ContentUtils.ppToDOM(env, html, { markNew: true });
 	const normalizedBody = (new DOMNormalizer(mockState).normalize(domBody));
 
 	ContentUtils.dumpDOM(normalizedBody, 'Normalized DOM', { env: mockState.env, storeDiffMark: true });

@@ -7,8 +7,8 @@ require('../core-upgrade.js');
 var DOMDiff = require('../lib/html2wt/DOMDiff.js').DOMDiff;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var ContentUtils = require('../lib/utils/ContentUtils.js').ContentUtils;
-var TestUtils = require('../tests/TestUtils.js').TestUtils;
 var ParsoidLogger = require('../lib/logger/ParsoidLogger.js').ParsoidLogger;
+var MockEnv = require('../tests/MockEnv.js').MockEnv;
 var Promise = require('../lib/utils/promise.js');
 var yargs = require('yargs');
 var fs = require('pn/fs');
@@ -56,17 +56,11 @@ Promise.async(function *() {
 		return;
 	}
 
-	var oldDOM = TestUtils.ppToDOM(oldhtml).body;
-	var newDOM = TestUtils.ppToDOM(newhtml).body;
+	const dummyEnv = new MockEnv({
+		debug: ScriptUtils.booleanOption(argv.debug),
+	}, null);
 
-	ContentUtils.stripSectionTagsAndFallbackIds(oldDOM);
-	ContentUtils.stripSectionTagsAndFallbackIds(newDOM);
-
-	var dummyEnv = {
-		conf: { parsoid: { debug: ScriptUtils.booleanOption(argv.debug) }, wiki: {} },
-		page: { id: null },
-	};
-
+	// FIXME: Move to `MockEnv`
 	if (argv.debug) {
 		var logger = new ParsoidLogger(dummyEnv);
 		logger.registerBackend(/^(trace|debug)(\/|$)/, logger.getDefaultTracerBackend());
@@ -74,6 +68,12 @@ Promise.async(function *() {
 	} else {
 		dummyEnv.log = function() {};
 	}
+
+	var oldDOM = ContentUtils.ppToDOM(dummyEnv, oldhtml, { markNew: true });
+	var newDOM = ContentUtils.ppToDOM(dummyEnv, newhtml, { markNew: true });
+
+	ContentUtils.stripSectionTagsAndFallbackIds(oldDOM);
+	ContentUtils.stripSectionTagsAndFallbackIds(newDOM);
 
 	(new DOMDiff(dummyEnv)).diff(oldDOM, newDOM);
 

@@ -5,8 +5,8 @@ require('../../core-upgrade.js');
 const assert = require('chai').assert;
 
 const { DOMDataUtils } = require('../../lib/utils/DOMDataUtils');
+const { ContentUtils } = require('../../lib/utils/ContentUtils');
 const { MockEnv } = require('../MockEnv');
-const { TestUtils } = require('../TestUtils');
 const {
 	ConstrainedText,
 	AutoURLLinkText,
@@ -268,8 +268,8 @@ describe('ConstrainedText', () => {
 			if (t.linkTrailRegex) {
 				env.conf.wiki.linkTrailRegex = t.linkTrailRegex;
 			}
-			const doc = TestUtils.ppToDOM(t.html);
-			const node = doc.body.firstChild;
+			const body = ContentUtils.ppToDOM(env, t.html);
+			const node = body.firstChild;
 			const dataParsoid = DOMDataUtils.getDataParsoid(node);
 
 			// Test ConstrainedText.fromSelSer

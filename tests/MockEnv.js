@@ -1,5 +1,8 @@
 'use strict';
 
+const { DOMDataUtils } = require('../lib/utils/DOMDataUtils.js');
+const { DOMUtils } = require('../lib/utils/DOMUtils.js');
+
 class MockEnv {
 	constructor(argv, pageSrc) {
 		// Hack in bswPagePropRegexp to support Util.js function "isBehaviorSwitch: function(... "
@@ -16,10 +19,12 @@ class MockEnv {
 			},
 			parsoid: {
 				rtTestMode: false,
+				debug: argv.debug,
 			},
 		};
 		this.log = argv.log ? this._log : this._emptyLog;
 		this.wrapSections = true; // always wrap sections!
+		this.scrubWikitext = argv.scrubWikitext;
 
 		this.setVariable = function(variable, state) { this[variable] = state; };	// mock function to set variable state for BehaviorSwitchHandler
 	}
@@ -36,6 +41,20 @@ class MockEnv {
 			}
 		}
 		console.log(output);
+	}
+
+	// NOTE: Here's the spot to stuff references to $doc in the PHP port.
+	referenceDataObject(doc, bag) {
+		DOMDataUtils.setDocBag(doc, bag);
+	}
+
+	// NOTE: This a potential gotcha when it comes to the port.
+	// Much like `env.createDocument()`, a reference to $doc is going to have to
+	// be held onto so that the attached environment doesn't get GC'd.
+	createDocument(html) {
+		const doc = DOMUtils.parseHTML(html);
+		this.referenceDataObject(doc);
+		return doc;
 	}
 }
 
