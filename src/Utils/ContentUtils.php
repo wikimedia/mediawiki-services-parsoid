@@ -59,7 +59,6 @@ class ContentUtils {
 			DOMCompat::setInnerHTML( $node, $html );
 		}
 
-		$markNew = $options['markNew'] ?? false;
 		if ( $options['reinsertFosterableContent'] ?? false ) {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
@@ -68,9 +67,9 @@ class ContentUtils {
 
 				// load data attribs
 				DOMDataUtils::loadDataAttribs( $n, ...$args );
-			}, $markNew );
+			}, $options );
 		} else {
-			DOMDataUtils::visitAndLoadDataAttribs( $node, $markNew );
+			DOMDataUtils::visitAndLoadDataAttribs( $node, $options );
 		}
 		return $node;
 	}

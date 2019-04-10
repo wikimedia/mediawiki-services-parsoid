@@ -103,9 +103,9 @@ class FromHTML {
 				// TODO(arlolra): There's probably an opportunity to refactor callers
 				// of `serializeDOM` to use `ContentUtils.ppToDOM` but this is a safe bet
 				// for now, since it's the main entrypoint to serialization.
-				DOMDataUtils::visitAndLoadDataAttribs( $body, true );
+				DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
 				if ( $useSelser && $env->page->dom ) {
-					DOMDataUtils::visitAndLoadDataAttribs( $env->page->dom, true );
+					DOMDataUtils::visitAndLoadDataAttribs( $env->page->dom, [ 'markNew' => true ] );
 				}
 
 				// NOTE:

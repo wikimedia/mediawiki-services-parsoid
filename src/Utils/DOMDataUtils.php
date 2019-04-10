@@ -414,10 +414,10 @@ class DOMDataUtils {
 	 * Walk DOM from node downward calling loadDataAttribs
 	 *
 	 * @param DOMElement $node node
-	 * @param bool $markNew identify and mark newly inserted elements
+	 * @param array $options options
 	 */
-	public static function visitAndLoadDataAttribs( DOMElement $node, bool $markNew = false ): void {
-		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $markNew );
+	public static function visitAndLoadDataAttribs( DOMElement $node, array $options = [] ): void {
+		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $options );
 	}
 
 	/**
@@ -429,9 +429,9 @@ class DOMDataUtils {
 	 * avoided.
 	 *
 	 * @param DOMNode $node node
-	 * @param bool $markNew markNew
+	 * @param array $options options
 	 */
-	public static function loadDataAttribs( DOMNode $node, bool $markNew ): void {
+	public static function loadDataAttribs( DOMNode $node, array $options ): void {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}
@@ -439,7 +439,7 @@ class DOMDataUtils {
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, (object)[] );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', (object)[] );
-		if ( $markNew ) {
+		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
