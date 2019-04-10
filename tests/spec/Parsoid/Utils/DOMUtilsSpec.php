@@ -48,7 +48,7 @@ class DOMUtilsSpec extends ObjectBehavior {
 
 	private static function checkMarkers( DOMNode $node, array $markers ): void {
 		$data = DOMDataUtils::getNodeData( $node );
-		$diff = $data->{'parsoid-diff'}->diff;
+		$diff = $data->parsoid_diff->diff;
 		if ( count( $markers ) !== count( $diff ) ) {
 			var_dump( $markers );
 			var_dump( $diff );

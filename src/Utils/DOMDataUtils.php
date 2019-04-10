@@ -93,6 +93,38 @@ class DOMDataUtils {
 		return $data->parsoid;
 	}
 
+	/** Set data parsoid info on a node.
+	 *
+	 * @param DOMElement $node node
+	 * @param StdClass $dp data-parsoid
+	 */
+	public static function setDataParsoid( DOMElement $node, StdClass $dp ): void {
+		$data = self::getNodeData( $node );
+		$data->parsoid = $dp;
+	}
+
+	/**
+	 * Get data diff info from a node.
+	 *
+	 * @param DOMElement $node node
+	 * @return ?StdClass
+	 */
+	public static function getDataParsoidDiff( DOMElement $node ): ?StdClass {
+		$data = self::getNodeData( $node );
+		// We won't set a default value for this property
+		return $data->parsoid_diff ?? null;
+	}
+
+	/** Set data diff info on a node.
+	 *
+	 * @param DOMElement $node node
+	 * @param ?StdClass $diffObj data-parsoid-diff object
+	 */
+	public static function setDataParsoidDiff( DOMElement $node, ?StdClass $diffObj ): void {
+		$data = self::getNodeData( $node );
+		$data->parsoid_diff = $diffObj;
+	}
+
 	/**
 	 * Get data meta wiki info from a node.
 	 *
@@ -107,6 +139,16 @@ class DOMDataUtils {
 		return $data->mw;
 	}
 
+	/** Set data meta wiki info from a node.
+	 *
+	 * @param DOMElement $node node
+	 * @param ?StdClass $dmw data-mw
+	 */
+	public static function setDataMw( DOMElement $node, ?StdClass $dmw ): void {
+		$data = self::getNodeData( $node );
+		$data->mw = $dmw;
+	}
+
 	/**
 	 * Check if there is meta wiki info in a node.
 	 *
@@ -115,26 +157,6 @@ class DOMDataUtils {
 	 */
 	public static function validDataMw( DOMElement $node ): bool {
 		return (array)self::getDataMw( $node ) !== [];
-	}
-
-	/** Set data parsoid info from a node.
-	 *
-	 * @param DOMElement $node node
-	 * @param StdClass $dp data-parsoid
-	 */
-	public static function setDataParsoid( DOMElement $node, StdClass $dp ): void {
-		$data = self::getNodeData( $node );
-		$data->parsoid = $dp;
-	}
-
-	/** Set data meta wiki info from a node.
-	 *
-	 * @param DOMElement $node node
-	 * @param StdClass $dmw data-mw
-	 */
-	public static function setDataMw( DOMElement $node, StdClass $dmw ): void {
-		$data = self::getNodeData( $node );
-		$data->mw = $dmw;
 	}
 
 	/**
@@ -445,9 +467,12 @@ class DOMDataUtils {
 		}
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
-		$dmw = self::getJSONAttribute( $node, 'data-mw', (object)[] );
+		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
 		self::setDataMw( $node, $dmw );
 		$node->removeAttribute( 'data-mw' );
+		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
+		self::setDataParsoidDiff( $node, $dpd );
+		$node->removeAttribute( 'data-parsoid-diff' );
 	}
 
 	/**
@@ -504,6 +529,14 @@ class DOMDataUtils {
 				$data = (object)[ 'parsoid' => $dp ];
 			} else {
 				self::setJSONAttribute( $node, 'data-parsoid', $dp );
+			}
+		}
+		// We need to serialize diffs only under special circumstances.
+		// So, do it on demand.
+		if ( !empty( $options['storeDiffMark'] ) ) {
+			$dpDiff = self::getDataParsoidDiff( $node );
+			if ( $dpDiff ) {
+				self::setJSONAttribute( $node, 'data-parsoid-diff', $dpDiff );
 			}
 		}
 		// Strip invalid data-mw attributes

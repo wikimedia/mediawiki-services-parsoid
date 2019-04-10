@@ -25,7 +25,7 @@ class DiffUtils {
 		DOMUtils::assertElt( $node );
 
 		$data = DOMDataUtils::getNodeData( $node );
-		$dpd = $data->{'parsoid-diff'} ?? null;
+		$dpd = $data->parsoid_diff ?? null;
 		return ( $dpd && $dpd->id === $env->getPageConfig()->getPageId() ) ? $dpd : null;
 	}
 
@@ -153,21 +153,7 @@ class DiffUtils {
 				'diff' => [ $change ]
 			];
 		}
-		DOMDataUtils::getNodeData( $node )->{'parsoid-diff'} = $dpd;
-	}
-
-	/**
-	 * Store a diff marker on a node in a data attibute.
-	 * Only to be used for dumping.
-	 *
-	 * @param DOMElement $node
-	 * @param Env $env
-	 */
-	public static function storeDiffMark( DOMElement $node, Env $env ): void {
-		$dpd = self::getDiffMark( $node, $env );
-		if ( $dpd ) {
-			DOMDataUtils::setJSONAttribute( $node, 'data-parsoid-diff', $dpd );
-		}
+		DOMDataUtils::getNodeData( $node )->parsoid_diff = $dpd;
 	}
 
 	/**

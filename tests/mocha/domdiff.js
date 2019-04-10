@@ -132,7 +132,7 @@ describe('DOMDiff', function() {
 					// precisely here. And, we need to revisit whether that
 					// page id comparison is still needed / useful.
 					const data = DOMDataUtils.getNodeData(node);
-					const markers = data['parsoid-diff'].diff;
+					const markers = data.parsoid_diff.diff;
 					markers.length.should.equal(spec.markers.length);
 					markers.forEach(function(m, j) {
 						m.should.equal(spec.markers[j]);

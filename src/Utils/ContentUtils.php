@@ -7,7 +7,6 @@ use DOMNode;
 use DOMElement;
 
 use Parsoid\Config\Env;
-use Parsoid\Html2Wt\DiffUtils;
 use Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\Assert\Assert;
 
@@ -142,9 +141,6 @@ class ContentUtils {
 
 		$d = DOMDataUtils::getNodeData( $node );
 		DOMDataUtils::setNodeData( $clone,  clone $d );
-		if ( !empty( $options['storeDiffMark'] ) ) {
-			DiffUtils::storeDiffMark( $clone, $options['env'] );
-		}
 		$node = $node->firstChild;
 		$clone = $clone->firstChild;
 		while ( $node ) {
