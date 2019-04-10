@@ -19,7 +19,6 @@ $TokenUtils = require '../utils/TokenUtils.js'::TokenUtils;
 $WTUtils = require '../utils/WTUtils.js'::WTUtils;
 $Util = require '../utils/Util.js'::Util;
 $JSUtils = require '../utils/jsutils.js'::JSUtils;
-$SanitizerConstants = require './tt/Sanitizer.js'::SanitizerConstants;
 
 $temp0 = require '../tokens/TokenTypes.js';
 $TagTk = $temp0::TagTk;
@@ -39,18 +38,17 @@ $Bag = $temp1::Bag;
 class TreeBuilder extends undefined {
 	public function __construct( $env ) {
 		parent::__construct();
-
 		$this->env = $env;
-		$this->types = new Map( Object::entries( [
-					'EOF' => -1,
-					'Characters' => 1,
-					'StartTag' => 2,
-					'EndTag' => 3,
-					'Comment' => 4,
-					'DOCTYPE' => 5
-				]
-			)
-		);
+
+		// Token types for the tree builder.
+		$this->types = [
+			'EOF' => -1,
+			'TEXT' => 1,
+			'TAG' => 2,
+			'ENDTAG' => 3,
+			'COMMENT' => 4,
+			'DOCTYPE' => 5
+		];
 
 		$psd = $this->env->conf->parsoid;
 		$this->traceTime = (bool)( $psd->traceFlags && $psd->traceFlags->has( 'time' ) );
@@ -59,6 +57,7 @@ class TreeBuilder extends undefined {
 		$this->resetState();
 	}
 	public $env;
+
 	public $types;
 
 	public $traceTime;
@@ -107,40 +106,8 @@ class TreeBuilder extends undefined {
 		$this->haveTransclusionShadow = false;
 
 		$this->parser = new HTMLParser();
-		$this->insertToken( [ 'type' => 'DOCTYPE', 'name' => 'html' ] );
-		$this->insertToken( [ 'type' => 'StartTag', 'name' => 'body' ] );
-	}
-
-	// FIXME: This conversion code can be eliminated by cleaning up processToken.
-	public function insertToken( $tok ) {
-		$t = $this->types->get( $tok->type );
-		$value = null;
-$arg3 = null;
-		switch ( $tok->type ) {
-			case 'StartTag':
-
-			case 'EndTag':
-
-			case 'DOCTYPE':
-			$value = $tok->name;
-			if ( is_array( $tok->data ) ) {
-				$arg3 = array_map( $tok->data, function ( $a ) {
-						return [ $a->nodeName, $a->nodeValue ];
-				}
-				);
-			}
-			break;
-			case 'Characters':
-
-			case 'Comment':
-
-			case 'EOF':
-			$value = $tok->data;
-			break;
-			default:
-			Assert::invariant( false, 'Unexpected type: ' . $tok->type );
-		}
-		$this->parser->insertToken( $t, $value, $arg3 );
+		$this->parser->insertToken( $this->types->DOCTYPE, 'html' );
+		$this->parser->insertToken( $this->types->TAG, 'body' );
 	}
 
 	public function onChunk( $tokens ) {
@@ -173,20 +140,8 @@ $arg3 = null;
 	}
 
 	public function _att( $maybeAttribs ) {
-		return array_map( $maybeAttribs, function ( $attr ) {
-				$a = [ 'nodeName' => $attr->k, 'nodeValue' => $attr->v ];
-				// In the sanitizer, we've permitted the XML namespace declaration.
-				// Pass the appropriate URI so that domino doesn't (rightfully) throw
-				// a NAMESPACE_ERR.
-				// In the sanitizer, we've permitted the XML namespace declaration.
-				// Pass the appropriate URI so that domino doesn't (rightfully) throw
-				// a NAMESPACE_ERR.
-				if ( preg_match( SanitizerConstants\XMLNS_ATTRIBUTE_RE, $attr->k ) ) {
-					$a->namespaceURI = 'http://www.w3.org/2000/xmlns/';
-				}
-				return $a;
-		}
-		);
+		return array_map( $maybeAttribs, function ( $attr ) {return [ $attr->k, $attr->v ];
+  } );
 	}
 
 	// Keep this in sync with `DOMDataUtils.setNodeData()`
@@ -246,7 +201,7 @@ $data = null;
 
 			case $NlTk:
 			$data = ( $token->constructor === $NlTk ) ? "\n" : $token;
-			$this->insertToken( [ 'type' => 'Characters', 'data' => $data ] );
+			$this->parser->insertToken( $this->types->TEXT, $data );
 			// NlTks are only fostered when accompanied by
 			// non-whitespace. Safe to ignore.
 			if ( $this->inTransclusion && $this->tableDepth > 0
@@ -256,10 +211,8 @@ $data = null;
 				// after every text node so that we can detect
 				// fostered content that came from a transclusion.
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-				$this->insertToken( [
-						'type' => 'StartTag',
-						'name' => 'meta',
-						'data' => [ [ 'nodeName' => 'typeof', 'nodeValue' => 'mw:TransclusionShadow' ] ]
+				$this->parser->insertToken( $this->types->TAG, 'meta', [
+						[ 'typeof', 'mw:TransclusionShadow' ]
 					]
 				);
 				$this->haveTransclusionShadow = true;
@@ -275,25 +228,22 @@ $data = null;
 				// like the navbox
 				if ( !$this->inTransclusion ) {
 					$this->env->log( 'debug/html', $this->pipelineId, 'Inserting foster box meta' );
-					$this->insertToken( [
-							'type' => 'StartTag',
-							'name' => 'table',
-							'data' => [ [ 'nodeName' => 'typeof', 'nodeValue' => 'mw:FosterBox' ] ]
+					$this->parser->insertToken( $this->types->TAG, 'table', [
+							[ 'typeof', 'mw:FosterBox' ]
 						]
 					);
 				}
 			}
-			$this->insertToken( [ 'type' => 'StartTag', 'name' => $tName, 'data' => $this->_att( $attribs ) ] );
+			$this->parser->insertToken( $this->types->TAG, $tName, $this->_att( $attribs ) );
 			if ( $dataAttribs && !$dataAttribs->autoInsertedStart ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 				$attrs = [
-					[ 'nodeName' => 'typeof', 'nodeValue' => 'mw:StartTag' ],
-					[ 'nodeName' => 'data-stag', 'nodeValue' => $tName . ':' . $dataAttribs->tmp->tagId ]
+					[ 'typeof', 'mw:StartTag' ],
+					[ 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" ]
 				]->concat( $this->_att( $this->stashDataAttribs( [], Util::clone( $dataAttribs ) ) ) );
-				$this->insertToken( [
-						'type' => 'Comment',
-						'data' => WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
-					]
+				$this->parser->insertToken(
+					$this->types->COMMENT,
+					WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
 				);
 			}
 			break;
@@ -322,21 +272,20 @@ $data = null;
 					if ( preg_match( '/^mw:Transclusion/', $tTypeOf ) ) {
 						$this->inTransclusion = preg_match( '/^mw:Transclusion$/', $tTypeOf );
 					}
-					$this->insertToken( [
-							'type' => 'Comment',
-							'data' => WTUtils::fosterCommentData( $tTypeOf, $this->_att( $attribs ), false )
-						]
+					$this->parser->insertToken(
+						$this->types->COMMENT,
+						WTUtils::fosterCommentData( $tTypeOf, $this->_att( $attribs ), false )
 					);
 					break;
 				}
 			}
 
 			$newAttrs = $this->_att( $attribs );
-			$this->insertToken( [ 'type' => 'StartTag', 'name' => $tName, 'data' => $newAttrs ] );
+			$this->parser->insertToken( $this->types->TAG, $tName, $newAttrs );
 			if ( !Util::isVoidElement( $tName ) ) {
 				// VOID_ELEMENTS are automagically treated as self-closing by
 				// the tree builder
-				$this->insertToken( [ 'type' => 'EndTag', 'name' => $tName, 'data' => $newAttrs ] );
+				$this->parser->insertToken( $this->types->ENDTAG, $tName, $newAttrs );
 			}
 			break;
 			case $EndTagTk:
@@ -344,26 +293,25 @@ $data = null;
 			if ( $tName === 'table' && $this->tableDepth > 0 ) {
 				$this->tableDepth--;
 			}
-			$this->insertToken( [ 'type' => 'EndTag', 'name' => $tName ] );
+			$this->parser->insertToken( $this->types->ENDTAG, $tName );
 			if ( $dataAttribs && !$dataAttribs->autoInsertedEnd ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 				$attrs = $this->_att( $attribs )->concat( [
-						[ 'nodeName' => 'typeof', 'nodeValue' => 'mw:EndTag' ],
-						[ 'nodeName' => 'data-etag', 'nodeValue' => $tName ]
+						[ 'typeof', 'mw:EndTag' ],
+						[ 'data-etag', $tName ]
 					]
 				);
-				$this->insertToken( [
-						'type' => 'Comment',
-						'data' => WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
-					]
+				$this->parser->insertToken(
+					$this->types->COMMENT,
+					WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
 				);
 			}
 			break;
 			case $CommentTk:
-			$this->insertToken( [ 'type' => 'Comment', 'data' => $token->value ] );
+			$this->parser->insertToken( $this->types->COMMENT, $token->value );
 			break;
 			case $EOFTk:
-			$this->insertToken( [ 'type' => 'EOF' ] );
+			$this->parser->insertToken( $this->types->EOF );
 			break;
 			default:
 			$errors = [

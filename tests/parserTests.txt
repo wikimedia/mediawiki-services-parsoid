@@ -28227,7 +28227,7 @@ parsoid=html2wt
 !!end
 
 !! test
-Don't block XML namespace declaration
+T72867: Don't block XML namespace declaration
 !! wikitext
 <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">MediaWiki</span>
 !! html/php

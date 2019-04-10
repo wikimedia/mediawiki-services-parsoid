@@ -778,10 +778,10 @@ class WTUtils {
 				$meta = $node->ownerDocument->createElement( 'meta' );
 				foreach ( $data->attrs as $attr ) {
 					try {
-						$meta->setAttribute( $attr->nodeName, $attr->nodeValue );
+						$meta->setAttribute( ...$attr );
 					} catch ( \Exception $e ) {
 						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
-							$attr->nodeName
+							PHPUtils::jsonEncode( $attr )
 						);
 					}
 				}
