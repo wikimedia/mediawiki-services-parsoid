@@ -6,6 +6,7 @@
 
 wt2html:
    PegTokenizer: false
+   HTML5TreeBuilder: false
    TT:
      ParagraphWrapper: false
      QuoteTransformer: false

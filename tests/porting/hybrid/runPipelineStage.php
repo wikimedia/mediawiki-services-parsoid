@@ -5,9 +5,13 @@ namespace Parsoid\Tests\Porting\Hybrid;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Parsoid\Tests\MockEnv;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Wt2Html\HTML5TreeBuilder;
 
 /**
  * Decode the json-encoded strings to build tokens
@@ -93,9 +97,18 @@ switch ( $stageName ) {
 	case "AsyncTokenTransformManager":
 		throw new \Exception( "Unsupported!" );
 		// $toks = readTokens( $input );
-	case "TreeBuilder":
-		throw new \Exception( "Unsupported!" );
-		// $toks = readTokens( $input );
+	case "HTML5TreeBuilder":
+		$toks = readTokens( $input );
+		$tb = new HTML5TreeBuilder( $env );
+		$tb->onChunk( $toks );
+		$doc = $tb->onEnd();
+		$body = DOMCompat::getBody( $doc );
+		$out = ContentUtils::ppToXML( $body, [
+			'keepTmp' => true,
+			'tunnelFosteredContent' => true,
+			'storeDiffMark' => true
+		] );
+		break;
 	case "DOMPostProcessor":
 		throw new \Exception( "Unsupported!" );
 		// $dom = ContentUtils::ppToDOM( $env, $input, [ 'reinsertFosterableContent' => true ] );

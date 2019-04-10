@@ -8,12 +8,12 @@ require('chai').should();
 const { EventEmitter } = require('events');
 
 const { MockEnv } = require('../MockEnv');
-const { TreeBuilder } = require('../../lib/wt2html/HTML5TreeBuilder.js');
+const { HTML5TreeBuilder } = require('../../lib/wt2html/HTML5TreeBuilder.js');
 const { TagTk, EndTagTk } = require('../../lib/tokens/TokenTypes.js');
 
 const buildFromTokens = function(tokens) {
 	const env = new MockEnv({}, null);
-	const tb = new TreeBuilder(env);
+	const tb = new HTML5TreeBuilder(env);
 	let doc;
 	tb.addListener('document', function(_doc) {
 		doc = _doc;

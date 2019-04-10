@@ -1,94 +1,83 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+declare( strict_types = 1 );
+
 /**
  * Front-end/Wrapper for a particular tree builder, in this case the
- * parser/tree builder from the node
- * {@link https://www.npmjs.com/package/domino `domino`} module.
- * Feed it tokens using
- * {@link TreeBuilder#processToken}, and it will build you a DOM tree
- * and emit an event.
- * @module
+ * parser/tree builder from RemexHtml.  Feed it tokens  and it will build
+ * you a DOM tree and emit an event.
  */
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html;
 
-$HTMLParser = require 'domino'->impl->HTMLParser;
-$TokenUtils = require '../utils/TokenUtils.js'::TokenUtils;
-$WTUtils = require '../utils/WTUtils.js'::WTUtils;
-$Util = require '../utils/Util.js'::Util;
-$JSUtils = require '../utils/jsutils.js'::JSUtils;
+use DOMDocument;
 
-$temp0 = require '../tokens/TokenTypes.js';
-$TagTk = $temp0::TagTk;
-$EndTagTk = $temp0::EndTagTk;
-$SelfclosingTagTk = $temp0::SelfclosingTagTk;
-$NlTk = $temp0::NlTk;
-$EOFTk = $temp0::EOFTk;
-$CommentTk = $temp0::CommentTk;
-$temp1 = require '../utils/DOMDataUtils.js';
-$DOMDataUtils = $temp1::DOMDataUtils;
-$Bag = $temp1::Bag;
-$temp2 = require '../utils/DOMTraverser.js';
-$DOMTraverser = $temp2::DOMTraverser;
-$temp3 = require './pp/handlers/PrepareDOM.js';
-$PrepareDOM = $temp3::PrepareDOM;
+use Parsoid\Config\Env;
+use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\DataBag;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMTraverser;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
 
-/**
- * @class
- * @extends EventEmitter
- */
-class TreeBuilder extends undefined {
-	public function __construct( $env ) {
-		parent::__construct();
+use RemexHtml\DOM\DOMBuilder;
+use RemexHtml\Tokenizer\PlainAttributes;
+use RemexHtml\Tokenizer\Tokenizer;
+use RemexHtml\TreeBuilder\Dispatcher;
+use RemexHtml\TreeBuilder\TreeBuilder;
+
+use Wikimedia\Assert\Assert;
+
+class HTML5TreeBuilder {
+	private $env;
+	private $traceTime;
+	private $pipelineId;
+	private $tagId;
+	private $inTransclusion;
+	private $bag;
+	private $tableDepth;
+	private $haveTransclusionShadow;
+	private $domBuilder;
+	private $dispatcher;
+	private $lastToken;
+
+	/**
+	 * @param Env $env
+	 */
+	public function __construct( Env $env ) {
 		$this->env = $env;
 
-		// Token types for the tree builder.
-		$this->types = [
-			'EOF' => -1,
-			'TEXT' => 1,
-			'TAG' => 2,
-			'ENDTAG' => 3,
-			'COMMENT' => 4,
-			'DOCTYPE' => 5
-		];
-
-		$psd = $this->env->conf->parsoid;
-		$this->traceTime = (bool)( $psd->traceFlags && $psd->traceFlags->has( 'time' ) );
+		$traceFlags = $env ? $env->traceFlags : [];
+		$this->traceTime = isset( $traceFlags['time'] );
 
 		// Reset variable state and set up the parser
 		$this->resetState();
 	}
-	public $env;
-
-	public $types;
-
-	public $traceTime;
-
-	/**
-	 * Register for (token) 'chunk' and 'end' events from a token emitter,
-	 * normally the TokenTransformDispatcher.
-	 */
-	public function addListenersOn( $emitter ) {
-		$emitter->addListener( 'chunk', function ( $tokens ) {return $this->onChunk( $tokens );
-  } );
-		$emitter->addListener( 'end', function () {return $this->onEnd();
-  } );
-	}
 
 	/**
 	 * Debugging aid: set pipeline id
+	 *
+	 * @param int $id
 	 */
-	public function setPipelineId( $id ) {
+	public function setPipelineId( int $id ): void {
 		$this->pipelineId = $id;
 	}
 
-	public function resetState() {
+	public function resetState(): void {
 		// Reset vars
 		$this->tagId = 1; // Assigned to start/self-closing tags
 		$this->inTransclusion = false;
-		$this->bag = new Bag();
+		$this->bag = new DataBag();
 
 		/* --------------------------------------------------------------------
 		 * Crude tracking of whether we are in a table
@@ -109,33 +98,49 @@ class TreeBuilder extends undefined {
 		// We only need one for every run of strings and newline tokens.
 		$this->haveTransclusionShadow = false;
 
-		$this->parser = new HTMLParser();
-		$this->parser->insertToken( $this->types->DOCTYPE, 'html' );
-		$this->parser->insertToken( $this->types->TAG, 'body' );
+		$this->domBuilder = new DOMBuilder( [ 'suppressHtmlNamespace' => true ] );
+		$treeBuilder = new TreeBuilder( $this->domBuilder );
+		$this->dispatcher = new Dispatcher( $treeBuilder );
+
+		// PORT-FIXME: Necessary to setEnableCdataCallback
+		$tokenizer = new Tokenizer( $this->dispatcher, '', [ 'ignoreErrors' => true ] );
+
+		$this->dispatcher->startDocument( $tokenizer, null, null );
+		$this->dispatcher->doctype( 'html', '', '', false, 0, 0 );
+		$this->dispatcher->startTag( 'body', new PlainAttributes(), false, 0, 0 );
 	}
 
-	public function onChunk( $tokens ) {
+	/**
+	 * @param array $tokens
+	 */
+	public function onChunk( array $tokens ): void {
 		$s = null;
-		if ( $this->traceTime ) { $s = JSUtils::startTime();
-  }
+		if ( $this->traceTime ) {
+			$s = PHPUtils::getStartHRTime();
+		}
 		$n = count( $tokens );
 		for ( $i = 0;  $i < $n;  $i++ ) {
 			$this->processToken( $tokens[ $i ] );
 		}
 		if ( $this->traceTime ) {
-			$this->env->bumpTimeUse( 'HTML5 TreeBuilder', JSUtils::elapsedTime( $s ), 'HTML5' );
+			$this->env->bumpTimeUse( 'HTML5 TreeBuilder', PHPUtils::getHRTimeDifferential( $s ), 'HTML5' );
 		}
 	}
 
-	public function onEnd() {
+	/**
+	 * @return DOMDocument
+	 */
+	public function onEnd(): DOMDocument {
 		// Check if the EOFTk actually made it all the way through, and flag the
 		// page where it did not!
-		if ( $this->lastToken && $this->lastToken->constructor !== $EOFTk ) {
-			$this->env->log( 'error', 'EOFTk was lost in page', $this->env->page->name );
+		if ( isset( $this->lastToken ) && !( $this->lastToken instanceof EOFTk ) ) {
+			$this->env->log( 'error', 'EOFTk was lost in page', $this->env->getPageConfig()->getTitle() );
 		}
 
+		$doc = $this->domBuilder->getFragment();
+		'@phan-var \DOMDocument $doc'; // @var \DOMDocument $doc
+
 		// Special case where we can't call `env.createDocument()`
-		$doc = $this->parser->document();
 		$this->env->referenceDataObject( $doc, $this->bag );
 
 		// Preparing the DOM is considered one "unit" with treebuilding,
@@ -146,54 +151,78 @@ class TreeBuilder extends undefined {
 		// data-attributes to cross language barriers;
 		// - the calls to fosterCommentData below are storing data-object-ids,
 		// which must be reinserted, again before storing ...
-		$seenDataIds = new Set();
+		$seenDataIds = [];
 		$t = new DOMTraverser();
-		$t->addHandler( null, function ( ...$args ) use ( &$PrepareDOM, &$seenDataIds ) {return PrepareDOM::prepareDOM( $seenDataIds, ...$args );
-  } );
-		$t->traverse( $doc->body, $this->env );
+		$t->addHandler( null, function ( ...$args ) use ( &$seenDataIds ) {
+			return PrepareDOM::handler( $seenDataIds, ...$args );
+		} );
+		$t->traverse( DOMCompat::getBody( $doc ), $this->env, [], false, null );
 
-		$this->emit( 'document', $doc );
+		// PORT-FIXME: Are we reusing this?  Switch to `init()`
+		// $this->resetState();
 
-		$this->emit( 'end' );
-		$this->resetState();
+		return $doc;
 	}
 
-	public function _att( $maybeAttribs ) {
-		return array_map( $maybeAttribs, function ( $attr ) {return [ $attr->k, $attr->v ];
-  } );
+	/**
+	 * @param array $maybeAttribs
+	 * @return array
+	 */
+	private function kvArrToAttr( array $maybeAttribs ): array {
+		return array_reduce( $maybeAttribs, function ( $prev, $next ) {
+			$prev[ $next->k ] = $next->v;
+			return $prev;
+		}, [] );
 	}
 
-	// Keep this in sync with `DOMDataUtils.setNodeData()`
-	public function stashDataAttribs( $attribs, $dataAttribs ) {
+	/**
+	 * @param array $maybeAttribs
+	 * @return array
+	 */
+	private function kvArrToFoster( array $maybeAttribs ): array {
+		return array_map( function ( $attr ) {
+			return [ $attr->k, $attr->v ];
+		}, $maybeAttribs );
+	}
+
+	/**
+	 * Keep this in sync with `DOMDataUtils.setNodeData()`
+	 *
+	 * @param array $attribs
+	 * @param object $dataAttribs
+	 * @return array
+	 */
+	public function stashDataAttribs( array $attribs, object $dataAttribs ): array {
 		$data = [ 'parsoid' => $dataAttribs ];
-		$attribs = $attribs->filter( function ( $attr ) use ( &$data ) {
+		$attribs = array_filter( $attribs, function ( $attr ) use ( &$data ) {
 				if ( $attr->k === 'data-mw' ) {
-					Assert::invariant( $data->mw === null );
-					$data->mw = json_decode( $attr->v );
+					Assert::invariant( !isset( $data['mw'] ), "data-mw already set." );
+					$data['mw'] = json_decode( $attr->v );
 					return false;
 				}
 				return true;
-		}
-		);
-		$docId = $this->bag->stashObject( $data );
-		$attribs[] = [ 'k' => DOMDataUtils\DataObjectAttrName(), 'v' => $docId ];
+		} );
+		$docId = $this->bag->stashObject( (object)$data );
+		$attribs[] = new KV( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$docId );
 		return $attribs;
 	}
 
 	/**
 	 * Adapt the token format to internal HTML tree builder format, call the actual
 	 * html tree builder by emitting the token.
+	 *
+	 * @param Token|string $token
 	 */
-	public function processToken( $token ) {
+	public function processToken( $token ): void {
 		if ( $this->pipelineId === 0 ) {
 			$this->env->bumpWt2HtmlResourceUse( 'token' );
 		}
 
-		$attribs = $token->attribs || [];
-		$dataAttribs = $token->dataAttribs || [ 'tmp' => [] ];
+		$attribs = $token->attribs ?? [];
+		$dataAttribs = $token->dataAttribs ?? (object)[ 'tmp' => (object)[] ];
 
-		if ( !$dataAttribs->tmp ) {
-			$dataAttribs->tmp = [];
+		if ( !isset( $dataAttribs->tmp ) ) {
+			$dataAttribs->tmp = (object)[];
 		}
 
 		if ( $this->inTransclusion ) {
@@ -201,44 +230,35 @@ class TreeBuilder extends undefined {
 		}
 
 		// Assign tagId to open/self-closing tags
-		if ( $token->constructor === $TagTk || $token->constructor === $SelfclosingTagTk ) {
+		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
 			$dataAttribs->tmp->tagId = $this->tagId++;
 		}
 
 		$attribs = $this->stashDataAttribs( $attribs, $dataAttribs );
 
-		$this->env->log( 'trace/html', $this->pipelineId, function () {
-				return json_encode( $token );
-		}
-		);
+		$this->env->log( 'trace/html', $this->pipelineId, function () use ( $token ) {
+			return PHPUtils::jsonEncode( $token );
+		} );
 
-		$tName = null;
-$attrs = null;
-$data = null;
-		switch ( $token->constructor ) {
-			case $String:
-
-			case $NlTk:
-			$data = ( $token->constructor === $NlTk ) ? "\n" : $token;
-			$this->parser->insertToken( $this->types->TEXT, $data );
+		if ( is_string( $token ) || $token instanceof NlTk ) {
+			$data = ( $token instanceof NlTk ) ? "\n" : $token;
+			$this->dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
 			// NlTks are only fostered when accompanied by
 			// non-whitespace. Safe to ignore.
 			if ( $this->inTransclusion && $this->tableDepth > 0
-&& $token->constructor === $String && !$this->haveTransclusionShadow
+				&& is_string( $token ) && !$this->haveTransclusionShadow
 			) {
 				// If inside a table and a transclusion, add a meta tag
 				// after every text node so that we can detect
 				// fostered content that came from a transclusion.
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-				$this->parser->insertToken( $this->types->TAG, 'meta', [
-						[ 'typeof', 'mw:TransclusionShadow' ]
-					]
-				);
+				$this->dispatcher->startTag( 'meta', new PlainAttributes( $this->kvArrToAttr( [
+					new KV( 'typeof', 'mw:TransclusionShadow' )
+				] ) ), true, 0, 0 );
 				$this->haveTransclusionShadow = true;
 			}
-			break;
-			case $TagTk:
-			$tName = $token->name;
+		} elseif ( $token instanceof TagTk ) {
+			$tName = $token->getName();
 			if ( $tName === 'table' ) {
 				$this->tableDepth++;
 				// Don't add foster box in transclusion
@@ -247,113 +267,115 @@ $data = null;
 				// like the navbox
 				if ( !$this->inTransclusion ) {
 					$this->env->log( 'debug/html', $this->pipelineId, 'Inserting foster box meta' );
-					$this->parser->insertToken( $this->types->TAG, 'table', [
-							[ 'typeof', 'mw:FosterBox' ]
-						]
-					);
+					$this->dispatcher->startTag( 'table', new PlainAttributes( $this->kvArrToAttr( [
+						new KV( 'typeof', 'mw:FosterBox' )
+					] ) ), false, 0, 0 );
 				}
 			}
-			$this->parser->insertToken( $this->types->TAG, $tName, $this->_att( $attribs ) );
-			if ( $dataAttribs && !$dataAttribs->autoInsertedStart ) {
+			$this->dispatcher->startTag(
+				$tName, new PlainAttributes( $this->kvArrToAttr( $attribs ) ), false, 0, 0
+			);
+			if ( empty( $dataAttribs->autoInsertedStart ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$attrs = [
-					[ 'typeof', 'mw:StartTag' ],
-					[ 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" ]
-				]->concat( $this->_att( $this->stashDataAttribs( [], Util::clone( $dataAttribs ) ) ) );
-				$this->parser->insertToken(
-					$this->types->COMMENT,
-					WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
+				$attrs = $this->stashDataAttribs( [
+					new KV( 'typeof', 'mw:StartTag' ),
+					new KV( 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" )
+				], clone $dataAttribs );
+				$this->dispatcher->comment(
+					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
+					0, 0
 				);
 			}
-			break;
-			case $SelfclosingTagTk:
-			$tName = $token->name;
+		} elseif ( $token instanceof SelfclosingTagTk ) {
+			$tName = $token->getName();
 
 			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
 			if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
 				$this->onChunk( $dataAttribs->tokens );
-				break;
+				return;
 			}
+
+			$wasInserted = false;
 
 			// Convert mw metas to comments to avoid fostering.
 			// But <*include*> metas, behavior switch metas
 			// should be fostered since they end up generating
 			// HTML content at the marker site.
 			if ( $tName === 'meta' ) {
-				$tTypeOf = $token->getAttribute( 'typeof' );
-				$shouldFoster = preg_match( ( '/^mw:(Includes\/(OnlyInclude|IncludeOnly|NoInclude))\b/' ), $tTypeOf );
+				$tTypeOf = $token->getAttribute( 'typeof' ) ?: '';
+				$shouldFoster = preg_match(
+					'/^mw:(Includes\/(OnlyInclude|IncludeOnly|NoInclude))\b/',
+					$tTypeOf
+				);
 				if ( !$shouldFoster ) {
-					$prop = $token->getAttribute( 'property' );
-					$shouldFoster = preg_match( ( '/^(mw:PageProp\/[a-zA-Z]*)\b/' ), $prop );
+					$prop = $token->getAttribute( 'property' ) ?: '';
+					$shouldFoster = preg_match( '/^(mw:PageProp\/[a-zA-Z]*)\b/', $prop );
 				}
 				if ( !$shouldFoster ) {
 					// transclusions state
 					if ( preg_match( '/^mw:Transclusion/', $tTypeOf ) ) {
 						$this->inTransclusion = preg_match( '/^mw:Transclusion$/', $tTypeOf );
 					}
-					$this->parser->insertToken(
-						$this->types->COMMENT,
-						WTUtils::fosterCommentData( $tTypeOf, $this->_att( $attribs ), false )
+					$this->dispatcher->comment(
+						WTUtils::fosterCommentData( $tTypeOf, $this->kvArrToFoster( $attribs ), false ),
+						0, 0
 					);
-					break;
+					$wasInserted = true;
 				}
 			}
 
-			$newAttrs = $this->_att( $attribs );
-			$this->parser->insertToken( $this->types->TAG, $tName, $newAttrs );
-			if ( !Util::isVoidElement( $tName ) ) {
-				// VOID_ELEMENTS are automagically treated as self-closing by
-				// the tree builder
-				$this->parser->insertToken( $this->types->ENDTAG, $tName, $newAttrs );
+			if ( !$wasInserted ) {
+				$this->dispatcher->startTag(
+					$tName, new PlainAttributes( $this->kvArrToAttr( $attribs ) ), true, 0, 0
+				);
+				if ( !Util::isVoidElement( $tName ) ) {
+					// PORT-FIXME: startTag has a self-closed flag?
+					// VOID_ELEMENTS are automagically treated as self-closing by
+					// the tree builder
+					$this->dispatcher->endTag( $tName, 0, 0 );
+				}
 			}
-			break;
-			case $EndTagTk:
-			$tName = $token->name;
+		} elseif ( $token instanceof EndTagTk ) {
+			$tName = $token->getName();
 			if ( $tName === 'table' && $this->tableDepth > 0 ) {
 				$this->tableDepth--;
 			}
-			$this->parser->insertToken( $this->types->ENDTAG, $tName );
-			if ( $dataAttribs && !$dataAttribs->autoInsertedEnd ) {
+			$this->dispatcher->endTag( $tName, 0, 0 );
+			if ( empty( $dataAttribs->autoInsertedEnd ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$attrs = $this->_att( $attribs )->concat( [
-						[ 'typeof', 'mw:EndTag' ],
-						[ 'data-etag', $tName ]
+				$attrs = array_merge(
+					$attribs,
+					[
+						new KV( 'typeof', 'mw:EndTag' ),
+						new KV( 'data-etag', $tName )
 					]
 				);
-				$this->parser->insertToken(
-					$this->types->COMMENT,
-					WTUtils::fosterCommentData( 'mw:shadow', $attrs, false )
+				$this->dispatcher->comment(
+					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
+					0, 0
 				);
 			}
-			break;
-			case $CommentTk:
-			$this->parser->insertToken( $this->types->COMMENT, $token->value );
-			break;
-			case $EOFTk:
-			$this->parser->insertToken( $this->types->EOF );
-			break;
-			default:
+		} elseif ( $token instanceof CommentTk ) {
+			$this->dispatcher->comment( $token->value, 0, 0 );
+		} elseif ( $token instanceof EOFTk ) {
+			$this->dispatcher->endDocument( 0 );
+		} else {
 			$errors = [
 				'-------- Unhandled token ---------',
-				'TYPE: ' . $token->constructor->name,
+				'TYPE: ' . $token->getType(),
 				'VAL : ' . json_encode( $token )
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
-			break;
 		}
 
 		// If we encountered a non-string non-nl token, we have broken
 		// a run of string+nl content and the next occurence of one of
 		// those tokens will need transclusion shadow protection again.
-		if ( $token->constructor !== $String && $token->constructor !== $NlTk ) {
+		if ( !is_string( $token ) && !( $token instanceof NlTk ) ) {
 			$this->haveTransclusionShadow = false;
 		}
 
 		// Store the last token
 		$this->lastToken = $token;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->TreeBuilder = $TreeBuilder;
 }

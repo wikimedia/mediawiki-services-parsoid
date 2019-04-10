@@ -1,15 +1,14 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
+use DOMElement;
+use DOMNode;
+
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\WTUtils;
 
 class PrepareDOM {
 	/**
@@ -19,33 +18,35 @@ class PrepareDOM {
 	 * Various mw metas are converted to comments before the tree build to
 	 * avoid fostering. Piggy-backing the reconversion here to avoid excess
 	 * DOM traversals.
+	 *
+	 * @param array &$seenDataIds
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @return bool|mixed
 	 */
-	public static function prepareDOM( $seenDataIds, $node, $env ) {
-		if ( DOMUtils::isElt( $node ) ) {
+	public static function handler( array &$seenDataIds, DOMNode $node, Env $env ) {
+		if ( $node instanceof DOMElement ) {
 			// Deduplicate docIds that come from splitting nodes because of
 			// content model violations when treebuilding.
-			$docId = $node->getAttribute( DOMDataUtils\DataObjectAttrName() );
-			if ( $docId !== null ) {
-				if ( $seenDataIds->has( $docId ) ) {
+			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
+				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+				if ( isset( $seenDataIds[ $docId ] ) ) {
 					$data = DOMDataUtils::getNodeData( $node );
-					DOMDataUtils::setNodeData( $node, Util::clone( $data, true ) );
+					DOMDataUtils::setNodeData( $node, clone $data );
 				} else {
-					$seenDataIds->add( $docId );
+					$seenDataIds[ $docId ] = true;
 				}
 			}
 			// Set title to display when present (last one wins).
 			if ( $node->nodeName === 'META'
-&& $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'
+				&& $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'
 			) {
-				$env->page->meta->displayTitle = $node->getAttribute( 'content' );
+				// PORT-FIXME: Meh
+				// $env->getPageConfig()->meta->displayTitle = $node->getAttribute( 'content' );
 			}
 			return true;
 		}
 		$meta = WTUtils::reinsertFosterableContent( $env, $node, false );
 		return ( $meta !== null ) ? $meta : true;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->PrepareDOM = $PrepareDOM;
 }

@@ -29,7 +29,7 @@ class PHPPipelineStage {
 		switch (this.stageName) {
 			case 'SyncTokenTransformManager':
 			case 'AsyncTokenTransformManager':
-			case 'TreeBuilder':
+			case 'HTML5TreeBuilder':
 				emitter.addListener('chunk', (tokens) => {
 					this.tokens = this.tokens.concat(tokens);  // Buffer
 				});
@@ -55,7 +55,7 @@ class PHPPipelineStage {
 				this.emit('end');
 				break;
 
-			case 'TreeBuilder':
+			case 'HTML5TreeBuilder':
 			case 'DOMPostProcessor':
 				this.emit('document', output);
 				break;
@@ -132,7 +132,7 @@ class PHPPipelineStage {
 			pageContent: this.env.page.src
 		});
 
-		if (this.stageName === 'TreeBuilder') {
+		if (this.stageName === 'HTML5TreeBuilder') {
 			this.emitDoc(out);
 		} else {
 			this.emitTokens(out);
