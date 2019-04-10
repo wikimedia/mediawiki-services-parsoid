@@ -113,7 +113,7 @@ class TableFixups {
 		$childDP = DOMDataUtils::getDataParsoid( $child );
 
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
-		if ( !Util::isValidDSR( $dp->dsr ) ) {
+		if ( !Util::isValidDSR( $dp->dsr ?? null) ) {
 			$dp->dsr = Util::clone( $childDP->dsr );
 		}
 

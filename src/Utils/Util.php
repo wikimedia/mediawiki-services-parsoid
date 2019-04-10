@@ -313,12 +313,12 @@ class Util {
 	 * DSR = "DOM Source Range".  [0] and [1] are open and end,
 	 * [2] and [3] are widths of the container tag.
 	 *
-	 * @param array $dsr DSR source range values
+	 * @param array|null $dsr DSR source range values
 	 * @param bool $all Also check the widths of the container tag
 	 * @return bool
 	 */
-	public static function isValidDSR( array $dsr, bool $all = false ): bool {
-		return $dsr &&
+	public static function isValidDSR( ?array $dsr, bool $all = false ): bool {
+		return $dsr !== null &&
 			self::isValidOffset( $dsr[0] ?? null ) && self::isValidOffset( $dsr[1] ?? null ) &&
 			( !$all || ( self::isValidOffset( $dsr[2] ?? null ) && self::isValidOffset( $dsr[3] ?? null )
 			) );

@@ -263,7 +263,7 @@ class ConstrainedText {
 		// list of specialized chunks.
 		if (
 			!$ignorePrefix &&
-			$firstChildDp && Util::isValidDSR( $firstChildDp->dsr ) &&
+			$firstChildDp && Util::isValidDSR( $firstChildDp->dsr ?? null ) &&
 			$dataParsoid->dsr[ 0 ] === $firstChildDp->dsr[ 0 ]
 		) {
 			DOMUtils::assertElt( $firstChild ); // implied by $firstChildDp
@@ -281,7 +281,7 @@ class ConstrainedText {
 		// list of specialized chunks.
 		if (
 			!$ignoreSuffix && $lastChild !== $firstChild &&
-			$lastChildDp && Util::isValidDSR( $lastChildDp->dsr ) &&
+			$lastChildDp && Util::isValidDSR( $lastChildDp->dsr ?? null ) &&
 			$dataParsoid->dsr[ 1 ] === $lastChildDp->dsr[ 1 ]
 		) {
 			DOMUtils::assertElt( $lastChild ); // implied by $lastChildDp

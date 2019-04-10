@@ -92,7 +92,7 @@ class ContentUtils {
 		// Add the wt offsets.
 		foreach ( $out['offsets'] as $key => &$value ) {
 			$dp = $pb->parsoid->ids[ $key ];
-			if ( Util::isValidDSR( $dp->dsr ) ) {
+			if ( Util::isValidDSR( $dp->dsr ?? null ) ) {
 				$value['wt'] = array_slice( $dp->dsr, 0, 2 );
 			}
 		}

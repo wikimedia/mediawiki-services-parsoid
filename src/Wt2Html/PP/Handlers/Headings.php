@@ -92,7 +92,7 @@ class Headings {
 			$span = $node->ownerDocument->createElement( 'span' );
 			$span->setAttribute( 'id', $fallbackId );
 			$span->setAttribute( 'typeof', 'mw:FallbackId' );
-			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr;
+			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			// Set a zero-width dsr range for the fallback id
 			if ( Util::isValidDSR( $nodeDsr ) ) {
 				$offset = $nodeDsr[ 0 ] + ( $nodeDsr[ 3 ] || 0 );

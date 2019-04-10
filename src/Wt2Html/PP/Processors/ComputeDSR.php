@@ -335,7 +335,7 @@ class ComputeDSR {
 							$correction = mb_strlen( $ndp->src );
 							$ce += $correction;
 							$dsrCorrection = $correction;
-							if ( Util::isValidDSR( $ndp->dsr ) ) {
+							if ( Util::isValidDSR( $ndp->dsr ?? null ) ) {
 								// Record original DSR for the meta tag
 								// since it will now get corrected to zero width
 								// since child acquires its width->

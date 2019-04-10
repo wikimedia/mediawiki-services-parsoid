@@ -145,7 +145,7 @@ class CleanUp {
 		// this content from HTML. Token handlers should strip src for
 		// content where data-mw isn't necessary and html2wt knows how to
 		// handle the HTML markup.
-		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr );
+		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr ?? null);
 		$isPageProp = ( $node->nodeName === 'META'
 &&			preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) || '' ) );
 		if ( $validDSR && !$isPageProp ) {
