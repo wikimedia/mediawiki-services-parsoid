@@ -657,7 +657,7 @@ class DOMNormalizer {
 			!WTUtils::isLiteralHTMLNode( $node ) &&
 			// Don't normalize empty p-nodes that came from source
 			// FIXME: See T210647
-			DOMCompat::getClassList( $node )->contains( 'mw-empty-elt' ) &&
+			!DOMCompat::getClassList( $node )->contains( 'mw-empty-elt' ) &&
 			// Don't apply normalization to <p></p> nodes that
 			// were generated through deletions or other normalizations.
 			// FIXME: This trick fails for non-selser mode since

@@ -253,4 +253,7 @@ class MockSiteConfig extends SiteConfig {
 		$this->fakeTimestamp = $ts;
 	}
 
+	public function scrubBidiChars(): bool {
+		return true;
+	}
 }
