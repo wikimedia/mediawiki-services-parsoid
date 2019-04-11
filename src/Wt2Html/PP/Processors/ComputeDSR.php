@@ -218,7 +218,7 @@ class ComputeDSR {
 		$etWidth = $widths[1];
 
 		if ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
-			if ( isset( $dp->selfClose ) ) {
+			if ( !empty( $dp->selfClose ) ) {
 				$etWidth = 0;
 			}
 		} else {
@@ -403,7 +403,7 @@ class ComputeDSR {
 				//
 				// Currently, this fix is only for
 				// B and I tags where the fix is clear-cut and obvious.
-				if ( !$rtTestMode && $ce !== null && isset( $dp->autoInsertedEnd ) &&
+				if ( !$rtTestMode && $ce !== null && !empty( $dp->autoInsertedEnd ) &&
 					DOMUtils::isQuoteElt( $child )
 				) {
 					$correction = 3 + mb_strlen( $child->nodeName );
@@ -487,7 +487,7 @@ class ComputeDSR {
 						$cs = $ce - mb_strlen( $dp->src );
 					} else {
 						// Non-meta tags
-						if ( $tsr && !isset( $dp->autoInsertedStart ) ) {
+						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
 							$cs = $tsr[0];
 							if ( $this->tsrSpansTagDOM( $child, $dp ) ) {
 								if ( !$ce || $tsr[1] > $ce ) {
@@ -509,10 +509,10 @@ class ComputeDSR {
 					$stWidth = $tagWidths[0];
 					$etWidth = $tagWidths[1];
 
-					if ( isset( $dp->autoInsertedStart ) ) {
+					if ( !empty( $dp->autoInsertedStart ) ) {
 						$stWidth = 0;
 					}
-					if ( isset( $dp->autoInsertedEnd ) ) {
+					if ( !empty( $dp->autoInsertedEnd ) ) {
 						$etWidth = 0;
 					}
 
@@ -641,7 +641,7 @@ class ComputeDSR {
 								$siblingDP->dsr = [ null, null ];
 							}
 
-							if ( isset( $siblingDP->fostered ) ||
+							if ( !empty( $siblingDP->fostered ) ||
 								( $siblingDP->dsr[0] !== null && $siblingDP->dsr[0] === $newCE ) ||
 								( $siblingDP->dsr[0] !== null && isset( $siblingDP->tsr ) &&
 									$siblingDP->dsr[0] < $newCE )
