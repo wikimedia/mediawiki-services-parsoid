@@ -1,26 +1,34 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\Util as Util;
-use Parsoid\Sanitizer as Sanitizer;
-use Parsoid\WTUtils as WTUtils;
+use DOMElement;
+use DOMNode;
+use DOMText;
+use Exception;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\TT\Sanitizer;
 
 class Headings {
 	/**
 	 * Generate anchor ids that the PHP parser assigns to headings.
 	 * This is to ensure that links that are out there in the wild
 	 * continue to be valid links into Parsoid HTML.
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @return bool
 	 */
-	public static function genAnchors( $node, $env ) {
-		if ( !preg_match( '/^H[1-6]$/', $node->nodeName ) ) {
+	public static function genAnchors( DOMNode $node, Env $env ): bool {
+		if ( !preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
 			return true;
 		}
+		/** @var DOMElement $node */
+		DOMUtils::assertElt( $node );
 
 		// Cannot generate an anchor id if the heading already has an id!
 		//
@@ -35,54 +43,15 @@ class Headings {
 			return true;
 		}
 
-		// Our own version of node.textContent which handles LanguageVariant
-		// markup the same way PHP does (ie, uses the source wikitext), and
-		// handles <style>/<script> tags the same way PHP does (ie, ignores
-		// the contents)
-		$textContentOf = function ( $node, $r ) use ( &$node, &$DOMDataUtils, &$textContentOf ) {
-			::from[ $node->childNodes || [] ]->forEach( function ( $n ) use ( &$r, &$DOMDataUtils, &$textContentOf ) {
-					if ( $n->nodeType === $n::TEXT_NODE ) {
-						$r[] = $n->nodeValue;
-					} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
-						// Special case for -{...}-
-						$dp = DOMDataUtils::getDataParsoid( $n );
-						$r[] = $dp->src || '';
-					} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:DisplaySpace' ) ) {
-						$r[] = ' ';
-					} elseif ( $n->nodeName === 'STYLE' || $n->nodeName === 'SCRIPT' ) {
-
-						/* ignore children */
-					} else {
-						$textContentOf( $n, $r );
-					}
-			}
-			);
-			return $r;
-		};
-
-		// see Parser::normalizeSectionName in Parser.php and T90902
-		$normalizeSectionName = function ( $text ) use ( &$env ) {
-			try {
-				$title = $env->makeTitleFromURLDecodedStr( "#{$text}" );
-				return $title->getFragment();
-			} catch ( Exception $e ) {
-				return $text;
-			}
-		};
-
-		$anchorText = Sanitizer::normalizeSectionIdWhiteSpace(
-			implode( '', textContentOf( $node, [] ) )
-		);
-		$anchorText = $normalizeSectionName( $anchorText );
+		$anchorText = Sanitizer::normalizeSectionIdWhiteSpace( self::textContentOf( $node ) );
+		$anchorText = self::normalizeSectionName( $anchorText, $env );
 
 		// Create an anchor with a sanitized id
 		$anchorId = Sanitizer::escapeIdForAttribute( $anchorText );
-		$fallbackId = Sanitizer::escapeIdForAttribute( $anchorText, [
-				'fallback' => true
-			]
-		);
-		if ( $anchorId === $fallbackId ) { $fallbackId = null; /* not needed */
-  }
+		$fallbackId = Sanitizer::escapeIdForAttribute( $anchorText, Sanitizer::ID_FALLBACK );
+		if ( $anchorId === $fallbackId ) {
+			$fallbackId = null; /* not needed */
+		}
 
 		// The ids need to be unique, but we'll enforce this in a post-processing
 		// step.
@@ -95,7 +64,7 @@ class Headings {
 			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr;
 			// Set a zero-width dsr range for the fallback id
 			if ( Util::isValidDSR( $nodeDsr ) ) {
-				$offset = $nodeDsr[ 0 ] + ( $nodeDsr[ 3 ] || 0 );
+				$offset = $nodeDsr[0] + ( $nodeDsr[3] ?? 0 );
 				DOMDataUtils::getDataParsoid( $span )->dsr = [ $offset, $offset ];
 			}
 			$node->insertBefore( $span, $node->firstChild );
@@ -104,10 +73,57 @@ class Headings {
 		return true;
 	}
 
-	// FIXME: Why do we need global 'seenIds' state?
-	// Can't we make it local to DOMPostProcessor for
-	// the top-level document?
-	public static function dedupeHeadingIds( $seenIds, $node, $env ) {
+	/**
+	 * Our own version of node.textContent which handles LanguageVariant
+	 * markup the same way PHP does (ie, uses the source wikitext), and
+	 * handles <style>/<script> tags the same way PHP does (ie, ignores
+	 * the contents)
+	 * @param DOMNode $node
+	 * @return string
+	 */
+	private static function textContentOf( DOMNode $node ): string {
+		$str = '';
+		if ( $node->hasChildNodes() ) {
+			foreach ( $node->childNodes as $n ) {
+				if ( $n instanceof DOMText ) {
+					$str .= $n->nodeValue;
+				} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
+					// Special case for -{...}-
+					$dp = DOMDataUtils::getDataParsoid( $n );
+					$str .= $dp->src ?? '';
+				} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:DisplaySpace' ) ) {
+					$str .= ' ';
+				} elseif ( $n->nodeName === 'style' || $n->nodeName === 'script' ) {
+					/* ignore children */
+				} else {
+					$str .= self::textContentOf( $n );
+				}
+			}
+		}
+		return $str;
+	}
+
+	/**
+	 * see Parser::normalizeSectionName in Parser.php and T90902
+	 * @param string $text
+	 * @param Env $env
+	 * @return string
+	 */
+	private static function normalizeSectionName( string $text, Env $env ): string {
+		try {
+			$title = $env->makeTitleFromURLDecodedStr( "#{$text}" );
+			return $title->getFragment();
+		} catch ( Exception $e ) {
+			return $text;
+		}
+	}
+
+	/**
+	 * @param array &$seenIds
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function dedupeHeadingIds( array &$seenIds, DOMNode $node ): bool {
 		// NOTE: This is not completely compliant with how PHP parser does it.
 		// If there is an id in the doc elsewhere, this will assign
 		// the heading a suffixed id, whereas the PHP parser processes
@@ -118,35 +134,39 @@ class Headings {
 		// consistent when handling this edge case, and in the common
 		// case (where heading ids won't conflict with ids elsewhere),
 		// matches PHP parser behavior.
-		if ( !$node->hasAttribute ) { return true; /* not an Element */
-  }
-		if ( !$node->hasAttribute( 'id' ) ) { return true;
-  }
+		if ( !$node instanceof DOMElement ) {
+			// Not an Element
+			return true;
+		}
+
+		if ( !$node->hasAttribute( 'id' ) ) {
+			return true;
+		}
 		// Must be case-insensitively unique (T12721)
 		// ...but note that PHP uses strtolower, which only does A-Z :(
 		$key = $node->getAttribute( 'id' );
-		$key = preg_replace( '/[A-Z]+/', function ( $s ) { return strtolower( $s );
-  }, $key );
-		if ( !$seenIds->has( $key ) ) {
-			$seenIds->add( $key );
+		$key = preg_replace_callback(
+			'/[A-Z]+/',
+			function ( $matches ) {
+				return strtolower( $matches[0] );
+			},
+			$key
+		);
+		if ( empty( $seenIds[$key ] ) ) {
+			$seenIds[$key] = true;
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
-		if (
-			preg_match( '/^H\d$/', $node->nodeName )
-|| WTUtils::isFallbackIdSpan( $node )
+		if ( preg_match( '/^h\d$/', $node->nodeName ) ||
+			WTUtils::isFallbackIdSpan( $node )
 		) {
 			$suffix = 2;
-			while ( $seenIds->has( $key . '_' . $suffix ) ) {
+			while ( !empty( $seenIds[$key . '_' . $suffix] ) ) {
 				$suffix++;
 			}
 			$node->setAttribute( 'id', $node->getAttribute( 'id' ) . '_' . $suffix );
-			$seenIds->add( $key . '_' . $suffix );
+			$seenIds[$key . '_' . $suffix] = true;
 		}
 		return true;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->Headings = $Headings;
 }
