@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config;
+namespace Parsoid\Config\MediaWiki;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -11,7 +11,8 @@ use LanguageConverter;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MWNamespace;
-// use Parsoid\Config\SiteConfig;
+
+use Parsoid\Config\SiteConfig as ISiteConfig;
 // use Parsoid\Logger\LogData;
 // use Parsoid\Utils\Util;
 use Psr\Log\LoggerInterface;
@@ -25,7 +26,7 @@ use User;
  * @todo This belongs in MediaWiki, not Parsoid. We'll move it there when we
  *  get to the point of integrating the two.
  */
-class MediaWikiSiteConfig extends SiteConfig {
+class SiteConfig extends ISiteConfig {
 
 	/** @var Config MediaWiki configuration object */
 	private $config;

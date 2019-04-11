@@ -1,11 +1,12 @@
 <?php
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Test\Parsoid\Config\Api;
 
 use Parsoid\Config\PageContent;
+use Parsoid\Config\Api\DataAccess;
 
 /**
- * @covers \Parsoid\Tests\ApiEnv\DataAccess
+ * @covers \Parsoid\Config\Api\DataAccess
  */
 class DataAccessTest extends \PHPUnit\Framework\TestCase {
 

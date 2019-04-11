@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config;
+namespace Parsoid\Config\MediaWiki;
 
 use ContentHandler;
 use File;
@@ -11,8 +11,9 @@ use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\SlotRecord;
 use Parser;
 use ParserOptions;
-// use Parsoid\Config\PageConfig;
-// use Parsoid\Config\DataAccess;
+
+use Parsoid\Config\PageConfig as IPageConfig;
+use Parsoid\Config\DataAccess;
 use Title;
 
 /**
@@ -23,7 +24,7 @@ use Title;
  * @todo We should probably deprecate ParserOptions somehow, using a version of
  *  this directly instead.
  */
-class MediaWikiPageConfig extends PageConfig implements DataAccess {
+class PageConfig extends IPageConfig implements DataAccess {
 
 	/** @var Title */
 	private $title;

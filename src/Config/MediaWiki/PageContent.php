@@ -1,11 +1,11 @@
 <?php
 
-namespace Parsoid\Config;
+namespace Parsoid\Config\MediaWiki;
 
 use InvalidArgumentException;
 use MediaWiki\Revision\RevisionRecord;
 
-// use Parsoid\Config\PageContent;
+use Parsoid\Config\PageContent as IPageContent;
 
 /**
  * PageContent implementation for MediaWiki
@@ -13,7 +13,7 @@ use MediaWiki\Revision\RevisionRecord;
  * @todo This belongs in MediaWiki, not Parsoid. We'll move it there when we
  *  get to the point of integrating the two.
  */
-class MediaWikiPageContent implements PageContent {
+class PageContent implements IPageContent {
 
 	/** @var RevisionRecord */
 	private $rev;

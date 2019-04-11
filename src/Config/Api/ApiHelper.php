@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Parsoid\Config\Api;
 
 use Wikimedia\ScopedCallback;
 

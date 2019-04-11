@@ -1,7 +1,8 @@
 <?php
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Test\Parsoid\Config\Api;
 
+use Parsoid\Config\Api\ApiHelper;
 use Parsoid\Utils\PHPUtils;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\ScopedCallback;

@@ -1,11 +1,12 @@
 <?php
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Test\Parsoid\Config\Api;
 
 use Parsoid\Config\PageContent;
+use Parsoid\Config\Api\PageConfig;
 
 /**
- * @covers \Parsoid\Tests\ApiEnv\PageConfig
+ * @covers \Parsoid\Config\Api\PageConfig
  */
 class PageConfigTest extends \PHPUnit\Framework\TestCase {
 

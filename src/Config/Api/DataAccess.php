@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Parsoid\Config\Api;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
@@ -12,7 +12,7 @@ use Parsoid\Tests\MockPageContent;
 /**
  * DataAccess via MediaWiki's Action API
  *
- * Note this is intented for testing, not performance.
+ * Note this is intended for testing, not performance.
  */
 class DataAccess implements IDataAccess {
 

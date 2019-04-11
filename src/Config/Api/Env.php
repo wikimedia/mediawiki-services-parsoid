@@ -2,14 +2,14 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Parsoid\Config\Api;
 
 use Parsoid\Config\Env as IEnv;
 
 /**
  * An Env accessing MediaWiki via its Action API
  *
- * Note this is intented for testing, not performance.
+ * Note this is intended for testing, not performance.
  */
 class Env extends IEnv {
 

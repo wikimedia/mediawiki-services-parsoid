@@ -38,7 +38,8 @@
 		"phan/phan": "^1.2",
 		"phpspec/phpspec": "^5.0",
 		"phpunit/phpunit": "^6.5",
-		"wikimedia/testing-access-wrapper": "~1.0"
+		"wikimedia/testing-access-wrapper": "~1.0",
+		"ext-curl": "*"
 	},
 	"autoload": {
 		"psr-4": {
@@ -48,8 +49,8 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Parsoid\\Tests\\": [ "tests/mocks/", "tests/phpunit/" ],
-			"Parsoid\\Tests\\ApiEnv\\": [ "tests/ApiEnv/" ],
+			"Parsoid\\Tests\\": "tests/mocks/",
+			"Test\\": "tests/phpunit/",
 			"Parsoid\\Tests\\Porting\\": "tests/porting"
 		}
 	},

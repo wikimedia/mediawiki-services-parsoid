@@ -1,9 +1,11 @@
 <?php
 
-namespace Parsoid\Tests\ApiEnv;
+namespace Test\Parsoid\Config\Api;
+
+use Parsoid\Config\Api\SiteConfig;
 
 /**
- * @covers \Parsoid\Tests\ApiEnv\SiteConfig
+ * @covers \Parsoid\Config\Api\SiteConfig
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
