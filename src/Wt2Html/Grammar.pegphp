@@ -48,13 +48,14 @@
 	private $prevOffset = 0;
 	private $headingIndex = 0;
 
-	// Assertions are not safe in the tokenizer, since we catch exceptions
-	// thrown and treat it as a "failed match" and backtrack.  Nobody ever
-	// sees the assertion failure.  Work around this by using a special
-	// assertion method for tokenizer code.
-	private function assert( $condition, $text = null ) {
-		if ( $condition ) { return;  }
-		$this->env->log( 'fatal', $text ?? 'Tokenizer assertion failure' );
+	private function assert( $condition, $text ) {
+		if ( !$condition ) {
+			throw new \Exception( "Grammar.pegphp assertion failure: $text" );
+		}
+	}
+
+	private function unreachable() {
+		throw new \Exception( "Grammar.pegphp: this should be unreachable" );
 	}
 
 	// Some shorthands for legibility
@@ -255,7 +256,7 @@
 				break;
 
 			default:
-				$this->assert( false, 'Should not be reachable.' );
+				$this->unreachable();
 		}
 
 		$this->currPos += $skipLen;
@@ -283,7 +284,7 @@
 			array_unshift( $extContentToks, $t );
 			return $extContentToks;
 		} else {
-			$this->assert( false, 'Should not be reachable.' );
+			$this->unreachable();
 		}
 	}
 
@@ -1896,7 +1897,7 @@ table_start_tag "table_start_tag" =
 	startPos:("" { return $this->endOffset(); })
 	b:"{" p:pipe
 	// ok to normalize away stray |} on rt (see T59360)
-	ta:(table_attributes<table=false> / &{$this->assert( false ); return false; })
+	ta:(table_attributes<table=false> / &{ $this->unreachable(); })
 	tsEndPos:("" { return $this->endOffset(); })
 	s2:space*
 	{
@@ -1933,7 +1934,7 @@ table_row_tag =
 	// avoid recursion via nested_block_in_table
 	! <tableDataBlock>
 	p:pipe dashes:$"-"+
-	a:(table_attributes<table=false> / &{$this->assert( false ); return false; })
+	a:(table_attributes<table=false> / &{ $this->unreachable(); })
 	tagEndPos:("" { return $this->endOffset(); })
 	{
 		$coms = TokenizerUtils::popComments( $a );
@@ -2229,7 +2230,7 @@ sol_prefix =
 	/ & {
 		// Use the sol flag only at the start of the input
 		// Flag should always be an actual boolean (not falsy or undefined)
-		$this->assert( is_bool( $this->options['sol'] ) );
+		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
 		return $this->endOffset() === 0 && $this->options['sol'];
 	} {
 		return [];

@@ -49,13 +49,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	private $prevOffset = 0;
   	private $headingIndex = 0;
   
-  	// Assertions are not safe in the tokenizer, since we catch exceptions
-  	// thrown and treat it as a "failed match" and backtrack.  Nobody ever
-  	// sees the assertion failure.  Work around this by using a special
-  	// assertion method for tokenizer code.
-  	private function assert( $condition, $text = null ) {
-  		if ( $condition ) { return;  }
-  		$this->env->log( 'fatal', $text ?? 'Tokenizer assertion failure' );
+  	private function assert( $condition, $text ) {
+  		if ( !$condition ) {
+  			throw new \Exception( "Grammar.pegphp assertion failure: $text" );
+  		}
+  	}
+  
+  	private function unreachable() {
+  		throw new \Exception( "Grammar.pegphp: this should be unreachable" );
   	}
   
   	// Some shorthands for legibility
@@ -256,7 +257,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				break;
   
   			default:
-  				$this->assert( false, 'Should not be reachable.' );
+  				$this->unreachable();
   		}
   
   		$this->currPos += $skipLen;
@@ -284,7 +285,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			array_unshift( $extContentToks, $t );
   			return $extContentToks;
   		} else {
-  			$this->assert( false, 'Should not be reachable.' );
+  			$this->unreachable();
   		}
   	}
   
@@ -413,7 +414,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
    return $this->endOffset(); 
   }
   private function a3($sc, $startPos, $b, $p) {
-  $this->assert( false ); return false; 
+   $this->unreachable(); 
   }
   private function a4($sc, $startPos, $b, $p, $ta) {
    return $this->endOffset(); 
@@ -1048,7 +1049,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   		// Use the sol flag only at the start of the input
   		// Flag should always be an actual boolean (not falsy or undefined)
-  		$this->assert( is_bool( $this->options['sol'] ) );
+  		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
   		return $this->endOffset() === 0 && $this->options['sol'];
   	
   }
@@ -1469,7 +1470,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
    return $ill; 
   }
   private function a146($p, $dashes) {
-  $this->assert( false ); return false; 
+   $this->unreachable(); 
   }
   private function a147($p, $dashes, $a) {
    return $this->endOffset(); 
