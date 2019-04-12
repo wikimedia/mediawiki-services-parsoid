@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use Parsoid\Tests\MockEnv;
+use Parsoid\Config\Api\Env as ApiEnv;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\PHPUtils;
@@ -48,7 +48,24 @@ foreach ( $lines as $line ) {
  * Build the requested transformer
  */
 $transformer = null;
-$env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
+
+$apiEndpoint = preg_match( '/^(.*)wiki$/', $opts['prefix'] ?? '', $m ) === 1 ?
+	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $opts['apiURI'];
+$env = new ApiEnv( [
+	"apiEndpoint" => $apiEndpoint,
+	"pageContent" => $opts['pageContent'] ?? $input,
+	"pageLanguage" => $opts['pagelanguage'] ?? null,
+	"pageLanguageDir" => $opts['pagelanguagedir'] ?? null,
+	"title" => $opts['pagetitle'] ?? "Main_Page",
+	# This directory contains synthetic data which doesn't exactly match
+	# enwiki, but matches what parserTests expects
+	"cacheDir" => __DIR__ . '/data',
+	"writeToCache" => 'pretty',
+] );
+foreach ( $opts['tags'] ?? [] as $tag ) {
+	$env->getSiteConfig()->ensureExtensionTag( $tag );
+}
+
 $manager = new TokenTransformManager( $env, $pipelineOpts, null, -1, "" );
 $manager->setPipelineId( $opts['pipelineId'] );
 switch ( $transformerName ) {

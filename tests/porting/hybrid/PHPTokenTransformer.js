@@ -30,10 +30,18 @@ class PHPTokenTransformer extends TokenHandler {
 		fs.writeFileSync(fileName, tokens.map(t => JSON.stringify(t)).join('\n'));
 
 		const opts = {
+			pageContent: env.page.src,
+			prefix: env.conf.wiki.iwp,
+			apiURI: env.conf.wiki.apiURI,
+			pagelanguage: env.page.pagelanguage,
+			pagelanguagedir: env.page.pagelanguagedir,
+			pagetitle: env.page.title,
+			pagens: env.page.ns,
+			tags: Array.from(env.conf.wiki.extConfig.tags.keys()),
+
 			toplevel: this.atTopLevel,
 			pipeline: this.options,
 			pipelineId: this.manager.pipelineId,
-			pageContent: this.manager.env.page.src
 		};
 		const res = childProcess.spawnSync("php", [
 			path.resolve(__dirname, "runTokenTransformer.php"),

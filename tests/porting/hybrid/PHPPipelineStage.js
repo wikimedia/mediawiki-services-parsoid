@@ -132,14 +132,27 @@ class PHPPipelineStage {
 		this.emitEvents(this.loadDOMFromStdout(out));
 	}
 
+	mkOpts(extra = {}) {
+		return Object.assign({}, {
+			pageContent: this.env.page.src,
+			prefix: this.env.conf.wiki.iwp,
+			apiURI: this.env.conf.wiki.apiURI,
+			pagelanguage: this.env.page.pagelanguage,
+			pagelanguagedir: this.env.page.pagelanguagedir,
+			pagetitle: this.env.page.title,
+			pagens: this.env.page.ns,
+			tags: Array.from(this.env.conf.wiki.extConfig.tags.keys()),
+		}, extra);
+	}
+
 	// called only for the tokenizer (stage 1)
 	processWikitext(input, sol) {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.txt`;
 		fs.writeFileSync(fileName, input);
-		const out = this.runPHPCode([fileName], {
+		const out = this.runPHPCode([fileName], this.mkOpts({
 			sol: sol,
 			offsets: this.sourceOffsets,
-		});
+		}));
 		this.emitTokens(out);
 	}
 
@@ -149,10 +162,10 @@ class PHPPipelineStage {
 		const input = this.tokens.map(t => JSON.stringify(t)).join('\n');
 		fs.writeFileSync(fileName, input);
 
-		const out = this.runPHPCode([fileName], {
+		const out = this.runPHPCode([fileName], this.mkOpts({
 			phaseEndRank: this.phaseEndRank,
 			transformers: this.transformers, // will only be relevant for sync & aync ttms
-		});
+		}));
 
 		if (this.stageName === 'HTML5TreeBuilder') {
 			this.emitDoc(out);
@@ -166,7 +179,7 @@ class PHPPipelineStage {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.html`;
 		const html = ContentUtils.ppToXML(doc.body, { tunnelFosteredContent: true, keepTmp: true });
 		fs.writeFileSync(fileName, html);
-		const out = this.runPHPCode([fileName], {});
+		const out = this.runPHPCode([fileName], this.mkOpts({}));
 		this.emitDoc(out);
 	}
 

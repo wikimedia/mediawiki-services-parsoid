@@ -14,17 +14,31 @@ class ApiHelper {
 	/** @var array */
 	private $curlopt;
 
+	/** @var string */
+	private $cacheDir;
+
+	/** @var bool|string */
+	private $writeToCache;
+
 	/**
 	 * @param array $opts
 	 *  - apiEndpoint: (string) URL for api.php. Required.
 	 *  - apiTimeout: (int) Timeout, in sections. Default 60.
 	 *  - userAgent: (string) User agent prefix.
+	 *  - cacheDir: (string) If present, looks aside to the specified directory
+	 *    for a cached response before making a network request.
+	 *  - writeToCache: (bool|string) If present and truthy, writes successful
+	 *    network requests to `cacheDir` so they can be reused.  If set to
+	 *    the string 'pretty', prettifies the JSON returned before writing it.
 	 */
 	public function __construct( array $opts ) {
 		if ( !isset( $opts['apiEndpoint'] ) ) {
 			throw new \InvalidArgumentException( '$opts[\'apiEndpoint\'] must be set' );
 		}
 		$this->endpoint = $opts['apiEndpoint'];
+
+		$this->cacheDir = $opts['cacheDir'] ?? null;
+		$this->writeToCache = $opts['writeToCache'] ?? false;
 
 		$this->curlopt = [
 			CURLOPT_USERAGENT => trim( ( $opts['userAgent'] ?? '' ) . ' ApiEnv/1.0 Parsoid-PHP/0.1' ),
@@ -43,6 +57,53 @@ class ApiHelper {
 	 * @return array API response data
 	 */
 	public function makeRequest( array $params ): array {
+		$filename = null;
+		if ( $this->cacheDir !== null ) {
+			# sort the parameters for a repeatable filename
+			ksort( $params );
+			$query = $this->endpoint . "?" . http_build_query( $params );
+			$queryHash = hash( 'sha256', $query );
+			$filename = $this->cacheDir . DIRECTORY_SEPARATOR .
+				parse_url( $query, PHP_URL_HOST ) . '-' .
+				substr( $queryHash, 0, 8 );
+			if ( file_exists( $filename ) ) {
+				$res = file_get_contents( $filename );
+				$filename = null; // We don't need to write this back
+			} else {
+				$res = $this->makeCurlRequest( $params );
+			}
+		} else {
+			$res = $this->makeCurlRequest( $params );
+		}
+
+		$data = json_decode( $res, true );
+		if ( !is_array( $data ) ) {
+			throw new \RuntimeException( "HTTP request failed: Response was not a JSON array" );
+		}
+
+		if ( isset( $data['error'] ) ) {
+			$e = $data['error'];
+			throw new \RuntimeException( "MediaWiki API error: [{$e['code']}] {$e['info']}" );
+		}
+
+		if ( $filename && $this->writeToCache ) {
+			if ( $this->writeToCache === 'pretty' ) {
+				/* Prettify the results */
+				$dataPretty = [
+					'__endpoint__' => $this->endpoint,
+					'__params__' => $params,
+				] + $data;
+				$res = json_encode(
+					$dataPretty, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+				);
+			}
+			file_put_contents( $filename, $res );
+		}
+
+		return $data;
+	}
+
+	private function makeCurlRequest( array $params ): string {
 		$ch = curl_init( $this->endpoint );
 		if ( !$ch ) {
 			throw new \RuntimeException( "Failed to open curl handle to $this->endpoint" );
@@ -79,17 +140,7 @@ class ApiHelper {
 			throw new \RuntimeException( "HTTP request failed: Empty response" );
 		}
 
-		$data = json_decode( $res, true );
-		if ( !is_array( $data ) ) {
-			throw new \RuntimeException( "HTTP request failed: Response was not a JSON array" );
-		}
-
-		if ( isset( $data['error'] ) ) {
-			$e = $data['error'];
-			throw new \RuntimeException( "MediaWiki API error: [{$e['code']}] {$e['info']}" );
-		}
-
-		return $data;
+		return $res;
 	}
 
 }

@@ -256,7 +256,7 @@ class SiteConfig extends ISiteConfig {
 		$this->extensionTags = [];
 		foreach ( $data['extensiontags'] as $tag ) {
 			$tag = preg_replace( '/^<|>$/', '', $tag );
-			$this->extensionTags[mb_strtolower( $tag )] = true;
+			$this->ensureExtensionTag( $tag );
 		}
 
 		// extResourceURLPatternMatcher
@@ -761,6 +761,18 @@ class SiteConfig extends ISiteConfig {
 	public function isExtensionTag( string $name ): bool {
 		$this->loadSiteData();
 		return isset( $this->extensionTags[$name] );
+	}
+
+	/**
+	 * This function is public so it can be used to synchronize env for
+	 * hybrid parserTests.  The parserTests setup includes the definition
+	 * of a number of non-standard extension tags, whose names are passed
+	 * over from the JS side in hybrid testing.
+	 * @param string $tag Name of an extension tag assumed to be present
+	 */
+	public function ensureExtensionTag( string $tag ): void {
+		$this->loadSiteData();
+		$this->extensionTags[mb_strtolower( $tag )] = true;
 	}
 
 	/** @inheritDoc */

@@ -21,8 +21,11 @@ class PageConfig extends IPageConfig {
 	/** @var string */
 	private $title;
 
-	/** @var array|null */
-	private $page, $rev;
+	/** @phan-var array<string,mixed>|null */
+	private $page;
+
+	/** @phan-var array<string,mixed>|null */
+	private $rev;
 
 	/** @var PageContent|null */
 	private $content;
@@ -38,6 +41,23 @@ class PageConfig extends IPageConfig {
 			throw new \InvalidArgumentException( '$opts[\'title\'] must be set' );
 		}
 		$this->title = $opts['title'];
+		// This option is primarily used to mock the page content.
+		if ( isset( $opts['pageContent'] ) ) {
+			$this->page = [
+				'title' => $this->title,
+				'ns' => $opts['pagens'] ?? 0,
+				'pageid' => -1,
+				'pagelanguage' => $opts['pageLanguage'] ?? 'en',
+				'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
+			];
+			$this->rev = [
+				'slots' => [ 'main' => $opts['pageContent'] ],
+			];
+		} else {
+			# Lazily load later
+			$this->page = null;
+			$this->rev = null;
+		}
 	}
 
 	private function loadData() {
@@ -57,7 +77,7 @@ class PageConfig extends IPageConfig {
 		$this->rev = $this->page['revisions'][0] ?? [];
 		unset( $this->page['revisions'] );
 
-		if ( $this->rev ) {
+		if ( isset( $this->rev['timestamp'] ) ) {
 			$this->rev['timestamp'] = preg_replace( '/\D/', '', $this->rev['timestamp'] );
 		}
 	}

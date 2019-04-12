@@ -4,15 +4,16 @@ namespace Parsoid\Tests\Porting\Hybrid;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use Parsoid\Tests\MockEnv;
+use Parsoid\Config\Api\Env as ApiEnv;
+use Parsoid\Config\Env;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Tokens\Token;
-use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
-use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Wt2Html\HTML5TreeBuilder;
+use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Decode the json-encoded strings to build tokens
@@ -48,12 +49,12 @@ function serializeTokens( $tokens ) {
 
 /**
  * Parse the input wikitext and return parsed tokens
- * @param MockEnv $env
+ * @param Env $env
  * @param string $input
  * @param array $opts
  * @return array
  */
-function parse( MockEnv $env, string $input, array $opts ): array {
+function parse( Env $env, string $input, array $opts ): array {
 	// fwrite(STDERR, "IN: " . $input. "\n");
 	// fwrite(STDERR, "SRC: " . $env->getPageMainContent()."\n");
 	// fwrite(STDERR, "OFFSET: " . ($opts['offsets'][0] ?? 0)."\n");
@@ -92,8 +93,25 @@ $inputFileName = $argv[2];
  * Read pipeline options from STDIN
  */
 $opts = PHPUtils::jsonDecode( file_get_contents( 'php://stdin' ) );
-$env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
 $input = file_get_contents( $inputFileName );
+
+$apiEndpoint = preg_match( '/^(.*)wiki$/', $opts['prefix'] ?? '', $m ) === 1 ?
+	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $opts['apiURI'];
+$env = new ApiEnv( [
+	"apiEndpoint" => $apiEndpoint,
+	"pageContent" => $opts['pageContent'] ?? $input,
+	"pageLanguage" => $opts['pagelanguage'] ?? null,
+	"pageLanguageDir" => $opts['pagelanguagedir'] ?? null,
+	"title" => $opts['pagetitle'] ?? "Main_Page",
+	# This directory contains synthetic data which doesn't exactly match
+	# enwiki, but matches what parserTests expects
+	"cacheDir" => __DIR__ . '/data',
+	"writeToCache" => 'pretty',
+] );
+foreach ( $opts['tags'] ?? [] as $tag ) {
+	$env->getSiteConfig()->ensureExtensionTag( $tag );
+}
+
 switch ( $stageName ) {
 	case "PegTokenizer":
 		$out = serializeTokens( parse( $env, $input, $opts ) );
