@@ -31,6 +31,7 @@ class PHPTokenTransformer extends TokenHandler {
 
 		const opts = {
 			pipeline: this.options,
+			pipelineId: this.manager.pipelineId,
 			pageContent: this.manager.env.page.src
 		};
 		const res = childProcess.spawnSync("php", [

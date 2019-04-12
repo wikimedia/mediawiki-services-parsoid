@@ -5,8 +5,30 @@
 # a config file such as this.
 
 wt2html:
+   # Supported, but this needs better mocking support
    PegTokenizer: false
    HTML5TreeBuilder: false
+
+   # Note that this implicitly runs all the transformers
+   # registered for stage 1 (in parser.js) on the PHP side
+   # This would be:
+   # - NoInclude
+   # - IncludeOnly
+   # - OnlyInclude
+   SyncTokenTransformManager1: false
+
+   # Note that this implicitly runs all the transformers
+   # registered for stage 2 (in parser.js) on the PHP side
+   # These would be:
+   # - TokenStreamPatcher (not yet ported)
+   # - PreHandler
+   # - QuoteTransformer
+   # - BehaviorSwitchHandler (needs better Env support)
+   # - ListHandler
+   # - SanitizerHandler (being ported, not yet merged)
+   # - ParagraphWrapper
+   SyncTokenTransformManager2: false
+
    TT:
      ParagraphWrapper: false
      QuoteTransformer: false

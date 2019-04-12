@@ -16,13 +16,31 @@ const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
  * @class
  */
 class PHPPipelineStage {
-	constructor(env, pipeFactory, name, options) {
+	constructor(env, options, pipeFactory, name) {
 		events.EventEmitter.call(this);
 		this.env = env;
 		this.pipeFactory = pipeFactory;
 		this.stageName = name;
 		this.options = options;
+		this.piplineId = -1;
+		this.tokens = [];
 		this.resetState();
+		// For Sync & Async TTMs
+		this.phaseEndRank = -1; // set by parser.js
+		this.transformers = []; // array of transformer names set by parser.js
+	}
+
+	setPipelineId(id) {
+		this.pipelineId = id;
+	}
+
+	setSourceOffsets(start, end) {
+		this.sourceOffsets = [start, end];
+	}
+
+	resetState() {
+		this.tokens = [];
+		this.sourceOffsets = null;
 	}
 
 	addListenersOn(emitter) {
@@ -31,7 +49,7 @@ class PHPPipelineStage {
 			case 'AsyncTokenTransformManager':
 			case 'HTML5TreeBuilder':
 				emitter.addListener('chunk', (tokens) => {
-					this.tokens = this.tokens.concat(tokens);  // Buffer
+					this.tokens = this.tokens.concat(tokens); // Buffer
 				});
 				emitter.addListener('end', () => this.processTokens());
 				break;
@@ -66,6 +84,9 @@ class PHPPipelineStage {
 	}
 
 	runPHPCode(argv, opts) {
+		opts.pipeline = this.options;
+		opts.pageContent = this.env.page.src;
+		opts.pipelineId = this.pipelineId;
 		const res = childProcess.spawnSync(
 			"php",
 			[ path.resolve(__dirname, "runPipelineStage.php"), this.stageName ].concat(argv),
@@ -100,36 +121,25 @@ class PHPPipelineStage {
 	}
 
 	// called only for the tokenizer (stage 1)
-	process(input, sol) {
+	processWikitext(input, sol) {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.txt`;
 		fs.writeFileSync(fileName, input);
 		const out = this.runPHPCode([fileName], {
-			pipeline: this.options,
 			sol: sol,
 			offsets: this.sourceOffsets,
-			pageContent: this.env.page.src
 		});
-		// console.log("IN: " + input);
 		this.emitTokens(out);
-	}
-
-	setSourceOffsets(start, end) {
-		this.sourceOffsets = [start, end];
-	}
-
-	resetState() {
-		this.tokens = [];
-		this.sourceOffsets = null;
 	}
 
 	// called for stages 2-5 (sync, async ttms + tree builder)
 	processTokens() {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.tokens`;
-		fs.writeFileSync(fileName, this.tokens.map(t => JSON.stringify(t)).join('\n'));
+		const input = this.tokens.map(t => JSON.stringify(t)).join('\n');
+		fs.writeFileSync(fileName, input);
 
 		const out = this.runPHPCode([fileName], {
-			pipeline: this.options,
-			pageContent: this.env.page.src
+			phaseEndRank: this.phaseEndRank,
+			transformers: this.transformers, // will only be relevant for sync & aync ttms
 		});
 
 		if (this.stageName === 'HTML5TreeBuilder') {
@@ -144,11 +154,30 @@ class PHPPipelineStage {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.html`;
 		const html = ContentUtils.ppToXML(doc.body, { tunnelFosteredContent: true, keepTmp: true });
 		fs.writeFileSync(fileName, html);
-		const out = this.runPHPCode([fileName], {
-			pipeline: this.options,
-			pageContent: this.env.page.src
-		});
+		const out = this.runPHPCode([fileName], {});
 		this.emitDoc(out);
+	}
+
+	process(input, sol) {
+		switch (this.stageName) {
+			case 'PegTokenizer':
+				this.processWikitext(input, sol);
+				break;
+			case 'SyncTokenTransformManager':
+			case 'AsyncTokenTransformManager':
+				this.tokens = input;
+				this.processTokens();
+				break;
+
+			case 'TreeBuilder':
+			case 'DOMPostProcessor':
+				console.error("--Not handled yet--");
+				process.exit(-1);
+				break;
+
+			default:
+				console.assert(false, 'Should not get here!');
+		}
 	}
 }
 

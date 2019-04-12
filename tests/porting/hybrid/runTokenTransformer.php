@@ -6,6 +6,7 @@ use Parsoid\Tests\MockEnv;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Parsoid\Wt2Html\TT\PreHandler;
@@ -46,10 +47,9 @@ foreach ( $lines as $line ) {
  * Build the requested transformer
  */
 $transformer = null;
-$manager = (object)[];
-$manager->env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
-$manager->pipelineId = 0;
-$manager->options = [];
+$env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
+$manager = new TokenTransformManager( $env, $pipelineOpts, null, -1, "" );
+$manager->setPipelineId( $opts['pipelineId'] );
 switch ( $transformerName ) {
 	case "QuoteTransformer":
 		$transformer = new QuoteTransformer( $manager, $pipelineOpts );

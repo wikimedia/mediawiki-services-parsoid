@@ -5,9 +5,11 @@ namespace Parsoid\Tests\Porting\Hybrid;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Parsoid\Tests\MockEnv;
-use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\PegTokenizer;
@@ -15,8 +17,10 @@ use Parsoid\Wt2Html\HTML5TreeBuilder;
 
 /**
  * Decode the json-encoded strings to build tokens
+ * @param string $input
+ * return array
  */
-function readTokens( $input ) {
+function readTokens( string $input ): array {
 	$lines = explode( "\n", $input );
 	$tokens = [];
 	foreach ( $lines as $line ) {
@@ -84,19 +88,36 @@ $inputFileName = $argv[2];
  * Read pipeline options from STDIN
  */
 $opts = PHPUtils::jsonDecode( file_get_contents( 'php://stdin' ) );
-
 $env = new MockEnv( [ "pageContent" => $opts['pageContent'] ?? null ] );
 $input = file_get_contents( $inputFileName );
 switch ( $stageName ) {
 	case "PegTokenizer":
 		$out = serializeTokens( parse( $env, $input, $opts ) );
 		break;
+
 	case "SyncTokenTransformManager":
-		throw new \Exception( "Unsupported!" );
-		// $toks = readTokens( $input );
 	case "AsyncTokenTransformManager":
-		throw new \Exception( "Unsupported!" );
-		// $toks = readTokens( $input );
+		/* Construct TTM and its transformers */
+		$phaseEndRank = $opts['phaseEndRank'];
+		$ttm = new TokenTransformManager( $env,
+			$opts['pipeline'], null, $phaseEndRank, "Sync $phaseEndRank" );
+		$ttm->setPipelineId( $opts['pipelineId'] );
+		foreach ( $opts['transformers'] as $t ) {
+			$t = "Parsoid\Wt2Html\TT\\" . $t;
+			$ttm->addTransformer( new $t( $ttm, $opts['pipeline'] ) );
+		}
+		$out = '';
+
+		/* Add listener */
+		$ttm->addListener( 'chunk', function ( $tokens ) use ( &$out ) {
+			$out = serializeTokens( $tokens );
+		} );
+
+		/* Process tokens */
+		$toks = readTokens( $input );
+		$ttm->process( $toks );
+		break;
+
 	case "HTML5TreeBuilder":
 		$toks = readTokens( $input );
 		$tb = new HTML5TreeBuilder( $env );
@@ -109,6 +130,7 @@ switch ( $stageName ) {
 			'storeDiffMark' => true
 		] );
 		break;
+
 	case "DOMPostProcessor":
 		throw new \Exception( "Unsupported!" );
 		// $dom = ContentUtils::ppToDOM( $env, $input, [ 'reinsertFosterableContent' => true ] );
