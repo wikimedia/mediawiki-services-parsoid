@@ -313,7 +313,7 @@ class WrapSections {
 				if ( $tplInfo['last']->nextSibling ) {
 					$newTplEndOffset = $this->getDSR( $tplInfo, $s2, false );
 					// The next line will succeed because it traverses non-tpl content
-					$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
+					$tplDsr = &DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 					$tplEndOffset = $tplDsr[1];
 					$dmw = DOMDataUtils::getDataMw( $tplInfo['first'] );
 					if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
@@ -324,6 +324,7 @@ class WrapSections {
 						// https://phabricator.wikimedia.org/T184779
 						$dmw->extSuffix = $this->getSrc( $state['env'], $tplEndOffset, $newTplEndOffset );
 					}
+
 					// Update DSR
 					$tplDsr[1] = $newTplEndOffset;
 
@@ -365,7 +366,7 @@ class WrapSections {
 				$dsr1 = $this->getDSR( $tplInfo, $newS1, true );  // Traverses non-tpl content => will succeed
 				$dsr2 = $this->getDSR( $tplInfo, $newS2, false ); // Traverses non-tpl content => will succeed
 				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
-				$tplDsr = $tplDP->dsr;
+				$tplDsr = &$tplDP->dsr;
 				$dmw = clone DOMDataUtils::getDataMw( $tplInfo['first'] );
 				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 					if ( $dmw->parts ) {
