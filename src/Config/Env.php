@@ -5,6 +5,7 @@ namespace Parsoid\Config;
 
 use DOMDocument;
 use DOMNode;
+use Parsoid\ResourceLimitExceededException;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
@@ -28,6 +29,16 @@ class Env {
 
 	/** @var DataAccess */
 	private $dataAccess;
+
+	/** @phan-var array<string,int> */
+	private $wt2htmlLimits = [];
+	/** @phan-var array<string,int> */
+	private $wt2htmlUsage = [];
+
+	/** @phan-var array<string,int> */
+	private $html2wtLimits = [];
+	/** @phan-var array<string,int> */
+	private $html2wtUsage = [];
 
 	/** @var DOMDocument[] */
 	private $liveDocs = [];
@@ -300,13 +311,45 @@ class Env {
 	 *
 	 * @param string $resource
 	 * @param int $count How much of the resource is used?
+	 * @throws ResourceLimitExceededException
 	 */
 	public function bumpWt2HtmlResourceUse( string $resource, int $count = 1 ): void {
-		throw new \BadMethodCallException( 'not yet ported' );
+		$n = $this->wt2htmlUsage[$resource] ?? 0;
+		$n += $count;
+		$this->wt2htmlUsage[$resource] = $n;
+		if (
+			isset( $this->wt2htmlLimits[$resource] ) &&
+			$n > $this->wt2htmlLimits[$resource]
+		) {
+			// TODO: re-evaluate whether throwing an exception is really
+			// the right failure strategy when Parsoid is integrated into MW
+			// (T221238)
+			throw new ResourceLimitExceededException( "wt2html: $resource limit exceeded: $n" );
+		}
 	}
 
 	/**
-	 * Is the language converted enabled on this page?
+	 * Bump usage of some limited serializer resource
+	 * (ex: html size)
+	 *
+	 * @param string $resource
+	 * @param int $count How much of the resource is used? (defaults to 1)
+	 * @throws ResourceLimitExceededException
+	 */
+	public function bumpHtml2WtResourceUse( string $resource, int $count = 1 ): void {
+		$n = $this->html2wtUsage[$resource] ?? 0;
+		$n += $count;
+		$this->html2wtUsage[$resource] = $n;
+		if (
+			isset( $this->html2wtLimits[$resource] ) &&
+			$n > $this->html2wtLimits[$resource]
+		) {
+			throw new ResourceLimitExceededException( "html2wt: $resource limit exceeded: $n" );
+		}
+	}
+
+	/**
+	 * Is the language converter enabled on this page?
 	 * @return bool
 	 */
 	public function langConverterEnabled(): bool {
