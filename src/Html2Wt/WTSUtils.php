@@ -168,19 +168,18 @@ class WTSUtils {
 	 *
 	 * @param string $src
 	 * @param DOMElement $node
-	 * @param stdClass $state
+	 * @param SerializerState $state
 	 * @param bool $dontEmit
 	 * @return bool
 	 */
 	public static function emitStartTag(
-		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit
 	): bool {
 		if ( empty( $state->rtTestMode ) ||
 			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
 		) {
 			if ( !$dontEmit ) {
-				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
-				// PORT-FIXME $state->emitChunk( $src, $node );
+				$state->emitChunk( $src, $node );
 			}
 			return true;
 		} else {
@@ -195,19 +194,18 @@ class WTSUtils {
 	 *
 	 * @param string $src
 	 * @param DOMElement $node
-	 * @param stdClass $state
+	 * @param SerializerState $state
 	 * @param bool $dontEmit
 	 * @return bool
 	 */
 	public static function emitEndTag(
-		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit
 	): bool {
 		if ( empty( $state->rtTestMode ) ||
 			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd )
 		) {
 			if ( !$dontEmit ) {
-				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
-				// PORT-FIXME $state->emitChunk( $src, $node );
+				$state->emitChunk( $src, $node );
 			}
 			return true;
 		} else {

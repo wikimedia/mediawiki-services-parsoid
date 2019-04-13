@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
+use Closure;
 use DOMDocument;
 use DOMNode;
 use Parsoid\ResourceLimitExceededException;
@@ -288,7 +289,8 @@ class Env {
 		$output = $prefix;
 		$numArgs = count( $args );
 		for ( $index = 0; $index < $numArgs; $index++ ) {
-			if ( is_callable( $args[$index] ) ) {
+			// don't use is_callable, it would return true for any string that happens to be a function name
+			if ( $args[$index] instanceof Closure ) {
 				$output = $output . ' ' . $args[$index]();
 			} elseif ( is_array( $args[$index] ) ) {
 				$output = $output . '[';
@@ -402,4 +404,17 @@ class Env {
 	public function shouldScrubWikitext(): bool {
 		return $this->scrubWikitext;
 	}
+
+	/**
+	 * The HTML content version of the input document (for html2wt and html2html conversions).
+	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 * @return string A semver version number
+	 */
+	public function getInputContentVersion(): string {
+		// PORT-FIXME implement this. See MWParserEnvironment.availableVersions,
+		// DOMUtils::extractInlinedContentVersion(), apiUtils.versionFromType, routes.js
+		return '2.1.0';
+	}
+
 }

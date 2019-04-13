@@ -11,10 +11,14 @@ use Parsoid\Tokens\Token;
  * This file contains general utilities for token transforms.
  */
 class Util {
-	// Non-global and global versions of regexp for use everywhere
-	const COMMENT_REGEXP = '/<!--(?:[^-]|-(?!->))*-->/';
-
-	const COMMENT_REGEXP_G = '/<!--(?:[^-]|-(?!->))*-->/g';
+	/**
+	 * Regular expression fragment for matching wikitext comments.
+	 * Meant for inclusion in other regular expressions.
+	 */
+	// Maintenance note: this is used in /x regexes so all whitespace and # should be escaped
+	const COMMENT_REGEXP_FRAGMENT = '<!--(?:[^-]|-(?!->))*-->';
+	/** Regular fragment for matching a wikitext comment */
+	const COMMENT_REGEXP = '/' . self::COMMENT_REGEXP_FRAGMENT . '/';
 
 	/**
 	 * Regexp for checking marker metas typeofs representing

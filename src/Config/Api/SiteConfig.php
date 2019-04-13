@@ -327,7 +327,7 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  Util::COMMENT_REGEXP . '|' .
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '!' ) . '|' .
 			  '[ \t\n\r\0\x0b]' .
 			')*$!i';
 
@@ -339,7 +339,7 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  Util::COMMENT_REGEXP .
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '!' ) .
 			')*)!i';
 	}
 

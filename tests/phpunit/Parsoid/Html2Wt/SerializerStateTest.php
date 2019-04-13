@@ -1,0 +1,204 @@
+<?php
+
+namespace Test\Parsoid\Wt2Html;
+
+use DOMDocument;
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WikitextSerializer;
+use Parsoid\Tests\MockEnv;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Wikimedia\Zest\Zest;
+
+class SerializerStateTest extends TestCase {
+
+	/**
+	 * A WikitextSerializer mock, with some basic methods mocked.
+	 * @param array $extraMethodsToMock
+	 * @return WikitextSerializer|MockObject
+	 */
+	private function getBaseSerializerMock( $extraMethodsToMock = [] ) {
+		$serializer = $this->getMockBuilder( WikitextSerializer::class )
+			->disableOriginalConstructor()
+			->setMethods( array_merge( [ 'buildSep' ], $extraMethodsToMock ) )
+			->getMock();
+		$serializer->expects( $this->any() )
+			->method( 'buildSep' )
+			->willReturn( '' );
+		/** @var WikitextSerializer $serializer */
+		return $serializer;
+	}
+
+	private function getState(
+		array $options = [], MockEnv $env = null, WikitextSerializer $serializer = null
+	) {
+		$serializer = $serializer ?? new WikitextSerializer();
+		$serializer->env = $serializer->env ?? $env ?? new MockEnv( [] );
+		return new SerializerState( $serializer, $options );
+	}
+
+	/**
+	 * Create a DOM document with the given HTML body and return the given node within it.
+	 * @param string $html
+	 * @param string $selector
+	 * @return DOMElement
+	 */
+	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ) {
+		$document = new DOMDocument();
+		$document->loadHTML( "<html><body>$html</body></html>" );
+		return Zest::find( $selector, $document )[0];
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::__construct
+	 */
+	public function testConstruct() {
+		$state = $this->getState();
+		$this->assertTrue( $state->rtTestMode );
+		$this->assertSame( [], $state->currLine->chunks );
+
+		$state = $this->getState( [ 'rtTestMode' => false ] );
+		$this->assertFalse( $state->rtTestMode );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::initMode
+	 */
+	public function testInitMode() {
+		$state = $this->getState();
+		$state->initMode( true );
+		$this->assertTrue( $state->selserMode );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::appendSep
+	 */
+	public function testAppendSep() {
+		$state = $this->getState();
+		$state->appendSep( 'foo' );
+		$state->appendSep( 'bar' );
+		$this->assertSame( 'foobar', $state->sep->src );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::updateSep
+	 */
+	public function testUpdateSep() {
+		$state = $this->getState();
+		$node = $this->getNode();
+		$state->updateSep( $node );
+		$this->assertSame( $node, $state->sep->lastSourceNode );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::getOrigSrc
+	 */
+	public function testGetOrigSrc() {
+		$env = new MockEnv( [
+			'pageContent' => '0123456789',
+		] );
+		$state = $this->getState( [], $env );
+		$state->initMode( true );
+		$this->assertSame( '23', $state->getOrigSrc( 2, 4 ) );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::updateModificationFlags
+	 */
+	public function testUpdateModificationFlags() {
+		$state = $this->getState();
+		$node = $this->getNode();
+		$state->currNodeUnmodified = true;
+		$state->updateModificationFlags( $node );
+		$this->assertFalse( $state->currNodeUnmodified );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::emitChunk
+	 */
+	public function testEmitChunk() {
+		$state = $this->getState( [], null, $this->getBaseSerializerMock() );
+		$node = $this->getNode();
+		$this->assertSame( '', $state->currLine->text );
+		$state->emitChunk( 'foo', $node );
+		$this->assertSame( 'foo', $state->currLine->text );
+		$state->singleLineContext->enforce();
+		$state->emitChunk( "\nfoo", $node );
+		$this->assertSame( 'foo foo', $state->currLine->text );
+		$state->singleLineContext->pop();
+		$state->emitChunk( "\nfoo", $node );
+		$this->assertSame( "foo foo\nfoo", $state->currLine->text );
+		// FIXME this could be expanded a lot
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::serializeChildren
+	 */
+	public function testSerializeChildren() {
+		$node = $this->getNode();
+		$serializer = $this->getBaseSerializerMock( [ 'serializeNode' ] );
+		$serializer->expects( $this->never() )
+			->method( 'serializeNode' );
+		$state = $this->getState( [], null, $serializer );
+		$state->serializeChildren( $node );
+
+		$node = $this->getNode( '<div id="main"><span></span><span></span></div>' );
+		$serializer = $this->getBaseSerializerMock( [ 'serializeNode' ] );
+		$serializer->expects( $this->exactly( 2 ) )
+			->method( 'serializeNode' )
+			->withConsecutive(
+				[ $node->firstChild ],
+				[ $node->firstChild->nextSibling ]
+			)
+			->willReturnCallback( function ( DOMElement $node ) {
+				return $node->nextSibling;
+			} );
+		$state = $this->getState( [], null, $serializer );
+		$state->serializeChildren( $node );
+
+		$callback = function () {
+		};
+		$node = $this->getNode( '<div id="main"><span></span></div>' );
+		$serializer = $this->getBaseSerializerMock( [ 'serializeNode' ] );
+		$serializer->expects( $this->once() )
+			->method( 'serializeNode' )
+			->with( $node->firstChild )
+			->willReturnCallback( function ( DOMElement $node ) use ( &$state, $callback ) {
+				$this->assertSame( $callback, end( $state->wteHandlerStack ) );
+				return $node->nextSibling;
+			} );
+		$state = $this->getState( [], null, $serializer );
+		$this->assertEmpty( $state->wteHandlerStack );
+		$state->serializeChildren( $node, $callback );
+		$this->assertEmpty( $state->wteHandlerStack );
+	}
+
+	/**
+	 * @covers \Parsoid\Html2Wt\SerializerState::kickOffSerialize
+	 * @covers \Parsoid\Html2Wt\SerializerState::serializeLinkChildrenToString
+	 * @covers \Parsoid\Html2Wt\SerializerState::serializeCaptionChildrenToString
+	 * @covers \Parsoid\Html2Wt\SerializerState::serializeIndentPreChildrenToString
+	 * @dataProvider provideSerializeChildrenToString
+	 */
+	public function testSerializeChildrenToString( $method ) {
+		$serializer = $this->getBaseSerializerMock( [ 'serializeNode' ] );
+		$serializer->expects( $this->never() )
+			->method( 'serializeNode' );
+		$state = $this->getState( [], null, $serializer );
+		$node = $this->getNode();
+		$callback = function () {
+		};
+		$state->$method( $node, $callback );
+	}
+
+	public function provideSerializeChildrenToString() {
+		return [
+			[ 'kickOffSerialize' ],
+			[ 'serializeLinkChildrenToString' ],
+			[ 'serializeCaptionChildrenToString' ],
+			[ 'serializeIndentPreChildrenToString' ],
+		];
+	}
+
+}

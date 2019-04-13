@@ -3,6 +3,8 @@
 namespace Test\Parsoid\Wt2Html;
 
 use Parsoid\Html2Wt\DOMNormalizer;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WikitextSerializer;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMUtils;
@@ -30,11 +32,13 @@ class DOMNormalizerTest extends TestCase {
 			'scrubWikitext' => true
 		];
 		$mockEnv = new MockEnv( $opts );
-		$mockState = (object)[
-			'env' => $mockEnv,
+		$mockSerializer = new WikitextSerializer;
+		$mockSerializer->env = $mockEnv;
+		$mockState = new SerializerState( $mockSerializer, [
 			'selserMode' => false,
 			'rtTestMode' => false,
-		];
+
+		] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );
 		$body = ContentUtils::ppToDOM( $mockEnv, $html, [ 'markNew' => true ] );

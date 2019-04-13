@@ -12,7 +12,6 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\WTUtils;
-use stdClass;
 use Wikimedia\Assert\Assert;
 
 /*
@@ -59,9 +58,9 @@ class DOMNormalizer {
 
 	/**
 	 * DOMNormalizer constructor.
-	 * @param stdClass $state
+	 * @param SerializerState $state
 	 */
-	public function __construct( stdClass $state ) {
+	public function __construct( SerializerState $state ) {
 		if ( !self::$specializedAttribHandlers ) {
 			self::$specializedAttribHandlers = [
 				'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB, $options ) {
@@ -70,7 +69,7 @@ class DOMNormalizer {
 			];
 		}
 
-		$this->env = $state->env;
+		$this->env = $state->getEnv();
 		$this->inSelserMode = $state->selserMode;
 		$this->inRtTestMode = $state->rtTestMode;
 		$this->inInsertedContent = false;
