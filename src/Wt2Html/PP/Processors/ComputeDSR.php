@@ -656,8 +656,8 @@ class ComputeDSR {
 							}
 
 							// Update and move right
-							$env->log( "trace/dsr", function () use ( $env, $ce, $newCE, $sibling, $siblingDP ) {
-								$str = "     CHANGING $ce->start of " . $sibling->nodeName .
+							$env->log( "trace/dsr", function () use ( $env, $newCE, $sibling, $siblingDP ) {
+								$str = "     CHANGING ce.start of " . $sibling->nodeName .
 									" from " . $siblingDP->dsr[0] . " to " . $newCE;
 								// debug info
 								if ( $siblingDP->dsr[1] ) {
