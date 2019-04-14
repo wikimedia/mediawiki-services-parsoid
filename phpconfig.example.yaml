@@ -46,6 +46,7 @@ wt2html:
      ComputeDSR: false
      Linter: false
      WrapSections: false
+     WrapTemplates: false
      HandlePres: false
      AddExtLinkClasses: false
 

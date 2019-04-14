@@ -23,6 +23,7 @@ use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\Linter;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
+use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 
 function buildDOM( $env, $fileName ) {
 	$html = file_get_contents( $fileName );
@@ -177,6 +178,9 @@ switch ( $argv[1] ) {
 		break;
 	case 'WrapSections':
 		$out = runTransform( new WrapSections(), $argv, $allOpts );
+		break;
+	case 'WrapTemplates':
+		$out = runTransform( new WrapTemplates(), $argv, $allOpts );
 		break;
 	case 'AddExtLinkClasses':
 		$out = runTransform( new AddExtLinkClasses(), $argv, $allOpts );
