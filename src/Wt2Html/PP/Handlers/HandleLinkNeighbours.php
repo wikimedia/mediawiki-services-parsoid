@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\PP\Handlers;
 use DOMElement;
 use DOMNode;
 
+use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
 
 use Parsoid\Config\Env;
@@ -19,10 +20,10 @@ class HandleLinkNeighbours {
 	 * The content will be reversed, so be ready for that.
 	 *
 	 * @param Env $env
-	 * @param DOMNode $node
+	 * @param DOMNode|null $node
 	 * @return array|null
 	 */
-	private static function getLinkPrefix( Env $env, DOMNode $node ): ?array {
+	private static function getLinkPrefix( Env $env, ?DOMNode $node ): ?array {
 		$baseAbout = null;
 		$regex = $env->getSiteConfig()->linkPrefixRegex();
 
@@ -34,7 +35,9 @@ class HandleLinkNeighbours {
 			$baseAbout = $node->getAttribute( 'about' );
 		}
 
-		$node = ( $node === null ) ? $node : $node->previousSibling;
+		if ( $node !== null ) {
+			$node = $node->previousSibling;
+		}
 		return self::findAndHandleNeighbour( $env, false, $regex, $node, $baseAbout );
 	}
 
@@ -42,10 +45,10 @@ class HandleLinkNeighbours {
 	 * Function for fetching the link trail based on a link node.
 	 *
 	 * @param Env $env
-	 * @param DOMNode $node
+	 * @param DOMNode|null $node
 	 * @return array|null
 	 */
-	private static function getLinkTrail( Env $env, DOMNode $node ): ?array {
+	private static function getLinkTrail( Env $env, ?DOMNode $node ): ?array {
 		$baseAbout = null;
 		$regex = $env->getSiteConfig()->linkTrailRegex();
 
@@ -57,7 +60,9 @@ class HandleLinkNeighbours {
 			$baseAbout = $node->getAttribute( 'about' );
 		}
 
-		$node = ( $node === null ) ? $node : $node->nextSibling;
+		if ( $node !== null ) {
+			$node = $node->nextSibling;
+		}
 		return self::findAndHandleNeighbour( $env, true, $regex, $node, $baseAbout );
 	}
 
@@ -66,19 +71,18 @@ class HandleLinkNeighbours {
 	 *
 	 * @param Env $env
 	 * @param bool $goForward
-	 * @param ?string $regex
-	 * @param ?DOMNode $node
-	 * @param ?string $baseAbout
+	 * @param string $regex
+	 * @param DOMNode|null $node
+	 * @param string|null $baseAbout
 	 * @return array
 	 */
 	private static function findAndHandleNeighbour(
-		Env $env, bool $goForward, string $regex, ?DOMNode $node,
-		?string $baseAbout
+		Env $env, bool $goForward, string $regex, ?DOMNode $node, ?string $baseAbout
 	): array {
 		$value = null;
-		$nextNode = ( $goForward ) ? 'nextSibling' : 'previousSibling';
-		$innerNode = ( $goForward ) ? 'firstChild' : 'lastChild';
-		$getInnerNeighbour = ( $goForward ) ? 'getLinkTrail' : 'getLinkPrefix';
+		$nextNode = $goForward ? 'nextSibling' : 'previousSibling';
+		$innerNode = $goForward ? 'firstChild' : 'lastChild';
+		$getInnerNeighbour = $goForward ? 'getLinkTrail' : 'getLinkPrefix';
 		$result = [ 'content' => [], 'src' => '' ];
 
 		while ( $node !== null ) {
@@ -101,10 +105,10 @@ class HandleLinkNeighbours {
 				} else {
 					break;
 				}
-			} elseif ( $node instanceof DOMElement
-				&& WTUtils::hasParsoidAboutId( $node )
-				&& $baseAbout !== '' && $baseAbout !== null
-				&& $node->getAttribute( 'about' ) === $baseAbout
+			} elseif ( $node instanceof DOMElement &&
+				WTUtils::hasParsoidAboutId( $node ) &&
+				$baseAbout !== '' && $baseAbout !== null &&
+				$node->getAttribute( 'about' ) === $baseAbout
 			) {
 				$value = self::{ $getInnerNeighbour }( $env, $node->{ $innerNode } );
 			} else {
@@ -139,13 +143,11 @@ class HandleLinkNeighbours {
 	 * Workhorse function for bringing linktrails and link prefixes into link content.
 	 * NOTE that this function mutates the node's siblings on either side.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @param Env $env
-	 * @return bool|mixed
+	 * @return bool|DOMElement
 	 */
-	public static function handler( DOMNode $node, Env $env ) {
-		DOMUtils::assertElt( $node );
-
+	public static function handler( DOMElement $node, Env $env ) {
 		$rel = $node->getAttribute( 'rel' );
 		if ( !preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel ) ) {
 			return true;
@@ -157,7 +159,7 @@ class HandleLinkNeighbours {
 		$prefix = self::getLinkPrefix( $env, $node );
 		$trail = self::getLinkTrail( $env, $node );
 
-		if ( is_array( $prefix ) && $prefix['content'] ) {
+		if ( isset( $prefix['content'] ) ) {
 			for ( $ix = 0;  $ix < count( $prefix['content'] );  $ix++ ) {
 				$node->insertBefore( $prefix['content'][ $ix ], $node->firstChild );
 			}
@@ -170,14 +172,14 @@ class HandleLinkNeighbours {
 						array_unshift( $dataMW->parts, $prefix['src'] );
 					}
 				}
-				if ( $dp->dsr ) {
+				if ( Util::isValidDSR( $dp->dsr ?? null ) ) {
 					$dp->dsr[ 0 ] -= mb_strlen( $prefix['src'] );
 					$dp->dsr[ 2 ] += mb_strlen( $prefix['src'] );
 				}
 			}
 		}
 
-		if ( is_array( $trail ) && $trail['content'] && count( $trail['content'] ) > 0 ) {
+		if ( isset( $trail['content'] ) && count( $trail['content'] ) > 0 ) {
 			for ( $ix = 0;  $ix < count( $trail['content'] );  $ix++ ) {
 				$node->appendChild( $trail['content'][ $ix ] );
 			}
