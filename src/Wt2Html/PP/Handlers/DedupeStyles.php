@@ -1,29 +1,31 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
+use DOMElement;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 
 class DedupeStyles {
-	public static function dedupe( $node, $env ) {
-		if ( !$env->styleTagKeys ) {
-			$env->styleTagKeys = new Set();
-		}
 
+	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool|DOMElement
+	 */
+	public static function dedupe( DOMElement $node, Env $env ) {
 		if ( !$node->hasAttribute( 'data-mw-deduplicate' ) ) {
 			// Not a templatestyles <style> tag
 			return true;
 		}
-		$key = $node->getAttribute( 'data-mw-deduplicate' );
 
-		if ( !$env->styleTagKeys->has( $key ) ) {
+		$key = $node->getAttribute( 'data-mw-deduplicate' );
+		if ( !isset( $env->styleTagKeys[$key] ) ) {
 			// Not a dupe
-			$env->styleTagKeys->add( $key );
+			$env->styleTagKeys[$key] = true;
 			return true;
 		}
 
@@ -40,15 +42,11 @@ class DedupeStyles {
 			return $link;
 		} else {
 			$env->log( 'info/wt2html/templatestyle',
-				'Duplicate style tag found in fosterable position. '
-. 'Not deduping it, but emptying out the style tag for performance reasons.'
+				'Duplicate style tag found in fosterable position. ' .
+					'Not deduping it, but emptying out the style tag for performance reasons.'
 			);
-			$node->innerHTML = '';
+			DOMCompat::setInnerHTML( $node, '' );
 			return true;
 		}
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->DedupeStyles = $DedupeStyles;
 }

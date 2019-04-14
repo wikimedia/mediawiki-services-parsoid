@@ -67,6 +67,12 @@ class Env {
 	private $scrubWikitext;
 
 	/**
+	 * FIXME Used in DedupeStyles::dedupe()
+	 * @var array
+	 */
+	public $styleTagKeys = [];
+
+	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
