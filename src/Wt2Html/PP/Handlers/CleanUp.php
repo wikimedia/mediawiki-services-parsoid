@@ -1,22 +1,28 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\WikitextConstants as Consts;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
+use DOMElement;
+use DOMNode;
+use DOMText;
+use Parsoid\Config\Env;
+use Parsoid\Config\WikitextConstants;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use stdClass;
 
 class CleanUp {
 	/**
+	 * @param DOMElement $node
+	 * @param Env $env
+	 * @return bool|DOMElement
 	 */
-	public static function stripMarkerMetas( $node, $env ) {
-		$rtTestMode = $env->conf->parsoid->rtTestMode;
+	public static function stripMarkerMetas( DOMElement $node, Env $env ) {
+		$rtTestMode = $env->getSiteConfig()->rtTestMode();
 
 		if ( !$node->hasAttribute( 'typeof' ) ) {
 			return true;
@@ -28,8 +34,8 @@ class CleanUp {
 		// in which case we also have to keep it.
 		$metaTestRE = /* RegExp */ '/(?:^|\s)mw:(StartTag|EndTag|TSRMarker|Transclusion)\/?[^\s]*/';
 
-		if ( ( !$rtTestMode && $metaType === 'mw:Placeholder/StrippedTag' )
-||				( preg_match( $metaTestRE, $metaType ) && !DOMDataUtils::validDataMw( $node ) )
+		if ( ( !$rtTestMode && $metaType === 'mw:Placeholder/StrippedTag' ) ||
+			( preg_match( $metaTestRE, $metaType ) && !DOMDataUtils::validDataMw( $node ) )
 		) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );
@@ -41,40 +47,60 @@ class CleanUp {
 	}
 
 	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param bool $atTopLevel
+	 * @param stdClass|null $tplInfo
+	 * @return bool|DOMNode
 	 */
-	public static function handleEmptyElements( $node, $env, $unused, $tplInfo ) {
-		if ( !DOMUtils::isElt( $node )
-||				!Consts\Output\FlaggedEmptyElts::has( $node->nodeName )
-||				!DOMUtils::nodeEssentiallyEmpty( $node )
-||				Array::from( $node->attributes )->some( function ( $a ) use ( &$DOMDataUtils, &$tplInfo, &$Util ) {
-						return ( $a->name !== DOMDataUtils\DataObjectAttrName() )
-&&							( !$tplInfo || $a->name !== 'about' || !Util::isParsoidObjectId( $a->value ) );
-					}
-				)
+	public static function handleEmptyElements(
+		DOMNode $node, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
+	) {
+		if ( !DOMUtils::isElt( $node ) ||
+			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][$node->nodeName] ) ||
+			!DOMUtils::nodeEssentiallyEmpty( $node )
 		) {
 			return true;
 		}
+		if ( $node->hasAttributes() ) {
+			foreach ( $node->attributes as $a ) {
+				if ( ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
+					( !$tplInfo || $a->name !== 'about' || !Util::isParsoidObjectId( $a->value ) )
 
-		// The node is known to be empty and a deletion candidate
-		// * If node is part of template content, it can be deleted
-		//   (since we know it has no attributes, it won't be the
-		//    first node that has about, typeof, and other attrs)
-		// * If not, we add the mw-empty-elt class so that wikis
-		//   can decide what to do with them.
+				) {
+					return true;
+				}
+			}
+		}
+
+		/** @var DOMElement $node */
+		DOMUtils::assertElt( $node );
+
+		/* The node is known to be empty and a deletion candidate
+			* If node is part of template content, it can be deleted
+			  (since we know it has no attributes, it won't be the
+			   first node that has about, typeof, and other attrs)
+			* If not, we add the mw-empty-elt class so that wikis
+			  can decide what to do with them.
+		 */
 		if ( $tplInfo ) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );
 			return $nextNode;
 		} else {
-			$node->classList->add( 'mw-empty-elt' );
+			DOMCompat::getClassList( $node )->add( 'mw-empty-elt' );
 			return true;
 		}
 	}
 
-	// FIXME: Leaky Cite-specific info
-	public static function isRefText( $node ) {
+	/**
+	 * FIXME: Leaky Cite-specific info
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	private static function isRefText( DOMElement $node ): bool {
 		while ( !DOMUtils::atTheTop( $node ) ) {
-			if ( $node->classList->contains( 'mw-reference-text' ) ) {
+			if ( DOMCompat::getClassList( $node )->contains( 'mw-reference-text' ) ) {
 				return true;
 			}
 			$node = $node->parentNode;
@@ -82,14 +108,15 @@ class CleanUp {
 		return false;
 	}
 
-	// Whitespace in this function refers to [ \t] only
-	public static function trimWhiteSpace( $node ) {
-		$c = null; $next = null; $prev = null;
-
+	/**
+	 * Whitespace in this function refers to [ \t] only
+	 * @param DOMNode $node
+	 */
+	private static function trimWhiteSpace( DOMNode $node ): void {
 		// Trim leading ws (on the first line)
 		for ( $c = $node->firstChild;  $c;  $c = $next ) {
 			$next = $c->nextSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->data ) ) {
+			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->nodeValue ) ) {
 				$node->removeChild( $c );
 			} elseif ( !WTUtils::isRenderingTransparentNode( $c ) ) {
 				break;
@@ -97,13 +124,13 @@ class CleanUp {
 		}
 
 		if ( DOMUtils::isText( $c ) ) {
-			$c->data = preg_replace( '/^[ \t]+/', '', $c->data, 1 );
+			$c->nodeValue = preg_replace( '/^[ \t]+/', '', $c->nodeValue, 1 );
 		}
 
 		// Trim trailing ws (on the last line)
 		for ( $c = $node->lastChild;  $c;  $c = $prev ) {
 			$prev = $c->previousSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->data ) ) {
+			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->nodeValue ) ) {
 				$node->removeChild( $c );
 			} elseif ( !WTUtils::isRenderingTransparentNode( $c ) ) {
 				break;
@@ -111,30 +138,39 @@ class CleanUp {
 		}
 
 		if ( DOMUtils::isText( $c ) ) {
-			$c->data = preg_replace( '/[ \t]+$/', '', $c->data, 1 );
+			$c->nodeValue = preg_replace( '/[ \t]+$/', '', $c->nodeValue, 1 );
 		}
 	}
 
 	/**
 	 * Perform some final cleanup and save data-parsoid attributes on each node.
+	 *
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param bool $atTopLevel
+	 * @param stdClass|null $tplInfo
+	 * @return bool|DOMText
 	 */
-	public static function cleanupAndSaveDataParsoid( $node, $env, $atTopLevel, $tplInfo ) {
+	public static function cleanupAndSaveDataParsoid(
+		DOMNode $node, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
+	) {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return true;
 		}
+		/** @var DOMElement $node */
+		DOMUtils::assertElt( $node );
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$next = null;
 
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
-		if ( $dp->autoInsertedEnd && !WTUtils::hasLiteralHTMLMarker( $dp )
-&&				Consts\WTTagsWithNoClosingTags::has( $node->nodeName )
+		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
+			isset( WikitextConstants::$WTTagsWithNoClosingTags[$node->nodeName] )
 		) {
-			$dp->autoInsertedEnd = null;
+			unset( $dp->autoInsertedEnd );
 		}
 
-		$isFirstEncapsulationWrapperNode = ( $tplInfo && $tplInfo->first === $node )
-||			// Traversal isn't done with tplInfo for section tags, but we should
+		$isFirstEncapsulationWrapperNode = ( $tplInfo->first ?? null ) === $node ||
+			// Traversal isn't done with tplInfo for section tags, but we should
 			// still clean them up as if they are the head of encapsulation.
 			WTUtils::isParsoidSectionTag( $node );
 
@@ -145,25 +181,25 @@ class CleanUp {
 		// this content from HTML. Token handlers should strip src for
 		// content where data-mw isn't necessary and html2wt knows how to
 		// handle the HTML markup.
-		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr );
-		$isPageProp = ( $node->nodeName === 'META'
-&&			preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) || '' ) );
+		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr ?? null );
+		$isPageProp = $node->nodeName === 'meta' &&
+			preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) );
 		if ( $validDSR && !$isPageProp ) {
-			$dp->src = null;
-		} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || !$dp->tsr ) ) {
+			unset( $dp->src );
+		} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || empty( $dp->tsr ) ) ) {
 			// Transcluded nodes will not have dp.tsr set
 			// and don't need dp.src either.
-			$dp->src = null;
+			unset( $dp->src );
 		}
 
 		// Remove tsr
-		if ( $dp->tsr ) {
-			$dp->tsr = null;
+		if ( !empty( $dp->tsr ) ) {
+			unset( $dp->tsr );
 		}
 
 		// Remove temporary information
-		$dp->tmp = null;
-		$dp->extLinkContentOffsets = null; // not stored in tmp currently
+		unset( $dp->tmp );
+		unset( $dp->extLinkContentOffsets ); // not stored in tmp currently
 
 		// Make dsr zero-range for fostered content
 		// to prevent selser from duplicating this content
@@ -171,8 +207,8 @@ class CleanUp {
 		//
 		// But, do not zero it out if the node has template encapsulation
 		// information.  That will be disastrous (see T54638, T54488).
-		if ( $dp->fostered && $dp->dsr && !$isFirstEncapsulationWrapperNode ) {
-			$dp->dsr[ 0 ] = $dp->dsr[ 1 ];
+		if ( !empty( $dp->fostered ) && !empty( $dp->dsr ) && !$isFirstEncapsulationWrapperNode ) {
+			$dp->dsr[0] = $dp->dsr[1];
 		}
 
 		if ( $atTopLevel ) {
@@ -181,8 +217,8 @@ class CleanUp {
 			// don't want to break the about-chain by stripping the wrapper
 			// and associated ids (we cannot add an about id on the nowiki-ed
 			// content since that would be a text node).
-			if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node )
-&&					preg_match( '/^mw:Nowiki$/', $node->getAttribute( 'typeof' ) || '' )
+			if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node ) &&
+				preg_match( '/^mw:Nowiki$/', $node->getAttribute( 'typeof' ) )
 			) {
 				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
 				// Replace the span with an empty text node.
@@ -194,21 +230,21 @@ class CleanUp {
 
 			// Trim whitespace from some wikitext markup
 			// not involving explicit HTML tags (T157481)
-			if ( !WTUtils::hasLiteralHTMLMarker( $dp )
-&&					Consts\WikitextTagsWithTrimmableWS::has( $node->nodeName )
+			if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
+				isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$node->nodeName] )
 			) {
-				CleanUp::trimWhiteSpace( $node );
+				self::trimWhiteSpace( $node );
 			}
 
 			$discardDataParsoid = $env->discardDataParsoid;
 
 			// Strip data-parsoid from templated content, where unnecessary.
-			if ( $tplInfo
+			if ( $tplInfo &&
 				// Always keep info for the first node
-				 && !$isFirstEncapsulationWrapperNode
+				!$isFirstEncapsulationWrapperNode &&
 				// We can't remove data-parsoid from inside <references> text,
 				// as that's the only HTML representation we have left for it.
-				 && !CleanUp::isRefText( $node )
+				!self::isRefText( $node ) &&
 				// FIXME: We can't remove dp from nodes with stx information
 				// because the serializer uses stx information in some cases to
 				// emit the right newline separators.
@@ -217,7 +253,7 @@ class CleanUp {
 				// identical html but serialize to different wikitext.
 				//
 				// This is only needed for the last top-level node .
-				 && ( !$dp->stx || $tplInfo->last !== $node )
+				( empty( $dp->stx ) || ( $tplInfo->last ?? null ) !== $node )
 			) {
 				$discardDataParsoid = true;
 			}
@@ -230,13 +266,7 @@ class CleanUp {
 					'env' => $env
 				]
 			);
-		}// We only need the env in this case.
-
-
+		} // We only need the env in this case.
 		return true;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->CleanUp = $CleanUp;
 }

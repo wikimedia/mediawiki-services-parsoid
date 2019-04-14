@@ -226,15 +226,15 @@ switch ( $argv[1] ) {
 		break;
 	case 'CleanUp-cleanupAndSaveDataParsoid':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( 'null', function ( ...$args ) {
+			$transformer->addHandler( null, function ( ...$args ) {
 				return CleanUp::cleanupAndSaveDataParsoid( ...$args );
 			} );
 		} );
 		break;
 	case 'CleanUp-handleEmptyElts':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( 'null', function ( ...$args ) {
-				return CleanUp::handleEmpytElts( ...$args );
+			$transformer->addHandler( null, function ( ...$args ) {
+				return CleanUp::handleEmptyElements( ...$args );
 			} );
 		} );
 		break;

@@ -76,6 +76,16 @@ class Env {
 	 */
 	public $styleTagKeys = [];
 
+	/*
+	 * @var bool
+	 */
+	public $pageBundle = false;
+
+	/**
+	 * @var bool
+	 */
+	public $discardDataParsoid = false;
+
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
