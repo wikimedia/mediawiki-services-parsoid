@@ -32,7 +32,7 @@ class TDHandler extends DOMHandler {
 		// T149209: Special case to deal with scenarios
 		// where the previous sibling put us in a SOL state
 		// (or will put in a SOL state when the separator is emitted)
-		if ( $state->onSOL || ( $state->sep->constraints->min ?? 0 ) > 0 ) {
+		if ( $state->onSOL || ( $state->sep->constraints['min'] ?? 0 ) > 0 ) {
 			$startTagSrc = preg_replace( '/\|\|/', '|', $startTagSrc, 1 );
 			$startTagSrc = preg_replace( '/{{!}}{{!}}/', '{{!}}', $startTagSrc, 1 );
 		}

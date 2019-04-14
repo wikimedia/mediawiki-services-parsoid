@@ -21,11 +21,14 @@ class SerializerStateTest extends TestCase {
 	private function getBaseSerializerMock( $extraMethodsToMock = [] ) {
 		$serializer = $this->getMockBuilder( WikitextSerializer::class )
 			->disableOriginalConstructor()
-			->setMethods( array_merge( [ 'buildSep' ], $extraMethodsToMock ) )
+			->setMethods( array_merge( [ 'buildSep', 'trace' ], $extraMethodsToMock ) )
 			->getMock();
 		$serializer->expects( $this->any() )
 			->method( 'buildSep' )
 			->willReturn( '' );
+		$serializer->expects( $this->any() )
+			->method( 'trace' )
+			->willReturn( null );
 		/** @var WikitextSerializer $serializer */
 		return $serializer;
 	}
@@ -33,8 +36,10 @@ class SerializerStateTest extends TestCase {
 	private function getState(
 		array $options = [], MockEnv $env = null, WikitextSerializer $serializer = null
 	) {
-		$serializer = $serializer ?? new WikitextSerializer();
-		$serializer->env = $serializer->env ?? $env ?? new MockEnv( [] );
+		$this->assertFalse( $env && $serializer, 'Invalid arguments to getState' );
+		if ( !$serializer ) {
+			$serializer = new WikitextSerializer( [ 'env' => $env ?? new MockEnv( [] ) ] );
+		}
 		return new SerializerState( $serializer, $options );
 	}
 

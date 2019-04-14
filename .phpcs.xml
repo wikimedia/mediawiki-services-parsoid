@@ -9,6 +9,7 @@
 	<exclude-pattern>src/Wt2Html/Grammar.php</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
+		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.SingleSpaceBeforeSingleLineComment" />
 		<exclude name="MediaWiki.PHP70Features" />
 		<exclude name="MediaWiki.PHP71Features" />
 	</rule>

@@ -3,10 +3,26 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
+use DOMDocument;
+
 /**
  * Page-level configuration interface for Parsoid
  */
 abstract class PageConfig {
+
+	/**
+	 * Content type of the page (when parsing HTML).
+	 * @var string
+	 */
+	public $dpContentType;
+
+	/**
+	 * The owner document of the page. Used to transfer context between WikitextSerializer and
+	 * some extensions, see WikitextSerializer::serializeDOM.
+	 * PORT-FIXME this should not be here.
+	 * @var DOMDocument|null
+	 */
+	public $editedDoc;
 
 	/**
 	 * Whether the page has a lintable content model

@@ -32,8 +32,7 @@ class DOMNormalizerTest extends TestCase {
 			'scrubWikitext' => true
 		];
 		$mockEnv = new MockEnv( $opts );
-		$mockSerializer = new WikitextSerializer;
-		$mockSerializer->env = $mockEnv;
+		$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
 		$mockState = new SerializerState( $mockSerializer, [
 			'selserMode' => false,
 			'rtTestMode' => false,

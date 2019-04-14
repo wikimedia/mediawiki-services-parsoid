@@ -130,6 +130,12 @@ class SerializerState {
 	public $inAttribute = false;
 
 	/**
+	 * PORT-FIXME document
+	 * @var bool
+	 */
+	public $inModifiedContent;
+
+	/**
 	 * Did we introduce nowikis for indent-pre protection?
 	 * If yes, we might run a post-pass to strip useless ones.
 	 * @var bool
@@ -510,10 +516,10 @@ class SerializerState {
 
 	/**
 	 * Pushes the chunk to the current line.
-	 * @param string $res
+	 * @param ConstrainedText|string $res
 	 * @param DOMNode $node
 	 */
-	public function emitChunk( string $res, DOMNode $node ): void {
+	public function emitChunk( $res, DOMNode $node ): void {
 		$res = ConstrainedText::cast( $res, $node );
 
 		// Replace newlines if we're in a single-line context
