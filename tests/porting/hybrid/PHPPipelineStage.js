@@ -26,12 +26,14 @@ class PHPPipelineStage {
 		this.resetState();
 	}
 
-	addListenerOn(emitter) {
+	addListenersOn(emitter) {
 		switch (this.stageName) {
 			case 'SyncTokenTransformManager':
 			case 'AsyncTokenTransformManager':
 			case 'TreeBuilder':
-				emitter.addListener('chunk', tokens => this.tokens.concat(tokens)); // Buffer
+				emitter.addListener('chunk', (tokens) => {
+					this.tokens = this.tokens.concat(tokens);  // Buffer
+				});
 				emitter.addListener('end', () => this.processTokens());
 				break;
 

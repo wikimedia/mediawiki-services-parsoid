@@ -18,6 +18,7 @@ function readTokens( $input ) {
 	foreach ( $lines as $line ) {
 		$tokens[] = Token::getToken( PHPUtils::jsonDecode( $line ) );
 	}
+	return $tokens;
 }
 
 /**
