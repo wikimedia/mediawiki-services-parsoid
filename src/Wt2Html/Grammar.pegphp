@@ -2088,6 +2088,9 @@ row_syntax_table_args =
  * flags). The wikilink_preprocessor_text rule is an example where
  * text_char is not quite right and had to be augmented. Try to minimize /
  * clarify this carefully!
+ *
+ * This character class is inlined into urltext. Changes here may also need to
+ * be reflected there.
  */
 
 text_char = [^-'<~[{\n\r:;\]}|!=]
@@ -2134,8 +2137,8 @@ urltext =
 			return $toks;
 		}
 		/ & ('__') bs:behavior_switch { return $bs; }
-		// About 96% of text_char calls originate here.
-		/ text_char
+		// About 96% of text_char calls originated here, so inline it for efficiency
+		/ [^-'<~[{\n\r:;\]}|!=]
 	)+
 
 raw_htmlentity =
