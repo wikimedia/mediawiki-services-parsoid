@@ -2117,8 +2117,7 @@ text_char = [^-'<~[{\n\r:;\]}|!=]
 
 urltext =
 	(
-		$[^-'<~[{\n/A-Za-z_|!:;\]} &=]+
-		/ & [/A-Za-z] al:autolink { return $al; }
+		& [/A-Za-z] al:autolink { return $al; }
 		/ & "&" he:htmlentity { return $he; }
 		// Convert trailing space into &nbsp;
 		// XXX: This should be moved to a serializer
