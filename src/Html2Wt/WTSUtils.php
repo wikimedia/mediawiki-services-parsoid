@@ -175,7 +175,9 @@ class WTSUtils {
 	public static function emitStartTag(
 		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
 	): bool {
-		if ( !$state->rtTestMode || !DOMDataUtils::getDataParsoid( $node )->autoInsertedStart ) {
+		if ( empty( $state->rtTestMode ) ||
+			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
+		) {
 			if ( !$dontEmit ) {
 				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
 				// PORT-FIXME $state->emitChunk( $src, $node );
@@ -200,7 +202,9 @@ class WTSUtils {
 	public static function emitEndTag(
 		string $src, DOMElement $node, stdClass $state /* PORT-FIXME */, bool $dontEmit
 	): bool {
-		if ( !$state->rtTestMode || !DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd ) {
+		if ( empty( $state->rtTestMode ) ||
+			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd )
+		) {
 			if ( !$dontEmit ) {
 				// PORT-FIXME PhanUndeclaredMethod Call to undeclared method \stdClass::emitChunk
 				// PORT-FIXME $state->emitChunk( $src, $node );
@@ -332,9 +336,9 @@ class WTSUtils {
 			// If it didn't have a stx marker that indicated that the cell
 			// showed up on the same line via the "||" or "!!" syntax, nothing
 			// to worry about.
-			return DOMDataUtils::getDataParsoid( $node )->stx !== 'row';
+			return ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'row';
 		} elseif ( $node->nodeName === 'tr' && DOMUtils::assertElt( $node ) &&
-			!DOMDataUtils::getDataParsoid( $node )->startTagSrc
+			empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			// If this <tr> didn't have a startTagSrc, it would have been
 			// the first row of a table in original wikitext. So, it is safe
