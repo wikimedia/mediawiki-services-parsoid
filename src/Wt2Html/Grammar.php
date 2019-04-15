@@ -1825,13 +1825,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
   }
   private function parsestart($silence, &$param_preproc) {
-    $key = implode(':', [282, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [282, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -1870,18 +1871,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_start_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [464, $this->currPos, $boolParams & 0x3bee, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [464, $boolParams & 0x3bee, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -1985,17 +1987,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseurl($silence, &$param_preproc) {
-    $key = implode(':', [338, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [338, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -2430,18 +2433,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parserow_syntax_table_args($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [484, $this->currPos, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [484, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -2489,18 +2493,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attributes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [288, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [288, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = [];
@@ -2567,18 +2572,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsegeneric_newline_attributes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [286, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [286, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = [];
@@ -2591,17 +2597,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
-    $key = implode(':', [348, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [348, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start choice_1
@@ -2645,18 +2652,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseextlink($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [328, $this->currPos, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [328, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -2809,17 +2817,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetlb($silence, &$param_preproc) {
-    $key = implode(':', [294, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [294, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -2853,17 +2862,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenewlineToken($silence) {
-    $key = implode(':', [534, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 534;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $r1 = $this->discardnewline($silence);
@@ -2873,17 +2883,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardtlb($silence, &$param_preproc) {
-    $key = implode(':', [295, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [295, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -2917,17 +2928,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardnewlineToken($silence) {
-    $key = implode(':', [535, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 535;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $r1 = $this->discardnewline($silence);
@@ -2937,17 +2949,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsespace($silence) {
-    $key = implode(':', [498, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 498;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $r1 = $this->input[$this->currPos] ?? '';
     if ($r1 === " " || $r1 === "\x09") {
@@ -2958,17 +2971,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsecomment($silence) {
-    $key = implode(':', [320, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 320;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -3082,17 +3096,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsepipe($silence) {
-    $key = implode(':', [560, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 560;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     if (($this->input[$this->currPos] ?? null) === "|") {
@@ -3113,17 +3128,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseurl_protocol($silence) {
-    $key = implode(':', [334, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 334;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -3223,17 +3239,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseurladdr($silence) {
-    $key = implode(':', [342, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 342;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     // start seq_1
@@ -3292,18 +3309,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function discardinline_breaks($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [313, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [313, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start seq_1
@@ -3345,17 +3363,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parseno_punctuation_char($silence) {
-    $key = implode(':', [336, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 336;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $r1 = self::charAt($this->input, $this->currPos);
     if (preg_match("/^[^ :\\]\\[\\x0d\\x0a\"'<>\\x00- \\x7f,.&%\\x{a0}\\x{1680}\\x{180e}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}{]/u", $r1)) {
@@ -3366,18 +3385,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetplarg_or_template($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [344, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [344, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
@@ -3422,17 +3442,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsehtmlentity($silence) {
-    $key = implode(':', [492, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 492;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $r3 = $this->parseraw_htmlentity($silence);
@@ -3444,17 +3465,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseoptional_spaces($silence) {
-    $key = implode(':', [496, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 496;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     $r3 = $this->input[$this->currPos] ?? '';
@@ -3483,17 +3505,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function discardpipe($silence) {
-    $key = implode(':', [561, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 561;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     if (($this->input[$this->currPos] ?? null) === "|") {
@@ -3514,18 +3537,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attribute($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [430, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [430, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -3609,17 +3633,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardoptionalSpaceToken($silence) {
-    $key = implode(':', [501, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 501;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $r3 = $this->parseoptional_spaces($silence);
@@ -3631,17 +3656,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsebroken_table_attribute_name_char($silence) {
-    $key = implode(':', [436, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 436;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // c <- $r3
@@ -3658,18 +3684,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsegeneric_newline_attribute($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [428, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [428, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -3764,35 +3791,37 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseextlink_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [544, $this->currPos, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [544, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = $this->parseextlink_preprocessor_text_parameterized($silence, $boolParams & ~0x200, $param_templatedepth, $param_preproc, $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardspace($silence) {
-    $key = implode(':', [499, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 499;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $r1 = $this->input[$this->currPos] ?? '';
     if ($r1 === " " || $r1 === "\x09") {
@@ -3803,17 +3832,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardunispace($silence) {
-    $key = implode(':', [507, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 507;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $r1 = self::charAt($this->input, $this->currPos);
     if (preg_match("/^[ \\x{a0}\\x{1680}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}]/u", $r1)) {
@@ -3824,18 +3854,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseinlineline($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [314, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [314, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -3949,17 +3980,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardeof($silence) {
-    $key = implode(':', [531, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 531;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $this->savedPos = $this->currPos;
     $r1 = $this->a39();
@@ -3970,18 +4002,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseblock($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [296, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [296, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -4131,17 +4164,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardnewline($silence) {
-    $key = implode(':', [533, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 533;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     if (($this->input[$this->currPos] ?? null) === "\x0a") {
@@ -4162,18 +4196,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetplarg_or_template_guarded($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [346, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [346, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -4465,17 +4500,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseraw_htmlentity($silence) {
-    $key = implode(':', [490, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 490;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $p4 = $this->currPos;
@@ -4541,17 +4577,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseoptionalSpaceToken($silence) {
-    $key = implode(':', [500, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 500;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $r3 = $this->parseoptional_spaces($silence);
@@ -4563,18 +4600,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attribute_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [438, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [438, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -4895,18 +4933,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_att_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [442, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [442, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -5166,17 +5205,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardspace_or_newline_or_solidus($silence) {
-    $key = implode(':', [421, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 421;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardspace_or_newline($silence);
@@ -5223,18 +5263,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsegeneric_attribute_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [434, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [434, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -5489,17 +5530,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardspace_or_newline($silence) {
-    $key = implode(':', [503, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 503;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strspn($this->input, " \x09\x0a\x0d\x0c", $this->currPos, 1) !== 0) {
       $r1 = $this->input[$this->currPos++];
@@ -5509,18 +5551,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsegeneric_att_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [440, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [440, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -5802,18 +5845,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseextlink_preprocessor_text_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [546, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [546, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -6135,18 +6179,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseurltext($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [488, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [488, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -6413,18 +6458,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseinline_element($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [316, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [316, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -6663,17 +6709,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardsof($silence) {
-    $key = implode(':', [529, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 529;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $this->savedPos = $this->currPos;
     $r1 = $this->a58();
@@ -6684,18 +6731,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseredirect($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [284, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [284, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
@@ -6784,18 +6832,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsecomment_or_includes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [514, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [514, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = [];
@@ -6820,18 +6869,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseblock_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [306, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [306, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -6983,18 +7033,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseblock_lines($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [302, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [302, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7049,17 +7100,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardeolf($silence) {
-    $key = implode(':', [537, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 537;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardnewline($silence);
@@ -7070,18 +7122,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseblock_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [426, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [426, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7119,18 +7172,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseparagraph($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [308, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [308, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7166,18 +7220,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsesol($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [516, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [516, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start seq_1
@@ -7205,47 +7260,50 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function discardtplarg($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = implode(':', [357, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [357, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
     $r1 = $this->discardtplarg_preproc($silence, $boolParams, $param_templatedepth, self::newRef("}}"), $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = implode(':', [350, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [350, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
     $r1 = $this->parsetemplate_preproc($silence, $boolParams, $param_templatedepth, self::newRef("}}"), $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsebroken_template($silence, &$param_preproc) {
-    $key = implode(':', [352, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [352, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -7270,33 +7328,35 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetplarg($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = implode(':', [356, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [356, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
     $r1 = $this->parsetplarg_preproc($silence, $boolParams, $param_templatedepth, self::newRef("}}"), $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardwikilink($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [399, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [399, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -7309,18 +7369,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsedirective($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [540, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [540, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -7401,18 +7462,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardxmlish_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [423, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [423, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7450,18 +7512,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text_single($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [556, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [556, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7611,18 +7674,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text_double($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [558, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [558, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7772,18 +7836,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [554, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [554, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -7937,17 +8002,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseless_than($silence, $boolParams) {
-    $key = implode(':', [432, $this->currPos, $boolParams & 0x800]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [432, $boolParams & 0x800]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     // start seq_1
@@ -7980,18 +8046,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parseattribute_preprocessor_text_single($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [550, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [550, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -8183,18 +8250,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseattribute_preprocessor_text_double($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [552, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [552, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -8386,18 +8454,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseattribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [548, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [548, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -8593,18 +8662,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseautolink($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [326, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [326, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -8659,17 +8729,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsebehavior_switch($silence) {
-    $key = implode(':', [322, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 322;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $p4 = $this->currPos;
@@ -8717,17 +8788,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetext_char($silence) {
-    $key = implode(':', [486, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 486;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strcspn($this->input, "-'<~[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
       $r1 = self::consumeChar($this->input, $this->currPos);
@@ -8737,18 +8809,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsexmlish_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [422, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [422, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -8786,18 +8859,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_or_tpl($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [368, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [368, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -9132,18 +9206,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsewikilink($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [398, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [398, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -9156,17 +9231,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsequote($silence) {
-    $key = implode(':', [408, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 408;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $p4 = $this->currPos;
@@ -9222,17 +9298,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseredirect_word($silence) {
-    $key = implode(':', [290, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 290;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     // start seq_1
@@ -9382,18 +9459,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parseinclude_limits($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [526, $this->currPos, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [526, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -9483,18 +9561,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseheading($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [318, $this->currPos, $boolParams & 0x1bfc, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [318, $boolParams & 0x1bfc, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -9670,18 +9749,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselist_item($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [444, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [444, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -9698,18 +9778,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsehr($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [304, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [304, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -9798,18 +9879,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [460, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [460, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -9898,18 +9980,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsexmlish_tag_opened($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [424, $this->currPos, $boolParams & 0x1fae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [424, $boolParams & 0x1fae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -10001,17 +10084,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseempty_line_with_comments($silence) {
-    $key = implode(':', [520, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 520;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -10143,17 +10227,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsesol_prefix($silence) {
-    $key = implode(':', [518, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 518;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->parsenewlineToken($silence);
@@ -10173,18 +10258,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardtplarg_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [359, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [359, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -10469,18 +10555,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [354, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [354, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -10814,18 +10901,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetplarg_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [358, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [358, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -11110,18 +11198,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardwikilink_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [403, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [403, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -11185,18 +11274,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, $param_templatedepth, &$param_th) {
-    $key = implode(':', [401, $this->currPos, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [401, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -11272,18 +11362,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseextension_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [410, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [410, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -11323,18 +11414,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseautourl($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [340, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [340, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -11756,17 +11848,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseautoref($silence) {
-    $key = implode(':', [330, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 330;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -11855,17 +11948,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseisbn($silence) {
-    $key = implode(':', [332, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 332;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -12075,17 +12169,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardbehavior_text($silence) {
-    $key = implode(':', [325, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 325;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     // start seq_1
@@ -12164,18 +12259,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parselang_variant($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = implode(':', [372, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [372, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
@@ -12188,18 +12284,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsewikilink_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [402, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [402, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -12263,18 +12360,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, $param_templatedepth, &$param_th) {
-    $key = implode(':', [400, $this->currPos, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [400, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -12350,17 +12448,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsespaces($silence) {
-    $key = implode(':', [494, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 494;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     $r3 = $this->input[$this->currPos] ?? '';
@@ -12390,18 +12489,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parsedtdd($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [450, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [450, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -12572,18 +12672,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsehacky_dl_uses($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [448, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [448, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -12693,18 +12794,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseli($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [446, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [446, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -12758,18 +12860,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardsol($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [517, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [517, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start seq_1
@@ -12797,17 +12900,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parseoptionalNewlines($silence) {
-    $key = implode(':', [512, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 512;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     $p4 = $this->currPos;
@@ -12881,18 +12985,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_content_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [462, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [462, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start seq_1
@@ -12942,17 +13047,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parsetable_end_tag($silence) {
-    $key = implode(':', [482, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 482;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -13015,17 +13121,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetag_name($silence) {
-    $key = implode(':', [418, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 418;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p1 = $this->currPos;
     // start seq_1
@@ -13062,17 +13169,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function parsenewline($silence) {
-    $key = implode(':', [532, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 532;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     if (($this->input[$this->currPos] ?? null) === "\x0a") {
@@ -13093,18 +13201,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate_param_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [364, $this->currPos, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [364, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -13118,17 +13227,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardnl_comment_space($silence) {
-    $key = implode(':', [525, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 525;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardnewlineToken($silence);
@@ -13139,17 +13249,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenl_comment_space($silence) {
-    $key = implode(':', [524, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 524;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->parsenewlineToken($silence);
@@ -13160,18 +13271,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate_param($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [360, $this->currPos, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [360, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -13270,18 +13382,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsewikilink_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [542, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [542, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -13521,18 +13634,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsewikilink_content($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [396, $this->currPos, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [396, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = [];
@@ -13605,17 +13719,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsespace_or_nbsp($silence) {
-    $key = implode(':', [508, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 508;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->parsespace($silence);
@@ -13655,17 +13770,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardend_of_word($silence) {
-    $key = implode(':', [505, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 505;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardeof($silence);
@@ -13689,17 +13805,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsespace_or_nbsp_or_dash($silence) {
-    $key = implode(':', [510, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 510;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->parsespace_or_nbsp($silence);
@@ -13716,18 +13833,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [374, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [374, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -13891,17 +14009,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsebroken_lang_variant($silence, &$param_preproc) {
-    $key = implode(':', [370, $this->currPos, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [370, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $p2 = $this->currPos;
     // start seq_1
@@ -13925,17 +14044,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardlist_char($silence) {
-    $key = implode(':', [453, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 453;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strspn($this->input, "*#:;", $this->currPos, 1) !== 0) {
       $r1 = $this->input[$this->currPos++];
@@ -13945,17 +14065,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselist_char($silence) {
-    $key = implode(':', [452, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 452;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strspn($this->input, "*#:;", $this->currPos, 1) !== 0) {
       $r1 = $this->input[$this->currPos++];
@@ -13965,18 +14086,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseinlineline_break_on_colon($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [454, $this->currPos, $boolParams & 0xbfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [454, $boolParams & 0xbfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -13990,17 +14112,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardcomment_space_eolf($silence) {
-    $key = implode(':', [539, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 539;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start seq_1
     $p1 = $this->currPos;
@@ -14056,17 +14179,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $r2,$p1
     $cached = ['nextPos' => $this->currPos, 'result' => $r2];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r2;
   }
   private function discardempty_line_with_comments($silence) {
-    $key = implode(':', [521, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 521;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -14198,17 +14322,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardsol_prefix($silence) {
-    $key = implode(':', [519, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 519;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardnewlineToken($silence);
@@ -14228,18 +14353,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardcomment_or_includes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [515, $this->currPos, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [515, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -14264,33 +14390,35 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_heading_tags($silence, $boolParams, $param_templatedepth, &$param_preproc) {
-    $key = implode(':', [476, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [476, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
     $r1 = $this->parsetable_heading_tags_parameterized($silence, $boolParams, $param_templatedepth, $param_preproc, self::newRef(true));
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_row_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [468, $this->currPos, $boolParams & 0x3bef, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [468, $boolParams & 0x3bef, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14380,18 +14508,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_data_tags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [472, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [472, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14463,18 +14592,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_caption_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [466, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [466, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14538,17 +14668,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardtag_name_chars($silence) {
-    $key = implode(':', [417, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 417;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strcspn($this->input, "\x09\x0a\x0b />\x00", $this->currPos, 1) !== 0) {
       $r1 = self::consumeChar($this->input, $this->currPos);
@@ -14558,18 +14689,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate_param_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [366, $this->currPos, $boolParams & 0x1b8a, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [366, $boolParams & 0x1b8a, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14605,17 +14737,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardcomment_space($silence) {
-    $key = implode(':', [523, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 523;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->discardcomment($silence);
@@ -14626,17 +14759,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsecomment_space($silence) {
-    $key = implode(':', [522, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 522;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     $r1 = $this->parsecomment($silence);
@@ -14647,18 +14781,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetemplate_param_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [362, $this->currPos, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [362, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14690,17 +14825,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardtext_char($silence) {
-    $key = implode(':', [487, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 487;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     if (strcspn($this->input, "-'<~[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
       $r1 = self::consumeChar($this->input, $this->currPos);
@@ -14710,35 +14846,37 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselink_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [404, $this->currPos, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [404, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = $this->parselink_text_parameterized($silence, ($boolParams & ~0x8) | 0x200, $param_templatedepth, $param_preproc, $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseunispace($silence) {
-    $key = implode(':', [506, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 506;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $r1 = self::charAt($this->input, $this->currPos);
     if (preg_match("/^[ \\x{a0}\\x{1680}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}]/u", $r1)) {
@@ -14749,18 +14887,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parseopt_lang_variant_flags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [376, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [376, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14801,18 +14940,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [390, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [390, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -14856,18 +14996,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_option_list($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [384, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [384, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -14992,17 +15133,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardcomment($silence) {
-    $key = implode(':', [321, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 321;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     $p2 = $this->currPos;
     // start seq_1
@@ -15116,18 +15258,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardinclude_limits($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [527, $this->currPos, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [527, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -15217,18 +15360,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_heading_tags_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [478, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [478, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -15332,18 +15476,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_data_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [474, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [474, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -15399,18 +15544,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetds($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [470, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [470, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = [];
@@ -15531,18 +15677,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenested_block_in_table($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [300, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [300, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -15639,18 +15786,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenested_block($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [298, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [298, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -15684,18 +15832,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselink_text_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [406, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [406, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -16025,18 +16174,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_flags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [378, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [378, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -16137,18 +16287,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_option($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [386, $this->currPos, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [386, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -16377,18 +16528,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsetable_heading_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [480, $this->currPos, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [480, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -16460,17 +16612,18 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsepipe_pipe($silence) {
-    $key = implode(':', [562, $this->currPos]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = 562;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
   
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
   
     // start choice_1
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "||", $this->currPos, 2, false) === 0) {
@@ -16491,18 +16644,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardrow_syntax_table_args($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [485, $this->currPos, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [485, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -16550,18 +16704,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsefull_table_in_link_caption($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [456, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [456, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -16610,18 +16765,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_flag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [380, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [380, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -16749,18 +16905,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [382, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [382, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     // start choice_1
@@ -16815,18 +16972,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_nowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [388, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [388, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -16865,54 +17023,57 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_text_no_semi($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [392, $this->currPos, $boolParams & 0x1b7e, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [392, $boolParams & 0x1b7e, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = $this->parselang_variant_text($silence, $boolParams | 0x80, $param_templatedepth, $param_preproc, $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [394, $this->currPos, $boolParams & 0x1a7e, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [394, $boolParams & 0x1a7e, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $r1 = $this->parselang_variant_text_no_semi($silence, $boolParams | 0x100, $param_templatedepth, $param_preproc, $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsefull_table_in_link_caption_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [458, $this->currPos, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [458, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -17111,18 +17272,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function discardnowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [413, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [413, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -17154,18 +17316,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenowiki_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [414, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [414, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -17179,18 +17342,19 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
   private function parsenowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = implode(':', [412, $this->currPos, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
-    $cached = $this->cache[$key] ?? null;
-      if ($cached) {
-        $this->currPos = $cached['nextPos'];
+    $key = implode(':', [412, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
         if (isset($cached['refs']["preproc"])) $param_preproc = $cached['refs']["preproc"];
         if (isset($cached['refs']["th"])) $param_th = $cached['refs']["th"];
-        return $cached['result'];
-      }
+      return $cached['result'];
+    }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
     $p2 = $this->currPos;
@@ -17222,7 +17386,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached['refs']["preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached['refs']["th"] = $param_th;
-    $this->cache[$key] = $cached;
+    $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
 
