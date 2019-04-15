@@ -22,7 +22,6 @@ class PHPPipelineStage {
 		this.pipeFactory = pipeFactory;
 		this.stageName = name;
 		this.options = options;
-		this.tokens = [];
 		this.resetState();
 	}
 
@@ -119,6 +118,7 @@ class PHPPipelineStage {
 	}
 
 	resetState() {
+		this.tokens = [];
 		this.sourceOffsets = null;
 	}
 
