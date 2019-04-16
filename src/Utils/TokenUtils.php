@@ -429,25 +429,35 @@ class TokenUtils {
 	 *
 	 * @see TokenUtils::convertOffsets()
 	 *
-	 * @param string $s
-	 * @param string $from
-	 * @param string $to
-	 * @param array $tokens
+	 * @param string $s The offset reference string
+	 * @param string $from Offset type to convert from
+	 * @param string $to Offset type to convert to
+	 * @param array<Token> $tokens
 	 */
-	public static function convertTokenOffsets( string $s, string $from, string $to, array $tokens
+	public static function convertTokenOffsets(
+		string $s, string $from, string $to, array $tokens
 	) : void {
 		$offsets = [];
 		self::collectOffsets( $offsets, $tokens );
 		self::convertOffsets( $s, $from, $to, $offsets );
+		self::fixupOffsets( $tokens );
 	}
 
-	private static function pushOffsets( &$dest, &$source ) {
+	/**
+	 * @param array<int> $dest
+	 * @param array<int> $source
+	 */
+	private static function pushOffsets( array &$dest, array &$source ): void {
 		foreach ( $source as &$offset ) {
 			$dest[] =& $offset;
 		}
 	}
 
-	private static function collectOffsets( &$offsets, $input ) {
+	/**
+	 * @param array<int> $offsets
+	 * @param array<Token>|array<KV>|KV|Token|string $input
+	 */
+	private static function collectOffsets( array &$offsets, $input ): void {
 		if ( is_array( $input ) ) {
 			foreach ( $input as $token ) {
 				self::collectOffsets( $offsets, $token );
@@ -471,7 +481,35 @@ class TokenUtils {
 			if ( isset( $input->dataAttribs->tokens ) ) {
 				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
 			}
+			if ( isset( $input->dataAttribs->tagWidths ) ) {
+				// This is tricky: convert these to offsets, and then reconvert
+				// to widths in a post-processing pass
+				$input->dataAttribs->tagWidths[0] = $input->dataAttribs->tsr[0] + $input->dataAttribs->tagWidths[0];
+				$input->dataAttribs->tagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->tagWidths[1];
+				self::pushOffsets( $offsets, $input->dataAttribs->tagWidths );
+			}
 			self::collectOffsets( $offsets, $input->attribs );
+		}
+	}
+
+	/**
+	 * @param array<Token>|array<KV>|KV|Token|string $input
+	 */
+	private static function fixupOffsets( $input ):void {
+		if ( is_array( $input ) ) {
+			foreach ( $input as $token ) {
+				self::fixupOffsets( $token );
+			}
+		} elseif ( $input instanceof KV ) {
+			self::fixupOffsets( $input->v );
+		} elseif ( $input instanceof Token ) {
+			if ( isset( $input->dataAttribs->tagWidths ) ) {
+				// Reconvert offsets to widths
+				// to widths in a post-processing pass
+				$input->dataAttribs->tagWidths[0] = $input->dataAttribs->tagWidths[0] - $input->dataAttribs->tsr[0];
+				$input->dataAttribs->tagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->tagWidths[1];
+			}
+			self::fixupOffsets( $input->attribs );
 		}
 	}
 
