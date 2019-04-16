@@ -53,7 +53,6 @@ $DedupeStyles = $requireHandlers( 'DedupeStyles' );
 $HandleLinkNeighbours = $requireHandlers( 'HandleLinkNeighbours' );
 $Headings = $requireHandlers( 'Headings' );
 $LiFixups = $requireHandlers( 'LiFixups' );
-$PrepareDOM = $requireHandlers( 'PrepareDOM' );
 $TableFixups = $requireHandlers( 'TableFixups' );
 $UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
 
@@ -65,7 +64,6 @@ $UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
  */
 function DOMPostProcessor( $env, $options ) {
 	global $TableFixups;
-	global $PrepareDOM;
 	global $MarkFosteredContent;
 	global $ProcessTreeBuilderFixups;
 	global $Normalize;
@@ -93,7 +91,6 @@ function DOMPostProcessor( $env, $options ) {
 	$this->env = $env;
 	$this->options = $options;
 	$this->seenIds = new Set();
-	$this->seenDataIds = new Set();
 
 	$tableFixer = new TableFixups( $env );
 
@@ -120,17 +117,6 @@ function DOMPostProcessor( $env, $options ) {
 	 * --------------------------------------------------------------------------- */
 
 	$processors = [
-		// DOM traverser that runs before the in-order DOM handlers.
-		[
-			'name' => 'dpLoader',
-			'isTraverser' => true,
-			'handlers' => [
-				[
-					'nodeName' => null,
-					'action' => function ( ...$args ) use ( &$PrepareDOM ) {return  PrepareDOM::prepareDOM( $this->seenDataIds, ...$args ); }
-				]
-			]
-		],
 		// Common post processing
 		[
 			'Processor' => $MarkFosteredContent,
@@ -444,7 +430,6 @@ DOMPostProcessor::prototype::resetState = function ( $opts ) {
 	$this->atTopLevel = $opts && $opts->toplevel;
 	$this->env->page->meta->displayTitle = null;
 	$this->seenIds->clear();
-	$this->seenDataIds->clear();
 };
 
 // map from mediawiki metadata names to RDFa property names

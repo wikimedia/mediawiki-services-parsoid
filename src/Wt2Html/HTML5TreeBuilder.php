@@ -30,6 +30,10 @@ $CommentTk = $temp0::CommentTk;
 $temp1 = require '../utils/DOMDataUtils.js';
 $DOMDataUtils = $temp1::DOMDataUtils;
 $Bag = $temp1::Bag;
+$temp2 = require '../utils/DOMTraverser.js';
+$DOMTraverser = $temp2::DOMTraverser;
+$temp3 = require './pp/handlers/PrepareDOM.js';
+$PrepareDOM = $temp3::PrepareDOM;
 
 /**
  * @class
@@ -133,6 +137,21 @@ class TreeBuilder extends undefined {
 		// Special case where we can't call `env.createDocument()`
 		$doc = $this->parser->document();
 		$this->env->referenceDataObject( $doc, $this->bag );
+
+		// Preparing the DOM is considered one "unit" with treebuilding,
+		// so traversing is done here rather than during post-processing.
+		//
+		// Necessary when testing the port, since:
+		// - de-duplicating data-object-ids must be done before we can store
+		// data-attributes to cross language barriers;
+		// - the calls to fosterCommentData below are storing data-object-ids,
+		// which must be reinserted, again before storing ...
+		$seenDataIds = new Set();
+		$t = new DOMTraverser();
+		$t->addHandler( null, function ( ...$args ) use ( &$PrepareDOM, &$seenDataIds ) {return PrepareDOM::prepareDOM( $seenDataIds, ...$args );
+  } );
+		$t->traverse( $doc->body, $this->env );
+
 		$this->emit( 'document', $doc );
 
 		$this->emit( 'end' );
