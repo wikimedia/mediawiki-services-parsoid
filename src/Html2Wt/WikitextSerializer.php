@@ -1626,7 +1626,6 @@ WikitextSerializer::prototype::separatorREs = [
 	'pureSepRE' => /* RegExp */ '/^[ \t\r\n]*$/',
 	'sepPrefixWithNlsRE' => /* RegExp */ '/^[ \t]*\n+[ \t\r\n]*/',
 	'sepSuffixWithNlsRE' => /* RegExp */ '/\n[ \t\r\n]*$/',
-	'doubleNewlineRE_G' => /* RegExp */ '/\n([ \t]*\n)+/g'
 ];
 
 /**
@@ -1652,25 +1651,6 @@ WikitextSerializer::prototype::_serializeText = function ( $res, $node, $omitEsc
 	if ( $omitEscaping ) {
 		$state->emitChunk( $res, $node );
 	} else {
-		if ( !$state->inIndentPre ) {
-			$doubleNewlineMatch = preg_match( $this->separatorREs->doubleNewlineRE_G, $res );
-			$doubleNewlineCount = $doubleNewlineMatch && count( $doubleNewlineMatch ) || 0;
-
-			// Don't strip two newlines for wikitext like this:
-			// <div>foo
-			//
-			// bar</div>
-			// The PHP parser won't create paragraphs on lines that also contain
-			// block-level tags.
-			if ( !$state->inHTMLPre
-&&					// These conditions are at least safe, given the above constraint
-					( !DOMUtils::allChildrenAreText( $node->parentNode ) || $doubleNewlineCount > 1 )
-			) {
-				// Strip more than one consecutive newline
-				$res = str_replace( $this->separatorREs->doubleNewlineRE_G, "\n", $res );
-			}
-		}
-
 		// Always escape entities
 		$res = Util::escapeWtEntities( $res );
 

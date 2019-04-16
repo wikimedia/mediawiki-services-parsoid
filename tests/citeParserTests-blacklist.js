@@ -88,7 +88,6 @@ add("wt2wt", "<ref> with a non-empty name parameter and no content.", "Bla.<ref 
 add("wt2wt", "<ref>s with the follow parameter", "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n==References==\n<references />");
 add("wt2wt", "Multiple definition (inside {{#tag:references}})", "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n<references />");
 add("wt2wt", "Ref: 3. spaces in ref-names should be ignored", "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n<references />");
-add("wt2wt", "Ref: 7. No p-wrapping in ref-body", "A <ref>\nfoo\nbar\nbaz\nbooz\n</ref>\n\n<references />");
 add("wt2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref><nowiki> foo {{echo|</nowiki></ref><nowiki> B C}}</nowiki>\n\n<references />");
 add("wt2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref> foo <!----></ref> B C\n<references />");
 add("wt2wt", "References: 9. Generate missing references list at the end", "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>\n<references />\n<references group=\"inexistent\" />");
@@ -167,7 +166,6 @@ add("html2wt", "Multiple definition (mixed outside/inside)", "<sup id=\"cite_ref
 add("html2wt", "Multiple definition (inside {{#tag:references}})", "<sup id=\"cite_ref-a_1-0\" class=\"reference\">[[#cite_note-a-1|[1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-a_1-0|↑]]</span> <span class=\"reference-text\">abc <span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag; name \"a\" defined multiple times with different content</span></span>\n\n</div>");
 add("html2wt", "Ref: 3. spaces in ref-names should be ignored", "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n<references />");
 add("html2wt", "Ref: 5. body should accept generic wikitext", "A <ref> This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />");
-add("html2wt", "Ref: 7. No p-wrapping in ref-body", "A <ref>\nfoo\nbar\nbaz\nbooz\n</ref>\n\n<references />");
 add("html2wt", "Ref: 8. transclusion wikitext has lower precedence", "A <ref><nowiki> foo {{echo|</nowiki></ref><nowiki> B C}}</nowiki>\n<references />");
 add("html2wt", "Ref: 9. unclosed comments should not leak out of ref-body", "A <ref> foo <!----></ref> B C\n<references />");
 add("html2wt", "References: 9. Generate missing references list at the end", "A <ref>foo</ref> B <ref group=\"inexistent\">bar</ref>\n<references />\n<references group=\"inexistent\" />");
@@ -399,20 +397,6 @@ add("selser", "Ref: 3. spaces in ref-names should be ignored [1,0,0]", "A <ref n
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[3,0,0,0,0,0],3,0]", "<ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  /><references />");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[3,0,4,0,2,0],0,0]", "<ref name=\"x\">foo</ref>1rpjo1b<ref name=\" x \" />rjd0zn\nC <ref name= x  />\n<references />");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,0,0,4,0],0,0]", "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />xidipo<ref name= x  />\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [2,4,0]", "11gmkak\n\nA <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\nsk6g75<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [1,0,0]", "A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [2,0,0]", "19hkhl7\n\nA <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[4,0],3,0]", "mhw4l<ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref><references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [0,4,0]", "A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n17wtnne<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [2,3,0]", "8w30ur\n\nA <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref><references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [1,4,0]", "A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\nvrpcfk<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [0,2,0]", "A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\ndbwcqg\n\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[4,0],0,0]", "z8di7p<ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[3,0],0,0]", "<ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [1,3,0]", "A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref><references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[2,0],4,0]", "66snq8A <ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\nwxakw7<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[4,0],4,0]", "1m1b33i<ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref>\n\n4e9v8b<references />");
-add("selser", "Ref: 7. No p-wrapping in ref-body [[3,0],3,0]", "<ref>\nfoo\n\nbar\n\n\nbaz\n\n\n\nbooz\n</ref><references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [[3,0,0],0,0]", "<ref> foo {{echo|</ref> B C}}\n\n<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [0,2,0]", "A <ref> foo {{echo|</ref> B C}}\n\nndg5c4\n\n<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [[0,0,2],2,0]", "A <ref> foo {{echo|</ref><nowiki>b5njrh B C}}</nowiki>\n\na1gxhc\n\n<references />");
