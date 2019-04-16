@@ -256,7 +256,7 @@ ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) us
 	}
 	$stages = [];
 	$PHPBuffer = null;
-$PHPTokenTransform = null;
+$PHPTokenTransformer = null;
 $PHPPipelineStage = null;
 	for ( $i = 0,  $l = count( $recipe );  $i < $l;  $i++ ) {
 		// create the stage
@@ -313,10 +313,10 @@ $PHPPipelineStage = null;
 							if ( !$PHPBuffer ) {
 								// Add a buffer before the first PHP transformer
 								$PHPBuffer = require '../../tests/porting/hybrid/PHPBuffer.js'::PHPBuffer;
-								$PHPTokenTransform = require '../../tests/porting/hybrid/PHPTokenTransform.js'::PHPTokenTransform;
+								$PHPTokenTransformer = require '../../tests/porting/hybrid/PHPTokenTransformer.js'::PHPTokenTransformer;
 								$stage->transformers[] = new PHPBuffer( $stage, $options );
 							}
-							$stage->transformers[] = new PHPTokenTransform( $this->env, $stage, T::name, $options );
+							$stage->transformers[] = new PHPTokenTransformer( $this->env, $stage, T::name, $options );
 						} else {
 							$stage->transformers[] = new T( $stage, $options );
 						}
