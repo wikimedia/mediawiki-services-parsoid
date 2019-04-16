@@ -325,16 +325,16 @@ class TokenizerUtils {
 		if ( $token && ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) ) {
 			switch ( $token->getName() ) {
 				case 'listItem':
-					$env->bumpParserResourceUse( 'listItem' );
+					$env->bumpWt2HtmlResourceUse( 'listItem' );
 					break;
 
 				case 'template':
-					$env->bumpParserResourceUse( 'transclusion' );
+					$env->bumpWt2HtmlResourceUse( 'transclusion' );
 					break;
 
 				case 'td':
 				case 'th':
-					$env->bumpParserResourceUse( 'tableCell' );
+					$env->bumpWt2HtmlResourceUse( 'tableCell' );
 					break;
 			}
 		}

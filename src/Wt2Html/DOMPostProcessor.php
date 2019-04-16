@@ -772,7 +772,7 @@ DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) u
 			$env->printTimeProfile();
 		}
 		if ( $psd->dumpFlags && $psd->dumpFlags->has( 'wt2html:limits' ) ) {
-			$env->printParserResourceUsage( [ 'HTML Size' => count( $document->outerHTML ) ] );
+			$env->printWt2HtmlResourceUsage( [ 'HTML Size' => count( $document->outerHTML ) ] );
 		}
 	}
 

@@ -301,7 +301,7 @@ class Env {
 	 * @param string $resource
 	 * @param int $count How much of the resource is used?
 	 */
-	public function bumpParserResourceUse( string $resource, int $count = 1 ): void {
+	public function bumpWt2HtmlResourceUse( string $resource, int $count = 1 ): void {
 		throw new \BadMethodCallException( 'not yet ported' );
 	}
 

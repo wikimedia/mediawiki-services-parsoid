@@ -243,7 +243,7 @@ $module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCa
 					}
 				}
 				$html = $obj->input;
-				$env->bumpSerializerResourceUse( 'htmlSize', count( $env ) );
+				$env->bumpHtml2WtResourceUse( 'htmlSize', count( $env ) );
 				$out = /* await */ $_fromHTML( $obj, $env, $html, $obj->pb );
 				return ( $obj->mode === 'html2html' ) ? $_toHTML( $obj, $env, $out->wt ) : $out;
 			} else { /* wt2html, wt2wt */
@@ -272,7 +272,7 @@ $module->exports = Promise::async( function ( $obj ) use ( &$JSUtils, &$configCa
 				}
 
 				$wikitextSize = ( $wt !== null ) ? count( $wt ) : count( $env->page->src );
-				$env->bumpParserResourceUse( 'wikitextSize', $wikitextSize );
+				$env->bumpWt2HtmlResourceUse( 'wikitextSize', $wikitextSize );
 				if ( $parsoidConfig->metrics ) {
 					$mstr = ( $obj->envOptions->pageWithOldid ) ? 'pageWithOldid' : 'wt';
 					$parsoidConfig->metrics->timing( "wt2html.{$mstr}.size.input", $wikitextSize );

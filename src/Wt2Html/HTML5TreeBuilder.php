@@ -186,7 +186,7 @@ class TreeBuilder extends undefined {
 	 */
 	public function processToken( $token ) {
 		if ( $this->pipelineId === 0 ) {
-			$this->env->bumpParserResourceUse( 'token' );
+			$this->env->bumpWt2HtmlResourceUse( 'token' );
 		}
 
 		$attribs = $token->attribs || [];
