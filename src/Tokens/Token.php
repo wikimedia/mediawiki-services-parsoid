@@ -253,7 +253,7 @@ abstract class Token implements \JsonSerializable {
 	/**
 	 * @param mixed $a
 	 */
-	private static function rebuildNestedTokens( $a ): void {
+	private static function rebuildNestedTokens( &$a ): void {
 		foreach ( $a as &$v ) {
 			$v = self::getToken( $v );
 		}
