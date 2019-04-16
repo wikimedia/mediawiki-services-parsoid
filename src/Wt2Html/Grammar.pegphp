@@ -178,7 +178,7 @@
 
 			case TagTk::class:
 				$tsr0 = $dp->tsr[0];
-				$endTagRE = '~.*?(</\s*' . preg_quote( $tagName, '~' ) . '\s*>)~isA';
+				$endTagRE = '~.*?(</\s*' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
 				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $tsr0 );
 
 				if ( !$tagContentFound ) {
