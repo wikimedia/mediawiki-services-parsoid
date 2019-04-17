@@ -517,7 +517,8 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 	var blacklisted = false;
 	if (ScriptUtils.booleanOption(options.blacklist) && expectFail) {
 		// compare with remembered output
-		if (bl[title][mode] !== actual.raw) {
+		var normalizeAbout = s => s.replace(/(about=\\?["']#mwt)\d+/g, '$1');
+		if (normalizeAbout(bl[title][mode]) !== normalizeAbout(actual.raw)) {
 			blacklisted = true;
 		} else {
 			if (!ScriptUtils.booleanOption(options.quiet)) {
