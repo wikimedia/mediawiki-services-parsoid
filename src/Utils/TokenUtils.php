@@ -11,7 +11,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use stdClass as StdClass;
+use DOMNode;
+use stdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
@@ -23,6 +24,8 @@ use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+
+use Wikimedia\Assert\Assert;
 
 class TokenUtils {
 	const SOL_TRANSPARENT_LINK_REGEX = '/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/';
@@ -80,11 +83,11 @@ class TokenUtils {
 	/**
 	 * Determine whether the current token was an HTML tag in wikitext.
 	 *
-	 * @param Token|string $token
+	 * @param Token|string|null $token
 	 * @return bool
 	 */
 	public static function isHTMLTag( $token ): bool {
-		return !is_string( $token ) &&
+		return $token && !is_string( $token ) &&
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
 			$token instanceof SelfClosingTagTk ) &&
@@ -99,7 +102,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isDOMFragmentType( string $typeOf ): bool {
-		return (bool)preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf );
+		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf ) === 1;
 	}
 
 	/**
@@ -305,12 +308,12 @@ class TokenUtils {
 	 * editing clients and they are expected to not modify it either.
 	 *
 	 * @param ?string $content
-	 * @param StdClass $openTagAttribs
-	 * @param StdClass $closeTagAttribs
+	 * @param stdClass $openTagAttribs
+	 * @param stdClass $closeTagAttribs
 	 * @return array
 	 */
 	public static function placeholder(
-		?string $content, StdClass $openTagAttribs, StdClass $closeTagAttribs
+		?string $content, stdClass $openTagAttribs, stdClass $closeTagAttribs
 	): array {
 		if ( $content === null ) {
 			return [
@@ -513,13 +516,20 @@ class TokenUtils {
 		}
 	}
 
-/**
-	public static function isEntitySpanToken($token) {
-		return $token->constructor === $TagTk && $token->name === 'span'
-&&			$token->getAttribute( 'typeof' ) === 'mw:Entity';
+	/**
+	 * Tests whether token represents an HTML entity.
+	 * Think `<span typeof="mw:Entity">`.
+	 * @param Token|string|null $token
+	 * @return bool
+	 */
+	public static function isEntitySpanToken( $token ): bool {
+		return $token &&
+			$token instanceof TagTk &&
+			$token->getName() === 'span' &&
+			$token->getAttribute( 'typeof' ) === 'mw:Entity';
 	}
 
-	//
+	/**
 	* Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
 	//
 	public static function newlinesToNlTks($str, $tsr0) {
@@ -571,43 +581,51 @@ class TokenUtils {
 		}
 		return $toks;
 	}
+*/
 
-	public static function tokensToString($tokens, $strict, $opts) {
+	/**
+	 * Flatten/convert a token array into a string.
+	 * @param array<Token|string> $tokens
+	 * @param bool $strict Whether to abort as soon as we find a token we
+	 *   can't stringify.
+	 * @param array<string,bool|Env> $opts
+	 * @return string|array{0:string,1:Array<Token|string>}
+	 *   The stringified tokens. If $strict is true, returns a two-element
+	 *   array containing string prefix and the remainder of the tokens as
+	 *   soon as we encounter something we can't stringify.
+	 */
+	public static function tokensToString(
+		array $tokens, bool $strict = false, array $opts = []
+	) {
 		$out = '';
-		if ( !$opts ) {
-			$opts = [];
-		}
-		// XXX: quick hack, track down non-array sources later!
-		if ( !is_array( $tokens ) ) {
-			$tokens = [ $tokens ];
-		}
 		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
 			$token = $tokens[ $i ];
 			if ( !$token ) {
 				continue;
-			} elseif ( $token->constructor === $String ) {
-				$out += $token;
-			} elseif ( $token->constructor === $CommentTk
-||					( !$opts->retainNLs && $token->constructor === $NlTk )
+			} elseif ( is_string( $token ) ) {
+				$out .= $token;
+			} elseif (
+				$token instanceof CommentTk ||
+				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )
 			) {
-
 				// strip comments and newlines
-			} else if ( $opts->stripEmptyLineMeta && $this->isEmptyLineMetaToken( $token ) ) {
-
+			} elseif ( !empty( $opts['stripEmptyLineMeta'] ) && self::isEmptyLineMetaToken( $token ) ) {
 				// If requested, strip empty line meta tokens too.
-			} else if ( $opts->includeEntities && $this->isEntitySpanToken( $token ) ) {
-				$out += $token->dataAttribs->src;
+			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
+				$out .= $token->dataAttribs->src;
 				$i += 2; // Skip child and end tag.
-			} else if ( $strict ) {
+			} elseif ( $strict ) {
 				// If strict, return accumulated string on encountering first non-text token
 				return [ $out, array_slice( $tokens, $i ) ];
-			} elseif ( $opts->unpackDOMFragments
-&&					array_search( $token->constructor, [ $TagTk, $SelfclosingTagTk ] ) !== -1
-&&					$this->isDOMFragmentType( $token->getAttribute( 'typeof' ) )
+			} elseif (
+				!empty( $opts['unpackDOMFragments'] ) &&
+				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
+				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) )
 			) {
 				// Handle dom fragments
-				$nodes = $opts->env->fragmentMap->get( $token->dataAttribs->html );
-				$out += array_reduce( $nodes, function ( $prev, $next ) {
+				$fragmentMap = $opts['env']->getFragmentMap();
+				$nodes = $fragmentMap[ $token->dataAttribs->html ];
+				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
 						// FIXME: The correct thing to do would be to return
 						// `next.outerHTML` for the current scenarios where
 						// `unpackDOMFragments` is used (expanded attribute
@@ -615,29 +633,24 @@ class TokenUtils {
 						// the span wrapping and typeof annotation of extension
 						// content and nowikis.  Since we're primarily expecting
 						// to find <translate> and <nowiki> here, this will do.
-						return $prev + $next->textContent;
-					}, ''
-				)
-
-
-
-
-
-
-
-
-				;
-				if ( $token->constructor === $TagTk ) {
+						return $prev . $next->textContent;
+				}, '' );
+				if ( $token instanceof TagTk ) {
 					$i += 1; // Skip the EndTagTK
-					Assert::invariant( $i >= $l || $tokens[ $i ]->constructor === $EndTagTk );
+					Assert::invariant(
+						$i >= $l || $tokens[ $i ] instanceof EndTagTk,
+						"tag should be followed by endtag"
+					);
 				}
 			} elseif ( is_array( $token ) ) {
-				$out += $this->tokensToString( $token, $strict, $opts );
+				Assert::invariant( !$strict, "strict case handled above" );
+				$out .= self::tokensToString( $token, $strict, $opts );
 			}
 		}
 		return $out;
 	}
 
+	/**
 	public static function flattenAndAppendToks($array, $prefix, $t) {
 		if ( is_array( $t ) || $t->constructor === $String ) {
 			if ( count( $t ) > 0 ) {
@@ -655,94 +668,79 @@ class TokenUtils {
 
 		return $array;
 	}
+*/
 
-	//
+	/**
 	 * Convert an array of key-value pairs into a hash of keys to values. For
 	 * duplicate keys, the last entry wins.
-	//
-	public static function kvToHash($kvs, $convertValuesToString, $useSrc) {
-		if ( !$kvs ) {
-			$console->warn( 'Invalid kvs!: ' . json_encode( $kvs, null, 2 ) );
-			return [];
-		}
+	 * @param array<KV> $kvs
+	 * @param bool $convertValuesToString
+	 * @param bool $useSrc
+	 * @return array<string,Token[]>
+	 */
+	public static function kvToHash( array $kvs, $convertValuesToString = false, $useSrc = false ): array {
 		$res = [];
-		for ( $i = 0,  $l = count( $kvs );  $i < $l;  $i++ ) {
-			$kv = $kvs[ $i ];
-			$key = trim( $this->tokensToString( $kv->k ) );
+		foreach ( $kvs as $kv ) {
+			$key = trim( self::tokensToString( $kv->k ) );
 			// SSS FIXME: Temporary fix to handle extensions which use
 			// entities in attribute values. We need more robust handling
 			// of non-string template attribute values in general.
 			$val = ( $useSrc && $kv->vsrc !== null ) ? $kv->vsrc :
-			( $convertValuesToString ) ? $this->tokensToString( $kv->v ) : $kv->v;
-			$res[ strtolower( $key ) ] = $this->tokenTrim( $val );
+				 ( $convertValuesToString ? self::tokensToString( $kv->v ) : $kv->v );
+			$res[ strtolower( $key ) ] = self::tokenTrim( $val );
 		}
 		return $res;
 	}
 
-	//
+	/**
 	 * Trim space and newlines from leading and trailing text tokens.
-	//
-	public static function tokenTrim($tokens) {
+	 * @param string|Token|array<Token> $tokens
+	 * @return string|Token|array<Token>
+	 */
+	public static function tokenTrim( $tokens ) {
 		if ( !is_array( $tokens ) ) {
+			if ( is_string( $tokens ) ) {
+				return trim( $tokens );
+			}
 			return $tokens;
 		}
 
-		// Since the tokens array might be frozen,
-		// we have to create a new array -- but, create it
-		// only if needed
-		//
-		// FIXME: If tokens is not frozen, we can avoid
-		// all this circus with leadingToks and trailingToks
-		// but we will need a new function altogether -- so,
-		// something worth considering if this is a perf. problem.
-
-		$i = null; $token = null;
 		$n = count( $tokens );
 
 		// strip leading space
-		$leadingToks = [];
-		for ( $i = 0;  $i < $n;  $i++ ) {
-			$token = $tokens[ $i ];
-			if ( $token->constructor === $NlTk ) {
-				$leadingToks[] = '';
-			} elseif ( $token->constructor === $String ) {
-				$leadingToks[] = preg_replace( '/^\s+/', '', $token, 1 );
+		for ( $i = 0; $i < $n; $i++ ) {
+			$token = &$tokens[$i];
+			if ( $token instanceof NlTk ) {
+				$token = '';
+			} elseif ( is_string( $token ) ) {
+				$token = preg_replace( '/^\s+/', '', $token, 1 );
 				if ( $token !== '' ) {
 					break;
 				}
 			} else {
 				break;
 			}
-		}
-
-		$i = count( $leadingToks );
-		if ( $i > 0 ) {
-			$tokens = $leadingToks->concat( array_slice( $tokens, $i ) );
 		}
 
 		// strip trailing space
-		$trailingToks = [];
 		for ( $i = $n - 1;  $i >= 0;  $i-- ) {
-			$token = $tokens[ $i ];
-			if ( $token->constructor === $NlTk ) {
-				$trailingToks[] = ''; // replace newline with empty
-			} else if ( $token->constructor === $String ) {
-				$trailingToks[] = preg_replace( '/\s+$/', '', $token, 1 );
+			$token = &$tokens[ $i ];
+			if ( $token instanceof NlTk ) {
+				$token = ''; // replace newline with empty
+			} elseif ( is_string( $token ) ) {
+				$token = preg_replace( '/\s+$/', '', $token, 1 );
 				if ( $token !== '' ) {
 					break;
 				}
 			} else {
 				break;
 			}
-		}
-
-		$j = count( $trailingToks );
-		if ( $j > 0 ) {
-			$tokens = array_slice( $tokens, 0, $n - $j/ *CHECK THIS* / )->concat( array_reverse( $trailingToks ) );
 		}
 
 		return $tokens;
 	}
+
+	/*
 	'kvsFromArray' => function ( $a ) {
 		return array_map( $a, function ( $e ) {
 				return new KV( $e->k, $e->v, $e->srcOffsets || null, $e->ksrc, $e->vsrc );

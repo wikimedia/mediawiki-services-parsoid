@@ -14,7 +14,7 @@ class KV implements \JsonSerializable {
 	 */
 	public $k;
 
-	/** @var string|Token|Token[] */
+	/** @var string|Token|Token[]|KV[] */
 	public $v;
 
 	/** @var int[]|null wikitext source offsets (Unicode char units) */

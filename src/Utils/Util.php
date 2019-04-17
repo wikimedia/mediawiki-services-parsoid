@@ -391,23 +391,23 @@ class Util {
 	}
 
 	/**
-	 * Get external argument info? PORT_FIXME accuracy of descript?
+	 * Get argument information for an extension tag token.
 	 *
-	 * @param object $extToken
+	 * @param Token $extToken
 	 * @return object
 	 */
-	public static function getExtArgInfo( $extToken ) {
-		// PORT-FIXME
-/*		var name = extToken.getAttribute('name');
-		var options = extToken.getAttribute('options');
-		return {
-			dict: {
-				name: name,
-				attrs: TokenUtils.kvToHash(options, true),
-				body: { extsrc: Util.extractExtBody(extToken) },
-			},
-		}; */
-		throw new \BadMethodCallException( "Not yet ported" );
+	public static function getExtArgInfo( Token $extToken ) {
+		$name = $extToken->getAttribute( 'name' );
+		$options = $extToken->getAttribute( 'options' );
+		return (object)[
+			'dict' => (object)[
+				'name' => $name,
+				'attrs' => TokenUtils::kvToHash( $options, true ),
+				'body' => (object)[
+					'extsrc' => self::extractExtBody( $extToken )
+				],
+			],
+		];
 	}
 
 	/**
