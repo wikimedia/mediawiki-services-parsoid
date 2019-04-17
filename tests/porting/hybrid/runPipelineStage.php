@@ -50,12 +50,16 @@ function parse( MockEnv $env, string $input, array $opts ): array {
 	$tokens = [];
 	$tokenizer = new PegTokenizer( $env );
 	$tokenizer->setSourceOffsets( $opts['offsets'][0] ?? 0, $opts['offsets'][1] ?? 0 );
-	$tokenizer->tokenizeSync( $input, [
+	$ret = $tokenizer->tokenizeSync( $input, [
 		'cb' => function ( $t ) use ( &$tokens ) {
 			PHPUtils::pushArray( $tokens, $t );
 		},
 		'sol' => $opts['sol']
 	] );
+	if ( $ret === false ) {
+		fwrite( STDERR, $tokenizer->getLastErrorLogMessage() . "\n" );
+		exit( 1 );
+	}
 	TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'byte', 'ucs2', $tokens );
 	return $tokens;
 }

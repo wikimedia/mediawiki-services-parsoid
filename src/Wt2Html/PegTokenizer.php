@@ -20,6 +20,7 @@ namespace Parsoid\Wt2Html;
 use Parsoid\Config\Env;
 use Parsoid\Utils\EventEmitter;
 use Parsoid\Utils\PHPUtils;
+use WikiPEG\SyntaxError;
 
 class PegTokenizer extends EventEmitter {
 	private $env;
@@ -27,6 +28,9 @@ class PegTokenizer extends EventEmitter {
 	private $options;
 	private $offsets;
 	private $pipelineId;
+
+	/** @var SyntaxError|null */
+	private $lastError;
 
 	/** @var Grammar */
 	private $grammar;
@@ -96,8 +100,9 @@ class PegTokenizer extends EventEmitter {
 	 * @param string $text
 	 * @param bool $sol Whether text should be processed in start-of-line
 	 *   context.
+	 * @return bool True if parsing succeeded, false for a syntax error
 	 */
-	public function tokenizeAsync( string $text, bool $sol ): void {
+	public function tokenizeAsync( string $text, bool $sol ): bool {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
@@ -125,12 +130,18 @@ class PegTokenizer extends EventEmitter {
 		if ( $this->traceTime ) {
 			$start = PHPUtils::getStartHRTime();
 		}
-		// phpcs:ignore
-		foreach ( $this->grammar->parse( $text, $args ) as $unused );
+		try {
+			// phpcs:ignore
+			foreach ( $this->grammar->parse( $text, $args ) as $unused );
+		} catch ( SyntaxError $e ) {
+			$this->lastError = $e;
+			return false;
+		}
 		if ( $this->traceTime ) {
 			$this->env->bumpTimeUse( 'PEG-async', PHPUtils::getHRTimeDifferential( $start ),
 				'PEG' );
 		}
+		return true;
 	}
 
 	public function onEnd(): void {
@@ -145,9 +156,9 @@ class PegTokenizer extends EventEmitter {
 	 *
 	 * @param string $text
 	 * @param array $args
-	 * @return array
+	 * @return array|false The token array, or false for a syntax error
 	 */
-	public function tokenizeSync( string $text, array $args = [] ): array {
+	public function tokenizeSync( string $text, array $args = [] ) {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
@@ -168,7 +179,12 @@ class PegTokenizer extends EventEmitter {
 		if ( $this->traceTime ) {
 			$start = PHPUtils::getStartHRTime();
 		}
-		$retToks = $this->grammar->parse( $text, $args );
+		try {
+			$retToks = $this->grammar->parse( $text, $args );
+		} catch ( SyntaxError $e ) {
+			$this->lastError = $e;
+			return false;
+		}
 		if ( $this->traceTime ) {
 			$this->env->bumpTimeUse( 'PEG-sync', PHPUtils::getHRTimeDifferential( $start ), 'PEG' );
 		}
@@ -179,9 +195,14 @@ class PegTokenizer extends EventEmitter {
 	}
 
 	/**
-	 * Tokenizes a string as a rule, otherwise returns an `Error`
+	 * Tokenizes a string as a rule
+	 *
+	 * @param string $text The input text
+	 * @param string $rule The rule name
+	 * @param bool $sol Start of line flag
+	 * @return array|false Array of tokens/strings or false on error
 	 */
-	public function tokenizeAs( string $text, string $rule, bool $sol ): array {
+	public function tokenizeAs( string $text, string $rule, bool $sol ) {
 		$args = [
 			'startRule' => $rule,
 			'sol' => $sol,
@@ -191,11 +212,23 @@ class PegTokenizer extends EventEmitter {
 	}
 
 	/**
+	 * Determine whether a string is a valid URL
+	 *
+	 * @deprecated Use tokenizeURL()
+	 *
+	 * @param string $text
+	 * @return bool
+	 */
+	public function tokenizesAsURL( string $text ): bool {
+		return $this->tokenizeURL( $text ) !== false;
+	}
+
+	/**
 	 * Tokenize a URL.
 	 * @param string $text
-	 * @return array
+	 * @return array|false Array of tokens/strings or false on error
 	 */
-	public function tokenizesAsURL( string $text ): array {
+	public function tokenizeURL( string $text ) {
 		return $this->tokenizeAs( $text, 'url', /* sol */true );
 	}
 
@@ -203,9 +236,9 @@ class PegTokenizer extends EventEmitter {
 	 * Tokenize an extlink.
 	 * @param string $text
 	 * @param bool $sol
-	 * @return array
+	 * @return array|false Array of tokens/strings or false on error
 	 */
-	public function tokenizeExtlink( string $text, bool $sol ): array {
+	public function tokenizeExtlink( string $text, bool $sol ) {
 		return $this->tokenizeAs( $text, 'extlink', $sol );
 	}
 
@@ -213,9 +246,24 @@ class PegTokenizer extends EventEmitter {
 	 * Tokenize table cell attributes.
 	 * @param string $text
 	 * @param bool $sol
-	 * @return array
+	 * @return array|false Array of tokens/strings or false on error
 	 */
 	public function tokenizeTableCellAttributes( string $text, bool $sol ) {
 		return $this->tokenizeAs( $text, 'row_syntax_table_args', $sol );
+	}
+
+	/**
+	 * If a tokenize method returned false, this will return a string describing the error,
+	 * suitable for use in a log entry. If there has not been any error, returns false.
+	 *
+	 * @return string|false
+	 */
+	public function getLastErrorLogMessage() {
+		if ( $this->lastError ) {
+			return "Tokenizer parse error at input location {$this->lastError->location}: " .
+				$this->lastError->getMessage();
+		} else {
+			return false;
+		}
 	}
 }
