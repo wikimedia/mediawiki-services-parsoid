@@ -303,6 +303,16 @@ class Util {
 	 * @return string
 	 */
 	public static function decodeWtEntities( string $text ): string {
+		// There are some entities disallowed by wikitext (T106578,T113194)
+		$text = preg_replace( [
+			'/&#(0*12|x0*c);/i',
+			'/&#(0*1114110|x0*10fffe);/i',
+			'/&#(0*1114111|x0*10ffff);/i',
+		], [
+			'&amp;#$1;',  // \u000C is disallowed
+			"\u{10FFFE}", // \u10FFFE is allowed but not decoded (weird)
+			"\u{10FFFF}", // \u10FFFF is allowed but not decoded (again, weird)
+		], $text );
 		// HTML5 allows semicolon-less entities which wikitext does not:
 		// in wikitext all entities must end in a semicolon.
 		// PHP currently doesn't decode semicolon-less entities (see

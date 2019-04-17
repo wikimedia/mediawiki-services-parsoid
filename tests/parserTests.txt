@@ -21748,14 +21748,19 @@ parsoid=wt2html,wt2wt,html2html
 # See: https://www.w3.org/TR/html5/syntax.html#character-references
 # Note that U+000C (form feed) is not a valid XML character, so
 # it is banned even though allowed in HTML5.
+# Note there are also weird legacy numeric entities which are mapped
+# elsewhere; see T113194
 !! test
-Illegal character references (T106578)
+Illegal character references (T106578, T113194)
+!! options
+parsoid={ "modes": ["wt2html","html2html"], "normalizePhp": true }
 !! wikitext
 ; Null: &#00;
 ; FF: &#xC;
 ; CR: &#xD;
 ; Control (low): &#8;
 ; Control (high): &#x7F; &#x9F;
+; Unsupported legacy: &#128; &#130; &#131; &#150; &#159;
 ; Surrogate: &#xD83D;&#xDCA9;
 ; This is an okay astral character: &#x1F4A9;
 !! html+tidy
@@ -21769,6 +21774,8 @@ Illegal character references (T106578)
 <dd>&amp;#8;</dd>
 <dt>Control (high)</dt>
 <dd>&amp;#x7F; &amp;#x9F;</dd>
+<dt>Unsupported legacy</dt>
+<dd>&amp;#128; &amp;#130; &amp;#131; &amp;#150; &amp;#159;</dd>
 <dt>Surrogate</dt>
 <dd>&amp;#xD83D;&amp;#xDCA9;</dd>
 <dt>This is an okay astral character</dt>
