@@ -7,6 +7,7 @@ use stdClass as StdClass;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
@@ -350,7 +351,7 @@ class ListHandler extends TokenHandler {
 		$dp = $token->dataAttribs;
 
 		$makeDP = function ( $k, $j ) use ( $dp ) {
-			$newDP = (object)(array)$dp; // shallow clone
+			$newDP = Util::clone( $dp );
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
 				$newDP->tsr = [ $tsr[ 0 ] + $k, $tsr[ 0 ] + $j ];

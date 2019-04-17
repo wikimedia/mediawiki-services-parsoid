@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Utils\Util;
 use Parsoid\Wt2html\TokenTransformManager;
 
 /**
@@ -38,7 +39,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
-			clone $token->dataAttribs   // shallow clone dataAttribs
+			Util::clone( $token->dataAttribs )
 		);
 
 		return [ 'tokens' => [ $metaToken ] ];

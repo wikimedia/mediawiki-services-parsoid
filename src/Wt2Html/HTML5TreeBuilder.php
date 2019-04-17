@@ -280,7 +280,7 @@ class HTML5TreeBuilder {
 				$attrs = $this->stashDataAttribs( [
 					new KV( 'typeof', 'mw:StartTag' ),
 					new KV( 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" )
-				], clone $dataAttribs );
+				], Util::clone( $dataAttribs ) );
 				$this->dispatcher->comment(
 					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
 					0, 0

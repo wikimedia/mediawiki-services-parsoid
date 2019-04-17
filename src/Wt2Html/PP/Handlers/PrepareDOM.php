@@ -8,6 +8,7 @@ use DOMNode;
 
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 
 class PrepareDOM {
@@ -32,7 +33,7 @@ class PrepareDOM {
 				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
 				if ( isset( $seenDataIds[ $docId ] ) ) {
 					$data = DOMDataUtils::getNodeData( $node );
-					DOMDataUtils::setNodeData( $node, clone $data );
+					DOMDataUtils::setNodeData( $node, Util::clone( $data ) );
 				} else {
 					$seenDataIds[ $docId ] = true;
 				}

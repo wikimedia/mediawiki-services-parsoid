@@ -9,6 +9,7 @@ namespace Parsoid\Wt2Html\PP\Processors;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 
 use DOMElement;
@@ -367,7 +368,7 @@ class WrapSections {
 				$dsr2 = $this->getDSR( $tplInfo, $newS2, false ); // Traverses non-tpl content => will succeed
 				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
 				$tplDsr = &$tplDP->dsr;
-				$dmw = clone DOMDataUtils::getDataMw( $tplInfo['first'] );
+				$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
 				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 					if ( $dmw->parts ) {
 						array_unshift( $dmw->parts, $this->getSrc( $state['env'], $dsr1, $tplDsr[0] ) );
