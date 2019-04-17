@@ -35,7 +35,7 @@ abstract class Token implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getType(): string {
-		$classParts = explode( '\\', get_class() );
+		$classParts = explode( '\\', get_class( $this ) );
 		return end( $classParts );
 	}
 
