@@ -436,10 +436,10 @@ class DOMDataUtils {
 	/**
 	 * Walk DOM from node downward calling loadDataAttribs
 	 *
-	 * @param DOMElement $node node
+	 * @param DOMNode $node node
 	 * @param array $options options
 	 */
-	public static function visitAndLoadDataAttribs( DOMElement $node, array $options = [] ): void {
+	public static function visitAndLoadDataAttribs( DOMNode $node, array $options = [] ): void {
 		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $options );
 	}
 

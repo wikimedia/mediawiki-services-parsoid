@@ -14,6 +14,7 @@ use Parsoid\Html2Wt\WikitextSerializer;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 
 use Parsoid\Wt2Html\DOMPostProcessor;
 
@@ -22,6 +23,7 @@ use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
+use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
 
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
@@ -203,6 +205,12 @@ $env = new ApiEnv( [
 	"writeToCache" => 'pretty',
 ] );
 
+foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
+	$env->setFragment( $entry[0], array_map( function ( $v ) {
+		return DOMCompat::getBody( DOMUtils::parseHTML( $v ) )->firstChild;
+	}, $entry[1] ) );
+}
+
 switch ( $test ) {
 	case 'DOMDiff':
 		$out = runDOMDiff( $env, $argv, $opts );
@@ -263,7 +271,7 @@ switch ( $test ) {
 			],
 			[
 				'name' => 'HandleLinkNeighbours',
-				'shortcut' => 'dom-unpack',
+				'shortcut' => 'dom-linkneighbours',
 				'isTraverser' => true,
 				'handlers' => [
 					[
@@ -273,7 +281,6 @@ switch ( $test ) {
 				],
 				'omit' => ( $test !== 'HandleLinkNeighbours' )
 			],
-			/*
 			[
 				'name' => 'UnpackDOMFragments',
 				'shortcut' => 'dom-unpack',
@@ -281,12 +288,11 @@ switch ( $test ) {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => [ UnpackDOMFragments::class, 'unpackDOMFragments' ]
+						'action' => [ UnpackDOMFragments::class, 'handler' ]
 					]
 				],
 				'omit' => ( $test !== 'UnpackDOMFragments' )
 			],
-			*/
 			[
 				'name' => 'LiFixups',
 				'shortcut' => 'fixups',

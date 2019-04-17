@@ -23,9 +23,7 @@ use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
-
-// use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
-
+use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 
 // use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
@@ -242,13 +240,11 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => 'a',
 						'action' => [ HandleLinkNeighbours::class, 'handler' ]
-					]
-					/*
+					],
 					[
 						'nodeName' => null,
-						'action' => [ UnpackDOMFragments::class, 'unpackDOMFragments' ]
+						'action' => [ UnpackDOMFragments::class, 'handler' ]
 					]
-					*/
 				]
 			]
 		];

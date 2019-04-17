@@ -8,6 +8,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNamedNodeMap;
 use DOMNode;
+use DOMNodeList;
 use DOMText;
 use Parsoid\Wt2Html\Frame;
 use Parsoid\Config\Env;
@@ -491,18 +492,21 @@ class PipelineUtils {
 	 * Wrap text and comment nodes in a node list into spans, so that all
 	 * top-level nodes are elements.
 	 *
-	 * @param DOMNode[] $nodes List of DOM nodes to wrap, mix of node types.
+	 * @param DOMNodeList $nodes List of DOM nodes to wrap, mix of node types.
 	 */
-	public static function addSpanWrappers( array $nodes ): void {
+	public static function addSpanWrappers( DOMNodeList $nodes ): void {
 		$textCommentAccum = [];
-		$doc = $nodes[0]->ownerDocument ?? null;
+		$doc = $nodes->item( 0 )->ownerDocument;
 
 		// Build a real array out of nodes.
 		//
 		// Operating directly on DOM child-nodes array
 		// and manipulating them by adding span wrappers
 		// changes the traversal itself
-		$nodeBuf = $nodes;
+		$nodeBuf = [];
+		foreach ( $nodes as $node ) {
+			$nodeBuf[] = $node;
+		}
 
 		foreach ( $nodeBuf as $node ) {
 			if ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {

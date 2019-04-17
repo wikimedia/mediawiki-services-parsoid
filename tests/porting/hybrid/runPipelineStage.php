@@ -129,9 +129,8 @@ foreach ( $envOpts['tags'] ?? [] as $tag ) {
 	$env->getSiteConfig()->ensureExtensionTag( $tag );
 }
 foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
-	$k = $entry[0];
 	$env->setFragment( $entry[0], array_map( function ( $v ) {
-		return DOMUtils::parseHTML( $v );
+		return DOMCompat::getBody( DOMUtils::parseHTML( $v ) )->firstChild;
 	}, $entry[1] ) );
 }
 

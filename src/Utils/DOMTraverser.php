@@ -99,7 +99,8 @@ class DOMTraverser {
 	 *   - clear: when set, the template will not be passed along for further processing
 	 */
 	public function traverse(
-		DOMNode $workNode, Env $env, array $options, bool $atTopLevel, ?StdClass $tplInfo
+		DOMNode $workNode, Env $env,
+		array $options = [], bool $atTopLevel = false, ?StdClass $tplInfo = null
 	) {
 		while ( $workNode !== null ) {
 			if ( $workNode instanceof DOMElement ) {

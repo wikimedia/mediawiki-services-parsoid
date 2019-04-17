@@ -6,6 +6,7 @@ use Parsoid\Config\Api\Env as ApiEnv;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
@@ -75,9 +76,8 @@ foreach ( $envOpts['tags'] ?? [] as $tag ) {
 	$env->getSiteConfig()->ensureExtensionTag( $tag );
 }
 foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
-	$k = $entry[0];
 	$env->setFragment( $entry[0], array_map( function ( $v ) {
-		return DOMUtils::parseHTML( $v );
+		return DOMCompat::getBody( DOMUtils::parseHTML( $v ) )->firstChild;
 	}, $entry[1] ) );
 }
 
