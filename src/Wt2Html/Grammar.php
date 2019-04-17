@@ -1383,7 +1383,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			// if flags contains 'R', then don't treat ; or : specially inside.
   			if ( isset( $ff['flags'] ) ) {
   				$ff['raw'] = isset( $ff['flags']['R'] ) || isset( $ff['flags']['N'] );
-  			} elseif ( $ff->variants ) {
+  			} elseif ( isset( $ff['variants'] ) ) {
   				$ff['raw'] = true;
   			}
   			return $ff;
@@ -1450,7 +1450,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   					'tsr' => [ $lv0, $lv1 ],
   					'src' => $lvsrc,
   					'flags' => $flags,
-  					'variants' => $flags,
+  					'variants' => $variants,
   					'original' => $f['original'],
   					'flagSp' => $f['sp'],
   					'texts' => $ts
