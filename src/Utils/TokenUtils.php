@@ -514,160 +514,177 @@ class TokenUtils {
 	}
 
 /**
-	public static function isEntitySpanToken(token) {
-		return token.constructor === TagTk && token.name === 'span' &&
-			token.getAttribute('typeof') === 'mw:Entity';
+	public static function isEntitySpanToken($token) {
+		return $token->constructor === $TagTk && $token->name === 'span'
+&&			$token->getAttribute( 'typeof' ) === 'mw:Entity';
 	}
 
 	//
 	* Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
 	//
-	public static function newlinesToNlTks(str, tsr0) {
-		var toks = str.split(/\n|\r\n/);
-		var ret = [];
-		var tsr = tsr0;
-		var i = 0;
+	public static function newlinesToNlTks($str, $tsr0) {
+		$toks = preg_split( '/\n|\r\n/', $str );
+		$ret = [];
+		$tsr = $tsr0;
+		$i = 0;
 		// Add one NlTk between each pair, hence toks.length-1
-		for (var n = toks.length - 1; i < n; i++) {
-			ret.push(toks[i]);
-			var nlTk = new NlTk();
-			if (tsr !== undefined) {
-				tsr += toks[i].length;
-				nlTk.dataAttribs = { tsr: [tsr, tsr + 1] };
+		for ( $n = count( $toks ) - 1;  $i < $n;  $i++ ) {
+			$ret[] = $toks[ $i ];
+			$nlTk = new NlTk();
+			if ( $tsr !== null ) {
+				$tsr += count( $toks[ $i ] );
+				$nlTk->dataAttribs = [ 'tsr' => [ $tsr, $tsr + 1 ] ];
 			}
-			ret.push(nlTk);
+			$ret[] = $nlTk;
 		}
-		ret.push(toks[i]);
-		return ret;
+		$ret[] = $toks[ $i ];
+		return $ret;
 	}
 
 	//
 	 * Strip include tags, and the contents of includeonly tags as well.
 	//
-	public static function stripIncludeTokens(tokens) {
-		var toks = [];
-		var includeOnly = false;
-		for (var i = 0; i < tokens.length; i++) {
-			var tok = tokens[i];
-			switch (tok.constructor) {
-				case TagTk:
-				case EndTagTk:
-				case SelfclosingTagTk:
-					if (['noinclude', 'onlyinclude'].includes(tok.name)) {
-						continue;
-					} else if (tok.name === 'includeonly') {
-						includeOnly = (tok.constructor === TagTk);
-						continue;
-					}
+	public static function stripIncludeTokens($tokens) {
+		$toks = [];
+		$includeOnly = false;
+		for ( $i = 0;  $i < count( $tokens );  $i++ ) {
+			$tok = $tokens[ $i ];
+			switch ( $tok->constructor ) {
+				case $TagTk:
+
+				case $EndTagTk:
+
+				case $SelfclosingTagTk:
+				if ( [ 'noinclude', 'onlyinclude' ]->includes( $tok->name ) ) {
+					continue;
+				} elseif ( $tok->name === 'includeonly' ) {
+					$includeOnly = ( $tok->constructor === $TagTk );
+					continue;
+				}
 				// Fall through
+
 				default:
-					if (!includeOnly) {
-						toks.push(tok);
-					}
+				if ( !$includeOnly ) {
+					$toks[] = $tok;
+				}
 			}
 		}
-		return toks;
+		return $toks;
 	}
 
-	public static function tokensToString(tokens, strict, opts) {
-		var out = '';
-		if (!opts) {
-			opts = {};
+	public static function tokensToString($tokens, $strict, $opts) {
+		$out = '';
+		if ( !$opts ) {
+			$opts = [];
 		}
 		// XXX: quick hack, track down non-array sources later!
-		if (!Array.isArray(tokens)) {
-			tokens = [ tokens ];
+		if ( !is_array( $tokens ) ) {
+			$tokens = [ $tokens ];
 		}
-		for (var i = 0, l = tokens.length; i < l; i++) {
-			var token = tokens[i];
-			if (!token) {
+		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
+			$token = $tokens[ $i ];
+			if ( !$token ) {
 				continue;
-			} else if (token.constructor === String) {
-				out += token;
-			} else if (token.constructor === CommentTk ||
-					(!opts.retainNLs && token.constructor === NlTk)) {
+			} elseif ( $token->constructor === $String ) {
+				$out += $token;
+			} elseif ( $token->constructor === $CommentTk
+||					( !$opts->retainNLs && $token->constructor === $NlTk )
+			) {
+
 				// strip comments and newlines
-			} else if (opts.stripEmptyLineMeta && this.isEmptyLineMetaToken(token)) {
+			} else if ( $opts->stripEmptyLineMeta && $this->isEmptyLineMetaToken( $token ) ) {
+
 				// If requested, strip empty line meta tokens too.
-			} else if (opts.includeEntities && this.isEntitySpanToken(token)) {
-				out += token.dataAttribs.src;
-				i += 2;  // Skip child and end tag.
-			} else if (strict) {
+			} else if ( $opts->includeEntities && $this->isEntitySpanToken( $token ) ) {
+				$out += $token->dataAttribs->src;
+				$i += 2; // Skip child and end tag.
+			} else if ( $strict ) {
 				// If strict, return accumulated string on encountering first non-text token
-				return [out, tokens.slice(i)];
-			} else if (opts.unpackDOMFragments &&
-					[TagTk, SelfclosingTagTk].indexOf(token.constructor) !== -1 &&
-					this.isDOMFragmentType(token.getAttribute('typeof'))) {
+				return [ $out, array_slice( $tokens, $i ) ];
+			} elseif ( $opts->unpackDOMFragments
+&&					array_search( $token->constructor, [ $TagTk, $SelfclosingTagTk ] ) !== -1
+&&					$this->isDOMFragmentType( $token->getAttribute( 'typeof' ) )
+			) {
 				// Handle dom fragments
-				const nodes = opts.env.fragmentMap.get(token.dataAttribs.html);
-				out += nodes.reduce(function(prev, next) {
-					// FIXME: The correct thing to do would be to return
-					// `next.outerHTML` for the current scenarios where
-					// `unpackDOMFragments` is used (expanded attribute
-					// values and reparses thereof) but we'd need to remove
-					// the span wrapping and typeof annotation of extension
-					// content and nowikis.  Since we're primarily expecting
-					// to find <translate> and <nowiki> here, this will do.
-					return prev + next.textContent;
-				}, '');
-				if (token.constructor === TagTk) {
-					i += 1;  // Skip the EndTagTK
-					console.assert(i >= l || tokens[i].constructor === EndTagTk);
+				$nodes = $opts->env->fragmentMap->get( $token->dataAttribs->html );
+				$out += array_reduce( $nodes, function ( $prev, $next ) {
+						// FIXME: The correct thing to do would be to return
+						// `next.outerHTML` for the current scenarios where
+						// `unpackDOMFragments` is used (expanded attribute
+						// values and reparses thereof) but we'd need to remove
+						// the span wrapping and typeof annotation of extension
+						// content and nowikis.  Since we're primarily expecting
+						// to find <translate> and <nowiki> here, this will do.
+						return $prev + $next->textContent;
+					}, ''
+				)
+
+
+
+
+
+
+
+
+				;
+				if ( $token->constructor === $TagTk ) {
+					$i += 1; // Skip the EndTagTK
+					Assert::invariant( $i >= $l || $tokens[ $i ]->constructor === $EndTagTk );
 				}
-			} else if (Array.isArray(token)) {
-				out += this.tokensToString(token, strict, opts);
+			} elseif ( is_array( $token ) ) {
+				$out += $this->tokensToString( $token, $strict, $opts );
 			}
 		}
-		return out;
+		return $out;
 	}
 
-	public static function flattenAndAppendToks(array, prefix, t) {
-		if (Array.isArray(t) || t.constructor === String) {
-			if (t.length > 0) {
-				if (prefix) {
-					array.push(prefix);
+	public static function flattenAndAppendToks($array, $prefix, $t) {
+		if ( is_array( $t ) || $t->constructor === $String ) {
+			if ( count( $t ) > 0 ) {
+				if ( $prefix ) {
+					$array[] = $prefix;
 				}
-				array = array.concat(t);
+				$array = $array->concat( $t );
 			}
 		} else {
-			if (prefix) {
-				array.push(prefix);
+			if ( $prefix ) {
+				$array[] = $prefix;
 			}
-			array.push(t);
+			$array[] = $t;
 		}
 
-		return array;
+		return $array;
 	}
 
 	//
 	 * Convert an array of key-value pairs into a hash of keys to values. For
 	 * duplicate keys, the last entry wins.
 	//
-	public static function kvToHash(kvs, convertValuesToString, useSrc) {
-		if (!kvs) {
-			console.warn("Invalid kvs!: " + JSON.stringify(kvs, null, 2));
-			return Object.create(null);
+	public static function kvToHash($kvs, $convertValuesToString, $useSrc) {
+		if ( !$kvs ) {
+			$console->warn( 'Invalid kvs!: ' . json_encode( $kvs, null, 2 ) );
+			return [];
 		}
-		var res = Object.create(null);
-		for (var i = 0, l = kvs.length; i < l; i++) {
-			var kv = kvs[i];
-			var key = this.tokensToString(kv.k).trim();
+		$res = [];
+		for ( $i = 0,  $l = count( $kvs );  $i < $l;  $i++ ) {
+			$kv = $kvs[ $i ];
+			$key = trim( $this->tokensToString( $kv->k ) );
 			// SSS FIXME: Temporary fix to handle extensions which use
 			// entities in attribute values. We need more robust handling
 			// of non-string template attribute values in general.
-			var val = (useSrc && kv.vsrc !== undefined) ? kv.vsrc :
-				convertValuesToString ? this.tokensToString(kv.v) : kv.v;
-			res[key.toLowerCase()] = this.tokenTrim(val);
+			$val = ( $useSrc && $kv->vsrc !== null ) ? $kv->vsrc :
+			( $convertValuesToString ) ? $this->tokensToString( $kv->v ) : $kv->v;
+			$res[ strtolower( $key ) ] = $this->tokenTrim( $val );
 		}
-		return res;
+		return $res;
 	}
 
 	//
 	 * Trim space and newlines from leading and trailing text tokens.
 	//
-	public static function tokenTrim(tokens) {
-		if (!Array.isArray(tokens)) {
-			return tokens;
+	public static function tokenTrim($tokens) {
+		if ( !is_array( $tokens ) ) {
+			return $tokens;
 		}
 
 		// Since the tokens array might be frozen,
@@ -679,18 +696,18 @@ class TokenUtils {
 		// but we will need a new function altogether -- so,
 		// something worth considering if this is a perf. problem.
 
-		var i, token;
-		var n = tokens.length;
+		$i = null; $token = null;
+		$n = count( $tokens );
 
 		// strip leading space
-		var leadingToks = [];
-		for (i = 0; i < n; i++) {
-			token = tokens[i];
-			if (token.constructor === NlTk) {
-				leadingToks.push('');
-			} else if (token.constructor === String) {
-				leadingToks.push(token.replace(/^\s+/, ''));
-				if (token !== '') {
+		$leadingToks = [];
+		for ( $i = 0;  $i < $n;  $i++ ) {
+			$token = $tokens[ $i ];
+			if ( $token->constructor === $NlTk ) {
+				$leadingToks[] = '';
+			} elseif ( $token->constructor === $String ) {
+				$leadingToks[] = preg_replace( '/^\s+/', '', $token, 1 );
+				if ( $token !== '' ) {
 					break;
 				}
 			} else {
@@ -698,20 +715,20 @@ class TokenUtils {
 			}
 		}
 
-		i = leadingToks.length;
-		if (i > 0) {
-			tokens = leadingToks.concat(tokens.slice(i));
+		$i = count( $leadingToks );
+		if ( $i > 0 ) {
+			$tokens = $leadingToks->concat( array_slice( $tokens, $i ) );
 		}
 
 		// strip trailing space
-		var trailingToks = [];
-		for (i = n - 1; i >= 0; i--) {
-			token = tokens[i];
-			if (token.constructor === NlTk) {
-				trailingToks.push(''); // replace newline with empty
-			} else if (token.constructor === String) {
-				trailingToks.push(token.replace(/\s+$/, ''));
-				if (token !== '') {
+		$trailingToks = [];
+		for ( $i = $n - 1;  $i >= 0;  $i-- ) {
+			$token = $tokens[ $i ];
+			if ( $token->constructor === $NlTk ) {
+				$trailingToks[] = ''; // replace newline with empty
+			} else if ( $token->constructor === $String ) {
+				$trailingToks[] = preg_replace( '/\s+$/', '', $token, 1 );
+				if ( $token !== '' ) {
 					break;
 				}
 			} else {
@@ -719,13 +736,21 @@ class TokenUtils {
 			}
 		}
 
-		var j = trailingToks.length;
-		if (j > 0) {
-			tokens = tokens.slice(0, n - j).concat(trailingToks.reverse());
+		$j = count( $trailingToks );
+		if ( $j > 0 ) {
+			$tokens = array_slice( $tokens, 0, $n - $j/ *CHECK THIS* / )->concat( array_reverse( $trailingToks ) );
 		}
 
-		return tokens;
+		return $tokens;
 	}
+	'kvsFromArray' => function ( $a ) {
+		return array_map( $a, function ( $e ) {
+				return new KV( $e->k, $e->v, $e->srcOffsets || null, $e->ksrc, $e->vsrc );
+			}
+		)
+
+		;
+	},
 
 ------------------------------------------- */
 }
