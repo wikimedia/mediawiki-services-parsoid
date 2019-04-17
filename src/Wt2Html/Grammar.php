@@ -822,7 +822,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
    return $e; 
   }
   private function a72() {
-   return preg_match( '/\w/', $this->input[$this->endOffset() - 1] ?? '' ); 
+   return $this->endOffset() > 0 && preg_match( '/\w/', $this->input[$this->endOffset() - 1] ?? '' ); 
   }
   private function a73($target) {
   
