@@ -435,7 +435,7 @@ abstract class SiteConfig {
 	abstract public function getMaxTemplateDepth(): int;
 
 	/**
-	 * Matcher for RFC/PMID URL patterns, returning the type and number.
+	 * Matcher for ISBN/RFC/PMID URL patterns, returning the type and number.
 	 *
 	 * The match method takes a string and returns false on no match or a tuple
 	 * like this on match: [ 'RFC', '12345' ]

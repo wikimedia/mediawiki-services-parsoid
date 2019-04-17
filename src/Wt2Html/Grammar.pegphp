@@ -2204,7 +2204,7 @@ unispace = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
 space_or_nbsp =
 	space // includes \t
 	/ unispace
-	/ he:htmlentity &{ return is_array( $he ) && preg_match( '/^\u00A0$/', $he[ 1 ] ); }
+	/ he:htmlentity &{ return is_array( $he ) && $he[ 1 ] === "\u{A0}"; }
 	{ return $he; }
 
 // Used within ISBN magic links

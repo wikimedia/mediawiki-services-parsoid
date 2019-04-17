@@ -1370,7 +1370,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		
   }
   private function a132($he) {
-   return is_array( $he ) && preg_match( '/^\u00A0$/', $he[ 1 ] ); 
+   return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
   }
   private function a133() {
    return $this->startOffset(); 
