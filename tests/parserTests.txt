@@ -19873,7 +19873,7 @@ parsoid=wt2html
 <pre dir="&#10;"></pre>
 !! html/parsoid
 <pre dir="
-" typeof="mw:Extension/pre" about="#mwt2"data-mw='{"name":"pre","attrs":{"dir":"\n"},"body":{"extsrc":""}}'></pre>
+" typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"dir":""},"body":{"extsrc":""}}'></pre>
 !! end
 
 !! test
