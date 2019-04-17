@@ -10,31 +10,31 @@ namespace Parsoid\Tokens;
 class KV implements \JsonSerializable {
 	/** Commonly a string, but where the key might be templated,
 	 *  this can be an array of tokens even.
-	 * @var string|array<Token>
+	 * @var string|Token[]
 	 */
 	public $k;
 
-	/** @var string|Token|array<Token> */
+	/** @var string|Token|Token[] */
 	public $v;
 
-	/** @var ?array<int> wikitext source offsets (Unicode char units) */
+	/** @var int[]|null wikitext source offsets (Unicode char units) */
 	public $srcOffsets;
 
-	/** @var ?string wikitext source */
+	/** @var string|null wikitext source */
 	public $ksrc;
 
-	/** @var ?string wikitext source */
+	/** @var string|null wikitext source */
 	public $vsrc;
 
 	/**
-	 * @param string|array<Token> $k
+	 * @param string|Token[] $k
 	 *     Commonly a string, but where the key might be templated,
 	 *     this can be an array of tokens even.
-	 * @param string|Token|array<Token> $v
+	 * @param string|Token|Token[] $v
 	 *     The value: string, token, of an array of tokens
-	 * @param ?array<int> $srcOffsets wikitext source offsets (Unicode char units)
-	 * @param ?string $ksrc
-	 * @param ?string $vsrc
+	 * @param int[]|null $srcOffsets wikitext source offsets (Unicode char units)
+	 * @param string|null $ksrc
+	 * @param string|null $vsrc
 	 */
 	public function __construct(
 		$k, $v, ?array $srcOffsets = null,
@@ -54,9 +54,9 @@ class KV implements \JsonSerializable {
 	/**
 	 * Lookup a string key in a KV array and return the first matching KV object
 	 *
-	 * @param ?array<KV> $kvs
+	 * @param KV[]|null $kvs
 	 * @param string $key
-	 * @return ?KV
+	 * @return KV|null
 	 */
 	public static function lookupKV( ?array $kvs, string $key ): ?KV {
 		if ( $kvs === null ) {
@@ -78,9 +78,9 @@ class KV implements \JsonSerializable {
 	 * Lookup a string key (first occurrence) in a KV array
 	 * and return the value of the KV object
 	 *
-	 * @param ?array<KV> $kvs
+	 * @param KV[]|null $kvs
 	 * @param string $key
-	 * @return string|Token|array<Token>
+	 * @return string|Token|Token[]|null
 	 */
 	public static function lookup( ?array $kvs, string $key ) {
 		$kv = self::lookupKV( $kvs, $key );

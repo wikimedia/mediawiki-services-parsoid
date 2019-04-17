@@ -46,9 +46,9 @@ class ContentUtils {
 	 * @param Env $env
 	 * @param string $html
 	 * @param array $options
-	 * @return DOMNode
+	 * @return DOMElement
 	 */
-	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMNode {
+	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMElement {
 		$options = $options ?? [];
 		$node = $options['node'] ?? null;
 		if ( $node === null ) {

@@ -4,14 +4,16 @@ declare( strict_types = 1 );
 namespace Parsoid\Tokens;
 
 use Parsoid\Config\Env;
+use StdClass;
 
 /**
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	/** @var object */
+	/** @var StdClass */
 	public $dataAttribs;
-	/** @var array<KV> */
+
+	/** @var KV[] */
 	public $attribs;
 
 	/**
@@ -33,7 +35,8 @@ abstract class Token implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getType(): string {
-		return ( new \ReflectionClass( $this ) )->getShortName();
+		$classParts = explode( '\\', get_class() );
+		return end( $classParts );
 	}
 
 	/**
@@ -43,7 +46,7 @@ abstract class Token implements \JsonSerializable {
 	 *    Always a string when used this way.
 	 *    The more complex form (where the key is a non-string) are found when
 	 *    KV objects are constructed in the tokenizer.
-	 * @param mixed $value
+	 * @param string|Token|Token[] $value
 	 */
 	public function addAttribute( string $name, $value ): void {
 		$this->attribs[] = new KV( $name, $value );
@@ -54,7 +57,7 @@ abstract class Token implements \JsonSerializable {
 	 * Set a value and preserve the original wikitext that produced it.
 	 *
 	 * @param string $name
-	 * @param mixed $value
+	 * @param string|Token|Token[] $value
 	 * @param mixed $origValue
 	 */
 	public function addNormalizedAttribute( string $name, $value, $origValue ): void {
@@ -66,7 +69,7 @@ abstract class Token implements \JsonSerializable {
 	 * Generic attribute accessor.
 	 *
 	 * @param string $name
-	 * @return string|Token|array<Token>
+	 * @return string|Token|Token[]|null
 	 */
 	public function getAttribute( string $name ) {
 		return KV::lookup( $this->attribs, $name );
@@ -86,7 +89,7 @@ abstract class Token implements \JsonSerializable {
 	 * Set an unshadowed attribute.
 	 *
 	 * @param string $name
-	 * @param mixed $value
+	 * @param string|Token|Token[] $value
 	 */
 	public function setAttribute( string $name, $value ): void {
 		// First look for the attribute and change the last match if found.
@@ -132,7 +135,11 @@ abstract class Token implements \JsonSerializable {
 	 * context to be set to a token.
 	 *
 	 * @param string $name
-	 * @return array Information about the shadow info attached to this attribute.
+	 * @return array Information about the shadow info attached to this attribute:
+	 *   - value: (Token|Token[]|string)
+	 *     When modified is false and fromsrc is true, this is always a string.
+	 *   - modified: (bool)
+	 *   - fromsrc: (bool)
 	 */
 	public function getAttributeShadowInfo( string $name ): array {
 		$curVal = $this->getAttribute( $name );
@@ -251,9 +258,10 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * @param mixed $a
+	 * @param iterable|StdClass &$a
 	 */
 	private static function rebuildNestedTokens( &$a ): void {
+		// objects do not count as iterables in PHP but can be iterated nevertheless
 		foreach ( $a as &$v ) {
 			$v = self::getToken( $v );
 		}
@@ -261,10 +269,10 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * Get a token from some a JSON string
+	 * Get a token from some JSON structure
 	 *
-	 * @param mixed $jsTk
-	 * @return mixed
+	 * @param array|string|int|float|bool|null $jsTk
+	 * @return Token|string|int|float|bool|null|array<Token|string|int|float|bool|null>
 	 */
 	public static function getToken( $jsTk ) {
 		if ( !$jsTk ) {

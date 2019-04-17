@@ -231,13 +231,6 @@ class WikitextConstants {
 				"strike", "big", "center", "font", "tt",
 			] ),
 
-			/**
-			 * https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2
-			 */
-			'MetaTags' => PHPUtils::makeSet( [
-				"base", "link", "meta", "noscript", "script", "style", "template", "title"
-			] ),
-
 			# From https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
 			# However, you probably want to use `TokenUtils.isBlockTag()`, where some
 			# exceptions are being made.

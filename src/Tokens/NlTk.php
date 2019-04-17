@@ -3,13 +3,13 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use stdClass as StdClass;
+use StdClass;
 
 /**
  * Newline token.
  */
 class NlTk extends Token {
-	/** @var object Data attributes for this token
+	/** @var StdClass Data attributes for this token
 	 * TODO: Expand on this.
 	 */
 	public $dataAttribs;
@@ -20,7 +20,7 @@ class NlTk extends Token {
 	 *    offsets for a token (in this case, the newline) in Unicode char units
 	 * @param StdClass|null $dataAttribs
 	 */
-	public function __construct( ?array $tsr, ?StdClass $dataAttribs = null ) {
+	public function __construct( ?array $tsr, StdClass $dataAttribs = null ) {
 		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
 		} elseif ( $tsr ) {

@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use stdClass as StdClass;
+use StdClass;
 
 /**
  * Represents an HTML end tag token
@@ -28,7 +28,7 @@ class EndTagTk extends Token {
 	 * @param KV[] $attribs
 	 * @param StdClass|null $dataAttribs
 	 */
-	public function __construct( string $name, array $attribs = [], ?StdClass $dataAttribs = null ) {
+	public function __construct( string $name, array $attribs = [], StdClass $dataAttribs = null ) {
 		$this->name = $name;
 		$this->attribs = $attribs;
 		$this->dataAttribs = $dataAttribs ?? (object)[];
