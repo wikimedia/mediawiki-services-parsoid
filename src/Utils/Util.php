@@ -126,73 +126,16 @@ class Util {
 
 	/**
 	 * deep clones by default.
-	 *
-	 * @param object $obj any plain object not tokens or DOM trees
+	 * FIXME, see T161647
+	 * @param object|array $obj any plain object not tokens or DOM trees
 	 * @param bool $deepClone
-	 * @return object
+	 * @return object|array
 	 */
-	public static function clone( $obj, $deepClone ) {
-		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
-	/*	if (deepClone === undefined) {
-			deepClone = true;
+	public static function clone( $obj, $deepClone = true ) {
+		if ( !$deepClone && is_object( $obj ) ) {
+			return clone $obj;
 		}
-		if (Array.isArray(obj)) {
-			if (deepClone) {
-				return obj.map(function(el) {
-					return Util.clone(el, true);
-				});
-			} else {
-				return obj.slice();
-			}
-		} else if (obj instanceof Object && // only "plain objects"
-					Object.getPrototypeOf(obj) === Object.prototype) {
-			/* This definition of "plain object" comes from jquery,
-			 * via zepto.js.  But this is really a big hack; we should
-			 * probably put a console.assert() here and more precisely
-			 * delimit what we think is legit to clone. (Hint: not
-			 * tokens or DOM trees.) (*-/) CLOSING COMMENT REMOVED
-			if (deepClone) {
-				return Object.keys(obj).reduce(function(nobj, key) {
-					nobj[key] = Util.clone(obj[key], true);
-					return nobj;
-				}, {});
-			} else {
-				return Object.assign({}, obj);
-			}
-		} else {
-			return obj;
-		}
-	*/
-		/*
-		// PORT-FIXME this needs to be validated for flat and nested arrays and objects
-		if ( $deepClone === undefined ) {
-			$deepClone = true;
-		}
-		if ( isArray( $obj ) ) {
-			if ( $deepClone ) {
-				return array_map( 'recursiveClone', $obj );
-			} else {
-				return array_merge( [], $obj ); // JS used slice() to create a flat copy of $obj
-			}								  // but not copy nested array or object sub elements
-		} elseif ( is_object( $obj ) ) {
-			// PORT-FIXME unclear as to why prototype is being checked in JS and what is PHP equivalent code
-			// looks like maybe reflection - http://php.net/manual/en/reflectionmethod.getprototype.php
-			// This definition of "plain object" comes from jquery,
-			// via zepto.js.  But this is really a big hack; we should
-			// probably put a console.assert() here and more precisely
-			// delimit what we think is legit to clone. (Hint: not
-			// tokens or DOM trees.)
-			if ( $deepClone ) {
-				$objAsArray = get_object_vars( $obj );
-				return (object)( array_map( 'recursiveClose', $objAsArray ) );
-			} else {
-			// return (unserialize(serialize($obj); // make a copy of an object
-				return (object)( get_object_vars( $obj ) ); // make a copy of an object
-			}
-		} else {
-			return $obj;
-		}
-		*/
+		return unserialize( serialize( $obj ) );
 	}
 
 	/**
