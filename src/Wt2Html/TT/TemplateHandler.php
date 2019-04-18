@@ -603,9 +603,15 @@ class TemplateHandler extends TokenHandler {
 
 	public function convertAttribsToString( $state, $attribs, $cb ) {
 		$cb( [ 'tokens' => [], 'async' => true ] );
+		$attribTokens = [];
+
+		// Leading whitespace, if any
+		$leadWS = ( $state->token->dataAttribs->tmp || [] )->leadWS || '';
+		if ( $leadWS !== '' ) {
+			$attribTokens[] = $leadWS;
+		}
 
 		// Re-join attribute tokens with '=' and '|'
-		$attribTokens = [];
 		$attribs->forEach( function ( $kv ) use ( &$TokenUtils ) {
 				if ( $kv->k ) {
 					$attribTokens = TokenUtils::flattenAndAppendToks( $attribTokens, null, $kv->k );
@@ -621,6 +627,12 @@ class TemplateHandler extends TokenHandler {
 		);
 		// pop last pipe separator
 		array_pop( $attribTokens );
+
+		// Trailing whitespace, if any
+		$trailWS = ( $state->token->dataAttribs->tmp || [] )->trailWS || '';
+		if ( $trailWS !== '' ) {
+			$attribTokens[] = $trailWS;
+		}
 
 		$tokens = [ '{{' ]->concat( $attribTokens, [ '}}', new EOFTk() ] );
 

@@ -969,7 +969,7 @@ broken_template =
 	}
 
 template_preproc =
-	"{{" nl_comment_space*
+	"{{" leadWS:$( nl_comment_space* )
 	target:template_param_value
 	params:(
 		nl_comment_space* "|"
@@ -985,14 +985,14 @@ template_preproc =
 			/ template_param
 		) { return $r; }
 	)*
-	nl_comment_space*
+	trailWS:$( nl_comment_space* )
 	inline_breaks "}}"
 	{
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
 		// again.
 		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets'] ) );
-		$obj = new SelfclosingTagTk( 'template', $params, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text() ] );
+		$obj = new SelfclosingTagTk( 'template', $params, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text(), 'tmp' => [ 'leadWS' => $leadWS, 'trailWS' => $trailWS ] ] );
 		return $obj;
 	}
 	/ $('{{' space_or_newline* '}}')

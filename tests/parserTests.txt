@@ -11343,12 +11343,42 @@ Template with invalid target containing wikilink
 <p><span typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"[[Main Page]]"},"params":{},"i":0}}]}'>{{</span><a rel="mw:WikiLink" href="./Main_Page" about="#mwt1">Main Page</a><span about="#mwt1">}}</span></p>
 !! end
 
+# The html2html output of this test is currently failing
+# because the html2wt output is broken; see
+# https://phabricator.wikimedia.org/T220018#5123777 for a discussion.
+# Not (yet) including html2wt as a test mode because there are
+# a couple of different correct ways this could be <nowiki>'ed.
 !! test
 Template with just whitespace in it, T70421
 !! wikitext
 {{echo|{{ }}}}
+!! options
+parsoid=wt2html,html2html
+!! html/php+tidy
+<p>{{ }}
+</p>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{ }}"}},"i":0}}]}'>{{ }}</p>
+!! end
+
+# This is currently the wikitext output of html2wt on the above test
+# case; note that it is broken! Adding a <nowiki> around the closing
+# brace changes how the open braces associate, breaking the outer
+# {{echo}} template invocation.  *However* this "broken" wikitext
+# exposed a useful tokenizer bug (T221384) in how the broken_template
+# rule was being backtracked into, so it's a useful test case even
+# if/when the above test case gets its html2wt output fixed.
+!! test
+Template with just whitespace (bad template brace matching)
+!! options
+parsoid=wt2html
+!! wikitext
+{{echo|{{ }<nowiki>}</nowiki>}}
+!! html/php+tidy
+<p>{{echo|{{ }}}}
+</p>
+!! html/parsoid
+<p>{{echo|{{ }<span typeof="mw:Nowiki">}</span>}}</p>
 !! end
 
 !! article

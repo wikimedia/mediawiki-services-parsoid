@@ -216,7 +216,6 @@ add("wt2wt", "2. List embedded in a formatting tag in a misnested way", "<small>
 add("wt2wt", "Template with invalid target containing tags", "<nowiki>{{a</nowiki><b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}<nowiki>|a =b}}</nowiki>");
 add("wt2wt", "Template with invalid target containing unclosed tag", "<nowiki>{{a</nowiki><b>|{{echo|foo}}|{{echo|a}}={{echo|b}}<nowiki>|a =b}}</nowiki>");
 add("wt2wt", "Template with invalid target containing wikilink", "<nowiki>{{</nowiki>[[Main Page]]<nowiki>}}</nowiki>");
-add("wt2wt", "Template with just whitespace in it, T70421", "{{echo|{{ }<nowiki>}</nowiki>}}");
 add("wt2wt", "Template with argument in separate line", "{{templateasargtest  |\n templ = simple }}");
 add("wt2wt", "T2553: link with two variables in a piped link", "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}");
 add("wt2wt", "Abort table cell attribute parsing on wikilink", "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}");
@@ -333,7 +332,7 @@ add("html2html", "2. List embedded in a formatting tag in a misnested way", "<p 
 add("html2html", "Case-sensitive magic words, when cased differently, should just be template transclusions", "<p data-parsoid='{\"dsr\":[0,331,0,0]}'>[/index.php?title=Template:CurrentMonth&amp;action=edit&amp;redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&amp;action=edit&amp;redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&amp;action=edit&amp;redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&amp;action=edit&amp;redlink=1 Template:CurrentHour]</p>\n");
 add("html2html", "Nonexistent template", "<p data-parsoid='{\"dsr\":[0,108,0,0]}'>[/index.php?title=Template:Thistemplatedoesnotexist&amp;action=edit&amp;redlink=1 Template:Thistemplatedoesnotexist]</p>\n");
 add("html2html", "Template with invalid target containing wikilink", "<p data-parsoid='{\"dsr\":[0,17,0,0]}'>{{<a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[2,15,2,2]}'>Main Page</a>}}</p>");
-add("html2html", "Template with just whitespace in it, T70421", "<p data-parsoid='{\"dsr\":[1,31,0,0]}'>{{echo|{{}<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[11,29,8,9]}'>}</span>}}</p>");
+add("html2html", "Template with just whitespace in it, T70421", "<p data-parsoid='{\"dsr\":[0,31,0,0]}'>{{echo|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[11,29,8,9]}'>}</span>}}</p>");
 add("html2html", "Template unnamed parameter", "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>the main page</a></p>\n");
 add("html2html", "Templates with templated name", "<p data-parsoid='{\"dsr\":[0,45,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{echo|echo}}\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,44,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"echo\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>");
 add("html2html", "Templates with invalid templated targets", "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,21,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\\n{{echo|foo}}\"},\"params\":{},\"i\":0}}]}'>{{echo\nfoo}}</p>");
@@ -680,7 +679,6 @@ add("html2wt", "Namespace (lang=de) Benutzer Diskussion {{ns:3}}", "Benutzer Dis
 add("html2wt", "Nonexistent template", "[/index.php?title=Template:Thistemplatedoesnotexist&action=edit&redlink=1 Template:Thistemplatedoesnotexist]\n");
 add("html2wt", "Template with invalid target containing tags", "<nowiki>{{a</nowiki>'''b'''<nowiki>|foo|a=b|a = b}}</nowiki>\n");
 add("html2wt", "Template with invalid target containing unclosed tag", "<nowiki>{{a</nowiki>'''<nowiki>|foo|a=b|a = b}}</nowiki>'''\n");
-add("html2wt", "Template with just whitespace in it, T70421", "{{echo|{{ }<nowiki>}</nowiki>}}");
 add("html2wt", "Simple template", "This is a test template\n");
 add("html2wt", "Template with explicit namespace", "This is a test template\n");
 add("html2wt", "Template parameter", "This is a test template with parameter foo\n");
