@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
 const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
+const { DOMDataUtils } = require('../../../lib/utils/DOMDataUtils.js');
 
 class PHPDOMPass {
 	dumpDOMToFile(root, fileName) {
@@ -26,6 +27,14 @@ class PHPDOMPass {
 			reinsertFosterableContent: true,
 			markNew: true
 		}).ownerDocument;
+
+		// Read Linter output (if any) from the body node's tmp data
+		var dp = DOMDataUtils.getDataParsoid(newDom.body);
+		if (dp.tmp && dp.tmp.phpDOMLints) {
+			env.lintLogger.buffer = env.lintLogger.buffer.concat(dp.tmp.phpDOMLints);
+			delete dp.tmp.phpDOMLints;
+		}
+
 		return newDom;
 	}
 
@@ -49,7 +58,8 @@ class PHPDOMPass {
 			wrapSections: env.wrapSections,
 			rtTestMode: env.conf.parsoid.rtTestMode,
 			pageContent: env.page.src,
-			sourceOffsets: options.sourceOffsets
+			sourceOffsets: options.sourceOffsets,
+			tidyWhitespaceBugMaxLength: env.conf.parsoid.linter.tidyWhitespaceBugMaxLength
 		};
 
 		const fileName = `/tmp/${transformerName}.${process.pid}.html`;

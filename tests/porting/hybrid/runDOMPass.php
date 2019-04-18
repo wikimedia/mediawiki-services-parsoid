@@ -8,6 +8,7 @@ use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Html2Wt\DOMNormalizer;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Handlers\Cleanup;
@@ -19,6 +20,7 @@ use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
+use Parsoid\Wt2Html\PP\Processors\Linter;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 
@@ -52,6 +54,7 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 			"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
 			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 			"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
+			'tidyWhitespaceBugMaxLength' => $hackyEnvOpts['tidyWhitespaceBugMaxLength'] ?? null,
 		] );
 	}
 
@@ -67,6 +70,11 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 	} else {
 		$transformer->run( $body, $env, $runOptions, $atTopLevel );
 	}
+
+	// Shove Linter output (if any) into the body node's tmp data
+	$dp = DOMDataUtils::getDataParsoid( $body );
+	$dp->tmp->phpDOMLints = $env->getLints();
+
 	$out = serializeDOM( $body );
 
 	/**
@@ -163,6 +171,9 @@ switch ( $argv[1] ) {
 		break;
 	case 'HandlePres':
 		$out = runTransform( new HandlePres(), $argv, $allOpts );
+		break;
+	case 'Linter':
+		$out = runTransform( new Linter(), $argv, $allOpts );
 		break;
 	case 'WrapSections':
 		$out = runTransform( new WrapSections(), $argv, $allOpts );

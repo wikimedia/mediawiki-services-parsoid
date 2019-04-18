@@ -58,6 +58,9 @@ class Env {
 	/** @var int used to generate uids as needed during this parse */
 	private $uid = 1;
 
+	/** @var array[] Lints recorded */
+	private $lints = [];
+
 	/** @var bool[] */
 	public $traceFlags;
 
@@ -244,6 +247,29 @@ class Env {
 	 */
 	public function setFragment( string $id, array $forest ): void {
 		$this->fragmentMap[$id] = $forest;
+	}
+
+	/**
+	 * Record a lint
+	 * @param string $type Lint type key
+	 * @param array $lintData Data for the lint.
+	 */
+	public function recordLint( string $type, array $lintData ): void {
+		// Parsoid-JS tests don't like getting null properties where JS had undefined.
+		$lintData = array_filter( $lintData, function ( $v ) {
+			return $v !== null;
+		} );
+
+		$this->log( "lint/$type", $lintData );
+		$this->lints[] = [ 'type' => $type ] + $lintData;
+	}
+
+	/**
+	 * Retrieve recorded lints
+	 * @return array[]
+	 */
+	public function getLints(): array {
+		return $this->lints;
 	}
 
 	/**

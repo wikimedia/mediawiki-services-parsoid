@@ -34,7 +34,7 @@
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
-		"mediawiki/mediawiki-codesniffer": "24.0.0",
+		"mediawiki/mediawiki-codesniffer": "25.0.0",
 		"mediawiki/mediawiki-phan-config": "0.4.0",
 		"phan/phan": "^1.2",
 		"phpspec/phpspec": "^5.0",

@@ -15,11 +15,15 @@ class MockSiteConfig extends SiteConfig {
 	/** @var bool */
 	private $rtTestMode = false;
 
+	/** @var int|null */
+	private $tidyWhitespaceBugMaxLength = null;
+
 	/**
 	 * @param array $opts
 	 */
 	public function __construct( array $opts ) {
 		$this->rtTestMode = !empty( $opts['rtTestMode'] );
+		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
 
 		if ( isset( $opts['linkPrefixRegex'] ) ) {
 			$this->linkPrefixRegex = $opts['linkPrefixRegex'];
@@ -63,6 +67,10 @@ class MockSiteConfig extends SiteConfig {
 
 	public function rtTestMode(): bool {
 		return $this->rtTestMode;
+	}
+
+	public function tidyWhitespaceBugMaxLength(): int {
+		return $this->tidyWhitespaceBugMaxLength ?? parent::tidyWhitespaceBugMaxLength();
 	}
 
 	public function allowedExternalImagePrefixes(): array {

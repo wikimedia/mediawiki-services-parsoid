@@ -117,6 +117,14 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Maximum run length for Tidy whitespace bug
+	 * @return int Length in Unicode codepoints
+	 */
+	public function tidyWhitespaceBugMaxLength(): int {
+		return 100;
+	}
+
+	/**
 	 * Statistics aggregator, for counting and timing.
 	 *
 	 * @todo Do we want to continue to have a wrapper that adds an endTiming()

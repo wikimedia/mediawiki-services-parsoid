@@ -44,6 +44,7 @@ wt2html:
      # Processors that provide their own DOM Traversal
      PWrap: false
      ComputeDSR: false
+     Linter: false
      WrapSections: false
      HandlePres: false
      AddExtLinkClasses: false
