@@ -35,7 +35,12 @@ function readTokens( string $input ): array {
 function serializeTokens( $tokens ) {
 	$output = "";
 	foreach ( $tokens as $t ) {
-		$output .= PHPUtils::jsonEncode( $t );
+		if ( is_array( $t ) ) {
+			# chunk boundary
+			$output .= '--';
+		} else {
+			$output .= PHPUtils::jsonEncode( $t );
+		}
 		if ( !( $t instanceof EOFTk ) ) {
 			$output .= "\n";
 		}
@@ -61,6 +66,8 @@ function parse( MockEnv $env, string $input, array $opts ): array {
 	$ret = $tokenizer->tokenizeSync( $input, [
 		'cb' => function ( $t ) use ( &$tokens ) {
 			PHPUtils::pushArray( $tokens, $t );
+			# chunk boundary
+			$tokens[] = [];
 		},
 		'sol' => $opts['sol']
 	] );

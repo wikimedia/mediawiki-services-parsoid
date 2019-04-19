@@ -435,7 +435,7 @@ class TokenUtils {
 	 * @param string $s The offset reference string
 	 * @param string $from Offset type to convert from
 	 * @param string $to Offset type to convert to
-	 * @param array<Token> $tokens
+	 * @param array<Token|string|array> $tokens
 	 */
 	public static function convertTokenOffsets(
 		string $s, string $from, string $to, array $tokens

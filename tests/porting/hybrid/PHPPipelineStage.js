@@ -22,7 +22,7 @@ class PHPPipelineStage {
 		this.pipeFactory = pipeFactory;
 		this.stageName = name;
 		this.options = options;
-		this.piplineId = -1;
+		this.pipelineId = -1;
 		this.tokens = [];
 		this.resetState();
 		// For Sync & Async TTMs
@@ -69,7 +69,12 @@ class PHPPipelineStage {
 			case 'PegTokenizer':
 			case 'SyncTokenTransformManager':
 			case 'AsyncTokenTransformManager':
-				this.emit('chunk', output);
+				for (const chunk of output) {
+					if (this.stageName === 'PegTokenizer') {
+						this.env.log('trace/peg', this.pipelineId, '---->  ', chunk);
+					}
+					this.emit('chunk', chunk);
+				}
 				this.emit('end');
 				break;
 
@@ -109,10 +114,17 @@ class PHPPipelineStage {
 	}
 
 	emitTokens(out) {
-		const toks = out.trim().split("\n").map((str) => {
-			return str ? JSON.parse(str, (k, v) => TokenUtils.getToken(v)) : "";
-		});
-		// console.log("TOKS: " + JSON.stringify(toks));
+		const toks = [];
+		let chunk = [];
+		for (const str of out.trim().split("\n")) {
+			if (str === '--') {
+				toks.push(chunk);
+				chunk = [];
+			} else if (str) {
+				chunk.push(JSON.parse(str, (k, v) => TokenUtils.getToken(v)));
+			}
+		}
+		if (chunk.length) { toks.push(chunk); }
 		this.emitEvents(toks);
 	}
 
