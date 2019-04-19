@@ -6,7 +6,6 @@ $cfg['directory_list'] = [
 	'src',
 	'tests',
 	'vendor',
-	'node_modules/wikipeg/src',
 	'.phan/stubs',
 ];
 $cfg['exclude_file_regex'] = '@^vendor/jakub-onderka/php-parallel-lint@';

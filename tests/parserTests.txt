@@ -19745,6 +19745,21 @@ http://===r:::https://b
 </table>
 !! end
 
+# The above 'Parser24' fuzz test exposed a tokenizer bug (T221384);
+# this is a minimized version of the above test to catch regressions.
+!! test
+Fuzz testing: Parser24 (minimized)
+!! options
+parsoid=wt2html
+!! wikitext
+{{<u {{{{[[Sx-->}}
+!! html/php+tidy
+<p>{{<u>}}
+</u></p>
+!! html/parsoid
+<p>{{<u data-parsoid='{"stx":"html","a":{"{{{{[[Sx--":null},"sa":{"{{{{[[Sx--":""},"autoInsertedEnd":true}'>}}</u></p>
+!! end
+
 ## Remex doesn't account for fostered content.
 ## Known to produce bad XML for now
 !! test

@@ -2961,8 +2961,8 @@
     },
     "wikipeg": {
       "version": "2.0.1",
-      "from": "wikipeg@2.0.1",
-      "resolved": "https://registry.npmjs.org/wikipeg/-/wikipeg-2.0.1.tgz"
+      "from": "git+https://github.com/wikimedia/wikipeg.git#2.0.2",
+      "resolved": "git+https://github.com/wikimedia/wikipeg.git#604fd4128d71dafbe62f3c20f1881b09642b64e5"
     },
     "wordwrap": {
       "version": "0.0.3",

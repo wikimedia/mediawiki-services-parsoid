@@ -26,6 +26,7 @@
 		"wikimedia/assert": "0.2.2",
 		"wikimedia/remex-html": "2.0.2",
 		"wikimedia/scoped-callback": "3.0.0",
+		"wikimedia/wikipeg": "2.0.2",
 		"wikimedia/zest-css": "1.1.2",
 		"ext-dom": "*",
 		"ext-json": "*"
@@ -43,8 +44,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Parsoid\\": "src/",
-			"WikiPEG\\": "node_modules/wikipeg/src"
+			"Parsoid\\": "src/"
 		}
 	},
 	"autoload-dev": {
@@ -56,7 +56,6 @@
 	},
 	"scripts": {
 		"test": [
-			"@ensure-tokenizer",
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
@@ -70,13 +69,9 @@
 		],
 		"cover": "phpunit --coverage-html coverage",
 		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser",
-		"regen-php-tokenizer": "npm run regen-php-tokenizer",
-		"ensure-tokenizer": "if test ! -d node_modules/wikipeg ; then if which npm ; then npm install wikipeg ; else git clone https://gerrit.wikimedia.org/r/wikipeg node_modules/wikipeg ; fi ; fi"
+		"regen-php-tokenizer": "npm run regen-php-tokenizer"
 	},
 	"config": {
 		"optimize-autoloader": true
-	},
-	"extra": {
-		"phan": "1.2.4"
 	}
 }

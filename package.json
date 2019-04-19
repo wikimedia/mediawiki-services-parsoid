@@ -26,7 +26,7 @@
     "simplediff": "^0.1.1",
     "uuid": "^3.2.1",
     "wikimedia-langconv": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#master",
-    "wikipeg": "^2.0.1",
+    "wikipeg": "git+https://github.com/wikimedia/wikipeg.git#2.0.2",
     "worker-farm": "git+https://github.com/arlolra/node-worker-farm.git#queue",
     "yargs": "^7.1.0"
   },
