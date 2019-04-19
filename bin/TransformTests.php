@@ -93,7 +93,7 @@ class TransformTests {
 		$numFailures = 0;
 
 		if ( isset( $commandLine['timingMode'] ) ) {
-			if ( $wgCachedState == false ) {
+			if ( $wgCachedState === false ) {
 				$wgCachedState = true;
 				$testFile = file_get_contents( $commandLine['inputFile'] );
 				$testLines = explode( "\n", $testFile );
@@ -225,7 +225,7 @@ class TransformTests {
 		$numFailures = 0;
 
 		if ( isset( $commandLine['timingMode'] ) ) {
-			if ( $wgCachedState == false ) {
+			if ( $wgCachedState === false ) {
 				$wgCachedState = true;
 				$testFile = file_get_contents( $commandLine['inputFile'] );
 				$testLines = explode( "\n", $testFile );
@@ -483,6 +483,10 @@ function wfRunTests( $argc, $argv ) {
 	} elseif ( $transformer === 'Sanitizer' ) {
 		$pw = new Parsoid\Wt2Html\TT\Sanitizer( $manager, [ 'inTemplate' => false ] );
 		$results = wfSelectTestType( $opts, $manager, "Sanitizer", $pw );
+	} elseif ( $transformer === 'TokenStreamPatcher' ) {
+		$pw = new Parsoid\Wt2Html\TT\TokenStreamPatcher( $manager, [ 'inTemplate' => false ] );
+		$pw->resetState( [ 'toplevel' => true ] );
+		$results = wfSelectTestType( $opts, $manager, "TokenStreamPatcher", $pw );
 	}
 	/*
 	} else if ($opts->TokenStreamPatcher) {

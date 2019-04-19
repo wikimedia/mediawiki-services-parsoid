@@ -16,6 +16,7 @@ use Parsoid\Wt2Html\TT\NoInclude;
 use Parsoid\Wt2Html\TT\IncludeOnly;
 use Parsoid\Wt2Html\TT\OnlyInclude;
 use Parsoid\Wt2Html\TT\Sanitizer;
+use Parsoid\Wt2Html\TT\TokenStreamPatcher;
 
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
@@ -96,7 +97,9 @@ switch ( $transformerName ) {
 	case 'SanitizerHandler':
 		$transformer = new Sanitizer( $manager, $pipelineOpts );
 		break;
-	default:
+	case 'TokenStreamPatcher':
+		$transformer = new TokenStreamPatcher( $manager, $pipelineOpts );
+		break;	default:
 		throw new \Exception( "Unsupported!" );
 }
 
