@@ -5,26 +5,26 @@
  * tag types and attributes. Should run last in the third, synchronous
  * expansion stage.
  *
- * A large part of this code is a straight port from the PHP version.
- * @module
+ * FIXME: This code was originally ported from PHP to JS in 2012
+ * and periodically updated before being back to PHP. This code should be
+ * (a) resynced with core sanitizer changes (b) updated to use HTML5 spec
  */
 
 namespace Parsoid\Wt2Html\TT;
 
+use DOMElement;
 use Error;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\TokenUtils;
+use Parsoid\Config\Env;
+use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
 
-/**
- * @class
- */
 class Sanitizer extends TokenHandler {
 	private $inTemplate;
 	private $noEndTagSet;
@@ -33,28 +33,83 @@ class Sanitizer extends TokenHandler {
 	private $microData;
 	private $attrWhiteListCache;
 
+	const UTF8_REPLACEMENT = "ï¿½";
+
+	/**
+	 * Regular expression to match various types of character references in
+	 * Sanitizer::normalizeCharReferences and Sanitizer::decodeCharReferences
+	 */
+	const CHAR_REFS_RE_G = "/&([A-Za-z0-9\x80-\xff]+);
+		|&\#([0-9]+);
+		|&\#[xX]([0-9A-Fa-f]+);
+		|(&)/x";
+
+	const INSECURE_RE = '! expression
+		| filter\s*:
+		| accelerator\s*:
+		| -o-link\s*:
+		| -o-link-source\s*:
+		| -o-replace\s*:
+		| url\s*\(
+		| image\s*\(
+		| image-set\s*\(
+		| attr\s*\([^)]+[\s,]+url
+	!ix';
+
+	/**
+	 * Blacklist for evil uris like javascript:
+	 * WARNING: DO NOT use this in any place that actually requires blacklisting
+	 * for security reasons. There are NUMEROUS[1] ways to bypass blacklisting, the
+	 * only way to be secure from javascript: uri based xss vectors is to whitelist
+	 * things that you know are safe and deny everything else.
+	 * [1]: http://ha.ckers.org/xss.html
+	 */
+	const EVIL_URI_RE = '/(^|\s|\*\/\s*)(javascript|vbscript)([^\w]|$)/i';
+
+	const XMLNS_ATTRIBUTE_RE = '/^xmlns:[:A-Z_a-z-.0-9]+$/';
+
+	const IDN_RE_G = [
+		"[\t ]|" . // general whitespace
+		"­|" . // 00ad SOFT HYPHEN
+		"᠆|" . // 1806 MONGOLIAN TODO SOFT HYPHEN
+		"​|" . // 200b ZERO WIDTH SPACE
+		"⁠|" . // 2060 WORD JOINER
+		"﻿|" . // feff ZERO WIDTH NO-BREAK SPACE
+		"͏|" . // 034f COMBINING GRAPHEME JOINER
+		"᠋|" . // 180b MONGOLIAN FREE VARIATION SELECTOR ONE
+		"᠌|" . // 180c MONGOLIAN FREE VARIATION SELECTOR TWO
+		"᠍|" . // 180d MONGOLIAN FREE VARIATION SELECTOR THREE
+		"‌|" . // 200c ZERO WIDTH NON-JOINER
+		"‍|" . // 200d ZERO WIDTH JOINER
+		"[︀-️]" // , // fe00-fe0f VARIATION SELECTOR-1-16
+		// 'g'
+	];
+
+	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u';
+
 	/** Assumptions:
-	 1. This is "constant" -- enforced via Util.deepFreeze.
+	 1. This is "constant".
 	 2. All sanitizers have the same global config.
 	 */
-	private $globalConfig = [
+	const GLOBAL_CONFIG = [
 		'allowRdfaAttrs' => true,
 		'allowMicrodataAttrs' => true,
 		'html5Mode' => true
 	];
 
 	/** Character entity aliases accepted by MediaWiki */
-	private $htmlEntityAliases = [
+	const HTML_ENTITY_ALIASES = [
 		"רלמ" => 'rlm',
 		"رلم" => 'rlm'
 	];
 
 	/**
+	 * FIXME: Might need a HTML5 update.
 	 * List of all named character entities defined in HTML 4.01
 	 * http://www.w3.org/TR/html4/sgml/entities.html
 	 * As well as &apos; which is only defined starting in XHTML1.
 	 */
-	private $htmlEntities = [
+	const HTML_ENTITIES = [
 		'Aacute' => 193,
 		'aacute' => 225,
 		'Acirc' => 194,
@@ -310,61 +365,8 @@ class Sanitizer extends TokenHandler {
 		'zwnj' => 8204
 	];
 
-	private $UTF8_REPLACEMENT = "ï¿½";
-
-	/**
-	 * Regular expression to match various types of character references in
-	 * Sanitizer::normalizeCharReferences and Sanitizer::decodeCharReferences
-	 */
-	const CHAR_REFS_RE_G = "/&([A-Za-z0-9\x80-\xff]+);
-		 |&\#([0-9]+);
-		 |&\#[xX]([0-9A-Fa-f]+);
-		 |(&)/x";
-
-	/**
-	 * Blacklist for evil uris like javascript:
-	 * WARNING: DO NOT use this in any place that actually requires blacklisting
-	 * for security reasons. There are NUMEROUS[1] ways to bypass blacklisting, the
-	 * only way to be secure from javascript: uri based xss vectors is to whitelist
-	 * things that you know are safe and deny everything else.
-	 * [1]: http://ha.ckers.org/xss.html
-	 */
-	private $EVIL_URI_RE = '/(^|\s|\*\/\s*)(javascript|vbscript)([^\w]|$)/i';
-
-	private $XMLNS_ATTRIBUTE_RE = '/^xmlns:[:A-Z_a-z-.0-9]+$/';
-
-	private $IDN_RE_G = [
-		"[\t ]|" . // general whitespace
-		"­|" . // 00ad SOFT HYPHEN
-		"᠆|" . // 1806 MONGOLIAN TODO SOFT HYPHEN
-		"​|" . // 200b ZERO WIDTH SPACE
-		"⁠|" . // 2060 WORD JOINER
-		"﻿|" . // feff ZERO WIDTH NO-BREAK SPACE
-		"͏|" . // 034f COMBINING GRAPHEME JOINER
-		"᠋|" . // 180b MONGOLIAN FREE VARIATION SELECTOR ONE
-		"᠌|" . // 180c MONGOLIAN FREE VARIATION SELECTOR TWO
-		"᠍|" . // 180d MONGOLIAN FREE VARIATION SELECTOR THREE
-		"‌|" . // 200c ZERO WIDTH NON-JOINER
-		"‍|" . // 200d ZERO WIDTH JOINER
-		"[︀-️]" // , // fe00-fe0f VARIATION SELECTOR-1-16
-		// 'g'
-	];
-
-	/* private $insecureRE =
-		'expression' .
-		'|filter\s*:' .
-		'|accelerator\s*:' .
-		'|-o-link\s*:' .
-		'|-o-link-source\s*:' .
-		'|-o-replace\s*:' .
-		'|url\s*\(' .
-		'|image\s*\(' .
-		'|image-set\s*\(' .
-		'|attr\s*\([^)]+[\s,]+url',
-		'i'
-	; */
-
-	private $ieReplace = [
+	// U+0280, U+0274, U+207F, U+029F, U+026A, U+207D, U+208D
+	const IE_REPLACEMENTS = [
 		"ʀ" => 'r',
 		"ɴ" => 'n',
 		"ⁿ" => 'n',
@@ -374,18 +376,21 @@ class Sanitizer extends TokenHandler {
 		"₍" => '('
 	];
 
-	// php's `Sanitizer::getAttribsRegex()` only permits attribute keys matching
-	// these classes.  Transpiled by regexpu v4.1.1 on https://mothereff.in/regexpu
-	// which corresponds to Unicode v10.0.0
-	//
-	// From, /^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u
-	// HTML5 microdata
-
-	// private $getAttribsRegex = '/^(?:[0-:A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u0660-\u0669\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08BD\u0904-\u0939\u093D\u0950\u0958-\u0961\u0966-\u096F\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A66-\u0A6F\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AE6-\u0AEF\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B66-\u0B6F\u0B71-\u0B77\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0BE6-\u0BF2\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C60\u0C61\u0C66-\u0C6F\u0C78-\u0C7E\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CE6-\u0CEF\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D58-\u0D61\u0D66-\u0D78\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DE6-\u0DEF\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F-\u1049\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1877\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A16\u1A20-\u1A54\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B50-\u1B59\u1B83-\u1BA0\u1BAE-\u1BE5\u1C00-\u1C23\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2150-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312E\u3131-\u318E\u3192-\u3195\u31A0-\u31BA\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DB5\u4E00-\u9FEA\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7AE\uA7B0-\uA7B7\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA830-\uA835\uA840-\uA873\uA882-\uA8B3\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD\uA900-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF-\uA9D9\uA9E0-\uA9E4\uA9E6-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB65\uAB70-\uABE2\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE33\uDE40-\uDE47\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDCFF\uDE60-\uDE7E]|\uD804[\uDC03-\uDC37\uDC52-\uDC6F\uDC83-\uDCAF\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD03-\uDD26\uDD36-\uDD3F\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDD0-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDEF0-\uDEF9\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC50-\uDC59\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE50-\uDE59\uDE80-\uDEAA\uDEC0-\uDEC9\uDF00-\uDF19\uDF30-\uDF3B]|\uD806[\uDCA0-\uDCF2\uDCFF\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE83\uDE86-\uDE89\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD50-\uDD59]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDF00-\uDF44\uDF50\uDF93-\uDF9F\uDFE0\uDFE1]|\uD821[\uDC00-\uDFEC]|\uD822[\uDC00-\uDEF2]|\uD82C[\uDC00-\uDD1E\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD834[\uDF60-\uDF71]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD50-\uDD59]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D])(?:[\-\.0-:A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u0660-\u0669\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08BD\u0904-\u0939\u093D\u0950\u0958-\u0961\u0966-\u096F\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A66-\u0A6F\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AE6-\u0AEF\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B66-\u0B6F\u0B71-\u0B77\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0BE6-\u0BF2\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C60\u0C61\u0C66-\u0C6F\u0C78-\u0C7E\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CE6-\u0CEF\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D58-\u0D61\u0D66-\u0D78\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DE6-\u0DEF\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F-\u1049\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1877\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A16\u1A20-\u1A54\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B50-\u1B59\u1B83-\u1BA0\u1BAE-\u1BE5\u1C00-\u1C23\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2150-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312E\u3131-\u318E\u3192-\u3195\u31A0-\u31BA\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DB5\u4E00-\u9FEA\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7AE\uA7B0-\uA7B7\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA830-\uA835\uA840-\uA873\uA882-\uA8B3\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD\uA900-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF-\uA9D9\uA9E0-\uA9E4\uA9E6-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB65\uAB70-\uABE2\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE33\uDE40-\uDE47\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDCFF\uDE60-\uDE7E]|\uD804[\uDC03-\uDC37\uDC52-\uDC6F\uDC83-\uDCAF\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD03-\uDD26\uDD36-\uDD3F\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDD0-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDEF0-\uDEF9\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC50-\uDC59\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE50-\uDE59\uDE80-\uDEAA\uDEC0-\uDEC9\uDF00-\uDF19\uDF30-\uDF3B]|\uD806[\uDCA0-\uDCF2\uDCFF\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE83\uDE86-\uDE89\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD50-\uDD59]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDF00-\uDF44\uDF50\uDF93-\uDF9F\uDFE0\uDFE1]|\uD821[\uDC00-\uDFEC]|\uD822[\uDC00-\uDEF2]|\uD82C[\uDC00-\uDD1E\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD834[\uDF60-\uDF71]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD50-\uDD59]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C]|\uD869[\uDC00-\uDED6\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D])*$/';
-	private $getAttribsRegex = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u';
+	/**
+	 * Constructor for paragraph wrapper.
+	 * @param object $manager manager enviroment
+	 * @param array $options various configuration options
+	 */
+	public function __construct( $manager, array $options ) {
+		parent::__construct( $manager, $options );
+		$this->inTemplate = !empty( $options[ 'inTemplate' ] );
+		$this->setDerivedConstants();
+		$this->setMicroData();
+		$this->attrWhiteListCache = [];
+	}
 
 	// RDFa and microdata properties allow URLs, URIs and/or CURIs.
-	private function setMicroData() {
+	private function setMicroData(): void {
 		$this->microData = PHPUtils::makeSet( [
 				'rel', 'rev', 'about', 'property', 'resource', 'datatype', 'typeof', // RDFa
 				'itemid', 'itemprop', 'itemref', 'itemscope', 'itemtype'
@@ -396,7 +401,7 @@ class Sanitizer extends TokenHandler {
 	/**
 	 * @return string
 	 */
-	private function computeCSSDecodeRegexp() {
+	private function computeCSSDecodeRegexp(): string {
 		// Decode escape sequences and line continuation
 		// See the grammar in the CSS 2 spec, appendix D.
 		// This has to be done AFTER decoding character references.
@@ -409,13 +414,13 @@ class Sanitizer extends TokenHandler {
 		$space = '[\x20\t\r\n\f]';
 		$nl = '(?:\n|\r\n|\r|\f)';
 		$backslash = '\\\\';
-		return $backslash .
+		return '/' . $backslash .
 			'(?:' .
 			'(' . $nl . ')|' . // 1. Line continuation
 			'([0-9A-Fa-f]{1,6})' . $space . '?|' . // 2. character number
 			'(.)|' . // 3. backslash cancelling special meaning
 			'()$' . // 4. backslash at end of string
-			')';
+			')' . '/xu';
 	}
 
 	// SSS FIXME:
@@ -423,10 +428,10 @@ class Sanitizer extends TokenHandler {
 	// attrWhiteList code would have to be redone to cache the white list in the
 	// Sanitizer object rather than in the SanitizerConstants object.
 	/**
-	 * @param $config
+	 * @param array $config
 	 * @return array
 	 */
-	private function computeAttrWhiteList( $config ) {
+	private function computeAttrWhiteList( array $config ): array {
 		$common = [ 'id', 'class', 'lang', 'dir', 'title', 'style' ];
 
 		// WAI-ARIA
@@ -444,14 +449,14 @@ class Sanitizer extends TokenHandler {
 		// These attributes are specified in section 9 of
 		// https://www.w3.org/TR/2008/REC-rdfa-syntax-20081014
 		$rdfa = [ 'about', 'property', 'resource', 'datatype', 'typeof' ];
-		if ( $config[ 'allowRdfaAttrs' ] ) {
+		if ( !empty( $config[ 'allowRdfaAttrs' ] ) ) {
 			$common = array_merge( $common, $rdfa );
 		}
 
 		// Microdata. These are specified by
 		// https://html.spec.whatwg.org/multipage/microdata.html#the-microdata-model
 		$mda = [ 'itemid', 'itemprop', 'itemref', 'itemscope', 'itemtype' ];
-		if ( $config[ 'allowMicrodataAttrs' ] ) {
+		if ( !empty( $config[ 'allowMicrodataAttrs' ] ) ) {
 			$common = array_merge( $common, $mda );
 		}
 
@@ -634,66 +639,21 @@ class Sanitizer extends TokenHandler {
 	/**
 	 * setDerivedConstants()
 	 */
-	private function setDerivedConstants() {
+	private function setDerivedConstants(): void {
 		// Tags whose end tags are not accepted, but whose start /
 		// self-closing version might be legal.
 		$this->noEndTagSet = PHPUtils::makeSet( [ 'br' ] );
-
-		// |/?[^/])[^\\s]+$");
 		$this->cssDecodeRE = $this->computeCSSDecodeRegexp();
-		$this->attrWhiteList = $this->computeAttrWhiteList( $this->globalConfig );
-
-		// $ignoreFields = null;
-		/* if ( semver::gte( $process->version, '6.5.0' ) ) {
-			// We're ignoring non-global RegExps in >=6.5.0 because it's the first
-			// version of node to contain this lastIndex writable bug,
-			// https://github.com/nodejs/node/blob/2cc29517966de7257a2f1b34c58c77225a21e05d/deps/v8/test/webkit/fast/regex/lastIndex-expected.txt#L45
-			$ignoreFields = [
-				'EVIL_URI_RE' => true,
-				'XMLNS_ATTRIBUTE_RE' => true
-			];
-		} else { */
-			$ignoreFields = [];
-		// }
-
-// Can't freeze the regexp state variables w/ global flag
-		$ignoreFields[ 'IDN_RE_G' ] = true;
-		$ignoreFields[ 'CHAR_REFS_RE_G' ] = true;
-
-// Freeze it blocking all accidental changes
-// PORT_FIXME
-// PHPUtils::deepFreezeButIgnore( $SanitizerConstants, $ignoreFields );
-
-		/* The sanitizer is a stand-alone object ("static class") that is not tied to
-		 * the parsing pipeline. This lets it be usable by extensions and code that
-		 * don't have access to the parsing pipeline. The SanitizerHandler provides
-		 * the parsing pipeline a hook into the sanitizer's abilities */
-		// $Sanitizer = [];
-
-		// $Sanitizer->attrWhiteListCache = [];
-	}
-
-/* ---------------------------------------------- */
-
-	/**
-	 * Constructor for paragraph wrapper.
-	 * @param object $manager manager enviroment
-	 * @param array $options various configuration options
-	 */
-	public function __construct( $manager, array $options ) {
-		parent::__construct( $manager, $options );
-		$this->inTemplate = !empty( $options[ 'inTemplate' ] ) && $options[ 'inTemplate' ] ?? false;
-		$this->setDerivedConstants();
-		$this->setMicroData();
+		$this->attrWhiteList = $this->computeAttrWhiteList( self::GLOBAL_CONFIG );
 	}
 
 	/**
 	 * Returns true if a given Unicode codepoint is a valid character in XML.
 	 *
-	 * @param string $cp
+	 * @param int $cp
 	 * @return bool
 	 */
-	private function validateCodepoint( $cp ) {
+	private function validateCodepoint( int $cp ): bool {
 		return ( $cp === 0x09 )
 		|| ( $cp === 0x0a )
 		|| ( $cp === 0x0d )
@@ -703,12 +663,12 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * Returns a JS string from the provided code point.
+	 * Returns a string from the provided code point.
 	 *
-	 * @param string $cp
+	 * @param int $cp
 	 * @return string
 	 */
-	private function codepointToUtf8( $cp ) {
+	private function codepointToUtf8( int $cp ): string {
 		return mb_chr( $cp, 'UTF-8' );
 	}
 
@@ -716,19 +676,19 @@ class Sanitizer extends TokenHandler {
 	 * Returns the code point at the first position of the string.
 	 *
 	 * @param string $str
-	 * @return string
+	 * @return int
 	 */
-	private function utf8ToCodepoint( $str ) {
+	private function utf8ToCodepoint( string $str ): int {
 		return mb_ord( $str );
 	}
 
 	/**
 	 * @param string $tag
-	 * @return mixed
+	 * @return array
 	 */
-	private function getAttrWhiteList( $tag ) {
+	private function getAttrWhiteList( string $tag ) {
 		$awlCache = $this->attrWhiteListCache;
-		if ( !$awlCache[ $tag ] ) {
+		if ( empty( $awlCache[ $tag ] ) ) {
 			$awlCache[ $tag ] = PHPUtils::makeSet( $this->attrWhiteList[ $tag ] ?? [] );
 		}
 		return $awlCache[ $tag ];
@@ -736,26 +696,26 @@ class Sanitizer extends TokenHandler {
 
 	/**
 	 * @param string $host
-	 * @return mixed
+	 * @return string
 	 */
-	private function stripIDNs( $host ) {
-		return str_replace( $this->IDN_RE_G, '', $host );
+	private function stripIDNs( string $host ) {
+		return str_replace( self::IDN_RE_G, '', $host );
 	}
 
 	/**
-	 * @param $env
+	 * @param Env $env
 	 * @param string $href
 	 * @param string $mode
 	 * @return string|null
 	 */
-	private function cleanUrl( $env, $href, $mode ) {
+	private function cleanUrl( Env $env, string $href, string $mode ): ?string {
 		// PORT_FIXME - this code seems wrong and unnecessary, code tests right without it.
 		// if ( $mode !== 'wikilink' ) {
 		// $href = preg_replace( '/([\][<>"\x00-\x20\x7F\|])/', $href, urlencode( $href ) );
 		// $temp = 0;  // just here to provide a line for a breakpoint
 		// }
 
-		$result = preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
+		preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
 		$proto = null;
 		$host = null;
 		$path = null;
@@ -767,7 +727,7 @@ class Sanitizer extends TokenHandler {
 				return null;
 			}
 			$host = $this->stripIDNs( $bits[ 2 ] );
-			$result = preg_match( '/^%5B([0-9A-Fa-f:.]+)%5D((:\d+)?)$/', $host, $match );
+			preg_match( '/^%5B([0-9A-Fa-f:.]+)%5D((:\d+)?)$/', $host, $match );
 			if ( $match ) {
 				// IPv6 host names
 				$host = '[' . $match[ 1 ] . ']' . $match[ 2 ];
@@ -788,25 +748,25 @@ class Sanitizer extends TokenHandler {
 	 * @param string $name
 	 * @return string
 	 */
-	private function decodeEntity( $name ) {
-		if ( $this->htmlEntityAliases[ $name ] ) {
-			$name = $this->htmlEntityAliases[ $name ];
+	private function decodeEntity( string $name ): string {
+		if ( self::HTML_ENTITY_ALIASES[ $name ] ) {
+			$name = self::HTML_ENTITY_ALIASES[ $name ];
 		}
-		$e = $this->htmlEntities[ $name ];
-		return ( $e ) ? $this->codepointToUtf8( $e ) : '&' . $name . ';';
+		$e = self::HTML_ENTITIES[ $name ] ?? null;
+		return $e ? $this->codepointToUtf8( $e ) : '&' . $name . ';';
 	}
 
 	/**
 	 * Return UTF-8 string for a codepoint if that is a valid
 	 * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
-	 * @param string $codepoint
+	 * @param int $codepoint
 	 * @return string
 	 */
-	private function decodeChar( $codepoint ) {
+	private function decodeChar( int $codepoint ): string {
 		if ( $this->validateCodepoint( $codepoint ) ) {
 			return $this->codepointToUtf8( $codepoint );
 		} else {
-			return $this->UTF8_REPLACEMENT;
+			return self::UTF8_REPLACEMENT;
 		}
 	}
 
@@ -816,21 +776,22 @@ class Sanitizer extends TokenHandler {
 	 * @param string $text
 	 * @return string
 	 */
-	private function decodeCharReferences( $text ) {
+	private function decodeCharReferences( string $text ): string {
 		return preg_replace_callback(
-		self::CHAR_REFS_RE_G,
+			self::CHAR_REFS_RE_G,
 			function ( $matches ) {
-				if ( $matches[1] != '' ) {
+				if ( $matches[1] !== '' ) {
 					return $this->decodeEntity( $matches[1] );
-				} elseif ( $matches[2] != '' ) {
+				} elseif ( $matches[2] !== '' ) {
 					return $this->decodeChar( intval( $matches[2] ) );
-				} elseif ( $matches[3] != '' ) {
+				} elseif ( $matches[3] !== '' ) {
 					return $this->decodeChar( hexdec( $matches[3] ) );
 				}
 				# Last case should be an ampersand by itself
 				return $matches[4];
 			},
-			$text );
+			$text
+		);
 	}
 
 	/**
@@ -838,21 +799,20 @@ class Sanitizer extends TokenHandler {
 	 * @param string $quoteChar
 	 * @return string
 	 */
-	private function removeMismatchedQuoteChar( $str, $quoteChar ) {
+	private function removeMismatchedQuoteChar( string $str, string $quoteChar ): string {
 		$re1 = null;
 		$re2 = null;
 		if ( $quoteChar === "'" ) {
-			$re1 = /* RegExp */ "/'/g";
+			$re1 = /* RegExp */ "/'/";
 			$re2 = /* RegExp */ "/'([^'\\n\\r\\f]*)\$/";
 		} else {
-			$re1 = /* RegExp */ '/"/g';
+			$re1 = /* RegExp */ '/"/';
 			$re2 = /* RegExp */ '/"([^"\n\r\f]*)$/';
 		}
-		$mismatch = ( mb_strlen( preg_match( $re1, $str ) || [] ) ) % 2 === 1;
+		$mismatch = ( strlen( preg_match_all( $re1, $str ) || [] ) ) % 2 === 1;
 		if ( $mismatch ) {
-			$str = str_replace( $re2,
-				// replace the mismatched quoteChar with a space
-				' ' . $quoteChar, $str );
+			// replace the mismatched quoteChar with a space
+			$str = str_replace( $re2, ' ' . $quoteChar, $str );
 		}
 		return $str;
 	}
@@ -863,36 +823,15 @@ class Sanitizer extends TokenHandler {
 	 *  - decode escape sequences
 	 *  - convert characters that IE6 interprets into ascii
 	 *  - remove comments, unless the entire value is one single comment
-	 * @param string $value the css string
+	 * @param string $text the css string
 	 * @return string normalized css
 	 */
-	private function normalizeCss( $value ) {
+	private function normalizeCss( string $text ): string {
 		// Decode character references like &#123;
-		$value = $this->decodeCharReferences( $value );
-		// Decode escape sequences and line continuation
-		// See the grammar in the CSS 2 spec, appendix D.
-		// This has to be done AFTER decoding character references.
-		// This means it isn't possible for this function to return
-		// unsanitized escape sequences. It is possible to manufacture
-		// input that contains character references that decode to
-		// escape sequences that decode to character references, but
-		// it's OK for the return value to contain character references
-		// because the caller is supposed to escape those anyway.
-		if ( !isset( $decodeRegex ) ) {
-			$space = '[\\x20\\t\\r\\n\\f]';
-			$nl = '(?:\\n|\\r\\n|\\r|\\f)';
-			$backslash = '\\\\';
-			$decodeRegex =
-				"/ $backslash
-				(?:
-				($nl) |  # 1. Line continuation
-				([0-9A-Fa-f]{1,6})$space? |  # 2. character number
-				(.) | # 3. backslash cancelling special meaning
-				() | # 4. backslash at end of string
-				)/xu";
-		}
-		$value = preg_replace_callback(
-			$decodeRegex,
+		$text = $this->decodeCharReferences( $text );
+
+		$text = preg_replace_callback(
+			$this->cssDecodeRE,
 			function ( $matches ) {
 				if ( $matches[1] !== '' ) {
 					// Line continuation
@@ -904,7 +843,7 @@ class Sanitizer extends TokenHandler {
 				} else {
 					$char = '\\';
 				}
-				if ( $char == "\n" || $char == '"' || $char == "'" || $char == '\\' ) {
+				if ( $char === "\n" || $char === '"' || $char === "'" || $char === '\\' ) {
 					// These characters need to be escaped in strings
 					// Clean up the escape sequence to avoid parsing errors by clients
 					return '\\' . dechex( ord( $char ) ) . ' ';
@@ -913,9 +852,11 @@ class Sanitizer extends TokenHandler {
 					return $char;
 				}
 			},
-			$value );
+			$text
+		);
+
 		// Normalize Halfwidth and Fullwidth Unicode block that IE6 might treat as ascii
-		$value = preg_replace_callback(
+		$text = preg_replace_callback(
 			'/[！-［］-ｚ]/u', // U+FF01 to U+FF5A, excluding U+FF3C (T60088)
 			function ( $matches ) {
 				$cp = $this->utf8ToCodepoint( $matches[0] );
@@ -924,36 +865,45 @@ class Sanitizer extends TokenHandler {
 				}
 				return chr( $cp - 65248 ); // ASCII range \x21-\x7A
 			},
-			$value
+			$text
 		);
+
 		// Convert more characters IE6 might treat as ascii
-		// U+0280, U+0274, U+207F, U+029F, U+026A, U+207D, U+208D
-		$value = str_replace(
-			[ 'ʀ', 'ɴ', 'ⁿ', 'ʟ', 'ɪ', '⁽', '₍' ],
-			[ 'r', 'n', 'n', 'l', 'i', '(', '(' ],
-			$value
-		);
+		$text = strtr( $text, self::IE_REPLACEMENTS );
+
+		// PORT-FIXME: This code has been copied from core's Sanitizer and we
+		// need to verify that this behavior compared to what Parsoid/JS does.
+		//
 		// Let the value through if it's nothing but a single comment, to
 		// allow other functions which may reject it to pass some error
 		// message through.
-		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !x', $value ) ) {
+		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !x', $text ) ) {
 			// Remove any comments; IE gets token splitting wrong
 			// This must be done AFTER decoding character references and
 			// escape sequences, because those steps can introduce comments
 			// This step cannot introduce character references or escape
 			// sequences, because it replaces comments with spaces rather
 			// than removing them completely.
-			$value = $this->delimiterReplace( '/*', '*/', ' ', $value );
+			$text = $this->delimiterReplace( '/*', '*/', ' ', $text );
 			// Remove anything after a comment-start token, to guard against
 			// incorrect client implementations.
-			$commentPos = strpos( $value, '/*' );
+			$commentPos = strpos( $text, '/*' );
 			if ( $commentPos !== false ) {
-				$value = substr( $value, 0, $commentPos );
+				$text = substr( $text, 0, $commentPos );
 			}
 		}
+
+		// Fix up unmatched double-quote and single-quote chars
+		// Full CSS syntax here: http://www.w3.org/TR/CSS21/syndata.html#syntax
+		//
+		// This can be converted to a function and called once for ' and "
+		// but we have to construct 4 different REs anyway
+		$text = $this->removeMismatchedQuoteChar( $text, "'" );
+		$text = $this->removeMismatchedQuoteChar( $text, '"' );
+
 		// S followed by repeat, iteration, or prolonged sound marks,
 		// which IE will treat as "ss"
-		$value = preg_replace(
+		$text = preg_replace(
 			'/s(?:
 				\xE3\x80\xB1 | # U+3031
 				\xE3\x82\x9D | # U+309D
@@ -964,37 +914,13 @@ class Sanitizer extends TokenHandler {
 				\xEF\xBD\xB0   # U+FF70
 			)/ix',
 			'ss',
-			$value
+			$text
 		);
-		return $value;
+
+		return $text;
 	}
 
-	/**
-	 * @param array $matches
-	 * @return string
-	 */
-	private function cssDecodeCallback( $matches ) {
-		if ( $matches[1] !== '' ) {
-			// Line continuation
-			return '';
-		} elseif ( $matches[2] !== '' ) {
-			$char = $this->codepointToUtf8( hexdec( $matches[2] ) );
-		} elseif ( $matches[3] !== '' ) {
-			$char = $matches[3];
-		} else {
-			$char = '\\';
-		}
-		if ( $char == "\n" || $char == '"' || $char == "'" || $char == '\\' ) {
-			// These characters need to be escaped in strings
-			// Clean up the escape sequence to avoid parsing errors by clients
-			return '\\' . dechex( ord( $char ) ) . ' ';
-		} else {
-			// Decode unnecessary escape
-			return $char;
-		}
-	}
-
-// PORT_FIXME - The delimiterReplace code below is from StringUtils in core
+	// PORT_FIXME - The delimiterReplace code below is from StringUtils in core
 
 	/**
 	 * Perform an operation equivalent to `preg_replace_callback()`
@@ -1020,9 +946,9 @@ class Sanitizer extends TokenHandler {
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
-	private function delimiterReplaceCallback( $startDelim, $endDelim, $callback,
-											  $subject, $flags = ''
-	) {
+	private function delimiterReplaceCallback(
+		string $startDelim, string $endDelim, callable $callback, string $subject, string $flags = ''
+	): string {
 		$inputPos = 0;
 		$outputPos = 0;
 		$contentPos = 0;
@@ -1037,9 +963,9 @@ class Sanitizer extends TokenHandler {
 			preg_match( "!($encStart)|($encEnd)!S$flags", $subject, $m, PREG_OFFSET_CAPTURE, $inputPos )
 		) {
 			$tokenOffset = $m[0][1];
-			if ( $m[1][0] != '' ) {
+			if ( $m[1][0] !== '' ) {
 				if ( $foundStart &&
-					$strcmp( $endDelim, substr( $subject, $tokenOffset, $endLength ) ) == 0
+					$strcmp( $endDelim, substr( $subject, $tokenOffset, $endLength ) ) === 0
 				) {
 					# An end match is present at the same location
 					$tokenType = 'end';
@@ -1048,13 +974,13 @@ class Sanitizer extends TokenHandler {
 					$tokenType = 'start';
 					$tokenLength = strlen( $m[0][0] );
 				}
-			} elseif ( $m[2][0] != '' ) {
+			} elseif ( $m[2][0] !== '' ) {
 				$tokenType = 'end';
 				$tokenLength = strlen( $m[0][0] );
 			} else {
 				throw new \InvalidArgumentException( 'Invalid delimiter given to ' . __METHOD__ );
 			}
-			if ( $tokenType == 'start' ) {
+			if ( $tokenType === 'start' ) {
 				# Only move the start position if we haven't already found a start
 				# This means that START START END matches outer pair
 				if ( !$foundStart ) {
@@ -1070,7 +996,7 @@ class Sanitizer extends TokenHandler {
 					# to protect against missing END when it overlaps with START
 					$inputPos = $tokenOffset + 1;
 				}
-			} elseif ( $tokenType == 'end' ) {
+			} elseif ( $tokenType === 'end' ) {
 				if ( $foundStart ) {
 					# Found match
 					$output .= $callback( [
@@ -1108,7 +1034,9 @@ class Sanitizer extends TokenHandler {
 	 * @param string $flags Regular expression flags
 	 * @return string The string with the matches replaced
 	 */
-	private function delimiterReplace( $startDelim, $endDelim, $replace, $subject, $flags = '' ) {
+	private function delimiterReplace(
+		string $startDelim, string $endDelim, string $replace, string $subject, string $flags = ''
+	): string {
 		return $this->delimiterReplaceCallback(
 			$startDelim, $endDelim,
 			function ( array $matches ) use ( $replace ) {
@@ -1119,118 +1047,15 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * @param $text
-	 * @return string
-	 */
-	private function checkCss( $text ) {
-		$text = self::normalizeCss( $text );
-		// \000-\010\013\016-\037\177 are the octal escape sequences
-		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $text )
-			|| strpos( $text, $this->UTF8_REPLACEMENT ) !== false
-		) {
-			return '/* invalid control char */';
-		} elseif ( preg_match(
-			'! expression
-				| filter\s*:
-				| accelerator\s*:
-				| -o-link\s*:
-				| -o-link-source\s*:
-				| -o-replace\s*:
-				| url\s*\(
-				| image\s*\(
-				| image-set\s*\(
-				| attr\s*\([^)]+[\s,]+url
-			!ix', $text ) ) {
-			return '/* insecure input */';
-		} else {
-			return $text;
-		}
-	}
-
-	/**
-	 * @param $id
-	 * @return string
-	 */
-	private function normalizeSectionIdWhiteSpace( $id ) {
-		return trim( preg_replace( '/[ _]+/', ' ', $id ) );
-	}
-
-	// PORT_FIXME: this method is deprecated in PHP core, replaced by
-	// private Sanitizer.escapeIdInternal() and a variety of
-	// public Sanitizer.escapeIdFor* methods.  We should do the same.
-	/**
-	 * Helper for escapeIdFor*() functions. Performs most of the actual escaping.
-	 *
-	 * @param string $id String to escape.
-	 * @param string $mode 'html5' or 'legacy'
-	 * @return string
-	 */
-	private function escapeIdInternal( $id, $mode ) {
-		switch ( $mode ) {
-			case 'html5':
-			$id = preg_replace( '/ /', '_', $id );
-			break;
-			case 'legacy':
-			// This corresponds to 'noninitial' mode of the old escapeId
-			$id = preg_replace( '/ /', '_', $id );
-			$id = Util::phpURLEncode( $id );
-			$id = preg_replace( '/%3A/', ':', $id );
-			$id = preg_replace( '/%/', '.', $id );
-			break;
-			default:
-			throw new Error( 'Invalid mode: ' . $mode );
-		}
-		return $id;
-	}
-
-	/**
-	 * Note the following, copied from the PHP implementation:
-	 *   WARNING: unlike escapeId(), the output of this function is not guaranteed
-	 *   to be HTML safe, be sure to use proper escaping.
-	 * This is usually handled for us by the HTML serialization algorithm, but
-	 * be careful of corner cases (such as emitting attributes in wikitext).
-	 * @param $id
-	 * @param $options
-	 * @return string
-	 */
-	private function escapeIdForAttribute( $id, $options ) {
-		// For consistency with PHP's API, we accept "primary" or "fallback" as
-		// the mode in 'options'.  This (slightly) abstracts the actual details
-		// of the id encoding from the Parsoid code which handles ids; we could
-		// swap primary and fallback here, or even transition to a new HTML6
-		// encoding (!), without touching all the call sites.
-		// $mode = ( $options && $options->fallback ) ? 'legacy' : 'html5';
-		$mode = ( isset( $options[ 'fallback' ] ) ) ? 'legacy' : 'html5';    // PORT_FIXME
-		return self::escapeIdInternal( $id, $mode );
-	}
-
-	/**
-	 * @param $id
-	 * @return string
-	 */
-	private function escapeIdForLink( $id ) {
-		return self::escapeIdInternal( $id, 'html5' );
-	}
-
-	/**
-	 * @param $id
-	 * @return string
-	 */
-	private function escapeIdForExternalInterwiki( $id ) {
-		// Assume $wgExternalInterwikiFragmentMode = 'legacy'
-		return self::escapeIdInternal( $id, 'legacy' );
-	}
-
-	/**
 	 * SSS FIXME: There is a test in mediawiki.environment.js that doles out
-	 * and tests about ids. There are probably some tests in mediawiki.Util.js
-	 * as well. We should move all these kind of tests somewhere else.
-	 * @param $k
-	 * @param $v
-	 * @param $attrs
+	 * and tests about ids. There are probably some tests in Util.php as well.
+	 * We should move all these kind of tests somewhere else.
+	 * @param string $k
+	 * @param string $v
+	 * @param KV[] $attrs
 	 * @return bool
 	 */
-	private function isParsoidAttr( $k, $v, $attrs ) {
+	private function isParsoidAttr( string $k, string $v, array $attrs ): bool {
 		// NOTES:
 		// 1. Currently the tokenizer unconditionally escapes typeof and about
 		// attributes from wikitxt to data-x-typeof and data-x-about. So,
@@ -1250,19 +1075,21 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * @param $env
-	 * @param $tagName
-	 * @param $token
-	 * @param $attrs
+	 * @param Env $env
+	 * @param string|null $tagName
+	 * @param Token|null $token
+	 * @param array $attrs
 	 * @return array
 	 */
-	private function sanitizeTagAttrs( $env, $tagName, $token, $attrs ) {
+	private function sanitizeTagAttrs(
+		Env $env, ?string $tagName, ?Token $token, array $attrs
+	): array {
 		$tag = $tagName ?? $token->getName();
-		$allowRdfa = $this->globalConfig[ 'allowRdfaAttrs' ];
-		$allowMda = $this->globalConfig[ 'allowMicrodataAttrs' ];
-		$html5Mode = $this->globalConfig[ 'html5Mode' ];
-		$xmlnsRE = $this->XMLNS_ATTRIBUTE_RE;
-		$evilUriRE = $this->EVIL_URI_RE;
+		$allowRdfa = self::GLOBAL_CONFIG[ 'allowRdfaAttrs' ];
+		$allowMda = self::GLOBAL_CONFIG[ 'allowMicrodataAttrs' ];
+		$html5Mode = self::GLOBAL_CONFIG[ 'html5Mode' ];
+		$xmlnsRE = self::XMLNS_ATTRIBUTE_RE;
+		$evilUriRE = self::EVIL_URI_RE;
 
 		$wlist = $this->getAttrWhiteList( $tag );
 		$newAttrs = [];
@@ -1298,7 +1125,7 @@ class Sanitizer extends TokenHandler {
 			// may be aggressive. There is no need to escape typeof strings
 			// that or about ids that don't resemble Parsoid tokens/about ids.
 			if ( !$psdAttr ) {
-				if ( !preg_match( $this->getAttribsRegex, $k ) ) {
+				if ( !preg_match( self::GET_ATTRIBS_RE, $k ) ) {
 					$newAttrs[ $k ] = [ null, $origV, $origK ];
 					continue;
 				}
@@ -1329,7 +1156,7 @@ class Sanitizer extends TokenHandler {
 			}
 
 			if ( $k === 'id' ) {
-				$v = self::escapeIdForAttribute( $v, null );    // PORT-FIXME null???
+				$v = self::escapeIdForAttribute( $v );
 			}
 
 			// RDFa and microdata properties allow URLs, URIs and/or CURIs.
@@ -1388,11 +1215,11 @@ class Sanitizer extends TokenHandler {
 	 * Used primarily when we're applying tokenized attributes directly to
 	 * dom elements, which wouldn't have had a chance to be sanitized before
 	 * tree building.
-	 * @param $env environment
-	 * @param $wrapper wrapper
-	 * @param $attrs attributes
+	 * @param Env $env environment
+	 * @param DOMElement $wrapper wrapper
+	 * @param array $attrs attributes
 	 */
-	private function applySanitizedArgs( $env, $wrapper, $attrs ) {
+	public function applySanitizedArgs( Env $env, DOMElement $wrapper, array $attrs ): void {
 		$sanitizedAttrs = self::sanitizeTagAttrs( $env, strtolower( $wrapper->nodeName ), null, $attrs );
 		foreach ( $sanitizedAttrs as $k => $v ) {
 			if ( $v[ 0 ] ) {
@@ -1402,17 +1229,35 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
+	 * @param string $text
+	 * @return string
+	 */
+	public function checkCss( string $text ): string {
+		$text = self::normalizeCss( $text );
+		// \000-\010\013\016-\037\177 are the octal escape sequences
+		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $text )
+			|| strpos( $text, self::UTF8_REPLACEMENT ) !== false
+		) {
+			return '/* invalid control char */';
+		} elseif ( preg_match( self::INSECURE_RE, $text ) ) {
+			return '/* insecure input */';
+		} else {
+			return $text;
+		}
+	}
+
+	/**
 	 * Sanitize a token.
 	 *
 	 * XXX: Make attribute sanitation reversible by storing round-trip info in
 	 * token.dataAttribs object (which is serialized as JSON in a data-parsoid
 	 * attribute in the DOM).
-	 * @param object $env
-	 * @param Token $token
+	 * @param Env $env
+	 * @param Token|string $token
 	 * @param bool $inTemplate
-	 * @return string
+	 * @return Token|string
 	 */
-	public function sanitizeToken( $env, $token, $inTemplate ) {
+	public function sanitizeToken( Env $env, $token, bool $inTemplate ) {
 		$i = null;
 		$l = null;
 		$kv = null;
@@ -1421,9 +1266,9 @@ class Sanitizer extends TokenHandler {
 		$tagWhiteList = WikitextConstants::$Sanitizer[ 'TagWhiteList' ];
 
 		if ( TokenUtils::isHTMLTag( $token )
-			&& !array_key_exists( $token->getName(), $tagWhiteList )
-			|| ( $token instanceof EndTagTk
-			&& array_key_exists( $token->getName(), $noEndTagSet ) )
+			&& ( empty( $tagWhiteList[$token->getName()] )
+				|| ( $token instanceof EndTagTk && !empty( $noEndTagSet[$token->getName()] ) )
+			)
 		) { // unknown tag -- convert to plain text
 			if ( !$inTemplate && $token->dataAttribs->tsr ) {
 				// Just get the original token source, so that we can avoid
@@ -1445,34 +1290,32 @@ class Sanitizer extends TokenHandler {
 			} else {
 				$token = '</' . $token->getName() . '>';
 			}
-		} else {
-			if ( $attribs && count( $attribs ) > 0 ) {
-				// Sanitize attributes
-				if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
-					$newAttrs = $this->sanitizeTagAttrs( $env, null, $token, $attribs );
+		} elseif ( $attribs && count( $attribs ) > 0 ) {
+			// Sanitize attributes
+			if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
+				$newAttrs = $this->sanitizeTagAttrs( $env, null, $token, $attribs );
 
-					// Reset token attribs and rebuild
-					$token->attribs = [];
+				// Reset token attribs and rebuild
+				$token->attribs = [];
 
-					// SSS FIXME: We are right now adding shadow information for all sanitized
-					// attributes.  This is being done to minimize dirty diffs for the first
-					// cut.  It can be reasonably argued that we can permanently delete dangerous
-					// and unacceptable attributes in the interest of safety/security and the
-					// resultant dirty diffs should be acceptable.  But, this is something to do
-					// in the future once we have passed the initial tests of parsoid acceptance.
-					// Object::keys( $newAttrs )->forEach( function ( $j ) use ( &$newAttrs, &$token ) {
-					foreach ( $newAttrs as $k => $v ) {
-							// explicit check against null to prevent discarding empty strings
-							if ( $v[ 0 ] !== null ) {
-								$token->addNormalizedAttribute( $k, $v[ 0 ], $v[ 1 ] );
-							} else {
-								$token->setShadowInfo( $v[ 2 ], $v[ 0 ], $v[ 1 ] );
-							}
+				// SSS FIXME: We are right now adding shadow information for all sanitized
+				// attributes.  This is being done to minimize dirty diffs for the first
+				// cut.  It can be reasonably argued that we can permanently delete dangerous
+				// and unacceptable attributes in the interest of safety/security and the
+				// resultant dirty diffs should be acceptable.  But, this is something to do
+				// in the future once we have passed the initial tests of parsoid acceptance.
+				// Object::keys( $newAttrs )->forEach( function ( $j ) use ( &$newAttrs, &$token ) {
+				foreach ( $newAttrs as $k => $v ) {
+					// explicit check against null to prevent discarding empty strings
+					if ( $v[ 0 ] !== null ) {
+						$token->addNormalizedAttribute( $k, $v[ 0 ], $v[ 1 ] );
+					} else {
+						$token->setShadowInfo( $v[ 2 ], $v[ 0 ], $v[ 1 ] );
 					}
-				} else {
-					// EndTagTk, drop attributes
-					$token->attribs = [];
 				}
+			} else {
+				// EndTagTk, drop attributes
+				$token->attribs = [];
 			}
 		}
 
@@ -1483,9 +1326,9 @@ class Sanitizer extends TokenHandler {
 	 * Sanitize a title to be used in a URI?
 	 * @param string $title
 	 * @param bool $isInterwiki
-	 * @return string|string[]|null
+	 * @return string
 	 */
-	public function sanitizeTitleURI( $title, $isInterwiki ) {
+	public function sanitizeTitleURI( string $title, bool $isInterwiki ): string {
 		$bits = explode( '#', $title );
 		$anchor = null;
 		if ( count( $bits ) > 1 ) { // split at first '#'
@@ -1495,9 +1338,10 @@ class Sanitizer extends TokenHandler {
 		$titleEncoded = PHPUtils::encodeURIComponent( $title );
 		$title = preg_replace( '/[%? \[\]#|<>]/', $titleEncoded, $title );
 		if ( $anchor !== null ) {
-			$title .= '#' . ( ( $isInterwiki ) ?
+			$title .= '#' . ( $isInterwiki ?
 				$this->escapeIdForExternalInterwiki( $anchor ) :
-				$this->escapeIdForLink( $anchor ) );
+				$this->escapeIdForLink( $anchor )
+ );
 		}
 		return $title;
 	}
@@ -1510,10 +1354,9 @@ class Sanitizer extends TokenHandler {
 		$env = $this->manager->env;
 		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
-		}
-		);
+		} );
 
-	// Pass through a transparent line meta-token
+		// Pass through a transparent line meta-token
 		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
 			$env->log( 'trace/sanitizer', $this->manager->pipelineId, '--unchanged--' );
 			return [ 'tokens' => [ $token ] ];
@@ -1523,8 +1366,82 @@ class Sanitizer extends TokenHandler {
 
 		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
 			return ' ---> ' . json_encode( $token );
+		} );
+		return [ 'tokens' => [ $token ] ];
+	}
+
+	// PORT_FIXME: this method is deprecated in PHP core, replaced by
+	// private Sanitizer.escapeIdInternal() and a variety of
+	// public Sanitizer.escapeIdFor* methods.  We should do the same.
+	/**
+	 * Helper for escapeIdFor*() functions. Performs most of the actual escaping.
+	 *
+	 * @param string $id String to escape.
+	 * @param string $mode 'html5' or 'legacy'
+	 * @return string
+	 */
+	private static function escapeIdInternal( string $id, string $mode ): string {
+		switch ( $mode ) {
+			case 'html5':
+				$id = preg_replace( '/ /', '_', $id );
+				break;
+
+			case 'legacy':
+				// This corresponds to 'noninitial' mode of the old escapeId
+				$id = preg_replace( '/ /', '_', $id );
+				$id = Util::phpURLEncode( $id );
+				$id = preg_replace( '/%3A/', ':', $id );
+				$id = preg_replace( '/%/', '.', $id );
+				break;
+
+			default:
+				throw new Error( 'Invalid mode: ' . $mode );
 		}
-		);
-	return [ 'tokens' => [ $token ] ];
+		return $id;
+	}
+
+	/**
+	 * @param string $id
+	 * @return string
+	 */
+	public static function escapeIdForLink( string $id ): string {
+		return self::escapeIdInternal( $id, 'html5' );
+	}
+
+	/**
+	 * @param string $id
+	 * @return string
+	 */
+	public static function escapeIdForExternalInterwiki( string $id ): string {
+		// Assume $wgExternalInterwikiFragmentMode = 'legacy'
+		return self::escapeIdInternal( $id, 'legacy' );
+	}
+	/**
+	 * Note the following, copied from the PHP implementation:
+	 *   WARNING: unlike escapeId(), the output of this function is not guaranteed
+	 *   to be HTML safe, be sure to use proper escaping.
+	 * This is usually handled for us by the HTML serialization algorithm, but
+	 * be careful of corner cases (such as emitting attributes in wikitext).
+	 *
+	 * @param string $id
+	 * @param array $options
+	 * @return string
+	 */
+	public static function escapeIdForAttribute( string $id, array $options = [] ): string {
+		// For consistency with PHP's API, we accept "primary" or "fallback" as
+		// the mode in 'options'.  This (slightly) abstracts the actual details
+		// of the id encoding from the Parsoid code which handles ids; we could
+		// swap primary and fallback here, or even transition to a new HTML6
+		// encoding (!), without touching all the call sites.
+		$mode = isset( $options[ 'fallback' ] ) ? 'legacy' : 'html5';
+		return self::escapeIdInternal( $id, $mode );
+	}
+
+	/**
+	 * @param string $id
+	 * @return string
+	 */
+	public static function normalizeSectionIdWhiteSpace( string $id ): string {
+		return trim( preg_replace( '/[ _]+/', ' ', $id ) );
 	}
 }

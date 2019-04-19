@@ -241,13 +241,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function hasValidProtocol( string $potentialLink ): bool {
-		// Experimental mock not a complete solution
-		return preg_match( '#^(https?:|//)#', $potentialLink )
-			|| preg_match( '#^(ircs?:|//)#', $potentialLink )
-			|| preg_match( '#^(news?:|//)#', $potentialLink )
-			|| preg_match( '#^(ftp?:|//)#', $potentialLink )
-			|| preg_match( '#^(mailto:)#', $potentialLink )
-			|| preg_match( '#^(gopher:)#', $potentialLink );
+		return preg_match( '#^((https?|ircs?|news|ftp|mailto|gopher):|//)#', $potentialLink );
 	}
 
 	/** @inheritDoc */

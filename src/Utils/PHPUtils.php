@@ -194,11 +194,13 @@ class PHPUtils {
 	}
 
 	/**
-	 * encodeURIComponent (JS compatible) function form stack overflow post
+	 * JS-compatible encodeURIComponent function
+	 * FIXME: See T221147 (for a post-port update)
+	 *
 	 * @param string $str
 	 * @return string
 	 */
-	public static function encodeURIComponent( $str ) {
+	public static function encodeURIComponent( string $str ): string {
 		$revert = [ '%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')' ];
 		return strtr( rawurlencode( $str ), $revert );
 	}
