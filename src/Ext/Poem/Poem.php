@@ -74,7 +74,9 @@ class Poem implements ExtensionTag {
 
 		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
-				'extTag' => 'poem'
+				'pipelineOpts' => [
+					'extTag' => 'poem',
+				],
 			]
 		);
 	}

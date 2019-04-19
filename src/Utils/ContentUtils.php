@@ -151,6 +151,84 @@ class ContentUtils {
 	}
 
 	/**
+	 * Shift the DSR of a DOM fragment.
+	 * @param Env $env
+	 * @param DOMNode $rootNode
+	 * @param callable $dsrFunc
+	 * @return DOMNode Returns the $rootNode passed in to allow chaining.
+	 */
+	public static function shiftDSR( Env $env, DOMNode $rootNode, callable $dsrFunc ): DOMNode {
+		$doc = $rootNode->ownerDocument;
+		$convertString = function ( $str ) {
+			// Stub $convertString out to allow definition of a pair of
+			// mutually-recursive functions.
+			return $str;
+		};
+		$convertNode = function ( DOMNode $node ) use ( $dsrFunc, &$convertString ) {
+			if ( !DOMUtils::isElt( $node ) ) {
+				return;
+			}
+			DOMUtils::assertElt( $node );
+			$dp = DOMDataUtils::getDataParsoid( $node );
+			if ( is_array( $dp->dsr ) ) {
+				$dp->dsr = $dsrFunc( $dp->dsr );
+				// We don't need to setDataParsoid because dp is not a copy
+			}
+
+			// Handle embedded HTML in Language Variant markup
+			$dmwv =
+				DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', null );
+			if ( $dmwv ) {
+				if ( $dmwv->disabled ) {
+					$dmwv->disabled->t = $convertString( $dmwv->disabled->t );
+				}
+				if ( $dmwv->twoway ) {
+					foreach ( $dmwv->twoway as $l ) {
+						$l->t = $convertString( $l->t );
+					}
+				}
+				if ( $dmwv->oneway ) {
+					foreach ( $dmwv->oneway as $l ) {
+						$l->f = $convertString( $l->f );
+						$l->t = $convertString( $l->t );
+					}
+				}
+				if ( $dmwv->filter ) {
+					$dmwv->filter->t = $convertString( $dmwv->filter->t );
+				}
+				DOMDataUtils::setJSONAttribute( $node, 'data-mw-variant', $dmwv );
+			}
+
+			if ( DOMUtils::matchTypeOf( $node, '/^mw:(Image|ExpandedAttrs)$/D' ) ) {
+				$dmw = DOMDataUtils::getDataMw( $node );
+				// Handle embedded HTML in template-affected attributes
+				if ( $dmw->attribs ) {
+					foreach ( $dmw->attribs as &$a ) {
+						foreach ( $a as $kOrV ) {
+							if ( gettype( $kOrV ) !== 'string' && $kOrV->html ) {
+								$kOrV->html = $convertString( $kOrV->html );
+							}
+						}
+					}
+				}
+				// Handle embedded HTML in figure-inline captions
+				if ( $dmw->caption ) {
+					$dmw->caption = $convertString( $dmw->caption );
+				}
+				DOMDataUtils::setDataMw( $node, $dmw );
+			}
+		};
+		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
+			$parentNode = $doc->createElement( 'body' );
+			$node = self::ppToDOM( $env, $str, [ 'node' => $parentNode ] );
+			DOMPostOrder::traverse( $node, $convertNode );
+			return self::ppToXML( $node, [ 'innerXML' => true ] );
+		};
+		DOMPostOrder::traverse( $rootNode, $convertNode );
+		return $rootNode; // chainable
+	}
+
+	/**
 	 * Dump the DOM with attributes.
 	 *
 	 * @param DOMElement $rootNode

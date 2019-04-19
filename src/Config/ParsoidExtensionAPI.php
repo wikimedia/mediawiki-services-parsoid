@@ -89,18 +89,19 @@ class ParsoidExtensionAPI {
 	 * Create a parsing pipeline to parse wikitext.
 	 *
 	 * @param string $wikitext
-	 * @param SourceRange $srcOffsets
 	 * @param array $parseOpts
 	 *    - extTag
 	 *    - extTagOpts
+	 *    - frame
 	 *    - inTemplate
 	 *    - inlineContext
 	 *    - inPHPBlock
+	 *    - srcOffsets
 	 * @param bool $sol
 	 * @return DOMDocument
 	 */
 	public function parseWikitextToDOM(
-		string $wikitext, SourceRange $srcOffsets, array $parseOpts, bool $sol
+		string $wikitext, array $parseOpts, bool $sol
 	): DOMDocument {
 		$doc = null;
 		if ( !$wikitext ) {
@@ -108,23 +109,29 @@ class ParsoidExtensionAPI {
 		} else {
 			// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
 			// The DOM will get unwrapped and integrated  when processing the top level document.
+			$pipelineOpts = $parseOpts['pipelineOpts'] ?? [];
 			$opts = [
 				// Full pipeline for processing content
 				'pipelineType' => 'text/x-mediawiki/full',
 				'pipelineOpts' => [
 					'expandTemplates' => true,
-					'extTag' => $parseOpts['extTag'],
-					'extTagOpts' => $parseOpts['extTagOpts'],
-					'inTemplate' => !empty( $parseOpts['inTemplate'] ),
-					'inlineContext' => !empty( $parseOpts['inlineContext'] ),
+					'extTag' => $pipelineOpts['extTag'],
+					'extTagOpts' => $pipelineOpts['extTagOpts'] ?? null,
+					'inTemplate' => !empty( $pipelineOpts['inTemplate'] ),
+					'inlineContext' => !empty( $pipelineOpts['inlineContext'] ),
 					// FIXME: Hack for backward compatibility
 					// support for extensions that rely on this behavior.
-					'inPHPBlock' => !empty( $parseOpts['inPHPBlock'] )
+					'inPHPBlock' => !empty( $pipelineOpts['inPHPBlock'] )
 				],
-				'srcOffsets' => $srcOffsets,
+				'srcOffsets' => $parseOpts['srcOffsets'] ?? null,
 				'sol' => $sol
 			];
-			$doc = PipelineUtils::processContentInPipeline( $this->env, $this->frame, $wikitext, $opts );
+			$doc = PipelineUtils::processContentInPipeline(
+				$this->env,
+				$parseOpts['frame'] ?: $this->frame,
+				$wikitext,
+				$opts
+			);
 		}
 		return $doc;
 	}
@@ -150,7 +157,11 @@ class ParsoidExtensionAPI {
 			$extTagOffsets->value->start
 		);
 
-		$doc = $this->parseWikitextToDOM( $wikitext, $srcOffsets, $parseOpts, /* sol */true );
+		$doc = $this->parseWikitextToDOM(
+			$wikitext,
+			[ 'srcOffsets' => $srcOffsets ] + $parseOpts,
+			/* sol */true
+		);
 
 		// Create a wrapper and migrate content into the wrapper
 		$wrapper = $doc->createElement( $parseOpts['wrapperTag'] );

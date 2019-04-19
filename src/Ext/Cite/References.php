@@ -486,8 +486,10 @@ class References implements ExtensionTag, SerialHandler {
 			$txt,
 			[
 				'wrapperTag' => 'div',
-				'extTag' => 'references',
-				'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
+				'pipelineOpts' => [
+					'extTag' => 'references',
+					'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
+				],
 			]
 		);
 

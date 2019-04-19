@@ -23,7 +23,8 @@ $ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10
 $temp0 =
 
 $ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils; $DOMUtils = $temp0::
+$ContentUtils = $temp0::ContentUtils; $DOMDataUtils = $temp0::
+DOMDataUtils; $DOMUtils = $temp0::
 DOMUtils; $parseWikitextToDOM = $temp0->
 parseWikitextToDOM; $Promise = $temp0::
 Promise; $Sanitizer = $temp0::
@@ -123,13 +124,14 @@ $state = $temp1->state;
 		$doc = /* await */ $parseWikitextToDOM(
 			$state,
 			$capV,
-			array_slice( $caption->srcOffsets, 2 ),
 			[
-				'extTag' => 'gallery',
-				'expandTemplates' => true,
-				'inTemplate' => $state->parseContext->inTemplate,
-				// FIXME: This needs more analysis.  Maybe it's inPHPBlock
-				'inlineContext' => true
+				'pipelineOpts' => [
+					'extTag' => 'gallery',
+					'inTemplate' => $state->parseContext->inTemplate,
+					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
+					'inlineContext' => true
+				],
+				'srcOffsets' => array_slice( $caption->srcOffsets, 2 )
 			],
 			false// Gallery captions are deliberately not parsed in SOL context
 		);
@@ -176,25 +178,54 @@ $opts = $temp2->opts;
 		$wt = $start + $file + $middle + $caption + $end;
 
 		// This is all in service of lining up the caption
-		$diff = count( $file ) - count( $matches[ 1 ] );
-		$startOffset = $obj->offset - strlen( $start ) - $diff - count( $middle );
-		$srcOffsets = [ $startOffset, $startOffset + count( $wt ) ];
+		$shiftOffset = function ( $offset ) use ( &$start, &$file, &$obj, &$middle, &$caption ) {
+			$offset -= strlen( $start );
+			if ( $offset <= 0 ) { return null;
+   }
+			if ( $offset <= count( $file ) ) {
+				// Align file part
+				return $obj->offset + $offset;
+			}
+			$offset -= count( $file );
+			$offset -= count( $middle );
+			if ( $offset <= 0 ) { return null;
+   }
+			if ( $offset <= count( $caption ) ) {
+				// Align caption part
+				return $obj->offset + count( $matches[ 1 ] ) + $offset;
+			}
+			return null;
+		};
 
 		$doc = /* await */ $parseWikitextToDOM(
 			$state,
 			$wt,
-			$srcOffsets,
 			[
-				'extTag' => 'gallery',
-				'expandTemplates' => true,
-				'inTemplate' => $state->parseContext->inTemplate,
-				// FIXME: This needs more analysis.  Maybe it's inPHPBlock
-				'inlineContext' => true
+				'pipelineOpts' => [
+					'extTag' => 'gallery',
+					'inTemplate' => $state->parseContext->inTemplate,
+					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
+					'inlineContext' => true
+				],
+				'frame' => $state->frame->newChild( $state->frame->title, [], $wt ),
+				'srcOffsets' => [ 0, count( $wt ) ]
 			],
 			true// sol
 		);
 
 		$body = $doc->body;
+
+		// Now shift the TSRs in the DOM by startOffset, and strip TSRs
+		// for bits which aren't the caption or file, since they
+		// don't refer to actual source wikitext
+		ContentUtils::shiftDSR( $env, $body, function ( $dsr ) use ( &$shiftOffset ) {
+				$dsr[ 0 ] = $shiftOffset( $dsr[ 0 ] );
+				$dsr[ 1 ] = $shiftOffset( $dsr[ 1 ] );
+				// If either offset is invalid, remove entire DSR
+				// if (dsr[0]===null || dsr[1]===null) { return null; }
+				return $dsr;
+		}
+		);
 
 		$thumb = $body->firstChild;
 		if ( $thumb->nodeName !== 'FIGURE' ) {

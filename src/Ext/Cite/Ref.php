@@ -48,12 +48,14 @@ class Ref implements ExtensionTag, SerialHandler {
 				// in-memory DOM which is simply a tree data structure, we can
 				// nest flow content in a <sup> tag.
 				'wrapperTag' => 'sup',
-				'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
-				'extTag' => 'ref',
-				'extTagOpts' => [ 'allowNestedRef' => $allowNestedRef ],
-				// FIXME: One-off PHP parser state leak.
-				// This needs a better solution.
-				'inPHPBlock' => true,
+				'pipelineOpts' => [
+					'extTag' => 'ref',
+					'extTagOpts' => [ 'allowNestedRef' => $allowNestedRef ],
+					'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
+					// FIXME: One-off PHP parser state leak.
+					// This needs a better solution.
+					'inPHPBlock' => true,
+				],
 			]
 		);
 	}
