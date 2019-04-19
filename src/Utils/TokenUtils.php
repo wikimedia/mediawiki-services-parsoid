@@ -504,8 +504,12 @@ class TokenUtils {
 				self::fixupOffsets( $token );
 			}
 		} elseif ( $input instanceof KV ) {
+			self::fixupOffsets( $input->k );
 			self::fixupOffsets( $input->v );
 		} elseif ( $input instanceof Token ) {
+			if ( isset( $input->dataAttribs->tokens ) ) {
+				self::fixupOffsets( $input->dataAttribs->tokens );
+			}
 			if ( isset( $input->dataAttribs->tagWidths ) ) {
 				// Reconvert offsets to widths
 				// to widths in a post-processing pass
