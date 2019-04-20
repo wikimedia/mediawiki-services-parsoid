@@ -682,6 +682,9 @@ class Sanitizer extends TokenHandler {
 	private static function getAttrWhiteList( string $tag ): array {
 		$awlCache = &self::$attrWhiteListCache;
 		if ( empty( $awlCache[$tag] ) ) {
+			if ( !self::$attrWhiteList ) {
+				self::setDerivedConstants();
+			}
 			$awlCache[$tag] = PHPUtils::makeSet( self::$attrWhiteList[$tag] ?? [] );
 		}
 		return $awlCache[$tag];

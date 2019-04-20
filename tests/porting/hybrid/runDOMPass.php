@@ -15,6 +15,7 @@ use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
+use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 
 function buildDOM( $env, $fileName ) {
@@ -35,18 +36,20 @@ function serializeDOM( $body ) {
 	] );
 }
 
-function runTransform( $transformer, $argv, $opts, $isTraverser = false ) {
-	$hackyEnvOpts = $opts['hackyEnvOpts'];
+function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = null ) {
 	$atTopLevel = $opts['atTopLevel'];
 	$runOptions = $opts['runOptions'];
 
-	// Build a mock env with the bare mininum info that we know
-	// DOM processors are currently using.
-	$env = new MockEnv( [
-		"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
-		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-	] );
+	if ( !$env ) {
+		// Build a mock env with the bare mininum info that we know
+		// DOM processors are currently using.
+		$hackyEnvOpts = $opts['hackyEnvOpts'];
+		$env = new MockEnv( [
+			"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
+			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
+			"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
+		] );
+	}
 
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
@@ -150,6 +153,24 @@ switch ( $argv[1] ) {
 		break;
 	case 'AddExtLinkClasses':
 		$out = runTransform( new AddExtLinkClasses(), $argv, $allOpts );
+		break;
+	case 'TableFixups':
+		$transformer = new DOMTraverser();
+		$env = new MockEnv( [
+			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
+			"pageContent" => $hackyEnvOpts['pageContent'] ?? null
+		] );
+		$tdFixer = new TableFixups( $env );
+		$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
+			return $tdFixer->stripDoubleTDs( ...$args );
+		} );
+		$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
+			return $tdFixer->handleTableCellTemplates( ...$args );
+		} );
+		$transformer->addHandler( 'th', function ( ...$args ) use ( $tdFixer ) {
+			return $tdFixer->handleTableCellTemplates( ...$args );
+		} );
+		$out = runTransform( $transformer, $argv, $allOpts, true, $env );
 		break;
 	case 'HandleLinkNeighbours':
 		$transformer = new DOMTraverser();
