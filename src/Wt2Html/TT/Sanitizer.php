@@ -14,6 +14,7 @@ namespace Parsoid\Wt2Html\TT;
 
 use DOMElement;
 use Error;
+use InvalidArgumentException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\EndTagTk;
@@ -27,11 +28,50 @@ use Parsoid\Utils\Util;
 
 class Sanitizer extends TokenHandler {
 	private $inTemplate;
-	private $noEndTagSet;
-	private $cssDecodeRE;
-	private $attrWhiteList;
-	private $microData;
-	private $attrWhiteListCache;
+	private static $attrWhiteList;
+	private static $attrWhiteListCache = [];
+
+	const NO_END_TAG_SET = [ 'br' => true ];
+
+	/**
+	 * Decode escape sequences and line continuation
+	 * See the grammar in the CSS 2 spec, appendix D.
+	 * This has to be done AFTER decoding character references.
+	 * This means it isn't possible for this function to return
+	 * unsanitized escape sequences. It is possible to manufacture
+	 * input that contains character references that decode to
+	 * escape sequences that decode to character references, but
+	 * it's OK for the return value to contain character references
+	 * because the caller is supposed to escape those anyway.
+	 */
+	const SPACE = '[\x20\t\r\n\f]';
+	const NL = '(?:\n|\r\n|\r|\f)';
+	const BACKSLASH = '\\\\';
+	const CSS_DECODE_RE = '/' . self::BACKSLASH .
+		'(?:' .
+		'(' . self::NL . ')|' . // 1. Line continuation
+		'([0-9A-Fa-f]{1,6})' . self::SPACE . '?|' . // 2. character number
+		'(.)|' . // 3. backslash cancelling special meaning
+		'()$' . // 4. backslash at end of string
+		')' . '/xu';
+
+	/**
+	 * RDFa and microdata properties allow URLs, URIs and/or CURIs.
+	 */
+	const MICRODATA = [
+		'rel' => true,
+		'rev' => true,
+		'about' => true,
+		'property' => true,
+		'resource' => true,
+		'datatype' => true,
+		'typeof' => true, // RDFa
+		'itemid' => true,
+		'itemprop' => true,
+		'itemref' => true,
+		'itemscope' => true,
+		'itemtype' => true,
+	];
 
 	const UTF8_REPLACEMENT = "ï¿½";
 
@@ -376,53 +416,6 @@ class Sanitizer extends TokenHandler {
 		"₍" => '('
 	];
 
-	/**
-	 * Constructor for paragraph wrapper.
-	 * @param object $manager manager enviroment
-	 * @param array $options various configuration options
-	 */
-	public function __construct( $manager, array $options ) {
-		parent::__construct( $manager, $options );
-		$this->inTemplate = !empty( $options[ 'inTemplate' ] );
-		$this->setDerivedConstants();
-		$this->setMicroData();
-		$this->attrWhiteListCache = [];
-	}
-
-	// RDFa and microdata properties allow URLs, URIs and/or CURIs.
-	private function setMicroData(): void {
-		$this->microData = PHPUtils::makeSet( [
-				'rel', 'rev', 'about', 'property', 'resource', 'datatype', 'typeof', // RDFa
-				'itemid', 'itemprop', 'itemref', 'itemscope', 'itemtype'
-			]
-		);
-	}
-
-	/**
-	 * @return string
-	 */
-	private function computeCSSDecodeRegexp(): string {
-		// Decode escape sequences and line continuation
-		// See the grammar in the CSS 2 spec, appendix D.
-		// This has to be done AFTER decoding character references.
-		// This means it isn't possible for this function to return
-		// unsanitized escape sequences. It is possible to manufacture
-		// input that contains character references that decode to
-		// escape sequences that decode to character references, but
-		// it's OK for the return value to contain character references
-		// because the caller is supposed to escape those anyway.
-		$space = '[\x20\t\r\n\f]';
-		$nl = '(?:\n|\r\n|\r|\f)';
-		$backslash = '\\\\';
-		return '/' . $backslash .
-			'(?:' .
-			'(' . $nl . ')|' . // 1. Line continuation
-			'([0-9A-Fa-f]{1,6})' . $space . '?|' . // 2. character number
-			'(.)|' . // 3. backslash cancelling special meaning
-			'()$' . // 4. backslash at end of string
-			')' . '/xu';
-	}
-
 	// SSS FIXME:
 	// If multiple sanitizers with different configs can be active at the same time,
 	// attrWhiteList code would have to be redone to cache the white list in the
@@ -431,7 +424,7 @@ class Sanitizer extends TokenHandler {
 	 * @param array $config
 	 * @return array
 	 */
-	private function computeAttrWhiteList( array $config ): array {
+	private static function computeAttrWhiteList( array $config ): array {
 		$common = [ 'id', 'class', 'lang', 'dir', 'title', 'style' ];
 
 		// WAI-ARIA
@@ -449,14 +442,14 @@ class Sanitizer extends TokenHandler {
 		// These attributes are specified in section 9 of
 		// https://www.w3.org/TR/2008/REC-rdfa-syntax-20081014
 		$rdfa = [ 'about', 'property', 'resource', 'datatype', 'typeof' ];
-		if ( !empty( $config[ 'allowRdfaAttrs' ] ) ) {
+		if ( !empty( $config['allowRdfaAttrs'] ) ) {
 			$common = array_merge( $common, $rdfa );
 		}
 
 		// Microdata. These are specified by
 		// https://html.spec.whatwg.org/multipage/microdata.html#the-microdata-model
 		$mda = [ 'itemid', 'itemprop', 'itemref', 'itemscope', 'itemtype' ];
-		if ( !empty( $config[ 'allowMicrodataAttrs' ] ) ) {
+		if ( !empty( $config['allowMicrodataAttrs'] ) ) {
 			$common = array_merge( $common, $mda );
 		}
 
@@ -639,12 +632,12 @@ class Sanitizer extends TokenHandler {
 	/**
 	 * setDerivedConstants()
 	 */
-	private function setDerivedConstants(): void {
+	private static function setDerivedConstants(): void {
 		// Tags whose end tags are not accepted, but whose start /
 		// self-closing version might be legal.
-		$this->noEndTagSet = PHPUtils::makeSet( [ 'br' ] );
-		$this->cssDecodeRE = $this->computeCSSDecodeRegexp();
-		$this->attrWhiteList = $this->computeAttrWhiteList( self::GLOBAL_CONFIG );
+		// PORT-FIXME maybe we should convert attrWhiteList to constant?
+		self::$attrWhiteList = self::computeAttrWhiteList( self::GLOBAL_CONFIG );
+		self::$attrWhiteListCache = []; // reset cache
 	}
 
 	/**
@@ -653,7 +646,7 @@ class Sanitizer extends TokenHandler {
 	 * @param int $cp
 	 * @return bool
 	 */
-	private function validateCodepoint( int $cp ): bool {
+	private static function validateCodepoint( int $cp ): bool {
 		return ( $cp === 0x09 )
 		|| ( $cp === 0x0a )
 		|| ( $cp === 0x0d )
@@ -668,7 +661,7 @@ class Sanitizer extends TokenHandler {
 	 * @param int $cp
 	 * @return string
 	 */
-	private function codepointToUtf8( int $cp ): string {
+	private static function codepointToUtf8( int $cp ): string {
 		return mb_chr( $cp, 'UTF-8' );
 	}
 
@@ -678,7 +671,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $str
 	 * @return int
 	 */
-	private function utf8ToCodepoint( string $str ): int {
+	private static function utf8ToCodepoint( string $str ): int {
 		return mb_ord( $str );
 	}
 
@@ -686,19 +679,19 @@ class Sanitizer extends TokenHandler {
 	 * @param string $tag
 	 * @return array
 	 */
-	private function getAttrWhiteList( string $tag ) {
-		$awlCache = $this->attrWhiteListCache;
-		if ( empty( $awlCache[ $tag ] ) ) {
-			$awlCache[ $tag ] = PHPUtils::makeSet( $this->attrWhiteList[ $tag ] ?? [] );
+	private static function getAttrWhiteList( string $tag ): array {
+		$awlCache = &self::$attrWhiteListCache;
+		if ( empty( $awlCache[$tag] ) ) {
+			$awlCache[$tag] = PHPUtils::makeSet( self::$attrWhiteList[$tag] ?? [] );
 		}
-		return $awlCache[ $tag ];
+		return $awlCache[$tag];
 	}
 
 	/**
 	 * @param string $host
 	 * @return string
 	 */
-	private function stripIDNs( string $host ) {
+	private static function stripIDNs( string $host ) {
 		return str_replace( self::IDN_RE_G, '', $host );
 	}
 
@@ -708,7 +701,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $mode
 	 * @return string|null
 	 */
-	private function cleanUrl( Env $env, string $href, string $mode ): ?string {
+	public static function cleanUrl( Env $env, string $href, string $mode ): ?string {
 		// PORT_FIXME - this code seems wrong and unnecessary, code tests right without it.
 		// if ( $mode !== 'wikilink' ) {
 		// $href = preg_replace( '/([\][<>"\x00-\x20\x7F\|])/', $href, urlencode( $href ) );
@@ -716,23 +709,20 @@ class Sanitizer extends TokenHandler {
 		// }
 
 		preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
-		$proto = null;
-		$host = null;
-		$path = null;
 		if ( $bits ) {
-			$proto = $bits[ 1 ];
+			$proto = $bits[1];
 			// if ( $proto && !$env->conf->wiki->hasValidProtocol( $proto ) ) {
 			if ( $proto && !$env->getSiteConfig()->hasValidProtocol( $proto ) ) {
 				// invalid proto, disallow URL
 				return null;
 			}
-			$host = $this->stripIDNs( $bits[ 2 ] );
+			$host = self::stripIDNs( $bits[2] );
 			preg_match( '/^%5B([0-9A-Fa-f:.]+)%5D((:\d+)?)$/', $host, $match );
 			if ( $match ) {
 				// IPv6 host names
-				$host = '[' . $match[ 1 ] . ']' . $match[ 2 ];
+				$host = '[' . $match[1] . ']' . $match[2];
 			}
-			$path = $bits[ 3 ];
+			$path = $bits[3];
 		} else {
 			$proto = '';
 			$host = '';
@@ -748,12 +738,12 @@ class Sanitizer extends TokenHandler {
 	 * @param string $name
 	 * @return string
 	 */
-	private function decodeEntity( string $name ): string {
-		if ( self::HTML_ENTITY_ALIASES[ $name ] ) {
-			$name = self::HTML_ENTITY_ALIASES[ $name ];
+	private static function decodeEntity( string $name ): string {
+		if ( !empty( self::HTML_ENTITY_ALIASES[$name] ) ) {
+			$name = self::HTML_ENTITY_ALIASES[$name];
 		}
-		$e = self::HTML_ENTITIES[ $name ] ?? null;
-		return $e ? $this->codepointToUtf8( $e ) : '&' . $name . ';';
+		$e = self::HTML_ENTITIES[$name] ?? null;
+		return $e ? self::codepointToUtf8( $e ) : '&' . $name . ';';
 	}
 
 	/**
@@ -762,9 +752,9 @@ class Sanitizer extends TokenHandler {
 	 * @param int $codepoint
 	 * @return string
 	 */
-	private function decodeChar( int $codepoint ): string {
-		if ( $this->validateCodepoint( $codepoint ) ) {
-			return $this->codepointToUtf8( $codepoint );
+	private static function decodeChar( int $codepoint ): string {
+		if ( self::validateCodepoint( $codepoint ) ) {
+			return self::codepointToUtf8( $codepoint );
 		} else {
 			return self::UTF8_REPLACEMENT;
 		}
@@ -776,16 +766,16 @@ class Sanitizer extends TokenHandler {
 	 * @param string $text
 	 * @return string
 	 */
-	private function decodeCharReferences( string $text ): string {
+	public static function decodeCharReferences( string $text ): string {
 		return preg_replace_callback(
 			self::CHAR_REFS_RE_G,
 			function ( $matches ) {
 				if ( $matches[1] !== '' ) {
-					return $this->decodeEntity( $matches[1] );
+					return self::decodeEntity( $matches[1] );
 				} elseif ( $matches[2] !== '' ) {
-					return $this->decodeChar( intval( $matches[2] ) );
+					return self::decodeChar( intval( $matches[2] ) );
 				} elseif ( $matches[3] !== '' ) {
-					return $this->decodeChar( hexdec( $matches[3] ) );
+					return self::decodeChar( hexdec( $matches[3] ) );
 				}
 				# Last case should be an ampersand by itself
 				return $matches[4];
@@ -799,7 +789,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $quoteChar
 	 * @return string
 	 */
-	private function removeMismatchedQuoteChar( string $str, string $quoteChar ): string {
+	private static function removeMismatchedQuoteChar( string $str, string $quoteChar ): string {
 		$re1 = null;
 		$re2 = null;
 		if ( $quoteChar === "'" ) {
@@ -809,7 +799,8 @@ class Sanitizer extends TokenHandler {
 			$re1 = /* RegExp */ '/"/';
 			$re2 = /* RegExp */ '/"([^"\n\r\f]*)$/';
 		}
-		$mismatch = ( strlen( preg_match_all( $re1, $str ) || [] ) ) % 2 === 1;
+		preg_match_all( $re1, $str, $matches );
+		$mismatch = count( $matches ) % 2 === 1;
 		if ( $mismatch ) {
 			// replace the mismatched quoteChar with a space
 			$str = str_replace( $re2, ' ' . $quoteChar, $str );
@@ -826,18 +817,18 @@ class Sanitizer extends TokenHandler {
 	 * @param string $text the css string
 	 * @return string normalized css
 	 */
-	private function normalizeCss( string $text ): string {
+	private static function normalizeCss( string $text ): string {
 		// Decode character references like &#123;
-		$text = $this->decodeCharReferences( $text );
+		$text = self::decodeCharReferences( $text );
 
 		$text = preg_replace_callback(
-			$this->cssDecodeRE,
+			self::CSS_DECODE_RE,
 			function ( $matches ) {
 				if ( $matches[1] !== '' ) {
 					// Line continuation
 					return '';
 				} elseif ( $matches[2] !== '' ) {
-					$char = $this->codepointToUtf8( hexdec( $matches[2] ) );
+					$char = self::codepointToUtf8( hexdec( $matches[2] ) );
 				} elseif ( $matches[3] !== '' ) {
 					$char = $matches[3];
 				} else {
@@ -859,7 +850,7 @@ class Sanitizer extends TokenHandler {
 		$text = preg_replace_callback(
 			'/[！-［］-ｚ]/u', // U+FF01 to U+FF5A, excluding U+FF3C (T60088)
 			function ( $matches ) {
-				$cp = $this->utf8ToCodepoint( $matches[0] );
+				$cp = self::utf8ToCodepoint( $matches[0] );
 				if ( $cp === false ) {
 					return '';
 				}
@@ -884,7 +875,7 @@ class Sanitizer extends TokenHandler {
 			// This step cannot introduce character references or escape
 			// sequences, because it replaces comments with spaces rather
 			// than removing them completely.
-			$text = $this->delimiterReplace( '/*', '*/', ' ', $text );
+			$text = self::delimiterReplace( '/*', '*/', ' ', $text );
 			// Remove anything after a comment-start token, to guard against
 			// incorrect client implementations.
 			$commentPos = strpos( $text, '/*' );
@@ -898,8 +889,8 @@ class Sanitizer extends TokenHandler {
 		//
 		// This can be converted to a function and called once for ' and "
 		// but we have to construct 4 different REs anyway
-		$text = $this->removeMismatchedQuoteChar( $text, "'" );
-		$text = $this->removeMismatchedQuoteChar( $text, '"' );
+		$text = self::removeMismatchedQuoteChar( $text, "'" );
+		$text = self::removeMismatchedQuoteChar( $text, '"' );
 
 		// S followed by repeat, iteration, or prolonged sound marks,
 		// which IE will treat as "ss"
@@ -943,10 +934,10 @@ class Sanitizer extends TokenHandler {
 	 * @param callable $callback Function to call on each match
 	 * @param string $subject
 	 * @param string $flags Regular expression flags
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	private function delimiterReplaceCallback(
+	private static function delimiterReplaceCallback(
 		string $startDelim, string $endDelim, callable $callback, string $subject, string $flags = ''
 	): string {
 		$inputPos = 0;
@@ -978,7 +969,7 @@ class Sanitizer extends TokenHandler {
 				$tokenType = 'end';
 				$tokenLength = strlen( $m[0][0] );
 			} else {
-				throw new \InvalidArgumentException( 'Invalid delimiter given to ' . __METHOD__ );
+				throw new InvalidArgumentException( 'Invalid delimiter given to ' . __METHOD__ );
 			}
 			if ( $tokenType === 'start' ) {
 				# Only move the start position if we haven't already found a start
@@ -1010,7 +1001,7 @@ class Sanitizer extends TokenHandler {
 				}
 				$inputPos = $outputPos = $tokenOffset + $tokenLength;
 			} else {
-				throw new \InvalidArgumentException( 'Invalid delimiter given to ' . __METHOD__ );
+				throw new InvalidArgumentException( 'Invalid delimiter given to ' . __METHOD__ );
 			}
 		}
 		if ( $outputPos < strlen( $subject ) ) {
@@ -1034,10 +1025,10 @@ class Sanitizer extends TokenHandler {
 	 * @param string $flags Regular expression flags
 	 * @return string The string with the matches replaced
 	 */
-	private function delimiterReplace(
+	private static function delimiterReplace(
 		string $startDelim, string $endDelim, string $replace, string $subject, string $flags = ''
 	): string {
-		return $this->delimiterReplaceCallback(
+		return self::delimiterReplaceCallback(
 			$startDelim, $endDelim,
 			function ( array $matches ) use ( $replace ) {
 				return strtr( $replace, [ '$0' => $matches[0], '$1' => $matches[1] ] );
@@ -1055,7 +1046,7 @@ class Sanitizer extends TokenHandler {
 	 * @param KV[] $attrs
 	 * @return bool
 	 */
-	private function isParsoidAttr( string $k, string $v, array $attrs ): bool {
+	private static function isParsoidAttr( string $k, string $v, array $attrs ): bool {
 		// NOTES:
 		// 1. Currently the tokenizer unconditionally escapes typeof and about
 		// attributes from wikitxt to data-x-typeof and data-x-about. So,
@@ -1081,21 +1072,19 @@ class Sanitizer extends TokenHandler {
 	 * @param array $attrs
 	 * @return array
 	 */
-	private function sanitizeTagAttrs(
+	private static function sanitizeTagAttrs(
 		Env $env, ?string $tagName, ?Token $token, array $attrs
 	): array {
-		$tag = $tagName ?? $token->getName();
-		$allowRdfa = self::GLOBAL_CONFIG[ 'allowRdfaAttrs' ];
-		$allowMda = self::GLOBAL_CONFIG[ 'allowMicrodataAttrs' ];
-		$html5Mode = self::GLOBAL_CONFIG[ 'html5Mode' ];
-		$xmlnsRE = self::XMLNS_ATTRIBUTE_RE;
-		$evilUriRE = self::EVIL_URI_RE;
+		$tag = $tagName ?: $token->getName();
+		$allowRdfa = self::GLOBAL_CONFIG['allowRdfaAttrs'];
+		$allowMda = self::GLOBAL_CONFIG['allowMicrodataAttrs'];
+		$html5Mode = self::GLOBAL_CONFIG['html5Mode'];
 
-		$wlist = $this->getAttrWhiteList( $tag );
+		$wlist = self::getAttrWhiteList( $tag );
 		$newAttrs = [];
 		$n = count( $attrs );
 		for ( $i = 0;  $i < $n;  $i++ ) {
-			$a = $attrs[ $i ];
+			$a = $attrs[$i];
 			if ( !isset( $a->v ) ) {
 				$a->v = '';
 			}
@@ -1114,10 +1103,11 @@ class Sanitizer extends TokenHandler {
 			}
 
 			$origK = $a->ksrc ?? $a->k;
+			// $a->k can be uppercase
 			$k = strtolower( $a->k );
 			$v = $a->v;
 			$origV = $a->vsrc ?? $v;
-			$psdAttr = $this->isParsoidAttr( $k, $v, $attrs );
+			$psdAttr = self::isParsoidAttr( $k, $v, $attrs );
 
 			// Bypass RDFa/whitelisting checks for Parsoid-inserted attrs
 			// Safe to do since the tokenizer renames about/typeof attrs.
@@ -1126,16 +1116,16 @@ class Sanitizer extends TokenHandler {
 			// that or about ids that don't resemble Parsoid tokens/about ids.
 			if ( !$psdAttr ) {
 				if ( !preg_match( self::GET_ATTRIBS_RE, $k ) ) {
-					$newAttrs[ $k ] = [ null, $origV, $origK ];
+					$newAttrs[$k] = [ null, $origV, $origK ];
 					continue;
 				}
 
 				// If RDFa is enabled, don't block XML namespace declaration
-				if ( $allowRdfa && preg_match( $xmlnsRE, $k ) ) {
-					if ( !preg_match( $evilUriRE, $v ) ) {
-						$newAttrs[ $k ] = [ $v, $origV, $origK ];
+				if ( $allowRdfa && preg_match( self::XMLNS_ATTRIBUTE_RE, $k ) ) {
+					if ( !preg_match( self::EVIL_URI_RE, $v ) ) {
+						$newAttrs[$k] = [ $v, $origV, $origK ];
 					} else {
-						$newAttrs[ $k ] = [ null, $origV, $origK ];
+						$newAttrs[$k] = [ null, $origV, $origK ];
 					}
 					continue;
 				}
@@ -1143,8 +1133,8 @@ class Sanitizer extends TokenHandler {
 				// If in HTML5 mode, don't block data-* attributes
 				// (But always block data-ooui attributes for security: T105413)
 				if ( !( $html5Mode && preg_match( ( '/^data-(?!ooui)[^:]*$/' ), $k ) )
-					&& !array_key_exists( $k, $wlist ) ) {
-						$newAttrs[ $k ] = [ null, $origV, $origK ];
+					&& empty( $wlist[$k] ) ) {
+						$newAttrs[$k] = [ null, $origV, $origK ];
 					continue;
 				}
 			}
@@ -1161,12 +1151,12 @@ class Sanitizer extends TokenHandler {
 
 			// RDFa and microdata properties allow URLs, URIs and/or CURIs.
 			// Check them for sanity
-			if ( array_key_exists( $k, $this->microData ) ) {
+			if ( isset( self::MICRODATA[$k] ) ) {
 				// Paranoia. Allow "simple" values but suppress javascript
-				if ( preg_match( $evilUriRE, $v ) ) {
+				if ( preg_match( self::EVIL_URI_RE, $v ) ) {
 					// Retain the Parsoid typeofs for Parsoid attrs
-					$newV = ( $psdAttr ) ? trim( preg_replace( '/(?:^|\s)(?!mw:\w)[^\s]*/', '', $origV ) ) : null;
-					$newAttrs[ $k ] = [ $newV, $origV, $origK ];
+					$newV = $psdAttr ? trim( preg_replace( '/(?:^|\s)(?!mw:\w)[^\s]*/', '', $origV ) ) : null;
+					$newAttrs[$k] = [ $newV, $origV, $origK ];
 					continue;
 				}
 			}
@@ -1179,13 +1169,14 @@ class Sanitizer extends TokenHandler {
 				// LinkHandler, we may have already shadowed this value so use
 				// that instead.
 				$rel = $token->getAttributeShadowInfo( 'rel' );
-				$mode = ( $k === 'href' && $rel
-					&& ( preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel['value'] ) ) ) ?
-				'wikilink' : 'external';
+				$mode = ( $k === 'href' &&
+					$rel &&
+					preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel['value'] )
+				) ? 'wikilink' : 'external';
 				$origHref = $token->getAttributeShadowInfo( $k )['value'];
-				$newHref = $this->cleanUrl( $env, $v, $mode );
+				$newHref = self::cleanUrl( $env, $v, $mode );
 				if ( $newHref !== $v ) {
-					$newAttrs[ $k ] = [ $newHref, $origHref, $origK ];
+					$newAttrs[$k] = [ $newHref, $origHref, $origK ];
 					continue;
 				}
 			}
@@ -1193,14 +1184,14 @@ class Sanitizer extends TokenHandler {
 			// SSS FIXME: This logic is not RT-friendly.
 			// If this attribute was previously set, override it.
 			// Output should only have one attribute of each name.
-			$newAttrs[ $k ] = [ $v, $origV, $origK ];
+			$newAttrs[$k] = [ $v, $origV, $origK ];
 
 			if ( !$allowMda ) {
 				// itemtype, itemid, itemref don't make sense without itemscope
-				if ( $newAttrs[ 'itemscope' ] === null ) {
+				if ( $newAttrs['itemscope'] === null ) {
 					// SSS FIXME: This logic is not RT-friendly.
-					$newAttrs[ 'itemtype' ] = null;
-					$newAttrs[ 'itemid' ] = null;
+					$newAttrs['itemtype'] = null;
+					$newAttrs['itemid'] = null;
 				}
 				// TODO: Strip itemprop if we aren't descendants of an itemscope.
 			}
@@ -1219,11 +1210,13 @@ class Sanitizer extends TokenHandler {
 	 * @param DOMElement $wrapper wrapper
 	 * @param array $attrs attributes
 	 */
-	public function applySanitizedArgs( Env $env, DOMElement $wrapper, array $attrs ): void {
-		$sanitizedAttrs = self::sanitizeTagAttrs( $env, strtolower( $wrapper->nodeName ), null, $attrs );
+	public static function applySanitizedArgs( Env $env, DOMElement $wrapper, array $attrs ): void {
+		// We can switch to a different DOM library that can return uppercase node name
+		$nodeName = strtolower( $wrapper->nodeName );
+		$sanitizedAttrs = self::sanitizeTagAttrs( $env, $nodeName, null, $attrs );
 		foreach ( $sanitizedAttrs as $k => $v ) {
-			if ( $v[ 0 ] ) {
-				$wrapper->setAttribute( $k, $v[ 0 ] );
+			if ( isset( $v[0] ) ) {
+				$wrapper->setAttribute( $k, $v[0] );
 			}
 		}
 	}
@@ -1232,7 +1225,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $text
 	 * @return string
 	 */
-	public function checkCss( string $text ): string {
+	public static function checkCss( string $text ): string {
 		$text = self::normalizeCss( $text );
 		// \000-\010\013\016-\037\177 are the octal escape sequences
 		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $text )
@@ -1257,17 +1250,16 @@ class Sanitizer extends TokenHandler {
 	 * @param bool $inTemplate
 	 * @return Token|string
 	 */
-	public function sanitizeToken( Env $env, $token, bool $inTemplate ) {
+	private static function sanitizeToken( Env $env, $token, bool $inTemplate ) {
 		$i = null;
 		$l = null;
 		$kv = null;
 		$attribs = $token->attribs ?? null;
-		$noEndTagSet = $this->noEndTagSet;
-		$tagWhiteList = WikitextConstants::$Sanitizer[ 'TagWhiteList' ];
+		$tagWhiteList = WikitextConstants::$Sanitizer['TagWhiteList'];
 
 		if ( TokenUtils::isHTMLTag( $token )
 			&& ( empty( $tagWhiteList[$token->getName()] )
-				|| ( $token instanceof EndTagTk && !empty( $noEndTagSet[$token->getName()] ) )
+				|| ( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) )
 			)
 		) { // unknown tag -- convert to plain text
 			if ( !$inTemplate && $token->dataAttribs->tsr ) {
@@ -1279,7 +1271,7 @@ class Sanitizer extends TokenHandler {
 				// content. Whitespace in these is not necessarily preserved.
 				$buf = '<' . $token->getName();
 				for ( $i = 0, $l = count( $attribs );  $i < $l;  $i++ ) {
-					$kv = $attribs[ $i ];
+					$kv = $attribs[$i];
 					$buf .= ' ' . $kv->k . "='" . $kv->v . "'";
 				}
 				if ( $token instanceof SelfclosingTagTk ) {
@@ -1293,7 +1285,7 @@ class Sanitizer extends TokenHandler {
 		} elseif ( $attribs && count( $attribs ) > 0 ) {
 			// Sanitize attributes
 			if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
-				$newAttrs = $this->sanitizeTagAttrs( $env, null, $token, $attribs );
+				$newAttrs = self::sanitizeTagAttrs( $env, null, $token, $attribs );
 
 				// Reset token attribs and rebuild
 				$token->attribs = [];
@@ -1307,10 +1299,10 @@ class Sanitizer extends TokenHandler {
 				// Object::keys( $newAttrs )->forEach( function ( $j ) use ( &$newAttrs, &$token ) {
 				foreach ( $newAttrs as $k => $v ) {
 					// explicit check against null to prevent discarding empty strings
-					if ( $v[ 0 ] !== null ) {
-						$token->addNormalizedAttribute( $k, $v[ 0 ], $v[ 1 ] );
+					if ( $v[0] !== null ) {
+						$token->addNormalizedAttribute( $k, $v[0], $v[1] );
 					} else {
-						$token->setShadowInfo( $v[ 2 ], $v[ 0 ], $v[ 1 ] );
+						$token->setShadowInfo( $v[2], $v[0], $v[1] );
 					}
 				}
 			} else {
@@ -1328,46 +1320,21 @@ class Sanitizer extends TokenHandler {
 	 * @param bool $isInterwiki
 	 * @return string
 	 */
-	public function sanitizeTitleURI( string $title, bool $isInterwiki ): string {
+	public static function sanitizeTitleURI( string $title, bool $isInterwiki = false ): string {
 		$bits = explode( '#', $title );
 		$anchor = null;
 		if ( count( $bits ) > 1 ) { // split at first '#'
-			$anchor = mb_substr( $title, mb_strlen( $bits[ 0 ] ) + 1 );
-			$title = $bits[ 0 ];
+			$anchor = mb_substr( $title, mb_strlen( $bits[0] ) + 1 );
+			$title = $bits[0];
 		}
 		$titleEncoded = PHPUtils::encodeURIComponent( $title );
 		$title = preg_replace( '/[%? \[\]#|<>]/', $titleEncoded, $title );
 		if ( $anchor !== null ) {
-			$title .= '#' . ( $isInterwiki ?
-				$this->escapeIdForExternalInterwiki( $anchor ) :
-				$this->escapeIdForLink( $anchor )
- );
+			$title .= '#' . ( $isInterwiki
+					? self::escapeIdForExternalInterwiki( $anchor )
+					: self::escapeIdForLink( $anchor ) );
 		}
 		return $title;
-	}
-
-	/**
-	 * @param Token|string $token
-	 * @return array|Token
-	 */
-	public function onAny( $token ) {
-		$env = $this->manager->env;
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
-			return PHPUtils::jsonEncode( $token );
-		} );
-
-		// Pass through a transparent line meta-token
-		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-			$env->log( 'trace/sanitizer', $this->manager->pipelineId, '--unchanged--' );
-			return [ 'tokens' => [ $token ] ];
-		}
-
-		$token = $this->sanitizeToken( $env, $token, $this->inTemplate );
-
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
-			return ' ---> ' . json_encode( $token );
-		} );
-		return [ 'tokens' => [ $token ] ];
 	}
 
 	// PORT_FIXME: this method is deprecated in PHP core, replaced by
@@ -1412,7 +1379,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $id
 	 * @return string
 	 */
-	public static function escapeIdForExternalInterwiki( string $id ): string {
+	private static function escapeIdForExternalInterwiki( string $id ): string {
 		// Assume $wgExternalInterwikiFragmentMode = 'legacy'
 		return self::escapeIdInternal( $id, 'legacy' );
 	}
@@ -1433,7 +1400,7 @@ class Sanitizer extends TokenHandler {
 		// of the id encoding from the Parsoid code which handles ids; we could
 		// swap primary and fallback here, or even transition to a new HTML6
 		// encoding (!), without touching all the call sites.
-		$mode = isset( $options[ 'fallback' ] ) ? 'legacy' : 'html5';
+		$mode = isset( $options['fallback'] ) ? 'legacy' : 'html5';
 		return self::escapeIdInternal( $id, $mode );
 	}
 
@@ -1443,5 +1410,40 @@ class Sanitizer extends TokenHandler {
 	 */
 	public static function normalizeSectionIdWhiteSpace( string $id ): string {
 		return trim( preg_replace( '/[ _]+/', ' ', $id ) );
+	}
+
+	/**
+	 * Constructor for paragraph wrapper.
+	 * @param object $manager manager enviroment
+	 * @param array $options various configuration options
+	 */
+	public function __construct( $manager, array $options ) {
+		parent::__construct( $manager, $options );
+		$this->inTemplate = !empty( $options['inTemplate'] );
+		self::setDerivedConstants();
+	}
+
+	/**
+	 * @param Token|string $token
+	 * @return array|Token
+	 */
+	public function onAny( $token ) {
+		$env = $this->manager->env;
+		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
+			return PHPUtils::jsonEncode( $token );
+		} );
+
+		// Pass through a transparent line meta-token
+		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
+			$env->log( 'trace/sanitizer', $this->manager->pipelineId, '--unchanged--' );
+			return [ 'tokens' => [ $token ] ];
+		}
+
+		$token = self::sanitizeToken( $env, $token, $this->inTemplate );
+
+		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
+			return ' ---> ' . json_encode( $token );
+		} );
+		return [ 'tokens' => [ $token ] ];
 	}
 }
