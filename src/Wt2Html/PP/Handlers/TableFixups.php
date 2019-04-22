@@ -249,7 +249,7 @@ class TableFixups {
 				// be text/comment nodes, and nowiki-spans at best.
 				// So, if we hit anything else, there is nothing more
 				// to do here!
-				return self::buildRes( $buf, $nowikis, $templateWrapper );
+				return self::buildRes( $buf, $nowikis, $transclusionNode );
 			} else {
 				/** @var DOMElement $child */
 				DOMUtils::assertElt( $child );
@@ -289,19 +289,19 @@ class TableFixups {
 					// Continue accumulating only if we hit grouped template content
 					$buf[] = $child->textContent;
 				} else {
-					return self::buildRes( $buf, $nowikis, $templateWrapper );
+					return self::buildRes( $buf, $nowikis, $transclusionNode );
 				}
 			}
 
 			// Are we done accumulating?
 			if ( preg_match( '/(?:^|[^|])\|(?:[^|]|$)/', end( $buf ) ) ) {
-				return self::buildRes( $buf, $nowikis, $templateWrapper );
+				return self::buildRes( $buf, $nowikis, $transclusionNode );
 			}
 
 			$child = $child->nextSibling;
 		}
 
-		return self::buildRes( $buf, $nowikis, $templateWrapper );
+		return self::buildRes( $buf, $nowikis, $transclusionNode );
 	}
 
 	/**
