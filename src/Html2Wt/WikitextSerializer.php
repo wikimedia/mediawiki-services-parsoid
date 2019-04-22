@@ -1625,14 +1625,14 @@ WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUt
 WikitextSerializer::prototype::separatorREs = [
 	'pureSepRE' => /* RegExp */ '/^[ \t\r\n]*$/',
 	'sepPrefixWithNlsRE' => /* RegExp */ '/^[ \t]*\n+[ \t\r\n]*/',
-	'sepSuffixWithNlsRE' => /* RegExp */ '/\n[ \t\r\n]*$/',
+	'sepSuffixWithNlsRE' => /* RegExp */ '/\n[ \t\r\n]*$/'
 ];
 
 /**
  * Consolidate separator handling when emitting text.
  * @private
  */
-WikitextSerializer::prototype::_serializeText = function ( $res, $node, $omitEscaping ) use ( &$DOMUtils, &$Util ) {
+WikitextSerializer::prototype::_serializeText = function ( $res, $node, $omitEscaping ) use ( &$Util ) {
 	$state = $this->state;
 
 	// Deal with trailing separator-like text (at least 1 newline and other whitespace)

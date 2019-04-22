@@ -264,9 +264,6 @@ class SerializerState {
 	 * Pushes the seperator to the current line and resets the separator state.
 	 */
 	public function emitSep( $sep, $node, $debugPrefix ) {
-		if ( !( $sep instanceof $String ) ) {
-			$this->env->log( 'warning', 'Emitting non-string value: ' . String( $sep ) );
-		}
 		$sep = ConstrainedText::cast( $sep, $node );
 
 		// Replace newlines if we're in a single-line context
@@ -371,9 +368,6 @@ class SerializerState {
 	 * Pushes the chunk to the current line.
 	 */
 	public function emitChunk( $res, $node ) {
-		if ( !( $res instanceof $String ) ) {
-			$this->env->log( 'warning', 'Emitting non-string value: ' . String( $res ) );
-		}
 		$res = ConstrainedText::cast( $res, $node );
 
 		// Replace newlines if we're in a single-line context
@@ -452,6 +446,7 @@ class SerializerState {
 						')*)',
 						/* RegExp */ '/([ \*#:;{\|!=].*)$/'
 					);
+					// Note that res is a ConstrainedText, not a string
 					$match = preg_match( $solWikitextRE, $res );
 					if ( $match && $match[ 2 ] ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/', $match[ 2 ] )
@@ -491,6 +486,7 @@ class SerializerState {
 			Util\COMMENT_REGEXP,
 			')*$'
 		);
+		// Note that res is a ConstrainedText, not a string
 		if ( !preg_match( $solRE, $res ) ) {
 			$this->onSOL = false;
 		}

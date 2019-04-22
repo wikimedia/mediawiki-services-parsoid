@@ -35,7 +35,7 @@ $ExternalLinkHandler = require './tt/ExternalLinkHandler.js'::ExternalLinkHandle
 $BehaviorSwitchHandler = require './tt/BehaviorSwitchHandler.js'::BehaviorSwitchHandler;
 $LanguageVariantHandler = require './tt/LanguageVariantHandler.js'::LanguageVariantHandler;
 $DOMFragmentBuilder = require './tt/DOMFragmentBuilder.js'::DOMFragmentBuilder;
-$TreeBuilder = require './HTML5TreeBuilder.js'::TreeBuilder;
+$HTML5TreeBuilder = require './HTML5TreeBuilder.js'::HTML5TreeBuilder;
 $DOMPostProcessor = require './DOMPostProcessor.js'::DOMPostProcessor;
 $JSUtils = require '../utils/jsutils.js'::JSUtils;
 
@@ -167,7 +167,7 @@ ParserPipelineFactory::prototype::recipes = [
 		], // 2.95 -- 2.97
 
 		// Build a tree out of the fully processed token stream
-		[ $TreeBuilder, [] ],
+		[ $HTML5TreeBuilder, [] ],
 
 		/*
 		 * Final processing on the HTML DOM.
@@ -271,11 +271,14 @@ $PHPPipelineStage = null;
 		} else {
 			Assert::invariant( count( $stageData[ 1 ] ) <= 2 );
 
-			if ( $phpComponents && $phpComponents[ $stageData[ 0 ]->name ] ) {
+			if ( $phpComponents
+&& $phpComponents[ $stageData[ 0 ]->name ]
+|| $phpComponents[ $stageData[ 0 ]->name + $stageData[ 1 ][ 0 ] ]
+			) {
 				if ( !$PHPPipelineStage ) {
 					$PHPPipelineStage = require '../../tests/porting/hybrid/PHPPipelineStage.js'::PHPPipelineStage;
 				}
-				$stage = new PHPPipelineStage( $this->env, $this, $stageData[ 0 ]->name, $options );
+				$stage = new PHPPipelineStage( $this->env, $options, $this, $stageData[ 0 ]->name );
 				$stage->phaseEndRank = $stageData[ 1 ][ 0 ];
 				$stage->pipelineType = $stageData[ 1 ][ 1 ];
 				// If you run a higher level pipeline component in PHP, we are forcing
