@@ -141,7 +141,8 @@ class TableFixups {
 
 		// Get the td and content source up to the transclusion start
 		if ( $dp->dsr[0] < $childDP->dsr[0] ) {
-			array_unshift( $parts, mb_substr( $env->getPageMainContent(), $dp->dsr[0], $childDP->dsr[0] ) );
+			$width = $childDP->dsr[0] - $dp->dsr[0];
+			array_unshift( $parts, mb_substr( $env->getPageMainContent(), $dp->dsr[0], $width ) );
 		}
 
 		// Add wikitext for the table cell content following the
@@ -150,7 +151,8 @@ class TableFixups {
 		// guaranteed to have a dsr that covers the transclusion
 		// itself.
 		if ( $childDP->dsr[1] < $dp->dsr[1] ) {
-			$parts[] = mb_substr( $env->getPageMainContent(), $childDP->dsr[1], $dp->dsr[1] );
+			$width = $dp->dsr[1] - $childDP->dsr[1];
+			$parts[] = mb_substr( $env->getPageMainContent(), $childDP->dsr[1], $width );
 		}
 
 		// Save the new data-mw on the tdNode
