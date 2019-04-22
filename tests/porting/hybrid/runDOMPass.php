@@ -156,6 +156,7 @@ switch ( $argv[1] ) {
 		break;
 	case 'TableFixups':
 		$transformer = new DOMTraverser();
+		$hackyEnvOpts = $allOpts['hackyEnvOpts'];
 		$env = new MockEnv( [
 			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 			"pageContent" => $hackyEnvOpts['pageContent'] ?? null
