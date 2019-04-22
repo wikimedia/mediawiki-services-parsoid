@@ -1,0 +1,4 @@
+# This configuration just runs the tokenizer in hybrid mode
+# See phpconfig.example.yaml in the root directory for full docs
+wt2html:
+  PegTokenizer: true
