@@ -27,8 +27,7 @@ $DOMDataUtils = $temp0::DOMDataUtils; $DOMUtils = $temp0::
 DOMUtils; $parseWikitextToDOM = $temp0->
 parseWikitextToDOM; $Promise = $temp0::
 Promise; $Sanitizer = $temp0::
-Sanitizer; $SanitizerConstants = $temp0::
-SanitizerConstants; $TokenUtils = $temp0::
+Sanitizer; $TokenUtils = $temp0::
 TokenUtils; $Util = $temp0::
 Util;
 
@@ -64,9 +63,9 @@ class Opts {
 		$this->caption = $attrs->caption;
 
 		// TODO: Good contender for T54941
-		$validUlAttrs = SanitizerConstants::attrWhiteList::ul;
+		$validUlAttrs = Sanitizer::attributeWhitelist( 'ul' );
 		$this->attrs = array_reduce( Object::keys( $attrs )->
-			filter( function ( $k ) { return $validUlAttrs->includes( $k );
+			filter( function ( $k ) { return $validUlAttrs->has( $k );
    } ),
 			function ( $o, $k ) {
 				$o[ $k ] = ( $k === 'style' ) ? Sanitizer::checkCss( $attrs[ $k ] ) : $attrs[ $k ];

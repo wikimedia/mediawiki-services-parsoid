@@ -13,7 +13,7 @@ describe('Sanitizer', function() {
 	it('should sanitize attributes according to php\'s getAttribsRegex', function() {
 		var fakeEnv = {};
 		var name = 'testelement';
-		Sanitizer.attrWhiteListCache[name] = new Set([
+		Sanitizer.attributeWhitelistCache[name] = new Set([
 			'foo', 'עברית', '६', '搭𨋢', 'ńgh',
 		]);
 		var token = new TagTk(name);

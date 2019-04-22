@@ -13,7 +13,6 @@
 namespace Parsoid\Wt2Html\TT;
 
 use DOMElement;
-use Error;
 use InvalidArgumentException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
@@ -24,12 +23,9 @@ use Parsoid\Tokens\KV;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
 
 class Sanitizer extends TokenHandler {
 	private $inTemplate;
-	private static $attrWhiteList;
-	private static $attrWhiteListCache = [];
 
 	const NO_END_TAG_SET = [ 'br' => true ];
 
@@ -104,9 +100,23 @@ class Sanitizer extends TokenHandler {
 	 * things that you know are safe and deny everything else.
 	 * [1]: http://ha.ckers.org/xss.html
 	 */
-	const EVIL_URI_RE = '/(^|\s|\*\/\s*)(javascript|vbscript)([^\w]|$)/i';
+	const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)([^\w]|$)!i';
+	const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/";
 
-	const XMLNS_ATTRIBUTE_RE = '/^xmlns:[:A-Z_a-z-.0-9]+$/';
+	/**
+	 * Tells escapeUrlForHtml() to encode the ID using the wiki's primary encoding.
+	 *
+	 * @since 1.30
+	 */
+	const ID_PRIMARY = 0;
+
+	/**
+	 * Tells escapeUrlForHtml() to encode the ID using the fallback encoding, or return false
+	 * if no fallback is configured.
+	 *
+	 * @since 1.30
+	 */
+	const ID_FALLBACK = 1;
 
 	const IDN_RE_G = [
 		"[\t ]|" . // general whitespace
@@ -126,16 +136,6 @@ class Sanitizer extends TokenHandler {
 	];
 
 	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u';
-
-	/** Assumptions:
-	 1. This is "constant".
-	 2. All sanitizers have the same global config.
-	 */
-	const GLOBAL_CONFIG = [
-		'allowRdfaAttrs' => true,
-		'allowMicrodataAttrs' => true,
-		'html5Mode' => true
-	];
 
 	/** Character entity aliases accepted by MediaWiki */
 	const HTML_ENTITY_ALIASES = [
@@ -416,203 +416,230 @@ class Sanitizer extends TokenHandler {
 		"₍" => '('
 	];
 
-	// SSS FIXME:
-	// If multiple sanitizers with different configs can be active at the same time,
-	// attrWhiteList code would have to be redone to cache the white list in the
-	// Sanitizer object rather than in the SanitizerConstants object.
 	/**
-	 * @param array $config
+	 * Fetch the whitelist of acceptable attributes for a given element name.
+	 *
+	 * @param string $element
 	 * @return array
 	 */
-	private static function computeAttrWhiteList( array $config ): array {
-		$common = [ 'id', 'class', 'lang', 'dir', 'title', 'style' ];
+	private static function attributeWhitelist( string $element ): array {
+		$list = self::setupAttributeWhitelist();
+		return $list[$element] ?? [];
+	}
 
-		// WAI-ARIA
-		$common = array_merge( $common, [
-				'aria-describedby',
-				'aria-flowto',
-				'aria-label',
-				'aria-labelledby',
-				'aria-owns',
-				'role'
-			]
-		);
+	/**
+	 * Foreach array key (an allowed HTML element), return an array
+	 * of allowed attributes
+	 * @return array
+	 */
+	private static function setupAttributeWhitelist(): array {
+		static $whitelist;
 
-		// RDFa attributes
-		// These attributes are specified in section 9 of
-		// https://www.w3.org/TR/2008/REC-rdfa-syntax-20081014
-		$rdfa = [ 'about', 'property', 'resource', 'datatype', 'typeof' ];
-		if ( !empty( $config['allowRdfaAttrs'] ) ) {
-			$common = array_merge( $common, $rdfa );
+		if ( $whitelist !== null ) {
+			return $whitelist;
 		}
 
-		// Microdata. These are specified by
-		// https://html.spec.whatwg.org/multipage/microdata.html#the-microdata-model
-		$mda = [ 'itemid', 'itemprop', 'itemref', 'itemscope', 'itemtype' ];
-		if ( !empty( $config['allowMicrodataAttrs'] ) ) {
-			$common = array_merge( $common, $mda );
-		}
+		$common = [
+			# HTML
+			'id',
+			'class',
+			'style',
+			'lang',
+			'dir',
+			'title',
+
+			# WAI-ARIA
+			'aria-describedby',
+			'aria-flowto',
+			'aria-label',
+			'aria-labelledby',
+			'aria-owns',
+			'role',
+
+			# RDFa
+			# These attributes are specified in section 9 of
+			# https://www.w3.org/TR/2008/REC-rdfa-syntax-20081014
+			'about',
+			'property',
+			'resource',
+			'datatype',
+			'typeof',
+
+			# Microdata. These are specified by
+			# https://html.spec.whatwg.org/multipage/microdata.html#the-microdata-model
+			'itemid',
+			'itemprop',
+			'itemref',
+			'itemscope',
+			'itemtype',
+		];
 
 		$block = array_merge( $common, [ 'align' ] );
 		$tablealign = [ 'align', 'valign' ];
 		$tablecell = [
-			'abbr', 'axis', 'headers', 'scope', 'rowspan', 'colspan',
-			// these next 4 are deprecated
-			'nowrap', 'width', 'height', 'bgcolor'
+			'abbr',
+			'axis',
+			'headers',
+			'scope',
+			'rowspan',
+			'colspan',
+			'nowrap', # deprecated
+			'width', # deprecated
+			'height', # deprecated
+			'bgcolor', # deprecated
 		];
 
-		// Numbers refer to sections in HTML 4.01 standard describing the element.
-		// See: http://www.w3.org/TR/html4/
-		return [
-			// 7.5.4
-			'div' => $block,
-			'center' => $common, // deprecated
-			'span' => $common,
+		# Numbers refer to sections in HTML 4.01 standard describing the element.
+		# See: https://www.w3.org/TR/html4/
+		$whitelist = [
+			# 7.5.4
+			'div'        => $block,
+			'center'     => $common, # deprecated
+			'span'       => $common,
 
-			// 7.5.5
-			'h1' => $block,
-			'h2' => $block,
-			'h3' => $block,
-			'h4' => $block,
-			'h5' => $block,
-			'h6' => $block,
+			# 7.5.5
+			'h1'         => $block,
+			'h2'         => $block,
+			'h3'         => $block,
+			'h4'         => $block,
+			'h5'         => $block,
+			'h6'         => $block,
 
-			// 7.5.6
-			// address
+			# 7.5.6
+			# address
 
-			// 8.2.4
-			'bdo' => $common,
+			# 8.2.4
+			'bdo'        => $common,
 
-			// 9.2.1
-			'em' => $common,
-			'strong' => $common,
-			'cite' => $common,
-			'dfn' => $common,
-			'code' => $common,
-			'samp' => $common,
-			'kbd' => $common,
-			'var' => $common,
-			'abbr' => $common,
-			// acronym
+			# 9.2.1
+			'em'         => $common,
+			'strong'     => $common,
+			'cite'       => $common,
+			'dfn'        => $common,
+			'code'       => $common,
+			'samp'       => $common,
+			'kbd'        => $common,
+			'var'        => $common,
+			'abbr'       => $common,
+			# acronym
 
-			// 9.2.2
+			# 9.2.2
 			'blockquote' => array_merge( $common, [ 'cite' ] ),
-			'q' => array_merge( $common, [ 'cite' ] ),
+			'q'          => array_merge( $common, [ 'cite' ] ),
 
-			// 9.2.3
-			'sub' => $common,
-			'sup' => $common,
+			# 9.2.3
+			'sub'        => $common,
+			'sup'        => $common,
 
-			// 9.3.1
-			'p' => $block,
+			# 9.3.1
+			'p'          => $block,
 
-			// 9.3.2
-			'br' => array_merge( $common, [ 'clear' ] ),
+			# 9.3.2
+			'br'         => array_merge( $common, [ 'clear' ] ),
 
-			// https://www.w3.org/TR/html5/text-level-semantics.html#the-wbr-element
-			'wbr' => $common,
+			# https://www.w3.org/TR/html5/text-level-semantics.html#the-wbr-element
+			'wbr'        => $common,
 
-			// 9.3.4
-			'pre' => array_merge( $common, [ 'width' ] ),
+			# 9.3.4
+			'pre'        => array_merge( $common, [ 'width' ] ),
 
-			// 9.4
-			'ins' => array_merge( $common, [ 'cite', 'datetime' ] ),
-			'del' => array_merge( $common, [ 'cite', 'datetime' ] ),
+			# 9.4
+			'ins'        => array_merge( $common, [ 'cite', 'datetime' ] ),
+			'del'        => array_merge( $common, [ 'cite', 'datetime' ] ),
 
-			// 10.2
-			'ul' => array_merge( $common, [ 'type' ] ),
-			'ol' => array_merge( $common, [ 'type', 'start', 'reversed' ] ),
-			'li' => array_merge( $common, [ 'type', 'value' ] ),
+			# 10.2
+			'ul'         => array_merge( $common, [ 'type' ] ),
+			'ol'         => array_merge( $common, [ 'type', 'start', 'reversed' ] ),
+			'li'         => array_merge( $common, [ 'type', 'value' ] ),
 
-			// 10.3
-			'dl' => $common,
-			'dd' => $common,
-			'dt' => $common,
+			# 10.3
+			'dl'         => $common,
+			'dd'         => $common,
+			'dt'         => $common,
 
-			// 11.2.1
-			'table' => array_merge( $common, [
-					'summary', 'width', 'border', 'frame',
-					'rules', 'cellspacing', 'cellpadding',
-					'align', 'bgcolor'
-				]
-			),
+			# 11.2.1
+			'table'      => array_merge( $common,
+								[ 'summary', 'width', 'border', 'frame',
+										'rules', 'cellspacing', 'cellpadding',
+										'align', 'bgcolor',
+								] ),
 
-			// 11.2.2
-			'caption' => $block,
+			# 11.2.2
+			'caption'    => $block,
 
-			// 11.2.3
-			'thead' => $common,
-			'tfoot' => $common,
-			'tbody' => $common,
+			# 11.2.3
+			'thead'      => $common,
+			'tfoot'      => $common,
+			'tbody'      => $common,
 
-			// 11.2.4
-			'colgroup' => array_merge( $common, [ 'span' ] ),
-			'col' => array_merge( $common, [ 'span' ] ),
+			# 11.2.4
+			'colgroup'   => array_merge( $common, [ 'span' ] ),
+			'col'        => array_merge( $common, [ 'span' ] ),
 
-			// 11.2.5
-			'tr' => array_merge( $common, [ 'bgcolor' ], $tablealign ),
+			# 11.2.5
+			'tr'         => array_merge( $common, [ 'bgcolor' ], $tablealign ),
 
-			// 11.2.6
-			'td' => array_merge( $common, $tablecell, $tablealign ),
-			'th' => array_merge( $common, $tablecell, $tablealign ),
+			# 11.2.6
+			'td'         => array_merge( $common, $tablecell, $tablealign ),
+			'th'         => array_merge( $common, $tablecell, $tablealign ),
 
-			// 12.2
-			// NOTE: <a> is not allowed directly, but the attrib
-			// whitelist is used from the Parser object
-			'a' => array_merge( $common, [ 'href', 'rel', 'rev' ] ), // rel/rev esp. for RDFa
+			# 12.2
+			# NOTE: <a> is not allowed directly, but the attrib
+			# whitelist is used from the Parser object
+			'a'          => array_merge( $common, [ 'href', 'rel', 'rev' ] ), # rel/rev esp. for RDFa
 
-			// 13.2
-			// Not usually allowed, but may be used for extension-style hooks
-			// such as <math> when it is rasterized, or if wgAllowImageTag is
-			// true
-			'img' => array_merge( $common, [ 'alt', 'src', 'width', 'height', 'srcset' ] ),
-			// Attributes for A/V tags added in T163583
-			'audio' => array_merge( $common, [ 'controls', 'preload', 'width', 'height' ] ),
-			'video' => array_merge( $common, [ 'poster', 'controls', 'preload', 'width', 'height' ] ),
-			'source' => array_merge( $common, [ 'type', 'src' ] ),
-			'track' => array_merge( $common, [ 'type', 'src', 'srclang', 'kind', 'label' ] ),
+			# 13.2
+			# Not usually allowed, but may be used for extension-style hooks
+			# such as <math> when it is rasterized, or if $wgAllowImageTag is
+			# true
+			'img'        => array_merge( $common, [ 'alt', 'src', 'width', 'height', 'srcset' ] ),
+			# Attributes for A/V tags added in T163583 / T133673
+			'audio'      => array_merge( $common, [ 'controls', 'preload', 'width', 'height' ] ),
+			'video'      => array_merge( $common, [ 'poster', 'controls', 'preload', 'width', 'height' ] ),
+			'source'     => array_merge( $common, [ 'type', 'src' ] ),
+			'track'      => array_merge( $common, [ 'type', 'src', 'srclang', 'kind', 'label' ] ),
 
-			// 15.2.1
-			'tt' => $common,
-			'b' => $common,
-			'i' => $common,
-			'big' => $common,
-			'small' => $common,
-			'strike' => $common,
-			's' => $common,
-			'u' => $common,
+			# 15.2.1
+			'tt'         => $common,
+			'b'          => $common,
+			'i'          => $common,
+			'big'        => $common,
+			'small'      => $common,
+			'strike'     => $common,
+			's'          => $common,
+			'u'          => $common,
 
-			// 15.2.2
-			'font' => array_merge( $common, [ 'size', 'color', 'face' ] ),
-			// basefont
+			# 15.2.2
+			'font'       => array_merge( $common, [ 'size', 'color', 'face' ] ),
+			# basefont
 
-			// 15.3
-			'hr' => array_merge( $common, [ 'width' ] ),
+			# 15.3
+			'hr'         => array_merge( $common, [ 'width' ] ),
 
-			// HTML Ruby annotation text module, simple ruby only.
-			// https://www.w3.org/TR/html5/text-level-semantics.html#the-ruby-element
-			'ruby' => $common,
-			// rbc
-			'rb' => $common,
-			'rp' => $common,
-			'rt' => $common, // common.concat([ 'rbspan' ]),
-			'rtc' => $common,
+			# HTML Ruby annotation text module, simple ruby only.
+			# https://www.w3.org/TR/html5/text-level-semantics.html#the-ruby-element
+			'ruby'       => $common,
+			# rbc
+			'rb'         => $common,
+			'rp'         => $common,
+			'rt'         => $common, # array_merge( $common, array( 'rbspan' ) ),
+			'rtc'        => $common,
 
-			// MathML root element, where used for extensions
-			// 'title' may not be 100% valid here; it's XHTML
-			// http://www.w3.org/TR/REC-MathML/
-			'math' => [ 'class', 'style', 'id', 'title' ],
+			# MathML root element, where used for extensions
+			# 'title' may not be 100% valid here; it's XHTML
+			# https://www.w3.org/TR/REC-MathML/
+			'math'       => [ 'class', 'style', 'id', 'title' ],
 
 			// HTML 5 section 4.5
-			'figure' => $common,
-			'figure-inline' => $common,
+			'figure'     => $common,
+			'figure-inline' => $common, # T118520
 			'figcaption' => $common,
 
-			// HTML 5 section 4.6
+			# HTML 5 section 4.6
 			'bdi' => $common,
 
-			// HTML5 elements, defined by:
-			// https://html.spec.whatwg.org/multipage/semantics.html#the-data-element
+			# HTML5 elements, defined by:
+			# https://html.spec.whatwg.org/multipage/semantics.html#the-data-element
 			'data' => array_merge( $common, [ 'value' ] ),
 			'time' => array_merge( $common, [ 'datetime' ] ),
 			'mark' => $common,
@@ -623,21 +650,10 @@ class Sanitizer extends TokenHandler {
 			// (ie: validateTag rejects tags missing the attributes needed for Microdata)
 			// So we don't bother including $common attributes that have no purpose.
 			'meta' => [ 'itemprop', 'content' ],
-			'link' => [ 'itemprop', 'href', 'title' ]
+			'link' => [ 'itemprop', 'href', 'title' ],
 		];
-	}
 
-	// init caches, convert lists to hashtables, etc.
-
-	/**
-	 * setDerivedConstants()
-	 */
-	private static function setDerivedConstants(): void {
-		// Tags whose end tags are not accepted, but whose start /
-		// self-closing version might be legal.
-		// PORT-FIXME maybe we should convert attrWhiteList to constant?
-		self::$attrWhiteList = self::computeAttrWhiteList( self::GLOBAL_CONFIG );
-		self::$attrWhiteListCache = []; // reset cache
+		return $whitelist;
 	}
 
 	/**
@@ -676,21 +692,6 @@ class Sanitizer extends TokenHandler {
 	 */
 	private static function utf8ToCodepoint( string $str ): int {
 		return mb_ord( $str );
-	}
-
-	/**
-	 * @param string $tag
-	 * @return array
-	 */
-	private static function getAttrWhiteList( string $tag ): array {
-		$awlCache = &self::$attrWhiteListCache;
-		if ( empty( $awlCache[$tag] ) ) {
-			if ( !self::$attrWhiteList ) {
-				self::setDerivedConstants();
-			}
-			$awlCache[$tag] = PHPUtils::makeSet( self::$attrWhiteList[$tag] ?? [] );
-		}
-		return $awlCache[$tag];
 	}
 
 	/**
@@ -1072,6 +1073,24 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
+	 * Given an attribute name, checks whether it is a reserved data attribute
+	 * (such as data-mw-foo) which is unavailable to user-generated HTML so MediaWiki
+	 * core and extension code can safely use it to communicate with frontend code.
+	 * @param string $attr Attribute name.
+	 * @return bool
+	 */
+	public static function isReservedDataAttribute( string $attr ): bool {
+		// data-ooui is reserved for ooui.
+		// data-mw and data-parsoid are reserved for parsoid.
+		// data-mw-<name here> is reserved for extensions (or core) if
+		// they need to communicate some data to the client and want to be
+		// sure that it isn't coming from an untrusted user.
+		// We ignore the possibility of namespaces since user-generated HTML
+		// can't use them anymore.
+		return (bool)preg_match( '/^data-(ooui|mw|parsoid)/i', $attr );
+	}
+
+	/**
 	 * @param Env $env
 	 * @param string|null $tagName
 	 * @param Token|null $token
@@ -1082,11 +1101,8 @@ class Sanitizer extends TokenHandler {
 		Env $env, ?string $tagName, ?Token $token, array $attrs
 	): array {
 		$tag = $tagName ?: $token->getName();
-		$allowRdfa = self::GLOBAL_CONFIG['allowRdfaAttrs'];
-		$allowMda = self::GLOBAL_CONFIG['allowMicrodataAttrs'];
-		$html5Mode = self::GLOBAL_CONFIG['html5Mode'];
 
-		$wlist = self::getAttrWhiteList( $tag );
+		$wlist = self::attributeWhitelist( $tag );
 		$newAttrs = [];
 		$n = count( $attrs );
 		for ( $i = 0;  $i < $n;  $i++ ) {
@@ -1126,9 +1142,9 @@ class Sanitizer extends TokenHandler {
 					continue;
 				}
 
-				// If RDFa is enabled, don't block XML namespace declaration
-				if ( $allowRdfa && preg_match( self::XMLNS_ATTRIBUTE_RE, $k ) ) {
-					if ( !preg_match( self::EVIL_URI_RE, $v ) ) {
+				# Allow XML namespace declaration to allow RDFa
+				if ( preg_match( self::XMLNS_ATTRIBUTE_PATTERN, $k ) ) {
+					if ( !preg_match( self::EVIL_URI_PATTERN, $v ) ) {
 						$newAttrs[$k] = [ $v, $origV, $origK ];
 					} else {
 						$newAttrs[$k] = [ null, $origV, $origK ];
@@ -1136,30 +1152,54 @@ class Sanitizer extends TokenHandler {
 					continue;
 				}
 
-				// If in HTML5 mode, don't block data-* attributes
-				// (But always block data-ooui attributes for security: T105413)
-				if ( !( $html5Mode && preg_match( ( '/^data-(?!ooui)[^:]*$/' ), $k ) )
-					&& empty( $wlist[$k] ) ) {
-						$newAttrs[$k] = [ null, $origV, $origK ];
+				# Allow any attribute beginning with "data-"
+				# However:
+				# * Disallow data attributes used by MediaWiki code
+				# * Ensure that the attribute is not namespaced by banning
+				#   colons.
+				if ( ( !preg_match( '/^data-[^:]*$/i', $k )
+					 && !isset( $wlist[$k] ) )
+					 || self::isReservedDataAttribute( $k )
+				) {
+					$newAttrs[$k] = [ null, $origV, $origK ];
 					continue;
 				}
 			}
 
-			// Strip javascript "expression" from stylesheets.
-			// http://msdn.microsoft.com/workshop/author/dhtml/overview/recalc.asp
+			# Strip javascript "expression" from stylesheets.
+			# http://msdn.microsoft.com/workshop/author/dhtml/overview/recalc.asp
 			if ( $k === 'style' ) {
 				$v = self::checkCss( $v );
 			}
 
+			# Escape HTML id attributes
 			if ( $k === 'id' ) {
-				$v = self::escapeIdForAttribute( $v );
+				$v = self::escapeIdForAttribute( $v, self::ID_PRIMARY );
+			}
+
+			# Escape HTML id reference lists
+			if ( $k === 'aria-describedby'
+				|| $k === 'aria-flowto'
+				|| $k === 'aria-labelledby'
+				|| $k === 'aria-owns'
+			) {
+				$v = self::escapeIdReferenceList( $v );
 			}
 
 			// RDFa and microdata properties allow URLs, URIs and/or CURIs.
-			// Check them for sanity
-			if ( isset( self::MICRODATA[$k] ) ) {
+			// Check them for sanity.
+			if ( $k === 'rel' || $k === 'rev'
+				# RDFa
+				|| $k === 'about' || $k === 'property'
+				|| $k === 'resource' || $k === 'datatype'
+				|| $k === 'typeof'
+				# HTML5 microdata
+				|| $k === 'itemid' || $k === 'itemprop'
+				|| $k === 'itemref' || $k === 'itemscope'
+				|| $k === 'itemtype'
+			) {
 				// Paranoia. Allow "simple" values but suppress javascript
-				if ( preg_match( self::EVIL_URI_RE, $v ) ) {
+				if ( preg_match( self::EVIL_URI_PATTERN, $v ) ) {
 					// Retain the Parsoid typeofs for Parsoid attrs
 					$newV = $psdAttr ? trim( preg_replace( '/(?:^|\s)(?!mw:\w)[^\s]*/', '', $origV ) ) : null;
 					$newAttrs[$k] = [ $newV, $origV, $origK ];
@@ -1167,8 +1207,8 @@ class Sanitizer extends TokenHandler {
 				}
 			}
 
-			// NOTE: Even though elements using href/src are not allowed directly,
-			// supply validation code that can be used by tag hook handlers, etc
+			# NOTE: even though elements using href/src are not allowed directly, supply
+			#       validation code that can be used by tag hook handlers, etc
 			if ( $token && ( $k === 'href' || $k === 'src' || $k === 'poster' ) ) { // T163583
 				// `origV` will always be `v`, because `a.vsrc` isn't set, since
 				// this attribute didn't come from source.  However, in the
@@ -1191,17 +1231,16 @@ class Sanitizer extends TokenHandler {
 			// If this attribute was previously set, override it.
 			// Output should only have one attribute of each name.
 			$newAttrs[$k] = [ $v, $origV, $origK ];
-
-			if ( !$allowMda ) {
-				// itemtype, itemid, itemref don't make sense without itemscope
-				if ( $newAttrs['itemscope'] === null ) {
-					// SSS FIXME: This logic is not RT-friendly.
-					$newAttrs['itemtype'] = null;
-					$newAttrs['itemid'] = null;
-				}
-				// TODO: Strip itemprop if we aren't descendants of an itemscope.
-			}
 		}
+
+		# itemtype, itemid, itemref don't make sense without itemscope
+		if ( !array_key_exists( 'itemscope', $newAttrs ) ) {
+			// SSS FIXME: This logic is not RT-friendly.
+			unset( $newAttrs['itemtype'] );
+			unset( $newAttrs['itemid'] );
+			unset( $newAttrs['itemref'] );
+		}
+		# TODO: Strip itemprop if we aren't descendants of an itemscope or pointed to by an itemref.
 
 		return $newAttrs;
 	}
@@ -1343,71 +1382,119 @@ class Sanitizer extends TokenHandler {
 		return $title;
 	}
 
-	// PORT_FIXME: this method is deprecated in PHP core, replaced by
-	// private Sanitizer.escapeIdInternal() and a variety of
-	// public Sanitizer.escapeIdFor* methods.  We should do the same.
 	/**
-	 * Helper for escapeIdFor*() functions. Performs most of the actual escaping.
+	 * Given a section name or other user-generated or otherwise unsafe string, escapes it to be
+	 * a valid HTML id attribute.
 	 *
-	 * @param string $id String to escape.
-	 * @param string $mode 'html5' or 'legacy'
-	 * @return string
+	 * WARNING: unlike escapeId(), the output of this function is not guaranteed to be HTML safe,
+	 * be sure to use proper escaping.
+	 *
+	 * In Parsoid, proper escaping is usually handled for us by the HTML
+	 * serialization algorithm, but be careful of corner cases (such as
+	 * emitting attributes in wikitext).
+	 *
+	 * @param string $id String to escape
+	 * @param int $mode One of ID_* constants, specifying whether the primary or fallback encoding
+	 *     should be used.
+	 * @return string|bool Escaped ID or false if fallback encoding is requested but it's not
+	 *     configured.
+	 *
+	 * @since 1.30
 	 */
-	private static function escapeIdInternal( string $id, string $mode ): string {
-		switch ( $mode ) {
-			case 'html5':
-				$id = preg_replace( '/ /', '_', $id );
-				break;
-
-			case 'legacy':
-				// This corresponds to 'noninitial' mode of the old escapeId
-				$id = preg_replace( '/ /', '_', $id );
-				$id = Util::phpURLEncode( $id );
-				$id = preg_replace( '/%3A/', ':', $id );
-				$id = preg_replace( '/%/', '.', $id );
-				break;
-
-			default:
-				throw new Error( 'Invalid mode: ' . $mode );
-		}
-		return $id;
+	public static function escapeIdForAttribute( string $id, $mode = self::ID_PRIMARY ): string {
+		// For consistency with PHP's API, we accept "primary" or "fallback" as
+		// the mode in 'options'.  This (slightly) abstracts the actual details
+		// of the id encoding from the Parsoid code which handles ids; we could
+		// swap primary and fallback here, or even transition to a new HTML6
+		// encoding (!), without touching all the call sites.
+		$internalMode = $mode === self::ID_FALLBACK ? 'legacy' : 'html5';
+		return self::escapeIdInternal( $id, $mode );
 	}
 
 	/**
-	 * @param string $id
-	 * @return string
+	 * Given a section name or other user-generated or otherwise unsafe string, escapes it to be
+	 * a valid URL fragment.
+	 *
+	 * WARNING: unlike escapeId(), the output of this function is not guaranteed to be HTML safe,
+	 * be sure to use proper escaping.
+	 *
+	 * @param string $id String to escape
+	 * @return string Escaped ID
+	 *
+	 * @since 1.30
 	 */
 	public static function escapeIdForLink( string $id ): string {
 		return self::escapeIdInternal( $id, 'html5' );
 	}
 
 	/**
-	 * @param string $id
-	 * @return string
+	 * Given a section name or other user-generated or otherwise unsafe string, escapes it to be
+	 * a valid URL fragment for external interwikis.
+	 *
+	 * @param string $id String to escape
+	 * @return string Escaped ID
+	 *
+	 * @since 1.30
 	 */
 	private static function escapeIdForExternalInterwiki( string $id ): string {
 		// Assume $wgExternalInterwikiFragmentMode = 'legacy'
 		return self::escapeIdInternal( $id, 'legacy' );
 	}
+
 	/**
-	 * Note the following, copied from the PHP implementation:
-	 *   WARNING: unlike escapeId(), the output of this function is not guaranteed
-	 *   to be HTML safe, be sure to use proper escaping.
-	 * This is usually handled for us by the HTML serialization algorithm, but
-	 * be careful of corner cases (such as emitting attributes in wikitext).
+	 * Helper for escapeIdFor*() functions. Performs most of the actual escaping.
 	 *
-	 * @param string $id
-	 * @param array $options
+	 * @param string $id String to escape
+	 * @param string $mode One of modes from $wgFragmentMode ('html5' or 'legacy')
 	 * @return string
 	 */
-	public static function escapeIdForAttribute( string $id, array $options = [] ): string {
-		// For consistency with PHP's API, we accept "primary" or "fallback" as
-		// the mode in 'options'.  This (slightly) abstracts the actual details
-		// of the id encoding from the Parsoid code which handles ids; we could
-		// swap primary and fallback here, or even transition to a new HTML6
-		// encoding (!), without touching all the call sites.
-		$mode = isset( $options['fallback'] ) ? 'legacy' : 'html5';
-		return self::escapeIdInternal( $id, $mode );
+	private static function escapeIdInternal( string $id, string $mode ): string {
+		switch ( $mode ) {
+			case 'html5':
+				$id = str_replace( ' ', '_', $id );
+				break;
+
+			case 'legacy':
+				// This corresponds to 'noninitial' mode of the old escapeId
+				static $replace = [
+					'%3A' => ':',
+					'%' => '.'
+				];
+
+				$id = urlencode( str_replace( ' ', '_', $id ) );
+				$id = strtr( $id, $replace );
+				break;
+
+			default:
+				throw new InvalidArgumentException( "Invalid mode '$mode' passed to '" . __METHOD__ );
+		}
+
+		return $id;
+	}
+
+	/**
+	 * Given a string containing a space delimited list of ids, escape each id
+	 * to match ids escaped by the escapeIdForAttribute() function.
+	 *
+	 * @since 1.27
+	 *
+	 * @param string $referenceString Space delimited list of ids
+	 * @return string
+	 */
+	public static function escapeIdReferenceList( string $referenceString ): string {
+		# Explode the space delimited list string into an array of tokens
+		$references = preg_split( '/\s+/', "{$referenceString}", -1, PREG_SPLIT_NO_EMPTY );
+
+		# Escape each token as an id
+		foreach ( $references as &$ref ) {
+			$ref = self::escapeIdForAttribute( $ref );
+		}
+
+		# Merge the array back to a space delimited list string
+		# If the array is empty, the result will be an empty string ('')
+		$referenceString = implode( ' ', $references );
+
+		return $referenceString;
 	}
 
 	/**
@@ -1426,7 +1513,6 @@ class Sanitizer extends TokenHandler {
 	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->inTemplate = !empty( $options['inTemplate'] );
-		self::setDerivedConstants();
 	}
 
 	/**
