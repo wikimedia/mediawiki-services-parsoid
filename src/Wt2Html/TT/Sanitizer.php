@@ -641,18 +641,21 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * Returns true if a given Unicode codepoint is a valid character in XML.
-	 *
-	 * @param int $cp
+	 * Returns true if a given Unicode codepoint is a valid character in
+	 * both HTML5 and XML.
+	 * @param int $codepoint
 	 * @return bool
 	 */
-	private static function validateCodepoint( int $cp ): bool {
-		return ( $cp === 0x09 )
-		|| ( $cp === 0x0a )
-		|| ( $cp === 0x0d )
-		|| ( $cp >= 0x20 && $cp <= 0xd7ff )
-		|| ( $cp >= 0xe000 && $cp <= 0xfffd )
-		|| ( $cp >= 0x10000 && $cp <= 0x10ffff );
+	private static function validateCodepoint( int $codepoint ): bool {
+		# U+000C is valid in HTML5 but not allowed in XML.
+		# U+000D is valid in XML but not allowed in HTML5.
+		# U+007F - U+009F are disallowed in HTML5 (control characters).
+		return $codepoint == 0x09
+			|| $codepoint == 0x0a
+			|| ( $codepoint >= 0x20 && $codepoint <= 0x7e )
+			|| ( $codepoint >= 0xa0 && $codepoint <= 0xd7ff )
+			|| ( $codepoint >= 0xe000 && $codepoint <= 0xfffd )
+			|| ( $codepoint >= 0x10000 && $codepoint <= 0x10ffff );
 	}
 
 	/**
