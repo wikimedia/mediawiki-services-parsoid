@@ -7,6 +7,8 @@ use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Parsoid\Wt2Html\Frame;
+use Parsoid\Wt2Html\PageConfigFrame;
 use Parsoid\Wt2Html\ParserPipelineFactory;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
@@ -39,6 +41,19 @@ class Env {
 
 	/** @var DataAccess */
 	private $dataAccess;
+
+	/**
+	 * The top-level frame for this conversion.  This largely wraps the
+	 * PageConfig.
+	 *
+	 * In the future we may replace PageConfig with the Frame, and add
+	 * a
+	 * @var Frame
+	 */
+	public $topFrame;
+	// XXX In the future, perhaps replace PageConfig with the Frame, and
+	// add $this->currentFrame (relocated from TokenTransformManager) if/when
+	// we've removed async parsing.
 
 	/**
 	 * @var bool Are we in offline mode?
@@ -180,6 +195,7 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
+		$this->topFrame = new PageConfigFrame( $this, $pageConfig );
 		$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
@@ -566,6 +582,7 @@ class Env {
 	 * the name of this method could be updated, if necessary.
 	 *
 	 * Shortcut method to get page source
+	 * @deprecated Use $this->topFrame->getSrcText()
 	 * @return string
 	 */
 	public function getPageMainContent(): string {

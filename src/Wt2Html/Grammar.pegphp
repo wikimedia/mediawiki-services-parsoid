@@ -12,8 +12,10 @@
 	use Parsoid\Tokens\EndTagTk;
 	use Parsoid\Tokens\EOFTk;
 	use Parsoid\Tokens\KV;
+	use Parsoid\Tokens\KVSourceOffset;
 	use Parsoid\Tokens\NlTk;
 	use Parsoid\Tokens\SelfclosingTagTk;
+	use Parsoid\Tokens\SourceOffset;
 	use Parsoid\Tokens\TagTk;
 	use Parsoid\Tokens\Token;
 	use Parsoid\Config\Env;
@@ -67,14 +69,14 @@
 		return $this->currPos;
 	}
 
-	private function tsrOffsets( $flag = 'default' ) {
+	private function tsrOffsets( $flag = 'default' ): SourceOffset {
 		switch ( $flag ) {
             case 'start':
-                return [ $this->savedPos, $this->savedPos ];
+                return new SourceOffset( $this->savedPos, $this->savedPos );
             case 'end':
-                return [ $this->currPos, $this->currPos ];
+                return new SourceOffset( $this->currPos, $this->currPos );
             default:
-                return [ $this->savedPos, $this->currPos ];
+                return new SourceOffset( $this->savedPos, $this->currPos );
         }
 	}
 
@@ -158,8 +160,8 @@
 				return $t; // not text()
 
 			case SelfclosingTagTk::class:
-				$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-				$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $dp->tsr[1], $dp->tsr[1] ];
+				$dp->src = $dp->tsr->rawSubstr( $this->input );
+				$dp->extTagOffsets = $dp->tsr->expandTsrK();
 				if ( $isIncludeTag ) {
 					return $t;
 				}
@@ -167,11 +169,11 @@
 
 			case TagTk::class:
 				$endTagRE = '~.*?(</\s*' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
-				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr[0] );
+				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
 
 				if ( !$tagContentFound ) {
-					$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-					$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $dp->tsr[1], $dp->tsr[1] ];
+					$dp->src = $dp->tsr->rawSubstr( $this->input );
+					$dp->extTagOffsets = $dp->tsr->expandTsrK();
 					if ( $isIncludeTag ) {
 						return $t;
 					} else {
@@ -189,7 +191,7 @@
 				}
 
 				$extSrc = $tagContent[0];
-				$extEndOffset = $dp->tsr[0] + strlen( $extSrc );
+				$extEndOffset = $dp->tsr->start + strlen( $extSrc );
 				$extEndTagWidth = strlen( $tagContent[1] );
 
 				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
@@ -217,7 +219,7 @@
 					// Expand `extSrc` as long as there is a <tagName> found in the
 					// extension source body.
 					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '[^/<>]*>~i';
-					$s = substr( $extSrc, $this->endOffset() - $dp->tsr[0] );
+					$s = substr( $extSrc, $this->endOffset() - $dp->tsr->start );
 					while ( strlen( $s ) ) {
 						if ( !preg_match( $startTagRE, $s, $m ) ) {
 							break;
@@ -234,14 +236,14 @@
 
 				// Extension content source
 				$dp->src = $extSrc;
-				$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $extEndOffset - $extEndTagWidth, $extEndOffset ];
+				$dp->extTagOffsets = $dp->tsr->join( new SourceOffset( $extEndOffset - $extEndTagWidth, $extEndOffset ) );
 
-				$skipPos = $dp->extTagOffsets[2];
+				$skipPos = $dp->extTagOffsets->value->start;
 
 				// If the xml-tag is a known installed (not native) extension,
 				// skip the end-tag as well.
 				if ( $isInstalledExt ) {
-					$skipPos = $dp->extTagOffsets[3];
+					$skipPos = $dp->extTagOffsets->value->end;
 				}
 				break;
 
@@ -253,7 +255,7 @@
 
 		if ( $isInstalledExt ) {
 			// update tsr[1] to span the start and end tags.
-			$dp->tsr[1] = $this->endOffset(); // was just modified above
+			$dp->tsr->end = $this->endOffset(); // was just modified above
 			return new SelfclosingTagTk( 'extension', [
 					new KV( 'typeof', 'mw:Extension' ),
 					new KV( 'name', $tagName ),
@@ -264,11 +266,15 @@
 			);
 		} elseif ( $isIncludeTag ) {
 			// Parse ext-content, strip eof, and shift tsr
-			$extContent = substr( $dp->src, $dp->extTagOffsets[ 1 ] - $dp->extTagOffsets[0], $dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
+			$extContent = substr(
+				$dp->src,
+				$dp->extTagOffsets->key->length(),
+				-$dp->extTagOffsets->value->length()
+			);
 			$tokenizer = new PegTokenizer( $this->env );
-			$tokenizer->setSourceOffsets( $dp->extTagOffsets[1], $dp->extTagOffsets[2] );
+			$tokenizer->setSourceOffsets( new SourceOffset( $dp->extTagOffsets->key->end, $dp->extTagOffsets->value->start ) );
 			$extContentToks = $tokenizer->tokenizeSync( $extContent );
-			if ( $dp->extTagOffsets[2] !== $dp->extTagOffsets[3] ) {
+			if ( $dp->extTagOffsets->value->length() > 0 ) {
 				TokenUtils::stripEOFTkFromTokens( $extContentToks );
 			}
 			array_unshift( $extContentToks, $t );
@@ -612,7 +618,7 @@ heading =
 			}
 
 			$tsr = $this->tsrOffsets( 'start' );
-			$tsr[1] += $level;
+			$tsr->end += $level;
 			// Match the old parser's behavior by (a) making headingIndex part of tokenizer
 			// state(don't reuse pipeline!) and (b) assigning the index when
 			// ==*== is tokenized, even if we're inside a template argument
@@ -626,7 +632,9 @@ heading =
 				] ) ],
 				$c,
 				[
-					new EndTagTk( 'h' . $level, [], (object)[ 'tsr' => [ $endTPos - $level, $endTPos ] ] ),
+					new EndTagTk( 'h' . $level, [], (object)[
+						'tsr' => new SourceOffset( $endTPos - $level, $endTPos ),
+					] ),
 					$spc
 				]
 			);
@@ -684,7 +692,9 @@ autolink =
 	r:(
 		// urllink, inlined
 		target:autourl {
-			$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $target ) ], (object)[ 'tsr' => $this->tsrOffsets() ] ) ];
+			$tsr = $this->tsrOffsets();
+
+			$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $target, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] ) ];
 			return $res;
 		}
 		/ autoref
@@ -695,8 +705,10 @@ extlink "extlink" =
 	! <extlink> // extlink cannot be nested
 	r:(
 		"["
+		p0:( "" { return $this->endOffset(); })
 		addr:(url_protocol urladdr / "")
 		target:(extlink_preprocessor_text<extlink> / "")
+		p1:( "" { return $this->endOffset(); })
 		& {
 			// Protocol must be valid and there ought to be at least one
 			// post-protocol character.  So strip last char off target
@@ -709,17 +721,20 @@ extlink "extlink" =
 			return Util::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		}
 		sp:$( space / unispace )*
-		targetOff:( "" { return $this->endOffset(); })
+		p2:( "" { return $this->endOffset(); })
 		content:inlineline<extlink>?
+		p3:( "" { return $this->endOffset(); })
 		"]" {
+			$tsr1 = new SourceOffset( $p0, $p1 );
+			$tsr2 = new SourceOffset( $p2, $p3 );
 			return [
 				new SelfclosingTagTk( 'extlink', [
-						new KV( 'href', TokenizerUtils::flattenString( [ $addr, $target ] ) ),
-						new KV( 'mw:content', $content ?? '' ),
+						new KV( 'href', TokenizerUtils::flattenString( [ $addr, $target ] ), $tsr1->expandTsrV() ),
+						new KV( 'mw:content', $content ?? '', $tsr2->expandTsrV() ),
 						new KV( 'spaces', $sp )
 					], (object)[
 						'tsr' => $this->tsrOffsets(),
-						'extLinkContentOffsets' => [ $targetOff, $this->endOffset() - 1 ]
+						'extLinkContentOffsets' => $tsr2,
 					]
 				)
 			]; }
@@ -732,13 +747,14 @@ autoref =
 			'RFC' => 'https://tools.ietf.org/html/rfc%s',
 			'PMID' => '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
 		];
+		$tsr = $this->tsrOffsets();
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', sprintf( $base_urls[ $ref ], $identifier ) ),
-					new KV( 'mw:content', TokenizerUtils::flattenString( [ $ref, $sp, $identifier ] ) ),
+					new KV( 'mw:content', TokenizerUtils::flattenString( [ $ref, $sp, $identifier ] ), $tsr->expandTsrV() ),
 					new KV( 'typeof', 'mw:ExtLink/' . $ref )
 				],
-				(object)[ 'stx' => 'magiclink', 'tsr' => $this->tsrOffsets() ]
+				(object)[ 'stx' => 'magiclink', 'tsr' => $tsr ]
 			)
 		];
 	}
@@ -768,13 +784,14 @@ isbn =
 			|| ( strlen( $isbncode ) === 13 && preg_match( '/^97[89]/', $isbncode ) );
 	}
 	{
+		$tsr = $this->tsrOffsets();
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', 'Special:BookSources/' . $isbncode ),
-					new KV( 'mw:content', TokenizerUtils::flattenString( [ 'ISBN', $sp, $isbn ] ) ),
+					new KV( 'mw:content', TokenizerUtils::flattenString( [ 'ISBN', $sp, $isbn ] ), $tsr->expandTsrV() ),
 					new KV( 'typeof', 'mw:WikiLink/ISBN' )
 				],
-				(object)[ 'stx' => 'magiclink', 'tsr' => $this->tsrOffsets() ]
+				(object)[ 'stx' => 'magiclink', 'tsr' => $tsr ]
 			)
 		];
 	}
@@ -970,7 +987,8 @@ template_preproc =
 			&("|" / "}}")
 			{
 				// empty argument
-				return new KV( '', TokenizerUtils::flattenIfArray( $v ), [ $p0, $p0, $p0, $p ] );
+				$tsr0 = new SourceOffset( $p0, $p );
+				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
 			}
 			/ template_param
 		) { return $r; }
@@ -981,7 +999,7 @@ template_preproc =
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
 		// again.
-		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets'] ) );
+		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets']->expandTsrK() ) );
 		$obj = new SelfclosingTagTk( 'template', $params,
 			(object)[
 				'tsr' => $this->tsrOffsets(), 'src' => $this->text(),
@@ -1007,7 +1025,7 @@ tplarg_preproc =
 			&("|" / "}}}")
 			{
 				// empty argument
-				return [ 'tokens' => $v, 'srcOffsets' => [ $p0, $p1 ] ];
+				return [ 'tokens' => $v, 'srcOffsets' => new SourceOffset( $p0, $p1 ) ];
 			}
 			/ template_param_value
 		) { return $r; }
@@ -1018,16 +1036,16 @@ tplarg_preproc =
 		$kvs = [];
 
 		if ( $target === null ) {
-			$target = [ 'tokens' => '', 'srcOffsets' => [ $p, $p, $p, $p ] ];
+			$target = [ 'tokens' => '', 'srcOffsets' => new SourceOffset( $p, $p ) ];
 		}
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
 		// again.
-		$kvs[] = new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets'] );
+		$kvs[] = new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets']->expandTsrK() );
 
 		foreach ( $params as $o ) {
 			$s = $o['srcOffsets'];
-			$kvs[] = new KV( '', TokenizerUtils::flattenIfArray( $o['tokens'] ), [ $s[ 0 ], $s[ 0 ], $s[ 0 ], $s[ 1 ] ] );
+			$kvs[] = new KV( '', TokenizerUtils::flattenIfArray( $o['tokens'] ), $s->expandTsrV() );
 		}
 
 		$obj = new SelfclosingTagTk( 'templatearg', $kvs, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text() ] );
@@ -1052,22 +1070,35 @@ template_param =
 	)? {
 		if ( $val !== null ) {
 			if ( $val['value'] !== null ) {
-				return new KV( $name,
+				$so = new KVSourceOffset(
+					$this->startOffset(), $val['kEndPos'],
+					$val['vStartPos'], $this->endOffset()
+				);
+				return new KV(
+					$name,
 					TokenizerUtils::flattenIfArray( $val['value'] ),
-					[ $this->startOffset(), $val['kEndPos'], $val['vStartPos'], $this->endOffset() ] );
+					$so
+				);
 			} else {
-				return new KV( TokenizerUtils::flattenIfArray( $name ), '',
-					[ $this->startOffset(), $val['kEndPos'], $val['vStartPos'], $this->endOffset() ] );
+				return new KV(
+					TokenizerUtils::flattenIfArray( $name ),
+					'',
+					$so
+				);
 			}
 		} else {
-			return new KV( '', TokenizerUtils::flattenIfArray( $name ),
-				[ $this->startOffset(), $this->startOffset(), $this->startOffset(), $this->endOffset() ] );
+			$so = new SourceOffset( $this->startOffset(), $this->endOffset() );
+			return new KV(
+				'',
+				TokenizerUtils::flattenIfArray( $name ),
+				$so->expandTsrV()
+			);
 		}
 	}
 	// empty parameter
 	/ & [|}] {
-		return new KV( '', '',
-			[ $this->startOffset(), $this->startOffset(), $this->startOffset(), $this->endOffset() ] );
+		$so = new SourceOffset( $this->startOffset(), $this->endOffset() );
+		return new KV( '', '', $so->expandTsrV() );
 	}
 
 template_param_name =
@@ -1164,7 +1195,7 @@ lang_variant_preproc =
 				$name = 'mw:lv' . count( $attribs );
 				// Note that AttributeExpander will expect the tokens array to be
 				// flattened.  We do that in lang_variant_text / lang_variant_nowiki
-				$attribs[] = new KV( $name, $t[$fld]['tokens'], $t[$fld]['srcOffsets'] );
+				$attribs[] = new KV( $name, $t[$fld]['tokens'], $t[$fld]['srcOffsets']->expandTsrV() );
 				$t[$fld] = $name;
 			}
 		}
@@ -1180,7 +1211,7 @@ lang_variant_preproc =
 				'language-variant',
 				$attribs,
 				(object)[
-					'tsr' => [ $lv0, $lv1 ],
+					'tsr' => new SourceOffset( $lv0, $lv1 ),
 					'src' => $lvsrc,
 					'flags' => $flags,
 					'variants' => $variants,
@@ -1340,9 +1371,11 @@ lang_variant_option =
 lang_variant_nowiki =
 	n:nowiki_text
 	sp:$space_or_newline* {
+		$tsr = $this->tsrOffsets();
+		$tsr->end -= strlen( $sp );
 		return [
 			'tokens' => [ $n ],
-			'srcOffsets' => [ $this->startOffset(), $this->endOffset() - strlen( $sp ) ]
+			'srcOffsets' => $tsr,
 		];
 	}
 
@@ -1351,7 +1384,7 @@ lang_variant_text =
 	{
 		return [
 			'tokens' => TokenizerUtils::flattenStringlist( $tokens ),
-			'srcOffsets' => [ $this->startOffset(), $this->endOffset() ]
+			'srcOffsets' => $this->tsrOffsets(),
 		];
 	}
 
@@ -1366,7 +1399,8 @@ wikilink_content =
 		pipe
 		startPos:("" { return $this->endOffset(); })
 		lt:link_text? {
-			$maybeContent = new KV( 'mw:maybeContent', $lt, [ $startPos, $this->endOffset() ] );
+			$tsr = new SourceOffset( $startPos, $this->endOffset() );
+			$maybeContent = new KV( 'mw:maybeContent', $lt, $tsr->expandTsrV() );
 			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
 			return $maybeContent;
 		}
@@ -1390,6 +1424,7 @@ broken_wikilink =
 
 wikilink_preproc =
 	"[["
+	spos:("" { return $this->endOffset(); })
 	target:wikilink_preprocessor_text?
 	tpos:("" { return $this->endOffset(); })
 	lcs:wikilink_content
@@ -1413,8 +1448,9 @@ wikilink_preproc =
 			return $textTokens;
 		}
 		$obj = new SelfclosingTagTk( 'wikilink' );
-		$hrefKV = new KV( 'href', $target );
-		$hrefKV->vsrc = substr( $this->input, $this->startOffset() + 2, $tpos - $this->startOffset() - 2 );
+		$tsr = new SourceOffset( $spos, $tpos );
+		$hrefKV = new KV( 'href', $target, $tsr->expandTsrV() );
+		$hrefKV->vsrc = $tsr->rawSubstr( $this->input );
 		// XXX: Point to object with path, revision and input information
 		// obj.source = input;
 		$obj->attribs[] = $hrefKV;
@@ -1468,12 +1504,12 @@ quote =
 		}
 		// mw-quote token will be consumed in token transforms
 		$tsr = $this->tsrOffsets();
-		$tsr[0] += $plainticks;
+		$tsr->start += $plainticks;
 		$mwq = new SelfclosingTagTk( 'mw-quote',
 			[ new KV( 'value', substr( $quotes, $plainticks ) ) ],
 			(object)[ 'tsr' => $tsr ] );
 		if ( strlen( $quotes ) > 2 ) {
-			$mwq->addAttribute( 'preceding-2chars', substr( $this->input, $tsr[0] - 2, 2 ) );
+			$mwq->addAttribute( 'preceding-2chars', substr( $this->input, $tsr->start - 2, 2 ) );
 		}
 		$result[] = $mwq;
 		return $result;
@@ -1559,7 +1595,7 @@ xmlish_tag_opened =
 		}
 
 		$tsr = $this->tsrOffsets();
-		$tsr[0]--; // For "<" matched at the start of xmlish_tag rule
+		$tsr->start--; // For "<" matched at the start of xmlish_tag rule
 		$res = TokenizerUtils::buildXMLTag( $name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr );
 
 		// change up data-attribs in one scenario
@@ -1597,14 +1633,15 @@ generic_newline_attribute =
 	if ( is_string( $name ) ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
+	$nameSO = new SourceOffset( $namePos0, $namePos );
 	if ( $vd !== null ) {
-		$res = new KV( $name, $vd['value'], [ $namePos0, $namePos, $vd['srcOffsets'][0], $vd['srcOffsets'][1] ] );
-		$res->vsrc = substr( $this->input, $vd['srcOffsets'][0], $vd['srcOffsets'][1]  - $vd['srcOffsets'][0] );
+		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
+		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
 	} else {
-		$res = new KV( $name, '', [ $namePos0, $namePos, $namePos, $namePos ] );
+		$res = new KV( $name, '', $nameSO->expandTsrK() );
 	}
 	if ( is_array( $name ) ) {
-		$res->ksrc = substr( $this->input, $namePos0, $namePos - $namePos0 );
+		$res->ksrc = $nameSO->rawSubstr( $this->input );
 	}
 	return $res;
 }
@@ -1623,14 +1660,15 @@ table_attribute =
 	if ( gettype( $name ) === 'string' ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
+	$nameSO = new SourceOffset( $namePos0, $namePos );
 	if ( $vd !== null ) {
-		$res = new KV( $name, $vd['value'], [ $namePos0, $namePos, $vd['srcOffsets'][0], $vd['srcOffsets'][1] ] );
-		$res->vsrc = substr( $this->input, $vd['srcOffsets'][0], $vd['srcOffsets'][1]  - $vd['srcOffsets'][0] );
+		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
+		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
 	} else {
-		$res = new KV( $name, '', [ $namePos0, $namePos, $namePos, $namePos ] );
+		$res = new KV( $name, '', $nameSO->expandTsrK() );
 	}
 	if ( is_array( $name ) ) {
-		$res->ksrc = substr( $this->input, $namePos0, $namePos - $namePos0 );
+		$res->ksrc = $nameSO->rawSubstr( $this->input );
 	}
 	return $res;
 }
@@ -1736,8 +1774,8 @@ li =
 	{
 		// Leave bullets as an array -- list handler expects this
 		$tsr = $this->tsrOffsets( 'start' );
-		$tsr[1] += count( $bullets );
-		$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets ) ], (object)[ 'tsr' => $tsr ] );
+		$tsr->end += count( $bullets );
+		$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
 		return array_merge( [ $li ], $c ?: [] );
 	}
 
@@ -1757,8 +1795,8 @@ hacky_dl_uses =
 {
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
-	$tsr[1] += count( $bullets );
-	$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets ) ], (object)[ 'tsr' => $tsr ] );
+	$tsr->end += count( $bullets );
+	$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
 	return TokenizerUtils::flattenIfArray( [ $li, $tbl, $line ?: [] ] );
 }
 
@@ -1773,15 +1811,16 @@ dtdd =
 		// TSR: +1 for the leading ";"
 		$numBullets = count( $bullets ) + 1;
 		$tsr = $this->tsrOffsets( 'start' );
-		$tsr[1] += $numBullets;
+		$tsr->end += $numBullets;
 		$li1Bullets = $bullets;
 		$li1Bullets[] = ';';
-		$li1 = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets ) ], (object)[ 'tsr' => $tsr ] );
+		$li1 = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
 		// TSR: -1 for the intermediate ":"
 		$li2Bullets = $bullets;
 		$li2Bullets[] = ':';
-		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets ) ],
-			(object)[ 'tsr' => [ $cpos - 1, $cpos ], 'stx' => 'row' ] );
+		$tsr2 = new SourceOffset( $cpos - 1, $cpos );
+		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ],
+			(object)[ 'tsr' => $tsr2, 'stx' => 'row' ] );
 
 		return array_merge( [ $li1 ], $c ?: [], [ $li2 ], $d ?: [] );
 	}
@@ -1900,7 +1939,7 @@ table_start_tag "table_start_tag" =
 			$tsEndPos = $coms['commentStartPos'];
 		}
 
-		$da = (object)[ 'tsr' => [ $startPos, $tsEndPos ] ];
+		$da = (object)[ 'tsr' => new SourceOffset( $startPos, $tsEndPos ) ];
 		if ( $p !== '|' ) {
 			// Variation from default
 			$da->startTagSrc = $b . $p;
@@ -1920,8 +1959,9 @@ table_caption_tag =
 	args:row_syntax_table_args?
 	tagEndPos:("" { return $this->endOffset(); })
 	c:nested_block_in_table* {
+		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
-			'caption', '|+', $args, [ $this->startOffset(), $tagEndPos ], $this->endOffset(), $c, true );
+			'caption', '|+', $args, $tsr, $this->endOffset(), $c, true );
 	}
 
 table_row_tag =
@@ -1937,7 +1977,7 @@ table_row_tag =
 		}
 
 		$da = (object)[
-			'tsr' => [ $this->startOffset(), $tagEndPos ],
+			'tsr' => new SourceOffset( $this->startOffset(), $tagEndPos ),
 			'startTagSrc' => $p . $dashes
 		];
 
@@ -1956,9 +1996,10 @@ tds =
 			// Avoid modifying cached dataAttribs object
 			$tdt[0] = clone $tdt[0];
 			$da = $tdt[0]->dataAttribs = clone $tdt[0]->dataAttribs;
+			$da->tsr = clone $da->tsr;
 
 			$da->stx = 'row';
-			$da->tsr[0] -= strlen( $pp ); // include "||"
+			$da->tsr->start -= strlen( $pp ); // include "||"
 			if ( $pp !== '||' || ( isset( $da->startTagSrc ) && $da->startTagSrc !== $pp ) ) {
 				// Variation from default
 				$da->startTagSrc = $pp . ( isset( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );
@@ -1977,8 +2018,9 @@ table_data_tags =
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
 		$da = $td[0]->dataAttribs = clone $td[0]->dataAttribs;
+		$da->tsr = clone $da->tsr;
 
-		$da->tsr[0] -= strlen( $p ); // include "|"
+		$da->tsr->start -= strlen( $p ); // include "|"
 		if ( $p !== '|' ) {
 			// Variation from default
 			$da->startTagSrc = $p;
@@ -1993,8 +2035,9 @@ table_data_tag =
 	tagEndPos:("" { return $this->endOffset(); })
 	td:nested_block_in_table*
 	{
+		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens( 'td', '|', $arg,
-			[ $this->startOffset(), $tagEndPos ], $this->endOffset(), $td );
+			$tsr, $this->endOffset(), $td );
 	}
 
 table_heading_tags = table_heading_tags_parameterized<&th>
@@ -2007,9 +2050,10 @@ table_heading_tags_parameterized =
 			// Avoid modifying a cached result
 			$tht[0] = clone $tht[0];
 			$da = $tht[0]->dataAttribs = clone $tht[0]->dataAttribs;
+			$da->tsr = clone $da->tsr;
 
 			$da->stx = 'row';
-			$da->tsr[0] -= strlen( $pp ); // include "!!" or "||"
+			$da->tsr->start -= strlen( $pp ); // include "!!" or "||"
 
 			if ( $pp !== '!!' || ( isset( $da->startTagSrc ) && $da->startTagSrc !== $pp ) ) {
 				// Variation from default
@@ -2020,7 +2064,8 @@ table_heading_tags_parameterized =
 	)* {
 		$thTag[0] = clone $thTag[0];
 		$da = $thTag[0]->dataAttribs = clone $thTag[0]->dataAttribs;
-		$da->tsr[0]--; // include "!"
+		$da->tsr = clone $da->tsr;
+		$da->tsr->start--; // include "!"
 		array_unshift( $thTags, $thTag );
 		return $thTags;
 	}
@@ -2039,8 +2084,9 @@ table_heading_tag =
 			return $d;
 		}
 	)* {
+		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens( 'th', '!', $arg,
-			[ $this->startOffset(), $tagEndPos ], $this->endOffset(), $c );
+			$tsr, $this->endOffset(), $c );
 	}
 
 table_end_tag =
@@ -2049,7 +2095,9 @@ table_end_tag =
 	p:pipe
 	b:"}"
 	{
-		$tblEnd = new EndTagTk( 'table', [], (object)[ 'tsr' => [ $startPos, $this->endOffset() ] ] );
+		$tblEnd = new EndTagTk( 'table', [], (object)[
+			'tsr' => new SourceOffset( $startPos, $this->endOffset() ),
+		] );
 		if ( $p !== '|' ) {
 			// p+"<brace-char>" is triggering some bug in pegJS
 			// I cannot even use that expression in the comment!
@@ -2238,7 +2286,7 @@ empty_line_with_comments =
 			$sp,
 			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], (object)[
 					'tokens' => TokenizerUtils::flattenIfArray( $c ),
-					'tsr' => [ $p, $this->endOffset() ]
+					'tsr' => new SourceOffset( $p, $this->endOffset() ),
 				]
 			)
 		];
@@ -2278,8 +2326,11 @@ include_limits =
 		// Last line should be empty (except for comments)
 		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
 			$dp = $il->dataAttribs;
-			$inclContent = substr( $dp->src, $dp->extTagOffsets[1] - $dp->extTagOffsets[0],
-				$dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
+			$inclContent = substr(
+				$dp->src,
+				$dp->extTagOffsets->key->length(),
+				-$dp->extTagOffsets->value->length()
+			);
 			$nlpos = strrpos( $inclContent, "\n" );
 			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
 			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {

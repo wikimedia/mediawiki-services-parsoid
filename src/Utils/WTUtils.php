@@ -11,6 +11,7 @@ use stdClass;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Ext\ExtensionTag;
+use Parsoid\Wt2Html\Frame;
 
 /**
  * These utilites pertain to extracting / modifying wikitext information from the DOM.
@@ -544,17 +545,17 @@ class WTUtils {
 	 * Compute, when possible, the wikitext source for a $node in
 	 * an environment env. Returns null if the source cannot be
 	 * extracted.
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMElement $node
 	 * @return string|null
 	 */
-	public static function getWTSource( Env $env, DOMElement $node ): ?string {
+	public static function getWTSource( Frame $frame, DOMElement $node ): ?string {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dsr = $dp->dsr ?? null;
 		// PORT-FIXME: We could probably change the null return to ''
 		// Just need to verify that code that uses this won't break
 		return Util::isValidDSR( $dsr ) ?
-			mb_substr( $env->getPageMainContent(), $dsr[0], $dsr[1] - $dsr[0] ) : null;
+			mb_substr( $frame->getSrcText(), $dsr[0], $dsr[1] - $dsr[0] ) : null;
 	}
 
 	/**

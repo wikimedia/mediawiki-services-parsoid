@@ -42,6 +42,17 @@ class PHPPipelineStage {
 		this.tokens = [];
 		this.sourceOffsets = null;
 		this.atTopLevel = opts && opts.toplevel;
+		this.frame = this.env.topFrame;
+	}
+
+	setFrame(parentFrame, title, args, srcText) {
+		if (!parentFrame) {
+			this.frame = this.env.topFrame.newChild(title, args, srcText);
+		} else if (!title) {
+			this.frame = parentFrame.newChild(parentFrame.title, parentFrame.args, srcText);
+		} else {
+			this.frame = parentFrame.newChild(title, args, srcText);
+		}
 	}
 
 	addListenersOn(emitter) {
@@ -111,7 +122,7 @@ class PHPPipelineStage {
 
 	mkOpts(extra = {}) {
 		return Object.assign({
-			envOpts: HybridTestUtils.mkEnvOpts(this.env),
+			envOpts: HybridTestUtils.mkEnvOpts(this.env, this.frame),
 			pipelineOpts: this.options,
 			pipelineId: this.pipelineId,
 			toplevel: this.atTopLevel,

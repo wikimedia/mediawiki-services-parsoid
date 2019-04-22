@@ -9,6 +9,7 @@ use stdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\DataParsoid;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
@@ -196,7 +197,7 @@ class ComputeDSR {
 					return [ 2, 2 ];
 				}
 			} elseif ( isset( $dp->tsr ) && WTUtils::usesExtLinkSyntax( $node, $dp ) ) {
-				return [ $dp->extLinkContentOffsets[0] - $dp->tsr[0], 1 ];
+				return [ $dp->extLinkContentOffsets->start - $dp->tsr->start, 1 ];
 			} elseif ( WTUtils::usesURLLinkSyntax( $node, $dp ) ||
 				WTUtils::usesMagicLinkSyntax( $node, $dp )
 			) {
@@ -213,14 +214,14 @@ class ComputeDSR {
 	 *
 	 * @param int[] $widths
 	 * @param DOMElement $node
-	 * @param stdClass $dp
+	 * @param DataParsoid $dp
 	 * @return int[]
 	 */
 	private function computeTagWidths( array $widths, DOMElement $node, stdClass $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
-				$dp->extTagOffsets[1] - $dp->extTagOffsets[0],
-				$dp->extTagOffsets[3] - $dp->extTagOffsets[2]
+				$dp->extTagOffsets->key->length(),
+				$dp->extTagOffsets->value->length()
 			];
 		}
 
@@ -397,11 +398,8 @@ class ComputeDSR {
 				DOMUtils::assertElt( $child );
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
-				// $dp will be a DataParsoid object once but currently it is an stdClass
-				// with a fake type hint. Unfake it to prevent phan complaining about unset().
-				'@phan-var stdClass $dp';
 				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
-				$oldCE = $tsr ? $tsr[1] : null;
+				$oldCE = $tsr ? $tsr->end : null;
 				$propagateRight = false;
 				$stWidth = null;
 				$etWidth = null;
@@ -458,11 +456,11 @@ class ComputeDSR {
 						// their tsr info-> stripped->
 						if ( $tsr ) {
 							$endTagInfo = [
-								'width' => $tsr[1] - $tsr[0],
+								'width' => $tsr->end - $tsr->start,
 								'nodeName' => $child->getAttribute( "data-etag" ),
 							];
-							$cs = $tsr[1];
-							$ce = $tsr[1];
+							$cs = $tsr->end;
+							$ce = $tsr->end;
 							$propagateRight = true;
 						}
 					} elseif ( $tsr ) {
@@ -471,13 +469,13 @@ class ComputeDSR {
 							// we have a new valid '$cs'. This marker also effectively resets tsr
 							// back to the top-level wikitext source range from nested template
 							// source range.
-							$cs = $tsr[0];
-							$ce = $tsr[1];
+							$cs = $tsr->start;
+							$ce = $tsr->end;
 							$propagateRight = true;
 						} else {
 							// All other meta-tags: <includeonly>, <noinclude>, etc.
-							$cs = $tsr[0];
-							$ce = $tsr[1];
+							$cs = $tsr->start;
+							$ce = $tsr->end;
 						}
 					} elseif ( preg_match( '#^mw:Placeholder(/\w*)?$#', $cTypeOf ) &&
 						$ce !== null && $dp->src
@@ -490,8 +488,9 @@ class ComputeDSR {
 						}
 					}
 					if ( isset( $dp->extTagOffsets ) ) {
-						$stWidth = $dp->extTagOffsets[1] - $dp->extTagOffsets[0];
-						$etWidth = $dp->extTagOffsets[3] - $dp->extTagOffsets[2];
+						$stWidth = $dp->extTagOffsets->key->length();
+						$etWidth = $dp->extTagOffsets->value->length();
+						/** @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty */
 						unset( $dp->extTagOffsets );
 					}
 				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
@@ -504,14 +503,14 @@ class ComputeDSR {
 					} else {
 						// Non-meta tags
 						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
-							$cs = $tsr[0];
+							$cs = $tsr->start;
 							if ( $this->tsrSpansTagDOM( $child, $dp ) ) {
-								if ( $tsr[1] !== null && $tsr[1] > 0 ) {
-									$ce = $tsr[1];
+								if ( $tsr->end !== null && $tsr->end > 0 ) {
+									$ce = $tsr->end;
 									$propagateRight = true;
 								}
 							} else {
-								$stWidth = $tsr[1] - $tsr[0];
+								$stWidth = $tsr->end - $tsr->start;
 							}
 
 							$this->trace( $env, "     TSR: ", $tsr, "; cs: ", $cs, "; ce: ", $ce );
@@ -630,7 +629,7 @@ class ComputeDSR {
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
-						$dp->dbsrc = mb_substr( $env->getPageMainContent(), $cs, $ce - $cs );
+						$dp->dbsrc = mb_substr( $env->topFrame->getSrcText(), $cs, $ce - $cs );
 						return $str;
 					} );
 				}
@@ -680,7 +679,7 @@ class ComputeDSR {
 								// debug info
 								if ( $siblingDP->dsr[1] ) {
 									$siblingDP->dbsrc =
-										mb_substr( $env->getPageMainContent(), $newCE, $siblingDP->dsr[1] - $newCE );
+										mb_substr( $env->topFrame->getSrcText(), $newCE, $siblingDP->dsr[1] - $newCE );
 								}
 								return $str;
 							} );
@@ -783,13 +782,13 @@ class ComputeDSR {
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
-	 *                  [0, $env->getPageMainContent()->length]
+	 *                  [0, $env->topFrame->getSrcText()->length]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
 	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
 		$startOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][0] : 0;
 		$endOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][1] :
-			mb_strlen( $env->getPageMainContent() );
+			mb_strlen( $env->topFrame->getSrcText() );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];

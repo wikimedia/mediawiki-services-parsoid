@@ -92,7 +92,7 @@ class TokenStreamPatcher extends TokenHandler {
 				return json_encode( $token );
 			}
 		);
-		$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
+		$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
 		$this->sol = true;
 		$this->tokenBuf[] = $token;
 		return [ 'tokens' => [] ];
@@ -124,15 +124,14 @@ class TokenStreamPatcher extends TokenHandler {
 		$da = $token->dataAttribs;
 		$tsr = $da->tsr ?? null;
 
-		if ( $tsr && $tsr[ 1 ] > $tsr[ 0 ] ) {
+		if ( $tsr && $tsr->end > $tsr->start ) {
 			// > will only hold if these are valid numbers
-			$length = $tsr[ 1 ] - $tsr[ 0 ];
-			$str = mb_substr( $this->manager->env->getPageMainContent(), $tsr[ 0 ], $length );
+			$str = $tsr->substr( $this->manager->getFrame()->getSrcText() );
 			// sol === false ensures that the pipe will not be parsed as a <td> again
 			$toks = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] );
 			array_pop( $toks ); // pop EOFTk
 			// Update tsr
-			TokenUtils::shiftTokenTSR( $toks, $tsr[ 0 ] );
+			TokenUtils::shiftTokenTSR( $toks, $tsr->start );
 
 			$ret = [];
 			for ( $i = 0;  $i < count( $toks );  $i++ ) {
@@ -238,12 +237,12 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'CommentTk':
 				// Comments don't change SOL state
 				// Update srcOffset
-				$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
+				$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
 				break;
 
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataAttribs->stx ?? '' ) !== 'html' ) {
-					$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
+					$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
 					$typeOf = $token->getAttribute( 'typeof' );
 					if ( $typeOf === 'mw:TSRMarker' &&
 						$this->lastConvertedTableCellToken !== null &&

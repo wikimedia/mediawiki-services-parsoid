@@ -3,8 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use Parsoid\Config\Env;
 use stdClass;
+
+use Parsoid\Wt2Html\Frame;
 
 /**
  * Catch-all class for all token types.
@@ -47,9 +48,10 @@ abstract class Token implements \JsonSerializable {
 	 *    The more complex form (where the key is a non-string) are found when
 	 *    KV objects are constructed in the tokenizer.
 	 * @param string|Token|Token[] $value
+	 * @param KVSourceOffset|null $srcOffsets
 	 */
-	public function addAttribute( string $name, $value ): void {
-		$this->attribs[] = new KV( $name, $value );
+	public function addAttribute( string $name, $value, ?KVSourceOffset $srcOffsets = null ): void {
+		$this->attribs[] = new KV( $name, $value, $srcOffsets );
 	}
 
 	/**
@@ -234,17 +236,16 @@ abstract class Token implements \JsonSerializable {
 	/**
 	 * Get the wikitext source of a token.
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @return string
 	 */
-	public function getWTSource( Env $env ): string {
+	public function getWTSource( Frame $frame ): string {
 		$tsr = $this->dataAttribs->tsr ?? null;
-		if ( !is_array( $tsr ) ) {
+		if ( !( $tsr instanceof SourceOffset ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
-		$from = $tsr[ 0 ];
-		$to = $tsr[ 1 ] - $from;
-		return mb_substr( $env->getPageMainContent(), $from, $to );
+		$srcText = $frame->getSrcText();
+		return $tsr->substr( $srcText );
 	}
 
 	/**
@@ -262,10 +263,14 @@ abstract class Token implements \JsonSerializable {
 			if ( is_array( $e["v"] ?? null ) ) {
 				self::rebuildNestedTokens( $e["v"] );
 			}
+			$so = $e["srcOffsets"] ?? null;
+			if ( $so ) {
+				$so = KVSourceOffset::fromArray( $so );
+			}
 			$kvs[] = new KV(
 				$e["k"],
 				$e["v"],
-				$e["srcOffsets"] ?? null,
+				$so,
 				$e["ksrc"] ?? null,
 				$e["vsrc"] ?? null
 			);
@@ -301,6 +306,9 @@ abstract class Token implements \JsonSerializable {
 				if ( isset( $da->tmp ) ) {
 					$da->tmp = (object)$da->tmp;
 				}
+				if ( isset( $da->tsr ) ) {
+					$da->tsr = new SourceOffset( $da->tsr[0], $da->tsr[1] );
+				}
 			}
 			switch ( $jsTk['type'] ) {
 				case "SelfclosingTagTk":
@@ -313,7 +321,7 @@ abstract class Token implements \JsonSerializable {
 					$token = new EndTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
 					break;
 				case "NlTk":
-					$token = new NlTk( $jsTk['dataAttribs']['tsr'] ?? null, $da );
+					$token = new NlTk( $da->tsr ?? null, $da );
 					break;
 				case "EOFTk":
 					$token = new EOFTk();

@@ -52,11 +52,9 @@ class ProcessTreeBuilderFixups {
 
 		if ( !$src ) {
 			if ( !empty( $dp->tsr ) ) {
-				$width = $dp->tsr[1] - $dp->tsr[0];
-				$src = mb_substr( $env->getPageMainContent(), $dp->tsr[0], $width );
+				$src = $dp->tsr->substr( $env->topFrame->getSrcText() );
 			} elseif ( !empty( $opts->tsr ) ) {
-				$width = $opts->tsr[1] - $opts->tsr[0];
-				$src = mb_substr( $env->getPageMainContent(), $opts->tsr[0], $width );
+				$src = $opts->tsr->substr( $env->topFrame->getSrcText() );
 			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
 				if ( !empty( $opts->start ) ) {
 					$src = '<' . $name . '>';
@@ -158,11 +156,9 @@ class ProcessTreeBuilderFixups {
 								// Also, do the paragraph wrapping on the DOM.
 								$origTxt = null;
 								if ( !empty( $dp->tsr ) &&
-									$dp->tsr[0] !== null && $dp->tsr[1] !== null &&
-									$env->getPageMainContent()
+									$dp->tsr->start !== null && $dp->tsr->end !== null
 								) {
-									$width = $dp->tsr[1] - $dp->tsr[0];
-									$origTxt = mb_substr( $env->getPageMainContent(), $dp->tsr[0], $width );
+									$origTxt = $dp->tsr->substr( $env->topFrame->getSrcText() );
 									$origTxtNode = $c->ownerDocument->createTextNode( $origTxt );
 									$c->parentNode->insertBefore( $origTxtNode, $c );
 								} else {

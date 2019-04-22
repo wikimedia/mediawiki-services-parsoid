@@ -333,13 +333,6 @@ class ParserPipelineFactory {
 		// Debugging aid: Assign unique id to the pipeline
 		$pipe->setPipelineId( self::$globalPipelineId++ );
 
-		// Init the frame for this pipeline.
-		// If this is a nested pipeline, the caller will
-		// update the frame appropriately.
-		// FIXME: Temporary till we refactor this frame bit to
-		// deal with it in the pipeline's constructor
-		$pipe->setFrame( null, null, [] );
-
 		return $pipe;
 	}
 

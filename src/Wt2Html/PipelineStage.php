@@ -7,6 +7,7 @@ use DOMDocument;
 use Generator;
 
 use Parsoid\Config\Env;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -96,8 +97,9 @@ abstract class PipelineStage {
 	 * @param Frame|null $frame Parent pipeline frame
 	 * @param string|null $title Title (template) being processed in this (nested) pipeline
 	 * @param array $args Template args for the title (template)
+	 * @param string $srcText The wikitext source for this frame
 	 */
-	public function setFrame( ?Frame $frame, ?string $title, array $args ): void {
+	public function setFrame( ?Frame $frame, ?string $title, array $args, string $srcText ): void {
 		/* Default implementation: Do nothing */
 	}
 
@@ -107,10 +109,9 @@ abstract class PipelineStage {
 	 * in its own pipeline. This ensures that all source offsets assigned to tokens
 	 * and DOM nodes in this stage are relative to the top-level page.
 	 *
-	 * @param int $start
-	 * @param int $end
+	 * @param SourceOffset $so
 	 */
-	public function setSourceOffsets( int $start, int $end ): void {
+	public function setSourceOffsets( SourceOffset $so ): void {
 		/* Default implementation: Do nothing */
 	}
 

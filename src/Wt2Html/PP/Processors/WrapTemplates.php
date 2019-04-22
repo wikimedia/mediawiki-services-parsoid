@@ -401,7 +401,7 @@ class WrapTemplates {
 			if ( $prevTplInfo->dsr[1] < $dsr[0] ) {
 				$width = $dsr[0] - $prevTplInfo->dsr[1];
 				$tplArray[] = (object)[
-					'wt' => mb_substr( $env->getPageMainContent(), $prevTplInfo->dsr[1], $width ),
+					'wt' => mb_substr( $env->topFrame->getSrcText(), $prevTplInfo->dsr[1], $width ),
 				];
 			}
 		}
@@ -945,7 +945,7 @@ class WrapTemplates {
 					$width = $firstTplInfo->dsr[0] - $dp1->dsr[0];
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => mb_substr( $env->getPageMainContent(), $dp1->dsr[0], $width ) ]
+						(object)[ 'wt' => mb_substr( $env->topFrame->getSrcText(), $dp1->dsr[0], $width ) ]
 					);
 				}
 
@@ -954,7 +954,7 @@ class WrapTemplates {
 				if ( $lastTplInfo->dsr[1] < $dp1->dsr[1] ) {
 					$width = $dp1->dsr[1] - $lastTplInfo->dsr[1];
 					$tplArray[] = (object)[
-						'wt' => mb_substr( $env->getPageMainContent(), $lastTplInfo->dsr[1], $width ),
+						'wt' => mb_substr( $env->topFrame->getSrcText(), $lastTplInfo->dsr[1], $width ),
 					];
 				}
 
@@ -1061,7 +1061,7 @@ class WrapTemplates {
 					$encapInfo->dp->dsr[1] = $dp1->dsr[1];
 				}
 				$width = $encapInfo->dp->dsr[1] - $encapInfo->dp->dsr[0];
-				$encapInfo->dp->src = mb_substr( $env->getPageMainContent(), $encapInfo->dp->dsr[0], $width );
+				$encapInfo->dp->src = mb_substr( $env->topFrame->getSrcText(), $encapInfo->dp->dsr[0], $width );
 			}
 
 			// Remove startElem (=range.startElem) if a meta.  If a meta,

@@ -17,13 +17,15 @@ use stdClass;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
+use Parsoid\Tokens\KVSourceOffset;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
 
 use Wikimedia\Assert\Assert;
 
@@ -221,21 +223,19 @@ class TokenUtils {
 				case NlTk::class:
 				case CommentTk::class:
 				case EndTagTk::class:
-					$da = $tokens[$i]->dataAttribs;
+					$da = $t->dataAttribs;
 					$tsr = $da->tsr;
 					if ( $tsr ) {
 						if ( $offset !== false ) {
-							$da->tsr = [ $tsr[0] + $offset, $tsr[1] + $offset ];
+							$da->tsr = $tsr->offset( $offset );
 						} else {
 							$da->tsr = null;
 						}
 					}
 
 					if ( $offset && isset( $da->extTagOffsets ) ) {
-						$da->extTagOffsets[0] += $offset;
-						$da->extTagOffsets[1] += $offset;
-						$da->extTagOffsets[2] += $offset;
-						$da->extTagOffsets[3] += $offset;
+						$da->extTagOffsets =
+							$da->extTagOffsets->offset( $offset );
 					}
 
 					// SSS FIXME: offset will always be available in
@@ -245,11 +245,13 @@ class TokenUtils {
 					// reparse a string -- it is likely to only patch up
 					// small string fragments and the complicated use cases
 					// below should not materialize.
+					// CSA: token-stream-patcher shouldn't have problems
+					// now that $frame->srcText is always accurate?
 
 					// content offsets for ext-links
 					if ( $offset && isset( $da->extLinkContentOffsets ) ) {
-						$da->extLinkContentOffsets[0] += $offset;
-						$da->extLinkContentOffsets[1] += $offset;
+						$da->extLinkContentOffsets =
+							$da->extLinkContentOffsets->offset( $offset );
 					}
 
 					// Process attributes
@@ -267,11 +269,7 @@ class TokenUtils {
 							if ( $offset === null ) {
 								$a->srcOffsets = null;
 							} elseif ( $a->srcOffsets !== null ) {
-								for ( $k = 0;  $k < count( $a->srcOffsets );  $k++ ) {
-									// phpcs:disable Generic.Files.LineLength.TooLong
-									// @phan-suppress-next-line PhanTypeArraySuspiciousNullable https://github.com/phan/phan/issues/805
-									$a->srcOffsets[$k] += $offset;
-								}
+								$a->srcOffsets = $a->srcOffsets->offset( $offset );
 							}
 						}
 					}
@@ -456,7 +454,7 @@ class TokenUtils {
 
 	/**
 	 * @param array<int> $offsets
-	 * @param array<Token>|array<KV>|KV|Token|string $input
+	 * @param array<Token>|array<KV>|KV|Token|KVSourceOffset|SourceOffset|string $input
 	 */
 	private static function collectOffsets( array &$offsets, $input ): void {
 		if ( is_array( $input ) ) {
@@ -467,22 +465,28 @@ class TokenUtils {
 			self::collectOffsets( $offsets, $input->k );
 			self::collectOffsets( $offsets, $input->v );
 			if ( $input->srcOffsets ) {
-				self::pushOffsets( $offsets, $input->srcOffsets );
+				self::collectOffsets( $offsets, $input->srcOffsets );
 			}
 		} elseif ( $input instanceof Token ) {
 			if ( isset( $input->dataAttribs->tsr ) ) {
-				self::pushOffsets( $offsets, $input->dataAttribs->tsr );
+				self::collectOffsets( $offsets, $input->dataAttribs->tsr );
 			}
 			if ( isset( $input->dataAttribs->extLinkContentOffsets ) ) {
-				self::pushOffsets( $offsets, $input->dataAttribs->extLinkContentOffsets );
+				self::collectOffsets( $offsets, $input->dataAttribs->extLinkContentOffsets );
 			}
 			if ( isset( $input->dataAttribs->tokens ) ) {
 				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
 			}
 			if ( isset( $input->dataAttribs->extTagOffsets ) ) {
-				self::pushOffsets( $offsets, $input->dataAttribs->extTagOffsets );
+				self::collectOffsets( $offsets, $input->dataAttribs->extTagOffsets );
 			}
 			self::collectOffsets( $offsets, $input->attribs );
+		} elseif ( $input instanceof KVSourceOffset ) {
+			self::collectOffsets( $offsets, $input->key );
+			self::collectOffsets( $offsets, $input->value );
+		} elseif ( $input instanceof SourceOffset ) {
+			$offsets[] =& $input->start;
+			$offsets[] =& $input->end;
 		}
 	}
 
@@ -605,7 +609,9 @@ class TokenUtils {
 	 * @param bool $useSrc
 	 * @return array<string,Token[]>
 	 */
-	public static function kvToHash( array $kvs, $convertValuesToString = false, $useSrc = false ): array {
+	public static function kvToHash(
+		array $kvs, bool $convertValuesToString = false, bool $useSrc = false
+	): array {
 		$res = [];
 		foreach ( $kvs as $kv ) {
 			$key = trim( self::tokensToString( $kv->k ) );

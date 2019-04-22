@@ -18,6 +18,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
@@ -223,9 +224,11 @@ class WikiLinkHandler extends TokenHandler {
 			$tsr = $rlink->dataAttribs->tsr;
 			preg_match( '/^([^#]*)(#)/', $src, $srcMatch );
 			$ntokens = strlen( $srcMatch[1] ) ? [ $srcMatch[1] ] : [];
-			$hashPos = $tsr[0] + mb_strlen( $srcMatch[1] );
-			$li = new TagTk( 'listItem', [ new KV( 'bullets', '#' ) ],
-				(object)[ 'tsr' => [ $hashPos, $hashPos + 1 ] ] );
+			$hashPos = $tsr->start + mb_strlen( $srcMatch[1] );
+			$tsr0 = new SourceOffset( $hashPos, $hashPos + 1 );
+			$li = new TagTk( 'listItem', [
+				new KV( 'bullets', '#', $tsr0->expandTsrV() )
+			], (object)[ 'tsr' => $tsr0 ] );
 			$ntokens[] = $li;
 			$ntokens[] = mb_substr( $src, mb_strlen( $srcMatch[0] ) );
 			return [ 'tokens' => array_merge( $ntokens, $r['tokens'] ) ];
@@ -277,13 +280,13 @@ class WikiLinkHandler extends TokenHandler {
 
 			// Since we are splicing off '['s and ']'s from the incoming token,
 			// adjust TSR of the DOM-fragment by `count` each on both end.
-			$tsr = $token->dataAttribs && $token->dataAttribs->tsr;
-			if ( $tsr && gettype( $tsr[0] ) === 'number' && gettype( $tsr[1] ) === 'number' ) {
+			$tsr = $token->dataAttribs ? $token->dataAttribs->tsr : null;
+			if ( $tsr && gettype( $tsr->start ) === 'number' && gettype( $tsr->end ) === 'number' ) {
 				// If content is present, the fragment we're building doesn't
 				// extend all the way to the end of the token, so the end tsr
 				// is invalid.
-				$end = ( count( $content ) > 0 ) ? null : $tsr[1] - $count;
-				$tsr = [ $tsr[0] + $count, $end ];
+				$end = ( count( $content ) > 0 ) ? null : $tsr->end - $count;
+				$tsr = new SourceOffset( $tsr->start + $count, $end );
 			} else {
 				$tsr = null;
 			}
@@ -329,8 +332,8 @@ class WikiLinkHandler extends TokenHandler {
 
 			$extToks = $this->urlParser->tokenizeExtlink( $src, /* sol */true );
 			if ( $extToks !== false ) {
-				$tsr = $token->dataAttribs && $token->dataAttribs->tsr;
-				TokenUtils::shiftTokenTSR( $extToks, 1 + ( $tsr ? $tsr[0] : 0 ) );
+				$tsr = $token->dataAttribs ? $token->dataAttribs->tsr : null;
+				TokenUtils::shiftTokenTSR( $extToks, 1 + ( $tsr ? $tsr->start : 0 ) );
 			} else {
 				$extToks = $src;
 			}
@@ -665,10 +668,12 @@ class WikiLinkHandler extends TokenHandler {
 		} else {
 			// Deal with sort keys that come from generated content (transclusions, etc.)
 			$key = [ 'txt' => 'mw:sortKey' ];
+			$contentKV = $token->getAttributeKV( 'mw:maybeContent' );
+			$so = $contentKV->valueOffset();
 			$val = PipelineUtils::expandValueToDOM(
 				$this->manager->env,
 				$this->manager->getFrame(),
-				[ 'html' => $content ],
+				[ 'html' => $content, 'srcOffsets' => $so ],
 				$this->options['expandTemplates'],
 				$this->options['inTemplate']
 			);
@@ -1253,7 +1258,7 @@ class WikiLinkHandler extends TokenHandler {
 				$optsCaption = [
 					'v' => $oContent->v,
 					'src' => $oContent->vsrc ?? $oText,
-					'srcOffsets' => $oContent->srcOffsets,
+					'srcOffsets' => $oContent->valueOffset(),
 					// remember the position
 					'pos' => count( $dataAttribs->optList )
 				];
@@ -1313,7 +1318,7 @@ class WikiLinkHandler extends TokenHandler {
 					$opts[ $optInfo['ck'] ] = [
 						'v' => $optInfo['v'],
 						'src' => $oContent->vsrc ?? $optInfo['ak'],
-						'srcOffsets' => $oContent->srcOffsets
+						'srcOffsets' => $oContent->valueOffset(),
 					];
 				}
 			}
@@ -1339,6 +1344,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $expOpt ) {
 					$hasExpandableOpt = true;
 					$val['html'] = $origOptSrc;
+					$val['srcOffsets'] = $oContent->valueOffset();
 					return PipelineUtils::expandValueToDOM(
 						$env, $manager->getFrame(), $val,
 						$this->options['expandTemplates'],
@@ -1517,14 +1523,16 @@ class WikiLinkHandler extends TokenHandler {
 			}
 		} else {
 			// We always add a figcaption for blocks
-			$tokens[] = new TagTk( 'figcaption' );
+			$tsr = ( $optsCaption && $optsCaption['srcOffsets'] ) ?
+				 $optsCaption['srcOffsets'] : null;
+			$tokens[] = new TagTk( 'figcaption', [], (object)[ 'tsr' => $tsr ] );
 			if ( $optsCaption ) {
 				if ( is_string( $optsCaption['v'] ) ) {
 					$tokens[] = $optsCaption['v'];
 				} else {
 					$tokens[] = PipelineUtils::getDOMFragmentToken(
 						$optsCaption['v'],
-						$optsCaption['srcOffsets'],
+						$tsr,
 						[ 'inlineContext' => true, 'token' => $token ]
 					);
 				}

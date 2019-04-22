@@ -12,13 +12,14 @@ use DOMNodeList;
 use DOMText;
 use Parsoid\Wt2Html\Frame;
 use Parsoid\Config\Env;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\Token;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -38,7 +39,7 @@ class PipelineUtils {
 	 * processing into the top-level pipeline.
 	 *
 	 * @param Token[] $content The array of tokens to process.
-	 * @param int[] $srcOffsets Wikitext source offsets (start/end) of these tokens.
+	 * @param SourceOffset $srcOffsets Wikitext source offsets (start/end) of these tokens.
 	 * @param array $opts Parsing options.
 	 *    - Token token The token that generated the content.
 	 *    - bool  inlineContext Is this DOM fragment used in an inline context?
@@ -48,16 +49,15 @@ class PipelineUtils {
 	 * @return SelfclosingTagTk
 	 */
 	public static function getDOMFragmentToken(
-		array $content, array $srcOffsets, array $opts = []
+		array $content, SourceOffset $srcOffsets, array $opts = []
 	): SelfclosingTagTk {
+		$token = $opts['token'];
 		return new SelfclosingTagTk( 'mw:dom-fragment-token', [
-				new KV( 'contextTok', $opts['token'] ),
-				new KV( 'content', $content ),
-				new KV( 'inlineContext', $opts['inlineContext'] ?? false ),
-				new KV( 'inPHPBLock', $opts['inPHPBLock'] ?? false ),
-				new KV( 'srcOffsets', '', $srcOffsets )
-			]
-		);
+			new KV( 'contextTok', $token, $token->dataAttribs->tsr->expandTsrV() ),
+			new KV( 'content', $content, $srcOffsets->expandTsrV() ),
+			new KV( 'inlineContext', $opts['inlineContext'] ?? false ),
+			new KV( 'inPHPBLock', $opts['inPHPBLock'] ?? false ),
+		] );
 	}
 
 	/**
@@ -67,8 +67,7 @@ class PipelineUtils {
 	 * @param Env $env The environment/context for the expansion.
 	 * @param Frame $frame
 	 *    The parent frame within which the expansion is taking place.
-	 *    This param is mostly defunct now that we are not doing native
-	 *    expansion anymore.
+	 *    Used for template expansion and source text tracking.
 	 * @param string|Token|Token[] $content
 	 *    This could be wikitext or single token or an array of tokens.
 	 *    How this content is processed depends on what kind of pipeline
@@ -80,7 +79,7 @@ class PipelineUtils {
 	 *    - array  tplArgs
 	 *    - string tplArgs.name
 	 *    - array  tplArgs.attribs
-	 *    - array  srcOffsets
+	 *    - SourceOffset  srcOffsets
 	 *    - bool   sol
 	 * @return Token[]|DOMDocument (depending on pipeline type)
 	 */
@@ -92,15 +91,16 @@ class PipelineUtils {
 		);
 
 		// Set frame if necessary
+		$srcText = $opts['srcText'] ?? $frame->getSrcText();
 		if ( isset( $opts['tplArgs'] ) ) {
-			$pipeline->setFrame( $frame, $opts['tplArgs']['name'], $opts['tplArgs']['attribs'] );
+			$pipeline->setFrame( $frame, $opts['tplArgs']['name'], $opts['tplArgs']['attribs'], $srcText );
 		} else {
-			$pipeline->setFrame( $frame, null, [] );
+			$pipeline->setFrame( $frame, null, [], $srcText );
 		}
 
 		// Set source offsets for this pipeline's content
 		if ( isset( $opts['srcOffsets'] ) ) {
-			$pipeline->setSourceOffsets( $opts['srcOffsets'][0], $opts['srcOffsets'][1] );
+			$pipeline->setSourceOffsets( $opts['srcOffsets'] );
 		}
 
 		// Off the starting block ... ready, set, go!
@@ -114,10 +114,7 @@ class PipelineUtils {
 	 *    The environment/context for the expansion.
 	 * @param Frame $frame
 	 *    The parent frame within which the expansion is taking place.
-	 *    This param is mostly defunct now that we are not doing native
-	 *    expansion anymore. But, when we start unifying Parsoid-PHP and Parser.php
-	 *    if we move native expansion (preprocessor) in here from core, this will
-	 *    become non-defunct. That for later.
+	 *    Used for template expansion and source text tracking.
 	 * @param array $v
 	 *    The value to process.
 	 *    The value is expected to be an associative array with a "html" property.
@@ -143,6 +140,7 @@ class PipelineUtils {
 					'expandTemplates' => $expandTemplates,
 					'inTemplate' => $inTemplate
 				],
+				'srcOffsets' => $v['srcOffsets'],
 				'sol' => true
 			];
 			$content = array_merge( $v['html'], [ new EOFTk() ] );
@@ -158,6 +156,9 @@ class PipelineUtils {
 				$env->log( 'error', 'Expanding values to DOM', $err );
 			}
 		}
+		// Remove srcOffsets after value is expanded, so they don't show
+		// up in the output data-mw attribute
+		unset( $v['srcOffsets'] );
 		return $v;
 	}
 
@@ -166,8 +167,7 @@ class PipelineUtils {
 	 *    The environment/context for the expansion.
 	 * @param Frame $frame
 	 *    The parent frame within which the expansion is taking place.
-	 *    This param is mostly defunct now that we are not doing native
-	 *    expansion anymore.
+	 *    Used for template expansion and source text tracking.
 	 * @param array $vals
 	 *    Array of values to expand.
 	 *    Non-array elements of $vals are passed back unmodified.
@@ -417,7 +417,7 @@ class PipelineUtils {
 	 *    - string html HTML of the expansion.
 	 *    - DOMNode[] nodes Outermost nodes of the HTML.
 	 * @param array $opts
-	 *    - int[] tsr
+	 *    - SourceOffset tsr
 	 *            The TSR to set on the generated tokens. This TSR is
 	 *            used to compute DSR on the placeholder tokens.
 	 *            The computed DSR is transferred over to the unpacked DOM
@@ -471,9 +471,9 @@ class PipelineUtils {
 		if ( $tokenTsr ) {
 			$firstWrapperToken->dataAttribs->tsr = $tokenTsr;
 			$firstWrapperToken->dataAttribs->extTagOffsets = $token->dataAttribs->extTagOffsets ?? null;
-			$endTsr = [ $tokenTsr[1], $tokenTsr[1] ];
+			$endTsr = $tokenTsr->expandTsrK()->value;
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
-				$toks[$i]->dataAttribs->tsr = $endTsr;
+				$toks[$i]->dataAttribs->tsr = clone $endTsr;
 			}
 		}
 

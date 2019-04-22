@@ -14,11 +14,11 @@ class HybridTestUtils {
 		body.removeAttribute("data-env-newfid");
 	}
 
-	static mkEnvOpts(env, extra = {}) {
+	static mkEnvOpts(env, frame, extra = {}) {
 		return Object.assign({}, {
 			currentUid: env.uid,
 			currentFid: env.fid,
-			pageContent: env.page.src,
+			pageContent: frame.srcText,
 			prefix: env.conf.wiki.iwp,
 			apiURI: env.conf.wiki.apiURI,
 			pagelanguage: env.page.pagelanguage,

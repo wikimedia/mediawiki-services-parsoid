@@ -36,7 +36,7 @@ class PHPTokenTransformer extends TokenHandler {
 		fs.writeFileSync(fileName, tokens.map(t => JSON.stringify(t)).join('\n'));
 
 		const opts = {
-			envOpts: HybridTestUtils.mkEnvOpts(env),
+			envOpts: HybridTestUtils.mkEnvOpts(env, this.manager.frame),
 			pipelineOpts: this.options,
 			pipelineId: this.manager.pipelineId,
 			toplevel: this.atTopLevel,

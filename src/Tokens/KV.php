@@ -17,7 +17,7 @@ class KV implements \JsonSerializable {
 	/** @var string|Token|Token[]|KV[] */
 	public $v;
 
-	/** @var int[]|null wikitext source offsets (Unicode char units) */
+	/** @var KVSourceOffset|null wikitext source offsets */
 	public $srcOffsets;
 
 	/** @var string|null wikitext source */
@@ -30,14 +30,14 @@ class KV implements \JsonSerializable {
 	 * @param string|Token[] $k
 	 *     Commonly a string, but where the key might be templated,
 	 *     this can be an array of tokens even.
-	 * @param string|Token|Token[] $v
+	 * @param string|Token|Token[]|KV[] $v
 	 *     The value: string, token, of an array of tokens
-	 * @param int[]|null $srcOffsets wikitext source offsets (Unicode char units)
+	 * @param KVSourceOffset|null $srcOffsets wikitext source offsets
 	 * @param string|null $ksrc
 	 * @param string|null $vsrc
 	 */
 	public function __construct(
-		$k, $v, ?array $srcOffsets = null,
+		$k, $v, ?KVSourceOffset $srcOffsets = null,
 		?string $ksrc = null, ?string $vsrc = null
 	) {
 		$this->k = $k;
@@ -88,6 +88,24 @@ class KV implements \JsonSerializable {
 		// this will return a copy, which if modified will not reflect
 		// in the original KV object.
 		return $kv === null ? null : $kv->v;
+	}
+
+	/**
+	 * Return the key portion of the KV's source offsets, or else null
+	 * if no source offsets are known.
+	 * @return SourceOffset
+	 */
+	public function keyOffset(): SourceOffset {
+		return $this->srcOffsets === null ? null : $this->srcOffsets->key;
+	}
+
+	/**
+	 * Return the value portion of the KV's source offsets, or else null
+	 * if no source offsets are known.
+	 * @return SourceOffset
+	 */
+	public function valueOffset(): SourceOffset {
+		return $this->srcOffsets === null ? null : $this->srcOffsets->value;
 	}
 
 	/**

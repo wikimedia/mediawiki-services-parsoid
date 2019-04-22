@@ -40,10 +40,14 @@
 0-gen/QuoteTransformer      | IN  | " in Wiktionary, the free dictionary."
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}
+0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink/Interwiki"},{"k":"href","v":"https://en.wiktionary.org/wiki/skating"},{"k":"title","v":"wiktionary:skating"}],"dataAttribs":{"stx":"piped","a":{"href":"https://en.wiktionary.org/wiki/skating"},"sa":{"href":"wiktionary:skating"},"isIW":true}},"skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{}}," in Wiktionary, the free dictionary.",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}}
+0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}}]
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[22,23]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"i","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink/Interwiki"},{"k":"href","v":"https://en.wiktionary.org/wiki/skating"},{"k":"title","v":"wiktionary:skating"}],"dataAttribs":{"stx":"piped","a":{"href":"https://en.wiktionary.org/wiki/skating"},"sa":{"href":"wiktionary:skating"},"isIW":true}},"skating",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},{"type":"EndTagTk","name":"i","attribs":[],"dataAttribs":{}}," in Wiktionary, the free dictionary.",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"EndTagTk","name":"table","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"SelfclosingTagTk","name":"meta","attribs":[{"k":"typeof","v":"mw:Transclusion/End"},{"k":"about","v":"#mwt1"}],"dataAttribs":{"tsr":[null,22]}},{"type":"NlTk","dataAttribs":{"tsr":[22,23]}}]
+0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[22,23]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[23,24]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[23,24]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"},{"k":"preceding-2chars","v":"\n\n"}],"dataAttribs":{"tsr":[24,27]}}
@@ -94,8 +98,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[218,220]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[220,221]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[220,221]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[221,222]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[221,222]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[221,221,221,222]}],"dataAttribs":{"tsr":[221,222]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[221,221,221,222]}],"dataAttribs":{"tsr":[221,222]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Ice_skating"},{"k":"title","v":"Ice skating"}],"dataAttribs":{"tsr":[222,237],"stx":"simple","a":{"href":"./Ice_skating"},"sa":{"href":"Ice skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Ice_skating"},{"k":"title","v":"Ice skating"}],"dataAttribs":{"tsr":[222,237],"stx":"simple","a":{"href":"./Ice_skating"},"sa":{"href":"Ice skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Ice skating"
@@ -106,8 +110,8 @@
 0-gen/QuoteTransformer      | OUT | [", moving on ice by using ice skates"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[272,273]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[272,273]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[273,275]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[273,275]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[273,273,273,275]}],"dataAttribs":{"tsr":[273,275]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[273,273,273,275]}],"dataAttribs":{"tsr":[273,275]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Figure_skating"},{"k":"title","v":"Figure skating"}],"dataAttribs":{"tsr":[275,293],"stx":"simple","a":{"href":"./Figure_skating"},"sa":{"href":"Figure skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Figure_skating"},{"k":"title","v":"Figure skating"}],"dataAttribs":{"tsr":[275,293],"stx":"simple","a":{"href":"./Figure_skating"},"sa":{"href":"Figure skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Figure skating"
@@ -118,8 +122,8 @@
 0-gen/QuoteTransformer      | OUT | [", a sport in which individuals, duos, or groups perform on figure skates on ice"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[372,373]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[372,373]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[373,375]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[373,375]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[373,373,373,375]}],"dataAttribs":{"tsr":[373,375]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[373,373,373,375]}],"dataAttribs":{"tsr":[373,375]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Speed_skating"},{"k":"title","v":"Speed skating"}],"dataAttribs":{"tsr":[375,392],"stx":"simple","a":{"href":"./Speed_skating"},"sa":{"href":"Speed skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Speed_skating"},{"k":"title","v":"Speed skating"}],"dataAttribs":{"tsr":[375,392],"stx":"simple","a":{"href":"./Speed_skating"},"sa":{"href":"Speed skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Speed skating"
@@ -130,8 +134,8 @@
 0-gen/QuoteTransformer      | OUT | [", a competitive form of ice skating in which the competitors race each other in traveling a certain distance on skates"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[510,511]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[510,511]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[511,513]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[511,513]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[511,511,511,513]}],"dataAttribs":{"tsr":[511,513]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[511,511,511,513]}],"dataAttribs":{"tsr":[511,513]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Tour_skating"},{"k":"title","v":"Tour skating"}],"dataAttribs":{"tsr":[513,529],"stx":"simple","a":{"href":"./Tour_skating"},"sa":{"href":"Tour skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Tour_skating"},{"k":"title","v":"Tour skating"}],"dataAttribs":{"tsr":[513,529],"stx":"simple","a":{"href":"./Tour_skating"},"sa":{"href":"Tour skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Tour skating"
@@ -152,8 +156,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[622,624]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[624,625]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[624,625]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[625,626]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[625,626]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[625,625,625,626]}],"dataAttribs":{"tsr":[625,626]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[625,625,625,626]}],"dataAttribs":{"tsr":[625,626]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Roller_skating"},{"k":"title","v":"Roller skating"}],"dataAttribs":{"tsr":[626,644],"stx":"simple","a":{"href":"./Roller_skating"},"sa":{"href":"Roller skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Roller_skating"},{"k":"title","v":"Roller skating"}],"dataAttribs":{"tsr":[626,644],"stx":"simple","a":{"href":"./Roller_skating"},"sa":{"href":"Roller skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Roller skating"
@@ -164,8 +168,8 @@
 0-gen/QuoteTransformer      | OUT | [", the traveling on surfaces with roller skates"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[690,691]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[690,691]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[691,693]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[691,693]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[691,691,691,693]}],"dataAttribs":{"tsr":[691,693]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[691,691,691,693]}],"dataAttribs":{"tsr":[691,693]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_skating"},{"k":"title","v":"Inline skating"}],"dataAttribs":{"tsr":[693,711],"stx":"simple","a":{"href":"./Inline_skating"},"sa":{"href":"Inline skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_skating"},{"k":"title","v":"Inline skating"}],"dataAttribs":{"tsr":[693,711],"stx":"simple","a":{"href":"./Inline_skating"},"sa":{"href":"Inline skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Inline skating"
@@ -176,8 +180,8 @@
 0-gen/QuoteTransformer      | OUT | [", traveling on surfaces with skates having one line of wheels"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[772,773]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[772,773]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[773,776]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[773,776]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[773,773,773,776]}],"dataAttribs":{"tsr":[773,776]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[773,773,773,776]}],"dataAttribs":{"tsr":[773,776]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Freestyle_slalom_skating"},{"k":"title","v":"Freestyle slalom skating"}],"dataAttribs":{"tsr":[776,804],"stx":"simple","a":{"href":"./Freestyle_slalom_skating"},"sa":{"href":"Freestyle slalom skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Freestyle_slalom_skating"},{"k":"title","v":"Freestyle slalom skating"}],"dataAttribs":{"tsr":[776,804],"stx":"simple","a":{"href":"./Freestyle_slalom_skating"},"sa":{"href":"Freestyle slalom skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Freestyle slalom skating"
@@ -188,8 +192,8 @@
 0-gen/QuoteTransformer      | OUT | [", a field of inline skating that involves performing tricks around a straight line of equally spaced cones"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[910,911]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[910,911]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[911,914]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[911,914]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[911,911,911,914]}],"dataAttribs":{"tsr":[911,914]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[911,911,911,914]}],"dataAttribs":{"tsr":[911,914]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Vert_skating"},{"k":"title","v":"Vert skating"}],"dataAttribs":{"tsr":[914,930],"stx":"simple","a":{"href":"./Vert_skating"},"sa":{"href":"Vert skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Vert_skating"},{"k":"title","v":"Vert skating"}],"dataAttribs":{"tsr":[914,930],"stx":"simple","a":{"href":"./Vert_skating"},"sa":{"href":"Vert skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Vert skating"
@@ -200,8 +204,8 @@
 0-gen/QuoteTransformer      | OUT | [", riding inline skates on a vert ramp"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[967,968]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[967,968]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[968,971]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[968,971]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[968,968,968,971]}],"dataAttribs":{"tsr":[968,971]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[968,968,968,971]}],"dataAttribs":{"tsr":[968,971]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Aggressive_inline_skating"},{"k":"title","v":"Aggressive inline skating"}],"dataAttribs":{"tsr":[971,1000],"stx":"simple","a":{"href":"./Aggressive_inline_skating"},"sa":{"href":"Aggressive inline skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Aggressive_inline_skating"},{"k":"title","v":"Aggressive inline skating"}],"dataAttribs":{"tsr":[971,1000],"stx":"simple","a":{"href":"./Aggressive_inline_skating"},"sa":{"href":"Aggressive inline skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Aggressive inline skating"
@@ -212,8 +216,8 @@
 0-gen/QuoteTransformer      | OUT | [", inline skating executed on specially designed inline skates with focus on grinding and spins"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1094,1095]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1094,1095]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[1095,1098]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"]}],"dataAttribs":{"tsr":[1095,1098]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[1095,1095,1095,1098]}],"dataAttribs":{"tsr":[1095,1098]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*","*"],"srcOffsets":[1095,1095,1095,1098]}],"dataAttribs":{"tsr":[1095,1098]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_speed_skating"},{"k":"title","v":"Inline speed skating"}],"dataAttribs":{"tsr":[1098,1122],"stx":"simple","a":{"href":"./Inline_speed_skating"},"sa":{"href":"Inline speed skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Inline_speed_skating"},{"k":"title","v":"Inline speed skating"}],"dataAttribs":{"tsr":[1098,1122],"stx":"simple","a":{"href":"./Inline_speed_skating"},"sa":{"href":"Inline speed skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Inline speed skating"
@@ -224,8 +228,8 @@
 0-gen/QuoteTransformer      | OUT | [", the roller sport of racing on inline skates"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1167,1168]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1167,1168]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[1168,1170]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[1168,1170]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[1168,1168,1168,1170]}],"dataAttribs":{"tsr":[1168,1170]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[1168,1168,1168,1170]}],"dataAttribs":{"tsr":[1168,1170]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Artistic_roller_skating"},{"k":"title","v":"Artistic roller skating"}],"dataAttribs":{"tsr":[1170,1197],"stx":"simple","a":{"href":"./Artistic_roller_skating"},"sa":{"href":"Artistic roller skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Artistic_roller_skating"},{"k":"title","v":"Artistic roller skating"}],"dataAttribs":{"tsr":[1170,1197],"stx":"simple","a":{"href":"./Artistic_roller_skating"},"sa":{"href":"Artistic roller skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Artistic roller skating"
@@ -236,8 +240,8 @@
 0-gen/QuoteTransformer      | OUT | [", a sport similar to figure skating but where contestants run on roller skates instead of ice skates"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1297,1298]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1297,1298]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[1298,1300]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"]}],"dataAttribs":{"tsr":[1298,1300]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[1298,1298,1298,1300]}],"dataAttribs":{"tsr":[1298,1300]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*","*"],"srcOffsets":[1298,1298,1298,1300]}],"dataAttribs":{"tsr":[1298,1300]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Road_skating"},{"k":"title","v":"Road skating"}],"dataAttribs":{"tsr":[1300,1316],"stx":"simple","a":{"href":"./Road_skating"},"sa":{"href":"Road skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Road_skating"},{"k":"title","v":"Road skating"}],"dataAttribs":{"tsr":[1300,1316],"stx":"simple","a":{"href":"./Road_skating"},"sa":{"href":"Road skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Road skating"
@@ -248,8 +252,8 @@
 0-gen/QuoteTransformer      | OUT | [", the sport of skating (inline skating or roller skating) on roads, much like road cycling. It shares much with inline speed skating"]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1448,1449]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1448,1449]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1449,1450]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1449,1450]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1449,1449,1449,1450]}],"dataAttribs":{"tsr":[1449,1450]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1449,1449,1449,1450]}],"dataAttribs":{"tsr":[1449,1450]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skateboarding"},{"k":"title","v":"Skateboarding"}],"dataAttribs":{"tsr":[1450,1467],"stx":"simple","a":{"href":"./Skateboarding"},"sa":{"href":"Skateboarding"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skateboarding"},{"k":"title","v":"Skateboarding"}],"dataAttribs":{"tsr":[1450,1467],"stx":"simple","a":{"href":"./Skateboarding"},"sa":{"href":"Skateboarding"}}}]
 0-gen/QuoteTransformer      | IN  | "Skateboarding"
@@ -270,8 +274,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1557,1559]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1559,1560]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1560,1561]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1560,1561]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1560,1560,1560,1561]}],"dataAttribs":{"tsr":[1560,1561]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1560,1560,1560,1561]}],"dataAttribs":{"tsr":[1560,1561]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Snow_skating"},{"k":"title","v":"Snow skating"}],"dataAttribs":{"tsr":[1561,1577],"stx":"simple","a":{"href":"./Snow_skating"},"sa":{"href":"Snow skating"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Snow_skating"},{"k":"title","v":"Snow skating"}],"dataAttribs":{"tsr":[1561,1577],"stx":"simple","a":{"href":"./Snow_skating"},"sa":{"href":"Snow skating"}}}]
 0-gen/QuoteTransformer      | IN  | "Snow skating"
@@ -292,8 +296,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"h2","attribs":[],"dataAttribs":{"tsr":[1647,1649]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1649,1650]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1650,1651]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1650,1651]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1650,1650,1650,1651]}],"dataAttribs":{"tsr":[1650,1651]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1650,1650,1650,1651]}],"dataAttribs":{"tsr":[1650,1651]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Outline_of_sports"},{"k":"title","v":"Outline of sports"}],"dataAttribs":{"tsr":[1651,1672],"stx":"simple","a":{"href":"./Outline_of_sports"},"sa":{"href":"Outline of sports"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Outline_of_sports"},{"k":"title","v":"Outline of sports"}],"dataAttribs":{"tsr":[1651,1672],"stx":"simple","a":{"href":"./Outline_of_sports"},"sa":{"href":"Outline of sports"}}}]
 0-gen/QuoteTransformer      | IN  | "Outline of sports"
@@ -302,8 +306,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1672,1673]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1672,1673]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1673,1674]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1673,1674]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1673,1673,1673,1674]}],"dataAttribs":{"tsr":[1673,1674]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1673,1673,1673,1674]}],"dataAttribs":{"tsr":[1673,1674]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skate_(disambiguation)"},{"k":"title","v":"Skate (disambiguation)"}],"dataAttribs":{"tsr":[1674,1700],"stx":"simple","a":{"href":"./Skate_(disambiguation)"},"sa":{"href":"Skate (disambiguation)"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skate_(disambiguation)"},{"k":"title","v":"Skate (disambiguation)"}],"dataAttribs":{"tsr":[1674,1700],"stx":"simple","a":{"href":"./Skate_(disambiguation)"},"sa":{"href":"Skate (disambiguation)"}}}]
 0-gen/QuoteTransformer      | IN  | "Skate (disambiguation)"
@@ -312,8 +316,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1700,1701]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1700,1701]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1701,1702]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1701,1702]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1701,1701,1701,1702]}],"dataAttribs":{"tsr":[1701,1702]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1701,1701,1701,1702]}],"dataAttribs":{"tsr":[1701,1702]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_rink_(disambiguation)"},{"k":"title","v":"Skating rink (disambiguation)"}],"dataAttribs":{"tsr":[1702,1735],"stx":"simple","a":{"href":"./Skating_rink_(disambiguation)"},"sa":{"href":"Skating rink (disambiguation)"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_rink_(disambiguation)"},{"k":"title","v":"Skating rink (disambiguation)"}],"dataAttribs":{"tsr":[1702,1735],"stx":"simple","a":{"href":"./Skating_rink_(disambiguation)"},"sa":{"href":"Skating rink (disambiguation)"}}}]
 0-gen/QuoteTransformer      | IN  | "Skating rink (disambiguation)"
@@ -322,8 +326,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1735,1736]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1735,1736]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1736,1737]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1736,1737]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1736,1736,1736,1737]}],"dataAttribs":{"tsr":[1736,1737]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1736,1736,1736,1737]}],"dataAttribs":{"tsr":[1736,1737]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skater_(disambiguation)"},{"k":"title","v":"Skater (disambiguation)"}],"dataAttribs":{"tsr":[1737,1764],"stx":"simple","a":{"href":"./Skater_(disambiguation)"},"sa":{"href":"Skater (disambiguation)"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skater_(disambiguation)"},{"k":"title","v":"Skater (disambiguation)"}],"dataAttribs":{"tsr":[1737,1764],"stx":"simple","a":{"href":"./Skater_(disambiguation)"},"sa":{"href":"Skater (disambiguation)"}}}]
 0-gen/QuoteTransformer      | IN  | "Skater (disambiguation)"
@@ -332,8 +336,8 @@
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{"tsr":[1764,1765]}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{"tsr":[1764,1765]}}]
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1765,1766]}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"]}],"dataAttribs":{"tsr":[1765,1766]}}]
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1765,1765,1765,1766]}],"dataAttribs":{"tsr":[1765,1766]}}
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"listItem","attribs":[{"k":"bullets","v":["*"],"srcOffsets":[1765,1765,1765,1766]}],"dataAttribs":{"tsr":[1765,1766]}}]
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_system"},{"k":"title","v":"Skating system"}],"dataAttribs":{"tsr":[1766,1784],"stx":"simple","a":{"href":"./Skating_system"},"sa":{"href":"Skating system"}}}
 0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:WikiLink"},{"k":"href","v":"./Skating_system"},{"k":"title","v":"Skating system"}],"dataAttribs":{"tsr":[1766,1784],"stx":"simple","a":{"href":"./Skating_system"},"sa":{"href":"Skating system"}}}]
 0-gen/QuoteTransformer      | IN  | "Skating system"
@@ -404,8 +408,8 @@
 0-gen/QuoteTransformer      | OUT | ["disambiguation"]
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}
 0-gen/QuoteTransformer      | OUT | [{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}]
-0-gen/QuoteTransformer      | IN  | " page lists  articles associated with the title "
-0-gen/QuoteTransformer      | OUT | [" page lists  articles associated with the title "]
+0-gen/QuoteTransformer      | IN  | " page lists articles associated with the title "
+0-gen/QuoteTransformer      | OUT | [" page lists articles associated with the title "]
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"},{"k":"preceding-2chars","v":"e "}],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | "Skating"
 0-gen/QuoteTransformer      | IN  | {"type":"SelfclosingTagTk","name":"mw-quote","attribs":[{"k":"value","v":"'''"},{"k":"preceding-2chars","v":"ng"}],"dataAttribs":{}}
@@ -414,7 +418,7 @@
 0-gen/QuoteTransformer      | IN  | " "
 0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/QuoteTransformer      | IN  | "If an "
-0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:ExtLink"},{"k":"href","v":"//en.wikipedia.org/w/index.php?title=Special:WhatLinksHere/Skating&namespace=0"}],"dataAttribs":{"extLinkContentOffsets":[798,811]}}
+0-gen/QuoteTransformer      | IN  | {"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:ExtLink"},{"k":"href","v":"//en.wikipedia.org/w/index.php?title=Special:WhatLinksHere/Skating&namespace=0"}],"dataAttribs":{"extLinkContentOffsets":[797,810]}}
 0-gen/QuoteTransformer      | IN  | "internal link"
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}
 0-gen/QuoteTransformer      | IN  | " led you here, you may wish to change the link to point directly to the intended article."
@@ -422,7 +426,7 @@
 0-gen/QuoteTransformer      | IN  | " "
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}}
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{}}
-0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},"Skating",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},". ",{"type":"SelfclosingTagTk","name":"br","attribs":[],"dataAttribs":{"stx":"html","selfClose":true}}," ",{"type":"TagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}},"If an ",{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:ExtLink"},{"k":"href","v":"//en.wikipedia.org/w/index.php?title=Special:WhatLinksHere/Skating&namespace=0"}],"dataAttribs":{"extLinkContentOffsets":[798,811]}},"internal link",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}," led you here, you may wish to change the link to point directly to the intended article.",{"type":"EndTagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}}," ",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
+0-gen/QuoteTransformer      | OUT | [{"type":"TagTk","name":"b","attribs":[],"dataAttribs":{}},"Skating",{"type":"EndTagTk","name":"b","attribs":[],"dataAttribs":{}},". ",{"type":"SelfclosingTagTk","name":"br","attribs":[],"dataAttribs":{"stx":"html","selfClose":true}}," ",{"type":"TagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}},"If an ",{"type":"TagTk","name":"a","attribs":[{"k":"rel","v":"mw:ExtLink"},{"k":"href","v":"//en.wikipedia.org/w/index.php?title=Special:WhatLinksHere/Skating&namespace=0"}],"dataAttribs":{"extLinkContentOffsets":[797,810]}},"internal link",{"type":"EndTagTk","name":"a","attribs":[],"dataAttribs":{}}," led you here, you may wish to change the link to point directly to the intended article.",{"type":"EndTagTk","name":"small","attribs":[],"dataAttribs":{"stx":"html"}}," ",{"type":"EndTagTk","name":"td","attribs":[],"dataAttribs":{"stx":"html"}},{"type":"NlTk","dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"NlTk","dataAttribs":{}}
 0-gen/QuoteTransformer      | OUT | [{"type":"NlTk","dataAttribs":{}}]
 0-gen/QuoteTransformer      | IN  | {"type":"EndTagTk","name":"tr","attribs":[],"dataAttribs":{"stx":"html"}}

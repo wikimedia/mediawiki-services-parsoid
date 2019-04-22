@@ -9,6 +9,7 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
@@ -225,9 +226,10 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * @param array &$state
 	 * @param string|Token|array $targetToks
+	 * @param SourceOffset $srcOffsets
 	 * @return array|null
 	 */
-	private function resolveTemplateTarget( array &$state, $targetToks ): ?array {
+	private function resolveTemplateTarget( array &$state, $targetToks, $srcOffsets ): ?array {
 		// Normalize to an array
 		$targetToks = !is_array( $targetToks ) ? [ $targetToks ] : $targetToks;
 
@@ -333,7 +335,8 @@ class TemplateHandler extends TokenHandler {
 				'magicWordType' => $magicWordType,
 				'target' => 'pf_' . $canonicalFunctionName,
 				'pfArg' => mb_substr( $target, mb_strlen( $prefix ) + 1 ),
-				'pfArgToks' => $pfArgToks
+				'pfArgToks' => $pfArgToks,
+				'srcOffsets' => $srcOffsets,
 			];
 		}
 
@@ -454,7 +457,8 @@ class TemplateHandler extends TokenHandler {
 					// but, shouldn't this pass through the $this->options['inTemplate'] ?
 					'inTemplate' => false,
 				],
-				'sol' => true
+				'sol' => true,
+				'srcOffsets' => $state['token']->dataAttribs->tsr,
 			]
 		);
 
@@ -507,7 +511,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Resolve the template target again now that the template token's
 		// attributes have been expanded by the AttributeTransformManager
-		$resolvedTgt = $this->resolveTemplateTarget( $state, $target );
+		$resolvedTgt = $this->resolveTemplateTarget( $state, $target, $attribs[0]->srcOffsets->key );
 		if ( $resolvedTgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
@@ -538,7 +542,10 @@ class TemplateHandler extends TokenHandler {
 			}
 
 			$pfAttribs = new Params( $attribs );
-			$pfAttribs->args[0] = new KV( $resolvedTgt['pfArg'], [] );
+			$pfAttribs->args[0] = new KV(
+				$resolvedTgt['pfArg'], [],
+				$resolvedTgt['srcOffsets']->expandTsrK()
+			);
 			$env->log( 'debug', 'entering prefix', $target, $state['token'] );
 			$res = $this->parserFunctions[$target]( $state['token'],
 				$this->manager->getFrame(), $pfAttribs );
@@ -611,9 +618,11 @@ class TemplateHandler extends TokenHandler {
 					// disappear with parser integration. We'll just bear the stench
 					// till that time.
 					//
+					// NOTE: No expansion required for nested templates.
 					'expandTemplates' => false,
 					'extTag' => $this->options['extTag'] ?? null
 				],
+				'srcOffsets' => new SourceOffset( 0, mb_strlen( $src ) ),
 				'tplArgs' => $tplArgs,
 				'sol' => true
 			]
@@ -635,7 +644,7 @@ class TemplateHandler extends TokenHandler {
 			new KV( 'about', '#' . $state['wrappedObjectId'] )
 		];
 		$dataParsoid = (object)[
-			'tsr' => Util::clone( $state['token']->dataAttribs->tsr ),
+			'tsr' => clone $state['token']->dataAttribs->tsr,
 			'src' => $state['token']->dataAttribs->src,
 			'tmp' => (object)[]
 		];
@@ -652,7 +661,7 @@ class TemplateHandler extends TokenHandler {
 				new KV( 'typeof', $state['wrapperType'] . '/End' ),
 				new KV( 'about', '#' . $state['wrappedObjectId'] )
 			],
-			(object)[ 'tsr' => [ null, $tsr ? $tsr[1] : null ] ]
+			(object)[ 'tsr' => new SourceOffset( null, $tsr ? $tsr->end : null ) ]
 		);
 	}
 
@@ -675,12 +684,12 @@ class TemplateHandler extends TokenHandler {
 	 * Add its HTML conversion to a parameter
 	 */
 	private function getParamHTML( $paramData ): void {
-		$param = $paramData->param;
-		$srcStart = $paramData->info->srcOffsets[2];
-		$srcEnd = $paramData->info->srcOffsets[3];
-		if ( $paramData->info->spc ) {
-			$srcStart += count( $paramData->info->spc[2] );
-			$srcEnd -= count( $paramData->info->spc[3] );
+		$param = $paramData['param'];
+		$srcStart = $paramData['info']['srcOffsets']->value->start;
+		$srcEnd = $paramData['info']['srcOffsets']->value->end;
+		if ( $paramData['info']['spc'] ) {
+			$srcStart += count( $paramData['info']['spc'][2] );
+			$srcEnd -= count( $paramData['info']['spc'][3] );
 		}
 
 		$dom = PipelineUtils::processContentInPipeline(
@@ -694,7 +703,7 @@ class TemplateHandler extends TokenHandler {
 					// No need to do paragraph-wrapping here
 					'inlineContext' => true
 				],
-				'srcOffsets' => [ $srcStart, $srcEnd ],
+				'srcOffsets' => new SourceOffset( $srcStart, $srcEnd ),
 				'sol' => true
 			]
 		);
@@ -849,7 +858,7 @@ class TemplateHandler extends TokenHandler {
 	 * parameters.
 	 */
 	private function getArgInfo( $state ) {
-		$src = $this->env->getPageMainContent();
+		$src = $this->manager->getFrame()->getSrcText();
 		$params = $state['token']->attribs;
 		// TODO: `dict` might be a good candidate for a T65370 style cleanup as a
 		// Map, but since it's intended to be stringified almost immediately, we'll
@@ -866,9 +875,9 @@ class TemplateHandler extends TokenHandler {
 			$srcOffsets = $params[$i]->srcOffsets;
 			$kSrc = null;
 			$vSrc = null;
-			if ( $srcOffsets ) {
-				$kSrc = mb_substr( $src, $srcOffsets[0], $srcOffsets[1] - $srcOffsets[0] );
-				$vSrc = mb_substr( $src, $srcOffsets[2], $srcOffsets[3] - $srcOffsets[2] );
+			if ( $srcOffsets !== null ) {
+				$kSrc = $srcOffsets->key->substr( $src );
+				$vSrc = $srcOffsets->value->substr( $src );
 			} else {
 				$kSrc = $params[$i]->k;
 				$vSrc = $params[$i]->v;
@@ -892,8 +901,9 @@ class TemplateHandler extends TokenHandler {
 			// Even if k is empty, we need to check v immediately follows. If not,
 			// it's a blank parameter name (which is valid) and we shouldn't make it
 			// positional.
-			if ( $k === '' && isset( $srcOffsets[1] ) &&
-				isset( $srcOffsets[2] ) && $srcOffsets[1] === $srcOffsets[2]
+			if ( $k === '' &&
+				 $srcOffsets &&
+				 $srcOffsets->key->end === $srcOffsets->value->start
 			) {
 				$isPositional = true;
 				$k = (string)$argIndex;
@@ -957,7 +967,7 @@ class TemplateHandler extends TokenHandler {
 
 		$tgtSrcOffsets = $params[0]->srcOffsets;
 		if ( $tgtSrcOffsets ) {
-			$tplTgtWT = mb_substr( $src, $tgtSrcOffsets[0], $tgtSrcOffsets[1] - $tgtSrcOffsets[0] );
+			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
 			$ret['dict']['target']['wt'] = $tplTgtWT;
 		}
 
@@ -1037,13 +1047,14 @@ class TemplateHandler extends TokenHandler {
 		}
 	}
 
-	private function fetchArg( $arg ): array {
+	private function fetchArg( $arg, SourceOffset $srcOffsets ): array {
 		if ( is_string( $arg ) ) {
 			return [ 'tokens' => [ $arg ] ];
 		} else {
 			$toks = $this->manager->getFrame()->expand( $arg, [
 				'expandTemplates' => false,
 				'type' => 'tokens/x-mediawiki/expanded',
+				'srcOffsets' => $srcOffsets,
 			] );
 			TokenUtils::stripEOFTkfromTokens( $toks );
 			return [ 'tokens' => $toks ];
@@ -1063,7 +1074,7 @@ class TemplateHandler extends TokenHandler {
 			}
 			return [ 'tokens' => $args->namedArgs[$argName] ? TokenUtils::tokenTrim( $res ) : $res ];
 		} elseif ( count( $attribs ) > 1 ) {
-			return $this->fetchArg( $attribs[1]->v );
+			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {
 			return [ 'tokens' => [ '{{{' . $argName . '}}}' ] ];
 		}
@@ -1117,7 +1128,7 @@ class TemplateHandler extends TokenHandler {
 				'wrapperType' => 'mw:Transclusion',
 				'wrappedObjectId' => $env->newObjectId()
 			];
-			$this->resolveTemplateTarget( $state, '!' );
+			$this->resolveTemplateTarget( $state, '!', $tplToken->attribs[0]->srcOffsets->key );
 			return $this->encapTokens( $state, [ '|' ] );
 		}
 
@@ -1142,7 +1153,10 @@ class TemplateHandler extends TokenHandler {
 			// No shadowing if templated
 			//
 			// SSS FIXME: post-tpl-expansion, WS won't be trimmed. How do we handle this?
-			$metaToken->addAttribute( 'content', $resolvedTgt['pfArgToks'] );
+			$metaToken->addAttribute(
+				'content', $resolvedTgt['pfArgToks'],
+				$resolvedTgt['srcOffsets']->expandTsrV()
+			);
 			$metaToken->addAttribute( 'about', $env->newAboutId() );
 			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 
@@ -1170,6 +1184,9 @@ class TemplateHandler extends TokenHandler {
 			// depending on which part is templated.
 			//
 			// FIXME: Is there a simpler / better repn. for templated attrs?
+			// FIXME: the content still contains the parser function prefix
+			//  (eg, the html is 'DISPLAYTITLE:Foo' even though the stripped
+			//   content attribute is 'Foo')
 			$ta = $tplToken->dataAttribs->tmp->templatedAttribs;
 			$ta[0][0]->txt = 'content'; // Magic-word attribute name
 			$ta[0][1]->html = $ta[0][0]->html; // HTML repn. of the attribute value
@@ -1239,7 +1256,9 @@ class TemplateHandler extends TokenHandler {
 
 		// This template target resolution may be incomplete for
 		// cases where the template's target itself was templated.
-		$tgt = $this->resolveTemplateTarget( $state, $token->attribs[0]->k );
+		$tgt = $this->resolveTemplateTarget(
+			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key
+		);
 		if ( $tgt && $tgt['magicWordType'] ) {
 			$toks = $this->processSpecialMagicWord( $this->atTopLevel, $token, $tgt );
 			Assert::invariant( $toks !== null, "Expected non-null tokens array." );
@@ -1337,7 +1356,7 @@ class TemplateHandler extends TokenHandler {
 	private function onTemplateArg( Token $token ): array {
 		$args = $this->manager->getFrame()->getArgs()->named();
 		$attribs = $token->attribs;
-		$res = $this->fetchArg( $attribs[0]->k );
+		$res = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
 		$res = $this->lookupArg( $args, $attribs, $res );
 
 		if ( $this->options['expandTemplates'] ) {

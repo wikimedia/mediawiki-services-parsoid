@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Config\Env;
+use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Tokens\KV;
@@ -83,7 +84,7 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	private static function splitTokens(
-		Env $env, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
+		Frame $frame, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
 	): array {
 		$buf = [];
 		$postNLBuf = null;
@@ -122,7 +123,7 @@ class AttributeExpander extends TokenHandler {
 			// - Record the wikitext between the token and the transclusion
 			//   as an unwrappedWT data-parsoid attribute of the start-meta.
 			$dp = $startMeta->dataAttribs;
-			$dp->unwrappedWT = substr( $env->getPageMainContent(), $token->dataAttribs->tsr[0],
+			$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataAttribs->tsr[0],
 				$dp->tsr[0] - $token->dataAttribs->tsr[0] );
 
 			// unwrappedWT will be added to the data-mw.parts array which makes
@@ -319,7 +320,10 @@ class AttributeExpander extends TokenHandler {
 						$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
 						if ( $nlTkPos !== -1 ) {
 							// Scenario 1 from the documentation comment above.
-							$updatedK = self::splitTokens( $env, $token, $nlTkPos, $expandedK, $wrapTemplates );
+							$updatedK = self::splitTokens(
+								$this->manager->getFrame(), $token, $nlTkPos,
+								$expandedK, $wrapTemplates
+							);
 							$expandedK = $updatedK['preNLBuf'];
 							$postNLToks = $updatedK['postNLBuf'];
 							$metaTokens = $updatedK['metaTokens'];
@@ -408,7 +412,10 @@ class AttributeExpander extends TokenHandler {
 						$nlTkPos = self::nlTkIndex( $nlTkOkay, $attrValTokens, $wrapTemplates );
 						if ( $nlTkPos !== -1 ) {
 							// Scenario 1 from the documentation comment above.
-							$updatedV = self::splitTokens( $env, $token, $nlTkPos, $attrValTokens, $wrapTemplates );
+							$updatedV = self::splitTokens(
+								$this->manager->getFrame(), $token, $nlTkPos,
+								$attrValTokens, $wrapTemplates
+							);
 							$attrValTokens = $updatedV['preNLBuf'];
 							$postNLToks = $updatedV['postNLBuf'];
 							$metaTokens = $updatedV['metaTokens'];
@@ -439,10 +446,12 @@ class AttributeExpander extends TokenHandler {
 					$tmpDataMW[$key] = [
 						'k' => [
 							'txt' => $key,
-							'html' => ( $reparsedKV || !empty( $updatedK['hasGeneratedContent'] ) ) ? $origK : null
+							'html' => ( $reparsedKV || !empty( $updatedK['hasGeneratedContent'] ) ) ? $origK : null,
+							'srcOffsets' => $expandedA->srcOffsets->key,
 						],
 						'v' => [
-							'html' => $reparsedKV ? [] : $origV
+							'html' => $reparsedKV ? [] : $origV,
+							'srcOffsets' => $expandedA->srcOffsets->value,
 						]
 					];
 				}
@@ -474,7 +483,7 @@ class AttributeExpander extends TokenHandler {
 
 			// Expand all token arrays to DOM.
 			$eVals = PipelineUtils::expandValuesToDOM(
-				$this->manager->env, $this->manager->frame, $vals,
+				$this->manager->env, $this->manager->getFrame(), $vals,
 				$this->options['expandTemplates'],
 				$this->options['inTemplate']
 			);

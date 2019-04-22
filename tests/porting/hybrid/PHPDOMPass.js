@@ -55,7 +55,7 @@ class PHPDOMPass {
 
 	mkOpts(env, extraOpts = {}, extraEnvOpts = {}) {
 		return Object.assign({
-			envOpts: HybridTestUtils.mkEnvOpts(env, extraEnvOpts)
+			envOpts: HybridTestUtils.mkEnvOpts(env, env.topFrame, extraEnvOpts)
 		}, extraOpts);
 	}
 

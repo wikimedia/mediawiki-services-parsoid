@@ -9,6 +9,9 @@ use DOMElement;
 use Generator;
 
 use Parsoid\Config\Env;
+
+use Parsoid\Tokens\SourceOffset;
+
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -465,11 +468,10 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * @param int $start
-	 * @param int $end
+	 * @inheritDoc
 	 */
-	public function setSourceOffsets( int $start, int $end ): void {
-		$this->options['sourceOffsets'] = [ $start, $end ];
+	public function setSourceOffsets( SourceOffset $so ): void {
+		$this->options['sourceOffsets'] = $so;
 	}
 
 	/**

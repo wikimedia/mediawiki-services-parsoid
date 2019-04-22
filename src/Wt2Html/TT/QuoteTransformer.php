@@ -7,6 +7,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2html\TokenTransformManager;
@@ -315,7 +316,7 @@ class QuoteTransformer extends TokenHandler {
 		$oldbold = $this->chunks[$i][0];
 		$tsr = $oldbold->dataAttribs->tsr ?? null;
 		if ( $tsr ) {
-			$tsr = [ $tsr[0] + 1, $tsr[1] ];
+			$tsr = new SourceOffset( $tsr->start + 1, $tsr->end );
 		}
 		$newbold = new SelfclosingTagTk( 'mw-quote', [], (object)[ "tsr" => $tsr ] );
 		$newbold->setAttribute( "value", "''" ); // italic!
@@ -436,8 +437,8 @@ class QuoteTransformer extends TokenHandler {
 		$oldtag = $this->chunks[$chunk][0];
 		// make tsr
 		$tsr = $oldtag->dataAttribs->tsr ?? null;
-		$startpos = $tsr ? $tsr[0] : null;
-		$endpos = $tsr ? $tsr[1] : null;
+		$startpos = $tsr ? $tsr->start : null;
+		$endpos = $tsr ? $tsr->end : null;
 		$numTags = count( $tags );
 		for ( $i = 0; $i < $numTags; $i++ ) {
 			if ( $tsr ) {
@@ -446,11 +447,11 @@ class QuoteTransformer extends TokenHandler {
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
 					$tags[$i]->dataAttribs->autoInsertedStart = true;
 				} elseif ( $tags[$i]->getName() === 'b' ) {
-					$tags[$i]->dataAttribs->tsr = [ $startpos, $startpos + 3 ];
-					$startpos = $tags[$i]->dataAttribs->tsr[1];
+					$tags[$i]->dataAttribs->tsr = new SourceOffset( $startpos, $startpos + 3 );
+					$startpos = $tags[$i]->dataAttribs->tsr->end;
 				} elseif ( $tags[$i]->getName() === 'i' ) {
-					$tags[$i]->dataAttribs->tsr = [ $startpos, $startpos + 2 ];
-					$startpos = $tags[$i]->dataAttribs->tsr[1];
+					$tags[$i]->dataAttribs->tsr = new SourceOffset( $startpos, $startpos + 2 );
+					$startpos = $tags[$i]->dataAttribs->tsr->end;
 				}
 			}
 			$this->last[$tags[$i]->getName()] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];

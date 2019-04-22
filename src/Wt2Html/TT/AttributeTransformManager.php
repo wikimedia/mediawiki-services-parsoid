@@ -58,7 +58,8 @@ class AttributeTransformManager {
 			$tokens = $this->frame->expand( $v, [
 				'expandTemplates' => $this->options['expandTemplates'],
 				'inTemplate' => $this->options['inTemplate'],
-				'type' => 'tokens/x-mediawiki/expanded'
+				'type' => 'tokens/x-mediawiki/expanded',
+				'srcOffsets' => $cur->srcOffsets->value,
 			] );
 			$this->expandedKVs[] = [ 'index' => $i, 'v' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
 		}
@@ -69,7 +70,8 @@ class AttributeTransformManager {
 			$tokens = $this->frame->expand( $k, [
 				'expandTemplates' => $this->options['expandTemplates'],
 				'inTemplate' => $this->options['inTemplate'],
-				'type' => 'tokens/x-mediawiki/expanded'
+				'type' => 'tokens/x-mediawiki/expanded',
+				'srcOffsets' => $cur->srcOffsets->key,
 			] );
 			$this->expandedKVs[] = [ 'index' => $i, 'k' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
 		}

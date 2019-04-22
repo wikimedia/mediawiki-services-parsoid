@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Parsoid\Config\Api\Env as ApiEnv;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -59,11 +60,14 @@ function serializeTokens( $env, $tokens ) {
  */
 function parse( Env $env, string $input, array $opts ): array {
 	// fwrite(STDERR, "IN: " . $input. "\n");
-	// fwrite(STDERR, "SRC: " . $env->getPageMainContent()."\n");
+	// fwrite(STDERR, "SRC: " . $env->topFrame->getSrcText()."\n");
 	// fwrite(STDERR, "OFFSET: " . ($opts['offsets'][0] ?? 0)."\n");
 	$tokens = [];
+	$so = new SourceOffset(
+		$opts['offsets'][0] ?? null, $opts['offsets'][1] ?? null
+	);
 	$tokenizer = new PegTokenizer( $env );
-	$tokenizer->setSourceOffsets( $opts['offsets'][0] ?? 0, $opts['offsets'][1] ?? 0 );
+	$tokenizer->setSourceOffsets( $so );
 
 	// Use the streaming-generator-version of the tokenizer
 	// because the hybrid testing code that consumes these tokens
@@ -81,7 +85,7 @@ function parse( Env $env, string $input, array $opts ): array {
 		fwrite( STDERR, $tokenizer->getLastErrorLogMessage() . "\n" );
 		exit( 1 );
 	}
-	TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'byte', 'ucs2', $tokens );
+	TokenUtils::convertTokenOffsets( $env->topFrame->getSrcText(), 'byte', 'ucs2', $tokens );
 	return $tokens;
 }
 

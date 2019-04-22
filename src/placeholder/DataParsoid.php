@@ -5,6 +5,9 @@ namespace Parsoid;
 
 use stdClass;
 
+use Parsoid\Tokens\KVSourceOffset;
+use Parsoid\Tokens\SourceOffset;
+
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().
  * For now, this class is only used in type hints to improve IDE autocompletion,
@@ -40,7 +43,7 @@ class DataParsoid extends stdClass {
 	/**
 	 * Tag widths for all tokens.
 	 * Temporarily present in data-parsoid, but not in final DOM output.
-	 * @var int[]|null
+	 * @var SourceOffset|null
 	 * @see ComputeDRS::computeNodeDSR()
 	 */
 	public $tsr;
@@ -68,9 +71,18 @@ class DataParsoid extends stdClass {
 	 * Offsets of opening and closing tags for extension tags, in the form
 	 * [ opening tag start , opening tag end, closing tag start, closing tag end ]
 	 * Temporarily present in data-parsoid, but not in final DOM output.
-	 * @var int[]|null
+	 * @var KVSourceOffset|null
 	 */
 	public $extTagOffsets;
+
+	// external links
+
+	/**
+	 * Offsets of external link content.
+	 * Temporarily present in data-parsoid, but not in final DOM output.
+	 * @var SourceOffset|null
+	 */
+	public $extLinkContentOffsets;
 
 	// HTML tags
 

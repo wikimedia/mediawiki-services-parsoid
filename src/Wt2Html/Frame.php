@@ -28,6 +28,9 @@ class Frame {
 	/** @var Params */
 	private $args;
 
+	/** @var string */
+	private $srcText;
+
 	/** @var int */
 	private $depth;
 
@@ -35,14 +38,16 @@ class Frame {
 	 * @param string|null $title
 	 * @param Env $env
 	 * @param array $args
+	 * @param string $srcText
 	 * @param Frame|null $parentFrame
 	 */
 	public function __construct(
-		?string $title, Env $env, array $args, Frame $parentFrame = null
+		?string $title, Env $env, array $args, string $srcText, Frame $parentFrame = null
 	) {
 		$this->title = $title;
 		$this->env = $env;
 		$this->args = new Params( $args );
+		$this->srcText = $srcText;
 
 		if ( $parentFrame ) {
 			$this->parentFrame = $parentFrame;
@@ -54,6 +59,13 @@ class Frame {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getTitle(): string {
+		return $this->title;
+	}
+
+	/**
 	 * @return Params
 	 */
 	public function getArgs(): Params {
@@ -61,13 +73,21 @@ class Frame {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getSrcText(): string {
+		return $this->srcText;
+	}
+
+	/**
 	 * Create a new child frame.
 	 * @param string $title
 	 * @param array $args
+	 * @param string $srcText
 	 * @return Frame
 	 */
-	public function newChild( string $title, array $args ): Frame {
-		return new Frame( $title, $this->env, $args, $this );
+	public function newChild( string $title, array $args, string $srcText ): Frame {
+		return new Frame( $title, $this->env, $args, $srcText, $this );
 	}
 
 	/**
@@ -102,6 +122,7 @@ class Frame {
 				'inTemplate' => !empty( $options['inTemplate'] )
 			],
 			'sol' => true,
+			'srcOffsets' => $options['srcOffsets'] ?? null,
 			'tplArgs' => [ 'name' => null, 'attribs' => [] ]
 		];
 

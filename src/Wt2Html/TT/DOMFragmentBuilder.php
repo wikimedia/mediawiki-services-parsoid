@@ -5,7 +5,6 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
@@ -63,16 +62,14 @@ class DOMFragmentBuilder extends TokenHandler {
 	 * @return array|null
 	 */
 	private function buildDOMFragment( Token $scopeToken ) {
-		$content = $scopeToken->getAttribute( 'content' );
+		$contentKV = $scopeToken->getAttributeKV( 'content' );
+		$content = $contentKV->v;
 		if ( $this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) ) ) {
 			// New pipeline not needed. Pass them through
 			return [ 'tokens' => is_string( $content ) ? [ $content ] : $content ];
 		} else {
 			// Source offsets of content
-			// NOTE: Since KV (k,v) values don't have int[] in their type,
-			// we get that value from the srcOffsets field in the KV object.
-			// (This is different from how this is done on the JS side)
-			$srcOffsets = KV::LookupKV( $scopeToken->attribs, 'srcOffsets' )->srcOffsets ?? null;
+			$srcOffsets = $contentKV->srcOffsets;
 
 			// Without source offsets for the content, it isn't possible to
 			// compute DSR and template wrapping in content. So, users of
@@ -99,7 +96,7 @@ class DOMFragmentBuilder extends TokenHandler {
 				[
 					'pipelineType' => 'tokens/x-mediawiki/expanded',
 					'pipelineOpts' => $pipelineOpts,
-					'srcOffsets' => $srcOffsets,
+					'srcOffsets' => $srcOffsets->value,
 					'sol' => true
 				]
 			);

@@ -4,6 +4,7 @@ namespace Test\Parsoid\Config;
 
 use Parsoid\Tests\MockEnv;
 use Parsoid\Tests\MockPageConfig;
+use Parsoid\Tests\MockPageContent;
 use Parsoid\Tests\MockSiteConfig;
 
 /**
@@ -17,10 +18,13 @@ class EnvTest extends \PHPUnit\Framework\TestCase {
 	public function testResolveTitle( $args, $expect, $ns = 4, $title = 'Wikipedia:Foo/bar/baz' ) {
 		$pageConfig = $this->getMockBuilder( MockPageConfig::class )
 			->setConstructorArgs( [ [], null ] )
-			->setMethods( [ 'getTitle', 'getNs' ] )
+			->setMethods( [ 'getTitle', 'getNs', 'getRevisionContent' ] )
 			->getMock();
 		$pageConfig->method( 'getTitle' )->willReturn( $title );
 		$pageConfig->method( 'getNs' )->willReturn( $ns );
+		$pageConfig->method( 'getRevisionContent' )->willReturn(
+			new MockPageContent( [ 'main' => 'bogus' ] )
+		);
 
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )

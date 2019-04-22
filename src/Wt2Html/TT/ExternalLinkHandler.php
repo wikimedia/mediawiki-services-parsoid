@@ -136,7 +136,9 @@ class ExternalLinkHandler extends TokenHandler {
 			if ( !$this->options[ 'inTemplate' ] ) {
 				// Since we messed with the text of the link, we need
 				// to preserve the original in the RT data. Or else.
-				$builtTag->addNormalizedAttribute( 'href', $href, $token->getWTSource( $env ) );
+				$builtTag->addNormalizedAttribute(
+					'href', $href, $token->getWTSource( $this->manager->getFrame() )
+				);
 			} else {
 				$builtTag->addAttribute( 'href', $href );
 			}
@@ -146,8 +148,11 @@ class ExternalLinkHandler extends TokenHandler {
 					// Make sure there are no IDN-ignored characters in the text so
 					// the user doesn't accidentally copy any.
 					Sanitizer::cleanUrl( $env, $href, '' ),   // mode could be 'wikilink'
-					new EndTagTk( 'a', [],
-						(object)[ 'tsr' => [ $dataAttribs->tsr[1], $dataAttribs->tsr[1] ] ] )
+					new EndTagTk(
+						'a',
+						[],
+						(object)[ 'tsr' => $dataAttribs->tsr->expandTsrK()->value ]
+					)
 				]
 			];
 		}
@@ -236,14 +241,14 @@ class ExternalLinkHandler extends TokenHandler {
 				// If we are from a top-level page, add normalized attr info for
 				// accurate roundtripping of original content.
 				//
-				// extLinkContentOffsets[0] covers all spaces before content
+				// extLinkContentOffsets->start covers all spaces before content
 				// and we need src without those spaces.
-				$tsr0a = $dataAttribs->tsr[0] + 1;
-				$tsr1a = $dataAttribs->extLinkContentOffsets[0] -
+				$tsr0a = $dataAttribs->tsr->start + 1;
+				$tsr1a = $dataAttribs->extLinkContentOffsets->start -
 					strlen( $token->getAttribute( 'spaces' ) || '' );
 				$length = $tsr1a - $tsr0a;
 				$aStart->addNormalizedAttribute( 'href', $href,
-					substr( $env->getPageMainContent(), $tsr0a, $length ) );
+					substr( $this->manager->getFrame()->getSrcText(), $tsr0a, $length ) );
 			} else {
 				$aStart->addAttribute( 'href', $href );
 			}

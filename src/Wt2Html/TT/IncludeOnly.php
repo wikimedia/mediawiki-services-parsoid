@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
@@ -58,8 +59,13 @@ class IncludeOnly extends TokenCollector {
 
 		// Handle self-closing tag case specially!
 		if ( TokenUtils::getTokenType( $start ) === 'SelfclosingTagTk' ) {
-			$token = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/IncludeOnly',
-				false, ( $start->dataAttribs ?? (object)[ 'tsr' => [ null, null ] ] )->tsr, null );
+			$token = TokenCollector::buildMetaToken(
+				$this->manager,
+				'mw:Includes/IncludeOnly',
+				false,
+				( $start->dataAttribs ?? (object)[ 'tsr' => new SourceOffset( null, null ) ] )->tsr,
+				null
+			);
 			if ( $start->dataAttribs->src ) {
 				$datamw = PHPUtils::jsonEncode( [ 'src' => $start->dataAttribs->src ] );
 				$token->addAttribute( 'data-mw', $datamw );
@@ -98,9 +104,9 @@ class IncludeOnly extends TokenCollector {
 				// stripped token (above) got the entire tsr value, we are artificially
 				// setting the tsr on this node to zero-width to ensure that
 				// DSR computation comes out correct.
-				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => [ null, null ] ] )->tsr;
+				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => new SourceOffset( null, null ) ] )->tsr;
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, $name,
-					true, [ $tsr[ 1 ], $tsr[ 1 ] ], null );
+					true, new SourceOffset( $tsr->end, $tsr->end ), null );
 			}
 		}
 

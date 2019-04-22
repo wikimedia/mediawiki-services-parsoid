@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMUtils;
@@ -469,7 +470,7 @@ class WikitextEscapeHandlers {
 				// Since this will not parse to a real extlink,
 				// update buf with the wikitext src for this token.
 				$tsr = $t->dataAttribs->tsr;
-				$buf = mb_substr( $str, $tsr[0], $tsr[1] - $tsr[0] ) . $buf;
+				$buf = $tsr->substr( $str ) . $buf;
 			} else {
 				// We have no other smarts => be conservative.
 				return true;
@@ -772,7 +773,7 @@ class WikitextEscapeHandlers {
 			}
 
 			$tsr = $t->dataAttribs->tsr ?? null;
-			if ( !is_array( $tsr ) ) {
+			if ( !( $tsr instanceof SourceOffset ) ) {
 				$env = $state->getEnv();
 				$env->log(
 					'error/html2wt/escapeNowiki',
@@ -789,7 +790,7 @@ class WikitextEscapeHandlers {
 			}
 
 			// Now put back the escaping we removed above
-			$tSrc = WTUtils::escapeNowikiTags( mb_substr( $text, $tsr[0], $tsr[1] - $tsr[0] ) );
+			$tSrc = WTUtils::escapeNowikiTags( $tsr->substr( $text ) );
 			switch ( TokenUtils::getTokenType( $t ) ) {
 				case 'NlTk':
 					$buf .= $tSrc;

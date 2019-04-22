@@ -92,7 +92,7 @@ class TableFixups {
 			}
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
-			$nodeSrc = WTUtils::getWTSource( $env, $node );
+			$nodeSrc = WTUtils::getWTSource( $env->topFrame, $node );
 			if ( !isset( $dataMW->parts ) ) {
 				$dataMW->parts = [];
 			}
@@ -142,7 +142,7 @@ class TableFixups {
 		// Get the td and content source up to the transclusion start
 		if ( $dp->dsr[0] < $childDP->dsr[0] ) {
 			$width = $childDP->dsr[0] - $dp->dsr[0];
-			array_unshift( $parts, mb_substr( $env->getPageMainContent(), $dp->dsr[0], $width ) );
+			array_unshift( $parts, mb_substr( $env->topFrame->getSrcText(), $dp->dsr[0], $width ) );
 		}
 
 		// Add wikitext for the table cell content following the
@@ -152,7 +152,7 @@ class TableFixups {
 		// itself.
 		if ( $childDP->dsr[1] < $dp->dsr[1] ) {
 			$width = $dp->dsr[1] - $childDP->dsr[1];
-			$parts[] = mb_substr( $env->getPageMainContent(), $childDP->dsr[1], $width );
+			$parts[] = mb_substr( $env->topFrame->getSrcText(), $childDP->dsr[1], $width );
 		}
 
 		// Save the new data-mw on the tdNode

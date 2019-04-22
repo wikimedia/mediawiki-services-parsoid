@@ -14,13 +14,14 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html;
 
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\CommentTk;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Utils\DOMDataUtils;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
@@ -93,10 +94,11 @@ class TokenizerUtils {
 	}
 
 	public static function getAttrVal( $value, int $start, int $end ) {
-		return [ 'value' => $value, 'srcOffsets' => [ $start, $end ] ];
+		return [ 'value' => $value, 'srcOffsets' => new SourceOffset( $start, $end ) ];
 	}
 
-	public static function buildTableTokens( string $tagName, string $wtChar, $attrInfo, $tsr,
+	public static function buildTableTokens(
+		string $tagName, string $wtChar, $attrInfo, SourceOffset $tsr,
 		int $endPos, $content, bool $addEndTag = false ): array
 	{
 		$a = null;
@@ -123,7 +125,7 @@ class TokenizerUtils {
 			}
 		}
 
-		$dataAttribs = (object)[ 'tsr' => [ $endPos, $endPos ] ];
+		$dataAttribs = (object)[ 'tsr' => new SourceOffset( $endPos, $endPos ) ];
 		$endTag = null;
 		if ( $addEndTag ) {
 			$endTag = new EndTagTk( $tagName, [], $dataAttribs );
@@ -151,7 +153,7 @@ class TokenizerUtils {
 	}
 
 	public static function buildXMLTag( string $name, string $lcName, array $attribs, $endTag,
-		bool $selfClose, $tsr
+		bool $selfClose, SourceOffset $tsr
 	) {
 		$tok = null;
 		$da = (object)[ 'tsr' => $tsr, 'stx' => 'html' ];
@@ -315,7 +317,7 @@ class TokenizerUtils {
 		}
 		if ( count( $buf ) ) {
 			array_splice( $attrs, -count( $buf ), count( $buf ) );
-			return [ 'buf' => $buf, 'commentStartPos' => $buf[0]->dataAttribs->tsr[0] ];
+			return [ 'buf' => $buf, 'commentStartPos' => $buf[0]->dataAttribs->tsr->start ];
 		} else {
 			return null;
 		}

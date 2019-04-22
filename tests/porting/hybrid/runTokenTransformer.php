@@ -159,7 +159,7 @@ switch ( $transformerName ) {
 }
 
 if ( $jsAsync ) {
-	$manager->setFrame( null, null, [] );
+	$manager->setFrame( null, null, [], '<bogus>' );
 	$transformer->resetState( $opts );
 	$handler = $argv[3];
 	$ret = call_user_func( [ $transformer, $handler ], $tokens[0] );

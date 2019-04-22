@@ -50,7 +50,7 @@ class LiFixups {
 
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$typeOf = $node->getAttribute( 'typeof' );
-			$liHackSrc = WTUtils::getWTSource( $env, $prevNode );
+			$liHackSrc = WTUtils::getWTSource( $env->topFrame, $prevNode );
 
 			if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
 				$dataMW = DOMDataUtils::getDataMw( $node );

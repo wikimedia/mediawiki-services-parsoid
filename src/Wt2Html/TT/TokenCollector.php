@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\SelfclosingTagTk;
@@ -166,30 +167,27 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param object $manager
 	 * @param string $tokenName
 	 * @param bool $isEnd
-	 * @param array $tsr
+	 * @param SourceOffset $tsr
 	 * @param string $src
 	 * @return SelfclosingTagTk
 	 */
-	public static function buildMetaToken( $manager, $tokenName, $isEnd, $tsr, $src )
-		: SelfclosingTagTk {
+	public static function buildMetaToken(
+		$manager, string $tokenName, bool $isEnd,
+		SourceOffset $tsr, string $src
+	) : SelfclosingTagTk {
 		if ( $isEnd ) {
 			$tokenName .= '/End';
 		}
 
-		$stringOrFalse = false;
+		$newSrc = null;
 		if ( $tsr ) {
-			$pageSrc = $manager->env->getPageMainContent();
-			$from = $tsr[0];
-			$to = $tsr[1] - $from;
-			$stringOrFalse = mb_substr( $pageSrc, $from, $to );
-			if ( $stringOrFalse === false ) {
-				$stringOrFalse = '';
-			}
+			$srcText = $manager->getFrame()->getSrcText();
+			$newSrc = $tsr->substr( $srcText );
 		}
 
 		return new SelfclosingTagTk( 'meta',
 			[ new KV( 'typeof', $tokenName ) ],
-			$tsr ? (object)[ 'tsr' => $tsr, 'src' => $stringOrFalse ] : (object)[ 'src' => $src ]
+			$tsr ? (object)[ 'tsr' => $tsr, 'src' => $newSrc ] : (object)[ 'src' => $src ]
 		);
 	}
 
@@ -204,18 +202,18 @@ abstract class TokenCollector extends TokenHandler {
 		: SelfclosingTagTk {
 		$da = $startDelim->dataAttribs;
 		$tsr0 = $da ? $da->tsr : null;
-		$t0 = $tsr0 ? $tsr0[ 0 ] : null;
+		$t0 = $tsr0 ? $tsr0->start : null;
 		$t1 = null;
 
 		if ( $endDelim ) {
 			$da = $endDelim ? $endDelim->dataAttribs : null;
 			$tsr1 = $da ? $da->tsr : null;
-			$t1 = $tsr1 ? $tsr1[ 1 ] : null;
+			$t1 = $tsr1 ? $tsr1->end : null;
 		} else {
-			$t1 = mb_strlen( $manager->env->getPageMainContent() );
+			$t1 = mb_strlen( $manager->getFrame()->getSrcText() );
 		}
 
-		return self::buildMetaToken( $manager, $tokenName, false, [ $t0, $t1 ], '' );
+		return self::buildMetaToken( $manager, $tokenName, false, new SourceOffset( $t0, $t1 ), '' );
 	}
 
 	/**

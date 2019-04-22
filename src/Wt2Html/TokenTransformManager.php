@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html;
 use Generator;
 
 use Parsoid\Config\Env;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Wt2Html\TT\TokenHandler;
 use Parsoid\Utils\PHPUtils;
 
@@ -35,7 +36,7 @@ class TokenTransformManager extends PipelineStage {
 	private $transformers = [];
 
 	/** @var Frame */
-	private $frame = null;
+	private $frame;
 
 	/**
 	 * @param Env $env
@@ -49,6 +50,7 @@ class TokenTransformManager extends PipelineStage {
 		$this->stageId = $stageId;
 		$this->traceType = 'trace/sync:' . $stageId;
 		$this->pipelineId = null;
+		$this->frame = $env->topFrame;
 
 		// Compute tracing state
 		$traceFlags = $env->traceFlags;
@@ -139,24 +141,31 @@ class TokenTransformManager extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function setSourceOffsets( int $start, int $end ): void {
+	public function setSourceOffsets( SourceOffset $so ): void {
 		foreach ( $this->transformers as $transformer ) {
-			$transformer->setSourceOffsets( $start, $end );
+			$transformer->setSourceOffsets( $so );
 		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setFrame( ?Frame $parentFrame, ?string $title, array $args ): void {
+	public function setFrame(
+		?Frame $parentFrame, ?string $title, array $args, string $srcText
+	): void {
 		// now actually set up the frame
 		if ( !$parentFrame ) {
-			$this->frame = new Frame( $title, $this->env, $args );
+			$this->frame = $this->env->topFrame->newChild(
+				$title, $args, $srcText
+			);
 		} elseif ( !$title ) {
-			// attribute, simply reuse the parent frame
-			$this->frame = $parentFrame;
+			$this->frame = $parentFrame->newChild(
+				$parentFrame->getTitle(), $parentFrame->getArgs()->args, $srcText
+			);
 		} else {
-			$this->frame = $parentFrame->newChild( $title, $args );
+			$this->frame = $parentFrame->newChild(
+				$title, $args, $srcText
+			);
 		}
 	}
 

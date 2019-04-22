@@ -61,7 +61,7 @@ class OnlyInclude extends TokenHandler {
 	private function onOnlyInclude( Token $token ): array {
 		$tsr = $token->dataAttribs->tsr;
 		$src = empty( $this->options['inTemplate'] )
-			? $token->getWTSource( $this->manager->env )
+			? $token->getWTSource( $this->manager->getFrame() )
 			: null;
 		$attribs = [
 			new KV( 'typeof', 'mw:Includes/OnlyInclude' .

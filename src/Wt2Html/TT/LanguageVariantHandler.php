@@ -64,11 +64,12 @@ class LanguageVariantHandler extends TokenHandler {
 		$sawFlagA = false;
 
 		// convert one variant text to dom.
-		$convertOne = /* async */function ( $t ) use ( &$PipelineUtils, &$manager, &$attribs, &$EOFTk, &$options, &$ContentUtils, &$DOMUtils ) {
+		$convertOne = /* async */function ( $t ) use ( &$attribs, &$PipelineUtils, &$manager, &$EOFTk, &$options, &$ContentUtils, &$DOMUtils ) {
 			// we're going to fetch the actual token list from attribs
 			// (this ensures that it has gone through the earlier stages
 			// of the pipeline already to be expanded)
 			$t = +( preg_replace( '/^mw:lv/', '', $t, 1 ) );
+			$srcOffsets = $attribs[ $t ]->srcOffsets;
 			$doc = /* await */ PipelineUtils::promiseToProcessContent(
 				$manager->env, $manager->frame, $attribs[ $t ]->v->concat( [ new EOFTk() ] ),
 				[
@@ -78,7 +79,7 @@ class LanguageVariantHandler extends TokenHandler {
 						'expandTemplates' => $options->expandTemplates,
 						'inTemplate' => $options->inTemplate
 					],
-					'srcOffsets' => $attribs[ $t ]->srcOffsets,
+					'srcOffsets' => ( $srcOffsets ) ? array_slice( $srcOffsets, 2, 4/*CHECK THIS*/ ) : null,
 					'sol' => true
 				]
 			);

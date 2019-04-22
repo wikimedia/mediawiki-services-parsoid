@@ -16622,6 +16622,18 @@ cat=MediaWiki_User's_Guide sort=MediaWiki User's Guide
 !! end
 
 !! test
+Category with template-generated sort key
+!! options
+cat
+!! wikitext
+[[Category:MediaWiki User's Guide|MediaWiki {{echo|Foo}} Guide]]
+!! html/php
+cat=MediaWiki_User's_Guide sort=MediaWiki Foo Guide
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:MediaWiki_User's_Guide#MediaWiki%20Foo%20Guide" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"mw:sortKey"},{"html":"MediaWiki &lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"Foo\"}},\"i\":0}}]}&apos;>Foo&lt;/span> Guide"}]]}'/>
+!! end
+
+!! test
 Category with empty sort key
 !! options
 cat

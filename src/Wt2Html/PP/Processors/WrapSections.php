@@ -25,7 +25,7 @@ class WrapSections {
 	 * @return string
 	 */
 	private function getSrc( Env $env, int $s, int $e ): string {
-		return mb_substr( $env->getPageMainContent(), $s, $e - $s );
+		return mb_substr( $env->topFrame->getSrcText(), $s, $e - $s );
 	}
 
 	/**

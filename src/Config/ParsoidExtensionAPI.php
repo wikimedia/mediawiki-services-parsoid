@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use DOMDocument;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\TT\Sanitizer;
@@ -68,7 +69,7 @@ class ParsoidExtensionAPI {
 	 * Create a parsing pipeline to parse wikitext.
 	 *
 	 * @param string $wikitext
-	 * @param int[] $srcOffsets
+	 * @param SourceOffset $srcOffsets
 	 * @param array $parseOpts
 	 *    - extTag
 	 *    - extTagOpts
@@ -79,7 +80,7 @@ class ParsoidExtensionAPI {
 	 * @return DOMDocument
 	 */
 	public function parseWikitextToDOM(
-		string $wikitext, array $srcOffsets, array $parseOpts, bool $sol
+		string $wikitext, SourceOffset $srcOffsets, array $parseOpts, bool $sol
 	): DOMDocument {
 		$doc = null;
 		if ( !$wikitext ) {
@@ -124,7 +125,10 @@ class ParsoidExtensionAPI {
 		$dataAttribs = $this->extToken->dataAttribs;
 		$extTagOffsets = $dataAttribs->extTagOffsets;
 		// PORT_FIXME: should be converted to strlen after byte offsets patch lands
-		$srcOffsets = [ $extTagOffsets[1] + mb_strlen( $leadingWS ), $extTagOffsets[2] ];
+		$srcOffsets = new SourceOffset(
+			$extTagOffsets->key->end + mb_strlen( $leadingWS ),
+			$extTagOffsets->value->start
+		);
 
 		$doc = $this->parseWikitextToDOM( $wikitext, $srcOffsets, $parseOpts, /* sol */true );
 

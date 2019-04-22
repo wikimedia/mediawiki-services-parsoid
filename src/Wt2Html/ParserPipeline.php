@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html;
 
 use DOMDocument;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\SourceOffset;
 use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
@@ -94,18 +95,17 @@ class ParserPipeline {
 	 * Because of this, the source offsets are not [0, page.length) always
 	 * and needs to be explicitly initialized
 	 *
-	 * @param int $start
-	 * @param int $end
+	 * @param SourceOffset $so
 	 */
-	public function setSourceOffsets( int $start, int $end ): void {
-		$this->applyToStage( 'setSourceOffsets', $start, $end );
+	public function setSourceOffsets( SourceOffset $so ): void {
+		$this->applyToStage( 'setSourceOffsets', $so );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setFrame( ?Frame $frame, ?string $title, array $args ): void {
-		$this->applyToStage( 'setFrame', $frame, $title, $args );
+	public function setFrame( ?Frame $frame, ?string $title, array $args, string $srcText ): void {
+		$this->applyToStage( 'setFrame', $frame, $title, $args, $srcText );
 	}
 
 	/**
