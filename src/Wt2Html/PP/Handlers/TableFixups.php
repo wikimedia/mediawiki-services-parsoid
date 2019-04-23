@@ -85,10 +85,10 @@ class TableFixups {
 			// the first node), we have to update the second DSR's
 			// starting point and start tag width.
 			$nodeDSR = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			$nextNodeDSR = DOMDataUtils::getDataParsoid( $nextNode )->dsr ?? null;
+			$nextNodeDP = DOMDataUtils::getDataParsoid( $nextNode );
 
-			if ( Util::isValidDSR( $nodeDSR ) && $nextNodeDSR !== null ) {
-				$nextNodeDSR[0] = $nodeDSR[0];
+			if ( $nodeDSR && !empty( $nextNodeDP->dsr ) ) {
+				$nextNodeDP->dsr[0] = $nodeDSR[0];
 			}
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
