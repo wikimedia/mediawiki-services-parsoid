@@ -1102,7 +1102,7 @@ class Sanitizer extends TokenHandler {
 	): array {
 		$tag = $tagName ?: $token->getName();
 
-		$wlist = self::attributeWhitelist( $tag );
+		$wlist = array_flip( self::attributeWhitelist( $tag ) );
 		$newAttrs = [];
 		$n = count( $attrs );
 		for ( $i = 0;  $i < $n;  $i++ ) {
