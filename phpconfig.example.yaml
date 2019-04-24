@@ -34,16 +34,19 @@ wt2html:
      QuoteTransformer: false
      PreHandler: false
      ListHandler: false
+     # Supported, but this needs better mocking support
      BehaviorSwitchHandler: false
      NoInclude: false
      IncludeOnly: false
      OnlyInclude: false
+     SanitizerHandler: false
    DOM:
      PWrap: false
      ComputeDSR: false
      WrapSections: false
      HandlePres: false
      AddExtLinkClasses: false
+     TableFixups: false
 
 html2wt:
   DOMDiff: false
