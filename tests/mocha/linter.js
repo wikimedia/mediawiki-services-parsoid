@@ -100,7 +100,7 @@ describe('Linter Tests', function() {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "DIV");
+				result[0].params.should.have.a.property("name", "div");
 				result[0].dsr.should.deep.equal([ 3, 9, null, null ]);
 			});
 		});
@@ -109,7 +109,7 @@ describe('Linter Tests', function() {
 				result.should.have.length(1);
 				result[0].should.have.a.property("type", "stripped-tag");
 				result[0].should.have.a.property("params");
-				result[0].params.should.have.a.property("name", "DIV");
+				result[0].params.should.have.a.property("name", "div");
 				result[0].dsr.should.deep.equal([ 0, 27, null, null ]);
 				result[0].should.have.a.property("templateInfo");
 				result[0].templateInfo.should.have.a.property("name", "Template:1x");
@@ -404,8 +404,8 @@ describe('Linter Tests', function() {
 				result[1].should.have.a.property("type", "pwrap-bug-workaround");
 				result[1].should.not.have.a.property("templateInfo");
 				result[1].should.have.a.property("params");
-				result[1].params.should.have.a.property("root", "DIV");
-				result[1].params.should.have.a.property("child", "SPAN");
+				result[1].params.should.have.a.property("root", "div");
+				result[1].params.should.have.a.property("child", "span");
 				result[1].dsr.should.deep.equal([ 5, 48, 33, 0 ]);
 			});
 		});
@@ -467,12 +467,12 @@ describe('Linter Tests', function() {
 				result.should.have.length(5);
 				result.forEach(function(r) {
 					r.should.have.a.property('type', 'tidy-whitespace-bug');
-					r.params.should.have.a.property('node', 'SPAN');
+					r.params.should.have.a.property('node', 'span');
 				});
 				result[0].params.should.have.a.property("sibling", "#text");
-				result[1].params.should.have.a.property("sibling", "SPAN");
+				result[1].params.should.have.a.property("sibling", "span");
 				result[2].params.should.have.a.property("sibling", "#text");
-				result[3].params.should.have.a.property("sibling", "SPAN");
+				result[3].params.should.have.a.property("sibling", "span");
 				result[4].params.should.have.a.property("sibling", "#comment");
 				// skipping dsr tests
 			});
@@ -505,13 +505,13 @@ describe('Linter Tests', function() {
 				result.should.have.length(3);
 				result.forEach(function(r) {
 					r.should.have.a.property('type', 'tidy-whitespace-bug');
-					r.params.should.have.a.property('node', 'SPAN');
+					r.params.should.have.a.property('node', 'span');
 				});
-				result[0].params.should.have.a.property("sibling", "SPAN"); // 1st span
+				result[0].params.should.have.a.property("sibling", "span"); // 1st span
 				result[0].dsr.should.deep.equal([ 26, 68, 33, 7 ]);
-				result[1].params.should.have.a.property("sibling", "SPAN"); // 4th span
+				result[1].params.should.have.a.property("sibling", "span"); // 4th span
 				result[1].dsr.should.deep.equal([ 140, 170, 21, 7 ]);
-				result[2].params.should.have.a.property("sibling", "SPAN"); // 5th span
+				result[2].params.should.have.a.property("sibling", "span"); // 5th span
 				result[2].dsr.should.deep.equal([ 170, 212, 33, 7 ]);
 			});
 		});
@@ -535,13 +535,13 @@ describe('Linter Tests', function() {
 				result.should.have.length(3);
 				result.forEach(function(r) {
 					r.should.have.a.property('type', 'tidy-whitespace-bug');
-					r.params.should.have.a.property('node', 'SPAN');
+					r.params.should.have.a.property('node', 'span');
 				});
-				result[0].params.should.have.a.property("sibling", "SPAN"); // 1st span
+				result[0].params.should.have.a.property("sibling", "span"); // 1st span
 				result[0].dsr.should.deep.equal([ 26, 68, 33, 7 ]);
-				result[1].params.should.have.a.property("sibling", "SPAN"); // 4th span
+				result[1].params.should.have.a.property("sibling", "span"); // 4th span
 				result[1].dsr.should.deep.equal([ 140, 170, 21, 7 ]);
-				result[2].params.should.have.a.property("sibling", "SPAN"); // 5th span
+				result[2].params.should.have.a.property("sibling", "span"); // 5th span
 				result[2].dsr.should.deep.equal([ 170, 212, 33, 7 ]);
 			});
 		});
