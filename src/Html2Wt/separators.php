@@ -83,55 +83,49 @@ function precedingSeparatorTxt( $n ) {
  * min, max structure.
  * @param {SerializerState} state
  * @param {Node} nodeA
- * @param {Function} sepNlsHandlerA
+ * @param {Object} aCons
  * @param {Node} nodeB
- * @param {Function} sepNlsHandlerB
+ * @param {Object} bCons
  * @return {Object}
  * @return {Object} [return.a]
  * @return {Object} [return.b]
  * @private
  */
-function getSepNlConstraints( $state, $nodeA, $sepNlsHandlerA, $nodeB, $sepNlsHandlerB ) {
+function getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons ) {
 	$env = $state->env;
-	$nlConstraints = [ 'a' => [], 'b' => [] ];
 
-	if ( $sepNlsHandlerA ) {
-		$nlConstraints->a = $sepNlsHandlerA( $nodeA, $nodeB, $state );
-		$nlConstraints->min = $nlConstraints->a->min;
-		$nlConstraints->max = $nlConstraints->a->max;
+	$nlConstraints = [
+		'min' => $aCons->min,
+		'max' => $aCons->max,
+		'force' => $aCons->force || $bCons->force
+	];
+
+	// now figure out if this conflicts with the nlConstraints so far
+	if ( $bCons->min !== null ) {
+		if ( $nlConstraints->max !== null && $nlConstraints->max < $bCons->min ) {
+			// Conflict, warn and let nodeB win.
+			$env->log( 'info/html2wt', 'Incompatible constraints 1:', $nodeA->nodeName,
+				$nodeB->nodeName, loggableConstraints( $nlConstraints )
+			);
+			$nlConstraints->min = $bCons->min;
+			$nlConstraints->max = $bCons->min;
+		} else {
+			$nlConstraints->min = max( $nlConstraints->min || 0, $bCons->min );
+		}
 	}
 
-	if ( $sepNlsHandlerB ) {
-		$nlConstraints->b = $sepNlsHandlerB( $nodeB, $nodeA, $state );
-		$b = $nlConstraints->b;
-
-		// now figure out if this conflicts with the nlConstraints so far
-		if ( $b->min !== null ) {
-			if ( $nlConstraints->max !== null && $nlConstraints->max < $b->min ) {
-				// Conflict, warn and let nodeB win.
-				$env->log( 'info/html2wt', 'Incompatible constraints 1:', $nodeA->nodeName,
-					$nodeB->nodeName, loggableConstraints( $nlConstraints )
-				);
-				$nlConstraints->min = $b->min;
-				$nlConstraints->max = $b->min;
-			} else {
-				$nlConstraints->min = max( $nlConstraints->min || 0, $b->min );
-			}
-		}
-
-		if ( $b->max !== null ) {
-			if ( $nlConstraints->min !== null && $nlConstraints->min > $b->max ) {
-				// Conflict, warn and let nodeB win.
-				$env->log( 'info/html2wt', 'Incompatible constraints 2:', $nodeA->nodeName,
-					$nodeB->nodeName, loggableConstraints( $nlConstraints )
-				);
-				$nlConstraints->min = $b->max;
-				$nlConstraints->max = $b->max;
-			} elseif ( $nlConstraints->max !== null ) {
-				$nlConstraints->max = min( $nlConstraints->max, $b->max );
-			} else {
-				$nlConstraints->max = $b->max;
-			}
+	if ( $bCons->max !== null ) {
+		if ( $nlConstraints->min !== null && $nlConstraints->min > $bCons->max ) {
+			// Conflict, warn and let nodeB win.
+			$env->log( 'info/html2wt', 'Incompatible constraints 2:', $nodeA->nodeName,
+				$nodeB->nodeName, loggableConstraints( $nlConstraints )
+			);
+			$nlConstraints->min = $bCons->max;
+			$nlConstraints->max = $bCons->max;
+		} elseif ( $nlConstraints->max !== null ) {
+			$nlConstraints->max = min( $nlConstraints->max, $bCons->max );
+		} else {
+			$nlConstraints->max = $bCons->max;
 		}
 	}
 
@@ -140,8 +134,6 @@ function getSepNlConstraints( $state, $nodeA, $sepNlsHandlerA, $nodeB, $sepNlsHa
 		// two if nothing is specified.
 		$nlConstraints->max = 2;
 	}
-
-	$nlConstraints->force = $nlConstraints->a->force || $nlConstraints->b->force;
 
 	return $nlConstraints;
 }
@@ -271,11 +263,17 @@ function makeSeparator( $state, $sep, $nlConstraints ) {
  * @private
  */
 function mergeConstraints( $env, $oldConstraints, $newConstraints ) {
-	$res = [ 'a' => $oldConstraints->a, 'b' => $newConstraints->b ];
-	$res->min = max( $oldConstraints->min || 0, $newConstraints->min || 0 );
-	$res->max = min( ( $oldConstraints->max !== null ) ? $oldConstraints->max : 2,
-		( $newConstraints->max !== null ) ? $newConstraints->max : 2
-	);
+	$res = [
+		'min' => max( $oldConstraints->min || 0, $newConstraints->min || 0 ),
+		'max' => min(
+			( $oldConstraints->max !== null ) ? $oldConstraints->max : 2,
+			( $newConstraints->max !== null ) ? $newConstraints->max : 2
+		)
+
+		,
+		'force' => $oldConstraints->force || $newConstraints->force
+	];
+
 	if ( $res->min > $res->max ) {
 		// If oldConstraints.force is set, older constraints win
 		if ( !$oldConstraints->force ) {
@@ -286,13 +284,12 @@ function mergeConstraints( $env, $oldConstraints, $newConstraints ) {
 				$res->min = $newConstraints->min;
 			}
 		}
-
 		$res->max = $res->min;
 		$env->log( 'info/html2wt', 'Incompatible constraints (merge):', $res,
 			loggableConstraints( $oldConstraints ), loggableConstraints( $newConstraints )
 		);
 	}
-	$res->force = $oldConstraints->force || $newConstraints->force;
+
 	return $res;
 }
 
@@ -304,41 +301,42 @@ $debugOut = function ( $node ) {
  * Figure out separator constraints and merge them with existing constraints
  * in state so that they can be emitted when the next content emits source.
  * @param {Node} nodeA
- * @param {Function} handlerA
+ * @param {DOMHandler} sepHandlerA
  * @param {Node} nodeB
- * @param {Function} handlerB
+ * @param {DOMHandler} sepHandlerB
  */
-$updateSeparatorConstraints = function ( $nodeA, $handlerA, $nodeB, $handlerB ) use ( &$debugOut ) {
-	$nlConstraints = null;
+$updateSeparatorConstraints = function ( $nodeA, $sepHandlerA, $nodeB, $sepHandlerB ) use ( &$debugOut ) {
 	$state = $this->state;
-	$sepHandlerA = $handlerA && $handlerA->sepnls || [];
-	$sepHandlerB = $handlerB && $handlerB->sepnls || [];
+
 	$sepType = null;
+$nlConstraints = null;
+$aCons = null;
+$bCons = null;
 
 	if ( $nodeA->nextSibling === $nodeB ) {
 		// sibling separator
 		$sepType = 'sibling';
-		$nlConstraints = getSepNlConstraints( $state, $nodeA, $sepHandlerA->after,
-			$nodeB, $sepHandlerB->before
-		);
+		$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
+		$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+		$nlConstraints = getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 	} elseif ( $nodeB->parentNode === $nodeA ) {
-		$sepType = 'parent-child';
 		// parent-child separator, nodeA parent of nodeB
-		$nlConstraints = getSepNlConstraints( $state, $nodeA, $sepHandlerA->firstChild,
-			$nodeB, $sepHandlerB->before
-		);
+		$sepType = 'parent-child';
+		$aCons = $sepHandlerA->firstChild( $nodeA, $nodeB, $state );
+		$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+		$nlConstraints = getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 	} elseif ( $nodeA->parentNode === $nodeB ) {
-		$sepType = 'child-parent';
 		// parent-child separator, nodeB parent of nodeA
-		$nlConstraints = getSepNlConstraints( $state, $nodeA, $sepHandlerA->after,
-			$nodeB, $sepHandlerB->lastChild
-		);
+		$sepType = 'child-parent';
+		$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
+		$bCons = $sepHandlerB->lastChild( $nodeB, $nodeA, $state );
+		$nlConstraints = getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 	} else {
 		// sibling separator
 		$sepType = 'sibling';
-		$nlConstraints = getSepNlConstraints( $state, $nodeA, $sepHandlerA->after,
-			$nodeB, $sepHandlerB->before
-		);
+		$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
+		$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+		$nlConstraints = getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 	}
 
 	if ( $nodeA->nodeName === null ) {
@@ -347,8 +345,10 @@ $updateSeparatorConstraints = function ( $nodeA, $handlerA, $nodeB, $handlerB ) 
 
 	if ( $state->sep->constraints ) {
 		// Merge the constraints
-		$state->sep->constraints = mergeConstraints( $this->env,
-			$state->sep->constraints, $nlConstraints
+		$state->sep->constraints = mergeConstraints(
+			$this->env,
+			$state->sep->constraints,
+			$nlConstraints
 		);
 	} else {
 		$state->sep->constraints = $nlConstraints;
@@ -367,7 +367,7 @@ $updateSeparatorConstraints = function ( $nodeA, $handlerA, $nodeB, $handlerB ) 
 	$state->sep->constraints->constraintInfo = [
 		'onSOL' => $state->onSOL,
 		// force SOL state when separator is built/emitted
-		'forceSOL' => $handlerB && $handlerB->forceSOL,
+		'forceSOL' => $sepHandlerB->forceSOL,
 		'sepType' => $sepType,
 		'nodeA' => $nodeA,
 		'nodeB' => $nodeB
@@ -689,7 +689,7 @@ $dsrB = null;
 	// 1. Verify that the separator is really one (has to be whitespace and comments)
 	// 2. If the separator is being emitted before a node that emits sol-transparent WT,
 	// go through makeSeparator to verify indent-pre constraints are met.
-	$sepConstraints = $state->sep->constraints || [ 'a' => [], 'b' => [], 'max' => 0 ];
+	$sepConstraints = $state->sep->constraints || [ 'max' => 0 ];
 	if ( $sep === null
 || !WTSUtils::isValidSep( $sep )
 || ( $state->sep->src && $state->sep->src !== $sep )

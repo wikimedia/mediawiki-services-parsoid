@@ -54,8 +54,9 @@ use Parsoid\SerializerState as SerializerState;
 
 use Parsoid\WikitextConstants as Consts;
 use Parsoid\TagHandlers as TagHandlers;
-use Parsoid\HtmlElementHandler as HtmlElementHandler;
-use Parsoid\_getEncapsulatedContentHandler as _getEncapsulatedContentHandler;
+use Parsoid\DOMHandler as DOMHandler;
+use Parsoid\FallbackHTMLHandler as FallbackHTMLHandler;
+use Parsoid\EncapsulatedContentHandler as EncapsulatedContentHandler;
 use Parsoid\LinkHandlersModule as LinkHandlersModule;
 use Parsoid\LanguageVariantHandler as LanguageVariantHandler;
 use Parsoid\Promise as Promise;
@@ -1580,11 +1581,11 @@ WikitextSerializer::prototype::defaultExtensionHandler = /* async */function ( $
  * Get a `domHandler` for an element node.
  * @private
  */
-WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUtils, &$WTUtils, &$_getEncapsulatedContentHandler, &$DOMDataUtils, &$tagHandlers, &$htmlElementHandler, &$Consts ) {
-	if ( !$node || !DOMUtils::isElt( $node ) ) { return [];  }
+WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUtils, &$DOMHandler, &$WTUtils, &$EncapsulatedContentHandler, &$DOMDataUtils, &$tagHandlers, &$FallbackHTMLHandler, &$Consts ) {
+	if ( !$node || !DOMUtils::isElt( $node ) ) { return new DOMHandler();  }
 
 	if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-		return _getEncapsulatedContentHandler::class();
+		return new EncapsulatedContentHandler();
 	}
 
 	$dp = DOMDataUtils::getDataParsoid( $node );
@@ -1597,7 +1598,7 @@ WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUt
 	// Unless a specialized handler is available, use the HTML handler
 	// for html-stx tags. But, <a> tags should never serialize as HTML.
 	if ( !$handler && $dp->stx === 'html' && $nodeName !== 'a' ) {
-		return htmlElementHandler::class;
+		return new FallbackHTMLHandler();
 	}
 
 	// If in a HTML table tag, serialize table tags in the table
@@ -1606,7 +1607,7 @@ WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUt
 &&			!Consts\ZeroWidthWikitextTags::has( $node->nodeName )
 &&			WTUtils::inHTMLTableTag( $node )
 	) {
-		return htmlElementHandler::class;
+		return new FallbackHTMLHandler();
 	}
 
 	// If parent node is a list in html-syntax, then serialize
@@ -1615,11 +1616,11 @@ WikitextSerializer::prototype::_getDOMHandler = function ( $node ) use ( &$DOMUt
 &&			DOMUtils::isList( $node->parentNode )
 &&			WTUtils::isLiteralHTMLNode( $node->parentNode )
 	) {
-		return htmlElementHandler::class;
+		return new FallbackHTMLHandler();
 	}
 
 	// Pick the best available handler
-	return $handler || tagHandlers::get( $nodeName ) || htmlElementHandler::class;
+	return $handler || tagHandlers::get( $nodeName ) || new FallbackHTMLHandler();
 };
 
 WikitextSerializer::prototype::separatorREs = [
@@ -2004,7 +2005,7 @@ WikitextSerializer::prototype::_serializeDOMNode = /* async */function ( $node, 
  * Internal worker. Recursively serialize a DOM subtree.
  * @private
  */
-WikitextSerializer::prototype::_serializeNode = /* async */function ( $node ) use ( &$WTSUtils, &$DOMUtils, &$undefined ) {
+WikitextSerializer::prototype::_serializeNode = /* async */function ( $node ) use ( &$WTSUtils, &$DOMUtils, &$DOMHandler, &$undefined ) {
 	$prev = null; $domHandler = null; $method = null;
 	$state = $this->state;
 
@@ -2061,7 +2062,7 @@ WikitextSerializer::prototype::_serializeNode = /* async */function ( $node ) us
 				$state->currNodeUnmodified = false;
 			}
 		}
-		$domHandler = [];
+		$domHandler = new DOMHandler();
 		$method = $this->_serializeTextNode;
 		break;
 		case $node::COMMENT_NODE:
