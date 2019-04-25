@@ -176,7 +176,7 @@ function makeSeparator( $state, $sep, $nlConstraints ) {
 	$sepNlCount = $sepMatch && count( $sepMatch ) || 0;
 	$minNls = $nlConstraints->min || 0;
 
-	if ( $state->atStartOfOutput && !$nlConstraints->a->min && $minNls > 0 ) {
+	if ( $state->atStartOfOutput && $minNls > 0 ) {
 		// Skip first newline as we are in start-of-line context
 		$minNls--;
 	}
