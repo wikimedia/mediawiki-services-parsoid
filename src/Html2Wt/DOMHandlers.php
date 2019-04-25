@@ -1653,12 +1653,6 @@ $tagHandlers = JSUtils::mapObject( [
 				'firstChild' => id( [ 'min' => 0, 'max' => 1 ] ),
 				'lastChild' => id( [ 'min' => 0, 'max' => 1 ] )
 			]
-		],
-		'div' => [
-			'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$_htmlElementHandler ) {
-				/* await */ $_htmlElementHandler( $node, $state );
-			}
-
 		]
 	]
 );
