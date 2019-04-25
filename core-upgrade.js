@@ -11,3 +11,27 @@ require('pn/_promise')(Promise); // This only needs to be done once.
 require('core-js/fn/object/entries');
 require('core-js/fn/string/pad-start');
 require('core-js/fn/string/pad-end');
+
+// In Node v10, console.assert() was changed to log messages to stderr
+// *WITHOUT THROWING AN EXCEPTION*.  We should clearly have been using
+// a proper assertion library... but since we're switching to PHP anyway,
+// for the moment just hack console.assert() to make things behave the
+// way they used to.
+const oldAssert = console.assert;
+console.assert = function(value) {
+	const args = Array.from(arguments);
+	oldAssert.apply(console, args);
+	if (!args[0]) {
+		// We only get here in Node >= 0.10!
+		args.shift();
+		let msg = 'AssertionError';
+		if (args.length) {
+			const util = require('util');
+			msg += ': ' + util.format.apply(util, args);
+		}
+		class AssertionException extends Error {
+			constructor(msg) { super(msg); this.message = msg; }
+		}
+		throw new AssertionException(msg);
+	}
+};
