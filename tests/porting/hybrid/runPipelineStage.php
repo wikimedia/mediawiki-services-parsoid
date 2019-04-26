@@ -7,7 +7,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
@@ -41,9 +40,7 @@ function serializeTokens( $tokens ) {
 		} else {
 			$output .= PHPUtils::jsonEncode( $t );
 		}
-		if ( !( $t instanceof EOFTk ) ) {
-			$output .= "\n";
-		}
+		$output .= "\n";
 	}
 	// fwrite(STDERR, "OUT: " . $output. "\n");
 	return $output;
