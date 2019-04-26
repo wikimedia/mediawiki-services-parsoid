@@ -10,12 +10,16 @@ use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Wt2Html\PP\Handlers\Cleanup;
+use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
+use Parsoid\Wt2Html\PP\Handlers\Headings;
+use Parsoid\Wt2Html\PP\Handlers\LiFixups;
+use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
-use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 
 function buildDOM( $env, $fileName ) {
@@ -70,6 +74,17 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 	 */
 	unlink( $htmlFileName );
 	return $out;
+}
+
+function runDOMHandlers( $argv, $opts, $addHandlersCB ) {
+	$transformer = new DOMTraverser();
+	$hackyEnvOpts = $opts['hackyEnvOpts'];
+	$env = new MockEnv( [
+		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
+		"pageContent" => $hackyEnvOpts['pageContent'] ?? null
+	] );
+	$addHandlersCB( $transformer, $env );
+	return runTransform( $transformer, $argv, $opts, true, $env );
 }
 
 function runDOMDiff( $argv, $opts ) {
@@ -139,6 +154,7 @@ $allOpts = PHPUtils::jsonDecode( $input );
  */
 $transformer = null;
 switch ( $argv[1] ) {
+	// DOM Processors
 	case 'PWrap':
 		$out = runTransform( new PWrap(), $argv, $allOpts );
 		break;
@@ -154,38 +170,95 @@ switch ( $argv[1] ) {
 	case 'AddExtLinkClasses':
 		$out = runTransform( new AddExtLinkClasses(), $argv, $allOpts );
 		break;
-	case 'TableFixups':
-		$transformer = new DOMTraverser();
-		$hackyEnvOpts = $allOpts['hackyEnvOpts'];
-		$env = new MockEnv( [
-			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-			"pageContent" => $hackyEnvOpts['pageContent'] ?? null
-		] );
-		$tdFixer = new TableFixups( $env );
-		$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
-			return $tdFixer->stripDoubleTDs( ...$args );
-		} );
-		$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
-			return $tdFixer->handleTableCellTemplates( ...$args );
-		} );
-		$transformer->addHandler( 'th', function ( ...$args ) use ( $tdFixer ) {
-			return $tdFixer->handleTableCellTemplates( ...$args );
-		} );
-		$out = runTransform( $transformer, $argv, $allOpts, true, $env );
-		break;
-	case 'HandleLinkNeighbours':
-		$transformer = new DOMTraverser();
-		$transformer->addHandler( 'a', function ( ...$args ) {
-			return HandleLinkNeighbours::handler( ...$args );
-		} );
-		$out = runTransform( $transformer, $argv, $allOpts, true );
-		break;
 	case 'DOMDiff':
 		$out = runDOMDiff( $argv, $allOpts );
 		break;
 	case 'DOMNormalizer':
 		$out = runDOMNormalizer( $argv, $allOpts );
 		break;
+
+	// Handlers
+	case 'LiFixups':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$liFixer = new LiFixups( $env );
+			$transformer->addHandler( 'li', function ( ...$args ) use ( $liFixer ) {
+				return $liFixer->handleLIHack( ...$args );
+			} );
+			$transformer->addHandler( 'li', function ( ...$args ) use ( $liFixer ) {
+				return $liFixer->migrateTrailingCategories( ...$args );
+			} );
+			$transformer->addHandler( 'dt', function ( ...$args ) use ( $liFixer ) {
+				return $liFixer->migrateTrailingCategories( ...$args );
+			} );
+			$transformer->addHandler( 'dd', function ( ...$args ) use ( $liFixer ) {
+				return $liFixer->migrateTrailingCategories( ...$args );
+			} );
+		} );
+		break;
+	case 'TableFixups':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$tdFixer = new TableFixups( $env );
+			$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
+				return $tdFixer->stripDoubleTDs( ...$args );
+			} );
+			$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
+				return $tdFixer->handleTableCellTemplates( ...$args );
+			} );
+			$transformer->addHandler( 'th', function ( ...$args ) use ( $tdFixer ) {
+				return $tdFixer->handleTableCellTemplates( ...$args );
+			} );
+		} );
+		break;
+	case 'Cleanup-cleanupAndSaveDataParsoid':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( 'null', function ( ...$args ) {
+				return Cleanup::cleanupAndSaveDataParsoid( ...$args );
+			} );
+		} );
+		break;
+	case 'Cleanup-handleEmpytElts':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( 'null', function ( ...$args ) {
+				return Cleanup::handleEmpytElts( ...$args );
+			} );
+		} );
+		break;
+	case 'Cleanup-stripMarkerMetas':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( 'meta', function ( ...$args ) {
+				return Cleanup::stripMarkerMetas( ...$args );
+			} );
+		} );
+		break;
+	case 'DedupeStyles':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( 'style', function ( ...$args ) {
+				return DedupeStyles::dedupe( ...$args );
+			} );
+		} );
+		break;
+	case 'HandleLinkNeighbours':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( 'a', function ( ...$args ) {
+				return HandleLinkNeighbours::handler( ...$args );
+			} );
+		} );
+		break;
+	case 'Headings-dedupeHeadingIds':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( null, function ( ...$args ) {
+				return Headings::dedupeHeadingIds( ...$args );
+			} );
+		} );
+		break;
+	case 'Headings-genAnchors':
+		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
+			$transformer->addHandler( null, function ( ...$args ) {
+				return Headings::genAnchors( ...$args );
+			} );
+		} );
+		break;
+
 	default:
 		throw new \Exception( "Unsupported!" );
 }

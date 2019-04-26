@@ -41,12 +41,27 @@ wt2html:
      OnlyInclude: false
      SanitizerHandler: false
    DOM:
+     # Processors that provide their own DOM Traversal
      PWrap: false
      ComputeDSR: false
      WrapSections: false
      HandlePres: false
      AddExtLinkClasses: false
+
+     # Handlers that run in a DOMTraverser
+     # - Running many of these will require dirtying DOMPostProcessor.js locally
+     #   to unbundle them to their own DOMTraverser (since by default, many are
+     #   bundled with other handlers in the same traversal for efficiency reasons)
      TableFixups: false
+     HandleLinkNeighbours: false
+     UnpackDOMFragments: false
+     LiFixups: false
+     DedupeStyles: false
+     Headings-genAnchors: false
+     Headings-dedupeHeadingIds: false
+     Cleanup-stripMarkerMetas: false
+     Cleanup-handleEmptyElts: false
+     Cleanup-cleanupAndSaveDataParsoid: false
 
 html2wt:
   DOMDiff: false
