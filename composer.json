@@ -26,7 +26,7 @@
 		"wikimedia/assert": "0.2.2",
 		"wikimedia/remex-html": "2.0.2",
 		"wikimedia/scoped-callback": "3.0.0",
-		"wikimedia/wikipeg": "2.0.2",
+		"wikimedia/wikipeg": "2.0.3",
 		"wikimedia/zest-css": "1.1.2",
 		"ext-dom": "*",
 		"ext-json": "*"
