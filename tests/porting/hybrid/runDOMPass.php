@@ -25,6 +25,7 @@ use Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
+use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
 
 function buildDOM( $env, $fileName ) {
 	$html = file_get_contents( $fileName );
@@ -189,13 +190,15 @@ switch ( $argv[1] ) {
 	case 'AddExtLinkClasses':
 		$out = runTransform( new AddExtLinkClasses(), $argv, $allOpts );
 		break;
+	case 'MigrateTemplateMarkerMetas':
+		$out = runTransform( new MigrateTemplateMarkerMetas(), $argv, $allOpts );
+		break;
 	case 'DOMDiff':
 		$out = runDOMDiff( $argv, $allOpts );
 		break;
 	case 'DOMNormalizer':
 		$out = runDOMNormalizer( $argv, $allOpts );
 		break;
-
 	// Handlers
 	case 'LiFixups':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {

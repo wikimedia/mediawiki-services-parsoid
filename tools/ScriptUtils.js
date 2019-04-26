@@ -121,6 +121,7 @@ var ScriptUtils = {
 						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
 						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
 						'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude',
+						'MigrateTemplateMarkerMetas',
 					]);
 					parsoidOptions.generateFlags = {
 						"handler": cliOpts.genTest,
