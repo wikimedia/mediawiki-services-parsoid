@@ -210,7 +210,7 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		$bswRegexp = $this->combineRegexArrays( $bsws );
-		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp/(?:' . $bswRegexp . ')(?=$|\\s)/uS';
+		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $bswRegexp . ')(?=$|\\s)/uS';
 
 		// Parse interwiki map data from the API
 		$this->interwikiMap = [];

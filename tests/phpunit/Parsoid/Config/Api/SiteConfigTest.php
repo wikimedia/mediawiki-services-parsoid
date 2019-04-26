@@ -41,12 +41,48 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function testBswPagePropRegexp() {
-		$this->assertSame(
-			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'/(?:^|\s)mw:PageProp/(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))(?=$|\s)/uS',
-			$this->getSiteConfig()->bswPagePropRegexp()
-		);
+	/** @dataProvider bswPagePropProvider */
+	public function testBswPagePropRegexp( string $pageProp, bool $caseSensitive ) {
+		$re = $this->getSiteConfig()->bswPagePropRegexp();
+		$this->assertSame( 1, preg_match( $re, "mw:PageProp/$pageProp" ) );
+		$this->assertSame( 1, preg_match( $re, "foo mw:PageProp/$pageProp  bar" ) );
+		// Check case sensitivity
+		$lower = strtolower( $pageProp );
+		$expected = $lower === $pageProp ? 1 : ( $caseSensitive ? 0 : 1 );
+		$this->assertSame( $expected, preg_match( $re, "mw:PageProp/$lower" ) );
+		$this->assertSame( $expected, preg_match( $re, " mw:PageProp/$lower " ) );
+
+		$upper = strtoupper( $pageProp );
+		$expected = ( $upper === $pageProp ) ? 1 : ( $caseSensitive ? 0 : 1 );
+		$this->assertSame( $expected, preg_match( $re, "mw:PageProp/$upper" ) );
+		$this->assertSame( $expected, preg_match( $re, " mw:PageProp/$upper " ) );
+	}
+
+	public function bswPagePropProvider() {
+		return [
+			// Case sensitive
+			[ 'NOGLOBAL', true ],
+			[ 'DISAMBIG', true ],
+			[ 'NEWSECTIONLINK', true ],
+			[ 'NONEWSECTIONLINK', true ],
+			[ 'HIDDENCAT', true ],
+			[ 'EXPECTUNUSEDCATEGORY', true ],
+			[ 'INDEX', true ],
+			[ 'NOINDEX', true ],
+			[ 'STATICREDIRECT', true ],
+
+			// Case insensitive
+			[ 'NoCollaborationHubTOC', false ],
+			[ 'NoTOC', false ],
+			[ 'NoGallery', false ],
+			[ 'ForceTOC', false ],
+			[ 'ToC', false ],
+			[ 'NoEditSection', false ],
+			[ 'NoTitleConvert', false ],
+			[ 'NoTC', false ],
+			[ 'NoContentConvert', false ],
+			[ 'NoCC', false ],
+		];
 	}
 
 	public function testCanonicalNamespaceId() {
