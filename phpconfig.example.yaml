@@ -60,9 +60,9 @@ wt2html:
      DedupeStyles: false
      Headings-genAnchors: false
      Headings-dedupeHeadingIds: false
-     Cleanup-stripMarkerMetas: false
-     Cleanup-handleEmptyElts: false
-     Cleanup-cleanupAndSaveDataParsoid: false
+     CleanUp-stripMarkerMetas: false
+     CleanUp-handleEmptyElts: false
+     CleanUp-cleanupAndSaveDataParsoid: false
 
 html2wt:
   DOMDiff: false

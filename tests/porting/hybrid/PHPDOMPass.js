@@ -46,7 +46,7 @@ class PHPDOMPass {
 	}
 
 	wt2htmlPP(transformerName, root, env, options, atTopLevel) {
-		if (!(/^\w+$/.test(transformerName))) {
+		if (!(/^[\w\-]+$/.test(transformerName))) {
 			console.error("Transformer name failed sanity check.");
 			process.exit(-1);
 		}

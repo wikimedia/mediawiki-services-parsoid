@@ -11,7 +11,7 @@ use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2Html\PP\Handlers\Cleanup;
+use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 use Parsoid\Wt2Html\PP\Handlers\Headings;
@@ -220,24 +220,24 @@ switch ( $argv[1] ) {
 			} );
 		} );
 		break;
-	case 'Cleanup-cleanupAndSaveDataParsoid':
+	case 'CleanUp-cleanupAndSaveDataParsoid':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
 			$transformer->addHandler( 'null', function ( ...$args ) {
-				return Cleanup::cleanupAndSaveDataParsoid( ...$args );
+				return CleanUp::cleanupAndSaveDataParsoid( ...$args );
 			} );
 		} );
 		break;
-	case 'Cleanup-handleEmpytElts':
+	case 'CleanUp-handleEmpytElts':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
 			$transformer->addHandler( 'null', function ( ...$args ) {
-				return Cleanup::handleEmpytElts( ...$args );
+				return CleanUp::handleEmpytElts( ...$args );
 			} );
 		} );
 		break;
-	case 'Cleanup-stripMarkerMetas':
+	case 'CleanUp-stripMarkerMetas':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
 			$transformer->addHandler( 'meta', function ( ...$args ) {
-				return Cleanup::stripMarkerMetas( ...$args );
+				return CleanUp::stripMarkerMetas( ...$args );
 			} );
 		} );
 		break;
