@@ -30,6 +30,7 @@ class PHPTokenTransformer extends TokenHandler {
 		fs.writeFileSync(fileName, tokens.map(t => JSON.stringify(t)).join('\n'));
 
 		const opts = {
+			toplevel: this.atTopLevel,
 			pipeline: this.options,
 			pipelineId: this.manager.pipelineId,
 			pageContent: this.manager.env.page.src

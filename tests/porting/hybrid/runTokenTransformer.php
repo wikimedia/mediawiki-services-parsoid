@@ -88,6 +88,7 @@ switch ( $transformerName ) {
  */
 if ( !$transformer->isDisabled() ) {
 	// fwrite(STDERR, "$transformerName running ...\n");
+	$transformer->resetState( $opts );
 	$tokens = $transformer->processTokensSync( $manager->env, $tokens, [] );
 }
 
