@@ -171,7 +171,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   			case SelfclosingTagTk::class:
   				$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-  				$dp->tagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
+  				$dp->extTagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
   				if ( $isIncludeTag ) {
   					return $t;
   				}
@@ -184,7 +184,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   				if ( !$tagContentFound ) {
   					$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-  					$dp->tagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
+  					$dp->extTagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
   					if ( $isIncludeTag ) {
   						return $t;
   					} else {
@@ -245,9 +245,9 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   				// Extension content source
   				$dp->src = $extSrc;
-  				$dp->tagWidths = [ $this->endOffset() - $tsr0, $endTagWidth ];
+  				$dp->extTagWidths = [ $this->endOffset() - $tsr0, $endTagWidth ];
   
-  				$skipLen = strlen( $extSrc ) - $dp->tagWidths[0] - $dp->tagWidths[1];
+  				$skipLen = strlen( $extSrc ) - $dp->extTagWidths[0] - $dp->extTagWidths[1];
   
   				// If the xml-tag is a known installed (not native) extension,
   				// skip the end-tag as well.
@@ -275,13 +275,13 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			);
   		} elseif ( $isIncludeTag ) {
   			// Parse ext-content, strip eof, and shift tsr
-  			$extContent = substr( $dp->src, $dp->tagWidths[ 0 ],
-  				strlen( $dp->src ) - $dp->tagWidths[1] - $dp->tagWidths[0] );
+  			$extContent = substr( $dp->src, $dp->extTagWidths[ 0 ],
+  				strlen( $dp->src ) - $dp->extTagWidths[1] - $dp->extTagWidths[0] );
   			$extContentToks = ( new PegTokenizer( $this->env ) )->tokenizeSync( $extContent );
-  			if ( $dp->tagWidths[1] > 0 ) {
+  			if ( $dp->extTagWidths[1] > 0 ) {
   				TokenUtils::stripEOFTkFromTokens( $extContentToks );
   			}
-  			TokenUtils::shiftTokenTSR( $extContentToks, $dp->tsr[0] + $dp->tagWidths[0] );
+  			TokenUtils::shiftTokenTSR( $extContentToks, $dp->tsr[0] + $dp->extTagWidths[0] );
   			array_unshift( $extContentToks, $t );
   			return $extContentToks;
   		} else {
@@ -492,9 +492,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   						new KV( 'mw:content', $content ?? '' ),
   						new KV( 'spaces', $sp )
   					], (object)[
-  						'targetOff' => $targetOff,
   						'tsr' => $this->tsrOffsets(),
-  						'contentOffsets' => [ $targetOff, $this->endOffset() - 1 ]
+  						'extLinkContentOffsets' => [ $targetOff, $this->endOffset() - 1 ]
   					]
   				)
   			]; 
@@ -887,8 +886,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// Last line should be empty (except for comments)
   		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
   			$dp = $il->dataAttribs;
-  			$inclContent = substr( $dp->src, $dp->tagWidths[0],
-  				strlen( $dp->src ) - $dp->tagWidths[ 1 ] - $dp->tagWidths[0] );
+  			$inclContent = substr( $dp->src, $dp->extTagWidths[0],
+  				strlen( $dp->src ) - $dp->extTagWidths[ 1 ] - $dp->extTagWidths[0] );
   			$nlpos = strrpos( $inclContent, "\n" );
   			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
   			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {

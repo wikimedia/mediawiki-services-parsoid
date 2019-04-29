@@ -189,7 +189,7 @@ class ComputeDSR {
 					return [ 2, 2 ];
 				}
 			} elseif ( isset( $dp->tsr ) && WTUtils::usesExtLinkSyntax( $node, $dp ) ) {
-				return [ $dp->targetOff - $dp->tsr[0], 1 ];
+				return [ $dp->extLinkContentOffsets[0] - $dp->tsr[0], 1 ];
 			} elseif ( WTUtils::usesURLLinkSyntax( $node, $dp ) ||
 				WTUtils::usesMagicLinkSyntax( $node, $dp )
 			) {
@@ -210,8 +210,8 @@ class ComputeDSR {
 	 * @return int[]
 	 */
 	private function computeTagWidths( array $widths, DOMNode $node, StdClass $dp ): array {
-		if ( isset( $dp->tagWidths ) ) {
-			return $dp->tagWidths;
+		if ( isset( $dp->extTagWidths ) ) {
+			return $dp->extTagWidths;
 		}
 
 		$stWidth = $widths[0];
@@ -473,10 +473,10 @@ class ComputeDSR {
 							$cs = $ce;
 						}
 					}
-					if ( isset( $dp->tagWidths ) ) {
-						$stWidth = $dp->tagWidths[0];
-						$etWidth = $dp->tagWidths[1];
-						$dp->tagWidths = null;
+					if ( isset( $dp->extTagWidths ) ) {
+						$stWidth = $dp->extTagWidths[0];
+						$etWidth = $dp->extTagWidths[1];
+						unset( $dp->extTagWidths );
 					}
 				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
 					$cs = $ce - mb_strlen( $dp->src );

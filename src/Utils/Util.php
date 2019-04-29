@@ -237,8 +237,8 @@ class Util {
 	 */
 	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
-		$tagWidths = $token->dataAttribs->tagWidths;
-		return mb_substr( $src, $tagWidths[0], -$tagWidths[1] );
+		$extTagWidths = $token->dataAttribs->extTagWidths;
+		return mb_substr( $src, $extTagWidths[0], -$extTagWidths[1] );
 	}
 
 	/**

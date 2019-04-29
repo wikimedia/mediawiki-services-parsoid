@@ -239,15 +239,10 @@ class TokenUtils {
 					// small string fragments and the complicated use cases
 					// below should not materialize.
 
-					// target offset
-					if ( $offset && isset( $da->targetOff ) ) {
-						$da->targetOff += $offset;
-					}
-
 					// content offsets for ext-links
-					if ( $offset && isset( $da->contentOffsets ) ) {
-						$da->contentOffsets[0] += $offset;
-						$da->contentOffsets[1] += $offset;
+					if ( $offset && isset( $da->extLinkContentOffsets ) ) {
+						$da->extLinkContentOffsets[0] += $offset;
+						$da->extLinkContentOffsets[1] += $offset;
 					}
 
 					// end offset for pre-tag
@@ -475,21 +470,18 @@ class TokenUtils {
 			if ( isset( $input->dataAttribs->tsr ) ) {
 				self::pushOffsets( $offsets, $input->dataAttribs->tsr );
 			}
-			if ( isset( $input->dataAttribs->targetOff ) ) {
-				$offsets[] =& $input->dataAttribs->targetOff;
-			}
-			if ( isset( $input->dataAttribs->contentOffsets ) ) {
-				self::pushOffsets( $offsets, $input->dataAttribs->contentOffsets );
+			if ( isset( $input->dataAttribs->extLinkContentOffsets ) ) {
+				self::pushOffsets( $offsets, $input->dataAttribs->extLinkContentOffsets );
 			}
 			if ( isset( $input->dataAttribs->tokens ) ) {
 				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
 			}
-			if ( isset( $input->dataAttribs->tagWidths ) ) {
+			if ( isset( $input->dataAttribs->extTagWidths ) ) {
 				// This is tricky: convert these to offsets, and then reconvert
 				// to widths in a post-processing pass
-				$input->dataAttribs->tagWidths[0] = $input->dataAttribs->tsr[0] + $input->dataAttribs->tagWidths[0];
-				$input->dataAttribs->tagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->tagWidths[1];
-				self::pushOffsets( $offsets, $input->dataAttribs->tagWidths );
+				$input->dataAttribs->extTagWidths[0] = $input->dataAttribs->tsr[0] + $input->dataAttribs->extTagWidths[0];
+				$input->dataAttribs->extTagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->extTagWidths[1];
+				self::pushOffsets( $offsets, $input->dataAttribs->extTagWidths );
 			}
 			self::collectOffsets( $offsets, $input->attribs );
 		}
@@ -510,11 +502,11 @@ class TokenUtils {
 			if ( isset( $input->dataAttribs->tokens ) ) {
 				self::fixupOffsets( $input->dataAttribs->tokens );
 			}
-			if ( isset( $input->dataAttribs->tagWidths ) ) {
+			if ( isset( $input->dataAttribs->extTagWidths ) ) {
 				// Reconvert offsets to widths
 				// to widths in a post-processing pass
-				$input->dataAttribs->tagWidths[0] = $input->dataAttribs->tagWidths[0] - $input->dataAttribs->tsr[0];
-				$input->dataAttribs->tagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->tagWidths[1];
+				$input->dataAttribs->extTagWidths[0] = $input->dataAttribs->extTagWidths[0] - $input->dataAttribs->tsr[0];
+				$input->dataAttribs->extTagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->extTagWidths[1];
 			}
 			self::fixupOffsets( $input->attribs );
 		}

@@ -239,10 +239,10 @@ $aStart = null;
 				// If we are from a top-level page, add normalized attr info for
 				// accurate roundtripping of original content.
 				//
-				// targetOff covers all spaces before content
+				// extLinkContentOffsets[0] covers all spaces before content
 				// and we need src without those spaces.
 				$tsr0a = $dataAttribs->tsr[ 0 ] + 1;
-				$tsr1a = $dataAttribs->targetOff - count( $token->getAttribute( 'spaces' ) || '' );
+				$tsr1a = $dataAttribs->extLinkContentOffsets[ 0 ] - count( $token->getAttribute( 'spaces' ) || '' );
 				$aStart->addNormalizedAttribute( 'href', $href, substr( $env->page->src, $tsr0a, $tsr1a/*CHECK THIS*/ ) );
 			} else {
 				$aStart->addAttribute( 'href', $href );
@@ -250,7 +250,7 @@ $aStart = null;
 
 			$content = PipelineUtils::getDOMFragmentToken(
 				$content,
-				( $dataAttribs->tsr ) ? $dataAttribs->contentOffsets : null,
+				( $dataAttribs->tsr ) ? $dataAttribs->extLinkContentOffsets : null,
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 

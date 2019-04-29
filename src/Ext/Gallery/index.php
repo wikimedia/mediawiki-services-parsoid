@@ -242,7 +242,7 @@ $opts = $temp2->opts;
 		];
 
 		$dataAttribs = $state->extToken->dataAttribs;
-		$offset = $dataAttribs->tsr[ 0 ] + $dataAttribs->tagWidths[ 0 ];
+		$offset = $dataAttribs->tsr[ 0 ] + $dataAttribs->extTagWidths[ 0 ];
 
 		// Prepare the lines for processing
 		$lines = array_map( explode( "\n", $content ),
