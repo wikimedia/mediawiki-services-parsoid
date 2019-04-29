@@ -245,11 +245,6 @@ class TokenUtils {
 						$da->extLinkContentOffsets[1] += $offset;
 					}
 
-					// end offset for pre-tag
-					if ( $offset && isset( $da->endpos ) ) {
-						$da->endpos += $offset;
-					}
-
 					// Process attributes
 					if ( isset( $t->attribs ) ) {
 						for ( $j = 0,  $m = count( $t->attribs );  $j < $m;  $j++ ) {
