@@ -33,9 +33,19 @@ class SiteConfig extends ISiteConfig {
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
 
+	/** @var array<int,string> */
+	private $nsNames;
+
+	/** @var array<string,int> */
+	private $nsIds, $nsCanon;
+
+	/** @var array<int,bool> */
+	private $nsWithSubpages;
+
 	/** @var array|null */
-	private $nsNames, $nsCanon, $nsIds, $nsWithSubpages, $interwikiMap, $variants,
-		$langConverterEnabled, $magicWords, $mwAliases, $paramMWs, $allMWs, $extensionTags;
+	private $interwikiMap, $variants,
+		$langConverterEnabled, $magicWords, $mwAliases, $paramMWs,
+		$allMWs, $extensionTags;
 
 	/** @var int|null */
 	private $widthOption;
@@ -69,6 +79,11 @@ class SiteConfig extends ISiteConfig {
 		$this->api = $api;
 
 		$this->rtTestMode = !empty( $opts['rtTestMode'] );
+
+		$this->nsNames = [];
+		$this->nsCanon = [];
+		$this->nsIds = [];
+		$this->nsWithSubpages = [];
 
 		if ( !empty( $opts['log'] ) ) {
 			$this->setLogger( new class extends AbstractLogger {
@@ -147,12 +162,8 @@ class SiteConfig extends ISiteConfig {
 		$this->protocols = $data['protocols'];
 
 		// Process namespace data from API
-		$this->nsNames = [];
-		$this->nsCanon = [];
-		$this->nsIds = [];
-		$this->nsWithSubpages = [];
 		foreach ( $data['namespaces'] as $ns ) {
-			$id = $ns['id'];
+			$id = (int)$ns['id'];
 			$this->nsNames[$id] = $ns['name'];
 			$this->nsIds[$this->normalizeNsName( $ns['name'] )] = $id;
 			$this->nsCanon[$this->normalizeNsName( $ns['canonical'] ?? $ns['name'] )] = $id;
@@ -302,7 +313,7 @@ class SiteConfig extends ISiteConfig {
 				break;
 			}
 		}
-		$category = $this->quoteTitleRe( $this->nsNames[14] );
+		$category = $this->quoteTitleRe( $this->nsNames[14] ?? 'Category' );
 		if ( $category !== 'Category' ) {
 			$category = "(?:$category|Category)";
 		}

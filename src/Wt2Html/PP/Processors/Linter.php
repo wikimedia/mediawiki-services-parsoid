@@ -862,6 +862,7 @@ class Linter {
 		// same opportunity when Tidy is removed.
 		$s = null;
 		$nowrapNodes = [];
+		'@phan-var array<array{node:DOMNode,tidybug:bool,hasLeadingWS:bool}> $nowrapNodes';
 		$startNode = $node;
 		$haveTidyBug = false;
 		$runLength = 0;
@@ -878,7 +879,7 @@ class Linter {
 					$nowrapNodes[] = [
 						'node' => $node,
 						'tidybug' => false,
-						'hasLeadingWS' => preg_match( '/^\s/', $s ), // PORT-FIXME: non-ASCII whitespace?
+						'hasLeadingWS' => ( preg_match( '/^\s/', $s ) === 1 ), // PORT-FIXME: non-ASCII whitespace?
 					];
 					break;
 				} else {

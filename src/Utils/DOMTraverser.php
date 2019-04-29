@@ -19,7 +19,7 @@ class DOMTraverser {
 	 * List of handlers to call on each node. Each handler is an array with the following fields:
 	 * - action: a callable to call
 	 * - nodeName: if set, only call it on nodes with this name
-	 * @var array
+	 * @var array<array{action:callable,nodeName:string}>
 	 * @see addHandler()
 	 */
 	private $handlers;
