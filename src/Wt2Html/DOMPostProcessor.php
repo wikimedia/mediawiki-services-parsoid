@@ -165,7 +165,7 @@ function DOMPostProcessor( $env, $options ) {
 		// FIXME: Picked a terse 'v' varname instead of trying to find
 		// a suitable name that addresses both functions above.
 		[
-			'name' => 'linkNbrs+unpackDOMFragments',
+			'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
 			'shortcut' => 'dom-unpack',
 			'isTraverser' => true,
 			'handlers' => [
@@ -251,7 +251,7 @@ function DOMPostProcessor( $env, $options ) {
 
 	$processors = $processors->concat( [
 			[
-				'name' => '(li+table)Fixups',
+				'name' => 'LiFixups,TableFixups,DedupeStyles',
 				'shortcut' => 'fixups',
 				'isTraverser' => true,
 				'skipNested' => true,
@@ -307,7 +307,7 @@ function DOMPostProcessor( $env, $options ) {
 			],
 			// Benefits from running after determining which media are redlinks
 			[
-				'name' => 'heading gen anchor',
+				'name' => 'Headings-genAnchors',
 				'shortcut' => 'headings',
 				'isTraverser' => true,
 				'skipNested' => true,
@@ -326,7 +326,7 @@ function DOMPostProcessor( $env, $options ) {
 			],
 			// Make heading IDs unique
 			[
-				'name' => 'heading id uniqueness',
+				'name' => 'Headings-dedupeHeadingIds',
 				'shortcut' => 'heading-ids',
 				'isTraverser' => true,
 				'skipNested' => true,
@@ -351,7 +351,7 @@ function DOMPostProcessor( $env, $options ) {
 			// Strip marker metas -- removes left over marker metas (ex: metas
 			// nested in expanded tpl/extension output).
 			[
-				'name' => 'stripMarkerMetas',
+				'name' => 'CleanUp-stripMarkerMetas',
 				'shortcut' => 'strip-metas',
 				'isTraverser' => true,
 				'handlers' => [
@@ -367,7 +367,7 @@ function DOMPostProcessor( $env, $options ) {
 				'skipNested' => true
 			],
 			[
-				'name' => 'handleEmptyElts+cleanupAndSaveDP',
+				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',
 				'shortcut' => 'cleanup',
 				'isTraverser' => true,
 				'handlers' => [
