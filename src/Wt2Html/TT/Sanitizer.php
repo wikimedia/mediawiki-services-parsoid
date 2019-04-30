@@ -30,28 +30,6 @@ class Sanitizer extends TokenHandler {
 	const NO_END_TAG_SET = [ 'br' => true ];
 
 	/**
-	 * Decode escape sequences and line continuation
-	 * See the grammar in the CSS 2 spec, appendix D.
-	 * This has to be done AFTER decoding character references.
-	 * This means it isn't possible for this function to return
-	 * unsanitized escape sequences. It is possible to manufacture
-	 * input that contains character references that decode to
-	 * escape sequences that decode to character references, but
-	 * it's OK for the return value to contain character references
-	 * because the caller is supposed to escape those anyway.
-	 */
-	const SPACE = '[\x20\t\r\n\f]';
-	const NL = '(?:\n|\r\n|\r|\f)';
-	const BACKSLASH = '\\\\';
-	const CSS_DECODE_RE = '/' . self::BACKSLASH .
-		'(?:' .
-		'(' . self::NL . ')|' . // 1. Line continuation
-		'([0-9A-Fa-f]{1,6})' . self::SPACE . '?|' . // 2. character number
-		'(.)|' . // 3. backslash cancelling special meaning
-		'()$' . // 4. backslash at end of string
-		')' . '/xu';
-
-	/**
 	 * RDFa and microdata properties allow URLs, URIs and/or CURIs.
 	 */
 	const MICRODATA = [
@@ -407,17 +385,6 @@ class Sanitizer extends TokenHandler {
 		'zeta' => 950,
 		'zwj' => 8205,
 		'zwnj' => 8204
-	];
-
-	// U+0280, U+0274, U+207F, U+029F, U+026A, U+207D, U+208D
-	const IE_REPLACEMENTS = [
-		"ʀ" => 'r',
-		"ɴ" => 'n',
-		"ⁿ" => 'n',
-		"ʟ" => 'l',
-		"ɪ" => 'i',
-		"⁽" => '(',
-		"₍" => '('
 	];
 
 	/**
@@ -799,69 +766,46 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * @param string $str
-	 * @param string $quoteChar
-	 * @return string
-	 */
-	private static function removeMismatchedQuoteChar( string $str, string $quoteChar ): string {
-		$re1 = null;
-		$re2 = null;
-		if ( $quoteChar === "'" ) {
-			$re1 = /* RegExp */ "/'/";
-			$re2 = /* RegExp */ "/'([^'\\n\\r\\f]*)\$/";
-		} else {
-			$re1 = /* RegExp */ '/"/';
-			$re2 = /* RegExp */ '/"([^"\n\r\f]*)$/';
-		}
-		preg_match_all( $re1, $str, $matches );
-		$mismatch = count( $matches ) % 2 === 1;
-		if ( $mismatch ) {
-			// replace the mismatched quoteChar with a space
-			$str = str_replace( $re2, ' ' . $quoteChar, $str );
-		}
-		return $str;
-	}
-
-	/**
 	 * Normalize CSS into a format we can easily search for hostile input
 	 *  - decode character references
 	 *  - decode escape sequences
 	 *  - convert characters that IE6 interprets into ascii
 	 *  - remove comments, unless the entire value is one single comment
-	 * @param string $text the css string
+	 * @param string $value the css string
 	 * @return string normalized css
 	 */
-	private static function normalizeCss( string $text ): string {
+	public static function normalizeCss( string $value ): string {
 		// Decode character references like &#123;
-		$text = self::decodeCharReferences( $text );
+		$value = self::decodeCharReferences( $value );
 
-		$text = preg_replace_callback(
-			self::CSS_DECODE_RE,
-			function ( $matches ) {
-				if ( $matches[1] !== '' ) {
-					// Line continuation
-					return '';
-				} elseif ( $matches[2] !== '' ) {
-					$char = self::codepointToUtf8( hexdec( $matches[2] ) );
-				} elseif ( $matches[3] !== '' ) {
-					$char = $matches[3];
-				} else {
-					$char = '\\';
-				}
-				if ( $char === "\n" || $char === '"' || $char === "'" || $char === '\\' ) {
-					// These characters need to be escaped in strings
-					// Clean up the escape sequence to avoid parsing errors by clients
-					return '\\' . dechex( ord( $char ) ) . ' ';
-				} else {
-					// Decode unnecessary escape
-					return $char;
-				}
-			},
-			$text
-		);
+		// Decode escape sequences and line continuation
+		// See the grammar in the CSS 2 spec, appendix D.
+		// This has to be done AFTER decoding character references.
+		// This means it isn't possible for this function to return
+		// unsanitized escape sequences. It is possible to manufacture
+		// input that contains character references that decode to
+		// escape sequences that decode to character references, but
+		// it's OK for the return value to contain character references
+		// because the caller is supposed to escape those anyway.
+		static $decodeRegex;
+		if ( !$decodeRegex ) {
+			$space = '[\\x20\\t\\r\\n\\f]';
+			$nl = '(?:\\n|\\r\\n|\\r|\\f)';
+			$backslash = '\\\\';
+			$decodeRegex = "/ $backslash
+				(?:
+					($nl) |  # 1. Line continuation
+					([0-9A-Fa-f]{1,6})$space? |  # 2. character number
+					(.) | # 3. backslash cancelling special meaning
+					() | # 4. backslash at end of string
+				)/xu";
+		}
+		// @phan-suppress-next-line PhanParamSuspiciousOrder
+		$value = preg_replace_callback( $decodeRegex,
+			[ self::class, 'cssDecodeCallback' ], $value );
 
 		// Normalize Halfwidth and Fullwidth Unicode block that IE6 might treat as ascii
-		$text = preg_replace_callback(
+		$value = preg_replace_callback(
 			'/[！-［］-ｚ]/u', // U+FF01 to U+FF5A, excluding U+FF3C (T60088)
 			function ( $matches ) {
 				$cp = self::utf8ToCodepoint( $matches[0] );
@@ -870,45 +814,40 @@ class Sanitizer extends TokenHandler {
 				}
 				return chr( $cp - 65248 ); // ASCII range \x21-\x7A
 			},
-			$text
+			$value
 		);
 
 		// Convert more characters IE6 might treat as ascii
-		$text = strtr( $text, self::IE_REPLACEMENTS );
+		// U+0280, U+0274, U+207F, U+029F, U+026A, U+207D, U+208D
+		$value = str_replace(
+			[ 'ʀ', 'ɴ', 'ⁿ', 'ʟ', 'ɪ', '⁽', '₍' ],
+			[ 'r', 'n', 'n', 'l', 'i', '(', '(' ],
+			$value
+		);
 
-		// PORT-FIXME: This code has been copied from core's Sanitizer and we
-		// need to verify that this behavior compared to what Parsoid/JS does.
-		//
 		// Let the value through if it's nothing but a single comment, to
 		// allow other functions which may reject it to pass some error
 		// message through.
-		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !x', $text ) ) {
+		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !x', $value ) ) {
 			// Remove any comments; IE gets token splitting wrong
 			// This must be done AFTER decoding character references and
 			// escape sequences, because those steps can introduce comments
 			// This step cannot introduce character references or escape
 			// sequences, because it replaces comments with spaces rather
 			// than removing them completely.
-			$text = self::delimiterReplace( '/*', '*/', ' ', $text );
+			$value = self::delimiterReplace( '/*', '*/', ' ', $value );
+
 			// Remove anything after a comment-start token, to guard against
 			// incorrect client implementations.
-			$commentPos = strpos( $text, '/*' );
+			$commentPos = strpos( $value, '/*' );
 			if ( $commentPos !== false ) {
-				$text = substr( $text, 0, $commentPos );
+				$value = substr( $value, 0, $commentPos );
 			}
 		}
 
-		// Fix up unmatched double-quote and single-quote chars
-		// Full CSS syntax here: http://www.w3.org/TR/CSS21/syndata.html#syntax
-		//
-		// This can be converted to a function and called once for ' and "
-		// but we have to construct 4 different REs anyway
-		$text = self::removeMismatchedQuoteChar( $text, "'" );
-		$text = self::removeMismatchedQuoteChar( $text, '"' );
-
 		// S followed by repeat, iteration, or prolonged sound marks,
 		// which IE will treat as "ss"
-		$text = preg_replace(
+		$value = preg_replace(
 			'/s(?:
 				\xE3\x80\xB1 | # U+3031
 				\xE3\x82\x9D | # U+309D
@@ -919,10 +858,10 @@ class Sanitizer extends TokenHandler {
 				\xEF\xBD\xB0   # U+FF70
 			)/ix',
 			'ss',
-			$text
+			$value
 		);
 
-		return $text;
+		return $value;
 	}
 
 	// PORT_FIXME - The delimiterReplace code below is from StringUtils in core
@@ -1291,6 +1230,31 @@ class Sanitizer extends TokenHandler {
 			return '/* insecure input */';
 		} else {
 			return $text;
+		}
+	}
+
+	/**
+	 * @param array $matches
+	 * @return string
+	 */
+	public static function cssDecodeCallback( $matches ) {
+		if ( $matches[1] !== '' ) {
+			// Line continuation
+			return '';
+		} elseif ( $matches[2] !== '' ) {
+			$char = self::codepointToUtf8( hexdec( $matches[2] ) );
+		} elseif ( $matches[3] !== '' ) {
+			$char = $matches[3];
+		} else {
+			$char = '\\';
+		}
+		if ( $char == "\n" || $char == '"' || $char == "'" || $char == '\\' ) {
+			// These characters need to be escaped in strings
+			// Clean up the escape sequence to avoid parsing errors by clients
+			return '\\' . dechex( ord( $char ) ) . ' ';
+		} else {
+			// Decode unnecessary escape
+			return $char;
 		}
 	}
 
