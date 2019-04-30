@@ -231,7 +231,7 @@ switch ( $argv[1] ) {
 			} );
 		} );
 		break;
-	case 'CleanUp-handleEmpytElts':
+	case 'CleanUp-handleEmptyElts':
 		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
 			$transformer->addHandler( 'null', function ( ...$args ) {
 				return CleanUp::handleEmpytElts( ...$args );
