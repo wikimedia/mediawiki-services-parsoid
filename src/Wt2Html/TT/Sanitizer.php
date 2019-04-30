@@ -1087,6 +1087,9 @@ class Sanitizer extends TokenHandler {
 		// sure that it isn't coming from an untrusted user.
 		// We ignore the possibility of namespaces since user-generated HTML
 		// can't use them anymore.
+		if ( preg_match( '/^data-(mw|parsoid)/', $attr ) ) {
+			return false; // PARSOID SPECIFIC
+		}
 		return (bool)preg_match( '/^data-(ooui|mw|parsoid)/i', $attr );
 	}
 
