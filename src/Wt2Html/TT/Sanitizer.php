@@ -118,22 +118,26 @@ class Sanitizer extends TokenHandler {
 	 */
 	const ID_FALLBACK = 1;
 
-	const IDN_RE_G = [
-		"[\t ]|" . // general whitespace
-		"­|" . // 00ad SOFT HYPHEN
-		"᠆|" . // 1806 MONGOLIAN TODO SOFT HYPHEN
-		"​|" . // 200b ZERO WIDTH SPACE
-		"⁠|" . // 2060 WORD JOINER
-		"﻿|" . // feff ZERO WIDTH NO-BREAK SPACE
-		"͏|" . // 034f COMBINING GRAPHEME JOINER
-		"᠋|" . // 180b MONGOLIAN FREE VARIATION SELECTOR ONE
-		"᠌|" . // 180c MONGOLIAN FREE VARIATION SELECTOR TWO
-		"᠍|" . // 180d MONGOLIAN FREE VARIATION SELECTOR THREE
-		"‌|" . // 200c ZERO WIDTH NON-JOINER
-		"‍|" . // 200d ZERO WIDTH JOINER
-		"[︀-️]" // , // fe00-fe0f VARIATION SELECTOR-1-16
-		// 'g'
-	];
+	/** Characters that will be ignored in IDNs.
+	 * https://tools.ietf.org/html/rfc3454#section-3.1
+	 * Strip them before further processing so blacklists and such work.
+	 * Part of Sanitizer::cleanUrl in core.
+	 */
+	const IDN_RE_G = "/
+				\\s|          # general whitespace
+				\xc2\xad|     # 00ad SOFT HYPHEN
+				\xe1\xa0\x86| # 1806 MONGOLIAN TODO SOFT HYPHEN
+				\xe2\x80\x8b| # 200b ZERO WIDTH SPACE
+				\xe2\x81\xa0| # 2060 WORD JOINER
+				\xef\xbb\xbf| # feff ZERO WIDTH NO-BREAK SPACE
+				\xcd\x8f|     # 034f COMBINING GRAPHEME JOINER
+				\xe1\xa0\x8b| # 180b MONGOLIAN FREE VARIATION SELECTOR ONE
+				\xe1\xa0\x8c| # 180c MONGOLIAN FREE VARIATION SELECTOR TWO
+				\xe1\xa0\x8d| # 180d MONGOLIAN FREE VARIATION SELECTOR THREE
+				\xe2\x80\x8c| # 200c ZERO WIDTH NON-JOINER
+				\xe2\x80\x8d| # 200d ZERO WIDTH JOINER
+				[\xef\xb8\x80-\xef\xb8\x8f] # fe00-fe0f VARIATION SELECTOR-1-16
+				/xuD";
 
 	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u';
 
@@ -699,7 +703,8 @@ class Sanitizer extends TokenHandler {
 	 * @return string
 	 */
 	private static function stripIDNs( string $host ) {
-		return str_replace( self::IDN_RE_G, '', $host );
+		// This code is part of Sanitizer::cleanUrl in core
+		return preg_replace( self::IDN_RE_G, '', $host );
 	}
 
 	/**
