@@ -125,6 +125,9 @@ switch ( $stageName ) {
 			$opts['pipeline'], null, $phaseEndRank, "Sync $phaseEndRank" );
 		$ttm->setPipelineId( $opts['pipelineId'] );
 		foreach ( $opts['transformers'] as $t ) {
+			if ( $t === 'SanitizerHandler' ) {
+				$t = 'Sanitizer';
+			}
 			$t = "Parsoid\Wt2Html\TT\\" . $t;
 			$ttm->addTransformer( new $t( $ttm, $opts['pipeline'] ) );
 		}
