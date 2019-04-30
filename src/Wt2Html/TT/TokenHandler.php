@@ -118,7 +118,7 @@ class TokenHandler {
 	 * @param array $opts Any options for the expander.
 	 */
 	public function resetState( array $opts ): void {
-		$this->atTopLevel = $opts && $opts['toplevel'];
+		$this->atTopLevel = $opts['toplevel'] ?? false;
 	}
 
 	/* -------------------------- PORT-FIXME ------------------------------
