@@ -1,255 +1,327 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+<?php
+declare( strict_types = 1 );
+
 /**
  * Perform post-processing steps on an already-built HTML DOM.
- * @module
  */
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html;
 
+use DateTime;
+use DOMDocument;
+use DOMElement;
 
+use Parsoid\Config\Env;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMTraverser;
+use Parsoid\Utils\PHPUtils;
 
-use Parsoid\events as events;
-use Parsoid\url as url;
-use Parsoid\util as util;
-use Parsoid\fs as fs;
+use Parsoid\Wt2Html\PP\Handlers\CleanUp;
+use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
+use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 
-$ContentUtils = require( '../utils/ContentUtils.js' )::ContentUtils;
-$DOMDataUtils = require( '../utils/DOMDataUtils.js' )::DOMDataUtils;
-$Util = require( '../utils/Util.js' )::Util;
-$DOMTraverser = require( '../utils/DOMTraverser.js' )::DOMTraverser;
-$Promise = require( '../utils/promise.js' );
-$JSUtils = require( '../utils/jsutils.js' )::JSUtils;
+// use Parsoid\Wt2Html\PP\Handlers\Headings;
 
-// processors
-$requireProcessor = function ( $p ) {
-	return require( './pp/processors/' . $p . '.js' )[ $p ];
-};
-$AddExtLinkClasses = $requireProcessor( 'AddExtLinkClasses' );
-$AddMediaInfo = $requireProcessor( 'AddMediaInfo' );
-$AddRedLinks = $requireProcessor( 'AddRedLinks' );
-$ComputeDSR = $requireProcessor( 'ComputeDSR' );
-$HandlePres = $requireProcessor( 'HandlePres' );
-$LangConverter = $requireProcessor( 'LangConverter' );
-$Linter = $requireProcessor( 'Linter' );
-$MarkFosteredContent = $requireProcessor( 'MarkFosteredContent' );
-$MigrateTemplateMarkerMetas = $requireProcessor( 'MigrateTemplateMarkerMetas' );
-$MigrateTrailingNLs = $requireProcessor( 'MigrateTrailingNLs' );
-$Normalize = $requireProcessor( 'Normalize' );
-$PHPDOMPass = null;
-$ProcessTreeBuilderFixups = $requireProcessor( 'ProcessTreeBuilderFixups' );
-$PWrap = $requireProcessor( 'PWrap' );
-$WrapSections = $requireProcessor( 'WrapSections' );
-$WrapTemplates = $requireProcessor( 'WrapTemplates' );
+use Parsoid\Wt2Html\PP\Handlers\LiFixups;
+use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 
-// handlers
-$requireHandlers = function ( $h ) {
-	return require( './pp/handlers/' . $h . '.js' )[ $h ];
-};
-$CleanUp = $requireHandlers( 'CleanUp' );
-$DedupeStyles = $requireHandlers( 'DedupeStyles' );
-$HandleLinkNeighbours = $requireHandlers( 'HandleLinkNeighbours' );
-$Headings = $requireHandlers( 'Headings' );
-$LiFixups = $requireHandlers( 'LiFixups' );
-$TableFixups = $requireHandlers( 'TableFixups' );
-$UnpackDOMFragments = $requireHandlers( 'UnpackDOMFragments' );
+// use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
 
-/**
- * @class
- * @extends EventEmitter
- * @param {MWParserEnvironment} env
- * @param {Object} options
- */
-function DOMPostProcessor( $env, $options ) {
-	global $TableFixups;
-	global $MarkFosteredContent;
-	global $ProcessTreeBuilderFixups;
-	global $Normalize;
-	global $PWrap;
-	global $MigrateTemplateMarkerMetas;
-	global $HandlePres;
-	global $MigrateTrailingNLs;
-	global $ComputeDSR;
-	global $WrapTemplates;
-	global $HandleLinkNeighbours;
-	global $UnpackDOMFragments;
-	global $LiFixups;
-	global $DedupeStyles;
-	global $AddMediaInfo;
-	global $Headings;
-	global $WrapSections;
-	global $LangConverter;
-	global $Linter;
-	global $CleanUp;
-	global $AddExtLinkClasses;
-	global $AddRedLinks;
-	global $DOMTraverser;
-	call_user_func( [ $events, 'EventEmitter' ] );
+use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 
-	$this->env = $env;
-	$this->options = $options;
-	$this->seenIds = new Set();
+// use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
+// use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 
-	$tableFixer = new TableFixups( $env );
+use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
+use Parsoid\Wt2Html\PP\Processors\HandlePres;
 
-	/* ---------------------------------------------------------------------------
-	 * FIXME:
-	 * 1. PipelineFactory caches pipelines per env
-	 * 2. PipelineFactory.parse uses a default cache key
-	 * 3. ParserTests uses a shared/global env object for all tests.
-	 * 4. ParserTests also uses PipelineFactory.parse (via env.getContentHandler())
-	 *    => the pipeline constructed for the first test that runs wt2html
-	 *       is used for all subsequent wt2html tests
-	 * 5. If we are selectively turning on/off options on a per-test basis
-	 *    in parser tests, those options won't work if those options are
-	 *    also used to configure pipeline construction (including which DOM passes
-	 *    are enabled).
-	 *
-	 *    Ex: if (env.wrapSections) { addPP('wrapSections', wrapSections); }
-	 *
-	 *    This won't do what you expect it to do. This is primarily a
-	 *    parser tests script issue -- but given the abstraction layers that
-	 *    are on top of the parser pipeline construction, fixing that is
-	 *    not straightforward right now. So, this note is a warning to future
-	 *    developers to pay attention to how they construct pipelines.
-	 * --------------------------------------------------------------------------- */
+// use Parsoid\Wt2Html\PP\Processors\LangConverter;
 
-	$processors = [
-		// Common post processing
-		[
-			'Processor' => $MarkFosteredContent,
-			'shortcut' => 'fostered'
-		],
-		[
-			'Processor' => $ProcessTreeBuilderFixups,
-			'shortcut' => 'process-fixups'
-		],
-		[
-			'Processor' => $Normalize
-		],
-		[
-			'Processor' => $PWrap,
-			'shortcut' => 'pwrap',
-			'skipNested' => true
-		],
-		// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
-		// and mw:EndTag metas would otherwise interfere with the
-		// firstChild/lastChild check that this pass does.
-		[
-			'Processor' => $MigrateTemplateMarkerMetas,
-			'shortcut' => 'migrate-metas'
-		],
-		[
-			'Processor' => $HandlePres,
-			'shortcut' => 'pres'
-		],
-		[
-			'Processor' => $MigrateTrailingNLs,
-			'shortcut' => 'migrate-nls'
-		],
-		// dsr computation and tpl encap are only relevant for top-level content
-		[
-			'Processor' => $ComputeDSR,
-			'shortcut' => 'dsr',
-			'omit' => $options->inTemplate
-		],
-		[
-			'Processor' => $WrapTemplates,
-			'shortcut' => 'tplwrap',
-			'omit' => $options->inTemplate
-		],
-		// 1. Link prefixes and suffixes
-		// 2. Unpack DOM fragments
-		// FIXME: Picked a terse 'v' varname instead of trying to find
-		// a suitable name that addresses both functions above.
-		[
-			'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
-			'shortcut' => 'dom-unpack',
-			'isTraverser' => true,
-			'handlers' => [
-				[
-					'nodeName' => 'a',
-					'action' => HandleLinkNeighbours::handleLinkNeighbours
-				],
-				[
-					'nodeName' => null,
-					'action' => UnpackDOMFragments::unpackDOMFragments
+use Parsoid\Wt2Html\PP\Processors\Linter;
+use Parsoid\Wt2Html\PP\Processors\MarkFosteredContent;
+use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
+use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
+use Parsoid\Wt2Html\PP\Processors\Normalize;
+use Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
+use Parsoid\Wt2Html\PP\Processors\PWrap;
+use Parsoid\Wt2Html\PP\Processors\WrapSections;
+use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
+
+class DOMPostProcessor {
+	/** @var Env */
+	private $env;
+
+	/** @var array */
+	private $options;
+
+	/** @var int */
+	private $pipelineId;
+
+	/** @var array */
+	private $seenIds;
+
+	/** @var array */
+	private $processors;
+
+	/** @var array */
+	private $metadataMap;
+
+	/** @var bool */
+	private $atTopLevel;
+
+	/**
+	 * @param Env $env
+	 * @param array $options
+	 * @param ?array $processors
+	 * @suppress PhanTypeArraySuspiciousNullable
+	 */
+	public function __construct( Env $env, array $options, ?array $processors ) {
+		$this->env = $env;
+		$this->options = $options;
+		$this->seenIds = [];
+		$this->processors = [];
+
+		if ( empty( $processors ) ) {
+			$processors = $this->getDefaultProcessors();
+		}
+
+		foreach ( $processors as $p ) {
+			if ( !empty( $p['omit'] ) ) {
+				continue;
+			}
+			if ( empty( $p['name'] ) ) {
+				$p['name'] = $p['Processor'];
+			}
+			if ( empty( $p['shortcut'] ) ) {
+				$p['shortcut'] = $p['name'];
+			}
+			if ( !empty( $p['isTraverser'] ) ) {
+				$t = new DOMTraverser();
+				foreach ( $p['handlers'] as $h ) {
+					$t->addHandler( $h['nodeName'], $h['action'] );
+				}
+				$p['proc'] = function ( ...$args ) use ( &$t ) {
+					$args[] = null;
+					return $t->traverse( ...$args );
+				};
+			} else {
+				$c = new $p['Processor'];
+				$p['proc'] = function ( ...$args ) use ( &$c ) {
+					return $c->run( ...$args );
+				};
+			}
+			$this->processors[] = $p;
+		}
+
+		// map from mediawiki metadata names to RDFa property names
+		$this->metadataMap = [
+			'ns' => [
+				'property' => 'mw:pageNamespace',
+				'content' => '%d'
+			],
+			'id' => [
+				'property' => 'mw:pageId',
+				'content' => '%d'
+			],
+
+			// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
+
+			// 'rev_revid' is used to set the overall subject of the document, we don't
+			// need to add a specific <meta> or <link> element for it.
+
+			'rev_parentid' => [
+				'rel' => 'dc:replaces',
+				'resource' => 'mwr:revision/%d'
+			],
+			'rev_timestamp' => [
+				'property' => 'dc:modified',
+				'content' => function ( $m ) {
+					return date(
+						DateTime::ISO8601,
+						strtotime( $m->get( 'rev_timestamp' ) )
+					);
+				}
+			],
+			'rev_sha1' => [
+				'property' => 'mw:revisionSHA1',
+				'content' => '%s'
+			]
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getDefaultProcessors(): array {
+		$env = $this->env;
+		$options = $this->options;
+		$seenIds = &$this->seenIds;
+
+		$tableFixer = new TableFixups( $env );
+
+		/* ---------------------------------------------------------------------------
+		 * FIXME:
+		 * 1. PipelineFactory caches pipelines per env
+		 * 2. PipelineFactory.parse uses a default cache key
+		 * 3. ParserTests uses a shared/global env object for all tests.
+		 * 4. ParserTests also uses PipelineFactory.parse (via env.getContentHandler())
+		 *    => the pipeline constructed for the first test that runs wt2html
+		 *       is used for all subsequent wt2html tests
+		 * 5. If we are selectively turning on/off options on a per-test basis
+		 *    in parser tests, those options won't work if those options are
+		 *    also used to configure pipeline construction (including which DOM passes
+		 *    are enabled).
+		 *
+		 *    Ex: if (env.wrapSections) { addPP('wrapSections', wrapSections); }
+		 *
+		 *    This won't do what you expect it to do. This is primarily a
+		 *    parser tests script issue -- but given the abstraction layers that
+		 *    are on top of the parser pipeline construction, fixing that is
+		 *    not straightforward right now. So, this note is a warning to future
+		 *    developers to pay attention to how they construct pipelines.
+		 * --------------------------------------------------------------------------- */
+
+		$processors = [
+			// Common post processing
+			[
+				'Processor' => MarkFosteredContent::class,
+				'shortcut' => 'fostered'
+			],
+			[
+				'Processor' => ProcessTreeBuilderFixups::class,
+				'shortcut' => 'process-fixups'
+			],
+			[
+				'Processor' => Normalize::class
+			],
+			[
+				'Processor' => PWrap::class,
+				'shortcut' => 'pwrap',
+				'skipNested' => true
+			],
+			// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
+			// and mw:EndTag metas would otherwise interfere with the
+			// firstChild/lastChild check that this pass does.
+			[
+				'Processor' => MigrateTemplateMarkerMetas::class,
+				'shortcut' => 'migrate-metas'
+			],
+			[
+				'Processor' => HandlePres::class,
+				'shortcut' => 'pres'
+			],
+			[
+				'Processor' => MigrateTrailingNLs::class,
+				'shortcut' => 'migrate-nls'
+			],
+			// dsr computation and tpl encap are only relevant for top-level content
+			[
+				'Processor' => ComputeDSR::class,
+				'shortcut' => 'dsr',
+				'omit' => !empty( $options['inTemplate'] )
+			],
+			[
+				'Processor' => WrapTemplates::class,
+				'shortcut' => 'tplwrap',
+				'omit' => !empty( $options['inTemplate'] )
+			],
+			// 1. Link prefixes and suffixes
+			// 2. Unpack DOM fragments
+			// FIXME: Picked a terse 'v' varname instead of trying to find
+			// a suitable name that addresses both functions above.
+			[
+				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
+				'shortcut' => 'dom-unpack',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'a',
+						'action' => [ HandleLinkNeighbours::class, 'handler' ]
+					]
+					/*
+					[
+						'nodeName' => null,
+						'action' => [ UnpackDOMFragments::class, 'unpackDOMFragments' ]
+					]
+					*/
 				]
 			]
-		]
-	];
+		];
 
-	// FIXME: There are two potential ordering problems here.
-	//
-	// 1. unpackDOMFragment should always run immediately
-	//    before these extensionPostProcessors, which we do currently.
-	//    This ensures packed content get processed correctly by extensions
-	//    before additional transformations are run on the DOM.
-	//
-	// This ordering issue is handled through documentation.
-	//
-	// 2. This has existed all along (in the PHP parser as well as Parsoid
-	//    which is probably how the ref-in-ref hack works - because of how
-	//    parser functions and extension tags are procesed, #tag:ref doesn't
-	//    see a nested ref anymore) and this patch only exposes that problem
-	//    more clearly with the unwrapFragments property.
-	//
-	// * Consider the set of extensions that
-	//   (a) process wikitext
-	//   (b) provide an extensionPostProcessor
-	//   (c) run the extensionPostProcessor only on the top-level
-	//   As of today, there is exactly one extension (Cite) that has all
-	//   these properties, so the problem below is a speculative problem
-	//   for today. But, this could potentially be a problem in the future.
-	//
-	// * Let us say there are at least two of them, E1 and E2 that
-	//   support extension tags <e1> and <e2> respectively.
-	//
-	// * Let us say in an instance of <e1> on the page, <e2> is present
-	//   and in another instance of <e2> on the page, <e1> is present.
-	//
-	// * In what order should E1's and E2's extensionPostProcessors be
-	//   run on the top-level? Depending on what these handlers do, you
-	//   could get potentially different results. You can see this quite
-	//   starkly with the unwrapFragments flag.
-	//
-	// * The ideal solution to this problem is to require that every extension's
-	//   extensionPostProcessor be idempotent which lets us run these
-	//   post processors repeatedly till the DOM stabilizes. But, this
-	//   still doesn't necessarily guarantee that ordering doesn't matter.
-	//   It just guarantees that with the unwrapFragments flag set on
-	//   multiple extensions, all sealed fragments get fully processed.
-	//   So, we still need to worry about that problem.
-	//
-	//   But, idempotence *could* potentially be a sufficient property in most cases.
-	//   To see this, consider that there is a Footnotes extension which is similar
-	//   to the Cite extension in that they both extract inline content in the
-	//   page source to a separate section of output and leave behind pointers to
-	//   the global section in the output DOM. Given this, the Cite and Footnote
-	//   extension post processors would essentially walk the dom and
-	//   move any existing inline content into that global section till it is
-	//   done. So, even if a <footnote> has a <ref> and a <ref> has a <footnote>,
-	//   we ultimately end up with all footnote content in the footnotes section
-	//   and all ref content in the references section and the DOM stabilizes.
-	//   Ordering is irrelevant here.
-	//
-	//   So, perhaps one way of catching these problems would be in code review
-	//   by analyzing what the DOM postprocessor does and see if it introduces
-	//   potential ordering issues.
-	$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) use ( &$processors ) {
+		/**
+		 * FIXME: There are two potential ordering problems here.
+		 *
+		 * 1. unpackDOMFragment should always run immediately
+		 *    before these extensionPostProcessors, which we do currently.
+		 *    This ensures packed content get processed correctly by extensions
+		 *    before additional transformations are run on the DOM.
+		 *
+		 * This ordering issue is handled through documentation.
+		 *
+		 * 2. This has existed all along (in the PHP parser as well as Parsoid
+		 *    which is probably how the ref-in-ref hack works - because of how
+		 *    parser functions and extension tags are procesed, #tag:ref doesn't
+		 *    see a nested ref anymore) and this patch only exposes that problem
+		 *    more clearly with the unwrapFragments property.
+		 *
+		 * * Consider the set of extensions that
+		 *   (a) process wikitext
+		 *   (b) provide an extensionPostProcessor
+		 *   (c) run the extensionPostProcessor only on the top-level
+		 *   As of today, there is exactly one extension (Cite) that has all
+		 *   these properties, so the problem below is a speculative problem
+		 *   for today. But, this could potentially be a problem in the future.
+		 *
+		 * * Let us say there are at least two of them, E1 and E2 that
+		 *   support extension tags <e1> and <e2> respectively.
+		 *
+		 * * Let us say in an instance of <e1> on the page, <e2> is present
+		 *   and in another instance of <e2> on the page, <e1> is present.
+		 *
+		 * * In what order should E1's and E2's extensionPostProcessors be
+		 *   run on the top-level? Depending on what these handlers do, you
+		 *   could get potentially different results. You can see this quite
+		 *   starkly with the unwrapFragments flag.
+		 *
+		 * * The ideal solution to this problem is to require that every extension's
+		 *   extensionPostProcessor be idempotent which lets us run these
+		 *   post processors repeatedly till the DOM stabilizes. But, this
+		 *   still doesn't necessarily guarantee that ordering doesn't matter.
+		 *   It just guarantees that with the unwrapFragments flag set on
+		 *   multiple extensions, all sealed fragments get fully processed.
+		 *   So, we still need to worry about that problem.
+		 *
+		 *   But, idempotence *could* potentially be a sufficient property in most cases.
+		 *   To see this, consider that there is a Footnotes extension which is similar
+		 *   to the Cite extension in that they both extract inline content in the
+		 *   page source to a separate section of output and leave behind pointers to
+		 *   the global section in the output DOM. Given this, the Cite and Footnote
+		 *   extension post processors would essentially walk the dom and
+		 *   move any existing inline content into that global section till it is
+		 *   done. So, even if a <footnote> has a <ref> and a <ref> has a <footnote>,
+		 *   we ultimately end up with all footnote content in the footnotes section
+		 *   and all ref content in the references section and the DOM stabilizes.
+		 *   Ordering is irrelevant here.
+		 *
+		 *   So, perhaps one way of catching these problems would be in code review
+		 *   by analyzing what the DOM postprocessor does and see if it introduces
+		 *   potential ordering issues.
+		 */
+
+		/*
+
+		$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) use ( &$processors ) {
 			$processors[] = [
 				'name' => 'tag:' . $extProcs->extName,
 				'Processor' => $extProcs->procs->wt2htmlPostProcessor
 			];
+		} );
 
+		*/
 
-			;
-		}
-	);
-
-	$processors = $processors->concat( [
+		$processors = array_merge( $processors, [
 			[
 				'name' => 'LiFixups,TableFixups,DedupeStyles',
 				'shortcut' => 'fixups',
@@ -259,38 +331,44 @@ function DOMPostProcessor( $env, $options ) {
 					// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
 					[
 						'nodeName' => 'li',
-						'action' => LiFixups::handleLIHack
+						'action' => [ LiFixups::class, 'handleLIHack' ]
 					],
 					[
 						'nodeName' => 'li',
-						'action' => LiFixups::migrateTrailingCategories
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
 					],
 					[
 						'nodeName' => 'dt',
-						'action' => LiFixups::migrateTrailingCategories
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
 					],
 					[
 						'nodeName' => 'dd',
-						'action' => LiFixups::migrateTrailingCategories
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
 					],
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->stripDoubleTDs( $node, $env ); }
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->stripDoubleTDs( $node, $env );
+						}
 					],
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $env );
+						}
 					],
 					[
 						'nodeName' => 'th',
-						'action' => function ( $node, $env ) use ( &$env, &$tableFixer ) {return  $tableFixer->handleTableCellTemplates( $node, $env ); }
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $env );
+						}
 					],
 					// 3. Deduplicate template styles
-					//   (should run after dom-fragment expansion + after extension post-processors)
+					// (should run after dom-fragment expansion + after extension post-processors)
 					[
 						'nodeName' => 'style',
-						'action' => DedupeStyles::dedupe
+						'action' => [ DedupeStyles::class, 'dedupe' ]
 					]
 				]
 			],
@@ -301,11 +379,14 @@ function DOMPostProcessor( $env, $options ) {
 			// Also, the gallery extension's "packed" mode would otherwise need a
 			// post-processing pass to scale media after it has been fetched.  That
 			// introduces an ordering dependency that may or may not complicate things.
+			/*
 			[
-				'Processor' => $AddMediaInfo,
+				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
 			],
+			*/
 			// Benefits from running after determining which media are redlinks
+			/*
 			[
 				'name' => 'Headings-genAnchors',
 				'shortcut' => 'headings',
@@ -314,17 +395,19 @@ function DOMPostProcessor( $env, $options ) {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => Headings::genAnchors
+						'action' => [ Headings::class, 'genAnchors' ]
 					]
 				]
 			],
+			*/
 			// Add <section> wrappers around sections
 			[
-				'Processor' => $WrapSections,
+				'Processor' => WrapSections::class,
 				'shortcut' => 'sections',
 				'skipNested' => true
 			],
 			// Make heading IDs unique
+			/*
 			[
 				'name' => 'Headings-dedupeHeadingIds',
 				'shortcut' => 'heading-ids',
@@ -333,19 +416,24 @@ function DOMPostProcessor( $env, $options ) {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => function ( $node, $env ) use ( &$env, &$Headings ) {return  Headings::dedupeHeadingIds( $this->seenIds, $node, $env ); }
+						'action' => function ( $node, $env ) use ( &$seenIds ) {
+							return Headings::dedupeHeadingIds( $seenIds, $node, $env );
+						}
 					]
 				]
 			],
+			*/
 			// Language conversion
+			/*
 			[
-				'Processor' => $LangConverter,
+				'Processor' => LangConverter::class,
 				'shortcut' => 'lang-converter',
 				'skipNested' => true
 			],
+			*/
 			[
-				'Processor' => $Linter,
-				'omit' => !$env->conf->parsoid->linting,
+				'Processor' => Linter::class,
+				'omit' => !$env->getSiteConfig()->linting(),
 				'skipNested' => true
 			],
 			// Strip marker metas -- removes left over marker metas (ex: metas
@@ -357,12 +445,12 @@ function DOMPostProcessor( $env, $options ) {
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => CleanUp::stripMarkerMetas
+						'action' => [ CleanUp::class, 'stripMarkerMetas' ]
 					]
 				]
 			],
 			[
-				'Processor' => $AddExtLinkClasses,
+				'Processor' => AddExtLinkClasses::class,
 				'shortcut' => 'linkclasses',
 				'skipNested' => true
 			],
@@ -374,149 +462,120 @@ function DOMPostProcessor( $env, $options ) {
 					// Strip empty elements from template content
 					[
 						'nodeName' => null,
-						'action' => CleanUp::handleEmptyElements
+						'action' => [ CleanUp::class, 'handleEmptyElements' ]
 					],
 					// Save data.parsoid into data-parsoid html attribute.
 					// Make this its own thing so that any changes to the DOM
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => CleanUp::cleanupAndSaveDataParsoid
+						'action' => [ CleanUp::class, 'cleanupAndSaveDataParsoid' ]
 					]
 				]
 			],
-			// (Optional) red links
+			/*
 			[
-				'Processor' => $AddRedLinks,
+				'Processor' => AddRedLinks::class,
 				'shortcut' => 'redlinks',
-				'omit' => !$env->conf->parsoid->useBatchAPI,
 				'skipNested' => true
 			]
-		]
-	);
+			*/
+		] );
 
-	$this->processors = $processors->filter( function ( $p ) use ( &$DOMTraverser ) {
-			if ( $p->omit ) { return false;  }
-			if ( !$p->name ) { $p->name = $p::Processor::name;  }
-			if ( !$p->shortcut ) { $p->shortcut = $p->name;  }
-			if ( $p->isTraverser ) {
-				$t = new DOMTraverser();
-				$p->handlers->forEach( function ( $h ) use ( &$t ) {return  $t->addHandler( $h->nodeName, $h->action ); } );
-				$p->proc = function ( ...$args ) use ( &$t ) {return  $t->traverse( ...$args ); };
-			} else {
-				$c = new $p::Processor();
-				$p->proc = function ( ...$args ) use ( &$c ) {return  $c->run( ...$args ); };
-			}
-			return true;
-		}
-	);
-}
-
-// Inherit from EventEmitter
-util::inherits( $DOMPostProcessor, events\EventEmitter );
-
-/**
- * Debugging aid: set pipeline id
- */
-DOMPostProcessor::prototype::setPipelineId = function ( $id ) {
-	$this->pipelineId = $id;
-};
-
-DOMPostProcessor::prototype::setSourceOffsets = function ( $start, $end ) {
-	$this->options->sourceOffsets = [ $start, $end ];
-};
-
-DOMPostProcessor::prototype::resetState = function ( $opts ) {
-	$this->atTopLevel = $opts && $opts->toplevel;
-	$this->env->page->meta->displayTitle = null;
-	$this->seenIds->clear();
-};
-
-// map from mediawiki metadata names to RDFa property names
-$metadataMap = [
-	'ns' => [
-		'property' => 'mw:pageNamespace',
-		'content' => '%d'
-	],
-	'id' => [
-		'property' => 'mw:pageId',
-		'content' => '%d'
-	],
-
-	// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
-
-	// 'rev_revid' is used to set the overall subject of the document, we don't
-	// need to add a specific <meta> or <link> element for it.
-
-	'rev_parentid' => [
-		'rel' => 'dc:replaces',
-		'resource' => 'mwr:revision/%d'
-	],
-	'rev_timestamp' => [
-		'property' => 'dc:modified',
-		'content' => function ( $m ) {
-			return new Date( $m->get( 'rev_timestamp' ) )->toISOString();
-		}
-	],
-	'rev_sha1' => [
-		'property' => 'mw:revisionSHA1',
-		'content' => '%s'
-	]
-];
-
-/**
- * Create an element in the document.head with the given attrs.
- */
-function appendToHead( $document, $tagName, $attrs ) {
-	global $DOMDataUtils;
-	$elt = $document->createElement( $tagName );
-	DOMDataUtils::addAttributes( $elt, $attrs || [] );
-	$document->head->appendChild( $elt );
-}
-
-// FIXME: consider moving to DOMUtils or MWParserEnvironment.
-DOMPostProcessor::addMetaData = function ( $env, $document ) use ( &$url, &$metadataMap, &$util, &$DOMDataUtils, &$Util ) {
-	// add <head> element if it was missing
-	if ( !$document->head ) {
-		$document->documentElement->
-		insertBefore( $document->createElement( 'head' ), $document->body );
+		return $processors;
 	}
 
-	// add mw: and mwr: RDFa prefixes
-	$prefixes = [
-		'dc: http://purl.org/dc/terms/',
-		'mw: http://mediawiki.org/rdf/'
-	];
-	// add 'http://' to baseURI if it was missing
-	$mwrPrefix = url::resolve( 'http://',
-		$env->conf->wiki->baseURI . 'Special:Redirect/'
-	);
-	$document->documentElement->setAttribute( 'prefix', implode( ' ', $prefixes ) );
-	$document->head->setAttribute( 'prefix', 'mwr: ' . $mwrPrefix );
+	/**
+	 * Debugging aid: set pipeline id
+	 *
+	 * @param int $id
+	 */
+	public function setPipelineId( int $id ): void {
+		$this->pipelineId = $id;
+	}
 
-	// add <head> content based on page meta data:
+	/**
+	 * @param int $start
+	 * @param int $end
+	 */
+	public function setSourceOffsets( int $start, int $end ): void {
+		$this->options['sourceOffsets'] = [ $start, $end ];
+	}
 
-	// Set the charset first.
-	appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
+	/**
+	 * @param array $opts
+	 */
+	public function resetState( array $opts ): void {
+		$this->atTopLevel = $opts['toplevel'] ?? false;
+		// $this->env->getPageConfig()->meta->displayTitle = null;
+		$this->seenIds = [];
+	}
 
-	// collect all the page meta data (including revision metadata) in 1 object
-	$m = new Map();
-	Object::keys( $env->page->meta || [] )->forEach( function ( $k ) use ( &$m, &$env ) {
-			$m->set( $k, $env->page->meta[ $k ] );
+	/**
+	 * Create an element in the document.head with the given attrs.
+	 *
+	 * @param DOMDocument $document
+	 * @param string $tagName
+	 * @param array $attrs
+	 */
+	public function appendToHead( DOMDocument $document, $tagName, array $attrs = [] ): void {
+		$elt = $document->createElement( $tagName );
+		DOMDataUtils::addAttributes( $elt, $attrs );
+		( DOMCompat::getHead( $document ) )->appendChild( $elt );
+	}
+
+	/**
+	 * FIXME: consider moving to DOMUtils or MWParserEnvironment.
+	 *
+	 * @param Env $env
+	 * @param DOMDocument $document
+	 */
+	public function addMetaData( Env $env, DOMDocument $document ): void {
+		// add <head> element if it was missing
+		if ( !( DOMCompat::getHead( $document ) instanceof DOMElement ) ) {
+			$document->documentElement->insertBefore(
+				$document->createElement( 'head' ),
+				DOMCompat::getBody( $document )
+			);
 		}
-	);
-	// include some other page properties
-	[ 'ns', 'id' ]->forEach( function ( $p ) use ( &$m, &$env ) {
+
+		// add mw: and mwr: RDFa prefixes
+		$prefixes = [
+			'dc: http://purl.org/dc/terms/',
+			'mw: http://mediawiki.org/rdf/'
+		];
+		$document->documentElement->setAttribute( 'prefix', implode( ' ', $prefixes ) );
+
+		// add 'http://' to baseURI if it was missing
+		// PORT-FIXME: Doesn't account for protocol rel baseURI
+		$pu = parse_url( $env->getSiteConfig()->baseURI() );
+		$mwrPrefix = ( !empty( $pu['scheme'] ) ? '' : 'http://' ) .
+			$env->getSiteConfig()->baseURI() . 'Special:Redirect/';
+		( DOMCompat::getHead( $document ) )->setAttribute( 'prefix', 'mwr: ' . $mwrPrefix );
+
+		// add <head> content based on page meta data:
+
+		// Set the charset first.
+		$this->appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
+
+		/*
+
+		// collect all the page meta data (including revision metadata) in 1 object
+		$m = [];
+		Object::keys( $env->page->meta || [] )->forEach( function ( $k ) use ( &$m, &$env ) {
+			$m[$k] = $env->page->meta[$k];
+		} );
+		// include some other page properties
+		$arr = [ 'ns', 'id' ];
+		$arr->forEach( function ( $p ) use ( &$m, &$env ) {
 			$m->set( $p, $env->page[ $p ] );
-		}
-	);
-	$rev = $m->get( 'revision' );
-	Object::keys( $rev || [] )->forEach( function ( $k ) use ( &$m, &$rev ) {
+		} );
+		$rev = $m->get( 'revision' );
+		Object::keys( $rev || [] )->forEach( function ( $k ) use ( &$m, &$rev ) {
 			$m->set( 'rev_' . $k, $rev[ $k ] );
-		}
-	);
-	// use the metadataMap to turn collected data into <meta> and <link> tags.
-	$m->forEach( function ( $g, $f ) use ( &$metadataMap, &$m, &$util, &$document ) {
+		} );
+		// use the metadataMap to turn collected data into <meta> and <link> tags.
+		$m->forEach( function ( $g, $f ) use ( &$metadataMap, &$m, &$util, &$document ) {
 			$mdm = $metadataMap[ $f ];
 			if ( !$m->has( $f ) || $m->get( $f ) === null || $m->get( $f ) === null || !$mdm ) {
 				return;
@@ -524,375 +583,278 @@ DOMPostProcessor::addMetaData = function ( $env, $document ) use ( &$url, &$meta
 			// generate proper attributes for the <meta> or <link> tag
 			$attrs = [];
 			Object::keys( $mdm )->forEach( function ( $k ) use ( &$mdm, &$m, &$util, &$f, &$attrs ) {
-					// evaluate a function, or perform sprintf-style formatting, or
-					// use string directly, depending on value in metadataMap
-					$v = ( gettype( $mdm[ $k ] ) === 'function' ) ? $mdm[ $k ]( $m ) :
-					( array_search( '%', $mdm[ $k ] ) >= 0 ) ? util::format( $mdm[ $k ], $m->get( $f ) ) :
-					$mdm[ $k ];
-					$attrs[ $k ] = $v;
+				// evaluate a function, or perform sprintf-style formatting, or
+				// use string directly, depending on value in metadataMap
+				if ( gettype( $mdm[ $k ] ) === 'function' ) {
+					$v = $mdm[ $k ]( $m );
+				} elseif ( array_search( '%', $mdm[ $k ] ) >= 0 ) {
+					$v = util::format( $mdm[ $k ], $m->get( $f ) );
+				} else {
+					$v = $mdm[ $k ];
 				}
-			);
+				$attrs[ $k ] = $v;
+			} );
 			// <link> is used if there's a resource or href attribute.
 			appendToHead( $document,
 				( $attrs->resource || $attrs->href ) ? 'link' : 'meta',
 				$attrs
 			);
+		} );
+		if ( $m->has( 'rev_revid' ) ) {
+			$document->documentElement->setAttribute(
+				'about', $mwrPrefix . 'revision/' . $m->get( 'rev_revid' )
+			);
 		}
-	);
-	if ( $m->has( 'rev_revid' ) ) {
-		$document->documentElement->setAttribute(
-			'about', $mwrPrefix . 'revision/' . $m->get( 'rev_revid' )
-		);
-	}
 
-	// Normalize before comparison
-	if ( preg_replace( '/_/', ' ', $env->conf->wiki->mainpage ) === preg_replace( '/_/', ' ', $env->page->name ) ) {
-		appendToHead( $document, 'meta', [
-				'property' => 'isMainPage',
-				'content' => true
+		*/
+
+		// Normalize before comparison
+		if (
+			preg_replace( '/_/', ' ', $env->getSiteConfig()->mainpage() ) ===
+			preg_replace( '/_/', ' ', $env->getPageConfig()->getTitle() )
+		) {
+			$this->appendToHead( $document, 'meta', [
+					'property' => 'isMainPage',
+					'content' => true
+				]
+			);
+		}
+
+		// Set the parsoid content-type strings
+		// FIXME: Should we be using http-equiv for this?
+		$this->appendToHead( $document, 'meta', [
+				'property' => 'mw:html:version',
+				'content' => $env->getInputContentVersion()
 			]
 		);
-	}
 
-	// Set the parsoid content-type strings
-	// FIXME: Should we be using http-equiv for this?
-	appendToHead( $document, 'meta', [
-			'property' => 'mw:html:version',
-			'content' => $env->outputContentVersion
-		]
-	);
-	$wikiPageUrl = $env->conf->wiki->baseURI
-+		implode( '/', array_map( explode( '/', $env->page->name ), $encodeURIComponent ) );
-	appendToHead( $document, 'link',
-		[ 'rel' => 'dc:isVersionOf', 'href' => $wikiPageUrl ]
-	);
+		// PORT-FIXME: The calls to `getTitle()`` here used to be `page.name`
+		// in JS land.  Make sure the equivalent normalizing / encoding is
+		// still happening.
+		$expTitle = explode( '/', $env->getPageConfig()->getTitle() );
+		$expTitle = array_map( function ( $comp ) {
+			return PHPUtils::encodeURIComponent( $comp );
+		}, $expTitle );
+		$encTitle = implode( '/', $expTitle );
 
-	$document->title = $env->page->meta->displayTitle || $env->page->meta->title || '';
+		$wikiPageUrl = $env->getSiteConfig()->baseURI() . $encTitle;
+		$this->appendToHead( $document, 'link',
+			[ 'rel' => 'dc:isVersionOf', 'href' => $wikiPageUrl ]
+		);
 
-	// Add base href pointing to the wiki root
-	appendToHead( $document, 'base', [ 'href' => $env->conf->wiki->baseURI ] );
+		DOMCompat::setTitle(
+			$document,
+			/* $env->getPageConfig()->meta->displayTitle || */
+			$env->getPageConfig()->getTitle()
+		);
 
-	// Hack: link styles
-	$modules = new Set( [
+		// Add base href pointing to the wiki root
+		$this->appendToHead( $document, 'base', [
+			'href' => $env->getSiteConfig()->baseURI()
+		] );
+
+		// Hack: link styles
+		$modules = [
 			'mediawiki.legacy.commonPrint,shared',
 			'mediawiki.skinning.content.parsoid',
 			'mediawiki.skinning.interface',
 			'skins.vector.styles',
 			'site.styles'
-		]
-	);
-	// Styles from native extensions
-	$env->conf->wiki->extConfig->styles->forEach( function ( $mo ) use ( &$modules ) {
+		];
+
+		/*
+		// Styles from native extensions
+		$env->conf->wiki->extConfig->styles->forEach( function ( $mo ) use ( &$modules ) {
 			$modules->add( $mo );
-		}
-	);
-	// Styles from modules returned from preprocessor / parse requests
-	if ( $env->page->extensionModuleStyles ) {
-		$env->page->extensionModuleStyles->forEach( function ( $mo ) use ( &$modules ) {
+		} );
+		// Styles from modules returned from preprocessor / parse requests
+		if ( $env->page->extensionModuleStyles ) {
+			$env->page->extensionModuleStyles->forEach( function ( $mo ) use ( &$modules ) {
 				$modules->add( $mo );
-			}
-		);
-	}
-	$styleURI = $env->getModulesLoadURI()
-.		'?modules=' . encodeURIComponent( implode( '|', Array::from( $modules ) ) ) . '&only=styles&skin=vector';
-	appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
-
-	// Stick data attributes in the head
-	if ( $env->pageBundle ) {
-		DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
-	}
-
-	// html5shiv
-	$shiv = $document->createElement( 'script' );
-	$src = $env->getModulesLoadURI() . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
-	$shiv->setAttribute( 'src', $src );
-	$fi = $document->createElement( 'script' );
-	$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
-	$comment = $document->createComment(
-		'[if lt IE 9]>' . $shiv->outerHTML . $fi->outerHTML . '<![endif]'
-	);
-	$document->head->appendChild( $comment );
-
-	$lang = $env->page->pagelanguage || $env->conf->wiki->lang || 'en';
-	$dir = $env->page->pagelanguagedir || ( ( $env->conf->wiki->rtl ) ? 'rtl' : 'ltr' );
-
-	// Indicate whether LanguageConverter is enabled, so that downstream
-	// caches can split on variant (if necessary)
-	appendToHead( $document, 'meta', [
-			'http-equiv' => 'content-language',
-			'content' => $env->htmlContentLanguage()
-		]
-	);
-	appendToHead( $document, 'meta', [
-			'http-equiv' => 'vary',
-			'content' => $env->htmlVary()
-		]
-	);
-
-	// Indicate language & directionality on body
-	$document->body->setAttribute( 'lang', Util::bcp47( $lang ) );
-	$document->body->classList->add( 'mw-content-' . $dir );
-	$document->body->classList->add( 'sitedir-' . $dir );
-	$document->body->classList->add( $dir );
-	$document->body->setAttribute( 'dir', $dir );
-
-	// Set 'mw-body-content' directly on the body.
-	// This is the designated successor for #bodyContent in core skins.
-	$document->body->classList->add( 'mw-body-content' );
-	// Set 'parsoid-body' to add the desired layout styling from Vector.
-	$document->body->classList->add( 'parsoid-body' );
-	// Also, add the 'mediawiki' class.
-	// Some Mediawiki:Common.css seem to target this selector.
-	$document->body->classList->add( 'mediawiki' );
-	// Set 'mw-parser-output' directly on the body.
-	// Templates target this class as part of the TemplateStyles RFC
-	$document->body->classList->add( 'mw-parser-output' );
-};
-
-function processDumpAndGentestFlags( $psd, $body, $shortcut, $opts, $preOrPost ) {
-	global $ContentUtils;
-	global $fs;
-	// We don't support --dump & --genTest flags at the same time.
-	// Only one or the other can be used and if both are present,
-	// dumping takes precedence.
-	if ( $psd->dumpFlags && $psd->dumpFlags->has( 'dom:' . $preOrPost . '-' . $shortcut ) ) {
-		ContentUtils::dumpDOM( $body, 'DOM: ' . $preOrPost . '-' . $shortcut, $opts );
-	} elseif ( $psd->generateFlags && $psd->generateFlags->handlers ) {
-		$opts->quiet = true;
-		$psd->generateFlags->handlers->forEach( function ( $handler ) use ( &$shortcut, &$opts, &$fs, &$preOrPost, &$psd, &$ContentUtils, &$body ) {
-				if ( $handler === ( 'dom:' . $shortcut ) ) {
-					$opts->outStream = fs::createWriteStream( $psd->generateFlags->directory + $psd->generateFlags->pageName . '-' . $shortcut . '-' . $preOrPost . '.txt' );
-					$opts->dumpFragmentMap = $psd->generateFlags->fragments;
-					ContentUtils::dumpDOM( $body, 'DOM: ' . $preOrPost . '-' . $shortcut, $opts );
-				}
-			}
-		);
-	}
-}
-
-DOMPostProcessor::prototype::doPostProcess = /* async */function ( $document ) use ( &$ContentUtils, &$JSUtils, &$DOMDataUtils, &$PHPDOMPass ) {
-	$env = $this->env;
-
-	$psd = $env->conf->parsoid;
-	if ( $psd->dumpFlags && $psd->dumpFlags->has( 'dom:post-builder' ) ) {
-		ContentUtils::dumpDOM( $document->body, 'DOM: after tree builder' );
-	}
-
-	$tracePP = $psd->traceFlags && ( $psd->traceFlags->has( 'time/dompp' ) || $psd->traceFlags->has( 'time' ) );
-
-	$startTime = null; $endTime = null; $prefix = null; $logLevel = null; $resourceCategory = null;
-	if ( $tracePP ) {
-		if ( $this->atTopLevel ) {
-			$prefix = 'TOP';
-			// Turn off DOM pass timing tracing on non-top-level documents
-			// Turn off DOM pass timing tracing on non-top-level documents
-			$logLevel = 'trace/time/dompp';
-			$resourceCategory = 'DOMPasses:TOP';
-		} else {
-			$prefix = '---';
-			$logLevel = 'debug/time/dompp';
-			$resourceCategory = 'DOMPasses:NESTED';
+			} );
 		}
-		$startTime = JSUtils::startTime();
-		$env->log( $logLevel, $prefix . '; start=' . $startTime );
-	}
+		$styleURI = $env->getModulesLoadURI()
+			. '?modules='
+			. PHPUtils::encodeURIComponent( implode( '|', $modules ) )
+			. '&only=styles&skin=vector';
+		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
+		*/
 
-	if ( $this->atTopLevel && $psd->generateFlags && $psd->generateFlags->handlers ) {
-		// Pre-set data-parsoid.dsr for <body>
-		// Useful for genTest mode for ComputeDSR tests
-		DOMDataUtils::getDataParsoid( $document->body )->dsr = [ 0, count( $env->page->src ), 0, 0 ];
-	}
-
-	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
-	$phpDOMTransformers = $pipelineConfig && $pipelineConfig->wt2html && $pipelineConfig->wt2html->DOM || null;
-	for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
-		$pp = $this->processors[ $i ];
-		if ( $pp->skipNested && !$this->atTopLevel ) {
-			continue;
+		// Stick data attributes in the head
+		if ( $env->pageBundle ) {
+			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
 		}
-		try {
+
+		/*
+		// html5shiv
+		$shiv = $document->createElement( 'script' );
+		$src = $env->getModulesLoadURI() . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
+		$shiv->setAttribute( 'src', $src );
+		$fi = $document->createElement( 'script' );
+		$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
+		$comment = $document->createComment(
+			'[if lt IE 9]>' . $shiv->outerHTML . $fi->outerHTML . '<![endif]'
+		);
+		$document->head->appendChild( $comment );
+		*/
+
+		$lang = $env->getPageConfig()->getPageLanguage() ?:
+			$env->getSiteConfig()->lang() ?: 'en';
+		$dir = $env->getPageConfig()->getPageLanguageDir() ?:
+			( ( $env->getSiteConfig()->rtl() ) ? 'rtl' : 'ltr' );
+
+		/*
+		// Indicate whether LanguageConverter is enabled, so that downstream
+		// caches can split on variant (if necessary)
+		$this->appendToHead( $document, 'meta', [
+				'http-equiv' => 'content-language',
+				'content' => $env->htmlContentLanguage()
+			]
+		);
+		$this->appendToHead( $document, 'meta', [
+				'http-equiv' => 'vary',
+				'content' => $env->htmlVary()
+			]
+		);
+		*/
+
+		$body = DOMCompat::getBody( $document );
+		$bodyCL = DOMCompat::getClassList( $body );
+
+		// Indicate language & directionality on body
+		// $body->setAttribute( 'lang', Util::bcp47n( $lang ) );
+		$bodyCL->add( 'mw-content-' . $dir );
+		$bodyCL->add( 'sitedir-' . $dir );
+		$bodyCL->add( $dir );
+		$body->setAttribute( 'dir', $dir );
+
+		// Set 'mw-body-content' directly on the body.
+		// This is the designated successor for #bodyContent in core skins.
+		$bodyCL->add( 'mw-body-content' );
+		// Set 'parsoid-body' to add the desired layout styling from Vector.
+		$bodyCL->add( 'parsoid-body' );
+		// Also, add the 'mediawiki' class.
+		// Some Mediawiki:Common.css seem to target this selector.
+		$bodyCL->add( 'mediawiki' );
+		// Set 'mw-parser-output' directly on the body.
+		// Templates target this class as part of the TemplateStyles RFC
+		$bodyCL->add( 'mw-parser-output' );
+	}
+
+	/**
+	 * @param DOMDocument $document
+	 * @suppress PhanTypeArraySuspiciousNullable
+	 */
+	public function doPostProcess( DOMDocument $document ): void {
+		$env = $this->env;
+
+		$traceFlags = $env->traceFlags;
+		$dumpFlags = $env->dumpFlags;
+
+		$body = DOMCompat::getBody( $document );
+
+		if ( !empty( $dumpFlags['dom:post-builder'] ) ) {
+			$opts = [];
+			ContentUtils::dumpDOM( $body, 'DOM: after tree builder', $opts );
+		}
+
+		$tracePP = !empty( $traceFlags['time/dompp'] ) ||
+			!empty( $traceFlags['time'] );
+
+		$startTime = null;
+		$endTime = null;
+		$prefix = null;
+		$logLevel = null;
+		$resourceCategory = null;
+
+		if ( $tracePP ) {
+			if ( $this->atTopLevel ) {
+				$prefix = 'TOP';
+				// Turn off DOM pass timing tracing on non-top-level documents
+				$logLevel = 'trace/time/dompp';
+				$resourceCategory = 'DOMPasses:TOP';
+			} else {
+				$prefix = '---';
+				$logLevel = 'debug/time/dompp';
+				$resourceCategory = 'DOMPasses:NESTED';
+			}
+			$startTime = PHPUtils::getStartHRTime();
+			$env->log( $logLevel, $prefix . '; start=' . $startTime );
+		}
+
+		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
+			$pp = $this->processors[ $i ];
+			if ( !empty( $pp['skipNested'] ) && !$this->atTopLevel ) {
+				continue;
+			}
+
+			$ppName = null;
+			$ppStart = null;
+
 			// Trace
-			$ppStart = null; $ppElapsed = null; $ppName = null;
 			if ( $tracePP ) {
-				$ppName = $pp->name + ' '->repeat( ( count( $pp->name ) < 30 ) ? 30 - count( $pp->name ) : 0 );
-				$ppStart = JSUtils::startTime();
+				$ppName = $pp->name . str_repeat(
+					" ",
+					( strlen( $pp->name ) < 30 ) ? 30 - strlen( $pp->name ) : 0
+				);
+				$ppStart = PHPUtils::getStartHRTime();
 				$env->log( $logLevel, $prefix . '; ' . $ppName . ' start' );
 			}
-			$opts = null;
+
 			if ( $this->atTopLevel ) {
 				$opts = [
 					'env' => $env,
 					'dumpFragmentMap' => true,
 					'keepTmp' => true
 				];
-				processDumpAndGentestFlags( $psd, $document->body, $pp->shortcut, $opts, 'pre' );
+				if ( !empty( $dumpFlags['dom:pre-' . $pp['shortcut']] ) ) {
+					ContentUtils::dumpDOM( $body, 'DOM: pre-' . $pp['shortcut'], $opts );
+				}
 			}
 
-			if ( $phpDOMTransformers && $phpDOMTransformers[ $pp->name ] ) {
-				// Run the PHP version of this DOM transformation
-				if ( !$PHPDOMPass ) {
-					$PHPDOMPass = new ( require( '../../tests/porting/hybrid/PHPDOMPass.js' )::PHPDOMPass )();
-				}
-				// Overwrite!
-				// Overwrite!
-				$document = PHPDOMPass::wt2htmlPP( $pp->name, $document->body, $env, $this->options, $this->atTopLevel );
-			} else {
-				$ret = $pp->proc( $document->body, $env, $this->options, $this->atTopLevel );
-				if ( $ret ) {
-					// Processors can return a Promise iff they need to be async.
-					/* await */ $ret;
-				}
-			}
+			$pp['proc']( $body, $env, $this->options, $this->atTopLevel );
 
 			if ( $this->atTopLevel ) {
-				processDumpAndGentestFlags( $psd, $document->body, $pp->shortcut, $opts, 'post' );
+				if ( !empty( $dumpFlags['dom:post-' . $pp['shortcut']] ) ) {
+					ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );
+				}
 			}
+
 			if ( $tracePP ) {
-				$ppElapsed = JSUtils::elapsedTime( $ppStart );
-				$env->log( $logLevel, $prefix . '; ' . $ppName . ' end; time = ' . $ppElapsed->toFixed( 5 ) );
+				$ppElapsed = PHPUtils::getHRTimeDifferential( $ppStart );
+				$env->log(
+					$logLevel,
+					$prefix . '; ' . $ppName . ' end; time = ' . number_format( $ppElapsed, 5 )
+				);
 				$env->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
 			}
-		} catch ( Exception $e ) {
-			$env->log( 'fatal', $e );
-			return;
+		}
+
+		if ( $tracePP ) {
+			$endTime = PHPUtils::getStartHRTime();
+			$env->log(
+				$logLevel,
+				$prefix . '; end=' . number_format( $endTime, 5 ) . '; time = ' .
+				number_format( PHPUtils::getHRTimeDifferential( $startTime ), 5 )
+			);
+		}
+
+		// For sub-pipeline documents, we are done.
+		// For the top-level document, we generate <head> and add it.
+		// For sub-pipeline documents, we are done.
+		// For the top-level document, we generate <head> and add it.
+		if ( $this->atTopLevel ) {
+			self::addMetaData( $env, $document );
+			if ( !empty( $traceFlags['time'] ) ) {
+				// $env->printTimeProfile();
+			}
+			if ( !empty( $dumpFlags['wt2html:limits'] ) ) {
+				/*
+				$env->printWt2HtmlResourceUsage( [
+					'HTML Size' => strlen( DOMCompat::getOuterHTML( $document->documentElement ) )
+				] );
+				*/
+			}
 		}
 	}
-	if ( $tracePP ) {
-		$endTime = JSUtils::startTime();
-		$env->log( $logLevel, $prefix . '; end=' . $endTime->toFixed( 5 ) . '; time = ' . JSUtils::elapsedTime( $startTime )->toFixed( 5 ) );
-	}
-
-	// For sub-pipeline documents, we are done.
-	// For the top-level document, we generate <head> and add it.
-	// For sub-pipeline documents, we are done.
-	// For the top-level document, we generate <head> and add it.
-	if ( $this->atTopLevel ) {
-		DOMPostProcessor::addMetaData( $env, $document );
-		if ( $psd->traceFlags && $psd->traceFlags->has( 'time' ) ) {
-			$env->printTimeProfile();
-		}
-		if ( $psd->dumpFlags && $psd->dumpFlags->has( 'wt2html:limits' ) ) {
-			$env->printWt2HtmlResourceUsage( [ 'HTML Size' => count( $document->outerHTML ) ] );
-		}
-	}
-
-	$this->emit( 'document', $document );
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;
-
-/**
- * Register for the 'document' event, normally emitted from the HTML5 tree
- * builder.
- */
-DOMPostProcessor::prototype::addListenersOn = function ( $emitter ) {
-	$emitter->addListener( 'document', function ( $document ) {
-			$this->doPostProcess( $document )->done();
-		}
-	);
-};
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->DOMPostProcessor = $DOMPostProcessor;
 }

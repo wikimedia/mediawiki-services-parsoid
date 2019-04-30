@@ -65,6 +65,9 @@ class Env {
 	/** @var bool[] */
 	public $traceFlags;
 
+	/** @var bool[] */
+	public $dumpFlags;
+
 	/**
 	 * @var bool
 	 */
@@ -93,6 +96,8 @@ class Env {
 	 * @param array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
+	 *  - traceFlags: (bool[]) Trace flags
+	 *  - dumpFlags: (bool[]) Dump flags
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
@@ -103,6 +108,7 @@ class Env {
 		$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
+		$this->dumpFlags = $options['dumpFlags'] ?? [];
 	}
 
 	/**

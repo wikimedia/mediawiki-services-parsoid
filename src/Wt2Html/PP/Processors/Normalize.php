@@ -1,18 +1,14 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-/**
- * @class
- */
+use DOMElement;
+
 class Normalize {
-	public function run( $body ) {
+	/**
+	 * @param DOMElement $body
+	 */
+	public function run( DOMElement $body ): void {
 		$body->normalize();
 	}
 }
-
-$module->exports->Normalize = $Normalize;
