@@ -17,21 +17,23 @@ require('core-js/fn/string/pad-end');
 // a proper assertion library... but since we're switching to PHP anyway,
 // for the moment just hack console.assert() to make things behave the
 // way they used to.
-const oldAssert = console.assert;
-console.assert = function(value) {
-	const args = Array.from(arguments);
-	oldAssert.apply(console, args);
-	if (!args[0]) {
-		// We only get here in Node >= 0.10!
-		args.shift();
-		let msg = 'AssertionError';
-		if (args.length) {
-			const util = require('util');
-			msg += ': ' + util.format.apply(util, args);
+if (require('semver').gte(process.version, '10.0.0')) {
+	const oldAssert = console.assert;
+	console.assert = function(value) {
+		const args = Array.from(arguments);
+		oldAssert.apply(console, args);
+		if (!args[0]) {
+			// We only get here in Node >= 0.10!
+			args.shift();
+			let msg = 'AssertionError';
+			if (args.length) {
+				const util = require('util');
+				msg += ': ' + util.format.apply(util, args);
+			}
+			class AssertionException extends Error {
+				constructor(msg) { super(msg); this.message = msg; }
+			}
+			throw new AssertionException(msg);
 		}
-		class AssertionException extends Error {
-			constructor(msg) { super(msg); this.message = msg; }
-		}
-		throw new AssertionException(msg);
-	}
-};
+	};
+}
