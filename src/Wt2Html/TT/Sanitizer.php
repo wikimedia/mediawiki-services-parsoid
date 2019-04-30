@@ -709,14 +709,16 @@ class Sanitizer extends TokenHandler {
 	 * @return string|null
 	 */
 	public static function cleanUrl( Env $env, string $href, string $mode ): ?string {
-		// PORT_FIXME - this code seems wrong and unnecessary, code tests right without it.
-		// if ( $mode !== 'wikilink' ) {
-		// $href = preg_replace( '/([\][<>"\x00-\x20\x7F\|])/', $href, urlencode( $href ) );
-		// $temp = 0;  // just here to provide a line for a breakpoint
-		// }
+		if ( $mode !== 'wikilink' ) {
+			$href = preg_replace_callback(
+				'/([\][<>"\x00-\x20\x7F\|])/', function ( $matches ) {
+					return urlencode( $matches[0] );
+				}, $href
+			);
+		}
 
-		preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
-		if ( $bits ) {
+		$matched = preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
+		if ( $matched === 1 ) {
 			$proto = $bits[1];
 			// if ( $proto && !$env->conf->wiki->hasValidProtocol( $proto ) ) {
 			if ( $proto && !$env->getSiteConfig()->hasValidProtocol( $proto ) ) {
@@ -1375,8 +1377,10 @@ class Sanitizer extends TokenHandler {
 			$anchor = mb_substr( $title, mb_strlen( $bits[0] ) + 1 );
 			$title = $bits[0];
 		}
-		$titleEncoded = PHPUtils::encodeURIComponent( $title );
-		$title = preg_replace( '/[%? \[\]#|<>]/', $titleEncoded, $title );
+		$title = preg_replace_callback(
+			'/[%? \[\]#|<>]/', function ( $matches ) {
+				return PHPUtils::encodeURIComponent( $matches[0] );
+			}, $title );
 		if ( $anchor !== null ) {
 			$title .= '#' . ( $isInterwiki
 					? self::escapeIdForExternalInterwiki( $anchor )
@@ -1411,7 +1415,7 @@ class Sanitizer extends TokenHandler {
 		// swap primary and fallback here, or even transition to a new HTML6
 		// encoding (!), without touching all the call sites.
 		$internalMode = $mode === self::ID_FALLBACK ? 'legacy' : 'html5';
-		return self::escapeIdInternal( $id, $mode );
+		return self::escapeIdInternal( $id, $internalMode );
 	}
 
 	/**
