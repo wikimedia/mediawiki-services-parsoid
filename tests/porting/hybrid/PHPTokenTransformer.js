@@ -42,6 +42,10 @@ class PHPTokenTransformer extends TokenHandler {
 			toplevel: this.atTopLevel,
 			pipeline: this.options,
 			pipelineId: this.manager.pipelineId,
+			fragmentMap: Array.from(env.fragmentMap.entries()).map((pair) => {
+				const [k,v] = pair;
+				return [k, v.map(node => node.outerHTML)];
+			}),
 		};
 		const res = childProcess.spawnSync("php", [
 			path.resolve(__dirname, "runTokenTransformer.php"),

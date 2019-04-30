@@ -246,6 +246,12 @@ abstract class Token implements \JsonSerializable {
 	private static function kvsFromArray( array $a ): array {
 		$kvs = [];
 		foreach ( $a as $e ) {
+			if ( is_array( $e["k"] ?? null ) ) {
+				self::rebuildNestedTokens( $e["k"] );
+			}
+			if ( is_array( $e["v"] ?? null ) ) {
+				self::rebuildNestedTokens( $e["v"] );
+			}
 			$kvs[] = new KV(
 				$e["k"],
 				$e["v"],

@@ -614,7 +614,7 @@ class TokenUtils {
 			} elseif (
 				!empty( $opts['unpackDOMFragments'] ) &&
 				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
-				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) )
+				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) ?? '' )
 			) {
 				// Handle dom fragments
 				$fragmentMap = $opts['env']->getFragmentMap();
