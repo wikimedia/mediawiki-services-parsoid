@@ -1,22 +1,27 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMHandler as DOMHandler;
+namespace Parsoid\Html2Wt\DOMHandlers;
+
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
 
 class ImgHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
-		if ( $node->getAttribute( 'rel' ) === 'mw:externalImage' ) {
-			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) || '', $node );
-		} else {
-			/* await */ $state->serializer->figureHandler( $node );
-		}
-	}
-}
 
-$module->exports = $ImgHandler;
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		if ( $node->getAttribute( 'rel' ) === 'mw:externalImage' ) {
+			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) ?: '', $node );
+		} else {
+			$state->serializer->figureHandler( $node );
+		}
+		return null;
+	}
+
+}

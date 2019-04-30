@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Parsoid\Ext\SerialHandler;
 use Parsoid\Logger\LogData;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -393,6 +394,24 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Convert the internal canonical magic word name to the wikitext alias.
+	 * @param string $word Canonical magic word name
+	 * @param string $suggest Suggested alias (used as fallback and preferred choice)
+	 * @return string
+	 */
+	public function getMagicWordWT( string $word, string $suggest ): string {
+		$aliases = $this->mwAliases()[$word] ?? null;
+		if ( !$aliases ) {
+			return $suggest;
+		}
+		$ind = 0;
+		if ( $suggest ) {
+			$ind = array_search( $suggest, $aliases, true );
+		}
+		return $aliases[$ind ?: 0];
+	}
+
+	/**
 	 * Get a regexp matching a localized magic word, given its id.
 	 *
 	 * FIXME: misleading function name
@@ -434,6 +453,15 @@ abstract class SiteConfig {
 	 * @return array
 	 */
 	abstract public function getExtensionTagNameMap(): array;
+
+	/**
+	 * @param string $string Extension tag name
+	 * @return SerialHandler|null
+	 */
+	public function getExtensionTagSerialHandler( string $string ): ?SerialHandler {
+		// PORT-FIXME implement (should return the relevant src/Ext class, if it implements SerialHandler)
+		throw new \LogicException( 'Not implemented' );
+	}
 
 	/**
 	 * Get the maximum template depth

@@ -1,51 +1,69 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\WTSUtils as WTSUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use DOMNode;
+use Parsoid\DataParsoid;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WTSUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use StdClass;
 
 class TRHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
+
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		if ( $this->trWikitextNeeded( $node, $dp ) ) {
 			WTSUtils::emitStartTag(
-				/* await */ $this->serializeTableTag(
-					$dp->startTagSrc || '|-', '', $state,
+				$this->serializeTableTag(
+					PHPUtils::coalesce( $dp->startTagSrc ?? null, '|-' ), '', $state,
 					$node, $wrapperUnmodified
 				),
 				$node, $state
 			);
 		}
 
-		/* await */ $state->serializeChildren( $node );
+		$state->serializeChildren( $node );
+		return null;
 	}
-	public function before( $node, $otherNode ) {
-		if ( $this->trWikitextNeeded( $node, DOMDataUtils::getDataParsoid( $node ) ) ) {
+
+	/** @inheritDoc */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		if ( $this->trWikitextNeeded( $node,  DOMDataUtils::getDataParsoid( $node ) ) ) {
 			return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 		} else {
 			return [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 		}
 	}
-	public function after( $node, $otherNode ) {
+
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
 
-	public function trWikitextNeeded( $node, $dp ) {
+	/**
+	 * @param DOMElement $node
+	 * @param StdClass|DataParsoid $dp
+	 * @return bool
+	 */
+	private function trWikitextNeeded( DOMElement $node, StdClass $dp ): bool {
 		// If the token has 'startTagSrc' set, it means that the tr
 		// was present in the source wikitext and we emit it -- if not,
 		// we ignore it.
 		// ignore comments and ws
-		if ( $dp->startTagSrc || DOMUtils::previousNonSepSibling( $node ) ) {
+		if ( ( $dp->startTagSrc ?? null ) || DOMUtils::previousNonSepSibling( $node ) ) {
 			return true;
 		} else {
 			// If parent has a thead/tbody previous sibling, then
@@ -54,9 +72,8 @@ class TRHandler extends DOMHandler {
 			$parentSibling = DOMUtils::previousNonSepSibling( $node->parentNode );
 
 			// thead/tbody/tfoot is always present around tr tags in the DOM.
-			return $parentSibling && $parentSibling->nodeName !== 'CAPTION';
+			return $parentSibling && $parentSibling->nodeName !== 'caption';
 		}
 	}
-}
 
-$module->exports = $TRHandler;
+}

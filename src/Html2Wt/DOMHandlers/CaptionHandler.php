@@ -1,36 +1,46 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\WTSUtils as WTSUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use DOMNode;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WTSUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\PHPUtils;
 
 class CaptionHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
+
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Serialize the tag itself
-		$tableTag = /* await */ $this->serializeTableTag(
-			$dp->startTagSrc || '|+', null, $state, $node,
+		$tableTag = $this->serializeTableTag(
+			PHPUtils::coalesce( $dp->startTagSrc ?? null, '|+' ), null, $state, $node,
 			$wrapperUnmodified
 		);
 		WTSUtils::emitStartTag( $tableTag, $node, $state );
-		/* await */ $state->serializeChildren( $node );
+		$state->serializeChildren( $node );
+		return null;
 	}
-	public function before( $node, $otherNode ) {
-		return ( $otherNode->nodeName !== 'TABLE' ) ?
-		[ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ] :
-		[ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
+
+	/** @inheritDoc */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return ( $otherNode->nodeName !== 'table' )
+			? [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ]
+			: [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
-	public function after( $node, $otherNode ) {
+
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
-}
 
-$module->exports = $CaptionHandler;
+}

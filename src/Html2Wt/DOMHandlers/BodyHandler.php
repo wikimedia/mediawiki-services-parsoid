@@ -1,24 +1,34 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMHandler as DOMHandler;
+namespace Parsoid\Html2Wt\DOMHandlers;
+
+use DOMElement;
+use DOMNode;
+use Parsoid\Html2Wt\SerializerState;
 
 class BodyHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
-		/* await */ $state->serializeChildren( $node );
-	}
-	public function firstChild() {
-		return [ 'min' => 0, 'max' => 1 ];
-	}
-	public function lastChild() {
-		return [ 'min' => 0, 'max' => 1 ];
-	}
-}
 
-$module->exports = $BodyHandler;
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		$state->serializeChildren( $node );
+		return null;
+	}
+
+	/** @inheritDoc */
+	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return [ 'min' => 0, 'max' => 1 ];
+	}
+
+	/** @inheritDoc */
+	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return [ 'min' => 0, 'max' => 1 ];
+	}
+
+}

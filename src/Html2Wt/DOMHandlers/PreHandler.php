@@ -1,38 +1,42 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\JSUtils as JSUtils;
-use Parsoid\Util as Util;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use DOMNode;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Util;
 
 class PreHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
+
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		// Handle indent pre
 
 		// XXX: Use a pre escaper?
-		$content = /* await */ $state->serializeIndentPreChildrenToString( $node );
+		$content = $state->serializeIndentPreChildrenToString( $node );
 		// Strip (only the) trailing newline
-		$trailingNL = preg_match( '/\n$/', $content );
+		preg_match( '/\n$/', $content, $trailingNL );
 		$content = preg_replace( '/\n$/', '', $content, 1 );
 
 		// Insert indentation
-		$solRE = JSUtils::rejoin(
-			'(\n(',
+		$solRE = '/'
+			. '(\n('
 			// SSS FIXME: What happened to the includeonly seen
 			// in wts.separators.js?
-			Util\COMMENT_REGEXP,
-			')*)',
-			[ 'flags' => 'g' ]
-		);
-		$content = ' ' . str_replace( $solRE, '$1 ', $content );
+			. PHPUtils::reStrip( Util::COMMENT_REGEXP )
+			. ')*)'
+		. '/';
+		$content = ' ' . preg_replace( $solRE, '$1 ', $content );
 
 		// But skip "empty lines" (lines with 1+ comment and
 		// optional whitespace) since empty-lines sail through all
@@ -44,47 +48,57 @@ class PreHandler extends DOMHandler {
 		// selectively add indentation, but the code will get
 		// unnecessarily complex for questionable benefits. So, going
 		// this route for now.
-		$emptyLinesRE = JSUtils::rejoin(
+		$emptyLinesRE = '/'
 			// This space comes from what we inserted earlier
-			/* RegExp */ '/(^|\n) /',
-			'((?:',
-			/* RegExp */ '/[ \t]*/',
-			Util\COMMENT_REGEXP,
-			/* RegExp */ '/[ \t]*/',
-			')+)',
-			/* RegExp */ '/(?=\n|$)/'
-		);
-		$content = str_replace( $emptyLinesRE, '$1$2', $content );
+			. '(^|\n) '
+			. '((?:'
+			. '[ \t]*'
+			. PHPUtils::reStrip( Util::COMMENT_REGEXP )
+			. '[ \t]*'
+			. ')+)'
+			. '(?=\n|$)'
+		. '/';
+		$content = preg_replace( $emptyLinesRE, '$1$2', $content, 1 );
 
 		$state->emitChunk( $content, $node );
 
 		// Preserve separator source
-		$state->appendSep( ( $trailingNL && $trailingNL[ 0 ] ) || '' );
+		$state->appendSep( $trailingNL[0] ?? '' );
+		return null;
 	}
-	public function before( $node, $otherNode ) {
-		if ( $otherNode->nodeName === 'PRE'
-&& DOMDataUtils::getDataParsoid( $otherNode )->stx !== 'html'
-		) {
-			return [ 'min' => 2 ];
-		} else {
-			return [ 'min' => 1 ];
-		}
-	}
-	public function after( $node, $otherNode ) {
-		if ( $otherNode->nodeName === 'PRE'
-&& DOMDataUtils::getDataParsoid( $otherNode )->stx !== 'html'
-		) {
-			return [ 'min' => 2 ];
-		} else {
-			return [ 'min' => 1 ];
-		}
-	}
-	public function firstChild() {
-		return [];
-	}
-	public function lastChild() {
-		return [];
-	}
-}
 
-$module->exports = $PreHandler;
+	/** @inheritDoc */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		if ( $otherNode->nodeName === 'pre'
+			&& $otherNode instanceof DOMElement // for static analyzers
+			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
+		) {
+			return [ 'min' => 2 ];
+		} else {
+			return [ 'min' => 1 ];
+		}
+	}
+
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		if ( $otherNode->nodeName === 'pre'
+			&& $otherNode instanceof DOMElement // for static analyzers
+			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
+		) {
+			return [ 'min' => 2 ];
+		} else {
+			return [ 'min' => 1 ];
+		}
+	}
+
+	/** @inheritDoc */
+	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return [];
+	}
+
+	/** @inheritDoc */
+	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return [];
+	}
+
+}

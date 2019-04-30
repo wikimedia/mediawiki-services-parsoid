@@ -1,114 +1,118 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTSUtils as WTSUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
-use Parsoid\FallbackHTMLHandler as FallbackHTMLHandler;
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WTSUtils;
+use Parsoid\Tokens\KV;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
 
 class SpanHandler extends DOMHandler {
+
+	/** @var string[] List of typeof attributes to consider */
+	public static $genContentSpanTypes = [
+		'mw:Nowiki',
+		'mw:Image',
+		'mw:Image/Frameless',
+		'mw:Image/Frame',
+		'mw:Image/Thumb',
+		'mw:Video',
+		'mw:Video/Frameless',
+		'mw:Video/Frame',
+		'mw:Video/Thumb',
+		'mw:Audio',
+		'mw:Audio/Frameless',
+		'mw:Audio/Frame',
+		'mw:Audio/Thumb',
+		'mw:Entity',
+		'mw:Placeholder',
+	];
+
 	public function __construct() {
 		parent::__construct( false );
-		$this->genContentSpanTypes = new Set( [
-				'mw:Nowiki',
-				'mw:Image',
-				'mw:Image/Frameless',
-				'mw:Image/Frame',
-				'mw:Image/Thumb',
-				'mw:Video',
-				'mw:Video/Frameless',
-				'mw:Video/Frame',
-				'mw:Video/Thumb',
-				'mw:Audio',
-				'mw:Audio/Frameless',
-				'mw:Audio/Frame',
-				'mw:Audio/Thumb',
-				'mw:Entity',
-				'mw:Placeholder'
-			]
-		);
 	}
-	public $genContentSpanTypes;
 
-	public function handleG( $node, $state, $wrapperUnmodified ) {
-		$env = $state->env;
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		$env = $state->getEnv();
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$type = $node->getAttribute( 'typeof' ) || '';
-		$contentSrc = $node->textContent || $node->innerHTML;
+		$type = $node->getAttribute( 'typeof' ) ?: '';
+		$contentSrc = ( $node->textContent != '' ) ? $node->textContent
+			: DOMCompat::getInnerHTML( $node );
 		if ( $this->isRecognizedSpanWrapper( $type ) ) {
 			if ( $type === 'mw:Nowiki' ) {
-				$nativeExt = $env->conf->wiki->extConfig->tags->get( 'nowiki' );
-				/* await */ $nativeExt->serialHandler->handle( $node, $state, $wrapperUnmodified );
-			} elseif ( preg_match( '/(?:^|\s)mw:(?:Image|Video|Audio)(\/(Frame|Frameless|Thumb))?/', $type ) ) {
+				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( 'nowiki' );
+				$serialHandler->handle( $node, $state, $wrapperUnmodified );
+			} elseif ( preg_match( '/(?:^|\s)mw:(?:Image|Video|Audio)(\/(Frame|Frameless|Thumb))?/',
+				$type )
+			) {
 				// TODO: Remove when 1.5.0 content is deprecated,
 				// since we no longer emit media in spans.  See the test,
 				// "Serialize simple image with span wrapper"
-				/* await */ $state->serializer->figureHandler( $node );
+				$state->serializer->figureHandler( $node );
 			} elseif ( preg_match( '/(?:^|\s)mw\:Entity/', $type ) && DOMUtils::hasNChildren( $node, 1 ) ) {
 				// handle a new mw:Entity (not handled by selser) by
 				// serializing its children
-				if ( $dp->src !== null && $contentSrc === $dp->srcContent ) {
+				if ( isset( $dp->src ) && $contentSrc === ( $dp->srcContent ?? null ) ) {
 					$state->serializer->emitWikitext( $dp->src, $node );
 				} elseif ( DOMUtils::isText( $node->firstChild ) ) {
 					$state->emitChunk(
 						Util::entityEncodeAll( $node->firstChild->nodeValue ),
-						$node->firstChild
-					);
+						$node->firstChild );
 				} else {
-					/* await */ $state->serializeChildren( $node );
+					$state->serializeChildren( $node );
 				}
 			} elseif ( preg_match( '/(^|\s)mw:Placeholder(\/\w*)?/', $type ) ) {
-				if ( $dp->src !== null ) {
-					return $this->emitPlaceholderSrc( $node, $state );
-				} elseif ( /* RegExp */ '/(^|\s)mw:Placeholder(\s|$)/'
-&& DOMUtils::hasNChildren( $node, 1 )
-&& DOMUtils::isText( $node->firstChild )
-&& // See the DisplaySpace hack in the urltext rule
-						// in the tokenizer.
-						preg_match( '/\u00a0+/', $node->firstChild->nodeValue )
+				if ( isset( $dp->src ) ) {
+					$this->emitPlaceholderSrc( $node, $state );
+					return null;
+				} elseif ( '/(^|\s)mw:Placeholder(\s|$)/' // PORT-FIXME ???
+					&& DOMUtils::hasNChildren( $node, 1 )
+					&& DOMUtils::isText( $node->firstChild )
+					// See the DisplaySpace hack in the urltext rule in the tokenizer.
+					&& preg_match( '/\x{00a0}+/u', $node->firstChild->nodeValue )
 				) {
 					$state->emitChunk(
-						' '->repeat( strlen( ' ' ) ),
+						// PORT-FIXME use unicode strlen? this whole block seems broken though
+						str_repeat( ' ', strlen( $node->firstChild->nodeValue ) ),
 						$node->firstChild
 					);
 				} else {
-					/* await */ FallbackHTMLHandler::handler( $node, $state );
+					( new FallbackHTMLHandler )->handle( $node, $state );
 				}
 			}
 		} else {
-			$kvs = WTSUtils::getAttributeKVArray( $node )->filter( function ( $kv ) use ( &$DOMDataUtils ) {
-					return !preg_match( '/^data-parsoid/', $kv->k )
-&& ( $kv->k !== DOMDataUtils\DataObjectAttrName() )
-&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/', $kv->v ) );
-			}
-			);
-			if ( !$state->rtTestMode && $dp->misnested && $dp->stx !== 'html'
-&& !count( $kvs )
+			$kvs = array_filter( WTSUtils::getAttributeKVArray( $node ), function ( KV $kv ) {
+				return !preg_match( '/^data-parsoid/', $kv->k )
+					&& ( $kv->k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME )
+					&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/', $kv->v ) );
+			} );
+			if ( !$state->rtTestMode && !empty( $dp->misnested ) && ( $dp->stx ?? null ) !== 'html'
+				&& !count( $kvs )
 			) {
 				// Discard span wrappers added to flag misnested content.
 				// Warn since selser should have reused source.
-				$env->log( 'warn', 'Serializing misnested content: ' . $node->outerHTML );
-				/* await */ $state->serializeChildren( $node );
+				$env->log( 'warn', 'Serializing misnested content: ' . DOMCompat::getOuterHTML( $node ) );
+				$state->serializeChildren( $node );
 			} else {
 				// Fall back to plain HTML serialization for spans created
 				// by the editor.
-				/* await */ FallbackHTMLHandler::handler( $node, $state );
+				( new FallbackHTMLHandler )->handle( $node, $state );
 			}
 		}
+		return null;
 	}
 
-	public function isRecognizedSpanWrapper( $type ) {
-		return $type && preg_split( '/\s+/', $type )->find( function ( $t ) {
-					return $this->genContentSpanTypes->has( $t );
-		}
-			) !== null;
+	private function isRecognizedSpanWrapper( string $type ): bool {
+		$types = preg_split( '/\s+/', $type, null, PREG_SPLIT_NO_EMPTY );
+		return (bool)array_intersect( $types, self::$genContentSpanTypes );
 	}
+
 }
-
-$module->exports = $SpanHandler;

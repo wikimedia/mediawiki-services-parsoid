@@ -204,4 +204,20 @@ class PHPUtils {
 		$revert = [ '%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')' ];
 		return strtr( rawurlencode( $str ), $revert );
 	}
+
+	/**
+	 * Simulate the JS || operator.
+	 * @param mixed ...$args
+	 * @return mixed
+	 */
+	public static function coalesce( ...$args ) {
+		foreach ( $args as $arg ) {
+			// != '' has the same semantics as JS truthiness: false for null, false,
+			// 0, 0.0, '', true for everything else
+			if ( $arg != '' ) {
+				return $arg;
+			}
+		}
+		return end( $args );
+	}
 }

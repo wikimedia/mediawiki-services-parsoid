@@ -1,18 +1,23 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMHandler as DOMHandler;
+namespace Parsoid\Html2Wt\DOMHandlers;
+
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
 
 class MediaHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
-		/* await */ $state->serializer->figureHandler( $node );
-	}
-}
 
-$module->exports = $MediaHandler;
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		$state->serializer->figureHandler( $node );
+		return null;
+	}
+
+}

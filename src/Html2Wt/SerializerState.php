@@ -202,6 +202,16 @@ class SerializerState {
 	public $out = '';
 
 	/**
+	 * Whether to use heuristics to determine if a list item, heading, table cell, etc.
+	 * should have whitespace inserted after the "*#=|!" wikitext chars? This is normally
+	 * true by default, but not so if HTML content version is older than 1.7.0.
+	 * In practice, we are now at version 2.1, but Flow stores HTML, so till Flow migrates
+	 * all its content over to a later version, we need a boolean flag.
+	 * @var bool
+	 */
+	public $useWhitespaceHeuristics;
+
+	/**
 	 * Are we in selective serialization mode?
 	 * @see SelectiveSerializer
 	 * @var bool
@@ -240,16 +250,6 @@ class SerializerState {
 	 * @var string
 	 */
 	private $logPrefix = 'OUT:';
-
-	/**
-	 * Whether to use heuristics to determine if a list item, heading, table cell, etc.
-	 * should have whitespace inserted after the "*#=|!" wikitext chars? This is normally
-	 * true by default, but not so if HTML content version is older than 1.7.0.
-	 * In practice, we are now at version 2.1, but Flow stores HTML, so till Flow migrates
-	 * all its content over to a later version, we need a boolean flag.
-	 * @var bool
-	 */
-	private $useWhitespaceHeuristics;
 
 	/**
 	 * @param WikitextSerializer $serializer
@@ -674,12 +674,12 @@ class SerializerState {
 	 * have been known to happen. T109793 suggests using its own wts / state.
 	 *
 	 * @param DOMElement $node
-	 * @param callable $wtEscaper See {@link serializeChildren()}
+	 * @param callable|null $wtEscaper See {@link serializeChildren()}
 	 * @param string $inState
 	 * @return string
 	 */
 	private function serializeChildrenToString(
-		DOMElement $node, callable $wtEscaper, string $inState
+		DOMElement $node, ?callable $wtEscaper, string $inState
 	): string {
 		$states = [ 'inLink', 'inCaption', 'inIndentPre', 'inHTMLPre', 'inPHPBlock', 'inAttribute' ];
 		Assert::parameter( in_array( $inState, $states, true ), '$inState', 'Must be one of: '
@@ -725,30 +725,30 @@ class SerializerState {
 	/**
 	 * Serialize children of a link to a string
 	 * @param DOMElement $node
-	 * @param callable $wtEscaper See {@link serializeChildren()}
+	 * @param callable|null $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeLinkChildrenToString( $node, $wtEscaper ): string {
+	public function serializeLinkChildrenToString( $node, $wtEscaper = null ): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inLink' );
 	}
 
 	/**
 	 * Serialize children of a caption to a string
 	 * @param DOMElement $node
-	 * @param callable $wtEscaper See {@link serializeChildren()}
+	 * @param callable|null $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeCaptionChildrenToString( $node, $wtEscaper ): string {
+	public function serializeCaptionChildrenToString( $node, $wtEscaper = null ): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inCaption' );
 	}
 
 	/**
 	 * Serialize children of an indent-pre to a string
 	 * @param DOMElement $node
-	 * @param callable $wtEscaper See {@link serializeChildren()}
+	 * @param callable|null $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeIndentPreChildrenToString( $node, $wtEscaper ): string {
+	public function serializeIndentPreChildrenToString( $node, $wtEscaper = null ): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inIndentPre' );
 	}
 

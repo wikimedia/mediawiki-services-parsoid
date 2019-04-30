@@ -173,7 +173,7 @@ class WTSUtils {
 	 * @return bool
 	 */
 	public static function emitStartTag(
-		string $src, DOMElement $node, SerializerState $state, bool $dontEmit
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
 		if ( empty( $state->rtTestMode ) ||
 			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
@@ -199,7 +199,7 @@ class WTSUtils {
 	 * @return bool
 	 */
 	public static function emitEndTag(
-		string $src, DOMElement $node, SerializerState $state, bool $dontEmit
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
 		if ( empty( $state->rtTestMode ) ||
 			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd )

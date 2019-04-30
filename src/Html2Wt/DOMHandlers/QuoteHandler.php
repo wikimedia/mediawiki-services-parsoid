@@ -1,22 +1,30 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\WTSUtils as WTSUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WTSUtils;
+use Parsoid\Utils\DOMUtils;
 
 class QuoteHandler extends DOMHandler {
-	public function __construct( $quotes ) {
+
+	/** @var string Quote sequence to match as opener/closer */
+	public $quotes;
+
+	/**
+	 * @param string $quotes Quote sequence to match as opener/closer
+	 */
+	public function __construct( string $quotes ) {
 		parent::__construct( false );
 		$this->quotes = $quotes;
 	}
-	public $quotes;
 
-	public function handleG( $node, $state, $wrapperUnmodified ) {
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		if ( $this->precedingQuoteEltRequiresEscape( $node ) ) {
 			WTSUtils::emitStartTag( '<nowiki/>', $node, $state );
 		}
@@ -31,12 +39,13 @@ class QuoteHandler extends DOMHandler {
 				WTSUtils::emitEndTag( $this->quotes, $node, $state );
 			}
 		} else {
-			/* await */ $state->serializeChildren( $node );
+			$state->serializeChildren( $node );
 			WTSUtils::emitEndTag( $this->quotes, $node, $state );
 		}
+		return null;
 	}
 
-	public function precedingQuoteEltRequiresEscape( $node ) {
+	private function precedingQuoteEltRequiresEscape( DOMElement $node ) {
 		// * <i> and <b> siblings don't need a <nowiki/> separation
 		// as long as quote chars in text nodes are always
 		// properly escaped -- which they are right now.
@@ -54,9 +63,8 @@ class QuoteHandler extends DOMHandler {
 		// because of auto-inserted end/start tags. (Ex: ''a''' b ''c''')
 		$prev = DOMUtils::previousNonDeletedSibling( $node );
 		return $prev && DOMUtils::isQuoteElt( $prev )
-&& DOMUtils::isQuoteElt( DOMUtils::lastNonDeletedChild( $prev ) )
-|| DOMUtils::isQuoteElt( DOMUtils::firstNonDeletedChild( $node ) );
+			&& ( DOMUtils::isQuoteElt( DOMUtils::lastNonDeletedChild( $prev ) )
+				|| DOMUtils::isQuoteElt( DOMUtils::firstNonDeletedChild( $node ) ) );
 	}
-}
 
-$module->exports = $QuoteHandler;
+}

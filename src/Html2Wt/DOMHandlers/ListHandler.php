@@ -1,22 +1,31 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+<?php
+declare( strict_types = 1 );
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\WTUtils as WTUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use DOMNode;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\WTUtils;
 
 class ListHandler extends DOMHandler {
-	public function __construct( $firstChildNames ) {
+
+	/** @var string[] List of tag names which van be first children of the list */
+	public $firstChildNames;
+
+	/**
+	 * @param string[] $firstChildNames List of tag names which van be first children of the list
+	 */
+	public function __construct( array $firstChildNames ) {
 		parent::__construct( true );
 		$this->firstChildNames = $firstChildNames;
 	}
-	public $firstChildNames;
 
-	public function handleG( $node, $state, $wrapperUnmodified ) {
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		// Disable single-line context here so that separators aren't
 		// suppressed between nested list elements.
 		$state->singleLineContext->disable();
@@ -30,18 +39,22 @@ class ListHandler extends DOMHandler {
 			$firstChildElt = DOMUtils::firstNonSepChild( $firstChildElt );
 		}
 
-		if ( !$firstChildElt || !( isset( $this->firstChildNames[ $firstChildElt->nodeName ] ) )
-|| WTUtils::isLiteralHTMLNode( $firstChildElt )
+		if ( !$firstChildElt || !in_array( $firstChildElt->nodeName, $this->firstChildNames, true )
+			|| WTUtils::isLiteralHTMLNode( $firstChildElt )
 		) {
 			$state->emitChunk( $this->getListBullets( $state, $node ), $node );
 		}
 
-		$liHandler = function ( $state, $text, $opts ) use ( &$state, &$node ) {return $state->serializer->wteHandlers->liHandler( $node, $state, $text, $opts );
+		$liHandler = function ( $state, $text, $opts ) use ( $node ) {
+			return $state->serializer->wteHandlers->liHandler( $node, $state, $text, $opts );
 		};
-		/* await */ $state->serializeChildren( $node, $liHandler );
-		array_pop( $state->singleLineContext );
+		$state->serializeChildren( $node, $liHandler );
+		$state->singleLineContext->pop();
+		return null;
 	}
-	public function before( $node, $otherNode ) {
+
+	/** @inheritDoc */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( DOMUtils::isBody( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 0 ];
 		}
@@ -54,7 +67,9 @@ class ListHandler extends DOMHandler {
 
 		// A list in a block node (<div>, <td>, etc) doesn't need a leading empty line
 		// if it is the first non-separator child (ex: <div><ul>...</div>)
-		if ( DOMUtils::isBlockNode( $node->parentNode ) && DOMUtils::firstNonSepChild( $node->parentNode ) === $node ) {
+		if ( DOMUtils::isBlockNode( $node->parentNode )
+			&& DOMUtils::firstNonSepChild( $node->parentNode ) === $node
+		) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} elseif ( DOMUtils::isFormattingElt( $otherNode ) ) {
 			return [ 'min' => 1, 'max' => 1 ];
@@ -62,9 +77,10 @@ class ListHandler extends DOMHandler {
 			return [ 'min' => 2, 'max' => 2 ];
 		}
 	}
-	public function after( ...$args ) {
-		return $this->wtListEOL( ...$args );
-	}
-}
 
-$module->exports = $ListHandler;
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		return $this->wtListEOL( $node, $otherNode );
+	}
+
+}

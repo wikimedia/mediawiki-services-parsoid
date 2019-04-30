@@ -3,8 +3,11 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Html2Wt;
 
+use DOMElement;
 use DOMNode;
+use LogicException;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\Token;
 
 /**
  * Wikitext to HTML serializer.
@@ -25,7 +28,16 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
-		throw new \LogicException( 'Not ported yet' );
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * Emit non-separator wikitext that does not need to be escaped.
+	 * @param string $src
+	 * @param DOMNode $node
+	 */
+	public function emitWikitext( string $src, DOMNode $node ): void {
+		throw new LogicException( 'Not ported yet' );
 	}
 
 	/**
@@ -35,7 +47,53 @@ class WikitextSerializer {
 	 * @private
 	 */
 	public function serializeNode( DOMNode $child ): ?DOMNode {
-		throw new \LogicException( 'Not ported yet' );
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @param bool $wrapperUnmodified
+	 * @return string
+	 */
+	public function serializeHTMLTag( DOMNode $node, bool $wrapperUnmodified ): string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @param bool $wrapperUnmodified
+	 * @return string
+	 */
+	public function serializeHTMLEndTag( DOMNode $node, bool $wrapperUnmodified ): string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @param Token $token
+	 * @return string
+	 */
+	public function serializeAttributes( DOMNode $node, Token $token ): string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param SerializerState $state
+	 * @param DOMNode $node
+	 * @param array $parts
+	 * @return string
+	 */
+	public function serializeFromParts( SerializerState $state, DOMNode $node, array $parts ): string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @param string $name
+	 * @return array
+	 */
+	public function serializedAttrVal( DOMNode $node, string $name ): array {
+		throw new LogicException( 'Not ported yet' );
 	}
 
 	/**
@@ -45,7 +103,45 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function buildSep( DOMNode $node ): string {
-		throw new \LogicException( 'Not ported yet' );
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMElement $node
+	 */
+	public function linkHandler( DOMElement $node ): void {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMElement $node
+	 */
+	public function figureHandler( DOMElement $node ): void {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @param SerializerState $state
+	 * @return string|null
+	 */
+	public function defaultExtensionHandler( DOMNode $node, SerializerState $state ): ?string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @return string|null
+	 */
+	public function languageVariantHandler( DOMNode $node ): ?string {
+		throw new LogicException( 'Not ported yet' );
+	}
+
+	/**
+	 * @param DOMElement $node
+	 */
+	public function handleLIHackIfApplicable( DOMElement $node ): void {
+		throw new LogicException( 'Not ported yet' );
 	}
 
 	/**

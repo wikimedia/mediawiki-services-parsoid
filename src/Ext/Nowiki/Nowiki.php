@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMElement;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
+use Parsoid\Ext\SerialHandlerTrait;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -19,6 +20,8 @@ use Parsoid\Wt2Html\TT\ParserState;
  * Nowiki treats anything inside it as plain text.
  */
 class Nowiki implements ExtensionTag, SerialHandler {
+
+	use SerialHandlerTrait;
 
 	/** @inheritDoc */
 	public function toDOM( ParserState $state, string $txt, array $extArgs ): DOMDocument {
@@ -53,11 +56,13 @@ class Nowiki implements ExtensionTag, SerialHandler {
 	}
 
 	/** @inheritDoc */
-	public function handle( DOMElement $node, SerializerState $state, bool $wrapperUnmodified ): void {
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
+	): ?DOMElement {
 		if ( !$node->hasChildNodes() ) {
 			$state->hasSelfClosingNowikis = true;
 			$state->emitChunk( '<nowiki/>', $node );
-			return;
+			return null;
 		}
 		$state->emitChunk( '<nowiki>', $node );
 		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
@@ -79,6 +84,7 @@ class Nowiki implements ExtensionTag, SerialHandler {
 			}
 		}
 		$state->emitChunk( '</nowiki>', $node );
+		return null;
 	}
 
 	/** @return array */

@@ -1,33 +1,28 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+<?php
+declare( strict_types = 1 );
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\WTSUtils as WTSUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WTSUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\TokenUtils;
 
 /**
  * Used as a fallback in other tag handles.
  */
 class FallbackHTMLHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
 
-	public function handleG( ...$args ) {
-		/* await */ self::handler( ...$args );
-	}
-
-	/**
-	 * Just the handler for the handle defined above.
-	 * It's also used as a fallback in some of the other tag handles.
-	 */
-	public static function handlerG( $node, $state, $wrapperUnmodified ) {
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
 		$serializer = $state->serializer;
 
 		// Wikitext supports the following list syntax:
@@ -36,14 +31,14 @@ class FallbackHTMLHandler extends DOMHandler {
 		//
 		// The "LI Hack" gives support for this syntax, and we need to
 		// specially reconstruct the above from a single <li> tag.
-		$serializer->_handleLIHackIfApplicable( $node );
+		$serializer->handleLIHackIfApplicable( $node );
 
-		$tag = /* await */ $serializer->_serializeHTMLTag( $node, $wrapperUnmodified );
+		$tag = $serializer->serializeHTMLTag( $node, $wrapperUnmodified );
 		WTSUtils::emitStartTag( $tag, $node, $state );
 
 		if ( $node->hasChildNodes() ) {
 			$inPHPBlock = $state->inPHPBlock;
-			if ( TokenUtils::tagOpensBlockScope( strtolower( $node->nodeName ) ) ) {
+			if ( TokenUtils::tagOpensBlockScope( $node->nodeName ) ) {
 				$state->inPHPBlock = true;
 			}
 
@@ -51,7 +46,7 @@ class FallbackHTMLHandler extends DOMHandler {
 			// and wrapped in encapsulation.  When that version is no longer
 			// accepted for serialization, we can remove this backwards
 			// compatibility code.
-			if ( $node->nodeName === 'PRE' ) {
+			if ( $node->nodeName === 'pre' ) {
 				// Handle html-pres specially
 				// 1. If the node has a leading newline, add one like it (logic copied from VE)
 				// 2. If not, and it has a data-parsoid strippedNL flag, add it back.
@@ -60,26 +55,23 @@ class FallbackHTMLHandler extends DOMHandler {
 				$lostLine = '';
 				$fc = $node->firstChild;
 				if ( $fc && DOMUtils::isText( $fc ) ) {
-					$m = preg_match( '/^\n/', $fc->nodeValue );
-					$lostLine = $m && $m[ 0 ] || '';
+					 preg_match( '/^\n/', $fc->nodeValue, $m );
+					$lostLine = $m[0] ?? '';
 				}
 
-				if ( !$lostLine && DOMDataUtils::getDataParsoid( $node )->strippedNL ) {
+				if ( !$lostLine && ( DOMDataUtils::getDataParsoid( $node )->strippedNL ?? false ) ) {
 					$lostLine = "\n";
 				}
 
 				$state->emitChunk( $lostLine, $node );
 			}
 
-			/* await */ $state->serializeChildren( $node );
+			$state->serializeChildren( $node );
 			$state->inPHPBlock = $inPHPBlock;
 		}
 
-		$endTag = /* await */ $serializer->_serializeHTMLEndTag( $node, $wrapperUnmodified );
+		$endTag = $serializer->serializeHTMLEndTag( $node, $wrapperUnmodified );
 		WTSUtils::emitEndTag( $endTag, $node, $state );
+		return null;
 	}
 }
-
-FallbackHTMLHandler::handler = /* async */FallbackHTMLHandler::handlerG;
-
-$module->exports = $FallbackHTMLHandler;

@@ -1,28 +1,37 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
-use Parsoid\DOMHandler as DOMHandler;
+use DOMElement;
+use DOMNode;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Utils\DOMDataUtils;
 
 class HRHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
- // eslint-disable-line require-yield
-		$state->emitChunk( '-'->repeat( 4 + ( DOMDataUtils::getDataParsoid( $node )->extra_dashes || 0 ) ), $node );
+
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		$state->emitChunk( str_repeat( '-',
+			4 + ( DOMDataUtils::getDataParsoid( $node )->extra_dashes ?? 0 ) ), $node );
+		return null;
 	}
-	public function before() {
+
+	/** @inheritDoc */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => 2 ];
 	}
+
 	// XXX: Add a newline by default if followed by new/modified content
-	public function after() {
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => 2 ];
 	}
-}
 
-$module->exports = $HRHandler;
+}

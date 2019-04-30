@@ -1,19 +1,24 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\DOMHandler as DOMHandler;
+namespace Parsoid\Html2Wt\DOMHandlers;
 
 // Just serialize the children, ignore the (implicit) tag
+use DOMElement;
+use Parsoid\Html2Wt\SerializerState;
+
 class JustChildrenHandler extends DOMHandler {
+
 	public function __construct() {
 		parent::__construct( false );
 	}
-	public function handleG( $node, $state, $wrapperUnmodified ) {
-		/* await */ $state->serializeChildren( $node );
-	}
-}
 
-$module->exports = $JustChildrenHandler;
+	/** @inheritDoc */
+	public function handle(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMElement {
+		$state->serializeChildren( $node );
+		return null;
+	}
+
+}
