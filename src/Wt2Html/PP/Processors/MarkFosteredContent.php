@@ -1,7 +1,18 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+declare( strict_types = 1 );
+
+namespace Parsoid\Wt2Html\PP\Processors;
+
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use Wikimedia\Assert\Assert;
+
 /**
  * Non-IEW (inter-element-whitespace) can only be found in <td> <th> and
  * <caption> tags in a table.  If found elsewhere within a table, such
@@ -12,39 +23,43 @@
  * http://www.w3.org/TR/html5/syntax.html#foster-parent
  * @module
  */
-
-namespace Parsoid;
-
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
-
 class MarkFosteredContent {
 	/**
 	 * Create a new DOM node with attributes.
+	 *
+	 * @param DOMDocument $document
+	 * @param string $type
+	 * @param array $attrs
+	 * @return DOMElement
 	 */
-	public function createNodeWithAttributes( $document, $type, $attrs ) {
+	private static function createNodeWithAttributes(
+		DOMDocument $document, string $type, array $attrs
+	): DOMElement {
 		$node = $document->createElement( $type );
 		DOMDataUtils::addAttributes( $node, $attrs );
 		return $node;
 	}
 
-	// cleans up transclusion shadows, keeping track of fostered transclusions
-	public function removeTransclusionShadows( $node ) {
+	/**
+	 * Cleans up transclusion shadows, keeping track of fostered transclusions
+	 *
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	private static function removeTransclusionShadows( DOMNode $node ): bool {
 		$sibling = null;
 		$fosteredTransclusions = false;
-		if ( DOMUtils::isElt( $node ) ) {
+		if ( $node instanceof DOMElement ) {
 			if ( DOMUtils::isMarkerMeta( $node, 'mw:TransclusionShadow' ) ) {
 				$node->parentNode->removeChild( $node );
 				return true;
-			} elseif ( DOMDataUtils::getDataParsoid( $node )->tmp->inTransclusion ) {
+			} elseif ( !empty( DOMDataUtils::getDataParsoid( $node )->tmp->inTransclusion ) ) {
 				$fosteredTransclusions = true;
 			}
 			$node = $node->firstChild;
 			while ( $node ) {
 				$sibling = $node->nextSibling;
-				if ( $this->removeTransclusionShadows( $node ) ) {
+				if ( self::removeTransclusionShadows( $node ) ) {
 					$fosteredTransclusions = true;
 				}
 				$node = $sibling;
@@ -53,30 +68,38 @@ class MarkFosteredContent {
 		return $fosteredTransclusions;
 	}
 
-	// inserts metas around the fosterbox and table
-	public function insertTransclusionMetas( $env, $fosterBox, $table ) {
+	/**
+	 * Inserts metas around the fosterbox and table
+	 *
+	 * @param Env $env
+	 * @param DOMNode $fosterBox
+	 * @param DOMElement $table
+	 */
+	private static function insertTransclusionMetas(
+		Env $env, DOMNode $fosterBox, DOMElement $table
+	): void {
 		$aboutId = $env->newAboutId();
 
 		// You might be asking yourself, why is table.data.parsoid.tsr[1] always
 		// present? The earlier implementation searched the table's siblings for
 		// their tsr[0]. However, encapsulation doesn't happen when the foster box,
 		// and thus the table, are in the transclusion.
-		$s = $this->createNodeWithAttributes( $fosterBox->ownerDocument, 'meta', [
+		$s = self::createNodeWithAttributes( $fosterBox->ownerDocument, 'meta', [
 				'about' => $aboutId,
 				'id' => substr( $aboutId, 1 ),
-				'typeof' => 'mw:Transclusion'
+				'typeof' => 'mw:Transclusion',
 			]
 		);
-		DOMDataUtils::setDataParsoid( $s, [
+		DOMDataUtils::setDataParsoid( $s, (object)[
 				'tsr' => Util::clone( DOMDataUtils::getDataParsoid( $table )->tsr ),
-				'tmp' => [ 'fromFoster' => true ]
+				'tmp' => (object)[ 'fromFoster' => true ],
 			]
 		);
 		$fosterBox->parentNode->insertBefore( $s, $fosterBox );
 
-		$e = $this->createNodeWithAttributes( $table->ownerDocument, 'meta', [
+		$e = self::createNodeWithAttributes( $table->ownerDocument, 'meta', [
 				'about' => $aboutId,
-				'typeof' => 'mw:Transclusion/End'
+				'typeof' => 'mw:Transclusion/End',
 			]
 		);
 
@@ -87,10 +110,11 @@ class MarkFosteredContent {
 		// start inside the table. There may be newlines and comments in
 		// between so keep track of that, and backtrack when necessary.
 		while ( $sibling ) {
-			if ( !WTUtils::isTplStartMarkerMeta( $sibling )
-&& WTUtils::hasParsoidAboutId( $sibling )
-|| DOMUtils::isMarkerMeta( $sibling, 'mw:EndTag' )
-|| DOMUtils::isMarkerMeta( $sibling, 'mw:TransclusionShadow' )
+			if ( !WTUtils::isTplStartMarkerMeta( $sibling ) &&
+				( WTUtils::hasParsoidAboutId( $sibling ) ||
+					DOMUtils::isMarkerMeta( $sibling, 'mw:EndTag' ) ||
+					DOMUtils::isMarkerMeta( $sibling, 'mw:TransclusionShadow' )
+				)
 			) {
 				$sibling = $sibling->nextSibling;
 				$beforeText = null;
@@ -104,12 +128,20 @@ class MarkFosteredContent {
 			}
 		}
 
-		$table->parentNode->insertBefore( $e, $beforeText || $sibling );
+		$table->parentNode->insertBefore( $e, $beforeText ?: $sibling );
 	}
 
-	public function getFosterContentHolder( $doc, $inPTag ) {
-		$fosterContentHolder = $doc->createElement( ( $inPTag ) ? 'span' : 'p' );
-		DOMDataUtils::setDataParsoid( $fosterContentHolder, [ 'fostered' => true, 'tmp' => [] ] );
+	/**
+	 * @param DOMDocument $doc
+	 * @param bool $inPTag
+	 * @return DOMElement
+	 */
+	private static function getFosterContentHolder( DOMDocument $doc, bool $inPTag ): DOMElement {
+		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
+		DOMDataUtils::setDataParsoid(
+			$fosterContentHolder,
+			(object)[ 'fostered' => true, 'tmp' => (object)[] ]
+		);
 		return $fosterContentHolder;
 	}
 
@@ -118,30 +150,30 @@ class MarkFosteredContent {
 	 * - Marks all nextSiblings as fostered until the accompanying table.
 	 * - Wraps the whole thing (table + fosterbox) with transclusion metas if
 	 *   there is any fostered transclusion content.
-	 * @param {Node} node
-	 * @param {MWParserEnvironment} env
+	 *
+	 * @param DOMNode $node
+	 * @param Env $env
 	 */
-	public function markFosteredContent( $node, $env ) {
-		$sibling = null;
-$next = null;
-$fosteredTransclusions = null;
+	private static function processRecursively( DOMNode $node, Env $env ): void {
 		$c = $node->firstChild;
 
 		while ( $c ) {
 			$sibling = $c->nextSibling;
 			$fosteredTransclusions = false;
 
-			if ( DOMUtils::hasNameAndTypeOf( $c, 'TABLE', 'mw:FosterBox' ) ) {
+			if ( DOMUtils::hasNameAndTypeOf( $c, 'table', 'mw:FosterBox' ) ) {
 				$inPTag = DOMUtils::hasAncestorOfName( $c->parentNode, 'p' );
-				$fosterContentHolder = $this->getFosterContentHolder( $c->ownerDocument, $inPTag );
+				$fosterContentHolder = self::getFosterContentHolder( $c->ownerDocument, $inPTag );
 
 				// mark as fostered until we hit the table
-				while ( $sibling && ( !DOMUtils::isElt( $sibling ) || $sibling->nodeName !== 'TABLE' ) ) {
+				while ( $sibling && ( !DOMUtils::isElt( $sibling ) || $sibling->nodeName !== 'table' ) ) {
 					$next = $sibling->nextSibling;
-					if ( DOMUtils::isElt( $sibling ) ) {
+					if ( $sibling instanceof DOMElement ) {
 						// TODO: Note the similarity here with the p-wrapping pass.
 						// This can likely be combined in some more maintainable way.
-						if ( DOMUtils::isBlockNode( $sibling ) || WTUtils::emitsSolTransparentSingleLineWT( $sibling ) ) {
+						if ( DOMUtils::isBlockNode( $sibling ) ||
+							WTUtils::emitsSolTransparentSingleLineWT( $sibling )
+						) {
 							// Block nodes don't need to be wrapped in a p-tag either.
 							// Links, includeonly directives, and other rendering-transparent
 							// nodes dont need wrappers. sol-transparent wikitext generate
@@ -152,13 +184,13 @@ $fosteredTransclusions = null;
 							// close it and get a new content holder.
 							if ( $fosterContentHolder->hasChildNodes() ) {
 								$sibling->parentNode->insertBefore( $fosterContentHolder, $sibling );
-								$fosterContentHolder = $this->getFosterContentHolder( $sibling->ownerDocument, $inPTag );
+								$fosterContentHolder = self::getFosterContentHolder( $sibling->ownerDocument, $inPTag );
 							}
 						} else {
 							$fosterContentHolder->appendChild( $sibling );
 						}
 
-						if ( $this->removeTransclusionShadows( $sibling ) ) {
+						if ( self::removeTransclusionShadows( $sibling ) ) {
 							$fosteredTransclusions = true;
 						}
 					} else {
@@ -170,7 +202,8 @@ $fosteredTransclusions = null;
 				$table = $sibling;
 
 				// we should be able to reach the table from the fosterbox
-				Assert::invariant( $table && DOMUtils::isElt( $table ) && $table->nodeName === 'TABLE',
+				Assert::invariant(
+					$table && $table instanceof DOMElement && $table->nodeName === 'table',
 					"Table isn't a sibling. Something's amiss!"
 				);
 
@@ -181,7 +214,7 @@ $fosteredTransclusions = null;
 				// we have fostered transclusions
 				// wrap the whole thing in a transclusion
 				if ( $fosteredTransclusions ) {
-					$this->insertTransclusionMetas( $env, $c, $table );
+					self::insertTransclusionMetas( $env, $c, $table );
 				}
 
 				// remove the foster box
@@ -191,7 +224,7 @@ $fosteredTransclusions = null;
 				$c->parentNode->removeChild( $c );
 			} elseif ( DOMUtils::isElt( $c ) ) {
 				if ( $c->hasChildNodes() ) {
-					$this->markFosteredContent( $c, $env );
+					self::processRecursively( $c, $env );
 				}
 			}
 
@@ -199,11 +232,11 @@ $fosteredTransclusions = null;
 		}
 	}
 
-	public function run( $node, $env ) {
-		$this->markFosteredContent( $node, $env );
+	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 */
+	public static function run( DOMNode $node, Env $env ): void {
+		self::processRecursively( $node, $env );
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->MarkFosteredContent = $MarkFosteredContent;
 }
