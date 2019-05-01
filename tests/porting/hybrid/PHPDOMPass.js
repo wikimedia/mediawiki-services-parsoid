@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
 const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
-const { DOMDataUtils } = require('../../../lib/utils/DOMDataUtils.js');
+const { DOMUtils }  = require('../../../lib/utils/DOMUtils.js');
 
 class PHPDOMPass {
 	dumpDOMToFile(root, fileName) {
@@ -22,24 +22,35 @@ class PHPDOMPass {
 		dom.body.removeAttribute("data-env-newuid");
 	}
 
-	loadDOMFromStdout(env, res) {
+	loadDOMFromStdout(inputBody, transformerName, atTopLevel, env, res) {
 		const stdout = res.stdout.toString();
 
-		const newDom = ContentUtils.ppToDOM(env, stdout, {
-			reinsertFosterableContent: true,
-			markNew: true
-		}).ownerDocument;
+		let newDOM;
 
-		this.updateEnvUid(env, newDom);
-
-		// Read Linter output (if any) from the body node's tmp data
-		var dp = DOMDataUtils.getDataParsoid(newDom.body);
-		if (dp.tmp && dp.tmp.phpDOMLints) {
-			env.lintLogger.buffer = env.lintLogger.buffer.concat(dp.tmp.phpDOMLints);
-			delete dp.tmp.phpDOMLints;
+		if (transformerName === 'CleanUp-cleanupAndSaveDataParsoid') {
+			// HACK IT! Cleanup only runs on the top-level.
+			// For nested pipelines, the DOM is unmodified.
+			// We aren't verifying this functionality since it adds
+			// to the complexity of passing DOMs across JS/PHP.
+			if (atTopLevel) {
+				newDOM = DOMUtils.parseHTML(stdout);
+				this.updateEnvUid(env, newDOM);
+			} else {
+				newDOM = inputBody.ownerDocument;
+			}
+		} else if (transformerName === 'Linter') {
+			env.lintLogger.buffer = env.lintLogger.buffer.concat(JSON.parse(stdout));
+			// DOM is not modified
+			newDOM = inputBody.ownerDocument;
+		} else {
+			newDOM = ContentUtils.ppToDOM(env, stdout, {
+				reinsertFosterableContent: true,
+				markNew: true
+			}).ownerDocument;
+			this.updateEnvUid(env, newDOM);
 		}
 
-		return newDom;
+		return newDOM;
 	}
 
 	runPHPCode(argv, opts) {
@@ -70,7 +81,9 @@ class PHPDOMPass {
 			rtTestMode: env.conf.parsoid.rtTestMode,
 			pageContent: env.page.src,
 			sourceOffsets: options.sourceOffsets,
-			tidyWhitespaceBugMaxLength: env.conf.parsoid.linter.tidyWhitespaceBugMaxLength
+			tidyWhitespaceBugMaxLength: env.conf.parsoid.linter.tidyWhitespaceBugMaxLength,
+			discardDataParsoid: env.discardDataParsoid,
+			pageBundle: env.pageBundle,
 		};
 
 		const fileName = `/tmp/${transformerName}.${process.pid}.html`;
@@ -80,7 +93,8 @@ class PHPDOMPass {
 			atTopLevel: !!atTopLevel,  // Force bool before serializing
 			runOptions: options || {},
 		});
-		return this.loadDOMFromStdout(env, res);
+
+		return this.loadDOMFromStdout(root, transformerName, atTopLevel, env, res);
 	}
 
 	diff(env, domA, domB) {
@@ -121,7 +135,7 @@ class PHPDOMPass {
 		const fileName = `/tmp/normalize.${process.pid}${state.selserMode ? '.selser' : ''}.html`;
 		this.dumpDOMToFile(body, fileName);
 		const res = this.runPHPCode(["DOMNormalizer", fileName], { hackyEnvOpts });
-		return this.loadDOMFromStdout(state.env, res).body;
+		return this.loadDOMFromStdout(body, 'normalizeDOM', true, state.env, res).body;
 	}
 }
 

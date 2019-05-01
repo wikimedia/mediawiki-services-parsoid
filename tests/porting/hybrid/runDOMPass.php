@@ -8,7 +8,6 @@ use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Html2Wt\DOMNormalizer;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
@@ -36,15 +35,24 @@ function buildDOM( $env, $fileName ) {
 	] );
 }
 
-function serializeDOM( $body ) {
-	/**
-	 * Serialize output to DOM while tunneling fosterable content
-	 * to prevent it from getting fostered on parse to DOM
-	 */
-	return ContentUtils::ppToXML( $body, [ 'keepTmp' => true,
-		'tunnelFosteredContent' => true,
-		'storeDiffMark' => true
-	] );
+function serializeDOM( $transformer, $env, $body ) {
+	// HACK: Piggyback new uid for env on <body>
+	$body->setAttribute( "data-env-newuid", $env->getUID() );
+	if ( $env->pageBundle ) {
+		return ContentUtils::extractDpAndSerialize( $body );
+	} elseif ( $transformer === 'CleanUp-cleanupAndSaveDataParsoid' ) {
+		/* Data-attributes have already been stored */
+		return ContentUtils::toXML( $body );
+	} else {
+		/**
+		 * Serialize output to DOM while tunneling fosterable content
+		 * to prevent it from getting fostered on parse to DOM
+		 */
+		return ContentUtils::ppToXML( $body, [ 'keepTmp' => true,
+			'tunnelFosteredContent' => true,
+			'storeDiffMark' => true
+		] );
+	}
 }
 
 function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = null ) {
@@ -76,14 +84,12 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 	} else {
 		$transformer->run( $body, $env, $runOptions, $atTopLevel );
 	}
-
-	// Shove Linter output (if any) into the body node's tmp data
-	$dp = DOMDataUtils::getDataParsoid( $body );
-	$dp->tmp->phpDOMLints = $env->getLints();
-
-	// HACK: Piggyback new uid for env on <body>
-	$body->setAttribute( "data-env-newuid", $env->getUID() );
-	$out = serializeDOM( $body );
+	if ( $argv[1] === 'Linter' ) {
+		// Shove Linter output (if any) into the body node's tmp data
+		$out = PHPUtils::jsonEncode( $env->getLints() );
+	} else {
+		$out = serializeDOM( $argv[1], $env, $body );
+	}
 
 	/**
 	 * Remove the input DOM file to eliminate clutter
@@ -98,7 +104,9 @@ function runDOMHandlers( $argv, $opts, $addHandlersCB ) {
 	$env = new MockEnv( [
 		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
 		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-		"pageContent" => $hackyEnvOpts['pageContent'] ?? null
+		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
+		"discardDataParsoid" => $hackyEnvOpts['discardDataParsoid'] ?? null,
+		"pageBundle" => $hackyEnvOpts['pageBundle'] ?? null,
 	] );
 	$addHandlersCB( $transformer, $env );
 	return runTransform( $transformer, $argv, $opts, true, $env );
@@ -121,7 +129,7 @@ function runDOMDiff( $argv, $opts ) {
 
 	$dd = new DOMDiff( $env );
 	$diff = $dd->diff( $oldBody, $newBody );
-	$out = serializeDOM( $newBody );
+	$out = serializeDOM( null, $env, $newBody );
 
 	unlink( $htmlFileName1 );
 	unlink( $htmlFileName2 );
@@ -147,10 +155,7 @@ function runDOMNormalizer( $argv, $opts ) {
 		"selserMode" => $hackyEnvOpts["selserMode"] ?? false
 	] );
 	$normalizer->normalize( $body );
-
-	// HACK: Piggyback new uid for env on <body>
-	$body->setAttribute( "data-env-newuid", $env->getUID() );
-	$out = serializeDOM( $body );
+	$out = serializeDOM( null, $env, $body );
 	unlink( $htmlFileName );
 	return $out;
 }
@@ -304,5 +309,5 @@ switch ( $argv[1] ) {
 /**
  * Write DOM to file
  */
-// fwrite( STDERR, "OUT DOM:$out\n" );
+// fwrite( STDERR, "OUT :$out\n" );
 print $out;
