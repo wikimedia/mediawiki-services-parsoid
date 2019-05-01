@@ -39,10 +39,16 @@ class PHPDOMPass {
 	}
 
 	runPHPCode(argv, opts) {
-		return childProcess.spawnSync("php",
-			[ path.resolve(__dirname, "runDOMPass.php") ].concat(argv),
-			{ input: JSON.stringify(opts) }
-		);
+		const res = childProcess.spawnSync("php", [
+			path.resolve(__dirname, "runDOMPass.php")
+		].concat(argv), {
+			input: JSON.stringify(opts),
+			stdio: [ 'pipe', 'pipe', process.stderr ],
+		});
+		if (res.error) {
+			throw res.error;
+		}
+		return res;
 	}
 
 	wt2htmlPP(transformerName, root, env, options, atTopLevel) {
@@ -86,10 +92,6 @@ class PHPDOMPass {
 		this.dumpDOMToFile(domB, fileName2);
 		const res = this.runPHPCode(["DOMDiff", fileName1, fileName2], { hackyEnvOpts });
 		const stdout = res.stdout.toString();
-		const stderr = res.stderr.toString();
-		if (stderr) {
-			console.error(stderr);
-		}
 
 		const ret = JSON.parse(stdout);
 		ret.dom = ContentUtils.ppToDOM(env, ret.html, {

@@ -51,11 +51,12 @@ class PHPTokenTransformer extends TokenHandler {
 			path.resolve(__dirname, "runTokenTransformer.php"),
 			this.transformerName,
 			fileName,
-		], { input: JSON.stringify(opts) });
-
-		const stderr = res.stderr.toString();
-		if (stderr) {
-			console.error(stderr);
+		], {
+			input: JSON.stringify(opts),
+			stdio: [ 'pipe', 'pipe', process.stderr ],
+		});
+		if (res.error) {
+			throw res.error;
 		}
 
 		const toks = res.stdout.toString().split("\n").map((str) => {

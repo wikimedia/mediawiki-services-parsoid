@@ -92,15 +92,15 @@ class PHPPipelineStage {
 		opts.pipeline = this.options;
 		opts.pageContent = this.env.page.src;
 		opts.pipelineId = this.pipelineId;
-		const res = childProcess.spawnSync(
-			"php",
-			[ path.resolve(__dirname, "runPipelineStage.php"), this.stageName ].concat(argv),
-			{ input: JSON.stringify(opts) }
-		);
-
-		const stderr = res.stderr.toString();
-		if (stderr) {
-			console.error(stderr);
+		const res = childProcess.spawnSync("php", [
+			path.resolve(__dirname, "runPipelineStage.php"),
+			this.stageName
+		].concat(argv), {
+			input: JSON.stringify(opts),
+			stdio: [ 'pipe', 'pipe', process.stderr ],
+		});
+		if (res.error) {
+			throw res.error;
 		}
 
 		return res.stdout.toString();
