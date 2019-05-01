@@ -1506,7 +1506,7 @@ nowiki =
 nowiki_text =
 	extToken:nowiki
 	{
-		$txt = Util::getExtArgInfo( $extToken )->dict->body->extsrc;
+		$txt = Util::extractExtBody( $extToken );
 		return Util::decodeWtEntities( $txt );
 	}
 

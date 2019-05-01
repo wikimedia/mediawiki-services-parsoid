@@ -1779,7 +1779,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a183($extToken) {
   
-  		$txt = Util::getExtArgInfo( $extToken )->dict->body->extsrc;
+  		$txt = Util::extractExtBody( $extToken );
   		return Util::decodeWtEntities( $txt );
   	
   }
