@@ -75,7 +75,7 @@ class TokenStreamPatcher extends TokenHandler {
 				return json_encode( $token );
 			}
 		);
-		$this->srcOffset = ( $token->dataAttribs->tsr ?? [ null, null ] )[ 1 ];
+		$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
 		$this->sol = true;
 		$this->tokenBuf[] = $token;
 		return [ 'tokens' => [] ];
@@ -134,32 +134,31 @@ class TokenStreamPatcher extends TokenHandler {
 				// https://gerrit.wikimedia.org/r/#/c/105018/
 				// All of these need uniform handling. To be addressed separately
 				// if this proves to be a real problem on production pages.
-				if ( $t instanceof SelfclosingTagTk &&
-					$t->getName() === 'template' ) {
-				// $t = call_user_func( [ TemplateHandler::prototype, 'processSpecialMagicWord' ], $t ) || $t;
-				// PORT_FIXME special magic word function not ported yet
+				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'template' ) {
+					// $t = call_user_func( [ TemplateHandler::prototype, 'processSpecialMagicWord' ], $t ) || $t;
+					// PORT_FIXME special magic word function not ported yet
 					$temp = false;
 				}
 				$ret = array_merge( $ret, [ $t ] );
 			}
 			return $ret;
-		} elseif ( isset( $da->autoInsertedStart ) && isset( $da->autoInsertedEnd ) ) {
+		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
 			// SSS FIXME: What about "!!" and "||"??
 			switch ( $token->getName() ) {
 				case 'td':
-				return [ '|' ];
+					return [ '|' ];
 				case 'th':
-				return [ '!' ];
+					return [ '!' ];
 				case 'tr':
-				return [ '|-' ];
+					return [ '|-' ];
 				case 'caption':
-				return [ $token instanceof TagTk ? '|+' : '' ];
+					return [ $token instanceof TagTk ? '|+' : '' ];
 				case 'table':
-				if ( $token instanceof EndTagTk ) {
-					return [ '|}' ];
-				}
+					if ( $token instanceof EndTagTk ) {
+						return [ '|}' ];
+					}
 			}
 
 			// No conversion if we get here
@@ -222,14 +221,14 @@ class TokenStreamPatcher extends TokenHandler {
 				break;
 
 			case 'CommentTk':
-			// Comments don't change SOL state
-			// Update srcOffset
-				$this->srcOffset = ( $token->dataAttribs->tsr ?? [ null, null ] )[ 1 ];
+				// Comments don't change SOL state
+				// Update srcOffset
+				$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
 				break;
 
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataAttribs->stx ?? '' ) !== 'html' ) {
-					$this->srcOffset = ( $token->dataAttribs->tsr ?? [ null, null ] )[ 1 ];
+					$this->srcOffset = $token->dataAttribs->tsr[1] ?? null;
 					$typeOf = $token->getAttribute( 'typeof' );
 					if ( $typeOf === 'mw:TSRMarker' &&
 						$this->lastConvertedTableCellToken !== null &&
@@ -255,14 +254,15 @@ class TokenStreamPatcher extends TokenHandler {
 					if ( $n > 0 ) {
 						$i = 0;
 						while ( $i < $n &&
-							!( $this->tokenBuf[ $i ] instanceof SelfclosingTagTk ) ) {
+							!( $this->tokenBuf[ $i ] instanceof SelfclosingTagTk )
+						) {
 							$i++;
 						}
 
 						$toks = [
 							new SelfclosingTagTk( 'meta',
 								[ new KV( 'typeof', 'mw:EmptyLine' ) ],
-								(object)[ 'tokens' => array_slice( $this->tokenBuf, 0, $i/*CHECK THIS*/ ) ]
+								(object)[ 'tokens' => array_slice( $this->tokenBuf, 0, $i ) ]
 							)
 						];
 						if ( $i < $n ) {
