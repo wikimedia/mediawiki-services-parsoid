@@ -21,6 +21,7 @@ use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\Linter;
+use Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
@@ -166,6 +167,9 @@ switch ( $argv[1] ) {
 	// DOM Processors
 	case 'PWrap':
 		$out = runTransform( new PWrap(), $argv, $allOpts );
+		break;
+	case 'ProcessTreeBuilderFixups':
+		$out = runTransform( new ProcessTreeBuilderFixups(), $argv, $allOpts );
 		break;
 	case 'ComputeDSR':
 		$out = runTransform( new ComputeDSR(), $argv, $allOpts );

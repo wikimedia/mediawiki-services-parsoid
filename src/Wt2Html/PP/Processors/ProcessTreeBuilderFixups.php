@@ -1,15 +1,16 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
+use DOMElement;
+use DOMNode;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use stdClass;
 
 class ProcessTreeBuilderFixups {
 	/**
@@ -17,16 +18,28 @@ class ProcessTreeBuilderFixups {
 	 * the normalize pass. This is faster than just deleting the node if there
 	 * are many nodes in the sibling array, since node deletion is sometimes
 	 * done with {@link Array#splice} which is O(N).
-	 * @private
+	 * PORT-FIXME: This comment was true for domino in JS.
+	 * PORT-FIXME: We should confirm if this is also true for PHP DOM.
+	 *
+	 * @param DOMNode $node
 	 */
-	public function deleteShadowMeta( $node ) {
+	private static function deleteShadowMeta( DOMNode $node ): void {
 		$node->parentNode->replaceChild(
 			$node->ownerDocument->createTextNode( '' ),
 			$node
 		);
 	}
 
-	public function addPlaceholderMeta( $env, $node, $dp, $name, $opts ) {
+	/**
+	 * @param Env $env
+	 * @param DOMNode $node
+	 * @param stdClass $dp
+	 * @param string $name
+	 * @param stdClass $opts
+	 */
+	private static function addPlaceholderMeta(
+		Env $env, DOMNode $node, stdClass $dp, string $name, stdClass $opts
+	): void {
 		// If node is in a position where the placeholder
 		// node will get fostered out, dont bother adding one
 		// since the browser and other compliant clients will
@@ -35,31 +48,31 @@ class ProcessTreeBuilderFixups {
 			return;
 		}
 
-		$src = $dp->src;
+		$src = $dp->src ?? null;
 
 		if ( !$src ) {
-			if ( $dp->tsr ) {
-				$src = substr( $env->page->src, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
-			} elseif ( $opts->tsr ) {
-				$src = substr( $env->page->src, $opts->tsr[ 0 ], $opts->tsr[ 1 ]/*CHECK THIS*/ );
+			if ( !empty( $dp->tsr ) ) {
+				$width = $dp->tsr[1] - $dp->tsr[0];
+				$src = mb_substr( $env->getPageMainContent(), $dp->tsr[0], $width );
+			} elseif ( !empty( $opts->tsr ) ) {
+				$width = $opts->tsr[1] - $opts->tsr[0];
+				$src = mb_substr( $env->getPageMainContent(), $opts->tsr[0], $width );
 			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
-				if ( $opts->start ) {
+				if ( !empty( $opts->start ) ) {
 					$src = '<' . $name . '>';
-				} elseif ( $opts->end ) {
+				} elseif ( !empty( $opts->end ) ) {
 					$src = '</' . $name . '>';
 				}
 			}
 		}
 
 		if ( $src ) {
-			$placeHolder = null;
-
 			$placeHolder = $node->ownerDocument->createElement( 'meta' );
 			$placeHolder->setAttribute( 'typeof', 'mw:Placeholder/StrippedTag' );
-			DOMDataUtils::setDataParsoid( $placeHolder, [
+			DOMDataUtils::setDataParsoid( $placeHolder, (object)[
 					'src' => $src,
-					'name' => strtoupper( $name ),
-					'tmp' => []
+					'name' => strtoupper( $name ), // PORT-FIXME: Parsoid-JS uses $dp->name in uppercase
+					'tmp' => (object)[],
 				]
 			);
 
@@ -68,21 +81,32 @@ class ProcessTreeBuilderFixups {
 		}
 	}
 
-	// Search forward for a shadow meta, skipping over other end metas
-	public function findMetaShadowNode( $node, $type, $name ) {
+	/**
+	 * Search forward for a shadow meta, skipping over other end metas
+	 *
+	 * @param DOMNode $node
+	 * @param string $type
+	 * @param string $name
+	 * @return DOMElement|null
+	 */
+	private static function findMetaShadowNode(
+		DOMNode $node, string $type, string $name
+	): ?DOMElement {
 		$isHTML = WTUtils::isLiteralHTMLNode( $node );
 		while ( $node ) {
 			$sibling = $node->nextSibling;
 			if ( !$sibling || !DOMUtils::isMarkerMeta( $sibling, $type ) ) {
 				return null;
 			}
+			/** @var DOMElement $sibling */
+			DOMUtils::assertElt( $sibling );
 
-			if ( $sibling->getAttribute( 'data-etag' ) === $name
-&& // If the node was literal html, the end tag should be as well.
-					// However, the converse isn't true. A node for an
-					// autoInsertedStartTag wouldn't have those markers yet.
-					// See "Table with missing opening <tr> tag" test as an example.
-					( !$isHTML || $isHTML === WTUtils::isLiteralHTMLNode( $sibling ) )
+			if ( $sibling->getAttribute( 'data-etag' ) === $name &&
+				// If the node was literal html, the end tag should be as well.
+				// However, the converse isn't true. A node for an
+				// autoInsertedStartTag wouldn't have those markers yet.
+				// See "Table with missing opening <tr> tag" test as an example.
+				( !$isHTML || $isHTML === WTUtils::isLiteralHTMLNode( $sibling ) )
 			) {
 				return $sibling;
 			}
@@ -93,31 +117,34 @@ class ProcessTreeBuilderFixups {
 		return null;
 	}
 
-	// This pass:
-	// 1. Finds start-tag marker metas that dont have a corresponding start tag
-	// and adds placeholder metas for the purposes of round-tripping.
-	// 2. Deletes any useless end-tag marker metas
-	public function findDeletedStartTags( $env, $node ) {
+	/**
+	 * This pass:
+	 * 1. Finds start-tag marker metas that dont have a corresponding start tag
+	 * and adds placeholder metas for the purposes of round-tripping.
+	 * 2. Deletes any useless end-tag marker metas
+	 *
+	 * @param Env $env
+	 * @param DOMNode $node
+	 */
+	private static function findDeletedStartTags( Env $env, DOMNode $node ): void {
 		// handle unmatched mw:StartTag meta tags
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			$sibling = $c->nextSibling;
-			if ( DOMUtils::isElt( $c ) ) {
+			if ( $c instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $c );
-				if ( $c->nodeName === 'META' ) {
-					$metaType = $c->getAttribute( 'typeof' ) || '';
+				if ( $c->nodeName === 'meta' ) {
+					$metaType = $c->getAttribute( 'typeof' );
 					if ( $metaType === 'mw:StartTag' ) {
-						$dataStag = $c->getAttribute( 'data-stag' ) || '';
+						$dataStag = $c->getAttribute( 'data-stag' );
 						$data = explode( ':', $dataStag );
-						$expectedName = $data[ 0 ];
+						$expectedName = $data[0];
 						$prevSibling = $c->previousSibling;
-						if ( ( $prevSibling && strtolower( $prevSibling->nodeName ) !== $expectedName )
-|| ( !$prevSibling && strtolower( $c->parentNode->nodeName ) !== $expectedName )
+						if ( ( $prevSibling && $prevSibling->nodeName !== $expectedName ) ||
+							( !$prevSibling && $c->parentNode->nodeName !== $expectedName )
 						) {
-							if ( $c && $dp->stx !== 'html'
-&& ( $expectedName === 'td'
-|| $expectedName === 'tr'
-|| $expectedName === 'th' )
+							if ( $c && ( $dp->stx ?? null ) !== 'html' &&
+								( $expectedName === 'td' || $expectedName === 'tr' || $expectedName === 'th' )
 							) {
 								// A stripped wikitext-syntax td tag outside
 								// of a table.  Re-insert the original page
@@ -130,65 +157,72 @@ class ProcessTreeBuilderFixups {
 								//
 								// Also, do the paragraph wrapping on the DOM.
 								$origTxt = null;
-								if ( $dp->tsr
-&& $dp->tsr[ 0 ] !== null && $dp->tsr[ 1 ] !== null
-&& $env->page->src
+								if ( !empty( $dp->tsr ) &&
+									$dp->tsr[0] !== null && $dp->tsr[1] !== null &&
+									$env->getPageMainContent()
 								) {
-									$origTxt = substr( $env->page->src, $dp->tsr[ 0 ], $dp->tsr[ 1 ]/*CHECK THIS*/ );
+									$width = $dp->tsr[1] - $dp->tsr[0];
+									$origTxt = mb_substr( $env->getPageMainContent(), $dp->tsr[0], $width );
 									$origTxtNode = $c->ownerDocument->createTextNode( $origTxt );
 									$c->parentNode->insertBefore( $origTxtNode, $c );
 								} else {
 									switch ( $expectedName ) {
 										case 'td':
-										$origTxt = '|';
-
-break;
+											$origTxt = '|';
+											break;
 										case 'tr':
-										$origTxt = '|-';
-
-break;
+											$origTxt = '|-';
+											break;
 										case 'th':
-										$origTxt = '!';
-
-break;
+											$origTxt = '!';
+											break;
 										default:
-										$origTxt = '';
-
-break;
+											$origTxt = '';
+											break;
 									}
 									$c->parentNode->insertBefore(
-										$c->ownerDocument->createTextNode( $origTxt ), $c
+										$c->ownerDocument->createTextNode( $origTxt ),
+										$c
 									);
 								}
 							} else {
-								$this->addPlaceholderMeta( $env, $c, $dp, $expectedName, [ 'start' => true, 'tsr' => $dp->tsr ] );
+								self::addPlaceholderMeta(
+									$env,
+									$c,
+									$dp,
+									$expectedName,
+									(object)[ 'start' => true, 'tsr' => $dp->tsr ]
+								);
 							}
 						}
-						$this->deleteShadowMeta( $c );
-					} elseif ( $metaType === 'mw:EndTag' && !$dp->tsr ) {
+						self::deleteShadowMeta( $c );
+					} elseif ( $metaType === 'mw:EndTag' && empty( $dp->tsr ) ) {
 						// If there is no tsr, this meta is useless for DSR
 						// calculations. Remove the meta to avoid breaking
 						// other brittle DOM passes working on the DOM.
-						$this->deleteShadowMeta( $c );
+						self::deleteShadowMeta( $c );
 
 						// TODO: preserve stripped wikitext end tags similar
 						// to start tags!
 					}
 				} else {
-					$this->findDeletedStartTags( $env, $c );
+					self::findDeletedStartTags( $env, $c );
 				}
 			}
 			$c = $sibling;
 		}
 	}
 
-	// This pass tries to match nodes with their start and end tag marker metas
-	// and adds autoInsertedEnd/Start flags if it detects the tags to be inserted by
-	// the HTML tree builder
-	public function findAutoInsertedTags( $env, $node ) {
+	/**
+	 * This pass tries to match nodes with their start and end tag marker metas
+	 * and adds autoInsertedEnd/Start flags if it detects the tags to be inserted by
+	 * the HTML tree builder
+	 *
+	 * @param Env $env
+	 * @param DOMNode $node
+	 */
+	private static function findAutoInsertedTags( Env $env, DOMNode $node ): void {
 		$c = $node->firstChild;
-		$sibling = null;
-$expectedName = null;
 
 		while ( $c !== null ) {
 			// Skip over enscapsulated content
@@ -197,12 +231,12 @@ $expectedName = null;
 				continue;
 			}
 
-			if ( DOMUtils::isElt( $c ) ) {
+			if ( $c instanceof DOMElement ) {
 				// Process subtree first
-				$this->findAutoInsertedTags( $env, $c );
+				self::findAutoInsertedTags( $env, $c );
 
 				$dp = DOMDataUtils::getDataParsoid( $c );
-				$cNodeName = strtolower( $c->nodeName );
+				$cNodeName = $c->nodeName;
 
 				// Dont bother detecting auto-inserted start/end if:
 				// -> c is a void element
@@ -211,27 +245,27 @@ $expectedName = null;
 				// tbody-tags dont exist in wikitext and are always
 				// closed properly.  How about figure, caption, ... ?
 				// Is this last check useless optimization?????
-				if ( !Util::isVoidElement( $cNodeName )
-&& !$dp->selfClose
-&& ( $cNodeName !== 'tbody' || WTUtils::hasLiteralHTMLMarker( $dp ) )
+				if ( !Util::isVoidElement( $cNodeName ) &&
+					empty( $dp->selfClose ) &&
+					( $cNodeName !== 'tbody' || WTUtils::hasLiteralHTMLMarker( $dp ) )
 				) {
 					// Detect auto-inserted end-tags
-					$metaNode = $this->findMetaShadowNode( $c, 'mw:EndTag', $cNodeName );
+					$metaNode = self::findMetaShadowNode( $c, 'mw:EndTag', $cNodeName );
 					if ( !$metaNode ) {
 						// 'c' is a html node that has tsr, but no end-tag marker tag
 						// => its closing tag was auto-generated by treebuilder.
 						$dp->autoInsertedEnd = true;
 					}
 
-					if ( $dp->tmp->tagId ) {
+					if ( !empty( $dp->tmp->tagId ) ) {
 						// Detect auto-inserted start-tags
 						$fc = $c->firstChild;
 						while ( $fc ) {
-							if ( !DOMUtils::isElt( $fc ) ) {
+							if ( !$fc instanceof DOMElement ) {
 								break;
 							}
 							$fcDP = DOMDataUtils::getDataParsoid( $fc );
-							if ( $fcDP->autoInsertedStart ) {
+							if ( !empty( $fcDP->autoInsertedStart ) ) {
 								$fc = $fc->firstChild;
 							} else {
 								break;
@@ -239,12 +273,15 @@ $expectedName = null;
 						}
 
 						$expectedName = $cNodeName . ':' . $dp->tmp->tagId;
-						if ( $fc
-&& DOMUtils::isMarkerMeta( $fc, 'mw:StartTag' )
-&& $fc->getAttribute( 'data-stag' )->startsWith( $expectedName )
+						if ( $fc instanceof DOMElement && DOMUtils::isMarkerMeta( $fc, 'mw:StartTag' ) &&
+							substr(
+								$fc->getAttribute( 'data-stag' ),
+								0,
+								strlen( $expectedName )
+							) === $expectedName
 						) {
 							// Strip start-tag marker metas that has its matching node
-							$this->deleteShadowMeta( $fc );
+							self::deleteShadowMeta( $fc );
 						} else {
 							$dp->autoInsertedStart = true;
 						}
@@ -254,17 +291,18 @@ $expectedName = null;
 						$dp->autoInsertedStart = true;
 					}
 				} elseif ( $cNodeName === 'meta' ) {
-					$type = $c->getAttribute( 'typeof' ) || '';
+					$type = $c->getAttribute( 'typeof' );
 					if ( $type === 'mw:EndTag' ) {
 						// Got an mw:EndTag meta element, see if the previous sibling
 						// is the corresponding element.
 						$sibling = $c->previousSibling;
-						$expectedName = $c->getAttribute( 'data-etag' ) || '';
-						if ( !$sibling || strtolower( $sibling->nodeName ) !== $expectedName ) {
+						$expectedName = $c->getAttribute( 'data-etag' );
+						if ( !$sibling || $sibling->nodeName !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
-							$this->addPlaceholderMeta( $env, $c, $dp, $expectedName, [ 'end' => true ] );
-						} elseif ( $dp->stx ) {
+							self::addPlaceholderMeta( $env, $c, $dp, $expectedName, (object)[ 'end' => true ] );
+						} elseif ( !empty( $dp->stx ) ) {
+							DOMUtils::assertElt( $sibling );
 							// Transfer stx flag
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
 							$siblingDP->stx = $dp->stx;
@@ -280,7 +318,7 @@ $expectedName = null;
 	// Done after `findDeletedStartTags` to give it a chance to cleanup any
 	// leftover meta markers that may trip up the check for whether this element
 	// is indeed empty.
-	public function removeAutoInsertedEmptyTags( $env, $node ) {
+	private static function removeAutoInsertedEmptyTags( Env $env, DOMNode $node ) {
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			// FIXME: Encapsulation only happens after this phase, so you'd think
@@ -292,8 +330,8 @@ $expectedName = null;
 				continue;
 			}
 
-			if ( DOMUtils::isElt( $c ) ) {
-				$this->removeAutoInsertedEmptyTags( $env, $c );
+			if ( $c instanceof DOMElement ) {
+				self::removeAutoInsertedEmptyTags( $env, $c );
 				$dp = DOMDataUtils::getDataParsoid( $c );
 
 				// We do this down here for all elements since the quote transformer
@@ -303,10 +341,13 @@ $expectedName = null;
 				// stripping to result in empty paragraphs.
 
 				// Delete empty auto-inserted elements
-				if ( $dp->autoInsertedStart && $dp->autoInsertedEnd
-&& !$c->hasChildNodes()
-|| ( DOMUtils::hasNChildren( $c, 1 ) && !DOMUtils::isElt( $c->firstChild )
-&& preg_match( '/^\s*$/', $c->textContent ) )
+				if ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) &&
+					( !$c->hasChildNodes() ||
+						( DOMUtils::hasNChildren( $c, 1 ) &&
+							!DOMUtils::isElt( $c->firstChild ) &&
+							preg_match( '/^\s*$/', $c->textContent )
+						)
+					)
 				) {
 					$next = $c->nextSibling;
 					if ( $c->firstChild ) {
@@ -324,14 +365,12 @@ $expectedName = null;
 	}
 
 	/**
+	 * @param DOMElement $body
+	 * @param Env $env
 	 */
-	public function run( $body, $env ) {
-		$this->findAutoInsertedTags( $env, $body );
-		$this->findDeletedStartTags( $env, $body );
-		$this->removeAutoInsertedEmptyTags( $env, $body );
+	public static function run( DOMElement $body, Env $env ): void {
+		self::findAutoInsertedTags( $env, $body );
+		self::findDeletedStartTags( $env, $body );
+		self::removeAutoInsertedEmptyTags( $env, $body );
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->ProcessTreeBuilderFixups = $ProcessTreeBuilderFixups;
 }

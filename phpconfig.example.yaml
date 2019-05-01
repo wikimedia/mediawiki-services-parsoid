@@ -43,6 +43,7 @@ wt2html:
    DOM:
      # Processors that provide their own DOM Traversal
      PWrap: false
+     ProcessTreeBuilderFixups: false
      ComputeDSR: false
      Linter: false
      WrapSections: false
