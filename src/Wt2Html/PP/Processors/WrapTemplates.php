@@ -1131,7 +1131,7 @@ class WrapTemplates {
 								$tplRanges[] = self::getDOMRange( $env, $doc, $elem, $aboutRef->end, $aboutRef->end );
 							} else {
 								// should not happen!
-								$env->log( 'warn/template', 'start found after content for', $about );
+								Assert::invariant( false, "start found after content for $about." );
 							}
 						} else {
 							$tpls[$about] = (object)[ 'start' => $elem ];
