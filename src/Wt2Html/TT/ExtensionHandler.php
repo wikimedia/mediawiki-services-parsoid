@@ -195,7 +195,7 @@ class ExtensionHandler extends TokenHandler {
 		$env = $this->manager->env;
 
 		$argDict = Util::getExtArgInfo( $state->token )->dict;
-		if ( !$state->token->dataAttribs->extTagWidths[ 1 ] ) {
+		if ( $state->token->dataAttribs->extTagOffsets[ 2 ] === $state->token->dataAttribs->extTagOffsets[ 3 ] ) {
 			$argDict->body = null; // Serialize to self-closing.
 		}
 		// Give native extensions a chance to manipulate the argDict

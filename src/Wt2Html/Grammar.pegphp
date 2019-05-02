@@ -154,7 +154,7 @@
 		}
 
 		$dp = $t->dataAttribs;
-		$skipLen = 0;
+		$skipPos = $this->currPos;
 
 		switch ( get_class( $t ) ) {
 			case EndTagTk::class:
@@ -170,20 +170,19 @@
 
 			case SelfclosingTagTk::class:
 				$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-				$dp->extTagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
+				$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $dp->tsr[1], $dp->tsr[1] ];
 				if ( $isIncludeTag ) {
 					return $t;
 				}
 				break;
 
 			case TagTk::class:
-				$tsr0 = $dp->tsr[0];
 				$endTagRE = '~.*?(</\s*' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
-				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $tsr0 );
+				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr[0] );
 
 				if ( !$tagContentFound ) {
 					$dp->src = substr( $this->input, $dp->tsr[0], $dp->tsr[1] - $dp->tsr[0] );
-					$dp->extTagWidths = [ $dp->tsr[1] - $dp->tsr[0], 0 ];
+					$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $dp->tsr[1], $dp->tsr[1] ];
 					if ( $isIncludeTag ) {
 						return $t;
 					} else {
@@ -201,7 +200,8 @@
 				}
 
 				$extSrc = $tagContent[0];
-				$endTagWidth = strlen( $tagContent[1] );
+				$extEndOffset = $dp->tsr[0] + strlen( $extSrc );
+				$extEndTagWidth = strlen( $tagContent[1] );
 
 				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
 					// Support 1-level of nesting in extensions tags while
@@ -228,7 +228,7 @@
 					// Expand `extSrc` as long as there is a <tagName> found in the
 					// extension source body.
 					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '[^/<>]*>~i';
-					$s = substr( $extSrc, $this->endOffset() - $tsr0 );
+					$s = substr( $extSrc, $this->endOffset() - $dp->tsr[0] );
 					while ( strlen( $s ) ) {
 						if ( !preg_match( $startTagRE, $s, $m ) ) {
 							break;
@@ -237,21 +237,22 @@
 							break;
 						}
 						$s = $tagContent[0];
-						$endTagWidth = strlen( $m[1] );
-						$extSrc .= $tagContent[0];
+						$extEndOffset += strlen( $s );
+						$extEndTagWidth = strlen( $tagContent[1] );
+						$extSrc .= $s;
 					}
 				}
 
 				// Extension content source
 				$dp->src = $extSrc;
-				$dp->extTagWidths = [ $this->endOffset() - $tsr0, $endTagWidth ];
+				$dp->extTagOffsets = [ $dp->tsr[0], $dp->tsr[1], $extEndOffset - $extEndTagWidth, $extEndOffset ];
 
-				$skipLen = strlen( $extSrc ) - $dp->extTagWidths[0] - $dp->extTagWidths[1];
+				$skipPos = $dp->extTagOffsets[2];
 
 				// If the xml-tag is a known installed (not native) extension,
 				// skip the end-tag as well.
 				if ( $isInstalledExt ) {
-					$skipLen += $endTagWidth;
+					$skipPos = $dp->extTagOffsets[3];
 				}
 				break;
 
@@ -259,7 +260,7 @@
 				$this->unreachable();
 		}
 
-		$this->currPos += $skipLen;
+		$this->currPos = $skipPos;
 
 		if ( $isInstalledExt ) {
 			// update tsr[1] to span the start and end tags.
@@ -274,13 +275,13 @@
 			);
 		} elseif ( $isIncludeTag ) {
 			// Parse ext-content, strip eof, and shift tsr
-			$extContent = substr( $dp->src, $dp->extTagWidths[ 0 ],
-				strlen( $dp->src ) - $dp->extTagWidths[1] - $dp->extTagWidths[0] );
-			$extContentToks = ( new PegTokenizer( $this->env ) )->tokenizeSync( $extContent );
-			if ( $dp->extTagWidths[1] > 0 ) {
+			$extContent = substr( $dp->extTagOffsets[ 1 ] - $dp->extTagOffsets[0], $dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
+			$tokenizer = new PegTokenizer( $this->env );
+			$tokenizer->setSourceOffsets( $dp->extTagOffsets[1], $dp->extTagOffsets[2] );
+			$extContentToks = $tokenizer->tokenizeSync( $extContent );
+			if ( $dp->extTagOffsets[2] !== $dp->extTagOffsets[3] ) {
 				TokenUtils::stripEOFTkFromTokens( $extContentToks );
 			}
-			TokenUtils::shiftTokenTSR( $extContentToks, $dp->tsr[0] + $dp->extTagWidths[0] );
 			array_unshift( $extContentToks, $t );
 			return $extContentToks;
 		} else {
@@ -2283,8 +2284,8 @@ include_limits =
 		// Last line should be empty (except for comments)
 		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
 			$dp = $il->dataAttribs;
-			$inclContent = substr( $dp->src, $dp->extTagWidths[0],
-				strlen( $dp->src ) - $dp->extTagWidths[ 1 ] - $dp->extTagWidths[0] );
+			$inclContent = substr( $dp->extTagOffsets[1] - $dp->extTagOffsets[0],
+				$dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
 			$nlpos = strrpos( $inclContent, "\n" );
 			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
 			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {

@@ -231,6 +231,13 @@ class TokenUtils {
 						}
 					}
 
+					if ( $offset && $da->extTagOffsets ) {
+						$da->extTagOffsets[0] += $offset;
+						$da->extTagOffsets[1] += $offset;
+						$da->extTagOffsets[2] += $offset;
+						$da->extTagOffsets[3] += $offset;
+					}
+
 					// SSS FIXME: offset will always be available in
 					// chunky-tokenizer mode in which case we wont have
 					// buggy offsets below.  The null scenario is only
@@ -433,7 +440,6 @@ class TokenUtils {
 		$offsets = [];
 		self::collectOffsets( $offsets, $tokens );
 		self::convertOffsets( $s, $from, $to, $offsets );
-		self::fixupOffsets( $tokens );
 	}
 
 	/**
@@ -471,39 +477,10 @@ class TokenUtils {
 			if ( isset( $input->dataAttribs->tokens ) ) {
 				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
 			}
-			if ( isset( $input->dataAttribs->extTagWidths ) ) {
-				// This is tricky: convert these to offsets, and then reconvert
-				// to widths in a post-processing pass
-				$input->dataAttribs->extTagWidths[0] = $input->dataAttribs->tsr[0] + $input->dataAttribs->extTagWidths[0];
-				$input->dataAttribs->extTagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->extTagWidths[1];
-				self::pushOffsets( $offsets, $input->dataAttribs->extTagWidths );
+			if ( isset( $input->dataAttribs->extTagOffsets ) ) {
+				self::pushOffsets( $offsets, $input->dataAttribs->extTagOffsets );
 			}
 			self::collectOffsets( $offsets, $input->attribs );
-		}
-	}
-
-	/**
-	 * @param array<Token>|array<KV>|KV|Token|string $input
-	 */
-	private static function fixupOffsets( $input ):void {
-		if ( is_array( $input ) ) {
-			foreach ( $input as $token ) {
-				self::fixupOffsets( $token );
-			}
-		} elseif ( $input instanceof KV ) {
-			self::fixupOffsets( $input->k );
-			self::fixupOffsets( $input->v );
-		} elseif ( $input instanceof Token ) {
-			if ( isset( $input->dataAttribs->tokens ) ) {
-				self::fixupOffsets( $input->dataAttribs->tokens );
-			}
-			if ( isset( $input->dataAttribs->extTagWidths ) ) {
-				// Reconvert offsets to widths
-				// to widths in a post-processing pass
-				$input->dataAttribs->extTagWidths[0] = $input->dataAttribs->extTagWidths[0] - $input->dataAttribs->tsr[0];
-				$input->dataAttribs->extTagWidths[1] = $input->dataAttribs->tsr[1] - $input->dataAttribs->extTagWidths[1];
-			}
-			self::fixupOffsets( $input->attribs );
 		}
 	}
 

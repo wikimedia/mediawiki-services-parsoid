@@ -210,8 +210,11 @@ class ComputeDSR {
 	 * @return int[]
 	 */
 	private function computeTagWidths( array $widths, DOMNode $node, StdClass $dp ): array {
-		if ( isset( $dp->extTagWidths ) ) {
-			return $dp->extTagWidths;
+		if ( isset( $dp->extTagOffsets ) ) {
+			return [
+				$dp->extTagOffsets[1] - $dp->extTagOffsets[0],
+				$dp->extTagOffsets[3] - $dp->extTagOffsets[2]
+			];
 		}
 
 		$stWidth = $widths[0];
@@ -473,10 +476,10 @@ class ComputeDSR {
 							$cs = $ce;
 						}
 					}
-					if ( isset( $dp->extTagWidths ) ) {
-						$stWidth = $dp->extTagWidths[0];
-						$etWidth = $dp->extTagWidths[1];
-						unset( $dp->extTagWidths );
+					if ( isset( $dp->extTagOffsets ) ) {
+						$stWidth = $dp->extTagOffsets[1] - $dp->extTagOffsets[0];
+						$etWidth = $dp->extTagOffsets[3] - $dp->extTagOffsets[2];
+						unset( $dp->extTagOffsets );
 					}
 				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
 					$cs = $ce - mb_strlen( $dp->src );

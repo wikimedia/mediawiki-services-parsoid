@@ -245,8 +245,12 @@ class Util {
 	 */
 	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
-		$extTagWidths = $token->dataAttribs->extTagWidths;
-		return mb_substr( $src, $extTagWidths[0], -$extTagWidths[1] );
+		$extTagOffsets = $token->dataAttribs->extTagOffsets;
+		return mb_substr(
+			$src,
+			$extTagOffsets[1] - $extTagOffsets[0],
+			$extTagOffsets[2] - $extTagOffsets[3]
+		);
 	}
 
 	/**

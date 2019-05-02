@@ -83,9 +83,8 @@ $parseWikitextToDOM = /* async */function ( $state, $wikitext, $srcOffsets, $par
  */
 $parseTokenContentsToDOM = /* async */function ( $state, $extArgs, $leadingWS, $wikitext, $parseOpts ) use ( &$parseWikitextToDOM, &$DOMUtils, &$Sanitizer, &$DOMDataUtils ) {
 	$dataAttribs = $state->extToken->dataAttribs;
-	$tsr = $dataAttribs->tsr;
-	$extTagWidths = $dataAttribs->extTagWidths;
-	$srcOffsets = [ $tsr[ 0 ] + $extTagWidths[ 0 ] + count( $leadingWS ), $tsr[ 1 ] - $extTagWidths[ 1 ] ];
+	$extTagOffsets = $dataAttribs->extTagOffsets;
+	$srcOffsets = [ $extTagOffsets[ 1 ] + count( $leadingWS ), $extTagOffsets[ 2 ] ];
 
 	$doc = /* await */ $parseWikitextToDOM( $state, $wikitext, $srcOffsets, $parseOpts, /* sol */true );
 

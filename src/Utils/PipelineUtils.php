@@ -558,7 +558,7 @@ $PipelineUtils = [
 		$tokenTsr = $opts->tsr || ( ( $token->dataAttribs ) ? $token->dataAttribs->tsr : null );
 		if ( $tokenTsr ) {
 			$firstWrapperToken->dataAttribs->tsr = $tokenTsr;
-			$firstWrapperToken->dataAttribs->extTagWidths = ( $token->dataAttribs ) ? $token->dataAttribs->extTagWidths : null;
+			$firstWrapperToken->dataAttribs->extTagOffsets = ( $token->dataAttribs ) ? $token->dataAttribs->extTagOffsets : null;
 			$endTsr = [ $tokenTsr[ 1 ], $tokenTsr[ 1 ] ];
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
 				$toks[ $i ]->dataAttribs->tsr = $endTsr;
