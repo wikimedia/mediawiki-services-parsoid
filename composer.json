@@ -55,13 +55,16 @@
 		}
 	},
 	"scripts": {
-		"test": [
+		"php-test": [
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
 			"phpunit",
 			"phpspec run -v --ansi",
-			"@phan",
+			"@phan"
+		],
+		"test": [
+			"@php-test",
 			"@parserTests-hybrid-sanitizer"
 		],
 		"fix": [
