@@ -42,6 +42,7 @@ wt2html:
      SanitizerHandler: false
    DOM:
      # Processors that provide their own DOM Traversal
+     AddMediaInfo: false
      PWrap: false
      ProcessTreeBuilderFixups: false
      AddRedLinks: false

@@ -24,6 +24,7 @@ use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
+use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
@@ -351,13 +352,13 @@ switch ( $test ) {
 				],
 				'omit' => ( $test !== 'DedupeStyles' )
 			],
-			/*
 			[
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media',
 				'omit' => ( $test !== 'AddMediaInfo' )
 			],
-			[
+			/*
+			 [
 				'name' => 'Headings-genAnchors',
 				'shortcut' => 'headings',
 				'isTraverser' => true,
