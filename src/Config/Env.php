@@ -96,8 +96,12 @@ class Env {
 	 * @param array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
-	 *  - traceFlags: (bool[]) Trace flags
+	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
+	 *  - uid: (int) Initial value of UID used to generate ids during parse.
+	 *         defaults to 1.
+	 *         PORT-FIXME: This construction option is required to support hybrid
+	 *         testing and can be removed after porting and testing is complete.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
@@ -109,6 +113,7 @@ class Env {
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
+		$this->uid = (int)( $options['uid'] ?? 1 );
 	}
 
 	/**
@@ -142,6 +147,10 @@ class Env {
 	 */
 	public function getWrapSections(): bool {
 		return $this->wrapSections;
+	}
+
+	public function getUID(): int {
+		return $this->uid;
 	}
 
 	/**

@@ -32,8 +32,9 @@ function readTokens( string $input ): array {
 /**
  * Serialize output tokens to JSON
  */
-function serializeTokens( $tokens ) {
-	$output = "";
+function serializeTokens( $env, $tokens ) {
+	// First line will be the new UID for env
+	$output = (string)$env->getUID() . "\n";
 	foreach ( $tokens as $t ) {
 		if ( is_array( $t ) ) {
 			# chunk boundary
@@ -98,6 +99,7 @@ $input = file_get_contents( $inputFileName );
 $apiEndpoint = preg_match( '/^(.*)wiki$/', $opts['prefix'] ?? '', $m ) === 1 ?
 	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $opts['apiURI'];
 $env = new ApiEnv( [
+	"uid" => $opts['currentUid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
 	"pageContent" => $opts['pageContent'] ?? $input,
 	"pageLanguage" => $opts['pagelanguage'] ?? null,
@@ -114,7 +116,7 @@ foreach ( $opts['tags'] ?? [] as $tag ) {
 
 switch ( $stageName ) {
 	case "PegTokenizer":
-		$out = serializeTokens( parse( $env, $input, $opts ) );
+		$out = serializeTokens( $env, parse( $env, $input, $opts ) );
 		break;
 
 	case "SyncTokenTransformManager":
@@ -134,8 +136,8 @@ switch ( $stageName ) {
 		$out = '';
 
 		/* Add listener */
-		$ttm->addListener( 'chunk', function ( $tokens ) use ( &$out ) {
-			$out = serializeTokens( $tokens );
+		$ttm->addListener( 'chunk', function ( $tokens ) use ( $env, &$out ) {
+			$out = serializeTokens( $env, $tokens );
 		} );
 
 		/* Process tokens */
@@ -149,6 +151,8 @@ switch ( $stageName ) {
 		$tb->onChunk( $toks );
 		$doc = $tb->onEnd();
 		$body = DOMCompat::getBody( $doc );
+		// HACK: Piggyback new uid for env on <body>
+		$body->setAttribute( "data-env-newuid", $env->getUID() );
 		$out = ContentUtils::ppToXML( $body, [
 			'keepTmp' => true,
 			'tunnelFosteredContent' => true,

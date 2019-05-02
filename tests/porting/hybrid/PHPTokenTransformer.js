@@ -30,6 +30,7 @@ class PHPTokenTransformer extends TokenHandler {
 		fs.writeFileSync(fileName, tokens.map(t => JSON.stringify(t)).join('\n'));
 
 		const opts = {
+			currentUid: env.uid,
 			pageContent: env.page.src,
 			prefix: env.conf.wiki.iwp,
 			apiURI: env.conf.wiki.apiURI,
@@ -59,7 +60,12 @@ class PHPTokenTransformer extends TokenHandler {
 			throw res.error;
 		}
 
-		const toks = res.stdout.toString().split("\n").map((str) => {
+		// First line will be the new UID for env
+		const lines = res.stdout.toString().trim().split("\n");
+		const newEnvUID = lines.shift();
+		this.env.uid = newEnvUID;
+
+		const toks = lines.map((str) => {
 			return str ? JSON.parse(str, (k, v) => TokenUtils.getToken(v)) : "";
 		});
 

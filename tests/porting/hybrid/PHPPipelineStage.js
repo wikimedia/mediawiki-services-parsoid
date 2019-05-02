@@ -107,16 +107,27 @@ class PHPPipelineStage {
 	}
 
 	loadDOMFromStdout(out) {
-		return ContentUtils.ppToDOM(this.env, out, {
+		const body = ContentUtils.ppToDOM(this.env, out, {
 			reinsertFosterableContent: true,
 			markNew: true
-		}).ownerDocument;
+		});
+
+		// Extract piggybacked env uid from <body>
+		this.env.uid = parseInt(body.getAttribute("data-env-newuid"), 10);
+		body.removeAttribute("data-env-newuid");
+
+		return body.ownerDocument;
 	}
 
 	emitTokens(out) {
+		// First line will be the new UID for env
+		const lines = out.trim().split("\n");
+		const newEnvUID = lines.shift();
+		this.env.uid = newEnvUID;
+
 		const toks = [];
 		let chunk = [];
-		for (const str of out.trim().split("\n")) {
+		for (const str of lines) {
 			if (str === '--') {
 				toks.push(chunk);
 				chunk = [];
@@ -134,6 +145,7 @@ class PHPPipelineStage {
 
 	mkOpts(extra = {}) {
 		return Object.assign({}, {
+			currentUid: this.env.uid,
 			pageContent: this.env.page.src,
 			prefix: this.env.conf.wiki.iwp,
 			apiURI: this.env.conf.wiki.apiURI,

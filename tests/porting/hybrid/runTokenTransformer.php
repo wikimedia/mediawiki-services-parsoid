@@ -54,6 +54,7 @@ $transformer = null;
 $apiEndpoint = preg_match( '/^(.*)wiki$/', $opts['prefix'] ?? '', $m ) === 1 ?
 	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $opts['apiURI'];
 $env = new ApiEnv( [
+	"uid" => $opts['currentUid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
 	"pageContent" => $opts['pageContent'] ?? $input,
 	"pageLanguage" => $opts['pagelanguage'] ?? null,
@@ -121,8 +122,9 @@ if ( !$transformer->isDisabled() ) {
 
 /**
  * Serialize output tokens to JSON
+ * First line will be the new UID for env.
  */
-$output = "";
+$output = (string)$env->getUID() . "\n";
 foreach ( $tokens as $t ) {
 	$output .= PHPUtils::jsonEncode( $t );
 	if ( !( $t instanceof EOFTk ) ) {

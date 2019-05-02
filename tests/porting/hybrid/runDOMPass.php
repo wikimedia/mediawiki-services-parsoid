@@ -56,6 +56,7 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 		// DOM processors are currently using.
 		$hackyEnvOpts = $opts['hackyEnvOpts'];
 		$env = new MockEnv( [
+			"uid" => $hackyEnvOpts['currentUid'] ?? -1,
 			"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
 			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 			"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
@@ -80,6 +81,8 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 	$dp = DOMDataUtils::getDataParsoid( $body );
 	$dp->tmp->phpDOMLints = $env->getLints();
 
+	// HACK: Piggyback new uid for env on <body>
+	$body->setAttribute( "data-env-newuid", $env->getUID() );
 	$out = serializeDOM( $body );
 
 	/**
@@ -93,6 +96,7 @@ function runDOMHandlers( $argv, $opts, $addHandlersCB ) {
 	$transformer = new DOMTraverser();
 	$hackyEnvOpts = $opts['hackyEnvOpts'];
 	$env = new MockEnv( [
+		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
 		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 		"pageContent" => $hackyEnvOpts['pageContent'] ?? null
 	] );
@@ -104,6 +108,7 @@ function runDOMDiff( $argv, $opts ) {
 	$hackyEnvOpts = $opts['hackyEnvOpts'];
 
 	$env = new MockEnv( [
+		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
 		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
 		"pageId" => $hackyEnvOpts['pageId'] ?? null
@@ -127,6 +132,7 @@ function runDOMNormalizer( $argv, $opts ) {
 	$hackyEnvOpts = $opts['hackyEnvOpts'];
 
 	$env = new MockEnv( [
+		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
 		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
 		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
 		"scrubWikitext" => $hackyEnvOpts['scrubWikitext'] ?? false
@@ -142,6 +148,8 @@ function runDOMNormalizer( $argv, $opts ) {
 	] );
 	$normalizer->normalize( $body );
 
+	// HACK: Piggyback new uid for env on <body>
+	$body->setAttribute( "data-env-newuid", $env->getUID() );
 	$out = serializeDOM( $body );
 	unlink( $htmlFileName );
 	return $out;

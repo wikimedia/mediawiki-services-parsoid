@@ -16,6 +16,12 @@ class PHPDOMPass {
 		fs.writeFileSync(fileName, html);
 	}
 
+	updateEnvUid(env, dom) {
+		// Extract piggybacked env uid from <body>
+		env.uid = parseInt(dom.body.getAttribute("data-env-newuid"), 10);
+		dom.body.removeAttribute("data-env-newuid");
+	}
+
 	loadDOMFromStdout(env, res) {
 		const stdout = res.stdout.toString();
 
@@ -23,6 +29,8 @@ class PHPDOMPass {
 			reinsertFosterableContent: true,
 			markNew: true
 		}).ownerDocument;
+
+		this.updateEnvUid(env, newDom);
 
 		// Read Linter output (if any) from the body node's tmp data
 		var dp = DOMDataUtils.getDataParsoid(newDom.body);
@@ -54,6 +62,7 @@ class PHPDOMPass {
 		}
 
 		const hackyEnvOpts = {
+			currentUid: env.uid,
 			// These are the only env properties used by DOM processors
 			// in wt2html/pp/processors/*. Handlers may use other properties.
 			// We can cross that bridge when we get there.
@@ -94,6 +103,8 @@ class PHPDOMPass {
 			reinsertFosterableContent: true,
 			markNew: true
 		}).ownerDocument.body;
+
+		this.updateEnvUid(env, ret.dom.ownerDocument);
 
 		return ret;
 	}
