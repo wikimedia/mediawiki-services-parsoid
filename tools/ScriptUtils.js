@@ -145,6 +145,7 @@ var ScriptUtils = {
 			"-------",
 			"- With one or more comma-separated flags, traces those specific phases",
 			"- Supported flags:",
+			"  * pre-peg   : shows input to tokenizer",
 			"  * peg       : shows tokens emitted by tokenizer",
 			"  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager",
 			"  * async:2   : shows tokens flowing through the Async Token Transform Manager",

@@ -157,6 +157,7 @@ ParsoidLogger::prototype::_defaultBackend = /* async */function ( $logData ) { /
 
 $prettyLogTypeMap = [
 	'debug' => '[DEBUG]',
+	'trace/pre-peg' => '[pre-peg]',
 	'trace/peg' => '[peg]',
 	'trace/pre' => '[PRE]',
 	'debug/pre' => '[PRE-DBG]',

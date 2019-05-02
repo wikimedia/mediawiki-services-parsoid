@@ -149,6 +149,7 @@ class PHPPipelineStage {
 	processWikitext(input, sol) {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.txt`;
 		fs.writeFileSync(fileName, input);
+		this.env.log('trace/pre-peg', this.pipelineId, () => JSON.stringify(input));
 		const out = this.runPHPCode([fileName], this.mkOpts({
 			sol: sol,
 			offsets: this.sourceOffsets,
