@@ -52,6 +52,7 @@ use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
+use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 
 $wgCachedState = false;
 $wgCachedFilePre = '';
@@ -123,7 +124,8 @@ class DOMPassTester {
 			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '#\n$#', '', $testFilePre ) === $dumpOpts['outBuffer'] ) {
+			if ( preg_replace( '/\n$/', '', $testFilePre ) ===
+				preg_replace( '/\n$/', '', $dumpOpts['outBuffer'] ) ) {
 				print "DOM pre output matches genTest Pre output\n";
 			} else {
 				print "DOM pre output DOES NOT match genTest Pre output\n";
@@ -159,6 +161,9 @@ class DOMPassTester {
 			case 'pwrap' :
 				( new PWrap() )->run( $body, $this->env );
 				break;
+			case 'migrate-nls' :
+				( new MigrateTrailingNLs() )->run( $body, $this->env, $opts );
+				break;
 		}
 
 		$this->transformTime += PHPUtils::getHRTimeDifferential( $startTime );
@@ -170,7 +175,8 @@ class DOMPassTester {
 			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '#\n$#', '', $testFilePost ) === $dumpOpts['outBuffer'] ) {
+			if ( preg_replace( '/\n$/', '', $testFilePost ) ===
+				preg_replace( '/\n$/', '', $dumpOpts['outBuffer'] ) ) {
 				print "DOM post transform output matches genTest Post output\n";
 			} else {
 				print "DOM post transform output DOES NOT match genTest Post output\n";

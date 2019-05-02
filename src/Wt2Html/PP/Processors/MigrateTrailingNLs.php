@@ -1,39 +1,60 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\WTUtils as WTUtils;
-
-// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,
-// p) or have implicit closing tags that can leak newlines to those that end a
-// line (th, td)
-//
-// SSS FIXME: Given condition 2, we may not need to check th/td anymore
-// (if we can rely on auto inserted start/end tags being present always).
-$nodesToMigrateFrom = new Set( [
-		'PRE', 'TH', 'TD', 'TR', 'LI', 'DD', 'OL', 'UL', 'DL', 'CAPTION', 'P'
-	]
-);
+use Parsoid\Config\Env;
+use DOMNode;
+use DOMElement;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use stdClass as StdClass;
 
 class MigrateTrailingNLs {
-	public function nodeEndsLineInWT( $node, $dp ) {
-		return $nodesToMigrateFrom->has( $node->nodeName ) && !WTUtils::hasLiteralHTMLMarker( $dp );
+	private static $nodesToMigrateFrom;
+
+	private static function makeNodesToMigrateFrom() {
+		self::$nodesToMigrateFrom = PHPUtils::makeSet( [
+				'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
+			]
+		);
+	}
+	/**
+	 * @param DOMNode $node
+	 * @param StdClass $dp
+	 * @return bool
+	 */
+	private function nodeEndsLineInWT( DOMNode $node, StdClass $dp ): bool {
+		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,
+		// p) or have implicit closing tags that can leak newlines to those that end a
+		// line (th, td)
+		//
+		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
+		// (if we can rely on auto inserted start/end tags being present always).
+		if ( !isset( self::$nodesToMigrateFrom ) ) {
+			self::makeNodesToMigrateFrom();
+		}
+		return isset( self::$nodesToMigrateFrom[$node->nodeName] ) &&
+			!WTUtils::hasLiteralHTMLMarker( $dp );
 	}
 
-	public function getTableParent( $node ) {
-		if ( preg_match( '/^(TD|TH)$/', $node->nodeName ) ) { $node = $node->parentNode;
-  }
-		if ( $node->nodeName === 'TR' ) { $node = $node->parentNode;
-  }
-		if ( preg_match( '/^(TBODY|THEAD|TFOOT|CAPTION)$/', $node->nodeName ) ) { $node = $node->parentNode;
-  }
-		return ( $node->nodeName === 'TABLE' ) ? $node : null;
+	/**
+	 * @param DOMNode $node
+	 * @return DOMNode|null
+	 */
+	private function getTableParent( DOMNode $node ) {
+		if ( preg_match( '/^(td|th)$/', $node->nodeName ) ) {
+			$node = $node->parentNode;
+		}
+		if ( $node->nodeName === 'tr' ) {
+			$node = $node->parentNode;
+		}
+		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/', $node->nodeName ) ) {
+			$node = $node->parentNode;
+		}
+		return ( $node->nodeName === 'table' ) ? $node : null;
 	}
 
 	// We can migrate a newline out of a node if one of the following is true:
@@ -42,35 +63,51 @@ class MigrateTrailingNLs {
 	// and hasn't been fostered out of a table.
 	// (3) It is the rightmost node in the DOM subtree rooted at a node
 	// that ends a line in wikitext
-	public function canMigrateNLOutOfNode( $node ) {
-		if ( !$node || $node->nodeName === 'TABLE' || $node->nodeName === 'BODY' ) {
+	/**
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	private function canMigrateNLOutOfNode( DOMNode $node ): bool {
+		if ( !$node || $node->nodeName === 'table' || $node->nodeName === 'body' ) {
 			return false;
 		}
 
 		// Don't allow migration out of a table if the table has had
 		// content fostered out of it.
 		$tableParent = $this->getTableParent( $node );
-		if ( $tableParent && DOMUtils::isElt( $tableParent->previousSibling )
-&& DOMDataUtils::getDataParsoid( $tableParent->previousSibling )->fostered
-		) {
-			return false;
+		if ( $tableParent && DOMUtils::isElt( $tableParent->previousSibling ) ) {
+			$previousSibling = $tableParent->previousSibling;
+			'@phan-var \DOMElement $previousSibling'; // @var \DOMElement $previousSibling
+			if ( !empty( DOMDataUtils::getDataParsoid( $previousSibling )->fostered )
+			) {
+				return false;
+			}
 		}
 
+		DOMUtils::assertElt( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		return !$dp->fostered && ( $this->nodeEndsLineInWT( $node, $dp ) || $dp->autoInsertedEnd
-|| ( !$node->nextSibling && $this->canMigrateNLOutOfNode( $node->parentNode ) ) );
+		return empty( $dp->fostered ) &&
+			( $this->nodeEndsLineInWT( $node, $dp ) ||
+				!empty( $dp->autoInsertedEnd ) ||
+				( !$node->nextSibling &&
+					$this->canMigrateNLOutOfNode( $node->parentNode ) ) );
 	}
 
 	// A node has zero wt width if:
 	// - tsr[0] == tsr[1]
 	// - only has children with zero wt width
-	public function hasZeroWidthWT( $node ) {
-		$tsr = DOMDataUtils::getDataParsoid( $node )->tsr;
+	/**
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	private function hasZeroWidthWT( DOMElement $node ): bool {
+		$tsr = DOMDataUtils::getDataParsoid( $node )->tsr ?? null;
 		if ( !$tsr || $tsr[ 0 ] === null || $tsr[ 0 ] !== $tsr[ 1 ] ) {
 			return false;
 		}
 
 		$c = $node->firstChild;
+		'@phan-var \DOMElement $c'; // @var \DOMElement $c
 		while ( $c && DOMUtils::isElt( $c ) && $this->hasZeroWidthWT( $c ) ) {
 			$c = $c->nextSibling;
 		}
@@ -79,8 +116,10 @@ class MigrateTrailingNLs {
 	}
 
 	/**
+	 * @param DOMNode $elt
+	 * @param Env $env
 	 */
-	public function migrateTrailingNLs( $elt, $env ) {
+	private function doMigrateTrailingNLs( DOMNode $elt, Env $env ) {
 		// Nothing to do for text and comment nodes
 		if ( !DOMUtils::isElt( $elt ) ) {
 			return;
@@ -99,7 +138,7 @@ class MigrateTrailingNLs {
 		// migrated newline nodes from child's DOM tree).
 		$child = $elt->lastChild;
 		while ( $child !== null ) {
-			$this->migrateTrailingNLs( $child, $env );
+			$this->doMigrateTrailingNLs( $child, $env );
 			$child = $child->previousSibling;
 		}
 
@@ -111,6 +150,7 @@ class MigrateTrailingNLs {
 			$n = $elt->lastChild;
 
 			// We can migrate trailing newlines across nodes that have zero-wikitext-width.
+			'@phan-var \DOMElement $n'; // @var \DOMElement $n
 			while ( $n && DOMUtils::isElt( $n ) && $this->hasZeroWidthWT( $n ) ) {
 				$migrationBarrier = $n;
 				$n = $n->previousSibling;
@@ -126,20 +166,22 @@ class MigrateTrailingNLs {
 				if ( DOMUtils::isComment( $n ) ) {
 					$firstEltToMigrate = $n;
 					// <!--comment-->
+					'@phan-var \DOMComment $n'; // @var \DOMComment $n
 					$tsrCorrection += WTUtils::decodedCommentLength( $n );
 				} else {
-					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/', $n->data ) ) {
+					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = false;
 						// all whitespace is moved
-						$tsrCorrection += count( $n->data );
-					} elseif ( preg_match( '/\n$/', $n->data ) ) {
+						$tsrCorrection += mb_strlen( $n->nodeValue );
+					} elseif ( preg_match( '/\n$/', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = true;
 						// only newlines moved
-						$tsrCorrection += count( preg_match( '/\n+$/', $n->data )[ 0 ] );
+						preg_match( '/\n+$/', $n->nodeValue, $matches );
+						$tsrCorrection += strlen( $matches[ 0 ] ?? '' );
 						break;
 					} else {
 						break;
@@ -161,20 +203,22 @@ class MigrateTrailingNLs {
 				//
 				// So, if the insertPosition is in between an end-tag and
 				// its marker meta-tag, move past that marker meta-tag.
-				if ( $insertPosition
-&& DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' )
-&& $insertPosition->getAttribute( 'data-etag' ) === strtolower( $elt->nodeName )
-				) {
-					$insertPosition = $insertPosition->nextSibling;
+				if ( $insertPosition &&
+					DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' ) ) {
+					'@phan-var \DOMElement $insertPosition'; // @var \DOMElement $insertPosition
+					if ( $insertPosition->getAttribute( 'data-etag' ) === strtolower( $elt->nodeName )
+					) {
+						$insertPosition = $insertPosition->nextSibling;
+					}
 				}
 
 				$n = $firstEltToMigrate;
 				while ( $n !== $migrationBarrier ) {
 					$next = $n->nextSibling;
 					if ( $partialContent ) {
-						$nls = $n->data;
-						$n->data = preg_replace( '/\n+$/', '', $n->data, 1 );
-						$nls = substr( $nls, count( $n->data ) );
+						$nls = $n->nodeValue;
+						$n->nodeValue = preg_replace( '/\n+$/', '', $n->nodeValue, 1 );
+						$nls = substr( $nls, strlen( $n->nodeValue ) );
 						$n = $n->ownerDocument->createTextNode( $nls );
 						$partialContent = false;
 					}
@@ -190,6 +234,7 @@ class MigrateTrailingNLs {
 				while ( $n ) {
 					// TSR is guaranteed to exist and be valid
 					// (checked by hasZeroWidthWT above)
+					DOMUtils::assertElt( $n );
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$dp->tsr[ 0 ] -= $tsrCorrection;
 					$dp->tsr[ 1 ] -= $tsrCorrection;
@@ -199,11 +244,12 @@ class MigrateTrailingNLs {
 		}
 	}
 
-	public function run( $node, $env, $opts ) {
-		$this->migrateTrailingNLs( $node, $env );
+	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param array|null $options
+	 */
+	public function run( DOMNode $node, Env $env, ?array $options = null ) {
+		$this->doMigrateTrailingNLs( $node, $env );
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->MigrateTrailingNLs = $MigrateTrailingNLs;
 }

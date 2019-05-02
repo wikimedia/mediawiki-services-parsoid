@@ -27,6 +27,7 @@ use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
+use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 
 function buildDOM( $env, $fileName ) {
 	$html = file_get_contents( $fileName );
@@ -196,6 +197,9 @@ switch ( $argv[1] ) {
 		break;
 	case 'MigrateTemplateMarkerMetas':
 		$out = runTransform( new MigrateTemplateMarkerMetas(), $argv, $allOpts );
+		break;
+	case 'MigrateTrailingNLs':
+		$out = runTransform( new MigrateTrailingNLs(), $argv, $allOpts );
 		break;
 	case 'DOMDiff':
 		$out = runDOMDiff( $argv, $allOpts );
