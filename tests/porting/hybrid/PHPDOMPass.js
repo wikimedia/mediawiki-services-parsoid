@@ -18,10 +18,6 @@ class PHPDOMPass {
 
 	loadDOMFromStdout(env, res) {
 		const stdout = res.stdout.toString();
-		const stderr = res.stderr.toString();
-		if (stderr) {
-			console.error(stderr);
-		}
 
 		const newDom = ContentUtils.ppToDOM(env, stdout, {
 			reinsertFosterableContent: true,
