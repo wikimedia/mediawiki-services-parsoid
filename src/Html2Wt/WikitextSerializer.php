@@ -122,25 +122,13 @@ class WikitextSerializer {
 			$this->options->rtTestMode = $this->env->conf->parsoid->rtTestMode;
 		}
 
-		$this->state = new SerializerState( $this, $this->options );
-
 		$this->logType = $this->options->logType || 'trace/wts';
 		$this->trace = function ( ...$args ) {return  $this->env->log( $this->logType, ...$args ); };
 
+		$this->state = new SerializerState( $this, $this->options );
+
 		// WT escaping handlers
 		$this->wteHandlers = new WikitextEscapeHandlers( $this->options );
-
-		// Used in multiple tag handlers, and hence added as top-level properties
-		// - linkHandler is used by <a> and <link>
-		// - figureHandler is used by <figure> and by <a>.linkHandler above
-		$this->linkHandler = LinkHandlersModule::linkHandler;
-		$this->figureHandler = LinkHandlersModule::figureHandler;
-
-		$this->languageVariantHandler = LanguageVariantHandler::languageVariantHandler;
-
-		// Separator handling
-		$this->updateSeparatorConstraints = SeparatorsModule::updateSeparatorConstraints;
-		$this->buildSep = SeparatorsModule::buildSep;
 	}
 	public $options;
 	public $env;
@@ -150,27 +138,35 @@ class WikitextSerializer {
 	public $rtTestMode;
 
 
-	public $state;
-
 	public $logType;
 	public $trace;
+
+	public $state;
 
 
 	public $wteHandlers;
 
-
-
-
-	public $linkHandler;
-	public $figureHandler;
-
-	public $languageVariantHandler;
-
-
-	public $updateSeparatorConstraints;
-	public $buildSep;
-
 }
+
+WikitextSerializer::prototype::linkHandler = function ( $node ) use ( &$LinkHandlersModule ) {
+	return LinkHandlersModule::linkHandler( $this->state, $node );
+};
+
+WikitextSerializer::prototype::figureHandler = function ( $node ) use ( &$LinkHandlersModule ) {
+	return LinkHandlersModule::figureHandler( $this->state, $node );
+};
+
+WikitextSerializer::prototype::languageVariantHandler = function ( $node ) use ( &$languageVariantHandler ) {
+	return languageVariantHandler::class( $this->state, $node );
+};
+
+WikitextSerializer::prototype::updateSeparatorConstraints = function ( ...$args ) use ( &$SeparatorsModule ) {
+	return SeparatorsModule::updateSeparatorConstraints( $this->state, ...$args );
+};
+
+WikitextSerializer::prototype::buildSep = function ( $node ) use ( &$SeparatorsModule ) {
+	return SeparatorsModule::buildSep( $this->state, $node );
+};
 
 // Methods
 

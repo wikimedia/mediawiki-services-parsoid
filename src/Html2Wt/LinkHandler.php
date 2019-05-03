@@ -826,13 +826,12 @@ $Construct = null;
  * @param {Node} node
  * @return {Promise}
  */
-$linkHandler = /* async */function ( $node ) use ( &$getLinkRoundTripData, &$serializeAsWikiLink, &$serializeAsExtLink, &$DOMDataUtils, &$DOMUtils, &$escapeExtLinkURL, &$getHref, &$ExtLinkText ) {
+$linkHandler = /* async */function ( $state, $node ) use ( &$getLinkRoundTripData, &$serializeAsWikiLink, &$serializeAsExtLink, &$DOMDataUtils, &$DOMUtils, &$escapeExtLinkURL, &$getHref, &$ExtLinkText ) {
 	// TODO: handle internal/external links etc using RDFa and dataAttribs
 	// Also convert unannotated html links without advanced attributes to
 	// external wiki links for html import. Might want to consider converting
 	// relative links without path component and file extension to wiki links.
-	$env = $this->env;
-	$state = $this->state;
+	$env = $state->env;
 	$wiki = $env->conf->wiki;
 
 	// Get the rt data from the token and tplAttrs
@@ -948,9 +947,8 @@ function eltNameFromMediaType( $type ) {
  * @param {Node} node
  * @return {Promise}
  */
-$figureHandler = /* async */function ( $node ) use ( &$WTSUtils, &$AutoURLLinkText, &$DOMDataUtils, &$ContentUtils, &$Promise, &$lastItem, &$WikiLinkText ) {
-	$env = $this->env;
-	$state = $this->state;
+$figureHandler = /* async */function ( $state, $node ) use ( &$WTSUtils, &$AutoURLLinkText, &$DOMDataUtils, &$ContentUtils, &$Promise, &$lastItem, &$WikiLinkText ) {
+	$env = $state->env;
 	$outerElt = $node;
 
 	$mediaTypeInfo = WTSUtils::getMediaType( $node );
@@ -1028,7 +1026,7 @@ $format = $temp2->format;
 
 	// Try to identify the local title to use for this image.
 	// Try to identify the local title to use for this image.
-	$resource = /* await */ $this->serializedImageAttrVal( $outerElt, $elt, 'resource' );
+	$resource = /* await */ $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'resource' );
 	if ( $resource->value === null ) {
 		// from non-parsoid HTML: try to reconstruct resource from src?
 		// (this won't work for manual-thumb images)

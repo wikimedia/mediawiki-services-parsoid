@@ -37,9 +37,7 @@ $expandSpArray = function ( $a ) {
  * @param {Node} node
  * @return {Promise}
  */
-// should be called with this == instance of WikitextSerializer
-$languageVariantHandler = /* async */function ( $node ) use ( &$DOMDataUtils, &$expandSpArray, &$Util, &$LanguageVariantText ) {
-	$state = $this->state;
+$languageVariantHandler = /* async */function ( $state, $node ) use ( &$DOMDataUtils, &$expandSpArray, &$Util, &$LanguageVariantText ) {
 	$dataMWV = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', [] );
 	$dp = DOMDataUtils::getDataParsoid( $node );
 	$flSp = $expandSpArray( $dp->flSp );
@@ -318,7 +316,6 @@ $languageVariantHandler = /* async */function ( $node ) use ( &$DOMDataUtils, &$
 	}
 	$state->emitChunk( new LanguageVariantText( '-{' . $result . '}-', $node ), $node );
 }
-
 
 
 

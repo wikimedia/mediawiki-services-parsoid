@@ -305,9 +305,7 @@ $debugOut = function ( $node ) {
  * @param {Node} nodeB
  * @param {DOMHandler} sepHandlerB
  */
-$updateSeparatorConstraints = function ( $nodeA, $sepHandlerA, $nodeB, $sepHandlerB ) use ( &$debugOut ) {
-	$state = $this->state;
-
+$updateSeparatorConstraints = function ( $state, $nodeA, $sepHandlerA, $nodeB, $sepHandlerB ) use ( &$debugOut ) {
 	$sepType = null;
 $nlConstraints = null;
 $aCons = null;
@@ -346,7 +344,7 @@ $bCons = null;
 	if ( $state->sep->constraints ) {
 		// Merge the constraints
 		$state->sep->constraints = mergeConstraints(
-			$this->env,
+			$state->env,
 			$state->sep->constraints,
 			$nlConstraints
 		);
@@ -354,7 +352,7 @@ $bCons = null;
 		$state->sep->constraints = $nlConstraints;
 	}
 
-	$this->env->log( 'debug/wts/sep', function () use ( &$sepType, &$nodeA, &$nodeB, &$debugOut ) {
+	$state->env->log( 'debug/wts/sep', function () use ( &$sepType, &$nodeA, &$nodeB, &$debugOut ) {
 			return 'constraint'
 . ' | ' . $sepType
 . ' | <' . $nodeA->nodeName . ',' . $nodeB->nodeName . '>'
@@ -535,8 +533,8 @@ $handleAutoInserted = function ( $node ) use ( &$DOMDataUtils, &$Util ) {
  * @param {Node} node
  * @return {string}
  */
-$buildSep = function ( $node ) use ( &$WTSUtils, &$DOMUtils, &$DOMDataUtils, &$handleAutoInserted, &$DiffUtils, &$WTUtils, &$Util ) {
-	$state = $this->state;
+$buildSep = function ( $state, $node ) use ( &$WTSUtils, &$DOMUtils, &$DOMDataUtils, &$handleAutoInserted, &$DiffUtils, &$WTUtils, &$Util ) {
+	$env = $state->env;
 	$origNode = $node;
 	$prevNode = $state->sep->lastSourceNode;
 	$sep = null;
@@ -580,7 +578,7 @@ $dsrB = null;
 					// Should be fixed.
 					DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr
 && // Don't extrapolate if the string was potentially changed
-					!DiffUtils::directChildrenChanged( $node->parentNode, $this->env )
+					!DiffUtils::directChildrenChanged( $node->parentNode, $env )
 			) {
 				$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr[ 1 ];
 				$correction = null;
@@ -673,12 +671,12 @@ $dsrB = null;
 					$sep = $state->getOrigSrc( $dsrA[ 1 ], $dsrB[ 1 ] - $dsrB[ 3 ] );
 				}
 			} else {
-				$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
+				$env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
 			}
 		}
 	}
 
-	$this->env->log( 'debug/wts/sep', function () use ( &$prevNode, &$origNode ) {
+	$env->log( 'debug/wts/sep', function () use ( &$prevNode, &$origNode ) {
 			return 'maybe-sep  | '
 . 'prev:' . ( ( $prevNode ) ? $prevNode->nodeName : '--none--' )
 . ', node:' . ( ( $origNode ) ? $origNode->nodeName : '--none--' )
