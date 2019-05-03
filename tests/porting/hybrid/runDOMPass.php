@@ -4,18 +4,22 @@ namespace Parsoid\Tests\Porting\Hybrid;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
+use Parsoid\Tests\MockEnv;
+
 use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Html2Wt\DOMNormalizer;
-use Parsoid\Tests\MockEnv;
+
 use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
+
+use Parsoid\Wt2Html\DOMPostProcessor;
+
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
-use Parsoid\Wt2Html\PP\Handlers\Headings;
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
+
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
@@ -30,7 +34,8 @@ use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 
 function buildDOM( $env, $fileName ) {
 	$html = file_get_contents( $fileName );
-	return ContentUtils::ppToDOM( $env, $html, [ 'reinsertFosterableContent' => true,
+	return ContentUtils::ppToDOM( $env, $html, [
+		'reinsertFosterableContent' => true,
 		'markNew' => true
 	] );
 }
@@ -48,42 +53,25 @@ function serializeDOM( $transformer, $env, $body ) {
 		 * Serialize output to DOM while tunneling fosterable content
 		 * to prevent it from getting fostered on parse to DOM
 		 */
-		return ContentUtils::ppToXML( $body, [ 'keepTmp' => true,
+		return ContentUtils::ppToXML( $body, [
+			'keepTmp' => true,
 			'tunnelFosteredContent' => true,
 			'storeDiffMark' => true
 		] );
 	}
 }
 
-function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = null ) {
-	$atTopLevel = $opts['atTopLevel'];
-	$runOptions = $opts['runOptions'];
-
-	if ( !$env ) {
-		// Build a mock env with the bare mininum info that we know
-		// DOM processors are currently using.
-		$hackyEnvOpts = $opts['hackyEnvOpts'];
-		$env = new MockEnv( [
-			"uid" => $hackyEnvOpts['currentUid'] ?? -1,
-			"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
-			"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-			"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-			'tidyWhitespaceBugMaxLength' => $hackyEnvOpts['tidyWhitespaceBugMaxLength'] ?? null,
-		] );
-	}
-
+function runDOMPostProcessor( $env, $argv, $opts, $processors ) {
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
 
-	// fwrite(STDERR,
-	// "---REHYDRATED DOM---\n" .
-	// ContentUtils::ppToXML( $body, [ 'keepTmp' => true ] ) . "\n------");
+	$dpp = new DOMPostProcessor( $env, $opts['runOptions'], $processors );
+	$options = [
+		'toplevel' => $opts['atTopLevel']
+	];
+	$dpp->resetState( $options );
+	$dpp->doPostProcess( $body->ownerDocument );
 
-	if ( $isTraverser ) {
-		$transformer->traverse( $body, $env, $runOptions, $atTopLevel, null );
-	} else {
-		$transformer->run( $body, $env, $runOptions, $atTopLevel );
-	}
 	if ( $argv[1] === 'Linter' ) {
 		// Shove Linter output (if any) into the body node's tmp data
 		$out = PHPUtils::jsonEncode( $env->getLints() );
@@ -98,30 +86,7 @@ function runTransform( $transformer, $argv, $opts, $isTraverser = false, $env = 
 	return $out;
 }
 
-function runDOMHandlers( $argv, $opts, $addHandlersCB ) {
-	$transformer = new DOMTraverser();
-	$hackyEnvOpts = $opts['hackyEnvOpts'];
-	$env = new MockEnv( [
-		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
-		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-		"discardDataParsoid" => $hackyEnvOpts['discardDataParsoid'] ?? null,
-		"pageBundle" => $hackyEnvOpts['pageBundle'] ?? null,
-	] );
-	$addHandlersCB( $transformer, $env );
-	return runTransform( $transformer, $argv, $opts, true, $env );
-}
-
-function runDOMDiff( $argv, $opts ) {
-	$hackyEnvOpts = $opts['hackyEnvOpts'];
-
-	$env = new MockEnv( [
-		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
-		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-		"pageId" => $hackyEnvOpts['pageId'] ?? null
-	] );
-
+function runDOMDiff( $env, $argv, $opts ) {
 	$htmlFileName1 = $argv[2];
 	$htmlFileName2 = $argv[3];
 	$oldBody = buildDOM( $env, $htmlFileName1 );
@@ -136,15 +101,8 @@ function runDOMDiff( $argv, $opts ) {
 	return PHPUtils::jsonEncode( [ "diff" => $diff, "html" => $out ] );
 }
 
-function runDOMNormalizer( $argv, $opts ) {
+function runDOMNormalizer( $env, $argv, $opts ) {
 	$hackyEnvOpts = $opts['hackyEnvOpts'];
-
-	$env = new MockEnv( [
-		"uid" => $hackyEnvOpts['currentUid'] ?? -1,
-		"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-		"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-		"scrubWikitext" => $hackyEnvOpts['scrubWikitext'] ?? false
-	] );
 
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
@@ -178,132 +136,272 @@ $allOpts = PHPUtils::jsonDecode( $input );
 /**
  * Build the requested transformer
  */
-$transformer = null;
-switch ( $argv[1] ) {
-	// DOM Processors
-	case 'PWrap':
-		$out = runTransform( new PWrap(), $argv, $allOpts );
-		break;
-	case 'ProcessTreeBuilderFixups':
-		$out = runTransform( new ProcessTreeBuilderFixups(), $argv, $allOpts );
-		break;
-	case 'MarkFosteredContent':
-		$out = runTransform( new MarkFosteredContent(), $argv, $allOpts );
-		break;
-	case 'ComputeDSR':
-		$out = runTransform( new ComputeDSR(), $argv, $allOpts );
-		break;
-	case 'HandlePres':
-		$out = runTransform( new HandlePres(), $argv, $allOpts );
-		break;
-	case 'Linter':
-		$out = runTransform( new Linter(), $argv, $allOpts );
-		break;
-	case 'WrapSections':
-		$out = runTransform( new WrapSections(), $argv, $allOpts );
-		break;
-	case 'WrapTemplates':
-		$out = runTransform( new WrapTemplates(), $argv, $allOpts );
-		break;
-	case 'AddExtLinkClasses':
-		$out = runTransform( new AddExtLinkClasses(), $argv, $allOpts );
-		break;
-	case 'MigrateTemplateMarkerMetas':
-		$out = runTransform( new MigrateTemplateMarkerMetas(), $argv, $allOpts );
-		break;
-	case 'MigrateTrailingNLs':
-		$out = runTransform( new MigrateTrailingNLs(), $argv, $allOpts );
-		break;
+$test = $argv[1];
+$hackyEnvOpts = $allOpts['hackyEnvOpts'];
+$env = new MockEnv( [
+	"uid" => $hackyEnvOpts['currentUid'] ?? -1,
+	"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
+	"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
+	"pageId" => $hackyEnvOpts['pageId'] ?? null,
+	"scrubWikitext" => $hackyEnvOpts['scrubWikitext'] ?? false,
+	"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
+	'tidyWhitespaceBugMaxLength' => $hackyEnvOpts['tidyWhitespaceBugMaxLength'] ?? null,
+] );
+
+switch ( $test ) {
 	case 'DOMDiff':
-		$out = runDOMDiff( $argv, $allOpts );
+		$out = runDOMDiff( $env, $argv, $allOpts );
 		break;
 	case 'DOMNormalizer':
-		$out = runDOMNormalizer( $argv, $allOpts );
+		$out = runDOMNormalizer( $env, $argv, $allOpts );
 		break;
-	// Handlers
-	case 'LiFixups':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$liFixer = new LiFixups( $env );
-			$transformer->addHandler( 'li', function ( ...$args ) use ( $liFixer ) {
-				return $liFixer->handleLIHack( ...$args );
-			} );
-			$transformer->addHandler( 'li', function ( ...$args ) use ( $liFixer ) {
-				return $liFixer->migrateTrailingCategories( ...$args );
-			} );
-			$transformer->addHandler( 'dt', function ( ...$args ) use ( $liFixer ) {
-				return $liFixer->migrateTrailingCategories( ...$args );
-			} );
-			$transformer->addHandler( 'dd', function ( ...$args ) use ( $liFixer ) {
-				return $liFixer->migrateTrailingCategories( ...$args );
-			} );
-		} );
-		break;
-	case 'TableFixups':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$tdFixer = new TableFixups( $env );
-			$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
-				return $tdFixer->stripDoubleTDs( ...$args );
-			} );
-			$transformer->addHandler( 'td', function ( ...$args ) use ( $tdFixer ) {
-				return $tdFixer->handleTableCellTemplates( ...$args );
-			} );
-			$transformer->addHandler( 'th', function ( ...$args ) use ( $tdFixer ) {
-				return $tdFixer->handleTableCellTemplates( ...$args );
-			} );
-		} );
-		break;
-	case 'CleanUp-cleanupAndSaveDataParsoid':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( null, function ( ...$args ) {
-				return CleanUp::cleanupAndSaveDataParsoid( ...$args );
-			} );
-		} );
-		break;
-	case 'CleanUp-handleEmptyElts':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( null, function ( ...$args ) {
-				return CleanUp::handleEmptyElements( ...$args );
-			} );
-		} );
-		break;
-	case 'CleanUp-stripMarkerMetas':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( 'meta', function ( ...$args ) {
-				return CleanUp::stripMarkerMetas( ...$args );
-			} );
-		} );
-		break;
-	case 'DedupeStyles':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( 'style', function ( ...$args ) {
-				return DedupeStyles::dedupe( ...$args );
-			} );
-		} );
-		break;
-	case 'HandleLinkNeighbours':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( 'a', function ( ...$args ) {
-				return HandleLinkNeighbours::handler( ...$args );
-			} );
-		} );
-		break;
-	case 'Headings-dedupeHeadingIds':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( null, function ( ...$args ) {
-				return Headings::dedupeHeadingIds( ...$args );
-			} );
-		} );
-		break;
-	case 'Headings-genAnchors':
-		$out = runDOMHandlers( $argv, $allOpts, function ( $transformer, $env ) {
-			$transformer->addHandler( null, function ( ...$args ) {
-				return Headings::genAnchors( ...$args );
-			} );
-		} );
-		break;
-
 	default:
-		throw new \Exception( "Unsupported!" );
+		$tableFixer = new TableFixups( $env );
+		$processors = [
+			[
+				'Processor' => MarkFosteredContent::class,
+				'shortcut' => 'fostered',
+				'omit' => ( $test !== 'MarkFosteredContent' )
+			],
+			[
+				'Processor' => ProcessTreeBuilderFixups::class,
+				'shortcut' => 'process-fixups',
+				'omit' => ( $test !== 'ProcessTreeBuilderFixups' )
+			],
+			[
+				'Processor' => Normalize::class,
+				'omit' => ( $test !== 'Normalize' )
+			],
+			[
+				'Processor' => PWrap::class,
+				'shortcut' => 'pwrap',
+				'skipNested' => true,
+				'omit' => ( $test !== 'PWrap' )
+			],
+			[
+				'Processor' => MigrateTemplateMarkerMetas::class,
+				'shortcut' => 'migrate-metas',
+				'omit' => ( $test !== 'MigrateTemplateMarkerMetas' )
+			],
+			[
+				'Processor' => HandlePres::class,
+				'shortcut' => 'pres',
+				'omit' => ( $test !== 'HandlePres' )
+			],
+			[
+				'Processor' => MigrateTrailingNLs::class,
+				'shortcut' => 'migrate-nls',
+				'omit' => ( $test !== 'MigrateTrailingNLs' )
+			],
+			[
+				'Processor' => ComputeDSR::class,
+				'shortcut' => 'dsr',
+				'omit' => ( $test !== 'ComputeDSR' )
+			],
+			[
+				'Processor' => WrapTemplates::class,
+				'shortcut' => 'tplwrap',
+				'omit' => ( $test !== 'WrapTemplates' )
+			],
+			[
+				'name' => 'HandleLinkNeighbours',
+				'shortcut' => 'dom-unpack',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'a',
+						'action' => [ HandleLinkNeighbours::class, 'handler' ]
+					]
+				],
+				'omit' => ( $test !== 'HandleLinkNeighbours' )
+			],
+			/*
+			[
+				'name' => 'UnpackDOMFragments',
+				'shortcut' => 'dom-unpack',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => [ UnpackDOMFragments::class, 'unpackDOMFragments' ]
+					]
+				],
+				'omit' => ( $test !== 'UnpackDOMFragments' )
+			],
+			*/
+			[
+				'name' => 'LiFixups',
+				'shortcut' => 'fixups',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'li',
+						'action' => [ LiFixups::class, 'handleLIHack' ]
+					],
+					[
+						'nodeName' => 'li',
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+					],
+					[
+						'nodeName' => 'dt',
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+					],
+					[
+						'nodeName' => 'dd',
+						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+					]
+				],
+				'omit' => ( $test !== 'LiFixups' )
+			],
+			[
+				'name' => 'TableFixups',
+				'shortcut' => 'fixups',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'td',
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->stripDoubleTDs( $node, $env );
+						}
+					],
+					[
+						'nodeName' => 'td',
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $env );
+						}
+					],
+					[
+						'nodeName' => 'th',
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $env );
+						}
+					]
+				],
+				'omit' => ( $test !== 'TableFixups' )
+			],
+			[
+				'name' => 'DedupeStyles',
+				'shortcut' => 'fixups',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'style',
+						'action' => [ DedupeStyles::class, 'dedupe' ]
+					]
+				],
+				'omit' => ( $test !== 'DedupeStyles' )
+			],
+			/*
+			[
+				'Processor' => AddMediaInfo::class,
+				'shortcut' => 'media',
+				'omit' => ( $test !== 'AddMediaInfo' )
+			],
+			[
+				'name' => 'Headings-genAnchors',
+				'shortcut' => 'headings',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => [ Headings::class, 'genAnchors' ]
+					]
+				],
+				'omit' => ( $test !== 'Headings-genAnchors' )
+			],
+			*/
+			[
+				'Processor' => WrapSections::class,
+				'shortcut' => 'sections',
+				'skipNested' => true,
+				'omit' => ( $test !== 'WrapSections' )
+			],
+			/*
+			[
+				'name' => 'Headings-dedupeHeadingIds',
+				'shortcut' => 'heading-ids',
+				'isTraverser' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => function ( $node, $env ) use ( &$seenIds ) {
+							return Headings::dedupeHeadingIds( $seenIds, $node, $env );
+						}
+					]
+				],
+				'omit' => ( $test !== 'Headings-dedupeHeadingIds' )
+			],
+			[
+				'Processor' => LangConverter::class,
+				'shortcut' => 'lang-converter',
+				'skipNested' => true,
+				'omit' => ( $test !== 'LangConverter' )
+			],
+			*/
+			[
+				'Processor' => Linter::class,
+				'omit' => !$env->getSiteConfig()->linting(),
+				'skipNested' => true,
+				'omit' => ( $test !== 'Linter' )
+			],
+			[
+				'name' => 'CleanUp-stripMarkerMetas',
+				'shortcut' => 'strip-metas',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'meta',
+						'action' => [ CleanUp::class, 'stripMarkerMetas' ]
+					]
+				],
+				'omit' => ( $test !== 'CleanUp-stripMarkerMetas' )
+			],
+			[
+				'Processor' => AddExtLinkClasses::class,
+				'shortcut' => 'linkclasses',
+				'skipNested' => true,
+				'omit' => ( $test !== 'AddExtLinkClasses' )
+			],
+			[
+				'name' => 'CleanUp-handleEmptyElts',
+				'shortcut' => 'cleanup',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => [ CleanUp::class, 'handleEmptyElements' ]
+					]
+				],
+				'omit' => ( $test !== 'CleanUp-handleEmptyElts' )
+			],
+			[
+				'name' => 'CleanUp-cleanupAndSaveDataParsoid',
+				'shortcut' => 'cleanup',
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => [ CleanUp::class, 'cleanupAndSaveDataParsoid' ]
+					]
+				],
+				'omit' => ( $test !== 'CleanUp-cleanupAndSaveDataParsoid' )
+			],
+			/*
+			[
+				'Processor' => AddRedLinks::class,
+				'shortcut' => 'redlinks',
+				'skipNested' => true,
+				'omit' => ( $test !== 'AddRedLinks' )
+			]
+			*/
+		];
+		$out = runDOMPostProcessor( $env, $argv, $allOpts, $processors );
+		break;
 }
 
 /**
