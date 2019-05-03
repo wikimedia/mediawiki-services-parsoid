@@ -23,6 +23,7 @@ use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
+use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\Linter;
@@ -431,14 +432,12 @@ switch ( $test ) {
 				],
 				'omit' => ( $test !== 'CleanUp-cleanupAndSaveDataParsoid' )
 			],
-			/*
 			[
 				'Processor' => AddRedLinks::class,
 				'shortcut' => 'redlinks',
 				'skipNested' => true,
 				'omit' => ( $test !== 'AddRedLinks' )
-			]
-			*/
+			],
 		];
 		$out = runDOMPostProcessor( $env, $argv, $opts, $processors );
 		break;
