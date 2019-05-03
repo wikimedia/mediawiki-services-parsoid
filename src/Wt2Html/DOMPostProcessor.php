@@ -801,10 +801,11 @@ class DOMPostProcessor {
 				$env->log( $logLevel, $prefix . '; ' . $ppName . ' start' );
 			}
 
-			if ( $this->atTopLevel ) {
+			$opts = null;
+			if ( $dumpFlags ) {
 				$opts = [
 					'env' => $env,
-					'dumpFragmentMap' => true,
+					'dumpFragmentMap' => $this->atTopLevel,
 					'keepTmp' => true
 				];
 				if ( !empty( $dumpFlags['dom:pre-' . $pp['shortcut']] ) ) {
@@ -814,7 +815,7 @@ class DOMPostProcessor {
 
 			$pp['proc']( $body, $env, $this->options, $this->atTopLevel );
 
-			if ( $this->atTopLevel ) {
+			if ( $dumpFlags ) {
 				if ( !empty( $dumpFlags['dom:post-' . $pp['shortcut']] ) ) {
 					ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );
 				}
