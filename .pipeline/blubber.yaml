@@ -1,0 +1,17 @@
+version: v3
+base: docker-registry.wikimedia.org/nodejs-slim
+lives:
+  in: /srv/service
+
+variants:
+  build:
+    base: docker-registry.wikimedia.org/nodejs-devel
+    apt: { packages: [git] }
+    node: { requirements: [package.json] }
+    runs: { insecurely: true }
+  development:
+    includes: [build]
+    entrypoint: [node, bin/server.js]
+  test:
+    includes: [build]
+    entrypoint: [npm test]
