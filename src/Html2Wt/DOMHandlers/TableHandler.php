@@ -46,7 +46,7 @@ class TableHandler extends DOMHandler {
 			// However, for {|\n|}, the <table> tag has no element
 			// children which means lastchild -> parent constraint
 			// is never computed and set here.
-			$state->sep->constraints = [ 'min' => 1, 'max' => 2 ];
+			$state->sep->constraints = [ 'min' => 1, 'max' => 2, 'constraintInfo' => [] ];
 		}
 		WTSUtils::emitEndTag( PHPUtils::coalesce( $dp->endTagSrc ?? null, '|}' ), $node, $state );
 		if ( $indentTable ) {

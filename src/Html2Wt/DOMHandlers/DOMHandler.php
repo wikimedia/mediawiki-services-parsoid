@@ -86,6 +86,13 @@ class DOMHandler {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isForceSOL(): bool {
+		return $this->forceSOL;
+	}
+
+	/**
 	 * @param DOMElement $node
 	 * @param DOMNode $otherNode
 	 * @return array An array in the form [ 'min' => <int>, 'max' => <int> ] or an empty array.
