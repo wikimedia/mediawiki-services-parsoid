@@ -41,4 +41,109 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider provideMakeExtResourceURL
+	 */
+	public function testMakeExtResourceURL( $match, $href, $content, $expect ) {
+		$siteConfig = $this->getSiteConfig();
+		$this->assertSame( $expect, $siteConfig->makeExtResourceURL( $match, $href, $content ) );
+	}
+
+	public function provideMakeExtResourceURL() {
+		return [
+			[
+				[ 'ISBN', '9780615720302' ], './Special:Booksources/9780615720302', 'ISBN 978-0615720302',
+				'ISBN 978-0615720302'
+			],
+			[
+				[ 'ISBN', '0596519796' ], './Special:Booksources/0596519796', "ISBN\u{00A0}0-596-51979-6",
+				"ISBN\u{00A0}0-596-51979-6"
+			],
+			[
+				[ 'ISBN', '221212466X' ], './Special:Booksources/221212466X', 'ISBN 2-212-12466-x',
+				'ISBN 2-212-12466-x'
+			],
+			[
+				[ 'ISBN', '9780615720302' ], './Special:Booksources/9780615720302', 'Working With MediaWiki',
+				'[[Special:Booksources/9780615720302|Working With MediaWiki]]'
+			],
+			[
+				[ 'RFC', '2324' ], 'https://tools.ietf.org/html/rfc2324', 'RFC 2324', 'RFC 2324'
+			],
+			[
+				[ 'RFC', '2324' ], 'https://tools.ietf.org/html/rfc2324', 'HTCPCP',
+				'[https://tools.ietf.org/html/rfc2324 HTCPCP]'
+			],
+		];
+	}
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @expectedExceptionMessage Invalid match type 'Bogus'
+	 */
+	public function testMakeExtResourceURL_invalid() {
+		$siteConfig = $this->getSiteConfig();
+		$siteConfig->makeExtResourceURL( [ 'Bogus', '0' ], './Bogus', 'Bogus 0' );
+	}
+
+	/**
+	 * @dataProvider provideInterwikiMatcher
+	 */
+	public function testInterwikiMatcher( $href, $expect ) {
+		$siteConfig = $this->getSiteConfig( [ 'interwikiMap' ] );
+		$siteConfig->expects( $this->once() )->method( 'interwikiMap' )->willReturn( [
+			'w' => [
+				'prefix' => 'w',
+				'local' => true,
+				'localinterwiki' => true,
+				'url' => 'https://en.wikipedia.org/wiki/$1',
+			],
+			'en' => [
+				'prefix' => 'en',
+				'local' => true,
+				'language' => true,
+				'localinterwiki' => true,
+				'url' => 'https://en.wikipedia.org/wiki/$1',
+			],
+			'de' => [
+				'prefix' => 'de',
+				'local' => true,
+				'language' => true,
+				'url' => 'https://de.wikipedia.org/wiki/$1',
+			],
+			'iarchive' => [
+				'prefix' => 'iarchive',
+				'url' => 'https://archive.org/details/$1',
+				'protorel' => true,
+			],
+			'example' => [
+				'prefix' => 'example',
+				'url' => '//example.org/$1',
+			],
+		] );
+
+		$this->assertSame( $expect, $siteConfig->interwikiMatcher( $href ) );
+		// Again, to test caching
+		$this->assertSame( $expect, $siteConfig->interwikiMatcher( $href ) );
+	}
+
+	public function provideInterwikiMatcher() {
+		return [
+			[ 'https://de.wikipedia.org/wiki/Foobar', [ ':de', 'Foobar' ] ],
+			[ 'https://en.wikipedia.org/wiki/Foobar', [ ':en', 'Foobar' ] ], // not 'w'
+			[ './w:Foobar', [ 'w', 'Foobar' ] ],
+			[ 'de%3AFoobar', [ ':de', 'Foobar' ] ],
+
+			// Protocol-relative handling
+			[ 'https://archive.org/details/301works', [ 'iarchive', '301works' ] ],
+			[ 'http://archive.org/details/301works', [ 'iarchive', '301works' ] ],
+			[ '//archive.org/details/301works', [ 'iarchive', '301works' ] ],
+			[ 'https://example.org/foobar', [ 'example', 'foobar' ] ],
+			[ 'http://example.org/foobar', [ 'example', 'foobar' ] ],
+			[ '//example.org/foobar', [ 'example', 'foobar' ] ],
+			[ 'http://en.wikipedia.org/wiki/Foobar', null ],
+			[ '//en.wikipedia.org/wiki/Foobar', null ],
+		];
+	}
+
 }

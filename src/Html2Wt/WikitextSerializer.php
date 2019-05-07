@@ -255,10 +255,10 @@ class WikitextSerializer {
 	/**
 	 * @param DOMElement $node
 	 * @param string $key Attribute name.
-	 * @param string $value Fallback value to use if the attibute is not present.
+	 * @param mixed $value Fallback value to use if the attibute is not present.
 	 * @return ConstrainedText|string
 	 */
-	public function getAttributeValue( DOMElement $node, string $key, string $value ) {
+	public function getAttributeValue( DOMElement $node, string $key, $value ) {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs;
 		foreach ( $tplAttrs ?: [] as $attr ) {
 			// If this attribute's value is generated content,

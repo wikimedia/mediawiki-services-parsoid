@@ -6,6 +6,7 @@ namespace Parsoid\Config;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Logger\LogData;
+use Parsoid\Utils\Util;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -18,6 +19,9 @@ abstract class SiteConfig {
 
 	/** @var LoggerInterface|null */
 	protected $logger = null;
+
+	/** @var array|null */
+	private $iwMatcher = null;
 
 	/************************************************************************//**
 	 * @name   Global config
@@ -296,6 +300,71 @@ abstract class SiteConfig {
 	abstract public function interwikiMap(): array;
 
 	/**
+	 * Match interwiki URLs
+	 * @param string $href Link to match against
+	 * @return string[]|null Two values [ string $key, string $target ] on success, null on no match.
+	 */
+	public function interwikiMatcher( string $href ): ?array {
+		if ( $this->iwMatcher === null ) {
+			$keys = [ [], [] ];
+			$patterns = [ [], [] ];
+			foreach ( $this->interwikiMap() as $key => $iw ) {
+				$lang = (int)( !empty( $iw['language'] ) );
+
+				$url = $iw['url'];
+				$protocolRelative = substr( $url, 0, 2 ) === '//';
+				if ( !empty( $iw['protorel'] ) ) {
+					$url = preg_replace( '/^https?:/', '', $url );
+					$protocolRelative = true;
+				}
+
+				// full-url match pattern
+				$keys[$lang][] = $key;
+				$patterns[$lang][] =
+					// Support protocol-relative URLs
+					( $protocolRelative ? '(?:https?:)?' : '' )
+					// Convert placeholder to group match
+					. strtr( preg_quote( $url, '/' ), [ '\\$1' => '(.*?)' ] );
+
+				if ( !empty( $iw['local'] ) ) {
+					// ./$interwikiPrefix:$title and
+					// $interwikiPrefix%3A$title shortcuts
+					// are recognized and the local wiki forwards
+					// these shortcuts to the remote wiki
+
+					$keys[$lang][] = $key;
+					$patterns[$lang][] = '^\\.\\/' . $iw['prefix'] . ':(.*?)';
+
+					$keys[$lang][] = $key;
+					$patterns[$lang][] = '^' . $iw['prefix'] . '%3A(.*?)';
+				}
+			}
+
+			// Prefer language matches over non-language matches
+			$numLangs = count( $keys[1] );
+			$keys = array_merge( $keys[1], $keys[0] );
+			$patterns = array_merge( $patterns[1], $patterns[0] );
+			$regex = '/^(?:' . implode( '|', $patterns ) . ')$/i';
+			$this->iwMatcher = [ $keys, $regex, $numLangs ];
+		} else {
+			list( $keys, $regex, $numLangs ) = $this->iwMatcher;
+		}
+
+		if ( preg_match( $regex, $href, $m, PREG_UNMATCHED_AS_NULL ) ) {
+			foreach ( $keys as $i => $key ) {
+				if ( isset( $m[$i + 1] ) ) {
+					if ( $i < $numLangs ) {
+						// Escape language interwikis with a colon
+						$key = ':' . $key;
+					}
+					return [ $key, $m[$i + 1] ];
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Wiki identifier, for cache keys.
 	 * Should match a key in mwApiMap()?
 	 * @return string
@@ -536,6 +605,44 @@ abstract class SiteConfig {
 	 * @return callable
 	 */
 	abstract public function getExtResourceURLPatternMatcher(): callable;
+
+	/**
+	 * Serialize ISBN/RFC/PMID URL patterns
+	 *
+	 * @param string[] $match As returned by the getExtResourceURLPatternMatcher() matcher
+	 * @param string $href Fallback link target, if $match is invalid.
+	 * @param string $content Link text
+	 * @return string
+	 */
+	public function makeExtResourceURL( array $match, string $href, string $content ): string {
+		$normalized = preg_replace(
+			'/[ \x{00A0}\x{1680}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}]+/u', ' ',
+			Util::decodeWtEntities( $content )
+		);
+
+		// TODO: T145590 ("Update Parsoid to be compatible with magic links being disabled")
+		switch ( $match[0] ) {
+			case 'ISBN':
+				$normalized = strtoupper( preg_replace( '/[\- \t]/', '', $normalized ) );
+				// validate ISBN length and format, so as not to produce magic links
+				// which aren't actually magic
+				$valid = preg_match( '/^ISBN(97[89])?\d{9}(\d|X)$/', $normalized );
+				if ( implode( '', $match ) === $normalized && $valid ) {
+					return $content;
+				}
+				// strip "./" prefix. TODO: Use relativeLinkPrefix() instead?
+				$href = preg_replace( '!^\./!', '', $href );
+				return "[[$href|$content]]";
+
+			case 'RFC':
+			case 'PMID':
+				$normalized = preg_replace( '/[ \t]/', '', $normalized );
+				return implode( '', $match ) === $normalized ? $content : "[$href $content]";
+
+			default:
+				throw new \InvalidArgumentException( "Invalid match type '{$match[0]}'" );
+		}
+	}
 
 	/**
 	 * Matcher for valid protocols, must be anchored at start of string.
