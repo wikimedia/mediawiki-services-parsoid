@@ -198,40 +198,43 @@ class Util {
 	}
 
 	/**
-	 * Wraps `decodeURI` in a try/catch to suppress throws from malformed URI
-	 * sequences.  Distinct from `decodeURIComponent` in that certain
-	 * sequences aren't decoded if they result in (un)reserved characters.
+	 * Percent-decode only valid UTF-8 characters, leaving other encoded bytes alone.
 	 *
+	 * Distinct from `decodeURIComponent` in that certain escapes are not decoded,
+	 * matching the behavior of JavaScript's decodeURI().
+	 *
+	 * @see https://www.ecma-international.org/ecma-262/6.0/#sec-decodeuri-encodeduri
 	 * @param string $s URI to be decoded
 	 * @return string
 	 */
 	public static function decodeURI( string $s ): string {
-		return preg_replace_callback( '/(%[0-9a-fA-F][0-9a-fA-F])/', function ( $match ) {
-			try {
-				// PORT-FIXME: JS code here was decodeURI(m);
-				return urldecode( $match[1] );
-			} catch ( \Exception $e ) {
-				return $match;
-			}
-		}, $s );
+		// Escape the '%' in sequences for the reserved characters, then use decodeURIComponent.
+		$s = preg_replace( '/%(?=2[346bcfBCF]|3[abdfABDF]|40)/', '%25', $s );
+		return self::decodeURIComponent( $s );
 	}
 
 	/**
-	 * Wraps `decodeURIComponent` in a try/catch to suppress throws from
-	 * malformed URI sequences.
+	 * Percent-decode only valid UTF-8 characters, leaving other encoded bytes alone.
 	 *
 	 * @param string $s URI to be decoded
 	 * @return string
 	 */
 	public static function decodeURIComponent( string $s ): string {
-		return preg_replace_callback( '/(%[0-9a-fA-F][0-9a-fA-F])/', function ( $match ) {
-			try {
-				// PORT-FIXME: JS code here was decodeURIComponent(m);
-				return rawurldecode( $match );
-			} catch ( \Exception $e ) {
-				return $match;
-			}
-		}, $s );
+		// Most of the time we should have valid input
+		$ret = rawurldecode( $s );
+		if ( mb_check_encoding( $ret, 'UTF-8' ) ) {
+			return $ret;
+		}
+
+		// Extract each encoded character and decode it individually
+		return preg_replace_callback(
+			// phpcs:ignore Generic.Files.LineLength.TooLong
+			'/%[0-7][0-9A-F]|%[CD][0-9A-F]%[89AB][0-9A-F]|%E[0-9A-F](?:%[89AB][0-9A-F]){2}|%F[0-4](?:%[89AB][0-9A-F]){3}/i',
+			function ( $match ) {
+				$ret = rawurldecode( $match[0] );
+				return mb_check_encoding( $ret, 'UTF-8' ) ? $ret : $match[0];
+			}, $s
+		);
 	}
 
 	/**
