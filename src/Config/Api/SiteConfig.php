@@ -7,6 +7,7 @@ namespace Parsoid\Config\Api;
 use Parsoid\Config\SiteConfig as ISiteConfig;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
+use Parsoid\Utils\UrlUtils;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
@@ -361,179 +362,6 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/**
-	 * Parse a URL into components
-	 * @note Mostly copied from MediaWiki's wfParseUrl
-	 * @param string $url
-	 * @return array|false
-	 */
-	private function parseUrl( string $url ) {
-		// Protocol-relative URLs are handled really badly by parse_url(). It's so
-		// bad that the easiest way to handle them is to just prepend 'http:' and
-		// strip the protocol out later.
-		$wasRelative = substr( $url, 0, 2 ) == '//';
-		if ( $wasRelative ) {
-			$url = "http:$url";
-		}
-
-		$bits = parse_url( $url );
-
-		// parse_url() returns an array without scheme for some invalid URLs, e.g.
-		// parse_url("%0Ahttp://example.com") == [ 'host' => '%0Ahttp', 'path' => 'example.com' ]
-		if ( !$bits || !isset( $bits['scheme'] ) ) {
-			return false;
-		}
-
-		// parse_url() incorrectly handles schemes case-sensitively. Convert it to lowercase.
-		$bits['scheme'] = strtolower( $bits['scheme'] );
-
-		// We don't care about weird schemes here
-		if ( $bits['scheme'] !== 'http' && $bits['scheme'] !== 'https' ) {
-			return false;
-		}
-		$bits['delimiter'] = '://';
-
-		// If the URL was protocol-relative, fix scheme and delimiter
-		if ( $wasRelative ) {
-			$bits['scheme'] = '';
-			$bits['delimiter'] = '//';
-		}
-		return $bits;
-	}
-
-	/**
-	 * Remove all dot-segments in the provided URL path.  For example,
-	 * '/a/./b/../c/' becomes '/a/c/'.  For details on the algorithm, please see
-	 * RFC3986 section 5.2.4.
-	 *
-	 * @note Copied from MediaWiki's wfRemoveDotSegments
-	 * @param string $urlPath URL path, potentially containing dot-segments
-	 * @return string URL path with all dot-segments removed
-	 */
-	private function removeDotSegments( string $urlPath ): string {
-		$output = '';
-		$inputOffset = 0;
-		$inputLength = strlen( $urlPath );
-
-		while ( $inputOffset < $inputLength ) {
-			$prefixLengthOne = substr( $urlPath, $inputOffset, 1 );
-			$prefixLengthTwo = substr( $urlPath, $inputOffset, 2 );
-			$prefixLengthThree = substr( $urlPath, $inputOffset, 3 );
-			$prefixLengthFour = substr( $urlPath, $inputOffset, 4 );
-			$trimOutput = false;
-
-			if ( $prefixLengthTwo == './' ) {
-				# Step A, remove leading "./"
-				$inputOffset += 2;
-			} elseif ( $prefixLengthThree == '../' ) {
-				# Step A, remove leading "../"
-				$inputOffset += 3;
-			} elseif ( ( $prefixLengthTwo == '/.' ) && ( $inputOffset + 2 == $inputLength ) ) {
-				# Step B, replace leading "/.$" with "/"
-				$inputOffset += 1;
-				$urlPath[$inputOffset] = '/';
-			} elseif ( $prefixLengthThree == '/./' ) {
-				# Step B, replace leading "/./" with "/"
-				$inputOffset += 2;
-			} elseif ( $prefixLengthThree == '/..' && ( $inputOffset + 3 == $inputLength ) ) {
-				# Step C, replace leading "/..$" with "/" and
-				# remove last path component in output
-				$inputOffset += 2;
-				$urlPath[$inputOffset] = '/';
-				$trimOutput = true;
-			} elseif ( $prefixLengthFour == '/../' ) {
-				# Step C, replace leading "/../" with "/" and
-				# remove last path component in output
-				$inputOffset += 3;
-				$trimOutput = true;
-			} elseif ( ( $prefixLengthOne == '.' ) && ( $inputOffset + 1 == $inputLength ) ) {
-				# Step D, remove "^.$"
-				$inputOffset += 1;
-			} elseif ( ( $prefixLengthTwo == '..' ) && ( $inputOffset + 2 == $inputLength ) ) {
-				# Step D, remove "^..$"
-				$inputOffset += 2;
-			} else {
-				# Step E, move leading path segment to output
-				if ( $prefixLengthOne == '/' ) {
-					$slashPos = strpos( $urlPath, '/', $inputOffset + 1 );
-				} else {
-					$slashPos = strpos( $urlPath, '/', $inputOffset );
-				}
-				if ( $slashPos === false ) {
-					$output .= substr( $urlPath, $inputOffset );
-					$inputOffset = $inputLength;
-				} else {
-					$output .= substr( $urlPath, $inputOffset, $slashPos - $inputOffset );
-					$inputOffset += $slashPos - $inputOffset;
-				}
-			}
-
-			if ( $trimOutput ) {
-				$slashPos = strrpos( $output, '/' );
-				if ( $slashPos === false ) {
-					$output = '';
-				} else {
-					$output = substr( $output, 0, $slashPos );
-				}
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * This function will reassemble a URL parsed with wfParseURL.  This is useful
-	 * if you need to edit part of a URL and put it back together.
-	 *
-	 * This is the basic structure used (brackets contain keys for $urlParts):
-	 * [scheme][delimiter][user]:[pass]@[host]:[port][path]?[query]#[fragment]
-	 *
-	 * @note Copied from MediaWiki's assembleUrl
-	 * @param array $urlParts URL parts, as output from wfParseUrl
-	 * @return string URL assembled from its component parts
-	 */
-	private function assembleUrl( array $urlParts ): string {
-		$result = '';
-
-		if ( isset( $urlParts['delimiter'] ) ) {
-			if ( isset( $urlParts['scheme'] ) ) {
-				$result .= $urlParts['scheme'];
-			}
-
-			$result .= $urlParts['delimiter'];
-		}
-
-		if ( isset( $urlParts['host'] ) ) {
-			if ( isset( $urlParts['user'] ) ) {
-				$result .= $urlParts['user'];
-				if ( isset( $urlParts['pass'] ) ) {
-					$result .= ':' . $urlParts['pass'];
-				}
-				$result .= '@';
-			}
-
-			$result .= $urlParts['host'];
-
-			if ( isset( $urlParts['port'] ) ) {
-				$result .= ':' . $urlParts['port'];
-			}
-		}
-
-		if ( isset( $urlParts['path'] ) ) {
-			$result .= $urlParts['path'];
-		}
-
-		if ( isset( $urlParts['query'] ) ) {
-			$result .= '?' . $urlParts['query'];
-		}
-
-		if ( isset( $urlParts['fragment'] ) ) {
-			$result .= '#' . $urlParts['fragment'];
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Determine the article base URI and relative prefix
 	 */
 	private function determineArticlePath(): void {
@@ -546,7 +374,7 @@ class SiteConfig extends ISiteConfig {
 		}
 		$url = substr( $url, 0, -2 );
 
-		$bits = $this->parseUrl( $url );
+		$bits = UrlUtils::parseUrl( $url );
 		if ( !$bits ) {
 			throw new \UnexpectedValueException( "Failed to parse article path '$url'" );
 		}
@@ -554,7 +382,7 @@ class SiteConfig extends ISiteConfig {
 		if ( empty( $bits['path'] ) ) {
 			$path = '/';
 		} else {
-			$path = $this->removeDotSegments( $bits['path'] );
+			$path = UrlUtils::removeDotSegments( $bits['path'] );
 		}
 
 		$relParts = [ 'query' => true, 'fragment' => true ];
@@ -565,8 +393,8 @@ class SiteConfig extends ISiteConfig {
 		$base['path'] = substr( $path, 0, $i + 1 );
 		$rel['path'] = '.' . substr( $path, $i );
 
-		$this->baseUri = $this->assembleUrl( $base );
-		$this->relativeLinkPrefix = $this->assembleUrl( $rel );
+		$this->baseUri = UrlUtils::assembleUrl( $base );
+		$this->relativeLinkPrefix = UrlUtils::assembleUrl( $rel );
 	}
 
 	public function baseURI(): string {
