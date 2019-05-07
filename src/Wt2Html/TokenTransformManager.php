@@ -1,183 +1,57 @@
 <?php
+
+namespace Parsoid\Wt2Html;
+
+use Generator;
+
+use Parsoid\Config\Env;
+use Parsoid\Wt2Html\TT\TokenHandler;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
+
 /**
  * Token transformation manager. Individual transformations
  * implement the TokenHandler interface. The parser pipeline
  * registers individual transformers.
  *
- * See https://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
- * for more documentation.
+ * Could eventually be eliminated.
  */
-
-namespace Parsoid\Wt2Html;
-
-use Parsoid\Config\Env;
-use Parsoid\Utils\EventEmitter;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Tokens\Token;
-use Parsoid\Wt2Html\TT\TokenHandler;
-
-/**
- * Base class for token transform managers.
- */
-class TokenTransformManager extends EventEmitter {
+class TokenTransformManager extends PipelineStage {
 	/** @var array */
 	private $options = null;
+
 	/** @var int */
-	private $phaseEndRank = -1;
-	/** @var string */
-	private $attributeType = "";
+	private $stageId = -1;
+
 	/** @var string */
 	private $traceType = "";
+
 	/** @var array */
-	private $traceNames = null;
-	/** @var array */
+	private $traceState = null;
+
+	/** @var TokenHandler[] */
 	private $transformers = [];
 
-	/** @var Env */
-	public $env = null;
-	/** @var int */
-	public $pipelineId = -1;
+	/** @var Frame */
+	private $frame = null;
 
 	/**
 	 * @param Env $env
 	 * @param array $options
-	 * @param object $pipeFactory
-	 * @param int $phaseEndRank
-	 * @param string $attributeType
+	 * @param int $stageId
+	 * @param PipelineStage|null $prevStage
 	 */
-	public function __construct( Env $env,
-		array $options,
-		$pipeFactory,
-		int $phaseEndRank,
-		string $attributeType
-	) {
-		$this->env = $env;
+	public function __construct( Env $env, array $options, int $stageId, $prevStage = null ) {
+		parent::__construct( $env, $prevStage );
 		$this->options = $options;
-		$this->phaseEndRank = $phaseEndRank;
-		$this->attributeType = $attributeType;
-		$this->traceType = 'trace/sync:' . $phaseEndRank;
+		$this->stageId = $stageId;
+		$this->traceType = 'trace/sync:' . $stageId;
 		$this->pipelineId = null;
-	}
 
-	/**
-	 * Get this manager's env
-	 * @return Env
-	 */
-	public function getEnv(): Env {
-		return $this->env;
-	}
-
-	/**
-	 * Add a new transformer (in order) to this transform manager
-	 * @param TokenHandler $transformer
-	 */
-	public function addTransformer( TokenHandler $transformer ): void {
-		$this->transformers[] = $transformer;
-	}
-
-	/**
-	 * Register to a token source, normally the tokenizer.
-	 * The event emitter emits a 'chunk' event with a chunk of tokens,
-	 * and signals the end of tokens by triggering the 'end' event.
-	 *
-	 * @param EventEmitter $tokenEmitter Token event emitter.
-	 */
-	public function addListenersOn( $tokenEmitter ) {
-		$tokenEmitter->addListener( 'chunk', [ $this, 'onChunk' ] );
-		$tokenEmitter->addListener( 'end', [ $this, 'onEndEvent' ] );
-	}
-
-	/**
-	 * Debugging aid: set pipeline id
-	 * @param int $id
-	 */
-	public function setPipelineId( int $id ): void {
-		$this->pipelineId = $id;
-	}
-
-	/**
-	 * Reset pipeline state
-	 * @param array $opts
-	 */
-	public function resetState( array $opts ): void {
-		foreach ( $this->transformers as $transformer ) {
-			$transformer->resetState( $opts );
-		}
-	}
-
-	/**
-	 * @param Token[] $tokens
-	 */
-	public function process( array $tokens ): void {
-		$this->onChunk( $tokens );
-		$this->onEndEvent();
-	}
-
-	/** @private */
-	private function generateTest( $transformer, $token, $res ) {
-		throw new \BadMethodCallException( "Not ported yet" );
-		/*
-		$generateFlags = $this->env->conf->parsoid->generateFlags;
-		$handlerName = $generateFlags->handler;
-		if ( $handlerName && $handlerName === $transformer->constructor->name ) {
-			$streamHandle = $generateFlags->streamHandle;
-			if ( $streamHandle === null ) {
-				// create token transformer/handler test file here to retain
-				// the WriteStream object type in testStream
-				$streamHandle = fs::createWriteStream( $generateFlags->fileName );
-				if ( $streamHandle ) {
-					$generateFlags = Object::assign( $generateFlags, [ 'streamHandle' => $streamHandle ] );
-				} else {
-					Assert::invariant( false,
-						'--genTest option unable to create output file [' . $generateFlags->fileName . "]\n" );
-				}
-			}
-			// CHECK THIS
-			$resultString = array_slice(
-				$this->pipelineId . '-gen/' . $handlerName . ' '->repeat( 20 ), 0, 27 );
-			$inputToken = $resultString . ' | IN  | ' . json_encode( $token ) . "\n";
-			$streamHandle->write( $inputToken );
-			if ( ( $res === $token ) || $res->tokens ) {
-				$outputTokens = $resultString . ' | OUT | ' . json_encode( $res->tokens || [ $res ] ) . "\n";
-				$streamHandle->write( $outputTokens );
-			}
-		}
-		*/
-	}
-
-	private function computeTraceNames() {
-		$this->traceNames = [];
-		foreach ( $this->transformers as $transformer ) {
-			$baseName = get_class( $transformer ) . ':';
-			$this->traceNames[] = [
-				$baseName . 'onNewline',
-				$baseName . 'onEnd',
-				$baseName . 'onTag',
-				$baseName . 'onAny'
-			];
-		}
-	}
-
-	/**
-	 * Global in-order and synchronous traversal on token stream. Emits
-	 * transformed chunks of tokens in the 'chunk' event.
-	 *
-	 * @param Token[] $tokens
-	 */
-	public function onChunk( array $tokens ): void {
-		// Trivial case
-		if ( count( $tokens ) === 0 ) {
-			$this->emit( 'chunk', $tokens );
-			return;
-		}
-
-		// Tracing, timing, and unit-test generation related state
-		$env = $this->env;
-		$genFlags = null; // PORT-FIXME
+		// Compute tracing state
 		$traceFlags = $env->traceFlags;
 		$traceState = null;
-		$startTime = null;
-		if ( $traceFlags || $genFlags ) {
+		if ( $traceFlags ) {
 			$traceState = [
 				'tokenTimes' => 0,
 				'traceFlags' => $traceFlags,
@@ -188,47 +62,122 @@ class TokenTransformManager extends EventEmitter {
 						PHPUtils::jsonEncode( $token )
 					);
 				},
-				'genFlags' => $genFlags,
-				'genTest' => [ $this, 'generateTest' ]
 			];
-
-			if ( !$this->traceNames ) {
-				$this->computeTraceNames();
-			}
-			if ( isset( $traceState['traceTime'] ) ) {
-				$startTime = PHPUtils::getStartHRTime();
-			}
 		}
-
-		$i = 0;
-		foreach ( $this->transformers as $transformer ) {
-			if ( !$transformer->isDisabled() ) {
-				if ( $traceState ) {
-					$traceState['traceNames'] = $this->traceNames[ $i ];
-				}
-				if ( count( $tokens ) === 0 ) {
-					return;
-				}
-
-				$tokens = $transformer->processTokensSync( $env, $tokens, $traceState );
-			}
-			$i++;
-		}
-
-		if ( $traceState && $traceState['traceTime'] ) {
-			$this->env->bumpTimeUse( 'SyncTTM',
-				( PHPUtils::getStartHRTime() - $startTime - $traceState['tokenTimes'] ),
-				'TTM' );
-		}
-
-		$this->emit( 'chunk', $tokens );
 	}
 
 	/**
-	 * Callback for the end event emitted from the tokenizer.
+	 * @inheritDoc
 	 */
-	public function onEndEvent(): void {
-		$this->env->log( $this->traceType, $this->pipelineId, 'SyncTokenTransformManager.onEndEvent' );
-		$this->emit( 'end' );
+	public function addTransformer( TokenHandler $t ): void {
+		$this->transformers[] = $t;
+	}
+
+	/**
+	 * Get this manager's tracing state object
+	 * @return array|null
+	 */
+	public function getTraceState(): ?array {
+		return $this->traceState;
+	}
+
+	/**
+	 * Push the tokens through all the registered transformers.
+	 * @inheritDoc
+	 */
+	public function processChunk( array $tokens ): ?array {
+		// Trivial case
+		if ( count( $tokens ) === 0 ) {
+			return $tokens;
+		}
+
+		$startTime = null;
+		if ( isset( $this->traceState['traceTime'] ) ) {
+			$startTime = PHPUtils::getStartHRTime();
+		}
+
+		foreach ( $this->transformers as $transformer ) {
+			if ( !$transformer->isDisabled() ) {
+				if ( count( $tokens ) === 0 ) {
+					break;
+				}
+				if ( $this->traceState ) {
+					$this->traceState['transformer'] = get_class( $transformer );
+				}
+
+				$tokens = $transformer->process( $tokens );
+			}
+		}
+
+		if ( isset( $this->traceState['traceTime'] ) ) {
+			$this->env->bumpTimeUse( 'SyncTTM',
+				( PHPUtils::getStartHRTime() - $startTime - $this->traceState['tokenTimes'] ),
+				'TTM' );
+		}
+
+		return $tokens;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function resetState( array $opts ): void {
+		foreach ( $this->transformers as $transformer ) {
+			$transformer->resetState( $opts );
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setSourceOffsets( int $start, int $end ): void {
+		foreach ( $this->transformers as $transformer ) {
+			$transformer->setSourceOffsets( $start, $end );
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setFrame( ?Frame $parentFrame, ?Title $title, array $args ): void {
+		/**
+		 * Commented out till Frame is ported
+		 *
+		// now actually set up the frame
+		if ( !$parentFrame ) {
+			$this->frame = new Frame( $title, $this, $args );
+		} elseif ( !$title ) {
+			// attribute, simply reuse the parent frame
+			$this->frame = $parentFrame;
+		} else {
+			$this->frame = $parentFrame->newChild( $title, $this, $args );
+		}
+		*/
+	}
+
+	/**
+	 * Process a chunk of tokens.
+	 *
+	 * @param array $tokens Array of tokens to process
+	 * @param array|null $opts
+	 * @return array Returns the array of processed tokens
+	 */
+	public function process( $tokens, array $opts = null ): array {
+		'@phan-var array $tokens'; // @var array $tokens
+		return $this->processChunk( $tokens );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function processChunkily( $input, array $opts = null ): Generator {
+		if ( $this->prevStage ) {
+			foreach ( $this->prevStage->processChunkily( $input, $opts ) as $chunk ) {
+				'@phan-var array $chunk'; // @var array $chunk
+				yield $this->processChunk( $chunk );
+			}
+		} else {
+			yield $this->process( $input, $opts );
+		}
 	}
 }

@@ -76,7 +76,7 @@ foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
 	}, $entry[1] ) );
 }
 
-$manager = new TokenTransformManager( $env, $pipelineOpts, null, -1, "" );
+$manager = new TokenTransformManager( $env, $pipelineOpts, -1 );
 $manager->setPipelineId( $opts['pipelineId'] );
 switch ( $transformerName ) {
 	case "QuoteTransformer":
@@ -118,7 +118,7 @@ switch ( $transformerName ) {
 if ( !$transformer->isDisabled() ) {
 	// fwrite(STDERR, "$transformerName running ...\n");
 	$transformer->resetState( $opts );
-	$tokens = $transformer->processTokensSync( $manager->env, $tokens, [] );
+	$tokens = $transformer->process( $tokens );
 }
 
 /**

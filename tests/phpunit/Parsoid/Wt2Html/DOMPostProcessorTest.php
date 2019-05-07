@@ -20,7 +20,8 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testDOMPostProcessor( $atTopLevel, $processors, $html, $expected ) {
 		$mockEnv = new MockEnv( [] );
-		$dpp = new DOMPostProcessor( $mockEnv, [], $processors );
+		$dpp = new DOMPostProcessor( $mockEnv );
+		$dpp->registerProcessors( $processors );
 		$opts = [
 			'toplevel' => $atTopLevel
 		];

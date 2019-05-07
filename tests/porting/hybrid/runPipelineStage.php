@@ -63,15 +63,20 @@ function parse( Env $env, string $input, array $opts ): array {
 	$tokens = [];
 	$tokenizer = new PegTokenizer( $env );
 	$tokenizer->setSourceOffsets( $opts['offsets'][0] ?? 0, $opts['offsets'][1] ?? 0 );
-	$ret = $tokenizer->tokenizeSync( $input, [
-		'cb' => function ( $t ) use ( &$tokens ) {
-			PHPUtils::pushArray( $tokens, $t );
+
+	// Use the streaming-generator-version of the tokenizer
+	// because the hybrid testing code that consumes these tokens
+	// seems to be expecting chunks and chunk boundaries.
+	// The synchronous parsing version no longer supports callbacks
+	// that was previously used to implement chunk boundaries here.
+	try {
+		$opts = [ 'sol' => $opts['sol'] ];
+		foreach ( $tokenizer->processChunkily( $input, $opts ) as $toks ) {
+			PHPUtils::pushArray( $tokens, $toks );
 			# chunk boundary
 			$tokens[] = [];
-		},
-		'sol' => $opts['sol']
-	] );
-	if ( $ret === false ) {
+		}
+	} catch ( WikiPEG\SyntaxError $err ) {
 		fwrite( STDERR, $tokenizer->getLastErrorLogMessage() . "\n" );
 		exit( 1 );
 	}
@@ -132,8 +137,7 @@ switch ( $stageName ) {
 		/* Construct TTM and its transformers */
 		$phaseEndRank = $opts['phaseEndRank'];
 		$pipelineOpts = $opts['pipelineOpts'];
-		$ttm = new TokenTransformManager( $env,
-			$pipelineOpts, null, $phaseEndRank, "Sync $phaseEndRank" );
+		$ttm = new TokenTransformManager( $env, $pipelineOpts, $phaseEndRank );
 		$ttm->setPipelineId( $opts['pipelineId'] );
 		foreach ( $opts['transformers'] as $t ) {
 			if ( $t === 'SanitizerHandler' ) {
@@ -145,21 +149,16 @@ switch ( $stageName ) {
 		$ttm->resetState( $opts );
 		$out = '';
 
-		/* Add listener */
-		$ttm->addListener( 'chunk', function ( $tokens ) use ( $env, &$out ) {
-			$out = serializeTokens( $env, $tokens );
-		} );
-
 		/* Process tokens */
 		$toks = readTokens( $input );
-		$ttm->process( $toks );
+		$toks = $ttm->process( $toks );
+		$out = serializeTokens( $env, $toks );
 		break;
 
 	case "HTML5TreeBuilder":
 		$toks = readTokens( $input );
 		$tb = new HTML5TreeBuilder( $env );
-		$tb->onChunk( $toks );
-		$doc = $tb->onEnd();
+		$doc = $tb->process( $toks );
 		$body = DOMCompat::getBody( $doc );
 		// HACK: Piggyback new uid for env on <body>
 		$body->setAttribute( "data-env-newuid", $env->getUID() );

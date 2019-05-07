@@ -7,6 +7,7 @@ use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Parsoid\Wt2Html\ParserPipelineFactory;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\DataBag;
@@ -75,10 +76,14 @@ class Env {
 	/** @var bool[] */
 	public $dumpFlags;
 
-	/**
-	 * @var bool
-	 */
+	/** @var float */
+	public $startTime;
+
+	/** @var bool */
 	private $scrubWikitext;
+
+	/** @var ParserPipelineFactory */
+	private $pipelineFactory;
 
 	/**
 	 * FIXME Used in DedupeStyles::dedupe()
@@ -131,6 +136,7 @@ class Env {
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->uid = (int)( $options['uid'] ?? 1 );
+		$this->pipelineFactory = new ParserPipelineFactory( $this );
 	}
 
 	/**
@@ -164,6 +170,10 @@ class Env {
 	 */
 	public function getWrapSections(): bool {
 		return $this->wrapSections;
+	}
+
+	public function getPipelineFactory(): ParserPipelineFactory {
+		return $this->pipelineFactory;
 	}
 
 	/**

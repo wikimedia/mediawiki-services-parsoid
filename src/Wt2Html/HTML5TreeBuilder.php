@@ -9,7 +9,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html;
 
-use DOMDocument;
+use Generator;
 
 use Parsoid\Config\Env;
 use Parsoid\Tokens\CommentTk;
@@ -38,10 +38,8 @@ use RemexHtml\TreeBuilder\TreeBuilder;
 
 use Wikimedia\Assert\Assert;
 
-class HTML5TreeBuilder {
-	private $env;
+class HTML5TreeBuilder extends PipelineStage {
 	private $traceTime;
-	private $pipelineId;
 	private $tagId;
 	private $inTransclusion;
 	private $bag;
@@ -53,27 +51,26 @@ class HTML5TreeBuilder {
 
 	/**
 	 * @param Env $env
+	 * @param array $options
+	 * @param int $stageId
+	 * @param PipelineStage|null $prevStage
 	 */
-	public function __construct( Env $env ) {
-		$this->env = $env;
+	public function __construct(
+		Env $env, array $options = [], int $stageId = -1, $prevStage = null
+	) {
+		parent::__construct( $env, $prevStage );
 
 		$traceFlags = $env ? $env->traceFlags : [];
 		$this->traceTime = isset( $traceFlags['time'] );
 
 		// Reset variable state and set up the parser
-		$this->resetState();
+		$this->resetState( [] );
 	}
 
 	/**
-	 * Debugging aid: set pipeline id
-	 *
-	 * @param int $id
+	 * @inheritDoc
 	 */
-	public function setPipelineId( int $id ): void {
-		$this->pipelineId = $id;
-	}
-
-	public function resetState(): void {
+	public function resetState( array $options ): void {
 		// Reset vars
 		$this->tagId = 1; // Assigned to start/self-closing tags
 		$this->inTransclusion = false;
@@ -111,9 +108,12 @@ class HTML5TreeBuilder {
 	}
 
 	/**
-	 * @param array $tokens
+	 * Process a chunk of tokens and feed it to the HTML5 tree builder.
+	 * This doesn't return anything.
+	 *
+	 * @param array $tokens Array of tokens to process
 	 */
-	public function onChunk( array $tokens ): void {
+	public function processChunk( array $tokens ): void {
 		$s = null;
 		if ( $this->traceTime ) {
 			$s = PHPUtils::getStartHRTime();
@@ -128,9 +128,9 @@ class HTML5TreeBuilder {
 	}
 
 	/**
-	 * @return DOMDocument
+	 * @inheritDoc
 	 */
-	public function onEnd(): DOMDocument {
+	public function finalizeDOM() {
 		// Check if the EOFTk actually made it all the way through, and flag the
 		// page where it did not!
 		if ( isset( $this->lastToken ) && !( $this->lastToken instanceof EOFTk ) ) {
@@ -159,7 +159,7 @@ class HTML5TreeBuilder {
 		$t->traverse( DOMCompat::getBody( $doc ), $this->env, [], false, null );
 
 		// PORT-FIXME: Are we reusing this?  Switch to `init()`
-		// $this->resetState();
+		// $this->resetState([]);
 
 		return $doc;
 	}
@@ -291,7 +291,7 @@ class HTML5TreeBuilder {
 
 			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
 			if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-				$this->onChunk( $dataAttribs->tokens );
+				$this->processChunk( $dataAttribs->tokens );
 				return;
 			}
 
@@ -377,5 +377,29 @@ class HTML5TreeBuilder {
 
 		// Store the last token
 		$this->lastToken = $token;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function process( $input, array $opts = null ) {
+		'@phan-var array $input'; // @var array $input
+		$this->processChunk( $input );
+		return $this->finalizeDOM();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function processChunkily( $input, array $opts = null ): Generator {
+		if ( $this->prevStage ) {
+			foreach ( $this->prevStage->processChunkily( $input, $opts ) as $chunk ) {
+				'@phan-var array $chunk'; // @var array $chunk
+				$this->processChunk( $chunk );
+			}
+			yield $this->finalizeDOM();
+		} else {
+			yield $this->process( $input, $opts );
+		}
 	}
 }

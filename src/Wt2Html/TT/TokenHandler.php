@@ -1,18 +1,28 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2html\TT;
+namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Config\Env;
+use Generator;
+
+use Parsoid\Wt2Html\TokenTransformManager;
+use Parsoid\Wt2Html\PipelineStage;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 
-class TokenHandler {
+/**
+ * Currently, all token handlers are managed by the TokenTransformManager,
+ * but that is just a carryover from the JS codebase. We could probably
+ * get rid of TokenTransformManager and inline all the TokenHandlers into
+ * parser pipeline, if we wanted to.
+ *
+ * But, effectively, all the token handlers happen to actually extend
+ * pipeline stage functionality and it makes sense to declare that inheritance.
+ */
+abstract class TokenHandler extends PipelineStage {
 	protected $manager;
-	/** @var Env */
-	protected $env;
 	/** @var array */
 	protected $options;
 	/** @var bool */
@@ -26,12 +36,9 @@ class TokenHandler {
 	 * @param object $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
-	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
-		$manager, array $options
-	) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
+		parent::__construct( $manager->env );
 		$this->manager = $manager;
-		// @phan-suppress-next-line PhanUndeclaredClassProperty
-		$this->env = $manager->env;
 		$this->options = $options;
 		$this->atTopLevel = false;
 
@@ -113,15 +120,14 @@ class TokenHandler {
 	}
 
 	/**
-	 * Resets the state based on parameter
-	 *
-	 * @param array $opts Any options for the expander.
+	 * @inheritDoc
 	 */
 	public function resetState( array $opts ): void {
 		$this->atTopLevel = $opts['toplevel'] ?? false;
 	}
 
-	/* -------------------------- PORT-FIXME ------------------------------
+	/**
+	 * -------------------------- PORT-FIXME ------------------------------
 	 * We should benchmark a version of this function
 	 * without any of the tracing code in it. There are upto 4 untaken branches
 	 * that are executed in the hot loop for every single token. Unlike V8,
@@ -134,18 +140,15 @@ class TokenHandler {
 	 * branches will always fail and so might not be such a big deal.
 	 *
 	 * In any case, worth a performance test after the port.
-	 * -------------------------------------------------------------------- */
-	/**
+	 * --------------------------------------------------------------------
+	 *
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
-	 *
-	 * @param Env $env Parser Environment
-	 * @param array $tokens The array of tokens to process
-	 * @param array|null $traceState Tracing related state
-	 * @return array the array of transformed tokens
+	 * @inheritDoc
 	 */
-	public function processTokensSync( Env $env, array $tokens, ?array $traceState = [] ): array {
-		$genFlags = $traceState['genFlags'] ?? null;
+	public function process( $tokens, array $opts = null ) {
+		'@phan-var array $tokens'; // @var array $tokens
+		$traceState = $this->manager->getTraceState();
 		$traceFlags = $traceState['traceFlags'] ?? null;
 		$traceTime = $traceState['traceTime'] ?? false;
 		$accum = [];
@@ -161,21 +164,21 @@ class TokenHandler {
 				$s = PHPUtils::getStartHRTime();
 				if ( $token instanceof NlTk ) {
 					$res = $this->onNewline( $token );
-					$traceName = $traceState['traceNames'][0];
+					$traceName = $traceState['transformer'] . '.onNewLine';
 				} elseif ( $token instanceof EOFTk ) {
 					$res = $this->onEnd( $token );
-					$traceName = $traceState['traceNames'][1];
+					$traceName = $traceState['transformer'] . '.onEnd';
 				} elseif ( !is_string( $token ) ) {
 					$res = $this->onTag( $token );
-					$traceName = $traceState['traceNames'][2];
+					$traceName = $traceState['transformer'] . '.onTag';
 				} else {
 					$traceName = null;
 					$res = $token;
 				}
 				if ( $traceName ) {
 					$t = PHPUtils::getHRTimeDifferential( $s );
-					$env->bumpTimeUse( $traceName, $t, "TT" );
-					$env->bumpCount( $traceName );
+					$this->env->bumpTimeUse( $traceName, $t, "TT" );
+					$this->env->bumpCount( $traceName );
 					$traceState['tokenTimes'] += $t;
 				}
 			} else {
@@ -200,11 +203,11 @@ class TokenHandler {
 			if ( !$modified && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) && $this->onAnyEnabled ) {
 				if ( $traceTime ) {
 					$s = PHPUtils::getStartHRTime();
-					$traceName = $traceState['traceNames'][3];
+					$traceName = $traceState['transformer'] . '.onAny';
 					$res = $this->onAny( $token );
 					$t = PHPUtils::getHRTimeDifferential( $s );
-					$env->bumpTimeUse( $traceName, $t, "TT" );
-					$env->bumpCount( $traceName );
+					$this->env->bumpTimeUse( $traceName, $t, "TT" );
+					$this->env->bumpCount( $traceName );
 					$traceState['tokenTimes'] += $t;
 				} else {
 					$res = $this->onAny( $token );
@@ -217,12 +220,6 @@ class TokenHandler {
 				}
 			}
 
-			if ( $genFlags && isset( $genFlags['handler'] ) ) {
-				// No matter whether token changed or not, emit a test line.
-				// This makes for more reliable verification of ported code.
-				$traceState['genTest']( $this, $token, $res );
-			}
-
 			if ( !$modified ) {
 				$accum[] = $token;
 			} elseif ( $resTokens && count( $resTokens ) > 0 ) {
@@ -231,5 +228,14 @@ class TokenHandler {
 		}
 
 		return $accum;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function processChunkily( $input, ?array $options ): Generator {
+		throw new \BadMethodCallException(
+			"Token handlers don't currently support additional chunked processing."
+		);
 	}
 }

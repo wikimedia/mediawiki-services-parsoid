@@ -1,172 +1,199 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/**
- * This module assembles parser pipelines from parser stages with
- * asynchronous communnication between stages based on events. Apart from the
- * default pipeline which converts WikiText to HTML DOM, it also provides
- * sub-pipelines for the processing of template transclusions.
- *
- * See http://www.mediawiki.org/wiki/Parsoid and
- * http://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
- * for illustrations of the pipeline architecture.
- * @module
- */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html;
 
-use Parsoid\Promise as Promise;
-
-$JSUtils = require '../utils/jsutils.js'::JSUtils;
-
-$ParserPipeline = null; // forward declaration
-$globalPipelineId = 0;
-
+use DOMDocument;
+use Parsoid\Config\Env;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
+use Wikimedia\Assert\Assert;
 
 /**
- * Wrap some stages into a pipeline. The last member of the pipeline is
- * supposed to emit events, while the first is supposed to support a process()
- * method that sets the pipeline in motion.
- * @class
+ * Wrap some stages into a pipeline.
  */
-$ParserPipeline = function ( $type, $stages, $env ) use ( &$JSUtils ) {
-	$this->pipeLineType = $type;
-	$this->stages = $stages;
-	$this->first = $stages[ 0 ];
-	$this->last = JSUtils::lastItem( $stages );
-	$this->env = $env;
-};
 
-/**
- * Applies the function across all stages and transformers registered at each stage.
- * @private
- */
-ParserPipeline::prototype::_applyToStage = function ( $fn, $args ) {
-	// Apply to each stage
-	$this->stages->forEach( function ( $stage ) use ( &$fn ) {
-			if ( $stage[ $fn ] && $stage[ $fn ]->constructor === $Function ) {
-				call_user_func_array( [ $stage, 'fn' ], $args );
-			}
-			// Apply to each registered transformer for this stage
-			if ( $stage->transformers ) {
-				$stage->transformers->forEach( function ( $t ) use ( &$fn ) {
-						if ( $t[ $fn ] && $t[ $fn ]->constructor === $Function ) {
-							call_user_func_array( [ $t, 'fn' ], $args );
-						}
+class ParserPipeline {
+	/** @var int */
+	private $id;
+
+	/** @var string */
+	private $outputType;
+
+	/** @var string */
+	private $pipelineType;
+
+	/** @var array */
+	private $stages;
+
+	/** @var Env */
+	private $env;
+
+	/** @var String */
+	private $cacheKey;
+
+	/**
+	 * @param string $type
+	 * @param string $outType
+	 * @param string $cacheKey
+	 * @param array $stages
+	 * @param Env $env
+	 */
+	public function __construct(
+		string $type, string $outType, string $cacheKey, array $stages, Env $env
+	) {
+		$this->id = -1;
+		$this->cacheKey = $cacheKey;
+		$this->pipelineType = $type;
+		$this->outputType = $outType;
+		$this->stages = $stages;
+		$this->env = $env;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCacheKey(): string {
+		return $this->cacheKey;
+	}
+
+	/**
+	 * Applies the function across all stages and transformers registered at each stage.
+	 */
+	private function applyToStage( string $fn, array $args ): void {
+		// Apply to each stage
+		foreach ( $this->stages as $stage ) {
+			$stage->$fn( $args );
+		}
+	}
+
+	/**
+	 * This is useful for debugging.
+	 *
+	 * @param int $id
+	 */
+	public function setPipelineId( int $id ): void {
+		$this->id = $id;
+		$this->applyToStage( 'setPipelineId', [ $id ] );
+	}
+
+	/**
+	 * Reset any local state in the pipeline stage
+	 * @param array $opts
+	 */
+	public function resetState( array $opts ): void {
+		$this->applyToStage( 'resetState', [ $opts ] );
+	}
+
+	/**
+	 * Set source offsets for the source that this pipeline will process.
+	 *
+	 * This lets us use different pipelines to parse fragments of the same page
+	 * Ex: extension content (found on the same page) is parsed with a different
+	 * pipeline than the top-level page.
+	 *
+	 * Because of this, the source offsets are not [0, page.length) always
+	 * and needs to be explicitly initialized
+	 *
+	 * @param int $start
+	 * @param int $end
+	 */
+	public function setSourceOffsets( int $start, int $end ): void {
+		$this->applyToStage( 'setSourceOffsets', [ $start, $end ] );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setFrame( ?Frame $frame, ?Title $title, array $args ): void {
+		$this->applyToStage( 'setFrame', [ $frame, $title, $args ] );
+	}
+
+	/**
+	 * Process input through the pipeline (potentially skipping the first stage
+	 * in case that first stage is the source of input chunks we are processing
+	 * in the rest of the pipeline)
+	 *
+	 * @param array|string|DOMDocument $input wikitext string or array of tokens or DOMDocument
+	 * @param array $opts
+	 *  - sol (bool) Whether tokens should be processed in start-of-line context.
+	 *  - chunky (bool) Whether we are processing the input chunkily.
+	 *                  If so, the first stage will be skipped
+	 * @return array|DOMDocument
+	 */
+	public function parse( $input, array $opts ) {
+		try {
+			$output = $input;
+			foreach ( $this->stages as $stage ) {
+				$output = $stage->process( $output, $opts );
+				if ( $output === null ) {
+					throw new \Exception( 'Stage ' . get_class( $stage ) . ' generated null output.' );
 				}
-				);
 			}
+
+			$this->env->getPipelineFactory()->returnPipeline( $this );
+
+			return $output;
+		} catch ( \Exception $err ) {
+			// PORT-FIXME: Is this the right thing to do?
+			$this->env->log( 'fatal', $err );
+		}
 	}
-	);
-};
 
-/**
- * This is useful for debugging.
- */
-ParserPipeline::prototype::setPipelineId = function ( $id ) {
-	$this->id = $id;
-	$this->_applyToStage( 'setPipelineId', [ $id ] );
-};
+	/**
+	 * Parse input in chunks
+	 *
+	 * @param string $input Input wikitext
+	 * @param array $opts
+	 * @return DOMDocument|array final DOM or array of token chnks
+	 */
+	public function parseChunkily( string $input, array $opts ) {
+		$ret = [];
+		$lastStage = end( $this->stages );
+		foreach ( $lastStage->processChunkily( $input, $opts ) as $output ) {
+			$ret[] = $output;
+		}
 
-/**
- * This is primarily required to reset native extensions
- * which might have be shared globally per parsing environment
- * (unlike pipeline stages and transformers that exist one per
- * pipeline). So, cannot rely on 'end' event to reset pipeline
- * because there will be one 'end' event per pipeline.
- *
- * Ex: cite needs to maintain a global sequence across all
- * template transclusion pipelines, extension, and top-level
- * pipelines.
- *
- * This lets us reuse pipelines to parse unrelated top-level pages
- * Ex: parser tests. Currently only parser tests exercise
- * this functionality.
- */
-ParserPipeline::prototype::resetState = function ( $opts ) {
-	$this->_applyToStage( 'resetState', [ $opts ] );
-};
+		$this->env->getPipelineFactory()->returnPipeline( $this );
 
-/**
- * Set source offsets for the source that this pipeline will process.
- *
- * This lets us use different pipelines to parse fragments of the same page
- * Ex: extension content (found on the same page) is parsed with a different
- * pipeline than the top-level page.
- *
- * Because of this, the source offsets are not [0, page.length) always
- * and needs to be explicitly initialized
- */
-ParserPipeline::prototype::setSourceOffsets = function ( $start, $end ) {
-	$this->_applyToStage( 'setSourceOffsets', [ $start, $end ] );
-};
-
-/**
- * Feed input tokens to the first pipeline stage.
- *
- * @param {Array|string} input tokens
- * @param {boolean} sol Whether tokens should be processed in start-of-line
- *   context.
- */
-ParserPipeline::prototype::process = function ( $input, $sol ) {
-	try {
-		return $this->first->process( $input, $sol );
-	} catch ( Exception $err ) {
-		$this->env->log( 'fatal', $err );
+		// Return either the DOM or the array of chunks
+		return $this->outputType === "DOM" ? $ret[0] : $ret;
 	}
-};
 
-/**
- * Feed input tokens to the first pipeline stage.
- */
-ParserPipeline::prototype::processToplevelDoc = function ( $input ) use ( &$JSUtils ) {
-	// Reset pipeline state once per top-level doc.
-	// This clears state from any per-doc global state
-	// maintained across all pipelines used by the document.
-	// (Ex: Cite state)
-	$this->resetState( [ 'toplevel' => true ] );
-	if ( !$this->env->startTime ) {
-		$this->env->startTime = JSUtils::startTime();
+	/**
+	 * Feed input to the first pipeline stage.
+	 * The input is expected to be the wikitext string for the doc.
+	 *
+	 * @param string $input
+	 * @param array|null $opts
+	 * @return DOMDocument
+	 */
+	public function parseToplevelDoc( string $input, array $opts = null ) {
+		Assert::invariant( $this->pipelineType === 'text/x-mediawiki/full',
+			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
+			$this->pipelineType );
+
+		// Reset pipeline state once per top-level doc.
+		// This clears state from any per-doc global state
+		// maintained across all pipelines used by the document.
+		// (Ex: Cite state)
+		$this->resetState( [ 'toplevel' => true ] );
+		if ( empty( $this->env->startTime ) ) {
+			$this->env->startTime = PHPUtils::getStartHRTime();
+		}
+		$this->env->log( 'trace/time', 'Starting parse at ', $this->env->startTime );
+
+		if ( !$opts ) {
+			$opts = [];
+		}
+
+		// Top-level doc parsing always start in SOL state
+		$opts['sol'] = true;
+
+		if ( !empty( $opts['chunky'] ) ) {
+			return $this->parseChunkily( $input, $opts );
+		} else {
+			return $this->parse( $input, $opts );
+		}
 	}
-	$this->env->log( 'trace/time', 'Starting parse at ', $this->env->startTime );
-	$this->process( $input, /* sol */true );
-};
-
-/**
- * Set the frame on the last pipeline stage (normally the
- * AsyncTokenTransformManager).
- */
-ParserPipeline::prototype::setFrame = function ( $frame, $title, $args ) {
-	return $this->_applyToStage( 'setFrame', [ $frame, $title, $args ] );
-};
-
-/**
- * Register the first pipeline stage with the last stage from a separate pipeline.
- */
-ParserPipeline::prototype::addListenersOn = function ( $stage ) {
-	return $this->first->addListenersOn( $stage );
-};
-
-// Forward the EventEmitter API to this.last
-ParserPipeline::prototype::on = function ( $ev, $cb ) {
-	return $this->last->on( $ev, $cb );
-};
-ParserPipeline::prototype::once = function ( $ev, $cb ) {
-	return $this->last->once( $ev, $cb );
-};
-ParserPipeline::prototype::addListener = function ( $ev, $cb ) {
-	return $this->last->addListener( $ev, $cb );
-};
-ParserPipeline::prototype::removeListener = function ( $ev, $cb ) {
-	return $this->last->removeListener( $ev, $cb );
-};
-ParserPipeline::prototype::setMaxListeners = function ( $n ) {
-	return $this->last->setMaxListeners( $n );
-};
-ParserPipeline::prototype::listeners = function ( $ev ) {
-	return $this->last->listeners( $ev );
-};
-ParserPipeline::prototype::removeAllListeners = function ( $event ) {
-	$this->last->removeAllListeners( $event );
-};
+}

@@ -67,7 +67,8 @@ function runDOMPostProcessor( $env, $argv, $opts, $processors ) {
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
 
-	$dpp = new DOMPostProcessor( $env, $opts['runOptions'], $processors );
+	$dpp = new DOMPostProcessor( $env, $opts['runOptions'] );
+	$dpp->registerProcessors( $processors );
 	$options = [
 		'toplevel' => $opts['toplevel']
 	];

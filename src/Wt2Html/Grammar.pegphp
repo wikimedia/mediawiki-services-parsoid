@@ -95,18 +95,7 @@
 			TokenizerUtils::enforceParserResourceLimits( $this->env, $tokens[ $i ] );
 		}
 
-		// limit the size of individual chunks
-		$chunkLimit = 100000;
-		$cb = $this->options['cb'];
-		if ( $n > $chunkLimit ) {
-			$i = 0;
-			while ( $i < $n ) {
-				$cb( array_slice( $tokens, $i, $i + $chunkLimit ) );
-				$i += $chunkLimit;
-			}
-		} else {
-			$cb( $tokens );
-		}
+		return $tokens;
 	}
 
 	/* ------------------------------------------------------------------------
@@ -299,10 +288,16 @@
  *********************************************************/
 
 start "start" =
-	tlb* newlineToken* {
-		// end is passed inline as a token, as well as a separate event for now.
-		$this->emitChunk( [ new EOFTk() ] );
-		return true;
+	t:tlb* n:newlineToken* {
+		if ( count( $t ) ) {
+			$ret = TokenizerUtils::flattenIfArray( $t );
+		} else {
+			$ret = [];
+		}
+		if ( count( $n ) ) {
+			PHPUtils::pushArray($ret, $n);
+		}
+		return $ret;
 	}
 
 /*
@@ -365,11 +360,7 @@ start_async =
 	(
 		tlb
 		/ newlineToken* &{
-			if ( $this->endOffset() === $this->inputLength ) {
-				$this->emitChunk( [ new EOFTk() ] );
-			}
-			// terminate the loop
-			return false;
+			return $this->endOffset() !== $this->inputLength;
 		}
 	)*
 
@@ -396,13 +387,7 @@ tlb "tlb" =
 		}
 
 		// Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
-		if ( $tokens ) {
-			$this->emitChunk( $tokens );
-		}
-
-		// We don't return any tokens to the start rule to save memory. We
-		// just emitted them already to our consumers.
-		return true;
+		return $this->emitChunk( $tokens );
 	}
 
 /*

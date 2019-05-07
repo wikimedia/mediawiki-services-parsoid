@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html;
 use DateTime;
 use DOMDocument;
 use DOMElement;
+use Generator;
 
 use Parsoid\Config\Env;
 use Parsoid\Utils\ContentUtils;
@@ -48,15 +49,9 @@ use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 /**
  * Perform post-processing steps on an already-built HTML DOM.
  */
-class DOMPostProcessor {
-	/** @var Env */
-	private $env;
-
+class DOMPostProcessor extends PipelineStage {
 	/** @var array */
 	private $options;
-
-	/** @var int */
-	private $pipelineId;
 
 	/** @var array */
 	private $seenIds;
@@ -73,46 +68,17 @@ class DOMPostProcessor {
 	/**
 	 * @param Env $env
 	 * @param array $options
-	 * @param ?array $processors
-	 * @suppress PhanTypeArraySuspiciousNullable
+	 * @param int $stageId
+	 * @param PipelineStage|null $prevStage
 	 */
-	public function __construct( Env $env, array $options, ?array $processors ) {
-		$this->env = $env;
+	public function __construct(
+		Env $env, array $options = [], int $stageId = -1, $prevStage = null
+	) {
+		parent::__construct( $env, $prevStage );
+
 		$this->options = $options;
 		$this->seenIds = [];
 		$this->processors = [];
-
-		if ( empty( $processors ) ) {
-			$processors = $this->getDefaultProcessors();
-		}
-
-		foreach ( $processors as $p ) {
-			if ( !empty( $p['omit'] ) ) {
-				continue;
-			}
-			if ( empty( $p['name'] ) ) {
-				$p['name'] = $p['Processor'];
-			}
-			if ( empty( $p['shortcut'] ) ) {
-				$p['shortcut'] = $p['name'];
-			}
-			if ( !empty( $p['isTraverser'] ) ) {
-				$t = new DOMTraverser();
-				foreach ( $p['handlers'] as $h ) {
-					$t->addHandler( $h['nodeName'], $h['action'] );
-				}
-				$p['proc'] = function ( ...$args ) use ( &$t ) {
-					$args[] = null;
-					return $t->traverse( ...$args );
-				};
-			} else {
-				$c = new $p['Processor'];
-				$p['proc'] = function ( ...$args ) use ( &$c ) {
-					return $c->run( ...$args );
-				};
-			}
-			$this->processors[] = $p;
-		}
 
 		// map from mediawiki metadata names to RDFa property names
 		$this->metadataMap = [
@@ -148,6 +114,44 @@ class DOMPostProcessor {
 				'content' => '%s'
 			]
 		];
+	}
+
+	/**
+	 * @param ?array $processors
+	 * @suppress PhanTypeArraySuspiciousNullable
+	 */
+	public function registerProcessors( ?array $processors ): void {
+		if ( empty( $processors ) ) {
+			$processors = $this->getDefaultProcessors();
+		}
+
+		foreach ( $processors as $p ) {
+			if ( !empty( $p['omit'] ) ) {
+				continue;
+			}
+			if ( empty( $p['name'] ) ) {
+				$p['name'] = $p['Processor'];
+			}
+			if ( empty( $p['shortcut'] ) ) {
+				$p['shortcut'] = $p['name'];
+			}
+			if ( !empty( $p['isTraverser'] ) ) {
+				$t = new DOMTraverser();
+				foreach ( $p['handlers'] as $h ) {
+					$t->addHandler( $h['nodeName'], $h['action'] );
+				}
+				$p['proc'] = function ( ...$args ) use ( &$t ) {
+					$args[] = null;
+					return $t->traverse( ...$args );
+				};
+			} else {
+				$c = new $p['Processor'];
+				$p['proc'] = function ( ...$args ) use ( &$c ) {
+					return $c->run( ...$args );
+				};
+			}
+			$this->processors[] = $p;
+		}
 	}
 
 	/**
@@ -482,15 +486,6 @@ class DOMPostProcessor {
 		] );
 
 		return $processors;
-	}
-
-	/**
-	 * Debugging aid: set pipeline id
-	 *
-	 * @param int $id
-	 */
-	public function setPipelineId( int $id ): void {
-		$this->pipelineId = $id;
 	}
 
 	/**
@@ -855,5 +850,31 @@ class DOMPostProcessor {
 				*/
 			}
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function process( $doc, array $opts = null ) {
+		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
+		$this->doPostProcess( $doc );
+		return $doc;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function processChunkily( $input, ?array $options ): Generator {
+		if ( $this->prevStage ) {
+			// The previous stage will yield a DOM.
+			// FIXME: Should we change the signature of that to return a DOM
+			// If we do so, a pipeline stage returns either a generator or
+			// concrete output (in this case, a DOM).
+			$dom = $this->prevStage->processChunkily( $input, $options )->current();
+		} else {
+			$dom = $input;
+		}
+		$this->process( $dom );
+		yield $dom;
 	}
 }

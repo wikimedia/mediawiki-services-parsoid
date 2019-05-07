@@ -96,18 +96,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			TokenizerUtils::enforceParserResourceLimits( $this->env, $tokens[ $i ] );
   		}
   
-  		// limit the size of individual chunks
-  		$chunkLimit = 100000;
-  		$cb = $this->options['cb'];
-  		if ( $n > $chunkLimit ) {
-  			$i = 0;
-  			while ( $i < $n ) {
-  				$cb( array_slice( $tokens, $i, $i + $chunkLimit ) );
-  				$i += $chunkLimit;
-  			}
-  		} else {
-  			$cb( $tokens );
-  		}
+  		return $tokens;
   	}
   
   	/* ------------------------------------------------------------------------
@@ -396,18 +385,20 @@ class Grammar extends \WikiPEG\PEGParserBase {
   // actions
   private function a0() {
   
-  			if ( $this->endOffset() === $this->inputLength ) {
-  				$this->emitChunk( [ new EOFTk() ] );
-  			}
-  			// terminate the loop
-  			return false;
+  			return $this->endOffset() !== $this->inputLength;
   		
   }
-  private function a1() {
+  private function a1($t, $n) {
   
-  		// end is passed inline as a token, as well as a separate event for now.
-  		$this->emitChunk( [ new EOFTk() ] );
-  		return true;
+  		if ( count( $t ) ) {
+  			$ret = TokenizerUtils::flattenIfArray( $t );
+  		} else {
+  			$ret = [];
+  		}
+  		if ( count( $n ) ) {
+  			PHPUtils::pushArray($ret, $n);
+  		}
+  		return $ret;
   	
   }
   private function a2($sc) {
@@ -521,13 +512,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		}
   
   		// Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
-  		if ( $tokens ) {
-  			$this->emitChunk( $tokens );
-  		}
-  
-  		// We don't return any tokens to the start rule to save memory. We
-  		// just emitted them already to our consumers.
-  		return true;
+  		return $this->emitChunk( $tokens );
   	
   }
   private function a20() {
@@ -1847,38 +1832,33 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $p2 = $this->currPos;
     // start seq_1
     $p3 = $this->currPos;
+    $r4 = [];
     for (;;) {
-      $r5 = $this->discardtlb(true, $param_preproc);
-      if ($r5===self::$FAILED) {
+      $r5 = $this->parsetlb(true, $param_preproc);
+      if ($r5!==self::$FAILED) {
+        $r4[] = $r5;
+      } else {
         break;
       }
     }
+    // t <- $r4
     // free $r5
-    $r4 = true;
-    if ($r4===self::$FAILED) {
-      $r1 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $r4
+    $r5 = [];
     for (;;) {
-      $r5 = $this->discardnewlineToken(true);
-      if ($r5===self::$FAILED) {
+      $r6 = $this->parsenewlineToken(true);
+      if ($r6!==self::$FAILED) {
+        $r5[] = $r6;
+      } else {
         break;
       }
     }
-    // free $r5
-    $r4 = true;
-    if ($r4===self::$FAILED) {
-      $this->currPos = $p3;
-      $r1 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $r4
+    // n <- $r5
+    // free $r6
     $r1 = true;
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a1();
+      $r1 = $this->a1($r4, $r5);
     } else {
       if (!$silence) {$this->fail(1);}
     }
@@ -2658,72 +2638,6 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function parsenewlineToken($silence) {
     $key = 534;
-    $bucket = $this->currPos;
-    $cached = $this->cache[$bucket][$key] ?? null;
-    if ($cached) {
-      $this->currPos = $cached['nextPos'];
-  
-      return $cached['result'];
-    }
-  
-    $p2 = $this->currPos;
-    $r1 = $this->discardnewline($silence);
-    if ($r1!==self::$FAILED) {
-      $this->savedPos = $p2;
-      $r1 = $this->a20();
-    }
-    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-  
-    $this->cache[$bucket][$key] = $cached;
-    return $r1;
-  }
-  private function discardtlb($silence, &$param_preproc) {
-    $key = json_encode([295, $param_preproc]);
-    $bucket = $this->currPos;
-    $cached = $this->cache[$bucket][$key] ?? null;
-    if ($cached) {
-      $this->currPos = $cached['nextPos'];
-        if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      return $cached['result'];
-    }
-        $saved_preproc=$param_preproc;
-    $p2 = $this->currPos;
-    // start seq_1
-    $p3 = $this->currPos;
-    $p4 = $this->currPos;
-    $r5 = $this->discardeof(true);
-    if ($r5 === self::$FAILED) {
-      $r5 = false;
-    } else {
-      $r5 = self::$FAILED;
-      $this->currPos = $p4;
-      $r1 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $p4
-    $r6 = $this->parseblock(true, 0x0, 0, self::newRef(null), $param_preproc);
-    // b <- $r6
-    if ($r6===self::$FAILED) {
-      $this->currPos = $p3;
-      $r1 = self::$FAILED;
-      goto seq_1;
-    }
-    $r1 = true;
-    seq_1:
-    if ($r1!==self::$FAILED) {
-      $this->savedPos = $p2;
-      $r1 = $this->a19($r6);
-    } else {
-      if (!$silence) {$this->fail(9);}
-    }
-    // free $p3
-    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-      if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    $this->cache[$bucket][$key] = $cached;
-    return $r1;
-  }
-  private function discardnewlineToken($silence) {
-    $key = 535;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12457,6 +12371,27 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
+    $this->cache[$bucket][$key] = $cached;
+    return $r1;
+  }
+  private function discardnewlineToken($silence) {
+    $key = 535;
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
+  
+      return $cached['result'];
+    }
+  
+    $p2 = $this->currPos;
+    $r1 = $this->discardnewline($silence);
+    if ($r1!==self::$FAILED) {
+      $this->savedPos = $p2;
+      $r1 = $this->a20();
+    }
+    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
+  
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }

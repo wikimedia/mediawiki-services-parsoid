@@ -16,11 +16,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
  */
 function parse( TokenizerMockEnv $env, string $input ): array {
 	$tokenizer = new PegTokenizer( $env );
-	$tokens = [];
 	$ret = $tokenizer->tokenizeSync( $input, [
-		'cb' => function ( $t ) use ( &$tokens ) {
-			PHPUtils::pushArray( $tokens, $t );
-		},
 		'pegTokenizer' => $tokenizer,
 		'pipelineOffset' => 0,
 		'env' => $env,
@@ -30,7 +26,7 @@ function parse( TokenizerMockEnv $env, string $input ): array {
 		fwrite( STDERR, $tokenizer->getLastErrorLogMessage() . "\n" );
 		exit( 1 );
 	}
-	return $tokens;
+	return $ret;
 }
 
 $opts = [];

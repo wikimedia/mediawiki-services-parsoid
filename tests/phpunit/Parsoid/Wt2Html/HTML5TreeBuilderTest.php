@@ -19,8 +19,8 @@ class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
 	public function testTreeBuilder( $tokens, $expected ) {
 		$mockEnv = new MockEnv( [] );
 		$tb = new HTML5TreeBuilder( $mockEnv );
-		$tb->onChunk( $tokens );
-		$doc = $tb->onEnd();
+		$tb->processChunk( $tokens );
+		$doc = $tb->finalizeDOM();
 		$body = DOMCompat::getBody( $doc );
 		$this->assertEquals( $expected, DOMCompat::getInnerHTML( $body ) );
 	}

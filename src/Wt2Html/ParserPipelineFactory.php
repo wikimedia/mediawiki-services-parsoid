@@ -1,188 +1,129 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/**
- * This module assembles parser pipelines from parser stages with
- * asynchronous communnication between stages based on events. Apart from the
- * default pipeline which converts WikiText to HTML DOM, it also provides
- * sub-pipelines for the processing of template transclusions.
- *
- * See http://www.mediawiki.org/wiki/Parsoid and
- * http://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
- * for illustrations of the pipeline architecture.
- * @module
- */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html;
 
-use Parsoid\Promise as Promise;
-
-$PegTokenizer = require './tokenizer.js'::PegTokenizer;
-$TokenTransformManager = require './TokenTransformManager.js';
-$ExtensionHandler = require './tt/ExtensionHandler.js'::ExtensionHandler;
-$NoIncludeOnly = require './tt/NoIncludeOnly.js';
-$QuoteTransformer = require './tt/QuoteTransformer.js'::QuoteTransformer;
-$TokenStreamPatcher = require './tt/TokenStreamPatcher.js'::TokenStreamPatcher;
-$PreHandler = require './tt/PreHandler.js'::PreHandler;
-$ParagraphWrapper = require './tt/ParagraphWrapper.js'::ParagraphWrapper;
-$SanitizerHandler = require './tt/Sanitizer.js'::SanitizerHandler;
-$TemplateHandler = require './tt/TemplateHandler.js'::TemplateHandler;
-$AttributeExpander = require './tt/AttributeExpander.js'::AttributeExpander;
-$ListHandler = require './tt/ListHandler.js'::ListHandler;
-$WikiLinkHandler = require './tt/WikiLinkHandler.js'::WikiLinkHandler;
-$ExternalLinkHandler = require './tt/ExternalLinkHandler.js'::ExternalLinkHandler;
-$BehaviorSwitchHandler = require './tt/BehaviorSwitchHandler.js'::BehaviorSwitchHandler;
-$LanguageVariantHandler = require './tt/LanguageVariantHandler.js'::LanguageVariantHandler;
-$DOMFragmentBuilder = require './tt/DOMFragmentBuilder.js'::DOMFragmentBuilder;
-$HTML5TreeBuilder = require './HTML5TreeBuilder.js'::HTML5TreeBuilder;
-$DOMPostProcessor = require './DOMPostProcessor.js'::DOMPostProcessor;
-$JSUtils = require '../utils/jsutils.js'::JSUtils;
-
-$SyncTokenTransformManager = TokenTransformManager\SyncTokenTransformManager;
-$AsyncTokenTransformManager = TokenTransformManager\AsyncTokenTransformManager;
-$IncludeOnly = NoIncludeOnly\IncludeOnly;
-$NoInclude = NoIncludeOnly\NoInclude;
-$OnlyInclude = NoIncludeOnly\OnlyInclude;
-
-$ParserPipeline = null; // forward declaration
-$globalPipelineId = 0;
+use DOMDocument;
+use Parsoid\Config\Env;
+use Parsoid\InternalException;
+use Parsoid\Utils\PHPUtils;
+use Wikimedia\Assert\Assert;
 
 /**
- * @class
- * @param {MWParserEnvironment} env
+ * This class assembles parser pipelines from parser stages
  */
-function ParserPipelineFactory( $env ) {
-	$this->pipelineCache = [];
-	$this->env = $env;
-}
+class ParserPipelineFactory {
+	private static $globalPipelineId = 0;
 
-/**
- * Recipe for parser pipelines and -subpipelines, depending on input types.
- *
- * Token stream transformations to register by type and per phase. The
- * possible ranks for individual transformation registrations are [0,1)
- * (excluding 1.0) for sync01, [1,2) for async12 and [2,3) for sync23.
- *
- * Should perhaps be moved to {@link MWParserEnvironment}, so that all
- * configuration can be found in a single place.
- */
-ParserPipelineFactory::prototype::recipes = [
-	// The full wikitext pipeline
-	'text/x-mediawiki/full' => [
-		// Input pipeline including the tokenizer
-		'text/x-mediawiki',
-		// Final synchronous token transforms and DOM building / processing
-		'tokens/x-mediawiki/expanded'
-	],
-
-	// A pipeline from wikitext to expanded tokens. The input pipeline for
-	// wikitext.
-	'text/x-mediawiki' => [
-		[ $PegTokenizer, [] ],
-		'tokens/x-mediawiki'
-	],
-
-	// Synchronous per-input and async token stream transformations. Produces
-	// a fully expanded token stream ready for consumption by the
-	// tokens/expanded pipeline.
-	'tokens/x-mediawiki' => [
-		// Synchronous in-order per input
-		[
-			$SyncTokenTransformManager,
-			[ 1, 'tokens/x-mediawiki' ],
-			[
-				// PHASE RANGE: [0,1)
-				$OnlyInclude, // 0.01
-				$IncludeOnly, // 0.02
-				$NoInclude
-			]
-		], // 0.03
-
-		/*
-		* Asynchronous out-of-order per input. Each async transform can only
-		* operate on a single input token, but can emit multiple output
-		* tokens. If multiple tokens need to be collected per-input, then a
-		* separate collection transform in sync01 can be used to wrap the
-		* collected tokens into a single one later processed in an async12
-		* transform.
-		*/
-		[
-			$AsyncTokenTransformManager,
-			[ 2, 'tokens/x-mediawiki' ],
-			[
-				// PHASE RANGE: [1,2)
-				$TemplateHandler, // 1.1
-				$ExtensionHandler, // 1.11
+	private static $stages = [
+		"Tokenizer" => [
+			"class" => PegTokenizer::class,
+		],
+		"TokenTransform1" => [
+			"class" => TokenTransformManager::class,
+			"transformers" => [
+				 'OnlyInclude',
+				 'IncludeOnly',
+				 'NoInclude',
+			],
+		],
+		"TokenTransform2" => [
+			"class" => TokenTransformManager::class,
+			"transformers" => [
+				'TemplateHandler',
+				'ExtensionHandler',
 
 				// Expand attributes after templates to avoid expanding unused branches
 				// No expansion of quotes, paragraphs etc in attributes, as in
 				// PHP parser- up to text/x-mediawiki/expanded only.
-				$AttributeExpander, // 1.12
+				'AttributeExpander',
 
 				// now all attributes expanded to tokens or string
 
 				// more convenient after attribute expansion
-				$WikiLinkHandler, // 1.15
-				$ExternalLinkHandler, // 1.15
-				$LanguageVariantHandler, // 1.16
+				'WikiLinkHandler',
+				'ExternalLinkHandler',
+				'LanguageVariantHandler',
 
 				// This converts dom-fragment-token tokens all the way to DOM
 				// and wraps them in DOMFragment wrapper tokens which will then
 				// get unpacked into the DOM by a dom-fragment unpacker.
-				$DOMFragmentBuilder
-			]
-		]
-	], // 1.99
-
-	// Final stages of main pipeline, operating on fully expanded tokens of
-	// potentially mixed origin.
-	'tokens/x-mediawiki/expanded' => [
-		// Synchronous in-order on fully expanded token stream (including
-		// expanded templates etc). In order to support mixed input (from
-		// wikitext and plain HTML, say) all applicable transforms need to be
-		// included here. Input-specific token types avoid any runtime
-		// overhead for unused transforms.
-		[
-			$SyncTokenTransformManager,
-			// PHASE RANGE: [2,3)
-			[ 3, 'tokens/x-mediawiki/expanded' ],
-			[
-				$TokenStreamPatcher, // 2.001 -- 2.003
+				'DOMFragmentBuilder'
+			],
+		],
+		"TokenTransform3" => [
+			"class" => TokenTransformManager::class,
+			"transformers" => [
+				 'TokenStreamPatcher',
 				// add <pre>s
-				$PreHandler, // 2.051 -- 2.054
-				$QuoteTransformer, // 2.1
+				 'PreHandler',
+				 'QuoteTransformer',
 				// add before transforms that depend on behavior switches
 				// examples: toc generation, edit sections
-				$BehaviorSwitchHandler, // 2.14
+				 'BehaviorSwitchHandler',
 
-				$ListHandler, // 2.49
-				$SanitizerHandler, // 2.90, 2.91
+				 'ListHandler',
+				 'SanitizerHandler',
 				// Wrap tokens into paragraphs post-sanitization so that
 				// tags that converted to text by the sanitizer have a chance
 				// of getting wrapped into paragraphs.  The sanitizer does not
 				// require the existence of p-tags for its functioning.
-				$ParagraphWrapper
+				 'ParagraphWrapper'
+			],
+		],
+		"TreeBuilder" => [
+			// Build a tree out of the fully processed token stream
+			"class" => HTML5TreeBuilder::class,
+		],
+		"DOMPP" => [
+			 // Generic DOM transformer.
+			 // This performs a lot of post-processing of the DOM
+			 // (Template wrapping, broken wikitext/html detection, etc.)
+			"class" => DOMPostProcessor::class,
+		],
+	];
+
+	private static $pipelineRecipes = [
+		// This pipeline takes wikitext as input and emits a fully
+		// processed DOM as output. This is the pipeline used for
+		// all top-level documents.
+		// Stages 1-6 of the pipeline
+		"text/x-mediawiki/full" => [
+			"outType" => "DOM",
+			"stages" => [
+				"Tokenizer", "TokenTransform1", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMPP"
 			]
-		], // 2.95 -- 2.97
+		],
 
-		// Build a tree out of the fully processed token stream
-		[ $HTML5TreeBuilder, [] ],
+		// This pipeline takes wikitext as input and emits
+		// tokens that have had all templates and extensions processed.
+		// Stages 1-3 of the pipeline
+		"text/x-mediawiki" => [
+			"outType" => "Tokens",
+			"stages" => [ "Tokenizer", "TokenTransform1", "TokenTransform2"
+			]
+		],
 
-		/*
-		 * Final processing on the HTML DOM.
-		 */
+		// This pipeline takes tokens from the PEG tokenizer and emits
+		// tokens that have had all templates and extensions processed.
+		// Stages 2-3 of the pipeline
+		"tokens/x-mediawiki" => [
+			"outType" => "Tokens",
+			"stages" => [ "TokenTransform1", "TokenTransform2"
+			]
+		],
 
-		/*
-		 * Generic DOM transformer.
-		 * This performs a lot of post-processing of the DOM
-		 * (Template wrapping, broken wikitext/html detection, etc.)
-		 */
-		[ $DOMPostProcessor, [] ]
-	]
-];
+		// This pipeline takes tokens from stage 3 and emits a fully
+		// processed DOM as output.
+		// Stages 4-6 of the pipeline
+		"tokens/x-mediawiki/expanded" => [
+			"outType" => "DOM",
+			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP"
+			]
+		],
+	];
 
-$supportedOptions = new Set( [
+	private static $supportedOptions = [
 		// If true, templates found in content will have its contents expanded
 		'expandTemplates',
 
@@ -212,236 +153,191 @@ $supportedOptions = new Set( [
 		// Are we processing content of attributes?
 		// (in current usage, used for transcluded attr. keys/values)
 		'attrExpansion'
-	]
-);
+	];
 
-// Default options processing
-$defaultOptions = function ( $options ) use ( &$supportedOptions ) {
-	if ( !$options ) { $options = [];
- }
+	private static $initialized = false;
 
-	Object::keys( $options )->forEach( function ( $k ) use ( &$supportedOptions ) {
-			Assert::invariant( $supportedOptions->has( $k ), 'Invalid cacheKey option: ' . $k );
-	}
-	);
+	private static function init(): void {
+		if ( self::$initialized ) {
+			return;
+		}
 
-	// default: not an include context
-	if ( $options->isInclude === null ) {
-		$options->isInclude = false;
+		self::$supportedOptions = array_flip( self::$supportedOptions );
 	}
 
-	// default: wrap templates
-	if ( $options->expandTemplates === null ) {
-		$options->expandTemplates = true;
+	/** @var array */
+	private $pipelineCache;
+
+	/** @var Env */
+	private $env;
+
+	/**
+	 * @param Env $env
+	 */
+	public function __construct( Env $env ) {
+		$this->pipelineCache = [];
+		$this->env = $env;
+		self::init();
 	}
 
-	return $options;
-};
+	// Default options processing
+	private function defaultOptions( array $options ): array {
+		if ( !$options ) {
+			$options = [];
+		}
 
-/**
- * Generic pipeline creation from the above recipes.
- */
-ParserPipelineFactory::prototype::makePipeline = function ( $type, $options ) use ( &$defaultOptions, &$ParserPipeline ) {
-	// SSS FIXME: maybe there is some built-in method for this already?
-	$options = $defaultOptions( $options );
+		foreach ( $options as $k => $v ) {
+			Assert::invariant( isset( self::$supportedOptions[$k] ), 'Invalid cacheKey option: ' . $k );
+		}
 
-	$pipelineConfig = $this->env->conf->parsoid->pipelineConfig;
-	$phpComponents = $pipelineConfig && $pipelineConfig->wt2html;
-	$phpTokenTransformers = $phpComponents && $phpComponents::TT || null;
+		// default: not an include context
+		if ( empty( $options['isInclude'] ) ) {
+			$options['isInclude'] = false;
+		}
 
-	$recipe = $this->recipes[ $type ];
-	if ( !$recipe ) {
-		$console->trace();
-		throw 'Error while trying to construct pipeline for ' . $type;
+		// default: wrap templates
+		if ( empty( $options['expandTemplates'] ) ) {
+			$options['expandTemplates'] = true;
+		}
+
+		return $options;
 	}
-	$stages = [];
-	$PHPBuffer = null;
-$PHPTokenTransformer = null;
-$PHPPipelineStage = null;
-	for ( $i = 0,  $l = count( $recipe );  $i < $l;  $i++ ) {
-		// create the stage
-		$stageData = $recipe[ $i ];
-		$stage = null;
 
-		if ( $stageData->constructor === $String ) {
-			// Points to another subpipeline, get it recursively
-			// Clone options object and clear cache type
-			$newOpts = Object::assign( [], $options );
-			$stage = $this->makePipeline( $stageData, $newOpts );
-		} else {
-			Assert::invariant( count( $stageData[ 1 ] ) <= 2 );
+	/**
+	 * Generic pipeline creation from the above recipes.
+	 * @param string $type
+	 * @param array $options
+	 * @return ParserPipeline
+	 */
+	private function makePipeline( string $type, string $cacheKey, array $options ): ParserPipeline {
+		$options = $this->defaultOptions( $options );
 
-			if ( $phpComponents
-&& $phpComponents[ $stageData[ 0 ]->name ]
-|| $phpComponents[ $stageData[ 0 ]->name + $stageData[ 1 ][ 0 ] ]
-			) {
-				if ( !$PHPPipelineStage ) {
-					$PHPPipelineStage = require '../../tests/porting/hybrid/PHPPipelineStage.js'::PHPPipelineStage;
-				}
-				$stage = new PHPPipelineStage( $this->env, $options, $this, $stageData[ 0 ]->name );
-				$stage->phaseEndRank = $stageData[ 1 ][ 0 ];
-				$stage->pipelineType = $stageData[ 1 ][ 1 ];
-				// If you run a higher level pipeline component in PHP, we are forcing
-				// all sub-transforms to run in PHP as well. Just keeps things simpler.
-				// This only affects stages 1,2,3 involving the Sync or Async Token Transformers.
-				if ( count( $stageData ) >= 3 ) {
-					$stage->transformers = array_map( $stageData[ 2 ], function ( $T ) {return T::name;
-		   } );
-				}
-			} else {
-				$stage = new ( $stageData[ 0 ] )( $this->env, $options, $this, $stageData[ 1 ][ 0 ], $stageData[ 1 ][ 1 ] );
-				if ( count( $stageData ) >= 3 ) {
-					// FIXME: This code here adds the 'transformers' property to every stage
-					// behind the back of that stage.  There are two alternatives to this:
-					//
-					// 1. Add 'recordTransformer' and 'getTransformers' functions to every stage.
-					// But, seems excessive compared to current approach where the stages
-					// aren't concerned with unnecessary details of state maintained for
-					// the purposes of top-level orchestration.
-					// 2. Alternatively, we could also maintain this information as a separate
-					// object rather than tack it onto '.transformers' property of each stage.
-					// this.stageTransformers = [
-					// [stage1-transformers],
-					// [stage2-transformers],
-					// ...
-					// ];
-
-					$stage->transformers = [];
-					// Create (and implicitly register) transforms
-					$transforms = $stageData[ 2 ];
-					for ( $j = 0;  $j < count( $transforms );  $j++ ) {
-						$T = $transforms[ $j ];
-						if ( $phpTokenTransformers && $phpTokenTransformers[ T::name ] ) {
-							// Run the PHP version of this token transformation
-							if ( !$PHPBuffer ) {
-								// Add a buffer before the first PHP transformer
-								$PHPBuffer = require '../../tests/porting/hybrid/PHPBuffer.js'::PHPBuffer;
-								$PHPTokenTransformer = require '../../tests/porting/hybrid/PHPTokenTransformer.js'::PHPTokenTransformer;
-								$stage->transformers[] = new PHPBuffer( $stage, $options );
-							}
-							$stage->transformers[] = new PHPTokenTransformer( $this->env, $stage, T::name, $options );
-						} else {
-							$stage->transformers[] = new T( $stage, $options );
-						}
-					}
+		if ( !isset( self::$pipelineRecipes[$type] ) ) {
+			throw new InternalException( 'Unsupported Pipeline: ' . $type );
+		}
+		$recipe = self::$pipelineRecipes[ $type ];
+		$stages = [];
+		$prevStage = null;
+		$recipeStages = $recipe["stages"];
+		for ( $i = 0,  $l = count( $recipeStages );  $i < $l;  $i++ ) {
+			// create the stage
+			$stageId = $recipeStages[$i];
+			$stageData = $stages[$stageId];
+			$stage = new $stageData["class"]( $this->env, $options, $this, $stageId, $prevStage );
+			if ( isset( $stageData["transformers"] ) ) {
+				foreach ( $stageData["transformers"] as $tName ) {
+					$stage->addTransformer( new $tName( $stage, $options ) );
 				}
 			}
+
+			$prevStage = $stage;
+			$stages[] = $stage;
 		}
 
-		// connect with previous stage
-		if ( $i ) {
-			$stage->addListenersOn( $stages[ $i - 1 ] );
-		}
-		$stages[] = $stage;
+		return new ParserPipeline(
+			$type,
+			$recipe["outType"],
+			$cacheKey,
+			$stages,
+			$this->env
+		);
 	}
 
-	return new ParserPipeline(
-		$type,
-		$stages,
-		$this->env
-	);
-};
+	/**
+	 * @param string $cacheKey
+	 * @param array $options
+	 * @return string
+	 */
+	private function getCacheKey( string $cacheKey, array $options ): string {
+		$cacheKey = $cacheKey ?? '';
+		if ( empty( $options['isInclude'] ) ) {
+			$cacheKey .= '::noInclude';
+		}
+		if ( empty( $options['expandTemplates'] ) ) {
+			$cacheKey .= '::noExpand';
+		}
+		if ( !empty( $options['inlineContext'] ) ) {
+			$cacheKey .= '::inlineContext';
+		}
+		if ( !empty( $options['inPHPBlock'] ) ) {
+			$cacheKey .= '::inPHPBlock';
+		}
+		if ( !empty( $options['inTemplate'] ) ) {
+			$cacheKey .= '::inTemplate';
+		}
+		if ( !empty( $options['attrExpansion'] ) ) {
+			$cacheKey .= '::attrExpansion';
+		}
+		if ( isset( $options['extTag'] ) ) {
+			$cacheKey .= '::' . $options['extTag'];
+			// FIXME: This is not the best strategy. But, instead of
+			// premature complexity, let us see how extensions want to
+			// use this and then figure out what constraints are needed.
+			if ( isset( $options['extTagOpts'] ) ) {
+				$cacheKey .= '::' . PHPUtils::jsonEncode( $options['extTagOpts'] );
+			}
+		}
+		return $cacheKey;
+	}
 
-function getCacheKey( $cacheKey, $options ) {
-	$cacheKey = $cacheKey || '';
-	if ( !$options->isInclude ) {
-		$cacheKey += '::noInclude';
+	/**
+	 * @param string $src
+	 * @return DOMDocument
+	 */
+	public function parse( string $src ): DOMDocument {
+		return $this->getPipeline( 'text/x-mediawiki/full' )->parseToplevelDoc( $src );
 	}
-	if ( !$options->expandTemplates ) {
-		$cacheKey += '::noExpand';
+
+	/**
+	 * Get a subpipeline (not the top-level one) of a given type.
+	 * Subpipelines are cached as they are frequently created.
+	 *
+	 * @param string $type
+	 * @param array $options
+	 * @return ParserPipeline
+	 */
+	public function getPipeline( string $type, array $options = [] ): ParserPipeline {
+		$options = $this->defaultOptions( $options );
+
+		$cacheKey = $this->getCacheKey( $type, $options );
+		if ( empty( $this->pipelineCache[ $cacheKey ] ) ) {
+			$this->pipelineCache[ $cacheKey ] = [];
+		}
+
+		$pipe = null;
+		if ( count( $this->pipelineCache[ $cacheKey ] ) ) {
+			$pipe = array_pop( $this->pipelineCache[ $cacheKey ] );
+			$pipe->resetState();
+		} else {
+			$pipe = $this->makePipeline( $type, $cacheKey, $options );
+		}
+
+		// Debugging aid: Assign unique id to the pipeline
+		$pipe->setPipelineId( self::$globalPipelineId++ );
+
+		// Init the frame for this pipeline.
+		// If this is a nested pipeline, the caller will
+		// update the frame appropriately.
+		// FIXME: Temporary till we refactor this frame bit to
+		// deal with it in the pipeline's constructor
+		$pipe->setFrame( null, null, [] );
+
+		return $pipe;
 	}
-	if ( $options->inlineContext ) {
-		$cacheKey += '::inlineContext';
-	}
-	if ( $options->inPHPBlock ) {
-		$cacheKey += '::inPHPBlock';
-	}
-	if ( $options->inTemplate ) {
-		$cacheKey += '::inTemplate';
-	}
-	if ( $options->attrExpansion ) {
-		$cacheKey += '::attrExpansion';
-	}
-	if ( $options->extTag ) {
-		$cacheKey += '::' . $options->extTag;
-		// FIXME: This is not the best strategy. But, instead of
-		// premature complexity, let us see how extensions want to
-		// use this and then figure out what constraints are needed.
-		if ( $options->extTagOpts ) {
-			$cacheKey += '::' . json_encode( $options->extTagOpts );
+
+	/**
+	 * Callback called by a pipeline at the end of its processing. Returns the
+	 * pipeline to the cache.
+	 *
+	 * @param ParserPipeline $pipe
+	 */
+	public function returnPipeline( ParserPipeline $pipe ): void {
+		$cacheKey = $pipe->getCacheKey();
+		if ( empty( $this->pipelineCache[ $cacheKey ] ) ) {
+			$this->pipelineCache[ $cacheKey ] = [];
+		}
+		if ( count( $this->pipelineCache[ $cacheKey ] ) < 100 ) {
+			$this->pipelineCache[ $cacheKey ][] = $pipe;
 		}
 	}
-	return $cacheKey;
 }
-
-/**
- * @param {string} src
- * @param {Function} [cb]
- * @return {Promise}
- */
-ParserPipelineFactory::prototype::parse = function ( $src, $cb ) use ( &$Promise ) {
-	return new Promise( function ( $resolve, $reject ) use ( &$src ) {
-			// Now go ahead with the actual parsing
-			$parser = $this->getPipeline( 'text/x-mediawiki/full' );
-			$parser->once( 'document', $resolve );
-			$parser->processToplevelDoc( $src );
-	}
-	)->nodify( $cb );
-};
-
-/**
- * Get a subpipeline (not the top-level one) of a given type.
- *
- * Subpipelines are cached as they are frequently created.
- */
-ParserPipelineFactory::prototype::getPipeline = function ( $type, $options ) use ( &$defaultOptions, &$globalPipelineId ) {
-	$options = $defaultOptions( $options );
-
-	$cacheKey = getCacheKey( $type, $options );
-	if ( !$this->pipelineCache[ $cacheKey ] ) {
-		$this->pipelineCache[ $cacheKey ] = [];
-	}
-
-	$pipe = null;
-	if ( count( $this->pipelineCache[ $cacheKey ] ) ) {
-		$pipe = array_pop( $this->pipelineCache[ $cacheKey ] );
-		$pipe->resetState();
-		// Clear both 'end' and 'document' handlers
-		$pipe->removeAllListeners( 'end' );
-		$pipe->removeAllListeners( 'document' );
-		// Also remove chunk listeners, although ideally that would already
-		// happen in resetState. We'd need to avoid doing so when called from
-		// processToplevelDoc though, so lets do it here for now.
-		$pipe->removeAllListeners( 'chunk' );
-	} else {
-		$pipe = $this->makePipeline( $type, $options );
-	}
-	// add a cache callback
-	$returnPipeline = function () use ( &$cacheKey, &$pipe ) {return $this->returnPipeline( $cacheKey, $pipe );
- };
-	// Token pipelines emit an 'end' event
-	$pipe->addListener( 'end', $returnPipeline );
-	// Document pipelines emit a final 'document' even instead
-	$pipe->addListener( 'document', $returnPipeline );
-
-	// Debugging aid: Assign unique id to the pipeline
-	$pipe->setPipelineId( $globalPipelineId++ );
-
-	return $pipe;
-};
-
-/**
- * Callback called by a pipeline at the end of its processing. Returns the
- * pipeline to the cache.
- */
-ParserPipelineFactory::prototype::returnPipeline = function ( $cacheKey, $pipe ) {
-	// Clear all listeners, but do so after all other handlers have fired
-	// pipe.on('end', function() { pipe.removeAllListeners( ) });
-	$cache = $this->pipelineCache[ $cacheKey ];
-	if ( !$cache ) {
-		$cache = $this->pipelineCache[ $cacheKey ] = [];
-	}
-	if ( count( $cache ) < 100 ) {
-		$cache[] = $pipe;
-	}
-};
