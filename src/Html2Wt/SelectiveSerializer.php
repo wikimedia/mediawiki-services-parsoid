@@ -32,7 +32,7 @@ $PHPDOMPass = null;
  */
 class SelectiveSerializer {
 	public function __construct( $options ) {
-		$this->env = $options->env || [ 'conf' => [ 'parsoid' => [] ] ];
+		$this->env = $options->env;
 		$this->wts = $options->wts || new WikitextSerializer( $options );
 
 		// Debug options
