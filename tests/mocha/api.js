@@ -15,6 +15,10 @@ var semver = require('semver');
 var Util = require('../../lib/utils/Util.js').Util;
 var serviceWrapper = require('../serviceWrapper.js');
 
+// By default a local test endpoint based on test.config.yaml
+// will be used. Set the PARSOID_URL env variable to use a
+// different endpoint.
+
 var optionsPath = path.resolve(__dirname, './test.config.yaml');
 var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
 var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
@@ -53,13 +57,18 @@ describe('Parsoid API', function() {
 	var mockDomain = 'customwiki';
 
 	before(function() {
-		return serviceWrapper.runServices({
-			parsoidOptions: parsoidOptions,
-		})
-		.then(function(ret) {
-			api = ret.parsoidURL;
-			runner = ret.runner;
-		});
+		if (process.env.PARSOID_URL) {
+			api = process.env.PARSOID_URL;
+			return Promise.resolve();
+		} else {
+			return serviceWrapper.runServices({
+				parsoidOptions: parsoidOptions,
+			})
+			.then(function(ret) {
+				api = ret.parsoidURL;
+				runner = ret.runner;
+			});
+		}
 	});
 
 	describe('formats', function() {
@@ -2393,7 +2402,11 @@ describe('Parsoid API', function() {
 	});  // end pb2pb
 
 	after(function() {
-		return runner.stop();
+		if (runner) {
+			return runner.stop();
+		} else {
+			return Promise.resolve();
+		}
 	});
 
 });
