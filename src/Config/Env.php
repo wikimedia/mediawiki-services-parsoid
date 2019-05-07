@@ -96,6 +96,16 @@ class Env {
 	public $discardDataParsoid = false;
 
 	/**
+	 * @var DOMNode
+	 */
+	private $origDOM;
+
+	/**
+	 * @var DOMDocument
+	 */
+	private $domDiff;
+
+	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
@@ -366,6 +376,38 @@ class Env {
 	 */
 	public function newAboutId(): string {
 		return "#" . $this->newObjectId();
+	}
+
+	/**
+	 * Store reference to original DOM
+	 * @param DOMNode $node
+	 */
+	public function setOrigDOM( $node ): void {
+		$this->origDOM = $node;
+	}
+
+	/**
+	 * Return reference to original DOM
+	 * @return DOMNode
+	 */
+	public function getOrigDOM(): DOMNode {
+		return $this->origDOM;
+	}
+
+	/**
+	 * Store reference to DOM diff document
+	 * @param DOMDocument $doc
+	 */
+	public function setDOMDiff( $doc ): void {
+		$this->domDiff = $doc;
+	}
+
+	/**
+	 * Return reference to DOM diff document
+	 * @return DOMDocument
+	 */
+	public function getDOMDiff(): DOMDocument {
+		return $this->domDiff;
 	}
 
 	/**
