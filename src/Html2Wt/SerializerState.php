@@ -83,8 +83,8 @@ class SerializerState {
 
 	/**
 	 * True when wts kicks off, false after the first char has been output
-	 * @var bool
 	 * SSS FIXME: Can this be done away with in some way?
+	 * @var bool
 	 */
 	public $atStartOfOutput = true;
 
@@ -201,18 +201,32 @@ class SerializerState {
 	/** @var ConstrainedText|string The serialized output */
 	public $out = '';
 
-	// PORT-FIXME document these
-
-	/** @var bool */
+	/**
+	 * Are we in selective serialization mode?
+	 * @see SelectiveSerializer
+	 * @var bool
+	 */
 	public $selserMode;
 
-	/** @var bool */
+	/**
+	 * If in selser mode, while processing a node, do we know if
+	 * its previous node has not been modified in an edit?
+	 * @var bool
+	 */
 	public $prevNodeUnmodified;
 
-	/** @var bool */
+	/**
+	 * If in selser mode, while processing a node, do we know if
+	 * it has not been modified in an edit?
+	 * @var bool
+	 */
 	public $currNodeUnmodified;
 
-	/** @var bool */
+	/**
+	 * Should we run the wikitext escaping code on the wikitext chunk
+	 * that will be emitted? True unless we are in HTML <pre>.
+	 * @var bool
+	 */
 	public $escapeText = false;
 
 	/** @var Env */
@@ -221,10 +235,20 @@ class SerializerState {
 	/** @var DOMElement */
 	private $prevNode;
 
-	/** @var string */
+	/**
+	 * Log prefix to use in trace output
+	 * @var string
+	 */
 	private $logPrefix = 'OUT:';
 
-	/** @var bool */
+	/**
+	 * Whether to use heuristics to determine if a list item, heading, table cell, etc.
+	 * should have whitespace inserted after the "*#=|!" wikitext chars? This is normally
+	 * true by default, but not so if HTML content version is older than 1.7.0.
+	 * In practice, we are now at version 2.1, but Flow stores HTML, so till Flow migrates
+	 * all its content over to a later version, we need a boolean flag.
+	 * @var bool
+	 */
 	private $useWhitespaceHeuristics;
 
 	/**
@@ -252,8 +276,12 @@ class SerializerState {
 	}
 
 	/**
-	 * PORT-FIXME document
-	 * @param bool $selserMode
+	 * Initialize a few boolean flags based on serialization mode.
+	 * FIXME: Ideally, this should be private. Requires shuffing around
+	 * where SerializerState is constructed so that $selserMode is known
+	 * at the time of construction.
+	 * @private for use by WikitextSerializer only
+	 * @param bool $selserMode Are we running selective serialization?
 	 */
 	public function initMode( bool $selserMode ): void {
 		$this->useWhitespaceHeuristics =
