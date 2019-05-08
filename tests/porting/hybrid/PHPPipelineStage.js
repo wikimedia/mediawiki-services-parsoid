@@ -123,7 +123,7 @@ class PHPPipelineStage {
 		// First line will be the new UID for env
 		const lines = out.trim().split("\n");
 		const newEnvUID = lines.shift();
-		this.env.uid = newEnvUID;
+		this.env.uid = parseInt(newEnvUID, 10);
 
 		const toks = [];
 		let chunk = [];

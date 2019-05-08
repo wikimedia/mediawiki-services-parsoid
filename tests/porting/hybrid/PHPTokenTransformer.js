@@ -63,7 +63,7 @@ class PHPTokenTransformer extends TokenHandler {
 		// First line will be the new UID for env
 		const lines = res.stdout.toString().trim().split("\n");
 		const newEnvUID = lines.shift();
-		this.env.uid = newEnvUID;
+		this.env.uid = parseInt(newEnvUID, 10);
 
 		const toks = lines.map((str) => {
 			return str ? JSON.parse(str, (k, v) => TokenUtils.getToken(v)) : "";
