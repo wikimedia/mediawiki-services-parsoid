@@ -1,163 +1,178 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module ext/Poem */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\Poem;
 
-$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$DOMUtils = ParsoidExtApi\DOMUtils;
+use DOMDocument;
+use DOMElement;
+use Parsoid\Config\Env;
+use Parsoid\Ext\ExtensionTag;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Ext\LintHandlerTrait;
 
-$dummyDoc = DOMUtils::parseHTML( '' );
-$toDOM = function ( $state, $content, $args ) use ( &$ParsoidExtApi ) {
-	if ( $content && count( $content ) > 0 ) {
-		$content = preg_replace(
+class Poem implements ExtensionTag {
+	/* Poem doesn't implement linting, so use boilerplate */
+	use LintHandlerTrait;
 
-			'/^ /m', '&nbsp;', preg_replace(
-
-				'/\n$/', '', preg_replace(
-
+	/** @inheritDoc */
+	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
+		if ( $content && mb_strlen( $content ) > 0 ) {
+			$content = preg_replace(
+				'/^ /m', '&nbsp;', preg_replace(
+					'/\n$/', '', preg_replace(
 					'/^\n/', '', $content,
 					// Strip leading/trailing newline
-					 1
+					1
 				), 1
-			)
+				)
 			// Suppress indent-pre by replacing leading space with &nbsp;
-		);
-		// Add <br/> for newlines except (a) in nowikis (b) after ----
-		// nowiki newlines will be processed on the DOM.
-		$content = implode(
+			);
 
-			'', array_map( preg_split( '/(<nowiki>[\s\S]*?<\/nowiki>)/', $content ), function ( $p, $i ) {
+			// Add <br/> for newlines except (a) in nowikis (b) after ----
+			// nowiki newlines will be processed on the DOM.
+			$splitContent = preg_split( '/(<nowiki>[\s\S]*?<\/nowiki>)/', $content,
+				-1, PREG_SPLIT_DELIM_CAPTURE );
+			$content = implode( '',
+				array_map( function ( $p, $i ) {
 					if ( $i % 2 === 1 ) {
 						return $p;
 					}
 
 					// This is a hack that exploits the fact that </poem>
 					// cannot show up in the extension's content.
-					// When we switch to node v8, we can use a negative lookbehind if we want.
-					// https://v8project.blogspot.com/2016/02/regexp-lookbehind-assertions.html
-					// This is a hack that exploits the fact that </poem>
-					// cannot show up in the extension's content.
-					// When we switch to node v8, we can use a negative lookbehind if we want.
-					// https://v8project.blogspot.com/2016/02/regexp-lookbehind-assertions.html
-					return preg_replace(
+					return preg_replace( '/^(-+)<\/poem>/m', "\$1\n",
+						preg_replace( '/\n/m', "<br/>\n",
+						preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) ) );
+				}, $splitContent,
+				range( 1, count( $splitContent ) ) )
+			);
 
-						'/^(-+)<\/poem>/m', "\$1\n", preg_replace(
-							'/\n/m', "<br/>\n", preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) )
-					);
-			}
-			)
-
-		);
-		// Replace colons with indented spans
-		$content = preg_replace( '/^(:+)(.+)$/', function ( $match, $colons, $verse ) {
-				$span = $dummyDoc->createElement( 'span' );
-				$span->setAttribute( 'class', 'mw-poem-indented' );
-				$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . count( $colons ) . 'em;' );
-				$span->appendChild( $dummyDoc->createTextNode( $verse ) );
-				return $span->outerHTML;
-		}, $content );
-	}
-
-	return ParsoidExtApi::parseTokenContentsToDOM( $state, $args, '', $content, [
-			'wrapperTag' => 'div',
-			'extTag' => 'poem'
-		]
-	);
-};
-
-function processNowikis( $node ) {
-	global $DOMUtils;
-	$doc = $node->ownerDocument;
-	$c = $node->firstChild;
-	while ( $c ) {
-		if ( !DOMUtils::isElt( $c ) ) {
-			$c = $c->nextSibling;
-			continue;
-		}
-
-		if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
-			processNowikis( $c );
-			$c = $c->nextSibling;
-			continue;
-		}
-
-		// Replace nowiki's text node with a combination
-		// of content and <br/>s. Take care to deal with
-		// entities that are still entity-wrapped (!!).
-		$cc = $c->firstChild;
-		while ( $cc ) {
-			$next = $cc->nextSibling;
-			if ( DOMUtils::isText( $cc ) ) {
-				$pieces = preg_split( '/\n/', $cc->nodeValue );
-				$n = count( $pieces );
-				$nl = '';
-				for ( $i = 0;  $i < $n;  $i++ ) {
-					$p = $pieces[ $i ];
-					$c->insertBefore( $doc->createTextNode( $nl + $p ), $cc );
-					if ( $i < $n - 1 ) {
-						$c->insertBefore( $doc->createElement( 'br' ), $cc );
-						$nl = "\n";
-					}
+			// Replace colons with indented spans
+			$contentArray = explode( '\n', $content );
+			$contentMap = array_map( function ( $line ) use ( $extApi ) {
+				$i = 0;
+				$lineLength = strlen( $line );
+				while ( $line[ $i ] === ':' && $i < $lineLength ) {
+					$i++;
 				}
-				$c->removeChild( $cc );
-			}
-			$cc = $next;
+				if ( $i > 0 && $i < $lineLength ) {
+					$doc = $extApi->getEnv()->createDocument();
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'class', 'mw-poem-indented' );
+					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );
+					$span->appendChild( $doc->createTextNode( ltrim( $line, ':' ) ) );
+					return DOMCompat::getOuterHTML( $span );
+				} else {
+					return $line;
+				}
+			}, $contentArray );
+			// $content = implode( '\n', $contentMap ); // use faster? preg_replace
+			$content = preg_replace( '\n', '', $contentMap );
 		}
-		$c = $c->nextSibling;
-	}
-}
 
-// FIXME: We could expand the parseTokenContentsToDOM helper to let us
-// pass in a handler that post-processes the DOM immediately,
-// instead of in the end.
-class DOMPostProcessor {
-	public function run( $node, $env, $options, $atTopLevel ) {
+		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
+				'wrapperTag' => 'div',
+				'extTag' => 'poem'
+			]
+		);
+	}
+
+	/**
+	 * @param DOMElement $node
+	 */
+	private function processNowikis( DOMElement $node ): void {
+		$doc = $node->ownerDocument;
+		$c = $node->firstChild;
+		while ( $c ) {
+			if ( !$c instanceof DOMElement ) {
+				$c = $c->nextSibling;
+				continue;
+			}
+
+			if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
+				self::processNowikis( $c );
+				$c = $c->nextSibling;
+				continue;
+			}
+
+			// Replace nowiki's text node with a combination
+			// of content and <br/>s. Take care to deal with
+			// entities that are still entity-wrapped (!!).
+			$cc = $c->firstChild;
+			while ( $cc ) {
+				$next = $cc->nextSibling;
+				if ( DOMUtils::isText( $cc ) ) {
+					$pieces = preg_split( '/\n/', $cc->nodeValue );
+					$n = count( $pieces );
+					$nl = '';
+					for ( $i = 0;  $i < $n;  $i++ ) {
+						$p = $pieces[ $i ];
+						$c->insertBefore( $doc->createTextNode( $nl . $p ), $cc );
+						if ( $i < $n - 1 ) {
+							$c->insertBefore( $doc->createElement( 'br' ), $cc );
+							$nl = "\n";
+						}
+					}
+					$c->removeChild( $cc );
+				}
+				$cc = $next;
+			}
+			$c = $c->nextSibling;
+		}
+	}
+
+	private function doPostProcessDOM(
+		DOMElement $node, Env $env, array $options, bool $atTopLevel
+	): void {
 		if ( !$atTopLevel ) {
 			return;
 		}
 
 		$c = $node->firstChild;
 		while ( $c ) {
-			if ( DOMUtils::isElt( $c ) ) {
+			if ( $c instanceof DOMElement ) {
 				if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
 					// In nowikis, replace newlines with <br/>.
 					// Cannot do it before parsing because <br/> will get escaped!
-					processNowikis( $c );
+					self::processNowikis( $c );
 				} else {
-					$this->run( $c, $env, $options, $atTopLevel );
+					$this->doPostProcessDOM( $c, $env, $options, $atTopLevel );
 				}
 			}
 			$c = $c->nextSibling;
 		}
 	}
-}
 
-/*
-const serialHandler = {
-handle: Promise.method(function(node, state, wrapperUnmodified) {
-// Initially, we will let the default extension
-// html2wt handler take care of this.
-//
-// If VE starts supporting editing of poem content
-// natively, we can add a custom html2wt handler.
-}),
-};
-*/
+	/**
+	 * All DOM PostProcessors are expected to implement the run method.
+	 * Eventually, we will probably have an interface with a better name for this
+	 * entry method. But, for now, run() method it is.
+	 *
+	 * @param DOMElement $root
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 */
+	public function run( DOMElement $root, Env $env, array $options, bool $atTopLevel ): void {
+		$this->doPostProcessDOM( $root, $env, $options, $atTopLevel );
+	}
 
-$module->exports = function () use ( &$toDOM ) {
-	$this->config = [
-		'name' => 'poem',
-		'domProcessors' => [
-			'wt2htmlPostProcessor' => $DOMPostProcessor
-		],
-		'tags' => [
-			[
-				'name' => 'poem',
-				'toDOM' => $toDOM
+	/** @return array */
+	public function getConfig(): array {
+		return [
+			'name' => 'poem',
+			'domProcessors' => [
+				'wt2htmlPostProcessor' => self::class
+			],
+			'tags' => [
+				[
+					'name' => 'poem',
+					'class' => self::class
+				]
 			]
-		]
-	];
-};
+		];
+	}
+
+}
