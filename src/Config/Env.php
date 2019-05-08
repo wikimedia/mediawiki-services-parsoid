@@ -149,6 +149,15 @@ class Env {
 		return $this->wrapSections;
 	}
 
+	/**
+	 * @param array $href A token string representing a href attribute
+	 * @return bool
+	 */
+	public function isValidLinkTarget( array $href ): bool {
+		// PORT-FIXME port this
+		throw new \LogicException( 'Not implemented!' );
+	}
+
 	public function getUID(): int {
 		return $this->uid;
 	}

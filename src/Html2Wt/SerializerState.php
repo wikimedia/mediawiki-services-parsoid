@@ -239,6 +239,13 @@ class SerializerState {
 	 */
 	public $escapeText = false;
 
+	/**
+	 * Used as fast patch for special protected characters in WikitextEscapeHandlers and
+	 * comes from LanguageVariantHandler
+	 * @var string|null
+	 */
+	public $protect;
+
 	/** @var Env */
 	private $env;
 

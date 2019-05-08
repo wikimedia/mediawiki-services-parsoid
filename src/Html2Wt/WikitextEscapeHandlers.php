@@ -1,171 +1,200 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Html2Wt;
 
-use Parsoid\DOMUtils as DOMUtils;
-use Parsoid\JSUtils as JSUtils;
-use Parsoid\PegTokenizer as PegTokenizer;
-use Parsoid\SanitizerConstants as SanitizerConstants;
-use Parsoid\TagTk as TagTk;
-use Parsoid\EndTagTk as EndTagTk;
-use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
-use Parsoid\NlTk as NlTk;
-use Parsoid\EOFTk as EOFTk;
-use Parsoid\CommentTk as CommentTk;
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\Util as Util;
-use Parsoid\WTUtils as WTUtils;
-use Parsoid\WikitextConstants as Consts;
+use DOMElement;
+use DOMNode;
+use Parsoid\Config\Env;
+use Parsoid\Config\WikitextConstants;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\PegTokenizer;
+use Wikimedia\Assert\Assert;
 
-// ignore the cases where the serializer adds newlines not present in the dom
-function startsOnANewLine( $node ) {
-	global $Consts;
-	global $WTUtils;
-	$name = strtoupper( $node->nodeName );
-	return Consts\BlockScopeOpenTags::has( $name )
-&& !WTUtils::isLiteralHTMLNode( $node )
-&& $name !== 'BLOCKQUOTE';
-}
-
-// look ahead on current line for block content
-function hasBlocksOnLine( $node, $first ) {
-	global $DOMUtils;
-
-	// special case for firstNode:
-	// we're at sol so ignore possible \n at first char
-	if ( $first ) {
-		if ( preg_match( '/\n/', substr( $node->textContent, 1 ) ) ) {
-			return false;
-		}
-		$node = $node->nextSibling;
-	}
-
-	while ( $node ) {
-		if ( DOMUtils::isElt( $node ) ) {
-			if ( DOMUtils::isBlockNode( $node ) ) {
-				return !startsOnANewLine( $node );
-			}
-			if ( $node->hasChildNodes() ) {
-				if ( hasBlocksOnLine( $node->firstChild, false ) ) {
-					return true;
-				}
-			}
-		} else {
-			if ( preg_match( '/\n/', $node->textContent ) ) {
-				return false;
-			}
-		}
-		$node = $node->nextSibling;
-	}
-	return false;
-}
-
-function hasLeadingEscapableQuoteChar( $text, $opts ) {
-	global $DOMUtils;
-	$node = $opts->node;
-	// Use 'node.textContent' to do the tests since it hasn't had newlines
-	// stripped out from it.
-	// Ex: For this DOM: <i>x</i>\n'\n<i>y</i>
-	// node.textContent = \n'\n and text = '
-	// Those newline separators can prevent unnecessary <nowiki/> protection
-	// if the string begins with one or more newlines before a leading quote.
-	$origText = $node->textContent;
-	if ( preg_match( "/^'/", $origText ) ) {
-		$prev = DOMUtils::previousNonDeletedSibling( $node );
-		if ( !$prev ) {
-			$prev = $node->parentNode;
-		}
-		if ( DOMUtils::isQuoteElt( $prev ) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-function hasTrailingEscapableQuoteChar( $text, $opts ) {
-	global $DOMUtils;
-	$node = $opts->node;
-	// Use 'node.textContent' to do the tests since it hasn't had newlines
-	// stripped out from it.
-	// Ex: For this DOM: <i>x</i>\n'\n<i>y</i>
-	// node.textContent = \n'\n and text = '
-	// Those newline separators can prevent unnecessary <nowiki/> protection
-	// if the string ends with a trailing quote and then one or more newlines.
-	$origText = $node->textContent;
-	if ( preg_match( "/'\$/", $origText ) ) {
-		$next = DOMUtils::nextNonDeletedSibling( $node );
-		if ( !$next ) {
-			$next = $node->parentNode;
-		}
-		if ( DOMUtils::isQuoteElt( $next ) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// SSS FIXME: By doing a DOM walkahead to identify what else is on the current line,
-// these heuristics can be improved. Ex: '<i>foo</i> blah blah does not require a
-// <nowiki/> after the single quote since we know that there are no other quotes on
-// the rest of the line that will be emitted. Similarly, '' does not need a <nowiki>
-// wrapper since there are on other quote chars on the line.
-//
-// This is checking text-node siblings of i/b tags.
-function escapedIBSiblingNodeText( $state, $text, $opts ) {
-	// For a sequence of 2+ quote chars, we have to
-	// fully wrap the sequence in <nowiki>...</nowiki>
-	// <nowiki/> at the start and end doesn't work.
-	//
-	// Ex: ''<i>foo</i> should serialize to <nowiki>''</nowiki>''foo''.
-	//
-	// Serializing it to ''<nowiki/>''foo'' breaks html2html semantics
-	// since it will parse back to <i><meta../></i>foo<i></i>
-	if ( preg_match( "/''+/", $text ) ) {
-		// Minimize the length of the string that is wrapped in <nowiki>.
-		$pieces = explode( "'", $text );
-		$first = array_shift( $pieces );
-		$last = array_pop( $pieces );
-		return $first . "<nowiki>'" . implode( "'", $pieces ) . "'</nowiki>" . $last;
-	}
-
-	// Check whether the head and/or tail of the text needs <nowiki/> protection.
-	$out = '';
-	if ( hasTrailingEscapableQuoteChar( $text, $opts ) ) {
-		$state->hasQuoteNowikis = true;
-		$out = $text . '<nowiki/>';
-	}
-
-	if ( hasLeadingEscapableQuoteChar( $text, $opts ) ) {
-		$state->hasQuoteNowikis = true;
-		$out = '<nowiki/>' . ( $out || $text );
-	}
-
-	return $out;
-}
-
-$linkEscapeRE = /* RegExp */ '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/';
-
-/**
- * @class
- * @alias module:html2wt/WikitextEscapeHandlers
- * @param {MWParserEnvironment} env
- * @param {WikitextSerializer} serializer
- */
 class WikitextEscapeHandlers {
-	public function __construct( $options ) {
-		$this->tokenizer = new PegTokenizer( $options->env );
+
+	const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/';
+
+	/**
+	 * @var array
+	 */
+	private $options;
+
+	/**
+	 * @var PegTokenizer
+	 */
+	private $tokenizer;
+
+	/**
+	 * WikitextEscapeHandlers constructor.
+	 * @param array $options [ 'env' => Env, 'extName' => ?string ]
+	 */
+	public function __construct( array $options ) {
+		$this->tokenizer = new PegTokenizer( $options['env'] );
 		$this->options = $options;
 	}
-	public $options;
-	public $tokenizer;
 
-	public function isFirstContentNode( $node ) {
+	/**
+	 * Ignore the cases where the serializer adds newlines not present in the dom
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	private static function startsOnANewLine( DOMNode $node ): bool {
+		$name = $node->nodeName;
+		return isset( WikitextConstants::$BlockScopeOpenTags[$name] ) &&
+			!WTUtils::isLiteralHTMLNode( $node ) &&
+			$name !== 'blockquote';
+	}
+
+	/**
+	 * Look ahead on current line for block content
+	 *
+	 * @param DOMNode $node
+	 * @param bool $first
+	 * @return bool
+	 */
+	private static function hasBlocksOnLine( DOMNode $node, bool $first ): bool {
+		// special case for firstNode:
+		// we're at sol so ignore possible \n at first char
+		if ( $first ) {
+			if ( preg_match( '/\n/', mb_substr( $node->textContent, 1 ) ) ) {
+				return false;
+			}
+			$node = $node->nextSibling;
+		}
+
+		while ( $node ) {
+			if ( $node instanceof DOMElement ) {
+				if ( DOMUtils::isBlockNode( $node ) ) {
+					return !self::startsOnANewLine( $node );
+				}
+				if ( $node->hasChildNodes() ) {
+					if ( self::hasBlocksOnLine( $node->firstChild, false ) ) {
+						return true;
+					}
+				}
+			} else {
+				if ( preg_match( '/\n/', $node->textContent ) ) {
+					return false;
+				}
+			}
+			$node = $node->nextSibling;
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode ]
+	 * @return bool
+	 */
+	private static function hasLeadingEscapableQuoteChar( string $text, array $opts ): bool {
+		/** @var DOMNode $node */
+		$node = $opts['node'];
+		// Use 'node.textContent' to do the tests since it hasn't had newlines
+		// stripped out from it.
+		// Ex: For this DOM: <i>x</i>\n'\n<i>y</i>
+		// node.textContent = \n'\n and text = '
+		// Those newline separators can prevent unnecessary <nowiki/> protection
+		// if the string begins with one or more newlines before a leading quote.
+		$origText = $node->textContent;
+		if ( preg_match( "/^'/", $origText ) ) {
+			$prev = DOMUtils::previousNonDeletedSibling( $node );
+			if ( !$prev ) {
+				$prev = $node->parentNode;
+			}
+			if ( DOMUtils::isQuoteElt( $prev ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode ]
+	 * @return bool
+	 */
+	private static function hasTrailingEscapableQuoteChar( string $text, array $opts ): bool {
+		$node = $opts['node'];
+		// Use 'node.textContent' to do the tests since it hasn't had newlines
+		// stripped out from it.
+		// Ex: For this DOM: <i>x</i>\n'\n<i>y</i>
+		// node.textContent = \n'\n and text = '
+		// Those newline separators can prevent unnecessary <nowiki/> protection
+		// if the string ends with a trailing quote and then one or more newlines.
+		$origText = $node->textContent;
+		if ( preg_match( "/'\$/", $origText ) ) {
+			$next = DOMUtils::nextNonDeletedSibling( $node );
+			if ( !$next ) {
+				$next = $node->parentNode;
+			}
+			if ( DOMUtils::isQuoteElt( $next ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * SSS FIXME: By doing a DOM walkahead to identify what else is on the current line,
+	 * these heuristics can be improved. Ex: '<i>foo</i> blah blah does not require a
+	 * <nowiki/> after the single quote since we know that there are no other quotes on
+	 * the rest of the line that will be emitted. Similarly, '' does not need a <nowiki>
+	 * wrapper since there are on other quote chars on the line.
+	 *
+	 * This is checking text-node siblings of i/b tags.
+	 *
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode ]
+	 * @return string
+	 */
+	private static function escapedIBSiblingNodeText(
+		SerializerState $state, string $text, array $opts
+	): string {
+		// For a sequence of 2+ quote chars, we have to
+		// fully wrap the sequence in <nowiki>...</nowiki>
+		// <nowiki/> at the start and end doesn't work.
+		//
+		// Ex: ''<i>foo</i> should serialize to <nowiki>''</nowiki>''foo''.
+		//
+		// Serializing it to ''<nowiki/>''foo'' breaks html2html semantics
+		// since it will parse back to <i><meta../></i>foo<i></i>
+		if ( preg_match( "/''+/", $text ) ) {
+			// Minimize the length of the string that is wrapped in <nowiki>.
+			$pieces = explode( "'", $text );
+			$first = array_shift( $pieces );
+			$last = array_pop( $pieces );
+			return $first . "<nowiki>'" . implode( "'", $pieces ) . "'</nowiki>" . $last;
+		}
+
+		// Check whether the head and/or tail of the text needs <nowiki/> protection.
+		$out = '';
+		if ( self::hasTrailingEscapableQuoteChar( $text, $opts ) ) {
+			$state->hasQuoteNowikis = true;
+			$out = $text . '<nowiki/>';
+		}
+
+		if ( self::hasLeadingEscapableQuoteChar( $text, $opts ) ) {
+			$state->hasQuoteNowikis = true;
+			$out = '<nowiki/>' . ( $out ?: $text );
+		}
+
+		return $out;
+	}
+
+	/**
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public function isFirstContentNode( DOMNode $node ): bool {
 		// Conservative but safe
 		if ( !$node ) {
 			return true;
@@ -175,16 +204,29 @@ class WikitextEscapeHandlers {
 		return DOMUtils::previousNonDeletedSibling( $node ) === null;
 	}
 
-	public function liHandler( $liNode, $state, $text, $opts ) {
-		if ( $opts->node->parentNode !== $liNode ) {
+	/**
+	 * @param DOMNode $liNode
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode ]
+	 * @return bool
+	 */
+	public function liHandler(
+		DOMNode $liNode, SerializerState $state, string $text, array $opts
+	): bool {
+		/** @var DOMNode $node */
+		$node = $opts['node'];
+		if ( $node->parentNode !== $liNode ) {
 			return false;
 		}
 
 		// For <dt> nodes, ":" trigger nowiki outside of elements
 		// For first nodes of <li>'s, bullets in sol posn trigger escaping
-		if ( $liNode->nodeName === 'DT' && preg_match( '/:/', $text ) ) {
+		if ( $liNode->nodeName === 'dt' && preg_match( '/:/', $text ) ) {
 			return true;
-		} elseif ( preg_match( '/^[#*:;]*$/', $state->currLine->text ) && $this->isFirstContentNode( $opts->node ) ) {
+		} elseif ( preg_match( '/^[#*:;]*$/', $state->currLine->text ) &&
+			$this->isFirstContentNode( $node )
+		) {
 			// Wikitext styling might require whitespace insertion after list bullets.
 			// In those scenarios, presence of bullet-wiktext in the text node is okay.
 			// Hence the check for /^[#*:;]*$/ above.
@@ -194,7 +236,16 @@ class WikitextEscapeHandlers {
 		}
 	}
 
-	public function thHandler( $thNode, $state, $text, $opts ) {
+	/**
+	 * @param DOMNode $thNode
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode ]
+	 * @return bool
+	 */
+	public function thHandler(
+		DOMNode $thNode, SerializerState $state, string $text, array $opts
+	): bool {
 		// {|
 		// !a<div>!!b</div>
 		// !c<div>||d</div>
@@ -209,22 +260,49 @@ class WikitextEscapeHandlers {
 		//
 		// That is, so long as it serializes to the same line as the
 		// heading was started.
-		return preg_match( '/^\s*!/', $state->currLine->text ) && preg_match( '/^[^\n]*!!|\|/', $text );
+		return preg_match( '/^\s*!/', $state->currLine->text ) &&
+			preg_match( '/^[^\n]*!!|\|/', $text );
 	}
 
-	public function mediaOptionHandler( $state, $text ) {
-		return preg_match( '/\|/', $text ) || preg_match( $linkEscapeRE, $text );
+	/**
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @return bool
+	 */
+	public function mediaOptionHandler( SerializerState $state, string $text ): bool {
+		return preg_match( '/\|/', $text ) || preg_match( self::LINKS_ESCAPE_RE, $text );
 	}
 
-	public function wikilinkHandler( $state, $text ) {
-		return preg_match( $linkEscapeRE, $text );
+	/**
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @return bool
+	 */
+	public function wikilinkHandler( SerializerState $state, string $text ): bool {
+		return (bool)preg_match( self::LINKS_ESCAPE_RE, $text );
 	}
 
-	public function aHandler( $state, $text ) {
-		return preg_match( '/\]/', $text );
+	/**
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @return bool
+	 */
+	public function aHandler( SerializerState $state, string $text ): bool {
+		return (bool)preg_match( '/\]/', $text );
 	}
 
-	public function tdHandler( $tdNode, $inWideTD, $state, $text, $opts ) {
+	/**
+	 * @param DOMNode $tdNode
+	 * @param bool $inWideTD
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @param array $opts [ 'node' => ?DOMNode ]
+	 * @return bool
+	 */
+	public function tdHandler(
+		DOMNode $tdNode, bool $inWideTD, SerializerState $state, string $text, array $opts
+	): bool {
+		$node = $opts['node'] ?? null;
 		/*
 		 * "|" anywhere in a text node of the <td> subtree can be trouble!
 		 * It is not sufficient to just look at immediate child of <td>
@@ -246,28 +324,58 @@ class WikitextEscapeHandlers {
 		// * | in a td should be escaped
 		// * +-} in SOL position (if they show up on the leftmost path with
 		// only zero-wt-emitting nodes on that path)
-		return ( !$opts->node || $state->currLine->firstNode === $tdNode )
-&& ( preg_match( '/\|/', $text )
-|| !$inWideTD
-&& $state->currLine->text === '|'
-&& preg_match( '/^[\-+}]/', $text )
-&& $opts->node && DOMUtils::pathToAncestor( $opts->node, $tdNode )->every( function ( $n ) use ( &$opts, &$WTUtils ) {
-							return $this->isFirstContentNode( $n )
-&& ( $n === $opts->node || WTUtils::isZeroWidthWikitextElt( $n ) );
-}, $this
-					) );
+		if ( !$node || $state->currLine->firstNode === $tdNode ) {
+			if ( preg_match( '/\|/', $text ) ) {
+				return true;
+			}
+			if ( !$inWideTD &&
+				$state->currLine->text === '|' &&
+				preg_match( '/^[\-+}]/', $text ) &&
+				$node
+			) {
+				$patch = DOMUtils::pathToAncestor( $node, $tdNode );
+				foreach ( $patch as $n ) {
+					if ( !$this->isFirstContentNode( $n ) ||
+						!( $n === $node || WTUtils::isZeroWidthWikitextElt( $n ) ) ) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
-	// Tokenize string and pop EOFTk
-	public function tokenizeStr( $str, $sol ) {
+	/**
+	 * Tokenize string and pop EOFTk
+	 *
+	 * @param string $str
+	 * @param bool $sol
+	 * @return array
+	 */
+	public function tokenizeStr( string $str, bool $sol ): array {
 		$tokens = $this->tokenizer->tokenizeSync( $str, [ 'sol' => $sol ] );
-		Assert::invariant( array_pop( $tokens )->constructor === EOFTk::class, 'Expected EOF token!' );
+		Assert::invariant(
+			TokenUtils::getTokenType( array_pop( $tokens ) ) === 'EOFTk',
+			'Expected EOF token!'
+		);
 		return $tokens;
 	}
 
-	public function textCanParseAsLink( $node, $state, $text ) {
-		$state->env->log( 'trace/wt-escape', 'link-test-text=', function () { return json_encode( $text );
-  } );
+	/**
+	 * @param DOMNode $node
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @return bool
+	 */
+	public function textCanParseAsLink( DOMNode $node, SerializerState $state, string $text ): bool {
+		$env = $state->getEnv();
+		$env->log(
+			'trace/wt-escape', 'link-test-text=',
+			function () use ( $text ) {
+				return PHPUtils::jsonEncode( $text );
+			}
+		);
 
 		// Strip away extraneous characters after a ]] or a ]
 		// They are inessential to the test of whether the ]]/]
@@ -282,17 +390,19 @@ class WikitextEscapeHandlers {
 			return false;
 		}
 
-		$str = $state->currLine->text + $text;
+		$str = $state->currLine->text . $text;
 		$tokens = $this->tokenizeStr( $str, false ); // sol state is irrelevant here
 		$n = count( $tokens );
-		$lastToken = $tokens[ $n - 1 ];
+		$lastToken = $tokens[$n - 1];
 
-		$state->env->log( 'trace/wt-escape', 'str=', $str, ';tokens=', $tokens );
+		$env->log( 'trace/wt-escape', 'str=', $str, ';tokens=', $tokens );
 
 		// If 'text' remained outside of any non-string tokens,
 		// it does not need nowiking.
-		if ( $lastToken === $text || ( gettype( $lastToken ) === 'string'
-&& $text === substr( $lastToken, count( $lastToken ) - count( $text ) ) )
+		if ( $lastToken === $text ||
+			( TokenUtils::getTokenType( $lastToken ) === 'string' &&
+				$text === substr( $lastToken, -strlen( $text ) )
+			)
 		) {
 			return false;
 		}
@@ -300,20 +410,21 @@ class WikitextEscapeHandlers {
 		// Verify that the tokenized links are valid links
 		$buf = '';
 		for ( $i = $n - 1;  $i >= 0;  $i-- ) {
-			$t = $tokens[ $i ];
-			if ( gettype( $t ) === 'string' ) {
-				$buf = $t + $buf;
+			$t = $tokens[$i];
+			if ( is_string( $t ) ) {
+				$buf = $t . $buf;
 			} elseif ( $t->name === 'wikilink' ) {
 				$target = $t->getAttribute( 'href' );
-				if ( $state->env->isValidLinkTarget( $target )
-&& !$state->env->conf->wiki->hasValidProtocol( $target )
+				// PORT-FIXME isValidLinkTarget
+				if ( $env->isValidLinkTarget( $target ) &&
+					!$env->getSiteConfig()->hasValidProtocol( $target )
 				) {
 					return true;
 				}
 
 				// Assumes 'src' will always be present which it seems to be.
 				// Tests will fail if anything changes in the tokenizer.
-				$buf = $t->dataAttribs->src + $buf;
+				$buf = $t->dataAttribs->src . $buf;
 			} elseif ( $t->name === 'extlink' ) {
 				// Check if the extlink came from a template which in the end
 				// would not really parse as an extlink.
@@ -325,7 +436,7 @@ class WikitextEscapeHandlers {
 
 				if ( !TokenUtils::isTemplateToken( $href ) ) {
 					// Not a template and a real href => needs nowiking
-					if ( gettype( $href ) === 'string' && preg_match( '/https?:\/\//', $href ) ) {
+					if ( is_string( $href ) && preg_match( '/https?:\/\//', $href ) ) {
 						return true;
 					}
 				} else {
@@ -342,8 +453,8 @@ class WikitextEscapeHandlers {
 						}
 					}
 
-					if ( $node && $node->nodeName === 'A'
-&& $node->textContent === $node->getAttribute( 'href' )
+					if ( $node && $node->nodeName === 'a' && DOMUtils::assertElt( $node ) &&
+						$node->textContent === $node->getAttribute( 'href' )
 					) {
 						// The template expands to an url link => needs nowiking
 						return true;
@@ -353,13 +464,13 @@ class WikitextEscapeHandlers {
 				// Since this will not parse to a real extlink,
 				// update buf with the wikitext src for this token.
 				$tsr = $t->dataAttribs->tsr;
-				$buf = substr( $str, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ ) + $buf;
+				$buf = mb_substr( $str, $tsr[0], $tsr[1] - $tsr[0] ) . $buf;
 			} else {
 				// We have no other smarts => be conservative.
 				return true;
 			}
 
-			if ( $text === substr( $buf, count( $buf ) - count( $text ) ) ) {
+			if ( $text === substr( $buf, -strlen( $text ) ) ) {
 				// 'text' emerged unscathed
 				return false;
 			}
@@ -369,13 +480,26 @@ class WikitextEscapeHandlers {
 		return true;
 	}
 
-	public function hasWikitextTokens( $state, $onNewline, $options, $text ) {
-		$state->env->log( 'trace/wt-escape', 'nl:', $onNewline, ':text=', function () { return json_encode( $text );
-  } );
+	/**
+	 * @param SerializerState $state
+	 * @param bool $onNewline
+	 * @param array $options
+	 * @param string $text
+	 * @return bool
+	 */
+	public function hasWikitextTokens(
+		SerializerState $state, bool $onNewline, array $options, string $text
+	): bool {
+		$env = $state->getEnv();
+		$env->log(
+			'trace/wt-escape', 'nl:', $onNewline, ':text=',
+			function () use ( $text ) {
+				return PHPUtils::jsonEncode( $text );
+			}
+		);
 
 		// tokenize the text
-
-		$sol = $onNewline && !( $state->inIndentPre || $state->inPPHPBlock );
+		$sol = $onNewline && !( $state->inIndentPre || $state->inPHPBlock );
 
 		// If we're inside a <pre>, we need to add an extra space after every
 		// newline so that the tokenizer correctly parses all tokens in a pre
@@ -390,17 +514,21 @@ class WikitextEscapeHandlers {
 		// then this text needs escaping!
 		$numEntities = 0;
 		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[ $i ];
+			$t = $tokens[$i];
 
-			$state->env->log( 'trace/wt-escape', 'T:', function () { return json_encode( $t );
-   } );
+			$env->log(
+				'trace/wt-escape', 'T:',
+				function () use ( $t ) {
+					return PHPUtils::jsonEncode( $t );
+				}
+			);
 
-			$tc = $t->constructor;
+			$tc = TokenUtils::getTokenType( $t );
 
 			// Ignore non-whitelisted html tags
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( preg_match( '/(?:^|\s)mw:Extension(?=$|\s)/', $t->getAttribute( 'typeof' ) )
-&& $options->extName !== $t->getAttribute( 'name' )
+				if ( preg_match( '/(?:^|\s)mw:Extension(?=$|\s)/', $t->getAttribute( 'typeof' ) ) &&
+					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
 				) {
 					return true;
 				}
@@ -411,8 +539,9 @@ class WikitextEscapeHandlers {
 				// the worst case can be anywhere. So, we conservatively escape these
 				// elements always (which can lead to excessive nowiki-escapes in some
 				// cases, but is always safe).
-				if ( ( $tc === TagTk::class || $tc === EndTagTk::class )
-&& $state->env->conf->wiki->extConfig->tags->has( strtolower( $t->name ) )
+				if ( ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+					// PORT-FIXME do we need strtolower?
+					$env->getSiteConfig()->isExtensionTag( strtolower( $t->name ) )
 				) {
 					return true;
 				}
@@ -425,19 +554,22 @@ class WikitextEscapeHandlers {
 				// result can be confusing for editors. However, doing it here in a
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
-				if ( Consts\Sanitizer\TagWhiteList::has( strtoupper( $t->name ) ) ) {
+				// PORT-FIXME do we need strtolower?
+				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][strtolower( $t->name )] ) ) {
 					return true;
 				} else {
 					continue;
 				}
 			}
 
-			if ( $tc === SelfclosingTagTk::class ) {
+			if ( $tc === 'SelfclosingTagTk' ) {
 
 				// * Ignore RFC/ISBN/PMID tokens when those are encountered in the
 				// context of another link's content -- those are not parsed to
 				// ext-links in that context. (T109371)
-				if ( ( $t->name === 'extlink' || $t->name === 'wikilink' ) && $t->dataAttribs && $t->dataAttribs->stx === 'magiclink' && ( $state->inAttribute || $state->inLink ) ) {
+				if ( ( $t->name === 'extlink' || $t->name === 'wikilink' ) &&
+					( $t->dataAttribs->stx ?? null ) === 'magiclink' &&
+					( $state->inAttribute || $state->inLink ) ) {
 					continue;
 				}
 
@@ -448,7 +580,9 @@ class WikitextEscapeHandlers {
 				}
 
 				// Ignore invalid behavior-switch tokens
-				if ( $t->name === 'behavior-switch' && !$state->env->conf->wiki->isMagicWord( $t->attribs[ 0 ]->v ) ) {
+				if ( $t->name === 'behavior-switch' &&
+					!$env->getSiteConfig()->isMagicWord( $t->attribs[0]->v )
+				) {
 					continue;
 				}
 
@@ -458,7 +592,8 @@ class WikitextEscapeHandlers {
 				}
 
 				if ( $t->name === 'wikilink' ) {
-					if ( $state->env->isValidLinkTarget( $t->getAttribute( 'href' ) ) ) {
+					// PORT-FIXME isValidLinkTarget
+					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ) ) {
 						return true;
 					} else {
 						continue;
@@ -468,11 +603,11 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $state->inCaption && $tc === TagTk::class && $t->name === 'listItem' ) {
+			if ( $state->inCaption && $tc === 'TagTk' && $t->name === 'listItem' ) {
 				continue;
 			}
 
-			if ( $tc === TagTk::class ) {
+			if ( $tc === 'TagTk' ) {
 				$ttype = $t->getAttribute( 'typeof' );
 				// Ignore mw:Entity tokens
 				if ( $t->name === 'span' && $ttype === 'mw:Entity' ) {
@@ -481,14 +616,20 @@ class WikitextEscapeHandlers {
 				}
 
 				// Ignore table tokens outside of tables
-				if ( isset( [ 'caption' => 1, 'td' => 1, 'tr' => 1, 'th' => 1 ][ $t->name ] ) && !TokenUtils::isHTMLTag( $t ) && $state->wikiTableNesting === 0 ) {
+				if ( in_array( $t->name, [ 'caption', 'td', 'tr', 'th' ], true ) &&
+					!TokenUtils::isHTMLTag( $t ) &&
+					$state->wikiTableNesting === 0
+				) {
 					continue;
 				}
 
 				// Ignore display-hack placeholders and display spaces -- they dont need nowiki escaping
 				// They are added as a display-hack by the tokenizer (and we should probably
 				// find a better solution than that if one exists).
-				if ( $ttype && preg_match( '/(?:\b|mw:DisplaySpace\s+)mw:Placeholder\b/', $ttype ) && $t->dataAttribs->isDisplayHack ) {
+				if ( $ttype &&
+					preg_match( '/(?:\b|mw:DisplaySpace\s+)mw:Placeholder\b/', $ttype ) &&
+					!empty( $t->dataAttribs->isDisplayHack )
+				) {
 					// Skip over the entity and the end-tag as well
 					$i += 2;
 					continue;
@@ -505,7 +646,7 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $tc === EndTagTk::class ) {
+			if ( $tc === 'EndTagTk' ) {
 				// Ignore mw:Entity tokens
 				if ( $numEntities > 0 && $t->name === 'span' ) {
 					$numEntities--;
@@ -517,12 +658,15 @@ class WikitextEscapeHandlers {
 				}
 
 				// Ignore table tokens outside of tables
-				if ( isset( [ 'caption' => 1, 'table' => 1 ][ $t->name ] ) && $state->wikiTableNesting === 0 ) {
+				if ( isset( ( [ 'caption' => 1, 'table' => 1 ] )[ $t->name ] ) &&
+					$state->wikiTableNesting === 0
+				) {
 					continue;
 				}
 
 				// </br>!
-				if ( SanitizerConstants::noEndTagSet::has( strtolower( $t->name ) ) ) {
+				// PORT-FIXME strtolower?
+				if ( 'br' === strtolower( $t->name ) ) {
 					continue;
 				}
 
@@ -531,6 +675,21 @@ class WikitextEscapeHandlers {
 		}
 
 		return false;
+	}
+
+	private static function nowikiWrap(
+		string $str, bool $close, bool &$inNowiki, bool &$nowikisAdded, string &$buf
+	): void {
+		if ( !$inNowiki ) {
+			$buf .= '<nowiki>';
+			$inNowiki = true;
+			$nowikisAdded = true;
+		}
+		$buf .= $str;
+		if ( $close ) {
+			$buf .= '</nowiki>';
+			$inNowiki = false;
+		}
 	}
 
 	/**
@@ -543,11 +702,21 @@ class WikitextEscapeHandlers {
 	 * Full-wrapping is enabled if the string is being escaped within
 	 * context-specific handlers where the tokenization context might
 	 * be different from what we use in this code.
+	 *
+	 * @param SerializerState $state
+	 * @param bool $sol
+	 * @param string $origText
+	 * @param bool $fullWrap
+	 * @param bool $dontWrapIfUnnecessary
+	 * @return string
 	 */
-	public function escapedText( $state, $sol, $origText, $fullWrap, $dontWrapIfUnnecessary ) {
-		$match = preg_match( '/^((?:[^\r\n]|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/', $origText );
-		$text = $match[ 1 ];
-		$nls = $match[ 2 ];
+	public function escapedText(
+		SerializerState $state, bool $sol, string $origText,
+		bool $fullWrap = false, bool $dontWrapIfUnnecessary = false
+	): string {
+		preg_match( '/^((?:[^\r\n]|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/', $origText, $match );
+		$text = $match[1];
+		$nls = $match[2];
 
 		if ( $fullWrap ) {
 			return '<nowiki>' . $text . '</nowiki>' . $nls;
@@ -555,7 +724,7 @@ class WikitextEscapeHandlers {
 			$buf = '';
 			$inNowiki = false;
 			$nowikisAdded = false;
-			$tokensWithoutClosingTag = new Set( [
+			$tokensWithoutClosingTag = PHPUtils::makeSet( [
 					// These token types don't come with a closing tag
 					'listItem', 'td', 'tr'
 				]
@@ -568,38 +737,30 @@ class WikitextEscapeHandlers {
 
 			$tokens = $this->tokenizeStr( $text, $sol );
 
-			$nowikiWrap = function ( $str, $close ) use ( &$inNowiki ) {
-				if ( !$inNowiki ) {
-					$buf += '<nowiki>';
-					$inNowiki = true;
-					$nowikisAdded = true;
-				}
-				$buf += $str;
-				if ( $close ) {
-					$buf += '</nowiki>';
-					$inNowiki = false;
-				}
-			};
-
 			for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-				$t = $tokens[ $i ];
-				if ( $t->constructor === $String ) {
-					if ( count( $t ) > 0 ) {
+				$t = $tokens[$i];
+				if ( is_string( $t ) ) {
+					if ( strlen( $t ) > 0 ) {
 						$t = WTUtils::escapeNowikiTags( $t );
-						if ( !$inNowiki && ( ( $sol && preg_match( '/^ /', $t ) ) || preg_match( '/\n /', $t ) ) ) {
+						if ( !$inNowiki &&
+							( ( $sol && preg_match( '/^ /', $t ) ) ||
+								preg_match( '/\n /', $t )
+							)
+						) {
 							$x = preg_split( '/(^|\n) /', $t );
-							$buf += $x[ 0 ];
-							for ( $k = 1;  $k < count( $x ) - 1;  $k += 2 ) {
-								$buf += $x[ $k ];
-								if ( $k !== 1 || $x[ $k ] === "\n" || $sol ) {
-									$nowikiWrap( ' ', true );
+							$buf .= $x[0];
+							$lastIndexX = count( $x ) - 1;
+							for ( $k = 1;  $k < $lastIndexX;  $k += 2 ) {
+								$buf .= $x[$k];
+								if ( $k !== 1 || $x[$k] === "\n" || $sol ) {
+									self::nowikiWrap( ' ', true, $inNowiki, $nowikisAdded, $buf );
 								} else {
-									$buf += ' ';
+									$buf .= ' ';
 								}
-								$buf += $x[ $k + 1 ];
+								$buf .= $x[$k + 1];
 							}
 						} else {
-							$buf += $t;
+							$buf .= $t;
 						}
 						$sol = false;
 					}
@@ -608,15 +769,17 @@ class WikitextEscapeHandlers {
 
 				// Ignore display hacks, so text like "A : B" doesn't produce
 				// an unnecessary nowiki.
-				if ( $t->dataAttribs && $t->dataAttribs->isDisplayHack ) {
+				if ( !empty( $t->dataAttribs->isDisplayHack ) ) {
 					continue;
 				}
 
-				$tsr = ( $t->dataAttribs || [] )->tsr;
+				$tsr = $t->dataAttribs->tsr ?? null;
 				if ( !is_array( $tsr ) ) {
-					$state->env->log( 'error/html2wt/escapeNowiki',
+					$env = $state->getEnv();
+					$env->log(
+						'error/html2wt/escapeNowiki',
 						'Missing tsr for token ',
-						json_encode( $t ),
+						PHPUtils::jsonEncode( $t ),
 						'while processing text ',
 						$text
 					);
@@ -624,69 +787,79 @@ class WikitextEscapeHandlers {
 					// Bail and wrap the whole thing in a nowiki
 					// if we have missing information.
 					// Use match[1] since text has been clobbered above.
-					return '<nowiki>' . $match[ 1 ] . '</nowiki>' . $nls;
+					return '<nowiki>' . $match[1] . '</nowiki>' . $nls;
 				}
 
 				// Now put back the escaping we removed above
-				$tSrc = WTUtils::escapeNowikiTags( substr( $text, $tsr[ 0 ], $tsr[ 1 ]/*CHECK THIS*/ ) );
-				switch ( $t->constructor ) {
-					case NlTk::class:
-					$buf += $tSrc;
-					$sol = true;
-					break;
-
-					case CommentTk::class:
-					// Comments are sol-transparent
-					$buf += $tSrc;
-					break;
-
-					case TagTk::class:
-					// Treat tokens with missing tags as self-closing tokens
-					// for the purpose of minimal nowiki escaping
-					$nowikiWrap( $tSrc, $tokensWithoutClosingTag->has( $t->name ) );
-					$sol = false;
-					break;
-
-					case EndTagTk::class:
-					$nowikiWrap( $tSrc, true );
-					$sol = false;
-					break;
-
-					case SelfclosingTagTk::class:
-					if ( $t->name !== 'meta' || !preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) ) ) {
-						// Don't bother with marker or empty-line metas
-						$nowikiWrap( $tSrc, true );
-					}
-					$sol = false;
-					break;
+				$tSrc = WTUtils::escapeNowikiTags( mb_substr( $text, $tsr[0], $tsr[1] - $tsr[0] ) );
+				switch ( TokenUtils::getTokenType( $t ) ) {
+					case 'NlTk':
+						$buf .= $tSrc;
+						$sol = true;
+						break;
+					case 'CommentTk':
+						// Comments are sol-transparent
+						$buf .= $tSrc;
+						break;
+					case 'TagTk':
+						// Treat tokens with missing tags as self-closing tokens
+						// for the purpose of minimal nowiki escaping
+						self::nowikiWrap(
+							$tSrc,
+							isset( $tokensWithoutClosingTag[$t->name] ),
+							$inNowiki,
+							$nowikisAdded,
+							$buf
+						);
+						$sol = false;
+						break;
+					case 'EndTagTk':
+						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
+						$sol = false;
+						break;
+					case 'SelfclosingTagTk':
+						if ( $t->name !== 'meta' ||
+							!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) )
+						) {
+							// Don't bother with marker or empty-line metas
+							self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
+						}
+						$sol = false;
+						break;
 				}
 			}
 
 			// close any unclosed nowikis
 			if ( $inNowiki ) {
-				$buf += '</nowiki>';
+				$buf .= '</nowiki>';
 			}
 
 			// Make sure nowiki is always added
 			// Ex: "foo]]" won't tokenize into tags at all
 			if ( !$nowikisAdded && !$dontWrapIfUnnecessary ) {
 				$buf = '';
-				$nowikiWrap( $text, true );
+				self::nowikiWrap( $text, true, $inNowiki, $nowikisAdded, $buf );
 			}
 
-			$buf += $nls;
+			$buf .= $nls;
 			return $buf;
 		}
 	}
 
 	/**
-	 * @param {Object} state
-	 * @param {string} text
-	 * @param {Object} opts
+	 * @param SerializerState $state
+	 * @param string $text
+	 * @param array $opts [ 'node' => DOMNode, 'inMultilineMode' => ?bool, 'isLastChild' => ?bool ]
+	 * @return string
 	 */
-	public function escapeWikiText( $state, $text, $opts ) {
-		$state->env->log( 'trace/wt-escape', 'EWT:', function () { return json_encode( $text );
-  } );
+	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
+		$env = $state->getEnv();
+		$env->log(
+			'trace/wt-escape', 'EWT:',
+			function () use ( $text ) {
+				return PHPUtils::jsonEncode( $text );
+			}
+		);
 
 		/* -----------------------------------------------------------------
 		 * General strategy: If a substring requires escaping, we can escape
@@ -694,9 +867,8 @@ class WikitextEscapeHandlers {
 		 * ----------------------------------------------------------------- */
 
 		$hasMagicWord = preg_match( '/(^|\W)(RFC|ISBN|PMID)\s/', $text );
-		$hasAutolink = $state->env->conf->wiki->findValidProtocol( $text );
+		$hasAutolink = $env->getSiteConfig()->findValidProtocol( $text );
 		$fullCheckNeeded = !$state->inLink && ( $hasMagicWord || $hasAutolink );
-		$hasLanguageConverter = false;
 		$hasQuoteChar = false;
 		$indentPreUnsafe = false;
 		$hasNonQuoteEscapableChars = false;
@@ -710,49 +882,55 @@ class WikitextEscapeHandlers {
 
 		if ( !$fullCheckNeeded ) {
 			$hasQuoteChar = preg_match( "/'/", $text );
-			$indentPreUnsafe = ( !$indentPreSafeMode && preg_match( ( '/\n +[^\r\n]*?[^\s]+/' ), $text ) || $sol && preg_match( ( '/^ +[^\r\n]*?[^\s]+/' ), $text ) );
+			$indentPreUnsafe = ( !$indentPreSafeMode &&
+				( preg_match( ( '/\n +[^\r\n]*?[^\s]+/' ), $text ) ||
+					$sol && preg_match( ( '/^ +[^\r\n]*?[^\s]+/' ), $text )
+				)
+			);
 			$hasNonQuoteEscapableChars = preg_match( '/[<>\[\]\-\+\|!=#\*:;~{}]|__[^_]*__/', $text );
 			$hasLanguageConverter = preg_match( '/-\{|\}-/', $text );
-			if ( $hasLanguageConverter ) { $fullCheckNeeded = true;
-   }
+			if ( $hasLanguageConverter ) {
+				$fullCheckNeeded = true;
+			}
 		}
 
 		// Quick check for the common case (useful to kill a majority of requests)
 		//
 		// Pure white-space or text without wt-special chars need not be analyzed
 		if ( !$fullCheckNeeded && !$hasQuoteChar && !$indentPreUnsafe && !$hasNonQuoteEscapableChars ) {
-			$state->env->log( 'trace/wt-escape', '---No-checks needed---' );
+			$env->log( 'trace/wt-escape', '---No-checks needed---' );
 			return $text;
 		}
 
 		// Context-specific escape handler
-		$wteHandler = JSUtils::lastItem( $state->wteHandlerStack );
+		$wteHandler = end( $state->wteHandlerStack );
 		if ( $wteHandler && $wteHandler( $state, $text, $opts ) ) {
-			$state->env->log( 'trace/wt-escape', '---Context-specific escape handler---' );
+			$env->log( 'trace/wt-escape', '---Context-specific escape handler---' );
 			return $this->escapedText( $state, false, $text, true );
 		}
 
 		// Quote-escape test
-		if ( preg_match( "/''+/", $text )
-|| hasLeadingEscapableQuoteChar( $text, $opts )
-|| hasTrailingEscapableQuoteChar( $text, $opts )
+		if ( preg_match( "/''+/", $text ) ||
+			self::hasLeadingEscapableQuoteChar( $text, $opts ) ||
+			self::hasTrailingEscapableQuoteChar( $text, $opts )
 		) {
 			// Check if we need full-wrapping <nowiki>..</nowiki>
 			// or selective <nowiki/> escaping for quotes.
-			if ( $fullCheckNeeded
-|| $indentPreUnsafe
-|| ( $hasNonQuoteEscapableChars
-&& $this->hasWikitextTokens( $state, $sol, $this->options, $text ) )
+			if ( $fullCheckNeeded ||
+				$indentPreUnsafe ||
+				( $hasNonQuoteEscapableChars &&
+					$this->hasWikitextTokens( $state, $sol, $this->options, $text )
+				)
 			) {
-				$state->env->log( 'trace/wt-escape', '---quotes: escaping text---' );
+				$env->log( 'trace/wt-escape', '---quotes: escaping text---' );
 				// If the reason for full wrap is that the text contains non-quote
 				// escapable chars, it's still possible to minimize the contents
 				// of the <nowiki> (T71950).
 				return $this->escapedText( $state, $sol, $text );
 			} else {
-				$quoteEscapedText = escapedIBSiblingNodeText( $state, $text, $opts );
+				$quoteEscapedText = self::escapedIBSiblingNodeText( $state, $text, $opts );
 				if ( $quoteEscapedText ) {
-					$state->env->log( 'trace/wt-escape', '---sibling of i/b tag---' );
+					$env->log( 'trace/wt-escape', '---sibling of i/b tag---' );
 					return $quoteEscapedText;
 				}
 			}
@@ -762,50 +940,49 @@ class WikitextEscapeHandlers {
 		// Conditional escaping requires matching brace pairs and knowledge
 		// of whether we are in template arg context or not.
 		if ( preg_match( '/\{\{\{|\{\{|\}\}\}|\}\}/', $text ) ) {
-			$state->env->log( 'trace/wt-escape', '---Unconditional: transclusion chars---' );
+			$env->log( 'trace/wt-escape', '---Unconditional: transclusion chars---' );
 			return $this->escapedText( $state, false, $text );
 		}
 
 		// Once we eliminate the possibility of multi-line tokens, split the text
 		// around newlines and escape each line separately.
 		if ( preg_match( '/\n./', $text ) ) {
-			$state->env->log( 'trace/wt-escape', '-- <multi-line-escaping-mode> --' );
+			$env->log( 'trace/wt-escape', '-- <multi-line-escaping-mode> --' );
 			// We've already processed the full string in a context-specific handler.
 			// No more additional processing required. So, push/pop a null handler.
 			$state->wteHandlerStack[] = null;
 
-			$ret = implode(
-
-				"\n", array_map( preg_split( '/\n/', $text ), function ( $line, $i ) {
-						if ( $i > 0 ) {
-							// Update state
-							$state->onSOL = true;
-							$state->currLine->text = '';
-							$opts->inMultilineMode = true;
-						}
-						return $this->escapeWikiText( $state, $line, $opts );
+			$tmp = [];
+			foreach ( explode( "\n", $text ) as $i => $line ) {
+				if ( $i > 0 ) {
+					// Update state
+					$state->onSOL = true;
+					$state->currLine->text = '';
+					$opts['inMultilineMode'] = true;
 				}
-				)
-
-			);
+				$tmp[] = $this->escapeWikiText( $state, $line, $opts );
+			}
+			$ret = implode( "\n", $tmp );
 
 			array_pop( $state->wteHandlerStack );
 
 			// If nothing changed, check if the original multiline string has
 			// any wikitext tokens (ex: multi-line html tags <div\n>foo</div\n>).
-			if ( $ret === $text
-&& $this->hasWikitextTokens( $state, $sol, $this->options, $text )
-			) {
-				$state->env->log( 'trace/wt-escape', '---Found multi-line wt tokens---' );
+			if ( $ret === $text	&& $this->hasWikitextTokens( $state, $sol, $this->options, $text ) ) {
+				$env->log( 'trace/wt-escape', '---Found multi-line wt tokens---' );
 				$ret = $this->escapedText( $state, $sol, $text );
 			}
 
-			$state->env->log( 'trace/wt-escape', '-- </multi-line-escaping-mode> --' );
+			$env->log( 'trace/wt-escape', '-- </multi-line-escaping-mode> --' );
 			return $ret;
 		}
 
-		$state->env->log( 'trace/wt-escape', 'SOL:', $sol, function () { return json_encode( $text );
-  } );
+		$env->log(
+			'trace/wt-escape', 'SOL:', $sol,
+			function () use ( $text ) {
+				return PHPUtils::jsonEncode( $text );
+			}
+		);
 
 		$hasTildes = preg_match( '/~{3,5}/', $text );
 		if ( !$fullCheckNeeded && !$hasTildes ) {
@@ -816,14 +993,14 @@ class WikitextEscapeHandlers {
 			if ( !$sol && !preg_match( "/''|[<>]|\\[.*\\]|\\]|(=[ ]*(\\n|\$))|__[^_]*__/", $text ) ) {
 				// It is not necessary to test for an unmatched opening bracket ([)
 				// as long as we always escape an unmatched closing bracket (]).
-				$state->env->log( 'trace/wt-escape', '---Not-SOL and safe---' );
+				$env->log( 'trace/wt-escape', '---Not-SOL and safe---' );
 				return $text;
 			}
 
 			// Quick checks when on a newline
 			// + can only occur as "|+" and - can only occur as "|-" or ----
 			if ( $sol && !preg_match( "/(^|\\n)[ #*:;=]|[<\\[\\]>\\|'!]|\\-\\-\\-\\-|__[^_]*__/", $text ) ) {
-				$state->env->log( 'trace/wt-escape', '---SOL and safe---' );
+				$env->log( 'trace/wt-escape', '---SOL and safe---' );
 				return $text;
 			}
 		}
@@ -832,10 +1009,12 @@ class WikitextEscapeHandlers {
 		// and moved them to a stream handler. So, we always conservatively
 		// escape text with ' ' in sol posn with one caveat:
 		// * and when the current line has block tokens
-		if ( $indentPreUnsafe
-&& ( !hasBlocksOnLine( $state->currLine->firstNode, true ) || $opts->inMultilineMode )
+		if ( $indentPreUnsafe &&
+			( !self::hasBlocksOnLine( $state->currLine->firstNode, true ) ||
+				!empty( $opts['inMultilineMode'] )
+			)
 		) {
-			$state->env->log( 'trace/wt-escape', '---SOL and pre---' );
+			$env->log( 'trace/wt-escape', '---SOL and pre---' );
 			$state->hasIndentPreNowikis = true;
 			return $this->escapedText( $state, $sol, $text );
 		}
@@ -847,41 +1026,143 @@ class WikitextEscapeHandlers {
 		//
 		// Ignores entities
 		if ( $hasTildes ) {
-			$state->env->log( 'trace/wt-escape', '---Found tildes---' );
+			$env->log( 'trace/wt-escape', '---Found tildes---' );
 			return $this->escapedText( $state, $sol, $text );
 		} elseif ( $this->hasWikitextTokens( $state, $sol, $this->options, $text ) ) {
-			$state->env->log( 'trace/wt-escape', '---Found WT tokens---' );
+			$env->log( 'trace/wt-escape', '---Found WT tokens---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( preg_match( '/[^\[]*\]/', $text ) && $this->textCanParseAsLink( $opts->node, $state, $text ) ) {
+		} elseif ( preg_match( '/[^\[]*\]/', $text ) &&
+			$this->textCanParseAsLink( $opts['node'], $state, $text )
+		) {
 			// we have an closing bracket, and
 			// - the text will get parsed as a link in
-			$state->env->log( 'trace/wt-escape', '---Links: complex single-line test---' );
+			$env->log( 'trace/wt-escape', '---Links: complex single-line test---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( $opts->isLastChild && preg_match( '/=$/', $text ) ) {
+		} elseif ( !empty( $opts['isLastChild'] ) && preg_match( '/=$/', $text ) ) {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child
-			$headingMatch = preg_match( '/^H(\d)/', $state->currLine->firstNode->nodeName );
+			preg_match( '/^h(\d)/', $state->currLine->firstNode->nodeName, $headingMatch );
 			if ( $headingMatch ) {
-				$n = $headingMatch[ 1 ];
-				if ( ( $state->currLine->text + $text )[ $n ] === '=' ) {
+				$n = $headingMatch[1];
+				if ( ( $state->currLine->text . $text )[$n] === '=' ) {
 					// The first character after the heading wikitext is/will be a '='.
 					// So, the trailing '=' can change semantics if it is not nowikied.
-					$state->env->log( 'trace/wt-escape', '---Heading: complex single-line test---' );
+					$env->log( 'trace/wt-escape', '---Heading: complex single-line test---' );
 					return $this->escapedText( $state, $sol, $text );
 				} else {
 					return $text;
 				}
-			} elseif ( $state->currLine->text[ 0 ] === '=' ) {
-				$state->env->log( 'trace/wt-escape', '---Text-as-heading: complex single-line test---' );
+			} elseif ( $state->currLine->text[0] === '=' ) {
+				$env->log( 'trace/wt-escape', '---Text-as-heading: complex single-line test---' );
 				return $this->escapedText( $state, $sol, $text );
 			} else {
 				return $text;
 			}
 		} else {
-			$state->env->log( 'trace/wt-escape', '---All good!---' );
+			$env->log( 'trace/wt-escape', '---All good!---' );
 			return $text;
 		}
+	}
+
+	/**
+	 * @param string $str
+	 * @param bool $isLast
+	 * @param bool $checkNowiki
+	 * @param string $buf
+	 * @param bool $openNowiki
+	 * @param bool $isTemplate
+	 * @param bool $serializeAsNamed
+	 * @param array $opts [ 'numPositionalArgs' => int, 'argPositionalIndex' => int, 'type' => string,
+	 * 'numArgs' => int, 'argIndex' => int ]
+	 */
+	private static function appendStr(
+		string $str, bool $isLast, bool $checkNowiki, string &$buf, bool &$openNowiki,
+		bool $isTemplate, bool &$serializeAsNamed, array $opts
+	): void {
+		if ( !$checkNowiki ) {
+			if ( $openNowiki ) {
+				$buf .= '</nowiki>';
+				$openNowiki = false;
+			}
+			$buf .= $str;
+			return;
+		}
+
+		// '=' is not allowed in positional parameters.  We can either
+		// nowiki escape it or convert the named parameter into a
+		// positional param to avoid the escaping.
+		if ( $isTemplate && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
+			// In certain situations, it is better to add a nowiki escape
+			// rather than convert this to a named param.
+			//
+			// Ex: Consider: {{funky-tpl|a|b|c|d|e|f|g|h}}
+			//
+			// If an editor changes 'a' to 'f=oo' and we convert it to
+			// a named param 1=f=oo, we are effectively converting all
+			// the later params into named params as well and we get
+			// {{funky-tpl|1=f=oo|2=b|3=c|...|8=h}} instead of
+			// {{funky-tpl|<nowiki>f=oo</nowiki>|b|c|...|h}}
+			//
+			// The latter is better in this case. This is a real problem
+			// in production.
+			//
+			// For now, we use a simple heuristic below and can be
+			// refined later, if necessary
+			//
+			// 1. Either there were no original positional args
+			// 2. Or, only the last positional arg uses '='
+			if ( $opts['numPositionalArgs'] === 0 ||
+				$opts['numPositionalArgs'] === $opts['argPositionalIndex']
+			) {
+				$serializeAsNamed = true;
+			}
+		}
+
+		// Count how many reasons for nowiki
+		$needNowikiCount = 0;
+		$neededSubstitution = null;
+		// Protect against unmatched pairs of braces and brackets, as they
+		// should never appear in template arguments.
+		$bracketPairStrippedStr = preg_replace(
+			'/\[\[([^\[\]]*)\]\]|\{\{([^\{\}]*)\}\}|-\{([^\{\}]*)\}-/',
+			'_$1_',
+			$str
+		);
+		if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
+			$needNowikiCount++;
+		}
+		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
+			$needNowikiCount++;
+		}
+		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && preg_match( '/\}$/', $str ) ) {
+			// If this is the last part of the last argument, we need to protect
+			// against an ending }, as it would get confused with the template ending }}.
+			$needNowikiCount++;
+			$neededSubstitution = [ '/(\})$/', '<nowiki>}</nowiki>' ];
+		}
+		if ( preg_match( '/\|/', $str ) ) {
+			// If there's an unprotected |, guard it so it doesn't get confused
+			// with the beginning of a different parameter.
+			$needNowikiCount++;
+			$neededSubstitution = [ '/\|/g', '{{!}}' ];
+		}
+
+		// Now, if arent' already in a <nowiki> and there's only one reason to
+		// protect, avoid guarding too much text by just substituting.
+		if ( !$openNowiki && $needNowikiCount === 1 && $neededSubstitution ) {
+			$str = str_replace( $neededSubstitution[0], $neededSubstitution[1], $str );
+			$needNowikiCount = false;
+		}
+		if ( !$openNowiki && $needNowikiCount ) {
+			$buf .= '<nowiki>';
+			$openNowiki = true;
+		}
+		if ( !$needNowikiCount && $openNowiki ) {
+			$buf .= '</nowiki>';
+			$openNowiki = false;
+		}
+		$buf .= $str;
 	}
 
 	/**
@@ -899,116 +1180,53 @@ class WikitextEscapeHandlers {
 	 * 2. The tsr on TagTk and EndTagTk corresponds to the
 	 *    width of the opening and closing wikitext tags and not
 	 *    the entire DOM range they span in the end.
+	 *
+	 * @param string $arg
+	 * @param array $opts [ 'serializeAsNamed' => bool,  'numPositionalArgs' => int,
+	 * 'argPositionalIndex' => int, 'type' => string, 'numArgs' => int, 'argIndex' => int ]
+	 * @return array
 	 */
-	public function escapeTplArgWT( $arg, $opts ) {
-		$env = $this->options->env;
-		$serializeAsNamed = $opts->serializeAsNamed;
+	public function escapeTplArgWT( string $arg, array $opts ): array {
+		/** @var Env $env */
+		$env = $this->options['env'];
+		$serializeAsNamed = $opts['serializeAsNamed'];
 		$buf = '';
-		$openNowiki = null;
-		$isTemplate = $opts->type === 'template';
-
-		function appendStr( $str, $isLast, $checkNowiki ) use ( &$openNowiki, &$isTemplate, &$serializeAsNamed, &$opts ) {
-			if ( !$checkNowiki ) {
-				if ( $openNowiki ) {
-					$buf += '</nowiki>';
-					$openNowiki = false;
-				}
-				$buf += $str;
-				return;
-			}
-
-			// '=' is not allowed in positional parameters.  We can either
-			// nowiki escape it or convert the named parameter into a
-			// positional param to avoid the escaping.
-			if ( $isTemplate && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
-				// In certain situations, it is better to add a nowiki escape
-				// rather than convert this to a named param.
-				//
-				// Ex: Consider: {{funky-tpl|a|b|c|d|e|f|g|h}}
-				//
-				// If an editor changes 'a' to 'f=oo' and we convert it to
-				// a named param 1=f=oo, we are effectively converting all
-				// the later params into named params as well and we get
-				// {{funky-tpl|1=f=oo|2=b|3=c|...|8=h}} instead of
-				// {{funky-tpl|<nowiki>f=oo</nowiki>|b|c|...|h}}
-				//
-				// The latter is better in this case. This is a real problem
-				// in production.
-				//
-				// For now, we use a simple heuristic below and can be
-				// refined later, if necessary
-				//
-				// 1. Either there were no original positional args
-				// 2. Or, only the last positional arg uses '='
-				if ( $opts->numPositionalArgs === 0
-|| $opts->numPositionalArgs === $opts->argPositionalIndex
-				) {
-					$serializeAsNamed = true;
-				}
-			}
-
-			// Count how many reasons for nowiki
-			$needNowikiCount = 0;
-			$neededSubstitution = null;
-			// Protect against unmatched pairs of braces and brackets, as they
-			// should never appear in template arguments.
-			$bracketPairStrippedStr =
-			preg_replace( '/\[\[([^\[\]]*)\]\]|\{\{([^\{\}]*)\}\}|-\{([^\{\}]*)\}-/', '_$1_', $str );
-			if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
-				$needNowikiCount++;
-			}
-			if ( $opts->type !== 'templatearg' && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
-				$needNowikiCount++;
-			}
-			if ( $opts->argIndex === $opts->numArgs && $isLast && preg_match( '/\}$/', $str ) ) {
-				// If this is the last part of the last argument, we need to protect
-				// against an ending }, as it would get confused with the template ending }}.
-				$needNowikiCount++;
-				$neededSubstitution = [ /* RegExp */ '/(\})$/', '<nowiki>}</nowiki>' ];
-			}
-			if ( preg_match( '/\|/', $str ) ) {
-				// If there's an unprotected |, guard it so it doesn't get confused
-				// with the beginning of a different paramenter.
-				$needNowikiCount++;
-				$neededSubstitution = [ /* RegExp */ '/\|/g', '{{!}}' ];
-			}
-
-			// Now, if arent' already in a <nowiki> and there's only one reason to
-			// protect, avoid guarding too much text by just substituting.
-			if ( !$openNowiki && $needNowikiCount === 1 && $neededSubstitution ) {
-				$str = str_replace( $neededSubstitution[ 0 ], $neededSubstitution[ 1 ], $str );
-				$needNowikiCount = false;
-			}
-			if ( !$openNowiki && $needNowikiCount ) {
-				$buf += '<nowiki>';
-				$openNowiki = true;
-			}
-			if ( !$needNowikiCount && $openNowiki ) {
-				$buf += '</nowiki>';
-				$openNowiki = false;
-			}
-			$buf += $str;
-		}
+		$openNowiki = false;
+		$isTemplate = $opts['type'] === 'template';
 
 		$tokens = $this->tokenizeStr( $arg, false );
 
-		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[ $i ];
+		for ( $i = 0,  $n = count( $tokens ); $i < $n; $i++ ) {
+			$t = $tokens[$i];
 			$da = $t->dataAttribs;
 			$last = $i === $n - 1;
 
 			// For mw:Entity spans, the opening and closing tags have 0 width
 			// and the enclosed content is the decoded entity. Hence the
 			// special case to serialize back the entity's source.
-			if ( $t->constructor === TagTk::class ) {
+			if ( TokenUtils::getTokenType( $t ) === 'TagTk' ) {
 				$type = $t->getAttribute( 'typeof' );
 				if ( $type && preg_match( '/\bmw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Entity)\b/', $type ) ) {
 					$i += 2;
-					appendStr( substr( $arg, $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ]/*CHECK THIS*/ ), $last, false );
+					$width = $tokens[$i]->dataAttribs->tsr[1] - $da->tsr[0];
+					self::appendStr(
+						mb_substr( $arg, $da->tsr[0], $width ),
+						$last,
+						false,
+						$buf,
+						$openNowiki,
+						$isTemplate,
+						$serializeAsNamed,
+						$opts
+					);
 					continue;
 				} elseif ( $type === 'mw:Nowiki' ) {
 					$i++;
-					while ( $i < $n && ( $tokens[ $i ]->constructor !== EndTagTk::class || $tokens[ $i ]->getAttribute( 'typeof' ) !== 'mw:Nowiki' ) ) {
+					while ( $i < $n &&
+						( TokenUtils::getTokenType( $tokens[$i] ) !== 'EndTagTk' ||
+							$tokens[$i]->getAttribute( 'typeof' ) !== 'mw:Nowiki'
+						)
+					) {
 						$i++;
 					}
 					if ( $i < $n ) {
@@ -1020,98 +1238,148 @@ class WikitextEscapeHandlers {
 						// braces and brackets pairs (which is done in appendStr),
 						// but only if they weren't explicitly protected in the
 						// passed wikitext.
-						$substr = substr( $arg, $da->tsr[ 0 ], $tokens[ $i ]->dataAttribs->tsr[ 1 ]/*CHECK THIS*/ );
-						appendStr( $substr, $last, !preg_match( '/<nowiki>[^<]*<\/nowiki>/', $substr ) );
+						$substr = mb_substr( $arg, $da->tsr[0], $tokens[$i]->dataAttribs->tsr[1] - $da->tsr[0] );
+						self::appendStr(
+							$substr,
+							$last,
+							!preg_match( '/<nowiki>[^<]*<\/nowiki>/', $substr ),
+							$buf,
+							$openNowiki,
+							$isTemplate,
+							$serializeAsNamed,
+							$opts
+						);
 					}
 					continue;
 				}
 			}
 
-			$errors = null;
-			switch ( $t->constructor ) {
-				case TagTk::class:
-
-				case EndTagTk::class:
-
-				case NlTk::class:
-
-				case CommentTk::class:
-				if ( !$da->tsr ) {
-					$errors = [ 'Missing tsr for: ' . json_encode( $t ) ];
-					$errors[] = 'Arg : ' . json_encode( $arg );
-					$errors[] = 'Toks: ' . json_encode( $tokens );
-					$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-				}
-				appendStr( substr( $arg, $da->tsr[ 0 ], $da->tsr[ 1 ]/*CHECK THIS*/ ), $last, false );
-				break;
-
-				case SelfclosingTagTk::class:
-				if ( !$da->tsr ) {
-					$errors = [ 'Missing tsr for: ' . json_encode( $t ) ];
-					$errors[] = 'Arg : ' . json_encode( $arg );
-					$errors[] = 'Toks: ' . json_encode( $tokens );
-					$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-				}
-				$tkSrc = substr( $arg, $da->tsr[ 0 ], $da->tsr[ 1 ]/*CHECK THIS*/ );
-				// Replace pipe by an entity. This is not completely safe.
-				if ( $t->name === 'extlink' || $t->name === 'urllink' ) {
-					$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
-							'startRule' => 'tplarg_or_template_or_bust'
-						]
+			switch ( TokenUtils::getTokenType( $t ) ) {
+				case 'TagTk':
+				case 'EndTagTk':
+				case 'NlTk':
+				case 'CommentTk':
+					if ( empty( $da->tsr ) ) {
+						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
+						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
+						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
+						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
+						// PORT-FIXME $da->tsr[{index}] undefined below
+					}
+					self::appendStr(
+						mb_substr( $arg, $da->tsr[0], $da->tsr[1] - $da->tsr[0] ),
+						$last,
+						false,
+						$buf,
+						$openNowiki,
+						$isTemplate,
+						$serializeAsNamed,
+						$opts
 					);
-					$tkBits->forEach( function ( $bit ) use ( &$last, &$isTemplate, &$serializeAsNamed, &$opts ) {
+					break;
+				case 'SelfclosingTagTk':
+					if ( empty( $da->tsr ) ) {
+						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
+						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
+						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
+						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
+						// PORT-FIXME $da->tsr[{index}] undefined below
+					}
+					$tkSrc = mb_substr( $arg, $da->tsr[0], $da->tsr[1] - $da->tsr[0] );
+					// Replace pipe by an entity. This is not completely safe.
+					if ( $t->name === 'extlink' || $t->name === 'urllink' ) {
+						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
+								'startRule' => 'tplarg_or_template_or_bust'
+							]
+						);
+						foreach ( $tkBits as $bit ) {
 							if ( gettype( $bit ) === 'object' ) {
-								appendStr( $bit->dataAttribs->src, $last, false );
+								self::appendStr(
+									$bit->dataAttribs->src,
+									$last,
+									false,
+									$buf,
+									$openNowiki,
+									$isTemplate,
+									$serializeAsNamed,
+									$opts
+								);
 							} else {
 								// Convert to a named param w/ the same reasoning
 								// as above for escapeStr, however, here we replace
 								// with an entity to avoid breaking up querystrings
 								// with nowikis.
 								if ( $isTemplate && !$serializeAsNamed && preg_match( '/[=]/', $bit ) ) {
-									if ( $opts->numPositionalArgs === 0
-|| $opts->numPositionalArgs === $opts->argIndex
+									if ( $opts['numPositionalArgs'] === 0
+										|| $opts['numPositionalArgs'] === $opts['argIndex']
 									) {
 										$serializeAsNamed = true;
 									} else {
 										$bit = preg_replace( '/=/', '&#61;', $bit );
 									}
 								}
-								$buf += preg_replace( '/\|/', '&#124;', $bit );
+								$buf .= preg_replace( '/\|/', '&#124;', $bit );
 							}
+						}
+					} else {
+						self::appendStr(
+							$tkSrc,
+							$last,
+							false,
+							$buf,
+							$openNowiki,
+							$isTemplate,
+							$serializeAsNamed,
+							$opts
+						);
 					}
+					break;
+				case 'string':
+					self::appendStr(
+						$t,
+						$last,
+						true,
+						$buf,
+						$openNowiki,
+						$isTemplate,
+						$serializeAsNamed,
+						$opts
 					);
-				} else {
-					appendStr( $tkSrc, $last, false );
-				}
-				break;
-
-				case $String:
-				appendStr( $t, $last, true );
-				break;
-
-				case EOFTk::class:
-				break;
+					break;
+				case 'EOFTk':
+					break;
 			}
 		}
 
 		// If nowiki still open, close it now.
 		if ( $openNowiki ) {
-			$buf += '</nowiki>';
+			$buf .= '</nowiki>';
 		}
 
 		return [ 'serializeAsNamed' => $serializeAsNamed, 'v' => $buf ];
 	}
 
-	// See also `escapeLinkTarget` in LinkHandler.js
-	public function escapeLinkContent( $state, $str, $solState, $node, $isMedia ) {
+	/**
+	 * See also `escapeLinkTarget` in LinkHandler.js
+	 *
+	 * @param SerializerState $state
+	 * @param string $str
+	 * @param bool $solState
+	 * @param DOMNode $node
+	 * @param bool $isMedia
+	 * @return string
+	 */
+	public function escapeLinkContent(
+		SerializerState $state, string $str, bool $solState, DOMNode $node, bool $isMedia
+	): string {
 		// Entity-escape the content.
 		$str = Util::escapeWtEntities( $str );
 
 		// Wikitext-escape content.
-		$state->onSOL = $solState || false;
-		$state->wteHandlerStack[] = ( $isMedia ) ?
-		$this->mediaOptionHandler :
-		$this->wikilinkHandler;
+		$state->onSOL = $solState;
+		$state->wteHandlerStack[] = $isMedia
+			? [ self::class, 'mediaOptionHandler' ]
+			: [ self::class, 'wikilinkHandler' ];
 		$state->inLink = true;
 		$res = $this->escapeWikiText( $state, $str, [ 'node' => $node ] );
 		$state->inLink = false;
@@ -1119,8 +1387,4 @@ class WikitextEscapeHandlers {
 
 		return $res;
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->WikitextEscapeHandlers = $WikitextEscapeHandlers;
 }
