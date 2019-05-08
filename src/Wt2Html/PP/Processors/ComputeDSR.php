@@ -179,6 +179,8 @@ class ComputeDSR {
 		} else {
 			if ( WTUtils::usesWikiLinkSyntax( $node, $dp ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
+					// this seems like some kind of a phan bug
+					// @phan-suppress-next-line PhanTypeExpectedObjectPropAccess
 					$href = $dp->sa->href ?? null;
 					if ( $href ) {
 						return [ mb_strlen( $href ) + 3, 2 ];
@@ -387,6 +389,9 @@ class ComputeDSR {
 				DOMUtils::assertElt( $child );
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
+				// $dp will be a DataParsoid object once but currently it is an StdClass
+				// with a fake type hint. Unfake it to prevent phan complaining about unset().
+				'@phan-var StdClass $dp';
 				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
 				$oldCE = $tsr ? $tsr[1] : null;
 				$propagateRight = false;

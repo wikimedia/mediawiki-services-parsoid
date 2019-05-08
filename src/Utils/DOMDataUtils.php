@@ -8,6 +8,7 @@ namespace Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Parsoid\DataParsoid;
 use stdClass as StdClass;
 use Wikimedia\Assert\Assert;
 use Parsoid\Config\Env;
@@ -80,7 +81,7 @@ class DOMDataUtils {
 	 * Get data parsoid info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return StdClass
+	 * @return DataParsoid
 	 */
 	public static function getDataParsoid( DOMElement $node ): StdClass {
 		$data = self::getNodeData( $node );
@@ -499,6 +500,9 @@ class DOMDataUtils {
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
+		// $dp will be a DataParsoid object once but currently it is an StdClass
+		// with a fake type hint. Unfake it to prevent phan complaining about unset().
+		'@phan-var StdClass $dp';
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,
