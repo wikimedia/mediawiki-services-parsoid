@@ -3,30 +3,25 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\Config\Env;
-use DOMNode;
+use DOMComment;
 use DOMElement;
+use DOMNode;
+use Parsoid\Config\Env;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
-use stdClass as StdClass;
+use stdClass;
 
 class MigrateTrailingNLs {
 	private static $nodesToMigrateFrom;
 
-	private static function makeNodesToMigrateFrom() {
-		self::$nodesToMigrateFrom = PHPUtils::makeSet( [
-				'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
-			]
-		);
-	}
 	/**
 	 * @param DOMNode $node
-	 * @param StdClass $dp
+	 * @param stdClass $dp
 	 * @return bool
 	 */
-	private function nodeEndsLineInWT( DOMNode $node, StdClass $dp ): bool {
+	private function nodeEndsLineInWT( DOMNode $node, stdClass $dp ): bool {
 		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,
 		// p) or have implicit closing tags that can leak newlines to those that end a
 		// line (th, td)
@@ -34,7 +29,10 @@ class MigrateTrailingNLs {
 		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
 		// (if we can rely on auto inserted start/end tags being present always).
 		if ( !isset( self::$nodesToMigrateFrom ) ) {
-			self::makeNodesToMigrateFrom();
+			self::$nodesToMigrateFrom = PHPUtils::makeSet( [
+					'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
+				]
+			);
 		}
 		return isset( self::$nodesToMigrateFrom[$node->nodeName] ) &&
 			!WTUtils::hasLiteralHTMLMarker( $dp );
@@ -44,7 +42,7 @@ class MigrateTrailingNLs {
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
-	private function getTableParent( DOMNode $node ) {
+	private function getTableParent( DOMNode $node ): ?DOMNode {
 		if ( preg_match( '/^(td|th)$/', $node->nodeName ) ) {
 			$node = $node->parentNode;
 		}
@@ -57,13 +55,13 @@ class MigrateTrailingNLs {
 		return ( $node->nodeName === 'table' ) ? $node : null;
 	}
 
-	// We can migrate a newline out of a node if one of the following is true:
-	// (1) The node ends a line in wikitext (=> not a literal html tag)
-	// (2) The node has an auto-closed end-tag (wikitext-generated or literal html tag)
-	// and hasn't been fostered out of a table.
-	// (3) It is the rightmost node in the DOM subtree rooted at a node
-	// that ends a line in wikitext
 	/**
+	 * We can migrate a newline out of a node if one of the following is true:
+	 * (1) The node ends a line in wikitext (=> not a literal html tag)
+	 * (2) The node has an auto-closed end-tag (wikitext-generated or literal html tag)
+	 * and hasn't been fostered out of a table.
+	 * (3) It is the rightmost node in the DOM subtree rooted at a node
+	 * that ends a line in wikitext
 	 * @param DOMNode $node
 	 * @return bool
 	 */
@@ -78,8 +76,7 @@ class MigrateTrailingNLs {
 		if ( $tableParent && DOMUtils::isElt( $tableParent->previousSibling ) ) {
 			$previousSibling = $tableParent->previousSibling;
 			'@phan-var \DOMElement $previousSibling'; // @var \DOMElement $previousSibling
-			if ( !empty( DOMDataUtils::getDataParsoid( $previousSibling )->fostered )
-			) {
+			if ( !empty( DOMDataUtils::getDataParsoid( $previousSibling )->fostered ) ) {
 				return false;
 			}
 		}
@@ -93,10 +90,10 @@ class MigrateTrailingNLs {
 					$this->canMigrateNLOutOfNode( $node->parentNode ) ) );
 	}
 
-	// A node has zero wt width if:
-	// - tsr[0] == tsr[1]
-	// - only has children with zero wt width
 	/**
+	 * A node has zero wt width if:
+	 * - tsr[0] == tsr[1]
+	 * - only has children with zero wt width
 	 * @param DOMElement $node
 	 * @return bool
 	 */
@@ -107,8 +104,7 @@ class MigrateTrailingNLs {
 		}
 
 		$c = $node->firstChild;
-		'@phan-var \DOMElement $c'; // @var \DOMElement $c
-		while ( $c && DOMUtils::isElt( $c ) && $this->hasZeroWidthWT( $c ) ) {
+		while ( $c instanceof DOMElement && $this->hasZeroWidthWT( $c ) ) {
 			$c = $c->nextSibling;
 		}
 
@@ -150,8 +146,7 @@ class MigrateTrailingNLs {
 			$n = $elt->lastChild;
 
 			// We can migrate trailing newlines across nodes that have zero-wikitext-width.
-			'@phan-var \DOMElement $n'; // @var \DOMElement $n
-			while ( $n && DOMUtils::isElt( $n ) && $this->hasZeroWidthWT( $n ) ) {
+			while ( $n instanceof DOMElement && $this->hasZeroWidthWT( $n ) ) {
 				$migrationBarrier = $n;
 				$n = $n->previousSibling;
 			}
@@ -163,10 +158,9 @@ class MigrateTrailingNLs {
 			$foundNL = false;
 			$tsrCorrection = 0;
 			while ( $n && ( DOMUtils::isText( $n ) || DOMUtils::isComment( $n ) ) ) {
-				if ( DOMUtils::isComment( $n ) ) {
+				if ( $n instanceof DOMComment ) {
 					$firstEltToMigrate = $n;
 					// <!--comment-->
-					'@phan-var \DOMComment $n'; // @var \DOMComment $n
 					$tsrCorrection += WTUtils::decodedCommentLength( $n );
 				} else {
 					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/', $n->nodeValue ) ) {
@@ -204,7 +198,8 @@ class MigrateTrailingNLs {
 				// So, if the insertPosition is in between an end-tag and
 				// its marker meta-tag, move past that marker meta-tag.
 				if ( $insertPosition &&
-					DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' ) ) {
+					DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' )
+				) {
 					'@phan-var \DOMElement $insertPosition'; // @var \DOMElement $insertPosition
 					if ( $insertPosition->getAttribute( 'data-etag' ) === strtolower( $elt->nodeName )
 					) {
