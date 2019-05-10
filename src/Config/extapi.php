@@ -20,7 +20,6 @@ use Parsoid\TokenUtils as TokenUtils;
 use Parsoid\Util as Util;
 use Parsoid\WTUtils as WTUtils;
 use Parsoid\Sanitizer as Sanitizer;
-use Parsoid\SanitizerConstants as SanitizerConstants;
 
 /**
  * Create a parsing pipeline to parse wikitext.
@@ -112,7 +111,7 @@ $parseTokenContentsToDOM = /* async */function ( $state, $extArgs, $leadingWS, $
 };
 
 $module->exports = [
-	'versionCheck' => function ( $requestedVersion ) use ( &$semver, &$parsoidJson, &$ContentUtils, &$DOMDataUtils, &$DOMUtils, &$parseTokenContentsToDOM, &$parseWikitextToDOM, &$Promise, &$Sanitizer, &$SanitizerConstants, &$TokenUtils, &$Util, &$WTUtils ) {
+	'versionCheck' => function ( $requestedVersion ) use ( &$semver, &$parsoidJson, &$ContentUtils, &$DOMDataUtils, &$DOMUtils, &$parseTokenContentsToDOM, &$parseWikitextToDOM, &$Promise, &$Sanitizer, &$TokenUtils, &$Util, &$WTUtils ) {
 		// Throw exception if the supplied major/minor version is
 		// incompatible with the currently running Parsoid.
 		if ( !semver::satisfies( parsoidJson::version, $requestedVersion ) ) {
@@ -139,7 +138,6 @@ $module->exports = [
 			'parseWikitextToDOM' => $parseWikitextToDOM,
 			'Promise' => Promise::class,
 			'Sanitizer' => Sanitizer::class,
-			'SanitizerConstants' => SanitizerConstants::class,
 			'TemplateRequest' => require '../mw/ApiRequest.js'::TemplateRequest,
 			'TokenTypes' => require '../tokens/TokenTypes.js' ,
 			'TokenUtils' => TokenUtils::class,
