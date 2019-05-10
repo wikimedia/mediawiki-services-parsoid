@@ -1,18 +1,36 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module ext/Translate */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\Translate;
 
-$module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
+use DOMDocument;
+use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Ext\ExtensionTag;
+use Parsoid\Ext\LintHandlerTrait;
 
-// Translate constructor
-$module->exports = function () {
-	$this->config = [
-		'tags' => [
-			[ 'name' => 'translate' ],
-			[ 'name' => 'tvar' ]
-		]
-	];
-};
+class Translate implements ExtensionTag {
+	/* Translate doesn't implement linting, so use boilerplate */
+	use LintHandlerTrait;
+
+	/** @inheritDoc */
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
+		return $extApi->getEnv()->createDocument();
+	}
+
+	/** @return array */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'translate',
+					'class' => self::class
+				],
+				[
+					'name' => 'tvar',
+					'class' => self::class
+				]
+			]
+		];
+	}
+
+}
