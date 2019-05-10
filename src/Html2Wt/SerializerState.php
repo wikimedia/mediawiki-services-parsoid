@@ -12,7 +12,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
-use StdClass;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -71,7 +71,7 @@ class SerializerState {
 	 *     updated when a node calls `emitChunk` so that nodes
 	 *     serializing `justChildren` don't mix up `buildSep`.
 	 * PORT-FIXME: could use a dedicated class
-	 * @var StdClass
+	 * @var stdClass
 	 */
 	public $sep;
 
@@ -177,11 +177,11 @@ class SerializerState {
 	 * - firstNode (?DOMNode): first DOM node processed on this line
 	 * - text (string): output so far from all nodes on the current line
 	 * - chunks (ConstrainedText[]): list of chunks comprising the current line
-	 * @var StdClass|null
+	 * @var stdClass
 	 * XXX: replace with output buffering per line
 	 * PORT-FIXME: could use a dedicated class
 	 */
-	public $currLine = null;
+	public $currLine;
 
 	/**
 	 * Stack used to enforce single-line context
