@@ -1,56 +1,62 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module ext/LST */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\LST;
 
-$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
+use DOMElement;
+use Parsoid\Ext\SerialHandlerTrait;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Ext\SerialHandler;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
 
-$DOMDataUtils = ParsoidExtApi\DOMDataUtils;
-$Promise = ParsoidExtApi\Promise;
+class LST implements SerialHandler {
 
-// TODO: We're keeping this serial handler around to remain backwards
-// compatible with stored content version 1.3.0 and below.  Remove it
-// when those versions are no longer supported.
-$serialHandler = [
-	'handle' => Promise::method( function ( $node, $state, $wrapperUnmodified ) use ( &$DOMDataUtils ) {
-			$env = $state->env;
-			$typeOf = $node->getAttribute( 'typeof' ) || '';
-			$dp = DOMDataUtils::getDataParsoid( $node );
-			$src = null;
-			if ( $dp->src ) {
-				$src = $dp->src;
-			} elseif ( preg_match( '/begin/', $typeOf ) ) {
-				$src = '<section begin="' . $node->getAttribute( 'content' ) . '" />';
-			} elseif ( preg_match( '/end/', $typeOf ) ) {
-				$src = '<section end="' . $node->getAttribute( 'content' ) . '" />';
-			} else {
-				$env->log( 'error', 'LST <section> without content in: ' . $node->outerHTML );
-				$src = '<section />';
-			}
-			return $src;
+	use SerialHandlerTrait;
+
+	/** @inheritDoc */
+	public function fromHTML( DOMElement $node, SerializerState $state,
+							  bool $wrapperUnmodified ): string {
+		// TODO: We're keeping this serial handler around to remain backwards
+		// compatible with stored content version 1.3.0 and below.  Remove it
+		// when those versions are no longer supported.
+
+		$env = $state->getEnv();
+		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$src = null;
+		if ( $dp->src ) {
+			$src = $dp->src;
+		} elseif ( preg_match( '/begin/', $typeOf ) ) {
+			$src = '<section begin="' . $node->getAttribute( 'content' ) . '" />';
+		} elseif ( preg_match( '/end/', $typeOf ) ) {
+			$src = '<section end="' . $node->getAttribute( 'content' ) . '" />';
+		} else {
+			$env->log( 'error', 'LST <section> without content in: ' .
+				DOMCompat::getOuterHTML( $node ) );
+			$src = '<section />';
+		}
+		return $src;
 	}
-	)
-];
 
-$module->exports = function () use ( &$serialHandler ) {
-	$this->config = [
-		// FIXME: This is registering <labeledsectiontransclusion> as an ext
-		// tag.  All the more reason to get rid of this file altogether.
-		'tags' => [
-			[
-				'name' => 'labeledsectiontransclusion',
-				'serialHandler' => $serialHandler
-			],
-			[
-				'name' => 'labeledsectiontransclusion/begin',
-				'serialHandler' => $serialHandler
-			],
-			[
-				'name' => 'labeledsectiontransclusion/end',
-				'serialHandler' => $serialHandler
+	/** @return array */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'labeledsectiontransclusion',
+					'class' => self::class
+				],
+				[
+					'name' => 'labeledsectiontransclusion/begin',
+					'class' => self::class
+				],
+				[
+					'name' => 'labeledsectiontransclusion/end',
+					'class' => self::class
+				]
 			]
-		]
-	];
-};
+		];
+	}
+
+}
