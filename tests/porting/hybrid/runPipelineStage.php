@@ -9,6 +9,7 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\HTML5TreeBuilder;
@@ -112,6 +113,12 @@ $env = new ApiEnv( [
 ] );
 foreach ( $opts['tags'] ?? [] as $tag ) {
 	$env->getSiteConfig()->ensureExtensionTag( $tag );
+}
+foreach ( $opts['fragmentMap'] ?? [] as $entry ) {
+	$k = $entry[0];
+	$env->setFragment( $entry[0], array_map( function ( $v ) {
+		return DOMUtils::parseHTML( $v );
+	}, $entry[1] ) );
 }
 
 switch ( $stageName ) {

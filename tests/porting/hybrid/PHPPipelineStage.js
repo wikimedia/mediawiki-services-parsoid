@@ -154,6 +154,10 @@ class PHPPipelineStage {
 			pagetitle: this.env.page.title,
 			pagens: this.env.page.ns,
 			tags: Array.from(this.env.conf.wiki.extConfig.tags.keys()),
+			fragmentMap: Array.from(this.env.fragmentMap.entries()).map((pair) => {
+				const [k,v] = pair;
+				return [k, v.map(node => node.outerHTML)];
+			}),
 		}, extra);
 	}
 
