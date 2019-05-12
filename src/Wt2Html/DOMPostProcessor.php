@@ -1,10 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * Perform post-processing steps on an already-built HTML DOM.
- */
-
 namespace Parsoid\Wt2Html;
 
 use DateTime;
@@ -49,6 +45,9 @@ use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 
+/**
+ * Perform post-processing steps on an already-built HTML DOM.
+ */
 class DOMPostProcessor {
 	/** @var Env */
 	private $env;
@@ -614,10 +613,9 @@ class DOMPostProcessor {
 			preg_replace( '/_/', ' ', $env->getPageConfig()->getTitle() )
 		) {
 			$this->appendToHead( $document, 'meta', [
-					'property' => 'isMainPage',
-					'content' => true
-				]
-			);
+				'property' => 'isMainPage',
+				'content' => 'true' /* HTML attribute values should be strings */
+			] );
 		}
 
 		// Set the parsoid content-type strings
