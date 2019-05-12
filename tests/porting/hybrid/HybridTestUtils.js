@@ -18,7 +18,7 @@ class HybridTestUtils {
 			apiURI: env.conf.wiki.apiURI,
 			pagelanguage: env.page.pagelanguage,
 			pagelanguagedir: env.page.pagelanguagedir,
-			pagetitle: env.page.title,
+			pagetitle: env.normalizeAndResolvePageTitle(),
 			pagens: env.page.ns,
 			pageId: env.page.id,
 			tags: Array.from(env.conf.wiki.extConfig.tags.keys()),

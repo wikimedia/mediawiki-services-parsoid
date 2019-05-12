@@ -4,7 +4,7 @@ namespace Parsoid\Tests\Porting\Hybrid;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use Parsoid\Tests\MockEnv;
+use Parsoid\Config\Api\Env as ApiEnv;
 
 use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Html2Wt\DOMNormalizer;
@@ -136,14 +136,23 @@ $envOpts = $opts['envOpts'];
  * Build the requested transformer
  */
 $test = $argv[1];
-$env = new MockEnv( [
+$apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 ?
+	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
+$env = new ApiEnv( [
 	"uid" => $envOpts['currentUid'] ?? -1,
-	"rtTestMode" => $envOpts['rtTestMode'] ?? false,
-	"pageContent" => $envOpts['pageContent'] ?? null,
+	"apiEndpoint" => $apiEndpoint,
+	"pageContent" => $envOpts['pageContent'] ?? $input,
+	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
+	"pageLanguageDir" => $envOpts['pagelanguagedir'] ?? null,
+	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	"pageId" => $envOpts['pageId'] ?? null,
 	"scrubWikitext" => $envOpts['scrubWikitext'] ?? false,
 	"wrapSections" => !empty( $envOpts['wrapSections' ] ),
 	'tidyWhitespaceBugMaxLength' => $envOpts['tidyWhitespaceBugMaxLength'] ?? null,
+	# This directory contains synthetic data which doesn't exactly match
+	# enwiki, but matches what parserTests expects
+	"cacheDir" => __DIR__ . '/data',
+	"writeToCache" => 'pretty',
 ] );
 
 switch ( $test ) {
