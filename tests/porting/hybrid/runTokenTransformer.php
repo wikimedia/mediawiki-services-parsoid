@@ -35,7 +35,7 @@ $tokenFileName = $argv[2];
  * Read pipeline options from STDIN
  */
 $opts = PHPUtils::jsonDecode( file_get_contents( 'php://stdin' ) );
-$pipelineOpts = $opts['pipeline'];
+$pipelineOpts = $opts['pipelineOpts'];
 
 /**
  * Decode the json-encoded strings to build tokens
@@ -51,24 +51,25 @@ foreach ( $lines as $line ) {
  */
 $transformer = null;
 
-$apiEndpoint = preg_match( '/^(.*)wiki$/', $opts['prefix'] ?? '', $m ) === 1 ?
-	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $opts['apiURI'];
+$envOpts = $opts['envOpts'];
+$apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 ?
+	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
 $env = new ApiEnv( [
-	"uid" => $opts['currentUid'] ?? -1,
+	"uid" => $envOpts['currentUid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
-	"pageContent" => $opts['pageContent'] ?? $input,
-	"pageLanguage" => $opts['pagelanguage'] ?? null,
-	"pageLanguageDir" => $opts['pagelanguagedir'] ?? null,
-	"title" => $opts['pagetitle'] ?? "Main_Page",
+	"pageContent" => $envOpts['pageContent'] ?? $input,
+	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
+	"pageLanguageDir" => $envOpts['pagelanguagedir'] ?? null,
+	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	# This directory contains synthetic data which doesn't exactly match
 	# enwiki, but matches what parserTests expects
 	"cacheDir" => __DIR__ . '/data',
 	"writeToCache" => 'pretty',
 ] );
-foreach ( $opts['tags'] ?? [] as $tag ) {
+foreach ( $envOpts['tags'] ?? [] as $tag ) {
 	$env->getSiteConfig()->ensureExtensionTag( $tag );
 }
-foreach ( $opts['fragmentMap'] ?? [] as $entry ) {
+foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
 	$k = $entry[0];
 	$env->setFragment( $entry[0], array_map( function ( $v ) {
 		return DOMUtils::parseHTML( $v );

@@ -67,7 +67,7 @@ function runDOMPostProcessor( $env, $argv, $opts, $processors ) {
 
 	$dpp = new DOMPostProcessor( $env, $opts['runOptions'], $processors );
 	$options = [
-		'toplevel' => $opts['atTopLevel']
+		'toplevel' => $opts['toplevel']
 	];
 	$dpp->resetState( $options );
 	$dpp->doPostProcess( $body->ownerDocument );
@@ -102,15 +102,13 @@ function runDOMDiff( $env, $argv, $opts ) {
 }
 
 function runDOMNormalizer( $env, $argv, $opts ) {
-	$hackyEnvOpts = $opts['hackyEnvOpts'];
-
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
 
 	$normalizer = new DOMNormalizer( (object)[
 		"env" => $env,
-		"rtTestMode" => $hackyEnvOpts["rtTestMode"] ?? false,
-		"selserMode" => $hackyEnvOpts["selserMode"] ?? false
+		"rtTestMode" => $opts["rtTestMode"] ?? false,
+		"selserMode" => $opts["selserMode"] ?? false
 	] );
 	$normalizer->normalize( $body );
 	$out = serializeDOM( null, $env, $body );
@@ -131,29 +129,29 @@ if ( $argc < 3 ) {
  * Read opts from stdin
  */
 $input = file_get_contents( 'php://stdin' );
-$allOpts = PHPUtils::jsonDecode( $input );
+$opts = PHPUtils::jsonDecode( $input );
+$envOpts = $opts['envOpts'];
 
 /**
  * Build the requested transformer
  */
 $test = $argv[1];
-$hackyEnvOpts = $allOpts['hackyEnvOpts'];
 $env = new MockEnv( [
-	"uid" => $hackyEnvOpts['currentUid'] ?? -1,
-	"rtTestMode" => $hackyEnvOpts['rtTestMode'] ?? false,
-	"pageContent" => $hackyEnvOpts['pageContent'] ?? null,
-	"pageId" => $hackyEnvOpts['pageId'] ?? null,
-	"scrubWikitext" => $hackyEnvOpts['scrubWikitext'] ?? false,
-	"wrapSections" => !empty( $hackyEnvOpts['wrapSections' ] ),
-	'tidyWhitespaceBugMaxLength' => $hackyEnvOpts['tidyWhitespaceBugMaxLength'] ?? null,
+	"uid" => $envOpts['currentUid'] ?? -1,
+	"rtTestMode" => $envOpts['rtTestMode'] ?? false,
+	"pageContent" => $envOpts['pageContent'] ?? null,
+	"pageId" => $envOpts['pageId'] ?? null,
+	"scrubWikitext" => $envOpts['scrubWikitext'] ?? false,
+	"wrapSections" => !empty( $envOpts['wrapSections' ] ),
+	'tidyWhitespaceBugMaxLength' => $envOpts['tidyWhitespaceBugMaxLength'] ?? null,
 ] );
 
 switch ( $test ) {
 	case 'DOMDiff':
-		$out = runDOMDiff( $env, $argv, $allOpts );
+		$out = runDOMDiff( $env, $argv, $opts );
 		break;
 	case 'DOMNormalizer':
-		$out = runDOMNormalizer( $env, $argv, $allOpts );
+		$out = runDOMNormalizer( $env, $argv, $opts );
 		break;
 	default:
 		$tableFixer = new TableFixups( $env );
@@ -400,7 +398,7 @@ switch ( $test ) {
 			]
 			*/
 		];
-		$out = runDOMPostProcessor( $env, $argv, $allOpts, $processors );
+		$out = runDOMPostProcessor( $env, $argv, $opts, $processors );
 		break;
 }
 

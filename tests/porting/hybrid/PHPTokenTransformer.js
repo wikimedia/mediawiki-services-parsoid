@@ -3,9 +3,8 @@
 'use strict';
 
 const fs = require('fs');
-const path = require('path');
-const childProcess = require('child_process');
 const TokenHandler = require('../../../lib/wt2html/tt/TokenHandler.js');
+const { HybridTestUtils }  = require('./HybridTestUtils.js');
 const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
 
 /**
@@ -30,38 +29,20 @@ class PHPTokenTransformer extends TokenHandler {
 		fs.writeFileSync(fileName, tokens.map(t => JSON.stringify(t)).join('\n'));
 
 		const opts = {
-			currentUid: env.uid,
-			pageContent: env.page.src,
-			prefix: env.conf.wiki.iwp,
-			apiURI: env.conf.wiki.apiURI,
-			pagelanguage: env.page.pagelanguage,
-			pagelanguagedir: env.page.pagelanguagedir,
-			pagetitle: env.page.title,
-			pagens: env.page.ns,
-			tags: Array.from(env.conf.wiki.extConfig.tags.keys()),
-
-			toplevel: this.atTopLevel,
-			pipeline: this.options,
+			envOpts: HybridTestUtils.mkEnvOpts(env),
+			pipelineOpts: this.options,
 			pipelineId: this.manager.pipelineId,
-			fragmentMap: Array.from(env.fragmentMap.entries()).map((pair) => {
-				const [k,v] = pair;
-				return [k, v.map(node => node.outerHTML)];
-			}),
+			topLevel: this.atTopLevel,
 		};
-		const res = childProcess.spawnSync("php", [
-			path.resolve(__dirname, "runTokenTransformer.php"),
-			this.transformerName,
-			fileName,
-		], {
-			input: JSON.stringify(opts),
-			stdio: [ 'pipe', 'pipe', process.stderr ],
-		});
-		if (res.error) {
-			throw res.error;
-		}
+
+		const res = HybridTestUtils.runPHPCode(
+			"runTokenTransformer.php",
+			[this.transformerName, fileName],
+			opts
+		);
 
 		// First line will be the new UID for env
-		const lines = res.stdout.toString().trim().split("\n");
+		const lines = res.trim().split("\n");
 		const newEnvUID = lines.shift();
 		this.env.uid = parseInt(newEnvUID, 10);
 

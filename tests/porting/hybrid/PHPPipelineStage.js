@@ -2,13 +2,12 @@
 
 'use strict';
 
-const childProcess = require('child_process');
 const events = require('events');
 const fs = require('fs');
-const path = require('path');
 const util = require('util');
-const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
 const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
+const { HybridTestUtils }  = require('./HybridTestUtils.js');
+const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
 
 /**
  * Wrapper that invokes a PHP token stage to do the work
@@ -89,31 +88,13 @@ class PHPPipelineStage {
 		}
 	}
 
-	runPHPCode(argv, opts) {
-		opts.pipeline = this.options;
-		const res = childProcess.spawnSync("php", [
-			path.resolve(__dirname, "runPipelineStage.php"),
-			this.stageName
-		].concat(argv), {
-			input: JSON.stringify(opts),
-			stdio: [ 'pipe', 'pipe', process.stderr ],
-		});
-		if (res.error) {
-			throw res.error;
-		}
-
-		return res.stdout.toString();
-	}
-
 	loadDOMFromStdout(out) {
 		const body = ContentUtils.ppToDOM(this.env, out, {
 			reinsertFosterableContent: true,
 			markNew: true
 		});
 
-		// Extract piggybacked env uid from <body>
-		this.env.uid = parseInt(body.getAttribute("data-env-newuid"), 10);
-		body.removeAttribute("data-env-newuid");
+		HybridTestUtils.updateEnvUid(this.env, body);
 
 		return body.ownerDocument;
 	}
@@ -143,22 +124,11 @@ class PHPPipelineStage {
 	}
 
 	mkOpts(extra = {}) {
-		return Object.assign({}, {
-			currentUid: this.env.uid,
-			pageContent: this.env.page.src,
-			prefix: this.env.conf.wiki.iwp,
-			apiURI: this.env.conf.wiki.apiURI,
-			pagelanguage: this.env.page.pagelanguage,
-			pagelanguagedir: this.env.page.pagelanguagedir,
-			pagetitle: this.env.page.title,
-			pagens: this.env.page.ns,
-			tags: Array.from(this.env.conf.wiki.extConfig.tags.keys()),
-			toplevel: this.atTopLevel,
+		return Object.assign({
+			envOpts: HybridTestUtils.mkEnvOpts(this.env),
+			pipelineOpts: this.options,
 			pipelineId: this.pipelineId,
-			fragmentMap: Array.from(this.env.fragmentMap.entries()).map((pair) => {
-				const [k,v] = pair;
-				return [k, v.map(node => node.outerHTML)];
-			}),
+			toplevel: this.atTopLevel,
 		}, extra);
 	}
 
@@ -167,10 +137,14 @@ class PHPPipelineStage {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.txt`;
 		fs.writeFileSync(fileName, input);
 		this.env.log('trace/pre-peg', this.pipelineId, () => JSON.stringify(input));
-		const out = this.runPHPCode([fileName], this.mkOpts({
-			sol: sol,
-			offsets: this.sourceOffsets,
-		}));
+		const out = HybridTestUtils.runPHPCode(
+			"runPipelineStage.php",
+			[this.stageName, fileName],
+			this.mkOpts({
+				sol: sol,
+				offsets: this.sourceOffsets,
+			})
+		);
 		this.emitTokens(out);
 	}
 
@@ -180,10 +154,14 @@ class PHPPipelineStage {
 		const input = this.tokens.map(t => JSON.stringify(t)).join('\n');
 		fs.writeFileSync(fileName, input);
 
-		const out = this.runPHPCode([fileName], this.mkOpts({
-			phaseEndRank: this.phaseEndRank,
-			transformers: this.transformers, // will only be relevant for sync & aync ttms
-		}));
+		const out = HybridTestUtils.runPHPCode(
+			"runPipelineStage.php",
+			[this.stageName, fileName],
+			this.mkOpts({
+				phaseEndRank: this.phaseEndRank,
+				transformers: this.transformers, // will only be relevant for sync & aync ttms
+			})
+		);
 
 		if (this.stageName === 'HTML5TreeBuilder') {
 			this.emitDoc(out);
@@ -197,7 +175,11 @@ class PHPPipelineStage {
 		const fileName = `/tmp/${this.stageName}.${process.pid}.html`;
 		const html = ContentUtils.ppToXML(doc.body, { tunnelFosteredContent: true, keepTmp: true });
 		fs.writeFileSync(fileName, html);
-		const out = this.runPHPCode([fileName], this.mkOpts({}));
+		const out = HybridTestUtils.runPHPCode(
+			"runPipelineStage.php",
+			[this.stageName, fileName],
+			this.mkOpts({})
+		);
 		this.emitDoc(out);
 	}
 
@@ -226,7 +208,6 @@ class PHPPipelineStage {
 
 // Inherit from EventEmitter
 util.inherits(PHPPipelineStage, events.EventEmitter);
-
 
 if (typeof module === "object") {
 	module.exports.PHPPipelineStage = PHPPipelineStage;
