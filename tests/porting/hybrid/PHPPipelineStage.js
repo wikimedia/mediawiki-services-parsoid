@@ -38,9 +38,10 @@ class PHPPipelineStage {
 		this.sourceOffsets = [start, end];
 	}
 
-	resetState() {
+	resetState(opts) {
 		this.tokens = [];
 		this.sourceOffsets = null;
+		this.atTopLevel = opts && opts.toplevel;
 	}
 
 	addListenersOn(emitter) {
@@ -90,8 +91,6 @@ class PHPPipelineStage {
 
 	runPHPCode(argv, opts) {
 		opts.pipeline = this.options;
-		opts.pageContent = this.env.page.src;
-		opts.pipelineId = this.pipelineId;
 		const res = childProcess.spawnSync("php", [
 			path.resolve(__dirname, "runPipelineStage.php"),
 			this.stageName
@@ -154,6 +153,8 @@ class PHPPipelineStage {
 			pagetitle: this.env.page.title,
 			pagens: this.env.page.ns,
 			tags: Array.from(this.env.conf.wiki.extConfig.tags.keys()),
+			toplevel: this.atTopLevel,
+			pipelineId: this.pipelineId,
 			fragmentMap: Array.from(this.env.fragmentMap.entries()).map((pair) => {
 				const [k,v] = pair;
 				return [k, v.map(node => node.outerHTML)];

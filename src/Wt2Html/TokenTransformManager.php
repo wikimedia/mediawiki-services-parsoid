@@ -96,6 +96,16 @@ class TokenTransformManager extends EventEmitter {
 	}
 
 	/**
+	 * Reset pipeline state
+	 * @param array $opts
+	 */
+	public function resetState( array $opts ): void {
+		foreach ( $this->transformers as $transformer ) {
+			$transformer->resetState( $opts );
+		}
+	}
+
+	/**
 	 * @param Token[] $tokens
 	 */
 	public function process( array $tokens ): void {

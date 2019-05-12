@@ -140,6 +140,7 @@ switch ( $stageName ) {
 			$t = "Parsoid\Wt2Html\TT\\" . $t;
 			$ttm->addTransformer( new $t( $ttm, $opts['pipeline'] ) );
 		}
+		$ttm->resetState( $opts );
 		$out = '';
 
 		/* Add listener */
