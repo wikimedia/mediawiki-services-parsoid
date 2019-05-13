@@ -478,7 +478,6 @@ class PreHandler extends TokenHandler {
 			return $token;
 		}
 
-		$skipOnAny = false;
 		$ret = [];
 		switch ( $this->state ) {
 			case self::STATE_SOL:
@@ -499,7 +498,6 @@ class PreHandler extends TokenHandler {
 				$this->tokens[] = $token;
 			} else {
 				$ret = $this->getResultAndReset( $token );
-				$skipOnAny = true;
 				$this->moveToIgnoreState();
 			}
 			break;
@@ -511,7 +509,6 @@ class PreHandler extends TokenHandler {
 				( TokenUtils::isHTMLTag( $token ) && TokenUtils::isBlockTag( $token->getName() ) )
 			) {
 				$ret = $this->getResultAndReset( $token );
-				$skipOnAny = true;
 				$this->moveToIgnoreState();
 			} else {
 				$this->preCollectCurrentLine = $this->solTransparentTokens;
@@ -524,7 +521,6 @@ class PreHandler extends TokenHandler {
 			case self::STATE_PRE_COLLECT:
 			if ( !is_string( $token ) && TokenUtils::isBlockTag( $token->getName() ) ) {
 				$ret = $this->encounteredBlockWhileCollecting( $token );
-				$skipOnAny = true;
 				$this->moveToIgnoreState();
 			} else {
 				// nothing to do .. keep collecting!
@@ -552,7 +548,6 @@ class PreHandler extends TokenHandler {
 				$this->solTransparentTokens[] = $token;
 			} else {
 				$ret = $this->processPre( $token );
-				$skipOnAny = true;
 				$this->moveToIgnoreState();
 			}
 			break;
@@ -565,6 +560,6 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return [ 'tokens' => $ret, 'skipOnAny' => $skipOnAny ];
+		return [ 'tokens' => $ret ];
 	}
 }
