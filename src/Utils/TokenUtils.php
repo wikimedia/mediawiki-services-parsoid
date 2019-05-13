@@ -231,7 +231,7 @@ class TokenUtils {
 						}
 					}
 
-					if ( $offset && $da->extTagOffsets ) {
+					if ( $offset && isset( $da->extTagOffsets ) ) {
 						$da->extTagOffsets[0] += $offset;
 						$da->extTagOffsets[1] += $offset;
 						$da->extTagOffsets[2] += $offset;
