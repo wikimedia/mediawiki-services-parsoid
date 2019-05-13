@@ -125,22 +125,21 @@ class PreHandler extends TokenHandler {
 	 */
 	public function __construct( $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->resetState( $options );
+		if ( !empty( $this->options['inlineContext'] ) || !empty( $this->options['inPHPBlock'] ) ) {
+			$this->disabled = true;
+		} else {
+			$this->disabled = false;
+			$this->resetState( [] );
+		}
 	}
 
-	// FIXME: Needed because of shared pipelines in parser tests
 	/**
-	 * Resets the state based on options parameter
+	 * FIXME: Needed in this handler because of shared pipelines in parser tests.
 	 *
 	 * @param array $opts
 	 */
 	public function resetState( array $opts ): void {
-		if ( !empty( $opts['inlineContext'] ) || !empty( $opts['inPHPBlock'] ) ) {
-			$this->disabled = true;
-		} else {
-			$this->disabled = false;
-			$this->reset( true );
-		}
+		$this->reset( true );
 	}
 
 	/**
