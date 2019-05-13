@@ -139,15 +139,13 @@ class PreHandler extends TokenHandler {
 	 * @param array $opts
 	 */
 	public function resetState( array $opts ): void {
-		$this->reset( true );
+		$this->reset();
 	}
 
 	/**
 	 * Resets the FSM state with optional any handler enabled
-	 *
-	 * @param bool $enableAnyHandler
 	 */
-	private function reset( bool $enableAnyHandler ): void {
+	private function reset(): void {
 		$this->state = self::STATE_SOL;
 		$this->lastNlTk = null;
 		// Initialize to zero to deal with indent-pre
@@ -159,9 +157,7 @@ class PreHandler extends TokenHandler {
 		$this->preWSToken = null;
 		$this->multiLinePreWSToken = null;
 		$this->solTransparentTokens = [];
-		if ( $enableAnyHandler ) {
-			$this->onAnyEnabled = true;
-		}
+		$this->onAnyEnabled = true;
 	}
 
 	/**
@@ -370,7 +366,7 @@ class PreHandler extends TokenHandler {
 			case self::STATE_IGNORE:
 			$ret = [ $token ];
 			$skipOnAny = true;
-			$this->reset( true );
+			$this->reset();
 			$this->preTSR = self::initPreTSR( $token );
 			break;
 		}
@@ -420,7 +416,7 @@ class PreHandler extends TokenHandler {
 		}
 
 		// reset for next use of this pipeline!
-		$this->reset( true );
+		$this->reset();
 
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
