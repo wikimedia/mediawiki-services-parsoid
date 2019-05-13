@@ -10,7 +10,6 @@ use Language;
 use LanguageConverter;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
-use MWNamespace;
 
 use Parsoid\Config\SiteConfig as ISiteConfig;
 // use Parsoid\Logger\LogData;
@@ -208,7 +207,7 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
-		$ret = MWNamespace::getCanonicalIndex( $name );
+		$ret = MediaWikiServices::getInstance()->getNamespaceInfo()->getCanonicalIndex( $name );
 		return $ret === false ? null : $ret;
 	}
 
@@ -226,7 +225,28 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function namespaceHasSubpages( int $ns ): bool {
-		return MWNamespace::hasSubpages( $ns );
+		return MediaWikiServices::getInstance()->getNamespaceInfo()->hasSubpages( $ns );
+	}
+
+	/** @inheritDoc */
+	public function namespaceCase( int $ns ): string {
+		$nsInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
+		return $nsInfo->isCapitalized( $ns ) ? 'first-letter' : 'case-sensitive';
+	}
+
+	/** @inheritDoc */
+	public function namespaceIsTalk( int $ns ): bool {
+		return MediaWikiServices::getInstance()->getNamespaceInfo()->isTalk( $ns );
+	}
+
+	/** @inheritDoc */
+	public function ucfirst( string $str ): string {
+		return $this->contLang->ucfirst( $str );
+	}
+
+	/** @inheritDoc */
+	public function canonicalSpecialPageName( string $alias ): ?string {
+		return MediaWikiServices::getInstance()->getSpecialPageFactory()->resolveAlias( $alias )[0];
 	}
 
 	public function interwikiMagic(): bool {
@@ -278,6 +298,10 @@ class SiteConfig extends ISiteConfig {
 
 	public function iwp(): string {
 		return wfWikiID();
+	}
+
+	public function legalTitleChars() : string {
+		return Title::legalChars();
 	}
 
 	public function linkPrefixRegex(): ?string {

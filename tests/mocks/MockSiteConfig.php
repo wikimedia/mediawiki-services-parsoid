@@ -18,6 +18,22 @@ class MockSiteConfig extends SiteConfig {
 	/** @var int|null */
 	private $tidyWhitespaceBugMaxLength = null;
 
+	private $namespaceMap = [
+		'media' => -2,
+		'special' => -1,
+		'' => 0,
+		'talk' => 1,
+		'user' => 2,
+		'user_talk' => 3,
+		// Last one will be used by namespaceName
+		'project' => 4, 'wp' => 4, 'wikipedia' => 4,
+		'project_talk' => 5, 'wt' => 5, 'wikipedia_talk' => 5,
+		'file' => 6,
+		'file_talk' => 7,
+		'category' => 14,
+		'category_talk' => 15,
+	];
+
 	/**
 	 * @param array $opts
 	 */
@@ -92,21 +108,39 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return $this->namespaceMap[$name] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
-		throw new \BadMethodCallException( 'Not implemented' );
+		$name = strtr( strtolower( $name ), ' ', '_' );
+		return $this->namespaceMap[$name] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceName( int $ns ): ?string {
-		throw new \BadMethodCallException( 'Not implemented' );
+		static $map = null;
+		if ( $map === null ) {
+			$map = array_flip( $this->namespaceMap );
+		}
+		if ( !isset( $map[$ns] ) ) {
+			return null;
+		}
+		return ucwords( strtr( $map[$ns], '_', ' ' ) );
 	}
 
 	/** @inheritDoc */
 	public function namespaceHasSubpages( int $ns ): bool {
+		throw new \BadMethodCallException( 'Not implemented' );
+	}
+
+	/** @inheritDoc */
+	public function namespaceCase( int $ns ): string {
+		return 'first-letter';
+	}
+
+	/** @inheritDoc */
+	public function canonicalSpecialPageName( string $alias ): ?string {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
@@ -120,6 +154,10 @@ class MockSiteConfig extends SiteConfig {
 
 	public function iwp(): string {
 		return 'mywiki';
+	}
+
+	public function legalTitleChars() : string {
+		return ' %!"$&\'()*,\-.\/0-9:;=?@A-Z\\\\^_`a-z~\x80-\xFF+';
 	}
 
 	private $linkPrefixRegex = null;

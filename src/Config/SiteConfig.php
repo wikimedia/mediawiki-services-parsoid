@@ -227,6 +227,54 @@ abstract class SiteConfig {
 	abstract public function namespaceHasSubpages( int $ns ): bool;
 
 	/**
+	 * Return namespace case setting
+	 * @param int $ns
+	 * @return string 'first-letter' or 'case-sensitive'
+	 */
+	abstract public function namespaceCase( int $ns ): string;
+
+	/**
+	 * Test if a namespace is a talk namespace
+	 *
+	 * @note This replaces title.getNamespace().isATalkNamespace()
+	 * @param int $ns
+	 * @return bool
+	 */
+	public function namespaceIsTalk( int $ns ): bool {
+		return $ns > 0 && $ns % 2;
+	}
+
+	/**
+	 * Uppercasing method for titles
+	 * @param string $str
+	 * @return string
+	 */
+	public function ucfirst( string $str ): string {
+		$o = ord( $str );
+		if ( $o < 96 ) { // if already uppercase...
+			return $str;
+		} elseif ( $o < 128 ) {
+			if ( $str[0] === 'i' &&
+				in_array( $this->lang(), [ 'az', 'tr', 'kaa', 'kk' ], true )
+			) {
+				return 'İ' . mb_substr( $str, 1 );
+			}
+			return ucfirst( $str ); // use PHP's ucfirst()
+		} else {
+			// fall back to more complex logic in case of multibyte strings
+			$char = mb_substr( $str, 0, 1 );
+			return mb_strtoupper( $char ) . mb_substr( $str, 1 );
+		}
+	}
+
+	/**
+	 * Get the canonical name for a special page
+	 * @param string $alias Special page alias
+	 * @return string|null
+	 */
+	abstract public function canonicalSpecialPageName( string $alias ): ?string;
+
+	/**
 	 * Treat language links as magic connectors, not inline links
 	 * @return bool
 	 */
@@ -253,6 +301,15 @@ abstract class SiteConfig {
 	 * @return string
 	 */
 	abstract public function iwp(): string;
+
+	/**
+	 * Legal title characters
+	 *
+	 * Regex is intended to match bytes, not Unicode characters.
+	 *
+	 * @return string Regex character class (i.e. the bit that goes inside `[]`)
+	 */
+	abstract public function legalTitleChars() : string;
 
 	/**
 	 * Link prefix regular expression.

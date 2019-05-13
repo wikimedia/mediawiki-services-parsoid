@@ -7,10 +7,16 @@ use Closure;
 use DOMDocument;
 use DOMNode;
 use Parsoid\ResourceLimitExceededException;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
+use Parsoid\Utils\TitleNamespace;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\TT\Sanitizer;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -150,12 +156,188 @@ class Env {
 	}
 
 	/**
-	 * @param array $href A token string representing a href attribute
+	 * Resolve strings that are page-fragments or subpage references with
+	 * respect to the current page name.
+	 *
+	 * TODO: Handle namespaces relative links like [[User:../../]] correctly, they
+	 * shouldn't be treated like links at all.
+	 *
+	 * @param string $str Page fragment or subpage reference. Not URL encoded.
+	 * @param bool $resolveOnly If true, only trim and add the current title to
+	 *  lone fragments. TODO: This parameter seems poorly named.
+	 * @return string Resolved title
+	 */
+	public function resolveTitle( string $str, bool $resolveOnly = false ): string {
+		$origName = $str;
+		$str = trim( $str ); // PORT-FIXME: Care about non-ASCII whitespace?
+
+		$pageConfig = $this->getPageConfig();
+
+		// Resolve lonely fragments (important if the current page is a subpage,
+		// otherwise the relative link will be wrong)
+		if ( $str !== '' && $str[0] === '#' ) {
+			$str = $pageConfig->getTitle() . $str;
+		}
+
+		// Default return value
+		$titleKey = $str;
+		if ( $this->getSiteConfig()->namespaceHasSubpages( $pageConfig->getNs() ) ) {
+			// Resolve subpages
+			$reNormalize = false;
+			if ( preg_match( '!^(?:\.\./)+!', $str, $relUp ) ) {
+				$levels = strlen( $relUp[0] ) / 3;  // Levels are indicated by '../'.
+				$titleBits = explode( '/', $pageConfig->getTitle() );
+				if ( count( $titleBits ) <= $levels ) {
+					// Too many levels -- invalid relative link
+					return $origName;
+				}
+				$newBits = array_slice( $titleBits, 0, -$levels );
+				if ( $str !== $relUp[0] ) {
+					$newBits[] = substr( $str, $levels * 3 );
+				}
+				$str = implode( '/', $newBits );
+				$reNormalize = true;
+			} elseif ( $str !== '' && $str[0] === '/' ) {
+				// Resolve absolute subpage links
+				$str = $pageConfig->getTitle() . $str;
+				$reNormalize = true;
+			}
+
+			if ( $reNormalize && !$resolveOnly ) {
+				// Remove final slashes if present.
+				// See https://gerrit.wikimedia.org/r/173431
+				$str = rtrim( $str, '/' );
+				$titleKey = (string)$this->normalizedTitleKey( $str );
+			}
+		}
+
+		// Strip leading ':'
+		if ( $titleKey !== '' && $titleKey[0] === ':' && !$resolveOnly ) {
+			$titleKey = substr( $titleKey, 1 );
+		}
+		return $titleKey;
+	}
+
+	/**
+	 * Convert a Title to a string
+	 * @param Title $title
+	 * @param bool $ignoreFragment
+	 * @return string
+	 */
+	private function titleToString( Title $title, bool $ignoreFragment = false ): string {
+		$ret = $title->getPrefixedDBKey();
+		if ( !$ignoreFragment ) {
+			$fragment = $title->getFragment() ?? '';
+			if ( $fragment !== '' ) {
+				$ret .= '#' . $fragment;
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Get normalized title key for a title string.
+	 *
+	 * @param string $str Should be in url-decoded format.
+	 * @param bool $noExceptions Return null instead of throwing exceptions.
+	 * @param bool $ignoreFragment Ignore the fragment, if any.
+	 * @return string|null Normalized title key for a title string (or null for invalid titles).
+	 */
+	public function normalizedTitleKey(
+		string $str, bool $noExceptions = false, bool $ignoreFragment = false
+	): ?string {
+		$title = $this->makeTitleFromURLDecodedStr( $str, null, $noExceptions );
+		if ( !$title ) {
+			return null;
+		}
+		return $this->titleToString( $title, $ignoreFragment );
+	}
+
+	/**
+	 * Normalize and resolve the page title
+	 * @deprecated Just use $this->getPageConfig()->getTitle() directly
+	 * @return string
+	 */
+	public function normalizeAndResolvePageTitle() {
+		return $this->getPageConfig()->getTitle();
+	}
+
+	/**
+	 * Create a Title object
+	 * @param string $text URL-decoded text
+	 * @param int|TitleNamespace $defaultNs
+	 * @param bool $noExceptions
+	 * @return Title|null
+	 */
+	private function makeTitle( string $text, $defaultNs = 0, bool $noExceptions = false ): ?Title {
+		try {
+			if ( preg_match( '!^(?:[#/]|\.\./)!', $text ) ) {
+				$defaultNs = $this->getPageConfig()->getNs();
+			}
+			$text = $this->resolveTitle( $text );
+			return Title::newFromText( $text, $this->getSiteConfig(), $defaultNs );
+		} catch ( \Exception $e ) {
+			if ( $noExceptions ) {
+				return null;
+			}
+			throw $e;
+		}
+	}
+
+	/**
+	 * Create a Title object
+	 * @see Title::newFromURL in MediaWiki
+	 * @param string $str URL-encoded text
+	 * @param int|TitleNamespace $defaultNs
+	 * @param bool $noExceptions
+	 * @return Title|null
+	 */
+	public function makeTitleFromText(
+		string $str, $defaultNs = 0, bool $noExceptions = false
+	): ?Title {
+		return $this->makeTitle( Util::decodeURIComponent( $str ), $defaultNs, $noExceptions );
+	}
+
+	/**
+	 * Create a Title object
+	 * @see Title::newFromText in MediaWiki
+	 * @param string $str URL-decoded text
+	 * @param int|TitleNamespace $defaultNs
+	 * @param bool $noExceptions
+	 * @return Title|null
+	 */
+	public function makeTitleFromURLDecodedStr(
+		string $str, $defaultNs = 0, bool $noExceptions = false
+	): ?Title {
+		return $this->makeTitle( $str, $defaultNs, $noExceptions );
+	}
+
+	/**
+	 * Make a link to a Title
+	 * @param Title $title
+	 * @return string
+	 */
+	public function makeLink( Title $title ): string {
+		return Sanitizer::sanitizeTitleURI(
+			$this->getSiteConfig()->relativeLinkPrefix() . $this->titleToString( $title ),
+			false
+		);
+	}
+
+	/**
+	 * Test if an href attribute value could be a valid link target
+	 * @param string|(Token|string)[] $href
 	 * @return bool
 	 */
-	public function isValidLinkTarget( array $href ): bool {
-		// PORT-FIXME port this
-		throw new \LogicException( 'Not implemented!' );
+	public function isValidLinkTarget( $href ): bool {
+		if ( is_array( $href ) ) {
+			$href = TokenUtils::tokensToString( $href );
+		}
+
+		// decode percent-encoding so that we can reliably detect
+		// bad page title characters
+		$hrefToken = Util::decodeURIComponent( $href );
+		return $this->normalizedTitleKey( $this->resolveTitle( $hrefToken, true ), true ) !== null;
 	}
 
 	public function getUID(): int {

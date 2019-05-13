@@ -108,6 +108,29 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( true, $this->getSiteConfig()->namespaceHasSubpages( 1 ) );
 	}
 
+	public function testNamespaceCase() {
+		$this->assertSame( 'first-letter', $this->getSiteConfig()->namespaceCase( 0 ) );
+		$this->assertSame( 'first-letter', $this->getSiteConfig()->namespaceCase( 1 ) );
+	}
+
+	public function testCanonicalSpecialPageName() {
+		$this->assertSame(
+			'Recentchanges', $this->getSiteConfig()->canonicalSpecialPageName( 'recentchanges' )
+		);
+		$this->assertSame(
+			'Recentchangeslinked', $this->getSiteConfig()->canonicalSpecialPageName( 'RelatedChanges' )
+		);
+		$this->assertSame(
+			null, $this->getSiteConfig()->canonicalSpecialPageName( 'FooBar' )
+		);
+	}
+
+	public function testNamespaceIsTalk() {
+		$this->assertSame( false, $this->getSiteConfig()->namespaceIsTalk( -1 ) );
+		$this->assertSame( false, $this->getSiteConfig()->namespaceIsTalk( 0 ) );
+		$this->assertSame( true, $this->getSiteConfig()->namespaceIsTalk( 1 ) );
+	}
+
 	public function testInterwikiMagic() {
 		$this->assertSame(
 			true,
@@ -133,6 +156,13 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame(
 			'enwiki',
 			$this->getSiteConfig()->iwp()
+		);
+	}
+
+	public function testLegalTitleChars() {
+		$this->assertSame(
+			' %!"$&\'()*,\-.\/0-9:;=?@A-Z\\\\^_`a-z~\x80-\xFF+',
+			$this->getSiteConfig()->legalTitleChars()
 		);
 	}
 

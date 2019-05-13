@@ -34,14 +34,17 @@ class SiteConfig extends ISiteConfig {
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
 
-	/** @var array<int,string> */
-	private $nsNames;
+	/** @phan-var array<int,string> */
+	private $nsNames = [], $nsCase = [];
 
-	/** @var array<string,int> */
-	private $nsIds, $nsCanon;
+	/** @phan-var array<string,int> */
+	private $nsIds = [], $nsCanon = [];
 
-	/** @var array<int,bool> */
-	private $nsWithSubpages;
+	/** @phan-var array<int,bool> */
+	private $nsWithSubpages = [];
+
+	/** @phan-var array<string,string> */
+	private $specialPageNames = [];
 
 	/** @var array|null */
 	private $interwikiMap, $variants,
@@ -80,11 +83,6 @@ class SiteConfig extends ISiteConfig {
 		$this->api = $api;
 
 		$this->rtTestMode = !empty( $opts['rtTestMode'] );
-
-		$this->nsNames = [];
-		$this->nsCanon = [];
-		$this->nsIds = [];
-		$this->nsWithSubpages = [];
 
 		if ( !empty( $opts['log'] ) ) {
 			$this->setLogger( new class extends AbstractLogger {
@@ -171,6 +169,7 @@ class SiteConfig extends ISiteConfig {
 			if ( $ns['subpages'] ) {
 				$this->nsWithSubpages[$id] = true;
 			}
+			$this->nsCase[$id] = (string)$ns['case'];
 		}
 		foreach ( $data['namespacealiases'] as $ns ) {
 			$this->nsIds[$this->normalizeNsName( $ns['alias'] )] = $ns['id'];
@@ -270,6 +269,16 @@ class SiteConfig extends ISiteConfig {
 			}
 		}
 		$nsAliases = implode( '|', array_unique( $nsAliases ) );
+
+		$this->specialPageNames = [];
+		foreach ( $data['specialpagealiases'] as $special ) {
+			$alias = strtr( strtoupper( $special['realname'] ), ' ', '_' );
+			$this->specialPageNames[$alias] = $special['realname'];
+			foreach ( $special['aliases'] as $alias ) {
+				$alias = strtr( strtoupper( $alias ), ' ', '_' );
+				$this->specialPageNames[$alias] = $special['realname'];
+			}
+		}
 
 		$bsAliases = [ 'Booksources' ];
 		foreach ( $data['specialpagealiases'] as $special ) {
@@ -440,6 +449,19 @@ class SiteConfig extends ISiteConfig {
 		return $this->nsWithSubpages[$ns] ?? false;
 	}
 
+	/** @inheritDoc */
+	public function namespaceCase( int $ns ): string {
+		$this->loadSiteData();
+		return $this->nsCase[$ns] ?? 'first-letter';
+	}
+
+	/** @inheritDoc */
+	public function canonicalSpecialPageName( string $alias ): ?string {
+		$this->loadSiteData();
+		$alias = strtr( strtoupper( $alias ), ' ', '_' );
+		return $this->specialPageNames[$alias] ?? null;
+	}
+
 	public function interwikiMagic(): bool {
 		$this->loadSiteData();
 		return $this->siteData['interwikimagic'];
@@ -453,6 +475,11 @@ class SiteConfig extends ISiteConfig {
 	public function iwp(): string {
 		$this->loadSiteData();
 		return $this->siteData['wikiid'];
+	}
+
+	public function legalTitleChars() : string {
+		$this->loadSiteData();
+		return $this->siteData['legaltitlechars'];
 	}
 
 	public function linkPrefixRegex(): ?string {
