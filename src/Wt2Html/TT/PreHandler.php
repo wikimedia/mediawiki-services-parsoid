@@ -134,8 +134,6 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * FIXME: Needed in this handler because of shared pipelines in parser tests.
-	 *
 	 * @param array $opts
 	 */
 	public function resetState( array $opts ): void {
@@ -414,9 +412,6 @@ class PreHandler extends TokenHandler {
 				$ret[] = $token;
 				break;
 		}
-
-		// reset for next use of this pipeline!
-		$this->reset();
 
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
