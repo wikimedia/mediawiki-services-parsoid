@@ -276,7 +276,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			);
   		} elseif ( $isIncludeTag ) {
   			// Parse ext-content, strip eof, and shift tsr
-  			$extContent = substr( $dp->extTagOffsets[ 1 ] - $dp->extTagOffsets[0], $dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
+  			$extContent = substr( $dp->src, $dp->extTagOffsets[ 1 ] - $dp->extTagOffsets[0], $dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
   			$tokenizer = new PegTokenizer( $this->env );
   			$tokenizer->setSourceOffsets( $dp->extTagOffsets[1], $dp->extTagOffsets[2] );
   			$extContentToks = $tokenizer->tokenizeSync( $extContent );
