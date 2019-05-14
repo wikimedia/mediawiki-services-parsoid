@@ -1,71 +1,52 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+<?php
+declare( strict_types = 1 );
 
-use Parsoid\PegTokenizer as PegTokenizer;
-use Parsoid\Sanitizer as Sanitizer;
-use Parsoid\PipelineUtils as PipelineUtils;
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\Util as Util;
-use Parsoid\TokenHandler as TokenHandler;
-use Parsoid\JSUtils as JSUtils;
-use Parsoid\KV as KV;
-use Parsoid\TagTk as TagTk;
-use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
-use Parsoid\EndTagTk as EndTagTk;
-use Parsoid\WikiLinkHandler as WikiLinkHandler;
+namespace Parsoid\Wt2Html\TT;
 
-// shortcuts
-$lastItem = JSUtils::lastItem;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\PipelineUtils;
 
-/**
- * @class
- * @extends module:wt2html/tt/TokenHandler
- */
 class ExternalLinkHandler extends TokenHandler {
-	public function __construct( $manager, $options ) {
+	private $urlParser;
+	private $linkCount;
+
+	/** @inheritDoc */
+	public function __construct( object $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->manager->addTransform(
-			function ( $token, $cb ) {return $this->onUrlLink( $token, $cb );
-   },
-			'ExternalLinkHandler:onUrlLink',
-			self::rank(), 'tag', 'urllink'
-		);
-		$this->manager->addTransform(
-			function ( $token, $cb ) {return $this->onExtLink( $token, $cb );
-   },
-			'ExternalLinkHandler:onExtLink',
-			self::rank() - 0.001, 'tag', 'extlink'
-		);
-		$this->manager->addTransform(
-			function ( $token, $cb ) {return $this->onEnd( $token, $cb );
-   },
-			'ExternalLinkHandler:onEnd',
-			self::rank(), 'end'
-		);
 
 		// Create a new peg parser for image options.
 		if ( !$this->urlParser ) {
 			// Actually the regular tokenizer, but we'll call it with the
 			// url rule only.
-			self::prototype::urlParser = new PegTokenizer( $this->env );
+			$this->urlParser = new PegTokenizer( $this->env );
 		}
 
-		$this->_reset();
+		$this->reset();
 	}
-	public $urlParser;
 
-	public static function rank() {
- return 1.15;
- }
+	/** @inheritDoc */
+	public function onEnd( EOFTk $token ) {
+		$this->reset();
+		return $token;
+	}
 
-	public function _reset() {
+	private function reset(): void {
 		$this->linkCount = 1;
 	}
 
-	public static function _imageExtensions( $str ) {
+	/**
+	 * @param string $str
+	 * @return bool
+	 */
+	private static function imageExtensions( string $str ): bool {
 		switch ( $str ) {
 			case 'jpg':
 			// fall through
@@ -78,18 +59,36 @@ class ExternalLinkHandler extends TokenHandler {
 
 			case 'svg':
 			// fall through
-			return true;
+				return true;
 			default:
-			return false;
+				return false;
 		}
 	}
 
-	public function _hasImageLink( $href ) {
-		$allowedPrefixes = $this->manager->env->conf->wiki->allowExternalImages;
+	/**
+	 * @param array $array
+	 * @param callable $fn
+	 * @return bool
+	 */
+	private function arraySome( array $array, callable $fn ): bool {
+		foreach ( $array as $value ) {
+			if ( $fn( $value ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param string $href
+	 * @return bool
+	 */
+	private function hasImageLink( string $href ): bool {
+		$allowedPrefixes = $this->manager->env->allowedExternalImagePrefixes();
 		$bits = explode( '.', $href );
-		$hasImageExtension = count( $bits ) > 1
-&& self::_imageExtensions( $lastItem( $bits ) )
-&& preg_match( '/^https?:\/\//i', $href );
+		$hasImageExtension = count( $bits ) > 1 &&
+			self::imageExtensions( end( $bits ) ) &&
+			preg_match( '/^https?:\/\//i', $href );
 		// Typical settings for mediawiki configuration variables
 		// $wgAllowExternalImages and $wgAllowExternalImagesFrom will
 		// result in values like these:
@@ -98,32 +97,40 @@ class ExternalLinkHandler extends TokenHandler {
 		//  allowedPrefixes = ['http://127.0.0.1/', 'http://example.com'];
 		// Note that the values include the http:// or https:// protocol.
 		// See https://phabricator.wikimedia.org/T53092
-		return $hasImageExtension && is_array( $allowedPrefixes )
-&& // true iff some prefix in the list matches href
-			$allowedPrefixes->some(
-				function ( $prefix ) use ( &$href ) {return array_search( $prefix, $href ) === 0;
-	   }
+		return $hasImageExtension && is_array( $allowedPrefixes ) &&
+			// true if some prefix in the list matches href
+				self::arraySome( $allowedPrefixes, function ( $prefix ) use ( &$href ) {
+					return strpos( $prefix, $href ) !== false;
+				}
 			);
 	}
 
-	public function onUrlLink( $token, $cb ) {
+	/**
+	 * @param Token $token
+	 * @return Token|array
+	 */
+	private function onUrlLink( Token $token ) {
 		$tagAttrs = null;
-$builtTag = null;
+		$builtTag = null;
 		$env = $this->manager->env;
 		$origHref = $token->getAttribute( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$dataAttribs = Util::clone( $token->dataAttribs );
 
-		if ( $this->_hasImageLink( $href ) ) {
+		if ( $this->hasImageLink( $href ) ) {
+			$checkAlt = explode( '/', $href );
 			$tagAttrs = [
 				new KV( 'src', $href ),
-				new KV( 'alt', $lastItem( explode( '/', $href ) ) ),
+				new KV( 'alt', end( $checkAlt ) ),
 				new KV( 'rel', 'mw:externalImage' )
 			];
 
 			// combine with existing rdfa attrs
-			$tagAttrs = WikiLinkHandler::buildLinkAttrs( $token->attribs, false, null, $tagAttrs )->attribs;
-			$cb( [ 'tokens' => [ new SelfclosingTagTk( 'img', $tagAttrs, $dataAttribs ) ] ] );
+			// PORT-FIXME
+			// $tagAttrs = WikiLinkHandler::buildLinkAttrs(
+			//        $token->attribs, false, null, $tagAttrs )->attribs;
+			$tagAttrs = [];
+			return [ 'tokens' => [ new SelfclosingTagTk( 'img', $tagAttrs, $dataAttribs ) ] ];
 		} else {
 			$tagAttrs = [
 				new KV( 'rel', 'mw:ExtLink' )
@@ -131,12 +138,14 @@ $builtTag = null;
 
 			// combine with existing rdfa attrs
 			// href is set explicitly below
-
-			$tagAttrs = WikiLinkHandler::buildLinkAttrs( $token->attribs, false, null, $tagAttrs )->attribs;
+			// PORT-FIXME
+			// $tagAttrs = WikiLinkHandler::buildLinkAttrs(
+			//        $token->attribs, false, null, $tagAttrs )->attribs;
+			$tagAttrs = [];
 			$builtTag = new TagTk( 'a', $tagAttrs, $dataAttribs );
 			$dataAttribs->stx = 'url';
 
-			if ( !$this->options->inTemplate ) {
+			if ( !$this->options[ 'inTemplate' ] ) {
 				// Since we messed with the text of the link, we need
 				// to preserve the original in the RT data. Or else.
 				$builtTag->addNormalizedAttribute( 'href', $href, $token->getWTSource( $env ) );
@@ -144,23 +153,26 @@ $builtTag = null;
 				$builtTag->addAttribute( 'href', $href );
 			}
 
-			$cb( [
-					'tokens' => [
-						$builtTag,
-						// Make sure there are no IDN-ignored characters in the text so
-						// the user doesn't accidentally copy any.
-						Sanitizer::cleanUrl( $env, $href ),
-						new EndTagTk( 'a', [], [ 'tsr' => [ $dataAttribs->tsr[ 1 ], $dataAttribs->tsr[ 1 ] ] ] )
-					]
+			return [ 'tokens' => [
+					$builtTag,
+					// Make sure there are no IDN-ignored characters in the text so
+					// the user doesn't accidentally copy any.
+					Sanitizer::cleanUrl( $env, $href, '' ),   // mode could be 'wikilink'
+					new EndTagTk( 'a', [],
+						(object)[ 'tsr' => [ $dataAttribs->tsr[1], $dataAttribs->tsr[1] ] ] )
 				]
-			);
+			];
 		}
 	}
 
-	// Bracketed external link
-	public function onExtLink( $token, $cb ) {
+	/**
+	 * Bracketed external link
+	 * @param Token $token
+	 * @return Token|array
+	 */
+	private function onExtLink( Token $token ) {
 		$newAttrs = null;
-$aStart = null;
+		$aStart = null;
 		$env = $this->manager->env;
 		$origHref = $token->getAttribute( 'href' );
 		$hasExpandedAttrs = preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) );
@@ -197,53 +209,55 @@ $aStart = null;
 			// supporting templating of ISBN attributes.
 			//
 			// combine with existing rdfa attrs
-			$newAttrs = WikiLinkHandler::buildLinkAttrs( $token->attribs, false, null, $newAttrs )->attribs;
+			// PORT-FIXME
+			// $newAttrs = WikiLinkHandler::buildLinkAttrs(
+			//        $token->attribs, false, null, $newAttrs )->attribs;
+			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
-			$tokens = [ $aStart ]->concat( $content, [ new EndTagTk( 'a' ) ] );
-			$cb( [
-					'tokens' => $tokens
-				]
-			);
-		} elseif (
-			( !$hasExpandedAttrs && gettype( $origHref ) === 'string' )
-|| $this->urlParser->tokenizesAsURL( $hrefWithEntities )
-		) {
+			$tokens = array_merge( [ $aStart ], $content, [ new EndTagTk( 'a' ) ] );
+			return [ 'tokens' => $tokens ];
+		} elseif ( ( !$hasExpandedAttrs && gettype( $origHref ) === 'string' ) ||
+					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false ) {
 			$rdfaType = 'mw:ExtLink';
-			if (
-				count( $content ) === 1
-&& $content[ 0 ]->constructor === $String
-&& $env->conf->wiki->hasValidProtocol( $content[ 0 ] )
-&& $this->urlParser->tokenizesAsURL( $content[ 0 ] )
-&& $this->_hasImageLink( $content[ 0 ] )
-			) {
-				$src = $content[ 0 ];
-				$content = [
-					new SelfclosingTagTk( 'img', [
+			if ( count( $content ) === 1 ) {
+				if ( is_string( $content[ 0 ] ) ) {
+					$src = $content[ 0 ];
+					if ( $env->conf->wiki->hasValidProtocol( $src ) &&
+						$this->urlParser->tokenizeURL( $src ) !== false &&
+						$this->hasImageLink( $src )
+					) {
+						$checkAlt = explode( '/', $src );
+						$content = [ new SelfclosingTagTk( 'img', [
 							new KV( 'src', $src ),
-							new KV( 'alt', $lastItem( explode( '/', $src ) ) )
-						], [ 'type' => 'extlink' ]
-					)
-				];
+							new KV( 'alt', end( $checkAlt ) )
+							], (object)[ 'type' => 'extlink' ]
+						)
+						];
+					}
+				}
 			}
 
-			$newAttrs = [
-				new KV( 'rel', $rdfaType )
-			];
+			$newAttrs = [ new KV( 'rel', $rdfaType ) ];
 			// combine with existing rdfa attrs
 			// href is set explicitly below
-
-			$newAttrs = WikiLinkHandler::buildLinkAttrs( $token->attribs, false, null, $newAttrs )->attribs;
+			// PORT-FIXME
+			// $newAttrs = WikiLinkHandler::buildLinkAttrs(
+			//        $token->attribs, false, null, $newAttrs )->attribs;
+			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 
-			if ( !$this->options->inTemplate ) {
+			if ( empty( $this->options[ 'inTemplate' ] ) ) {
 				// If we are from a top-level page, add normalized attr info for
 				// accurate roundtripping of original content.
 				//
 				// extLinkContentOffsets[0] covers all spaces before content
 				// and we need src without those spaces.
 				$tsr0a = $dataAttribs->tsr[ 0 ] + 1;
-				$tsr1a = $dataAttribs->extLinkContentOffsets[ 0 ] - count( $token->getAttribute( 'spaces' ) || '' );
-				$aStart->addNormalizedAttribute( 'href', $href, substr( $env->page->src, $tsr0a, $tsr1a/*CHECK THIS*/ ) );
+				$tsr1a = $dataAttribs->extLinkContentOffsets[ 0 ] -
+					strlen( $token->getAttribute( 'spaces' ) || '' );
+				$length = $tsr1a - $tsr0a;
+				$aStart->addNormalizedAttribute( 'href', $href,
+					substr( $env->getPageMainContent(), $tsr0a, $length ) );
 			} else {
 				$aStart->addAttribute( 'href', $href );
 			}
@@ -254,23 +268,26 @@ $aStart = null;
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 
-			$tokens = [ $aStart ]->concat( $content, [ new EndTagTk( 'a' ) ] );
-			$cb( [
-					'tokens' => $tokens
-				]
-			);
+			$tokens = array_merge( [ $aStart ], [ $content ], [ new EndTagTk( 'a' ) ] );
+			return [ 'tokens' => $tokens ];
 		} else {
+			// PORT-FIXME
 			// Not a link, convert href to plain text.
-			$cb( [ 'tokens' => WikiLinkHandler::bailTokens( $env, $token, true ) ] );
+			// return [ 'tokens' => WikiLinkHandler::bailTokens( $env, $token, true ) ];
+			return [];
 		}
 	}
 
-	public function onEnd( $token, $cb ) {
-		$this->_reset();
-		$cb( [ 'tokens' => [ $token ] ] );
+	/** @inheritDoc */
+	public function onTag( Token $token ): Token {
+		switch ( $token->getName() ) {
+			case 'urllink':
+				return $this->onUrlLink( $token );
+			case 'extlink':
+				return $this->onExtLink( $token );
+			default:
+				return $token;
+		}
 	}
-}
 
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->ExternalLinkHandler = $ExternalLinkHandler;
 }
