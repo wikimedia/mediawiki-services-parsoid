@@ -25,7 +25,7 @@ class PHPDOMPass {
 			// to the complexity of passing DOMs across JS/PHP.
 			if (atTopLevel) {
 				newDOM = DOMUtils.parseHTML(stdout);
-				HybridTestUtils.updateEnvUid(env, newDOM.body);
+				HybridTestUtils.updateEnvIdCounters(env, newDOM.body);
 			} else {
 				newDOM = inputBody.ownerDocument;
 			}
@@ -38,7 +38,7 @@ class PHPDOMPass {
 				reinsertFosterableContent: true,
 				markNew: true
 			}).ownerDocument;
-			HybridTestUtils.updateEnvUid(env, newDOM.body);
+			HybridTestUtils.updateEnvIdCounters(env, newDOM.body);
 		}
 
 		return newDOM;
@@ -92,7 +92,7 @@ class PHPDOMPass {
 			markNew: true
 		}).ownerDocument.body;
 
-		HybridTestUtils.updateEnvUid(env, ret.dom);
+		HybridTestUtils.updateEnvIdCounters(env, ret.dom);
 
 		return ret;
 	}

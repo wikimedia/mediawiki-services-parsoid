@@ -43,8 +43,9 @@ function buildDOM( $env, $fileName ) {
 }
 
 function serializeDOM( $transformer, $env, $body ) {
-	// HACK: Piggyback new uid for env on <body>
+	// HACK: Piggyback new uid/fid for env on <body>
 	$body->setAttribute( "data-env-newuid", $env->getUID() );
+	$body->setAttribute( "data-env-newfid", $env->getFID() );
 	if ( $env->pageBundle ) {
 		return ContentUtils::extractDpAndSerialize( $body );
 	} elseif ( $transformer === 'CleanUp-cleanupAndSaveDataParsoid' ) {
@@ -167,11 +168,13 @@ $apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 
 	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
 $env = new ApiEnv( [
 	"uid" => $envOpts['currentUid'] ?? -1,
+	"fid" => $envOpts['currentFid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
 	"pageContent" => $envOpts['pageContent'] ?? $input,
 	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
 	"pageLanguageDir" => $envOpts['pagelanguagedir'] ?? null,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
+	"rtTestMode" => $envOpts['rtTestMode'] ?? false,
 	"pageId" => $envOpts['pageId'] ?? null,
 	"scrubWikitext" => $envOpts['scrubWikitext'] ?? false,
 	"wrapSections" => !empty( $envOpts['wrapSections' ] ),

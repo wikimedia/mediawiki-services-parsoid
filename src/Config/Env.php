@@ -64,6 +64,11 @@ class Env {
 	 */
 	private $fragmentMap = [];
 
+	/**
+	 * @var int used to generate fragment ids as needed during parse
+	 */
+	private $fid = 1;
+
 	/** @var int used to generate uids as needed during this parse */
 	private $uid = 1;
 
@@ -124,6 +129,10 @@ class Env {
 	 *         defaults to 1.
 	 *         PORT-FIXME: This construction option is required to support hybrid
 	 *         testing and can be removed after porting and testing is complete.
+	 *  - fid: (int) Initial value of fragment id used to generate ids during parse.
+	 *         defaults to 1.
+	 *         PORT-FIXME: This construction option is required to support hybrid
+	 *         testing and can be removed after porting and testing is complete.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
@@ -136,6 +145,7 @@ class Env {
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->uid = (int)( $options['uid'] ?? 1 );
+		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 	}
 
@@ -161,6 +171,22 @@ class Env {
 	 */
 	public function getDataAccess(): DataAccess {
 		return $this->dataAccess;
+	}
+
+	/**
+	 * Get the current uid counter value
+	 * @return int
+	 */
+	public function getUID(): int {
+		return $this->uid;
+	}
+
+	/**
+	 * Get the current fragment id counter value
+	 * @return int
+	 */
+	public function getFID(): int {
+		return $this->fid;
 	}
 
 	/**
@@ -361,10 +387,6 @@ class Env {
 		return $this->normalizedTitleKey( $this->resolveTitle( $hrefToken, true ), true ) !== null;
 	}
 
-	public function getUID(): int {
-		return $this->uid;
-	}
-
 	/**
 	 * Generate a new uid
 	 * @return int
@@ -419,6 +441,14 @@ class Env {
 	 */
 	public function getDOMDiff(): DOMDocument {
 		return $this->domDiff;
+	}
+
+	/**
+	 * Generate a new fragment id
+	 * @return string
+	 */
+	public function newFragmentId(): string {
+		return "mwf" . (string)$this->fid++;
 	}
 
 	/**

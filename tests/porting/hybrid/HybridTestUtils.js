@@ -4,15 +4,20 @@ const childProcess = require('child_process');
 const path = require('path');
 
 class HybridTestUtils {
-	static updateEnvUid(env, body) {
+	static updateEnvIdCounters(env, body) {
 		// Extract piggybacked env uid from <body>
 		env.uid = parseInt(body.getAttribute("data-env-newuid"), 10);
 		body.removeAttribute("data-env-newuid");
+
+		// Extract piggybacked env fid from <body>
+		env.uid = parseInt(body.getAttribute("data-env-newfid"), 10);
+		body.removeAttribute("data-env-newfid");
 	}
 
 	static mkEnvOpts(env, extra = {}) {
 		return Object.assign({}, {
 			currentUid: env.uid,
+			currentFid: env.fid,
 			pageContent: env.page.src,
 			prefix: env.conf.wiki.iwp,
 			apiURI: env.conf.wiki.apiURI,

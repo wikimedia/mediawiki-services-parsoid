@@ -94,7 +94,7 @@ class PHPPipelineStage {
 			markNew: true
 		});
 
-		HybridTestUtils.updateEnvUid(this.env, body);
+		HybridTestUtils.updateEnvIdCounters(this.env, body);
 
 		return body.ownerDocument;
 	}

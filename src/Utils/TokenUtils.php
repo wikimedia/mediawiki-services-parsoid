@@ -498,27 +498,23 @@ class TokenUtils {
 	}
 
 	/**
-	* Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
-	//
-	public static function newlinesToNlTks($str, $tsr0) {
+	 * Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
+	 * @param string $str
+	 * @return array (interspersed string and NlTk tokens)
+	 */
+	public static function newlinesToNlTks( string $str ): array {
 		$toks = preg_split( '/\n|\r\n/', $str );
 		$ret = [];
-		$tsr = $tsr0;
-		$i = 0;
 		// Add one NlTk between each pair, hence toks.length-1
-		for ( $n = count( $toks ) - 1;  $i < $n;  $i++ ) {
+		for ( $i = 0, $n = count( $toks ) - 1;  $i < $n;  $i++ ) {
 			$ret[] = $toks[ $i ];
-			$nlTk = new NlTk();
-			if ( $tsr !== null ) {
-				$tsr += count( $toks[ $i ] );
-				$nlTk->dataAttribs = [ 'tsr' => [ $tsr, $tsr + 1 ] ];
-			}
-			$ret[] = $nlTk;
+			$ret[] = new NlTk( null );
 		}
 		$ret[] = $toks[ $i ];
 		return $ret;
 	}
 
+/**
 	//
 	 * Strip include tags, and the contents of includeonly tags as well.
 	//

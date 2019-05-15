@@ -56,6 +56,7 @@ $apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 
 	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
 $env = new ApiEnv( [
 	"uid" => $envOpts['currentUid'] ?? -1,
+	"fid" => $envOpts['currentFid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
 	"pageContent" => $envOpts['pageContent'] ?? $input,
 	"pageLanguage" => $envOpts['pagelanguage'] ?? null,

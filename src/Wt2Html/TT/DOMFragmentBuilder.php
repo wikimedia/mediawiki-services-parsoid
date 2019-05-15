@@ -76,7 +76,10 @@ class DOMFragmentBuilder extends TokenHandler {
 			$cb( [ 'async' => true ] );
 
 			// Source offsets of content
-			$srcOffsets = $scopeToken->getAttribute( 'srcOffsets' );
+			// NOTE: Since KV (k,v) values don't have int[] in their type,
+			// we get that value from the srcOffsets field in the KV object.
+			// (This is different from how this is done on the JS side)
+			$srcOffsets = $scopeToken->getAttribute( 'srcOffsets' )->srcOffsets;
 
 			// Without source offsets for the content, it isn't possible to
 			// compute DSR and template wrapping in content. So, users of

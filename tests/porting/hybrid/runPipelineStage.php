@@ -107,6 +107,7 @@ $apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 
 	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
 $env = new ApiEnv( [
 	"uid" => $envOpts['currentUid'] ?? -1,
+	"fid" => $envOpts['currentFid'] ?? -1,
 	"apiEndpoint" => $apiEndpoint,
 	"pageContent" => $envOpts['pageContent'] ?? $input,
 	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
@@ -160,8 +161,9 @@ switch ( $stageName ) {
 		$tb = new HTML5TreeBuilder( $env );
 		$doc = $tb->process( $toks );
 		$body = DOMCompat::getBody( $doc );
-		// HACK: Piggyback new uid for env on <body>
+		// HACK: Piggyback new uid/fid for env on <body>
 		$body->setAttribute( "data-env-newuid", $env->getUID() );
+		$body->setAttribute( "data-env-newfid", $env->getFID() );
 		$out = ContentUtils::ppToXML( $body, [
 			'keepTmp' => true,
 			'tunnelFosteredContent' => true,
