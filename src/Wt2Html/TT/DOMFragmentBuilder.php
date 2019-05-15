@@ -1,61 +1,51 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\TokenHandler as TokenHandler;
-use Parsoid\PipelineUtils as PipelineUtils;
-use Parsoid\TagTk as TagTk;
-use Parsoid\EOFTk as EOFTk;
-use Parsoid\SelfclosingTagTk as SelfclosingTagTk;
-use Parsoid\EndTagTk as EndTagTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Tokens\KV;
+use Parsoid\Utils\PipelineUtils;
+use Wikimedia\Assert\Assert;
 
-/**
- * @class
- * @extends module:wt2html/tt/TokenHandler
- */
 class DOMFragmentBuilder extends TokenHandler {
-	public function __construct( $manager, $options ) {
+	/**
+	 * @param object $manager manager environment
+	 * @param array $options options
+	 */
+	public function __construct( object $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->manager->addTransform(
-			function ( $scopeToken, $cb ) {return $this->buildDOMFragment( $scopeToken, $cb );
-   },
-			'buildDOMFragment',
-			self::scopeRank(),
-			'tag',
-			'mw:dom-fragment-token'
-		);
 	}
 
-	public static function scopeRank() {
- return 1.99;
- }
-
 	/**
-		* Can/should content represented in 'toks' be processed in its own DOM scope?
+	 * Can/should content represented in 'toks' be processed in its own DOM scope?
 	 * 1. No reason to spin up a new pipeline for plain text
 	 * 2. In some cases, if templates need not be nested entirely within the
 	 *    boundary of the token, we cannot process the contents in a new scope.
+	 * @param array $toks
+	 * @param Token $contextTok
+	 * @return bool
 	 */
-	public function subpipelineUnnecessary( $toks, $contextTok ) {
+	private function subpipelineUnnecessary( array $toks, Token $contextTok ): bool {
 		for ( $i = 0,  $n = count( $toks );  $i < $n;  $i++ ) {
 			$t = $toks[ $i ];
-			$tc = $t->constructor;
 
 			// For wikilinks and extlinks, templates should be properly nested
 			// in the content section. So, we can process them in sub-pipelines.
 			// But, for other context-toks, we back out. FIXME: Can be smarter and
 			// detect proper template nesting, but, that can be a later enhancement
 			// when dom-scope-tokens are used in other contexts.
-			if ( $contextTok && $contextTok->name !== 'wikilink' && $contextTok->name !== 'extlink'
-&& $tc === SelfclosingTagTk::class
-&& $t->name === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:Transclusion'
+			if ( $contextTok && $contextTok->getName() !== 'wikilink' &&
+				$contextTok->getName() !== 'extlink' &&
+				$t instanceof SelfclosingTagTk &&
+				$t->getName() === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:Transclusion'
 			) {
 				return true;
-			} elseif ( $tc === TagTk::class || $tc === EndTagTk::class || $tc === SelfclosingTagTk::class ) {
+			} elseif ( $t instanceof TagTk || $t instanceof EndTagTk || $t instanceof SelfclosingTagTk ) {
 				// Since we encountered a complex token, we'll process this
 				// in a subpipeline.
 				return false;
@@ -66,67 +56,61 @@ class DOMFragmentBuilder extends TokenHandler {
 		return true;
 	}
 
-	public function buildDOMFragment( $scopeToken, $cb ) {
+	/**
+	 * @param Token $scopeToken
+	 * @return array|null
+	 */
+	private function buildDOMFragment( Token $scopeToken ) {
 		$content = $scopeToken->getAttribute( 'content' );
 		if ( $this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) ) ) {
 			// New pipeline not needed. Pass them through
-			$cb( [ 'tokens' => ( gettype( $content ) === 'string' ) ? [ $content ] : $content, 'async' => false ] );
+			return [ 'tokens' => is_string( $content ) ? [ $content ] : $content ];
 		} else {
-			// First thing, signal that the results will be available asynchronously
-			$cb( [ 'async' => true ] );
-
 			// Source offsets of content
 			// NOTE: Since KV (k,v) values don't have int[] in their type,
 			// we get that value from the srcOffsets field in the KV object.
 			// (This is different from how this is done on the JS side)
-			$srcOffsets = $scopeToken->getAttribute( 'srcOffsets' )->srcOffsets;
+			$srcOffsets = KV::LookupKV( $scopeToken->attribs, 'scrOffsets' )->srcOffsets ?? null;
 
 			// Without source offsets for the content, it isn't possible to
 			// compute DSR and template wrapping in content. So, users of
 			// mw:dom-fragment-token should always set offsets on content
 			// that comes from the top-level document.
 			Assert::invariant(
-				$this->options->inTemplate || (bool)$srcOffsets,
+				!empty( $this->options[ 'inTemplate' ] ) || (bool)$srcOffsets,
 				'Processing top-level content without source offsets'
 			);
 
 			$pipelineOpts = [
 				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ),
 				'inPHPBlock' => $scopeToken->getAttribute( 'inPHPBlock' ),
-				'expandTemplates' => $this->options->expandTemplates,
-				'inTemplate' => $this->options->inTemplate
+				'expandTemplates' => $this->options[ 'expandTemplates' ],
+				'inTemplate' => $this->options[ 'inTemplate' ]
 			];
 
 			// Process tokens
-			PipelineUtils::processContentInPipeline(
+			return PipelineUtils::processContentInPipeline(
 				$this->manager->env,
 				$this->manager->frame,
 				// Append EOF
-				$content->concat( [ new EOFTk() ] ),
+				array_merge( $content, [ new EOFTk() ] ),
 				[
 					'pipelineType' => 'tokens/x-mediawiki/expanded',
 					'pipelineOpts' => $pipelineOpts,
 					'srcOffsets' => $srcOffsets,
-					'documentCB' => function ( $dom ) use ( &$cb, &$scopeToken, &$pipelineOpts ) {return $this->wrapDOMFragment( $cb, $scopeToken, $pipelineOpts, $dom );
-		   },
 					'sol' => true
 				]
 			);
 		}
 	}
 
-	public function wrapDOMFragment( $cb, $scopeToken, $pipelineOpts, $dom ) {
-		// Pass through pipeline options
-		$toks = PipelineUtils::tunnelDOMThroughTokens( $this->manager->env, $scopeToken, $dom->body, [
-				'pipelineOpts' => $pipelineOpts
-			]
-		);
-
-		// Nothing more to send cb after this
-		$cb( [ 'tokens' => $toks, 'async' => false ] );
+	/**
+	 * @param Token $token
+	 * @return array|Token|null
+	 */
+	public function onTag( Token $token ) {
+		return ( $token->getName() === 'mw:dom-fragment-token' ) ?
+			$this->buildDOMFragment( $token ) : $token;
 	}
-}
 
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->DOMFragmentBuilder = $DOMFragmentBuilder;
 }
