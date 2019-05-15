@@ -12145,6 +12145,7 @@ Un-closed <includeonly>
 ## will normalize the include directives to serialize on their own line.
 ## Selser will take care of preserving formatting in scenarios where they
 ## intermingled with other wikitext.
+## This test also triggered T223411 during Parsoid-PHP porting.
 !! test
 Includes and comments at SOL
 !! options

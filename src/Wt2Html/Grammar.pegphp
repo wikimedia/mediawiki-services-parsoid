@@ -2284,7 +2284,7 @@ include_limits =
 		// Last line should be empty (except for comments)
 		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
 			$dp = $il->dataAttribs;
-			$inclContent = substr( $dp->extTagOffsets[1] - $dp->extTagOffsets[0],
+			$inclContent = substr( $dp->src, $dp->extTagOffsets[1] - $dp->extTagOffsets[0],
 				$dp->extTagOffsets[2] - $dp->extTagOffsets[3] );
 			$nlpos = strrpos( $inclContent, "\n" );
 			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
