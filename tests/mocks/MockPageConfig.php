@@ -13,6 +13,9 @@ class MockPageConfig extends PageConfig {
 	/** @var int */
 	private $pageId;
 
+	/** @var string */
+	private $title;
+
 	/**
 	 * Construct a mock environment object for use in tests
 	 * @param array $opts
@@ -21,6 +24,7 @@ class MockPageConfig extends PageConfig {
 	public function __construct( array $opts, ?PageContent $content ) {
 		$this->content = $content;
 		$this->pageId = $opts['pageId'] ?? -1;
+		$this->title = $opts['title'] ?? 'TestPage';
 	}
 
 	public function hasLintableContentModel(): bool {
@@ -29,7 +33,7 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getTitle(): string {
-		return 'TestPage';
+		return $this->title;
 	}
 
 	/** @inheritDoc */

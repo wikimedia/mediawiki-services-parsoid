@@ -995,7 +995,7 @@ class WikitextSerializer {
 				$apiResp = null;
 				if ( $isTpl && $useTplData ) {
 					$title = preg_replace( '/^\.\//', '', $tplHref, 1 );
-					$tplData = $this->env->getDataAccess()->fetchTemplateData( $title );
+					$tplData = $this->env->getDataAccess()->fetchTemplateData( $env->getPageConfig(), $title );
 				}
 				// If the template doesn't exist, or does but has no TemplateData,
 				// ignore it

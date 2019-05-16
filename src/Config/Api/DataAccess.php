@@ -6,6 +6,7 @@ namespace Parsoid\Config\Api;
 
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
+use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageContent;
 
@@ -79,7 +80,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRedlinkData( array $titles ): array {
+	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array {
 		if ( !$titles ) {
 			return [];
 		}
@@ -125,13 +126,13 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getFileInfo( string $title, array $files ): array {
+	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
 		$batches = [];
 		foreach ( $files as $name => $dims ) {
 			$batches[] = [
 				'filename' => $name,
 				'txopts' => $dims,
-				'page' => $title,
+				'page' => $pageConfig->getTitle(),
 			];
 		}
 		$data = $this->api->makeRequest( [
@@ -148,13 +149,13 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function doPst( string $title, string $wikitext ): string {
-		$key = implode( ':', [ 'pst', md5( $title ) , md5( $wikitext ) ] );
+	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
+		$key = implode( ':', [ 'pst', md5( $pageConfig->getTitle() ) , md5( $wikitext ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
 			$data = $this->api->makeRequest( [
 				'action' => 'parse',
-				'title' => $title,
+				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
 				'contentmodel' => 'wikitext',
 				'onlypst' => 1,
@@ -166,13 +167,15 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext( string $title, string $wikitext, ?int $revid = null ): array {
-		$key = implode( ':', [ 'parse', md5( $title ), md5( $wikitext ), $revid ] );
+	public function parseWikitext(
+		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+	): array {
+		$key = implode( ':', [ 'parse', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
 			$params = [
 				'action' => 'parse',
-				'title' => $title,
+				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
 				'contentmodel' => 'wikitext',
 				'prop' => 'text|modules|jsconfigvars|categories',
@@ -202,13 +205,15 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext( string $title, string $wikitext, ?int $revid = null ): array {
-		$key = implode( ':', [ 'preprocess', md5( $title ), md5( $wikitext ), $revid ] );
+	public function preprocessWikitext(
+		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+	): array {
+		$key = implode( ':', [ 'preprocess', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
 			$params = [
 				'action' => 'expandtemplates',
-				'title' => $title,
+				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
 				'prop' => 'wikitext|categories|modules|jsconfigvars',
 			];
@@ -235,7 +240,9 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchPageContent( string $title, int $oldid = 0 ): ?PageContent {
+	public function fetchPageContent(
+		PageConfig $pageConfig, string $title, int $oldid = 0
+	): ?PageContent {
 		$key = implode( ':', [ 'content', md5( $title ), $oldid ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
@@ -260,7 +267,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchTemplateData( string $title ): ?array {
+	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array {
 		$key = implode( ':', [ 'templatedata', md5( $title ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {

@@ -4,6 +4,7 @@ namespace Test\Parsoid\Config\Api;
 
 use Parsoid\Config\PageContent;
 use Parsoid\Config\Api\DataAccess;
+use Parsoid\Tests\MockPageConfig;
 
 /**
  * @covers \Parsoid\Config\Api\DataAccess
@@ -16,7 +17,8 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetRedlinkData() {
-		$data = $this->getDataAccess( 'redlinkdata' )->getRedlinkData( [
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
+		$data = $this->getDataAccess( 'redlinkdata' )->getRedlinkData( $pageConfig, [
 			'Foo',
 			'Bar_(disambiguation)',
 			'Special:SpecialPages',
@@ -42,7 +44,8 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetFileInfo() {
-		$data = $this->getDataAccess( 'fileinfo' )->getFileInfo( 'Foobar', [
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
+		$data = $this->getDataAccess( 'fileinfo' )->getFileInfo( $pageConfig, [
 			'Example.svg' => [ 'width' => 100 ],
 			'DoesNotExist.png' => [ 'width' => 200 ],
 		] );
@@ -73,20 +76,22 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testDoPst() {
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'dopst' );
-		$ret = $da->doPst( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->doPst( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
 		$this->assertInternalType( 'string', $ret );
 		$this->assertSame( 'Foobar.{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 40 ) );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->doPst( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret, $da->doPst( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
 		);
 	}
 
 	public function testParseWikitext() {
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'parse' );
-		$ret = $da->parseWikitext( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->parseWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
 		$this->assertEquals( [
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			'html' => "<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~\n</p>",
@@ -101,13 +106,14 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->parseWikitext( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret, $da->parseWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
 		);
 	}
 
 	public function testPreprocessWikitext() {
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'preprocess' );
-		$ret = $da->preprocessWikitext( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->preprocessWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
 		$this->assertEquals( [
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			'wikitext' => "Foobar.[[Category:All articles with unsourced statements]][[Category:Articles with unsourced statements ]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
@@ -119,13 +125,14 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->preprocessWikitext( 'Foobar', 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret, $da->preprocessWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
 		);
 	}
 
 	public function testFetchPageContent() {
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'pagecontent-cur' );
-		$c = $da->fetchPageContent( 'Help:Sample page' );
+		$c = $da->fetchPageContent( $pageConfig, 'Help:Sample page' );
 		$this->assertInstanceOf( PageContent::class, $c );
 		$this->assertSame( [ 'main' ], $c->getRoles() );
 		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
@@ -137,10 +144,10 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertEquals( $c, $da->fetchPageContent( 'Help:Sample page' ) );
+		$this->assertEquals( $c, $da->fetchPageContent( $pageConfig, 'Help:Sample page' ) );
 
 		$c = $this->getDataAccess( 'pagecontent-old' )
-			  ->fetchPageContent( 'Help:Sample page', 776171508 );
+			  ->fetchPageContent( $pageConfig, 'Help:Sample page', 776171508 );
 		$this->assertInstanceOf( PageContent::class, $c );
 		$this->assertSame( [ 'main' ], $c->getRoles() );
 		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
@@ -153,14 +160,15 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testFetchTemplateData() {
+		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'templatedata' );
-		$ret = $da->fetchTemplateData( 'Template:Citation needed' );
+		$ret = $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' );
 		$this->assertInternalType( 'array', $ret );
 		$this->assertArrayHasKey( 'description', $ret );
 		$this->assertArrayHasKey( 'params', $ret );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertSame( $ret, $da->fetchTemplateData( 'Template:Citation needed' ) );
+		$this->assertSame( $ret, $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' ) );
 	}
 
 }

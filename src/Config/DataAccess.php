@@ -12,6 +12,7 @@ interface DataAccess {
 	 *
 	 * Replaces Batcher.getPageProps()
 	 *
+	 * @param PageConfig $pageConfig
 	 * @param string[] $titles
 	 * @return array [ string Title => array ], where the array contains
 	 *  - missing: (bool) Whether the page is missing
@@ -19,14 +20,14 @@ interface DataAccess {
 	 *  - redirect: (bool) Whether the page is a redirect
 	 *  - disambiguation: (bool) Whether the page is a disambiguation page
 	 */
-	public function getRedlinkData( array $titles ): array;
+	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array;
 
 	/**
 	 * Return information about files (images)
 	 *
 	 * This replaces ImageInfoRequest and Batcher.imageinfo()
 	 *
-	 * @param string $title Page title the files are embedded in
+	 * @param PageConfig $pageConfig
 	 * @param array $files [ string Name => array Dims ]. The array may contain
 	 *  - width: (int) Requested thumbnail width
 	 *  - height: (int) Requested thumbnail height
@@ -49,7 +50,7 @@ interface DataAccess {
 	 *  - thumbwidth: (int, optional) Thumbnail width
 	 *  - thumbheight: (int, optional) Thumbnail height
 	 */
-	public function getFileInfo( string $title, array $files ): array;
+	public function getFileInfo( PageConfig $pageConfig, array $files ): array;
 
 	/**
 	 * Perform a pre-save transform on wikitext
@@ -57,11 +58,11 @@ interface DataAccess {
 	 * This replaces PHPParseRequest with onlypst = true
 	 *
 	 * @todo Parsoid should be able to do this itself.
-	 * @param string $title Page title the wikitext belongs to
+	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
 	 * @return string Processed wikitext
 	 */
-	public function doPst( string $title, string $wikitext ): string;
+	public function doPst( PageConfig $pageConfig, string $wikitext ): string;
 
 	/**
 	 * Perform a parse on wikitext
@@ -70,7 +71,7 @@ interface DataAccess {
 	 *
 	 * @todo Parsoid should be able to do this itself.
 	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
-	 * @param string $title Page title the wikitext belongs to
+	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
 	 * @param int|null $revid Revision ID the wikitext belongs to
 	 * @return array
@@ -80,7 +81,9 @@ interface DataAccess {
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function parseWikitext( string $title, string $wikitext, ?int $revid = null ): array;
+	public function parseWikitext(
+		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+	): array;
 
 	/**
 	 * Preprocess wikitext
@@ -89,7 +92,7 @@ interface DataAccess {
 	 *
 	 * @todo Parsoid should be able to do this itself.
 	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
-	 * @param string $title Page title the wikitext belongs to
+	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
 	 * @param int|null $revid Revision ID the wikitext belongs to
 	 * @return array
@@ -99,7 +102,9 @@ interface DataAccess {
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function preprocessWikitext( string $title, string $wikitext, ?int $revid = null ): array;
+	public function preprocessWikitext(
+		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+	): array;
 
 	/**
 	 * Fetch page content, e.g. for transclusion
@@ -108,20 +113,24 @@ interface DataAccess {
 	 *
 	 * @todo TemplateRequest also returns a bunch of other data, but seems to never use it except for
 	 *   TemplateRequest.setPageSrcInfo() which is replaced by PageConfig.
+	 * @param PageConfig $pageConfig
 	 * @param string $title Title of the page to fetch
 	 * @param int $oldid Revision ID to fetch. Set 0 for the current revision
 	 * @return PageContent|null
 	 */
-	public function fetchPageContent( string $title, int $oldid = 0 ): ?PageContent;
+	public function fetchPageContent(
+		PageConfig $pageConfig, string $title, int $oldid = 0
+	): ?PageContent;
 
 	/**
 	 * Fetch templatedata for a title
 	 *
 	 * This replaces TemplateDataRequest
 	 *
+	 * @param PageConfig $pageConfig
 	 * @param string $title
 	 * @return array|null
 	 */
-	public function fetchTemplateData( string $title ): ?array;
+	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array;
 
 }
