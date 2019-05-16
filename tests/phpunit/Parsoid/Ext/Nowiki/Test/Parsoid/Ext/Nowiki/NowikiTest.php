@@ -10,7 +10,7 @@ use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Wt2Html\TT\ParserState;
+use Parsoid\Config\ParsoidExtensionAPI;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -52,17 +52,17 @@ class NowikiTest extends TestCase {
 	 */
 	public function testToDOM() {
 		$nowiki = new Nowiki();
-		$state = new ParserState();
-		$state->env = new MockEnv( [] );
-		$doc = $nowiki->toDOM( $state, 'ab[[cd]]e', [] );
+		$env = new MockEnv( [] );
+		$extApi = new ParsoidExtensionAPI( $env );
+		$doc = $nowiki->toDOM( $extApi, 'ab[[cd]]e', [] );
 		$span = DOMCompat::querySelector( $doc, 'span' );
 		$this->assertNotNull( $span );
 		$this->assertSame( 'mw:Nowiki', $span->getAttribute( 'typeof' ) );
 		$this->assertSame( 'ab[[cd]]e', $span->textContent );
 
-		$state = new ParserState();
-		$state->env = new MockEnv( [] );
-		$doc = $nowiki->toDOM( $state, 'foo&amp;bar', [] );
+		$env = new MockEnv( [] );
+		$extApi = new ParsoidExtensionAPI( $env );
+		$doc = $nowiki->toDOM( $extApi, 'foo&amp;bar', [] );
 		$span = DOMCompat::querySelector( $doc, 'span' );
 		$this->assertNotNull( $span );
 		$span2 = DOMCompat::querySelector( $span, 'span' );

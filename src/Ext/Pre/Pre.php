@@ -4,11 +4,11 @@ declare( strict_types = 1 );
 namespace Parsoid\Ext\Pre;
 
 use DOMDocument;
+use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\TT\ParserState;
 use Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
@@ -18,11 +18,11 @@ use Parsoid\Wt2Html\TT\Sanitizer;
 class Pre implements ExtensionTag {
 
 	/** @inheritDoc */
-	public function toDOM( ParserState $state, string $txt, array $extArgs ): DOMDocument {
-		$doc = $state->env->createDocument();
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
+		$doc = $extApi->getEnv()->createDocument();
 		$pre = $doc->createElement( 'pre' );
 
-		Sanitizer::applySanitizedArgs( $state->env, $pre, $extArgs );
+		Sanitizer::applySanitizedArgs( $extApi->getEnv(), $pre, $extArgs );
 		DOMDataUtils::getDataParsoid( $pre )->stx = 'html';
 
 		// Support nowikis in pre.  Do this before stripping newlines, see test,

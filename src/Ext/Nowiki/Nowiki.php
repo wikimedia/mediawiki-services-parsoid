@@ -5,6 +5,8 @@ namespace Parsoid\Ext\Nowiki;
 
 use DOMDocument;
 use DOMElement;
+use DOMText;
+use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Ext\SerialHandlerTrait;
@@ -14,7 +16,6 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
-use Parsoid\Wt2Html\TT\ParserState;
 
 /**
  * Nowiki treats anything inside it as plain text.
@@ -24,8 +25,8 @@ class Nowiki implements ExtensionTag, SerialHandler {
 	use SerialHandlerTrait;
 
 	/** @inheritDoc */
-	public function toDOM( ParserState $state, string $txt, array $extArgs ): DOMDocument {
-		$doc = $state->env->createDocument();
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
+		$doc = $extApi->getEnv()->createDocument();
 		$span = $doc->createElement( 'span' );
 		$span->setAttribute( 'typeof', 'mw:Nowiki' );
 
@@ -66,8 +67,7 @@ class Nowiki implements ExtensionTag, SerialHandler {
 		}
 		$state->emitChunk( '<nowiki>', $node );
 		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
-			if ( DOMUtils::isElt( $child ) ) {
-				'@phan-var DOMElement $child';/** @var DOMElement $child */
+			if ( $child instanceof DOMElement ) {
 				if ( DOMUtils::isDiffMarker( $child ) ) {
 					/* ignore */
 				} elseif ( $child->nodeName === 'span'
@@ -77,7 +77,7 @@ class Nowiki implements ExtensionTag, SerialHandler {
 				} else {
 					$state->emitChunk( DOMCompat::getOuterHTML( $child ), $node );
 				}
-			} elseif ( DOMUtils::isText( $child ) ) {
+			} elseif ( $child instanceof DOMText ) {
 				$state->emitChunk( WTUtils::escapeNowikiTags( $child->nodeValue ), $child );
 			} else {
 				$state->serializer->serializeNode( $child );

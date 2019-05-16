@@ -5,8 +5,8 @@ namespace Test\Parsoid\Ext\Pre;
 use Parsoid\Ext\Pre\Pre;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Wt2Html\TT\ParserState;
 use PHPUnit\Framework\TestCase;
+use Parsoid\Config\ParsoidExtensionAPI;
 
 class PreTest extends TestCase {
 
@@ -15,9 +15,9 @@ class PreTest extends TestCase {
 	 */
 	public function testToDOM() {
 		$pre = new Pre();
-		$state = new ParserState();
-		$state->env = new MockEnv( [] );
-		$doc = $pre->toDOM( $state, 'abcd', [] );
+		$env = new MockEnv( [] );
+		$extApi = new ParsoidExtensionAPI( $env );
+		$doc = $pre->toDOM( $extApi, 'abcd', [] );
 		$pre = DOMCompat::querySelector( $doc, 'pre' );
 		$this->assertNotNull( $pre );
 		$this->assertSame( 'abcd', $pre->textContent );
