@@ -634,7 +634,7 @@ $PipelineUtils = [
 	 *    Options to be passed onto the encapsulation code
 	 *    See encapsulateExpansionHTML's doc. for more info about these options.
 	 */
-	'buildDOMFragmentTokens' => function ( $env, $token, $body, $opts ) use ( &$DOMUtils, &$PipelineUtils ) {
+	'tunnelDOMThroughTokens' => function ( $env, $token, $body, $opts ) use ( &$DOMUtils, &$PipelineUtils ) {
 		Assert::invariant( DOMUtils::isBody( $body ), 'DOMFragment expected body node.' );
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.

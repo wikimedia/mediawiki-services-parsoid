@@ -259,7 +259,7 @@ class ExtensionHandler extends TokenHandler {
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 
-		$toks = PipelineUtils::buildDOMFragmentTokens( $env, $state->token, $body, $opts );
+		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state->token, $body, $opts );
 
 		if ( $state->isHtmlExt ) {
 			$toks[ 0 ]->dataAttribs->tmp = $toks[ 0 ]->dataAttribs->tmp || [];

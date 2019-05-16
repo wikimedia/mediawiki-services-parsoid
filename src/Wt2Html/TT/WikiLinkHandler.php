@@ -268,7 +268,7 @@ class WikiLinkHandler extends TokenHandler {
 			}
 
 			$body = ContentUtils::ppToDOM( $env, $html );
-			$dft = PipelineUtils::buildDOMFragmentTokens( $env, $token, $body, [
+			$dft = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $body, [
 					'tsr' => $tsr,
 					'pipelineOpts' => [ 'inlineContext' => true ]
 				]

@@ -114,7 +114,7 @@ class DOMFragmentBuilder extends TokenHandler {
 
 	public function wrapDOMFragment( $cb, $scopeToken, $pipelineOpts, $dom ) {
 		// Pass through pipeline options
-		$toks = PipelineUtils::buildDOMFragmentTokens( $this->manager->env, $scopeToken, $dom->body, [
+		$toks = PipelineUtils::tunnelDOMThroughTokens( $this->manager->env, $scopeToken, $dom->body, [
 				'pipelineOpts' => $pipelineOpts
 			]
 		);
