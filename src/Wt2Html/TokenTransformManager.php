@@ -143,19 +143,15 @@ class TokenTransformManager extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function setFrame( ?Frame $parentFrame, ?Title $title, array $args ): void {
-		/**
-		 * Commented out till Frame is ported
-		 *
 		// now actually set up the frame
 		if ( !$parentFrame ) {
-			$this->frame = new Frame( $title, $this, $args );
+			$this->frame = new Frame( $title, $this->env, $args );
 		} elseif ( !$title ) {
 			// attribute, simply reuse the parent frame
 			$this->frame = $parentFrame;
 		} else {
-			$this->frame = $parentFrame->newChild( $title, $this, $args );
+			$this->frame = $parentFrame->newChild( $title, $args );
 		}
-		*/
 	}
 
 	/**
