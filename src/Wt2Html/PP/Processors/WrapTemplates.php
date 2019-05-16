@@ -848,31 +848,37 @@ class WrapTemplates {
 				'dp' => null
 			];
 
+			$encapTgt = $encapInfo->target;
+			'@phan-var \DOMNode $encapTgt';
+
 			// Skip template-marker meta-tags.
 			// Also, skip past comments/text nodes found in fosterable positions
 			// which wouldn't have been span-wrapped in the while-loop above.
-			while ( WTUtils::isTplMarkerMeta( $encapInfo->target ) ||
-				!DOMUtils::isElt( $encapInfo->target )
+			while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
+				!( $encapTgt instanceof DOMElement )
 			) {
 				// Detect unwrappable template and bail out early.
-				if ( $encapInfo->target === $range->end ||
-					( !DOMUtils::isElt( $encapInfo->target ) &&
-						!DOMUtils::isFosterablePosition( $encapInfo->target )
+				if ( $encapTgt === $range->end ||
+					( !( $encapTgt instanceof DOMElement ) &&
+						!DOMUtils::isFosterablePosition( $encapTgt )
 					)
 				) {
 					throw new Error( 'Cannot encapsulate transclusion. Start=' . $startElem->outerHTML );
 				}
-				$encapInfo->target = $encapInfo->target->nextSibling;
+				$encapTgt = $encapTgt->nextSibling;
 			}
-			$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapInfo->target );
+
+			'@phan-var \DOMElement $encapTgt';
+			$encapInfo->target = $encapTgt;
+			$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapTgt );
 
 			// Update type-of (always even if tpl-encap below will fail).
 			// This ensures that VE will still "edit-protect" this template
 			// and not allow its content to be edited directly.
-			if ( $startElem !== $encapInfo->target ) {
+			if ( $startElem !== $encapTgt ) {
 				$t1 = $startElem->getAttribute( 'typeof' );
-				$t2 = $encapInfo->target->getAttribute( 'typeof' );
-				$encapInfo->target->setAttribute( 'typeof', $t2 ? $t1 . ' ' . $t2 : $t1 );
+				$t2 = $encapTgt->getAttribute( 'typeof' );
+				$encapTgt->setAttribute( 'typeof', $t2 ? $t1 . ' ' . $t2 : $t1 );
 			}
 
 			/* ----------------------------------------------------------------
@@ -986,15 +992,15 @@ class WrapTemplates {
 
 				// Set up dsr[0], dsr[1], and data-mw on the target node
 				$encapInfo->datamw = (object)[ 'parts' => $tplArray ];
-				if ( WTUtils::isGeneratedFigure( $encapInfo->target ) ) {
+				if ( WTUtils::isGeneratedFigure( $encapTgt ) ) {
 					// Preserve attributes for media since those will be used
 					// when adding info, which only happens after this pass.
 					// FIXME: There's a question here about whether we should
 					// be doing this unconditionally, which is T214241
-					$oldMw = DOMDataUtils::getDataMw( $encapInfo->target );
+					$oldMw = DOMDataUtils::getDataMw( $encapTgt );
 					$encapInfo->datamw->attribs = $oldMw->attribs ?? null;
 				}
-				DOMDataUtils::setDataMw( $encapInfo->target, $encapInfo->datamw );
+				DOMDataUtils::setDataMw( $encapTgt, $encapInfo->datamw );
 				$encapInfo->dp->pi = $paramInfoArrays;
 
 				// Special case when mixed-attribute-and-content templates are
@@ -1031,7 +1037,7 @@ class WrapTemplates {
 			// 2. In both cases, should we mark these uneditable by adding
 			// mw:Placeholder to the typeof?
 			if ( !empty( $dp1->fostered ) ) {
-				$encapInfo->datamw = DOMDataUtils::getDataMw( $encapInfo->target );
+				$encapInfo->datamw = DOMDataUtils::getDataMw( $encapTgt );
 				if ( !$encapInfo->datamw ||
 					!$encapInfo->datamw->parts ||
 					count( $encapInfo->datamw->parts ) === 1
@@ -1044,7 +1050,7 @@ class WrapTemplates {
 			if ( $encapInfo->valid ) {
 				if ( !$encapInfo->dp ) {
 					// This wouldn't have been initialized if tplArray was null
-					$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapInfo->target );
+					$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapTgt );
 				}
 				// encapInfo.dp points to DOMDataUtils.getDataParsoid(encapInfo.target)
 				// and all updates below update properties in that object tree.
