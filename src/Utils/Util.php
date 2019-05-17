@@ -316,9 +316,9 @@ class Util {
 	 * Get argument information for an extension tag token.
 	 *
 	 * @param Token $extToken
-	 * @return object
+	 * @return \stdClass
 	 */
-	public static function getExtArgInfo( Token $extToken ) {
+	public static function getExtArgInfo( Token $extToken ): \stdClass {
 		$name = $extToken->getAttribute( 'name' );
 		$options = $extToken->getAttribute( 'options' );
 		return (object)[

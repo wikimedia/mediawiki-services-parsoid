@@ -1,47 +1,43 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\TokenHandler as TokenHandler;
-use Parsoid\DOMDataUtils as DOMDataUtils;
-use Parsoid\TokenUtils as TokenUtils;
-use Parsoid\Util as Util;
-use Parsoid\PipelineUtils as PipelineUtils;
+use DOMDocument;
+use Exception;
 
-/**
- * @class
- * @extends module:wt2html/tt/TokenHandler
- */
+use Parsoid\Config\Env;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\PipelineUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\TokenTransformManager;
+
 class ExtensionHandler extends TokenHandler {
-	public function __construct( $manager, $options ) {
+	/**
+	 * @param TokenTransformManager $manager
+	 * @param array $options
+	 */
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		// Extension content expansion
-		$this->manager->addTransform(
-			function ( $token, $cb ) {return $this->onExtension( $token, $cb );
-   },
-			'ExtensionHandler:onExtension', self::rank(),
-			'tag', 'extension'
-		);
 	}
-
-	public static function rank() {
- return 1.11;
- }
 
 	/**
 	 * Parse the extension HTML content and wrap it in a DOMFragment
 	 * to be expanded back into the top-level DOM later.
 	 */
-	public function parseExtensionHTML( $extToken, $cb, $err, $doc ) {
+	private function parseExtensionHTML( Token $extToken, ?Exception $err, DOMDocument $doc ): array {
+		$logger = $this->manager->env->getSiteConfig()->getLogger();
 		$errType = '';
 		$errObj = [];
 		if ( $err ) {
 			$doc = $this->env->createDocument( '<span></span>' );
-			$doc->body->firstChild->appendChild( $doc->createTextNode( $extToken->getAttribute( 'source' ) ) );
+			$extSource = $doc->createTextNode( $extToken->getAttribute( 'source' ) );
+			DOMCompat::getBody( $doc )->firstChild->appendChild( $extSource );
 			$errType = 'mw:Error ';
 			// Provide some info in data-mw in case some client can do something with it.
 			$errObj = [
@@ -58,14 +54,14 @@ class ExtensionHandler extends TokenHandler {
 			);
 		}
 
-		$psd = $this->manager->env->conf->parsoid;
-		if ( $psd->dumpFlags && $psd->dumpFlags->has( 'extoutput' ) ) {
-			$console->warn( '='->repeat( 80 ) );
-			$console->warn( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
-			$console->warn( '='->repeat( 80 ) );
-			$console->warn( "EXTENSION OUTPUT:\n" );
-			$console->warn( $doc->body->outerHTML );
-			$console->warn( '-'->repeat( 80 ) );
+		$psd = $this->manager->env;
+		if ( !empty( $psd->dumpFlags [ 'extoutput' ] ) ) {
+			$logger->warning( str_repeat( '=', 80 ) );
+			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
+			$logger->warning( str_repeat( '=', 80 ) );
+			$logger->warning( "EXTENSION OUTPUT:\n" );
+			$logger->warning( DOMCompat::getOuterHTML( DOMCompat::getBody( $doc ) ) );
+			$logger->warning( str_repeat( '-', 80 ) );
 		}
 
 		// document -> html -> body -> children
@@ -80,23 +76,10 @@ class ExtensionHandler extends TokenHandler {
 		];
 
 		// DOMFragment-based encapsulation.
-		$this->_onDocument( $state, $cb, $doc );
+		return $this->onDocument( $state, $doc );
 	}
 
-	/**
-	 * Fetch the preprocessed wikitext for an extension.
-	 */
-	public function fetchExpandedExtension( $text, $parentCB, $cb ) {
-		$env = $this->env;
-		// We are about to start an async request for an extension
-		$env->log( 'debug', 'Note: trying to expand ', $text );
-		$parentCB( [ 'async' => true ] );
-		// Pass the page title to the API.
-		$title = $env->page->name || '';
-		$env->batcher->parse( $title, $text )->nodify( $cb );
-	}
-
-	public static function normalizeExtOptions( $options ) {
+	private static function normalizeExtOptions( array $options ): array {
 		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
 		//
 		// Extension options should always be interpreted as plain text. The
@@ -112,8 +95,8 @@ class ExtensionHandler extends TokenHandler {
 			// Use the source if present. If not use the value, but ensure it's a
 			// string, as it can be a token stream if the parser has recognized it
 			// as a directive.
-			$v = $o->vsrc
-|| ( ( $o->v->constructor === $String ) ? $o->v :
+			$v = $o->vsrc ||
+				( ( $o->v instanceof string ) ? $o->v :
 				TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] ) );
 			// Normalize whitespace in extension attribute values
 			// FIXME: If the option is parsed as wikitext, this normalization
@@ -125,12 +108,72 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
-	public function onExtension( $token, $cb ) {
+	private function processParserResponse( Env $env, Token $token, array $ret ): array {
+		// PORT-FIXME: Does the parse request never return an error now?
+		$err = null;
+		$html = $ret['html'];
+
+		/**
+		 * PORT-FIXME: Does this still need to be done when the return
+		 * HTML comes from core API calls, not HTTP API calls
+		 *
+		// Strip two trailing newlines that action=parse adds after any
+		// extension output
+		$html = preg_replace( '/\n\n$/', '', $html );
+
+		// Also strip a paragraph wrapper, if any
+		$html = preg_replace( '/(^<p>)|(<\/p>$)/D', '', $html );
+		*/
+
+		/**
+		 *PORT-FIXME: The patch that supports this is not yet merged
+		 *
+		// Add the modules to the page data
+		$env->setOutputProperty('modules', $ret['modules'] );
+		$env->setOutputProperty('modulescripts', $ret['modulescripts'] );
+		$env->setOutputProperty('modulestyles', $ret['modulestyles'] );
+		*/
+
+		// FIXME: This is a hack to account for the php parser's
+		// gratuitous trailing newlines after parse requests.
+		// Trimming keeps the top-level nodes length down to just
+		// the <style> tag, so it can keep that dom fragment
+		// representation as it's tunnelled through to the dom.
+		if ( !$err && $token->getAttribute( 'name' ) === 'templatestyles' ) {
+			$html = trim( $html );
+		}
+
+		/*  - categories: (array) [ Category name => sortkey ] */
+		// Add the categories which were added by extensions directly into the
+		// page and not as in-text links
+		if ( $ret['categories'] ) {
+			foreach ( $ret['categories'] as $name => $sortkey ) {
+				$dummyDoc = $env->createDocument( '' );
+				$link = $dummyDoc->createElement( "link" );
+				$link->setAttribute( "rel", "mw:PageProp/Category" );
+				$href = $env->getSiteConfig()->relativeLinkPrefix() .
+					"Category:" . PHPUtils::encodeURIComponent( $name );
+				if ( $sortkey ) {
+					$href .= "#" . PHPUtils::encodeURIComponent( $sortkey );
+				}
+				$link->setAttribute( "href", $href );
+
+				$html .= "\n" . DOMCompat::getOuterHTML( $link );
+			}
+		}
+
+		return [ 'err' => null, 'html' => $html ];
+	}
+
+	private function onExtension( $token ): array {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
-		$nativeExt = $env->conf->wiki->extConfig->tags->get( $extensionName );
-		// TODO: use something order/quoting etc independent instead of src
-		$cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ];
+		// PORT-FIXME need interface to get extensionName and extensionCache
+		// $nativeExt = $env->getSiteConfig()->wiki->extConfig->tags->get( $extensionName );
+		$nativeExt = null;
+		// PORT-FIXME: Code in gerrit
+		// $cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
+		$cachedExpansion = null;
 
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
@@ -149,72 +192,66 @@ class ExtensionHandler extends TokenHandler {
 				// instead?
 				'parseContext' => $this->options
 			];
-			$p = $nativeExt->toDOM( $state, $extContent, $extArgs );
-			if ( $p ) {
+			$doc = $nativeExt->toDOM( $state, $extContent, $extArgs );
+			if ( $doc !== null ) {
 				// Pass an async signal since the ext-content won't be processed synchronously
-				$cb( [ 'async' => true ] );
-				$p->nodify( function ( $err, $doc ) use ( &$token, &$cb ) {return $this->parseExtensionHTML( $token, $cb, $err, $doc );
-	   } );
+				$toks = $this->parseExtensionHTML( $token, null, $doc );
+				return( [ 'tokens' => $toks ] );
 			} else {
 				// The extension dropped this instance completely (!!)
 				// Should be a rarity and presumably the extension
 				// knows what it is doing. Ex: nested refs are dropped
 				// in some scenarios.
-				$cb( [ 'tokens' => [], 'async' => false ] );
+				return [ 'tokens' => [] ];
 			}
 		} elseif ( $cachedExpansion ) {
 			// cache hit. Reuse extension expansion.
 			$toks = PipelineUtils::encapsulateExpansionHTML( $env, $token, $cachedExpansion, [
-					'fromCache' => true
-				]
-			);
-			$cb( [ 'tokens' => $toks ] );
-		} elseif ( $env->conf->parsoid->expandExtensions ) {
-			// Use MediaWiki's action=parse
-			$this->fetchExpandedExtension(
-				$token->getAttribute( 'source' ),
-				$cb,
-				function ( $err, $html ) use ( &$token, &$cb, &$env ) {
-					// FIXME: This is a hack to account for the php parser's
-					// gratuitous trailing newlines after parse requests.
-					// Trimming keeps the top-level nodes length down to just
-					// the <style> tag, so it can keep that dom fragment
-					// representation as it's tunnelled through to the dom.
-					if ( !$err && $token->getAttribute( 'name' ) === 'templatestyles' ) { $html = trim( $html );
-		   }
-					$this->parseExtensionHTML( $token, $cb, $err, ( $err ) ? null : $env->createDocument( $html ) );
-				}
-			);
+				'fromCache' => true
+			] );
+			return( [ 'tokens' => $toks ] );
+		} elseif ( !$env->inOfflineMode() ) {
+			$pageConfig = $env->getPageConfig();
+			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
+			$ret = $this->processParserResponse( $env, $token, $ret );
+			$err = $ret['err'];
+			$html = $ret['html'];
+			$toks = $this->parseExtensionHTML( $token, null, $err ? null : $env->createDocument( $html ) );
+			return( [ 'tokens' => $toks ] );
 		} else {
-			$err = new Error( '`expandExtensions` is disabled.' );
-			$this->parseExtensionHTML( $token, $cb, $err, null );
+			$err = new Exception( 'In offline mode. Cannot expand non-native extensions.' );
+			$toks = $this->parseExtensionHTML( $token, $err, null );
+			return( [ 'tokens' => $toks ] );
 		}
 	}
 
-	public function _onDocument( $state, $cb, $doc ) {
+	private function onDocument( array $state, DOMDocument $doc ): array {
 		$env = $this->manager->env;
 
-		$argDict = Util::getExtArgInfo( $state->token )->dict;
-		if ( $state->token->dataAttribs->extTagOffsets[ 2 ] === $state->token->dataAttribs->extTagOffsets[ 3 ] ) {
-			$argDict->body = null; // Serialize to self-closing.
+		$argDict = Util::getExtArgInfo( $state['token'] )->dict;
+		$extTagOffsets = $state['token']->dataAttribs->extTagOffsets;
+		if ( $extTagOffsets[2] === $extTagOffsets[3] ) {
+			unset( $argDict->body ); // Serialize to self-closing.
 		}
+
+		// PORT-FIXME: Not supported yet
 		// Give native extensions a chance to manipulate the argDict
-		$nativeExt = $env->conf->wiki->extConfig->tags->get( $state->wrapperName );
+		// $nativeExt = $env->conf->wiki->extConfig->tags->get( $state['wrapperName'] );
+		$nativeExt = null;
 		if ( $nativeExt && $nativeExt->modifyArgDict ) {
 			$nativeExt->modifyArgDict( $env, $argDict );
 		}
 
-		$opts = Object::assign( [
-				'setDSR' => true, // FIXME: This is the only place that sets this ...
-				'wrapperName' => $state->wrapperName
-			],
+		$opts = [
+			'setDSR' => true, // FIXME: This is the only place that sets this ...
+			'wrapperName' => $state['wrapperName'],
 
-			 // Check if the tag wants its DOM fragment not to be unwrapped.
+			// Check if the tag wants its DOM fragment not to be unwrapped.
 			// The default setting is to unwrap the content DOM fragment automatically.
-			$nativeExt && $nativeExt->fragmentOptions
-		);
+			'unwrapFragment' => $nativeExt && $nativeExt->fragmentOptions
+		];
 
-		$body = $doc->body;
+		$body = DOMCompat::getBody( $doc );
 
 		// This special case is only because, from the beginning, Parsoid has
 		// treated <nowiki>s as core functionality with lean markup (no about,
@@ -222,7 +259,7 @@ class ExtensionHandler extends TokenHandler {
 		//
 		// We'll keep this hardcoded to avoid exposing the functionality to
 		// other native extensions until it's needed.
-		if ( $state->wrapperName !== 'nowiki' ) {
+		if ( $state['wrapperName'] !== 'nowiki' ) {
 			if ( !$body->hasChildNodes() ) {
 				// RT extensions expanding to nothing.
 				$body->appendChild( $body->ownerDocument->createElement( 'link' ) );
@@ -235,8 +272,10 @@ class ExtensionHandler extends TokenHandler {
 			// Now get the firstNode
 			$firstNode = $body->firstChild;
 
+			DOMUtils::assertElt( $firstNode );
+
 			// Adds the wrapper attributes to the first element
-			$firstNode->setAttribute( 'typeof', $state->wrapperType );
+			$firstNode->setAttribute( 'typeof', $state['wrapperType'] );
 
 			// Add about to all wrapper tokens.
 			$about = $env->newAboutId();
@@ -247,29 +286,31 @@ class ExtensionHandler extends TokenHandler {
 			}
 
 			// Set data-mw
-			DOMDataUtils::setDataMw(
-				$firstNode,
-				Object::assign( $state->wrapperDataMw || [], $argDict )
-			);
+			$dmw = $state['wrapperDataMw'] ?? [];
+			// PORT-FIXME: This looks ugly below. Any other solution?
+			DOMDataUtils::setDataMw( $firstNode, (object)( (array)$argDict + $dmw ) );
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
-			$dp->tsr = Util::clone( $state->token->dataAttribs->tsr );
-			$dp->src = $state->token->dataAttribs->src;
+			$dp->tsr = Util::clone( $state['token']->dataAttribs->tsr );
+			$dp->src = $state['token']->dataAttribs->src;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 
-		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state->token, $body, $opts );
+		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state['token'], $body, $opts );
 
-		if ( $state->isHtmlExt ) {
-			$toks[ 0 ]->dataAttribs->tmp = $toks[ 0 ]->dataAttribs->tmp || [];
-			$toks[ 0 ]->dataAttribs->tmp->isHtmlExt = true;
+		if ( $state['isHtmlExt'] ) {
+			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp || [];
+			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
 		}
 
-		$cb( [ 'tokens' => $toks ] );
+		return [ 'tokens' => $toks ];
 	}
-}
 
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->ExtensionHandler = $ExtensionHandler;
+	/**
+	 * @inheritDoc
+	 */
+	public function onTag( Token $token ) {
+		return $token->getName() === 'extension' ? $this->onExtension( $token ) : $token;
+	}
 }
