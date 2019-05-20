@@ -353,39 +353,42 @@ class Separators {
 	 * Figure out separator constraints and merge them with existing constraints
 	 * in state so that they can be emitted when the next content emits source.
 	 *
-	 * @param DOMElement $nodeA
+	 * @param DOMNode $nodeA
 	 * @param DOMHandler $sepHandlerA
-	 * @param DOMElement $nodeB
+	 * @param DOMNode $nodeB
 	 * @param DOMHandler $sepHandlerB
 	 */
 	public function updateSeparatorConstraints(
-		DOMElement $nodeA, DOMHandler $sepHandlerA, DOMElement $nodeB, DOMHandler $sepHandlerB
+		DOMNode $nodeA, DOMHandler $sepHandlerA, DOMNode $nodeB, DOMHandler $sepHandlerB
 	): void {
 		$state = $this->state;
 
+		// Non-element DOM nodes will have a null dom handler
 		if ( $nodeA->nextSibling === $nodeB ) {
 			// sibling separator
 			$sepType = 'sibling';
-			$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
-			$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
+			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
 			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		} elseif ( $nodeB->parentNode === $nodeA ) {
 			// parent-child separator, nodeA parent of nodeB
+			'@phan-var \DOMElement $nodeA'; // @var \DOMElement $nodeA
 			$sepType = 'parent-child';
 			$aCons = $sepHandlerA->firstChild( $nodeA, $nodeB, $state );
-			$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
 			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		} elseif ( $nodeA->parentNode === $nodeB ) {
 			// parent-child separator, nodeB parent of nodeA
+			'@phan-var \DOMElement $nodeB'; // @var \DOMElement $nodeA
 			$sepType = 'child-parent';
-			$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
+			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
 			$bCons = $sepHandlerB->lastChild( $nodeB, $nodeA, $state );
 			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		} else {
 			// sibling separator
 			$sepType = 'sibling';
-			$aCons = $sepHandlerA->after( $nodeA, $nodeB, $state );
-			$bCons = $sepHandlerB->before( $nodeB, $nodeA, $state );
+			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
+			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
 			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		}
 

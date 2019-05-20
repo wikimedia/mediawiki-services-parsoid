@@ -107,6 +107,9 @@ class WikitextSerializer {
 	/** @var SerializerState */
 	private $state;
 
+	/** @var Separators */
+	private $separators;
+
 	/**
 	 * @var array
 	 *   - env: (Env)
@@ -132,6 +135,7 @@ class WikitextSerializer {
 		] );
 		$this->logType = $this->options['logType'];
 		$this->state = new SerializerState( $this, $this->options );
+		$this->separators = new Separators( $this->env, $this->state );
 		$this->wteHandlers = new WikitextEscapeHandlers( $this->options );
 	}
 
@@ -142,8 +146,7 @@ class WikitextSerializer {
 	 * PORT-TODO: rename to something like handleLink()?
 	 */
 	public function linkHandler( DOMElement $node ): void {
-		// PORT-FIXME pass the call to LinkHandlersModule
-		throw new LogicException( 'Not ported yet' );
+		LinkHandlerUtils::linkHandler( $this->state, $node );
 	}
 
 	/**
@@ -165,8 +168,7 @@ class WikitextSerializer {
 	 * PORT-TODO: rename to something like handleFigure()?
 	 */
 	public function figureHandler( DOMElement $node ): void {
-		// PORT-FIXME pass the call to LinkHandlersModule
-		throw new LogicException( 'Not ported yet' );
+		LinkHandlerUtils::figureHandler( $this->state, $node );
 	}
 
 	/**
@@ -189,8 +191,7 @@ class WikitextSerializer {
 	public function updateSeparatorConstraints(
 		DOMNode $nodeA, DOMHandler $handlerA, DOMNode $nodeB, DOMHandler $handlerB
 	): void {
-		// PORT-FIXME pass the call to SeparatorsModule
-		throw new LogicException( 'Not ported yet' );
+		$this->separators->updateSeparatorConstraints( $nodeA, $handlerA, $nodeB, $handlerB );
 	}
 
 	/**
@@ -200,8 +201,7 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function buildSep( DOMNode $node ): string {
-		// PORT-FIXME pass the call to SeparatorsModule
-		throw new LogicException( 'Not ported yet' );
+		return $this->separators->buildSep( $node );
 	}
 
 	/**
@@ -215,8 +215,7 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
-		// PORT-FIXME pass the call to WikitextEscapeHandlers
-		throw new LogicException( 'Not ported yet' );
+		return $this->wteHandlers->escapeWikitext( $state, $text, $opts );
 	}
 
 	/**
