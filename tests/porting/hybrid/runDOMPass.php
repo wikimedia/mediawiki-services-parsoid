@@ -8,6 +8,8 @@ use Parsoid\Config\Api\Env as ApiEnv;
 
 use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Html2Wt\DOMNormalizer;
+use Parsoid\Html2Wt\SelectiveSerializer;
+use Parsoid\Html2Wt\WikitextSerializer;
 
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
@@ -101,6 +103,30 @@ function runDOMDiff( $env, $argv, $opts ) {
 	return PHPUtils::jsonEncode( [ "diff" => $diff, "html" => $out ] );
 }
 
+function runHtml2Wt( $env, $argv, $opts ) {
+	$useSelser = $argv[2] === "true";
+	$htmlFileName1 = $argv[3];
+	$editedBody = buildDOM( $env, $htmlFileName1 );
+	$env->getPageConfig()->editedDoc = $editedBody->ownerDocument;
+
+	if ( $useSelser ) {
+		$htmlFileName2 = $argv[4];
+		$origBody = buildDOM( $env, $htmlFileName2 );
+		$env->setOrigDOM( $origBody );
+		$serializer = new SelectiveSerializer( [ "env" => $env ] );
+	} else {
+		$serializer = new WikitextSerializer( [ "env" => $env ] );
+	}
+
+	$wt = $serializer->serializeDOM( $editedBody );
+
+	unlink( $htmlFileName1 );
+	if ( $useSelser ) {
+		unlink( $htmlFileName2 );
+	}
+	return $wt;
+}
+
 function runDOMNormalizer( $env, $argv, $opts ) {
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
@@ -161,6 +187,9 @@ switch ( $test ) {
 		break;
 	case 'DOMNormalizer':
 		$out = runDOMNormalizer( $env, $argv, $opts );
+		break;
+	case "HTML2WT":
+		$out = runHtml2Wt( $env, $argv, $opts );
 		break;
 	default:
 		$tableFixer = new TableFixups( $env );

@@ -5,6 +5,7 @@ namespace Parsoid\Config;
 
 use Closure;
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
@@ -380,10 +381,10 @@ class Env {
 
 	/**
 	 * Store reference to original DOM
-	 * @param DOMNode $node
+	 * @param DOMElement $dom
 	 */
-	public function setOrigDOM( $node ): void {
-		$this->origDOM = $node;
+	public function setOrigDOM( DOMElement $dom ): void {
+		$this->origDOM = $dom;
 	}
 
 	/**

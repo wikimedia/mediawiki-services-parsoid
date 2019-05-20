@@ -32,6 +32,7 @@ class SelectiveSerializer {
 	 */
 	public function __construct( $options ) {
 		$env = $options[ 'env' ];
+		$this->env = $env;
 		$this->wts = $options[ 'wts' ] ?? new WikitextSerializer( $options );
 
 		// Debug options
@@ -40,8 +41,6 @@ class SelectiveSerializer {
 
 		// Performance Timing option
 		$this->metrics = $env->getSiteConfig()->metrics();
-
-		$this->env = $env;
 	}
 
 	/**

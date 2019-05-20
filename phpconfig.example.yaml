@@ -18,16 +18,16 @@ wt2html:
    SyncTokenTransformManager1: false
 
    # Note that this implicitly runs all the transformers
-   # registered for stage 2 (in parser.js) on the PHP side
+   # registered for stage 3 (in parser.js) on the PHP side
    # These would be:
-   # - TokenStreamPatcher (not yet ported)
+   # - TokenStreamPatcher
    # - PreHandler
    # - QuoteTransformer
-   # - BehaviorSwitchHandler (needs better Env support)
+   # - BehaviorSwitchHandler
    # - ListHandler
-   # - SanitizerHandler (being ported, not yet merged)
+   # - SanitizerHandler
    # - ParagraphWrapper
-   SyncTokenTransformManager2: false
+   SyncTokenTransformManager3: false
 
    TT:
      ParagraphWrapper: false
@@ -68,6 +68,8 @@ wt2html:
      CleanUp-cleanupAndSaveDataParsoid: false
 
 html2wt:
+  # This implicitly enables both serializers as well as dom diff and dom normalizer
+  Serializer: false
   DOMDiff: false
   DOMNormalizer: false
 

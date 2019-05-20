@@ -126,10 +126,10 @@ class WikitextSerializer {
 	 */
 	public function __construct( $options ) {
 		$this->env = $options['env'];
-		$this->options = $options + [
+		$this->options = array_merge( $options, [
 			'rtTestMode' => $this->env->getSiteConfig()->rtTestMode(),
 			'logType' => 'trace/wts',
-		];
+		] );
 		$this->logType = $this->options['logType'];
 		$this->state = new SerializerState( $this, $this->options );
 		$this->wteHandlers = new WikitextEscapeHandlers( $this->options );

@@ -114,6 +114,24 @@ class PHPDOMPass {
 		);
 		return this.loadDOMFromStdout(body, 'normalizeDOM', true, state.env, res).body;
 	}
+
+	serialize(env, body, useSelser) {
+		const fileName1 = `/tmp/diff.${process.pid}.edited.html`;
+		this.dumpDOMToFile(body, fileName1);
+		const fileName2 = `/tmp/diff.${process.pid}.orig.html`;
+		if (useSelser) {
+			this.dumpDOMToFile(env.page.dom, fileName2);
+		}
+
+		return HybridTestUtils.runPHPCode(
+			"runDOMPass.php",
+			["HTML2WT", useSelser, fileName1].concat(useSelser ? [fileName2] : []),
+			this.mkOpts(env, {
+				toplevel: true,
+				pipelineId: -1 /* FIXME */,
+			})
+		);
+	}
 }
 
 if (typeof module === "object") {
