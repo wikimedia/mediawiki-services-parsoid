@@ -26,7 +26,7 @@ class THHandler extends DOMHandler {
 		$attrSepSrc = $usableDP ? PHPUtils::coalesce( $dp->attrSepSrc ?? null, null ) : null;
 		$startTagSrc = $usableDP ? ( $dp->startTagSrc ?? null ) : '';
 		if ( !$startTagSrc ) {
-			$startTagSrc = ( $usableDP && $dp->stx === 'row' ) ? '!!' : '!';
+			$startTagSrc = $usableDP && ( $dp->stx ?? null ) === 'row' ? '!!' : '!';
 		}
 
 		// T149209: Special case to deal with scenarios

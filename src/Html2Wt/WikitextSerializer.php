@@ -1059,7 +1059,7 @@ class WikitextSerializer {
 	public function defaultExtensionHandler( DOMElement $node, SerializerState $state ): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$src = $this->serializeExtensionStartTag( $node, $state );
-		if ( !$dataMw->body ) {
+		if ( !isset( $dataMw->body ) ) {
 			return $src; // We self-closed this already.
 		} elseif ( is_string( $dataMw->body->extsrc ?? null ) ) {
 			$src .= $dataMw->body->extsrc;
@@ -1282,7 +1282,7 @@ class WikitextSerializer {
 				//
 				// SSS FIXME: I think this is only for b/i tags for which we do
 				// dsr fixups. It may be okay to use this for other tags.
-				&& ( ( !$dp->autoInsertedStart && !$dp->autoInsertedEnd )
+				&& ( ( empty( $dp->autoInsertedStart ) && empty( $dp->autoInsertedEnd ) )
 					|| preg_match( '/^(td|th|tr)$/', $node->nodeName ) )
 			) {
 				$wrapperUnmodified = true;

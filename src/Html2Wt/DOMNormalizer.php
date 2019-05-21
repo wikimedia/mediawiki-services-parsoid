@@ -360,7 +360,7 @@ class DOMNormalizer {
 			// Ex: "<a..>..</a><b></b>bar"
 			// From [[Foo]]<b/>bar usage found on some dewiki pages.
 			// FIXME: Should this always than just in rt-test mode
-			!( $this->inRtTestMode && $dp->stx === 'html' );
+			!( $this->inRtTestMode && ( $dp->stx ?? null ) === 'html' );
 
 		if ( $strippable ) {
 			// Update diff markers (before the deletion)

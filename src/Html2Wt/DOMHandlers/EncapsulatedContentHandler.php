@@ -107,7 +107,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			// Only apply to plain extension tags.
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $typeOf )
 		) {
-			if ( $dataMw->name ) {
+			if ( isset( $dataMw->name ) ) {
 				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( $dataMw->name );
 				if ( $serialHandler ) {
 					$ret = $serialHandler->before( $node, $otherNode, $state );

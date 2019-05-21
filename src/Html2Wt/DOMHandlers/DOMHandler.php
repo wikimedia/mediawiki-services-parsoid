@@ -124,7 +124,7 @@ class DOMHandler {
 				return [ 'min' => 1, 'max' => 2 ];
 			}
 		} elseif ( DOMUtils::isList( $otherNode )
-			|| ( DOMUtils::isElt( $otherNode ) && $dp->stx === 'html' )
+			|| ( DOMUtils::isElt( $otherNode ) && ( $dp->stx ?? null ) === 'html' )
 		) {
 			// last child in ul/ol (the list element is our parent), defer
 			// separator constraints to the list.
@@ -169,8 +169,8 @@ class DOMHandler {
 		$res = '';
 		while ( $node ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
-
-			if ( $dp->stx !== 'html' && isset( $listTypes[$node->nodeName] ) ) {
+			$stx = $dp->stx ?? null;
+			if ( $stx !== 'html' && isset( $listTypes[$node->nodeName] ) ) {
 				if ( $node->nodeName === 'li' ) {
 					$parentNode = $node->parentNode;
 					while ( $parentNode && !( isset( $parentTypes[$parentNode->nodeName] ) ) ) {
@@ -188,7 +188,9 @@ class DOMHandler {
 				} else {
 					$res = $listTypes[$node->nodeName] . $res;
 				}
-			} elseif ( $dp->stx !== 'html' || !$dp->autoInsertedStart || !$dp->autoInsertedEnd ) {
+			} elseif ( $stx !== 'html' ||
+				empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd )
+			) {
 				break;
 			}
 
