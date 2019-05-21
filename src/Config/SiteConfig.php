@@ -20,6 +20,9 @@ abstract class SiteConfig {
 	/** @var LoggerInterface|null */
 	protected $logger = null;
 
+	/** @var int */
+	protected $iwMatcherBatchSize = 4096;
+
 	/** @var array|null */
 	private $iwMatcher = null;
 
@@ -344,20 +347,45 @@ abstract class SiteConfig {
 			$numLangs = count( $keys[1] );
 			$keys = array_merge( $keys[1], $keys[0] );
 			$patterns = array_merge( $patterns[1], $patterns[0] );
-			$regex = '/^(?:' . implode( '|', $patterns ) . ')$/i';
-			$this->iwMatcher = [ $keys, $regex, $numLangs ];
-		} else {
-			list( $keys, $regex, $numLangs ) = $this->iwMatcher;
+
+			// Chunk patterns into reasonably sized regexes
+			$this->iwMatcher = [];
+			$batchStart = 0;
+			$batchLen = 0;
+			foreach ( $patterns as $i => $pat ) {
+				$len = strlen( $pat );
+				if ( $i !== $batchStart && $batchLen + $len > $this->iwMatcherBatchSize ) {
+					$this->iwMatcher[] = [
+						array_slice( $keys, $batchStart, $i - $batchStart ),
+						'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/i',
+						$numLangs - $batchStart,
+					];
+					$batchStart = $i;
+					$batchLen = $len;
+				} else {
+					$batchLen += $len;
+				}
+			}
+			$i = count( $patterns );
+			if ( $i > $batchStart ) {
+				$this->iwMatcher[] = [
+					array_slice( $keys, $batchStart, $i - $batchStart ),
+					'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/i',
+					$numLangs - $batchStart,
+				];
+			}
 		}
 
-		if ( preg_match( $regex, $href, $m, PREG_UNMATCHED_AS_NULL ) ) {
-			foreach ( $keys as $i => $key ) {
-				if ( isset( $m[$i + 1] ) ) {
-					if ( $i < $numLangs ) {
-						// Escape language interwikis with a colon
-						$key = ':' . $key;
+		foreach ( $this->iwMatcher as list( $keys, $regex, $numLangs ) ) {
+			if ( preg_match( $regex, $href, $m, PREG_UNMATCHED_AS_NULL ) ) {
+				foreach ( $keys as $i => $key ) {
+					if ( isset( $m[$i + 1] ) ) {
+						if ( $i < $numLangs ) {
+							// Escape language interwikis with a colon
+							$key = ':' . $key;
+						}
+						return [ $key, $m[$i + 1] ];
 					}
-					return [ $key, $m[$i + 1] ];
 				}
 			}
 		}

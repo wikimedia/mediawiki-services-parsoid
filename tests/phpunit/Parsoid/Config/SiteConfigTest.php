@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Config;
 
 use Parsoid\Config\SiteConfig;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * @covers \Parsoid\Config\SiteConfig
@@ -89,8 +90,11 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @dataProvider provideInterwikiMatcher
 	 */
-	public function testInterwikiMatcher( $href, $expect ) {
+	public function testInterwikiMatcher( $href, $expect, $batchSize = null ) {
 		$siteConfig = $this->getSiteConfig( [ 'interwikiMap' ] );
+		if ( $batchSize !== null ) {
+			TestingAccessWrapper::newFromObject( $siteConfig )->iwMatcherBatchSize = $batchSize;
+		}
 		$siteConfig->expects( $this->once() )->method( 'interwikiMap' )->willReturn( [
 			'w' => [
 				'prefix' => 'w',
@@ -127,6 +131,13 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expect, $siteConfig->interwikiMatcher( $href ) );
 	}
 
+	/**
+	 * @dataProvider provideInterwikiMatcher
+	 */
+	public function testInterwikiMatcher_smallBatches( $href, $expect ) {
+		$this->testInterwikiMatcher( $href, $expect, 1 );
+	}
+
 	public function provideInterwikiMatcher() {
 		return [
 			[ 'https://de.wikipedia.org/wiki/Foobar', [ ':de', 'Foobar' ] ],
@@ -144,6 +155,37 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			[ 'http://en.wikipedia.org/wiki/Foobar', null ],
 			[ '//en.wikipedia.org/wiki/Foobar', null ],
 		];
+	}
+
+	public function testInterwikiMatcher_tooManyPatterns() {
+		$map = [];
+		for ( $i = 0; $i < 100000; $i++ ) {
+			$map["x$i"] = [
+				'prefix' => "x$i",
+				'url' => "https://example.org/$i/$1",
+			];
+		}
+		$map["l"] = [
+			'prefix' => 'l',
+			'language' => true,
+			'url' => 'https://example.org/42/$1'
+		];
+
+		$siteConfig = $this->getSiteConfig( [ 'interwikiMap' ] );
+		$siteConfig->method( 'interwikiMap' )->willReturn( $map );
+
+		$this->assertSame(
+			[ 'x9876', 'Foobar' ],
+			$siteConfig->interwikiMatcher( 'https://example.org/9876/Foobar' )
+		);
+		$this->assertSame(
+			[ ':l', 'Foobar' ],
+			$siteConfig->interwikiMatcher( 'https://example.org/42/Foobar' )
+		);
+		$this->assertSame(
+			null,
+			$siteConfig->interwikiMatcher( 'https://example.org/9999999/Foobar' )
+		);
 	}
 
 }
