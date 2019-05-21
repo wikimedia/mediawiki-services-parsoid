@@ -19,7 +19,8 @@ use Wikimedia\Assert\Assert;
 
 class Separators {
 
-	private const WS_COMMENTS_SEP_STRING = '( +)' . '(' . Util::COMMENT_REGEXP . '[^\n]*' . ')?$';
+	private const WS_COMMENTS_SEP_STRING = '( +)' .
+		'(' . Util::COMMENT_REGEXP_FRAGMENT . '[^\n]*' . ')?$';
 
 	/**
 	 * spaces + (comments and anything but newline)?
@@ -197,9 +198,12 @@ class Separators {
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
 		// Ignore lines with ws and a single comment in them
-		$splitRe = implode(
-			[ "(?:\n(?:[ \t]*?", Util::COMMENT_REGEXP, "[ \t]*?)+(?=\n))+|", Util::COMMENT_REGEXP ]
-		);
+		$splitRe = implode( [ "#(?:\n(?:[ \t]*?",
+				Util::COMMENT_REGEXP_FRAGMENT,
+				"[ \t]*?)+(?=\n))+|",
+				Util::COMMENT_REGEXP_FRAGMENT,
+				"#"
+			] );
 		preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ), $sepMatch );
 		$sepNlCount = count( $sepMatch );
 		$minNls = $nlConstraints['min'] ?? 0;

@@ -363,9 +363,9 @@ class SerializerState {
 
 	/**
 	 * Like it says on the tin.
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 */
-	public function updateModificationFlags( DOMElement $node ): void {
+	public function updateModificationFlags( DOMNode $node ): void {
 		$this->prevNodeUnmodified = $this->currNodeUnmodified;
 		$this->currNodeUnmodified = false;
 		$this->prevNode = $node;

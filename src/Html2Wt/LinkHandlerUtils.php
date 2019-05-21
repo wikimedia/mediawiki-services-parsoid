@@ -141,6 +141,7 @@ class LinkHandlerUtils {
 			'tail' => $dp->tail ?? '',
 			'prefix' => $dp->prefix ?? '',
 			'content' => (object)[], // string or tokens
+			'linkType' => null
 		];
 
 		// Figure out the type of the link
@@ -426,8 +427,8 @@ class LinkHandlerUtils {
 		// Would need to pipe for any non-string content.
 		// Preserve unmodified or non-minimal piped links.
 		if ( $contentString !== null &&
-			(
-				!empty( $target['modified'] ) || !empty( $linkData->contentModified ) || $dp->stx !== 'piped'
+			( !empty( $target['modified'] ) || !empty( $linkData->contentModified ) ||
+				( $dp->stx ?? null ) !== 'piped'
 			) &&
 			// Relative links are not simple
 			!preg_match( '/^\.\//', $contentString )

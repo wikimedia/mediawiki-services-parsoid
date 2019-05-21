@@ -258,8 +258,8 @@ class WikitextSerializer {
 	 * @return ConstrainedText|string
 	 */
 	public function getAttributeValue( DOMElement $node, string $key, $value ) {
-		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs;
-		foreach ( $tplAttrs ?: [] as $attr ) {
+		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
+		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's value is generated content,
 			// serialize HTML back to generator wikitext.
 			// PORT-FIXME: not type safe. Need documentation on attrib format.
@@ -351,12 +351,14 @@ class WikitextSerializer {
 		}
 
 		$da = $token->dataAttribs;
-		if ( $da->autoInsertedStart ) {
+		if ( !empty( $da->autoInsertedStart ) ) {
 			return '';
 		}
 
 		$close = '';
-		if ( ( Util::isVoidElement( $token->getName() ) && !$da->noClose ) || $da->selfClose ) {
+		if ( ( Util::isVoidElement( $token->getName() ) && empty( $da->noClose ) ) ||
+			!empty( $da->selfClose )
+		) {
 			$close = ' /';
 		}
 
@@ -365,7 +367,8 @@ class WikitextSerializer {
 			$sAttribs = ' ' . $sAttribs;
 		}
 
-		$tokenName = $da->srcTagName ?: $token->getName();
+		// srcTagName cannot be '' so, it is okay to use ?? operator
+		$tokenName = $da->srcTagName ?? $token->getName();
 		$ret = "<{$tokenName}{$sAttribs}{$close}>";
 
 		if ( strtolower( $tokenName ) === 'nowiki' ) {
@@ -391,12 +394,13 @@ class WikitextSerializer {
 			$this->state->inHTMLPre = false;
 		}
 
-		$tokenName = $token->dataAttribs->srcTagName || $token->getName();
+		// srcTagName cannot be '' so, it is okay to use ?? operator
+		$tokenName = $token->dataAttribs->srcTagName ?? $token->getName();
 		$ret = '';
 
-		if ( !$token->dataAttribs->autoInsertedEnd
+		if ( empty( $token->dataAttribs->autoInsertedEnd )
 			&& !Util::isVoidElement( $token->getName() )
-			&& !$token->dataAttribs->selfClose
+			&& empty( $token->dataAttribs->selfClose )
 		) {
 			$ret = "</{$tokenName}>";
 		}
@@ -526,7 +530,7 @@ class WikitextSerializer {
 		// 'a' data attribs -- look for attributes that were removed
 		// as part of sanitization and add them back
 		$dataAttribs = $token->dataAttribs;
-		if ( $dataAttribs->a && $dataAttribs->sa ) {
+		if ( isset( $dataAttribs->a ) && isset( $dataAttribs->sa ) ) {
 			$aKeys = array_keys( $dataAttribs->a );
 			foreach ( $aKeys as $k ) {
 				// Attrib not present -- sanitized away!
@@ -550,7 +554,7 @@ class WikitextSerializer {
 	 * @param DOMElement $node
 	 */
 	public function handleLIHackIfApplicable( DOMElement $node ): void {
-		$liHackSrc = DOMDataUtils::getDataParsoid( $node )->liHackSrc;
+		$liHackSrc = DOMDataUtils::getDataParsoid( $node )->liHackSrc ?? null;
 		$prev = DOMUtils::previousNonSepSibling( $node );
 
 		// If we are dealing with an LI hack, then we must ensure that

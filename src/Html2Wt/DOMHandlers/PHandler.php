@@ -154,7 +154,9 @@ class PHandler extends DOMHandler {
 				$node = DOMUtils::previousNonDeletedSibling( $node );
 
 				// Don't go past the current line in any case.
-				if ( !empty( $line->firstNode ) && DOMUtils::isAncestorOf( $node, $line->firstNode ) ) {
+				if ( !empty( $line->firstNode ) && $node &&
+					DOMUtils::isAncestorOf( $node, $line->firstNode )
+				) {
 					return false;
 				}
 			}

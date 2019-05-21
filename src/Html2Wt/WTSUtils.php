@@ -105,7 +105,7 @@ class WTSUtils {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Not the case, continue regular round-trip information.
-		if ( $dp->a === null || $dp->a[$name] === null ) {
+		if ( !isset( $dp->a ) || !property_exists( $dp->a, $name ) ) {
 			return [
 				'value' => $curVal,
 				// Mark as modified if a new element
@@ -118,7 +118,7 @@ class WTSUtils {
 				'modified' => true,
 				'fromsrc' => false
 			];
-		} elseif ( $dp->sa === null || $dp->sa[$name] === null ) {
+		} elseif ( !isset( $dp->sa ) || !property_exists( $dp->sa, $name ) ) {
 			return [
 				'value' => $curVal,
 				'modified' => false,
