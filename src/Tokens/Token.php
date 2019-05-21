@@ -152,7 +152,7 @@ abstract class Token implements \JsonSerializable {
 				"value" => $curVal,
 				// Mark as modified if a new element
 				// NOTE: strict equality will not work in this comparison
-				"modified" => ( $this->dataAttribs != (object)[] ),
+				"modified" => $this->dataAttribs != (object)[],
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {

@@ -43,7 +43,7 @@ class TDHandler extends DOMHandler {
 			$startTagSrc, $attrSepSrc,
 			$state, $node, $wrapperUnmodified
 		);
-		$inWideTD = preg_match( '/\|\||^{{!}}{{!}}/', $tdTag );
+		$inWideTD = (bool)preg_match( '/\|\||^{{!}}{{!}}/', $tdTag );
 		$leadingSpace = $this->getLeadingSpace( $state, $node, '' );
 		WTSUtils::emitStartTag( $tdTag . $leadingSpace, $node, $state );
 		$tdHandler = function ( $state, $text, $opts ) use ( $node, $inWideTD ) {

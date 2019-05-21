@@ -98,10 +98,10 @@ class WTSUtils {
 	 *
 	 * @param DOMElement $node
 	 * @param string $name
-	 * @param string $curVal
+	 * @param ?string $curVal
 	 * @return array
 	 */
-	public static function getShadowInfo( DOMElement $node, string $name, string $curVal ): array {
+	public static function getShadowInfo( DOMElement $node, string $name, ?string $curVal ): array {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Not the case, continue regular round-trip information.
@@ -150,7 +150,7 @@ class WTSUtils {
 		return self::getShadowInfo(
 			$node,
 			$name,
-			( $node->hasAttribute( $name ) ) ? $node->getAttribute( $name ) : null
+			$node->hasAttribute( $name ) ? $node->getAttribute( $name ) : null
 		);
 	}
 
@@ -406,7 +406,7 @@ class WTSUtils {
 	public static function getAttrFromDataMw(
 		stdClass $dataMw /* PORT-FIXME */, string $key, bool $keep
 	): ?array {
-		$arr = $dataMw->attribs ?: [];
+		$arr = $dataMw->attribs ?? [];
 		$i = false;
 		// PORT-FIXME $i = $arr->findIndex( function ( $a ) use ( &$key ) {
 		// PORT-FIXME     return ( $a[0] === $key || $a[0]->txt === $key );

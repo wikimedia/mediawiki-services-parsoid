@@ -25,9 +25,7 @@ class Separators {
 	/**
 	 * spaces + (comments and anything but newline)?
 	 */
-	private const WS_COMMENTS_SEP_TEST_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/';
-
-	private const WS_COMMENTS_SEP_REPLACE_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/g';
+	private const WS_COMMENTS_SEP_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/';
 
 	/**
 	 * multiple newlines followed by spaces + (comments and anything but newline)?
@@ -452,7 +450,7 @@ class Separators {
 		// and strip the leading space before non-indent-pre-safe tags
 		if ( !$state->inPHPBlock && !$state->inIndentPre &&
 			( preg_match( self::NL_WS_COMMENTS_SEP_REGEXP, $sep ) ||
-				preg_match( self::WS_COMMENTS_SEP_TEST_REGEXP, $sep ) &&
+				preg_match( self::WS_COMMENTS_SEP_REGEXP, $sep ) &&
 				( $constraintInfo['onSOL'] ?? $forceSOL )
 			)
 		) {
@@ -539,7 +537,7 @@ class Separators {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
 				$sep = preg_replace_callback(
-					self::WS_COMMENTS_SEP_REPLACE_REGEXP,
+					self::WS_COMMENTS_SEP_REGEXP,
 					function ( $matches ) use ( $stripLeadingSpace, $state ) {
 						$rest = $matches[2] ?? '';
 						if ( $stripLeadingSpace ) {

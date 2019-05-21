@@ -81,7 +81,7 @@ class LinkHandlerUtils {
 					$nhref = UrlUtils::expandUrl( $href, $base );
 
 					// can this match the pattern?
-					$re = '/^' . strtr( preg_quote( $base, '/' ), '\\$1', '.*' ) . '$/s';
+					$re = '/^' . strtr( preg_quote( $base, '/' ), [ '\\$1' => '.*' ] ) . '$/s';
 					if ( preg_match( $re, $nhref ) ) {
 						return $nhref;
 					}
@@ -1115,7 +1115,10 @@ class LinkHandlerUtils {
 			ContentUtils::ppToDOM( $env, $outerDMW->caption, [ 'node' => $captionElt, 'markNew' => true ] );
 			// Needs a parent node in order for WTS to be happy:
 			// DocumentFragment to the rescue!
-			$outerElt->ownerDocument->createDocumentFragment()->appendChild( $captionElt );
+			// IMPORTANT: Assign to a variable to prevent the fragment
+			// from getting GCed before we are done with it.
+			$fragment = $outerElt->ownerDocument->createDocumentFragment();
+			$fragment->appendChild( $captionElt );
 		}
 
 		$caption = null;
@@ -1173,13 +1176,13 @@ class LinkHandlerUtils {
 		$extra = []; // 'extra' classes
 		$val = null;
 
-		for ( $ix = 0;  $ix < count( $classes );  $ix++ ) {
-			switch ( $classes[ $ix ] ) {
+		foreach ( $classes as $c ) {
+			switch ( $c ) {
 				case 'mw-halign-none':
 				case 'mw-halign-right':
 				case 'mw-halign-left':
 				case 'mw-halign-center':
-					$val = substr( $classes[$ix], 10 ); // strip mw-halign- prefix
+					$val = substr( $c, 10 ); // strip mw-halign- prefix
 					$nopts[] = (object)[
 						'ck' => $val,
 						'ak' => $mwAliases['img_' . $val],
@@ -1194,7 +1197,7 @@ class LinkHandlerUtils {
 				case 'mw-valign-text-top':
 				case 'mw-valign-bottom':
 				case 'mw-valign-text-bottom':
-					$val = strtr( substr( $classes[$ix], 10 ), '-', '_' ); // strip mw-valign and '-' to '_'
+					$val = strtr( substr( $c, 10 ), '-', '_' ); // strip mw-valign and '-' to '_'
 					$nopts[] = (object)[
 						'ck' => $val,
 						'ak' => $mwAliases['img_' . $val],
@@ -1214,7 +1217,7 @@ class LinkHandlerUtils {
 					break;
 
 				default:
-					$extra[] = $classes[$ix];
+					$extra[] = $c;
 					break;
 			}
 		}
@@ -1245,7 +1248,7 @@ class LinkHandlerUtils {
 		}
 
 		foreach ( $mwParams as $o ) {
-			$v = $outerDMW->{$o['prop']};
+			$v = $outerDMW->{$o['prop']} ?? null;
 			if ( $v === null ) {
 				$a = WTSUtils::getAttrFromDataMw( $outerDMW, $o['ck'], true );
 				if ( $a !== null && !isset( $a[1]->html ) ) {
@@ -1324,7 +1327,7 @@ class LinkHandlerUtils {
 		if ( !( $outerElt && DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
 			$size = $getLastOpt( 'width' );
 			$sizeString = ( $size && !empty( $size->ak ) ) ||
-				( $ww['fromDataMW'] && !empty( $ww['value'] ) );
+				( !empty( $ww['fromDataMW'] ) && !empty( $ww['value'] ) );
 			if ( $sizeUnmodified && $sizeString ) {
 				// preserve original width/height string if not touched
 				$nopts[] = (object)[

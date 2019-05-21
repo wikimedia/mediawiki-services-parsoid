@@ -79,7 +79,7 @@ class WikitextSerializer {
 
 	/** @var string Regexp */
 	private const TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
-		= '\n(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$';
+		= '/\n(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$/';
 
 	/** @var string Regexp */
 	private const FORMATSTRING_REGEXP = '/^(\n)?(\{\{ *_+)(\n? *\|\n? *_+ *= *)(_+)(\n? *\}\})(\n)?$/';
@@ -236,12 +236,12 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function getAttributeKey( DOMElement $node, string $key ): string {
-		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs;
-		foreach ( $tplAttrs ?: [] as $attr ) {
+		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
+		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's key is generated content,
 			// serialize HTML back to generator wikitext.
 			// PORT-FIXME: bool check might not be safe. Need documentation on attrib format.
-			if ( $attr[0]->txt === $key && $attr[0]->html ) {
+			if ( ( $attr[0]->txt ?? null ) === $key && isset( $attr[0]->html ) ) {
 				return $this->serializeHTML( [
 					'env' => $this->env,
 					'onSOL' => false,
@@ -585,7 +585,8 @@ class WikitextSerializer {
 		if ( $forceTrim ) {
 			$value = trim( $value );
 		}
-		return preg_replace_callback( '/_+/', function ( $hole ) use ( $value ) {
+		return preg_replace_callback( '/_+/', function ( $m ) use ( $value ) {
+			$hole = $m[0];
 			if ( $value === '' || strlen( $hole ) <= strlen( $value ) ) {
 				return $value;
 			}
@@ -597,13 +598,13 @@ class WikitextSerializer {
 	 * Generates a template parameter sort function that tries to preserve existing ordering
 	 * but also to follow the order prescribed by the templatedata.
 	 * @param array $dpArgInfo
-	 * @param array $tplData
+	 * @param array|null $tplData
 	 * @param array $dataMwKeys
 	 * @return Closure
 	 * PORT-FIXME: there's probably a better way to do this
 	 */
 	private function createParamComparator(
-		array $dpArgInfo, array $tplData, array $dataMwKeys
+		array $dpArgInfo, ?array $tplData, array $dataMwKeys
 	): Closure {
 		// Record order of parameters in new data-mw
 		$newOrder = array_map( function ( $key, $i ) {
@@ -702,7 +703,7 @@ class WikitextSerializer {
 	 *   parserfunction.
 	 * @param StdClass $part The expression fragment to serialize. See $srcParts
 	 *   in serializeFromParts() for format.
-	 * @param array $tplData Templatedata, see
+	 * @param ?array $tplData Templatedata, see
 	 *   https://github.com/wikimedia/mediawiki-extensions-TemplateData/blob/master/Specification.md
 	 * @param mixed $prevPart Previous part. See $srcParts in serializeFromParts(). PORT-FIXME type?
 	 * @param mixed $nextPart Next part. See $srcParts in serializeFromParts(). PORT-FIXME type?
@@ -710,7 +711,7 @@ class WikitextSerializer {
 	 */
 	private function serializePart(
 		SerializerState $state, string $buf, DOMElement $node, string $type, StdClass $part,
-		array $tplData, $prevPart, $nextPart
+		?array $tplData, $prevPart, $nextPart
 	): string {
 		// Parse custom format specification, if present.
 		$defaultBlockSpc = "{{_\n| _ = _\n}}"; // "block"
@@ -734,12 +735,12 @@ class WikitextSerializer {
 			preg_match( self::FORMATSTRING_REGEXP, $defaultInlineSpc, $parsedFormat );
 			$format = null; // Indicates that no valid custom format was present.
 		}
-		$formatSOL = $parsedFormat[ 1 ];
-		$formatStart = $parsedFormat[ 2 ];
-		$formatParamName = $parsedFormat[ 3 ];
-		$formatParamValue = $parsedFormat[ 4 ];
-		$formatEnd = $parsedFormat[ 5 ];
-		$formatEOL = $parsedFormat[ 6 ];
+		$formatSOL = $parsedFormat[1] ?? '';
+		$formatStart = $parsedFormat[2] ?? '';
+		$formatParamName = $parsedFormat[3] ?? '';
+		$formatParamValue = $parsedFormat[4] ?? '';
+		$formatEnd = $parsedFormat[5] ?? '';
+		$formatEOL = $parsedFormat[6] ?? '';
 		$forceTrim = ( $format !== null ) || WTUtils::isNewElt( $node );
 
 		// Shoehorn formatting of top-level templatearg wikitext into this code.
@@ -763,10 +764,10 @@ class WikitextSerializer {
 			// PORT-FIXME do we care about different whitespace semantics for trim?
 			$strippedKey = trim( $key );
 			if ( $key !== $strippedKey ) {
-				$part->params[$strippedKey] = $part->params[$key];
+				$part->params->{$strippedKey} = $part->params->{$key};
 			}
 			return $strippedKey;
-		}, array_keys( $part->params ) );
+		}, array_keys( get_object_vars( $part->params ) ) );
 		if ( !$tplKeysFromDataMw ) {
 			return $buf . $formatEnd;
 		}
@@ -792,7 +793,7 @@ class WikitextSerializer {
 
 		$kvMap = [];
 		foreach ( $tplKeysFromDataMw as $key ) {
-			$param = $part->params[$key];
+			$param = $part->params->{$key};
 			// PORT-FIXME Document Parsoid data structure so it's possible to identify the PHP equivalents.
 			$argInfo = $dpArgInfoMap[$key] ?? [] ?: [];
 
@@ -814,7 +815,7 @@ class WikitextSerializer {
 			// The name is usually equal to the parameter key, but
 			// if there's a key.wt attribute, use that.
 			$name = null;
-			if ( $param->key && isset( $param->key->wt ) ) {
+			if ( isset( $param->key->wt ) ) {
 				$name = $param->key->wt;
 				// And make it appear even if there wasn't
 				// data-parsoid information.
@@ -838,7 +839,7 @@ class WikitextSerializer {
 		$numericIndex = 1;
 
 		$numPositionalArgs = array_reduce( $dpArgInfo, function ( $n, $pi ) use ( $part ) {
-			return ( isset( $part->params[$pi->k] ) && !$pi->named ) ? $n + 1 : $n;
+			return ( isset( $part->params->{$pi->k} ) && empty( $pi->named ) ) ? $n + 1 : $n;
 		}, 0 );
 
 		$argBuf = [];
@@ -970,21 +971,21 @@ class WikitextSerializer {
 		foreach ( $srcParts as $i => $part ) {
 			$prevPart = $srcParts[$i - 1] ?? null;
 			$nextPart = $srcParts[$i + 1] ?? null;
-			$tplArg = $part->templatearg;
+			$tplArg = $part->templatearg ?? null;
 			if ( $tplArg ) {
 				$buf = $this->serializePart( $state, $buf, $node, 'templatearg',
 					$tplArg, null, $prevPart, $nextPart );
 				continue;
 			}
 
-			$tpl = $part->template;
+			$tpl = $part->template ?? null;
 			if ( !$tpl ) {
 				$buf .= $part;
 				continue;
 			}
 
 			// transclusion: tpl or parser function
-			$tplHref = $tpl->target->href;
+			$tplHref = $tpl->target->href ?? null;
 			$isTpl = is_string( $tplHref );
 			$type = $isTpl ? 'template' : 'parserfunction';
 
@@ -1451,11 +1452,10 @@ class WikitextSerializer {
 		// FIXME: The solTransparentWikitextRegexp includes redirects, which really
 		// only belong at the SOF and should be unique. See the "New redirect" test.
 		// PORT-FIXME do the different whitespace semantics matter?
-		$noWikiRegexp = '/'
-			. '^' . PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' )
-			. "(<nowiki>\s+</nowiki>)([^\n]*(?:\n|\$))"
-		. '/im';
-		$pieces = preg_split( $noWikiRegexp, $this->state->out );
+		$noWikiRegexp = '/^'
+			. PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' )
+			. '(<nowiki>\s+<\/nowiki>)([^\n]*(?:\n|\$))' . '/im';
+		$pieces = preg_split( $noWikiRegexp, $this->state->out, -1, PREG_SPLIT_NO_EMPTY );
 		$out = $pieces[0];
 		for ( $i = 1;  $i < count( $pieces );  $i += 4 ) {
 			$out .= $pieces[$i];
@@ -1556,6 +1556,7 @@ class WikitextSerializer {
 			// For HTML tags, pull out just the tag name for clearer code below.
 			preg_match( '/^<(\/?\w+)/', $p[$j], $matches );
 			$tag = strtolower( $matches[1] ?? $p[$j] );
+			$tagLen = strlen( $tag );
 			$selfClose = false;
 			if ( preg_match( '/\/>$/', $p[$j] ) ) {
 				$tag .= '/';
@@ -1569,7 +1570,7 @@ class WikitextSerializer {
 					continue;
 				}
 			} else {
-				if ( $tag[0] === '/' && substr( $tag, 1 ) === $nonHtmlTag ) {
+				if ( $tagLen > 0 && $tag[0] === '/' && substr( $tag, 1 ) === $nonHtmlTag ) {
 					$nonHtmlTag = null;
 				}
 				continue;
@@ -1583,7 +1584,7 @@ class WikitextSerializer {
 				if ( array_pop( $stack ) !== '{{' ) {
 					return $line;
 				}
-			} elseif ( $tag[0] === '/' ) { // closing html tag
+			} elseif ( $tagLen > 0 && $tag[0] === '/' ) { // closing html tag
 				// match html/ext tags
 				$openTag = array_pop( $stack );
 				if ( $tag !== ( '/' . $openTag ) ) {
@@ -1606,7 +1607,7 @@ class WikitextSerializer {
 							&& $j + 2 < $n
 							&& $p[$j + 1] === ''
 							&& $p[$j + 2][0] === "'"
-							&& $p[$j + 2] === PHPUtils::lastItem( $stack ) ) )
+							&& $p[$j + 2] === end( $stack ) ) )
 				) {
 					$nowikiIndex = $j;
 				}
@@ -1617,12 +1618,12 @@ class WikitextSerializer {
 				//   mediawiki.wikitext.constants.js, <br> is the most common
 				//   culprit. )
 				continue;
-			} elseif ( $tag{0} === "'" && PHPUtils::lastItem( $stack ) === $tag ) {
+			} elseif ( $tagLen > 0 && $tag[0] === "'" && end( $stack ) === $tag ) {
 				array_pop( $stack );
 				$quotesOnStack--;
 			} else {
 				$stack[] = $tag;
-				if ( $tag{0} === "'" ) {
+				if ( $tagLen > 0 && $tag[0] === "'" ) {
 					$quotesOnStack++;
 				}
 			}

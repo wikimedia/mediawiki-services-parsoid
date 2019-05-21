@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
+use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
@@ -230,7 +231,7 @@ class WikitextEscapeHandlers {
 			// Wikitext styling might require whitespace insertion after list bullets.
 			// In those scenarios, presence of bullet-wiktext in the text node is okay.
 			// Hence the check for /^[#*:;]*$/ above.
-			return preg_match( '/^[#*:;]/', $text );
+			return (bool)preg_match( '/^[#*:;]/', $text );
 		} else {
 			return false;
 		}
@@ -413,9 +414,12 @@ class WikitextEscapeHandlers {
 			$t = $tokens[$i];
 			if ( is_string( $t ) ) {
 				$buf = $t . $buf;
-			} elseif ( $t->name === 'wikilink' ) {
+			} elseif ( $t->getName() === 'wikilink' ) {
 				$target = $t->getAttribute( 'href' );
-				// PORT-FIXME isValidLinkTarget
+				if ( is_array( $target ) ) {
+					// FIXME: in theory template expansion *could* make this a link.
+					return false;
+				}
 				if ( $env->isValidLinkTarget( $target ) &&
 					!$env->getSiteConfig()->hasValidProtocol( $target )
 				) {
@@ -425,7 +429,7 @@ class WikitextEscapeHandlers {
 				// Assumes 'src' will always be present which it seems to be.
 				// Tests will fail if anything changes in the tokenizer.
 				$buf = $t->dataAttribs->src . $buf;
-			} elseif ( $t->name === 'extlink' ) {
+			} elseif ( $t->getName() === 'extlink' ) {
 				// Check if the extlink came from a template which in the end
 				// would not really parse as an extlink.
 
@@ -527,7 +531,7 @@ class WikitextEscapeHandlers {
 
 			// Ignore non-whitelisted html tags
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( preg_match( '/(?:^|\s)mw:Extension(?=$|\s)/', $t->getAttribute( 'typeof' ) ) &&
+				if ( preg_match( '/(?:^|\s)mw:Extension(?=$|\s)/', $t->getAttribute( 'typeof' ) ?? '' ) &&
 					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
 				) {
 					return true;
@@ -541,7 +545,7 @@ class WikitextEscapeHandlers {
 				// cases, but is always safe).
 				if ( ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
 					// PORT-FIXME do we need strtolower?
-					$env->getSiteConfig()->isExtensionTag( strtolower( $t->name ) )
+					$env->getSiteConfig()->isExtensionTag( strtolower( $t->getName() ) )
 				) {
 					return true;
 				}
@@ -555,7 +559,7 @@ class WikitextEscapeHandlers {
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
 				// PORT-FIXME do we need strtolower?
-				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][strtolower( $t->name )] ) ) {
+				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][strtolower( $t->getName() )] ) ) {
 					return true;
 				} else {
 					continue;
@@ -567,7 +571,7 @@ class WikitextEscapeHandlers {
 				// * Ignore RFC/ISBN/PMID tokens when those are encountered in the
 				// context of another link's content -- those are not parsed to
 				// ext-links in that context. (T109371)
-				if ( ( $t->name === 'extlink' || $t->name === 'wikilink' ) &&
+				if ( ( $t->getName() === 'extlink' || $t->getName() === 'wikilink' ) &&
 					( $t->dataAttribs->stx ?? null ) === 'magiclink' &&
 					( $state->inAttribute || $state->inLink ) ) {
 					continue;
@@ -575,24 +579,23 @@ class WikitextEscapeHandlers {
 
 				// Ignore url links in attributes (href, mostly)
 				// since they are not in danger of being autolink-ified there.
-				if ( $t->name === 'urllink' && ( $state->inAttribute || $state->inLink ) ) {
+				if ( $t->getName() === 'urllink' && ( $state->inAttribute || $state->inLink ) ) {
 					continue;
 				}
 
 				// Ignore invalid behavior-switch tokens
-				if ( $t->name === 'behavior-switch' &&
+				if ( $t->getName() === 'behavior-switch' &&
 					!$env->getSiteConfig()->isMagicWord( $t->attribs[0]->v )
 				) {
 					continue;
 				}
 
 				// ignore TSR marker metas
-				if ( $t->name === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:TSRMarker' ) {
+				if ( $t->getName() === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:TSRMarker' ) {
 					continue;
 				}
 
-				if ( $t->name === 'wikilink' ) {
-					// PORT-FIXME isValidLinkTarget
+				if ( $t->getName() === 'wikilink' ) {
 					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ) ) {
 						return true;
 					} else {
@@ -603,20 +606,20 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $state->inCaption && $tc === 'TagTk' && $t->name === 'listItem' ) {
+			if ( $state->inCaption && $tc === 'TagTk' && $t->getName() === 'listItem' ) {
 				continue;
 			}
 
 			if ( $tc === 'TagTk' ) {
 				$ttype = $t->getAttribute( 'typeof' );
 				// Ignore mw:Entity tokens
-				if ( $t->name === 'span' && $ttype === 'mw:Entity' ) {
+				if ( $t->getName() === 'span' && $ttype === 'mw:Entity' ) {
 					$numEntities++;
 					continue;
 				}
 
 				// Ignore table tokens outside of tables
-				if ( in_array( $t->name, [ 'caption', 'td', 'tr', 'th' ], true ) &&
+				if ( in_array( $t->getName(), [ 'caption', 'td', 'tr', 'th' ], true ) &&
 					!TokenUtils::isHTMLTag( $t ) &&
 					$state->wikiTableNesting === 0
 				) {
@@ -639,7 +642,7 @@ class WikitextEscapeHandlers {
 				// here only verifies SOL requirements, not EOL requirements.
 				// So, record this information so that we can strip unnecessary
 				// nowikis after the fact.
-				if ( preg_match( '/^h\d$/', $t->name ) ) {
+				if ( preg_match( '/^h\d$/', $t->getName() ) ) {
 					$state->hasHeadingEscapes = true;
 				}
 
@@ -648,17 +651,17 @@ class WikitextEscapeHandlers {
 
 			if ( $tc === 'EndTagTk' ) {
 				// Ignore mw:Entity tokens
-				if ( $numEntities > 0 && $t->name === 'span' ) {
+				if ( $numEntities > 0 && $t->getName() === 'span' ) {
 					$numEntities--;
 					continue;
 				}
 				// Ignore heading tokens
-				if ( preg_match( '/^h\d$/', $t->name ) ) {
+				if ( preg_match( '/^h\d$/', $t->getName() ) ) {
 					continue;
 				}
 
 				// Ignore table tokens outside of tables
-				if ( isset( ( [ 'caption' => 1, 'table' => 1 ] )[ $t->name ] ) &&
+				if ( isset( ( [ 'caption' => 1, 'table' => 1 ] )[ $t->getName() ] ) &&
 					$state->wikiTableNesting === 0
 				) {
 					continue;
@@ -666,7 +669,7 @@ class WikitextEscapeHandlers {
 
 				// </br>!
 				// PORT-FIXME strtolower?
-				if ( 'br' === strtolower( $t->name ) ) {
+				if ( 'br' === strtolower( $t->getName() ) ) {
 					continue;
 				}
 
@@ -806,7 +809,7 @@ class WikitextEscapeHandlers {
 						// for the purpose of minimal nowiki escaping
 						self::nowikiWrap(
 							$tSrc,
-							isset( $tokensWithoutClosingTag[$t->name] ),
+							isset( $tokensWithoutClosingTag[$t->getName()] ),
 							$inNowiki,
 							$nowikisAdded,
 							$buf
@@ -818,7 +821,7 @@ class WikitextEscapeHandlers {
 						$sol = false;
 						break;
 					case 'SelfclosingTagTk':
-						if ( $t->name !== 'meta' ||
+						if ( $t->getName() !== 'meta' ||
 							!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) )
 						) {
 							// Don't bother with marker or empty-line metas
@@ -1198,13 +1201,13 @@ class WikitextEscapeHandlers {
 
 		for ( $i = 0,  $n = count( $tokens ); $i < $n; $i++ ) {
 			$t = $tokens[$i];
-			$da = $t->dataAttribs;
 			$last = $i === $n - 1;
 
 			// For mw:Entity spans, the opening and closing tags have 0 width
 			// and the enclosed content is the decoded entity. Hence the
 			// special case to serialize back the entity's source.
-			if ( TokenUtils::getTokenType( $t ) === 'TagTk' ) {
+			if ( $t instanceof TagTk ) {
+				$da = $t->dataAttribs;
 				$type = $t->getAttribute( 'typeof' );
 				if ( $type && preg_match( '/\bmw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Entity)\b/', $type ) ) {
 					$i += 2;
@@ -1259,6 +1262,7 @@ class WikitextEscapeHandlers {
 				case 'EndTagTk':
 				case 'NlTk':
 				case 'CommentTk':
+					$da = $t->dataAttribs;
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
@@ -1278,6 +1282,7 @@ class WikitextEscapeHandlers {
 					);
 					break;
 				case 'SelfclosingTagTk':
+					$da = $t->dataAttribs;
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
@@ -1287,7 +1292,7 @@ class WikitextEscapeHandlers {
 					}
 					$tkSrc = mb_substr( $arg, $da->tsr[0], $da->tsr[1] - $da->tsr[0] );
 					// Replace pipe by an entity. This is not completely safe.
-					if ( $t->name === 'extlink' || $t->name === 'urllink' ) {
+					if ( $t->getName() === 'extlink' || $t->getName() === 'urllink' ) {
 						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
 								'startRule' => 'tplarg_or_template_or_bust'
 							]

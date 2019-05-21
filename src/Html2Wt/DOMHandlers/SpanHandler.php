@@ -112,7 +112,7 @@ class SpanHandler extends DOMHandler {
 	}
 
 	private function isRecognizedSpanWrapper( string $type ): bool {
-		$types = preg_split( '/\s+/', $type, null, PREG_SPLIT_NO_EMPTY );
+		$types = preg_split( '/\s+/', $type, -1, PREG_SPLIT_NO_EMPTY );
 		return (bool)array_intersect( $types, self::$genContentSpanTypes );
 	}
 
