@@ -13,7 +13,9 @@ var Promise = require('../lib/utils/promise.js');
 var yargs = require('yargs');
 var fs = require('pn/fs');
 
-var opts = yargs.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files", {
+var opts = yargs
+.usage("Usage: $0 [options] [old-html-file new-html-file]\n\nProvide either inline html OR 2 files")
+.options({
 	help: {
 		description: 'Show this message',
 		'boolean': true,

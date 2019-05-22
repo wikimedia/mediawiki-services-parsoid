@@ -1025,10 +1025,10 @@ var getOpts = function() {
 		fetchConfig: false,
 	});
 
-	return yargs.usage(
-		'Usage: $0 [options] [tests-file]',
-		standardOpts
-	).check(function(argv, aliases) {
+	return yargs
+	.usage('Usage: $0 [options] [tests-file]')
+	.options(standardOpts)
+	.check(function(argv, aliases) {
 		if (argv.filter === true) {
 			throw "--filter needs an argument";
 		}
@@ -1036,7 +1036,8 @@ var getOpts = function() {
 			throw "--regex needs an argument";
 		}
 		return true;
-	}).strict();
+	})
+	.strict();
 };
 
 TestUtils.prepareOptions = function() {

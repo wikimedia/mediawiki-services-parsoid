@@ -58,7 +58,9 @@ var strip = function(s) {
 Promise.async(function *() {
 	// Option parsing and helpful messages.
 	var usage = 'Usage: $0 <repo path> <branch name> <target>';
-	var opts = yargs.usage(usage, {
+	var opts = yargs
+	.usage(usage)
+	.options({
 		'help': { description: 'Show this message' },
 	});
 	var argv = opts.argv;

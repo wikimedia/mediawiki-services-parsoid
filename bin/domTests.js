@@ -213,7 +213,9 @@ MockDOMPostProcessor.prototype.wikitextTest = function(opts) {
 	return numFailures;
 };
 
-var opts = yargs.usage('Usage: $0 [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFilePrefix /path/filename', {
+var opts = yargs
+.usage('Usage: $0 [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFilePrefix /path/filename')
+.options({
 	help: {
 		description: [
 			'domTest.js supports parsoid generated test validation.',

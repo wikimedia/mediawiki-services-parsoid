@@ -75,7 +75,9 @@ var usage = 'Usage: $0 [options] <page-title or rev-id>\n' +
 	'If first argument is numeric, it is used as a rev id; otherwise it is\n' +
 	'used as a title.  Use the --title option for a numeric title.';
 
-var yopts = yargs.usage(usage, ScriptUtils.addStandardOptions({
+var yopts = yargs
+.usage(usage)
+.options(ScriptUtils.addStandardOptions({
 	'output': {
 		description: "Write page to given file",
 	},

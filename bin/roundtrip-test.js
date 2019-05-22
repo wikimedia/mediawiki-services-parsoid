@@ -835,12 +835,15 @@ if (require.main === module) {
 	};
 
 	Promise.async(function *() {
-		var opts = yargs.usage(
+		var opts = yargs
+		.usage(
 			'Usage: $0 [options] <page-title> \n' +
 			'The page title should be the "true title",' +
 			'i.e., without any url encoding which might be necessary if it appeared in wikitext.' +
-			'\n\n', standardOpts
-		).strict();
+			'\n\n'
+		)
+		.options(standardOpts)
+		.strict();
 
 		var argv = opts.argv;
 		if (!argv._.length) {

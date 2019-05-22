@@ -62,7 +62,9 @@ require('../core-upgrade.js');
 var path = require('path');
 var yargs = require('yargs');
 
-var opts = yargs.usage("Usage $0 [options] old-json-file new-json-file", {
+var opts = yargs
+.usage("Usage $0 [options] old-json-file new-json-file")
+.options({
 	help: {
 		description: 'Show this message',
 		'boolean': true,

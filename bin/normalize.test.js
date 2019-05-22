@@ -13,7 +13,9 @@ var MockEnv = require('../tests/MockEnv.js').MockEnv;
 var yargs = require('yargs');
 var fs = require('pn/fs');
 
-var opts = yargs.usage("Usage: $0 [options] [html-file]\n\nProvide either inline html OR 1 file", {
+var opts = yargs
+.usage("Usage: $0 [options] [html-file]\n\nProvide either inline html OR 1 file")
+.options({
 	help: {
 		description: 'Show this message',
 		'boolean': true,

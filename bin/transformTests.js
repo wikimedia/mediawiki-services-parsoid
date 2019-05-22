@@ -277,7 +277,9 @@ MockTTM.prototype.wikitextTest = function(tokenTransformer, opts) {
 	return results;
 };
 
-var opts = yargs.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFile /path/filename', {
+var opts = yargs
+.usage('Usage: $0 [--manual] [--timingMode [--iterationCount N]] [--log] --transformer NAME --inputFile /path/filename')
+.options({
 	help: {
 		description: [
 			'transformTest.js supports parsoid generated and manually created',

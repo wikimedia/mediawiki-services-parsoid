@@ -529,41 +529,46 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 }
 
 function main() {
-	const yopts = yargs.usage(
+	const yopts = yargs
+	.usage(
 		'Usage: $0 [options] <conversion> <inverse>\n' +
-		'Converts a finite-state transducer in .att format.', {
-			'output': {
-				description: 'Output filename (or base name)',
-				alias: 'o',
-				nargs: 1,
-				normalize: true,
-			},
-			'file': {
-				description: 'Input .att filename',
-				alias: 'f',
-				conflicts: 'language',
-				implies: 'output',
-				nargs: 1,
-				normalize: true,
-			},
-			'language': {
-				description: 'Converts trans-{conversion}, brack-{conversion}-noop, and brack-{conversion}-{inverse} in default locations',
-				alias: 'l',
-				conflicts: 'file',
-				array: true,
-			},
-			'brackets': {
-				description: 'Emit a bracket-location machine',
-				alias: 'b',
-				boolean: true,
-				default: undefined,
-			},
-			'verbose': {
-				description: 'Show progress',
-				alias: 'v',
-				boolean: true,
-			},
-		}).example('$0 -l sr-ec sr-el');
+		'Converts a finite-state transducer in .att format.'
+	)
+	.options({
+		'output': {
+			description: 'Output filename (or base name)',
+			alias: 'o',
+			nargs: 1,
+			normalize: true,
+		},
+		'file': {
+			description: 'Input .att filename',
+			alias: 'f',
+			conflicts: 'language',
+			implies: 'output',
+			nargs: 1,
+			normalize: true,
+		},
+		'language': {
+			description: 'Converts trans-{conversion}, brack-{conversion}-noop, and brack-{conversion}-{inverse} in default locations',
+			alias: 'l',
+			conflicts: 'file',
+			array: true,
+		},
+		'brackets': {
+			description: 'Emit a bracket-location machine',
+			alias: 'b',
+			boolean: true,
+			default: undefined,
+		},
+		'verbose': {
+			description: 'Show progress',
+			alias: 'v',
+			boolean: true,
+		},
+	})
+	.example('$0 -l sr-ec sr-el');
+
 	const argv = yopts.argv;
 	if (argv.help) {
 		yopts.showHelp();

@@ -195,10 +195,10 @@ var standardOpts = ScriptUtils.addStandardOptions({
 Promise.async(function *() {
 	var defaultModeStr = "Default conversion mode : --wt2html";
 
-	var opts = yargs.usage(
-		'Usage: echo wikitext | $0 [options]\n\n' + defaultModeStr,
-		standardOpts
-	).strict();
+	var opts = yargs
+	.usage('Usage: echo wikitext | $0 [options]\n\n' + defaultModeStr)
+	.options(standardOpts)
+	.strict();
 
 	var argv = opts.parse(process.argv);
 

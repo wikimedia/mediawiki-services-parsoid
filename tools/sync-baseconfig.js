@@ -75,7 +75,9 @@ var usage = 'Usage: $0 [options]\n' +
 	'Rewrites one cached siteinfo configuration.\n' +
 	'Use --domain or --prefix to select which one to rewrite.';
 
-var yopts = yargs.usage(usage, ScriptUtils.addStandardOptions({
+var yopts = yargs
+.usage(usage)
+.options(ScriptUtils.addStandardOptions({
 	'config': {
 		description: "Path to a config.yaml file.  Use --config w/ no argument to default to the server's config.yaml",
 		'default': false,

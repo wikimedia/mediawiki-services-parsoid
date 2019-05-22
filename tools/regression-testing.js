@@ -14,7 +14,9 @@ var serviceWrapper = require('../tests/serviceWrapper.js');
 var rtTest = require('../bin/roundtrip-test.js');
 
 var usage = 'Usage: $0 -f <file> -o <sha> -c <sha>';
-var opts = yargs.usage(usage, {
+var opts = yargs
+.usage(usage)
+.options({
 	help: {
 		description: 'Show this message.',
 		'boolean': true,

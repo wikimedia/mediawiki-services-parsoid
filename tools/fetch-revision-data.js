@@ -103,7 +103,9 @@ var fetch = Promise.async(function *(page, revid, opts) {
 });
 
 var usage = 'Usage: $0 [options] --title <page-title> [--revid <rev-id>]\n';
-var yopts = yargs.usage(usage, {
+var yopts = yargs
+.usage(usage)
+.options({
 	'config': {
 		description: "Path to a config.yaml file. Defaults to the server's config.yaml",
 		'default': true,
