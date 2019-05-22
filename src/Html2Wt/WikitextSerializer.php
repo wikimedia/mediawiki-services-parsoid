@@ -198,9 +198,9 @@ class WikitextSerializer {
 	 * Emit a separator based on the collected (and merged) constraints
 	 * and existing separator text. Called when new output is triggered.
 	 * @param DOMNode $node
-	 * @return string
+	 * @return string|null
 	 */
-	public function buildSep( DOMNode $node ): string {
+	public function buildSep( DOMNode $node ): ?string {
 		return $this->separators->buildSep( $node );
 	}
 

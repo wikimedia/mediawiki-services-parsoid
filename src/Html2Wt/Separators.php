@@ -204,8 +204,7 @@ class Separators {
 				Util::COMMENT_REGEXP_FRAGMENT,
 				"#"
 			] );
-		preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ), $sepMatch );
-		$sepNlCount = count( $sepMatch );
+		$sepNlCount = preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ) );
 		$minNls = $nlConstraints['min'] ?? 0;
 
 		if ( $state->atStartOfOutput && $minNls > 0 ) {
@@ -592,9 +591,9 @@ class Separators {
 	 * Emit a separator based on the collected (and merged) constraints
 	 * and existing separator text. Called when new output is triggered.
 	 * @param DOMNode $node
-	 * @return string
+	 * @return string|null
 	 */
-	public function buildSep( DOMNode $node ): string {
+	public function buildSep( DOMNode $node ): ?string {
 		$state = $this->state;
 		$origNode = $node;
 		$prevNode = $state->sep->lastSourceNode;

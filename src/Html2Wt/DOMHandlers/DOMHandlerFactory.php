@@ -114,7 +114,7 @@ class DOMHandlerFactory {
 	 */
 	public function getDOMHandler( ?DOMNode $node ): ?DOMHandler {
 		if ( !$node || !DOMUtils::isElt( $node ) ) {
-			return null;
+			return new DOMHandler();
 		}
 		'@phan-var DOMElement $node';/** @var DOMElement $node */
 
