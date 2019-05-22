@@ -27,63 +27,6 @@ class Util {
 	const TPL_META_TYPE_REGEXP = '#(?:^|\s)(mw:(?:Transclusion|Param)(?:/End)?)(?=$|\s)#';
 
 	/**
-	 * PORT_FIXME add accurate description of this private function which was nested in JS
-	 *
-	 * @param object $target The object to modify.
-	 * @param object $obj The object to extend tgt with.
-	 * @return object
-	 */
-	private static function internalExtend( $target, $obj ) {
-		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
-		/*
-		$allKeys = array_merge( get_object_vars( $target ), get_object_vars( $obj ) );
-		for ( $i = 0, $numKeys = $allKeys->length; $i < $numKeys; $i++ ) {
-			$k = $allKeys[$i];
-			if ( $target[$k] === undefined || $target[$k] === null ) {
-				$target[$k] = $obj[$k];
-			}
-		}
-		return $target;
-		*/
-	}
-
-	/**
-	 * Update only those properties that are undefined or null in the target.
-	 * Add more arguments to the function call to chain more extensions.
-	 *
-	 * @param object $tgt The object to modify.
-	 * @param object $subject The object to extend tgt with.
-	 * @return object
-	 */
-	public static function extendProps( $tgt, $subject /* FIXME: use spread operator */ ) {
-		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
-		/*	function internalExtend(target, obj) {
-				var allKeys = [].concat(Object.keys(target), Object.keys(obj));
-				for (var i = 0, numKeys = allKeys.length; i < numKeys; i++) {
-					var k = allKeys[i];
-					if (target[k] === undefined || target[k] === null) {
-						target[k] = obj[k];
-					}
-				}
-				return target;
-			}
-			var n = arguments.length;
-			for (var j = 1; j < n; j++) {
-				internalExtend(tgt, arguments[j]);
-			}
-			return tgt;
-		}, */
-		/*
-		// PORT-FIXME
-		$n = $arguments->length;
-		for ( $j = 1; $j < $n; $j++ ) {
-			internalExtend( $tgt, $arguments[$j] );
-		}
-		return $tgt;
-		*/
-	}
-
-	/**
 	 * Strip Parsoid id prefix from aboutID
 	 *
 	 * @param string $aboutId aboud ID string
@@ -141,51 +84,6 @@ class Util {
 			return clone $obj;
 		}
 		return unserialize( serialize( $obj ) );
-	}
-
-	/**
-	 * recursive deep unfreeze helper function
-	 *
-	 * @param object $el object
-	 * @return object
-	 */
-	private static function recursiveUnfreeze( $el ) {
-		return self::unFreeze( $el, true );
-	}
-
-	/**
-	 * Just a copy `Util::clone` used in *testing* to reverse the effects of
-	 * freezing an object.  Works with more than just "plain objects"
-	 *
-	 * @param object $obj object
-	 * @param bool $deepClone
-	 * @return object
-	 */
-	public static function unFreeze( $obj, $deepClone ) {
-	/*	if (deepClone === undefined) {
-			deepClone = true;
-		}
-		if (Array.isArray(obj)) {
-			if (deepClone) {
-				return obj.map(function(el) {
-					return Util.unFreeze(el, true);
-				});
-			} else {
-				return obj.slice();
-			}
-		} else if (obj instanceof Object) {
-			if (deepClone) {
-				return Object.keys(obj).reduce(function(nobj, key) {
-					nobj[key] = Util.unFreeze(obj[key], true);
-					return nobj;
-				}, new obj.constructor());
-			} else {
-				return Object.assign({}, obj);
-			}
-		} else {
-			return obj;
-		} */
-		throw new \BadMethodCallException( 'Not yet ported. This might need other native solutions.' );
 	}
 
 	/**
