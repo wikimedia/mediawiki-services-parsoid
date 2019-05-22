@@ -20,7 +20,7 @@ class THHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$usableDP = $this->stxInfoValidForTableCell( $state, $node );
 		$attrSepSrc = $usableDP ? PHPUtils::coalesce( $dp->attrSepSrc ?? null, null ) : null;

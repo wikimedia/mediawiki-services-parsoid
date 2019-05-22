@@ -16,7 +16,7 @@ class BodyHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$state->serializeChildren( $node );
 		return null;
 	}

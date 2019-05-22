@@ -20,7 +20,7 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$type = $node->getAttribute( 'typeof' ) ?: '';
 		$property = $node->getAttribute( 'property' ) ?: '';
 		$dp = DOMDataUtils::getDataParsoid( $node );

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
+use DOMNode;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WTSUtils;
 use Parsoid\Tokens\KV;
@@ -40,7 +41,7 @@ class SpanHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$env = $state->getEnv();
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$type = $node->getAttribute( 'typeof' ) ?: '';

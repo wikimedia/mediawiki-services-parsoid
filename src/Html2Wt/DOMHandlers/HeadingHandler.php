@@ -25,7 +25,7 @@ class HeadingHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		// For new elements, for prettier wikitext serialization,
 		// emit a space after the last '=' char.
 		$space = $this->getLeadingSpace( $state, $node, ' ' );

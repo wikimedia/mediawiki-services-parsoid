@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
+use DOMNode;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WTSUtils;
 use Parsoid\Utils\DOMUtils;
@@ -24,7 +25,7 @@ class QuoteHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		if ( $this->precedingQuoteEltRequiresEscape( $node ) ) {
 			WTSUtils::emitStartTag( '<nowiki/>', $node, $state );
 		}

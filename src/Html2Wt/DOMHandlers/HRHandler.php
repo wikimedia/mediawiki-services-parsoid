@@ -17,7 +17,7 @@ class HRHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$state->emitChunk( str_repeat( '-',
 			4 + ( DOMDataUtils::getDataParsoid( $node )->extra_dashes ?? 0 ) ), $node );
 		return null;

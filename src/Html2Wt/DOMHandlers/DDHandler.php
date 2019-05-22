@@ -25,7 +25,7 @@ class DDHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$firstChildElement = DOMUtils::firstNonSepChild( $node );
 		$chunk = ( $this->stx === 'row' ) ? ':' : $this->getListBullets( $state, $node );
 		if ( !DOMUtils::isList( $firstChildElement )

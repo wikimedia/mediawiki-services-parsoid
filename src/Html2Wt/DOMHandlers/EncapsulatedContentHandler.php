@@ -34,7 +34,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 	 */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$env = $state->getEnv();
 		$serializer = $state->serializer;
 		$dp = DOMDataUtils::getDataParsoid( $node );

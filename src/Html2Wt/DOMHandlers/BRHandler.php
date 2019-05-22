@@ -18,7 +18,7 @@ class BRHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		if ( $state->singleLineContext->enforced()
 			 || ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'html'
 			 || $node->parentNode->nodeName !== 'p'

@@ -25,7 +25,7 @@ class ListHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		// Disable single-line context here so that separators aren't
 		// suppressed between nested list elements.
 		$state->singleLineContext->disable();

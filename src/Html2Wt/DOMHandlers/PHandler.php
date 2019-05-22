@@ -25,7 +25,7 @@ class PHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		// XXX: Handle single-line mode by switching to HTML handler!
 		$state->serializeChildren( $node );
 		return null;

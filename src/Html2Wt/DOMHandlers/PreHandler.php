@@ -19,7 +19,7 @@ class PreHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		// Handle indent pre
 
 		// XXX: Use a pre escaper?

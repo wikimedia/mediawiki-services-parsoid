@@ -17,7 +17,7 @@ class LinkHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$state->serializer->linkHandler( $node );
 		return null;
 	}

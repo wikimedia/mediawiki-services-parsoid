@@ -18,7 +18,7 @@ class FigureHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$state->serializer->figureHandler( $node );
 		return null;
 	}

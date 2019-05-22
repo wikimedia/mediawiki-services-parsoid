@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
+use DOMNode;
 use Parsoid\Html2Wt\SerializerState;
 
 class ImgHandler extends DOMHandler {
@@ -15,7 +16,7 @@ class ImgHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		if ( $node->getAttribute( 'rel' ) === 'mw:externalImage' ) {
 			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) ?: '', $node );
 		} else {

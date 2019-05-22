@@ -16,7 +16,7 @@ class HTMLPreHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		( new FallbackHTMLHandler )->handle( $node, $state, $wrapperUnmodified );
 		return null;
 	}

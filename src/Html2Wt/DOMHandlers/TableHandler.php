@@ -21,7 +21,7 @@ class TableHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$wt = PHPUtils::coalesce( $dp->startTagSrc ?? null, '{|' );
 		$indentTable = $node->parentNode->nodeName === 'dd'

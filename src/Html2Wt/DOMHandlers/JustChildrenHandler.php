@@ -5,6 +5,7 @@ namespace Parsoid\Html2Wt\DOMHandlers;
 
 // Just serialize the children, ignore the (implicit) tag
 use DOMElement;
+use DOMNode;
 use Parsoid\Html2Wt\SerializerState;
 
 class JustChildrenHandler extends DOMHandler {
@@ -16,7 +17,7 @@ class JustChildrenHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$state->serializeChildren( $node );
 		return null;
 	}

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
+use DOMNode;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WTSUtils;
 use Parsoid\Utils\DOMDataUtils;
@@ -22,7 +23,7 @@ class FallbackHTMLHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$serializer = $state->serializer;
 
 		// Wikitext supports the following list syntax:

@@ -19,7 +19,7 @@ class LIHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$firstChildElement = DOMUtils::firstNonSepChild( $node );
 		if ( !DOMUtils::isList( $firstChildElement )
 			 || WTUtils::isLiteralHTMLNode( $firstChildElement )

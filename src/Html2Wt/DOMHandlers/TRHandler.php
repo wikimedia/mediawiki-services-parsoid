@@ -22,7 +22,7 @@ class TRHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMElement {
+	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		if ( $this->trWikitextNeeded( $node, $dp ) ) {
