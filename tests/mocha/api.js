@@ -881,11 +881,11 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should include captured offsets', function(done) {
+		it('should not include captured offsets', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
 			.expect(validPageBundleResponse(function(doc, dp) {
-				dp.should.have.property('sectionOffsets');
+				dp.should.not.have.property('sectionOffsets');
 			}))
 			.end(done);
 		});

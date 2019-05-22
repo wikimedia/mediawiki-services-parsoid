@@ -342,7 +342,9 @@ class XMLSerializer {
 		}
 		// Drop the bookkeeping
 		unset( $out['start'], $out['uid'], $out['last'] );
-
+		if ( !$options['captureOffsets'] ) {
+			unset( $out['offsets'] );
+		}
 		return $out;
 	}
 

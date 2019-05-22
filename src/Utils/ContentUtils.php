@@ -82,24 +82,10 @@ class ContentUtils {
 	 */
 	public static function extractDpAndSerialize( DOMNode $node, array $options = [] ): array {
 		$options = $options ?? [];
-		$options['captureOffsets'] = true;
-
 		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
 		$pb = DOMDataUtils::extractPageBundle( $doc );
 		$out = XMLSerializer::serialize( $node, $options );
-
-		// Add the wt offsets.
-		foreach ( $out['offsets'] as $key => &$value ) {
-			$dp = $pb->parsoid->ids[ $key ];
-			if ( Util::isValidDSR( $dp->dsr ?? null ) ) {
-				$value['wt'] = array_slice( $dp->dsr, 0, 2 );
-			}
-		}
-
-		$pb->parsoid->sectionOffsets = &$out['offsets'];
 		$out['pb'] = $pb;
-		unset( $out['offsets'] );
-
 		return $out;
 	}
 
