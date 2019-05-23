@@ -5,16 +5,17 @@
 namespace Parsoid;
 
 use Parsoid\Promise as Promise;
-use Parsoid\ContentUtils as ContentUtils;
 use Parsoid\DOMDataUtils as DOMDataUtils;
 use Parsoid\DOMUtils as DOMUtils;
 use Parsoid\SelectiveSerializer as SelectiveSerializer;
 use Parsoid\TemplateRequest as TemplateRequest;
 use Parsoid\WikitextSerializer as WikitextSerializer;
 
+$PHPDOMPass = null;
+
 class FromHTML {
 	/**
-	 * Fetch prior DOM for selser.  This is factored out of
+	 * Fetch content for selser.  This is factored out of
 	 * {@link serializeDOM} so that it can be reused by alternative
 	 * content handlers which support selser.
 	 *
@@ -26,8 +27,6 @@ class FromHTML {
 	public static function fetchSelser( $env, $useSelser ) {
 		$hasOldId = (bool)$env->page->meta->revision->revid;
 		$needsContent = $useSelser && $hasOldId && ( $env->page->src === null );
-		$needsOldDOM = $useSelser && !( $env->page->dom || $env->page->domdiff );
-
 		$p = Promise::resolve();
 		if ( $needsContent ) {
 			$p = $p->then( function () use ( &$env, &$TemplateRequest ) {
@@ -40,26 +39,6 @@ class FromHTML {
 			}
 			);
 		}
-		if ( $needsOldDOM ) {
-			$p = $p->then( function () use ( &$env, &$ContentUtils ) {
-					if ( $env->page->src === null ) {
-						// The src fetch failed or we never had an oldid.
-						// We'll just fallback to non-selser.
-						return;
-					}
-					return $env->getContentHandler()->toHTML( $env )->
-					then( function ( $doc ) use ( &$env, &$ContentUtils ) {
-							$env->page->dom = $env->createDocument( ContentUtils::toXML( $doc ) )->body;
-					}
-					)->
-					catch( function ( $err ) use ( &$env ) {
-							$env->log( 'error', 'Error while parsing original DOM.', $err );
-					}
-					);
-			}
-			);
-		}
-
 		return $p;
 	}
 
@@ -77,6 +56,13 @@ class FromHTML {
 	 */
 	public static function serializeDOM( $env, $body, $useSelser, $cb ) {
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
+		$pipelineConfig = $env->conf->parsoid->pipelineConfig;
+		if ( $pipelineConfig && $pipelineConfig->html2wt && $pipelineConfig->html2wt->Serializer ) {
+			if ( !$PHPDOMPass ) {
+				$PHPDOMPass = require '../tests/porting/hybrid/PHPDOMPass.js'::PHPDOMPass;
+			}
+			return ( new PHPDOMPass() )->serialize( $env, $body, $useSelser );
+		}
 
 		// Preprocess the DOM, if required.
 		//
@@ -110,14 +96,14 @@ class FromHTML {
 
 				// NOTE:
 				// 1. The edited DOM (represented by body) might not be in canonical
-				// form because Parsoid might be providing server-side management
-				// of global state for extensions (ex: Cite). To address this and
-				// bring the DOM back to canonical form, we run extension-provided
-				// handlers. The original dom (env.page.dom) isn't subject to this
-				// problem.
+				//    form because Parsoid might be providing server-side management
+				//    of global state for extensions (ex: Cite). To address this and
+				//    bring the DOM back to canonical form, we run extension-provided
+				//    handlers. The original dom (env.page.dom) isn't subject to this
+				//    problem.
 				// 2. We need to do this after all data attributes have been loaded above.
 				// 3. We need to do this before we run dom-diffs to eliminate spurious
-				// diffs.
+				//    diffs.
 				$preprocessDOM();
 
 				$env->page->editedDoc = $body->ownerDocument;
