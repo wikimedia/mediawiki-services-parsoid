@@ -116,11 +116,13 @@ class PHPDOMPass {
 	}
 
 	serialize(env, body, useSelser) {
-		const fileName1 = `/tmp/diff.${process.pid}.edited.html`;
-		this.dumpDOMToFile(body, fileName1);
-		const fileName2 = `/tmp/diff.${process.pid}.orig.html`;
+		// We are using outerHTML because the DOMs haven't had
+		// their attributes loaded via loadDataAttribs
+		const fileName1 = `/tmp/page.${process.pid}.edited.html`;
+		fs.writeFileSync(fileName1, body.outerHTML);
+		const fileName2 = `/tmp/page.${process.pid}.orig.html`;
 		if (useSelser) {
-			this.dumpDOMToFile(env.page.dom, fileName2);
+			fs.writeFileSync(fileName2, env.page.dom.body.outerHTML);
 		}
 
 		return HybridTestUtils.runPHPCode(
