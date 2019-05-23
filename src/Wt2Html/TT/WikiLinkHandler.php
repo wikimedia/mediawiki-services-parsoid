@@ -201,7 +201,7 @@ class WikiLinkHandler extends TokenHandler {
 && preg_match( '/^(a|link)$/', $r->tokens[ 0 ]->name );
 		if ( $isValid ) {
 			$da = $r->tokens[ 0 ]->dataAttribs;
-			$rlink->addNormalizedAttribute( 'href', $da->a->href, $da->sa->href );
+			$rlink->addNormalizedAttribute( 'href', $da->a['href'], $da->sa['href'] );
 			return [ 'tokens' => [ $rlink ] ];
 		} else {
 			// Bail!  Emit tokens as if they were parsed as a list item:

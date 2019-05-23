@@ -181,7 +181,7 @@ class ComputeDSR {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
 					// this seems like some kind of a phan bug
 					// @phan-suppress-next-line PhanTypeExpectedObjectPropAccess
-					$href = $dp->sa->href ?? null;
+					$href = $dp->sa['href'] ?? null;
 					if ( $href ) {
 						return [ mb_strlen( $href ) + 3, 2 ];
 					} else {

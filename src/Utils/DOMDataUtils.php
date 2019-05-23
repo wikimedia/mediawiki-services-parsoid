@@ -209,12 +209,12 @@ class DOMDataUtils {
 	public static function setShadowInfo( DOMElement $node, string $name, $val ): void {
 		$dp = self::getDataParsoid( $node );
 		if ( !isset( $dp->a ) ) {
-			$dp->a = (object)[];
+			$dp->a = [];
 		}
 		if ( !isset( $dp->sa ) ) {
-			$dp->sa = (object)[];
+			$dp->sa = [];
 		}
-		$dp->a->$name = $val;
+		$dp->a[$name] = $val;
 	}
 
 	/**
@@ -238,19 +238,19 @@ class DOMDataUtils {
 		}
 		$dp = self::getDataParsoid( $node );
 		if ( !isset( $dp->a ) ) {
-			$dp->a = (object)[];
+			$dp->a = [];
 		}
 		if ( !isset( $dp->sa ) ) {
-			$dp->sa = (object)[];
+			$dp->sa = [];
 		}
 		// FIXME: This is a hack to not overwrite already shadowed info.
 		// We should either fix the call site that depends on this
 		// behaviour to do an explicit check, or double down on this
 		// by porting it to the token method as well.
-		if ( !property_exists( $dp->a, $name ) ) {
-			$dp->sa->$name = $origVal;
+		if ( !array_key_exists( $name, $dp->a ) ) {
+			$dp->sa[$name] = $origVal;
 		}
-		$dp->a->$name = $val;
+		$dp->a[$name] = $val;
 	}
 
 	/**
@@ -462,6 +462,12 @@ class DOMDataUtils {
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, (object)[] );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', (object)[] );
+		if ( isset( $dp->sa ) ) {
+			$dp->sa = (array)$dp->sa;
+		}
+		if ( isset( $dp->a ) ) {
+			$dp->a = (array)$dp->a;
+		}
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
