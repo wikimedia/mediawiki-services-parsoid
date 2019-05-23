@@ -126,6 +126,7 @@ class DOMTraverser {
 						'first' => $workNode,
 						'last' => end( $aboutSiblings ),
 						'clear' => false,
+						'isNativeExt' => WTUtils::getNativeExt( $env, $workNode ) !== null,
 					];
 				}
 			}

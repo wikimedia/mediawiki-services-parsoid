@@ -94,21 +94,6 @@ class CleanUp {
 	}
 
 	/**
-	 * FIXME: Leaky Cite-specific info
-	 * @param DOMElement $node
-	 * @return bool
-	 */
-	private static function isRefText( DOMElement $node ): bool {
-		while ( !DOMUtils::atTheTop( $node ) ) {
-			if ( DOMCompat::getClassList( $node )->contains( 'mw-reference-text' ) ) {
-				return true;
-			}
-			$node = $node->parentNode;
-		}
-		return false;
-	}
-
-	/**
 	 * Whitespace in this function refers to [ \t] only
 	 * @param DOMNode $node
 	 */
@@ -247,7 +232,7 @@ class CleanUp {
 				!$isFirstEncapsulationWrapperNode &&
 				// We can't remove data-parsoid from inside <references> text,
 				// as that's the only HTML representation we have left for it.
-				!self::isRefText( $node ) &&
+				!$tplInfo->isNativeExt &&
 				// FIXME: We can't remove dp from nodes with stx information
 				// because the serializer uses stx information in some cases to
 				// emit the right newline separators.

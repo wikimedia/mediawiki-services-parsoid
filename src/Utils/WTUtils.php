@@ -794,4 +794,20 @@ class WTUtils {
 		}
 		return null;
 	}
+
+	/**
+	 * @param Env $env
+	 * @param DOMNode $node
+	 * @return null
+	 */
+	public static function getNativeExt( Env $env, DOMNode $node ) {
+		$prefixLen = strlen( 'mw:Extension/' );
+		$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
+		/* PORT-FIXME: The native extension interface isn't defined yet
+		$match &&
+			( $nativeExt = $env->getSiteConfig()
+				->extConfig->tags->get( array_slice( $match, $prefixLen ) )
+		*/
+		return null;
+	}
 }

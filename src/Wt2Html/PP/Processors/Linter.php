@@ -1208,17 +1208,12 @@ class Linter {
 			}
 
 			$nextNode = null;
-			$nativeExt = null;
-			$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
-			$prefixLen = strlen( 'mw:Extension/' );
+			$nativeExt = WTUtils::getNativeExt( $env, $node );
 			/* TODO: The native extension interface isn't defined yet, so there's no code we can sensibly
 			 * write here at this time.
 			// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-			if ( $match &&
-				( $nativeExt = $env->getSiteConfig()
-					->extConfig->tags->get( array_slice( $match, $prefixLen ) ) ) &&
-				$nativeExt->lintHandler
-			) { // Let native extensions lint their content
+			if ( $nativeExt !== null && $nativeExt->lintHandler ) {
+				// Let native extensions lint their content
 				$nextNode = $nativeExt->lintHandler( $node, $env, $tplInfo, function ( ...$args ) {
 					return $this->findLints( ...$args );
 				} );
