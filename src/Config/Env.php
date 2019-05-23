@@ -257,7 +257,7 @@ class Env {
 	public function normalizedTitleKey(
 		string $str, bool $noExceptions = false, bool $ignoreFragment = false
 	): ?string {
-		$title = $this->makeTitleFromURLDecodedStr( $str, null, $noExceptions );
+		$title = $this->makeTitleFromURLDecodedStr( $str, 0, $noExceptions );
 		if ( !$title ) {
 			return null;
 		}

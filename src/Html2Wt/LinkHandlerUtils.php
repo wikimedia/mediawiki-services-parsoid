@@ -296,13 +296,14 @@ class LinkHandlerUtils {
 				if ( preg_match( '/\bmw:PageProp\/Language\b/', $rtData->type ) ) {
 					$target['value'] = preg_replace( '/^:/', '', implode( ':', $interWikiMatch ), 1 );
 				} elseif (
-					$oldPrefix && // Should we preserve the old prefix?
-					strtolower( $oldPrefix[1] ) === strtolower( $interWikiMatch[0] ) ||
-					// Check if the old prefix mapped to the same URL as
-					// the new one. Use the old one if that's the case.
-					// Example: [[w:Foo]] vs. [[:en:Foo]]
-					( $iwMap[self::normalizeIWP( $oldPrefix[1] )]['url'] ?? null )
-						=== ( $iwMap[self::normalizeIWP( $interWikiMatch[0] )]['url'] ?? null )
+					$oldPrefix && ( // Should we preserve the old prefix?
+						strtolower( $oldPrefix[1] ) === strtolower( $interWikiMatch[0] ) ||
+						// Check if the old prefix mapped to the same URL as
+						// the new one. Use the old one if that's the case.
+						// Example: [[w:Foo]] vs. [[:en:Foo]]
+						( $iwMap[self::normalizeIWP( $oldPrefix[1] )]['url'] ?? null )
+							=== ( $iwMap[self::normalizeIWP( $interWikiMatch[0] )]['url'] ?? null )
+					)
 				) {
 					// Reuse old prefix capitalization
 					if ( Util::decodeWtEntities( substr( $target['value'], strlen( $oldPrefix[1] ) + 1 ) )
@@ -391,7 +392,7 @@ class LinkHandlerUtils {
 		$target = $linkData->target;
 
 		// Get plain text content, if any
-		$contentStr = ( $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node ) )
+		$contentStr = $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node )
 			? $node->textContent
 			: null;
 		// First check if we can serialize as an URL link
@@ -610,7 +611,8 @@ class LinkHandlerUtils {
 						$linkTarget = $escapedTgt->linkTarget;
 					}
 				}
-				if ( !empty( $linkData->isInterwikiLang ) && !preg_match( '/^[:]/', $linkTarget ) &&
+				if ( !empty( $linkData->isInterwikiLang ) &&
+					!preg_match( '/^[:]/', $linkTarget ) &&
 					$linkData->type !== 'mw:PageProp/Language'
 				) {
 					// ensure interwiki links can't be confused with
@@ -877,7 +879,7 @@ class LinkHandlerUtils {
 				);
 			} else {
 				$media = DOMUtils::selectMediaElt( $node );
-				$isFigure = ( $media && $media->parentNode === $node );
+				$isFigure = $media && $media->parentNode === $node;
 			}
 
 			$hrefStr = null;
