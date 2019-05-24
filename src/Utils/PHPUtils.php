@@ -136,6 +136,9 @@ class PHPUtils {
 	 * safely strips delimiters from regular expression strings, while
 	 * ensuring that the result is safely escaped for the new delimiter
 	 * you plan to use (see the `$delimiter` argument to `preg_quote`).
+	 * Note that using a meta-character for the new delimiter can lead to
+	 * unexpected results; for example, if you use `!` then escaping
+	 * `(?!foo)` will break the regular expression.
 	 *
 	 * @param string $re The regular expression to strip
 	 * @param string|null $newDelimiter Optional delimiter which will be
@@ -144,6 +147,12 @@ class PHPUtils {
 	 * @return string The regular expression without delimiters or flags
 	 */
 	public static function reStrip( string $re, ?string $newDelimiter = null ): string {
+		static $delimiterPairs = [
+			'(' => ')',
+			'[' => ']',
+			'{' => '}',
+			'<' => '>',
+		];
 		// Believe it or not, PHP allows leading whitespace in the $re
 		// tested with C's "isspace", which is [ \f\n\r\t\v]
 		$re = preg_replace( '/^[ \f\n\r\t\v]+/', '', $re );
@@ -151,23 +160,7 @@ class PHPUtils {
 		$startDelimiter = $re[0];
 		// PHP actually supports balanced delimiters (ie open paren on left
 		// and close paren on right).
-		switch ( $startDelimiter ) {
-			case '(':
-				$endDelimiter = ')';
-				break;
-			case '[':
-				$endDelimiter = ']';
-				break;
-			case '{':
-				$endDelimiter = '}';
-				break;
-			case '<':
-				$endDelimiter = '>';
-				break;
-			default:
-				$endDelimiter = $startDelimiter;
-				break;
-		}
+		$endDelimiter = $delimiterPairs[$startDelimiter] ?? $startDelimiter;
 		$endDelimiterPos = strrpos( $re, $endDelimiter );
 		Assert::invariant(
 			$endDelimiterPos !== false && $endDelimiterPos > 0,
@@ -186,10 +179,12 @@ class PHPUtils {
 		) {
 			return $stripped; // done!
 		}
+		$newCloseDelimiter = $delimiterPairs[$startDelimiter] ?? $startDelimiter;
 		// escape the new delimiter
 		preg_match_all( '/[^\\\\]|\\\\./s', $stripped, $matches );
-		return implode( '', array_map( function ( $c ) use ( $newDelimiter ) {
-			return ( $c === $newDelimiter ) ? ( '\\' . $c ) : $c;
+		return implode( '', array_map( function ( $c ) use ( $newDelimiter, $newCloseDelimiter ) {
+			return ( $c === $newDelimiter || $c === $newCloseDelimiter )
+				? ( '\\' . $c ) : $c;
 		}, $matches[0] ) );
 	}
 
