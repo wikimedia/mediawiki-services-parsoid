@@ -328,7 +328,7 @@ class SiteConfig extends ISiteConfig {
 			$category = "(?:$category|Category)";
 		}
 
-		$this->solTransparentWikitextRegexp = '!' .
+		$this->solTransparentWikitextRegexp = '{' .
 			'^[ \t\n\r\0\x0b]*' .
 			'(?:' .
 			  '(?:' . $redirect . ')' .
@@ -337,11 +337,11 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '!' ) . '|' .
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '{' ) . '|' .
 			  '[ \t\n\r\0\x0b]' .
-			')*$!i';
+			')*$}i';
 
-		$this->solTransparentWikitextNoWsRegexp = '!' .
+		$this->solTransparentWikitextNoWsRegexp = '{' .
 			'((?:' .
 			  '(?:' . $redirect . ')' .
 			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
@@ -349,8 +349,8 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '!' ) .
-			')*)!i';
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '{' ) .
+			')*)}i';
 	}
 
 	/**
