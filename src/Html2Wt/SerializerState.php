@@ -273,7 +273,9 @@ class SerializerState {
 		$this->serializer = $serializer;
 		foreach ( $options as $name => $option ) {
 			// PORT-FIXME validate
-			$this->$name = Util::clone( $option );
+			if ( !( $option instanceof Env ) ) {
+				$this->$name = Util::clone( $option );
+			}
 		}
 		$this->resetCurrLine( null );
 		$this->singleLineContext = new SingleLineContext();

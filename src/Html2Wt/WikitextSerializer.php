@@ -261,7 +261,7 @@ class WikitextSerializer {
 			// If this attribute's value is generated content,
 			// serialize HTML back to generator wikitext.
 			// PORT-FIXME: not type safe. Need documentation on attrib format.
-			if ( ( $attr[0] === $key || $attr[0]->txt === $key )
+			if ( ( $attr[0] === $key || ( $attr[0]->txt ?? null ) === $key )
 				 // Only return here if the value is generated (ie. .html),
 				 // it may just be in .txt form.
 				 && isset( $attr[1]->html )
@@ -454,7 +454,7 @@ class WikitextSerializer {
 			// Parsoid auto-generates ids for headings and they should
 			// be stripped out, except if this is not auto-generated id.
 			if ( $k === 'id' && preg_match( '/h[1-6]/', $node->nodeName ) ) {
-				if ( DOMDataUtils::getDataParsoid( $node )->reusedId === true ) {
+				if ( !empty( DOMDataUtils::getDataParsoid( $node )->reusedId ) ) {
 					$vInfo = $token->getAttributeShadowInfo( $k );
 					// PORT-FIXME: is this safe? value could be a token or token array
 					$out[] = $k . '=' . '"' . preg_replace( '/"/', '&quot;', $vInfo['value'] ) . '"';
@@ -753,7 +753,9 @@ class WikitextSerializer {
 		}
 
 		// open the transclusion
-		$buf .= $this->formatStringSubst( $formatStart, $part->target->wt, $forceTrim );
+		$tgt = $part->target;
+		'@phan-var StdClass $tgt';
+		$buf .= $this->formatStringSubst( $formatStart, $tgt->wt, $forceTrim );
 
 		// Trim whitespace from data-mw keys to deal with non-compliant
 		// clients. Make sure param info is accessible for the stripped key
@@ -1572,7 +1574,7 @@ class WikitextSerializer {
 				// - trailing single quotes (bar')
 				// - or single quotes by themselves without a preceding '' sequence
 				if ( preg_match( "/'\$/", $p[$j - 1] )
-					&& !( $p[$j - 1] === "'" && preg_match( "/''\$/", $p[$j - 2 ] ) )
+					&& !( $p[$j - 1] === "'" && $j > 1 && preg_match( "/''\$/", $p[$j - 2 ] ) )
 					// Consider <b>foo<i>bar'</i>baz</b> or <b>foo'<i>bar'</i>baz</b>.
 					// The <nowiki/> before the <i> or </i> cannot be stripped
 					// if the <i> is embedded inside another quote.

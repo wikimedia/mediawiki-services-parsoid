@@ -226,7 +226,7 @@ class LinkHandlerUtils {
 				// from non-parsoid HTML: try to reconstruct resource from href?
 				// (See similar code which tries to guess resource from <img src>)
 				$mediaPrefix = $siteConfig->namespaceName( $siteConfig->namespaceId( 'media' ) );
-				$resource = (object)[
+				$resource = [
 					'value' => $mediaPrefix . ':' . preg_replace( '/.*\//', '', $rtData->origHref, 1 ),
 					'fromsrc' => false,
 					'modified' => false
@@ -1038,7 +1038,7 @@ class LinkHandlerUtils {
 				$state->emitChunk( new AutoURLLinkText( $src, $node ), $node );
 				return;
 			}
-			$resource = (object)[
+			$resource = [
 				'value' => $src,
 				'fromsrc' => false,
 				'modified' => false
@@ -1082,7 +1082,7 @@ class LinkHandlerUtils {
 			if ( isset( $linkFromDataMw[1]->html ) ) {
 				$link = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'link' );
 			} else {
-				$link = (object)[
+				$link = [
 					'value' => "link={$linkFromDataMw[1]->txt}",
 					'modified' => false,
 					'fromsrc' => false,

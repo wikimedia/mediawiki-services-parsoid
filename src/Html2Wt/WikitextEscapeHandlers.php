@@ -822,7 +822,7 @@ class WikitextEscapeHandlers {
 						break;
 					case 'SelfclosingTagTk':
 						if ( $t->getName() !== 'meta' ||
-							!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) )
+							!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) ?? '' )
 						) {
 							// Don't bother with marker or empty-line metas
 							self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
@@ -1056,7 +1056,7 @@ class WikitextEscapeHandlers {
 				} else {
 					return $text;
 				}
-			} elseif ( $state->currLine->text[0] === '=' ) {
+			} elseif ( strlen( $state->currLine->text ) > 0 && $state->currLine->text[0] === '=' ) {
 				$env->log( 'trace/wt-escape', '---Text-as-heading: complex single-line test---' );
 				return $this->escapedText( $state, $sol, $text );
 			} else {
