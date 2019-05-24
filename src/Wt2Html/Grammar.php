@@ -1114,7 +1114,11 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// generically expanded. The TemplateHandler then needs to shift it out
   		// again.
   		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets'] ) );
-  		$obj = new SelfclosingTagTk( 'template', $params, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text(), 'tmp' => [ 'leadWS' => $leadWS, 'trailWS' => $trailWS ] ] );
+  		$obj = new SelfclosingTagTk( 'template', $params,
+  			(object)[
+  				'tsr' => $this->tsrOffsets(), 'src' => $this->text(),
+  				'tmp' => (object)[ 'leadWS' => $leadWS, 'trailWS' => $trailWS ]
+  			] );
   		return $obj;
   	
   }
