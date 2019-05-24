@@ -64,10 +64,11 @@ class SiteConfig extends ISiteConfig {
 	 * `[ _]` so either will be matched.
 	 *
 	 * @param string $s
+	 * @param string $delimiter Defaults to '/'
 	 * @return string
 	 */
-	private static function quoteTitleRe( string $s ): string {
-		$s = preg_quote( $s, '/' );
+	private static function quoteTitleRe( string $s, string $delimiter = '/' ): string {
+		$s = preg_quote( $s, $delimiter );
 		$s = strtr( $s, [
 			' ' => '[ _]',
 			'_' => '[ _]',
@@ -265,7 +266,7 @@ class SiteConfig extends ISiteConfig {
 		];
 		foreach ( $this->nsIds as $name => $id ) {
 			if ( $id === -1 ) {
-				$nsAliases[] = $this->quoteTitleRe( $name );
+				$nsAliases[] = $this->quoteTitleRe( $name, '!' );
 			}
 		}
 		$nsAliases = implode( '|', array_unique( $nsAliases ) );
@@ -287,7 +288,9 @@ class SiteConfig extends ISiteConfig {
 				break;
 			}
 		}
-		$pageAliases = implode( '|', array_map( [ $this, 'quoteTitleRe' ], $bsAliases ) );
+		$pageAliases = implode( '|', array_map( function ( $s ) {
+			return $this->quoteTitleRe( $s, '!' );
+		}, $bsAliases ) );
 
 		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
 		// being disabled")
@@ -314,21 +317,24 @@ class SiteConfig extends ISiteConfig {
 		// localization of the magic words of this particular wiki.
 
 		$redirect = '(?i:#REDIRECT)';
+		$quote = function ( $s ) {
+			return preg_quote( $s, '@' );
+		};
 		foreach ( $data['magicwords'] as $mw ) {
 			if ( $mw['name'] === 'redirect' ) {
-				$redirect = implode( '|', array_map( 'preg_quote', $mw['aliases'] ) );
+				$redirect = implode( '|', array_map( $quote, $mw['aliases'] ) );
 				if ( !$mw['case-sensitive'] ) {
 					$redirect = '(?i:' . $redirect . ')';
 				}
 				break;
 			}
 		}
-		$category = $this->quoteTitleRe( $this->nsNames[14] ?? 'Category' );
+		$category = $this->quoteTitleRe( $this->nsNames[14] ?? 'Category', '@' );
 		if ( $category !== 'Category' ) {
 			$category = "(?:$category|Category)";
 		}
 
-		$this->solTransparentWikitextRegexp = '{' .
+		$this->solTransparentWikitextRegexp = '@' .
 			'^[ \t\n\r\0\x0b]*' .
 			'(?:' .
 			  '(?:' . $redirect . ')' .
@@ -337,11 +343,11 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '{' ) . '|' .
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' ) . '|' .
 			  '[ \t\n\r\0\x0b]' .
-			')*$}i';
+			')*$@i';
 
-		$this->solTransparentWikitextNoWsRegexp = '{' .
+		$this->solTransparentWikitextNoWsRegexp = '@' .
 			'((?:' .
 			  '(?:' . $redirect . ')' .
 			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
@@ -349,8 +355,8 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '{' ) .
-			')*)}i';
+			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' ) .
+			')*)@i';
 	}
 
 	/**
@@ -651,14 +657,20 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function hasValidProtocol( string $potentialLink ): bool {
 		$this->loadSiteData();
-		$regex = '!^(?:' . implode( '|', array_map( 'preg_quote', $this->protocols ) ) . ')!i';
+		$quote = function ( $s ) {
+			return preg_quote( $s, '!' );
+		};
+		$regex = '!^(?:' . implode( '|', array_map( $quote, $this->protocols ) ) . ')!i';
 		return (bool)preg_match( $regex, $potentialLink );
 	}
 
 	/** @inheritDoc */
 	public function findValidProtocol( string $potentialLink ): bool {
 		$this->loadSiteData();
-		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $this->protocols ) ) . ')!i';
+		$quote = function ( $s ) {
+			return preg_quote( $s, '!' );
+		};
+		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( $quote, $this->protocols ) ) . ')!i';
 		return (bool)preg_match( $regex, $potentialLink );
 	}
 
