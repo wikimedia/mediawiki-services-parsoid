@@ -116,9 +116,8 @@ class ExternalLinkHandler extends TokenHandler {
 			];
 
 			// combine with existing rdfa attrs
-			// PORT-FIXME
-			// $tagAttrs = WikiLinkHandler::buildLinkAttrs(
-			//        $token->attribs, false, null, $tagAttrs )->attribs;
+			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
+				$token->attribs, false, null, $tagAttrs )['attribs'];
 			$tagAttrs = [];
 			return [ 'tokens' => [ new SelfclosingTagTk( 'img', $tagAttrs, $dataAttribs ) ] ];
 		} else {
@@ -128,9 +127,8 @@ class ExternalLinkHandler extends TokenHandler {
 
 			// combine with existing rdfa attrs
 			// href is set explicitly below
-			// PORT-FIXME
-			// $tagAttrs = WikiLinkHandler::buildLinkAttrs(
-			//        $token->attribs, false, null, $tagAttrs )->attribs;
+			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
+				$token->attribs, false, null, $tagAttrs )['attribs'];
 			$tagAttrs = [];
 			$builtTag = new TagTk( 'a', $tagAttrs, $dataAttribs );
 			$dataAttribs->stx = 'url';
@@ -174,14 +172,14 @@ class ExternalLinkHandler extends TokenHandler {
 		$content = $token->getAttribute( 'mw:content' );
 		$dataAttribs = Util::clone( $token->dataAttribs );
 		$rdfaType = $token->getAttribute( 'typeof' );
-		$magLinkRe = /* RegExp */ '/(?:^|\s)(mw:(?:Ext|Wiki)Link\/(?:ISBN|RFC|PMID))(?=$|\s)/';
+		$magLinkRe = '/(?:^|\s)(mw:(?:Ext|Wiki)Link\/(?:ISBN|RFC|PMID))(?=$|\s)/';
 		$tokens = null;
 
 		if ( $rdfaType && preg_match( $magLinkRe, $rdfaType ) ) {
 			$newHref = $href;
 			$newRel = 'mw:ExtLink';
 			if ( preg_match( '/(?:^|\s)mw:(Ext|Wiki)Link\/ISBN/', $rdfaType ) ) {
-				$newHref = $env->page->relativeLinkPrefix + $href;
+				$newHref = $env->page->relativeLinkPrefix . $href;
 				// ISBNs use mw:WikiLink instead of mw:ExtLink
 				$newRel = 'mw:WikiLink';
 			}
@@ -199,9 +197,8 @@ class ExternalLinkHandler extends TokenHandler {
 			// supporting templating of ISBN attributes.
 			//
 			// combine with existing rdfa attrs
-			// PORT-FIXME
-			// $newAttrs = WikiLinkHandler::buildLinkAttrs(
-			//        $token->attribs, false, null, $newAttrs )->attribs;
+			$newAttrs = WikiLinkHandler::buildLinkAttrs(
+				$token->attribs, false, null, $newAttrs )['attribs'];
 			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 			$tokens = array_merge( [ $aStart ], $content, [ new EndTagTk( 'a' ) ] );
@@ -230,9 +227,8 @@ class ExternalLinkHandler extends TokenHandler {
 			$newAttrs = [ new KV( 'rel', $rdfaType ) ];
 			// combine with existing rdfa attrs
 			// href is set explicitly below
-			// PORT-FIXME
-			// $newAttrs = WikiLinkHandler::buildLinkAttrs(
-			//        $token->attribs, false, null, $newAttrs )->attribs;
+			$newAttrs = WikiLinkHandler::buildLinkAttrs(
+				$token->attribs, false, null, $newAttrs )['attribs'];
 			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 
@@ -261,10 +257,8 @@ class ExternalLinkHandler extends TokenHandler {
 			$tokens = array_merge( [ $aStart ], [ $content ], [ new EndTagTk( 'a' ) ] );
 			return [ 'tokens' => $tokens ];
 		} else {
-			// PORT-FIXME
 			// Not a link, convert href to plain text.
-			// return [ 'tokens' => WikiLinkHandler::bailTokens( $env, $token, true ) ];
-			return [];
+			return [ 'tokens' => WikiLinkHandler::bailTokens( $env, $token, true ) ];
 		}
 	}
 
