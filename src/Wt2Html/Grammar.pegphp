@@ -597,7 +597,7 @@ heading =
 			} else {
 				// split up equal signs into two equal parts, with at least
 				// one character in the middle.
-				$level = floor( ( strlen( $s ) - 1 ) / 2 );
+				$level = (int)floor( ( strlen( $s ) - 1 ) / 2 );
 				$c = [ str_repeat( '=', strlen( $s ) - 2 * $level ) ];
 				$s = $e = str_repeat( '=', $level );
 			}
