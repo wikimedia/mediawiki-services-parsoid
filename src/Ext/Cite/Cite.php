@@ -1,48 +1,37 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/**
- * This module implements `<ref>` and `<references>` extension tag handling
- * natively in Parsoid.
- * @module ext/Cite
- */
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\Cite;
 
-use Parsoid\Ref as Ref;
-use Parsoid\References as References;
-use Parsoid\RefProcessor as RefProcessor;
+use DOMNode;
+use Parsoid\Config\Env;
 
 /**
  * Native Parsoid implementation of the Cite extension
  * that ties together `<ref>` and `<references>`.
  */
 class Cite {
-	public function __construct() {
-		$this->config = [
+	/** @return array */
+	public function getConfig(): array {
+		return [
 			'name' => 'cite',
 			'domProcessors' => [
 				'wt2htmlPostProcessor' => RefProcessor::class,
-				'html2wtPreProcessor' => function ( ...$args ) {return $this->_html2wtPreProcessor( ...$args );
-	   }
+				'html2wtPreProcessor' => function ( ...$args ) {
+					return self::html2wtPreProcessor( ...$args );
+				}
 			],
 			'tags' => [
 				[
 					'name' => 'ref',
-					'toDOM' => Ref::toDOM,
+					'class' => Ref::class,
 					'fragmentOptions' => [
 						'sealFragment' => true
 					],
-					'serialHandler' => Ref::serialHandler, // FIXME: Rename to toWikitext
-					'lintHandler' => Ref::lintHandler
-				]
-				, // FIXME: Do we need (a) domDiffHandler (b) ... others ...
+				],
 				[
 					'name' => 'references',
-					'toDOM' => References::toDOM,
-					'serialHandler' => References::serialHandler,
-					'lintHandler' => References::lintHandler
+					'class' => References::class,
 				]
 			],
 			'styles' => [
@@ -51,7 +40,6 @@ class Cite {
 			]
 		];
 	}
-	public $config;
 
 	/**
 	 * html -> wt DOM PreProcessor
@@ -64,12 +52,11 @@ class Cite {
 	 * - for inserted refs, we might want to de-duplicate refs.
 	 * - for deleted refs, if the primary ref was deleted, we have to transfer
 	 *   the primary ref designation to another instance of the named ref.
+	 *
+	 * @param Env $env
+	 * @param DOMNode $body
 	 */
-	public function _html2wtPreProcessor( $env, $body ) {
+	private static function html2wtPreProcessor( Env $env, DOMNode $body ) {
 		// TODO
 	}
-}
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports = $Cite;
 }

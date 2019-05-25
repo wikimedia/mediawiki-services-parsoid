@@ -18,6 +18,7 @@ use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\UrlUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use UnexpectedValueException;
 
 /**
  * Serializes link markup.
@@ -140,9 +141,9 @@ class LinkHandlerUtils {
 			'target' => null, // filled in below
 			'tail' => $dp->tail ?? '',
 			'prefix' => $dp->prefix ?? '',
-			'content' => (object)[], // string or tokens
 			'linkType' => null
 		];
+		$rtData->content = (object)[];
 
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
@@ -191,7 +192,6 @@ class LinkHandlerUtils {
 		}
 
 		// Get the content string or tokens
-		$contentParts = null;
 		if ( $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node ) ) {
 			$contentString = $node->textContent;
 			if ( !empty( $rtData->target['value'] ) && $rtData->target['value'] !== $contentString ) {
@@ -257,7 +257,7 @@ class LinkHandlerUtils {
 			// ExtLinks should have content to convert.
 			(
 				$rtData->type !== 'mw:ExtLink' ||
-				( $rtData->content->string ?? '' ) !== '' ||
+				!empty( $rtData->content->string ) ||
 				!empty( $rtData->contentNode )
 			) &&
 			( !empty( $dp->isIW ) || !empty( $target['modified'] ) || !empty( $rtData->contentModified ) )
@@ -848,7 +848,7 @@ class LinkHandlerUtils {
 				self::serializeAsExtLink( $node, $state, $linkData );
 				return;
 			} else {
-				throw new \UnexpectedValueException(
+				throw new UnexpectedValueException(
 					'Unhandled link serialization scenario: ' . DOMCompat::getOuterHTML( $node )
 				);
 			}
@@ -1061,6 +1061,7 @@ class LinkHandlerUtils {
 					return $o;
 				}
 			}
+			return null;
 		};
 		$getLastOpt = function ( $key ) use ( &$outerDP ) : ?stdClass {
 			$o = $outerDP->optList ?? [];

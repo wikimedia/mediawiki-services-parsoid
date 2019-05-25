@@ -41,7 +41,7 @@ class ParsoidExtensionAPI {
 	 * Should we directly export those instead?
 	 * @var array TokenHandler options
 	 */
-	private $parseContext;
+	public $parseContext;
 
 	/**
 	 * @param Env $env
@@ -63,6 +63,18 @@ class ParsoidExtensionAPI {
 	 */
 	public function getEnv(): Env {
 		return $this->env;
+	}
+
+	/**
+	 * Return the full extension source
+	 * @return string|null
+	 */
+	public function getExtSource(): ?string {
+		if ( $this->extToken->hasAttribute( 'source ' ) ) {
+			return $this->extToken->getAttribute( 'source' );
+		} else {
+			return null;
+		}
 	}
 
 	/**

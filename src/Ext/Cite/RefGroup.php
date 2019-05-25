@@ -1,69 +1,113 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-$ParsoidExtApi = $module->parent->parent->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 = $ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils;
-$DOMUtils = $temp0::DOMUtils;
+namespace Parsoid\Ext\Cite;
+
+use DOMDocument;
+use DOMElement;
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Title;
+use stdClass;
 
 /**
  * Helper class used by `<references>` implementation.
- * @class
  */
 class RefGroup {
-	public function __construct( $group ) {
-		$this->name = $group || '';
-		$this->refs = [];
-		$this->indexByName = new Map();
-	}
+
+	/**
+	 * @var string
+	 */
 	public $name;
+
+	/**
+	 * @var stdClass[]
+	 */
 	public $refs;
+
+	/**
+	 * @var stdClass[]
+	 */
 	public $indexByName;
 
-	public function renderLine( $env, $refsList, $ref ) {
+	/**
+	 * RefGroup constructor.
+	 * @param string $group
+	 */
+	public function __construct( string $group = '' ) {
+		$this->name = $group;
+		$this->refs = [];
+		$this->indexByName = [];
+	}
+
+	/**
+	 * Generate leading linkbacks
+	 * @param string $href
+	 * @param string|null $group
+	 * @param string $text
+	 * @param DOMDocument $ownerDoc
+	 * @param Env $env
+	 * @return DOMElement
+	 */
+	private static function createLinkback(
+		string $href, ?string $group, string $text, DOMDocument $ownerDoc, Env $env
+	): DOMElement {
+		$a = $ownerDoc->createElement( 'a' );
+		$s = $ownerDoc->createElement( 'span' );
+		$textNode = $ownerDoc->createTextNode( $text . ' ' );
+		$title = Title::newFromText(
+			$env->getPageConfig()->getTitle() . '#' . $href,
+			$env->getSiteConfig()
+		);
+		$a->setAttribute( 'href', $env->makeLink( $title ) );
+		$s->setAttribute( 'class', 'mw-linkback-text' );
+		if ( $group ) {
+			$a->setAttribute( 'data-mw-group', $group );
+		}
+		$s->appendChild( $textNode );
+		$a->appendChild( $s );
+		return $a;
+	}
+
+	/**
+	 * @param Env $env
+	 * @param DOMElement $refsList
+	 * @param stdClass $ref
+	 */
+	public function renderLine( Env $env, DOMElement $refsList, stdClass $ref ): void {
 		$ownerDoc = $refsList->ownerDocument;
 
 		// Generate the li and set ref content first, so the HTML gets parsed.
 		// We then append the rest of the ref nodes before the first node
 		$li = $ownerDoc->createElement( 'li' );
+		$refDir = $ref->dir;
+		$refTarget = $ref->target;
+		$refContent = $ref->content;
+		$refGroup = $ref->group;
 		DOMDataUtils::addAttributes( $li, [
-				'about' => '#' . $ref->target,
-				'id' => $ref->target,
-				'class' => ( [ 'rtl', 'ltr' ]->includes( $ref->dir ) ) ? 'mw-cite-dir-' . $ref->dir : null
+				'about' => '#' . $refTarget,
+				'id' => $refTarget,
+				'class' => ( $refDir === 'rtl' || $refDir === 'ltr' ) ? 'mw-cite-dir-' . $refDir : null
 			]
 		);
 		$reftextSpan = $ownerDoc->createElement( 'span' );
-		DOMDataUtils::addAttributes( $reftextSpan, [
-				'id' => 'mw-reference-text-' . $ref->target,
-				'class' => 'mw-reference-text'
+		DOMDataUtils::addAttributes(
+			$reftextSpan,
+			[
+				'id' => 'mw-reference-text-' . $refTarget,
+				'class' => 'mw-reference-text',
 			]
 		);
-		if ( $ref->content ) {
-			$content = $env->fragmentMap->get( $ref->content )[ 0 ];
+		if ( $refContent ) {
+			$content = $env->getFragment( $refContent )[0];
 			DOMUtils::migrateChildrenBetweenDocs( $content, $reftextSpan );
 			DOMDataUtils::visitAndLoadDataAttribs( $reftextSpan );
 		}
 		$li->appendChild( $reftextSpan );
 
-		// Generate leading linkbacks
-		$createLinkback = function ( $href, $group, $text ) use ( &$ownerDoc, &$env ) {
-			$a = $ownerDoc->createElement( 'a' );
-			$s = $ownerDoc->createElement( 'span' );
-			$textNode = $ownerDoc->createTextNode( $text . ' ' );
-			$a->setAttribute( 'href', $env->page->titleURI . '#' . $href );
-			$s->setAttribute( 'class', 'mw-linkback-text' );
-			if ( $group ) {
-				$a->setAttribute( 'data-mw-group', $group );
-			}
-			$s->appendChild( $textNode );
-			$a->appendChild( $s );
-			return $a;
-		};
 		if ( count( $ref->linkbacks ) === 1 ) {
-			$linkback = $createLinkback( $ref->id, $ref->group, "↑" );
+			$linkback = self::createLinkback( $ref->id, $refGroup, "↑", $ownerDoc, $env );
 			$linkback->setAttribute( 'rel', 'mw:referencedBy' );
 			$li->insertBefore( $linkback, $reftextSpan );
 		} else {
@@ -72,10 +116,9 @@ class RefGroup {
 			$span->setAttribute( 'rel', 'mw:referencedBy' );
 			$li->insertBefore( $span, $reftextSpan );
 
-			$ref->linkbacks->forEach( function ( $lb, $i ) use ( &$span, &$createLinkback, &$ref ) {
-					$span->appendChild( $createLinkback( $lb, $ref->group, $i + 1 ) );
+			foreach ( $ref->linkbacks as $i => $lb ) {
+				$span->appendChild( self::createLinkback( $lb, $refGroup, $i + 1, $ownerDoc, $env ) );
 			}
-			);
 		}
 
 		// Space before content node
@@ -85,5 +128,3 @@ class RefGroup {
 		$refsList->appendChild( $li );
 	}
 }
-
-$module->exports = $RefGroup;

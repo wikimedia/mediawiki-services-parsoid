@@ -48,9 +48,12 @@ class ContentUtils {
 	 * @param array|null $options
 	 * @return DOMElement
 	 */
-	public static function ppToDOM( Env $env, string $html, ?array $options = null ): DOMElement {
-		$options = $options ?? [];
-		$node = $options['node'] ?? null;
+	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMElement {
+		$options += [
+			'node' => null,
+			'reinsertFosterableContent' => null,
+		];
+		$node = $options['node'];
 		if ( $node === null ) {
 			$node = DOMCompat::getBody( $env->createDocument( $html ) );
 		} else {
@@ -58,7 +61,7 @@ class ContentUtils {
 			DOMCompat::setInnerHTML( $node, $html );
 		}
 
-		if ( $options['reinsertFosterableContent'] ?? false ) {
+		if ( $options['reinsertFosterableContent'] ) {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
 				$meta = WTUtils::reinsertFosterableContent( $env, $n, true );

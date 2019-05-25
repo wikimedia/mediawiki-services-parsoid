@@ -1,31 +1,45 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-$ParsoidExtApi = $module->parent->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 = $ParsoidExtApi;
-$ContentUtils = $temp0::ContentUtils;
-$Sanitizer = $temp0::Sanitizer;
+namespace Parsoid\Ext\Cite;
 
-$RefGroup = require './RefGroup.js';
+use Parsoid\Config\Env;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Wt2Html\TT\Sanitizer;
+use stdClass;
 
-/**
- * @class
- */
 class ReferencesData {
-	public function __construct( $env ) {
+
+	/**
+	 * @var Env
+	 */
+	private $env;
+
+	/**
+	 * @var int
+	 */
+	private $index;
+
+	/**
+	 * @var RefGroup[]
+	 */
+	private $refGroups;
+
+	/**
+	 * ReferencesData constructor.
+	 * @param Env $env
+	 */
+	public function __construct( Env $env ) {
 		$this->index = 0;
 		$this->env = $env;
-		$this->refGroups = new Map();
+		$this->refGroups = [];
 	}
-	public $env;
-	public $index;
 
-	public $refGroups;
-
-	public function makeValidIdAttr( $val ) {
+	/**
+	 * @param string $val
+	 * @return bool|string
+	 */
+	public function makeValidIdAttr( string $val ) {
 		// Looks like Cite.php doesn't try to fix ids that already have
 		// a "_" in them. Ex: name="a b" and name="a_b" are considered
 		// identical. Not sure if this is a feature or a bug.
@@ -36,33 +50,52 @@ class ReferencesData {
 		return Sanitizer::escapeIdForAttribute( $val );
 	}
 
-	public function getRefGroup( $groupName, $allocIfMissing ) {
-		$groupName = $groupName || '';
-		if ( !$this->refGroups->has( $groupName ) && $allocIfMissing ) {
-			$this->refGroups->set( $groupName, new RefGroup( $groupName ) );
+	/**
+	 * @param string $groupName
+	 * @param bool $allocIfMissing
+	 * @return RefGroup|null
+	 */
+	public function getRefGroup( string $groupName = '', bool $allocIfMissing = false ): ?RefGroup {
+		if ( !isset( $this->refGroups[$groupName] ) && $allocIfMissing ) {
+			$this->refGroups[$groupName] = new RefGroup( $groupName );
 		}
-		return $this->refGroups->get( $groupName );
+		return $this->refGroups[$groupName] ?? null;
 	}
 
-	public function removeRefGroup( $groupName ) {
-		if ( $groupName !== null && $groupName !== null ) {
+	/**
+	 * @param string|null $groupName
+	 */
+	public function removeRefGroup( ?string $groupName = null ): void {
+		if ( $groupName !== null ) {
 			// '' is a valid group (the default group)
-			$this->refGroups->delete( $groupName );
+			unset( $this->refGroups[$groupName] );
 		}
 	}
 
-	public function add( $env, $groupName, $refName, $about, $skipLinkback ) {
+	/**
+	 * @param Env $env
+	 * @param string $groupName
+	 * @param string $refName
+	 * @param string $about
+	 * @param bool $skipLinkback
+	 * @return stdClass
+	 */
+	public function add(
+		Env $env, string $groupName, string $refName, string $about, bool $skipLinkback
+	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$refName = $this->makeValidIdAttr( $refName );
 
-		$ref = null;
-		if ( $refName && $group->indexByName->has( $refName ) ) {
-			$ref = $group->indexByName->get( $refName );
+		if ( $refName && isset( $group->indexByName[$refName] ) ) {
+			$ref = $group->indexByName[$refName];
 			if ( $ref->content && !$ref->hasMultiples ) {
 				$ref->hasMultiples = true;
 				// Use the non-pp version here since we've already stored attribs
 				// before putting them in the map.
-				$ref->cachedHtml = ContentUtils::toXML( $env->fragmentMap->get( $ref->content )[ 0 ], [ 'innerXML' => true ] );
+				$ref->cachedHtml = ContentUtils::toXML(
+					$env->getFragment( $ref->content )[0],
+					[ 'innerXML' => true ]
+				);
 			}
 		} else {
 			// The ids produced Cite.php have some particulars:
@@ -71,14 +104,14 @@ class ReferencesData {
 			// Notes (references) whose ref doesn't have a name are 'cite_note-' + index
 			// Notes whose ref has a name are 'cite_note-' + name + '-' + index
 			$n = $this->index;
-			$refKey = ( 1 + $n ) . '';
-			$refIdBase = 'cite_ref-' . ( ( $refName ) ? $refName . '_' . $refKey : $refKey );
-			$noteId = 'cite_note-' . ( ( $refName ) ? $refName . '-' . $refKey : $refKey );
+			$refKey = strval( 1 + $n );
+			$refIdBase = 'cite_ref-' . ( $refName ? $refName . '_' . $refKey : $refKey );
+			$noteId = 'cite_note-' . ( $refName ? $refName . '-' . $refKey : $refKey );
 
 			// bump index
 			$this->index += 1;
 
-			$ref = [
+			$ref = (object)[
 				'about' => $about,
 				'content' => null,
 				'dir' => '',
@@ -86,7 +119,7 @@ class ReferencesData {
 				'groupIndex' => count( $group->refs ) + 1,
 				'index' => $n,
 				'key' => $refIdBase,
-				'id' => ( ( $refName ) ? $refIdBase . '-0' : $refIdBase ),
+				'id' => $refName ? $refIdBase . '-0' : $refIdBase,
 				'linkbacks' => [],
 				'name' => $refName,
 				'target' => $noteId,
@@ -96,7 +129,7 @@ class ReferencesData {
 			];
 			$group->refs[] = $ref;
 			if ( $refName ) {
-				$group->indexByName->set( $refName, $ref );
+				$group->indexByName[$refName] = $ref;
 			}
 		}
 
@@ -105,6 +138,18 @@ class ReferencesData {
 		}
 		return $ref;
 	}
-}
 
-$module->exports = $ReferencesData;
+	/**
+	 * @return Env
+	 */
+	public function getEnv(): Env {
+		return $this->env;
+	}
+
+	/**
+	 * @return RefGroup[]
+	 */
+	public function getRefGroups(): array {
+		return $this->refGroups;
+	}
+}

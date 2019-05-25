@@ -1,25 +1,29 @@
 <?php
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-namespace Parsoid;
+declare( strict_types = 1 );
 
-use Parsoid\References as References;
-use Parsoid\ReferencesData as ReferencesData;
+namespace Parsoid\Ext\Cite;
+
+use DOMElement;
+use Parsoid\Config\Env;
 
 /**
  * wt -> html DOM PostProcessor
- *
- * @class
  */
 class RefProcessor {
-	public function run( $body, $env, $options, $atTopLevel ) {
+
+	/**
+	 * @param DOMElement $body
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 */
+	public function run(
+		DOMElement $body, Env $env, array $options = [], bool $atTopLevel = false
+	): void {
 		if ( $atTopLevel ) {
 			$refsData = new ReferencesData( $env );
-			References::_processRefs( $env, $refsData, $body );
+			References::processRefs( $env, $refsData, $body );
 			References::insertMissingReferencesIntoDOM( $refsData, $body );
 		}
 	}
 }
-
-$module->exports = $RefProcessor;

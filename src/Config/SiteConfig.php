@@ -36,11 +36,11 @@ abstract class SiteConfig {
 	 * @var array
 	 */
 	private $defaultNativeExtensions = [
-		'Nowiki', 'Pre',
+		'Nowiki', 'Pre', 'Cite',
 		/*
 		 * Not yet ported / merged
 		 *
-		'Cite', 'Gallery', 'LST', 'Poem', 'JSON'
+		'Gallery', 'LST', 'Poem', 'JSON'
 		 */
 	];
 

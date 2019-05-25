@@ -251,8 +251,6 @@ class MockSiteConfig extends SiteConfig {
 	protected function getNonNativeExtensionTags(): array {
 		return [
 			'gallery' => true,    // Remove when gallery is ported
-			'ref' => true,        // Remove when cite is ported
-			'references' => true, // Remove when cite is ported
 			'poem' => true,       // Remove when poem is ported
 			'indicator' => true,
 			'timeline' => true,
