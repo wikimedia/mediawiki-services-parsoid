@@ -70,7 +70,7 @@ class WikitextSerializer {
 	/** @var string[] attribute name => value regexp */
 	private const PARSOID_ATTRIBUTES = [
 		'about' => '/^#mwt\d+$/',
-		'typeof' => '/(^|\s)mw:[^\s]+/g',
+		'typeof' => '/(^|\s)mw:[^\s]+/',
 	];
 
 	// PORT-FIXME do different whitespace semantics matter?
@@ -83,10 +83,10 @@ class WikitextSerializer {
 	private const FORMATSTRING_REGEXP = '/^(\n)?(\{\{ *_+)(\n? *\|\n? *_+ *= *)(_+)(\n? *\}\})(\n)?$/';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const COMMENT_OR_WS_REGEXP = '^(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$';
+	private const COMMENT_OR_WS_REGEXP = '/^(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$/';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const HEADING_NOWIKI_REGEXP = '^(?:' . Util::COMMENT_REGEXP_FRAGMENT . ')*'
+	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Util::COMMENT_REGEXP_FRAGMENT . ')*'
 		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/';
 
 	/** @var array string[] */
@@ -1416,8 +1416,7 @@ class WikitextSerializer {
 		};
 
 		preg_match( self::HEADING_NOWIKI_REGEXP, $line, $match );
-		if ( $match && !preg_match( self::COMMENT_OR_WS_REGEXP, $match[2] )
-		) {
+		if ( $match && !preg_match( self::COMMENT_OR_WS_REGEXP, $match[2] ) ) {
 			// The nowikiing was spurious since the trailing = is not in EOL position
 			return $escaper( $match[1] ) . $match[2];
 		} else {
@@ -1521,7 +1520,7 @@ class WikitextSerializer {
 		//   can remove all those nowikis.
 		//   Ex: ''foo'<nowiki/>'' bar '''baz'<nowiki/>'''
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$p = preg_split( "/('''''|'''|''|\\[\\[|\\]\\]|\\{\\{|\\}\\}|<\\w+(?:\\s+[^>]*?|\\s*?)\\/?>|<\\/\\w+\\s*>)/", $line );
+		$p = preg_split( "/('''''|'''|''|\[\[|\]\]|\{\{|\}\}|<\w+(?:\s+[^>]*?|\s*?)\/?>|<\/\w+\s*>)/", $line, -1, PREG_SPLIT_DELIM_CAPTURE );
 
 		// Which nowiki do we strip out?
 		$nowikiIndex = -1;
