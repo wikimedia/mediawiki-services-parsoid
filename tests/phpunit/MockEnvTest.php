@@ -79,7 +79,7 @@ class MockEnvTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $mockDataAccess, $env->getDataAccess() );
 
 		$env = new MockEnv( [
-			'log' => true,
+			'traceFlags' => [ "dsr" ],
 		] );
 		$this->assertNotInstanceOf( \Psr\Log\NullLogger::class, $env->getSiteConfig()->getLogger() );
 	}

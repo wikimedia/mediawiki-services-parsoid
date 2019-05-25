@@ -112,6 +112,9 @@ $env = new ApiEnv( [
 	"pageContent" => $envOpts['pageContent'] ?? $input,
 	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
 	"pageLanguageDir" => $envOpts['pagelanguagedir'] ?? null,
+	"debugFlags" => $envOpts['debugFlags'] ?? null,
+	"dumpFlags" => $envOpts['dumpFlags'] ?? null,
+	"traceFlags" => $envOpts['traceFlags'] ?? null,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	# This directory contains synthetic data which doesn't exactly match
 	# enwiki, but matches what parserTests expects

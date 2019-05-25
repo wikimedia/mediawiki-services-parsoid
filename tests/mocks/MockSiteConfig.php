@@ -47,7 +47,10 @@ class MockSiteConfig extends SiteConfig {
 		if ( isset( $opts['linkTrailRegex'] ) ) {
 			$this->linkTrailRegex = $opts['linkTrailRegex'];
 		}
-		if ( !empty( $opts['log'] ) ) {
+		if ( !empty( $opts['traceFlags'] ) ||
+			!empty( $opts['dumpFlags'] ) ||
+			!empty( $opts['debugFlags'] )
+		) {
 			$this->setLogger( new class extends AbstractLogger {
 				/** @inheritDoc */
 				public function log( $level, $message, array $context = [] ) {

@@ -26,6 +26,9 @@ class HybridTestUtils {
 			pagetitle: env.normalizeAndResolvePageTitle(),
 			pagens: env.page.ns,
 			pageId: env.page.id,
+			traceFlags: Array.from(env.conf.parsoid.traceFlags || []),
+			dumpFlags: Array.from(env.conf.parsoid.dumpFlags || []),
+			debugFlags: Array.from(env.conf.parsoid.debugFlags || []),
 			tags: Array.from(env.conf.wiki.extConfig.tags.keys()),
 			fragmentMap: Array.from(env.fragmentMap.entries()).map((pair) => {
 				const [k,v] = pair;
