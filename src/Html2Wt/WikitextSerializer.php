@@ -774,10 +774,7 @@ class WikitextSerializer {
 
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		// PORT-FIXME semantics are not exact match. Document Parsoid data structure so it's
-		// possible to identify the correct PHP equivalents.
-		// phpcs:ignore MediaWiki.Usage.NestedInlineTernary.UnparenthesizedThen
-		$dpArgInfo = ( isset( $dp->pi ) && isset( $part->i ) ) ? $dp->pi[$part->i] ?? [] ?: [] : [];
+		$dpArgInfo = $dp->pi[$part->i] ?? [] ?: [];
 
 		// Build a key -> arg info map
 		$dpArgInfoMap = array_column( $dpArgInfo, null, 'k' );
@@ -792,7 +789,6 @@ class WikitextSerializer {
 		$kvMap = [];
 		foreach ( $tplKeysFromDataMw as $key ) {
 			$param = $part->params->{$key};
-			// PORT-FIXME Document Parsoid data structure so it's possible to identify the PHP equivalents.
 			$argInfo = $dpArgInfoMap[$key] ?? [] ?: [];
 
 			// TODO: Other formats?
@@ -808,7 +804,7 @@ class WikitextSerializer {
 			Assert::invariant( is_string( $value ), "For param: $key, wt property should be a string '
 				. 'but got: $value" );
 
-			$serializeAsNamed = $argInfo->named ?? false ?: false;
+			$serializeAsNamed = !empty( $argInfo->named );
 
 			// The name is usually equal to the parameter key, but
 			// if there's a key.wt attribute, use that.
@@ -845,7 +841,7 @@ class WikitextSerializer {
 			$kv = $kvMap[$param];
 			// Add nowiki escapes for the arg value, as required
 			$escapedValue = $this->wteHandlers->escapeTplArgWT( $kv['value'], [
-				'serializeAsNamed' => $kv['serializeAsNamed'] || $param !== (string)$numericIndex,
+				'serializeAsNamed' => $kv['serializeAsNamed'] || $param !== $numericIndex,
 				'type' => $type,
 				'argPositionalIndex' => $numericIndex,
 				'numPositionalArgs' => $numPositionalArgs,
