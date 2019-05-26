@@ -215,7 +215,7 @@ class LinkHandlerUtils {
 
 		// Update link type based on additional analysis.
 		// What might look like external links might be serializable as a wikilink.
-		$target = $rtData->target;
+		$target = &$rtData->target;
 
 		// mw:MediaLink annotations are considered authoritative
 		// and interwiki link matches aren't made for these
