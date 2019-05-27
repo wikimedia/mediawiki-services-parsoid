@@ -36,6 +36,7 @@ class HybridTestUtils {
 			}),
 			wrapSections: env.wrapSections,
 			rtTestMode: env.conf.parsoid.rtTestMode,
+			scrubWikitext: env.scrubWikitext,
 			tidyWhitespaceBugMaxLength: env.conf.parsoid.linter.tidyWhitespaceBugMaxLength,
 			discardDataParsoid: env.discardDataParsoid,
 			pageBundle: env.pageBundle,

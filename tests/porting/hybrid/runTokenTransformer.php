@@ -65,6 +65,7 @@ $env = new ApiEnv( [
 	"dumpFlags" => $envOpts['dumpFlags'] ?? null,
 	"traceFlags" => $envOpts['traceFlags'] ?? null,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
+	"pageId" => $envOpts['pageId'] ?? null,
 	# This directory contains synthetic data which doesn't exactly match
 	# enwiki, but matches what parserTests expects
 	"cacheDir" => __DIR__ . '/data',
