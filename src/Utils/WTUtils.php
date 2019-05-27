@@ -381,7 +381,7 @@ class WTUtils {
 	public static function emitsSolTransparentSingleLineWT( DOMNode $node ): bool {
 		if ( DOMUtils::isText( $node ) ) {
 			// NB: We differ here to meet the nl condition.
-			return (bool)preg_match( '/^[ \t]*$/', $node->nodeValue );
+			return (bool)preg_match( '/^[ \t]*$/D', $node->nodeValue );
 		} elseif ( self::isRenderingTransparentNode( $node ) ) {
 			// NB: The only metas in a DOM should be for behavior switches and
 			// include directives, other than explicit HTML meta tags. This
@@ -734,7 +734,7 @@ class WTUtils {
 	 * @return string
 	 */
 	public static function escapeNowikiTags( string $text ): string {
-		return preg_replace( '#<(/?nowiki\s*/?\s*)>/gi#', '&lt;$1&gt;', $text );
+		return preg_replace( '#<(/?nowiki\s*/?\s*)>#i', '&lt;$1&gt;', $text );
 	}
 
 	/**

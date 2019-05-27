@@ -380,7 +380,7 @@ class SerializerState {
 	private function sepIntroducedSOL( string $sep ): void {
 		// Don't get tripped by newlines in comments!  Be wary of nowikis added
 		// by makeSepIndentPreSafe on the last line.
-		if ( substr( preg_replace( Util::COMMENT_REGEXP, '', $sep ), -1 ) === '\n' ) {
+		if ( substr( preg_replace( Util::COMMENT_REGEXP, '', $sep ), -1 ) === "\n" ) {
 			// Since we are stashing away newlines for emitting
 			// before the next element, we are in SOL state wrt
 			// the content of that next element.

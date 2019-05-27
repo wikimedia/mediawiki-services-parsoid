@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
+use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
@@ -723,130 +724,127 @@ class WikitextEscapeHandlers {
 
 		if ( $fullWrap ) {
 			return '<nowiki>' . $text . '</nowiki>' . $nls;
-		} else {
-			$buf = '';
-			$inNowiki = false;
-			$nowikisAdded = false;
-			$tokensWithoutClosingTag = PHPUtils::makeSet( [
-					// These token types don't come with a closing tag
-					'listItem', 'td', 'tr'
-				]
-			);
-
-			// reverse escaping nowiki tags
-			// we do this so that they tokenize as nowikis
-			// instead of entity enclosed text
-			$text = preg_replace( '/&lt;(\/?nowiki\s*\/?\s*)&gt;/i', '<$1>', $text );
-
-			$tokens = $this->tokenizeStr( $text, $sol );
-
-			for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-				$t = $tokens[$i];
-				if ( is_string( $t ) ) {
-					if ( strlen( $t ) > 0 ) {
-						$t = WTUtils::escapeNowikiTags( $t );
-						if ( !$inNowiki &&
-							( ( $sol && preg_match( '/^ /', $t ) ) ||
-								preg_match( '/\n /', $t )
-							)
-						) {
-							$x = preg_split( '/(^|\n) /', $t );
-							$buf .= $x[0];
-							$lastIndexX = count( $x ) - 1;
-							for ( $k = 1;  $k < $lastIndexX;  $k += 2 ) {
-								$buf .= $x[$k];
-								if ( $k !== 1 || $x[$k] === "\n" || $sol ) {
-									self::nowikiWrap( ' ', true, $inNowiki, $nowikisAdded, $buf );
-								} else {
-									$buf .= ' ';
-								}
-								$buf .= $x[$k + 1];
-							}
-						} else {
-							$buf .= $t;
-						}
-						$sol = false;
-					}
-					continue;
-				}
-
-				// Ignore display hacks, so text like "A : B" doesn't produce
-				// an unnecessary nowiki.
-				if ( !empty( $t->dataAttribs->isDisplayHack ) ) {
-					continue;
-				}
-
-				$tsr = $t->dataAttribs->tsr ?? null;
-				if ( !is_array( $tsr ) ) {
-					$env = $state->getEnv();
-					$env->log(
-						'error/html2wt/escapeNowiki',
-						'Missing tsr for token ',
-						PHPUtils::jsonEncode( $t ),
-						'while processing text ',
-						$text
-					);
-
-					// Bail and wrap the whole thing in a nowiki
-					// if we have missing information.
-					// Use match[1] since text has been clobbered above.
-					return '<nowiki>' . $match[1] . '</nowiki>' . $nls;
-				}
-
-				// Now put back the escaping we removed above
-				$tSrc = WTUtils::escapeNowikiTags( mb_substr( $text, $tsr[0], $tsr[1] - $tsr[0] ) );
-				switch ( TokenUtils::getTokenType( $t ) ) {
-					case 'NlTk':
-						$buf .= $tSrc;
-						$sol = true;
-						break;
-					case 'CommentTk':
-						// Comments are sol-transparent
-						$buf .= $tSrc;
-						break;
-					case 'TagTk':
-						// Treat tokens with missing tags as self-closing tokens
-						// for the purpose of minimal nowiki escaping
-						self::nowikiWrap(
-							$tSrc,
-							isset( $tokensWithoutClosingTag[$t->getName()] ),
-							$inNowiki,
-							$nowikisAdded,
-							$buf
-						);
-						$sol = false;
-						break;
-					case 'EndTagTk':
-						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
-						$sol = false;
-						break;
-					case 'SelfclosingTagTk':
-						if ( $t->getName() !== 'meta' ||
-							!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) ?? '' )
-						) {
-							// Don't bother with marker or empty-line metas
-							self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
-						}
-						$sol = false;
-						break;
-				}
-			}
-
-			// close any unclosed nowikis
-			if ( $inNowiki ) {
-				$buf .= '</nowiki>';
-			}
-
-			// Make sure nowiki is always added
-			// Ex: "foo]]" won't tokenize into tags at all
-			if ( !$nowikisAdded && !$dontWrapIfUnnecessary ) {
-				$buf = '';
-				self::nowikiWrap( $text, true, $inNowiki, $nowikisAdded, $buf );
-			}
-
-			$buf .= $nls;
-			return $buf;
 		}
+
+		$buf = '';
+		$inNowiki = false;
+		$nowikisAdded = false;
+		// These token types don't come with a closing tag
+		$tokensWithoutClosingTag = PHPUtils::makeSet( [ 'listItem', 'td', 'tr' ] );
+
+		// reverse escaping nowiki tags
+		// we do this so that they tokenize as nowikis
+		// instead of entity enclosed text
+		$text = preg_replace( '#&lt;(/?nowiki\s*/?\s*)&gt;#i', '<$1>', $text );
+
+		$tokens = $this->tokenizeStr( $text, $sol );
+
+		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
+			$t = $tokens[$i];
+			if ( is_string( $t ) ) {
+				if ( strlen( $t ) > 0 ) {
+					$t = WTUtils::escapeNowikiTags( $t );
+					if ( !$inNowiki &&
+						( ( $sol && preg_match( '/^ /', $t ) ) ||
+							preg_match( '/\n /', $t )
+						)
+					) {
+						$x = preg_split( '/(^|\n) /', $t, -1, PREG_SPLIT_DELIM_CAPTURE );
+						$buf .= $x[0];
+						$lastIndexX = count( $x ) - 1;
+						for ( $k = 1;  $k < $lastIndexX;  $k += 2 ) {
+							$buf .= $x[$k];
+							if ( $k !== 1 || $x[$k] === "\n" || $sol ) {
+								self::nowikiWrap( ' ', true, $inNowiki, $nowikisAdded, $buf );
+							} else {
+								$buf .= ' ';
+							}
+							$buf .= $x[$k + 1];
+						}
+					} else {
+						$buf .= $t;
+					}
+					$sol = false;
+				}
+				continue;
+			}
+
+			// Ignore display hacks, so text like "A : B" doesn't produce
+			// an unnecessary nowiki.
+			if ( !empty( $t->dataAttribs->isDisplayHack ) ) {
+				continue;
+			}
+
+			$tsr = $t->dataAttribs->tsr ?? null;
+			if ( !is_array( $tsr ) ) {
+				$env = $state->getEnv();
+				$env->log(
+					'error/html2wt/escapeNowiki',
+					'Missing tsr for token ',
+					PHPUtils::jsonEncode( $t ),
+					'while processing text ',
+					$text
+				);
+
+				// Bail and wrap the whole thing in a nowiki
+				// if we have missing information.
+				// Use match[1] since text has been clobbered above.
+				return '<nowiki>' . $match[1] . '</nowiki>' . $nls;
+			}
+
+			// Now put back the escaping we removed above
+			$tSrc = WTUtils::escapeNowikiTags( mb_substr( $text, $tsr[0], $tsr[1] - $tsr[0] ) );
+			switch ( TokenUtils::getTokenType( $t ) ) {
+				case 'NlTk':
+					$buf .= $tSrc;
+					$sol = true;
+					break;
+				case 'CommentTk':
+					// Comments are sol-transparent
+					$buf .= $tSrc;
+					break;
+				case 'TagTk':
+					// Treat tokens with missing tags as self-closing tokens
+					// for the purpose of minimal nowiki escaping
+					self::nowikiWrap(
+						$tSrc,
+						isset( $tokensWithoutClosingTag[$t->getName()] ),
+						$inNowiki,
+						$nowikisAdded,
+						$buf
+					);
+					$sol = false;
+					break;
+				case 'EndTagTk':
+					self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
+					$sol = false;
+					break;
+				case 'SelfclosingTagTk':
+					if ( $t->getName() !== 'meta' ||
+						!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) ?? '' )
+					) {
+						// Don't bother with marker or empty-line metas
+						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
+					}
+					$sol = false;
+					break;
+			}
+		}
+
+		// close any unclosed nowikis
+		if ( $inNowiki ) {
+			$buf .= '</nowiki>';
+		}
+
+		// Make sure nowiki is always added
+		// Ex: "foo]]" won't tokenize into tags at all
+		if ( !$nowikisAdded && !$dontWrapIfUnnecessary ) {
+			$buf = '';
+			self::nowikiWrap( $text, true, $inNowiki, $nowikisAdded, $buf );
+		}
+
+		$buf .= $nls;
+		return $buf;
 	}
 
 	/**
@@ -885,10 +883,9 @@ class WikitextEscapeHandlers {
 
 		if ( !$fullCheckNeeded ) {
 			$hasQuoteChar = preg_match( "/'/", $text );
-			$indentPreUnsafe = ( !$indentPreSafeMode &&
-				( preg_match( ( '/\n +[^\r\n]*?[^\s]+/' ), $text ) ||
-					$sol && preg_match( ( '/^ +[^\r\n]*?[^\s]+/' ), $text )
-				)
+			$indentPreUnsafe = !$indentPreSafeMode && (
+				preg_match( '/\n +[^\r\n]*?[^\s]+/', $text ) ||
+				$sol && preg_match( '/^ +[^\r\n]*?[^\s]+/', $text )
 			);
 			$hasNonQuoteEscapableChars = preg_match( '/[<>\[\]\-\+\|!=#\*:;~{}]|__[^_]*__/', $text );
 			$hasLanguageConverter = preg_match( '/-\{|\}-/', $text );
@@ -1148,13 +1145,13 @@ class WikitextEscapeHandlers {
 			// If there's an unprotected |, guard it so it doesn't get confused
 			// with the beginning of a different parameter.
 			$needNowikiCount++;
-			$neededSubstitution = [ '/\|/g', '{{!}}' ];
+			$neededSubstitution = [ '/\|/', '{{!}}' ];
 		}
 
 		// Now, if arent' already in a <nowiki> and there's only one reason to
 		// protect, avoid guarding too much text by just substituting.
 		if ( !$openNowiki && $needNowikiCount === 1 && $neededSubstitution ) {
-			$str = str_replace( $neededSubstitution[0], $neededSubstitution[1], $str );
+			$str = preg_replace( $neededSubstitution[0], $neededSubstitution[1], $str );
 			$needNowikiCount = false;
 		}
 		if ( !$openNowiki && $needNowikiCount ) {
@@ -1298,7 +1295,7 @@ class WikitextEscapeHandlers {
 							]
 						);
 						foreach ( $tkBits as $bit ) {
-							if ( gettype( $bit ) === 'object' ) {
+							if ( $bit instanceof Token ) {
 								self::appendStr(
 									$bit->dataAttribs->src,
 									$last,

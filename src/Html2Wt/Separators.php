@@ -25,12 +25,12 @@ class Separators {
 	/**
 	 * spaces + (comments and anything but newline)?
 	 */
-	private const WS_COMMENTS_SEP_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/';
+	private const WS_COMMENTS_SEP_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/D';
 
 	/**
 	 * multiple newlines followed by spaces + (comments and anything but newline)?
 	 */
-	private const NL_WS_COMMENTS_SEP_REGEXP = '/\n+' . self::WS_COMMENTS_SEP_STRING . '/';
+	private const NL_WS_COMMENTS_SEP_REGEXP = '/\n+' . self::WS_COMMENTS_SEP_STRING . '/D';
 
 	/**
 	 * @var SerializerState

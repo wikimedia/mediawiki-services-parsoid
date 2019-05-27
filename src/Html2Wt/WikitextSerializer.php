@@ -1429,7 +1429,7 @@ class WikitextSerializer {
 		// PORT-FIXME do the different whitespace semantics matter?
 		$noWikiRegexp = '/^'
 			. PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' )
-			. '(<nowiki>\s+<\/nowiki>)([^\n]*(?:\n|\$))' . '/im';
+			. '(<nowiki>\s+<\/nowiki>)([^\n]*(?:\n|$))' . '/im';
 		$pieces = preg_split( $noWikiRegexp, $this->state->out, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$out = $pieces[0];
 		for ( $i = 1;  $i < count( $pieces );  $i += 4 ) {
