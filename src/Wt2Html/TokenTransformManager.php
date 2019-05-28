@@ -14,7 +14,10 @@ use Parsoid\Utils\Title;
  * implement the TokenHandler interface. The parser pipeline
  * registers individual transformers.
  *
- * Could eventually be eliminated.
+ * See https://www.mediawiki.org/wiki/Parsoid/Token_stream_transformations
+ * for more documentation.  This abstract class could eventually be
+ * eliminated and the various token transforms just extend PipelineStage
+ * directly.
  */
 class TokenTransformManager extends PipelineStage {
 	/** @var array */
