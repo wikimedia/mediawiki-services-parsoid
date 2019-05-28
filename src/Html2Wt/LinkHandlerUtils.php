@@ -1063,7 +1063,7 @@ class LinkHandlerUtils {
 				}
 			}
 		};
-		$getLastOpt = function ( $key ) use ( &$outerDP ) {
+		$getLastOpt = function ( $key ) use ( &$outerDP ) : ?stdClass {
 			$o = $outerDP->optList ?? [];
 			for ( $i = count( $o ) - 1;  $i >= 0;  $i-- ) {
 				if ( $o[$i]->ck === $key ) {
@@ -1328,9 +1328,11 @@ class LinkHandlerUtils {
 
 		if ( !( $outerElt && DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
 			$size = $getLastOpt( 'width' );
-			$sizeString = ( $size && !empty( $size->ak ) ) ||
-				( !empty( $ww['fromDataMW'] ) && !empty( $ww['value'] ) );
-			if ( $sizeUnmodified && $sizeString ) {
+			$sizeString = (string)( $size->ak ?? '' );
+			if ( $sizeString === '' && !empty( $ww['fromDataMW'] ) ) {
+				$sizeString = (string)( $ww['value'] ?? '' );
+			}
+			if ( $sizeUnmodified && $sizeString !== '' ) {
 				// preserve original width/height string if not touched
 				$nopts[] = (object)[
 					'ck' => 'width',
