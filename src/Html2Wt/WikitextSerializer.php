@@ -3,9 +3,7 @@
 namespace Parsoid\Html2Wt;
 
 use Closure;
-use DOMAttr;
 use DOMElement;
-use DOMNamedNodeMap;
 use DOMNode;
 use Exception;
 use LogicException;
@@ -1137,23 +1135,6 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * PORT-FIXME seems unused
-	 * @param DOMNamedNodeMap $attribs
-	 * @return array
-	 */
-	private function getDOMAttribs( DOMNamedNodeMap $attribs ) {
-		// convert to list of key-value pairs
-		$out = [];
-		foreach ( $attribs as $i => $attrib ) {
-			'@phan-var DOMAttr $attrib';/** @var DOMAttr $attrib */
-			if ( !isset( self::IGNORED_ATTRIBUTES[$attrib->name] ) ) {
-				$out[] = [ 'k' => $attrib->name, 'v' => $attrib->value ];
-			}
-		}
-		return $out;
-	}
-
-	/**
 	 * DOM-based serialization
 	 * @param DOMElement $node
 	 * @param DOMHandler $domHandler
@@ -1320,7 +1301,7 @@ class WikitextSerializer {
 	 * @return DOMNode|null
 	 */
 	public function serializeNode( DOMNode $node ): ?DOMNode {
-		$prev = $domHandler = $method = null;
+		$domHandler = $method = null;
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
 
