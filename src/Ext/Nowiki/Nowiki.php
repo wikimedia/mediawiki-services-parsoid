@@ -16,6 +16,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Wikimedia\Assert\Assert;
 
 /**
  * Nowiki treats anything inside it as plain text.
@@ -57,34 +58,55 @@ class Nowiki implements ExtensionTag, SerialHandler {
 	}
 
 	/** @inheritDoc */
-	public function handle(
+	public function fromHTML(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): ?DOMElement {
+	): string {
 		if ( !$node->hasChildNodes() ) {
 			$state->hasSelfClosingNowikis = true;
-			$state->emitChunk( '<nowiki/>', $node );
-			return null;
+			return '<nowiki/>';
 		}
-		$state->emitChunk( '<nowiki>', $node );
+		$str = '<nowiki>';
 		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
+			$out = null;
 			if ( $child instanceof DOMElement ) {
 				if ( DOMUtils::isDiffMarker( $child ) ) {
 					/* ignore */
-				} elseif ( $child->nodeName === 'span'
-					 && $child->getAttribute( 'typeof' ) === 'mw:Entity'
+				} elseif ( $child->nodeName === 'span' &&
+					 $child->getAttribute( 'typeof' ) === 'mw:Entity' &&
+					DOMUtils::hasNChildren( $child, 1 )
 				) {
-					$state->serializer->serializeNode( $child );
+					$dp = DOMDataUtils::getDataParsoid( $child );
+					if ( isset( $dp->src ) && $dp->srcContent === $child->textContent ) {
+						// Unedited content
+						$out = $dp->src;
+					} else {
+						// Edited content
+						$out = Util::entityEncodeAll( $child->firstChild->nodeValue );
+					}
 				} else {
-					$state->emitChunk( DOMCompat::getOuterHTML( $child ), $node );
+					/* This is a hacky fallback for what is essentially
+					 * undefined behavior. No matter what we emit here,
+					 * this won't roundtrip html2html. */
+					$state->getEnv()->log( 'error/html2wt/nowiki', 'Invalid nowiki content' );
+					$out = $child->textContent;
 				}
 			} elseif ( $child instanceof DOMText ) {
-				$state->emitChunk( WTUtils::escapeNowikiTags( $child->nodeValue ), $child );
+				$out = $child->nodeValue;
 			} else {
-				$state->serializer->serializeNode( $child );
+				Assert::invariant( DOMUtils::isComment( $child ), "Expected a comment here" );
+				/* Comments can't be embedded in a <nowiki> */
+				$state->getEnv()->log( 'error/html2wt/nowiki',
+					'Discarded invalid embedded comment in a <nowiki>' );
+				$out = '';
+			}
+
+			// Always escape any nowikis found in out
+			if ( $out ) {
+				$str .= WTUtils::escapeNowikiTags( $out );
 			}
 		}
-		$state->emitChunk( '</nowiki>', $node );
-		return null;
+
+		return $str . '</nowiki>';
 	}
 
 	/** @return array */

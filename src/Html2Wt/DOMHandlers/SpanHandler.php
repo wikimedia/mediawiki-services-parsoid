@@ -50,7 +50,8 @@ class SpanHandler extends DOMHandler {
 		if ( $this->isRecognizedSpanWrapper( $type ) ) {
 			if ( $type === 'mw:Nowiki' ) {
 				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( 'nowiki' );
-				$serialHandler->handle( $node, $state, $wrapperUnmodified );
+				$src = $serialHandler->fromHTML( $node, $state, $wrapperUnmodified );
+				$state->serializer->emitWikitext( $src, $node );
 			} elseif ( preg_match( '/(?:^|\s)mw:(?:Image|Video|Audio)(\/(Frame|Frameless|Thumb))?/',
 				$type )
 			) {

@@ -65,7 +65,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			if ( ( $dataMw->name ?? null ) != '' ) {
 				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( $dataMw->name );
 				if ( $serialHandler ) {
-					$src = $serialHandler->handle( $node, $state, $wrapperUnmodified );
+					$src = $serialHandler->fromHTML( $node, $state, $wrapperUnmodified );
 				} else {
 					$src = $serializer->defaultExtensionHandler( $node, $state );
 				}

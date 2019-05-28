@@ -14,17 +14,13 @@ interface SerialHandler {
 
 	/**
 	 * Serialize a DOM node created by this extension to wikitext.
-	 * Serialized wikitext should be returned via $state::emitChunk().
 	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @param bool $wrapperUnmodified
-	 * @return DOMElement|null The node to continue with. If $node is returned, the
-	 *   serialization will continue with the next sibling. Returning null or the root node of
-	 *   the serialization means serialization is finished.
 	 */
-	public function handle(
+	public function fromHTML(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): ?DOMElement;
+	): string;
 
 	/**
 	 * PORT-FIXME Per Subbu, extensions should not know about anything outside their tag so this

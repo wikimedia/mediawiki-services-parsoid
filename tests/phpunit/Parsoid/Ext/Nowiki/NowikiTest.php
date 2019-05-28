@@ -4,7 +4,6 @@ namespace Test\Parsoid\Ext\Nowiki;
 
 use DOMDocument;
 use DOMElement;
-use DOMNode;
 use Parsoid\Ext\Nowiki\Nowiki;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
@@ -34,13 +33,11 @@ class NowikiTest extends TestCase {
 	private function getState() {
 		$serializer = $this->getMockBuilder( WikitextSerializer::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'serializeNode' ] )
 			->getMock();
 		'@phan-var WikitextSerializer|MockObject $serializer';
 		/** @var WikitextSerializer|MockObject $serializer */
 		$state = $this->getMockBuilder( SerializerState::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'emitChunk' ] )
 			->getMock();
 		'@phan-var SerializerState|MockObject $state'; /** @var SerializerState|MockObject $state */
 		$state->serializer = $serializer;
@@ -73,36 +70,24 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Ext\Nowiki\Nowiki::handle
+	 * @covers \Parsoid\Ext\Nowiki\Nowiki::fromHTML
 	 */
-	public function testHandle() {
-		$emit = '';
+	public function testFromHTML() {
 		$state = $this->getState();
-		$state->expects( $this->any() )
-			->method( 'emitChunk' )
-			->willReturnCallback( function ( string $text, DOMNode $node ) use ( &$emit ) {
-				$emit .= $text;
-			} );
 		$state->serializer->expects( $this->never() )
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki"></span>', 'span' );
-		$nowiki->handle( $node, $state, true );
-		$this->assertSame( '<nowiki/>', $emit );
+		$wt = $nowiki->fromHTML( $node, $state, true );
+		$this->assertSame( '<nowiki/>', $wt );
 
-		$emit = '';
 		$state = $this->getState();
-		$state->expects( $this->any() )
-			->method( 'emitChunk' )
-			->willReturnCallback( function ( string $text, DOMNode $node ) use ( &$emit ) {
-				$emit .= $text;
-			} );
 		$state->serializer->expects( $this->never() )
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki">xxx</span>', 'span' );
-		$nowiki->handle( $node, $state, true );
-		$this->assertSame( '<nowiki>xxx</nowiki>', $emit );
+		$wt = $nowiki->fromHTML( $node, $state, true );
+		$this->assertSame( '<nowiki>xxx</nowiki>', $wt );
 	}
 
 }
