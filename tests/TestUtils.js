@@ -928,11 +928,6 @@ var getOpts = function() {
 			'default': null,
 			'boolean': false,
 		},
-		'use_source': {
-			description: 'Use original source in wt2wt tests',
-			'boolean': true,
-			'default': true,
-		},
 		'numchanges': {
 			description: 'Make multiple different changes to the DOM, run a selser test for each one.',
 			'default': 20,

@@ -180,8 +180,6 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
 		}
 		if (mode === 'selser') {
 			this.env.setPageSrcInfo(item.wikitext);
-		} else if (ScriptUtils.booleanOption(options.use_source) && startsAtWikitext) {
-			this.env.setPageSrcInfo(item.wikitext);
 		} else {
 			this.env.setPageSrcInfo(null);
 		}
