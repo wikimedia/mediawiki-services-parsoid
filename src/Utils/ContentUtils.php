@@ -49,7 +49,6 @@ class ContentUtils {
 	 * @return DOMElement
 	 */
 	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMElement {
-		$options = $options ?? [];
 		$node = $options['node'] ?? null;
 		if ( $node === null ) {
 			$node = DOMCompat::getBody( $env->createDocument( $html ) );

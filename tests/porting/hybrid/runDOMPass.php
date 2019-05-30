@@ -29,6 +29,7 @@ use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\Linter;
 use Parsoid\Wt2Html\PP\Processors\MarkFosteredContent;
+use Parsoid\Wt2Html\PP\Processors\Normalize;
 use Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
@@ -142,11 +143,15 @@ function runDOMNormalizer( $env, $argv, $opts ) {
 	$htmlFileName = $argv[2];
 	$body = buildDOM( $env, $htmlFileName );
 
-	$normalizer = new DOMNormalizer( (object)[
+	// PORT-FIXME: this is a fake SerializerState; we should construct a real
+	// one.
+	$fakeSerializerState = (object)[
 		"env" => $env,
 		"rtTestMode" => $opts["rtTestMode"] ?? false,
 		"selserMode" => $opts["selserMode"] ?? false
-	] );
+	];
+	// @phan-suppress-next-line PhanTypeMismatchArgument
+	$normalizer = new DOMNormalizer( $fakeSerializerState );
 	$normalizer->normalize( $body );
 	$out = serializeDOM( null, $env, $body );
 	unlink( $htmlFileName );

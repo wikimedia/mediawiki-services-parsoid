@@ -6,6 +6,7 @@ use Parsoid\Tests\MockSiteConfig;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\TitleException;
 use Parsoid\Utils\TitleNamespace;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @coversDefaultClass \Parsoid\Utils\Title
@@ -56,6 +57,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
+	/** @return MockObject|MockSiteConfig */
 	private function getMockSiteConfig( $lang = 'en' ) {
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )

@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Config;
 
 use Parsoid\Config\SiteConfig;
+use PHPUnit\Framework\MockObject\MockObject;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -10,6 +11,7 @@ use Wikimedia\TestingAccessWrapper;
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
+	/** @return MockObject|SiteConfig */
 	private function getSiteConfig( array $methods = [] ) {
 		return $this->getMockBuilder( SiteConfig::class )
 			->setMethods( $methods )

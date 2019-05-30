@@ -159,7 +159,9 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		$html = $doc->getElementsByTagName( 'html' )->item( 0 );
+		'@phan-var DOMElement $html'; /** @var DOMElement $html */
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var DOMElement $body'; /** @var DOMElement $body */
 		$this->assertSameNode( $doc->getElementById( 'c' ), DOMCompat::getLastElementChild( $body ) );
 		$this->assertSameNode( $html, DOMCompat::getLastElementChild( $doc ) );
 		$this->assertSameNode( $body, DOMCompat::getLastElementChild( $html ) );
@@ -168,6 +170,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var DOMElement $body'; /** @var DOMElement $body */
 		$this->assertNull( DOMCompat::getLastElementChild( $body ) );
 	}
 
@@ -477,6 +480,7 @@ HTML;
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var DOMElement $body'; /** @var DOMElement $body */
 		$b = $doc->getElementById( 'b' );
 		$this->assertSame( '<body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body>',
 			DOMCompat::getInnerHTML( $doc->documentElement ) );
@@ -494,6 +498,7 @@ HTML;
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var DOMElement $body'; /** @var DOMElement $body */
 		DOMCompat::setInnerHTML( $body, $innerHtml );
 		$this->assertSame( "<body>$innerHtml</body>", $doc->saveXML( $body, LIBXML_NSCLEAN ) );
 		$this->assertSame( '4',
@@ -508,6 +513,7 @@ HTML;
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var DOMElement $body'; /** @var DOMElement $body */
 		$b = $doc->getElementById( 'b' );
 		$this->assertSame(
 			'<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>',

@@ -7,6 +7,9 @@ use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
 
 class MockDataAccess implements DataAccess {
+	public function __construct( array $opts ) {
+		// no options yet
+	}
 
 	/** @inheritDoc */
 	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array {

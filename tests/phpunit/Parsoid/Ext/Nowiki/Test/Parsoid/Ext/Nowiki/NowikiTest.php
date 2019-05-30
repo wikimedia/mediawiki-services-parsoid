@@ -36,12 +36,13 @@ class NowikiTest extends TestCase {
 			->disableOriginalConstructor()
 			->setMethods( [ 'serializeNode' ] )
 			->getMock();
-		/** @var WikitextSerializer $serializer */
+		'@phan-var WikitextSerializer|MockObject $serializer';
+		/** @var WikitextSerializer|MockObject $serializer */
 		$state = $this->getMockBuilder( SerializerState::class )
 			->disableOriginalConstructor()
 			->setMethods( [ 'emitChunk' ] )
 			->getMock();
-		/** @var SerializerState $state */
+		'@phan-var SerializerState|MockObject $state'; /** @var SerializerState|MockObject $state */
 		$state->serializer = $serializer;
 		return $state;
 	}

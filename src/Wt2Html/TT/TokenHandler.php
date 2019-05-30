@@ -145,6 +145,7 @@ abstract class TokenHandler extends PipelineStage {
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
 	 * @inheritDoc
+	 * @return array
 	 */
 	public function process( $tokens, array $opts = null ) {
 		'@phan-var array $tokens'; // @var array $tokens

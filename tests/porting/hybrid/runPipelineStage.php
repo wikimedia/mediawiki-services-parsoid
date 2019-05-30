@@ -76,7 +76,7 @@ function parse( Env $env, string $input, array $opts ): array {
 			# chunk boundary
 			$tokens[] = [];
 		}
-	} catch ( WikiPEG\SyntaxError $err ) {
+	} catch ( \WikiPEG\SyntaxError $err ) {
 		fwrite( STDERR, $tokenizer->getLastErrorLogMessage() . "\n" );
 		exit( 1 );
 	}

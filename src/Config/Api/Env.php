@@ -29,5 +29,10 @@ class Env extends IEnv {
 		$dataAccess = new DataAccess( $api, $opts );
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $opts );
 	}
-
+	// Narrow inherited type; see
+	// https://wiki.php.net/rfc/covariant-returns-and-contravariant-parameters
+	/** @return SiteConfig */
+	public function getSiteConfig(): \Parsoid\Config\SiteConfig {
+		return parent::getSiteConfig();
+	}
 }

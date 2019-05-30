@@ -8,10 +8,16 @@ $cfg['directory_list'] = [
 	'vendor',
 	'.phan/stubs',
 ];
-$cfg['exclude_file_regex'] = '@^vendor/jakub-onderka/php-parallel-lint@';
+$cfg['exclude_file_regex'] = '@^vendor/(' . implode( '|', [
+	'jakub-onderka/php-parallel-lint',
+	'mediawiki/mediawiki-codesniffer',
+	'phan/phan',
+	'phpunit/php-code-coverage',
+	'squizlabs/php_codesniffer',
+] ) . ')/@';
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
-$cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/' ];
+$cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/spec/', 'tests/phpunit/' ];
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';
