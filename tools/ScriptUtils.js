@@ -305,8 +305,8 @@ var ScriptUtils = {
 			}
 			parsoidOptions.linter.sendAPI = false;
 		}
-		if (cliOpts.useBatchAPI !== null) {
-			parsoidOptions.useBatchAPI = ScriptUtils.booleanOption(cliOpts.useBatchAPI);
+		if (cliOpts.useBatchAPI !== undefined) {
+			parsoidOptions.useBatchAPI = cliOpts.useBatchAPI;
 		}
 		if (cliOpts.phpConfigFile) {
 			parsoidOptions.phpConfigFile = cliOpts.phpConfigFile;
@@ -447,10 +447,7 @@ var ScriptUtils = {
 			},
 			'useBatchAPI': {
 				description: 'Turn on/off the API batching system',
-				// Since I picked a null default (to let the default config setting be the default),
-				// I cannot make this a boolean option.
 				'boolean': false,
-				'default': null,
 			},
 			'phpConfigFile': {
 				description: 'PHP config to splice into the JS pipelines',
