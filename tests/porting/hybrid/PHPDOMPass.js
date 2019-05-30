@@ -6,19 +6,28 @@ const { DOMUtils }  = require('../../../lib/utils/DOMUtils.js');
 const { HybridTestUtils }  = require('./HybridTestUtils.js');
 
 class PHPDOMPass {
-	dumpDOMToFile(root, fileName) {
-		const html = ContentUtils.ppToXML(root, {
+	dumpDOMToFile(root, fileName, afterCleanup) {
+		const opts = {
 			tunnelFosteredContent: true,
 			keepTmp: true,
 			storeDiffMark: true
-		});
+		};
+		let html;
+		if (afterCleanup) {
+			html = ContentUtils.toXML(root, opts);
+		} else {
+			html = ContentUtils.ppToXML(root, opts);
+		}
 		fs.writeFileSync(fileName, html);
 	}
 
 	loadDOMFromStdout(inputBody, transformerName, atTopLevel, env, stdout) {
 		let newDOM;
 
-		if (transformerName === 'CleanUp-cleanupAndSaveDataParsoid') {
+		if (
+			transformerName === 'AddRedLinks' ||
+			transformerName === 'CleanUp-cleanupAndSaveDataParsoid'
+		) {
 			// HACK IT! Cleanup only runs on the top-level.
 			// For nested pipelines, the DOM is unmodified.
 			// We aren't verifying this functionality since it adds
@@ -57,7 +66,8 @@ class PHPDOMPass {
 		}
 
 		const fileName = `/tmp/${transformerName}.${process.pid}.html`;
-		this.dumpDOMToFile(root, fileName);
+		const afterCleanup = (transformerName === 'AddRedLinks');
+		this.dumpDOMToFile(root, fileName, afterCleanup);
 		const res = HybridTestUtils.runPHPCode(
 			"runDOMPass.php",
 			[transformerName, fileName],

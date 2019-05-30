@@ -13,6 +13,7 @@ use Parsoid\Html2Wt\WikitextSerializer;
 
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\DOMCompat;
 
 use Parsoid\Wt2Html\DOMPostProcessor;
 
@@ -35,12 +36,16 @@ use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
 use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 
-function buildDOM( $env, $fileName ) {
+function buildDOM( $env, $fileName, $afterCleanup = false ) {
 	$html = file_get_contents( $fileName );
-	return ContentUtils::ppToDOM( $env, $html, [
-		'reinsertFosterableContent' => true,
-		'markNew' => true
-	] );
+	if ( $afterCleanup ) {
+		return DOMCompat::getBody( $env->createDocument( $html ) );
+	} else {
+		return ContentUtils::ppToDOM( $env, $html, [
+			'reinsertFosterableContent' => true,
+			'markNew' => true
+		] );
+	}
 }
 
 function serializeDOM( $transformer, $env, $body ) {
@@ -49,7 +54,9 @@ function serializeDOM( $transformer, $env, $body ) {
 	$body->setAttribute( "data-env-newfid", $env->getFID() );
 	if ( $env->pageBundle ) {
 		return ContentUtils::extractDpAndSerialize( $body );
-	} elseif ( $transformer === 'CleanUp-cleanupAndSaveDataParsoid' ) {
+	} elseif ( $transformer === 'AddRedLinks' ||
+		$transformer === 'CleanUp-cleanupAndSaveDataParsoid'
+	) {
 		/* Data-attributes have already been stored */
 		return ContentUtils::toXML( $body );
 	} else {
@@ -67,7 +74,8 @@ function serializeDOM( $transformer, $env, $body ) {
 
 function runDOMPostProcessor( $env, $argv, $opts, $processors ) {
 	$htmlFileName = $argv[2];
-	$body = buildDOM( $env, $htmlFileName );
+	$afterCleanup = ( $argv[1] === 'AddRedLinks' );
+	$body = buildDOM( $env, $htmlFileName, $afterCleanup );
 
 	$dpp = new DOMPostProcessor( $env, $opts['runOptions'] );
 	$dpp->registerProcessors( $processors );
