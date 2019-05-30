@@ -40,6 +40,12 @@ abstract class TokenHandler extends PipelineStage {
 		parent::__construct( $manager->env );
 		$this->manager = $manager;
 		$this->options = $options;
+
+		// Initialize a few options to simplify checks elsewhere
+		$this->options['inTemplate'] = !empty( $this->options['inTemplate'] );
+		$this->options['expandTemplates'] = !empty( $this->options['expandTemplates'] );
+
+		// Defaults to false and resetState initializes it
 		$this->atTopLevel = false;
 
 		// This is set if the token handler is disabled for the entire pipeline.
@@ -113,7 +119,8 @@ abstract class TokenHandler extends PipelineStage {
 	 * @return Token|array
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
-	 *    or { tokens: [..], skip: .. }
+	 *    or { tokens: [..], retry: .. }
+	 *    if 'retry' is set, the token is retried in the transform loop again.
 	 */
 	public function onAny( $token ) {
 		return $token;
