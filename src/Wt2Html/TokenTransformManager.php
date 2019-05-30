@@ -70,6 +70,13 @@ class TokenTransformManager extends PipelineStage {
 	}
 
 	/**
+	 * @return Frame
+	 */
+	public function getFrame(): Frame {
+		return $this->frame;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function addTransformer( TokenHandler $t ): void {
