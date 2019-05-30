@@ -54,6 +54,13 @@ class Frame {
 	}
 
 	/**
+	 * @return Params
+	 */
+	public function getArgs(): Params {
+		return $this->args;
+	}
+
+	/**
 	 * Create a new child frame.
 	 * @param string $title
 	 * @param array $args

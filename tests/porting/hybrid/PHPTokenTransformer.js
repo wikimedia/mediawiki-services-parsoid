@@ -39,7 +39,7 @@ class PHPTokenTransformer extends TokenHandler {
 			envOpts: HybridTestUtils.mkEnvOpts(env),
 			pipelineOpts: this.options,
 			pipelineId: this.manager.pipelineId,
-			topLevel: this.atTopLevel,
+			toplevel: this.atTopLevel,
 		};
 
 		const res = HybridTestUtils.runPHPCode(

@@ -3,7 +3,7 @@
     "__params__": {
         "action": "query",
         "meta": "siteinfo",
-        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags"
+        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags|functionhooks|variables"
     },
     "batchcomplete": true,
     "query": {
@@ -12,7 +12,7 @@
             "base": "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
             "sitename": "Wikipedia",
             "logo": "//zh.wikipedia.org/static/images/project-logos/zhwiki.png",
-            "generator": "MediaWiki 1.34.0-wmf.1",
+            "generator": "MediaWiki 1.34.0-wmf.8",
             "phpversion": "5.6.99-hhvm",
             "phpsapi": "srv",
             "hhvmversion": "3.18.6-dev",
@@ -29,8 +29,8 @@
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "d50b699badeb67c95e04740f22100ca9d77cac29",
-            "git-branch": "wmf/1.34.0-wmf.1",
+            "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
+            "git-branch": "wmf/1.34.0-wmf.8",
             "case": "first-letter",
             "lang": "zh",
             "fallback": [
@@ -93,7 +93,7 @@
             "server": "//zh.wikipedia.org",
             "servername": "zh.wikipedia.org",
             "wikiid": "zhwiki",
-            "time": "2019-04-30T16:58:11Z",
+            "time": "2019-06-06T20:36:42Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -1050,22 +1050,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "useliquidthreads",
-                "aliases": [
-                    "\u4f7f\u7528LiquidThreads",
-                    "UseLiquidThreads"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "lqtpagelimit",
-                "aliases": [
-                    "lqt\u9875\u9762\u9650\u5236",
-                    "lqtpagelimit"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "target",
                 "aliases": [
                     "\u76ee\u6807",
@@ -1094,6 +1078,22 @@
                 "aliases": [
                     "\u8c03\u7528",
                     "invoke"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "useliquidthreads",
+                "aliases": [
+                    "\u4f7f\u7528LiquidThreads",
+                    "UseLiquidThreads"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "lqtpagelimit",
+                "aliases": [
+                    "lqt\u9875\u9762\u9650\u5236",
+                    "lqtpagelimit"
                 ],
                 "case-sensitive": false
             },
@@ -2556,20 +2556,6 @@
                 "case-sensitive": true
             },
             {
-                "name": "switchlanguage",
-                "aliases": [
-                    "switchlanguage"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "switchcountry",
-                "aliases": [
-                    "switchcountry"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "coordinates",
                 "aliases": [
                     "coordinates"
@@ -2584,23 +2570,9 @@
                 "case-sensitive": false
             },
             {
-                "name": "related",
+                "name": "calendar",
                 "aliases": [
-                    "related"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "assessment",
-                "aliases": [
-                    "assessment"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "PAGEBANNER",
-                "aliases": [
-                    "PAGEBANNER"
+                    "calendar"
                 ],
                 "case-sensitive": false
             },
@@ -2619,9 +2591,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "calendar",
+                "name": "switchlanguage",
                 "aliases": [
-                    "calendar"
+                    "switchlanguage"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "switchcountry",
+                "aliases": [
+                    "switchcountry"
                 ],
                 "case-sensitive": false
             },
@@ -2710,9 +2689,30 @@
                 "case-sensitive": false
             },
             {
+                "name": "assessment",
+                "aliases": [
+                    "assessment"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "useskin",
                 "aliases": [
                     "useskin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "PAGEBANNER",
+                "aliases": [
+                    "PAGEBANNER"
                 ],
                 "case-sensitive": false
             },
@@ -2727,13 +2727,6 @@
                 "name": "infopage",
                 "aliases": [
                     "infopage"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "translation",
-                "aliases": [
-                    "translation"
                 ],
                 "case-sensitive": false
             },
@@ -2769,6 +2762,13 @@
                 "name": "pendingchangelevel",
                 "aliases": [
                     "pendingchangelevel"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "translation",
+                "aliases": [
+                    "translation"
                 ],
                 "case-sensitive": false
             },
@@ -3074,6 +3074,11 @@
                 "protorel": false
             },
             {
+                "prefix": "debian",
+                "url": "https://wiki.debian.org/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "delicious",
                 "url": "https://www.delicious.com/tag/$1",
                 "protorel": true
@@ -3110,12 +3115,12 @@
             },
             {
                 "prefix": "dmoz",
-                "url": "http://dmoztools.net/$1",
+                "url": "https://curlie.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "dmozs",
-                "url": "http://www.dmoz.org/cgi-bin/search?search=$1",
+                "url": "https://curlie.org/search?q=$1",
                 "protorel": false
             },
             {
@@ -3293,11 +3298,6 @@
                 "protorel": false
             },
             {
-                "prefix": "forthfreak",
-                "url": "http://wiki.forthfreak.net/index.cgi?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "foundation",
                 "local": true,
                 "url": "https://foundation.wikimedia.org/wiki/$1",
@@ -3331,7 +3331,7 @@
             },
             {
                 "prefix": "freedomdefined",
-                "url": "http://freedomdefined.org/$1",
+                "url": "https://freedomdefined.org/$1",
                 "protorel": false
             },
             {
@@ -3525,12 +3525,17 @@
             },
             {
                 "prefix": "infosphere",
-                "url": "http://theinfosphere.org/$1",
+                "url": "https://theinfosphere.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "irc",
                 "url": "irc://irc.freenode.net/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "ircs",
+                "url": "ircs://irc.freenode.net/$1",
                 "protorel": false
             },
             {
@@ -3552,7 +3557,7 @@
             },
             {
                 "prefix": "issn",
-                "url": "http://www.worldcat.org/issn/$1",
+                "url": "https://www.worldcat.org/issn/$1",
                 "protorel": false
             },
             {
@@ -3614,11 +3619,6 @@
                 "prefix": "kinowiki",
                 "url": "http://kino.skripov.com/index.php/$1",
                 "protorel": false
-            },
-            {
-                "prefix": "kmwiki",
-                "url": "https://kmwiki.wikispaces.com/$1",
-                "protorel": true
             },
             {
                 "prefix": "komicawiki",
@@ -3860,6 +3860,11 @@
             {
                 "prefix": "olpc",
                 "url": "http://wiki.laptop.org/go/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "omegawiki",
+                "url": "http://www.omegawiki.org/Expression:$1",
                 "protorel": false
             },
             {
@@ -4366,6 +4371,11 @@
                 "protorel": false
             },
             {
+                "prefix": "umap",
+                "url": "https://umap.openstreetmap.fr/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "uncyclopedia",
                 "url": "http://en.uncyclopedia.co/wiki/$1",
                 "protorel": false
@@ -4549,7 +4559,8 @@
             },
             {
                 "prefix": "wikinvest",
-                "url": "http://www.wikinvest.com/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest",
                 "protorel": false
             },
             {
@@ -4773,6 +4784,11 @@
                 "prefix": "wmet",
                 "local": true,
                 "url": "https://ee.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfdashboard",
+                "url": "https://outreachdashboard.wmflabs.org/$1",
                 "protorel": false
             },
             {
@@ -5041,6 +5057,12 @@
             },
             {
                 "prefix": "wmania",
+                "local": true,
+                "url": "https://wikimania.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wikimania",
                 "local": true,
                 "url": "https://wikimania.wikimedia.org/wiki/$1",
                 "protorel": false
@@ -5891,7 +5913,7 @@
             {
                 "prefix": "hyw",
                 "local": true,
-                "language": "\u0561\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
+                "language": "\u0531\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
                 "url": "https://hyw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6010,7 +6032,7 @@
             {
                 "prefix": "jv",
                 "local": true,
-                "language": "Basa Jawa",
+                "language": "Jawa",
                 "url": "https://jv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6696,7 +6718,7 @@
             {
                 "prefix": "rmy",
                 "local": true,
-                "language": "Romani",
+                "language": "romani \u010dhib",
                 "url": "https://rmy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7697,10 +7719,6 @@
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "usebetatoolbar": 1,
-            "echo-subscriptions-web-login-fail": true,
-            "echo-subscriptions-email-login-fail": true,
-            "echo-subscriptions-web-login-success": false,
-            "echo-subscriptions-email-login-success": true,
             "visualeditor-enable": 0,
             "visualeditor-betatempdisable": 0,
             "visualeditor-newwikitext": 0,
@@ -7710,9 +7728,13 @@
             "visualeditor-hidebetawelcome": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-tabs": "remember-last",
-            "visualeditor-editor": "wikitext",
+            "visualeditor-editor": "visualeditor",
             "visualeditor-hidetabdialog": 0,
             "math": "mathml",
+            "echo-subscriptions-web-login-fail": true,
+            "echo-subscriptions-email-login-fail": true,
+            "echo-subscriptions-web-login-success": false,
+            "echo-subscriptions-email-login-success": true,
             "echo-email-frequency": 0,
             "echo-subscriptions-web-edit-thank": true,
             "echo-subscriptions-email-edit-thank": false,
@@ -7728,6 +7750,7 @@
             "uls-preferences": "",
             "compact-language-links": 1,
             "echo-subscriptions-web-cx": true,
+            "cx-enable-entrypoints": true,
             "echo-subscriptions-web-oauth-owner": true,
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
@@ -7761,7 +7784,6 @@
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
-            "rcenhancedfilters": 0,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
             "rows": 25,
@@ -7794,6 +7816,7 @@
             "wllimit": 250,
             "useeditwarning": 1,
             "prefershttps": 1,
+            "wlshowwikibase": 0,
             "wikilove-enabled": 1,
             "echo-cross-wiki-notifications": 1,
             "timecorrection": "System|0",
@@ -7823,7 +7846,6 @@
             "searchNs11": false,
             "searchNs12": false,
             "searchNs13": false,
-            "cirrussearch-pref-completion-profile": "fuzzy",
             "gadget-edit0": 1,
             "gadget-Edittools-refToolbar": 1,
             "gadget-WikiMiniAtlas": 1,
@@ -7840,6 +7862,7 @@
             "gadget-NavFrame": 1,
             "gadget-collapsibleTables": 1,
             "gadget-CleanDeleteReasons": 1,
+            "cirrussearch-pref-completion-profile": "fuzzy",
             "multimediaviewer-enable": 1,
             "popups": "0",
             "mobile-specialpages": "1",
@@ -7847,6 +7870,8 @@
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
             "echo-subscriptions-web-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
             "echo-subscriptions-email-user-rights": true,
             "echo-subscriptions-web-user-rights": true,
             "echo-subscriptions-email-other": false,
@@ -7865,6 +7890,8 @@
             "echo-subscriptions-web-mention-success": false,
             "echo-subscriptions-email-emailuser": false,
             "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-email-cx": false
@@ -9705,6 +9732,187 @@
             "<graph>",
             "<maplink>",
             "<mapframe>"
+        ],
+        "functionhooks": [
+            "ns",
+            "nse",
+            "urlencode",
+            "lcfirst",
+            "ucfirst",
+            "lc",
+            "uc",
+            "localurl",
+            "localurle",
+            "fullurl",
+            "fullurle",
+            "canonicalurl",
+            "canonicalurle",
+            "formatnum",
+            "grammar",
+            "gender",
+            "plural",
+            "bidi",
+            "numberofpages",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofadmins",
+            "numberingroup",
+            "numberofedits",
+            "language",
+            "padleft",
+            "padright",
+            "anchorencode",
+            "defaultsort",
+            "filepath",
+            "pagesincategory",
+            "pagesize",
+            "protectionlevel",
+            "protectionexpiry",
+            "namespacee",
+            "namespacenumber",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "subpagename",
+            "subpagenamee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "pageid",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "cascadingsources",
+            "namespace",
+            "int",
+            "special",
+            "speciale",
+            "tag",
+            "formatdate",
+            "displaytitle",
+            "noexternallanglinks",
+            "property",
+            "statements",
+            "if",
+            "ifeq",
+            "switch",
+            "ifexist",
+            "ifexpr",
+            "iferror",
+            "time",
+            "timel",
+            "expr",
+            "rel2abs",
+            "titleparts",
+            "categorytree",
+            "lst",
+            "lstx",
+            "lsth",
+            "target",
+            "babel",
+            "coordinates",
+            "invoke",
+            "related"
+        ],
+        "variables": [
+            "!",
+            "currentmonth",
+            "currentmonth1",
+            "currentmonthname",
+            "currentmonthnamegen",
+            "currentmonthabbrev",
+            "currentday",
+            "currentday2",
+            "currentdayname",
+            "currentyear",
+            "currenttime",
+            "currenthour",
+            "localmonth",
+            "localmonth1",
+            "localmonthname",
+            "localmonthnamegen",
+            "localmonthabbrev",
+            "localday",
+            "localday2",
+            "localdayname",
+            "localyear",
+            "localtime",
+            "localhour",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofedits",
+            "articlepath",
+            "pageid",
+            "sitename",
+            "server",
+            "servername",
+            "scriptpath",
+            "stylepath",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "namespace",
+            "namespacee",
+            "namespacenumber",
+            "currentweek",
+            "currentdow",
+            "localweek",
+            "localdow",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "revisionsize",
+            "subpagename",
+            "subpagenamee",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofpages",
+            "currentversion",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "currenttimestamp",
+            "localtimestamp",
+            "directionmark",
+            "contentlanguage",
+            "pagelanguage",
+            "numberofadmins",
+            "cascadingsources",
+            "noexternallanglinks",
+            "wbreponame",
+            "numberofwikis"
         ]
     }
 }

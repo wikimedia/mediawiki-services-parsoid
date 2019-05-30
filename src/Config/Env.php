@@ -16,6 +16,7 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\TitleNamespace;
+use Parsoid\Utils\TitleException;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\TT\Sanitizer;
@@ -123,6 +124,37 @@ class Env {
 	 * @var array
 	 */
 	private $outputProps = [];
+
+	/**
+	 * PORT-FIXME: public currently
+	 * Cache of wikitext source for a title
+	 * @var array
+	 */
+	public $pageCache = [];
+
+	/**
+	 * PORT-FIXME: public currently
+	 * HTML Cache of expanded transclusions to support
+	 * reusing expansions from HTML of previous revision.
+	 * @var array
+	 */
+	public $transclusionCache = [];
+
+	/**
+	 * PORT-FIXME: public currently
+	 * HTML Cache of expanded media wikiext to support
+	 * reusing expansions from HTML of previous revision.
+	 * @var array
+	 */
+	public $mediaCache = [];
+
+	/**
+	 * PORT-FIXME: public currently
+	 * HTML Cache of expanded extension tags to support
+	 * reusing expansions from HTML of previous revision.
+	 * @var array
+	 */
+	public $extensionCache = [];
 
 	/**
 	 * @param SiteConfig $siteConfig
@@ -340,7 +372,7 @@ class Env {
 			}
 			$text = $this->resolveTitle( $text );
 			return Title::newFromText( $text, $this->getSiteConfig(), $defaultNs );
-		} catch ( \Exception $e ) {
+		} catch ( TitleException $e ) {
 			if ( $noExceptions ) {
 				return null;
 			}

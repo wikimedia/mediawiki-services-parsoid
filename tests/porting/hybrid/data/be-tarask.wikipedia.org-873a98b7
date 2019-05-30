@@ -1,18 +1,18 @@
 {
-    "__endpoint__": "https://cs.wikipedia.org/w/api.php",
+    "__endpoint__": "https://be-tarask.wikipedia.org/w/api.php",
     "__params__": {
         "action": "query",
         "meta": "siteinfo",
-        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags"
+        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags|functionhooks|variables"
     },
     "batchcomplete": true,
     "query": {
         "general": {
-            "mainpage": "Hlavn\u00ed strana",
-            "base": "https://cs.wikipedia.org/wiki/Hlavn%C3%AD_strana",
-            "sitename": "Wikipedie",
-            "logo": "//cs.wikipedia.org/static/images/project-logos/cswiki.png",
-            "generator": "MediaWiki 1.34.0-wmf.1",
+            "mainpage": "\u0413\u0430\u043b\u043e\u045e\u043d\u0430\u044f \u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
+            "base": "https://be-tarask.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0",
+            "sitename": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f",
+            "logo": "//be-tarask.wikipedia.org/static/images/project-logos/be_x_oldwiki.png",
+            "generator": "MediaWiki 1.34.0-wmf.8",
             "phpversion": "5.6.99-hhvm",
             "phpsapi": "srv",
             "hhvmversion": "3.18.6-dev",
@@ -23,39 +23,39 @@
             "titleconversion": true,
             "linkprefixcharset": "",
             "linkprefix": "",
-            "linktrail": "/^([a-z\u00e1\u010d\u010f\u00e9\u011b\u00ed\u0148\u00f3\u0159\u0161\u0165\u00fa\u016f\u00fd\u017e]+)(.*)$/sDu",
+            "linktrail": "/^([\u0430\u0431\u0432\u0433\u0491\u0434\u0436\u0437\u0435\u0451\u0436\u0437\u0456\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u045e\u0444\u0445\u0446\u0447\u0448\u044b\u044c\u044d\u044e\u044f\u0107\u010d\u0142\u0144\u015b\u0161\u016d\u017a\u017ea-z]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:",
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "d50b699badeb67c95e04740f22100ca9d77cac29",
-            "git-branch": "wmf/1.34.0-wmf.1",
+            "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
+            "git-branch": "wmf/1.34.0-wmf.8",
             "case": "first-letter",
-            "lang": "cs",
+            "lang": "be-tarask",
             "fallback": [
                 {
-                    "code": "sk"
+                    "code": "be"
                 },
                 {
                     "code": "en"
                 }
             ],
             "rtl": false,
-            "fallback8bitEncoding": "cp1250",
+            "fallback8bitEncoding": "windows-1252",
             "readonly": false,
             "writeapi": true,
             "maxarticlesize": 2097152,
-            "timezone": "Europe/Prague",
-            "timeoffset": 120,
+            "timezone": "Europe/Minsk",
+            "timeoffset": 180,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
             "variantarticlepath": false,
-            "server": "//cs.wikipedia.org",
-            "servername": "cs.wikipedia.org",
-            "wikiid": "cswiki",
-            "time": "2019-04-30T16:59:52Z",
+            "server": "//be-tarask.wikipedia.org",
+            "servername": "be-tarask.wikipedia.org",
+            "wikiid": "be_x_oldwiki",
+            "time": "2019-06-06T20:39:40Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -101,7 +101,7 @@
                     "height": 1024
                 }
             ],
-            "favicon": "//cs.wikipedia.org/static/favicon/wikipedia.ico",
+            "favicon": "//be-tarask.wikipedia.org/static/favicon/wikipedia.ico",
             "centralidlookupprovider": "CentralAuth",
             "allcentralidlookupproviders": [
                 "CentralAuth",
@@ -113,7 +113,7 @@
                 "PMID": true,
                 "RFC": true
             },
-            "categorycollation": "uca-cs-u-kn",
+            "categorycollation": "uca-be-tarask",
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
                 "wmfEtcdLastModifiedIndex": 3672,
@@ -146,7 +146,7 @@
                     "stripped-tag"
                 ]
             },
-            "mobileserver": "https://cs.m.wikipedia.org",
+            "mobileserver": "https://be-tarask.m.wikipedia.org",
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -201,7 +201,7 @@
             "-2": {
                 "id": -2,
                 "case": "first-letter",
-                "name": "M\u00e9dia",
+                "name": "\u041c\u044d\u0434\u044b\u044f",
                 "subpages": false,
                 "canonical": "Media",
                 "content": false,
@@ -210,7 +210,7 @@
             "-1": {
                 "id": -1,
                 "case": "first-letter",
-                "name": "Speci\u00e1ln\u00ed",
+                "name": "\u0421\u043f\u044d\u0446\u044b\u044f\u043b\u044c\u043d\u044b\u044f",
                 "subpages": false,
                 "canonical": "Special",
                 "content": false,
@@ -227,7 +227,7 @@
             "1": {
                 "id": 1,
                 "case": "first-letter",
-                "name": "Diskuse",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
                 "subpages": true,
                 "canonical": "Talk",
                 "content": false,
@@ -236,7 +236,7 @@
             "2": {
                 "id": 2,
                 "case": "first-letter",
-                "name": "Wikipedista",
+                "name": "\u0423\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a",
                 "subpages": true,
                 "canonical": "User",
                 "content": false,
@@ -245,7 +245,7 @@
             "3": {
                 "id": 3,
                 "case": "first-letter",
-                "name": "Diskuse s wikipedistou",
+                "name": "\u0413\u0443\u0442\u0430\u0440\u043a\u0456 \u045e\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a\u0430",
                 "subpages": true,
                 "canonical": "User talk",
                 "content": false,
@@ -254,7 +254,7 @@
             "4": {
                 "id": 4,
                 "case": "first-letter",
-                "name": "Wikipedie",
+                "name": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f",
                 "subpages": true,
                 "canonical": "Project",
                 "content": false,
@@ -263,7 +263,7 @@
             "5": {
                 "id": 5,
                 "case": "first-letter",
-                "name": "Diskuse k Wikipedii",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u0456",
                 "subpages": true,
                 "canonical": "Project talk",
                 "content": false,
@@ -272,7 +272,7 @@
             "6": {
                 "id": 6,
                 "case": "first-letter",
-                "name": "Soubor",
+                "name": "\u0424\u0430\u0439\u043b",
                 "subpages": false,
                 "canonical": "File",
                 "content": false,
@@ -281,7 +281,7 @@
             "7": {
                 "id": 7,
                 "case": "first-letter",
-                "name": "Diskuse k souboru",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0444\u0430\u0439\u043b\u0430",
                 "subpages": true,
                 "canonical": "File talk",
                 "content": false,
@@ -299,7 +299,7 @@
             "9": {
                 "id": 9,
                 "case": "first-letter",
-                "name": "Diskuse k MediaWiki",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 MediaWiki",
                 "subpages": true,
                 "canonical": "MediaWiki talk",
                 "content": false,
@@ -308,7 +308,7 @@
             "10": {
                 "id": 10,
                 "case": "first-letter",
-                "name": "\u0160ablona",
+                "name": "\u0428\u0430\u0431\u043b\u0451\u043d",
                 "subpages": true,
                 "canonical": "Template",
                 "content": false,
@@ -317,7 +317,7 @@
             "11": {
                 "id": 11,
                 "case": "first-letter",
-                "name": "Diskuse k \u0161ablon\u011b",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0448\u0430\u0431\u043b\u0451\u043d\u0443",
                 "subpages": true,
                 "canonical": "Template talk",
                 "content": false,
@@ -326,7 +326,7 @@
             "12": {
                 "id": 12,
                 "case": "first-letter",
-                "name": "N\u00e1pov\u011bda",
+                "name": "\u0414\u0430\u043f\u0430\u043c\u043e\u0433\u0430",
                 "subpages": true,
                 "canonical": "Help",
                 "content": false,
@@ -335,7 +335,7 @@
             "13": {
                 "id": 13,
                 "case": "first-letter",
-                "name": "Diskuse k n\u00e1pov\u011bd\u011b",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0434\u0430\u043f\u0430\u043c\u043e\u0433\u0456",
                 "subpages": true,
                 "canonical": "Help talk",
                 "content": false,
@@ -344,8 +344,8 @@
             "14": {
                 "id": 14,
                 "case": "first-letter",
-                "name": "Kategorie",
-                "subpages": true,
+                "name": "\u041a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u044f",
+                "subpages": false,
                 "canonical": "Category",
                 "content": false,
                 "nonincludable": false
@@ -353,7 +353,7 @@
             "15": {
                 "id": 15,
                 "case": "first-letter",
-                "name": "Diskuse ke kategorii",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
                 "subpages": true,
                 "canonical": "Category talk",
                 "content": false,
@@ -362,61 +362,25 @@
             "100": {
                 "id": 100,
                 "case": "first-letter",
-                "name": "Port\u00e1l",
+                "name": "\u041f\u0430\u0440\u0442\u0430\u043b",
                 "subpages": true,
-                "canonical": "Port\u00e1l",
+                "canonical": "\u041f\u0430\u0440\u0442\u0430\u043b",
                 "content": false,
                 "nonincludable": false
             },
             "101": {
                 "id": 101,
                 "case": "first-letter",
-                "name": "Diskuse k port\u00e1lu",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043f\u0430\u0440\u0442\u0430\u043b\u0443",
                 "subpages": true,
-                "canonical": "Diskuse k port\u00e1lu",
-                "content": false,
-                "nonincludable": false
-            },
-            "102": {
-                "id": 102,
-                "case": "first-letter",
-                "name": "Rejst\u0159\u00edk",
-                "subpages": true,
-                "canonical": "Rejst\u0159\u00edk",
-                "content": false,
-                "nonincludable": false
-            },
-            "103": {
-                "id": 103,
-                "case": "first-letter",
-                "name": "Diskuse k rejst\u0159\u00edku",
-                "subpages": true,
-                "canonical": "Diskuse k rejst\u0159\u00edku",
-                "content": false,
-                "nonincludable": false
-            },
-            "446": {
-                "id": 446,
-                "case": "first-letter",
-                "name": "Education Program",
-                "subpages": false,
-                "canonical": "Education Program",
-                "content": false,
-                "nonincludable": false
-            },
-            "447": {
-                "id": 447,
-                "case": "first-letter",
-                "name": "Education Program talk",
-                "subpages": true,
-                "canonical": "Education Program talk",
+                "canonical": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043f\u0430\u0440\u0442\u0430\u043b\u0443",
                 "content": false,
                 "nonincludable": false
             },
             "828": {
                 "id": 828,
                 "case": "first-letter",
-                "name": "Modul",
+                "name": "\u041c\u043e\u0434\u0443\u043b\u044c",
                 "subpages": true,
                 "canonical": "Module",
                 "content": false,
@@ -425,7 +389,7 @@
             "829": {
                 "id": 829,
                 "case": "first-letter",
-                "name": "Diskuse k modulu",
+                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043c\u043e\u0434\u0443\u043b\u044e",
                 "subpages": true,
                 "canonical": "Module talk",
                 "content": false,
@@ -434,7 +398,7 @@
             "2300": {
                 "id": 2300,
                 "case": "first-letter",
-                "name": "Ud\u011bl\u00e1tko",
+                "name": "Gadget",
                 "subpages": false,
                 "canonical": "Gadget",
                 "content": false,
@@ -443,7 +407,7 @@
             "2301": {
                 "id": 2301,
                 "case": "first-letter",
-                "name": "Diskuse k ud\u011bl\u00e1tku",
+                "name": "Gadget talk",
                 "subpages": false,
                 "canonical": "Gadget talk",
                 "content": false,
@@ -452,7 +416,7 @@
             "2302": {
                 "id": 2302,
                 "case": "case-sensitive",
-                "name": "Definice ud\u011bl\u00e1tka",
+                "name": "Gadget definition",
                 "subpages": false,
                 "canonical": "Gadget definition",
                 "content": false,
@@ -462,87 +426,37 @@
             "2303": {
                 "id": 2303,
                 "case": "case-sensitive",
-                "name": "Diskuse k definici ud\u011bl\u00e1tka",
+                "name": "Gadget definition talk",
                 "subpages": false,
                 "canonical": "Gadget definition talk",
                 "content": false,
                 "nonincludable": false
-            },
-            "2600": {
-                "id": 2600,
-                "case": "first-letter",
-                "name": "T\u00e9ma",
-                "subpages": false,
-                "canonical": "Topic",
-                "content": false,
-                "nonincludable": false,
-                "defaultcontentmodel": "flow-board"
             }
         },
         "namespacealiases": [
             {
-                "id": 1,
-                "alias": "Koment\u00e1r"
-            },
-            {
                 "id": 2,
-                "alias": "Redaktor"
-            },
-            {
-                "id": 2,
-                "alias": "U\u017eivatel"
-            },
-            {
-                "id": 2,
-                "alias": "Wikipedistka"
+                "alias": "\u0423\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u0446\u0430"
             },
             {
                 "id": 3,
-                "alias": "Diskuse s u\u017eivatelem"
-            },
-            {
-                "id": 3,
-                "alias": "Diskuse s wikipedistkou"
-            },
-            {
-                "id": 3,
-                "alias": "Diskusia s redaktorom"
-            },
-            {
-                "id": 3,
-                "alias": "Koment\u00e1r k redaktorovi"
-            },
-            {
-                "id": 3,
-                "alias": "U\u017eivatel diskuse"
-            },
-            {
-                "id": 3,
-                "alias": "U\u017eivatelka diskuse"
-            },
-            {
-                "id": 3,
-                "alias": "Wikipedista diskuse"
-            },
-            {
-                "id": 3,
-                "alias": "Wikipedistka diskuse"
-            },
-            {
-                "id": 4,
-                "alias": "WP"
+                "alias": "\u0413\u0443\u0442\u0430\u0440\u043a\u0456 \u045e\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u0446\u044b"
             },
             {
                 "id": 4,
                 "alias": "Wikipedia"
             },
             {
-                "id": 5,
-                "alias": "Koment\u00e1r k Wikip\u00e9dii"
+                "id": 4,
+                "alias": "\u0412\u041f"
             },
             {
                 "id": 5,
-                "alias": "Wikipedie diskuse"
+                "alias": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f"
+            },
+            {
+                "id": 5,
+                "alias": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f \u0440\u0430\u0437\u043c\u043e\u0432\u044b"
             },
             {
                 "id": 6,
@@ -550,11 +464,7 @@
             },
             {
                 "id": 6,
-                "alias": "Obr\u00e1zok"
-            },
-            {
-                "id": 7,
-                "alias": "Diskusia k obr\u00e1zku"
+                "alias": "\u0412\u044b\u044f\u0432\u0430"
             },
             {
                 "id": 7,
@@ -562,142 +472,26 @@
             },
             {
                 "id": 7,
-                "alias": "Koment\u00e1r k obr\u00e1zku"
+                "alias": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0432\u044b\u044f\u0432\u044b"
             },
             {
                 "id": 7,
-                "alias": "Soubor diskuse"
-            },
-            {
-                "id": 9,
-                "alias": "Koment\u00e1r k MediaWiki"
-            },
-            {
-                "id": 9,
-                "alias": "MediaWiki diskuse"
-            },
-            {
-                "id": 11,
-                "alias": "\u0160ablona diskuse"
-            },
-            {
-                "id": 13,
-                "alias": "N\u00e1pov\u011bda diskuse"
-            },
-            {
-                "id": 15,
-                "alias": "Kategorie diskuse"
-            },
-            {
-                "id": 100,
-                "alias": "Portal"
-            },
-            {
-                "id": 101,
-                "alias": "Portal talk"
-            },
-            {
-                "id": 101,
-                "alias": "Port\u00e1l diskuse"
-            },
-            {
-                "id": 103,
-                "alias": "Rejst\u0159\u00edk diskuse"
+                "alias": "\u0420\u0430\u0437\u043c\u043e\u0432\u044b \u043f\u0440\u0430 \u0432\u044b\u044f\u0432\u0443"
             }
         ],
         "magicwords": [
             {
-                "name": "expr",
-                "aliases": [
-                    "v\u00fdraz",
-                    "expr"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "if",
-                "aliases": [
-                    "kdy\u017e",
-                    "if"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "ifexist",
-                "aliases": [
-                    "kdy\u017eexist",
-                    "ifexist"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "time",
-                "aliases": [
-                    "\u010das",
-                    "time"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "len",
-                "aliases": [
-                    "d\u00e9lka",
-                    "len"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "count",
-                "aliases": [
-                    "po\u010det",
-                    "count"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "replace",
-                "aliases": [
-                    "nahradit",
-                    "replace"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "target",
-                "aliases": [
-                    "c\u00edl",
-                    "target"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "disambiguation",
-                "aliases": [
-                    "__DISAMBIG__"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "property",
-                "aliases": [
-                    "vlastnost",
-                    "property"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "redirect",
                 "aliases": [
-                    "#P\u0158ESM\u011aRUJ",
-                    "#REDIRECT",
-                    "#presmeruj"
+                    "#\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
+                    "#REDIRECT"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "notoc",
                 "aliases": [
-                    "__BEZOBSAHU__",
+                    "__\u0411\u042f\u0417\u042c_\u0417\u042c\u041c\u0415\u0421\u0422\u0423__",
                     "__NOTOC__"
                 ],
                 "case-sensitive": false
@@ -705,25 +499,23 @@
             {
                 "name": "nogallery",
                 "aliases": [
-                    "__BEZGALERIE__",
-                    "__NOGALLERY__",
-                    "__BEZGAL\u00c9RIE__"
+                    "__\u0411\u0415\u0417_\u0413\u0410\u041b\u0415\u0420\u042d\u0406__",
+                    "__NOGALLERY__"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "forcetoc",
                 "aliases": [
-                    "__V\u017dDYOBSAH__",
-                    "__FORCETOC__",
-                    "__VYN\u00daTI\u0164OBSAH__"
+                    "__\u0417\u042c\u041c\u0415\u0421\u0422_\u041f\u0420\u042b\u041c\u0423\u0421\u0410\u041c__",
+                    "__FORCETOC__"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "toc",
                 "aliases": [
-                    "__OBSAH__",
+                    "__\u0417\u042c\u041c\u0415\u0421\u0422__",
                     "__TOC__"
                 ],
                 "case-sensitive": false
@@ -731,134 +523,105 @@
             {
                 "name": "noeditsection",
                 "aliases": [
-                    "__BEZEDITOVAT\u010c\u00c1ST__",
-                    "__NOEDITSECTION__",
-                    "__NEUPRAVOVA\u0164SEKCIE__"
+                    "__\u0411\u0415\u0417_\u0420\u042d\u0414\u0410\u0413\u0410\u0412\u0410\u041d\u042c\u041d\u042f_\u0421\u042d\u041a\u0426\u042b\u0406__",
+                    "__NOEDITSECTION__"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "currentmonth",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdC",
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdC2",
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u041c\u0415\u0421\u042f\u0426",
                     "CURRENTMONTH",
-                    "CURRENTMONTH2",
-                    "AKTU\u00c1LNYMESIAC"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "currentmonth1",
-                "aliases": [
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdC1",
-                    "CURRENTMONTH1"
+                    "CURRENTMONTH2"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentmonthname",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdCJM\u00c9NO",
-                    "CURRENTMONTHNAME",
-                    "N\u00c1ZOVAKTU\u00c1LNEHOMESIACA"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "CURRENTMONTHNAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentmonthnamegen",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdCGEN",
-                    "CURRENTMONTHNAMEGEN",
-                    "N\u00c1ZOVAKTU\u00c1LNEHOMESIACAGEN"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410_\u040e_\u0420\u041e\u0414\u041d\u042b\u041c_\u0421\u041a\u041b\u041e\u041d\u0415",
+                    "CURRENTMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentmonthabbrev",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdM\u011aS\u00cdCZKR",
-                    "CURRENTMONTHABBREV",
-                    "N\u00c1ZOVAKTU\u00c1LNEHOMESIACASKRATKA"
+                    "\u0421\u041a\u0410\u0420\u041e\u0427\u0410\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "CURRENTMONTHABBREV"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentday",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdDEN",
-                    "CURRENTDAY",
-                    "AKTU\u00c1LNYDE\u0147"
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c",
+                    "CURRENTDAY"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentday2",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdDEN2",
-                    "CURRENTDAY2",
-                    "AKTU\u00c1LNYDE\u01472"
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c_2",
+                    "CURRENTDAY2"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentdayname",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdDENJM\u00c9NO",
-                    "CURRENTDAYNAME",
-                    "N\u00c1ZOVAKTU\u00c1LNEHOD\u0147A"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u0414\u041d\u042f",
+                    "CURRENTDAYNAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentyear",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdROK",
-                    "CURRENTYEAR",
-                    "AKTU\u00c1LNYROK"
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0413\u041e\u0414",
+                    "CURRENTYEAR"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currenttime",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cd\u010cAS",
-                    "CURRENTTIME",
-                    "AKTU\u00c1LNY\u010cAS"
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0427\u0410\u0421",
+                    "CURRENTTIME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currenthour",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdHODINA",
-                    "CURRENTHOUR",
-                    "AKTU\u00c1LNAHODINA"
+                    "\u0411\u042f\u0413\u0423\u0427\u0410\u042f_\u0413\u0410\u0414\u0417\u0406\u041d\u0410",
+                    "CURRENTHOUR"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "localmonth",
                 "aliases": [
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdC",
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdC2",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u041c\u0415\u0421\u042f\u0426",
                     "LOCALMONTH",
                     "LOCALMONTH2"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "localmonth1",
-                "aliases": [
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdC1",
-                    "LOCALMONTH1"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "localmonthname",
                 "aliases": [
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdCJM\u00c9NO",
+                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
                     "LOCALMONTHNAME"
                 ],
                 "case-sensitive": true
@@ -866,7 +629,7 @@
             {
                 "name": "localmonthnamegen",
                 "aliases": [
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdCGEN",
+                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410_\u040e_\u0420\u041e\u0414\u041d\u042b\u041c_\u0421\u041a\u041b\u041e\u041d\u0415",
                     "LOCALMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
@@ -874,7 +637,7 @@
             {
                 "name": "localmonthabbrev",
                 "aliases": [
-                    "M\u00cdSTN\u00cdM\u011aS\u00cdCZKR",
+                    "\u0421\u041a\u0410\u0420\u041e\u0427\u0410\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
                     "LOCALMONTHABBREV"
                 ],
                 "case-sensitive": true
@@ -882,7 +645,7 @@
             {
                 "name": "localday",
                 "aliases": [
-                    "M\u00cdSTN\u00cdDEN",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c",
                     "LOCALDAY"
                 ],
                 "case-sensitive": true
@@ -890,7 +653,7 @@
             {
                 "name": "localday2",
                 "aliases": [
-                    "M\u00cdSTN\u00cdDEN2",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c_2",
                     "LOCALDAY2"
                 ],
                 "case-sensitive": true
@@ -898,7 +661,7 @@
             {
                 "name": "localdayname",
                 "aliases": [
-                    "M\u00cdSTN\u00cdDENJM\u00c9NO",
+                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u0414\u041d\u042f",
                     "LOCALDAYNAME"
                 ],
                 "case-sensitive": true
@@ -906,7 +669,7 @@
             {
                 "name": "localyear",
                 "aliases": [
-                    "M\u00cdSTN\u00cdROK",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0413\u041e\u0414",
                     "LOCALYEAR"
                 ],
                 "case-sensitive": true
@@ -914,7 +677,7 @@
             {
                 "name": "localtime",
                 "aliases": [
-                    "M\u00cdSTN\u00cd\u010cAS",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0427\u0410\u0421",
                     "LOCALTIME"
                 ],
                 "case-sensitive": true
@@ -922,7 +685,7 @@
             {
                 "name": "localhour",
                 "aliases": [
-                    "M\u00cdSTN\u00cdHODINA",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u042f_\u0413\u0410\u0414\u0417\u0406\u041d\u0410",
                     "LOCALHOUR"
                 ],
                 "case-sensitive": true
@@ -930,43 +693,39 @@
             {
                 "name": "numberofpages",
                 "aliases": [
-                    "PO\u010cETSTRAN",
-                    "NUMBEROFPAGES",
-                    "PO\u010cETSTR\u00c1NOK"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a",
+                    "NUMBEROFPAGES"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "numberofarticles",
                 "aliases": [
-                    "PO\u010cET\u010cL\u00c1NK\u016e",
-                    "NUMBEROFARTICLES",
-                    "PO\u010cET\u010cL\u00c1NKOV"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410\u040e",
+                    "NUMBEROFARTICLES"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "numberoffiles",
                 "aliases": [
-                    "PO\u010cETSOUBOR\u016e",
-                    "NUMBEROFFILES",
-                    "PO\u010cETS\u00daBOROV"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0424\u0410\u0419\u041b\u0410\u040e",
+                    "NUMBEROFFILES"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "numberofusers",
                 "aliases": [
-                    "PO\u010cETU\u017dIVATEL\u016e",
-                    "NUMBEROFUSERS",
-                    "PO\u010cETPOU\u017d\u00cdVATE\u013dOV"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0423\u0414\u0417\u0415\u041b\u042c\u041d\u0406\u041a\u0410\u040e",
+                    "NUMBEROFUSERS"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "numberofactiveusers",
                 "aliases": [
-                    "PO\u010cETAKTIVN\u00cdCHU\u017dIVATEL\u016e",
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u041a\u0422\u042b\u040e\u041d\u042b\u0425_\u0423\u0414\u0417\u0415\u041b\u042c\u041d\u0406\u041a\u0410\u040e",
                     "NUMBEROFACTIVEUSERS"
                 ],
                 "case-sensitive": true
@@ -974,215 +733,183 @@
             {
                 "name": "numberofedits",
                 "aliases": [
-                    "PO\u010cETEDITAC\u00cd",
-                    "NUMBEROFEDITS",
-                    "PO\u010cET\u00daPRAV"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0420\u042d\u0414\u0410\u0413\u0410\u0412\u0410\u041d\u042c\u041d\u042f\u040e",
+                    "NUMBEROFEDITS"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "pagename",
                 "aliases": [
-                    "N\u00c1ZEVSTRANY",
-                    "PAGENAME",
-                    "N\u00c1ZOVSTR\u00c1NKY"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "PAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "pagenamee",
                 "aliases": [
-                    "N\u00c1ZEVSTRANYE",
-                    "PAGENAMEE",
-                    "N\u00c1ZOVSTR\u00c1NKYE"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "PAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "namespace",
                 "aliases": [
-                    "JMENN\u00ddPROSTOR",
-                    "NAMESPACE",
-                    "MENN\u00ddPRIESTOR"
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e",
+                    "NAMESPACE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "namespacee",
                 "aliases": [
-                    "JMENN\u00ddPROSTORE",
-                    "NAMESPACEE",
-                    "MENN\u00ddPRIESTORE"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "namespacenumber",
-                "aliases": [
-                    "\u010c\u00cdSLOJMENN\u00c9HOPROSTORU",
-                    "NAMESPACENUMBER"
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_2",
+                    "NAMESPACEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "talkspace",
                 "aliases": [
-                    "DISKUSN\u00cdPROSTOR",
-                    "TALKSPACE",
-                    "DISKUSN\u00ddPRIESTOR"
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f",
+                    "TALKSPACE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "talkspacee",
                 "aliases": [
-                    "DISKUSN\u00cdPROSTORE",
-                    "TALKSPACEE",
-                    "DISKUSN\u00ddPRIESTORE"
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f_2",
+                    "TALKSPACEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subjectspace",
                 "aliases": [
-                    "\u010cL\u00c1NEKPROSTOR",
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423",
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410",
                     "SUBJECTSPACE",
-                    "ARTICLESPACE",
-                    "PRIESTOR\u010cL\u00c1NKOV"
+                    "ARTICLESPACE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subjectspacee",
                 "aliases": [
-                    "\u010cL\u00c1NEKPROSTORE",
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423_2",
+                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410_2",
                     "SUBJECTSPACEE",
-                    "ARTICLESPACEE",
-                    "PRIESTOR\u010cL\u00c1NKOVE"
+                    "ARTICLESPACEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "fullpagename",
                 "aliases": [
-                    "PLN\u00ddN\u00c1ZEVSTRANY",
-                    "FULLPAGENAME",
-                    "PLN\u00ddN\u00c1ZOVSTR\u00c1NKY"
+                    "\u041f\u041e\u040e\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "FULLPAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "fullpagenamee",
                 "aliases": [
-                    "PLN\u00ddN\u00c1ZEVSTRANYE",
-                    "FULLPAGENAMEE",
-                    "PLN\u00ddN\u00c1ZOVSTR\u00c1NKYE"
+                    "\u041f\u041e\u040e\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "FULLPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subpagename",
                 "aliases": [
-                    "N\u00c1ZEVPODSTRANY",
-                    "SUBPAGENAME",
-                    "N\u00c1ZOVPODSTR\u00c1NKY"
+                    "\u041d\u0410\u0417\u0412\u0410_\u041f\u0410\u0414\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "SUBPAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subpagenamee",
                 "aliases": [
-                    "N\u00c1ZEVPODSTRANYE",
-                    "SUBPAGENAMEE",
-                    "N\u00c1ZOVPODSTR\u00c1NKYE"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "rootpagename",
-                "aliases": [
-                    "N\u00c1ZEVKO\u0158ENOV\u00c9STRANY",
-                    "ROOTPAGENAME"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "rootpagenamee",
-                "aliases": [
-                    "N\u00c1ZEVKO\u0158ENOV\u00c9STRANYE",
-                    "ROOTPAGENAMEE"
+                    "\u041d\u0410\u0417\u0412\u0410_\u041f\u0410\u0414\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "SUBPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "basepagename",
                 "aliases": [
-                    "N\u00c1ZEVNADSTRANY",
-                    "BASEPAGENAME",
-                    "N\u00c1ZOVZ\u00c1KLADNEJSTR\u00c1NKY"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u0410\u0417\u0410\u0412\u0410\u0419_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "BASEPAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "basepagenamee",
                 "aliases": [
-                    "N\u00c1ZEVNADSTRANYE",
-                    "BASEPAGENAMEE",
-                    "N\u00c1ZOVZ\u00c1KLADNEJSTR\u00c1NKYE"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u0410\u0417\u0410\u0412\u0410\u0419_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "BASEPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "talkpagename",
                 "aliases": [
-                    "N\u00c1ZEVDISKUSE",
-                    "TALKPAGENAME",
-                    "N\u00c1ZOVDISKUSNEJSTR\u00c1NKY"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f",
+                    "TALKPAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "talkpagenamee",
                 "aliases": [
-                    "N\u00c1ZEVDISKUSEE",
-                    "TALKPAGENAMEE",
-                    "N\u00c1ZOVDISKUSNEJSTR\u00c1NKYE"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f_2",
+                    "TALKPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subjectpagename",
                 "aliases": [
-                    "N\u00c1ZEV\u010cL\u00c1NKU",
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423",
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410",
                     "SUBJECTPAGENAME",
-                    "ARTICLEPAGENAME",
-                    "N\u00c1ZOV\u010cL\u00c1NKU"
+                    "ARTICLEPAGENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "subjectpagenamee",
                 "aliases": [
-                    "N\u00c1ZEV\u010cL\u00c1NKUE",
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423_2",
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410_2",
                     "SUBJECTPAGENAMEE",
-                    "ARTICLEPAGENAMEE",
-                    "N\u00c1ZOV\u010cL\u00c1NKUE"
+                    "ARTICLEPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
             {
+                "name": "msg",
+                "aliases": [
+                    "\u041f\u0410\u0412\u0415\u0414\u0410\u041c\u041b\u0415\u041d\u042c\u041d\u0415:",
+                    "MSG:"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "subst",
                 "aliases": [
-                    "VLO\u017dIT:",
-                    "SUBST:",
-                    "NAHR:"
+                    "\u041f\u0410\u0414\u0421\u0422\u0410\u041d\u041e\u040e\u041a\u0410:",
+                    "SUBST:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "msgnw",
                 "aliases": [
-                    "VLO\u017dITNW:",
+                    "\u041f\u0410\u0412\u0415\u0414\u0410\u041c\u041b\u0415\u041d\u042c\u041d\u0415_\u0411\u042f\u0417\u042c_\u0412\u0406\u041a\u0406:",
                     "MSGNW:"
                 ],
                 "case-sensitive": false
@@ -1190,18 +917,20 @@
             {
                 "name": "img_thumbnail",
                 "aliases": [
-                    "n\u00e1hled",
-                    "thumb",
+                    "\u0437\u043d\u0430\u0447\u0430\u043a",
+                    "\u043c\u0456\u043d\u0456",
+                    "\u043c\u0456\u043d\u0456\u044f\u0446\u044e\u0440\u0430",
                     "thumbnail",
-                    "n\u00e1h\u013ead",
-                    "n\u00e1h\u013eadobr\u00e1zka"
+                    "thumb"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_manualthumb",
                 "aliases": [
-                    "n\u00e1hled=$1",
+                    "\u0437\u043d\u0430\u0447\u0430\u043a=$1",
+                    "\u043c\u0456\u043d\u0456=$1",
+                    "\u043c\u0456\u043d\u0456\u044f\u0446\u044e\u0440\u0430=$1",
                     "thumbnail=$1",
                     "thumb=$1"
                 ],
@@ -1210,7 +939,7 @@
             {
                 "name": "img_right",
                 "aliases": [
-                    "vpravo",
+                    "\u0441\u043f\u0440\u0430\u0432\u0430",
                     "right"
                 ],
                 "case-sensitive": true
@@ -1218,138 +947,111 @@
             {
                 "name": "img_left",
                 "aliases": [
-                    "vlevo",
-                    "left",
-                    "v\u013eavo"
+                    "\u0437\u044c\u043b\u0435\u0432\u0430",
+                    "\u0437\u043b\u0435\u0432\u0430",
+                    "left"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_none",
                 "aliases": [
-                    "\u017e\u00e1dn\u00e9",
-                    "none",
-                    "\u017eiadny"
+                    "\u043d\u044f\u043c\u0430",
+                    "none"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_width",
                 "aliases": [
-                    "$1pixel\u016f",
-                    "$1px",
-                    "$1bod"
+                    "$1\u043f\u043a\u0441",
+                    "$1px"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_center",
                 "aliases": [
-                    "st\u0159ed",
+                    "\u0446\u044d\u043d\u0442\u0430\u0440",
+                    "\u0446\u044d\u043d\u0442\u0440",
                     "center",
-                    "centre",
-                    "stred"
+                    "centre"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_framed",
                 "aliases": [
-                    "r\u00e1m",
-                    "frame",
+                    "\u0440\u0430\u043c\u043a\u0430",
+                    "\u0431\u0435\u0437\u0440\u0430\u043c\u043a\u0456",
                     "framed",
-                    "enframed"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_frameless",
-                "aliases": [
-                    "bezr\u00e1mu",
-                    "frameless"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_lang",
-                "aliases": [
-                    "jazyk=$1",
-                    "lang=$1"
+                    "enframed",
+                    "frame"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_page",
                 "aliases": [
-                    "strana=$1",
-                    "strana_$1",
+                    "\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430=$1",
+                    "\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430 $1",
                     "page=$1",
                     "page $1"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "img_border",
+                "name": "img_top",
                 "aliases": [
-                    "okraj",
-                    "border"
+                    "\u0437\u044c\u0432\u0435\u0440\u0445\u0443",
+                    "top"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_middle",
+                "aliases": [
+                    "\u043f\u0430\u0441\u044f\u0440\u044d\u0434\u0437\u0456\u043d\u0435",
+                    "middle"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_bottom",
+                "aliases": [
+                    "\u0437\u044c\u043d\u0456\u0437\u0443",
+                    "bottom"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_link",
                 "aliases": [
-                    "odkaz=$1",
+                    "\u0441\u043f\u0430\u0441\u044b\u043b\u043a\u0430=$1",
                     "link=$1"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "img_class",
-                "aliases": [
-                    "t\u0159\u00edda=$1",
-                    "class=$1"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "int",
-                "aliases": [
-                    "HL\u00c1\u0160EN\u00cd:",
-                    "INT:"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "sitename",
                 "aliases": [
-                    "N\u00c1ZEVWEBU",
-                    "SITENAME",
-                    "N\u00c1ZOVLOKALITY"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0410\u0419\u0422\u0423",
+                    "SITENAME"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "ns",
                 "aliases": [
-                    "JMENN\u00ddPROSTOR:",
-                    "NS:",
-                    "MP:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "nse",
-                "aliases": [
-                    "JMENN\u00ddPROSTORE:",
-                    "NSE:"
+                    "\u041f\u041d:",
+                    "NS:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "localurl",
                 "aliases": [
-                    "M\u00cdSTN\u00cdURL:",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0410\u0414\u0420\u0410\u0421:",
                     "LOCALURL:"
                 ],
                 "case-sensitive": false
@@ -1357,82 +1059,55 @@
             {
                 "name": "localurle",
                 "aliases": [
-                    "M\u00cdSTN\u00cdURLE:",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0410\u0414\u0420\u0410\u0421_2:",
                     "LOCALURLE:"
                 ],
                 "case-sensitive": false
             },
             {
-                "name": "articlepath",
+                "name": "server",
                 "aliases": [
-                    "CESTAK\u010cL\u00c1NKU",
-                    "ARTICLEPATH"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pageid",
-                "aliases": [
-                    "IDSTR\u00c1NKY",
-                    "PAGEID"
+                    "\u0421\u042d\u0420\u0412\u042d\u0420",
+                    "SERVER"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "servername",
                 "aliases": [
-                    "N\u00c1ZEVSERVERU",
-                    "SERVERNAME",
-                    "N\u00c1ZOVSERVERA"
+                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u042d\u0420\u0412\u042d\u0420\u0410",
+                    "SERVERNAME"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "scriptpath",
                 "aliases": [
-                    "CESTAKESKRIPT\u016eM",
-                    "SCRIPTPATH",
-                    "CESTAKUSKRIPTU"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "stylepath",
-                "aliases": [
-                    "CESTAKESTYL\u016eM",
-                    "STYLEPATH"
+                    "\u0428\u041b\u042f\u0425_\u0414\u0410_\u0421\u041a\u0420\u042b\u041f\u0422\u0410",
+                    "SCRIPTPATH"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "grammar",
                 "aliases": [
-                    "SKLO\u0147UJ:",
-                    "GRAMMAR:",
-                    "GRAMATIKA:"
+                    "\u0413\u0420\u0410\u041c\u0410\u0422\u042b\u041a\u0410:",
+                    "GRAMMAR:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "gender",
                 "aliases": [
-                    "POHLAV\u00cd:",
+                    "\u041f\u041e\u041b:",
                     "GENDER:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "bidi",
-                "aliases": [
-                    "OBASM\u011aRY:",
-                    "BIDI:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "notitleconvert",
                 "aliases": [
-                    "__BEZKONVERZENADPISU__",
+                    "__\u041d\u0415_\u041a\u0410\u041d\u0412\u042d\u0420\u0422\u0410\u0412\u0410\u0426\u042c_\u041d\u0410\u0417\u0412\u0423__",
                     "__NOTITLECONVERT__",
                     "__NOTC__"
                 ],
@@ -1441,7 +1116,7 @@
             {
                 "name": "nocontentconvert",
                 "aliases": [
-                    "__BEZKONVERZEOBSAHU__",
+                    "__\u041d\u0415_\u041a\u0410\u041d\u0412\u042d\u0420\u0422\u0410\u0412\u0410\u0426\u042c_\u0422\u042d\u041a\u0421\u0422__",
                     "__NOCONTENTCONVERT__",
                     "__NOCC__"
                 ],
@@ -1450,16 +1125,15 @@
             {
                 "name": "currentweek",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdT\u00ddDEN",
-                    "CURRENTWEEK",
-                    "AKTU\u00c1LNYT\u00dd\u017dDE\u0147"
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0422\u042b\u0414\u0417\u0415\u041d\u042c",
+                    "CURRENTWEEK"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentdow",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdDENT\u00ddDNE",
+                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c_\u0422\u042b\u0414\u041d\u042f",
                     "CURRENTDOW"
                 ],
                 "case-sensitive": true
@@ -1467,7 +1141,7 @@
             {
                 "name": "localweek",
                 "aliases": [
-                    "M\u00cdSTN\u00cdT\u00ddDEN",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0422\u042b\u0414\u0417\u0415\u041d\u042c",
                     "LOCALWEEK"
                 ],
                 "case-sensitive": true
@@ -1475,7 +1149,7 @@
             {
                 "name": "localdow",
                 "aliases": [
-                    "M\u00cdSTN\u00cdDENT\u00ddDNE",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c_\u0422\u042b\u0414\u041d\u042f",
                     "LOCALDOW"
                 ],
                 "case-sensitive": true
@@ -1483,7 +1157,7 @@
             {
                 "name": "revisionid",
                 "aliases": [
-                    "IDREVIZE",
+                    "ID_\u0412\u042d\u0420\u0421\u0406\u0406",
                     "REVISIONID"
                 ],
                 "case-sensitive": true
@@ -1491,7 +1165,7 @@
             {
                 "name": "revisionday",
                 "aliases": [
-                    "DENREVIZE",
+                    "\u0414\u0417\u0415\u041d\u042c_\u0412\u042d\u0420\u0421\u0406\u0406",
                     "REVISIONDAY"
                 ],
                 "case-sensitive": true
@@ -1499,7 +1173,7 @@
             {
                 "name": "revisionday2",
                 "aliases": [
-                    "DENREVIZE2",
+                    "\u0414\u0417\u0415\u041d\u042c_\u0412\u042d\u0420\u0421\u0406\u0406_2",
                     "REVISIONDAY2"
                 ],
                 "case-sensitive": true
@@ -1507,23 +1181,15 @@
             {
                 "name": "revisionmonth",
                 "aliases": [
-                    "M\u011aS\u00cdCREVIZE",
+                    "\u041c\u0415\u0421\u042f\u0426_\u0412\u042d\u0420\u0421\u0406\u0406",
                     "REVISIONMONTH"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "revisionmonth1",
-                "aliases": [
-                    "M\u011aS\u00cdCREVIZE1",
-                    "REVISIONMONTH1"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "revisionyear",
                 "aliases": [
-                    "ROKREVIZE",
+                    "\u0413\u041e\u0414_\u0412\u042d\u0420\u0421\u0406\u0406",
                     "REVISIONYEAR"
                 ],
                 "case-sensitive": true
@@ -1531,31 +1197,15 @@
             {
                 "name": "revisiontimestamp",
                 "aliases": [
-                    "K\u00d3D\u010cASUREVIZE",
+                    "\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423_\u0412\u042d\u0420\u0421\u0406\u0406",
                     "REVISIONTIMESTAMP"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "revisionuser",
-                "aliases": [
-                    "AUTORREVIZE",
-                    "REVISIONUSER"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "revisionsize",
-                "aliases": [
-                    "VELIKOSTREVIZE",
-                    "REVISIONSIZE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "plural",
                 "aliases": [
-                    "PLUR\u00c1L:",
+                    "\u041c\u041d\u041e\u0416\u041d\u042b_\u041b\u0406\u041a:",
                     "PLURAL:"
                 ],
                 "case-sensitive": false
@@ -1563,7 +1213,7 @@
             {
                 "name": "fullurl",
                 "aliases": [
-                    "PLN\u00c9URL:",
+                    "\u041f\u041e\u040e\u041d\u042b_\u0410\u0414\u0420\u0410\u0421:",
                     "FULLURL:"
                 ],
                 "case-sensitive": false
@@ -1571,31 +1221,15 @@
             {
                 "name": "fullurle",
                 "aliases": [
-                    "PLN\u00c9URLE:",
+                    "\u041f\u041e\u040e\u041d\u042b_\u0410\u0414\u0420\u0410\u0421_2:",
                     "FULLURLE:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "canonicalurl",
-                "aliases": [
-                    "KANONICK\u00c9URL:",
-                    "CANONICALURL:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "canonicalurle",
-                "aliases": [
-                    "KANONICK\u00c9URLE:",
-                    "CANONICALURLE:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "lcfirst",
                 "aliases": [
-                    "PRVN\u00cdMAL\u00c9:",
+                    "\u041f\u0415\u0420\u0428\u0410\u042f_\u041b\u0406\u0422\u0410\u0420\u0410_\u041c\u0410\u041b\u0410\u042f:",
                     "LCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1603,7 +1237,7 @@
             {
                 "name": "ucfirst",
                 "aliases": [
-                    "PRVN\u00cdVELK\u00c9:",
+                    "\u041f\u0415\u0420\u0428\u0410\u042f_\u041b\u0406\u0422\u0410\u0420\u0410_\u0412\u042f\u041b\u0406\u041a\u0410\u042f:",
                     "UCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1611,7 +1245,7 @@
             {
                 "name": "lc",
                 "aliases": [
-                    "MAL\u00c1:",
+                    "\u041c\u0410\u041b\u042b\u041c\u0406_\u041b\u0406\u0422\u0410\u0420\u0410\u041c\u0406:",
                     "LC:"
                 ],
                 "case-sensitive": false
@@ -1619,64 +1253,55 @@
             {
                 "name": "uc",
                 "aliases": [
-                    "VELK\u00c1:",
+                    "\u0412\u042f\u041b\u0406\u041a\u0406\u041c\u0406_\u041b\u0406\u0422\u0410\u0420\u0410\u041c\u0406:",
                     "UC:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "raw",
+                "aliases": [
+                    "\u041d\u0415\u0410\u041f\u0420\u0410\u0426\u0410\u0412\u0410\u041d\u042b:",
+                    "RAW:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "displaytitle",
                 "aliases": [
-                    "ZOBRAZOVAN\u00ddNADPIS",
+                    "\u041f\u0410\u041a\u0410\u0417\u0412\u0410\u0426\u042c_\u041d\u0410\u0417\u0412\u0423",
                     "DISPLAYTITLE"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "rawsuffix",
+                "aliases": [
+                    "\u041d",
+                    "R"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "newsectionlink",
                 "aliases": [
-                    "__LINKP\u0158IDATKOMENT\u00c1\u0158__",
+                    "__\u0421\u041f\u0410\u0421\u042b\u041b\u041a\u0410_\u041d\u0410_\u041d\u041e\u0412\u0423\u042e_\u0421\u042d\u041a\u0426\u042b\u042e__",
                     "__NEWSECTIONLINK__"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "nonewsectionlink",
-                "aliases": [
-                    "__BEZLINKUP\u0158IDATKOMENT\u00c1\u0158__",
-                    "__NONEWSECTIONLINK__"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "currentversion",
                 "aliases": [
-                    "VERZESOFTWARE",
-                    "CURRENTVERSION",
-                    "AKTU\u00c1LNAVERZIA"
+                    "\u0411\u042f\u0413\u0423\u0427\u0410\u042f_\u0412\u042d\u0420\u0421\u0406\u042f",
+                    "CURRENTVERSION"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "urlencode",
-                "aliases": [
-                    "ENK\u00d3DOVATURL:",
-                    "URLENCODE:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "anchorencode",
-                "aliases": [
-                    "ENK\u00d3DOVATNADPIS",
-                    "ANCHORENCODE"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "currenttimestamp",
                 "aliases": [
-                    "AKTU\u00c1LN\u00cdK\u00d3D\u010cASU",
+                    "\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423",
                     "CURRENTTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1684,7 +1309,7 @@
             {
                 "name": "localtimestamp",
                 "aliases": [
-                    "M\u00cdSTN\u00cdK\u00d3D\u010cASU",
+                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423",
                     "LOCALTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1692,7 +1317,7 @@
             {
                 "name": "directionmark",
                 "aliases": [
-                    "ZNAKSM\u011aRU",
+                    "\u0421\u042b\u041c\u0411\u0410\u041b\u042c_\u041d\u0410\u041f\u0420\u0410\u041c\u041a\u0423_\u041f\u0406\u0421\u042c\u041c\u0410",
                     "DIRECTIONMARK",
                     "DIRMARK"
                 ],
@@ -1701,7 +1326,7 @@
             {
                 "name": "language",
                 "aliases": [
-                    "#JAZYK:",
+                    "#\u041c\u041e\u0412\u0410:",
                     "#LANGUAGE:"
                 ],
                 "case-sensitive": false
@@ -1709,24 +1334,16 @@
             {
                 "name": "contentlanguage",
                 "aliases": [
-                    "JAZYKOBSAHU",
+                    "\u041c\u041e\u0412\u0410_\u0417\u042c\u041c\u0415\u0421\u0422\u0423",
                     "CONTENTLANGUAGE",
                     "CONTENTLANG"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "pagelanguage",
-                "aliases": [
-                    "JAZYKSTR\u00c1NKY",
-                    "PAGELANGUAGE"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "pagesinnamespace",
                 "aliases": [
-                    "STR\u00c1NEKVEJMENN\u00c9MPROSTORU:",
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a_\u0423_\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u042b_\u041d\u0410\u0417\u0412\u0410\u040e:",
                     "PAGESINNAMESPACE:",
                     "PAGESINNS:"
                 ],
@@ -1735,48 +1352,25 @@
             {
                 "name": "numberofadmins",
                 "aliases": [
-                    "PO\u010cETSPR\u00c1VC\u016e",
-                    "NUMBEROFADMINS",
-                    "PO\u010cETSPR\u00c1VCOV"
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u0414\u041c\u0406\u041d\u0406\u0421\u0422\u0420\u0410\u0422\u0410\u0420\u0410\u040e",
+                    "NUMBEROFADMINS"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "formatnum",
                 "aliases": [
-                    "FORM\u00c1TUJ\u010c\u00cdSLO",
+                    "\u0424\u0410\u0420\u041c\u0410\u0422\u0410\u0412\u0410\u0426\u042c_\u041b\u0406\u041a",
                     "FORMATNUM"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "padleft",
-                "aliases": [
-                    "ZAROVNATVLEVO",
-                    "PADLEFT"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "padright",
-                "aliases": [
-                    "ZAROVNATVPRAVO",
-                    "PADRIGHT"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "special",
-                "aliases": [
-                    "speci\u00e1ln\u00ed",
-                    "special"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "defaultsort",
                 "aliases": [
-                    "KL\u00cd\u010c\u0158AZEN\u00cd:",
+                    "\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0410_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
+                    "\u041a\u041b\u042e\u0427_\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0406_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
+                    "\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0410_\u040e_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u0406_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
                     "DEFAULTSORT:",
                     "DEFAULTSORTKEY:",
                     "DEFAULTCATEGORYSORT:"
@@ -1786,16 +1380,15 @@
             {
                 "name": "filepath",
                 "aliases": [
-                    "CESTAKSOUBORU:",
-                    "FILEPATH:",
-                    "CESTAKS\u00daBORU:"
+                    "\u0428\u041b\u042f\u0425_\u0414\u0410_\u0424\u0410\u0419\u041b\u0410:",
+                    "FILEPATH:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "tag",
                 "aliases": [
-                    "zna\u010dka",
+                    "\u0442\u044d\u0433",
                     "tag"
                 ],
                 "case-sensitive": false
@@ -1803,139 +1396,35 @@
             {
                 "name": "hiddencat",
                 "aliases": [
-                    "__SKR\u00ddTKAT__",
-                    "__HIDDENCAT__",
-                    "__SKRYT\u00c1KATEG\u00d3RIA__",
-                    "__SKRYT\u00c1KAT__"
+                    "__\u0421\u0425\u0410\u0412\u0410\u0426\u042c_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u042e__",
+                    "__HIDDENCAT__"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "pagesincategory",
                 "aliases": [
-                    "STR\u00c1NEKVKATEGORII",
-                    "STR\u00c1NEKVKAT",
+                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a_\u0423_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u0406",
                     "PAGESINCATEGORY",
-                    "PAGESINCAT",
-                    "STR\u00c1NOKVKATEG\u00d3RII",
-                    "STR\u00c1NOKVKAT"
+                    "PAGESINCAT"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "pagesize",
                 "aliases": [
-                    "VELIKOSTSTR\u00c1NKY",
-                    "PAGESIZE",
-                    "VE\u013dKOS\u0164STR\u00c1NKY"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "index",
-                "aliases": [
-                    "__INDEXOVAT__",
-                    "__INDEX__"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "noindex",
-                "aliases": [
-                    "__NEINDEXOVAT__",
-                    "__NOINDEX__"
+                    "\u041f\u0410\u041c\u0415\u0420_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "PAGESIZE"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "staticredirect",
                 "aliases": [
-                    "__STATICK\u00c9P\u0158ESM\u011aROV\u00c1N\u00cd__",
+                    "__\u0421\u0422\u0410\u0422\u042b\u0427\u041d\u0410\u0415_\u041f\u0415\u0420\u0410\u041d\u0410\u041a\u0406\u0420\u0410\u0412\u0410\u041d\u042c\u041d\u0415__",
                     "__STATICREDIRECT__"
                 ],
                 "case-sensitive": true
-            },
-            {
-                "name": "numberingroup",
-                "aliases": [
-                    "PO\u010cETVESKUPIN\u011a",
-                    "NUMBERINGROUP",
-                    "NUMINGROUP"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "protectionlevel",
-                "aliases": [
-                    "\u00daROVE\u0147ZAM\u010cEN\u00cd",
-                    "PROTECTIONLEVEL"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "protectionexpiry",
-                "aliases": [
-                    "VYPR\u0160EN\u00cdZAM\u010cEN\u00cd",
-                    "PROTECTIONEXPIRY"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "formatdate",
-                "aliases": [
-                    "form\u00e1tujdatum",
-                    "formatdate",
-                    "dateformat"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pagesincategory_all",
-                "aliases": [
-                    "v\u0161e",
-                    "all"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pagesincategory_pages",
-                "aliases": [
-                    "str\u00e1nky",
-                    "pages"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pagesincategory_subcats",
-                "aliases": [
-                    "kategorie",
-                    "subcats"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pagesincategory_files",
-                "aliases": [
-                    "soubory",
-                    "files"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "babel",
-                "aliases": [
-                    "babylon",
-                    "babel"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "msg",
-                "aliases": [
-                    "SPR\u00c1VA:",
-                    "MSG:"
-                ],
-                "case-sensitive": false
             },
             {
                 "name": "img_lossy",
@@ -1948,6 +1437,20 @@
                 "name": "numberofwikis",
                 "aliases": [
                     "numberofwikis"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "expr",
+                "aliases": [
+                    "expr"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "if",
+                "aliases": [
+                    "if"
                 ],
                 "case-sensitive": false
             },
@@ -1987,6 +1490,20 @@
                 "case-sensitive": false
             },
             {
+                "name": "ifexist",
+                "aliases": [
+                    "ifexist"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "time",
+                "aliases": [
+                    "time"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "timel",
                 "aliases": [
                     "timel"
@@ -2008,6 +1525,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "len",
+                "aliases": [
+                    "len"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "pos",
                 "aliases": [
                     "pos"
@@ -2025,6 +1549,20 @@
                 "name": "sub",
                 "aliases": [
                     "sub"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "count",
+                "aliases": [
+                    "count"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "replace",
+                "aliases": [
+                    "replace"
                 ],
                 "case-sensitive": false
             },
@@ -2123,30 +1661,16 @@
                 "case-sensitive": true
             },
             {
-                "name": "switchlanguage",
+                "name": "target",
                 "aliases": [
-                    "switchlanguage"
+                    "target"
                 ],
                 "case-sensitive": false
             },
             {
-                "name": "switchcountry",
+                "name": "babel",
                 "aliases": [
-                    "switchcountry"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "useliquidthreads",
-                "aliases": [
-                    "UseLiquidThreads"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "lqtpagelimit",
-                "aliases": [
-                    "lqtpagelimit"
+                    "babel"
                 ],
                 "case-sensitive": false
             },
@@ -2165,6 +1689,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "disambiguation",
+                "aliases": [
+                    "__DISAMBIG__"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "invoke",
                 "aliases": [
                     "invoke"
@@ -2172,23 +1703,9 @@
                 "case-sensitive": false
             },
             {
-                "name": "related",
+                "name": "calendar",
                 "aliases": [
-                    "related"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "assessment",
-                "aliases": [
-                    "assessment"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "PAGEBANNER",
-                "aliases": [
-                    "PAGEBANNER"
+                    "calendar"
                 ],
                 "case-sensitive": false
             },
@@ -2207,9 +1724,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "calendar",
+                "name": "switchlanguage",
                 "aliases": [
-                    "calendar"
+                    "switchlanguage"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "switchcountry",
+                "aliases": [
+                    "switchcountry"
                 ],
                 "case-sensitive": false
             },
@@ -2277,6 +1801,20 @@
                 "case-sensitive": false
             },
             {
+                "name": "useliquidthreads",
+                "aliases": [
+                    "UseLiquidThreads"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "lqtpagelimit",
+                "aliases": [
+                    "lqtpagelimit"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "dd2dms",
                 "aliases": [
                     "dd2dms"
@@ -2298,9 +1836,30 @@
                 "case-sensitive": false
             },
             {
+                "name": "assessment",
+                "aliases": [
+                    "assessment"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "useskin",
                 "aliases": [
                     "useskin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "PAGEBANNER",
+                "aliases": [
+                    "PAGEBANNER"
                 ],
                 "case-sensitive": false
             },
@@ -2319,16 +1878,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "translation",
+                "name": "noexternallanglinks",
                 "aliases": [
-                    "translation"
+                    "noexternallanglinks"
                 ],
                 "case-sensitive": false
             },
             {
-                "name": "noexternallanglinks",
+                "name": "property",
                 "aliases": [
-                    "noexternallanglinks"
+                    "property"
                 ],
                 "case-sensitive": false
             },
@@ -2375,9 +1934,51 @@
                 "case-sensitive": false
             },
             {
+                "name": "translation",
+                "aliases": [
+                    "translation"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "!",
                 "aliases": [
                     "!"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "currentmonth1",
+                "aliases": [
+                    "CURRENTMONTH1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "localmonth1",
+                "aliases": [
+                    "LOCALMONTH1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "namespacenumber",
+                "aliases": [
+                    "NAMESPACENUMBER"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "rootpagename",
+                "aliases": [
+                    "ROOTPAGENAME"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "rootpagenamee",
+                "aliases": [
+                    "ROOTPAGENAMEE"
                 ],
                 "case-sensitive": true
             },
@@ -2389,11 +1990,32 @@
                 "case-sensitive": false
             },
             {
+                "name": "img_frameless",
+                "aliases": [
+                    "frameless"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_lang",
+                "aliases": [
+                    "lang=$1"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "img_upright",
                 "aliases": [
                     "upright",
                     "upright=$1",
                     "upright $1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_border",
+                "aliases": [
+                    "border"
                 ],
                 "case-sensitive": true
             },
@@ -2420,30 +2042,9 @@
                 "case-sensitive": true
             },
             {
-                "name": "img_top",
-                "aliases": [
-                    "top"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "img_text_top",
                 "aliases": [
                     "text-top"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_middle",
-                "aliases": [
-                    "middle"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_bottom",
-                "aliases": [
-                    "bottom"
                 ],
                 "case-sensitive": true
             },
@@ -2462,30 +2063,142 @@
                 "case-sensitive": true
             },
             {
-                "name": "server",
+                "name": "img_class",
                 "aliases": [
-                    "SERVER"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "raw",
-                "aliases": [
-                    "RAW:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "rawsuffix",
-                "aliases": [
-                    "R"
+                    "class=$1"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "int",
+                "aliases": [
+                    "INT:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "nse",
+                "aliases": [
+                    "NSE:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "articlepath",
+                "aliases": [
+                    "ARTICLEPATH"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pageid",
+                "aliases": [
+                    "PAGEID"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "stylepath",
+                "aliases": [
+                    "STYLEPATH"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "bidi",
+                "aliases": [
+                    "BIDI:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "revisionmonth1",
+                "aliases": [
+                    "REVISIONMONTH1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "revisionuser",
+                "aliases": [
+                    "REVISIONUSER"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "revisionsize",
+                "aliases": [
+                    "REVISIONSIZE"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "canonicalurl",
+                "aliases": [
+                    "CANONICALURL:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "canonicalurle",
+                "aliases": [
+                    "CANONICALURLE:"
+                ],
+                "case-sensitive": false
             },
             {
                 "name": "nocommafysuffix",
                 "aliases": [
                     "NOSEP"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "nonewsectionlink",
+                "aliases": [
+                    "__NONEWSECTIONLINK__"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "urlencode",
+                "aliases": [
+                    "URLENCODE:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "anchorencode",
+                "aliases": [
+                    "ANCHORENCODE"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pagelanguage",
+                "aliases": [
+                    "PAGELANGUAGE"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "padleft",
+                "aliases": [
+                    "PADLEFT"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "padright",
+                "aliases": [
+                    "PADRIGHT"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "special",
+                "aliases": [
+                    "special"
                 ],
                 "case-sensitive": false
             },
@@ -2504,11 +2217,55 @@
                 "case-sensitive": true
             },
             {
+                "name": "index",
+                "aliases": [
+                    "__INDEX__"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "noindex",
+                "aliases": [
+                    "__NOINDEX__"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "numberingroup",
+                "aliases": [
+                    "NUMBERINGROUP",
+                    "NUMINGROUP"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "protectionlevel",
+                "aliases": [
+                    "PROTECTIONLEVEL"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "protectionexpiry",
+                "aliases": [
+                    "PROTECTIONEXPIRY"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "cascadingsources",
                 "aliases": [
                     "CASCADINGSOURCES"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "formatdate",
+                "aliases": [
+                    "formatdate",
+                    "dateformat"
+                ],
+                "case-sensitive": false
             },
             {
                 "name": "url_path",
@@ -2556,6 +2313,34 @@
                 "name": "displaytitle_noreplace",
                 "aliases": [
                     "noreplace"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pagesincategory_all",
+                "aliases": [
+                    "all"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pagesincategory_pages",
+                "aliases": [
+                    "pages"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pagesincategory_subcats",
+                "aliases": [
+                    "subcats"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pagesincategory_files",
+                "aliases": [
+                    "files"
                 ],
                 "case-sensitive": false
             }
@@ -2791,6 +2576,11 @@
                 "protorel": false
             },
             {
+                "prefix": "debian",
+                "url": "https://wiki.debian.org/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "delicious",
                 "url": "https://www.delicious.com/tag/$1",
                 "protorel": true
@@ -2827,12 +2617,12 @@
             },
             {
                 "prefix": "dmoz",
-                "url": "http://dmoztools.net/$1",
+                "url": "https://curlie.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "dmozs",
-                "url": "http://www.dmoz.org/cgi-bin/search?search=$1",
+                "url": "https://curlie.org/search?q=$1",
                 "protorel": false
             },
             {
@@ -3010,11 +2800,6 @@
                 "protorel": false
             },
             {
-                "prefix": "forthfreak",
-                "url": "http://wiki.forthfreak.net/index.cgi?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "foundation",
                 "local": true,
                 "url": "https://foundation.wikimedia.org/wiki/$1",
@@ -3048,7 +2833,7 @@
             },
             {
                 "prefix": "freedomdefined",
-                "url": "http://freedomdefined.org/$1",
+                "url": "https://freedomdefined.org/$1",
                 "protorel": false
             },
             {
@@ -3242,12 +3027,17 @@
             },
             {
                 "prefix": "infosphere",
-                "url": "http://theinfosphere.org/$1",
+                "url": "https://theinfosphere.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "irc",
                 "url": "irc://irc.freenode.net/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "ircs",
+                "url": "ircs://irc.freenode.net/$1",
                 "protorel": false
             },
             {
@@ -3269,7 +3059,7 @@
             },
             {
                 "prefix": "issn",
-                "url": "http://www.worldcat.org/issn/$1",
+                "url": "https://www.worldcat.org/issn/$1",
                 "protorel": false
             },
             {
@@ -3331,11 +3121,6 @@
                 "prefix": "kinowiki",
                 "url": "http://kino.skripov.com/index.php/$1",
                 "protorel": false
-            },
-            {
-                "prefix": "kmwiki",
-                "url": "https://kmwiki.wikispaces.com/$1",
-                "protorel": true
             },
             {
                 "prefix": "komicawiki",
@@ -3577,6 +3362,11 @@
             {
                 "prefix": "olpc",
                 "url": "http://wiki.laptop.org/go/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "omegawiki",
+                "url": "http://www.omegawiki.org/Expression:$1",
                 "protorel": false
             },
             {
@@ -4083,6 +3873,11 @@
                 "protorel": false
             },
             {
+                "prefix": "umap",
+                "url": "https://umap.openstreetmap.fr/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "uncyclopedia",
                 "url": "http://en.uncyclopedia.co/wiki/$1",
                 "protorel": false
@@ -4266,7 +4061,8 @@
             },
             {
                 "prefix": "wikinvest",
-                "url": "http://www.wikinvest.com/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest",
                 "protorel": false
             },
             {
@@ -4490,6 +4286,11 @@
                 "prefix": "wmet",
                 "local": true,
                 "url": "https://ee.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfdashboard",
+                "url": "https://outreachdashboard.wmflabs.org/$1",
                 "protorel": false
             },
             {
@@ -4763,6 +4564,12 @@
                 "protorel": false
             },
             {
+                "prefix": "wikimania",
+                "local": true,
+                "url": "https://wikimania.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wmteam",
                 "local": true,
                 "url": "https://wikimaniateam.wikimedia.org/wiki/$1",
@@ -5028,6 +4835,7 @@
                 "prefix": "be-x-old",
                 "local": true,
                 "language": "\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f (\u0442\u0430\u0440\u0430\u0448\u043a\u0435\u0432\u0456\u0446\u0430)\u200e",
+                "localinterwiki": true,
                 "url": "https://be-x-old.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5210,7 +5018,6 @@
                 "prefix": "cs",
                 "local": true,
                 "language": "\u010de\u0161tina",
-                "localinterwiki": true,
                 "url": "https://cs.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5609,7 +5416,7 @@
             {
                 "prefix": "hyw",
                 "local": true,
-                "language": "\u0561\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
+                "language": "\u0531\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
                 "url": "https://hyw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5728,7 +5535,7 @@
             {
                 "prefix": "jv",
                 "local": true,
-                "language": "Basa Jawa",
+                "language": "Jawa",
                 "url": "https://jv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6414,7 +6221,7 @@
             {
                 "prefix": "rmy",
                 "local": true,
-                "language": "Romani",
+                "language": "romani \u010dhib",
                 "url": "https://rmy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7120,49 +6927,49 @@
             {
                 "prefix": "wikt",
                 "local": true,
-                "url": "https://cs.wiktionary.org/wiki/$1",
+                "url": "https://be-x-old.wiktionary.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "q",
                 "local": true,
-                "url": "https://cs.wikiquote.org/wiki/$1",
+                "url": "https://be-x-old.wikiquote.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "b",
                 "local": true,
-                "url": "https://cs.wikibooks.org/wiki/$1",
+                "url": "https://be-x-old.wikibooks.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "n",
                 "local": true,
-                "url": "https://cs.wikinews.org/wiki/$1",
+                "url": "https://be-x-old.wikinews.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "s",
                 "local": true,
-                "url": "https://cs.wikisource.org/wiki/$1",
+                "url": "https://be-x-old.wikisource.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "chapter",
                 "local": true,
-                "url": "https://cs.wikimedia.org/wiki/$1",
+                "url": "https://be-x-old.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "v",
                 "local": true,
-                "url": "https://cs.wikiversity.org/wiki/$1",
+                "url": "https://be-x-old.wikiversity.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "voy",
                 "local": true,
-                "url": "https://cs.wikivoyage.org/wiki/$1",
+                "url": "https://be-x-old.wikivoyage.org/wiki/$1",
                 "protorel": false
             }
         ],
@@ -7412,10 +7219,6 @@
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "usebetatoolbar": 1,
-            "echo-subscriptions-web-login-fail": true,
-            "echo-subscriptions-email-login-fail": true,
-            "echo-subscriptions-web-login-success": false,
-            "echo-subscriptions-email-login-success": true,
             "visualeditor-enable": 1,
             "visualeditor-betatempdisable": 0,
             "visualeditor-newwikitext": 0,
@@ -7425,33 +7228,26 @@
             "visualeditor-hidebetawelcome": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-tabs": "remember-last",
-            "visualeditor-editor": "wikitext",
+            "visualeditor-editor": "visualeditor",
             "visualeditor-hidetabdialog": 0,
             "math": "mathml",
+            "echo-subscriptions-web-login-fail": true,
+            "echo-subscriptions-email-login-fail": true,
+            "echo-subscriptions-web-login-success": false,
+            "echo-subscriptions-email-login-success": true,
             "echo-email-frequency": 0,
             "echo-subscriptions-web-edit-thank": true,
             "echo-subscriptions-email-edit-thank": false,
-            "echo-subscriptions-web-flow-discussion": true,
-            "echo-subscriptions-email-flow-discussion": false,
-            "flow-topiclist-sortby": "updated",
-            "flow-editor": "visualeditor",
-            "flow-side-rail-state": "expanded",
-            "flow-visualeditor": 1,
             "usecodeeditor": 1,
             "eventlogging-display-web": 0,
             "uls-preferences": "",
             "compact-language-links": 1,
             "echo-subscriptions-web-cx": true,
+            "cx-enable-entrypoints": true,
             "echo-subscriptions-web-oauth-owner": true,
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
             "echo-subscriptions-email-oauth-admin": true,
-            "ores-damaging-flag-rc": false,
-            "oresDamagingPref": "soft",
-            "rcOresDamagingPref": "soft",
-            "oresHighlight": false,
-            "oresRCHideNonDamaging": false,
-            "oresWatchlistHideNonDamaging": false,
             "ccmeonemails": 0,
             "cols": 80,
             "date": "default",
@@ -7481,7 +7277,6 @@
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
-            "rcenhancedfilters": 0,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
             "rows": 25,
@@ -7495,10 +7290,10 @@
             "uselivepreview": 0,
             "usenewrc": 0,
             "watchcreations": true,
-            "watchdefault": 1,
+            "watchdefault": 0,
             "watchdeletion": 0,
             "watchuploads": 1,
-            "watchlistdays": 14,
+            "watchlistdays": 3,
             "watchlisthideanons": 0,
             "watchlisthidebots": 0,
             "watchlisthideliu": 0,
@@ -7514,9 +7309,10 @@
             "wllimit": 250,
             "useeditwarning": 1,
             "prefershttps": 1,
+            "wlshowwikibase": 0,
             "echo-cross-wiki-notifications": 1,
-            "timecorrection": "System|120",
-            "language": "cs",
+            "timecorrection": "System|180",
+            "language": "be-tarask",
             "variant-en": "en",
             "variant-crh": "crh",
             "variant-gan": "gan",
@@ -7528,9 +7324,6 @@
             "variant-tg": "tg",
             "variant-uz": "uz",
             "variant-zh": "zh",
-            "searchNs100": true,
-            "searchNs101": false,
-            "searchNs102": true,
             "searchNs0": true,
             "searchNs1": false,
             "searchNs2": false,
@@ -7545,14 +7338,10 @@
             "searchNs11": false,
             "searchNs12": false,
             "searchNs13": false,
-            "cirrussearch-pref-completion-profile": "fuzzy",
-            "gadget-OSMmapa": 1,
-            "gadget-direct-links-to-commons": 1,
+            "gadget-wikify": 1,
+            "gadget-BKL": 1,
             "gadget-ReferenceTooltips": 1,
-            "gadget-courses": 1,
-            "gadget-Wdsearch": 1,
-            "gadget-refToolbar": 1,
-            "gadget-LegacyToolbar2006": 1,
+            "cirrussearch-pref-completion-profile": "fuzzy",
             "multimediaviewer-enable": 1,
             "popups": "0",
             "mobile-specialpages": "1",
@@ -7560,6 +7349,8 @@
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
             "echo-subscriptions-web-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
             "echo-subscriptions-email-user-rights": true,
             "echo-subscriptions-web-user-rights": true,
             "echo-subscriptions-email-other": false,
@@ -7578,64 +7369,52 @@
             "echo-subscriptions-web-mention-success": false,
             "echo-subscriptions-email-emailuser": false,
             "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
-            "echo-subscriptions-email-cx": false,
-            "growthexperiments-help-panel-tog-help-panel": false
+            "echo-subscriptions-email-cx": false
         },
         "specialpagealiases": [
             {
                 "realname": "BrokenRedirects",
                 "aliases": [
-                    "P\u0159eru\u0161en\u00e1_p\u0159esm\u011brov\u00e1n\u00ed",
-                    "Prerusena_presmerovani",
-                    "Pokazen\u00e9Presmerovania",
+                    "\u041d\u0435\u043a\u0430\u0440\u044d\u043a\u0442\u043d\u044b\u044f_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0456",
                     "BrokenRedirects"
                 ]
             },
             {
                 "realname": "Deadendpages",
                 "aliases": [
-                    "Slep\u00e9_str\u00e1nky",
-                    "Slepe_stranky",
-                    "Str\u00e1nkyBezOdkazov",
+                    "\u0422\u0443\u043f\u0456\u043a\u043e\u0432\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "DeadendPages"
                 ]
             },
             {
                 "realname": "DoubleRedirects",
                 "aliases": [
-                    "Dvojit\u00e1_p\u0159esm\u011brov\u00e1n\u00ed",
-                    "Dvojita_presmerovani",
-                    "Dvojit\u00e9Presmerovania",
+                    "\u0414\u0432\u0430\u0439\u043d\u044b\u044f_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0456",
                     "DoubleRedirects"
                 ]
             },
             {
                 "realname": "Longpages",
                 "aliases": [
-                    "Nejdel\u0161\u00ed_str\u00e1nky",
-                    "Nejdelsi_stranky",
-                    "Dlh\u00e9Str\u00e1nky",
+                    "\u0414\u043e\u045e\u0433\u0456\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "LongPages"
                 ]
             },
             {
                 "realname": "Ancientpages",
                 "aliases": [
-                    "Nejstar\u0161\u00ed_str\u00e1nky",
-                    "Star\u00e9_str\u00e1nky",
-                    "Stare_stranky",
-                    "Star\u00e9Str\u00e1nky",
+                    "\u041d\u0430\u0439\u0441\u0442\u0430\u0440\u044d\u0439\u0448\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "AncientPages"
                 ]
             },
             {
                 "realname": "Lonelypages",
                 "aliases": [
-                    "Sirot\u010d\u00ed_str\u00e1nky",
-                    "Sirotci_stranky",
-                    "Osiroten\u00e9Str\u00e1nky",
+                    "\u0421\u0442\u0430\u0440\u043e\u043d\u043a\u0456-\u0441\u0456\u0440\u0430\u0446\u0456\u043d\u044b",
                     "LonelyPages",
                     "OrphanedPages"
                 ]
@@ -7643,65 +7422,47 @@
             {
                 "realname": "Fewestrevisions",
                 "aliases": [
-                    "Str\u00e1nky_s_nejm\u00e9n\u011b_editacemi",
-                    "Stranky_s_nejmene_editacemi",
-                    "Str\u00e1nky_s_nejmen\u0161\u00edm_po\u010dtem_editac\u00ed",
-                    "NajmenejRev\u00edzi\u00ed",
                     "FewestRevisions"
                 ]
             },
             {
                 "realname": "Withoutinterwiki",
                 "aliases": [
-                    "Bez_interwiki",
-                    "Str\u00e1nky_bez_interwiki_odkaz\u016f",
-                    "BezInterwiki",
                     "WithoutInterwiki"
                 ]
             },
             {
                 "realname": "Protectedpages",
                 "aliases": [
-                    "Zam\u010den\u00e9_str\u00e1nky",
-                    "Zamcene_stranky",
-                    "Zamknut\u00e9Str\u00e1nky",
+                    "\u0410\u0431\u0430\u0440\u043e\u043d\u0435\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "ProtectedPages"
                 ]
             },
             {
                 "realname": "Protectedtitles",
                 "aliases": [
-                    "Zam\u010den\u00e9_n\u00e1zvy",
-                    "Zamcene_nazvy",
-                    "Str\u00e1nky_kter\u00e9_nelze_vytvo\u0159it",
-                    "Zamknut\u00e9N\u00e1zvy",
+                    "\u0417\u0430\u0431\u0430\u0440\u043e\u043d\u0435\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "ProtectedTitles"
                 ]
             },
             {
                 "realname": "Shortpages",
                 "aliases": [
-                    "Nejkrat\u0161\u00ed_str\u00e1nky",
-                    "Nejkratsi_stranky",
-                    "Kr\u00e1tkeStr\u00e1nky",
+                    "\u041a\u0430\u0440\u043e\u0442\u043a\u0456\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "ShortPages"
                 ]
             },
             {
                 "realname": "Uncategorizedcategories",
                 "aliases": [
-                    "Nekategorizovan\u00e9_kategorie",
-                    "Nekategorizovane_kategorie",
-                    "Nekategorizovan\u00e9Kateg\u00f3rie",
+                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
                     "UncategorizedCategories"
                 ]
             },
             {
                 "realname": "Uncategorizedimages",
                 "aliases": [
-                    "Nekategorizovan\u00e9_soubory",
-                    "Nekategorizovane_soubory",
-                    "Nekategorizovan\u00e9S\u00fabory",
+                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
                     "UncategorizedFiles",
                     "UncategorizedImages"
                 ]
@@ -7709,36 +7470,26 @@
             {
                 "realname": "Uncategorizedpages",
                 "aliases": [
-                    "Nekategorizovan\u00e9_str\u00e1nky",
-                    "Nekategorizovane_stranky",
-                    "Nekategorizovan\u00e9Str\u00e1nky",
+                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "UncategorizedPages"
                 ]
             },
             {
                 "realname": "Uncategorizedtemplates",
                 "aliases": [
-                    "Nekategorizovan\u00e9_\u0161ablony",
-                    "Nekategorizovane_sablony",
-                    "Nekategorizovan\u00e9\u0160abl\u00f3ny",
+                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0448\u0430\u0431\u043b\u0451\u043d\u044b",
                     "UncategorizedTemplates"
                 ]
             },
             {
                 "realname": "Unusedcategories",
                 "aliases": [
-                    "Nepou\u017e\u00edvan\u00e9_kategorie",
-                    "Nepouzivane_kategorie",
-                    "Nepou\u017e\u00edvan\u00e9Kateg\u00f3rie",
                     "UnusedCategories"
                 ]
             },
             {
                 "realname": "Unusedimages",
                 "aliases": [
-                    "Nepou\u017e\u00edvan\u00e9_soubory",
-                    "Nepouzivane_soubory",
-                    "Nepou\u017e\u00edvan\u00e9S\u00fabory",
                     "UnusedFiles",
                     "UnusedImages"
                 ]
@@ -7746,47 +7497,34 @@
             {
                 "realname": "Unusedtemplates",
                 "aliases": [
-                    "Nepou\u017e\u00edvan\u00e9_\u0161ablony",
-                    "Nepouzivane_sablony",
-                    "Nepou\u017eit\u00e9\u0160abl\u00f3ny",
                     "UnusedTemplates"
                 ]
             },
             {
                 "realname": "Unwatchedpages",
                 "aliases": [
-                    "Nesledovan\u00e9_str\u00e1nky",
-                    "Nesledovan\u00e9Str\u00e1nky",
                     "UnwatchedPages"
                 ]
             },
             {
                 "realname": "Wantedcategories",
                 "aliases": [
-                    "Chyb\u011bj\u00edc\u00ed_kategorie",
-                    "Po\u017eadovan\u00e9_kategorie",
-                    "Pozadovane_kategorie",
-                    "\u017diadan\u00e9Kateg\u00f3rie",
+                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
                     "WantedCategories"
                 ]
             },
             {
                 "realname": "Wantedfiles",
                 "aliases": [
-                    "Chyb\u011bj\u00edc\u00ed_soubory",
-                    "Po\u017eadovan\u00e9_soubory",
-                    "Pozadovane_soubory",
-                    "\u017diadan\u00e9S\u00fabory",
+                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
                     "WantedFiles"
                 ]
             },
             {
                 "realname": "Wantedpages",
                 "aliases": [
-                    "Chyb\u011bj\u00edc\u00ed_str\u00e1nky",
-                    "Po\u017eadovan\u00e9_str\u00e1nky",
-                    "Pozadovane_stranky",
-                    "\u017diadan\u00e9Str\u00e1nky",
+                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "\u041d\u0435\u043a\u0430\u0440\u044d\u043a\u0442\u043d\u044b\u044f_\u0441\u043f\u0430\u0441\u044b\u043b\u043a\u0456",
                     "WantedPages",
                     "BrokenLinks"
                 ]
@@ -7794,52 +7532,40 @@
             {
                 "realname": "Wantedtemplates",
                 "aliases": [
-                    "Chyb\u011bj\u00edc\u00ed_\u0161ablony",
-                    "Po\u017eadovan\u00e9_\u0161ablony",
-                    "Pozadovane_sablony",
-                    "\u017diadan\u00e9\u0160abl\u00f3ny",
+                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0448\u0430\u0431\u043b\u0451\u043d\u044b",
                     "WantedTemplates"
                 ]
             },
             {
                 "realname": "Allpages",
                 "aliases": [
-                    "V\u0161echny_str\u00e1nky",
-                    "Vsechny_stranky",
-                    "V\u0161etkyStr\u00e1nky",
+                    "\u0423\u0441\u0435_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "AllPages"
                 ]
             },
             {
                 "realname": "Prefixindex",
                 "aliases": [
-                    "Str\u00e1nky_podle_za\u010d\u00e1tku",
-                    "IndexPredpon",
                     "PrefixIndex"
                 ]
             },
             {
                 "realname": "Categories",
                 "aliases": [
-                    "Kategorie",
-                    "Kateg\u00f3rie",
+                    "\u041a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
                     "Categories"
                 ]
             },
             {
                 "realname": "Listredirects",
                 "aliases": [
-                    "Seznam_p\u0159esm\u011brov\u00e1n\u00ed",
-                    "Seznam_presmerovani",
-                    "ZoznamPresmerovan\u00ed",
+                    "\u0421\u044c\u043f\u0456\u0441_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u044f\u045e",
                     "ListRedirects"
                 ]
             },
             {
                 "realname": "PagesWithProp",
                 "aliases": [
-                    "Str\u00e1nky_s_vlastnost\u00ed",
-                    "Str\u00e1nky_s_vlastnostmi",
                     "PagesWithProp",
                     "Pageswithprop",
                     "PagesByProp",
@@ -7849,17 +7575,13 @@
             {
                 "realname": "TrackingCategories",
                 "aliases": [
-                    "Sledovac\u00ed_kategorie",
-                    "Sledovaci_kategorie",
                     "TrackingCategories"
                 ]
             },
             {
                 "realname": "Userlogin",
                 "aliases": [
-                    "P\u0159ihl\u00e1sit",
-                    "Prihlasit",
-                    "Prihl\u00e1seniePou\u017e\u00edvate\u013ea",
+                    "\u0423\u0432\u0430\u0445\u043e\u0434_\u0443_\u0441\u044b\u0441\u0442\u044d\u043c\u0443",
                     "UserLogin",
                     "Login"
                 ]
@@ -7867,9 +7589,6 @@
             {
                 "realname": "Userlogout",
                 "aliases": [
-                    "Odhl\u00e1sit",
-                    "Odhlasit",
-                    "Odhl\u00e1seniePou\u017e\u00edvate\u013ea",
                     "UserLogout",
                     "Logout"
                 ]
@@ -7877,9 +7596,7 @@
             {
                 "realname": "CreateAccount",
                 "aliases": [
-                    "Vytvo\u0159it_\u00fa\u010det",
-                    "Vytvorit_ucet",
-                    "Vytvorenie\u00da\u010dtu",
+                    "\u0421\u0442\u0432\u0430\u0440\u044b\u0446\u044c_\u0440\u0430\u0445\u0443\u043d\u0430\u043a",
                     "CreateAccount"
                 ]
             },
@@ -7898,35 +7615,25 @@
             {
                 "realname": "ChangeCredentials",
                 "aliases": [
-                    "Zm\u011bna_p\u0159ihla\u0161ovac\u00edch_\u00fadaj\u016f",
                     "ChangeCredentials"
                 ]
             },
             {
                 "realname": "RemoveCredentials",
                 "aliases": [
-                    "Odstran\u011bn\u00ed_p\u0159ihla\u0161ovac\u00edch_\u00fadaj\u016f",
                     "RemoveCredentials"
                 ]
             },
             {
                 "realname": "Activeusers",
                 "aliases": [
-                    "Aktivn\u00ed_u\u017eivatel\u00e9",
-                    "Aktivni_uzivatele",
-                    "Akt\u00edvniPou\u017e\u00edvatelia",
                     "ActiveUsers"
                 ]
             },
             {
                 "realname": "Block",
                 "aliases": [
-                    "Blokov\u00e1n\u00ed",
-                    "Blokovani",
-                    "Blokovat_u\u017eivatele",
-                    "Blokovat_IP",
-                    "Blokovat_uzivatele",
-                    "Blokovanie",
+                    "\u0411\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
                     "Block",
                     "BlockIP",
                     "BlockUser"
@@ -7935,18 +7642,12 @@
             {
                 "realname": "Unblock",
                 "aliases": [
-                    "Odblokov\u00e1n\u00ed",
-                    "Odblokovani",
                     "Unblock"
                 ]
             },
             {
                 "realname": "BlockList",
                 "aliases": [
-                    "Blokovan\u00ed_u\u017eivatel\u00e9",
-                    "Blokovani_uzivatele",
-                    "Zablokovan\u00ed_u\u017eivatel\u00e9",
-                    "ZoznamBlokovan\u00ed",
                     "BlockList",
                     "ListBlocks",
                     "IPBlockList"
@@ -7955,7 +7656,6 @@
             {
                 "realname": "AutoblockList",
                 "aliases": [
-                    "Seznam_automatick\u00fdch_blokov\u00e1n\u00ed",
                     "AutoblockList",
                     "ListAutoblocks"
                 ]
@@ -7963,9 +7663,8 @@
             {
                 "realname": "ChangePassword",
                 "aliases": [
-                    "Zm\u011bna_hesla",
-                    "Zmena_hesla",
-                    "ZmenaHesla",
+                    "\u0417\u044c\u043c\u044f\u043d\u0456\u0446\u044c_\u043f\u0430\u0440\u043e\u043b\u044c",
+                    "\u0410\u0447\u044b\u0441\u044c\u0446\u0456\u0446\u044c_\u043f\u0430\u0440\u043e\u043b\u044c",
                     "ChangePassword",
                     "ResetPass",
                     "ResetPassword"
@@ -7974,51 +7673,38 @@
             {
                 "realname": "BotPasswords",
                 "aliases": [
-                    "Hesla_pro_boty",
                     "BotPasswords"
                 ]
             },
             {
                 "realname": "PasswordReset",
                 "aliases": [
-                    "Reset_hesla",
-                    "Resetovat_heslo",
-                    "Obnova_hesla",
-                    "Obnovit_heslo",
                     "PasswordReset"
                 ]
             },
             {
                 "realname": "DeletedContributions",
                 "aliases": [
-                    "Smazan\u00e9_p\u0159\u00edsp\u011bvky",
-                    "Smazane_prispevky",
-                    "Zmazan\u00e9Pr\u00edspevky",
+                    "\u0412\u044b\u0434\u0430\u043b\u0435\u043d\u044b_\u045e\u043d\u0451\u0441\u0430\u043a",
                     "DeletedContributions"
                 ]
             },
             {
                 "realname": "Preferences",
                 "aliases": [
-                    "Nastaven\u00ed",
-                    "Nastaveni",
-                    "Nastavenia",
                     "Preferences"
                 ]
             },
             {
                 "realname": "ResetTokens",
                 "aliases": [
-                    "Reinicializace_kl\u00ed\u010d\u016f",
                     "ResetTokens"
                 ]
             },
             {
                 "realname": "Contributions",
                 "aliases": [
-                    "P\u0159\u00edsp\u011bvky",
-                    "Prispevky",
-                    "Pr\u00edspevky",
+                    "\u0423\u043d\u0451\u0441\u0430\u043a",
                     "Contributions",
                     "Contribs"
                 ]
@@ -8026,10 +7712,6 @@
             {
                 "realname": "Listgrouprights",
                 "aliases": [
-                    "Pr\u00e1va_u\u017eivatelsk\u00fdch_skupin",
-                    "Seznam_u\u017eivatelsk\u00fdch_pr\u00e1v",
-                    "Seznam_uzivatelskych_prav",
-                    "ZoznamSkupinov\u00fdchPr\u00e1v",
                     "ListGroupRights",
                     "UserGroupRights"
                 ]
@@ -8037,20 +7719,13 @@
             {
                 "realname": "Listgrants",
                 "aliases": [
-                    "Seznam_skupin_opr\u00e1vn\u011bn\u00ed",
-                    "Seznam_skupin_opravneni",
-                    "Seznam_grant\u016f",
                     "ListGrants"
                 ]
             },
             {
                 "realname": "Listusers",
                 "aliases": [
-                    "U\u017eivatel\u00e9",
-                    "Uzivatele",
-                    "Seznam_u\u017eivatel\u016f",
-                    "Seznam_uzivatelu",
-                    "ZoznamPou\u017e\u00edvate\u013eov",
+                    "\u0421\u044c\u043f\u0456\u0441_\u0443\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a\u0430\u045e",
                     "ListUsers",
                     "UserList",
                     "Users"
@@ -8059,28 +7734,20 @@
             {
                 "realname": "Listadmins",
                 "aliases": [
-                    "Seznam_spr\u00e1vc\u016f",
-                    "Seznam_spravcu",
-                    "ZoznamSpr\u00e1vcov",
+                    "\u0421\u044c\u043f\u0456\u0441_\u0430\u0434\u043c\u0456\u043d\u0456\u0441\u0442\u0440\u0430\u0442\u0430\u0440\u0430\u045e",
                     "ListAdmins"
                 ]
             },
             {
                 "realname": "Listbots",
                 "aliases": [
-                    "Seznam_bot\u016f",
-                    "Seznam_botu",
-                    "ZoznamBotov",
+                    "\u0421\u044c\u043f\u0456\u0441_\u0440\u043e\u0431\u0430\u0442\u0430\u045e",
                     "ListBots"
                 ]
             },
             {
                 "realname": "Userrights",
                 "aliases": [
-                    "U\u017eivatelsk\u00e1_pr\u00e1va",
-                    "Spr\u00e1va_u\u017eivatel\u016f",
-                    "Uzivatelska_prava",
-                    "Pr\u00e1vaPou\u017e\u00edvate\u013ea",
                     "UserRights",
                     "MakeSysop",
                     "MakeBot"
@@ -8089,7 +7756,6 @@
             {
                 "realname": "EditWatchlist",
                 "aliases": [
-                    "Upravit_seznam_sledovan\u00fdch_str\u00e1nek",
                     "EditWatchlist"
                 ]
             },
@@ -8102,11 +7768,7 @@
             {
                 "realname": "Newimages",
                 "aliases": [
-                    "Nov\u00e9_soubory",
-                    "Nov\u00e9_obr\u00e1zky",
-                    "Galerie_nov\u00fdch_obr\u00e1zk\u016f",
-                    "Nove_obrazky",
-                    "Nov\u00e9S\u00fabory",
+                    "\u041d\u043e\u0432\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
                     "NewFiles",
                     "NewImages"
                 ]
@@ -8114,11 +7776,7 @@
             {
                 "realname": "Log",
                 "aliases": [
-                    "Protokolovac\u00ed_z\u00e1znamy",
-                    "Protokoly",
-                    "Protokol",
-                    "Protokolovaci_zaznamy",
-                    "Z\u00e1znamy",
+                    "\u0416\u0443\u0440\u043d\u0430\u043b\u044b_\u043f\u0430\u0434\u0437\u0435\u044f\u045e",
                     "Log",
                     "Logs"
                 ]
@@ -8126,38 +7784,27 @@
             {
                 "realname": "Watchlist",
                 "aliases": [
-                    "Sledovan\u00e9_str\u00e1nky",
-                    "Sledovane_stranky",
-                    "ZoznamSledovan\u00fdch",
+                    "\u0421\u044c\u043f\u0456\u0441_\u043d\u0430\u0437\u0456\u0440\u0430\u043d\u044c\u043d\u044f",
                     "Watchlist"
                 ]
             },
             {
                 "realname": "Newpages",
                 "aliases": [
-                    "Nov\u00e9_str\u00e1nky",
-                    "Nove_stranky",
-                    "Nejnov\u011bj\u0161\u00ed_str\u00e1nky",
-                    "Nejnovejsi_stranky",
-                    "Nov\u00e9Str\u00e1nky",
+                    "\u041d\u043e\u0432\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "NewPages"
                 ]
             },
             {
                 "realname": "Recentchanges",
                 "aliases": [
-                    "Posledn\u00ed_zm\u011bny",
-                    "Posledni_zmeny",
-                    "Posledn\u00e9\u00dapravy",
+                    "\u0410\u043f\u043e\u0448\u043d\u0456\u044f_\u0437\u044c\u043c\u0435\u043d\u044b",
                     "RecentChanges"
                 ]
             },
             {
                 "realname": "Recentchangeslinked",
                 "aliases": [
-                    "Souvisej\u00edc\u00ed_zm\u011bny",
-                    "Souvisejici_zmeny",
-                    "S\u00favisiacePosledn\u00e9\u00dapravy",
                     "RecentChangesLinked",
                     "RelatedChanges"
                 ]
@@ -8165,18 +7812,13 @@
             {
                 "realname": "Tags",
                 "aliases": [
-                    "Zna\u010dky",
-                    "Znacky",
-                    "Zna\u010dky",
                     "Tags"
                 ]
             },
             {
                 "realname": "Listfiles",
                 "aliases": [
-                    "Seznam_soubor\u016f",
-                    "Seznam_souboru",
-                    "ZoznamS\u00faborov",
+                    "\u0421\u044c\u043f\u0456\u0441_\u0444\u0430\u0439\u043b\u0430\u045e",
                     "ListFiles",
                     "FileList",
                     "ImageList"
@@ -8185,45 +7827,32 @@
             {
                 "realname": "Filepath",
                 "aliases": [
-                    "Cesta_k_souboru",
-                    "CestaKS\u00faboru",
+                    "\u0428\u043b\u044f\u0445_\u0434\u0430_\u0444\u0430\u0439\u043b\u0430",
                     "FilePath"
                 ]
             },
             {
                 "realname": "MediaStatistics",
                 "aliases": [
-                    "Statistika_soubor\u016f",
-                    "Statistiky_soubor\u016f",
                     "MediaStatistics"
                 ]
             },
             {
                 "realname": "MIMEsearch",
                 "aliases": [
-                    "Hled\u00e1n\u00ed_podle_MIME",
-                    "Hledani_podle_MIME",
-                    "Hledat_podle_MIME_typu",
-                    "H\u013eadanieMIME",
                     "MIMESearch"
                 ]
             },
             {
                 "realname": "FileDuplicateSearch",
                 "aliases": [
-                    "Hled\u00e1n\u00ed_duplicitn\u00edch_soubor\u016f",
-                    "Hledani_duplicitnich_souboru",
-                    "H\u013eadanieDuplicitn\u00fdchS\u00faborov",
                     "FileDuplicateSearch"
                 ]
             },
             {
                 "realname": "Upload",
                 "aliases": [
-                    "Na\u010d\u00edst_soubor",
-                    "Nacist_soubor",
-                    "Na\u010d\u00edst_obr\u00e1zek",
-                    "NahranieS\u00faboru",
+                    "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
                     "Upload"
                 ]
             },
@@ -8236,7 +7865,6 @@
             {
                 "realname": "ListDuplicatedFiles",
                 "aliases": [
-                    "Seznam_duplicitn\u00edch_soubor\u016f",
                     "ListDuplicatedFiles",
                     "ListFileDuplicates"
                 ]
@@ -8244,16 +7872,13 @@
             {
                 "realname": "ApiSandbox",
                 "aliases": [
-                    "API_p\u00edskovi\u0161t\u011b",
                     "ApiSandbox"
                 ]
             },
             {
                 "realname": "Statistics",
                 "aliases": [
-                    "Statistika",
-                    "Statistiky",
-                    "\u0160tatistika",
+                    "\u0421\u0442\u0430\u0442\u044b\u0441\u0442\u044b\u043a\u0430",
                     "Statistics",
                     "Stats"
                 ]
@@ -8261,56 +7886,40 @@
             {
                 "realname": "Allmessages",
                 "aliases": [
-                    "V\u0161echna_hl\u00e1\u0161en\u00ed",
-                    "V\u0161echny_zpr\u00e1vy",
-                    "Vsechna_hlaseni",
-                    "Vsechny_zpravy",
-                    "V\u0161etkySpr\u00e1vy",
+                    "\u0421\u044b\u0441\u0442\u044d\u043c\u043d\u044b\u044f_\u043f\u0430\u0432\u0435\u0434\u0430\u043c\u043b\u0435\u043d\u044c\u043d\u0456",
                     "AllMessages"
                 ]
             },
             {
                 "realname": "Version",
                 "aliases": [
-                    "Verze",
-                    "Verzia",
+                    "\u0412\u044d\u0440\u0441\u0456\u044f",
                     "Version"
                 ]
             },
             {
                 "realname": "Lockdb",
                 "aliases": [
-                    "Zamknout_datab\u00e1zi",
-                    "Zamknout_databazi",
-                    "ZamknutieDB",
                     "LockDB"
                 ]
             },
             {
                 "realname": "Unlockdb",
                 "aliases": [
-                    "Odemknout_datab\u00e1zi",
-                    "Odemknout_databazi",
-                    "OdomknutieDB",
                     "UnlockDB"
                 ]
             },
             {
                 "realname": "LinkSearch",
                 "aliases": [
-                    "Hled\u00e1n\u00ed_odkaz\u016f",
-                    "Hledani_odkazu",
-                    "H\u013eadanieOdkazov",
+                    "\u041f\u043e\u0448\u0443\u043a_\u0432\u043e\u043d\u043a\u0430\u0432\u044b\u0445_\u0441\u043f\u0430\u0441\u044b\u043b\u0430\u043a",
                     "LinkSearch"
                 ]
             },
             {
                 "realname": "Randompage",
                 "aliases": [
-                    "N\u00e1hodn\u00e1_str\u00e1nka",
-                    "Nahodna_stranka",
-                    "N\u00e1hodn\u00e1",
-                    "N\u00e1hodn\u00e1Str\u00e1nka",
+                    "\u0412\u044b\u043f\u0430\u0434\u043a\u043e\u0432\u0430\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
                     "Random",
                     "RandomPage"
                 ]
@@ -8318,23 +7927,19 @@
             {
                 "realname": "RandomInCategory",
                 "aliases": [
-                    "N\u00e1hodn\u00e1_str\u00e1nka_v_kategorii",
                     "RandomInCategory"
                 ]
             },
             {
                 "realname": "Randomredirect",
                 "aliases": [
-                    "N\u00e1hodn\u00e9_p\u0159esm\u011brov\u00e1n\u00ed",
-                    "Nahodne_presmerovani",
-                    "N\u00e1hodn\u00e9Presmerovanie",
+                    "\u0412\u044b\u043f\u0430\u0434\u043a\u043e\u0432\u0430\u0435_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
                     "RandomRedirect"
                 ]
             },
             {
                 "realname": "Randomrootpage",
                 "aliases": [
-                    "N\u00e1hodn\u00e1_ko\u0159enov\u00e1_str\u00e1nka",
                     "RandomRootpage"
                 ]
             },
@@ -8347,9 +7952,6 @@
             {
                 "realname": "Mostlinkedcategories",
                 "aliases": [
-                    "Nejpou\u017e\u00edvan\u011bj\u0161\u00ed_kategorie",
-                    "Nejpouzivanejsi_kategorie",
-                    "Najodkazovanej\u0161ieKateg\u00f3rie",
                     "MostLinkedCategories",
                     "MostUsedCategories"
                 ]
@@ -8357,9 +7959,6 @@
             {
                 "realname": "Mostimages",
                 "aliases": [
-                    "Nejpou\u017e\u00edvan\u011bj\u0161\u00ed_soubory",
-                    "Nejpouzivanejsi_soubory",
-                    "Najodkazovanej\u0161ieS\u00fabory",
                     "MostLinkedFiles",
                     "MostFiles",
                     "MostImages"
@@ -8374,9 +7973,6 @@
             {
                 "realname": "Mostlinked",
                 "aliases": [
-                    "Nejodkazovan\u011bj\u0161\u00ed_str\u00e1nky",
-                    "Nejodkazovanejsi_stranky",
-                    "Najodkazovanej\u0161ieStr\u00e1nky",
                     "MostLinkedPages",
                     "MostLinked"
                 ]
@@ -8384,9 +7980,6 @@
             {
                 "realname": "Mostlinkedtemplates",
                 "aliases": [
-                    "Nejpou\u017e\u00edvan\u011bj\u0161\u00ed_\u0161ablony",
-                    "Nejpouzivanejsi_sablony",
-                    "Najodkazovanej\u0161ie\u0160abl\u00f3ny",
                     "MostTranscludedPages",
                     "MostLinkedTemplates",
                     "MostUsedTemplates"
@@ -8395,124 +7988,95 @@
             {
                 "realname": "Mostcategories",
                 "aliases": [
-                    "Str\u00e1nky_s_nejv\u00edce_kategoriemi",
-                    "Stranky_s_nejvice_kategoriemi",
-                    "Str\u00e1nky_s_nejvy\u0161\u0161\u00edm_po\u010dtem_kategori\u00ed",
-                    "NajviacKateg\u00f3ri\u00ed",
                     "MostCategories"
                 ]
             },
             {
                 "realname": "Mostrevisions",
                 "aliases": [
-                    "Str\u00e1nky_s_nejv\u00edce_editacemi",
-                    "Stranky_s_nejvice_editacemi",
-                    "Str\u00e1nky_s_nejvy\u0161\u0161\u00edm_po\u010dtem_editac\u00ed",
-                    "NajviacRev\u00edzi\u00ed",
                     "MostRevisions"
                 ]
             },
             {
                 "realname": "ComparePages",
                 "aliases": [
-                    "Porovn\u00e1n\u00ed_str\u00e1nek",
-                    "Porovn\u00e1n\u00edStr\u00e1nek",
-                    "Porovnani_stranek",
-                    "PorovnaniStranek",
                     "ComparePages"
                 ]
             },
             {
                 "realname": "Export",
                 "aliases": [
-                    "Exportovat_str\u00e1nky",
+                    "\u042d\u043a\u0441\u043f\u0430\u0440\u0442",
                     "Export"
                 ]
             },
             {
                 "realname": "Import",
                 "aliases": [
-                    "Importovat_str\u00e1nky",
+                    "\u0406\u043c\u043f\u0430\u0440\u0442",
                     "Import"
                 ]
             },
             {
                 "realname": "Undelete",
                 "aliases": [
-                    "Smazan\u00e9_str\u00e1nky",
-                    "Smazane_stranky",
-                    "Obnovenie",
                     "Undelete"
                 ]
             },
             {
                 "realname": "Whatlinkshere",
                 "aliases": [
-                    "Co_odkazuje_na",
-                    "Odkazuje_sem",
-                    "\u010coOdkazujeSem",
+                    "\u0421\u043f\u0430\u0441\u044b\u043b\u043a\u0456_\u043d\u0430_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0443",
                     "WhatLinksHere"
                 ]
             },
             {
                 "realname": "MergeHistory",
                 "aliases": [
-                    "Slou\u010den\u00ed_historie",
-                    "Slouceni_historie",
-                    "Slou\u010dit_historii",
-                    "Hist\u00f3riaZl\u00fa\u010den\u00ed",
+                    "\u0413\u0456\u0441\u0442\u043e\u0440\u044b\u044f_\u0430\u0431'\u044f\u0434\u043d\u0430\u043d\u044c\u043d\u044f\u045e",
                     "MergeHistory"
                 ]
             },
             {
                 "realname": "ExpandTemplates",
                 "aliases": [
-                    "Testy_\u0161ablon",
                     "ExpandTemplates"
                 ]
             },
             {
                 "realname": "Booksources",
                 "aliases": [
-                    "Zdroje_knih",
-                    "Kni\u017en\u00e9Zdroje",
                     "BookSources"
                 ]
             },
             {
                 "realname": "ApiHelp",
                 "aliases": [
-                    "N\u00e1pov\u011bda_k_API",
                     "ApiHelp"
                 ]
             },
             {
                 "realname": "Blankpage",
                 "aliases": [
-                    "Pr\u00e1zdn\u00e1_str\u00e1nka",
-                    "Pr\u00e1zdnaStr\u00e1nka",
                     "BlankPage"
                 ]
             },
             {
                 "realname": "Diff",
                 "aliases": [
-                    "Rozd\u00edl",
                     "Diff"
                 ]
             },
             {
                 "realname": "EditTags",
                 "aliases": [
-                    "Upravit_zna\u010dky",
                     "EditTags"
                 ]
             },
             {
                 "realname": "Emailuser",
                 "aliases": [
-                    "E-mail",
-                    "EmailPou\u017e\u00edvate\u013eovi",
+                    "\u0414\u0430\u0441\u043b\u0430\u0446\u044c_\u043b\u0456\u0441\u0442",
                     "EmailUser",
                     "Email"
                 ]
@@ -8520,54 +8084,39 @@
             {
                 "realname": "Movepage",
                 "aliases": [
-                    "P\u0159esunout_str\u00e1nku",
-                    "P\u0159ejmenovat_str\u00e1nku",
-                    "Presun\u00fa\u0165Str\u00e1nku",
                     "MovePage"
                 ]
             },
             {
                 "realname": "Mycontributions",
                 "aliases": [
-                    "Moje_p\u0159\u00edsp\u011bvky",
-                    "M\u00e9_p\u0159\u00edsp\u011bvky",
-                    "Me_prispevky",
-                    "MojePr\u00edspevky",
+                    "\u041c\u043e\u0439_\u0443\u043d\u0451\u0441\u0430\u043a",
                     "MyContributions"
                 ]
             },
             {
                 "realname": "MyLanguage",
                 "aliases": [
-                    "V_m\u00e9m_jazyce",
-                    "M\u016fj_jazyk",
                     "MyLanguage"
                 ]
             },
             {
                 "realname": "Mypage",
                 "aliases": [
-                    "Moje_str\u00e1nka",
-                    "Moje_stranka",
-                    "M\u00e1_str\u00e1nka",
-                    "MojaStr\u00e1nka",
+                    "\u041c\u0430\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
                     "MyPage"
                 ]
             },
             {
                 "realname": "Mytalk",
                 "aliases": [
-                    "Moje_diskuse",
-                    "M\u00e1_diskuse",
-                    "MojaDiskusia",
+                    "\u041c\u0430\u0435_\u0440\u0430\u0437\u043c\u043e\u0432\u044b",
                     "MyTalk"
                 ]
             },
             {
                 "realname": "Myuploads",
                 "aliases": [
-                    "Moje_soubory",
-                    "M\u00e9_soubory",
                     "MyUploads",
                     "MyFiles"
                 ]
@@ -8575,8 +8124,6 @@
             {
                 "realname": "AllMyUploads",
                 "aliases": [
-                    "V\u0161echny_moje_soubory",
-                    "V\u0161echny_m\u00e9_soubory",
                     "AllMyUploads",
                     "AllMyFiles"
                 ]
@@ -8584,7 +8131,6 @@
             {
                 "realname": "PermanentLink",
                 "aliases": [
-                    "Trval\u00fd_odkaz",
                     "PermanentLink",
                     "PermaLink"
                 ]
@@ -8592,16 +8138,12 @@
             {
                 "realname": "Redirect",
                 "aliases": [
-                    "P\u0159esm\u011brov\u00e1n\u00ed",
-                    "P\u0159esm\u011brovat",
                     "Redirect"
                 ]
             },
             {
                 "realname": "Revisiondelete",
                 "aliases": [
-                    "Smazat_revizi",
-                    "Zmaza\u0165Rev\u00edziu",
                     "RevisionDelete"
                 ]
             },
@@ -8614,9 +8156,7 @@
             {
                 "realname": "Specialpages",
                 "aliases": [
-                    "Speci\u00e1ln\u00ed_str\u00e1nky",
-                    "Specialni_stranky",
-                    "\u0160peci\u00e1lneStr\u00e1nky",
+                    "\u0421\u043f\u044d\u0446\u044b\u044f\u043b\u044c\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
                     "SpecialPages"
                 ]
             },
@@ -8629,55 +8169,43 @@
             {
                 "realname": "Search",
                 "aliases": [
-                    "Hled\u00e1n\u00ed",
-                    "Hledani",
-                    "H\u013eadanie",
+                    "\u041f\u043e\u0448\u0443\u043a",
                     "Search"
                 ]
             },
             {
                 "realname": "Confirmemail",
                 "aliases": [
-                    "Potvrdit_e-mail",
-                    "Potvrdi\u0165Email",
                     "ConfirmEmail"
                 ]
             },
             {
                 "realname": "Invalidateemail",
                 "aliases": [
-                    "Zneplatnit_e-mail",
-                    "Zru\u0161it_potvrzen\u00ed_e-mailu",
-                    "Zneplatni\u0165Email",
                     "InvalidateEmail"
                 ]
             },
             {
                 "realname": "ChangeEmail",
                 "aliases": [
-                    "Zm\u011bna_emailu",
-                    "Zmena_emailu",
                     "ChangeEmail"
                 ]
             },
             {
                 "realname": "ChangeContentModel",
                 "aliases": [
-                    "Zm\u011bnit_model_obsahu_str\u00e1nky",
                     "ChangeContentModel"
                 ]
             },
             {
                 "realname": "Hieroglyphs",
                 "aliases": [
-                    "Hieroglyfy",
                     "Hieroglyphs"
                 ]
             },
             {
                 "realname": "SiteMatrix",
                 "aliases": [
-                    "MaticaLokal\u00edt",
                     "SiteMatrix",
                     "WikimediaWikis"
                 ]
@@ -8685,8 +8213,6 @@
             {
                 "realname": "CiteThisPage",
                 "aliases": [
-                    "Citovat",
-                    "Citova\u0165",
                     "CiteThisPage",
                     "Cite"
                 ]
@@ -8694,16 +8220,13 @@
             {
                 "realname": "CategoryTree",
                 "aliases": [
-                    "Strom_kategori\u00ed",
-                    "StromKateg\u00f3ri\u00ed",
+                    "\u0414\u0440\u044d\u0432\u0430_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u044f\u045e",
                     "CategoryTree"
                 ]
             },
             {
                 "realname": "Gadgets",
                 "aliases": [
-                    "Ud\u011bl\u00e1tka",
-                    "Hra\u010dky",
                     "Gadgets"
                 ]
             },
@@ -8746,24 +8269,20 @@
             {
                 "realname": "GlobalBlock",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_blokov\u00e1n\u00ed",
-                    "Glob\u00e1lneBlokovanie",
+                    "\u0413\u043b\u044f\u0431\u0430\u043b\u044c\u043d\u0430\u0435_\u0431\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
                     "GlobalBlock"
                 ]
             },
             {
                 "realname": "GlobalBlockList",
                 "aliases": [
-                    "Seznam_glob\u00e1ln\u00edch_blokov\u00e1n\u00ed",
-                    "ZoznamGlob\u00e1lnehoBlokovania",
+                    "\u0421\u044c\u043f\u0456\u0441_\u0433\u043b\u044f\u0431\u0430\u043b\u044c\u043d\u044b\u0445_\u0431\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u044f\u045e",
                     "GlobalBlockList"
                 ]
             },
             {
                 "realname": "GlobalBlockStatus",
                 "aliases": [
-                    "V\u00fdjimky_z_glob\u00e1ln\u00edch_blokov\u00e1n\u00ed",
-                    "BielaListinaGlob\u00e1lnehoBlokovania",
                     "GlobalBlockWhitelist",
                     "GlobalBlockStatus",
                     "DisableGlobalBlock"
@@ -8772,8 +8291,6 @@
             {
                 "realname": "RemoveGlobalBlock",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_odblokov\u00e1n\u00ed",
-                    "Glob\u00e1lneOdblokovanie",
                     "GlobalUnblock",
                     "RemoveGlobalBlock"
                 ]
@@ -8781,26 +8298,19 @@
             {
                 "realname": "SecurePoll",
                 "aliases": [
-                    "Bezpe\u010dn\u00e9_hlasov\u00e1n\u00ed",
-                    "Bezpe\u010dn\u00e9Hlasovanie",
                     "SecurePoll"
                 ]
             },
             {
                 "realname": "Renameuser",
                 "aliases": [
-                    "P\u0159ejmenovat_u\u017eivatele",
-                    "Premenova\u0165Pou\u017e\u00edvate\u013ea",
                     "RenameUser"
                 ]
             },
             {
                 "realname": "Nuke",
                 "aliases": [
-                    "Hromadn\u00e9_maz\u00e1n\u00ed",
-                    "Zni\u010dit",
-                    "Zni\u010den\u00ed",
-                    "Zni\u010denie",
+                    "\u041c\u0430\u0441\u0430\u0432\u0430\u0435_\u0432\u044b\u0434\u0430\u043b\u0435\u043d\u044c\u043d\u0435",
                     "Nuke"
                 ]
             },
@@ -8813,8 +8323,6 @@
             {
                 "realname": "CentralAuth",
                 "aliases": [
-                    "Centr\u00e1ln\u00ed_ov\u011b\u0159en\u00ed",
-                    "Centr\u00e1lneOverenie",
                     "CentralAuth",
                     "GlobalAccount"
                 ]
@@ -8834,16 +8342,12 @@
             {
                 "realname": "MergeAccount",
                 "aliases": [
-                    "Slou\u010den\u00ed_\u00fa\u010dt\u016f",
-                    "Zl\u00fa\u010denie\u00da\u010dtov",
                     "MergeAccount"
                 ]
             },
             {
                 "realname": "GlobalGroupMembership",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_pr\u00e1va_u\u017eivatele",
-                    "Glob\u00e1lnePr\u00e1vaPou\u017e\u00edvate\u013ea",
                     "GlobalUserRights",
                     "GlobalGroupMembership"
                 ]
@@ -8851,16 +8355,12 @@
             {
                 "realname": "GlobalGroupPermissions",
                 "aliases": [
-                    "Pr\u00e1va_glob\u00e1ln\u00edch_skupin",
-                    "Glob\u00e1lneSkupinov\u00e9Opr\u00e1vnenia",
                     "GlobalGroupPermissions"
                 ]
             },
             {
                 "realname": "WikiSets",
                 "aliases": [
-                    "Sady_wiki",
-                    "Upravi\u0165WikiMno\u017einy",
                     "WikiSets",
                     "EditWikiSets"
                 ]
@@ -8868,36 +8368,30 @@
             {
                 "realname": "GlobalUsers",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_u\u017eivatel\u00e9",
-                    "Glob\u00e1lniPou\u017e\u00edvatelia",
                     "GlobalUsers"
                 ]
             },
             {
                 "realname": "MultiLock",
                 "aliases": [
-                    "Hromadn\u00e9_zamknut\u00ed",
                     "MultiLock"
                 ]
             },
             {
                 "realname": "GlobalRenameUser",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_p\u0159ejmenov\u00e1n\u00ed_u\u017eivatele",
                     "GlobalRenameUser"
                 ]
             },
             {
                 "realname": "GlobalRenameProgress",
                 "aliases": [
-                    "Pr\u016fb\u011bh_glob\u00e1ln\u00edho_p\u0159ejmenov\u00e1n\u00ed",
                     "GlobalRenameProgress"
                 ]
             },
             {
                 "realname": "GlobalUserMerge",
                 "aliases": [
-                    "Slou\u010den\u00ed_glob\u00e1ln\u00edho_u\u017eivatele",
                     "GlobalUserMerge"
                 ]
             },
@@ -8938,6 +8432,19 @@
                 ]
             },
             {
+                "realname": "Book",
+                "aliases": [
+                    "Book",
+                    "Collection"
+                ]
+            },
+            {
+                "realname": "RenderBook",
+                "aliases": [
+                    "RenderBook"
+                ]
+            },
+            {
                 "realname": "ElectronPdf",
                 "aliases": [
                     "ElectronPdf"
@@ -8946,16 +8453,12 @@
             {
                 "realname": "AbuseLog",
                 "aliases": [
-                    "Z\u00e1znam_filtr\u016f_zneu\u017eit\u00ed",
-                    "Z\u00e1znamZneu\u017eit\u00ed",
                     "AbuseLog"
                 ]
             },
             {
                 "realname": "AbuseFilter",
                 "aliases": [
-                    "Filtry_zneu\u017eit\u00ed",
-                    "FilterZneu\u017eit\u00ed",
                     "AbuseFilter"
                 ]
             },
@@ -8980,28 +8483,24 @@
             {
                 "realname": "GlobalUsage",
                 "aliases": [
-                    "Glob\u00e1lneVyu\u017eitie",
                     "GlobalUsage"
                 ]
             },
             {
                 "realname": "MassMessage",
                 "aliases": [
-                    "Hromadn\u00e1_zpr\u00e1va",
                     "MassMessage"
                 ]
             },
             {
                 "realname": "CreateMassMessageList",
                 "aliases": [
-                    "Vytvo\u0159it_distribu\u010dn\u00ed_seznam_pro_hromadn\u00e9_zpr\u00e1vy",
                     "CreateMassMessageList"
                 ]
             },
             {
                 "realname": "EditMassMessageList",
                 "aliases": [
-                    "Editovat_distribu\u010dn\u00ed_seznam_pro_hromadn\u00e9_zpr\u00e1vy",
                     "EditMassMessageList"
                 ]
             },
@@ -9014,7 +8513,6 @@
             {
                 "realname": "LintErrors",
                 "aliases": [
-                    "Chyby_nalezen\u00e9_lintem",
                     "LintErrors"
                 ]
             },
@@ -9028,49 +8526,42 @@
             {
                 "realname": "History",
                 "aliases": [
-                    "Historie",
                     "History"
                 ]
             },
             {
                 "realname": "MobileCite",
                 "aliases": [
-                    "Mobiln\u00ed_citace",
                     "MobileCite"
                 ]
             },
             {
                 "realname": "MobileDiff",
                 "aliases": [
-                    "Mobiln\u00ed_rozd\u00edl",
                     "MobileDiff"
                 ]
             },
             {
                 "realname": "MobileOptions",
                 "aliases": [
-                    "Mobiln\u00ed_nastaven\u00ed",
                     "MobileOptions"
                 ]
             },
             {
                 "realname": "MobileMenu",
                 "aliases": [
-                    "Mobiln\u00ed_menu",
                     "MobileMenu"
                 ]
             },
             {
                 "realname": "MobileLanguages",
                 "aliases": [
-                    "Mobiln\u00ed_jazyky",
                     "MobileLanguages"
                 ]
             },
             {
                 "realname": "Uploads",
                 "aliases": [
-                    "Va\u0161e_soubory",
                     "Uploads"
                 ]
             },
@@ -9113,7 +8604,6 @@
             {
                 "realname": "Notifications",
                 "aliases": [
-                    "Upozorn\u011bn\u00ed",
                     "Notifications"
                 ]
             },
@@ -9136,30 +8626,14 @@
                 ]
             },
             {
-                "realname": "StructuredDiscussions",
-                "aliases": [
-                    "StructuredDiscussions",
-                    "Flow"
-                ]
-            },
-            {
-                "realname": "EnableStructuredDiscussions",
-                "aliases": [
-                    "EnableStructuredDiscussions",
-                    "EnableFlow"
-                ]
-            },
-            {
                 "realname": "DisambiguationPages",
                 "aliases": [
-                    "Rozcestn\u00edky",
                     "DisambiguationPages"
                 ]
             },
             {
                 "realname": "DisambiguationPageLinks",
                 "aliases": [
-                    "Odkazy_na_rozcestn\u00edky",
                     "DisambiguationPageLinks"
                 ]
             },
@@ -9172,7 +8646,6 @@
             {
                 "realname": "UserMerge",
                 "aliases": [
-                    "Zl\u00fa\u010deniePou\u017e\u00edvate\u013eov",
                     "UserMerge"
                 ]
             },
@@ -9218,7 +8691,6 @@
             {
                 "realname": "OAuthManageMyGrants",
                 "aliases": [
-                    "Spr\u00e1va_p\u0159ipojen\u00fdch_aplikac\u00ed",
                     "OAuthManageMyGrants",
                     "OAuthGrants"
                 ]
@@ -9226,14 +8698,12 @@
             {
                 "realname": "OAuthListConsumers",
                 "aliases": [
-                    "Seznam_aplikac\u00ed_OAuth",
                     "OAuthListConsumers"
                 ]
             },
             {
                 "realname": "OATH",
                 "aliases": [
-                    "Dvoufaktorov\u00e9_ov\u011b\u0159en\u00ed",
                     "Two-factor_authentication",
                     "OATH",
                     "OATHAuth"
@@ -9246,23 +8716,14 @@
                 ]
             },
             {
-                "realname": "ORESModels",
-                "aliases": [
-                    "ORESModels"
-                ]
-            },
-            {
                 "realname": "CheckUser",
                 "aliases": [
-                    "Zkontrolovat_u\u017eivatele",
-                    "Skontrolova\u0165Pou\u017e\u00edvate\u013ea",
                     "CheckUser"
                 ]
             },
             {
                 "realname": "CheckUserLog",
                 "aliases": [
-                    "Protokolovac\u00ed_z\u00e1znamy_kontrol_u\u017eivatele",
                     "CheckUserLog"
                 ]
             },
@@ -9281,31 +8742,12 @@
             {
                 "realname": "GlobalPreferences",
                 "aliases": [
-                    "Glob\u00e1ln\u00ed_nastaven\u00ed",
                     "GlobalPreferences"
-                ]
-            },
-            {
-                "realname": "Book",
-                "aliases": [
-                    "Kniha",
-                    "Kolekce",
-                    "Knihy",
-                    "Kolekcia",
-                    "Book",
-                    "Collection"
-                ]
-            },
-            {
-                "realname": "RenderBook",
-                "aliases": [
-                    "RenderBook"
                 ]
             },
             {
                 "realname": "UnconnectedPages",
                 "aliases": [
-                    "Nepropojen\u00e9_str\u00e1nky",
                     "UnconnectedPages",
                     "WithoutConnection",
                     "WithoutSitelinks"
@@ -9314,7 +8756,6 @@
             {
                 "realname": "PagesWithBadges",
                 "aliases": [
-                    "Str\u00e1nky_s_odznaky",
                     "PagesWithBadges",
                     "QueryBadges"
                 ]
@@ -9322,7 +8763,6 @@
             {
                 "realname": "EntityUsage",
                 "aliases": [
-                    "Pou\u017eit\u00ed_entity",
                     "EntityUsage",
                     "EntityUsageData"
                 ]
@@ -9330,30 +8770,19 @@
             {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
-                    "\u017d\u00e1dost_o_glob\u00e1ln\u00ed_p\u0159ejmenov\u00e1n\u00ed",
                     "GlobalRenameRequest"
                 ]
             },
             {
                 "realname": "GlobalRenameQueue",
                 "aliases": [
-                    "Fronta_glob\u00e1ln\u00edch_p\u0159ejmenov\u00e1n\u00ed",
                     "GlobalRenameQueue"
                 ]
             },
             {
                 "realname": "Nearby",
                 "aliases": [
-                    "Pobl\u00ed\u017e",
                     "Nearby"
-                ]
-            },
-            {
-                "realname": "WelcomeSurvey",
-                "aliases": [
-                    "Uv\u00edtac\u00ed_dotazn\u00edk",
-                    "Uvitaci_dotaznik",
-                    "WelcomeSurvey"
                 ]
             }
         ],
@@ -9383,6 +8812,187 @@
             "<graph>",
             "<maplink>",
             "<mapframe>"
+        ],
+        "functionhooks": [
+            "ns",
+            "nse",
+            "urlencode",
+            "lcfirst",
+            "ucfirst",
+            "lc",
+            "uc",
+            "localurl",
+            "localurle",
+            "fullurl",
+            "fullurle",
+            "canonicalurl",
+            "canonicalurle",
+            "formatnum",
+            "grammar",
+            "gender",
+            "plural",
+            "bidi",
+            "numberofpages",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofadmins",
+            "numberingroup",
+            "numberofedits",
+            "language",
+            "padleft",
+            "padright",
+            "anchorencode",
+            "defaultsort",
+            "filepath",
+            "pagesincategory",
+            "pagesize",
+            "protectionlevel",
+            "protectionexpiry",
+            "namespacee",
+            "namespacenumber",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "subpagename",
+            "subpagenamee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "pageid",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "cascadingsources",
+            "namespace",
+            "int",
+            "special",
+            "speciale",
+            "tag",
+            "formatdate",
+            "displaytitle",
+            "noexternallanglinks",
+            "property",
+            "statements",
+            "if",
+            "ifeq",
+            "switch",
+            "ifexist",
+            "ifexpr",
+            "iferror",
+            "time",
+            "timel",
+            "expr",
+            "rel2abs",
+            "titleparts",
+            "categorytree",
+            "lst",
+            "lstx",
+            "lsth",
+            "target",
+            "babel",
+            "coordinates",
+            "invoke",
+            "related"
+        ],
+        "variables": [
+            "!",
+            "currentmonth",
+            "currentmonth1",
+            "currentmonthname",
+            "currentmonthnamegen",
+            "currentmonthabbrev",
+            "currentday",
+            "currentday2",
+            "currentdayname",
+            "currentyear",
+            "currenttime",
+            "currenthour",
+            "localmonth",
+            "localmonth1",
+            "localmonthname",
+            "localmonthnamegen",
+            "localmonthabbrev",
+            "localday",
+            "localday2",
+            "localdayname",
+            "localyear",
+            "localtime",
+            "localhour",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofedits",
+            "articlepath",
+            "pageid",
+            "sitename",
+            "server",
+            "servername",
+            "scriptpath",
+            "stylepath",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "namespace",
+            "namespacee",
+            "namespacenumber",
+            "currentweek",
+            "currentdow",
+            "localweek",
+            "localdow",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "revisionsize",
+            "subpagename",
+            "subpagenamee",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofpages",
+            "currentversion",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "currenttimestamp",
+            "localtimestamp",
+            "directionmark",
+            "contentlanguage",
+            "pagelanguage",
+            "numberofadmins",
+            "cascadingsources",
+            "noexternallanglinks",
+            "wbreponame",
+            "numberofwikis"
         ]
     }
 }

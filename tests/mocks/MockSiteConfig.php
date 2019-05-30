@@ -313,4 +313,14 @@ class MockSiteConfig extends SiteConfig {
 	public function scrubBidiChars(): bool {
 		return true;
 	}
+
+	/** @inheritDoc */
+	public function getMagicWordForFunctionHook( string $str ): ?string {
+		return null;
+	}
+
+	/** @inheritDoc */
+	public function getMagicWordForVariable( string $str ): ?string {
+		return null;
+	}
 }

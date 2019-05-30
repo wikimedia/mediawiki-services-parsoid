@@ -19,6 +19,7 @@ use Parsoid\Wt2Html\TT\IncludeOnly;
 use Parsoid\Wt2Html\TT\OnlyInclude;
 use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Wt2Html\TT\TokenStreamPatcher;
+use Parsoid\Wt2Html\TT\TemplateHandler;
 
 // use Parsoid\Wt2Html\TT\AttributeExpander;
 // use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
@@ -123,6 +124,10 @@ switch ( $transformerName ) {
 	case 'TokenStreamPatcher':
 		$transformer = new TokenStreamPatcher( $manager, $pipelineOpts );
 		break;
+	case 'TemplateHandler':
+		$jsAsync = true;
+		$transformer = new TemplateHandler( $manager, $pipelineOpts );
+		break;
 	/*
 	case 'AttributeExpander':
 		$jsAsync = true;
@@ -144,10 +149,6 @@ switch ( $transformerName ) {
 		$jsAsync = true;
 		$transformer = new LanguageVariantHandler( $manager, $pipelineOpts );
 		break;
-	case 'TemplateHandler':
-		$jsAsync = true;
-		$transformer = new TemplateHandler( $manager, $pipelineOpts );
-		break;
 	case 'WikiLinkHandler':
 		$jsAsync = true;
 		$transformer = new WikiLinkHandler( $manager, $pipelineOpts );
@@ -158,14 +159,11 @@ switch ( $transformerName ) {
 }
 
 if ( $jsAsync ) {
-	throw new \Exception( "Should not get here!!" );
-	/*
 	$manager->setFrame( null, null, [] );
 	$transformer->resetState( $opts );
 	$handler = $argv[3];
 	$ret = call_user_func( [ $transformer, $handler ], $tokens[0] );
 	$tokens = $ret['tokens'];
-	*/
 } else {
 	/**
 	 * Transform the input tokens to output tokens

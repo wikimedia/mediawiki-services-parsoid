@@ -695,9 +695,17 @@ abstract class SiteConfig {
 		return null;
 	}
 
-}
+	/**
+	 * Return canonical magic word for a function hook
+	 * @param string $str
+	 * @return string|null
+	 */
+	abstract public function getMagicWordForFunctionHook( string $str ): ?string;
 
-/**
- * For really cool vim folding this needs to be at the end:
- * vim: foldmarker=@{,@} foldmethod=marker
- */
+	/**
+	 * Return canonical magic word for a variable
+	 * @param string $str
+	 * @return string|null
+	 */
+	abstract public function getMagicWordForVariable( string $str ): ?string;
+}

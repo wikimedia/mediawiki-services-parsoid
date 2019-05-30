@@ -49,6 +49,7 @@ class SiteConfig extends ISiteConfig {
 	/** @var array|null */
 	private $interwikiMap, $variants,
 		$langConverterEnabled, $magicWords, $mwAliases, $paramMWs,
+		$variables, $functionHooks,
 		$allMWs, $extensionTags;
 
 	/** @var int|null */
@@ -157,7 +158,8 @@ class SiteConfig extends ISiteConfig {
 			'action' => 'query',
 			'meta' => 'siteinfo',
 			'siprop' => 'general|protocols|namespaces|namespacealiases|magicwords|interwikimap|'
-				. 'languagevariants|defaultoptions|specialpagealiases|extensiontags',
+				. 'languagevariants|defaultoptions|specialpagealiases|extensiontags|'
+				. 'functionhooks|variables',
 		] )['query'];
 
 		$this->siteData = $data['general'];
@@ -179,12 +181,38 @@ class SiteConfig extends ISiteConfig {
 			$this->nsIds[$this->normalizeNsName( $ns['alias'] )] = $ns['id'];
 		}
 
+		// FIXME: Export this from CoreParserFunctions::register, maybe?
+		$noHashFunctions = PHPUtils::makeSet( [
+			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
+			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
+			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
+			'numberofpages', 'numberofusers', 'numberofactiveusers',
+			'numberofarticles', 'numberoffiles', 'numberofadmins',
+			'numberingroup', 'numberofedits', 'language',
+			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
+			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
+			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
+			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
+			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
+			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
+			'talkpagename', 'talkpagenamee', 'subjectpagename',
+			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
+			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
+			'revisiontimestamp', 'revisionuser', 'cascadingsources',
+			// Special callbacks in core
+			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
+		] );
+
 		// Process magic word data from API
 		$bsws = [];
 		$this->magicWords = [];
 		$this->mwAliases = [];
 		$this->paramMWs = [];
 		$this->allMWs = [];
+		$this->variables = [];
+		$this->functionHooks = [];
+		$variablesMap = PHPUtils::makeSet( $data['variables'] );
+		$functionHooksMap = PHPUtils::makeSet( $data['functionhooks'] );
 		foreach ( $data['magicwords'] as $mw ) {
 			$cs = (int)$mw['case-sensitive'];
 			$pmws = [];
@@ -198,10 +226,26 @@ class SiteConfig extends ISiteConfig {
 				}
 				$allMWs[$cs][] = preg_quote( $alias, '/' );
 
-				$this->mwAliases[$mw['name']][] = $alias;
+				$mwName = $mw['name'];
+				$this->mwAliases[$mwName][] = $alias;
 				if ( !$cs ) {
 					$alias = mb_strtolower( $alias );
-					$this->mwAliases[$mw['name']][] = $alias;
+					$this->mwAliases[$mwName][] = $alias;
+				}
+
+				if ( isset( $variablesMap[$mwName] ) ) {
+					$this->variables[$alias] = $mwName;
+				}
+				// See Parser::setFunctionHook
+				if ( isset( $functionHooksMap[$mwName] ) ) {
+					$falias = $alias;
+					if ( substr( $falias, -1 ) === ':' ) {
+						$falias = substr( $falias, 0, -1 );
+					}
+					if ( !isset( $noHashFunctions[$mwName] ) ) {
+						$falias = '#' . $falias;
+					}
+					$this->functionHooks[$falias] = $mwName;
 				}
 
 				$this->magicWords[$alias] = $mw['name'];
@@ -682,4 +726,13 @@ class SiteConfig extends ISiteConfig {
 		return (bool)preg_match( $regex, $potentialLink );
 	}
 
+	/** @inheritDoc */
+	public function getMagicWordForFunctionHook( string $str ): ?string {
+		return $this->functionHooks[$str] ?? null;
+	}
+
+	/** @inheritDoc */
+	public function getMagicWordForVariable( string $str ): ?string {
+		return $this->variables[$str] ?? null;
+	}
 }

@@ -34,6 +34,7 @@ class TokenStreamPatcher extends TokenHandler {
 	private $tokenBuf;
 	private $wikiTableNesting;
 	private $lastConvertedTableCellToken;
+	private $templateHandler;
 
 	/**
 	 * TokenStreamPatcher constructor.
@@ -44,6 +45,7 @@ class TokenStreamPatcher extends TokenHandler {
 		$newOptions = array_merge( $options, [ 'tsp' => true ] );
 		parent::__construct( $manager, $newOptions );
 		$this->tokenizer = new PegTokenizer( $this->env );
+		$this->templateHandler = new TemplateHandler( $manager, $options );
 		$this->reset();
 	}
 
@@ -135,11 +137,12 @@ class TokenStreamPatcher extends TokenHandler {
 				// All of these need uniform handling. To be addressed separately
 				// if this proves to be a real problem on production pages.
 				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'template' ) {
-					// $t = call_user_func( [ TemplateHandler::prototype, 'processSpecialMagicWord' ], $t ) || $t;
-					// PORT_FIXME special magic word function not ported yet
+					$t = $this->templateHandler->processSpecialMagicWord( $this->atTopLevel, $t ) ?? [ $t ];
 					$temp = false;
+				} else {
+					$t = [ $t ];
 				}
-				$ret = array_merge( $ret, [ $t ] );
+				$ret = array_merge( $ret, $t );
 			}
 			return $ret;
 		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {

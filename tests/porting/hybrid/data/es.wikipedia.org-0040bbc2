@@ -1,18 +1,18 @@
 {
-    "__endpoint__": "https://ar.wikipedia.org/w/api.php",
+    "__endpoint__": "https://es.wikipedia.org/w/api.php",
     "__params__": {
         "action": "query",
         "meta": "siteinfo",
-        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags"
+        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags|functionhooks|variables"
     },
     "batchcomplete": true,
     "query": {
         "general": {
-            "mainpage": "\u0627\u0644\u0635\u0641\u062d\u0629 \u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629",
-            "base": "https://ar.wikipedia.org/wiki/%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A9_%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A%D8%A9",
-            "sitename": "\u0648\u064a\u0643\u064a\u0628\u064a\u062f\u064a\u0627",
-            "logo": "//ar.wikipedia.org/static/images/project-logos/arwiki.png",
-            "generator": "MediaWiki 1.34.0-wmf.1",
+            "mainpage": "Wikipedia:Portada",
+            "base": "https://es.wikipedia.org/wiki/Wikipedia:Portada",
+            "sitename": "Wikipedia",
+            "logo": "//es.wikipedia.org/static/images/project-logos/eswiki.png",
+            "generator": "MediaWiki 1.34.0-wmf.8",
             "phpversion": "5.6.99-hhvm",
             "phpsapi": "srv",
             "hhvmversion": "3.18.6-dev",
@@ -21,25 +21,25 @@
             "imagewhitelistenabled": false,
             "langconversion": true,
             "titleconversion": true,
-            "linkprefixcharset": "a-zA-Z\\x{80}-\\x{10ffff}",
-            "linkprefix": "/^((?>.*[^a-zA-Z\\x{80}-\\x{10ffff}]|))(.+)$/sDu",
-            "linktrail": "/^([a-z\u0621-\u064a]+)(.*)$/sDu",
+            "linkprefixcharset": "",
+            "linkprefix": "",
+            "linktrail": "/^([a-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:",
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "d50b699badeb67c95e04740f22100ca9d77cac29",
-            "git-branch": "wmf/1.34.0-wmf.1",
+            "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
+            "git-branch": "wmf/1.34.0-wmf.8",
             "case": "first-letter",
-            "lang": "ar",
+            "lang": "es",
             "fallback": [
                 {
                     "code": "en"
                 }
             ],
-            "rtl": true,
-            "fallback8bitEncoding": "windows-1256",
+            "rtl": false,
+            "fallback8bitEncoding": "windows-1252",
             "readonly": false,
             "writeapi": true,
             "maxarticlesize": 2097152,
@@ -49,12 +49,12 @@
             "scriptpath": "/w",
             "script": "/w/index.php",
             "variantarticlepath": false,
-            "server": "//ar.wikipedia.org",
-            "servername": "ar.wikipedia.org",
-            "wikiid": "arwiki",
-            "time": "2019-04-30T16:58:59Z",
+            "server": "//es.wikipedia.org",
+            "servername": "es.wikipedia.org",
+            "wikiid": "eswiki",
+            "time": "2019-06-06T20:37:45Z",
             "misermode": true,
-            "uploadsenabled": true,
+            "uploadsenabled": false,
             "maxuploadsize": 4294967296,
             "minuploadchunksize": 1024,
             "galleryoptions": {
@@ -98,7 +98,7 @@
                     "height": 1024
                 }
             ],
-            "favicon": "//ar.wikipedia.org/static/favicon/wikipedia.ico",
+            "favicon": "//es.wikipedia.org/static/favicon/wikipedia.ico",
             "centralidlookupprovider": "CentralAuth",
             "allcentralidlookupproviders": [
                 "CentralAuth",
@@ -110,7 +110,7 @@
                 "PMID": true,
                 "RFC": true
             },
-            "categorycollation": "uppercase",
+            "categorycollation": "uca-es-u-kn",
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
                 "wmfEtcdLastModifiedIndex": 3672,
@@ -143,7 +143,7 @@
                     "stripped-tag"
                 ]
             },
-            "mobileserver": "https://ar.m.wikipedia.org",
+            "mobileserver": "https://es.m.wikipedia.org",
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -198,7 +198,7 @@
             "-2": {
                 "id": -2,
                 "case": "first-letter",
-                "name": "\u0645\u064a\u062f\u064a\u0627",
+                "name": "Medio",
                 "subpages": false,
                 "canonical": "Media",
                 "content": false,
@@ -207,7 +207,7 @@
             "-1": {
                 "id": -1,
                 "case": "first-letter",
-                "name": "\u062e\u0627\u0635",
+                "name": "Especial",
                 "subpages": false,
                 "canonical": "Special",
                 "content": false,
@@ -224,7 +224,7 @@
             "1": {
                 "id": 1,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634",
+                "name": "Discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Talk",
                 "content": false,
@@ -233,7 +233,7 @@
             "2": {
                 "id": 2,
                 "case": "first-letter",
-                "name": "\u0645\u0633\u062a\u062e\u062f\u0645",
+                "name": "Usuario",
                 "subpages": true,
                 "canonical": "User",
                 "content": false,
@@ -242,7 +242,7 @@
             "3": {
                 "id": 3,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+                "name": "Usuario discusi\u00f3n",
                 "subpages": true,
                 "canonical": "User talk",
                 "content": false,
@@ -251,7 +251,7 @@
             "4": {
                 "id": 4,
                 "case": "first-letter",
-                "name": "\u0648\u064a\u0643\u064a\u0628\u064a\u062f\u064a\u0627",
+                "name": "Wikipedia",
                 "subpages": true,
                 "canonical": "Project",
                 "content": false,
@@ -260,7 +260,7 @@
             "5": {
                 "id": 5,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0648\u064a\u0643\u064a\u0628\u064a\u062f\u064a\u0627",
+                "name": "Wikipedia discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Project talk",
                 "content": false,
@@ -269,7 +269,7 @@
             "6": {
                 "id": 6,
                 "case": "first-letter",
-                "name": "\u0645\u0644\u0641",
+                "name": "Archivo",
                 "subpages": false,
                 "canonical": "File",
                 "content": false,
@@ -278,7 +278,7 @@
             "7": {
                 "id": 7,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0645\u0644\u0641",
+                "name": "Archivo discusi\u00f3n",
                 "subpages": true,
                 "canonical": "File talk",
                 "content": false,
@@ -287,8 +287,8 @@
             "8": {
                 "id": 8,
                 "case": "first-letter",
-                "name": "\u0645\u064a\u062f\u064a\u0627\u0648\u064a\u0643\u064a",
-                "subpages": true,
+                "name": "MediaWiki",
+                "subpages": false,
                 "canonical": "MediaWiki",
                 "content": false,
                 "nonincludable": false
@@ -296,7 +296,7 @@
             "9": {
                 "id": 9,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0645\u064a\u062f\u064a\u0627\u0648\u064a\u0643\u064a",
+                "name": "MediaWiki discusi\u00f3n",
                 "subpages": true,
                 "canonical": "MediaWiki talk",
                 "content": false,
@@ -305,7 +305,7 @@
             "10": {
                 "id": 10,
                 "case": "first-letter",
-                "name": "\u0642\u0627\u0644\u0628",
+                "name": "Plantilla",
                 "subpages": true,
                 "canonical": "Template",
                 "content": false,
@@ -314,7 +314,7 @@
             "11": {
                 "id": 11,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0642\u0627\u0644\u0628",
+                "name": "Plantilla discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Template talk",
                 "content": false,
@@ -323,7 +323,7 @@
             "12": {
                 "id": 12,
                 "case": "first-letter",
-                "name": "\u0645\u0633\u0627\u0639\u062f\u0629",
+                "name": "Ayuda",
                 "subpages": true,
                 "canonical": "Help",
                 "content": false,
@@ -332,7 +332,7 @@
             "13": {
                 "id": 13,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629",
+                "name": "Ayuda discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Help talk",
                 "content": false,
@@ -341,7 +341,7 @@
             "14": {
                 "id": 14,
                 "case": "first-letter",
-                "name": "\u062a\u0635\u0646\u064a\u0641",
+                "name": "Categor\u00eda",
                 "subpages": true,
                 "canonical": "Category",
                 "content": false,
@@ -350,7 +350,7 @@
             "15": {
                 "id": 15,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u062a\u0635\u0646\u064a\u0641",
+                "name": "Categor\u00eda discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Category talk",
                 "content": false,
@@ -359,25 +359,79 @@
             "100": {
                 "id": 100,
                 "case": "first-letter",
-                "name": "\u0628\u0648\u0627\u0628\u0629",
+                "name": "Portal",
                 "subpages": true,
-                "canonical": "\u0628\u0648\u0627\u0628\u0629",
+                "canonical": "Portal",
                 "content": false,
                 "nonincludable": false
             },
             "101": {
                 "id": 101,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0628\u0648\u0627\u0628\u0629",
+                "name": "Portal Discusi\u00f3n",
                 "subpages": true,
-                "canonical": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0628\u0648\u0627\u0628\u0629",
+                "canonical": "Portal Discusi\u00f3n",
+                "content": false,
+                "nonincludable": false
+            },
+            "102": {
+                "id": 102,
+                "case": "first-letter",
+                "name": "Wikiproyecto",
+                "subpages": true,
+                "canonical": "Wikiproyecto",
+                "content": false,
+                "nonincludable": false
+            },
+            "103": {
+                "id": 103,
+                "case": "first-letter",
+                "name": "Wikiproyecto Discusi\u00f3n",
+                "subpages": true,
+                "canonical": "Wikiproyecto Discusi\u00f3n",
+                "content": false,
+                "nonincludable": false
+            },
+            "104": {
+                "id": 104,
+                "case": "first-letter",
+                "name": "Anexo",
+                "subpages": true,
+                "canonical": "Anexo",
+                "content": true,
+                "nonincludable": false
+            },
+            "105": {
+                "id": 105,
+                "case": "first-letter",
+                "name": "Anexo Discusi\u00f3n",
+                "subpages": true,
+                "canonical": "Anexo Discusi\u00f3n",
+                "content": false,
+                "nonincludable": false
+            },
+            "446": {
+                "id": 446,
+                "case": "first-letter",
+                "name": "Education Program",
+                "subpages": false,
+                "canonical": "Education Program",
+                "content": false,
+                "nonincludable": false
+            },
+            "447": {
+                "id": 447,
+                "case": "first-letter",
+                "name": "Education Program talk",
+                "subpages": true,
+                "canonical": "Education Program talk",
                 "content": false,
                 "nonincludable": false
             },
             "828": {
                 "id": 828,
                 "case": "first-letter",
-                "name": "\u0648\u062d\u062f\u0629",
+                "name": "M\u00f3dulo",
                 "subpages": true,
                 "canonical": "Module",
                 "content": false,
@@ -386,7 +440,7 @@
             "829": {
                 "id": 829,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0648\u062d\u062f\u0629",
+                "name": "M\u00f3dulo discusi\u00f3n",
                 "subpages": true,
                 "canonical": "Module talk",
                 "content": false,
@@ -395,7 +449,7 @@
             "2300": {
                 "id": 2300,
                 "case": "first-letter",
-                "name": "\u0625\u0636\u0627\u0641\u0629",
+                "name": "Accesorio",
                 "subpages": false,
                 "canonical": "Gadget",
                 "content": false,
@@ -404,7 +458,7 @@
             "2301": {
                 "id": 2301,
                 "case": "first-letter",
-                "name": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0625\u0636\u0627\u0641\u0629",
+                "name": "Accesorio discusi\u00f3n",
                 "subpages": false,
                 "canonical": "Gadget talk",
                 "content": false,
@@ -413,7 +467,7 @@
             "2302": {
                 "id": 2302,
                 "case": "case-sensitive",
-                "name": "\u062a\u0639\u0631\u064a\u0641 \u0627\u0644\u0625\u0636\u0627\u0641\u0629",
+                "name": "Accesorio definici\u00f3n",
                 "subpages": false,
                 "canonical": "Gadget definition",
                 "content": false,
@@ -423,47 +477,25 @@
             "2303": {
                 "id": 2303,
                 "case": "case-sensitive",
-                "name": "\u0646\u0642\u0627\u0634 \u062a\u0639\u0631\u064a\u0641 \u0627\u0644\u0625\u0636\u0627\u0641\u0629",
+                "name": "Accesorio definici\u00f3n discusi\u00f3n",
                 "subpages": false,
                 "canonical": "Gadget definition talk",
                 "content": false,
                 "nonincludable": false
-            },
-            "2600": {
-                "id": 2600,
-                "case": "first-letter",
-                "name": "\u0645\u0648\u0636\u0648\u0639",
-                "subpages": false,
-                "canonical": "Topic",
-                "content": false,
-                "nonincludable": false,
-                "defaultcontentmodel": "flow-board"
             }
         },
         "namespacealiases": [
             {
-                "id": -2,
-                "alias": "\u0648\u0633\u0627\u0626\u0637"
-            },
-            {
                 "id": 2,
-                "alias": "\u0645\u0633\u062a\u062e\u062f\u0645\u0629"
+                "alias": "Usuaria"
             },
             {
                 "id": 3,
-                "alias": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u0629"
+                "alias": "Usuaria discusi\u00f3n"
             },
             {
                 "id": 4,
-                "alias": "Wikipedia"
-            },
-            {
-                "id": 4,
-                "alias": "\u0648\u0628"
-            },
-            {
-                "id": 5,
-                "alias": "\u0646\u0648"
+                "alias": "WP"
             },
             {
                 "id": 6,
@@ -471,7 +503,7 @@
             },
             {
                 "id": 6,
-                "alias": "\u0635\u0648\u0631\u0629"
+                "alias": "Imagen"
             },
             {
                 "id": 7,
@@ -479,22 +511,22 @@
             },
             {
                 "id": 7,
-                "alias": "\u0646\u0642\u0627\u0634 \u0627\u0644\u0635\u0648\u0631\u0629"
+                "alias": "Imagen discusi\u00f3n"
+            },
+            {
+                "id": 14,
+                "alias": "CAT"
+            },
+            {
+                "id": 102,
+                "alias": "PR"
             }
         ],
         "magicwords": [
             {
-                "name": "expr",
-                "aliases": [
-                    "\u062a\u0639\u0628\u064a\u0631",
-                    "expr"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "if",
                 "aliases": [
-                    "\u0644\u0648",
+                    "si",
                     "if"
                 ],
                 "case-sensitive": false
@@ -502,7 +534,7 @@
             {
                 "name": "ifeq",
                 "aliases": [
-                    "\u0644\u0648\u0645\u0639\u0627\u062f\u0644\u0629",
+                    "siigual",
                     "ifeq"
                 ],
                 "case-sensitive": false
@@ -510,7 +542,7 @@
             {
                 "name": "ifexpr",
                 "aliases": [
-                    "\u0644\u0648\u062a\u0639\u0628\u064a\u0631",
+                    "siexpr",
                     "ifexpr"
                 ],
                 "case-sensitive": false
@@ -518,7 +550,7 @@
             {
                 "name": "iferror",
                 "aliases": [
-                    "\u0644\u0648\u062e\u0637\u0623",
+                    "sierror",
                     "iferror"
                 ],
                 "case-sensitive": false
@@ -526,7 +558,7 @@
             {
                 "name": "switch",
                 "aliases": [
-                    "\u062a\u0628\u062f\u064a\u0644",
+                    "seg\u00fan",
                     "switch"
                 ],
                 "case-sensitive": false
@@ -534,7 +566,7 @@
             {
                 "name": "default",
                 "aliases": [
-                    "#\u0627\u0641\u062a\u0631\u0627\u0636\u064a",
+                    "#predeterminado",
                     "#default"
                 ],
                 "case-sensitive": false
@@ -542,7 +574,7 @@
             {
                 "name": "ifexist",
                 "aliases": [
-                    "\u0644\u0648\u0645\u0648\u062c\u0648\u062f",
+                    "siexiste",
                     "ifexist"
                 ],
                 "case-sensitive": false
@@ -550,7 +582,7 @@
             {
                 "name": "time",
                 "aliases": [
-                    "\u0648\u0642\u062a",
+                    "tiempo",
                     "time"
                 ],
                 "case-sensitive": false
@@ -558,71 +590,24 @@
             {
                 "name": "timel",
                 "aliases": [
-                    "\u062a\u064a\u0645\u0644",
+                    "tiempol",
                     "timel"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "rel2abs",
-                "aliases": [
-                    "\u0631\u064a\u0644\u062a\u0648\u0622\u0628\u0633",
-                    "rel2abs"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "titleparts",
-                "aliases": [
-                    "\u0623\u062c\u0632\u0627\u0621_\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
-                    "titleparts"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "len",
                 "aliases": [
-                    "\u0644\u064a\u0646",
+                    "long",
+                    "longitud",
                     "len"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "pos",
-                "aliases": [
-                    "\u0628\u0648\u0633",
-                    "pos"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "rpos",
-                "aliases": [
-                    "\u0622\u0631\u0628\u0648\u0633",
-                    "rpos"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "sub",
-                "aliases": [
-                    "\u0645\u062a\u0641\u0631\u0639",
-                    "sub"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "count",
-                "aliases": [
-                    "\u0639\u062f\u062f",
-                    "count"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "replace",
                 "aliases": [
-                    "\u0627\u0633\u062a\u0628\u062f\u0627\u0644",
+                    "reemplazar",
                     "replace"
                 ],
                 "case-sensitive": false
@@ -630,87 +615,24 @@
             {
                 "name": "explode",
                 "aliases": [
-                    "\u0627\u0646\u0641\u062c\u0627\u0631",
+                    "separar",
                     "explode"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "urldecode",
-                "aliases": [
-                    "\u0641\u0643_\u0645\u0633\u0627\u0631",
-                    "urldecode"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "categorytree",
                 "aliases": [
-                    "\u0634\u062c\u0631\u0629_\u062a\u0635\u0646\u064a\u0641",
+                    "\u00e1rboldecategor\u00edas",
+                    "arboldecategorias",
                     "categorytree"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_noplayer",
-                "aliases": [
-                    "\u0644\u0627\u0628\u0631\u0646\u0627\u0645\u062c",
-                    "noplayer"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_noicon",
-                "aliases": [
-                    "\u0644\u0627\u0623\u064a\u0642\u0648\u0646\u0629",
-                    "noicon"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_thumbtime",
-                "aliases": [
-                    "\u0648\u0642\u062a_\u0627\u0644\u062a\u0635\u063a\u064a\u0631=$1",
-                    "thumbtime=$1"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_starttime",
-                "aliases": [
-                    "\u0628\u062f\u0627\u064a\u0629=$1",
-                    "start=$1"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_endtime",
-                "aliases": [
-                    "\u0646\u0647\u0627\u064a\u0629=$1",
-                    "end=$1"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "useliquidthreads",
-                "aliases": [
-                    "\u0627\u0633\u062a\u062e\u062f\u0645_\u0627\u0644\u062e\u064a\u0648\u0637_\u0627\u0644\u0633\u0627\u0626\u0644\u0629",
-                    "UseLiquidThreads"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "lqtpagelimit",
-                "aliases": [
-                    "\u062d\u062f_\u0635\u0641\u062d\u0629_\u062e\u0633",
-                    "lqtpagelimit"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "target",
                 "aliases": [
-                    "\u0647\u062f\u0641",
+                    "destino",
                     "target"
                 ],
                 "case-sensitive": false
@@ -718,7 +640,6 @@
             {
                 "name": "babel",
                 "aliases": [
-                    "\u0628\u0627\u0628\u0644",
                     "babel"
                 ],
                 "case-sensitive": false
@@ -726,6 +647,7 @@
             {
                 "name": "disambiguation",
                 "aliases": [
+                    "__DISAMBIGUACION__",
                     "__DISAMBIG__"
                 ],
                 "case-sensitive": true
@@ -733,15 +655,33 @@
             {
                 "name": "invoke",
                 "aliases": [
-                    "\u0627\u0633\u062a\u062f\u0639\u0627\u0621",
+                    "invocar",
                     "invoke"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "useliquidthreads",
+                "aliases": [
+                    "UsarHilosLiquidos",
+                    "UsarHilosL\u00edquidos",
+                    "UseLiquidThreads"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "lqtpagelimit",
+                "aliases": [
+                    "limitedepaginasdehlq",
+                    "l\u00edmitedep\u00e1ginasdehlq",
+                    "lqtpagelimit"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "noexternallanglinks",
                 "aliases": [
-                    "\u0644\u0627_\u0648\u0635\u0644\u0627\u062a_\u0644\u063a\u0629_\u062e\u0627\u0631\u062c\u064a\u0629",
+                    "nointerwikis",
                     "noexternallanglinks"
                 ],
                 "case-sensitive": false
@@ -749,23 +689,16 @@
             {
                 "name": "property",
                 "aliases": [
-                    "\u062e\u0627\u0635\u064a\u0629",
+                    "propiedad",
                     "property"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "wbreponame",
-                "aliases": [
-                    "\u0627\u0633\u0645_\u0645\u0633\u062a\u0648\u062f\u0639_\u0648\u0628",
-                    "wbreponame"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "redirect",
                 "aliases": [
-                    "#\u062a\u062d\u0648\u064a\u0644",
+                    "#REDIRECCI\u00d3N",
+                    "#REDIRECCION",
                     "#REDIRECT"
                 ],
                 "case-sensitive": false
@@ -773,7 +706,8 @@
             {
                 "name": "notoc",
                 "aliases": [
-                    "__\u0644\u0627\u0641\u0647\u0631\u0633__",
+                    "__SIN_TDC__",
+                    "__NOTDC__",
                     "__NOTOC__"
                 ],
                 "case-sensitive": false
@@ -781,7 +715,9 @@
             {
                 "name": "nogallery",
                 "aliases": [
-                    "__\u0644\u0627\u0645\u0639\u0631\u0636__",
+                    "__SIN_GALER\u00cdA__",
+                    "__NOGALER\u00cdA__",
+                    "__NOGALERIA__",
                     "__NOGALLERY__"
                 ],
                 "case-sensitive": false
@@ -789,7 +725,9 @@
             {
                 "name": "forcetoc",
                 "aliases": [
-                    "__\u0644\u0635\u0642_\u0641\u0647\u0631\u0633__",
+                    "__FORZAR_TDC__",
+                    "__FORZARTDC__",
+                    "__FORZARTOC__",
                     "__FORCETOC__"
                 ],
                 "case-sensitive": false
@@ -797,7 +735,7 @@
             {
                 "name": "toc",
                 "aliases": [
-                    "__\u0641\u0647\u0631\u0633__",
+                    "__TDC__",
                     "__TOC__"
                 ],
                 "case-sensitive": false
@@ -805,7 +743,9 @@
             {
                 "name": "noeditsection",
                 "aliases": [
-                    "__\u0644\u0627\u062a\u062d\u0631\u064a\u0631\u0642\u0633\u0645__",
+                    "__NO_EDITAR_SECCI\u00d3N__",
+                    "__NOEDITARSECCI\u00d3N__",
+                    "__NOEDITARSECCION__",
                     "__NOEDITSECTION__"
                 ],
                 "case-sensitive": false
@@ -813,8 +753,8 @@
             {
                 "name": "currentmonth",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u062d\u0627\u0644\u064a",
-                    "\u0634\u0647\u0631_\u062d\u0627\u0644\u064a2",
+                    "MESACTUAL",
+                    "MESACTUAL2",
                     "CURRENTMONTH",
                     "CURRENTMONTH2"
                 ],
@@ -823,7 +763,7 @@
             {
                 "name": "currentmonth1",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u062d\u0627\u0644\u064a1",
+                    "MESACTUAL1",
                     "CURRENTMONTH1"
                 ],
                 "case-sensitive": true
@@ -831,7 +771,8 @@
             {
                 "name": "currentmonthname",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u062d\u0627\u0644\u064a",
+                    "MESACTUALCOMPLETO",
+                    "NOMBREMESACTUAL",
                     "CURRENTMONTHNAME"
                 ],
                 "case-sensitive": true
@@ -839,7 +780,7 @@
             {
                 "name": "currentmonthnamegen",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u062d\u0627\u0644\u064a_\u0627\u0644\u0645\u0648\u0644\u062f",
+                    "MESACTUALGENITIVO",
                     "CURRENTMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
@@ -847,7 +788,7 @@
             {
                 "name": "currentmonthabbrev",
                 "aliases": [
-                    "\u0627\u062e\u062a\u0635\u0627\u0631_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u062d\u0627\u0644\u064a",
+                    "MESACTUALABREVIADO",
                     "CURRENTMONTHABBREV"
                 ],
                 "case-sensitive": true
@@ -855,7 +796,10 @@
             {
                 "name": "currentday",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u062d\u0627\u0644\u064a",
+                    "D\u00cdAACTUAL",
+                    "DIAACTUAL",
+                    "D\u00cdA_ACTUAL",
+                    "DIA_ACTUAL",
                     "CURRENTDAY"
                 ],
                 "case-sensitive": true
@@ -863,7 +807,10 @@
             {
                 "name": "currentday2",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u062d\u0627\u0644\u064a2",
+                    "D\u00cdAACTUAL2",
+                    "DIAACTUAL2",
+                    "D\u00cdA_ACTUAL2",
+                    "DIA_ACTUAL2",
                     "CURRENTDAY2"
                 ],
                 "case-sensitive": true
@@ -871,7 +818,8 @@
             {
                 "name": "currentdayname",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u064a\u0648\u0645_\u0627\u0644\u062d\u0627\u0644\u064a",
+                    "NOMBRED\u00cdAACTUAL",
+                    "NOMBREDIAACTUAL",
                     "CURRENTDAYNAME"
                 ],
                 "case-sensitive": true
@@ -879,7 +827,8 @@
             {
                 "name": "currentyear",
                 "aliases": [
-                    "\u0639\u0627\u0645_\u062d\u0627\u0644\u064a",
+                    "A\u00d1OACTUAL",
+                    "A\u00d1O_ACTUAL",
                     "CURRENTYEAR"
                 ],
                 "case-sensitive": true
@@ -887,7 +836,9 @@
             {
                 "name": "currenttime",
                 "aliases": [
-                    "\u0648\u0642\u062a_\u062d\u0627\u0644\u064a",
+                    "HORA_MINUTOS_ACTUAL",
+                    "HORAMINUTOSACTUAL",
+                    "TIEMPOACTUAL",
                     "CURRENTTIME"
                 ],
                 "case-sensitive": true
@@ -895,7 +846,8 @@
             {
                 "name": "currenthour",
                 "aliases": [
-                    "\u0633\u0627\u0639\u0629_\u062d\u0627\u0644\u064a\u0629",
+                    "HORAACTUAL",
+                    "HORA_ACTUAL",
                     "CURRENTHOUR"
                 ],
                 "case-sensitive": true
@@ -903,8 +855,8 @@
             {
                 "name": "localmonth",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u0645\u062d\u0644\u064a",
-                    "\u0634\u0647\u0631_\u0645\u062d\u0644\u064a2",
+                    "MESLOCAL",
+                    "MESLOCAL2",
                     "LOCALMONTH",
                     "LOCALMONTH2"
                 ],
@@ -913,7 +865,7 @@
             {
                 "name": "localmonth1",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u0645\u062d\u0644\u064a1",
+                    "MESLOCAL1",
                     "LOCALMONTH1"
                 ],
                 "case-sensitive": true
@@ -921,7 +873,8 @@
             {
                 "name": "localmonthname",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u0645\u062d\u0644\u064a",
+                    "MESLOCALCOMPLETO",
+                    "NOMBREMESLOCAL",
                     "LOCALMONTHNAME"
                 ],
                 "case-sensitive": true
@@ -929,7 +882,7 @@
             {
                 "name": "localmonthnamegen",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u0645\u062d\u0644\u064a_\u0627\u0644\u0645\u0648\u0644\u062f",
+                    "MESLOCALGENITIVO",
                     "LOCALMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
@@ -937,7 +890,7 @@
             {
                 "name": "localmonthabbrev",
                 "aliases": [
-                    "\u0627\u062e\u062a\u0635\u0627\u0631_\u0627\u0644\u0634\u0647\u0631_\u0627\u0644\u0645\u062d\u0644\u064a",
+                    "MESLOCALABREVIADO",
                     "LOCALMONTHABBREV"
                 ],
                 "case-sensitive": true
@@ -945,7 +898,8 @@
             {
                 "name": "localday",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u0645\u062d\u0644\u064a",
+                    "D\u00cdALOCAL",
+                    "DIALOCAL",
                     "LOCALDAY"
                 ],
                 "case-sensitive": true
@@ -953,7 +907,8 @@
             {
                 "name": "localday2",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u0645\u062d\u0644\u064a2",
+                    "DIALOCAL2",
+                    "D\u00cdALOCAL2",
                     "LOCALDAY2"
                 ],
                 "case-sensitive": true
@@ -961,7 +916,8 @@
             {
                 "name": "localdayname",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u064a\u0648\u0645_\u0627\u0644\u0645\u062d\u0644\u064a",
+                    "NOMBREDIALOCAL",
+                    "NOMBRED\u00cdALOCAL",
                     "LOCALDAYNAME"
                 ],
                 "case-sensitive": true
@@ -969,7 +925,7 @@
             {
                 "name": "localyear",
                 "aliases": [
-                    "\u0639\u0627\u0645_\u0645\u062d\u0644\u064a",
+                    "A\u00d1OLOCAL",
                     "LOCALYEAR"
                 ],
                 "case-sensitive": true
@@ -977,7 +933,8 @@
             {
                 "name": "localtime",
                 "aliases": [
-                    "\u0648\u0642\u062a_\u0645\u062d\u0644\u064a",
+                    "HORAMINUTOSLOCAL",
+                    "TIEMPOLOCAL",
                     "LOCALTIME"
                 ],
                 "case-sensitive": true
@@ -985,7 +942,7 @@
             {
                 "name": "localhour",
                 "aliases": [
-                    "\u0633\u0627\u0639\u0629_\u0645\u062d\u0644\u064a\u0629",
+                    "HORALOCAL",
                     "LOCALHOUR"
                 ],
                 "case-sensitive": true
@@ -993,7 +950,8 @@
             {
                 "name": "numberofpages",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0635\u0641\u062d\u0627\u062a",
+                    "N\u00daMERODEP\u00c1GINAS",
+                    "NUMERODEPAGINAS",
                     "NUMBEROFPAGES"
                 ],
                 "case-sensitive": true
@@ -1001,7 +959,8 @@
             {
                 "name": "numberofarticles",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0645\u0642\u0627\u0644\u0627\u062a",
+                    "N\u00daMERODEART\u00cdCULOS",
+                    "NUMERODEARTICULOS",
                     "NUMBEROFARTICLES"
                 ],
                 "case-sensitive": true
@@ -1009,7 +968,8 @@
             {
                 "name": "numberoffiles",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0645\u0644\u0641\u0627\u062a",
+                    "N\u00daMERODEARCHIVOS",
+                    "NUMERODEARCHIVOS",
                     "NUMBEROFFILES"
                 ],
                 "case-sensitive": true
@@ -1017,7 +977,8 @@
             {
                 "name": "numberofusers",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646",
+                    "N\u00daMERODEUSUARIOS",
+                    "NUMERODEUSUARIOS",
                     "NUMBEROFUSERS"
                 ],
                 "case-sensitive": true
@@ -1025,7 +986,8 @@
             {
                 "name": "numberofactiveusers",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646_\u0627\u0644\u0646\u0634\u0637\u064a\u0646",
+                    "N\u00daMERODEUSUARIOSACTIVOS",
+                    "NUMERODEUSUARIOSACTIVOS",
                     "NUMBEROFACTIVEUSERS"
                 ],
                 "case-sensitive": true
@@ -1033,7 +995,8 @@
             {
                 "name": "numberofedits",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u062a\u0639\u062f\u064a\u0644\u0627\u062a",
+                    "N\u00daMERODEEDICIONES",
+                    "NUMERODEEDICIONES",
                     "NUMBEROFEDITS"
                 ],
                 "case-sensitive": true
@@ -1041,7 +1004,8 @@
             {
                 "name": "pagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0635\u0641\u062d\u0629",
+                    "NOMBREDEPAGINA",
+                    "NOMBREDEP\u00c1GINA",
                     "PAGENAME"
                 ],
                 "case-sensitive": true
@@ -1049,7 +1013,8 @@
             {
                 "name": "pagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0635\u0641\u062d\u0629",
+                    "NOMBREDEPAGINAC",
+                    "NOMBREDEP\u00c1GINAC",
                     "PAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1057,7 +1022,7 @@
             {
                 "name": "namespace",
                 "aliases": [
-                    "\u0646\u0637\u0627\u0642",
+                    "ESPACIODENOMBRE",
                     "NAMESPACE"
                 ],
                 "case-sensitive": true
@@ -1065,7 +1030,7 @@
             {
                 "name": "namespacee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0646\u0637\u0627\u0642",
+                    "ESPACIODENOMBREC",
                     "NAMESPACEE"
                 ],
                 "case-sensitive": true
@@ -1073,7 +1038,7 @@
             {
                 "name": "namespacenumber",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0646\u0637\u0627\u0642",
+                    "N\u00daMERODELESPACIO",
                     "NAMESPACENUMBER"
                 ],
                 "case-sensitive": true
@@ -1081,7 +1046,8 @@
             {
                 "name": "talkspace",
                 "aliases": [
-                    "\u0646\u0637\u0627\u0642_\u0627\u0644\u0646\u0642\u0627\u0634",
+                    "ESPACIODEDISCUSION",
+                    "ESPACIODEDISCUSI\u00d3N",
                     "TALKSPACE"
                 ],
                 "case-sensitive": true
@@ -1089,7 +1055,7 @@
             {
                 "name": "talkspacee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0646\u0642\u0627\u0634",
+                    "ESPACIODEDISCUSIONC",
                     "TALKSPACEE"
                 ],
                 "case-sensitive": true
@@ -1097,8 +1063,10 @@
             {
                 "name": "subjectspace",
                 "aliases": [
-                    "\u0646\u0637\u0627\u0642_\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
-                    "\u0646\u0637\u0627\u0642_\u0627\u0644\u0645\u0642\u0627\u0644\u0629",
+                    "ESPACIODEASUNTO",
+                    "ESPACIODETEMA",
+                    "ESPACIODEART\u00cdCULO",
+                    "ESPACIODEARTICULO",
                     "SUBJECTSPACE",
                     "ARTICLESPACE"
                 ],
@@ -1107,8 +1075,10 @@
             {
                 "name": "subjectspacee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0646\u0637\u0627\u0642_\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
-                    "\u0639\u0646\u0648\u0627\u0646_\u0646\u0637\u0627\u0642_\u0627\u0644\u0645\u0642\u0627\u0644\u0629",
+                    "ESPACIODETEMAC",
+                    "ESPACIODEASUNTOC",
+                    "ESPACIODEARTICULOC",
+                    "ESPACIODEART\u00cdCULOC",
                     "SUBJECTSPACEE",
                     "ARTICLESPACEE"
                 ],
@@ -1117,9 +1087,8 @@
             {
                 "name": "fullpagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0643\u0627\u0645\u0644",
-                    "\u0627\u0633\u0645_\u0635\u0641\u062d\u0629_\u0643\u0627\u0645\u0644",
-                    "\u0627\u0633\u0645_\u0643\u0627\u0645\u0644",
+                    "NOMBRECOMPLETODEP\u00c1GINA",
+                    "NOMBRECOMPLETODEPAGINA",
                     "FULLPAGENAME"
                 ],
                 "case-sensitive": true
@@ -1127,8 +1096,8 @@
             {
                 "name": "fullpagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0643\u0627\u0645\u0644",
-                    "\u0639\u0646\u0648\u0627\u0646_\u0635\u0641\u062d\u0629_\u0643\u0627\u0645\u0644",
+                    "NOMBRECOMPLETODEPAGINAC",
+                    "NOMBRECOMPLETODEP\u00c1GINAC",
                     "FULLPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1136,7 +1105,8 @@
             {
                 "name": "subpagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0641\u0631\u0639\u064a",
+                    "NOMBREDESUBPAGINA",
+                    "NOMBREDESUBP\u00c1GINA",
                     "SUBPAGENAME"
                 ],
                 "case-sensitive": true
@@ -1144,7 +1114,8 @@
             {
                 "name": "subpagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0641\u0631\u0639\u064a",
+                    "NOMBREDESUBPAGINAC",
+                    "NOMBREDESUBP\u00c1GINAC",
                     "SUBPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1152,7 +1123,8 @@
             {
                 "name": "rootpagename",
                 "aliases": [
-                    "\u062c\u0630\u0631_\u0627\u0633\u0645_\u0627\u0644\u0635\u0641\u062d\u0629",
+                    "NOMBREDEPAGINARAIZ",
+                    "NOMBREDEP\u00c1GINARA\u00cdZ",
                     "ROOTPAGENAME"
                 ],
                 "case-sensitive": true
@@ -1160,7 +1132,8 @@
             {
                 "name": "rootpagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u062c\u0630\u0631_\u0627\u0644\u0635\u0641\u062d\u0629",
+                    "NOMBREDEPAGINARAIZC",
+                    "NOMBREDEP\u00c1GINARA\u00cdZC",
                     "ROOTPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1168,7 +1141,8 @@
             {
                 "name": "basepagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0623\u0633\u0627\u0633\u064a",
+                    "NOMBREDEPAGINABASE",
+                    "NOMBREDEP\u00c1GINABASE",
                     "BASEPAGENAME"
                 ],
                 "case-sensitive": true
@@ -1176,7 +1150,8 @@
             {
                 "name": "basepagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0635\u0641\u062d\u0629_\u0627\u0644\u0623\u0633\u0627\u0633\u064a",
+                    "NOMBREDEPAGINABASEC",
+                    "NOMBREDEP\u00c1GINABASEC",
                     "BASEPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1184,7 +1159,10 @@
             {
                 "name": "talkpagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0635\u0641\u062d\u0629_\u0627\u0644\u0646\u0642\u0627\u0634",
+                    "NOMBREDEP\u00c1GINADEDISCUSI\u00d3N",
+                    "NOMBREDEPAGINADEDISCUSION",
+                    "NOMBREDEPAGINADISCUSION",
+                    "NOMBREDEP\u00c1GINADISCUSI\u00d3N",
                     "TALKPAGENAME"
                 ],
                 "case-sensitive": true
@@ -1192,7 +1170,10 @@
             {
                 "name": "talkpagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0635\u0641\u062d\u0629_\u0627\u0644\u0646\u0642\u0627\u0634",
+                    "NOMBREDEP\u00c1GINADEDISCUSI\u00d3NC",
+                    "NOMBREDEPAGINADEDISCUSIONC",
+                    "NOMBREDEPAGINADISCUSIONC",
+                    "NOMBREDEP\u00c1GINADISCUSI\u00d3NC",
                     "TALKPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -1200,8 +1181,12 @@
             {
                 "name": "subjectpagename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0635\u0641\u062d\u0629_\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
-                    "\u0627\u0633\u0645_\u0635\u0641\u062d\u0629_\u0627\u0644\u0645\u0642\u0627\u0644\u0629",
+                    "NOMBREDEPAGINADETEMA",
+                    "NOMBREDEP\u00c1GINADETEMA",
+                    "NOMBREDEP\u00c1GINADEASUNTO",
+                    "NOMBREDEPAGINADEASUNTO",
+                    "NOMBREDEPAGINADEARTICULO",
+                    "NOMBREDEP\u00c1GINADEART\u00cdCULO",
                     "SUBJECTPAGENAME",
                     "ARTICLEPAGENAME"
                 ],
@@ -1210,8 +1195,12 @@
             {
                 "name": "subjectpagenamee",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0635\u0641\u062d\u0629_\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
-                    "\u0639\u0646\u0648\u0627\u0646_\u0635\u0641\u062d\u0629_\u0627\u0644\u0645\u0642\u0627\u0644\u0629",
+                    "NOMBREDEPAGINADETEMAC",
+                    "NOMBREDEP\u00c1GINADETEMAC",
+                    "NOMBREDEP\u00c1GINADEASUNTOC",
+                    "NOMBREDEPAGINADEASUNTOC",
+                    "NOMBREDEPAGINADEARTICULOC",
+                    "NOMBREDEP\u00c1GINADEART\u00cdCULOC",
                     "SUBJECTPAGENAMEE",
                     "ARTICLEPAGENAMEE"
                 ],
@@ -1220,7 +1209,7 @@
             {
                 "name": "msg",
                 "aliases": [
-                    "\u0631\u0633\u0627\u0644\u0629:",
+                    "MSJ:",
                     "MSG:"
                 ],
                 "case-sensitive": false
@@ -1228,31 +1217,18 @@
             {
                 "name": "subst",
                 "aliases": [
-                    "\u0646\u0633\u062e:",
+                    "SUST:",
+                    "FIJAR:",
                     "SUBST:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "safesubst",
-                "aliases": [
-                    "\u0646\u0633\u062e_\u0622\u0645\u0646:",
-                    "SAFESUBST:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "msgnw",
-                "aliases": [
-                    "\u0631\u0633\u0627\u0644\u0629_\u0628\u062f\u0648\u0646_\u062a\u0647\u064a\u0626\u0629:",
-                    "MSGNW:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "img_thumbnail",
                 "aliases": [
-                    "\u062a\u0635\u063a\u064a\u0631",
+                    "miniaturadeimagen",
+                    "miniatura",
+                    "mini",
                     "thumb",
                     "thumbnail"
                 ],
@@ -1261,8 +1237,8 @@
             {
                 "name": "img_manualthumb",
                 "aliases": [
-                    "\u062a\u0635\u063a\u064a\u0631=$1",
-                    "\u0645\u0635\u063a\u0631=$1",
+                    "miniaturadeimagen=$1",
+                    "miniatura=$1",
                     "thumbnail=$1",
                     "thumb=$1"
                 ],
@@ -1271,7 +1247,9 @@
             {
                 "name": "img_right",
                 "aliases": [
-                    "\u064a\u0645\u064a\u0646",
+                    "derecha",
+                    "der",
+                    "dcha",
                     "right"
                 ],
                 "case-sensitive": true
@@ -1279,7 +1257,9 @@
             {
                 "name": "img_left",
                 "aliases": [
-                    "\u064a\u0633\u0627\u0631",
+                    "izquierda",
+                    "izda",
+                    "izq",
                     "left"
                 ],
                 "case-sensitive": true
@@ -1287,25 +1267,21 @@
             {
                 "name": "img_none",
                 "aliases": [
-                    "\u0628\u062f\u0648\u0646",
-                    "\u0628\u0644\u0627",
+                    "no",
+                    "ninguna",
+                    "ninguno",
+                    "nada",
                     "none"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_width",
-                "aliases": [
-                    "$1\u0628\u0643",
-                    "$1\u0639\u0646",
-                    "$1px"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_center",
                 "aliases": [
-                    "\u0645\u0631\u0643\u0632",
+                    "centro",
+                    "centrado",
+                    "centrada",
+                    "centrar",
                     "center",
                     "centre"
                 ],
@@ -1314,8 +1290,9 @@
             {
                 "name": "img_framed",
                 "aliases": [
-                    "\u0625\u0637\u0627\u0631",
-                    "\u0628\u0625\u0637\u0627\u0631",
+                    "marco",
+                    "enmarcado",
+                    "enmarcada",
                     "frame",
                     "framed",
                     "enframed"
@@ -1325,7 +1302,9 @@
             {
                 "name": "img_frameless",
                 "aliases": [
-                    "\u0644\u0627\u0625\u0637\u0627\u0631",
+                    "sinmarco",
+                    "sin_enmarcar",
+                    "sinenmarcar",
                     "frameless"
                 ],
                 "case-sensitive": true
@@ -1333,7 +1312,7 @@
             {
                 "name": "img_lang",
                 "aliases": [
-                    "\u0644\u063a\u0629=$1",
+                    "idioma=$1",
                     "lang=$1"
                 ],
                 "case-sensitive": true
@@ -1341,79 +1320,35 @@
             {
                 "name": "img_page",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0629=$1",
-                    "\u0635\u0641\u062d\u0629_$1",
+                    "pagina=$1",
+                    "p\u00e1gina=$1",
+                    "pagina_$1",
+                    "p\u00e1gina_$1",
                     "page=$1",
                     "page $1"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "img_upright",
-                "aliases": [
-                    "\u0645\u0639\u062f\u0648\u0644",
-                    "\u0645\u0639\u062f\u0648\u0644=$1",
-                    "\u0645\u0639\u062f\u0648\u0644_$1",
-                    "upright",
-                    "upright=$1",
-                    "upright $1"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "img_border",
                 "aliases": [
-                    "\u062d\u062f\u0648\u062f",
+                    "borde",
                     "border"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_baseline",
-                "aliases": [
-                    "\u062e\u0637_\u0623\u0633\u0627\u0633\u064a",
-                    "baseline"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_sub",
-                "aliases": [
-                    "\u0641\u0631\u0639\u064a",
-                    "sub"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_super",
-                "aliases": [
-                    "\u0633\u0648\u0628\u0631",
-                    "\u0633\u0628",
-                    "super",
-                    "sup"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_top",
                 "aliases": [
-                    "\u0623\u0639\u0644\u0649",
+                    "arriba",
                     "top"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_text_top",
-                "aliases": [
-                    "\u0646\u0635_\u0623\u0639\u0644\u0649",
-                    "text-top"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_middle",
                 "aliases": [
-                    "\u0648\u0633\u0637",
+                    "medio",
                     "middle"
                 ],
                 "case-sensitive": true
@@ -1421,56 +1356,25 @@
             {
                 "name": "img_bottom",
                 "aliases": [
-                    "\u0623\u0633\u0641\u0644",
+                    "abajo",
                     "bottom"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_text_bottom",
-                "aliases": [
-                    "\u0646\u0635_\u0623\u0633\u0641\u0644",
-                    "text-bottom"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_link",
                 "aliases": [
-                    "\u0648\u0635\u0644\u0629=$1",
-                    "\u0631\u0627\u0628\u0637=$1",
+                    "v\u00ednculo=$1",
+                    "vinculo=$1",
+                    "enlace=$1",
                     "link=$1"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "img_alt",
-                "aliases": [
-                    "\u0628\u062f\u064a\u0644=$1",
-                    "alt=$1"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_class",
-                "aliases": [
-                    "\u0631\u062a\u0628\u0629=$1",
-                    "class=$1"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "int",
-                "aliases": [
-                    "\u0645\u062d\u062a\u0648\u0649:",
-                    "INT:"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "sitename",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u0645\u0648\u0642\u0639",
+                    "NOMBREDELSITIO",
                     "SITENAME"
                 ],
                 "case-sensitive": true
@@ -1478,23 +1382,15 @@
             {
                 "name": "ns",
                 "aliases": [
-                    "\u0646\u0637:",
+                    "EN:",
                     "NS:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "nse",
-                "aliases": [
-                    "\u0646\u0637\u0645:",
-                    "NSE:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "localurl",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0645\u062d\u0644\u064a:",
+                    "URLLOCAL:",
                     "LOCALURL:"
                 ],
                 "case-sensitive": false
@@ -1502,7 +1398,7 @@
             {
                 "name": "localurle",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0627\u0644\u0645\u0633\u0627\u0631_\u0627\u0644\u0645\u062d\u0644\u064a:",
+                    "URLLOCALC:",
                     "LOCALURLE:"
                 ],
                 "case-sensitive": false
@@ -1510,7 +1406,8 @@
             {
                 "name": "articlepath",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0627\u0644\u0645\u0642\u0627\u0644\u0629",
+                    "RUTAART\u00cdCULO",
+                    "RUTAARTICULO",
                     "ARTICLEPATH"
                 ],
                 "case-sensitive": false
@@ -1518,7 +1415,10 @@
             {
                 "name": "pageid",
                 "aliases": [
-                    "\u0631\u0642\u0645_\u0635\u0641\u062d\u0629",
+                    "IDDEP\u00c1GINA",
+                    "IDP\u00c1GINA",
+                    "IDDEPAGINA",
+                    "IDPAGINA",
                     "PAGEID"
                 ],
                 "case-sensitive": false
@@ -1526,7 +1426,7 @@
             {
                 "name": "server",
                 "aliases": [
-                    "\u062e\u0627\u062f\u0645",
+                    "SERVIDOR",
                     "SERVER"
                 ],
                 "case-sensitive": false
@@ -1534,7 +1434,7 @@
             {
                 "name": "servername",
                 "aliases": [
-                    "\u0627\u0633\u0645_\u0627\u0644\u062e\u0627\u062f\u0645",
+                    "NOMBRESERVIDOR",
                     "SERVERNAME"
                 ],
                 "case-sensitive": false
@@ -1542,8 +1442,8 @@
             {
                 "name": "scriptpath",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0627\u0644\u0633\u0643\u0631\u064a\u0628\u062a",
-                    "\u0645\u0633\u0627\u0631_\u0633\u0643\u0631\u064a\u0628\u062a",
+                    "RUTASCRIPT",
+                    "RUTADESCRIPT",
                     "SCRIPTPATH"
                 ],
                 "case-sensitive": false
@@ -1551,7 +1451,8 @@
             {
                 "name": "stylepath",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0627\u0644\u0647\u064a\u0626\u0629",
+                    "RUTAESTILO",
+                    "RUTADEESTILO",
                     "STYLEPATH"
                 ],
                 "case-sensitive": false
@@ -1559,7 +1460,8 @@
             {
                 "name": "grammar",
                 "aliases": [
-                    "\u0642\u0648\u0627\u0639\u062f_\u0627\u0644\u0644\u063a\u0629:",
+                    "GRAMATICA:",
+                    "GRAM\u00c1TICA:",
                     "GRAMMAR:"
                 ],
                 "case-sensitive": false
@@ -1567,24 +1469,18 @@
             {
                 "name": "gender",
                 "aliases": [
-                    "\u0646\u0648\u0639:",
+                    "G\u00c9NERO:",
+                    "GENERO:",
                     "GENDER:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "bidi",
-                "aliases": [
-                    "\u062b\u0627:",
-                    "BIDI:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "notitleconvert",
                 "aliases": [
-                    "__\u0644\u0627\u062a\u062d\u0648\u064a\u0644_\u0639\u0646\u0648\u0627\u0646__",
-                    "__\u0644\u0627\u062a\u0639__",
+                    "__NOCONVERTIRTITULO__",
+                    "__NOCONVERTIRT\u00cdTULO__",
+                    "__NOCT___",
                     "__NOTITLECONVERT__",
                     "__NOTC__"
                 ],
@@ -1593,8 +1489,8 @@
             {
                 "name": "nocontentconvert",
                 "aliases": [
-                    "__\u0644\u0627\u062a\u062d\u0648\u064a\u0644_\u0645\u062d\u062a\u0648\u0649__",
-                    "__\u0644\u0627\u062a\u0645__",
+                    "__NOCONVERTIRCONTENIDO__",
+                    "__NOCC___",
                     "__NOCONTENTCONVERT__",
                     "__NOCC__"
                 ],
@@ -1603,7 +1499,7 @@
             {
                 "name": "currentweek",
                 "aliases": [
-                    "\u0623\u0633\u0628\u0648\u0639_\u062d\u0627\u0644\u064a",
+                    "SEMANAACTUAL",
                     "CURRENTWEEK"
                 ],
                 "case-sensitive": true
@@ -1611,7 +1507,9 @@
             {
                 "name": "currentdow",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u062d\u0627\u0644\u064a_\u0645\u0623",
+                    "DDSACTUAL",
+                    "DIADESEMANAACTUAL",
+                    "D\u00cdADESEMANAACTUAL",
                     "CURRENTDOW"
                 ],
                 "case-sensitive": true
@@ -1619,7 +1517,7 @@
             {
                 "name": "localweek",
                 "aliases": [
-                    "\u0623\u0633\u0628\u0648\u0639_\u0645\u062d\u0644\u064a",
+                    "SEMANALOCAL",
                     "LOCALWEEK"
                 ],
                 "case-sensitive": true
@@ -1627,7 +1525,9 @@
             {
                 "name": "localdow",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u0645\u062d\u0644\u064a_\u0645\u0623",
+                    "DDSLOCAL",
+                    "DIADESEMANALOCAL",
+                    "D\u00cdADESEMANALOCAL",
                     "LOCALDOW"
                 ],
                 "case-sensitive": true
@@ -1635,7 +1535,10 @@
             {
                 "name": "revisionid",
                 "aliases": [
-                    "\u0631\u0642\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "IDDEREVISION",
+                    "IDREVISION",
+                    "IDDEREVISI\u00d3N",
+                    "IDREVISI\u00d3N",
                     "REVISIONID"
                 ],
                 "case-sensitive": true
@@ -1643,7 +1546,10 @@
             {
                 "name": "revisionday",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "DIADEREVISION",
+                    "DIAREVISION",
+                    "D\u00cdADEREVISI\u00d3N",
+                    "D\u00cdAREVISI\u00d3N",
                     "REVISIONDAY"
                 ],
                 "case-sensitive": true
@@ -1651,7 +1557,10 @@
             {
                 "name": "revisionday2",
                 "aliases": [
-                    "\u064a\u0648\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u06292",
+                    "DIADEREVISION2",
+                    "DIAREVISION2",
+                    "D\u00cdADEREVISI\u00d3N2",
+                    "D\u00cdAREVISI\u00d3N2",
                     "REVISIONDAY2"
                 ],
                 "case-sensitive": true
@@ -1659,7 +1568,10 @@
             {
                 "name": "revisionmonth",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "MESDEREVISION",
+                    "MESDEREVISI\u00d3N",
+                    "MESREVISION",
+                    "MESREVISI\u00d3N",
                     "REVISIONMONTH"
                 ],
                 "case-sensitive": true
@@ -1667,7 +1579,10 @@
             {
                 "name": "revisionmonth1",
                 "aliases": [
-                    "\u0634\u0647\u0631_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u06291",
+                    "MESDEREVISION1",
+                    "MESDEREVISI\u00d3N1",
+                    "MESREVISION1",
+                    "MESREVISI\u00d3N1",
                     "REVISIONMONTH1"
                 ],
                 "case-sensitive": true
@@ -1675,7 +1590,10 @@
             {
                 "name": "revisionyear",
                 "aliases": [
-                    "\u0639\u0627\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "A\u00d1ODEREVISION",
+                    "A\u00d1ODEREVISI\u00d3N",
+                    "A\u00d1OREVISION",
+                    "A\u00d1OREVISI\u00d3N",
                     "REVISIONYEAR"
                 ],
                 "case-sensitive": true
@@ -1683,7 +1601,8 @@
             {
                 "name": "revisiontimestamp",
                 "aliases": [
-                    "\u0637\u0627\u0628\u0639_\u0648\u0642\u062a_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "MARCADEHORADEREVISION",
+                    "MARCADEHORADEREVISI\u00d3N",
                     "REVISIONTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1691,7 +1610,8 @@
             {
                 "name": "revisionuser",
                 "aliases": [
-                    "\u0645\u0633\u062a\u062e\u062f\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "USUARIODEREVISION",
+                    "USUARIODEREVISI\u00d3N",
                     "REVISIONUSER"
                 ],
                 "case-sensitive": true
@@ -1699,23 +1619,16 @@
             {
                 "name": "revisionsize",
                 "aliases": [
-                    "\u062d\u062c\u0645_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+                    "TAMA\u00d1ODEREVISI\u00d3N",
+                    "TAMA\u00d1ODEREVISION",
                     "REVISIONSIZE"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "plural",
-                "aliases": [
-                    "\u062c\u0645\u0639:",
-                    "PLURAL:"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "fullurl",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0643\u0627\u0645\u0644:",
+                    "URLCOMPLETA:",
                     "FULLURL:"
                 ],
                 "case-sensitive": false
@@ -1723,7 +1636,7 @@
             {
                 "name": "fullurle",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0643\u0627\u0645\u0644:",
+                    "URLCOMPLETAC:",
                     "FULLURLE:"
                 ],
                 "case-sensitive": false
@@ -1731,7 +1644,7 @@
             {
                 "name": "canonicalurl",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0642\u0627\u0639\u062f\u0629:",
+                    "URLCANONICA:",
                     "CANONICALURL:"
                 ],
                 "case-sensitive": false
@@ -1739,7 +1652,7 @@
             {
                 "name": "canonicalurle",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0642\u0627\u0639\u062f\u0629:",
+                    "URLCANONICAC:",
                     "CANONICALURLE:"
                 ],
                 "case-sensitive": false
@@ -1747,7 +1660,8 @@
             {
                 "name": "lcfirst",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0643\u0628\u064a\u0631:",
+                    "PRIMEROMINUS:",
+                    "PRIMEROMIN\u00daS:",
                     "LCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1755,7 +1669,8 @@
             {
                 "name": "ucfirst",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u0635\u063a\u064a\u0631:",
+                    "PRIMEROMAYUS:",
+                    "PRIMEROMAY\u00daS:",
                     "UCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1763,7 +1678,8 @@
             {
                 "name": "lc",
                 "aliases": [
-                    "\u0635\u063a\u064a\u0631:",
+                    "MINUS:",
+                    "MIN\u00daS:",
                     "LC:"
                 ],
                 "case-sensitive": false
@@ -1771,7 +1687,8 @@
             {
                 "name": "uc",
                 "aliases": [
-                    "\u0643\u0628\u064a\u0631:",
+                    "MAYUS:",
+                    "MAY\u00daS:",
                     "UC:"
                 ],
                 "case-sensitive": false
@@ -1779,7 +1696,8 @@
             {
                 "name": "raw",
                 "aliases": [
-                    "\u062e\u0627\u0645:",
+                    "SINFORMATO:",
+                    "SINPUNTOS:",
                     "RAW:"
                 ],
                 "case-sensitive": false
@@ -1787,7 +1705,8 @@
             {
                 "name": "displaytitle",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0639\u0646\u0648\u0627\u0646",
+                    "MOSTRART\u00cdTULO",
+                    "MOSTRARTITULO",
                     "DISPLAYTITLE"
                 ],
                 "case-sensitive": true
@@ -1795,24 +1714,16 @@
             {
                 "name": "rawsuffix",
                 "aliases": [
-                    "\u0623\u0631",
-                    "\u0622\u0631",
+                    "SF",
                     "R"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "nocommafysuffix",
-                "aliases": [
-                    "\u0644\u0627_\u0633\u064a\u0628",
-                    "NOSEP"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "newsectionlink",
                 "aliases": [
-                    "__\u0648\u0635\u0644\u0629_\u0642\u0633\u0645_\u062c\u062f\u064a\u062f__",
+                    "__VINCULARANUEVASECCION__",
+                    "__ENLACECREARSECCI\u00d3N__",
                     "__NEWSECTIONLINK__"
                 ],
                 "case-sensitive": true
@@ -1820,7 +1731,8 @@
             {
                 "name": "nonewsectionlink",
                 "aliases": [
-                    "\u0644\u0627_\u0648\u0635\u0644\u0629_\u0642\u0633\u0645_\u062c\u062f\u064a\u062f__",
+                    "__NOVINCULARANUEVASECCION__",
+                    "__SINENLACECREARSECCI\u00d3N__",
                     "__NONEWSECTIONLINK__"
                 ],
                 "case-sensitive": true
@@ -1828,7 +1740,8 @@
             {
                 "name": "currentversion",
                 "aliases": [
-                    "\u0646\u0633\u062e\u0629_\u062d\u0627\u0644\u064a\u0629",
+                    "VERSIONACTUAL",
+                    "VERSI\u00d3NACTUAL",
                     "CURRENTVERSION"
                 ],
                 "case-sensitive": true
@@ -1836,23 +1749,15 @@
             {
                 "name": "urlencode",
                 "aliases": [
-                    "\u0643\u0648\u062f_\u0627\u0644\u0645\u0633\u0627\u0631:",
+                    "CODIFICARURL:",
                     "URLENCODE:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "anchorencode",
-                "aliases": [
-                    "\u0643\u0648\u062f_\u0627\u0644\u0623\u0646\u0643\u0648\u0631",
-                    "ANCHORENCODE"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "currenttimestamp",
                 "aliases": [
-                    "\u0637\u0627\u0628\u0639_\u0627\u0644\u0648\u0642\u062a_\u0627\u0644\u062d\u0627\u0644\u064a",
+                    "MARCADEHORAACTUAL",
                     "CURRENTTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1860,25 +1765,15 @@
             {
                 "name": "localtimestamp",
                 "aliases": [
-                    "\u0637\u0627\u0628\u0639_\u0627\u0644\u0648\u0642\u062a_\u0627\u0644\u0645\u062d\u0644\u064a",
+                    "MARCADEHORALOCAL",
                     "LOCALTIMESTAMP"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "directionmark",
-                "aliases": [
-                    "\u0639\u0644\u0627\u0645\u0629_\u0627\u0644\u0627\u062a\u062c\u0627\u0647",
-                    "\u0639\u0644\u0627\u0645\u0629_\u0627\u062a\u062c\u0627\u0647",
-                    "DIRECTIONMARK",
-                    "DIRMARK"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "language",
                 "aliases": [
-                    "#\u0644\u063a\u0629:",
+                    "#IDIOMA:",
                     "#LANGUAGE:"
                 ],
                 "case-sensitive": false
@@ -1886,8 +1781,8 @@
             {
                 "name": "contentlanguage",
                 "aliases": [
-                    "\u0644\u063a\u0629_\u0627\u0644\u0645\u062d\u062a\u0648\u0649",
-                    "\u0644\u063a\u0629_\u0645\u062d\u062a\u0648\u0649",
+                    "IDIOMADELCONTENIDO",
+                    "IDIOMADELCONT",
                     "CONTENTLANGUAGE",
                     "CONTENTLANG"
                 ],
@@ -1896,8 +1791,7 @@
             {
                 "name": "pagesinnamespace",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0641\u064a_\u0646\u0637\u0627\u0642:",
-                    "\u0635\u0641\u062d\u0627\u062a_\u0641\u064a_\u0646\u0637:",
+                    "P\u00c1GINASENESPACIO",
                     "PAGESINNAMESPACE:",
                     "PAGESINNS:"
                 ],
@@ -1906,7 +1800,14 @@
             {
                 "name": "numberofadmins",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0627\u0644\u0625\u062f\u0627\u0631\u064a\u064a\u0646",
+                    "N\u00daMEROADMINIISTRADORES",
+                    "N\u00daMEROADMINS",
+                    "NUMEROADMINS",
+                    "NUMEROADMINISTRADORES",
+                    "NUMERODEADMINISTRADORES",
+                    "NUMERODEADMINS",
+                    "N\u00daMERODEADMINISTRADORES",
+                    "N\u00daMERODEADMINS",
                     "NUMBEROFADMINS"
                 ],
                 "case-sensitive": true
@@ -1914,7 +1815,8 @@
             {
                 "name": "formatnum",
                 "aliases": [
-                    "\u0635\u064a\u063a\u0629_\u0631\u0642\u0645",
+                    "FORMATON\u00daMERO",
+                    "FORMATONUMERO",
                     "FORMATNUM"
                 ],
                 "case-sensitive": false
@@ -1922,7 +1824,8 @@
             {
                 "name": "padleft",
                 "aliases": [
-                    "\u0628\u0627\u062f_\u064a\u0633\u0627\u0631",
+                    "RELLENARIZQUIERDA",
+                    "RELLENARIZQ",
                     "PADLEFT"
                 ],
                 "case-sensitive": false
@@ -1930,7 +1833,8 @@
             {
                 "name": "padright",
                 "aliases": [
-                    "\u0628\u0627\u062f_\u064a\u0645\u064a\u0646",
+                    "RELLENARDERECHA",
+                    "RELLENARDER",
                     "PADRIGHT"
                 ],
                 "case-sensitive": false
@@ -1938,7 +1842,7 @@
             {
                 "name": "special",
                 "aliases": [
-                    "\u062e\u0627\u0635",
+                    "especial",
                     "special"
                 ],
                 "case-sensitive": false
@@ -1946,7 +1850,7 @@
             {
                 "name": "speciale",
                 "aliases": [
-                    "\u0639\u0646\u0648\u0627\u0646_\u062e\u0627\u0635",
+                    "especialc",
                     "speciale"
                 ],
                 "case-sensitive": false
@@ -1954,10 +1858,10 @@
             {
                 "name": "defaultsort",
                 "aliases": [
-                    "\u062a\u0631\u062a\u064a\u0628_\u0627\u0641\u062a\u0631\u0627\u0636\u064a:",
-                    "\u0645\u0641\u062a\u0627\u062d_\u062a\u0631\u062a\u064a\u0628_\u0627\u0641\u062a\u0631\u0627\u0636\u064a:",
-                    "\u062a\u0631\u062a\u064a\u0628_\u062a\u0635\u0646\u064a\u0641_\u0627\u0641\u062a\u0631\u0627\u0636\u064a:",
-                    "\u062a\u0631\u062a\u064a\u0628_\u063a\u064a\u0627\u0628\u064a:",
+                    "ORDENAR:",
+                    "CLAVEDEORDENPREDETERMINADO:",
+                    "ORDENDECATEGORIAPREDETERMINADO:",
+                    "ORDENDECATEGOR\u00cdAPREDETERMINADO:",
                     "DEFAULTSORT:",
                     "DEFAULTSORTKEY:",
                     "DEFAULTCATEGORYSORT:"
@@ -1967,7 +1871,9 @@
             {
                 "name": "filepath",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0627\u0644\u0645\u0644\u0641:",
+                    "RUTAARCHIVO:",
+                    "RUTARCHIVO:",
+                    "RUTADEARCHIVO:",
                     "FILEPATH:"
                 ],
                 "case-sensitive": false
@@ -1975,7 +1881,7 @@
             {
                 "name": "tag",
                 "aliases": [
-                    "\u0648\u0633\u0645",
+                    "etiqueta",
                     "tag"
                 ],
                 "case-sensitive": false
@@ -1983,7 +1889,7 @@
             {
                 "name": "hiddencat",
                 "aliases": [
-                    "__\u062a\u0635\u0646\u064a\u0641_\u0645\u062e\u0641\u064a__",
+                    "__CATEGOR\u00cdAOCULTA__",
                     "__HIDDENCAT__"
                 ],
                 "case-sensitive": true
@@ -1991,8 +1897,11 @@
             {
                 "name": "pagesincategory",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0641\u064a_\u0627\u0644\u062a\u0635\u0646\u064a\u0641",
-                    "\u0635\u0641\u062d\u0627\u062a_\u0641\u064a_\u062a\u0635\u0646\u064a\u0641",
+                    "P\u00c1GINASENCATEGOR\u00cdA",
+                    "P\u00c1GINASENCAT",
+                    "PAGSENCAT",
+                    "PAGINASENCATEGORIA",
+                    "PAGINASENCAT",
                     "PAGESINCATEGORY",
                     "PAGESINCAT"
                 ],
@@ -2001,7 +1910,10 @@
             {
                 "name": "pagesize",
                 "aliases": [
-                    "\u062d\u062c\u0645_\u0627\u0644\u0635\u0641\u062d\u0629",
+                    "TAMA\u00d1OP\u00c1GINA",
+                    "TAMA\u00d1ODEP\u00c1GINA",
+                    "TAMA\u00d1OPAGINA",
+                    "TAMA\u00d1ODEPAGINA",
                     "PAGESIZE"
                 ],
                 "case-sensitive": true
@@ -2009,7 +1921,7 @@
             {
                 "name": "index",
                 "aliases": [
-                    "__\u0641\u0647\u0631\u0633\u0629__",
+                    "__INDEXAR__",
                     "__INDEX__"
                 ],
                 "case-sensitive": true
@@ -2017,7 +1929,7 @@
             {
                 "name": "noindex",
                 "aliases": [
-                    "__\u0644\u0627\u0641\u0647\u0631\u0633\u0629__",
+                    "__NOINDEXAR__",
                     "__NOINDEX__"
                 ],
                 "case-sensitive": true
@@ -2025,8 +1937,10 @@
             {
                 "name": "numberingroup",
                 "aliases": [
-                    "\u0639\u062f\u062f_\u0641\u064a_\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629",
-                    "\u0639\u062f\u062f_\u0641\u064a_\u0645\u062c\u0645\u0648\u0639\u0629",
+                    "N\u00daMEROENGRUPO",
+                    "NUMEROENGRUPO",
+                    "NUMENGRUPO",
+                    "N\u00daMENGRUPO",
                     "NUMBERINGROUP",
                     "NUMINGROUP"
                 ],
@@ -2035,8 +1949,8 @@
             {
                 "name": "staticredirect",
                 "aliases": [
-                    "__\u062a\u062d\u0648\u064a\u0644\u0629_\u0625\u0633\u062a\u0627\u062a\u064a\u0643\u064a\u0629__",
-                    "__\u062a\u062d\u0648\u064a\u0644\u0629_\u0633\u0627\u0643\u0646\u0629__",
+                    "__REDIRECCI\u00d3NEST\u00c1TICA__",
+                    "__REDIRECCIONESTATICA__",
                     "__STATICREDIRECT__"
                 ],
                 "case-sensitive": true
@@ -2044,32 +1958,17 @@
             {
                 "name": "protectionlevel",
                 "aliases": [
-                    "\u0645\u0633\u062a\u0648\u0649_\u0627\u0644\u062d\u0645\u0627\u064a\u0629",
+                    "NIVELDEPROTECCI\u00d3N",
+                    "NIVELDEPROTECCION",
                     "PROTECTIONLEVEL"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "protectionexpiry",
-                "aliases": [
-                    "\u0627\u0646\u062a\u0647\u0627\u0621_\u0627\u0644\u062d\u0645\u0627\u064a\u0629",
-                    "PROTECTIONEXPIRY"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "cascadingsources",
-                "aliases": [
-                    "\u0645\u0635\u0627\u062f\u0631_\u0645\u0636\u0645\u0646\u0629",
-                    "CASCADINGSOURCES"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "formatdate",
                 "aliases": [
-                    "\u062a\u0647\u064a\u0626\u0629_\u0627\u0644\u062a\u0627\u0631\u064a\u062e",
-                    "\u062a\u0647\u064a\u0626\u0629_\u062a\u0627\u0631\u064a\u062e",
+                    "formatodefecha",
+                    "formatearfecha",
                     "formatdate",
                     "dateformat"
                 ],
@@ -2078,55 +1977,23 @@
             {
                 "name": "url_path",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631",
+                    "RUTA",
                     "PATH"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "url_wiki",
-                "aliases": [
-                    "\u0648\u064a\u0643\u064a",
-                    "WIKI"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "url_query",
                 "aliases": [
-                    "\u0627\u0633\u062a\u0639\u0644\u0627\u0645",
+                    "B\u00daSQUEDA",
                     "QUERY"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "defaultsort_noerror",
-                "aliases": [
-                    "\u0644\u0627\u062e\u0637\u0623",
-                    "noerror"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "defaultsort_noreplace",
                 "aliases": [
-                    "\u0644\u0627\u062a\u0633\u062a\u0628\u062f\u0644",
-                    "noreplace"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "displaytitle_noerror",
-                "aliases": [
-                    "\u0644\u0627_\u062e\u0637\u0623",
-                    "noerror"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "displaytitle_noreplace",
-                "aliases": [
-                    "\u0644\u0627\u0627\u0633\u062a\u0628\u062f\u0627\u0644",
+                    "noreemplazar",
                     "noreplace"
                 ],
                 "case-sensitive": false
@@ -2134,7 +2001,7 @@
             {
                 "name": "pagesincategory_all",
                 "aliases": [
-                    "\u0643\u0644",
+                    "todo",
                     "all"
                 ],
                 "case-sensitive": false
@@ -2142,7 +2009,7 @@
             {
                 "name": "pagesincategory_pages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a",
+                    "p\u00e1ginas",
                     "pages"
                 ],
                 "case-sensitive": false
@@ -2150,7 +2017,7 @@
             {
                 "name": "pagesincategory_subcats",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u0641\u0631\u0639\u064a\u0629",
+                    "subcategor\u00edas",
                     "subcats"
                 ],
                 "case-sensitive": false
@@ -2158,7 +2025,7 @@
             {
                 "name": "pagesincategory_files",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a",
+                    "archivos",
                     "files"
                 ],
                 "case-sensitive": false
@@ -2174,6 +2041,62 @@
                 "name": "numberofwikis",
                 "aliases": [
                     "numberofwikis"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "expr",
+                "aliases": [
+                    "expr"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "rel2abs",
+                "aliases": [
+                    "rel2abs"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "titleparts",
+                "aliases": [
+                    "titleparts"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "pos",
+                "aliases": [
+                    "pos"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "rpos",
+                "aliases": [
+                    "rpos"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "sub",
+                "aliases": [
+                    "sub"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "count",
+                "aliases": [
+                    "count"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "urldecode",
+                "aliases": [
+                    "urldecode"
                 ],
                 "case-sensitive": false
             },
@@ -2202,6 +2125,41 @@
                 "case-sensitive": false
             },
             {
+                "name": "timedmedia_noplayer",
+                "aliases": [
+                    "noplayer"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "timedmedia_noicon",
+                "aliases": [
+                    "noicon"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "timedmedia_thumbtime",
+                "aliases": [
+                    "thumbtime=$1"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "timedmedia_starttime",
+                "aliases": [
+                    "start=$1"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "timedmedia_endtime",
+                "aliases": [
+                    "end=$1"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "timedmedia_disablecontrols",
                 "aliases": [
                     "disablecontrols=$1"
@@ -2214,20 +2172,6 @@
                     "__NOGLOBAL__"
                 ],
                 "case-sensitive": true
-            },
-            {
-                "name": "switchlanguage",
-                "aliases": [
-                    "switchlanguage"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "switchcountry",
-                "aliases": [
-                    "switchcountry"
-                ],
-                "case-sensitive": false
             },
             {
                 "name": "coordinates",
@@ -2244,23 +2188,9 @@
                 "case-sensitive": false
             },
             {
-                "name": "related",
+                "name": "calendar",
                 "aliases": [
-                    "related"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "assessment",
-                "aliases": [
-                    "assessment"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "PAGEBANNER",
-                "aliases": [
-                    "PAGEBANNER"
+                    "calendar"
                 ],
                 "case-sensitive": false
             },
@@ -2279,9 +2209,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "calendar",
+                "name": "switchlanguage",
                 "aliases": [
-                    "calendar"
+                    "switchlanguage"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "switchcountry",
+                "aliases": [
+                    "switchcountry"
                 ],
                 "case-sensitive": false
             },
@@ -2370,9 +2307,30 @@
                 "case-sensitive": false
             },
             {
+                "name": "assessment",
+                "aliases": [
+                    "assessment"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "useskin",
                 "aliases": [
                     "useskin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "PAGEBANNER",
+                "aliases": [
+                    "PAGEBANNER"
                 ],
                 "case-sensitive": false
             },
@@ -2391,16 +2349,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "translation",
+                "name": "statements",
                 "aliases": [
-                    "translation"
+                    "statements"
                 ],
                 "case-sensitive": false
             },
             {
-                "name": "statements",
+                "name": "wbreponame",
                 "aliases": [
-                    "statements"
+                    "wbreponame"
                 ],
                 "case-sensitive": false
             },
@@ -2433,9 +2391,146 @@
                 "case-sensitive": false
             },
             {
+                "name": "translation",
+                "aliases": [
+                    "translation"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "!",
                 "aliases": [
                     "!"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "safesubst",
+                "aliases": [
+                    "SAFESUBST:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "msgnw",
+                "aliases": [
+                    "MSGNW:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "img_width",
+                "aliases": [
+                    "$1px"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_upright",
+                "aliases": [
+                    "upright",
+                    "upright=$1",
+                    "upright $1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_baseline",
+                "aliases": [
+                    "baseline"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_sub",
+                "aliases": [
+                    "sub"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_super",
+                "aliases": [
+                    "super",
+                    "sup"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_text_top",
+                "aliases": [
+                    "text-top"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_text_bottom",
+                "aliases": [
+                    "text-bottom"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_alt",
+                "aliases": [
+                    "alt=$1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_class",
+                "aliases": [
+                    "class=$1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "int",
+                "aliases": [
+                    "INT:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "nse",
+                "aliases": [
+                    "NSE:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "bidi",
+                "aliases": [
+                    "BIDI:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "plural",
+                "aliases": [
+                    "PLURAL:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "nocommafysuffix",
+                "aliases": [
+                    "NOSEP"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "anchorencode",
+                "aliases": [
+                    "ANCHORENCODE"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "directionmark",
+                "aliases": [
+                    "DIRECTIONMARK",
+                    "DIRMARK"
                 ],
                 "case-sensitive": true
             },
@@ -2452,6 +2547,48 @@
                     "__EXPECTUNUSEDCATEGORY__"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "protectionexpiry",
+                "aliases": [
+                    "PROTECTIONEXPIRY"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "cascadingsources",
+                "aliases": [
+                    "CASCADINGSOURCES"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "url_wiki",
+                "aliases": [
+                    "WIKI"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "defaultsort_noerror",
+                "aliases": [
+                    "noerror"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "displaytitle_noerror",
+                "aliases": [
+                    "noerror"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "displaytitle_noreplace",
+                "aliases": [
+                    "noreplace"
+                ],
+                "case-sensitive": false
             }
         ],
         "interwikimap": [
@@ -2685,6 +2822,11 @@
                 "protorel": false
             },
             {
+                "prefix": "debian",
+                "url": "https://wiki.debian.org/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "delicious",
                 "url": "https://www.delicious.com/tag/$1",
                 "protorel": true
@@ -2721,12 +2863,12 @@
             },
             {
                 "prefix": "dmoz",
-                "url": "http://dmoztools.net/$1",
+                "url": "https://curlie.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "dmozs",
-                "url": "http://www.dmoz.org/cgi-bin/search?search=$1",
+                "url": "https://curlie.org/search?q=$1",
                 "protorel": false
             },
             {
@@ -2904,11 +3046,6 @@
                 "protorel": false
             },
             {
-                "prefix": "forthfreak",
-                "url": "http://wiki.forthfreak.net/index.cgi?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "foundation",
                 "local": true,
                 "url": "https://foundation.wikimedia.org/wiki/$1",
@@ -2942,7 +3079,7 @@
             },
             {
                 "prefix": "freedomdefined",
-                "url": "http://freedomdefined.org/$1",
+                "url": "https://freedomdefined.org/$1",
                 "protorel": false
             },
             {
@@ -3136,12 +3273,17 @@
             },
             {
                 "prefix": "infosphere",
-                "url": "http://theinfosphere.org/$1",
+                "url": "https://theinfosphere.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "irc",
                 "url": "irc://irc.freenode.net/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "ircs",
+                "url": "ircs://irc.freenode.net/$1",
                 "protorel": false
             },
             {
@@ -3163,7 +3305,7 @@
             },
             {
                 "prefix": "issn",
-                "url": "http://www.worldcat.org/issn/$1",
+                "url": "https://www.worldcat.org/issn/$1",
                 "protorel": false
             },
             {
@@ -3225,11 +3367,6 @@
                 "prefix": "kinowiki",
                 "url": "http://kino.skripov.com/index.php/$1",
                 "protorel": false
-            },
-            {
-                "prefix": "kmwiki",
-                "url": "https://kmwiki.wikispaces.com/$1",
-                "protorel": true
             },
             {
                 "prefix": "komicawiki",
@@ -3471,6 +3608,11 @@
             {
                 "prefix": "olpc",
                 "url": "http://wiki.laptop.org/go/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "omegawiki",
+                "url": "http://www.omegawiki.org/Expression:$1",
                 "protorel": false
             },
             {
@@ -3977,6 +4119,11 @@
                 "protorel": false
             },
             {
+                "prefix": "umap",
+                "url": "https://umap.openstreetmap.fr/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "uncyclopedia",
                 "url": "http://en.uncyclopedia.co/wiki/$1",
                 "protorel": false
@@ -4160,7 +4307,8 @@
             },
             {
                 "prefix": "wikinvest",
-                "url": "http://www.wikinvest.com/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest",
                 "protorel": false
             },
             {
@@ -4384,6 +4532,11 @@
                 "prefix": "wmet",
                 "local": true,
                 "url": "https://ee.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfdashboard",
+                "url": "https://outreachdashboard.wmflabs.org/$1",
                 "protorel": false
             },
             {
@@ -4657,6 +4810,12 @@
                 "protorel": false
             },
             {
+                "prefix": "wikimania",
+                "local": true,
+                "url": "https://wikimania.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wmteam",
                 "local": true,
                 "url": "https://wikimaniateam.wikimedia.org/wiki/$1",
@@ -4817,7 +4976,6 @@
                 "prefix": "ar",
                 "local": true,
                 "language": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
-                "localinterwiki": true,
                 "url": "https://ar.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5231,6 +5389,7 @@
                 "prefix": "es",
                 "local": true,
                 "language": "espa\u00f1ol",
+                "localinterwiki": true,
                 "url": "https://es.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5503,7 +5662,7 @@
             {
                 "prefix": "hyw",
                 "local": true,
-                "language": "\u0561\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
+                "language": "\u0531\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
                 "url": "https://hyw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5622,7 +5781,7 @@
             {
                 "prefix": "jv",
                 "local": true,
-                "language": "Basa Jawa",
+                "language": "Jawa",
                 "url": "https://jv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6308,7 +6467,7 @@
             {
                 "prefix": "rmy",
                 "local": true,
-                "language": "Romani",
+                "language": "romani \u010dhib",
                 "url": "https://rmy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7014,49 +7173,49 @@
             {
                 "prefix": "wikt",
                 "local": true,
-                "url": "https://ar.wiktionary.org/wiki/$1",
+                "url": "https://es.wiktionary.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "q",
                 "local": true,
-                "url": "https://ar.wikiquote.org/wiki/$1",
+                "url": "https://es.wikiquote.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "b",
                 "local": true,
-                "url": "https://ar.wikibooks.org/wiki/$1",
+                "url": "https://es.wikibooks.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "n",
                 "local": true,
-                "url": "https://ar.wikinews.org/wiki/$1",
+                "url": "https://es.wikinews.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "s",
                 "local": true,
-                "url": "https://ar.wikisource.org/wiki/$1",
+                "url": "https://es.wikisource.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "chapter",
                 "local": true,
-                "url": "https://ar.wikimedia.org/wiki/$1",
+                "url": "https://es.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "v",
                 "local": true,
-                "url": "https://ar.wikiversity.org/wiki/$1",
+                "url": "https://es.wikiversity.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "voy",
                 "local": true,
-                "url": "https://ar.wikivoyage.org/wiki/$1",
+                "url": "https://es.wikivoyage.org/wiki/$1",
                 "protorel": false
             }
         ],
@@ -7306,10 +7465,6 @@
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "usebetatoolbar": 1,
-            "echo-subscriptions-web-login-fail": true,
-            "echo-subscriptions-email-login-fail": true,
-            "echo-subscriptions-web-login-success": false,
-            "echo-subscriptions-email-login-success": true,
             "visualeditor-enable": 1,
             "visualeditor-betatempdisable": 0,
             "visualeditor-newwikitext": 0,
@@ -7319,30 +7474,30 @@
             "visualeditor-hidebetawelcome": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-tabs": "remember-last",
-            "visualeditor-editor": "visualeditor",
+            "visualeditor-editor": "wikitext",
             "visualeditor-hidetabdialog": 0,
             "math": "mathml",
+            "echo-subscriptions-web-login-fail": true,
+            "echo-subscriptions-email-login-fail": true,
+            "echo-subscriptions-web-login-success": false,
+            "echo-subscriptions-email-login-success": true,
             "echo-email-frequency": 0,
             "echo-subscriptions-web-edit-thank": true,
             "echo-subscriptions-email-edit-thank": false,
-            "echo-subscriptions-web-flow-discussion": true,
-            "echo-subscriptions-email-flow-discussion": false,
-            "flow-topiclist-sortby": "updated",
-            "flow-editor": "visualeditor",
-            "flow-side-rail-state": "expanded",
-            "flow-visualeditor": 1,
             "usecodeeditor": 1,
+            "gettingstarted-task-toolbar-show-intro": true,
             "eventlogging-display-web": 0,
             "uls-preferences": "",
             "compact-language-links": 1,
             "echo-subscriptions-web-cx": true,
+            "cx-enable-entrypoints": true,
             "echo-subscriptions-web-oauth-owner": true,
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
             "echo-subscriptions-email-oauth-admin": true,
             "ores-damaging-flag-rc": false,
-            "oresDamagingPref": "soft",
-            "rcOresDamagingPref": "soft",
+            "oresDamagingPref": "softest",
+            "rcOresDamagingPref": "softest",
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
@@ -7375,7 +7530,6 @@
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
-            "rcenhancedfilters": 0,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
             "rows": 25,
@@ -7408,15 +7562,11 @@
             "wllimit": 250,
             "useeditwarning": 1,
             "prefershttps": 1,
-            "flaggedrevssimpleui": 1,
-            "flaggedrevsstable": 0,
-            "flaggedrevseditdiffs": true,
-            "flaggedrevsviewdiffs": false,
-            "T47877-buster": 1,
+            "wlshowwikibase": 0,
             "wikilove-enabled": 1,
             "echo-cross-wiki-notifications": 1,
             "timecorrection": "System|0",
-            "language": "ar",
+            "language": "es",
             "variant-en": "en",
             "variant-crh": "crh",
             "variant-gan": "gan",
@@ -7428,6 +7578,8 @@
             "variant-tg": "tg",
             "variant-uz": "uz",
             "variant-zh": "zh",
+            "searchNs100": true,
+            "searchNs104": true,
             "searchNs0": true,
             "searchNs1": false,
             "searchNs2": false,
@@ -7442,25 +7594,11 @@
             "searchNs11": false,
             "searchNs12": false,
             "searchNs13": false,
+            "gadget-a-commons-directo": 1,
+            "gadget-ReferenceTooltips": 1,
+            "gadget-refToolbar": 1,
+            "gadget-imagenesinfobox": 1,
             "cirrussearch-pref-completion-profile": "fuzzy",
-            "gadget-CiteTooltip": 1,
-            "gadget-decodesummary": 1,
-            "gadget-Direct-link-to-Commons": 1,
-            "gadget-exlinks": 1,
-            "gadget-HideExLinkIcon": 1,
-            "gadget-laTulawinMarji3": 1,
-            "gadget-myGadgets": 1,
-            "gadget-microblog": 1,
-            "gadget-Purgetab": 1,
-            "gadget-autocompleter": 1,
-            "gadget-charinsert": 1,
-            "gadget-DotsSyntaxHighlighter": 1,
-            "gadget-editIntro": 1,
-            "gadget-TemplateParamWizard": 1,
-            "gadget-GreenRedirect": 1,
-            "gadget-WikidataInfo": 1,
-            "gadget-searchlang": 1,
-            "gadget-geonotice": 1,
             "multimediaviewer-enable": 1,
             "popups": "0",
             "mobile-specialpages": "1",
@@ -7468,6 +7606,8 @@
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
             "echo-subscriptions-web-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
             "echo-subscriptions-email-user-rights": true,
             "echo-subscriptions-web-user-rights": true,
             "echo-subscriptions-email-other": false,
@@ -7486,6 +7626,8 @@
             "echo-subscriptions-web-mention-success": false,
             "echo-subscriptions-email-emailuser": false,
             "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-email-cx": false
@@ -7494,43 +7636,48 @@
             {
                 "realname": "BrokenRedirects",
                 "aliases": [
-                    "\u062a\u062d\u0648\u064a\u0644\u0627\u062a_\u0645\u0643\u0633\u0648\u0631\u0629",
+                    "RedireccionesRotas",
+                    "Redirecciones_rotas",
                     "BrokenRedirects"
                 ]
             },
             {
                 "realname": "Deadendpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0646\u0647\u0627\u064a\u0629_\u0645\u0633\u062f\u0648\u062f\u0629",
+                    "P\u00e1ginasSinSalida",
+                    "P\u00e1ginas_sin_salida",
                     "DeadendPages"
                 ]
             },
             {
                 "realname": "DoubleRedirects",
                 "aliases": [
-                    "\u062a\u062d\u0648\u064a\u0644\u0627\u062a_\u0645\u0632\u062f\u0648\u062c\u0629",
+                    "RedireccionesDobles",
+                    "Redirecciones_dobles",
                     "DoubleRedirects"
                 ]
             },
             {
                 "realname": "Longpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0637\u0648\u064a\u0644\u0629",
+                    "P\u00e1ginasLargas",
+                    "P\u00e1ginas_largas",
                     "LongPages"
                 ]
             },
             {
                 "realname": "Ancientpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0642\u062f\u064a\u0645\u0629",
+                    "P\u00e1ginasAntiguas",
+                    "P\u00e1ginas_antiguas",
                     "AncientPages"
                 ]
             },
             {
                 "realname": "Lonelypages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0648\u062d\u064a\u062f\u0629",
-                    "\u0635\u0641\u062d\u0627\u062a_\u064a\u062a\u064a\u0645\u0629",
+                    "P\u00e1ginasHu\u00e9rfanas",
+                    "P\u00e1ginas_hu\u00e9rfanas",
                     "LonelyPages",
                     "OrphanedPages"
                 ]
@@ -7538,50 +7685,56 @@
             {
                 "realname": "Fewestrevisions",
                 "aliases": [
-                    "\u0627\u0644\u0623\u0642\u0644_\u062a\u0639\u062f\u064a\u0644\u0627",
+                    "MenosEdiciones",
+                    "Menos_ediciones",
                     "FewestRevisions"
                 ]
             },
             {
                 "realname": "Withoutinterwiki",
                 "aliases": [
-                    "\u0628\u062f\u0648\u0646_\u0625\u0646\u062a\u0631\u0648\u064a\u0643\u064a",
+                    "SinInterwikis",
+                    "Sin_interwikis",
                     "WithoutInterwiki"
                 ]
             },
             {
                 "realname": "Protectedpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0645\u062d\u0645\u064a\u0629",
+                    "P\u00e1ginasProtegidas",
+                    "P\u00e1ginas_protegidas",
                     "ProtectedPages"
                 ]
             },
             {
                 "realname": "Protectedtitles",
                 "aliases": [
-                    "\u0639\u0646\u0627\u0648\u064a\u0646_\u0645\u062d\u0645\u064a\u0629",
+                    "T\u00edtulosProtegidos",
+                    "T\u00edtulos_protegidos",
                     "ProtectedTitles"
                 ]
             },
             {
                 "realname": "Shortpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0642\u0635\u064a\u0631\u0629",
+                    "P\u00e1ginasCortas",
+                    "P\u00e1ginas_cortas",
                     "ShortPages"
                 ]
             },
             {
                 "realname": "Uncategorizedcategories",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u063a\u064a\u0631_\u0645\u0635\u0646\u0641\u0629",
+                    "Categor\u00edasSinCategorizar",
+                    "Categor\u00edas_sin_categorizar",
                     "UncategorizedCategories"
                 ]
             },
             {
                 "realname": "Uncategorizedimages",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a_\u063a\u064a\u0631_\u0645\u0635\u0646\u0641\u0629",
-                    "\u0635\u0648\u0631_\u063a\u064a\u0631_\u0645\u0635\u0646\u0641\u0629",
+                    "Im\u00e1genesSinCategorizar",
+                    "Im\u00e1genes_sin_categorizar",
                     "UncategorizedFiles",
                     "UncategorizedImages"
                 ]
@@ -7589,29 +7742,32 @@
             {
                 "realname": "Uncategorizedpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u063a\u064a\u0631_\u0645\u0635\u0646\u0641\u0629",
+                    "P\u00e1ginasSinCategorizar",
+                    "P\u00e1ginas_sin_categorizar",
                     "UncategorizedPages"
                 ]
             },
             {
                 "realname": "Uncategorizedtemplates",
                 "aliases": [
-                    "\u0642\u0648\u0627\u0644\u0628_\u063a\u064a\u0631_\u0645\u0635\u0646\u0641\u0629",
+                    "PlantillasSinCategorizar",
+                    "Plantillas_sin_categorizar",
                     "UncategorizedTemplates"
                 ]
             },
             {
                 "realname": "Unusedcategories",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u063a\u064a\u0631_\u0645\u0633\u062a\u062e\u062f\u0645\u0629",
+                    "Categor\u00edasSinUso",
+                    "Categor\u00edas_sin_uso",
                     "UnusedCategories"
                 ]
             },
             {
                 "realname": "Unusedimages",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a_\u063a\u064a\u0631_\u0645\u0633\u062a\u062e\u062f\u0645\u0629",
-                    "\u0635\u0648\u0631_\u063a\u064a\u0631_\u0645\u0633\u062a\u062e\u062f\u0645\u0629",
+                    "Im\u00e1genesSinUso",
+                    "Im\u00e1genes_sin_uso",
                     "UnusedFiles",
                     "UnusedImages"
                 ]
@@ -7619,36 +7775,40 @@
             {
                 "realname": "Unusedtemplates",
                 "aliases": [
-                    "\u0642\u0648\u0627\u0644\u0628_\u063a\u064a\u0631_\u0645\u0633\u062a\u062e\u062f\u0645\u0629",
+                    "PlantillasSinUso",
+                    "Plantillas_sin_uso",
                     "UnusedTemplates"
                 ]
             },
             {
                 "realname": "Unwatchedpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u063a\u064a\u0631_\u0645\u0631\u0627\u0642\u0628\u0629",
+                    "P\u00e1ginasSinVigilar",
+                    "P\u00e1ginas_sin_vigilar",
                     "UnwatchedPages"
                 ]
             },
             {
                 "realname": "Wantedcategories",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u0645\u0637\u0644\u0648\u0628\u0629",
+                    "Categor\u00edasRequeridas",
+                    "Categor\u00edas_requeridas",
                     "WantedCategories"
                 ]
             },
             {
                 "realname": "Wantedfiles",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a_\u0645\u0637\u0644\u0648\u0628\u0629",
+                    "ArchivosRequeridos",
+                    "Archivos_requeridos",
                     "WantedFiles"
                 ]
             },
             {
                 "realname": "Wantedpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0645\u0637\u0644\u0648\u0628\u0629",
-                    "\u0648\u0635\u0644\u0627\u062a_\u0645\u0643\u0633\u0648\u0631\u0629",
+                    "P\u00e1ginasRequeridas",
+                    "P\u00e1ginas_requeridas",
                     "WantedPages",
                     "BrokenLinks"
                 ]
@@ -7656,42 +7816,45 @@
             {
                 "realname": "Wantedtemplates",
                 "aliases": [
-                    "\u0642\u0648\u0627\u0644\u0628_\u0645\u0637\u0644\u0648\u0628\u0629",
+                    "PlantillasRequeridas",
+                    "Plantillas_requeridas",
                     "WantedTemplates"
                 ]
             },
             {
                 "realname": "Allpages",
                 "aliases": [
-                    "\u0643\u0644_\u0627\u0644\u0635\u0641\u062d\u0627\u062a",
+                    "Todas",
+                    "Todas_las_p\u00e1ginas",
                     "AllPages"
                 ]
             },
             {
                 "realname": "Prefixindex",
                 "aliases": [
-                    "\u0641\u0647\u0631\u0633_\u0628\u0627\u062f\u0626\u0629",
+                    "P\u00e1ginasPorPrefijo",
+                    "P\u00e1ginas_por_prefijo",
                     "PrefixIndex"
                 ]
             },
             {
                 "realname": "Categories",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a",
+                    "Categor\u00edas",
                     "Categories"
                 ]
             },
             {
                 "realname": "Listredirects",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u062a\u062d\u0648\u064a\u0644\u0627\u062a",
+                    "TodasLasRedirecciones",
+                    "Todas_las_redirecciones",
                     "ListRedirects"
                 ]
             },
             {
                 "realname": "PagesWithProp",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0628\u062e\u0627\u0635\u064a\u0629",
                     "PagesWithProp",
                     "Pageswithprop",
                     "PagesByProp",
@@ -7701,14 +7864,16 @@
             {
                 "realname": "TrackingCategories",
                 "aliases": [
-                    "\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u0627\u0644\u062a\u062a\u0628\u0639",
+                    "Categor\u00edasDeSeguimiento",
+                    "Categor\u00edas_de_seguimiento",
                     "TrackingCategories"
                 ]
             },
             {
                 "realname": "Userlogin",
                 "aliases": [
-                    "\u062f\u062e\u0648\u0644_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "Entrar",
+                    "Entrada_del_usuario",
                     "UserLogin",
                     "Login"
                 ]
@@ -7716,7 +7881,8 @@
             {
                 "realname": "Userlogout",
                 "aliases": [
-                    "\u062e\u0631\u0648\u062c_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "Salida_del_usuario",
+                    "Salir",
                     "UserLogout",
                     "Logout"
                 ]
@@ -7724,51 +7890,46 @@
             {
                 "realname": "CreateAccount",
                 "aliases": [
-                    "\u0625\u0646\u0634\u0627\u0621_\u062d\u0633\u0627\u0628",
+                    "Crear_una_cuenta",
+                    "CrearCuenta",
                     "CreateAccount"
                 ]
             },
             {
                 "realname": "LinkAccounts",
                 "aliases": [
-                    "\u0648\u0635\u0644_\u0627\u0644\u062d\u0633\u0627\u0628\u0627\u062a",
                     "LinkAccounts"
                 ]
             },
             {
                 "realname": "UnlinkAccounts",
                 "aliases": [
-                    "\u0641\u0643_\u0627\u0644\u062d\u0633\u0627\u0628\u0627\u062a",
                     "UnlinkAccounts"
                 ]
             },
             {
                 "realname": "ChangeCredentials",
                 "aliases": [
-                    "\u062a\u063a\u064a\u064a\u0631_\u0627\u0644\u0627\u0639\u062a\u0645\u0627\u062f\u0627\u062a",
                     "ChangeCredentials"
                 ]
             },
             {
                 "realname": "RemoveCredentials",
                 "aliases": [
-                    "\u0625\u0632\u0627\u0644\u0629_\u0627\u0644\u0627\u0639\u062a\u0645\u0627\u062f\u0627\u062a",
                     "RemoveCredentials"
                 ]
             },
             {
                 "realname": "Activeusers",
                 "aliases": [
-                    "\u0645\u0633\u062a\u062e\u062f\u0645\u0648\u0646_\u0646\u0634\u0637\u0648\u0646",
+                    "UsuariosActivos",
                     "ActiveUsers"
                 ]
             },
             {
                 "realname": "Block",
                 "aliases": [
-                    "\u0645\u0646\u0639",
-                    "\u0645\u0646\u0639_\u0623\u064a\u0628\u064a",
-                    "\u0645\u0646\u0639_\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "Bloquear",
                     "Block",
                     "BlockIP",
                     "BlockUser"
@@ -7777,16 +7938,15 @@
             {
                 "realname": "Unblock",
                 "aliases": [
-                    "\u0631\u0641\u0639_\u0645\u0646\u0639",
+                    "Desbloquear",
                     "Unblock"
                 ]
             },
             {
                 "realname": "BlockList",
                 "aliases": [
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0646\u0639",
-                    "\u0639\u0631\u0636_\u0627\u0644\u0645\u0646\u0639",
-                    "\u0642\u0627\u0626\u0645\u0629_\u0645\u0646\u0639_\u0623\u064a\u0628\u064a",
+                    "UsuariosBloqueados",
+                    "Lista_de_usuarios_bloqueados",
                     "BlockList",
                     "ListBlocks",
                     "IPBlockList"
@@ -7802,8 +7962,10 @@
             {
                 "realname": "ChangePassword",
                 "aliases": [
-                    "\u062a\u063a\u064a\u064a\u0631_\u0643\u0644\u0645\u0629_\u0627\u0644\u0633\u0631",
-                    "\u0636\u0628\u0637_\u0643\u0644\u0645\u0629_\u0627\u0644\u0633\u0631",
+                    "Cambiar_contrase\u00f1a",
+                    "CambiarContrase\u00f1a",
+                    "ResetearContrase\u00f1a",
+                    "Resetear_contrase\u00f1a",
                     "ChangePassword",
                     "ResetPass",
                     "ResetPassword"
@@ -7812,42 +7974,44 @@
             {
                 "realname": "BotPasswords",
                 "aliases": [
-                    "\u0643\u0644\u0645\u0627\u062a_\u0633\u0631_\u0627\u0644\u0628\u0648\u062a",
                     "BotPasswords"
                 ]
             },
             {
                 "realname": "PasswordReset",
                 "aliases": [
-                    "\u0625\u0639\u0627\u062f\u0629_\u0636\u0628\u0637_\u0643\u0644\u0645\u0629_\u0627\u0644\u0633\u0631",
+                    "RestablecerContrase\u00f1a",
+                    "Restablecer_contrase\u00f1a",
                     "PasswordReset"
                 ]
             },
             {
                 "realname": "DeletedContributions",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0647\u0645\u0627\u062a_\u0645\u062d\u0630\u0648\u0641\u0629",
+                    "ContribucionesBorradas",
+                    "Contribuciones_borradas",
+                    "Contribuciones_Borradas",
                     "DeletedContributions"
                 ]
             },
             {
                 "realname": "Preferences",
                 "aliases": [
-                    "\u062a\u0641\u0636\u064a\u0644\u0627\u062a",
+                    "Preferencias",
                     "Preferences"
                 ]
             },
             {
                 "realname": "ResetTokens",
                 "aliases": [
-                    "\u0625\u0639\u0627\u062f\u0629_\u0636\u0628\u0637_\u0627\u0644\u0645\u0641\u0627\u062a\u064a\u062d",
+                    "ReestablecerClaves",
                     "ResetTokens"
                 ]
             },
             {
                 "realname": "Contributions",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0647\u0645\u0627\u062a",
+                    "Contribuciones",
                     "Contributions",
                     "Contribs"
                 ]
@@ -7855,8 +8019,8 @@
             {
                 "realname": "Listgrouprights",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0635\u0644\u0627\u062d\u064a\u0627\u062a_\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0627\u062a",
-                    "\u0635\u0644\u0627\u062d\u064a\u0627\u062a_\u0645\u062c\u0645\u0648\u0639\u0627\u062a_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646",
+                    "ListaDerechosGrupos",
+                    "Derechos_de_grupos_de_usuarios",
                     "ListGroupRights",
                     "UserGroupRights"
                 ]
@@ -7864,15 +8028,14 @@
             {
                 "realname": "Listgrants",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0645\u0646\u062d",
                     "ListGrants"
                 ]
             },
             {
                 "realname": "Listusers",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646",
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646",
+                    "ListaUsuarios",
+                    "Lista_de_usuarios",
                     "ListUsers",
                     "UserList",
                     "Users"
@@ -7881,23 +8044,24 @@
             {
                 "realname": "Listadmins",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0625\u062f\u0627\u0631\u064a\u064a\u0646",
+                    "ListaDeAdministradores",
+                    "Lista_de_administradores",
                     "ListAdmins"
                 ]
             },
             {
                 "realname": "Listbots",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0628\u0648\u062a\u0627\u062a",
+                    "ListaDeBots",
+                    "Lista_de_bots",
                     "ListBots"
                 ]
             },
             {
                 "realname": "Userrights",
                 "aliases": [
-                    "\u0635\u0644\u0627\u062d\u064a\u0627\u062a_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
-                    "\u062a\u0631\u0642\u064a\u0629_\u0645\u062f\u064a\u0631_\u0646\u0638\u0627\u0645",
-                    "\u062a\u0631\u0642\u064a\u0629_\u0628\u0648\u062a",
+                    "PermisosUsuarios",
+                    "Permisos_de_usuarios",
                     "UserRights",
                     "MakeSysop",
                     "MakeBot"
@@ -7906,21 +8070,22 @@
             {
                 "realname": "EditWatchlist",
                 "aliases": [
-                    "\u062a\u0639\u062f\u064a\u0644_\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0631\u0627\u0642\u0628\u0629",
+                    "EditarSeguimiento",
                     "EditWatchlist"
                 ]
             },
             {
                 "realname": "PasswordPolicies",
                 "aliases": [
+                    "Pol\u00edtica_de_contrase\u00f1as",
                     "PasswordPolicies"
                 ]
             },
             {
                 "realname": "Newimages",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a_\u062c\u062f\u064a\u062f\u0629",
-                    "\u0635\u0648\u0631_\u062c\u062f\u064a\u062f\u0629",
+                    "NuevasIm\u00e1genes",
+                    "Nuevas_im\u00e1genes",
                     "NewFiles",
                     "NewImages"
                 ]
@@ -7928,8 +8093,7 @@
             {
                 "realname": "Log",
                 "aliases": [
-                    "\u0633\u062c\u0644",
-                    "\u0633\u062c\u0644\u0627\u062a",
+                    "Registro",
                     "Log",
                     "Logs"
                 ]
@@ -7937,29 +8101,32 @@
             {
                 "realname": "Watchlist",
                 "aliases": [
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0631\u0627\u0642\u0628\u0629",
+                    "Seguimiento",
+                    "Lista_de_seguimiento",
                     "Watchlist"
                 ]
             },
             {
                 "realname": "Newpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u062c\u062f\u064a\u062f\u0629",
+                    "P\u00e1ginasNuevas",
+                    "P\u00e1ginas_nuevas",
                     "NewPages"
                 ]
             },
             {
                 "realname": "Recentchanges",
                 "aliases": [
-                    "\u0623\u062d\u062f\u062b_\u0627\u0644\u062a\u063a\u064a\u064a\u0631\u0627\u062a",
+                    "CambiosRecientes",
+                    "Cambios_recientes",
                     "RecentChanges"
                 ]
             },
             {
                 "realname": "Recentchangeslinked",
                 "aliases": [
-                    "\u0623\u062d\u062f\u062b_\u0627\u0644\u062a\u063a\u064a\u064a\u0631\u0627\u062a_\u0627\u0644\u0645\u0648\u0635\u0648\u0644\u0629",
-                    "\u062a\u063a\u064a\u064a\u0631\u0627\u062a_\u0645\u0631\u062a\u0628\u0637\u0629",
+                    "CambiosEnEnlazadas",
+                    "Cambios_en_enlazadas",
                     "RecentChangesLinked",
                     "RelatedChanges"
                 ]
@@ -7967,16 +8134,15 @@
             {
                 "realname": "Tags",
                 "aliases": [
-                    "\u0648\u0633\u0648\u0645",
+                    "Etiquetas",
                     "Tags"
                 ]
             },
             {
                 "realname": "Listfiles",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0645\u0644\u0641\u0627\u062a",
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0644\u0641\u0627\u062a",
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0635\u0648\u0631",
+                    "ListaIm\u00e1genes",
+                    "Lista_de_im\u00e1genes",
                     "ListFiles",
                     "FileList",
                     "ImageList"
@@ -7985,50 +8151,52 @@
             {
                 "realname": "Filepath",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0631_\u0645\u0644\u0641",
+                    "RutaDeArchivo",
+                    "Ruta_de_archivo",
                     "FilePath"
                 ]
             },
             {
                 "realname": "MediaStatistics",
                 "aliases": [
-                    "\u0625\u062d\u0635\u0627\u0621\u0627\u062a_\u0627\u0644\u0645\u064a\u062f\u064a\u0627",
                     "MediaStatistics"
                 ]
             },
             {
                 "realname": "MIMEsearch",
                 "aliases": [
-                    "\u0628\u062d\u062b_\u0645\u064a\u0645",
+                    "BuscarPorMIME",
+                    "Buscar_por_MIME",
                     "MIMESearch"
                 ]
             },
             {
                 "realname": "FileDuplicateSearch",
                 "aliases": [
-                    "\u0628\u062d\u062b_\u0645\u0644\u0641_\u0645\u0643\u0631\u0631",
+                    "BuscarArchivosDuplicados",
+                    "Buscar_archivos_duplicados",
                     "FileDuplicateSearch"
                 ]
             },
             {
                 "realname": "Upload",
                 "aliases": [
-                    "\u0631\u0641\u0639",
+                    "SubirArchivo",
+                    "Subir_archivo",
                     "Upload"
                 ]
             },
             {
                 "realname": "UploadStash",
                 "aliases": [
-                    "\u0631\u0641\u0639_\u0645\u062e\u0641\u064a",
+                    "ArchivosEscondidos",
+                    "FicherosEscondidos",
                     "UploadStash"
                 ]
             },
             {
                 "realname": "ListDuplicatedFiles",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0627\u0644\u0645\u0644\u0641\u0627\u062a_\u0627\u0644\u0645\u0643\u0631\u0631\u0629",
-                    "\u0639\u0631\u0636_\u062a\u0643\u0631\u0627\u0631_\u0627\u0644\u0645\u0644\u0641\u0627\u062a",
                     "ListDuplicatedFiles",
                     "ListFileDuplicates"
                 ]
@@ -8036,14 +8204,14 @@
             {
                 "realname": "ApiSandbox",
                 "aliases": [
-                    "\u0645\u0644\u0639\u0628_\u0625\u064a\u0647_\u0628\u064a_\u0622\u064a",
+                    "Zona_de_pruebas_de_la_API",
                     "ApiSandbox"
                 ]
             },
             {
                 "realname": "Statistics",
                 "aliases": [
-                    "\u0625\u062d\u0635\u0627\u0621\u0627\u062a",
+                    "Estad\u00edsticas",
                     "Statistics",
                     "Stats"
                 ]
@@ -8051,43 +8219,48 @@
             {
                 "realname": "Allmessages",
                 "aliases": [
-                    "\u0643\u0644_\u0627\u0644\u0631\u0633\u0627\u0626\u0644",
+                    "TodosLosMensajes",
+                    "Todos_los_mensajes",
                     "AllMessages"
                 ]
             },
             {
                 "realname": "Version",
                 "aliases": [
-                    "\u0646\u0633\u062e\u0629",
+                    "Versi\u00f3n",
                     "Version"
                 ]
             },
             {
                 "realname": "Lockdb",
                 "aliases": [
-                    "\u063a\u0644\u0642_\u0642\u0628",
+                    "BloquearBasedeDatos",
+                    "Bloquear_base_de_datos",
                     "LockDB"
                 ]
             },
             {
                 "realname": "Unlockdb",
                 "aliases": [
-                    "\u0641\u062a\u062d_\u0642\u0628",
+                    "DesbloquearBasedeDatos",
+                    "Desbloquear_base_de_datos",
                     "UnlockDB"
                 ]
             },
             {
                 "realname": "LinkSearch",
                 "aliases": [
-                    "\u0628\u062d\u062b_\u0627\u0644\u0648\u0635\u0644\u0627\u062a",
+                    "B\u00fasquedaDeEnlaces",
+                    "B\u00fasqueda_de_enlaces",
                     "LinkSearch"
                 ]
             },
             {
                 "realname": "Randompage",
                 "aliases": [
-                    "\u0639\u0634\u0648\u0627\u0626\u064a",
-                    "\u0635\u0641\u062d\u0629_\u0639\u0634\u0648\u0627\u0626\u064a\u0629",
+                    "Aleatoria",
+                    "Aleatorio",
+                    "P\u00e1gina_aleatoria",
                     "Random",
                     "RandomPage"
                 ]
@@ -8095,21 +8268,22 @@
             {
                 "realname": "RandomInCategory",
                 "aliases": [
-                    "\u0639\u0634\u0648\u0627\u0626\u064a_\u0641\u064a_\u062a\u0635\u0646\u064a\u0641",
+                    "Aleatorio_en_categor\u00eda",
+                    "Aleatoria_en_categor\u00eda",
                     "RandomInCategory"
                 ]
             },
             {
                 "realname": "Randomredirect",
                 "aliases": [
-                    "\u062a\u062d\u0648\u064a\u0644\u0629_\u0639\u0634\u0648\u0627\u0626\u064a\u0629",
+                    "Redirecci\u00f3nAleatoria",
+                    "Redirecci\u00f3n_aleatoria",
                     "RandomRedirect"
                 ]
             },
             {
                 "realname": "Randomrootpage",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0629_\u062c\u0630\u0631_\u0639\u0634\u0648\u0627\u0626\u064a\u0629",
                     "RandomRootpage"
                 ]
             },
@@ -8122,8 +8296,8 @@
             {
                 "realname": "Mostlinkedcategories",
                 "aliases": [
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u0648\u0635\u0644\u0627",
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u062a\u0635\u0646\u064a\u0641\u0627\u062a_\u0627\u0633\u062a\u062e\u062f\u0627\u0645\u0627",
+                    "Categor\u00edasM\u00e1sUsadas",
+                    "Categor\u00edas_m\u00e1s_usadas",
                     "MostLinkedCategories",
                     "MostUsedCategories"
                 ]
@@ -8131,9 +8305,8 @@
             {
                 "realname": "Mostimages",
                 "aliases": [
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0645\u0644\u0641\u0627\u062a_\u0648\u0635\u0644\u0627",
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0645\u0644\u0641\u0627\u062a",
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0635\u0648\u0631",
+                    "M\u00e1sIm\u00e1genes",
+                    "Con_m\u00e1s_im\u00e1genes",
                     "MostLinkedFiles",
                     "MostFiles",
                     "MostImages"
@@ -8142,15 +8315,16 @@
             {
                 "realname": "Mostinterwikis",
                 "aliases": [
-                    "\u0627\u0644\u0623\u0643\u062b\u0631_\u0625\u0646\u062a\u0631\u0648\u064a\u0643\u064a",
+                    "M\u00e1sInterwikis",
                     "MostInterwikis"
                 ]
             },
             {
                 "realname": "Mostlinked",
                 "aliases": [
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0635\u0641\u062d\u0627\u062a_\u0648\u0635\u0644\u0627",
-                    "\u0627\u0644\u0623\u0643\u062b\u0631_\u0648\u0635\u0644\u0627",
+                    "M\u00e1sEnlazados",
+                    "M\u00e1s_enlazados",
+                    "M\u00e1sEnlazadas",
                     "MostLinkedPages",
                     "MostLinked"
                 ]
@@ -8158,8 +8332,8 @@
             {
                 "realname": "Mostlinkedtemplates",
                 "aliases": [
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0642\u0648\u0627\u0644\u0628_\u0648\u0635\u0644\u0627",
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0642\u0648\u0627\u0644\u0628_\u0627\u0633\u062a\u062e\u062f\u0627\u0645\u0627",
+                    "PlantillasM\u00e1sUsadas",
+                    "Plantillas_m\u00e1s_usadas",
                     "MostTranscludedPages",
                     "MostLinkedTemplates",
                     "MostUsedTemplates"
@@ -8168,105 +8342,116 @@
             {
                 "realname": "Mostcategories",
                 "aliases": [
-                    "\u0627\u0644\u0623\u0643\u062b\u0631_\u062a\u0635\u0646\u064a\u0641\u0627",
+                    "M\u00e1sCategorizadas",
+                    "M\u00e1s_categorizadas",
                     "MostCategories"
                 ]
             },
             {
                 "realname": "Mostrevisions",
                 "aliases": [
-                    "\u0627\u0644\u0623\u0643\u062b\u0631_\u062a\u0639\u062f\u064a\u0644\u0627",
+                    "M\u00e1sEdiciones",
+                    "M\u00e1s_ediciones",
                     "MostRevisions"
                 ]
             },
             {
                 "realname": "ComparePages",
                 "aliases": [
-                    "\u0645\u0642\u0627\u0631\u0646\u0629_\u0627\u0644\u0635\u0641\u062d\u0627\u062a",
+                    "Comparar_p\u00e1ginas",
+                    "CompararP\u00e1ginas",
                     "ComparePages"
                 ]
             },
             {
                 "realname": "Export",
                 "aliases": [
-                    "\u062a\u0635\u062f\u064a\u0631",
+                    "Exportar",
                     "Export"
                 ]
             },
             {
                 "realname": "Import",
                 "aliases": [
-                    "\u0627\u0633\u062a\u064a\u0631\u0627\u062f",
+                    "Importar",
                     "Import"
                 ]
             },
             {
                 "realname": "Undelete",
                 "aliases": [
-                    "\u0627\u0633\u062a\u0631\u062c\u0627\u0639",
+                    "Restaurar",
                     "Undelete"
                 ]
             },
             {
                 "realname": "Whatlinkshere",
                 "aliases": [
-                    "\u0645\u0627\u0630\u0627_\u064a\u0635\u0644_\u0647\u0646\u0627",
+                    "LoQueEnlazaAqu\u00ed",
+                    "Lo_que_enlaza_aqu\u00ed",
                     "WhatLinksHere"
                 ]
             },
             {
                 "realname": "MergeHistory",
                 "aliases": [
-                    "\u062f\u0645\u062c_\u0627\u0644\u062a\u0627\u0631\u064a\u062e",
+                    "FusionarHistorial",
+                    "Fusionar_historial",
                     "MergeHistory"
                 ]
             },
             {
                 "realname": "ExpandTemplates",
                 "aliases": [
-                    "\u0641\u0631\u062f_\u0627\u0644\u0642\u0648\u0627\u0644\u0628",
+                    "Sustituir_plantillas",
+                    "Sustituidor_de_plantillas",
+                    "Expandir_plantillas",
                     "ExpandTemplates"
                 ]
             },
             {
                 "realname": "Booksources",
                 "aliases": [
-                    "\u0645\u0635\u0627\u062f\u0631_\u0643\u062a\u0627\u0628",
+                    "FuentesDeLibros",
+                    "Fuentes_de_libros",
                     "BookSources"
                 ]
             },
             {
                 "realname": "ApiHelp",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0639\u062f\u0629_\u0625\u064a\u0647_\u0628\u064a_\u0622\u064a",
+                    "AyudaAPI",
+                    "Ayuda_de_la_API",
                     "ApiHelp"
                 ]
             },
             {
                 "realname": "Blankpage",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0629_\u0641\u0627\u0631\u063a\u0629",
+                    "P\u00e1ginaEnBlanco",
+                    "Blanquear_p\u00e1gina",
+                    "BlanquearP\u00e1gina",
+                    "P\u00e1gina_en_blanco",
                     "BlankPage"
                 ]
             },
             {
                 "realname": "Diff",
                 "aliases": [
-                    "\u0641\u0631\u0642",
                     "Diff"
                 ]
             },
             {
                 "realname": "EditTags",
                 "aliases": [
-                    "\u062a\u0639\u062f\u064a\u0644_\u0627\u0644\u0648\u0633\u0648\u0645",
                     "EditTags"
                 ]
             },
             {
                 "realname": "Emailuser",
                 "aliases": [
-                    "\u0645\u0631\u0627\u0633\u0644\u0629_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "Enviar_correo_electr\u00f3nico",
+                    "MandarEmailUsuario",
                     "EmailUser",
                     "Email"
                 ]
@@ -8274,42 +8459,48 @@
             {
                 "realname": "Movepage",
                 "aliases": [
-                    "\u0646\u0642\u0644_\u0635\u0641\u062d\u0629",
+                    "MoverP\u00e1gina",
+                    "Mover_p\u00e1gina",
                     "MovePage"
                 ]
             },
             {
                 "realname": "Mycontributions",
                 "aliases": [
-                    "\u0645\u0633\u0627\u0647\u0645\u0627\u062a\u064a",
+                    "MisContribuciones",
+                    "Mis_contribuciones",
                     "MyContributions"
                 ]
             },
             {
                 "realname": "MyLanguage",
                 "aliases": [
-                    "\u0644\u063a\u062a\u064a",
+                    "MiIdioma",
+                    "Mi_idioma",
                     "MyLanguage"
                 ]
             },
             {
                 "realname": "Mypage",
                 "aliases": [
-                    "\u0635\u0641\u062d\u062a\u064a",
+                    "MiP\u00e1gina",
+                    "Mi_p\u00e1gina",
                     "MyPage"
                 ]
             },
             {
                 "realname": "Mytalk",
                 "aliases": [
-                    "\u0646\u0642\u0627\u0634\u064a",
+                    "MiDiscusi\u00f3n",
+                    "Mi_discusi\u00f3n",
                     "MyTalk"
                 ]
             },
             {
                 "realname": "Myuploads",
                 "aliases": [
-                    "\u0631\u0641\u0648\u0639\u0627\u062a\u064a",
+                    "MisArchivosSubidos",
+                    "Mis_archivos_subidos",
                     "MyUploads",
                     "MyFiles"
                 ]
@@ -8317,7 +8508,10 @@
             {
                 "realname": "AllMyUploads",
                 "aliases": [
-                    "\u0643\u0644_\u0645\u0644\u0641\u0627\u062a\u064a",
+                    "TodasMisSubidas",
+                    "Todas_mis_subidas",
+                    "TodosMisArchivos",
+                    "Todos_mis_archivos",
                     "AllMyUploads",
                     "AllMyFiles"
                 ]
@@ -8325,8 +8519,8 @@
             {
                 "realname": "PermanentLink",
                 "aliases": [
-                    "\u0648\u0635\u0644\u0629_\u062f\u0627\u0626\u0645\u0629",
-                    "\u0631\u0627\u0628\u0637_\u062f\u0627\u0626\u0645",
+                    "EnlacePermanente",
+                    "Enlace_permanente",
                     "PermanentLink",
                     "PermaLink"
                 ]
@@ -8334,29 +8528,29 @@
             {
                 "realname": "Redirect",
                 "aliases": [
-                    "\u062a\u062d\u0648\u064a\u0644",
+                    "Redirigir",
                     "Redirect"
                 ]
             },
             {
                 "realname": "Revisiondelete",
                 "aliases": [
-                    "\u062d\u0630\u0641_\u0645\u0631\u0627\u062c\u0639\u0629",
-                    "\u062d\u0630\u0641_\u0646\u0633\u062e\u0629",
+                    "BorrarRevisi\u00f3n",
+                    "Borrar_revisi\u00f3n",
                     "RevisionDelete"
                 ]
             },
             {
                 "realname": "RunJobs",
                 "aliases": [
-                    "\u062a\u0634\u063a\u064a\u0644_\u0627\u0644\u0648\u0638\u0627\u0626\u0641",
                     "RunJobs"
                 ]
             },
             {
                 "realname": "Specialpages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u062e\u0627\u0635\u0629",
+                    "P\u00e1ginasEspeciales",
+                    "P\u00e1ginas_especiales",
                     "SpecialPages"
                 ]
             },
@@ -8369,50 +8563,53 @@
             {
                 "realname": "Search",
                 "aliases": [
-                    "\u0628\u062d\u062b",
+                    "Buscar",
                     "Search"
                 ]
             },
             {
                 "realname": "Confirmemail",
                 "aliases": [
-                    "\u062a\u0623\u0643\u064a\u062f_\u0627\u0644\u0628\u0631\u064a\u062f",
+                    "Confirmar_correo_electr\u00f3nico",
+                    "ConfirmarEmail",
                     "ConfirmEmail"
                 ]
             },
             {
                 "realname": "Invalidateemail",
                 "aliases": [
-                    "\u062a\u0639\u0637\u064a\u0644_\u0627\u0644\u0628\u0631\u064a\u062f_\u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a",
+                    "Invalidar_correo_electr\u00f3nico",
+                    "InvalidarEmail",
                     "InvalidateEmail"
                 ]
             },
             {
                 "realname": "ChangeEmail",
                 "aliases": [
-                    "\u062a\u063a\u064a\u064a\u0631_\u0627\u0644\u0628\u0631\u064a\u062f",
+                    "Cambiar_correo_electr\u00f3nico",
+                    "CambiarEmail",
+                    "CambiarCorreo",
                     "ChangeEmail"
                 ]
             },
             {
                 "realname": "ChangeContentModel",
                 "aliases": [
-                    "\u062a\u063a\u064a\u064a\u0631_\u0645\u0648\u062f\u064a\u0644_\u0627\u0644\u0645\u062d\u062a\u0648\u0649",
                     "ChangeContentModel"
                 ]
             },
             {
                 "realname": "Hieroglyphs",
                 "aliases": [
-                    "\u0647\u064a\u0631\u0648\u063a\u0644\u064a\u0641\u064a",
+                    "Jerogl\u00edficos",
                     "Hieroglyphs"
                 ]
             },
             {
                 "realname": "SiteMatrix",
                 "aliases": [
-                    "\u0645\u0635\u0641\u0648\u0641\u0629_\u0627\u0644\u0645\u0648\u0642\u0639",
-                    "\u0648\u064a\u0643\u064a\u0627\u062a_\u0648\u064a\u0643\u064a\u0645\u064a\u062f\u064a\u0627",
+                    "Todos_los_Wikis_de_Wikimedia",
+                    "Todos_los_wikis_de_Wikimedia",
                     "SiteMatrix",
                     "WikimediaWikis"
                 ]
@@ -8420,7 +8617,7 @@
             {
                 "realname": "CiteThisPage",
                 "aliases": [
-                    "\u0627\u0633\u062a\u0634\u0647\u0627\u062f",
+                    "Citar",
                     "CiteThisPage",
                     "Cite"
                 ]
@@ -8428,41 +8625,42 @@
             {
                 "realname": "CategoryTree",
                 "aliases": [
-                    "\u0634\u062c\u0631\u0629_\u062a\u0635\u0646\u064a\u0641",
+                    "\u00c1rbolDeCategor\u00edas",
+                    "\u00c1rbol_de_categor\u00edas",
                     "CategoryTree"
                 ]
             },
             {
                 "realname": "Gadgets",
                 "aliases": [
-                    "\u0625\u0636\u0627\u0641\u0627\u062a",
+                    "Accesorios",
+                    "Artilugios",
                     "Gadgets"
                 ]
             },
             {
                 "realname": "GadgetUsage",
                 "aliases": [
+                    "Uso_de_accesorios",
+                    "Uso_de_artilugios",
                     "GadgetUsage"
                 ]
             },
             {
                 "realname": "OrphanedTimedText",
                 "aliases": [
-                    "\u0646\u0635_\u0632\u0645\u0646\u064a_\u064a\u062a\u064a\u0645",
                     "OrphanedTimedText"
                 ]
             },
             {
                 "realname": "TimedMediaHandler",
                 "aliases": [
-                    "\u0645\u0639\u0627\u0644\u062c_\u0627\u0644\u0645\u064a\u062f\u064a\u0627_\u0627\u0644\u0632\u0645\u0646\u064a\u0629",
                     "TimedMediaHandler"
                 ]
             },
             {
                 "realname": "UrlShortener",
                 "aliases": [
-                    "\u062a\u0642\u0635\u064a\u0631_\u0627\u0644\u0645\u0633\u0627\u0631",
                     "UrlShortener"
                 ]
             },
@@ -8481,23 +8679,25 @@
             {
                 "realname": "GlobalBlock",
                 "aliases": [
-                    "\u0645\u0646\u0639_\u0639\u0627\u0645",
+                    "BloquearGlobal",
+                    "Bloquear_global",
+                    "Bloqueo_global",
                     "GlobalBlock"
                 ]
             },
             {
                 "realname": "GlobalBlockList",
                 "aliases": [
-                    "\u0642\u0627\u0626\u0645\u0629_\u0645\u0646\u0639_\u0639\u0627\u0645\u0629",
+                    "Lista_de_bloqueos_globales",
+                    "Lista_bloqueos_globales",
                     "GlobalBlockList"
                 ]
             },
             {
                 "realname": "GlobalBlockStatus",
                 "aliases": [
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u0646\u0639_\u0627\u0644\u0639\u0627\u0645_\u0627\u0644\u0628\u064a\u0636\u0627\u0621",
-                    "\u062d\u0627\u0644\u0629_\u0627\u0644\u0645\u0646\u0639_\u0627\u0644\u0639\u0627\u0645",
-                    "\u062a\u0639\u0637\u064a\u0644_\u0627\u0644\u0645\u0646\u0639_\u0627\u0644\u0639\u0627\u0645",
+                    "Lista_blanca_de_bloqueos_globales",
+                    "Lista_blanca_bloqueos_globales",
                     "GlobalBlockWhitelist",
                     "GlobalBlockStatus",
                     "DisableGlobalBlock"
@@ -8506,8 +8706,8 @@
             {
                 "realname": "RemoveGlobalBlock",
                 "aliases": [
-                    "\u0631\u0641\u0639_\u0645\u0646\u0639_\u0639\u0627\u0645",
-                    "\u0625\u0632\u0627\u0644\u0629_\u0645\u0646\u0639_\u0639\u0627\u0645",
+                    "DesbloquearGlobal",
+                    "Desbloquear_global",
                     "GlobalUnblock",
                     "RemoveGlobalBlock"
                 ]
@@ -8515,35 +8715,37 @@
             {
                 "realname": "SecurePoll",
                 "aliases": [
-                    "\u0627\u0642\u062a\u0631\u0627\u0639_\u0622\u0645\u0646",
                     "SecurePoll"
                 ]
             },
             {
                 "realname": "Renameuser",
                 "aliases": [
-                    "\u0625\u0639\u0627\u062f\u0629_\u062a\u0633\u0645\u064a\u0629_\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "RenombrarUsuario",
+                    "Renombrar_usuario",
+                    "Cambiar_el_nombre_de_usuario",
                     "RenameUser"
                 ]
             },
             {
                 "realname": "Nuke",
                 "aliases": [
-                    "\u062d\u0630\u0641_\u0643\u0645\u064a",
+                    "BorradoMasivo",
+                    "Borrado_en_masa",
+                    "Borrado_masivo",
                     "Nuke"
                 ]
             },
             {
                 "realname": "Captcha",
                 "aliases": [
-                    "\u0643\u0627\u0628\u062a\u0634\u0627",
                     "Captcha"
                 ]
             },
             {
                 "realname": "CentralAuth",
                 "aliases": [
-                    "\u062a\u062d\u0642\u0642_\u0645\u0631\u0643\u0632\u064a",
+                    "Informaci\u00f3n_de_la_cuenta_global",
                     "CentralAuth",
                     "GlobalAccount"
                 ]
@@ -8563,15 +8765,16 @@
             {
                 "realname": "MergeAccount",
                 "aliases": [
-                    "\u062f\u0645\u062c_\u062d\u0633\u0627\u0628",
+                    "Fusionar_cuenta_global",
+                    "FusionarCuentaGlobal",
                     "MergeAccount"
                 ]
             },
             {
                 "realname": "GlobalGroupMembership",
                 "aliases": [
-                    "\u0635\u0644\u0627\u062d\u064a\u0627\u062a_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645_\u0627\u0644\u0639\u0627\u0645\u0629",
-                    "\u0639\u0636\u0648\u064a\u0629_\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629_\u0627\u0644\u0639\u0627\u0645\u0629",
+                    "Permisos_de_usuario_global",
+                    "PermisosUsuarioGlobal",
                     "GlobalUserRights",
                     "GlobalGroupMembership"
                 ]
@@ -8579,14 +8782,16 @@
             {
                 "realname": "GlobalGroupPermissions",
                 "aliases": [
-                    "\u0633\u0645\u0627\u062d\u0627\u062a_\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629_\u0627\u0644\u0639\u0627\u0645\u0629",
+                    "Permisos_de_grupo_global",
+                    "PermisosGrupoGlobal",
                     "GlobalGroupPermissions"
                 ]
             },
             {
                 "realname": "WikiSets",
                 "aliases": [
-                    "\u062a\u0639\u062f\u064a\u0644_\u0645\u062c\u0645\u0648\u0639\u0627\u062a_\u0627\u0644\u0648\u064a\u0643\u064a",
+                    "AjustesWiki",
+                    "EditarAjustesWiki",
                     "WikiSets",
                     "EditWikiSets"
                 ]
@@ -8594,78 +8799,87 @@
             {
                 "realname": "GlobalUsers",
                 "aliases": [
-                    "\u0645\u0633\u062a\u062e\u062f\u0645\u0648\u0646_\u0639\u0627\u0645\u0648\u0646",
+                    "Usuarios_globales",
                     "GlobalUsers"
                 ]
             },
             {
                 "realname": "MultiLock",
                 "aliases": [
-                    "\u0642\u0641\u0644_\u0645\u062a\u0639\u062f\u062f",
                     "MultiLock"
                 ]
             },
             {
                 "realname": "GlobalRenameUser",
                 "aliases": [
-                    "\u0625\u0639\u0627\u062f\u0629_\u062a\u0633\u0645\u064a\u0629_\u0645\u0633\u062a\u062e\u062f\u0645_\u0639\u0627\u0645\u0629",
                     "GlobalRenameUser"
                 ]
             },
             {
                 "realname": "GlobalRenameProgress",
                 "aliases": [
-                    "\u062a\u0637\u0648\u0631_\u0625\u0639\u0627\u062f\u0629_\u062a\u0633\u0645\u064a\u0629_\u0639\u0627\u0645\u0629",
                     "GlobalRenameProgress"
                 ]
             },
             {
                 "realname": "GlobalUserMerge",
                 "aliases": [
-                    "\u062f\u0645\u062c_\u0645\u0633\u062a\u062e\u062f\u0645_\u0639\u0627\u0645",
                     "GlobalUserMerge"
                 ]
             },
             {
                 "realname": "ApiFeatureUsage",
                 "aliases": [
-                    "\u0627\u0633\u062a\u062e\u062f\u0627\u0645_\u062e\u0635\u0627\u0626\u0635_\u0625\u064a\u0647_\u0628\u064a_\u0622\u064a",
                     "ApiFeatureUsage"
                 ]
             },
             {
                 "realname": "BannerLoader",
                 "aliases": [
-                    "\u0645\u062d\u0645\u0644_\u0627\u0644\u0625\u0639\u0644\u0627\u0646",
                     "BannerLoader"
                 ]
             },
             {
                 "realname": "BannerRandom",
                 "aliases": [
-                    "\u0625\u0639\u0644\u0627\u0646_\u0639\u0634\u0648\u0627\u0626\u064a",
                     "BannerRandom"
                 ]
             },
             {
                 "realname": "RecordImpression",
                 "aliases": [
-                    "\u062a\u0633\u062c\u064a\u0644_\u0627\u0644\u0627\u0646\u0637\u0628\u0627\u0639",
                     "RecordImpression"
                 ]
             },
             {
                 "realname": "HideBanners",
                 "aliases": [
-                    "\u0625\u062e\u0641\u0627\u0621_\u0627\u0644\u0625\u0639\u0644\u0627\u0646",
                     "HideBanners"
                 ]
             },
             {
                 "realname": "CNReporter",
                 "aliases": [
-                    "\u0645\u0628\u0644\u063a_\u0645_\u0645",
                     "CNReporter"
+                ]
+            },
+            {
+                "realname": "Book",
+                "aliases": [
+                    "Libro",
+                    "Libros",
+                    "Colecci\u00f3n",
+                    "Colecciones",
+                    "Book",
+                    "Collection"
+                ]
+            },
+            {
+                "realname": "RenderBook",
+                "aliases": [
+                    "Generar_libro",
+                    "Generar_libros",
+                    "RenderBook"
                 ]
             },
             {
@@ -8677,29 +8891,26 @@
             {
                 "realname": "AbuseLog",
                 "aliases": [
-                    "\u0633\u062c\u0644_\u0627\u0644\u0625\u0633\u0627\u0621\u0629",
+                    "RegistroAbusos",
                     "AbuseLog"
                 ]
             },
             {
                 "realname": "AbuseFilter",
                 "aliases": [
-                    "\u0645\u0631\u0634\u062d_\u0627\u0644\u0625\u0633\u0627\u0621\u0629",
-                    "\u0641\u0644\u062a\u0631_\u0627\u0644\u0625\u0633\u0627\u0621\u0629",
+                    "FiltroAntiAbusos",
                     "AbuseFilter"
                 ]
             },
             {
                 "realname": "MostGloballyLinkedFiles",
                 "aliases": [
-                    "\u0623\u0643\u062b\u0631_\u0627\u0644\u0645\u0644\u0641\u0627\u062a_\u0627\u0644\u0645\u0648\u0635\u0648\u0644\u0629_\u0639\u0627\u0645\u0629",
                     "MostGloballyLinkedFiles"
                 ]
             },
             {
                 "realname": "GloballyWantedFiles",
                 "aliases": [
-                    "\u0645\u0644\u0641\u0627\u062a_\u0645\u0637\u0644\u0648\u0628\u0629_\u0639\u0627\u0645\u0629",
                     "GloballyWantedFiles"
                 ]
             },
@@ -8712,48 +8923,45 @@
             {
                 "realname": "GlobalUsage",
                 "aliases": [
-                    "\u0627\u0633\u062a\u062e\u062f\u0627\u0645_\u0639\u0627\u0645",
+                    "Uso_global",
+                    "UsoGlobal",
                     "GlobalUsage"
                 ]
             },
             {
                 "realname": "MassMessage",
                 "aliases": [
-                    "\u0631\u0633\u0627\u0626\u0644_\u0643\u0645\u064a\u0629",
                     "MassMessage"
                 ]
             },
             {
                 "realname": "CreateMassMessageList",
                 "aliases": [
-                    "\u0625\u0646\u0634\u0627\u0621_\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0631\u0633\u0627\u0626\u0644_\u0627\u0644\u0643\u0645\u064a\u0629",
                     "CreateMassMessageList"
                 ]
             },
             {
                 "realname": "EditMassMessageList",
                 "aliases": [
-                    "\u062a\u0639\u062f\u064a\u0644_\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0631\u0633\u0627\u0626\u0644_\u0627\u0644\u0643\u0645\u064a\u0629",
                     "EditMassMessageList"
                 ]
             },
             {
                 "realname": "BetaFeatures",
                 "aliases": [
-                    "\u062e\u0635\u0627\u0626\u0635_\u0627\u0644\u0628\u064a\u062a\u0627",
                     "BetaFeatures"
                 ]
             },
             {
                 "realname": "LintErrors",
                 "aliases": [
+                    "Errores_de_sintaxis",
                     "LintErrors"
                 ]
             },
             {
                 "realname": "CollabPad",
                 "aliases": [
-                    "\u0643\u0648\u0644\u0627\u0628_\u0628\u0627\u062f",
                     "CollabPad",
                     "Collab_Pad"
                 ]
@@ -8761,7 +8969,6 @@
             {
                 "realname": "History",
                 "aliases": [
-                    "\u062a\u0627\u0631\u064a\u062e",
                     "History"
                 ]
             },
@@ -8774,35 +8981,32 @@
             {
                 "realname": "MobileDiff",
                 "aliases": [
-                    "\u0641\u0631\u0642_\u0627\u0644\u0645\u062d\u0645\u0648\u0644",
                     "MobileDiff"
                 ]
             },
             {
                 "realname": "MobileOptions",
                 "aliases": [
-                    "\u062e\u064a\u0627\u0631\u0627\u062a_\u0627\u0644\u0645\u062d\u0645\u0648\u0644",
+                    "OpcionesParaM\u00f3vil",
                     "MobileOptions"
                 ]
             },
             {
                 "realname": "MobileMenu",
                 "aliases": [
-                    "\u0642\u0627\u0626\u0645\u0629_\u0627\u0644\u0645\u062d\u0645\u0648\u0644",
                     "MobileMenu"
                 ]
             },
             {
                 "realname": "MobileLanguages",
                 "aliases": [
-                    "\u0644\u063a\u0627\u062a_\u0627\u0644\u0645\u062d\u0645\u0648\u0644",
                     "MobileLanguages"
                 ]
             },
             {
                 "realname": "Uploads",
                 "aliases": [
-                    "\u0645\u0631\u0641\u0648\u0639\u0627\u062a",
+                    "Subidas",
                     "Uploads"
                 ]
             },
@@ -8821,35 +9025,32 @@
             {
                 "realname": "MathStatus",
                 "aliases": [
-                    "\u062d\u0627\u0644\u0629_\u0627\u0644\u0631\u064a\u0627\u0636\u064a\u0627\u062a",
                     "MathStatus"
                 ]
             },
             {
                 "realname": "VipsTest",
                 "aliases": [
-                    "\u0627\u062e\u062a\u0628\u0627\u0631_\u0641\u064a\u0628\u0633",
                     "VipsTest"
                 ]
             },
             {
                 "realname": "FeedItem",
                 "aliases": [
-                    "\u062a\u0639\u0644\u064a\u0642_\u0645\u062f\u062e\u0644\u0629",
                     "FeedItem"
                 ]
             },
             {
                 "realname": "Interwiki",
                 "aliases": [
-                    "\u0625\u0646\u062a\u0631\u0648\u064a\u0643\u064a",
+                    "Enlaces_interlig\u00fc\u00edsticos",
                     "Interwiki"
                 ]
             },
             {
                 "realname": "Notifications",
                 "aliases": [
-                    "\u0625\u0634\u0639\u0627\u0631\u0627\u062a",
+                    "Notificaciones",
                     "Notifications"
                 ]
             },
@@ -8868,37 +9069,21 @@
             {
                 "realname": "Thanks",
                 "aliases": [
-                    "\u0634\u0643\u0631\u0627",
+                    "Gracias",
                     "Thanks"
-                ]
-            },
-            {
-                "realname": "StructuredDiscussions",
-                "aliases": [
-                    "\u0633\u0631\u064a\u0627\u0646",
-                    "StructuredDiscussions",
-                    "Flow"
-                ]
-            },
-            {
-                "realname": "EnableStructuredDiscussions",
-                "aliases": [
-                    "\u0641\u0639\u0644_\u0633\u0631\u064a\u0627\u0646",
-                    "EnableStructuredDiscussions",
-                    "EnableFlow"
                 ]
             },
             {
                 "realname": "DisambiguationPages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u062a\u0648\u0636\u064a\u062d",
+                    "P\u00e1ginas_de_desambiguaci\u00f3n",
                     "DisambiguationPages"
                 ]
             },
             {
                 "realname": "DisambiguationPageLinks",
                 "aliases": [
-                    "\u0648\u0635\u0644\u0627\u062a_\u0635\u0641\u062d\u0627\u062a_\u062a\u0648\u0636\u064a\u062d",
+                    "P\u00e1ginas_que_enlazan_a_p\u00e1ginas_de_desambiguaci\u00f3n",
                     "DisambiguationPageLinks"
                 ]
             },
@@ -8911,14 +9096,15 @@
             {
                 "realname": "UserMerge",
                 "aliases": [
-                    "\u062f\u0645\u062c_\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "FusionarUsuario",
+                    "Fusionar_usuario",
                     "UserMerge"
                 ]
             },
             {
                 "realname": "ContentTranslation",
                 "aliases": [
-                    "\u062a\u0631\u062c\u0645\u0629_\u0627\u0644\u0645\u062d\u062a\u0648\u0649",
+                    "Traducci\u00f3n_de_contenidos",
                     "ContentTranslation",
                     "CX"
                 ]
@@ -8926,7 +9112,7 @@
             {
                 "realname": "ContentTranslationStats",
                 "aliases": [
-                    "\u0625\u062d\u0635\u0627\u0621\u0627\u062a_\u062a\u0631\u062c\u0645\u0629_\u0627\u0644\u0645\u062d\u062a\u0648\u0649",
+                    "Estad\u00edsticas_de_traducci\u00f3n_de_contenidos",
                     "ContentTranslationStats",
                     "CXStats"
                 ]
@@ -8940,14 +9126,7 @@
             {
                 "realname": "TemplateSandbox",
                 "aliases": [
-                    "\u0645\u0644\u0639\u0628_\u0642\u0627\u0644\u0628",
                     "TemplateSandbox"
-                ]
-            },
-            {
-                "realname": "PageAssessments",
-                "aliases": [
-                    "PageAssessments"
                 ]
             },
             {
@@ -8959,8 +9138,6 @@
             {
                 "realname": "OAuth",
                 "aliases": [
-                    "\u0623\u0648_\u0623\u0648\u062b",
-                    "\u0645\u0648_\u0623\u0648_\u0623\u0648\u062b",
                     "OAuth",
                     "MWOAuth"
                 ]
@@ -8968,8 +9145,6 @@
             {
                 "realname": "OAuthManageMyGrants",
                 "aliases": [
-                    "\u0627\u0644\u062a\u062d\u0643\u0645_\u0628\u0645\u0645\u0646\u0648\u062d\u0627\u062a\u064a_\u0623\u0648_\u0623\u0648\u062b",
-                    "\u0645\u0645\u0646\u0648\u062d\u0627\u062a_\u0623\u0648_\u0623\u0648\u062b",
                     "OAuthManageMyGrants",
                     "OAuthGrants"
                 ]
@@ -8977,15 +9152,12 @@
             {
                 "realname": "OAuthListConsumers",
                 "aliases": [
-                    "\u0639\u0631\u0636_\u0645\u0633\u062a\u0647\u0644\u0643\u064a_\u0623\u0648_\u0623\u0648\u062b",
                     "OAuthListConsumers"
                 ]
             },
             {
                 "realname": "OATH",
                 "aliases": [
-                    "\u0623\u0648\u0627\u062b",
-                    "\u0623\u0648\u0627\u062b_\u0623\u0648\u062b",
                     "Two-factor_authentication",
                     "OATH",
                     "OATHAuth"
@@ -9006,14 +9178,18 @@
             {
                 "realname": "CheckUser",
                 "aliases": [
-                    "\u062a\u062f\u0642\u064a\u0642_\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "ComprobarUsuario",
+                    "Comprobar_usuario",
+                    "VerificarUsuario",
+                    "Verificar_usuario",
                     "CheckUser"
                 ]
             },
             {
                 "realname": "CheckUserLog",
                 "aliases": [
-                    "\u0633\u062c\u0644_\u062a\u062f\u0642\u064a\u0642_\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+                    "Registro_de_comprobaci\u00f3n_de_usuarios",
+                    "Registro_de_verificaci\u00f3n_de_usuarios",
                     "CheckUserLog"
                 ]
             },
@@ -9032,31 +9208,13 @@
             {
                 "realname": "GlobalPreferences",
                 "aliases": [
-                    "\u062a\u0641\u0636\u064a\u0644\u0627\u062a_\u0639\u0627\u0645\u0629",
                     "GlobalPreferences"
-                ]
-            },
-            {
-                "realname": "Book",
-                "aliases": [
-                    "\u0643\u062a\u0627\u0628",
-                    "\u0645\u062c\u0645\u0648\u0639\u0629",
-                    "Book",
-                    "Collection"
-                ]
-            },
-            {
-                "realname": "RenderBook",
-                "aliases": [
-                    "RenderBook"
                 ]
             },
             {
                 "realname": "UnconnectedPages",
                 "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u063a\u064a\u0631_\u0645\u062a\u0635\u0644\u0629",
-                    "\u0628\u062f\u0648\u0646_\u0627\u062a\u0635\u0627\u0644",
-                    "\u0628\u062f\u0648\u0646_\u0648\u0635\u0644\u0627\u062a_\u0645\u0648\u0642\u0639",
+                    "P\u00e1ginasSinConexi\u00f3n",
                     "UnconnectedPages",
                     "WithoutConnection",
                     "WithoutSitelinks"
@@ -9079,97 +9237,20 @@
             {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
-                    "\u0637\u0644\u0628_\u0625\u0639\u0627\u062f\u0629_\u062a\u0633\u0645\u064a\u0629_\u0639\u0627\u0645",
+                    "Solicitud_de_renombrado_global",
                     "GlobalRenameRequest"
                 ]
             },
             {
                 "realname": "GlobalRenameQueue",
                 "aliases": [
-                    "\u0637\u0627\u0628\u0648\u0631|_\u0625\u0639\u0627\u062f\u0629_\u062a\u0633\u0645\u064a\u0629_\u0639\u0627\u0645",
                     "GlobalRenameQueue"
-                ]
-            },
-            {
-                "realname": "RevisionReview",
-                "aliases": [
-                    "\u0645\u0631\u0627\u062c\u0639\u0629_\u0646\u0633\u062e\u0629",
-                    "RevisionReview"
-                ]
-            },
-            {
-                "realname": "ReviewedVersions",
-                "aliases": [
-                    "\u0646\u0633\u062e_\u0645\u0631\u0627\u062c\u0639\u0629",
-                    "\u0646\u0633\u062e_\u0645\u0633\u062a\u0642\u0631\u0629",
-                    "ReviewedVersions",
-                    "StableVersions"
-                ]
-            },
-            {
-                "realname": "PendingChanges",
-                "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0645\u0631\u0627\u062c\u0639\u0629_\u0642\u062f\u064a\u0645\u0629",
-                    "PendingChanges",
-                    "OldReviewedPages"
-                ]
-            },
-            {
-                "realname": "ProblemChanges",
-                "aliases": [
-                    "\u062a\u063a\u064a\u064a\u0631\u0627\u062a_\u0627\u0644\u0645\u0634\u0627\u0643\u0644",
-                    "ProblemChanges"
-                ]
-            },
-            {
-                "realname": "ReviewedPages",
-                "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0645\u0631\u0627\u062c\u0639\u0629",
-                    "ReviewedPages"
-                ]
-            },
-            {
-                "realname": "UnreviewedPages",
-                "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u063a\u064a\u0631_\u0645\u0631\u0627\u062c\u0639\u0629",
-                    "UnreviewedPages"
-                ]
-            },
-            {
-                "realname": "QualityOversight",
-                "aliases": [
-                    "\u0633\u062c\u0644_\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629_\u0627\u0644\u0645\u062a\u0642\u062f\u0645",
-                    "\u0646\u0638\u0631_\u0627\u0644\u062c\u0648\u062f\u0629",
-                    "AdvancedReviewLog",
-                    "QualityOversight"
-                ]
-            },
-            {
-                "realname": "ValidationStatistics",
-                "aliases": [
-                    "\u0625\u062d\u0635\u0627\u0621\u0627\u062a_\u0627\u0644\u062a\u062d\u0642\u0642",
-                    "ValidationStatistics"
-                ]
-            },
-            {
-                "realname": "ConfiguredPages",
-                "aliases": [
-                    "\u0635\u0641\u062d\u0627\u062a_\u0645\u0636\u0628\u0648\u0637\u0629",
-                    "ConfiguredPages"
-                ]
-            },
-            {
-                "realname": "Stabilization",
-                "aliases": [
-                    "\u0627\u0633\u062a\u0642\u0631\u0627\u0631",
-                    "Stabilization",
-                    "Stabilisation"
                 ]
             },
             {
                 "realname": "Nearby",
                 "aliases": [
-                    "\u0642\u0631\u064a\u0628",
+                    "Cerca",
                     "Nearby"
                 ]
             }
@@ -9200,6 +9281,187 @@
             "<graph>",
             "<maplink>",
             "<mapframe>"
+        ],
+        "functionhooks": [
+            "ns",
+            "nse",
+            "urlencode",
+            "lcfirst",
+            "ucfirst",
+            "lc",
+            "uc",
+            "localurl",
+            "localurle",
+            "fullurl",
+            "fullurle",
+            "canonicalurl",
+            "canonicalurle",
+            "formatnum",
+            "grammar",
+            "gender",
+            "plural",
+            "bidi",
+            "numberofpages",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofadmins",
+            "numberingroup",
+            "numberofedits",
+            "language",
+            "padleft",
+            "padright",
+            "anchorencode",
+            "defaultsort",
+            "filepath",
+            "pagesincategory",
+            "pagesize",
+            "protectionlevel",
+            "protectionexpiry",
+            "namespacee",
+            "namespacenumber",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "subpagename",
+            "subpagenamee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "pageid",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "cascadingsources",
+            "namespace",
+            "int",
+            "special",
+            "speciale",
+            "tag",
+            "formatdate",
+            "displaytitle",
+            "noexternallanglinks",
+            "property",
+            "statements",
+            "if",
+            "ifeq",
+            "switch",
+            "ifexist",
+            "ifexpr",
+            "iferror",
+            "time",
+            "timel",
+            "expr",
+            "rel2abs",
+            "titleparts",
+            "categorytree",
+            "lst",
+            "lstx",
+            "lsth",
+            "target",
+            "babel",
+            "coordinates",
+            "invoke",
+            "related"
+        ],
+        "variables": [
+            "!",
+            "currentmonth",
+            "currentmonth1",
+            "currentmonthname",
+            "currentmonthnamegen",
+            "currentmonthabbrev",
+            "currentday",
+            "currentday2",
+            "currentdayname",
+            "currentyear",
+            "currenttime",
+            "currenthour",
+            "localmonth",
+            "localmonth1",
+            "localmonthname",
+            "localmonthnamegen",
+            "localmonthabbrev",
+            "localday",
+            "localday2",
+            "localdayname",
+            "localyear",
+            "localtime",
+            "localhour",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofedits",
+            "articlepath",
+            "pageid",
+            "sitename",
+            "server",
+            "servername",
+            "scriptpath",
+            "stylepath",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "namespace",
+            "namespacee",
+            "namespacenumber",
+            "currentweek",
+            "currentdow",
+            "localweek",
+            "localdow",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "revisionsize",
+            "subpagename",
+            "subpagenamee",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofpages",
+            "currentversion",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "currenttimestamp",
+            "localtimestamp",
+            "directionmark",
+            "contentlanguage",
+            "pagelanguage",
+            "numberofadmins",
+            "cascadingsources",
+            "noexternallanglinks",
+            "wbreponame",
+            "numberofwikis"
         ]
     }
 }

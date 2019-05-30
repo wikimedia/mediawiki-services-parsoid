@@ -514,39 +514,6 @@ class TokenUtils {
 		return $ret;
 	}
 
-/**
-	//
-	 * Strip include tags, and the contents of includeonly tags as well.
-	//
-	public static function stripIncludeTokens($tokens) {
-		$toks = [];
-		$includeOnly = false;
-		for ( $i = 0;  $i < count( $tokens );  $i++ ) {
-			$tok = $tokens[ $i ];
-			switch ( $tok->constructor ) {
-				case $TagTk:
-
-				case $EndTagTk:
-
-				case $SelfclosingTagTk:
-				if ( [ 'noinclude', 'onlyinclude' ]->includes( $tok->name ) ) {
-					continue;
-				} elseif ( $tok->name === 'includeonly' ) {
-					$includeOnly = ( $tok->constructor === $TagTk );
-					continue;
-				}
-				// Fall through
-
-				default:
-				if ( !$includeOnly ) {
-					$toks[] = $tok;
-				}
-			}
-		}
-		return $toks;
-	}
-*/
-
 	/**
 	 * Flatten/convert a token array into a string.
 	 * @param array<Token|string> $tokens
@@ -618,26 +585,6 @@ class TokenUtils {
 	}
 
 	/**
-	public static function flattenAndAppendToks($array, $prefix, $t) {
-		if ( is_array( $t ) || $t->constructor === $String ) {
-			if ( count( $t ) > 0 ) {
-				if ( $prefix ) {
-					$array[] = $prefix;
-				}
-				$array = $array->concat( $t );
-			}
-		} else {
-			if ( $prefix ) {
-				$array[] = $prefix;
-			}
-			$array[] = $t;
-		}
-
-		return $array;
-	}
-*/
-
-	/**
 	 * Convert an array of key-value pairs into a hash of keys to values. For
 	 * duplicate keys, the last entry wins.
 	 * @param array<KV> $kvs
@@ -661,8 +608,8 @@ class TokenUtils {
 
 	/**
 	 * Trim space and newlines from leading and trailing text tokens.
-	 * @param string|Token|array<Token> $tokens
-	 * @return string|Token|array<Token>
+	 * @param string|Token|(Token|string)[] $tokens
+	 * @return string|Token|(Token|string)[]
 	 */
 	public static function tokenTrim( $tokens ) {
 		if ( !is_array( $tokens ) ) {
@@ -675,8 +622,7 @@ class TokenUtils {
 		$n = count( $tokens );
 
 		// strip leading space
-		for ( $i = 0; $i < $n; $i++ ) {
-			$token = &$tokens[$i];
+		foreach ( $tokens as &$token ) {
 			if ( $token instanceof NlTk ) {
 				$token = '';
 			} elseif ( is_string( $token ) ) {
@@ -706,16 +652,4 @@ class TokenUtils {
 
 		return $tokens;
 	}
-
-	/*
-	'kvsFromArray' => function ( $a ) {
-		return array_map( $a, function ( $e ) {
-				return new KV( $e->k, $e->v, $e->srcOffsets || null, $e->ksrc, $e->vsrc );
-			}
-		)
-
-		;
-	},
-
-------------------------------------------- */
 }

@@ -1,61 +1,63 @@
 {
-    "__endpoint__": "https://be-tarask.wikipedia.org/w/api.php",
+    "__endpoint__": "https://kaa.wikipedia.org/w/api.php",
     "__params__": {
         "action": "query",
         "meta": "siteinfo",
-        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags"
+        "siprop": "general|protocols|namespaces|namespacealiases|magicwords|interwikimap|languagevariants|defaultoptions|specialpagealiases|extensiontags|functionhooks|variables"
     },
     "batchcomplete": true,
     "query": {
         "general": {
-            "mainpage": "\u0413\u0430\u043b\u043e\u045e\u043d\u0430\u044f \u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
-            "base": "https://be-tarask.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0",
-            "sitename": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f",
-            "logo": "//be-tarask.wikipedia.org/static/images/project-logos/be_x_oldwiki.png",
-            "generator": "MediaWiki 1.34.0-wmf.1",
-            "phpversion": "5.6.99-hhvm",
-            "phpsapi": "srv",
-            "hhvmversion": "3.18.6-dev",
+            "mainpage": "Bas bet",
+            "base": "https://kaa.wikipedia.org/wiki/Bas_bet",
+            "sitename": "Wikipedia",
+            "logo": "//kaa.wikipedia.org/static/images/project-logos/kaawiki.png",
+            "generator": "MediaWiki 1.34.0-wmf.8",
+            "phpversion": "7.2.16-1+0~20190307202415.17+stretch~1.gbpa7be82+wmf1",
+            "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
             "dbversion": "10.1.38-MariaDB",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "titleconversion": true,
-            "linkprefixcharset": "",
-            "linkprefix": "",
-            "linktrail": "/^([\u0430\u0431\u0432\u0433\u0491\u0434\u0436\u0437\u0435\u0451\u0436\u0437\u0456\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u045e\u0444\u0445\u0446\u0447\u0448\u044b\u044c\u044d\u044e\u044f\u0107\u010d\u0142\u0144\u015b\u0161\u016d\u017a\u017ea-z]+)(.*)$/sDu",
+            "linkprefixcharset": "a-z\u0131A-Z\u0130\\x80-\\xff",
+            "linkprefix": "/^((?>.*[^a-z\u0131A-Z\u0130\\x80-\\xff]|))(.+)$/sDu",
+            "linktrail": "/^((?:[a-z\u0131\u02bc\u2019\u201c\u00bb]|'(?!'))+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:",
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "d50b699badeb67c95e04740f22100ca9d77cac29",
-            "git-branch": "wmf/1.34.0-wmf.1",
+            "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
+            "git-branch": "wmf/1.34.0-wmf.8",
             "case": "first-letter",
-            "lang": "be-tarask",
+            "lang": "kaa",
             "fallback": [
                 {
-                    "code": "be"
+                    "code": "kk-latn"
+                },
+                {
+                    "code": "kk-cyrl"
                 },
                 {
                     "code": "en"
                 }
             ],
             "rtl": false,
-            "fallback8bitEncoding": "windows-1252",
+            "fallback8bitEncoding": "windows-1254",
             "readonly": false,
             "writeapi": true,
             "maxarticlesize": 2097152,
-            "timezone": "Europe/Minsk",
-            "timeoffset": 180,
+            "timezone": "UTC",
+            "timeoffset": 0,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
             "variantarticlepath": false,
-            "server": "//be-tarask.wikipedia.org",
-            "servername": "be-tarask.wikipedia.org",
-            "wikiid": "be_x_oldwiki",
-            "time": "2019-04-30T17:00:02Z",
+            "server": "//kaa.wikipedia.org",
+            "servername": "kaa.wikipedia.org",
+            "wikiid": "kaawiki",
+            "time": "2019-06-06T20:35:45Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -101,7 +103,7 @@
                     "height": 1024
                 }
             ],
-            "favicon": "//be-tarask.wikipedia.org/static/favicon/wikipedia.ico",
+            "favicon": "//kaa.wikipedia.org/static/favicon/wikipedia.ico",
             "centralidlookupprovider": "CentralAuth",
             "allcentralidlookupproviders": [
                 "CentralAuth",
@@ -113,7 +115,7 @@
                 "PMID": true,
                 "RFC": true
             },
-            "categorycollation": "uca-be-tarask",
+            "categorycollation": "uppercase",
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
                 "wmfEtcdLastModifiedIndex": 3672,
@@ -146,7 +148,7 @@
                     "stripped-tag"
                 ]
             },
-            "mobileserver": "https://be-tarask.m.wikipedia.org",
+            "mobileserver": "https://kaa.m.wikipedia.org",
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -201,7 +203,7 @@
             "-2": {
                 "id": -2,
                 "case": "first-letter",
-                "name": "\u041c\u044d\u0434\u044b\u044f",
+                "name": "Media",
                 "subpages": false,
                 "canonical": "Media",
                 "content": false,
@@ -210,7 +212,7 @@
             "-1": {
                 "id": -1,
                 "case": "first-letter",
-                "name": "\u0421\u043f\u044d\u0446\u044b\u044f\u043b\u044c\u043d\u044b\u044f",
+                "name": "Arnawl\u0131",
                 "subpages": false,
                 "canonical": "Special",
                 "content": false,
@@ -227,7 +229,7 @@
             "1": {
                 "id": 1,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
+                "name": "Sa'wbet",
                 "subpages": true,
                 "canonical": "Talk",
                 "content": false,
@@ -236,7 +238,7 @@
             "2": {
                 "id": 2,
                 "case": "first-letter",
-                "name": "\u0423\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a",
+                "name": "Paydalan\u0131wsh\u0131",
                 "subpages": true,
                 "canonical": "User",
                 "content": false,
@@ -245,7 +247,7 @@
             "3": {
                 "id": 3,
                 "case": "first-letter",
-                "name": "\u0413\u0443\u0442\u0430\u0440\u043a\u0456 \u045e\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a\u0430",
+                "name": "Paydalan\u0131wsh\u0131 sa'wbeti",
                 "subpages": true,
                 "canonical": "User talk",
                 "content": false,
@@ -254,7 +256,7 @@
             "4": {
                 "id": 4,
                 "case": "first-letter",
-                "name": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f",
+                "name": "Wikipedia",
                 "subpages": true,
                 "canonical": "Project",
                 "content": false,
@@ -263,7 +265,7 @@
             "5": {
                 "id": 5,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u0456",
+                "name": "Wikipedia sa'wbeti",
                 "subpages": true,
                 "canonical": "Project talk",
                 "content": false,
@@ -272,7 +274,7 @@
             "6": {
                 "id": 6,
                 "case": "first-letter",
-                "name": "\u0424\u0430\u0439\u043b",
+                "name": "Su'wret",
                 "subpages": false,
                 "canonical": "File",
                 "content": false,
@@ -281,7 +283,7 @@
             "7": {
                 "id": 7,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0444\u0430\u0439\u043b\u0430",
+                "name": "Su'wret sa'wbeti",
                 "subpages": true,
                 "canonical": "File talk",
                 "content": false,
@@ -299,7 +301,7 @@
             "9": {
                 "id": 9,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 MediaWiki",
+                "name": "MediaWiki sa'wbeti",
                 "subpages": true,
                 "canonical": "MediaWiki talk",
                 "content": false,
@@ -308,7 +310,7 @@
             "10": {
                 "id": 10,
                 "case": "first-letter",
-                "name": "\u0428\u0430\u0431\u043b\u0451\u043d",
+                "name": "Shablon",
                 "subpages": true,
                 "canonical": "Template",
                 "content": false,
@@ -317,7 +319,7 @@
             "11": {
                 "id": 11,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0448\u0430\u0431\u043b\u0451\u043d\u0443",
+                "name": "Shablon sa'wbeti",
                 "subpages": true,
                 "canonical": "Template talk",
                 "content": false,
@@ -326,7 +328,7 @@
             "12": {
                 "id": 12,
                 "case": "first-letter",
-                "name": "\u0414\u0430\u043f\u0430\u043c\u043e\u0433\u0430",
+                "name": "An\u0131qlama",
                 "subpages": true,
                 "canonical": "Help",
                 "content": false,
@@ -335,7 +337,7 @@
             "13": {
                 "id": 13,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0434\u0430\u043f\u0430\u043c\u043e\u0433\u0456",
+                "name": "An\u0131qlama sa'wbeti",
                 "subpages": true,
                 "canonical": "Help talk",
                 "content": false,
@@ -344,7 +346,7 @@
             "14": {
                 "id": 14,
                 "case": "first-letter",
-                "name": "\u041a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u044f",
+                "name": "Kategoriya",
                 "subpages": false,
                 "canonical": "Category",
                 "content": false,
@@ -353,34 +355,16 @@
             "15": {
                 "id": 15,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
+                "name": "Kategoriya sa'wbeti",
                 "subpages": true,
                 "canonical": "Category talk",
-                "content": false,
-                "nonincludable": false
-            },
-            "100": {
-                "id": 100,
-                "case": "first-letter",
-                "name": "\u041f\u0430\u0440\u0442\u0430\u043b",
-                "subpages": true,
-                "canonical": "\u041f\u0430\u0440\u0442\u0430\u043b",
-                "content": false,
-                "nonincludable": false
-            },
-            "101": {
-                "id": 101,
-                "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043f\u0430\u0440\u0442\u0430\u043b\u0443",
-                "subpages": true,
-                "canonical": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043f\u0430\u0440\u0442\u0430\u043b\u0443",
                 "content": false,
                 "nonincludable": false
             },
             "828": {
                 "id": 828,
                 "case": "first-letter",
-                "name": "\u041c\u043e\u0434\u0443\u043b\u044c",
+                "name": "Module",
                 "subpages": true,
                 "canonical": "Module",
                 "content": false,
@@ -389,7 +373,7 @@
             "829": {
                 "id": 829,
                 "case": "first-letter",
-                "name": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u043c\u043e\u0434\u0443\u043b\u044e",
+                "name": "Module talk",
                 "subpages": true,
                 "canonical": "Module talk",
                 "content": false,
@@ -435,28 +419,76 @@
         },
         "namespacealiases": [
             {
+                "id": -2,
+                "alias": "Taspa"
+            },
+            {
+                "id": -2,
+                "alias": "\u0422\u0430\u0441\u043f\u0430"
+            },
+            {
+                "id": -2,
+                "alias": "\u062a\u0627\u0633\u067e\u0627"
+            },
+            {
+                "id": -1,
+                "alias": "Arna\u00fd\u0131"
+            },
+            {
+                "id": -1,
+                "alias": "\u0410\u0440\u043d\u0430\u0439\u044b"
+            },
+            {
+                "id": -1,
+                "alias": "\u0627\u0631\u0646\u0627\u064a\u0649"
+            },
+            {
+                "id": 1,
+                "alias": "Talq\u0131law"
+            },
+            {
+                "id": 1,
+                "alias": "\u0422\u0430\u043b\u049b\u044b\u043b\u0430\u0443"
+            },
+            {
+                "id": 1,
+                "alias": "\u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb"
+            },
+            {
                 "id": 2,
-                "alias": "\u0423\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u0446\u0430"
+                "alias": "Qat\u0131sw\u015f\u0131"
+            },
+            {
+                "id": 2,
+                "alias": "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b"
+            },
+            {
+                "id": 2,
+                "alias": "\u0642\u0627\u062a\u0649\u0633\u06cb\u0634\u0649"
             },
             {
                 "id": 3,
-                "alias": "\u0413\u0443\u0442\u0430\u0440\u043a\u0456 \u045e\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u0446\u044b"
+                "alias": "Qat\u0131sw\u015f\u0131 talq\u0131law\u0131"
             },
             {
-                "id": 4,
-                "alias": "Wikipedia"
+                "id": 3,
+                "alias": "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
             },
             {
-                "id": 4,
-                "alias": "\u0412\u041f"
-            },
-            {
-                "id": 5,
-                "alias": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f"
+                "id": 3,
+                "alias": "\u0642\u0627\u062a\u0649\u0633\u06cb\u0634\u0649 \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
             },
             {
                 "id": 5,
-                "alias": "\u0412\u0456\u043a\u0456\u043f\u044d\u0434\u044b\u044f \u0440\u0430\u0437\u043c\u043e\u0432\u044b"
+                "alias": "Wikipedia talq\u0131law\u0131"
+            },
+            {
+                "id": 5,
+                "alias": "Wikipedia \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 5,
+                "alias": "Wikipedia \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
             },
             {
                 "id": 6,
@@ -464,7 +496,15 @@
             },
             {
                 "id": 6,
-                "alias": "\u0412\u044b\u044f\u0432\u0430"
+                "alias": "Swret"
+            },
+            {
+                "id": 6,
+                "alias": "\u0421\u0443\u0440\u0435\u0442"
+            },
+            {
+                "id": 6,
+                "alias": "\u0633\u06cb\u0631\u06d5\u062a"
             },
             {
                 "id": 7,
@@ -472,18 +512,127 @@
             },
             {
                 "id": 7,
-                "alias": "\u0410\u0431\u043c\u0435\u0440\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435 \u0432\u044b\u044f\u0432\u044b"
+                "alias": "Swret talq\u0131law\u0131"
             },
             {
                 "id": 7,
-                "alias": "\u0420\u0430\u0437\u043c\u043e\u0432\u044b \u043f\u0440\u0430 \u0432\u044b\u044f\u0432\u0443"
+                "alias": "\u0421\u0443\u0440\u0435\u0442 \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 7,
+                "alias": "\u0633\u06cb\u0631\u06d5\u062a \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
+            },
+            {
+                "id": 8,
+                "alias": "Med\u00efaW\u00efk\u00ef"
+            },
+            {
+                "id": 8,
+                "alias": "\u041c\u0435\u0434\u0438\u0430\u0423\u0438\u043a\u0438"
+            },
+            {
+                "id": 8,
+                "alias": "\u0645\u06d5\u062f\u064a\u0627\u06cb\u064a\u0643\u064a"
+            },
+            {
+                "id": 9,
+                "alias": "Med\u00efaW\u00efk\u00ef talq\u0131law\u0131"
+            },
+            {
+                "id": 9,
+                "alias": "\u041c\u0435\u0434\u0438\u0430\u0423\u0438\u043a\u0438 \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 9,
+                "alias": "\u0645\u06d5\u062f\u064a\u0627\u06cb\u064a\u0643\u064a \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
+            },
+            {
+                "id": 10,
+                "alias": "\u00dclgi"
+            },
+            {
+                "id": 10,
+                "alias": "\u04ae\u043b\u0433\u0456"
+            },
+            {
+                "id": 10,
+                "alias": "\u0674\u06c7\u0644\u06af\u0674\u0649"
+            },
+            {
+                "id": 10,
+                "alias": "\u0677\u0644\u06af\u0678"
+            },
+            {
+                "id": 11,
+                "alias": "\u00dclgi talq\u0131law\u0131"
+            },
+            {
+                "id": 11,
+                "alias": "\u04ae\u043b\u0433\u0456 \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 11,
+                "alias": "\u0674\u06c7\u0644\u06af\u0674\u0649 \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
+            },
+            {
+                "id": 11,
+                "alias": "\u0677\u0644\u06af\u0678 \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
+            },
+            {
+                "id": 12,
+                "alias": "An\u0131qtama"
+            },
+            {
+                "id": 12,
+                "alias": "\u0410\u043d\u044b\u049b\u0442\u0430\u043c\u0430"
+            },
+            {
+                "id": 12,
+                "alias": "\u0627\u0646\u0649\u0642\u062a\u0627\u0645\u0627"
+            },
+            {
+                "id": 13,
+                "alias": "An\u0131qtama talq\u0131law\u0131"
+            },
+            {
+                "id": 13,
+                "alias": "\u0410\u043d\u044b\u049b\u0442\u0430\u043c\u0430 \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 13,
+                "alias": "\u0627\u0646\u0649\u0642\u062a\u0627\u0645\u0627 \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
+            },
+            {
+                "id": 14,
+                "alias": "Sanat"
+            },
+            {
+                "id": 14,
+                "alias": "\u0421\u0430\u043d\u0430\u0442"
+            },
+            {
+                "id": 14,
+                "alias": "\u0633\u0627\u0646\u0627\u062a"
+            },
+            {
+                "id": 15,
+                "alias": "Sanat talq\u0131law\u0131"
+            },
+            {
+                "id": 15,
+                "alias": "\u0421\u0430\u043d\u0430\u0442 \u0442\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b"
+            },
+            {
+                "id": 15,
+                "alias": "\u0633\u0627\u0646\u0627\u062a \u062a\u0627\u0644\u0642\u0649\u0644\u0627\u06cb\u0649"
             }
         ],
         "magicwords": [
             {
                 "name": "redirect",
                 "aliases": [
-                    "#\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
+                    "#A\u00ddDAW",
+                    "#\u0410\u0419\u0414\u0410\u0423",
                     "#REDIRECT"
                 ],
                 "case-sensitive": false
@@ -491,7 +640,10 @@
             {
                 "name": "notoc",
                 "aliases": [
-                    "__\u0411\u042f\u0417\u042c_\u0417\u042c\u041c\u0415\u0421\u0422\u0423__",
+                    "__MAZMUNSIZ__",
+                    "__MSIZ__",
+                    "__\u041c\u0410\u0417\u041c\u04b0\u041d\u0421\u042b\u0417__",
+                    "__\u041c\u0421\u042b\u0417__",
                     "__NOTOC__"
                 ],
                 "case-sensitive": false
@@ -499,7 +651,10 @@
             {
                 "name": "nogallery",
                 "aliases": [
-                    "__\u0411\u0415\u0417_\u0413\u0410\u041b\u0415\u0420\u042d\u0406__",
+                    "__QO\u00ddMASIZ__",
+                    "__QSIZ__",
+                    "__\u049a\u041e\u0419\u041c\u0410\u0421\u042b\u0417__",
+                    "__\u049a\u0421\u042b\u0417__",
                     "__NOGALLERY__"
                 ],
                 "case-sensitive": false
@@ -507,7 +662,10 @@
             {
                 "name": "forcetoc",
                 "aliases": [
-                    "__\u0417\u042c\u041c\u0415\u0421\u0422_\u041f\u0420\u042b\u041c\u0423\u0421\u0410\u041c__",
+                    "__MAZMUNDATQIZW__",
+                    "__MQIZW__",
+                    "__\u041c\u0410\u0417\u041c\u04b0\u041d\u0414\u0410\u0422\u049a\u042b\u0417\u0423__",
+                    "__\u041c\u049a\u042b\u0417\u0423__",
                     "__FORCETOC__"
                 ],
                 "case-sensitive": false
@@ -515,7 +673,10 @@
             {
                 "name": "toc",
                 "aliases": [
-                    "__\u0417\u042c\u041c\u0415\u0421\u0422__",
+                    "__MAZMUNI__",
+                    "__MZMN__",
+                    "__\u041c\u0410\u0417\u041c\u04b0\u041d\u042b__",
+                    "__\u041c\u0417\u041c\u041d__",
                     "__TOC__"
                 ],
                 "case-sensitive": false
@@ -523,7 +684,10 @@
             {
                 "name": "noeditsection",
                 "aliases": [
-                    "__\u0411\u0415\u0417_\u0420\u042d\u0414\u0410\u0413\u0410\u0412\u0410\u041d\u042c\u041d\u042f_\u0421\u042d\u041a\u0426\u042b\u0406__",
+                    "__B\u00d6L\u0130D\u0130M\u00d6NDEMEW__",
+                    "__B\u00d6L\u0130M\u00d6NDETK\u0130ZBEW__",
+                    "__\u0411\u04e8\u041b\u0406\u0414\u0406\u041c\u04e8\u041d\u0414\u0415\u041c\u0415\u0423__",
+                    "__\u0411\u04e8\u041b\u0406\u041c\u04e8\u041d\u0414\u0415\u0422\u041a\u0406\u0417\u0411\u0415\u0423__",
                     "__NOEDITSECTION__"
                 ],
                 "case-sensitive": false
@@ -531,7 +695,8 @@
             {
                 "name": "currentmonth",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u041c\u0415\u0421\u042f\u0426",
+                    "A\u011eIMDA\u011eIA\u00dd",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u0419",
                     "CURRENTMONTH",
                     "CURRENTMONTH2"
                 ],
@@ -540,7 +705,8 @@
             {
                 "name": "currentmonthname",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "A\u011eIMDA\u011eIA\u00ddATAWI",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u0419\u0410\u0422\u0410\u0423\u042b",
                     "CURRENTMONTHNAME"
                 ],
                 "case-sensitive": true
@@ -548,7 +714,8 @@
             {
                 "name": "currentmonthnamegen",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410_\u040e_\u0420\u041e\u0414\u041d\u042b\u041c_\u0421\u041a\u041b\u041e\u041d\u0415",
+                    "A\u011eIMDA\u011eIA\u00dd\u0130L\u0130KATAWI",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u0419\u0406\u041b\u0406\u041a\u0410\u0422\u0410\u0423\u042b",
                     "CURRENTMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
@@ -556,7 +723,10 @@
             {
                 "name": "currentmonthabbrev",
                 "aliases": [
-                    "\u0421\u041a\u0410\u0420\u041e\u0427\u0410\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "A\u011eIMDA\u011eIA\u00ddJ\u00cfIR",
+                    "A\u011eIMDA\u011eIA\u00ddQISQA",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u0419\u0416\u0418\u042b\u0420",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u0419\u049a\u042b\u0421\u049a\u0410",
                     "CURRENTMONTHABBREV"
                 ],
                 "case-sensitive": true
@@ -564,7 +734,8 @@
             {
                 "name": "currentday",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c",
+                    "A\u011eIMDA\u011eIK\u00dcN",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u041a\u04ae\u041d",
                     "CURRENTDAY"
                 ],
                 "case-sensitive": true
@@ -572,7 +743,8 @@
             {
                 "name": "currentday2",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c_2",
+                    "A\u011eIMDA\u011eIK\u00dcN2",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u041a\u04ae\u041d2",
                     "CURRENTDAY2"
                 ],
                 "case-sensitive": true
@@ -580,7 +752,8 @@
             {
                 "name": "currentdayname",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u042f\u0413\u0423\u0427\u0410\u0413\u0410_\u0414\u041d\u042f",
+                    "A\u011eIMDA\u011eIK\u00dcNATAWI",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u041a\u04ae\u041d\u0410\u0422\u0410\u0423\u042b",
                     "CURRENTDAYNAME"
                 ],
                 "case-sensitive": true
@@ -588,7 +761,8 @@
             {
                 "name": "currentyear",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0413\u041e\u0414",
+                    "A\u011eIMDA\u011eIJIL",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0416\u042b\u041b",
                     "CURRENTYEAR"
                 ],
                 "case-sensitive": true
@@ -596,7 +770,8 @@
             {
                 "name": "currenttime",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0427\u0410\u0421",
+                    "A\u011eIMDA\u011eIWAQIT",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0423\u0410\u049a\u042b\u0422",
                     "CURRENTTIME"
                 ],
                 "case-sensitive": true
@@ -604,7 +779,8 @@
             {
                 "name": "currenthour",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u0410\u042f_\u0413\u0410\u0414\u0417\u0406\u041d\u0410",
+                    "A\u011eIMDA\u011eISA\u011eAT",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0421\u0410\u0492\u0410\u0422",
                     "CURRENTHOUR"
                 ],
                 "case-sensitive": true
@@ -612,7 +788,8 @@
             {
                 "name": "localmonth",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u041c\u0415\u0421\u042f\u0426",
+                    "JERG\u0130L\u0130KT\u0130A\u00dd",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419",
                     "LOCALMONTH",
                     "LOCALMONTH2"
                 ],
@@ -621,7 +798,8 @@
             {
                 "name": "localmonthname",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "JERG\u0130L\u0130KT\u0130A\u00ddATAWI",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419\u0410\u0422\u0410\u0423\u042b",
                     "LOCALMONTHNAME"
                 ],
                 "case-sensitive": true
@@ -629,7 +807,8 @@
             {
                 "name": "localmonthnamegen",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410_\u040e_\u0420\u041e\u0414\u041d\u042b\u041c_\u0421\u041a\u041b\u041e\u041d\u0415",
+                    "JERG\u0130L\u0130KT\u0130A\u00dd\u0130L\u0130KATAWI",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419\u0406\u041b\u0406\u041a\u0410\u0422\u0410\u0423\u042b",
                     "LOCALMONTHNAMEGEN"
                 ],
                 "case-sensitive": true
@@ -637,7 +816,12 @@
             {
                 "name": "localmonthabbrev",
                 "aliases": [
-                    "\u0421\u041a\u0410\u0420\u041e\u0427\u0410\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u041c\u0415\u0421\u042f\u0426\u0410",
+                    "JERG\u0130L\u0130KT\u0130A\u00ddJ\u00cfIR",
+                    "JERG\u0130L\u0130KT\u0130A\u00ddQISQA\u015eA",
+                    "JERG\u0130L\u0130KT\u0130A\u00ddQISQA",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419\u0416\u0418\u042b\u0420",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419\u049a\u042b\u0421\u049a\u0410\u0428\u0410",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u0419\u049a\u042b\u0421\u049a\u0410",
                     "LOCALMONTHABBREV"
                 ],
                 "case-sensitive": true
@@ -645,7 +829,8 @@
             {
                 "name": "localday",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c",
+                    "JERG\u0130L\u0130KT\u0130K\u00dcN",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u041a\u04ae\u041d",
                     "LOCALDAY"
                 ],
                 "case-sensitive": true
@@ -653,7 +838,8 @@
             {
                 "name": "localday2",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c_2",
+                    "JERG\u0130L\u0130KT\u0130K\u00dcN2",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u041a\u04ae\u041d2",
                     "LOCALDAY2"
                 ],
                 "case-sensitive": true
@@ -661,7 +847,8 @@
             {
                 "name": "localdayname",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u0413\u0410_\u0414\u041d\u042f",
+                    "JERG\u0130L\u0130KT\u0130K\u00dcNATAWI",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u041a\u04ae\u041d\u0410\u0422\u0410\u0423\u042b",
                     "LOCALDAYNAME"
                 ],
                 "case-sensitive": true
@@ -669,7 +856,8 @@
             {
                 "name": "localyear",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0413\u041e\u0414",
+                    "JERG\u0130L\u0130KT\u0130JIL",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0416\u042b\u041b",
                     "LOCALYEAR"
                 ],
                 "case-sensitive": true
@@ -677,7 +865,8 @@
             {
                 "name": "localtime",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0427\u0410\u0421",
+                    "JERG\u0130L\u0130KT\u0130WAQIT",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0423\u0410\u049a\u042b\u0422",
                     "LOCALTIME"
                 ],
                 "case-sensitive": true
@@ -685,7 +874,8 @@
             {
                 "name": "localhour",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u0410\u042f_\u0413\u0410\u0414\u0417\u0406\u041d\u0410",
+                    "JERG\u0130L\u0130KT\u0130SA\u011eAT",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0421\u0410\u0492\u0410\u0422",
                     "LOCALHOUR"
                 ],
                 "case-sensitive": true
@@ -693,7 +883,8 @@
             {
                 "name": "numberofpages",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a",
+                    "BETSANI",
+                    "\u0411\u0415\u0422\u0421\u0410\u041d\u042b",
                     "NUMBEROFPAGES"
                 ],
                 "case-sensitive": true
@@ -701,7 +892,8 @@
             {
                 "name": "numberofarticles",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410\u040e",
+                    "MAQALASANI",
+                    "\u041c\u0410\u049a\u0410\u041b\u0410\u0421\u0410\u041d\u042b",
                     "NUMBEROFARTICLES"
                 ],
                 "case-sensitive": true
@@ -709,7 +901,8 @@
             {
                 "name": "numberoffiles",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0424\u0410\u0419\u041b\u0410\u040e",
+                    "FA\u00ddLSANI",
+                    "\u0424\u0410\u0419\u041b\u0421\u0410\u041d\u042b",
                     "NUMBEROFFILES"
                 ],
                 "case-sensitive": true
@@ -717,23 +910,19 @@
             {
                 "name": "numberofusers",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0423\u0414\u0417\u0415\u041b\u042c\u041d\u0406\u041a\u0410\u040e",
+                    "QATISW\u015eISANI",
+                    "\u049a\u0410\u0422\u042b\u0421\u0423\u0428\u042b\u0421\u0410\u041d\u042b",
                     "NUMBEROFUSERS"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "numberofactiveusers",
-                "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u041a\u0422\u042b\u040e\u041d\u042b\u0425_\u0423\u0414\u0417\u0415\u041b\u042c\u041d\u0406\u041a\u0410\u040e",
-                    "NUMBEROFACTIVEUSERS"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "numberofedits",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0420\u042d\u0414\u0410\u0413\u0410\u0412\u0410\u041d\u042c\u041d\u042f\u040e",
+                    "\u00d6\u00d1DEMESANI",
+                    "T\u00dcZETWSANI",
+                    "\u04e8\u04a2\u0414\u0415\u041c\u0415\u0421\u0410\u041d\u042b",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u0421\u0410\u041d\u042b",
                     "NUMBEROFEDITS"
                 ],
                 "case-sensitive": true
@@ -741,7 +930,8 @@
             {
                 "name": "pagename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "BETATAWI",
+                    "\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "PAGENAME"
                 ],
                 "case-sensitive": true
@@ -749,7 +939,8 @@
             {
                 "name": "pagenamee",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "BETATAWI2",
+                    "\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "PAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -757,7 +948,8 @@
             {
                 "name": "namespace",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e",
+                    "ES\u0130MAYASI",
+                    "\u0415\u0421\u0406\u041c\u0410\u042f\u0421\u042b",
                     "NAMESPACE"
                 ],
                 "case-sensitive": true
@@ -765,7 +957,8 @@
             {
                 "name": "namespacee",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_2",
+                    "ES\u0130MAYASI2",
+                    "\u0415\u0421\u0406\u041c\u0410\u042f\u0421\u042b2",
                     "NAMESPACEE"
                 ],
                 "case-sensitive": true
@@ -773,7 +966,8 @@
             {
                 "name": "talkspace",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f",
+                    "TALQILAWAYASI",
+                    "\u0422\u0410\u041b\u049a\u042b\u041b\u0410\u0423\u0410\u042f\u0421\u042b",
                     "TALKSPACE"
                 ],
                 "case-sensitive": true
@@ -781,7 +975,8 @@
             {
                 "name": "talkspacee",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f_2",
+                    "TALQILAWAYASI2",
+                    "\u0422\u0410\u041b\u049a\u042b\u041b\u0410\u0423\u0410\u042f\u0421\u042b2",
                     "TALKSPACEE"
                 ],
                 "case-sensitive": true
@@ -789,8 +984,10 @@
             {
                 "name": "subjectspace",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423",
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410",
+                    "TAQIRIPBET\u0130",
+                    "MAQALABET\u0130",
+                    "\u0422\u0410\u049a\u042b\u0420\u042b\u041f\u0411\u0415\u0422\u0406",
+                    "\u041c\u0410\u049a\u0410\u041b\u0410\u0411\u0415\u0422\u0406",
                     "SUBJECTSPACE",
                     "ARTICLESPACE"
                 ],
@@ -799,8 +996,10 @@
             {
                 "name": "subjectspacee",
                 "aliases": [
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423_2",
-                    "\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u0410_\u041d\u0410\u0417\u0412\u0410\u040e_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410_2",
+                    "TAQIRIPBET\u01302",
+                    "MAQALABET\u01302",
+                    "\u0422\u0410\u049a\u042b\u0420\u042b\u041f\u0411\u0415\u0422\u04062",
+                    "\u041c\u0410\u049a\u0410\u041b\u0410\u0411\u0415\u0422\u04062",
                     "SUBJECTSPACEE",
                     "ARTICLESPACEE"
                 ],
@@ -809,7 +1008,8 @@
             {
                 "name": "fullpagename",
                 "aliases": [
-                    "\u041f\u041e\u040e\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "TOLIQBETATAWI",
+                    "\u0422\u041e\u041b\u042b\u049a\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "FULLPAGENAME"
                 ],
                 "case-sensitive": true
@@ -817,7 +1017,8 @@
             {
                 "name": "fullpagenamee",
                 "aliases": [
-                    "\u041f\u041e\u040e\u041d\u0410\u042f_\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "TOLIQBETATAWI2",
+                    "\u0422\u041e\u041b\u042b\u049a\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "FULLPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -825,7 +1026,10 @@
             {
                 "name": "subpagename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u041f\u0410\u0414\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "BET\u015eEATAWI",
+                    "ASTI\u00d1\u011eIBETATAWI",
+                    "\u0411\u0415\u0422\u0428\u0415\u0410\u0422\u0410\u0423\u042b",
+                    "\u0410\u0421\u0422\u042b\u04a2\u0492\u042b\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "SUBPAGENAME"
                 ],
                 "case-sensitive": true
@@ -833,7 +1037,10 @@
             {
                 "name": "subpagenamee",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u041f\u0410\u0414\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "BET\u015eEATAWI2",
+                    "ASTI\u00d1\u011eIBETATAWI2",
+                    "\u0411\u0415\u0422\u0428\u0415\u0410\u0422\u0410\u0423\u042b2",
+                    "\u0410\u0421\u0422\u042b\u04a2\u0492\u042b\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "SUBPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -841,7 +1048,8 @@
             {
                 "name": "basepagename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u0410\u0417\u0410\u0412\u0410\u0419_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "NEG\u0130ZG\u0130BETATAWI",
+                    "\u041d\u0415\u0413\u0406\u0417\u0413\u0406\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "BASEPAGENAME"
                 ],
                 "case-sensitive": true
@@ -849,7 +1057,8 @@
             {
                 "name": "basepagenamee",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0411\u0410\u0417\u0410\u0412\u0410\u0419_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_2",
+                    "NEG\u0130ZG\u0130BETATAWI2",
+                    "\u041d\u0415\u0413\u0406\u0417\u0413\u0406\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "BASEPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -857,7 +1066,8 @@
             {
                 "name": "talkpagename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f",
+                    "TALQILAWBETATAWI",
+                    "\u0422\u0410\u041b\u049a\u042b\u041b\u0410\u0423\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "TALKPAGENAME"
                 ],
                 "case-sensitive": true
@@ -865,7 +1075,8 @@
             {
                 "name": "talkpagenamee",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0411\u041c\u0415\u0420\u041a\u0410\u0412\u0410\u041d\u042c\u041d\u042f_2",
+                    "TALQILAWBETATAWI2",
+                    "\u0422\u0410\u041b\u049a\u042b\u041b\u0410\u0423\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "TALKPAGENAMEE"
                 ],
                 "case-sensitive": true
@@ -873,8 +1084,10 @@
             {
                 "name": "subjectpagename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423",
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410",
+                    "TAQIRIPBETATAWI",
+                    "MAQALABETATAWI",
+                    "\u0422\u0410\u049a\u042b\u0420\u042b\u041f\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
+                    "\u041c\u0410\u049a\u0410\u041b\u0410\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b",
                     "SUBJECTPAGENAME",
                     "ARTICLEPAGENAME"
                 ],
@@ -883,8 +1096,10 @@
             {
                 "name": "subjectpagenamee",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u041f\u0420\u0410\u0414\u041c\u0415\u0422\u0423_2",
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406_\u0410\u0420\u0422\u042b\u041a\u0423\u041b\u0410_2",
+                    "TAQIRIPBETATAWI2",
+                    "MAQALABETATAWI2",
+                    "\u0422\u0410\u049a\u042b\u0420\u042b\u041f\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
+                    "\u041c\u0410\u049a\u0410\u041b\u0410\u0411\u0415\u0422\u0410\u0422\u0410\u0423\u042b2",
                     "SUBJECTPAGENAMEE",
                     "ARTICLEPAGENAMEE"
                 ],
@@ -893,7 +1108,8 @@
             {
                 "name": "msg",
                 "aliases": [
-                    "\u041f\u0410\u0412\u0415\u0414\u0410\u041c\u041b\u0415\u041d\u042c\u041d\u0415:",
+                    "XBR:",
+                    "\u0425\u0411\u0420:",
                     "MSG:"
                 ],
                 "case-sensitive": false
@@ -901,7 +1117,8 @@
             {
                 "name": "subst",
                 "aliases": [
-                    "\u041f\u0410\u0414\u0421\u0422\u0410\u041d\u041e\u040e\u041a\u0410:",
+                    "B\u00c4DEL:",
+                    "\u0411\u04d8\u0414\u0415\u041b:",
                     "SUBST:"
                 ],
                 "case-sensitive": false
@@ -909,7 +1126,8 @@
             {
                 "name": "msgnw",
                 "aliases": [
-                    "\u041f\u0410\u0412\u0415\u0414\u0410\u041c\u041b\u0415\u041d\u042c\u041d\u0415_\u0411\u042f\u0417\u042c_\u0412\u0406\u041a\u0406:",
+                    "W\u00cfK\u00cfS\u0130ZXBR:",
+                    "\u0423\u0418\u041a\u0418\u0421\u0406\u0417\u0425\u0411\u0420:",
                     "MSGNW:"
                 ],
                 "case-sensitive": false
@@ -917,9 +1135,8 @@
             {
                 "name": "img_thumbnail",
                 "aliases": [
-                    "\u0437\u043d\u0430\u0447\u0430\u043a",
-                    "\u043c\u0456\u043d\u0456",
-                    "\u043c\u0456\u043d\u0456\u044f\u0446\u044e\u0440\u0430",
+                    "noba\u00fd",
+                    "\u043d\u043e\u0431\u0430\u0439",
                     "thumbnail",
                     "thumb"
                 ],
@@ -928,9 +1145,8 @@
             {
                 "name": "img_manualthumb",
                 "aliases": [
-                    "\u0437\u043d\u0430\u0447\u0430\u043a=$1",
-                    "\u043c\u0456\u043d\u0456=$1",
-                    "\u043c\u0456\u043d\u0456\u044f\u0446\u044e\u0440\u0430=$1",
+                    "noba\u00fd=$1",
+                    "\u043d\u043e\u0431\u0430\u0439=$1",
                     "thumbnail=$1",
                     "thumb=$1"
                 ],
@@ -939,7 +1155,10 @@
             {
                 "name": "img_right",
                 "aliases": [
-                    "\u0441\u043f\u0440\u0430\u0432\u0430",
+                    "o\u00f1\u011fa",
+                    "o\u00f1",
+                    "\u043e\u04a3\u0493\u0430",
+                    "\u043e\u04a3",
                     "right"
                 ],
                 "case-sensitive": true
@@ -947,8 +1166,10 @@
             {
                 "name": "img_left",
                 "aliases": [
-                    "\u0437\u044c\u043b\u0435\u0432\u0430",
-                    "\u0437\u043b\u0435\u0432\u0430",
+                    "sol\u011fa",
+                    "sol",
+                    "\u0441\u043e\u043b\u0493\u0430",
+                    "\u0441\u043e\u043b",
                     "left"
                 ],
                 "case-sensitive": true
@@ -956,7 +1177,10 @@
             {
                 "name": "img_none",
                 "aliases": [
-                    "\u043d\u044f\u043c\u0430",
+                    "e\u015fqanda\u00fd",
+                    "joq",
+                    "\u0435\u0448\u049b\u0430\u043d\u0434\u0430\u0439",
+                    "\u0436\u043e\u049b",
                     "none"
                 ],
                 "case-sensitive": true
@@ -964,7 +1188,8 @@
             {
                 "name": "img_width",
                 "aliases": [
-                    "$1\u043f\u043a\u0441",
+                    "$1 n\u00fckte",
+                    "$1 \u043d\u04af\u043a\u0442\u0435",
                     "$1px"
                 ],
                 "case-sensitive": true
@@ -972,8 +1197,10 @@
             {
                 "name": "img_center",
                 "aliases": [
-                    "\u0446\u044d\u043d\u0442\u0430\u0440",
-                    "\u0446\u044d\u043d\u0442\u0440",
+                    "orta\u011fa",
+                    "orta",
+                    "\u043e\u0440\u0442\u0430\u0493\u0430",
+                    "\u043e\u0440\u0442\u0430",
                     "center",
                     "centre"
                 ],
@@ -982,8 +1209,8 @@
             {
                 "name": "img_framed",
                 "aliases": [
-                    "\u0440\u0430\u043c\u043a\u0430",
-                    "\u0431\u0435\u0437\u0440\u0430\u043c\u043a\u0456",
+                    "s\u00fcrmeli",
+                    "\u0441\u04af\u0440\u043c\u0435\u043b\u0456",
                     "framed",
                     "enframed",
                     "frame"
@@ -991,27 +1218,105 @@
                 "case-sensitive": true
             },
             {
+                "name": "img_frameless",
+                "aliases": [
+                    "s\u00fcrmesiz",
+                    "\u0441\u04af\u0440\u043c\u0435\u0441\u0456\u0437",
+                    "frameless"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "img_page",
                 "aliases": [
-                    "\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430=$1",
-                    "\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430 $1",
+                    "bet=$1",
+                    "bet $1",
+                    "\u0431\u0435\u0442=$1",
+                    "\u0431\u0435\u0442 $1",
                     "page=$1",
                     "page $1"
                 ],
                 "case-sensitive": true
             },
             {
+                "name": "img_upright",
+                "aliases": [
+                    "tikti",
+                    "tiktik=$1",
+                    "tiktik $1",
+                    "\u0442\u0456\u043a\u0442\u0456",
+                    "\u0442\u0456\u043a\u0442\u0456\u043a=$1",
+                    "\u0442\u0456\u043a\u0442\u0456\u043a $1",
+                    "upright",
+                    "upright=$1",
+                    "upright $1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_border",
+                "aliases": [
+                    "j\u00efekti",
+                    "\u0436\u0438\u0435\u043a\u0442\u0456",
+                    "border"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_baseline",
+                "aliases": [
+                    "tirekjol",
+                    "\u0442\u0456\u0440\u0435\u043a\u0436\u043e\u043b",
+                    "baseline"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_sub",
+                "aliases": [
+                    "ast\u0131l\u0131\u011f\u0131",
+                    "ast",
+                    "\u0430\u0441\u0442\u044b\u043b\u044b\u0493\u044b",
+                    "\u0430\u0441\u0442",
+                    "sub"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_super",
+                "aliases": [
+                    "\u00fcstiligi",
+                    "\u00fcst",
+                    "\u04af\u0441\u0442\u0456\u043b\u0456\u0433\u0456",
+                    "\u04af\u0441\u0442",
+                    "super",
+                    "sup"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "img_top",
                 "aliases": [
-                    "\u0437\u044c\u0432\u0435\u0440\u0445\u0443",
+                    "\u00fcstine",
+                    "\u04af\u0441\u0442\u0456\u043d\u0435",
                     "top"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "img_text_top",
+                "aliases": [
+                    "m\u00e4tin-\u00fcstinde",
+                    "\u043c\u04d9\u0442\u0456\u043d-\u04af\u0441\u0442\u0456\u043d\u0434\u0435",
+                    "text-top"
                 ],
                 "case-sensitive": true
             },
             {
                 "name": "img_middle",
                 "aliases": [
-                    "\u043f\u0430\u0441\u044f\u0440\u044d\u0434\u0437\u0456\u043d\u0435",
+                    "aral\u0131\u011f\u0131na",
+                    "\u0430\u0440\u0430\u043b\u044b\u0493\u044b\u043d\u0430",
                     "middle"
                 ],
                 "case-sensitive": true
@@ -1019,23 +1324,35 @@
             {
                 "name": "img_bottom",
                 "aliases": [
-                    "\u0437\u044c\u043d\u0456\u0437\u0443",
+                    "ast\u0131na",
+                    "\u0430\u0441\u0442\u044b\u043d\u0430",
                     "bottom"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "img_link",
+                "name": "img_text_bottom",
                 "aliases": [
-                    "\u0441\u043f\u0430\u0441\u044b\u043b\u043a\u0430=$1",
-                    "link=$1"
+                    "m\u00e4tin-ast\u0131nda",
+                    "\u043c\u04d9\u0442\u0456\u043d-\u0430\u0441\u0442\u044b\u043d\u0434\u0430",
+                    "text-bottom"
                 ],
                 "case-sensitive": true
             },
             {
+                "name": "int",
+                "aliases": [
+                    "\u0130\u015eK\u0130:",
+                    "\u0406\u0428\u041a\u0406:",
+                    "INT:"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "sitename",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u0410\u0419\u0422\u0423",
+                    "TORAPATAWI",
+                    "\u0422\u041e\u0420\u0410\u041f\u0410\u0422\u0410\u0423\u042b",
                     "SITENAME"
                 ],
                 "case-sensitive": true
@@ -1043,7 +1360,10 @@
             {
                 "name": "ns",
                 "aliases": [
-                    "\u041f\u041d:",
+                    "EA:",
+                    "ES\u0130MAYA:",
+                    "\u0415\u0410:",
+                    "\u0415\u0421\u0406\u041c\u0410\u042f:",
                     "NS:"
                 ],
                 "case-sensitive": false
@@ -1051,7 +1371,8 @@
             {
                 "name": "localurl",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0410\u0414\u0420\u0410\u0421:",
+                    "JERG\u0130L\u0130KT\u0130JA\u00dd:",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0416\u0410\u0419:",
                     "LOCALURL:"
                 ],
                 "case-sensitive": false
@@ -1059,23 +1380,17 @@
             {
                 "name": "localurle",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0410\u0414\u0420\u0410\u0421_2:",
+                    "JERG\u0130L\u0130KT\u0130JA\u00dd2:",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0416\u0410\u04192:",
                     "LOCALURLE:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "server",
-                "aliases": [
-                    "\u0421\u042d\u0420\u0412\u042d\u0420",
-                    "SERVER"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "servername",
                 "aliases": [
-                    "\u041d\u0410\u0417\u0412\u0410_\u0421\u042d\u0420\u0412\u042d\u0420\u0410",
+                    "SERVERATAWI",
+                    "\u0421\u0415\u0420\u0412\u0415\u0420\u0410\u0422\u0410\u0423\u042b",
                     "SERVERNAME"
                 ],
                 "case-sensitive": false
@@ -1083,7 +1398,8 @@
             {
                 "name": "scriptpath",
                 "aliases": [
-                    "\u0428\u041b\u042f\u0425_\u0414\u0410_\u0421\u041a\u0420\u042b\u041f\u0422\u0410",
+                    "\u00c4M\u0130RJOLI",
+                    "\u04d8\u041c\u0406\u0420\u0416\u041e\u041b\u042b",
                     "SCRIPTPATH"
                 ],
                 "case-sensitive": false
@@ -1091,23 +1407,25 @@
             {
                 "name": "grammar",
                 "aliases": [
-                    "\u0413\u0420\u0410\u041c\u0410\u0422\u042b\u041a\u0410:",
+                    "SEPT\u0130G\u0130:",
+                    "SEPT\u0130K:",
+                    "\u0421\u0415\u041f\u0422\u0406\u0413\u0406:",
+                    "\u0421\u0415\u041f\u0422\u0406\u041a:",
                     "GRAMMAR:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "gender",
-                "aliases": [
-                    "\u041f\u041e\u041b:",
-                    "GENDER:"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "notitleconvert",
                 "aliases": [
-                    "__\u041d\u0415_\u041a\u0410\u041d\u0412\u042d\u0420\u0422\u0410\u0412\u0410\u0426\u042c_\u041d\u0410\u0417\u0412\u0423__",
+                    "__TAQIRIPATINT\u00dcRLEND\u0130RG\u0130ZBEW__",
+                    "__TATJOQ__",
+                    "__ATAWALMASTIR\u011eIZBAW__",
+                    "__AABAW__",
+                    "__\u0422\u0410\u049a\u042b\u0420\u042b\u041f\u0410\u0422\u042b\u041d\u0422\u04ae\u0420\u041b\u0415\u041d\u0414\u0406\u0420\u0413\u0406\u0417\u0411\u0415\u0423__",
+                    "__\u0422\u0410\u0422\u0416\u041e\u049a__",
+                    "__\u0410\u0422\u0410\u0423\u0410\u041b\u041c\u0410\u0421\u0422\u042b\u0420\u0492\u042b\u0417\u0411\u0410\u0423__",
+                    "__\u0410\u0410\u0411\u0410\u0423__",
                     "__NOTITLECONVERT__",
                     "__NOTC__"
                 ],
@@ -1116,7 +1434,14 @@
             {
                 "name": "nocontentconvert",
                 "aliases": [
-                    "__\u041d\u0415_\u041a\u0410\u041d\u0412\u042d\u0420\u0422\u0410\u0412\u0410\u0426\u042c_\u0422\u042d\u041a\u0421\u0422__",
+                    "__MA\u011eLUMATINT\u00dcRLEND\u0130RG\u0130ZBEW__",
+                    "__MATJOQ__",
+                    "__MA\u011eLUMATALMASTIR\u011eIZBAW__",
+                    "__MABAW__",
+                    "__\u041c\u0410\u0492\u041b\u04b0\u041c\u0410\u0422\u042b\u041d\u0422\u04ae\u0420\u041b\u0415\u041d\u0414\u0406\u0420\u0413\u0406\u0417\u0411\u0415\u0423__",
+                    "__\u041c\u0410\u0422\u0416\u041e\u049a__",
+                    "__\u041c\u0410\u0492\u041b\u04b0\u041c\u0410\u0422\u0410\u041b\u041c\u0410\u0421\u0422\u042b\u0420\u0492\u042b\u0417\u0411\u0410\u0423__",
+                    "__\u041c\u0410\u0411\u0410\u0423__",
                     "__NOCONTENTCONVERT__",
                     "__NOCC__"
                 ],
@@ -1125,7 +1450,10 @@
             {
                 "name": "currentweek",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0422\u042b\u0414\u0417\u0415\u041d\u042c",
+                    "A\u011eIMDA\u011eIAPTASI",
+                    "A\u011eIMDA\u011eIAPTA",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u041f\u0422\u0410\u0421\u042b",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u041f\u0422\u0410",
                     "CURRENTWEEK"
                 ],
                 "case-sensitive": true
@@ -1133,7 +1461,8 @@
             {
                 "name": "currentdow",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u042b_\u0414\u0417\u0415\u041d\u042c_\u0422\u042b\u0414\u041d\u042f",
+                    "A\u011eIMDA\u011eIAPTAK\u00dcN\u0130",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0410\u041f\u0422\u0410\u041a\u04ae\u041d\u0406",
                     "CURRENTDOW"
                 ],
                 "case-sensitive": true
@@ -1141,7 +1470,10 @@
             {
                 "name": "localweek",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0422\u042b\u0414\u0417\u0415\u041d\u042c",
+                    "JERG\u0130L\u0130KT\u0130APTASI",
+                    "JERG\u0130L\u0130KT\u0130APTA",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u041f\u0422\u0410\u0421\u042b",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u041f\u0422\u0410",
                     "LOCALWEEK"
                 ],
                 "case-sensitive": true
@@ -1149,7 +1481,8 @@
             {
                 "name": "localdow",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u0414\u0417\u0415\u041d\u042c_\u0422\u042b\u0414\u041d\u042f",
+                    "JERG\u0130L\u0130KT\u0130APTAK\u00dcN\u0130",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0410\u041f\u0422\u0410\u041a\u04ae\u041d\u0406",
                     "LOCALDOW"
                 ],
                 "case-sensitive": true
@@ -1157,7 +1490,10 @@
             {
                 "name": "revisionid",
                 "aliases": [
-                    "ID_\u0412\u042d\u0420\u0421\u0406\u0406",
+                    "T\u00dcZETWN\u00d6M\u0130R\u0130",
+                    "NUSQAN\u00d6M\u0130R\u0130",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u041d\u04e8\u041c\u0406\u0420\u0406",
+                    "\u041d\u04b0\u0421\u049a\u0410\u041d\u04e8\u041c\u0406\u0420\u0406",
                     "REVISIONID"
                 ],
                 "case-sensitive": true
@@ -1165,7 +1501,10 @@
             {
                 "name": "revisionday",
                 "aliases": [
-                    "\u0414\u0417\u0415\u041d\u042c_\u0412\u042d\u0420\u0421\u0406\u0406",
+                    "T\u00dcZETWK\u00dcN\u0130",
+                    "NUSQAK\u00dcN\u0130",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u041a\u04ae\u041d\u0406",
+                    "\u041d\u04b0\u0421\u049a\u0410\u041a\u04ae\u041d\u0406",
                     "REVISIONDAY"
                 ],
                 "case-sensitive": true
@@ -1173,7 +1512,10 @@
             {
                 "name": "revisionday2",
                 "aliases": [
-                    "\u0414\u0417\u0415\u041d\u042c_\u0412\u042d\u0420\u0421\u0406\u0406_2",
+                    "T\u00dcZETWK\u00dcN\u01302",
+                    "NUSQAK\u00dcN\u01302",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u041a\u04ae\u041d\u04062",
+                    "\u041d\u04b0\u0421\u049a\u0410\u041a\u04ae\u041d\u04062",
                     "REVISIONDAY2"
                 ],
                 "case-sensitive": true
@@ -1181,7 +1523,10 @@
             {
                 "name": "revisionmonth",
                 "aliases": [
-                    "\u041c\u0415\u0421\u042f\u0426_\u0412\u042d\u0420\u0421\u0406\u0406",
+                    "T\u00dcZETWA\u00ddI",
+                    "NUSQAA\u00ddI",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u0410\u0419\u042b",
+                    "\u041d\u04b0\u0421\u049a\u0410\u0410\u0419\u042b",
                     "REVISIONMONTH"
                 ],
                 "case-sensitive": true
@@ -1189,7 +1534,10 @@
             {
                 "name": "revisionyear",
                 "aliases": [
-                    "\u0413\u041e\u0414_\u0412\u042d\u0420\u0421\u0406\u0406",
+                    "T\u00dcZETWJILI",
+                    "NUSQAJILI",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u0416\u042b\u041b\u042b",
+                    "\u041d\u04b0\u0421\u049a\u0410\u0416\u042b\u041b\u042b",
                     "REVISIONYEAR"
                 ],
                 "case-sensitive": true
@@ -1197,7 +1545,10 @@
             {
                 "name": "revisiontimestamp",
                 "aliases": [
-                    "\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423_\u0412\u042d\u0420\u0421\u0406\u0406",
+                    "T\u00dcZETWWAQITITA\u00d1BASI",
+                    "NUSQAWAQITT\u00dc\u00dd\u0130NDEMES\u0130",
+                    "\u0422\u04ae\u0417\u0415\u0422\u0423\u0423\u0410\u049a\u042b\u0422\u042b\u0422\u0410\u04a2\u0411\u0410\u0421\u042b",
+                    "\u041d\u04b0\u0421\u049a\u0410\u0423\u0410\u049a\u042b\u0422\u0422\u04ae\u0419\u0406\u041d\u0414\u0415\u041c\u0415\u0421\u0406",
                     "REVISIONTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1205,7 +1556,10 @@
             {
                 "name": "plural",
                 "aliases": [
-                    "\u041c\u041d\u041e\u0416\u041d\u042b_\u041b\u0406\u041a:",
+                    "K\u00d6P\u015eET\u00dcR\u0130:",
+                    "K\u00d6P\u015eE:",
+                    "\u041a\u04e8\u041f\u0428\u0415\u0422\u04ae\u0420\u0406:",
+                    "\u041a\u04e8\u041f\u0428\u0415:",
                     "PLURAL:"
                 ],
                 "case-sensitive": false
@@ -1213,7 +1567,10 @@
             {
                 "name": "fullurl",
                 "aliases": [
-                    "\u041f\u041e\u040e\u041d\u042b_\u0410\u0414\u0420\u0410\u0421:",
+                    "TOLIQJA\u00ddI:",
+                    "TOLIQJA\u00dd:",
+                    "\u0422\u041e\u041b\u042b\u049a\u0416\u0410\u0419\u042b:",
+                    "\u0422\u041e\u041b\u042b\u049a\u0416\u0410\u0419:",
                     "FULLURL:"
                 ],
                 "case-sensitive": false
@@ -1221,7 +1578,10 @@
             {
                 "name": "fullurle",
                 "aliases": [
-                    "\u041f\u041e\u040e\u041d\u042b_\u0410\u0414\u0420\u0410\u0421_2:",
+                    "TOLIQJA\u00ddI2:",
+                    "TOLIQJA\u00dd2:",
+                    "\u0422\u041e\u041b\u042b\u049a\u0416\u0410\u0419\u042b2:",
+                    "\u0422\u041e\u041b\u042b\u049a\u0416\u0410\u04192:",
                     "FULLURLE:"
                 ],
                 "case-sensitive": false
@@ -1229,7 +1589,10 @@
             {
                 "name": "lcfirst",
                 "aliases": [
-                    "\u041f\u0415\u0420\u0428\u0410\u042f_\u041b\u0406\u0422\u0410\u0420\u0410_\u041c\u0410\u041b\u0410\u042f:",
+                    "K\u00c41:",
+                    "K\u0130\u015e\u0130\u00c4R\u0130PPEN1:",
+                    "\u041a\u04d81:",
+                    "\u041a\u0406\u0428\u0406\u04d8\u0420\u0406\u041f\u041f\u0415\u041d1:",
                     "LCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1237,7 +1600,10 @@
             {
                 "name": "ucfirst",
                 "aliases": [
-                    "\u041f\u0415\u0420\u0428\u0410\u042f_\u041b\u0406\u0422\u0410\u0420\u0410_\u0412\u042f\u041b\u0406\u041a\u0410\u042f:",
+                    "B\u00c41:",
+                    "BAS\u00c4R\u0130PPEN1:",
+                    "\u0411\u04d81:",
+                    "\u0411\u0410\u0421\u04d8\u0420\u0406\u041f\u041f\u0415\u041d1:",
                     "UCFIRST:"
                 ],
                 "case-sensitive": false
@@ -1245,7 +1611,10 @@
             {
                 "name": "lc",
                 "aliases": [
-                    "\u041c\u0410\u041b\u042b\u041c\u0406_\u041b\u0406\u0422\u0410\u0420\u0410\u041c\u0406:",
+                    "K\u00c4:",
+                    "K\u0130\u015e\u0130\u00c4R\u0130PPEN:",
+                    "\u041a\u04d8:",
+                    "\u041a\u0406\u0428\u0406\u04d8\u0420\u0406\u041f\u041f\u0415\u041d:",
                     "LC:"
                 ],
                 "case-sensitive": false
@@ -1253,7 +1622,10 @@
             {
                 "name": "uc",
                 "aliases": [
-                    "\u0412\u042f\u041b\u0406\u041a\u0406\u041c\u0406_\u041b\u0406\u0422\u0410\u0420\u0410\u041c\u0406:",
+                    "B\u00c4:",
+                    "BAS\u00c4R\u0130PPEN:",
+                    "\u0411\u04d8:",
+                    "\u0411\u0410\u0421\u04d8\u0420\u0406\u041f\u041f\u0415\u041d:",
                     "UC:"
                 ],
                 "case-sensitive": false
@@ -1261,7 +1633,8 @@
             {
                 "name": "raw",
                 "aliases": [
-                    "\u041d\u0415\u0410\u041f\u0420\u0410\u0426\u0410\u0412\u0410\u041d\u042b:",
+                    "QAM:",
+                    "\u049a\u0410\u041c:",
                     "RAW:"
                 ],
                 "case-sensitive": false
@@ -1269,7 +1642,10 @@
             {
                 "name": "displaytitle",
                 "aliases": [
-                    "\u041f\u0410\u041a\u0410\u0417\u0412\u0410\u0426\u042c_\u041d\u0410\u0417\u0412\u0423",
+                    "K\u00d6R\u0130NET\u0130NTAQIRIAPATI",
+                    "K\u00d6RSET\u0130LET\u0130NATAW",
+                    "\u041a\u04e8\u0420\u0406\u041d\u0415\u0422\u0406\u041d\u0422\u0410\u049a\u042b\u0420\u042b\u0410\u041f\u0410\u0422\u042b",
+                    "\u041a\u04e8\u0420\u0421\u0415\u0422\u0406\u041b\u0415\u0422\u0406\u041d\u0410\u0422\u0410\u0423",
                     "DISPLAYTITLE"
                 ],
                 "case-sensitive": true
@@ -1277,7 +1653,8 @@
             {
                 "name": "rawsuffix",
                 "aliases": [
-                    "\u041d",
+                    "Q",
+                    "\u049a",
                     "R"
                 ],
                 "case-sensitive": true
@@ -1285,7 +1662,8 @@
             {
                 "name": "newsectionlink",
                 "aliases": [
-                    "__\u0421\u041f\u0410\u0421\u042b\u041b\u041a\u0410_\u041d\u0410_\u041d\u041e\u0412\u0423\u042e_\u0421\u042d\u041a\u0426\u042b\u042e__",
+                    "__JA\u00d1AB\u00d6L\u0130MS\u0130LTEMES\u0130__",
+                    "__\u0416\u0410\u04a2\u0410\u0411\u04e8\u041b\u0406\u041c\u0421\u0406\u041b\u0422\u0415\u041c\u0415\u0421\u0406__",
                     "__NEWSECTIONLINK__"
                 ],
                 "case-sensitive": true
@@ -1293,15 +1671,37 @@
             {
                 "name": "currentversion",
                 "aliases": [
-                    "\u0411\u042f\u0413\u0423\u0427\u0410\u042f_\u0412\u042d\u0420\u0421\u0406\u042f",
+                    "BA\u011eDARLAMANUSQASI",
+                    "\u0411\u0410\u0492\u0414\u0410\u0420\u041b\u0410\u041c\u0410\u041d\u04b0\u0421\u049a\u0410\u0421\u042b",
                     "CURRENTVERSION"
                 ],
                 "case-sensitive": true
             },
             {
+                "name": "urlencode",
+                "aliases": [
+                    "JA\u00ddDIMUQAMDAW:",
+                    "\u0416\u0410\u0419\u0414\u042b\u041c\u04b0\u049a\u0410\u041c\u0414\u0410\u0423:",
+                    "URLENCODE:"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "anchorencode",
+                "aliases": [
+                    "J\u00c4K\u0130RD\u0130MUQAMDAW",
+                    "\u0416\u04d8\u041a\u0406\u0420\u0414\u0406\u041c\u04b0\u049a\u0410\u041c\u0414\u0410\u0423",
+                    "ANCHORENCODE"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "currenttimestamp",
                 "aliases": [
-                    "\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423",
+                    "A\u011eIMDA\u011eIWAQITT\u00dc\u00dd\u0130NDEMES\u0130",
+                    "A\u011eIMDA\u011eIWAQITT\u00dc\u00dd\u0130N",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0423\u0410\u049a\u042b\u0422\u0422\u04ae\u0419\u0406\u041d\u0414\u0415\u041c\u0415\u0421\u0406",
+                    "\u0410\u0492\u042b\u041c\u0414\u0410\u0492\u042b\u0423\u0410\u049a\u042b\u0422\u0422\u04ae\u0419\u0406\u041d",
                     "CURRENTTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1309,7 +1709,10 @@
             {
                 "name": "localtimestamp",
                 "aliases": [
-                    "\u041b\u042f\u041a\u0410\u041b\u042c\u041d\u042b_\u041c\u041e\u041c\u0410\u041d\u0422_\u0427\u0410\u0421\u0423",
+                    "JERG\u0130L\u0130KT\u0130WAQITT\u00dc\u00dd\u0130NDEMES\u0130",
+                    "JERG\u0130L\u0130KT\u0130WAQITT\u00dc\u00dd\u0130N",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0423\u0410\u049a\u042b\u0422\u0422\u04ae\u0419\u0406\u041d\u0414\u0415\u041c\u0415\u0421\u0406",
+                    "\u0416\u0415\u0420\u0413\u0406\u041b\u0406\u041a\u0422\u0406\u0423\u0410\u049a\u042b\u0422\u0422\u04ae\u0419\u0406\u041d",
                     "LOCALTIMESTAMP"
                 ],
                 "case-sensitive": true
@@ -1317,7 +1720,8 @@
             {
                 "name": "directionmark",
                 "aliases": [
-                    "\u0421\u042b\u041c\u0411\u0410\u041b\u042c_\u041d\u0410\u041f\u0420\u0410\u041c\u041a\u0423_\u041f\u0406\u0421\u042c\u041c\u0410",
+                    "BA\u011eITBELG\u0130S\u0130",
+                    "\u0411\u0410\u0492\u042b\u0422\u0411\u0415\u041b\u0413\u0406\u0421\u0406",
                     "DIRECTIONMARK",
                     "DIRMARK"
                 ],
@@ -1326,7 +1730,8 @@
             {
                 "name": "language",
                 "aliases": [
-                    "#\u041c\u041e\u0412\u0410:",
+                    "#T\u0130L:",
+                    "#\u0422\u0406\u041b:",
                     "#LANGUAGE:"
                 ],
                 "case-sensitive": false
@@ -1334,7 +1739,8 @@
             {
                 "name": "contentlanguage",
                 "aliases": [
-                    "\u041c\u041e\u0412\u0410_\u0417\u042c\u041c\u0415\u0421\u0422\u0423",
+                    "MA\u011eLUMATT\u0130L\u0130",
+                    "\u041c\u0410\u0492\u041b\u04b0\u041c\u0410\u0422\u0422\u0406\u041b\u0406",
                     "CONTENTLANGUAGE",
                     "CONTENTLANG"
                 ],
@@ -1343,7 +1749,12 @@
             {
                 "name": "pagesinnamespace",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a_\u0423_\u041f\u0420\u0410\u0421\u0422\u041e\u0420\u042b_\u041d\u0410\u0417\u0412\u0410\u040e:",
+                    "ES\u0130MAYABETSANI:",
+                    "EABETSANI:",
+                    "AYABETSANI:",
+                    "\u0415\u0421\u0406\u041c\u0410\u042f\u0411\u0415\u0422\u0421\u0410\u041d\u042b:",
+                    "\u0415\u0410\u0411\u0415\u0422\u0421\u0410\u041d\u042b:",
+                    "\u0410\u042f\u0411\u0415\u0422\u0421\u0410\u041d\u042b:",
                     "PAGESINNAMESPACE:",
                     "PAGESINNS:"
                 ],
@@ -1352,7 +1763,8 @@
             {
                 "name": "numberofadmins",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0410\u0414\u041c\u0406\u041d\u0406\u0421\u0422\u0420\u0410\u0422\u0410\u0420\u0410\u040e",
+                    "\u00c4K\u0130M\u015e\u0130SANI",
+                    "\u04d8\u041a\u0406\u041c\u0428\u0406\u0421\u0410\u041d\u042b",
                     "NUMBEROFADMINS"
                 ],
                 "case-sensitive": true
@@ -1360,17 +1772,54 @@
             {
                 "name": "formatnum",
                 "aliases": [
-                    "\u0424\u0410\u0420\u041c\u0410\u0422\u0410\u0412\u0410\u0426\u042c_\u041b\u0406\u041a",
+                    "SANP\u0130\u015e\u0130M\u0130",
+                    "\u0421\u0410\u041d\u041f\u0406\u0428\u0406\u041c\u0406",
                     "FORMATNUM"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "padleft",
+                "aliases": [
+                    "SOL\u011eAI\u011eIS",
+                    "SOLI\u011eIS",
+                    "\u0421\u041e\u041b\u0492\u0410\u042b\u0492\u042b\u0421",
+                    "\u0421\u041e\u041b\u042b\u0492\u042b\u0421",
+                    "PADLEFT"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "padright",
+                "aliases": [
+                    "O\u00d1\u011eAI\u011eIS",
+                    "O\u00d1I\u011eIS",
+                    "\u041e\u04a2\u0492\u0410\u042b\u0492\u042b\u0421",
+                    "\u041e\u04a2\u042b\u0492\u042b\u0421",
+                    "PADRIGHT"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "special",
+                "aliases": [
+                    "arna\u00fd\u0131",
+                    "\u0430\u0440\u043d\u0430\u0439\u044b",
+                    "special"
                 ],
                 "case-sensitive": false
             },
             {
                 "name": "defaultsort",
                 "aliases": [
-                    "\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0410_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
-                    "\u041a\u041b\u042e\u0427_\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0406_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
-                    "\u0421\u0410\u0420\u0422\u042b\u0420\u041e\u040e\u041a\u0410_\u040e_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u0406_\u041f\u0410_\u0417\u041c\u041e\u040e\u0427\u0412\u0410\u041d\u042c\u041d\u0406:",
+                    "\u00c4DEPK\u0130SURIPTAW:",
+                    "\u00c4DEPK\u0130SANATSURIPTAW:",
+                    "\u00c4DEPK\u0130SURIPTAWK\u0130LT\u0130:",
+                    "\u00c4DEPK\u0130SURIP:",
+                    "\u04d8\u0414\u0415\u041f\u041a\u0406\u0421\u04b0\u0420\u042b\u041f\u0422\u0410\u0423:",
+                    "\u04d8\u0414\u0415\u041f\u041a\u0406\u0421\u0410\u041d\u0410\u0422\u0421\u04b0\u0420\u042b\u041f\u0422\u0410\u0423:",
+                    "\u04d8\u0414\u0415\u041f\u041a\u0406\u0421\u04b0\u0420\u042b\u041f\u0422\u0410\u0423\u041a\u0406\u041b\u0422\u0406:",
+                    "\u04d8\u0414\u0415\u041f\u041a\u0406\u0421\u04b0\u0420\u042b\u041f:",
                     "DEFAULTSORT:",
                     "DEFAULTSORTKEY:",
                     "DEFAULTCATEGORYSORT:"
@@ -1380,7 +1829,8 @@
             {
                 "name": "filepath",
                 "aliases": [
-                    "\u0428\u041b\u042f\u0425_\u0414\u0410_\u0424\u0410\u0419\u041b\u0410:",
+                    "FA\u00ddLMEKEN\u0130:",
+                    "\u0424\u0410\u0419\u041b\u041c\u0415\u041a\u0415\u041d\u0406:",
                     "FILEPATH:"
                 ],
                 "case-sensitive": false
@@ -1388,7 +1838,8 @@
             {
                 "name": "tag",
                 "aliases": [
-                    "\u0442\u044d\u0433",
+                    "belgi",
+                    "\u0431\u0435\u043b\u0433\u0456",
                     "tag"
                 ],
                 "case-sensitive": false
@@ -1396,7 +1847,8 @@
             {
                 "name": "hiddencat",
                 "aliases": [
-                    "__\u0421\u0425\u0410\u0412\u0410\u0426\u042c_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u042e__",
+                    "__JASIRINSANAT__",
+                    "__\u0416\u0410\u0421\u042b\u0420\u042b\u041d\u0421\u0410\u041d\u0410\u0422__",
                     "__HIDDENCAT__"
                 ],
                 "case-sensitive": true
@@ -1404,7 +1856,8 @@
             {
                 "name": "pagesincategory",
                 "aliases": [
-                    "\u041a\u041e\u041b\u042c\u041a\u0410\u0421\u042c\u0426\u042c_\u0421\u0422\u0410\u0420\u041e\u041d\u0410\u041a_\u0423_\u041a\u0410\u0422\u042d\u0413\u041e\u0420\u042b\u0406",
+                    "SANATTA\u011eIBETTER",
+                    "\u0421\u0410\u041d\u0410\u0422\u0422\u0410\u0492\u042b\u0411\u0415\u0422\u0422\u0415\u0420",
                     "PAGESINCATEGORY",
                     "PAGESINCAT"
                 ],
@@ -1413,18 +1866,19 @@
             {
                 "name": "pagesize",
                 "aliases": [
-                    "\u041f\u0410\u041c\u0415\u0420_\u0421\u0422\u0410\u0420\u041e\u041d\u041a\u0406",
+                    "BETM\u00d6L\u015eER\u0130",
+                    "\u0411\u0415\u0422\u041c\u04e8\u041b\u0428\u0415\u0420\u0406",
                     "PAGESIZE"
                 ],
                 "case-sensitive": true
             },
             {
-                "name": "staticredirect",
+                "name": "server",
                 "aliases": [
-                    "__\u0421\u0422\u0410\u0422\u042b\u0427\u041d\u0410\u0415_\u041f\u0415\u0420\u0410\u041d\u0410\u041a\u0406\u0420\u0410\u0412\u0410\u041d\u042c\u041d\u0415__",
-                    "__STATICREDIRECT__"
+                    "\u0421\u0415\u0420\u0412\u0415\u0420",
+                    "SERVER"
                 ],
-                "case-sensitive": true
+                "case-sensitive": false
             },
             {
                 "name": "img_lossy",
@@ -1661,34 +2115,6 @@
                 "case-sensitive": true
             },
             {
-                "name": "switchlanguage",
-                "aliases": [
-                    "switchlanguage"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "switchcountry",
-                "aliases": [
-                    "switchcountry"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "useliquidthreads",
-                "aliases": [
-                    "UseLiquidThreads"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "lqtpagelimit",
-                "aliases": [
-                    "lqtpagelimit"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "target",
                 "aliases": [
                     "target"
@@ -1731,23 +2157,9 @@
                 "case-sensitive": false
             },
             {
-                "name": "related",
+                "name": "calendar",
                 "aliases": [
-                    "related"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "assessment",
-                "aliases": [
-                    "assessment"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "PAGEBANNER",
-                "aliases": [
-                    "PAGEBANNER"
+                    "calendar"
                 ],
                 "case-sensitive": false
             },
@@ -1766,9 +2178,16 @@
                 "case-sensitive": false
             },
             {
-                "name": "calendar",
+                "name": "switchlanguage",
                 "aliases": [
-                    "calendar"
+                    "switchlanguage"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "switchcountry",
+                "aliases": [
+                    "switchcountry"
                 ],
                 "case-sensitive": false
             },
@@ -1836,6 +2255,20 @@
                 "case-sensitive": false
             },
             {
+                "name": "useliquidthreads",
+                "aliases": [
+                    "UseLiquidThreads"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "lqtpagelimit",
+                "aliases": [
+                    "lqtpagelimit"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "dd2dms",
                 "aliases": [
                     "dd2dms"
@@ -1857,9 +2290,30 @@
                 "case-sensitive": false
             },
             {
+                "name": "assessment",
+                "aliases": [
+                    "assessment"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "useskin",
                 "aliases": [
                     "useskin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "PAGEBANNER",
+                "aliases": [
+                    "PAGEBANNER"
                 ],
                 "case-sensitive": false
             },
@@ -1874,13 +2328,6 @@
                 "name": "infopage",
                 "aliases": [
                     "infopage"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "translation",
-                "aliases": [
-                    "translation"
                 ],
                 "case-sensitive": false
             },
@@ -1941,6 +2388,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "translation",
+                "aliases": [
+                    "translation"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "!",
                 "aliases": [
                     "!"
@@ -1958,6 +2412,13 @@
                 "name": "localmonth1",
                 "aliases": [
                     "LOCALMONTH1"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "numberofactiveusers",
+                "aliases": [
+                    "NUMBEROFACTIVEUSERS"
                 ],
                 "case-sensitive": true
             },
@@ -1990,13 +2451,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "img_frameless",
-                "aliases": [
-                    "frameless"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "img_lang",
                 "aliases": [
                     "lang=$1"
@@ -2004,54 +2458,9 @@
                 "case-sensitive": true
             },
             {
-                "name": "img_upright",
+                "name": "img_link",
                 "aliases": [
-                    "upright",
-                    "upright=$1",
-                    "upright $1"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_border",
-                "aliases": [
-                    "border"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_baseline",
-                "aliases": [
-                    "baseline"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_sub",
-                "aliases": [
-                    "sub"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_super",
-                "aliases": [
-                    "super",
-                    "sup"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_text_top",
-                "aliases": [
-                    "text-top"
-                ],
-                "case-sensitive": true
-            },
-            {
-                "name": "img_text_bottom",
-                "aliases": [
-                    "text-bottom"
+                    "link=$1"
                 ],
                 "case-sensitive": true
             },
@@ -2068,13 +2477,6 @@
                     "class=$1"
                 ],
                 "case-sensitive": true
-            },
-            {
-                "name": "int",
-                "aliases": [
-                    "INT:"
-                ],
-                "case-sensitive": false
             },
             {
                 "name": "nse",
@@ -2101,6 +2503,13 @@
                 "name": "stylepath",
                 "aliases": [
                     "STYLEPATH"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "gender",
+                "aliases": [
+                    "GENDER:"
                 ],
                 "case-sensitive": false
             },
@@ -2161,46 +2570,11 @@
                 "case-sensitive": true
             },
             {
-                "name": "urlencode",
-                "aliases": [
-                    "URLENCODE:"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "anchorencode",
-                "aliases": [
-                    "ANCHORENCODE"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "pagelanguage",
                 "aliases": [
                     "PAGELANGUAGE"
                 ],
                 "case-sensitive": true
-            },
-            {
-                "name": "padleft",
-                "aliases": [
-                    "PADLEFT"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "padright",
-                "aliases": [
-                    "PADRIGHT"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "special",
-                "aliases": [
-                    "special"
-                ],
-                "case-sensitive": false
             },
             {
                 "name": "speciale",
@@ -2235,6 +2609,13 @@
                 "aliases": [
                     "NUMBERINGROUP",
                     "NUMINGROUP"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "staticredirect",
+                "aliases": [
+                    "__STATICREDIRECT__"
                 ],
                 "case-sensitive": true
             },
@@ -2576,6 +2957,11 @@
                 "protorel": false
             },
             {
+                "prefix": "debian",
+                "url": "https://wiki.debian.org/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "delicious",
                 "url": "https://www.delicious.com/tag/$1",
                 "protorel": true
@@ -2612,12 +2998,12 @@
             },
             {
                 "prefix": "dmoz",
-                "url": "http://dmoztools.net/$1",
+                "url": "https://curlie.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "dmozs",
-                "url": "http://www.dmoz.org/cgi-bin/search?search=$1",
+                "url": "https://curlie.org/search?q=$1",
                 "protorel": false
             },
             {
@@ -2795,11 +3181,6 @@
                 "protorel": false
             },
             {
-                "prefix": "forthfreak",
-                "url": "http://wiki.forthfreak.net/index.cgi?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "foundation",
                 "local": true,
                 "url": "https://foundation.wikimedia.org/wiki/$1",
@@ -2833,7 +3214,7 @@
             },
             {
                 "prefix": "freedomdefined",
-                "url": "http://freedomdefined.org/$1",
+                "url": "https://freedomdefined.org/$1",
                 "protorel": false
             },
             {
@@ -3027,12 +3408,17 @@
             },
             {
                 "prefix": "infosphere",
-                "url": "http://theinfosphere.org/$1",
+                "url": "https://theinfosphere.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "irc",
                 "url": "irc://irc.freenode.net/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "ircs",
+                "url": "ircs://irc.freenode.net/$1",
                 "protorel": false
             },
             {
@@ -3054,7 +3440,7 @@
             },
             {
                 "prefix": "issn",
-                "url": "http://www.worldcat.org/issn/$1",
+                "url": "https://www.worldcat.org/issn/$1",
                 "protorel": false
             },
             {
@@ -3116,11 +3502,6 @@
                 "prefix": "kinowiki",
                 "url": "http://kino.skripov.com/index.php/$1",
                 "protorel": false
-            },
-            {
-                "prefix": "kmwiki",
-                "url": "https://kmwiki.wikispaces.com/$1",
-                "protorel": true
             },
             {
                 "prefix": "komicawiki",
@@ -3362,6 +3743,11 @@
             {
                 "prefix": "olpc",
                 "url": "http://wiki.laptop.org/go/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "omegawiki",
+                "url": "http://www.omegawiki.org/Expression:$1",
                 "protorel": false
             },
             {
@@ -3868,6 +4254,11 @@
                 "protorel": false
             },
             {
+                "prefix": "umap",
+                "url": "https://umap.openstreetmap.fr/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "uncyclopedia",
                 "url": "http://en.uncyclopedia.co/wiki/$1",
                 "protorel": false
@@ -4051,7 +4442,8 @@
             },
             {
                 "prefix": "wikinvest",
-                "url": "http://www.wikinvest.com/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest",
                 "protorel": false
             },
             {
@@ -4275,6 +4667,11 @@
                 "prefix": "wmet",
                 "local": true,
                 "url": "https://ee.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfdashboard",
+                "url": "https://outreachdashboard.wmflabs.org/$1",
                 "protorel": false
             },
             {
@@ -4548,6 +4945,12 @@
                 "protorel": false
             },
             {
+                "prefix": "wikimania",
+                "local": true,
+                "url": "https://wikimania.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wmteam",
                 "local": true,
                 "url": "https://wikimaniateam.wikimedia.org/wiki/$1",
@@ -4813,7 +5216,6 @@
                 "prefix": "be-x-old",
                 "local": true,
                 "language": "\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f (\u0442\u0430\u0440\u0430\u0448\u043a\u0435\u0432\u0456\u0446\u0430)\u200e",
-                "localinterwiki": true,
                 "url": "https://be-x-old.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5394,7 +5796,7 @@
             {
                 "prefix": "hyw",
                 "local": true,
-                "language": "\u0561\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
+                "language": "\u0531\u0580\u0565\u0582\u0574\u057f\u0561\u0570\u0561\u0575\u0565\u0580\u0567\u0576",
                 "url": "https://hyw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5513,7 +5915,7 @@
             {
                 "prefix": "jv",
                 "local": true,
-                "language": "Basa Jawa",
+                "language": "Jawa",
                 "url": "https://jv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5528,6 +5930,7 @@
                 "prefix": "kaa",
                 "local": true,
                 "language": "Qaraqalpaqsha",
+                "localinterwiki": true,
                 "url": "https://kaa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6199,7 +6602,7 @@
             {
                 "prefix": "rmy",
                 "local": true,
-                "language": "Romani",
+                "language": "romani \u010dhib",
                 "url": "https://rmy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6905,49 +7308,49 @@
             {
                 "prefix": "wikt",
                 "local": true,
-                "url": "https://be-x-old.wiktionary.org/wiki/$1",
+                "url": "https://kaa.wiktionary.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "q",
                 "local": true,
-                "url": "https://be-x-old.wikiquote.org/wiki/$1",
+                "url": "https://kaa.wikiquote.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "b",
                 "local": true,
-                "url": "https://be-x-old.wikibooks.org/wiki/$1",
+                "url": "https://kaa.wikibooks.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "n",
                 "local": true,
-                "url": "https://be-x-old.wikinews.org/wiki/$1",
+                "url": "https://kaa.wikinews.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "s",
                 "local": true,
-                "url": "https://be-x-old.wikisource.org/wiki/$1",
+                "url": "https://kaa.wikisource.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "chapter",
                 "local": true,
-                "url": "https://be-x-old.wikimedia.org/wiki/$1",
+                "url": "https://kaa.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "v",
                 "local": true,
-                "url": "https://be-x-old.wikiversity.org/wiki/$1",
+                "url": "https://kaa.wikiversity.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "voy",
                 "local": true,
-                "url": "https://be-x-old.wikivoyage.org/wiki/$1",
+                "url": "https://kaa.wikivoyage.org/wiki/$1",
                 "protorel": false
             }
         ],
@@ -7197,10 +7600,6 @@
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "usebetatoolbar": 1,
-            "echo-subscriptions-web-login-fail": true,
-            "echo-subscriptions-email-login-fail": true,
-            "echo-subscriptions-web-login-success": false,
-            "echo-subscriptions-email-login-success": true,
             "visualeditor-enable": 1,
             "visualeditor-betatempdisable": 0,
             "visualeditor-newwikitext": 0,
@@ -7210,9 +7609,13 @@
             "visualeditor-hidebetawelcome": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-tabs": "remember-last",
-            "visualeditor-editor": "wikitext",
+            "visualeditor-editor": "visualeditor",
             "visualeditor-hidetabdialog": 0,
             "math": "mathml",
+            "echo-subscriptions-web-login-fail": true,
+            "echo-subscriptions-email-login-fail": true,
+            "echo-subscriptions-web-login-success": false,
+            "echo-subscriptions-email-login-success": true,
             "echo-email-frequency": 0,
             "echo-subscriptions-web-edit-thank": true,
             "echo-subscriptions-email-edit-thank": false,
@@ -7221,6 +7624,7 @@
             "uls-preferences": "",
             "compact-language-links": 1,
             "echo-subscriptions-web-cx": true,
+            "cx-enable-entrypoints": true,
             "echo-subscriptions-web-oauth-owner": true,
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
@@ -7254,7 +7658,6 @@
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
-            "rcenhancedfilters": 0,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
             "rows": 25,
@@ -7287,9 +7690,10 @@
             "wllimit": 250,
             "useeditwarning": 1,
             "prefershttps": 1,
+            "wlshowwikibase": 0,
             "echo-cross-wiki-notifications": 1,
-            "timecorrection": "System|180",
-            "language": "be-tarask",
+            "timecorrection": "System|0",
+            "language": "kaa",
             "variant-en": "en",
             "variant-crh": "crh",
             "variant-gan": "gan",
@@ -7316,9 +7720,6 @@
             "searchNs12": false,
             "searchNs13": false,
             "cirrussearch-pref-completion-profile": "fuzzy",
-            "gadget-wikify": 1,
-            "gadget-BKL": 1,
-            "gadget-ReferenceTooltips": 1,
             "multimediaviewer-enable": 1,
             "popups": "0",
             "mobile-specialpages": "1",
@@ -7326,6 +7727,8 @@
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
             "echo-subscriptions-web-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
             "echo-subscriptions-email-user-rights": true,
             "echo-subscriptions-web-user-rights": true,
             "echo-subscriptions-email-other": false,
@@ -7344,6 +7747,8 @@
             "echo-subscriptions-web-mention-success": false,
             "echo-subscriptions-email-emailuser": false,
             "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-email-cx": false
@@ -7352,42 +7757,60 @@
             {
                 "realname": "BrokenRedirects",
                 "aliases": [
-                    "\u041d\u0435\u043a\u0430\u0440\u044d\u043a\u0442\u043d\u044b\u044f_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0456",
+                    "Jarams\u0131z_bur\u0131wsh\u0131lar",
+                    "Jarams\u0131z_a\u00fdda\u011f\u0131\u015ftar",
+                    "Jarams\u0131z_a\u00fddatwlar",
+                    "\u0416\u0430\u0440\u0430\u043c\u0441\u044b\u0437_\u0430\u0439\u0434\u0430\u0493\u044b\u0448\u0442\u0430\u0440",
+                    "\u0416\u0430\u0440\u0430\u043c\u0441\u044b\u0437_\u0430\u0439\u0434\u0430\u0442\u0443\u043b\u0430\u0440",
                     "BrokenRedirects"
                 ]
             },
             {
                 "realname": "Deadendpages",
                 "aliases": [
-                    "\u0422\u0443\u043f\u0456\u043a\u043e\u0432\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Hesh_betke_siltemeytug'\u0131n_betler",
+                    "Tu\u00fd\u0131q_better",
+                    "\u0422\u04b1\u0439\u044b\u049b_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "DeadendPages"
                 ]
             },
             {
                 "realname": "DoubleRedirects",
                 "aliases": [
-                    "\u0414\u0432\u0430\u0439\u043d\u044b\u044f_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0456",
+                    "Qos_bur\u0131wsh\u0131lar",
+                    "\u015e\u0131nj\u0131rl\u0131_a\u00fdda\u011f\u0131\u015ftar",
+                    "\u015e\u0131nj\u0131rl\u0131_a\u00fddatwlar",
+                    "\u0428\u044b\u043d\u0436\u044b\u0440\u043b\u044b_\u0430\u0439\u0434\u0430\u0493\u044b\u0448\u0442\u0430\u0440",
+                    "\u0428\u044b\u043d\u0436\u044b\u0440\u043b\u044b_\u0430\u0439\u0434\u0430\u0442\u0443\u043b\u0430\u0440",
                     "DoubleRedirects"
                 ]
             },
             {
                 "realname": "Longpages",
                 "aliases": [
-                    "\u0414\u043e\u045e\u0433\u0456\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Uz\u0131n_betler",
+                    "Uz\u0131n_better",
+                    "\u00dclken_better",
+                    "\u04b0\u0437\u044b\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
+                    "\u04ae\u043b\u043a\u0435\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "LongPages"
                 ]
             },
             {
                 "realname": "Ancientpages",
                 "aliases": [
-                    "\u041d\u0430\u0439\u0441\u0442\u0430\u0440\u044d\u0439\u0448\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Eski_betler",
+                    "Eski_better",
+                    "\u0415\u0441\u043a\u0456_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "AncientPages"
                 ]
             },
             {
                 "realname": "Lonelypages",
                 "aliases": [
-                    "\u0421\u0442\u0430\u0440\u043e\u043d\u043a\u0456-\u0441\u0456\u0440\u0430\u0446\u0456\u043d\u044b",
+                    "Hesh_betten_siltelmegen_betler",
+                    "Sayaq_better",
+                    "\u0421\u0430\u044f\u049b_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "LonelyPages",
                     "OrphanedPages"
                 ]
@@ -7395,47 +7818,64 @@
             {
                 "realname": "Fewestrevisions",
                 "aliases": [
+                    "Az_du'zetilgenler",
+                    "E\u00f1_az_t\u00fczetilgen",
+                    "\u0415\u04a3_\u0430\u0437_\u0442\u04af\u0437\u0435\u0442\u0456\u043b\u0433\u0435\u043d",
                     "FewestRevisions"
                 ]
             },
             {
                 "realname": "Withoutinterwiki",
                 "aliases": [
+                    "Hesh_tilge_siltemeytug'\u0131n_betler",
+                    "W\u00efk\u00ef-aral\u0131qs\u0131zdar",
+                    "\u0423\u0438\u043a\u0438-\u0430\u0440\u0430\u043b\u044b\u049b\u0441\u044b\u0437\u0434\u0430\u0440",
                     "WithoutInterwiki"
                 ]
             },
             {
                 "realname": "Protectedpages",
                 "aliases": [
-                    "\u0410\u0431\u0430\u0440\u043e\u043d\u0435\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Qorg'alg'an_betler",
+                    "Qor\u011fal\u011fan_better",
+                    "\u049a\u043e\u0440\u0493\u0430\u043b\u0493\u0430\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "ProtectedPages"
                 ]
             },
             {
                 "realname": "Protectedtitles",
                 "aliases": [
-                    "\u0417\u0430\u0431\u0430\u0440\u043e\u043d\u0435\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Qor\u011fal\u011fan_taq\u0131r\u0131ptar",
+                    "Qor\u011fal\u011fan_atawlar",
+                    "\u049a\u043e\u0440\u0493\u0430\u043b\u0493\u0430\u043d_\u0442\u0430\u049b\u044b\u0440\u044b\u043f\u0442\u0430\u0440",
+                    "\u049a\u043e\u0440\u0493\u0430\u043b\u0493\u0430\u043d_\u0430\u0442\u0430\u0443\u043b\u0430\u0440",
                     "ProtectedTitles"
                 ]
             },
             {
                 "realname": "Shortpages",
                 "aliases": [
-                    "\u041a\u0430\u0440\u043e\u0442\u043a\u0456\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Qq\u0131sqa_betler",
+                    "Q\u0131sqa_better",
+                    "\u049a\u044b\u0441\u049b\u0430_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "ShortPages"
                 ]
             },
             {
                 "realname": "Uncategorizedcategories",
                 "aliases": [
-                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
+                    "Kategoriyas\u0131z_kategoriyalar",
+                    "Sanats\u0131z_sanattar",
+                    "\u0421\u0430\u043d\u0430\u0442\u0441\u044b\u0437_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
                     "UncategorizedCategories"
                 ]
             },
             {
                 "realname": "Uncategorizedimages",
                 "aliases": [
-                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
+                    "Kategoriyas\u0131z_su'wretler",
+                    "Sanats\u0131z_swretter",
+                    "\u0421\u0430\u043d\u0430\u0442\u0441\u044b\u0437_\u0441\u0443\u0440\u0435\u0442\u0442\u0435\u0440",
                     "UncategorizedFiles",
                     "UncategorizedImages"
                 ]
@@ -7443,26 +7883,37 @@
             {
                 "realname": "Uncategorizedpages",
                 "aliases": [
-                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Kategoriyas\u0131z_betler",
+                    "Sanats\u0131z_better",
+                    "\u0421\u0430\u043d\u0430\u0442\u0441\u044b\u0437_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "UncategorizedPages"
                 ]
             },
             {
                 "realname": "Uncategorizedtemplates",
                 "aliases": [
-                    "\u041d\u0435\u043a\u0430\u0442\u044d\u0433\u0430\u0440\u044b\u0437\u0430\u0432\u0430\u043d\u044b\u044f_\u0448\u0430\u0431\u043b\u0451\u043d\u044b",
+                    "Kategoriyas\u0131z_shablonlar",
+                    "Sanats\u0131z_\u00fclgiler",
+                    "\u0421\u0430\u043d\u0430\u0442\u0441\u044b\u0437_\u04af\u043b\u0433\u0456\u043b\u0435\u0440",
                     "UncategorizedTemplates"
                 ]
             },
             {
                 "realname": "Unusedcategories",
                 "aliases": [
+                    "Paydalan\u0131lmag'an_kategoriyalar",
+                    "Pa\u00fddalan\u0131lma\u011fan_sanattar",
+                    "\u041f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
                     "UnusedCategories"
                 ]
             },
             {
                 "realname": "Unusedimages",
                 "aliases": [
+                    "Paydalan\u0131lmag'an_fayllar",
+                    "Paydalan\u0131lmag'an_su'wretler",
+                    "Pa\u00fddalan\u0131lma\u011fan_swretter",
+                    "\u041f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u0441\u0443\u0440\u0435\u0442\u0442\u0435\u0440",
                     "UnusedFiles",
                     "UnusedImages"
                 ]
@@ -7470,34 +7921,45 @@
             {
                 "realname": "Unusedtemplates",
                 "aliases": [
+                    "Paydalan\u0131lmag'an_shablonlar",
+                    "Pa\u00fddalan\u0131lma\u011fan_\u00fclgiler",
+                    "\u041f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u04af\u043b\u0433\u0456\u043b\u0435\u0440",
                     "UnusedTemplates"
                 ]
             },
             {
                 "realname": "Unwatchedpages",
                 "aliases": [
+                    "Baqlan\u0131lmag'an_betler",
+                    "Baq\u0131lan\u0131lma\u011fan_better",
+                    "\u0411\u0430\u049b\u044b\u043b\u0430\u043d\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "UnwatchedPages"
                 ]
             },
             {
                 "realname": "Wantedcategories",
                 "aliases": [
-                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
+                    "Talap_q\u0131l\u0131ng'an_kategoriyalar",
+                    "Tolt\u0131r\u0131lma\u011fan_sanattar",
+                    "\u0422\u043e\u043b\u0442\u044b\u0440\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
                     "WantedCategories"
                 ]
             },
             {
                 "realname": "Wantedfiles",
                 "aliases": [
-                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
                     "WantedFiles"
                 ]
             },
             {
                 "realname": "Wantedpages",
                 "aliases": [
-                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
-                    "\u041d\u0435\u043a\u0430\u0440\u044d\u043a\u0442\u043d\u044b\u044f_\u0441\u043f\u0430\u0441\u044b\u043b\u043a\u0456",
+                    "Talap_q\u0131l\u0131ng'an_betler",
+                    "Jarams\u0131z_s\u0131ltewler",
+                    "Tolt\u0131r\u0131lma\u011fan_better",
+                    "Jarams\u0131z_siltemeler",
+                    "\u0422\u043e\u043b\u0442\u044b\u0440\u044b\u043b\u043c\u0430\u0493\u0430\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
+                    "\u0416\u0430\u0440\u0430\u043c\u0441\u044b\u0437_\u0441\u0456\u043b\u0442\u0435\u043c\u0435\u043b\u0435\u0440",
                     "WantedPages",
                     "BrokenLinks"
                 ]
@@ -7505,34 +7967,41 @@
             {
                 "realname": "Wantedtemplates",
                 "aliases": [
-                    "\u0417\u0430\u043f\u0430\u0442\u0440\u0430\u0431\u0430\u0432\u0430\u043d\u044b\u044f_\u0448\u0430\u0431\u043b\u0451\u043d\u044b",
                     "WantedTemplates"
                 ]
             },
             {
                 "realname": "Allpages",
                 "aliases": [
-                    "\u0423\u0441\u0435_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Ha'mme_betler",
+                    "Barl\u0131q_better",
+                    "\u0411\u0430\u0440\u043b\u044b\u049b_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "AllPages"
                 ]
             },
             {
                 "realname": "Prefixindex",
                 "aliases": [
+                    "Bastaw\u0131\u015f_tizimi",
+                    "\u0411\u0430\u0441\u0442\u0430\u0443\u044b\u0448_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "PrefixIndex"
                 ]
             },
             {
                 "realname": "Categories",
                 "aliases": [
-                    "\u041a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u0456",
+                    "Kategoriyalar",
+                    "Sanattar",
+                    "\u0421\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
                     "Categories"
                 ]
             },
             {
                 "realname": "Listredirects",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u044f\u045e",
+                    "Bur\u0131wsh\u0131lar_dizimi",
+                    "A\u00fddatw_tizimi",
+                    "\u0410\u0439\u0434\u0430\u0442\u0443_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListRedirects"
                 ]
             },
@@ -7554,7 +8023,10 @@
             {
                 "realname": "Userlogin",
                 "aliases": [
-                    "\u0423\u0432\u0430\u0445\u043e\u0434_\u0443_\u0441\u044b\u0441\u0442\u044d\u043c\u0443",
+                    "Kiriw",
+                    "Paydalan\u0131wsh\u0131_kiriw",
+                    "Qat\u0131sw\u015f\u0131_kirwi",
+                    "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b_\u043a\u0456\u0440\u0443\u0456",
                     "UserLogin",
                     "Login"
                 ]
@@ -7562,6 +8034,10 @@
             {
                 "realname": "Userlogout",
                 "aliases": [
+                    "Sh\u0131g'\u0131w",
+                    "Paydalan\u0131wsh\u0131_sh\u0131g'\u0131w",
+                    "Qat\u0131sw\u015f\u0131_\u015f\u0131\u011fw\u0131",
+                    "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b_\u0448\u044b\u0493\u0443\u044b",
                     "UserLogout",
                     "Logout"
                 ]
@@ -7569,7 +8045,10 @@
             {
                 "realname": "CreateAccount",
                 "aliases": [
-                    "\u0421\u0442\u0432\u0430\u0440\u044b\u0446\u044c_\u0440\u0430\u0445\u0443\u043d\u0430\u043a",
+                    "Ja\u00f1a_tirkelgi",
+                    "Tirkelgi_Jaratw",
+                    "\u0416\u0430\u04a3\u0430_\u0442\u0456\u0440\u043a\u0435\u043b\u0433\u0456",
+                    "\u0422\u0456\u0440\u043a\u0435\u043b\u0433\u0456_\u0416\u0430\u0440\u0430\u0442\u0443",
                     "CreateAccount"
                 ]
             },
@@ -7606,7 +8085,10 @@
             {
                 "realname": "Block",
                 "aliases": [
-                    "\u0411\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
+                    "Ja\u00fdd\u0131_bu\u011fattaw",
+                    "IP_bu\u011fattaw",
+                    "\u0416\u0430\u0439\u0434\u044b_\u0431\u04b1\u0493\u0430\u0442\u0442\u0430\u0443",
+                    "IP_\u0431\u04b1\u0493\u0430\u0442\u0442\u0430\u0443",
                     "Block",
                     "BlockIP",
                     "BlockUser"
@@ -7621,6 +8103,8 @@
             {
                 "realname": "BlockList",
                 "aliases": [
+                    "Bu\u011fattal\u011fandar",
+                    "\u0411\u04b1\u0493\u0430\u0442\u0442\u0430\u043b\u0493\u0430\u043d\u0434\u0430\u0440",
                     "BlockList",
                     "ListBlocks",
                     "IPBlockList"
@@ -7636,8 +8120,8 @@
             {
                 "realname": "ChangePassword",
                 "aliases": [
-                    "\u0417\u044c\u043c\u044f\u043d\u0456\u0446\u044c_\u043f\u0430\u0440\u043e\u043b\u044c",
-                    "\u0410\u0447\u044b\u0441\u044c\u0446\u0456\u0446\u044c_\u043f\u0430\u0440\u043e\u043b\u044c",
+                    "Qup\u00efya_s\u00f6zdi_qa\u00fdtarw",
+                    "\u049a\u04b1\u043f\u0438\u044f_\u0441\u04e9\u0437\u0434\u0456_\u049b\u0430\u0439\u0442\u0430\u0440\u0443",
                     "ChangePassword",
                     "ResetPass",
                     "ResetPassword"
@@ -7658,13 +8142,17 @@
             {
                 "realname": "DeletedContributions",
                 "aliases": [
-                    "\u0412\u044b\u0434\u0430\u043b\u0435\u043d\u044b_\u045e\u043d\u0451\u0441\u0430\u043a",
                     "DeletedContributions"
                 ]
             },
             {
                 "realname": "Preferences",
                 "aliases": [
+                    "Sazlawlar",
+                    "Baptal\u0131mdar",
+                    "Baptaw",
+                    "\u0411\u0430\u043f\u0442\u0430\u043b\u044b\u043c\u0434\u0430\u0440",
+                    "\u0411\u0430\u043f\u0442\u0430\u0443",
                     "Preferences"
                 ]
             },
@@ -7677,7 +8165,9 @@
             {
                 "realname": "Contributions",
                 "aliases": [
-                    "\u0423\u043d\u0451\u0441\u0430\u043a",
+                    "Paydalan\u0131wsh\u0131_u'lesi",
+                    "\u00dclesi",
+                    "\u04ae\u043b\u0435\u0441\u0456",
                     "Contributions",
                     "Contribs"
                 ]
@@ -7685,6 +8175,8 @@
             {
                 "realname": "Listgrouprights",
                 "aliases": [
+                    "Top_quq\u0131qtar\u0131_tizimi",
+                    "\u0422\u043e\u043f_\u049b\u04b1\u049b\u044b\u049b\u0442\u0430\u0440\u044b_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListGroupRights",
                     "UserGroupRights"
                 ]
@@ -7698,7 +8190,12 @@
             {
                 "realname": "Listusers",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u0443\u0434\u0437\u0435\u043b\u044c\u043d\u0456\u043a\u0430\u045e",
+                    "Paydalan\u0131wsh\u0131lar",
+                    "Paydalan\u0131wsh\u0131_dizimi",
+                    "Qat\u0131sw\u015f\u0131lar",
+                    "Qat\u0131sw\u015f\u0131_tizimi",
+                    "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b\u043b\u0430\u0440",
+                    "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListUsers",
                     "UserList",
                     "Users"
@@ -7707,20 +8204,30 @@
             {
                 "realname": "Listadmins",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u0430\u0434\u043c\u0456\u043d\u0456\u0441\u0442\u0440\u0430\u0442\u0430\u0440\u0430\u045e",
+                    "Administratorlar",
+                    "\u00c4kim\u015filer",
+                    "\u00c4kim\u015fi_tizimi",
+                    "\u04d8\u043a\u0456\u043c\u0448\u0456\u043b\u0435\u0440",
+                    "\u04d8\u043a\u0456\u043c\u0448\u0456_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListAdmins"
                 ]
             },
             {
                 "realname": "Listbots",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u0440\u043e\u0431\u0430\u0442\u0430\u045e",
+                    "Bottar",
+                    "Bottar_tizimi",
+                    "\u0411\u043e\u0442\u0442\u0430\u0440",
+                    "\u0411\u043e\u0442\u0442\u0430\u0440_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListBots"
                 ]
             },
             {
                 "realname": "Userrights",
                 "aliases": [
+                    "Paydalan\u0131wsh\u0131_huq\u0131qlar\u0131",
+                    "Qat\u0131sw\u015f\u0131_quq\u0131qtar\u0131",
+                    "\u049a\u0430\u0442\u044b\u0441\u0443\u0448\u044b_\u049b\u04b1\u049b\u044b\u049b\u0442\u0430\u0440\u044b",
                     "UserRights",
                     "MakeSysop",
                     "MakeBot"
@@ -7741,7 +8248,9 @@
             {
                 "realname": "Newimages",
                 "aliases": [
-                    "\u041d\u043e\u0432\u044b\u044f_\u0444\u0430\u0439\u043b\u044b",
+                    "Taza_su'wretler",
+                    "Ja\u00f1a_swretter",
+                    "\u0416\u0430\u04a3\u0430_\u0441\u0443\u0440\u0435\u0442\u0442\u0435\u0440",
                     "NewFiles",
                     "NewImages"
                 ]
@@ -7749,7 +8258,12 @@
             {
                 "realname": "Log",
                 "aliases": [
-                    "\u0416\u0443\u0440\u043d\u0430\u043b\u044b_\u043f\u0430\u0434\u0437\u0435\u044f\u045e",
+                    "Jurnal",
+                    "Jurnallar",
+                    "Jwrnal",
+                    "Jwrnaldar",
+                    "\u0416\u0443\u0440\u043d\u0430\u043b",
+                    "\u0416\u0443\u0440\u043d\u0430\u043b\u0434\u0430\u0440",
                     "Log",
                     "Logs"
                 ]
@@ -7757,27 +8271,38 @@
             {
                 "realname": "Watchlist",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u043d\u0430\u0437\u0456\u0440\u0430\u043d\u044c\u043d\u044f",
+                    "Baqlaw_dizimi",
+                    "Baq\u0131law_tizimi",
+                    "\u0411\u0430\u049b\u044b\u043b\u0430\u0443_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "Watchlist"
                 ]
             },
             {
                 "realname": "Newpages",
                 "aliases": [
-                    "\u041d\u043e\u0432\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Taza_betler",
+                    "Ja\u00f1a_better",
+                    "\u0416\u0430\u04a3\u0430_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "NewPages"
                 ]
             },
             {
                 "realname": "Recentchanges",
                 "aliases": [
-                    "\u0410\u043f\u043e\u0448\u043d\u0456\u044f_\u0437\u044c\u043c\u0435\u043d\u044b",
+                    "Aq\u0131rg'\u0131_o'zgerisler",
+                    "Jw\u0131qta\u011f\u0131_\u00f6zgerister",
+                    "\u0416\u0443\u044b\u049b\u0442\u0430\u0493\u044b_\u04e9\u0437\u0433\u0435\u0440\u0456\u0441\u0442\u0435\u0440",
                     "RecentChanges"
                 ]
             },
             {
                 "realname": "Recentchangeslinked",
                 "aliases": [
+                    "Baylan\u0131sl\u0131_aq\u0131rg'\u0131_o'zgerisler",
+                    "Siltengenderdi\u00f1_\u00f6zgeristeri",
+                    "Qat\u0131st\u0131_\u00f6zgerister",
+                    "\u0421\u0456\u043b\u0442\u0435\u043d\u0433\u0435\u043d\u0434\u0435\u0440\u0434\u0456\u04a3_\u04e9\u0437\u0433\u0435\u0440\u0456\u0441\u0442\u0435\u0440\u0456",
+                    "\u049a\u0430\u0442\u044b\u0441\u0442\u044b_\u04e9\u0437\u0433\u0435\u0440\u0456\u0441\u0442\u0435\u0440",
                     "RecentChangesLinked",
                     "RelatedChanges"
                 ]
@@ -7791,7 +8316,9 @@
             {
                 "realname": "Listfiles",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u0444\u0430\u0439\u043b\u0430\u045e",
+                    "Su'wretler_dizimi",
+                    "Swret_tizimi",
+                    "\u0421\u0443\u0440\u0435\u0442_\u0442\u0456\u0437\u0456\u043c\u0456",
                     "ListFiles",
                     "FileList",
                     "ImageList"
@@ -7800,7 +8327,8 @@
             {
                 "realname": "Filepath",
                 "aliases": [
-                    "\u0428\u043b\u044f\u0445_\u0434\u0430_\u0444\u0430\u0439\u043b\u0430",
+                    "Fa\u00fdl_mekeni",
+                    "\u0424\u0430\u0439\u043b_\u043c\u0435\u043a\u0435\u043d\u0456",
                     "FilePath"
                 ]
             },
@@ -7813,19 +8341,29 @@
             {
                 "realname": "MIMEsearch",
                 "aliases": [
+                    "MIME_izlew",
+                    "MIME_t\u00fcrimen_izdew",
+                    "MIME_\u0442\u04af\u0440\u0456\u043c\u0435\u043d_\u0456\u0437\u0434\u0435\u0443",
                     "MIMESearch"
                 ]
             },
             {
                 "realname": "FileDuplicateSearch",
                 "aliases": [
+                    "Fa\u00fdl_telnusqas\u0131n_izdew",
+                    "Qa\u00fdtalan\u011fan_fa\u00fdldard\u0131_izdew",
+                    "\u0424\u0430\u0439\u043b_\u0442\u0435\u043b\u043d\u04b1\u0441\u049b\u0430\u0441\u044b\u043d_\u0456\u0437\u0434\u0435\u0443",
+                    "\u049a\u0430\u0439\u0442\u0430\u043b\u0430\u043d\u0493\u0430\u043d_\u0444\u0430\u0439\u043b\u0434\u0430\u0440\u0434\u044b_\u0456\u0437\u0434\u0435\u0443",
                     "FileDuplicateSearch"
                 ]
             },
             {
                 "realname": "Upload",
                 "aliases": [
-                    "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
+                    "Qotar\u0131p_berw",
+                    "Qotarw",
+                    "\u049a\u043e\u0442\u0430\u0440\u044b\u043f_\u0431\u0435\u0440\u0443",
+                    "\u049a\u043e\u0442\u0430\u0440\u0443",
                     "Upload"
                 ]
             },
@@ -7851,7 +8389,9 @@
             {
                 "realname": "Statistics",
                 "aliases": [
-                    "\u0421\u0442\u0430\u0442\u044b\u0441\u0442\u044b\u043a\u0430",
+                    "Statistika",
+                    "Sanaq",
+                    "\u0421\u0430\u043d\u0430\u049b",
                     "Statistics",
                     "Stats"
                 ]
@@ -7859,40 +8399,52 @@
             {
                 "realname": "Allmessages",
                 "aliases": [
-                    "\u0421\u044b\u0441\u0442\u044d\u043c\u043d\u044b\u044f_\u043f\u0430\u0432\u0435\u0434\u0430\u043c\u043b\u0435\u043d\u044c\u043d\u0456",
+                    "Ha'mme_xabarlar",
+                    "Barl\u0131q_xabarlar",
+                    "\u0411\u0430\u0440\u043b\u044b\u049b_\u0445\u0430\u0431\u0430\u0440\u043b\u0430\u0440",
                     "AllMessages"
                 ]
             },
             {
                 "realname": "Version",
                 "aliases": [
-                    "\u0412\u044d\u0440\u0441\u0456\u044f",
+                    "Versiya",
+                    "Nusqas\u0131",
+                    "\u041d\u04b1\u0441\u049b\u0430\u0441\u044b",
                     "Version"
                 ]
             },
             {
                 "realname": "Lockdb",
                 "aliases": [
+                    "Derekqord\u0131_qul\u0131ptaw",
+                    "\u0414\u0435\u0440\u0435\u043a\u049b\u043e\u0440\u0434\u044b_\u049b\u04b1\u043b\u044b\u043f\u0442\u0430\u0443",
                     "LockDB"
                 ]
             },
             {
                 "realname": "Unlockdb",
                 "aliases": [
+                    "Derekqord\u0131_qul\u0131ptamaw",
+                    "\u0414\u0435\u0440\u0435\u043a\u049b\u043e\u0440\u0434\u044b_\u049b\u04b1\u043b\u044b\u043f\u0442\u0430\u043c\u0430\u0443",
                     "UnlockDB"
                 ]
             },
             {
                 "realname": "LinkSearch",
                 "aliases": [
-                    "\u041f\u043e\u0448\u0443\u043a_\u0432\u043e\u043d\u043a\u0430\u0432\u044b\u0445_\u0441\u043f\u0430\u0441\u044b\u043b\u0430\u043a",
                     "LinkSearch"
                 ]
             },
             {
                 "realname": "Randompage",
                 "aliases": [
-                    "\u0412\u044b\u043f\u0430\u0434\u043a\u043e\u0432\u0430\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
+                    "Qa'legen",
+                    "Qa'legen_bet",
+                    "Kezde\u00fdsoq",
+                    "Kezde\u00fdsoq_bet",
+                    "\u041a\u0435\u0437\u0434\u0435\u0439\u0441\u043e\u049b",
+                    "\u041a\u0435\u0437\u0434\u0435\u0439\u0441\u043e\u049b_\u0431\u0435\u0442",
                     "Random",
                     "RandomPage"
                 ]
@@ -7906,7 +8458,11 @@
             {
                 "realname": "Randomredirect",
                 "aliases": [
-                    "\u0412\u044b\u043f\u0430\u0434\u043a\u043e\u0432\u0430\u0435_\u043f\u0435\u0440\u0430\u043d\u0430\u043a\u0456\u0440\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
+                    "Qa'legen_bur\u0131wsh\u0131",
+                    "Kede\u00fdsoq_a\u00fdda\u011f\u0131\u015f",
+                    "Kede\u00fdsoq_a\u00fddatw",
+                    "\u041a\u0435\u0434\u0435\u0439\u0441\u043e\u049b_\u0430\u0439\u0434\u0430\u0493\u044b\u0448",
+                    "\u041a\u0435\u0434\u0435\u0439\u0441\u043e\u049b_\u0430\u0439\u0434\u0430\u0442\u0443",
                     "RandomRedirect"
                 ]
             },
@@ -7925,6 +8481,11 @@
             {
                 "realname": "Mostlinkedcategories",
                 "aliases": [
+                    "Ko'p_paydalan\u0131lg'an_kategoriyalar",
+                    "E\u00f1_k\u00f6p_pa\u00fddalan\u0131l\u011fan_sanattar",
+                    "E\u00f1_k\u00f6p_siltengen_sanattar",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u043f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u0493\u0430\u043d_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0441\u0456\u043b\u0442\u0435\u043d\u0433\u0435\u043d_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440",
                     "MostLinkedCategories",
                     "MostUsedCategories"
                 ]
@@ -7932,6 +8493,11 @@
             {
                 "realname": "Mostimages",
                 "aliases": [
+                    "Ko'p_paydalan\u0131lg'an_su'wretler",
+                    "E\u00f1_k\u00f6p_pa\u00fddalan\u0131l\u011fan_swretter",
+                    "E\u00f1_k\u00f6p_swretter_bar\u0131",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u043f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u0493\u0430\u043d_\u0441\u0443\u0440\u0435\u0442\u0442\u0435\u0440",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0441\u0443\u0440\u0435\u0442\u0442\u0435\u0440_\u0431\u0430\u0440\u044b",
                     "MostLinkedFiles",
                     "MostFiles",
                     "MostImages"
@@ -7946,6 +8512,9 @@
             {
                 "realname": "Mostlinked",
                 "aliases": [
+                    "Ko'p_siltelgenler",
+                    "E\u00f1_k\u00f6p_siltengen_better",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0441\u0456\u043b\u0442\u0435\u043d\u0433\u0435\u043d_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "MostLinkedPages",
                     "MostLinked"
                 ]
@@ -7953,6 +8522,11 @@
             {
                 "realname": "Mostlinkedtemplates",
                 "aliases": [
+                    "Ko'p_paydalan\u0131lg'an_shablonlar",
+                    "E\u00f1_k\u00f6p_pa\u00fddalan\u0131l\u011fan_\u00fclgiler",
+                    "E\u00f1_k\u00f6p_siltengen_\u00fclgiler",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u043f\u0430\u0439\u0434\u0430\u043b\u0430\u043d\u044b\u043b\u0493\u0430\u043d_\u04af\u043b\u0433\u0456\u043b\u0435\u0440",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0441\u0456\u043b\u0442\u0435\u043d\u0433\u0435\u043d_\u04af\u043b\u0433\u0456\u043b\u0435\u0440",
                     "MostTranscludedPages",
                     "MostLinkedTemplates",
                     "MostUsedTemplates"
@@ -7961,12 +8535,20 @@
             {
                 "realname": "Mostcategories",
                 "aliases": [
+                    "Ko'p_kategoriyalang'anlar",
+                    "E\u00f1_k\u00f6p_sanattar_bar\u0131",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0441\u0430\u043d\u0430\u0442\u0442\u0430\u0440_\u0431\u0430\u0440\u044b",
                     "MostCategories"
                 ]
             },
             {
                 "realname": "Mostrevisions",
                 "aliases": [
+                    "Ko'p_du'zetilgenler",
+                    "E\u00f1_k\u00f6p_t\u00fczetilgen",
+                    "E\u00f1_k\u00f6p_nusqalar_bar\u0131",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u0442\u04af\u0437\u0435\u0442\u0456\u043b\u0433\u0435\u043d",
+                    "\u0415\u04a3_\u043a\u04e9\u043f_\u043d\u04b1\u0441\u049b\u0430\u043b\u0430\u0440_\u0431\u0430\u0440\u044b",
                     "MostRevisions"
                 ]
             },
@@ -7979,34 +8561,44 @@
             {
                 "realname": "Export",
                 "aliases": [
-                    "\u042d\u043a\u0441\u043f\u0430\u0440\u0442",
+                    "Eksport",
+                    "S\u0131rtqa_berw",
+                    "\u0421\u044b\u0440\u0442\u049b\u0430_\u0431\u0435\u0440\u0443",
                     "Export"
                 ]
             },
             {
                 "realname": "Import",
                 "aliases": [
-                    "\u0406\u043c\u043f\u0430\u0440\u0442",
+                    "S\u0131rttan_alw",
+                    "\u0421\u044b\u0440\u0442\u0442\u0430\u043d_\u0430\u043b\u0443",
                     "Import"
                 ]
             },
             {
                 "realname": "Undelete",
                 "aliases": [
+                    "Joywd\u0131_bold\u0131rmaw",
+                    "Jo\u00fd\u0131l\u011fand\u0131_qa\u00fdtarw",
+                    "\u0416\u043e\u044e\u0434\u044b_\u0431\u043e\u043b\u0434\u044b\u0440\u043c\u0430\u0443",
+                    "\u0416\u043e\u0439\u044b\u043b\u0493\u0430\u043d\u0434\u044b_\u049b\u0430\u0439\u0442\u0430\u0440\u0443",
                     "Undelete"
                 ]
             },
             {
                 "realname": "Whatlinkshere",
                 "aliases": [
-                    "\u0421\u043f\u0430\u0441\u044b\u043b\u043a\u0456_\u043d\u0430_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0443",
+                    "Siltelgen_betler",
+                    "M\u0131nda_siltegender",
+                    "\u041c\u044b\u043d\u0434\u0430_\u0441\u0456\u043b\u0442\u0435\u0433\u0435\u043d\u0434\u0435\u0440",
                     "WhatLinksHere"
                 ]
             },
             {
                 "realname": "MergeHistory",
                 "aliases": [
-                    "\u0413\u0456\u0441\u0442\u043e\u0440\u044b\u044f_\u0430\u0431'\u044f\u0434\u043d\u0430\u043d\u044c\u043d\u044f\u045e",
+                    "Tar\u00efx_biriktirw",
+                    "\u0422\u0430\u0440\u0438\u0445_\u0431\u0456\u0440\u0456\u043a\u0442\u0456\u0440\u0443",
                     "MergeHistory"
                 ]
             },
@@ -8019,6 +8611,8 @@
             {
                 "realname": "Booksources",
                 "aliases": [
+                    "Kitap_qa\u00fdnarlar\u0131",
+                    "\u041a\u0456\u0442\u0430\u043f_\u049b\u0430\u0439\u043d\u0430\u0440\u043b\u0430\u0440\u044b",
                     "BookSources"
                 ]
             },
@@ -8049,7 +8643,9 @@
             {
                 "realname": "Emailuser",
                 "aliases": [
-                    "\u0414\u0430\u0441\u043b\u0430\u0446\u044c_\u043b\u0456\u0441\u0442",
+                    "Xat_jiberiw",
+                    "Xat_jiberw",
+                    "\u0425\u0430\u0442_\u0436\u0456\u0431\u0435\u0440\u0443",
                     "EmailUser",
                     "Email"
                 ]
@@ -8057,13 +8653,18 @@
             {
                 "realname": "Movepage",
                 "aliases": [
+                    "Betti_ko'shiriw",
+                    "Betti_j\u0131lj\u0131tw",
+                    "\u0411\u0435\u0442\u0442\u0456_\u0436\u044b\u043b\u0436\u044b\u0442\u0443",
                     "MovePage"
                 ]
             },
             {
                 "realname": "Mycontributions",
                 "aliases": [
-                    "\u041c\u043e\u0439_\u0443\u043d\u0451\u0441\u0430\u043a",
+                    "Menin'_u'lesim",
+                    "\u00dclesim",
+                    "\u04ae\u043b\u0435\u0441\u0456\u043c",
                     "MyContributions"
                 ]
             },
@@ -8076,14 +8677,18 @@
             {
                 "realname": "Mypage",
                 "aliases": [
-                    "\u041c\u0430\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0430",
+                    "Menin'_betim",
+                    "Jeke_betim",
+                    "\u0416\u0435\u043a\u0435_\u0431\u0435\u0442\u0456\u043c",
                     "MyPage"
                 ]
             },
             {
                 "realname": "Mytalk",
                 "aliases": [
-                    "\u041c\u0430\u0435_\u0440\u0430\u0437\u043c\u043e\u0432\u044b",
+                    "Menin'_sa'wbetim",
+                    "Talq\u0131law\u0131m",
+                    "\u0422\u0430\u043b\u049b\u044b\u043b\u0430\u0443\u044b\u043c",
                     "MyTalk"
                 ]
             },
@@ -8117,6 +8722,11 @@
             {
                 "realname": "Revisiondelete",
                 "aliases": [
+                    "Nusqan\u0131_o'shiriw",
+                    "T\u00fczetw_joyw",
+                    "Nusqan\u0131_joyw",
+                    "\u0422\u04af\u0437\u0435\u0442\u0443_\u0436\u043e\u044e",
+                    "\u041d\u04b1\u0441\u049b\u0430\u043d\u044b_\u0436\u043e\u044e",
                     "RevisionDelete"
                 ]
             },
@@ -8129,7 +8739,9 @@
             {
                 "realname": "Specialpages",
                 "aliases": [
-                    "\u0421\u043f\u044d\u0446\u044b\u044f\u043b\u044c\u043d\u044b\u044f_\u0441\u0442\u0430\u0440\u043e\u043d\u043a\u0456",
+                    "Arnawl\u0131_betler",
+                    "Arna\u00fd\u0131_better",
+                    "\u0410\u0440\u043d\u0430\u0439\u044b_\u0431\u0435\u0442\u0442\u0435\u0440",
                     "SpecialPages"
                 ]
             },
@@ -8142,19 +8754,25 @@
             {
                 "realname": "Search",
                 "aliases": [
-                    "\u041f\u043e\u0448\u0443\u043a",
+                    "\u0130zlew",
+                    "\u0130zdew",
+                    "\u0406\u0437\u0434\u0435\u0443",
                     "Search"
                 ]
             },
             {
                 "realname": "Confirmemail",
                 "aliases": [
+                    "Quptaw_xat",
+                    "\u049a\u04b1\u043f\u0442\u0430\u0443_\u0445\u0430\u0442",
                     "ConfirmEmail"
                 ]
             },
             {
                 "realname": "Invalidateemail",
                 "aliases": [
+                    "Quptamaw_xat\u0131",
+                    "\u049a\u04b1\u043f\u0442\u0430\u043c\u0430\u0443_\u0445\u0430\u0442\u044b",
                     "InvalidateEmail"
                 ]
             },
@@ -8193,7 +8811,6 @@
             {
                 "realname": "CategoryTree",
                 "aliases": [
-                    "\u0414\u0440\u044d\u0432\u0430_\u043a\u0430\u0442\u044d\u0433\u043e\u0440\u044b\u044f\u045e",
                     "CategoryTree"
                 ]
             },
@@ -8242,14 +8859,12 @@
             {
                 "realname": "GlobalBlock",
                 "aliases": [
-                    "\u0413\u043b\u044f\u0431\u0430\u043b\u044c\u043d\u0430\u0435_\u0431\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u0435",
                     "GlobalBlock"
                 ]
             },
             {
                 "realname": "GlobalBlockList",
                 "aliases": [
-                    "\u0421\u044c\u043f\u0456\u0441_\u0433\u043b\u044f\u0431\u0430\u043b\u044c\u043d\u044b\u0445_\u0431\u043b\u044f\u043a\u0430\u0432\u0430\u043d\u044c\u043d\u044f\u045e",
                     "GlobalBlockList"
                 ]
             },
@@ -8283,7 +8898,6 @@
             {
                 "realname": "Nuke",
                 "aliases": [
-                    "\u041c\u0430\u0441\u0430\u0432\u0430\u0435_\u0432\u044b\u0434\u0430\u043b\u0435\u043d\u044c\u043d\u0435",
                     "Nuke"
                 ]
             },
@@ -8402,6 +9016,19 @@
                 "realname": "CNReporter",
                 "aliases": [
                     "CNReporter"
+                ]
+            },
+            {
+                "realname": "Book",
+                "aliases": [
+                    "Book",
+                    "Collection"
+                ]
+            },
+            {
+                "realname": "RenderBook",
+                "aliases": [
+                    "RenderBook"
                 ]
             },
             {
@@ -8706,19 +9333,6 @@
                 ]
             },
             {
-                "realname": "Book",
-                "aliases": [
-                    "Book",
-                    "Collection"
-                ]
-            },
-            {
-                "realname": "RenderBook",
-                "aliases": [
-                    "RenderBook"
-                ]
-            },
-            {
                 "realname": "UnconnectedPages",
                 "aliases": [
                     "UnconnectedPages",
@@ -8785,6 +9399,187 @@
             "<graph>",
             "<maplink>",
             "<mapframe>"
+        ],
+        "functionhooks": [
+            "ns",
+            "nse",
+            "urlencode",
+            "lcfirst",
+            "ucfirst",
+            "lc",
+            "uc",
+            "localurl",
+            "localurle",
+            "fullurl",
+            "fullurle",
+            "canonicalurl",
+            "canonicalurle",
+            "formatnum",
+            "grammar",
+            "gender",
+            "plural",
+            "bidi",
+            "numberofpages",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofadmins",
+            "numberingroup",
+            "numberofedits",
+            "language",
+            "padleft",
+            "padright",
+            "anchorencode",
+            "defaultsort",
+            "filepath",
+            "pagesincategory",
+            "pagesize",
+            "protectionlevel",
+            "protectionexpiry",
+            "namespacee",
+            "namespacenumber",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "subpagename",
+            "subpagenamee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "pageid",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "cascadingsources",
+            "namespace",
+            "int",
+            "special",
+            "speciale",
+            "tag",
+            "formatdate",
+            "displaytitle",
+            "noexternallanglinks",
+            "property",
+            "statements",
+            "if",
+            "ifeq",
+            "switch",
+            "ifexist",
+            "ifexpr",
+            "iferror",
+            "time",
+            "timel",
+            "expr",
+            "rel2abs",
+            "titleparts",
+            "categorytree",
+            "lst",
+            "lstx",
+            "lsth",
+            "target",
+            "babel",
+            "coordinates",
+            "invoke",
+            "related"
+        ],
+        "variables": [
+            "!",
+            "currentmonth",
+            "currentmonth1",
+            "currentmonthname",
+            "currentmonthnamegen",
+            "currentmonthabbrev",
+            "currentday",
+            "currentday2",
+            "currentdayname",
+            "currentyear",
+            "currenttime",
+            "currenthour",
+            "localmonth",
+            "localmonth1",
+            "localmonthname",
+            "localmonthnamegen",
+            "localmonthabbrev",
+            "localday",
+            "localday2",
+            "localdayname",
+            "localyear",
+            "localtime",
+            "localhour",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofedits",
+            "articlepath",
+            "pageid",
+            "sitename",
+            "server",
+            "servername",
+            "scriptpath",
+            "stylepath",
+            "pagename",
+            "pagenamee",
+            "fullpagename",
+            "fullpagenamee",
+            "namespace",
+            "namespacee",
+            "namespacenumber",
+            "currentweek",
+            "currentdow",
+            "localweek",
+            "localdow",
+            "revisionid",
+            "revisionday",
+            "revisionday2",
+            "revisionmonth",
+            "revisionmonth1",
+            "revisionyear",
+            "revisiontimestamp",
+            "revisionuser",
+            "revisionsize",
+            "subpagename",
+            "subpagenamee",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "talkpagename",
+            "talkpagenamee",
+            "subjectpagename",
+            "subjectpagenamee",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofpages",
+            "currentversion",
+            "rootpagename",
+            "rootpagenamee",
+            "basepagename",
+            "basepagenamee",
+            "currenttimestamp",
+            "localtimestamp",
+            "directionmark",
+            "contentlanguage",
+            "pagelanguage",
+            "numberofadmins",
+            "cascadingsources",
+            "noexternallanglinks",
+            "wbreponame",
+            "numberofwikis"
         ]
     }
 }

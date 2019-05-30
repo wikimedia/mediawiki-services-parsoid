@@ -9,7 +9,7 @@ use Parsoid\InternalException;
 use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
-// use Parsoid\Wt2Html\TT\AttributeExpander;
+use Parsoid\Wt2Html\TT\AttributeExpander;
 use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 use Parsoid\Wt2Html\TT\IncludeOnly;
 use Parsoid\Wt2Html\TT\ListHandler;
@@ -19,7 +19,7 @@ use Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Parsoid\Wt2Html\TT\PreHandler;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\Sanitizer;
-// use Parsoid\Wt2Html\TT\TemplateHandler;
+use Parsoid\Wt2Html\TT\TemplateHandler;
 use Parsoid\Wt2Html\TT\TokenStreamPatcher;
 
 /**
@@ -43,16 +43,15 @@ class ParserPipelineFactory {
 		"TokenTransform2" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
-				// TemplateHandler::class,
+				TemplateHandler::class,
 				// ExtensionHandler::class,
 
 				// Expand attributes after templates to avoid expanding unused branches
 				// No expansion of quotes, paragraphs etc in attributes, as in
 				// PHP parser- up to text/x-mediawiki/expanded only.
-				// AttributeExpander::class,
+				AttributeExpander::class,
 
 				// now all attributes expanded to tokens or string
-
 				// more convenient after attribute expansion
 				// WikiLinkHandler::class,
 				// ExternalLinkHandler::class,
@@ -108,8 +107,8 @@ class ParserPipelineFactory {
 			]
 		],
 
-		// This pipeline takes wikitext as input and emits
-		// tokens that have had all templates and extensions processed.
+		// This pipeline takes wikitext as input and emits tokens that
+		// have had all templates, extensions, links, images processed
 		// Stages 1-3 of the pipeline
 		"text/x-mediawiki" => [
 			"outType" => "Tokens",
