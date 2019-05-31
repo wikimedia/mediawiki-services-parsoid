@@ -9,20 +9,24 @@ use DOMNode;
  * Non-recursive post-order traversal of a DOM tree.
  */
 class DOMPostOrder {
+	private function __construct() {
+		/* Not meant to be instantiated. */
+	}
+
 	/**
 	 * Non-recursive post-order traversal of a DOM tree.
 	 * @param DOMNode $root
 	 * @param callable $visitFunc Called in post-order on each node.
 	 */
-	public function traverse( DOMNode $root, callable $visitFunc ): void {
+	public static function traverse( DOMNode $root, callable $visitFunc ): void {
 		$node = $root;
 		while ( true ) {
 			// Find leftmost (grand)child, and visit that first.
 			while ( $node->firstChild ) {
 				$node = $node->firstChild;
 			}
-			$visitFunc( $node );
 			while ( true ) {
+				$visitFunc( $node );
 				if ( $node === $root ) {
 					return; // Visiting the root is the last thing we do.
 				}
@@ -34,7 +38,6 @@ class DOMPostOrder {
 				}
 				/* Visit parent only after we've run out of right siblings. */
 				$node = $node->parentNode;
-				$visitFunc( $node );
 			}
 		}
 	}
