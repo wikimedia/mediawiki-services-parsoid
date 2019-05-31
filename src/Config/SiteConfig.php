@@ -467,6 +467,19 @@ abstract class SiteConfig {
 	abstract public function server(): string;
 
 	/**
+	 * Get the base URL for loading resource modules
+	 * This is the $wgLoadScript config value.
+	 *
+	 * This base class provides the default value.
+	 * Derived classes should override appropriately.
+	 *
+	 * @return string
+	 */
+	public function getModulesLoadURI(): string {
+		return $this->server() . $this->scriptpath() . '/load.php';
+	}
+
+	/**
 	 * A regex matching a line containing just whitespace, comments, and
 	 * sol transparent links and behavior switches.
 	 * @return string

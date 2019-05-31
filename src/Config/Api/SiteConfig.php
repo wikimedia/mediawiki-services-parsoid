@@ -561,6 +561,11 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['server'];
 	}
 
+	/** @inheritDoc */
+	public function getModulesLoadURI(): string {
+		return $this->siteData['loadscript'] ?? parent::getModulesLoadURI();
+	}
+
 	public function solTransparentWikitextRegexp(): string {
 		$this->loadSiteData();
 		return $this->solTransparentWikitextRegexp;

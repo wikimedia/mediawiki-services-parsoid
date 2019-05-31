@@ -106,25 +106,23 @@ class Env {
 	 */
 	public $styleTagKeys = [];
 
-	/*
-	 * @var bool
-	 */
+	/** @var bool */
 	public $pageBundle = false;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	public $discardDataParsoid = false;
 
-	/**
-	 * @var DOMNode
-	 */
+	/** @var DOMNode */
 	private $origDOM;
 
-	/**
-	 * @var DOMDocument
-	 */
+	/** @var DOMDocument */
 	private $domDiff;
+
+	/**
+	 * Page properties (module resources primarily) that need to be output
+	 * @var array
+	 */
+	private $outputProps = [];
 
 	/**
 	 * @param SiteConfig $siteConfig
@@ -735,4 +733,21 @@ class Env {
 		return '2.1.0';
 	}
 
+	/**
+	 * Set a K=V property that might need to be output as part of the generated HTML
+	 * Ex: module styles, modules scripts
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function setOutputProperty( string $key, $value ): void {
+		$this->outputProps[$key] = $value;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOutputProperties(): array {
+		return $this->outputProps;
+	}
 }

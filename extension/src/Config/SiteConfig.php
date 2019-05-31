@@ -375,6 +375,10 @@ class SiteConfig extends ISiteConfig {
 		return $this->config->get( 'Server' );
 	}
 
+	public function getModulesLoadURI(): string {
+		return $this->config->get( 'LoadScript' ) ?? parent::getModulesLoadURI();
+	}
+
 	public function solTransparentWikitextRegexp(): string {
 		// cscott sadly says: Note that this depends on the precise
 		// localization of the magic words of this particular wiki.

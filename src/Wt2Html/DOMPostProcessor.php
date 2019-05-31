@@ -641,36 +641,39 @@ class DOMPostProcessor extends PipelineStage {
 		$env->conf->wiki->extConfig->styles->forEach( function ( $mo ) use ( &$modules ) {
 			$modules->add( $mo );
 		} );
-		// Styles from modules returned from preprocessor / parse requests
-		if ( $env->page->extensionModuleStyles ) {
-			$env->page->extensionModuleStyles->forEach( function ( $mo ) use ( &$modules ) {
-				$modules->add( $mo );
-			} );
-		}
-		$styleURI = $env->getModulesLoadURI()
-			. '?modules='
-			. PHPUtils::encodeURIComponent( implode( '|', $modules ) )
-			. '&only=styles&skin=vector';
-		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
 		*/
+
+		// Styles from modules returned from preprocessor / parse requests
+		$outputProps = $env->getOutputProperties();
+		if ( isset( $outputProps['modulestyles'] ) ) {
+			foreach ( $outputProps['modulestyles'] as $mo ) {
+				$modules[] = $mo;
+			}
+		}
+
+		$modulesBaseURI = $env->getSiteConfig()->getModulesLoadURI();
+		$styleURI = $modulesBaseURI .
+			'?modules=' .
+			PHPUtils::encodeURIComponent( implode( '|', $modules ) ) .
+			'&only=styles&skin=vector';
+		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
 
 		// Stick data attributes in the head
 		if ( $env->pageBundle ) {
 			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
 		}
 
-		/*
 		// html5shiv
 		$shiv = $document->createElement( 'script' );
-		$src = $env->getModulesLoadURI() . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
+		$src = $modulesBaseURI . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
 		$shiv->setAttribute( 'src', $src );
 		$fi = $document->createElement( 'script' );
 		$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
 		$comment = $document->createComment(
-			'[if lt IE 9]>' . $shiv->outerHTML . $fi->outerHTML . '<![endif]'
+			'[if lt IE 9]>' . DOMCompat::getOuterHTML( $shiv ) .
+			DOMCompat::getOuterHTML( $fi ) . '<![endif]'
 		);
-		$document->head->appendChild( $comment );
-		*/
+		DOMCompat::getHead( $document )->appendChild( $comment );
 
 		$lang = $env->getPageConfig()->getPageLanguage() ?:
 			$env->getSiteConfig()->lang() ?: 'en';
