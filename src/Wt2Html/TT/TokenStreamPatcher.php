@@ -196,6 +196,7 @@ class TokenStreamPatcher extends TokenHandler {
 						// Reparse string with the 'table_start_tag' rule
 						// and shift tsr of result tokens by source offset
 						$retoks = $this->tokenizer->tokenizeAs( $token, 'table_start_tag', /* sol */true );
+						array_pop( $retoks ); // pop EOFTk
 						if ( $retoks === false ) {
 							// XXX: The string begins with table start syntax,
 							// we really shouldn't be here.  Anything else on the
