@@ -162,12 +162,15 @@ switch ( $stageName ) {
 
 		/* Process tokens */
 		$toks = readTokens( $input );
+		TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'ucs2', 'byte', $toks );
 		$toks = $ttm->process( $toks );
+		TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'byte', 'ucs2', $toks );
 		$out = serializeTokens( $env, $toks );
 		break;
 
 	case "HTML5TreeBuilder":
 		$toks = readTokens( $input );
+		TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'ucs2', 'byte', $toks );
 		$tb = new HTML5TreeBuilder( $env );
 		$doc = $tb->process( $toks );
 		$body = DOMCompat::getBody( $doc );

@@ -8,6 +8,7 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\ParagraphWrapper;
@@ -158,6 +159,8 @@ switch ( $transformerName ) {
 		throw new \Exception( "Unsupported!" );
 }
 
+TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'ucs2', 'byte', $tokens );
+
 if ( $jsAsync ) {
 	$manager->setFrame( null, null, [], '<bogus>' );
 	$transformer->resetState( $opts );
@@ -174,6 +177,8 @@ if ( $jsAsync ) {
 		$tokens = $transformer->process( $tokens );
 	}
 }
+
+TokenUtils::convertTokenOffsets( $env->getPageMainContent(), 'byte', 'ucs2', $tokens );
 
 /**
  * Serialize output tokens to JSON
