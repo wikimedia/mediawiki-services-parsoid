@@ -20,6 +20,14 @@ use Parsoid\Wt2Html\TT\OnlyInclude;
 use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Wt2Html\TT\TokenStreamPatcher;
 
+// use Parsoid\Wt2Html\TT\AttributeExpander;
+// use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
+// use Parsoid\Wt2Html\TT\ExtensionHandler;
+// use Parsoid\Wt2Html\TT\ExternalLinkHandler;
+// use Parsoid\Wt2Html\TT\LanguageVariantHandler;
+// use Parsoid\Wt2Html\TT\TemplateHandler;
+// use Parsoid\Wt2Html\TT\WikiLinkHandler;
+
 if ( PHP_SAPI !== 'cli' ) {
 	die( 'CLI only' );
 }
@@ -65,6 +73,7 @@ $env = new ApiEnv( [
 	"debugFlags" => $envOpts['debugFlags'] ?? null,
 	"dumpFlags" => $envOpts['dumpFlags'] ?? null,
 	"traceFlags" => $envOpts['traceFlags'] ?? null,
+	"offline" => $envOpts['offline'] ?? false,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	"pageId" => $envOpts['pageId'] ?? null,
 	# This directory contains synthetic data which doesn't exactly match
@@ -81,6 +90,7 @@ foreach ( $envOpts['fragmentMap'] ?? [] as $entry ) {
 	}, $entry[1] ) );
 }
 
+$jsAsync = false;
 $manager = new TokenTransformManager( $env, $pipelineOpts, -1 );
 $manager->setPipelineId( $opts['pipelineId'] );
 switch ( $transformerName ) {
@@ -113,17 +123,59 @@ switch ( $transformerName ) {
 		break;
 	case 'TokenStreamPatcher':
 		$transformer = new TokenStreamPatcher( $manager, $pipelineOpts );
-		break;	default:
+		break;
+	/*
+	case 'AttributeExpander':
+		$jsAsync = true;
+		$transformer = new AttributeExpander( $manager, $pipelineOpts );
+		break;
+	case 'DOMFragmentBuilder':
+		$jsAsync = true;
+		$transformer = new DOMFragmentBuilder( $manager, $pipelineOpts );
+		break;
+	case 'ExtensionHandler':
+		$jsAsync = true;
+		$transformer = new ExtensionHandler( $manager, $pipelineOpts );
+		break;
+	case 'ExternalLinkHandler':
+		$jsAsync = true;
+		$transformer = new ExternalLinkHandler( $manager, $pipelineOpts );
+		break;
+	case 'LanguageVariantHandler':
+		$jsAsync = true;
+		$transformer = new LanguageVariantHandler( $manager, $pipelineOpts );
+		break;
+	case 'TemplateHandler':
+		$jsAsync = true;
+		$transformer = new TemplateHandler( $manager, $pipelineOpts );
+		break;
+	case 'WikiLinkHandler':
+		$jsAsync = true;
+		$transformer = new WikiLinkHandler( $manager, $pipelineOpts );
+		break;
+	*/
+	default:
 		throw new \Exception( "Unsupported!" );
 }
 
-/**
- * Transform the input tokens to output tokens
- */
-if ( !$transformer->isDisabled() ) {
-	// fwrite(STDERR, "$transformerName running ...\n");
+if ( $jsAsync ) {
+	throw new \Exception( "Should not get here!!" );
+	/*
+	$manager->setFrame( null, null, [] );
 	$transformer->resetState( $opts );
-	$tokens = $transformer->process( $tokens );
+	$handler = $argv[3];
+	$ret = call_user_func( [ $transformer, $handler ], $tokens[0] );
+	$tokens = $ret['tokens'];
+	*/
+} else {
+	/**
+	 * Transform the input tokens to output tokens
+	 */
+	if ( !$transformer->isDisabled() ) {
+		// fwrite(STDERR, "$transformerName running ...\n");
+		$transformer->resetState( $opts );
+		$tokens = $transformer->process( $tokens );
+	}
 }
 
 /**

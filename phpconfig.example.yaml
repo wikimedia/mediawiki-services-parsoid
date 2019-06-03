@@ -17,6 +17,19 @@ wt2html:
    # - OnlyInclude
    SyncTokenTransformManager1: false
 
+   # --- NOT YET SUPPORTED ---
+   # Note that this implicitly runs all the transformers
+   # registered for stage 2 (in parser.js) on the PHP side
+   # This would be:
+   # - WikiLinkHandler
+   # - ExternalLinkHandler
+   # - ExtensionHandler
+   # - DOMFragmentBuilder
+   # - AttributeExpander
+   # - LanguageVariantHandler
+   # - TemplateHandler
+   SyncTokenTransformManager2: false
+
    # Note that this implicitly runs all the transformers
    # registered for stage 3 (in parser.js) on the PHP side
    # These would be:
@@ -40,6 +53,17 @@ wt2html:
      IncludeOnly: false
      OnlyInclude: false
      SanitizerHandler: false
+
+     # The following handlers aren't yet supported
+     # As the associated code is ported, they will get
+     # supported one at a time
+     WikiLinkHandler: false
+     ExternalLinkHandler: false
+     ExtensionHandler: false
+     DOMFragmentBuilder: false
+     AttributeExpander: false
+     LanguageVariantHandler: false
+     TemplateHandler: false
    DOM:
      # Processors that provide their own DOM Traversal
      AddMediaInfo: false

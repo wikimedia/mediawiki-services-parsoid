@@ -40,6 +40,7 @@ class HybridTestUtils {
 			tidyWhitespaceBugMaxLength: env.conf.parsoid.linter.tidyWhitespaceBugMaxLength,
 			discardDataParsoid: env.discardDataParsoid,
 			pageBundle: env.pageBundle,
+			offline: !env.conf.parsoid.usePHPPreProcessor,
 		}, extra);
 	}
 
