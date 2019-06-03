@@ -385,7 +385,11 @@ class Grammar extends \WikiPEG\PEGParserBase {
   // actions
   private function a0() {
   
-  			return $this->endOffset() !== $this->inputLength;
+  			// "tlb" matches "block" matches "sol" matches "newlineToken"
+  			// But, "tlb" is prefixed with a !eof clause, so, we should only
+  			// get here on eof. So, safe to unconditionally terminate the
+  			// generator loop here.
+  			return false;
   		
   }
   private function a1($t, $n) {
@@ -398,6 +402,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		if ( count( $n ) ) {
   			PHPUtils::pushArray($ret, $n);
   		}
+  		$ret[] = new EOFTk();
   		return $ret;
   	
   }

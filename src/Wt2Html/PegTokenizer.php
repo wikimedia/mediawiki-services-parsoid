@@ -171,7 +171,6 @@ class PegTokenizer extends PipelineStage {
 		}
 		try {
 			$toks = $this->grammar->parse( $text, $args );
-			$toks[] = new EOFTk();
 		} catch ( SyntaxError $e ) {
 			$this->lastError = $e;
 			return false;

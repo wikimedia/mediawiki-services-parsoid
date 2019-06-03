@@ -297,6 +297,7 @@ start "start" =
 		if ( count( $n ) ) {
 			PHPUtils::pushArray($ret, $n);
 		}
+		$ret[] = new EOFTk();
 		return $ret;
 	}
 
@@ -360,7 +361,11 @@ start_async =
 	(
 		tlb
 		/ newlineToken* &{
-			return $this->endOffset() !== $this->inputLength;
+			// "tlb" matches "block" matches "sol" matches "newlineToken"
+			// But, "tlb" is prefixed with a !eof clause, so, we should only
+			// get here on eof. So, safe to unconditionally terminate the
+			// generator loop here.
+			return false;
 		}
 	)*
 
