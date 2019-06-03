@@ -6,7 +6,6 @@ namespace Parsoid\Wt2Html;
 use DOMDocument;
 use Parsoid\Config\Env;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Title;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -60,10 +59,10 @@ class ParserPipeline {
 	/**
 	 * Applies the function across all stages and transformers registered at each stage.
 	 */
-	private function applyToStage( string $fn, array $args ): void {
+	private function applyToStage( string $fn, ...$args ): void {
 		// Apply to each stage
 		foreach ( $this->stages as $stage ) {
-			$stage->$fn( $args );
+			$stage->$fn( ...$args );
 		}
 	}
 
@@ -74,15 +73,15 @@ class ParserPipeline {
 	 */
 	public function setPipelineId( int $id ): void {
 		$this->id = $id;
-		$this->applyToStage( 'setPipelineId', [ $id ] );
+		$this->applyToStage( 'setPipelineId', $id );
 	}
 
 	/**
 	 * Reset any local state in the pipeline stage
 	 * @param array $opts
 	 */
-	public function resetState( array $opts ): void {
-		$this->applyToStage( 'resetState', [ $opts ] );
+	public function resetState( array $opts = [] ): void {
+		$this->applyToStage( 'resetState', $opts );
 	}
 
 	/**
@@ -99,14 +98,14 @@ class ParserPipeline {
 	 * @param int $end
 	 */
 	public function setSourceOffsets( int $start, int $end ): void {
-		$this->applyToStage( 'setSourceOffsets', [ $start, $end ] );
+		$this->applyToStage( 'setSourceOffsets', $start, $end );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setFrame( ?Frame $frame, ?Title $title, array $args ): void {
-		$this->applyToStage( 'setFrame', [ $frame, $title, $args ] );
+	public function setFrame( ?Frame $frame, ?string $title, array $args ): void {
+		$this->applyToStage( 'setFrame', $frame, $title, $args );
 	}
 
 	/**

@@ -7,7 +7,6 @@ use Generator;
 use Parsoid\Config\Env;
 use Parsoid\Wt2Html\TT\TokenHandler;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Title;
 
 /**
  * Token transformation manager. Individual transformations
@@ -149,7 +148,7 @@ class TokenTransformManager extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function setFrame( ?Frame $parentFrame, ?Title $title, array $args ): void {
+	public function setFrame( ?Frame $parentFrame, ?string $title, array $args ): void {
 		// now actually set up the frame
 		if ( !$parentFrame ) {
 			$this->frame = new Frame( $title, $this->env, $args );

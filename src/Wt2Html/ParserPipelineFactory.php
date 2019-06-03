@@ -9,6 +9,19 @@ use Parsoid\InternalException;
 use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
+// use Parsoid\Wt2Html\TT\AttributeExpander;
+use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
+use Parsoid\Wt2Html\TT\IncludeOnly;
+use Parsoid\Wt2Html\TT\ListHandler;
+use Parsoid\Wt2Html\TT\NoInclude;
+use Parsoid\Wt2Html\TT\OnlyInclude;
+use Parsoid\Wt2Html\TT\ParagraphWrapper;
+use Parsoid\Wt2Html\TT\PreHandler;
+use Parsoid\Wt2Html\TT\QuoteTransformer;
+use Parsoid\Wt2Html\TT\Sanitizer;
+// use Parsoid\Wt2Html\TT\TemplateHandler;
+use Parsoid\Wt2Html\TT\TokenStreamPatcher;
+
 /**
  * This class assembles parser pipelines from parser stages
  */
@@ -22,53 +35,53 @@ class ParserPipelineFactory {
 		"TokenTransform1" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
-				 'OnlyInclude',
-				 'IncludeOnly',
-				 'NoInclude',
+				 OnlyInclude::class,
+				 IncludeOnly::class,
+				 NoInclude::class,
 			],
 		],
 		"TokenTransform2" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
-				'TemplateHandler',
-				'ExtensionHandler',
+				// TemplateHandler::class,
+				// ExtensionHandler::class,
 
 				// Expand attributes after templates to avoid expanding unused branches
 				// No expansion of quotes, paragraphs etc in attributes, as in
 				// PHP parser- up to text/x-mediawiki/expanded only.
-				'AttributeExpander',
+				// AttributeExpander::class,
 
 				// now all attributes expanded to tokens or string
 
 				// more convenient after attribute expansion
-				'WikiLinkHandler',
-				'ExternalLinkHandler',
-				'LanguageVariantHandler',
+				// WikiLinkHandler::class,
+				// ExternalLinkHandler::class,
+				// LanguageVariantHandler::class,
 
 				// This converts dom-fragment-token tokens all the way to DOM
 				// and wraps them in DOMFragment wrapper tokens which will then
 				// get unpacked into the DOM by a dom-fragment unpacker.
-				'DOMFragmentBuilder'
+				// DOMFragmentBuilder::class
 			],
 		],
 		"TokenTransform3" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
-				 'TokenStreamPatcher',
+				TokenStreamPatcher::class,
 				// add <pre>s
-				 'PreHandler',
-				 'QuoteTransformer',
+				PreHandler::class,
+				QuoteTransformer::class,
 				// add before transforms that depend on behavior switches
 				// examples: toc generation, edit sections
-				 'BehaviorSwitchHandler',
+				BehaviorSwitchHandler::class,
 
-				 'ListHandler',
-				 'SanitizerHandler',
+				ListHandler::class,
+				Sanitizer::class,
 				// Wrap tokens into paragraphs post-sanitization so that
 				// tags that converted to text by the sanitizer have a chance
 				// of getting wrapped into paragraphs.  The sanitizer does not
 				// require the existence of p-tags for its functioning.
-				 'ParagraphWrapper'
+				ParagraphWrapper::class
 			],
 		],
 		"TreeBuilder" => [
@@ -100,8 +113,7 @@ class ParserPipelineFactory {
 		// Stages 1-3 of the pipeline
 		"text/x-mediawiki" => [
 			"outType" => "Tokens",
-			"stages" => [ "Tokenizer", "TokenTransform1", "TokenTransform2"
-			]
+			"stages" => [ "Tokenizer", "TokenTransform1", "TokenTransform2" ]
 		],
 
 		// This pipeline takes tokens from the PEG tokenizer and emits
@@ -109,8 +121,7 @@ class ParserPipelineFactory {
 		// Stages 2-3 of the pipeline
 		"tokens/x-mediawiki" => [
 			"outType" => "Tokens",
-			"stages" => [ "TokenTransform1", "TokenTransform2"
-			]
+			"stages" => [ "TokenTransform1", "TokenTransform2" ]
 		],
 
 		// This pipeline takes tokens from stage 3 and emits a fully
@@ -118,8 +129,7 @@ class ParserPipelineFactory {
 		// Stages 4-6 of the pipeline
 		"tokens/x-mediawiki/expanded" => [
 			"outType" => "DOM",
-			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP"
-			]
+			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP" ]
 		],
 	];
 
@@ -216,14 +226,16 @@ class ParserPipelineFactory {
 			throw new InternalException( 'Unsupported Pipeline: ' . $type );
 		}
 		$recipe = self::$pipelineRecipes[ $type ];
-		$stages = [];
+		$pipeStages = [];
 		$prevStage = null;
 		$recipeStages = $recipe["stages"];
+
 		for ( $i = 0,  $l = count( $recipeStages );  $i < $l;  $i++ ) {
 			// create the stage
 			$stageId = $recipeStages[$i];
-			$stageData = $stages[$stageId];
-			$stage = new $stageData["class"]( $this->env, $options, $this, $stageId, $prevStage );
+
+			$stageData = self::$stages[$stageId];
+			$stage = new $stageData["class"]( $this->env, $options, $i, $prevStage );
 			if ( isset( $stageData["transformers"] ) ) {
 				foreach ( $stageData["transformers"] as $tName ) {
 					$stage->addTransformer( new $tName( $stage, $options ) );
@@ -231,14 +243,14 @@ class ParserPipelineFactory {
 			}
 
 			$prevStage = $stage;
-			$stages[] = $stage;
+			$pipeStages[] = $stage;
 		}
 
 		return new ParserPipeline(
 			$type,
 			$recipe["outType"],
 			$cacheKey,
-			$stages,
+			$pipeStages,
 			$this->env
 		);
 	}

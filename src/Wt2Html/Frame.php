@@ -6,7 +6,6 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PipelineUtils;
-use Parsoid\Utils\Title;
 use Parsoid\Utils\TokenUtils;
 
 /**
@@ -23,7 +22,7 @@ class Frame {
 	/** @var Env */
 	private $env;
 
-	/** @var Title */
+	/** @var string */
 	private $title;
 
 	/** @var Params */
@@ -33,13 +32,13 @@ class Frame {
 	private $depth;
 
 	/**
-	 * @param Title $title
+	 * @param string|null $title
 	 * @param Env $env
 	 * @param array $args
 	 * @param Frame|null $parentFrame
 	 */
 	public function __construct(
-		Title $title, Env $env, array $args, Frame $parentFrame = null
+		?string $title, Env $env, array $args, Frame $parentFrame = null
 	) {
 		$this->title = $title;
 		$this->env = $env;
@@ -56,11 +55,11 @@ class Frame {
 
 	/**
 	 * Create a new child frame.
-	 * @param Title $title
+	 * @param string $title
 	 * @param array $args
 	 * @return Frame
 	 */
-	public function newChild( Title $title, array $args ): Frame {
+	public function newChild( string $title, array $args ): Frame {
 		return new Frame( $title, $this->env, $args, $this );
 	}
 
@@ -108,12 +107,12 @@ class Frame {
 	 * Check if expanding a template would lead to a loop, or would exceed the
 	 * maximum expansion depth.
 	 *
-	 * @param Title $title
+	 * @param string $title
 	 * @param int $maxDepth
 	 * @param bool $ignoreLoop
 	 * @return ?string null => no error; non-null => error message
 	 */
-	public function loopAndDepthCheckError( Title $title, int $maxDepth, bool $ignoreLoop ): ?string {
+	public function loopAndDepthCheck( string $title, int $maxDepth, bool $ignoreLoop ): ?string {
 		if ( $this->depth > $maxDepth ) {
 			return 'Error: Expansion depth limit exceeded'; // Too deep
 		}

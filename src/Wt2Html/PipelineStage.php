@@ -7,7 +7,6 @@ use DOMDocument;
 use Generator;
 
 use Parsoid\Config\Env;
-use Parsoid\Utils\Title;
 use Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -95,10 +94,10 @@ abstract class PipelineStage {
 	 * and TTM instead of exposing this on the pipeline.
 	 *
 	 * @param Frame|null $frame Parent pipeline frame
-	 * @param Title|null $title Title (template) being processed in this (nested) pipeline
+	 * @param string|null $title Title (template) being processed in this (nested) pipeline
 	 * @param array $args Template args for the title (template)
 	 */
-	public function setFrame( ?Frame $frame, ?Title $title, array $args ): void {
+	public function setFrame( ?Frame $frame, ?string $title, array $args ): void {
 		/* Default implementation: Do nothing */
 	}
 
