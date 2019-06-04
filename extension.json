@@ -1,0 +1,22 @@
+{
+	"name": "Parsoid-testing",
+	"description": "Parsoid is not an extension. This file is only meant for internal use during development, as a lightweight way of testing integration.",
+	"url": "https://www.mediawiki.org/wiki/Parsing/Notes/Moving_Parsoid_Into_Core",
+	"requires": {
+		"MediaWiki": "^1.34",
+		"platform": {
+			"php": ">= 7.2"
+		}
+	},
+	"RestRoutes": [
+		{
+			"path": "/parsoid/ping",
+			"class": "MWParsoid\\Rest\\Handler\\PingHandler"
+		}
+	],
+	"AutoloadNamespaces": {
+		"MWParsoid\\": "extension/src"
+	},
+	"load_composer_autoloader": true,
+	"manifest_version": 2
+}
