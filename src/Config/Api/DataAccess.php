@@ -130,6 +130,7 @@ class DataAccess implements IDataAccess {
 		$batches = [];
 		foreach ( $files as $name => $dims ) {
 			$batches[] = [
+				'action' => 'imageinfo',
 				'filename' => $name,
 				'txopts' => $dims,
 				'page' => $pageConfig->getTitle(),
