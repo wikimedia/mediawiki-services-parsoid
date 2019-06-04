@@ -43,7 +43,7 @@ class QuoteHandler extends DOMHandler {
 			$state->serializeChildren( $node );
 			WTSUtils::emitEndTag( $this->quotes, $node, $state );
 		}
-		return null;
+		return $node->nextSibling;
 	}
 
 	private function precedingQuoteEltRequiresEscape( DOMElement $node ) {

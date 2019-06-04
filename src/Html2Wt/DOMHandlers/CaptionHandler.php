@@ -28,7 +28,7 @@ class CaptionHandler extends DOMHandler {
 		);
 		WTSUtils::emitStartTag( $tableTag, $node, $state );
 		$state->serializeChildren( $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

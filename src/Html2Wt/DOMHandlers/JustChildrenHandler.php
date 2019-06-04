@@ -19,7 +19,7 @@ class JustChildrenHandler extends DOMHandler {
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?DOMNode {
 		$state->serializeChildren( $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 }

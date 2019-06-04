@@ -22,7 +22,7 @@ class ImgHandler extends DOMHandler {
 		} else {
 			$state->serializer->figureHandler( $node );
 		}
-		return null;
+		return $node->nextSibling;
 	}
 
 }

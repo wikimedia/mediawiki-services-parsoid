@@ -35,11 +35,7 @@ class DOMHandler {
 	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @param bool $wrapperUnmodified
-	 * @return DOMNode|null The node to continue with. If $node is returned, the
-	 *   serialization will continue with the next sibling. Returning null or the root node
-	 *   of the serialization means serialization is finished. EncapsulatedContentHandler
-	 *   will skip over template content and return the following node which can be text
-	 *   or a comment too.
+	 * @return DOMNode|null The node to continue with (need not be an element always)
 	 */
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false

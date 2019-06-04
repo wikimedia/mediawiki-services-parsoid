@@ -59,7 +59,7 @@ class TDHandler extends DOMHandler {
 		// more readable as well as to eliminate potential misparses.
 		if ( $nextUsesRowSyntax && !DOMUtils::firstNonDeletedChild( $node ) ) {
 			$state->serializer->emitWikitext( ' ', $node );
-			return null;
+			return $node->nextSibling;
 		}
 
 		$state->serializeChildren( $node, $tdHandler );
@@ -71,7 +71,8 @@ class TDHandler extends DOMHandler {
 				$state->appendSep( $trailingSpace );
 			}
 		}
-		return null;
+
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

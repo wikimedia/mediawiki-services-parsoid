@@ -18,7 +18,7 @@ class AHandler extends DOMHandler {
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?DOMNode {
 		$state->serializer->linkHandler( $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 	// TODO: Implement link tail escaping with nowiki in DOM handler!

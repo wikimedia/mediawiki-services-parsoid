@@ -36,7 +36,7 @@ class TRHandler extends DOMHandler {
 		}
 
 		$state->serializeChildren( $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

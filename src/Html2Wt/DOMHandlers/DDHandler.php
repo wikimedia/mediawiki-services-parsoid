@@ -39,7 +39,7 @@ class DDHandler extends DOMHandler {
 		$state->singleLineContext->enforce();
 		$state->serializeChildren( $node, $liHandler );
 		$state->singleLineContext->pop();
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

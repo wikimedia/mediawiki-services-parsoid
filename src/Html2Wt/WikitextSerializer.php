@@ -1118,9 +1118,11 @@ class WikitextSerializer {
 	/**
 	 * Serialize the content of a text node
 	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	private function serializeTextNode( DOMNode $node ): void {
+	private function serializeTextNode( DOMNode $node ): ?DOMNode {
 		$this->serializeText( $node->nodeValue, $node, false );
+		return $node->nextSibling;
 	}
 
 	/**
@@ -1392,11 +1394,6 @@ class WikitextSerializer {
 		// Update modification flags
 		$state->updateModificationFlags( $node );
 
-		// If handlers didn't provide a valid next node,
-		// default to next sibling.
-		if ( $nextNode === null ) {
-			$nextNode = $node->nextSibling;
-		}
 		return $nextNode;
 	}
 

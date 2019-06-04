@@ -64,7 +64,7 @@ class PreHandler extends DOMHandler {
 
 		// Preserve separator source
 		$state->appendSep( $trailingNL[0] ?? '' );
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

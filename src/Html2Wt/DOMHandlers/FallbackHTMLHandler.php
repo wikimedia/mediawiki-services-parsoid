@@ -73,6 +73,6 @@ class FallbackHTMLHandler extends DOMHandler {
 
 		$endTag = $serializer->serializeHTMLEndTag( $node, $wrapperUnmodified );
 		WTSUtils::emitEndTag( $endTag, $node, $state );
-		return null;
+		return $node->nextSibling;
 	}
 }

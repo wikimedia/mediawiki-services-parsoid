@@ -52,7 +52,7 @@ class TableHandler extends DOMHandler {
 		if ( $indentTable ) {
 			$state->singleLineContext->pop();
 		}
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

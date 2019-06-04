@@ -30,7 +30,7 @@ class BRHandler extends DOMHandler {
 
 		// If P_BR (or P_BR_P), dont emit anything for the <br> so that
 		// constraints propagate to the next node that emits content.
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

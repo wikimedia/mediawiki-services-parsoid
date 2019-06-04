@@ -643,16 +643,8 @@ class SerializerState {
 
 		$child = $firstChild ?: $node->firstChild;
 		while ( $child !== null ) {
-			$next = $this->serializer->serializeNode( $child );
-			if ( $next === $node ) {
-				// Serialized all children
-				break;
-			}
-			if ( $next === $child ) {
-				// Advance
-				$next = $next->nextSibling;
-			}
-			$child = $next;
+			// We always get the next child to process
+			$child = $this->serializer->serializeNode( $child );
 		}
 
 		if ( $wtEscaper ) {

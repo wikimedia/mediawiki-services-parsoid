@@ -20,7 +20,7 @@ class FigureHandler extends DOMHandler {
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?DOMNode {
 		$state->serializer->figureHandler( $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

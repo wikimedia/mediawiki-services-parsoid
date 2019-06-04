@@ -77,7 +77,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			}
 		} elseif ( preg_match( '/(?:^|\s)(?:mw:LanguageVariant)(?=$|\s)/', $typeOf ) ) {
 			$state->serializer->languageVariantHandler( $node );
-			return null;
+			return $node->nextSibling;
 		} else {
 			throw new LogicException( 'Should never reach here' );
 		}

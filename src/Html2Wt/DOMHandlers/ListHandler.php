@@ -50,7 +50,7 @@ class ListHandler extends DOMHandler {
 		};
 		$state->serializeChildren( $node, $liHandler );
 		$state->singleLineContext->pop();
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

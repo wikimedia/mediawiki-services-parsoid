@@ -73,7 +73,7 @@ class SpanHandler extends DOMHandler {
 			} elseif ( preg_match( '/(^|\s)mw:Placeholder(\/\w*)?/', $type ) ) {
 				if ( isset( $dp->src ) ) {
 					$this->emitPlaceholderSrc( $node, $state );
-					return null;
+					return $node->nextSibling;
 				} elseif ( '/(^|\s)mw:Placeholder(\s|$)/' // PORT-FIXME ???
 					&& DOMUtils::hasNChildren( $node, 1 )
 					&& DOMUtils::isText( $node->firstChild )
@@ -108,7 +108,7 @@ class SpanHandler extends DOMHandler {
 				( new FallbackHTMLHandler )->handle( $node, $state );
 			}
 		}
-		return null;
+		return $node->nextSibling;
 	}
 
 	private function isRecognizedSpanWrapper( string $type ): bool {

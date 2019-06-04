@@ -20,7 +20,7 @@ class HRHandler extends DOMHandler {
 	): ?DOMNode {
 		$state->emitChunk( str_repeat( '-',
 			4 + ( DOMDataUtils::getDataParsoid( $node )->extra_dashes ?? 0 ) ), $node );
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

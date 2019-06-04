@@ -28,7 +28,7 @@ class MetaHandler extends DOMHandler {
 
 		if ( isset( $dp->src ) && preg_match( '/(^|\s)mw:Placeholder(\/\w*)?$/', $type ) ) {
 			$this->emitPlaceholderSrc( $node, $state );
-			return null;
+			return $node->nextSibling;
 		}
 
 		// Check for property before type so that page properties with
@@ -93,7 +93,7 @@ class MetaHandler extends DOMHandler {
 		} else {
 			( new FallbackHTMLHandler )->handle( $node, $state );
 		}
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */

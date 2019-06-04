@@ -44,7 +44,7 @@ class HeadingHandler extends DOMHandler {
 		$space = $this->getTrailingSpace( $state, $node, ' ' );
 		$state->emitChunk( $space . $this->headingWT, $node ); // Why emitChunk here??
 		$state->singleLineContext->pop();
-		return null;
+		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */
