@@ -85,20 +85,6 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Whether we should use the PHP Preprocessor to expand templates,
-	 * extension content, and the like.
-	 *
-	 * See #PHPPreProcessorRequest in lib/mediawiki.ApiRequest.js
-	 *
-	 * @todo Eventually we'll have to finish implementing preprocessing natively,
-	 *  then this should go away.
-	 * @return bool
-	 */
-	public function usePHPPreProcessor(): bool {
-		return true;
-	}
-
-	/**
 	 * Test in rt test mode (changes some parse & serialization strategies)
 	 * @return bool
 	 */

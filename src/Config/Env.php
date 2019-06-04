@@ -39,6 +39,16 @@ class Env {
 	/** @var DataAccess */
 	private $dataAccess;
 
+	/**
+	 * @var bool Are we in offline mode?
+	 * Offline mode is useful in two scenarios:
+	 * (a) running scripts (wt2html, html2wt, etc.) in offline mode during development
+	 *     and in isolation without any MediaWiki context.
+	 * (b) running parser tests: parser tests should run in isolation without requiring
+	 *     any MediaWiki context or making API requests.
+	 */
+	private $offlineMode;
+
 	/** @phan-var array<string,int> */
 	private $wt2htmlLimits = [];
 	/** @phan-var array<string,int> */
@@ -147,6 +157,7 @@ class Env {
 		$this->uid = (int)( $options['uid'] ?? 1 );
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
+		$this->offlineMode = !empty( $options['offline'] );
 	}
 
 	/**
@@ -171,6 +182,14 @@ class Env {
 	 */
 	public function getDataAccess(): DataAccess {
 		return $this->dataAccess;
+	}
+
+	/**
+	 * Are we running in offline mode?
+	 * @return bool
+	 */
+	public function inOfflineMode(): bool {
+		return $this->offlineMode;
 	}
 
 	/**
