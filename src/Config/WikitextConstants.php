@@ -364,6 +364,7 @@ class WikitextConstants {
 			"i" => [ 2, 2 ],
 			"br" => [ 0, 0 ],
 			"figure" => [ 2, 2 ],
+			"figcaption" => [ 0, 0 ],
 		];
 
 		# HTML tags whose wikitext equivalents are zero-width.

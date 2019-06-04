@@ -1413,7 +1413,9 @@ $classes = $temp1->classes;
 			}
 		} else {
 			// We always add a figcaption for blocks
-			$tokens[] = new TagTk( 'figcaption' );
+			$tokens[] = new TagTk( 'figcaption', [], $opts->caption ? (object)[
+				'tsr' => $opts->caption->srcOffsets,
+			] : null);
 			if ( $opts->caption ) {
 				$tokens[] = PipelineUtils::getDOMFragmentToken(
 					$opts->caption->v,
