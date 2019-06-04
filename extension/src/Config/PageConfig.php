@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config\MediaWiki;
+namespace MWParsoid\Config;
 
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;

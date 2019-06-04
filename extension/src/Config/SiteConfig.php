@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config\MediaWiki;
+namespace MWParsoid\Config;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 

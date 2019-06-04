@@ -53,11 +53,6 @@ foreach ( $phpFiles as $f ) {
 	}
 }
 
-// Exclude files that are not going to be in this directory
-$cfg['exclude_file_list'][] = "src/Config/MediaWiki/DataAccess.php";
-$cfg['exclude_file_list'][] = "src/Config/MediaWiki/PageConfig.php";
-$cfg['exclude_file_list'][] = "src/Config/MediaWiki/PageContent.php";
-$cfg['exclude_file_list'][] = "src/Config/MediaWiki/SiteConfig.php";
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
 

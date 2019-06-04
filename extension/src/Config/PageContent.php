@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config\MediaWiki;
+namespace MWParsoid\Config;
 
 use InvalidArgumentException;
 use MediaWiki\Revision\RevisionRecord;
