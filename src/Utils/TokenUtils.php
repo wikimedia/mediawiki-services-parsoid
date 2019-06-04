@@ -448,7 +448,9 @@ class TokenUtils {
 	 */
 	private static function pushOffsets( array &$dest, array &$source ): void {
 		foreach ( $source as &$offset ) {
-			$dest[] =& $offset;
+			if ( $offset !== null ) {
+				$dest[] =& $offset;
+			}
 		}
 	}
 
