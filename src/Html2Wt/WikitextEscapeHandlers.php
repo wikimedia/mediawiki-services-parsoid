@@ -19,7 +19,7 @@ use Wikimedia\Assert\Assert;
 
 class WikitextEscapeHandlers {
 
-	const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/';
+	const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/D';
 
 	/**
 	 * @var array
@@ -131,7 +131,7 @@ class WikitextEscapeHandlers {
 		// Those newline separators can prevent unnecessary <nowiki/> protection
 		// if the string ends with a trailing quote and then one or more newlines.
 		$origText = $node->textContent;
-		if ( preg_match( "/'\$/", $origText ) ) {
+		if ( preg_match( "/'$/D", $origText ) ) {
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			if ( !$next ) {
 				$next = $node->parentNode;
@@ -226,7 +226,7 @@ class WikitextEscapeHandlers {
 		// For first nodes of <li>'s, bullets in sol posn trigger escaping
 		if ( $liNode->nodeName === 'dt' && preg_match( '/:/', $text ) ) {
 			return true;
-		} elseif ( preg_match( '/^[#*:;]*$/', $state->currLine->text ) &&
+		} elseif ( preg_match( '/^[#*:;]*$/D', $state->currLine->text ) &&
 			$this->isFirstContentNode( $node )
 		) {
 			// Wikitext styling might require whitespace insertion after list bullets.
@@ -718,7 +718,7 @@ class WikitextEscapeHandlers {
 		SerializerState $state, bool $sol, string $origText,
 		bool $fullWrap = false, bool $dontWrapIfUnnecessary = false
 	): string {
-		preg_match( '/^((?:[^\r\n]|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/', $origText, $match );
+		preg_match( '/^((?:[^\r\n]|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/D', $origText, $match );
 		$text = $match[1];
 		$nls = $match[2];
 
@@ -990,7 +990,7 @@ class WikitextEscapeHandlers {
 			// Test 1: '', [], <>, __FOO__ need escaping wherever they occur
 			// = needs escaping in end-of-line context
 			// Test 2: {|, |}, ||, |-, |+,  , *#:;, ----, =*= need escaping only in SOL context.
-			if ( !$sol && !preg_match( "/''|[<>]|\\[.*\\]|\\]|(=[ ]*(\\n|\$))|__[^_]*__/", $text ) ) {
+			if ( !$sol && !preg_match( "/''|[<>]|\\[.*\\]|\\]|(=[ ]*(\\n|$))|__[^_]*__/", $text ) ) {
 				// It is not necessary to test for an unmatched opening bracket ([)
 				// as long as we always escape an unmatched closing bracket (]).
 				$env->log( 'trace/wt-escape', '---Not-SOL and safe---' );
@@ -1038,7 +1038,7 @@ class WikitextEscapeHandlers {
 			// - the text will get parsed as a link in
 			$env->log( 'trace/wt-escape', '---Links: complex single-line test---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( !empty( $opts['isLastChild'] ) && preg_match( '/=$/', $text ) ) {
+		} elseif ( !empty( $opts['isLastChild'] ) && preg_match( '/=$/D', $text ) ) {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child

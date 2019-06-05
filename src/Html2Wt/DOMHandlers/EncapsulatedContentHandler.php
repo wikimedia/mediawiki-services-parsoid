@@ -206,7 +206,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			// Less than two bullets indicates that a shared prefix was not
 			// assigned to this element. A safe indication that we should call
 			// getListsBullets on the containing list element.
-			return !preg_match( '/^[*#:;]{2,}$/', $dataMw->parts[0] );
+			return !preg_match( '/^[*#:;]{2,}$/D', $dataMw->parts[0] );
 		} elseif ( preg_match( '/(?:^|\s)mw:(Extension|Param)/', $typeOf ) ) {
 			// Containers won't ever be part of the src here, so emit them.
 			return true;

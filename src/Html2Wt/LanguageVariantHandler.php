@@ -136,7 +136,7 @@ $languageVariantHandler = /* async */function ( $state, $node ) use ( &$DOMDataU
 	// Helper function: protect characters not allowed in language names.
 	// Helper function: protect characters not allowed in language names.
 	$protectLang = function ( $l ) use ( &$Util ) {
-		if ( preg_match( '/^[a-z][-a-z]+$/', $l ) ) { return $l;  }
+		if ( preg_match( '/^[a-z][-a-z]+$/D', $l ) ) { return $l;  }
 		return '<nowiki>' . Util::escapeWtEntities( $l ) . '</nowiki>';
 	};
 

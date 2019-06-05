@@ -23,7 +23,7 @@ use Parsoid\Utils\WTUtils;
  * Serializes link markup.
  */
 class LinkHandlerUtils {
-	private static $REDIRECT_TEST_RE = '/^([ \t\n\r\0\x0b])*$/';
+	private static $REDIRECT_TEST_RE = '/^([ \t\n\r\0\x0b])*$/D';
 	private static $MW_TITLE_WHITESPACE_RE
 		= '/[ _\xA0\x{1680}\x{180E}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}]+/u';
 
@@ -461,11 +461,11 @@ class LinkHandlerUtils {
 				(
 					(
 						$env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) &&
-						preg_match( '/^\.\.\/.*[^\/]$/', $strippedTargetValue ) &&
+						preg_match( '/^\.\.\/.*[^\/]$/D', $strippedTargetValue ) &&
 						$contentString === $env->resolveTitle( $strippedTargetValue )
 					) ||
 					(
-						preg_match( '/^\.\.\/.*?\/$/', $strippedTargetValue ) &&
+						preg_match( '/^\.\.\/.*?\/$/D', $strippedTargetValue ) &&
 						$contentString === preg_replace( '/^(?:\.\.\/)+(.*?)\/$/', '$1', $strippedTargetValue, 1 )
 					)
 				) ||

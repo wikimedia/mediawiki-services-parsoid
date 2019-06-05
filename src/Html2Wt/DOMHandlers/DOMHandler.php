@@ -356,12 +356,12 @@ class DOMHandler {
 	 */
 	protected function emitPlaceholderSrc( DOMElement $node, SerializerState $state ) {
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		if ( preg_match( '/<nowiki\s*\/>/', ( $dp->src ?? '' ) ) ) {
+		if ( preg_match( '/<nowiki\s*\/>/', $dp->src ?? '' ) ) {
 			$state->hasSelfClosingNowikis = true;
 		}
 		// FIXME: Should this also check for tabs and plain space
 		// chars interspersed with newlines?
-		if ( preg_match( '/^\n+$/', ( $dp->src ?? '' ) ) ) {
+		if ( preg_match( '/^\n+$/', $dp->src ?? '' ) ) {
 			$state->appendSep( $dp->src );
 		} else {
 			$state->serializer->emitWikitext( $dp->src, $node );

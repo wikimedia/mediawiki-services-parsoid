@@ -82,7 +82,7 @@ class AutoURLLinkText extends RegExpConstrainedText {
 		// If the text ends with an incomplete entity, be careful of
 		// suffix text which could complete it.
 		if ( !$r->suffix &&
-			preg_match( '/&[#0-9a-zA-Z]*$/', $r->text ) &&
+			preg_match( '/&[#0-9a-zA-Z]*$/D', $r->text ) &&
 			preg_match( '/^[#0-9a-zA-Z]*;/', $state->rightContext )
 		) {
 			$r->suffix = $this->suffix;

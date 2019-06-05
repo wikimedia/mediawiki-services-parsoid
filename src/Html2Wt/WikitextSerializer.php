@@ -87,7 +87,7 @@ class WikitextSerializer {
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
 	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Util::COMMENT_REGEXP_FRAGMENT . ')*'
-		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/';
+		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/D';
 
 	/** @var array string[] */
 	private static $separatorREs = [
@@ -1569,8 +1569,8 @@ class WikitextSerializer {
 				// We only want to process:
 				// - trailing single quotes (bar')
 				// - or single quotes by themselves without a preceding '' sequence
-				if ( preg_match( "/'\$/", $p[$j - 1] )
-					&& !( $p[$j - 1] === "'" && $j > 1 && preg_match( "/''\$/", $p[$j - 2 ] ) )
+				if ( preg_match( "/'$/", $p[$j - 1] )
+					&& !( $p[$j - 1] === "'" && $j > 1 && preg_match( "/''$/", $p[$j - 2 ] ) )
 					// Consider <b>foo<i>bar'</i>baz</b> or <b>foo'<i>bar'</i>baz</b>.
 					// The <nowiki/> before the <i> or </i> cannot be stripped
 					// if the <i> is embedded inside another quote.
