@@ -167,10 +167,10 @@ $metaTokens = null;
 		if ( $wrapTemplates && $startMeta ) {
 			// Support template wrapping with the following steps:
 			// - Hoist the transclusion start-meta from the first line
-			// to before the token.
+			//   to before the token.
 			// - Update the start-meta tsr to that of the token.
 			// - Record the wikitext between the token and the transclusion
-			// as an unwrappedWT data-parsoid attribute of the start-meta.
+			//   as an unwrappedWT data-parsoid attribute of the start-meta.
 			$dp = $startMeta->dataAttribs;
 			$dp->unwrappedWT = substr( $env->page->src, $token->dataAttribs->tsr[ 0 ], $dp->tsr[ 0 ]/*CHECK THIS*/ );
 
@@ -182,9 +182,9 @@ $metaTokens = null;
 			// Update tsr[0] only. Unless the end-meta token is moved as well,
 			// updating tsr[1] can introduce bugs in cases like:
 			//
-			// {|
-			// |{{singlechart|Australia|93|artist=Madonna|album=Girls Gone Wild}}|x
-			// |}
+			//   {|
+			//   |{{singlechart|Australia|93|artist=Madonna|album=Girls Gone Wild}}|x
+			//   |}
 			//
 			// which can then cause dirty diffs (the "|" before the x gets dropped).
 			$dp->tsr[ 0 ] = $token->dataAttribs->tsr[ 0 ];
@@ -280,28 +280,28 @@ $l = null;
 			// Deal with two template-expansion scenarios for the attribute key (not value)
 			//
 			// 1. We have a template that generates multiple attributes of this token
-			// as well as content after the token.
-			// Ex: infobox templates from aircraft, ship, and other pages
-			// See enwiki:Boeing_757
+			//    as well as content after the token.
+			//    Ex: infobox templates from aircraft, ship, and other pages
+			//        See enwiki:Boeing_757
 			//
-			// - Split the expanded tokens into multiple lines.
-			// - Expanded attributes associated with the token are retained in the
-			// first line before a NlTk.
-			// - Content tokens after the NlTk are moved to subsequent lines.
-			// - The meta tags are hoisted before the original token to make sure
-			// that the entire token and following content is encapsulated as a unit.
+			//    - Split the expanded tokens into multiple lines.
+			//    - Expanded attributes associated with the token are retained in the
+			//      first line before a NlTk.
+			//    - Content tokens after the NlTk are moved to subsequent lines.
+			//    - The meta tags are hoisted before the original token to make sure
+			//      that the entire token and following content is encapsulated as a unit.
 			//
 			// 2. We have a template that only generates multiple attributes of this
-			// token. In that case, we strip all template meta tags from the expanded
-			// tokens and assign it a mw:ExpandedAttrs type with orig/expanded
-			// values in data-mw.
+			//    token. In that case, we strip all template meta tags from the expanded
+			//    tokens and assign it a mw:ExpandedAttrs type with orig/expanded
+			//    values in data-mw.
 			//
 			// Reparse-KV-string scenario with templated attributes:
 			// -----------------------------------------------------
 			// In either scenario above, we need additional special handling if the
 			// template generates one or more k=v style strings:
-			// <div {{echo|1=style='color:red''}}></div>
-			// <div {{echo|1=style='color:red' title='boo'}}></div>
+			//    <div {{echo|1=style='color:red''}}></div>
+			//    <div {{echo|1=style='color:red' title='boo'}}></div>
 			//
 			// Real use case: Template {{ligne grise}} on frwp.
 			//
@@ -310,20 +310,20 @@ $l = null;
 			// and retokenize it to extract one or more attributes.
 			//
 			// But, we won't support scenarios like this:
-			// {| title={{echo|1='name' style='color:red;'\n|-\n|foo}}\n|}
+			//   {| title={{echo|1='name' style='color:red;'\n|-\n|foo}}\n|}
 			// Here, part of one attribute and additional complete attribute strings
 			// need reparsing, and that isn't a use case that is worth more complexity here.
 			//
 			// FIXME:
 			// ------
 			// 1. It is not possible for multiple instances of scenario 1 to be triggered
-			// for the same token. So, I am not bothering trying to test and deal with it.
+			//    for the same token. So, I am not bothering trying to test and deal with it.
 			//
 			// 2. We trigger the Reparse-KV-string scenario only for attribute keys,
-			// since it isn't possible for attribute values to require this reparsing.
-			// However, it is possible to come up with scenarios where a template
-			// returns the value for one attribute and additional k=v strings for newer
-			// attributes. We don't support that scenario, but don't even test for it.
+			//    since it isn't possible for attribute values to require this reparsing.
+			//    However, it is possible to come up with scenarios where a template
+			//    returns the value for one attribute and additional k=v strings for newer
+			//    attributes. We don't support that scenario, but don't even test for it.
 			//
 			// Reparse-KV-string scenario with non-string attributes:
 			// ------------------------------------------------------
@@ -430,8 +430,8 @@ $l = null;
 								//
 								// That requires the ability for the data-mw.attribs[i].txt to be an array.
 								// However, the spec at [[mw:Parsoid/MediaWiki_DOM_spec]] says:
-								// "This spec also assumes that a template can only
-								// generate one attribute rather than multiple attributes."
+								//    "This spec also assumes that a template can only
+								//     generate one attribute rather than multiple attributes."
 								//
 								// So, revision of the spec is another FIXME at which point this code can
 								// be updated to reflect the revised spec.
@@ -537,9 +537,9 @@ $l = null;
 				// Don't add Parsoid about, typeof, data-mw attributes here since
 				// we won't be able to distinguish between Parsoid-added attributes
 				// and actual template attributes in cases like:
-				// {{some-tpl|about=#mwt1|typeof=mw:Transclusion}}
+				//   {{some-tpl|about=#mwt1|typeof=mw:Transclusion}}
 				// In both cases, we will encounter a template token that looks like:
-				// { ... "attribs":[{"k":"about","v":"#mwt1"},{"k":"typeof","v":"mw:Transclusion"}] .. }
+				//   { ... "attribs":[{"k":"about","v":"#mwt1"},{"k":"typeof","v":"mw:Transclusion"}] .. }
 				// So, record these in the tmp attribute for the template hander
 				// to retrieve and process.
 				if ( !$token->dataAttribs->tmp ) {

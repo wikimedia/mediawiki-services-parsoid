@@ -61,16 +61,16 @@ function buildAsyncOutputBufferCB( $cb ) {
 
 	AsyncOutputBufferCB::prototype::processAsyncOutput = function ( $res ) {
 		// * Ignore switch-to-async mode calls since
-		// we are actually collapsing async calls.
+		//   we are actually collapsing async calls.
 		// * Accumulate async call results in an array
-		// till we get the signal that we are all done
+		//   till we get the signal that we are all done
 		// * Once we are done, pass everything to the target cb.
 		if ( $res->async !== true ) {
 			// There are 3 kinds of callbacks:
 			// 1. cb({tokens: .. })
 			// 2. cb({}) ==> toks can be undefined
 			// 3. cb(foo) -- which means in some cases foo can
-			// be one of the two cases above, or it can also be a simple string.
+			//    be one of the two cases above, or it can also be a simple string.
 			//
 			// Version 1. is the general case.
 			// Versions 2. and 3. are optimized scenarios to eliminate
@@ -186,10 +186,10 @@ ParserFunctions::prototype::_switchLookupFallback = function ( $frame, $kvs, $ke
 	if ( $vStr && $key === trim( $vStr ) ) {
 		// This handles fall-through switch cases:
 		//
-		// {{#switch:<key>
-		// | c1 | c2 | c3 = <res>
-		// ...
-		// }}
+		//   {{#switch:<key>
+		//     | c1 | c2 | c3 = <res>
+		//     ...
+		//   }}
 		//
 		// So if <key> matched c1, we want to return <res>.
 		// Hence, we are looking for the next entry with a non-empty key.
@@ -227,20 +227,20 @@ ParserFunctions::prototype::_switchLookupFallback = function ( $frame, $kvs, $ke
 				// We found a value-only entry.  However, we have to verify
 				// if we have any fall-through cases that this matches.
 				//
-				// {{#switch:<key>
-				// | c1 | c2 | c3 = <res>
-				// ...
-				// }}
+				//   {{#switch:<key>
+				//     | c1 | c2 | c3 = <res>
+				//     ...
+				//   }}
 				//
 				// In the switch example above, if we found 'c1', that is
 				// not the fallback value -- we have to check for fall-through
 				// cases.  Hence the recursive callback to _switchLookupFallback.
 				//
-				// {{#switch:<key>
-				// | c1 = <..>
-				// | c2 = <..>
-				// | [[Foo]]</div>
-				// }}
+				//   {{#switch:<key>
+				//     | c1 = <..>
+				//     | c2 = <..>
+				//     | [[Foo]]</div>
+				//   }}
 				//
 				// 'val' may be an array of tokens rather than a string as in the
 				// example above where 'val' is indeed the final return value.

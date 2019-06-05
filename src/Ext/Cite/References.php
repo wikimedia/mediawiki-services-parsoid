@@ -340,7 +340,7 @@ class References {
 		// it is accessed, there is no relevant template or dsr info available.
 		//
 		// Ignoring for now.
-		return $refs->nextNode;
+		return $refs->nextSibling;
 	}
 
 	public static function _processRefs( $env, $refsData, $node ) {

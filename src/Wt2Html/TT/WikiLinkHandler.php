@@ -205,7 +205,7 @@ class WikiLinkHandler extends TokenHandler {
 			return [ 'tokens' => [ $rlink ] ];
 		} else {
 			// Bail!  Emit tokens as if they were parsed as a list item:
-			// #REDIRECT....
+			//  #REDIRECT....
 			$src = $rlink->dataAttribs->src;
 			$tsr = $rlink->dataAttribs->tsr;
 			$srcMatch = /*RegExp#exec*/preg_match( '/^([^#]*)(#)/', $src, $FIXME );

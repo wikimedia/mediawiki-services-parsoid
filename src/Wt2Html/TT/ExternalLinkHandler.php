@@ -93,9 +93,9 @@ class ExternalLinkHandler extends TokenHandler {
 		// Typical settings for mediawiki configuration variables
 		// $wgAllowExternalImages and $wgAllowExternalImagesFrom will
 		// result in values like these:
-		// allowedPrefixes = undefined; // no external images
-		// allowedPrefixes = [''];      // allow all external images
-		// allowedPrefixes = ['http://127.0.0.1/', 'http://example.com'];
+		//  allowedPrefixes = undefined; // no external images
+		//  allowedPrefixes = [''];      // allow all external images
+		//  allowedPrefixes = ['http://127.0.0.1/', 'http://example.com'];
 		// Note that the values include the http:// or https:// protocol.
 		// See https://phabricator.wikimedia.org/T53092
 		return $hasImageExtension && is_array( $allowedPrefixes )

@@ -131,13 +131,16 @@ Diff::diffWords = function ( $oldString, $newString ) use ( &$diffTokens ) {
 	// * keeping tag-like things (<pre>, <a, </a>, etc) together
 	// * keeping possessives and contractions (don't, etc) together
 	// * ensuring that newlines always stay separate, so we don't
-	// have diff chunks that contain multiple newlines
-	// (ie, "remove \n\n" followed by "add \n", instead of
-	// "keep \n", "remove \n")
+	//   have diff chunks that contain multiple newlines
+	//   (ie, "remove \n\n" followed by "add \n", instead of
+	//   "keep \n", "remove \n")
 	$wordTokenize =
 	function ( $value ) {return preg_split( "/((?:<\\/?)?\\w+(?:'\\w+|>)?|\\s(?:(?!\\n)\\s)*)/", $value )->filter(
 			// For efficiency, filter out zero-length strings from token list
-			function ( $s ) {return $s !== '';
+			// UGLY HACK: simplediff trips if one of tokenized words is
+			// 'constructor'. Since this failure breaks parserTests.js runs,
+			// work around that by hiding that diff for now.
+			function ( $s ) {return $s !== '' && $s !== 'constructor';
    }
 		);
 	};

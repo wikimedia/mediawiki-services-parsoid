@@ -345,7 +345,7 @@ class TemplateHandler extends TokenHandler {
 			//
 			// For every attribute that has a templated name and/or value,
 			// AttributeExpander creates a 2-item array for that attribute.
-			// [ {txt: '..', html: '..'}, { html: '..'} ]
+			//    [ {txt: '..', html: '..'}, { html: '..'} ]
 			// 'txt' is the plain-text name/value
 			// 'html' is the HTML-version of the name/value
 			//
@@ -796,7 +796,7 @@ class TemplateHandler extends TokenHandler {
 		// before the serializer. (something like <mw:error ../> as source)
 		if ( $err ) {
 			$src = '';
-			// this.manager.env.errCB(err);
+			//  this.manager.env.errCB(err);
 		}
 
 		$psd = $this->manager->env->conf->parsoid;

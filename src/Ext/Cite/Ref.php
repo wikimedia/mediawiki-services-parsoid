@@ -52,7 +52,7 @@ class Ref {
 	public static function lintHandler( $ref, $env, $tplInfo, $domLinter ) {
 		// Don't lint the content of ref in ref, since it can lead to cycles
 		// using named refs
-		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) { return $ref->nextNode;
+		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) { return $ref->nextSibling;
   }
 
 		$linkBackId = preg_replace( '/[^#]*#/', '', $ref->firstChild->getAttribute( 'href' ), 1 );
@@ -61,7 +61,7 @@ class Ref {
 			// Ex: Buggy input wikitext without ref content
 			$domLinter( $refNode->lastChild, $env, ( $tplInfo->isTemplated ) ? $tplInfo : null );
 		}
-		return $ref->nextNode;
+		return $ref->nextSibling;
 	}
 }
 

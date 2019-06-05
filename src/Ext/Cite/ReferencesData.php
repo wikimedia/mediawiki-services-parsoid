@@ -31,8 +31,8 @@ class ReferencesData {
 		// identical. Not sure if this is a feature or a bug.
 		// It also considers entities equal to their encoding
 		// (i.e. '&' === '&amp;'), which is done:
-		// in PHP: Sanitizer#decodeTagAttributes and
-		// in Parsoid: ExtensionHandler#normalizeExtOptions
+		//  in PHP: Sanitizer#decodeTagAttributes and
+		//  in Parsoid: ExtensionHandler#normalizeExtOptions
 		return Sanitizer::escapeIdForAttribute( $val );
 	}
 

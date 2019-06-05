@@ -613,12 +613,12 @@ return null;
 		}
 
 		// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
-		// "Both it and the oldid parameter are needed for
-		// clean round-tripping of HTML retrieved earlier with"
+		//   "Both it and the oldid parameter are needed for
+		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
-		// "Both it and the oldid parameter are needed for
-		// clean round-tripping of HTML retrieved earlier with"
+		//   "Both it and the oldid parameter are needed for
+		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$res->locals->oldid;
 		$useSelser = $hasOldId && $parsoidConfig->useSelser;
@@ -787,7 +787,7 @@ $headers = $temp2->headers;
 			// Uncommenting below implies that we can only update the latest
 			// version, since carrot semantics is applied in both directions.
 			// if (!semver.satisfies(env.inputContentVersion, '^' + env.outputContentVersion)) {
-			// return apiUtils.fatalRequest(env, 'We do not know how to do this conversion.', 415);
+			// 	return apiUtils.fatalRequest(env, 'We do not know how to do this conversion.', 415);
 			// }
 			Assert::invariant( $revision === $opts->original );
 			if ( $opts->updates->redlinks ) {

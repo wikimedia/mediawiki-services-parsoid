@@ -168,7 +168,7 @@ class UnpackDOMFragments {
 			// placed on the anchor itself) but in the future, nowiki spans may be
 			// omitted or new uses for dom fragments found.  For now, the test case
 			// necessitating this is an edgy link-in-link scenario:
-			// [[Test|{{1x|[[Hmm|Something <sup>strange</sup>]]}}]]
+			//   [[Test|{{1x|[[Hmm|Something <sup>strange</sup>]]}}]]
 			PipelineUtils::addSpanWrappers( $dummyNode->childNodes );
 			// Reset `contentNode`, since the `firstChild` may have changed in
 			// span wrapping.
@@ -184,11 +184,11 @@ class UnpackDOMFragments {
 		//
 		// - Only update DSR for content that came from cache.
 		// - For new DOM fragments from this pipeline,
-		// previously-computed DSR is valid.
+		//   previously-computed DSR is valid.
 		// - EXCEPTION: fostered content from tables get their DSR reset
-		// to zero-width.
+		//   to zero-width.
 		// - FIXME: We seem to also be doing this for new extension content,
-		// which is the only place still using `setDSR`.
+		//   which is the only place still using `setDSR`.
 		//
 		// There is currently no DSR for DOMFragments nested inside
 		// transclusion / extension content (extension inside template
