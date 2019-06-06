@@ -21,6 +21,7 @@ use Parsoid\Wt2Html\DOMPostProcessor;
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
+use Parsoid\Wt2Html\PP\Handlers\Headings;
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
@@ -30,15 +31,16 @@ use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
+use Parsoid\Wt2Html\PP\Processors\LangConverter;
 use Parsoid\Wt2Html\PP\Processors\Linter;
 use Parsoid\Wt2Html\PP\Processors\MarkFosteredContent;
+use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
+use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 use Parsoid\Wt2Html\PP\Processors\Normalize;
 use Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Parsoid\Wt2Html\PP\Processors\PWrap;
 use Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Parsoid\Wt2Html\PP\Processors\WrapTemplates;
-use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
-use Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 
 function buildDOM( $env, $fileName, $afterCleanup = false ) {
 	$html = file_get_contents( $fileName );
@@ -363,8 +365,7 @@ switch ( $test ) {
 				'shortcut' => 'media',
 				'omit' => ( $test !== 'AddMediaInfo' )
 			],
-			/*
-			 [
+			[
 				'name' => 'Headings-genAnchors',
 				'shortcut' => 'headings',
 				'isTraverser' => true,
@@ -377,14 +378,12 @@ switch ( $test ) {
 				],
 				'omit' => ( $test !== 'Headings-genAnchors' )
 			],
-			*/
 			[
 				'Processor' => WrapSections::class,
 				'shortcut' => 'sections',
 				'skipNested' => true,
 				'omit' => ( $test !== 'WrapSections' )
 			],
-			/*
 			[
 				'name' => 'Headings-dedupeHeadingIds',
 				'shortcut' => 'heading-ids',
@@ -394,7 +393,7 @@ switch ( $test ) {
 					[
 						'nodeName' => null,
 						'action' => function ( $node, $env ) use ( &$seenIds ) {
-							return Headings::dedupeHeadingIds( $seenIds, $node, $env );
+							return Headings::dedupeHeadingIds( $seenIds, $node );
 						}
 					]
 				],
@@ -406,7 +405,6 @@ switch ( $test ) {
 				'skipNested' => true,
 				'omit' => ( $test !== 'LangConverter' )
 			],
-			*/
 			[
 				'Processor' => Linter::class,
 				'omit' => !$env->getSiteConfig()->linting(),

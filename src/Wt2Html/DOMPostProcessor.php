@@ -18,22 +18,17 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
-
-// use Parsoid\Wt2Html\PP\Handlers\Headings;
-
+use Parsoid\Wt2Html\PP\Handlers\Headings;
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
+
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
-
-// use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
-// use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
-
+use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
+use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
-
-// use Parsoid\Wt2Html\PP\Processors\LangConverter;
-
+use Parsoid\Wt2Html\PP\Processors\LangConverter;
 use Parsoid\Wt2Html\PP\Processors\Linter;
 use Parsoid\Wt2Html\PP\Processors\MarkFosteredContent;
 use Parsoid\Wt2Html\PP\Processors\MigrateTemplateMarkerMetas;
@@ -378,14 +373,11 @@ class DOMPostProcessor extends PipelineStage {
 			// Also, the gallery extension's "packed" mode would otherwise need a
 			// post-processing pass to scale media after it has been fetched.  That
 			// introduces an ordering dependency that may or may not complicate things.
-			/*
 			[
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
 			],
-			*/
 			// Benefits from running after determining which media are redlinks
-			/*
 			[
 				'name' => 'Headings-genAnchors',
 				'shortcut' => 'headings',
@@ -398,7 +390,6 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			*/
 			// Add <section> wrappers around sections
 			[
 				'Processor' => WrapSections::class,
@@ -406,7 +397,6 @@ class DOMPostProcessor extends PipelineStage {
 				'skipNested' => true
 			],
 			// Make heading IDs unique
-			/*
 			[
 				'name' => 'Headings-dedupeHeadingIds',
 				'shortcut' => 'heading-ids',
@@ -416,20 +406,17 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => null,
 						'action' => function ( $node, $env ) use ( &$seenIds ) {
-							return Headings::dedupeHeadingIds( $seenIds, $node, $env );
+							return Headings::dedupeHeadingIds( $seenIds, $node );
 						}
 					]
 				]
 			],
-			*/
 			// Language conversion
-			/*
 			[
 				'Processor' => LangConverter::class,
 				'shortcut' => 'lang-converter',
 				'skipNested' => true
 			],
-			*/
 			[
 				'Processor' => Linter::class,
 				'omit' => !$env->getSiteConfig()->linting(),
@@ -472,13 +459,11 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			/*
 			[
 				'Processor' => AddRedLinks::class,
 				'shortcut' => 'redlinks',
 				'skipNested' => true
 			]
-			*/
 		] );
 
 		return $processors;
