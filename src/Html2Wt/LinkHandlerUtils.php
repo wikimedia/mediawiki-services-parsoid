@@ -71,7 +71,7 @@ class LinkHandlerUtils {
 	 */
 	private static function getHref( Env $env, DOMElement $node ): string {
 		$href = $node->getAttribute( 'href' );
-		if ( preg_match( '/^\/[^\/]/', $href ) ) {
+		if ( preg_match( '#^/[^/]#', $href ) ) {
 			// protocol-less but absolute.  let's find a base href
 			foreach ( $env->getSiteConfig()->interwikiMap() as $prefix => $interwikiInfo ) {
 				if ( isset( $interwikiInfo['localinterwiki'] ) && isset( $interwikiInfo['url'] ) ) {
@@ -81,7 +81,7 @@ class LinkHandlerUtils {
 					$nhref = UrlUtils::expandUrl( $href, $base );
 
 					// can this match the pattern?
-					$re = '/^' . strtr( preg_quote( $base, '/' ), [ '\\$1' => '.*' ] ) . '$/s';
+					$re = '/^' . strtr( preg_quote( $base, '/' ), [ '\\$1' => '.*' ] ) . '$/sD';
 					if ( preg_match( $re, $nhref ) ) {
 						return $nhref;
 					}
@@ -153,7 +153,7 @@ class LinkHandlerUtils {
 			if ( preg_match( '/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)[^\s]*)\b/', $rel, $typeMatch ) ) {
 				$rtData->type = $typeMatch[1];
 				// Strip link subtype info
-				if ( preg_match( '/^mw:(Wiki|Ext)Link\//', $rtData->type ) ) {
+				if ( preg_match( '#^mw:(Wiki|Ext)Link/#', $rtData->type ) ) {
 					$rtData->type = 'mw:' . $typeMatch[2];
 				}
 			}
@@ -167,14 +167,14 @@ class LinkHandlerUtils {
 		// Get href, and save the token's "real" href for comparison
 		$href = self::getHref( $env, $node );
 		$rtData->origHref = $href;
-		$rtData->href = preg_replace( '/^(\.\.?\/)+/', '', $href, 1 );
+		$rtData->href = preg_replace( '#^(\.\.?/)+#', '', $href, 1 );
 
 		// WikiLinks should be relative (but see below); fixup the link type
 		// if a WikiLink has an absolute URL.
 		// (This may get converted back to a WikiLink below, in the interwiki
 		// handling code.)
 		if ( $rtData->type === 'mw:WikiLink' &&
-			( preg_match( '/^(\w+:)?\/\//', $rtData->href ) || preg_match( '/^\//', $rtData->origHref ) )
+			( preg_match( '#^(\w+:)?//#', $rtData->href ) || $rtData->origHref[0] === '/' )
 		) {
 			$rtData->type = 'mw:ExtLink';
 		}
@@ -207,7 +207,7 @@ class LinkHandlerUtils {
 			}
 		} elseif ( $node->hasChildNodes() ) {
 			$rtData->contentNode = $node;
-		} elseif ( preg_match( '/^mw:PageProp\/redirect$/', $rtData->type ) ) {
+		} elseif ( preg_match( '#^mw:PageProp/redirect$#', $rtData->type ) ) {
 			$rtData->isRedirect = true;
 			$rtData->prefix = $dp->src
 				?? ( ( $siteConfig->mwAliases()['redirect'][0] ?? '#REDIRECT' ) . ' ' );
@@ -227,13 +227,13 @@ class LinkHandlerUtils {
 				// (See similar code which tries to guess resource from <img src>)
 				$mediaPrefix = $siteConfig->namespaceName( $siteConfig->namespaceId( 'media' ) );
 				$resource = [
-					'value' => $mediaPrefix . ':' . preg_replace( '/.*\//', '', $rtData->origHref, 1 ),
+					'value' => $mediaPrefix . ':' . preg_replace( '#.*/#', '', $rtData->origHref, 1 ),
 					'fromsrc' => false,
 					'modified' => false
 				];
 			}
 			$rtData->target = $resource;
-			$rtData->href = preg_replace( '/^(\.\.?\/)+/', '', $rtData->target['value'], 1 );
+			$rtData->href = preg_replace( '#^(\.\.?/)+#', '', $rtData->target['value'], 1 );
 			return $rtData;
 		}
 
@@ -293,7 +293,7 @@ class LinkHandlerUtils {
 			if ( !empty( $target['fromsrc'] ) && empty( $target['modified'] ) ) {
 				// Leave the target alone!
 			} else {
-				if ( preg_match( '/\bmw:PageProp\/Language\b/', $rtData->type ) ) {
+				if ( preg_match( '#\bmw:PageProp/Language\b#', $rtData->type ) ) {
 					$target['value'] = preg_replace( '/^:/', '', implode( ':', $interWikiMatch ), 1 );
 				} elseif (
 					$oldPrefix && ( // Should we preserve the old prefix?
@@ -313,7 +313,7 @@ class LinkHandlerUtils {
 						$target['value'] = $localPrefix . $oldPrefix[1] . ':' . $interWikiMatch[1];
 					}
 					// Ensure that we generate an interwiki link and not a language link!
-					if ( $rtData->isInterwikiLang && !preg_match( '/^:/', $target['value'] ) ) {
+					if ( $rtData->isInterwikiLang && $target['value'][0] !== ':' ) {
 						$target['value'] = ':' . $target['value'];
 					}
 				} else { // Else: preserve old encoding
@@ -345,7 +345,7 @@ class LinkHandlerUtils {
 		// this regexp is the negation of EXT_LINK_URL_CLASS in the PHP parser
 		return preg_replace(
 			// IPv6 host names are bracketed with [].  Entity-decode these.
-			'/^([a-z][^:\/]*:)?\/\/&#x5B;([0-9a-f:.]+)&#x5D;(:\d|\/|$)/i',
+			'!^([a-z][^:/]*:)?//&#x5B;([0-9a-f:.]+)&#x5D;(:\d|/|$)!iD',
 			'$1//[$2]$3',
 			preg_replace_callback(
 				// phpcs:ignore Generic.Files.LineLength.TooLong
@@ -372,8 +372,7 @@ class LinkHandlerUtils {
 		$linkTitle = $env->makeTitleFromText( $linkTarget );
 		if ( ( $linkTitle->getNamespace()->isCategory() || $linkTitle->getNamespace()->isFile() ) &&
 			$linkData->type === 'mw:WikiLink' &&
-			!preg_match( '/^:/', $linkTarget )
-		) {
+			$linkTarget[0] !== ':' ) {
 			// Escape category and file links
 			return ':' . $linkTarget;
 		} else {
@@ -401,7 +400,7 @@ class LinkHandlerUtils {
 			( $target['value'] === $contentStr || self::getHref( $env, $node ) === $contentStr ) &&
 			// protocol-relative url links not allowed in text
 			// (see autourl rule in peg tokenizer, T32269)
-			!preg_match( '/^\/\//', $contentStr ) && Util::isProtocolValid( $contentStr, $env );
+			!preg_match( '#^//#', $contentStr ) && Util::isProtocolValid( $contentStr, $env );
 	}
 
 	/**
@@ -432,16 +431,16 @@ class LinkHandlerUtils {
 				( $dp->stx ?? null ) !== 'piped'
 			) &&
 			// Relative links are not simple
-			!preg_match( '/^\.\//', $contentString )
+			!preg_match( '#^\./#', $contentString )
 		) {
 			// Strip colon escapes from the original target as that is
 			// stripped when deriving the content string.
 			// Strip ./ prefixes as well since they are relative link prefixes
 			// added to all titles.
-			$strippedTargetValue = preg_replace( '/^(:|\.\/)/', '', $target['value'], 1 );
+			$strippedTargetValue = preg_replace( '#^(:|\./)#', '', $target['value'], 1 );
 			$decodedTarget = Util::decodeWtEntities( $strippedTargetValue );
 			// Deal with the protocol-relative link scenario as well
-			$hrefHasProto = preg_match( '/^(\w+:)?\/\//', $linkData->href );
+			$hrefHasProto = preg_match( '#^(\w+:)?//#', $linkData->href );
 
 			// Normalize content string and decoded target before comparison.
 			// Piped links don't come down this path => it is safe to normalize both.
@@ -461,12 +460,12 @@ class LinkHandlerUtils {
 				(
 					(
 						$env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) &&
-						preg_match( '/^\.\.\/.*[^\/]$/D', $strippedTargetValue ) &&
+						preg_match( '#^\.\./.*[^/]$#D', $strippedTargetValue ) &&
 						$contentString === $env->resolveTitle( $strippedTargetValue )
 					) ||
 					(
-						preg_match( '/^\.\.\/.*?\/$/D', $strippedTargetValue ) &&
-						$contentString === preg_replace( '/^(?:\.\.\/)+(.*?)\/$/', '$1', $strippedTargetValue, 1 )
+						preg_match( '#^\.\./.*?/$#D', $strippedTargetValue ) &&
+						$contentString === preg_replace( '#^(?:\.\./)+(.*?)/$#', '$1', $strippedTargetValue, 1 )
 					)
 				) ||
 				// if content == href this could be a simple link... eg [[Foo]].
@@ -527,7 +526,7 @@ class LinkHandlerUtils {
 		if ( $linkData->type === 'mw:PageProp/Category' ) {
 			// Split target and sort key
 			if ( preg_match( '/^([^#]*)#(.*)/', $target['value'], $targetParts ) ) {
-				$target['value'] = strtr( preg_replace( '/^(\.\.?\/)*/', '', $targetParts[1], 1 ), '_', ' ' );
+				$target['value'] = strtr( preg_replace( '#^(\.\.?/)*#', '', $targetParts[1], 1 ), '_', ' ' );
 				// FIXME: Reverse `Sanitizer.sanitizeTitleURI(strContent).replace(/#/g, '%23');`
 				$strContent = Util::decodeURIComponent( $targetParts[2] );
 				$contentParts = self::splitLinkContentString( $strContent, $dp );
@@ -537,7 +536,7 @@ class LinkHandlerUtils {
 			} else { // No sort key, will serialize to simple link
 				// Normalize the content string
 				$linkData->content->string = strtr(
-					preg_replace( '/^\.\//', '', $target['value'], 1 ), '_', ' '
+					preg_replace( '#^\./#', '', $target['value'], 1 ), '_', ' '
 				);
 			}
 
@@ -572,7 +571,7 @@ class LinkHandlerUtils {
 		if ( !empty( $linkData->isRedirect ) ) {
 			$linkTarget = $target['value'];
 			if ( !empty( $target['modified'] ) || empty( $target['fromsrc'] ) ) {
-				$linkTarget = strtr( preg_replace( '/^(\.\.?\/)*/', '', $linkTarget, 1 ), '_', ' ' );
+				$linkTarget = strtr( preg_replace( '#^(\.\.?/)*#', '', $linkTarget, 1 ), '_', ' ' );
 				$escapedTgt = self::escapeLinkTarget( $linkTarget, $state );
 				$linkTarget = $escapedTgt->linkTarget;
 				// Determine if it's a redirect to a category, in which case
@@ -595,14 +594,14 @@ class LinkHandlerUtils {
 		} elseif ( self::isSimpleWikiLink( $env, $dp, $target, $linkData ) ) {
 			// Simple case
 			if ( empty( $target['modified'] ) && empty( $linkData->contentModified ) ) {
-				$linkTarget = preg_replace( '/^\.\//', '', $target['value'], 1 );
+				$linkTarget = preg_replace( '#^\./#', '', $target['value'], 1 );
 			} else {
 				// If token has templated attrs or is a subpage, use target.value
 				// since content string will be drastically different.
 				if ( WTUtils::hasExpandedAttrsType( $node ) ||
-					preg_match( '/(^|\/)\.\.\//', $target['value'] )
+					preg_match( '#(^|/)\.\./#', $target['value'] )
 				) {
-					$linkTarget = preg_replace( '/^\.\//', '', $target['value'], 1 );
+					$linkTarget = preg_replace( '#^\./#', '', $target['value'], 1 );
 				} else {
 					$escapedTgt = self::escapeLinkTarget( $linkData->content->string, $state );
 					if ( !$escapedTgt->invalidLink ) {
@@ -612,7 +611,7 @@ class LinkHandlerUtils {
 					}
 				}
 				if ( !empty( $linkData->isInterwikiLang ) &&
-					!preg_match( '/^[:]/', $linkTarget ) &&
+					$linkTarget[0] !== ':' &&
 					$linkData->type !== 'mw:PageProp/Language'
 				) {
 					// ensure interwiki links can't be confused with
@@ -658,8 +657,8 @@ class LinkHandlerUtils {
 			$linkTarget = $target['value'];
 			if ( !empty( $target['modified'] ) || empty( $target['fromsrc'] ) ) {
 				// Links starting with ./ shouldn't get _ replaced with ' '
-				$linkContentIsRelative = preg_match( '/^\.\//', $linkData->content->string ?? '' );
-				$linkTarget = preg_replace( '/^(\.\.?\/)*/', '', $linkTarget, 1 );
+				$linkContentIsRelative = preg_match( '#^\./#', $linkData->content->string ?? '' );
+				$linkTarget = preg_replace( '#^(\.\.?/)*#', '', $linkTarget, 1 );
 				if ( empty( $linkData->isInterwiki ) && !$linkContentIsRelative ) {
 					$linkTarget = strtr( $linkTarget, '_', ' ' );
 				}
@@ -1045,7 +1044,7 @@ class LinkHandlerUtils {
 			];
 		}
 		if ( empty( $resource['fromsrc'] ) ) {
-			$resource['value'] = preg_replace( '/^(\.\.?\/)+/', '', $resource['value'], 1 );
+			$resource['value'] = preg_replace( '#^(\.\.?/)+#', '', $resource['value'], 1 );
 		}
 
 		$nopts = [];
@@ -1096,7 +1095,7 @@ class LinkHandlerUtils {
 					// default link: same place as resource
 					$link = $resource;
 				}
-				$link['value'] = preg_replace( '/^(\.\.?\/)+/', '', $link['value'], 1 );
+				$link['value'] = preg_replace( '#^(\.\.?/)+#', '', $link['value'], 1 );
 			}
 		} else {
 			// Otherwise, just try and get it from data-mw

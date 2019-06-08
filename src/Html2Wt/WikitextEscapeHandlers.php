@@ -104,7 +104,7 @@ class WikitextEscapeHandlers {
 		// Those newline separators can prevent unnecessary <nowiki/> protection
 		// if the string begins with one or more newlines before a leading quote.
 		$origText = $node->textContent;
-		if ( preg_match( "/^'/", $origText ) ) {
+		if ( substr( $origText, 0, 1 ) === "'" ) {
 			$prev = DOMUtils::previousNonDeletedSibling( $node );
 			if ( !$prev ) {
 				$prev = $node->parentNode;
@@ -131,7 +131,7 @@ class WikitextEscapeHandlers {
 		// Those newline separators can prevent unnecessary <nowiki/> protection
 		// if the string ends with a trailing quote and then one or more newlines.
 		$origText = $node->textContent;
-		if ( preg_match( "/'$/D", $origText ) ) {
+		if ( substr( $origText, -1 ) === "'" ) {
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			if ( !$next ) {
 				$next = $node->parentNode;
@@ -383,7 +383,7 @@ class WikitextEscapeHandlers {
 		// They are inessential to the test of whether the ]]/]
 		// will get parsed into a wikilink and only complicate
 		// the logic (needing to ignore entities, etc.).
-		$text = preg_replace( '/\][^\]]*$/', ']', $text, 1 );
+		$text = preg_replace( '/\][^\]]*$/D', ']', $text, 1 );
 
 		// text only contains ']' chars.
 		// Since we stripped everything after ']' above, if a newline is
@@ -441,7 +441,7 @@ class WikitextEscapeHandlers {
 
 				if ( !TokenUtils::isTemplateToken( $href ) ) {
 					// Not a template and a real href => needs nowiking
-					if ( is_string( $href ) && preg_match( '/https?:\/\//', $href ) ) {
+					if ( is_string( $href ) && preg_match( '#https?://#', $href ) ) {
 						return true;
 					}
 				} else {
@@ -532,7 +532,7 @@ class WikitextEscapeHandlers {
 
 			// Ignore non-whitelisted html tags
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( preg_match( '/(?:^|\s)mw:Extension(?=$|\s)/', $t->getAttribute( 'typeof' ) ?? '' ) &&
+				if ( preg_match( '/\bmw:Extension\b/', $t->getAttribute( 'typeof' ) ?? '' ) &&
 					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
 				) {
 					return true;
@@ -744,11 +744,7 @@ class WikitextEscapeHandlers {
 			if ( is_string( $t ) ) {
 				if ( strlen( $t ) > 0 ) {
 					$t = WTUtils::escapeNowikiTags( $t );
-					if ( !$inNowiki &&
-						( ( $sol && preg_match( '/^ /', $t ) ) ||
-							preg_match( '/\n /', $t )
-						)
-					) {
+					if ( !$inNowiki && ( ( $sol && $t[0] === ' ' ) || preg_match( '/\n /', $t ) ) ) {
 						$x = preg_split( '/(^|\n) /', $t, -1, PREG_SPLIT_DELIM_CAPTURE );
 						$buf .= $x[0];
 						$lastIndexX = count( $x ) - 1;
@@ -999,7 +995,7 @@ class WikitextEscapeHandlers {
 
 			// Quick checks when on a newline
 			// + can only occur as "|+" and - can only occur as "|-" or ----
-			if ( $sol && !preg_match( "/(^|\\n)[ #*:;=]|[<\\[\\]>\\|'!]|\\-\\-\\-\\-|__[^_]*__/", $text ) ) {
+			if ( $sol && !preg_match( '/(^|\n)[ #*:;=]|[<\[\]>\|\'!]|\-\-\-\-|__[^_]*__/', $text ) ) {
 				$env->log( 'trace/wt-escape', '---SOL and safe---' );
 				return $text;
 			}
@@ -1038,7 +1034,7 @@ class WikitextEscapeHandlers {
 			// - the text will get parsed as a link in
 			$env->log( 'trace/wt-escape', '---Links: complex single-line test---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( !empty( $opts['isLastChild'] ) && preg_match( '/=$/D', $text ) ) {
+		} elseif ( !empty( $opts['isLastChild'] ) && substr( $text, -1 ) === '=' ) {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child
@@ -1135,11 +1131,11 @@ class WikitextEscapeHandlers {
 		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
 			$needNowikiCount++;
 		}
-		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && preg_match( '/\}$/', $str ) ) {
+		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && preg_match( '/\}$/D', $str ) ) {
 			// If this is the last part of the last argument, we need to protect
 			// against an ending }, as it would get confused with the template ending }}.
 			$needNowikiCount++;
-			$neededSubstitution = [ '/(\})$/', '<nowiki>}</nowiki>' ];
+			$neededSubstitution = [ '/(\})$/D', '<nowiki>}</nowiki>' ];
 		}
 		if ( preg_match( '/\|/', $str ) ) {
 			// If there's an unprotected |, guard it so it doesn't get confused

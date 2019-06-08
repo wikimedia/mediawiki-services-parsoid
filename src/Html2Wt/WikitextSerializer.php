@@ -937,10 +937,10 @@ class WikitextSerializer {
 				while ( $next && DOMUtils::isComment( $next ) ) {
 					$next = DOMUtils::nextNonDeletedSibling( $next );
 				}
-				if ( !DOMUtils::isText( $next ) || !preg_match( '/^\n/', $next->nodeValue ) ) {
+				if ( !DOMUtils::isText( $next ) || substr( $next->nodeValue, 0, 1 ) !== "\n" ) {
 					$buf .= "\n";
 				}
-			} elseif ( !is_string( $nextPart ) || !preg_match( '/^\n/', $nextPart ) ) {
+			} elseif ( !is_string( $nextPart ) || substr( $nextPart, 0, 1 ) !== "\n" ) {
 				// If nextPart is another template, and it wants a leading nl,
 				// this \n we add here will count towards that because of the
 				// formatSOL check at the top.
@@ -994,7 +994,7 @@ class WikitextSerializer {
 			try {
 				$apiResp = null;
 				if ( $isTpl && $useTplData ) {
-					$title = preg_replace( '/^\.\//', '', $tplHref, 1 );
+					$title = preg_replace( '#^\./#', '', $tplHref, 1 );
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $env->getPageConfig(), $title );
 				}
 				// If the template doesn't exist, or does but has no TemplateData,
@@ -1501,7 +1501,7 @@ class WikitextSerializer {
 
 		// Optimization: We are interested in <nowiki/>s before quote chars.
 		// So, skip this if we don't have both.
-		if ( !( preg_match( '/<nowiki\s*\/>/', $line ) && preg_match( "/'/", $line ) ) ) {
+		if ( !( preg_match( '#<nowiki\s*/>#', $line ) && preg_match( "/'/", $line ) ) ) {
 			return $line;
 		}
 
@@ -1517,7 +1517,7 @@ class WikitextSerializer {
 		//   can remove all those nowikis.
 		//   Ex: ''foo'<nowiki/>'' bar '''baz'<nowiki/>'''
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$p = preg_split( "/('''''|'''|''|\[\[|\]\]|\{\{|\}\}|<\w+(?:\s+[^>]*?|\s*?)\/?>|<\/\w+\s*>)/", $line, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$p = preg_split( "#('''''|'''|''|\[\[|\]\]|\{\{|\}\}|<\w+(?:\s+[^>]*?|\s*?)/?>|</\w+\s*>)#", $line, -1, PREG_SPLIT_DELIM_CAPTURE );
 
 		// Which nowiki do we strip out?
 		$nowikiIndex = -1;
@@ -1529,11 +1529,11 @@ class WikitextSerializer {
 		$nonHtmlTag = null;
 		for ( $j = 1;  $j < $n;  $j += 2 ) {
 			// For HTML tags, pull out just the tag name for clearer code below.
-			preg_match( '/^<(\/?\w+)/', $p[$j], $matches );
+			preg_match( '#^<(/?\w+)#', $p[$j], $matches );
 			$tag = strtolower( $matches[1] ?? $p[$j] );
 			$tagLen = strlen( $tag );
 			$selfClose = false;
-			if ( preg_match( '/\/>$/', $p[$j] ) ) {
+			if ( preg_match( '#/>$#', $p[$j] ) ) {
 				$tag .= '/';
 				$selfClose = true;
 			}
@@ -1569,8 +1569,8 @@ class WikitextSerializer {
 				// We only want to process:
 				// - trailing single quotes (bar')
 				// - or single quotes by themselves without a preceding '' sequence
-				if ( preg_match( "/'$/", $p[$j - 1] )
-					&& !( $p[$j - 1] === "'" && $j > 1 && preg_match( "/''$/", $p[$j - 2 ] ) )
+				if ( substr( $p[$j - 1], -1 ) === "'"
+					&& !( $p[$j - 1] === "'" && $j > 1 && substr( $p[$j - 2 ], -2 ) === "''" )
 					// Consider <b>foo<i>bar'</i>baz</b> or <b>foo'<i>bar'</i>baz</b>.
 					// The <nowiki/> before the <i> or </i> cannot be stripped
 					// if the <i> is embedded inside another quote.
@@ -1681,7 +1681,7 @@ class WikitextSerializer {
 				// Don't strip |param = <nowiki/> since that pattern is used
 				// in transclusions and where the trailing <nowiki /> is a valid
 				// template arg. So, use a conservative regexp to detect that usage.
-				$line = preg_replace( '/^([^=]*?)(?:<nowiki\s*\/>\s*)+$/', '$1', $line, 1 );
+				$line = preg_replace( '#^([^=]*?)(?:<nowiki\s*/>\s*)+$#', '$1', $line, 1 );
 
 				$line = $this->stripUnnecessaryHeadingNowikis( $line );
 				return $line;

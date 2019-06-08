@@ -509,7 +509,7 @@ class DOMNormalizer {
 			!$firstChild->hasAttribute( 'class' ) &&
 			// Compare textContent to the href, noting that this matching doesn't handle all
 			// possible simple-wiki-link scenarios that isSimpleWikiLink in link handler tackles
-			$node->textContent === preg_replace( '/^\.\//', '', $nodeHref, 1 )
+			$node->textContent === preg_replace( '#^\./#', '', $nodeHref, 1 )
 		) {
 			for ( $child = DOMUtils::firstNonDeletedChild( $node );
 				 DOMUtils::isFormattingElt( $child );

@@ -29,7 +29,7 @@ class WikiLinkText extends RegExpConstrainedText {
 		SiteConfig $siteConfig, string $type
 	) {
 		// category links/external links/images don't use link trails or prefixes
-		$noTrails = preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $type ) === 0;
+		$noTrails = preg_match( '#^mw:WikiLink(/Interwiki)?$#', $type ) === 0;
 		$badPrefix = '/(^|[^\[])(\[\[)*\[$/';
 		$linkPrefixRegex = $siteConfig->linkPrefixRegex();
 		if ( !$noTrails && $linkPrefixRegex ) {
@@ -44,7 +44,7 @@ class WikiLinkText extends RegExpConstrainedText {
 			'badSuffix' => ( $noTrails ) ? null : $siteConfig->linkTrailRegex(),
 		] );
 		// We match link trails greedily when they exist.
-		if ( !( $noTrails || preg_match( '/\]$/D', $text ) ) ) {
+		if ( !( $noTrails || substr( $text, -1 ) === ']' ) ) {
 			$this->greedy = true;
 		}
 	}
@@ -80,7 +80,7 @@ class WikiLinkText extends RegExpConstrainedText {
 			$type = 'mw:WikiLink/Interwiki';
 		}
 		if (
-			preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $type ) &&
+			preg_match( '#^mw:WikiLink(/Interwiki)?$#', $type ) &&
 			preg_match( '/^(simple|piped)$/', $stx )
 		) {
 			return new WikiLinkText( $text, $node, $env->getSiteConfig(), $type );

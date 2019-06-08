@@ -276,7 +276,7 @@ class WTSUtils {
 		} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 			DOMUtils::assertElt( $node );
 			// Dont try any harder than this
-			return !$node->hasChildNodes() || preg_match( '/^\n/', DOMCompat::getInnerHTML( $node ) );
+			return !$node->hasChildNodes() || DOMCompat::getInnerHTML( $node )[0] === "\n";
 		} else {
 			return WTUtils::isBlockNodeWithVisibleWT( $node );
 		}

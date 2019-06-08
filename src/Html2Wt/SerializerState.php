@@ -34,7 +34,7 @@ class SerializerState {
 				<includeonly>.*?<\/includeonly>
 			)*)
 			([\ \*#:;{\|!=].*)$
-		/x';
+		/xD';
 
 	/**
 	 * Regexp for checking whether we are at the start of the line (modulo comments and
@@ -49,7 +49,7 @@ class SerializerState {
 				|
 				' . Util::COMMENT_REGEXP_FRAGMENT . '
 			)*$
-		/x';
+		/xD';
 
 	/**
 	 * Are we currently running round-trip tests?  If yes, then we know
@@ -591,7 +591,7 @@ class SerializerState {
 				if ( $pChild && DOMUtils::isText( $pChild ) ) {
 					$match = $res->match( self::SOL_WIKITEXT_REGEXP );
 					if ( $match && isset( $match[2] ) ) {
-						if ( preg_match( '/^([\*#:;]|{\||.*=$)/', $match[2] )
+						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )
 							// ! and | chars are harmless outside tables
 							|| ( preg_match( '/^[\|!]/', $match[2] ) && $this->wikiTableNesting > 0 )
 							// indent-pres are suppressed inside <blockquote>
