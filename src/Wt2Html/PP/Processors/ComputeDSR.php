@@ -38,6 +38,7 @@ class ComputeDSR {
 		"h3" => true,
 		"h4" => true,
 		"h5" => true,
+		"h6" => true,
 		"ul" => true,
 		"ol" => true,
 		"dl" => true,
@@ -57,16 +58,20 @@ class ComputeDSR {
 	/**
 	 * Do $parsoidData->tsr values span the entire DOM subtree rooted at $n?
 	 *
-	 * @param DOMNode $n
+	 * @param DOMElement $n
 	 * @param StdClass $parsoidData
 	 * @return bool
 	 */
-	private function tsrSpansTagDOM( DOMNode $n, StdClass $parsoidData ): bool {
+	private function tsrSpansTagDOM( DOMElement $n, StdClass $parsoidData ): bool {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
+		// - tags with certain typeof properties (Parsoid-generated
+		//   constructs: placeholders, lang variants, DisplayHack)
 		$name = $n->nodeName;
 		return !(
 			isset( self::$WtTagsWithLimitedTSR[$name] ) ||
+			preg_match( '/\bmw:(Placeholder|LanguageVariant|DisplaySpace)\b/',
+				$n->getAttribute( 'typeof' ) ) ||
 			WTUtils::hasLiteralHTMLMarker( $parsoidData )
 		);
 	}
@@ -207,11 +212,11 @@ class ComputeDSR {
 	 * node's opening and closing tags.
 	 *
 	 * @param int[] $widths
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @param StdClass $dp
 	 * @return int[]
 	 */
-	private function computeTagWidths( array $widths, DOMNode $node, StdClass $dp ): array {
+	private function computeTagWidths( array $widths, DOMElement $node, StdClass $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
 				$dp->extTagOffsets[1] - $dp->extTagOffsets[0],
@@ -226,6 +231,9 @@ class ComputeDSR {
 			if ( !empty( $dp->selfClose ) ) {
 				$etWidth = 0;
 			}
+		} elseif ( $node->getAttribute( 'typeof' ) === 'mw:LanguageVariant' ) {
+			$stWidth = 2; // -{
+			$etWidth = 2; // }-
 		} else {
 			$nodeName = $node->nodeName;
 			// 'tr' tags not in the original source have zero width
@@ -498,7 +506,7 @@ class ComputeDSR {
 						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
 							$cs = $tsr[0];
 							if ( $this->tsrSpansTagDOM( $child, $dp ) ) {
-								if ( !$ce || $tsr[1] > $ce ) {
+								if ( $tsr[1] !== null && $tsr[1] > 0 ) {
 									$ce = $tsr[1];
 									$propagateRight = true;
 								}
@@ -541,7 +549,9 @@ class ComputeDSR {
 					 * we don't have to worry about the above decisions and checks.
 					 * ----------------------------------------------------------------- */
 
-					if ( WTUtils::isDOMFragmentWrapper( $child ) ) {
+					if ( WTUtils::isDOMFragmentWrapper( $child ) ||
+						$child->getAttribute( 'typeof' ) === 'mw:LanguageVariant'
+					) {
 						// Eliminate artificial $cs/s mismatch warnings since this is
 						// just a wrapper token with the right DSR but without any
 						// nested subtree that could account for the DSR span.
