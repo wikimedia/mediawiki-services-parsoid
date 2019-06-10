@@ -4,10 +4,14 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+
+use Parsoid\ContentModelHandler;
+use Parsoid\WikitextContentModelHandler;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
+
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -724,15 +728,7 @@ abstract class SiteConfig {
 		];
 
 		// Default content model implementation for wikitext
-		$this->nativeExtConfig['contentModels']['wikitext'] = [
-			"toHTML"   => function ( $env ) {
-				return $env->getPipelineFactory()->parse( $env->getPageMainContent() );
-			},
-			"fromHTML" => function ( $env, $body, $useSelser ) {
-				// Will be done as part of T225026
-				throw new \LogicException( 'Not implemented yet' );
-			}
-		];
+		$this->nativeExtConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
 
 		foreach ( $this->defaultNativeExtensions as $extName ) {
 			$extPkg = '\Parsoid\Ext\\' . $extName . '\\' . $extName;
@@ -782,6 +778,14 @@ abstract class SiteConfig {
 		}
 
 		return $this->nativeExtConfig;
+	}
+
+	/**
+	 * @param string $contentmodel
+	 * @return ContentModelHandler|null
+	 */
+	public function getContentModelHandler( string $contentmodel ): ?ContentModelHandler {
+		return ( $this->getNativeExtensionsConfig() )['contentModels'][$contentmodel];
 	}
 
 	/**

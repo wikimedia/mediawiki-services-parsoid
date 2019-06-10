@@ -288,7 +288,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function findValidProtocol( string $potentialLink ): bool {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return preg_match( '#(?:\W|^)((https?|ircs?|news|ftp|mailto|gopher):|//)#', $potentialLink );
 	}
 
 	public function fakeTimestamp(): ?int {

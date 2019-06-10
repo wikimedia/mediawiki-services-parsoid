@@ -27,6 +27,10 @@ class MockPageConfig extends PageConfig {
 		$this->title = $opts['title'] ?? 'TestPage';
 	}
 
+	public function getContentModel(): string {
+		return 'wikitext';
+	}
+
 	public function hasLintableContentModel(): bool {
 		return true;
 	}

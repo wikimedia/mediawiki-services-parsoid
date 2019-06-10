@@ -26,6 +26,12 @@ abstract class PageConfig {
 	public $editedDoc;
 
 	/**
+	 * Get content model
+	 * @return string
+	 */
+	abstract public function getContentModel(): string;
+
+	/**
 	 * Whether the page has a lintable content model
 	 * @return bool
 	 */

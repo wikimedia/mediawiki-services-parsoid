@@ -7,9 +7,7 @@ use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\PageConfigFrame;
-use Parsoid\Wt2Html\ParserPipelineFactory;
+use Parsoid\ContentModelHandler;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\DataBag;
@@ -21,6 +19,9 @@ use Parsoid\Utils\TitleNamespace;
 use Parsoid\Utils\TitleException;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\Frame;
+use Parsoid\Wt2Html\PageConfigFrame;
+use Parsoid\Wt2Html\ParserPipelineFactory;
 use Parsoid\Wt2Html\TT\Sanitizer;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
@@ -743,6 +744,25 @@ class Env {
 		) {
 			throw new ResourceLimitExceededException( "html2wt: $resource limit exceeded: $n" );
 		}
+	}
+
+	/**
+	 * Get an appropriate content handler, given a contentmodel.
+	 *
+	 * @param string|null $forceContentModel An optional content model which
+	 *   will override whatever the source specifies.
+	 * @return ContentModelHandler An appropriate content handler
+	 */
+	public function getContentHandler(
+		?string $forceContentModel = null
+	): ContentModelHandler {
+		$contentmodel = $forceContentModel ?? $this->pageConfig->getContentModel();
+		$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
+		if ( !$handler ) {
+			$this->log( 'warn', "Unknown contentmodel $contentmodel" );
+			$handler = $this->siteConfig->getContentModelHandler( 'wikitext' );
+		}
+		return $handler;
 	}
 
 	/**

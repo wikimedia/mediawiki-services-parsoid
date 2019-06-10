@@ -7,6 +7,8 @@ use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\SiteConfig;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
 
 class Parsoid {
 
@@ -44,12 +46,19 @@ class Parsoid {
 		PageConfig $pageConfig, array $options = []
 	): PageBundle {
 		$envOptions = [
-			'wrapSections' => !empty( $options['wrapSections'] )
+			'wrapSections' => !empty( $options['wrapSections'] ),
 		];
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		return new PageBundle( '' );
+		$handler = $env->getContentHandler();
+		$doc = $handler->toHTML( $env );
+		$body_only = !empty( $options['body_only'] );
+		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
+		$html = ContentUtils::toXML( $node, [
+			'innerXML' => $body_only,
+		] );
+		return new PageBundle( $html );
 	}
 
 	/**
@@ -73,7 +82,9 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		return '';
+		$doc = $env->createDocument( $pageBundle->html );
+		$handler = $env->getContentHandler();
+		return $handler->fromHTML( $env, $doc );
 	}
 
 	/**

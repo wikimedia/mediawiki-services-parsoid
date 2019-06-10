@@ -16,6 +16,10 @@ echo "Foo" | node $BIN/parse.js --wt2wt
 echo "Foo" | node $BIN/parse.js --html2wt
 echo "Foo" | node $BIN/parse.js --html2html
 
+# FIXME: php: command not found
+# echo "Foo" | php $BIN/parse.php --wt2html
+# echo "Foo" | php $BIN/parse.php --html2wt
+
 # Check --selser too!
 TMPWT=$(tempfile -s wt)
 TMPORIG=$(tempfile -s orig)

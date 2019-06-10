@@ -82,9 +82,16 @@ class PageConfig extends IPageConfig {
 		}
 	}
 
-	public function hasLintableContentModel(): bool {
+	/** @inheritDoc */
+	public function getContentModel(): string {
 		$this->loadData();
-		return ( $this->rev['slots']['main']['contentmodel'] ?? '' ) === 'wikitext';
+		return $this->rev['slots']['main']['contentmodel'] ?? 'wikitext';
+	}
+
+	public function hasLintableContentModel(): bool {
+		$contentmodel = $this->getContentModel();
+		return $contentmodel === 'wikitext' ||
+			$contentmodel === 'proofread-page';
 	}
 
 	/** @inheritDoc */
