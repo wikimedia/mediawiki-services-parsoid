@@ -465,7 +465,7 @@ class LinkHandlerUtils {
 					) ||
 					(
 						preg_match( '#^\.\./.*?/$#D', $strippedTargetValue ) &&
-						$contentString === preg_replace( '#^(?:\.\./)+(.*?)/$#', '$1', $strippedTargetValue, 1 )
+						$contentString === preg_replace( '#^(?:\.\./)+(.*?)/$#D', '$1', $strippedTargetValue, 1 )
 					)
 				) ||
 				// if content == href this could be a simple link... eg [[Foo]].

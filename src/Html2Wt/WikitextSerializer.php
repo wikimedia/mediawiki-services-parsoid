@@ -479,7 +479,7 @@ class WikitextSerializer {
 			// away right now.
 			$parsoidValueRegExp = self::PARSOID_ATTRIBUTES[$k] ?? null;
 			if ( $parsoidValueRegExp && preg_match( $parsoidValueRegExp, $kv->v ) ) {
-				$v = str_replace( $parsoidValueRegExp, '', $kv->v );
+				$v = preg_replace( $parsoidValueRegExp, '', $kv->v );
 				if ( $v ) {
 					$out[] = $k . '=' . '"' . $v . '"';
 				}
@@ -1032,7 +1032,7 @@ class WikitextSerializer {
 		// Serialize extension attributes in normalized form as:
 		// key='value'
 		// FIXME: with no dataAttribs, shadow info will mark it as new
-		$attrs = $dataMw->attrs ?? [];
+		$attrs = (array)( $dataMw->attrs ?? [] );
 		$extTok = new TagTk( $extName, array_map( function ( $key ) use ( $attrs ) {
 			return new KV( $key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );
