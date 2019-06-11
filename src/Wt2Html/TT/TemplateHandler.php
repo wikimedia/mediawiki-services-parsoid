@@ -42,7 +42,7 @@ class TemplateHandler extends TokenHandler {
 	private $ae;
 
 	/**
-	 * Parser functions implementation (not yet ported)
+	 * @var ParserFunctions
 	 */
 	private $parserFunctions;
 
@@ -57,7 +57,7 @@ class TemplateHandler extends TokenHandler {
 		parent::__construct( $manager, $options );
 		// Set this here so that it's available in the TokenStreamPatcher,
 		// which continues to inherit from TemplateHandler.
-		$this->parserFunctions = null; // PORT-FIXME new ParserFunctions( $this->env );
+		$this->parserFunctions = new ParserFunctions( $this->env );
 		$this->ae = new AttributeExpander( $this->manager, [
 			'standalone' => true, 'expandTemplates' => true
 		] );
@@ -69,22 +69,16 @@ class TemplateHandler extends TokenHandler {
 	 */
 	private function parserFunctionsWrapper( array $state, array $ret ): array {
 		$chunkToks = [];
-		if ( isset( $ret['tokens'] ) ) {
-			$tokens = $ret['tokens'];
+		if ( $ret ) {
+			$tokens = $ret;
 			Assert::invariant( is_array( $tokens ), "Expected token chunk to be an array" );
 
 			// This is only for the Parsoid native expansion pipeline used in
 			// parser tests. The "" token sometimes changes foster parenting
 			// behavior and trips up some tests.
-			$i = 0;
-			$n = count( $tokens );
-			while ( $i < $n ) {
-				if ( $tokens[ $i ] === '' ) {
-					array_splice( $tokens, $i, 1 );
-				} else {
-					$i++;
-				}
-			}
+			$tokens = array_values( array_filter( $tokens, function ( $t ) {
+				return $t !== '';
+			} ) );
 
 			// token chunk should be flattened
 			$flat = true;
@@ -337,7 +331,7 @@ class TemplateHandler extends TokenHandler {
 				'magicWordType' => $magicWordType,
 				'target' => 'pf_' . $canonicalFunctionName,
 				'title' => $env->makeTitleFromURLDecodedStr( "Special:ParserFunction/$canonicalFunctionName" ),
-				'pfArg' => substr( $target, strlen( $prefix ) + 1 ),
+				'pfArg' => substr( $target, strlen( $prefix ) + 1 ) ?: '',
 				'pfArgToks' => $pfArgToks,
 				'srcOffsets' => $srcOffsets,
 			];
@@ -539,7 +533,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $resolvedTgt['isPF'] ) {
 			// FIXME: Parsoid may not have implemented the parser function natively
 			// Emit an error message, but encapsulate it so it roundtrips back.
-			if ( !isset( $this->parserFunctions[ $target ] ) ) {
+			if ( !is_callable( [ $this->parserFunctions, $target ] ) ) {
 				$res = [ 'Parser function implementation for ' . $target . ' missing in Parsoid.' ];
 				if ( $this->wrapTemplates ) {
 					$res[] = $this->getEncapsulationInfoEndTag( $state );
@@ -553,8 +547,8 @@ class TemplateHandler extends TokenHandler {
 				$resolvedTgt['srcOffsets']->expandTsrK()
 			);
 			$env->log( 'debug', 'entering prefix', $target, $state['token'] );
-			$res = $this->parserFunctions[$target]( $state['token'],
-				$this->manager->getFrame(), $pfAttribs );
+			$res = call_user_func( [ $this->parserFunctions, $target ],
+				$state['token'], $this->manager->getFrame(), $pfAttribs );
 			if ( $this->wrapTemplates ) {
 				$res = $this->parserFunctionsWrapper( $state, $res );
 			}

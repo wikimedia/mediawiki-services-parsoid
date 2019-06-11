@@ -19,9 +19,9 @@ class Params {
 	public $namedArgsDict;
 
 	/**
-	 * @param array $args
+	 * @param KV[] $args
 	 */
-	public function __construct( $args ) {
+	public function __construct( array $args ) {
 		$this->args = $args;
 		$this->argDict = null;
 		$this->namedArgsDict = null;
@@ -39,8 +39,7 @@ class Params {
 	public function dict(): array {
 		if ( $this->argDict === null ) {
 			$res = [];
-			for ( $i = 0,  $l = count( $this->args );  $i < $l;  $i++ ) {
-				$kv = $this->args[$i];
+			foreach ( $this->args as $kv ) {
 				$key = trim( TokenUtils::tokensToString( $kv->k ) );
 				$res[$key] = $kv->v;
 			}
@@ -62,16 +61,16 @@ class Params {
 			$out = [];
 			$namedArgs = [];
 
-			for ( $i = 0,  $l = count( $this->args );  $i < $l;  $i++ ) {
+			foreach ( $this->args as $kv ) {
 				// FIXME: Also check for whitespace-only named args!
-				$k = $this->args[$i]->k;
-				$v = $this->args[$i]->v;
+				$k = $kv->k;
+				$v = $kv->v;
 				if ( is_string( $k ) ) {
 					$k = trim( $k );
 				}
 				if ( !is_array( $k ) &&
 					// Check for blank named parameters
-					$this->args[$i]->srcOffsets->key->end === $this->args[$i]->srcOffsets->value->start
+					$kv->srcOffsets->key->end === $kv->srcOffsets->value->start
 				) {
 					$out[(string)$n] = $v;
 					$n++;

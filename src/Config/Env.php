@@ -390,7 +390,7 @@ class Env {
 	 * @deprecated Just use $this->getPageConfig()->getTitle() directly
 	 * @return string
 	 */
-	public function normalizeAndResolvePageTitle() {
+	public function normalizeAndResolvePageTitle(): string {
 		return $this->getPageConfig()->getTitle();
 	}
 
