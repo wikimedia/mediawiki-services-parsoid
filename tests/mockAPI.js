@@ -536,9 +536,9 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 	};
 };
 
-var querySiteinfo = function(body, cb) {
+var querySiteinfo = function(formatversion, cb) {
 	// TODO: Read which language should we use from somewhere.
-	cb(null, require('../lib/config/baseconfig/enwiki.json'));
+	cb(null, require(`../lib/config/baseconfig/${formatversion === 2 ? '2/' : ''}enwiki.json`));
 };
 
 var parse = function(text, onlypst, formatversion) {
@@ -600,8 +600,7 @@ var availableActions = {
 	query: function(body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
-			console.assert(formatversion === 1);
-			return querySiteinfo(body, cb);
+			return querySiteinfo(formatversion, cb);
 		}
 		if (body.prop === "info|revisions") {
 			console.assert(formatversion === 1);

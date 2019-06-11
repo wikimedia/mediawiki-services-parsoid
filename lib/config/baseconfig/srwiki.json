@@ -124,18 +124,19 @@
         "canonical": "Разговор о порталу",
         "*": "Разговор о порталу"
       },
-      "446": {
-        "id": 446,
-        "case": "first-letter",
-        "canonical": "Education Program",
-        "*": "Education Program"
-      },
-      "447": {
-        "id": 447,
+      "118": {
+        "id": 118,
         "case": "first-letter",
         "subpages": "",
-        "canonical": "Education Program talk",
-        "*": "Education Program talk"
+        "canonical": "Нацрт",
+        "*": "Нацрт"
+      },
+      "119": {
+        "id": 119,
+        "case": "first-letter",
+        "subpages": "",
+        "canonical": "Разговор о нацрту",
+        "*": "Разговор о нацрту"
       },
       "828": {
         "id": 828,
@@ -155,33 +156,26 @@
         "id": 2300,
         "case": "first-letter",
         "canonical": "Gadget",
-        "*": "Gadget"
+        "*": "Справица"
       },
       "2301": {
         "id": 2301,
         "case": "first-letter",
         "canonical": "Gadget talk",
-        "*": "Gadget talk"
+        "*": "Разговор о справици"
       },
       "2302": {
         "id": 2302,
         "case": "case-sensitive",
         "canonical": "Gadget definition",
         "defaultcontentmodel": "GadgetDefinition",
-        "*": "Gadget definition"
+        "*": "Дефиниција справице"
       },
       "2303": {
         "id": 2303,
         "case": "case-sensitive",
         "canonical": "Gadget definition talk",
-        "*": "Gadget definition talk"
-      },
-      "2600": {
-        "id": 2600,
-        "case": "first-letter",
-        "canonical": "Topic",
-        "defaultcontentmodel": "flow-board",
-        "*": "Topic"
+        "*": "Разговор о дефиницији справице"
       },
       "-2": {
         "id": -2,
@@ -366,12 +360,8 @@
         "*": "Разговор о порталу"
       },
       {
-        "id": 446,
-        "*": "Education Program"
-      },
-      {
-        "id": 447,
-        "*": "Education Program talk"
+        "id": 119,
+        "*": "Разговор о нацрту"
       },
       {
         "id": 828,
@@ -384,6 +374,10 @@
       {
         "id": 829,
         "*": "Разговор о модулу"
+      },
+      {
+        "id": 2300,
+        "*": "Gadget"
       },
       {
         "id": 2301,
@@ -1864,23 +1858,68 @@
         ]
       },
       {
+        "name": "lst",
+        "aliases": [
+          "lst",
+          "section"
+        ]
+      },
+      {
+        "name": "lstx",
+        "aliases": [
+          "lstx",
+          "section-x"
+        ]
+      },
+      {
+        "name": "lsth",
+        "aliases": [
+          "lsth",
+          "section-h"
+        ]
+      },
+      {
+        "name": "timedmedia_noplayer",
+        "aliases": [
+          "noplayer"
+        ]
+      },
+      {
+        "name": "timedmedia_noicon",
+        "aliases": [
+          "noicon"
+        ]
+      },
+      {
+        "name": "timedmedia_thumbtime",
+        "aliases": [
+          "thumbtime=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_starttime",
+        "aliases": [
+          "start=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_endtime",
+        "aliases": [
+          "end=$1"
+        ]
+      },
+      {
+        "name": "timedmedia_disablecontrols",
+        "aliases": [
+          "disablecontrols=$1"
+        ]
+      },
+      {
         "name": "noglobal",
         "aliases": [
           "__NOGLOBAL__"
         ],
         "case-sensitive": ""
-      },
-      {
-        "name": "useliquidthreads",
-        "aliases": [
-          "UseLiquidThreads"
-        ]
-      },
-      {
-        "name": "lqtpagelimit",
-        "aliases": [
-          "lqtpagelimit"
-        ]
       },
       {
         "name": "target",
@@ -1904,18 +1943,6 @@
         "name": "invoke",
         "aliases": [
           "invoke"
-        ]
-      },
-      {
-        "name": "related",
-        "aliases": [
-          "related"
-        ]
-      },
-      {
-        "name": "PAGEBANNER",
-        "aliases": [
-          "PAGEBANNER"
         ]
       },
       {
@@ -2003,6 +2030,18 @@
         ]
       },
       {
+        "name": "useliquidthreads",
+        "aliases": [
+          "UseLiquidThreads"
+        ]
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "lqtpagelimit"
+        ]
+      },
+      {
         "name": "dd2dms",
         "aliases": [
           "dd2dms"
@@ -2027,6 +2066,24 @@
         ]
       },
       {
+        "name": "related",
+        "aliases": [
+          "related"
+        ]
+      },
+      {
+        "name": "useskin",
+        "aliases": [
+          "useskin"
+        ]
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
+        ]
+      },
+      {
         "name": "usertestwiki",
         "aliases": [
           "USERTESTWIKI"
@@ -2036,48 +2093,6 @@
         "name": "infopage",
         "aliases": [
           "infopage"
-        ]
-      },
-      {
-        "name": "timedmedia_noplayer",
-        "aliases": [
-          "noplayer"
-        ]
-      },
-      {
-        "name": "timedmedia_noicon",
-        "aliases": [
-          "noicon"
-        ]
-      },
-      {
-        "name": "timedmedia_thumbtime",
-        "aliases": [
-          "thumbtime=$1"
-        ]
-      },
-      {
-        "name": "timedmedia_starttime",
-        "aliases": [
-          "start=$1"
-        ]
-      },
-      {
-        "name": "timedmedia_endtime",
-        "aliases": [
-          "end=$1"
-        ]
-      },
-      {
-        "name": "timedmedia_disablecontrols",
-        "aliases": [
-          "disablecontrols=$1"
-        ]
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ]
       },
       {
@@ -2105,6 +2120,19 @@
         ]
       },
       {
+        "name": "shortdesc",
+        "aliases": [
+          "SHORTDESC"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "shortdesc_noreplace",
+        "aliases": [
+          "noreplace"
+        ]
+      },
+      {
         "name": "pagesusingpendingchanges",
         "aliases": [
           "pagesusingpendingchanges"
@@ -2114,6 +2142,12 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
+        ]
+      },
+      {
+        "name": "translation",
+        "aliases": [
+          "translation"
         ]
       },
       {
@@ -2219,6 +2253,13 @@
           "DEFAULTSORT:",
           "DEFAULTSORTKEY:",
           "DEFAULTCATEGORYSORT:"
+        ],
+        "case-sensitive": ""
+      },
+      {
+        "name": "expectunusedcategory",
+        "aliases": [
+          "__EXPECTUNUSEDCATEGORY__"
         ],
         "case-sensitive": ""
       },
@@ -2361,6 +2402,7 @@
       "expr",
       "rel2abs",
       "titleparts",
+      "categorytree",
       "lst",
       "lstx",
       "lsth",
@@ -2368,8 +2410,7 @@
       "babel",
       "coordinates",
       "invoke",
-      "related",
-      "categorytree"
+      "related"
     ],
     "extensiontags": [
       "<pre>",
@@ -2386,29 +2427,30 @@
       "<source>",
       "<syntaxhighlight>",
       "<poem>",
+      "<categorytree>",
       "<section>",
       "<score>",
       "<dynamicpagelist>",
+      "<templatestyles>",
       "<templatedata>",
       "<math>",
       "<ce>",
       "<chem>",
       "<graph>",
       "<maplink>",
-      "<categorytree>"
+      "<mapframe>"
     ],
     "general": {
       "mainpage": "Главна страна",
       "base": "https://sr.wikipedia.org/wiki/%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B0",
       "sitename": "Википедија",
       "logo": "//sr.wikipedia.org/static/images/project-logos/srwiki.png",
-      "generator": "MediaWiki 1.31.0-wmf.7",
+      "generator": "MediaWiki 1.34.0-wmf.8",
       "phpversion": "5.6.99-hhvm",
       "phpsapi": "srv",
       "hhvmversion": "3.18.6-dev",
       "dbtype": "mysql",
-      "dbversion": "10.0.32-MariaDB",
-      "imagewhitelistenabled": "",
+      "dbversion": "10.1.38-MariaDB",
       "langconversion": "",
       "titleconversion": "",
       "linkprefixcharset": "",
@@ -2418,8 +2460,8 @@
       "invalidusernamechars": "@:",
       "fixarabicunicode": "",
       "fixmalayalamunicode": "",
-      "git-hash": "03448d825f6e524508b2ac4d2a38ab3c6c788834",
-      "git-branch": "wmf/1.31.0-wmf.7",
+      "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
+      "git-branch": "wmf/1.34.0-wmf.8",
       "case": "first-letter",
       "lang": "sr",
       "fallback": [
@@ -2448,7 +2490,7 @@
       "writeapi": "",
       "maxarticlesize": 2097152,
       "timezone": "Europe/Berlin",
-      "timeoffset": 60,
+      "timeoffset": 120,
       "articlepath": "/wiki/$1",
       "scriptpath": "/w",
       "script": "/w/index.php",
@@ -2456,7 +2498,7 @@
       "server": "//sr.wikipedia.org",
       "servername": "sr.wikipedia.org",
       "wikiid": "srwiki",
-      "time": "2017-11-10T02:17:13Z",
+      "time": "2019-06-11T19:57:26Z",
       "misermode": "",
       "uploadsenabled": "",
       "maxuploadsize": 4294967296,
@@ -2514,23 +2556,31 @@
         "PMID": "",
         "RFC": ""
       },
+      "categorycollation": "uca-sr-u-kn",
       "wmf-config": {
-        "wmfMasterDatacenter": "eqiad"
+        "wmfMasterDatacenter": "eqiad",
+        "wmfEtcdLastModifiedIndex": 3672,
+        "wmgCirrusSearchDefaultCluster": "local"
       },
       "linter": {
         "high": [
           "deletable-table-tag",
           "html5-misnesting",
+          "misc-tidy-replacement-issues",
+          "multiline-html-table-in-list",
+          "multiple-unclosed-formatting-tags",
           "pwrap-bug-workaround",
           "self-closed-tag",
           "tidy-font-bug",
-          "tidy-whitespace-bug"
+          "tidy-whitespace-bug",
+          "unclosed-quotes-in-heading"
         ],
         "medium": [
           "bogus-image-options",
           "fostered",
           "misnested-tag",
-          "multi-colon-escape"
+          "multi-colon-escape",
+          "wikilink-in-extlink"
         ],
         "low": [
           "missing-end-tag",
@@ -2538,6 +2588,7 @@
           "stripped-tag"
         ]
       },
+      "mobileserver": "https://sr.m.wikipedia.org",
       "pageviewservice-supported-metrics": {
         "pageviews": {
           "pageviews": ""
@@ -2549,6 +2600,11 @@
         "mostviewed": {
           "pageviews": ""
         }
+      },
+      "readinglists-config": {
+        "maxListsPerUser": 100,
+        "maxEntriesPerList": 5000,
+        "deletedRetentionDays": 30
       }
     },
     "interwikimap": [
@@ -2575,7 +2631,7 @@
       },
       {
         "prefix": "aquariumwiki",
-        "url": "http://www.theaquariumwiki.com/$1"
+        "url": "https://www.theaquariumwiki.com/$1"
       },
       {
         "prefix": "arborwiki",
@@ -2615,7 +2671,7 @@
       },
       {
         "prefix": "bibliowiki",
-        "url": "https://biblio.wiki/wiki/$1"
+        "url": "https://wikilivres.org/wiki/$1"
       },
       {
         "prefix": "bluwiki",
@@ -2644,7 +2700,7 @@
       },
       {
         "prefix": "bulba",
-        "url": "http://bulbapedia.bulbagarden.net/wiki/$1"
+        "url": "https://bulbapedia.bulbagarden.net/wiki/$1"
       },
       {
         "prefix": "c",
@@ -2707,7 +2763,7 @@
       },
       {
         "prefix": "communitywiki",
-        "url": "http://www.communitywiki.org/$1"
+        "url": "https://communitywiki.org/$1"
       },
       {
         "prefix": "comune",
@@ -2739,6 +2795,10 @@
         "url": "http://christian-morgenstern.de/dcma/index.php?title=$1"
       },
       {
+        "prefix": "debian",
+        "url": "https://wiki.debian.org/$1"
+      },
+      {
         "prefix": "delicious",
         "url": "https://www.delicious.com/tag/$1",
         "protorel": ""
@@ -2757,7 +2817,7 @@
       },
       {
         "prefix": "disinfopedia",
-        "url": "http://www.sourcewatch.org/index.php/$1"
+        "url": "https://sourcewatch.org/index.php/$1"
       },
       {
         "prefix": "distributedproofreaders",
@@ -2769,15 +2829,15 @@
       },
       {
         "prefix": "dmoz",
-        "url": "http://dmoztools.net/$1"
+        "url": "https://curlie.org/$1"
       },
       {
         "prefix": "dmozs",
-        "url": "http://www.dmoz.org/cgi-bin/search?search=$1"
+        "url": "https://curlie.org/search?q=$1"
       },
       {
         "prefix": "doi",
-        "url": "https://dx.doi.org/$1",
+        "url": "https://doi.org/$1",
         "protorel": ""
       },
       {
@@ -2837,7 +2897,7 @@
       },
       {
         "prefix": "emacswiki",
-        "url": "http://www.emacswiki.org/cgi-bin/wiki.pl?$1"
+        "url": "https://www.emacswiki.org/emacs?$1"
       },
       {
         "prefix": "encyc",
@@ -2884,7 +2944,7 @@
       },
       {
         "prefix": "exotica",
-        "url": "http://www.exotica.org.uk/wiki/$1"
+        "url": "https://www.exotica.org.uk/wiki/$1"
       },
       {
         "prefix": "fanimutationwiki",
@@ -2901,7 +2961,7 @@
       },
       {
         "prefix": "finnix",
-        "url": "http://www.finnix.org/$1"
+        "url": "https://www.finnix.org/$1"
       },
       {
         "prefix": "flickruser",
@@ -2922,13 +2982,14 @@
         "url": "http://foldoc.org/$1"
       },
       {
-        "prefix": "forthfreak",
-        "url": "http://wiki.forthfreak.net/index.cgi?$1"
-      },
-      {
         "prefix": "foundation",
         "local": "",
-        "url": "https://wikimediafoundation.org/wiki/$1"
+        "url": "https://foundation.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "foundationsite",
+        "local": "",
+        "url": "https://wikimediafoundation.org/$1"
       },
       {
         "prefix": "foxwiki",
@@ -2948,7 +3009,7 @@
       },
       {
         "prefix": "freedomdefined",
-        "url": "http://freedomdefined.org/$1"
+        "url": "https://freedomdefined.org/$1"
       },
       {
         "prefix": "freefeel",
@@ -2996,19 +3057,7 @@
       {
         "prefix": "git",
         "local": "",
-        "url": "https://gerrit.wikimedia.org/r/gitweb?p=mediawiki/$1;a=log;h=refs/heads/master"
-      },
-      {
-        "prefix": "globalvoices",
-        "url": "http://cyber.law.harvard.edu/dyn/globalvoices/wiki/$1"
-      },
-      {
-        "prefix": "glossarwiki",
-        "url": "http://glossar.hs-augsburg.de/$1"
-      },
-      {
-        "prefix": "glossarywiki",
-        "url": "http://glossary.hs-augsburg.de/$1"
+        "url": "https://gerrit.wikimedia.org/g/$1"
       },
       {
         "prefix": "google",
@@ -3027,11 +3076,19 @@
       },
       {
         "prefix": "guildwarswiki",
-        "url": "http://wiki.guildwars.com/wiki/$1"
+        "url": "https://wiki.guildwars.com/wiki/$1"
       },
       {
         "prefix": "guildwiki",
         "url": "http://guildwars.wikia.com/wiki/$1"
+      },
+      {
+        "prefix": "guc",
+        "url": "https://tools.wmflabs.org/guc/?user=$1"
+      },
+      {
+        "prefix": "gucprefix",
+        "url": "https://tools.wmflabs.org/guc/?isPrefixPattern=1&src=rc&user=$1"
       },
       {
         "prefix": "gutenberg",
@@ -3056,6 +3113,10 @@
       {
         "prefix": "hdl",
         "url": "http://hdl.handle.net/$1"
+      },
+      {
+        "prefix": "heraldik",
+        "url": "https://heraldik-wiki.de/wiki/$1"
       },
       {
         "prefix": "heroeswiki",
@@ -3085,19 +3146,19 @@
       },
       {
         "prefix": "imdbname",
-        "url": "http://www.imdb.com/name/nm$1/"
+        "url": "https://www.imdb.com/name/nm$1/"
       },
       {
         "prefix": "imdbtitle",
-        "url": "http://www.imdb.com/title/tt$1/"
+        "url": "https://www.imdb.com/title/tt$1/"
       },
       {
         "prefix": "imdbcompany",
-        "url": "http://www.imdb.com/company/co$1/"
+        "url": "https://www.imdb.com/company/co$1/"
       },
       {
         "prefix": "imdbcharacter",
-        "url": "http://www.imdb.com/character/ch$1/"
+        "url": "https://www.imdb.com/character/ch$1/"
       },
       {
         "prefix": "incubator",
@@ -3110,11 +3171,15 @@
       },
       {
         "prefix": "infosphere",
-        "url": "http://theinfosphere.org/$1"
+        "url": "https://theinfosphere.org/$1"
       },
       {
         "prefix": "irc",
         "url": "irc://irc.freenode.net/$1"
+      },
+      {
+        "prefix": "ircs",
+        "url": "ircs://irc.freenode.net/$1"
       },
       {
         "prefix": "ircrc",
@@ -3128,15 +3193,15 @@
       },
       {
         "prefix": "iso639-3",
-        "url": "http://www-01.sil.org/iso639-3/documentation.asp?id=$1"
+        "url": "https://iso639-3.sil.org/code/$1"
       },
       {
         "prefix": "issn",
-        "url": "http://www.worldcat.org/issn/$1"
+        "url": "https://www.worldcat.org/issn/$1"
       },
       {
         "prefix": "iuridictum",
-        "url": "http://iuridictum.pecina.cz/w/$1"
+        "url": "https://iuridictum.pecina.cz/w/$1"
       },
       {
         "prefix": "jaglyphwiki",
@@ -3176,28 +3241,20 @@
       },
       {
         "prefix": "karlsruhe",
-        "url": "http://ka.stadtwiki.net/$1"
+        "url": "https://ka.stadtwiki.net/$1"
       },
       {
         "prefix": "kinowiki",
         "url": "http://kino.skripov.com/index.php/$1"
       },
       {
-        "prefix": "kmwiki",
-        "url": "https://kmwiki.wikispaces.com/$1",
-        "protorel": ""
-      },
-      {
         "prefix": "komicawiki",
-        "url": "http://wiki.komica.org/wiki3/?$1"
+        "url": "https://wiki.komica.org/?$1",
+        "protorel": ""
       },
       {
         "prefix": "kontuwiki",
         "url": "http://kontu.wiki/$1"
-      },
-      {
-        "prefix": "koslarwiki",
-        "url": "http://wiki.koslar.de/index.php/$1"
       },
       {
         "prefix": "wikitech",
@@ -3224,7 +3281,7 @@
       },
       {
         "prefix": "liswiki",
-        "url": "http://liswiki.org/wiki/$1"
+        "url": "https://liswiki.org/wiki/$1"
       },
       {
         "prefix": "literateprograms",
@@ -3240,7 +3297,7 @@
       },
       {
         "prefix": "lojban",
-        "url": "http://mw.lojban.org/papri/$1"
+        "url": "https://mw.lojban.org/papri/$1"
       },
       {
         "prefix": "lostpedia",
@@ -3266,7 +3323,7 @@
       },
       {
         "prefix": "mariowiki",
-        "url": "http://www.mariowiki.com/$1"
+        "url": "https://www.mariowiki.com/$1"
       },
       {
         "prefix": "marveldatabase",
@@ -3311,11 +3368,11 @@
       },
       {
         "prefix": "mineralienatlas",
-        "url": "http://www.mineralienatlas.de/lexikon/index.php/$1"
+        "url": "https://www.mineralienatlas.de/lexikon/index.php/$1"
       },
       {
         "prefix": "moinmoin",
-        "url": "http://moinmo.in/$1"
+        "url": "https://moinmo.in/$1"
       },
       {
         "prefix": "monstropedia",
@@ -3391,8 +3448,12 @@
         "url": "http://wiki.laptop.org/go/$1"
       },
       {
+        "prefix": "omegawiki",
+        "url": "http://www.omegawiki.org/Expression:$1"
+      },
+      {
         "prefix": "onelook",
-        "url": "http://www.onelook.com/?ls=b&w=$1"
+        "url": "https://www.onelook.com/?ls=b&w=$1"
       },
       {
         "prefix": "openlibrary",
@@ -3405,7 +3466,7 @@
       },
       {
         "prefix": "openwetware",
-        "url": "http://openwetware.org/wiki/$1"
+        "url": "https://openwetware.org/wiki/$1"
       },
       {
         "prefix": "opera7wiki",
@@ -3413,11 +3474,11 @@
       },
       {
         "prefix": "organicdesign",
-        "url": "http://www.organicdesign.co.nz/$1"
+        "url": "https://www.organicdesign.co.nz/$1"
       },
       {
         "prefix": "orthodoxwiki",
-        "url": "http://orthodoxwiki.org/$1"
+        "url": "https://orthodoxwiki.org/$1"
       },
       {
         "prefix": "osmwiki",
@@ -3462,7 +3523,7 @@
       },
       {
         "prefix": "personaltelco",
-        "url": "http://www.personaltelco.net/$1"
+        "url": "https://personaltelco.net/wiki/$1"
       },
       {
         "prefix": "petscan",
@@ -3605,7 +3666,7 @@
       },
       {
         "prefix": "scores",
-        "url": "http://imslp.org/wiki/$1"
+        "url": "https://imslp.org/wiki/$1"
       },
       {
         "prefix": "scoutwiki",
@@ -3634,7 +3695,7 @@
       },
       {
         "prefix": "senseislibrary",
-        "url": "http://senseis.xmp.net/?$1"
+        "url": "https://senseis.xmp.net/?$1"
       },
       {
         "prefix": "sharemap",
@@ -3738,7 +3799,7 @@
       },
       {
         "prefix": "tfwiki",
-        "url": "http://tfwiki.net/wiki/$1"
+        "url": "https://tfwiki.net/wiki/$1"
       },
       {
         "prefix": "thelemapedia",
@@ -3809,6 +3870,10 @@
         "url": "http://www.tyvawiki.org/wiki/$1"
       },
       {
+        "prefix": "umap",
+        "url": "https://umap.openstreetmap.fr/$1"
+      },
+      {
         "prefix": "uncyclopedia",
         "url": "http://en.uncyclopedia.co/wiki/$1"
       },
@@ -3856,7 +3921,7 @@
       },
       {
         "prefix": "voipinfo",
-        "url": "http://www.voip-info.org/wiki/view/$1"
+        "url": "https://www.voip-info.org/wiki/view/$1"
       },
       {
         "prefix": "votewiki",
@@ -3865,7 +3930,7 @@
       },
       {
         "prefix": "werelate",
-        "url": "http://www.werelate.org/wiki/$1"
+        "url": "https://www.werelate.org/wiki/$1"
       },
       {
         "prefix": "wg",
@@ -3874,11 +3939,11 @@
       },
       {
         "prefix": "wikia",
-        "url": "http://www.wikia.com/wiki/c:$1"
+        "url": "http://www.wikia.com/wiki/w:c:$1"
       },
       {
         "prefix": "wikiasite",
-        "url": "http://www.wikia.com/wiki/c:$1"
+        "url": "http://www.wikia.com/wiki/w:c:$1"
       },
       {
         "prefix": "wikiapiary",
@@ -3896,11 +3961,11 @@
       },
       {
         "prefix": "wikicities",
-        "url": "http://www.wikia.com/wiki/$1"
+        "url": "http://www.wikia.com/wiki/w:$1"
       },
       {
         "prefix": "wikicity",
-        "url": "http://www.wikia.com/wiki/c:$1"
+        "url": "http://www.wikia.com/wiki/w:c:$1"
       },
       {
         "prefix": "wikiconference",
@@ -3922,7 +3987,7 @@
       },
       {
         "prefix": "wikihow",
-        "url": "http://www.wikihow.com/$1"
+        "url": "https://www.wikihow.com/$1"
       },
       {
         "prefix": "wikiindex",
@@ -3934,7 +3999,7 @@
       },
       {
         "prefix": "wikilivres",
-        "url": "https://biblio.wiki/wiki/$1"
+        "url": "https://wikilivres.org/wiki/$1"
       },
       {
         "prefix": "wikilivresru",
@@ -3947,7 +4012,7 @@
       {
         "prefix": "wikimedia",
         "local": "",
-        "url": "https://wikimediafoundation.org/wiki/$1"
+        "url": "https://foundation.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wikinews",
@@ -3960,7 +4025,8 @@
       },
       {
         "prefix": "wikinvest",
-        "url": "http://www.wikinvest.com/$1"
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest"
       },
       {
         "prefix": "wikiotics",
@@ -4018,10 +4084,6 @@
         "url": "http://wikiti.denglend.net/index.php?title=$1"
       },
       {
-        "prefix": "wikitree",
-        "url": "http://wikitree.org/index.php?title=$1"
-      },
-      {
         "prefix": "wikiversity",
         "local": "",
         "url": "https://en.wikiversity.org/wiki/$1"
@@ -4070,7 +4132,7 @@
       {
         "prefix": "wmau",
         "local": "",
-        "url": "http://wikimedia.org.au/wiki/$1"
+        "url": "https://wikimedia.org.au/wiki/$1"
       },
       {
         "prefix": "wmbd",
@@ -4094,11 +4156,11 @@
       },
       {
         "prefix": "wmch",
-        "url": "http://www.wikimedia.ch/$1"
+        "url": "https://www.wikimedia.ch/$1"
       },
       {
         "prefix": "wmcl",
-        "url": "http://www.wikimediachile.cl/index.php?title=$1"
+        "url": "https://www.wikimediachile.cl/index.php?title=$1"
       },
       {
         "prefix": "wmcn",
@@ -4112,7 +4174,7 @@
       },
       {
         "prefix": "wmcz",
-        "url": "http://www.wikimedia.cz/web/$1"
+        "url": "https://www.wikimedia.cz/web/$1"
       },
       {
         "prefix": "wmdc",
@@ -4152,25 +4214,36 @@
         "url": "https://ee.wikimedia.org/wiki/$1"
       },
       {
+        "prefix": "wmfdashboard",
+        "url": "https://outreachdashboard.wmflabs.org/$1"
+      },
+      {
         "prefix": "wmfi",
         "local": "",
         "url": "https://fi.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmfr",
-        "url": "http://wikimedia.fr/$1"
+        "url": "https://wikimedia.fr/$1"
+      },
+      {
+        "prefix": "wmhi",
+        "local": "",
+        "url": "https://hi.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmhk",
-        "url": "http://wikimedia.hk/index.php/$1"
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/Wikimedia_Hong_Kong"
       },
       {
         "prefix": "wmhu",
-        "url": "http://wikimedia.hu/wiki/$1"
+        "url": "https://wikimedia.hu/wiki/$1"
       },
       {
         "prefix": "wmid",
-        "url": "http://www.wikimedia.or.id/wiki/$1"
+        "local": "",
+        "url": "https://id.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmil",
@@ -4187,7 +4260,8 @@
       },
       {
         "prefix": "wmke",
-        "url": "http://wikimedia.or.ke/$1"
+        "local": "",
+        "url": "https://meta.wikimedia.org/wiki/Wikimedia_Kenya"
       },
       {
         "prefix": "wmmk",
@@ -4222,7 +4296,7 @@
       {
         "prefix": "wmph",
         "local": "",
-        "url": "http://wikimedia.org.ph/wmph/index.php?title=$1"
+        "url": "https://meta.wikimedia.org/wiki/Wikimedia_Philippines"
       },
       {
         "prefix": "wmpl",
@@ -4233,6 +4307,16 @@
         "prefix": "wmpt",
         "local": "",
         "url": "https://pt.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmpunjabi",
+        "local": "",
+        "url": "https://punjabi.wikimedia.org/wiki/$1"
+      },
+      {
+        "prefix": "wmromd",
+        "local": "",
+        "url": "https://romd.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmrs",
@@ -4358,6 +4442,11 @@
         "url": "https://wikimania.wikimedia.org/wiki/$1"
       },
       {
+        "prefix": "wikimania",
+        "local": "",
+        "url": "https://wikimania.wikimedia.org/wiki/$1"
+      },
+      {
         "prefix": "wmteam",
         "local": "",
         "url": "https://wikimaniateam.wikimedia.org/wiki/$1"
@@ -4365,7 +4454,7 @@
       {
         "prefix": "wmf",
         "local": "",
-        "url": "https://wikimediafoundation.org/wiki/$1"
+        "url": "https://foundation.wikimedia.org/wiki/$1"
       },
       {
         "prefix": "wmfblog",
@@ -4391,7 +4480,7 @@
       },
       {
         "prefix": "wurmpedia",
-        "url": "http://wurmpedia.com/index.php/$1"
+        "url": "https://wurmpedia.com/index.php/$1"
       },
       {
         "prefix": "viaf",
@@ -4403,7 +4492,7 @@
       },
       {
         "prefix": "zum",
-        "url": "http://wiki.zum.de/$1"
+        "url": "https://wiki.zum.de/$1"
       },
       {
         "prefix": "zwiki",
@@ -4982,6 +5071,12 @@
         "url": "https://gom.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "gor",
+        "local": "",
+        "language": "Bahasa Hulontalo",
+        "url": "https://gor.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "got",
         "local": "",
         "language": "𐌲𐌿𐍄𐌹𐍃𐌺",
@@ -5068,8 +5163,14 @@
       {
         "prefix": "hy",
         "local": "",
-        "language": "Հայերեն",
+        "language": "հայերեն",
         "url": "https://hy.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "hyw",
+        "local": "",
+        "language": "Արեւմտահայերէն",
+        "url": "https://hyw.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "hz",
@@ -5120,6 +5221,12 @@
         "url": "https://ilo.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "inh",
+        "local": "",
+        "language": "ГӀалгӀай",
+        "url": "https://inh.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "io",
         "local": "",
         "language": "Ido",
@@ -5164,7 +5271,7 @@
       {
         "prefix": "jv",
         "local": "",
-        "language": "Basa Jawa",
+        "language": "Jawa",
         "url": "https://jv.wikipedia.org/wiki/$1"
       },
       {
@@ -5278,7 +5385,7 @@
       {
         "prefix": "ku",
         "local": "",
-        "language": "Kurdî",
+        "language": "kurdî",
         "url": "https://ku.wikipedia.org/wiki/$1"
       },
       {
@@ -5328,6 +5435,12 @@
         "local": "",
         "language": "лезги",
         "url": "https://lez.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "lfn",
+        "local": "",
+        "language": "Lingua Franca Nova",
+        "url": "https://lfn.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "lg",
@@ -5708,16 +5821,16 @@
         "url": "https://pms.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "pnt",
-        "local": "",
-        "language": "Ποντιακά",
-        "url": "https://pnt.wikipedia.org/wiki/$1"
-      },
-      {
         "prefix": "pnb",
         "local": "",
         "language": "پنجابی",
         "url": "https://pnb.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "pnt",
+        "local": "",
+        "language": "Ποντιακά",
+        "url": "https://pnt.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "ps",
@@ -5746,7 +5859,7 @@
       {
         "prefix": "rmy",
         "local": "",
-        "language": "Romani",
+        "language": "romani čhib",
         "url": "https://rmy.wikipedia.org/wiki/$1"
       },
       {
@@ -5804,6 +5917,12 @@
         "url": "https://sah.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "sat",
+        "local": "",
+        "language": "ᱥᱟᱱᱛᱟᱲᱤ",
+        "url": "https://sat.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "sc",
         "local": "",
         "language": "sardu",
@@ -5844,6 +5963,12 @@
         "local": "",
         "language": "srpskohrvatski / српскохрватски",
         "url": "https://sh.wikipedia.org/wiki/$1"
+      },
+      {
+        "prefix": "shn",
+        "local": "",
+        "language": "ၽႃႇသႃႇတႆး ",
+        "url": "https://shn.wikipedia.org/wiki/$1"
       },
       {
         "prefix": "si",
@@ -6183,6 +6308,12 @@
         "url": "https://yo.wikipedia.org/wiki/$1"
       },
       {
+        "prefix": "yue",
+        "local": "",
+        "language": "粵語",
+        "url": "https://zh-yue.wikipedia.org/wiki/$1"
+      },
+      {
         "prefix": "za",
         "local": "",
         "language": "Vahcuengh",
@@ -6296,12 +6427,6 @@
         "url": "https://zh-classical.wikipedia.org/wiki/$1"
       },
       {
-        "prefix": "yue",
-        "local": "",
-        "language": "粵語",
-        "url": "https://zh-yue.wikipedia.org/wiki/$1"
-      },
-      {
         "prefix": "rup",
         "local": "",
         "language": "armãneashti",
@@ -6380,1710 +6505,2238 @@
     "languages": [
       {
         "code": "aa",
+        "bcp47": "aa",
         "*": "Qafár af"
       },
       {
         "code": "ab",
+        "bcp47": "ab",
         "*": "Аҧсшәа"
       },
       {
+        "code": "abs",
+        "bcp47": "abs",
+        "*": "bahasa ambon"
+      },
+      {
         "code": "ace",
+        "bcp47": "ace",
         "*": "Acèh"
       },
       {
         "code": "ady",
+        "bcp47": "ady",
         "*": "адыгабзэ"
       },
       {
         "code": "ady-cyrl",
+        "bcp47": "ady-Cyrl",
         "*": "адыгабзэ"
       },
       {
         "code": "aeb",
+        "bcp47": "aeb",
         "*": "تونسي/Tûnsî"
       },
       {
         "code": "aeb-arab",
+        "bcp47": "aeb-Arab",
         "*": "تونسي"
       },
       {
         "code": "aeb-latn",
+        "bcp47": "aeb-Latn",
         "*": "Tûnsî"
       },
       {
         "code": "af",
+        "bcp47": "af",
         "*": "Afrikaans"
       },
       {
         "code": "ak",
+        "bcp47": "ak",
         "*": "Akan"
       },
       {
         "code": "aln",
+        "bcp47": "aln",
         "*": "Gegë"
       },
       {
         "code": "als",
+        "bcp47": "gsw",
         "*": "Alemannisch"
       },
       {
         "code": "am",
+        "bcp47": "am",
         "*": "አማርኛ"
       },
       {
         "code": "an",
+        "bcp47": "an",
         "*": "aragonés"
       },
       {
         "code": "ang",
+        "bcp47": "ang",
         "*": "Ænglisc"
       },
       {
         "code": "anp",
+        "bcp47": "anp",
         "*": "अङ्गिका"
       },
       {
         "code": "ar",
+        "bcp47": "ar",
         "*": "العربية"
       },
       {
         "code": "arc",
+        "bcp47": "arc",
         "*": "ܐܪܡܝܐ"
       },
       {
         "code": "arn",
+        "bcp47": "arn",
         "*": "mapudungun"
       },
       {
         "code": "arq",
+        "bcp47": "arq",
         "*": "جازايرية"
       },
       {
         "code": "ary",
+        "bcp47": "ary",
         "*": "Maġribi"
       },
       {
         "code": "arz",
+        "bcp47": "arz",
         "*": "مصرى"
       },
       {
         "code": "as",
+        "bcp47": "as",
         "*": "অসমীয়া"
       },
       {
         "code": "ase",
+        "bcp47": "ase",
         "*": "American sign language"
       },
       {
         "code": "ast",
+        "bcp47": "ast",
         "*": "asturianu"
       },
       {
         "code": "atj",
+        "bcp47": "atj",
         "*": "Atikamekw"
       },
       {
         "code": "av",
+        "bcp47": "av",
         "*": "авар"
       },
       {
         "code": "avk",
+        "bcp47": "avk",
         "*": "Kotava"
       },
       {
         "code": "awa",
+        "bcp47": "awa",
         "*": "अवधी"
       },
       {
         "code": "ay",
+        "bcp47": "ay",
         "*": "Aymar aru"
       },
       {
         "code": "az",
+        "bcp47": "az",
         "*": "azərbaycanca"
       },
       {
         "code": "azb",
+        "bcp47": "azb",
         "*": "تۆرکجه"
       },
       {
         "code": "ba",
+        "bcp47": "ba",
         "*": "башҡортса"
       },
       {
         "code": "ban",
+        "bcp47": "ban",
         "*": "Basa Bali"
       },
       {
         "code": "bar",
+        "bcp47": "bar",
         "*": "Boarisch"
       },
       {
         "code": "bat-smg",
+        "bcp47": "sgs",
         "*": "žemaitėška"
       },
       {
         "code": "bbc",
+        "bcp47": "bbc",
         "*": "Batak Toba"
       },
       {
         "code": "bbc-latn",
+        "bcp47": "bbc-Latn",
         "*": "Batak Toba"
       },
       {
         "code": "bcc",
+        "bcp47": "bcc",
         "*": "جهلسری بلوچی"
       },
       {
         "code": "bcl",
+        "bcp47": "bcl",
         "*": "Bikol Central"
       },
       {
         "code": "be",
+        "bcp47": "be",
         "*": "беларуская"
       },
       {
         "code": "be-tarask",
+        "bcp47": "be-tarask",
         "*": "беларуская (тарашкевіца)‎"
       },
       {
         "code": "be-x-old",
+        "bcp47": "be-tarask",
         "*": "беларуская (тарашкевіца)‎"
       },
       {
         "code": "bg",
+        "bcp47": "bg",
         "*": "български"
       },
       {
         "code": "bgn",
+        "bcp47": "bgn",
         "*": "روچ کپتین بلوچی"
       },
       {
         "code": "bh",
+        "bcp47": "bh",
         "*": "भोजपुरी"
       },
       {
         "code": "bho",
+        "bcp47": "bho",
         "*": "भोजपुरी"
       },
       {
         "code": "bi",
+        "bcp47": "bi",
         "*": "Bislama"
       },
       {
         "code": "bjn",
+        "bcp47": "bjn",
         "*": "Bahasa Banjar"
       },
       {
         "code": "bm",
+        "bcp47": "bm",
         "*": "bamanankan"
       },
       {
         "code": "bn",
+        "bcp47": "bn",
         "*": "বাংলা"
       },
       {
         "code": "bo",
+        "bcp47": "bo",
         "*": "བོད་ཡིག"
       },
       {
         "code": "bpy",
+        "bcp47": "bpy",
         "*": "বিষ্ণুপ্রিয়া মণিপুরী"
       },
       {
         "code": "bqi",
+        "bcp47": "bqi",
         "*": "بختیاری"
       },
       {
         "code": "br",
+        "bcp47": "br",
         "*": "brezhoneg"
       },
       {
         "code": "brh",
+        "bcp47": "brh",
         "*": "Bráhuí"
       },
       {
         "code": "bs",
+        "bcp47": "bs",
         "*": "bosanski"
       },
       {
+        "code": "btm",
+        "bcp47": "btm",
+        "*": "Batak Mandailing"
+      },
+      {
         "code": "bto",
+        "bcp47": "bto",
         "*": "Iriga Bicolano"
       },
       {
         "code": "bug",
+        "bcp47": "bug",
         "*": "ᨅᨔ ᨕᨘᨁᨗ"
       },
       {
         "code": "bxr",
+        "bcp47": "bxr",
         "*": "буряад"
       },
       {
         "code": "ca",
+        "bcp47": "ca",
         "*": "català"
       },
       {
         "code": "cbk-zam",
+        "bcp47": "cbk",
         "*": "Chavacano de Zamboanga"
       },
       {
         "code": "cdo",
+        "bcp47": "cdo",
         "*": "Mìng-dĕ̤ng-ngṳ̄"
       },
       {
         "code": "ce",
+        "bcp47": "ce",
         "*": "нохчийн"
       },
       {
         "code": "ceb",
+        "bcp47": "ceb",
         "*": "Cebuano"
       },
       {
         "code": "ch",
+        "bcp47": "ch",
         "*": "Chamoru"
       },
       {
         "code": "cho",
+        "bcp47": "cho",
         "*": "Choctaw"
       },
       {
         "code": "chr",
+        "bcp47": "chr",
         "*": "ᏣᎳᎩ"
       },
       {
         "code": "chy",
+        "bcp47": "chy",
         "*": "Tsetsêhestâhese"
       },
       {
         "code": "ckb",
+        "bcp47": "ckb",
         "*": "کوردی"
       },
       {
         "code": "co",
+        "bcp47": "co",
         "*": "corsu"
       },
       {
         "code": "cps",
+        "bcp47": "cps",
         "*": "Capiceño"
       },
       {
         "code": "cr",
+        "bcp47": "cr",
         "*": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ"
       },
       {
         "code": "crh",
+        "bcp47": "crh",
         "*": "qırımtatarca"
       },
       {
         "code": "crh-cyrl",
+        "bcp47": "crh-Cyrl",
         "*": "къырымтатарджа (Кирилл)‎"
       },
       {
         "code": "crh-latn",
+        "bcp47": "crh-Latn",
         "*": "qırımtatarca (Latin)‎"
       },
       {
         "code": "cs",
+        "bcp47": "cs",
         "*": "čeština"
       },
       {
         "code": "csb",
+        "bcp47": "csb",
         "*": "kaszëbsczi"
       },
       {
         "code": "cu",
+        "bcp47": "cu",
         "*": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ"
       },
       {
         "code": "cv",
+        "bcp47": "cv",
         "*": "Чӑвашла"
       },
       {
         "code": "cy",
+        "bcp47": "cy",
         "*": "Cymraeg"
       },
       {
         "code": "da",
+        "bcp47": "da",
         "*": "dansk"
       },
       {
         "code": "de",
+        "bcp47": "de",
         "*": "Deutsch"
       },
       {
         "code": "de-at",
+        "bcp47": "de-AT",
         "*": "Österreichisches Deutsch"
       },
       {
         "code": "de-ch",
+        "bcp47": "de-CH",
         "*": "Schweizer Hochdeutsch"
       },
       {
         "code": "de-formal",
+        "bcp47": "de-x-formal",
         "*": "Deutsch (Sie-Form)‎"
       },
       {
         "code": "din",
+        "bcp47": "din",
         "*": "Thuɔŋjäŋ"
       },
       {
         "code": "diq",
+        "bcp47": "diq",
         "*": "Zazaki"
       },
       {
         "code": "dsb",
+        "bcp47": "dsb",
         "*": "dolnoserbski"
       },
       {
         "code": "dtp",
+        "bcp47": "dtp",
         "*": "Dusun Bundu-liwan"
       },
       {
         "code": "dty",
+        "bcp47": "dty",
         "*": "डोटेली"
       },
       {
         "code": "dv",
+        "bcp47": "dv",
         "*": "ދިވެހިބަސް"
       },
       {
         "code": "dz",
+        "bcp47": "dz",
         "*": "ཇོང་ཁ"
       },
       {
         "code": "ee",
+        "bcp47": "ee",
         "*": "eʋegbe"
       },
       {
         "code": "egl",
+        "bcp47": "egl",
         "*": "Emiliàn"
       },
       {
         "code": "el",
+        "bcp47": "el",
         "*": "Ελληνικά"
       },
       {
         "code": "eml",
+        "bcp47": "egl",
         "*": "emiliàn e rumagnòl"
       },
       {
         "code": "en",
+        "bcp47": "en",
         "*": "English"
       },
       {
         "code": "en-ca",
+        "bcp47": "en-CA",
         "*": "Canadian English"
       },
       {
         "code": "en-gb",
+        "bcp47": "en-GB",
         "*": "British English"
       },
       {
         "code": "eo",
+        "bcp47": "eo",
         "*": "Esperanto"
       },
       {
         "code": "es",
+        "bcp47": "es",
         "*": "español"
       },
       {
+        "code": "es-419",
+        "bcp47": "es-419",
+        "*": "español de América Latina"
+      },
+      {
+        "code": "es-formal",
+        "bcp47": "es-x-formal",
+        "*": "español (formal)‎"
+      },
+      {
         "code": "et",
+        "bcp47": "et",
         "*": "eesti"
       },
       {
         "code": "eu",
+        "bcp47": "eu",
         "*": "euskara"
       },
       {
         "code": "ext",
+        "bcp47": "ext",
         "*": "estremeñu"
       },
       {
         "code": "fa",
+        "bcp47": "fa",
         "*": "فارسی"
       },
       {
         "code": "ff",
+        "bcp47": "ff",
         "*": "Fulfulde"
       },
       {
         "code": "fi",
+        "bcp47": "fi",
         "*": "suomi"
       },
       {
         "code": "fit",
+        "bcp47": "fit",
         "*": "meänkieli"
       },
       {
         "code": "fiu-vro",
+        "bcp47": "vro",
         "*": "Võro"
       },
       {
         "code": "fj",
+        "bcp47": "fj",
         "*": "Na Vosa Vakaviti"
       },
       {
         "code": "fo",
+        "bcp47": "fo",
         "*": "føroyskt"
       },
       {
         "code": "fr",
+        "bcp47": "fr",
         "*": "français"
       },
       {
         "code": "frc",
+        "bcp47": "frc",
         "*": "français cadien"
       },
       {
         "code": "frp",
+        "bcp47": "frp",
         "*": "arpetan"
       },
       {
         "code": "frr",
+        "bcp47": "frr",
         "*": "Nordfriisk"
       },
       {
         "code": "fur",
+        "bcp47": "fur",
         "*": "furlan"
       },
       {
         "code": "fy",
+        "bcp47": "fy",
         "*": "Frysk"
       },
       {
         "code": "ga",
+        "bcp47": "ga",
         "*": "Gaeilge"
       },
       {
         "code": "gag",
+        "bcp47": "gag",
         "*": "Gagauz"
       },
       {
         "code": "gan",
+        "bcp47": "gan",
         "*": "贛語"
       },
       {
         "code": "gan-hans",
+        "bcp47": "gan-Hans",
         "*": "赣语（简体）‎"
       },
       {
         "code": "gan-hant",
+        "bcp47": "gan-Hant",
         "*": "贛語（繁體）‎"
       },
       {
+        "code": "gcr",
+        "bcp47": "gcr",
+        "*": "kriyòl gwiyannen"
+      },
+      {
         "code": "gd",
+        "bcp47": "gd",
         "*": "Gàidhlig"
       },
       {
         "code": "gl",
+        "bcp47": "gl",
         "*": "galego"
       },
       {
         "code": "glk",
+        "bcp47": "glk",
         "*": "گیلکی"
       },
       {
         "code": "gn",
+        "bcp47": "gn",
         "*": "Avañe'ẽ"
       },
       {
         "code": "gom",
+        "bcp47": "gom",
         "*": "गोंयची कोंकणी / Gõychi Konknni"
       },
       {
         "code": "gom-deva",
+        "bcp47": "gom-Deva",
         "*": "गोंयची कोंकणी"
       },
       {
         "code": "gom-latn",
+        "bcp47": "gom-Latn",
         "*": "Gõychi Konknni"
       },
       {
         "code": "gor",
+        "bcp47": "gor",
         "*": "Bahasa Hulontalo"
       },
       {
         "code": "got",
+        "bcp47": "got",
         "*": "𐌲𐌿𐍄𐌹𐍃𐌺"
       },
       {
         "code": "grc",
+        "bcp47": "grc",
         "*": "Ἀρχαία ἑλληνικὴ"
       },
       {
         "code": "gsw",
+        "bcp47": "gsw",
         "*": "Alemannisch"
       },
       {
         "code": "gu",
+        "bcp47": "gu",
         "*": "ગુજરાતી"
       },
       {
         "code": "gv",
+        "bcp47": "gv",
         "*": "Gaelg"
       },
       {
         "code": "ha",
+        "bcp47": "ha",
         "*": "Hausa"
       },
       {
         "code": "hak",
+        "bcp47": "hak",
         "*": "客家語/Hak-kâ-ngî"
       },
       {
         "code": "haw",
+        "bcp47": "haw",
         "*": "Hawaiʻi"
       },
       {
         "code": "he",
+        "bcp47": "he",
         "*": "עברית"
       },
       {
         "code": "hi",
+        "bcp47": "hi",
         "*": "हिन्दी"
       },
       {
         "code": "hif",
+        "bcp47": "hif",
         "*": "Fiji Hindi"
       },
       {
         "code": "hif-latn",
+        "bcp47": "hif-Latn",
         "*": "Fiji Hindi"
       },
       {
         "code": "hil",
+        "bcp47": "hil",
         "*": "Ilonggo"
       },
       {
         "code": "ho",
+        "bcp47": "ho",
         "*": "Hiri Motu"
       },
       {
         "code": "hr",
+        "bcp47": "hr",
         "*": "hrvatski"
       },
       {
         "code": "hrx",
+        "bcp47": "hrx",
         "*": "Hunsrik"
       },
       {
         "code": "hsb",
+        "bcp47": "hsb",
         "*": "hornjoserbsce"
       },
       {
         "code": "ht",
+        "bcp47": "ht",
         "*": "Kreyòl ayisyen"
       },
       {
         "code": "hu",
+        "bcp47": "hu",
         "*": "magyar"
       },
       {
+        "code": "hu-formal",
+        "bcp47": "hu-x-formal",
+        "*": "magyar (formal)‎"
+      },
+      {
         "code": "hy",
-        "*": "Հայերեն"
+        "bcp47": "hy",
+        "*": "հայերեն"
+      },
+      {
+        "code": "hyw",
+        "bcp47": "hyw",
+        "*": "Արեւմտահայերէն"
       },
       {
         "code": "hz",
+        "bcp47": "hz",
         "*": "Otsiherero"
       },
       {
         "code": "ia",
+        "bcp47": "ia",
         "*": "interlingua"
       },
       {
         "code": "id",
+        "bcp47": "id",
         "*": "Bahasa Indonesia"
       },
       {
         "code": "ie",
+        "bcp47": "ie",
         "*": "Interlingue"
       },
       {
         "code": "ig",
+        "bcp47": "ig",
         "*": "Igbo"
       },
       {
         "code": "ii",
+        "bcp47": "ii",
         "*": "ꆇꉙ"
       },
       {
         "code": "ik",
+        "bcp47": "ik",
         "*": "Iñupiak"
       },
       {
         "code": "ike-cans",
+        "bcp47": "ike-Cans",
         "*": "ᐃᓄᒃᑎᑐᑦ"
       },
       {
         "code": "ike-latn",
+        "bcp47": "ike-Latn",
         "*": "inuktitut"
       },
       {
         "code": "ilo",
+        "bcp47": "ilo",
         "*": "Ilokano"
       },
       {
         "code": "inh",
+        "bcp47": "inh",
         "*": "ГӀалгӀай"
       },
       {
         "code": "io",
+        "bcp47": "io",
         "*": "Ido"
       },
       {
         "code": "is",
+        "bcp47": "is",
         "*": "íslenska"
       },
       {
         "code": "it",
+        "bcp47": "it",
         "*": "italiano"
       },
       {
         "code": "iu",
+        "bcp47": "iu",
         "*": "ᐃᓄᒃᑎᑐᑦ/inuktitut"
       },
       {
         "code": "ja",
+        "bcp47": "ja",
         "*": "日本語"
       },
       {
         "code": "jam",
+        "bcp47": "jam",
         "*": "Patois"
       },
       {
         "code": "jbo",
+        "bcp47": "jbo",
         "*": "la .lojban."
       },
       {
         "code": "jut",
+        "bcp47": "jut",
         "*": "jysk"
       },
       {
         "code": "jv",
-        "*": "Basa Jawa"
+        "bcp47": "jv",
+        "*": "Jawa"
       },
       {
         "code": "ka",
+        "bcp47": "ka",
         "*": "ქართული"
       },
       {
         "code": "kaa",
+        "bcp47": "kaa",
         "*": "Qaraqalpaqsha"
       },
       {
         "code": "kab",
+        "bcp47": "kab",
         "*": "Taqbaylit"
       },
       {
         "code": "kbd",
+        "bcp47": "kbd",
         "*": "Адыгэбзэ"
       },
       {
         "code": "kbd-cyrl",
+        "bcp47": "kbd-Cyrl",
         "*": "Адыгэбзэ"
       },
       {
         "code": "kbp",
+        "bcp47": "kbp",
         "*": "Kabɩyɛ"
       },
       {
         "code": "kg",
+        "bcp47": "kg",
         "*": "Kongo"
       },
       {
         "code": "khw",
+        "bcp47": "khw",
         "*": "کھوار"
       },
       {
         "code": "ki",
+        "bcp47": "ki",
         "*": "Gĩkũyũ"
       },
       {
         "code": "kiu",
+        "bcp47": "kiu",
         "*": "Kırmancki"
       },
       {
         "code": "kj",
+        "bcp47": "kj",
         "*": "Kwanyama"
       },
       {
+        "code": "kjp",
+        "bcp47": "kjp",
+        "*": "ဖၠုံလိက်"
+      },
+      {
         "code": "kk",
+        "bcp47": "kk",
         "*": "қазақша"
       },
       {
         "code": "kk-arab",
+        "bcp47": "kk-Arab",
         "*": "قازاقشا (تٴوتە)‏"
       },
       {
         "code": "kk-cn",
+        "bcp47": "kk-CN",
         "*": "قازاقشا (جۇنگو)‏"
       },
       {
         "code": "kk-cyrl",
+        "bcp47": "kk-Cyrl",
         "*": "қазақша (кирил)‎"
       },
       {
         "code": "kk-kz",
+        "bcp47": "kk-KZ",
         "*": "қазақша (Қазақстан)‎"
       },
       {
         "code": "kk-latn",
+        "bcp47": "kk-Latn",
         "*": "qazaqşa (latın)‎"
       },
       {
         "code": "kk-tr",
+        "bcp47": "kk-TR",
         "*": "qazaqşa (Türkïya)‎"
       },
       {
         "code": "kl",
+        "bcp47": "kl",
         "*": "kalaallisut"
       },
       {
         "code": "km",
+        "bcp47": "km",
         "*": "ភាសាខ្មែរ"
       },
       {
         "code": "kn",
+        "bcp47": "kn",
         "*": "ಕನ್ನಡ"
       },
       {
         "code": "ko",
+        "bcp47": "ko",
         "*": "한국어"
       },
       {
         "code": "ko-kp",
-        "*": "한국어 (조선)"
+        "bcp47": "ko-KP",
+        "*": "조선말"
       },
       {
         "code": "koi",
+        "bcp47": "koi",
         "*": "Перем Коми"
       },
       {
         "code": "kr",
+        "bcp47": "kr",
         "*": "Kanuri"
       },
       {
         "code": "krc",
+        "bcp47": "krc",
         "*": "къарачай-малкъар"
       },
       {
         "code": "kri",
+        "bcp47": "kri",
         "*": "Krio"
       },
       {
         "code": "krj",
+        "bcp47": "krj",
         "*": "Kinaray-a"
       },
       {
         "code": "krl",
+        "bcp47": "krl",
         "*": "karjal"
       },
       {
         "code": "ks",
+        "bcp47": "ks",
         "*": "कॉशुर / کٲشُر"
       },
       {
         "code": "ks-arab",
+        "bcp47": "ks-Arab",
         "*": "کٲشُر"
       },
       {
         "code": "ks-deva",
+        "bcp47": "ks-Deva",
         "*": "कॉशुर"
       },
       {
         "code": "ksh",
+        "bcp47": "ksh",
         "*": "Ripoarisch"
       },
       {
         "code": "ku",
-        "*": "Kurdî"
+        "bcp47": "ku",
+        "*": "kurdî"
       },
       {
         "code": "ku-arab",
+        "bcp47": "ku-Arab",
         "*": "كوردي (عەرەبی)‏"
       },
       {
         "code": "ku-latn",
-        "*": "Kurdî (latînî)‎"
+        "bcp47": "ku-Latn",
+        "*": "kurdî (latînî)‎"
+      },
+      {
+        "code": "kum",
+        "bcp47": "kum",
+        "*": "къумукъ"
       },
       {
         "code": "kv",
+        "bcp47": "kv",
         "*": "коми"
       },
       {
         "code": "kw",
+        "bcp47": "kw",
         "*": "kernowek"
       },
       {
         "code": "ky",
+        "bcp47": "ky",
         "*": "Кыргызча"
       },
       {
         "code": "la",
+        "bcp47": "la",
         "*": "Latina"
       },
       {
         "code": "lad",
+        "bcp47": "lad",
         "*": "Ladino"
       },
       {
         "code": "lb",
+        "bcp47": "lb",
         "*": "Lëtzebuergesch"
       },
       {
         "code": "lbe",
+        "bcp47": "lbe",
         "*": "лакку"
       },
       {
         "code": "lez",
+        "bcp47": "lez",
         "*": "лезги"
       },
       {
         "code": "lfn",
+        "bcp47": "lfn",
         "*": "Lingua Franca Nova"
       },
       {
         "code": "lg",
+        "bcp47": "lg",
         "*": "Luganda"
       },
       {
         "code": "li",
+        "bcp47": "li",
         "*": "Limburgs"
       },
       {
         "code": "lij",
+        "bcp47": "lij",
         "*": "Ligure"
       },
       {
         "code": "liv",
+        "bcp47": "liv",
         "*": "Līvõ kēļ"
       },
       {
         "code": "lki",
-        "*": "لەکی‎"
+        "bcp47": "lki",
+        "*": "لەکی"
       },
       {
         "code": "lmo",
+        "bcp47": "lmo",
         "*": "lumbaart"
       },
       {
         "code": "ln",
+        "bcp47": "ln",
         "*": "lingála"
       },
       {
         "code": "lo",
+        "bcp47": "lo",
         "*": "ລາວ"
       },
       {
         "code": "loz",
+        "bcp47": "loz",
         "*": "Silozi"
       },
       {
         "code": "lrc",
+        "bcp47": "lrc",
         "*": "لۊری شومالی"
       },
       {
         "code": "lt",
+        "bcp47": "lt",
         "*": "lietuvių"
       },
       {
         "code": "ltg",
+        "bcp47": "ltg",
         "*": "latgaļu"
       },
       {
         "code": "lus",
+        "bcp47": "lus",
         "*": "Mizo ţawng"
       },
       {
         "code": "luz",
+        "bcp47": "luz",
         "*": "لئری دوٙمینی"
       },
       {
         "code": "lv",
+        "bcp47": "lv",
         "*": "latviešu"
       },
       {
         "code": "lzh",
+        "bcp47": "lzh",
         "*": "文言"
       },
       {
         "code": "lzz",
+        "bcp47": "lzz",
         "*": "Lazuri"
       },
       {
         "code": "mai",
+        "bcp47": "mai",
         "*": "मैथिली"
       },
       {
         "code": "map-bms",
+        "bcp47": "jv-x-bms",
         "*": "Basa Banyumasan"
       },
       {
         "code": "mdf",
+        "bcp47": "mdf",
         "*": "мокшень"
       },
       {
         "code": "mg",
+        "bcp47": "mg",
         "*": "Malagasy"
       },
       {
         "code": "mh",
+        "bcp47": "mh",
         "*": "Ebon"
       },
       {
         "code": "mhr",
+        "bcp47": "mhr",
         "*": "олык марий"
       },
       {
         "code": "mi",
+        "bcp47": "mi",
         "*": "Māori"
       },
       {
         "code": "min",
+        "bcp47": "min",
         "*": "Baso Minangkabau"
       },
       {
         "code": "mk",
+        "bcp47": "mk",
         "*": "македонски"
       },
       {
         "code": "ml",
+        "bcp47": "ml",
         "*": "മലയാളം"
       },
       {
         "code": "mn",
+        "bcp47": "mn",
         "*": "монгол"
       },
       {
+        "code": "mni",
+        "bcp47": "mni",
+        "*": "মেইতেই লোন্"
+      },
+      {
+        "code": "mnw",
+        "bcp47": "mnw",
+        "*": "ဘာသာ မန်"
+      },
+      {
         "code": "mo",
+        "bcp47": "ro-Cyrl-MD",
         "*": "молдовеняскэ"
       },
       {
         "code": "mr",
+        "bcp47": "mr",
         "*": "मराठी"
       },
       {
         "code": "mrj",
+        "bcp47": "mrj",
         "*": "кырык мары"
       },
       {
         "code": "ms",
+        "bcp47": "ms",
         "*": "Bahasa Melayu"
       },
       {
         "code": "mt",
+        "bcp47": "mt",
         "*": "Malti"
       },
       {
         "code": "mus",
+        "bcp47": "mus",
         "*": "Mvskoke"
       },
       {
         "code": "mwl",
+        "bcp47": "mwl",
         "*": "Mirandés"
       },
       {
         "code": "my",
+        "bcp47": "my",
         "*": "မြန်မာဘာသာ"
       },
       {
         "code": "myv",
+        "bcp47": "myv",
         "*": "эрзянь"
       },
       {
         "code": "mzn",
+        "bcp47": "mzn",
         "*": "مازِرونی"
       },
       {
         "code": "na",
+        "bcp47": "na",
         "*": "Dorerin Naoero"
       },
       {
         "code": "nah",
+        "bcp47": "nah",
         "*": "Nāhuatl"
       },
       {
         "code": "nan",
+        "bcp47": "nan",
         "*": "Bân-lâm-gú"
       },
       {
         "code": "nap",
+        "bcp47": "nap",
         "*": "Napulitano"
       },
       {
         "code": "nb",
+        "bcp47": "nb",
         "*": "norsk bokmål"
       },
       {
         "code": "nds",
+        "bcp47": "nds",
         "*": "Plattdüütsch"
       },
       {
         "code": "nds-nl",
+        "bcp47": "nds-NL",
         "*": "Nedersaksies"
       },
       {
         "code": "ne",
+        "bcp47": "ne",
         "*": "नेपाली"
       },
       {
         "code": "new",
+        "bcp47": "new",
         "*": "नेपाल भाषा"
       },
       {
         "code": "ng",
+        "bcp47": "ng",
         "*": "Oshiwambo"
       },
       {
         "code": "niu",
+        "bcp47": "niu",
         "*": "Niuē"
       },
       {
         "code": "nl",
+        "bcp47": "nl",
         "*": "Nederlands"
       },
       {
         "code": "nl-informal",
+        "bcp47": "nl-x-informal",
         "*": "Nederlands (informeel)‎"
       },
       {
         "code": "nn",
+        "bcp47": "nn",
         "*": "norsk nynorsk"
       },
       {
         "code": "no",
+        "bcp47": "no",
         "*": "norsk"
       },
       {
         "code": "nov",
+        "bcp47": "nov",
         "*": "Novial"
       },
       {
+        "code": "nqo",
+        "bcp47": "nqo",
+        "*": "ߒߞߏ"
+      },
+      {
         "code": "nrm",
+        "bcp47": "nrf",
         "*": "Nouormand"
       },
       {
         "code": "nso",
+        "bcp47": "nso",
         "*": "Sesotho sa Leboa"
       },
       {
         "code": "nv",
+        "bcp47": "nv",
         "*": "Diné bizaad"
       },
       {
         "code": "ny",
+        "bcp47": "ny",
         "*": "Chi-Chewa"
       },
       {
+        "code": "nys",
+        "bcp47": "nys",
+        "*": "Nyunga"
+      },
+      {
         "code": "oc",
+        "bcp47": "oc",
         "*": "occitan"
       },
       {
         "code": "olo",
+        "bcp47": "olo",
         "*": "Livvinkarjala"
       },
       {
         "code": "om",
+        "bcp47": "om",
         "*": "Oromoo"
       },
       {
         "code": "or",
+        "bcp47": "or",
         "*": "ଓଡ଼ିଆ"
       },
       {
         "code": "os",
+        "bcp47": "os",
         "*": "Ирон"
       },
       {
         "code": "pa",
+        "bcp47": "pa",
         "*": "ਪੰਜਾਬੀ"
       },
       {
         "code": "pag",
+        "bcp47": "pag",
         "*": "Pangasinan"
       },
       {
         "code": "pam",
+        "bcp47": "pam",
         "*": "Kapampangan"
       },
       {
         "code": "pap",
+        "bcp47": "pap",
         "*": "Papiamentu"
       },
       {
         "code": "pcd",
+        "bcp47": "pcd",
         "*": "Picard"
       },
       {
         "code": "pdc",
+        "bcp47": "pdc",
         "*": "Deitsch"
       },
       {
         "code": "pdt",
+        "bcp47": "pdt",
         "*": "Plautdietsch"
       },
       {
         "code": "pfl",
+        "bcp47": "pfl",
         "*": "Pälzisch"
       },
       {
         "code": "pi",
+        "bcp47": "pi",
         "*": "पालि"
       },
       {
         "code": "pih",
+        "bcp47": "pih",
         "*": "Norfuk / Pitkern"
       },
       {
         "code": "pl",
+        "bcp47": "pl",
         "*": "polski"
       },
       {
         "code": "pms",
+        "bcp47": "pms",
         "*": "Piemontèis"
       },
       {
         "code": "pnb",
+        "bcp47": "pnb",
         "*": "پنجابی"
       },
       {
         "code": "pnt",
+        "bcp47": "pnt",
         "*": "Ποντιακά"
       },
       {
         "code": "prg",
+        "bcp47": "prg",
         "*": "Prūsiskan"
       },
       {
         "code": "ps",
+        "bcp47": "ps",
         "*": "پښتو"
       },
       {
         "code": "pt",
+        "bcp47": "pt",
         "*": "português"
       },
       {
         "code": "pt-br",
+        "bcp47": "pt-BR",
         "*": "português do Brasil"
       },
       {
         "code": "qu",
+        "bcp47": "qu",
         "*": "Runa Simi"
       },
       {
         "code": "qug",
+        "bcp47": "qug",
         "*": "Runa shimi"
       },
       {
         "code": "rgn",
+        "bcp47": "rgn",
         "*": "Rumagnôl"
       },
       {
         "code": "rif",
+        "bcp47": "rif",
         "*": "Tarifit"
       },
       {
         "code": "rm",
+        "bcp47": "rm",
         "*": "rumantsch"
       },
       {
         "code": "rmy",
-        "*": "Romani"
+        "bcp47": "rmy",
+        "*": "romani čhib"
       },
       {
         "code": "rn",
+        "bcp47": "rn",
         "*": "Kirundi"
       },
       {
         "code": "ro",
+        "bcp47": "ro",
         "*": "română"
       },
       {
         "code": "roa-rup",
+        "bcp47": "rup",
         "*": "armãneashti"
       },
       {
         "code": "roa-tara",
+        "bcp47": "nap-x-tara",
         "*": "tarandíne"
       },
       {
         "code": "ru",
+        "bcp47": "ru",
         "*": "русский"
       },
       {
         "code": "rue",
+        "bcp47": "rue",
         "*": "русиньскый"
       },
       {
         "code": "rup",
+        "bcp47": "rup",
         "*": "armãneashti"
       },
       {
         "code": "ruq",
+        "bcp47": "ruq",
         "*": "Vlăheşte"
       },
       {
         "code": "ruq-cyrl",
+        "bcp47": "ruq-Cyrl",
         "*": "Влахесте"
       },
       {
         "code": "ruq-latn",
+        "bcp47": "ruq-Latn",
         "*": "Vlăheşte"
       },
       {
         "code": "rw",
+        "bcp47": "rw",
         "*": "Kinyarwanda"
       },
       {
         "code": "sa",
+        "bcp47": "sa",
         "*": "संस्कृतम्"
       },
       {
         "code": "sah",
+        "bcp47": "sah",
         "*": "саха тыла"
       },
       {
         "code": "sat",
-        "*": "Santali"
+        "bcp47": "sat",
+        "*": "ᱥᱟᱱᱛᱟᱲᱤ"
       },
       {
         "code": "sc",
+        "bcp47": "sc",
         "*": "sardu"
       },
       {
         "code": "scn",
+        "bcp47": "scn",
         "*": "sicilianu"
       },
       {
         "code": "sco",
+        "bcp47": "sco",
         "*": "Scots"
       },
       {
         "code": "sd",
+        "bcp47": "sd",
         "*": "سنڌي"
       },
       {
         "code": "sdc",
+        "bcp47": "sdc",
         "*": "Sassaresu"
       },
       {
         "code": "sdh",
+        "bcp47": "sdh",
         "*": "کوردی خوارگ"
       },
       {
         "code": "se",
+        "bcp47": "se",
         "*": "davvisámegiella"
       },
       {
         "code": "sei",
+        "bcp47": "sei",
         "*": "Cmique Itom"
       },
       {
         "code": "ses",
+        "bcp47": "ses",
         "*": "Koyraboro Senni"
       },
       {
         "code": "sg",
+        "bcp47": "sg",
         "*": "Sängö"
       },
       {
         "code": "sgs",
+        "bcp47": "sgs",
         "*": "žemaitėška"
       },
       {
         "code": "sh",
+        "bcp47": "sh",
         "*": "srpskohrvatski / српскохрватски"
       },
       {
         "code": "shi",
+        "bcp47": "shi",
         "*": "Tašlḥiyt/ⵜⴰⵛⵍⵃⵉⵜ"
       },
       {
         "code": "shi-latn",
+        "bcp47": "shi-Latn",
         "*": "Tašlḥiyt"
       },
       {
         "code": "shi-tfng",
+        "bcp47": "shi-Tfng",
         "*": "ⵜⴰⵛⵍⵃⵉⵜ"
       },
       {
         "code": "shn",
+        "bcp47": "shn",
         "*": "ၽႃႇသႃႇတႆး "
       },
       {
+        "code": "shy-latn",
+        "bcp47": "shy-Latn",
+        "*": "tachawit"
+      },
+      {
         "code": "si",
+        "bcp47": "si",
         "*": "සිංහල"
       },
       {
         "code": "simple",
+        "bcp47": "en-simple",
         "*": "Simple English"
       },
       {
         "code": "sk",
+        "bcp47": "sk",
         "*": "slovenčina"
       },
       {
         "code": "skr",
+        "bcp47": "skr",
         "*": "سرائیکی"
       },
       {
         "code": "skr-arab",
+        "bcp47": "skr-Arab",
         "*": "سرائیکی"
       },
       {
         "code": "sl",
+        "bcp47": "sl",
         "*": "slovenščina"
       },
       {
         "code": "sli",
+        "bcp47": "sli",
         "*": "Schläsch"
       },
       {
         "code": "sm",
+        "bcp47": "sm",
         "*": "Gagana Samoa"
       },
       {
         "code": "sma",
+        "bcp47": "sma",
         "*": "Åarjelsaemien"
       },
       {
         "code": "sn",
+        "bcp47": "sn",
         "*": "chiShona"
       },
       {
         "code": "so",
+        "bcp47": "so",
         "*": "Soomaaliga"
       },
       {
         "code": "sq",
+        "bcp47": "sq",
         "*": "shqip"
       },
       {
         "code": "sr",
+        "bcp47": "sr",
         "*": "српски / srpski"
       },
       {
         "code": "sr-ec",
+        "bcp47": "sr-Cyrl",
         "*": "српски (ћирилица)‎"
       },
       {
         "code": "sr-el",
+        "bcp47": "sr-Latn",
         "*": "srpski (latinica)‎"
       },
       {
         "code": "srn",
+        "bcp47": "srn",
         "*": "Sranantongo"
       },
       {
         "code": "ss",
+        "bcp47": "ss",
         "*": "SiSwati"
       },
       {
         "code": "st",
+        "bcp47": "st",
         "*": "Sesotho"
       },
       {
         "code": "stq",
+        "bcp47": "stq",
         "*": "Seeltersk"
       },
       {
+        "code": "sty",
+        "bcp47": "sty",
+        "*": "cебертатар"
+      },
+      {
         "code": "su",
+        "bcp47": "su",
         "*": "Basa Sunda"
       },
       {
         "code": "sv",
+        "bcp47": "sv",
         "*": "svenska"
       },
       {
         "code": "sw",
+        "bcp47": "sw",
         "*": "Kiswahili"
       },
       {
         "code": "szl",
+        "bcp47": "szl",
         "*": "ślůnski"
       },
       {
         "code": "ta",
+        "bcp47": "ta",
         "*": "தமிழ்"
       },
       {
         "code": "tay",
+        "bcp47": "tay",
         "*": "Tayal"
       },
       {
         "code": "tcy",
+        "bcp47": "tcy",
         "*": "ತುಳು"
       },
       {
         "code": "te",
+        "bcp47": "te",
         "*": "తెలుగు"
       },
       {
         "code": "tet",
+        "bcp47": "tet",
         "*": "tetun"
       },
       {
         "code": "tg",
+        "bcp47": "tg",
         "*": "тоҷикӣ"
       },
       {
         "code": "tg-cyrl",
+        "bcp47": "tg-Cyrl",
         "*": "тоҷикӣ"
       },
       {
         "code": "tg-latn",
+        "bcp47": "tg-Latn",
         "*": "tojikī"
       },
       {
         "code": "th",
+        "bcp47": "th",
         "*": "ไทย"
       },
       {
         "code": "ti",
+        "bcp47": "ti",
         "*": "ትግርኛ"
       },
       {
         "code": "tk",
+        "bcp47": "tk",
         "*": "Türkmençe"
       },
       {
         "code": "tl",
+        "bcp47": "tl",
         "*": "Tagalog"
       },
       {
         "code": "tly",
+        "bcp47": "tly",
         "*": "толышә зывон"
       },
       {
         "code": "tn",
+        "bcp47": "tn",
         "*": "Setswana"
       },
       {
         "code": "to",
+        "bcp47": "to",
         "*": "lea faka-Tonga"
       },
       {
         "code": "tpi",
+        "bcp47": "tpi",
         "*": "Tok Pisin"
       },
       {
         "code": "tr",
+        "bcp47": "tr",
         "*": "Türkçe"
       },
       {
         "code": "tru",
+        "bcp47": "tru",
         "*": "Ṫuroyo"
       },
       {
         "code": "ts",
+        "bcp47": "ts",
         "*": "Xitsonga"
       },
       {
         "code": "tt",
+        "bcp47": "tt",
         "*": "татарча/tatarça"
       },
       {
         "code": "tt-cyrl",
+        "bcp47": "tt-Cyrl",
         "*": "татарча"
       },
       {
         "code": "tt-latn",
+        "bcp47": "tt-Latn",
         "*": "tatarça"
       },
       {
         "code": "tum",
+        "bcp47": "tum",
         "*": "chiTumbuka"
       },
       {
         "code": "tw",
+        "bcp47": "tw",
         "*": "Twi"
       },
       {
         "code": "ty",
+        "bcp47": "ty",
         "*": "reo tahiti"
       },
       {
         "code": "tyv",
+        "bcp47": "tyv",
         "*": "тыва дыл"
       },
       {
         "code": "tzm",
+        "bcp47": "tzm",
         "*": "ⵜⴰⵎⴰⵣⵉⵖⵜ"
       },
       {
         "code": "udm",
+        "bcp47": "udm",
         "*": "удмурт"
       },
       {
         "code": "ug",
+        "bcp47": "ug",
         "*": "ئۇيغۇرچە / Uyghurche"
       },
       {
         "code": "ug-arab",
+        "bcp47": "ug-Arab",
         "*": "ئۇيغۇرچە"
       },
       {
         "code": "ug-latn",
+        "bcp47": "ug-Latn",
         "*": "Uyghurche"
       },
       {
         "code": "uk",
+        "bcp47": "uk",
         "*": "українська"
       },
       {
         "code": "ur",
+        "bcp47": "ur",
         "*": "اردو"
       },
       {
         "code": "uz",
+        "bcp47": "uz",
         "*": "oʻzbekcha/ўзбекча"
       },
       {
         "code": "uz-cyrl",
+        "bcp47": "uz-Cyrl",
         "*": "ўзбекча"
       },
       {
         "code": "uz-latn",
+        "bcp47": "uz-Latn",
         "*": "oʻzbekcha"
       },
       {
         "code": "ve",
+        "bcp47": "ve",
         "*": "Tshivenda"
       },
       {
         "code": "vec",
+        "bcp47": "vec",
         "*": "vèneto"
       },
       {
         "code": "vep",
+        "bcp47": "vep",
         "*": "vepsän kel’"
       },
       {
         "code": "vi",
+        "bcp47": "vi",
         "*": "Tiếng Việt"
       },
       {
         "code": "vls",
+        "bcp47": "vls",
         "*": "West-Vlams"
       },
       {
         "code": "vmf",
+        "bcp47": "vmf",
         "*": "Mainfränkisch"
       },
       {
         "code": "vo",
+        "bcp47": "vo",
         "*": "Volapük"
       },
       {
         "code": "vot",
+        "bcp47": "vot",
         "*": "Vaďďa"
       },
       {
         "code": "vro",
+        "bcp47": "vro",
         "*": "Võro"
       },
       {
         "code": "wa",
+        "bcp47": "wa",
         "*": "walon"
       },
       {
         "code": "war",
+        "bcp47": "war",
         "*": "Winaray"
       },
       {
         "code": "wo",
+        "bcp47": "wo",
         "*": "Wolof"
       },
       {
         "code": "wuu",
+        "bcp47": "wuu",
         "*": "吴语"
       },
       {
         "code": "xal",
+        "bcp47": "xal",
         "*": "хальмг"
       },
       {
         "code": "xh",
+        "bcp47": "xh",
         "*": "isiXhosa"
       },
       {
         "code": "xmf",
+        "bcp47": "xmf",
         "*": "მარგალური"
       },
       {
+        "code": "xsy",
+        "bcp47": "xsy",
+        "*": "saisiyat"
+      },
+      {
         "code": "yi",
+        "bcp47": "yi",
         "*": "ייִדיש"
       },
       {
         "code": "yo",
+        "bcp47": "yo",
         "*": "Yorùbá"
       },
       {
         "code": "yue",
+        "bcp47": "yue",
         "*": "粵語"
       },
       {
         "code": "za",
+        "bcp47": "za",
         "*": "Vahcuengh"
       },
       {
         "code": "zea",
+        "bcp47": "zea",
         "*": "Zeêuws"
       },
       {
+        "code": "zgh",
+        "bcp47": "zgh",
+        "*": "ⵜⴰⵎⴰⵣⵉⵖⵜ ⵜⴰⵏⴰⵡⴰⵢⵜ"
+      },
+      {
         "code": "zh",
+        "bcp47": "zh",
         "*": "中文"
       },
       {
         "code": "zh-classical",
+        "bcp47": "lzh",
         "*": "文言"
       },
       {
         "code": "zh-cn",
+        "bcp47": "zh-Hans-CN",
         "*": "中文（中国大陆）‎"
       },
       {
         "code": "zh-hans",
+        "bcp47": "zh-Hans",
         "*": "中文（简体）‎"
       },
       {
         "code": "zh-hant",
+        "bcp47": "zh-Hant",
         "*": "中文（繁體）‎"
       },
       {
         "code": "zh-hk",
+        "bcp47": "zh-Hant-HK",
         "*": "中文（香港）‎"
       },
       {
         "code": "zh-min-nan",
+        "bcp47": "nan",
         "*": "Bân-lâm-gú"
       },
       {
         "code": "zh-mo",
+        "bcp47": "zh-Hant-MO",
         "*": "中文（澳門）‎"
       },
       {
         "code": "zh-my",
+        "bcp47": "zh-Hans-MY",
         "*": "中文（马来西亚）‎"
       },
       {
         "code": "zh-sg",
+        "bcp47": "zh-Hans-SG",
         "*": "中文（新加坡）‎"
       },
       {
         "code": "zh-tw",
+        "bcp47": "zh-Hant-TW",
         "*": "中文（台灣）‎"
       },
       {
         "code": "zh-yue",
+        "bcp47": "yue",
         "*": "粵語"
       },
       {
         "code": "zu",
+        "bcp47": "zu",
         "*": "isiZulu"
       }
     ],
     "languagevariants": {
+      "crh": {
+        "crh": {
+          "fallbacks": [
+            "crh-latn"
+          ]
+        },
+        "crh-cyrl": {
+          "fallbacks": [
+            "crh-latn"
+          ]
+        },
+        "crh-latn": {
+          "fallbacks": [
+            "crh-cyrl"
+          ]
+        }
+      },
       "gan": {
         "gan": {
           "fallbacks": [
@@ -8341,6 +8994,7 @@
       {
         "realname": "BrokenRedirects",
         "aliases": [
+          "ПокваренаПреусмерења",
           "Покварена_преусмерења",
           "Неисправна_преусмерења",
           "BrokenRedirects"
@@ -8349,12 +9003,16 @@
       {
         "realname": "Deadendpages",
         "aliases": [
+          "Ћорсокаци",
+          "СтраницеКојеНеВодеНикуда",
+          "СлепеСтранице",
           "DeadendPages"
         ]
       },
       {
         "realname": "DoubleRedirects",
         "aliases": [
+          "ДвострукаПреусмерења",
           "Двострука_преусмерења",
           "DoubleRedirects"
         ]
@@ -8362,6 +9020,7 @@
       {
         "realname": "Longpages",
         "aliases": [
+          "ДугачкеСтранице",
           "ДугачкеСтране",
           "LongPages"
         ]
@@ -8393,6 +9052,7 @@
       {
         "realname": "Withoutinterwiki",
         "aliases": [
+          "БезМеђувикија",
           "Без_међувикија",
           "WithoutInterwiki"
         ]
@@ -8503,6 +9163,7 @@
       {
         "realname": "Wantedpages",
         "aliases": [
+          "ТраженеСтранице",
           "ТраженеСтране",
           "WantedPages",
           "BrokenLinks"
@@ -8518,6 +9179,7 @@
       {
         "realname": "Allpages",
         "aliases": [
+          "СвеСтранице",
           "Све_странице",
           "AllPages"
         ]
@@ -8525,6 +9187,7 @@
       {
         "realname": "Prefixindex",
         "aliases": [
+          "СтраницеСаПрефиксом",
           "PrefixIndex"
         ]
       },
@@ -8546,6 +9209,7 @@
       {
         "realname": "PagesWithProp",
         "aliases": [
+          "СтраницеСаСвојством",
           "PagesWithProp",
           "Pageswithprop",
           "PagesByProp",
@@ -8555,12 +9219,14 @@
       {
         "realname": "TrackingCategories",
         "aliases": [
+          "КатегоријеЗаПраћење",
           "TrackingCategories"
         ]
       },
       {
         "realname": "Userlogin",
         "aliases": [
+          "КорисничкаПријава",
           "Корисничка_пријава",
           "UserLogin",
           "Login"
@@ -8569,6 +9235,7 @@
       {
         "realname": "Userlogout",
         "aliases": [
+          "КорисничкаОдјава",
           "Корисничка_одјава",
           "UserLogout",
           "Logout"
@@ -8585,24 +9252,29 @@
       {
         "realname": "LinkAccounts",
         "aliases": [
+          "ПовежиНалоге",
           "LinkAccounts"
         ]
       },
       {
         "realname": "UnlinkAccounts",
         "aliases": [
+          "ОдвежиНалоге",
+          "УклониПовезивањеНалога",
           "UnlinkAccounts"
         ]
       },
       {
         "realname": "ChangeCredentials",
         "aliases": [
+          "ПромениАкредитиве",
           "ChangeCredentials"
         ]
       },
       {
         "realname": "RemoveCredentials",
         "aliases": [
+          "УклониАкредитиве",
           "RemoveCredentials"
         ]
       },
@@ -8635,6 +9307,7 @@
       {
         "realname": "BlockList",
         "aliases": [
+          "СписакБлокада",
           "СписакБлокираних",
           "ПописБлокираних",
           "BlockList",
@@ -8645,6 +9318,8 @@
       {
         "realname": "AutoblockList",
         "aliases": [
+          "СписакАутоблокова",
+          "Аутоблокови",
           "AutoblockList",
           "ListAutoblocks"
         ]
@@ -8661,12 +9336,14 @@
       {
         "realname": "BotPasswords",
         "aliases": [
+          "ЛозинкеБотова",
           "BotPasswords"
         ]
       },
       {
         "realname": "PasswordReset",
         "aliases": [
+          "РесетовањеЛозинке",
           "PasswordReset"
         ]
       },
@@ -8688,6 +9365,7 @@
       {
         "realname": "ResetTokens",
         "aliases": [
+          "РесетујЖетоне",
           "ResetTokens"
         ]
       },
@@ -8712,6 +9390,7 @@
       {
         "realname": "Listgrants",
         "aliases": [
+          "СписакДозвола",
           "ListGrants"
         ]
       },
@@ -8723,7 +9402,8 @@
           "Списак_корисника",
           "Кориснички_списак",
           "ListUsers",
-          "UserList"
+          "UserList",
+          "Users"
         ]
       },
       {
@@ -8756,7 +9436,15 @@
       {
         "realname": "EditWatchlist",
         "aliases": [
+          "УредиСписакНадгледања",
           "EditWatchlist"
+        ]
+      },
+      {
+        "realname": "PasswordPolicies",
+        "aliases": [
+          "ПравилаЗаЛозинке",
+          "PasswordPolicies"
         ]
       },
       {
@@ -8772,6 +9460,7 @@
       {
         "realname": "Log",
         "aliases": [
+          "Дневник",
           "Извештај",
           "Извештаји",
           "Log",
@@ -8789,6 +9478,7 @@
       {
         "realname": "Newpages",
         "aliases": [
+          "НовеСтранице",
           "НовеСтране",
           "NewPages"
         ]
@@ -8804,6 +9494,7 @@
       {
         "realname": "Recentchangeslinked",
         "aliases": [
+          "СроднеИзмене",
           "RecentChangesLinked",
           "RelatedChanges"
         ]
@@ -8829,6 +9520,7 @@
       {
         "realname": "Filepath",
         "aliases": [
+          "ПутањаДатотеке",
           "Путања_датотеке",
           "FilePath"
         ]
@@ -8836,6 +9528,7 @@
       {
         "realname": "MediaStatistics",
         "aliases": [
+          "СтатистикеМедија",
           "MediaStatistics"
         ]
       },
@@ -8849,12 +9542,14 @@
       {
         "realname": "FileDuplicateSearch",
         "aliases": [
+          "ПретрагаДупликатаДатотека",
           "FileDuplicateSearch"
         ]
       },
       {
         "realname": "Upload",
         "aliases": [
+          "Отпреми",
           "Пошаљи",
           "Upload"
         ]
@@ -8877,6 +9572,8 @@
       {
         "realname": "ApiSandbox",
         "aliases": [
+          "API_песак",
+          "АПИ_песак",
           "ApiSandbox"
         ]
       },
@@ -8884,7 +9581,8 @@
         "realname": "Statistics",
         "aliases": [
           "Статистике",
-          "Statistics"
+          "Statistics",
+          "Stats"
         ]
       },
       {
@@ -8906,6 +9604,7 @@
       {
         "realname": "Lockdb",
         "aliases": [
+          "ЗакључајБазуПодатака",
           "ЗакључајБазу",
           "Закључај_базу",
           "LockDB"
@@ -8914,6 +9613,7 @@
       {
         "realname": "Unlockdb",
         "aliases": [
+          "ОткључајБазуПодатака",
           "ОткључајБазу",
           "Откључај_базу",
           "UnlockDB"
@@ -8922,12 +9622,14 @@
       {
         "realname": "LinkSearch",
         "aliases": [
+          "ПретрагаВеза",
           "LinkSearch"
         ]
       },
       {
         "realname": "Randompage",
         "aliases": [
+          "СлучајнаСтраница",
           "СлучајнаСтрана",
           "Насумична_страница",
           "Random",
@@ -8937,6 +9639,8 @@
       {
         "realname": "RandomInCategory",
         "aliases": [
+          "Случајна_страница_у_категорији",
+          "Случајна_страна_у_категорији",
           "RandomInCategory"
         ]
       },
@@ -8950,12 +9654,15 @@
       {
         "realname": "Randomrootpage",
         "aliases": [
+          "СлучајнаОсновнаСтраница",
+          "СлучајнаОсновнаСтрана",
           "RandomRootpage"
         ]
       },
       {
         "realname": "GoToInterwiki",
         "aliases": [
+          "ПосетиМеђувики",
           "GoToInterwiki"
         ]
       },
@@ -8987,6 +9694,7 @@
       {
         "realname": "Mostlinked",
         "aliases": [
+          "НајповезанијеСтранице",
           "НајповезанијеСтране",
           "MostLinkedPages",
           "MostLinked"
@@ -9012,6 +9720,7 @@
       {
         "realname": "Mostrevisions",
         "aliases": [
+          "НајвишеИзмена",
           "НајвишеРевизија",
           "ЧланциСаНајвишеРевизија",
           "MostRevisions"
@@ -9020,6 +9729,7 @@
       {
         "realname": "ComparePages",
         "aliases": [
+          "УпоредиСтранице",
           "Упореди_странице",
           "ComparePages"
         ]
@@ -9064,18 +9774,22 @@
       {
         "realname": "ExpandTemplates",
         "aliases": [
+          "ПрошириШаблоне",
           "ExpandTemplates"
         ]
       },
       {
         "realname": "Booksources",
         "aliases": [
+          "КњижевниИзвори",
+          "ШтампаниИзвори",
           "BookSources"
         ]
       },
       {
         "realname": "ApiHelp",
         "aliases": [
+          "API_помоћ",
           "ApiHelp"
         ]
       },
@@ -9089,18 +9803,21 @@
       {
         "realname": "Diff",
         "aliases": [
+          "Разлике",
           "Diff"
         ]
       },
       {
         "realname": "EditTags",
         "aliases": [
+          "УредиОзнаке",
           "EditTags"
         ]
       },
       {
         "realname": "Emailuser",
         "aliases": [
+          "ПошаљиИмејлКориснику",
           "EmailUser",
           "Email"
         ]
@@ -9108,6 +9825,7 @@
       {
         "realname": "Movepage",
         "aliases": [
+          "ПреместиСтраницу",
           "Премести",
           "Преусмери",
           "Премести_страницу",
@@ -9126,6 +9844,7 @@
       {
         "realname": "MyLanguage",
         "aliases": [
+          "МојЈезик",
           "Мој_језик",
           "MyLanguage"
         ]
@@ -9149,6 +9868,7 @@
       {
         "realname": "Myuploads",
         "aliases": [
+          "МојаОтпремања",
           "Моја_слања",
           "MyUploads",
           "MyFiles"
@@ -9157,6 +9877,8 @@
       {
         "realname": "AllMyUploads",
         "aliases": [
+          "СваМојаОтпремања",
+          "СвеМојеДатотеке",
           "AllMyUploads",
           "AllMyFiles"
         ]
@@ -9164,6 +9886,7 @@
       {
         "realname": "PermanentLink",
         "aliases": [
+          "ТрајнаВеза",
           "Привремена_веза",
           "PermanentLink",
           "PermaLink"
@@ -9172,32 +9895,40 @@
       {
         "realname": "Redirect",
         "aliases": [
+          "Преусмерење",
           "Redirect"
         ]
       },
       {
         "realname": "Revisiondelete",
         "aliases": [
+          "БрисањеИзмене",
+          "УклањањеИзмене",
           "RevisionDelete"
         ]
       },
       {
         "realname": "RunJobs",
         "aliases": [
+          "ИзвршиПослове",
           "RunJobs"
         ]
       },
       {
         "realname": "Specialpages",
         "aliases": [
+          "ПосебнеСтранице",
+          "ПосебнеСтране",
           "СпецијалнеСтране",
           "Посебне_странице",
+          "Специјалне_странице",
           "SpecialPages"
         ]
       },
       {
         "realname": "PageData",
         "aliases": [
+          "ПодациСтранице",
           "PageData"
         ]
       },
@@ -9211,6 +9942,7 @@
       {
         "realname": "Confirmemail",
         "aliases": [
+          "ПотврдиИмејл",
           "ПотврдиЕ-пошту",
           "Потврда_е-поште",
           "ConfirmEmail"
@@ -9219,30 +9951,38 @@
       {
         "realname": "Invalidateemail",
         "aliases": [
+          "ПоништиИмејл",
           "InvalidateEmail"
         ]
       },
       {
         "realname": "ChangeEmail",
         "aliases": [
+          "ПромениИмејл",
+          "ПромениИмејлАдресу",
           "ChangeEmail"
         ]
       },
       {
         "realname": "ChangeContentModel",
         "aliases": [
+          "ПромениМоделСадржаја",
+          "ИзмениМоделСадржаја",
           "ChangeContentModel"
         ]
       },
       {
         "realname": "Hieroglyphs",
         "aliases": [
+          "Хијероглифи",
           "Hieroglyphs"
         ]
       },
       {
         "realname": "SiteMatrix",
         "aliases": [
+          "Табела_свих_викија",
+          "Матрица_сајта",
           "SiteMatrix",
           "WikimediaWikis"
         ]
@@ -9251,6 +9991,8 @@
         "realname": "CiteThisPage",
         "aliases": [
           "Цитирај",
+          "Цитирај_ову_страницу",
+          "Цитирај_ову_страну",
           "CiteThisPage",
           "Cite"
         ]
@@ -9258,12 +10000,14 @@
       {
         "realname": "CategoryTree",
         "aliases": [
+          "СтаблоКатегорија",
           "CategoryTree"
         ]
       },
       {
         "realname": "Gadgets",
         "aliases": [
+          "Справице",
           "Гаџети",
           "Геџети",
           "Gadgets"
@@ -9272,12 +10016,29 @@
       {
         "realname": "GadgetUsage",
         "aliases": [
+          "УпотребаСправица",
+          "УпотребаГаџета",
+          "УпотребаГеџета",
           "GadgetUsage"
+        ]
+      },
+      {
+        "realname": "OrphanedTimedText",
+        "aliases": [
+          "OrphanedTimedText"
+        ]
+      },
+      {
+        "realname": "TimedMediaHandler",
+        "aliases": [
+          "TimedMediaHandler"
         ]
       },
       {
         "realname": "UrlShortener",
         "aliases": [
+          "Скраћивач_адреса",
+          "Скраћивач_URL_адреса",
           "UrlShortener"
         ]
       },
@@ -9288,20 +10049,29 @@
         ]
       },
       {
+        "realname": "ManageShortUrls",
+        "aliases": [
+          "ManageShortUrls"
+        ]
+      },
+      {
         "realname": "GlobalBlock",
         "aliases": [
+          "БлокирајГлобално",
           "GlobalBlock"
         ]
       },
       {
         "realname": "GlobalBlockList",
         "aliases": [
+          "СписакГлобалнихБлокада",
           "GlobalBlockList"
         ]
       },
       {
         "realname": "GlobalBlockStatus",
         "aliases": [
+          "СтањеГлобалнеБлокаде",
           "GlobalBlockWhitelist",
           "GlobalBlockStatus",
           "DisableGlobalBlock"
@@ -9310,6 +10080,7 @@
       {
         "realname": "RemoveGlobalBlock",
         "aliases": [
+          "УклониГлобалнуБлокаду",
           "GlobalUnblock",
           "RemoveGlobalBlock"
         ]
@@ -9317,6 +10088,7 @@
       {
         "realname": "SecurePoll",
         "aliases": [
+          "БезбедноГласање",
           "SecurePoll"
         ]
       },
@@ -9331,6 +10103,8 @@
       {
         "realname": "Nuke",
         "aliases": [
+          "МасовноБрисање",
+          "Масовно_брисање",
           "Nuke"
         ]
       },
@@ -9345,7 +10119,10 @@
       {
         "realname": "CentralAuth",
         "aliases": [
-          "CentralAuth"
+          "Централна_пријава",
+          "Глобални_налог",
+          "CentralAuth",
+          "GlobalAccount"
         ]
       },
       {
@@ -9363,12 +10140,15 @@
       {
         "realname": "MergeAccount",
         "aliases": [
+          "Споји_налог",
           "MergeAccount"
         ]
       },
       {
         "realname": "GlobalGroupMembership",
         "aliases": [
+          "Глобална_корисничка_права",
+          "Чланство_у_глобалним_групама",
           "GlobalUserRights",
           "GlobalGroupMembership"
         ]
@@ -9376,12 +10156,15 @@
       {
         "realname": "GlobalGroupPermissions",
         "aliases": [
+          "Глобална_права_група",
           "GlobalGroupPermissions"
         ]
       },
       {
         "realname": "WikiSets",
         "aliases": [
+          "Скупови_викија",
+          "Измени_скупове_викија",
           "WikiSets",
           "EditWikiSets"
         ]
@@ -9389,42 +10172,42 @@
       {
         "realname": "GlobalUsers",
         "aliases": [
+          "Глобални_корисници",
           "GlobalUsers"
         ]
       },
       {
         "realname": "MultiLock",
         "aliases": [
+          "Вишеструко_закључавање",
           "MultiLock"
         ]
       },
       {
         "realname": "GlobalRenameUser",
         "aliases": [
+          "Глобално_преименовање_корисника",
           "GlobalRenameUser"
         ]
       },
       {
         "realname": "GlobalRenameProgress",
         "aliases": [
+          "Напредак_глобалног_преименовања",
           "GlobalRenameProgress"
         ]
       },
       {
         "realname": "GlobalUserMerge",
         "aliases": [
+          "Глобално_спајање_корисника",
           "GlobalUserMerge"
-        ]
-      },
-      {
-        "realname": "UsersWhoWillBeRenamed",
-        "aliases": [
-          "UsersWhoWillBeRenamed"
         ]
       },
       {
         "realname": "ApiFeatureUsage",
         "aliases": [
+          "Употреба_извршилачке_функције",
           "ApiFeatureUsage"
         ]
       },
@@ -9467,12 +10250,14 @@
       {
         "realname": "AbuseLog",
         "aliases": [
+          "Дневник_злоупотребе",
           "AbuseLog"
         ]
       },
       {
         "realname": "AbuseFilter",
         "aliases": [
+          "Филтер_злоупотребе",
           "AbuseFilter"
         ]
       },
@@ -9485,30 +10270,43 @@
       {
         "realname": "GloballyWantedFiles",
         "aliases": [
+          "Глобално_тражене_датотеке",
           "GloballyWantedFiles"
+        ]
+      },
+      {
+        "realname": "GloballyUnusedFiles",
+        "aliases": [
+          "Глобално_некоришћене_датотеке",
+          "GloballyUnusedFiles"
         ]
       },
       {
         "realname": "GlobalUsage",
         "aliases": [
+          "ГлобалнаУпотреба",
+          "Глобална_употреба",
           "GlobalUsage"
         ]
       },
       {
         "realname": "MassMessage",
         "aliases": [
+          "Масовно_слање_порука",
           "MassMessage"
         ]
       },
       {
         "realname": "CreateMassMessageList",
         "aliases": [
+          "Направи_списак_за_масовно_слање_порука",
           "CreateMassMessageList"
         ]
       },
       {
         "realname": "EditMassMessageList",
         "aliases": [
+          "Измени_списак_за_масовно_слање_порука",
           "EditMassMessageList"
         ]
       },
@@ -9521,6 +10319,7 @@
       {
         "realname": "LintErrors",
         "aliases": [
+          "Пречишћивање_грешака",
           "LintErrors"
         ]
       },
@@ -9541,12 +10340,16 @@
       {
         "realname": "MobileCite",
         "aliases": [
+          "МобилнеРеференце",
+          "Мобилне_референце",
           "MobileCite"
         ]
       },
       {
         "realname": "MobileDiff",
         "aliases": [
+          "МобилнеРазлике",
+          "Мобилне_разлике",
           "MobileDiff"
         ]
       },
@@ -9554,6 +10357,7 @@
         "realname": "MobileOptions",
         "aliases": [
           "МобилнаПодешавања",
+          "Мобилна_подешавања",
           "MobileOptions"
         ]
       },
@@ -9561,12 +10365,15 @@
         "realname": "MobileMenu",
         "aliases": [
           "МобилниМени",
+          "Мобилни_мени",
           "MobileMenu"
         ]
       },
       {
         "realname": "MobileLanguages",
         "aliases": [
+          "МобилниЈезици",
+          "Мобилни_језици",
           "MobileLanguages"
         ]
       },
@@ -9592,6 +10399,7 @@
       {
         "realname": "MathStatus",
         "aliases": [
+          "СтањеПриказаМатематичкихФормула",
           "MathStatus"
         ]
       },
@@ -9610,91 +10418,8 @@
       {
         "realname": "Interwiki",
         "aliases": [
+          "Међувики",
           "Interwiki"
-        ]
-      },
-      {
-        "realname": "CampusAmbassadorProfile",
-        "aliases": [
-          "CampusVolunteerProfile",
-          "CampusAmbassadorProfile"
-        ]
-      },
-      {
-        "realname": "CampusAmbassadors",
-        "aliases": [
-          "CampusVolunteers",
-          "CampusAmbassadors"
-        ]
-      },
-      {
-        "realname": "CourseActivity",
-        "aliases": [
-          "CourseActivity"
-        ]
-      },
-      {
-        "realname": "Courses",
-        "aliases": [
-          "Courses"
-        ]
-      },
-      {
-        "realname": "Enroll",
-        "aliases": [
-          "Enroll"
-        ]
-      },
-      {
-        "realname": "Disenroll",
-        "aliases": [
-          "Disenroll"
-        ]
-      },
-      {
-        "realname": "MyCourses",
-        "aliases": [
-          "МојиКурсеви",
-          "MyCourses"
-        ]
-      },
-      {
-        "realname": "Institutions",
-        "aliases": [
-          "Institutions",
-          "Orgs"
-        ]
-      },
-      {
-        "realname": "OnlineAmbassadors",
-        "aliases": [
-          "OnlineVolunteers",
-          "OnlineAmbassadors"
-        ]
-      },
-      {
-        "realname": "OnlineAmbassadorProfile",
-        "aliases": [
-          "OnlineVolunteerProfile",
-          "OnlineAmbassadorProfile"
-        ]
-      },
-      {
-        "realname": "StudentActivity",
-        "aliases": [
-          "StudentActivity"
-        ]
-      },
-      {
-        "realname": "Students",
-        "aliases": [
-          "Students"
-        ]
-      },
-      {
-        "realname": "ManageCourses",
-        "aliases": [
-          "ManageCourses"
         ]
       },
       {
@@ -9724,28 +10449,17 @@
         ]
       },
       {
-        "realname": "StructuredDiscussions",
-        "aliases": [
-          "StructuredDiscussions",
-          "Flow"
-        ]
-      },
-      {
-        "realname": "EnableStructuredDiscussions",
-        "aliases": [
-          "EnableStructuredDiscussions",
-          "EnableFlow"
-        ]
-      },
-      {
         "realname": "DisambiguationPages",
         "aliases": [
+          "ВишезначнеОдреднице",
+          "Вишезначне_одреднице",
           "DisambiguationPages"
         ]
       },
       {
         "realname": "DisambiguationPageLinks",
         "aliases": [
+          "ВезеДоВишезначнихОдредница",
           "DisambiguationPageLinks"
         ]
       },
@@ -9758,12 +10472,16 @@
       {
         "realname": "UserMerge",
         "aliases": [
+          "СпајањеКорисника",
+          "Спајање_корисника",
           "UserMerge"
         ]
       },
       {
         "realname": "ContentTranslation",
         "aliases": [
+          "Превод_садржаја",
+          "Превођење_садржаја",
           "ContentTranslation",
           "CX"
         ]
@@ -9771,19 +10489,28 @@
       {
         "realname": "ContentTranslationStats",
         "aliases": [
+          "Статистика_превођења_садржаја",
           "ContentTranslationStats",
           "CXStats"
         ]
       },
       {
+        "realname": "ExternalGuidance",
+        "aliases": [
+          "ExternalGuidance"
+        ]
+      },
+      {
         "realname": "TemplateSandbox",
         "aliases": [
+          "Песак_за_шаблоне",
           "TemplateSandbox"
         ]
       },
       {
         "realname": "GraphSandbox",
         "aliases": [
+          "ПесакЗаГрафиконе",
           "GraphSandbox"
         ]
       },
@@ -9797,6 +10524,7 @@
       {
         "realname": "OAuthManageMyGrants",
         "aliases": [
+          "УправљањеПовезанимАпликацијама",
           "OAuthManageMyGrants",
           "OAuthGrants"
         ]
@@ -9804,26 +10532,45 @@
       {
         "realname": "OAuthListConsumers",
         "aliases": [
+          "Списак_OAuth_апликација",
           "OAuthListConsumers"
         ]
       },
       {
         "realname": "OATH",
         "aliases": [
+          "Двофакторска_потврда_идентитета",
           "Two-factor_authentication",
           "OATH",
           "OATHAuth"
         ]
       },
       {
+        "realname": "DisableOATHForUser",
+        "aliases": [
+          "DisableOATHForUser"
+        ]
+      },
+      {
+        "realname": "ORESModels",
+        "aliases": [
+          "ORESМодели",
+          "ORESModels"
+        ]
+      },
+      {
         "realname": "CheckUser",
         "aliases": [
+          "Провери_корисника",
+          "ПровериКорисника",
           "CheckUser"
         ]
       },
       {
         "realname": "CheckUserLog",
         "aliases": [
+          "Дневник_чекјузера",
+          "ДневникЧекјузера",
           "CheckUserLog"
         ]
       },
@@ -9836,19 +10583,15 @@
       {
         "realname": "Map",
         "aliases": [
+          "Мапа",
           "Map"
         ]
       },
       {
-        "realname": "OrphanedTimedText",
+        "realname": "GlobalPreferences",
         "aliases": [
-          "OrphanedTimedText"
-        ]
-      },
-      {
-        "realname": "TimedMediaHandler",
-        "aliases": [
-          "TimedMediaHandler"
+          "Глобална_подешавања",
+          "GlobalPreferences"
         ]
       },
       {
@@ -9876,66 +10619,67 @@
       {
         "realname": "GlobalRenameRequest",
         "aliases": [
+          "Глобални_захтев_за_преименовање",
           "GlobalRenameRequest"
         ]
       },
       {
         "realname": "GlobalRenameQueue",
         "aliases": [
+          "Глобални_ред_за_преименовање",
           "GlobalRenameQueue"
         ]
       },
       {
         "realname": "Nearby",
         "aliases": [
+          "У_близини",
+          "Близу",
+          "Оближње",
           "Nearby"
         ]
       }
     ],
     "defaultoptions": {
+      "monobook-responsive": true,
       "globaluserpage": true,
       "rcenhancedfilters-seen-highlight-button-counter": 0,
-      "echo-subscriptions-web-login-fail": true,
-      "echo-subscriptions-email-login-fail": true,
-      "echo-subscriptions-web-login-success": false,
-      "echo-subscriptions-email-login-success": true,
+      "usebetatoolbar": 1,
       "visualeditor-enable": 0,
       "visualeditor-betatempdisable": 0,
       "visualeditor-newwikitext": 0,
+      "visualeditor-visualdiffpage": 0,
       "visualeditor-enable-experimental": 0,
       "visualeditor-enable-language": 0,
       "visualeditor-hidebetawelcome": 0,
       "visualeditor-autodisable": 0,
       "visualeditor-tabs": "remember-last",
-      "visualeditor-editor": "wikitext",
+      "visualeditor-editor": "visualeditor",
       "visualeditor-hidetabdialog": 0,
       "math": "mathml",
-      "ep_showtoplink": false,
-      "ep_bulkdelorgs": false,
-      "ep_bulkdelcourses": true,
-      "ep_showdyk": true,
-      "echo-subscriptions-web-education-program": true,
-      "echo-subscriptions-email-education-program": false,
-      "echo-show-alert": true,
+      "echo-subscriptions-web-login-fail": true,
+      "echo-subscriptions-email-login-fail": true,
+      "echo-subscriptions-web-login-success": false,
+      "echo-subscriptions-email-login-success": true,
       "echo-email-frequency": 0,
-      "echo-dismiss-special-page-invitation": 0,
       "echo-subscriptions-web-edit-thank": true,
       "echo-subscriptions-email-edit-thank": false,
-      "echo-subscriptions-web-flow-discussion": true,
-      "echo-subscriptions-email-flow-discussion": false,
-      "flow-topiclist-sortby": "updated",
-      "flow-editor": "visualeditor",
-      "flow-side-rail-state": "expanded",
       "usecodeeditor": 1,
       "eventlogging-display-web": 0,
       "uls-preferences": "",
       "compact-language-links": 1,
       "echo-subscriptions-web-cx": true,
+      "cx-enable-entrypoints": true,
       "echo-subscriptions-web-oauth-owner": true,
       "echo-subscriptions-email-oauth-owner": true,
       "echo-subscriptions-web-oauth-admin": true,
       "echo-subscriptions-email-oauth-admin": true,
-      "parsermigration": "0",
+      "ores-damaging-flag-rc": false,
+      "oresDamagingPref": "soft",
+      "rcOresDamagingPref": "soft",
+      "oresHighlight": false,
+      "oresRCHideNonDamaging": false,
+      "oresWatchlistHideNonDamaging": false,
       "ccmeonemails": 0,
       "cols": 80,
       "date": "default",
@@ -9944,6 +10688,7 @@
       "editfont": "monospace",
       "editondblclick": 0,
       "editsectiononrightclick": 0,
+      "email-allow-new-users": 1,
       "enotifminoredits": false,
       "enotifrevealaddr": 0,
       "enotifusertalkpages": 1,
@@ -9964,20 +10709,19 @@
       "previewonfirst": 0,
       "previewontop": 1,
       "rcdays": 7,
-      "rcenhancedfilters": 0,
       "rcenhancedfilters-disable": 0,
       "rclimit": 50,
       "rows": 25,
       "showhiddencats": false,
       "shownumberswatching": 1,
-      "showtoolbar": 1,
+      "showrollbackconfirmation": 0,
       "skin": "vector",
       "stubthreshold": 0,
       "thumbsize": 4,
       "underline": 2,
       "uselivepreview": 0,
       "usenewrc": 0,
-      "watchcreations": 1,
+      "watchcreations": true,
       "watchdefault": 0,
       "watchdeletion": 0,
       "watchuploads": 1,
@@ -9993,39 +10737,17 @@
       "watchlistunwatchlinks": 0,
       "watchmoves": 0,
       "watchrollback": 0,
+      "wlenhancedfilters-disable": 0,
       "wllimit": 250,
       "useeditwarning": 1,
       "prefershttps": 1,
-      "usebetatoolbar": 1,
-      "usebetatoolbar-cgd": 1,
+      "wlshowwikibase": 0,
       "wikilove-enabled": 1,
       "echo-cross-wiki-notifications": 1,
-      "echo-email-format": "html",
-      "echo-subscriptions-email-system": true,
-      "echo-subscriptions-web-system": true,
-      "echo-subscriptions-email-user-rights": true,
-      "echo-subscriptions-web-user-rights": true,
-      "echo-subscriptions-email-other": false,
-      "echo-subscriptions-web-other": true,
-      "echo-subscriptions-email-edit-user-talk": false,
-      "echo-subscriptions-web-edit-user-talk": true,
-      "echo-subscriptions-email-reverted": false,
-      "echo-subscriptions-web-reverted": true,
-      "echo-subscriptions-email-article-linked": false,
-      "echo-subscriptions-web-article-linked": false,
-      "echo-subscriptions-email-mention": false,
-      "echo-subscriptions-web-mention": true,
-      "echo-subscriptions-email-mention-failure": false,
-      "echo-subscriptions-web-mention-failure": false,
-      "echo-subscriptions-email-mention-success": false,
-      "echo-subscriptions-web-mention-success": false,
-      "echo-subscriptions-email-emailuser": false,
-      "echo-subscriptions-web-emailuser": true,
-      "echo-subscriptions-email-article-reminder": false,
-      "echo-subscriptions-web-article-reminder": true,
-      "timecorrection": "System|60",
+      "timecorrection": "System|120",
       "language": "sr",
       "variant-en": "en",
+      "variant-crh": "crh",
       "variant-gan": "gan",
       "variant-iu": "iu",
       "variant-kk": "kk",
@@ -10049,18 +10771,50 @@
       "searchNs11": false,
       "searchNs12": false,
       "searchNs13": false,
-      "cirrussearch-pref-completion-profile": "fuzzy",
       "gadget-confirmationRollback-mobile": 1,
       "gadget-ReferenceTooltips": 1,
       "gadget-watchlist-notice": 1,
       "gadget-WatchlistBase": 1,
       "gadget-WatchlistGreenIndicators": 1,
       "gadget-WatchlistGreenIndicatorsMono": 1,
+      "gadget-SubtleUpdatemarker": 1,
+      "gadget-HotCat": 1,
       "gadget-charinsert": 1,
       "gadget-refToolbar": 1,
       "gadget-extra-toolbar-buttons": 1,
+      "cirrussearch-pref-completion-profile": "fuzzy",
       "multimediaviewer-enable": 1,
-      "popups": "0"
+      "popups": "0",
+      "mobile-specialpages": "1",
+      "mf_amc_optin": "0",
+      "echo-email-format": "html",
+      "echo-subscriptions-email-system": true,
+      "echo-subscriptions-web-system": true,
+      "echo-subscriptions-email-system-noemail": false,
+      "echo-subscriptions-web-system-noemail": true,
+      "echo-subscriptions-email-user-rights": true,
+      "echo-subscriptions-web-user-rights": true,
+      "echo-subscriptions-email-other": false,
+      "echo-subscriptions-web-other": true,
+      "echo-subscriptions-email-edit-user-talk": false,
+      "echo-subscriptions-web-edit-user-talk": true,
+      "echo-subscriptions-email-reverted": false,
+      "echo-subscriptions-web-reverted": true,
+      "echo-subscriptions-email-article-linked": false,
+      "echo-subscriptions-web-article-linked": false,
+      "echo-subscriptions-email-mention": false,
+      "echo-subscriptions-web-mention": true,
+      "echo-subscriptions-email-mention-failure": false,
+      "echo-subscriptions-web-mention-failure": false,
+      "echo-subscriptions-email-mention-success": false,
+      "echo-subscriptions-web-mention-success": false,
+      "echo-subscriptions-email-emailuser": false,
+      "echo-subscriptions-web-emailuser": true,
+      "echo-subscriptions-email-thank-you-edit": false,
+      "echo-subscriptions-web-thank-you-edit": true,
+      "echo-subscriptions-email-wikibase-action": false,
+      "echo-subscriptions-web-wikibase-action": true,
+      "echo-subscriptions-email-cx": false
     },
     "variables": [
       "!",

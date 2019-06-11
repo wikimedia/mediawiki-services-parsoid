@@ -58,13 +58,13 @@ var update = Promise.async(function *(opts) {
 		prefix: prefix,
 		domain: domain,
 	});
-	var resultConf = yield ConfigRequest.promise(env);
+	var resultConf = yield ConfigRequest.promise(env, opts.formatversion);
 	var configDir = path.resolve(__dirname, '../lib/config');
 	var iwp = env.conf.wiki.iwp;
 	// HACK for be-tarask
 	if (iwp === 'be_x_oldwiki') { iwp = 'be-taraskwiki'; }
 	var localConfigFile = path.resolve(
-		configDir, './baseconfig/' + iwp + '.json'
+		configDir, `./baseconfig/${opts.formatversion === 2 ? '2/' : ''}${iwp}.json`
 	);
 	var resultStr = JSON.stringify({ query: resultConf }, null, 2);
 	yield fs.writeFile(localConfigFile, resultStr, 'utf8');
@@ -92,6 +92,11 @@ var yopts = yargs
 		'boolean': false,
 		'default': null,
 	},
+	'formatversion': {
+		description: 'Which formatversion to use',
+		'boolean': false,
+		'default': 1,
+	}
 }));
 
 Promise.async(function *() {
