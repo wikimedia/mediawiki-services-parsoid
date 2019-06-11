@@ -9,6 +9,7 @@ use DOMText;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
+use Parsoid\Ext\LintHandlerTrait;
 use Parsoid\Ext\SerialHandlerTrait;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Utils\DOMCompat;
@@ -24,6 +25,7 @@ use Wikimedia\Assert\Assert;
 class Nowiki implements ExtensionTag, SerialHandler {
 
 	use SerialHandlerTrait;
+	use LintHandlerTrait;
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
@@ -115,7 +117,6 @@ class Nowiki implements ExtensionTag, SerialHandler {
 			'tags' => [
 				[
 					'name' => 'nowiki',
-					// FIXME: handle() will also be called on type mw:Extension/nowiki
 					'class' => self::class,
 				]
 			]

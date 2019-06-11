@@ -6,6 +6,7 @@ namespace Parsoid\Ext\Pre;
 use DOMDocument;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
+use Parsoid\Ext\LintHandlerTrait;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
@@ -16,6 +17,7 @@ use Parsoid\Wt2Html\TT\Sanitizer;
  * semantics.  It treats anything inside it as plaintext.
  */
 class Pre implements ExtensionTag {
+	use LintHandlerTrait;
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
@@ -25,6 +26,25 @@ abstract class SiteConfig {
 
 	/** @var array|null */
 	private $iwMatcher = null;
+
+	/**
+	 * The Parsoid/JS extension registration mechanism is short-lived and
+	 * we are going to probably rely on the core extension mechanism once
+	 * we integrate into core. So, for the port, it is simplest to just
+	 * hardcode the list of extensions that have native equivalents in Parsoid.
+	 *
+	 * @var array
+	 */
+	private $defaultNativeExtensions = [
+		'Nowiki', 'Pre',
+		/*
+		 * Not yet ported / merged
+		 *
+		'Cite', 'Gallery', 'LST', 'Poem', 'JSON'
+		 */
+	];
+
+	private $nativeExtConfig = null;
 
 	/************************************************************************//**
 	 * @name   Global config
@@ -591,32 +611,6 @@ abstract class SiteConfig {
 	abstract public function getMagicPatternMatcher( array $words ): callable;
 
 	/**
-	 * Determine whether a given name, which must have already been converted
-	 * to lower case, is a valid extension tag name.
-	 *
-	 * @param string $name
-	 * @return bool
-	 */
-	abstract public function isExtensionTag( string $name ): bool;
-
-	/**
-	 * Get an array of defined extension tags, with the lower case name in the
-	 * key, the value arbitrary.
-	 *
-	 * @return array
-	 */
-	abstract public function getExtensionTagNameMap(): array;
-
-	/**
-	 * @param string $string Extension tag name
-	 * @return SerialHandler|null
-	 */
-	public function getExtensionTagSerialHandler( string $string ): ?SerialHandler {
-		// PORT-FIXME implement (should return the relevant src/Ext class, if it implements SerialHandler)
-		throw new \LogicException( 'Not implemented' );
-	}
-
-	/**
 	 * Get the maximum template depth
 	 *
 	 * @return int
@@ -708,4 +702,150 @@ abstract class SiteConfig {
 	 * @return string|null
 	 */
 	abstract public function getMagicWordForVariable( string $str ): ?string;
+
+	/**
+	 * Get an array of defined extension tags, with the lower case name in the
+	 * key, the value arbitrary. This is the set of extension tags that are
+	 * configured in M/W core. $defaultNativeExtensions may already be part of it,
+	 * but eventually this distinction will disappear since all extension tags
+	 * have to be defined against the Parsoid's extension API.
+	 *
+	 * @return array
+	 */
+	abstract protected function getNonNativeExtensionTags(): array;
+
+	private function constructNativeExtConfig() {
+		$this->nativeExtConfig = [
+			'allTags'       => $this->getNonNativeExtensionTags() ?? [],
+			'nativeTags'    => [],
+			'domProcessors' => [],
+			'styles'        => [],
+			'contentModels' => []
+		];
+
+		// Default content model implementation for wikitext
+		$this->nativeExtConfig['contentModels']['wikitext'] = [
+			"toHTML"   => function ( $env ) {
+				return $env->getPipelineFactory()->parse( $env->getPageMainContent() );
+			},
+			"fromHTML" => function ( $env, $body, $useSelser ) {
+				// Will be done as part of T225026
+				throw new \LogicException( 'Not implemented yet' );
+			}
+		];
+
+		foreach ( $this->defaultNativeExtensions as $extName ) {
+			$extPkg = '\Parsoid\Ext\\' . $extName . '\\' . $extName;
+			$extObj = new $extPkg();
+			$extConfig = $extObj->getConfig();
+
+			// This is for wt2html toDOM, html2wt fromHTML, and linter functionality
+			foreach ( $extConfig['tags'] as $tagConfig ) {
+				$lowerTagName = strToLower( $tagConfig['name'] );
+				$this->nativeExtConfig['allTags'][$lowerTagName] = true;
+				$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
+			}
+
+			// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
+			if ( isset( $extConfig['domProcessors'] ) ) {
+				$this->nativeExtConfig['domProcessors'][$extName] = $extConfig['domProcessors'];
+			}
+
+			// Does this extension export any native styles?
+			// FIXME: When we integrate with core, this will probably generalize
+			// to all resources (scripts, modules, etc). not just styles.
+			$this->nativeExtConfig['styles'] = array_merge(
+				$this->nativeExtConfig['styles'],
+				$extConfig['styles'] ?? []
+			);
+
+			if ( isset( $extConfig['contentModels'] ) ) {
+				foreach ( $extConfig['contentModels'] as $cm => $impl ) {
+					// For compatibility with mediawiki core, the first
+					// registered extension wins.
+					if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
+						continue;
+					}
+
+					$this->nativeExtConfig['contentModels'][$cm] = $impl;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getNativeExtensionsConfig(): array {
+		if ( !$this->nativeExtConfig ) {
+			$this->constructNativeExtConfig();
+		}
+
+		return $this->nativeExtConfig;
+	}
+
+	/**
+	 * Determine whether a given name, which must have already been converted
+	 * to lower case, is a valid extension tag name.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function isExtensionTag( string $name ): bool {
+		return isset( $this->getExtensionTagNameMap()[ $name ] );
+	}
+
+	/**
+	 * Get an array of defined extension tags, with the lower case name
+	 * in the key, and the value being arbitrary.
+	 *
+	 * @return array
+	 */
+	public function getExtensionTagNameMap(): array {
+		$nativeExtConfig = $this->getNativeExtensionsConfig();
+		return $nativeExtConfig['allTags'];
+	}
+
+	/**
+	 * @param string $tagName Extension tag name
+	 * @return array|null
+	 */
+	public function getNativeExtTagConfig( string $tagName ): ?array {
+		$nativeExtConfig = $this->getNativeExtensionsConfig();
+		return $nativeExtConfig['nativeTags'][ strToLower( $tagName ) ] ?? null;
+	}
+
+	/**
+	 * @param string $tagName Extension tag name
+	 * @return ExtensionTag|null
+	 */
+	public function getNativeExtTagImpl( string $tagName ): ?ExtensionTag {
+		$tagConfig = $this->getNativeExtTagConfig( $tagName );
+		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
+	}
+
+	/**
+	 * @param string $tagName Extension tag name
+	 * @return SerialHandler|null
+	 */
+	public function getExtensionTagSerialHandler( string $tagName ): ?SerialHandler {
+		$tagImpl = $this->getNativeExtTagImpl( $tagName );
+		return $tagImpl && $tagImpl instanceof SerialHandler ? $tagImpl : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getNativeExtDOMProcessors(): array {
+		$nativeExtConfig = $this->getNativeExtensionsConfig();
+		return $nativeExtConfig['domProcessors'];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getNativeExtStyles(): array {
+		$nativeExtConfig = $this->getNativeExtensionsConfig();
+		return $nativeExtConfig['styles'];
+	}
 }

@@ -7,6 +7,7 @@ namespace Parsoid\Wt2Html\PP\Processors;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
+use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -20,6 +21,9 @@ use stdClass;
  * and emits them as linter events.
  */
 class Linter {
+	/** @var ParsoidExtensionAPI */
+	private $extApi = null;
+
 	/** @phan-var array<string,bool>|null */
 	private $tagsWithChangedMisnestingBehavior = null;
 
@@ -1208,18 +1212,17 @@ class Linter {
 			}
 
 			$nextNode = null;
+			// Let native extensions lint their content
 			$nativeExt = WTUtils::getNativeExt( $env, $node );
-			/* TODO: The native extension interface isn't defined yet, so there's no code we can sensibly
-			 * write here at this time.
-			// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-			if ( $nativeExt !== null && $nativeExt->lintHandler ) {
-				// Let native extensions lint their content
-				$nextNode = $nativeExt->lintHandler( $node, $env, $tplInfo, function ( ...$args ) {
-					return $this->findLints( ...$args );
-				} );
-			} else
-			*/
-			{ // Default node handler
+			if ( $nativeExt && $nativeExt->hasLintHandler() ) {
+				$nextNode = $nativeExt->lintHandler(
+					$this->extApi,
+					$node,
+					function ( $extRootNode ) use ( $env, $tplInfo ) {
+						return $this->findLints( $extRootNode, $env, $tplInfo );
+					}
+				);
+			} else { // Default node handler
 				// Lint this node
 				$nextNode = $this->logWikitextFixups( $node, $env, $tplInfo );
 				if ( $tplInfo && $tplInfo->clear ) {
@@ -1252,6 +1255,7 @@ class Linter {
 			return;
 		}
 
+		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->findLints( $body, $env );
 		$this->postProcessLints( $env->getLints(), $env );
 	}

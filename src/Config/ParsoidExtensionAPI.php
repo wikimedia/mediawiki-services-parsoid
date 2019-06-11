@@ -148,4 +148,7 @@ class ParsoidExtensionAPI {
 
 		return $doc;
 	}
+
+	// TODO: Provide support for extensions to register lints
+	// from their customized lint handlers.
 }

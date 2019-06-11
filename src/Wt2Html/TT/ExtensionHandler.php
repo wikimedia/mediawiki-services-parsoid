@@ -7,6 +7,7 @@ use DOMDocument;
 use Exception;
 
 use Parsoid\Config\Env;
+use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -15,6 +16,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
+use Parsoid\Ext\ExtensionTag;
 use Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
@@ -166,9 +168,7 @@ class ExtensionHandler extends TokenHandler {
 	private function onExtension( $token ): array {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
-		// PORT-FIXME need interface to get extensionName and extensionCache
-		// $nativeExt = $env->getSiteConfig()->wiki->extConfig->tags->get( $extensionName );
-		$nativeExt = null;
+		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
 		// PORT-FIXME: Code in gerrit
 		// $cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
 		$cachedExpansion = null;
@@ -176,7 +176,7 @@ class ExtensionHandler extends TokenHandler {
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
-		if ( $nativeExt && $nativeExt->toDOM ) {
+		if ( $nativeExt && $nativeExt instanceof ExtensionTag ) {
 			$extContent = Util::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
 			$state = [
@@ -190,7 +190,9 @@ class ExtensionHandler extends TokenHandler {
 				// instead?
 				'parseContext' => $this->options
 			];
-			$doc = $nativeExt->toDOM( $state, $extContent, $extArgs );
+			$extApi = new ParsoidExtensionAPI( $this->manager->env,
+				$this->manager->getFrame(), $token, $this->options );
+			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
 			if ( $doc !== null ) {
 				// Pass an async signal since the ext-content won't be processed synchronously
 				$toks = $this->parseExtensionHTML( $token, null, $doc );
@@ -234,9 +236,9 @@ class ExtensionHandler extends TokenHandler {
 
 		// PORT-FIXME: Not supported yet
 		// Give native extensions a chance to manipulate the argDict
-		// $nativeExt = $env->conf->wiki->extConfig->tags->get( $state['wrapperName'] );
-		$nativeExt = null;
-		if ( $nativeExt && $nativeExt->modifyArgDict ) {
+		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
+		if ( $extConfig && !empty( $extConfig['modifiesArgDict'] ) ) {
+			$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
 			$nativeExt->modifyArgDict( $env, $argDict );
 		}
 
@@ -247,8 +249,8 @@ class ExtensionHandler extends TokenHandler {
 
 		// Check if the tag wants its DOM fragment not to be unwrapped.
 		// The default setting is to unwrap the content DOM fragment automatically.
-		if ( $nativeExt && isset( $nativeExt->fragmentOptions ) ) {
-			$opts += $nativeExt->fragmentOptions;
+		if ( isset( $extConfig['fragmentOptions'] ) ) {
+			$opts += $extConfig['fragmentOptions'];
 		}
 
 		$body = DOMCompat::getBody( $doc );

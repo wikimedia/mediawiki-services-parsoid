@@ -361,7 +361,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'maplink' => true,
 				'mapframe' => true,
 			],
-			$this->getSiteConfig()->getExtensionTagNameMap()
+			array_fill_keys( array_keys( $this->getSiteConfig()->getExtensionTagNameMap() ), true )
 		);
 	}
 

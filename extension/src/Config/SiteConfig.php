@@ -525,14 +525,8 @@ class SiteConfig extends ISiteConfig {
 		$this->extensionTags = array_fill_keys( $parser->getTags(), true );
 	}
 
-	public function isExtensionTag( $name ): bool {
-		if ( $this->extensionTags === null ) {
-			$this->populateExtensionTags();
-		}
-		return isset( $this->extensionTags[$name] );
-	}
-
-	public function getExtensionTagNameMap(): array {
+	/** @inheritDoc */
+	protected function getNonNativeExtensionTags(): array {
 		if ( $this->extensionTags === null ) {
 			$this->populateExtensionTags();
 		}

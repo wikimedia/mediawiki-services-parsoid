@@ -670,12 +670,6 @@ class SiteConfig extends ISiteConfig {
 		};
 	}
 
-	/** @inheritDoc */
-	public function isExtensionTag( string $name ): bool {
-		$this->loadSiteData();
-		return isset( $this->extensionTags[$name] );
-	}
-
 	/**
 	 * This function is public so it can be used to synchronize env for
 	 * hybrid parserTests.  The parserTests setup includes the definition
@@ -689,7 +683,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getExtensionTagNameMap(): array {
+	protected function getNonNativeExtensionTags(): array {
 		$this->loadSiteData();
 		return $this->extensionTags;
 	}

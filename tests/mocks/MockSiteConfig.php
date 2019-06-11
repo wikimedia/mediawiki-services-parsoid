@@ -247,22 +247,21 @@ class MockSiteConfig extends SiteConfig {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
-	public function getExtensionTagNameMap(): array {
+	/** @inheritDoc */
+	protected function getNonNativeExtensionTags(): array {
 		return [
-			'pre' => true,
-			'nowiki' => true,
-			'gallery' => true,
+			'gallery' => true,    // Remove when gallery is ported
+			'ref' => true,        // Remove when cite is ported
+			'references' => true, // Remove when cite is ported
+			'poem' => true,       // Remove when poem is ported
 			'indicator' => true,
 			'timeline' => true,
 			'hiero' => true,
 			'charinsert' => true,
-			'ref' => true,
-			'references' => true,
 			'inputbox' => true,
 			'imagemap' => true,
 			'source' => true,
 			'syntaxhighlight' => true,
-			'poem' => true,
 			'section' => true,
 			'score' => true,
 			'templatedata' => true,
@@ -273,10 +272,6 @@ class MockSiteConfig extends SiteConfig {
 			'maplink' => true,
 			'categorytree' => true,
 		];
-	}
-
-	public function isExtensionTag( string $name ): bool {
-		return isset( $this->getExtensionTagNameMap()[$name] );
 	}
 
 	public function getMaxTemplateDepth(): int {

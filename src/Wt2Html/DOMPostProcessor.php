@@ -303,17 +303,12 @@ class DOMPostProcessor extends PipelineStage {
 		 *   by analyzing what the DOM postprocessor does and see if it introduces
 		 *   potential ordering issues.
 		 */
-
-		/*
-
-		$env->conf->wiki->extConfig->domProcessors->forEach( function ( $extProcs ) use ( &$processors ) {
+		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
-				'name' => 'tag:' . $extProcs->extName,
-				'Processor' => $extProcs->procs->wt2htmlPostProcessor
+				'name' => 'tag:' . $extName,
+				'Processor' => new $domProcs['wt2htmlPostProcessor']()
 			];
-		} );
-
-		*/
+		}
 
 		$processors = array_merge( $processors, [
 			[
@@ -636,12 +631,10 @@ class DOMPostProcessor extends PipelineStage {
 			'site.styles'
 		];
 
-		/*
 		// Styles from native extensions
-		$env->conf->wiki->extConfig->styles->forEach( function ( $mo ) use ( &$modules ) {
-			$modules->add( $mo );
-		} );
-		*/
+		foreach ( $env->getSiteConfig()->getNativeExtStyles() as $style ) {
+			$modules[] = $style;
+		}
 
 		// Styles from modules returned from preprocessor / parse requests
 		$outputProps = $env->getOutputProperties();

@@ -10,6 +10,7 @@ use stdClass as StdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Ext\ExtensionTag;
 
 /**
  * These utilites pertain to extracting / modifying wikitext information from the DOM.
@@ -798,16 +799,12 @@ class WTUtils {
 	/**
 	 * @param Env $env
 	 * @param DOMNode $node
-	 * @return null
+	 * @return ?ExtensionTag
 	 */
-	public static function getNativeExt( Env $env, DOMNode $node ) {
-		$prefixLen = strlen( 'mw:Extension/' );
+	public static function getNativeExt( Env $env, DOMNode $node ): ?ExtensionTag {
 		$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
-		/* PORT-FIXME: The native extension interface isn't defined yet
-		$match &&
-			( $nativeExt = $env->getSiteConfig()
-				->extConfig->tags->get( array_slice( $match, $prefixLen ) )
-		*/
-		return null;
+		$matchingTag = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
+		return $matchingTag ?
+			$env->getSiteConfig()->getNativeExtTagImpl( $matchingTag ) : null;
 	}
 }
