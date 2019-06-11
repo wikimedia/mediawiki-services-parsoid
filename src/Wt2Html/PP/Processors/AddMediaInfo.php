@@ -575,8 +575,8 @@ class AddMediaInfo {
 			DOMUtils::assertElt( $span );
 			$attrs = [
 				'size' => [
-					'width' => (int)$span->getAttribute( 'data-width' ) ?: 0,
-					'height' => (int)$span->getAttribute( 'data-height' ) ?: 0,
+					'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
+					'height' => (int)$span->getAttribute( 'data-height' ) ?: null,
 				],
 				'format' => WTSUtils::getMediaType( $container )['format'],
 				'title' => $env->makeTitleFromText( $span->textContent ),
