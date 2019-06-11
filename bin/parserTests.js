@@ -9,6 +9,10 @@
 
 require('../core-upgrade.js');
 
+// This is hack for hydrid testing since spawnSync blocks round-robin scheduling
+var cluster = require('cluster');
+cluster.schedulingPolicy = cluster.SCHED_NONE;
+
 var serviceWrapper = require('../tests/serviceWrapper.js');
 var fs = require('pn/fs');
 var path = require('path');

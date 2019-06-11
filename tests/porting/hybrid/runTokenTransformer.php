@@ -61,12 +61,11 @@ foreach ( $lines as $line ) {
 $transformer = null;
 
 $envOpts = $opts['envOpts'];
-$apiEndpoint = preg_match( '/^(.*)wiki$/', $envOpts['prefix'] ?? '', $m ) === 1 ?
-	( "https://" . $m[1] . ".wikipedia.org/w/api.php" ) : $envOpts['apiURI'];
+
 $env = new ApiEnv( [
 	"uid" => $envOpts['currentUid'] ?? -1,
 	"fid" => $envOpts['currentFid'] ?? -1,
-	"apiEndpoint" => $apiEndpoint,
+	"apiEndpoint" => $envOpts['apiURI'],
 	"pageContent" => $envOpts['pageContent'] ?? null,
 	"pageLanguage" => $envOpts['pagelanguage'] ?? null,
 	"pageLanguageDir" => $envOpts['pagelanguagedir'] ?? null,

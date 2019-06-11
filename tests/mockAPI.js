@@ -10,6 +10,7 @@ var yaml = require('js-yaml');
 var path = require('path');
 var express = require('express');
 var crypto = require('crypto');
+var busboy = require('connect-busboy');
 
 var Promise = require('../lib/utils/promise.js');
 
@@ -75,7 +76,28 @@ var FILE_PROPS = {
 /* -------------------- web app access points below --------------------- */
 
 var app = express();
-app.use(express.urlencoded({ extended: false }));
+
+// application/x-www-form-urlencoded
+// multipart/form-data
+app.use(busboy({
+	limits: {
+		fields: 10,
+		fieldSize: 15 * 1024 * 1024,
+	},
+}));
+app.use(function(req, res, next) {
+	req.body = req.body || {};
+	if (!req.busboy) {
+		return next();
+	}
+	req.busboy.on('field', function(field, val) {
+		req.body[field] = val;
+	});
+	req.busboy.on('finish', function() {
+		next();
+	});
+	req.pipe(req.busboy);
+});
 
 var mainPage = {
 	query: {
@@ -884,7 +906,7 @@ app.post('/api.php', function(req, res) {
 	handleApiRequest(req.body, res);
 });
 
-module.exports = function(options) {
+const start = function(options) {
 	var logger = options.logger;
 	var server;
 	return new Promise(function(resolve, reject) {
@@ -893,7 +915,8 @@ module.exports = function(options) {
 			reject(err);
 		});
 		server = app.listen(options.config.port, options.config.iface, resolve);
-	}).then(function() {
+	})
+	.then(function() {
 		var port = server.address().port;
 		logger.log('info', 'Mock MediaWiki API: Started on ' + port);
 		return {
@@ -904,3 +927,13 @@ module.exports = function(options) {
 		};
 	});
 };
+
+if (require.main === module) {
+	start({
+		config: { port: 0 },
+		logger: { log: function(...args) { console.log(...args); } },
+	})
+	.catch((e) => { console.error(e); });
+} else {
+	module.exports = start;
+}
