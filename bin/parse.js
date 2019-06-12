@@ -53,7 +53,6 @@ var standardOpts = ScriptUtils.addStandardOptions({
 	},
 	'normalize': {
 		description: 'Normalize the output as parserTests would do. Use --normalize for PHP tests, and --normalize=parsoid for parsoid-only tests',
-		'default': false,
 	},
 	'body_only': {
 		description: 'Just return the body, without any normalizations as in --normalize',
