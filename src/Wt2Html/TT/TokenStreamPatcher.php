@@ -28,12 +28,28 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Wt2Html\TokenTransformManager;
 
 class TokenStreamPatcher extends TokenHandler {
+	/** @var PegTokenizer */
 	private $tokenizer;
+
+	/** @var int */
 	private $srcOffset;
+
+	/** @var bool */
 	private $sol;
+
+	/** @var array */
 	private $tokenBuf;
+
+	/** @var int */
 	private $wikiTableNesting;
+
+	/** @var Token|null */
 	private $lastConvertedTableCellToken;
+
+	/**
+	 * @var TemplateHandler
+	 * A local instance needed to process magic words
+	 */
 	private $templateHandler;
 
 	/**
@@ -41,7 +57,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @param TokenTransformManager $manager
 	 * @param array $options
 	 */
-	public function __construct( $manager, $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		$newOptions = array_merge( $options, [ 'tsp' => true ] );
 		parent::__construct( $manager, $newOptions );
 		$this->tokenizer = new PegTokenizer( $this->env );
@@ -49,7 +65,7 @@ class TokenStreamPatcher extends TokenHandler {
 		$this->reset();
 	}
 
-	public function reset() {
+	private function reset() {
 		$this->srcOffset = 0;
 		$this->sol = true;
 		$this->tokenBuf = [];
@@ -68,8 +84,7 @@ class TokenStreamPatcher extends TokenHandler {
 	}
 
 	/**
-	 * @param NlTk $token
-	 * @return array|NlTk
+	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
@@ -84,8 +99,7 @@ class TokenStreamPatcher extends TokenHandler {
 	}
 
 	/**
-	 * @param EOFTk $token
-	 * @return array|EOFTk|Token
+	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
 		$res = $this->onAny( $token );
@@ -96,7 +110,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/**
 	 * Clear start of line info
 	 */
-	public function clearSOL() {
+	private function clearSOL() {
 		// clear tsr and sol flag
 		$this->srcOffset = null;
 		$this->sol = false;
@@ -106,7 +120,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	public function convertTokenToString( Token $token ): array {
+	private function convertTokenToString( Token $token ): array {
 		$da = $token->dataAttribs;
 		$tsr = $da->tsr ?? null;
 
@@ -170,8 +184,7 @@ class TokenStreamPatcher extends TokenHandler {
 	}
 
 	/**
-	 * @param Token|string $token
-	 * @return array|Token
+	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
@@ -257,7 +270,7 @@ class TokenStreamPatcher extends TokenHandler {
 					if ( $n > 0 ) {
 						$i = 0;
 						while ( $i < $n &&
-							!( $this->tokenBuf[ $i ] instanceof SelfclosingTagTk )
+							!( $this->tokenBuf[$i] instanceof SelfclosingTagTk )
 						) {
 							$i++;
 						}
@@ -269,7 +282,7 @@ class TokenStreamPatcher extends TokenHandler {
 							)
 						];
 						if ( $i < $n ) {
-							$toks[] = $this->tokenBuf[ $i ];
+							$toks[] = $this->tokenBuf[$i];
 							if ( $i + 1 < $n ) {
 								$toks[] = new SelfclosingTagTk( 'meta',
 									[ new KV( 'typeof', 'mw:EmptyLine' ) ],

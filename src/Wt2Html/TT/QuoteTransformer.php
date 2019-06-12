@@ -59,14 +59,10 @@ class QuoteTransformer extends TokenHandler {
 	private $last;
 
 	/**
-	 * Class constructor
-	 *
 	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
-		$manager, array $options
-	) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->reset();
 	}
@@ -75,7 +71,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Reset the buffering of chunks
 	 *
 	 */
-	public function reset(): void {
+	private function reset(): void {
 		// Chunks alternate between quote tokens and sequences of non-quote
 		// tokens.  The quote tokens are later replaced with the actual tag
 		// token for italic or bold.  The first chunk is a non-quote chunk.
@@ -100,8 +96,7 @@ class QuoteTransformer extends TokenHandler {
 
 	/**
 	 * Handles mw-quote tokens and td/th tokens
-	 * @param Token $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onTag( Token $token ) {
 		$tkName = is_string( $token ) ? '' : $token->getName();
@@ -116,8 +111,7 @@ class QuoteTransformer extends TokenHandler {
 
 	/**
 	 * On encountering a NlTk, processes quotes on the current line
-	 * @param NlTk $token
-	 * @return NlTk|array
+	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ) {
 		return $this->processQuotes( $token );
@@ -125,18 +119,14 @@ class QuoteTransformer extends TokenHandler {
 
 	/**
 	 * On encountering an EOFTk, processes quotes on the current line
-	 * @param EOFTk $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
 		return $this->processQuotes( $token );
 	}
 
 	/**
-	 * Handle onAny tags.
-	 *
-	 * @param Token|string $token token
-	 * @return Token|string|array
+	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
 		$this->manager->env->log(
@@ -165,7 +155,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param Token $token token
 	 * @return array
 	 */
-	public function onQuote( Token $token ): array {
+	private function onQuote( Token $token ): array {
 		$v = $token->getAttribute( 'value' );
 		$qlen = strlen( $v );
 		$this->manager->env->log(
@@ -195,7 +185,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param Token $token token
 	 * @return Token|array
 	 */
-	public function processQuotes( Token $token ) {
+	private function processQuotes( Token $token ) {
 		if ( !$this->onAnyEnabled ) {
 			// Nothing to do, quick abort.
 			return $token;
@@ -314,7 +304,7 @@ class QuoteTransformer extends TokenHandler {
 	 *
 	 * @param int $i index into chunks
 	 */
-	public function convertBold( int $i ): void {
+	private function convertBold( int $i ): void {
 		// this should be a bold tag.
 		Assert::invariant( $i > 0 && count( $this->chunks[$i] ) === 1
 			&& strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) === 3,
@@ -336,7 +326,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Convert quote tokens to tags, using the same state machine as the
 	 * PHP parser uses.
 	 */
-	public function convertQuotesToTags(): void {
+	private function convertQuotesToTags(): void {
 		$lastboth = -1;
 		$state = '';
 
@@ -440,7 +430,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param array $tags token
 	 * @param bool $ignoreBogusTwo optional defaults to false
 	 */
-	public function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ): void {
+	private function quoteToTag( int $chunk, array $tags, bool $ignoreBogusTwo = false ): void {
 		Assert::invariant( count( $this->chunks[$chunk] ) === 1, 'expected count chunks[i] == 1' );
 		$result = [];
 		$oldtag = $this->chunks[$chunk][0];

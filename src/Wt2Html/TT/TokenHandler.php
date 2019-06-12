@@ -5,11 +5,11 @@ namespace Parsoid\Wt2Html\TT;
 
 use Generator;
 
-use Parsoid\Wt2Html\TokenTransformManager;
-use Parsoid\Wt2Html\PipelineStage;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Wt2Html\PipelineStage;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
 
 /**

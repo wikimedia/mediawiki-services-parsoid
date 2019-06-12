@@ -3,25 +3,21 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\Util;
-use Parsoid\Wt2html\TokenTransformManager;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
  */
 class BehaviorSwitchHandler extends TokenHandler {
 	/**
-	 * Class constructor
-	 *
-	 * @param TokenTransformManager $manager manager environment
+	 * @param TokenTransformManager $manager
 	 * @param array $options options
 	 */
-	public function __construct( /* @phan-suppress-current-line PhanUndeclaredTypeParameter */
-		$manager, array $options
-	) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
@@ -34,7 +30,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 	 */
 	public function onBehaviorSwitch( Token $token ): array {
 		$env = $this->manager->env;
-		$magicWord = $env->getSiteConfig()->magicWordCanonicalName( $token->attribs[ 0 ]->v );
+		$magicWord = $env->getSiteConfig()->magicWordCanonicalName( $token->attribs[0]->v );
 		$env->setVariable( $magicWord, true );
 		$metaToken = new SelfclosingTagTk(
 			'meta',
@@ -46,13 +42,9 @@ class BehaviorSwitchHandler extends TokenHandler {
 	}
 
 	/**
-	 * Handle onTag processing
-	 *
-	 * @param Token $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onTag( Token $token ) {
-		$name = is_string( $token ) ? $token : $token->getName();
-		return ( $name === 'behavior-switch' ) ? $this->onBehaviorSwitch( $token ) : $token;
+		return $token->getName() === 'behavior-switch' ? $this->onBehaviorSwitch( $token ) : $token;
 	}
 }

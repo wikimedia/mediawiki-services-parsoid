@@ -3,21 +3,22 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\PipelineUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
 
 class DOMFragmentBuilder extends TokenHandler {
 	/**
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( object $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
@@ -105,12 +106,10 @@ class DOMFragmentBuilder extends TokenHandler {
 	}
 
 	/**
-	 * @param Token $token
-	 * @return array|Token|null
+	 * @inheritDoc
 	 */
 	public function onTag( Token $token ) {
-		return ( $token->getName() === 'mw:dom-fragment-token' ) ?
+		return $token->getName() === 'mw:dom-fragment-token' ?
 			$this->buildDOMFragment( $token ) : $token;
 	}
-
 }

@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\EndTagTk;
@@ -12,6 +10,9 @@ use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Insert paragraph tags where needed -- smartly and carefully
@@ -19,25 +20,45 @@ use Parsoid\Tokens\Token;
  * behavior as implemented by the PHP parser.
  */
 class ParagraphWrapper extends TokenHandler {
+	/** @var bool */
 	private $inPre;
+
+	/** @var bool */
 	private $hasOpenPTag;
+
+	/** @var bool */
 	private $inBlockElem;
+
+	/** @var array */
 	private $tokenBuffer;
+
+	/** @var array */
 	private $nlWsTokens;
+
+	/** @var int */
 	private $newLineCount;
+
+	/** @var array */
 	private $currLine;
 
+	/** @var array */
 	private static $wgBlockElems = null;
+
+	/** @var array */
 	private static $wgAntiBlockElems = null;
+
+	/** @var array */
 	private static $wgAlwaysSuppress = null;
+
+	/** @var array */
 	private static $wgNeverSuppress = null;
 
 	/**
 	 * Constructor for paragraph wrapper.
-	 * @param object $manager manager enviroment
+	 * @param TokenTransformManager $manager manager enviroment
 	 * @param array $options various configuration options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->inPre = false;
 		$this->hasOpenPTag = false;
@@ -63,20 +84,14 @@ class ParagraphWrapper extends TokenHandler {
 	}
 
 	/**
-	 * Determine whether the token is on a new line or end of file
-	 *
-	 * @param NlTk $token token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ) {
 		return $this->inPre ? $token : $this->onNewLineOrEOF( $token );
 	}
 
 	/**
-	 * Determine whether the token is on a new line or end of file (duplicate?)
-	 *
-	 * @param EOFTk $token token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
 		return $this->onNewLineOrEOF( $token );
@@ -96,7 +111,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * are collapsed and emitted. Wherever tokens are buffered/emitted, verify that this
 	 *  order is preserved.
 	 */
-	public function reset(): void {
+	private function reset(): void {
 		$this->resetBuffers();
 		$this->resetCurrLine();
 		$this->hasOpenPTag = false;
@@ -110,7 +125,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * Reset the token buffer and new line info
 	 *
 	 */
-	public function resetBuffers(): void {
+	private function resetBuffers(): void {
 		$this->tokenBuffer = [];
 		$this->nlWsTokens = [];
 		$this->newLineCount = 0;
@@ -120,8 +135,8 @@ class ParagraphWrapper extends TokenHandler {
 	 * Reset the current line info
 	 *
 	 */
-	public function resetCurrLine(): void {
-		if ( $this->currLine && $this->currLine['openMatch'] || $this->currLine['closeMatch'] ) {
+	private function resetCurrLine(): void {
+		if ( $this->currLine && ( $this->currLine['openMatch'] || $this->currLine['closeMatch'] ) ) {
 			$this->inBlockElem = !$this->currLine['closeMatch'];
 		}
 		$this->currLine = [
@@ -202,7 +217,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @param array &$out array to process and update
 	 */
-	public function openPTag( array &$out ): void {
+	private function openPTag( array &$out ): void {
 		if ( !$this->hasOpenPTag ) {
 			$tplStartIndex = -1;
 			// Be careful not to expand template ranges unnecessarily.
@@ -242,7 +257,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @param array &$out array to process and update
 	 */
-	public function closeOpenPTag( array &$out ): void {
+	private function closeOpenPTag( array &$out ): void {
 		if ( $this->hasOpenPTag ) {
 			$tplEndIndex = -1;
 			// Be careful not to expand template ranges unnecessarily.
@@ -283,7 +298,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @param Token $token token
 	 * @return array
 	 */
-	public function onNewLineOrEOF( Token $token ): array {
+	private function onNewLineOrEOF( Token $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
 			function () use( $token ) {
 			return PHPUtils::jsonEncode( $token );
@@ -325,7 +340,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @return array
 	 */
-	public function processPendingNLs(): array {
+	private function processPendingNLs(): array {
 		$resToks = $this->tokenBuffer;
 		$newLineCount = $this->newLineCount;
 		$nlTk = null;
@@ -379,10 +394,7 @@ class ParagraphWrapper extends TokenHandler {
 	}
 
 	/**
-	 * Process onAny token types
-	 *
-	 * @param Token|string $token token
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function onAny( $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'ANY   |',

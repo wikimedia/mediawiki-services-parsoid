@@ -3,9 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\WTUtils;
 use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
@@ -13,6 +10,10 @@ use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * PRE handling.
@@ -118,12 +119,10 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Class constructor
-	 *
-	 * @param object $manager manager environment
-	 * @param array $options options
+	 * @param TokenTransformManager $manager manager enviroment
+	 * @param array $options various configuration options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		if ( !empty( $this->options['inlineContext'] ) || !empty( $this->options['inPHPBlock'] ) ) {
 			$this->disabled = true;
@@ -309,10 +308,7 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Handler onNewLine processing
-	 *
-	 * @param NlTk $token
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ): array {
 		$env = $this->manager->env;
@@ -380,10 +376,7 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Handler onEnd processing
-	 *
-	 * @param EOFTk $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
 		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
@@ -447,10 +440,7 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Handle onAny processing
-	 *
-	 * @param Token|string $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
 		$env = $this->manager->env;

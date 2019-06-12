@@ -3,10 +3,11 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Tokens\Token;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\Token;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * OnlyInclude sadly forces synchronous template processing, as it needs to
@@ -15,16 +16,21 @@ use Parsoid\Tokens\SelfclosingTagTk;
  * onlyinclude processing (which is a good idea anyway).
  */
 class OnlyInclude extends TokenHandler {
+	/** @var array */
 	private $accum = [];
+
+	/** @var bool */
 	private $inOnlyInclude = false;
+
+	/** @var bool */
 	private $foundOnlyInclude = false;
 
 	/**
 	 * OnlyInclude constructor.
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		if ( empty( $this->options['isInclude'] ) ) {
 			$this->accum = [];
@@ -34,16 +40,14 @@ class OnlyInclude extends TokenHandler {
 	}
 
 	/**
-	 * @param Token|string $token
-	 * @return Token|array
+	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
 		return !empty( $this->options['isInclude'] ) ? $this->onAnyInclude( $token ) : $token;
 	}
 
 	/**
-	 * @param Token $token
-	 * @return array|Token
+	 * @inheritDoc
 	 */
 	public function onTag( Token $token ) {
 		return empty( $this->options['isInclude'] ) && $token->getName() === 'onlyinclude' ?
@@ -54,7 +58,7 @@ class OnlyInclude extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	public function onOnlyInclude( Token $token ): array {
+	private function onOnlyInclude( Token $token ): array {
 		$tsr = $token->dataAttribs->tsr;
 		$src = empty( $this->options['inTemplate'] )
 			? $token->getWTSource( $this->manager->env )
@@ -71,7 +75,7 @@ class OnlyInclude extends TokenHandler {
 	 * @param Token|array $token
 	 * @return array
 	 */
-	public function onAnyInclude( $token ) {
+	private function onAnyInclude( $token ) {
 		$tagName = null;
 		$isTag = null;
 		$meta = null;

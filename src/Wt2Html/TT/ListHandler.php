@@ -5,14 +5,15 @@ namespace Parsoid\Wt2Html\TT;
 
 use stdClass as StdClass;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Create list tag around list items and map wiki bullet levels to html.
@@ -38,10 +39,10 @@ class ListHandler extends TokenHandler {
 	/**
 	 * Class constructor
 	 *
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->listFrames = [];
 		$this->reset();
@@ -50,7 +51,7 @@ class ListHandler extends TokenHandler {
 	/**
 	 * Resets the list handler
 	 */
-	public function reset(): void {
+	private function reset(): void {
 		$this->onAnyEnabled = false;
 		$this->nestedTableCount = 0;
 		$this->resetCurrListFrame();
@@ -64,20 +65,14 @@ class ListHandler extends TokenHandler {
 	}
 
 	/**
-	 * Resets the list handler
-	 *
-	 * @param Token $token
-	 * @return array|Token
+	 * @inheritDoc
 	 */
 	public function onTag( Token $token ) {
-		return ( $token->getName() === 'listItem' ) ? $this->onListItem( $token ) : $token;
+		return $token->getName() === 'listItem' ? $this->onListItem( $token ) : $token;
 	}
 
 	/**
-	 * Handle onAny processing
-	 *
-	 * @param Token|string $token
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function onAny( $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
@@ -177,10 +172,7 @@ class ListHandler extends TokenHandler {
 	}
 
 	/**
-	 * Handle onEnd processing
-	 *
-	 * @param EOFTk $token
-	 * @return array
+	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
@@ -341,7 +333,7 @@ class ListHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return array
 	 */
-	public function doListItem( array $bs, array $bn, Token $token ): array {
+	private function doListItem( array $bs, array $bn, Token $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'BEGIN:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 		 } );

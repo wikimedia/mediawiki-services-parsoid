@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Simple noinclude implementation.
@@ -12,38 +13,38 @@ use Parsoid\Utils\TokenUtils;
 class NoInclude extends TokenCollector {
 	/**
 	 * NoInclude constructor.
-	 * @param object $manager manager environment
+	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function type(): string {
+	protected function type(): string {
 		return 'tag';
 	}
 
 	/**
 	 * @return string
 	 */
-	public function name(): string {
+	protected function name(): string {
 		return 'noinclude';
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function toEnd(): bool {
+	protected function toEnd(): bool {
 		return true;    // Match the end-of-input if </noinclude> is missing.
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function ackEnd(): bool {
+	protected function ackEnd(): bool {
 		return true;
 	}
 
@@ -51,7 +52,7 @@ class NoInclude extends TokenCollector {
 	 * @param array $collection
 	 * @return array
 	 */
-	public function transformation( array $collection ): array {
+	protected function transformation( array $collection ): array {
 		$start = array_shift( $collection );
 		$sc = TokenUtils::getTokenType( $start );
 

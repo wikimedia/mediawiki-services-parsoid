@@ -15,7 +15,10 @@ use Parsoid\Tokens\Token;
 use Parsoid\Utils\PipelineUtils;
 
 class ExternalLinkHandler extends TokenHandler {
+	/** @var PegTokenizer */
 	private $urlParser;
+
+	/** @var int */
 	private $linkCount;
 
 	/** @inheritDoc */
@@ -32,12 +35,6 @@ class ExternalLinkHandler extends TokenHandler {
 		$this->reset();
 	}
 
-	/** @inheritDoc */
-	public function onEnd( EOFTk $token ) {
-		$this->reset();
-		return $token;
-	}
-
 	private function reset(): void {
 		$this->linkCount = 1;
 	}
@@ -48,17 +45,10 @@ class ExternalLinkHandler extends TokenHandler {
 	 */
 	private static function imageExtensions( string $str ): bool {
 		switch ( $str ) {
-			case 'jpg':
-			// fall through
-
-			case 'png':
-			// fall through
-
-			case 'gif':
-			// fall through
-
+			case 'jpg': // fall through
+			case 'png': // fall through
+			case 'gif': // fall through
 			case 'svg':
-			// fall through
 				return true;
 			default:
 				return false;
@@ -220,8 +210,8 @@ class ExternalLinkHandler extends TokenHandler {
 					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false ) {
 			$rdfaType = 'mw:ExtLink';
 			if ( count( $content ) === 1 ) {
-				if ( is_string( $content[ 0 ] ) ) {
-					$src = $content[ 0 ];
+				if ( is_string( $content[0] ) ) {
+					$src = $content[0];
 					if ( $env->conf->wiki->hasValidProtocol( $src ) &&
 						$this->urlParser->tokenizeURL( $src ) !== false &&
 						$this->hasImageLink( $src )
@@ -252,8 +242,8 @@ class ExternalLinkHandler extends TokenHandler {
 				//
 				// extLinkContentOffsets[0] covers all spaces before content
 				// and we need src without those spaces.
-				$tsr0a = $dataAttribs->tsr[ 0 ] + 1;
-				$tsr1a = $dataAttribs->extLinkContentOffsets[ 0 ] -
+				$tsr0a = $dataAttribs->tsr[0] + 1;
+				$tsr1a = $dataAttribs->extLinkContentOffsets[0] -
 					strlen( $token->getAttribute( 'spaces' ) || '' );
 				$length = $tsr1a - $tsr0a;
 				$aStart->addNormalizedAttribute( 'href', $href,
@@ -290,4 +280,9 @@ class ExternalLinkHandler extends TokenHandler {
 		}
 	}
 
+	/** @inheritDoc */
+	public function onEnd( EOFTk $token ) {
+		$this->reset();
+		return $token;
+	}
 }

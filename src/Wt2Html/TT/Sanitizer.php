@@ -17,14 +17,16 @@ use InvalidArgumentException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\KV;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 class Sanitizer extends TokenHandler {
+	/** @var bool */
 	private $inTemplate;
 
 	const NO_END_TAG_SET = [ 'br' => true ];
@@ -1482,18 +1484,16 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * Constructor for paragraph wrapper.
-	 * @param object $manager manager enviroment
+	 * @param TokenTransformManager $manager manager enviroment
 	 * @param array $options various configuration options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->inTemplate = !empty( $options['inTemplate'] );
 	}
 
 	/**
-	 * @param Token|string $token
-	 * @return array|Token
+	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
 		$env = $this->manager->env;

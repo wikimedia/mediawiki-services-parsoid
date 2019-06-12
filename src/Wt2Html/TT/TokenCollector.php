@@ -3,13 +3,14 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Tokens\Token;
+use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\EndTagTk;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -25,10 +26,10 @@ abstract class TokenCollector extends TokenHandler {
 
 	/**
 	 * TokenCollector constructor.
-	 * @param object $manager
-	 * @param array $options
+	 * @param TokenTransformManager $manager manager enviroment
+	 * @param array $options various configuration options
 	 */
-	public function __construct( $manager, array $options ) {
+	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->onAnyEnabled = false;
 		$this->scopeStack = [];
@@ -38,56 +39,32 @@ abstract class TokenCollector extends TokenHandler {
 	 * Token type to register for ('tag', 'text' etc)
 	 * @return string
 	 */
-	abstract public function type(): string;
+	abstract protected function type(): string;
 
 	/**
 	 * (optional, only for token type 'tag'): tag name.
 	 * @return string
 	 */
-	abstract public function name(): string;
+	abstract protected function name(): string;
 
 	/**
 	 * Match the 'end' tokens as closing tag as well (accept unclosed sections).
 	 * @return bool
 	 */
-	abstract public function toEnd(): bool;
+	abstract protected function toEnd(): bool;
 
 	/**
 	 * FIXME: Document this
 	 * @return bool
 	 */
-	abstract public function ackEnd(): bool;
+	abstract protected function ackEnd(): bool;
 
 	/**
 	 * FIXME: Document this
 	 * @param array $array
 	 * @return array
 	 */
-	abstract public function transformation( array $array ): array;
-
-	/**
-	 * @param Token $token
-	 * @return array|Token
-	 */
-	public function onTag( Token $token ) {
-		return ( $token->getName() === $this::name() ) ? $this->onDelimiterToken( $token ) : $token;
-	}
-
-	/**
-	 * @param EOFTk $token
-	 * @return array|EOFTk
-	 */
-	public function onEnd( EOFTk $token ) {
-		return ( $this->onAnyEnabled ) ? $this->onDelimiterToken( $token ) : $token;
-	}
-
-	/**
-	 * @param Token|string $token
-	 * @return array|Token
-	 */
-	public function onAny( $token ) {
-		return $this->onAnyToken( $token );
-	}
+	abstract protected function transformation( array $array ): array;
 
 	/**
 	 * Handle the delimiter token.
@@ -202,8 +179,8 @@ abstract class TokenCollector extends TokenHandler {
 		$stringOrFalse = false;
 		if ( $tsr ) {
 			$pageSrc = $manager->env->getPageMainContent();
-			$from = $tsr[ 0 ];
-			$to = $tsr[ 1 ] - $from;
+			$from = $tsr[0];
+			$to = $tsr[1] - $from;
 			$stringOrFalse = mb_substr( $pageSrc, $from, $to );
 			if ( $stringOrFalse === false ) {
 				$stringOrFalse = '';
@@ -223,7 +200,7 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param Token $endDelim
 	 * @return SelfclosingTagTk
 	 */
-	public static function buildStrippedMetaToken( $manager, $tokenName, $startDelim, $endDelim )
+	protected static function buildStrippedMetaToken( $manager, $tokenName, $startDelim, $endDelim )
 		: SelfclosingTagTk {
 		$da = $startDelim->dataAttribs;
 		$tsr0 = $da ? $da->tsr : null;
@@ -239,5 +216,26 @@ abstract class TokenCollector extends TokenHandler {
 		}
 
 		return self::buildMetaToken( $manager, $tokenName, false, [ $t0, $t1 ], '' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onTag( Token $token ) {
+		return $token->getName() === $this::name() ? $this->onDelimiterToken( $token ) : $token;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onEnd( EOFTk $token ) {
+		return $this->onAnyEnabled ? $this->onDelimiterToken( $token ) : $token;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onAny( $token ) {
+		return $this->onAnyToken( $token );
 	}
 }
