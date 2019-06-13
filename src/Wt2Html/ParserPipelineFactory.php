@@ -11,6 +11,9 @@ use Wikimedia\Assert\Assert;
 
 use Parsoid\Wt2Html\TT\AttributeExpander;
 use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
+use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
+use Parsoid\Wt2Html\TT\ExtensionHandler;
+use Parsoid\Wt2Html\TT\ExternalLinkHandler;
 use Parsoid\Wt2Html\TT\IncludeOnly;
 use Parsoid\Wt2Html\TT\ListHandler;
 use Parsoid\Wt2Html\TT\NoInclude;
@@ -44,7 +47,7 @@ class ParserPipelineFactory {
 			"class" => TokenTransformManager::class,
 			"transformers" => [
 				TemplateHandler::class,
-				// ExtensionHandler::class,
+				ExtensionHandler::class,
 
 				// Expand attributes after templates to avoid expanding unused branches
 				// No expansion of quotes, paragraphs etc in attributes, as in
@@ -54,13 +57,13 @@ class ParserPipelineFactory {
 				// now all attributes expanded to tokens or string
 				// more convenient after attribute expansion
 				// WikiLinkHandler::class,
-				// ExternalLinkHandler::class,
+				ExternalLinkHandler::class,
 				// LanguageVariantHandler::class,
 
 				// This converts dom-fragment-token tokens all the way to DOM
 				// and wraps them in DOMFragment wrapper tokens which will then
 				// get unpacked into the DOM by a dom-fragment unpacker.
-				// DOMFragmentBuilder::class
+				DOMFragmentBuilder::class
 			],
 		],
 		"TokenTransform3" => [

@@ -152,7 +152,6 @@ class TokenStreamPatcher extends TokenHandler {
 				// if this proves to be a real problem on production pages.
 				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'template' ) {
 					$t = $this->templateHandler->processSpecialMagicWord( $this->atTopLevel, $t ) ?? [ $t ];
-					$temp = false;
 				} else {
 					$t = [ $t ];
 				}

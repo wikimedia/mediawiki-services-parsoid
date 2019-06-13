@@ -426,9 +426,7 @@ class Env {
 	 * @return bool
 	 */
 	public function isValidLinkTarget( $href ): bool {
-		if ( is_array( $href ) ) {
-			$href = TokenUtils::tokensToString( $href );
-		}
+		$href = TokenUtils::tokensToString( $href );
 
 		// decode percent-encoding so that we can reliably detect
 		// bad page title characters

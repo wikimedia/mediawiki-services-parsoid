@@ -875,10 +875,7 @@ class TemplateHandler extends TokenHandler {
 			}
 
 			$kWt = trim( $kSrc );
-			$k = $params[$i]->k;
-			if ( !is_string( $k ) ) {
-				$k = TokenUtils::tokensToString( $k, true, [ 'stripEmptyLineMeta' => true ] );
-			}
+			$k = TokenUtils::tokensToString( $params[$i]->k, true, [ 'stripEmptyLineMeta' => true ] );
 			if ( is_array( $k ) ) {
 				// The PHP parser only removes comments and whitespace to construct
 				// the real parameter name, so if there were other tokens, use the
@@ -1055,6 +1052,8 @@ class TemplateHandler extends TokenHandler {
 
 	private function lookupArg( $args, $attribs, $ret ) {
 		$toks = $ret['tokens'];
+		// FIXME: Why is there a trim in one, but not the other??
+		// Feels like a bug
 		$argName = is_string( $toks ) ? $toks : trim( TokenUtils::tokensToString( $toks ) );
 		$res = $args['dict'][$argName] ?? null;
 

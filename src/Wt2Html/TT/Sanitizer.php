@@ -1063,17 +1063,13 @@ class Sanitizer extends TokenHandler {
 			}
 
 			// Convert attributes to string, if necessary.
-			if ( is_array( $a->k ) ) {
-				$a->k = TokenUtils::tokensToString( $a->k );
-			}
-			if ( is_array( $a->v ) ) {
-				$a->v = TokenUtils::tokensToString( $a->v, false, [
-						'unpackDOMFragments' => true,
-						// FIXME: Sneaking in `env` to avoid changing the signature
-						'env' => $env
-					]
-				);
-			}
+			$a->k = TokenUtils::tokensToString( $a->k );
+			$a->v = TokenUtils::tokensToString( $a->v, false, [
+					'unpackDOMFragments' => true,
+					// FIXME: Sneaking in `env` to avoid changing the signature
+					'env' => $env
+				]
+			);
 
 			$origK = $a->ksrc ?? $a->k;
 			// $a->k can be uppercase

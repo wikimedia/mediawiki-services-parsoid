@@ -9,6 +9,7 @@ use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
@@ -71,7 +72,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			// NOTE: Since KV (k,v) values don't have int[] in their type,
 			// we get that value from the srcOffsets field in the KV object.
 			// (This is different from how this is done on the JS side)
-			$srcOffsets = KV::LookupKV( $scopeToken->attribs, 'scrOffsets' )->srcOffsets ?? null;
+			$srcOffsets = KV::LookupKV( $scopeToken->attribs, 'srcOffsets' )->srcOffsets ?? null;
 
 			// Without source offsets for the content, it isn't possible to
 			// compute DSR and template wrapping in content. So, users of
@@ -90,9 +91,9 @@ class DOMFragmentBuilder extends TokenHandler {
 			];
 
 			// Process tokens
-			return PipelineUtils::processContentInPipeline(
+			$dom = PipelineUtils::processContentInPipeline(
 				$this->manager->env,
-				$this->manager->frame,
+				$this->manager->getFrame(),
 				// Append EOF
 				array_merge( $content, [ new EOFTk() ] ),
 				[
@@ -102,6 +103,15 @@ class DOMFragmentBuilder extends TokenHandler {
 					'sol' => true
 				]
 			);
+
+			$toks = PipelineUtils::tunnelDOMThroughTokens(
+				$this->manager->env,
+				$scopeToken,
+				DOMCompat::getBody( $dom ),
+				[ "pipelineOpts" => $pipelineOpts ]
+			);
+
+			return [ 'tokens' => $toks ];
 		}
 	}
 

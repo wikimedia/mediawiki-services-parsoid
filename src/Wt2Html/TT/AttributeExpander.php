@@ -432,7 +432,7 @@ class AttributeExpander extends TokenHandler {
 					!empty( $updatedV['hasGeneratedContent'] ) ||
 					( $reparsedKV && count( $metaTokens ) > 0 )
 				) {
-					$key = is_string( $expandedK ) ? $expandedK : TokenUtils::tokensToString( $expandedK );
+					$key = TokenUtils::tokensToString( $expandedK );
 					if ( !$tmpDataMW ) {
 						$tmpDataMW = [];
 					}

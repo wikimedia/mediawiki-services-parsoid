@@ -516,7 +516,7 @@ class TokenUtils {
 
 	/**
 	 * Flatten/convert a token array into a string.
-	 * @param array<Token|string> $tokens
+	 * @param string|Token|array<Token|string> $tokens
 	 * @param bool $strict Whether to abort as soon as we find a token we
 	 *   can't stringify.
 	 * @param array<string,bool|Env> $opts
@@ -524,27 +524,39 @@ class TokenUtils {
 	 *   The stringified tokens. If $strict is true, returns a two-element
 	 *   array containing string prefix and the remainder of the tokens as
 	 *   soon as we encounter something we can't stringify.
+	 *
+	 * Unsure why phan is whining about $opts array accesses.
+	 * So for now, I am simply suppressing those warnings.
 	 */
-	public static function tokensToString(
-		array $tokens, bool $strict = false, array $opts = []
-	) {
+	public static function tokensToString( $tokens, bool $strict = false, array $opts = [] ) {
+		if ( is_string( $tokens ) ) {
+			return $tokens;
+		}
+
+		if ( !is_array( $tokens ) ) {
+			$tokens = [ $tokens ];
+		}
+
 		$out = '';
-		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
-			// PORT-FIXME: Why are they null? JS version has a null check as well
-			// which indicates that this may not be a porting related thing but
-			// worth verifying.
-			$token = $tokens[ $i ] ?? null;
-			if ( !$token ) {
+		for ( $i = 0, $l = count( $tokens ); $i < $l; $i++ ) {
+			$token = $tokens[$i];
+			if ( $token === null ) {
 				continue;
 			} elseif ( is_string( $token ) ) {
 				$out .= $token;
+			} elseif ( is_array( $token ) ) {
+				Assert::invariant( !$strict, "strict case handled above" );
+				$out .= self::tokensToString( $token, $strict, $opts );
 			} elseif (
 				$token instanceof CommentTk ||
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )
 			) {
 				// strip comments and newlines
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 			} elseif ( !empty( $opts['stripEmptyLineMeta'] ) && self::isEmptyLineMetaToken( $token ) ) {
 				// If requested, strip empty line meta tokens too.
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
 				$out .= $token->dataAttribs->src;
 				$i += 2; // Skip child and end tag.
@@ -552,11 +564,13 @@ class TokenUtils {
 				// If strict, return accumulated string on encountering first non-text token
 				return [ $out, array_slice( $tokens, $i ) ];
 			} elseif (
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				!empty( $opts['unpackDOMFragments'] ) &&
 				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
 				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) ?? '' )
 			) {
 				// Handle dom fragments
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				$fragmentMap = $opts['env']->getFragmentMap();
 				$nodes = $fragmentMap[ $token->dataAttribs->html ];
 				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
@@ -576,9 +590,6 @@ class TokenUtils {
 						"tag should be followed by endtag"
 					);
 				}
-			} elseif ( is_array( $token ) ) {
-				Assert::invariant( !$strict, "strict case handled above" );
-				$out .= self::tokensToString( $token, $strict, $opts );
 			}
 		}
 		return $out;

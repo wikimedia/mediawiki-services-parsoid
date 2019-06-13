@@ -102,15 +102,7 @@ class Params {
 		$out = [];
 		$args = array_slice( $this->args, $start, $end /*CHECK THIS*/ );
 		foreach ( $args as $kv ) {
-			$k = $kv->k;
-			$v = $kv->v;
-			if ( is_array( $v ) && count( $v ) === 1 && is_string( $v[0] ) ) {
-				// remove string from array
-				$kv = new KV( $k, $v[0], $kv->srcOffsets );
-			} elseif ( !is_string( $v ) ) {
-				$kv = new KV( $k, TokenUtils::tokensToString( $v ), $kv->srcOffsets );
-			}
-			$out[] = $kv;
+			$out[] = new KV( $kv->k, TokenUtils::tokensToString( $kv->v ), $kv->srcOffsets );
 		}
 		return $out;
 	}

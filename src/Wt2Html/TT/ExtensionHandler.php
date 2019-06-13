@@ -95,9 +95,7 @@ class ExtensionHandler extends TokenHandler {
 			// Use the source if present. If not use the value, but ensure it's a
 			// string, as it can be a token stream if the parser has recognized it
 			// as a directive.
-			$v = $o->vsrc ||
-				( ( $o->v instanceof string ) ? $o->v :
-				TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] ) );
+			$v = $o->vsrc ?? TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] );
 			// Normalize whitespace in extension attribute values
 			// FIXME: If the option is parsed as wikitext, this normalization
 			// can mess with src offsets.
@@ -306,7 +304,7 @@ class ExtensionHandler extends TokenHandler {
 			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
 		}
 
-		return [ 'tokens' => $toks ];
+		return $toks;
 	}
 
 	/**

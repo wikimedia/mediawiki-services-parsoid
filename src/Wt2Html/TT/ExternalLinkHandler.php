@@ -163,7 +163,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$aStart = null;
 		$env = $this->manager->env;
 		$origHref = $token->getAttribute( 'href' );
-		$hasExpandedAttrs = preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) );
+		$hasExpandedAttrs = preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$hrefWithEntities = TokenUtils::tokensToString( $origHref, false, [
 				'includeEntities' => true
@@ -209,7 +209,7 @@ class ExternalLinkHandler extends TokenHandler {
 			if ( count( $content ) === 1 ) {
 				if ( is_string( $content[0] ) ) {
 					$src = $content[0];
-					if ( $env->conf->wiki->hasValidProtocol( $src ) &&
+					if ( $env->getSiteConfig()->hasValidProtocol( $src ) &&
 						$this->urlParser->tokenizeURL( $src ) !== false &&
 						$this->hasImageLink( $src )
 					) {
@@ -263,7 +263,7 @@ class ExternalLinkHandler extends TokenHandler {
 	}
 
 	/** @inheritDoc */
-	public function onTag( Token $token ): Token {
+	public function onTag( Token $token ) {
 		switch ( $token->getName() ) {
 			case 'urllink':
 				return $this->onUrlLink( $token );
