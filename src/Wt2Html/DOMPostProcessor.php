@@ -258,7 +258,7 @@ class DOMPostProcessor extends PipelineStage {
 		 *    which is probably how the ref-in-ref hack works - because of how
 		 *    parser functions and extension tags are procesed, #tag:ref doesn't
 		 *    see a nested ref anymore) and this patch only exposes that problem
-		 *    more clearly with the unwrapFragments property.
+		 *    more clearly with the sealFragment property.
 		 *
 		 * * Consider the set of extensions that
 		 *   (a) process wikitext
@@ -277,13 +277,13 @@ class DOMPostProcessor extends PipelineStage {
 		 * * In what order should E1's and E2's extensionPostProcessors be
 		 *   run on the top-level? Depending on what these handlers do, you
 		 *   could get potentially different results. You can see this quite
-		 *   starkly with the unwrapFragments flag.
+		 *   starkly with the sealFragment flag.
 		 *
 		 * * The ideal solution to this problem is to require that every extension's
 		 *   extensionPostProcessor be idempotent which lets us run these
 		 *   post processors repeatedly till the DOM stabilizes. But, this
 		 *   still doesn't necessarily guarantee that ordering doesn't matter.
-		 *   It just guarantees that with the unwrapFragments flag set on
+		 *   It just guarantees that with the sealFragment flag set on
 		 *   multiple extensions, all sealed fragments get fully processed.
 		 *   So, we still need to worry about that problem.
 		 *

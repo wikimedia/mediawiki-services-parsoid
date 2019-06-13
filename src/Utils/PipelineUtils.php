@@ -292,7 +292,7 @@ class PipelineUtils {
 			// to cause the <a>..</a> to get split apart.
 			//
 			// Filed as T49963
-		} elseif ( empty( $opts['unwrapFragment'] ) ) {
+		} elseif ( !empty( $opts['sealFragment'] ) ) {
 			// Sealed fragments aren't amenable to inspection, since the
 			// ultimate content is unknown.  For example, refs shuttle content
 			// through treebuilding that ends up in the references list.
@@ -425,7 +425,7 @@ class PipelineUtils {
 	 *            For example: Cite, reused transclusions.
 	 *    - bool  fromCache
 	 *    - array pipelineOpts
-	 *    - bool  unwrapFragment
+	 *    - bool  sealFragment
 	 *    - string wrapperName
 	 * @return Token[]
 	 */
@@ -438,8 +438,8 @@ class PipelineUtils {
 		$firstWrapperToken = $toks[0];
 
 		// Add the DOMFragment type so that we get unwrapped later.
-		$fragmentType = 'mw:DOMFragment' .
-			( empty( $opts['unwrapFragment'] ) ? '/sealed/' . $opts['wrapperName'] : '' );
+		$sealFragment = !empty( $opts['sealFragment'] );
+		$fragmentType = 'mw:DOMFragment' . ( $sealFragment ? '/sealed/' . $opts['wrapperName'] : '' );
 		$firstWrapperToken->setAttribute( 'typeof', $fragmentType );
 
 		// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.

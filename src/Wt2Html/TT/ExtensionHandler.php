@@ -245,11 +245,13 @@ class ExtensionHandler extends TokenHandler {
 		$opts = [
 			'setDSR' => true, // FIXME: This is the only place that sets this ...
 			'wrapperName' => $state['wrapperName'],
-
-			// Check if the tag wants its DOM fragment not to be unwrapped.
-			// The default setting is to unwrap the content DOM fragment automatically.
-			'unwrapFragment' => $nativeExt && $nativeExt->fragmentOptions
 		];
+
+		// Check if the tag wants its DOM fragment not to be unwrapped.
+		// The default setting is to unwrap the content DOM fragment automatically.
+		if ( $nativeExt && isset( $nativeExt->fragmentOptions ) ) {
+			$opts += $nativeExt->fragmentOptions;
+		}
 
 		$body = DOMCompat::getBody( $doc );
 
