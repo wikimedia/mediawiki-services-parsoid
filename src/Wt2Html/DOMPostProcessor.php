@@ -133,13 +133,13 @@ class DOMPostProcessor extends PipelineStage {
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
-				$p['proc'] = function ( ...$args ) use ( &$t ) {
+				$p['proc'] = function ( ...$args ) use ( $t ) {
 					$args[] = null;
 					return $t->traverse( ...$args );
 				};
 			} else {
 				$c = new $p['Processor'];
-				$p['proc'] = function ( ...$args ) use ( &$c ) {
+				$p['proc'] = function ( ...$args ) use ( $c ) {
 					return $c->run( ...$args );
 				};
 			}
