@@ -94,6 +94,23 @@ class CleanUp {
 	}
 
 	/**
+	 * FIXME: Worry about "about" siblings
+	 *
+	 * @param Env $env
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	private static function inNativeContent( Env $env, DOMElement $node ): bool {
+		while ( !DOMUtils::atTheTop( $node ) ) {
+			if ( WTUtils::getNativeExt( $env, $node ) !== null ) {
+				return true;
+			}
+			$node = $node->parentNode;
+		}
+		return false;
+	}
+
+	/**
 	 * Whitespace in this function refers to [ \t] only
 	 * @param DOMNode $node
 	 */
@@ -232,7 +249,7 @@ class CleanUp {
 				!$isFirstEncapsulationWrapperNode &&
 				// We can't remove data-parsoid from inside <references> text,
 				// as that's the only HTML representation we have left for it.
-				!$tplInfo->isNativeExt &&
+				!self::inNativeContent( $env, $node ) &&
 				// FIXME: We can't remove dp from nodes with stx information
 				// because the serializer uses stx information in some cases to
 				// emit the right newline separators.

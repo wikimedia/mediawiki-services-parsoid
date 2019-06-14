@@ -1691,3 +1691,19 @@ Similarly named refs with identical bodies
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1-1" id="cite_note-1-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-1-1" class="mw-reference-text" data-parsoid="{}">1</span></li></ol>
 !! end
+
+## Just a regression test
+!! test
+Transclusion parameter spacing is lost without data-parsoid
+!! options
+parsoid=wt2wt
+!! wikitext
+<ref>{{echo|
+Hi ho
+}}</ref>
+
+<!-- Traverse with an encapsulation where the root isn't a native extension -->
+{{echo|<div><references /></div>}}
+!! html/parsoid
+
+!! end
