@@ -7,7 +7,6 @@
 wt2html:
    # Supported, but this needs better mocking support
    PegTokenizer: false
-   HTML5TreeBuilder: false
 
    # Note that this implicitly runs all the transformers
    # registered for stage 1 (in parser.js) on the PHP side
@@ -41,6 +40,13 @@ wt2html:
    # - SanitizerHandler
    # - ParagraphWrapper
    SyncTokenTransformManager3: false
+
+   # Builds initial DOM from parsed tokens
+   HTML5TreeBuilder: false
+
+   # Note that this implicitly runs all the DOM transformers
+   # on the PHP side
+   DOMPostProcessor: false
 
    TT:
      ParagraphWrapper: false

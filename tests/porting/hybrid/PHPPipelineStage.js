@@ -6,6 +6,7 @@ const events = require('events');
 const fs = require('fs');
 const util = require('util');
 const { ContentUtils } = require('../../../lib/utils/ContentUtils.js');
+const { DOMUtils }  = require('../../../lib/utils/DOMUtils.js');
 const { HybridTestUtils }  = require('./HybridTestUtils.js');
 const { TokenUtils } = require('../../../lib/utils/TokenUtils.js');
 
@@ -88,17 +89,6 @@ class PHPPipelineStage {
 		}
 	}
 
-	loadDOMFromStdout(out) {
-		const body = ContentUtils.ppToDOM(this.env, out, {
-			reinsertFosterableContent: true,
-			markNew: true
-		});
-
-		HybridTestUtils.updateEnvIdCounters(this.env, body);
-
-		return body.ownerDocument;
-	}
-
 	emitTokens(out) {
 		// First line will be the new UID for env
 		const lines = out.trim().split("\n");
@@ -117,10 +107,6 @@ class PHPPipelineStage {
 		}
 		if (chunk.length) { toks.push(chunk); }
 		this.emitEvents(toks);
-	}
-
-	emitDoc(out) {
-		this.emitEvents(this.loadDOMFromStdout(out));
 	}
 
 	mkOpts(extra = {}) {
@@ -164,7 +150,12 @@ class PHPPipelineStage {
 		);
 
 		if (this.stageName === 'HTML5TreeBuilder') {
-			this.emitDoc(out);
+			const body = ContentUtils.ppToDOM(this.env, out, {
+				reinsertFosterableContent: true,
+				markNew: true
+			});
+			HybridTestUtils.updateEnvIdCounters(this.env, body);
+			this.emitEvents(body.ownerDocument);
 		} else {
 			this.emitTokens(out);
 		}
@@ -180,7 +171,9 @@ class PHPPipelineStage {
 			[this.stageName, fileName],
 			this.mkOpts({})
 		);
-		this.emitDoc(out);
+		doc = DOMUtils.parseHTML(out);
+		HybridTestUtils.updateEnvIdCounters(this.env, doc.body);
+		this.emitEvents(doc);
 	}
 
 	process(input, sol) {
@@ -188,6 +181,7 @@ class PHPPipelineStage {
 			case 'PegTokenizer':
 				this.processWikitext(input, sol);
 				break;
+
 			case 'SyncTokenTransformManager':
 			case 'AsyncTokenTransformManager':
 				this.tokens = input;

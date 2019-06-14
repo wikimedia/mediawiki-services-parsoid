@@ -12,6 +12,7 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\DOMPostProcessor;
 use Parsoid\Wt2Html\HTML5TreeBuilder;
 use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Wt2Html\TokenTransformManager;
@@ -177,8 +178,18 @@ switch ( $stageName ) {
 		break;
 
 	case "DOMPostProcessor":
-		throw new \Exception( "Unsupported!" );
-		// $dom = ContentUtils::ppToDOM( $env, $input, [ 'reinsertFosterableContent' => true ] );
+		$dom = ContentUtils::ppToDOM( $env, $input, [ 'reinsertFosterableContent' => true ] );
+		$dpp = new DOMPostProcessor( $env );
+		$dpp->registerProcessors( [] ); // Use default processors
+		$dpp->resetState( $opts );
+		$doc = $dpp->process( $dom->ownerDocument );
+		$body = DOMCompat::getBody( $doc );
+		// HACK: Piggyback new uid/fid for env on <body>
+		$body->setAttribute( "data-env-newuid", $env->getUID() );
+		$body->setAttribute( "data-env-newfid", $env->getFID() );
+		$out = ContentUtils::toXML( $body );
+		break;
+
 	default:
 		throw new \Exception( "Unsupported!" );
 }
