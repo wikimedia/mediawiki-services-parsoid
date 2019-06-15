@@ -107,6 +107,10 @@ class Title {
 	public static function newFromText(
 		string $title, SiteConfig $siteConfig, $defaultNs = 0
 	): Title {
+		if ( $defaultNs === null ) {
+			$defaultNs = 0;
+		}
+
 		$origTitle = $title;
 
 		if ( !mb_check_encoding( $title, 'UTF-8' ) ) {
