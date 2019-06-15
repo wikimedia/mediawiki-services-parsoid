@@ -129,10 +129,23 @@ class DataAccess implements IDataAccess {
 	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
 		$batches = [];
 		foreach ( $files as $name => $dims ) {
+			$txopts = [];
+			if ( isset( $dims['width'] ) && $dims['width'] !== null ) {
+				$txopts['width'] = $dims['width'];
+				if ( isset( $dims['page'] ) ) {
+					$txopts['page'] = $dims['page'];
+				}
+			}
+			if ( isset( $dims['height'] ) && $dims['height'] !== null ) {
+				$txopts['height'] = $dims['height'];
+			}
+			if ( isset( $dims['seek'] ) ) {
+				$txopts['thumbtime'] = $dims['seek'];
+			}
 			$batches[] = [
 				'action' => 'imageinfo',
 				'filename' => $name,
-				'txopts' => $dims,
+				'txopts' => $txopts,
 				'page' => $pageConfig->getTitle(),
 			];
 		}
