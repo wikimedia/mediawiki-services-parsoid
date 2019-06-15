@@ -171,7 +171,13 @@ class PHPPipelineStage {
 			[this.stageName, fileName],
 			this.mkOpts({})
 		);
-		doc = DOMUtils.parseHTML(out);
+		if (this.atTopLevel) {
+			doc = DOMUtils.parseHTML(out);
+		} else {
+			doc = ContentUtils.ppToDOM(this.env, out, {
+				reinsertFosterableContent: true,
+			}).ownerDocument;
+		}
 		HybridTestUtils.updateEnvIdCounters(this.env, doc.body);
 		this.emitEvents(doc);
 	}

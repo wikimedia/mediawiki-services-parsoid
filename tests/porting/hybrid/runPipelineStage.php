@@ -187,7 +187,14 @@ switch ( $stageName ) {
 		// HACK: Piggyback new uid/fid for env on <body>
 		$body->setAttribute( "data-env-newuid", $env->getUID() );
 		$body->setAttribute( "data-env-newfid", $env->getFID() );
-		$out = ContentUtils::toXML( $body );
+		if ( empty( $opts['toplevel'] ) ) {
+			$out = ContentUtils::ppToXML( $body, [
+				'keepTmp' => true,
+				'tunnelFosteredContent' => true,
+			] );
+		} else {
+			$out = ContentUtils::toXML( $body );
+		}
 		break;
 
 	default:
