@@ -431,8 +431,9 @@ class WTSUtils {
 		}
 
 		$ret = $arr[$i];
-		if ( !$keep && $ret[1]->html === null ) {
+		if ( !$keep && ( !isset( $ret[1]->html ) || $ret[1]->html === null ) ) {
 			array_splice( $arr, $i, 1 );
+			$dataMw->attribs = $arr;
 		}
 		return $ret;
 	}
