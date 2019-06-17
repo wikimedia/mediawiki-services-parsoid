@@ -25642,6 +25642,17 @@ parsoid=wt2html,wt2wt
 <b><small><figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a><figcaption></figcaption></figure></small></b>
 !! end
 
+## Just a regression test
+!! test
+Wikilink with only closing tag in target
+!! options
+parsoid=wt2html
+!! wikitext
+[[Test|</span>]]
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test" title="Test"></a></p>
+!! end
+
 #### ----------------------------------------------------------------
 #### Parsoid-only testing of Parsoid's impl of LST
 #### Not implemented yet, see

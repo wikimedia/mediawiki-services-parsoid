@@ -260,6 +260,10 @@ class PipelineUtils {
 	 * @return Token[] List of token representatives.
 	 */
 	public static function getWrapperTokens( array $nodes, array $opts ): array {
+		if ( !$nodes ) {
+			return [ new TagTk( 'span' ), new EndTagTk( 'span' ) ];
+		}
+
 		$node = $nodes[0];
 
 		// Do we represent this with inline or block elements?
