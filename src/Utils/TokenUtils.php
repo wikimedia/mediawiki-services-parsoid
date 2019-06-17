@@ -541,7 +541,7 @@ class TokenUtils {
 		for ( $i = 0, $l = count( $tokens ); $i < $l; $i++ ) {
 			$token = $tokens[$i];
 			if ( $token === null ) {
-				continue;
+				Assert::invariant( false, "No nulls expected." );
 			} elseif ( is_string( $token ) ) {
 				$out .= $token;
 			} elseif ( is_array( $token ) ) {
