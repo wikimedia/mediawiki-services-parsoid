@@ -34,6 +34,13 @@ use Parsoid\Wt2Html\TT\Sanitizer;
  */
 class Env {
 
+	/**
+	 * Available HTML content versions.
+	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 */
+	const AVAILABLE_VERSIONS = [ '2.1.0', '999.0.0' ];
+
 	/** @var SiteConfig */
 	private $siteConfig;
 
@@ -806,6 +813,18 @@ class Env {
 	public function getInputContentVersion(): string {
 		// PORT-FIXME implement this. See MWParserEnvironment.availableVersions,
 		// DOMUtils::extractInlinedContentVersion(), apiUtils.versionFromType, routes.js
+		return '2.1.0';
+	}
+
+	/**
+	 * The HTML content version of the input document (for html2wt and html2html conversions).
+	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 * @return string A semver version number
+	 */
+	public function getOutputContentVersion(): string {
+		// PORT-FIXME implement this. See MWParserEnvironment.availableVersions,
+		// lib/parse.js
 		return '2.1.0';
 	}
 

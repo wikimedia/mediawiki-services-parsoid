@@ -8,14 +8,68 @@
 			"php": ">= 7.2"
 		}
 	},
-	"RestRoutes": [
-		{
-			"path": "/parsoid/ping",
-			"class": "MWParsoid\\Rest\\Handler\\PingHandler"
-		}
-	],
 	"AutoloadNamespaces": {
 		"MWParsoid\\": "extension/src"
+	},
+	"RestRoutes": [
+		{
+			"path": "/{domain}/v3/page/{format}/{title}",
+			"class": "MWParsoid\\Rest\\Handler\\PageHandler",
+			"factory": "MWParsoid\\Rest\\Handler\\PageHandler::factory",
+			"method": "GET"
+		},
+		{
+			"path": "/{domain}/v3/page/{format}/{title}/{revision}",
+			"class": "MWParsoid\\Rest\\Handler\\PageHandler",
+			"factory": "MWParsoid\\Rest\\Handler\\PageHandler::factory",
+			"method": "GET"
+		},
+		{
+			"path": "/{domain}/v3/transform/{from}/to/{format}",
+			"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+			"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+			"method": "POST"
+		},
+		{
+			"path": "/{domain}/v3/transform/{from}/to/{format}/{title}",
+			"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+			"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+			"method": "POST"
+		},
+		{
+			"path": "/{domain}/v3/transform/{from}/to/{format}/{title}/{revision}",
+			"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+			"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+			"method": "POST"
+		}
+	],
+	"ServiceWiringFiles": [
+		"extension/ServiceWiring.php"
+	],
+	"ConfigRegistry": {
+		"Parsoid-testing": "GlobalVarConfig::newInstance"
+	},
+	"config": {
+		"ParsoidWrapSections": {
+			"value": false,
+			"description": "Whether <section> wrappers should be added."
+		},
+		"ParsoidScrubWikitext": {
+			"value": false,
+			"description": "Whether to emit 'clean' wikitext."
+		},
+		"ParsoidTraceFlags": {
+			"value": [],
+			"description": "Flags indicating which components need to be traced."
+		},
+		"ParsoidDumpFlags": {
+			"value": [],
+			"description": "Dump flags."
+		},
+		"ParsoidDevAPI": {
+			"value": false,
+			"description": "Expose development routes in the HTTP API."
+		}
 	},
 	"load_composer_autoloader": true,
 	"manifest_version": 2

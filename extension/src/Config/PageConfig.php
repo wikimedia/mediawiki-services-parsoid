@@ -4,6 +4,7 @@ namespace MWParsoid\Config;
 
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Revision\SlotRoleHandler;
 use Parser;
 use ParserOptions;
 
@@ -21,32 +22,59 @@ use Title;
  */
 class PageConfig extends IPageConfig {
 
-	/** @var Title */
-	private $title;
+	/** @var Parser */
+	private $parser;
 
 	/** @var ParserOptions */
 	private $parserOptions;
 
-	/** @var Parser */
-	private $parser;
+	/** @var SlotRoleHandler */
+	private $slotRoleHandler;
+
+	/** @var Title */
+	private $title;
 
 	/** @var RevisionRecord|null */
 	private $revision;
 
 	/**
-	 * @param Title $title Title being parsed
 	 * @param Parser $parser
 	 * @param ParserOptions $parserOptions
+	 * @param SlotRoleHandler $slotRoleHandler
+	 * @param Title $title Title being parsed
 	 * @param RevisionRecord|null $revision
 	 */
 	public function __construct(
-		Title $title, Parser $parser, ParserOptions $parserOptions,
-		RevisionRecord $revision = null
+		Parser $parser, ParserOptions $parserOptions, SlotRoleHandler $slotRoleHandler,
+		Title $title, RevisionRecord $revision = null
 	) {
-		$this->title = $title;
 		$this->parser = $parser;
 		$this->parserOptions = $parserOptions;
+		$this->slotRoleHandler = $slotRoleHandler;
+		$this->title = $title;
 		$this->revision = $revision;
+	}
+
+	/**
+	 * Get content model
+	 * @return string
+	 */
+	public function getContentModel(): string {
+		// @todo Check just the main slot, or all slots, or what?
+		$rev = $this->getRevision();
+		if ( $rev ) {
+			$content = $rev->getContent( SlotRecord::MAIN );
+			if ( $content ) {
+				return $content->getModel();
+			} else {
+				// The page does have a content model but we can't see it. Returning the
+				// default model is not really correct. But we can't see the content either
+				// so it won't matter much what we do here.
+				return $this->slotRoleHandler->getDefaultModel( $this->title );
+			}
+		} else {
+			return $this->slotRoleHandler->getDefaultModel( $this->title );
+		}
 	}
 
 	public function hasLintableContentModel(): bool {
