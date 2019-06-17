@@ -32801,3 +32801,13 @@ header
 *foo
 footer
 !! end
+
+!! test
+Ensure disambiguation links are marked properly
+!! options
+parsoid=wt2html
+!! wikitext
+[[Disambiguation]]
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Disambiguation" title="Disambiguation" class="mw-disambig">Disambiguation</a></p>
+!! end

@@ -601,6 +601,10 @@ var redirectTitles = new Set([
 	'Redirected',
 ]);
 
+var disambigTitles = new Set([
+	'Disambiguation',
+]);
+
 var pageProps = function(titles) {
 	if (!Array.isArray(titles)) { return null; }
 	return titles.map(function(t) {
@@ -608,6 +612,9 @@ var pageProps = function(titles) {
 		if (missingTitles.has(t)) { props.missing = ''; }
 		if (specialTitles.has(t)) { props.special = ''; }
 		if (redirectTitles.has(t)) { props.redirect = ''; }
+		if (disambigTitles.has(t)) {
+			props.pageprops = { disambiguation: '' };
+		}
 		return props;
 	});
 };
