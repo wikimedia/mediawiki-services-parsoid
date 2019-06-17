@@ -1454,13 +1454,13 @@ class WikiLinkHandler extends TokenHandler {
 			$span->addNormalizedAttribute( 'lang', $opts['lang']['v'], $opts['lang']['src'] );
 		}
 
-		// `size` is a computed property so ...
+		// Token's KV attributes only accept strings, Tokens or arrays of those.
 		$size = $opts['size']['v'];
 		if ( !empty( $size['width'] ) ) {
-			$span->addAttribute( 'data-width', $size['width'] );
+			$span->addAttribute( 'data-width', (string)$size['width'] );
 		}
 		if ( !empty( $size['height'] ) ) {
-			$span->addAttribute( 'data-height', $size['height'] );
+			$span->addAttribute( 'data-height', (string)$size['height'] );
 		}
 
 		$anchor = new TagTk( 'a' );
