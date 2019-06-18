@@ -79,10 +79,20 @@ abstract class Token implements \JsonSerializable {
 	 * Generic attribute accessor.
 	 *
 	 * @param string $name
+	 * @return KV|null
+	 */
+	public function getAttributeKV( string $name ) {
+		return KV::lookupKV( $this->attribs, $name );
+	}
+
+	/**
+	 * Generic attribute accessor.
+	 *
+	 * @param string $name
 	 * @return bool
 	 */
 	public function hasAttribute( string $name ): bool {
-		return KV::lookupKV( $this->attribs, $name ) !== null;
+		return $this->getAttributeKV( $name ) !== null;
 	}
 
 	/**
@@ -205,7 +215,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $value The value to add to the attribute
 	 */
 	public function addSpaceSeparatedAttribute( string $name, string $value ): void {
-		$curVal = KV::lookupKV( $this->attribs, $name );
+		$curVal = $this->getAttributeKV( $name );
 		if ( $curVal !== null ) {
 			if ( preg_match( '/(?:^|\s)' . preg_quote( $value, '/' ) . '(?:\s|$)/', $curVal->v ) ) {
 				// value is already included, nothing to do.

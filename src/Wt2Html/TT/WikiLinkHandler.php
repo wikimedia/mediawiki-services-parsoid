@@ -306,7 +306,7 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	public function onWikiLink( Token $token ) {
 		$env = $this->manager->env;
-		$hrefKV = KV::lookupKV( $token->attribs, 'href' );
+		$hrefKV = $token->getAttributeKV( 'href' );
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
 
 		// Don't allow internal links to pages containing PROTO:
@@ -636,14 +636,14 @@ class WikiLinkHandler extends TokenHandler {
 		$env = $this->manager->env;
 
 		// Change the rel to be mw:PageProp/Category
-		KV::lookupKV( $newTk->attribs, 'rel' )->v = 'mw:PageProp/Category';
+		$newTk->getAttributeKV( 'rel' )->v = 'mw:PageProp/Category';
 
 		$strContent = TokenUtils::tokensToString( $content );
 		$saniContent = preg_replace( '/#/', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
 		$newTk->addNormalizedAttribute( 'href', $env->makeLink( $target->title ), $target->hrefSrc );
 		// Change the href to include the sort key, if any (but don't update the rt info)
 		if ( $strContent && $strContent !== '' && $strContent !== $target->href ) {
-			$hrefkv = KV::lookupKV( $newTk->attribs, 'href' );
+			$hrefkv = $newTk->getAttributeKV( 'href' );
 			$hrefkv->v .= '#';
 			$hrefkv->v .= $saniContent;
 		}
@@ -712,7 +712,7 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->addNormalizedAttribute( 'href', $absHref, $target->hrefSrc );
 
 		// Change the rel to be mw:PageProp/Language
-		KV::lookupKV( $newTk->attribs, 'rel' )->v = 'mw:PageProp/Language';
+		$newTk->getAttributeKV( 'rel' )->v = 'mw:PageProp/Language';
 
 		return [ 'tokens' => [ $newTk ] ];
 	}
@@ -742,7 +742,7 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->addNormalizedAttribute( 'href', $absHref, $target->hrefSrc );
 
 		// Change the rel to be mw:ExtLink
-		KV::lookupKV( $newTk->attribs, 'rel' )->v = 'mw:WikiLink/Interwiki';
+		$newTk->getAttributeKV( 'rel' )->v = 'mw:WikiLink/Interwiki';
 		// Remember that this was using wikitext syntax though
 		$newTk->dataAttribs->isIW = true;
 		// Add title unless it's just a fragment (and trim off fragment)
@@ -1155,7 +1155,7 @@ class WikiLinkHandler extends TokenHandler {
 		$opts = [
 			'title' => [
 				'v' => $env->makeLink( $target->title ),
-				'src' => KV::lookupKV( $token->attribs, 'href' )->vsrc
+				'src' => $token->getAttributeKV( 'href' )->vsrc
 			],
 			'size' => [
 				'v' => [

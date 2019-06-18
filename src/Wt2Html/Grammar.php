@@ -759,7 +759,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// Build a redirect token
   		$redirect = new SelfclosingTagTk( 'mw:redirect',
   			// Put 'href' into attributes so it gets template-expanded
-  			[ KV::lookupKV( $link->attribs, 'href' ) ],
+  			[ $link->getAttributeKV( 'href' ) ],
   			(object)[
   				'src' => $rw,
   				'tsr' => $this->tsrOffsets(),
