@@ -966,13 +966,15 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 
 		var extensions = parsoidConfig.defaultNativeExtensions.concat(ParserHook);
 
+		const uri = mockAPIServerURL.slice(0, -'/api.php'.length);
+
 		// Send all requests to the mock API server.
 		Array.from(parsoidConfig.mwApiMap.values()).forEach(function(apiConf) {
 			parsoidConfig.removeMwApi(apiConf);
 			parsoidConfig.setMwApi({
 				prefix: apiConf.prefix,
 				domain: apiConf.domain,
-				uri: mockAPIServerURL,
+				uri: `${uri}/${apiConf.prefix}/api.php`,
 				extensions: extensions,
 			});
 		});
@@ -980,10 +982,11 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		// This isn't part of the sitematrix but the
 		// "Check noCommafy in formatNum" test depends on it.
 		parsoidConfig.removeMwApi({ domain: 'be-tarask.wikipedia.org' });
+		const bePrefix = 'be-taraskwiki';
 		parsoidConfig.setMwApi({
-			prefix: 'be-taraskwiki',
+			prefix: bePrefix,
 			domain: 'be-tarask.wikipedia.org',
-			uri: mockAPIServerURL,
+			uri: `${uri}/${bePrefix}/api.php`,
 			extensions: extensions,
 		});
 

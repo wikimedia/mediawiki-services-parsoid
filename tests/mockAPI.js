@@ -558,9 +558,8 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 	};
 };
 
-var querySiteinfo = function(formatversion, cb) {
-	// TODO: Read which language should we use from somewhere.
-	cb(null, require(`../lib/config/baseconfig/${formatversion === 2 ? '2/' : ''}enwiki.json`));
+var querySiteinfo = function(prefix, formatversion, cb) {
+	cb(null, require(`../lib/config/baseconfig/${formatversion === 2 ? '2/' : ''}${prefix}.json`));
 };
 
 var parse = function(text, onlypst, formatversion) {
@@ -620,16 +619,16 @@ var pageProps = function(titles) {
 };
 
 var availableActions = {
-	parse: function(body, cb) {
+	parse: function(prefix, body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		var result = parse(body.text, body.onlypst, formatversion);
 		cb(null, { parse: result });
 	},
 
-	query: function(body, cb) {
+	query: function(prefix, body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
-			return querySiteinfo(formatversion, cb);
+			return querySiteinfo(prefix, formatversion, cb);
 		}
 		if (body.prop === "info|revisions") {
 			console.assert(formatversion === 1);
@@ -718,7 +717,7 @@ var availableActions = {
 		return cb(new Error('Uh oh!'));
 	},
 
-	expandtemplates: function(body, cb) {
+	expandtemplates: function(prefix, body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		var res = preProcess(body.text, body.revid, formatversion);
 		if (res === null) {
@@ -728,7 +727,7 @@ var availableActions = {
 		}
 	},
 
-	'parsoid-batch': function(body, cb) {
+	'parsoid-batch': function(prefix, body, cb) {
 		var formatversion = +(body.formatversion || 1);
 		var batch;
 		try {
@@ -764,7 +763,7 @@ var availableActions = {
 	},
 
 	// Return a dummy response
-	templatedata: function(body, cb) {
+	templatedata: function(prefix, body, cb) {
 		cb(null, {
 			// FIXME: Assumes that body.titles is a single title
 			// (which is how Parsoid uses this endpoint right now).
@@ -774,7 +773,7 @@ var availableActions = {
 		});
 	},
 
-	paraminfo: function(body, cb) {
+	paraminfo: function(prefix, body, cb) {
 		cb(null, { /* Just don't 400 for now. */ });
 	},
 };
@@ -880,7 +879,7 @@ app.get(new RegExp('^/(' + actionRegex + ')'), function(req, res) {
 	res.end();
 });
 
-function handleApiRequest(body, res) {
+function handleApiRequest(prefix, body, res) {
 	var format = body.format;
 	var action = body.action;
 	var formatter = formatters[format || "json"];
@@ -889,7 +888,7 @@ function handleApiRequest(body, res) {
 		return res.status(400).end("Unknown action.");
 	}
 
-	availableActions[action](body, function(err, data) {
+	availableActions[action](prefix, body, function(err, data) {
 		if (err === null) {
 			res.setHeader('Content-Type', 'application/json');
 			res.write(formatter(data));
@@ -904,13 +903,19 @@ function handleApiRequest(body, res) {
 }
 
 // GET request to api.php....actually perform an API request
+app.get('/:prefix/api.php', function(req, res) {
+	handleApiRequest(req.params.prefix, req.query, res);
+});
 app.get('/api.php', function(req, res) {
-	handleApiRequest(req.query, res);
+	handleApiRequest('enwiki', req.query, res);
 });
 
 // POST request to api.php....actually perform an API request
+app.post('/:prefix/api.php', function(req, res) {
+	handleApiRequest(req.params.prefix, req.body, res);
+});
 app.post('/api.php', function(req, res) {
-	handleApiRequest(req.body, res);
+	handleApiRequest('enwiki', req.body, res);
 });
 
 const start = function(options) {
