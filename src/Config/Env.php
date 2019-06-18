@@ -484,9 +484,9 @@ class Env {
 
 	/**
 	 * Return reference to DOM diff document
-	 * @return DOMDocument
+	 * @return DOMDocument|null
 	 */
-	public function getDOMDiff(): DOMDocument {
+	public function getDOMDiff(): ?DOMDocument {
 		return $this->domDiff;
 	}
 

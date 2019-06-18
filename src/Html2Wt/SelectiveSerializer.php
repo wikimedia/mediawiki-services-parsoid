@@ -52,7 +52,8 @@ class SelectiveSerializer {
 	 */
 	public function serializeDOM( DOMElement $body ): string {
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
-		Assert::invariant( $this->env->page->editedDoc, 'Should be set.' ); // See WSP.serializeDOM
+		// See WSP.serializeDOM
+		Assert::invariant( $this->env->getPageConfig()->editedDoc, 'Should be set.' );
 
 		$serializeStart = null;
 		$domDiffStart = null;

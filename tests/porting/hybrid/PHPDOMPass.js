@@ -132,7 +132,8 @@ class PHPDOMPass {
 		fs.writeFileSync(fileName1, body.outerHTML);
 		const fileName2 = `/tmp/page.${process.pid}.orig.html`;
 		if (useSelser) {
-			fs.writeFileSync(fileName2, env.page.dom.body.outerHTML);
+			// FIXME: env.page.dom is actually env.page.domBody
+			fs.writeFileSync(fileName2, env.page.dom.outerHTML);
 		}
 
 		return HybridTestUtils.runPHPCode(

@@ -228,7 +228,6 @@ class WTSUtils {
 		if ( !$origNode || DOMUtils::isBody( $origNode ) ) {
 			return false;
 		}
-		DOMUtils::assertElt( $origNode );
 
 		while ( true ) { // eslint-disable-line
 			// Find the nearest node that shows up in HTML (ignore nodes that show up

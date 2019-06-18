@@ -571,10 +571,14 @@ class Separators {
 	/**
 	 * Serializing auto inserted content should invalidate the original separator
 	 * @param DOMElement $node
-	 * @return array
+	 * @return array|null
 	 */
-	private static function handleAutoInserted( DOMElement $node ): array {
+	private static function handleAutoInserted( DOMElement $node ): ?array {
 		$dp = DOMDataUtils::getDataParsoid( $node );
+		if ( !isset( $dp->dsr ) ) {
+			return null;
+		}
+
 		$dsr = Util::clone( $dp->dsr );
 		if ( !empty( $dp->autoInsertedStart ) ) {
 			$dsr[2] = null;
@@ -623,7 +627,7 @@ class Separators {
 				// that for dsr purposes instead. Typical case: text in p.
 				if ( !$prevNode->nextSibling && $prevNode->parentNode && $prevNode->parentNode !== $node &&
 					DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr &&
-					DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr[3] === 0
+					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr[3] ?? null ) === 0
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
 				} elseif ( $prevNode->previousSibling &&

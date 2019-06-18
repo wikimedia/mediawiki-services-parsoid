@@ -67,10 +67,10 @@ class DiffUtils {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function maybeDeletedNode( DOMNode $node ): bool {
+	public static function maybeDeletedNode( ?DOMNode $node ): bool {
 		return $node && DOMUtils::isElt( $node ) && DOMUtils::isDiffMarker( $node, 'deleted' );
 	}
 
@@ -78,10 +78,10 @@ class DiffUtils {
 	 * Is node a mw:DiffMarker node that represents a deleted block node?
 	 * This annotation is added by the DOMDiff pass.
 	 *
-	 * @param DOMNode $node
+	 * @param DOMNode|null $node
 	 * @return bool
 	 */
-	public static function isDeletedBlockNode( DOMNode $node ): bool {
+	public static function isDeletedBlockNode( ?DOMNode $node ): bool {
 		return self::maybeDeletedNode( $node ) && DOMUtils::assertElt( $node ) &&
 			$node->hasAttribute( 'data-is-block' );
 	}
@@ -101,11 +101,18 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function onlySubtreeChanged( DOMElement $node, Env $env ): bool {
-		$dmark = self::getDiffMark( $node, $env );
-		return $dmark && $dmark->diff->every( function /* subTreechangeMarker */( $mark ) {
-					return $mark === 'subtree-changed' || $mark === 'children-changed';
+		$dmark = self::getDiffMark( $node, $env ) ?? null;
+		if ( !$dmark ) {
+			return false;
 		}
-			);
+
+		foreach ( $dmark->diff as $mark ) {
+			if ( $mark !== 'subtree-changed' && $mark !== 'children-changed' ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
