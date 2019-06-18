@@ -6,7 +6,6 @@ use Closure;
 use DOMElement;
 use DOMNode;
 use Exception;
-use LogicException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
@@ -170,12 +169,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param DOMNode $node
-	 * PORT-TODO: rename to something like handleLanguageVariant()?
+	 * @param DOMElement $node
+	 * @return void
 	 */
-	public function languageVariantHandler( DOMNode $node ): ?string {
-		// PORT-FIXME pass the call to LanguageVariantHandler
-		throw new LogicException( 'Not ported yet' );
+	public function languageVariantHandler( DOMNode $node ): void {
+		LanguageVariantHandler::handleLanguageVariant( $this->state, $node );
 	}
 
 	/**
