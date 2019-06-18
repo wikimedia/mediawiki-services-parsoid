@@ -33,7 +33,7 @@ class ExtensionHandler extends TokenHandler {
 	 * to be expanded back into the top-level DOM later.
 	 */
 	private function parseExtensionHTML( Token $extToken, ?Exception $err, DOMDocument $doc ): array {
-		$logger = $this->manager->env->getSiteConfig()->getLogger();
+		$logger = $this->env->getSiteConfig()->getLogger();
 		$errType = '';
 		$errObj = [];
 		if ( $err ) {
@@ -56,8 +56,8 @@ class ExtensionHandler extends TokenHandler {
 			);
 		}
 
-		$psd = $this->manager->env;
-		if ( !empty( $psd->dumpFlags [ 'extoutput' ] ) ) {
+		$env = $this->env;
+		if ( !empty( $env->dumpFlags [ 'extoutput' ] ) ) {
 			$logger->warning( str_repeat( '=', 80 ) );
 			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
 			$logger->warning( str_repeat( '=', 80 ) );
@@ -183,14 +183,14 @@ class ExtensionHandler extends TokenHandler {
 				'extToken' => $token,
 				// FIXME: This is only used by extapi.js
 				// but leaks to extensions right now
-				'frame' => $this->manager->frame,
-				'env' => $this->manager->env,
+				'frame' => $this->manager->getFrame(),
+				'env' => $env,
 				// FIXME: extTag, extTagOpts, inTemplate are used
 				// by extensions. Should we directly export those
 				// instead?
 				'parseContext' => $this->options
 			];
-			$extApi = new ParsoidExtensionAPI( $this->manager->env,
+			$extApi = new ParsoidExtensionAPI( $env,
 				$this->manager->getFrame(), $token, $this->options );
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
 			if ( $doc !== null ) {
@@ -226,7 +226,7 @@ class ExtensionHandler extends TokenHandler {
 	}
 
 	private function onDocument( array $state, DOMDocument $doc ): array {
-		$env = $this->manager->env;
+		$env = $this->env;
 
 		$argDict = Util::getExtArgInfo( $state['token'] )->dict;
 		$extTagOffsets = $state['token']->dataAttribs->extTagOffsets;
@@ -234,13 +234,17 @@ class ExtensionHandler extends TokenHandler {
 			unset( $argDict->body ); // Serialize to self-closing.
 		}
 
-		// PORT-FIXME: Not supported yet
 		// Give native extensions a chance to manipulate the argDict
+		$extensionName = $state['wrapperName'];
 		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
+		/**
+		 * PORT-FIXME: Uncomment and implement as part of <gallery> porting
+		 *
 		if ( $extConfig && !empty( $extConfig['modifiesArgDict'] ) ) {
 			$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
 			$nativeExt->modifyArgDict( $env, $argDict );
 		}
+		**/
 
 		$opts = [
 			'setDSR' => true, // FIXME: This is the only place that sets this ...

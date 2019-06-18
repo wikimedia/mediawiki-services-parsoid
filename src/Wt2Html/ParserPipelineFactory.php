@@ -24,6 +24,7 @@ use Parsoid\Wt2Html\TT\QuoteTransformer;
 use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Wt2Html\TT\TemplateHandler;
 use Parsoid\Wt2Html\TT\TokenStreamPatcher;
+use Parsoid\Wt2Html\TT\WikiLinkHandler;
 
 /**
  * This class assembles parser pipelines from parser stages
@@ -56,7 +57,7 @@ class ParserPipelineFactory {
 
 				// now all attributes expanded to tokens or string
 				// more convenient after attribute expansion
-				// WikiLinkHandler::class,
+				WikiLinkHandler::class,
 				ExternalLinkHandler::class,
 				// LanguageVariantHandler::class,
 
@@ -95,6 +96,7 @@ class ParserPipelineFactory {
 			 // This performs a lot of post-processing of the DOM
 			 // (Template wrapping, broken wikitext/html detection, etc.)
 			"class" => DOMPostProcessor::class,
+			"processors" => [],
 		],
 	];
 
@@ -242,6 +244,8 @@ class ParserPipelineFactory {
 				foreach ( $stageData["transformers"] as $tName ) {
 					$stage->addTransformer( new $tName( $stage, $options ) );
 				}
+			} elseif ( isset( $stageData["processors"] ) ) {
+				$stage->registerProcessors( $stageData["processors"] );
 			}
 
 			$prevStage = $stage;
