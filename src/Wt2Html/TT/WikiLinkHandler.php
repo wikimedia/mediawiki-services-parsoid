@@ -10,29 +10,28 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Wt2Html\TokenTransformManager;
 use \stdClass;
-
+use Exception;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
-use Exception;
 use Parsoid\InternalException;
-use Parsoid\Tokens\KV;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
-
-use Parsoid\Utils\DOMUtils;
+use Wikimedia\Assert\Assert;
 
 class WikiLinkHandler extends TokenHandler {
 	/**
@@ -1179,8 +1178,9 @@ class WikiLinkHandler extends TokenHandler {
 		$optKVs = self::buildLinkAttrs( $token->attribs, true, null, null )['contentKVs'];
 		while ( count( $optKVs ) > 0 ) {
 			$oContent = array_shift( $optKVs );
+			Assert::invariant( $oContent instanceof KV, 'bad type' );
 
-			$origOptSrc = $oContent['v'];
+			$origOptSrc = $oContent->v;
 			if ( is_array( $origOptSrc ) && count( $origOptSrc ) === 1 ) {
 				$origOptSrc = $origOptSrc[0];
 			}
@@ -1241,8 +1241,8 @@ class WikiLinkHandler extends TokenHandler {
 				// No valid option found!?
 				// Record for RT-ing
 				$optsCaption = [
-					'v' => ( is_string( $oContent ) ) ? $oContent : $oContent['v'],
-					'src' => $oContent['vsrc'] ?? $oText,
+					'v' => $oContent->v,
+					'src' => $oContent->vsrc ?? $oText,
 					'srcOffsets' => $oContent->srcOffsets,
 					// remember the position
 					'pos' => count( $dataAttribs->optList )
@@ -1272,7 +1272,7 @@ class WikiLinkHandler extends TokenHandler {
 
 			$opt = [
 				'ck' => $optInfo['v'],
-				'ak' => $oContent['vsrc'] ?? $optInfo['ak']
+				'ak' => $oContent->vsrc ?? $optInfo['ak']
 			];
 
 			if ( $optInfo['s'] === true ) {
@@ -1297,13 +1297,13 @@ class WikiLinkHandler extends TokenHandler {
 							Util::validateMediaParam( $maybeDim['y'] )
 						) ? $maybeDim['y'] : null;
 						// Only round-trip a valid size
-						$opts['size']['src'] = $oContent['vsrc'] ?? $optInfo['ak'];
+						$opts['size']['src'] = $oContent->vsrc ?? $optInfo['ak'];
 					}
 				} else {
 					$opts[ $optInfo['ck'] ] = [
 						'v' => $optInfo['v'],
-						'src' => $oContent['vsrc'] ?? $optInfo['ak'],
-						'srcOffsets' => $oContent['srcOffsets']
+						'src' => $oContent->vsrc ?? $optInfo['ak'],
+						'srcOffsets' => $oContent->srcOffsets
 					];
 				}
 			}
@@ -1478,17 +1478,17 @@ class WikiLinkHandler extends TokenHandler {
 			new EndTagTk( 'a' )
 		];
 
-		$captionTk = $opts['caption'] ?? null;
+		$optsCaption = $opts['caption'] ?? null;
 		if ( $isInline ) {
-			if ( $captionTk ) {
-				if ( !is_array( $captionTk->v ) ) {
-					$captionTk->v = [ $captionTk->v ];
+			if ( $optsCaption ) {
+				if ( !is_array( $optsCaption['v'] ) ) {
+					$optsCaption['v'] = [ $optsCaption['v'] ];
 				}
 				// Parse the caption asynchronously.
 				$captionDOM = PipelineUtils::processContentInPipeline(
 					$this->manager->env,
 					$this->manager->frame,
-					array_merge( $captionTk->v, [ new EOFTk() ],
+					array_merge( $optsCaption['v'], [ new EOFTk() ],
 					[
 						'pipelineType' => 'tokens/x-mediawiki/expanded',
 						'pipelineOpts' => [
@@ -1496,7 +1496,7 @@ class WikiLinkHandler extends TokenHandler {
 							'expandTemplates' => $this->options['expandTemplates'],
 							'inTemplate' => $this->options['inTemplate']
 						],
-						'srcOffsets' => $captionTk->srcOffsets,
+						'srcOffsets' => $optsCaption['srcOffsets'] ?? null,
 						'sol' => true
 					] ),
 					$opts
@@ -1509,12 +1509,16 @@ class WikiLinkHandler extends TokenHandler {
 		} else {
 			// We always add a figcaption for blocks
 			$tokens[] = new TagTk( 'figcaption' );
-			if ( $captionTk ) {
-				$tokens[] = PipelineUtils::getDOMFragmentToken(
-					$opts['caption']['v'],
-					$opts['caption']['srcOffsets'],
-					[ 'inlineContext' => true, 'token' => $token ]
-				);
+			if ( $optsCaption ) {
+				if ( is_string( $optsCaption['v'] ) ) {
+					$tokens[] = $optsCaption['v'];
+				} else {
+					$tokens[] = PipelineUtils::getDOMFragmentToken(
+						$optsCaption['v'],
+						$optsCaption['srcOffsets'],
+						[ 'inlineContext' => true, 'token' => $token ]
+					);
+				}
 			}
 			$tokens[] = new EndTagTk( 'figcaption' );
 		}
