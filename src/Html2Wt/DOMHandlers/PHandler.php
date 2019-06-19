@@ -10,7 +10,7 @@ use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\WTUtils;
-use StdClass;
+use stdClass;
 
 class PHandler extends DOMHandler {
 
@@ -118,13 +118,13 @@ class PHandler extends DOMHandler {
 	// being processed since the previous emitted node might have been an unmodified
 	// DOM node that generated multiple wikitext lines.
 	/**
-	 * @param StdClass|null $line See SerializerState::$currLine
+	 * @param stdClass|null $line See SerializerState::$currLine
 	 * @param DOMNode $node
 	 * @param bool $skipNode
 	 * @return bool
 	 */
 	private function currWikitextLineHasBlockNode(
-		?StdClass $line, DOMNode $node, bool $skipNode = false
+		?stdClass $line, DOMNode $node, bool $skipNode = false
 	): bool {
 		$parentNode = $node->parentNode;
 		if ( !$skipNode ) {

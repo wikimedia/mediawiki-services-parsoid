@@ -13,7 +13,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
-use StdClass;
+use stdClass;
 
 class CleanUp {
 	/**
@@ -163,9 +163,9 @@ class CleanUp {
 		DOMUtils::assertElt( $node );
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		// $dp will be a DataParsoid object once but currently it is an StdClass
+		// $dp will be a DataParsoid object once but currently it is an stdClass
 		// with a fake type hint. Unfake it to prevent phan complaining about unset().
-		'@phan-var StdClass $dp';
+		'@phan-var stdClass $dp';
 
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
 		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&

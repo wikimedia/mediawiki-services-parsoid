@@ -11,7 +11,7 @@ use Parsoid\Html2Wt\WTSUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
-use StdClass;
+use stdClass;
 
 class TRHandler extends DOMHandler {
 
@@ -55,10 +55,10 @@ class TRHandler extends DOMHandler {
 
 	/**
 	 * @param DOMElement $node
-	 * @param StdClass|DataParsoid $dp
+	 * @param stdClass|DataParsoid $dp
 	 * @return bool
 	 */
-	private function trWikitextNeeded( DOMElement $node, StdClass $dp ): bool {
+	private function trWikitextNeeded( DOMElement $node, stdClass $dp ): bool {
 		// If the token has 'startTagSrc' set, it means that the tr
 		// was present in the source wikitext and we emit it -- if not,
 		// we ignore it.

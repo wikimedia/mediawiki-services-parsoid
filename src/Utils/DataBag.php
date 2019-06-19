@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use stdClass as StdClass;
+use stdClass;
 
 class DataBag {
 	/**
@@ -17,7 +17,7 @@ class DataBag {
 	/** @var int An id counter for this document used for the dataObject map */
 	private $docId;
 
-	/** @var StdClass the page bundle object into which all data-parsoid and data-mw
+	/** @var stdClass the page bundle object into which all data-parsoid and data-mw
 	 * attributes will be extracted to for pagebundle API requests. */
 	private $pageBundle;
 
@@ -32,9 +32,9 @@ class DataBag {
 
 	/**
 	 * Return this document's pagebundle object
-	 * @return StdClass
+	 * @return stdClass
 	 */
-	public function getPageBundle(): StdClass {
+	public function getPageBundle(): stdClass {
 		return $this->pageBundle;
 	}
 
@@ -43,18 +43,18 @@ class DataBag {
 	 * This will return null if a non-existent docId is provided.
 	 *
 	 * @param int $docId
-	 * @return StdClass|null
+	 * @return stdClass|null
 	 */
-	public function getObject( int $docId ): ?StdClass {
+	public function getObject( int $docId ): ?stdClass {
 		return $this->dataObject[$docId] ?? null;
 	}
 
 	/**
 	 * Stash the data and return an id for retrieving it later
-	 * @param StdClass $data
+	 * @param stdClass $data
 	 * @return int
 	 */
-	public function stashObject( StdClass $data ): int {
+	public function stashObject( stdClass $data ): int {
 		$docId = $this->docId++;
 		$this->dataObject[$docId] = $data;
 		return $docId;

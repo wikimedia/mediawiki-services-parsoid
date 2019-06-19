@@ -23,7 +23,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
-use StdClass;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -699,7 +699,7 @@ class WikitextSerializer {
 	 * @param DOMElement $node
 	 * @param string $type The type of the part to be serialized. One of template, templatearg,
 	 *   parserfunction.
-	 * @param StdClass $part The expression fragment to serialize. See $srcParts
+	 * @param stdClass $part The expression fragment to serialize. See $srcParts
 	 *   in serializeFromParts() for format.
 	 * @param ?array $tplData Templatedata, see
 	 *   https://github.com/wikimedia/mediawiki-extensions-TemplateData/blob/master/Specification.md
@@ -708,7 +708,7 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	private function serializePart(
-		SerializerState $state, string $buf, DOMElement $node, string $type, StdClass $part,
+		SerializerState $state, string $buf, DOMElement $node, string $type, stdClass $part,
 		?array $tplData, $prevPart, $nextPart
 	): string {
 		// Parse custom format specification, if present.
@@ -754,7 +754,7 @@ class WikitextSerializer {
 
 		// open the transclusion
 		$tgt = $part->target;
-		'@phan-var StdClass $tgt';
+		'@phan-var stdClass $tgt';
 		$buf .= $this->formatStringSubst( $formatStart, $tgt->wt, $forceTrim );
 
 		// Trim whitespace from data-mw keys to deal with non-compliant
@@ -955,7 +955,7 @@ class WikitextSerializer {
 	 * Serialize a template from its parts.
 	 * @param SerializerState $state
 	 * @param DOMElement $node
-	 * @param StdClass[] $srcParts PORT-FIXME document
+	 * @param stdClass[] $srcParts PORT-FIXME document
 	 * @return string
 	 */
 	public function serializeFromParts(

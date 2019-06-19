@@ -5,7 +5,7 @@ namespace Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
 use DOMNode;
-use stdClass as StdClass;
+use stdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
@@ -59,10 +59,10 @@ class ComputeDSR {
 	 * Do $parsoidData->tsr values span the entire DOM subtree rooted at $n?
 	 *
 	 * @param DOMElement $n
-	 * @param StdClass $parsoidData
+	 * @param stdClass $parsoidData
 	 * @return bool
 	 */
-	private function tsrSpansTagDOM( DOMElement $n, StdClass $parsoidData ): bool {
+	private function tsrSpansTagDOM( DOMElement $n, stdClass $parsoidData ): bool {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
@@ -152,10 +152,10 @@ class ComputeDSR {
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
 	 * @param DOMElement $node
-	 * @param StdClass|null $dp
+	 * @param stdClass|null $dp
 	 * @return int[]|null
 	 */
-	private function computeATagWidth( DOMElement $node, ?StdClass $dp ): ?array {
+	private function computeATagWidth( DOMElement $node, ?stdClass $dp ): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
 		 *
@@ -213,10 +213,10 @@ class ComputeDSR {
 	 *
 	 * @param int[] $widths
 	 * @param DOMElement $node
-	 * @param StdClass $dp
+	 * @param stdClass $dp
 	 * @return int[]
 	 */
-	private function computeTagWidths( array $widths, DOMElement $node, StdClass $dp ): array {
+	private function computeTagWidths( array $widths, DOMElement $node, stdClass $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
 				$dp->extTagOffsets[1] - $dp->extTagOffsets[0],
@@ -397,9 +397,9 @@ class ComputeDSR {
 				DOMUtils::assertElt( $child );
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
-				// $dp will be a DataParsoid object once but currently it is an StdClass
+				// $dp will be a DataParsoid object once but currently it is an stdClass
 				// with a fake type hint. Unfake it to prevent phan complaining about unset().
-				'@phan-var StdClass $dp';
+				'@phan-var stdClass $dp';
 				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
 				$oldCE = $tsr ? $tsr[1] : null;
 				$propagateRight = false;

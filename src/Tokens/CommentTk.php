@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use StdClass;
+use stdClass;
 
 /**
  * Represents a comment
@@ -12,16 +12,16 @@ class CommentTk extends Token {
 	/** @var string Comment text */
 	public $value;
 
-	/** @var StdClass Data attributes for this token
+	/** @var stdClass Data attributes for this token
 	 * TODO: Expand on this.
 	 */
 	public $dataAttribs;
 
 	/**
 	 * @param string $value
-	 * @param StdClass|null $dataAttribs
+	 * @param stdClass|null $dataAttribs
 	 */
-	public function __construct( string $value, StdClass $dataAttribs = null ) {
+	public function __construct( string $value, stdClass $dataAttribs = null ) {
 		$this->value = $value;
 
 		// Won't survive in the DOM, but still useful for token serialization

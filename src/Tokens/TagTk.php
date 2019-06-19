@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use StdClass;
+use stdClass;
 
 /**
  * HTML tag token
@@ -18,7 +18,7 @@ class TagTk extends Token {
 	 */
 	public $attribs = [];
 
-	/** @var StdClass Data attributes for this token
+	/** @var stdClass Data attributes for this token
 	 * TODO: Expand on this.
 	 */
 	public $dataAttribs;
@@ -26,9 +26,9 @@ class TagTk extends Token {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
-	 * @param StdClass|null $dataAttribs data-parsoid object
+	 * @param stdClass|null $dataAttribs data-parsoid object
 	 */
-	public function __construct( string $name, array $attribs = [], StdClass $dataAttribs = null ) {
+	public function __construct( string $name, array $attribs = [], stdClass $dataAttribs = null ) {
 		$this->name = $name;
 		$this->attribs = $attribs;
 		$this->dataAttribs = $dataAttribs ?? (object)[];

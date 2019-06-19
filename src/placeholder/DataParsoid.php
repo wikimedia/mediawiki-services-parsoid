@@ -3,17 +3,17 @@ declare( strict_types = 1 );
 
 namespace Parsoid;
 
-use StdClass;
+use stdClass;
 
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().
  * For now, this class is only used in type hints to improve IDE autocompletion,
- * getDataParsoid() actually returns an StdClass. This also means that any of the properties
+ * getDataParsoid() actually returns an stdClass. This also means that any of the properties
  * documented here might not be set at all.
  * @see DOMDataUtils::getDataParsoid()
  * @see DOMDataUtils::setDataParsoid()
  */
-class DataParsoid extends StdClass {
+class DataParsoid extends stdClass {
 
 	/**
 	 * Used to emit original wikitext in some scenarios (entities, placeholder spans)
@@ -58,7 +58,7 @@ class DataParsoid extends StdClass {
 	/**
 	 * Holds a number of transient properties in the wt->html pipeline to pass information between
 	 * stages. Dropped before serialization.
-	 * @var StdClass|null
+	 * @var stdClass|null
 	 */
 	public $tmp;
 

@@ -6,7 +6,7 @@ namespace Parsoid\Utils;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
-use StdClass;
+use stdClass;
 
 /**
  * Class for helping us traverse the DOM.
@@ -39,7 +39,7 @@ class DOMTraverser {
 	 *   - DOMNode $node: the node being processed
 	 *   - Env $env: the parser environment
 	 *   - bool $atTopLevel: passed through from DOMTraverser::traverse
-	 *   - StdClass $tplInfo: Template information. See traverse().
+	 *   - stdClass $tplInfo: Template information. See traverse().
 	 *   Return value: DOMNode|null|true.
 	 *   - true: proceed normally
 	 *   - DOMNode: traversal will continue on the new node (further handlers will not be called
@@ -55,10 +55,10 @@ class DOMTraverser {
 	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param bool $atTopLevel
-	 * @param StdClass|null $tplInfo
+	 * @param stdClass|null $tplInfo
 	 * @return bool|mixed
 	 */
-	private function callHandlers( DOMNode $node, Env $env, bool $atTopLevel, ?StdClass $tplInfo ) {
+	private function callHandlers( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
 		$name = $node->nodeName ?: '';
 
 		foreach ( $this->handlers as $handler ) {
@@ -92,7 +92,7 @@ class DOMTraverser {
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
-	 * @param StdClass|null $tplInfo Template information. When set, it must have all of these fields:
+	 * @param stdClass|null $tplInfo Template information. When set, it must have all of these fields:
 	 *   - first: (DOMNode) first sibling
 	 *   - last: (DOMNode) last sibling
 	 *   - dsr: field from Pasoid ino
@@ -100,7 +100,7 @@ class DOMTraverser {
 	 */
 	public function traverse(
 		DOMNode $workNode, Env $env,
-		array $options = [], bool $atTopLevel = false, ?StdClass $tplInfo = null
+		array $options = [], bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
 		while ( $workNode !== null ) {
 			if ( $workNode instanceof DOMElement ) {

@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use stdClass as StdClass;
+use stdClass;
 
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
@@ -273,11 +273,11 @@ class ListHandler extends TokenHandler {
 	 * Push a list
 	 *
 	 * @param array $container
-	 * @param StdClass $dp1
-	 * @param StdClass $dp2
+	 * @param stdClass $dp1
+	 * @param stdClass $dp2
 	 * @return array
 	 */
-	private function pushList( array $container, StdClass $dp1, StdClass $dp2 ): array {
+	private function pushList( array $container, stdClass $dp1, stdClass $dp2 ): array {
 		$this->currListFrame->endtags[] = new EndTagTk( $container['list'] );
 		$this->currListFrame->endtags[] = new EndTagTk( $container['item'] );
 

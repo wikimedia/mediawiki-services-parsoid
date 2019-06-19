@@ -4,13 +4,13 @@ declare( strict_types = 1 );
 namespace Parsoid\Tokens;
 
 use Parsoid\Config\Env;
-use StdClass;
+use stdClass;
 
 /**
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	/** @var StdClass */
+	/** @var stdClass */
 	public $dataAttribs;
 
 	/** @var KV[] */
@@ -274,7 +274,7 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * @param iterable|StdClass &$a
+	 * @param iterable|stdClass &$a
 	 */
 	private static function rebuildNestedTokens( &$a ): void {
 		// objects do not count as iterables in PHP but can be iterated nevertheless

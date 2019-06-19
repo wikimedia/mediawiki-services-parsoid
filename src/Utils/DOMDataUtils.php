@@ -9,7 +9,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Parsoid\DataParsoid;
-use stdClass as StdClass;
+use stdClass;
 use Wikimedia\Assert\Assert;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DataBag; // phpcs:ignore
@@ -47,9 +47,9 @@ class DOMDataUtils {
 	 * Get data object from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return StdClass
+	 * @return stdClass
 	 */
-	public static function getNodeData( DOMElement $node ): StdClass {
+	public static function getNodeData( DOMElement $node ): stdClass {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			self::setNodeData( $node, (object)[] );
 		}
@@ -61,7 +61,7 @@ class DOMDataUtils {
 			$dataObject = null; // Make phan happy
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
-		'@phan-var StdClass $dataObject'; // @var StdClass $dataObject
+		'@phan-var stdClass $dataObject'; // @var stdClass $dataObject
 		Assert::invariant( !isset( $dataObject->stored ), 'Trying to fetch node data without loading!' );
 		return $dataObject;
 	}
@@ -70,9 +70,9 @@ class DOMDataUtils {
 	 * Set node data.
 	 *
 	 * @param DOMElement $node node
-	 * @param StdClass $data data
+	 * @param stdClass $data data
 	 */
-	public static function setNodeData( DOMElement $node, StdClass $data ): void {
+	public static function setNodeData( DOMElement $node, stdClass $data ): void {
 		$docId = self::getBag( $node->ownerDocument )->stashObject( $data );
 		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
 	}
@@ -83,7 +83,7 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @return DataParsoid
 	 */
-	public static function getDataParsoid( DOMElement $node ): StdClass {
+	public static function getDataParsoid( DOMElement $node ): stdClass {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->parsoid ) ) {
 			$data->parsoid = (object)[];
@@ -97,9 +97,9 @@ class DOMDataUtils {
 	/** Set data parsoid info on a node.
 	 *
 	 * @param DOMElement $node node
-	 * @param StdClass $dp data-parsoid
+	 * @param stdClass $dp data-parsoid
 	 */
-	public static function setDataParsoid( DOMElement $node, StdClass $dp ): void {
+	public static function setDataParsoid( DOMElement $node, stdClass $dp ): void {
 		$data = self::getNodeData( $node );
 		$data->parsoid = $dp;
 	}
@@ -108,9 +108,9 @@ class DOMDataUtils {
 	 * Get data diff info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return ?StdClass
+	 * @return ?stdClass
 	 */
-	public static function getDataParsoidDiff( DOMElement $node ): ?StdClass {
+	public static function getDataParsoidDiff( DOMElement $node ): ?stdClass {
 		$data = self::getNodeData( $node );
 		// We won't set a default value for this property
 		return $data->parsoid_diff ?? null;
@@ -119,9 +119,9 @@ class DOMDataUtils {
 	/** Set data diff info on a node.
 	 *
 	 * @param DOMElement $node node
-	 * @param ?StdClass $diffObj data-parsoid-diff object
+	 * @param ?stdClass $diffObj data-parsoid-diff object
 	 */
-	public static function setDataParsoidDiff( DOMElement $node, ?StdClass $diffObj ): void {
+	public static function setDataParsoidDiff( DOMElement $node, ?stdClass $diffObj ): void {
 		$data = self::getNodeData( $node );
 		$data->parsoid_diff = $diffObj;
 	}
@@ -130,9 +130,9 @@ class DOMDataUtils {
 	 * Get data meta wiki info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @return StdClass
+	 * @return stdClass
 	 */
-	public static function getDataMw( DOMElement $node ): StdClass {
+	public static function getDataMw( DOMElement $node ): stdClass {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->mw ) ) {
 			$data->mw = (object)[];
@@ -143,9 +143,9 @@ class DOMDataUtils {
 	/** Set data meta wiki info from a node.
 	 *
 	 * @param DOMElement $node node
-	 * @param ?StdClass $dmw data-mw
+	 * @param ?stdClass $dmw data-mw
 	 */
-	public static function setDataMw( DOMElement $node, ?StdClass $dmw ): void {
+	public static function setDataMw( DOMElement $node, ?stdClass $dmw ): void {
 		$data = self::getNodeData( $node );
 		$data->mw = $dmw;
 	}
@@ -350,9 +350,9 @@ class DOMDataUtils {
 	/**
 	 * Get this document's pagebundle object
 	 * @param DOMDocument $doc
-	 * @return StdClass
+	 * @return stdClass
 	 */
-	public static function getPageBundle( DOMDocument $doc ): StdClass {
+	public static function getPageBundle( DOMDocument $doc ): stdClass {
 		return self::getBag( $doc )->getPageBundle();
 	}
 
@@ -366,9 +366,9 @@ class DOMDataUtils {
 	 *
 	 * @param DOMElement $node node
 	 * @param Env $env environment
-	 * @param StdClass $data data
+	 * @param stdClass $data data
 	 */
-	public static function storeInPageBundle( DOMElement $node, Env $env, StdClass $data ): void {
+	public static function storeInPageBundle( DOMElement $node, Env $env, stdClass $data ): void {
 		$uid = $node->getAttribute( 'id' );
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
@@ -394,9 +394,9 @@ class DOMDataUtils {
 
 	/**
 	 * @param DOMDocument $doc doc
-	 * @param StdClass $obj object
+	 * @param stdClass $obj object
 	 */
-	public static function injectPageBundle( DOMDocument $doc, StdClass $obj ): void {
+	public static function injectPageBundle( DOMDocument $doc, stdClass $obj ): void {
 		$pb = PHPUtils::jsonEncode( $obj );
 		$script = $doc->createElement( 'script' );
 		self::addAttributes( $script, [
@@ -409,9 +409,9 @@ class DOMDataUtils {
 
 	/**
 	 * @param DOMDocument $doc doc
-	 * @return StdClass|null
+	 * @return stdClass|null
 	 */
-	public static function extractPageBundle( DOMDocument $doc ): ?StdClass {
+	public static function extractPageBundle( DOMDocument $doc ): ?stdClass {
 		$pb = null;
 		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
 		if ( $dpScriptElt ) {
@@ -506,9 +506,9 @@ class DOMDataUtils {
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
-		// $dp will be a DataParsoid object once but currently it is an StdClass
+		// $dp will be a DataParsoid object once but currently it is an stdClass
 		// with a fake type hint. Unfake it to prevent phan complaining about unset().
-		'@phan-var StdClass $dp';
+		'@phan-var stdClass $dp';
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,

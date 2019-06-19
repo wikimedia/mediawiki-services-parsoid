@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
-use StdClass;
+use stdClass;
 
 /**
  * Token for a self-closing tag (HTML or otherwise)
@@ -18,7 +18,7 @@ class SelfclosingTagTk extends Token {
 	 */
 	public $attribs = [];
 
-	/** @var StdClass Data attributes for this token
+	/** @var stdClass Data attributes for this token
 	 * TODO: Expand on this.
 	 */
 	public $dataAttribs;
@@ -26,9 +26,9 @@ class SelfclosingTagTk extends Token {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
-	 * @param StdClass|null $dataAttribs
+	 * @param stdClass|null $dataAttribs
 	 */
-	public function __construct( string $name, array $attribs = [], StdClass $dataAttribs = null ) {
+	public function __construct( string $name, array $attribs = [], stdClass $dataAttribs = null ) {
 		$this->name = $name;
 		$this->attribs = $attribs;
 		$this->dataAttribs = $dataAttribs ?? (object)[];
