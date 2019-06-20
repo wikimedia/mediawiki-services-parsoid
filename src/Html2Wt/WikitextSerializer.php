@@ -662,7 +662,7 @@ class WikitextSerializer {
 		$big = max( count( $nearestOrder ), count( $newOrder ) );
 		$defaultGet = function ( $map, $key1, $key2 = null ) use ( &$big ) {
 			$key = ( !$key2 || isset( $map[$key1] ) ) ? $key1 : $key2;
-			return $map[$key]->order ?? $big;
+			return $map[$key]['order'] ?? $big;
 		};
 
 		return function ( $a, $b ) use (
