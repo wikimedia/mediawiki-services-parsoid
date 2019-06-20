@@ -350,7 +350,7 @@ class References {
 			if ( DOMUtils::isElt( $child ) ) {
 				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
 					self::extractRefFromNode( $child, $refsData );
-				} elseif ( preg_match( ( '/(?:^|\s)mw:Extension\/references(?=$|\s)/' ), $child->getAttribute( 'typeOf' ) || '' ) ) {
+				} elseif ( preg_match( ( '/(?:^|\s)mw:Extension\/references(?=$|\s)/' ), $child->getAttribute( 'typeof' ) || '' ) ) {
 					$referencesId = $child->getAttribute( 'about' ) || '';
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group;
 					$nestedRefsHTML = [];
