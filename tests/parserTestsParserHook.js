@@ -19,7 +19,7 @@ const staticTagHook = Promise.method(function(state, content, args) {
 
 const staticTagPostProcessor = function(node, obj) {
 	if (DOMUtils.isElt(node)) {
-		const typeOf = node.getAttribute('typeOf');
+		const typeOf = node.getAttribute('typeof');
 		if ((/(?:^|\s)mw:Extension\/statictag(?=$|\s)/).test(typeOf)) {
 			const dataMw = DOMDataUtils.getDataMw(node);
 			if (dataMw.attrs.action === 'flush') {

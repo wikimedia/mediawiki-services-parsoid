@@ -284,7 +284,7 @@ class TableFixups {
 					$buf[] = $child->textContent;
 					$transclusionNode = $child;
 				} elseif ( $transclusionNode && DOMUtils::assertElt( $transclusionNode ) &&
-					( !$child->hasAttribute( 'typeOf' ) ) &&
+					( !$child->hasAttribute( 'typeof' ) ) &&
 					$child->getAttribute( 'about' ) === $transclusionNode->getAttribute( 'about' ) &&
 					DOMUtils::allChildrenAreTextOrComments( $child )
 				) {
