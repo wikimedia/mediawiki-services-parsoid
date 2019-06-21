@@ -59,7 +59,7 @@ class DOMPostProcessor extends PipelineStage {
 	private $metadataMap;
 
 	/** @var bool */
-	private $atTopLevel;
+	private $atTopLevel = false;
 
 	/**
 	 * @param Env $env
