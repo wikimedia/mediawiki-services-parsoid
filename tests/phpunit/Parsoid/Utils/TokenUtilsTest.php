@@ -9,6 +9,9 @@ use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\TokenUtils;
 
+/**
+ * @coversDefaultClass Parsoid\Utils\TokenUtils
+ */
 class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	const TOKEN_TEST_DATA = [
@@ -161,7 +164,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::getTokenType
+	 * @covers ::getTokenType
 	 * @dataProvider provideTokens
 	 */
 	public function testGetTokenType( $testCase ) {
@@ -172,7 +175,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isBlockTag
+	 * @covers ::isBlockTag
 	 * @dataProvider provideTokens
 	 */
 	public function testIsBlockTag( $testCase ) {
@@ -185,7 +188,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::tagOpensBlockScope
+	 * @covers ::tagOpensBlockScope
 	 * @dataProvider provideTokens
 	 */
 	public function testTagOpensBlockScope( $testCase ) {
@@ -198,7 +201,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::tagClosesBlockScope
+	 * @covers ::tagClosesBlockScope
 	 * @dataProvider provideTokens
 	 */
 	public function testTagClosesBlockScope( $testCase ) {
@@ -211,7 +214,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isTemplateToken
+	 * @covers ::isTemplateToken
 	 * @dataProvider provideTokens
 	 */
 	public function testIsTemplateToken( $testCase ) {
@@ -223,7 +226,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isHTMLTag
+	 * @covers ::isHTMLTag
 	 * @dataProvider provideTokens
 	 */
 	public function testIsHTMLTag( $testCase ) {
@@ -235,7 +238,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isDOMFragmentType
+	 * @covers ::isDOMFragmentType
 	 * @dataProvider provideTokens
 	 */
 	public function testIsDOMFragmentType( $testCase ) {
@@ -250,7 +253,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isTableTag
+	 * @covers ::isTableTag
 	 * @dataProvider provideTokens
 	 */
 	public function testIsTableTag( $testCase ) {
@@ -262,7 +265,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isSolTransparentLinkTag
+	 * @covers ::isSolTransparentLinkTag
 	 * @dataProvider provideTokens
 	 */
 	public function testIsSolTransparentLinkTag( $testCase ) {
@@ -274,7 +277,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isEntitySpanToken
+	 * @covers ::isEntitySpanToken
 	 * @dataProvider provideTokens
 	 */
 	public function testIsEntitySpanToken( $testCase ) {
@@ -286,7 +289,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::isEmptyLineMetaToken
+	 * @covers ::isEmptyLineMetaToken
 	 * @dataProvider provideTokens
 	 */
 	public function testIsEmptyLineMetaToken( $testCase ) {
@@ -298,7 +301,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::tokensToString
+	 * @covers ::tokensToString
 	 * @dataProvider provideTokens
 	 */
 	public function testTokensToString( $testCase ) {
@@ -310,8 +313,8 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::kvToHash
-	 * @covers TokenUtils::tokenTrim
+	 * @covers ::kvToHash
+	 * @covers ::tokenTrim
 	 * @dataProvider provideTokens
 	 */
 	public function testKvToHash( $testCase ) {
@@ -337,7 +340,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers TokenUtils::convertOffsets()
+	 * @covers ::convertOffsets()
 	 * @dataProvider provideConvertOffsets
 	 */
 	public function testConvertOffsets( $str, $from, $to, $input, $expect ) {

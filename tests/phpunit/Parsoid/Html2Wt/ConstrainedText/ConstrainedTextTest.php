@@ -12,13 +12,16 @@ use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 
+/**
+ * @coversDefaultClass \Parsoid\Html2Wt\ConstrainedText\ConstrainedText
+ */
 class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers fromSelSer
-	 * @covers fromSelSerImpl
-	 * @covers escape
-	 * @covers escapeLine
+	 * @covers ::fromSelSer
+	 * @covers ::fromSelSerImpl
+	 * @covers ::escape
+	 * @covers ::escapeLine
 	 * @dataProvider provideConstrainedText
 	 */
 	public function testConstrainedText( $t ) {

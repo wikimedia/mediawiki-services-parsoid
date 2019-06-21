@@ -9,11 +9,12 @@ use Wikimedia\TestingAccessWrapper;
  * Test the entity encoding logic (which the JS version did not have as it called
  * on the entities npm package). phpspec does not allow testing private methods so
  * this is done in PHPUnit.
+ * @coversDefaultClass \Parsoid\Wt2Html\XMLSerializer
  */
 class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers encodeHtmlEntities
+	 * @covers ::encodeHtmlEntities
 	 * @dataProvider provideEncodeHtmlEntities
 	 */
 	public function testEncodeHtmlEntities( $raw, $whitelist, $expected ) {

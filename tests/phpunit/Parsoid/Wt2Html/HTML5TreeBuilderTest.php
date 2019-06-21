@@ -13,7 +13,7 @@ use Parsoid\Wt2Html\HTML5TreeBuilder;
 class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers HTML5TreeBuilder
+	 * @covers \Parsoid\Wt2Html\HTML5TreeBuilder
 	 * @dataProvider provideTreeBuilder
 	 */
 	public function testTreeBuilder( $tokens, $expected ) {

@@ -14,6 +14,7 @@ use Wikimedia\TestingAccessWrapper;
 /**
  * Test DOM normalisation, the tests used for Porting DOMNormalizer class from JS
  * and based on similar tests in tests/mocha/dom_normalizer.js
+ * @coversDefaultClass \Parsoid\Html2Wt\DOMNormalizer
  */
 class DOMNormalizerTest extends TestCase {
 

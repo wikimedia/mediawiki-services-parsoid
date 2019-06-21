@@ -4,12 +4,15 @@ namespace Test\Parsoid\Utils;
 
 use Parsoid\Utils\WTUtils;
 
+/**
+ * @coversDefaultClass Parsoid\Utils\WTUtils
+ */
 class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers encodeComment
-	 * @covers decodeComment
-	 * @covers decodedCommentLength
+	 * @covers ::encodeComment
+	 * @covers ::decodeComment
+	 * @covers ::decodedCommentLength
 	 * @dataProvider provideCommentEncoding
 	 */
 	public function testCommentEncoding( $wikitext, $html, $length ) {

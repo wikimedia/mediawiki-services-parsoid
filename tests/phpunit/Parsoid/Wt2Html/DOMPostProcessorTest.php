@@ -15,7 +15,7 @@ use Parsoid\Wt2Html\PP\Processors\Normalize;
 class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers DOMPostProcessor
+	 * @covers \Parsoid\Wt2Html\DOMPostProcessor
 	 * @dataProvider provideDOMPostProcessor
 	 */
 	public function testDOMPostProcessor( $atTopLevel, $processors, $html, $expected ) {

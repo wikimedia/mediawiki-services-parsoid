@@ -40,7 +40,8 @@
 		"phpspec/phpspec": "^5.0",
 		"phpunit/phpunit": "^6.5",
 		"wikimedia/testing-access-wrapper": "~1.0",
-		"ext-curl": "*"
+		"ext-curl": "*",
+		"ockcyp/covers-validator": "1.1.0"
 	},
 	"autoload": {
 		"psr-4": {
@@ -59,6 +60,7 @@
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
+			"covers-validator",
 			"phpunit",
 			"phpspec run -v --ansi",
 			"@phan"

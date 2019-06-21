@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * based on tests/mocha/pwrap.js
+ * @coversDefaultClass \Parsoid\Wt2Html\PP\Processors\PWrap
  */
 class PWrapTest extends TestCase {
 
@@ -31,7 +32,7 @@ class PWrapTest extends TestCase {
 	}
 
 	/**
-	 * @covers run
+	 * @covers ::run
 	 * @dataProvider provideNoPWrapper
 	 * @param string $html
 	 * @param string $expected
@@ -54,7 +55,7 @@ class PWrapTest extends TestCase {
 	}
 
 	/**
-	 * @covers run
+	 * @covers ::run
 	 * @dataProvider provideSimplePWrapper
 	 * @param string $html
 	 * @param string $expected
@@ -80,7 +81,7 @@ class PWrapTest extends TestCase {
 	}
 
 	/**
-	 * @covers run
+	 * @covers ::run
 	 * @dataProvider provideComplexPWrapper
 	 * @param string $html
 	 * @param string $expected

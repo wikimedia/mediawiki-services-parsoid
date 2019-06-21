@@ -11,10 +11,13 @@ use Parsoid\Utils\DOMCompat\TokenList;
 
 use Wikimedia\TestingAccessWrapper;
 
+/**
+ * @coversDefaultClass \Parsoid\Utils\DOMCompat
+ */
 class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers DOMCompat::getBody()
+	 * @covers ::getBody()
 	 */
 	public function testGetBody() {
 		$html = '<html><head><title>Foo</title></head><body id="x"><div>y</div></body></html>';
@@ -31,7 +34,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::getHead()
+	 * @covers ::getHead()
 	 */
 	public function testGetHead() {
 		$html = '<html><head id="x"><title>Foo</title></head><body><div>y</div></body></html>';
@@ -48,7 +51,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::getTitle()
+	 * @covers ::getTitle()
 	 */
 	public function testGetTitle() {
 		$html = '<html><head><title>Foo</title></head><body><div>y</div></body></html>';
@@ -71,7 +74,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::setTitle()
+	 * @covers ::setTitle()
 	 */
 	public function testSetTitle() {
 		// modify <title> if it is exist
@@ -115,7 +118,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::getParentElement()
+	 * @covers ::getParentElement()
 	 */
 	public function testGetParentElement() {
 		// has parent element
@@ -135,7 +138,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::getElementById()
+	 * @covers ::getElementById()
 	 */
 	public function testGetElementById() {
 		$html = '<html><body><div id="x"></div></body></html>';
@@ -152,7 +155,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers DOMCompat::getLastElementChild()
+	 * @covers ::getLastElementChild()
 	 */
 	public function testGetLastElementChild() {
 		$html = '<html><body><div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
@@ -176,7 +179,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @dataProvider provideQuerySelector
-	 * @covers DOMCompat::querySelector()
+	 * @covers ::querySelector()
 	 * @param string $html
 	 * @param string $selector
 	 * @param callback|null $contextCallback
@@ -195,7 +198,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @dataProvider provideQuerySelector
-	 * @covers DOMCompat::querySelectorAll()
+	 * @covers ::querySelectorAll()
 	 * @param string $html
 	 * @param string $selector
 	 * @param callback|null $contextCallback
@@ -416,7 +419,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::getPreviousElementSibling()
+	 * @covers ::getPreviousElementSibling()
 	 */
 	public function testGetPreviousElementSibling() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
@@ -431,7 +434,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::getNextElementSibling()
+	 * @covers ::getNextElementSibling()
 	 */
 	public function testGetNextElementSibling() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
@@ -446,7 +449,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::remove()
+	 * @covers ::remove()
 	 */
 	public function testRemove() {
 		$html = '<html><body><div id="a"></div><div id="b"><span id="c">1</span></div>2</body></html>';
@@ -473,7 +476,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::getInnerHTML()
+	 * @covers ::getInnerHTML()
 	 */
 	public function testGetInnerHTML() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>';
@@ -490,7 +493,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::setInnerHTML()
+	 * @covers ::setInnerHTML()
 	 */
 	public function testSetInnerHTML() {
 		$html = '<html><body><div>1</div><div>2</div>3</body></html>';
@@ -506,7 +509,7 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::getOuterHTML()
+	 * @covers ::getOuterHTML()
 	 */
 	public function testGetOuterHTML() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>';
@@ -524,8 +527,8 @@ HTML;
 	}
 
 	/**
-	 * @covers DOMCompat::getClassList()
-	 * @covers TokenList
+	 * @covers ::getClassList()
+	 * @covers \Parsoid\Utils\DOMCompat\TokenList
 	 */
 	public function testGetClassList() {
 		$html = '<html><body><div id="x" class=" a  b&#9;c "></div></body></html>';
@@ -556,7 +559,7 @@ HTML;
 	}
 
 	/**
-	 * @covers HTMLDocument::stripAndCollapseASCIIWhitespace()
+	 * @covers ::stripAndCollapseASCIIWhitespace()
 	 * @dataProvider provideStripAndCollapseASCIIWhitespace
 	 */
 	public function testStripAndCollapseASCIIWhitespace( $input, $expectedOutput ) {

@@ -4,9 +4,12 @@ namespace Test\Parsoid\Utils;
 
 use Parsoid\Utils\Util;
 
+/**
+ * @coversDefaultClass \Parsoid\Utils\Util
+ */
 class UtilTest extends \PHPUnit\Framework\TestCase {
 	/**
-	 * @covers decodeWtEntities
+	 * @covers ::decodeWtEntities
 	 * @dataProvider provideDecodeWtEntities
 	 */
 	public function testDecodeWtEntities( $wt, $expected ) {
@@ -65,7 +68,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers escapeWtEntities
+	 * @covers ::escapeWtEntities
 	 * @dataProvider provideEscapeWtEntities
 	 */
 	public function testEscapeWtEntities( $text, $expected ) {
@@ -83,7 +86,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers escapeHtml
+	 * @covers ::escapeHtml
 	 * @dataProvider provideEscapeHtml
 	 */
 	public function testEscapeHtml( $text, $expected ) {
@@ -99,7 +102,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers entityEncodeAll
+	 * @covers ::entityEncodeAll
 	 * @dataProvider provideEntityEncodeAll
 	 */
 	public function testEntityEncodeAll( $text, $expected ) {
@@ -122,8 +125,8 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @dataProvider provideDecodeURI
-	 * @covers decodeURI
-	 * @covers decodeURIComponent
+	 * @covers ::decodeURI
+	 * @covers ::decodeURIComponent
 	 */
 	public function testDecodeURI( $input, $expect1, $expect2 = null ) {
 		$this->assertSame( $expect1, Util::decodeURIComponent( $input ) );
