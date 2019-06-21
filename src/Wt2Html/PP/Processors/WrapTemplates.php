@@ -182,7 +182,7 @@ class WrapTemplates {
 			'startElem' => $startElem,
 			'endElem' => $endMeta,
 			'id' => Util::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ),
-			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr[0],
+			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr->start,
 			'flipped' => false
 		];
 
@@ -1192,10 +1192,10 @@ class WrapTemplates {
 								DOMUtils::assertElt( $tbl );
 
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
-								if ( isset( $dp->tsr[0] ) && $dp->tsr[0] !== null &&
+								if ( isset( $dp->tsr->start ) && $dp->tsr->start !== null &&
 									isset( $tblDP->dsr[0] ) && $tblDP->dsr[0] === null
 								) {
-									$tblDP->dsr[0] = $dp->tsr[0];
+									$tblDP->dsr[0] = $dp->tsr->start;
 								}
 								$tbl->setAttribute( 'about', $about ); // set about on elem
 								$ee = $tbl;

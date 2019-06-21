@@ -80,9 +80,9 @@ class MarkFosteredContent {
 	): void {
 		$aboutId = $env->newAboutId();
 
-		// You might be asking yourself, why is table.data.parsoid.tsr[1] always
+		// You might be asking yourself, why is $table->dataParsoid->tsr->end always
 		// present? The earlier implementation searched the table's siblings for
-		// their tsr[0]. However, encapsulation doesn't happen when the foster box,
+		// their tsr->start. However, encapsulation doesn't happen when the foster box,
 		// and thus the table, are in the transclusion.
 		$s = self::createNodeWithAttributes( $fosterBox->ownerDocument, 'meta', [
 				'about' => $aboutId,

@@ -1057,7 +1057,7 @@ class LinkHandlerUtils {
 				return null;
 			}
 			foreach ( $outerDP->optList as $o ) {
-				if ( $o->ck === $key ) {
+				if ( ( $o->ck ?? null ) === $key ) {
 					return $o;
 				}
 			}
@@ -1066,7 +1066,7 @@ class LinkHandlerUtils {
 		$getLastOpt = function ( $key ) use ( &$outerDP ) : ?stdClass {
 			$o = $outerDP->optList ?? [];
 			for ( $i = count( $o ) - 1;  $i >= 0;  $i-- ) {
-				if ( $o[$i]->ck === $key ) {
+				if ( ( $o[$i]->ck ?? null ) === $key ) {
 					return $o[$i];
 				}
 			}
@@ -1379,7 +1379,7 @@ class LinkHandlerUtils {
 
 		// Add bogus options from old optlist in order to round-trip cleanly (T64500)
 		foreach ( $opts as $o ) {
-			if ( $o->ck === 'bogus' ) {
+			if ( ( $o->ck ?? null ) === 'bogus' ) {
 				$nopts[] = (object)[
 					'ck' => 'bogus',
 					'ak' => [ $o->ak ],
@@ -1409,7 +1409,7 @@ class LinkHandlerUtils {
 			$no->sortId = count( $opts );
 			$idx = -1;
 			foreach ( $opts as $i => $o ) {
-				if ( $o->ck === $no->ck &&
+				if ( ( $o->ck ?? null ) === $no->ck &&
 					// for bogus options, make sure the source matches too.
 					( $o->ck !== 'bogus' || $o->ak === $no->ak[0] )
 				) {

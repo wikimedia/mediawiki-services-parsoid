@@ -194,7 +194,6 @@ class ExtensionHandler extends TokenHandler {
 				$this->manager->getFrame(), $token, $this->options );
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
 			if ( $doc !== null ) {
-				// Pass an async signal since the ext-content won't be processed synchronously
 				$toks = $this->parseExtensionHTML( $token, null, $doc );
 				return( [ 'tokens' => $toks ] );
 			} else {

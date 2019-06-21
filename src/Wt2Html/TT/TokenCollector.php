@@ -164,7 +164,7 @@ abstract class TokenCollector extends TokenHandler {
 
 	/**
 	 * This helper function will build a meta token in the right way for these tags.
-	 * @param object $manager
+	 * @param TokenTransformManager $manager
 	 * @param string $tokenName
 	 * @param bool $isEnd
 	 * @param SourceOffset $tsr
@@ -172,7 +172,7 @@ abstract class TokenCollector extends TokenHandler {
 	 * @return SelfclosingTagTk
 	 */
 	public static function buildMetaToken(
-		$manager, string $tokenName, bool $isEnd,
+		TokenTransformManager $manager, string $tokenName, bool $isEnd,
 		SourceOffset $tsr, string $src
 	) : SelfclosingTagTk {
 		if ( $isEnd ) {
@@ -192,14 +192,15 @@ abstract class TokenCollector extends TokenHandler {
 	}
 
 	/**
-	 * @param object $manager
+	 * @param TokenTransformManager $manager
 	 * @param string $tokenName
 	 * @param Token $startDelim
 	 * @param Token $endDelim
 	 * @return SelfclosingTagTk
 	 */
-	protected static function buildStrippedMetaToken( $manager, $tokenName, $startDelim, $endDelim )
-		: SelfclosingTagTk {
+	protected static function buildStrippedMetaToken(
+		TokenTransformManager $manager, string $tokenName, Token $startDelim, Token $endDelim
+	) : SelfclosingTagTk {
 		$da = $startDelim->dataAttribs;
 		$tsr0 = $da ? $da->tsr : null;
 		$t0 = $tsr0 ? $tsr0->start : null;

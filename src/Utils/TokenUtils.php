@@ -441,18 +441,6 @@ class TokenUtils {
 	}
 
 	/**
-	 * @param array<int> $dest
-	 * @param array<int> $source
-	 */
-	private static function pushOffsets( array &$dest, array &$source ): void {
-		foreach ( $source as &$offset ) {
-			if ( $offset !== null ) {
-				$dest[] =& $offset;
-			}
-		}
-	}
-
-	/**
 	 * @param array<int> $offsets
 	 * @param array<Token>|array<KV>|KV|Token|KVSourceOffset|SourceOffset|string $input
 	 */

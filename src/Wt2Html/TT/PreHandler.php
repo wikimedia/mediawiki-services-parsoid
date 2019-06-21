@@ -303,8 +303,8 @@ class PreHandler extends TokenHandler {
 	 */
 	private function initPreTSR( NlTk $nltk ): int {
 		$da = $nltk->dataAttribs;
-		// tsr[1] can never be zero, so safe to use da.tsr[1] to check for null/undefined
-		return ( $da && isset( $da->tsr ) && $da->tsr[ 1 ] !== null ) ? $da->tsr[ 1 ] : -1;
+		// tsr->end can never be zero, so safe to use tsr->end to check for null/undefined
+		return $da->tsr->end ?? -1;
 	}
 
 	/**
@@ -321,7 +321,7 @@ class PreHandler extends TokenHandler {
 		);
 
 		// Whenever we move into SOL-state, init preTSR to
-		// the newline's tsr[1].  This will later be  used
+		// the newline's tsr->end.  This will later be  used
 		// to assign 'tsr' values to the <pre> token.
 
 		$ret = [];
@@ -427,7 +427,7 @@ class PreHandler extends TokenHandler {
 		if ( $token instanceof CommentTk ) {
 			// comment length has 7 added for "<!--" and "-->" deliminters
 			// (see WTUtils.decodedCommentLength() -- but that takes a node not a token)
-			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr[ 1 ] :
+			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr->end :
 				( ( $tsr === -1 ) ? -1 : mb_strlen( WTUtils::decodeComment( $token->value ) ) + 7 + $tsr );
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			// meta-tag (cannot compute)

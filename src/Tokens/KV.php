@@ -8,8 +8,10 @@ namespace Parsoid\Tokens;
  * Represents a Key-value pair.
  */
 class KV implements \JsonSerializable {
-	/** Commonly a string, but where the key might be templated,
-	 *  this can be an array of tokens even.
+	/**
+	 * Commonly a string, but where the key might be templated,
+	 * this can be an array of tokens even.
+	 *
 	 * @var string|Token[]
 	 */
 	public $k;
@@ -87,7 +89,7 @@ class KV implements \JsonSerializable {
 		// PORT_FIXME: Potential bug lurking here ... if $kv->v is an array
 		// this will return a copy, which if modified will not reflect
 		// in the original KV object.
-		return $kv === null ? null : $kv->v;
+		return $kv->v ?? null;
 	}
 
 	/**
@@ -96,7 +98,7 @@ class KV implements \JsonSerializable {
 	 * @return SourceOffset
 	 */
 	public function keyOffset(): SourceOffset {
-		return $this->srcOffsets === null ? null : $this->srcOffsets->key;
+		return $this->srcOffsets->key ?? null;
 	}
 
 	/**
@@ -105,7 +107,7 @@ class KV implements \JsonSerializable {
 	 * @return SourceOffset
 	 */
 	public function valueOffset(): SourceOffset {
-		return $this->srcOffsets === null ? null : $this->srcOffsets->value;
+		return $this->srcOffsets->value ?? null;
 	}
 
 	/**

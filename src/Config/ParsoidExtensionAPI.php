@@ -78,6 +78,14 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Is this extension tag self-closed?
+	 * @return bool
+	 */
+	public function isSelfClosedExtTag(): bool {
+		return !empty( $this->extToken->dataAttribs->selfClose );
+	}
+
+	/**
 	 * Create a parsing pipeline to parse wikitext.
 	 *
 	 * @param string $wikitext

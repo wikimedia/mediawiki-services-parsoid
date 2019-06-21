@@ -683,7 +683,7 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Add its HTML conversion to a parameter
 	 */
-	private function getParamHTML( $paramData ): void {
+	private function getParamHTML( array $paramData ): void {
 		$param = $paramData['param'];
 		$srcStart = $paramData['info']['srcOffsets']->value->start;
 		$srcEnd = $paramData['info']['srcOffsets']->value->end;
@@ -1309,7 +1309,7 @@ class TemplateHandler extends TokenHandler {
 						'fromCache' => true
 					] );
 				} else {
-					// Fetch process the template expansion
+					// Fetch and process the template expansion
 					$expansion = $this->fetchExpandedTpl( $text ) ?? null;
 					if ( $expansion['error'] ) {
 						$tplToks = $expansion['tokens'];

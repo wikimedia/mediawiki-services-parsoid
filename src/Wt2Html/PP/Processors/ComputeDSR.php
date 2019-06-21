@@ -786,9 +786,8 @@ class ComputeDSR {
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
 	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
-		$startOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][0] : 0;
-		$endOffset = isset( $options['sourceOffsets'] ) ? $options['sourceOffsets'][1] :
-			mb_strlen( $env->topFrame->getSrcText() );
+		$startOffset = $options['sourceOffsets']->start ?? 0;
+		$endOffset = $options['sourceOffsets']->end ?? mb_strlen( $env->topFrame->getSrcText() );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];

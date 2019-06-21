@@ -255,7 +255,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		$this->currPos = $skipPos;
   
   		if ( $isInstalledExt ) {
-  			// update tsr[1] to span the start and end tags.
+  			// update tsr->end to span the start and end tags.
   			$dp->tsr->end = $this->endOffset(); // was just modified above
   			return new SelfclosingTagTk( 'extension', [
   					new KV( 'typeof', 'mw:Extension' ),

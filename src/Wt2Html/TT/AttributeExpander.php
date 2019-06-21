@@ -123,8 +123,8 @@ class AttributeExpander extends TokenHandler {
 			// - Record the wikitext between the token and the transclusion
 			//   as an unwrappedWT data-parsoid attribute of the start-meta.
 			$dp = $startMeta->dataAttribs;
-			$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataAttribs->tsr[0],
-				$dp->tsr[0] - $token->dataAttribs->tsr[0] );
+			$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataAttribs->tsr->start,
+				$dp->tsr->start - $token->dataAttribs->tsr->start );
 
 			// unwrappedWT will be added to the data-mw.parts array which makes
 			// this a multi-template-content-block.
@@ -132,15 +132,15 @@ class AttributeExpander extends TokenHandler {
 			$dp->firstWikitextNode = isset( $token->dataAttribs->stx ) ?
 				$token->getName() . '_' . $token->dataAttribs->stx : $token->getName();
 
-			// Update tsr[0] only. Unless the end-meta token is moved as well,
-			// updating tsr[1] can introduce bugs in cases like:
+			// Update tsr->start only. Unless the end-meta token is moved as well,
+			// updating tsr->end can introduce bugs in cases like:
 			//
 			//   {|
 			//   |{{singlechart|Australia|93|artist=Madonna|album=Girls Gone Wild}}|x
 			//   |}
 			//
 			// which can then cause dirty diffs (the "|" before the x gets dropped).
-			$dp->tsr[0] = $token->dataAttribs->tsr[0];
+			$dp->tsr->start = $token->dataAttribs->tsr->start;
 			$metaTokens = [ $startMeta ];
 
 			return [ 'metaTokens' => $metaTokens, 'preNLBuf' => $buf, 'postNLBuf' => $postNLBuf ];

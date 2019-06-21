@@ -1205,9 +1205,9 @@ class WikitextEscapeHandlers {
 				$type = $t->getAttribute( 'typeof' );
 				if ( $type && preg_match( '/\bmw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Entity)\b/', $type ) ) {
 					$i += 2;
-					$width = $tokens[$i]->dataAttribs->tsr[1] - $da->tsr[0];
+					$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
 					self::appendStr(
-						mb_substr( $arg, $da->tsr[0], $width ),
+						mb_substr( $arg, $da->tsr->start, $width ),
 						$last,
 						false,
 						$buf,
@@ -1235,7 +1235,8 @@ class WikitextEscapeHandlers {
 						// braces and brackets pairs (which is done in appendStr),
 						// but only if they weren't explicitly protected in the
 						// passed wikitext.
-						$substr = mb_substr( $arg, $da->tsr[0], $tokens[$i]->dataAttribs->tsr[1] - $da->tsr[0] );
+						$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
+						$substr = mb_substr( $arg, $da->tsr->start, $width );
 						self::appendStr(
 							$substr,
 							$last,
@@ -1262,10 +1263,10 @@ class WikitextEscapeHandlers {
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
 						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
 						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-						// PORT-FIXME $da->tsr[{index}] undefined below
+						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
 					}
 					self::appendStr(
-						mb_substr( $arg, $da->tsr[0], $da->tsr[1] - $da->tsr[0] ),
+						$da->tsr->substr( $arg ),
 						$last,
 						false,
 						$buf,
@@ -1282,9 +1283,9 @@ class WikitextEscapeHandlers {
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
 						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
 						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-						// PORT-FIXME $da->tsr[{index}] undefined below
+						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
 					}
-					$tkSrc = mb_substr( $arg, $da->tsr[0], $da->tsr[1] - $da->tsr[0] );
+					$tkSrc = $da->tsr->substr( $arg );
 					// Replace pipe by an entity. This is not completely safe.
 					if ( $t->getName() === 'extlink' || $t->getName() === 'urllink' ) {
 						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
