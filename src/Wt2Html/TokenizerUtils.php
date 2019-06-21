@@ -290,7 +290,7 @@ class TokenizerUtils {
 	}
 
 	/** Pop off the end comments, if any. */
-	public static function popComments( array $attrs ) {
+	public static function popComments( array &$attrs ) {
 		$buf = [];
 		for ( $i = count( $attrs ) - 1;  $i > -1;  $i-- ) {
 			$kv = $attrs[ $i ];
