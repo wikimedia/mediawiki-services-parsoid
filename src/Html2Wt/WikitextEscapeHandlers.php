@@ -470,7 +470,7 @@ class WikitextEscapeHandlers {
 				// Since this will not parse to a real extlink,
 				// update buf with the wikitext src for this token.
 				$tsr = $t->dataAttribs->tsr;
-				$buf = $tsr->substr( $str ) . $buf;
+				$buf = $tsr->rawSubstr( $str ) . $buf;
 			} else {
 				// We have no other smarts => be conservative.
 				return true;
@@ -1207,7 +1207,7 @@ class WikitextEscapeHandlers {
 					$i += 2;
 					$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
 					self::appendStr(
-						mb_substr( $arg, $da->tsr->start, $width ),
+						substr( $arg, $da->tsr->start, $width ),
 						$last,
 						false,
 						$buf,
@@ -1236,7 +1236,7 @@ class WikitextEscapeHandlers {
 						// but only if they weren't explicitly protected in the
 						// passed wikitext.
 						$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
-						$substr = mb_substr( $arg, $da->tsr->start, $width );
+						$substr = substr( $arg, $da->tsr->start, $width );
 						self::appendStr(
 							$substr,
 							$last,
@@ -1266,7 +1266,7 @@ class WikitextEscapeHandlers {
 						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
 					}
 					self::appendStr(
-						$da->tsr->substr( $arg ),
+						$da->tsr->rawSubstr( $arg ),
 						$last,
 						false,
 						$buf,
@@ -1285,7 +1285,7 @@ class WikitextEscapeHandlers {
 						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
 						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
 					}
-					$tkSrc = $da->tsr->substr( $arg );
+					$tkSrc = $da->tsr->rawSubstr( $arg );
 					// Replace pipe by an entity. This is not completely safe.
 					if ( $t->getName() === 'extlink' || $t->getName() === 'urllink' ) {
 						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
