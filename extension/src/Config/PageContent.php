@@ -64,4 +64,11 @@ class PageContent implements IPageContent {
 		return $this->rev->getContent( $role )->serialize();
 	}
 
+	/** @inheritDoc */
+	public function getRedirectTarget(): ?string {
+		$content = $this->rev->getContent( 'main' );
+		$target = $content ? $content->getRedirectTarget() : null;
+		return $target ? $target->getPrefixedDBkey() : null;
+	}
+
 }

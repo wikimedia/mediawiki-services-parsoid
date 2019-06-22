@@ -15,6 +15,8 @@ class MockPageContent implements PageContent {
 	 *   - content: (string) The slot's content.
 	 *   - contentmodel: (string, default 'wikitext') The slot's content model.
 	 *   - contentformat: (string, default 'text/x-wiki') The slot's content format.
+	 *   - redirect: (string, optional) The redirect target (same format as PageConfig::getTitle),
+	 *     if this content is a redirect.
 	 */
 	public function __construct( array $data ) {
 		foreach ( $data as $role => $v ) {
@@ -54,6 +56,11 @@ class MockPageContent implements PageContent {
 	public function getContent( string $role ): string {
 		$this->checkRole( $role );
 		return $this->data[$role]['content'];
+	}
+
+	/** @inheritDoc */
+	public function getRedirectTarget(): ?string {
+		return $this->data['main']['redirect'] ?? null;
 	}
 
 }

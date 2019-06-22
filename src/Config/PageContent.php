@@ -46,4 +46,11 @@ interface PageContent {
 	 */
 	public function getContent( string $role ): string;
 
+	/**
+	 * If the PageContent represents a redirect, return the target
+	 * of that redirect as a title string. Otherwise return null.
+	 * @return string|null
+	 */
+	public function getRedirectTarget(): ?string;
+
 }
