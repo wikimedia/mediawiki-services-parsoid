@@ -8,6 +8,7 @@ use Parser;
 use ParserOptions;
 
 use Parsoid\Config\PageConfig as IPageConfig;
+use Parsoid\Config\PageContent as IPageContent;
 use Title;
 
 /**
@@ -50,10 +51,9 @@ class PageConfig extends IPageConfig {
 
 	public function hasLintableContentModel(): bool {
 		// @todo Check just the main slot, or all slots, or what?
-		$content = $this->getRevisionContent( SlotRecord::MAIN );
-		return $content && (
-			$content['model'] === CONTENT_MODEL_WIKITEXT || $content['model'] === 'proofread-page'
-		);
+		$content = $this->getRevisionContent();
+		$model = $content ? $content->getModel( SlotRecord::MAIN ) : null;
+		return $content && ( $model === CONTENT_MODEL_WIKITEXT || $model === 'proofread-page' );
 	}
 
 	/** @inheritDoc */
@@ -155,9 +155,9 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionContent(): ?PageContent {
+	public function getRevisionContent(): ?IPageContent {
 		$rev = $this->getRevision();
-		return $rev ? new MediaWikiPageContent( $rev ) : null;
+		return $rev ? new PageContent( $rev ) : null;
 	}
 
 }

@@ -6,15 +6,17 @@ namespace MWParsoid\Config;
 
 use Config;
 use FakeConverter;
+use Hooks;
 use Language;
 use LanguageConverter;
+use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
 use Parsoid\Config\SiteConfig as ISiteConfig;
-// use Parsoid\Logger\LogData;
-// use Parsoid\Utils\Util;
+use Parsoid\Logger\LogData;
 use Psr\Log\LoggerInterface;
+use Title;
 use User;
 
 /**
@@ -26,6 +28,12 @@ use User;
  *  get to the point of integrating the two.
  */
 class SiteConfig extends ISiteConfig {
+
+	/**
+	 * Regular expression fragment for matching wikitext comments.
+	 * Meant for inclusion in other regular expressions.
+	 */
+	const COMMENT_REGEXP_FRAGMENT = '<!--(?:[^-]|-(?!->))*-->';
 
 	/** @var Config MediaWiki configuration object */
 	private $config;
@@ -43,7 +51,7 @@ class SiteConfig extends ISiteConfig {
 	private $linkTrailRegex = false;
 
 	/** @var array|null */
-	private $interwikiMap, $variants, $magicWords, $mwAliases;
+	private $interwikiMap, $variants, $magicWords, $mwAliases, $variables, $functionHooks;
 
 	/** @var array */
 	private $extensionTags;
@@ -64,6 +72,16 @@ class SiteConfig extends ISiteConfig {
 			'_' => '[ _]',
 		] );
 		return $s;
+	}
+
+	/**
+	 * Convert a sequential array to an associative one to speed up set membership checks.
+	 *
+	 * @param array $a
+	 * @return array
+	 */
+	private static function makeSet( array $a ): array {
+		return array_fill_keys( $a, true );
 	}
 
 	public function __construct() {
@@ -258,7 +276,7 @@ class SiteConfig extends ISiteConfig {
 		if ( $this->interwikiMap === null ) {
 			$this->interwikiMap = [];
 
-			$getPrefixes = MediaWikiServices::getInstance()->getInterwikiLookup()->getAllPrefixes( $local );
+			$getPrefixes = MediaWikiServices::getInstance()->getInterwikiLookup()->getAllPrefixes();
 			$langNames = Language::fetchLanguageNames();
 			$extraLangPrefixes = $this->config->get( 'ExtraInterlanguageLinkPrefixes' );
 			$localInterwikis = $this->config->get( 'LocalInterwikis' );
@@ -399,7 +417,7 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $this->bswRegexp . ')__|' .
-			  Util::COMMENT_REGEXP . '|' .
+			  self::COMMENT_REGEXP_FRAGMENT . '|' .
 			  '[ \t\n\r\0\x0b]' .
 			')*$!i';
 	}
@@ -423,7 +441,7 @@ class SiteConfig extends ISiteConfig {
 			'(?:' .
 			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
 			  '__(?:' . $this->bswRegexp . ')__|' .
-			  Util::COMMENT_REGEXP .
+			  self::COMMENT_REGEXP_FRAGMENT .
 			')*)!i';
 	}
 
@@ -470,14 +488,36 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	private function populateMagicWords(): void {
-		if ( $this->magicWords === null ) {
-			$this->magicWords = [];
-			$this->mwAliases = [];
+		$services = MediaWikiServices::getInstance();
 
-			foreach (
-				MediaWikiServices::getInstance()->getContentLanguage()->getMagicWords()
-				as $magicword => $aliases
-			) {
+		// FIXME: Deduplicate with Parsoid\Api\SiteConfig
+		$noHashFunctions = self::makeSet( [
+			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
+			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
+			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
+			'numberofpages', 'numberofusers', 'numberofactiveusers',
+			'numberofarticles', 'numberoffiles', 'numberofadmins',
+			'numberingroup', 'numberofedits', 'language',
+			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
+			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
+			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
+			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
+			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
+			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
+			'talkpagename', 'talkpagenamee', 'subjectpagename',
+			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
+			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
+			'revisiontimestamp', 'revisionuser', 'cascadingsources',
+			// Special callbacks in core
+			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
+		] );
+
+		if ( $this->magicWords === null ) {
+			$this->magicWords = $this->mwAliases = $this->variables = $this->functionHooks = [];
+
+			$variables = self::makeSet( $services->getMagicWordFactory()->getVariableIDs() );
+			$functionHooks = self::makeSet( $services->getParser()->getFunctionHooks() );
+			foreach ( $services->getContentLanguage()->getMagicWords() as $magicword => $aliases ) {
 				$caseSensitive = array_shift( $aliases );
 				foreach ( $aliases as $alias ) {
 					$this->mwAliases[$magicword][] = $alias;
@@ -486,6 +526,19 @@ class SiteConfig extends ISiteConfig {
 						$this->mwAliases[$magicword][] = $alias;
 					}
 					$this->magicWords[$alias] = $magicword;
+					if ( $variables[$magicword] ?? false ) {
+						$this->variables[$alias] = $magicword;
+					}
+					if ( $functionHooks[$magicword] ?? false ) {
+						$falias = $alias;
+						if ( $falias[0] === ':' ) {
+							$falias = substr( $alias, 1 );
+						}
+						if ( !isset( $noHashFunctions[$magicword] ) ) {
+							$falias = '#' . $falias;
+						}
+						$this->functionHooks[$falias] = $magicword;
+					}
 				}
 			}
 		}
@@ -499,6 +552,14 @@ class SiteConfig extends ISiteConfig {
 	public function mwAliases(): array {
 		$this->populateMagicWords();
 		return $this->mwAliases;
+	}
+
+	public function getMagicWordForFunctionHook( string $str ): ?string {
+		return $this->functionHooks[$str] ?? null;
+	}
+
+	public function getMagicWordForVariable( string $str ): ?string {
+		return $this->variables[$str] ?? null;
 	}
 
 	public function getMagicWordMatcher( string $id ): string {
@@ -592,5 +653,4 @@ class SiteConfig extends ISiteConfig {
 		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
 		return (bool)preg_match( $regex, $potentialLink );
 	}
-
 }

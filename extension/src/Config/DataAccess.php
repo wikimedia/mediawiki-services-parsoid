@@ -4,21 +4,43 @@ namespace MWParsoid\Config;
 
 use ContentHandler;
 use File;
+use Hooks;
 use LinkBatch;
 use Linker;
+use MediaTransformError;
 use MediaWiki\Revision\RevisionStore;
+use PageProps;
+use Parser;
+use ParserOptions;
 use Parsoid\Config\DataAccess as IDataAccess;
+use Parsoid\Config\PageConfig as IPageConfig;
+// we can get rid of this once we can assume PHP 7.4+ with covariant return type support
+use Parsoid\Config\PageContent as IPageContent;
+use RepoGroup;
+use Title;
 
 class DataAccess implements IDataAccess {
 
 	/** @var RevisionStore */
 	private $revStore;
 
+	/** @var Parser */
+	private $parser;
+
+	/** @var ParserOptions */
+	private $parserOptions;
+
 	/**
 	 * @param RevisionStore $revStore
+	 * @param Parser $parser
+	 * @param ParserOptions $parserOptions
 	 */
-	public function __construct( RevisionStore $revStore ) {
+	public function __construct(
+		RevisionStore $revStore, Parser $parser, ParserOptions $parserOptions
+	) {
 		$this->revStore = $revStore;
+		$this->parser = $parser;
+		$this->parserOptions = $parserOptions;
 	}
 
 	/**
@@ -60,7 +82,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array {
+	public function getRedlinkData( IPageConfig $pageConfig, array $titles ): array {
 		$titleObjs = [];
 		foreach ( $titles as $name ) {
 			$titleObjs[$name] = Title::newFromText( $name );
@@ -87,11 +109,12 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
+	public function getFileInfo( IPageConfig $pageConfig, array $files ): array {
 		$page = Title::newFromText( $pageConfig->getTitle() );
 		$fileObjs = RepoGroup::singleton()->findFiles( array_keys( $files ) );
 		$ret = [];
 		foreach ( $files as $filename => $dims ) {
+			/** @var File $file */
 			$file = $fileObjs[$filename] ?? null;
 			if ( !$file ) {
 				$ret[$filename] = null;
@@ -113,10 +136,10 @@ class DataAccess implements IDataAccess {
 			if ( $length ) {
 				$result['duration'] = (float)$length;
 			}
-			$txopts = $this->makeTransformOptions( $file, $txopts );
+			$txopts = $this->makeTransformOptions( $file, $dims );
 			$mto = $file->transform( $txopts );
 			if ( $mto ) {
-				if ( $mto->isError() ) {
+				if ( $mto->isError() && $mto instanceof MediaTransformError ) {
 					$result['thumberror'] = $mto->toText();
 				} else {
 					if ( $txopts ) {
@@ -151,24 +174,20 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
+	public function doPst( IPageConfig $pageConfig, string $wikitext ): string {
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$popts = $pageConfig->getParserOptions();
-
 		return ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
-			->preSaveTransform( $titleObj, $popts->getUser(), $popts )
+			->preSaveTransform( $titleObj, $this->parserOptions->getUser(), $this->parserOptions )
 			->serialize();
 	}
 
 	/** @inheritDoc */
 	public function parseWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
 	): array {
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$popts = $pageConfig->getParserOptions();
-
-		$pout = ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
-			->getParserOutput( $titleObj, $revid, $popts );
+		$out = ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
+			->getParserOutput( $titleObj, $revid, $this->parserOptions );
 
 		$categories = [];
 		foreach ( $out->getCategories() as $cat => $sortkey ) {
@@ -187,13 +206,11 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function preprocessWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
+		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
 	): array {
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$popts = $pageConfig->getParserOptions();
-
-		$wikitext = $wgParser->preprocess( $wikitext, $titleObj, $popts, $revid );
-		$out = $wgParser->getOutput();
+		$wikitext = $this->parser->preprocess( $wikitext, $titleObj, $this->parserOptions, $revid );
+		$out = $this->parser->getOutput();
 		return [
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
@@ -206,28 +223,28 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function fetchPageContent(
-		PageConfig $pageConfig, string $title, int $oldid = 0
-	): ?PageContent {
+		IPageConfig $pageConfig, string $title, int $oldid = 0
+	): ?IPageContent {
 		$titleObj = Title::newFromText( $title );
 
 		if ( $oldid ) {
 			$rev = $this->revStore->getRevisionByTitle( $titleObj, $oldid );
 		} else {
 			$rev = call_user_func(
-				$pageConfig->getParserOptions()->getCurrentRevisionCallback(),
+				$this->parserOptions->getCurrentRevisionCallback(),
 				$titleObj,
-				$pageConfig->getParser()
+				$this->parser
 			);
 		}
 		if ( $rev instanceof \Revision ) {
 			$rev = $rev->getRevisionRecord();
 		}
 
-		return $rev ? new MediaWikiPageContent( $rev ) : null;
+		return $rev ? new PageContent( $rev ) : null;
 	}
 
 	/** @inheritDoc */
-	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array {
+	public function fetchTemplateData( IPageConfig $pageConfig, string $title ): ?array {
 		$ret = null;
 		// @todo: Document this hook in MediaWiki
 		Hooks::runWithoutAbort( 'ParsoidFetchTemplateData', [ $title, &$ret ] );

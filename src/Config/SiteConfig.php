@@ -550,6 +550,20 @@ abstract class SiteConfig {
 	abstract public function mwAliases(): array;
 
 	/**
+	 * Return canonical magic word for a function hook
+	 * @param string $str
+	 * @return string|null
+	 */
+	abstract public function getMagicWordForFunctionHook( string $str ): ?string;
+
+	/**
+	 * Return canonical magic word for a variable
+	 * @param string $str
+	 * @return string|null
+	 */
+	abstract public function getMagicWordForVariable( string $str ): ?string;
+
+	/**
 	 * Get canonical magicword name for the input word.
 	 *
 	 * @param string $word
@@ -692,20 +706,6 @@ abstract class SiteConfig {
 	public function fakeTimestamp(): ?int {
 		return null;
 	}
-
-	/**
-	 * Return canonical magic word for a function hook
-	 * @param string $str
-	 * @return string|null
-	 */
-	abstract public function getMagicWordForFunctionHook( string $str ): ?string;
-
-	/**
-	 * Return canonical magic word for a variable
-	 * @param string $str
-	 * @return string|null
-	 */
-	abstract public function getMagicWordForVariable( string $str ): ?string;
 
 	/**
 	 * Get an array of defined extension tags, with the lower case name in the
