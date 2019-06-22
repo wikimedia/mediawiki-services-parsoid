@@ -74,7 +74,7 @@ class ExternalLinkHandler extends TokenHandler {
 	 * @return bool
 	 */
 	private function hasImageLink( string $href ): bool {
-		$allowedPrefixes = $this->manager->env->allowedExternalImagePrefixes();
+		$allowedPrefixes = $this->manager->env->getSiteConfig()->allowedExternalImagePrefixes();
 		$bits = explode( '.', $href );
 		$hasImageExtension = count( $bits ) > 1 &&
 			self::imageExtensions( end( $bits ) ) &&
@@ -118,7 +118,6 @@ class ExternalLinkHandler extends TokenHandler {
 			// combine with existing rdfa attrs
 			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $tagAttrs )['attribs'];
-			$tagAttrs = [];
 			return [ 'tokens' => [ new SelfclosingTagTk( 'img', $tagAttrs, $dataAttribs ) ] ];
 		} else {
 			$tagAttrs = [
@@ -129,7 +128,6 @@ class ExternalLinkHandler extends TokenHandler {
 			// href is set explicitly below
 			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $tagAttrs )['attribs'];
-			$tagAttrs = [];
 			$builtTag = new TagTk( 'a', $tagAttrs, $dataAttribs );
 			$dataAttribs->stx = 'url';
 
@@ -204,12 +202,12 @@ class ExternalLinkHandler extends TokenHandler {
 			// combine with existing rdfa attrs
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
-			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 			$tokens = array_merge( [ $aStart ], $content, [ new EndTagTk( 'a' ) ] );
 			return [ 'tokens' => $tokens ];
-		} elseif ( ( !$hasExpandedAttrs && gettype( $origHref ) === 'string' ) ||
-					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false ) {
+		} elseif ( ( !$hasExpandedAttrs && is_string( $origHref ) ) ||
+					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
+		) {
 			$rdfaType = 'mw:ExtLink';
 			if ( count( $content ) === 1 ) {
 				if ( is_string( $content[0] ) ) {
@@ -234,7 +232,6 @@ class ExternalLinkHandler extends TokenHandler {
 			// href is set explicitly below
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
-			$newAttrs = [];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 
 			if ( empty( $this->options[ 'inTemplate' ] ) ) {
@@ -245,7 +242,7 @@ class ExternalLinkHandler extends TokenHandler {
 				// and we need src without those spaces.
 				$tsr0a = $dataAttribs->tsr->start + 1;
 				$tsr1a = $dataAttribs->extLinkContentOffsets->start -
-					strlen( $token->getAttribute( 'spaces' ) || '' );
+					strlen( $token->getAttribute( 'spaces' ) ?? '' );
 				$length = $tsr1a - $tsr0a;
 				$aStart->addNormalizedAttribute( 'href', $href,
 					substr( $this->manager->getFrame()->getSrcText(), $tsr0a, $length ) );
@@ -255,7 +252,7 @@ class ExternalLinkHandler extends TokenHandler {
 
 			$content = PipelineUtils::getDOMFragmentToken(
 				$content,
-				( $dataAttribs->tsr ) ? $dataAttribs->extLinkContentOffsets : null,
+				$dataAttribs->tsr ? $dataAttribs->extLinkContentOffsets : null,
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 
