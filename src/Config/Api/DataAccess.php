@@ -80,7 +80,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array {
+	public function getPageInfo( PageConfig $pageConfig, array $titles ): array {
 		if ( !$titles ) {
 			return [];
 		}
@@ -114,6 +114,8 @@ class DataAccess implements IDataAccess {
 				}
 				$page = $pages[$ttitle] ?? [];
 				$ret[$title] = [
+					'pageId' => $page['pageid'] ?? null,
+					'revId' => $page['lastrevid'] ?? null,
 					'missing' => $page['missing'] ?? false,
 					'known' => !( $page['missing'] ?? false ) || ( $page['known'] ?? false ),
 					'redirect' => $page['redirect'] ?? false,

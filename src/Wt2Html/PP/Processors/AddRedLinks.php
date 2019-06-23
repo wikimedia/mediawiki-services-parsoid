@@ -33,7 +33,7 @@ class AddRedLinks {
 			return;
 		}
 
-		$titleMap = $env->getDataAccess()->getRedlinkData( $env->getPageConfig(), $titles );
+		$titleMap = $env->getDataAccess()->getPageInfo( $env->getPageConfig(), $titles );
 
 		foreach ( $wikiLinks as $a ) {
 			if ( !$a->hasAttribute( 'title' ) ) {

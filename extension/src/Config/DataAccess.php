@@ -82,7 +82,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRedlinkData( IPageConfig $pageConfig, array $titles ): array {
+	public function getPageInfo( IPageConfig $pageConfig, array $titles ): array {
 		$titleObjs = [];
 		foreach ( $titles as $name ) {
 			$titleObjs[$name] = Title::newFromText( $name );
@@ -98,7 +98,10 @@ class DataAccess implements IDataAccess {
 
 		$ret = [];
 		foreach ( $titleObjs as $name => $obj ) {
+			/** @var Title $obj */
 			$ret[$name] = [
+				'pageId' => $obj->getArticleID(),
+				'revId' => $obj->getLatestRevID(),
 				'missing' => !$obj->exists(),
 				'known' => $obj->isKnown(),
 				'redirect' => $obj->isRedirect(),

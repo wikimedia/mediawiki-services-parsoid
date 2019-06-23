@@ -12,7 +12,7 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array {
+	public function getPageInfo( PageConfig $pageConfig, array $titles ): array {
 		throw new \BadMethodCallException( 'Not implemented yet' );
 	}
 

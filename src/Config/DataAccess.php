@@ -15,12 +15,14 @@ interface DataAccess {
 	 * @param PageConfig $pageConfig
 	 * @param string[] $titles
 	 * @return array [ string Title => array ], where the array contains
+	 *  - pageId: (int|null) Page ID
+	 *  - revId: (int|null) Current revision of the page
 	 *  - missing: (bool) Whether the page is missing
 	 *  - known: (bool) Whether the special page is known
 	 *  - redirect: (bool) Whether the page is a redirect
 	 *  - disambiguation: (bool) Whether the page is a disambiguation page
 	 */
-	public function getRedlinkData( PageConfig $pageConfig, array $titles ): array;
+	public function getPageInfo( PageConfig $pageConfig, array $titles ): array;
 
 	/**
 	 * Return information about files (images)

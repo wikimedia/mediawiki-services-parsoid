@@ -18,7 +18,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGetRedlinkData() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$data = $this->getDataAccess( 'redlinkdata' )->getRedlinkData( $pageConfig, [
+		$data = $this->getDataAccess( 'redlinkdata' )->getPageInfo( $pageConfig, [
 			'Foo',
 			'Bar_(disambiguation)',
 			'Special:SpecialPages',
@@ -26,20 +26,23 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'File:Example.svg',
 		] );
 
+		// FIXME use locked articles from testwiki so the fixture is actually fixed
+		$data['Foo']['pageId'] = 1;
+		$data['Bar_(disambiguation)']['pageId'] = 2;
+		$data['Foo']['revId'] = 10;
+		$data['Bar_(disambiguation)']['revId'] = 11;
+
 		$this->assertSame( [
-			'Foo' => [ 'missing' => false, 'known' => true, 'redirect' => true, 'disambiguation' => false ],
-			'Bar_(disambiguation)' => [
-				'missing' => false, 'known' => true, 'redirect' => false, 'disambiguation' => true
-			],
-			'Special:SpecialPages' => [
-				'missing' => false, 'known' => true, 'redirect' => false, 'disambiguation' => false
-			],
-			'ThisPageDoesNotExist' => [
-				'missing' => true, 'known' => false, 'redirect' => false, 'disambiguation' => false
-			],
-			'File:Example.svg' => [
-				'missing' => true, 'known' => true, 'redirect' => false, 'disambiguation' => false
-			],
+			'Foo' => [ 'pageId' => 1, 'revId' => 10, 'missing' => false,
+				'known' => true, 'redirect' => true, 'disambiguation' => false ],
+			'Bar_(disambiguation)' => [ 'pageId' => 2, 'revId' => 11, 'missing' => false,
+				'known' => true, 'redirect' => false, 'disambiguation' => true ],
+			'Special:SpecialPages' => [ 'pageId' => null, 'revId' => null, 'missing' => false,
+				'known' => true, 'redirect' => false, 'disambiguation' => false ],
+			'ThisPageDoesNotExist' => [ 'pageId' => null, 'revId' => null, 'missing' => true,
+				'known' => false, 'redirect' => false, 'disambiguation' => false ],
+			'File:Example.svg' => [ 'pageId' => null, 'revId' => null,	'missing' => true,
+				'known' => true, 'redirect' => false, 'disambiguation' => false ],
 		], $data );
 	}
 
