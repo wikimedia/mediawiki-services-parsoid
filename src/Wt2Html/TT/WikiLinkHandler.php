@@ -212,7 +212,7 @@ class WikiLinkHandler extends TokenHandler {
 		// the resulting href and transfer it to rlink.
 		$r = $this->onWikiLink( $wikiLinkTk );
 		$isValid = !empty( $r ) && $r['tokens'] && $r['tokens'][0] &&
-			preg_match( '/^(a|link)$/', $r['tokens'][0]->name );
+			preg_match( '/^(a|link)$/', $r['tokens'][0]->getName() );
 		if ( $isValid ) {
 			$da = $r['tokens'][0]->dataAttribs;
 			$rlink->addNormalizedAttribute( 'href', $da->a['href'], $da->sa['href'] );
@@ -262,13 +262,14 @@ class WikiLinkHandler extends TokenHandler {
 		} else {
 			foreach ( $token->attribs as $value ) {
 				if ( $value->k === 'mw:maybeContent' ) {
-					$content = array_merge( $content, [ '|', $value->v ] );
+					$content[] = '|';
+					$content = array_merge( $content, $value->v );
 				}
 			}
 		}
 
 		$dft = null;
-		if ( preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ) ) {
+		if ( preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' ) ) {
 			$dataMW = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
 			$html = null;
 			for ( $i = 0;  $i < count( $dataMW );  $i++ ) {
@@ -993,10 +994,10 @@ class WikiLinkHandler extends TokenHandler {
 		$prefix = $prefix ?? '';
 
 		for ( $i = 0;  $i < count( $tstream );  $i++ ) {
-			$currentToken = $tstream[ $i ];
+			$currentToken = $tstream[$i];
 
 			if ( $skipToEndOf ) {
-				if ( $currentToken->name === $skipToEndOf && $currentToken->constructor === EndTagTk::class ) {
+				if ( $currentToken->getName() === $skipToEndOf && $currentToken instanceof EndTagTk ) {
 					$skipToEndOf = null;
 				}
 				continue;
@@ -1011,10 +1012,10 @@ class WikiLinkHandler extends TokenHandler {
 					return null;
 				}
 
-				$resultStr += $nextResult;
-			} elseif ( $currentToken->constructor !== EndTagTk::class ) {
+				$resultStr .= $nextResult;
+			} elseif ( !( $currentToken instanceof EndTagTk ) ) {
 				// This is actually a token
-				if ( TokenUtils::isDOMFragmentType( $currentToken->getAttribute( 'typeof' ) ) ) {
+				if ( TokenUtils::isDOMFragmentType( $currentToken->getAttribute( 'typeof' ) ?? '' ) ) {
 					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$str = TokenUtils::tokensToString( [ $currentToken ], false, [
 								'unpackDOMFragments' => true,
@@ -1027,7 +1028,7 @@ class WikiLinkHandler extends TokenHandler {
 						// This is similar to getting the shadow "href" below.
 						// FIXME: Sneaking in `env` to avoid changing the signature
 
-						$resultStr += preg_replace( '/\|/', '&vert;', $str, 1 );
+						$resultStr .= preg_replace( '/\|/', '&vert;', $str, 1 );
 						$optInfo = null; // might change the nature of opt
 						continue;
 					} else {
@@ -1035,7 +1036,7 @@ class WikiLinkHandler extends TokenHandler {
 						return null;
 					}
 				}
-				if ( $currentToken->name === 'mw-quote' ) {
+				if ( $currentToken->getName() === 'mw-quote' ) {
 					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						// just recurse inside
 						$optInfo = null; // might change the nature of opt
@@ -1044,11 +1045,11 @@ class WikiLinkHandler extends TokenHandler {
 				}
 				// Similar to TokenUtils.tokensToString()'s includeEntities
 				if ( TokenUtils::isEntitySpanToken( $currentToken ) ) {
-					$resultStr += $currentToken->dataAttribs->src;
+					$resultStr .= $currentToken->dataAttribs->src;
 					$skipToEndOf = 'span';
 					continue;
 				}
-				if ( $currentToken->name === 'a' ) {
+				if ( $currentToken->getName() === 'a' ) {
 					if ( $optInfo === null ) {
 						$optInfo = self::getOptionInfo( $prefix . $resultStr, $env );
 						if ( $optInfo === null ) {
@@ -1073,12 +1074,12 @@ class WikiLinkHandler extends TokenHandler {
 							$currentToken->dataAttribs->stx === 'url'
 						) {
 							// Add the URL
-							$resultStr += $tkHref;
+							$resultStr .= $tkHref;
 							// Tell our loop to skip to the end of this tag
 							$skipToEndOf = 'a';
 						} elseif ( $tokenType === 'mw:WikiLink/Interwiki' ) {
 							if ( $isLink ) {
-								$resultStr += $currentToken->getAttribute( 'href' );
+								$resultStr .= $currentToken->getAttribute( 'href' );
 								$i += 2;
 								continue;
 							}
@@ -1184,12 +1185,11 @@ class WikiLinkHandler extends TokenHandler {
 		];
 
 		$hasExpandableOpt = false;
-		$hasTransclusion = function ( $toks ) use ( &$SelfclosingTagTk ) {
-			return is_array( $toks ) && array_search( function ( $t ) use ( &$SelfclosingTagTk ) {
+		$hasTransclusion = function ( $toks )  {
+			return is_array( $toks ) && array_search( function ( Token $t ) {
 				return $t instanceof SelfclosingTagTk &&
 					$t->getAttribute( 'typeof' ) === 'mw:Transclusion';
-			}, $toks
-			) !== null;
+			}, $toks ) !== null;
 		};
 
 		$optKVs = self::buildLinkAttrs( $token->attribs, true, null, null )['contentKVs'];
@@ -1555,12 +1555,12 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param Token $token
 	 * @param stdClass $target
 	 * @param array $errs
-	 * @param stdClass $info
+	 * @param array $info
 	 * @return array
 	 */
-	private function linkToMedia( Token $token, stdClass $target, array $errs, $info ): array {
+	private function linkToMedia( Token $token, stdClass $target, array $errs, array $info ): array {
 		// Only pass in the url, since media links should not link to the thumburl
-		$imgHref = preg_replace( '/^https?:\/\//', '//', $info->url, 1 ); // Copied from getPath
+		$imgHref = preg_replace( '/^https?:\/\//', '//', $info['url'], 1 ); // Copied from getPath
 		$imgHrefFileName = preg_replace( '/.*\//', '', $imgHref, 1 );
 
 		$link = new TagTk( 'a', [], Util::clone( $token->dataAttribs ) );
@@ -1614,18 +1614,18 @@ class WikiLinkHandler extends TokenHandler {
 		$env = $this->manager->env;
 		$title = $target->title;
 		$errs = [];
-		// PORT_FIXME
+		// PORT-FIXME
 		// Assert::invariant( $title instanceof Title );
 		$temp2 = AddMediaInfo::requestInfo( $env, $title->getKey(), [
-				'height' => null, 'width' => null
-			]
-		);
-		$err = $temp2['err'];
-		$info = $temp2['info'];
+			'height' => null, 'width' => null
+		] );
 
+		$err = $temp2['err'];
 		if ( $err ) {
 			$errs[] = $err;
 		}
+
+		$info = $temp2['info'];
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}
 

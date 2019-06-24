@@ -1289,7 +1289,8 @@ class Sanitizer extends TokenHandler {
 				$buf = '<' . $token->getName();
 				for ( $i = 0, $l = count( $attribs );  $i < $l;  $i++ ) {
 					$kv = $attribs[$i];
-					$buf .= ' ' . $kv->k . "='" . $kv->v . "'";
+					$buf .= ' ' . TokenUtils::tokensToString( $kv->k ) .
+						"='" . TokenUtils::tokensToString( $kv->v ) . "'";
 				}
 				if ( $token instanceof SelfclosingTagTk ) {
 					$buf .= ' /';
