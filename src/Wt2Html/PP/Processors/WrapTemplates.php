@@ -320,9 +320,9 @@ class WrapTemplates {
 				$msg .= "\n----------------------------------------------";
 				$msg .= "\nFound range : " . $range->id . '; flipped? ' . $range->flipped .
 					'; offset: ' . $range->startOffset;
-				$msg .= "\nstart-elem : " . $range->startElem->outerHTML . '; DP: ' .
+				$msg .= "\nstart-elem : " . DOMCompat::getOuterHTML( $range->startElem ) . '; DP: ' .
 					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $range->startElem ) );
-				$msg .= "\nend-elem : " . $range->endElem->outerHTML . '; DP: ' .
+				$msg .= "\nend-elem : " . DOMCompat::getOuterHTML( $range->endElem ) . '; DP: ' .
 					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $range->endElem ) );
 				$msg .= "\nstart : [TAG_ID " . $tmp1->tagId . ']: ' . DOMCompat::getOuterHTML( $range->start ) .
 					'; DP: ' . PHPUtils::jsonEncode( $dp1 );
@@ -628,14 +628,14 @@ class WrapTemplates {
 				$dp1->tmp = null;
 				$dp2->tmp = null;
 				$msg .= "\n##############################################";
-				$msg .= "\nrange " . $r->id . '; r-start-elem: ' . $r->startElem->outerHTML . '; DP: ' .
-					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->startElem ) );
-				$msg .= "\nrange " . $r->id . '; r-end-elem: ' . $r->endElem->outerHTML . '; DP: ' .
-					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->endElem ) );
+				$msg .= "\nrange " . $r->id . '; r-start-elem: ' . DOMCompat::getOuterHTML( $r->startElem ) .
+					'; DP: ' . PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->startElem ) );
+				$msg .= "\nrange " . $r->id . '; r-end-elem: ' . DOMCompat::getOuterHTML( $r->endElem ) .
+					'; DP: ' . PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->endElem ) );
 				$msg .= "\nrange " . $r->id . '; r-start: [TAG_ID ' . $tmp1->tagId . ']: ' .
-					$r->start->outerHTML . '; DP: ' . PHPUtils::jsonEncode( $dp1 );
+					DOMCompat::getOuterHTML( $r->start ) . '; DP: ' . PHPUtils::jsonEncode( $dp1 );
 				$msg .= "\nrange " . $r->id . '; r-end: [TAG_ID ' . $tmp2->tagId . ']: ' .
-					$r->end->outerHTML . '; DP: ' . PHPUtils::jsonEncode( $dp2 );
+					DOMCompat::getOuterHTML( $r->end ) . '; DP: ' . PHPUtils::jsonEncode( $dp2 );
 				$msg .= "\n----------------------------------------------";
 				$dp1->tmp = $tmp1;
 				$dp2->tmp = $tmp2;

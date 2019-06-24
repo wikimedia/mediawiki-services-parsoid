@@ -201,7 +201,7 @@ class ParserPipelineFactory {
 		}
 
 		foreach ( $options as $k => $v ) {
-			Assert::invariant( isset( self::$supportedOptions[$k] ), 'Invalid cacheKey option: ' . $k );
+			Assert::invariant( in_array( $k, self::$supportedOptions ), 'Invalid cacheKey option: ' . $k );
 		}
 
 		// default: not an include context
