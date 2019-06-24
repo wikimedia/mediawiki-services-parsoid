@@ -144,17 +144,13 @@ class PipelineUtils {
 				'sol' => true
 			];
 			$content = array_merge( $v['html'], [ new EOFTk() ] );
-			try {
-				$dom = self::processContentInPipeline(
-					$env, $frame, $content, $opts
-				);
-				// Since we aren't at the top level, data attrs
-				// were not applied in cleanup.  However, tmp
-				// was stripped.
-				$v['html'] = ContentUtils::ppToXML( DOMCompat::getBody( $dom ), [ 'innerXML' => true ] );
-			} catch ( \Exception $err ) {
-				$env->log( 'error', 'Expanding values to DOM', $err );
-			}
+			$dom = self::processContentInPipeline(
+				$env, $frame, $content, $opts
+			);
+			// Since we aren't at the top level, data attrs
+			// were not applied in cleanup.  However, tmp
+			// was stripped.
+			$v['html'] = ContentUtils::ppToXML( DOMCompat::getBody( $dom ), [ 'innerXML' => true ] );
 		}
 		// Remove srcOffsets after value is expanded, so they don't show
 		// up in the output data-mw attribute

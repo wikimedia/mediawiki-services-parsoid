@@ -6,10 +6,10 @@ namespace Parsoid\Wt2Html\PP\Handlers;
 use DOMElement;
 use DOMNode;
 use DOMText;
-use Exception;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\TitleException;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\TT\Sanitizer;
@@ -113,7 +113,7 @@ class Headings {
 		try {
 			$title = $env->makeTitleFromURLDecodedStr( "#{$text}" );
 			return $title->getFragment();
-		} catch ( Exception $e ) {
+		} catch ( TitleException $e ) {
 			return $text;
 		}
 	}

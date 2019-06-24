@@ -92,7 +92,7 @@ class Ref implements ExtensionTag, SerialHandler {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$env = $state->getEnv();
 		$html = null;
-		if ( empty( $dataMw->body ) ) {
+		if ( !isset( $dataMw->body ) ) {
 			return $startTagSrc; // We self-closed this already.
 		} else { // We self-closed this already.
 			if ( is_string( $dataMw->body->html ?? null ) ) {
@@ -134,8 +134,10 @@ class Ref implements ExtensionTag, SerialHandler {
 								$extraDebug .= ' [main doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 							}
 						} catch ( Exception $e ) {
-						}// eslint-disable-line
-						// eslint-disable-line
+							// We are just providing VE with debugging info.
+							// So, ignore all exceptions / errors in this code.
+						}
+
 						if ( !$extraDebug ) {
 							$extraDebug = ' [reference ' . $href . ' not found]';
 						}

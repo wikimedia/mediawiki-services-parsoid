@@ -121,22 +121,17 @@ class ParserPipeline {
 	 * @return array|DOMDocument
 	 */
 	public function parse( $input, array $opts ) {
-		try {
-			$output = $input;
-			foreach ( $this->stages as $stage ) {
-				$output = $stage->process( $output, $opts );
-				if ( $output === null ) {
-					throw new \Exception( 'Stage ' . get_class( $stage ) . ' generated null output.' );
-				}
+		$output = $input;
+		foreach ( $this->stages as $stage ) {
+			$output = $stage->process( $output, $opts );
+			if ( $output === null ) {
+				throw new \Exception( 'Stage ' . get_class( $stage ) . ' generated null output.' );
 			}
-
-			$this->env->getPipelineFactory()->returnPipeline( $this );
-
-			return $output;
-		} catch ( \Exception $err ) {
-			// PORT-FIXME: Is this the right thing to do?
-			$this->env->log( 'fatal', $err );
 		}
+
+		$this->env->getPipelineFactory()->returnPipeline( $this );
+
+		return $output;
 	}
 
 	/**

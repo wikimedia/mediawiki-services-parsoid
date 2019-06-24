@@ -990,32 +990,22 @@ class WikitextSerializer {
 			//
 			// Fetch template data for the template
 			$tplData = null;
-			$fetched = false;
-			try {
-				$apiResp = null;
-				if ( $isTpl && $useTplData ) {
-					$title = preg_replace( '#^\./#', '', $tplHref, 1 );
+			$apiResp = null;
+			if ( $isTpl && $useTplData ) {
+				$title = preg_replace( '#^\./#', '', $tplHref, 1 );
+				try {
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $env->getPageConfig(), $title );
-				}
-				// If the template doesn't exist, or does but has no TemplateData,
-				// ignore it
-				if ( $tplData['missing'] ?? $tplData['notemplatedata'] ?? false ) {
-					$tplData = null;
-				}
-				$fetched = true;
-				$buf = $this->serializePart( $state, $buf, $node, $type, $tpl, $tplData, $prevPart, $nextPart );
-			} catch ( Exception $err ) {
-				// PORT-FIXME Pokemon exception handling
-				if ( $fetched && $tplData === null ) {
-					// Retrying won't help here.
-					throw $err;
-				} else {
-					// No matter what error we encountered (fetching tpldata
-					// or using it), log the error, and use default serialization mode.
+				} catch ( Exception $err ) {
+					// Log the error, and use default serialization mode.
+					// Better to misformat a transclusion than to lose an edit.
 					$env->log( 'error/html2wt/tpldata', $err );
-					$buf = $this->serializePart( $state, $buf, $node, $type, $tpl, null, $prevPart, $nextPart );
 				}
 			}
+			// If the template doesn't exist, or does but has no TemplateData, ignore it
+			if ( !empty( $tplData['missing'] ) || !empty( $tplData['notemplatedata'] ) ) {
+				$tplData = null;
+			}
+			$buf = $this->serializePart( $state, $buf, $node, $type, $tpl, $tplData, $prevPart, $nextPart );
 		}
 		return $buf;
 	}
