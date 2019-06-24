@@ -629,7 +629,9 @@ class ComputeDSR {
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
-						$dp->dbsrc = mb_substr( $env->topFrame->getSrcText(), $cs, $ce - $cs );
+						if ( $cs !== null && $ce !== null ) {
+							$dp->dbsrc = mb_substr( $env->topFrame->getSrcText(), $cs, $ce - $cs );
+						}
 						return $str;
 					} );
 				}
