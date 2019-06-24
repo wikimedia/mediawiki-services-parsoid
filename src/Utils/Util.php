@@ -336,23 +336,22 @@ class Util {
 	/**
 	 * Parse media dimensions
 	 *
-	 * @param string $str media dimensions
-	 * @param bool $onlyOne
-	 * @return array
+	 * @param string $str media dimension string to parse
+	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
+	 * @return int[]|null
 	 */
-	public static function parseMediaDimensions( $str, $onlyOne ) {
-	// PORT-FIXME
-	/*	var dimensions = null;
-		var match = str.match(/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/);
-		if (match) {
-			dimensions = { x: Number(match[1]) };
-			if (match[2] !== undefined) {
-				if (onlyOne) { return null; }
-				dimensions.y = Number(match[2]);
+	public static function parseMediaDimensions( string $str, bool $onlyOne ): ?array {
+		$dimensions = null;
+		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/D', $str, $match ) ) {
+			$dimensions = [ 'x' => (int)$match[1] ];
+			if ( isset( $match[2] ) ) {
+				if ( $onlyOne ) {
+					return null;
+				}
+				$dimensions['y'] = (int)$match[2];
 			}
 		}
-		return dimensions; */
-		throw new \BadMethodCallException( "Not yet ported" );
+		return $dimensions;
 	}
 
 	/**
