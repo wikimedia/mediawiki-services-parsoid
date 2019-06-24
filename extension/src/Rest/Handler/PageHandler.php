@@ -5,6 +5,7 @@ namespace MWParsoid\Rest\Handler;
 
 use MediaWiki\Rest\Response;
 use MediaWiki\Revision\SlotRecord;
+use MWParsoid\Rest\FormatHelper;
 use Parsoid\Config\Env;
 
 /**
@@ -24,7 +25,7 @@ class PageHandler extends ParsoidHandler {
 		$oldid = (int)$attribs['oldid'];
 		$env = $this->createEnv( $attribs['pageName'], $oldid );
 
-		if ( $format === self::FORMAT_WIKITEXT ) {
+		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
 				return $this->createRedirectToOldidResponse( $env, $attribs );
 			}
@@ -51,7 +52,8 @@ class PageHandler extends ParsoidHandler {
 		$response = $this->getResponseFactory()->create();
 		$response->setStatus( 200 );
 		$response->setHeader( 'X-ContentModel', $content->getModel( SlotRecord::MAIN ) );
-		$this->setWikitextContentType( $response, $env );
+		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT,
+			$env->getOutputContentVersion() );
 		$response->getBody()->write( $content->getContent( SlotRecord::MAIN ) );
 		return $response;
 	}

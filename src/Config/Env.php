@@ -124,6 +124,8 @@ class Env {
 	/** @var bool */
 	private $scrubWikitext = false;
 
+	private $inputContentVersion;
+
 	/** @var ParserPipelineFactory */
 	private $pipelineFactory;
 
@@ -221,6 +223,7 @@ class Env {
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 		$this->offlineMode = !empty( $options['offline'] );
+		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
 	}
 
 	/**
@@ -811,9 +814,11 @@ class Env {
 	 * @return string A semver version number
 	 */
 	public function getInputContentVersion(): string {
-		// PORT-FIXME implement this. See MWParserEnvironment.availableVersions,
-		// DOMUtils::extractInlinedContentVersion(), apiUtils.versionFromType, routes.js
-		return '2.1.0';
+		return $this->inputContentVersion;
+	}
+
+	public function setInputContentVersion( string $version ) {
+		$this->inputContentVersion = $version;
 	}
 
 	/**
@@ -827,7 +832,6 @@ class Env {
 		// lib/parse.js
 		return '2.1.0';
 	}
-
 	/**
 	 * Set a K=V property that might need to be output as part of the generated HTML
 	 * Ex: module styles, modules scripts

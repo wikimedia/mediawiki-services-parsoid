@@ -15,10 +15,16 @@ use MobileContext;
 use MWParsoid\Config\DataAccess;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\Config\SiteConfig;
+use MWParsoid\Rest\FormatHelper;
 use Parsoid\Config\Env;
 use MWParsoid\ParsoidServices;
+use Parsoid\PageBundle;
 use Parsoid\Parsoid;
+use Parsoid\Selser;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PegTokenizer;
 use RequestContext;
@@ -32,24 +38,6 @@ abstract class ParsoidHandler extends Handler {
 	// TODO logging, metrics, timeouts(?), CORS
 	// TODO content negotiation (routes.js routes.acceptable)
 	// TODO handle MaxConcurrentCallsError (pool counter?)
-
-	protected const FORMAT_WIKITEXT = 'wikitext';
-	protected const FORMAT_HTML = 'html';
-	protected const FORMAT_PAGEBUNDLE = 'pagebundle';
-	protected const FORMAT_LINT = 'lint';
-
-	protected const ERROR_ENCODING = [
-		self::FORMAT_WIKITEXT => 'plain',
-		self::FORMAT_HTML => 'html',
-		self::FORMAT_PAGEBUNDLE => 'json',
-		self::FORMAT_LINT => 'json',
-	];
-
-	protected const VALID_TRANSFORMS = [
-		self::FORMAT_WIKITEXT => [ self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE ],
-		self::FORMAT_HTML => [ self::FORMAT_WIKITEXT ],
-		self::FORMAT_PAGEBUNDLE => [ self::FORMAT_WIKITEXT, self::FORMAT_PAGEBUNDLE ],
-	];
 
 	/** @var Config */
 	protected $parsoidConfig;
@@ -162,12 +150,12 @@ abstract class ParsoidHandler extends Handler {
 			// "body_only" flag to return just the body (instead of the entire HTML doc)
 			// We would like to deprecate use of this flag: T181657
 			'body_only' => $request->getQueryParams()['body_only'] ?? $body['body_only'] ?? null,
-			'errorEnc' => self::ERROR_ENCODING[$opts['format']] ?? 'plain',
+			'errorEnc' => FormatHelper::ERROR_ENCODING[$opts['format']] ?? 'plain',
 			'iwp' => wfWikiID(), // PORT-FIXME verify
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
 		];
 
-		if ( !empty( $attribs['subst'] ) && $opts['format'] !== self::FORMAT_HTML ) {
+		if ( !empty( $attribs['subst'] ) && $opts['format'] !== FormatHelper::FORMAT_HTML ) {
 			// FIXME use validation
 			throw new LogicException( 'Substitution is only supported for the HTML format.' );
 		}
@@ -329,7 +317,7 @@ abstract class ParsoidHandler extends Handler {
 		$format = $attribs['opts']['format'];
 		$oldid = $attribs['oldid'];
 
-		$needsPageBundle = ( $format === self::FORMAT_PAGEBUNDLE );
+		$needsPageBundle = ( $format === FormatHelper::FORMAT_PAGEBUNDLE );
 		$doSubst = ( $wikitext !== null && $attribs['subst'] );
 
 		// Performance Timing options
@@ -398,7 +386,7 @@ abstract class ParsoidHandler extends Handler {
 			'outputVersion' => $env->getOutputContentVersion(),
 		] );
 
-		if ( $format === self::FORMAT_LINT ) {
+		if ( $format === FormatHelper::FORMAT_LINT ) {
 			// TODO
 			// $response = $this->getResponseFactory()->createJson( $lint );
 			throw new LogicException( 'Not implemented yet' );
@@ -435,10 +423,12 @@ abstract class ParsoidHandler extends Handler {
 					];
 				}
 				$response = $this->getResponseFactory()->createJson( $responseData );
-				$this->setPageBundleContentType( $response, $env );
+				FormatHelper::setContentType( $response, FormatHelper::FORMAT_PAGEBUNDLE,
+					$env->getOutputContentVersion() );
 			} else {
 				$response = $this->getResponseFactory()->create();
-				$this->setHtmlContentType( $response, $env );
+				FormatHelper::setContentType( $response, FormatHelper::FORMAT_HTML,
+					$env->getOutputContentVersion() );
 				$response->getBody()->write( $pageBundle->html );
 
 				// FIXME Parsoid-JS only does this when out.headers is empty. We have no out, though.
@@ -483,7 +473,198 @@ abstract class ParsoidHandler extends Handler {
 	 * @return Response
 	 */
 	protected function html2wt( Env $env, array $attribs, string $html = null ) {
-		throw new LogicException( 'Not implemented yet' );
+		$request = $this->getRequest();
+		$opts = $attribs['opts'];
+		// FIXME make this accept JSON properties and handle via the validation framework
+		$scrubWikitext = $request->getPostParams()['scrub_wikitext']
+			?? $request->getQueryParams()['scrub_wikitext']
+			?? $request->getPostParams()['scrubWikitext']
+			?? $request->getQueryParams()['scrubWikitext']
+			?? $this->parsoidConfig->get( 'ParsoidScrubWikitext' );
+		$envOptions = array_merge( [
+			'scrubWikitext' => $scrubWikitext,
+		], $attribs['envOptions'] );
+
+		// Performance Timing options
+		$startTimers = [
+			'html2wt.init' => time(),
+			'html2wt.total' => time(),
+			'html2wt.init.domparse' => time(),
+		];
+
+		$doc = DOMUtils::parseHTML( $html );
+
+		// send domparse time, input size and init time to statsd/Graphite
+		// init time is the time elapsed before serialization
+		// init.domParse, a component of init time, is the time elapsed
+		// from html string to DOM tree
+		$this->statsdDataFactory->timing( 'html2wt.init.domparse',
+			time() - $startTimers['html2wt.init.domparse'] );
+		$this->statsdDataFactory->timing( 'html2wt.size.input', strlen( $html ) );
+		$this->statsdDataFactory->timing( 'html2wt.init', time() - $startTimers['html2wt.init'] );
+
+		$original = $opts['original'] ?? null;
+		$oldBody = null;
+		$origPb = null;
+
+		// Get the content version of the edited doc, if available
+		$vEdited = DOMUtils::extractInlinedContentVersion( $doc );
+
+		// Check for version mismatches between original & edited doc
+		if ( !isset( $original['html'] ) ) {
+			$env->setInputContentVersion( $vEdited ?? $env->getInputContentVersion() );
+		} else {
+			$vOriginal = FormatHelper::parseContentTypeHeader(
+				$original['html']['headers']['content-type'] ?? '' );
+			if ( $vOriginal === null ) {
+				$env->log( 'fatal/request', 'Content-type of original html is missing.' );
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => 'Content-type of original html is missing.',
+				] );
+			}
+			if ( $vEdited === null ) {
+				// If version of edited doc is unavailable we assume
+				// the edited doc is derived from the original doc.
+				// No downgrade necessary
+				$env->setInputContentVersion( $vOriginal );
+			} elseif ( $vEdited === $vOriginal ) {
+				// No downgrade necessary
+				$env->setInputContentVersion( $vOriginal );
+			} else {
+				$env->setInputContentVersion( $vEdited );
+				// We need to downgrade the original to match the the edited doc's version.
+				$downgrade = FormatHelper::findDowngrade( $vOriginal, $vEdited );
+				// Downgrades are only for pagebundle
+				if ( $downgrade && $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
+					$this->statsdDataFactory->increment(
+						"downgrade.from.{$downgrade['from']}.to.${$downgrade['to']}" );
+					$oldDoc = $env->createDocument( $original['html']['body'] );
+					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
+						$original['data-mw']['body'] ?? null );
+					if ( !$origPb->validate( $vOriginal, $errorMessage ) ) {
+						return $this->getResponseFactory()->createHttpError( 400,
+							[ 'message' => $errorMessage ] );
+					}
+					$downgradeStart = microtime( true );
+					FormatHelper::downgrade( $downgrade['from'], $downgrade['to'], $oldDoc, $origPb );
+					$this->statsdDataFactory->timing( 'downgrade.time', microtime( true ) - $downgradeStart );
+					$oldBody = $oldDoc->body;
+				} else {
+					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
+						. 'different type, and no path to downgrade.';
+					$env->log( 'fatal/request', $err );
+					return $this->getResponseFactory()->createHttpError( 400, [ 'message' => $err ] );
+				}
+			}
+		}
+
+		$this->statsdDataFactory->increment( 'html2wt.original.version.'
+			. $env->getInputContentVersion() );
+		if ( !$vEdited ) {
+			$this->statsdDataFactory->increment( 'html2wt.original.version.notinline' );
+		}
+
+		$pb = new PageBundle( '', null, null );
+		// If available, the modified data-mw blob is applied, while preserving
+		// existing inline data-mw.  But, no data-parsoid application, since
+		// that's internal, we only expect to find it in its original,
+		// unmodified form.
+		if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE && $opts[ 'data-mw' ]
+			&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
+		) {
+			// `opts` isn't a revision, but we'll find a `data-mw` there.
+			$pb = new PageBundle( '', $opts['data-parsoid']['body'] ?? null,
+				$opts['data-mw']['body'] ?? null );
+			$pb->parsoid = [ 'ids' => [] ]; // So it validates
+			if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+				return $this->getResponseFactory()->createHttpError( 400,
+					[ 'message' => $errorMessage ] );
+			}
+			DOMDataUtils::applyPageBundle( $doc, $pb );
+		}
+
+		$oldhtml = null;
+		$oldtext = null;
+
+		if ( $original ) {
+			if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
+				// Apply the pagebundle to the parsed doc.  This supports the
+				// simple edit scenarios where data-mw might not necessarily
+				// have been retrieved.
+				if ( !$origPb ) {
+					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
+						$original['data-mw']['body'] ?? null );
+				}
+				$pb = $origPb;
+				// However, if a modified data-mw was provided,
+				// original data-mw is omitted to avoid losing deletions.
+				if ( isset( $opts[ 'data-mw' ] )
+					&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
+				) {
+					// Don't modify `origPb`, it's used below.
+					$pb = new PageBundle( '', $pb->parsoid, [ 'ids' => [] ] );
+				}
+				if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+					return $this->getResponseFactory()->createHttpError( 400,
+						[ 'message' => $errorMessage ] );
+				}
+				DOMDataUtils::applyPageBundle( $doc, $pb );
+
+				// TODO(arlolra): data-parsoid is no longer versioned
+				// independently, but we leave this for backwards compatibility
+				// until content version <= 1.2.0 is deprecated.  Anything new
+				// should only depend on `env.inputContentVersion`.
+				$envOptions['dpContentType'] = $original[ 'data-parsoid' ]['headers'][ 'content-type' ] ?? null;
+			}
+
+			// If we got original src, set it
+			if ( $original['wikitext'] ) {
+				// Don't overwrite env.page.meta!
+				$oldtext = $original['wikitext']['body'];
+			}
+
+			// If we got original html, parse it
+			if ( $original['html'] ) {
+				if ( !$oldBody ) {
+					$oldBody = DOMUtils::parseHTML( $original['html']['body'] )->body;
+				}
+				if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
+					if ( !$origPb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+						return $this->getResponseFactory()->createHttpError( 400,
+							[ 'message' => $errorMessage ] );
+					}
+					DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
+				}
+				$oldhtml = ContentUtils::toXML( $oldBody );
+			}
+		}
+
+		// As per https://www.mediawiki.org/wiki/Parsoid/API#v1_API_entry_points
+		//   "Both it and the oldid parameter are needed for
+		//    clean round-tripping of HTML retrieved earlier with"
+		// So, no oldid => no selser
+		$hasOldId = (bool)$attribs['oldid'];
+		$useSelser = $hasOldId && $oldtext !== null && $this->parsoidConfig->get( 'ParsoidUseSelser' );
+		$selser = null;
+		if ( $useSelser ) {
+			$selser = new Selser( $oldtext, $oldhtml );
+		}
+
+		$pb->html = ContentUtils::toXML( $doc );
+
+		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
+		$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $pb, [
+			// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
+			'scrubWikitext' => $envOptions['scrubWikitext'],
+		], $selser );
+
+		$this->statsdDataFactory->timing( 'html2wt.total', time() - $startTimers['html2wt.total'] );
+		$this->statsdDataFactory->timing( 'html2wt.size.output', strlen( $wikitext ) );
+
+		$response = $this->getResponseFactory()->create();
+		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );
+		$response->getBody()->write( $wikitext );
+		return $response;
 	}
 
 	/**
@@ -495,39 +676,6 @@ abstract class ParsoidHandler extends Handler {
 	 */
 	protected function pb2pb( Env $env, array $attribs ) {
 		throw new LogicException( 'Not implemented yet' );
-	}
-
-	/**
-	 * @param Response $response
-	 * @param Env $env
-	 */
-	protected function setWikitextContentType( Response $response, Env $env ): void {
-		// PORT-FIXME in the original the version number is from MWParserEnvironment.wikitextVersion
-		// but it did not seem to be used anywhere
-		$response->setHeader( 'Content-Type', 'text/plain' );
-			//'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"' );
-	}
-
-	/**
-	 * @param Response $response
-	 * @param Env $env
-	 */
-	protected function setHtmlContentType( Response $response, Env $env ): void {
-		$outputContentVersion = $env->getOutputContentVersion();
-		$response->setHeader( 'Content-Type',
-			'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/'
-			. $outputContentVersion . '"' );
-	}
-
-	/**
-	 * @param Response $response
-	 * @param Env $env
-	 */
-	protected function setPageBundleContentType( Response $response, Env $env ): void {
-		$outputContentVersion = $env->getOutputContentVersion();
-		$response->setHeader( 'Content-Type',
-			'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/'
-			. $outputContentVersion . '"' );
 	}
 
 }

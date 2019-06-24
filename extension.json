@@ -58,6 +58,10 @@
 			"value": false,
 			"description": "Whether to emit 'clean' wikitext."
 		},
+		"ParsoidUseSelser": {
+			"value": false,
+			"description":"Whether to use selective serialization to avoid dirty diffs."
+		},
 		"ParsoidTraceFlags": {
 			"value": [],
 			"description": "Flags indicating which components need to be traced."

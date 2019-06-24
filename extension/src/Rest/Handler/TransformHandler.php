@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace MWParsoid\Rest\Handler;
 
 use MediaWiki\Rest\Response;
+use MWParsoid\Rest\FormatHelper;
 
 /**
  * Handler for transforming content given in the request.
@@ -26,7 +27,7 @@ class TransformHandler extends ParsoidHandler {
 		$attribs = &$this->getRequestAttributes();
 		$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
 
-		if ( $from === self::FORMAT_WIKITEXT ) {
+		if ( $from === FormatHelper::FORMAT_WIKITEXT ) {
 			// Accept wikitext as a string or object{body,headers}
 			$wikitext = $attribs['opts']['wikitext'] ?? null;
 			if ( is_array( $wikitext ) ) {
@@ -51,7 +52,7 @@ class TransformHandler extends ParsoidHandler {
 				throw new \LogicException( 'No title or wikitext was provided.' );
 			}
 			return $this->wt2html( $env, $attribs, $wikitext );
-		} elseif ( $format === self::FORMAT_WIKITEXT ) {
+		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			// FIXME validate $html is present
 			// Accept html as a string or object{body,headers}
 			$html = $attribs['opts']['html'] ?? '';
