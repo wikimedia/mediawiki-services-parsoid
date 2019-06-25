@@ -693,13 +693,7 @@ autolink =
 	// this must be a word boundary, so previous character must be non-word
 	! { return Util::isUniWord(Util::lastUniChar( $this->input, $this->endOffset() ) ); }
 	r:(
-		// urllink, inlined
-		target:autourl {
-			$tsr = $this->tsrOffsets();
-
-			$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $target, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] ) ];
-			return $res;
-		}
+		autourl
 		/ autoref
 		/ isbn
 	) { return $r; }
@@ -891,7 +885,11 @@ autourl =
 		}
 	)
 	&{ return $r !== null; }
-	{ return $r; }
+	{
+		$tsr = $this->tsrOffsets();
+		$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $r, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] ) ];
+		return $res;
+	}
 
 // This is extracted from EXT_LINK_ADDR in Parser.php: a simplified
 // expression to match an IPv6 address.  The IPv4 address and "at least
@@ -2174,7 +2172,7 @@ text_char = [^-'<~[{\n\r:;\]}|!=]
 
 urltext =
 	(
-		& [/A-Za-z] al:autolink { return $al; }
+		& [A-Za-z] al:autolink { return $al; }
 		/ & "&" he:htmlentity { return $he; }
 		// Convert trailing space into &nbsp;
 		// FIXME: Parsoid's handling of french spacing is broken; see
