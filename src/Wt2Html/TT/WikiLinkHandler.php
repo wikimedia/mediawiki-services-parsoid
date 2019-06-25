@@ -53,12 +53,11 @@ class WikiLinkHandler extends TokenHandler {
 
 	/**
 	 * @param string $str
-	 * @return stdClass|null
+	 * @return array|null
 	 */
-	private static function hrefParts( string $str ): ?stdClass {
-		$result = preg_match( '/^([^:]+):(.*)$/', $str, $matches );
-		if ( $result === 1 ) {
-			return (object)[ 'prefix' => $matches[1], 'title' => $matches[2] ];
+	private static function hrefParts( string $str ): ?array {
+		if ( preg_match( '/^([^:]+):(.*)$/', $str, $matches ) ) {
+			return [ 'prefix' => $matches[1], 'title' => $matches[2] ];
 		} else {
 			return null;
 		}
@@ -86,7 +85,9 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private function getWikiLinkTargetInfo( Token $token, string $href, string $hrefSrc ): stdClass {
 		$env = $this->manager->env;
-		$info = (object)[ 'href' => $href,
+		$siteConfig = $env->getSiteConfig();
+		$info = (object)[
+			'href' => $href,
 			'hrefSrc' => $hrefSrc,
 			// Initialize these properties to avoid isset checks
 			'interwiki' => null,
@@ -101,8 +102,8 @@ class WikiLinkHandler extends TokenHandler {
 			$info->href = substr( $info->href, 1 );
 		}
 		if ( preg_match( '/^:/', $info->href ) ) {
-			if ( $env->getSiteConfig()->linting() ) {
-				$lint = (object)[
+			if ( $siteConfig->linting() ) {
+				$lint = [
 					'dsr' => $token->dataAttribs->tsr,
 					'params' => [ 'href' => ':' . $info->href ],
 					'templateInfo' => null
@@ -114,13 +115,13 @@ class WikiLinkHandler extends TokenHandler {
 					// match `$env->makeLink`.
 					$name = preg_replace(
 						'#^\./#', '', Sanitizer::sanitizeTitleURI(
-							$env->getSiteConfig()->relativeLinkPrefix() . $this->manager->getFrame()->getTitle(),
+							$siteConfig->relativeLinkPrefix() . $this->manager->getFrame()->getTitle(),
 							false
 						), 1
 					);
-					$lint->templateInfo = [ 'name' => $name ];
+					$lint['templateInfo'] = [ 'name' => $name ];
 					// TODO(arlolra): Pass tsr info to the frame
-					$lint->dsr = [ 0, 0 ];
+					$lint['dsr'] = [ 0, 0 ];
 				}
 				$env->log( 'lint/multi-colon-escape', $lint );
 			}
@@ -131,35 +132,34 @@ class WikiLinkHandler extends TokenHandler {
 		$title = $env->resolveTitle( Util::decodeURIComponent( $info->href ) );
 		$hrefBits = self::hrefParts( $info->href );
 		if ( $hrefBits ) {
-			$nsPrefix = $hrefBits->prefix;
+			$nsPrefix = $hrefBits['prefix'];
 			$info->prefix = $nsPrefix;
 			$nnn = Util::normalizeNamespaceName( trim( $nsPrefix ) );
-
-			$interwikiInfo = $env->getSiteConfig()->interwikiMap()[ $nnn ] ?? null;
+			$interwikiInfo = $siteConfig->interwikiMap()[$nnn] ?? null;
 			// check for interwiki / language links
-			$ns = $env->getSiteConfig()->namespaceId( $nnn );
+			$ns = $siteConfig->namespaceId( $nnn );
 			// also check for url to protect against [[constructor:foo]]
 			if ( $ns !== null ) {
 				$info->title = $env->makeTitleFromURLDecodedStr( $title );
 			} elseif ( !empty( $interwikiInfo['localinterwiki'] ) ) {
-				if ( $hrefBits->title === '' ) {
+				if ( $hrefBits['title'] === '' ) {
 					// Empty title => main page (T66167)
-					$info->title = $env->makeTitleFromURLDecodedStr( $env->getSiteConfig()->mainpage() );
+					$info->title = $env->makeTitleFromURLDecodedStr( $siteConfig->mainpage() );
 				} else {
-					$info->href = ( ( preg_match( '/:/', $hrefBits->title ) ) ? ':' : '' ) . $hrefBits->title;
+					$info->href = ( preg_match( '/:/', $hrefBits['title'] ) ? ':' : '' ) . $hrefBits['title'];
 					// Recurse!
 					$info = $this->getWikiLinkTargetInfo( $token, $info->href, $info->hrefSrc );
 					$info->localprefix = $nsPrefix .
 						( $info->localprefix ? ( ':' . $info->localprefix ) : '' );
 				}
 			} elseif ( !empty( $interwikiInfo['url'] ) ) {
-				$info->href = $hrefBits->title;
+				$info->href = $hrefBits['title'];
 				// Ensure a valid title, even though we're discarding the result
 				$env->makeTitleFromURLDecodedStr( $title );
 				// Interwiki or language link? If no language info, or if it starts
 				// with an explicit ':' (like [[:en:Foo]]), it's not a language link.
 				if ( $info->fromColonEscapedText ||
-					( !isset( $interwikiInfo['language'] ) && !isset( $interwikiInfo['extralanglink'] ) )
+					( empty( $interwikiInfo['language'] ) && empty( $interwikiInfo['extralanglink'] ) )
 				) {
 					// An interwiki link.
 					$info->interwiki = $interwikiInfo;
@@ -197,7 +197,7 @@ class WikiLinkHandler extends TokenHandler {
 		$rlink->setAttribute( 'rel', 'mw:PageProp/redirect' );
 
 		// Remove the nested wikiLinkTk token and the cloned href attribute
-		$rlink->dataAttribs->linkTk = null;
+		unset( $rlink->dataAttribs->linkTk );
 		$rlink->removeAttribute( 'href' );
 
 		// Transfer href attribute back to wikiLinkTk, since it may have been
@@ -211,7 +211,7 @@ class WikiLinkHandler extends TokenHandler {
 		// Render the wikilink (including interwiki links, etc) then collect
 		// the resulting href and transfer it to rlink.
 		$r = $this->onWikiLink( $wikiLinkTk );
-		$isValid = !empty( $r ) && $r['tokens'] && $r['tokens'][0] &&
+		$isValid = $r && $r['tokens'] && $r['tokens'][0] &&
 			preg_match( '/^(a|link)$/', $r['tokens'][0]->getName() );
 		if ( $isValid ) {
 			$da = $r['tokens'][0]->dataAttribs;
@@ -260,33 +260,33 @@ class WikiLinkHandler extends TokenHandler {
 				$content = array_merge( $content, $mwc );
 			}
 		} else {
-			foreach ( $token->attribs as $value ) {
-				if ( $value->k === 'mw:maybeContent' ) {
+			foreach ( $token->attribs as $kv ) {
+				if ( $kv->k === 'mw:maybeContent' ) {
 					$content[] = '|';
-					$content = array_merge( $content, $value->v );
+					$content = array_merge( $content, $kv->v );
 				}
 			}
 		}
 
 		$dft = null;
 		if ( preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' ) ) {
-			$dataMW = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
+			$attribs = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
 			$html = null;
-			for ( $i = 0;  $i < count( $dataMW );  $i++ ) {
-				if ( $dataMW[ $i ][0]->txt === 'href' ) {
-					$html = $dataMW[ $i ][1]->html;
+			foreach ( $attribs as $a ) {
+				if ( $a[0]->txt === 'href' ) {
+					$html = $a[1]->html;
 					break;
 				}
 			}
 
 			// Since we are splicing off '['s and ']'s from the incoming token,
 			// adjust TSR of the DOM-fragment by `count` each on both end.
-			$tsr = $token->dataAttribs ? $token->dataAttribs->tsr : null;
+			$tsr = $token->dataAttribs->tsr ?? null;
 			if ( $tsr && $tsr->start !== null && $tsr->end !== null ) {
 				// If content is present, the fragment we're building doesn't
 				// extend all the way to the end of the token, so the end tsr
 				// is invalid.
-				$end = ( count( $content ) > 0 ) ? null : $tsr->end - $count;
+				$end = count( $content ) > 0 ? null : $tsr->end - $count;
 				$tsr = new SourceOffset( $tsr->start + $count, $end );
 			} else {
 				$tsr = null;
@@ -300,10 +300,12 @@ class WikiLinkHandler extends TokenHandler {
 			);
 		} else {
 			$dft = $token->getAttribute( 'href' );
+			if ( !is_array( $dft ) ) {
+				$dft = [ $dft ];
+			}
 		}
 
-		$tokens = array_merge( $tokens, $dft, $content, [ str_repeat( ']', $count ) ] );
-		return $tokens;
+		return array_merge( $tokens, $dft, $content, [ str_repeat( ']', $count ) ] );
 	}
 
 	/**
@@ -372,7 +374,7 @@ class WikiLinkHandler extends TokenHandler {
 		$target = null;
 		try {
 			$target = $this->getWikiLinkTargetInfo( $token, $hrefTokenStr, $hrefKV->vsrc );
-		} catch ( TitleException $e ) {
+		} catch ( TitleException | InternalException $e ) {
 			// Invalid title
 			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 		}
@@ -417,27 +419,26 @@ class WikiLinkHandler extends TokenHandler {
 
 			// Render as plain wiki links.
 			return $this->renderWikiLink( $token, $target );
-		} else {
-			// language and interwiki links
-			if ( $target->interwiki ) {
+		}
+
+		// language and interwiki links
+		if ( $target->interwiki ) {
+			return $this->renderInterwikiLink( $token, $target );
+		}
+		if ( $target->language ) {
+			$ns = $this->env->getPageConfig()->getNs();
+			$noLanguageLinks = $this->env->getSiteConfig()->namespaceIsTalk( $ns ) ||
+				!$this->env->getSiteConfig()->interwikimagic();
+			if ( $noLanguageLinks ) {
+				$target->interwiki = $target->language;
 				return $this->renderInterwikiLink( $token, $target );
 			}
 
-			if ( $target->language ) {
-				$ns = $this->env->getPageConfig()->getNs();
-				$noLanguageLinks = $this->env->getSiteConfig()->namespaceIsTalk( $ns ) ||
-					!$this->env->getSiteConfig()->interwikimagic();
-				if ( $noLanguageLinks ) {
-					$target->interwiki = $target->language;
-					return $this->renderInterwikiLink( $token, $target );
-				}
-
-				return $this->renderLanguageLink( $token, $target );
-			}
-
-			// Neither a title, nor a language or interwiki. Should not happen.
-			throw new InternalException( 'Unknown link type' );
+			return $this->renderLanguageLink( $token, $target );
 		}
+
+		// Neither a title, nor a language or interwiki. Should not happen.
+		throw new InternalException( 'Unknown link type' );
 	}
 
 	/** ------------------------------------------------------------
@@ -545,8 +546,8 @@ class WikiLinkHandler extends TokenHandler {
 				$newToks = [];
 				foreach ( $toks as $j => $t ) {
 					if ( $t instanceof TagTk && $t->getName() === 'a' ) {
-						if ( $j + 1 < $n && $toks[ $j + 1 ] instanceof EndTagTk &&
-							$toks[ $j + 1 ]->getName() === 'a'
+						if ( $j + 1 < $n && $toks[$j + 1] instanceof EndTagTk &&
+							$toks[$j + 1]->getName() === 'a'
 						) {
 							// autonumbered links in the stream get rendered
 							// as an <a> tag with no content -- but these ought
@@ -592,9 +593,9 @@ class WikiLinkHandler extends TokenHandler {
 			if ( $env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) ) {
 				// subpage links with a trailing slash get the trailing slashes stripped.
 				// See https://gerrit.wikimedia.org/r/173431
-				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#', $morecontent, $match ) ) {
+				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {
 					$morecontent = $match[3];
-				} elseif ( preg_match( '/^\.\.\//', $morecontent ) ) {
+				} elseif ( preg_match( '#^\.\./#', $morecontent ) ) {
 					$morecontent = $env->resolveTitle( $morecontent );
 				}
 			}
@@ -645,7 +646,6 @@ class WikiLinkHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function renderCategory( Token $token, stdClass $target ): array {
-		$tokens = [];
 		$newTk = new SelfclosingTagTk( 'link' );
 		$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target );
 		$env = $this->manager->env;
@@ -663,11 +663,7 @@ class WikiLinkHandler extends TokenHandler {
 			$hrefkv->v .= $saniContent;
 		}
 
-		$tokens[] = $newTk;
-
-		if ( count( $content ) === 1 ) {
-			return [ 'tokens' => $tokens ];
-		} else {
+		if ( count( $content ) !== 1 ) {
 			// Deal with sort keys that come from generated content (transclusions, etc.)
 			$key = [ 'txt' => 'mw:sortKey' ];
 			$contentKV = $token->getAttributeKV( 'mw:maybeContent' );
@@ -692,9 +688,8 @@ class WikiLinkHandler extends TokenHandler {
 			$newTk->addAttribute( 'about', $env->newAboutId() );
 			$newTk->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 			$newTk->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMW ) );
-
-			return [ 'tokens' => $tokens ];
 		}
+		return [ 'tokens' => [ $newTk ] ];
 	}
 
 	/**
@@ -785,11 +780,8 @@ class WikiLinkHandler extends TokenHandler {
 		$format = self::getFormat( $opts );
 		$isInline = !( $format === 'thumbnail' || $format === 'framed' );
 		$classes = [];
-		if ( !empty( $opts['format'] ) ) {
-			$halign = $opts['format']['v'] === 'framed' ? 'right' : null;
-		} else {
-			$halign = null;
-		}
+		$halign = ( $opts['format']['v'] ?? '' ) === 'framed' ? 'right' : null;
+
 		if ( !isset( $opts['size']['src'] ) ) {
 			$classes[] = 'mw-default-size';
 		}
@@ -802,11 +794,7 @@ class WikiLinkHandler extends TokenHandler {
 			$halign = $opts['halign']['v'];
 		}
 
-		if ( isset( $opts['halign'] ) ) {
-			$halignOpt = $opts['halign']['v'];
-		} else {
-			$halignOpt = null;
-		}
+		$halignOpt = $opts['halign']['v'] ?? null;
 		switch ( $halign ) {
 			case 'none':
 				// PHP parser wraps in <div class="floatnone">
@@ -842,46 +830,42 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		if ( $isInline ) {
-			if ( isset( $opts['valign'] ) ) {
-				$valignOpt = $opts['valign']['v'];
-			} else {
-				$valignOpt = null;
-			}
+			$valignOpt = $opts['valign']['v'] ?? null;
 			switch ( $valignOpt ) {
 				case 'middle':
-				$classes[] = 'mw-valign-middle';
-				break;
+					$classes[] = 'mw-valign-middle';
+					break;
 
 				case 'baseline':
-				$classes[] = 'mw-valign-baseline';
-				break;
+					$classes[] = 'mw-valign-baseline';
+					break;
 
 				case 'sub':
-				$classes[] = 'mw-valign-sub';
-				break;
+					$classes[] = 'mw-valign-sub';
+					break;
 
 				case 'super':
-				$classes[] = 'mw-valign-super';
-				break;
+					$classes[] = 'mw-valign-super';
+					break;
 
 				case 'top':
-				$classes[] = 'mw-valign-top';
-				break;
+					$classes[] = 'mw-valign-top';
+					break;
 
 				case 'text_top':
-				$classes[] = 'mw-valign-text-top';
-				break;
+					$classes[] = 'mw-valign-text-top';
+					break;
 
 				case 'bottom':
-				$classes[] = 'mw-valign-bottom';
-				break;
+					$classes[] = 'mw-valign-bottom';
+					break;
 
 				case 'text_bottom':
-				$classes[] = 'mw-valign-text-bottom';
-				break;
+					$classes[] = 'mw-valign-text-bottom';
+					break;
 
 				default:
-				break;
+					break;
 			}
 		}
 
@@ -910,15 +894,15 @@ class WikiLinkHandler extends TokenHandler {
 		// English and contain an '(img|timedmedia)_' prefix.  We drop the
 		// prefix before stuffing them in data-parsoid in order to
 		// save space (that's shortCanonicalOption)
-		$canonicalOption = $siteConfig->magicWords()[ $oText ] ??
-			$siteConfig->magicWords()[ $lowerOText ] ?? '';
+		$canonicalOption = $siteConfig->magicWords()[$oText] ??
+			$siteConfig->magicWords()[$lowerOText] ?? '';
 		$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $canonicalOption, 1 );
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.
-		$imgOption = WikitextConstants::$Media['SimpleOptions'][ $canonicalOption ] ?? null;
+		$imgOption = WikitextConstants::$Media['SimpleOptions'][$canonicalOption] ?? null;
 		$bits = $getOption( $oText );
 		$normalizedBit0 = $bits ? strtolower( trim( $bits['k'] ) ) : null;
-		$key = $bits ? ( WikitextConstants::$Media['PrefixOptions'][ $normalizedBit0 ] ?? null ) : null;
+		$key = $bits ? ( WikitextConstants::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
 
 		if ( !empty( $imgOption ) && $key === null ) {
 			return [
@@ -927,32 +911,31 @@ class WikiLinkHandler extends TokenHandler {
 				'ak' => $optStr,
 				's' => true
 			];
-		} else {
-			// bits.a has the localized name for the prefix option
-			// (with $1 as a placeholder for the value, which is in bits.v)
-			// 'normalizedBit0' is the canonical English option name
-			// (from mediawiki upstream) with a prefix.
-			// 'key' is the parsoid 'group' for the option; it doesn't
-			// have a prefix (it's the key we'd put in opts)
-
-			if ( $bits && $key ) {
-				$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $normalizedBit0, 1 );
-				// map short canonical name to the localized version used
-
-				// Note that we deliberately do entity decoding
-				// *after* splitting so that HTML-encoded pipes don't
-				// separate options.  This matches PHP, whether or
-				// not it's a good idea.
-				return [
-					'ck' => $shortCanonicalOption,
-					'v' => Util::decodeWtEntities( $bits['v'] ),
-					'ak' => $optStr,
-					's' => false
-				];
-			} else {
-				return null;
-			}
 		}
+
+		// bits.a has the localized name for the prefix option
+		// (with $1 as a placeholder for the value, which is in bits.v)
+		// 'normalizedBit0' is the canonical English option name
+		// (from mediawiki upstream) with a prefix.
+		// 'key' is the parsoid 'group' for the option; it doesn't
+		// have a prefix (it's the key we'd put in opts)
+		if ( $bits && $key ) {
+			$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $normalizedBit0, 1 );
+			// map short canonical name to the localized version used
+
+			// Note that we deliberately do entity decoding
+			// *after* splitting so that HTML-encoded pipes don't
+			// separate options.  This matches PHP, whether or
+			// not it's a good idea.
+			return [
+				'ck' => $shortCanonicalOption,
+				'v' => Util::decodeWtEntities( $bits['v'] ),
+				'ak' => $optStr,
+				's' => false
+			];
+		}
+
+		return null;
 	}
 
 	/**
@@ -1115,11 +1098,8 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $opts['manualthumb'] ) {
 			return 'thumbnail';
 		}
-		if ( !empty( $opts['format']['v'] ) ) {
-			return $opts['format']['v'];
-		} else {
-			return null;
-		}
+
+		return $opts['format']['v'] ?? null;
 	}
 
 	private $used;
@@ -1143,6 +1123,13 @@ class WikiLinkHandler extends TokenHandler {
 			]
 		);
 		return $this->used;
+	}
+
+	private function hasTransclusion( $toks ) {
+		return is_array( $toks ) && array_search( function ( Token $t ) {
+			return $t instanceof SelfclosingTagTk &&
+				$t->getAttribute( 'typeof' ) === 'mw:Transclusion';
+		}, $toks ) !== false;
 	}
 
 	/**
@@ -1178,6 +1165,7 @@ class WikiLinkHandler extends TokenHandler {
 					'width' => null
 				]
 			],
+			// Initialize these properties to avoid isset checks
 			'caption' => null,
 			'format' => null,
 			'manualthumb' => null,
@@ -1185,12 +1173,6 @@ class WikiLinkHandler extends TokenHandler {
 		];
 
 		$hasExpandableOpt = false;
-		$hasTransclusion = function ( $toks )  {
-			return is_array( $toks ) && array_search( function ( Token $t ) {
-				return $t instanceof SelfclosingTagTk &&
-					$t->getAttribute( 'typeof' ) === 'mw:Transclusion';
-			}, $toks ) !== null;
-		};
 
 		$optKVs = self::buildLinkAttrs( $token->attribs, true, null, null )['contentKVs'];
 		while ( count( $optKVs ) > 0 ) {
@@ -1279,7 +1261,7 @@ class WikiLinkHandler extends TokenHandler {
 				continue;
 			}
 
-			if ( isset( $opts[ $optInfo['ck'] ] ) ) {
+			if ( isset( $opts[$optInfo['ck']] ) ) {
 				// first option wins, the rest are 'bogus'
 				$dataAttribs->optList[] = [
 					'ck' => 'bogus',
@@ -1306,8 +1288,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $optInfo['ck'] === 'width' ) {
 					// We support a trailing 'px' here for historical reasons
 					// (T15500, T53628)
-					// PORT_FIXME, added false but that may not be correct for onlyOne param
-					$maybeDim = Util::parseMediaDimensions( $optInfo['v'], false );
+					$maybeDim = Util::parseMediaDimensions( $optInfo['v'] );
 					if ( $maybeDim !== null ) {
 						$opts['size']['v'] = [
 							'width' => Util::validateMediaParam( $maybeDim['x'] ) ? $maybeDim['x'] : null,
@@ -1331,14 +1312,14 @@ class WikiLinkHandler extends TokenHandler {
 			$dataAttribs->optList[] = $opt;
 
 			// Collect source wikitext for image options for possible template expansion.
-			$maybeOpt = !isset( self::getUsed()[ $opt['ck'] ] );
+			$maybeOpt = !isset( self::getUsed()[$opt['ck']] );
 			$expOpt = null;
 			// Links more often than not show up as arrays here because they're
 			// tokenized as `autourl`.  To avoid unnecessarily considering them
 			// expanded, we'll use a more restrictive test, at the cost of
 			// perhaps missing some edgy behaviour.
 			if ( $opt['ck'] === 'link' ) {
-				$expOpt = $hasTransclusion( $origOptSrc );
+				$expOpt = $this->hasTransclusion( $origOptSrc );
 			} else {
 				$expOpt = is_array( $origOptSrc );
 			}
@@ -1398,8 +1379,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $opts['format'] && $opts['format']['v'] === 'framed' ) {
 			// width and height is ignored for framed images
 			// https://phabricator.wikimedia.org/T64258
-			$opts['size']['v']['width'] = null;
-			$opts['size']['v']['height'] = null;
+			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
 		} elseif ( $opts['format'] ) {
 			if ( !$opts[ 'size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
@@ -1442,13 +1422,11 @@ class WikiLinkHandler extends TokenHandler {
 
 		$wrapperInfo = self::getWrapperInfo( $opts );
 
-		$temp0 = $wrapperInfo;
-		$isInline = $temp0['isInline'];
+		$isInline = $wrapperInfo['isInline'];
 		$containerName = $isInline ? 'figure-inline' : 'figure';
 
-		$temp1 = $wrapperInfo;
-		$classes = $temp1['classes'];
-		if ( $opts ['class'] ) {
+		$classes = $wrapperInfo['classes'];
+		if ( $opts['class'] ) {
 			$classes = array_merge( $classes, explode( ' ', $opts['class']['v'] ) );
 		}
 
@@ -1467,7 +1445,7 @@ class WikiLinkHandler extends TokenHandler {
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 		}
 
-		$span = new TagTk( 'span', [], null );
+		$span = new TagTk( 'span', [] );
 
 		// "resource" and "lang" are whitelisted attributes on spans
 		$span->addNormalizedAttribute( 'resource', $opts['title']['v'], $opts['title']['src'] );
@@ -1560,8 +1538,8 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private function linkToMedia( Token $token, stdClass $target, array $errs, array $info ): array {
 		// Only pass in the url, since media links should not link to the thumburl
-		$imgHref = preg_replace( '/^https?:\/\//', '//', $info['url'], 1 ); // Copied from getPath
-		$imgHrefFileName = preg_replace( '/.*\//', '', $imgHref, 1 );
+		$imgHref = preg_replace( '#^https?://#', '//', $info['url'], 1 ); // Copied from getPath
+		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
 
 		$link = new TagTk( 'a', [], Util::clone( $token->dataAttribs ) );
 		$link->addAttribute( 'rel', 'mw:MediaLink' );
@@ -1574,7 +1552,7 @@ class WikiLinkHandler extends TokenHandler {
 		);
 		// Normalize title according to how PHP parser does it currently
 		$link->setAttribute( 'title', preg_replace( '/_/', ' ', $imgHrefFileName ) );
-		$link->dataAttribs->src = null; // clear src string since we can serialize this
+		unset( $link->dataAttribs->src ); // clear src string since we can serialize this
 
 		$type = $token->getAttribute( 'typeof' );
 		if ( $type ) {

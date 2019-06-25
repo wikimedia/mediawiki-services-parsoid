@@ -340,7 +340,7 @@ class Util {
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
 	 * @return int[]|null
 	 */
-	public static function parseMediaDimensions( string $str, bool $onlyOne ): ?array {
+	public static function parseMediaDimensions( string $str, bool $onlyOne = false ): ?array {
 		$dimensions = null;
 		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/D', $str, $match ) ) {
 			$dimensions = [ 'x' => (int)$match[1] ];
