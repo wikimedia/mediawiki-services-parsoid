@@ -1279,7 +1279,7 @@ class Sanitizer extends TokenHandler {
 				|| ( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) )
 			)
 		) { // unknown tag -- convert to plain text
-			if ( !$inTemplate && $token->dataAttribs->tsr ) {
+			if ( !$inTemplate && !empty( $token->dataAttribs->tsr ) ) {
 				// Just get the original token source, so that we can avoid
 				// whitespace differences.
 				$token = $token->getWTSource( $env->topFrame );
