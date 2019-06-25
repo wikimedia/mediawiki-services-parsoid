@@ -485,9 +485,9 @@ class Env {
 
 	/**
 	 * Return reference to original DOM
-	 * @return DOMNode
+	 * @return DOMElement
 	 */
-	public function getOrigDOM(): DOMNode {
+	public function getOrigDOM(): DOMElement {
 		return $this->origDOM;
 	}
 

@@ -74,7 +74,7 @@ class Parsoid {
 	 */
 	public function html2wikitext(
 		PageConfig $pageConfig, PageBundle $pageBundle, array $options = [],
-		Selser $selser = null
+		?Selser $selser = null
 	): string {
 		$envOptions = [
 			'scrubWikitext' => !empty( $options['scrubWikitext'] )
@@ -84,7 +84,7 @@ class Parsoid {
 		);
 		$doc = $env->createDocument( $pageBundle->html );
 		$handler = $env->getContentHandler();
-		return $handler->fromHTML( $env, $doc );
+		return $handler->fromHTML( $env, $doc, $selser );
 	}
 
 	/**
