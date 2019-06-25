@@ -356,24 +356,24 @@ class WikiLinkHandler extends TokenHandler {
 			}
 		}
 
+		// First check if the expanded href contains a pipe.
+		if ( preg_match( '/[|]/', $hrefTokenStr ) ) {
+			// It does. This 'href' was templated and also returned other
+			// parameters separated by a pipe. We don't have any sane way to
+			// handle such a construct currently, so prevent people from editing
+			// it.  See T226523
+			// TODO: add useful debugging info for editors ('if you would like to
+			// make this content editable, then fix template X..')
+			// TODO: also check other parameters for pipes!
+			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
+		}
+
 		$target = null;
 		try {
 			$target = $this->getWikiLinkTargetInfo( $token, $hrefTokenStr, $hrefKV->vsrc );
 		} catch ( TitleException $e ) {
 			// Invalid title
 			return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
-		}
-
-		// First check if the expanded href contains a pipe.
-		if ( preg_match( '/[|]/', $target->href ) ) {
-			// It does. This 'href' was templated and also returned other
-			// parameters separated by a pipe. We don't have any sane way to
-			// handle such a construct currently, so prevent people from editing
-			// it.
-			// TODO: add useful debugging info for editors ('if you would like to
-			// make this content editable, then fix template X..')
-			// TODO: also check other parameters for pipes!
-			return [ 'tokens' => TokenUtils::placeholder( null, $token->dataAttribs, null ) ];
 		}
 
 		// Ok, it looks like we have a sane href. Figure out which handler to use.

@@ -5595,6 +5595,24 @@ parsoid=wt2html
 <p>[[Foo|<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"]]"}},"i":0}}]}'>]]</span></p>
 !! end
 
+!! article
+Template:pipe page
+!! text
+Main|Page
+!! endarticle
+
+## FIXME: Parsoid doesn't support this and may never.  See T226523
+!! test
+Template returning pipe used in wikilink target
+!! wikitext
+[[{{pipe page}}]]
+!! html/php+tidy
+<p><a href="/index.php?title=Main&amp;action=edit&amp;redlink=1" class="new" title="Main (page does not exist)">Page</a>
+</p>
+!! html/parsoid
+<p>[[<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"pipe page","href":"./Template:Pipe_page"},"params":{},"i":0}}]}'>Main|Page</span>]]</p>
+!! end
+
 !! test
 T4702: Mismatched <i>, <b> and <a> tags are invalid
 !! wikitext
