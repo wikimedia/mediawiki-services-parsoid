@@ -185,7 +185,10 @@ class References implements ExtensionTag, SerialHandler {
 			]
 		);
 		DOMDataUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
-		$dataParsoid = (object)[ 'src' => $nodeDp->src ];
+		$dataParsoid = (object)[];
+		if ( isset( $nodeDp->src ) ) {
+			$dataParsoid->src = $nodeDp->src;
+		}
 		if ( isset( $nodeDp->dsr ) ) {
 			$dataParsoid->dsr = $nodeDp->dsr;
 		}

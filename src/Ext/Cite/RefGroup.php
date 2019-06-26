@@ -117,7 +117,8 @@ class RefGroup {
 			$li->insertBefore( $span, $reftextSpan );
 
 			foreach ( $ref->linkbacks as $i => $lb ) {
-				$span->appendChild( self::createLinkback( $lb, $refGroup, (string)( $i + 1 ), $ownerDoc, $env )
+				$span->appendChild(
+					self::createLinkback( $lb, $refGroup, (string)( $i + 1 ), $ownerDoc, $env )
 				);
 			}
 		}
