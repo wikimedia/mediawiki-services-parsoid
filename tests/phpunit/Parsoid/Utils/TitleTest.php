@@ -79,7 +79,6 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::newFromText
-	 * @covers ::sanitizeIP
 	 * @dataProvider provideNewFromText
 	 */
 	public function testNewFromText( $args, $key, $ns, $fragment, $lang = 'en' ) {

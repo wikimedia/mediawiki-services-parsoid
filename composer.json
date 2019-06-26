@@ -23,6 +23,7 @@
 		"php": ">=7.2.0",
 		"psr/log": "1.0.2",
 		"wikimedia/assert": "0.2.2",
+		"wikimedia/ip-utils": "1.0.0",
 		"wikimedia/remex-html": "2.0.3",
 		"wikimedia/scoped-callback": "3.0.0",
 		"wikimedia/wikipeg": "2.0.3",

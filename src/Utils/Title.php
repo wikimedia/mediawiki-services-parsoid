@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Utils;
 
 use Parsoid\Config\SiteConfig;
+use Wikimedia\IPUtils;
 
 class Title {
 
@@ -39,63 +40,6 @@ class Title {
 		}
 		$this->namespaceName = $siteConfig->namespaceName( $this->namespaceId );
 		$this->fragment = $fragment;
-	}
-
-	/**
-	 * Sanitize an IP.
-	 * @todo Librarize MediaWiki core's IP class and use that instead of this
-	 *  code that derived from it via PHP→JS→PHP translation.
-	 * @param string $ip
-	 * @return string
-	 */
-	private static function sanitizeIP( string $ip ): string {
-		// phpcs:ignore Generic.Files.LineLength.TooLong
-		static $ipStringRegex = '/^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])$|^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?(?:\/(12[0-8]|1[01][0-9]|[1-9]?\d))?$/';
-		// phpcs:ignore Generic.Files.LineLength.TooLong
-		static $ipv4StringRegex = '/^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|0?[0-9]?[0-9])(?:\/(3[0-2]|[12]?\d))?$/';
-
-		$ip = trim( $ip );
-
-		// If not an IP, just return trimmed value, since sanitizeIP() is called
-		// in a number of contexts where usernames are supplied as input.
-		if ( !preg_match( $ipStringRegex, $ip ) ) {
-			return $ip;
-		}
-
-		if ( preg_match( $ipv4StringRegex, $ip ) ) {
-			// Remove leading 0's from octet representation of IPv4 address
-			$ip = preg_replace( '!(?:^|(?<=\.))0+(?=[1-9]|0[./]|0$)!', '', $ip );
-			return $ip;
-		}
-
-		$ip = strtoupper( $ip );
-		// Expand zero abbreviations
-		$abbrevPos = strpos( $ip, '::' );
-		if ( $abbrevPos !== false ) {
-			// We know this is valid IPv6. Find the last index of the
-			// address before any CIDR number (e.g. "a:b:c::/24").
-			$CIDRStart = strpos( $ip, '/' );
-			$addressEnd = $CIDRStart !== false ? $CIDRStart - 1 : strlen( $ip ) - 1;
-			if ( $abbrevPos === 0 ) {
-				// If the '::' is at the beginning...
-				$repeat = '0:';
-				$extra = $ip === '::' ? '0' : ''; // for the address '::'
-				$pad = 9; // 7+2 (due to '::')
-			// If the '::' is at the end...
-			} elseif ( $abbrevPos === $addressEnd - 1 ) {
-				$repeat = ':0';
-				$extra = '';
-				$pad = 9; // 7+2 (due to '::')
-				// If the '::' is in the middle...
-			} else {
-				$repeat = ':0';
-				$extra = ':';
-				$pad = 8; // 6+2 (due to '::')
-			}
-			$ip = strtr( $ip, [ '::' => str_repeat( $repeat, $pad - substr_count( $ip, ':' ) ) . $extra ] );
-		}
-		// Remove leading zeros from each bloc as needed
-		return preg_replace( '/(^|:)0+([0-9A-Fa-f]{1,4})/', '$1$2', $ip );
 	}
 
 	/**
@@ -231,7 +175,7 @@ class Title {
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'user' ) ||
 			$ns === $siteConfig->canonicalNamespaceId( 'user_talk' )
 		) {
-			$title = self::sanitizeIP( $title );
+			$title = IPUtils::sanitizeIP( $title );
 		}
 
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {
