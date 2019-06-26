@@ -40,16 +40,17 @@ class AttributeTransformManager {
 		$this->expandedKVs = [];
 	}
 
-	private function processOne( KV $cur, int $i ): void {
+	private function processOne( KV $cur ): KV {
 		$k = $cur->k;
 		$v = $cur->v;
-		if ( $v === null ) {
+		if ( $cur->v === null ) {
 			$cur->v = $v = '';
 		}
 
 		// fast path for string-only attributes
 		if ( is_string( $k ) && is_string( $v ) ) {
-			return;
+			// PERF-FIXME: Maybe return $cur itself?
+			return new KV( $k, $v, $cur->srcOffsets );
 		}
 
 		$n = is_array( $v ) ? count( $v ) : -1;
@@ -61,7 +62,7 @@ class AttributeTransformManager {
 				'type' => 'tokens/x-mediawiki/expanded',
 				'srcOffsets' => $cur->srcOffsets->value,
 			] );
-			$this->expandedKVs[] = [ 'index' => $i, 'v' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
+			$v = TokenUtils::stripEOFTkfromTokens( $tokens );
 		}
 
 		$n = is_array( $k ) ? count( $k ) : -1;
@@ -73,8 +74,10 @@ class AttributeTransformManager {
 				'type' => 'tokens/x-mediawiki/expanded',
 				'srcOffsets' => $cur->srcOffsets->key,
 			] );
-			$this->expandedKVs[] = [ 'index' => $i, 'k' => TokenUtils::stripEOFTkfromTokens( $tokens ) ];
+			$k = TokenUtils::stripEOFTkfromTokens( $tokens );
 		}
+
+		return new KV( $k, $v, $cur->srcOffsets );
 	}
 
 	/**
@@ -87,27 +90,6 @@ class AttributeTransformManager {
 	 */
 	public function process( array $attributes ): array {
 		// Transform each argument (key and value).
-		$i = 0;
-		foreach ( $attributes as $attr ) {
-			$this->processOne( $attr, $i++ );
-		}
-
-		$newKVs = [];
-		$i = 0;
-		foreach ( $attributes as $curr ) {
-			$newKVs[$i++] = new KV( $curr->k, $curr->v, $curr->srcOffsets );
-		}
-
-		foreach ( $this->expandedKVs as $ekv ) {
-			$i = $ekv['index'];
-			if ( isset( $ekv['k'] ) ) {
-				$newKVs[$i]->k = $ekv['k'];
-			}
-			if ( isset( $ekv['v'] ) ) {
-				$newKVs[$i]->v = $ekv['v'];
-			}
-		}
-
-		return $newKVs;
+		return array_map( [ $this, 'processOne' ], $attributes );
 	}
 }

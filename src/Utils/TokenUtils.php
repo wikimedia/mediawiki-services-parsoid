@@ -287,13 +287,15 @@ class TokenUtils {
 	 * The EOFTk is expected to be the last token of the chunk.
 	 *
 	 * @param array &$tokens
+	 * @return array return the modified token array so that this call can be chained
 	 */
-	public static function stripEOFTkFromTokens( array &$tokens ): void {
+	public static function stripEOFTkFromTokens( array &$tokens ): array {
 		$tokens = (array)$tokens;
 		$n = count( $tokens );
 		if ( $n && $tokens[$n - 1] instanceof EOFTk ) {
 			array_pop( $tokens );
 		}
+		return $tokens;
 	}
 
 	/**
