@@ -9,6 +9,7 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Html2Wt\DOMHandlers\DOMHandler;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
@@ -571,20 +572,20 @@ class Separators {
 	/**
 	 * Serializing auto inserted content should invalidate the original separator
 	 * @param DOMElement $node
-	 * @return array|null
+	 * @return DomSourceRange|null
 	 */
-	private static function handleAutoInserted( DOMElement $node ): ?array {
+	private static function handleAutoInserted( DOMElement $node ): ?DomSourceRange {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		if ( !isset( $dp->dsr ) ) {
 			return null;
 		}
 
-		$dsr = Util::clone( $dp->dsr );
+		$dsr = clone $dp->dsr;
 		if ( !empty( $dp->autoInsertedStart ) ) {
-			$dsr[2] = null;
+			$dsr->openWidth = null;
 		}
 		if ( !empty( $dp->autoInsertedEnd ) ) {
-			$dsr[3] = null;
+			$dsr->closeWidth = null;
 		}
 		return $dsr;
 	}
@@ -627,7 +628,7 @@ class Separators {
 				// that for dsr purposes instead. Typical case: text in p.
 				if ( !$prevNode->nextSibling && $prevNode->parentNode && $prevNode->parentNode !== $node &&
 					DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr &&
-					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr[3] ?? null ) === 0
+					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr->closeWidth ?? null ) === 0
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
 				} elseif ( $prevNode->previousSibling &&
@@ -639,7 +640,7 @@ class Separators {
 					// Don't extrapolate if the string was potentially changed
 					!DiffUtils::directChildrenChanged( $node->parentNode, $this->env )
 				) {
-					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr[1] ?? null;
+					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
 					$correction = null;
 					if ( is_int( $endDsr ) ) {
 						if ( DOMUtils::isComment( $prevNode ) ) {
@@ -647,12 +648,12 @@ class Separators {
 						} else {
 							$correction = mb_strlen( $prevNode->nodeValue );
 						}
-						$dsrA = [
+						$dsrA = new DomSourceRange(
 							$endDsr,
 							$endDsr + $correction + WTUtils::indentPreDSRCorrection( $prevNode ),
 							0,
 							0
-						];
+						);
 					}
 				}
 			} else {
@@ -677,13 +678,13 @@ class Separators {
 				DOMUtils::assertElt( $parentNode );
 
 				$npDP = DOMDataUtils::getDataParsoid( $parentNode );
-				if ( $parentNode !== $prevNode && isset( $npDP->dsr ) && $npDP->dsr[2] === 0 ) {
+				if ( $parentNode !== $prevNode && isset( $npDP->dsr ) && $npDP->dsr->openWidth === 0 ) {
 					$sepTxt = self::precedingSeparatorTxt( $node );
 					if ( $sepTxt !== null ) {
 						$dsrB = $npDP->dsr;
-						if ( is_int( $dsrB[0] ) && mb_strlen( $sepTxt ) > 0 ) {
-							$dsrB = Util::clone( $dsrB );
-							$dsrB[0] += mb_strlen( $sepTxt );
+						if ( is_int( $dsrB->start ) && mb_strlen( $sepTxt ) > 0 ) {
+							$dsrB = clone $dsrB;
+							$dsrB->start += mb_strlen( $sepTxt );
 						}
 					}
 				}
@@ -701,8 +702,8 @@ class Separators {
 					// [[File:foo.jpg|thumb|300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}\n\n]]
 					while ( !$node->nextSibling && !DOMUtils::atTheTop( $node ) &&
 						( empty( DOMDataUtils::getDataParsoid( $node )->dsr ) ||
-							DOMDataUtils::getDataParsoid( $node )->dsr[0] === null ||
-							DOMDataUtils::getDataParsoid( $node )->dsr[1] === null
+							DOMDataUtils::getDataParsoid( $node )->dsr->start === null ||
+							DOMDataUtils::getDataParsoid( $node )->dsr->end === null
 						)
 					) {
 						$node = $node->parentNode;
@@ -715,32 +716,29 @@ class Separators {
 			}
 
 			// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
-			if ( Util::isValidDSR( $dsrA ) && Util::isValidDSR( $dsrB ) &&
-				// Added for Phan
-				isset( $dsrB[1] )
-			) {
+			if ( Util::isValidDSR( $dsrA ) && Util::isValidDSR( $dsrB ) ) {
 				// Figure out containment relationship
-				if ( $dsrA[0] <= $dsrB[0] ) {
-					if ( $dsrB[1] <= $dsrA[1] ) {
-						if ( $dsrA[0] === $dsrB[0] && $dsrA[1] === $dsrB[1] ) {
+				if ( $dsrA->start <= $dsrB->start ) {
+					if ( $dsrB->end <= $dsrA->end ) {
+						if ( $dsrA->start === $dsrB->start && $dsrA->end === $dsrB->end ) {
 							// Both have the same dsr range, so there can't be any
 							// separators between them
 							$sep = '';
-						} elseif ( ( $dsrA[2] ?? null ) !== null ) {
+						} elseif ( ( $dsrA->openWidth ?? null ) !== null ) {
 							// B in A, from parent to child
-							$sep = $state->getOrigSrc( $dsrA[0] + $dsrA[2], $dsrB[0] );
+							$sep = $state->getOrigSrc( $dsrA->innerStart(), $dsrB->start );
 						}
-					} elseif ( $dsrA[1] <= $dsrB[0] ) {
+					} elseif ( $dsrA->end <= $dsrB->start ) {
 						// B following A (siblingish)
-						$sep = $state->getOrigSrc( $dsrA[1], $dsrB[0] );
-					} elseif ( ( $dsrB[3] ?? null ) !== null ) {
+						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->start );
+					} elseif ( ( $dsrB->closeWidth ?? null ) !== null ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA[1], $dsrB[1] - $dsrB[3] );
+						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
 					}
-				} elseif ( $dsrA[1] <= $dsrB[1] ) {
-					if ( ( $dsrB[3] ?? null ) !== null ) {
+				} elseif ( $dsrA->end <= $dsrB->end ) {
+					if ( ( $dsrB->closeWidth ?? null ) !== null ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA[1], $dsrB[1] - $dsrB[3] );
+						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
 					}
 				} else {
 					$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );

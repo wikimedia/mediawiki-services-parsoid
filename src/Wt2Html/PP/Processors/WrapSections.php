@@ -7,6 +7,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\PP\Processors;
 
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
@@ -248,7 +249,7 @@ class WrapSections {
 		if ( $node->nodeName !== 'section' ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ??
 				DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
-			return $start ? $dsr[0] : $dsr[1];
+			return $start ? $dsr->start : $dsr->end;
 		}
 
 		$offset = 0;
@@ -315,7 +316,7 @@ class WrapSections {
 					$newTplEndOffset = $this->getDSR( $tplInfo, $s2, false );
 					// The next line will succeed because it traverses non-tpl content
 					$tplDsr = &DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
-					$tplEndOffset = $tplDsr[1];
+					$tplEndOffset = $tplDsr->end;
 					$dmw = DOMDataUtils::getDataMw( $tplInfo['first'] );
 					if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 						if ( $dmw->parts ) {
@@ -327,7 +328,7 @@ class WrapSections {
 					}
 
 					// Update DSR
-					$tplDsr[1] = $newTplEndOffset;
+					$tplDsr->end = $newTplEndOffset;
 
 					// Set about attributes on all children of s2 - add span wrappers if required
 					$span = null;
@@ -371,23 +372,23 @@ class WrapSections {
 				$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
 				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 					if ( $dmw->parts ) {
-						array_unshift( $dmw->parts, $this->getSrc( $state['env'], $dsr1, $tplDsr[0] ) );
-						$dmw->parts[] = $this->getSrc( $state['env'], $tplDsr[1], $dsr2 );
+						array_unshift( $dmw->parts, $this->getSrc( $state['env'], $dsr1, $tplDsr->start ) );
+						$dmw->parts[] = $this->getSrc( $state['env'], $tplDsr->end, $dsr2 );
 					}
 					DOMDataUtils::setDataMw( $newS1, $dmw );
 					$newS1->setAttribute( 'typeof', 'mw:Transclusion' );
 					// Copy the template's parts-information object
 					// which has white-space information for formatting
 					// the transclusion and eliminates dirty-diffs.
-					$dp = (object)[ 'pi' => $tplDP->pi, 'dsr' => [ $dsr1, $dsr2 ] ];
+					$dp = (object)[ 'pi' => $tplDP->pi, 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ];
 					DOMDataUtils::setDataParsoid( $newS1, $dp );
 				} else { /* extension */
 					// https://phabricator.wikimedia.org/T184779
-					$dmw->extPrefix = $this->getSrc( $state['env'], $dsr1, $tplDsr[0] );
-					$dmw->extSuffix = $this->getSrc( $state['env'], $tplDsr[1], $dsr2 );
+					$dmw->extPrefix = $this->getSrc( $state['env'], $dsr1, $tplDsr->start );
+					$dmw->extSuffix = $this->getSrc( $state['env'], $tplDsr->end, $dsr2 );
 					DOMDataUtils::setDataMw( $newS1, $dmw );
 					$newS1->setAttribute( 'typeof', $tplInfo['first']->getAttribute( 'typeof' ) );
-					$dp = (object)[ 'dsr' => [ $dsr1, $dsr2 ] ];
+					$dp = (object)[ 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ];
 					DOMDataUtils::setDataParsoid( $newS1, $dp );
 				}
 			}

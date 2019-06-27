@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMCompat;
@@ -31,11 +32,11 @@ class WTSUtils {
 	}
 
 	/**
-	 * @param array $dsr
+	 * @param DomSourceRange|null $dsr
 	 * @return bool
 	 */
-	public static function hasValidTagWidths( array $dsr ): bool {
-		return isset( $dsr[2], $dsr[3] ) && $dsr[2] >= 0 && $dsr[3] >= 0;
+	public static function hasValidTagWidths( ?DomSourceRange $dsr ): bool {
+		return $dsr !== null && $dsr->hasValidTagWidths();
 	}
 
 	/**

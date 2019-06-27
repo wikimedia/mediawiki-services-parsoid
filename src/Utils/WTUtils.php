@@ -555,7 +555,7 @@ class WTUtils {
 		// PORT-FIXME: We could probably change the null return to ''
 		// Just need to verify that code that uses this won't break
 		return Util::isValidDSR( $dsr ) ?
-			mb_substr( $frame->getSrcText(), $dsr[0], $dsr[1] - $dsr[0] ) : null;
+			$dsr->substr( $frame->getSrcText() ) : null;
 	}
 
 	/**

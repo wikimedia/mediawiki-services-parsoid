@@ -170,8 +170,8 @@ class HandleLinkNeighbours {
 				}
 				if ( !empty( $dp->dsr ) ) {
 					$len = mb_strlen( $prefix['src'] );
-					$dp->dsr[0] -= $len;
-					$dp->dsr[2] += $len;
+					$dp->dsr->start -= $len;
+					$dp->dsr->openWidth += $len;
 				}
 			}
 		}
@@ -199,8 +199,8 @@ class HandleLinkNeighbours {
 				}
 				if ( !empty( $dp->dsr ) ) {
 					$len = mb_strlen( $trail['src'] );
-					$dp->dsr[1] += $len;
-					$dp->dsr[3] += $len;
+					$dp->dsr->end += $len;
+					$dp->dsr->closeWidth += $len;
 				}
 			}
 			// indicate that the node's tail siblings have been consumed

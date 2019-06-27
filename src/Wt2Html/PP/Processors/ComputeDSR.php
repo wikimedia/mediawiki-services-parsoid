@@ -10,6 +10,7 @@ use stdClass;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\DataParsoid;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
@@ -280,8 +281,8 @@ class ComputeDSR {
 	 * TSR = "Tag Source Range".  Start and end offsets giving the location
 	 * where the tag showed up in the original source.
 	 *
-	 * DSR = "DOM Source Range".  [0] and [1] are open and end,
-	 * [2] and [3] are widths of the container tag.
+	 * DSR = "DOM Source Range".  dsr->start and dsr->end are open and end,
+	 * dsr->openWidth and dsr->closeWidth are widths of the container tag.
 	 *
 	 * TSR is set by the tokenizer. In most cases, it only applies to the
 	 * specific tag (opening or closing).  However, for self-closing
@@ -302,11 +303,11 @@ class ComputeDSR {
 	 * @param int|null $e end position, exclusive
 	 * @param int $dsrCorrection
 	 * @param array $opts
-	 * @return int[]
+	 * @return DomSourceRange
 	 */
 	private function computeNodeDSR(
 		Env $env, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
-	): array {
+	): DomSourceRange {
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
 		}
@@ -356,7 +357,7 @@ class ComputeDSR {
 								if ( !$ndp->tmp ) {
 									$ndp->tmp = [];
 								}
-								$ndp->tmp->origDSR = [ $ndp->dsr[0], $ndp->dsr[1], null, null ];
+								$ndp->tmp->origDSR = new DomSourceRange( $ndp->dsr->start, $ndp->dsr->end, null, null );
 							}
 						}
 					}
@@ -554,7 +555,7 @@ class ComputeDSR {
 						// Eliminate artificial $cs/s mismatch warnings since this is
 						// just a wrapper token with the right DSR but without any
 						// nested subtree that could account for the DSR span.
-						$newDsr = [ $ccs, $cce ];
+						$newDsr = new DomSourceRange( $ccs, $cce, null, null );
 					} elseif ( $child->nodeName === 'a'
 						&& DOMUtils::assertElt( $child )
 						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
@@ -572,7 +573,7 @@ class ComputeDSR {
 						 * in the link target and so we get nothing new by processing
 						 * content.
 						 * ------------------------------------------------------------- */
-						$newDsr = [ $ccs, $cce ];
+						$newDsr = new DomSourceRange( $ccs, $cce, null, null );
 					} else {
 						$env->log( "trace/dsr", function () use ( $env, $cs, $ce, $stWidth, $etWidth, $ccs, $cce ) {
 							return "     before-recursing:" .
@@ -586,17 +587,17 @@ class ComputeDSR {
 						$this->trace( $env, "</recursion>" );
 					}
 
-					// $cs = min($child-dom-tree dsr[0] - tag-width, current dsr[0])
-					if ( $stWidth !== null && $newDsr[0] !== null ) {
-						$newCs = $newDsr[0] - $stWidth;
+					// $cs = min($child-dom-tree dsr->start - tag-width, current dsr->start)
+					if ( $stWidth !== null && $newDsr->start !== null ) {
+						$newCs = $newDsr->start - $stWidth;
 						if ( $cs === null || ( !$tsr && $newCs < $cs ) ) {
 							$cs = $newCs;
 						}
 					}
 
-					// $ce = max($child-dom-tree dsr[1] + tag-width, current dsr[1])
-					if ( $etWidth !== null && $newDsr[1] !== null ) {
-						$newCe = $newDsr[1] + $etWidth;
+					// $ce = max($child-dom-tree dsr->end + tag-width, current dsr->end)
+					if ( $etWidth !== null && $newDsr->end !== null ) {
+						$newCe = $newDsr->end + $etWidth;
 						if ( $newCe > $ce ) {
 							$ce = $newCe;
 						}
@@ -619,9 +620,9 @@ class ComputeDSR {
 						if ( $origCE < 0 ) {
 							$origCE = 0;
 						}
-						$dp->dsr = [ $origCE, $origCE ];
+						$dp->dsr = new DomSourceRange( $origCE, $origCE, null, null );
 					} else {
-						$dp->dsr = [ $cs, $ce, $stWidth, $etWidth ];
+						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
 					}
 
 					$env->log( "trace/dsr", function () use ( $env, $child, $cs, $ce, $cTypeOf, $dp ) {
@@ -657,17 +658,17 @@ class ComputeDSR {
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
 
 							if ( !isset( $siblingDP->dsr ) ) {
-								$siblingDP->dsr = [ null, null ];
+								$siblingDP->dsr = new DomSourceRange( null, null, null, null );
 							}
 
 							if ( !empty( $siblingDP->fostered ) ||
-								( $siblingDP->dsr[0] !== null && $siblingDP->dsr[0] === $newCE ) ||
-								( $siblingDP->dsr[0] !== null && isset( $siblingDP->tsr ) &&
-									$siblingDP->dsr[0] < $newCE )
+								( $siblingDP->dsr->start !== null && $siblingDP->dsr->start === $newCE ) ||
+								( $siblingDP->dsr->start !== null && isset( $siblingDP->tsr ) &&
+									$siblingDP->dsr->start < $newCE )
 							) {
 								// $sibling is fostered
 								// => nothing to propagate past it
-								// $sibling's dsr[0] matches what we might propagate
+								// $sibling's dsr->start matches what we might propagate
 								// => nothing will change
 								// $sibling's dsr value came from tsr and it is not outside expected range
 								// => stop propagation so you don't overwrite it
@@ -677,27 +678,27 @@ class ComputeDSR {
 							// Update and move right
 							$env->log( "trace/dsr", function () use ( $env, $newCE, $sibling, $siblingDP ) {
 								$str = "     CHANGING ce.start of " . $sibling->nodeName .
-									" from " . $siblingDP->dsr[0] . " to " . $newCE;
+									" from " . $siblingDP->dsr->start . " to " . $newCE;
 								// debug info
-								if ( $siblingDP->dsr[1] ) {
+								if ( $siblingDP->dsr->end ) {
 									$siblingDP->dbsrc =
-										mb_substr( $env->topFrame->getSrcText(), $newCE, $siblingDP->dsr[1] - $newCE );
+										mb_substr( $env->topFrame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
 								}
 								return $str;
 							} );
 
-							$siblingDP->dsr[0] = $newCE;
-							// If we have a dsr[1] as well and since we updated
-							// dsr[0], we have to ensure that the two values don't
-							// introduce an inconsistency where dsr[0] > dsr[1].
+							$siblingDP->dsr->start = $newCE;
+							// If we have a dsr->end as well and since we updated
+							// dsr->start, we have to ensure that the two values don't
+							// introduce an inconsistency where dsr->start > dsr->end.
 							// Since we are in a LTR pass and are pushing updates
-							// forward, we are resolving it by updating dsr[1] as
+							// forward, we are resolving it by updating dsr->end as
 							// well. There could be scenarios where this would be
 							// incorrect, but there is no universal fix here.
-							if ( $siblingDP->dsr[1] !== null && $newCE > $siblingDP->dsr[1] ) {
-								$siblingDP->dsr[1] = $newCE;
+							if ( $siblingDP->dsr->end !== null && $newCE > $siblingDP->dsr->end ) {
+								$siblingDP->dsr->end = $newCE;
 							}
-							$newCE = $siblingDP->dsr[1];
+							$newCE = $siblingDP->dsr->end;
 
 						} else {
 							break;
@@ -774,7 +775,7 @@ class ComputeDSR {
 
 		$this->trace( $env, "END: ", $node->nodeName, ", returning: ", $cs, ", ", $e );
 
-		return [ $cs, $e ];
+		return new DomSourceRange( $cs, $e, null, null );
 	}
 
 	/**
@@ -796,6 +797,6 @@ class ComputeDSR {
 		$this->computeNodeDSR( $env, $rootNode, $startOffset, $endOffset, 0, $opts );
 
 		$dp = DOMDataUtils::getDataParsoid( $rootNode );
-		$dp->dsr = [ $startOffset, $endOffset, 0, 0 ];
+		$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
 	}
 }

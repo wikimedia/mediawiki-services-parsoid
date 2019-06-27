@@ -14,6 +14,7 @@ use Parsoid\Utils\TitleException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\InternalException;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
@@ -104,7 +105,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( preg_match( '/^:/', $info->href ) ) {
 			if ( $siteConfig->linting() ) {
 				$lint = [
-					'dsr' => $token->dataAttribs->tsr,
+					'dsr' => DomSourceRange::fromTsr( $token->dataAttribs->tsr ),
 					'params' => [ 'href' => ':' . $info->href ],
 					'templateInfo' => null
 				];
@@ -121,7 +122,7 @@ class WikiLinkHandler extends TokenHandler {
 					);
 					$lint['templateInfo'] = [ 'name' => $name ];
 					// TODO(arlolra): Pass tsr info to the frame
-					$lint['dsr'] = [ 0, 0 ];
+					$lint['dsr'] = new DomSourceRange( 0, 0, null, null );
 				}
 				$env->log( 'lint/multi-colon-escape', $lint );
 			}

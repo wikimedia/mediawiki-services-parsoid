@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\PP\Handlers;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -67,10 +68,10 @@ class UnpackDOMFragments {
 					$resetDSR = true;
 				}
 				if ( $resetDSR ) {
-					if ( !empty( $dp->dsr[0] ) ) {
-						$currOffset = $dp->dsr[ 1 ] = $dp->dsr[ 0 ];
+					if ( !empty( $dp->dsr->start ) ) {
+						$currOffset = $dp->dsr->end = $dp->dsr->start;
 					} else {
-						$dp->dsr = [ $currOffset, $currOffset ];
+						$dp->dsr = new DomSourceRange( $currOffset, $currOffset, null, null );
 					}
 					$dp->misnested = true;
 				} elseif ( !empty( $dp->tmp->wrapper ) ) {
@@ -93,7 +94,7 @@ class UnpackDOMFragments {
 	 * @param int $delta
 	 */
 	public static function addDeltaToDSR( DOMNode $node, int $delta ): void {
-		// Add 'delta' to dsr[0] and dsr[1] for nodes in the subtree
+		// Add 'delta' to dsr->start and dsr->end for nodes in the subtree
 		// node's dsr has already been updated
 		$child = $node->firstChild;
 		while ( $child ) {
@@ -109,11 +110,11 @@ class UnpackDOMFragments {
 					// Currently, it can happen that one or the other
 					// value can be null.  So, we should try to udpate
 					// the dsr value in such a scenario.
-					if ( is_int( $dp->dsr[0] ) ) {
-						$dp->dsr[0] += $delta;
+					if ( is_int( $dp->dsr->start ) ) {
+						$dp->dsr->start += $delta;
 					}
-					if ( is_int( $dp->dsr[1] ) ) {
-						$dp->dsr[1] += $delta;
+					if ( is_int( $dp->dsr->end ) ) {
+						$dp->dsr->end += $delta;
 					}
 				}
 				self::addDeltaToDSR( $child, $delta );
@@ -257,16 +258,16 @@ class UnpackDOMFragments {
 			DOMUtils::assertElt( $contentNode );
 			$cnDP = DOMDataUtils::getDataParsoid( $contentNode );
 			if ( DOMUtils::hasTypeOf( $contentNode, 'mw:Transclusion' ) ) {
-				// FIXME: An old comment from c28f137 said we just use dsr[0] and
-				// dsr[1] since tag-widths will be incorrect for reuse of template
+				// FIXME: An old comment from c28f137 said we just use dsr->start and
+				// dsr->end since tag-widths will be incorrect for reuse of template
 				// expansions.  The comment was removed in ca9e760.
-				$cnDP->dsr = [ $dsr[0], $dsr[1] ];
+				$cnDP->dsr = new DomSourceRange( $dsr->start, $dsr->end, null, null );
 			} elseif (
 				DOMUtils::matchTypeOf( $contentNode, '/^mw:(Nowiki|Extension(\/[^\s]+))$/' ) !== null
 			) {
 				$cnDP->dsr = $dsr;
 			} else { // non-transcluded images
-				$cnDP->dsr = [ $dsr[0], $dsr[1], 2, 2 ];
+				$cnDP->dsr = new DomSourceRange( $dsr->start, $dsr->end, 2, 2 );
 				// Reused image -- update dsr by tsrDelta on all
 				// descendents of 'firstChild' which is the <figure> tag
 				$tsrDelta = $dp->tmp->tsrDelta ?? 0;

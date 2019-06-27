@@ -5,6 +5,7 @@ namespace Parsoid;
 
 use stdClass;
 
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\SourceRange;
 
@@ -36,15 +37,16 @@ class DataParsoid extends stdClass {
 	 * maps to input wikitext substring 7..14. The opening tag <i> was 2 characters wide in wikitext
 	 * and the closing tag </i> was also 2 characters wide in wikitext.
 	 *
-	 * @var int[]|null
-	 * @see ComputeDRS::computeNodeDSR()
+	 * @var DomSourceRange|null
+	 * @see ComputeDSR::computeNodeDSR()
 	 */
 	public $dsr;
+
 	/**
 	 * Tag widths for all tokens.
 	 * Temporarily present in data-parsoid, but ot in final DOM output.
 	 * @var SourceRange|null
-	 * @see ComputeDRS::computeNodeDSR()
+	 * @see ComputeDSR::computeNodeDSR()
 	 */
 	public $tsr;
 

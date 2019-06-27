@@ -306,6 +306,10 @@ abstract class Token implements \JsonSerializable {
 				if ( isset( $da->tmp ) ) {
 					$da->tmp = (object)$da->tmp;
 				}
+				if ( isset( $da->dsr ) ) {
+					// dsr is generally for DOM trees, not Tokens.
+					$da->dsr = DomSourceRange::fromArray( $da->dsr );
+				}
 				if ( isset( $da->tsr ) ) {
 					$da->tsr = SourceRange::fromArray( $da->tsr );
 				}

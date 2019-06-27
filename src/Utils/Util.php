@@ -5,6 +5,7 @@ namespace Parsoid\Utils;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\Token;
 
 /**
@@ -164,19 +165,18 @@ class Util {
 
 	/**
 	 * Check for valid DSR range(s)
-	 * DSR = "DOM Source Range".  [0] and [1] are open and end,
-	 * [2] and [3] are widths of the container tag.
+	 * DSR = "DOM Source Range".
 	 *
-	 * @param array|null $dsr DSR source range values
+	 * @param DomSourceRange|null $dsr DSR source range values
 	 * @param bool $all Also check the widths of the container tag
 	 * @return bool
 	 */
-	public static function isValidDSR( ?array $dsr, bool $all = false ): bool {
+	public static function isValidDSR( ?DomSourceRange $dsr, bool $all = false ): bool {
 		return $dsr !== null &&
-			self::isValidOffset( $dsr[0] ?? null ) &&
-			self::isValidOffset( $dsr[1] ?? null ) &&
-			( !$all || ( self::isValidOffset( $dsr[2] ?? null ) &&
-				self::isValidOffset( $dsr[3] ?? null )
+			self::isValidOffset( $dsr->start ) &&
+			self::isValidOffset( $dsr->end ) &&
+			( !$all || ( self::isValidOffset( $dsr->openWidth ) &&
+				self::isValidOffset( $dsr->closeWidth )
 				) );
 	}
 

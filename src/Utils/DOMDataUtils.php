@@ -8,13 +8,15 @@ namespace Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\DataParsoid;
 use stdClass;
-use Wikimedia\Assert\Assert;
+
 use Parsoid\Config\Env;
-use Parsoid\Utils\DataBag; // phpcs:ignore
+use Parsoid\DataParsoid;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\KVSourceRange;
+use Parsoid\Utils\DataBag; // phpcs:ignore
+use Wikimedia\Assert\Assert;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
@@ -469,6 +471,9 @@ class DOMDataUtils {
 		}
 		if ( isset( $dp->a ) ) {
 			$dp->a = (array)$dp->a;
+		}
+		if ( isset( $dp->dsr ) ) {
+			$dp->dsr = DomSourceRange::fromArray( $dp->dsr );
 		}
 		if ( isset( $dp->tsr ) ) {
 			// tsr is generally for tokens, not DOM trees.

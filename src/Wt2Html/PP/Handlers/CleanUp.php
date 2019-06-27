@@ -213,7 +213,7 @@ class CleanUp {
 		// But, do not zero it out if the node has template encapsulation
 		// information.  That will be disastrous (see T54638, T54488).
 		if ( !empty( $dp->fostered ) && !empty( $dp->dsr ) && !$isFirstEncapsulationWrapperNode ) {
-			$dp->dsr[0] = $dp->dsr[1];
+			$dp->dsr->start = $dp->dsr->end;
 		}
 
 		if ( $atTopLevel ) {

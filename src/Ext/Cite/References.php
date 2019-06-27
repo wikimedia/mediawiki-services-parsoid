@@ -11,6 +11,7 @@ use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -344,7 +345,7 @@ class References implements ExtensionTag, SerialHandler {
 						// The new references come out of "nowhere", so to make selser work
 						// property, add a zero-sized DSR pointing to the end of the document.
 						$contentLength = mb_strlen( $env->getPageMainContent() );
-						$dp->dsr = [ $contentLength, $contentLength, 0, 0 ];
+						$dp->dsr = new DomSourceRange( $contentLength, $contentLength, 0, 0 );
 					},
 					true
 				);

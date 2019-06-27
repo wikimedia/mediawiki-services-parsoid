@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use DOMText;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\TitleException;
@@ -61,11 +62,11 @@ class Headings {
 			$span = $node->ownerDocument->createElement( 'span' );
 			$span->setAttribute( 'id', $fallbackId );
 			$span->setAttribute( 'typeof', 'mw:FallbackId' );
-			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr;
+			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			// Set a zero-width dsr range for the fallback id
 			if ( Util::isValidDSR( $nodeDsr ) ) {
-				$offset = $nodeDsr[0] + ( $nodeDsr[3] ?? 0 );
-				DOMDataUtils::getDataParsoid( $span )->dsr = [ $offset, $offset ];
+				$offset = $nodeDsr->innerStart();
+				DOMDataUtils::getDataParsoid( $span )->dsr = new DomSourceRange( $offset, $offset, null, null );
 			}
 			$node->insertBefore( $span, $node->firstChild );
 		}

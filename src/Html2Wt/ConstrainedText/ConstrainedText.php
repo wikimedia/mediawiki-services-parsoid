@@ -264,10 +264,10 @@ class ConstrainedText {
 		if (
 			!$ignorePrefix &&
 			$firstChildDp && Util::isValidDSR( $firstChildDp->dsr ?? null ) &&
-			$dataParsoid->dsr[ 0 ] === $firstChildDp->dsr[ 0 ]
+			$dataParsoid->dsr->start === $firstChildDp->dsr->start
 		) {
 			DOMUtils::assertElt( $firstChild ); // implied by $firstChildDp
-			$len = $firstChildDp->dsr[ 1 ] - $firstChildDp->dsr[ 0 ];
+			$len = $firstChildDp->dsr->length();
 			$prefixChunks = self::fromSelSer(
 				substr( $text, 0, $len ), $firstChild, $firstChildDp, $env,
 				// this child node's right context will be protected:
@@ -282,10 +282,10 @@ class ConstrainedText {
 		if (
 			!$ignoreSuffix && $lastChild !== $firstChild &&
 			$lastChildDp && Util::isValidDSR( $lastChildDp->dsr ?? null ) &&
-			$dataParsoid->dsr[ 1 ] === $lastChildDp->dsr[ 1 ]
+			$dataParsoid->dsr->end === $lastChildDp->dsr->end
 		) {
 			DOMUtils::assertElt( $lastChild ); // implied by $lastChildDp
-			$len = $lastChildDp->dsr[ 1 ] - $lastChildDp->dsr[ 0 ];
+			$len = $lastChildDp->dsr->length();
 			$suffixChunks = self::fromSelSer(
 				substr( $text, -$len ), $lastChild, $lastChildDp, $env,
 				// this child node's left context will be protected:

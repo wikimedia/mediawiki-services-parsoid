@@ -88,7 +88,7 @@ class TableFixups {
 			$nextNodeDP = DOMDataUtils::getDataParsoid( $nextNode );
 
 			if ( $nodeDSR && !empty( $nextNodeDP->dsr ) ) {
-				$nextNodeDP->dsr[0] = $nodeDSR[0];
+				$nextNodeDP->dsr->start = $nodeDSR->start;
 			}
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
@@ -136,13 +136,13 @@ class TableFixups {
 
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
 		if ( !Util::isValidDSR( $dp->dsr ?? null ) ) {
-			$dp->dsr = Util::clone( $childDP->dsr );
+			$dp->dsr = clone $childDP->dsr;
 		}
 
 		// Get the td and content source up to the transclusion start
-		if ( $dp->dsr[0] < $childDP->dsr[0] ) {
-			$width = $childDP->dsr[0] - $dp->dsr[0];
-			array_unshift( $parts, mb_substr( $env->topFrame->getSrcText(), $dp->dsr[0], $width ) );
+		if ( $dp->dsr->start < $childDP->dsr->start ) {
+			$width = $childDP->dsr->start - $dp->dsr->start;
+			array_unshift( $parts, mb_substr( $env->topFrame->getSrcText(), $dp->dsr->start, $width ) );
 		}
 
 		// Add wikitext for the table cell content following the
@@ -150,9 +150,9 @@ class TableFixups {
 		// handling a single transclusion in the content, which is
 		// guaranteed to have a dsr that covers the transclusion
 		// itself.
-		if ( $childDP->dsr[1] < $dp->dsr[1] ) {
-			$width = $dp->dsr[1] - $childDP->dsr[1];
-			$parts[] = mb_substr( $env->topFrame->getSrcText(), $childDP->dsr[1], $width );
+		if ( $childDP->dsr->end < $dp->dsr->end ) {
+			$width = $dp->dsr->end - $childDP->dsr->end;
+			$parts[] = mb_substr( $env->topFrame->getSrcText(), $childDP->dsr->end, $width );
 		}
 
 		// Save the new data-mw on the tdNode

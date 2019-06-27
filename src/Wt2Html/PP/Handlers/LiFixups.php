@@ -8,6 +8,7 @@ use DOMElement;
 use DOMNode;
 use DOMText;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\WTUtils;
@@ -70,13 +71,13 @@ class LiFixups {
 			$nodeDSR = $dp->dsr ?? null;
 			$prevNodeDSR = DOMDataUtils::getDataParsoid( $prevNode )->dsr ?? null;
 
-			if ( $nodeDSR && $prevNodeDSR ) {
-				$dp->dsr = [
-					$prevNodeDSR[0],
-					$nodeDSR[1],
-					$nodeDSR[2] + $prevNodeDSR[1] - $prevNodeDSR[0],
-					$nodeDSR[3]
-				];
+			if ( $nodeDSR !== null && $prevNodeDSR !== null ) {
+				$dp->dsr = new DomSourceRange(
+					$prevNodeDSR->start,
+					$nodeDSR->end,
+					$nodeDSR->openWidth + $prevNodeDSR->length(),
+					$nodeDSR->closeWidth
+				);
 			}
 
 			// Delete the duplicated <li> node.
@@ -212,7 +213,7 @@ class LiFixups {
 			while ( true ) {
 				if ( $c instanceof DOMElement ) {
 					$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
-					$newEndDsr = $dsr ? $dsr[0] : -1;
+					$newEndDsr = $dsr->start ?? -1;
 					$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 				} elseif ( $c instanceof DOMText ) {
 					if ( preg_match( '/^\s*$/', $c->nodeValue ) ) {
@@ -243,7 +244,7 @@ class LiFixups {
 			// we hit the outermost list we started with.
 			$delta = null;
 			if ( $liDsr && $newEndDsr >= 0 ) {
-				$delta = $liDsr[1] - $newEndDsr;
+				$delta = $liDsr->end - $newEndDsr;
 			}
 
 			// If there is no delta to adjust dsr by, we are done
@@ -259,12 +260,12 @@ class LiFixups {
 
 				$liDp = DOMDataUtils::getDataParsoid( $li );
 				if ( !empty( $liDp->dsr ) ) {
-					$liDp->dsr[1] -= $delta;
+					$liDp->dsr->end -= $delta;
 				}
 
 				$listDp = DOMDataUtils::getDataParsoid( $list );
 				if ( !empty( $listDp->dsr ) ) {
-					$listDp->dsr[1] -= $delta;
+					$listDp->dsr->end -= $delta;
 				}
 				$li = $list->parentNode;
 			}

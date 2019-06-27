@@ -500,8 +500,8 @@ class SerializerState {
 			if ( DOMUtils::isElt( $this->prevNode ) && DOMUtils::isElt( $node ) ) {
 				'@phan-var DOMElement $node';/** @var DOMElement $node */
 				$origSep = $this->getOrigSrc(
-					DOMDataUtils::getDataParsoid( $this->prevNode )->dsr[1],
-					DOMDataUtils::getDataParsoid( $node )->dsr[0]
+					DOMDataUtils::getDataParsoid( $this->prevNode )->dsr->end,
+					DOMDataUtils::getDataParsoid( $node )->dsr->start
 				);
 			} else {
 				$origSep = $this->sep->src;

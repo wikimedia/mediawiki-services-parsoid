@@ -192,8 +192,8 @@ class MigrateTrailingNLs {
 				// A marker meta-tag for an end-tag carries TSR information for the tag.
 				// It is important not to separate them by inserting content since that
 				// will affect accuracy of DSR computation for the end-tag as follows:
-				// end_tag.dsr[1] = marker_meta.tsr->start - inserted_content.length
-				// But, that is incorrect since end_tag.dsr[1] should be marker_meta.tsr->start
+				// end_tag.dsr->end = marker_meta.tsr->start - inserted_content.length
+				// But, that is incorrect since end_tag.dsr->end should be marker_meta.tsr->start
 				//
 				// So, if the insertPosition is in between an end-tag and
 				// its marker meta-tag, move past that marker meta-tag.

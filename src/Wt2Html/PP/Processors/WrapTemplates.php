@@ -9,6 +9,7 @@ use DOMNode;
 use DOMText;
 use Error;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
@@ -114,21 +115,21 @@ class WrapTemplates {
 		// template handler, all computed dsr values for template content
 		// is always inferred from top-level content values and is safe.
 		// So, do not overwrite a bigger end-dsr value.
-		if ( isset( $srcDP->dsr[1] ) && isset( $tgtDP->dsr[1] ) &&
-			$tgtDP->dsr[1] > $srcDP->dsr[1]
+		if ( isset( $srcDP->dsr->end ) && isset( $tgtDP->dsr->end ) &&
+			$tgtDP->dsr->end > $srcDP->dsr->end
 		) {
-			$tgtDP->dsr[0] = $srcDP->dsr[0] ?? null;
+			$tgtDP->dsr->start = $srcDP->dsr->start ?? null;
 		} else {
-			$tgtDP->dsr = Util::clone( $srcDP->dsr ?? [] );
+			$tgtDP->dsr = clone $srcDP->dsr;
 			$tgtDP->src = $srcDP->src ?? null;
 		}
 	}
 
 	/**
 	 * @param stdClass $range
-	 * @return array|null
+	 * @return DomSourceRange|null
 	 */
-	private static function getRangeEndDSR( stdClass $range ): ?array {
+	private static function getRangeEndDSR( stdClass $range ): ?DomSourceRange {
 		$endNode = $range->end;
 		if ( $endNode instanceof DOMElement ) {
 			return DOMDataUtils::getDataParsoid( $endNode )->dsr ?? null;
@@ -155,11 +156,11 @@ class WrapTemplates {
 				$dsr = DOMDataUtils::getDataParsoid( $n )->dsr ?? null;
 			}
 
-			if ( $dsr && is_int( $dsr[1] ?? null ) ) {
+			if ( $dsr && is_int( $dsr->end ?? null ) ) {
 				$len = $endNode instanceof DOMText
 					? mb_strlen( $endNode->nodeValue )
 					: WTUtils::decodedCommentLength( $endNode );
-				$dsr = [ $dsr[1] + $offset, $dsr[1] + $offset + $len ];
+				$dsr = new DomSourceRange( $dsr->end + $offset, $dsr->end + $offset + $len, null, null );
 			}
 
 			return $dsr;
@@ -398,10 +399,10 @@ class WrapTemplates {
 
 		if ( count( $tplArray ) > 0 ) {
 			$prevTplInfo = end( $tplArray );
-			if ( $prevTplInfo->dsr[1] < $dsr[0] ) {
-				$width = $dsr[0] - $prevTplInfo->dsr[1];
+			if ( $prevTplInfo->dsr->end < $dsr->start ) {
+				$width = $dsr->start - $prevTplInfo->dsr->end;
 				$tplArray[] = (object)[
-					'wt' => mb_substr( $env->topFrame->getSrcText(), $prevTplInfo->dsr[1], $width ),
+					'wt' => mb_substr( $env->topFrame->getSrcText(), $prevTplInfo->dsr->end, $width ),
 				];
 			}
 		}
@@ -885,17 +886,17 @@ class WrapTemplates {
 			 * We'll attempt to update dp1.dsr to reflect the entire range of
 			 * the template.  This relies on a couple observations:
 			 *
-			 * 1. In the common case, dp2.dsr[1] will be > dp1.dsr[1]
-			 *    If so, new range = dp1.dsr[0], dp2.dsr[1]
+			 * 1. In the common case, dp2.dsr->end will be > dp1.dsr->end
+			 *    If so, new range = dp1.dsr->start, dp2.dsr->end
 			 *
 			 * 2. But, foster parenting can complicate this when range.end is a table
 			 *    and range.start has been fostered out of the table (range.end).
 			 *    But, we need to verify this assumption.
 			 *
-			 *    2a. If dp2.dsr[0] is smaller than dp1.dsr[0], this is a
+			 *    2a. If dp2.dsr->start is smaller than dp1.dsr->start, this is a
 			 *        confirmed case of range.start being fostered out of range.end.
 			 *
-			 *    2b. If dp2.dsr[0] is unknown, we rely on fostered flag on
+			 *    2b. If dp2.dsr->start is unknown, we rely on fostered flag on
 			 *        range.start, if any.
 			 * ---------------------------------------------------------------- */
 			$dp1 = Util::clone( DOMDataUtils::getDataParsoid( $range->start ) );
@@ -904,22 +905,22 @@ class WrapTemplates {
 			if ( $dp1->dsr ) {
 				if ( $dp2DSR ) {
 					// Case 1. above
-					if ( $dp2DSR[1] > $dp1->dsr[1] ) {
-						$dp1->dsr[1] = $dp2DSR[1];
+					if ( $dp2DSR->end > $dp1->dsr->end ) {
+						$dp1->dsr->end = $dp2DSR->end;
 					}
 
 					// Case 2. above
-					$endDsr = $dp2DSR[0];
+					$endDsr = $dp2DSR->start;
 					if ( $range->end->nodeName === 'table' &&
 						$endDsr !== null &&
-						( $endDsr < $dp1->dsr[0] || !empty( $dp1->fostered ) )
+						( $endDsr < $dp1->dsr->start || !empty( $dp1->fostered ) )
 					) {
-						$dp1->dsr[0] = $endDsr;
+						$dp1->dsr->start = $endDsr;
 					}
 				}
 
 				// encapsulation possible only if dp1.dsr is valid
-				$encapInfo->valid = $dp1->dsr[0] !== null && $dp1->dsr[1] !== null;
+				$encapInfo->valid = $dp1->dsr->start !== null && $dp1->dsr->end !== null;
 			}
 
 			$tplArray = $encapInfo->tplArray;
@@ -929,7 +930,7 @@ class WrapTemplates {
 				$firstTplInfo = !empty( $tplArray[0]->wt ) ? $tplArray[1] : $tplArray[0];
 
 				// Add any leading wikitext
-				if ( $firstTplInfo->dsr[0] > $dp1->dsr[0] ) {
+				if ( $firstTplInfo->dsr->start > $dp1->dsr->start ) {
 					// This gap in dsr (between the final encapsulated content, and the
 					// content that actually came from a template) is indicative of this
 					// being a mixed-template-content-block and/or multi-template-content-block
@@ -942,19 +943,19 @@ class WrapTemplates {
 					// FIXME spec-compliant values would be upper-case, this is just a workaround
 					// for current PHP DOM implementation and could be removed in the future
 					$encapInfo->dp->firstWikitextNode = strtoupper( self::findFirstTemplatedNode( $range ) );
-					$width = $firstTplInfo->dsr[0] - $dp1->dsr[0];
+					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => mb_substr( $env->topFrame->getSrcText(), $dp1->dsr[0], $width ) ]
+						(object)[ 'wt' => mb_substr( $env->topFrame->getSrcText(), $dp1->dsr->start, $width ) ]
 					);
 				}
 
 				// Add any trailing wikitext
 				$lastTplInfo = end( $tplArray );
-				if ( $lastTplInfo->dsr[1] < $dp1->dsr[1] ) {
-					$width = $dp1->dsr[1] - $lastTplInfo->dsr[1];
+				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
+					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[
-						'wt' => mb_substr( $env->topFrame->getSrcText(), $lastTplInfo->dsr[1], $width ),
+						'wt' => mb_substr( $env->topFrame->getSrcText(), $lastTplInfo->dsr->end, $width ),
 					];
 				}
 
@@ -990,7 +991,7 @@ class WrapTemplates {
 					$tplArray
 				);
 
-				// Set up dsr[0], dsr[1], and data-mw on the target node
+				// Set up dsr->start, dsr->end, and data-mw on the target node
 				$encapInfo->datamw = (object)[ 'parts' => $tplArray ];
 				if ( WTUtils::isGeneratedFigure( $encapTgt ) ) {
 					// Preserve attributes for media since those will be used
@@ -1042,7 +1043,7 @@ class WrapTemplates {
 					!$encapInfo->datamw->parts ||
 					count( $encapInfo->datamw->parts ) === 1
 				) {
-					$dp1->dsr[1] = $dp1->dsr[0];
+					$dp1->dsr->end = $dp1->dsr->start;
 				}
 			}
 
@@ -1057,11 +1058,15 @@ class WrapTemplates {
 				if ( empty( $encapInfo->dp->dsr ) ) {
 					$encapInfo->dp->dsr = $dp1->dsr;
 				} else {
-					$encapInfo->dp->dsr[0] = $dp1->dsr[0];
-					$encapInfo->dp->dsr[1] = $dp1->dsr[1];
+					$encapInfo->dp->dsr->start = $dp1->dsr->start;
+					$encapInfo->dp->dsr->end = $dp1->dsr->end;
 				}
-				$width = $encapInfo->dp->dsr[1] - $encapInfo->dp->dsr[0];
-				$encapInfo->dp->src = mb_substr( $env->topFrame->getSrcText(), $encapInfo->dp->dsr[0], $width );
+				$width = $encapInfo->dp->dsr->end - $encapInfo->dp->dsr->start;
+				$encapInfo->dp->src = mb_substr(
+					$env->topFrame->getSrcText(),
+					$encapInfo->dp->dsr->start,
+					$width
+				);
 			}
 
 			// Remove startElem (=range.startElem) if a meta.  If a meta,
@@ -1193,9 +1198,9 @@ class WrapTemplates {
 
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
 								if ( isset( $dp->tsr->start ) && $dp->tsr->start !== null &&
-									isset( $tblDP->dsr[0] ) && $tblDP->dsr[0] === null
+									isset( $tblDP->dsr->start ) && $tblDP->dsr->start === null
 								) {
-									$tblDP->dsr[0] = $dp->tsr->start;
+									$tblDP->dsr->start = $dp->tsr->start;
 								}
 								$tbl->setAttribute( 'about', $about ); // set about on elem
 								$ee = $tbl;

@@ -9,6 +9,7 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Config\WikitextConstants as Consts;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
@@ -196,13 +197,13 @@ class Linter {
 	 *
 	 * @param array|null $tplLintInfo
 	 * @param stdClass|null $tplInfo
-	 * @param array|null $nodeDSR
+	 * @param DomSourceRange|null $nodeDSR
 	 * @param callable|null $updateNodeDSR
-	 * @return array|null
+	 * @return DomSourceRange|null
 	 */
 	private function findLintDSR(
-		?array $tplLintInfo, ?stdClass $tplInfo, ?array $nodeDSR, callable $updateNodeDSR = null
-	): ?array {
+		?array $tplLintInfo, ?stdClass $tplInfo, ?DomSourceRange $nodeDSR, callable $updateNodeDSR = null
+	): ?DomSourceRange {
 		if ( $tplLintInfo !== null || ( $tplInfo && !Util::isValidDSR( $nodeDSR ) ) ) {
 			return DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr ?? null;
 		} else {
@@ -420,7 +421,10 @@ class Linter {
 				return;
 			}
 
-			if ( ( $dp->autoInsertedEnd ?? null ) === true && ( $tplInfo || ( $dsr[2] ?? 0 ) > 0 ) ) {
+			if (
+				( $dp->autoInsertedEnd ?? null ) === true &&
+				( $tplInfo || ( $dsr->openWidth ?? 0 ) > 0 )
+			) {
 				$lintObj = [
 					'dsr' => $dsr,
 					'templateInfo' => $templateInfo,
@@ -712,14 +716,14 @@ class Linter {
 					$templateInfo,
 					$tplInfo,
 					$dp->dsr ?? null,
-					function ( ?array $nodeDSR ): ?array {
+					function ( ?DomSourceRange $nodeDSR ): ?DomSourceRange {
 						// Identify the dsr-span of the opening tag
 						// of the table that needs to be deleted
-						$x = $nodeDSR === null ? null : Util::clone( $nodeDSR );
-						if ( !empty( $x[2] ) ) {
-							$x[1] = $x[0] + $x[2];
-							$x[2] = 0;
-							$x[3] = 0;
+						$x = $nodeDSR === null ? null : ( clone $nodeDSR );
+						if ( !empty( $x->openWidth ) ) {
+							$x->end = $x->innerStart();
+							$x->openWidth = 0;
+							$x->closeWidth = 0;
 						}
 						return $x;
 					}
