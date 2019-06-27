@@ -471,14 +471,15 @@ class DOMDataUtils {
 			$dp->a = (array)$dp->a;
 		}
 		if ( isset( $dp->tsr ) ) {
-			$dp->tsr = new SourceRange( $dp->tsr[0], $dp->tsr[1] );
+			// tsr is generally for tokens, not DOM trees.
+			$dp->tsr = SourceRange::fromArray( $dp->tsr );
 		}
 		if ( isset( $dp->extTagOffsets ) ) {
 			$dp->extTagOffsets = KVSourceRange::fromArray( $dp->extTagOffsets );
 		}
 		if ( isset( $dp->extLinkContentOffsets ) ) {
 			$dp->extLinkContentOffsets =
-				new SourceRange( $dp->extLinkContentOffsets[0], $dp->extLinkContentOffsets[1] );
+				SourceRange::fromArray( $dp->extLinkContentOffsets );
 		}
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );

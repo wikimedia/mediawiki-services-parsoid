@@ -307,14 +307,14 @@ abstract class Token implements \JsonSerializable {
 					$da->tmp = (object)$da->tmp;
 				}
 				if ( isset( $da->tsr ) ) {
-					$da->tsr = new SourceRange( $da->tsr[0], $da->tsr[1] );
+					$da->tsr = SourceRange::fromArray( $da->tsr );
 				}
 				if ( isset( $da->extTagOffsets ) ) {
 					$da->extTagOffsets = KVSourceRange::fromArray( $da->extTagOffsets );
 				}
 				if ( isset( $da->extLinkContentOffsets ) ) {
 					$da->extLinkContentOffsets =
-						new SourceRange( $da->extLinkContentOffsets[0], $da->extLinkContentOffsets[1] );
+						SourceRange::fromArray( $da->extLinkContentOffsets );
 				}
 			}
 			switch ( $jsTk['type'] ) {

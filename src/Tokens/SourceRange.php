@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Wikimedia\Assert\Assert;
+
 /**
  * Represents a source offset range.
  */
@@ -99,6 +101,20 @@ class SourceRange implements \JsonSerializable {
 	 */
 	public function length(): int {
 		return $this->end - $this->start;
+	}
+
+	/**
+	 * Create a new source offset range from an array of
+	 * integers (such as created during JSON serialization).
+	 * @param int[] $sr
+	 * @return SourceRange
+	 */
+	public static function fromArray( array $sr ): SourceRange {
+		Assert::invariant(
+			count( $sr ) === 2,
+			'Wrong # of elements in SourceRange array'
+		);
+		return new SourceRange( $sr[0], $sr[1] );
 	}
 
 	/**
