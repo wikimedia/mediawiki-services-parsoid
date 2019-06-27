@@ -139,7 +139,7 @@ class PHPPipelineStage {
 			[this.stageName, fileName],
 			this.mkOpts({
 				sol: sol,
-				offsets: this.sourceOffsets,
+				sourceOffsets: this.sourceOffsets,
 			})
 		);
 		this.emitTokens(out);

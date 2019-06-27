@@ -61,10 +61,10 @@ function serializeTokens( $env, $tokens ) {
 function parse( Env $env, string $input, array $opts ): array {
 	// fwrite(STDERR, "IN: " . $input. "\n");
 	// fwrite(STDERR, "SRC: " . $env->topFrame->getSrcText()."\n");
-	// fwrite(STDERR, "OFFSET: " . ($opts['offsets'][0] ?? 0)."\n");
+	// fwrite(STDERR, "OFFSET: " . ($opts['sourceOffsets'][0] ?? 0)."\n");
 	$tokens = [];
 	$so = new SourceRange(
-		$opts['offsets'][0] ?? null, $opts['offsets'][1] ?? null
+		$opts['sourceOffsets'][0] ?? null, $opts['sourceOffsets'][1] ?? null
 	);
 	$tokenizer = new PegTokenizer( $env );
 	$tokenizer->setSourceOffsets( $so );
