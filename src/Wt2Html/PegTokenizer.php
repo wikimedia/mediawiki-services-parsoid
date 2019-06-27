@@ -20,7 +20,7 @@ use Generator;
 
 use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
 use WikiPEG\SyntaxError;
 
@@ -72,9 +72,9 @@ class PegTokenizer extends PipelineStage {
 	/**
 	 * Set start and end offsets of the source that generated this DOM.
 	 *
-	 * @param SourceOffset $so
+	 * @param SourceRange $so
 	 */
-	public function setSourceOffsets( SourceOffset $so ): void {
+	public function setSourceOffsets( SourceRange $so ): void {
 		$this->offsets['startOffset'] = $so->start;
 		$this->offsets['endOffset'] = $so->end;
 	}

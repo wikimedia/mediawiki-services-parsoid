@@ -10,10 +10,10 @@ namespace Parsoid\Wt2Html;
 	use Parsoid\Tokens\EndTagTk;
 	use Parsoid\Tokens\EOFTk;
 	use Parsoid\Tokens\KV;
-	use Parsoid\Tokens\KVSourceOffset;
+	use Parsoid\Tokens\KVSourceRange;
 	use Parsoid\Tokens\NlTk;
 	use Parsoid\Tokens\SelfclosingTagTk;
-	use Parsoid\Tokens\SourceOffset;
+	use Parsoid\Tokens\SourceRange;
 	use Parsoid\Tokens\TagTk;
 	use Parsoid\Tokens\Token;
 	use Parsoid\Config\Env;
@@ -70,14 +70,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		return $this->currPos;
   	}
   
-  	private function tsrOffsets( $flag = 'default' ): SourceOffset {
+  	private function tsrOffsets( $flag = 'default' ): SourceRange {
   		switch ( $flag ) {
               case 'start':
-                  return new SourceOffset( $this->savedPos, $this->savedPos );
+                  return new SourceRange( $this->savedPos, $this->savedPos );
               case 'end':
-                  return new SourceOffset( $this->currPos, $this->currPos );
+                  return new SourceRange( $this->currPos, $this->currPos );
               default:
-                  return new SourceOffset( $this->savedPos, $this->currPos );
+                  return new SourceRange( $this->savedPos, $this->currPos );
           }
   	}
   
@@ -237,7 +237,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   				// Extension content source
   				$dp->src = $extSrc;
-  				$dp->extTagOffsets = $dp->tsr->join( new SourceOffset( $extEndOffset - $extEndTagWidth, $extEndOffset ) );
+  				$dp->extTagOffsets = $dp->tsr->join( new SourceRange( $extEndOffset - $extEndTagWidth, $extEndOffset ) );
   
   				$skipPos = $dp->extTagOffsets->value->start;
   
@@ -273,7 +273,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				-$dp->extTagOffsets->value->length()
   			);
   			$tokenizer = new PegTokenizer( $this->env );
-  			$tokenizer->setSourceOffsets( new SourceOffset( $dp->extTagOffsets->key->end, $dp->extTagOffsets->value->start ) );
+  			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->key->end, $dp->extTagOffsets->value->start ) );
   			$extContentToks = $tokenizer->tokenizeSync( $extContent );
   			if ( $dp->extTagOffsets->value->length() > 0 ) {
   				TokenUtils::stripEOFTkFromTokens( $extContentToks );
@@ -428,7 +428,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$tsEndPos = $coms['commentStartPos'];
   		}
   
-  		$da = (object)[ 'tsr' => new SourceOffset( $startPos, $tsEndPos ) ];
+  		$da = (object)[ 'tsr' => new SourceRange( $startPos, $tsEndPos ) ];
   		if ( $p !== '|' ) {
   			// Variation from default
   			$da->startTagSrc = $b . $p;
@@ -498,8 +498,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a20($p0, $addr, $target, $p1, $sp, $p2, $content, $p3) {
   
-  			$tsr1 = new SourceOffset( $p0, $p1 );
-  			$tsr2 = new SourceOffset( $p2, $p3 );
+  			$tsr1 = new SourceRange( $p0, $p1 );
+  			$tsr2 = new SourceRange( $p2, $p3 );
   			return [
   				new SelfclosingTagTk( 'extlink', [
   						new KV( 'href', TokenizerUtils::flattenString( [ $addr, $target ] ), $tsr1->expandTsrV() ),
@@ -618,7 +618,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	if ( gettype( $name ) === 'string' ) {
   		$name = TokenizerUtils::protectAttrs( $name );
   	}
-  	$nameSO = new SourceOffset( $namePos0, $namePos );
+  	$nameSO = new SourceRange( $namePos0, $namePos );
   	if ( $vd !== null ) {
   		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
   		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
@@ -657,7 +657,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	if ( is_string( $name ) ) {
   		$name = TokenizerUtils::protectAttrs( $name );
   	}
-  	$nameSO = new SourceOffset( $namePos0, $namePos );
+  	$nameSO = new SourceRange( $namePos0, $namePos );
   	if ( $vd !== null ) {
   		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
   		$res->vsrc = $vd['srcOffsets']->rawSubstr( $this->input );
@@ -975,7 +975,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				$c,
   				[
   					new EndTagTk( 'h' . $level, [], (object)[
-  						'tsr' => new SourceOffset( $endTPos - $level, $endTPos ),
+  						'tsr' => new SourceRange( $endTPos - $level, $endTPos ),
   					] ),
   					$spc
   				]
@@ -1051,7 +1051,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$sp,
   			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], (object)[
   					'tokens' => TokenizerUtils::flattenIfArray( $c ),
-  					'tsr' => new SourceOffset( $p, $this->endOffset() ),
+  					'tsr' => new SourceRange( $p, $this->endOffset() ),
   				]
   			)
   		];
@@ -1079,7 +1079,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a97($p, $target, $p0, $v, $p1) {
   
   				// empty argument
-  				return [ 'tokens' => $v, 'srcOffsets' => new SourceOffset( $p0, $p1 ) ];
+  				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1 ) ];
   			
   }
   private function a98($p, $target, $r) {
@@ -1090,7 +1090,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		$kvs = [];
   
   		if ( $target === null ) {
-  			$target = [ 'tokens' => '', 'srcOffsets' => new SourceOffset( $p, $p ) ];
+  			$target = [ 'tokens' => '', 'srcOffsets' => new SourceRange( $p, $p ) ];
   		}
   		// Insert target as first positional attribute, so that it can be
   		// generically expanded. The TemplateHandler then needs to shift it out
@@ -1115,7 +1115,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a102($leadWS, $target, $p0, $v, $p) {
   
   				// empty argument
-  				$tsr0 = new SourceOffset( $p0, $p );
+  				$tsr0 = new SourceRange( $p0, $p );
   				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
   			
   }
@@ -1159,7 +1159,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			return $textTokens;
   		}
   		$obj = new SelfclosingTagTk( 'wikilink' );
-  		$tsr = new SourceOffset( $spos, $tpos );
+  		$tsr = new SourceRange( $spos, $tpos );
   		$hrefKV = new KV( 'href', $target, $tsr->expandTsrV() );
   		$hrefKV->vsrc = $tsr->rawSubstr( $this->input );
   		// XXX: Point to object with path, revision and input information
@@ -1290,7 +1290,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// TSR: -1 for the intermediate ":"
   		$li2Bullets = $bullets;
   		$li2Bullets[] = ':';
-  		$tsr2 = new SourceOffset( $cpos - 1, $cpos );
+  		$tsr2 = new SourceRange( $cpos - 1, $cpos );
   		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ],
   			(object)[ 'tsr' => $tsr2, 'stx' => 'row' ] );
   
@@ -1327,7 +1327,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a125($sc, $startPos, $p, $b) {
   
   		$tblEnd = new EndTagTk( 'table', [], (object)[
-  			'tsr' => new SourceOffset( $startPos, $this->endOffset() ),
+  			'tsr' => new SourceRange( $startPos, $this->endOffset() ),
   		] );
   		if ( $p !== '|' ) {
   			// p+"<brace-char>" is triggering some bug in pegJS
@@ -1362,7 +1362,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   		if ( $val !== null ) {
   			if ( $val['value'] !== null ) {
-  				$so = new KVSourceOffset(
+  				$so = new KVSourceRange(
   					$this->startOffset(), $val['kEndPos'],
   					$val['vStartPos'], $this->endOffset()
   				);
@@ -1379,7 +1379,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				);
   			}
   		} else {
-  			$so = new SourceOffset( $this->startOffset(), $this->endOffset() );
+  			$so = new SourceRange( $this->startOffset(), $this->endOffset() );
   			return new KV(
   				'',
   				TokenizerUtils::flattenIfArray( $name ),
@@ -1390,7 +1390,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a131() {
   
-  		$so = new SourceOffset( $this->startOffset(), $this->endOffset() );
+  		$so = new SourceRange( $this->startOffset(), $this->endOffset() );
   		return new KV( '', '', $so->expandTsrV() );
   	
   }
@@ -1404,7 +1404,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a134($startPos, $lt) {
   
-  			$tsr = new SourceOffset( $startPos, $this->endOffset() );
+  			$tsr = new SourceRange( $startPos, $this->endOffset() );
   			$maybeContent = new KV( 'mw:maybeContent', $lt, $tsr->expandTsrV() );
   			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
   			return $maybeContent;
@@ -1488,7 +1488,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				'language-variant',
   				$attribs,
   				(object)[
-  					'tsr' => new SourceOffset( $lv0, $lv1 ),
+  					'tsr' => new SourceRange( $lv0, $lv1 ),
   					'src' => $lvsrc,
   					'flags' => $flags,
   					'variants' => $variants,
@@ -1523,7 +1523,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		}
   
   		$da = (object)[
-  			'tsr' => new SourceOffset( $this->startOffset(), $tagEndPos ),
+  			'tsr' => new SourceRange( $this->startOffset(), $tagEndPos ),
   			'startTagSrc' => $p . $dashes
   		];
   
@@ -1558,7 +1558,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a155($p, $args, $tagEndPos, $c) {
   
-  		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
+  		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
   		return TokenizerUtils::buildTableTokens(
   			'caption', '|+', $args, $tsr, $this->endOffset(), $c, true );
   	
@@ -1710,7 +1710,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a168($arg, $tagEndPos, $td) {
   
-  		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
+  		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
   		return TokenizerUtils::buildTableTokens( 'td', '|', $arg,
   			$tsr, $this->endOffset(), $td );
   	
@@ -1785,7 +1785,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a176($arg, $tagEndPos, $c) {
   
-  		$tsr = new SourceOffset( $this->startOffset(), $tagEndPos );
+  		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
   		return TokenizerUtils::buildTableTokens( 'th', '!', $arg,
   			$tsr, $this->endOffset(), $c );
   	

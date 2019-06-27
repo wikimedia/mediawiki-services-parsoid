@@ -17,7 +17,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Wikimedia\Assert\Assert;
@@ -39,7 +39,7 @@ class PipelineUtils {
 	 * processing into the top-level pipeline.
 	 *
 	 * @param Token[] $content The array of tokens to process.
-	 * @param SourceOffset $srcOffsets Wikitext source offsets (start/end) of these tokens.
+	 * @param SourceRange $srcOffsets Wikitext source offsets (start/end) of these tokens.
 	 * @param array $opts Parsing options.
 	 *    - Token token The token that generated the content.
 	 *    - bool  inlineContext Is this DOM fragment used in an inline context?
@@ -49,7 +49,7 @@ class PipelineUtils {
 	 * @return SelfclosingTagTk
 	 */
 	public static function getDOMFragmentToken(
-		array $content, SourceOffset $srcOffsets, array $opts = []
+		array $content, SourceRange $srcOffsets, array $opts = []
 	): SelfclosingTagTk {
 		$token = $opts['token'];
 		return new SelfclosingTagTk( 'mw:dom-fragment-token', [
@@ -79,7 +79,7 @@ class PipelineUtils {
 	 *    - array  tplArgs
 	 *    - string tplArgs.name
 	 *    - array  tplArgs.attribs
-	 *    - SourceOffset  srcOffsets
+	 *    - SourceRange  srcOffsets
 	 *    - bool   sol
 	 * @return Token[]|DOMDocument (depending on pipeline type)
 	 */
@@ -413,7 +413,7 @@ class PipelineUtils {
 	 *    - string html HTML of the expansion.
 	 *    - DOMNode[] nodes Outermost nodes of the HTML.
 	 * @param array $opts
-	 *    - SourceOffset tsr
+	 *    - SourceRange tsr
 	 *            The TSR to set on the generated tokens. This TSR is
 	 *            used to compute DSR on the placeholder tokens.
 	 *            The computed DSR is transferred over to the unpacked DOM

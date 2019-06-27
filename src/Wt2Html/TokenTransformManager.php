@@ -5,7 +5,7 @@ namespace Parsoid\Wt2Html;
 use Generator;
 
 use Parsoid\Config\Env;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Wt2Html\TT\TokenHandler;
 use Parsoid\Utils\PHPUtils;
 
@@ -141,7 +141,7 @@ class TokenTransformManager extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function setSourceOffsets( SourceOffset $so ): void {
+	public function setSourceOffsets( SourceRange $so ): void {
 		foreach ( $this->transformers as $transformer ) {
 			$transformer->setSourceOffsets( $so );
 		}

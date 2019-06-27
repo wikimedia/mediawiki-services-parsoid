@@ -6,7 +6,7 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\SelfclosingTagTk;
@@ -167,13 +167,13 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param TokenTransformManager $manager
 	 * @param string $tokenName
 	 * @param bool $isEnd
-	 * @param SourceOffset $tsr
+	 * @param SourceRange $tsr
 	 * @param string $src
 	 * @return SelfclosingTagTk
 	 */
 	public static function buildMetaToken(
 		TokenTransformManager $manager, string $tokenName, bool $isEnd,
-		SourceOffset $tsr, string $src
+		SourceRange $tsr, string $src
 	) : SelfclosingTagTk {
 		if ( $isEnd ) {
 			$tokenName .= '/End';
@@ -214,7 +214,7 @@ abstract class TokenCollector extends TokenHandler {
 			$t1 = mb_strlen( $manager->getFrame()->getSrcText() );
 		}
 
-		return self::buildMetaToken( $manager, $tokenName, false, new SourceOffset( $t0, $t1 ), '' );
+		return self::buildMetaToken( $manager, $tokenName, false, new SourceRange( $t0, $t1 ), '' );
 	}
 
 	/**

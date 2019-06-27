@@ -5,7 +5,7 @@ namespace Parsoid\Wt2Html;
 
 use DOMDocument;
 use Parsoid\Config\Env;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
@@ -95,9 +95,9 @@ class ParserPipeline {
 	 * Because of this, the source offsets are not [0, page.length) always
 	 * and needs to be explicitly initialized
 	 *
-	 * @param SourceOffset $so
+	 * @param SourceRange $so
 	 */
-	public function setSourceOffsets( SourceOffset $so ): void {
+	public function setSourceOffsets( SourceRange $so ): void {
 		$this->applyToStage( 'setSourceOffsets', $so );
 	}
 

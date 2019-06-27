@@ -7,7 +7,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2html\TokenTransformManager;
@@ -316,7 +316,7 @@ class QuoteTransformer extends TokenHandler {
 		$oldbold = $this->chunks[$i][0];
 		$tsr = $oldbold->dataAttribs->tsr ?? null;
 		if ( $tsr ) {
-			$tsr = new SourceOffset( $tsr->start + 1, $tsr->end );
+			$tsr = new SourceRange( $tsr->start + 1, $tsr->end );
 		}
 		$newbold = new SelfclosingTagTk( 'mw-quote', [], (object)[ "tsr" => $tsr ] );
 		$newbold->setAttribute( "value", "''" ); // italic!
@@ -447,10 +447,10 @@ class QuoteTransformer extends TokenHandler {
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
 					$tags[$i]->dataAttribs->autoInsertedStart = true;
 				} elseif ( $tags[$i]->getName() === 'b' ) {
-					$tags[$i]->dataAttribs->tsr = new SourceOffset( $startpos, $startpos + 3 );
+					$tags[$i]->dataAttribs->tsr = new SourceRange( $startpos, $startpos + 3 );
 					$startpos = $tags[$i]->dataAttribs->tsr->end;
 				} elseif ( $tags[$i]->getName() === 'i' ) {
-					$tags[$i]->dataAttribs->tsr = new SourceOffset( $startpos, $startpos + 2 );
+					$tags[$i]->dataAttribs->tsr = new SourceRange( $startpos, $startpos + 2 );
 					$startpos = $tags[$i]->dataAttribs->tsr->end;
 				}
 			}

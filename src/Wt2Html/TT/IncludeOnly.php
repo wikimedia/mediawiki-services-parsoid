@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
@@ -63,7 +63,7 @@ class IncludeOnly extends TokenCollector {
 				$this->manager,
 				'mw:Includes/IncludeOnly',
 				false,
-				( $start->dataAttribs ?? (object)[ 'tsr' => new SourceOffset( null, null ) ] )->tsr,
+				( $start->dataAttribs ?? (object)[ 'tsr' => new SourceRange( null, null ) ] )->tsr,
 				null
 			);
 			if ( $start->dataAttribs->src ) {
@@ -104,9 +104,9 @@ class IncludeOnly extends TokenCollector {
 				// stripped token (above) got the entire tsr value, we are artificially
 				// setting the tsr on this node to zero-width to ensure that
 				// DSR computation comes out correct.
-				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => new SourceOffset( null, null ) ] )->tsr;
+				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => new SourceRange( null, null ) ] )->tsr;
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, $name,
-					true, new SourceOffset( $tsr->end, $tsr->end ), null );
+					true, new SourceRange( $tsr->end, $tsr->end ), null );
 			}
 		}
 

@@ -6,7 +6,7 @@ namespace Parsoid\Tokens;
 /**
  * Represents a source offset range.
  */
-class SourceOffset implements \JsonSerializable {
+class SourceRange implements \JsonSerializable {
 
 	/**
 	 * Offset of the first character (range start is inclusive).
@@ -31,35 +31,35 @@ class SourceOffset implements \JsonSerializable {
 	}
 
 	/**
-	 * Return a KVSourceOffset where this SourceOffset is the key,
+	 * Return a KVSourceRange where this SourceRange is the key,
 	 * and the value has zero length.
-	 * @return KVSourceOffset
+	 * @return KVSourceRange
 	 */
-	public function expandTsrK(): KVSourceOffset {
-		return new KVSourceOffset(
+	public function expandTsrK(): KVSourceRange {
+		return new KVSourceRange(
 			$this->start, $this->end, $this->end, $this->end
 		);
 	}
 
 	/**
-	 * Return a KVSourceOffset where this SourceOffset is the value,
+	 * Return a KVSourceRange where this SourceRange is the value,
 	 * and the key has zero length.
-	 * @return KVSourceOffset
+	 * @return KVSourceRange
 	 */
-	public function expandTsrV(): KVSourceOffset {
-		return new KVSourceOffset(
+	public function expandTsrV(): KVSourceRange {
+		return new KVSourceRange(
 			$this->start, $this->start, $this->start, $this->end
 		);
 	}
 
 	/**
-	 * Return a KVSourceOffsets by using this SourceOffset for the key
-	 * and the given parameter for the value.
-	 * @param SourceOffset $value
-	 * @return KVSourceOffset
+	 * Return a KVSourceRange by using this SourceRange for the key
+	 * and the given SourceRange parameter for the value.
+	 * @param SourceRange $value
+	 * @return KVSourceRange
 	 */
-	public function join( SourceOffset $value ): KVSourceOffset {
-		return new KVSourceOffset(
+	public function join( SourceRange $value ): KVSourceRange {
+		return new KVSourceRange(
 			$this->start, $this->end, $value->start, $value->end
 		);
 	}
@@ -85,12 +85,12 @@ class SourceOffset implements \JsonSerializable {
 	}
 
 	/**
-	 * Return a new source offset shifted by $amount.
+	 * Return a new source range shifted by $amount.
 	 * @param int $amount The amount to shift by
-	 * @return SourceOffset
+	 * @return SourceRange
 	 */
-	public function offset( int $amount ): SourceOffset {
-		return new SourceOffset( $this->start + $amount, $this->end + $amount );
+	public function offset( int $amount ): SourceRange {
+		return new SourceRange( $this->start + $amount, $this->end + $amount );
 	}
 
 	/**

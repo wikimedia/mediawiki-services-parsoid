@@ -7,7 +7,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMUtils;
@@ -773,7 +773,7 @@ class WikitextEscapeHandlers {
 			}
 
 			$tsr = $t->dataAttribs->tsr ?? null;
-			if ( !( $tsr instanceof SourceOffset ) ) {
+			if ( !( $tsr instanceof SourceRange ) ) {
 				$env = $state->getEnv();
 				$env->log(
 					'error/html2wt/escapeNowiki',

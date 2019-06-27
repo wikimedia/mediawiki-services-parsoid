@@ -19,7 +19,7 @@ class KV implements \JsonSerializable {
 	/** @var string|Token|Token[]|KV[] */
 	public $v;
 
-	/** @var KVSourceOffset|null wikitext source offsets */
+	/** @var KVSourceRange|null wikitext source offsets */
 	public $srcOffsets;
 
 	/** @var string|null wikitext source */
@@ -34,12 +34,12 @@ class KV implements \JsonSerializable {
 	 *     this can be an array of tokens even.
 	 * @param string|Token|Token[]|KV[] $v
 	 *     The value: string, token, of an array of tokens
-	 * @param KVSourceOffset|null $srcOffsets wikitext source offsets
+	 * @param KVSourceRange|null $srcOffsets wikitext source offsets
 	 * @param string|null $ksrc
 	 * @param string|null $vsrc
 	 */
 	public function __construct(
-		$k, $v, ?KVSourceOffset $srcOffsets = null,
+		$k, $v, ?KVSourceRange $srcOffsets = null,
 		?string $ksrc = null, ?string $vsrc = null
 	) {
 		$this->k = $k;
@@ -95,18 +95,18 @@ class KV implements \JsonSerializable {
 	/**
 	 * Return the key portion of the KV's source offsets, or else null
 	 * if no source offsets are known.
-	 * @return SourceOffset
+	 * @return SourceRange
 	 */
-	public function keyOffset(): SourceOffset {
+	public function keyOffset(): SourceRange {
 		return $this->srcOffsets->key ?? null;
 	}
 
 	/**
 	 * Return the value portion of the KV's source offsets, or else null
 	 * if no source offsets are known.
-	 * @return SourceOffset
+	 * @return SourceRange
 	 */
-	public function valueOffset(): SourceOffset {
+	public function valueOffset(): SourceRange {
 		return $this->srcOffsets->value ?? null;
 	}
 

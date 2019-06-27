@@ -9,7 +9,7 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
@@ -226,7 +226,7 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * @param array &$state
 	 * @param string|Token|array $targetToks
-	 * @param SourceOffset $srcOffsets
+	 * @param SourceRange $srcOffsets
 	 * @return array|null
 	 */
 	private function resolveTemplateTarget( array &$state, $targetToks, $srcOffsets ): ?array {
@@ -622,7 +622,7 @@ class TemplateHandler extends TokenHandler {
 					'expandTemplates' => false,
 					'extTag' => $this->options['extTag'] ?? null
 				],
-				'srcOffsets' => new SourceOffset( 0, mb_strlen( $src ) ),
+				'srcOffsets' => new SourceRange( 0, mb_strlen( $src ) ),
 				'tplArgs' => $tplArgs,
 				'sol' => true
 			]
@@ -661,7 +661,7 @@ class TemplateHandler extends TokenHandler {
 				new KV( 'typeof', $state['wrapperType'] . '/End' ),
 				new KV( 'about', '#' . $state['wrappedObjectId'] )
 			],
-			(object)[ 'tsr' => new SourceOffset( null, $tsr ? $tsr->end : null ) ]
+			(object)[ 'tsr' => new SourceRange( null, $tsr ? $tsr->end : null ) ]
 		);
 	}
 
@@ -703,7 +703,7 @@ class TemplateHandler extends TokenHandler {
 					// No need to do paragraph-wrapping here
 					'inlineContext' => true
 				],
-				'srcOffsets' => new SourceOffset( $srcStart, $srcEnd ),
+				'srcOffsets' => new SourceRange( $srcStart, $srcEnd ),
 				'sol' => true
 			]
 		);
@@ -1047,7 +1047,7 @@ class TemplateHandler extends TokenHandler {
 		}
 	}
 
-	private function fetchArg( $arg, SourceOffset $srcOffsets ): array {
+	private function fetchArg( $arg, SourceRange $srcOffsets ): array {
 		if ( is_string( $arg ) ) {
 			return [ 'tokens' => [ $arg ] ];
 		} else {

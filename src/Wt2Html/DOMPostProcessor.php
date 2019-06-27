@@ -10,7 +10,7 @@ use Generator;
 
 use Parsoid\Config\Env;
 
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -470,7 +470,7 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function setSourceOffsets( SourceOffset $so ): void {
+	public function setSourceOffsets( SourceRange $so ): void {
 		$this->options['sourceOffsets'] = $so;
 	}
 

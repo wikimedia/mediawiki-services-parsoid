@@ -8,7 +8,7 @@ use stdClass;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
@@ -347,7 +347,7 @@ class ListHandler extends TokenHandler {
 			$newDP = Util::clone( $dp );
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
-				$newDP->tsr = new SourceOffset(
+				$newDP->tsr = new SourceRange(
 					$tsr->start + $k, $tsr->start + $j
 				);
 			}

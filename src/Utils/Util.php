@@ -144,7 +144,7 @@ class Util {
 	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
 		$extTagOffsets = $token->dataAttribs->extTagOffsets;
-		'@phan-var \Parsoid\Tokens\KVSourceOffset $extTagOffsets';
+		'@phan-var \Parsoid\Tokens\KVSourceRange $extTagOffsets';
 		return mb_substr(
 			$src,
 			$extTagOffsets->key->length(),

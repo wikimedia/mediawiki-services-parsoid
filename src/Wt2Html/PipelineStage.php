@@ -7,7 +7,7 @@ use DOMDocument;
 use Generator;
 
 use Parsoid\Config\Env;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -109,9 +109,9 @@ abstract class PipelineStage {
 	 * in its own pipeline. This ensures that all source offsets assigned to tokens
 	 * and DOM nodes in this stage are relative to the top-level page.
 	 *
-	 * @param SourceOffset $so
+	 * @param SourceRange $so
 	 */
-	public function setSourceOffsets( SourceOffset $so ): void {
+	public function setSourceOffsets( SourceRange $so ): void {
 		/* Default implementation: Do nothing */
 	}
 

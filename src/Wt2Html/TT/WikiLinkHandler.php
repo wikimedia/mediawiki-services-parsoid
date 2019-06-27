@@ -18,7 +18,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
@@ -225,7 +225,7 @@ class WikiLinkHandler extends TokenHandler {
 			preg_match( '/^([^#]*)(#)/', $src, $srcMatch );
 			$ntokens = strlen( $srcMatch[1] ) ? [ $srcMatch[1] ] : [];
 			$hashPos = $tsr->start + mb_strlen( $srcMatch[1] );
-			$tsr0 = new SourceOffset( $hashPos, $hashPos + 1 );
+			$tsr0 = new SourceRange( $hashPos, $hashPos + 1 );
 			$li = new TagTk( 'listItem', [
 				new KV( 'bullets', '#', $tsr0->expandTsrV() )
 			], (object)[ 'tsr' => $tsr0 ] );
@@ -287,7 +287,7 @@ class WikiLinkHandler extends TokenHandler {
 				// extend all the way to the end of the token, so the end tsr
 				// is invalid.
 				$end = count( $content ) > 0 ? null : $tsr->end - $count;
-				$tsr = new SourceOffset( $tsr->start + $count, $end );
+				$tsr = new SourceRange( $tsr->start + $count, $end );
 			} else {
 				$tsr = null;
 			}
@@ -575,7 +575,7 @@ class WikiLinkHandler extends TokenHandler {
 				// content = [part 0, .. part l-1]
 				// offsets = [start(part-0), end(part l-1)]
 				$offsets = isset( $dataAttribs->tsr ) ?
-					new SourceOffset( $content[0]->srcOffsets->key->start,
+					new SourceRange( $content[0]->srcOffsets->key->start,
 						$content[$l - 1]->srcOffsets->key->end ) : null;
 				$content = [ PipelineUtils::getDOMFragmentToken( $out, $offsets,
 					[ 'inlineContext' => true, 'token' => $token ] ) ];

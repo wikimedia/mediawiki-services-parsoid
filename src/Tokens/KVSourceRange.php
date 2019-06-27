@@ -3,20 +3,22 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Wikimedia\Assert\Assert;
+
 /**
- * Represents a source offset range for key-value pair.
+ * Represents a source offset range for a key-value pair.
  */
-class KVSourceOffset implements \JsonSerializable {
+class KVSourceRange implements \JsonSerializable {
 
 	/**
-	 * Source offsets for the key.
-	 * @var SourceOffset
+	 * Source range for the key.
+	 * @var SourceRange
 	 */
 	public $key;
 
 	/**
-	 * Source offsets for the value.
-	 * @var SourceOffset
+	 * Source range for the value.
+	 * @var SourceRange
 	 */
 	public $value;
 
@@ -32,17 +34,17 @@ class KVSourceOffset implements \JsonSerializable {
 	 *   (unicode code points, exclusive)
 	 */
 	public function __construct( int $keyStart, int $keyEnd, int $valueStart, int $valueEnd ) {
-		$this->key = new SourceOffset( $keyStart, $keyEnd );
-		$this->value = new SourceOffset( $valueStart, $valueEnd );
+		$this->key = new SourceRange( $keyStart, $keyEnd );
+		$this->value = new SourceRange( $valueStart, $valueEnd );
 	}
 
 	/**
-	 * Return a new key-value source offset shifted by $amount.
+	 * Return a new key-value source offset range shifted by $amount.
 	 * @param int $amount The amount to shift by
-	 * @return KVSourceOffset
+	 * @return KVSourceRange
 	 */
-	public function offset( int $amount ): KVSourceOffset {
-		return new KVSourceOffset(
+	public function offset( int $amount ): KVSourceRange {
+		return new KVSourceRange(
 			$this->key->start + $amount,
 			$this->key->end + $amount,
 			$this->value->start + $amount,
@@ -54,10 +56,14 @@ class KVSourceOffset implements \JsonSerializable {
 	 * Create a new key-value source offset range from an array of
 	 * integers (such as created during JSON serialization).
 	 * @param int[] $so
-	 * @return KVSourceOffset
+	 * @return KVSourceRange
 	 */
-	public static function fromArray( array $so ): KVSourceOffset {
-		return new KVSourceOffset( $so[0], $so[1], $so[2], $so[3] );
+	public static function fromArray( array $so ): KVSourceRange {
+		Assert::invariant(
+			count( $so ) === 4,
+			'Not enough elements in KVSourceRange array'
+		);
+		return new KVSourceRange( $so[0], $so[1], $so[2], $so[3] );
 	}
 
 	/**

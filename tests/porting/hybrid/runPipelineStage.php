@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use Parsoid\Config\Api\Env as ApiEnv;
 use Parsoid\Config\Env;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -63,7 +63,7 @@ function parse( Env $env, string $input, array $opts ): array {
 	// fwrite(STDERR, "SRC: " . $env->topFrame->getSrcText()."\n");
 	// fwrite(STDERR, "OFFSET: " . ($opts['offsets'][0] ?? 0)."\n");
 	$tokens = [];
-	$so = new SourceOffset(
+	$so = new SourceRange(
 		$opts['offsets'][0] ?? null, $opts['offsets'][1] ?? null
 	);
 	$tokenizer = new PegTokenizer( $env );

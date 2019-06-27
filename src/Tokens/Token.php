@@ -48,9 +48,9 @@ abstract class Token implements \JsonSerializable {
 	 *    The more complex form (where the key is a non-string) are found when
 	 *    KV objects are constructed in the tokenizer.
 	 * @param string|Token|Token[] $value
-	 * @param KVSourceOffset|null $srcOffsets
+	 * @param KVSourceRange|null $srcOffsets
 	 */
-	public function addAttribute( string $name, $value, ?KVSourceOffset $srcOffsets = null ): void {
+	public function addAttribute( string $name, $value, ?KVSourceRange $srcOffsets = null ): void {
 		$this->attribs[] = new KV( $name, $value, $srcOffsets );
 	}
 
@@ -241,7 +241,7 @@ abstract class Token implements \JsonSerializable {
 	 */
 	public function getWTSource( Frame $frame ): string {
 		$tsr = $this->dataAttribs->tsr ?? null;
-		if ( !( $tsr instanceof SourceOffset ) ) {
+		if ( !( $tsr instanceof SourceRange ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
 		$srcText = $frame->getSrcText();
@@ -265,7 +265,7 @@ abstract class Token implements \JsonSerializable {
 			}
 			$so = $e["srcOffsets"] ?? null;
 			if ( $so ) {
-				$so = KVSourceOffset::fromArray( $so );
+				$so = KVSourceRange::fromArray( $so );
 			}
 			$kvs[] = new KV(
 				$e["k"],
@@ -307,7 +307,7 @@ abstract class Token implements \JsonSerializable {
 					$da->tmp = (object)$da->tmp;
 				}
 				if ( isset( $da->tsr ) ) {
-					$da->tsr = new SourceOffset( $da->tsr[0], $da->tsr[1] );
+					$da->tsr = new SourceRange( $da->tsr[0], $da->tsr[1] );
 				}
 			}
 			switch ( $jsTk['type'] ) {

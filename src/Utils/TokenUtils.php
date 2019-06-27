@@ -20,12 +20,12 @@ use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
-use Parsoid\Tokens\KVSourceOffset;
+use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 
 use Wikimedia\Assert\Assert;
 
@@ -442,7 +442,7 @@ class TokenUtils {
 
 	/**
 	 * @param array<int> $offsets
-	 * @param array<Token>|array<KV>|KV|Token|KVSourceOffset|SourceOffset|string $input
+	 * @param array<Token>|array<KV>|KV|Token|KVSourceRange|SourceRange|string $input
 	 */
 	private static function collectOffsets( array &$offsets, $input ): void {
 		if ( is_array( $input ) ) {
@@ -469,10 +469,10 @@ class TokenUtils {
 				self::collectOffsets( $offsets, $input->dataAttribs->extTagOffsets );
 			}
 			self::collectOffsets( $offsets, $input->attribs );
-		} elseif ( $input instanceof KVSourceOffset ) {
+		} elseif ( $input instanceof KVSourceRange ) {
 			self::collectOffsets( $offsets, $input->key );
 			self::collectOffsets( $offsets, $input->value );
-		} elseif ( $input instanceof SourceOffset ) {
+		} elseif ( $input instanceof SourceRange ) {
 			$offsets[] =& $input->start;
 			$offsets[] =& $input->end;
 		}

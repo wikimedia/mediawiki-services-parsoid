@@ -19,7 +19,7 @@ use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceOffset;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMDataUtils;
 
@@ -94,11 +94,11 @@ class TokenizerUtils {
 	}
 
 	public static function getAttrVal( $value, int $start, int $end ) {
-		return [ 'value' => $value, 'srcOffsets' => new SourceOffset( $start, $end ) ];
+		return [ 'value' => $value, 'srcOffsets' => new SourceRange( $start, $end ) ];
 	}
 
 	public static function buildTableTokens(
-		string $tagName, string $wtChar, $attrInfo, SourceOffset $tsr,
+		string $tagName, string $wtChar, $attrInfo, SourceRange $tsr,
 		int $endPos, $content, bool $addEndTag = false ): array
 	{
 		$a = null;
@@ -125,7 +125,7 @@ class TokenizerUtils {
 			}
 		}
 
-		$dataAttribs = (object)[ 'tsr' => new SourceOffset( $endPos, $endPos ) ];
+		$dataAttribs = (object)[ 'tsr' => new SourceRange( $endPos, $endPos ) ];
 		$endTag = null;
 		if ( $addEndTag ) {
 			$endTag = new EndTagTk( $tagName, [], $dataAttribs );
@@ -153,7 +153,7 @@ class TokenizerUtils {
 	}
 
 	public static function buildXMLTag( string $name, string $lcName, array $attribs, $endTag,
-		bool $selfClose, SourceOffset $tsr
+		bool $selfClose, SourceRange $tsr
 	) {
 		$tok = null;
 		$da = (object)[ 'tsr' => $tsr, 'stx' => 'html' ];

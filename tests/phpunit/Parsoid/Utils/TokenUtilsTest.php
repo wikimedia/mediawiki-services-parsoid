@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Utils;
 
 use Parsoid\Tokens\KV;
-use Parsoid\Tokens\KVSourceOffset;
+use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\Token;
@@ -323,7 +323,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$v = [ ' vaLUE', $testCase['token'], new NlTk( null ) ];
 		$kExpect = 'key' . ( $testCase['tokensToString'] ?? '' ) . 'abc';
 		$vExpect = 'vaLUE' . ( $testCase['tokensToString'] ?? '' );
-		$srcOffsets = new KVSourceOffset( 0, 10, 11, 20 );
+		$srcOffsets = new KVSourceRange( 0, 10, 11, 20 );
 		$expected = [];
 		$expected[$kExpect] = $vExpect;
 		$this->assertEquals(
