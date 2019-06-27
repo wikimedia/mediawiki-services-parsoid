@@ -26,7 +26,7 @@ class MetaHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
 
-		if ( isset( $dp->src ) && preg_match( '/(^|\s)mw:Placeholder(\/\w*)?$/', $type ) ) {
+		if ( isset( $dp->src ) && preg_match( '#(^|\s)mw:Placeholder(/\w*)?$#', $type ) ) {
 			$this->emitPlaceholderSrc( $node, $state );
 			return $node->nextSibling;
 		}
@@ -35,11 +35,11 @@ class MetaHandler extends DOMHandler {
 		// templated attrs roundtrip properly.
 		// Ex: {{DEFAULTSORT:{{echo|foo}} }}
 		if ( $property ) {
-			preg_match( '/^mw\:PageProp\/(.*)$/', $property, $switchType );
+			preg_match( '#^mw\:PageProp/(.*)$#', $property, $switchType );
 			if ( $switchType ) {
 				$out = $switchType[1];
-				$cat = preg_match( '/^(?:category)?(.*)/', $out );
-				if ( $cat && in_array( $cat[1], Util::magicMasqs(), true ) ) {
+				$cat = preg_match( '/^(?:category)?(.*)/', $out, $catMatch );
+				if ( $cat && isset( Util::magicMasqs()[$catMatch[1]] ) ) {
 					$contentInfo = $state->serializer->serializedAttrVal( $node, 'content' );
 					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
 						$out = '{{' . $contentInfo['value'] . '}}';
@@ -47,8 +47,8 @@ class MetaHandler extends DOMHandler {
 						$out = preg_replace( '/^([^:]+:)(.*)$/',
 							'$1' . $contentInfo['value'] . '}}', $dp->src, 1 );
 					} else {
-						$magicWord = strtoupper( $cat[1] );
-						$state->getEnv()->log( 'warn', $cat[1]
+						$magicWord = strtoupper( $catMatch[1] );
+						$state->getEnv()->log( 'warn', $catMatch[1]
 							. " is missing source. Rendering as $magicWord magicword" );
 						$out = '{{' . $magicWord . ':' . $contentInfo['value'] . '}}';
 					}
@@ -99,7 +99,7 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
-		if ( $type && preg_match( '/mw:PageProp\/categorydefaultsort/', $type ) ) {
+		if ( $type && preg_match( '#mw:PageProp/categorydefaultsort#', $type ) ) {
 			if ( $otherNode->nodeName === 'p'
 				&& $otherNode instanceof DOMElement // for static analyizers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
@@ -113,7 +113,7 @@ class MetaHandler extends DOMHandler {
 		} elseif ( WTUtils::isNewElt( $node )
 			// Placeholder metas don't need to be serialized on their own line
 			&& ( $node->nodeName !== 'meta'
-				|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) ?: '' ) )
+				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#', $node->getAttribute( 'typeof' ) ?: '' ) )
 		) {
 			return [ 'min' => 1 ];
 		} else {
@@ -127,7 +127,7 @@ class MetaHandler extends DOMHandler {
 		if ( WTUtils::isNewElt( $node )
 			// Placeholder metas don't need to be serialized on their own line
 			&& ( $node->nodeName !== 'meta'
-				|| !preg_match( '/(^|\s)mw:Placeholder(\/|$)/', $node->getAttribute( 'typeof' ) ?: '' ) )
+				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#', $node->getAttribute( 'typeof' ) ?: '' ) )
 		) {
 			return [ 'min' => 1 ];
 		} else {
