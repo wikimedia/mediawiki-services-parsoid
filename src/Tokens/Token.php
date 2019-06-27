@@ -309,6 +309,13 @@ abstract class Token implements \JsonSerializable {
 				if ( isset( $da->tsr ) ) {
 					$da->tsr = new SourceRange( $da->tsr[0], $da->tsr[1] );
 				}
+				if ( isset( $da->extTagOffsets ) ) {
+					$da->extTagOffsets = KVSourceRange::fromArray( $da->extTagOffsets );
+				}
+				if ( isset( $da->extLinkContentOffsets ) ) {
+					$da->extLinkContentOffsets =
+						new SourceRange( $da->extLinkContentOffsets[0], $da->extLinkContentOffsets[1] );
+				}
 			}
 			switch ( $jsTk['type'] ) {
 				case "SelfclosingTagTk":

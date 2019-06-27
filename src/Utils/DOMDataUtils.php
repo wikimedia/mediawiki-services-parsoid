@@ -13,6 +13,8 @@ use stdClass;
 use Wikimedia\Assert\Assert;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DataBag; // phpcs:ignore
+use Parsoid\Tokens\SourceRange;
+use Parsoid\Tokens\KVSourceRange;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
@@ -467,6 +469,16 @@ class DOMDataUtils {
 		}
 		if ( isset( $dp->a ) ) {
 			$dp->a = (array)$dp->a;
+		}
+		if ( isset( $dp->tsr ) ) {
+			$dp->tsr = new SourceRange( $dp->tsr[0], $dp->tsr[1] );
+		}
+		if ( isset( $dp->extTagOffsets ) ) {
+			$dp->extTagOffsets = KVSourceRange::fromArray( $dp->extTagOffsets );
+		}
+		if ( isset( $dp->extLinkContentOffsets ) ) {
+			$dp->extLinkContentOffsets =
+				new SourceRange( $dp->extLinkContentOffsets[0], $dp->extLinkContentOffsets[1] );
 		}
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = (object)( $dp->tmp ?? [] );
