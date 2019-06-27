@@ -589,4 +589,85 @@ HTML;
 		}
 	}
 
+	/**
+	 * @covers ::normalize()
+	 * @dataProvider provideNormalize
+	 */
+	public function testNormalize( $compat, $textNodeCount, $interleaveSpan, $expectedNodeCount ) {
+		$doc = new DOMDocument();
+		$doc->loadXML( "<html><body></body></html>" );
+		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		$div = $doc->createElement( 'div' );
+		$body->appendChild( $div );
+		while ( $textNodeCount > 0 ) {
+			$div->appendChild( $doc->createTextNode( '' ) );
+			if ( $interleaveSpan ) {
+				$div->appendChild( $doc->createElement( 'span' ) );
+			}
+			$textNodeCount--;
+		}
+
+		if ( $compat ) {
+			DOMCompat::normalize( $body );
+		} else {
+			$body->normalize();
+		}
+		$this->assertSame( $expectedNodeCount, $div->childNodes->length );
+	}
+
+	public function provideNormalize() {
+		return [
+			// PHP DOM mode
+			[
+				"compat" => false,
+				"textNodeCount" => 1,
+				"interleaveSpan" => false,
+				"expected" => 1
+			],
+			[
+				"compat" => false,
+				"textNodeCount" => 5,
+				"interleaveSpan" => false,
+				"expected" => 1
+			],
+			[
+				"compat" => false,
+				"textNodeCount" => 1,
+				"interleaveSpan" => true,
+				"expected" => 2
+			],
+			[
+				"compat" => false,
+				"textNodeCount" => 5,
+				"interleaveSpan" => true,
+				"expected" => 10
+			],
+			// DOM Compat mode
+			[
+				"compat" => true,
+				"textNodeCount" => 1,
+				"interleaveSpan" => false,
+				"expected" => 0
+			],
+			[
+				"compat" => true,
+				"textNodeCount" => 5,
+				"interleaveSpan" => false,
+				"expected" => 0
+			],
+			[
+				"compat" => true,
+				"textNodeCount" => 1,
+				"interleaveSpan" => true,
+				"expected" => 1
+			],
+			[
+				"compat" => true,
+				"textNodeCount" => 5,
+				"interleaveSpan" => true,
+				"expected" => 5
+			],
+		];
+	}
+
 }

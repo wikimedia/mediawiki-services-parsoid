@@ -8,6 +8,7 @@ use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
+use DOMText;
 use DOMNodeList;
 use Parsoid\Utils\DOMCompat\TokenList;
 use Parsoid\Wt2Html\XMLSerializer;
@@ -312,4 +313,31 @@ class DOMCompat {
 		return preg_replace( "/[$ws]+/", ' ', trim( $text, $ws ) );
 	}
 
+	private static function stripEmptyTextNodes( DOMElement $e ): void {
+		$c = $e->firstChild;
+		while ( $c ) {
+			$next = $c->nextSibling;
+			if ( $c instanceof DOMText ) {
+				if ( $c->nodeValue === '' ) {
+					$e->removeChild( $c );
+				}
+			} elseif ( $c instanceof DOMElement ) {
+				self::stripEmptyTextNodes( $c );
+			}
+			$c = $next;
+		}
+	}
+
+	/**
+	 * @param DOMElement $elt root of the DOM tree that needs to be normalized
+	 */
+	public static function normalize( DOMElement $elt ): void {
+		$elt->normalize();
+
+		// Now traverse the tree rooted at $elt and remove any stray empty text nodes
+		// Unlike what https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-normalize says,
+		// the PHP DOM's normalization leaves behind upto 1 empty text node.
+		// See https://bugs.php.net/bug.php?id=78221
+		self::stripEmptyTextNodes( $elt );
+	}
 }
