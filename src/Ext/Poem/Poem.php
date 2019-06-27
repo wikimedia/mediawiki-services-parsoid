@@ -46,7 +46,7 @@ class Poem implements ExtensionTag {
 						preg_replace( '/\n/m', "<br/>\n",
 						preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) ) );
 				}, $splitContent,
-				range( 1, count( $splitContent ) ) )
+				range( 0, count( $splitContent ) - 1 ) )
 			);
 
 			// Replace colons with indented spans
@@ -68,8 +68,7 @@ class Poem implements ExtensionTag {
 					return $line;
 				}
 			}, $contentArray );
-			// $content = implode( '\n', $contentMap ); // use faster? preg_replace
-			$content = preg_replace( '\n', '', $contentMap );
+			$content = implode( '\n', $contentMap ); // use faster? preg_replace
 		}
 
 		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
@@ -93,7 +92,7 @@ class Poem implements ExtensionTag {
 				continue;
 			}
 
-			if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
+			if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) ?? '' ) ) {
 				self::processNowikis( $c );
 				$c = $c->nextSibling;
 				continue;
@@ -135,7 +134,7 @@ class Poem implements ExtensionTag {
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof DOMElement ) {
-				if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) || '' ) ) {
+				if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) ?? '' ) ) {
 					// In nowikis, replace newlines with <br/>.
 					// Cannot do it before parsing because <br/> will get escaped!
 					self::processNowikis( $c );

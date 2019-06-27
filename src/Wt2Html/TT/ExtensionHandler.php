@@ -169,7 +169,6 @@ class ExtensionHandler extends TokenHandler {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
 		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
-		// PORT-FIXME: Code in gerrit
 		// $cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
 		$cachedExpansion = null;
 

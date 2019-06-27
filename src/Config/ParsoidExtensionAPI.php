@@ -148,7 +148,9 @@ class ParsoidExtensionAPI {
 	 *    - inPHPBlock
 	 * @return DOMDocument
 	 */
-	public function parseTokenContentsToDOM( $extArgs, $leadingWS, $wikitext, $parseOpts ) {
+	public function parseTokenContentsToDOM(
+		array $extArgs, string $leadingWS, string $wikitext, array $parseOpts
+	): DOMDocument {
 		$dataAttribs = $this->extToken->dataAttribs;
 		$extTagOffsets = $dataAttribs->extTagOffsets;
 		$srcOffsets = new SourceRange(

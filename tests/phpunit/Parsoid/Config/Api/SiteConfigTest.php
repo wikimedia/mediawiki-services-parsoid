@@ -360,6 +360,11 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'graph' => true,
 				'maplink' => true,
 				'mapframe' => true,
+				'labeledsectiontransclusion' => true,
+				'labeledsectiontransclusion/begin' => true,
+				'labeledsectiontransclusion/end' => true,
+				'translate' => true,
+				'tvar' => true
 			],
 			array_fill_keys( array_keys( $this->getSiteConfig()->getExtensionTagNameMap() ), true )
 		);

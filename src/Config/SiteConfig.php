@@ -7,8 +7,8 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 
 use Parsoid\ContentModelHandler;
 use Parsoid\WikitextContentModelHandler;
-use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandler;
+use Parsoid\Ext\ExtensionTag;
 use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
 
@@ -40,11 +40,11 @@ abstract class SiteConfig {
 	 * @var array
 	 */
 	private $defaultNativeExtensions = [
-		'Nowiki', 'Pre', 'Cite',
+		'Cite', 'LST', 'Nowiki', 'Poem', 'Pre', 'Translate',
 		/*
 		 * Not yet ported / merged
 		 *
-		'Gallery', 'LST', 'Poem', 'JSON'
+		'Gallery', 'JSON'
 		 */
 	];
 
@@ -821,9 +821,11 @@ abstract class SiteConfig {
 
 	/**
 	 * @param string $tagName Extension tag name
-	 * @return ExtensionTag|null
+	 * @return ExtensionTag|object|null
+	 *   Returns the implementation of the named extension,
+	 *   which usually (but not always) implements ExtensionTag.
 	 */
-	public function getNativeExtTagImpl( string $tagName ): ?ExtensionTag {
+	public function getNativeExtTagImpl( string $tagName ) {
 		$tagConfig = $this->getNativeExtTagConfig( $tagName );
 		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
 	}

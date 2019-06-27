@@ -25,7 +25,7 @@ class LST implements SerialHandler {
 		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$src = null;
-		if ( $dp->src ) {
+		if ( isset( $dp->src ) ) {
 			$src = $dp->src;
 		} elseif ( preg_match( '/begin/', $typeOf ) ) {
 			$src = '<section begin="' . $node->getAttribute( 'content' ) . '" />';
