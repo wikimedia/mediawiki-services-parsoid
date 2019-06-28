@@ -440,20 +440,34 @@ class TokenUtils {
 		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust the widths to be actual character offsets
-				$sr->openWidth = $sr->start + $sr->openWidth;
-				$sr->closeWidth = $sr->end - $sr->closeWidth;
-				$offsets[] =& $sr->openWidth;
-				$offsets[] =& $sr->closeWidth;
+				if ( $sr->openWidth !== null ) {
+					Assert::invariant( $sr->start !== null, "width w/o start" );
+					$sr->openWidth = $sr->start + $sr->openWidth;
+					$offsets[] =& $sr->openWidth;
+				}
+				if ( $sr->closeWidth !== null ) {
+					Assert::invariant( $sr->end !== null, "width w/o end" );
+					$sr->closeWidth = $sr->end - $sr->closeWidth;
+					$offsets[] =& $sr->closeWidth;
+				}
 			}
-			$offsets[] =& $sr->start;
-			$offsets[] =& $sr->end;
+			if ( $sr->start !== null ) {
+				$offsets[] =& $sr->start;
+			}
+			if ( $sr->end !== null ) {
+				$offsets[] =& $sr->end;
+			}
 		} );
 		self::convertOffsets( $s, $from, $to, $offsets );
 		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust widths back from being character offsets
-				$sr->openWidth = $sr->openWidth - $sr->start;
-				$sr->closeWidth = $sr->end - $sr->closeWidth;
+				if ( $sr->openWidth !== null ) {
+					$sr->openWidth = $sr->openWidth - $sr->start;
+				}
+				if ( $sr->closeWidth !== null ) {
+					$sr->closeWidth = $sr->end - $sr->closeWidth;
+				}
 			}
 		} );
 	}
