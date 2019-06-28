@@ -314,7 +314,7 @@ abstract class Token implements \JsonSerializable {
 					$da->tsr = SourceRange::fromArray( $da->tsr );
 				}
 				if ( isset( $da->extTagOffsets ) ) {
-					$da->extTagOffsets = KVSourceRange::fromArray( $da->extTagOffsets );
+					$da->extTagOffsets = DomSourceRange::fromArray( $da->extTagOffsets );
 				}
 				if ( isset( $da->extLinkContentOffsets ) ) {
 					$da->extLinkContentOffsets =

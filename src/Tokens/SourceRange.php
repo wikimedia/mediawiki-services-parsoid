@@ -91,7 +91,9 @@ class SourceRange implements \JsonSerializable {
 	 * @param int $amount The amount to shift by
 	 * @return SourceRange
 	 */
-	public function offset( int $amount ): SourceRange {
+	public function offset( int $amount ) {
+		/* PHP 7.3 won't allow a return type declaration on this static
+		* function, sinc DomSourceRange::offset's return differs */
 		return new SourceRange( $this->start + $amount, $this->end + $amount );
 	}
 

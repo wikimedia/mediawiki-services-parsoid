@@ -6,7 +6,6 @@ namespace Parsoid;
 use stdClass;
 
 use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\SourceRange;
 
 /**
@@ -71,9 +70,9 @@ class DataParsoid extends stdClass {
 
 	/**
 	 * Offsets of opening and closing tags for extension tags, in the form
-	 * [ opening tag start , opening tag end, closing tag start, closing tag end ]
+	 * [ opening tag start , closing tag end, opening tag width, closing tag width ]
 	 * Temporarily present in data-parsoid, but not in final DOM output.
-	 * @var KVSourceRange|null
+	 * @var DomSourceRange|null
 	 */
 	public $extTagOffsets;
 

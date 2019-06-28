@@ -17,6 +17,7 @@ use stdClass;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
@@ -435,46 +436,63 @@ class TokenUtils {
 	public static function convertTokenOffsets(
 		string $s, string $from, string $to, array $tokens
 	) : void {
-		$offsets = [];
-		self::collectOffsets( $offsets, $tokens );
+		$offsets = []; /* @var array<int> $offsets */
+		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
+			if ( $sr instanceof DomSourceRange ) {
+				// Adjust the widths to be actual character offsets
+				$sr->openWidth = $sr->start + $sr->openWidth;
+				$sr->closeWidth = $sr->end - $sr->closeWidth;
+				$offsets[] =& $sr->openWidth;
+				$offsets[] =& $sr->closeWidth;
+			}
+			$offsets[] =& $sr->start;
+			$offsets[] =& $sr->end;
+		} );
 		self::convertOffsets( $s, $from, $to, $offsets );
+		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
+			if ( $sr instanceof DomSourceRange ) {
+				// Adjust widths back from being character offsets
+				$sr->openWidth = $sr->openWidth - $sr->start;
+				$sr->closeWidth = $sr->end - $sr->closeWidth;
+			}
+		} );
 	}
 
 	/**
-	 * @param array<int> $offsets
-	 * @param array<Token>|array<KV>|KV|Token|KVSourceRange|SourceRange|string $input
+	 * @param array<Token>|array<KV>|KV|Token|DomSourceRange|KVSourceRange|SourceRange|string $input
+	 * @param callable $offsetFunc
 	 */
-	private static function collectOffsets( array &$offsets, $input ): void {
+	private static function collectOffsets( $input, callable $offsetFunc ): void {
 		if ( is_array( $input ) ) {
 			foreach ( $input as $token ) {
-				self::collectOffsets( $offsets, $token );
+				self::collectOffsets( $token, $offsetFunc );
 			}
 		} elseif ( $input instanceof KV ) {
-			self::collectOffsets( $offsets, $input->k );
-			self::collectOffsets( $offsets, $input->v );
+			self::collectOffsets( $input->k, $offsetFunc );
+			self::collectOffsets( $input->v, $offsetFunc );
 			if ( $input->srcOffsets ) {
-				self::collectOffsets( $offsets, $input->srcOffsets );
+				self::collectOffsets( $input->srcOffsets, $offsetFunc );
 			}
 		} elseif ( $input instanceof Token ) {
 			if ( isset( $input->dataAttribs->tsr ) ) {
-				self::collectOffsets( $offsets, $input->dataAttribs->tsr );
+				self::collectOffsets( $input->dataAttribs->tsr, $offsetFunc );
 			}
 			if ( isset( $input->dataAttribs->extLinkContentOffsets ) ) {
-				self::collectOffsets( $offsets, $input->dataAttribs->extLinkContentOffsets );
+				self::collectOffsets( $input->dataAttribs->extLinkContentOffsets, $offsetFunc );
 			}
 			if ( isset( $input->dataAttribs->tokens ) ) {
-				self::collectOffsets( $offsets, $input->dataAttribs->tokens );
+				self::collectOffsets( $input->dataAttribs->tokens, $offsetFunc );
 			}
 			if ( isset( $input->dataAttribs->extTagOffsets ) ) {
-				self::collectOffsets( $offsets, $input->dataAttribs->extTagOffsets );
+				self::collectOffsets( $input->dataAttribs->extTagOffsets, $offsetFunc );
 			}
-			self::collectOffsets( $offsets, $input->attribs );
+			self::collectOffsets( $input->attribs, $offsetFunc );
 		} elseif ( $input instanceof KVSourceRange ) {
-			self::collectOffsets( $offsets, $input->key );
-			self::collectOffsets( $offsets, $input->value );
+			self::collectOffsets( $input->key, $offsetFunc );
+			self::collectOffsets( $input->value, $offsetFunc );
 		} elseif ( $input instanceof SourceRange ) {
-			$offsets[] =& $input->start;
-			$offsets[] =& $input->end;
+			// This includes DomSourceRange
+			$offsetFunc( $input );
 		}
 	}
 

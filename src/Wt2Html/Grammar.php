@@ -7,6 +7,7 @@ namespace Parsoid\Wt2Html;
 	use Parsoid\Utils\Util;
 	use Parsoid\Utils\WTUtils;
 	use Parsoid\Tokens\CommentTk;
+	use Parsoid\Tokens\DomSourceRange;
 	use Parsoid\Tokens\EndTagTk;
 	use Parsoid\Tokens\EOFTk;
 	use Parsoid\Tokens\KV;
@@ -162,7 +163,10 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   			case SelfclosingTagTk::class:
   				$dp->src = $dp->tsr->rawSubstr( $this->input );
-  				$dp->extTagOffsets = $dp->tsr->expandTsrK();
+  				$dp->extTagOffsets = new DomSourceRange(
+  					$dp->tsr->start, $dp->tsr->end,
+  					$dp->tsr->length(), 0
+  				);
   				if ( $isIncludeTag ) {
   					return $t;
   				}
@@ -174,7 +178,10 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   				if ( !$tagContentFound ) {
   					$dp->src = $dp->tsr->rawSubstr( $this->input );
-  					$dp->extTagOffsets = $dp->tsr->expandTsrK();
+  					$dp->extTagOffsets = new DomSourceRange(
+  						$dp->tsr->start, $dp->tsr->end,
+  						$dp->tsr->length(), 0
+  					);
   					if ( $isIncludeTag ) {
   						return $t;
   					} else {
@@ -237,14 +244,17 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   				// Extension content source
   				$dp->src = $extSrc;
-  				$dp->extTagOffsets = $dp->tsr->join( new SourceRange( $extEndOffset - $extEndTagWidth, $extEndOffset ) );
+  				$dp->extTagOffsets = new DomSourceRange(
+  					$dp->tsr->start, $extEndOffset,
+  					$dp->tsr->length(), $extEndTagWidth
+  				);
   
-  				$skipPos = $dp->extTagOffsets->value->start;
+  				$skipPos = $dp->extTagOffsets->innerEnd();
   
   				// If the xml-tag is a known installed (not native) extension,
   				// skip the end-tag as well.
   				if ( $isInstalledExt ) {
-  					$skipPos = $dp->extTagOffsets->value->end;
+  					$skipPos = $dp->extTagOffsets->end;
   				}
   				break;
   
@@ -269,13 +279,13 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			// Parse ext-content, strip eof, and shift tsr
   			$extContent = substr(
   				$dp->src,
-  				$dp->extTagOffsets->key->length(),
-  				-$dp->extTagOffsets->value->length()
+  				$dp->extTagOffsets->openWidth,
+  				-$dp->extTagOffsets->closeWidth
   			);
   			$tokenizer = new PegTokenizer( $this->env );
-  			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->key->end, $dp->extTagOffsets->value->start ) );
+  			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
   			$extContentToks = $tokenizer->tokenizeSync( $extContent );
-  			if ( $dp->extTagOffsets->value->length() > 0 ) {
+  			if ( $dp->extTagOffsets->innerLength() > 0 ) {
   				TokenUtils::stripEOFTkFromTokens( $extContentToks );
   			}
   			array_unshift( $extContentToks, $t );
@@ -897,8 +907,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$dp = $il->dataAttribs;
   			$inclContent = substr(
   				$dp->src,
-  				$dp->extTagOffsets->key->length(),
-  				-$dp->extTagOffsets->value->length()
+  				$dp->extTagOffsets->openWidth,
+  				-$dp->extTagOffsets->closeWidth
   			);
   			$nlpos = strrpos( $inclContent, "\n" );
   			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );

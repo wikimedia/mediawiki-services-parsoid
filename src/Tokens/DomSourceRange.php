@@ -73,6 +73,20 @@ class DomSourceRange extends SourceRange {
 	}
 
 	/**
+	 * Return a new DOM source range shifted by $amount.
+	 * @param int $amount The amount to shift by
+	 * @return DomSourceRange
+	 */
+	public function offset( int $amount ): DomSourceRange {
+		return new DomSourceRange(
+			$this->start + $amount,
+			$this->end + $amount,
+			$this->openWidth,
+			$this->closeWidth
+		);
+	}
+
+	/**
 	 * @return bool True if the tag widths are valid.
 	 */
 	public function hasValidTagWidths(): bool {

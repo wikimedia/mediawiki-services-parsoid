@@ -171,10 +171,16 @@ class ContentUtils {
 			DOMUtils::assertElt( $node );
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			if ( ( $dp->dsr ?? null ) !== null ) {
-				// Even though dsr is an object (a DomSourceRange), assign
-				// the return value in case $dsrFunc wants to set it to null.
-				$dp->dsr = $dsrFunc( $dp->dsr );
+				$dp->dsr = $dsrFunc( clone $dp->dsr );
 				// We don't need to setDataParsoid because dp is not a copy
+			}
+			if ( ( $dp->tmp->origDSR ?? null ) !== null ) {
+				// Even though tmp shouldn't escape Parsoid, go ahead and
+				// convert to enable hybrid testing.
+				$dp->tmp->origDSR = $dsrFunc( clone $dp->tmp->origDSR );
+			}
+			if ( ( $dp->extTagOffsets ?? null ) !== null ) {
+				$dp->extTagOffsets = $dsrFunc( clone $dp->extTagOffsets );
 			}
 
 			// Handle embedded HTML in Language Variant markup

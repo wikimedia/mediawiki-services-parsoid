@@ -221,8 +221,8 @@ class ComputeDSR {
 	private function computeTagWidths( array $widths, DOMElement $node, stdClass $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
-				$dp->extTagOffsets->key->length(),
-				$dp->extTagOffsets->value->length()
+				$dp->extTagOffsets->openWidth,
+				$dp->extTagOffsets->closeWidth
 			];
 		}
 
@@ -489,8 +489,8 @@ class ComputeDSR {
 						}
 					}
 					if ( isset( $dp->extTagOffsets ) ) {
-						$stWidth = $dp->extTagOffsets->key->length();
-						$etWidth = $dp->extTagOffsets->value->length();
+						$stWidth = $dp->extTagOffsets->openWidth;
+						$etWidth = $dp->extTagOffsets->closeWidth;
 						/** @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty */
 						unset( $dp->extTagOffsets );
 					}

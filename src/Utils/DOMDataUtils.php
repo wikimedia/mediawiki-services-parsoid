@@ -14,7 +14,6 @@ use Parsoid\Config\Env;
 use Parsoid\DataParsoid;
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Utils\DataBag; // phpcs:ignore
 use Wikimedia\Assert\Assert;
 
@@ -480,7 +479,7 @@ class DOMDataUtils {
 			$dp->tsr = SourceRange::fromArray( $dp->tsr );
 		}
 		if ( isset( $dp->extTagOffsets ) ) {
-			$dp->extTagOffsets = KVSourceRange::fromArray( $dp->extTagOffsets );
+			$dp->extTagOffsets = DomSourceRange::fromArray( $dp->extTagOffsets );
 		}
 		if ( isset( $dp->extLinkContentOffsets ) ) {
 			$dp->extLinkContentOffsets =

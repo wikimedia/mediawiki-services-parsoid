@@ -229,7 +229,7 @@ class ExtensionHandler extends TokenHandler {
 
 		$argDict = Util::getExtArgInfo( $state['token'] )->dict;
 		$extTagOffsets = $state['token']->dataAttribs->extTagOffsets;
-		if ( $extTagOffsets->value->length() === 0 ) {
+		if ( $extTagOffsets->closeWidth === 0 ) {
 			unset( $argDict->body ); // Serialize to self-closing.
 		}
 
