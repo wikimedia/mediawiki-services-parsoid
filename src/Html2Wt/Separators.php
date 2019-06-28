@@ -261,7 +261,8 @@ class Separators {
 			// Capture separators in a single array with a capturing version of
 			// the split regexp, so that we can work on the non-separator bits
 			// when stripping newlines.
-			$allBits = preg_split( '(' . $splitRe . ')', $sep );
+			$allBits = preg_split( '#(' . PHPUtils::reStrip( $splitRe, '#' ) . ')#',
+				$sep, -1, PREG_SPLIT_DELIM_CAPTURE );
 			$newBits = [];
 			$n = $sepNlCount;
 
