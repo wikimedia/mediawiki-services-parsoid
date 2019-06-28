@@ -215,14 +215,15 @@ $opts = $temp2->opts;
 
 		$body = $doc->body;
 
-		// Now shift the TSRs in the DOM by startOffset, and strip TSRs
+		// Now shift the DSRs in the DOM by startOffset, and strip DSRs
 		// for bits which aren't the caption or file, since they
 		// don't refer to actual source wikitext
 		ContentUtils::shiftDSR( $env, $body, function ( $dsr ) use ( &$shiftOffset ) {
 				$dsr[ 0 ] = $shiftOffset( $dsr[ 0 ] );
 				$dsr[ 1 ] = $shiftOffset( $dsr[ 1 ] );
 				// If either offset is invalid, remove entire DSR
-				// if (dsr[0]===null || dsr[1]===null) { return null; }
+				if ( $dsr[ 0 ] === null || $dsr[ 1 ] === null ) { return null;
+	   }
 				return $dsr;
 		}
 		);
