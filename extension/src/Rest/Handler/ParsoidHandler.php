@@ -202,16 +202,20 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * @param string|null $title The page to be transformed
 	 * @param int|null $revision The revision to be transformed
+	 * @param string|null $wikitextOverride Custom wikitext to use instead of the real content of
+	 *   the page.
 	 * @return Env
 	 */
-	protected function createEnv( ?string $title, ?int $revision ): Env {
+	protected function createEnv(
+		?string $title, ?int $revision, string $wikitextOverride = null
+	): Env {
 		$title = !is_null( $title ) ? Title::newFromText( $title ) : Title::newMainPage();
 		if ( !$title ) {
 			// TODO use proper validation
 			throw new LogicException( 'Title not found!' );
 		}
 		$user = RequestContext::getMain()->getUser();
-		$pageConfig = $this->pageConfigFactory->create( $title, $user, $revision );
+		$pageConfig = $this->pageConfigFactory->create( $title, $user, $revision, $wikitextOverride );
 		$options = [];
 		foreach ( [ 'wrapSections', 'scrubWikitext', 'traceFlags', 'dumpFlags' ] as $opt ) {
 			if ( isset( $this->parsoidSettings[$opt] ) ) {
@@ -395,7 +399,7 @@ abstract class ParsoidHandler extends Handler {
 		$startTimers["wt2html.$mstr.parse"] = time();
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		// PORT-FIXME where does $wikitext go?
+
 		if ( $format === FormatHelper::FORMAT_LINT ) {
 			$lints = $parsoid->wikitext2lint( $env->getPageConfig(), $reqOpts );
 			$response = $this->getResponseFactory()->createJson( $lints );

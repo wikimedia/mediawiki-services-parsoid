@@ -25,7 +25,6 @@ class TransformHandler extends ParsoidHandler {
 		$format = $request->getPathParam( 'format' );
 
 		$attribs = &$this->getRequestAttributes();
-		$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
 
 		if ( $from === FormatHelper::FORMAT_WIKITEXT ) {
 			// Accept wikitext as a string or object{body,headers}
@@ -51,6 +50,7 @@ class TransformHandler extends ParsoidHandler {
 			if ( $wikitext === null && $attribs['titleMissing'] ) {
 				throw new \LogicException( 'No title or wikitext was provided.' );
 			}
+			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
 			return $this->wt2html( $env, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			// FIXME validate $html is present
@@ -59,8 +59,10 @@ class TransformHandler extends ParsoidHandler {
 			if ( is_array( $html ) ) {
 				$html = $html['body'];
 			}
+			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
+			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
 			return $this->pb2pb( $env, $attribs );
 		}
 	}
