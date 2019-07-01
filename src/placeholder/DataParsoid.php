@@ -43,7 +43,7 @@ class DataParsoid extends stdClass {
 
 	/**
 	 * Tag widths for all tokens.
-	 * Temporarily present in data-parsoid, but ot in final DOM output.
+	 * Temporarily present in data-parsoid, but not in final DOM output.
 	 * @var SourceRange|null
 	 * @see ComputeDSR::computeNodeDSR()
 	 */
