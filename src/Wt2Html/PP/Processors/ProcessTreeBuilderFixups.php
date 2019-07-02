@@ -10,6 +10,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\Frame;
 use stdClass;
 
 class ProcessTreeBuilderFixups {
@@ -31,14 +32,14 @@ class ProcessTreeBuilderFixups {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $node
 	 * @param stdClass $dp
 	 * @param string $name
 	 * @param stdClass $opts
 	 */
 	private static function addPlaceholderMeta(
-		Env $env, DOMNode $node, stdClass $dp, string $name, stdClass $opts
+		Frame $frame, DOMNode $node, stdClass $dp, string $name, stdClass $opts
 	): void {
 		// If node is in a position where the placeholder
 		// node will get fostered out, dont bother adding one
@@ -52,9 +53,9 @@ class ProcessTreeBuilderFixups {
 
 		if ( !$src ) {
 			if ( !empty( $dp->tsr ) ) {
-				$src = $dp->tsr->substr( $env->topFrame->getSrcText() );
+				$src = $dp->tsr->substr( $frame->getSrcText() );
 			} elseif ( !empty( $opts->tsr ) ) {
-				$src = $opts->tsr->substr( $env->topFrame->getSrcText() );
+				$src = $opts->tsr->substr( $frame->getSrcText() );
 			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
 				if ( !empty( $opts->start ) ) {
 					$src = '<' . $name . '>';
@@ -121,10 +122,10 @@ class ProcessTreeBuilderFixups {
 	 * and adds placeholder metas for the purposes of round-tripping.
 	 * 2. Deletes any useless end-tag marker metas
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $node
 	 */
-	private static function findDeletedStartTags( Env $env, DOMNode $node ): void {
+	private static function findDeletedStartTags( Frame $frame, DOMNode $node ): void {
 		// handle unmatched mw:StartTag meta tags
 		$c = $node->firstChild;
 		while ( $c !== null ) {
@@ -158,7 +159,7 @@ class ProcessTreeBuilderFixups {
 								if ( !empty( $dp->tsr ) &&
 									$dp->tsr->start !== null && $dp->tsr->end !== null
 								) {
-									$origTxt = $dp->tsr->substr( $env->topFrame->getSrcText() );
+									$origTxt = $dp->tsr->substr( $frame->getSrcText() );
 									$origTxtNode = $c->ownerDocument->createTextNode( $origTxt );
 									$c->parentNode->insertBefore( $origTxtNode, $c );
 								} else {
@@ -183,7 +184,7 @@ class ProcessTreeBuilderFixups {
 								}
 							} else {
 								self::addPlaceholderMeta(
-									$env,
+									$frame,
 									$c,
 									$dp,
 									$expectedName,
@@ -202,7 +203,7 @@ class ProcessTreeBuilderFixups {
 						// to start tags!
 					}
 				} else {
-					self::findDeletedStartTags( $env, $c );
+					self::findDeletedStartTags( $frame, $c );
 				}
 			}
 			$c = $sibling;
@@ -214,10 +215,10 @@ class ProcessTreeBuilderFixups {
 	 * and adds autoInsertedEnd/Start flags if it detects the tags to be inserted by
 	 * the HTML tree builder
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $node
 	 */
-	private static function findAutoInsertedTags( Env $env, DOMNode $node ): void {
+	private static function findAutoInsertedTags( Frame $frame, DOMNode $node ): void {
 		$c = $node->firstChild;
 
 		while ( $c !== null ) {
@@ -229,7 +230,7 @@ class ProcessTreeBuilderFixups {
 
 			if ( $c instanceof DOMElement ) {
 				// Process subtree first
-				self::findAutoInsertedTags( $env, $c );
+				self::findAutoInsertedTags( $frame, $c );
 
 				$dp = DOMDataUtils::getDataParsoid( $c );
 				$cNodeName = $c->nodeName;
@@ -296,7 +297,7 @@ class ProcessTreeBuilderFixups {
 						if ( !$sibling || $sibling->nodeName !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
-							self::addPlaceholderMeta( $env, $c, $dp, $expectedName, (object)[ 'end' => true ] );
+							self::addPlaceholderMeta( $frame, $c, $dp, $expectedName, (object)[ 'end' => true ] );
 						} elseif ( !empty( $dp->stx ) ) {
 							DOMUtils::assertElt( $sibling );
 							// Transfer stx flag
@@ -314,7 +315,7 @@ class ProcessTreeBuilderFixups {
 	// Done after `findDeletedStartTags` to give it a chance to cleanup any
 	// leftover meta markers that may trip up the check for whether this element
 	// is indeed empty.
-	private static function removeAutoInsertedEmptyTags( Env $env, DOMNode $node ) {
+	private static function removeAutoInsertedEmptyTags( Frame $frame, DOMNode $node ) {
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			// FIXME: Encapsulation only happens after this phase, so you'd think
@@ -327,7 +328,7 @@ class ProcessTreeBuilderFixups {
 			}
 
 			if ( $c instanceof DOMElement ) {
-				self::removeAutoInsertedEmptyTags( $env, $c );
+				self::removeAutoInsertedEmptyTags( $frame, $c );
 				$dp = DOMDataUtils::getDataParsoid( $c );
 
 				// We do this down here for all elements since the quote transformer
@@ -363,10 +364,12 @@ class ProcessTreeBuilderFixups {
 	/**
 	 * @param DOMElement $body
 	 * @param Env $env
+	 * @param array $options
 	 */
-	public static function run( DOMElement $body, Env $env ): void {
-		self::findAutoInsertedTags( $env, $body );
-		self::findDeletedStartTags( $env, $body );
-		self::removeAutoInsertedEmptyTags( $env, $body );
+	public static function run( DOMElement $body, Env $env, array $options ): void {
+		$frame = $options['frame'];
+		self::findAutoInsertedTags( $frame, $body );
+		self::findDeletedStartTags( $frame, $body );
+		self::removeAutoInsertedEmptyTags( $frame, $body );
 	}
 }

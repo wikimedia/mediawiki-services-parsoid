@@ -10,6 +10,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Wt2Html\TT\Sanitizer;
 use Wikimedia\Assert\Assert;
@@ -59,10 +60,10 @@ class TableFixups {
 	 *
 	 * @see https://phabricator.wikimedia.org/T52603
 	 * @param DOMNode $node
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @return bool|DOMNode
 	 */
-	public function stripDoubleTDs( DOMNode $node, Env $env ) {
+	public function stripDoubleTDs( DOMNode $node, Frame $frame ) {
 		$nextNode = $node->nextSibling;
 
 		/** @var DOMElement $nextNode */
@@ -92,7 +93,7 @@ class TableFixups {
 			}
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
-			$nodeSrc = WTUtils::getWTSource( $env->topFrame, $node );
+			$nodeSrc = WTUtils::getWTSource( $frame, $node );
 			if ( !isset( $dataMW->parts ) ) {
 				$dataMW->parts = [];
 			}
@@ -118,11 +119,13 @@ class TableFixups {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMElement $child
 	 * @param DOMElement $tdNode
 	 */
-	public function hoistTransclusionInfo( Env $env, DOMElement $child, DOMElement $tdNode ): void {
+	public function hoistTransclusionInfo(
+		Frame $frame, DOMElement $child, DOMElement $tdNode
+	): void {
 		$aboutId = $child->getAttribute( 'about' );
 		// Hoist all transclusion information from the child
 		// to the parent tdNode.
@@ -142,7 +145,7 @@ class TableFixups {
 		// Get the td and content source up to the transclusion start
 		if ( $dp->dsr->start < $childDP->dsr->start ) {
 			$width = $childDP->dsr->start - $dp->dsr->start;
-			array_unshift( $parts, mb_substr( $env->topFrame->getSrcText(), $dp->dsr->start, $width ) );
+			array_unshift( $parts, mb_substr( $frame->getSrcText(), $dp->dsr->start, $width ) );
 		}
 
 		// Add wikitext for the table cell content following the
@@ -152,7 +155,7 @@ class TableFixups {
 		// itself.
 		if ( $childDP->dsr->end < $dp->dsr->end ) {
 			$width = $dp->dsr->end - $childDP->dsr->end;
-			$parts[] = mb_substr( $env->topFrame->getSrcText(), $childDP->dsr->end, $width );
+			$parts[] = mb_substr( $frame->getSrcText(), $childDP->dsr->end, $width );
 		}
 
 		// Save the new data-mw on the tdNode
@@ -330,13 +333,14 @@ class TableFixups {
 	 * - There is only a single transclusion in the table cell content. This
 	 *   limitation can be lifted with more advanced data-mw construction.
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMElement $node
 	 * @param DOMElement|null $templateWrapper
 	 */
 	public function reparseTemplatedAttributes(
-		Env $env, DOMElement $node, ?DOMElement $templateWrapper
+		Frame $frame, DOMElement $node, ?DOMElement $templateWrapper
 	): void {
+		$env = $frame->getEnv();
 		// Collect attribute content and examine it
 		$attributishContent = $this->collectAttributishContent( $env, $node, $templateWrapper );
 
@@ -391,7 +395,7 @@ class TableFixups {
 		// lift up the about group to the td node.
 		$transclusionNode = $attributishContent['transclusionNode'] ?? null;
 		if ( $transclusionNode !== null && $node !== $transclusionNode ) {
-			$this->hoistTransclusionInfo( $env, $transclusionNode, $node );
+			$this->hoistTransclusionInfo( $frame, $transclusionNode, $node );
 		}
 
 		// Drop nodes that have been consumed by the reparsed attribute content.
@@ -438,10 +442,10 @@ class TableFixups {
 
 	/**
 	 * @param DOMNode $node
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @return bool
 	 */
-	public function handleTableCellTemplates( DOMNode $node, Env $env ): bool {
+	public function handleTableCellTemplates( DOMNode $node, Frame $frame ): bool {
 		// Don't bother with literal HTML nodes or nodes that don't need reparsing.
 		if ( WTUtils::isLiteralHTMLNode( $node ) || !$this->needsReparsing( $node ) ) {
 			return true;
@@ -457,7 +461,7 @@ class TableFixups {
 
 		if ( !$hasAttrs ) {
 			$templateWrapper = DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ? $node : null;
-			$this->reparseTemplatedAttributes( $env, $node, $templateWrapper );
+			$this->reparseTemplatedAttributes( $frame, $node, $templateWrapper );
 		}
 
 		// Now, examine the <td> to see if it hides additional <td>s
@@ -504,7 +508,7 @@ class TableFixups {
 						DOMUtils::assertElt( $child );
 						// Fix up transclusion wrapping
 						$about = $child->getAttribute( 'about' );
-						$this->hoistTransclusionInfo( $env, $child, $node );
+						$this->hoistTransclusionInfo( $frame, $child, $node );
 					} else {
 						// Refetch the about attribute since 'reparseTemplatedAttributes'
 						// might have added one to it.

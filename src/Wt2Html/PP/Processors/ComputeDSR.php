@@ -17,6 +17,7 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\Frame;
 
 class ComputeDSR {
 	/**
@@ -297,7 +298,7 @@ class ComputeDSR {
 	 * [s,e) -- if defined, start/end position of wikitext source that generated
 	 *          node's subtree
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $node node to process
 	 * @param int|null $s start position, inclusive
 	 * @param int|null $e end position, exclusive
@@ -306,8 +307,9 @@ class ComputeDSR {
 	 * @return DomSourceRange
 	 */
 	private function computeNodeDSR(
-		Env $env, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
+		Frame $frame, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
 	): DomSourceRange {
+		$env = $frame->getEnv();
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
 		}
@@ -583,7 +585,7 @@ class ComputeDSR {
 						} );
 
 						$this->trace( $env, "<recursion>" );
-						$newDsr = $this->computeNodeDSR( $env, $child, $ccs, $cce, $dsrCorrection, $opts );
+						$newDsr = $this->computeNodeDSR( $frame, $child, $ccs, $cce, $dsrCorrection, $opts );
 						$this->trace( $env, "</recursion>" );
 					}
 
@@ -625,13 +627,13 @@ class ComputeDSR {
 						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
 					}
 
-					$env->log( "trace/dsr", function () use ( $env, $child, $cs, $ce, $cTypeOf, $dp ) {
+					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $cTypeOf, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
-							$dp->dbsrc = mb_substr( $env->topFrame->getSrcText(), $cs, $ce - $cs );
+							$dp->dbsrc = mb_substr( $frame->getSrcText(), $cs, $ce - $cs );
 						}
 						return $str;
 					} );
@@ -676,13 +678,13 @@ class ComputeDSR {
 							}
 
 							// Update and move right
-							$env->log( "trace/dsr", function () use ( $env, $newCE, $sibling, $siblingDP ) {
+							$env->log( "trace/dsr", function () use ( $frame, $newCE, $sibling, $siblingDP ) {
 								$str = "     CHANGING ce.start of " . $sibling->nodeName .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 								// debug info
 								if ( $siblingDP->dsr->end ) {
 									$siblingDP->dbsrc =
-										mb_substr( $env->topFrame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
+										mb_substr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
 								}
 								return $str;
 							} );
@@ -785,16 +787,17 @@ class ComputeDSR {
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
-	 *                  [0, $env->topFrame->getSrcText()->length]
+	 *                  [0, mb_strlen($frame->getSrcText())]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 */
 	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
+		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
-		$endOffset = $options['sourceOffsets']->end ?? mb_strlen( $env->topFrame->getSrcText() );
+		$endOffset = $options['sourceOffsets']->end ?? mb_strlen( $frame->getSrcText() );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
-		$this->computeNodeDSR( $env, $rootNode, $startOffset, $endOffset, 0, $opts );
+		$this->computeNodeDSR( $frame, $rootNode, $startOffset, $endOffset, 0, $opts );
 
 		$dp = DOMDataUtils::getDataParsoid( $rootNode );
 		$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );

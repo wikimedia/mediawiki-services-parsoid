@@ -72,7 +72,7 @@ class DOMPostProcessor extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 
-		$this->options = $options;
+		$this->options = $options + [ 'frame' => $env->topFrame ];
 		$this->seenIds = [];
 		$this->processors = [];
 
@@ -341,19 +341,19 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => 'td',
 						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->stripDoubleTDs( $node, $env );
+							return $tableFixer->stripDoubleTDs( $node, $this->options['frame'] );
 						}
 					],
 					[
 						'nodeName' => 'td',
 						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $env );
+							return $tableFixer->handleTableCellTemplates( $node, $this->options['frame'] );
 						}
 					],
 					[
 						'nodeName' => 'th',
 						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $env );
+							return $tableFixer->handleTableCellTemplates( $node, $this->options['frame'] );
 						}
 					],
 					// 3. Deduplicate template styles
@@ -472,6 +472,27 @@ class DOMPostProcessor extends PipelineStage {
 	 */
 	public function setSourceOffsets( SourceRange $so ): void {
 		$this->options['sourceOffsets'] = $so;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setFrame(
+		?Frame $parentFrame, ?string $title, array $args, string $srcText
+	): void {
+		if ( !$parentFrame ) {
+			$this->options['frame'] = $this->env->topFrame->newChild(
+				$title, $args, $srcText
+			);
+		} elseif ( !$title ) {
+			$this->options['frame'] = $parentFrame->newChild(
+				$parentFrame->getTitle(), $parentFrame->getArgs()->args, $srcText
+			);
+		} else {
+			$this->options['frame'] = $parentFrame->newChild(
+				$title, $args, $srcText
+			);
+		}
 	}
 
 	/**

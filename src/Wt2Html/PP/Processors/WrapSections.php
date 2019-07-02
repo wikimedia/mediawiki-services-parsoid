@@ -12,6 +12,7 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\Frame;
 
 use DOMElement;
 use DOMNode;
@@ -20,13 +21,13 @@ class WrapSections {
 	/**
 	 * Get page source between the requested offsets
 	 *
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param int $s
 	 * @param int $e
 	 * @return string
 	 */
-	private function getSrc( Env $env, int $s, int $e ): string {
-		return mb_substr( $env->topFrame->getSrcText(), $s, $e - $s );
+	private function getSrc( Frame $frame, int $s, int $e ): string {
+		return mb_substr( $frame->getSrcText(), $s, $e - $s );
 	}
 
 	/**
@@ -320,11 +321,11 @@ class WrapSections {
 					$dmw = DOMDataUtils::getDataMw( $tplInfo['first'] );
 					if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 						if ( $dmw->parts ) {
-							$dmw->parts[] = $this->getSrc( $state['env'], $tplEndOffset, $newTplEndOffset );
+							$dmw->parts[] = $this->getSrc( $state['frame'], $tplEndOffset, $newTplEndOffset );
 						}
 					} else { /* Extension */
 						// https://phabricator.wikimedia.org/T184779
-						$dmw->extSuffix = $this->getSrc( $state['env'], $tplEndOffset, $newTplEndOffset );
+						$dmw->extSuffix = $this->getSrc( $state['frame'], $tplEndOffset, $newTplEndOffset );
 					}
 
 					// Update DSR
@@ -372,8 +373,8 @@ class WrapSections {
 				$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
 				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 					if ( $dmw->parts ) {
-						array_unshift( $dmw->parts, $this->getSrc( $state['env'], $dsr1, $tplDsr->start ) );
-						$dmw->parts[] = $this->getSrc( $state['env'], $tplDsr->end, $dsr2 );
+						array_unshift( $dmw->parts, $this->getSrc( $state['frame'], $dsr1, $tplDsr->start ) );
+						$dmw->parts[] = $this->getSrc( $state['frame'], $tplDsr->end, $dsr2 );
 					}
 					DOMDataUtils::setDataMw( $newS1, $dmw );
 					$newS1->setAttribute( 'typeof', 'mw:Transclusion' );
@@ -384,8 +385,8 @@ class WrapSections {
 					DOMDataUtils::setDataParsoid( $newS1, $dp );
 				} else { /* extension */
 					// https://phabricator.wikimedia.org/T184779
-					$dmw->extPrefix = $this->getSrc( $state['env'], $dsr1, $tplDsr->start );
-					$dmw->extSuffix = $this->getSrc( $state['env'], $tplDsr->end, $dsr2 );
+					$dmw->extPrefix = $this->getSrc( $state['frame'], $dsr1, $tplDsr->start );
+					$dmw->extSuffix = $this->getSrc( $state['frame'], $tplDsr->end, $dsr2 );
 					DOMDataUtils::setDataMw( $newS1, $dmw );
 					$newS1->setAttribute( 'typeof', $tplInfo['first']->getAttribute( 'typeof' ) );
 					$dp = (object)[ 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ];
@@ -423,6 +424,7 @@ class WrapSections {
 		// Global $state
 		$state = [
 			'env' => $env,
+			'frame' => $options['frame'],
 			'count' => 1,
 			'doc' => $doc,
 			'rootNode' => $rootNode,

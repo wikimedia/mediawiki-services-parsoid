@@ -16,6 +16,7 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\Frame;
 use stdClass;
 use Wikimedia\Assert\Assert;
 
@@ -169,7 +170,7 @@ class WrapTemplates {
 
 	/**
 	 * Find the common DOM ancestor of two DOM nodes.
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMDocument $doc
 	 * @param DOMElement $startElem
 	 * @param DOMElement $endMeta
@@ -177,8 +178,9 @@ class WrapTemplates {
 	 * @return object
 	 */
 	private static function getDOMRange(
-		Env $env, DOMDocument $doc, DOMElement $startElem, DOMElement $endMeta, DOMElement $endElem
+		Frame $frame, DOMDocument $doc, DOMElement $startElem, DOMElement $endMeta, DOMElement $endElem
 	) {
+		$env = $frame->getEnv();
 		$range = (object)[
 			'startElem' => $startElem,
 			'endElem' => $endMeta,
@@ -377,14 +379,14 @@ class WrapTemplates {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param array &$compoundTpls
 	 * @param string $compoundTplId
 	 * @param stdClass $tpl
 	 * @param stdClass $argInfo
 	 */
 	private static function recordTemplateInfo(
-		Env $env, array &$compoundTpls, string $compoundTplId, stdClass $tpl, stdClass $argInfo
+		Frame $frame, array &$compoundTpls, string $compoundTplId, stdClass $tpl, stdClass $argInfo
 	): void {
 		if ( !isset( $compoundTpls[$compoundTplId] ) ) {
 			$compoundTpls[$compoundTplId] = [];
@@ -402,7 +404,7 @@ class WrapTemplates {
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
 				$tplArray[] = (object)[
-					'wt' => mb_substr( $env->topFrame->getSrcText(), $prevTplInfo->dsr->end, $width ),
+					'wt' => mb_substr( $frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
 				];
 			}
 		}
@@ -460,14 +462,15 @@ class WrapTemplates {
 
 	/**
 	 * @param DOMDocument $document
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $docRoot
 	 * @param array $tplRanges
 	 * @return stdClass [ 'ranges' => $newRanges, 'tplArrays' => $compoundTpls ]
 	 */
 	public static function findTopLevelNonOverlappingRanges(
-		DOMDocument $document, Env $env, DOMNode $docRoot, array $tplRanges
+		DOMDocument $document, Frame $frame, DOMNode $docRoot, array $tplRanges
 	): stdClass {
+		$env = $frame->getEnv();
 		$numRanges = count( $tplRanges );
 
 		// For each node, assign an attribute that is a record of all
@@ -656,7 +659,7 @@ class WrapTemplates {
 				if ( $argInfo ) {
 					// 'r' is nested in 'enclosingRange' at the top-level
 					// So, enclosingRange gets r's argInfo
-					self::recordTemplateInfo( $env, $compoundTpls, $enclosingRangeId, $r, $argInfo );
+					self::recordTemplateInfo( $frame, $compoundTpls, $enclosingRangeId, $r, $argInfo );
 				}
 			} elseif ( $prev && self::rangesOverlap( $prev, $r ) ) {
 				// In the common case, in overlapping scenarios, r.start is
@@ -689,7 +692,7 @@ class WrapTemplates {
 
 				// Update compoundTplInfo
 				if ( $argInfo ) {
-					self::recordTemplateInfo( $env, $compoundTpls, $prev->id, $r, $argInfo );
+					self::recordTemplateInfo( $frame, $compoundTpls, $prev->id, $r, $argInfo );
 				}
 			} else {
 				$env->log( 'trace/tplwrap/merge', '--normal--' );
@@ -701,7 +704,7 @@ class WrapTemplates {
 
 				// Update compoundTpls
 				if ( $argInfo ) {
-					self::recordTemplateInfo( $env, $compoundTpls, $r->id, $r, $argInfo );
+					self::recordTemplateInfo( $frame, $compoundTpls, $r->id, $r, $argInfo );
 				}
 			}
 
@@ -754,13 +757,14 @@ class WrapTemplates {
 
 	/**
 	 * @param DOMDocument $doc
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param array $tplRanges
 	 * @param array $tplArrays
 	 */
 	private static function encapsulateTemplates(
-		DOMDocument $doc, Env $env, array $tplRanges, array $tplArrays
+		DOMDocument $doc, Frame $frame, array $tplRanges, array $tplArrays
 	): void {
+		$env = $frame->getEnv();
 		$numRanges = count( $tplRanges );
 		for ( $i = 0;  $i < $numRanges;  $i++ ) {
 			$range = $tplRanges[$i];
@@ -946,7 +950,7 @@ class WrapTemplates {
 					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => mb_substr( $env->topFrame->getSrcText(), $dp1->dsr->start, $width ) ]
+						(object)[ 'wt' => mb_substr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
 					);
 				}
 
@@ -955,7 +959,7 @@ class WrapTemplates {
 				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
 					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[
-						'wt' => mb_substr( $env->topFrame->getSrcText(), $lastTplInfo->dsr->end, $width ),
+						'wt' => mb_substr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
 					];
 				}
 
@@ -1063,7 +1067,7 @@ class WrapTemplates {
 				}
 				$width = $encapInfo->dp->dsr->end - $encapInfo->dp->dsr->start;
 				$encapInfo->dp->src = mb_substr(
-					$env->topFrame->getSrcText(),
+					$frame->getSrcText(),
 					$encapInfo->dp->dsr->start,
 					$width
 				);
@@ -1084,14 +1088,15 @@ class WrapTemplates {
 	 * Recursive worker.
 	 * @private
 	 * @param DOMDocument $doc
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $rootNode
 	 * @param array &$tpls
 	 * @return array
 	 */
 	private static function findWrappableTemplateRanges(
-		DOMDocument $doc, Env $env, DOMNode $rootNode, array &$tpls = []
+		DOMDocument $doc, Frame $frame, DOMNode $rootNode, array &$tpls = []
 	): array {
+		$env = $frame->getEnv();
 		$tplRanges = [];
 		$elem = $rootNode->firstChild;
 		$about = null;
@@ -1139,7 +1144,7 @@ class WrapTemplates {
 								// End marker was foster-parented.
 								// Found actual start tag.
 								$env->log( 'warn/template', 'end marker was foster-parented for', $about );
-								$tplRanges[] = self::getDOMRange( $env, $doc, $elem, $aboutRef->end, $aboutRef->end );
+								$tplRanges[] = self::getDOMRange( $frame, $doc, $elem, $aboutRef->end, $aboutRef->end );
 							} else {
 								// should not happen!
 								Assert::invariant( false, "start found after content for $about." );
@@ -1205,7 +1210,7 @@ class WrapTemplates {
 								$tbl->setAttribute( 'about', $about ); // set about on elem
 								$ee = $tbl;
 							}
-							$tplRanges[] = self::getDOMRange( $env, $doc, $sm, $em, $ee );
+							$tplRanges[] = self::getDOMRange( $frame, $doc, $sm, $em, $ee );
 						} else {
 							$tpls[$about] = (object)[ 'end' => $elem ];
 						}
@@ -1213,7 +1218,7 @@ class WrapTemplates {
 				} else {
 					$tplRanges = array_merge(
 						$tplRanges,
-						self::findWrappableTemplateRanges( $doc, $env, $elem, $tpls )
+						self::findWrappableTemplateRanges( $doc, $frame, $elem, $tpls )
 					);
 				}
 			}
@@ -1226,16 +1231,16 @@ class WrapTemplates {
 
 	/**
 	 * @param DOMDocument $document
-	 * @param Env $env
+	 * @param Frame $frame
 	 * @param DOMNode $node
 	 */
 	private static function wrapTemplatesInTree(
-		DOMDocument $document, Env $env, DOMNode $node
+		DOMDocument $document, Frame $frame, DOMNode $node
 	): void {
-		$tplRanges = self::findWrappableTemplateRanges( $document, $env, $node );
+		$tplRanges = self::findWrappableTemplateRanges( $document, $frame, $node );
 		if ( count( $tplRanges ) > 0 ) {
-			$tplRanges = self::findTopLevelNonOverlappingRanges( $document, $env, $node, $tplRanges );
-			self::encapsulateTemplates( $document, $env, $tplRanges->ranges, $tplRanges->tplArrays );
+			$tplRanges = self::findTopLevelNonOverlappingRanges( $document, $frame, $node, $tplRanges );
+			self::encapsulateTemplates( $document, $frame, $tplRanges->ranges, $tplRanges->tplArrays );
 		}
 	}
 
@@ -1248,6 +1253,6 @@ class WrapTemplates {
 	 * @param array $options
 	 */
 	public static function run( DOMNode $body, Env $env, array $options = [] ): void {
-		self::wrapTemplatesInTree( $body->ownerDocument, $env, $body );
+		self::wrapTemplatesInTree( $body->ownerDocument, $options['frame'], $body );
 	}
 }

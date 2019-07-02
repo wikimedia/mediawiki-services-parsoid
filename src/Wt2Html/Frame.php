@@ -59,6 +59,13 @@ class Frame {
 	}
 
 	/**
+	 * @return Env
+	 */
+	public function getEnv(): Env {
+		return $this->env;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTitle(): string {
