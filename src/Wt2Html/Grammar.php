@@ -285,7 +285,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$tokenizer = new PegTokenizer( $this->env );
   			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
   			$extContentToks = $tokenizer->tokenizeSync( $extContent );
-  			if ( $dp->extTagOffsets->innerLength() > 0 ) {
+  			if ( $dp->extTagOffsets->closeWidth > 0 ) {
   				TokenUtils::stripEOFTkFromTokens( $extContentToks );
   			}
   			array_unshift( $extContentToks, $t );

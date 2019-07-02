@@ -12042,7 +12042,20 @@ Foo<noinclude>zar</noinclude><includeonly>bar</includeonly>
 Un-closed <noinclude>
 !! wikitext
 <noinclude>
-!! html
+!! html/php+tidy
+!! html/parsoid
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
+!! end
+
+!! test
+Empty <noinclude>
+!! wikitext
+Hello<noinclude></noinclude>!
+!! html/php+tidy
+<p>Hello!
+</p>
+!! html/parsoid
+<p>Hello<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>!</p>
 !! end
 
 !! test

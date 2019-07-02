@@ -705,7 +705,6 @@ add("html2wt", "T2041: Template parameters shown as broken links", "<nowiki>{{{p
 add("html2wt", "int keyword", "You have lots of money (not!).\n");
 add("html2wt", "int keyword - non-existing message", "⧼var⧽\n");
 add("html2wt", "<includeonly> and <noinclude> being included", "Foobar\n");
-add("html2wt", "Un-closed <noinclude>", "");
 add("html2wt", "<onlyinclude> on a page", "Foobar\n");
 add("html2wt", "Un-closed <onlyinclude>", "");
 add("html2wt", "Self-closed noinclude, includeonly, onlyinclude tags", "\n\n");
