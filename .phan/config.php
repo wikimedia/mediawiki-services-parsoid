@@ -55,5 +55,6 @@ foreach ( $phpFiles as $f ) {
 
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
+$cfg['exclude_file_list'][] = "tests/ParserTestsPEG.php";
 
 return $cfg;
