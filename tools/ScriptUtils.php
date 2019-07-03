@@ -1,3 +1,7 @@
+<?php // lint >= 99.9
+// phpcs:ignoreFile
+// phpcs:disable Generic.Files.LineLength.TooLong
+/* REMOVE THIS COMMENT AFTER PORTING */
 /**
  * This file contains general utilities for scripts in
  * the bin/, tools/, tests/ directories. This file should
@@ -7,15 +11,15 @@
  * @module
  */
 
-'use strict';
+namespace Parsoid;
 
-require('../core-upgrade.js');
 
-var Promise = require('../lib/utils/promise.js');
-var request = Promise.promisify(require('request'), true);
-var Util = require('../lib/utils/Util.js').Util;
 
-var ScriptUtils = {
+use Parsoid\Promise as Promise;
+$request = Promise::promisify( require( 'request' ), true );
+$Util = require( '../lib/utils/Util.js' )::Util;
+
+$ScriptUtils = [
 	/**
 	 * Split a tracing / debugging flag string into individual flags
 	 * and return them.
@@ -23,12 +27,12 @@ var ScriptUtils = {
 	 * @param {Object} origFlag The original flag string.
 	 * @return {Array}
 	 */
-	splitFlags: function(origFlag) {
-		var objFlags = origFlag.split(",");
-		if (objFlags.indexOf("selser") !== -1 && objFlags.indexOf("wts") === -1) {
-			objFlags.push("wts");
+	'splitFlags' => function ( $origFlag ) {
+		$objFlags = explode( ',', $origFlag );
+		if ( array_search( 'selser', $objFlags ) !== -1 && array_search( 'wts', $objFlags ) === -1 ) {
+			$objFlags[] = 'wts';
 		}
-		return objFlags;
+		return $objFlags;
 	},
 
 	/**
@@ -38,220 +42,329 @@ var ScriptUtils = {
 	 * @param {Object} cliOpts The options object to use for setting the debug flags.
 	 * @return {Object} The modified object.
 	 */
-	setDebuggingFlags: function(parsoidOptions, cliOpts) {
+	'setDebuggingFlags' => function ( $parsoidOptions, $cliOpts ) use ( &$ScriptUtils ) {
 		// Handle the --help options
-		var exit = false;
-		if (cliOpts.trace === 'help') {
-			console.error(ScriptUtils.traceUsageHelp());
-			exit = true;
+		$exit = false;
+		if ( $cliOpts->trace === 'help' ) {
+			$console->error( ScriptUtils::traceUsageHelp() );
+			$exit = true;
 		}
-		if (cliOpts.dump === 'help') {
-			console.error(ScriptUtils.dumpUsageHelp());
-			exit = true;
+		if ( $cliOpts->dump === 'help' ) {
+			$console->error( ScriptUtils::dumpUsageHelp() );
+			$exit = true;
 		}
-		if (cliOpts.debug === 'help') {
-			console.error(ScriptUtils.debugUsageHelp());
-			exit = true;
+		if ( $cliOpts->debug === 'help' ) {
+			$console->error( ScriptUtils::debugUsageHelp() );
+			$exit = true;
 		}
-		if (cliOpts.genTest === 'help') {
-			console.error(ScriptUtils.genTestUsageHelp());
-			exit = true;
+		if ( $cliOpts->genTest === 'help' ) {
+			$console->error( ScriptUtils::genTestUsageHelp() );
+			$exit = true;
 		}
-		if (exit) {
-			process.exit(1);
+		if ( $exit ) {
+			$process->exit( 1 );
 		}
 
 		// Ok, no help requested: process the options.
-		if (cliOpts.debug !== undefined) {
+		if ( $cliOpts->debug !== null ) {
 			// Continue to support generic debugging.
-			if (cliOpts.debug === true) {
-				console.warn("Warning: Generic debugging, not handler-specific.");
-				parsoidOptions.debug = ScriptUtils.booleanOption(cliOpts.debug);
+			if ( $cliOpts->debug === true ) {
+				$console->warn( 'Warning: Generic debugging, not handler-specific.' );
+				$parsoidOptions->debug = ScriptUtils::booleanOption( $cliOpts->debug );
 			} else {
 				// Setting --debug automatically enables --trace
-				parsoidOptions.debugFlags = ScriptUtils.splitFlags(cliOpts.debug);
-				parsoidOptions.traceFlags = parsoidOptions.debugFlags;
+				$parsoidOptions->debugFlags = ScriptUtils::splitFlags( $cliOpts->debug );
+				$parsoidOptions->traceFlags = $parsoidOptions->debugFlags;
 			}
 		}
 
-		if (cliOpts.trace !== undefined) {
-			if (cliOpts.trace === true) {
-				console.warn("Warning: Generic tracing is no longer supported. Ignoring --trace flag. Please provide handler-specific tracing flags, e.g. '--trace pre,html5', to turn it on.");
+		if ( $cliOpts->trace !== null ) {
+			if ( $cliOpts->trace === true ) {
+				$console->warn( "Warning: Generic tracing is no longer supported. Ignoring --trace flag. Please provide handler-specific tracing flags, e.g. '--trace pre,html5', to turn it on." );
 			} else {
 				// Add any new trace flags to the list of existing trace flags (if
 				// any were inherited from debug); otherwise, create a new list.
-				parsoidOptions.traceFlags = (parsoidOptions.traceFlags || []).concat(ScriptUtils.splitFlags(cliOpts.trace));
+				$parsoidOptions->traceFlags = ( $parsoidOptions->traceFlags || [] )->concat( ScriptUtils::splitFlags( $cliOpts->trace ) );
 			}
 		}
 
-		if (cliOpts.dump !== undefined) {
-			if (cliOpts.dump === true) {
-				console.warn("Warning: Generic dumping not enabled. Please set a flag.");
+		if ( $cliOpts->dump !== null ) {
+			if ( $cliOpts->dump === true ) {
+				$console->warn( 'Warning: Generic dumping not enabled. Please set a flag.' );
 			} else {
-				parsoidOptions.dumpFlags = ScriptUtils.splitFlags(cliOpts.dump);
+				$parsoidOptions->dumpFlags = ScriptUtils::splitFlags( $cliOpts->dump );
 			}
 		}
 
-		if (cliOpts.genTest) {
-			if (cliOpts.genTest === true) {
-				console.warn("Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler', to turn it on.");
+		if ( $cliOpts->genTest ) {
+			if ( $cliOpts->genTest === true ) {
+				$console->warn( "Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler', to turn it on." );
 			} else {
-				if (cliOpts.genTest.slice(0,4) === 'dom:') {
-					var domHandlers = new Set([
-						'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
-						'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
-						'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
-						'dom:fixups', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
-						'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
-						'dom:downgrade'
-					]);
-					parsoidOptions.generateFlags = {
-						"handlers": ScriptUtils.splitFlags(cliOpts.genTest),
-						"directory": cliOpts.genDirectory,
-						"pageName": cliOpts.pageName,
-						"fragments": cliOpts.genTestFragments
-					};
-					parsoidOptions.generateFlags.handlers.forEach(function(handler) {
-						console.assert(domHandlers.has(handler),
-							'No matching DOM handler named ' + handler + ' found, exiting.');
-					});
+				if ( array_slice( $cliOpts->genTest, 0, 4/*CHECK THIS*/ ) === 'dom:' ) {
+					$domHandlers = new Set( [
+							'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
+							'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
+							'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
+							'dom:fixups', 'dom:media', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
+							'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
+							'dom:downgrade'
+						]
+					);
+					$parsoidOptions->generateFlags = [
+						'handlers' => ScriptUtils::splitFlags( $cliOpts->genTest ),
+						'directory' => $cliOpts->genDirectory,
+						'pageName' => $cliOpts->pageName,
+						'fragments' => $cliOpts->genTestFragments
+					];
+					$parsoidOptions->generateFlags->handlers->forEach( function ( $handler ) use ( &$domHandlers ) {
+							Assert::invariant( $domHandlers->has( $handler ),
+								'No matching DOM handler named ' . $handler . ' found, exiting.'
+							);
+						}
+					);
 
 				} else {
-					var handlers = new Set([
-						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
-						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler'
-					]);
-					parsoidOptions.generateFlags = {
-						"handler": cliOpts.genTest,
-						"fileName": cliOpts.genTestOut
-					};
-					console.assert(handlers.has(parsoidOptions.generateFlags.handler),
-						'No matching token handler named ' + parsoidOptions.generateFlags.handler + ' found, exiting.');
+					$handlers = new Set( [
+							'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
+							'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
+							'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude',
+							'MigrateTemplateMarkerMetas'
+						]
+					);
+					$parsoidOptions->generateFlags = [
+						'handler' => $cliOpts->genTest,
+						'fileName' => $cliOpts->genTestOut
+					];
+					Assert::invariant( $handlers->has( $parsoidOptions->generateFlags->handler ),
+						'No matching token handler named ' . $parsoidOptions->generateFlags->handler . ' found, exiting.'
+					);
 				}
 			}
 		}
 
-		return parsoidOptions;
+		return $parsoidOptions;
 	},
 
 	/**
 	 * Returns a help message for the tracing flags.
 	 */
-	traceUsageHelp: function() {
-		return [
-			"Tracing",
-			"-------",
-			"- With one or more comma-separated flags, traces those specific phases",
-			"- Supported flags:",
-			"  * peg       : shows tokens emitted by tokenizer",
-			"  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager",
-			"  * async:2   : shows tokens flowing through the Async Token Transform Manager",
-			"  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager",
-			"  * tsp       : shows tokens flowing through the TokenStreamPatcher (useful to see in-order token stream)",
-			"  * list      : shows actions of the list handler",
-			"  * sanitizer : shows actions of the sanitizer",
-			"  * pre       : shows actions of the pre handler",
-			"  * p-wrap    : shows actions of the paragraph wrapper",
-			"  * html      : shows tokens that are sent to the HTML tree builder",
-			"  * dsr       : shows dsr computation on the DOM",
-			"  * tplwrap   : traces template wrapping code (currently only range overlap/nest/merge code)",
-			"  * wts       : trace actions of the regular wikitext serializer",
-			"  * selser    : trace actions of the selective serializer",
-			"  * domdiff   : trace actions of the DOM diffing code",
-			"  * wt-escape : debug wikitext-escaping",
-			"  * batcher   : trace API batch aggregation and dispatch",
-			"  * apirequest: trace all API requests",
-			"  * time      : trace times for various phases (right now, limited to DOMPP passes)",
-			"  * time/dompp: trace times for DOM Post processing passes",
-			"",
-			"--debug enables tracing of all the above phases except Token Transform Managers",
-			"",
-			"Examples:",
-			"$ node parse --trace pre,p-wrap,html < foo",
-			"$ node parse --trace sync:3,dsr < foo",
-		].join('\n');
+	'traceUsageHelp' => function () {
+		return implode(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			"\n", [
+				'Tracing',
+				'-------',
+				'- With one or more comma-separated flags, traces those specific phases',
+				'- Supported flags:',
+				'  * pre-peg   : shows input to tokenizer',
+				'  * peg       : shows tokens emitted by tokenizer',
+				'  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager',
+				'  * async:2   : shows tokens flowing through the Async Token Transform Manager',
+				'  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager',
+				'  * tsp       : shows tokens flowing through the TokenStreamPatcher (useful to see in-order token stream)',
+				'  * list      : shows actions of the list handler',
+				'  * sanitizer : shows actions of the sanitizer',
+				'  * pre       : shows actions of the pre handler',
+				'  * p-wrap    : shows actions of the paragraph wrapper',
+				'  * html      : shows tokens that are sent to the HTML tree builder',
+				'  * dsr       : shows dsr computation on the DOM',
+				'  * tplwrap   : traces template wrapping code (currently only range overlap/nest/merge code)',
+				'  * wts       : trace actions of the regular wikitext serializer',
+				'  * selser    : trace actions of the selective serializer',
+				'  * domdiff   : trace actions of the DOM diffing code',
+				'  * wt-escape : debug wikitext-escaping',
+				'  * batcher   : trace API batch aggregation and dispatch',
+				'  * apirequest: trace all API requests',
+				'  * time      : trace times for various phases (right now, limited to DOMPP passes)',
+				'  * time/dompp: trace times for DOM Post processing passes',
+				'',
+				'--debug enables tracing of all the above phases except Token Transform Managers',
+				'',
+				'Examples:',
+				'$ node parse --trace pre,p-wrap,html < foo',
+				'$ node parse --trace sync:3,dsr < foo'
+			]
+		);
 	},
 
 	/**
 	 * Returns a help message for the dump flags.
 	 */
-	dumpUsageHelp: function() {
-		return [
-			"Dumping state",
-			"-------------",
-			"- Dumps state at different points of execution",
-			"- DOM dumps are always doc.outerHTML",
-			"- Supported flags:",
-			"",
-			"  * tplsrc            : dumps preprocessed template source that will be tokenized (via ?action=expandtemplates)",
-			"  * extoutput         : dumps HTML output form extensions (via ?action=parse)",
-			"",
-			"  --- Dump flags for wt2html DOM passes ---",
-			"  * dom:pre-XXX       : dumps DOM before pass XXX runs",
-			"  * dom:post-XXX      : dumps DOM after pass XXX runs",
-			"",
-			"    Available passes (in the order they run):",
-			"",
-			"      dpload, fostered, tb-fixups, normalize, pwrap, ",
-			"      migrate-metas, pres, migrate-nls, dsr, tplwrap, ",
-			"      dom-unpack, tag:EXT (replace EXT with extension: cite, poem, etc)",
-			"      sections, heading-ids, lang-converter, linter, ",
-			"      strip-metas, linkclasses, redlinks, downgrade",
-			"",
-			"  --- Dump flags for html2wt ---",
-			"  * dom:post-dom-diff : in selective serialization, dumps DOM after running dom diff",
-			"  * dom:post-normal   : in serialization, dumps DOM after normalization",
-			"  * wt2html:limits    : dumps used resources (along with configured limits)\n",
-			"--debug dumps state at these different stages\n",
-			"Examples:",
-			"$ node parse --dump dom:pre-dpload,dom:pre-dsr,dom:pre-tplwrap < foo",
-			"$ node parse --trace html --dump dom:pre-tplwrap < foo",
-			"\n",
-		].join('\n');
+	'dumpUsageHelp' => function () {
+		return implode(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			"\n", [
+				'Dumping state',
+				'-------------',
+				'- Dumps state at different points of execution',
+				'- DOM dumps are always doc.outerHTML',
+				'- Supported flags:',
+				'',
+				'  * tplsrc            : dumps preprocessed template source that will be tokenized (via ?action=expandtemplates)',
+				'  * extoutput         : dumps HTML output form extensions (via ?action=parse)',
+				'',
+				'  --- Dump flags for wt2html DOM passes ---',
+				'  * dom:pre-XXX       : dumps DOM before pass XXX runs',
+				'  * dom:post-XXX      : dumps DOM after pass XXX runs',
+				'',
+				'    Available passes (in the order they run):',
+				'',
+				'      dpload, fostered, tb-fixups, normalize, pwrap, ',
+				'      migrate-metas, pres, migrate-nls, dsr, tplwrap, ',
+				'      dom-unpack, tag:EXT (replace EXT with extension: cite, poem, etc)',
+				'      sections, heading-ids, lang-converter, linter, ',
+				'      strip-metas, linkclasses, redlinks, downgrade',
+				'',
+				'  --- Dump flags for html2wt ---',
+				'  * dom:post-dom-diff : in selective serialization, dumps DOM after running dom diff',
+				'  * dom:post-normal   : in serialization, dumps DOM after normalization',
+				"  * wt2html:limits    : dumps used resources (along with configured limits)\n",
+				"--debug dumps state at these different stages\n",
+				'Examples:',
+				'$ node parse --dump dom:pre-dpload,dom:pre-dsr,dom:pre-tplwrap < foo',
+				'$ node parse --trace html --dump dom:pre-tplwrap < foo',
+				"\n"
+			]
+		);
 	},
 
 	/**
 	 * Returns a help message for the debug flags.
 	 */
-	debugUsageHelp: function() {
-		return [
-			"Debugging",
-			"---------",
-			"- With one or more comma-separated flags, provides more verbose tracing than the equivalent trace flag",
-			"- Supported flags:",
-			"  * pre       : shows actions of the pre handler",
-			"  * wts       : trace actions of the regular wikitext serializer",
-			"  * selser    : trace actions of the selective serializer",
-		].join('\n');
+	'debugUsageHelp' => function () {
+		return implode(
+
+
+
+
+
+
+
+			"\n", [
+				'Debugging',
+				'---------',
+				'- With one or more comma-separated flags, provides more verbose tracing than the equivalent trace flag',
+				'- Supported flags:',
+				'  * pre       : shows actions of the pre handler',
+				'  * wts       : trace actions of the regular wikitext serializer',
+				'  * selser    : trace actions of the selective serializer'
+			]
+		);
 	},
 
 	/**
 	 * Returns a help message for the generate flags.
 	 */
-	genTestUsageHelp: function() {
-		return [
-			"Generate Test Files for token transforms and DOM transforms",
-			"-----------------------------------------------------------",
-			"- Generates transformTest.js compatible output files for token transformers",
-			"- example: --genTest ListHandler --genTestOut listTestFile.txt",
-			"- Supported transformers/handlers:",
-			"  * QuoteTransformer  : records quote transforms",
-			"  * ListHandler       : records list transforms",
-			"  * ParagraphWrapper  : records paragraph transforms",
-			"  * TokenStreamPatcher : records token stream patch transforms",
-			"  * BehaviorSwitchHandler : records behavior switch transforms",
-			"  * SanitizerHandler  : records sanitizer transforms",
-			" ",
-			"- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers",
-			"- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi",
-			"- Supported DOM transforms/handlers:",
-			"    dom:dpload, dom:fostered, dom:process-fixups, dom:normalize",
-			"    dom:pwrap, dom:migrate-metas, dom:pres, dom:migrate-nls",
-			"    dom:dsr, dom:tplwrap, dom:dom-unpack, dom:tag:cite, dom:tag:poem",
-			"    dom:fixups, dom:sections, dom:heading-ids, dom:lang-converter",
-			"    dom:strip-metas, dom:cleanup, dom:linkclasses, dom:redlinks",
-			"    dom:downgrade"
-		].join('\n');
+	'genTestUsageHelp' => function () {
+		return implode(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			"\n", [
+				'Generate Test Files for token transforms and DOM transforms',
+				'-----------------------------------------------------------',
+				'- Generates transformTest.js compatible output files for token transformers',
+				'- example: --genTest ListHandler --genTestOut listTestFile.txt',
+				'- Supported transformers/handlers:',
+				'  * QuoteTransformer  : records quote transforms',
+				'  * ListHandler       : records list transforms',
+				'  * ParagraphWrapper  : records paragraph transforms',
+				'  * TokenStreamPatcher : records token stream patch transforms',
+				'  * BehaviorSwitchHandler : records behavior switch transforms',
+				'  * SanitizerHandler  : records sanitizer transforms',
+				'  * PreHandler        : generates pre-block as needed contextually',
+				'  * NoIncludeOnly     : 3 tags, IncludeOnly, OnlyInclude and NoInclude for templates',
+				' ',
+				'- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers',
+				'- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi',
+				'- Supported DOM transforms/handlers:',
+				'    dom:dpload, dom:fostered, dom:process-fixups, dom:normalize',
+				'    dom:pwrap, dom:migrate-metas, dom:pres, dom:migrate-nls',
+				'    dom:dsr, dom:tplwrap, dom:dom-unpack, dom:tag:cite, dom:tag:poem',
+				'    dom:fixups, dom:sections, dom:heading-ids, dom:lang-converter',
+				'    dom:strip-metas, dom:cleanup, dom:linkclasses, dom:redlinks',
+				'    dom:downgrade'
+			]
+		);
 	},
 
 	/**
@@ -262,48 +375,53 @@ var ScriptUtils = {
 	 * @param {Object} cliOpts The options object to use for setting the debug flags.
 	 * @return {Object} The modified object.
 	 */
-	setTemplatingAndProcessingFlags: function(parsoidOptions, cliOpts) {
+	'setTemplatingAndProcessingFlags' => function ( $parsoidOptions, $cliOpts ) use ( &$ScriptUtils ) {
 		[
 			'fetchConfig',
 			'fetchTemplates',
 			'fetchImageInfo',
 			'expandExtensions',
 			'rtTestMode',
-			'addHTMLTemplateParameters',
-		].forEach(function(c) {
-			if (cliOpts[c] !== undefined) {
-				parsoidOptions[c] = ScriptUtils.booleanOption(cliOpts[c]);
+			'addHTMLTemplateParameters'
+		]->forEach( function ( $c ) use ( &$cliOpts, &$parsoidOptions, &$ScriptUtils ) {
+				if ( $cliOpts[ $c ] !== null ) {
+					$parsoidOptions[ $c ] = ScriptUtils::booleanOption( $cliOpts[ $c ] );
+				}
 			}
-		});
-		if (cliOpts.usePHPPreProcessor !== undefined) {
-			parsoidOptions.usePHPPreProcessor = parsoidOptions.fetchTemplates &&
-				ScriptUtils.booleanOption(cliOpts.usePHPPreProcessor);
+		);
+		if ( $cliOpts->usePHPPreProcessor !== null ) {
+			$parsoidOptions->usePHPPreProcessor = $parsoidOptions->fetchTemplates
+&&				ScriptUtils::booleanOption( $cliOpts->usePHPPreProcessor );
 		}
-		if (cliOpts.maxDepth !== undefined) {
-			parsoidOptions.maxDepth = typeof (cliOpts.maxdepth) === 'number' ?
-				cliOpts.maxdepth : parsoidOptions.maxDepth;
+		if ( $cliOpts->maxDepth !== null ) {
+			$parsoidOptions->maxDepth = ( gettype( $cliOpts->maxdepth ) === 'number' ) ?
+			$cliOpts->maxdepth : $parsoidOptions->maxDepth;
 		}
-		if (cliOpts.apiURL) {
-			if (!Array.isArray(parsoidOptions.mwApis)) {
-				parsoidOptions.mwApis = [];
+		if ( $cliOpts->apiURL ) {
+			if ( !is_array( $parsoidOptions->mwApis ) ) {
+				$parsoidOptions->mwApis = [];
 			}
-			parsoidOptions.mwApis.push({ prefix: 'customwiki', uri: cliOpts.apiURL });
+			$parsoidOptions->mwApis[] = [ 'prefix' => 'customwiki', 'uri' => $cliOpts->apiURL ];
 		}
-		if (cliOpts.addHTMLTemplateParameters !== undefined) {
-			parsoidOptions.addHTMLTemplateParameters =
-				ScriptUtils.booleanOption(cliOpts.addHTMLTemplateParameters);
+		if ( $cliOpts->addHTMLTemplateParameters !== null ) {
+			$parsoidOptions->addHTMLTemplateParameters =
+			ScriptUtils::booleanOption( $cliOpts->addHTMLTemplateParameters );
 		}
-		if (cliOpts.lint) {
-			parsoidOptions.linting = true;
-			if (!parsoidOptions.linter) {
-				parsoidOptions.linter = {};
+		if ( $cliOpts->lint ) {
+			$parsoidOptions->linting = true;
+			if ( !$parsoidOptions->linter ) {
+				$parsoidOptions->linter = [];
 			}
-			parsoidOptions.linter.sendAPI = false;
+			$parsoidOptions->linter->sendAPI = false;
 		}
-		if (cliOpts.useBatchAPI !== null) {
-			parsoidOptions.useBatchAPI = ScriptUtils.booleanOption(cliOpts.useBatchAPI);
+		if ( $cliOpts->useBatchAPI !== null ) {
+			$parsoidOptions->useBatchAPI = $cliOpts->useBatchAPI;
 		}
-		return parsoidOptions;
+		if ( $cliOpts->phpConfigFile ) {
+			$parsoidOptions->phpConfigFile = $cliOpts->phpConfigFile;
+		}
+
+		return $parsoidOptions;
 	},
 
 	/**
@@ -316,9 +434,9 @@ var ScriptUtils = {
 	 *   a boolean, or a string naming a boolean value.
 	 * @return {boolean}
 	 */
-	booleanOption: function(val) {
-		if (!val) { return false; }
-		if ((typeof val) === 'string' && /^(no|false)$/i.test(val)) {
+	'booleanOption' => function ( $val ) {
+		if ( !$val ) { return false;  }
+		if ( ( gettype( $val ) ) === 'string' && preg_match( '/^(no|false)$/', $val ) ) {
 			return false;
 		}
 		return true;
@@ -333,14 +451,14 @@ var ScriptUtils = {
 	 *   Whether to use color.  Passing 'auto' will enable color only if
 	 *   stdout is a TTY device.
 	 */
-	setColorFlags: function(options) {
-		var colors = require('colors');
-		if (options.color === 'auto') {
-			if (!process.stdout.isTTY) {
-				colors.mode = 'none';
+	'setColorFlags' => function ( $options ) use ( &$ScriptUtils ) {
+		$colors = require( 'colors' );
+		if ( $options->color === 'auto' ) {
+			if ( !$process->stdout->isTTY ) {
+				$colors->mode = 'none';
 			}
-		} else if (!ScriptUtils.booleanOption(options.color)) {
-			colors.mode = 'none';
+		} elseif ( !ScriptUtils::booleanOption( $options->color ) ) {
+			$colors->mode = 'none';
 		}
 	},
 
@@ -353,111 +471,114 @@ var ScriptUtils = {
 	 * The `defaults` option is optional, and lets you override
 	 * the defaults for the standard options.
 	 */
-	addStandardOptions: function(opts, defaults) {
-		var standardOpts = {
+	'addStandardOptions' => function ( $opts, $defaults ) use ( &$Util ) {
+		$standardOpts = [
 			// standard CLI options
-			'help': {
-				description: 'Show this help message',
-				'boolean': true,
-				'default': false,
-				alias: 'h',
-			},
+			'help' => [
+				'description' => 'Show this help message',
+				'boolean' => true,
+				'default' => false,
+				'alias' => 'h'
+			],
 			// handled by `setDebuggingFlags`
-			'debug': {
-				description: 'Provide optional flags. Use --debug=help for supported options',
-			},
-			'trace': {
-				description: 'Use --trace=help for supported options',
-			},
-			'dump': {
-				description: 'Dump state. Use --dump=help for supported options',
-			},
-			'genTest': {
-				description: 'Generates token transformer and DOM pass tests. Use --genTest=help for supported options',
-				'default': '',
-				'boolean': false,
-			},
-			'genTestOut': {
-				description: 'Output file to use for token transformer tests',
-				'default': '',
-				'boolean': false,
-			},
-			'genDirectory': {
-				description: 'Output directory to use for DOM tests',
-				'default': '',
-				'boolean': false,
-			},
-			'genTestFragments': {
-				description: 'Enable fragment generation in DOM genTest output',
-				'default': false,
-				'boolean': true,
-			},
+			'debug' => [
+				'description' => 'Provide optional flags. Use --debug=help for supported options'
+			],
+			'trace' => [
+				'description' => 'Use --trace=help for supported options'
+			],
+			'dump' => [
+				'description' => 'Dump state. Use --dump=help for supported options'
+			],
+			'genTest' => [
+				'description' => 'Generates token transformer and DOM pass tests. Use --genTest=help for supported options',
+				'default' => '',
+				'boolean' => false
+			],
+			'genTestOut' => [
+				'description' => 'Output file to use for token transformer tests',
+				'default' => '',
+				'boolean' => false
+			],
+			'genDirectory' => [
+				'description' => 'Output directory to use for DOM tests',
+				'default' => '',
+				'boolean' => false
+			],
+			'genTestFragments' => [
+				'description' => 'Enable fragment generation in DOM genTest output',
+				'default' => false,
+				'boolean' => true
+			],
 			// handled by `setTemplatingAndProcessingFlags`
-			'fetchConfig': {
-				description: 'Whether to fetch the wiki config from the server or use our local copy',
-				'boolean': true,
-				'default': true,
-			},
-			'fetchTemplates': {
-				description: 'Whether to fetch included templates recursively',
-				'boolean': true,
-				'default': true,
-			},
-			'fetchImageInfo': {
-				description: 'Whether to fetch image info via the API',
-				'boolean': true,
-				'default': true,
-			},
-			'expandExtensions': {
-				description: 'Whether we should request extension tag expansions from a wiki',
-				'boolean': true,
-				'default': true,
-			},
-			'usePHPPreProcessor': {
-				description: 'Whether to use the PHP preprocessor to expand templates',
-				'boolean': true,
-				'default': true,
-			},
-			'addHTMLTemplateParameters': {
-				description: 'Parse template parameters to HTML and add them to template data',
-				'boolean': true,
-				'default': false,
-			},
-			'maxdepth': {
-				description: 'Maximum expansion depth',
-				'default': 40,
-			},
-			'apiURL': {
-				description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
-				'default': null,
-			},
-			'rtTestMode': {
-				description: 'Test in rt test mode (changes some parse & serialization strategies)',
-				'boolean': true,
-				'default': false,
-			},
-			'useBatchAPI': {
-				description: 'Turn on/off the API batching system',
-				// Since I picked a null default (to let the default config setting be the default),
-				// I cannot make this a boolean option.
-				'boolean': false,
-				'default': null,
-			},
+			'fetchConfig' => [
+				'description' => 'Whether to fetch the wiki config from the server or use our local copy',
+				'boolean' => true,
+				'default' => true
+			],
+			'fetchTemplates' => [
+				'description' => 'Whether to fetch included templates recursively',
+				'boolean' => true,
+				'default' => true
+			],
+			'fetchImageInfo' => [
+				'description' => 'Whether to fetch image info via the API',
+				'boolean' => true,
+				'default' => true
+			],
+			'expandExtensions' => [
+				'description' => 'Whether we should request extension tag expansions from a wiki',
+				'boolean' => true,
+				'default' => true
+			],
+			'usePHPPreProcessor' => [
+				'description' => 'Whether to use the PHP preprocessor to expand templates',
+				'boolean' => true,
+				'default' => true
+			],
+			'addHTMLTemplateParameters' => [
+				'description' => 'Parse template parameters to HTML and add them to template data',
+				'boolean' => true,
+				'default' => false
+			],
+			'maxdepth' => [
+				'description' => 'Maximum expansion depth',
+				'default' => 40
+			],
+			'apiURL' => [
+				'description' => 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
+				'default' => null
+			],
+			'rtTestMode' => [
+				'description' => 'Test in rt test mode (changes some parse & serialization strategies)',
+				'boolean' => true,
+				'default' => false
+			],
+			'useBatchAPI' => [
+				'description' => 'Turn on/off the API batching system',
+				'boolean' => false
+			],
+			'phpConfigFile' => [
+				'description' => 'PHP config to splice into the JS pipelines',
+				'boolean' => false,
+				'default' => null
+			],
 			// handled by `setColorFlags`
-			'color': {
-				description: 'Enable color output Ex: --no-color',
-				'default': 'auto',
-			},
-		};
+			'color' => [
+				'description' => 'Enable color output Ex: --no-color',
+				'default' => 'auto'
+			]
+		];
 		// allow overriding defaults
-		Object.keys(defaults || {}).forEach(function(name) {
-			if (standardOpts[name]) {
-				standardOpts[name].default = defaults[name];
+		Object::keys( $defaults || [] )->forEach( function ( $name ) use ( &$standardOpts, &$defaults ) {
+				if ( $standardOpts[ $name ] ) {
+					$standardOpts[ $name ]->default = $defaults[ $name ];
+				}
 			}
-		});
-		return Util.extendProps(opts, standardOpts);
-	},
-};
+		);
+		return Util::extendProps( $opts, $standardOpts );
+	}
+];
 
 /**
  * Perform a HTTP request using the 'request' package, and retry on failures.
@@ -468,30 +589,35 @@ var ScriptUtils = {
  * @param {number} [delay] Exponential back-off.
  * @return {Promise}
  */
-ScriptUtils.retryingHTTPRequest = function(retries, requestOptions, delay) {
-	delay = delay || 100;  // start with 100ms
-	return request(requestOptions)
-	.catch(function(error) {
-		if (retries--) {
-			console.error('HTTP ' + requestOptions.method + ' to \n' +
-					(requestOptions.uri || requestOptions.url) + ' failed: ' + error +
-					'\nRetrying in ' + (delay / 1000) + ' seconds.');
-			return Promise.delay(delay).then(function() {
-				return ScriptUtils.retryingHTTPRequest(retries, requestOptions, delay * 2);
-			});
-		} else {
-			return Promise.reject(error);
+ScriptUtils::retryingHTTPRequest = function ( $retries, $requestOptions, $delay ) use ( &$request, &$Promise, &$ScriptUtils ) {
+	$delay = $delay || 100; // start with 100ms
+	return $request( $requestOptions )->
+	catch( function ( $error ) use ( &$retries, &$requestOptions, &$delay, &$Promise, &$ScriptUtils ) {
+			if ( $retries-- ) {
+				$console->error( 'HTTP ' . $requestOptions->method . " to \n"
+.						( $requestOptions->uri || $requestOptions->url ) . ' failed: ' . $error
+.						"\nRetrying in " . ( $delay / 1000 ) . ' seconds.'
+				);
+				return Promise::delay( $delay )->then( function () use ( &$ScriptUtils, &$retries, &$requestOptions, &$delay ) {
+						return ScriptUtils::retryingHTTPRequest( $retries, $requestOptions, $delay * 2 );
+					}
+				);
+			} else {
+				return Promise::reject( $error );
+			}
 		}
-	})
-	.spread(function(res, body) {
-		if (res.statusCode !== 200) {
-			throw new Error('Got status code: ' + res.statusCode +
-				'; body: ' + JSON.stringify(body).substr(0, 500));
+	)->
+	spread( function ( $res, $body ) {
+			if ( $res->statusCode !== 200 ) {
+				throw new Error( 'Got status code: ' . $res->statusCode
+.						'; body: ' . substr( json_encode( $body ), 0, 500 )
+				);
+			}
+			return Array::from( $arguments );
 		}
-		return Array.from(arguments);
-	});
+	);
 };
 
-if (typeof module === "object") {
-	module.exports.ScriptUtils = ScriptUtils;
+if ( gettype( $module ) === 'object' ) {
+	$module->exports->ScriptUtils = $ScriptUtils;
 }

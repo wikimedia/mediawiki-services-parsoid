@@ -45,6 +45,9 @@ function wfCollectPhpFiles( string $dir, ?array &$result = [] ) {
 // and exclude them.
 $root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
 wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'src', $phpFiles );
+wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'bin', $phpFiles );
+wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'tests', $phpFiles );
+wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'tools', $phpFiles );
 foreach ( $phpFiles as $f ) {
 	$c = file_get_contents( $f, false, null, 0, 1024 );
 	if ( preg_match( '/REMOVE THIS COMMENT AFTER PORTING/', $c ) ) {
