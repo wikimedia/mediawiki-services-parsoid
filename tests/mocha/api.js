@@ -828,6 +828,31 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it.only('should use the proper source text', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
+			.send({
+				original: {
+					wikitext: {
+						headers: {
+							'content-type': 'text/plain;profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"',
+						},
+						body: "{{echo|foo|bar=bat}}",
+					},
+				},
+			})
+			.expect(validHtmlResponse(function(doc) {
+				validateDoc(doc, 'P', false);
+				var p = doc.querySelector('P[typeof="mw:Transclusion"]');
+				var dmw = JSON.parse(p.getAttribute('data-mw'));
+				var template = dmw.parts[0].template;
+				template.target.wt.should.equal('echo');
+				template.params[1].wt.should.equal('foo');
+				template.params.bar.wt.should.equal('bat');
+			}))
+			.end(done);
+		});
+
 		it('should accept the wikitext source as original without a title or revision', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
