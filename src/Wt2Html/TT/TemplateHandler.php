@@ -266,7 +266,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $canonicalFunctionName !== null ) {
 			// Extract toks that make up pfArg
 			$pfArgToks = null;
-			// PORTING XXX shouldn't we be preg_quote'ing this?
+			// PORT-FIXME shouldn't we be preg_quote'ing this?
 			$re = '/^(.*?)' . $prefix . '/i';
 
 			// Because of the lenient stringifying above, we need to find the
@@ -286,7 +286,7 @@ class TemplateHandler extends TokenHandler {
 					// Check if they combined
 					$offset = strlen( $buf ) - strlen( $t ) - strlen( $match[1] );
 					if ( $offset > 0 ) {
-						// PORTING XXX shouldn't we be preg_quote'ing this?
+						// PORT-FIXME shouldn't we be preg_quote'ing this?
 						$re = '/^' . substr( $prefix, $offset ) . '/i';
 					}
 					$index = $i;

@@ -133,11 +133,11 @@ class PHPUtils {
 
 	/**
 	 * Return a substring, asserting that it is valid UTF-8.
-	 * By default we assuming the full string was valid UTF-8, which allows
+	 * By default we assume the full string was valid UTF-8, which allows
 	 * us to look at the first and last bytes to make this check.
 	 * You can check the entire string if you are feeling paranoid; it
 	 * will take O(N) time (where N is the length of the substring) but
-	 * do does the substring operation.
+	 * so does the substring operation.
 	 *
 	 * If the substring would start beyond the end of the string or
 	 * end before the start of the string, then this function will
@@ -190,7 +190,7 @@ class PHPUtils {
 				// was valid UTF-8
 				'Bad UTF-8 at end of string (>4 byte sequence)'
 			);
-			$lastChar = ord( substr( $ss, $i, 1 ) );
+			$lastChar = ord( $ss[$i] );
 		} while ( ( $lastChar & 0xC0 ) === 0x80 );
 		if ( ( $lastChar & 0x80 ) === 0 ) {
 			Assert::invariant(

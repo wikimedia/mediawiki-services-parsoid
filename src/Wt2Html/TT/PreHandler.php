@@ -425,8 +425,6 @@ class PreHandler extends TokenHandler {
 	 */
 	private function getUpdatedPreTSR( int $tsr, $token ): int {
 		if ( $token instanceof CommentTk ) {
-			// comment length has 7 added for "<!--" and "-->" deliminters
-			// (see WTUtils.decodedCommentLength)
 			$tsr = isset( $token->dataAttribs->tsr ) ? $token->dataAttribs->tsr->end :
 				( ( $tsr === -1 ) ? -1 : WTUtils::decodedCommentLength( $token ) + $tsr );
 		} elseif ( $token instanceof SelfclosingTagTk ) {

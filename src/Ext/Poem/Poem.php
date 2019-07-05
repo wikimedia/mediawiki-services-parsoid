@@ -18,7 +18,7 @@ class Poem implements ExtensionTag {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
-		if ( $content && mb_strlen( $content ) > 0 ) {
+		if ( strlen( $content ) > 0 ) {
 			$content = preg_replace(
 				'/^ /m', '&nbsp;', preg_replace(
 					'/\n$/', '', preg_replace(
