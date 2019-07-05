@@ -1,0 +1,10 @@
+# This configuration runs all the transformers registered for stage 1,
+# 2, and 4 in hybrid mode.
+# See phpconfig.example.yaml in the root directory for full docs
+wt2html:
+  # Stage 1
+  PegTokenizer: true
+  # Stage 2
+  SyncTokenTransformManager1: true
+  # Stage 4
+  SyncTokenTransformManager3: true

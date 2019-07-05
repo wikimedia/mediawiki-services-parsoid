@@ -1,0 +1,5 @@
+# This configuration runs all the transformers registered for stage 5
+# in hybrid mode
+# See phpconfig.example.yaml in the root directory for full docs
+wt2html:
+  HTML5TreeBuilder: true

@@ -1,0 +1,5 @@
+# This configuration runs all the transformers registered for stage 4
+# in hybrid mode
+# See phpconfig.example.yaml in the root directory for full docs
+wt2html:
+  SyncTokenTransformManager3: true
