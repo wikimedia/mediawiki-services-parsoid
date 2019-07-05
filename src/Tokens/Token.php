@@ -262,16 +262,24 @@ abstract class Token implements \JsonSerializable {
 			if ( is_array( $e["k"] ?? null ) ) {
 				self::rebuildNestedTokens( $e["k"] );
 			}
-			if ( is_array( $e["v"] ?? null ) ) {
-				self::rebuildNestedTokens( $e["v"] );
+			$v = $e['v'] ?? null;
+			if ( is_array( $v ) ) {
+				// $v is either an array of Tokens or an array of KVs
+				if ( count( $v ) > 0 ) {
+					if ( is_array( $v[0] ) && array_key_exists( 'k', $v[0] ) ) {
+						$v = self::kvsFromArray( $v );
+					} else {
+						self::rebuildNestedTokens( $v );
+					}
+				}
 			}
 			$so = $e["srcOffsets"] ?? null;
 			if ( $so ) {
 				$so = KVSourceRange::fromArray( $so );
 			}
 			$kvs[] = new KV(
-				$e["k"],
-				$e["v"],
+				$e["k"] ?? null,
+				$v,
 				$so,
 				$e["ksrc"] ?? null,
 				$e["vsrc"] ?? null

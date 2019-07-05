@@ -106,7 +106,7 @@ class IncludeOnly extends TokenCollector {
 				// DSR computation comes out correct.
 				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => new SourceRange( null, null ) ] )->tsr;
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, $name,
-					true, new SourceRange( $tsr->end, $tsr->end ), null );
+					true, new SourceRange( $tsr->end, $tsr->end ), '' );
 			}
 		}
 
