@@ -146,11 +146,7 @@ class Util {
 		$src = $token->getAttribute( 'source' );
 		$extTagOffsets = $token->dataAttribs->extTagOffsets;
 		'@phan-var \Parsoid\Tokens\DomSourceRange $extTagOffsets';
-		return PHPUtils::safeSubstr(
-			$src,
-			$extTagOffsets->openWidth,
-			-$extTagOffsets->closeWidth
-		);
+		return $extTagOffsets->stripTags( $src );
 	}
 
 	/**

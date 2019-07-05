@@ -74,6 +74,29 @@ class DomSourceRange extends SourceRange {
 	}
 
 	/**
+	 * Strip the tag open and close from the beginning and end of the
+	 * provided string.  This is similar to `DomSourceRange::innerSubstr()`
+	 * but we assume that the string before `$this->start` and after
+	 * `$this->end` has already been removed. (That is, that the input
+	 * is `$this->substr( $originalWikitextSource )`.)
+	 *
+	 * @param string $src The source text string from `$this->start`
+	 *   (inclusive) to `$this->end` (exclusive).
+	 * @return string
+	 */
+	public function stripTags( string $src ): string {
+		Assert::invariant(
+			strlen( $src ) === $this->length(),
+			"Input string not the expected length"
+		);
+		return PHPUtils::safeSubstr(
+			$src,
+			$this->openWidth,
+			-$this->closeWidth
+		);
+	}
+
+	/**
 	 * Return a new DOM source range shifted by $amount.
 	 * @param int $amount The amount to shift by
 	 * @return DomSourceRange

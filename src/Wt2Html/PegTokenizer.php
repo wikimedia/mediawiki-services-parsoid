@@ -24,6 +24,8 @@ use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
 use WikiPEG\SyntaxError;
 
+use Wikimedia\Assert\Assert;
+
 class PegTokenizer extends PipelineStage {
 	private $traceTime;
 	private $options;
@@ -88,7 +90,8 @@ class PegTokenizer extends PipelineStage {
 	 * @return array|bool FIXME
 	 */
 	public function process( $input, array $opts = null ) {
-		'@phan-var string $input'; // @var string $input
+		Assert::invariant( is_string( $input ), "Input should be a string" );
+		PHPUtils::assertValidUTF8( $input ); // Transitional check for PHP port
 		return $this->tokenizeSync( $input, $opts ?? [] );
 	}
 
@@ -110,10 +113,8 @@ class PegTokenizer extends PipelineStage {
 			$this->initGrammar();
 		}
 
-		// ensure we're processing text
-		$text = strval( $text );
-
-		'@phan-var string $text'; // @var string $text
+		Assert::invariant( is_string( $text ), "Input should be a string" );
+		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
 
 		// Kick it off!
 		$pipelineOffset = $this->offsets['startOffset'] ?? 0;
@@ -158,6 +159,7 @@ class PegTokenizer extends PipelineStage {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
+		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
 		$args += [
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,

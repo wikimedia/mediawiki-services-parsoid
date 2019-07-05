@@ -250,7 +250,6 @@ class XMLSerializer {
 		if ( DOMUtils::isBody( $node ) ) {
 			$out['html'] .= $bit;
 			if ( $flag === 'start' ) {
-				PHPUtils::assertValidUTF8( $out['html'] );
 				$out['start'] = strlen( $out['html'] );
 			} elseif ( $flag === 'end' ) {
 				$out['start'] = null;
@@ -264,7 +263,6 @@ class XMLSerializer {
 			// is the node itself but options.innerXML is true.
 			$out['html'] .= $bit;
 			if ( $out['uid'] !== null ) {
-				PHPUtils::assertValidUTF8( $bit );
 				$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 			}
 		} else {
@@ -287,11 +285,9 @@ class XMLSerializer {
 			}
 			Assert::invariant( $out['uid'] !== null, 'uid cannot be null' );
 			if ( !isset( $out['offsets'][$out['uid']] ) ) {
-				PHPUtils::assertValidUTF8( $out['html'] );
 				$dt = strlen( $out['html'] ) - $out['start'];
 				$out['offsets'][$out['uid']] = [ 'html' => [ $dt, $dt ] ];
 			}
-			PHPUtils::assertValidUTF8( $bit );
 			$out['html'] .= $bit;
 			$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 		}
@@ -346,6 +342,8 @@ class XMLSerializer {
 		if ( !$options['innerXML'] && $node->nodeName === 'html' && $options['addDoctype'] ) {
 			$out['html'] = "<!DOCTYPE html>\n" . $out['html'];
 		}
+		// Verify UTF-8 soundness (transitional check for PHP port)
+		PHPUtils::assertValidUTF8( $out['html'] );
 		// Drop the bookkeeping
 		unset( $out['start'], $out['uid'], $out['last'] );
 		if ( !$options['captureOffsets'] ) {

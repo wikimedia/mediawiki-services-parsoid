@@ -404,7 +404,7 @@ class WrapTemplates {
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
 				$tplArray[] = (object)[
-					'wt' => substr( $frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
+					'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
 				];
 			}
 		}
@@ -950,7 +950,7 @@ class WrapTemplates {
 					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => substr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
+						(object)[ 'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
 					);
 				}
 
@@ -959,7 +959,7 @@ class WrapTemplates {
 				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
 					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[
-						'wt' => substr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
+						'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
 					];
 				}
 
@@ -1065,11 +1065,8 @@ class WrapTemplates {
 					$encapInfo->dp->dsr->start = $dp1->dsr->start;
 					$encapInfo->dp->dsr->end = $dp1->dsr->end;
 				}
-				$width = $encapInfo->dp->dsr->end - $encapInfo->dp->dsr->start;
-				$encapInfo->dp->src = substr(
-					$frame->getSrcText(),
-					$encapInfo->dp->dsr->start,
-					$width
+				$encapInfo->dp->src = $encapInfo->dp->dsr->substr(
+					$frame->getSrcText()
 				);
 			}
 

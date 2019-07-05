@@ -8,6 +8,7 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\Frame;
@@ -145,7 +146,7 @@ class TableFixups {
 		// Get the td and content source up to the transclusion start
 		if ( $dp->dsr->start < $childDP->dsr->start ) {
 			$width = $childDP->dsr->start - $dp->dsr->start;
-			array_unshift( $parts, substr( $frame->getSrcText(), $dp->dsr->start, $width ) );
+			array_unshift( $parts, PHPUtils::safeSubstr( $frame->getSrcText(), $dp->dsr->start, $width ) );
 		}
 
 		// Add wikitext for the table cell content following the
@@ -155,7 +156,7 @@ class TableFixups {
 		// itself.
 		if ( $childDP->dsr->end < $dp->dsr->end ) {
 			$width = $dp->dsr->end - $childDP->dsr->end;
-			$parts[] = substr( $frame->getSrcText(), $childDP->dsr->end, $width );
+			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $childDP->dsr->end, $width );
 		}
 
 		// Save the new data-mw on the tdNode

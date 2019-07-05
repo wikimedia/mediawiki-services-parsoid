@@ -465,9 +465,10 @@ class PreHandler extends TokenHandler {
 				$this->tokens = [];
 				$this->preWSToken = $token[ 0 ];
 				$this->state = self::STATE_PRE;
-				if ( !preg_match( '/^ $/', $token ) ) {
+				if ( strlen( $token ) > 1 ) {
 					// Treat everything after the first space
 					// as a new token
+					// (`substr` not `mb_substr` since we know space is ASCII)
 					$this->onAny( substr( $token, 1 ) );
 				}
 			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
@@ -519,8 +520,9 @@ class PreHandler extends TokenHandler {
 
 				// check if token is single-space or more
 				$this->multiLinePreWSToken = $token[ 0 ];
-				if ( !preg_match( '/^ $/', $token ) ) {
+				if ( strlen( $token ) > 1 ) {
 					// Treat everything after the first space as a new token
+					// (`substr` not `mb_substr` since we know space is ASCII)
 					$this->onAny( substr( $token, 1 ) );
 				}
 			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching

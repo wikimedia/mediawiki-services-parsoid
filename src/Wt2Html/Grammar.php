@@ -277,11 +277,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			);
   		} elseif ( $isIncludeTag ) {
   			// Parse ext-content, strip eof, and shift tsr
-  			$extContent = substr(
-  				$dp->src,
-  				$dp->extTagOffsets->openWidth,
-  				-$dp->extTagOffsets->closeWidth
-  			);
+  			$extContent = $dp->extTagOffsets->stripTags( $dp->src );
   			$tokenizer = new PegTokenizer( $this->env );
   			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
   			$extContentToks = $tokenizer->tokenizeSync( $extContent );
@@ -905,11 +901,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// Last line should be empty (except for comments)
   		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
   			$dp = $il->dataAttribs;
-  			$inclContent = substr(
-  				$dp->src,
-  				$dp->extTagOffsets->openWidth,
-  				-$dp->extTagOffsets->closeWidth
-  			);
+  			$inclContent = $dp->extTagOffsets->stripTags( $dp->src );
   			$nlpos = strrpos( $inclContent, "\n" );
   			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
   			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {

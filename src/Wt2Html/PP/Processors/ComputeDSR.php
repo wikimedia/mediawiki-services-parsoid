@@ -633,7 +633,7 @@ class ComputeDSR {
 							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
-							$dp->dbsrc = substr( $frame->getSrcText(), $cs, $ce - $cs );
+							$dp->dbsrc = PHPUtils::safeSubstr( $frame->getSrcText(), $cs, $ce - $cs );
 						}
 						return $str;
 					} );
@@ -684,7 +684,7 @@ class ComputeDSR {
 								// debug info
 								if ( $siblingDP->dsr->end ) {
 									$siblingDP->dbsrc =
-										substr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
+										PHPUtils::safeSubstr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
 								}
 								return $str;
 							} );
