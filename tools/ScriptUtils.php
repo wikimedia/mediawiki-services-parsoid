@@ -1,186 +1,37 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+<?php
+declare( strict_types = 1 );
 /**
  * This file contains general utilities for scripts in
  * the bin/, tools/, tests/ directories. This file should
  * not contain any helpers that are needed by code in the
  * lib/ directory.
- *
- * @module
  */
 
-namespace Parsoid;
+namespace Parsoid\Tools;
 
-
-
-use Parsoid\Promise as Promise;
-$request = Promise::promisify( require( 'request' ), true );
-$Util = require( '../lib/utils/Util.js' )::Util;
-
-$ScriptUtils = [
+class ScriptUtils {
 	/**
 	 * Split a tracing / debugging flag string into individual flags
 	 * and return them.
 	 *
-	 * @param {Object} origFlag The original flag string.
-	 * @return {Array}
+	 * @param string $origFlag The original flag string.
+	 * @return array
 	 */
-	'splitFlags' => function ( $origFlag ) {
+	public static function splitFlags( string $origFlag ): array {
 		$objFlags = explode( ',', $origFlag );
-		if ( array_search( 'selser', $objFlags ) !== -1 && array_search( 'wts', $objFlags ) === -1 ) {
+		if ( array_search( 'selser', $objFlags ) !== false &&
+			array_search( 'wts', $objFlags ) === false
+		) {
 			$objFlags[] = 'wts';
 		}
 		return $objFlags;
-	},
-
-	/**
-	 * Set debugging flags on an object, based on an options object.
-	 *
-	 * @param {Object} parsoidOptions Object to be assigned to the ParsoidConfig.
-	 * @param {Object} cliOpts The options object to use for setting the debug flags.
-	 * @return {Object} The modified object.
-	 */
-	'setDebuggingFlags' => function ( $parsoidOptions, $cliOpts ) use ( &$ScriptUtils ) {
-		// Handle the --help options
-		$exit = false;
-		if ( $cliOpts->trace === 'help' ) {
-			$console->error( ScriptUtils::traceUsageHelp() );
-			$exit = true;
-		}
-		if ( $cliOpts->dump === 'help' ) {
-			$console->error( ScriptUtils::dumpUsageHelp() );
-			$exit = true;
-		}
-		if ( $cliOpts->debug === 'help' ) {
-			$console->error( ScriptUtils::debugUsageHelp() );
-			$exit = true;
-		}
-		if ( $cliOpts->genTest === 'help' ) {
-			$console->error( ScriptUtils::genTestUsageHelp() );
-			$exit = true;
-		}
-		if ( $exit ) {
-			$process->exit( 1 );
-		}
-
-		// Ok, no help requested: process the options.
-		if ( $cliOpts->debug !== null ) {
-			// Continue to support generic debugging.
-			if ( $cliOpts->debug === true ) {
-				$console->warn( 'Warning: Generic debugging, not handler-specific.' );
-				$parsoidOptions->debug = ScriptUtils::booleanOption( $cliOpts->debug );
-			} else {
-				// Setting --debug automatically enables --trace
-				$parsoidOptions->debugFlags = ScriptUtils::splitFlags( $cliOpts->debug );
-				$parsoidOptions->traceFlags = $parsoidOptions->debugFlags;
-			}
-		}
-
-		if ( $cliOpts->trace !== null ) {
-			if ( $cliOpts->trace === true ) {
-				$console->warn( "Warning: Generic tracing is no longer supported. Ignoring --trace flag. Please provide handler-specific tracing flags, e.g. '--trace pre,html5', to turn it on." );
-			} else {
-				// Add any new trace flags to the list of existing trace flags (if
-				// any were inherited from debug); otherwise, create a new list.
-				$parsoidOptions->traceFlags = ( $parsoidOptions->traceFlags || [] )->concat( ScriptUtils::splitFlags( $cliOpts->trace ) );
-			}
-		}
-
-		if ( $cliOpts->dump !== null ) {
-			if ( $cliOpts->dump === true ) {
-				$console->warn( 'Warning: Generic dumping not enabled. Please set a flag.' );
-			} else {
-				$parsoidOptions->dumpFlags = ScriptUtils::splitFlags( $cliOpts->dump );
-			}
-		}
-
-		if ( $cliOpts->genTest ) {
-			if ( $cliOpts->genTest === true ) {
-				$console->warn( "Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler', to turn it on." );
-			} else {
-				if ( array_slice( $cliOpts->genTest, 0, 4/*CHECK THIS*/ ) === 'dom:' ) {
-					$domHandlers = new Set( [
-							'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
-							'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
-							'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
-							'dom:fixups', 'dom:media', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
-							'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
-							'dom:downgrade'
-						]
-					);
-					$parsoidOptions->generateFlags = [
-						'handlers' => ScriptUtils::splitFlags( $cliOpts->genTest ),
-						'directory' => $cliOpts->genDirectory,
-						'pageName' => $cliOpts->pageName,
-						'fragments' => $cliOpts->genTestFragments
-					];
-					$parsoidOptions->generateFlags->handlers->forEach( function ( $handler ) use ( &$domHandlers ) {
-							Assert::invariant( $domHandlers->has( $handler ),
-								'No matching DOM handler named ' . $handler . ' found, exiting.'
-							);
-						}
-					);
-
-				} else {
-					$handlers = new Set( [
-							'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
-							'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
-							'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude',
-							'MigrateTemplateMarkerMetas'
-						]
-					);
-					$parsoidOptions->generateFlags = [
-						'handler' => $cliOpts->genTest,
-						'fileName' => $cliOpts->genTestOut
-					];
-					Assert::invariant( $handlers->has( $parsoidOptions->generateFlags->handler ),
-						'No matching token handler named ' . $parsoidOptions->generateFlags->handler . ' found, exiting.'
-					);
-				}
-			}
-		}
-
-		return $parsoidOptions;
-	},
+	}
 
 	/**
 	 * Returns a help message for the tracing flags.
 	 */
-	'traceUsageHelp' => function () {
+	public static function traceUsageHelp() {
 		return implode(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			"\n", [
 				'Tracing',
 				'-------',
@@ -191,7 +42,8 @@ $ScriptUtils = [
 				'  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager',
 				'  * async:2   : shows tokens flowing through the Async Token Transform Manager',
 				'  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager',
-				'  * tsp       : shows tokens flowing through the TokenStreamPatcher (useful to see in-order token stream)',
+				'  * tsp       : shows tokens flowing through the TokenStreamPatcher '
+					. '(useful to see in-order token stream)',
 				'  * list      : shows actions of the list handler',
 				'  * sanitizer : shows actions of the sanitizer',
 				'  * pre       : shows actions of the pre handler',
@@ -211,47 +63,17 @@ $ScriptUtils = [
 				'--debug enables tracing of all the above phases except Token Transform Managers',
 				'',
 				'Examples:',
-				'$ node parse --trace pre,p-wrap,html < foo',
-				'$ node parse --trace sync:3,dsr < foo'
+				'$ php parse.php --trace pre,p-wrap,html < foo',
+				'$ php parse.php --trace sync:3,dsr < foo'
 			]
 		);
-	},
+	}
 
 	/**
 	 * Returns a help message for the dump flags.
 	 */
-	'dumpUsageHelp' => function () {
+	public static function dumpUsageHelp() {
 		return implode(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			"\n", [
 				'Dumping state',
 				'-------------',
@@ -259,7 +81,8 @@ $ScriptUtils = [
 				'- DOM dumps are always doc.outerHTML',
 				'- Supported flags:',
 				'',
-				'  * tplsrc            : dumps preprocessed template source that will be tokenized (via ?action=expandtemplates)',
+				'  * tplsrc            : dumps preprocessed template source that will be tokenized '
+					. '(via ?action=expandtemplates)',
 				'  * extoutput         : dumps HTML output form extensions (via ?action=parse)',
 				'',
 				'  --- Dump flags for wt2html DOM passes ---',
@@ -280,198 +103,213 @@ $ScriptUtils = [
 				"  * wt2html:limits    : dumps used resources (along with configured limits)\n",
 				"--debug dumps state at these different stages\n",
 				'Examples:',
-				'$ node parse --dump dom:pre-dpload,dom:pre-dsr,dom:pre-tplwrap < foo',
-				'$ node parse --trace html --dump dom:pre-tplwrap < foo',
+				'$ php parse.php --dump dom:pre-dpload,dom:pre-dsr,dom:pre-tplwrap < foo',
+				'$ php parse.php --trace html --dump dom:pre-tplwrap < foo',
 				"\n"
 			]
 		);
-	},
+	}
 
 	/**
 	 * Returns a help message for the debug flags.
 	 */
-	'debugUsageHelp' => function () {
+	public static function debugUsageHelp() {
 		return implode(
-
-
-
-
-
-
-
 			"\n", [
 				'Debugging',
 				'---------',
-				'- With one or more comma-separated flags, provides more verbose tracing than the equivalent trace flag',
+				'- With one or more comma-separated flags, ' .
+					'provides more verbose tracing than the equivalent trace flag',
 				'- Supported flags:',
 				'  * pre       : shows actions of the pre handler',
 				'  * wts       : trace actions of the regular wikitext serializer',
 				'  * selser    : trace actions of the selective serializer'
 			]
 		);
-	},
+	}
 
 	/**
-	 * Returns a help message for the generate flags.
+	 * Set debugging flags on an object, based on an options object.
+	 *
+	 * @param array &$envOptions Options to be passed to the Env constructor.
+	 * @param array $cliOpts The options object to use for setting the debug flags.
+	 * @return array The modified object.
 	 */
-	'genTestUsageHelp' => function () {
-		return implode(
+	public static function setDebuggingFlags( array &$envOptions, array $cliOpts ): array {
+		$traceOpt = $cliOpts['trace'] ?? null;
+		$dumpOpt  = $cliOpts['dump'] ?? null;
+		$debugOpt = $cliOpts['debug'] ?? null;
 
+		// Handle the --help options
+		$exit = false;
+		if ( $traceOpt === 'help' ) {
+			error_log( self::traceUsageHelp() );
+			$exit = true;
+		}
+		if ( $dumpOpt === 'help' ) {
+			error_log( self::dumpUsageHelp() );
+			$exit = true;
+		}
+		if ( $debugOpt === 'help' ) {
+			error_log( self::debugUsageHelp() );
+			$exit = true;
+		}
+		if ( $exit ) {
+			die( 1 );
+		}
 
+		// Ok, no help requested: process the options.
+		if ( $debugOpt !== null ) {
+			// Continue to support generic debugging.
+			if ( $debugOpt === true ) {
+				error_log( 'Warning: Generic debugging, not handler-specific.' );
+				$envOptions['debug'] = self::booleanOption( $debugOpt );
+			} else {
+				// Setting --debug automatically enables --trace
+				$envOptions['debugFlags'] = self::splitFlags( $debugOpt );
+				$envOptions['traceFlags'] = $envOptions['debugFlags'];
+			}
+		}
 
+		if ( $traceOpt !== null ) {
+			if ( $traceOpt === true ) {
+				error_log(
+					"Warning: Generic tracing is no longer supported. "
+					. "Ignoring --trace flag. "
+					. "Please provide handler-specific tracing flags, "
+					. "e.g. '--trace pre,html5', to turn it on." );
+			} else {
+				// Add any new trace flags to the list of existing trace flags (if
+				// any were inherited from debug); otherwise, create a new list.
+				$envOptions['traceFlags'] = array_merge(
+					$envOptions['traceFlags'] ?? [], self::splitFlags( $traceOpt ) );
+			}
+		}
 
+		if ( $dumpOpt !== null ) {
+			if ( $dumpOpt === true ) {
+				error_log( 'Warning: Generic dumping not enabled. Please set a flag.' );
+			} else {
+				$envOptions['dumpFlags'] = self::splitFlags( $dumpOpt );
+			}
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			"\n", [
-				'Generate Test Files for token transforms and DOM transforms',
-				'-----------------------------------------------------------',
-				'- Generates transformTest.js compatible output files for token transformers',
-				'- example: --genTest ListHandler --genTestOut listTestFile.txt',
-				'- Supported transformers/handlers:',
-				'  * QuoteTransformer  : records quote transforms',
-				'  * ListHandler       : records list transforms',
-				'  * ParagraphWrapper  : records paragraph transforms',
-				'  * TokenStreamPatcher : records token stream patch transforms',
-				'  * BehaviorSwitchHandler : records behavior switch transforms',
-				'  * SanitizerHandler  : records sanitizer transforms',
-				'  * PreHandler        : generates pre-block as needed contextually',
-				'  * NoIncludeOnly     : 3 tags, IncludeOnly, OnlyInclude and NoInclude for templates',
-				' ',
-				'- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers',
-				'- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi',
-				'- Supported DOM transforms/handlers:',
-				'    dom:dpload, dom:fostered, dom:process-fixups, dom:normalize',
-				'    dom:pwrap, dom:migrate-metas, dom:pres, dom:migrate-nls',
-				'    dom:dsr, dom:tplwrap, dom:dom-unpack, dom:tag:cite, dom:tag:poem',
-				'    dom:fixups, dom:sections, dom:heading-ids, dom:lang-converter',
-				'    dom:strip-metas, dom:cleanup, dom:linkclasses, dom:redlinks',
-				'    dom:downgrade'
-			]
-		);
-	},
+		return $envOptions;
+	}
 
 	/**
 	 * Sets templating and processing flags on an object,
 	 * based on an options object.
 	 *
-	 * @param {Object} parsoidOptions Object to be assigned to the ParsoidConfig.
-	 * @param {Object} cliOpts The options object to use for setting the debug flags.
-	 * @return {Object} The modified object.
+	 * @param array &$envOptions Options to be passed to the Env constructor.
+	 * @param array $cliOpts The options object to use for setting the debug flags.
+	 * @return array The modified object.
 	 */
-	'setTemplatingAndProcessingFlags' => function ( $parsoidOptions, $cliOpts ) use ( &$ScriptUtils ) {
-		[
+	public static function setTemplatingAndProcessingFlags(
+		array &$envOptions, array $cliOpts
+	): array {
+		$templateFlags = [
 			'fetchConfig',
 			'fetchTemplates',
 			'fetchImageInfo',
 			'expandExtensions',
 			'rtTestMode',
 			'addHTMLTemplateParameters'
-		]->forEach( function ( $c ) use ( &$cliOpts, &$parsoidOptions, &$ScriptUtils ) {
-				if ( $cliOpts[ $c ] !== null ) {
-					$parsoidOptions[ $c ] = ScriptUtils::booleanOption( $cliOpts[ $c ] );
-				}
+		];
+
+		foreach ( $templateFlags as $c ) {
+			if ( isset( $cliOpts[$c] ) ) {
+				$envOptions[$c] = self::booleanOption( $cliOpts[$c] );
 			}
-		);
-		if ( $cliOpts->usePHPPreProcessor !== null ) {
-			$parsoidOptions->usePHPPreProcessor = $parsoidOptions->fetchTemplates
-&&				ScriptUtils::booleanOption( $cliOpts->usePHPPreProcessor );
-		}
-		if ( $cliOpts->maxDepth !== null ) {
-			$parsoidOptions->maxDepth = ( gettype( $cliOpts->maxdepth ) === 'number' ) ?
-			$cliOpts->maxdepth : $parsoidOptions->maxDepth;
-		}
-		if ( $cliOpts->apiURL ) {
-			if ( !is_array( $parsoidOptions->mwApis ) ) {
-				$parsoidOptions->mwApis = [];
-			}
-			$parsoidOptions->mwApis[] = [ 'prefix' => 'customwiki', 'uri' => $cliOpts->apiURL ];
-		}
-		if ( $cliOpts->addHTMLTemplateParameters !== null ) {
-			$parsoidOptions->addHTMLTemplateParameters =
-			ScriptUtils::booleanOption( $cliOpts->addHTMLTemplateParameters );
-		}
-		if ( $cliOpts->lint ) {
-			$parsoidOptions->linting = true;
-			if ( !$parsoidOptions->linter ) {
-				$parsoidOptions->linter = [];
-			}
-			$parsoidOptions->linter->sendAPI = false;
-		}
-		if ( $cliOpts->useBatchAPI !== null ) {
-			$parsoidOptions->useBatchAPI = $cliOpts->useBatchAPI;
-		}
-		if ( $cliOpts->phpConfigFile ) {
-			$parsoidOptions->phpConfigFile = $cliOpts->phpConfigFile;
 		}
 
-		return $parsoidOptions;
-	},
+		if ( isset( $cliOpts['usePHPPreProcessor'] ) ) {
+			$envOptions['usePHPPreProcessor'] = $envOptions['fetchTemplates'] &&
+				self::booleanOption( $cliOpts['usePHPPreProcessor'] );
+		}
+
+		if ( isset( $cliOpts['maxDepth'] ) ) {
+			$envOptions['maxDepth'] =
+				is_numeric( $cliOpts['maxdepth'] ) ?
+					$cliOpts['maxdepth'] : $envOptions['maxDepth'];
+		}
+
+		if ( isset( $cliOpts['apiURL'] ) ) {
+			if ( !isset( $envOptions['mwApis'] ) ) {
+				$envOptions['mwApis'] = [];
+			}
+			$envOptions['mwApis'][] = [ 'prefix' => 'customwiki', 'uri' => $cliOpts['apiURL'] ];
+		}
+
+		if ( isset( $cliOpts['addHTMLTemplateParameters'] ) ) {
+			$envOptions['addHTMLTemplateParameters'] =
+				self::booleanOption( $cliOpts['addHTMLTemplateParameters'] );
+		}
+
+		if ( isset( $cliOpts['lint'] ) ) {
+			$envOptions['linting'] = true;
+		}
+
+		return $envOptions;
+	}
 
 	/**
-	 * Parse a boolean option returned by the yargs package.
+	 * Parse a boolean option returned by our opts processor.
 	 * The strings 'false' and 'no' are also treated as false values.
 	 * This allows `--debug=no` and `--debug=false` to mean the same as
 	 * `--no-debug`.
 	 *
-	 * @param {boolean|string} val
+	 * @param bool|string $val
 	 *   a boolean, or a string naming a boolean value.
-	 * @return {boolean}
+	 * @return bool
 	 */
-	'booleanOption' => function ( $val ) {
-		if ( !$val ) { return false;  }
-		if ( ( gettype( $val ) ) === 'string' && preg_match( '/^(no|false)$/', $val ) ) {
+	public static function booleanOption( $val ): bool {
+		if ( !$val ) {
+			return false;
+		}
+		if ( is_string( $val ) && preg_match( '/^(no|false)$/', $val ) ) {
 			return false;
 		}
 		return true;
-	},
+	}
 
 	/**
 	 * Set the color flags, based on an options object.
 	 *
-	 * @param {Object} options
-	 *   The options object to use for setting the mode of the 'color' package.
-	 * @param {string|boolean} options.color
-	 *   Whether to use color.  Passing 'auto' will enable color only if
-	 *   stdout is a TTY device.
+	 * @param array $options options object to use for setting the mode of the 'color' package.
+	 *  - string|boolean options.color
+	 *    Whether to use color.
+	 *    Passing 'auto' will enable color only if stdout is a TTY device.
 	 */
-	'setColorFlags' => function ( $options ) use ( &$ScriptUtils ) {
-		$colors = require( 'colors' );
+	public static function setColorFlags( array $options ): void {
+		/**
+		 * PORT-FIXME:
 		if ( $options->color === 'auto' ) {
 			if ( !$process->stdout->isTTY ) {
 				$colors->mode = 'none';
 			}
-		} elseif ( !ScriptUtils::booleanOption( $options->color ) ) {
+		} elseif ( !self::booleanOption( $options->color ) ) {
 			$colors->mode = 'none';
 		}
-	},
+		**/
+	}
 
 	/**
-	 * Add standard options to an yargs options hash.
+	 * PORT-FIXME: Should some of this functionality be moved to OptsProcessor directly?
+	 *
+	 * Add standard options to script-specific opts
 	 * This handles options parsed by `setDebuggingFlags`,
 	 * `setTemplatingAndProcessingFlags`, `setColorFlags`,
 	 * and standard --help options.
 	 *
 	 * The `defaults` option is optional, and lets you override
 	 * the defaults for the standard options.
+	 *
+	 * @param array $opts
+	 * @param array $defaults
+	 * @return array
 	 */
-	'addStandardOptions' => function ( $opts, $defaults ) use ( &$Util ) {
+	public static function addStandardOptions( array $opts, array $defaults = [] ): array {
 		$standardOpts = [
 			// standard CLI options
 			'help' => [
@@ -489,26 +327,6 @@ $ScriptUtils = [
 			],
 			'dump' => [
 				'description' => 'Dump state. Use --dump=help for supported options'
-			],
-			'genTest' => [
-				'description' => 'Generates token transformer and DOM pass tests. Use --genTest=help for supported options',
-				'default' => '',
-				'boolean' => false
-			],
-			'genTestOut' => [
-				'description' => 'Output file to use for token transformer tests',
-				'default' => '',
-				'boolean' => false
-			],
-			'genDirectory' => [
-				'description' => 'Output directory to use for DOM tests',
-				'default' => '',
-				'boolean' => false
-			],
-			'genTestFragments' => [
-				'description' => 'Enable fragment generation in DOM genTest output',
-				'default' => false,
-				'boolean' => true
 			],
 			// handled by `setTemplatingAndProcessingFlags`
 			'fetchConfig' => [
@@ -569,55 +387,15 @@ $ScriptUtils = [
 				'default' => 'auto'
 			]
 		];
+
 		// allow overriding defaults
-		Object::keys( $defaults || [] )->forEach( function ( $name ) use ( &$standardOpts, &$defaults ) {
-				if ( $standardOpts[ $name ] ) {
-					$standardOpts[ $name ]->default = $defaults[ $name ];
-				}
+		foreach ( $defaults as $name => $default ) {
+			if ( isset( $standardOpts[$name] ) ) {
+				$standardOpts[$name]['default'] = $default;
 			}
-		);
-		return Util::extendProps( $opts, $standardOpts );
+		}
+
+		// Values in $opts take precedence
+		return $opts + $standardOpts;
 	}
-];
-
-/**
- * Perform a HTTP request using the 'request' package, and retry on failures.
- * Only use on idempotent HTTP end points.
- *
- * @param {number} retries The number of retries to attempt.
- * @param {Object} requestOptions Request options.
- * @param {number} [delay] Exponential back-off.
- * @return {Promise}
- */
-ScriptUtils::retryingHTTPRequest = function ( $retries, $requestOptions, $delay ) use ( &$request, &$Promise, &$ScriptUtils ) {
-	$delay = $delay || 100; // start with 100ms
-	return $request( $requestOptions )->
-	catch( function ( $error ) use ( &$retries, &$requestOptions, &$delay, &$Promise, &$ScriptUtils ) {
-			if ( $retries-- ) {
-				$console->error( 'HTTP ' . $requestOptions->method . " to \n"
-.						( $requestOptions->uri || $requestOptions->url ) . ' failed: ' . $error
-.						"\nRetrying in " . ( $delay / 1000 ) . ' seconds.'
-				);
-				return Promise::delay( $delay )->then( function () use ( &$ScriptUtils, &$retries, &$requestOptions, &$delay ) {
-						return ScriptUtils::retryingHTTPRequest( $retries, $requestOptions, $delay * 2 );
-					}
-				);
-			} else {
-				return Promise::reject( $error );
-			}
-		}
-	)->
-	spread( function ( $res, $body ) {
-			if ( $res->statusCode !== 200 ) {
-				throw new Error( 'Got status code: ' . $res->statusCode
-.						'; body: ' . substr( json_encode( $body ), 0, 500 )
-				);
-			}
-			return Array::from( $arguments );
-		}
-	);
-};
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports->ScriptUtils = $ScriptUtils;
 }
