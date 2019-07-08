@@ -177,15 +177,13 @@ ParserTests.prototype.parseTestCase = function(content) {
 ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, item, body) {
 	try {
 		var startsAtWikitext = mode === 'wt2wt' || mode === 'wt2html' || mode === 'selser';
-		if (startsAtWikitext) {
-			// FIXME: All tests share an env.
-			// => we need to initialize this each time over here.
-			this.env.page.dom = this.env.createDocument(item.cachedBODYstr).body;
-		}
 		if (mode === 'selser') {
+			if (startsAtWikitext) {
+				// FIXME: All tests share an env.
+				// => we need to initialize this each time over here.
+				this.env.page.dom = this.env.createDocument(item.cachedBODYstr).body;
+			}
 			this.env.setPageSrcInfo(item.wikitext);
-		} else {
-			this.env.setPageSrcInfo(null);
 		}
 		var handler = this.env.getContentHandler();
 		// yield and then return so our finally gets a chance to catch any
