@@ -540,4 +540,14 @@ class OptsProcessor {
 
 		die( 1 );
 	}
+
+	/** Override to redirect opts processor error messages. */
+	protected function error( $err ) {
+		error_log( $err );
+	}
+
+	/** Override to redirect opts processor output. */
+	protected function print( $out ) {
+		print $out;
+	}
 }

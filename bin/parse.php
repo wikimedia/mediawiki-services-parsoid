@@ -15,15 +15,28 @@ use Parsoid\Config\Api\ApiHelper;
 use Parsoid\Config\Api\DataAccess;
 use Parsoid\Config\Api\PageConfig;
 use Parsoid\Config\Api\SiteConfig;
+use Parsoid\Tools\OptsProcessor;
 
-$cliOpts = getopt( '', [
-	'wt2html',
-	'html2wt',
-	'body_only',
-	'selser',
-	'oldtextfile:',
-	'oldhtmlfile:',
-] );
+// Set up CLI
+$yargs = new OptsProcessor();
+$yargs->addDescription(
+	"Omnibus script to convert between wikitext and HTML, and roundtrip wikitext or HTML. "
+	. "Supports a number of options pertaining to pointing at a specific wiki "
+	. "or enabling various features during these transformations.\n\n"
+	. "If no options are provided, --wt2html is enabled by default.\n"
+	. "See --help for detailed usage help." );
+$yargs->addOption( 'wt2html', 'Wikitext -> HTML' );
+$yargs->addOption( 'html2wt', 'HTML -> Wikitext' );
+$yargs->addOption( 'body_only',
+	'Just return the body, without any normalizations as in --normalize' );
+$yargs->addOption( 'selser',
+	'Use the selective serializer to go from HTML to Wikitext.' );
+$yargs->addOption( 'oldtextfile',
+	'File containing the old page text for a selective-serialization (see --selser)',
+	false, true );
+$yargs->addOption( 'oldhtmlfile',
+	'File containing the old HTML for a selective-serialization (see --selser)',
+	false, true );
 
 function wfWt2Html( $wt, $body_only ) {
 	$opts = [
@@ -75,24 +88,26 @@ function wfHtml2Wt( $html, $selser ) {
 	print $wt;
 }
 
+$yargs->setAllowUnregisteredOptions( false ); // string parsing
+$yargs->loadParamsAndArgs();
+$yargs->validateParamsAndArgs();
 $input = file_get_contents( 'php://stdin' );
 
-if ( isset( $cliOpts['wt2html'] ) ) {
-	wfWt2Html( $input, isset( $cliOpts['body_only'] ) );
-} elseif ( isset( $cliOpts['html2wt'] ) ) {
+if ( isset( $cliOpts['html2wt'] ) ) {
 	$selser = null;
-	if ( isset( $cliOpts['selser'] ) ) {
-		if ( empty( $cliOpts['oldtextfile'] ) ) {
+	if ( $yargs->hasOption( 'selser' ) ) {
+		if ( !$yargs->hasOption( 'oldtextfile' ) ) {
 			print "No oldtextfile provided.\n";
+			$yargs->maybeHelp();
 			return;
 		}
-		$oldText = file_get_contents( $cliOpts['oldtextfile'] );
+		$oldText = file_get_contents( $yargs->getOption( 'oldtextfile' ) );
 		if ( $oldText === false ) {
 			return;
 		}
 		$oldHTML = null;
-		if ( isset( $cliOpts['oldhtmlfile'] ) ) {
-			$oldHTML = file_get_contents( $cliOpts['oldhtmlfile'] );
+		if ( !$yargs->hasOption( 'oldhtmlfile' ) ) {
+			$oldHTML = file_get_contents( $yargs->getOption( 'oldhtmlfile' ) );
 			if ( $oldHTML === false ) {
 				return;
 			}
@@ -101,5 +116,6 @@ if ( isset( $cliOpts['wt2html'] ) ) {
 	}
 	wfHtml2Wt( $input, $selser );
 } else {
-	print "No direction provided.\n";
+	// wt2html is the default
+	wfWt2Html( $input, $yargs->hasOption( 'body_only' ) );
 }
