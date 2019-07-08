@@ -145,7 +145,7 @@ class OptsProcessor {
 			'require' => $required,
 			'withArg' => $withArg,
 			'shortName' => $shortName,
-			'multiOccurrence' => $multiOccurrence
+			'multiOccurrence' => $multiOccurrence,
 		];
 
 		if ( $shortName !== false ) {
