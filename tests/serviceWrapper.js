@@ -97,7 +97,7 @@ var runServices = function(options) {
 			// T158265: We should set this to zero since otherwise
 			// service-runner doesn't actually call close on the worker.
 			num_workers: 1,
-			worker_heartbeat_timeout: 2 * 60 * 1000,
+			worker_heartbeat_timeout: 10 * 60 * 1000,
 			services: services,
 			logging: options.logging,
 		})
