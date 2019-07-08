@@ -866,4 +866,31 @@ class Env {
 	public function getOutputProperties(): array {
 		return $this->outputProps;
 	}
+
+	/**
+	 * Determine appropriate vary headers for the HTML form of this page.
+	 * @return string
+	 */
+	public function htmlVary(): string {
+		$varies = [ 'Accept' ]; // varies on Content-Type
+		if ( $this->langConverterEnabled() ) {
+			$varies[] = 'Accept-Language';
+		}
+
+		sort( $varies );
+		return implode( ', ', $varies );
+	}
+
+	/**
+	 * Determine an appropriate content-language for the HTML form of this page.
+	 * @return string
+	 */
+	public function htmlContentLanguage(): string {
+		// htmlVariant is set iff we do variant conversion on the HTML
+
+		// PORT-FIXME: Language variant code will have to set the target variant when it
+		// gets lang variant requests. We need to figure out where to set this value.
+		// Here or in page config.
+		return /* $this->getPageHtmlVariant() ?? */ $this->pageConfig->getPageLanguage();
+	}
 }

@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html;
 
+use Closure;
 use DateTime;
 use DOMDocument;
 use DOMElement;
@@ -83,11 +84,11 @@ class DOMPostProcessor extends PipelineStage {
 		$this->metadataMap = [
 			'ns' => [
 				'property' => 'mw:pageNamespace',
-				'content' => '%d'
+				'content' => '%d',
 			],
 			'id' => [
 				'property' => 'mw:pageId',
-				'content' => '%d'
+				'content' => '%d',
 			],
 
 			// DO NOT ADD rev_user, rev_userid, and rev_comment (See T125266)
@@ -97,20 +98,20 @@ class DOMPostProcessor extends PipelineStage {
 
 			'rev_parentid' => [
 				'rel' => 'dc:replaces',
-				'resource' => 'mwr:revision/%d'
+				'resource' => 'mwr:revision/%d',
 			],
 			'rev_timestamp' => [
 				'property' => 'dc:modified',
 				'content' => function ( $m ) {
-					return date(
-						DateTime::ISO8601,
-						strtotime( $m->get( 'rev_timestamp' ) )
-					);
-				}
+					# Convert from TS_MW ("mediawiki timestamp") format
+					$dt = DateTime::createFromFormat( 'YmdHis', $m['rev_timestamp'] );
+					# Note that DateTime::ISO8601 is not actually ISO8601, alas.
+					return $dt->format( 'Y-m-d\TH:i:s.000\Z' );
+				},
 			],
 			'rev_sha1' => [
 				'property' => 'mw:revisionSHA1',
-				'content' => '%s'
+				'content' => '%s',
 			]
 		];
 	}
@@ -527,7 +528,7 @@ class DOMPostProcessor extends PipelineStage {
 	 * @param string $tagName
 	 * @param array $attrs
 	 */
-	public function appendToHead( DOMDocument $document, $tagName, array $attrs = [] ): void {
+	public function appendToHead( DOMDocument $document, string $tagName, array $attrs = [] ): void {
 		$elt = $document->createElement( $tagName );
 		DOMDataUtils::addAttributes( $elt, $attrs );
 		( DOMCompat::getHead( $document ) )->appendChild( $elt );
@@ -558,8 +559,8 @@ class DOMPostProcessor extends PipelineStage {
 		// add 'http://' to baseURI if it was missing
 		// PORT-FIXME: Doesn't account for protocol rel baseURI
 		$pu = parse_url( $env->getSiteConfig()->baseURI() );
-		$mwrPrefix = ( !empty( $pu['scheme'] ) ? '' : 'http://' ) .
-			$env->getSiteConfig()->baseURI() . 'Special:Redirect/';
+		$mwrPrefix = ( !empty( $pu['scheme'] ) ? '' : 'https://' ) .
+			$pu['host'] . $pu['path'] . 'Special:Redirect/';
 		( DOMCompat::getHead( $document ) )->setAttribute( 'prefix', 'mwr: ' . $mwrPrefix );
 
 		// add <head> content based on page meta data:
@@ -567,55 +568,52 @@ class DOMPostProcessor extends PipelineStage {
 		// Set the charset first.
 		$this->appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
 
-		/*
-
-		// collect all the page meta data (including revision metadata) in 1 object
-		$m = [];
-		Object::keys( $env->page->meta || [] )->forEach( function ( $k ) use ( &$m, &$env ) {
-			$m[$k] = $env->page->meta[$k];
-		} );
-		// include some other page properties
-		$arr = [ 'ns', 'id' ];
-		$arr->forEach( function ( $p ) use ( &$m, &$env ) {
-			$m->set( $p, $env->page[ $p ] );
-		} );
-		$rev = $m->get( 'revision' );
-		Object::keys( $rev || [] )->forEach( function ( $k ) use ( &$m, &$rev ) {
-			$m->set( 'rev_' . $k, $rev[ $k ] );
-		} );
-		// use the metadataMap to turn collected data into <meta> and <link> tags.
-		$m->forEach( function ( $g, $f ) use ( &$metadataMap, &$m, &$util, &$document ) {
-			$mdm = $metadataMap[ $f ];
-			if ( !$m->has( $f ) || $m->get( $f ) === null || $m->get( $f ) === null || !$mdm ) {
-				return;
-			}
+		// Add page / revision metadata to the <head>
+		// PORT-FIXME: We will need to do some refactoring to eliminate
+		// this hardcoding. Probably even merge thi sinto metadataMap
+		$pageConfig = $env->getPageConfig();
+		$revProps = [
+			'id' => $pageConfig->getPageId(),
+			'ns' => $pageConfig->getNs(),
+			'rev_parentid' => $pageConfig->getParentRevisionId(),
+			'rev_revid' => $pageConfig->getRevisionId(),
+			'rev_sha1' => $pageConfig->getRevisionSha1(),
+			'rev_timestamp' => $pageConfig->getRevisionTimestamp()
+		];
+		foreach ( $revProps as $key => $value ) {
 			// generate proper attributes for the <meta> or <link> tag
+			if ( $value === null || $value === '' || !isset( $this->metadataMap[$key] ) ) {
+				continue;
+			}
+
 			$attrs = [];
-			Object::keys( $mdm )->forEach( function ( $k ) use ( &$mdm, &$m, &$util, &$f, &$attrs ) {
+			$mdm = $this->metadataMap[$key];
+
+			/** FIXME: The JS side has a bunch of other checks here */
+
+			foreach ( $mdm as $k => $v ) {
 				// evaluate a function, or perform sprintf-style formatting, or
 				// use string directly, depending on value in metadataMap
-				if ( gettype( $mdm[ $k ] ) === 'function' ) {
-					$v = $mdm[ $k ]( $m );
-				} elseif ( array_search( '%', $mdm[ $k ] ) !== false ) {
-					$v = util::format( $mdm[ $k ], $m->get( $f ) );
-				} else {
-					$v = $mdm[ $k ];
+				if ( $v instanceof Closure ) {
+					$v = $v( $revProps );
+				} elseif ( strpos( $v, '%' ) !== false ) {
+					$v = sprintf( $v, $value );
 				}
-				$attrs[ $k ] = $v;
-			} );
+				$attrs[$k] = $v;
+			}
+
 			// <link> is used if there's a resource or href attribute.
-			appendToHead( $document,
-				( $attrs->resource || $attrs->href ) ? 'link' : 'meta',
+			$this->appendToHead( $document,
+				isset( $attrs['resource'] ) || isset( $attrs['href'] ) ? 'link' : 'meta',
 				$attrs
-			);
-		} );
-		if ( $m->has( 'rev_revid' ) ) {
-			$document->documentElement->setAttribute(
-				'about', $mwrPrefix . 'revision/' . $m->get( 'rev_revid' )
 			);
 		}
 
-		*/
+		if ( $revProps['rev_revid'] ) {
+			$document->documentElement->setAttribute(
+				'about', $mwrPrefix . 'revision/' . $revProps['rev_revid']
+			);
+		}
 
 		// Normalize before comparison
 		if (
@@ -652,6 +650,7 @@ class DOMPostProcessor extends PipelineStage {
 
 		DOMCompat::setTitle(
 			$document,
+			// PORT-FIXME: There isn't a place anywhere yet for displayTitle
 			/* $env->getPageConfig()->meta->displayTitle || */
 			$env->getPageConfig()->getTitle()
 		);
@@ -712,7 +711,6 @@ class DOMPostProcessor extends PipelineStage {
 		$dir = $env->getPageConfig()->getPageLanguageDir() ?:
 			( ( $env->getSiteConfig()->rtl() ) ? 'rtl' : 'ltr' );
 
-		/*
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)
 		$this->appendToHead( $document, 'meta', [
@@ -725,12 +723,11 @@ class DOMPostProcessor extends PipelineStage {
 				'content' => $env->htmlVary()
 			]
 		);
-		*/
 
 		$body = DOMCompat::getBody( $document );
 		$bodyCL = DOMCompat::getClassList( $body );
 
-		// Indicate language & directionality on body
+		// PORT-FIXME: Unported code: ( Indicate language & directionality on body )
 		// $body->setAttribute( 'lang', Util::bcp47n( $lang ) );
 		$bodyCL->add( 'mw-content-' . $dir );
 		$bodyCL->add( 'sitedir-' . $dir );

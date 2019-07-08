@@ -130,7 +130,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$dataAccess = $parsoidServices->getParsoidDataAccess();
 		$pcFactory = $parsoidServices->getParsoidPageConfigFactory();
 		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
-		$title = \Title::newFromText( $configOpts['title'] ?? 'Main Page' );
+		$title = \Title::newFromText(
+			$configOpts['title'] ?? $siteConfig->mainpage()
+		);
 		$pageConfig = $pcFactory->create(
 			$title,
 			null, // UserIdentity
@@ -150,7 +152,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 		$siteConfig = new \Parsoid\Config\Api\SiteConfig( $api, $configOpts );
 		$dataAccess = new \Parsoid\Config\Api\DataAccess( $api, $configOpts );
-		$pageConfig = new \Parsoid\Config\Api\PageConfig( $api, $configOpts );
+		$pageConfig = new \Parsoid\Config\Api\PageConfig( $api, $configOpts + [
+			'title' => $siteConfig->mainpage(),
+		] );
 
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
@@ -265,12 +269,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$configOpts = [
 			"standalone" => !$this->hasOption( 'integrated' ),
 			"apiEndpoint" => $apiURL,
-			"title" => $this->hasOption( 'pageName' ) ?
-				$this->getOption( 'pageName' ) : "Api",
 			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
 			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
 			"linting" => $this->hasOption( 'linting' )
 		];
+		if ( $this->hasOption( 'pageName' ) ) {
+			$configOpts['title'] = $this->getOption( 'pageName' );
+		}
 
 		$parsoidOpts = [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),

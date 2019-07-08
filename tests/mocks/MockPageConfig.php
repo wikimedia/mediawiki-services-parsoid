@@ -66,17 +66,17 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getRevisionId(): ?int {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return 1;
 	}
 
 	/** @inheritDoc */
 	public function getParentRevisionId(): ?int {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return null;
 	}
 
 	/** @inheritDoc */
 	public function getRevisionTimestamp(): ?string {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return null;
 	}
 
 	/** @inheritDoc */
@@ -91,7 +91,7 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getRevisionSha1(): ?string {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return null;
 	}
 
 	/** @inheritDoc */
