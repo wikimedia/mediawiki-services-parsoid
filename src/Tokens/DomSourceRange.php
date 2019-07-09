@@ -74,6 +74,26 @@ class DomSourceRange extends SourceRange {
 	}
 
 	/**
+	 * Return the substring of the given string corresponding to the
+	 * open portion of this range.
+	 * @param string $str The source text string
+	 * @return string
+	 */
+	public function openSubstr( string $str ): string {
+		return PHPUtils::safeSubstr( $str, $this->start, $this->openWidth );
+	}
+
+	/**
+	 * Return the substring of the given string corresponding to the
+	 * close portion of this range.
+	 * @param string $str The source text string
+	 * @return string
+	 */
+	public function closeSubstr( string $str ): string {
+		return PHPUtils::safeSubstr( $str, $this->innerEnd(), $this->closeWidth );
+	}
+
+	/**
 	 * Strip the tag open and close from the beginning and end of the
 	 * provided string.  This is similar to `DomSourceRange::innerSubstr()`
 	 * but we assume that the string before `$this->start` and after

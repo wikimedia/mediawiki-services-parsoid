@@ -34,6 +34,9 @@ class MockSiteConfig extends SiteConfig {
 		'category_talk' => 15,
 	];
 
+	/** @var array<int, bool> */
+	protected $namespacesWithSubpages = [];
+
 	/**
 	 * @param array $opts
 	 */
@@ -134,7 +137,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function namespaceHasSubpages( int $ns ): bool {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return !empty( $this->namespacesWithSubpages[$ns] );
 	}
 
 	/** @inheritDoc */
