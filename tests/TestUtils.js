@@ -357,8 +357,7 @@ var colorizeCount = function(count, color) {
  * @param {Object} stats
  * @param {number} stats.failedTests Number of failed tests due to differences in output.
  * @param {number} stats.passedTests Number of tests passed without any special consideration.
- * @param {number} stats.passedTestsWhitelisted Number of tests passed by whitelisting.
- * @param {Object} stats.modes All of the stats (failedTests, passedTests, and passedTestsWhitelisted) per-mode.
+ * @param {Object} stats.modes All of the stats (failedTests and passedTests) per-mode.
  * @param {string} file
  * @param {number} loggedErrorCount
  * @param {RegExp|null} testFilter
@@ -385,26 +384,24 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 			mode = modesRan[i];
 			curStr = mode + ': ';
 			thisMode = stats.modes[mode];
-			curStr += colorizeCount(thisMode.passedTests + thisMode.passedTestsWhitelisted, 'green') + ' passed (';
-			curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected, ';
-			curStr += colorizeCount(thisMode.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
+			curStr += colorizeCount(thisMode.passedTests, 'green') + ' passed (';
+			curStr += colorizeCount(thisMode.passedTestsUnexpected, 'red') + ' unexpected) / ';
 			curStr += colorizeCount(thisMode.failedTests, 'red') + ' failed (';
 			curStr += colorizeCount(thisMode.failedTestsUnexpected, 'red') + ' unexpected)';
 			console.log(curStr);
 		}
 
 		curStr = 'TOTAL' + ': ';
-		curStr += colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') + ' passed (';
-		curStr += colorizeCount(stats.passedTestsUnexpected, 'red') + ' unexpected, ';
-		curStr += colorizeCount(stats.passedTestsWhitelisted, 'yellow') + ' whitelisted) / ';
+		curStr += colorizeCount(stats.passedTests, 'green') + ' passed (';
+		curStr += colorizeCount(stats.passedTestsUnexpected, 'red') + ' unexpected) / ';
 		curStr += colorizeCount(stats.failedTests, 'red') + ' failed (';
 		curStr += colorizeCount(stats.failedTestsUnexpected, 'red') + ' unexpected)';
 		console.log(curStr);
 
 		if (file === null) {
-			console.log(colorizeCount(stats.passedTests + stats.passedTestsWhitelisted, 'green') +
+			console.log(colorizeCount(stats.passedTests, 'green') +
 				' total passed tests (expected ' +
-				(stats.passedTests + stats.passedTestsWhitelisted - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
+				(stats.passedTests - stats.passedTestsUnexpected + stats.failedTestsUnexpected) +
 				'), ' +
 				colorizeCount(failTotalTests , 'red') + ' total failures (expected ' +
 				(stats.failedTests - stats.failedTestsUnexpected + stats.passedTestsUnexpected) +
@@ -412,7 +409,7 @@ var reportSummary = function(modesRan, stats, file, loggedErrorCount, testFilter
 		}
 	} else {
 		if (testFilter !== null) {
-			console.log("Passed " + (stats.passedTests + stats.passedTestsWhitelisted) +
+			console.log("Passed " + stats.passedTests +
 					" of " + stats.passedTests + " tests matching " + testFilter +
 					"... " + "ALL TESTS PASSED!".green);
 		} else {
@@ -481,13 +478,6 @@ var prettyPrintIOptions = function(iopts) {
 		if (iopts[k] === '') { return k; }
 		return k + '=' + ppValue(iopts[k]);
 	}).join(' ');
-};
-
-var printWhitelistEntry = function(title, raw) {
-	console.log('WHITELIST ENTRY:'.cyan + '');
-	console.log('testWhiteList[' +
-		JSON.stringify(title) + '] = ' +
-		JSON.stringify(raw) + ';\n');
 };
 
 /**
@@ -564,9 +554,6 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 		console.log('INPUT'.cyan + ':');
 		console.log(actual.input + '\n');
 		console.log(options.getActualExpected(actual, expected, options.getDiff));
-		if (ScriptUtils.booleanOption(options.printwhitelist)) {
-			printWhitelistEntry(title, actual.raw);
-		}
 	}
 
 	return false;
@@ -579,18 +566,12 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
  * @param {string} mode
  * @param {string} title
  * @param {boolean} expectSuccess Whether this success was expected (or was this test blacklisted?).
- * @param {boolean} isWhitelist Whether this success was due to a whitelisting.
  * @return {boolean} True if the success was expected.
  */
-var printSuccess = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
+var printSuccess = function(stats, item, options, mode, title, expectSuccess) {
 	var quiet = ScriptUtils.booleanOption(options.quiet);
-	if (isWhitelist) {
-		stats.passedTestsWhitelisted++;
-		stats.modes[mode].passedTestsWhitelisted++;
-	} else {
-		stats.passedTests++;
-		stats.modes[mode].passedTests++;
-	}
+	stats.passedTests++;
+	stats.modes[mode].passedTests++;
 	const mstr = item.options.langconv ? 'wt2html+langconv' : mode;
 	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
 		.replace('\n', ' ');
@@ -599,16 +580,11 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess, is
 		stats.passedTestsUnexpected++;
 		stats.modes[mode].passedTestsUnexpected++;
 		console.log('UNEXPECTED PASS'.green.inverse +
-			(isWhitelist ? ' (whitelist)' : '') +
 			':' + extTitle.yellow);
 		return false;
 	}
 	if (!quiet) {
 		var outStr = 'EXPECTED PASS';
-
-		if (isWhitelist) {
-			outStr += ' (whitelist)';
-		}
 
 		outStr = outStr.green + ': ' + extTitle.yellow;
 
@@ -683,7 +659,6 @@ var doDiff = function(actual, expected) {
  * @param {Function} reportFailure
  * @param {Function} reportSuccess
  * @param {Object} bl BlackList.
- * @param {Object} wl WhiteList.
  * @param {Object} stats
  * @param {Object} item
  * @param {Object} options
@@ -694,32 +669,20 @@ var doDiff = function(actual, expected) {
  * @param {Function} post
  * @return {boolean} True if the result was as expected.
  */
-function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options, mode, expected, actual, pre, post) {
+function printResult(reportFailure, reportSuccess, bl, stats, item, options, mode, expected, actual, pre, post) {
 	var title = item.title;  // Title may be modified here, so pass it on.
 
 	var quick = ScriptUtils.booleanOption(options.quick);
-	var parsoidOnly =
-		('html/parsoid' in item) || (item.options.parsoid !== undefined);
 
 	if (mode === 'selser') {
 		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
 	}
 
-	var whitelist = false;
 	var tb = bl[title];
 	var expectFail = (tb && tb.hasOwnProperty(mode));
 	var fail = (expected.normal !== actual.normal);
 	// Return whether the test was as expected, independent of pass/fail
 	var asExpected;
-
-	if (fail &&
-		ScriptUtils.booleanOption(options.whitelist) &&
-		title in wl &&
-		TestUtils.normalizeOut(DOMUtils.parseHTML(wl[title]).body, { parsoidOnly: parsoidOnly }) ===  actual.normal
-	) {
-		whitelist = true;
-		fail = false;
-	}
 
 	if (mode === 'wt2wt') {
 		item.wt2wtPassed = !fail;
@@ -738,7 +701,7 @@ function printResult(reportFailure, reportSuccess, bl, wl, stats, item, options,
 	if (fail) {
 		asExpected = reportFailure(stats, item, options, mode, title, actual, expected, expectFail, quick, bl);
 	} else {
-		asExpected = reportSuccess(stats, item, options, mode, title, !expectFail, whitelist);
+		asExpected = reportSuccess(stats, item, options, mode, title, !expectFail);
 	}
 
 	if (typeof post === 'function') {
@@ -846,14 +809,9 @@ var reportFailureXML = function(stats, item, options, mode, title, actual, expec
  *
  * @inheritdoc printSuccess
  */
-var reportSuccessXML = function(stats, item, options, mode, title, expectSuccess, isWhitelist) {
-	if (isWhitelist) {
-		stats.passedTestsWhitelisted++;
-		stats.modes[mode].passedTestsWhitelisted++;
-	} else {
-		stats.passedTests++;
-		stats.modes[mode].passedTests++;
-	}
+var reportSuccessXML = function(stats, item, options, mode, title, expectSuccess) {
+	stats.passedTests++;
+	stats.modes[mode].passedTests++;
 };
 
 /**
@@ -968,16 +926,6 @@ var getOpts = function() {
 			description: 'Suppress notification of passed tests (shows only failed tests)',
 			'boolean': true,
 			'default': false,
-		},
-		'whitelist': {
-			description: 'Compare against manually verified parser output from whitelist',
-			'default': true,
-			'boolean': true,
-		},
-		'printwhitelist': {
-			description: 'Print out a whitelist entry for failing tests. Default false.',
-			'default': false,
-			'boolean': true,
 		},
 		'blacklist': {
 			description: 'Compare against expected failures from blacklist',

@@ -53,15 +53,6 @@ function ParserTests(testFilePath, modes) {
 	this.cacheFileName = parseFilePath.name + '.cache';
 	this.cacheFilePath = path.resolve(parseFilePath.dir, this.cacheFileName);
 
-	var whiteListName = parseFilePath.name + '-whitelist.js';
-	this.whiteListPath = path.resolve(parseFilePath.dir, whiteListName);
-	try {
-		this.testWhiteList = require(this.whiteListPath).testWhiteList;
-		console.warn('Using whitelist from ' + this.whiteListPath);
-	} catch (e) {
-		this.testWhiteList = {};
-	}
-
 	var blackListName = parseFilePath.name + '-blacklist.js';
 	this.blackListPath = path.resolve(parseFilePath.dir, blackListName);
 	try {
@@ -77,7 +68,6 @@ function ParserTests(testFilePath, modes) {
 	// Test statistics
 	this.stats = {};
 	this.stats.passedTests = 0;
-	this.stats.passedTestsWhitelisted = 0;
 	this.stats.passedTestsUnexpected = 0;
 	this.stats.failedTests = 0;
 	this.stats.failedTestsUnexpected = 0;
@@ -880,7 +870,7 @@ ParserTests.prototype.checkHTML = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: item.html };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(this.testBlackList, this.testWhiteList, this.stats, item, options, mode, expected, actual);
+	return options.reportResult(this.testBlackList, this.stats, item, options, mode, expected, actual);
 };
 
 /**
@@ -911,7 +901,7 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var expected = { normal: normalizedExpected, raw: itemWikitext };
 	var actual = { normal: normalizedOut, raw: out, input: input };
 
-	return options.reportResult(this.testBlackList, this.testWhiteList, this.stats, item, options, mode, expected, actual);
+	return options.reportResult(this.testBlackList, this.stats, item, options, mode, expected, actual);
 };
 
 /**
@@ -1546,7 +1536,6 @@ Promise.async(function *() {
 	}
 	var stats = {
 		passedTests: 0,
-		passedTestsWhitelisted: 0,
 		passedTestsUnexpected: 0,
 		failedTests: 0,
 		failedTestsUnexpected: 0,

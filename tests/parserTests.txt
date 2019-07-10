@@ -4670,7 +4670,7 @@ Definition Lists: Mixed Lists: Test 13
 !! end
 
 # FIXME: Maybe get rid of this test?
-# From whitelist:
+# From old whitelist description:
 # * The test is wrong, there are two colons where there should be :;
 # * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
 !! test
@@ -5613,6 +5613,9 @@ Template returning pipe used in wikilink target
 <p>[[<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"pipe page","href":"./Template:Pipe_page"},"params":{},"i":0}}]}'>Main|Page</span>]]</p>
 !! end
 
+# Italic/link nesting is changed in this test, but the rendered result is the
+# same. Currently the result is actually an improvement over the MediaWiki
+# output.
 !! test
 T4702: Mismatched <i>, <b> and <a> tags are invalid
 !! wikitext
@@ -5621,13 +5624,19 @@ T4702: Mismatched <i>, <b> and <a> tags are invalid
 ''Something [http://example.com in italic'']
 ''Something [http://example.com mixed''''', even bold]'''
 '''''Now [http://example.com both''''']
-!! html
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://example.com"><i>text</i></a>
 <a rel="nofollow" class="external text" href="http://example.com"><b>text</b></a>
 <i>Something </i><a rel="nofollow" class="external text" href="http://example.com"><i>in italic</i></a>
 <i>Something </i><a rel="nofollow" class="external text" href="http://example.com"><i>mixed</i><b>, even bold</b></a>
 <i><b>Now </b></i><a rel="nofollow" class="external text" href="http://example.com"><i><b>both</b></i></a>
 </p>
+!! html/parsoid
+<p><i data-parsoid='{"autoInsertedEnd":true}'><a rel="mw:ExtLink" href="http://example.com" class="external text">text<i data-parsoid='{"autoInsertedEnd":true}'></i></a></i>
+<a rel="mw:ExtLink" href="http://example.com" class="external text"><b data-parsoid='{"autoInsertedEnd":true}'>text</b></a><b data-parsoid='{"autoInsertedEnd":true}'></b>
+<i data-parsoid='{"autoInsertedEnd":true}'>Something <a rel="mw:ExtLink" href="http://example.com" class="external text">in italic<i data-parsoid='{"autoInsertedEnd":true}'></i></a></i>
+<i>Something <a rel="mw:ExtLink" href="http://example.com" class="external text">mixed<b data-parsoid='{"autoInsertedEnd":true}'><i data-parsoid='{"autoInsertedEnd":true}'>, even bold</i></b></a>'</i>
+<b data-parsoid='{"autoInsertedEnd":true}'><i data-parsoid='{"autoInsertedEnd":true}'>Now <a rel="mw:ExtLink" href="http://example.com" class="external text">both<b data-parsoid='{"autoInsertedEnd":true}'><i data-parsoid='{"autoInsertedEnd":true}'></i></b></a></i></b></p>
 !! end
 
 
@@ -6672,6 +6681,8 @@ Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present
 </td></tr></table>
 !!end
 
+# Differences between Parsoid and PHP re: trailing whitespace in a
+# table cell.
 !! test
 Table rowspan
 !! wikitext
@@ -6683,7 +6694,7 @@ Table rowspan
 |Cell 1, row 2
 |Cell 3, row 2
 |}
-!! html
+!! html/php
 <table border="1">
 <tr>
 <td>Cell 1, row 1
@@ -6697,6 +6708,15 @@ Table rowspan
 </td>
 <td>Cell 3, row 2
 </td></tr></table>
+!! html/parsoid
+<table border="1">
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td>Cell 1, row 1</td>
+<td rowspan="2">Cell 2, row 1 (and 2)</td>
+<td>Cell 3, row 1</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td>Cell 1, row 2</td>
+<td>Cell 3, row 2</td></tr>
+</tbody></table>
 !! end
 
 !! test
@@ -7713,13 +7733,17 @@ Broken link
 </p>
 !! end
 
+# The PHP parser strips the hash fragment for non-existent pages, but
+# Parsoid does not. (T227693)
 !! test
 Broken link with fragment
 !! wikitext
 [[Zigzagzogzagzig#zug]]
-!! html
+!! html/php
 <p><a href="/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1" class="new" title="Zigzagzogzagzig (page does not exist)">Zigzagzogzagzig#zug</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Zigzagzogzagzig#zug" title="Zigzagzogzagzig" data-parsoid="{&quot;tsr&quot;:[0,23],&quot;src&quot;:&quot;[[Zigzagzogzagzig#zug]]&quot;,&quot;bsp&quot;:[0,23],&quot;stx&quot;:&quot;simple&quot;}">Zigzagzogzagzig#zug</a></p>
 !! end
 
 !! test
@@ -7731,13 +7755,16 @@ Special page link with fragment
 </p>
 !! end
 
+# Parsoid does not strip fragment from red links: T227693
 !! test
 Nonexistent special page link with fragment
 !! wikitext
 [[Special:ThisNameWillHopefullyNeverBeUsed#anchor]]
-!! html
+!! html/php
 <p><a href="/wiki/Special:ThisNameWillHopefullyNeverBeUsed" class="new" title="Special:ThisNameWillHopefullyNeverBeUsed (page does not exist)">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Special:ThisNameWillHopefullyNeverBeUsed#anchor" title="Special:ThisNameWillHopefullyNeverBeUsed">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>
 !! end
 
 !! test
@@ -19811,12 +19838,16 @@ Fuzz testing: Parser22
 http://===r:::https://b
 
 {|
-!! html
+!! html/php
 <p><a rel="nofollow" class="external free" href="http://===r:::https://b">http://===r:::https://b</a>
 </p>
 <table>
 <tr><td></td></tr>
 </table>
+!! html/parsoid
+<p><a rel="mw:ExtLink" href="http://===r:::https://b" class="external free" data-parsoid='{"stx":"url"}'>http://===r:::https://b</a></p>
+
+<table data-parsoid='{"autoInsertedEnd":true}'></table>
 !! end
 
 # The above 'Parser24' fuzz test exposed a tokenizer bug (T221384);
