@@ -1215,10 +1215,10 @@ class Linter {
 				];
 			}
 
-			$nextNode = null;
+			$nextNode = false;
 			// Let native extensions lint their content
 			$nativeExt = WTUtils::getNativeExt( $env, $node );
-			if ( $nativeExt && $nativeExt->hasLintHandler() ) {
+			if ( $nativeExt ) {
 				$nextNode = $nativeExt->lintHandler(
 					$this->extApi,
 					$node,
@@ -1226,7 +1226,9 @@ class Linter {
 						return $this->findLints( $extRootNode, $env, $tplInfo );
 					}
 				);
-			} else { // Default node handler
+			}
+			if ( $nextNode === false ) {
+				// Default node handler
 				// Lint this node
 				$nextNode = $this->logWikitextFixups( $node, $env, $tplInfo );
 				if ( $tplInfo && $tplInfo->clear ) {

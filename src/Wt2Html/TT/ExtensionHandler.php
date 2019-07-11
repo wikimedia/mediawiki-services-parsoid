@@ -16,7 +16,6 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
-use Parsoid\Ext\ExtensionTag;
 use Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
@@ -175,7 +174,7 @@ class ExtensionHandler extends TokenHandler {
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
-		if ( $nativeExt && $nativeExt instanceof ExtensionTag ) {
+		if ( $nativeExt !== null ) {
 			$extContent = Util::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
 			$state = [
@@ -192,17 +191,22 @@ class ExtensionHandler extends TokenHandler {
 			$extApi = new ParsoidExtensionAPI( $env,
 				$this->manager->getFrame(), $token, $this->options );
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
-			if ( $doc !== null ) {
-				$toks = $this->parseExtensionHTML( $token, null, $doc );
-				return( [ 'tokens' => $toks ] );
-			} else {
-				// The extension dropped this instance completely (!!)
-				// Should be a rarity and presumably the extension
-				// knows what it is doing. Ex: nested refs are dropped
-				// in some scenarios.
-				return [ 'tokens' => [] ];
+			if ( $doc !== false ) {
+				if ( $doc !== null ) {
+					$toks = $this->parseExtensionHTML( $token, null, $doc );
+					return( [ 'tokens' => $toks ] );
+				} else {
+					// The extension dropped this instance completely (!!)
+					// Should be a rarity and presumably the extension
+					// knows what it is doing. Ex: nested refs are dropped
+					// in some scenarios.
+					return [ 'tokens' => [] ];
+				}
 			}
-		} elseif ( $cachedExpansion ) {
+			// Fall through: this extension is electing not to use
+			// a custom toDOM method (by returning false from toDOM).
+		}
+		if ( $cachedExpansion ) {
 			// cache hit. Reuse extension expansion.
 			$toks = PipelineUtils::encapsulateExpansionHTML( $env, $token, $cachedExpansion, [
 				'fromCache' => true

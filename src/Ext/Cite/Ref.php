@@ -20,7 +20,7 @@ use Parsoid\Utils\WTUtils;
 /**
  * Simple token transform version of the Ref extension tag.
  */
-class Ref implements ExtensionTag, SerialHandler {
+class Ref extends ExtensionTag implements SerialHandler {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extExtArgs ): DOMDocument {
@@ -58,11 +58,6 @@ class Ref implements ExtensionTag, SerialHandler {
 				],
 			]
 		);
-	}
-
-	/** @inheritDoc */
-	public function hasLintHandler(): bool {
-		return true;
 	}
 
 	/** @inheritDoc */

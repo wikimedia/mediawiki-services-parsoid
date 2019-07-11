@@ -21,7 +21,7 @@ use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 
-class References implements ExtensionTag, SerialHandler {
+class References extends ExtensionTag implements SerialHandler {
 	/**
 	 * @param DOMNode $node
 	 * @return bool
@@ -558,11 +558,6 @@ class References implements ExtensionTag, SerialHandler {
 		} else {
 			return null;
 		}
-	}
-
-	/** @inheritDoc */
-	public function hasLintHandler(): bool {
-		return true;
 	}
 
 	/** @inheritDoc */

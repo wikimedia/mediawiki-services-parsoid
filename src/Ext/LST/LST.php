@@ -4,13 +4,15 @@ declare( strict_types = 1 );
 namespace Parsoid\Ext\LST;
 
 use DOMElement;
+use Parsoid\Ext\Extension;
+use Parsoid\Ext\ExtensionTag;
 use Parsoid\Ext\SerialHandlerTrait;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Ext\SerialHandler;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 
-class LST implements SerialHandler {
+class LST extends ExtensionTag implements Extension, SerialHandler {
 
 	use SerialHandlerTrait;
 
@@ -39,7 +41,7 @@ class LST implements SerialHandler {
 		return $src;
 	}
 
-	/** @return array */
+	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
 			'tags' => [

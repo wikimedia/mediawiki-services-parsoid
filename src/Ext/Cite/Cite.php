@@ -5,13 +5,14 @@ namespace Parsoid\Ext\Cite;
 
 use DOMNode;
 use Parsoid\Config\Env;
+use Parsoid\Ext\Extension;
 
 /**
  * Native Parsoid implementation of the Cite extension
  * that ties together `<ref>` and `<references>`.
  */
-class Cite {
-	/** @return array */
+class Cite implements Extension {
+	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
 			'name' => 'cite',

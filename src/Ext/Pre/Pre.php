@@ -5,8 +5,8 @@ namespace Parsoid\Ext\Pre;
 
 use DOMDocument;
 use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Ext\LintHandlerTrait;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
@@ -16,8 +16,7 @@ use Parsoid\Wt2Html\TT\Sanitizer;
  * The `<pre>` extension tag shadows the html pre tag, but has different
  * semantics.  It treats anything inside it as plaintext.
  */
-class Pre implements ExtensionTag {
-	use LintHandlerTrait;
+class Pre extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
@@ -47,7 +46,7 @@ class Pre implements ExtensionTag {
 		return $doc;
 	}
 
-	/** @return array */
+	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
 			'tags' => [

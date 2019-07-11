@@ -8,22 +8,25 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Config\ParsoidExtensionAPI;
 
-interface ExtensionTag {
+/**
+ * A Parsoid native extension.  The only method which is generally
+ * required by all extensions is `toDOM` (but Translate doesn't even
+ * implement that).  All other methods have default do-nothing
+ * implementations; override them iff you wish to implement those
+ * features.
+ */
+abstract class ExtensionTag {
+
 	/**
 	 * Convert an extension tag to DOM.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $txt Extension tag contents
 	 * @param array $extArgs Extension tag arguments
-	 * @return DOMDocument
+	 * @return DOMDocument|false
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument;
-
-	/**
-	 * Does this extension support linting for its content?
-	 * If so, it should implement the lintHandler
-	 * @return bool
-	 */
-	public function hasLintHandler(): bool;
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
+		return false; /* Use default wrapper */
+	}
 
 	/**
 	 * Lint handler for this extension.
@@ -43,9 +46,16 @@ interface ExtensionTag {
 	 * @param DOMElement $rootNode Extension content's root node
 	 * @param callable $defaultHandler Default lint handler
 	 *    - Default lint handler has signature $defaultHandler( DOMElement $elt ): void
-	 * @return DOMNode|null
+	 * @return DOMNode|null|false Return `false` to indicate that this
+	 *   extension has no special lint handler (the default lint handler will
+	 *   be used.  Return `null` to indicate linting should proceed with the
+	 *   next sibling.  (Deprecated) A `DOMNode` can be returned to indicate
+	 *   the point in the tree where linting should resume.
 	 */
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, DOMElement $rootNode, callable $defaultHandler
-	): ?DOMNode;
+	) {
+		/* Use default linter */
+		return false;
+	}
 }

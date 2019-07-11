@@ -3,6 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Ext\Translate;
 
+use Parsoid\Ext\Extension;
+use Parsoid\Ext\ExtensionTag;
+
 /**
  * This is effectively a stub at this point.
  * The JS version doesn't do any work so this version doesn't either.
@@ -10,10 +13,10 @@ namespace Parsoid\Ext\Translate;
  * add a generic extension span wrapper around its contents.
  *
  * So, the PHP version mimics that and hence doesn't implement the
- * ExtensionTag interface.
+ * toDOM method.
  */
-class Translate {
-	/** @return array */
+class Translate extends ExtensionTag implements Extension {
+	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
 			'tags' => [

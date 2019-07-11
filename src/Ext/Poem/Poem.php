@@ -6,15 +6,13 @@ namespace Parsoid\Ext\Poem;
 use DOMDocument;
 use DOMElement;
 use Parsoid\Config\Env;
+use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\LintHandlerTrait;
 
-class Poem implements ExtensionTag {
-	/* Poem doesn't implement linting, so use boilerplate */
-	use LintHandlerTrait;
+class Poem extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
@@ -160,7 +158,7 @@ class Poem implements ExtensionTag {
 		$this->doPostProcessDOM( $root, $env, $options, $atTopLevel );
 	}
 
-	/** @return array */
+	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
 			'name' => 'poem',

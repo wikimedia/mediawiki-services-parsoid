@@ -821,11 +821,10 @@ abstract class SiteConfig {
 
 	/**
 	 * @param string $tagName Extension tag name
-	 * @return ExtensionTag|object|null
-	 *   Returns the implementation of the named extension,
-	 *   which usually (but not always) implements ExtensionTag.
+	 * @return ExtensionTag|null
+	 *   Returns the implementation of the named extension, if there is one.
 	 */
-	public function getNativeExtTagImpl( string $tagName ) {
+	public function getNativeExtTagImpl( string $tagName ): ?ExtensionTag {
 		$tagConfig = $this->getNativeExtTagConfig( $tagName );
 		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
 	}
@@ -836,7 +835,7 @@ abstract class SiteConfig {
 	 */
 	public function getExtensionTagSerialHandler( string $tagName ): ?SerialHandler {
 		$tagImpl = $this->getNativeExtTagImpl( $tagName );
-		return $tagImpl && $tagImpl instanceof SerialHandler ? $tagImpl : null;
+		return $tagImpl instanceof SerialHandler ? $tagImpl : null;
 	}
 
 	/**
