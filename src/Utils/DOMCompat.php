@@ -203,7 +203,7 @@ class DOMCompat {
 
 	/**
 	 * Return the last preceding sibling of the node that is an element, or null otherwise.
-	 * @param DOMElement|DOMCharacterData $node
+	 * @param DOMNode $node
 	 * @return DOMElement|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-previouselementsibling
 	 */
@@ -218,7 +218,7 @@ class DOMCompat {
 
 	/**
 	 * Return the first following sibling of the node that is an element, or null otherwise.
-	 * @param DOMElement|DOMCharacterData $node
+	 * @param DOMNode $node
 	 * @return DOMElement|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-nextelementsibling
 	 */
