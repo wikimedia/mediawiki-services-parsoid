@@ -6,15 +6,11 @@ namespace Parsoid\Ext\LST;
 use DOMElement;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Ext\SerialHandlerTrait;
 use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Ext\SerialHandler;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 
-class LST extends ExtensionTag implements Extension, SerialHandler {
-
-	use SerialHandlerTrait;
+class LST extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function fromHTML( DOMElement $node, SerializerState $state,

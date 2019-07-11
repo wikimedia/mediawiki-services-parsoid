@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Html2Wt\SerializerState;
 
 /**
  * A Parsoid native extension.  The only method which is generally
@@ -56,6 +57,36 @@ abstract class ExtensionTag {
 		ParsoidExtensionAPI $extApi, DOMElement $rootNode, callable $defaultHandler
 	) {
 		/* Use default linter */
+		return false;
+	}
+
+	/**
+	 * Serialize a DOM node created by this extension to wikitext.
+	 * @param DOMElement $node
+	 * @param SerializerState $state
+	 * @param bool $wrapperUnmodified
+	 * @return string|false Return false to use the default serialization.
+	 */
+	public function fromHTML(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
+	) {
+		/* Use default serialization */
+		return false;
+	}
+
+	/**
+	 * Number of newlines which should precede this tag in serialization.
+	 *
+	 * PORT-FIXME Per Subbu, extensions should not know about anything outside their tag so this
+	 *   will probably be replaced by something that informs the serializer about the expected
+	 *   behavior on a more abstract level (such as block vs inline).
+	 * @param DOMElement $node
+	 * @param DOMNode $otherNode
+	 * @param SerializerState $state
+	 * @return array|false Return false to use the default
+	 */
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
+		/* no special newlines-before behavior */
 		return false;
 	}
 }

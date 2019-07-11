@@ -9,7 +9,6 @@ use DOMNode;
 use Exception;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Ext\SerialHandler;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -20,7 +19,7 @@ use Parsoid\Utils\WTUtils;
 /**
  * Simple token transform version of the Ref extension tag.
  */
-class Ref extends ExtensionTag implements SerialHandler {
+class Ref extends ExtensionTag {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extExtArgs ): DOMDocument {

@@ -63,10 +63,9 @@ class EncapsulatedContentHandler extends DOMHandler {
 				}
 			}
 			if ( ( $dataMw->name ?? null ) != '' ) {
-				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( $dataMw->name );
-				if ( $serialHandler ) {
-					$src = $serialHandler->fromHTML( $node, $state, $wrapperUnmodified );
-				} else {
+				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
+				$src = $ext->fromHTML( $node, $state, $wrapperUnmodified );
+				if ( $src === false ) {
 					$src = $serializer->defaultExtensionHandler( $node, $state );
 				}
 			} elseif ( isset( $dp->src ) ) {
@@ -108,12 +107,10 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
-				$serialHandler = $env->getSiteConfig()->getExtensionTagSerialHandler( $dataMw->name );
-				if ( $serialHandler ) {
-					$ret = $serialHandler->before( $node, $otherNode, $state );
-					if ( $ret !== null ) {
-						return $ret;
-					}
+				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
+				$ret = $ext->before( $node, $otherNode, $state );
+				if ( $ret !== false ) {
+					return $ret;
 				}
 			}
 		}

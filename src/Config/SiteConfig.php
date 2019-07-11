@@ -7,7 +7,6 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 
 use Parsoid\ContentModelHandler;
 use Parsoid\WikitextContentModelHandler;
-use Parsoid\Ext\SerialHandler;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
@@ -827,15 +826,6 @@ abstract class SiteConfig {
 	public function getNativeExtTagImpl( string $tagName ): ?ExtensionTag {
 		$tagConfig = $this->getNativeExtTagConfig( $tagName );
 		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
-	}
-
-	/**
-	 * @param string $tagName Extension tag name
-	 * @return SerialHandler|null
-	 */
-	public function getExtensionTagSerialHandler( string $tagName ): ?SerialHandler {
-		$tagImpl = $this->getNativeExtTagImpl( $tagName );
-		return $tagImpl instanceof SerialHandler ? $tagImpl : null;
 	}
 
 	/**

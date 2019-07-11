@@ -9,7 +9,6 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Ext\SerialHandler;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Utils\ContentUtils;
@@ -21,7 +20,7 @@ use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 
-class References extends ExtensionTag implements SerialHandler {
+class References extends ExtensionTag {
 	/**
 	 * @param DOMNode $node
 	 * @return bool

@@ -9,8 +9,6 @@ use DOMText;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Ext\SerialHandler;
-use Parsoid\Ext\SerialHandlerTrait;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -22,9 +20,7 @@ use Wikimedia\Assert\Assert;
 /**
  * Nowiki treats anything inside it as plain text.
  */
-class Nowiki extends ExtensionTag implements Extension, SerialHandler {
-
-	use SerialHandlerTrait;
+class Nowiki extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
