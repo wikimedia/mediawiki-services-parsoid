@@ -14,7 +14,10 @@ use Parsoid\Html2Wt\SerializerState;
  * required by all extensions is `toDOM` (but Translate doesn't even
  * implement that).  All other methods have default do-nothing
  * implementations; override them iff you wish to implement those
- * features.
+ * features.  Default implementations consistently return `false`
+ * to indicate not-implemented (in some cases `null` would be a
+ * valid return value, and in other cases `null` would be a likely
+ * "accidental" return value which we'd like to catch and flag).
  */
 abstract class ExtensionTag {
 

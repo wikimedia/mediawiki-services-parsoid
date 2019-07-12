@@ -164,9 +164,4 @@ class Ref extends ExtensionTag {
 		);
 		return $startTagSrc . $src . '</' . $dataMw->name . '>';
 	}
-
-	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): ?array {
-		return null;
-	}
 }

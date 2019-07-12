@@ -64,9 +64,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 			}
 			if ( ( $dataMw->name ?? null ) != '' ) {
 				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
-				$src = $ext->fromHTML( $node, $state, $wrapperUnmodified );
-				if ( $src === false ) {
-					$src = $serializer->defaultExtensionHandler( $node, $state );
+				if ( $ext ) {
+					$src = $ext->fromHTML( $node, $state, $wrapperUnmodified );
+					if ( $src === false ) {
+						$src = $serializer->defaultExtensionHandler( $node, $state );
+					}
 				}
 			} elseif ( isset( $dp->src ) ) {
 				$env->log( 'error', 'data-mw missing in: ' . DOMCompat::getOuterHTML( $node ) );
@@ -108,9 +110,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
-				$ret = $ext->before( $node, $otherNode, $state );
-				if ( $ret !== false ) {
-					return $ret;
+				if ( $ext ) {
+					$ret = $ext->before( $node, $otherNode, $state );
+					if ( $ret !== false ) {
+						return $ret;
+					}
 				}
 			}
 		}
