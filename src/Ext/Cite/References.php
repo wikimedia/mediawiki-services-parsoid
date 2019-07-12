@@ -550,12 +550,12 @@ class References extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): ?array {
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
 		// Serialize new references tags on a new line.
 		if ( WTUtils::isNewElt( $node ) ) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} else {
-			return null;
+			return false;
 		}
 	}
 
