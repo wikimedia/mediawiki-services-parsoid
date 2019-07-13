@@ -27,7 +27,7 @@
 
 // THIS IS A STRIPPED DOWN VERSION OF doMaintenance.php from mediawiki core.
 
-if ( !defined( 'RUN_MAINTENANCE_IF_MAIN' ) ) {
+if ( !defined( 'PARSOID_RUN_MAINTENANCE_IF_MAIN' ) ) {
 	echo "This file must be included after Maintenance.php\n";
 	exit( 1 );
 }

@@ -40,7 +40,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$this->addOption( 'oldhtmlfile',
 						 'File containing the old HTML for a selective-serialization (see --selser)',
 						 false, true );
-		$this->setAllowUnregisteredOptions( false ); // string parsing
+		$this->setAllowUnregisteredOptions( false );
 	}
 
 	public function wt2Html( $wt, $body_only ) {
