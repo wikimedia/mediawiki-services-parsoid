@@ -559,7 +559,7 @@ var imageInfo = function(filename, twidth, theight, useBatchAPI) {
 };
 
 var querySiteinfo = function(prefix, formatversion, cb) {
-	cb(null, require(`../lib/config/baseconfig/${formatversion === 2 ? '2/' : ''}${prefix}.json`));
+	cb(null, require(`../baseconfig/${formatversion === 2 ? '2/' : ''}${prefix}.json`));
 };
 
 var parse = function(text, onlypst, formatversion) {

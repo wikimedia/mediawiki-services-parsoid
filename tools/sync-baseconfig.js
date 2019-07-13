@@ -59,7 +59,7 @@ var update = Promise.async(function *(opts) {
 		domain: domain,
 	});
 	var resultConf = yield ConfigRequest.promise(env, opts.formatversion);
-	var configDir = path.resolve(__dirname, '../lib/config');
+	var configDir = path.resolve(__dirname, '..');
 	var iwp = env.conf.wiki.iwp;
 	// HACK for be-tarask
 	if (iwp === 'be_x_oldwiki') { iwp = 'be-taraskwiki'; }
