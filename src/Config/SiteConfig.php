@@ -7,6 +7,7 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 
 use Parsoid\ContentModelHandler;
 use Parsoid\WikitextContentModelHandler;
+use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
@@ -53,7 +54,22 @@ abstract class SiteConfig {
 		 */
 	];
 
+	/** var array */
 	private $nativeExtConfig = null;
+
+	/** @var bool */
+	private $nativeExtConfigInitialized;
+
+	public function __construct() {
+		$this->nativeExtConfigInitialized = false;
+		$this->nativeExtConfig = [
+			'allTags'       => [],
+			'nativeTags'    => [],
+			'domProcessors' => [],
+			'styles'        => [],
+			'contentModels' => []
+		];
+	}
 
 	/************************************************************************//**
 	 * @name   Global config
@@ -724,52 +740,55 @@ abstract class SiteConfig {
 	abstract protected function getNonNativeExtensionTags(): array;
 
 	private function constructNativeExtConfig() {
-		$this->nativeExtConfig = [
-			'allTags'       => $this->getNonNativeExtensionTags() ?? [],
-			'nativeTags'    => [],
-			'domProcessors' => [],
-			'styles'        => [],
-			'contentModels' => []
-		];
+		$this->nativeExtConfig['allTags'] = array_merge( $this->nativeExtConfig['allTags'],
+			$this->getNonNativeExtensionTags() ?? [] );
 
 		// Default content model implementation for wikitext
 		$this->nativeExtConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
 
 		foreach ( $this->defaultNativeExtensions as $extName ) {
 			$extPkg = '\Parsoid\Ext\\' . $extName . '\\' . $extName;
-			$extObj = new $extPkg();
-			$extConfig = $extObj->getConfig();
+			$this->registerNativeExtension( new $extPkg() );
+		}
 
-			// This is for wt2html toDOM, html2wt fromHTML, and linter functionality
-			foreach ( $extConfig['tags'] as $tagConfig ) {
-				$lowerTagName = strToLower( $tagConfig['name'] );
-				$this->nativeExtConfig['allTags'][$lowerTagName] = true;
-				$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
-			}
+		$this->nativeExtConfigInitialized = true;
+	}
 
-			// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
-			if ( isset( $extConfig['domProcessors'] ) ) {
-				$this->nativeExtConfig['domProcessors'][$extName] = $extConfig['domProcessors'];
-			}
+	/**
+	 * Register a Parsoid-native extension
+	 * @param Extension $ext
+	 */
+	protected function registerNativeExtension( Extension $ext ): void {
+		$extConfig = $ext->getConfig();
 
-			// Does this extension export any native styles?
-			// FIXME: When we integrate with core, this will probably generalize
-			// to all resources (scripts, modules, etc). not just styles.
-			$this->nativeExtConfig['styles'] = array_merge(
-				$this->nativeExtConfig['styles'],
-				$extConfig['styles'] ?? []
-			);
+		// This is for wt2html toDOM, html2wt fromHTML, and linter functionality
+		foreach ( $extConfig['tags'] as $tagConfig ) {
+			$lowerTagName = strToLower( $tagConfig['name'] );
+			$this->nativeExtConfig['allTags'][$lowerTagName] = true;
+			$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
+		}
 
-			if ( isset( $extConfig['contentModels'] ) ) {
-				foreach ( $extConfig['contentModels'] as $cm => $impl ) {
-					// For compatibility with mediawiki core, the first
-					// registered extension wins.
-					if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
-						continue;
-					}
+		// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
+		if ( isset( $extConfig['domProcessors'] ) ) {
+			$this->nativeExtConfig['domProcessors'][get_class( $ext )] = $extConfig['domProcessors'];
+		}
 
-					$this->nativeExtConfig['contentModels'][$cm] = $impl;
+		// Does this extension export any native styles?
+		// FIXME: When we integrate with core, this will probably generalize
+		// to all resources (scripts, modules, etc). not just styles.
+		$this->nativeExtConfig['styles'] = array_merge(
+			$this->nativeExtConfig['styles'], $extConfig['styles'] ?? []
+		);
+
+		if ( isset( $extConfig['contentModels'] ) ) {
+			foreach ( $extConfig['contentModels'] as $cm => $impl ) {
+				// For compatibility with mediawiki core, the first
+				// registered extension wins.
+				if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
+					continue;
 				}
+
+				$this->nativeExtConfig['contentModels'][$cm] = $impl;
 			}
 		}
 	}
@@ -778,10 +797,9 @@ abstract class SiteConfig {
 	 * @return array
 	 */
 	private function getNativeExtensionsConfig(): array {
-		if ( !$this->nativeExtConfig ) {
+		if ( !$this->nativeExtConfigInitialized ) {
 			$this->constructNativeExtConfig();
 		}
-
 		return $this->nativeExtConfig;
 	}
 

@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use DOMDocument;
+use DOMElement;
+
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2Html\Frame;
@@ -63,6 +65,13 @@ class ParsoidExtensionAPI {
 	 */
 	public function getEnv(): Env {
 		return $this->env;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getExtensionName(): string {
+		return $this->extToken->getAttribute( 'name' );
 	}
 
 	/**
@@ -128,7 +137,7 @@ class ParsoidExtensionAPI {
 			];
 			$doc = PipelineUtils::processContentInPipeline(
 				$this->env,
-				$parseOpts['frame'] ?: $this->frame,
+				$parseOpts['frame'] ?? $this->frame,
 				$wikitext,
 				$opts
 			);
@@ -183,6 +192,14 @@ class ParsoidExtensionAPI {
 		}
 
 		return $doc;
+	}
+
+	/**
+	 * @param DOMElement $elt
+	 * @param array $extArgs
+	 */
+	public function sanitizeArgs( DOMElement $elt, array $extArgs ): void {
+		Sanitizer::applySanitizedArgs( $this->env, $elt, $extArgs );
 	}
 
 	// TODO: Provide support for extensions to register lints

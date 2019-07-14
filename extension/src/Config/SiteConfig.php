@@ -85,6 +85,8 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function __construct() {
+		parent::__construct();
+
 		$services = MediaWikiServices::getInstance();
 		$this->config = $services->getMainConfig();
 		$this->contLang = $services->getContentLanguage();

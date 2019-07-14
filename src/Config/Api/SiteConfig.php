@@ -79,6 +79,8 @@ class SiteConfig extends ISiteConfig {
 	 * @param array $opts
 	 */
 	public function __construct( ApiHelper $api, array $opts ) {
+		parent::__construct();
+
 		$this->api = $api;
 
 		if ( isset( $opts['rtTestMode'] ) ) {

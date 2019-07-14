@@ -48,6 +48,8 @@ class MockSiteConfig extends SiteConfig {
 	 * @param array $opts
 	 */
 	public function __construct( array $opts ) {
+		parent::__construct();
+
 		if ( isset( $opts['rtTestMode'] ) ) {
 			$this->rtTestMode = !empty( $opts['rtTestMode'] );
 		}
