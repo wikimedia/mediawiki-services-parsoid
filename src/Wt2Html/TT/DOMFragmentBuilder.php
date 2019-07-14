@@ -64,7 +64,9 @@ class DOMFragmentBuilder extends TokenHandler {
 	private function buildDOMFragment( Token $scopeToken ) {
 		$contentKV = $scopeToken->getAttributeKV( 'content' );
 		$content = $contentKV->v;
-		if ( $this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) ) ) {
+		if ( is_string( $content ) ||
+			$this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) )
+		) {
 			// New pipeline not needed. Pass them through
 			return [ 'tokens' => is_string( $content ) ? [ $content ] : $content ];
 		} else {

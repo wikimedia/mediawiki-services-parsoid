@@ -221,8 +221,7 @@ class ExternalLinkHandler extends TokenHandler {
 							new KV( 'src', $src ),
 							new KV( 'alt', end( $checkAlt ) )
 							], (object)[ 'type' => 'extlink' ]
-						)
-						];
+						) ];
 					}
 				}
 			}

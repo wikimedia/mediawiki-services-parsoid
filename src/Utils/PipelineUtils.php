@@ -38,7 +38,7 @@ class PipelineUtils {
 	 * be a bit fragile and makes dom-fragments a leaky abstraction by leaking subpipeline
 	 * processing into the top-level pipeline.
 	 *
-	 * @param Token[] $content The array of tokens to process.
+	 * @param Token[]|string $content The array of tokens to process.
 	 * @param SourceRange $srcOffsets Wikitext source offsets (start/end) of these tokens.
 	 * @param array $opts Parsing options.
 	 *    - Token token The token that generated the content.
@@ -49,7 +49,7 @@ class PipelineUtils {
 	 * @return SelfclosingTagTk
 	 */
 	public static function getDOMFragmentToken(
-		array $content, SourceRange $srcOffsets, array $opts = []
+		$content, SourceRange $srcOffsets, array $opts = []
 	): SelfclosingTagTk {
 		$token = $opts['token'];
 		return new SelfclosingTagTk( 'mw:dom-fragment-token', [
