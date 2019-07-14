@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
@@ -253,14 +254,14 @@ class LanguageVariantHandler extends TokenHandler {
 					'flSp' => $this->compressSpArray( $flagSp ), // spaces around flags
 					'src' => $dataAttribs->src,
 					'tSp' => $this->compressSpArray( $textSp ), // spaces around texts
-					'tsr' => [ $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) ]
+					'tsr' => new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) )
 				]
 			)
 		];
 		if ( !$isMeta ) {
 			$tokens[] = new EndTagTk( $isBlock ? 'div' : 'span', [],
 				(object)[
-					'tsr' => [ $tsr->end - 2, $tsr->end ]
+					'tsr' => new SourceRange( $tsr->end - 2, $tsr->end )
 				]
 			);
 		}

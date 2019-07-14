@@ -71,7 +71,7 @@ class Params {
 				}
 				if ( !is_array( $k ) &&
 					// Check for blank named parameters
-					$this->args[$i]->srcOffsets[1] === $this->args[$i]->srcOffsets[2]
+					$this->args[$i]->srcOffsets->key->end === $this->args[$i]->srcOffsets->value->start
 				) {
 					$out[(string)$n] = $v;
 					$n++;

@@ -8,6 +8,7 @@ use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
@@ -268,7 +269,7 @@ class PreHandler extends TokenHandler {
 		if ( count( $this->tokens ) > 0 ) {
 			$da = null;
 			if ( $this->preTSR !== -1 ) {
-				$da = (object)[ 'tsr' => [ $this->preTSR, $this->preTSR + 1 ] ];
+				$da = (object)[ 'tsr' => new SourceRange( $this->preTSR, $this->preTSR + 1 ) ];
 			}
 			$ret = array_merge( [ new TagTk( 'pre', [], $da ) ], $this->tokens, [ new EndTagTk( 'pre' ) ] );
 		}
