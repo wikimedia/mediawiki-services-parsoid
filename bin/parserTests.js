@@ -924,7 +924,7 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		this.testFilter = new RegExp(pattern);
 	}
 
-	this.testParserFilePath = path.join(__dirname, '../tests/parserTests.pegjs');
+	this.testParserFilePath = path.join(__dirname, '../tests/ParserTests/parserTests.pegjs');
 	this.testParser = PEG.buildParser(yield fs.readFile(this.testParserFilePath, 'utf8'));
 
 	this.cases = yield this.getTests(options);

@@ -3,8 +3,10 @@
  * 2011-07-20 Brion Vibber <brion@pobox.com>
  */
 {
-	/* File-scope initializer */
-	use Parsoid\Utils\PHPUtils;
+/* File-scope initializer */
+namespace Parsoid\Tests\ParserTests;
+
+use Parsoid\Utils\PHPUtils;
 }
 {
 	/*
@@ -35,27 +37,21 @@ line = (!"!!") line:rest_of_line
 
 text = lines:line*
 {
-	return implode($lines);
+	return implode("\n", $lines);
 }
 
 chunk =
-	comment /
-	article /
-	test /
-	line /
-	hooks /
-	functionhooks
+	comment
+	/ article
+	/ test
+	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
+	/ hooks
+	/ functionhooks
 
 comment =
-	"#" text:rest_of_line
-{
-	return [ 'type' => 'comment', 'comment' => $text ];
-}
+	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
 
-empty = eol / ws eol
-{
-	return [ 'type' => 'empty' ];
-}
+empty = eol / ws eol { return [ 'type' => 'empty' ]; }
 
 article =
 	start_article title:line start_text text:text end_article
@@ -80,10 +76,7 @@ end_article =
 
 functionhooks = start_functionhooks text:text end_functionhooks
 {
-	return [
-		'type' => 'functionhooks',
-		'text' => $text
-	];
+	return [ 'type' => 'functionhooks', 'text' => $text ];
 }
 
 start_functionhooks =
@@ -232,13 +225,9 @@ start_test =
 end_test =
 	"!!" ws? "end" ws? eol
 
-hooks =
-	start_hooks text:text end_hooks
+hooks = start_hooks text:text end_hooks
 {
-	return [
-		'type' => 'hooks',
-		'text' => $text
-	];
+	return [ 'type' => 'hooks', 'text' => $text ];
 }
 
 start_hooks =

@@ -3,11 +3,13 @@
 
 
 
-	/* File-scope initializer */
-	use Parsoid\Utils\PHPUtils;
+/* File-scope initializer */
+namespace Parsoid\Tests\ParserTests;
+
+use Parsoid\Utils\PHPUtils;
 
 
-class ParserTestsPEG extends \WikiPEG\PEGParserBase {
+class Grammar extends \WikiPEG\PEGParserBase {
   // initializer
   
   	/*
@@ -59,12 +61,13 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   ];
 
   // actions
-  private function a0($text) {
-  
-  	return [ 'type' => 'comment', 'comment' => $text ];
-  
+  private function a0($l) {
+   return [ 'type' => 'line', 'text' => $l ]; 
   }
-  private function a1($title, $text) {
+  private function a1($text) {
+   return [ 'type' => 'comment', 'text' => $text ]; 
+  }
+  private function a2($title, $text) {
   
   	return [
   		'type' => 'article',
@@ -73,7 +76,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	];
   
   }
-  private function a2($title, $sections) {
+  private function a3($title, $sections) {
   
   	$test = [
   		'type' => 'test',
@@ -107,46 +110,40 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return $test;
   
   }
-  private function a3($line) {
+  private function a4($line) {
   
   	return $line;
   
   }
-  private function a4($text) {
-  
-  	return [
-  		'type' => 'hooks',
-  		'text' => $text
-  	];
-  
-  }
   private function a5($text) {
   
-  	return [
-  		'type' => 'functionhooks',
-  		'text' => $text
-  	];
+  	return [ 'type' => 'hooks', 'text' => $text ];
   
   }
-  private function a6($c) {
+  private function a6($text) {
+  
+  	return [ 'type' => 'functionhooks', 'text' => $text ];
+  
+  }
+  private function a7($c) {
   
   	return implode($c);
   
   }
-  private function a7($lines) {
+  private function a8($lines) {
   
-  	return implode($lines);
+  	return implode("\n", $lines);
   
   }
-  private function a8($c) {
+  private function a9($c) {
    return implode( $c ); 
   }
-  private function a9($name, $text) {
+  private function a10($name, $text) {
   
   	return [ 'name' => $name, 'text' => $text ];
   
   }
-  private function a10($opts) {
+  private function a11($opts) {
   
   	$o = [];
   	if ( $opts && count($opts) > 0 ) {
@@ -158,7 +155,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return [ 'name' => 'options', 'text' => $o ];
   
   }
-  private function a11($o, $rest) {
+  private function a12($o, $rest) {
   
   	$result = [ $o ];
   	if ( $rest && count( $rest ) > 0 ) {
@@ -167,20 +164,20 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return $result;
   
   }
-  private function a12($k, $v) {
+  private function a13($k, $v) {
   
   	return [ 'k' => strToLower( $k ), 'v' => $v ?? '' ];
   
   }
-  private function a13($ovl) {
+  private function a14($ovl) {
   
   	return count( $ovl ) === 1 ? $ovl[0] : $ovl;
   
   }
-  private function a14($v, $ovl) {
+  private function a15($v, $ovl) {
    return $ovl; 
   }
-  private function a15($v, $rest) {
+  private function a16($v, $rest) {
   
   	$result = [ $v ];
   	if ( $rest && count( $rest ) > 0 ) {
@@ -189,7 +186,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return $result;
   
   }
-  private function a16($v) {
+  private function a17($v) {
   
   	if ( $v[0] === '"' || $v[0] === '{' ) { // } is needed to make pegjs happy
   		return PHPUtils::jsonDecode( $v );
@@ -197,7 +194,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return $v;
   
   }
-  private function a17($v) {
+  private function a18($v) {
   
   	// Perhaps we should canonicalize the title?
   	// Protect with JSON.stringify just in case the link target starts with
@@ -205,20 +202,20 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
   	return PHPUtils::jsonEncode( implode( $v ) );
   
   }
-  private function a18($c) {
+  private function a19($c) {
    return "\\" . $c; 
   }
-  private function a19($v) {
+  private function a20($v) {
   
   	return '"' . implode( $v ) . '"';
   
   }
-  private function a20($v) {
+  private function a21($v) {
   
   	return implode( $v );
   
   }
-  private function a21($v) {
+  private function a22($v) {
   
   	return "{" . implode( $v ) . "}";
   
@@ -255,8 +252,13 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     if ($r1!==self::$FAILED) {
       goto choice_1;
     }
-    $r1 = $this->parseline($silence);
+    $p2 = $this->currPos;
+    $r3 = $this->parseline($silence);
+    // l <- $r3
+    $r1 = $r3;
     if ($r1!==self::$FAILED) {
+      $this->savedPos = $p2;
+      $r1 = $this->a0($r3);
       goto choice_1;
     }
     $r1 = $this->parsehooks($silence);
@@ -291,7 +293,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a0($r5);
+      $r1 = $this->a1($r5);
     }
     // free $p3
     return $r1;
@@ -335,7 +337,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a1($r5, $r7);
+      $r1 = $this->a2($r5, $r7);
     }
     // free $p3
     return $r1;
@@ -383,7 +385,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a2($r5, $r6);
+      $r1 = $this->a3($r5, $r6);
     }
     // free $p3
     return $r1;
@@ -419,7 +421,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a3($r6);
+      $r1 = $this->a4($r6);
     }
     // free $p3
     return $r1;
@@ -450,7 +452,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a4($r5);
+      $r1 = $this->a5($r5);
     }
     // free $p3
     return $r1;
@@ -481,7 +483,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a5($r5);
+      $r1 = $this->a6($r5);
     }
     // free $p3
     return $r1;
@@ -514,7 +516,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a6($r4);
+      $r1 = $this->a7($r4);
     }
     // free $p3
     return $r1;
@@ -617,7 +619,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     $r1 = $r3;
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a7($r3);
+      $r1 = $this->a8($r3);
     }
     return $r1;
   }
@@ -775,7 +777,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     // name <- $r9
     if ($r9!==self::$FAILED) {
       $this->savedPos = $p6;
-      $r9 = $this->a8($r10);
+      $r9 = $this->a9($r10);
     } else {
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -798,7 +800,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a9($r9, $r12);
+      $r1 = $this->a10($r9, $r12);
     }
     // free $p3
     return $r1;
@@ -849,7 +851,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a10($r9);
+      $r1 = $this->a11($r9);
     }
     // free $p3
     return $r1;
@@ -1137,7 +1139,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a6($r4);
+      $r1 = $this->a7($r4);
     }
     // free $p3
     return $r1;
@@ -1178,7 +1180,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a11($r4, $r6);
+      $r1 = $this->a12($r4, $r6);
     }
     // free $p3
     return $r1;
@@ -1202,7 +1204,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a12($r4, $r5);
+      $r1 = $this->a13($r4, $r5);
     }
     // free $p3
     return $r1;
@@ -1228,7 +1230,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     $r1 = $r3;
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a6($r3);
+      $r1 = $this->a7($r3);
     }
     return $r1;
   }
@@ -1265,7 +1267,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a13($r7);
+      $r1 = $this->a14($r7);
     }
     // free $p3
     return $r1;
@@ -1312,7 +1314,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_2:
     if ($r5!==self::$FAILED) {
       $this->savedPos = $p6;
-      $r5 = $this->a14($r4, $r11);
+      $r5 = $this->a15($r4, $r11);
     } else {
       $r5 = null;
     }
@@ -1322,7 +1324,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a15($r4, $r5);
+      $r1 = $this->a16($r4, $r5);
     }
     // free $p3
     return $r1;
@@ -1348,7 +1350,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     $r1 = $r3;
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a16($r3);
+      $r1 = $this->a17($r3);
     }
     return $r1;
   }
@@ -1393,7 +1395,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a17($r5);
+      $r1 = $this->a18($r5);
     }
     // free $p3
     return $r1;
@@ -1448,7 +1450,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
       seq_2:
       if ($r6!==self::$FAILED) {
         $this->savedPos = $p7;
-        $r6 = $this->a18($r10);
+        $r6 = $this->a19($r10);
       }
       // free $p8
       choice_1:
@@ -1474,7 +1476,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a19($r5);
+      $r1 = $this->a20($r5);
     }
     // free $p3
     return $r1;
@@ -1500,7 +1502,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     $r1 = $r3;
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a20($r3);
+      $r1 = $this->a21($r3);
     }
     return $r1;
   }
@@ -1555,7 +1557,7 @@ class ParserTestsPEG extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a21($r5);
+      $r1 = $this->a22($r5);
     }
     // free $p3
     return $r1;
