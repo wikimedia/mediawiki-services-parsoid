@@ -620,7 +620,7 @@ class WrapTemplates {
 			} else {
 				// An assertion here is probably an indication that we're
 				// mistakenly doing template wrapping in a nested context.
-				Assert::invariant( $tmp->fromFoster, 'Template range without arginfo.' );
+				Assert::invariant( isset( $tmp->fromFoster ), 'Template range without arginfo.' );
 			}
 
 			$env->log( 'trace/tplwrap/merge', function () use ( &$DOMDataUtils, &$r ) {
@@ -868,7 +868,8 @@ class WrapTemplates {
 						!DOMUtils::isFosterablePosition( $encapTgt )
 					)
 				) {
-					throw new Error( 'Cannot encapsulate transclusion. Start=' . $startElem->outerHTML );
+					throw new Error( 'Cannot encapsulate transclusion. Start=' .
+						DOMCompat::getOuterHTML( $startElem ) );
 				}
 				$encapTgt = $encapTgt->nextSibling;
 			}
@@ -1020,8 +1021,8 @@ class WrapTemplates {
 				}
 			} else {
 				$errors = [ 'Do not have necessary info. to encapsulate Tpl: ' . $i ];
-				$errors[] = 'Start Elt : ' . $startElem->outerHTML;
-				$errors[] = 'End Elt   : ' . $range->endElem->outerHTML;
+				$errors[] = 'Start Elt : ' . DOMCompat::getOuterHTML( $startElem );
+				$errors[] = 'End Elt   : ' . DOMCompat::getOuterHTML( $range->endElem );
 				$errors[] = 'Start DSR : ' . PHPUtils::jsonEncode( $dp1->dsr ?? 'no-start-dsr' );
 				$errors[] = 'End   DSR : ' . PHPUtils::jsonEncode( $dp2DSR ?? [] );
 				$env->log( 'error', implode( "\n", $errors ) );

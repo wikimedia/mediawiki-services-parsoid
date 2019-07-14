@@ -257,7 +257,7 @@ class WikiLinkHandler extends TokenHandler {
 			}
 
 			$mwc = $token->getAttribute( 'mw:content' );
-			if ( strlen( $mwc ) ) {
+			if ( count( $mwc ) ) {
 				$content = array_merge( $content, $mwc );
 			}
 		} else {
@@ -352,7 +352,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $t instanceof Token &&
 					TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ?? '' )
 				) {
-					$firstNode = $env->fragmentMap->get( $t->dataAttribs->html )[0];
+					$firstNode = $env->getFragment( $t->dataAttribs->html )[0];
 					if ( DOMUtils::matchTypeOf( $firstNode, '/^mw:(Nowiki|Extension)/' ) ) {
 						return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 					}
@@ -540,9 +540,10 @@ class WikiLinkHandler extends TokenHandler {
 				if ( !is_array( $toks ) ) {
 					$toks = [ $toks ];
 				}
-				$toks = array_filter( $toks, function ( $t ) {
+
+				$toks = array_values( array_filter( $toks, function ( $t ) {
 					return $t !== '';
-				} );
+				} ) );
 				$n = count( $toks );
 				$newToks = [];
 				foreach ( $toks as $j => $t ) {
@@ -758,7 +759,7 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->dataAttribs->isIW = true;
 		// Add title unless it's just a fragment (and trim off fragment)
 		// (The normalization here is similar to what Title#getPrefixedDBKey() does.)
-		if ( $target->href[0] !== '#' ) {
+		if ( $target->href && $target->href[0] !== '#' ) {
 			$titleAttr = $target->interwiki['prefix'] . ':' .
 				Util::decodeURIComponent( preg_replace( '/_/', ' ',
 					preg_replace( '/#[\s\S]*/', '', $target->href, 1 ) ) );
@@ -1568,7 +1569,7 @@ class WikiLinkHandler extends TokenHandler {
 			// Update data-mw
 			$dataMwAttr = $token->getAttribute( 'data-mw' );
 			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : (object)[];
-			if ( is_array( $dataMw->errors ) ) {
+			if ( is_array( $dataMw->errors ?? null ) ) {
 				$errs = array_merge( $dataMw->errors, $errs );
 			}
 			$dataMw->errors = $errs;

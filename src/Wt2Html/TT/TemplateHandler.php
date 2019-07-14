@@ -479,7 +479,7 @@ class TemplateHandler extends TokenHandler {
 			$toks = $this->encapTokens( $state, $toks );
 		}
 
-		return ( [ 'tokens' => $toks ] );
+		return $toks;
 	}
 
 	/**
@@ -540,7 +540,7 @@ class TemplateHandler extends TokenHandler {
 				if ( $this->wrapTemplates ) {
 					$res[] = $this->getEncapsulationInfoEndTag( $state );
 				}
-				return [ 'tokens' => $res ];
+				return $res;
 			}
 
 			$pfAttribs = new Params( $attribs );
@@ -561,7 +561,7 @@ class TemplateHandler extends TokenHandler {
 		// expansion
 		$checkRes = $this->checkRes( $target, false );
 		if ( is_array( $checkRes ) ) {
-			return [ 'tokens' => $checkRes ];
+			return $checkRes;
 		}
 
 		// XXX: notes from brion's mediawiki.parser.environment
@@ -1074,7 +1074,8 @@ class TemplateHandler extends TokenHandler {
 			if ( is_string( $res ) ) {
 				$res = [ $res ];
 			}
-			return [ 'tokens' => $args->namedArgs[$argName] ? TokenUtils::tokenTrim( $res ) : $res ];
+			return [ 'tokens' =>
+				isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res ];
 		} elseif ( count( $attribs ) > 1 ) {
 			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {

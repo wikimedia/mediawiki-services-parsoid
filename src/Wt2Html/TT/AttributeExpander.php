@@ -67,8 +67,8 @@ class AttributeExpander extends TokenHandler {
 			if ( $t instanceof SelfclosingTagTk ) {
 				$type = $t->getAttribute( 'typeof' );
 				$typeMatch = [];
-				if ( $type && preg_match( $includeRE, $type, $typeMatch ) ) {
-					$inInclude = !$typeMatch[1] || !preg_match( '#/End$#', $typeMatch[1] );
+				if ( $type && preg_match( $includeRE, $type, $typeMatch, PREG_UNMATCHED_AS_NULL ) ) {
+					$inInclude = !preg_match( '#/End$#', $typeMatch[1] ?? '' );
 				}
 			} elseif ( !$inInclude && $t instanceof NlTk ) {
 				// newline token outside <*include*>
@@ -164,7 +164,7 @@ class AttributeExpander extends TokenHandler {
 				// document fragments.  They're an indication that an attribute
 				// value wasn't present as literal text in the input and the
 				// token should be annotated with "mw:ExpandedAttrs".
-				if ( TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ) ) {
+				if ( TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ?? '' ) ) {
 					$hasGeneratedContent = true;
 				}
 
@@ -539,7 +539,7 @@ class AttributeExpander extends TokenHandler {
 			$token->getName() !== 'mw:dom-fragment-token' && (
 				$token->getName() !== 'meta' ||
 				!preg_match( '/mw:(TSRMarker|Placeholder|Transclusion|Param|Includes)/',
-					$token->getAttribute( 'typeof' ) )
+					$token->getAttribute( 'typeof' ) ?? '' )
 			)
 		) {
 			$atm = new AttributeTransformManager( $this->manager->getFrame(), [

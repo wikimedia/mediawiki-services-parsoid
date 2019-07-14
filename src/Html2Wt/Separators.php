@@ -628,7 +628,7 @@ class Separators {
 				// Check if this is the last child of a zero-width element, and use
 				// that for dsr purposes instead. Typical case: text in p.
 				if ( !$prevNode->nextSibling && $prevNode->parentNode && $prevNode->parentNode !== $node &&
-					DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr &&
+					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr ?? null ) &&
 					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr->closeWidth ?? null ) === 0
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );

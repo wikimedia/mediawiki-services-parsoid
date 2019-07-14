@@ -182,7 +182,7 @@ class ExternalLinkHandler extends TokenHandler {
 			$newHref = $href;
 			$newRel = 'mw:ExtLink';
 			if ( preg_match( '/(?:^|\s)mw:(Ext|Wiki)Link\/ISBN/', $rdfaType ) ) {
-				$newHref = $env->page->relativeLinkPrefix . $href;
+				$newHref = $env->getSiteConfig()->relativeLinkPrefix() . $href;
 				// ISBNs use mw:WikiLink instead of mw:ExtLink
 				$newRel = 'mw:WikiLink';
 			}
@@ -203,26 +203,25 @@ class ExternalLinkHandler extends TokenHandler {
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
-			$tokens = array_merge( [ $aStart ], $content, [ new EndTagTk( 'a' ) ] );
+			$tokens = array_merge( [ $aStart ],
+				is_array( $content ) ? $content : [ $content ], [ new EndTagTk( 'a' ) ] );
 			return [ 'tokens' => $tokens ];
 		} elseif ( ( !$hasExpandedAttrs && is_string( $origHref ) ) ||
 					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
 		) {
 			$rdfaType = 'mw:ExtLink';
-			if ( count( $content ) === 1 ) {
-				if ( is_string( $content[0] ) ) {
-					$src = $content[0];
-					if ( $env->getSiteConfig()->hasValidProtocol( $src ) &&
-						$this->urlParser->tokenizeURL( $src ) !== false &&
-						$this->hasImageLink( $src )
-					) {
-						$checkAlt = explode( '/', $src );
-						$content = [ new SelfclosingTagTk( 'img', [
-							new KV( 'src', $src ),
-							new KV( 'alt', end( $checkAlt ) )
-							], (object)[ 'type' => 'extlink' ]
-						) ];
-					}
+			if ( is_array( $content ) && count( $content ) === 1 && is_string( $content[0] ) ) {
+				$src = $content[0];
+				if ( $env->getSiteConfig()->hasValidProtocol( $src ) &&
+					$this->urlParser->tokenizeURL( $src ) !== false &&
+					$this->hasImageLink( $src )
+				) {
+					$checkAlt = explode( '/', $src );
+					$content = [ new SelfclosingTagTk( 'img', [
+						new KV( 'src', $src ),
+						new KV( 'alt', end( $checkAlt ) )
+						], (object)[ 'type' => 'extlink' ]
+					) ];
 				}
 			}
 

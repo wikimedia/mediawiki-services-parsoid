@@ -138,7 +138,7 @@ class References extends ExtensionTag {
 		// FIXME(SSS): Need to clarify semantics here.
 		// If both the containing <references> elt as well as the nested <ref>
 		// elt has a group attribute, what takes precedence?
-		$group = $refDmw->attrs->group ?? $referencesGroup ?? null;
+		$group = $refDmw->attrs->group ?? $referencesGroup ?? '';
 		$refName = $refDmw->attrs->name ?? '';
 		$ref = $refsData->add( $env, $group, $refName, $about, $nestedInReferences );
 

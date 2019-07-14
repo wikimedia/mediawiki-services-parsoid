@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Ext\Cite;
 
-use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Exception;
@@ -22,12 +21,12 @@ use Parsoid\Utils\WTUtils;
 class Ref extends ExtensionTag {
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extExtArgs ): DOMDocument {
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extExtArgs ) {
 		// Drop nested refs entirely, unless we've explicitly allowed them
 		if ( ( $extApi->parseContext['extTag'] ?? null ) === 'ref' &&
 			empty( $extApi->parseContext['extTagOpts']['allowNestedRef'] )
 		) {
-			return null;
+			return false;
 		}
 
 		// The one supported case for nested refs is from the {{#tag:ref}} parser

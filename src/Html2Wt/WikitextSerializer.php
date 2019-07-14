@@ -1166,8 +1166,6 @@ class WikitextSerializer {
 		$wrapperUnmodified = false;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
-		$dp->dsr = $dp->dsr ?? [];
-
 		if ( $state->selserMode
 			&& !$state->inModifiedContent
 			&& WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node )

@@ -31,7 +31,7 @@ class ExtensionHandler extends TokenHandler {
 	 * Parse the extension HTML content and wrap it in a DOMFragment
 	 * to be expanded back into the top-level DOM later.
 	 */
-	private function parseExtensionHTML( Token $extToken, ?Exception $err, DOMDocument $doc ): array {
+	private function parseExtensionHTML( Token $extToken, ?Exception $err, ?DOMDocument $doc ): array {
 		$logger = $this->env->getSiteConfig()->getLogger();
 		$errType = '';
 		$errObj = [];
@@ -308,7 +308,7 @@ class ExtensionHandler extends TokenHandler {
 		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state['token'], $body, $opts );
 
 		if ( $state['isHtmlExt'] ) {
-			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp || [];
+			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp ?? (object)[];
 			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
 		}
 
