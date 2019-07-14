@@ -108,6 +108,9 @@ class Env {
 	/** @var bool[] */
 	public $dumpFlags;
 
+	/** @var bool[] */
+	public $debugFlags;
+
 	/** @var float */
 	public $startTime;
 
@@ -181,6 +184,7 @@ class Env {
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
+	 *  - debugFlags: (bool[]) Debug flags
 	 *  - uid: (int) Initial value of UID used to generate ids during parse.
 	 *         defaults to 1.
 	 *         PORT-FIXME: This construction option is required to support hybrid
@@ -201,6 +205,7 @@ class Env {
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
+		$this->debugFlags = $options['debugFlags'] ?? [];
 		$this->uid = (int)( $options['uid'] ?? 1 );
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
@@ -476,15 +481,15 @@ class Env {
 	}
 
 	/**
-	 * Store reference to original DOM
-	 * @param DOMElement $dom
+	 * Store reference to original DOM (body)
+	 * @param DOMElement $domBody
 	 */
-	public function setOrigDOM( DOMElement $dom ): void {
-		$this->origDOM = $dom;
+	public function setOrigDOM( DOMElement $domBody ): void {
+		$this->origDOM = $domBody;
 	}
 
 	/**
-	 * Return reference to original DOM
+	 * Return reference to original DOM (body)
 	 * @return DOMElement
 	 */
 	public function getOrigDOM(): DOMElement {
