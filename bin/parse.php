@@ -11,11 +11,6 @@ use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 
-use Parsoid\Config\Api\ApiHelper;
-use Parsoid\Config\Api\DataAccess;
-use Parsoid\Config\Api\PageConfig;
-use Parsoid\Config\Api\SiteConfig;
-
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Parsoid\Tools\Maintenance {
 	use \Parsoid\Tools\ExtendedOptsProcessor;
@@ -104,6 +99,51 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
+	private function makeMwConfig( $configOpts ) {
+		$services = \MediaWiki\MediaWikiServices::getInstance();
+		$parsoidServices = new \MWParsoid\ParsoidServices( $services );
+		$siteConfig = $parsoidServices->getParsoidSiteConfig();
+		$dataAccess = $parsoidServices->getParsoidDataAccess();
+		$pcFactory = $parsoidServices->getParsoidPageConfigFactory();
+		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
+		$title = \Title::newFromText( $configOpts['title'] ?? 'Main Page' );
+		$pageConfig = $pcFactory->create(
+			$title,
+			null, // UserIdentity
+			null, // revisionId
+			$configOpts['pageContent'] ?? null
+		);
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		return [
+			'parsoid' => $parsoid,
+			'pageConfig' => $pageConfig,
+		];
+	}
+
+	private function makeApiConfig( $configOpts ) {
+		$api = new \Parsoid\Config\Api\ApiHelper( $configOpts );
+
+		$siteConfig = new \Parsoid\Config\Api\SiteConfig( $api, $configOpts );
+		$dataAccess = new \Parsoid\Config\Api\DataAccess( $api, $configOpts );
+		$pageConfig = new \Parsoid\Config\Api\PageConfig( $api, $configOpts );
+
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		return [
+			'parsoid' => $parsoid,
+			'pageConfig' => $pageConfig,
+		];
+	}
+
+	private function makeConfig( $configOpts ) {
+		if ( $configOpts['standalone'] ?? true ) {
+			return $this->makeApiConfig( $configOpts );
+		} else {
+			return $this->makeMwConfig( $configOpts );
+		}
+	}
+
 	/**
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
@@ -117,16 +157,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$configOpts["pageContent"] = $wt;
 		}
 
-		$api = new ApiHelper( $configOpts );
+		$res = $this->makeConfig( $configOpts );
 
-		$siteConfig = new SiteConfig( $api, $configOpts );
-		$dataAccess = new DataAccess( $api, $configOpts );
-
-		$parsoid = new Parsoid( $siteConfig, $dataAccess );
-
-		$pageConfig = new PageConfig( $api, $configOpts );
-
-		return $parsoid->wikitext2html( $pageConfig, $parsoidOpts );
+		return $res['parsoid']->wikitext2html( $res['pageConfig'], $parsoidOpts );
 	}
 
 	/**
@@ -140,17 +173,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		array $configOpts, array $parsoidOpts, PageBundle $pb,
 		?SelserData $selserData = null
 	): string {
-		$api = new ApiHelper( $configOpts );
+		$res = $this->makeConfig( $configOpts );
 
-		$siteConfig = new SiteConfig( $api, $configOpts );
-		$dataAccess = new DataAccess( $api, $configOpts );
-
-		$parsoid = new Parsoid( $siteConfig, $dataAccess );
-
-		$pageConfig = new PageConfig( $api, $configOpts );
-
-		return $parsoid->html2wikitext(
-			$pageConfig, $pb, $parsoidOpts, $selserData
+		return $res['parsoid']->html2wikitext(
+			$res['pageConfig'], $pb, $parsoidOpts, $selserData
 		);
 	}
 
@@ -212,6 +238,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$apiURL = $this->getOption( 'apiURL' );
 		}
 		$configOpts = [
+			"standalone" => !$this->hasOption( 'integrated' ),
 			"apiEndpoint" => $apiURL,
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",

@@ -69,7 +69,7 @@ class PageConfigFactory {
 				$revisionId
 			);
 		}
-		if ( $wikitextOverride !== null ) {
+		if ( $wikitextOverride !== null || $revisionRecord === null ) {
 			if ( $revisionRecord ) {
 				// PORT-FIXME this is not really the right thing to do; need
 				// a clone-like constructor for MutableRevisionRecord
@@ -82,7 +82,7 @@ class PageConfigFactory {
 			$revisionRecord->setSlot(
 				SlotRecord::newUnsaved(
 					SlotRecord::MAIN,
-					new WikitextContent( $wikitextOverride )
+					new WikitextContent( $wikitextOverride ?? '' )
 				)
 			);
 		}

@@ -2,17 +2,47 @@
 
 namespace Parsoid\Tools;
 
+// Hacky preprocessing of command-line arguments: look for
+// --integrated and/or --standalone flags.
+$parsoidMode = null;
+for ( $arg = reset( $argv ); $arg !== false; $arg = next( $argv ) ) {
+	if ( $arg === '--' ) {
+		# end of options
+		break;
+	} elseif ( $arg === '--integrated' || $arg === '--standalone' ) {
+		$parsoidMode = substr( $arg, 2 );
+		break;
+	}
+}
+
 // phpcs:disable Generic.Classes.DuplicateClassName.Found
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-if ( strval( getenv( 'MW_INSTALL_PATH' ) ) !== '' ) {
-	require_once getenv( 'MW_INSTALL_PATH' ) . '/maintenance/Maintenance.php';
-}
-// Check whether Parsoid is installed as an extension or library of core
-// XXX the class_exists('\Parsoid\...') test doesn't actually work, since
-// setup and extension loading haven't been done yet.
-if ( class_exists( '\Maintenance' ) && class_exists( '\Parsoid\Tools\OptsProcessor' ) ) {
+if ( $parsoidMode === 'integrated' ) {
 	/* Is MW installed w/ Parsoid?  Then use core's copy of Maintenance.php. */
+	if ( strval( getenv( 'MW_INSTALL_PATH' ) ) !== '' ) {
+		require_once getenv( 'MW_INSTALL_PATH' ) . '/maintenance/Maintenance.php';
+	} else {
+		error_log( 'MW_INSTALL_PATH environment variable must be defined.' );
+	}
 	abstract class Maintenance extends \Maintenance {
+		public function __construct() {
+			parent::__construct();
+			$this->requireExtension( 'Parsoid-testing' );
+		}
+
+		public function addDefaultParams(): void {
+			$this->addOption(
+				'integrated',
+				'Run parsoid integrated with a host MediaWiki installation ' .
+				'at MW_INSTALL_PATH'
+			);
+			$this->addOption(
+				'standalone',
+				'Run parsoid standalone, communicating with a host MediaWiki ' .
+				'using network API (see --domain option)'
+			);
+			parent::addDefaultParams();
+		}
 	}
 
 	define( 'PARSOID_RUN_MAINTENANCE_IF_MAIN', RUN_MAINTENANCE_IF_MAIN );
@@ -20,10 +50,24 @@ if ( class_exists( '\Maintenance' ) && class_exists( '\Parsoid\Tools\OptsProcess
 	// XXX There's probably a better way to ensure that Parsoid's loaded
 	require_once __DIR__ . '/../vendor/autoload.php';
 } else {
-	/* Use Parsoid's stand-alone clone */
+	/* Use Parsoid's stand-alone clone of the Maintenance framework */
 	require_once __DIR__ . '/../vendor/autoload.php';
 
 	abstract class Maintenance extends OptsProcessor {
+		public function addDefaultParams(): void {
+			$this->addOption(
+				'integrated',
+				'Run parsoid integrated with a host MediaWiki installation ' .
+				'at MW_INSTALL_PATH'
+			);
+			$this->addOption(
+				'standalone',
+				'Run parsoid standalone, communicating with a host MediaWiki ' .
+				'using network API (see --domain option)'
+			);
+			parent::addDefaultParams();
+		}
+
 		public function setup() {
 			# Abort if called from a web server
 			# wfIsCLI() is not available yet

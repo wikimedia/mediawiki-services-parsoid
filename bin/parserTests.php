@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../tools/Maintenance.php';
 
 use Parsoid\Tests\ParserTests\Stats;
 use Parsoid\Tests\ParserTests\TestRunner;
@@ -13,6 +13,7 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 	public $processedOptions;
 
 	public function __construct() {
+		parent::__construct();
 		TestUtils::setupOpts( $this );
 		$this->setAllowUnregisteredOptions( false );
 	}
