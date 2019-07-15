@@ -43,7 +43,7 @@
     "istanbul": "^0.4.5",
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
     "jsdoc": "^3.5.5",
-    "jsdoc-wmf-theme": "0.0.2",
+    "jsdoc-wmf-theme": "0.0.3",
     "mocha": "^5.1.1",
     "nock": "^9.2.5",
     "nsp": "^3.2.1",

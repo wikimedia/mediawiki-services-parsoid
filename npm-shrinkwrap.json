@@ -1903,9 +1903,9 @@
       }
     },
     "jsdoc-wmf-theme": {
-      "version": "0.0.2",
-      "from": "jsdoc-wmf-theme@0.0.2",
-      "resolved": "https://registry.npmjs.org/jsdoc-wmf-theme/-/jsdoc-wmf-theme-0.0.2.tgz",
+      "version": "0.0.3",
+      "from": "jsdoc-wmf-theme@0.0.3",
+      "resolved": "https://registry.npmjs.org/jsdoc-wmf-theme/-/jsdoc-wmf-theme-0.0.3.tgz",
       "dev": true
     },
     "jsdoctypeparser": {
