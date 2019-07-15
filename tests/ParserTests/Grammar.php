@@ -103,7 +103,9 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		if ( is_string( $test['options']['parsoid'] ) ) {
   			$test['options']['parsoid'] = [ $test['options']['parsoid'] ];
   		}
-  		if ( is_array( $test['options']['parsoid'] ) ) {
+  		if ( is_array( $test['options']['parsoid'] ) &&
+  			!isset( $test['options']['parsoid']['modes'] )
+  		) {
   			$test['options']['parsoid'] = [ 'modes' => $test['options']['parsoid'] ];
   		}
   	}
@@ -189,7 +191,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a17($v) {
   
   	if ( $v[0] === '"' || $v[0] === '{' ) { // } is needed to make pegjs happy
-  		return PHPUtils::jsonDecode( $v );
+  		return PHPUtils::jsonDecode( $v, false );
   	}
   	return $v;
   

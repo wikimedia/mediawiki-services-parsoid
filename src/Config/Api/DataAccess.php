@@ -276,9 +276,14 @@ class DataAccess implements IDataAccess {
 			}
 
 			$data = $this->api->makeRequest( $params );
-			$ret = $data['query']['pages'][0]['revisions'][0]['slots'];
-			// PORT-FIXME set the redirect field if needed
-			$this->setCache( $key, $ret );
+			$pageData = $data['query']['pages'][0];
+			if ( isset( $pageData['missing'] ) ) {
+				return null;
+			} else {
+				$ret = $pageData['revisions'][0]['slots'];
+				// PORT-FIXME set the redirect field if needed
+				$this->setCache( $key, $ret );
+			}
 		}
 		return new MockPageContent( $ret );
 	}

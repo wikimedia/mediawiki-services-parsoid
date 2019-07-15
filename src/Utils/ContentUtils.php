@@ -247,6 +247,7 @@ class ContentUtils {
 		DOMElement $rootNode, string $title, array &$options = []
 	): void {
 		$options = $options ?? [];
+		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
@@ -256,6 +257,7 @@ class ContentUtils {
 		self::cloneData( $rootNode, $clonedRoot, $options );
 
 		$buf = [];
+		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
 		if ( empty( $options['quiet'] ) ) {
 			$buf[] = '----- ' . $title . ' -----';
 		}

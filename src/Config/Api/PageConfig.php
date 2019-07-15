@@ -7,6 +7,7 @@ namespace Parsoid\Config\Api;
 use Parsoid\Config\PageConfig as IPageConfig;
 use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageContent;
+use Wikimedia\Assert\Assert;
 
 /**
  * PageConfig via MediaWiki's Action API
@@ -31,10 +32,10 @@ class PageConfig extends IPageConfig {
 	private $content;
 
 	/**
-	 * @param ApiHelper $api
+	 * @param ApiHelper|null $api (only needed if $opts doesn't provide page info)
 	 * @param array $opts
 	 */
-	public function __construct( ApiHelper $api, array $opts ) {
+	public function __construct( ?ApiHelper $api, array $opts ) {
 		$this->api = $api;
 
 		if ( !isset( $opts['title'] ) ) {
@@ -54,6 +55,7 @@ class PageConfig extends IPageConfig {
 				'slots' => [ 'main' => $opts['pageContent'] ],
 			];
 		} else {
+			Assert::invariant( $api !== null, 'Cannot load page info without an API' );
 			# Lazily load later
 			$this->page = null;
 			$this->rev = null;

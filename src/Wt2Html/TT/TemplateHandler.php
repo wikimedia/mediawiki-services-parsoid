@@ -1003,8 +1003,14 @@ class TemplateHandler extends TokenHandler {
 			$tplSrc = $env->pageCache[$templateName];
 		} elseif ( !$env->inOfflineMode() ) {
 			$pageContent = $env->getDataAccess()->fetchPageContent( $env->getPageConfig(), $templateName );
-			// PORT-FIXME: Hard-coded 'main' role
-			$tplSrc = $pageContent->getContent( 'main' );
+			if ( !$pageContent ) {
+				// Missing page!
+				// FIXME: This should be a redlink here!
+				$tplSrc = $templateName;
+			} else {
+				// PORT-FIXME: Hard-coded 'main' role
+				$tplSrc = $pageContent->getContent( 'main' );
+			}
 		} else {
 			// This is only useful for offline development mode
 			$tokens = [ $state['token']->dataAttribs->src ];

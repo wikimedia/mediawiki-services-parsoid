@@ -11,7 +11,10 @@ class MockPageConfig extends PageConfig {
 	private $content;
 
 	/** @var int */
-	private $pageId;
+	private $pageid;
+
+	/** @var int */
+	private $pagens;
 
 	/** @var string */
 	private $title;
@@ -23,8 +26,9 @@ class MockPageConfig extends PageConfig {
 	 */
 	public function __construct( array $opts, ?PageContent $content ) {
 		$this->content = $content;
-		$this->pageId = $opts['pageId'] ?? -1;
 		$this->title = $opts['title'] ?? 'TestPage';
+		$this->pageid = $opts['pageid'] ?? -1;
+		$this->pagens = $opts['pagens'] ?? 0;
 	}
 
 	public function getContentModel(): string {
@@ -42,12 +46,12 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getNs(): int {
-		return 0;
+		return $this->pagens;
 	}
 
 	/** @inheritDoc */
 	public function getPageId(): int {
-		return $this->pageId;
+		return $this->pageid;
 	}
 
 	/** @inheritDoc */

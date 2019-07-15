@@ -1,0 +1,1179 @@
+<?php
+declare( strict_types = 1 );
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+namespace Parsoid\Tools;
+
+use DateTime;
+use DOMElement;
+use DOMNode;
+use DOMText;
+
+use Parsoid\Html2Wt\DOMNormalizer;
+use Parsoid\Tests\ParserTests\Stats;
+use Parsoid\Tests\ParserTests\Test;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Utils\WTUtils;
+
+use JakubOnderka\PhpConsoleColor\ConsoleColor;
+use SebastianBergmann\Diff\Differ;
+
+class TestUtils {
+	// PORT-FIXME: Used to be colors::mode in all the use sites
+	public static $colors_mode;
+
+	/** @var Differ $differ */
+	private static $differ;
+
+	/** @var Differ $differ */
+	private static $consoleColor;
+
+	/**
+	 * Little helper function for encoding XML entities.
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	public static function encodeXml( string $str ) {
+		// PORT-FIXME: Find replacement
+		// return entities::encodeXML( $str );
+		return $str;
+	}
+
+	/**
+	 * Specialized normalization of the PHP parser & Parsoid output, to ignore
+	 * a few known-ok differences in parser test runs.
+	 *
+	 * This code is also used by the Parsoid round-trip testing code.
+	 *
+	 * If parsoidOnly is true-ish, we allow more markup through (like property
+	 * and typeof attributes), for better checking of parsoid-only test cases.
+	 *
+	 * @param DOMElement|string $domBody
+	 * @param array $options
+	 *  - parsoidOnly (bool) Is this test Parsoid Only? Optional. Default: false
+	 *  - preserveIEW (bool) Should inter-element WS be preserved? Optional. Default: false
+	 *  - scrubWikitext (bool) Are we running html2wt in scrubWikitext mode? Optional. Default: false
+	 *  - rtTestMode (bool) Are we running the test in roundtrip test mode? Optional. Default: false
+	 * @return string
+	 */
+	public static function normalizeOut( $domBody, array $options = [] ): string {
+		$parsoidOnly = !empty( $options['parsoidOnly'] );
+		$preserveIEW = !empty( $options['preserveIEW'] );
+
+		if ( !empty( $options['scrubWikitext'] ) ) {
+			// Mock env obj
+			//
+			// FIXME: This is ugly.
+			// (a) The normalizer shouldn't need the full env.
+			//     Pass options and a logger instead?
+			// (b) DOM diff code is using page-id for some reason.
+			//     That feels like a carryover of 2013 era code.
+			//     If possible, get rid of it and diff-mark dependency
+			//     on the env object.
+			$env = new MockEnv( [ 'scrubWikitext' => true ], null );
+			if ( is_string( $domBody ) ) {
+				$domBody = DOMCompat::getBody( $env->createDocument( $domBody ) );
+			}
+			$mockState = [
+				'env' => $env,
+				'selserMode' => false,
+				'rtTestMode' => !empty( $options['rtTestMode'] )
+			];
+			DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
+			$domBody = ( new DOMNormalizer( $mockState ) )->normalize( $domBody );
+			DOMDataUtils::visitAndStoreDataAttribs( $domBody );
+		} elseif ( is_string( $domBody ) ) {
+			$domBody = DOMCompat::getBody( DOMUtils::parseHTML( $domBody ) );
+		}
+
+		$stripTypeof = $parsoidOnly ?
+			'/(?:^|mw:DisplaySpace\s+)mw:Placeholder$/' :
+			'/^mw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Nowiki|Transclusion|Entity)$/';
+		$domBody = self::unwrapSpansAndNormalizeIEW( $domBody, $stripTypeof, $parsoidOnly, $preserveIEW );
+		$out = ContentUtils::toXML( $domBody, [ 'innerXML' => true ] );
+		// NOTE that we use a slightly restricted regexp for "attribute"
+		//  which works for the output of DOM serialization.  For example,
+		//  we know that attribute values will be surrounded with double quotes,
+		//  not unquoted or quoted with single quotes.  The serialization
+		//  algorithm is given by:
+		//  http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
+		if ( !preg_match( '#[^<]*(<\w+(\s+[^\0-\cZ\s"\'>/=]+(="[^"]*")?)*/?>[^<]*)*#', $out ) ) {
+			throw new Error( 'normalizeOut input is not in standard serialized form' );
+		}
+
+		// Eliminate a source of indeterminacy from leaked strip markers
+		$out = preg_replace( '/UNIQ-.*?-QINU/', '', $out );
+
+		// And from the imagemap extension - the id attribute is not always around, it appears!
+		$out = preg_replace( '/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/', '<map>', $out );
+
+		// Normalize COINS ids -- they aren't stable
+		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/i', '', $out );
+
+		// Eliminate transience from priority hints (T216499)
+		$out = preg_replace( '/\s?importance="high"/', '', $out );
+		$out = preg_replace( '/\s?elementtiming="thumbnail-(high|top)"/', '', $out );
+
+		if ( $parsoidOnly ) {
+			// unnecessary attributes, we don't need to check these
+			// style is in there because we should only check classes.
+			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)="[^\"]*"/', '', $out );
+			// single-quoted variant
+			$out = preg_replace( "/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)='[^\']*'/", '', $out );
+			// apos variant
+			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/', '', $out );
+
+			// strip self-closed <nowiki /> because we frequently test WTS
+			// <nowiki> insertion by providing an html/parsoid section with the
+			// <meta> tags stripped out, allowing the html2wt test to verify that
+			// the <nowiki> is correctly added during WTS, while still allowing
+			// the html2html and wt2html versions of the test to pass as a
+			// sanity check.  If <meta>s were not stripped, these tests would all
+			// have to be modified and split up.  Not worth it at this time.
+			// (see commit 689b22431ad690302420d049b10e689de6b7d426)
+			$out = preg_replace( '/<span typeof="mw:Nowiki"><\/span>/', '', $out );
+
+			return $out;
+		}
+
+		// Normalize headings by stripping out Parsoid-added ids so that we don't
+		// have to add these ids to every parser test that uses headings.
+		// We will test the id generation scheme separately via mocha tests.
+		$out = preg_replace( '/(<h[1-6].*?) id="[^\"]*"([^>]*>)/', '$1$2', $out );
+		// strip meta/link elements
+		$out = preg_replace(
+			'#</?(?:meta|link)(?: [^\0-\cZ\s"\'>/=]+(?:=(?:"[^"]*"|\'[^\']*\'))?)*/?>#', '', $out );
+		// Ignore troublesome attributes.
+		// Strip JSON attributes like data-mw and data-parsoid early so that
+		// comment stripping in normalizeNewlines does not match unbalanced
+		// comments in wikitext source.
+		$out = preg_replace( '/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^"]*"/', '', $out );
+		// single-quoted variant
+		$out = preg_replace( "/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^']*'/", '', $out );
+		// strip typeof last
+		$out = preg_replace( '/ typeof="[^\"]*"/', '', $out );
+		// replace mwt ids
+		$out = preg_replace( '/ id="mw((t\d+)|([\w-]{2,}))"/', '', $out );
+		$out = preg_replace( '/<span[^>]+about="[^"]*"[^>]*>/', '', $out );
+		$out = preg_replace( '#<span>\s*</span>#', '', $out );
+		$out = preg_replace( '#(href=")(?:\.?\./)+#', '$1', $out );
+		// replace unnecessary URL escaping
+		$out = preg_replace_callback( '/ href="[^"]*"/', function ( $m ) {
+			return Util::decodeURI( $m[0] );
+		}, $out );
+		// strip thumbnail size prefixes
+		return preg_replace(
+			'#(src="[^"]*?)/thumb(/[0-9a-f]/[0-9a-f]{2}/[^/]+)/[0-9]+px-[^"/]+(?=")#', '$1$2',
+			$out
+		);
+	}
+
+	private static function cleanSpans( DOMNode $node, ?string $stripSpanTypeof ): void {
+		if ( !$stripSpanTypeof ) {
+			return;
+		}
+
+		$child = null;
+		$next = null;
+		for ( $child = $node->firstChild; $child; $child = $next ) {
+			$next = $child->nextSibling;
+			if ( $child->nodeName === 'span' &&
+				preg_match( $stripSpanTypeof, $child->getAttribute( 'typeof' ) ?? '' )
+			) {
+				self::unwrapSpan( $node, $child, $stripSpanTypeof );
+			}
+		}
+	}
+
+	private static function unwrapSpan( DOMElement $parent, DOMNode $node, ?string $stripSpanTypeof ) {
+		// first recurse to unwrap any spans in the immediate children.
+		self::cleanSpans( $node, $stripSpanTypeof );
+		// now unwrap this span.
+		DOMUtils::migrateChildren( $node, $parent, $node );
+		$parent->removeChild( $node );
+	}
+
+	private static function newlineAround( ?DOMNode $node ) {
+		return $node &&
+			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/', $node->nodeName );
+	}
+
+	private static function normalizeIEWVisitor( DOMNode $node, array $opts ) {
+		$child = null;
+		$next = null;
+		$prev = null;
+		if ( $node->nodeName === 'pre' ) {
+			// Preserve newlines in <pre> tags
+			$inPRE = true;
+		}
+		if ( !$opts['preserveIEW'] && DOMUtils::isText( $node ) ) {
+			if ( !$opts['inPRE'] ) {
+				$node->data = preg_replace( '/\s+/', ' ', $node->data );
+			}
+			if ( $opts['stripLeadingWS'] ) {
+				$node->data = preg_replace( '/^\s+/', '', $node->data, 1 );
+			}
+			if ( $opts['stripTrailingWS'] ) {
+				$node->data = preg_replace( '/\s+$/', '', $node->data, 1 );
+			}
+		}
+		// unwrap certain SPAN nodes
+		self::cleanSpans( $node, $opts['stripSpanTypeof'] );
+		// now remove comment nodes
+		if ( !$opts['parsoidOnly'] ) {
+			for ( $child = $node->firstChild;  $child;  $child = $next ) {
+				$next = $child->nextSibling;
+				if ( DOMUtils::isComment( $child ) ) {
+					$node->removeChild( $child );
+				}
+			}
+		}
+		// reassemble text nodes split by a comment or span, if necessary
+		if ( $node instanceof DOMElement ) {
+			DOMCompat::normalize( $node );
+		}
+		// now recurse.
+		if ( $node->nodeName === 'pre' ) {
+			// hack, since PHP adds a newline before </pre>
+			$opts['stripLeadingWS'] = false;
+			$opts['stripTrailingWS'] = true;
+		} elseif ( $node->nodeName === 'span' &&
+			preg_match( '/^mw[:]/', $node->getAttribute( 'typeof' ) ?? '' )
+		) {
+			// SPAN is transparent; pass the strip parameters down to kids
+		} else {
+			$opts['stripLeadingWS'] = $opts['stripTrailingWS'] = self::newlineAround( $node );
+		}
+		$child = $node->firstChild;
+		// Skip over the empty mw:FallbackId <span> and strip leading WS
+		// on the other side of it.
+		if ( preg_match( '/^h[1-6]$/', $node->nodeName ) &&
+			$child && WTUtils::isFallbackIdSpan( $child )
+		) {
+			$child = $child->nextSibling;
+		}
+		for ( ; $child; $child = $next ) {
+			$next = $child->nextSibling;
+			$newOpts = $opts;
+			$newOpts['stripTrailingWS'] = $opts['stripTrailingWS'] && !$child->nextSibling;
+			self::normalizeIEWVisitor( $child, $newOpts );
+			$opts['stripLeadingWS'] = false;
+		}
+
+		if ( $opts['inPRE'] || $opts['preserveIEW'] ) { return $node;
+  }
+
+		// now add newlines around appropriate nodes.
+		for ( $child = $node->firstChild;  $child; $child = $next ) {
+			$prev = $child->previousSibling;
+			$next = $child->nextSibling;
+			if ( self::newlineAround( $child ) ) {
+				if ( $prev && $prev instanceof DOMText ) {
+					$prev->data = preg_replace( '/\s*$/', "\n", $prev->data, 1 );
+				} else {
+					$prev = $node->ownerDocument->createTextNode( "\n" );
+					$node->insertBefore( $prev, $child );
+				}
+				if ( $next && $next instanceof DOMText ) {
+					$next->data = preg_replace( '/^\s*/', "\n", $next->data, 1 );
+				} else {
+					$next = $node->ownerDocument->createTextNode( "\n" );
+					$node->insertBefore( $next, $child->nextSibling );
+				}
+			}
+		}
+		return $node;
+	}
+
+	/**
+	 * Normalize newlines in IEW to spaces instead.
+	 *
+	 * @param DOMElement $body The document body node to normalize.
+	 * @param string|null $stripSpanTypeof Regular expression to strip typeof attributes
+	 * @param bool $parsoidOnly
+	 * @param bool $preserveIEW
+	 * @return DOMElement
+	 */
+	public static function unwrapSpansAndNormalizeIEW(
+		DOMElement $body, string $stripSpanTypeof = null, bool $parsoidOnly = false, bool $preserveIEW = false
+	): DOMElement {
+		$opts = [
+			'preserveIEW' => $preserveIEW,
+			'parsoidOnly' => $parsoidOnly,
+			'stripSpanTypeof' => $stripSpanTypeof,
+			'stripLeadingWS' => true,
+			'stripTrailingWS' => true,
+			'inPRE' => false
+		];
+		// clone body first, since we're going to destructively mutate it.
+		return self::normalizeIEWVisitor( $body->cloneNode( true ), $opts );
+	}
+
+	/**
+	 * Strip some php output we aren't generating.
+	 */
+	public static function normalizePhpOutput( string $html ): string {
+		$html = preg_replace(
+			// do not expect section editing for now
+			'/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> '
+			. '*(<span class="mw-editsection"><span class="mw-editsection-bracket">'
+			. '\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/',
+			'$1',
+			$html
+		);
+		return preg_replace(
+			"/<a[^>]+class=\"mw-headline-anchor\"[^>]*>§<\\/a>/", '',
+			$html
+		);
+	}
+
+	/**
+	 * Normalize the expected parser output by parsing it using a HTML5 parser and
+	 * re-serializing it to HTML. Ideally, the parser would normalize inter-tag
+	 * whitespace for us. For now, we fake that by simply stripping all newlines.
+	 *
+	 * @param string $source
+	 * @return string
+	 */
+	public static function normalizeHTML( string $source ): string {
+		try {
+			$body = self::unwrapSpansAndNormalizeIEW( DOMCompat::getBody( DOMUtils::parseHTML( $source ) ) );
+			$html = ContentUtils::toXML( $body, [ 'innerXML' => true ] );
+
+			// a few things we ignore for now..
+			//  .replace(/\/wiki\/Main_Page/g, 'Main Page')
+			// do not expect a toc for now
+			$html = preg_replace(
+				'/<div[^>]+?id="toc"[^>]*>\s*<div id="toctitle"[^>]*>[\s\S]+?<\/div>[\s\S]+?<\/div>\s*/',
+				'',
+				$html );
+			$html = self::normalizePhpOutput( $html );
+			// remove empty span tags
+			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/', '$1', $html );
+			$html = preg_replace( '/<span>\s*<\/span>/', '', $html );
+			// general class and titles, typically on links
+			$html = preg_replace( '/ (class|rel|about|typeof)="[^"]*"/', '', $html );
+			// strip red link markup, we do not check if a page exists yet
+			$html = preg_replace(
+				"#/index.php\\?title=([^']+?)&amp;action=edit&amp;redlink=1#", '/wiki/$1', $html );
+			// strip red link title info
+			$html = preg_replace(
+				"/ \\((?:page does not exist|encara no existeix|bet ele jaratılmag'an|lonkásá  ezalí tɛ̂)\\)/",
+				'', $html );
+			// the expected html has some extra space in tags, strip it
+			$html = preg_replace( '/<a +href/', '<a href', $html );
+			$html = preg_replace( '#href="/wiki/#', 'href="', $html );
+			$html = preg_replace( '/" +>/', '">', $html );
+			// parsoid always add a page name to lonely fragments
+			$html = preg_replace( '/href="#/', 'href="Main Page#', $html );
+			// replace unnecessary URL escaping
+			$html = preg_replace_callback( '/ href="[^"]*"/',
+				function ( $m ) {
+					return Util::decodeURI( $m[0] );
+				},
+				$html );
+			// strip empty spans
+			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/', '$1', $html );
+			return preg_replace( '/<span>\s*<\/span>/', '', $html );
+		} catch ( Exception $e ) {
+			error_log( 'normalizeHTML failed on' . $source . ' with the following error: ' . $e );
+			return $source;
+		}
+	}
+
+	public static function colorString( string $string, string $color ): string {
+		if ( !self::$consoleColor ) {
+			self::$consoleColor = new ConsoleColor();
+		}
+
+		if ( self::$consoleColor->isSupported() ) {
+			return self::$consoleColor->apply( $color, $string );
+		} else {
+			return $string;
+		}
+	}
+
+	/**
+	 * Colorize given number if <> 0.
+	 *
+	 * @param int $count
+	 * @param string $color
+	 * @return string Colorized count
+	 */
+	private static function colorizeCount( int $count, string $color ): string {
+		$s = (string)$count;
+		return self::colorString( $s, $color );
+	}
+
+	/**
+	 * @param array $modesRan
+	 * @param Stats $stats
+	 *  - failedTests int Number of failed tests due to differences in output.
+	 *  - passedTests int Number of tests passed without any special consideration.
+	 *  - modes array All of the stats (failedTests, passedTests) per-mode.
+	 * @param string|null $file
+	 * @param array|null $testFilter
+	 * @param bool $blacklistChanged
+	 */
+	public static function reportSummary(
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $blacklistChanged
+	): void {
+		$curStr = null;
+		$mode = null;
+		$thisMode = null;
+		$failTotalTests = $stats->failedTests;
+		$happiness = $stats->passedTestsUnexpected === 0 && $stats->failedTestsUnexpected === 0;
+		$filename = $file === null ? 'ALL TESTS' : $file;
+
+		print "==========================================================\n";
+		print 'SUMMARY:' . self::colorString( $filename, $happiness ? 'green' : 'red' ) . "\n";
+		if ( $file !== null ) {
+			print 'Execution time: ' . ( new DateTime() )->format( 'Y-m-d H:i:s' ) . "\n";
+		}
+
+		if ( $failTotalTests !== 0 ) {
+			foreach ( $modesRan as $mode ) {
+				$curStr = $mode . ': ';
+				$thisMode = $stats->modes[$mode];
+				$curStr .= self::colorizeCount( $thisMode->passedTests, 'green' ) . ' passed (';
+				$curStr .= self::colorizeCount( $thisMode->passedTestsUnexpected, 'red' ) . ' unexpected, ';
+				$curStr .= self::colorizeCount( $thisMode->failedTests, 'red' ) . ' failed (';
+				$curStr .= self::colorizeCount( $thisMode->failedTestsUnexpected, 'red' ) . ' unexpected)';
+				print $curStr . "\n";
+			}
+
+			$curStr = 'TOTAL' . ': ';
+			$curStr .= self::colorizeCount( $stats->passedTests, 'green' ) . ' passed (';
+			$curStr .= self::colorizeCount( $stats->passedTestsUnexpected, 'red' ) . ' unexpected, ';
+			$curStr .= self::colorizeCount( $stats->failedTests, 'red' ) . ' failed (';
+			$curStr .= self::colorizeCount( $stats->failedTestsUnexpected, 'red' ) . ' unexpected)';
+			print $curStr . "\n";
+
+			if ( $file === null ) {
+				$buf = self::colorizeCount( $stats->passedTests, 'green' );
+				$buf .= ' total passed tests (expected ';
+				$buf .= (string)( $stats->passedTests - $stats->passedTestsUnexpected + $stats->failedTestsUnexpected );
+				$buf .=	'), ';
+				$buf .= self::colorizeCount( $failTotalTests, 'red' ) . ' total failures (expected ';
+				$buf .= (string)( $stats->failedTests - $stats->failedTestsUnexpected + $stats->passedTestsUnexpected );
+				$buf .= ")\n";
+				print $buf;
+			}
+		} else {
+			if ( $testFilter !== null ) {
+				$buf = 'Passed ' . $stats->passedTests . ' of '
+					. $stats->passedTests . ' tests matching ' . $testFilter['raw'];
+			} else {
+				// Should not happen if it does: Champagne!
+				$buf = 'Passed ' . $stats->passedTests . ' of ' . $stats->passedTests .	' tests';
+			}
+			print $buf . '... ' . self::colorString( 'ALL TESTS PASSED!', 'green' ) . "\n";
+		}
+
+		// If we logged error messages, complain about it.
+		$logMsg = self::colorString( 'No errors logged.', 'green' );
+		if ( $stats->loggedErrorCount > 0 ) {
+			$logMsg = self::colorString( $stats->loggedErrorCount . ' errors logged.', 'red' );
+		}
+		if ( $file === null ) {
+			if ( $stats->loggedErrorCount > 0 ) {
+				$logMsg = self::colorString( '' . $stats->loggedErrorCount, 'red' );
+			} else {
+				$logMsg = self::colorString( '' . $stats->loggedErrorCount, 'green' );
+			}
+			$logMsg .= ' errors logged.';
+		}
+		print $logMsg . "\n";
+
+		$failures = $stats->allFailures();
+
+		// If the blacklist changed, complain about it.
+		if ( $blacklistChanged ) {
+			print self::colorString( 'Blacklist changed!', 'red' ) . "\n";
+		}
+
+		if ( $file === null ) {
+			if ( $failures === 0 ) {
+				print '--> ' . self::colorString( 'NO UNEXPECTED RESULTS', 'green' ) . " <--\n";
+				if ( $blacklistChanged ) {
+					print "Perhaps some tests were deleted or renamed.\n";
+					print "Use `bin/parserTests.js --rewrite-blacklist` to update blacklist.\n";
+				}
+			} else {
+				print self::colorString( '--> ' . $failures . ' UNEXPECTED RESULTS. <--', 'red' ) . "\n";
+			}
+		}
+	}
+
+	private static function prettyPrintIOptions( array $iopts = null ) {
+		if ( !$iopts ) {
+			return '';
+		}
+
+		$ppValue = null; // Forward declaration
+		$ppValue = function ( $v ) use ( &$ppValue ) {
+			if ( is_array( $v ) ) {
+				return implode( ',', array_map( $ppValue, $v ) );
+			}
+
+			if ( is_string( $v ) &&
+				( preg_match( '/^\[\[[^\]]*\]\]$/', $v ) || preg_match( '/^[-\w]+$/', $v ) )
+			) {
+				return $v;
+			}
+
+			return json_encode( $v );
+		};
+
+		$strPieces = array_map(
+			function ( $k ) use ( $iopts, $ppValue ) {
+				if ( $iopts[$k] === '' ) {
+					return $k;
+				}
+				return $k . '=' . $ppValue( $iopts[$k] );
+			},
+			array_keys( $iopts )
+		);
+		return implode( ' ', $strPieces );
+	}
+
+	/**
+	 * @param Stats $stats
+	 * @param Test $item
+	 * @param array $options
+	 * @param string $mode
+	 * @param string $title
+	 * @param array $actual
+	 * @param array $expected
+	 * @param bool $expectFail Whether this test was expected to fail (on blacklist).
+	 * @param bool $failureOnly Whether we should print only a failure message, or go on to print the diff.
+	 * @param array $bl BlackList.
+	 * @return bool true if the failure was expected.
+	 */
+	public static function printFailure(
+		Stats $stats, Test $item, array $options, string $mode, string $title,
+		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $bl
+	): bool {
+		$stats->failedTests++;
+		$stats->modes[$mode]->failedTests++;
+		$fail = [
+			'title' => $title,
+			'raw' => $actual ? $actual['raw'] : null,
+			'expected' => $expected ? $expected['raw'] : null,
+			'actualNormalized' => $actual ? $actual['normal'] : null
+		];
+		$stats->modes[$mode]->failList[] = $fail;
+
+		$mstr = isset( $item->options['langconv'] ) ? 'wt2html+langconv' : $mode;
+		$extTitle = str_replace( "\n", ' ', $title . ( $mstr ? ' (' . $mstr . ')' : '' ) );
+
+		$blacklisted = false;
+		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && $expectFail ) {
+			// compare with remembered output
+			$normalizeAbout = function ( $s ) {
+				return preg_replace( "/(about=\\\\?[\"']#mwt)\\d+/", '$1', $s );
+			};
+			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) ) {
+				$blacklisted = true;
+			} else {
+				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
+					print self::colorString( 'EXPECTED FAIL', 'red' ) . ': ' . self::colorString( $extTitle, 'yellow' ) . "\n";
+				}
+				return true;
+			}
+		}
+
+		$stats->failedTestsUnexpected++;
+		$stats->modes[$mode]->failedTestsUnexpected++;
+		$fail['unexpected'] = true;
+
+		if ( !$failureOnly ) {
+			print "=====================================================\n";
+		}
+
+		if ( $blacklisted ) {
+			print self::colorString( 'UNEXPECTED BLACKLIST FAIL', 'red' ) . ': '
+				. self::colorString( $extTitle, 'yellow' ) . "\n";
+			print self::colorString( 'Blacklisted, but the output changed!', 'red' ) . "\n";
+		} else {
+			print self::colorString( 'UNEXPECTED FAIL', 'red' ) . ': '
+				. self::colorString( $extTitle, 'yellow' ) . "\n";
+		}
+
+		if ( $mode === 'selser' ) {
+			if ( $item->wt2wtPassed ) {
+				print self::colorString( 'Even worse, the non-selser wt2wt test passed!', 'red' ) . "\n";
+			} elseif ( $actual && $item->wt2wtResult !== $actual['raw'] ) {
+				print self::colorString( 'Even worse, the non-selser wt2wt test had a different result!', 'red' ) . "\n";
+			}
+		}
+
+		if ( !$failureOnly ) {
+			// PORT-FIXME: Removed comments .. maybe need to put it back
+			// print implode( "\n", $item->comments ) . "\n";
+			if ( $options ) {
+				print self::colorString( 'OPTIONS', 'cyan' ) . ':' . "\n";
+				print self::prettyPrintIOptions( $item->options ) . "\n";
+			}
+			print self::colorString( 'INPUT', 'cyan' ) . ':' . "\n";
+			print $actual['input'] . "\n";
+			print $options['getActualExpected']( $actual, $expected, $options['getDiff'] ) . "\n";
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param Stats $stats
+	 * @param Test $item
+	 * @param array $options
+	 * @param string $mode
+	 * @param string $title
+	 * @param bool $expectSuccess Whether this success was expected (or was this test blacklisted?).
+	 * @return bool true if the success was expected.
+	 */
+	public static function printSuccess(
+		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
+	): bool {
+		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
+		$stats->passedTests++;
+		$stats->modes[$mode]->passedTests++;
+		$mstr = isset( $item->options['langconv'] ) ? 'wt2html+langconv' : $mode;
+		$extTitle = str_replace( "\n", ' ', $title . ( $mstr ? ' (' . $mstr . ')' : '' ) );
+
+		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && !$expectSuccess ) {
+			$stats->passedTestsUnexpected++;
+			$stats->modes[$mode]->passedTestsUnexpected++;
+			return false;
+		}
+		if ( !$quiet ) {
+			$outStr = 'EXPECTED PASS';
+
+			$outStr = self::colorString( $outStr, 'green' ) . ': '
+				. self::colorString( $extTitle, 'yellow' );
+
+			print $outStr . "\n";
+
+			if ( $mode === 'selser' && !$item->wt2wtPassed ) {
+				print self::colorString( 'Even better, the non-selser wt2wt test failed!', 'red' ) . "\n";
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Print the actual and expected outputs.
+	 *
+	 * @param array $actual
+	 *  - string raw
+	 *  - string normal
+	 * @param array $expected
+	 *  - string raw
+	 *  - string normal
+	 * @param Callable $getDiff Returns a string showing the diff(s) for the test.
+	 *  - array actual
+	 *  - array expected
+	 * @return string
+	 */
+	public static function getActualExpected( array $actual, array $expected, callable $getDiff ): string {
+		if ( self::$colors_mode === 'none' ) {
+			$mkVisible = function ( $s ) {
+				return $s;
+			};
+		} else {
+			$mkVisible = function ( $s ) {
+				return preg_replace( '/\xA0/', self::colorString( "␣", "white" ),
+					preg_replace( '/\n/', self::colorString( "↵\n", "white" ), $s ) );
+			};
+		}
+
+		$returnStr = '';
+		$returnStr .= self::colorString( 'RAW EXPECTED', 'cyan' ) . ":\n";
+		$returnStr .= $expected['raw'] . "\n";
+
+		$returnStr .= self::colorString( 'RAW RENDERED', 'cyan' ) . ":\n";
+		$returnStr .= $actual['raw'] . "\n";
+
+		$returnStr .= self::colorString( 'NORMALIZED EXPECTED', 'magenta' ) . ":\n";
+		$returnStr .= $mkVisible( $expected['normal'] ) . "\n";
+
+		$returnStr .= self::colorString( 'NORMALIZED RENDERED', 'magenta' ) . ":\n";
+		$returnStr .= $mkVisible( $actual['normal'] ) . "\n";
+
+		$returnStr .= self::colorString( 'DIFF', 'cyan' ) . ":\n";
+		$returnStr .= $getDiff( $actual, $expected );
+
+		return $returnStr;
+	}
+
+	/**
+	 * @param array $actual
+	 *  - string normal
+	 * @param array $expected
+	 *  - string normal
+	 * @return string Colorized diff
+	 */
+	public static function doDiff( array $actual, array $expected ): string {
+		// safe to always request color diff, because we set color mode='none'
+		// if colors are turned off.
+		$e = preg_replace( '/\xA0/', "␣", $expected['normal'] );
+		$a = preg_replace( '/\xA0/', "␣", $actual['normal'] );
+		// PORT_FIXME:
+		if ( !self::$differ ) {
+			$differ = new Differ;
+		}
+
+		$diffs = $differ->diff( $e, $a );
+		$diffs = preg_replace_callback( '/^(-.*)/m', function ( $m ) {
+			return self::colorString( $m[0], 'green' );
+		}, $diffs );
+		$diffs = preg_replace_callback( '/^(\+.*)/m', function ( $m ) {
+			return self::colorString( $m[0], 'red' );
+		}, $diffs );
+
+		return $diffs;
+	}
+
+	/**
+	 * @param Callable $reportFailure
+	 * @param Callable $reportSuccess
+	 * @param array $bl BlackList.
+	 * @param Stats $stats
+	 * @param Test $item
+	 * @param array $options
+	 * @param string $mode
+	 * @param array $expected
+	 * @param array $actual
+	 * @param Callable|null $pre
+	 * @param Callable|null $post
+	 * @return bool True if the result was as expected.
+	 */
+	public static function printResult(
+		callable $reportFailure, callable $reportSuccess, array $bl,
+		Stats $stats, Test $item, array $options, string $mode,
+		array $expected, array $actual, callable $pre = null, callable $post = null
+	): bool {
+		$title = $item->title; // Title may be modified here, so pass it on.
+
+		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
+		$parsoidOnly = isset( $item->altHtmlSections['html/parsoid' ] ) ||
+			isset( $item->options['parsoid'] );
+
+		if ( $mode === 'selser' ) {
+			$title .= ' ' . ( $item->changes ? json_encode( $item->changes ) : 'manual' );
+		}
+
+		$tb = $bl[$title] ?? [];
+		$expectFail = isset( $tb[$mode] );
+		$fail = $expected['normal'] !== $actual['normal'];
+		// Return whether the test was as expected, independent of pass/fail
+		$asExpected = null;
+
+		if ( $mode === 'wt2wt' ) {
+			$item->wt2wtPassed = !$fail;
+			$item->wt2wtResult = $actual['raw'];
+		}
+
+		// don't report selser fails when nothing was changed or it's a dup
+		if ( $mode === 'selser' && ( $item->changes === 0 || $item->duplicateChange ) ) {
+			return true;
+		}
+
+		if ( is_callable( $pre ) ) {
+			$pre( $stats, $mode, $title, $item->time );
+		}
+
+		if ( $fail ) {
+			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick, $bl );
+		} else {
+			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, !$expectFail );
+		}
+
+		if ( is_callable( $post ) ) {
+			$post( $stats, $mode );
+		}
+
+		return $asExpected;
+	}
+
+	/**
+	 * Simple function for reporting the start of the tests.
+	 *
+	 * This method can be reimplemented in the options of the ParserTests object.
+	 */
+	public static function reportStartOfTests() {
+	}
+
+	/**
+	 * Get the actual and expected outputs encoded for XML output.
+	 *
+	 * @inheritDoc getActualExpected
+	 *
+	 * @return string $The XML representation of the actual and expected outputs.
+	 */
+	public static function getActualExpectedXML( array $actual, array $expected, callable $getDiff ) {
+		$returnStr = '';
+
+		$returnStr .= "RAW EXPECTED:\n";
+		$returnStr .= self::encodeXml( $expected['raw'] ) . "\n\n";
+
+		$returnStr .= "RAW RENDERED:\n";
+		$returnStr .= self::encodeXml( $actual['raw'] ) . "\n\n";
+
+		$returnStr .= "NORMALIZED EXPECTED:\n";
+		$returnStr .= self::encodeXml( $expected['normal'] ) . "\n\n";
+
+		$returnStr .= "NORMALIZED RENDERED:\n";
+		$returnStr .= self::encodeXml( $actual['normal'] ) . "\n\n";
+
+		$returnStr .= "DIFF:\n";
+		$returnStr .= self::encodeXml( $getDiff( $actual, $expected, false ) );
+
+		return $returnStr;
+	}
+
+	/**
+	 * Report the start of the tests output.
+	 *
+	 * @inheritDoc reportStart
+	 */
+	public static function reportStartXML(): void {
+	}
+
+	/**
+	 * Report the end of the tests output.
+	 *
+	 * @inheritDoc reportSummary
+	 */
+	public static function reportSummaryXML(
+		array $modesRan, Stats $stats, string $file, ?array $testFilter, bool $blacklistChanged
+	): void {
+		if ( $file === null ) {
+			/* Summary for all tests; not included in XML format output. */
+			return;
+		}
+		print '<testsuites file="' . $file . '">';
+		for ( $i = 0;  $i < count( $modesRan );  $i++ ) {
+			$mode = $modesRan[ $i ];
+			print '<testsuite name="parserTests-' . $mode . '">';
+			print $stats->modes[ $mode ]->result;
+			print '</testsuite>';
+		}
+		print '</testsuites>';
+	}
+
+	/**
+	 * Print a failure message for a test in XML.
+	 *
+	 * @inheritDoc printFailure
+	 */
+	public static function reportFailureXML(
+		Stats $stats, Test $item, array $options, string $mode, string $title,
+		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $bl
+	): void {
+		$stats->failedTests++;
+		$stats->modes[$mode]->failedTests++;
+		$failEle = '';
+		$blacklisted = false;
+		if ( ScriptUtils::booleanOption( $options['blacklist'] ) && $expectFail ) {
+			// compare with remembered output
+			$blacklisted = $bl[$title][$mode] === $actual['raw'];
+		}
+		if ( !$blacklisted ) {
+			$failEle .= "<failure type=\"parserTestsDifferenceInOutputFailure\">\n";
+			$failEle .= self::getActualExpectedXML( $actual, $expected, $options['getDiff'] );
+			$failEle .= "\n</failure>";
+			$stats->failedTestsUnexpected++;
+			$stats->modes[$mode]->failedTestsUnexpected++;
+			$stats->modes[$mode]->result .= $failEle;
+		}
+	}
+
+	/**
+	 * Print a success method for a test in XML.
+	 *
+	 * @inheritDoc printSuccess
+	 */
+	public static function reportSuccessXML(
+		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
+	): void {
+		$stats->passedTests++;
+		$stats->modes[$mode]->passedTests++;
+	}
+
+	private static function pre( Stats $stats, string $mode, string $title, array $time ): void {
+		$testcaseEle = '<testcase name="' . self::encodeXml( $title ) . '" ';
+		$testcaseEle .= 'assertions="1" ';
+
+		$timeTotal = null;
+		if ( $time && $time->end && $time->start ) {
+			$timeTotal = $time->end - $time->start;
+			if ( !isNaN( $timeTotal ) ) {
+				$testcaseEle .= 'time="' . ( ( $time->end - $time->start ) / 1000.0 ) . '"';
+			}
+		}
+
+		$testcaseEle .= '>';
+		$stats->modes[$mode]->result .= $testcaseEle;
+	}
+
+	private static function post( Stats $stats, string $mode ) {
+		$stats->modes[$mode]->result .= '</testcase>';
+	}
+
+	/**
+	 * Print the result of a test in XML.
+	 *
+	 * @inheritDoc printResult
+	 */
+	public static function reportResultXML( ...$args ) {
+		$args = array_merge( [ [ self::class, 'reportFailureXML' ], [ self::class, 'reportSuccessXML' ] ], $args );
+		$args = array_merge( $args, [ [ self::class, 'pre' ], [ self::class, 'post' ] ] );
+		call_user_func_array( 'printResult', $args );
+
+		// In xml, test all cases always
+		return true;
+	}
+
+	/**
+	 * Process CLI opts and return
+	 */
+	public static function setupOpts( Maintenance $script ) {
+		$opts = ScriptUtils::addStandardOptions( [
+			'wt2html' => [
+				'description' => 'Wikitext -> HTML(DOM)',
+				'default' => false,
+				'boolean' => true
+			],
+			'html2wt' => [
+				'description' => 'HTML(DOM) -> Wikitext',
+				'default' => false,
+				'boolean' => true
+			],
+			'wt2wt' => [
+				'description' => 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext',
+				'default' => false,
+				'boolean' => true
+			],
+			'html2html' => [
+				'description' => 'Roundtrip testing: HTML(DOM) -> Wikitext -> HTML(DOM)',
+				'default' => false,
+				'boolean' => true
+			],
+			'selser' => [
+				'description' => 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). '
+. 'Set to "noauto" to just run the tests with manual selser changes.',
+				'boolean' => false
+			],
+			'changetree' => [
+				'description' => 'Changes to apply to parsed HTML to generate new HTML to be serialized (useful with selser)',
+				'default' => null,
+				'boolean' => false
+			],
+			'numchanges' => [
+				'description' => 'Make multiple different changes to the DOM, run a selser test for each one.',
+				'default' => 20,
+				'boolean' => false
+			],
+			'cache' => [
+				'description' => 'Get tests cases from cache file',
+				'boolean' => true,
+				'default' => false
+			],
+			'filter' => [
+				'description' => 'Only run tests whose descriptions match given string'
+			],
+			'regex' => [
+				'description' => 'Only run tests whose descriptions match given regex',
+				'alias' => [ 'regexp', 're' ]
+			],
+			'run-disabled' => [
+				'description' => 'Run disabled tests',
+				'default' => false,
+				'boolean' => true
+			],
+			'run-php' => [
+				'description' => 'Run php-only tests',
+				'default' => false,
+				'boolean' => true
+			],
+			'maxtests' => [
+				'description' => 'Maximum number of tests to run',
+				'boolean' => false
+			],
+			'quick' => [
+				'description' => 'Suppress diff output of failed tests',
+				'boolean' => true,
+				'default' => false
+			],
+			'quiet' => [
+				'description' => 'Suppress notification of passed tests (shows only failed tests)',
+				'boolean' => true,
+				'default' => false
+			],
+			'blacklist' => [
+				'description' => 'Compare against expected failures from blacklist',
+				'default' => true,
+				'boolean' => false
+			],
+			'rewrite-blacklist' => [
+				'description' => 'Update parserTests-blacklist.js with failing tests.',
+				'default' => false,
+				'boolean' => true
+			],
+			'exit-zero' => [
+				'description' => "Don't exit with nonzero status if failures are found.",
+				'default' => false,
+				'boolean' => true
+			],
+			'xml' => [
+				'description' => 'Print output in JUnit XML format.',
+				'default' => false,
+				'boolean' => true
+			],
+			'exit-unexpected' => [
+				'description' => 'Exit after the first unexpected result.',
+				'default' => false,
+				'boolean' => true
+			],
+			'update-tests' => [
+				'description' => 'Update parserTests.txt with results from wt2html fails.'
+			],
+			'update-unexpected' => [
+				'description' => 'Update parserTests.txt with results from wt2html unexpected fails.',
+				'default' => false,
+				'boolean' => true
+			]
+		], [
+			// override defaults for standard options
+			'fetchTemplates' => false,
+			'usePHPPreProcessor' => false,
+			'fetchConfig' => false
+		] );
+
+		foreach ( $opts as $opt => $optInfo ) {
+			$script->addOption( $opt,
+				$optInfo['description'], false, empty( $optInfo['boolean'] ), false );
+			if ( isset( $optInfo['default'] ) ) {
+				$script->setOptionDefault( $opt, $optInfo['default'] );
+			}
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function processOptions( Maintenance $script ): array {
+		$options = $script->optionsToArray();
+
+		if ( $options['help'] ) {
+			$script->maybeHelp();
+			print "Additional dump options specific to parserTests script:\n"
+			 . "* dom:post-changes  : Dumps DOM after applying selser changetree\n"
+			 . "Examples\n"
+			 . "\$ php parserTests.php --selser --filter '...' --dump dom:post-changes\n"
+			 . "\$ php parserTests.php --selser --filter '...' --changetree '...' --dump dom:post-changes\n";
+			die( 0 );
+		}
+
+		ScriptUtils::setColorFlags( $options );
+
+		if ( !( $options['wt2wt'] || $options['wt2html'] || $options['html2wt'] || $options['html2html']
+			|| isset( $options['selser'] ) )
+		) {
+			$options['wt2wt'] = true;
+			$options['wt2html'] = true;
+			$options['html2html'] = true;
+			$options['html2wt'] = true;
+			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
+				// turn on all modes by default for --rewrite-blacklist
+				$options['selser'] = true;
+				// sanity checking (T53448 asks to be able to use --filter here)
+				if ( isset( $options['filter'] ) || isset( $options['regex'] ) ||
+					isset( $options['maxtests'] ) || $options['exit-unexpected']
+				) {
+					print "\nERROR: can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected";
+					die( 1 );
+				}
+			}
+		}
+
+		if ( $options[ 'xml' ] ) {
+			$options['reportResult']  = [ self::class, 'reportResultXML' ];
+			$options['reportStart']   = [ self::class, 'reportStartXML' ];
+			$options['reportSummary'] = [ self::class, 'reportSummaryXML' ];
+			$options['reportFailure'] = [ self::class, 'reportFailureXML' ];
+			self::$colors_mode = 'none';
+		}
+
+		if ( !is_callable( $options['reportFailure'] ?? null ) ) {
+			// default failure reporting is standard out,
+			// see printFailure for documentation of the default.
+			$options['reportFailure'] = [ self::class, 'printFailure' ];
+		}
+
+		if ( !is_callable( $options['reportSuccess'] ?? null ) ) {
+			// default success reporting is standard out,
+			// see printSuccess for documentation of the default.
+			$options['reportSuccess'] = [ self::class, 'printSuccess' ];
+		}
+
+		if ( !is_callable( $options['reportStart'] ?? null ) ) {
+			// default summary reporting is standard out,
+			// see reportStart for documentation of the default.
+			$options['reportStart'] = [ self::class, 'reportStartOfTests' ];
+		}
+
+		if ( !is_callable( $options['reportSummary'] ?? null ) ) {
+			// default summary reporting is standard out,
+			// see reportSummary for documentation of the default.
+			$options['reportSummary'] = [ self::class, 'reportSummary' ];
+		}
+
+		if ( !is_callable( $options['reportResult'] ?? null ) ) {
+			// default result reporting is standard out,
+			// see printResult for documentation of the default.
+			$options['reportResult'] = function ( ...$args ) use ( &$options ) {
+				return self::printResult( $options['reportFailure'], $options['reportSuccess'], ...$args );
+			};
+		}
+
+		if ( !is_callable( $options['getDiff'] ?? null ) ) {
+			// this is the default for diff-getting, but it can be overridden
+			// see doDiff for documentation of the default.
+			$options['getDiff'] = [ self::class, 'doDiff' ];
+		}
+
+		if ( !is_callable( $options['getActualExpected'] ?? null ) ) {
+			// this is the default for getting the actual and expected
+			// outputs, but it can be overridden
+			// see getActualExpected for documentation of the default.
+			$options['getActualExpected'] = [ self::class, 'getActualExpected' ];
+		}
+
+		$options['modes'] = [];
+
+		if ( $options['wt2html'] ) {
+			$options['modes'][] = 'wt2html';
+		}
+		if ( $options['wt2wt'] ) {
+			$options['modes'][] = 'wt2wt';
+		}
+		if ( $options['html2html'] ) {
+			$options['modes'][] = 'html2html';
+		}
+		if ( $options['html2wt'] ) {
+			$options['modes'][] = 'html2wt';
+		}
+		if ( isset( $options['selser'] ) ) {
+			$options['modes'][] = 'selser';
+		}
+
+		return $options;
+	}
+}

@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config\Api;
 
 use Parsoid\Config\SiteConfig as ISiteConfig;
+use Parsoid\Utils\ConfigUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\UrlUtils;
@@ -32,13 +33,13 @@ class SiteConfig extends ISiteConfig {
 	private $linkTrailRegex = false;
 
 	/** @phan-var array<int,string> */
-	private $nsNames = [], $nsCase = [];
+	protected $nsNames = [], $nsCase = [];
 
 	/** @phan-var array<string,int> */
-	private $nsIds = [], $nsCanon = [];
+	protected $nsIds = [], $nsCanon = [];
 
 	/** @phan-var array<int,bool> */
-	private $nsWithSubpages = [];
+	protected $nsWithSubpages = [];
 
 	/** @phan-var array<string,string> */
 	private $specialPageNames = [];
@@ -120,13 +121,11 @@ class SiteConfig extends ISiteConfig {
 		}
 	}
 
-	/**
-	 * Normalize a namespace name
-	 * @param string $name
-	 * @return string
-	 */
-	private function normalizeNsName( string $name ): string {
-		return strtr( mb_strtolower( $name ), ' ', '_' );
+	protected function reset() {
+		$this->siteData = null;
+		$this->linkTrailRegex = false;
+		$this->baseUri = null;
+		$this->relativeLinkPrefix = null;
 	}
 
 	/**
@@ -152,6 +151,25 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/**
+	 * Add a new namespace to the config
+	 *
+	 * Protected access to let mocks and parser tests versions
+	 * add new namespaces as required.
+	 *
+	 * @param array $ns Namespace info
+	 */
+	protected function addNamespace( array $ns ): void {
+		$id = (int)$ns['id'];
+		$this->nsNames[$id] = $ns['name'];
+		$this->nsIds[Util::normalizeNamespaceName( $ns['name'] )] = $id;
+		$this->nsCanon[Util::normalizeNamespaceName( $ns['canonical'] ?? $ns['name'] )] = $id;
+		if ( $ns['subpages'] ) {
+			$this->nsWithSubpages[$id] = true;
+		}
+		$this->nsCase[$id] = (string)$ns['case'];
+	}
+
+	/**
 	 * Load site data from the Action API, if necessary
 	 */
 	private function loadSiteData(): void {
@@ -173,17 +191,10 @@ class SiteConfig extends ISiteConfig {
 
 		// Process namespace data from API
 		foreach ( $data['namespaces'] as $ns ) {
-			$id = (int)$ns['id'];
-			$this->nsNames[$id] = $ns['name'];
-			$this->nsIds[$this->normalizeNsName( $ns['name'] )] = $id;
-			$this->nsCanon[$this->normalizeNsName( $ns['canonical'] ?? $ns['name'] )] = $id;
-			if ( $ns['subpages'] ) {
-				$this->nsWithSubpages[$id] = true;
-			}
-			$this->nsCase[$id] = (string)$ns['case'];
+			$this->addNamespace( $ns );
 		}
 		foreach ( $data['namespacealiases'] as $ns ) {
-			$this->nsIds[$this->normalizeNsName( $ns['alias'] )] = $ns['id'];
+			$this->nsIds[Util::normalizeNamespaceName( $ns['alias'] )] = $ns['id'];
 		}
 
 		// FIXME: Export this from CoreParserFunctions::register, maybe?
@@ -266,29 +277,7 @@ class SiteConfig extends ISiteConfig {
 		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $bswRegexp . ')(?=$|\\s)/uS';
 
 		// Parse interwiki map data from the API
-		$this->interwikiMap = [];
-		$keys = [
-			'prefix' => true,
-			'url' => true,
-			'protorel' => true,
-			'local' => true,
-			'localinterwiki' => true,
-			'language' => true,
-			'extralanglink' => true,
-			'linktext' => true,
-		];
-		$cb = function ( $v ) {
-			return $v !== false;
-		};
-		foreach ( $data['interwikimap'] as $iwdata ) {
-			$iwdata['language'] = isset( $iwdata['language'] );
-			if ( strpos( $iwdata['url'], '$1' ) === false ) {
-				$iwdata['url'] .= '$1';
-			}
-			$iwdata = array_intersect_key( $iwdata, $keys );
-
-			$this->interwikiMap[$iwdata['prefix']] = array_filter( $iwdata, $cb );
-		}
+		$this->interwikiMap = ConfigUtils::computeInterwikiMap( $data['interwikimap'] );
 
 		// Parse variant data from the API
 		$this->langConverterEnabled = [];
@@ -482,13 +471,13 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
 		$this->loadSiteData();
-		return $this->nsCanon[$this->normalizeNsName( $name )] ?? null;
+		return $this->nsCanon[Util::normalizeNamespaceName( $name )] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
 		$this->loadSiteData();
-		return $this->nsIds[$this->normalizeNsName( $name )] ?? null;
+		return $this->nsIds[Util::normalizeNamespaceName( $name )] ?? null;
 	}
 
 	/** @inheritDoc */

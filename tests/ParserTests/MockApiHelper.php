@@ -85,6 +85,8 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
+	private $cachedConfigs = [];
+
 	private static $MAIN_PAGE = [
 		'query' => [
 			'pages' => [
@@ -487,7 +489,7 @@ class MockApiHelper extends ApiHelper {
 		}
 	}
 
-	private function imageInfo( string $filename, ?int $twidth, ?int $theight ) : array {
+	private function imageInfo( string $filename, ?int $twidth, ?int $theight ) : ?array {
 		$normPageName = self::PNAMES[$filename] ?? $filename;
 		$normFileName = self::FNAMES[$filename] ?? $filename;
 		$props = self::FILE_PROPS[$normFileName] ?? null;
@@ -585,7 +587,11 @@ class MockApiHelper extends ApiHelper {
 
 	private function processQuery( array $params ): array {
 		if ( ( $params['meta'] ?? null ) === 'siteinfo' ) {
-			return json_decode( file_get_contents( __DIR__ . "/../../baseconfig/2/$this->prefix.json" ), true );
+			if ( !isset( $this->cachedConfigs[$this->prefix] ) ) {
+				$this->cachedConfigs[$this->prefix] = json_decode(
+					file_get_contents( __DIR__ . "/../../baseconfig/2/$this->prefix.json" ), true );
+			}
+			return $this->cachedConfigs[$this->prefix];
 		}
 
 		$revid = $params['revids'] ?? null;

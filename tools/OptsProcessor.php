@@ -81,6 +81,19 @@ class OptsProcessor {
 	private $description = '';
 
 	/**
+	 * Generic options added by addDefaultParams()
+	 * Generic options which might or not be supported by the script
+	 * @var array
+	 */
+	private $genericParameters = [];
+
+	/**
+	 * Generic options which might or not be supported by the script
+	 * @var array
+	 */
+	private $dependentParameters = [];
+
+	/**
 	 * Used to read the options in the order they were passed.
 	 * Useful for option chaining (Ex. dumpBackup.php). It will
 	 * be an empty array if the options are passed in through
@@ -244,7 +257,7 @@ class OptsProcessor {
 	 * Add the default parameters to the scripts
 	 */
 	public function addDefaultParams(): void {
-		# Generic (non script dependant) options:
+		# Generic (non script dependent) options:
 
 		$this->addOption( 'help', 'Display this help message', false, false, 'h' );
 		$this->addOption( 'quiet', 'Whether to suppress non-error output', false, false, 'q' );
@@ -252,9 +265,9 @@ class OptsProcessor {
 		# Save generic options to display them separately in help
 		$this->genericParameters = $this->params;
 
-		# Save additional script dependant options to display
+		# Save additional script dependent options to display
 		# them separately in help
-		$this->dependantParameters = array_diff_key( $this->params, $this->genericParameters );
+		$this->dependentParameters = array_diff_key( $this->params, $this->genericParameters );
 	}
 
 	/**
@@ -483,9 +496,9 @@ class OptsProcessor {
 		}
 		print "\n";
 
-		$scriptDependantParams = $this->dependantParameters;
+		$scriptDependantParams = $this->dependentParameters;
 		if ( count( $scriptDependantParams ) > 0 ) {
-			print "Script dependant parameters:\n";
+			print "Script dependent parameters:\n";
 			// Parameters description
 			foreach ( $scriptDependantParams as $par => $info ) {
 				if ( $info['shortName'] !== false ) {
@@ -506,7 +519,7 @@ class OptsProcessor {
 			$this->params,
 			# remove the default parameters:
 			$this->genericParameters,
-			$this->dependantParameters
+			$this->dependentParameters
 		);
 		if ( count( $scriptSpecificParams ) > 0 ) {
 			print "Script specific parameters:\n";

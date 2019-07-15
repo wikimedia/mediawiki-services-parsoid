@@ -191,13 +191,11 @@ class Util {
 	/**
 	 * Cannonicalizes a namespace name.
 	 *
-	 * Used by {@link WikiConfig}.
-	 *
 	 * @param string $name Non-normalized namespace name.
 	 * @return string
 	 */
 	public static function normalizeNamespaceName( string $name ): string {
-		return str_replace( ' ', '_', strtolower( $name ) );
+		return strtr( strtolower( $name ), ' ', '_' );
 	}
 
 	/**

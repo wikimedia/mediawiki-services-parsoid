@@ -188,7 +188,7 @@ class Env {
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
-	 * @param array $options
+	 * @param array|null $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
@@ -204,8 +204,9 @@ class Env {
 	 *         testing and can be removed after porting and testing is complete.
 	 */
 	public function __construct(
-		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = []
+		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
 	) {
+		$options = $options ?? [];
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;

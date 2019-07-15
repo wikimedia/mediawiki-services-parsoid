@@ -34,12 +34,14 @@
 	"require-dev": {
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.3.2",
+		"jakub-onderka/php-console-color": "0.2",
 		"mediawiki/mediawiki-codesniffer": "26.0.0",
 		"mediawiki/mediawiki-phan-config": "0.6.1",
 		"mediawiki/minus-x": "0.3.1",
 		"phan/phan": "^1.2",
 		"phpspec/phpspec": "^5.0",
 		"phpunit/phpunit": "^6.5",
+		"sebastian/diff": "2.0.1",
 		"wikimedia/alea": "^0.9.0",
 		"wikimedia/testing-access-wrapper": "~1.0",
 		"ext-curl": "*",
@@ -54,6 +56,7 @@
 		"psr-4": {
 			"Parsoid\\Tests\\": "tests/mocks/",
 			"Parsoid\\Tests\\Porting\\": "tests/porting",
+			"Parsoid\\Tests\\ParserTests\\": "tests/ParserTests",
 			"Parsoid\\Tools\\": "tools/",
 			"Test\\": "tests/phpunit/"
 		}

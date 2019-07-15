@@ -119,7 +119,9 @@ test =
 		if ( is_string( $test['options']['parsoid'] ) ) {
 			$test['options']['parsoid'] = [ $test['options']['parsoid'] ];
 		}
-		if ( is_array( $test['options']['parsoid'] ) ) {
+		if ( is_array( $test['options']['parsoid'] ) &&
+			!isset( $test['options']['parsoid']['modes'] )
+		) {
 			$test['options']['parsoid'] = [ 'modes' => $test['options']['parsoid'] ];
 		}
 	}
@@ -191,7 +193,7 @@ option_value_list = v:an_option_value
 an_option_value = v:(link_target_value / quoted_value / plain_value / json_value)
 {
 	if ( $v[0] === '"' || $v[0] === '{' ) { // } is needed to make pegjs happy
-		return PHPUtils::jsonDecode( $v );
+		return PHPUtils::jsonDecode( $v, false );
 	}
 	return $v;
 }

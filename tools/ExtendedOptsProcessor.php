@@ -3,7 +3,6 @@
 namespace Parsoid\Tools;
 
 trait ExtendedOptsProcessor {
-
 	private $optionDefaults = [];
 
 	public function setOptionDefault( string $name, $default ) {
@@ -23,8 +22,15 @@ trait ExtendedOptsProcessor {
 	 */
 	public function optionsToArray(): array {
 		$options = [];
+		// Set CLI args
 		foreach ( $this->options as $name => $value ) {
-			$options[$name] = $this->getOption( $name );
+			$options[$name] = $value;
+		}
+		// Add in defaults
+		foreach ( $this->optionDefaults as $name => $value ) {
+			if ( !isset( $options[$name] ) ) {
+				$options[$name] = $value;
+			}
 		}
 		return $options;
 	}
