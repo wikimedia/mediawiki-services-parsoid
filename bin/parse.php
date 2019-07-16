@@ -94,6 +94,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	}
 
 	public function execute() {
+		$this->maybeHelp();
 		$input = file_get_contents( 'php://stdin' );
 
 		if ( $this->hasOption( 'html2wt' ) ) {

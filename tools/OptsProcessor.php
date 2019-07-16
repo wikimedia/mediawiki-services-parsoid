@@ -547,7 +547,7 @@ class OptsProcessor {
 	}
 
 	/** Override to redirect opts processor output. */
-	protected function print( $out ) {
+	protected function output( $out ) {
 		print $out;
 	}
 }
