@@ -98,19 +98,19 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 		if ( isset( $cliOpts['html2wt'] ) ) {
 			$selser = null;
-			if ( $yargs->hasOption( 'selser' ) ) {
-				if ( !$yargs->hasOption( 'oldtextfile' ) ) {
+			if ( $this->hasOption( 'selser' ) ) {
+				if ( !$this->hasOption( 'oldtextfile' ) ) {
 					print "No oldtextfile provided.\n";
-					$yargs->maybeHelp();
+					$this->maybeHelp();
 					return;
 				}
-				$oldText = file_get_contents( $yargs->getOption( 'oldtextfile' ) );
+				$oldText = file_get_contents( $this->getOption( 'oldtextfile' ) );
 				if ( $oldText === false ) {
 					return;
 				}
 				$oldHTML = null;
-				if ( !$yargs->hasOption( 'oldhtmlfile' ) ) {
-					$oldHTML = file_get_contents( $yargs->getOption( 'oldhtmlfile' ) );
+				if ( !$this->hasOption( 'oldhtmlfile' ) ) {
+					$oldHTML = file_get_contents( $this->getOption( 'oldhtmlfile' ) );
 					if ( $oldHTML === false ) {
 						return;
 					}
