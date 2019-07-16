@@ -828,7 +828,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it.only('should use the proper source text', function(done) {
+		it('should use the proper source text', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
 			.send({
