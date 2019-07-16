@@ -96,7 +96,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	public function execute() {
 		$input = file_get_contents( 'php://stdin' );
 
-		if ( isset( $cliOpts['html2wt'] ) ) {
+		if ( $this->hasOption( 'html2wt' ) ) {
 			$selser = null;
 			if ( $this->hasOption( 'selser' ) ) {
 				if ( !$this->hasOption( 'oldtextfile' ) ) {
