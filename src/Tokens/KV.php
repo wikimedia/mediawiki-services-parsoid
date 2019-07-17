@@ -95,18 +95,18 @@ class KV implements \JsonSerializable {
 	/**
 	 * Return the key portion of the KV's source offsets, or else null
 	 * if no source offsets are known.
-	 * @return SourceRange
+	 * @return SourceRange|null
 	 */
-	public function keyOffset(): SourceRange {
+	public function keyOffset(): ?SourceRange {
 		return $this->srcOffsets->key ?? null;
 	}
 
 	/**
 	 * Return the value portion of the KV's source offsets, or else null
 	 * if no source offsets are known.
-	 * @return SourceRange
+	 * @return SourceRange|null
 	 */
-	public function valueOffset(): SourceRange {
+	public function valueOffset(): ?SourceRange {
 		return $this->srcOffsets->value ?? null;
 	}
 

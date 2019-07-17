@@ -1406,7 +1406,7 @@ wikilink_content =
 		startPos:("" { return $this->endOffset(); })
 		lt:link_text? {
 			$tsr = new SourceRange( $startPos, $this->endOffset() );
-			$maybeContent = new KV( 'mw:maybeContent', $lt, $tsr->expandTsrV() );
+			$maybeContent = new KV( 'mw:maybeContent', $lt ?? '', $tsr->expandTsrV() );
 			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
 			return $maybeContent;
 		}
@@ -1436,7 +1436,7 @@ wikilink_preproc =
 	lcs:wikilink_content
 	inline_breaks "]]"
 	{
-		$pipeTrick = ( count( $lcs ) === 1 && $lcs[0]->v === null );
+		$pipeTrick = ( count( $lcs ) === 1 && $lcs[0]->v === '' );
 		$textTokens = [];
 		if ( $target === null || $pipeTrick ) {
 			$textTokens[] = '[[';

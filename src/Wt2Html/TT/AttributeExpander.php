@@ -198,7 +198,7 @@ class AttributeExpander extends TokenHandler {
 	private static function convertTemplates( array $a ): array {
 		$ret = [];
 		foreach ( $a as $t ) {
-			$ret = TokenUtils::isTemplateToken( $t ) ? $t->dataAttribs->src : $t;
+			$ret[] = TokenUtils::isTemplateToken( $t ) ? $t->dataAttribs->src : $t;
 		}
 		return $ret;
 	}

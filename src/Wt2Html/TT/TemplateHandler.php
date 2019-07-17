@@ -101,7 +101,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Now, ready to finish up
 		$endToks = $this->finalizeTemplateTokens( $state );
-		return [ "tokens" => array_merge( $chunkToks, $endToks ) ];
+		return array_merge( $chunkToks, $endToks );
 	}
 
 	private function encapTokens( array $state, array $tokens, array $extraDict = [] ): array {

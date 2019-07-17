@@ -83,8 +83,8 @@ class DOMFragmentBuilder extends TokenHandler {
 			);
 
 			$pipelineOpts = [
-				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ),
-				'inPHPBlock' => $scopeToken->getAttribute( 'inPHPBlock' ),
+				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ) === "1",
+				'inPHPBlock' => $scopeToken->getAttribute( 'inPHPBlock' ) === "1",
 				'expandTemplates' => $this->options[ 'expandTemplates' ],
 				'inTemplate' => $this->options[ 'inTemplate' ]
 			];

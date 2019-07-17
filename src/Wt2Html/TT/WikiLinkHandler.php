@@ -212,8 +212,9 @@ class WikiLinkHandler extends TokenHandler {
 		// Render the wikilink (including interwiki links, etc) then collect
 		// the resulting href and transfer it to rlink.
 		$r = $this->onWikiLink( $wikiLinkTk );
-		$isValid = $r && $r['tokens'] && $r['tokens'][0] &&
-			preg_match( '/^(a|link)$/', $r['tokens'][0]->getName() );
+		$firstToken = ( $r['tokens'][0] ?? null );
+		$isValid = $firstToken instanceof Token &&
+			preg_match( '/^(a|link)$/', $firstToken->getName() );
 		if ( $isValid ) {
 			$da = $r['tokens'][0]->dataAttribs;
 			$rlink->addNormalizedAttribute( 'href', $da->a['href'], $da->sa['href'] );
@@ -228,7 +229,7 @@ class WikiLinkHandler extends TokenHandler {
 			$hashPos = $tsr->start + strlen( $srcMatch[1] );
 			$tsr0 = new SourceRange( $hashPos, $hashPos + 1 );
 			$li = new TagTk( 'listItem', [
-				new KV( 'bullets', '#', $tsr0->expandTsrV() )
+				new KV( 'bullets', [ '#' ], $tsr0->expandTsrV() )
 			], (object)[ 'tsr' => $tsr0 ] );
 			$ntokens[] = $li;
 			$ntokens[] = substr( $src, strlen( $srcMatch[0] ) );
@@ -257,7 +258,9 @@ class WikiLinkHandler extends TokenHandler {
 			}
 
 			$mwc = $token->getAttribute( 'mw:content' );
-			if ( count( $mwc ) ) {
+			if ( is_string( $mwc ) ) {
+				$content[] = $mwc;
+			} elseif ( count( $mwc ) ) {
 				$content = array_merge( $content, $mwc );
 			}
 		} else {
@@ -306,7 +309,8 @@ class WikiLinkHandler extends TokenHandler {
 			}
 		}
 
-		return array_merge( $tokens, $dft, $content, [ str_repeat( ']', $count ) ] );
+		return array_merge( $tokens, $dft,
+			is_array( $content ) ? $content : [ $content ], [ str_repeat( ']', $count ) ] );
 	}
 
 	/**
@@ -982,7 +986,7 @@ class WikiLinkHandler extends TokenHandler {
 			$currentToken = $tstream[$i];
 
 			if ( $skipToEndOf ) {
-				if ( $currentToken->getName() === $skipToEndOf && $currentToken instanceof EndTagTk ) {
+				if ( $currentToken instanceof EndTagTk && $currentToken->getName() === $skipToEndOf ) {
 					$skipToEndOf = null;
 				}
 				continue;
@@ -1049,7 +1053,7 @@ class WikiLinkHandler extends TokenHandler {
 						$tokenType = $currentToken->getAttribute( 'rel' );
 						// Using the shadow since entities (think pipes) would
 						// have already been decoded.
-						$tkHref = $currentToken->getAttributeShadowInfo( 'href' )->value;
+						$tkHref = $currentToken->getAttributeShadowInfo( 'href' )['value'];
 						$isLink = $optInfo && $optInfo['ck'] === 'link';
 						// Reset the optInfo since we're changing the nature of it
 						$optInfo = null;

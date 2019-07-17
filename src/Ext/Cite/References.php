@@ -332,29 +332,33 @@ class References extends ExtensionTag {
 		$doc = $node->ownerDocument;
 
 		foreach ( $refsData->getRefGroups() as $groupName => $refsGroup ) {
-				$frag = self::createReferences(
-					$env,
-					$doc,
-					null,
-					[
-						'group' => $groupName,
-						'responsive' => null,
-					],
-					function ( $dp ) use ( $env ) {
-						// The new references come out of "nowhere", so to make selser work
-						// property, add a zero-sized DSR pointing to the end of the document.
-						$contentLength = mb_strlen( $env->getPageMainContent() );
-						$dp->dsr = new DomSourceRange( $contentLength, $contentLength, 0, 0 );
-					},
-					true
-				);
+			$frag = self::createReferences(
+				$env,
+				$doc,
+				null,
+				[
+					// Force string cast here since in the foreach above, $groupName
+					// is an array key. In that context, number-like strings are
+					// silently converted to a numeric value!
+					// Ex: In <ref group="2" />, the "2" becomes 2 in the foreach
+					'group' => (string)$groupName,
+					'responsive' => null,
+				],
+				function ( $dp ) use ( $env ) {
+					// The new references come out of "nowhere", so to make selser work
+					// property, add a zero-sized DSR pointing to the end of the document.
+					$contentLength = mb_strlen( $env->getPageMainContent() );
+					$dp->dsr = new DomSourceRange( $contentLength, $contentLength, 0, 0 );
+				},
+				true
+			);
 
-				// Add a \n before the <ol> so that when serialized to wikitext,
-				// each <references /> tag appears on its own line.
-				$node->appendChild( $doc->createTextNode( "\n" ) );
-				$node->appendChild( $frag );
+			// Add a \n before the <ol> so that when serialized to wikitext,
+			// each <references /> tag appears on its own line.
+			$node->appendChild( $doc->createTextNode( "\n" ) );
+			$node->appendChild( $frag );
 
-				self::insertReferencesIntoDOM( $frag, $refsData, [ '' ], true );
+			self::insertReferencesIntoDOM( $frag, $refsData, [ '' ], true );
 		}
 	}
 
