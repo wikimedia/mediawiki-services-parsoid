@@ -12,11 +12,11 @@ class KV implements \JsonSerializable {
 	 * Commonly a string, but where the key might be templated,
 	 * this can be an array of tokens even.
 	 *
-	 * @var string|Token[]
+	 * @var string|Token|array<Token|string>
 	 */
 	public $k;
 
-	/** @var string|Token|Token[]|KV[] */
+	/** @var string|Token|array<Token|string>|KV[] */
 	public $v;
 
 	/** @var KVSourceRange|null wikitext source offsets */
@@ -29,10 +29,10 @@ class KV implements \JsonSerializable {
 	public $vsrc;
 
 	/**
-	 * @param string|Token[] $k
+	 * @param string|Token|array<Token|string> $k
 	 *     Commonly a string, but where the key might be templated,
 	 *     this can be an array of tokens even.
-	 * @param string|Token|Token[]|KV[] $v
+	 * @param string|Token|array<Token|string>|KV[] $v
 	 *     The value: string, token, of an array of tokens
 	 * @param KVSourceRange|null $srcOffsets wikitext source offsets
 	 * @param string|null $ksrc

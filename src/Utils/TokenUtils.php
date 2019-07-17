@@ -570,6 +570,13 @@ class TokenUtils {
 			$token = $tokens[$i];
 			if ( $token === null ) {
 				Assert::invariant( false, "No nulls expected." );
+			} elseif ( $token instanceof KV ) {
+				// Since this function is occasionally called on KV->v,
+				// whose signature recursively includes KV[], a mismatch with
+				// this function, we assert that those values are only
+				// included in safe places that don't intend to stringify
+				// their tokens.
+				Assert::invariant( false, "No KVs expected." );
 			} elseif ( is_string( $token ) ) {
 				$out .= $token;
 			} elseif ( is_array( $token ) ) {
