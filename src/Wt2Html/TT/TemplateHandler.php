@@ -573,13 +573,22 @@ class TemplateHandler extends TokenHandler {
 		$attribs = array_slice( $attribs, 1 );
 
 		// Fetch template source and expand it
-		return $this->fetchTemplateAndTitle( $target, $state, $attribs );
+		$res = $this->fetchTemplateAndTitle( $target, $state, $attribs );
+		if ( isset( $res['tplSrc'] ) ) {
+			return $this->processTemplateSource(
+				$state,
+				[ 'name' => $target, 'attribs' => $attribs ],
+				$res['tplSrc']
+			);
+		} else {
+			return $res['tokens'];
+		}
 	}
 
 	/**
 	 * Process a fetched template source to a token stream.
 	 */
-	private function startTokenPipeline( array $state, array $tplArgs, ?string $src ): array {
+	private function processTemplateSource( array $state, array $tplArgs, ?string $src ): array {
 		if ( !$src ) {
 			// We have a choice between aborting or keeping going and reporting the
 			// error inline.
@@ -597,7 +606,7 @@ class TemplateHandler extends TokenHandler {
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
 		}
 
-		$this->env->log( 'debug', 'TemplateHandler.startTokenPipeline',
+		$this->env->log( 'debug', 'TemplateHandler.processTemplateSource',
 			$tplArgs['name'], $tplArgs['attribs'] );
 
 		// Get a nested transformation pipeline for the input type. The input
@@ -735,7 +744,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Template encapsulation normally wouldn't happen in nested context,
 		// since they should have already been expanded, and indeed we set
-		// expandTemplates === false in the srcCB, startTokenPipeline.  However,
+		// expandTemplates === false in processTemplateSource.  However,
 		// extension tags from templates can have content that requires wikitext
 		// parsing and, due to precedence, contain unexpanded templates.
 		//
@@ -1015,14 +1024,10 @@ class TemplateHandler extends TokenHandler {
 				$typeOf = $tokens[0]->getAttribute( 'typeof' );
 				$tokens[0]->setAttribute( 'typeof', 'mw:Error ' . $typeOf );
 			}
-			return $tokens;
+			return [ 'tokens' => $tokens ];
 		}
 
-		return $this->startTokenPipeline(
-			$state,
-			[ 'name' => $templateName, 'attribs' => $attribs ],
-			$tplSrc
-		);
+		return [ 'tplSrc' => $tplSrc ];
 	}
 
 	/**
@@ -1317,7 +1322,7 @@ class TemplateHandler extends TokenHandler {
 					if ( $expansion['error'] ) {
 						$tplToks = $expansion['tokens'];
 					} else {
-						$tplToks = $this->startTokenPipeline(
+						$tplToks = $this->processTemplateSource(
 							$state,
 							[ 'name' => $templateName, 'attribs' => $attribs ],
 							$expansion['src'] );
