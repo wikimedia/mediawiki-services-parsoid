@@ -205,12 +205,12 @@ class ParserPipelineFactory {
 		}
 
 		// default: not an include context
-		if ( empty( $options['isInclude'] ) ) {
+		if ( !isset( $options['isInclude'] ) ) {
 			$options['isInclude'] = false;
 		}
 
 		// default: wrap templates
-		if ( empty( $options['expandTemplates'] ) ) {
+		if ( !isset( $options['expandTemplates'] ) ) {
 			$options['expandTemplates'] = true;
 		}
 
@@ -316,7 +316,6 @@ class ParserPipelineFactory {
 	 */
 	public function getPipeline( string $type, array $options = [] ): ParserPipeline {
 		$options = $this->defaultOptions( $options );
-
 		$cacheKey = $this->getCacheKey( $type, $options );
 		if ( empty( $this->pipelineCache[ $cacheKey ] ) ) {
 			$this->pipelineCache[ $cacheKey ] = [];
