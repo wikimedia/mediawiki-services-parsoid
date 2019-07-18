@@ -304,11 +304,11 @@ class ComputeDSR {
 	 * @param int|null $e end position, exclusive
 	 * @param int $dsrCorrection
 	 * @param array $opts
-	 * @return DomSourceRange
+	 * @return array
 	 */
 	private function computeNodeDSR(
 		Frame $frame, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
-	): DomSourceRange {
+	): array {
 		$env = $frame->getEnv();
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
@@ -557,7 +557,7 @@ class ComputeDSR {
 						// Eliminate artificial $cs/s mismatch warnings since this is
 						// just a wrapper token with the right DSR but without any
 						// nested subtree that could account for the DSR span.
-						$newDsr = new DomSourceRange( $ccs, $cce, null, null );
+						$newDsr = [ $ccs, $cce ];
 					} elseif ( $child->nodeName === 'a'
 						&& DOMUtils::assertElt( $child )
 						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
@@ -575,7 +575,7 @@ class ComputeDSR {
 						 * in the link target and so we get nothing new by processing
 						 * content.
 						 * ------------------------------------------------------------- */
-						$newDsr = new DomSourceRange( $ccs, $cce, null, null );
+						$newDsr = [ $ccs, $cce ];
 					} else {
 						$env->log( "trace/dsr", function () use ( $env, $cs, $ce, $stWidth, $etWidth, $ccs, $cce ) {
 							return "     before-recursing:" .
@@ -590,16 +590,16 @@ class ComputeDSR {
 					}
 
 					// $cs = min($child-dom-tree dsr->start - tag-width, current dsr->start)
-					if ( $stWidth !== null && $newDsr->start !== null ) {
-						$newCs = $newDsr->start - $stWidth;
+					if ( $stWidth !== null && $newDsr[0] !== null ) {
+						$newCs = $newDsr[0] - $stWidth;
 						if ( $cs === null || ( !$tsr && $newCs < $cs ) ) {
 							$cs = $newCs;
 						}
 					}
 
 					// $ce = max($child-dom-tree dsr->end + tag-width, current dsr->end)
-					if ( $etWidth !== null && $newDsr->end !== null ) {
-						$newCe = $newDsr->end + $etWidth;
+					if ( $etWidth !== null && $newDsr[1] !== null ) {
+						$newCe = $newDsr[1] + $etWidth;
 						if ( $newCe > $ce ) {
 							$ce = $newCe;
 						}
@@ -658,15 +658,13 @@ class ComputeDSR {
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
 							DOMUtils::assertElt( $sibling );
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
-
 							if ( !isset( $siblingDP->dsr ) ) {
 								$siblingDP->dsr = new DomSourceRange( null, null, null, null );
 							}
-
+							$sdsrStart = $siblingDP->dsr->start;
 							if ( !empty( $siblingDP->fostered ) ||
-								( $siblingDP->dsr->start !== null && $siblingDP->dsr->start === $newCE ) ||
-								( $siblingDP->dsr->start !== null && isset( $siblingDP->tsr ) &&
-									$siblingDP->dsr->start < $newCE )
+								( $sdsrStart !== null && $sdsrStart === $newCE ) ||
+								( $sdsrStart !== null && $sdsrStart < $newCE && isset( $siblingDP->tsr ) )
 							) {
 								// $sibling is fostered
 								// => nothing to propagate past it
@@ -777,7 +775,7 @@ class ComputeDSR {
 
 		$this->trace( $env, "END: ", $node->nodeName, ", returning: ", $cs, ", ", $e );
 
-		return new DomSourceRange( $cs, $e, null, null );
+		return [ $cs, $e ];
 	}
 
 	/**
