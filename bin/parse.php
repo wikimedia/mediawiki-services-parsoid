@@ -30,6 +30,8 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			. "See --help for detailed usage help." );
 		$this->addOption( 'wt2html', 'Wikitext -> HTML' );
 		$this->addOption( 'html2wt', 'HTML -> Wikitext' );
+		$this->addOption( 'wt2wt', 'Wikitext -> Wikitext' );
+		$this->addOption( 'html2html', 'HTML -> HTML' );
 		$this->addOption( 'body_only',
 						 'Just return the body, without any normalizations as in --normalize' );
 		$this->addOption( 'selser',
@@ -43,7 +45,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	public function wt2Html( $wt, $body_only ) {
+	/**
+	 * @param string $wt
+	 * @param bool $body_only
+	 * @return PageBundle
+	 */
+	public function wt2Html( string $wt, bool $body_only ): PageBundle {
 		$opts = [
 			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
 			"title" => "Api",
@@ -59,14 +66,17 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 		$pageConfig = new PageConfig( $api, $opts );
 
-		$pb = $parsoid->wikitext2html( $pageConfig, [
+		return $parsoid->wikitext2html( $pageConfig, [
 			'body_only' => $body_only,
 		] );
-
-		print $pb->html;
 	}
 
-	public function html2Wt( $html, $selser ) {
+	/**
+	 * @param PageBundle $pb
+	 * @param Selser|null $selser
+	 * @return string
+	 */
+	public function html2Wt( PageBundle $pb, ?Selser $selser = null ): string {
 		$opts = [
 			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
 			"title" => "Api",
@@ -86,11 +96,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 		$pageConfig = new PageConfig( $api, $opts );
 
-		$pb = new PageBundle( $html );
-
-		$wt = $parsoid->html2wikitext( $pageConfig, $pb, [], $selser );
-
-		print $wt;
+		return $parsoid->html2wikitext( $pageConfig, $pb, [], $selser );
 	}
 
 	public function execute() {
@@ -118,10 +124,20 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				}
 				$selser = new Selser( $oldText, $oldHTML );
 			}
-			$this->html2Wt( $input, $selser );
+			$pb = new PageBundle( $input );
+			print $this->html2Wt( $pb, $selser );
+		} elseif ( $this->hasOption( 'wt2wt' ) ) {
+			$pb = $this->wt2Html( $input, false );
+			print $this->html2Wt( $pb );
+		} elseif ( $this->hasOption( 'html2html' ) ) {
+			$pb = new PageBundle( $input );
+			$wt = $this->html2Wt( $pb );
+			$pb = $this->wt2Html( $wt, $this->hasOption( 'body_only' ) );
+			print $pb->html;
 		} else {
 			// wt2html is the default
-			$this->wt2Html( $input, $this->hasOption( 'body_only' ) );
+			$pb = $this->wt2Html( $input, $this->hasOption( 'body_only' ) );
+			print $pb->html . "\n";
 		}
 	}
 }
