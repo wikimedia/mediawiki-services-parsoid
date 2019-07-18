@@ -68,7 +68,7 @@ class UnpackDOMFragments {
 					$resetDSR = true;
 				}
 				if ( $resetDSR ) {
-					if ( !empty( $dp->dsr->start ) ) {
+					if ( isset( $dp->dsr->start ) ) {
 						$currOffset = $dp->dsr->end = $dp->dsr->start;
 					} else {
 						$dp->dsr = new DomSourceRange( $currOffset, $currOffset, null, null );
