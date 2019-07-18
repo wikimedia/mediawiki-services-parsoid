@@ -530,10 +530,11 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 		console.log('=====================================================');
 	}
 
-	console.log('UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow);
-
 	if (blacklisted) {
+		console.log('UNEXPECTED BLACKLIST FAIL'.red.inverse + ': ' + extTitle.yellow);
 		console.log('Blacklisted, but the output changed!'.red);
+	} else {
+		console.log('UNEXPECTED FAIL'.red.inverse + ': ' + extTitle.yellow);
 	}
 
 	if (mode === 'selser') {
