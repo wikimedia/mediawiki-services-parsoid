@@ -62,10 +62,10 @@ class LanguageVariantHandler extends TokenHandler {
 
 	/**
 	 * compress a whitespace sequence
-	 * @param array $a
-	 * @return array
+	 * @param array|null $a
+	 * @return array|null
 	 */
-	private function compressSpArray( array $a ): array {
+	private function compressSpArray( ?array $a ): ?array {
 		$result = [];
 		$ctr = 0;
 		if ( $a === null ) {
@@ -100,7 +100,7 @@ class LanguageVariantHandler extends TokenHandler {
 		$attribs = $token->attribs;
 		$dataAttribs = $token->dataAttribs;
 		$tsr = $dataAttribs->tsr;
-		$flags = $dataAttribs->flags ?? [];
+		$flags = $dataAttribs->flags;
 		$flagSp = $dataAttribs->flagSp;
 		$isMeta = false;
 		$sawFlagA = false;
@@ -272,8 +272,7 @@ class LanguageVariantHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ): array {
-		return $this->onLanguageVariant( $token );
+	public function onTag( Token $token ) {
+		return $token->getName() === 'language-variant' ? $this->onLanguageVariant( $token ) : $token;
 	}
-
 }

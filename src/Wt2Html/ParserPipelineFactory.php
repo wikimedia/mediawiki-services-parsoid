@@ -15,6 +15,7 @@ use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
 use Parsoid\Wt2Html\TT\ExtensionHandler;
 use Parsoid\Wt2Html\TT\ExternalLinkHandler;
 use Parsoid\Wt2Html\TT\IncludeOnly;
+use Parsoid\Wt2Html\TT\LanguageVariantHandler;
 use Parsoid\Wt2Html\TT\ListHandler;
 use Parsoid\Wt2Html\TT\NoInclude;
 use Parsoid\Wt2Html\TT\OnlyInclude;
@@ -59,7 +60,7 @@ class ParserPipelineFactory {
 				// more convenient after attribute expansion
 				WikiLinkHandler::class,
 				ExternalLinkHandler::class,
-				// LanguageVariantHandler::class,
+				LanguageVariantHandler::class,
 
 				// This converts dom-fragment-token tokens all the way to DOM
 				// and wraps them in DOMFragment wrapper tokens which will then
