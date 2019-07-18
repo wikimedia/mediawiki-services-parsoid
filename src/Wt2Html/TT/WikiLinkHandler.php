@@ -110,15 +110,12 @@ class WikiLinkHandler extends TokenHandler {
 					'templateInfo' => null
 				];
 				if ( $this->options['inTemplate'] ) {
-					// `frame.title` is already the result of calling
-					// `getPrefixedDBKey`, but for the sake of consistency with
-					// `findEnclosingTemplateName`, we do a little more work to
-					// match `$env->makeLink`.
+					// Match Linter.findEnclosingTemplateName(), by first
+					// converting the title to an href using env.makeLink
 					$name = preg_replace(
-						'#^\./#', '', Sanitizer::sanitizeTitleURI(
-							$siteConfig->relativeLinkPrefix() . $this->manager->getFrame()->getTitle(),
-							false
-						), 1
+						'#^\./#', '',
+						$env->makeLink( $this->manager->getFrame()->getTitle() ),
+						1
 					);
 					$lint['templateInfo'] = [ 'name' => $name ];
 					// TODO(arlolra): Pass tsr info to the frame

@@ -6,6 +6,7 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PipelineUtils;
+use Parsoid\Utils\Title;
 use Parsoid\Utils\TokenUtils;
 
 /**
@@ -22,7 +23,7 @@ class Frame {
 	/** @var Env */
 	private $env;
 
-	/** @var string */
+	/** @var Title */
 	private $title;
 
 	/** @var Params */
@@ -35,14 +36,14 @@ class Frame {
 	private $depth;
 
 	/**
-	 * @param string|null $title
+	 * @param Title $title
 	 * @param Env $env
 	 * @param array $args
 	 * @param string $srcText
 	 * @param Frame|null $parentFrame
 	 */
 	public function __construct(
-		?string $title, Env $env, array $args, string $srcText, Frame $parentFrame = null
+		Title $title, Env $env, array $args, string $srcText, Frame $parentFrame = null
 	) {
 		$this->title = $title;
 		$this->env = $env;
@@ -66,9 +67,9 @@ class Frame {
 	}
 
 	/**
-	 * @return string
+	 * @return Title
 	 */
-	public function getTitle(): string {
+	public function getTitle(): Title {
 		return $this->title;
 	}
 
@@ -88,12 +89,12 @@ class Frame {
 
 	/**
 	 * Create a new child frame.
-	 * @param string $title
+	 * @param Title $title
 	 * @param array $args
 	 * @param string $srcText
 	 * @return Frame
 	 */
-	public function newChild( string $title, array $args, string $srcText ): Frame {
+	public function newChild( Title $title, array $args, string $srcText ): Frame {
 		return new Frame( $title, $this->env, $args, $srcText, $this );
 	}
 
@@ -130,7 +131,7 @@ class Frame {
 			],
 			'sol' => true,
 			'srcOffsets' => $options['srcOffsets'] ?? null,
-			'tplArgs' => [ 'name' => null, 'attribs' => [] ]
+			'tplArgs' => [ 'name' => null, 'title' => null, 'attribs' => [] ]
 		];
 
 		$tokens = PipelineUtils::processContentInPipeline( $this->env, $this, $content, $opts );
@@ -142,14 +143,15 @@ class Frame {
 	 * Check if expanding a template would lead to a loop, or would exceed the
 	 * maximum expansion depth.
 	 *
-	 * @param string $title
+	 * @param Title $title
 	 * @param int $maxDepth
 	 * @param bool $ignoreLoop
 	 * @return ?string null => no error; non-null => error message
 	 */
-	public function loopAndDepthCheck( string $title, int $maxDepth, bool $ignoreLoop ): ?string {
+	public function loopAndDepthCheck( Title $title, int $maxDepth, bool $ignoreLoop ): ?string {
 		if ( $this->depth > $maxDepth ) {
-			return 'Error: Expansion depth limit exceeded'; // Too deep
+			// Too deep
+			return "Template recursion depth limit exceeded ($maxDepth): ";
 		}
 
 		if ( $ignoreLoop ) {
@@ -158,8 +160,9 @@ class Frame {
 
 		$frame = $this;
 		do {
-			if ( $frame->title === $title ) {
-				return 'Error: Expansion loop detected'; // Loop detected
+			if ( $title->equals( $frame->title ) ) {
+				// Loop detected
+				return 'Template loop detected: ';
 			}
 			$frame = $frame->parentFrame;
 		} while ( $frame );

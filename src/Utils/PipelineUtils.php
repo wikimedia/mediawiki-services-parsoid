@@ -93,7 +93,7 @@ class PipelineUtils {
 		// Set frame if necessary
 		$srcText = $opts['srcText'] ?? $frame->getSrcText();
 		if ( isset( $opts['tplArgs'] ) ) {
-			$pipeline->setFrame( $frame, $opts['tplArgs']['name'], $opts['tplArgs']['attribs'], $srcText );
+			$pipeline->setFrame( $frame, $opts['tplArgs']['title'], $opts['tplArgs']['attribs'], $srcText );
 		} else {
 			$pipeline->setFrame( $frame, null, [], $srcText );
 		}

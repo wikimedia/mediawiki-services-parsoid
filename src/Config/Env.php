@@ -200,7 +200,7 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
-		$this->topFrame = new PageConfigFrame( $this, $pageConfig );
+		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
 		$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		$this->wrapSections = !empty( $options['wrapSections'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];

@@ -8,6 +8,7 @@ use Generator;
 
 use Parsoid\Config\Env;
 use Parsoid\Tokens\SourceRange;
+use Parsoid\Utils\Title;
 use Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -95,11 +96,11 @@ abstract class PipelineStage {
 	 * and TTM instead of exposing this on the pipeline.
 	 *
 	 * @param Frame|null $frame Parent pipeline frame
-	 * @param string|null $title Title (template) being processed in this (nested) pipeline
+	 * @param Title|null $title Title (template) being processed in this (nested) pipeline
 	 * @param array $args Template args for the title (template)
 	 * @param string $srcText The wikitext source for this frame
 	 */
-	public function setFrame( ?Frame $frame, ?string $title, array $args, string $srcText ): void {
+	public function setFrame( ?Frame $frame, ?Title $title, array $args, string $srcText ): void {
 		/* Default implementation: Do nothing */
 	}
 

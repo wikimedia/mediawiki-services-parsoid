@@ -8,6 +8,7 @@ use Parsoid\Config\Env;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Wt2Html\TT\TokenHandler;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
 
 /**
  * Token transformation manager. Individual transformations
@@ -151,7 +152,7 @@ class TokenTransformManager extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function setFrame(
-		?Frame $parentFrame, ?string $title, array $args, string $srcText
+		?Frame $parentFrame, ?Title $title, array $args, string $srcText
 	): void {
 		// now actually set up the frame
 		if ( !$parentFrame ) {

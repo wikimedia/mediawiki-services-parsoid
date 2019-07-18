@@ -376,7 +376,8 @@ class TemplateHandler extends TokenHandler {
 		return [
 			'isPF' => false,
 			'magicWordType' => null,
-			'target' => $title->getPrefixedDBKey()
+			'target' => $title->getPrefixedDBKey(),
+			'title' => $title,
 		];
 	}
 
@@ -485,16 +486,16 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * checkRes
 	 */
-	private function checkRes( $target, $ignoreLoop ) {
+	private function checkRes( $target, $title, $ignoreLoop ) {
 		$checkRes = $this->manager->getFrame()->loopAndDepthCheck(
-			$target, $this->env->getSiteConfig()->getMaxTemplateDepth(), $ignoreLoop );
+			$title, $this->env->getSiteConfig()->getMaxTemplateDepth(), $ignoreLoop );
 		if ( $checkRes ) {
 			// Loop detected or depth limit exceeded, abort!
 			$res = [
+				new TagTk( 'span', [ new KV( 'class', 'error' ) ] ),
 				$checkRes,
-				new TagTk( 'a', [ new KV( 'href', $target ) ] ),
-				$target,
-				new EndTagTk( 'a' )
+				new SelfclosingTagTk( 'wikilink', [ new KV( 'href', $target ) ] ),
+				new EndTagTk( 'span' ),
 			];
 			return $res;
 		}
@@ -559,7 +560,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Loop detection needs to be enabled since we're doing our own template
 		// expansion
-		$checkRes = $this->checkRes( $target, false );
+		$checkRes = $this->checkRes( $target, $resolvedTgt['title'], false );
 		if ( is_array( $checkRes ) ) {
 			return $checkRes;
 		}
@@ -573,11 +574,14 @@ class TemplateHandler extends TokenHandler {
 		$attribs = array_slice( $attribs, 1 );
 
 		// Fetch template source and expand it
-		$res = $this->fetchTemplateAndTitle( $target, $state, $attribs );
+		$title = $resolvedTgt['title'];
+		$res = $this->fetchTemplateAndTitle(
+			$target, $state, $attribs
+		);
 		if ( isset( $res['tplSrc'] ) ) {
 			return $this->processTemplateSource(
 				$state,
-				[ 'name' => $target, 'attribs' => $attribs ],
+				[ 'name' => $target, 'title' => $title, 'attribs' => $attribs ],
 				$res['tplSrc']
 			);
 		} else {
@@ -1294,15 +1298,17 @@ class TemplateHandler extends TokenHandler {
 				// won't be used.  In `usePHPPreProcessor`, there is no parameter
 				// substitution coming from the frame.
 
-				/* If $tgt is not null, target will be present.
-				 * @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
+				/* If $tgt is not null, target will be present. */
+				/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
 				$templateName = $tgt['target'];
+				/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
+				$templateTitle = $tgt['title'];
 				$attribs = [];
 
 				// We still need to check for limit violations because of the
 				// higher precedence of extension tags, which can result in nested
 				// templates even while using the php preprocessor for expansion.
-				$checkRes = $this->checkRes( $templateName, true );
+				$checkRes = $this->checkRes( $templateName, $templateTitle, true );
 				if ( is_array( $checkRes ) ) {
 					return [ 'tokens' => $checkRes ];
 				}
@@ -1324,7 +1330,11 @@ class TemplateHandler extends TokenHandler {
 					} else {
 						$tplToks = $this->processTemplateSource(
 							$state,
-							[ 'name' => $templateName, 'attribs' => $attribs ],
+							[
+								'name' => $templateName,
+								'title' => $templateTitle,
+								'attribs' => $attribs
+							],
 							$expansion['src'] );
 					}
 

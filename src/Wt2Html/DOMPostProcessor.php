@@ -17,6 +17,7 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
 
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
@@ -478,7 +479,7 @@ class DOMPostProcessor extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function setFrame(
-		?Frame $parentFrame, ?string $title, array $args, string $srcText
+		?Frame $parentFrame, ?Title $title, array $args, string $srcText
 	): void {
 		if ( !$parentFrame ) {
 			$this->options['frame'] = $this->env->topFrame->newChild(

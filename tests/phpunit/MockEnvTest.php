@@ -50,12 +50,16 @@ class MockEnvTest extends \PHPUnit\Framework\TestCase {
 	public function testEnvOptions() {
 		$mockDataAccess = $this->getMockBuilder( DataAccess::class )->getMockForAbstractClass();
 		$mockPageConfig = $this->getMockBuilder( PageConfig::class )
-			->setMethods( [ 'getRevisionContent' ] )
+			->setMethods( [ 'getRevisionContent', 'getTitle' ] )
 			->getMockForAbstractClass();
 		$mockPageContent = $this->getMockBuilder( PageContent::class )->getMockForAbstractClass();
-		$mockSiteConfig = $this->getMockBuilder( SiteConfig::class )->getMockForAbstractClass();
+		$mockSiteConfig = $this->getMockBuilder( SiteConfig::class )
+			->setMethods( [ 'legalTitleChars' ] )
+			->getMockForAbstractClass();
 
+		$mockPageConfig->method( 'getTitle' )->willReturn( 'Main Page' );
 		$mockPageConfig->method( 'getRevisionContent' )->willReturn( $mockPageContent );
+		$mockSiteConfig->method( 'legalTitleChars' )->willReturn( 'A-Za-z_ ' );
 
 		$env = new MockEnv( [
 			'pageContent' => 'Foo bar?',

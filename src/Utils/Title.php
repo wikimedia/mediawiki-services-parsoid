@@ -245,4 +245,14 @@ class Title {
 		return $this->namespaceId;
 	}
 
+	/**
+	 * Compare with another title.
+	 *
+	 * @param Title $title
+	 * @return bool
+	 */
+	public function equals( Title $title ) {
+		return $this->getNamespaceId() === $title->getNamespaceId() &&
+			$this->getKey() === $title->getKey();
+	}
 }

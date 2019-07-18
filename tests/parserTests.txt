@@ -11806,9 +11806,11 @@ Template:loop2
 Template infinite loop
 !! wikitext
 {{loop1}}
-!! html
+!! html/php
 <p><span class="error">Template loop detected: <a href="/wiki/Template:Loop1" title="Template:Loop1">Template:Loop1</a></span>
 </p>
+!! html/parsoid
+<p><span class="error" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"loop1","href":"./Template:Loop1"},"params":{},"i":0}}]}'>Template loop detected: <a rel="mw:WikiLink" href="./Template:Loop1" title="Template:Loop1">Template:Loop1</a></span></p>
 !! end
 
 !! test
