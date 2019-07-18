@@ -7,6 +7,7 @@ use DOMDocument;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Title;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -104,7 +105,7 @@ class ParserPipeline {
 	/**
 	 * @inheritDoc
 	 */
-	public function setFrame( ?Frame $frame, ?string $title, array $args, string $srcText ): void {
+	public function setFrame( ?Frame $frame, ?Title $title, array $args, string $srcText ): void {
 		$this->applyToStage( 'setFrame', $frame, $title, $args, $srcText );
 	}
 

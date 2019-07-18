@@ -494,7 +494,7 @@ class TemplateHandler extends TokenHandler {
 			$res = [
 				new TagTk( 'span', [ new KV( 'class', 'error' ) ] ),
 				$checkRes,
-				new SelfclosingTagTk( 'wikilink', [ new KV( 'href', $target ) ] ),
+				new SelfclosingTagTk( 'wikilink', [ new KV( 'href', $target, null, '', '' ) ] ),
 				new EndTagTk( 'span' ),
 			];
 			return $res;
