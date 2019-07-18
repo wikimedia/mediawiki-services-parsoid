@@ -291,6 +291,8 @@ class WikiLinkHandler extends TokenHandler {
 				// extend all the way to the end of the token, so the end tsr
 				// is invalid.
 				$end = count( $content ) > 0 ? null : $tsr->end - $count;
+				// XXX it would be better to compute an actual value for
+				// $end here if possible
 				$tsr = new SourceRange( $tsr->start + $count, $end );
 			} else {
 				$tsr = null;

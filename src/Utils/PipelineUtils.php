@@ -467,7 +467,9 @@ class PipelineUtils {
 		if ( $tokenTsr ) {
 			$firstWrapperToken->dataAttribs->tsr = $tokenTsr;
 			$firstWrapperToken->dataAttribs->extTagOffsets = $token->dataAttribs->extTagOffsets ?? null;
-			$endTsr = $tokenTsr->expandTsrK()->value;
+			// XXX to investigate: if $tokenTsr is null, then we're losing
+			// the 'hint' that this is a zero-width source range.
+			$endTsr = new SourceRange( $tokenTsr->end, $tokenTsr->end );
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
 				$toks[$i]->dataAttribs->tsr = clone $endTsr;
 			}
