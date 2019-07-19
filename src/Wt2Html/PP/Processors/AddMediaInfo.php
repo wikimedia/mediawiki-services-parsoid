@@ -609,7 +609,7 @@ class AddMediaInfo {
 
 			$dims = $attrs['size'];
 
-			if ( $env->inOfflineMode() ) {
+			if ( $env->noDataAccess() ) {
 				$errs = [ self::makeErr(
 					'apierror-unknownerror',
 					'Fetch of image info disabled.'

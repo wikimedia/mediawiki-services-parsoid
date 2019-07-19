@@ -573,9 +573,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Fetch template source and expand it
 		$title = $resolvedTgt['title'];
-		$res = $this->fetchTemplateAndTitle(
-			$target, $state, $attribs
-		);
+		$res = $this->fetchTemplateAndTitle( $target, $state, $attribs );
 		if ( isset( $res['tplSrc'] ) ) {
 			return $this->processTemplateSource(
 				$state,
@@ -1002,17 +1000,7 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 		if ( isset( $env->pageCache[$templateName] ) ) {
 			$tplSrc = $env->pageCache[$templateName];
-		} elseif ( !$env->inOfflineMode() ) {
-			$pageContent = $env->getDataAccess()->fetchPageContent( $env->getPageConfig(), $templateName );
-			if ( !$pageContent ) {
-				// Missing page!
-				// FIXME: This should be a redlink here!
-				$tplSrc = $templateName;
-			} else {
-				// PORT-FIXME: Hard-coded 'main' role
-				$tplSrc = $pageContent->getContent( 'main' );
-			}
-		} else {
+		} elseif ( $env->noDataAccess() ) {
 			// This is only useful for offline development mode
 			$tokens = [ $state['token']->dataAttribs->src ];
 			if ( $this->wrapTemplates ) {
@@ -1033,6 +1021,16 @@ class TemplateHandler extends TokenHandler {
 				$tokens[0]->setAttribute( 'typeof', 'mw:Error ' . $typeOf );
 			}
 			return [ 'tokens' => $tokens ];
+		} else {
+			$pageContent = $env->getDataAccess()->fetchPageContent( $env->getPageConfig(), $templateName );
+			if ( !$pageContent ) {
+				// Missing page!
+				// FIXME: This should be a redlink here!
+				$tplSrc = $templateName;
+			} else {
+				// PORT-FIXME: Hard-coded 'main' role
+				$tplSrc = $pageContent->getContent( 'main' );
+			}
 		}
 
 		return [ 'tplSrc' => $tplSrc ];
@@ -1043,7 +1041,7 @@ class TemplateHandler extends TokenHandler {
 	 */
 	private function fetchExpandedTpl( string $transclusion ) {
 		$env = $this->env;
-		if ( $env->inOfflineMode() ) {
+		if ( $env->noDataAccess() ) {
 			$err = 'Warning: Page/template fetching disabled cannot expand ' . $transclusion;
 			return [
 				'error' => true,
@@ -1292,7 +1290,20 @@ class TemplateHandler extends TokenHandler {
 			return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
 		}
 
-		if ( !$env->inOfflineMode() ) {
+		if ( $env->nativeTemplateExpansionEnabled() ) {
+			// Expand argument keys
+			$atm = new AttributeTransformManager( $this->manager->getFrame(),
+				[ 'expandTemplates' => false, 'inTemplate' => true ]
+			);
+			$newAttribs = $atm->process( $token->attribs );
+			$tplToks = $this->expandTemplate( $state, $newAttribs );
+			if ( $expandTemplates ) {
+				$encapToks = $this->encapsulateTemplate( $state );
+				return [ 'tokens' => array_merge( $encapToks, $tplToks ) ];
+			} else {
+				return [ 'tokens' => $tplToks ];
+			}
+		} else {
 			if ( $expandTemplates ) {
 				// Use MediaWiki's preprocessor
 				//
@@ -1342,7 +1353,8 @@ class TemplateHandler extends TokenHandler {
 								'title' => $templateTitle,
 								'attribs' => $attribs
 							],
-							$expansion['src'] );
+							$expansion['src']
+						);
 					}
 
 					// Encapsulate
@@ -1356,19 +1368,6 @@ class TemplateHandler extends TokenHandler {
 				// encapsulated already, so just return the plain text.
 				Assert::invariant( TokenUtils::isTemplateToken( $token ), "Expected template token." );
 				return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
-			}
-		} else {
-			// expand argument keys
-			$atm = new AttributeTransformManager( $this->manager->getFrame(),
-				[ 'expandTemplates' => false, 'inTemplate' => true ]
-			);
-			$newAttribs = $atm->process( $token->attribs );
-			$tplToks = $this->expandTemplate( $state, $newAttribs );
-			if ( $expandTemplates ) {
-				$encapToks = $this->encapsulateTemplate( $state );
-				return [ 'tokens' => array_merge( $encapToks, $tplToks ) ];
-			} else {
-				return [ 'tokens' => $tplToks ];
 			}
 		}
 	}

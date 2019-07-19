@@ -74,7 +74,7 @@ $env = new ApiEnv( [
 	"debugFlags" => $envOpts['debugFlags'] ?? null,
 	"dumpFlags" => $envOpts['dumpFlags'] ?? null,
 	"traceFlags" => $envOpts['traceFlags'] ?? null,
-	"offline" => $envOpts['offline'] ?? false,
+	"nativeTemplateExpansion" => $envOpts['nativeTemplateExpansion'] ?? null,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	"pageId" => $envOpts['pageId'] ?? null,
 	# This directory used to contain synthetic data which didn't exactly match

@@ -1521,10 +1521,9 @@ class TestRunner {
 		// Register parser tests parser hook
 		$this->siteConfig->registerParserTestExtension( new ParserHook() );
 
-		// Needed for bidi-char-scrubbing html2wt tests.
 		$this->envOptions = [
-			'offline' => true,
 			'wrapSections' => false,
+			'nativeTemplateExpansion' => true,
 			// Needed for bidi-char-scrubbing html2wt tests.
 			'scrubBidiChars' => true
 		];

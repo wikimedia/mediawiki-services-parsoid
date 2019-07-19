@@ -989,7 +989,7 @@ class WikitextSerializer {
 			// Fetch template data for the template
 			$tplData = null;
 			$apiResp = null;
-			if ( $isTpl && $useTplData ) {
+			if ( $isTpl && $useTplData && !$this->env->noDataAccess() ) {
 				$title = preg_replace( '#^\./#', '', $tplHref, 1 );
 				try {
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $env->getPageConfig(), $title );

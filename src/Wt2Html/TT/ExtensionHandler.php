@@ -202,17 +202,18 @@ class ExtensionHandler extends TokenHandler {
 				'fromCache' => true
 			] );
 			return( [ 'tokens' => $toks ] );
-		} elseif ( !$env->inOfflineMode() ) {
+		} elseif ( $env->noDataAccess() ) {
+			$err = new Exception( 'Fetches disabled. ' .
+				'Cannot expand non-native extensions.' );
+			$toks = $this->parseExtensionHTML( $token, $err, null );
+			return( [ 'tokens' => $toks ] );
+		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
 			$ret = $this->processParserResponse( $env, $token, $ret );
 			$err = $ret['err'];
 			$html = $ret['html'];
 			$toks = $this->parseExtensionHTML( $token, null, $err ? null : $env->createDocument( $html ) );
-			return( [ 'tokens' => $toks ] );
-		} else {
-			$err = new Exception( 'In offline mode. Cannot expand non-native extensions.' );
-			$toks = $this->parseExtensionHTML( $token, $err, null );
 			return( [ 'tokens' => $toks ] );
 		}
 	}

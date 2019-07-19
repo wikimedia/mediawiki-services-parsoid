@@ -64,14 +64,24 @@ class Env {
 	// we've removed async parsing.
 
 	/**
-	 * @var bool Are we in offline mode?
-	 * Offline mode is useful in two scenarios:
-	 * (a) running scripts (wt2html, html2wt, etc.) in offline mode during development
-	 *     and in isolation without any MediaWiki context.
-	 * (b) running parser tests: parser tests should run in isolation without requiring
-	 *     any MediaWiki context or making API requests.
+	 * @var bool Are data accesses disabled?
+	 *
+	 * FIXME: This can probably moved to a NoDataAccess instance, rather than
+	 * being an explicit mode of Parsoid.  See T229469
 	 */
-	private $offlineMode;
+	private $noDataAccess;
+
+	/**
+	 * @var bool Are we using native template expansion?
+	 *
+	 * Parsoid implements native template expansion, which is currently
+	 * only used during parser tests; in production, template expansion
+	 * is done via MediaWiki's legacy preprocessor.
+	 *
+	 * FIXME: Hopefully this distinction can be removed when we're entirely
+	 * in PHP land.
+	 */
+	private $nativeTemplateExpansion;
 
 	/** @phan-var array<string,int> */
 	private $wt2htmlLimits = [];
@@ -203,6 +213,8 @@ class Env {
 	 *         defaults to 1.
 	 *         PORT-FIXME: This construction option is required to support hybrid
 	 *         testing and can be removed after porting and testing is complete.
+	 *  - noDataAccess: boolean
+	 *  - nativeTemplateExpansion: boolean
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
@@ -227,8 +239,9 @@ class Env {
 		$this->uid = (int)( $options['uid'] ?? 1 );
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
-		$this->offlineMode = !empty( $options['offline'] );
 		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
+		$this->noDataAccess = !empty( $options['noDataAccess'] );
+		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 	}
 
 	/**
@@ -255,12 +268,12 @@ class Env {
 		return $this->dataAccess;
 	}
 
-	/**
-	 * Are we running in offline mode?
-	 * @return bool
-	 */
-	public function inOfflineMode(): bool {
-		return $this->offlineMode;
+	public function noDataAccess(): bool {
+		return $this->noDataAccess;
+	}
+
+	public function nativeTemplateExpansionEnabled(): bool {
+		return $this->nativeTemplateExpansion;
 	}
 
 	/**
