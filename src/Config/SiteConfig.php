@@ -776,9 +776,10 @@ abstract class SiteConfig {
 		// Does this extension export any native styles?
 		// FIXME: When we integrate with core, this will probably generalize
 		// to all resources (scripts, modules, etc). not just styles.
-		$this->nativeExtConfig['styles'] = array_merge(
+		// De-dupe styles after merging.
+		$this->nativeExtConfig['styles'] = array_unique( array_merge(
 			$this->nativeExtConfig['styles'], $extConfig['styles'] ?? []
-		);
+		) );
 
 		if ( isset( $extConfig['contentModels'] ) ) {
 			foreach ( $extConfig['contentModels'] as $cm => $impl ) {
