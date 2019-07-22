@@ -43,20 +43,30 @@ class Parse extends \Parsoid\Tools\Maintenance {
 						 'File containing the old HTML for a selective-serialization (see --selser)',
 						 false, true );
 		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
+		$this->addOption(
+			'pageName',
+			'The page name, returned for {{PAGENAME}}. If no input is given ' .
+			'(ie. empty/stdin closed), it downloads and parses the page. ' .
+			'This should be the actual title of the article (that is, not ' .
+			'including any URL-encoding that might be necessary in wikitext).',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
 	/**
-	 * @param string $wt
+	 * @param array $opts
+	 * @param string|null $wt
 	 * @param bool $body_only
 	 * @return PageBundle
 	 */
-	public function wt2Html( string $wt, bool $body_only ): PageBundle {
-		$opts = [
-			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
-			"title" => "Api",
-			"pageContent" => $wt,
-		];
+	public function wt2Html(
+		array $opts, ?string $wt, bool $body_only
+	): PageBundle {
+		if ( $wt !== null ) {
+			$opts["pageContent"] = $wt;
+		}
 
 		$api = new ApiHelper( $opts );
 
@@ -73,16 +83,14 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	}
 
 	/**
+	 * @param array $opts
 	 * @param PageBundle $pb
 	 * @param Selser|null $selser
 	 * @return string
 	 */
-	public function html2Wt( PageBundle $pb, ?Selser $selser = null ): string {
-		$opts = [
-			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
-			"title" => "Api",
-		];
-
+	public function html2Wt(
+		array $opts, PageBundle $pb, ?Selser $selser = null
+	): string {
 		// PORT-FIXME: Think about when is the right time for this to be set.
 		if ( $selser ) {
 			$opts["pageContent"] = $selser->oldText;
@@ -110,7 +118,22 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			}
 		} else {
 			$input = file_get_contents( 'php://stdin' );
+			if ( strlen( $input ) === 0 ) {
+				// Parse page if no input
+				if ( $this->hasOption( 'html2wt' ) || $this->hasOption( 'html2html' ) ) {
+					print "Pages start at wikitext.\n";
+					return;
+				} else {
+					$input = null;
+				}
+			}
 		}
+
+		$opts = [
+			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
+			"title" => $this->hasOption( 'pageName' ) ?
+				$this->getOption( 'pageName' ) : "Api",
+		];
 
 		if ( $this->hasOption( 'html2wt' ) ) {
 			$selser = null;
@@ -134,18 +157,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$selser = new Selser( $oldText, $oldHTML );
 			}
 			$pb = new PageBundle( $input );
-			print $this->html2Wt( $pb, $selser );
+			print $this->html2Wt( $opts, $pb, $selser );
 		} elseif ( $this->hasOption( 'wt2wt' ) ) {
-			$pb = $this->wt2Html( $input, false );
-			print $this->html2Wt( $pb );
+			$pb = $this->wt2Html( $opts, $input, false );
+			print $this->html2Wt( $opts, $pb );
 		} elseif ( $this->hasOption( 'html2html' ) ) {
 			$pb = new PageBundle( $input );
-			$wt = $this->html2Wt( $pb );
-			$pb = $this->wt2Html( $wt, $this->hasOption( 'body_only' ) );
+			$wt = $this->html2Wt( $opts, $pb );
+			$pb = $this->wt2Html( $opts, $wt, $this->hasOption( 'body_only' ) );
 			print $pb->html;
 		} else {
 			// wt2html is the default
-			$pb = $this->wt2Html( $input, $this->hasOption( 'body_only' ) );
+			$pb = $this->wt2Html( $opts, $input, $this->hasOption( 'body_only' ) );
 			print $pb->html . "\n";
 		}
 	}
