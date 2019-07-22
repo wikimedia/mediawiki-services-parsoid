@@ -454,6 +454,9 @@ class AttributeExpander extends TokenHandler {
 							'srcOffsets' => $expandedA->srcOffsets->value,
 						]
 					];
+					if ( $tmpDataMW[$key]['k']['html'] === null ) {
+						unset( $tmpDataMW[$key]['k']['html'] );
+					}
 				}
 			}
 

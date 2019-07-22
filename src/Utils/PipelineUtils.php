@@ -130,7 +130,7 @@ class PipelineUtils {
 	public static function expandValueToDOM(
 		Env $env, Frame $frame, array $v, bool $expandTemplates, bool $inTemplate
 	): array {
-		if ( is_array( $v['html'] ) ) {
+		if ( is_array( $v['html'] ?? null ) ) {
 			// Set up pipeline options
 			$opts = [
 				'pipelineType' => 'tokens/x-mediawiki/expanded',
