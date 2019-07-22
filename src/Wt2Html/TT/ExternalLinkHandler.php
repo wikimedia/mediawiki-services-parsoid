@@ -78,7 +78,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$bits = explode( '.', $href );
 		$hasImageExtension = count( $bits ) > 1 &&
 			self::imageExtensions( end( $bits ) ) &&
-			preg_match( '/^https?:\/\//i', $href );
+			preg_match( '#^https?://#i', $href );
 		// Typical settings for mediawiki configuration variables
 		// $wgAllowExternalImages and $wgAllowExternalImagesFrom will
 		// result in values like these:
@@ -89,10 +89,9 @@ class ExternalLinkHandler extends TokenHandler {
 		// See https://phabricator.wikimedia.org/T53092
 		return $hasImageExtension && is_array( $allowedPrefixes ) &&
 			// true if some prefix in the list matches href
-				self::arraySome( $allowedPrefixes, function ( $prefix ) use ( &$href ) {
-					return strpos( $prefix, $href ) !== false;
-				}
-			);
+			self::arraySome( $allowedPrefixes, function ( string $prefix ) use ( &$href ) {
+				return $prefix === "" || strpos( $href, $prefix ) === 0;
+			} );
 	}
 
 	/**
