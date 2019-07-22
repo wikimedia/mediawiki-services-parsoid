@@ -525,7 +525,8 @@ class Separators {
 					$isIndentPreSafe = true;
 				} else {
 					while ( !DOMUtils::atTheTop( $parentB ) ) {
-						if ( isset( WikitextConstants::$StrongIndentPreSuppressingTags[$parentB->nodeName] ) ) {
+						if ( isset( WikitextConstants::$StrongIndentPreSuppressingTags[$parentB->nodeName] ) &&
+								( $parentB->nodeName !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) ) ) {
 							$isIndentPreSafe = true;
 						}
 						$parentB = $parentB->parentNode;

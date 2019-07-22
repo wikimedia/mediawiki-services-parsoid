@@ -31235,6 +31235,20 @@ parsoid=html2wt
 {{echo|foo}}
 !! end
 
+!! test
+Only html p-tag is strong indent pre suppressing
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>test2<span>
+ test3
+</span></p>
+!! wikitext
+test2<span>
+<nowiki> </nowiki>test3
+</span>
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
