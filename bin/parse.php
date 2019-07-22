@@ -42,6 +42,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$this->addOption( 'oldhtmlfile',
 						 'File containing the old HTML for a selective-serialization (see --selser)',
 						 false, true );
+		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -101,7 +102,15 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 	public function execute() {
 		$this->maybeHelp();
-		$input = file_get_contents( 'php://stdin' );
+
+		if ( $this->hasOption( 'inputfile' ) ) {
+			$input = file_get_contents( $this->getOption( 'inputfile' ) );
+			if ( $input === false ) {
+				return;
+			}
+		} else {
+			$input = file_get_contents( 'php://stdin' );
+		}
 
 		if ( $this->hasOption( 'html2wt' ) ) {
 			$selser = null;
