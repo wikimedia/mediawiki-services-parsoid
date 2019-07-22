@@ -336,7 +336,7 @@ class TemplateHandler extends TokenHandler {
 				'prefix' => $canonicalFunctionName,
 				'magicWordType' => $magicWordType,
 				'target' => 'pf_' . $canonicalFunctionName,
-				'title' => $env->makeTitleFromURLDecodedStr( $canonicalFunctionName ),
+				'title' => $env->makeTitleFromURLDecodedStr( "Special:ParserFunction/$canonicalFunctionName" ),
 				'pfArg' => substr( $target, strlen( $prefix ) + 1 ),
 				'pfArgToks' => $pfArgToks,
 				'srcOffsets' => $srcOffsets,
