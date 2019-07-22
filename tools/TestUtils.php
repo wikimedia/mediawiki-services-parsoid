@@ -102,31 +102,31 @@ class TestUtils {
 		//  not unquoted or quoted with single quotes.  The serialization
 		//  algorithm is given by:
 		//  http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#serializing-html-fragments
-		if ( !preg_match( '#[^<]*(<\w+(\s+[^\0-\cZ\s"\'>/=]+(="[^"]*")?)*/?>[^<]*)*#', $out ) ) {
+		if ( !preg_match( '#[^<]*(<\w+(\s+[^\0-\cZ\s"\'>/=]+(="[^"]*")?)*/?>[^<]*)*#u', $out ) ) {
 			throw new Error( 'normalizeOut input is not in standard serialized form' );
 		}
 
 		// Eliminate a source of indeterminacy from leaked strip markers
-		$out = preg_replace( '/UNIQ-.*?-QINU/', '', $out );
+		$out = preg_replace( '/UNIQ-.*?-QINU/u', '', $out );
 
 		// And from the imagemap extension - the id attribute is not always around, it appears!
-		$out = preg_replace( '/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/', '<map>', $out );
+		$out = preg_replace( '/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/u', '<map>', $out );
 
 		// Normalize COINS ids -- they aren't stable
-		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/i', '', $out );
+		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/iu', '', $out );
 
 		// Eliminate transience from priority hints (T216499)
-		$out = preg_replace( '/\s?importance="high"/', '', $out );
-		$out = preg_replace( '/\s?elementtiming="thumbnail-(high|top)"/', '', $out );
+		$out = preg_replace( '/\s?importance="high"/u', '', $out );
+		$out = preg_replace( '/\s?elementtiming="thumbnail-(high|top)"/u', '', $out );
 
 		if ( $parsoidOnly ) {
 			// unnecessary attributes, we don't need to check these
 			// style is in there because we should only check classes.
-			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)="[^\"]*"/', '', $out );
+			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)="[^\"]*"/u', '', $out );
 			// single-quoted variant
-			$out = preg_replace( "/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)='[^\']*'/", '', $out );
+			$out = preg_replace( "/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)='[^\']*'/u", '', $out );
 			// apos variant
-			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/', '', $out );
+			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/u', '', $out );
 
 			// strip self-closed <nowiki /> because we frequently test WTS
 			// <nowiki> insertion by providing an html/parsoid section with the
@@ -144,31 +144,31 @@ class TestUtils {
 		// Normalize headings by stripping out Parsoid-added ids so that we don't
 		// have to add these ids to every parser test that uses headings.
 		// We will test the id generation scheme separately via mocha tests.
-		$out = preg_replace( '/(<h[1-6].*?) id="[^\"]*"([^>]*>)/', '$1$2', $out );
+		$out = preg_replace( '/(<h[1-6].*?) id="[^\"]*"([^>]*>)/u', '$1$2', $out );
 		// strip meta/link elements
 		$out = preg_replace(
-			'#</?(?:meta|link)(?: [^\0-\cZ\s"\'>/=]+(?:=(?:"[^"]*"|\'[^\']*\'))?)*/?>#', '', $out );
+			'#</?(?:meta|link)(?: [^\0-\cZ\s"\'>/=]+(?:=(?:"[^"]*"|\'[^\']*\'))?)*/?>#u', '', $out );
 		// Ignore troublesome attributes.
 		// Strip JSON attributes like data-mw and data-parsoid early so that
 		// comment stripping in normalizeNewlines does not match unbalanced
 		// comments in wikitext source.
-		$out = preg_replace( '/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^"]*"/', '', $out );
+		$out = preg_replace( '/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^"]*"/u', '', $out );
 		// single-quoted variant
-		$out = preg_replace( "/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^']*'/", '', $out );
+		$out = preg_replace( "/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^']*'/u", '', $out );
 		// strip typeof last
-		$out = preg_replace( '/ typeof="[^\"]*"/', '', $out );
+		$out = preg_replace( '/ typeof="[^\"]*"/u', '', $out );
 		// replace mwt ids
-		$out = preg_replace( '/ id="mw((t\d+)|([\w-]{2,}))"/', '', $out );
-		$out = preg_replace( '/<span[^>]+about="[^"]*"[^>]*>/', '', $out );
-		$out = preg_replace( '#<span>\s*</span>#', '', $out );
-		$out = preg_replace( '#(href=")(?:\.?\./)+#', '$1', $out );
+		$out = preg_replace( '/ id="mw((t\d+)|([\w-]{2,}))"/u', '', $out );
+		$out = preg_replace( '/<span[^>]+about="[^"]*"[^>]*>/u', '', $out );
+		$out = preg_replace( '#<span>\s*</span>#u', '', $out );
+		$out = preg_replace( '#(href=")(?:\.?\./)+#u', '$1', $out );
 		// replace unnecessary URL escaping
-		$out = preg_replace_callback( '/ href="[^"]*"/', function ( $m ) {
+		$out = preg_replace_callback( '/ href="[^"]*"/u', function ( $m ) {
 			return Util::decodeURI( $m[0] );
 		}, $out );
 		// strip thumbnail size prefixes
 		return preg_replace(
-			'#(src="[^"]*?)/thumb(/[0-9a-f]/[0-9a-f]{2}/[^/]+)/[0-9]+px-[^"/]+(?=")#', '$1$2',
+			'#(src="[^"]*?)/thumb(/[0-9a-f]/[0-9a-f]{2}/[^/]+)/[0-9]+px-[^"/]+(?=")#u', '$1$2',
 			$out
 		);
 	}
@@ -213,13 +213,13 @@ class TestUtils {
 		}
 		if ( !$opts['preserveIEW'] && DOMUtils::isText( $node ) ) {
 			if ( !$opts['inPRE'] ) {
-				$node->data = preg_replace( '/\s+/', ' ', $node->data );
+				$node->data = preg_replace( '/\s+/u', ' ', $node->data );
 			}
 			if ( $opts['stripLeadingWS'] ) {
-				$node->data = preg_replace( '/^\s+/', '', $node->data, 1 );
+				$node->data = preg_replace( '/^\s+/u', '', $node->data, 1 );
 			}
 			if ( $opts['stripTrailingWS'] ) {
-				$node->data = preg_replace( '/\s+$/', '', $node->data, 1 );
+				$node->data = preg_replace( '/\s+$/u', '', $node->data, 1 );
 			}
 		}
 		// unwrap certain SPAN nodes
@@ -274,13 +274,13 @@ class TestUtils {
 			$next = $child->nextSibling;
 			if ( self::newlineAround( $child ) ) {
 				if ( $prev && $prev instanceof DOMText ) {
-					$prev->data = preg_replace( '/\s*$/', "\n", $prev->data, 1 );
+					$prev->data = preg_replace( '/\s*$/u', "\n", $prev->data, 1 );
 				} else {
 					$prev = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $prev, $child );
 				}
 				if ( $next && $next instanceof DOMText ) {
-					$next->data = preg_replace( '/^\s*/', "\n", $next->data, 1 );
+					$next->data = preg_replace( '/^\s*/u', "\n", $next->data, 1 );
 				} else {
 					$next = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $next, $child->nextSibling );
@@ -322,12 +322,12 @@ class TestUtils {
 			// do not expect section editing for now
 			'/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> '
 			. '*(<span class="mw-editsection"><span class="mw-editsection-bracket">'
-			. '\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/',
+			. '\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/u',
 			'$1',
 			$html
 		);
 		return preg_replace(
-			"/<a[^>]+class=\"mw-headline-anchor\"[^>]*>§<\\/a>/", '',
+			'#<a[^>]+class="mw-headline-anchor"[^>]*>§</a>#', '',
 			$html
 		);
 	}
@@ -349,13 +349,13 @@ class TestUtils {
 			//  .replace(/\/wiki\/Main_Page/g, 'Main Page')
 			// do not expect a toc for now
 			$html = preg_replace(
-				'/<div[^>]+?id="toc"[^>]*>\s*<div id="toctitle"[^>]*>[\s\S]+?<\/div>[\s\S]+?<\/div>\s*/',
+				'/<div[^>]+?id="toc"[^>]*>\s*<div id="toctitle"[^>]*>[\s\S]+?<\/div>[\s\S]+?<\/div>\s*/u',
 				'',
 				$html );
 			$html = self::normalizePhpOutput( $html );
 			// remove empty span tags
-			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/', '$1', $html );
-			$html = preg_replace( '/<span>\s*<\/span>/', '', $html );
+			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/u', '$1', $html );
+			$html = preg_replace( '/<span>\s*<\/span>/u', '', $html );
 			// general class and titles, typically on links
 			$html = preg_replace( '/ (class|rel|about|typeof)="[^"]*"/', '', $html );
 			// strip red link markup, we do not check if a page exists yet
@@ -378,8 +378,8 @@ class TestUtils {
 				},
 				$html );
 			// strip empty spans
-			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/', '$1', $html );
-			return preg_replace( '/<span>\s*<\/span>/', '', $html );
+			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/u', '$1', $html );
+			return preg_replace( '/<span>\s*<\/span>/u', '', $html );
 		} catch ( Exception $e ) {
 			error_log( 'normalizeHTML failed on' . $source . ' with the following error: ' . $e );
 			return $source;
@@ -522,7 +522,7 @@ class TestUtils {
 			}
 
 			if ( is_string( $v ) &&
-				( preg_match( '/^\[\[[^\]]*\]\]$/', $v ) || preg_match( '/^[-\w]+$/', $v ) )
+				( preg_match( '/^\[\[[^\]]*\]\]$/D', $v ) || preg_match( '/^[-\w]+$/D', $v ) )
 			) {
 				return $v;
 			}
@@ -576,7 +576,7 @@ class TestUtils {
 		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && $expectFail ) {
 			// compare with remembered output
 			$normalizeAbout = function ( $s ) {
-				return preg_replace( "/(about=\\\\?[\"']#mwt)\\d+/", '$1', $s );
+				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
 			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) ) {
 				$blacklisted = true;
