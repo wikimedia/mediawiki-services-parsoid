@@ -467,8 +467,10 @@ class PipelineUtils {
 		if ( $tokenTsr ) {
 			$firstWrapperToken->dataAttribs->tsr = $tokenTsr;
 			$firstWrapperToken->dataAttribs->extTagOffsets = $token->dataAttribs->extTagOffsets ?? null;
-			// XXX to investigate: if $tokenTsr is null, then we're losing
-			// the 'hint' that this is a zero-width source range.
+			// XXX to investigate: if $tokenTsr->end is null, then we're losing
+			// the 'hint' we'd like to provide here that this is a zero-width
+			// source range.
+			// ->end can be set to null by WikiLinkHandler::bailTokens()
 			$endTsr = new SourceRange( $tokenTsr->end, $tokenTsr->end );
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
 				$toks[$i]->dataAttribs->tsr = clone $endTsr;
