@@ -4,6 +4,7 @@ namespace Parsoid\Tests;
 
 use Parsoid\Config\SiteConfig;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Util;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
@@ -12,13 +13,19 @@ class MockSiteConfig extends SiteConfig {
 	/** @var int Unix timestamp */
 	private $fakeTimestamp = 946782245; // 2000-01-02T03:04:05Z
 
+	/** @var int */
+	private $timezoneOffset = 0; // UTC
+
+	/** @var bool */
+	private $interwikiMagic = true;
+
 	/** @var bool */
 	private $rtTestMode = false;
 
 	/** @var int|null */
 	private $tidyWhitespaceBugMaxLength = null;
 
-	private $namespaceMap = [
+	protected $namespaceMap = [
 		'media' => -2,
 		'special' => -1,
 		'' => 0,
@@ -36,6 +43,9 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @var array<int, bool> */
 	protected $namespacesWithSubpages = [];
+
+	/** @var array */
+	protected $interwikiMap = [];
 
 	/**
 	 * @param array $opts
@@ -119,7 +129,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
-		$name = strtr( strtolower( $name ), ' ', '_' );
+		$name = Util::normalizeNamespaceName( $name );
 		return $this->namespaceMap[$name] ?? null;
 	}
 
@@ -150,12 +160,16 @@ class MockSiteConfig extends SiteConfig {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
+	public function setInterwikiMagic( bool $val ) {
+		$this->interwikiMagic = $val;
+	}
+
 	public function interwikiMagic(): bool {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return $this->interwikiMagic;
 	}
 
 	public function interwikiMap(): array {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return $this->interwikiMap;
 	}
 
 	public function iwp(): string {
@@ -218,7 +232,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function timezoneOffset(): int {
-		return 0;
+		return $this->timezoneOffset;
 	}
 
 	public function variants(): array {
@@ -304,6 +318,14 @@ class MockSiteConfig extends SiteConfig {
 	 */
 	public function setFakeTimestamp( ?int $ts ): void {
 		$this->fakeTimestamp = $ts;
+	}
+
+	/**
+	 * Set the timezone offset for testing
+	 * @param int $offset Offset from UTC
+	 */
+	public function setTimezoneOffset( int $offset ): void {
+		$this->timezoneOffset = $offset;
 	}
 
 	public function scrubBidiChars(): bool {
