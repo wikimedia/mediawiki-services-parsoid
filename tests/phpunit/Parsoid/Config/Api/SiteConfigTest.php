@@ -321,9 +321,15 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetMagicPatternMatcher() {
-		$matcher = $this->getSiteConfig()->getMagicPatternMatcher( [ 'img_lossy', 'img_width' ] );
+		$matcher = $this->getSiteConfig()->getMagicPatternMatcher(
+			[ 'img_lossy', 'img_width', 'img_link' ] );
 		$this->assertSame( [ 'k' => 'img_width', 'v' => '123' ], $matcher( '123px' ) );
 		$this->assertSame( [ 'k' => 'img_lossy', 'v' => '123' ], $matcher( 'lossy=123' ) );
+		$this->assertSame( [ 'k' => 'img_link', 'v' => 'http://example.com' ],
+			$matcher( 'link=http://example.com' ) );
+		// Tests partial matches of just the key without a value.
+		// WikiLinkHandler use this method in this fashion.
+		$this->assertSame( [ 'k' => 'img_link', 'v' => '' ], $matcher( 'link=' ) );
 		$this->assertSame( null, $matcher( 'thumb=123' ) );
 	}
 

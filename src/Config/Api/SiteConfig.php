@@ -655,14 +655,13 @@ class SiteConfig extends ISiteConfig {
 		$this->loadSiteData();
 		$regexes = array_intersect_key( $this->paramMWs, array_flip( $words ) );
 		return function ( $text ) use ( $regexes ) {
+			/**
+			 * $name is the canonical magic word name
+			 * $re has patterns for matching aliases
+			 */
 			foreach ( $regexes as $name => $re ) {
 				if ( preg_match( $re, $text, $m ) ) {
-					unset( $m[0] );
-					foreach ( $m as $v ) {
-						if ( $v !== '' ) {
-							return [ 'k' => $name, 'v' => $v ];
-						}
-					}
+					return [ 'k' => $name, 'v' => $m[1] ];
 				}
 			}
 			return null;
