@@ -139,7 +139,7 @@ class WikiLinkHandler extends TokenHandler {
 			// also check for url to protect against [[constructor:foo]]
 			if ( $ns !== null ) {
 				$info->title = $env->makeTitleFromURLDecodedStr( $title );
-			} elseif ( !empty( $interwikiInfo['localinterwiki'] ) ) {
+			} elseif ( isset( $interwikiInfo['localinterwiki'] ) ) {
 				if ( $hrefBits['title'] === '' ) {
 					// Empty title => main page (T66167)
 					$info->title = $env->makeTitleFromURLDecodedStr( $siteConfig->mainpage() );
@@ -157,7 +157,7 @@ class WikiLinkHandler extends TokenHandler {
 				// Interwiki or language link? If no language info, or if it starts
 				// with an explicit ':' (like [[:en:Foo]]), it's not a language link.
 				if ( $info->fromColonEscapedText ||
-					( empty( $interwikiInfo['language'] ) && empty( $interwikiInfo['extralanglink'] ) )
+					( !isset( $interwikiInfo['language'] ) && !isset( $interwikiInfo['extralanglink'] ) )
 				) {
 					// An interwiki link.
 					$info->interwiki = $interwikiInfo;
@@ -713,7 +713,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// add title attribute giving the presentation name of the
 		// "extra language link"
-		if ( !empty( $target->language['extralanglink'] ) &&
+		if ( isset( $target->language['extralanglink'] ) &&
 			!empty( $target->language['linktext'] )
 		) {
 			$newTk->addNormalizedAttribute( 'title', $target->language['linktext'], null );
@@ -1388,7 +1388,7 @@ class WikiLinkHandler extends TokenHandler {
 		} elseif ( $opts['format'] ) {
 			if ( !$opts[ 'size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
-				if ( !empty( $opts['upright'] ) ) {
+				if ( isset( $opts['upright'] ) ) {
 					if ( $opts['upright']['v'] > 0 ) {
 						$defaultWidth *= $opts['upright']['v'];
 					} else {
