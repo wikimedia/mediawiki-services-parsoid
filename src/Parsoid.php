@@ -45,9 +45,10 @@ class Parsoid {
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = []
 	): PageBundle {
-		$envOptions = [
-			'wrapSections' => !empty( $options['wrapSections'] ),
-		];
+		$envOptions = [];
+		if ( isset( $options['wrapSections'] ) ) {
+			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);

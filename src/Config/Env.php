@@ -115,7 +115,7 @@ class Env {
 	public $startTime;
 
 	/** @var bool */
-	private $scrubWikitext;
+	private $scrubWikitext = false;
 
 	/** @var ParserPipelineFactory */
 	private $pipelineFactory;
@@ -201,8 +201,12 @@ class Env {
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
 		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
-		$this->scrubWikitext = !empty( $options['scrubWikitext'] );
-		$this->wrapSections = !empty( $options['wrapSections'] );
+		if ( isset( $options['scrubWikitext'] ) ) {
+			$this->scrubWikitext = !empty( $options['scrubWikitext'] );
+		}
+		if ( isset( $options['wrapSections'] ) ) {
+			$this->wrapSections = !empty( $options['wrapSections'] );
+		}
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];

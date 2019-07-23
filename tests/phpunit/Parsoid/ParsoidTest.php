@@ -41,6 +41,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				"<p data-parsoid='{\"dsr\":[0,11,0,0]}'><b data-parsoid='{\"dsr\":[0,11,3,3]}'>hi ho</b></p>",
 				[
 					'body_only' => true,
+					'wrapSections' => false,
 				]
 			]
 		];

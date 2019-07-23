@@ -57,6 +57,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'Apply wikitext scrubbing while serializing.  This is also used ' .
 			'for a mode of normalization (--normalize) applied when parsing.'
 		);
+		$this->addOption(
+			'wrapSections',
+			// Override the default in Env since the wrappers are annoying in dev-mode
+			'Output <section> tags (default false)'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -147,6 +152,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$parsoidOpts = [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => $this->hasOption( 'body_only' ),
+			"wrapSections" => $this->hasOption( 'wrapSections' ),
 		];
 
 		if ( $this->hasOption( 'html2wt' ) ) {
