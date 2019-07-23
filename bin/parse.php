@@ -128,7 +128,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			if ( strlen( $input ) === 0 ) {
 				// Parse page if no input
 				if ( $this->hasOption( 'html2wt' ) || $this->hasOption( 'html2html' ) ) {
-					print "Pages start at wikitext.\n";
+					$this->error( 'Pages start at wikitext.' );
 					return;
 				} else {
 					$input = null;
@@ -150,7 +150,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		if ( $this->hasOption( 'html2wt' ) ) {
 			if ( $this->hasOption( 'selser' ) ) {
 				if ( !$this->hasOption( 'oldtextfile' ) ) {
-					print "No oldtextfile provided.\n";
+					$this->error( 'No oldtextfile provided.' );
 					$this->maybeHelp();
 					return;
 				}
@@ -170,19 +170,19 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$selser = null;
 			}
 			$pb = new PageBundle( $input );
-			print $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser );
+			$this->output( $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser ) );
 		} elseif ( $this->hasOption( 'wt2wt' ) ) {
 			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
-			print $this->html2Wt( $configOpts, $parsoidOpts, $pb );
+			$this->output( $this->html2Wt( $configOpts, $parsoidOpts, $pb ) );
 		} elseif ( $this->hasOption( 'html2html' ) ) {
 			$pb = new PageBundle( $input );
 			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb );
 			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-			print $pb->html;
+			$this->output( $pb->html );
 		} else {
 			// wt2html is the default
 			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
-			print $pb->html . "\n";
+			$this->output( $pb->html . "\n" );
 		}
 	}
 }
