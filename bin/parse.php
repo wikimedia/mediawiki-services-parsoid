@@ -128,7 +128,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			if ( strlen( $input ) === 0 ) {
 				// Parse page if no input
 				if ( $this->hasOption( 'html2wt' ) || $this->hasOption( 'html2html' ) ) {
-					$this->error( 'Pages start at wikitext.' );
+					$this->error(
+						'Fetching page content is only supported when starting at wikitext.'
+					);
 					return;
 				} else {
 					$input = null;

@@ -349,7 +349,9 @@ Promise.async(function *() {
 			if (inputChunks.length > 0) {
 				return inputChunks.join('');
 			} else if (argv.html2wt || argv.html2html) {
-				throw new Error('Pages start at wikitext.');
+				throw new Error(
+					'Fetching page content is only supported when starting at wikitext.'
+				);
 			}
 		});
 	});
