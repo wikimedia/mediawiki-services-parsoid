@@ -36,6 +36,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 						 'Just return the body, without any normalizations as in --normalize' );
 		$this->addOption( 'selser',
 						 'Use the selective serializer to go from HTML to Wikitext.' );
+		$this->addOption(
+			'oldtext',
+			'The old page text for a selective-serialization (see --selser)',
+			false,
+			true
+		);
 		$this->addOption( 'oldtextfile',
 						 'File containing the old page text for a selective-serialization (see --selser)',
 						 false, true );
@@ -155,19 +161,29 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
 		];
 
-		if ( $this->hasOption( 'html2wt' ) ) {
+		$startsAtHtml = $this->hasOption( 'html2wt' ) ||
+			$this->hasOption( 'html2html' ) ||
+			$this->hasOption( 'selser' );
+
+		if ( $startsAtHtml ) {
 			if ( $this->hasOption( 'selser' ) ) {
-				if ( !$this->hasOption( 'oldtextfile' ) ) {
-					$this->error( 'No oldtextfile provided.' );
+				if ( $this->hasOption( 'oldtext' ) ) {
+					$oldText = $this->getOption( 'oldtext' );
+				} elseif ( $this->hasOption( 'oldtextfile' ) ) {
+					$oldText = file_get_contents( $this->getOption( 'oldtextfile' ) );
+					if ( $oldText === false ) {
+						return;
+					}
+				} else {
+					$this->error(
+						'Please provide original wikitext ' .
+						'(--oldtext or --oldtextfile). Selser requires that.'
+					);
 					$this->maybeHelp();
 					return;
 				}
-				$oldText = file_get_contents( $this->getOption( 'oldtextfile' ) );
-				if ( $oldText === false ) {
-					return;
-				}
 				$oldHTML = null;
-				if ( !$this->hasOption( 'oldhtmlfile' ) ) {
+				if ( $this->hasOption( 'oldhtmlfile' ) ) {
 					$oldHTML = file_get_contents( $this->getOption( 'oldhtmlfile' ) );
 					if ( $oldHTML === false ) {
 						return;
@@ -178,19 +194,21 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$selser = null;
 			}
 			$pb = new PageBundle( $input );
-			$this->output( $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser ) );
-		} elseif ( $this->hasOption( 'wt2wt' ) ) {
-			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
-			$this->output( $this->html2Wt( $configOpts, $parsoidOpts, $pb ) );
-		} elseif ( $this->hasOption( 'html2html' ) ) {
-			$pb = new PageBundle( $input );
-			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb );
-			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-			$this->output( $pb->html );
+			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser );
+			if ( $this->hasOption( 'html2html' ) ) {
+				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
+				$this->output( $pb->html . "\n" );
+			} else {
+				$this->output( $wt );
+			}
 		} else {
-			// wt2html is the default
 			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
-			$this->output( $pb->html . "\n" );
+			if ( $this->hasOption( 'wt2wt' ) ) {
+				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb );
+				$this->output( $wt );
+			} else {
+				$this->output( $pb->html . "\n" );
+			}
 		}
 	}
 }
