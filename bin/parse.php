@@ -52,60 +52,67 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'scrubWikitext',
+			'Apply wikitext scrubbing while serializing.  This is also used ' .
+			'for a mode of normalization (--normalize) applied when parsing.'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
 	/**
-	 * @param array $opts
+	 * @param array $configOpts
+	 * @param array $parsoidOpts
 	 * @param string|null $wt
-	 * @param bool $body_only
 	 * @return PageBundle
 	 */
 	public function wt2Html(
-		array $opts, ?string $wt, bool $body_only
+		array $configOpts, array $parsoidOpts, ?string $wt
 	): PageBundle {
 		if ( $wt !== null ) {
-			$opts["pageContent"] = $wt;
+			$configOpts["pageContent"] = $wt;
 		}
 
-		$api = new ApiHelper( $opts );
+		$api = new ApiHelper( $configOpts );
 
-		$siteConfig = new SiteConfig( $api, $opts );
-		$dataAccess = new DataAccess( $api, $opts );
+		$siteConfig = new SiteConfig( $api, $configOpts );
+		$dataAccess = new DataAccess( $api, $configOpts );
 
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$pageConfig = new PageConfig( $api, $opts );
+		$pageConfig = new PageConfig( $api, $configOpts );
 
-		return $parsoid->wikitext2html( $pageConfig, [
-			'body_only' => $body_only,
-		] );
+		return $parsoid->wikitext2html( $pageConfig, $parsoidOpts );
 	}
 
 	/**
-	 * @param array $opts
+	 * @param array $configOpts
+	 * @param array $parsoidOpts
 	 * @param PageBundle $pb
 	 * @param Selser|null $selser
 	 * @return string
 	 */
 	public function html2Wt(
-		array $opts, PageBundle $pb, ?Selser $selser = null
+		array $configOpts, array $parsoidOpts, PageBundle $pb,
+		?Selser $selser = null
 	): string {
 		// PORT-FIXME: Think about when is the right time for this to be set.
 		if ( $selser ) {
-			$opts["pageContent"] = $selser->oldText;
+			$configOpts["pageContent"] = $selser->oldText;
 		}
 
-		$api = new ApiHelper( $opts );
+		$api = new ApiHelper( $configOpts );
 
-		$siteConfig = new SiteConfig( $api, $opts );
-		$dataAccess = new DataAccess( $api, $opts );
+		$siteConfig = new SiteConfig( $api, $configOpts );
+		$dataAccess = new DataAccess( $api, $configOpts );
 
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$pageConfig = new PageConfig( $api, $opts );
+		$pageConfig = new PageConfig( $api, $configOpts );
 
-		return $parsoid->html2wikitext( $pageConfig, $pb, [], $selser );
+		return $parsoid->html2wikitext(
+			$pageConfig, $pb, $parsoidOpts, $selser
+		);
 	}
 
 	public function execute() {
@@ -129,14 +136,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			}
 		}
 
-		$opts = [
+		$configOpts = [
 			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",
 		];
 
+		$parsoidOpts = [
+			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
+			"body_only" => $this->hasOption( 'body_only' ),
+		];
+
 		if ( $this->hasOption( 'html2wt' ) ) {
-			$selser = null;
 			if ( $this->hasOption( 'selser' ) ) {
 				if ( !$this->hasOption( 'oldtextfile' ) ) {
 					print "No oldtextfile provided.\n";
@@ -155,20 +166,22 @@ class Parse extends \Parsoid\Tools\Maintenance {
 					}
 				}
 				$selser = new Selser( $oldText, $oldHTML );
+			} else {
+				$selser = null;
 			}
 			$pb = new PageBundle( $input );
-			print $this->html2Wt( $opts, $pb, $selser );
+			print $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser );
 		} elseif ( $this->hasOption( 'wt2wt' ) ) {
-			$pb = $this->wt2Html( $opts, $input, false );
-			print $this->html2Wt( $opts, $pb );
+			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+			print $this->html2Wt( $configOpts, $parsoidOpts, $pb );
 		} elseif ( $this->hasOption( 'html2html' ) ) {
 			$pb = new PageBundle( $input );
-			$wt = $this->html2Wt( $opts, $pb );
-			$pb = $this->wt2Html( $opts, $wt, $this->hasOption( 'body_only' ) );
+			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb );
+			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
 			print $pb->html;
 		} else {
 			// wt2html is the default
-			$pb = $this->wt2Html( $opts, $input, $this->hasOption( 'body_only' ) );
+			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 			print $pb->html . "\n";
 		}
 	}

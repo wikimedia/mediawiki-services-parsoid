@@ -76,9 +76,10 @@ class Parsoid {
 		PageConfig $pageConfig, PageBundle $pageBundle, array $options = [],
 		?Selser $selser = null
 	): string {
-		$envOptions = [
-			'scrubWikitext' => !empty( $options['scrubWikitext'] )
-		];
+		$envOptions = [];
+		if ( isset( $options['scrubWikitext'] ) ) {
+			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
