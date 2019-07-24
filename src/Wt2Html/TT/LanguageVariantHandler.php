@@ -50,7 +50,7 @@ class LanguageVariantHandler extends TokenHandler {
 					'expandTemplates' => $options['expandTemplates'],
 					'inTemplate' => $options['inTemplate']
 				],
-				'srcOffsets' => $srcOffsets ? array_slice( $srcOffsets, 2, 2 ) : null,
+				'srcOffsets' => $srcOffsets->value ?? null,
 				'sol' => true
 			]
 		);
@@ -108,8 +108,9 @@ class LanguageVariantHandler extends TokenHandler {
 		// remove trailing semicolon marker, if present
 		$trailingSemi = false;
 		if ( count( $dataAttribs->texts ) &&
-			$dataAttribs->texts[count( $dataAttribs->texts ) - 1]->semi ) {
-			$trailingSemi = array_pop( $dataAttribs->texts )->sp;
+			( $dataAttribs->texts[count( $dataAttribs->texts ) - 1]['semi'] ?? null )
+		) {
+			$trailingSemi = array_pop( $dataAttribs->texts )['sp'] ?? null;
 		}
 		// convert all variant texts to DOM
 		$isBlock = false;
@@ -117,11 +118,11 @@ class LanguageVariantHandler extends TokenHandler {
 			$text = null;
 			$from = null;
 			$to = null;
-			if ( $t['twoway'] ) {
+			if ( isset( $t['twoway'] ) ) {
 				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
 				$isBlock = $isBlock ?? $text['isBlock'];
 				return [ 'lang' => $t['lang'], 'text' => $text['xmlstr'], 'twoway' => true, 'sp' => $t['sp'] ];
-			} elseif ( $t['lang'] ) {
+			} elseif ( isset( $t['lang'] ) ) {
 				$from = $this->convertOne( $manager, $options, $t['from'], $attribs );
 				$to = $this->convertOne( $manager, $options, $t['to'], $attribs );
 				$isBlock = $isBlock ?? $from['isBlock'] ?? $to['isBlock'];
@@ -142,11 +143,11 @@ class LanguageVariantHandler extends TokenHandler {
 		$twowaySp = [];
 		$onewaySp = [];
 		foreach ( $texts as $t ) {
-			if ( $t['twoway'] ) {
+			if ( isset( $t['twoway'] ) ) {
 				$twoway[] = [ 'l' => $t['lang'], 't' => $t['text'] ];
 				array_push( $twowaySp, $t['sp'][0], $t['sp'][1], $t['sp'][2] );
 				$sawTwoway = true;
-			} elseif ( $t['lang'] ) {
+			} elseif ( isset( $t['lang'] ) ) {
 				$oneway[] = [ 'l' => $t['lang'], 'f' => $t['from'], 't' => $t['to'] ];
 				array_push( $onewaySp, $t['sp'][0], $t['sp'][1], $t['sp'][2], $t['sp'][3] );
 				$sawOneway = true;
@@ -178,8 +179,10 @@ class LanguageVariantHandler extends TokenHandler {
 			}, [] );
 			// (this test is done at the top of ConverterRule::getRuleConvertedStr)
 			// (also partially in ConverterRule::parse)
-			if ( count( $texts ) === 1 && !$texts[0]['lang'] && !$dataMWV['name'] ) {
-				if ( $dataMWV['add'] || $dataMWV['remove'] ) {
+			if ( count( $texts ) === 1 &&
+				!isset( $texts[0]['lang'] ) && !isset( $dataMWV['name'] )
+			) {
+				if ( isset( $dataMWV['add'] ) || isset( $dataMWV['remove'] ) ) {
 					$variants = [ '*' ];
 					$twoway = array_map( function ( string $code ) use ( $texts, &$sawTwoway ) {
 						return [ 'l' => $code, 't' => $texts[0]['text'] ];
@@ -190,19 +193,18 @@ class LanguageVariantHandler extends TokenHandler {
 					$dataMWV['describe'] = null;
 				}
 			}
-			if ( $dataMWV['describe'] ) {
+			if ( isset( $dataMWV['describe'] ) ) {
 				if ( !$sawFlagA ) {
 					$dataMWV['show'] = true;
 				}
 			}
-			if ( $dataMWV['disabled'] || $dataMWV['name'] ) {
-				if ( $dataMWV['disabled'] ) {
-					$dataMWV['disabled'] = [ 't' => $texts[0]['text'] ];
+			if ( isset( $dataMWV['disabled'] ) || isset( $dataMWV['name'] ) ) {
+				if ( isset( $dataMWV['disabled'] ) ) {
+					$dataMWV['disabled'] = [ 't' => $texts[0]['text'] ?? '' ];
 				} else {
-					$dataMWV['name'] = [ 't' => $texts[0]['text'] ];
+					$dataMWV['name'] = [ 't' => $texts[0]['text'] ?? '' ];
 				}
-				$dataMWV['show'] =
-				( $dataMWV['title'] || $dataMWV['add'] ) ? null : true;
+				$dataMWV['show'] = isset( $dataMWV['title'] ) || isset( $dataMWV['add'] ) ? null : true;
 			} elseif ( $sawTwoway ) {
 				$dataMWV['twoway'] = $twoway;
 				$textSp = $twowaySp;
@@ -218,7 +220,7 @@ class LanguageVariantHandler extends TokenHandler {
 			}
 		}
 		// Use meta/not meta instead of explicit 'show' flag.
-		$isMeta = !$dataMWV['show'];
+		$isMeta = !isset( $dataMWV['show'] );
 		$dataMWV['show'] = null;
 		// Trim some data from data-parsoid if it matches the defaults
 		if ( count( $flagSp ) === 2 * count( $dataAttribs->original ) ) {
