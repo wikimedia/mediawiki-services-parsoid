@@ -651,7 +651,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getMagicPatternMatcher( array $words ): callable {
+	public function getParameterizedAliasMatcher( array $words ): callable {
 		$this->loadSiteData();
 		$regexes = array_intersect_key( $this->paramMWs, array_flip( $words ) );
 		return function ( $text ) use ( $regexes ) {

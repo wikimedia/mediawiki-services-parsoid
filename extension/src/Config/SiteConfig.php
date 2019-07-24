@@ -568,7 +568,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getMagicPatternMatcher( array $words ): callable {
+	public function getParameterizedAliasMatcher( array $words ): callable {
 		$words = MediaWikiServices::getInstance()->getMagicWordFactory()
 			->newArray( $words );
 		return function ( $text ) use ( $words ) {

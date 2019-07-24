@@ -256,7 +256,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getMagicPatternMatcher( array $words ): callable {
+	public function getParameterizedAliasMatcher( array $words ): callable {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 

@@ -5,7 +5,7 @@ namespace Parsoid\Tests\Porting;
 use Parsoid\Tests\MockSiteConfig;
 
 class TokenizerMockSiteConfig extends MockSiteConfig {
-	public function getMagicPatternMatcher( array $words ): callable {
+	public function getParameterizedAliasMatcher( array $words ): callable {
 		return function () {
 			return false;
 		};

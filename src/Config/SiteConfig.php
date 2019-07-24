@@ -631,7 +631,7 @@ abstract class SiteConfig {
 	 * @param string[] $words Magic words to match
 	 * @return callable
 	 */
-	abstract public function getMagicPatternMatcher( array $words ): callable;
+	abstract public function getParameterizedAliasMatcher( array $words ): callable;
 
 	/**
 	 * Get the maximum template depth

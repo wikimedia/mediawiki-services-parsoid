@@ -321,7 +321,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetMagicPatternMatcher() {
-		$matcher = $this->getSiteConfig()->getMagicPatternMatcher(
+		$matcher = $this->getSiteConfig()->getParameterizedAliasMatcher(
 			[ 'img_lossy', 'img_width', 'img_link' ] );
 		$this->assertSame( [ 'k' => 'img_width', 'v' => '123' ], $matcher( '123px' ) );
 		$this->assertSame( [ 'k' => 'img_lossy', 'v' => '123' ], $matcher( 'lossy=123' ) );

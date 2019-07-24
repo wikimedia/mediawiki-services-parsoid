@@ -893,7 +893,7 @@ class WikiLinkHandler extends TokenHandler {
 		$lowerOText = strtolower( $oText );
 		$siteConfig = $env->getSiteConfig();
 		$magicWords = array_keys( WikitextConstants::$Media['PrefixOptions'] );
-		$getOption = $siteConfig->getMagicPatternMatcher( $magicWords );
+		$getOption = $siteConfig->getParameterizedAliasMatcher( $magicWords );
 		// oText contains the localized name of this option.  the
 		// canonical option names (from mediawiki upstream) are in
 		// English and contain an '(img|timedmedia)_' prefix.  We drop the
