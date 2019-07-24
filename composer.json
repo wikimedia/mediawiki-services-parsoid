@@ -66,7 +66,8 @@
 			"covers-validator",
 			"phpunit",
 			"phpspec run -v --ansi",
-			"@phan"
+			"@phan",
+			"@toolcheck"
 		],
 		"test": [
 			"@php-test",
@@ -88,7 +89,8 @@
 		"ensure-modules": [
 			"@ensure-nave",
 			"if test ! -d node_modules/domino ; then SHELL=/bin/bash node_modules/nave/nave.sh use 6 npm install --no-optional ; fi"
-		]
+		],
+		"toolcheck": "bin/toolcheck.php.sh"
 	},
 	"config": {
 		"process-timeout": 0,

@@ -16,15 +16,15 @@ echo "Foo" | node $BIN/parse.js --wt2wt
 echo "Foo" | node $BIN/parse.js --html2wt
 echo "Foo" | node $BIN/parse.js --html2html
 
-# FIXME: php: command not found
-# echo "Foo" | php $BIN/parse.php --wt2html
-# echo "Foo" | php $BIN/parse.php --html2wt
+function tempfile () {
+  mktemp "${TMPDIR:-/tmp/}$1.XXXXXX"
+}
 
 # Check --selser too!
-TMPWT=$(tempfile -s wt)
-TMPORIG=$(tempfile -s orig)
-TMPEDIT=$(tempfile -s edit)
-TMPPB=$(tempfile -s pb)
+TMPWT=$(tempfile wt)
+TMPORIG=$(tempfile orig)
+TMPEDIT=$(tempfile edit)
+TMPPB=$(tempfile pb)
 
 # inline data-parsoid
 echo "<p>foo</p><p>boo</p>" | tee $TMPWT | node $BIN/parse.js | tee $TMPORIG |
