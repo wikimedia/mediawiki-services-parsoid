@@ -30,6 +30,9 @@ abstract class SiteConfig {
 	/** @var array|null */
 	private $iwMatcher = null;
 
+	/** @var bool */
+	protected $addHTMLTemplateParameters = false;
+
 	/**
 	 * The Parsoid/JS extension registration mechanism is short-lived and
 	 * we are going to probably rely on the core extension mechanism once
@@ -121,7 +124,7 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	public function addHTMLTemplateParameters(): bool {
-		return false;
+		return $this->addHTMLTemplateParameters;
 	}
 
 	/**

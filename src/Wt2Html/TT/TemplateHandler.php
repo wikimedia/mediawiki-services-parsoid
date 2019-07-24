@@ -703,7 +703,7 @@ class TemplateHandler extends TokenHandler {
 		$param = $paramData['param'];
 		$srcStart = $paramData['info']['srcOffsets']->value->start;
 		$srcEnd = $paramData['info']['srcOffsets']->value->end;
-		if ( $paramData['info']['spc'] ) {
+		if ( !empty( $paramData['info']['spc'] ) ) {
 			$srcStart += count( $paramData['info']['spc'][2] );
 			$srcEnd -= count( $paramData['info']['spc'][3] );
 		}
@@ -774,7 +774,7 @@ class TemplateHandler extends TokenHandler {
 				foreach ( $argInfo['paramInfos'] as $paramInfo ) {
 					$param = $argDict['params']->{$paramInfo['k']};
 					$paramTokens = null;
-					if ( $paramInfo['named'] ) {
+					if ( !empty( $paramInfo['named'] ) ) {
 						$paramTokens = $state['token']->getAttribute( $paramInfo['k'] );
 					} else {
 						$paramTokens = $state['token']->attribs[ $paramInfo['k'] ]->v;

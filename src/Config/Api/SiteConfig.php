@@ -86,6 +86,10 @@ class SiteConfig extends ISiteConfig {
 
 		$this->rtTestMode = !empty( $opts['rtTestMode'] );
 
+		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {
+			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
+		}
+
 		if ( !empty( $opts['traceFlags'] ) ||
 			!empty( $opts['dumpFlags'] ) ||
 			!empty( $opts['debugFlags'] )

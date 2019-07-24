@@ -68,6 +68,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			// Override the default in Env since the wrappers are annoying in dev-mode
 			'Output <section> tags (default false)'
 		);
+		$this->addOption(
+			'addHTMLTemplateParameters',
+			'Parse template parameters to HTML and add them to template data'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -153,6 +157,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",
+			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
 		];
 
 		$parsoidOpts = [
