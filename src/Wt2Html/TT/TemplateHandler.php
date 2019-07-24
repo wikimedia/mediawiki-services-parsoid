@@ -466,6 +466,8 @@ class TemplateHandler extends TokenHandler {
 			]
 		);
 
+		TokenUtils::stripEOFTkfromTokens( $toks );
+
 		$hasTemplatedTarget = isset( $state['token']->dataAttribs->tmp->templatedAttribs );
 		if ( $hasTemplatedTarget ) {
 			// Add encapsulation if we had a templated target
@@ -1283,7 +1285,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $expandTemplates && $tgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
-			return $this->convertAttribsToString( $state, $token->attribs );
+			return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
 		}
 
 		if ( !$env->inOfflineMode() ) {
@@ -1349,7 +1351,7 @@ class TemplateHandler extends TokenHandler {
 				// template-like that the PHP parser did not expand. This is
 				// encapsulated already, so just return the plain text.
 				Assert::invariant( TokenUtils::isTemplateToken( $token ), "Expected template token." );
-				return $this->convertAttribsToString( $state, $token->attribs );
+				return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
 			}
 		} else {
 			// expand argument keys
