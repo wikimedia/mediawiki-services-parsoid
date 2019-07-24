@@ -21,9 +21,6 @@ class SiteConfig extends ISiteConfig {
 	/** @var ApiHelper */
 	private $api;
 
-	/** @var bool */
-	private $rtTestMode = false;
-
 	/** @var array|null */
 	private $siteData, $protocols;
 
@@ -84,7 +81,9 @@ class SiteConfig extends ISiteConfig {
 	public function __construct( ApiHelper $api, array $opts ) {
 		$this->api = $api;
 
-		$this->rtTestMode = !empty( $opts['rtTestMode'] );
+		if ( isset( $opts['rtTestMode'] ) ) {
+			$this->rtTestMode = !empty( $opts['rtTestMode'] );
+		}
 
 		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {
 			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
@@ -416,10 +415,6 @@ class SiteConfig extends ISiteConfig {
 	 */
 	public function setLogger( ?LoggerInterface $logger ): void {
 		$this->logger = $logger;
-	}
-
-	public function rtTestMode(): bool {
-		return $this->rtTestMode;
 	}
 
 	public function allowedExternalImagePrefixes(): array {

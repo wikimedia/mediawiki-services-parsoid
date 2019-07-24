@@ -69,6 +69,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'Output <section> tags (default false)'
 		);
 		$this->addOption(
+			'rtTestMode',
+			'Test in rt test mode (changes some parse & serialization strategies)'
+		);
+		$this->addOption(
 			'addHTMLTemplateParameters',
 			'Parse template parameters to HTML and add them to template data'
 		);
@@ -157,6 +161,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",
+			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
 			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
 		];
 

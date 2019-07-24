@@ -31,6 +31,9 @@ abstract class SiteConfig {
 	private $iwMatcher = null;
 
 	/** @var bool */
+	protected $rtTestMode = false;
+
+	/** @var bool */
 	protected $addHTMLTemplateParameters = false;
 
 	/**
@@ -115,7 +118,7 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	public function rtTestMode(): bool {
-		return false;
+		return $this->rtTestMode;
 	}
 
 	/**
