@@ -762,7 +762,7 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->dataAttribs->isIW = true;
 		// Add title unless it's just a fragment (and trim off fragment)
 		// (The normalization here is similar to what Title#getPrefixedDBKey() does.)
-		if ( $target->href && $target->href[0] !== '#' ) {
+		if ( $target->href === '' || $target->href[0] !== '#' ) {
 			$titleAttr = $target->interwiki['prefix'] . ':' .
 				Util::decodeURIComponent( preg_replace( '/_/', ' ',
 					preg_replace( '/#[\s\S]*/', '', $target->href, 1 ) ) );
@@ -978,8 +978,6 @@ class WikiLinkHandler extends TokenHandler {
 		$skipToEndOf = null;
 		$optInfo = null;
 		$resultStr = '';
-
-		$prefix = $prefix ?? '';
 
 		for ( $i = 0;  $i < count( $tstream );  $i++ ) {
 			$currentToken = $tstream[$i];
