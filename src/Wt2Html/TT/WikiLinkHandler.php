@@ -890,7 +890,6 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private static function getOptionInfo( string $optStr, Env $env ): ?array {
 		$oText = trim( $optStr );
-		$lowerOText = strtolower( $oText );
 		$siteConfig = $env->getSiteConfig();
 		$magicWords = array_keys( WikitextConstants::$Media['PrefixOptions'] );
 		$getOption = $siteConfig->getParameterizedAliasMatcher( $magicWords );
@@ -899,8 +898,7 @@ class WikiLinkHandler extends TokenHandler {
 		// English and contain an '(img|timedmedia)_' prefix.  We drop the
 		// prefix before stuffing them in data-parsoid in order to
 		// save space (that's shortCanonicalOption)
-		$canonicalOption = $siteConfig->magicWords()[$oText] ??
-			$siteConfig->magicWords()[$lowerOText] ?? '';
+		$canonicalOption = $siteConfig->magicWordCanonicalName( $oText ) ?? '';
 		$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $canonicalOption, 1 );
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.
