@@ -322,15 +322,28 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGetMagicPatternMatcher() {
 		$matcher = $this->getSiteConfig()->getParameterizedAliasMatcher(
-			[ 'img_lossy', 'img_width', 'img_link' ] );
+			[ 'img_manualthumb', 'img_lossy', 'img_width', 'img_link' ] );
+
+		// Basic tests
 		$this->assertSame( [ 'k' => 'img_width', 'v' => '123' ], $matcher( '123px' ) );
 		$this->assertSame( [ 'k' => 'img_lossy', 'v' => '123' ], $matcher( 'lossy=123' ) );
 		$this->assertSame( [ 'k' => 'img_link', 'v' => 'http://example.com' ],
 			$matcher( 'link=http://example.com' ) );
+
+		// Test alias handling
+		$this->assertSame( [ 'k' => 'img_manualthumb', 'v' => 'Foo.jpg' ],
+			$matcher( 'thumbnail=Foo.jpg' ) ); // primary alias for img_manualthumb
+		$this->assertSame( [ 'k' => 'img_manualthumb', 'v' => 'Foo.jpg' ],
+			$matcher( 'thumb=Foo.jpg' ) ); // secondary alias for img_manualthumb
+
 		// Tests partial matches of just the key without a value.
 		// WikiLinkHandler use this method in this fashion.
 		$this->assertSame( [ 'k' => 'img_link', 'v' => '' ], $matcher( 'link=' ) );
-		$this->assertSame( null, $matcher( 'thumb=123' ) );
+
+		// img_page isn't in the list of image options above
+		$this->assertSame( null, $matcher( 'page=123' ) );
+		// enlace is link in Spanish, but this alias isn't present in siteconfig data
+		$this->assertSame( null, $matcher( 'enlace=123' ) );
 	}
 
 	public function testIsExtensionTag() {

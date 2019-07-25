@@ -661,7 +661,17 @@ class SiteConfig extends ISiteConfig {
 			 */
 			foreach ( $regexes as $name => $re ) {
 				if ( preg_match( $re, $text, $m ) ) {
-					return [ 'k' => $name, 'v' => $m[1] ];
+					unset( $m[0] );
+
+					// Ex. regexp here is, /^(?:(?:|vinculo\=(.*?)|enlace\=(.*?)|link\=(.*?)))$/uS
+					// Check all the capture groups for a value, if not, it's safe to return an
+					// empty string since we did get a match.
+					foreach ( $m as $v ) {
+						if ( $v !== '' ) {
+							return [ 'k' => $name, 'v' => $v ];
+						}
+					}
+					return [ 'k' => $name, 'v' => '' ];
 				}
 			}
 			return null;
