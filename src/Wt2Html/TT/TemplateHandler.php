@@ -1203,9 +1203,10 @@ class TemplateHandler extends TokenHandler {
 			//  (eg, the html is 'DISPLAYTITLE:Foo' even though the stripped
 			//   content attribute is 'Foo')
 			$ta = $tplToken->dataAttribs->tmp->templatedAttribs;
-			$ta[0][0]->txt = 'content'; // Magic-word attribute name
-			$ta[0][1]->html = $ta[0][0]->html; // HTML repn. of the attribute value
-			$ta[0][0]->html = null;
+			$ta[0] = [
+				[ 'txt' => 'content' ],         // Magic-word attribute name
+				[ 'html' => $ta[0][0]['html'] ] // HTML repn. of the attribute value
+			];
 			$metaToken->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $ta ] ) );
 		} else {
 			// Leading/trailing WS should be stripped

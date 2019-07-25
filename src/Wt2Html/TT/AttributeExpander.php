@@ -494,7 +494,7 @@ class AttributeExpander extends TokenHandler {
 			// Rebuild flattened k-v pairs.
 			$expAttrs = [];
 			for ( $j = 0;  $j < count( $eVals );  $j += 2 ) {
-				$expAttrs[] = [ $eVals[ $j ], $eVals[ $j + 1 ] ];
+				$expAttrs[] = [ $eVals[$j], $eVals[$j + 1] ];
 			}
 
 			if ( $token->getName() === 'template' ) {
