@@ -101,7 +101,9 @@ abstract class TokenHandler extends PipelineStage {
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], skip: .. }
-	 *    if 'skip' is set, onAny handler is skipped
+	 *       if 'skip' is set, onAny handler is skipped
+	 *    or { tokens: [..], retry: .. }
+	 *       if 'retry' is set, the token is retried in the transform loop again.
 	 */
 	public function onTag( Token $token ) {
 		return $token;
@@ -133,6 +135,12 @@ abstract class TokenHandler extends PipelineStage {
 		$this->atTopLevel = $opts['toplevel'] ?? false;
 	}
 
+	private function isModified( $token, $res ): bool {
+		return $res !== $token && (
+			!isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token
+		);
+	}
+
 	/**
 	 * -------------------------- PORT-FIXME ------------------------------
 	 * We should benchmark a version of this function
@@ -160,7 +168,10 @@ abstract class TokenHandler extends PipelineStage {
 		$traceFlags = $traceState['traceFlags'] ?? null;
 		$traceTime = $traceState['traceTime'] ?? false;
 		$accum = [];
-		foreach ( $tokens as $token ) {
+		$i = 0;
+		$n = count( $tokens );
+		while ( $i < $n ) {
+			$token = $tokens[$i];
 			if ( $traceFlags ) {
 				$traceState['tracer']( $token, $this );
 			}
@@ -201,14 +212,15 @@ abstract class TokenHandler extends PipelineStage {
 				}
 			}
 
-			if ( $res !== $token &&
-				( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
-			) {
-				$resTokens = $res['tokens'] ?? null;
-				$modified = true;
+			// onTag handler might return a retry signal
+			if ( is_array( $res ) && !empty( $res['retry'] ) ) {
+				continue;
 			}
 
-			if ( !$modified && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) && $this->onAnyEnabled ) {
+			$modified = $this->isModified( $token, $res );
+			if ( $modified ) {
+				$resTokens = $res['tokens'] ?? null;
+			} elseif ( $this->onAnyEnabled && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) ) {
 				if ( $traceTime ) {
 					$s = PHPUtils::getStartHRTime();
 					$traceName = $traceState['transformer'] . '.onAny';
@@ -220,11 +232,15 @@ abstract class TokenHandler extends PipelineStage {
 				} else {
 					$res = $this->onAny( $token );
 				}
-				if ( $res !== $token &&
-					( !isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token )
-				) {
+
+				// onAny handler might return a retry signal
+				if ( is_array( $res ) && !empty( $res['retry'] ) ) {
+					continue;
+				}
+
+				$modified = $this->isModified( $token, $res );
+				if ( $modified ) {
 					$resTokens = $res['tokens'] ?? null;
-					$modified = true;
 				}
 			}
 
@@ -233,6 +249,8 @@ abstract class TokenHandler extends PipelineStage {
 			} elseif ( $resTokens && count( $resTokens ) > 0 ) {
 				$accum = array_merge( $accum, $resTokens );
 			}
+
+			$i++;
 		}
 
 		return $accum;
