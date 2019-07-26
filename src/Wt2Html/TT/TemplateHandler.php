@@ -1242,7 +1242,7 @@ class TemplateHandler extends TokenHandler {
 		// If the template name is templated, use the attribute transform manager
 		// to process all attributes to tokens, and force reprocessing of the token.
 		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
-			$ret = $this->ae->onAny( $token );
+			$ret = $this->ae->processComplexAttributes( $token );
 
 			// Note that there's some hacky code in the attribute expander
 			// to try and prevent it from returning templates in the
@@ -1252,10 +1252,12 @@ class TemplateHandler extends TokenHandler {
 			// That was happening when a template name depending on a top
 			// level templatearg failed to expand.
 			//
-			// FIXME: This is pretty much every single time and hence
-			// this relies on the aforementioned hack. We need to refine
-			// the 'retry' signal in ae->onAny and pass through the retry
-			// instead of enabling it here always.
+			// FIXME: ae->processComplexAttributes isn't passing us the right
+			// retry signal. So, we are forced to rely on the hack above as
+			// well as the unconditional retry below. We should fix that code
+			// in AttributeExpander to pass back the retry signal that is
+			// correct when we call it from the TemplateHandler so we can
+			// get rid of that hack and the unconditional retry signal below.
 			$ret['retry'] = true;
 
 			return $ret;

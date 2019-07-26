@@ -526,11 +526,26 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	/**
+	 * Processes any attribute keys and values that are not simple strings.
+	 * (Ex: Templated styles)
+	 *
+	 * @param Token $token Token whose attrs being expanded.
+	 * @return array
+	 */
+	public function processComplexAttributes( Token $token ): array {
+		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
+			'expandTemplates' => $this->options['expandTemplates'],
+			'inTemplate' => $this->options['inTemplate']
+		] );
+		return $this->buildExpandedAttrs( $token, $atm->process( $token->attribs ) );
+	}
+
+	/**
 	 * Token handler.
 	 *
-	 * Expands target and arguments (both keys and values) and either directly
-	 * calls or sets up the callback to _expandTemplate, which then fetches and
-	 * processes the template.
+	 * For tokens that might have complex attributes, this handler
+	 * processes / expands them.
+	 * (Ex: Templated styles)
 	 *
 	 * @param Token|string $token Token whose attrs being expanded.
 	 * @return array
@@ -545,11 +560,7 @@ class AttributeExpander extends TokenHandler {
 					$token->getAttribute( 'typeof' ) ?? '' )
 			)
 		) {
-			$atm = new AttributeTransformManager( $this->manager->getFrame(), [
-				'expandTemplates' => $this->options['expandTemplates'],
-				'inTemplate' => $this->options['inTemplate']
-			] );
-			return $this->buildExpandedAttrs( $token, $atm->process( $token->attribs ) );
+			return $this->processComplexAttributes( $token );
 		} else {
 			return [ 'tokens' => [ $token ] ];
 		}
