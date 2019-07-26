@@ -76,12 +76,13 @@ class CleanUp {
 		/** @var DOMElement $node */
 		DOMUtils::assertElt( $node );
 
-		/* The node is known to be empty and a deletion candidate
-			* If node is part of template content, it can be deleted
-			  (since we know it has no attributes, it won't be the
-			   first node that has about, typeof, and other attrs)
-			* If not, we add the mw-empty-elt class so that wikis
-			  can decide what to do with them.
+		/**
+		 * The node is known to be empty and a deletion candidate
+		 * - If node is part of template content, it can be deleted
+		 *   (since we know it has no attributes, it won't be the
+		 *   first node that has about, typeof, and other attrs)
+		* - If not, we add the mw-empty-elt class so that wikis
+		 *   can decide what to do with them.
 		 */
 		if ( $tplInfo ) {
 			$nextNode = $node->nextSibling;
@@ -116,9 +117,9 @@ class CleanUp {
 	 */
 	private static function trimWhiteSpace( DOMNode $node ): void {
 		// Trim leading ws (on the first line)
-		for ( $c = $node->firstChild;  $c;  $c = $next ) {
+		for ( $c = $node->firstChild; $c; $c = $next ) {
 			$next = $c->nextSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->nodeValue ) ) {
+			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
 				$node->removeChild( $c );
 			} elseif ( !WTUtils::isRenderingTransparentNode( $c ) ) {
 				break;
@@ -130,9 +131,9 @@ class CleanUp {
 		}
 
 		// Trim trailing ws (on the last line)
-		for ( $c = $node->lastChild;  $c;  $c = $prev ) {
+		for ( $c = $node->lastChild; $c; $c = $prev ) {
 			$prev = $c->previousSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/', $c->nodeValue ) ) {
+			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
 				$node->removeChild( $c );
 			} elseif ( !WTUtils::isRenderingTransparentNode( $c ) ) {
 				break;
@@ -140,7 +141,7 @@ class CleanUp {
 		}
 
 		if ( DOMUtils::isText( $c ) ) {
-			$c->nodeValue = preg_replace( '/[ \t]+$/', '', $c->nodeValue, 1 );
+			$c->nodeValue = preg_replace( '/[ \t]+$/D', '', $c->nodeValue, 1 );
 		}
 	}
 
