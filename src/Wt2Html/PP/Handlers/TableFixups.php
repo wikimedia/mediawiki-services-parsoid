@@ -76,7 +76,7 @@ class TableFixups {
 				// FIXME: will not be set for nested templates
 				DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' ) ||
 				// Hacky work-around for nested templates
-				preg_match( '/^{{.*?}}$/', DOMDataUtils::getDataParsoid( $nextNode )->src )
+				preg_match( '/^{{.*?}}$/D', DOMDataUtils::getDataParsoid( $nextNode )->src )
 			)
 		) {
 			/** @var DOMElement $node */
@@ -346,7 +346,7 @@ class TableFixups {
 		$attributishContent = $this->collectAttributishContent( $env, $node, $templateWrapper );
 
 		// Check for the pipe character in the attributish text.
-		if ( !preg_match( '/^[^|]+\|([^|].*)?$/', $attributishContent['txt'] ?? '' ) ) {
+		if ( !preg_match( '/^[^|]+\|([^|].*)?$/D', $attributishContent['txt'] ?? '' ) ) {
 			return;
 		}
 
@@ -486,11 +486,11 @@ class TableFixups {
 				$match = null;
 
 				if ( $cellName === 'td' ) {
-					preg_match( '/^(.*?[^|])?\|\|([^|].*)?$/', $child->textContent, $match );
+					preg_match( '/^(.*?[^|])?\|\|([^|].*)?$/D', $child->textContent, $match );
 				} else { /* cellName === 'th' */
 					// Find the first match of || or !!
-					preg_match( '/^(.*?[^|])?\|\|([^|].*)?$/', $child->textContent, $match1 );
-					preg_match( '/^(.*?[^!])?\!\!([^!].*)?$/', $child->textContent, $match2 );
+					preg_match( '/^(.*?[^|])?\|\|([^|].*)?$/D', $child->textContent, $match1 );
+					preg_match( '/^(.*?[^!])?\!\!([^!].*)?$/D', $child->textContent, $match2 );
 					if ( $match1 && $match2 ) {
 						$match = strlen( $match1[1] ?? '' ) < strlen( $match2[1] ?? '' )
 							? $match1

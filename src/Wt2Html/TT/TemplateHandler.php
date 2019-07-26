@@ -1215,7 +1215,7 @@ class TemplateHandler extends TokenHandler {
 			$src = $tplToken->dataAttribs->src ?? '';
 			if ( $src ) {
 				// If the token has original wikitext, shadow the sort-key
-				$origKey = preg_replace( '/}}$/', '', preg_replace( '/[^:]+:?/', '', $src, 1 ), 1 );
+				$origKey = preg_replace( '/}}$/D', '', preg_replace( '/[^:]+:?/', '', $src, 1 ), 1 );
 				$metaToken->addNormalizedAttribute( 'content', $key, $origKey );
 			} else {
 				// If not, this token came from an extension/template

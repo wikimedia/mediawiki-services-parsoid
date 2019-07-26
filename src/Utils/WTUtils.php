@@ -776,7 +776,7 @@ class WTUtils {
 	 */
 	public static function reinsertFosterableContent( Env $env, DOMNode $node, bool $decode ):
 			?DOMNode {
-		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/', $node->nodeValue ) ) {
+		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/D', $node->nodeValue ) ) {
 			// Convert serialized meta tags back from comments.
 			// We use this trick because comments won't be fostered,
 			// providing more accurate information about where tags are expected

@@ -449,7 +449,7 @@ class ParagraphWrapper extends TokenHandler {
 			// skip ensures this doesn't hit the AnyHandler
 			return [ 'tokens' => $res, 'skipOnAny' => true ];
 		} elseif ( $token instanceof CommentTk
-			|| is_string( $token ) && preg_match( '/^[\t ]*$/', 	$token )
+			|| is_string( $token ) && preg_match( '/^[\t ]*$/D', $token )
 			|| TokenUtils::isEmptyLineMetaToken( $token )
 		) {
 			if ( $this->newLineCount === 0 ) {

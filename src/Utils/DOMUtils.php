@@ -744,7 +744,7 @@ class DOMUtils {
 			if ( self::isElt( $n ) && !self::isDiffMarker( $n ) ) {
 				return false;
 			} elseif ( self::isText( $n ) &&
-				( $strict || !preg_match( '/^[ \t]*$/',  $n->nodeValue ) )
+				( $strict || !preg_match( '/^[ \t]*$/D',  $n->nodeValue ) )
 			) {
 				return false;
 			} elseif ( self::isComment( $n ) ) {
