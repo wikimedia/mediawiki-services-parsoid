@@ -100,7 +100,7 @@ class References extends ExtensionTag {
 
 	private static function extractRefFromNode(
 		DOMElement $node, ReferencesData $refsData, ?string $referencesAboutId = null,
-		?string $referencesGroup = '', array $nestedRefsHTML = []
+		?string $referencesGroup = '', array &$nestedRefsHTML = []
 	): void {
 		$env = $refsData->getEnv();
 		$doc = $node->ownerDocument;
@@ -449,11 +449,11 @@ class References extends ExtensionTag {
 	 * @param DOMElement $node
 	 * @param string $referencesId
 	 * @param string|null $referencesGroup
-	 * @param array $nestedRefsHTML
+	 * @param array &$nestedRefsHTML
 	 */
 	private static function processRefsInReferences(
 		ReferencesData $refsData, DOMElement $node, string $referencesId,
-		?string $referencesGroup, array $nestedRefsHTML
+		?string $referencesGroup, array &$nestedRefsHTML
 	): void {
 		$child = $node->firstChild;
 		while ( $child !== null ) {

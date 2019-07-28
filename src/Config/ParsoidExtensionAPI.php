@@ -113,7 +113,7 @@ class ParsoidExtensionAPI {
 		string $wikitext, array $parseOpts, bool $sol
 	): DOMDocument {
 		$doc = null;
-		if ( !$wikitext ) {
+		if ( $wikitext === '' ) {
 			$doc = $this->env->createDocument();
 		} else {
 			// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
@@ -183,7 +183,7 @@ class ParsoidExtensionAPI {
 		Sanitizer::applySanitizedArgs( $this->env, $wrapper, $extArgs );
 
 		// Mark empty content DOMs
-		if ( !$wikitext ) {
+		if ( $wikitext === '' ) {
 			DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
 		}
 
