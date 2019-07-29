@@ -117,6 +117,7 @@ class PHandler extends DOMHandler {
 	// line.firstNode doesn't always correspond to the wikitext line that is
 	// being processed since the previous emitted node might have been an unmodified
 	// DOM node that generated multiple wikitext lines.
+
 	/**
 	 * @param stdClass|null $line See SerializerState::$currLine
 	 * @param DOMNode $node

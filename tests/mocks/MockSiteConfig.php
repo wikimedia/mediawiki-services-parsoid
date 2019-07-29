@@ -179,6 +179,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	private $linkPrefixRegex = null;
+
 	public function linkPrefixRegex(): ?string {
 		return $this->linkPrefixRegex;
 	}

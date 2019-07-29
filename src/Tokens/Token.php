@@ -120,6 +120,7 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	// PORT-FIXME: Need another pair of eyes to verify this
+
 	/**
 	 * Store the original value of an attribute in a token's dataAttribs.
 	 *
@@ -142,6 +143,7 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	// PORT-FIXME: Need another pair of eyes to verify this
+
 	/**
 	 * Attribute info accessor for the wikitext serializer. Performs change
 	 * detection and uses unnormalized attribute values if set. Expects the

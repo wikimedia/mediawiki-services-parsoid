@@ -96,6 +96,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 	// content? We don't really want to make separator
 	// newlines in HTML significant for the semantics of the
 	// template content.
+
 	/** @inheritDoc */
 	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		$env = $state->getEnv();

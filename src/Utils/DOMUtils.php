@@ -115,6 +115,7 @@ class DOMUtils {
 
 	// phpcs doesn't like @phan-assert...
 	// phpcs:disable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
+
 	/**
 	 * Assert that this is a DOM element node.
 	 * This is primarily to help phan analyze variable types.
@@ -126,6 +127,7 @@ class DOMUtils {
 		Assert::invariant( self::isElt( $node ), "Expected an element" );
 		return true;
 	}
+
 	// phpcs:enable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
 
 	/**
@@ -462,6 +464,7 @@ class DOMUtils {
 
 	// FIXME: This would ideally belong in DiffUtils.js
 	// but that would introduce circular dependencies.
+
 	/**
 	 * Check a node to see whether it's a diff marker.
 	 *

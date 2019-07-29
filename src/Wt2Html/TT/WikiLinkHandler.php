@@ -1104,6 +1104,7 @@ class WikiLinkHandler extends TokenHandler {
 	}
 
 	private $used;
+
 	/**
 	 * This is the set of file options that apply to the container, rather
 	 * than the media element itself (or, apply generically to a span).
@@ -1584,6 +1585,7 @@ class WikiLinkHandler extends TokenHandler {
 
 	// FIXME: The media request here is only used to determine if this is a
 	// redlink and deserves to be handling in the redlink post-processing pass.
+
 	/**
 	 * @param Token $token
 	 * @param stdClass $target

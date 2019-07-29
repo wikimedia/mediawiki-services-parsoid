@@ -12,6 +12,7 @@ class Result {
 	public $suffix;
 	/** @var bool */
 	public $greedy;
+
 	/**
 	 * Construct a new constrained text result object.
 	 *

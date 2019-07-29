@@ -29,6 +29,7 @@ class HRHandler extends DOMHandler {
 	}
 
 	// XXX: Add a newline by default if followed by new/modified content
+
 	/** @inheritDoc */
 	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => 2 ];
