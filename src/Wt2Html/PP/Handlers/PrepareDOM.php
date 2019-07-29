@@ -48,6 +48,6 @@ class PrepareDOM {
 			return true;
 		}
 		$meta = WTUtils::reinsertFosterableContent( $env, $node, false );
-		return ( $meta !== null ) ? $meta : true;
+		return $meta ?? true;
 	}
 }

@@ -65,7 +65,7 @@ class ContentUtils {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
 				$meta = WTUtils::reinsertFosterableContent( $env, $n, true );
-				$n = ( $meta !== null ) ? $meta : $n;
+				$n = $meta ?? $n;
 
 				// load data attribs
 				DOMDataUtils::loadDataAttribs( $n, ...$args );

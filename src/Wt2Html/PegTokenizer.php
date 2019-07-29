@@ -164,7 +164,7 @@ class PegTokenizer extends PipelineStage {
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,
 			'startRule' => 'start',
-			'sol' => isset( $args['sol'] ) ? $args['sol'] : true, // defaults to true
+			'sol' => $args['sol'] ?? true, // defaults to true
 			'env' => $this->env
 		];
 		$start = null;

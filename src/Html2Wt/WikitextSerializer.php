@@ -1127,8 +1127,6 @@ class WikitextSerializer {
 	 * @param DOMElement $node
 	 * @param DOMHandler $domHandler
 	 * @return DOMNode|null
-	 * @suppress PhanTypeMismatchProperty
-	 * @suppress PhanTypeMismatchDimFetch
 	 */
 	private function serializeDOMNode( DOMElement $node, DOMHandler $domHandler ) {
 		// To serialize a node from source, the node should satisfy these

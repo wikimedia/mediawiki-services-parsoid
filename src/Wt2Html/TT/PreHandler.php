@@ -223,7 +223,7 @@ class PreHandler extends TokenHandler {
 		}
 
 		if ( $this->preWSToken || $mlp ) {
-			$ret[] = !is_null( $this->preWSToken ) ? $this->preWSToken : $mlp;
+			$ret[] = $this->preWSToken ?? $mlp;
 			$this->preWSToken = null;
 		}
 

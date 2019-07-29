@@ -22,8 +22,8 @@ abstract class RegExpConstrainedText extends ConstrainedText {
 	 */
 	protected function __construct( array $args ) {
 		parent::__construct( $args );
-		$this->prefix = ( $this->prefix !== null ) ? $this->prefix : '<nowiki/>';
-		$this->suffix = ( $this->suffix !== null ) ? $this->suffix : '<nowiki/>';
+		$this->prefix = $this->prefix ?? '<nowiki/>';
+		$this->suffix = $this->suffix ?? '<nowiki/>';
 		// functions which return true if escape prefix/suffix need to be added
 		$matcher = function ( string $re, bool $invert ): callable {
 			return ( function ( string $context ) use ( $re, $invert ): bool {

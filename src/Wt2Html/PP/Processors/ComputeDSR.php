@@ -188,7 +188,6 @@ class ComputeDSR {
 			if ( WTUtils::usesWikiLinkSyntax( $node, $dp ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
 					// this seems like some kind of a phan bug
-					// @phan-suppress-next-line PhanTypeExpectedObjectPropAccess
 					$href = $dp->sa['href'] ?? null;
 					if ( $href ) {
 						return [ strlen( $href ) + 3, 2 ];
@@ -401,7 +400,7 @@ class ComputeDSR {
 				DOMUtils::assertElt( $child );
 				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
-				$tsr = isset( $dp->tsr ) ? $dp->tsr : null;
+				$tsr = $dp->tsr ?? null;
 				$oldCE = $tsr ? $tsr->end : null;
 				$propagateRight = false;
 				$stWidth = null;
@@ -630,7 +629,7 @@ class ComputeDSR {
 					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $cTypeOf, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
-							"; typeof: " . ( $cTypeOf ? $cTypeOf : "null" );
+							"; typeof: " . ( $cTypeOf ?: "null" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
 							$dp->dbsrc = PHPUtils::safeSubstr( $frame->getSrcText(), $cs, $ce - $cs );
