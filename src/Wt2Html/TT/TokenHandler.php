@@ -103,7 +103,8 @@ abstract class TokenHandler extends PipelineStage {
 	 *    or { tokens: [..], skip: .. }
 	 *       if 'skip' is set, onAny handler is skipped
 	 *    or { tokens: [..], retry: .. }
-	 *       if 'retry' is set, the token is retried in the transform loop again.
+	 *       if 'retry' is set, result 'tokens' (OR input token if the handler was a no-op)
+	 *       are retried in the transform loop again.
 	 */
 	public function onTag( Token $token ) {
 		return $token;
@@ -122,7 +123,8 @@ abstract class TokenHandler extends PipelineStage {
 	 *    return value can be one of 'token'
 	 *    or { tokens: [..] }
 	 *    or { tokens: [..], retry: .. }
-	 *    if 'retry' is set, the token is retried in the transform loop again.
+	 *       if 'retry' is set, result 'tokens' (OR input token if the handler was a no-op)
+	 *       are retried in the transform loop again.
 	 */
 	public function onAny( $token ) {
 		return $token;
@@ -214,6 +216,10 @@ abstract class TokenHandler extends PipelineStage {
 
 			// onTag handler might return a retry signal
 			if ( is_array( $res ) && !empty( $res['retry'] ) ) {
+				if ( isset( $res['tokens'] ) ) {
+					array_splice( $tokens, $i, 1, $res['tokens'] );
+					$n = count( $tokens );
+				}
 				continue;
 			}
 
@@ -235,6 +241,10 @@ abstract class TokenHandler extends PipelineStage {
 
 				// onAny handler might return a retry signal
 				if ( is_array( $res ) && !empty( $res['retry'] ) ) {
+					if ( isset( $res['tokens'] ) ) {
+						array_splice( $tokens, $i, 1, $res['tokens'] );
+						$n = count( $tokens );
+					}
 					continue;
 				}
 
