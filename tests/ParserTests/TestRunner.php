@@ -213,7 +213,7 @@ class TestRunner {
 	 */
 	public function __construct( string $testFilePath, array $modes ) {
 		if ( !self::$exitUnexpected ) {
-			new Error( 'unexpected failure' ); // unique marker value
+			self::$exitUnexpected = new Error( 'unexpected failure' ); // unique marker value
 		}
 
 		$this->testFilePath = $testFilePath;
