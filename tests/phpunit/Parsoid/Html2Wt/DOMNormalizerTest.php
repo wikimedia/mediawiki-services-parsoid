@@ -37,7 +37,6 @@ class DOMNormalizerTest extends TestCase {
 		$mockState = new SerializerState( $mockSerializer, [
 			'selserMode' => false,
 			'rtTestMode' => false,
-
 		] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );

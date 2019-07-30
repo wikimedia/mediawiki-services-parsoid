@@ -8,8 +8,13 @@ use DateTime;
 use DOMElement;
 use DOMNode;
 use DOMText;
+use Error;
+use Exception;
 
 use Parsoid\Html2Wt\DOMNormalizer;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Html2Wt\WikitextSerializer;
+use Parsoid\Tests\MockEnv;
 use Parsoid\Tests\ParserTests\Stats;
 use Parsoid\Tests\ParserTests\Test;
 use Parsoid\Utils\ContentUtils;
@@ -29,7 +34,7 @@ class TestUtils {
 	/** @var Differ $differ */
 	private static $differ;
 
-	/** @var Differ $differ */
+	/** @var ConsoleColor $consoleColor */
 	private static $consoleColor;
 
 	/**
@@ -75,15 +80,15 @@ class TestUtils {
 			//     That feels like a carryover of 2013 era code.
 			//     If possible, get rid of it and diff-mark dependency
 			//     on the env object.
-			$env = new MockEnv( [ 'scrubWikitext' => true ], null );
-			if ( is_string( $domBody ) ) {
-				$domBody = DOMCompat::getBody( $env->createDocument( $domBody ) );
-			}
-			$mockState = [
-				'env' => $env,
+			$mockEnv = new MockEnv( [ 'scrubWikitext' => true ] );
+			$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
+			$mockState = new SerializerState( $mockSerializer, [
 				'selserMode' => false,
 				'rtTestMode' => !empty( $options['rtTestMode'] )
-			];
+			] );
+			if ( is_string( $domBody ) ) {
+				$domBody = DOMCompat::getBody( $mockEnv->createDocument( $domBody ) );
+			}
 			DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
 			$domBody = ( new DOMNormalizer( $mockState ) )->normalize( $domBody );
 			DOMDataUtils::visitAndStoreDataAttribs( $domBody );
@@ -182,7 +187,7 @@ class TestUtils {
 		$next = null;
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
-			if ( $child->nodeName === 'span' &&
+			if ( $child instanceof DOMElement && $child->nodeName === 'span' &&
 				preg_match( $stripSpanTypeof, $child->getAttribute( 'typeof' ) ?? '' )
 			) {
 				self::unwrapSpan( $node, $child, $stripSpanTypeof );
@@ -190,7 +195,9 @@ class TestUtils {
 		}
 	}
 
-	private static function unwrapSpan( DOMElement $parent, DOMNode $node, ?string $stripSpanTypeof ) {
+	private static function unwrapSpan(
+		DOMNode $parent, DOMNode $node, ?string $stripSpanTypeof
+	) {
 		// first recurse to unwrap any spans in the immediate children.
 		self::cleanSpans( $node, $stripSpanTypeof );
 		// now unwrap this span.
@@ -211,7 +218,7 @@ class TestUtils {
 			// Preserve newlines in <pre> tags
 			$inPRE = true;
 		}
-		if ( !$opts['preserveIEW'] && DOMUtils::isText( $node ) ) {
+		if ( !$opts['preserveIEW'] && $node instanceof DOMText ) {
 			if ( !$opts['inPRE'] ) {
 				$node->data = preg_replace( '/\s+/u', ' ', $node->data );
 			}
@@ -725,10 +732,10 @@ class TestUtils {
 		$a = preg_replace( '/\xA0/', "␣", $actual['normal'] );
 		// PORT_FIXME:
 		if ( !self::$differ ) {
-			$differ = new Differ;
+			self::$differ = new Differ();
 		}
 
-		$diffs = $differ->diff( $e, $a );
+		$diffs = self::$differ->diff( $e, $a );
 		$diffs = preg_replace_callback( '/^(-.*)/m', function ( $m ) {
 			return self::colorString( $m[0], 'green' );
 		}, $diffs );
@@ -911,10 +918,10 @@ class TestUtils {
 		$testcaseEle .= 'assertions="1" ';
 
 		$timeTotal = null;
-		if ( $time && $time->end && $time->start ) {
-			$timeTotal = $time->end - $time->start;
-			if ( !isNaN( $timeTotal ) ) {
-				$testcaseEle .= 'time="' . ( ( $time->end - $time->start ) / 1000.0 ) . '"';
+		if ( $time && $time['end'] && $time['start'] ) {
+			$timeTotal = $time['end'] - $time['start'];
+			if ( !is_nan( $timeTotal ) ) {
+				$testcaseEle .= 'time="' . ( ( $time['end'] - $time['start'] ) / 1000.0 ) . '"';
 			}
 		}
 
@@ -934,7 +941,7 @@ class TestUtils {
 	public static function reportResultXML( ...$args ) {
 		$args = array_merge( [ [ self::class, 'reportFailureXML' ], [ self::class, 'reportSuccessXML' ] ], $args );
 		$args = array_merge( $args, [ [ self::class, 'pre' ], [ self::class, 'post' ] ] );
-		call_user_func_array( 'printResult', $args );
+		call_user_func_array( [ self::class, 'printResult' ], $args );
 
 		// In xml, test all cases always
 		return true;
