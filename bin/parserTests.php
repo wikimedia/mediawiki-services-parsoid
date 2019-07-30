@@ -17,18 +17,6 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	/** @inheritDoc */
-	public function validateParamsAndArgs(): void {
-		parent::validateParamsAndArgs();
-
-		if ( $this->hasOption( 'filter' ) && $this->getOption( 'filter' ) === true ) {
-			throw new Exception( '--filter needs an argument' );
-		}
-		if ( $this->hasOption( 'regex' ) && $this->getOption( 'regex' ) === true ) {
-			throw new Exception( '--regex needs an argument' );
-		}
-	}
-
 	public function execute(): int {
 		$this->processedOptions = TestUtils::processOptions( $this );
 
