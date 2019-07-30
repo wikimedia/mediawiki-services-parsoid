@@ -249,8 +249,8 @@ class AddMediaInfo {
 		$audio->setAttribute( 'preload', 'none' );
 
 		$size = self::handleSize( $env, $attrs, $info );
-		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null );
-		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null );
+		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null, true );
+		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null, true );
 
 		// Hardcoded until defined heights are respected.
 		// See `AddMediaInfo.handleSize`
@@ -295,8 +295,8 @@ class AddMediaInfo {
 		$video->setAttribute( 'preload', 'none' );
 
 		$size = self::handleSize( $env, $attrs, $info );
-		DOMDataUtils::addNormalizedAttribute( $video, 'height', (string)$size['height'], null );
-		DOMDataUtils::addNormalizedAttribute( $video, 'width', (string)$size['width'], null );
+		DOMDataUtils::addNormalizedAttribute( $video, 'height', (string)$size['height'], null, true );
+		DOMDataUtils::addNormalizedAttribute( $video, 'width', (string)$size['width'], null, true );
 
 		self::copyOverAttribute( $video, $container, 'resource' );
 
@@ -354,8 +354,8 @@ class AddMediaInfo {
 		$img->setAttribute( 'data-file-type', strtolower( $info['mediatype'] ?? '' ) );
 
 		$size = self::handleSize( $env, $attrs, $info );
-		DOMDataUtils::addNormalizedAttribute( $img, 'height', (string)$size['height'], null );
-		DOMDataUtils::addNormalizedAttribute( $img, 'width', (string)$size['width'], null );
+		DOMDataUtils::addNormalizedAttribute( $img, 'height', (string)$size['height'], null, true );
+		DOMDataUtils::addNormalizedAttribute( $img, 'width', (string)$size['width'], null, true );
 
 		// Handle "responsive" images, i.e. srcset
 		if ( !empty( $info['responsiveUrls'] ) ) {

@@ -232,11 +232,12 @@ class DOMDataUtils {
 	 * @param string $name Name of the attribute.
 	 * @param mixed $val val
 	 * @param mixed $origVal original value (null is a valid value)
+	 * @param bool $skipOrig
 	 */
 	public static function setShadowInfoIfModified(
-		DOMElement $node, string $name, $val, $origVal
+		DOMElement $node, string $name, $val, $origVal, bool $skipOrig = false
 	): void {
-		if ( $val === $origVal || $origVal === null ) {
+		if ( !$skipOrig && ( $val === $origVal || $origVal === null ) ) {
 			return;
 		}
 		$dp = self::getDataParsoid( $node );
@@ -250,7 +251,7 @@ class DOMDataUtils {
 		// We should either fix the call site that depends on this
 		// behaviour to do an explicit check, or double down on this
 		// by porting it to the token method as well.
-		if ( !array_key_exists( $name, $dp->a ) ) {
+		if ( !$skipOrig && !array_key_exists( $name, $dp->a ) ) {
 			$dp->sa[$name] = $origVal;
 		}
 		$dp->a[$name] = $val;
@@ -278,12 +279,13 @@ class DOMDataUtils {
 	 * @param string $name Name of the attribute.
 	 * @param mixed $val value
 	 * @param mixed $origVal original value
+	 * @param bool $skipOrig
 	 */
 	public static function addNormalizedAttribute(
-		DOMElement $node, string $name, $val, $origVal
+		DOMElement $node, string $name, $val, $origVal, bool $skipOrig = false
 	): void {
 		$node->setAttribute( $name, $val );
-		self::setShadowInfoIfModified( $node, $name, $val, $origVal );
+		self::setShadowInfoIfModified( $node, $name, $val, $origVal, $skipOrig );
 	}
 
 	/**
