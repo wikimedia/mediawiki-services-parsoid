@@ -6,6 +6,7 @@ $cfg['directory_list'] = [
 	'src',
 	'tests',
 	'vendor',
+	'tools',
 	'.phan/stubs',
 ];
 $cfg['exclude_file_regex'] = '@^vendor/(' . implode( '|', [
@@ -17,7 +18,7 @@ $cfg['exclude_file_regex'] = '@^vendor/(' . implode( '|', [
 ] ) . ')/@';
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
-$cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/spec/', 'tests/phpunit/' ];
+$cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/spec/', 'tests/phpunit/', 'tools/' ];
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';

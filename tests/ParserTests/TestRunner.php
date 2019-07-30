@@ -1,23 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * @phan-file-suppress PhanUndeclaredClassMethod
- *
- * Not sure why but phan is complaining about TestUtils and ScriptUtils
- * being undeclared classes and hence all accesses trigger the error above.
- *
- * See below for the method calls that trigger this error.
- *
- * colorString from undeclared class \Parsoid\Tools\TestUtils
- * normalizePhpOutput from undeclared class \Parsoid\Tools\TestUtils
- * normalizeOut from undeclared class \Parsoid\Tools\TestUtils
- * normalizeHTML from undeclared class \Parsoid\Tools\TestUtils
- * booleanOption from undeclared class \Parsoid\Tools\ScriptUtils
- * setDebuggingFlags from undeclared class \Parsoid\Tools\ScriptUtils
- * setTemplatingAndProcessingFlags from undeclared class \Parsoid\Tools\ScriptUtils
- */
-
 namespace Parsoid\Tests\ParserTests;
 
 use DOMDocument;
