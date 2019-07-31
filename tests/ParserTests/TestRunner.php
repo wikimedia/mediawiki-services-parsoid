@@ -1149,14 +1149,14 @@ class TestRunner {
 					continue;
 				}
 
-				$test->selserChangeTrees = [ $options['numchanges'] ];
+				$test->selserChangeTrees = [];
 
 				// Prepend a selser test that appends a comment to the root node
 				$newitem = Util::clone( $test );
 				$newitem->changetree = [ 5 ];
 				$this->runTest( $newitem, 'selser', $options );
 
-				for ( $j = 0; $j < count( $test->selserChangeTrees ); $j++ ) {
+				for ( $j = 0; $j < $options['numchanges']; $j++ ) {
 					$newitem = Util::clone( $test );
 					// Make sure we aren't reusing the one from manual changes
 					Assert::invariant( $newitem->changetree === null, "Expected changetree to be null" );
