@@ -488,7 +488,7 @@ class PipelineUtils {
 		foreach ( $textCommentAccum as $n ) {
 			$span->appendChild( $n );
 		}
-		DOMDataUtils::setDataParsoid( $span, (object)[ 'tmp' => [ 'wrapper' => true ] ] );
+		DOMDataUtils::setDataParsoid( $span, (object)[ 'tmp' => (object)[ 'wrapper' => true ] ] );
 		$textCommentAccum = [];
 	}
 
