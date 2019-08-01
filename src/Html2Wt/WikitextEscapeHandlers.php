@@ -1378,8 +1378,8 @@ class WikitextEscapeHandlers {
 		// Wikitext-escape content.
 		$state->onSOL = $solState;
 		$state->wteHandlerStack[] = $isMedia
-			? [ self::class, 'mediaOptionHandler' ]
-			: [ self::class, 'wikilinkHandler' ];
+			? [ $this, 'mediaOptionHandler' ]
+			: [ $this, 'wikilinkHandler' ];
 		$state->inLink = true;
 		$res = $this->escapeWikiText( $state, $str, [ 'node' => $node ] );
 		$state->inLink = false;
