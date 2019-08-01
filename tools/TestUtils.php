@@ -141,7 +141,7 @@ class TestUtils {
 			// sanity check.  If <meta>s were not stripped, these tests would all
 			// have to be modified and split up.  Not worth it at this time.
 			// (see commit 689b22431ad690302420d049b10e689de6b7d426)
-			$out = preg_replace( '/<span typeof="mw:Nowiki"><\/span>/', '', $out );
+			$out = preg_replace( '#<span typeof="mw:Nowiki"></span>#', '', $out );
 
 			return $out;
 		}
@@ -165,6 +165,7 @@ class TestUtils {
 		// replace mwt ids
 		$out = preg_replace( '/ id="mw((t\d+)|([\w-]{2,}))"/u', '', $out );
 		$out = preg_replace( '/<span[^>]+about="[^"]*"[^>]*>/u', '', $out );
+		$out = preg_replace( '#(\s)<span>\s*</span>\s*#u', '$1', $out );
 		$out = preg_replace( '#<span>\s*</span>#u', '', $out );
 		$out = preg_replace( '#(href=")(?:\.?\./)+#u', '$1', $out );
 		// replace unnecessary URL escaping
@@ -385,8 +386,8 @@ class TestUtils {
 				},
 				$html );
 			// strip empty spans
-			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/u', '$1', $html );
-			return preg_replace( '/<span>\s*<\/span>/u', '', $html );
+			$html = preg_replace( '#(\s)<span>\s*</span>\s*#u', '$1', $html );
+			return preg_replace( '#<span>\s*</span>#u', '', $html );
 		} catch ( Exception $e ) {
 			error_log( 'normalizeHTML failed on' . $source . ' with the following error: ' . $e );
 			return $source;
