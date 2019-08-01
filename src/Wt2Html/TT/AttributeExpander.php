@@ -80,7 +80,7 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	private static function metaTypeMatcher(): string {
-		return '/(mw:(LanguageVariant|Transclusion|Param|Includes\/)(.*)$)/';
+		return '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#';
 	}
 
 	private static function splitTokens(
@@ -157,8 +157,8 @@ class AttributeExpander extends TokenHandler {
 		$buf = [];
 		$hasGeneratedContent = false;
 
-		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
-			$t = $tokens[ $i ];
+		for ( $i = 0, $l = count( $tokens ); $i < $l; $i++ ) {
+			$t = $tokens[$i];
 			if ( $t instanceof TagTk || $t instanceof SelfclosingTagTk ) {
 				// Take advantage of this iteration of `tokens` to seek out
 				// document fragments.  They're an indication that an attribute
@@ -172,11 +172,10 @@ class AttributeExpander extends TokenHandler {
 					// Strip all meta tags.
 					$type = $t->getAttribute( 'typeof' );
 					$typeMatch = [];
-					if ( $type &&
-						preg_match( self::metaTypeMatcher(), $type, $typeMatch ) &&
-						!preg_match( '#/End$#', $typeMatch[1] )
-					) {
-						$hasGeneratedContent = true;
+					if ( $type && preg_match( self::metaTypeMatcher(), $type, $typeMatch ) ) {
+						if ( !preg_match( '#/End$#', $typeMatch[1] ) ) {
+							$hasGeneratedContent = true;
+						}
 					} else {
 						$buf[] = $t;
 						continue;
