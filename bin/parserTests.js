@@ -195,10 +195,7 @@ ParserTests.prototype.convertHtml2Wt = Promise.async(function *(options, mode, i
  * @return {boolean}
  */
 ParserTests.prototype.isDuplicateChangeTree = function(allChanges, change) {
-	if (!Array.isArray(allChanges)) {
-		return false;
-	}
-
+	console.assert(Array.isArray(allChanges) && Array.isArray(change));
 	var i;
 	for (i = 0; i < allChanges.length; i++) {
 		if (JSUtils.deepEquals(allChanges[i], change)) {
@@ -220,6 +217,7 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
  * @return {Node} The altered body.
  */
 ParserTests.prototype.applyChanges = function(item, body, changelist) {
+	console.assert(Array.isArray(changelist));
 
 	// Seed the random-number generator based on the item title
 	var random = new Alea((item.seed || '') + (item.title || ''));
@@ -293,6 +291,8 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 	};
 
 	var applyChangesInternal = (node, changes) => {
+		console.assert(Array.isArray(changes));
+
 		if (!node) {
 			// FIXME: Generate change assignments dynamically
 			this.env.log("error", "no node in applyChangesInternal, ",
@@ -351,13 +351,13 @@ ParserTests.prototype.applyChanges = function(item, body, changelist) {
 		ContentUtils.dumpDOM(body, 'Original DOM');
 	}
 
-	if (item.changes === 5) {
+	if (JSUtils.deepEquals(item.changes, [5])) {
 		// Hack so that we can work on the parent node rather than just the
 		// children: Append a comment with known content. This is later
 		// stripped from the output, and the result is compared to the
 		// original wikitext rather than the non-selser wt2wt result.
 		body.appendChild(body.ownerDocument.createComment(staticRandomString));
-	} else if (item.changes !== 0) {
+	} else if (!JSUtils.deepEquals(item.changes, [])) {
 		applyChangesInternal(body, item.changes);
 	}
 
@@ -424,10 +424,12 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 			);
 	}
 
+	var defaultChangeType = 0;
+
 	var hasChangeMarkers = (list) => {
 		// If all recorded changes are 0, then nothing has been modified
 		return list.some(function(c) {
-			return Array.isArray(c) ? hasChangeMarkers(c) : (c > 0);
+			return Array.isArray(c) ? hasChangeMarkers(c) : (c > defaultChangeType);
 		});
 	};
 
@@ -439,7 +441,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 
 		for (var i = 0; i < n; i++) {
 			var child = children[i];
-			var changeType = 0;
+			var changeType = defaultChangeType;
 
 			if (domSubtreeIsEditable(this.env, child)) {
 				if (nodeIsUneditable(child) || random() < 0.5) {
@@ -448,6 +450,12 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 					// refactor.
 					random.uint32();
 					changeType = genChangesInternal(child);
+					// `genChangesInternal` returns an array, which can be
+					// empty.  Revert to the `defaultChangeType` if that's
+					// the case.
+					if (changeType.length === 0) {
+						changeType = defaultChangeType;
+					}
 				} else {
 					if (!child.setAttribute) {
 						// Text or comment node -- valid changes: 2, 3, 4
@@ -462,7 +470,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 			changelist.push(changeType);
 		}
 
-		return hasChangeMarkers(changelist) ? changelist : 0;
+		return hasChangeMarkers(changelist) ? changelist : [];
 	};
 
 	var changeTree;
@@ -492,6 +500,8 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
  * @return {Node} The changed body.
  */
 ParserTests.prototype.applyManualChanges = function(body, changes) {
+	console.assert(Array.isArray(changes));
+
 	var err = null;
 	// changes are specified using jquery methods.
 	//  [x,y,z...] becomes $(x)[y](z....)
@@ -720,11 +730,11 @@ ParserTests.prototype.prepareTest = Promise.async(function *(item, options, mode
 
 	// Generate and make changes for the selser test mode
 	if (mode === 'selser') {
-		if ((options.selser === 'noauto' || item.changetree === 'manual') &&
+		if ((options.selser === 'noauto' || JSUtils.deepEquals(item.changetree, ['manual'])) &&
 			item.options.parsoid && item.options.parsoid.changes) {
 			// Ensure that we have this set here in case it hasn't been
 			// set in buildTasks because the 'selser=noauto' option was passed.
-			item.changetree = 'manual';
+			item.changetree = ['manual'];
 			body = this.applyManualChanges(body, item.options.parsoid.changes);
 		} else {
 			var changeTree = options.changetree ? JSON.parse(options.changetree) : item.changetree;
@@ -864,9 +874,9 @@ ParserTests.prototype.checkWikitext = function(item, out, options, mode) {
 	var itemWikitext = item.wikitext;
 	out = out.replace(new RegExp('<!--' + staticRandomString + '-->', 'g'), '');
 	if (mode === 'selser' && item.resultWT !== null &&
-			item.changes !== 5 && item.changetree !== 'manual') {
+			!JSUtils.deepEquals(item.changes, [5]) && !JSUtils.deepEquals(item.changetree, ['manual'])) {
 		itemWikitext = item.resultWT;
-	} else if ((mode === 'wt2wt' || (mode === 'selser' && item.changetree === 'manual')) &&
+	} else if ((mode === 'wt2wt' || (mode === 'selser' && JSUtils.deepEquals(item.changetree, ['manual']))) &&
 				item.options.parsoid && item.options.parsoid.changes) {
 		itemWikitext = item['wikitext/edited'];
 	}
@@ -1054,10 +1064,10 @@ ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, o
 				//   value here as no other items will be processed.
 				// Still, protect against changing a different copy of the item.
 				console.assert(
-					newitem.changetree === 'manual' ||
+					JSUtils.deepEquals(newitem.changetree, ['manual']) ||
 					newitem.changetree === undefined
 				);
-				newitem.changetree = 'manual';
+				newitem.changetree = ['manual'];
 				yield this.prepareTest(newitem, options, 'selser');
 			}
 			// And if that's all we want, next one.
@@ -1069,7 +1079,7 @@ ParserTests.prototype.buildTasks = Promise.async(function *(item, targetModes, o
 
 			// Prepend a selser test that appends a comment to the root node
 			let newitem = Util.clone(item);
-			newitem.changetree = 5;
+			newitem.changetree = [5];
 			yield this.prepareTest(newitem, options, 'selser');
 
 			for (let j = 0; j < item.selserChangeTrees.length; j++) {

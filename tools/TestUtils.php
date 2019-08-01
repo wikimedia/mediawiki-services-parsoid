@@ -788,7 +788,7 @@ class TestUtils {
 		}
 
 		// don't report selser fails when nothing was changed or it's a dup
-		if ( $mode === 'selser' && ( $item->changes === 0 || $item->duplicateChange ) ) {
+		if ( $mode === 'selser' && ( $item->changes === [] || $item->duplicateChange ) ) {
 			return true;
 		}
 

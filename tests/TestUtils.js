@@ -19,6 +19,7 @@ var Util = require('../lib/utils/Util.js').Util;
 var WTUtils = require('../lib/utils/WTUtils.js').WTUtils;
 var DOMNormalizer = require('../lib/html2wt/DOMNormalizer.js').DOMNormalizer;
 var MockEnv = require('./MockEnv.js').MockEnv;
+var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 
 var TestUtils = {};
 
@@ -691,7 +692,7 @@ function printResult(reportFailure, reportSuccess, bl, stats, item, options, mod
 	}
 
 	// don't report selser fails when nothing was changed or it's a dup
-	if (mode === 'selser' && (item.changes === 0 || item.duplicateChange)) {
+	if (mode === 'selser' && (JSUtils.deepEquals(item.changes, []) || item.duplicateChange)) {
 		return true;
 	}
 

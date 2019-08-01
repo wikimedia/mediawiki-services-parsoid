@@ -174,10 +174,11 @@ add("html2wt", "References: 9. Generate missing references list at the end", "A 
 // Blacklist for selser
 add("selser", "Simple <ref>, no <references/> [2,0,0]", "1618kiq\n\nWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>");
 add("selser", "Simple <ref>, no <references/> [3,0,0]", "\n");
+add("selser", "Simple <ref>, no <references/> [4,0,0]", "vew2hz\n");
 add("selser", "Simple <ref>, no <references/> [[3,0],0,0]", "<ref>Proceeds of Rockology, vol. XXI</ref>\n");
 add("selser", "Simple <ref>, no <references/> [[4,0],2,0]", "vkomsc<ref>Proceeds of Rockology, vol. XXI</ref>\n\nx9946h\n");
 add("selser", "Simple <ref>, no <references/> [4,4,0]", "1xru5nr\n\n17y1u9b");
-add("selser", "Simple <ref>, no <references/> [4,0,0]", "11giwoh\n");
+add("selser", "Simple <ref>, no <references/> [3,3,0]", "");
 add("selser", "Simple <ref>, no <references/> [3,4,0]", "1um7ibt");
 add("selser", "Simple <ref>, no <references/> [[2,0],0,0]", "10ki8pmWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n");
 add("selser", "Simple <ref>, no <references/> [3,2,0]", "163orz7\n");
@@ -193,6 +194,7 @@ add("selser", "Simple <ref>, no <references/> [1,0,0]", "Wikipedia rocks!<ref>Pr
 add("selser", "Simple <ref>, no <references/> [0,2,0]", "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\nhlajmc\n");
 add("selser", "<ref> with a simple template [[4,0],0,0]", "lb3xqw<ref>{{simple template}}</ref>\n\n<references/>");
 add("selser", "<ref> with a simple template [1,0,0]", "Templating<ref>{{simple template}}</ref>\n\n<references/>");
+add("selser", "<ref> with a simple template [0,2,0]", "Templating<ref>{{simple template}}</ref>\n\nobf1p2\n\n<references/>");
 add("selser", "<ref> with a simple template [3,4,0]", "13kdddv<references/>");
 add("selser", "<ref> with a simple template [3,0,0]", "\n<references/>");
 add("selser", "<ref> with a simple template [4,0,0]", "1x2sbvn\n\n<references/>");
@@ -205,12 +207,13 @@ add("selser", "<ref> with a simple template [[4,0],4,0]", "lvn73v<ref>{{simple t
 add("selser", "<ref> with a simple template [2,4,0]", "lmnok8\n\nTemplating<ref>{{simple template}}</ref>\n\n11ciaoq<references/>");
 add("selser", "<ref> with a simple template [[3,0],3,0]", "<ref>{{simple template}}</ref><references/>");
 add("selser", "<ref> with a simple template [0,3,0]", "Templating<ref>{{simple template}}</ref><references/>");
-add("selser", "<ref> with a simple template [0,2,0]", "Templating<ref>{{simple template}}</ref>\n\n1467oep\n\n<references/>");
+add("selser", "<ref> with a simple template [[3,0],2,0]", "<ref>{{simple template}}</ref>\n\n1467oep\n\n<references/>");
 add("selser", "<ref> with a simple template [4,3,0]", "11zr9xh<references/>");
 add("selser", "<ref> with a simple template [4,4,0]", "1saychx\n\n1k2o19k<references/>");
 add("selser", "<ref> with a simple template [1,2,0]", "Templating<ref>{{simple template}}</ref>\n\n6zmw0a\n\n<references/>");
 add("selser", "<ref> with a simple template [3,2,0]", "16thjyc\n\n<references/>");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [0,3,0]", "{{REVISIONID}}<ref>elite</ref>");
+add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,0,0]", "njwof8\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [1,2,0]", "{{REVISIONID}}<ref>elite</ref>\n\n2w1ylf\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [2,2,0]", "1sqvfrd\n\n{{REVISIONID}}<ref>elite</ref>\n\nmuq1xa\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [3,0,0]", "\n");
@@ -218,17 +221,16 @@ add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [2,0,0]", "1sc27yk\n
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [0,4,0]", "{{REVISIONID}}<ref>elite</ref>\n\n6820q5");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,3,0]", "o1rvrs");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [1,4,0]", "{{REVISIONID}}<ref>elite</ref>\n\n755jmj");
-add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,0,0]", "12u7cbe\n");
+add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [0,2,0]", "{{REVISIONID}}<ref>elite</ref>\n\n12u7cbe\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [1,3,0]", "{{REVISIONID}}<ref>elite</ref>");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [3,3,0]", "");
-add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [0,2,0]", "{{REVISIONID}}<ref>elite</ref>\n\n42lwa3\n");
+add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [1,0,0]", "{{REVISIONID}}<ref>elite</ref>\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [3,4,0]", "hc2c9y");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [2,4,0]", "4mfowb\n\n{{REVISIONID}}<ref>elite</ref>\n\nq8t2f8");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,4,0]", "ibohng\n\n166o2nr");
-add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [1,0,0]", "{{REVISIONID}}<ref>elite</ref>\n");
+add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,2,0]", "4xxt38\n\nrupn79\n");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [2,3,0]", "dwrha5\n\n{{REVISIONID}}<ref>elite</ref>");
 add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [3,2,0]", "kl65oh\n");
-add("selser", "{{REVISIONID}} on page with <ref> (bug 6299) [4,2,0]", "5uvqjo\n\n7gww77\n");
 add("selser", "Blank ref followed by ref with content [0,4,1,3,0]", "<ref name=\"blank\" />\n\n2oyky3\n\n<ref name=\"blank\">content</ref>\n\n<references />");
 add("selser", "Erroneous refs [0,0,4,2,4,0,0,3,0,0,0,0,0]", "<ref name=\"0\">Zero</ref>\n\n5fiuuy\n\n1r3vk7r\n\nye789s\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />\n\n<references />");
 add("selser", "Erroneous refs [3,2,0,0,1,2,0,0,1,0,0,2,0]", "1phopva\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n167t8v8\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />e8juxg\n\n<references />");
@@ -254,6 +256,7 @@ add("selser", "<ref> defined in <references> called with #tag [3,4,0,0,0]", "1m7
 add("selser", "<ref> defined in <references> called with #tag [1,0,4,0,0]", "<ref name=\"foo\" />\n\n7tn39e\n");
 add("selser", "<ref> defined in <references> called with #tag [2,0,1,4,0]", "13owd1e\n\n<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nnrnshy");
 add("selser", "<ref> defined in <references> called with #tag [0,4,0,0,0]", "<ref name=\"foo\" />\n\nrdn99l\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}");
+add("selser", "<ref> defined in <references> called with #tag [1,2,0,0,0]", "<ref name=\"foo\" />\n\n1dqn6g1\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}");
 add("selser", "<ref> defined in <references> called with #tag [4,2,0,0,0]", "1clskzx\n\n1y73y10\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}");
 add("selser", "<ref> defined in <references> called with #tag [4,0,3,3,0]", "g1897y\n\n");
 add("selser", "<ref> defined in <references> called with #tag [4,2,3,4,0]", "12y1e85\n\n1kob1jt\n\n1thxs26");
@@ -269,6 +272,7 @@ add("selser", "<ref> defined in <references> error conditions [0,0,0,4,0]", "<re
 add("selser", "<ref> defined in <references> error conditions [2,4,0,2,0]", "1pumkgv\n\n<ref name=\"foo\" group=\"2\" />\n\njvx805<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>11l4u9n\n");
 add("selser", "<ref> defined in <references> error conditions [1,0,0,3,0]", "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>");
 add("selser", "<ref> defined in <references> error conditions [2,3,0,3,0]", "1n05ikg\n\n<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>");
+add("selser", "<ref> defined in <references> error conditions [2,2,0,2,0]", "mnms6h\n\n<ref name=\"foo\" group=\"2\" />\n\n6nb3mz\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>1qqubm\n");
 add("selser", "<ref> defined in <references> error conditions [0,0,0,2,0]", "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>lmy9sp\n");
 add("selser", "<ref> defined in <references> error conditions [1,4,0,2,0]", "<ref name=\"foo\" group=\"2\" />\n\n51uldm<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>1ax3od5\n");
 add("selser", "<ref> defined in <references> error conditions [2,0,0,2,0]", "16xtqf7\n\n<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>l8coyc\n");
@@ -297,6 +301,7 @@ add("selser", "<ref> with no name and no content. [2,3,0]", "13m8hdy\n\nBla.<ref
 add("selser", "<ref> with no name and no content. [3,2,0]", "1ety4vs\n");
 add("selser", "<ref> with no name and no content. [1,4,0]", "Bla.<ref></ref>\n\n6v7sxu");
 add("selser", "<ref> with no name and no content. [2,2,0]", "1tdm9xw\n\nBla.<ref></ref>\n\nxbklbx\n");
+add("selser", "<ref> with no name and no content. [3,0,0]", "\n");
 add("selser", "<ref> with no name and no content. [1,0,0]", "Bla.<ref></ref>\n");
 add("selser", "<ref> with no name and no content. [[3,0],0,0]", "<ref></ref>\n");
 add("selser", "<ref> with no name and no content. [0,3,0]", "Bla.<ref></ref>");
@@ -304,7 +309,7 @@ add("selser", "<ref> with no name and no content. [1,2,0]", "Bla.<ref></ref>\n\n
 add("selser", "<ref> with no name and no content. [[3,0],3,0]", "<ref></ref>");
 add("selser", "<ref> with no name and no content. [[2,0],3,0]", "slk5uoBla.<ref></ref>");
 add("selser", "<ref> with no name and no content. [0,4,0]", "Bla.<ref></ref>\n\nbnx45z");
-add("selser", "<ref> with no name and no content. [3,0,0]", "\n");
+add("selser", "<ref> with no name and no content. [4,2,0]", "1s3rh5s\n\n19lycfj\n");
 add("selser", "<ref> with no name and no content. [2,4,0]", "1dg2w9n\n\nBla.<ref></ref>\n\np5ul07");
 add("selser", "<ref> with no name and no content. [[4,0],0,0]", "imr7ut<ref></ref>\n");
 add("selser", "<ref> with an empty-string name parameter and no content. [0,4,0]", "Bla.<ref name=\"\"></ref>\n\ncyppav");
@@ -319,6 +324,7 @@ add("selser", "<ref> with an empty-string name parameter and no content. [[4,0],
 add("selser", "<ref> with an empty-string name parameter and no content. [2,0,0]", "1pjxq6c\n\nBla.<ref name=\"\"></ref>");
 add("selser", "<ref> with an empty-string name parameter and no content. [[2,0],0,0]", "6bqi1jBla.<ref name=\"\"></ref>\n");
 add("selser", "<ref> with an empty-string name parameter and no content. [3,2,0]", "1odk7yh\n");
+add("selser", "<ref> with an empty-string name parameter and no content. [[2,0],2,0]", "1gosgfhBla.<ref name=\"\"></ref>\n\n1l8p111\n");
 add("selser", "<ref> with an empty-string name parameter and no content. [3,4,0]", "1vax2x1");
 add("selser", "<ref> with an empty-string name parameter and no content. [[3,0],4,0]", "<ref name=\"\"></ref>\n\n1puamwb");
 add("selser", "<ref> with an empty-string name parameter and no content. [3,3,0]", "");
@@ -326,12 +332,13 @@ add("selser", "<ref> with an empty-string name parameter and no content. [0,2,0]
 add("selser", "<ref> with an empty-string name parameter and no content. [2,4,0]", "174k5cy\n\nBla.<ref name=\"\"></ref>\n\ny1bnct");
 add("selser", "<ref> with an empty-string name parameter and no content. [4,3,0]", "1jij3pf");
 add("selser", "<ref> with an empty-string name parameter and no content. [1,4,0]", "Bla.<ref name=\"\"></ref>\n\niknz8z");
+add("selser", "<ref> with a non-empty name parameter and no content. [1,3,0]", "Bla.<ref name=\"void\"></ref>");
 add("selser", "<ref> with a non-empty name parameter and no content. [4,0,0]", "11rs4la\n");
 add("selser", "<ref> with a non-empty name parameter and no content. [3,2,0]", "1uh0cto\n");
 add("selser", "<ref> with a non-empty name parameter and no content. [[2,0],2,0]", "gav99uBla.<ref name=\"void\"></ref>\n\nr5vlst\n");
 add("selser", "<ref> with a non-empty name parameter and no content. [0,4,0]", "Bla.<ref name=\"void\"></ref>\n\nr7lbys");
 add("selser", "<ref> with a non-empty name parameter and no content. [[4,0],3,0]", "1l6z8wu<ref name=\"void\"></ref>");
-add("selser", "<ref> with a non-empty name parameter and no content. [1,3,0]", "Bla.<ref name=\"void\"></ref>");
+add("selser", "<ref> with a non-empty name parameter and no content. [1,0,0]", "Bla.<ref name=\"void\"></ref>\n");
 add("selser", "<ref> with a non-empty name parameter and no content. [2,3,0]", "110ffhv\n\nBla.<ref name=\"void\"></ref>");
 add("selser", "<ref> with a non-empty name parameter and no content. [2,0,0]", "1qhovxt\n\nBla.<ref name=\"void\"></ref>");
 add("selser", "<ref> with a non-empty name parameter and no content. [0,2,0]", "Bla.<ref name=\"void\"></ref>\n\neyqmdo\n");
@@ -365,6 +372,7 @@ add("selser", "Multiple definition (inside {{#tag:references}}) [2,4,0]", "1aft3
 add("selser", "Multiple definition (inside {{#tag:references}}) [1,3,0]", "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}");
 add("selser", "Multiple definition (inside {{#tag:references}}) [1,2,0]", "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n6kbswz\n");
 add("selser", "Multiple definition (inside {{#tag:references}}) [0,2,0]", "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n5bho14\n");
+add("selser", "Multiple definition (inside {{#tag:references}}) [3,0,0]", "\n");
 add("selser", "Multiple definition (inside {{#tag:references}}) [[0,3,0],2,0]", "<ref name=\"a\" />{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\nlt0dsi\n");
 add("selser", "Multiple definition (inside {{#tag:references}}) [4,2,0]", "1581laa\n\n1w4nfjk\n");
 add("selser", "Multiple definition (inside {{#tag:references}}) [0,4,0]", "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n3s1r49");
@@ -398,6 +406,7 @@ add("selser", "Ref: 3. spaces in ref-names should be ignored [[3,0,0,0,0,0],3,0]
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[3,0,4,0,2,0],0,0]", "<ref name=\"x\">foo</ref>1rpjo1b<ref name=\" x \" />rjd0zn\nC <ref name= x  />\n<references />");
 add("selser", "Ref: 3. spaces in ref-names should be ignored [[0,0,0,0,4,0],0,0]", "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />xidipo<ref name= x  />\n<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [[3,0,0],0,0]", "<ref> foo {{echo|</ref> B C}}\n\n<references />");
+add("selser", "Ref: 8. transclusion wikitext has lower precedence [[3,0,0],3,0]", "<ref> foo {{echo|</ref> B C}}<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [0,2,0]", "A <ref> foo {{echo|</ref> B C}}\n\nndg5c4\n\n<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [[0,0,2],2,0]", "A <ref> foo {{echo|</ref><nowiki>b5njrh B C}}</nowiki>\n\na1gxhc\n\n<references />");
 add("selser", "Ref: 8. transclusion wikitext has lower precedence [1,4,0]", "A <ref> foo {{echo|</ref> B C}}\n\nu9j3ix<references />");
@@ -419,6 +428,7 @@ add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[0,0,4
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[2,0,0],2,0]", "7hluh3A <ref> foo <!--</ref> B C\n\n11srvlw\n<references />");
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [1,0,0]", "A <ref> foo <!--</ref> B C\n<references />");
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[2,0,0],0,0]", "vfks5wA <ref> foo <!--</ref> B C\n<references />");
+add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[3,0,2],0,0]", "<ref> foo <!--</ref>5qjd3r B C\n<references />");
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[4,0,4],2,0]", "kix7sr<ref> foo <!--</ref>13rspfe\n\n1gyggbp\n<references />");
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [[3,0,4],0,0]", "<ref> foo <!--</ref>a6c568\n<references />");
 add("selser", "Ref: 9. unclosed comments should not leak out of ref-body [1,2,0]", "A <ref> foo <!--</ref> B C\n\n1ih18bl\n<references />");

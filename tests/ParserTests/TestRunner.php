@@ -548,11 +548,15 @@ class TestRunner {
 			);
 		};
 
-		$hasChangeMarkers = function ( $list ) use ( &$hasChangeMarkers ) {
+		$defaultChangeType = 0;
+
+		$hasChangeMarkers = function ( $list ) use (
+			&$hasChangeMarkers, $defaultChangeType
+		) {
 			// If all recorded changes are 0, then nothing has been modified
 			foreach ( $list as $c ) {
 				if ( ( is_array( $c ) && $hasChangeMarkers( $c ) ) ||
-					( !is_array( $c ) && $c > 0 )
+					( !is_array( $c ) && $c > $defaultChangeType )
 				) {
 					return true;
 				}
@@ -562,13 +566,14 @@ class TestRunner {
 
 		$genChangesInternal = function ( $node ) use (
 			&$genChangesInternal, &$hasChangeMarkers,
-			$domSubtreeIsEditable, $nodeIsUneditable, $alea
+			$domSubtreeIsEditable, $nodeIsUneditable, $alea,
+			$defaultChangeType
 		): array {
 			// Seed the random-number generator based on the item title
 			$changelist = [];
 			$children = $node->childNodes ? iterator_to_array( $node->childNodes ) : [];
 			foreach ( $children as $child ) {
-				$changeType = 0;
+				$changeType = $defaultChangeType;
 
 				if ( $domSubtreeIsEditable( $child ) ) {
 					if ( $nodeIsUneditable( $child ) || $alea->random() < 0.5 ) {
@@ -577,6 +582,12 @@ class TestRunner {
 						// refactor.
 						$alea->uint32();
 						$changeType = $genChangesInternal( $child );
+						// `$genChangesInternal` returns an array, which can be
+						// empty.  Revert to the `$defaultChangeType` if that's
+						// the case.
+						if ( count( $changeType ) === 0 ) {
+							$changeType = $defaultChangeType;
+						}
 					} else {
 						if ( !DOMUtils::isElt( $child ) ) {
 							// Text or comment node -- valid changes: 2, 3, 4
