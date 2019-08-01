@@ -429,7 +429,7 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 	var hasChangeMarkers = (list) => {
 		// If all recorded changes are 0, then nothing has been modified
 		return list.some(function(c) {
-			return Array.isArray(c) ? hasChangeMarkers(c) : (c > defaultChangeType);
+			return Array.isArray(c) ? hasChangeMarkers(c) : (c !== defaultChangeType);
 		});
 	};
 

@@ -334,11 +334,11 @@ class TestRunner {
 		$test->changes = $changelist;
 
 		// Helper function for getting a random string
-		$randomString = function () use ( &$alea ) {
+		$randomString = function () use ( &$alea ): string {
 			return (string)base_convert( $alea->uint32(), 10, 36 );
 		};
 
-		$insertNewNode = function ( DOMNode $n ) use ( $randomString ) {
+		$insertNewNode = function ( DOMNode $n ) use ( $randomString ): void {
 			// Insert a text node, if not in a fosterable position.
 			// If in foster position, enter a comment.
 			// In either case, dom-diff should register a new node
@@ -399,13 +399,13 @@ class TestRunner {
 			$n->parentNode->insertBefore( $newNode, $n );
 		};
 
-		$removeNode = function ( $n ) {
+		$removeNode = function ( DOMNode $n ): void {
 			$n->parentNode->removeChild( $n );
 		};
 
-		$applyChangesInternal = function ( $node, $changes ) use (
+		$applyChangesInternal = function ( DOMNode $node, array $changes ) use (
 			&$applyChangesInternal, $removeNode, $insertNewNode, $randomString
-		) {
+		): void {
 			if ( !$node ) {
 				// FIXME: Generate change assignments dynamically
 				$this->dummyEnv->log( 'error', 'no node in applyChangesInternal, ',
@@ -503,7 +503,9 @@ class TestRunner {
 	 *  - body DOMElement The altered body.
 	 *  - changetree array The list of changes.
 	 */
-	private function generateChanges( array $options, Test $test, DOMElement $body ) {
+	private function generateChanges(
+		array $options, Test $test, DOMElement $body
+	): array {
 		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->title ?? '' ) );
 
 		/**
@@ -512,7 +514,7 @@ class TestRunner {
 		 *
 		 * Currently true for template and extension content, and for entities.
 		 */
-		$domSubtreeIsEditable = function ( DOMNode $node ) {
+		$domSubtreeIsEditable = function ( DOMNode $node ): bool {
 			return !( $node instanceof DOMElement ) ||
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// Deleting these div wrappers is tantamount to removing the
@@ -529,7 +531,7 @@ class TestRunner {
 		 * Currently, this restriction is only applied to DOMs generated for images.
 		 * Possibly, there are other candidates.
 		 */
-		$nodeIsUneditable = function ( DOMNode $node ) use ( &$nodeIsUneditable ) {
+		$nodeIsUneditable = function ( DOMNode $node ) use ( &$nodeIsUneditable ): bool {
 			// Text and comment nodes are always editable
 			if ( !( $node instanceof DOMElement ) ) {
 				return false;
@@ -550,13 +552,13 @@ class TestRunner {
 
 		$defaultChangeType = 0;
 
-		$hasChangeMarkers = function ( $list ) use (
+		$hasChangeMarkers = function ( array $list ) use (
 			&$hasChangeMarkers, $defaultChangeType
-		) {
+		): bool {
 			// If all recorded changes are 0, then nothing has been modified
 			foreach ( $list as $c ) {
 				if ( ( is_array( $c ) && $hasChangeMarkers( $c ) ) ||
-					( !is_array( $c ) && $c > $defaultChangeType )
+					( !is_array( $c ) && $c !== $defaultChangeType )
 				) {
 					return true;
 				}
@@ -564,7 +566,7 @@ class TestRunner {
 			return false;
 		};
 
-		$genChangesInternal = function ( $node ) use (
+		$genChangesInternal = function ( DOMNode $node ) use (
 			&$genChangesInternal, &$hasChangeMarkers,
 			$domSubtreeIsEditable, $nodeIsUneditable, $alea,
 			$defaultChangeType
@@ -796,7 +798,9 @@ class TestRunner {
 	 * @param string $wikitext
 	 * @return DOMElement
 	 */
-	private function convertWt2Html( Test $test, string $mode, string $wikitext ) {
+	private function convertWt2Html(
+		Test $test, string $mode, string $wikitext
+	): DOMElement {
 		$env = $this->newEnv( $test, $wikitext );
 		$handler = $env->getContentHandler();
 		$doc = $handler->toHTML( $env );
@@ -1341,7 +1345,7 @@ class TestRunner {
 				$testModes[] = 'selser';
 			}
 
-			$targetModes = array_filter( $targetModes, function ( $mode ) use ( $testModes ) {
+			$targetModes = array_filter( $targetModes, function ( string $mode ) use ( $testModes ): bool {
 				return array_search( $mode, $testModes ) !== false;
 			} );
 		}
@@ -1461,7 +1465,7 @@ class TestRunner {
 	 * @param array $options
 	 * @return array
 	 */
-	public function run( array $options ) {
+	public function run( array $options ): array {
 		$this->runDisabled = ScriptUtils::booleanOption( $options['run-disabled'] ?? null );
 		$this->runPHP = ScriptUtils::booleanOption( $options['run-php'] ?? null );
 
