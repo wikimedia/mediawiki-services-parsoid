@@ -411,24 +411,6 @@ ParserTests.prototype.generateChanges = function(options, item, body) {
 			return false;
 		}
 
-		// - Meta tag providing info about tpl-affected attrs is uneditable.
-		//
-		//   SSS FIXME: This is not very useful right now because sometimes,
-		//   these meta-tags are not siblings with the element that it applies to.
-		//   So, you can still end up deleting the meta-tag (by deleting its parent)
-		//   and losing this property.  See example below.  The best fix for this is
-		//   to hoist all these kind of meta tags into <head>, start, or end of doc.
-		//   Then, we don't even have to check for editability of these nodes here.
-		//
-		//   Ex:
-		//   ...
-		//   <td><meta about="#mwt2" property="mw:objectAttrVal#style" ...>..</td>
-		//   <td about="#mwt2" typeof="mw:ExpandedAttrs/Transclusion" ...>..</td>
-		//   ...
-		if ((/\bmw:objectAttr/).test(node.getAttribute('property'))) {
-			return true;
-		}
-
 		// - Image wrapper is an uneditable image elt.
 		// - Any node nested in an image elt that is not a fig-caption
 		//   is an uneditable image elt.

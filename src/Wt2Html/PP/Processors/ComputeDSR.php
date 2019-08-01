@@ -483,11 +483,6 @@ class ComputeDSR {
 						$ce !== null && $dp->src
 					) {
 						$cs = $ce - strlen( $dp->src );
-					} else {
-						$property = $child->getAttribute( "property" );
-						if ( $property && preg_match( '/mw:objectAttr/', $property ) ) {
-							$cs = $ce;
-						}
 					}
 					if ( isset( $dp->extTagOffsets ) ) {
 						$stWidth = $dp->extTagOffsets->openWidth;
