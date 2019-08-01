@@ -200,9 +200,9 @@ $env = new ApiEnv( [
 	"scrubWikitext" => $envOpts['scrubWikitext'] ?? false,
 	"wrapSections" => !empty( $envOpts['wrapSections' ] ),
 	'tidyWhitespaceBugMaxLength' => $envOpts['tidyWhitespaceBugMaxLength'] ?? null,
-	# This directory contains synthetic data which doesn't exactly match
-	# enwiki, but matches what parserTests expects
-	"cacheDir" => __DIR__ . '/data',
+	# This directory used to contain synthetic data which didn't exactly match
+	# enwiki, but matched what parserTests expects
+	# "cacheDir" => __DIR__ . '/data',
 	"writeToCache" => 'pretty',
 ] );
 

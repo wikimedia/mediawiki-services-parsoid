@@ -77,9 +77,9 @@ $env = new ApiEnv( [
 	"offline" => $envOpts['offline'] ?? false,
 	"title" => $envOpts['pagetitle'] ?? "Main_Page",
 	"pageId" => $envOpts['pageId'] ?? null,
-	# This directory contains synthetic data which doesn't exactly match
-	# enwiki, but matches what parserTests expects
-	"cacheDir" => __DIR__ . '/data',
+	# This directory used to contain synthetic data which didn't exactly match
+	# enwiki, but matched what parserTests expects
+	# "cacheDir" => __DIR__ . '/data',
 	"writeToCache" => 'pretty',
 ] );
 foreach ( $envOpts['tags'] ?? [] as $tag ) {
