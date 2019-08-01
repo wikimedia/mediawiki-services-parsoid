@@ -19,7 +19,7 @@ class AddMediaInfo {
 	 * Extract the dimensions for media.
 	 *
 	 * @param Env $env
-	 * @param array $attrs
+	 * @param array{size:array{height?:int,width?:int},format:string} $attrs
 	 * @param array $info
 	 * @return array
 	 */
@@ -49,6 +49,31 @@ class AddMediaInfo {
 		if ( $info['mediatype'] === 'AUDIO' ) {
 			$height = /* height || */32; // Arguably, audio should respect a defined height
 			$width = $width ?: $env->getSiteConfig()->widthOption();
+		}
+
+		// Handle client-side upscaling (including 'border')
+
+		$mustRender = $info['mustRender'] ?? $info['mediatype'] !== 'BITMAP';
+
+		// Calculate the scaling ratio from the user-specified width and height
+		$ratio = null;
+		if ( !empty( $attrs['size']['height'] ) && !empty( $info['height'] ) ) {
+			$ratio = $attrs['size']['height'] / $info['height'];
+		}
+		if ( !empty( $attrs['size']['width'] ) && !empty( $info['width'] ) ) {
+			$r = $attrs['size']['width'] / $info['width'];
+			$ratio = ( $ratio === null || $r < $ratio ) ? $r : $ratio;
+		}
+
+		// If the user requested upscaling, then this is denied in the thumbnail
+		// and frameless format, except for files with mustRender.
+		if (
+			$ratio !== null && $ratio > 1 && !$mustRender &&
+			( $attrs['format'] === 'Thumb' || $attrs['format'] === 'Frameless' )
+		) {
+			// Upscaling denied
+			$height = $info['height'];
+			$width = $info['width'];
 		}
 
 		return [ 'height' => $height, 'width' => $width ];
