@@ -32,63 +32,6 @@ Sanitizer; $TokenUtils = $temp0::
 TokenUtils; $Util = $temp0::
 Util;
 
-$modes = require './modes.js';
-
-/**
- * @class
- */
-class Opts {
-	public function __construct( $env, $attrs ) {
-		Object::assign( $this, $env->conf->wiki->siteInfo->general->galleryoptions );
-
-		$perrow = intval( $attrs->perrow, 10 );
-		if ( !Number::isNaN( $perrow ) ) { $this->imagesPerRow = $perrow;
-  }
-
-		$maybeDim = Util::parseMediaDimensions( String( $attrs->widths ), true );
-		if ( $maybeDim && Util::validateMediaParam( $maybeDim->x ) ) {
-			$this->imageWidth = $maybeDim->x;
-		}
-
-		$maybeDim = Util::parseMediaDimensions( String( $attrs->heights ), true );
-		if ( $maybeDim && Util::validateMediaParam( $maybeDim->x ) ) {
-			$this->imageHeight = $maybeDim->x;
-		}
-
-		$mode = strtolower( $attrs->mode || '' );
-		if ( $modes->has( $mode ) ) { $this->mode = $mode;
-  }
-
-		$this->showfilename = ( $attrs->showfilename !== null );
-		$this->showthumbnails = ( $attrs->showthumbnails !== null );
-		$this->caption = $attrs->caption;
-
-		// TODO: Good contender for T54941
-		$validUlAttrs = Sanitizer::attributeWhitelist( 'ul' );
-		$this->attrs = array_reduce( Object::keys( $attrs )->
-			filter( function ( $k ) { return $validUlAttrs->has( $k );
-   } ),
-			function ( $o, $k ) {
-				$o[ $k ] = ( $k === 'style' ) ? Sanitizer::checkCss( $attrs[ $k ] ) : $attrs[ $k ];
-				return $o;
-			}, []
-		);
-	}
-	public $attrs;
-	public $imagesPerRow;
-
-	public $imageWidth;
-
-	public $imageHeight;
-
-	public $mode;
-
-	public $showfilename;
-	public $showthumbnails;
-	public $caption;
-
-}
-
 /**
  * Native Parsoid implementation of the Gallery extension.
  */
@@ -178,7 +121,7 @@ $opts = $temp2->opts;
 		$wt = $start + $file + $middle + $caption + $end;
 
 		// This is all in service of lining up the caption
-		$shiftOffset = function ( $offset ) use ( &$start, &$file, &$obj, &$middle, &$caption ) {
+		$shiftOffset = function ( $offset ) use ( &$start, &$file, &$obj, &$middle, &$caption, &$text ) {
 			$offset -= strlen( $start );
 			if ( $offset <= 0 ) { return null;
    }
@@ -192,7 +135,7 @@ $opts = $temp2->opts;
    }
 			if ( $offset <= count( $caption ) ) {
 				// Align caption part
-				return $obj->offset + count( $matches[ 1 ] ) + $offset;
+				return $obj->offset + count( $text ) + $offset;
 			}
 			return null;
 		};
@@ -274,7 +217,8 @@ $opts = $temp2->opts;
 		];
 
 		$dataAttribs = $state->extToken->dataAttribs;
-		$offset = $dataAttribs->extTagOffsets[ 1 ];
+		$offset =
+		$dataAttribs->extTagOffsets[ 0 ] + $dataAttribs->extTagOffsets[ 2 ];
 
 		// Prepare the lines for processing
 		$lines = array_map( explode( "\n", $content ),

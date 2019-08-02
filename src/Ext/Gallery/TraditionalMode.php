@@ -80,6 +80,10 @@ class Traditional {
 		$li = $doc->createElement( 'li' );
 		$li->setAttribute( 'class', 'gallerycaption' );
 		DOMUtils::migrateChildrenBetweenDocs( $caption, $li );
+		$li->setAttribute( 'data-parsoid', $caption->getAttribute( 'data-parsoid' ) );
+		// The data-mw attribute *shouldn't* exist, since this caption
+		// should be a <body>.  But let's be safe and copy it anyway.
+		$li->setAttribute( 'data-mw', $caption->getAttribute( 'data-mw' ) );
 		$ul->appendChild( $doc->createTextNode( "\n" ) );
 		$ul->appendChild( $li );
 	}
@@ -121,6 +125,10 @@ class Traditional {
 		$div->setAttribute( 'class', 'gallerytext' );
 		if ( $gallerytext ) {
 			DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
+			$div->setAttribute( 'data-parsoid', $gallerytext->getAttribute( 'data-parsoid' ) );
+			// The data-mw attribute *shouldn't* exist, since this gallerytext
+			// should be a <figcaption>.  But let's be safe and copy it anyway.
+			$div->setAttribute( 'data-mw', $gallerytext->getAttribute( 'data-mw' ) );
 		}
 		$box->appendChild( $div );
 	}
@@ -139,11 +147,7 @@ class Traditional {
 
 		$wrapper = $doc->createElement( 'figure-inline' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
-		// FIXME: Probably want to copy over "data-parsoid" here as well
-		// so that the `optList` is preserved for roundtripping but since
-		// shadowed information is dropped anyways inside encapsulations,
-		// we can leave that until a general solution for T211895 / T151367
-		// is hashed out.
+		DOMDataUtils::setDataParsoid( $wrapper, Util::clone( DOMDataUtils::getDataParsoid( $o->thumb ) ) );
 		DOMDataUtils::setDataMw( $wrapper, Util::clone( DOMDataUtils::getDataMw( $o->thumb ) ) );
 		// Store temporarily, otherwise these get clobbered after rendering by
 		// the call to `DOMDataUtils.visitAndLoadDataAttribs()` in `toDOM`.
@@ -168,132 +172,4 @@ class Traditional {
 		$ul->appendChild( $doc->createTextNode( "\n" ) );
 		return $doc;
 	}
-}
-
-/**
- * @class
- * @extends ~Traditional
- */
-class NoLines extends Traditional {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'nolines';
-		$this->padding = [ 'thumb' => 0, 'box' => 5, 'border' => 4 ];
-	}
-	public $mode;
-	public $padding;
-
-}
-
-/**
- * @class
- * @extends ~Traditional
- */
-class Slideshow extends Traditional {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'slideshow';
-	}
-	public $mode;
-
-	public function setAdditionalOptions( $opts, $ul ) {
-		$ul->setAttribute( 'data-showthumbnails', ( $opts->showthumbnails ) ? '1' : '' );
-	}
-	public function perRow() {
- }
-}
-
-/**
- * @class
- * @extends ~Traditional
- */
-class Packed extends Traditional {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'packed';
-		$this->scale = 1.5;
-		$this->padding = [ 'thumb' => 0, 'box' => 2, 'border' => 8 ];
-	}
-	public $mode;
-	public $scale;
-	public $padding;
-
-	public function perRow() {
- }
-
-	public function dimensions( $opts ) {
-		return "x{Math::trunc( $opts->imageHeight * $this::SCALE() )}px";
-	}
-
-	public function scaleMedia( $opts, $wrapper ) {
-		$elt = $wrapper->firstChild->firstChild;
-		$width = intval( $elt->getAttribute( 'width' ), 10 );
-		if ( Number::isNaN( $width ) ) {
-			$width = $opts->imageWidth;
-		} else {
-			$width = Math::trunc( $width / $this::SCALE() );
-		}
-		$elt->setAttribute( 'width', $width );
-		$elt->setAttribute( 'height', $opts->imageHeight );
-		return $width;
-	}
-
-	public function galleryText( $doc, $box, $gallerytext, $width ) {
-		if ( !preg_match( '/packed-(hover|overlay)/', $this::MODE() ) ) {
-			call_user_func( [ Traditional::prototype, 'galleryText' ], $doc, $box, $gallerytext );
-			return;
-		}
-		if ( !$gallerytext ) {
-			return;
-		}
-		$div = $doc->createElement( 'div' );
-		$div->setAttribute( 'class', 'gallerytext' );
-		DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
-		$wrapper = $doc->createElement( 'div' );
-		$wrapper->setAttribute( 'class', 'gallerytextwrapper' );
-		$wrapper->setAttribute( 'style', "width: {$width - 20}px;" );
-		$wrapper->appendChild( $div );
-		$box->appendChild( $wrapper );
-	}
-}
-
-/**
- * @class
- * @extends ~Packed
- */
-class PackedHover extends Packed {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'packed-hover';
-	}
-	public $mode;
-
-}
-
-/**
- * @class
- * @extends ~Packed
- */
-class PackedOverlay extends Packed {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'packed-overlay';
-	}
-	public $mode;
-
-}
-
-/** @namespace */
-$modes = JSUtils::mapObject( [
-		'traditional' => new Traditional(),
-		'nolines' => new NoLines(),
-		'slideshow' => new Slideshow(),
-		'packed' => new Packed(),
-		'packed-hover' => new PackedHover(),
-		'packed-overlay' => new PackedOverlay()
-	]
-);
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports = $modes;
 }
