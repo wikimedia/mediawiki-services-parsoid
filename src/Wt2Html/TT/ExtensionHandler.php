@@ -177,17 +177,6 @@ class ExtensionHandler extends TokenHandler {
 		if ( $nativeExt !== null ) {
 			$extContent = Util::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
-			$state = [
-				'extToken' => $token,
-				// FIXME: This is only used by extapi.js
-				// but leaks to extensions right now
-				'frame' => $this->manager->getFrame(),
-				'env' => $env,
-				// FIXME: extTag, extTagOpts, inTemplate are used
-				// by extensions. Should we directly export those
-				// instead?
-				'parseContext' => $this->options
-			];
 			$extApi = new ParsoidExtensionAPI( $env,
 				$this->manager->getFrame(), $token, $this->options );
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
@@ -238,15 +227,11 @@ class ExtensionHandler extends TokenHandler {
 
 		// Give native extensions a chance to manipulate the argDict
 		$extensionName = $state['wrapperName'];
-		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
-		/**
-		 * PORT-FIXME: Uncomment and implement as part of <gallery> porting
-		 *
-		if ( $extConfig && !empty( $extConfig['modifiesArgDict'] ) ) {
-			$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
-			$nativeExt->modifyArgDict( $env, $argDict );
+		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
+		if ( $nativeExt ) {
+			$extApi = new ParsoidExtensionAPI( $env );
+			$nativeExt->modifyArgDict( $extApi, $argDict );
 		}
-		**/
 
 		$opts = [
 			'setDSR' => true, // FIXME: This is the only place that sets this ...
@@ -255,6 +240,7 @@ class ExtensionHandler extends TokenHandler {
 
 		// Check if the tag wants its DOM fragment not to be unwrapped.
 		// The default setting is to unwrap the content DOM fragment automatically.
+		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
 		if ( isset( $extConfig['fragmentOptions'] ) ) {
 			$opts += $extConfig['fragmentOptions'];
 		}

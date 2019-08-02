@@ -395,7 +395,8 @@ class Sanitizer extends TokenHandler {
 	 * @param string $element
 	 * @return array
 	 */
-	private static function attributeWhitelist( string $element ): array {
+	public static function attributeWhitelist( string $element ): array {
+		// PORT-FIXME: this method is private in core, but used by Gallery
 		$list = self::setupAttributeWhitelist();
 		return $list[$element] ?? [];
 	}

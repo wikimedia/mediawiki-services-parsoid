@@ -139,6 +139,10 @@ class SiteConfig extends ISiteConfig {
 		return MediaWikiServices::getInstance()->getStatsdDataFactory();
 	}
 
+	public function galleryOptions(): array {
+		return $this->config->get( 'GalleryOptions' );
+	}
+
 	public function allowedExternalImagePrefixes(): array {
 		if ( $this->config->get( 'AllowExternalImages' ) ) {
 			return [ '' ];

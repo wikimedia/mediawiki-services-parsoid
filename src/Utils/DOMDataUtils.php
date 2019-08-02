@@ -515,9 +515,10 @@ class DOMDataUtils {
 	 * PORT_FIXME This function needs an accurate description
 	 *
 	 * @param DOMNode $node node
-	 * @param array $options options
+	 * @param ?array|null $options options
 	 */
-	public static function storeDataAttribs( DOMNode $node, array $options = [] ): void {
+	public static function storeDataAttribs( DOMNode $node, ?array $options = null ): void {
+		$options = $options ?? [];
 		if ( !DOMUtils::isElt( $node ) ) {
 			return;
 		}

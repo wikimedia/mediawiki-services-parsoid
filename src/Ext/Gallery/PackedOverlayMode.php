@@ -1,27 +1,23 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
-
-$ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 = $ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils;
-$DOMUtils = $temp0::DOMUtils;
-$JSUtils = $temp0::JSUtils;
-$Util = $temp0::Util;
+namespace Parsoid\Ext\Gallery;
 
 /**
  * @class
- * @extends ~Packed
+ * @extends ~PackedMode
  */
-class PackedOverlay extends Packed {
-	public function __construct() {
-		parent::__construct();
-		$this->mode = 'packed-overlay';
+class PackedOverlayMode extends PackedMode {
+	/**
+	 * Create a PackedOverlayMode singleton.
+	 * @param string|null $mode Only used by subclasses.
+	 */
+	protected function __construct( string $mode = null ) {
+		parent::__construct( $mode ?? 'packed-overlay' );
 	}
-	public $mode;
 
+	/** @inheritDoc */
+	protected function useTraditionalGalleryText(): bool {
+		return false;
+	}
 }

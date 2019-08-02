@@ -636,7 +636,7 @@ class TokenUtils {
 	 * @param array<KV> $kvs
 	 * @param bool $convertValuesToString
 	 * @param bool $useSrc
-	 * @return array<string,Token[]>
+	 * @return array<string,Token[]>|array<string,string>
 	 */
 	public static function kvToHash(
 		array $kvs, bool $convertValuesToString = false, bool $useSrc = false

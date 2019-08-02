@@ -1,7 +1,26 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+<?php
+declare( strict_types = 1 );
+
+namespace Parsoid\Ext\Gallery;
+
+use DOMDocument;
+use DOMElement;
+
+use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Ext\Extension;
+use Parsoid\Ext\ExtensionTag;
+use Parsoid\Html2Wt\SerializerState;
+use Parsoid\Tokens\DomSourceRange;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SourceRange;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\TokenUtils;
+
+use Wikimedia\Assert\Assert;
+
 /**
  * Implements the php parser's `renderImageGallery` natively.
  *
@@ -14,93 +33,92 @@
  * - perrow
  *
  * A proposed spec is at: https://phabricator.wikimedia.org/P2506
- * @module ext/Gallery
  */
+class Gallery extends ExtensionTag implements Extension {
 
-namespace Parsoid;
-
-$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 =
-
-$ParsoidExtApi;
-$ContentUtils = $temp0::ContentUtils; $DOMDataUtils = $temp0::
-DOMDataUtils; $DOMUtils = $temp0::
-DOMUtils; $parseWikitextToDOM = $temp0->
-parseWikitextToDOM; $Promise = $temp0::
-Promise; $Sanitizer = $temp0::
-Sanitizer; $TokenUtils = $temp0::
-TokenUtils; $Util = $temp0::
-Util;
-
-/**
- * Native Parsoid implementation of the Gallery extension.
- */
-class Gallery {
-	public function __construct() {
-		$this->config = [
+	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'name' => 'gallery',
 			'tags' => [
 				[
 					'name' => 'gallery',
-					'toDOM' => self::toDOM,
-					'modifyArgDict' => self::modifyArgDict,
-					'serialHandler' => self::serialHandler()
+					'class' => self::class,
 				]
 			],
 			'styles' => [ 'mediawiki.page.gallery.styles' ]
 		];
 	}
-	public $config;
 
-	public static function pCaption( $data ) {
-		$temp1 = $data;
-$state = $temp1->state;
-		$options = $state->extToken->getAttribute( 'options' );
-		$caption = $options->find( function ( $kv ) {
-				return $kv->k === 'caption';
+	/**
+	 * Parse the gallery caption.
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param KV[] $options
+	 * @return DOMElement|null
+	 */
+	private function pCaption(
+		ParsoidExtensionAPI $extApi, array $options
+	): ?DOMElement {
+		$caption = null;
+		foreach ( $options as $kv ) {
+			if ( $kv->k === 'caption' ) {
+				$caption = $kv;
+				break;
+			}
 		}
-		);
-		if ( $caption === null || !$caption->v ) { return null;
-  }
+		if ( $caption === null || !$caption->v ) {
+			return null;
+		}
 		// `normalizeExtOptions` messes up src offsets, so we do our own
 		// normalization to avoid parsing sol blocks
 		$capV = preg_replace( '/[\t\r\n ]/', ' ', $caption->vsrc );
-		$doc = /* await */ $parseWikitextToDOM(
-			$state,
+		$doc = $extApi->parseWikitextToDOM(
 			$capV,
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					'inTemplate' => $state->parseContext->inTemplate,
+					'inTemplate' => $extApi->parseContext['inTemplate'],
 					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
-				'srcOffsets' => array_slice( $caption->srcOffsets, 2 )
+				'srcOffsets' => $caption->valueOffset(),
 			],
 			false// Gallery captions are deliberately not parsed in SOL context
 		);
+		$body = DOMCompat::getBody( $doc );
 		// Store before `migrateChildrenBetweenDocs` in render
-		DOMDataUtils::visitAndStoreDataAttribs( $doc->body );
-		return $doc->body;
+		DOMDataUtils::visitAndStoreDataAttribs( $body );
+		return $body;
 	}
 
-	public static function pLine( $data, $obj ) {
-		$temp2 = $data;
-$state = $temp2->state;
-$opts = $temp2->opts;
-		$env = $state->env;
+	/**
+	 * Parse a single line of the gallery.
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param string $line
+	 * @param int $lineStartOffset
+	 * @param Opts $opts
+	 * @return ParsedLine|null
+	 */
+	private static function pLine(
+		ParsoidExtensionAPI $extApi, string $line, int $lineStartOffset,
+		Opts $opts
+	): ?ParsedLine {
+		$env = $extApi->getEnv();
 
 		// Regexp from php's `renderImageGallery`
-		$matches = preg_match( '/^([^|]+)(\|(?:.*))?$/', $obj->line );
-		if ( !$matches ) { return null;
-  }
+		if ( !preg_match( '/^([^|]+)(\|(?:.*))?$/D', $line, $matches ) ) {
+			return null;
+		}
 
 		$text = $matches[ 1 ];
-		$caption = $matches[ 2 ] || '';
+		$caption = $matches[ 2 ] ?? '';
 
 		// TODO: % indicates rawurldecode.
 
-		$title = $env->makeTitleFromText( $text,
-			$env->conf->wiki->canonicalNamespaces->file, true
+		$title = $env->makeTitleFromText(
+			$text,
+			$env->getSiteConfig()->canonicalNamespaceId( 'file' ),
+			true /* no exceptions */
 		);
 
 		if ( $title === null || !$title->getNamespace()->isFile() ) {
@@ -111,82 +129,95 @@ $opts = $temp2->opts;
 		// See the check for 'FIGURE' below.
 		$file = $title->getPrefixedDBKey();
 
-		$mode = $modes->get( $opts->mode );
+		$mode = Mode::byName( $opts->mode );
 
 		// NOTE: We add "none" here so that this renders in the block form
 		// (ie. figure) for an easier structure to manipulate.
 		$start = '[[';
 		$middle = '|' . $mode->dimensions( $opts ) . '|none';
 		$end = ']]';
-		$wt = $start + $file + $middle + $caption + $end;
+		$wt = $start . $file . $middle . $caption . $end;
 
 		// This is all in service of lining up the caption
-		$shiftOffset = function ( $offset ) use ( &$start, &$file, &$obj, &$middle, &$caption, &$text ) {
+		$shiftOffset = function ( $offset ) use (
+			$lineStartOffset, $text, $caption, $file, $start, $middle
+		) {
 			$offset -= strlen( $start );
-			if ( $offset <= 0 ) { return null;
-   }
-			if ( $offset <= count( $file ) ) {
-				// Align file part
-				return $obj->offset + $offset;
+			if ( $offset <= 0 ) {
+				return null;
 			}
-			$offset -= count( $file );
-			$offset -= count( $middle );
-			if ( $offset <= 0 ) { return null;
-   }
-			if ( $offset <= count( $caption ) ) {
+			if ( $offset <= strlen( $file ) ) {
+				// Align file part
+				return $lineStartOffset + $offset;
+			}
+			$offset -= strlen( $file );
+			$offset -= strlen( $middle );
+			if ( $offset <= 0 ) {
+				return null;
+			}
+			if ( $offset <= strlen( $caption ) ) {
 				// Align caption part
-				return $obj->offset + count( $text ) + $offset;
+				return $lineStartOffset + strlen( $text ) + $offset;
 			}
 			return null;
 		};
 
-		$doc = /* await */ $parseWikitextToDOM(
-			$state,
+		$parentFrame = $extApi->getFrame();
+		$newFrame = $parentFrame->newChild( $parentFrame->getTitle(), [], $wt );
+
+		$doc = $extApi->parseWikitextToDOM(
 			$wt,
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					'inTemplate' => $state->parseContext->inTemplate,
+					'inTemplate' => $extApi->parseContext['inTemplate'],
 					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
-				'frame' => $state->frame->newChild( $state->frame->title, [], $wt ),
-				'srcOffsets' => [ 0, count( $wt ) ]
+				'frame' => $newFrame,
+				'srcOffsets' => new SourceRange( 0, strlen( $wt ) ),
 			],
-			true// sol
+			true // sol
 		);
 
-		$body = $doc->body;
+		$body = DOMCompat::getBody( $doc );
 
 		// Now shift the DSRs in the DOM by startOffset, and strip DSRs
 		// for bits which aren't the caption or file, since they
 		// don't refer to actual source wikitext
-		ContentUtils::shiftDSR( $env, $body, function ( $dsr ) use ( &$shiftOffset ) {
-				$dsr[ 0 ] = $shiftOffset( $dsr[ 0 ] );
-				$dsr[ 1 ] = $shiftOffset( $dsr[ 1 ] );
+		ContentUtils::shiftDSR(
+			$env,
+			$body,
+			function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
+				$start = $shiftOffset( $dsr->start );
+				$end = $shiftOffset( $dsr->end );
 				// If either offset is invalid, remove entire DSR
-				if ( $dsr[ 0 ] === null || $dsr[ 1 ] === null ) { return null;
-	   }
-				return $dsr;
-		}
+				if ( $start === null || $end === null ) {
+					return null;
+				}
+				return new DomSourceRange(
+					$start, $end, $dsr->openWidth, $dsr->closeWidth
+				);
+			}
 		);
 
 		$thumb = $body->firstChild;
-		if ( $thumb->nodeName !== 'FIGURE' ) {
+		if ( $thumb->nodeName !== 'figure' ) {
 			return null;
 		}
+		DOMUtils::assertElt( $thumb );
 
 		$rdfaType = $thumb->getAttribute( 'typeof' );
 
-		// Clean it out for reuse later
-		while ( $body->firstChild ) { $body->firstChild->remove();
-  }
+		// Detach from document
+		DOMCompat::remove( $thumb );
 
-		$figcaption = $thumb->querySelector( 'figcaption' );
+		// Detach figcaption as well
+		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );
 		if ( !$figcaption ) {
 			$figcaption = $doc->createElement( 'figcaption' );
 		} else {
-			$figcaption->remove();
+			DOMCompat::remove( $figcaption );
 		}
 
 		if ( $opts->showfilename ) {
@@ -198,99 +229,112 @@ $opts = $temp2->opts;
 			$figcaption->insertBefore( $galleryfilename, $figcaption->firstChild );
 		}
 
-		$gallerytext = !preg_match( '/^\s*$/', $figcaption->innerHTML ) && $figcaption;
+		$gallerytext = null;
+		for ( $capChild = $figcaption->firstChild;
+			 $capChild !== null;
+			 $capChild = $capChild->nextSibling ) {
+			if (
+				DOMUtils::isText( $capChild ) &&
+				preg_match( '/^\s*$/D', $capChild->nodeValue )
+			) {
+				// skip blank text nodes
+				continue;
+			}
+			// Found a non-blank node!
+			$gallerytext = $figcaption;
+			break;
+		}
+
 		if ( $gallerytext ) {
 			// Store before `migrateChildrenBetweenDocs` in render
 			DOMDataUtils::visitAndStoreDataAttribs( $gallerytext );
 		}
-		return [ 'thumb' => $thumb, 'gallerytext' => $gallerytext, 'rdfaType' => $rdfaType ];
+		return new ParsedLine( $thumb, $gallerytext, $rdfaType );
 	}
 
-	public static function toDOM( $state, $content, $args ) {
+	/** @inheritDoc */
+	public function toDOM(
+		ParsoidExtensionAPI $extApi, string $content, array $args
+	): DOMDocument {
 		$attrs = TokenUtils::kvToHash( $args, true );
-		$opts = new Opts( $state->env, $attrs );
+		$opts = new Opts( $extApi->getEnv(), $attrs );
 
-		// Pass this along the promise chain ...
-		$data = [
-			'state' => $state,
-			'opts' => $opts
-		];
-
-		$dataAttribs = $state->extToken->dataAttribs;
-		$offset =
-		$dataAttribs->extTagOffsets[ 0 ] + $dataAttribs->extTagOffsets[ 2 ];
+		$offset = $extApi->getExtTagOffsets()->innerStart();
 
 		// Prepare the lines for processing
-		$lines = array_map( explode( "\n", $content ),
-			function ( $line, $ind ) {
-				$obj = [ 'line' => $line, 'offset' => $offset ];
-				$offset += count( $line ) + 1; // For the nl
-				// For the nl
-				return $obj;
-			}
-		)
+		$lines = explode( "\n", $content );
+		$lines = array_map( function ( $line ) use ( &$offset ) {
+				$lineObj = [ 'line' => $line, 'offset' => $offset ];
+				$offset += strlen( $line ) + 1; // For the nl
+				return $lineObj;
+		}, $lines );
 
-		->
-		filter( function ( $obj, $ind, $arr ) {
-				return !( ( $ind === 0 || $ind === count( $arr ) - 1 ) && preg_match( '/^\s*$/', $obj->line ) );
-		}
-		);
+		$caption = $opts->caption ? $this->pCaption( $extApi, $args ) : null;
+		$lines = array_map( function ( $lineObj ) use ( $extApi, $opts ) {
+			return $this->pLine(
+				$extApi, $lineObj['line'], $lineObj['offset'], $opts
+			);
+		}, $lines );
 
-		return Promise::join(
-			( $opts->caption === null ) ? null : self::pCaption( $data ),
-			Promise::map( $lines, function ( $line ) use ( &$data ) {return Gallery::pLine( $data, $line );
-   } )
-		)->
-		then( function ( $ret ) use ( &$modes, &$opts, &$state, &$DOMDataUtils ) {
-				// Drop invalid lines like "References: 5."
-				$oLines = $ret[ 1 ]->filter( function ( $o ) {
-						return $o !== null;
-				}
-				);
-				$mode = $modes->get( $opts->mode );
-				$doc = $mode->render( $state->env, $opts, $ret[ 0 ], $oLines );
-				// Reload now that `migrateChildrenBetweenDocs` is done
-				DOMDataUtils::visitAndLoadDataAttribs( $doc->body );
-				return $doc;
-		}
-		);
+		// Drop invalid lines like "References: 5."
+		$lines = array_filter( $lines, function ( $lineObj ) {
+			return $lineObj !== null;
+		} );
+
+		$mode = Mode::byName( $opts->mode );
+		$doc = $mode->render( $extApi->getEnv(), $opts, $caption, $lines );
+		// Reload now that `migrateChildrenBetweenDocs` is done
+		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
+		return $doc;
 	}
 
-	public static function contentHandler( $node, $state ) {
+	private function contentHandler(
+		DOMElement $node, SerializerState $state
+	): string {
 		$content = "\n";
-		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
+		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			switch ( $child->nodeType ) {
-				case $child::ELEMENT_NODE:
+			case XML_ELEMENT_NODE:
+				DOMUtils::assertElt( $child );
 				// Ignore if it isn't a "gallerybox"
-				if ( $child->nodeName !== 'LI'
-|| $child->getAttribute( 'class' ) !== 'gallerybox'
+				if (
+					$child->nodeName !== 'li' ||
+					$child->getAttribute( 'class' ) !== 'gallerybox'
 				) {
 					break;
 				}
-				$thumb = $child->querySelector( '.thumb' );
-				if ( !$thumb ) { break;
-	   }
+				$thumb = DOMCompat::querySelector( $child, '.thumb' );
+				if ( !$thumb ) {
+					break;
+				}
 				// FIXME: The below would benefit from a refactoring that
 				// assumes the figure structure, as in the link handler.
 				$elt = DOMUtils::selectMediaElt( $thumb );
 				if ( $elt ) {
 					// FIXME: Should we preserve the original namespace?  See T151367
-					$resource = $elt->getAttribute( 'resource' );
-					if ( $resource !== null ) {
-						$content += preg_replace( '/^\.\//', '', $resource, 1 );
+					if ( $elt->hasAttribute( 'resource' ) ) {
+						$resource = $elt->getAttribute( 'resource' );
+						$content .= preg_replace( '/^\.\//', '', $resource, 1 );
 						// FIXME: Serializing of these attributes should
 						// match the link handler so that values stashed in
 						// data-mw aren't ignored.
-						$alt = $elt->getAttribute( 'alt' );
-						if ( $alt !== null ) {
-							$content += '|alt=' . $state->serializer->wteHandlers->escapeLinkContent( $state, $alt, false, $child, true );
+						if ( $elt->hasAttribute( 'alt' ) ) {
+							$alt = $elt->getAttribute( 'alt' );
+							$content .= '|alt=' .
+								$state->serializer->wteHandlers->escapeLinkContent(
+									$state, $alt, false, $child, true
+								);
 						}
 						// The first "a" is for the link, hopefully.
-						$a = $thumb->querySelector( 'a' );
-						if ( $a ) {
+						$a = DOMCompat::querySelector( $thumb, 'a' );
+						if ( $a && $a->hasAttribute( 'href' ) ) {
 							$href = $a->getAttribute( 'href' );
-							if ( $href !== null && $href !== $resource ) {
-								$content += '|link=' . $state->serializer->wteHandlers->escapeLinkContent( $state, preg_replace( '/^\.\//', '', $href, 1 ), false, $child, true );
+							if ( $href !== $resource ) {
+								$href = preg_replace( '/^\.\//', '', $href, 1 );
+								$content .= '|link=' .
+										$state->serializer->wteHandlers->escapeLinkContent(
+											$state, $href, false, $child, true
+										);
 							}
 						}
 					}
@@ -299,34 +343,32 @@ $opts = $temp2->opts;
 					// returning mw:Error (apierror-filedoesnotexist) as
 					// plaintext.  Continue to serialize this content until
 					// that version is no longer supported.
-					$content += $thumb->textContent;
+					$content .= $thumb->textContent;
 				}
-				$gallerytext = $child->querySelector( '.gallerytext' );
+				$gallerytext = DOMCompat::querySelector( $child, '.gallerytext' );
 				if ( $gallerytext ) {
-					$showfilename = $gallerytext->querySelector( '.galleryfilename' );
+					$showfilename = DOMCompat::querySelector( $gallerytext, '.galleryfilename' );
 					if ( $showfilename ) {
-						$showfilename->remove(); // Destructive to the DOM!
+						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 					}
 					$state->singleLineContext->enforce();
-					$caption =
-					/* await */ $state->serializeCaptionChildrenToString(
+					$caption = $state->serializeCaptionChildrenToString(
 						$gallerytext,
-						$state->serializer->wteHandlers->wikilinkHandler
+						[ $state->serializer->wteHandlers, 'wikilinkHandler' ]
 					);
-					array_pop( $state->singleLineContext );
+					$state->singleLineContext->pop();
 					// Drop empty captions
-					if ( !preg_match( '/^\s*$/', $caption ) ) {
-						$content += '|' . $caption;
+					if ( !preg_match( '/^\s*$/D', $caption ) ) {
+						$content .= '|' . $caption;
 					}
 				}
-				$content += "\n";
+				$content .= "\n";
 				break;
-				case $child::TEXT_NODE:
-
-				case $child::COMMENT_NODE:
+			case XML_TEXT_NODE:
+			case XML_COMMENT_NODE:
 				// Ignore it
 				break;
-				default:
+			default:
 				Assert::invariant( false, 'Should not be here!' );
 				break;
 			}
@@ -334,66 +376,55 @@ $opts = $temp2->opts;
 		return $content;
 	}
 
-	public static function serialHandler() {
-		return [
-			'handle' => /* async */function ( $node, $state, $wrapperUnmodified ) use ( &$DOMDataUtils ) {
-				$dataMw = DOMDataUtils::getDataMw( $node );
-				$dataMw->attrs = $dataMw->attrs || [];
-				// Handle the "gallerycaption" first
-				// Handle the "gallerycaption" first
-				$galcaption = $node->querySelector( 'li.gallerycaption' );
-				if ( $galcaption
-&& // FIXME: VE should signal to use the HTML by removing the
-						// `caption` from data-mw.
-						gettype( $dataMw->attrs->caption ) !== 'string'
-				) {
-					$dataMw->attrs->caption =
-					/* await */ $state->serializeCaptionChildrenToString(
-						$galcaption,
-						$state->serializer->wteHandlers->mediaOptionHandler
-					);
-				}
-				$startTagSrc =
-				/* await */ $state->serializer->serializeExtensionStartTag( $node, $state );
+	/** @inheritDoc */
+	public function fromHTML(
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
+	): string {
+		$dataMw = DOMDataUtils::getDataMw( $node );
+		$dataMw->attrs = $dataMw->attrs ?? (object)[];
+		// Handle the "gallerycaption" first
+		$galcaption = DOMCompat::querySelector( $node, 'li.gallerycaption' );
+		if (
+			$galcaption &&
+			// FIXME: VE should signal to use the HTML by removing the
+			// `caption` from data-mw.
+			!is_string( $dataMw->attrs->caption ?? null )
+		) {
+			$dataMw->attrs->caption = $state->serializeCaptionChildrenToString(
+				$galcaption,
+				[ $state->serializer->wteHandlers, 'mediaOptionHandler' ]
+			);
+		}
+		$startTagSrc = $state->serializer->serializeExtensionStartTag(
+			$node, $state
+		);
 
-				if ( !$dataMw->body ) {
-					return $startTagSrc; // We self-closed this already.
-				} else { // We self-closed this already.
-
-					$content = null;
-					// FIXME: VE should signal to use the HTML by removing the
-					// `extsrc` from the data-mw.
-					// FIXME: VE should signal to use the HTML by removing the
-					// `extsrc` from the data-mw.
-					if ( gettype( $dataMw->body->extsrc ) === 'string' ) {
-						$content = $dataMw->body->extsrc;
-					} else {
-						$content = /* await */ Gallery::contentHandler( $node, $state );
-					}
-					return $startTagSrc + $content . '</' . $dataMw->name . '>';
-				}
+		if ( !$dataMw->body ) {
+			return $startTagSrc; // We self-closed this already.
+		} else {
+			// FIXME: VE should signal to use the HTML by removing the
+			// `extsrc` from the data-mw.
+			if ( is_string( $dataMw->body->extsrc ?? null ) ) {
+				$content = $dataMw->body->extsrc;
+			} else {
+				$content = $this->contentHandler( $node, $state );
 			}
-
-		];
+			return $startTagSrc . $content . '</' . $dataMw->name . '>';
+		}
 	}
 
-	public static function modifyArgDict( $env, $argDict ) {
+	/** @inheritDoc */
+	public function modifyArgDict(
+		ParsoidExtensionAPI $extApi, object $argDict
+	): void {
 		// FIXME: Only remove after VE switches to editing HTML.
-		if ( $env->conf->parsoid->nativeGallery ) {
+		if ( $extApi->getEnv()->getSiteConfig()->nativeGalleryEnabled() ) {
 			// Remove extsrc from native extensions
-			$argDict->body->extsrc = null;
+			unset( $argDict->body->extsrc );
 
 			// Remove the caption since it's redundant with the HTML
 			// and we prefer editing it there.
-			$argDict->attrs->caption = null;
+			unset( $argDict->attrs->caption );
 		}
 	}
-}
-
-Gallery::pLine = /* async */Gallery::pLine;
-Gallery::pCaption = /* async */Gallery::pCaption;
-Gallery::contentHandler = /* async */Gallery::contentHandler;
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports = $Gallery;
 }

@@ -210,7 +210,7 @@ class ContentUtils {
 			if ( DOMUtils::matchTypeOf( $node, '/^mw:(Image|ExpandedAttrs)$/D' ) ) {
 				$dmw = DOMDataUtils::getDataMw( $node );
 				// Handle embedded HTML in template-affected attributes
-				if ( $dmw->attribs ) {
+				if ( $dmw->attribs ?? null ) {
 					foreach ( $dmw->attribs as &$a ) {
 						foreach ( $a as $kOrV ) {
 							if ( gettype( $kOrV ) !== 'string' && $kOrV->html ) {
@@ -220,7 +220,7 @@ class ContentUtils {
 					}
 				}
 				// Handle embedded HTML in figure-inline captions
-				if ( $dmw->caption ) {
+				if ( $dmw->caption ?? null ) {
 					$dmw->caption = $convertString( $dmw->caption );
 				}
 				DOMDataUtils::setDataMw( $node, $dmw );

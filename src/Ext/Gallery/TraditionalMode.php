@@ -1,139 +1,184 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\Gallery;
 
-$ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 = $ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils;
-$DOMUtils = $temp0::DOMUtils;
-$JSUtils = $temp0::JSUtils;
-$Util = $temp0::Util;
+use DOMDocument;
+use DOMElement;
+
+use Parsoid\Config\Env;
+use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Util;
 
 /**
  * @class
  */
-class Traditional {
-	public function __construct() {
-		$this->mode = 'traditional';
+class TraditionalMode extends Mode {
+	/**
+	 * Create a TraditionalMode singleton.
+	 * @param string|null $mode Only used by subclasses.
+	 */
+	protected function __construct( string $mode = null ) {
+		parent::__construct( $mode ?? 'traditional' );
 		$this->scale = 1;
-		$this->padding = [ 'thumb' => 30, 'box' => 5, 'border' => 8 ];
-	}
-	public $mode;
-	public $scale;
-	public $padding;
-
-	public function MODE() {
- return $this->mode;
- }
-	public function SCALE() {
- return $this->scale;
- }
-	public function PADDING() {
- return $this->padding;
- }
-
-	public function appendAttr( $ul, $k, $v ) {
-		$val = $ul->getAttribute( $k ) || '';
-		if ( $val ) { $val += ' ';
-  }
-		$ul->setAttribute( $k, $val + $v );
+		$this->padding = (object)[ 'thumb' => 30, 'box' => 5, 'border' => 8 ];
 	}
 
-	public function ul( $opts, $doc ) {
-		$ul = $doc->createElement( 'ul' );
-		$cl = 'gallery mw-gallery-' . $this::MODE();
-		$ul->setAttribute( 'class', $cl );
-		Object::keys( $opts->attrs )->forEach( function ( $k ) use ( &$ul, &$opts ) {
-				$this->appendAttr( $ul, $k, $opts->attrs[ $k ] );
+	/** @var float */
+	protected $scale;
+	/** @var object */
+	protected $padding;
+
+	private function appendAttr( DOMElement $ul, string $k, string $v ) {
+		$val = $ul->hasAttribute( $k ) ? $ul->getAttribute( $k ) : '';
+		if ( strlen( $val ) > 0 ) {
+			$val .= ' ';
 		}
-		);
-		$doc->body->appendChild( $ul );
+		$ul->setAttribute( $k, $val . $v );
+	}
+
+	private function ul( Opts $opts, DOMDocument $doc ): DOMElement {
+		$ul = $doc->createElement( 'ul' );
+		$cl = 'gallery mw-gallery-' . $this->mode;
+		$ul->setAttribute( 'class', $cl );
+		foreach ( $opts->attrs as $k => $v ) {
+			$this->appendAttr( $ul, $k, $v );
+		}
+		DOMCompat::getBody( $doc )->appendChild( $ul );
 		$this->perRow( $opts, $ul );
 		$this->setAdditionalOptions( $opts, $ul );
 		return $ul;
 	}
 
-	public function perRow( $opts, $ul ) {
+	/**
+	 * @param Opts $opts
+	 * @param DOMElement $ul
+	 */
+	protected function perRow( Opts $opts, DOMElement $ul ): void {
 		if ( $opts->imagesPerRow > 0 ) {
-			$padding = $this::PADDING();
+			$padding = $this->padding;
 			$total = $opts->imageWidth + $padding->thumb + $padding->box + $padding->border;
 			$total *= $opts->imagesPerRow;
-			$this->appendAttr( $ul, 'style', implode(
-
-					' ', [
-						'max-width: ' . $total . 'px;',
-						'_width: ' . $total . 'px;'
-					]
-				)
-			);
+			$this->appendAttr( $ul, 'style', 'max-width: ' . $total . 'px;' );
+			$this->appendAttr( $ul, 'style', '_width: ' . $total . 'px;' );
 		}
 	}
 
-	public function setAdditionalOptions( $opts, $ul ) {
- }
+	/**
+	 * @param Opts $opts
+	 * @param DOMElement $ul
+	 */
+	protected function setAdditionalOptions( Opts $opts, DOMElement $ul ): void {
+	}
 
-	public function caption( $opts, $doc, $ul, $caption ) {
+	private function caption(
+		Opts $opts, DOMDocument $doc, DOMElement $ul, DOMElement $caption
+	) {
 		$li = $doc->createElement( 'li' );
 		$li->setAttribute( 'class', 'gallerycaption' );
 		DOMUtils::migrateChildrenBetweenDocs( $caption, $li );
-		$li->setAttribute( 'data-parsoid', $caption->getAttribute( 'data-parsoid' ) );
+		if ( $caption->hasAttribute( 'data-parsoid' ) ) {
+			$li->setAttribute( 'data-parsoid', $caption->getAttribute( 'data-parsoid' ) );
+		}
 		// The data-mw attribute *shouldn't* exist, since this caption
 		// should be a <body>.  But let's be safe and copy it anyway.
-		$li->setAttribute( 'data-mw', $caption->getAttribute( 'data-mw' ) );
+		if ( $caption->hasAttribute( 'data-mw' ) ) {
+			$li->setAttribute( 'data-mw', $caption->getAttribute( 'data-mw' ) );
+		}
 		$ul->appendChild( $doc->createTextNode( "\n" ) );
 		$ul->appendChild( $li );
 	}
 
-	public function dimensions( $opts ) {
+	/** @inheritDoc */
+	public function dimensions( Opts $opts ): string {
 		return "{$opts->imageWidth}x{$opts->imageHeight}px";
 	}
 
-	public function scaleMedia( $opts, $wrapper ) {
+	/**
+	 * @param Opts $opts
+	 * @param DOMElement $wrapper
+	 * @return int
+	 */
+	protected function scaleMedia( Opts $opts, DOMElement $wrapper ): int {
 		return $opts->imageWidth;
 	}
 
-	public function thumbWidth( $width ) {
-		return $width + $this::PADDING()->thumb;
+	/**
+	 * @param float|int $width
+	 * @return float|int
+	 */
+	protected function thumbWidth( $width ) {
+		return $width + $this->padding->thumb;
 	}
 
-	public function thumbHeight( $height ) {
-		return $height + $this::PADDING()->thumb;
+	/**
+	 * @param float|int $height
+	 * @return float|int
+	 */
+	protected function thumbHeight( $height ) {
+		return $height + $this->padding->thumb;
 	}
 
-	public function thumbStyle( $width, $height ) {
-		$style = [ "width: {$this->thumbWidth( $width )}px;" ];
-		if ( $this::MODE() === 'traditional' ) {
-			$style[] = "height: {$this->thumbHeight( $height )}px;";
+	/**
+	 * @param float|int $width
+	 * @param float|int $height
+	 * @return string
+	 */
+	protected function thumbStyle( $width, $height ): string {
+		$style = [ 'width: ' . $this->thumbWidth( $width ) . 'px;' ];
+		if ( $this->mode === 'traditional' ) {
+			$style[] = 'height: ' . $this->thumbHeight( $height ) . 'px;';
 		}
 		return implode( ' ', $style );
 	}
 
-	public function boxWidth( $width ) {
-		return $this->thumbWidth( $width ) + $this::PADDING()->box;
+	/**
+	 * @param float|int $width
+	 * @return float|int
+	 */
+	protected function boxWidth( $width ) {
+		return $this->thumbWidth( $width ) + $this->padding->box;
 	}
 
-	public function boxStyle( $width, $height ) {
-		return "width: {$this->boxWidth( $width )}px;";
+	/**
+	 * @param float|int $width
+	 * @param float|int $height
+	 * @return string
+	 */
+	protected function boxStyle( $width, $height ): string {
+		return 'width: ' . $this->boxWidth( $width ) . 'px;';
 	}
 
-	public function galleryText( $doc, $box, $gallerytext, $width ) {
+	/**
+	 * @param DOMDocument $doc
+	 * @param DOMElement $box
+	 * @param DOMElement|null $gallerytext
+	 * @param int $width
+	 */
+	protected function galleryText(
+		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, int $width
+	): void {
 		$div = $doc->createElement( 'div' );
 		$div->setAttribute( 'class', 'gallerytext' );
 		if ( $gallerytext ) {
 			DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
-			$div->setAttribute( 'data-parsoid', $gallerytext->getAttribute( 'data-parsoid' ) );
+			if ( $gallerytext->hasAttribute( 'data-parsoid' ) ) {
+				$div->setAttribute( 'data-parsoid', $gallerytext->getAttribute( 'data-parsoid' ) );
+			}
 			// The data-mw attribute *shouldn't* exist, since this gallerytext
 			// should be a <figcaption>.  But let's be safe and copy it anyway.
-			$div->setAttribute( 'data-mw', $gallerytext->getAttribute( 'data-mw' ) );
+			if ( $gallerytext->hasAttribute( 'data-mw' ) ) {
+				$div->setAttribute( 'data-mw', $gallerytext->getAttribute( 'data-mw' ) );
+			}
 		}
 		$box->appendChild( $div );
 	}
 
-	public function line( $opts, $doc, $ul, $o ) {
+	private function line(
+		Opts $opts, DOMDocument $doc, DOMElement $ul, ParsedLine $o
+	): void {
 		$width = $this->scaleMedia( $opts, $o->thumb );
 		$height = $opts->imageHeight;
 
@@ -147,8 +192,12 @@ class Traditional {
 
 		$wrapper = $doc->createElement( 'figure-inline' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
-		DOMDataUtils::setDataParsoid( $wrapper, Util::clone( DOMDataUtils::getDataParsoid( $o->thumb ) ) );
-		DOMDataUtils::setDataMw( $wrapper, Util::clone( DOMDataUtils::getDataMw( $o->thumb ) ) );
+		DOMDataUtils::setDataParsoid(
+			$wrapper, Util::clone( DOMDataUtils::getDataParsoid( $o->thumb ) )
+		);
+		DOMDataUtils::setDataMw(
+			$wrapper, Util::clone( DOMDataUtils::getDataMw( $o->thumb ) )
+		);
 		// Store temporarily, otherwise these get clobbered after rendering by
 		// the call to `DOMDataUtils.visitAndLoadDataAttribs()` in `toDOM`.
 		DOMDataUtils::storeDataAttribs( $wrapper );
@@ -161,14 +210,18 @@ class Traditional {
 		$ul->appendChild( $box );
 	}
 
-	public function render( $env, $opts, $caption, $lines ) {
+	/** @inheritDoc */
+	public function render(
+		Env $env, Opts $opts, ?DOMElement $caption, array $lines
+	): DOMDocument {
 		$doc = $env->createDocument();
 		$ul = $this->ul( $opts, $doc );
 		if ( $caption ) {
 			$this->caption( $opts, $doc, $ul, $caption );
 		}
-		$lines->forEach( function ( $l ) use ( &$opts, &$doc, &$ul ) {return $this->line( $opts, $doc, $ul, $l );
-  } );
+		foreach ( $lines as $l ) {
+			$this->line( $opts, $doc, $ul, $l );
+		}
 		$ul->appendChild( $doc->createTextNode( "\n" ) );
 		return $doc;
 	}

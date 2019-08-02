@@ -1,29 +1,65 @@
-<?php // lint >= 99.9
-// phpcs:ignoreFile
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
-/** @module */
+<?php
+declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Parsoid\Ext\Gallery;
 
-$ParsoidExtApi = $module->parent->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 = $ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils;
-$DOMUtils = $temp0::DOMUtils;
-$JSUtils = $temp0::JSUtils;
-$Util = $temp0::Util;
+use DOMDocument;
+use DOMElement;
 
-/** @namespace */
-$modes = JSUtils::mapObject( [
-		'traditional' => new Traditional(),
-		'nolines' => new NoLines(),
-		'slideshow' => new Slideshow(),
-		'packed' => new Packed(),
-		'packed-hover' => new PackedHover(),
-		'packed-overlay' => new PackedOverlay()
-	]
-);
+use Parsoid\Config\Env;
 
-if ( gettype( $module ) === 'object' ) {
-	$module->exports = $modes;
+abstract class Mode {
+	/**
+	 * The name of this mode.
+	 * @var string
+	 */
+	protected $mode;
+
+	/**
+	 * Construct a (singleton) mode.
+	 * @param string $name The name of this mode, all lowercase.
+	 */
+	protected function __construct( string $name ) {
+		$this->mode = $name;
+	}
+
+	/**
+	 * Format the dimensions as a string.
+	 * @param Opts $opts
+	 * @return string
+	 */
+	abstract public function dimensions( Opts $opts ): string;
+
+	/**
+	 * Render HTML for the given lines in this mode.
+	 * @param Env $env
+	 * @param Opts $opts
+	 * @param DOMElement|null $caption
+	 * @param ParsedLine[] $lines
+	 * @return DOMDocument
+	 */
+	abstract public function render(
+		Env $env, Opts $opts, ?DOMElement $caption, array $lines
+	): DOMDocument;
+
+	/**
+	 * Return the Mode object with the given name,
+	 * or null if the name is invalid.
+	 * @param string $name
+	 * @return Mode|null
+	 */
+	public static function byName( string $name ): ?Mode {
+		static $modesByName = null;
+		if ( $modesByName === null ) {
+			$modesByName = [
+				'traditional' => new TraditionalMode(),
+				'nolines' => new NoLinesMode(),
+				'slideshow' => new SlideshowMode(),
+				'packed' => new PackedMode(),
+				'packed-hover' => new PackedHoverMode(),
+				'packed-overlay' => new PackedOverlayMode()
+			];
+		}
+		return $modesByName[ $name ] ?? null;
+	}
 }

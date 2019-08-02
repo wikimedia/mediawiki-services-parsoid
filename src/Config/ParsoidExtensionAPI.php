@@ -6,6 +6,7 @@ namespace Parsoid\Config;
 use DOMDocument;
 use DOMElement;
 
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Wt2Html\Frame;
@@ -65,6 +66,21 @@ class ParsoidExtensionAPI {
 	 */
 	public function getEnv(): Env {
 		return $this->env;
+	}
+
+	/**
+	 * @return Frame
+	 */
+	public function getFrame(): Frame {
+		return $this->frame;
+	}
+
+	/**
+	 * Return the extTagOffsets from the extToken.
+	 * @return DomSourceRange|null
+	 */
+	public function getExtTagOffsets(): ?DomSourceRange {
+		return $this->extToken->dataAttribs->extTagOffsets ?? null;
 	}
 
 	/**

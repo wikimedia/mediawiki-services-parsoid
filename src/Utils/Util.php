@@ -332,17 +332,20 @@ class Util {
 	 *
 	 * @param string $str media dimension string to parse
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
-	 * @return int[]|null
+	 * @return array{x:int,y?:int}|null
 	 */
 	public static function parseMediaDimensions( string $str, bool $onlyOne = false ): ?array {
 		$dimensions = null;
 		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/D', $str, $match ) ) {
-			$dimensions = [ 'x' => (int)$match[1] ];
-			if ( isset( $match[2] ) ) {
+			$dimensions = [ 'x' => null, 'y' => null ];
+			if ( !empty( $match[1] ) ) {
+				$dimensions['x'] = intval( $match[1], 10 );
+			}
+			if ( !empty( $match[2] ) ) {
 				if ( $onlyOne ) {
 					return null;
 				}
-				$dimensions['y'] = (int)$match[2];
+				$dimensions['y'] = intval( $match[2], 10 );
 			}
 		}
 		return $dimensions;
@@ -352,11 +355,11 @@ class Util {
 	 * Validate media parameters
 	 * More generally, this is defined by the media handler in core
 	 *
-	 * @param int $num
+	 * @param int|null $num
 	 * @return bool
 	 */
-	public static function validateMediaParam( int $num ): bool {
-		return $num > 0;
+	public static function validateMediaParam( ?int $num ): bool {
+		return $num !== null && $num > 0;
 	}
 
 	/**

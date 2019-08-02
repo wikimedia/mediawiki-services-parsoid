@@ -408,6 +408,11 @@ class SiteConfig extends ISiteConfig {
 		$this->logger = $logger;
 	}
 
+	public function galleryOptions(): array {
+		$this->loadSiteData();
+		return $this->siteData['galleryoptions'];
+	}
+
 	public function allowedExternalImagePrefixes(): array {
 		$this->loadSiteData();
 		return $this->siteData['externalimages'] ?? [];
