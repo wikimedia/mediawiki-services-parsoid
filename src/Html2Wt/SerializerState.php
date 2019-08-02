@@ -357,11 +357,11 @@ class SerializerState {
 	 * Extracts a subset of the page source bound by the supplied indices.
 	 * @param int $start Start offset, in bytes
 	 * @param int $end End offset, in bytes
-	 * @return string
+	 * @return string|null
 	 */
-	public function getOrigSrc( int $start, int $end ): string {
+	public function getOrigSrc( int $start, int $end ): ?string {
 		Assert::invariant( $this->selserMode, 'SerializerState::$selserMode must be set' );
-		return substr( $this->env->getPageMainContent(), $start, $end - $start );
+		return $start <= $end ? substr( $this->env->getPageMainContent(), $start, $end - $start ) : null;
 	}
 
 	/**
