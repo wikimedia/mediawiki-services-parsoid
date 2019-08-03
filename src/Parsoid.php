@@ -35,6 +35,7 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param array $options [
 	 *   'wrapSections'      => (bool) Whether `<section>` wrappers should be added.
+	 *   'pageBundle'        => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
 	 *   'body_only'         => (bool|null) Only return the <body> children (T181657)
 	 *   'outputVersion'     => (string|null) Version of HTML to output.
 	 *                                        `null` returns the default version.
@@ -49,6 +50,9 @@ class Parsoid {
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
 		}
+		if ( isset( $options['pageBundle'] ) ) {
+			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
@@ -56,10 +60,22 @@ class Parsoid {
 		$doc = $handler->toHTML( $env );
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		$html = ContentUtils::toXML( $node, [
-			'innerXML' => $body_only,
-		] );
-		return new PageBundle( $html );
+		if ( $env->pageBundle ) {
+			$out = ContentUtils::extractDpAndSerialize( $node, [
+				'innerXML' => $body_only,
+			] );
+			return new PageBundle(
+				$out['html'],
+				// PORT-FIXME: Where is the conversion going to live?
+				get_object_vars( $out['pb']->parsoid ),
+				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null
+			);
+		} else {
+			$html = ContentUtils::toXML( $node, [
+				'innerXML' => $body_only,
+			] );
+			return new PageBundle( $html );
+		}
 	}
 
 	/**

@@ -190,6 +190,7 @@ class Env {
 	 * @param DataAccess $dataAccess
 	 * @param array|null $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
+	 *  - pageBundle: (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
@@ -216,6 +217,9 @@ class Env {
 		}
 		if ( isset( $options['wrapSections'] ) ) {
 			$this->wrapSections = !empty( $options['wrapSections'] );
+		}
+		if ( isset( $options['pageBundle'] ) ) {
+			$this->pageBundle = !empty( $options['pageBundle'] );
 		}
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];

@@ -23,6 +23,7 @@ use Parsoid\Parsoid;
 use Parsoid\Selser;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
@@ -381,6 +382,7 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		// PORT-FIXME where does $wikitext go?
 		$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), [
+			'pageBundle' => $envOptions['pageBundle'],
 			'wrapSections' => $envOptions['wrapSections'],
 			'bodyOnly' => $attribs['body_only'],
 			'outputVersion' => $env->getOutputContentVersion(),
@@ -548,7 +550,7 @@ abstract class ParsoidHandler extends Handler {
 					$downgradeStart = microtime( true );
 					FormatHelper::downgrade( $downgrade['from'], $downgrade['to'], $oldDoc, $origPb );
 					$this->statsdDataFactory->timing( 'downgrade.time', microtime( true ) - $downgradeStart );
-					$oldBody = $oldDoc->body;
+					$oldBody = DOMCompat::getBody( $oldDoc );
 				} else {
 					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
 						. 'different type, and no path to downgrade.';
@@ -608,7 +610,9 @@ abstract class ParsoidHandler extends Handler {
 					return $this->getResponseFactory()->createHttpError( 400,
 						[ 'message' => $errorMessage ] );
 				}
-				DOMDataUtils::applyPageBundle( $doc, $pb );
+				// PORT-FIXME: `applyPageBundle` takes an array ... and isn't
+				// implemented yet.
+				// DOMDataUtils::applyPageBundle( $doc, $pb );
 
 				// TODO(arlolra): data-parsoid is no longer versioned
 				// independently, but we leave this for backwards compatibility
@@ -626,14 +630,16 @@ abstract class ParsoidHandler extends Handler {
 			// If we got original html, parse it
 			if ( $original['html'] ) {
 				if ( !$oldBody ) {
-					$oldBody = DOMUtils::parseHTML( $original['html']['body'] )->body;
+					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $original['html']['body'] ) );
 				}
 				if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
 					if ( !$origPb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
 						return $this->getResponseFactory()->createHttpError( 400,
 							[ 'message' => $errorMessage ] );
 					}
-					DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
+					// PORT-FIXME: `applyPageBundle` takes an array ... and isn't
+					// implemented yet.
+					// DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
 				}
 				$oldhtml = ContentUtils::toXML( $oldBody );
 			}
