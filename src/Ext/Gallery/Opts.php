@@ -40,8 +40,8 @@ class Opts {
 			$this->mode = $mode;
 		}
 
-		$this->showfilename = (bool)( $attrs['showfilename'] ?? false );
-		$this->showthumbnails = (bool)( $attrs['showthumbnails'] ?? false );
+		$this->showfilename = isset( $attrs['showfilename'] );
+		$this->showthumbnails = isset( $attrs['showthumbnails'] );
 		$this->caption = (bool)( $attrs['caption'] ?? false );
 
 		// TODO: Good contender for T54941

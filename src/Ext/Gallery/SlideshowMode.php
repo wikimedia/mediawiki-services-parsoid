@@ -16,7 +16,7 @@ class SlideshowMode extends TraditionalMode {
 
 	/** @inheritDoc */
 	protected function setAdditionalOptions( Opts $opts, DOMElement $ul ): void {
-		$ul->setAttribute( 'data-showthumbnails', ( $opts->showthumbnails ) ? '1' : '' );
+		$ul->setAttribute( 'data-showthumbnails', $opts->showthumbnails ? '1' : '' );
 	}
 
 	/** @inheritDoc */

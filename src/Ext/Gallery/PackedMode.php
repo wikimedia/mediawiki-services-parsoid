@@ -32,7 +32,7 @@ class PackedMode extends TraditionalMode {
 	}
 
 	/** @inheritDoc */
-	public function scaleMedia( Opts $opts, DOMElement $wrapper ): int {
+	public function scaleMedia( Opts $opts, DOMElement $wrapper ) {
 		$elt = $wrapper->firstChild->firstChild;
 		DOMUtils::assertElt( $elt );
 		$width = $elt->getAttribute( 'width' ) ?? '';
@@ -53,7 +53,7 @@ class PackedMode extends TraditionalMode {
 
 	/** @inheritDoc */
 	protected function galleryText(
-		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, int $width
+		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, float $width
 	): void {
 		if ( $this->useTraditionalGalleryText() ) {
 			parent::galleryText( $doc, $box, $gallerytext, $width );

@@ -100,9 +100,9 @@ class TraditionalMode extends Mode {
 	/**
 	 * @param Opts $opts
 	 * @param DOMElement $wrapper
-	 * @return int
+	 * @return int|float
 	 */
-	protected function scaleMedia( Opts $opts, DOMElement $wrapper ): int {
+	protected function scaleMedia( Opts $opts, DOMElement $wrapper ) {
 		return $opts->imageWidth;
 	}
 
@@ -156,10 +156,10 @@ class TraditionalMode extends Mode {
 	 * @param DOMDocument $doc
 	 * @param DOMElement $box
 	 * @param DOMElement|null $gallerytext
-	 * @param int $width
+	 * @param float $width
 	 */
 	protected function galleryText(
-		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, int $width
+		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, float $width
 	): void {
 		$div = $doc->createElement( 'div' );
 		$div->setAttribute( 'class', 'gallerytext' );
