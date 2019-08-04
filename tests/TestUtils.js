@@ -148,9 +148,9 @@ TestUtils.normalizeOut = function(domBody, options) {
 	// Strip JSON attributes like data-mw and data-parsoid early so that
 	// comment stripping in normalizeNewlines does not match unbalanced
 	// comments in wikitext source.
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^\"]*"/g, '');
+	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\?"[^\"]*\\?"/g, '');
 	// single-quoted variant
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^\']*'/g, '');
+	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\?'[^\']*\\?'/g, '');
 	// strip typeof last
 	out = out.replace(/ typeof="[^\"]*"/g, '');
 

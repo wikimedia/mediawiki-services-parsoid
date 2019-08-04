@@ -127,9 +127,9 @@ class TestUtils {
 		if ( $parsoidOnly ) {
 			// unnecessary attributes, we don't need to check these
 			// style is in there because we should only check classes.
-			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)="[^\"]*"/u', '', $out );
+			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\\\?"[^\"]*\\\\?"/u', '', $out );
 			// single-quoted variant
-			$out = preg_replace( "/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)='[^\']*'/u", '', $out );
+			$out = preg_replace( "/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\\\?'[^\']*\\\\?'/u", '', $out );
 			// apos variant
 			$out = preg_replace( '/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/u', '', $out );
 
@@ -157,9 +157,9 @@ class TestUtils {
 		// Strip JSON attributes like data-mw and data-parsoid early so that
 		// comment stripping in normalizeNewlines does not match unbalanced
 		// comments in wikitext source.
-		$out = preg_replace( '/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)="[^"]*"/u', '', $out );
+		$out = preg_replace( '/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\\\?"[^"]*\\\\?"/u', '', $out );
 		// single-quoted variant
-		$out = preg_replace( "/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)='[^']*'/u", '', $out );
+		$out = preg_replace( "/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\\\?'[^']*\\\\?'/u", '', $out );
 		// strip typeof last
 		$out = preg_replace( '/ typeof="[^\"]*"/u', '', $out );
 		// replace mwt ids
