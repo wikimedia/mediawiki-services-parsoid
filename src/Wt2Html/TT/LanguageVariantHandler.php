@@ -165,12 +165,13 @@ class LanguageVariantHandler extends TokenHandler {
 				'show' => true
 			];
 		} else {
-			$dataMWV = array_reduce( $flags, function ( array $dmwv, string $f )
-				use ( &$sawFlagA ) {
-				if ( isset( WikitextConstants::$LCFlagMap[$f] ) ) {
-					$dmwv[ WikitextConstants::$LCFlagMap[$f] ] = true;
-					if ( $f === 'A' ) {
-						$sawFlagA = true;
+			$dataMWV = array_reduce( $flags, function ( array $dmwv, string $f ) use ( &$sawFlagA ) {
+				if ( array_key_exists( $f, WikitextConstants::$LCFlagMap ) ) {
+					if ( WikitextConstants::$LCFlagMap[$f] ) {
+						$dmwv[ WikitextConstants::$LCFlagMap[$f] ] = true;
+						if ( $f === 'A' ) {
+							$sawFlagA = true;
+						}
 					}
 				} else {
 					$dmwv['error'] = true;
@@ -190,7 +191,7 @@ class LanguageVariantHandler extends TokenHandler {
 					$sawTwoway = true;
 				} else {
 					$dataMWV['disabled'] = true;
-					$dataMWV['describe'] = null;
+					unset( $dataMWV['describe'] );
 				}
 			}
 			if ( isset( $dataMWV['describe'] ) ) {
@@ -204,7 +205,11 @@ class LanguageVariantHandler extends TokenHandler {
 				} else {
 					$dataMWV['name'] = [ 't' => $texts[0]['text'] ?? '' ];
 				}
-				$dataMWV['show'] = isset( $dataMWV['title'] ) || isset( $dataMWV['add'] ) ? null : true;
+				if ( isset( $dataMWV['title'] ) || isset( $dataMWV['add'] ) ) {
+					unset( $dataMWV['show'] );
+				} else {
+					$dataMWV['show'] = true;
+				}
 			} elseif ( $sawTwoway ) {
 				$dataMWV['twoway'] = $twoway;
 				$textSp = $twowaySp;
@@ -221,7 +226,7 @@ class LanguageVariantHandler extends TokenHandler {
 		}
 		// Use meta/not meta instead of explicit 'show' flag.
 		$isMeta = !isset( $dataMWV['show'] );
-		$dataMWV['show'] = null;
+		unset( $dataMWV['show'] );
 		// Trim some data from data-parsoid if it matches the defaults
 		if ( count( $flagSp ) === 2 * count( $dataAttribs->original ) ) {
 			$result = true;
@@ -244,13 +249,12 @@ class LanguageVariantHandler extends TokenHandler {
 		// meta, depending on (respectively) whether conversion output
 		// contains only inline content, could contain block content,
 		// or never contains any content.
+
+		ksort( $dataMWV );
 		$tokens = [
 			new TagTk( $isMeta ? 'meta' : ( $isBlock ? 'div' : 'span' ), [
 					new KV( 'typeof', 'mw:LanguageVariant' ),
-					new KV(
-						'data-mw-variant',
-						PHPUtils::jsonEncode( ksort( $dataMWV ) )
-					)
+					new KV( 'data-mw-variant', PHPUtils::jsonEncode( $dataMWV ) )
 				], (object)[
 					'fl' => $dataAttribs->original, // original "fl"ags
 					'flSp' => $this->compressSpArray( $flagSp ), // spaces around flags

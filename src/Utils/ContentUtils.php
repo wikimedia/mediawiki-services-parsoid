@@ -187,21 +187,21 @@ class ContentUtils {
 			$dmwv =
 				DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', null );
 			if ( $dmwv ) {
-				if ( $dmwv->disabled ) {
+				if ( isset( $dmwv->disabled ) ) {
 					$dmwv->disabled->t = $convertString( $dmwv->disabled->t );
 				}
-				if ( $dmwv->twoway ) {
+				if ( isset( $dmwv->twoway ) ) {
 					foreach ( $dmwv->twoway as $l ) {
 						$l->t = $convertString( $l->t );
 					}
 				}
-				if ( $dmwv->oneway ) {
+				if ( isset( $dmwv->oneway ) ) {
 					foreach ( $dmwv->oneway as $l ) {
 						$l->f = $convertString( $l->f );
 						$l->t = $convertString( $l->t );
 					}
 				}
-				if ( $dmwv->filter ) {
+				if ( isset( $dmwv->filter ) ) {
 					$dmwv->filter->t = $convertString( $dmwv->filter->t );
 				}
 				DOMDataUtils::setJSONAttribute( $node, 'data-mw-variant', $dmwv );
