@@ -55,7 +55,7 @@ abstract class SiteConfig {
 	];
 
 	/** var array */
-	private $nativeExtConfig = null;
+	protected $nativeExtConfig = null;
 
 	/** @var bool */
 	private $nativeExtConfigInitialized;

@@ -1394,44 +1394,6 @@ class TestRunner {
 		$this->mockApi->setApiPrefix( $prefix );
 		$this->siteConfig->reset();
 
-		// adjust config to match that used for PHP tests
-		// see core/tests/parser/parserTest.inc:setupGlobals() for
-		// full set of config normalizations done.
-		$this->siteConfig->setServerData( [
-			'server'      => 'http://example.org',
-			'scriptpath'  => '/',
-			'script'      => '/index.php',
-			'articlepath' => '/wiki/$1',
-			'baseURI'     => 'http://example.org/wiki/'
-		] );
-
-		// Add 'MemoryAlpha' namespace (T53680)
-		$this->siteConfig->updateNamespace( [
-			'id' => 100,
-			'case' => 'first-letter',
-			'subpages' => false,
-			'canonical' => 'MemoryAlpha',
-			'name' => 'MemoryAlpha',
-		] );
-
-		// Testing
-		if ( $this->siteConfig->iwp() === 'enwiki' ) {
-			$this->siteConfig->updateNamespace( [
-				'id' => 4,
-				'case' => 'first-letter',
-				'subpages' => true,
-				'canonical' => 'Project',
-				'name' => 'Base MW'
-			] );
-			$this->siteConfig->updateNamespace( [
-				'id' => 5,
-				'case' => 'first-letter',
-				'subpages' => true,
-				'canonical' => 'Project talk',
-				'name' => 'Base MW talk'
-			] );
-		}
-
 		// Update $wgInterwikiMagic flag
 		// default (undefined) setting is true
 		$iwmVal = $test->options['wginterwikimagic'] ?? null;
@@ -1440,10 +1402,6 @@ class TestRunner {
 		} else {
 			$this->siteConfig->setInterwikiMagic( $iwmVal === 1 || $iwmVal === true );
 		}
-
-		// Defaults
-		$this->siteConfig->responsiveReferences = SiteConfig::RESPONSIVE_REFERENCES_DEFAULT;
-		$this->siteConfig->disableSubpagesForNS( 0 );
 
 		if ( $test->options ) {
 			Assert::invariant( !isset( $test->options['extensions'] ),

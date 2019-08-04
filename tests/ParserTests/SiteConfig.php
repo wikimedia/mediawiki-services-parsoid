@@ -22,8 +22,6 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class info */
 	public $allowedExternalImagePrefixes = [ '' ];
 
-	const RESPONSIVE_REFERENCES_DEFAULT = [ 'enabled' => false, 'threshold' => 10 ];
-
 	/**
 	 * Init to default value for parserTests. Overrides parent-class info.
 	 * @var array
@@ -36,6 +34,50 @@ class SiteConfig extends ApiSiteConfig {
 
 	public function reset() {
 		parent::reset();
+
+		// adjust config to match that used for PHP tests
+		// see core/tests/parser/parserTest.inc:setupGlobals() for
+		// full set of config normalizations done.
+		$this->serverData = [
+			'server'      => 'http://example.org',
+			'scriptpath'  => '/',
+			'script'      => '/index.php',
+			'articlepath' => '/wiki/$1',
+			'baseURI'     => 'http://example.org/wiki/'
+		];
+
+		// Add 'MemoryAlpha' namespace (T53680)
+		$this->updateNamespace( [
+			'id' => 100,
+			'case' => 'first-letter',
+			'subpages' => false,
+			'canonical' => 'MemoryAlpha',
+			'name' => 'MemoryAlpha',
+		] );
+
+		// Testing
+		if ( $this->iwp() === 'enwiki' ) {
+			$this->updateNamespace( [
+				'id' => 4,
+				'case' => 'first-letter',
+				'subpages' => true,
+				'canonical' => 'Project',
+				'name' => 'Base MW'
+			] );
+			$this->updateNamespace( [
+				'id' => 5,
+				'case' => 'first-letter',
+				'subpages' => true,
+				'canonical' => 'Project talk',
+				'name' => 'Base MW talk'
+			] );
+		}
+
+		// Reset other values to defaults
+		$this->responsiveReferences = [ 'enabled' => false, 'threshold' => 10 ];
+		$this->disableSubpagesForNS( 0 );
+		$this->unregisterParserTestExtension( new StyleTag() );
+		$this->unregisterParserTestExtension( new RawHTML() );
 	}
 
 	private function deleteNamespace( string $name ) {
@@ -70,7 +112,7 @@ class SiteConfig extends ApiSiteConfig {
 	 * Delete any existing namespace with the same id.
 	 * Add new namespaces.
 	 */
-	public function updateNamespace( array $ns ): void {
+	private function updateNamespace( array $ns ): void {
 		$old = $this->namespaceName( (int)$ns['id'] );
 		if ( $old ) { // Id may already be defined; if so, clear it.
 			if ( $old === Util::normalizeNamespaceName( $ns['name'] ) ) {
@@ -97,10 +139,6 @@ class SiteConfig extends ApiSiteConfig {
 
 	public function interwikiMap(): array {
 		return $this->interwikiMap;
-	}
-
-	public function setServerData( array $data ): void {
-		$this->serverData = $data;
 	}
 
 	public function server(): string {
@@ -150,5 +188,39 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public function registerParserTestExtension( Extension $ext ): void {
 		$this->registerNativeExtension( $ext );
+	}
+
+	/**
+	 * Unregister a previously registered extension.
+	 * @param Extension $ext
+	 */
+	private function unregisterParserTestExtension( Extension $ext ): void {
+		$extConfig = $ext->getConfig();
+
+		foreach ( $extConfig['tags'] as $tagConfig ) {
+			$lowerTagName = strToLower( $tagConfig['name'] );
+			unset( $this->nativeExtConfig['allTags'][$lowerTagName] );
+			unset( $this->nativeExtConfig['nativeTags'][$lowerTagName] );
+		}
+
+		if ( isset( $extConfig['domProcessors'] ) ) {
+			unset( $this->nativeExtConfig['domProcessors'][get_class( $ext )] );
+		}
+
+		/*
+		 * FIXME: Leaving styles behind for now since they are harmless
+		 * and we cannot unset styles without resetting all styles across
+		 * all registered extensions.
+		 *
+		 * If unregistering extensions becomes a broader use case beyond
+		 * parser tests, we might want to handle this by tracking styles separately.
+		 */
+
+		/*
+		 * FIXME: Unsetting contentmodels is also tricky with the current
+		 * state tracked during registration. We will have to reprocess all
+		 * extensions or maintain a linked list of applicable extensions
+		 * for every content model
+		 */
 	}
 }
