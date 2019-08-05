@@ -59,7 +59,7 @@
 			"description": "Whether to emit 'clean' wikitext."
 		},
 		"ParsoidUseSelser": {
-			"value": false,
+			"value": true,
 			"description":"Whether to use selective serialization to avoid dirty diffs."
 		},
 		"ParsoidTraceFlags": {

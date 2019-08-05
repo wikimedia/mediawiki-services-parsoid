@@ -136,7 +136,11 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function metrics(): ?StatsdDataFactoryInterface {
-		return MediaWikiServices::getInstance()->getStatsdDataFactory();
+		// PORT-FIXME: Don't return this until the TODO in
+		// ISiteConfig::metrics() is resolved, otherwise calls to `endTiming`
+		// will throw.
+		// return MediaWikiServices::getInstance()->getStatsdDataFactory();
+		return null;
 	}
 
 	public function galleryOptions(): array {
