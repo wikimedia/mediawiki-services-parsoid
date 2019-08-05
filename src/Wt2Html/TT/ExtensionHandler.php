@@ -17,6 +17,7 @@ use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\TokenTransformManager;
+use stdClass;
 
 class ExtensionHandler extends TokenHandler {
 	/**
@@ -294,7 +295,7 @@ class ExtensionHandler extends TokenHandler {
 		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state['token'], $body, $opts );
 
 		if ( $state['isHtmlExt'] ) {
-			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp ?? (object)[];
+			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp ?? new stdClass;
 			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
 		}
 

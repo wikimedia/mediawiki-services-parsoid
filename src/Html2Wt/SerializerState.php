@@ -10,6 +10,7 @@ use Parsoid\Config\Env;
 use Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use stdClass;
@@ -323,11 +324,11 @@ class SerializerState {
 	}
 
 	private function resetSep() {
-		$this->sep = (object)[
+		$this->sep = PHPUtils::arrayToObject( [
 			'constraints' => null,
 			'src' => null,
 			'lastSourceNode' => null,
-		];
+		] );
 	}
 
 	/**

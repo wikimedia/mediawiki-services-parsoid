@@ -55,7 +55,7 @@ class DOMDataUtils {
 	 */
 	public static function getNodeData( DOMElement $node ): stdClass {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			self::setNodeData( $node, (object)[] );
+			self::setNodeData( $node, new stdClass );
 		}
 		$bag = self::getBag( $node->ownerDocument );
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
@@ -90,10 +90,10 @@ class DOMDataUtils {
 	public static function getDataParsoid( DOMElement $node ): stdClass {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->parsoid ) ) {
-			$data->parsoid = (object)[];
+			$data->parsoid = new stdClass;
 		}
 		if ( !isset( $data->parsoid->tmp ) ) {
-			$data->parsoid->tmp = (object)[];
+			$data->parsoid->tmp = new stdClass;
 		}
 		return $data->parsoid;
 	}
@@ -139,7 +139,7 @@ class DOMDataUtils {
 	public static function getDataMw( DOMElement $node ): stdClass {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->mw ) ) {
-			$data->mw = (object)[];
+			$data->mw = new stdClass;
 		}
 		return $data->mw;
 	}
@@ -481,8 +481,8 @@ class DOMDataUtils {
 		}
 		DOMUtils::assertElt( $node );
 		// Reset the node data object's stored state, since we're reloading it
-		self::setNodeData( $node, (object)[] );
-		$dp = self::getJSONAttribute( $node, 'data-parsoid', (object)[] );
+		self::setNodeData( $node, new stdClass );
+		$dp = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
 		if ( isset( $dp->sa ) ) {
 			$dp->sa = (array)$dp->sa;
 		}
@@ -504,7 +504,7 @@ class DOMDataUtils {
 				SourceRange::fromArray( $dp->extLinkContentOffsets );
 		}
 		if ( !empty( $options['markNew'] ) ) {
-			$dp->tmp = (object)( $dp->tmp ?? [] );
+			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
 		self::setDataParsoid( $node, $dp );
@@ -592,7 +592,7 @@ class DOMDataUtils {
 				// The pagebundle didn't have data-mw before 999.x
 				// PORT-FIXME - semver equivalent code required
 				$semver->satisfies( $options['env']->outputContentVersion, '^999.0.0' ) ) {
-				$data = $data ?: (object)[];
+				$data = $data ?: new stdClass;
 				$data->mw = self::getDataMw( $node );
 			} else {
 				self::setJSONAttribute( $node, 'data-mw', self::getDataMw( $node ) );

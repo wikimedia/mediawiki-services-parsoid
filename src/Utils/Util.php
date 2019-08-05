@@ -319,7 +319,9 @@ class Util {
 		return (object)[
 			'dict' => (object)[
 				'name' => $name,
-				'attrs' => (object)TokenUtils::kvToHash( $options, true ),
+				'attrs' => PHPUtils::arrayToObject(
+					TokenUtils::kvToHash( $options, true )
+				),
 				'body' => (object)[
 					'extsrc' => self::extractExtBody( $extToken )
 				],

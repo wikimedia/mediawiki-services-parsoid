@@ -1154,7 +1154,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Account for the possibility of an expanded target
 		$dataMwAttr = $token->getAttribute( 'data-mw' );
-		$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : (object)[];
+		$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
 
 		$opts = [
 			'title' => [
@@ -1568,7 +1568,7 @@ class WikiLinkHandler extends TokenHandler {
 
 			// Update data-mw
 			$dataMwAttr = $token->getAttribute( 'data-mw' );
-			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : (object)[];
+			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
 			if ( is_array( $dataMw->errors ?? null ) ) {
 				$errs = array_merge( $dataMw->errors, $errs );
 			}

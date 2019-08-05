@@ -15,6 +15,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
+use stdClass;
 
 /**
  * Generic attribute expansion handler.
@@ -506,7 +507,7 @@ class AttributeExpander extends TokenHandler {
 				// So, record these in the tmp attribute for the template hander
 				// to retrieve and process.
 				if ( !$token->dataAttribs->tmp ) {
-					$token->dataAttribs->tmp = (object)[];
+					$token->dataAttribs->tmp = new stdClass;
 				}
 				$token->dataAttribs->tmp->templatedAttribs = $expAttrs;
 			} else {

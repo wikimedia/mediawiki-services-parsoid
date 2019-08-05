@@ -20,6 +20,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -225,7 +226,7 @@ class PipelineUtils {
 				$endTag = new EndTagTk( $nodeName );
 				// Keep stx parity
 				if ( WTUtils::isLiteralHTMLNode( $node ) ) {
-					$endTag->dataAttribs = (object)[ 'stx' => 'html' ];
+					$endTag->dataAttribs = PHPUtils::arrayToObject( [ 'stx' => 'html' ] );
 				}
 				$tokBuf[] = $endTag;
 			}
@@ -380,7 +381,7 @@ class PipelineUtils {
 			// As indicated above, data attributes have already been stored
 			// for `node` so we need to peel them off for the purpose of
 			// cloning.
-			$storedDp = DOMDataUtils::getJSONAttribute( $node, 'data-parsoid', (object)[] );
+			$storedDp = DOMDataUtils::getJSONAttribute( $node, 'data-parsoid', new stdClass );
 			$storedDp->tsr = null;
 			DOMDataUtils::setDataParsoid( $workNode, $storedDp );
 		}
@@ -448,7 +449,7 @@ class PipelineUtils {
 		// Pass through setDSR flag
 		if ( !empty( $opts['setDSR'] ) ) {
 			if ( !$firstWrapperToken->dataAttribs->tmp ) {
-				$firstWrapperToken->dataAttribs->tmp = (object)[];
+				$firstWrapperToken->dataAttribs->tmp = new stdClass;
 			}
 			$firstWrapperToken->dataAttribs->tmp->setDSR = $opts['setDSR'];
 		}
@@ -456,7 +457,7 @@ class PipelineUtils {
 		// Pass through fromCache flag
 		if ( !empty( $opts['fromCache'] ) ) {
 			if ( !$firstWrapperToken->dataAttribs->tmp ) {
-				$firstWrapperToken->dataAttribs->tmp = (object)[];
+				$firstWrapperToken->dataAttribs->tmp = new stdClass;
 			}
 			$firstWrapperToken->dataAttribs->tmp->fromCache = $opts['fromCache'];
 		}
@@ -488,7 +489,8 @@ class PipelineUtils {
 		foreach ( $textCommentAccum as $n ) {
 			$span->appendChild( $n );
 		}
-		DOMDataUtils::setDataParsoid( $span, (object)[ 'tmp' => (object)[ 'wrapper' => true ] ] );
+		DOMDataUtils::setDataParsoid( $span,
+			(object)[ 'tmp' => PHPUtils::arrayToObject( [ 'wrapper' => true ] ) ] );
 		$textCommentAccum = [];
 	}
 

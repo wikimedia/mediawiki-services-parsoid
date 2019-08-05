@@ -8,6 +8,7 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\Frame;
@@ -71,7 +72,7 @@ class ProcessTreeBuilderFixups {
 			DOMDataUtils::setDataParsoid( $placeHolder, (object)[
 					'src' => $src,
 					'name' => strtoupper( $name ), // PORT-FIXME: Parsoid-JS uses $dp->name in uppercase
-					'tmp' => (object)[],
+					'tmp' => new stdClass,
 				]
 			);
 
@@ -297,7 +298,8 @@ class ProcessTreeBuilderFixups {
 						if ( !$sibling || $sibling->nodeName !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
-							self::addPlaceholderMeta( $frame, $c, $dp, $expectedName, (object)[ 'end' => true ] );
+							self::addPlaceholderMeta( $frame, $c, $dp, $expectedName,
+								PHPUtils::arrayToObject( [ 'end' => true ] ) );
 						} elseif ( !empty( $dp->stx ) ) {
 							DOMUtils::assertElt( $sibling );
 							// Transfer stx flag

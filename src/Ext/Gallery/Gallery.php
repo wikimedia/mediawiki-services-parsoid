@@ -19,6 +19,7 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\TokenUtils;
 
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -381,7 +382,7 @@ class Gallery extends ExtensionTag implements Extension {
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
 	): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$dataMw->attrs = $dataMw->attrs ?? (object)[];
+		$dataMw->attrs = $dataMw->attrs ?? new stdClass;
 		// Handle the "gallerycaption" first
 		$galcaption = DOMCompat::querySelector( $node, 'li.gallerycaption' );
 		if (

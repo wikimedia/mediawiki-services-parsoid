@@ -19,6 +19,7 @@ use Parsoid\Wt2Html\Params;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
+use stdClass;
 
 /**
  * Some parser functions, and quite a bunch of stubs of parser functions.
@@ -704,7 +705,7 @@ class ParserFunctions {
 			(object)[ 'src' => $enc, 'srcContent' => $c ]
 		);
 		$tokens[] = $c;
-		$tokens[] = new EndTagTk( 'span', [], (object)[] );
+		$tokens[] = new EndTagTk( 'span', [], new stdClass );
 	}
 
 	public function pf_anchorencode( $token, Frame $frame, Params $params ): array {

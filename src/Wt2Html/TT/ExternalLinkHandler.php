@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Tokens\KV;
@@ -219,7 +220,7 @@ class ExternalLinkHandler extends TokenHandler {
 					$content = [ new SelfclosingTagTk( 'img', [
 						new KV( 'src', $src ),
 						new KV( 'alt', end( $checkAlt ) )
-						], (object)[ 'type' => 'extlink' ]
+						], PHPUtils::arrayToObject( [ 'type' => 'extlink' ] )
 					) ];
 				}
 			}

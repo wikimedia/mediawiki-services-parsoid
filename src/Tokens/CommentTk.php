@@ -27,7 +27,7 @@ class CommentTk extends Token {
 		// Won't survive in the DOM, but still useful for token serialization
 		// FIXME: verify if this is still required given that html->wt doesn't
 		// use tokens anymore. That was circa 2012 serializer code.
-		$this->dataAttribs = $dataAttribs ?? (object)[];
+		$this->dataAttribs = $dataAttribs ?? new stdClass;
 	}
 
 	/**

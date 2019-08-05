@@ -14,6 +14,7 @@ use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 
 /**
  * See tests/parser/ParserTestParserHook.php in core.
@@ -47,7 +48,8 @@ class ParserHook extends ExtensionTag implements Extension {
 			// Pass an object since we want the data to be carried around across
 			// nodes in the DOM. Passing an array won't work since visitDOM doesn't
 			// use a reference on its end. Maybe we could fix that separately.
-			DOMUtils::visitDOM( $body, [ $this, 'staticTagPostProcessor' ], (object)[ 'buf' => '' ] );
+			DOMUtils::visitDOM( $body, [ $this, 'staticTagPostProcessor' ],
+				PHPUtils::arrayToObject( [ 'buf' => '' ] ) );
 		}
 	}
 

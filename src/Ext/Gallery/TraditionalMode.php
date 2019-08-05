@@ -10,6 +10,7 @@ use Parsoid\Config\Env;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 
 /**
@@ -23,7 +24,7 @@ class TraditionalMode extends Mode {
 	protected function __construct( string $mode = null ) {
 		parent::__construct( $mode ?? 'traditional' );
 		$this->scale = 1;
-		$this->padding = (object)[ 'thumb' => 30, 'box' => 5, 'border' => 8 ];
+		$this->padding = PHPUtils::arrayToObject( [ 'thumb' => 30, 'box' => 5, 'border' => 8 ] );
 	}
 
 	/** @var float */

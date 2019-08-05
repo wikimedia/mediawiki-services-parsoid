@@ -25,8 +25,8 @@ class DataBag {
 		$this->dataObject = [];
 		$this->docId = 0;
 		$this->pageBundle = (object)[
-			"parsoid" => (object)[ "counter" => -1, "ids" => [] ],
-			"mw" => (object)[ "ids" => [] ]
+			"parsoid" => PHPUtils::arrayToObject( [ "counter" => -1, "ids" => [] ] ),
+			"mw" => PHPUtils::arrayToObject( [ "ids" => [] ] )
 		];
 	}
 

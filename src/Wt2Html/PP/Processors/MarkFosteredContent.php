@@ -9,8 +9,10 @@ use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -92,7 +94,7 @@ class MarkFosteredContent {
 		);
 		DOMDataUtils::setDataParsoid( $s, (object)[
 				'tsr' => Util::clone( DOMDataUtils::getDataParsoid( $table )->tsr ),
-				'tmp' => (object)[ 'fromFoster' => true ],
+				'tmp' => PHPUtils::arrayToObject( [ 'fromFoster' => true ] ),
 			]
 		);
 		$fosterBox->parentNode->insertBefore( $s, $fosterBox );
@@ -140,7 +142,7 @@ class MarkFosteredContent {
 		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
 		DOMDataUtils::setDataParsoid(
 			$fosterContentHolder,
-			(object)[ 'fostered' => true, 'tmp' => (object)[] ]
+			(object)[ 'fostered' => true, 'tmp' => new stdClass ]
 		);
 		return $fosterContentHolder;
 	}

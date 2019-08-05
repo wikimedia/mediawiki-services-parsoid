@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tokens;
 
+use Parsoid\Utils\PHPUtils;
 use stdClass;
 
 use Parsoid\Wt2Html\Frame;
@@ -167,7 +168,7 @@ abstract class Token implements \JsonSerializable {
 				"value" => $curVal,
 				// Mark as modified if a new element
 				// NOTE: strict equality will not work in this comparison
-				"modified" => $this->dataAttribs != (object)[],
+				"modified" => $this->dataAttribs != new stdClass,
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {
@@ -316,7 +317,7 @@ abstract class Token implements \JsonSerializable {
 			$da = isset( $jsTk['dataAttribs'] ) ? (object)$jsTk['dataAttribs'] : null;
 			if ( $da ) {
 				if ( isset( $da->tmp ) ) {
-					$da->tmp = (object)$da->tmp;
+					$da->tmp = PHPUtils::arrayToObject( $da->tmp );
 				}
 				if ( isset( $da->dsr ) ) {
 					// dsr is generally for DOM trees, not Tokens.

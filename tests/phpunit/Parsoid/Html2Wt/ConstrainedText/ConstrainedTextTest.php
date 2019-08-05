@@ -11,6 +11,7 @@ use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 
 /**
  * @coversDefaultClass \Parsoid\Html2Wt\ConstrainedText\ConstrainedText
@@ -25,7 +26,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideConstrainedText
 	 */
 	public function testConstrainedText( $t ) {
-		$t = (object)$t;
+		$t = PHPUtils::arrayToObject( $t );
 		// Set up environment and test data
 		$env = new MockEnv( [
 			'linkPrefixRegex' => $t->linkPrefixRegex ?? null,
@@ -48,7 +49,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 
 		// Test ConstrainedText::escapeLine
 		foreach ( $t->escapes as $e ) {
-			$e = (object)$e;
+			$e = PHPUtils::arrayToObject( $e );
 			$nct = $ct; // copy
 			if ( isset( $e->left ) ) {
 				$n = $node->ownerDocument->createTextNode( $e->left );

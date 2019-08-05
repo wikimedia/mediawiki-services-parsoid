@@ -469,7 +469,7 @@ class Linter {
 					if ( $adjNode ) {
 						$adjDp = DOMDataUtils::getDataParsoid( $adjNode );
 						if ( !isset( $adjDp->tmp ) ) {
-							$adjDp->tmp = (object)[];
+							$adjDp->tmp = new stdClass;
 						}
 						$adjDp->tmp->linted = true;
 						$env->recordLint( 'misnested-tag', $lintObj );

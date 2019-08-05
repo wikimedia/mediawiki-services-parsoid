@@ -36,6 +36,7 @@ use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
 
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 class HTML5TreeBuilder extends PipelineStage {
@@ -268,10 +269,10 @@ class HTML5TreeBuilder extends PipelineStage {
 		}
 
 		$attribs = $token->attribs ?? [];
-		$dataAttribs = $token->dataAttribs ?? (object)[ 'tmp' => (object)[] ];
+		$dataAttribs = $token->dataAttribs ?? (object)[ 'tmp' => new stdClass ];
 
 		if ( !isset( $dataAttribs->tmp ) ) {
-			$dataAttribs->tmp = (object)[];
+			$dataAttribs->tmp = new stdClass;
 		}
 
 		if ( $this->inTransclusion ) {

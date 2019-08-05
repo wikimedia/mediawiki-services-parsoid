@@ -143,7 +143,7 @@ class LinkHandlerUtils {
 			'prefix' => $dp->prefix ?? '',
 			'linkType' => null
 		];
-		$rtData->content = (object)[];
+		$rtData->content = new stdClass;
 
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
@@ -1048,8 +1048,8 @@ class LinkHandlerUtils {
 		}
 
 		$nopts = [];
-		$outerDP = $outerElt ? DOMDataUtils::getDataParsoid( $outerElt ) : (object)[];
-		$outerDMW = $outerElt ? DOMDataUtils::getDataMw( $outerElt ) : (object)[];
+		$outerDP = $outerElt ? DOMDataUtils::getDataParsoid( $outerElt ) : new stdClass;
+		$outerDMW = $outerElt ? DOMDataUtils::getDataMw( $outerElt ) : new stdClass;
 		$mwAliases = $state->getEnv()->getSiteConfig()->mwAliases();
 
 		$getOpt = function ( $key ) use ( &$outerDP ) {

@@ -22,6 +22,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\PHPUtils;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
@@ -110,7 +111,7 @@ class TokenizerUtils {
 				// Add a flag that indicates that the tokenizer didn't
 				// encounter a "|...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
-				$dp->tmp = (object)[ 'noAttrs' => true ];
+				$dp->tmp = PHPUtils::arrayToObject( [ 'noAttrs' => true ] );
 			}
 		} else {
 			$a = $attrInfo[ 0 ];

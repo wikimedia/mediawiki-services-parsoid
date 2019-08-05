@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMElement;
 
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 
 class PackedMode extends TraditionalMode {
 	/**
@@ -16,7 +17,7 @@ class PackedMode extends TraditionalMode {
 	protected function __construct( string $mode = null ) {
 		parent::__construct( $mode ?? 'packed' );
 		$this->scale = 1.5;
-		$this->padding = (object)[ 'thumb' => 0, 'box' => 2, 'border' => 8 ];
+		$this->padding = PHPUtils::arrayToObject( [ 'thumb' => 0, 'box' => 2, 'border' => 8 ] );
 	}
 
 	/** @inheritDoc */

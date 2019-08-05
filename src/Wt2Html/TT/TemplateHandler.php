@@ -23,6 +23,7 @@ use Parsoid\Utils\TitleException;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\Params;
 use Parsoid\Wt2Html\TokenTransformManager;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -658,7 +659,7 @@ class TemplateHandler extends TokenHandler {
 		$dataParsoid = (object)[
 			'tsr' => clone $state['token']->dataAttribs->tsr,
 			'src' => $state['token']->dataAttribs->src,
-			'tmp' => (object)[]
+			'tmp' => new stdClass
 		];
 
 		$meta = [ new SelfclosingTagTk( 'meta', $attrs, $dataParsoid ) ];
@@ -673,7 +674,7 @@ class TemplateHandler extends TokenHandler {
 				new KV( 'typeof', $state['wrapperType'] . '/End' ),
 				new KV( 'about', '#' . $state['wrappedObjectId'] )
 			],
-			(object)[ 'tsr' => new SourceRange( null, $tsr ? $tsr->end : null ) ]
+			PHPUtils::arrayToObject( [ 'tsr' => new SourceRange( null, $tsr ? $tsr->end : null ) ] )
 		);
 	}
 
@@ -875,7 +876,7 @@ class TemplateHandler extends TokenHandler {
 		// TODO: `dict` might be a good candidate for a T65370 style cleanup as a
 		// Map, but since it's intended to be stringified almost immediately, we'll
 		// just have to be cautious with it by checking for own properties.
-		$dict = (object)[];
+		$dict = new stdClass;
 		$paramInfos = [];
 		$argIndex = 1;
 
