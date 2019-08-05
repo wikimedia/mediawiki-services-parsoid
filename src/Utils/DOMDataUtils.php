@@ -10,6 +10,7 @@ use DOMElement;
 use DOMNode;
 use stdClass;
 
+use Parsoid\PageBundle;
 use Parsoid\Config\Env;
 use Parsoid\DataParsoid;
 use Parsoid\Tokens\DomSourceRange;
@@ -432,10 +433,25 @@ class DOMDataUtils {
 	 * code to extract `<ref>` body from the DOM.
 	 *
 	 * @param DOMDocument $doc doc
-	 * @param array $pb page bundle
+	 * @param PageBundle $pb page bundle
 	 */
-	public static function applyPageBundle( DOMDocument $doc, array $pb ) {
-		throw new \BadMethodCallException( 'Not yet ported' );
+	public static function applyPageBundle( DOMDocument $doc, PageBundle $pb ): void {
+		DOMUtils::visitDOM( DOMCompat::getBody( $doc ), function ( DOMNode $node ) use ( &$pb ): void {
+			if ( $node instanceof DOMElement ) {
+				$id = $node->getAttribute( 'id' ) ?? '';
+				if ( isset( $pb->parsoid['ids'][$id] ) ) {
+					self::setJSONAttribute( $node, 'data-parsoid', $pb->parsoid['ids'][$id] );
+				}
+				if ( isset( $pb->mw['ids'][$id] ) ) {
+					// Only apply if it isn't already set.  This means earlier
+					// applications of the pagebundle have higher precedence,
+					// inline data being the highest.
+					if ( !$node->hasAttribute( 'data-mw' ) ) {
+						self::setJSONAttribute( $node, 'data-mw', $pb->mw['ids'][$id] );
+					}
+				}
+			}
+		} );
 	}
 
 	/**

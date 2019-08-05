@@ -610,9 +610,7 @@ abstract class ParsoidHandler extends Handler {
 					return $this->getResponseFactory()->createHttpError( 400,
 						[ 'message' => $errorMessage ] );
 				}
-				// PORT-FIXME: `applyPageBundle` takes an array ... and isn't
-				// implemented yet.
-				// DOMDataUtils::applyPageBundle( $doc, $pb );
+				DOMDataUtils::applyPageBundle( $doc, $pb );
 
 				// TODO(arlolra): data-parsoid is no longer versioned
 				// independently, but we leave this for backwards compatibility
@@ -637,9 +635,7 @@ abstract class ParsoidHandler extends Handler {
 						return $this->getResponseFactory()->createHttpError( 400,
 							[ 'message' => $errorMessage ] );
 					}
-					// PORT-FIXME: `applyPageBundle` takes an array ... and isn't
-					// implemented yet.
-					// DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
+					DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
 				}
 				$oldhtml = ContentUtils::toXML( $oldBody );
 			}

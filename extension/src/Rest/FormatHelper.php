@@ -155,7 +155,7 @@ class FormatHelper {
 		// Effectively, skip applying data-parsoid.  Note that if we were to
 		// support a pb2html downgrade, we'd need to apply the full thing,
 		// but that would create complications where ids would be left behind.
-		// See the comment in around `DOMDataUtils.applyPageBundle`
+		// See the comment in around `DOMDataUtils::applyPageBundle`
 		$newPageBundle = new PageBundle( $pageBundle->html, [ 'ids' => [] ], $pageBundle->mw );
 		DOMDataUtils::applyPageBundle( $doc, $newPageBundle );
 		// Now, modify the pagebundle to the expected form.  This is important
