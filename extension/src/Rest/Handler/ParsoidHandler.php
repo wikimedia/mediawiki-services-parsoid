@@ -620,13 +620,13 @@ abstract class ParsoidHandler extends Handler {
 			}
 
 			// If we got original src, set it
-			if ( $original['wikitext'] ) {
+			if ( isset( $original['wikitext'] ) ) {
 				// Don't overwrite env.page.meta!
 				$oldtext = $original['wikitext']['body'];
 			}
 
 			// If we got original html, parse it
-			if ( $original['html'] ) {
+			if ( isset( $original['html'] ) ) {
 				if ( !$oldBody ) {
 					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $original['html']['body'] ) );
 				}
