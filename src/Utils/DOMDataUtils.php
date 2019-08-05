@@ -375,11 +375,11 @@ class DOMDataUtils {
 	 * @param stdClass $data data
 	 */
 	public static function storeInPageBundle( DOMElement $node, Env $env, stdClass $data ): void {
-		$uid = $node->getAttribute( 'id' );
+		$uid = $node->getAttribute( 'id' ) ?? '';
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
 		$docDp = $pb->parsoid;
-		$origId = $uid;
+		$origId = $uid ?: null;
 		if ( array_key_exists( $uid, $docDp->ids ) ) {
 			$uid = null;
 			// FIXME: Protect mw ids while tokenizing to avoid false positives.
