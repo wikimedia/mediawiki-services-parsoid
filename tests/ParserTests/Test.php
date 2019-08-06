@@ -113,7 +113,7 @@ class Test extends Item {
 		}
 
 		if ( !empty( $testFilter['regex'] ) ) {
-			return (bool)preg_match( $testFilter['raw'], $this->title );
+			return (bool)preg_match( '/' . $testFilter['raw'] . '/', $this->title );
 		}
 
 		if ( !empty( $testFilter['string'] ) ) {
