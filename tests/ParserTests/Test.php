@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tests\ParserTests;
 
-use Parsoid\Config\Env;
-use Parsoid\Config\Api\PageConfig;
 use Parsoid\Utils\PHPUtils;
 
 /**
@@ -126,7 +124,7 @@ class Test extends Item {
 	/**
 	 * @return string
 	 */
-	private function pageName(): string {
+	public function pageName(): string {
 		if ( !$this->pageName ) {
 			$this->pageName = $this->options['title'] ?? 'Parser test';
 			if ( is_array( $this->pageName ) ) {
@@ -137,35 +135,4 @@ class Test extends Item {
 		return $this->pageName;
 	}
 
-	/**
-	 * @param Env $env
-	 * @return int
-	 */
-	private function pageNs( Env $env ): int {
-		if ( !$this->pageNs ) {
-			$this->pageNs = $env->makeTitleFromURLDecodedStr( $this->pageName() )->getNameSpaceId();
-		}
-
-		return $this->pageNs;
-	}
-
-	/**
-	 * Construct a page config object for this test. Wikitext is explicitly
-	 * passed in since for html2html test, we will use the output of the first
-	 * html2wt run instead of using the wikitext from the test declaration.
-	 *
-	 * @param Env $env
-	 * @param SiteConfig $siteConfig
-	 * @param string $wikitext
-	 * @return PageConfig
-	 */
-	public function getPageConfig( Env $env, SiteConfig $siteConfig, string $wikitext ): PageConfig {
-		$opts = [ 'title' => $this->pageName(),
-			'pagens' => $this->pageNs( $env ),
-			'pageContent' => $wikitext,
-			'pageLanguage' => $siteConfig->lang(),
-			'pageLanguagedir' => $siteConfig->rtl() ? 'rtl' : 'ltr'
-		];
-		return new PageConfig( null, $opts );
-	}
 }

@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tests\ParserTests;
 
-use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Error;
@@ -11,6 +10,7 @@ use Exception;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\Api\DataAccess;
+use Parsoid\Config\Api\PageConfig;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
 use Parsoid\Selser;
@@ -22,6 +22,7 @@ use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use Parsoid\Wt2Html\PageConfigFrame;
 
 use Psr\Log\LoggerInterface;
 
@@ -175,8 +176,8 @@ class TestRunner {
 	private $dataAccess;
 
 	/**
-	 * Global cross-test env object use for things like logging,
-	 * initial title processing while reading te parserTests file.
+	 * Global cross-test env object only to be used for title processing while
+	 * reading the parserTests file.
 	 *
 	 * Every test constructs its own private $env object.
 	 *
@@ -247,22 +248,33 @@ class TestRunner {
 	}
 
 	private function newEnv( Test $test, string $wikitext ): Env {
+		$pageNs = $this->dummyEnv->makeTitleFromURLDecodedStr(
+			$test->pageName()
+		)->getNameSpaceId();
+
+		$opts = [
+			'title' => $test->pageName(),
+			'pagens' => $pageNs,
+			'pageContent' => $wikitext,
+			'pageLanguage' => $this->siteConfig->lang(),
+			'pageLanguagedir' => $this->siteConfig->rtl() ? 'rtl' : 'ltr'
+		];
+
+		$pageConfig = new PageConfig( null, $opts );
+
 		$env = new Env(
 			$this->siteConfig,
-			$test->getPageConfig( $this->dummyEnv, $this->siteConfig, $wikitext ),
+			$pageConfig,
 			$this->dataAccess,
 			$this->envOptions
 		);
+
 		$env->pageCache = $this->articleTexts;
 		// $this->mockApi->setArticleCache( $this->articles );
 		// Set parsing resource limits.
 		// $env->setResourceLimits();
 
 		return $env;
-	}
-
-	private function newDoc( string $html ): DOMDocument {
-		return $this->dummyEnv->createDocument( $html );
 	}
 
 	/**
@@ -320,12 +332,15 @@ class TestRunner {
 	/**
 	 * Make changes to a DOM in order to run a selser test on it.
 	 *
+	 * @param Env $env
 	 * @param Test $test
 	 * @param DOMElement $body
 	 * @param array $changelist
 	 * @return DOMNode The altered body.
 	 */
-	private function applyChanges( Test $test, DOMElement $body, array $changelist ): DOMNode {
+	private function applyChanges(
+		Env $env, Test $test, DOMElement $body, array $changelist
+	): DOMNode {
 		// Seed the random-number generator based on the test title
 		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->title ?? '' ) );
 
@@ -404,11 +419,12 @@ class TestRunner {
 		};
 
 		$applyChangesInternal = function ( DOMNode $node, array $changes ) use (
-			&$applyChangesInternal, $removeNode, $insertNewNode, $randomString
+			&$env, &$applyChangesInternal, $removeNode, $insertNewNode,
+			$randomString
 		): void {
 			if ( !$node ) {
 				// FIXME: Generate change assignments dynamically
-				$this->dummyEnv->log( 'error', 'no node in applyChangesInternal, ',
+				$env->log( 'error', 'no node in applyChangesInternal, ',
 					'HTML structure likely changed'
 				);
 				return;
@@ -444,7 +460,7 @@ class TestRunner {
 							if ( DOMUtils::isElt( $child ) ) {
 								$child->setAttribute( 'data-foobar', $randomString() );
 							} else {
-								$this->dummyEnv->log( 'error',
+								$env->log( 'error',
 									'Buggy changetree. changetype 1 (modify attribute)' .
 									' cannot be applied on text/comment nodes.' );
 							}
@@ -471,7 +487,7 @@ class TestRunner {
 			}
 		};
 
-		if ( isset( $this->dummyEnv->dumpFlags['dom:post-changes'] ) ) {
+		if ( isset( $env->dumpFlags['dom:post-changes'] ) ) {
 			ContentUtils::dumpDOM( $body, 'Original DOM' );
 		}
 
@@ -485,7 +501,7 @@ class TestRunner {
 			$applyChangesInternal( $body, $test->changes );
 		}
 
-		if ( isset( $this->dummyEnv->dumpFlags['dom:post-changes'] ) ) {
+		if ( isset( $env->dumpFlags['dom:post-changes'] ) ) {
 			error_log( 'Change tree : ' . json_encode( $test->changes ) . "\n" );
 			ContentUtils::dumpDOM( $body, 'Edited DOM' );
 		}
@@ -793,15 +809,25 @@ class TestRunner {
 	/**
 	 * Convert a wikitext string to an HTML Node
 	 *
+	 * @param Env $env
 	 * @param Test $test
 	 * @param string $mode
 	 * @param string $wikitext
 	 * @return DOMElement
 	 */
 	private function convertWt2Html(
-		Test $test, string $mode, string $wikitext
+		Env $env, Test $test, string $mode, string $wikitext
 	): DOMElement {
-		$env = $this->newEnv( $test, $wikitext );
+		// FIXME: Ugly!  Maybe we should switch to using the entrypoint to
+		// the library for parserTests instead of reusing the environment
+		// and touching these internals.
+		$content = $env->getPageConfig()->getRevisionContent();
+		// @phan-suppress-next-line PhanUndeclaredProperty
+		$content->data['main']['content'] = $wikitext;
+		$env->topFrame = new PageConfigFrame(
+			$env, $env->getPageConfig(), $env->getSiteConfig()
+		);
+
 		$handler = $env->getContentHandler();
 		$doc = $handler->toHTML( $env );
 		return DOMCompat::getBody( $doc );
@@ -810,6 +836,7 @@ class TestRunner {
 	/**
 	 * Convert a DOM to Wikitext.
 	 *
+	 * @param Env $env
 	 * @param Test $test
 	 * @param array $options
 	 * @param string $mode
@@ -817,9 +844,8 @@ class TestRunner {
 	 * @return string
 	 */
 	private function convertHtml2Wt(
-		Test $test, array $options, string $mode, DOMElement $body
+		Env $env, Test $test, array $options, string $mode, DOMElement $body
 	): string {
-		$env = $this->newEnv( $test, $test->wikitext ?? '' );
 		$selserData = null;
 		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
 		if ( $mode === 'selser' ) {
@@ -839,6 +865,8 @@ class TestRunner {
 	 */
 	private function runTestInMode( Test $test, string $mode, array $options ): void {
 		$test->time = [];
+
+		$env = $this->newEnv( $test, $test->wikitext ?? '' );
 
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
@@ -876,12 +904,12 @@ class TestRunner {
 				// therefore causes false failures.
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
-			$body = DOMCompat::getBody( $this->newDoc( $html ) );
-			$wt = $this->convertHtml2Wt( $test, $options, $mode, $body );
+			$body = DOMCompat::getBody( $env->createDocument( $html ) );
+			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $body );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
 			if ( $test->cachedBODYstr === null ) {
-				$body = $this->convertWt2Html( $test, $mode, $test->wikitext );
+				$body = $this->convertWt2Html( $env, $test, $mode, $test->wikitext );
 				// Caching stage 1 - save the result of the first two stages
 				// so we can maybe skip them later
 
@@ -896,10 +924,10 @@ class TestRunner {
 				if ( $mode === 'wt2html' ) {
 					// no-op
 				} else {
-					$body = DOMCompat::getBody( $this->newDoc( $test->cachedBODYstr ) );
+					$body = DOMCompat::getBody( $env->createDocument( $test->cachedBODYstr ) );
 				}
 			} else {
-				$body = DOMCompat::getBody( $this->newDoc( $test->cachedBODYstr ) );
+				$body = DOMCompat::getBody( $env->createDocument( $test->cachedBODYstr ) );
 			}
 		}
 
@@ -920,12 +948,12 @@ class TestRunner {
 				} else {
 					$r = $this->generateChanges( $options, $test, $body );
 				}
-				$body = $this->applyChanges( $test, $r['body'], $r['changetree'] );
+				$body = $this->applyChanges( $env, $test, $r['body'], $r['changetree'] );
 			}
 			// Save the modified DOM so we can re-test it later
 			// Always serialize to string and reparse before passing to selser/wt2wt
 			$test->changedHTMLStr = ContentUtils::toXML( $body );
-			$body = DOMCompat::getBody( $this->newDoc( $test->changedHTMLStr ) );
+			$body = DOMCompat::getBody( $env->createDocument( $test->changedHTMLStr ) );
 		} elseif ( $mode === 'wt2wt' ) {
 			// handle a 'changes' option if present.
 			if ( isset( $test->options['parsoid']['changes'] ) ) {
@@ -935,14 +963,14 @@ class TestRunner {
 
 		// Roundtrip stage
 		if ( $mode === 'wt2wt' || $mode === 'selser' ) {
-			$wt = $this->convertHtml2Wt( $test, $options, $mode, $body );
+			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $body );
 		} elseif ( $mode === 'html2html' ) {
-			$body = $this->convertWt2Html( $test, $mode, $wt );
+			$body = $this->convertWt2Html( $env, $test, $mode, $wt );
 		}
 
 		// Processing stage
 		if ( $endsAtWikitext ) {
-			$this->processSerializedWT( $test, $options, $mode, $wt );
+			$this->processSerializedWT( $env, $test, $options, $mode, $wt );
 		} elseif ( $endsAtHtml ) {
 			$this->processParsedHTML( $test, $options, $mode, $body );
 		}
@@ -997,7 +1025,7 @@ class TestRunner {
 	 * @param string $wikitext
 	 */
 	private function processSerializedWT(
-		Test $test, array $options, string $mode, string $wikitext
+		Env $env, Test $test, array $options, string $mode, string $wikitext
 	): void {
 		$test->time['end'] = microtime( true );
 
@@ -1005,8 +1033,8 @@ class TestRunner {
 			if ( $test->changetree === [ 5 ] ) {
 				$test->resultWT = $test->wikitext;
 			} else {
-				$body = DOMCompat::getBody( $this->newDoc( $test->changedHTMLStr ) );
-				$test->resultWT = $this->convertHtml2Wt( $test, $options, 'wt2wt', $body );
+				$body = DOMCompat::getBody( $env->createDocument( $test->changedHTMLStr ) );
+				$test->resultWT = $this->convertHtml2Wt( $env, $test, $options, 'wt2wt', $body );
 			}
 		}
 
@@ -1436,7 +1464,7 @@ class TestRunner {
 
 			// Process test-specific options
 			$defaults = [
-				'scrubWikitext' => $this->dummyEnv->shouldScrubWikitext(),
+				'scrubWikitext' => false,
 				'wrapSections' => false
 			]; // override for parser tests
 			foreach ( $defaults as $opt => $defaultVal ) {

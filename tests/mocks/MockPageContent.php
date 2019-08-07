@@ -6,8 +6,13 @@ use Parsoid\Config\PageContent;
 
 class MockPageContent implements PageContent {
 
-	/** @var array */
-	private $data = [];
+	/**
+	 * Alas, this is public because parserTests is reaching in and altering
+	 * the main content when various modes are run.
+	 *
+	 * @var array
+	 */
+	public $data = [];
 
 	/**
 	 * @param array $data Page content data. Keys are roles, values are arrays or strings.

@@ -1455,9 +1455,9 @@ ParserTests.prototype.processTest = Promise.async(function *(item, options) {
 
 		// Process test-specific options
 		var defaults = {
-			scrubWikitext: MWParserEnvironment.prototype.scrubWikitext,
-			wrapSections: false, // override for parser tests
-		};
+			scrubWikitext: false,
+			wrapSections: false,
+		}; // override for parser tests
 		var env = this.env;
 		Object.keys(defaults).forEach(function(opt) {
 			env[opt] = item.options.parsoid && item.options.parsoid.hasOwnProperty(opt) ?
