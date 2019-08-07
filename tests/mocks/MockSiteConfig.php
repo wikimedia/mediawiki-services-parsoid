@@ -200,7 +200,10 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function responsiveReferences(): array {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return [
+			'enabled' => true,
+			'threshold' => 10,
+		];
 	}
 
 	public function rtl(): bool {
@@ -245,7 +248,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function magicWords(): array {
-		return [ 'toc' => 'toc' ];
+		return [ 'toc' => 'toc', "thumb" => "img_thumbnail" ];
 	}
 
 	public function mwAliases(): array {
@@ -262,7 +265,44 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function getParameterizedAliasMatcher( array $words ): callable {
-		throw new \BadMethodCallException( 'Not implemented' );
+		$paramMWs = [
+			'img_lossy' => "/^(?:(?i:lossy\=(.*?)))$/uS",
+			'timedmedia_thumbtime' => "/^(?:(?i:thumbtime\=(.*?)))$/uS",
+			'timedmedia_starttime' => "/^(?:(?i:start\=(.*?)))$/uS",
+			'timedmedia_endtime' => "/^(?:(?i:end\=(.*?)))$/uS",
+			'timedmedia_disablecontrols' => "/^(?:(?i:disablecontrols\=(.*?)))$/uS",
+			'img_manualthumb' => "/^(?:(?:thumbnail\=(.*?)|thumb\=(.*?)))$/uS",
+			'img_width' => "/^(?:(?:(.*?)px))$/uS",
+			'img_lang' => "/^(?:(?:lang\=(.*?)))$/uS",
+			'img_page' => "/^(?:(?:page\=(.*?)|page (.*?)))$/uS",
+			'img_upright' => "/^(?:(?:upright\=(.*?)|upright (.*?)))$/uS",
+			'img_link' => "/^(?:(?:link\=(.*?)))$/uS",
+			'img_alt' => "/^(?:(?:alt\=(.*?)))$/uS",
+			'img_class' => "/^(?:(?:class\=(.*?)))$/uS"
+		];
+		$regexes = array_intersect_key( $paramMWs, array_flip( $words ) );
+		return function ( $text ) use ( $regexes ) {
+			/**
+			 * $name is the canonical magic word name
+			 * $re has patterns for matching aliases
+			 */
+			foreach ( $regexes as $name => $re ) {
+				if ( preg_match( $re, $text, $m ) ) {
+					unset( $m[0] );
+
+					// Ex. regexp here is, /^(?:(?:|vinculo\=(.*?)|enlace\=(.*?)|link\=(.*?)))$/uS
+					// Check all the capture groups for a value, if not, it's safe to return an
+					// empty string since we did get a match.
+					foreach ( $m as $v ) {
+						if ( $v !== '' ) {
+							return [ 'k' => $name, 'v' => $v ];
+						}
+					}
+					return [ 'k' => $name, 'v' => '' ];
+				}
+			}
+			return null;
+		};
 	}
 
 	/** @inheritDoc */
@@ -287,6 +327,7 @@ class MockSiteConfig extends SiteConfig {
 			'graph' => true,
 			'maplink' => true,
 			'categorytree' => true,
+			'templatestyles' => true
 		];
 	}
 
@@ -296,7 +337,27 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function getExtResourceURLPatternMatcher(): callable {
-		throw new \BadMethodCallException( 'Not implemented' );
+		// Mock generated from extension SiteConfig results, might not be right for some circumstances
+		$pats = [
+			'ISBN' => '(?:\.\.?/)*(?i:Special|special)(?:%3[Aa]|:)(?i:Booksources|BookSources)' .
+				'(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
+			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
+			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract'
+		];
+		$regex = '!^(?:(?:\.\.?/)*(?i:Special|special)(?:%3[Aa]|:)(?i:Booksources|BookSources)' .
+			'(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)|[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)' .
+			'|[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract)$!';
+
+		return function ( $text ) use ( $pats, $regex ) {
+			if ( preg_match( $regex, $text, $m ) ) {
+				foreach ( $pats as $k => $re ) {
+					if ( isset( $m[ $k ] ) && $m[ $k ] !== '' ) {
+						return [ $k, $m[ $k ] ];
+					}
+				}
+			}
+			return false;
+		};
 	}
 
 	/** @inheritDoc */
