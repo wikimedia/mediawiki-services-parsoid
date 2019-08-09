@@ -49,32 +49,6 @@
 	"ConfigRegistry": {
 		"Parsoid-testing": "GlobalVarConfig::newInstance"
 	},
-	"config": {
-		"ParsoidWrapSections": {
-			"value": false,
-			"description": "Whether <section> wrappers should be added."
-		},
-		"ParsoidScrubWikitext": {
-			"value": false,
-			"description": "Whether to emit 'clean' wikitext."
-		},
-		"ParsoidUseSelser": {
-			"value": true,
-			"description":"Whether to use selective serialization to avoid dirty diffs."
-		},
-		"ParsoidTraceFlags": {
-			"value": [],
-			"description": "Flags indicating which components need to be traced."
-		},
-		"ParsoidDumpFlags": {
-			"value": [],
-			"description": "Dump flags."
-		},
-		"ParsoidDevAPI": {
-			"value": false,
-			"description": "Expose development routes in the HTTP API."
-		}
-	},
 	"load_composer_autoloader": true,
 	"manifest_version": 2
 }

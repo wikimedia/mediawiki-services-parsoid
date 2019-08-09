@@ -5,6 +5,7 @@ namespace MWParsoid\Rest\Handler;
 
 use Composer\Semver\Semver;
 use Config;
+use ConfigException;
 use ExtensionRegistry;
 use IBufferingStatsdDataFactory;
 use LogicException;
@@ -41,7 +42,10 @@ abstract class ParsoidHandler extends Handler {
 	// TODO handle MaxConcurrentCallsError (pool counter?)
 
 	/** @var Config */
-	protected $parsoidConfig;
+	protected $config;
+
+	/** @var array Parsoid-specific settings array from $config */
+	private $parsoidSettings;
 
 	/** @var SiteConfig */
 	protected $siteConfig;
@@ -68,7 +72,7 @@ abstract class ParsoidHandler extends Handler {
 		$services = MediaWikiServices::getInstance();
 		$parsoidServices = new ParsoidServices( $services );
 		return new static(
-			$services->getConfigFactory()->makeConfig( 'Parsoid-testing' ),
+			$services->getMainConfig(),
 			$parsoidServices->getParsoidSiteConfig(),
 			$parsoidServices->getParsoidPageConfigFactory(),
 			$parsoidServices->getParsoidDataAccess(),
@@ -78,20 +82,26 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param Config $parsoidConfig
+	 * @param Config $config
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfigFactory $pageConfigFactory
 	 * @param DataAccess $dataAccess
 	 * @param IBufferingStatsdDataFactory $statsdDataFactory
 	 */
 	public function __construct(
-		Config $parsoidConfig,
+		Config $config,
 		SiteConfig $siteConfig,
 		PageConfigFactory $pageConfigFactory,
 		DataAccess $dataAccess,
 		IBufferingStatsdDataFactory $statsdDataFactory
 	) {
-		$this->parsoidConfig = $parsoidConfig;
+		$this->config = $config;
+		try {
+			$this->parsoidSettings = $this->config->get( 'ParsoidSettings' );
+		} catch ( ConfigException $e ) {
+			// If the config option isn't defined, use defaults
+			$this->parsoidSettings = [];
+		}
 		$this->siteConfig = $siteConfig;
 		$this->pageConfigFactory = $pageConfigFactory;
 		$this->dataAccess = $dataAccess;
@@ -202,12 +212,12 @@ abstract class ParsoidHandler extends Handler {
 		}
 		$user = RequestContext::getMain()->getUser();
 		$pageConfig = $this->pageConfigFactory->create( $title, $user, $revision );
-		$options = [
-			'wrapSections' => $this->parsoidConfig->get( 'ParsoidWrapSections' ),
-			'scrubWikitext' => $this->parsoidConfig->get( 'ParsoidScrubWikitext' ),
-			'traceFlags' => $this->parsoidConfig->get( 'ParsoidTraceFlags' ),
-			'dumpFlags' => $this->parsoidConfig->get( 'ParsoidDumpFlags' ),
-		];
+		$options = [];
+		foreach ( [ 'wrapSections', 'scrubWikitext', 'traceFlags', 'dumpFlags' ] as $opt ) {
+			if ( isset( $this->parsoidSettings[$opt] ) ) {
+				$options[$opt] = $this->parsoidSettings[$opt];
+			}
+		}
 		return new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $options );
 	}
 
@@ -341,7 +351,7 @@ abstract class ParsoidHandler extends Handler {
 			$wikitext = $this->substTopLevelTemplates( $env, $attribs['pageName'], $wikitext );
 		}
 
-		if ( $this->parsoidConfig->get( 'ParsoidDevAPI' ) &&
+		if ( !empty( $this->parsoidSettings['devAPI'] ) &&
 			( $request->getQueryParams()['follow_redirects'] ?? false ) ) {
 			$content = $env->getPageConfig()->getRevisionContent();
 			$redirectTarget = $content ? $content->getRedirectTarget() : null;
@@ -360,33 +370,29 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		$envOptions = array_merge( [
+		$reqOpts = array_merge( [
 			'pageBundle' => $needsPageBundle,
-			// Set data-parsoid to be discarded, so that the subst'ed
+			// When substing, set data-parsoid to be discarded, so that the subst'ed
 			// content is considered new when it comes back.
-			'discardDataParsoid' => false,
-			'wrapSections' => false,
+			'discardDataParsoid' => $doSubst,
+			'outputVersion' => $env->getOutputContentVersion(),
 		], $attribs['envOptions'] );
 
 		// VE, the only client using body_only property,
 		// doesn't want section tags when this flag is set.
 		// (T181226)
 		if ( $attribs['body_only'] ) {
-			$envOptions['wrapSections'] = false;
+			$reqOpts['wrapSections'] = false;
+			$reqOpts['bodyOnly'] = true;
 		}
 
-		$mstr = !empty( $envOptions['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
+		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$this->statsdDataFactory->timing( "wt2html.$mstr.init", time() - $startTimers['wt2html.init'] );
 		$startTimers["wt2html.$mstr.parse"] = time();
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		// PORT-FIXME where does $wikitext go?
-		$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), [
-			'pageBundle' => $envOptions['pageBundle'],
-			'wrapSections' => $envOptions['wrapSections'],
-			'bodyOnly' => $attribs['body_only'],
-			'outputVersion' => $env->getOutputContentVersion(),
-		] );
+		$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), $reqOpts );
 
 		if ( $format === FormatHelper::FORMAT_LINT ) {
 			// TODO
@@ -449,7 +455,9 @@ abstract class ParsoidHandler extends Handler {
 			// GET for wikitext parsing
 			$response->setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 		} elseif ( $oldid ) {
-			$envOptions['pageWithOldid'] = true;
+			// PORT-FIXME: This line bolew looks like dead code?
+			// So, something is broken in the port.
+			$reqOpts['pageWithOldid'] = true;
 			// FIXME this should be handled in core (cf OutputPage::sendCacheControl)
 			if ( $request->getHeaderLine( 'Cookie' ) ||
 				$request->getHeaderLine( 'Authorization' ) ) {
@@ -482,7 +490,8 @@ abstract class ParsoidHandler extends Handler {
 			?? $request->getQueryParams()['scrub_wikitext']
 			?? $request->getPostParams()['scrubWikitext']
 			?? $request->getQueryParams()['scrubWikitext']
-			?? $this->parsoidConfig->get( 'ParsoidScrubWikitext' );
+			?? $this->parsoidSettings['scrubWikitext']
+			?? false;
 		$envOptions = array_merge( [
 			'scrubWikitext' => $scrubWikitext,
 		], $attribs['envOptions'] );
@@ -646,7 +655,7 @@ abstract class ParsoidHandler extends Handler {
 		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
-		$useSelser = $hasOldId && $oldtext !== null && $this->parsoidConfig->get( 'ParsoidUseSelser' );
+		$useSelser = $hasOldId && $oldtext !== null && !empty( $this->parsoidSettings['useSelser'] );
 		$selser = null;
 		if ( $useSelser ) {
 			$selser = new Selser( $oldtext, $oldhtml );

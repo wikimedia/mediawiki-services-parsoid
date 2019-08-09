@@ -5,6 +5,7 @@ namespace MWParsoid\Config;
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
 use Config;
+use ConfigException;
 use FakeConverter;
 use Hooks;
 use Language;
@@ -37,6 +38,9 @@ class SiteConfig extends ISiteConfig {
 
 	/** @var Config MediaWiki configuration object */
 	private $config;
+
+	/** @var array Parsoid-specific options array from $config */
+	private $parsoidSettings;
 
 	/** @var Language */
 	private $contLang;
@@ -91,7 +95,23 @@ class SiteConfig extends ISiteConfig {
 
 		$services = MediaWikiServices::getInstance();
 		$this->config = $services->getMainConfig();
+		try {
+			$this->parsoidSettings = $this->config->get( 'ParsoidSettings' );
+		} catch ( ConfigException $e ) {
+			// If the config option isn't defined, use defaults
+			$this->parsoidSettings = [];
+		}
 		$this->contLang = $services->getContentLanguage();
+		// Override parent default
+		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {
+			// @todo: Add this setting to MW's DefaultSettings.php
+			$this->rtTestMode = $this->parsoidSettings['rtTestMode'];
+		}
+		// Override parent default
+		if ( isset( $this->parsoidSettings['linting'] ) ) {
+			// @todo: Add this setting to MW's DefaultSettings.php
+			$this->linterEnabled = $this->parsoidSettings['linting'];
+		}
 	}
 
 	/** @inheritDoc */
@@ -128,13 +148,6 @@ class SiteConfig extends ISiteConfig {
 	public function hasDumpFlag( string $flag ): bool {
 		// @todo: Implement this
 		return false;
-	}
-
-	public function linting() {
-		// @todo: Add $wgParsoidLinting to MW's DefaultSettings.php
-		return $this->config->has( 'ParsoidLinting' )
-			? $this->config->get( 'ParsoidLinting' )
-			: parent::linting();
 	}
 
 	public function metrics(): ?StatsdDataFactoryInterface {
