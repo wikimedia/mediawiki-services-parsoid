@@ -26,7 +26,7 @@ class Ref extends ExtensionTag {
 		if ( ( $extApi->parseContext['extTag'] ?? null ) === 'ref' &&
 			empty( $extApi->parseContext['extTagOpts']['allowNestedRef'] )
 		) {
-			return false;
+			return null;
 		}
 
 		// The one supported case for nested refs is from the {{#tag:ref}} parser
