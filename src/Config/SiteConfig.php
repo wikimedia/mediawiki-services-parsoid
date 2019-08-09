@@ -795,7 +795,7 @@ abstract class SiteConfig {
 
 		// This is for wt2html toDOM, html2wt fromHTML, and linter functionality
 		foreach ( $extConfig['tags'] as $tagConfig ) {
-			$lowerTagName = strToLower( $tagConfig['name'] );
+			$lowerTagName = mb_strtolower( $tagConfig['name'] );
 			$this->nativeExtConfig['allTags'][$lowerTagName] = true;
 			$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
 		}
@@ -872,7 +872,7 @@ abstract class SiteConfig {
 	 */
 	public function getNativeExtTagConfig( string $tagName ): ?array {
 		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['nativeTags'][ strToLower( $tagName ) ] ?? null;
+		return $nativeExtConfig['nativeTags'][ mb_strtolower( $tagName ) ] ?? null;
 	}
 
 	/**

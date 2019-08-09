@@ -57,7 +57,7 @@ class Util {
 	 */
 	public static function isVoidElement( string $name ): bool {
 		// PORT-FIXME: Remove after porting is complete
-		if ( strtolower( $name ) !== $name ) {
+		if ( mb_strtolower( $name ) !== $name ) {
 			throw new \BadMethodCallException( 'Use lowercase tag names' );
 		}
 		return isset( Consts::$HTML['VoidTags'][ $name ] );

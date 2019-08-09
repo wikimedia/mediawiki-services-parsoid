@@ -168,7 +168,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a13($k, $v) {
   
-  	return [ 'k' => strToLower( $k ), 'v' => $v ?? '' ];
+  	return [ 'k' => strtolower( $k ), 'v' => $v ?? '' ];
   
   }
   private function a14($ovl) {

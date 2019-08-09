@@ -167,7 +167,7 @@ option_list = o:an_option [ \t\n]+ rest:option_list?
 //   foo=bar,"baz quux",[[bat]]
 an_option = k:option_name v:option_value?
 {
-	return [ 'k' => strToLower( $k ), 'v' => $v ?? '' ];
+	return [ 'k' => strtolower( $k ), 'v' => $v ?? '' ];
 }
 
 option_name = c:[^ \t\n=!]+

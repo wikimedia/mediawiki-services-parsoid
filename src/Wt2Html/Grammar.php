@@ -121,7 +121,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	 * --------------------------------------------------------------------- */
   
   	private function isXMLTag( string $name, bool $block ): bool {
-  		$lName = strtolower( $name );
+  		$lName = mb_strtolower( $name );
   		return $block ?
   			TokenUtils::isBlockTag( $lName ) :
   			isset( WikitextConstants::$HTML['HTML5Tags'][$lName] )
@@ -129,14 +129,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	}
   
   	private function isExtTag( string $name ): bool {
-  		$lName = strtolower( $name );
+  		$lName = mb_strtolower( $name );
   		$isInstalledExt = isset( $this->extTags[$lName] );
   		$isIncludeTag = TokenizerUtils::isIncludeTag( $lName );
   		return $isInstalledExt || $isIncludeTag;
   	}
   
   	private function maybeExtensionTag( Token $t ) {
-  		$tagName = strtolower( $t->getName() );
+  		$tagName = mb_strtolower( $t->getName() );
   
   		$isInstalledExt = isset( $this->extTags[$tagName] );
   		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
@@ -892,7 +892,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a79($il, $sol_il) {
   
   		$il = $il[0];
-  		$lname = strtolower( $il->getName() );
+  		$lname = mb_strtolower( $il->getName() );
   		if ( !TokenizerUtils::isIncludeTag( $lname ) ) { return false;  }
   		// Preserve SOL where necessary (for onlyinclude and noinclude)
   		// Note that this only works because we encounter <*include*> tags in
@@ -1018,7 +1018,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a90($end, $name, $extTag, $isBlock, $attribs, $selfclose) {
   
-  		$lcName = strtolower( $name );
+  		$lcName = mb_strtolower( $name );
   
   		// Extension tags don't necessarily have the same semantics as html tags,
   		// so don't treat them as void elements.
