@@ -727,18 +727,20 @@ class MockApiHelper extends ApiHelper {
 			case 'indicator':
 			case 'section':
 				$res = "\n";
+				break;
 
 			default:
 				throw new Error( 'Unhandled extension type encountered in: ' . $text );
 		}
 
-		return [
+		$parse = [
 			'text' => $res,
 			'categories' => [],
 			'modules' => [],
 			'modulescripts' => [],
 			'modulestyles' => []
 		];
+		return [ 'parse' => $parse ];
 	}
 
 	private function preProcess( string $title, string $text, ?int $revid ): ?array {
