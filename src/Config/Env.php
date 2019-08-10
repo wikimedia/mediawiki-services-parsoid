@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
-use Closure;
+// use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
@@ -13,7 +13,7 @@ use Parsoid\Tokens\Token;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
+// use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\TitleNamespace;
 use Parsoid\Utils\TitleException;
@@ -687,6 +687,13 @@ class Env {
 			return;
 		}
 
+		/** -------------
+		 *
+		 * PORT-FIXME:
+		 * Commented out till https://phabricator.wikimedia.org/T224377 is implemented
+		 * Without that support, we will unconditionally execute evaluate all
+		 * logging statements in all modes (info, warn, error, fatal, trace, dump, debug)
+
 		$output = $prefix;
 		$numArgs = count( $args );
 		for ( $index = 0; $index < $numArgs; $index++ ) {
@@ -717,6 +724,7 @@ class Env {
 			}
 		}
 		$logger->debug( $output );
+		----------- **/
 	}
 
 	/**
