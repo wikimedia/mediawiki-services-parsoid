@@ -12,6 +12,7 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
+use ParserOutput;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig as IPageConfig;
 // we can get rid of this once we can assume PHP 7.4+ with covariant return type support
@@ -29,6 +30,9 @@ class DataAccess implements IDataAccess {
 
 	/** @var ParserOptions */
 	private $parserOptions;
+
+	/** @var IPageConfig|null */
+	private $previousPageConfig;
 
 	/**
 	 * @param RevisionStore $revStore
@@ -176,8 +180,33 @@ class DataAccess implements IDataAccess {
 		return $ret;
 	}
 
+	/**
+	 * Prepare MediaWiki's parser for preprocessing or extension tag parsing,
+	 * clearing its state if necessary.
+	 *
+	 * @param IPageConfig $pageConfig
+	 * @param int $outputType
+	 * @param int|null $revid
+	 * @return Parser
+	 */
+	private function prepareParser( IPageConfig $pageConfig, int $outputType, ?int $revid = null ) {
+		// Clear the state only when the PageConfig changes, so that Parser's internal caches can
+		// be retained. This should also provide better compatibility with extension tags.
+		$clearState = $this->previousPageConfig !== $pageConfig;
+		$this->previousPageConfig = $pageConfig;
+		$this->parser->startExternalParse(
+			Title::newFromText( $pageConfig->getTitle() ), $this->parserOptions,
+			$outputType, $clearState );
+		$this->parser->mRevisionId = $revid;
+		$this->parser->mOutput = new ParserOutput;
+		$this->parserOptions->registerWatcher( [ $this->parser->mOutput, 'recordOption' ] );
+		return $this->parser;
+	}
+
 	/** @inheritDoc */
 	public function doPst( IPageConfig $pageConfig, string $wikitext ): string {
+		// This could use prepareParser(), but it's only called once per page,
+		// so it's not essential.
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
 		return ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
 			->preSaveTransform( $titleObj, $this->parserOptions->getUser(), $this->parserOptions )
@@ -188,9 +217,10 @@ class DataAccess implements IDataAccess {
 	public function parseWikitext(
 		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
 	): array {
-		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$out = ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
-			->getParserOutput( $titleObj, $revid, $this->parserOptions );
+		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML, $revid );
+		$html = $parser->recursiveTagParseFully( $wikitext );
+		$out = $parser->getOutput();
+		$out->setText( $html );
 
 		$categories = [];
 		foreach ( $out->getCategories() as $cat => $sortkey ) {
@@ -211,9 +241,11 @@ class DataAccess implements IDataAccess {
 	public function preprocessWikitext(
 		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
 	): array {
-		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$wikitext = $this->parser->preprocess( $wikitext, $titleObj, $this->parserOptions, $revid );
-		$out = $this->parser->getOutput();
+		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS, $revid );
+		$wikitext = $parser->replaceVariables( $wikitext );
+		$wikitext = $parser->mStripState->unstripBoth( $wikitext );
+
+		$out = $parser->getOutput();
 		return [
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
