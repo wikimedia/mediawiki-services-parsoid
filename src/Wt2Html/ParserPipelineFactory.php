@@ -304,7 +304,8 @@ class ParserPipelineFactory {
 	 * @return DOMDocument
 	 */
 	public function parse( string $src ): DOMDocument {
-		return $this->getPipeline( 'text/x-mediawiki/full' )->parseToplevelDoc( $src );
+		return $this->getPipeline( 'text/x-mediawiki/full' )
+			->parseToplevelDoc( $src, [ 'chunky' => true ] );
 	}
 
 	/**
