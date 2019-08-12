@@ -204,13 +204,13 @@ class AddMediaInfo {
 		}
 		foreach ( $timedtext as $o ) {
 			$track = $doc->createElement( 'track' );
-			$track->setAttribute( 'kind', $o['kind'] );
-			$track->setAttribute( 'type', $o['type'] );
-			$track->setAttribute( 'src', $o['src'] );
-			$track->setAttribute( 'srclang', $o['srclang'] );
-			$track->setAttribute( 'label', $o['label'] );
-			$track->setAttribute( 'data-mwtitle', $o['title'] );
-			$track->setAttribute( 'data-dir', $o['dir'] );
+			$track->setAttribute( 'kind', $o['kind'] ?? '' );
+			$track->setAttribute( 'type', $o['type'] ?? '' );
+			$track->setAttribute( 'src', $o['src'] ?? '' );
+			$track->setAttribute( 'srclang', $o['srclang'] ?? '' );
+			$track->setAttribute( 'label', $o['label'] ?? '' );
+			$track->setAttribute( 'data-mwtitle', $o['title'] ?? '' );
+			$track->setAttribute( 'data-dir', $o['dir'] ?? '' );
 			$elt->appendChild( $track );
 		}
 	}
