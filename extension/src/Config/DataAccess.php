@@ -12,7 +12,6 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
-use ParserOutput;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig as IPageConfig;
 // we can get rid of this once we can assume PHP 7.4+ with covariant return type support
@@ -196,10 +195,8 @@ class DataAccess implements IDataAccess {
 		$this->previousPageConfig = $pageConfig;
 		$this->parser->startExternalParse(
 			Title::newFromText( $pageConfig->getTitle() ), $this->parserOptions,
-			$outputType, $clearState );
-		$this->parser->mRevisionId = $revid;
-		$this->parser->mOutput = new ParserOutput;
-		$this->parserOptions->registerWatcher( [ $this->parser->mOutput, 'recordOption' ] );
+			$outputType, $clearState, $revid );
+		$this->parser->resetOutput();
 		return $this->parser;
 	}
 
@@ -243,7 +240,7 @@ class DataAccess implements IDataAccess {
 	): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS, $revid );
 		$wikitext = $parser->replaceVariables( $wikitext );
-		$wikitext = $parser->mStripState->unstripBoth( $wikitext );
+		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
 
 		$out = $parser->getOutput();
 		return [
