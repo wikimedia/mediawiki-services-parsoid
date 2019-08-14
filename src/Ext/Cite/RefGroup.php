@@ -57,10 +57,10 @@ class RefGroup {
 		$s = $ownerDoc->createElement( 'span' );
 		$textNode = $ownerDoc->createTextNode( $text . ' ' );
 		$title = Title::newFromText(
-			$env->getPageConfig()->getTitle() . '#' . $href,
+			$env->getPageConfig()->getTitle(),
 			$env->getSiteConfig()
 		);
-		$a->setAttribute( 'href', $env->makeLink( $title ) );
+		$a->setAttribute( 'href', $env->makeLink( $title ) . '#' . $href );
 		$s->setAttribute( 'class', 'mw-linkback-text' );
 		if ( $group ) {
 			$a->setAttribute( 'data-mw-group', $group );

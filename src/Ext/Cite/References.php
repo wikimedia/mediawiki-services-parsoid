@@ -207,11 +207,11 @@ class References extends ExtensionTag {
 		// refLink is the link to the citation
 		$refLink = $doc->createElement( 'a' );
 		$title = Title::newFromText(
-			$env->getPageConfig()->getTitle() . '#' . $ref->target,
+			$env->getPageConfig()->getTitle(),
 			$env->getSiteConfig()
 		);
 		DOMDataUtils::addAttributes( $refLink, [
-				'href' => $env->makeLink( $title ),
+				'href' => $env->makeLink( $title ) . '#' . $ref->target,
 				'style' => 'counter-reset: mw-Ref ' . $ref->groupIndex . ';',
 			]
 		);
