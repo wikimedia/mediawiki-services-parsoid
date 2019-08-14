@@ -1036,7 +1036,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// change up data-attribs in one scenario
   		// void-elts that aren't self-closed ==> useful for accurate RT-ing
   		if ( !$selfclose && $isVoidElt ) {
-  			$res->dataAttribs->selfClose = null;
+  			unset( $res->dataAttribs->selfClose );
   			$res->dataAttribs->noClose = true;
   		}
   
