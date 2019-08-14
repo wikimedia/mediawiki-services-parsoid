@@ -2784,7 +2784,7 @@
 		},
 		"108": {
 			"code": "hyw",
-			"name": "արեւմտահայերէն",
+			"name": "Արեւմտահայերէն",
 			"site": [
 				{
 					"url": "https://hyw.wikipedia.org",
@@ -3200,7 +3200,7 @@
 		},
 		"125": {
 			"code": "jv",
-			"name": "Basa Jawa",
+			"name": "Jawa",
 			"site": [
 				{
 					"url": "https://jv.wikipedia.org",
@@ -4207,7 +4207,7 @@
 		},
 		"171": {
 			"code": "min",
-			"name": "Baso Minangkabau",
+			"name": "Minangkabau",
 			"site": [
 				{
 					"url": "https://min.wikipedia.org",
@@ -4575,6 +4575,12 @@
 					"dbname": "napwiki",
 					"code": "wiki",
 					"sitename": "Wikipedia"
+				},
+				{
+					"url": "https://nap.wikisource.org",
+					"dbname": "napwikisource",
+					"code": "wikisource",
+					"sitename": "Wikisource"
 				}
 			],
 			"dir": "ltr",
@@ -4622,7 +4628,7 @@
 					"url": "https://nds-nl.wikipedia.org",
 					"dbname": "nds_nlwiki",
 					"code": "wiki",
-					"sitename": "Wikipedie"
+					"sitename": "Wikipedia"
 				}
 			],
 			"dir": "ltr",
@@ -5381,7 +5387,7 @@
 		},
 		"223": {
 			"code": "rmy",
-			"name": "Romani",
+			"name": "romani čhib",
 			"site": [
 				{
 					"url": "https://rmy.wikipedia.org",
@@ -5391,7 +5397,7 @@
 				}
 			],
 			"dir": "ltr",
-			"localname": "Romani"
+			"localname": "Vlax Romani"
 		},
 		"224": {
 			"code": "rn",
@@ -6090,7 +6096,7 @@
 					"url": "https://sr.wikinews.org",
 					"dbname": "srwikinews",
 					"code": "wikinews",
-					"sitename": "Викивести"
+					"sitename": "Викиновости"
 				},
 				{
 					"url": "https://sr.wikiquote.org",
@@ -8324,7 +8330,8 @@
 				"dbname": "wikimania2018wiki",
 				"code": "wikimania2018",
 				"lang": "wikimania2018",
-				"sitename": "Wikipedia"
+				"sitename": "Wikipedia",
+				"closed": ""
 			},
 			{
 				"url": "https://wikimaniateam.wikimedia.org",
@@ -8332,14 +8339,6 @@
 				"code": "wikimaniateam",
 				"lang": "en",
 				"sitename": "WikimaniaTeam",
-				"private": ""
-			},
-			{
-				"url": "https://zero.wikimedia.org",
-				"dbname": "zerowiki",
-				"code": "zero",
-				"lang": "en",
-				"sitename": "Wikipedia",
 				"private": ""
 			}
 		]
