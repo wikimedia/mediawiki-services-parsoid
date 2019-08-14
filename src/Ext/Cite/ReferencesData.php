@@ -85,8 +85,9 @@ class ReferencesData {
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$refName = $this->makeValidIdAttr( $refName );
+		$hasRefName = strlen( $refName ) > 0;
 
-		if ( $refName && isset( $group->indexByName[$refName] ) ) {
+		if ( $hasRefName && isset( $group->indexByName[$refName] ) ) {
 			$ref = $group->indexByName[$refName];
 			if ( $ref->content && !$ref->hasMultiples ) {
 				$ref->hasMultiples = true;
@@ -105,8 +106,8 @@ class ReferencesData {
 			// Notes whose ref has a name are 'cite_note-' + name + '-' + index
 			$n = $this->index;
 			$refKey = strval( 1 + $n );
-			$refIdBase = 'cite_ref-' . ( $refName ? $refName . '_' . $refKey : $refKey );
-			$noteId = 'cite_note-' . ( $refName ? $refName . '-' . $refKey : $refKey );
+			$refIdBase = 'cite_ref-' . ( $hasRefName ? $refName . '_' . $refKey : $refKey );
+			$noteId = 'cite_note-' . ( $hasRefName ? $refName . '-' . $refKey : $refKey );
 
 			// bump index
 			$this->index += 1;
@@ -119,7 +120,7 @@ class ReferencesData {
 				'groupIndex' => count( $group->refs ) + 1,
 				'index' => $n,
 				'key' => $refIdBase,
-				'id' => $refName ? $refIdBase . '-0' : $refIdBase,
+				'id' => $hasRefName ? $refIdBase . '-0' : $refIdBase,
 				'linkbacks' => [],
 				'name' => $refName,
 				'target' => $noteId,
