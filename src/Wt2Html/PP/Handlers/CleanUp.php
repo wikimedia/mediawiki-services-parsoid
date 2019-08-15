@@ -207,6 +207,11 @@ class CleanUp {
 		unset( $dp->tmp );
 		unset( $dp->extLinkContentOffsets ); // not stored in tmp currently
 
+		// Various places, like ContentUtils::shiftDSR, can set this to `null`
+		if ( property_exists( $dp, 'dsr' ) && $dp->dsr === null ) {
+			unset( $dp->dsr );
+		}
+
 		// Make dsr zero-range for fostered content
 		// to prevent selser from duplicating this content
 		// outside the table from where this came.
