@@ -69,6 +69,8 @@ class EncapsulatedContentHandler extends DOMHandler {
 					if ( $src === false ) {
 						$src = $serializer->defaultExtensionHandler( $node, $state );
 					}
+				} else {
+					$src = $serializer->defaultExtensionHandler( $node, $state );
 				}
 			} elseif ( isset( $dp->src ) ) {
 				$env->log( 'error', 'data-mw missing in: ' . DOMCompat::getOuterHTML( $node ) );
