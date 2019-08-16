@@ -3,6 +3,7 @@
 namespace MWParsoid\Rest;
 
 use Composer\Semver\Semver;
+use LogicException;
 use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
@@ -144,6 +145,19 @@ class FormatHelper {
 			}
 		}
 		throw new InvalidArgumentException( "Unsupported downgrade: $from -> $to" );
+	}
+
+	/**
+	 * Downgrade and return content
+	 *
+	 * @param string[] $downgrade
+	 * @param Env $env
+	 * @param array $revision
+	 * @param array $attribs
+	 */
+	public static function returnDowngrade( $downgrade, $env, $revision, $attribs ) {
+		$msg = __FUNCTION__ . ' is not implemented yet.';
+		throw new LogicException( $msg );
 	}
 
 	/**

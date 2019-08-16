@@ -693,7 +693,85 @@ abstract class ParsoidHandler extends Handler {
 	 * @return Response
 	 */
 	protected function pb2pb( Env $env, array $attribs ) {
-		throw new LogicException( 'Not implemented yet' );
+		$request = $this->getRequest();
+		$opts = $attribs['opts'];
+
+		$revision = $opts['original'] ?? null;
+		if ( !isset( $revision['html'] ) ) {
+			$env->log( 'fatal/request', 'Missing revision html.' );
+			return $this->getResponseFactory()->createHttpError( 400, [
+				'message' => 'Missing revision html.',
+			] );
+		}
+
+		$vOriginal = FormatHelper::parseContentTypeHeader(
+			$revision['html']['headers']['content-type'] ?? '' );
+		if ( $vOriginal === null ) {
+			$env->log( 'fatal/request', 'Content-type of revision html is missing.' );
+			return $this->getResponseFactory()->createHttpError( 400, [
+				'message' => 'Content-type of revision html is missing.',
+			] );
+		}
+		$env->setInputContentVersion( $vOriginal );
+
+		$this->statsdDataFactory->increment( 'pb2pb.original.version.'
+			. $env->getInputContentVersion() );
+
+		if ( !empty( $opts['updates']['redlinks'] ) ) {
+			// Q(arlolra): Should redlinks be more complex than a bool?
+			// See gwicke's proposal at T114413#2240381
+			return $this->updateRedLinks( $env, $attribs, $revision );
+		} elseif ( !empty( $opts['updates']['variant'] ) ) {
+			return $this->languageConversion( $env, $attribs, $revision );
+		} elseif ( !empty( $opts['updates'] ) ) {
+			$msg = 'Unknown transformation.';
+			$env->log( 'fatal/request', $msg );
+			throw new LogicException( $msg );
+		}
+
+		// TODO(arlolra): subbu has some sage advice in T114413#2365456 that
+		// we should probably be more explicit about the pb2pb conversion
+		// requested rather than this increasingly complex fallback logic.
+		$downgrade = FormatHelper::findDowngrade(
+			$env->getInputContentVersion(),
+			$env->getOutputContentVersion()
+		);
+		if ( $downgrade ) {
+			return FormatHelper::returnDowngrade( $downgrade, $env, $revision, $attribs );
+		// Ensure we only reuse from semantically similar content versions.
+		} elseif ( Semver::satisfies( $env->getOutputContentVersion(),
+			'^' . $env->getInputContentVersion() ) ) {
+			return $this->wt2html( $env, $attribs, null );
+		} else {
+			$env->log( 'fatal/request', 'We do not know how to do this conversion.' );
+			return $this->getResponseFactory()->createHttpError( 415, [
+				'message' => 'We do not know how to do this conversion.',
+			] );
+		}
 	}
 
+	/**
+	 * Update red links on a document.
+	 * Porting note: should this be here, or somewhere under the parsoid/src tree?
+	 * @param Env $env
+	 * @param array $attribs
+	 * @param array $revision
+	 * @return Response
+	 */
+	protected function updateRedLinks( Env $env, array $attribs, array $revision ) {
+		$msg = __FUNCTION__ . ' is not implemented yet.';
+		throw new LogicException( $msg );
+	}
+
+	/**
+	 * Porting note: should this be here, or somewhere under the parsoid/src tree?
+	 * @param Env $env
+	 * @param array $attribs
+	 * @param array $revision
+	 * @return Response
+	 */
+	protected function languageConversion( Env $env, array $attribs, array $revision ) {
+		$msg = __FUNCTION__ . ' is not implemented yet.';
+		throw new LogicException( $msg );
+	}
 }
