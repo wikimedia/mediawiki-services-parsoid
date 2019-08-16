@@ -534,7 +534,7 @@ class Separators {
 				}
 			}
 
-			$stripLeadingSpace = ( $constraintInfo['onSOL'] ?? $forceSOL ) &&
+			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
 				$nodeB && isset( WikitextConstants::$SolSpaceSensitiveTags[$nodeB->nodeName] );
 			if ( !$isIndentPreSafe || $stripLeadingSpace ) {
 				// Wrap non-nl ws from last line, but preserve comments.
