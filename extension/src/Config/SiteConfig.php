@@ -583,7 +583,7 @@ class SiteConfig extends ISiteConfig {
 			->newArray( $words );
 		return function ( $text ) use ( $words ) {
 			$ret = $words->matchVariableStartToEnd( $text );
-			if ( $ret[0] === false ) {
+			if ( $ret[0] === false || $ret[1] === false ) {
 				return null;
 			} else {
 				return [ 'k' => $ret[0], 'v' => $ret[1] ];
