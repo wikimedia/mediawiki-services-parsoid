@@ -83,7 +83,7 @@ class PWrap {
 		$ret = [];
 		// This flag should be transferred to the rightmost
 		// clone of this node in the loop below.
-		$origAIEnd = isset( DOMDataUtils::getDataParsoid( $n )->autoInsertedEnd );
+		$origAIEnd = DOMDataUtils::getDataParsoid( $n )->autoInsertedEnd ?? null;
 		$i = -1;
 		foreach ( $a as $v ) {
 			if ( $i < 0 ) {
@@ -102,7 +102,7 @@ class PWrap {
 			$ret[$i]['node']->appendChild( $v['node'] );
 		}
 
-		if ( $i >= 0 ) {
+		if ( $i >= 0 && $origAIEnd !== null ) {
 			DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = $origAIEnd;
 		}
 		return $ret;
