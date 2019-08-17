@@ -297,12 +297,12 @@ class ParserFunctions {
 
 	public function pf_lc( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ strtolower( $args[0]->k ) ];
+		return [ mb_strtolower( $args[0]->k ) ];
 	}
 
 	public function pf_uc( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ strtoupper( $args[0]->k ) ];
+		return [ mb_strtoupper( $args[0]->k ) ];
 	}
 
 	public function pf_ucfirst( $token, Frame $frame, Params $params ): array {
@@ -310,7 +310,7 @@ class ParserFunctions {
 		$target = $args[0]->k;
 		'@phan-var string $target';
 		if ( $target ) {
-			return [ strtoupper( $target[0] ) . mb_substr( $target, 1 ) ];
+			return [ mb_strtoupper( mb_substr( $target, 0, 1 ) ) . mb_substr( $target, 1 ) ];
 		} else {
 			return [];
 		}
@@ -321,7 +321,7 @@ class ParserFunctions {
 		$target = $args[0]->k;
 		'@phan-var string $target';
 		if ( $target ) {
-			return [ strtolower( $target[0] ) . mb_substr( $target, 1 ) ];
+			return [ mb_strtolower( mb_substr( $target, 0, 1 ) ) . mb_substr( $target, 1 ) ];
 		} else {
 			return [];
 		}
@@ -748,7 +748,7 @@ class ParserFunctions {
 		$nsid = null;
 		$target = $args[0]->k;
 		$env = $this->env;
-		$normalizedTarget = str_replace( ' ', '_', strtolower( $target ) );
+		$normalizedTarget = str_replace( ' ', '_', mb_strtolower( $target ) );
 
 		$siteConfig = $this->env->getSiteConfig();
 		if ( $siteConfig->namespaceId( $normalizedTarget ) !== null ) {
