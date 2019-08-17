@@ -199,7 +199,7 @@ class CleanUp {
 		}
 
 		// Remove tsr
-		if ( !empty( $dp->tsr ) ) {
+		if ( property_exists( $dp, 'tsr' ) ) {
 			unset( $dp->tsr );
 		}
 
