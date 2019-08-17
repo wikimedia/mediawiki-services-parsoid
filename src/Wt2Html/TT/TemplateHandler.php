@@ -1026,7 +1026,7 @@ class TemplateHandler extends TokenHandler {
 			if ( !$pageContent ) {
 				// Missing page!
 				// FIXME: This should be a redlink here!
-				$tplSrc = $templateName;
+				$tplSrc = '';
 			} else {
 				// PORT-FIXME: Hard-coded 'main' role
 				$tplSrc = $pageContent->getContent( 'main' );

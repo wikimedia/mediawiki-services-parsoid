@@ -964,7 +964,6 @@ var getOpts = function() {
 		},
 	}, {
 		// override defaults for standard options
-		fetchTemplates: false,
 		usePHPPreProcessor: false,
 		fetchConfig: false,
 	});
