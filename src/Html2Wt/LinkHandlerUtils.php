@@ -582,10 +582,11 @@ class LinkHandlerUtils {
 						// Check that the next node isn't a category link,
 						// in which case we don't want the ':'.
 						$nextNode = $node->nextSibling;
-						if ( !$nextNode && DOMUtils::isElt( $nextNode ) && $nextNode->nodeName === 'link' &&
+						if ( !(
+							$nextNode && $nextNode instanceof DOMElement && $nextNode->nodeName === 'link' &&
 							$nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category' &&
 							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
-						) {
+						) ) {
 							$linkTarget = ':' . $linkTarget;
 						}
 					}
