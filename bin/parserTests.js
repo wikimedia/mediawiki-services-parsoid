@@ -53,10 +53,10 @@ function ParserTests(testFilePath, modes) {
 	this.cacheFileName = parseFilePath.name + '.cache';
 	this.cacheFilePath = path.resolve(parseFilePath.dir, this.cacheFileName);
 
-	var blackListName = parseFilePath.name + '-blacklist.js';
+	var blackListName = parseFilePath.name + '-blacklist.json';
 	this.blackListPath = path.resolve(parseFilePath.dir, blackListName);
 	try {
-		this.testBlackList = require(this.blackListPath).testBlackList;
+		this.testBlackList = require(this.blackListPath);
 	} catch (e) {
 		console.warn('No blacklist found at ' + this.blackListPath);
 		this.testBlackList = {};
@@ -1165,33 +1165,21 @@ ParserTests.prototype.processCase = Promise.async(function *(i, options, earlyEx
 
 		// update the blacklist, if requested
 		if (allModes || ScriptUtils.booleanOption(options['rewrite-blacklist'])) {
-			var old, oldExists;
-			if (yield fs.exists(this.blackListPath)) {
+			let old = null;
+			const oldExists = yield fs.exists(this.blackListPath);
+			if (oldExists) {
 				old = yield fs.readFile(this.blackListPath, 'utf8');
-				oldExists = true;
-			} else {
-				// Use the preamble from one we know about ...
-				var defaultBlPath = path.join(__dirname, '../tests/parserTests-blacklist.js');
-				old = yield fs.readFile(defaultBlPath, 'utf8');
-				oldExists = false;
 			}
-			var shell = old.split(/^.*DO NOT REMOVE THIS LINE.*$/m);
-			var contents = shell[0];
-			contents += '// ### DO NOT REMOVE THIS LINE ### ';
-			contents += '(start of automatically-generated section)\n';
-			options.modes.forEach((mode) => {
-				contents += '\n// Blacklist for ' + mode + '\n';
-				this.stats.modes[mode].failList.forEach(function(fail) {
-					contents += 'add(' + JSON.stringify(mode) + ', ' +
-						JSON.stringify(fail.title);
-					contents += ', ' + JSON.stringify(fail.raw);
-					contents += ');\n';
+			const testBlackList = options.modes.reduce((tbl, mode) => {
+				this.stats.modes[mode].failList.forEach((fail) => {
+					if (!tbl.hasOwnProperty(fail.title)) {
+						tbl[fail.title] = {};
+					}
+					tbl[fail.title][mode] = fail.raw;
 				});
-				contents += '\n';
-			});
-			contents += '// ### DO NOT REMOVE THIS LINE ### ';
-			contents += '(end of automatically-generated section)';
-			contents += shell[2];
+				return tbl;
+			}, {});
+			const contents = JSON.stringify(testBlackList, null, "    ");
 			if (ScriptUtils.booleanOption(options['rewrite-blacklist'])) {
 				yield fs.writeFile(this.blackListPath, contents, 'utf8');
 			} else if (allModes && oldExists) {

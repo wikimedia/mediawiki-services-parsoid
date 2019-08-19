@@ -84,7 +84,7 @@ that means that we inherited a large number of tests which are not
 appropriate for Parsoid, and which therefore fail.  There are also
 some real bugs which cause failing tests as well, of course!
 In order to track regressions, we maintain a blacklist of
-currently-failing tests in `tests/parserTests-blacklist.js`.
+currently-failing tests in `tests/parserTests-blacklist.json`.
 If you need to add or remove tests from the blacklist, then this
 command will help:
 

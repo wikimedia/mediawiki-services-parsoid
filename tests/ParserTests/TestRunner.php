@@ -205,11 +205,11 @@ class TestRunner {
 		$testFilePathInfo = pathinfo( $testFilePath );
 		$this->testFileName = $testFilePathInfo['basename'];
 
-		$blackListName = $testFilePathInfo['filename'] . '-php-blacklist.json';
+		$blackListName = $testFilePathInfo['filename'] . '-blacklist.json';
 		$this->blackListPath = $testFilePathInfo['dirname'] . '/' . $blackListName;
 		try {
 			$blackListData = file_get_contents( $this->blackListPath );
-			$this->testBlackList = PHPUtils::jsonDecode( $blackListData )['testBlackList'] ?? [];
+			$this->testBlackList = PHPUtils::jsonDecode( $blackListData ) ?? [];
 			error_log( 'Loaded blacklist from ' . $this->blackListPath .
 				". Found " . count( $this->testBlackList ) . " entries!" );
 		} catch ( Exception $e ) {
@@ -1241,32 +1241,23 @@ class TestRunner {
 		// update the blacklist, if requested
 		if ( $allModes || ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
 			$old = null;
-			$oldExists = null;
-			if ( file_exists( $this->blackListPath ) ) {
+			$oldExists = file_exists( $this->blackListPath );
+			if ( $oldExists ) {
 				$old = file_get_contents( $this->blackListPath );
-				$oldExists = true;
-			} else {
-				// Use the preamble from one we know about ...
-				$defaultBlPath = __DIR__ . "/../tests/parserTests-php-blacklist.js";
-				$old = file_get_contents( $defaultBlPath );
-				$oldExists = false;
 			}
-			$shell = preg_split( '/^.*DO NOT REMOVE THIS LINE.*$/m', $old );
-			$contents = $shell[0];
-			$contents .= '// ### DO NOT REMOVE THIS LINE ### ';
-			$contents .= "(start of automatically-generated section)\n";
+			$testBlackList = [];
 			foreach ( $options['modes'] as $mode ) {
-				$contents .= "\n// Blacklist for " . $mode . "\n";
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
-					$contents .= 'add(' . json_encode( $mode ) . ', ' . json_encode( $fail['title'] );
-					$contents .= ', ' . json_encode( $fail['raw'] );
-					$contents .= ");\n";
+					if ( !isset( $testBlackList[$fail['title']] ) ) {
+						$testBlackList[$fail['title']] = [];
+					}
+					$testBlackList[$fail['title']][$mode] = $fail['raw'];
 				}
-				$contents .= "\n";
 			}
-			$contents .= '// ### DO NOT REMOVE THIS LINE ### ';
-			$contents .= '(end of automatically-generated section)';
-			$contents .= $shell[2];
+			$contents = json_encode(
+				$testBlackList,
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			);
 			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
 				file_put_contents( $this->blackListPath, $contents );
 			} elseif ( $allModes && $oldExists ) {

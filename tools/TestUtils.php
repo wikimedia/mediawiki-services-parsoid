@@ -1033,7 +1033,7 @@ class TestUtils {
 				'boolean' => false
 			],
 			'rewrite-blacklist' => [
-				'description' => 'Update parserTests-blacklist.js with failing tests.',
+				'description' => 'Update parserTests-blacklist.json with failing tests.',
 				'default' => false,
 				'boolean' => true
 			],
