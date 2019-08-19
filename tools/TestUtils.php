@@ -590,9 +590,6 @@ class TestUtils {
 		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && $expectFail ) {
 			// compare with remembered output
 			$normalizeAbout = function ( $s ) {
-				// PORT-FIXME: Stripping dsr info is only necessary while we're
-				// using the JS blacklist vs the PHP output.
-				$s = preg_replace( "/(dsr[\"']:\[)[^\]]*/", '$1', $s );
 				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
 			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) ) {
