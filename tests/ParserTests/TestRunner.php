@@ -205,7 +205,7 @@ class TestRunner {
 		$testFilePathInfo = pathinfo( $testFilePath );
 		$this->testFileName = $testFilePathInfo['basename'];
 
-		$blackListName = $testFilePathInfo['filename'] . '-blacklist.json';
+		$blackListName = $testFilePathInfo['filename'] . '-php-blacklist.json';
 		$this->blackListPath = $testFilePathInfo['dirname'] . '/' . $blackListName;
 		try {
 			$blackListData = file_get_contents( $this->blackListPath );
