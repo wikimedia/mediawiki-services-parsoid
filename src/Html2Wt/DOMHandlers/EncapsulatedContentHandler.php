@@ -126,7 +126,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		// use the first node in that block for determining
 		// newline constraints.
 		if ( isset( $dp->firstWikitextNode ) ) {
-			$h = ( new DOMHandlerFactory )->newFromTagHandler( $dp->firstWikitextNode );
+			$h = ( new DOMHandlerFactory )->newFromTagHandler( mb_strtolower( $dp->firstWikitextNode ) );
 			if ( !$h && ( $dp->stx ?? null ) === 'html' && $dp->firstWikitextNode !== 'a' ) {
 				$h = new FallbackHTMLHandler();
 			}

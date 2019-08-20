@@ -130,8 +130,13 @@ class AttributeExpander extends TokenHandler {
 			// unwrappedWT will be added to the data-mw.parts array which makes
 			// this a multi-template-content-block.
 			// Record the first wikitext node of this block (required by html->wt serialization)
+
+			// FIXME spec-compliant values would be upper-case, this is just a workaround
+			// for current PHP DOM implementation and could be removed in the future
+			$tokenName = mb_strtoupper( $token->getName() );
+
 			$dp->firstWikitextNode = isset( $token->dataAttribs->stx ) ?
-				$token->getName() . '_' . $token->dataAttribs->stx : $token->getName();
+				$tokenName . '_' . $token->dataAttribs->stx : $tokenName;
 
 			// Update tsr->start only. Unless the end-meta token is moved as well,
 			// updating tsr->end can introduce bugs in cases like:

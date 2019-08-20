@@ -752,7 +752,11 @@ class WrapTemplates {
 			return null;
 		}
 
-		return !empty( $dp->stx ) ? $firstNode->nodeName . '_' . $dp->stx : $firstNode->nodeName;
+		// FIXME spec-compliant values would be upper-case, this is just a workaround
+		// for current PHP DOM implementation and could be removed in the future
+		$nodeName = mb_strtoupper( $firstNode->nodeName );
+
+		return !empty( $dp->stx ) ? $nodeName . '_' . $dp->stx : $nodeName;
 	}
 
 	/**
@@ -944,10 +948,10 @@ class WrapTemplates {
 					// In this case, record the name of the first node in the encapsulated
 					// content. During html -> wt serialization, newline constraints for
 					// this entire block has to be determined relative to this node.
-
-					// FIXME spec-compliant values would be upper-case, this is just a workaround
-					// for current PHP DOM implementation and could be removed in the future
-					$encapInfo->dp->firstWikitextNode = strtoupper( self::findFirstTemplatedNode( $range ) );
+					$ftn = self::findFirstTemplatedNode( $range );
+					if ( $ftn !== null ) {
+						$encapInfo->dp->firstWikitextNode = $ftn;
+					}
 					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
 					array_unshift(
 						$tplArray,

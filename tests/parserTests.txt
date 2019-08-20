@@ -11949,7 +11949,7 @@ Templates with intersecting and overlapping ranges
 <td>hi
 </td></tr></tbody></table>
 !! html/parsoid
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}],[{"k":"1"}],[{"k":"1"}]],"firstWikitextNode":"table"}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ha&lt;/p>"}},"i":0}},"\n","{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ho&lt;/p>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}}hi"}},"i":2}},"\n|}"]}'>ha</p><table about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}],[{"k":"1"}],[{"k":"1"}]],"firstWikitextNode":"TABLE"}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ha&lt;/p>"}},"i":0}},"\n","{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"\n&lt;p>ho&lt;/p>"}},"i":1}},"\n",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"{{!}}hi"}},"i":2}},"\n|}"]}'>ha</p><table about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
 
 </table><p about="#mwt1">ho</p><table about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
 
@@ -30243,7 +30243,7 @@ Use data-parsoid.firstWikitextNode to compute newline constraints for template c
 !! options
 parsoid=html2wt
 !! html/parsoid
-<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span><table about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"a":{"{{echo|c\n{{!}}d\n}}":null},"sa":{"{{echo|c\n{{!}}d\n}}":""},"firstWikitextNode":"table","pi":[[{"k":"1"}]]}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c\n{{!}}d\n"}},"i":0}},"\n|}"]}'>
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span><table about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"a":{"{{echo|c\n{{!}}d\n}}":null},"sa":{"{{echo|c\n{{!}}d\n}}":""},"firstWikitextNode":"TABLE","pi":[[{"k":"1"}]]}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"c\n{{!}}d\n"}},"i":0}},"\n|}"]}'>
 <tbody><tr><td>d
 </td></tr>
 </tbody></table>
