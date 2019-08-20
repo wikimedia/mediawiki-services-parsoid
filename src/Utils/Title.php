@@ -178,6 +178,8 @@ class Title {
 			$title = IPUtils::sanitizeIP( $title );
 		}
 
+		// Where does this come from?  It's not in core's splitTitleString
+		// but matches mediawiki-title's _fixSpecialName
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {
 			$parts = explode( '/', $title, 2 );
 			$specialName = $siteConfig->canonicalSpecialPageName( $parts[0] );

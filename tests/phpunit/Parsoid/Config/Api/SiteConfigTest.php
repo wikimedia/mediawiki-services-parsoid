@@ -115,10 +115,10 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testCanonicalSpecialPageName() {
 		$this->assertSame(
-			'Recentchanges', $this->getSiteConfig()->canonicalSpecialPageName( 'recentchanges' )
+			'RecentChanges', $this->getSiteConfig()->canonicalSpecialPageName( 'recentchanges' )
 		);
 		$this->assertSame(
-			'Recentchangeslinked', $this->getSiteConfig()->canonicalSpecialPageName( 'RelatedChanges' )
+			'RecentChangesLinked', $this->getSiteConfig()->canonicalSpecialPageName( 'RelatedChanges' )
 		);
 		$this->assertSame(
 			null, $this->getSiteConfig()->canonicalSpecialPageName( 'FooBar' )
