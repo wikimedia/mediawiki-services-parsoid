@@ -75,15 +75,15 @@ class SpanHandler extends DOMHandler {
 				if ( isset( $dp->src ) ) {
 					$this->emitPlaceholderSrc( $node, $state );
 					return $node->nextSibling;
-				} elseif ( '/(^|\s)mw:Placeholder(\s|$)/' // PORT-FIXME ???
+				} elseif (
+					preg_match( '/(^|\s)mw:Placeholder(\s|$)/', $type )
 					&& DOMUtils::hasNChildren( $node, 1 )
 					&& DOMUtils::isText( $node->firstChild )
 					// See the DisplaySpace hack in the urltext rule in the tokenizer.
-					&& preg_match( '/\x{00a0}+/u', $node->firstChild->nodeValue )
+					&& preg_match( '/^\x{00a0}+$/u', $node->firstChild->nodeValue )
 				) {
 					$state->emitChunk(
-						// PORT-FIXME use unicode strlen? this whole block seems broken though
-						str_repeat( ' ', strlen( $node->firstChild->nodeValue ) ),
+						str_repeat( ' ', mb_strlen( $node->firstChild->nodeValue ) ),
 						$node->firstChild
 					);
 				} else {
