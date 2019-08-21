@@ -666,6 +666,8 @@ class TestUtils {
 		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && !$expectSuccess ) {
 			$stats->passedTestsUnexpected++;
 			$stats->modes[$mode]->passedTestsUnexpected++;
+			print self::colorString( 'UNEXPECTED PASS', 'green', true ) . ': ' .
+				self::colorString( $extTitle, 'yellow' ) . "\n";
 			return false;
 		}
 		if ( !$quiet ) {
