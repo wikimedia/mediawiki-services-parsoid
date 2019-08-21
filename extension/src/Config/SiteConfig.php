@@ -273,8 +273,10 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function canonicalSpecialPageName( string $alias ): ?string {
-		return MediaWikiServices::getInstance()->getSpecialPageFactory()->resolveAlias( $alias )[0];
+	public function specialPageLocalName( string $alias ): ?string {
+		$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+		$aliases = $specialPageFactory->resolveAlias( $alias );
+		return $aliases[0] !== null ? $specialPageFactory->getLocalNameFor( ...$aliases ) : $alias;
 	}
 
 	public function interwikiMagic(): bool {

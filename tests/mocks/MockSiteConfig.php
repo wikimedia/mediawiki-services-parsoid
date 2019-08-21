@@ -154,7 +154,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function canonicalSpecialPageName( string $alias ): ?string {
+	public function specialPageLocalName( string $alias ): ?string {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 

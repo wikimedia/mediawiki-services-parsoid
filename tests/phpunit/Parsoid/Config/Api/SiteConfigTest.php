@@ -113,15 +113,15 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( 'first-letter', $this->getSiteConfig()->namespaceCase( 1 ) );
 	}
 
-	public function testCanonicalSpecialPageName() {
+	public function testSpecialPageLocalName() {
 		$this->assertSame(
-			'RecentChanges', $this->getSiteConfig()->canonicalSpecialPageName( 'recentchanges' )
+			'RecentChanges', $this->getSiteConfig()->specialPageLocalName( 'recentchanges' )
 		);
 		$this->assertSame(
-			'RecentChangesLinked', $this->getSiteConfig()->canonicalSpecialPageName( 'RelatedChanges' )
+			'RecentChangesLinked', $this->getSiteConfig()->specialPageLocalName( 'RelatedChanges' )
 		);
 		$this->assertSame(
-			null, $this->getSiteConfig()->canonicalSpecialPageName( 'FooBar' )
+			null, $this->getSiteConfig()->specialPageLocalName( 'FooBar' )
 		);
 	}
 

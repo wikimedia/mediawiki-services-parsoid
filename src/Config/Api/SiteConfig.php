@@ -314,10 +314,10 @@ class SiteConfig extends ISiteConfig {
 
 		$this->specialPageNames = [];
 		foreach ( $data['specialpagealiases'] as $special ) {
-			$alias = strtr( strtoupper( $special['realname'] ), ' ', '_' );
+			$alias = strtr( mb_strtoupper( $special['realname'] ), ' ', '_' );
 			$this->specialPageNames[$alias] = $special['aliases'][0];
 			foreach ( $special['aliases'] as $alias ) {
-				$alias = strtr( strtoupper( $alias ), ' ', '_' );
+				$alias = strtr( mb_strtoupper( $alias ), ' ', '_' );
 				$this->specialPageNames[$alias] = $special['aliases'][0];
 			}
 		}
@@ -504,9 +504,9 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function canonicalSpecialPageName( string $alias ): ?string {
+	public function specialPageLocalName( string $alias ): ?string {
 		$this->loadSiteData();
-		$alias = strtr( strtoupper( $alias ), ' ', '_' );
+		$alias = strtr( mb_strtoupper( $alias ), ' ', '_' );
 		return $this->specialPageNames[$alias] ?? null;
 	}
 

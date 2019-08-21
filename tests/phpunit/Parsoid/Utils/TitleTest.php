@@ -61,13 +61,13 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	private function getMockSiteConfig( $lang = 'en' ) {
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )
-			->setMethods( [ 'lang', 'namespaceCase', 'canonicalSpecialPageName' ] )
+			->setMethods( [ 'lang', 'namespaceCase', 'specialPageLocalName' ] )
 			->getMock();
 		$siteConfig->method( 'namespaceCase' )->willReturnCallback( function ( $ns ) {
 			return $ns === 15 ? 'case-sensitive' : 'first-letter';
 		} );
 		$siteConfig->method( 'lang' )->willReturn( $lang );
-		$siteConfig->method( 'canonicalSpecialPageName' )->willReturnCallback( function ( $alias ) {
+		$siteConfig->method( 'specialPageLocalName' )->willReturnCallback( function ( $alias ) {
 			if ( $alias === 'DoesNotExist' ) {
 				return null;
 			}

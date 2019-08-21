@@ -179,15 +179,10 @@ class Title {
 			$title = IPUtils::sanitizeIP( $title );
 		}
 
-		// Where does this come from?  It's not in core's splitTitleString
-		// but matches mediawiki-title's _fixSpecialName
+		// This is not in core's splitTitleString but matches
+		// mediawiki-title's newFromText.
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {
-			$parts = explode( '/', $title, 2 );
-			$specialName = $siteConfig->canonicalSpecialPageName( $parts[0] );
-			if ( $specialName !== null ) {
-				$parts[0] = $specialName;
-				$title = implode( '/', $parts );
-			}
+			$title = self::fixSpecialName( $siteConfig, $title );
 		}
 
 		return new self( $title, $ns, $siteConfig, $fragment );
@@ -257,5 +252,24 @@ class Title {
 	public function equals( Title $title ) {
 		return $this->getNamespaceId() === $title->getNamespaceId() &&
 			$this->getKey() === $title->getKey();
+	}
+
+	/**
+	 * Use the default special page alias.
+	 *
+	 * @param SiteConfig $siteConfig
+	 * @param string $title
+	 * @return string
+	 */
+	public static function fixSpecialName(
+		SiteConfig $siteConfig, string $title
+	): string {
+		$parts = explode( '/', $title, 2 );
+		$specialName = $siteConfig->specialPageLocalName( $parts[0] );
+		if ( $specialName !== null ) {
+			$parts[0] = $specialName;
+			$title = implode( '/', $parts );
+		}
+		return $title;
 	}
 }

@@ -341,11 +341,11 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Get the canonical name for a special page
+	 * Get the default local name for a special page
 	 * @param string $alias Special page alias
 	 * @return string|null
 	 */
-	abstract public function canonicalSpecialPageName( string $alias ): ?string;
+	abstract public function specialPageLocalName( string $alias ): ?string;
 
 	/**
 	 * Treat language links as magic connectors, not inline links
