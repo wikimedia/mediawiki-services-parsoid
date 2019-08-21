@@ -173,14 +173,13 @@ class Linter {
 		if ( !empty( $dmw->parts ) && count( $dmw->parts ) === 1 ) {
 			$p0 = $dmw->parts[0];
 			$name = null;
-			if ( !empty( $p0['template']->target->href ) ) { // Could be "function"
+			if ( !empty( $p0->template->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = preg_replace( '#^\./#', '', $p0['template']->target->href, 1 );
-			// @phan-suppress-next-line PhanTypeMismatchDimAssignment
-			} elseif ( !empty( $p0['template'] ) ) {
-				$name = trim( $p0['template']->target->wt );
+				$name = preg_replace( '#^\./#', '', $p0->template->target->href, 1 );
+			} elseif ( !empty( $p0->template ) ) {
+				$name = trim( $p0->template->target->wt );
 			} else {
-				$name = trim( $p0['templatearg']->target->wt );
+				$name = trim( $p0->templatearg->target->wt );
 			}
 			return [ 'name' => $name ];
 		} else {
@@ -1040,10 +1039,13 @@ class Linter {
 
 		if ( $multiUnclosedTagName ) {
 			$item = $firstUnclosedTag[$multiUnclosedTagName];
+			if ( isset( $item['dsr'] ) ) {
+				$item['dsr'] = DomSourceRange::fromArray( $item['dsr'] );
+			}
 			$env->recordLint( 'multiple-unclosed-formatting-tags', [
 				'params' => $item['params'] ?? [],
 				'dsr' => $item['dsr'] ?? null,
-				'templateInfo' => $item['templateInfo'] ?? null,
+				'templateInfo' => $item['templateInfo'] ?? null
 			] );
 		}
 	}
@@ -1224,7 +1226,8 @@ class Linter {
 					$this->extApi,
 					$node,
 					function ( $extRootNode ) use ( $env, $tplInfo ) {
-						return $this->findLints( $extRootNode, $env, $tplInfo );
+						return $this->findLints( $extRootNode, $env,
+							empty( $tplInfo->isTemplated ) ? null : $tplInfo );
 					}
 				);
 			}

@@ -456,10 +456,10 @@ class MockDataAccess implements DataAccess {
 			}
 
 			$ret = array_merge( $ret, [ $normFileName => $info ] );
-	 }
+		}
 
 	return $ret;
- }
+	}
 
 	/** @inheritDoc */
 	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
@@ -510,8 +510,45 @@ class MockDataAccess implements DataAccess {
 			'modulestyles' => [],
 			'categories' => [],
 		];
+
 		preg_match( '/{{echo\|(.*?)}}/', $wikitext, $match );
+
 		if ( $match ) {
+			// check additional special cases
+			// mock for: LinterTEst - should identify deletable table tag for T161341 (3)
+			$wt3 = implode( "\n", [
+				"{{echo|{{{!}}",
+				"{{!}}a",
+				"{{!}}-",
+				"{{{!}}",
+				"{{!}}b",
+				"{{!}}c",
+				"{{!}}}",
+				"}}" ] );
+			if ( 0 == strcmp( $wikitext, $wt3 ) ) {
+				$match[ 1 ] = implode( "\n", [ "{{{!}}",
+					"{{!}}a",
+					"{{!}}-",
+					"{{{!}}",
+					"{{!}}b",
+					"{{!}}c",
+					"{{!}}}" ] );
+			} else {
+				// mock for: LinterTest - should identify deletable table tag for T161341 (4)
+				$wt4 = implode( "\n", [
+					"{{echo|{{{!}}",
+					"{{!}}a",
+					"{{!}}-",
+					"}}"
+				] );
+				if ( 0 == strcmp( $wikitext, $wt4 ) ) {
+					$match[ 1 ] = implode( "\n", [ "{{{!}}",
+						"{{!}}a",
+						"{{!}}-"
+					] );
+				}
+			}
+
 			$ret['wikitext'] = $match[1];
 		} elseif ( $wikitext === '{{colours of the rainbow}}' ) {
 			$ret['wikitext'] = 'purple';

@@ -420,7 +420,7 @@ class WrapTemplates {
 		$tplArray[] = (object)[
 			'dsr' => $dsr,
 			'args' => $argInfo->dict,
-			'paramInfos' => $argInfo->paramInfos,
+			'paramInfos' => $argInfo->paramInfos
 		];
 	}
 
@@ -993,8 +993,8 @@ class WrapTemplates {
 							}
 							$infoIndex++;
 							return DOMUtils::hasTypeOf( $startElem, 'mw:Param' )
-								? [ 'templatearg' => $a->args ?? null ]
-								: [ 'template' => $a->args ?? null ];
+								? (object)[ 'templatearg' => $a->args ?? null ]
+								: (object)[ 'template' => $a->args ?? null ];
 						}
 					},
 					$tplArray

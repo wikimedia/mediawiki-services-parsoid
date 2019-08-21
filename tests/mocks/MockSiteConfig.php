@@ -248,7 +248,8 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function magicWords(): array {
-		return [ 'toc' => 'toc', "thumb" => "img_thumbnail" ];
+		return [ 'toc' => 'toc', "thumb" => "img_thumbnail", "none" => "img_none",
+			"__notoc__" => "__notoc__" ];
 	}
 
 	public function mwAliases(): array {
