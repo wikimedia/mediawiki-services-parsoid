@@ -827,11 +827,6 @@ if (require.main === module) {
 			default: false,
 			alias: 'c',
 		},
-		phpConfigFile: {
-			description: 'PHP config to splice into the JS pipelines',
-			'boolean': false,
-			'default': null,
-		},
 	};
 
 	Promise.async(function *() {
@@ -862,7 +857,6 @@ if (require.main === module) {
 					loadWMF: true,
 					useSelser: true,
 					rtTestMode: true,
-					phpConfigFile: argv.phpConfigFile,
 				}
 			};
 			if (argv.apiURL) {
