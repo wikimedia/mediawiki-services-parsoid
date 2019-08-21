@@ -228,7 +228,7 @@ class SiteConfig extends ISiteConfig {
 				// No magic words? Return a failing regex
 				$this->bswRegexp = '(?!)';
 			}
-			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp/(?:' . $this->bswRegexp . ')(?=$|\\s)/uS';
+			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $this->bswRegexp . ')(?=$|\\s)/uS';
 		}
 		return $this->bswPagePropRegexp;
 	}
