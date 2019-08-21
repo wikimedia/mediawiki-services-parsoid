@@ -394,9 +394,15 @@ class TestUtils {
 		}
 	}
 
-	public static function colorString( string $string, string $color ): string {
+	public static function colorString(
+		string $string, string $color, bool $inverse = false
+	): string {
 		if ( !self::$consoleColor ) {
 			self::$consoleColor = new ConsoleColor();
+		}
+
+		if ( $inverse ) {
+			$color = [ $color, 'reverse' ];
 		}
 
 		if ( self::$consoleColor->isSupported() ) {
@@ -608,11 +614,11 @@ class TestUtils {
 		}
 
 		if ( $blacklisted ) {
-			print self::colorString( 'UNEXPECTED BLACKLIST FAIL', 'red' ) . ': '
+			print self::colorString( 'UNEXPECTED BLACKLIST FAIL', 'red', true ) . ': '
 				. self::colorString( $extTitle, 'yellow' ) . "\n";
 			print self::colorString( 'Blacklisted, but the output changed!', 'red' ) . "\n";
 		} else {
-			print self::colorString( 'UNEXPECTED FAIL', 'red' ) . ': '
+			print self::colorString( 'UNEXPECTED FAIL', 'red', true ) . ': '
 				. self::colorString( $extTitle, 'yellow' ) . "\n";
 		}
 
