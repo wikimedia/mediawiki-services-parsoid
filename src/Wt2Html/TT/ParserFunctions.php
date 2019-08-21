@@ -457,7 +457,10 @@ class ParserFunctions {
 	}
 
 	public function pf_currentweek( $token, Frame $frame, Params $params ): array {
-		return $this->pfTime_tokens( 'W', [] );
+		$toks = $this->pfTime_tokens( 'W', [] );
+		// Cast to int to remove padding, as in core
+		$toks[0] = (string)(int)$toks[0];
+		return $toks;
 	}
 
 	public function pf_localweek( $token, Frame $frame, Params $params ): array {
