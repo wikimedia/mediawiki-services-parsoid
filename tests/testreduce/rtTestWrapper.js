@@ -9,7 +9,7 @@ const rtTest = require('../../bin/roundtrip-test.js');
 
 // If we've started a Parsoid server, cache the URL so that subsequent calls
 // don't need to start their own.
-let parsoidURL = null;
+let parsoidURLOpts = null;
 
 // Read ids from a file and return the first line of the file
 function getTestRunId(opts) {
@@ -21,25 +21,25 @@ function _run(test) {
 	return rtTest.runTests(test.title, {
 		prefix: test.prefix,
 		rtTestMode: true,
-		parsoidURL: parsoidURL,
+		parsoidURLOpts: parsoidURLOpts,
 	}, rtTest.xmlFormat).then(function(result) {
 		return result.output;
 	});
 }
 
 function runRoundTripTest(config, test) {
-	if (!parsoidURL) {
+	if (!parsoidURLOpts) {
 		// If the test run id starts with PHP: we'll
 		// run tests with Parsoid/PHP. If not, we'll
 		// run tests with Parsoid/JS.
 		const testRunId = getTestRunId({});
 		if (/^PHP:/.test(testRunId)) {
-			parsoidURL = config.parsoidPHPURL;
+			parsoidURLOpts = config.parsoidPHP;
 		} else {
-			parsoidURL = config.parsoidURL;
+			parsoidURLOpts = { baseUrl: config.parsoidURL };
 		}
 	}
-	if (parsoidURL) {
+	if (parsoidURLOpts) {
 		return _run(test);
 	} else {
 		// If no Parsoid server was passed, start our own
@@ -48,7 +48,7 @@ function runRoundTripTest(config, test) {
 			parsoidOptions: config.parsoidOptions,
 		})
 		.then(function(ret) {
-			parsoidURL = ret.parsoidURL;
+			parsoidURLOpts = { baseUrl: ret.parsoidURL };
 			return _run(test);
 		});
 	}

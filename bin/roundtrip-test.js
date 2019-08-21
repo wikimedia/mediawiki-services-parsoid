@@ -571,6 +571,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		httpOptions.json = true;
 	}
 	httpOptions.uri = uri;
+	httpOptions.proxy = options.proxy;
 
 	var result = yield ScriptUtils.retryingHTTPRequest(10, httpOptions);
 	var body = result[1];
@@ -672,13 +673,25 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		throw new Error('No domain or prefix provided.');
 	}
 
-	var uri = options.parsoidURL;
+	const uriOpts = options.parsoidURLOpts;
+	let uri = uriOpts.baseUrl;
+	let proxy;
+	if (uriOpts.proxy) {
+		proxy = uriOpts.proxy.host;
+		if (uriOpts.proxy.port) {
+			proxy += ":" + uriOpts.proxy.port;
+		}
+		// Special support for the WMF cluster
+		uri = uri.replace(/DOMAIN/, domain);
+	}
+
 	// make sure the Parsoid URI ends on /
 	if (!/\/$/.test(uri)) {
 		uri += '/';
 	}
 	var parsoidOptions = {
 		uri: uri + domain + '/v3/',
+		proxy: proxy,
 		title: encodeURIComponent(title),
 		outputContentVersion: options.outputContentVersion || defaultContentVersion,
 	};
@@ -696,6 +709,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		var req = yield ScriptUtils.retryingHTTPRequest(10, {
 			method: 'GET',
 			uri: uri2,
+			proxy: proxy,
 			headers: {
 				'User-Agent': UA,
 			},
@@ -868,6 +882,7 @@ if (require.main === module) {
 			ret = yield serviceWrapper.runServices(serverOpts);
 			argv.parsoidURL = ret.parsoidURL;
 		}
+		argv.parsoidURLOpts = { baseUrl: argv.parsoidURL };
 		var formatter = ScriptUtils.booleanOption(argv.xml) ?
 			xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
