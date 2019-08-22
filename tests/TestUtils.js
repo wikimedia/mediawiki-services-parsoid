@@ -505,9 +505,7 @@ var printFailure = function(stats, item, options, mode, title, actual, expected,
 	};
 	stats.modes[mode].failList.push(fail);
 
-	const mstr = item.options.langconv ? 'wt2html+langconv' : mode;
-	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
-		.replace('\n', ' ');
+	const extTitle = `${title} (${mode})`.replace('\n', ' ');
 
 	var blacklisted = false;
 	if (ScriptUtils.booleanOption(options.blacklist) && expectFail) {
@@ -574,9 +572,8 @@ var printSuccess = function(stats, item, options, mode, title, expectSuccess) {
 	var quiet = ScriptUtils.booleanOption(options.quiet);
 	stats.passedTests++;
 	stats.modes[mode].passedTests++;
-	const mstr = item.options.langconv ? 'wt2html+langconv' : mode;
-	const extTitle = (title + (mstr ? (' (' + mstr + ')') : ''))
-		.replace('\n', ' ');
+
+	const extTitle = `${title} (${mode})`.replace('\n', ' ');
 
 	if (ScriptUtils.booleanOption(options.blacklist) && !expectSuccess) {
 		stats.passedTestsUnexpected++;
@@ -677,7 +674,9 @@ function printResult(reportFailure, reportSuccess, bl, stats, item, options, mod
 	var quick = ScriptUtils.booleanOption(options.quick);
 
 	if (mode === 'selser') {
-		title += ' ' + (item.changes ? JSON.stringify(item.changes) : 'manual');
+		title += ' ' + (item.changes ? JSON.stringify(item.changes) : '[manual]');
+	} else if (mode === 'wt2html' && item.options.langconv) {
+		title += ' [langconv]';
 	}
 
 	var tb = bl[title];

@@ -583,8 +583,7 @@ class TestUtils {
 		];
 		$stats->modes[$mode]->failList[] = $fail;
 
-		$mstr = isset( $item->options['langconv'] ) ? 'wt2html+langconv' : $mode;
-		$extTitle = str_replace( "\n", ' ', $title . ( $mstr ? ' (' . $mstr . ')' : '' ) );
+		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		$blacklisted = false;
 		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && $expectFail ) {
@@ -660,8 +659,8 @@ class TestUtils {
 		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
 		$stats->passedTests++;
 		$stats->modes[$mode]->passedTests++;
-		$mstr = isset( $item->options['langconv'] ) ? 'wt2html+langconv' : $mode;
-		$extTitle = str_replace( "\n", ' ', $title . ( $mstr ? ' (' . $mstr . ')' : '' ) );
+
+		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && !$expectSuccess ) {
 			$stats->passedTestsUnexpected++;
@@ -784,7 +783,9 @@ class TestUtils {
 			isset( $item->options['parsoid'] );
 
 		if ( $mode === 'selser' ) {
-			$title .= ' ' . ( $item->changes ? json_encode( $item->changes ) : 'manual' );
+			$title .= ' ' . ( $item->changes ? json_encode( $item->changes ) : '[manual]' );
+		} elseif ( $mode === 'wt2html' && isset( $item->options['langconv'] ) ) {
+			$title .= ' [langconv]';
 		}
 
 		$tb = $bl[$title] ?? [];
