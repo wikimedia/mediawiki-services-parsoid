@@ -800,7 +800,10 @@ class TestUtils {
 		}
 
 		// don't report selser fails when nothing was changed or it's a dup
-		if ( $mode === 'selser' && ( $item->changes === [] || $item->duplicateChange ) ) {
+		if (
+			$mode === 'selser' && $item->changetree !== [ 'manual' ] &&
+			( $item->changes === [] || $item->duplicateChange )
+		) {
 			return true;
 		}
 

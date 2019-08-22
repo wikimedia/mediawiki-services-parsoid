@@ -691,7 +691,10 @@ function printResult(reportFailure, reportSuccess, bl, stats, item, options, mod
 	}
 
 	// don't report selser fails when nothing was changed or it's a dup
-	if (mode === 'selser' && (JSUtils.deepEquals(item.changes, []) || item.duplicateChange)) {
+	if (
+		mode === 'selser' && !JSUtils.deepEquals(item.changetree, ['manual']) &&
+		(JSUtils.deepEquals(item.changes, []) || item.duplicateChange)
+	) {
 		return true;
 	}
 
