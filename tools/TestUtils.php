@@ -217,7 +217,7 @@ class TestUtils {
 		$prev = null;
 		if ( $node->nodeName === 'pre' ) {
 			// Preserve newlines in <pre> tags
-			$inPRE = true;
+			$opts['inPRE'] = true;
 		}
 		if ( !$opts['preserveIEW'] && $node instanceof DOMText ) {
 			if ( !$opts['inPRE'] ) {
@@ -273,8 +273,9 @@ class TestUtils {
 			$opts['stripLeadingWS'] = false;
 		}
 
-		if ( $opts['inPRE'] || $opts['preserveIEW'] ) { return $node;
-  }
+		if ( $opts['inPRE'] || $opts['preserveIEW'] ) {
+			return $node;
+		}
 
 		// now add newlines around appropriate nodes.
 		for ( $child = $node->firstChild;  $child; $child = $next ) {
