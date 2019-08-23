@@ -245,10 +245,13 @@ class Separators {
 			$sepType = $constraintInfo['sepType'] ?? null;
 			$nodeA = $constraintInfo['nodeA'] ?? null;
 			$nodeB = $constraintInfo['nodeB'] ?? null;
-			if ( $sepType === 'parent-child' &&
+			if (
+				$sepType === 'parent-child' &&
 				!DOMUtils::isContentNode( DOMUtils::firstNonDeletedChild( $nodeA ) ) &&
-				WTUtils::isLiteralHTMLNode( $nodeB ) &&
-				!isset( WikitextConstants::$HTML[$nodeB->nodeName] )
+				!(
+					isset( WikitextConstants::$HTML['ChildTableTags'][$nodeB->nodeName] ) &&
+					!WTUtils::isLiteralHTMLNode( $nodeB )
+				)
 			) {
 				$sep = implode( $nlBuf ) . $sep;
 			} elseif ( $sepType === 'sibling' && WTUtils::isLiteralHTMLNode( $nodeB ) ) {
