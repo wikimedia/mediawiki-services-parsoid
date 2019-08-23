@@ -55,7 +55,7 @@ class Test extends Item {
 	public $resultWT = null;
 
 	/** @var bool */
-	public $wt2wtPassed = false;
+	public $wt2wtPassed = null;
 
 	/** @var string */
 	public $wt2wtResult = null;

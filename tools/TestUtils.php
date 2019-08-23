@@ -678,7 +678,7 @@ class TestUtils {
 
 			print $outStr . "\n";
 
-			if ( $mode === 'selser' && !$item->wt2wtPassed ) {
+			if ( $mode === 'selser' && isset( $item->wt2wtPassed ) && !$item->wt2wtPassed ) {
 				print self::colorString( 'Even better, the non-selser wt2wt test failed!', 'red' ) . "\n";
 			}
 		}
