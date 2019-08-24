@@ -21,7 +21,7 @@ class LanguageVariantText extends RegExpConstrainedText {
 				'text' => $text,
 				'node' => $node,
 				// at sol vertical bars immediately preceding cause problems in tables
-				'badPrefix' => /* RegExp */ '/^\|$/'
+				'badPrefix' => /* RegExp */ '/^\|$/D'
 			]
 		);
 	}

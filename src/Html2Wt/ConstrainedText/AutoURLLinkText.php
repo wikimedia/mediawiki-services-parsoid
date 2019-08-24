@@ -21,7 +21,7 @@ class AutoURLLinkText extends RegExpConstrainedText {
 				'text' => $url,
 				'node' => $node,
 				// there's a \b boundary at start, and first char of url is a word char
-				'badPrefix' => /* RegExp */ '/\w$/u',
+				'badPrefix' => /* RegExp */ '/\w$/uD',
 				'badSuffix' => self::badSuffix( $url )
 			]
 		);

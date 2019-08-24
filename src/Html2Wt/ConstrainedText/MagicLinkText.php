@@ -22,7 +22,7 @@ class MagicLinkText extends RegExpConstrainedText {
 			'node' => $node,
 			// there are \b boundaries on either side, and first/last characters
 			// are word characters.
-			'badPrefix' => /* RegExp */ '/\w$/u',
+			'badPrefix' => /* RegExp */ '/\w$/uD',
 			'badSuffix' => /* RegExp */ '/^\w/u'
 		] );
 	}

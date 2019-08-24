@@ -30,12 +30,12 @@ class WikiLinkText extends RegExpConstrainedText {
 	) {
 		// category links/external links/images don't use link trails or prefixes
 		$noTrails = preg_match( '#^mw:WikiLink(/Interwiki)?$#', $type ) === 0;
-		$badPrefix = '/(^|[^\[])(\[\[)*\[$/';
+		$badPrefix = '/(^|[^\[])(\[\[)*\[$/D';
 		$linkPrefixRegex = $siteConfig->linkPrefixRegex();
 		if ( !$noTrails && $linkPrefixRegex ) {
 			$badPrefix =
 				'/(' . PHPUtils::reStrip( $linkPrefixRegex, '/' ) . ')' .
-				'|(' . PHPUtils::reStrip( $badPrefix, '/' ) . ')/u';
+				'|(' . PHPUtils::reStrip( $badPrefix, '/' ) . ')/uD';
 		}
 		parent::__construct( [
 			'text' => $text,
