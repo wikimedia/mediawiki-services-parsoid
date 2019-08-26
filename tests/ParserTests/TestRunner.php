@@ -341,8 +341,8 @@ class TestRunner {
 	private function applyChanges(
 		Env $env, Test $test, DOMElement $body, array $changelist
 	): DOMNode {
-		// Seed the random-number generator based on the test title
-		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->title ?? '' ) );
+		// Seed the random-number generator based on the item title and changelist
+		$alea = new Alea( ( json_encode( $changelist ) ?? '' ) . ( $test->title ?? '' ) );
 
 		// Keep the changes in the test object
 		// to check for duplicates while building tasks

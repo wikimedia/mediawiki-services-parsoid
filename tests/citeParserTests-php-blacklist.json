@@ -208,52 +208,52 @@
         "html2wt": "A <ref> This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />"
     },
     "Simple <ref>, no <references/> [2,0,0]": {
-        "selser": "1618kiq\n\nWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>"
+        "selser": "22oxk8\n\nWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>"
     },
     "Simple <ref>, no <references/> [3,0,0]": {
         "selser": "\n"
     },
     "Simple <ref>, no <references/> [4,0,0]": {
-        "selser": "vew2hz\n"
+        "selser": "fp5wbv\n"
     },
     "Simple <ref>, no <references/> [[3,0],0,0]": {
         "selser": "<ref>Proceeds of Rockology, vol. XXI</ref>\n"
     },
     "Simple <ref>, no <references/> [[4,0],2,0]": {
-        "selser": "vkomsc<ref>Proceeds of Rockology, vol. XXI</ref>\n\nx9946h\n"
+        "selser": "mk977p<ref>Proceeds of Rockology, vol. XXI</ref>\n\neyus7i\n"
     },
     "Simple <ref>, no <references/> [4,4,0]": {
-        "selser": "1xru5nr\n\n17y1u9b"
+        "selser": "1ydfc9r\n\n1qrllio"
     },
     "Simple <ref>, no <references/> [3,3,0]": {
         "selser": ""
     },
     "Simple <ref>, no <references/> [3,4,0]": {
-        "selser": "1um7ibt"
+        "selser": "o3fqpy"
     },
     "Simple <ref>, no <references/> [[2,0],0,0]": {
-        "selser": "10ki8pmWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n"
+        "selser": "f6wp9uWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n"
     },
     "Simple <ref>, no <references/> [3,2,0]": {
-        "selser": "163orz7\n"
+        "selser": "1vqvhch\n"
     },
     "Simple <ref>, no <references/> [1,2,0]": {
-        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\n18t4cte\n"
+        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\n1ke31cw\n"
     },
     "Simple <ref>, no <references/> [[4,0],4,0]": {
-        "selser": "4q5ua9<ref>Proceeds of Rockology, vol. XXI</ref>\n\n1e0uxzv"
+        "selser": "1rj81lf<ref>Proceeds of Rockology, vol. XXI</ref>\n\ncwh7xl"
     },
     "Simple <ref>, no <references/> [1,4,0]": {
-        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\nbzza9r"
+        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\nxukyru"
     },
     "Simple <ref>, no <references/> [4,2,0]": {
-        "selser": "1s4gyw0\n\n1ixbzjf\n"
+        "selser": "1whmhxv\n\nku22uk\n"
     },
     "Simple <ref>, no <references/> [0,4,0]": {
-        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\n1rdol44"
+        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\n188fvja"
     },
     "Simple <ref>, no <references/> [[4,0],0,0]": {
-        "selser": "1l3ibd<ref>Proceeds of Rockology, vol. XXI</ref>\n"
+        "selser": "1v0r3te<ref>Proceeds of Rockology, vol. XXI</ref>\n"
     },
     "Simple <ref>, no <references/> [0,3,0]": {
         "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>"
@@ -265,46 +265,46 @@
         "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n"
     },
     "Simple <ref>, no <references/> [0,2,0]": {
-        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\nhlajmc\n"
+        "selser": "Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>\n\newkf4g\n"
     },
     "<ref> with a simple template [[4,0],0,0]": {
-        "selser": "lb3xqw<ref>{{simple template}}</ref>\n\n<references/>"
+        "selser": "yhdv7u<ref>{{simple template}}</ref>\n\n<references/>"
     },
     "<ref> with a simple template [1,0,0]": {
         "selser": "Templating<ref>{{simple template}}</ref>\n\n<references/>"
     },
     "<ref> with a simple template [0,2,0]": {
-        "selser": "Templating<ref>{{simple template}}</ref>\n\nobf1p2\n\n<references/>"
+        "selser": "Templating<ref>{{simple template}}</ref>\n\nii244g\n\n<references/>"
     },
     "<ref> with a simple template [3,4,0]": {
-        "selser": "13kdddv<references/>"
+        "selser": "18f5fp7<references/>"
     },
     "<ref> with a simple template [3,0,0]": {
         "selser": "\n<references/>"
     },
     "<ref> with a simple template [4,0,0]": {
-        "selser": "1x2sbvn\n\n<references/>"
+        "selser": "1xjeoth\n\n<references/>"
     },
     "<ref> with a simple template [[2,0],0,0]": {
-        "selser": "8rkf5iTemplating<ref>{{simple template}}</ref>\n\n<references/>"
+        "selser": "an2be4Templating<ref>{{simple template}}</ref>\n\n<references/>"
     },
     "<ref> with a simple template [1,4,0]": {
-        "selser": "Templating<ref>{{simple template}}</ref>\n\n1arywk<references/>"
+        "selser": "Templating<ref>{{simple template}}</ref>\n\np6ivyn<references/>"
     },
     "<ref> with a simple template [[2,0],4,0]": {
-        "selser": "1ylwnw5Templating<ref>{{simple template}}</ref>\n\n1dilcka<references/>"
+        "selser": "xwhqitTemplating<ref>{{simple template}}</ref>\n\n1uisoil<references/>"
     },
     "<ref> with a simple template [[3,0],0,0]": {
         "selser": "<ref>{{simple template}}</ref>\n\n<references/>"
     },
     "<ref> with a simple template [2,0,0]": {
-        "selser": "lqtr8f\n\nTemplating<ref>{{simple template}}</ref>\n\n<references/>"
+        "selser": "149lvku\n\nTemplating<ref>{{simple template}}</ref>\n\n<references/>"
     },
     "<ref> with a simple template [[4,0],4,0]": {
-        "selser": "lvn73v<ref>{{simple template}}</ref>\n\n13g5xj1<references/>"
+        "selser": "1uffftj<ref>{{simple template}}</ref>\n\nbzckp6<references/>"
     },
     "<ref> with a simple template [2,4,0]": {
-        "selser": "lmnok8\n\nTemplating<ref>{{simple template}}</ref>\n\n11ciaoq<references/>"
+        "selser": "1tnp4p2\n\nTemplating<ref>{{simple template}}</ref>\n\n168wp9b<references/>"
     },
     "<ref> with a simple template [[3,0],3,0]": {
         "selser": "<ref>{{simple template}}</ref><references/>"
@@ -313,49 +313,49 @@
         "selser": "Templating<ref>{{simple template}}</ref><references/>"
     },
     "<ref> with a simple template [[3,0],2,0]": {
-        "selser": "<ref>{{simple template}}</ref>\n\n1467oep\n\n<references/>"
+        "selser": "<ref>{{simple template}}</ref>\n\n31w47h\n\n<references/>"
     },
     "<ref> with a simple template [4,3,0]": {
-        "selser": "11zr9xh<references/>"
+        "selser": "1qi1i08<references/>"
     },
     "<ref> with a simple template [4,4,0]": {
-        "selser": "1saychx\n\n1k2o19k<references/>"
+        "selser": "2dia5h\n\nf6y4yv<references/>"
     },
     "<ref> with a simple template [1,2,0]": {
-        "selser": "Templating<ref>{{simple template}}</ref>\n\n6zmw0a\n\n<references/>"
+        "selser": "Templating<ref>{{simple template}}</ref>\n\ncg6fr2\n\n<references/>"
     },
     "<ref> with a simple template [3,2,0]": {
-        "selser": "16thjyc\n\n<references/>"
+        "selser": "1a45dhl\n\n<references/>"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [0,3,0]": {
         "selser": "{{REVISIONID}}<ref>elite</ref>"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [4,0,0]": {
-        "selser": "njwof8\n"
+        "selser": "gqyiqf\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [1,2,0]": {
-        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n2w1ylf\n"
+        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n1a6otiq\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [2,2,0]": {
-        "selser": "1sqvfrd\n\n{{REVISIONID}}<ref>elite</ref>\n\nmuq1xa\n"
+        "selser": "7idxf8\n\n{{REVISIONID}}<ref>elite</ref>\n\n1dburhc\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [3,0,0]": {
         "selser": "\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [2,0,0]": {
-        "selser": "1sc27yk\n\n{{REVISIONID}}<ref>elite</ref>"
+        "selser": "1v8qufh\n\n{{REVISIONID}}<ref>elite</ref>"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [0,4,0]": {
-        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n6820q5"
+        "selser": "{{REVISIONID}}<ref>elite</ref>\n\nhr3unp"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [4,3,0]": {
-        "selser": "o1rvrs"
+        "selser": "1d8jkif"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [1,4,0]": {
-        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n755jmj"
+        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n1s3icyj"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [0,2,0]": {
-        "selser": "{{REVISIONID}}<ref>elite</ref>\n\n12u7cbe\n"
+        "selser": "{{REVISIONID}}<ref>elite</ref>\n\nrjzpcq\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [1,3,0]": {
         "selser": "{{REVISIONID}}<ref>elite</ref>"
@@ -367,178 +367,178 @@
         "selser": "{{REVISIONID}}<ref>elite</ref>\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [3,4,0]": {
-        "selser": "hc2c9y"
+        "selser": "7uvu41"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [2,4,0]": {
-        "selser": "4mfowb\n\n{{REVISIONID}}<ref>elite</ref>\n\nq8t2f8"
+        "selser": "1ndy63i\n\n{{REVISIONID}}<ref>elite</ref>\n\n15wnw26"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [4,4,0]": {
-        "selser": "ibohng\n\n166o2nr"
+        "selser": "e67fty\n\ns7z72f"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [4,2,0]": {
-        "selser": "4xxt38\n\nrupn79\n"
+        "selser": "1kjcdbq\n\n1t30wom\n"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [2,3,0]": {
-        "selser": "dwrha5\n\n{{REVISIONID}}<ref>elite</ref>"
+        "selser": "11e8rkj\n\n{{REVISIONID}}<ref>elite</ref>"
     },
     "{{REVISIONID}} on page with <ref> (bug 6299) [3,2,0]": {
-        "selser": "kl65oh\n"
+        "selser": "1ljugez\n"
     },
     "Blank ref followed by ref with content [0,4,1,3,0]": {
-        "selser": "<ref name=\"blank\" />\n\n2oyky3\n\n<ref name=\"blank\">content</ref>\n\n<references />"
+        "selser": "<ref name=\"blank\" />\n\n14bnq08\n\n<ref name=\"blank\">content</ref>\n\n<references />"
     },
     "Erroneous refs [0,0,4,2,4,0,0,3,0,0,0,0,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n5fiuuy\n\n1r3vk7r\n\nye789s\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />\n\n<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\nwie687\n\n1u7xv04\n\n1pm36tv\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [3,2,0,0,1,2,0,0,1,0,0,2,0]": {
-        "selser": "1phopva\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n167t8v8\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />e8juxg\n\n<references />"
+        "selser": "1tb8tca\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nl49cv6\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />ql4aqu\n\n<references />"
     },
     "Erroneous refs [0,3,0,0,0,2,0,0,1,0,0,3,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nvxfzfv\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" /><references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n1if3p11\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" /><references />"
     },
     "Erroneous refs [2,0,4,3,4,4,0,0,0,3,0,0,0]": {
-        "selser": "1ehl52g\n\n<ref name=\"0\">Zero</ref>\n\npetz7r\n\nyvg893\n\n89bcw4\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" />\n\n<references />"
+        "selser": "1s759zl\n\n<ref name=\"0\">Zero</ref>\n\n1qgybr7\n\n1mfflfd\n\nruzy1u\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [0,4,0,3,0,0,0,0,0,3,0,0,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\nec3dpf\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" />\n\n<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n1lc0182\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [3,0,0,0,0,4,0,0,3,0,0,2,0]": {
-        "selser": "\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n1y2hyjq\n\n<ref name=\"foo\" name=\"bar\" />\n\n<references name=\"quasit\" />1co7pmk\n\n<references />"
+        "selser": "\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nmg82zd\n\n<ref name=\"foo\" name=\"bar\" />\n\n<references name=\"quasit\" />xefmhr\n\n<references />"
     },
     "Erroneous refs [3,2,4,2,4,0,0,2,3,0,0,4,0]": {
-        "selser": "1nkyb74\n\n14bmiw4\n\n1qiocud\n\nh9kl7a\n\n<ref name=\"foo\" name=\"bar\" />\n\n1r6og91\n\n<references name=\"quasit\" />1jy8o0b<references />"
+        "selser": "im3he0\n\njws5le\n\ngf9tte\n\nsqickf\n\n<ref name=\"foo\" name=\"bar\" />\n\n14jiq7o\n\n<references name=\"quasit\" />1i0xhb<references />"
     },
     "Erroneous refs [3,0,4,2,0,2,0,0,0,0,0,4,0]": {
-        "selser": "\n1c5u2u1\n\n11wpc6k\n\n<ref />\n\niseoxu\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />1komb4y<references />"
+        "selser": "\n1to8jou\n\n1q4t40z\n\n<ref />\n\nh1kd4g\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />2s6rnl<references />"
     },
     "Erroneous refs [0,0,1,0,0,4,0,3,1,2,0,4,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nmwzizm\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n1dp2vom\n\n<references name=\"quasit\" />1g0m87q<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nermh8y\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n1lc73ob\n\n<references name=\"quasit\" />mzul4n<references />"
     },
     "Erroneous refs [1,0,0,3,1,3,1,0,2,0,0,4,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n16q7f29\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />onqj6h<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\ngmbpkw\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />1xfh5g7<references />"
     },
     "Erroneous refs [2,0,3,2,0,0,2,3,4,0,0,0,0]": {
-        "selser": "151n3wc\n\n<ref name=\"0\">Zero</ref>\n\nsyitr4\n\n<ref />\n\n3ge2b1\n\n<ref name=\"foo\" name=\"bar\" />\n\nocdgrg\n\n<references name=\"quasit\" />\n\n<references />"
+        "selser": "mucbqr\n\n<ref name=\"0\">Zero</ref>\n\ni8peub\n\n<ref />\n\n1px26o6\n\n<ref name=\"foo\" name=\"bar\" />\n\n18pbxhl\n\n<references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [2,0,2,2,0,4,2,0,0,3,0,3,0]": {
-        "selser": "1aa5hxv\n\n<ref name=\"0\">Zero</ref>\n\njuhnew\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\np140s5\n\n<ref />\n\nqfta45\n\n1v3f3j9\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" /><references />"
+        "selser": "sqk5eb\n\n<ref name=\"0\">Zero</ref>\n\n4v5cn6\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n1v6r6u9\n\n<ref />\n\n1nafanq\n\nc5qatn\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" /><references name=\"quasit\" /><references />"
     },
     "Erroneous refs [4,4,4,0,0,0,0,3,1,2,0,0,0]": {
-        "selser": "1cfen4e\n\n1ncvdsc\n\n11w4mcc\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n1w92yl4\n\n<references name=\"quasit\" />\n\n<references />"
+        "selser": "1devhdy\n\n1o3vfrh\n\n1hbzkdi\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\nqgk2ub\n\n<references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [0,0,2,0,2,2,2,4,0,0,0,2,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\nwe26ed\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n1yu98fg\n\n<ref />\n\na84x3d\n\ns774dh\n\n<ref name=\"foo\" name=\"bar\" />\n\n1rpidtp\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />raefy5\n\n<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n154g1s7\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n1lzjdgw\n\n<ref />\n\nmycz92\n\n1phfm0r\n\n<ref name=\"foo\" name=\"bar\" />\n\n18223mm\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />odszxr\n\n<references />"
     },
     "Erroneous refs [0,0,1,0,0,0,0,0,0,4,0,0,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\nam6bb8<references name=\"quasit\" />\n\n<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n1tejkzu<references name=\"quasit\" />\n\n<references />"
     },
     "Erroneous refs [0,0,0,3,0,2,2,3,1,0,0,2,0]": {
-        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\nj7066e\n\n1a4dt8o\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />10jb3z9\n\n<references />"
+        "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\narbfc9\n\n1nbyl9p\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />19hld02\n\n<references />"
     },
     "<ref> defined in <references> called with #tag [0,0,0,4,0]": {
-        "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nbrccs7"
+        "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\n1h4si2i"
     },
     "<ref> defined in <references> called with #tag [1,3,0,3,0]": {
         "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [0,4,3,0,0]": {
-        "selser": "<ref name=\"foo\" />\n\namo6ws\n"
+        "selser": "<ref name=\"foo\" />\n\n12vvoew\n"
     },
     "<ref> defined in <references> called with #tag [0,3,4,0,0]": {
-        "selser": "<ref name=\"foo\" />\n\ny49ita\n"
+        "selser": "<ref name=\"foo\" />\n\n167l5c9\n"
     },
     "<ref> defined in <references> called with #tag [3,4,0,0,0]": {
-        "selser": "1m7d9re\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
+        "selser": "9164cv\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [1,0,4,0,0]": {
-        "selser": "<ref name=\"foo\" />\n\n7tn39e\n"
+        "selser": "<ref name=\"foo\" />\n\ncecap3\n"
     },
     "<ref> defined in <references> called with #tag [2,0,1,4,0]": {
-        "selser": "13owd1e\n\n<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nnrnshy"
+        "selser": "11031sy\n\n<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nugd1r0"
     },
     "<ref> defined in <references> called with #tag [0,4,0,0,0]": {
-        "selser": "<ref name=\"foo\" />\n\nrdn99l\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
+        "selser": "<ref name=\"foo\" />\n\nsm4tm\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [1,2,0,0,0]": {
-        "selser": "<ref name=\"foo\" />\n\n1dqn6g1\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
+        "selser": "<ref name=\"foo\" />\n\nv6hvl3\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [4,2,0,0,0]": {
-        "selser": "1clskzx\n\n1y73y10\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
+        "selser": "2if78t\n\n54patw\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [4,0,3,3,0]": {
-        "selser": "g1897y\n\n"
+        "selser": "ncj63m\n\n"
     },
     "<ref> defined in <references> called with #tag [4,2,3,4,0]": {
-        "selser": "12y1e85\n\n1kob1jt\n\n1thxs26"
+        "selser": "1do4lk2\n\nwzvw8b\n\n52ply3"
     },
     "<ref> defined in <references> called with #tag [0,3,3,3,0]": {
         "selser": "<ref name=\"foo\" />"
     },
     "<ref> defined in <references> called with #tag [3,2,0,0,0]": {
-        "selser": "1rkze1y\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
+        "selser": "1gurfwg\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [0,3,0,3,0]": {
         "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [4,0,1,4,0]": {
-        "selser": "1g2r0d1\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nrdx18w"
+        "selser": "1qcd0j4\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\n7kvuk1"
     },
     "<ref> defined in <references> called with #tag [0,0,0,3,0]": {
         "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}"
     },
     "<ref> defined in <references> called with #tag [0,0,0,2,0]": {
-        "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nfj0gen\n"
+        "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\nd6424z\n"
     },
     "<ref> defined in <references> called with #tag [2,0,1,0,0]": {
-        "selser": "1d7653n\n\n<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n"
+        "selser": "15tsmjq\n\n<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n"
     },
     "<ref> defined in <references> called with #tag [2,3,3,0,0]": {
-        "selser": "14bboaw\n\n<ref name=\"foo\" />\n"
+        "selser": "1tof2ch\n\n<ref name=\"foo\" />\n"
     },
     "<ref> defined in <references> error conditions [0,0,0,4,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>dxumdc"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>xwwv1f"
     },
     "<ref> defined in <references> error conditions [2,4,0,2,0]": {
-        "selser": "1pumkgv\n\n<ref name=\"foo\" group=\"2\" />\n\njvx805<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>11l4u9n\n"
+        "selser": "1e4nuqg\n\n<ref name=\"foo\" group=\"2\" />\n\n1lv5nxu<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>y2rzoz\n"
     },
     "<ref> defined in <references> error conditions [1,0,0,3,0]": {
         "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [2,3,0,3,0]": {
-        "selser": "1n05ikg\n\n<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "gmrtqg\n\n<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [2,2,0,2,0]": {
-        "selser": "mnms6h\n\n<ref name=\"foo\" group=\"2\" />\n\n6nb3mz\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>1qqubm\n"
+        "selser": "tjj9iv\n\n<ref name=\"foo\" group=\"2\" />\n\n1asq9cg\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>dnnsic\n"
     },
     "<ref> defined in <references> error conditions [0,0,0,2,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>lmy9sp\n"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>7erqrm\n"
     },
     "<ref> defined in <references> error conditions [1,4,0,2,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\n51uldm<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>1ax3od5\n"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\n1k1tqkf<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>t5vwxu\n"
     },
     "<ref> defined in <references> error conditions [2,0,0,2,0]": {
-        "selser": "16xtqf7\n\n<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>l8coyc\n"
+        "selser": "9i1d0c\n\n<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>1sjizbz\n"
     },
     "<ref> defined in <references> error conditions [0,3,0,3,0]": {
         "selser": "<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [3,2,0,0,0]": {
-        "selser": "13kk1ep\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "1sysz5p\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [2,3,0,0,0]": {
-        "selser": "s21hov\n\n<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "11ut82n\n\n<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [0,0,0,3,0]": {
         "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [4,4,0,0,0]": {
-        "selser": "1pq6xj8\n\n1s9st80<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "17wdbzr\n\n1no9ybg<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [4,0,0,0,0]": {
-        "selser": "1z01g6o\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "ib2nzk\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [0,4,0,3,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\ne6zpzy<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\n169w5bv<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [0,3,0,0,0]": {
         "selser": "<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
@@ -547,13 +547,13 @@
         "selser": "<ref name=\"foo\" group=\"2\" /><references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [0,2,0,0,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\nxnimd\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\nki8q1g\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>"
     },
     "<ref> defined in <references> error conditions [3,2,0,2,0]": {
-        "selser": "15osac8\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>17d9429\n"
+        "selser": "dreblk\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>t4hd8y\n"
     },
     "<ref> defined in <references> error conditions [0,4,0,4,0]": {
-        "selser": "<ref name=\"foo\" group=\"2\" />\n\nyooxfw<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>cfercb"
+        "selser": "<ref name=\"foo\" group=\"2\" />\n\nim4cb1<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>ehu3w3"
     },
     "Bug 13073 regression check: wrapped <references> [0,3,3]": {
         "selser": "<ref>\nfoo\n</ref>"
@@ -562,37 +562,37 @@
         "selser": "<ref>\nfoo\n</ref>\n"
     },
     "Bug 13073 regression check: wrapped <references> [2,0,3]": {
-        "selser": "1eulfp2\n\n<ref>\nfoo\n</ref>\n"
+        "selser": "1n3of6i\n\n<ref>\nfoo\n</ref>\n"
     },
     "Bug 13073 regression check: wrapped <references> [0,0,4]": {
-        "selser": "<ref>\nfoo\n</ref>\n\n13gonk"
+        "selser": "<ref>\nfoo\n</ref>\n\n193v7o9"
     },
     "<ref> with no name and no content. [[3,0],4,0]": {
-        "selser": "<ref></ref>\n\nohfvpx"
+        "selser": "<ref></ref>\n\naljbiu"
     },
     "<ref> with no name and no content. [0,2,0]": {
-        "selser": "Bla.<ref></ref>\n\npn6x71\n"
+        "selser": "Bla.<ref></ref>\n\n14xs0of\n"
     },
     "<ref> with no name and no content. [2,0,0]": {
-        "selser": "1otmssn\n\nBla.<ref></ref>"
+        "selser": "1hylpiu\n\nBla.<ref></ref>"
     },
     "<ref> with no name and no content. [1,3,0]": {
         "selser": "Bla.<ref></ref>"
     },
     "<ref> with no name and no content. [4,0,0]": {
-        "selser": "1wg5cj4\n"
+        "selser": "1ag54if\n"
     },
     "<ref> with no name and no content. [2,3,0]": {
-        "selser": "13m8hdy\n\nBla.<ref></ref>"
+        "selser": "93ehjf\n\nBla.<ref></ref>"
     },
     "<ref> with no name and no content. [3,2,0]": {
-        "selser": "1ety4vs\n"
+        "selser": "1oc7zbb\n"
     },
     "<ref> with no name and no content. [1,4,0]": {
-        "selser": "Bla.<ref></ref>\n\n6v7sxu"
+        "selser": "Bla.<ref></ref>\n\n6fzo6o"
     },
     "<ref> with no name and no content. [2,2,0]": {
-        "selser": "1tdm9xw\n\nBla.<ref></ref>\n\nxbklbx\n"
+        "selser": "1s6yag3\n\nBla.<ref></ref>\n\n1cx4dwp\n"
     },
     "<ref> with no name and no content. [3,0,0]": {
         "selser": "\n"
@@ -607,40 +607,40 @@
         "selser": "Bla.<ref></ref>"
     },
     "<ref> with no name and no content. [1,2,0]": {
-        "selser": "Bla.<ref></ref>\n\nazodfi\n"
+        "selser": "Bla.<ref></ref>\n\n1jtc3vu\n"
     },
     "<ref> with no name and no content. [[3,0],3,0]": {
         "selser": "<ref></ref>"
     },
     "<ref> with no name and no content. [[2,0],3,0]": {
-        "selser": "slk5uoBla.<ref></ref>"
+        "selser": "1rtekglBla.<ref></ref>"
     },
     "<ref> with no name and no content. [0,4,0]": {
-        "selser": "Bla.<ref></ref>\n\nbnx45z"
+        "selser": "Bla.<ref></ref>\n\n185h7co"
     },
     "<ref> with no name and no content. [4,2,0]": {
-        "selser": "1s3rh5s\n\n19lycfj\n"
+        "selser": "se82hw\n\n33a34c\n"
     },
     "<ref> with no name and no content. [2,4,0]": {
-        "selser": "1dg2w9n\n\nBla.<ref></ref>\n\np5ul07"
+        "selser": "z3ke50\n\nBla.<ref></ref>\n\n1th90k5"
     },
     "<ref> with no name and no content. [[4,0],0,0]": {
-        "selser": "imr7ut<ref></ref>\n"
+        "selser": "2t6kf2<ref></ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [0,4,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\ncyppav"
+        "selser": "Bla.<ref name=\"\"></ref>\n\ncragod"
     },
     "<ref> with an empty-string name parameter and no content. [2,3,0]": {
-        "selser": "1wlyw6b\n\nBla.<ref name=\"\"></ref>"
+        "selser": "1bfhlah\n\nBla.<ref name=\"\"></ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[3,0],3,0]": {
         "selser": "<ref name=\"\"></ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[4,0],2,0]": {
-        "selser": "ke1ftq<ref name=\"\"></ref>\n\n1tohng1\n"
+        "selser": "1l87kh<ref name=\"\"></ref>\n\n14ep8s4\n"
     },
     "<ref> with an empty-string name parameter and no content. [4,0,0]": {
-        "selser": "1bv4hgd\n"
+        "selser": "nhkn7i\n"
     },
     "<ref> with an empty-string name parameter and no content. [3,0,0]": {
         "selser": "\n"
@@ -652,247 +652,247 @@
         "selser": "Bla.<ref name=\"\"></ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [[4,0],4,0]": {
-        "selser": "1j8fnx<ref name=\"\"></ref>\n\ntivd28"
+        "selser": "nt8qav<ref name=\"\"></ref>\n\nqwx5p0"
     },
     "<ref> with an empty-string name parameter and no content. [2,0,0]": {
-        "selser": "1pjxq6c\n\nBla.<ref name=\"\"></ref>"
+        "selser": "pm4jgd\n\nBla.<ref name=\"\"></ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[2,0],0,0]": {
-        "selser": "6bqi1jBla.<ref name=\"\"></ref>\n"
+        "selser": "zfrb64Bla.<ref name=\"\"></ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [3,2,0]": {
-        "selser": "1odk7yh\n"
+        "selser": "1q8hcjb\n"
     },
     "<ref> with an empty-string name parameter and no content. [[2,0],2,0]": {
-        "selser": "1gosgfhBla.<ref name=\"\"></ref>\n\n1l8p111\n"
+        "selser": "12b9kmzBla.<ref name=\"\"></ref>\n\nibwpgg\n"
     },
     "<ref> with an empty-string name parameter and no content. [3,4,0]": {
-        "selser": "1vax2x1"
+        "selser": "ry9n5g"
     },
     "<ref> with an empty-string name parameter and no content. [[3,0],4,0]": {
-        "selser": "<ref name=\"\"></ref>\n\n1puamwb"
+        "selser": "<ref name=\"\"></ref>\n\nchu8io"
     },
     "<ref> with an empty-string name parameter and no content. [3,3,0]": {
         "selser": ""
     },
     "<ref> with an empty-string name parameter and no content. [0,2,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\nir8lis\n"
+        "selser": "Bla.<ref name=\"\"></ref>\n\n6wbvmv\n"
     },
     "<ref> with an empty-string name parameter and no content. [2,4,0]": {
-        "selser": "174k5cy\n\nBla.<ref name=\"\"></ref>\n\ny1bnct"
+        "selser": "qmsgk4\n\nBla.<ref name=\"\"></ref>\n\n1i5zluc"
     },
     "<ref> with an empty-string name parameter and no content. [4,3,0]": {
-        "selser": "1jij3pf"
+        "selser": "10hsojr"
     },
     "<ref> with an empty-string name parameter and no content. [1,4,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\niknz8z"
+        "selser": "Bla.<ref name=\"\"></ref>\n\npot8e9"
     },
     "<ref> with a non-empty name parameter and no content. [1,3,0]": {
         "selser": "Bla.<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [4,0,0]": {
-        "selser": "11rs4la\n"
+        "selser": "jp9ix3\n"
     },
     "<ref> with a non-empty name parameter and no content. [3,2,0]": {
-        "selser": "1uh0cto\n"
+        "selser": "1svy1oh\n"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],2,0]": {
-        "selser": "gav99uBla.<ref name=\"void\"></ref>\n\nr5vlst\n"
+        "selser": "11rp2iBla.<ref name=\"void\"></ref>\n\npe7hho\n"
     },
     "<ref> with a non-empty name parameter and no content. [0,4,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\nr7lbys"
+        "selser": "Bla.<ref name=\"void\"></ref>\n\nvvz0q"
     },
     "<ref> with a non-empty name parameter and no content. [[4,0],3,0]": {
-        "selser": "1l6z8wu<ref name=\"void\"></ref>"
+        "selser": "kmx7u5<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [1,0,0]": {
         "selser": "Bla.<ref name=\"void\"></ref>\n"
     },
     "<ref> with a non-empty name parameter and no content. [2,3,0]": {
-        "selser": "110ffhv\n\nBla.<ref name=\"void\"></ref>"
+        "selser": "kzgx2m\n\nBla.<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [2,0,0]": {
-        "selser": "1qhovxt\n\nBla.<ref name=\"void\"></ref>"
+        "selser": "gx19mi\n\nBla.<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [0,2,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\neyqmdo\n"
+        "selser": "Bla.<ref name=\"void\"></ref>\n\n1kt4uns\n"
     },
     "<ref> with a non-empty name parameter and no content. [3,0,0]": {
         "selser": "\n"
     },
     "<ref> with a non-empty name parameter and no content. [1,4,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\n3jybx1"
+        "selser": "Bla.<ref name=\"void\"></ref>\n\n11qwwkk"
     },
     "<ref> with a non-empty name parameter and no content. [[3,0],2,0]": {
-        "selser": "<ref name=\"void\"></ref>\n\nnj05ni\n"
+        "selser": "<ref name=\"void\"></ref>\n\n1km8swu\n"
     },
     "<ref> with a non-empty name parameter and no content. [0,3,0]": {
         "selser": "Bla.<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [2,4,0]": {
-        "selser": "8tf7uu\n\nBla.<ref name=\"void\"></ref>\n\n7sv7bv"
+        "selser": "1k2cjb5\n\nBla.<ref name=\"void\"></ref>\n\n1yfo43q"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],4,0]": {
-        "selser": "1aulowoBla.<ref name=\"void\"></ref>\n\n11th9k6"
+        "selser": "15mpccsBla.<ref name=\"void\"></ref>\n\n1sczn67"
     },
     "<ref> with a non-empty name parameter and no content. [4,3,0]": {
-        "selser": "1ml1bcw"
+        "selser": "ii7idw"
     },
     "<ref> with a non-empty name parameter and no content. [3,4,0]": {
-        "selser": "11q5mfj"
+        "selser": "pgzdkr"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],3,0]": {
-        "selser": "1fli58lBla.<ref name=\"void\"></ref>"
+        "selser": "1er9bi7Bla.<ref name=\"void\"></ref>"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],0,0]": {
-        "selser": "v0qv1iBla.<ref name=\"void\"></ref>\n"
+        "selser": "6o8ppyBla.<ref name=\"void\"></ref>\n"
     },
     "<ref>s with the follow parameter [1,4,[4,0],2,[3],0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n9ki6l7\n\n1hjif86<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1i0negw\n\n== <nowiki/> ==\n<references />"
+        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n1gkh1pa\n\n7j8tkg<ref follow=\"beginning\">Second page footnote text.</ref>\n\nxlaqd7\n\n== <nowiki/> ==\n<references />"
     },
     "<ref>s with the follow parameter [0,4,4,2,0,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n29j6zc\n\n1x9odrq\n\nv7xh68\n\n== References ==\n<references />"
+        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n111xvvc\n\n1dlaeeq\n\nyeoraj\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [2,2,4,2,0,0,0]": {
-        "selser": "1dnzkqa\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\nuon3pk\n\n1dbvwk9\n\n21rzyo\n\n== References ==\n<references />"
+        "selser": "lwd6tc\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\n94bae\n\neuzhl6\n\nkrt85n\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [[3,0],0,0,2,[2],0,0]": {
-        "selser": "<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\nwfd1vh\n\n== new02fReferences ==\n<references />"
+        "selser": "<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1l2cq7c\n\n== 12wgnnqReferences ==\n<references />"
     },
     "<ref>s with the follow parameter [4,0,3,2,2,2,0]": {
-        "selser": "1sz2kwi\n\n1u5by29\n\nchwdfu\n\n== References ==\nhr0bxe\n<references />"
+        "selser": "rt95ej\n\n1v04j3a\n\n778fgi\n\n== References ==\n1toatc8\n<references />"
     },
     "<ref>s with the follow parameter [3,2,4,4,2,0,0]": {
-        "selser": "1fr2f18\n\n1dsi9l4\n\n1tfqpin\n\njnye6h\n\n== References ==\n<references />"
+        "selser": "1pr12ia\n\n1deh6ac\n\nlyz0hy\n\n104sdxz\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [0,0,1,3,0,0,0]": {
         "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [[4,0],3,3,3,0,0,0]": {
-        "selser": "dd3s01<ref name=\"beginning\">First page footnote text.</ref>\n== References ==\n<references />"
+        "selser": "1tqonfs<ref name=\"beginning\">First page footnote text.</ref>\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [0,4,0,4,[2],3,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\ndht9ly\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1ijup9y\n\n== zd10unReferences ==\n<references />"
+        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\ntnlw8u\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1fwh4yy\n\n== wjjubdReferences ==\n<references />"
     },
     "<ref>s with the follow parameter [3,0,2,0,[3],2,0]": {
-        "selser": "\n1bjaryq\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== <nowiki/> ==\n13mp93f\n<references />"
+        "selser": "\n1dwtyc3\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== <nowiki/> ==\n18l0rnb\n<references />"
     },
     "<ref>s with the follow parameter [0,4,[3,0],3,0,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nb1xm6f\n\n<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== References ==\n<references />"
+        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n1torx4x\n\n<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [4,4,1,3,1,2,0]": {
-        "selser": "1aekhrn\n\n1nsg78m\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== References ==\n10esws3\n<references />"
+        "selser": "13kqvn2\n\n1qykna2\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== References ==\n1yl34bw\n<references />"
     },
     "<ref>s with the follow parameter [4,4,0,3,[3],0,0]": {
-        "selser": "1e4je6d\n\n1ngk4kr\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== <nowiki/> ==\n<references />"
+        "selser": "hzbq0k\n\n19grgot\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== <nowiki/> ==\n<references />"
     },
     "<ref>s with the follow parameter [2,3,0,0,2,0,0]": {
-        "selser": "1w76sli\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\nlzh28u\n\n== References ==\n<references />"
+        "selser": "d5sjex\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\nbe3nzx\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [1,0,1,0,1,0,0]": {
         "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== References ==\n<references />"
     },
     "<ref>s with the follow parameter [3,4,[4,0],0,[4],0,0]": {
-        "selser": "1pnw6s5\n\n18wphoo<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== 1egt7au ==\n<references />"
+        "selser": "mrutz\n\n6yats0<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== 1kt42p5 ==\n<references />"
     },
     "Multiple definition (inside {{#tag:references}}) [2,4,0]": {
-        "selser": "1aft3zn\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\nyyf7ac"
+        "selser": "1ak5bwa\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n192gckh"
     },
     "Multiple definition (inside {{#tag:references}}) [1,3,0]": {
         "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}"
     },
     "Multiple definition (inside {{#tag:references}}) [1,2,0]": {
-        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n6kbswz\n"
+        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\nttjl1f\n"
     },
     "Multiple definition (inside {{#tag:references}}) [0,2,0]": {
-        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n5bho14\n"
+        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1i3su9c\n"
     },
     "Multiple definition (inside {{#tag:references}}) [3,0,0]": {
         "selser": "\n"
     },
     "Multiple definition (inside {{#tag:references}}) [[0,3,0],2,0]": {
-        "selser": "<ref name=\"a\" />{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\nlt0dsi\n"
+        "selser": "<ref name=\"a\" />{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1knlm1i\n"
     },
     "Multiple definition (inside {{#tag:references}}) [4,2,0]": {
-        "selser": "1581laa\n\n1w4nfjk\n"
+        "selser": "14ns6pm\n\ntqdisa\n"
     },
     "Multiple definition (inside {{#tag:references}}) [0,4,0]": {
-        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n3s1r49"
+        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n16wo0on"
     },
     "Multiple definition (inside {{#tag:references}}) [2,2,0]": {
-        "selser": "170te2t\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\noa4pku\n"
+        "selser": "1w4f57w\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1vypyz4\n"
     },
     "Multiple definition (inside {{#tag:references}}) [3,4,0]": {
-        "selser": "1ict8e5"
+        "selser": "1xmw23j"
     },
     "Multiple definition (inside {{#tag:references}}) [[0,3,0],0,0]": {
         "selser": "<ref name=\"a\" />{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
     },
     "Multiple definition (inside {{#tag:references}}) [3,2,0]": {
-        "selser": "1r7p2dc\n"
+        "selser": "1g45yoi\n"
     },
     "Multiple definition (inside {{#tag:references}}) [[0,2,0],4,0]": {
-        "selser": "<ref name=\"a\" />v9lo28\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1505q9s"
+        "selser": "<ref name=\"a\" />1devim1\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\nvuvipy"
     },
     "Multiple definition (inside {{#tag:references}}) [1,0,0]": {
         "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
     },
     "Multiple definition (inside {{#tag:references}}) [[0,4,0],0,0]": {
-        "selser": "<ref name=\"a\" />xg7njs{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
+        "selser": "<ref name=\"a\" />l03o37{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
     },
     "Multiple definition (inside {{#tag:references}}) [4,3,0]": {
-        "selser": "10oobdf"
+        "selser": "j6hev7"
     },
     "Multiple definition (inside {{#tag:references}}) [[0,2,0],0,0]": {
-        "selser": "<ref name=\"a\" />wvocua\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
+        "selser": "<ref name=\"a\" />1pv754e\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n"
     },
     "Multiple definition (inside {{#tag:references}}) [4,0,0]": {
-        "selser": "c6o25q\n"
+        "selser": "37odle\n"
     },
     "Multiple definition (inside {{#tag:references}}) [2,3,0]": {
-        "selser": "r5lb7d\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}"
+        "selser": "1lt4v82\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}"
     },
     "Multiple definition (inside {{#tag:references}}) [1,4,0]": {
-        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1sdxf2c"
+        "selser": "<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n1nqe8vd"
     },
     "Ref: 3. spaces in ref-names should be ignored [[0,0,2,0,3,0],0,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>8o50yh\nB <ref name=\" x \" /><ref name= x  />\n<references />"
+        "selser": "A <ref name=\"x\">foo</ref>bgo09a\nB <ref name=\" x \" /><ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[0,0,4,0,2,0],0,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>7oni2y<ref name=\" x \" />wcnop\nC <ref name= x  />\n<references />"
+        "selser": "A <ref name=\"x\">foo</ref>zn8msh<ref name=\" x \" />c5u3nz\nC <ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[0,0,3,0,0,0],3,0]": {
         "selser": "A <ref name=\"x\">foo</ref><ref name=\" x \" />\nC <ref name= x  /><references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[4,0,3,0,3,0],0,0]": {
-        "selser": "ie0a2h<ref name=\"x\">foo</ref><ref name=\" x \" /><ref name= x  />\n<references />"
+        "selser": "u3w7pb<ref name=\"x\">foo</ref><ref name=\" x \" /><ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [2,0,0]": {
-        "selser": "1vzemgq\n\nA <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n<references />"
+        "selser": "1jut7m6\n\nA <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[3,0,4,0,0,0],4,0]": {
-        "selser": "<ref name=\"x\">foo</ref>56lkzv<ref name=\" x \" />\nC <ref name= x  />\n\nn8go92<references />"
+        "selser": "<ref name=\"x\">foo</ref>1c9mhyo<ref name=\" x \" />\nC <ref name= x  />\n\n1f5a5xx<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [1,2,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n\ndpqatn\n<references />"
+        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n\n1d4omiq\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [0,4,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n\nkb5zhd<references />"
+        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n\n8n56tv<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[4,0,2,0,0,0],0,0]": {
-        "selser": "na5zcf<ref name=\"x\">foo</ref>1w7hqb4\nB <ref name=\" x \" />\nC <ref name= x  />\n<references />"
+        "selser": "av0irw<ref name=\"x\">foo</ref>63jwli\nB <ref name=\" x \" />\nC <ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[3,0,3,0,0,0],0,0]": {
         "selser": "<ref name=\"x\">foo</ref><ref name=\" x \" />\nC <ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[0,0,4,0,3,0],4,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>xzdr22<ref name=\" x \" /><ref name= x  />\n\nfdyjh8<references />"
+        "selser": "A <ref name=\"x\">foo</ref>1dkz2w8<ref name=\" x \" /><ref name= x  />\n\nti4ywv<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[4,0,0,0,3,0],2,0]": {
-        "selser": "id09py<ref name=\"x\">foo</ref>\nB <ref name=\" x \" /><ref name= x  />\n\n14epo21\n<references />"
+        "selser": "cvv2e<ref name=\"x\">foo</ref>\nB <ref name=\" x \" /><ref name= x  />\n\n33wcuy\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[3,0,3,0,0,0],2,0]": {
-        "selser": "<ref name=\"x\">foo</ref><ref name=\" x \" />\nC <ref name= x  />\n\n2yz5rl\n<references />"
+        "selser": "<ref name=\"x\">foo</ref><ref name=\" x \" />\nC <ref name= x  />\n\nkmsr29\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [1,0,0]": {
         "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  />\n<references />"
@@ -901,10 +901,10 @@
         "selser": "<ref name=\"x\">foo</ref>\nB <ref name=\" x \" />\nC <ref name= x  /><references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[3,0,4,0,2,0],0,0]": {
-        "selser": "<ref name=\"x\">foo</ref>1rpjo1b<ref name=\" x \" />rjd0zn\nC <ref name= x  />\n<references />"
+        "selser": "<ref name=\"x\">foo</ref>101p079<ref name=\" x \" />3m6jc7\nC <ref name= x  />\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored [[0,0,0,0,4,0],0,0]": {
-        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />xidipo<ref name= x  />\n<references />"
+        "selser": "A <ref name=\"x\">foo</ref>\nB <ref name=\" x \" />baab28<ref name= x  />\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[3,0,0],0,0]": {
         "selser": "<ref> foo {{echo|</ref> B C}}\n\n<references />"
@@ -913,127 +913,127 @@
         "selser": "<ref> foo {{echo|</ref> B C}}<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [0,2,0]": {
-        "selser": "A <ref> foo {{echo|</ref> B C}}\n\nndg5c4\n\n<references />"
+        "selser": "A <ref> foo {{echo|</ref> B C}}\n\n232wei\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[0,0,2],2,0]": {
-        "selser": "A <ref> foo {{echo|</ref><nowiki>b5njrh B C}}</nowiki>\n\na1gxhc\n\n<references />"
+        "selser": "A <ref> foo {{echo|</ref><nowiki>lhhaci B C}}</nowiki>\n\n1rk0l3t\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [1,4,0]": {
-        "selser": "A <ref> foo {{echo|</ref> B C}}\n\nu9j3ix<references />"
+        "selser": "A <ref> foo {{echo|</ref> B C}}\n\nu9t9ud<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [0,3,0]": {
         "selser": "A <ref> foo {{echo|</ref> B C}}<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[2,0,0],0,0]": {
-        "selser": "1ulfrvA <ref> foo {{echo|</ref> B C}}\n\n<references />"
+        "selser": "tz66ieA <ref> foo {{echo|</ref> B C}}\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[2,0,4],0,0]": {
-        "selser": "hmwoofA <ref> foo {{echo|</ref>14n13je\n\n<references />"
+        "selser": "1spohtmA <ref> foo {{echo|</ref>fdorka\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [0,4,0]": {
-        "selser": "A <ref> foo {{echo|</ref> B C}}\n\n1pwtjex<references />"
+        "selser": "A <ref> foo {{echo|</ref> B C}}\n\n1hy11rc<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[4,0,3],4,0]": {
-        "selser": "f35roz<ref> foo {{echo|</ref>\n\nwy9pr3<references />"
+        "selser": "1abu1po<ref> foo {{echo|</ref>\n\n1ly2yt3<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [1,0,0]": {
         "selser": "A <ref> foo {{echo|</ref> B C}}\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[3,0,0],2,0]": {
-        "selser": "<ref> foo {{echo|</ref> B C}}\n\nukwq6i\n\n<references />"
+        "selser": "<ref> foo {{echo|</ref> B C}}\n\n733hyo\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[4,0,2],3,0]": {
-        "selser": "fypf0r<ref> foo {{echo|</ref><nowiki>az008s B C}}</nowiki><references />"
+        "selser": "kfd1um<ref> foo {{echo|</ref><nowiki>1qghqn9 B C}}</nowiki><references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [2,0,0]": {
-        "selser": "1b905vn\n\nA <ref> foo {{echo|</ref> B C}}\n\n<references />"
+        "selser": "1g727md\n\nA <ref> foo {{echo|</ref> B C}}\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[2,0,0],2,0]": {
-        "selser": "7uxsg5A <ref> foo {{echo|</ref> B C}}\n\n1v27tzn\n\n<references />"
+        "selser": "1afn0jkA <ref> foo {{echo|</ref> B C}}\n\n11z3b8h\n\n<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[0,0,4],4,0]": {
-        "selser": "A <ref> foo {{echo|</ref>1wsbfe6\n\nmic5ln<references />"
+        "selser": "A <ref> foo {{echo|</ref>1vutmtj\n\nd3igfs<references />"
     },
     "Ref: 8. transclusion wikitext has lower precedence [[4,0,2],4,0]": {
-        "selser": "ad938x<ref> foo {{echo|</ref><nowiki>9qwptv B C}}</nowiki>\n\n1j9wtig<references />"
+        "selser": "196plys<ref> foo {{echo|</ref><nowiki>1jwbmk4 B C}}</nowiki>\n\n1k9iwxo<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [2,3,0]": {
-        "selser": "179nhm1\n\nA <ref> foo <!--</ref> B C<references />"
+        "selser": "5vqncy\n\nA <ref> foo <!--</ref> B C<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[4,0,0],4,0]": {
-        "selser": "sb6ksz<ref> foo <!--</ref> B C\n\ngzhiq3<references />"
+        "selser": "enxstj<ref> foo <!--</ref> B C\n\nffz473<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[0,0,4],3,0]": {
-        "selser": "A <ref> foo <!--</ref>aoy805<references />"
+        "selser": "A <ref> foo <!--</ref>bkgoyg<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[2,0,0],2,0]": {
-        "selser": "7hluh3A <ref> foo <!--</ref> B C\n\n11srvlw\n<references />"
+        "selser": "fvipshA <ref> foo <!--</ref> B C\n\n1kr7noz\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [1,0,0]": {
         "selser": "A <ref> foo <!--</ref> B C\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[2,0,0],0,0]": {
-        "selser": "vfks5wA <ref> foo <!--</ref> B C\n<references />"
+        "selser": "nme5ogA <ref> foo <!--</ref> B C\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[3,0,2],0,0]": {
-        "selser": "<ref> foo <!--</ref>5qjd3r B C\n<references />"
+        "selser": "<ref> foo <!--</ref>1eg7mz8 B C\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[4,0,4],2,0]": {
-        "selser": "kix7sr<ref> foo <!--</ref>13rspfe\n\n1gyggbp\n<references />"
+        "selser": "h9unkw<ref> foo <!--</ref>nr923z\n\ntcumap\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[3,0,4],0,0]": {
-        "selser": "<ref> foo <!--</ref>a6c568\n<references />"
+        "selser": "<ref> foo <!--</ref>3e486e\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [1,2,0]": {
-        "selser": "A <ref> foo <!--</ref> B C\n\n1ih18bl\n<references />"
+        "selser": "A <ref> foo <!--</ref> B C\n\nbzoeog\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[2,0,0],4,0]": {
-        "selser": "1wmw3rhA <ref> foo <!--</ref> B C\n\n1nvcezs<references />"
+        "selser": "gk7d8eA <ref> foo <!--</ref> B C\n\n18hcbar<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[4,0,0],3,0]": {
-        "selser": "1sddkuq<ref> foo <!--</ref> B C<references />"
+        "selser": "1eumrqx<ref> foo <!--</ref> B C<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [2,0,0]": {
-        "selser": "17eaulh\n\nA <ref> foo <!--</ref> B C\n<references />"
+        "selser": "ddvova\n\nA <ref> foo <!--</ref> B C\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[0,0,2],0,0]": {
-        "selser": "A <ref> foo <!--</ref>a679pd B C\n<references />"
+        "selser": "A <ref> foo <!--</ref>1gt768x B C\n<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[3,0,3],4,0]": {
-        "selser": "<ref> foo <!--</ref>\n\n1tnuwn7<references />"
+        "selser": "<ref> foo <!--</ref>\n\n19u9571<references />"
     },
     "Ref: 9. unclosed comments should not leak out of ref-body [[0,0,4],2,0]": {
-        "selser": "A <ref> foo <!--</ref>1s5ppq0\n\n1hwfma7\n<references />"
+        "selser": "A <ref> foo <!--</ref>17e7gw7\n\n12k43e1\n<references />"
     },
     "Ref: 12. ref-tags act as trailing newline migration barrier [4,[2],3,2,4,[4],3,0]": {
-        "selser": "17pa34f\n\n1g9n9uza\n\ntns9fo\n\nb<!--the newline at the end of this line stays inside the p tag--> <ref />\n<ref />\n\nztzbr0\n\n16udisr\n<references />"
+        "selser": "7i6vwo\n\nfzf7t0a\n\n1cltg43\n\nb<!--the newline at the end of this line stays inside the p tag--> <ref />\n<ref />\n\n7vjkpr\n\n1vn32lo\n<references />"
     },
     "References: 9. Generate missing references list at the end [0,4,0,3,0]": {
-        "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>\n\nm523wx"
+        "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>\n\ng0czw3"
     },
     "References: 9. Generate missing references list at the end [4,4,0,4,0]": {
-        "selser": "1764b27\n\n1ssyey51i8g4aj"
+        "selser": "whc1pl\n\n1mmf2281nhjc7y"
     },
     "References: 9. Generate missing references list at the end [[2,0,2,0],0,0,3,0]": {
-        "selser": "fnars4A <ref>foo</ref>a75i8b\nB <ref group=\"inexistent\">bar</ref>\n"
+        "selser": "1cd0gbiA <ref>foo</ref>117zkke\nB <ref group=\"inexistent\">bar</ref>\n"
     },
     "References: 9. Generate missing references list at the end [3,0,0,2,0]": {
-        "selser": "\n1mbxn6j\n"
+        "selser": "\njqowq3\n"
     },
     "References: 9. Generate missing references list at the end [[0,0,2,0],2,0,0,0]": {
-        "selser": "A <ref>foo</ref>qqtrep\nB <ref group=\"inexistent\">bar</ref>\n\n1tyoqe5\n"
+        "selser": "A <ref>foo</ref>10zxrbq\nB <ref group=\"inexistent\">bar</ref>\n\nuou6bv\n"
     },
     "References: 9. Generate missing references list at the end [4,2,0,3,0]": {
-        "selser": "1fe5ffa\n\n1ruvjir\n"
+        "selser": "4w7riv\n\n1rg9j19\n"
     },
     "References: 9. Generate missing references list at the end [0,3,0,0,0]": {
         "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
     },
     "References: 9. Generate missing references list at the end [[0,0,4,0],0,0,4,0]": {
-        "selser": "A <ref>foo</ref>wz4guj<ref group=\"inexistent\">bar</ref>\npbcyz2"
+        "selser": "A <ref>foo</ref>dhfezw<ref group=\"inexistent\">bar</ref>\n1vxqzn3"
     },
     "References: 9. Generate missing references list at the end [[0,0,4,0],0,0,3,0]": {
-        "selser": "A <ref>foo</ref>nl5b0<ref group=\"inexistent\">bar</ref>\n"
+        "selser": "A <ref>foo</ref>b00lv8<ref group=\"inexistent\">bar</ref>\n"
     },
     "References: 9. Generate missing references list at the end [[3,0,0,0],3,0,0,0]": {
         "selser": "<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
@@ -1042,28 +1042,28 @@
         "selser": ""
     },
     "References: 9. Generate missing references list at the end [[4,0,4,0],2,0,4,0]": {
-        "selser": "z1d44k<ref>foo</ref>12zna7d<ref group=\"inexistent\">bar</ref>\n\n1rtnhuh\n1w1j39l"
+        "selser": "w7dk2y<ref>foo</ref>10mrqy6<ref group=\"inexistent\">bar</ref>\n\n2w18lh\nd4iu9c"
     },
     "References: 9. Generate missing references list at the end [4,3,0,2,0]": {
-        "selser": "1mbcfde1utf8bj\n"
+        "selser": "o4n0p9yt1njz\n"
     },
     "References: 9. Generate missing references list at the end [2,3,0,0,0]": {
-        "selser": "1dmiax9\n\nA <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
+        "selser": "1wqrh49\n\nA <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
     },
     "References: 9. Generate missing references list at the end [[4,0,0,0],3,0,0,0]": {
-        "selser": "r7gaia<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
+        "selser": "yo0bpd<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
     },
     "References: 9. Generate missing references list at the end [[4,0,0,0],0,0,2,0]": {
-        "selser": "1kbqga8<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>\n1y952id\n"
+        "selser": "14agw3g<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>\n1gnz03z\n"
     },
     "References: 9. Generate missing references list at the end [1,3,0,0,0]": {
         "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
     },
     "References: 9. Generate missing references list at the end [0,0,0,4,0]": {
-        "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>xixkmh"
+        "selser": "A <ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>3nzqah"
     },
     "References: 9. Generate missing references list at the end [[4,0,0,0],3,0,3,0]": {
-        "selser": "jqf638<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
+        "selser": "8kgceb<ref>foo</ref>\nB <ref group=\"inexistent\">bar</ref>"
     },
     "References: 9. Generate missing references list at the end [3,0,0,0,0]": {
         "selser": "\n"

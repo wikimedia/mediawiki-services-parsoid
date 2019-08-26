@@ -219,8 +219,8 @@ var staticRandomString = "ahseeyooxooZ8Oon0boh";
 ParserTests.prototype.applyChanges = function(item, body, changelist) {
 	console.assert(Array.isArray(changelist));
 
-	// Seed the random-number generator based on the item title
-	var random = new Alea((item.seed || '') + (item.title || ''));
+	// Seed the random-number generator based on the item title and changelist
+	var random = new Alea((JSON.stringify(changelist) || '') + (item.title || ''));
 
 	// Keep the changes in the item object
 	// to check for duplicates while building tasks
