@@ -445,7 +445,7 @@ class Separators {
 		$sepType = $constraintInfo['sepType'] ?? null;
 		$nodeA = $constraintInfo['nodeA'] ?? null;
 		$nodeB = $constraintInfo['nodeB'] ?? null;
-		$forceSOL = ( $constraintInfo['forceSOL'] ?? null ) && $sepType !== 'child-parent';
+		$forceSOL = ( $constraintInfo['forceSOL'] ?? false ) && $sepType !== 'child-parent';
 		$origNodeB = $nodeB;
 
 		// Ex: "<div>foo</div>\n <span>bar</span>"
@@ -456,7 +456,7 @@ class Separators {
 		if ( !$state->inPHPBlock && !$state->inIndentPre &&
 			( preg_match( self::NL_WS_COMMENTS_SEP_REGEXP, $sep ) ||
 				preg_match( self::WS_COMMENTS_SEP_REGEXP, $sep ) &&
-				( $constraintInfo['onSOL'] ?? $forceSOL )
+				( !empty( $constraintInfo['onSOL'] ) || $forceSOL )
 			)
 		) {
 			// 'sep' is the separator before 'nodeB' and it has leading spaces on a newline.
