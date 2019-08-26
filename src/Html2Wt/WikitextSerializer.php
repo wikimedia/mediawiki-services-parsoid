@@ -1341,10 +1341,10 @@ class WikitextSerializer {
 				}
 				if ( $state->selserMode ) {
 					$prev = $node->previousSibling;
-					if ( !$state->inModifiedContent
-						&& ( !$prev && DOMUtils::isBody( $node->parentNode ) )
-						|| ( $prev && !DOMUtils::isDiffMarker( $prev ) )
-					) {
+					if ( !$state->inModifiedContent && (
+						( !$prev && DOMUtils::isBody( $node->parentNode ) ) ||
+						( $prev && !DOMUtils::isDiffMarker( $prev ) )
+					) ) {
 						$state->currNodeUnmodified = true;
 					} else {
 						$state->currNodeUnmodified = false;
