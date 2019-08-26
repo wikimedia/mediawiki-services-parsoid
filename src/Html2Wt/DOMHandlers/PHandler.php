@@ -178,8 +178,9 @@ class PHandler extends DOMHandler {
 				}
 			} elseif ( DOMUtils::isElt( $node ) ) {
 				// These tags will always serialize onto a new line
-				if ( in_array( $node->nodeName, WikitextConstants::$HTMLTagsRequiringSOLContext, true )
-					&& !WTUtils::isLiteralHTMLNode( $node )
+				if (
+					isset( WikitextConstants::$HTMLTagsRequiringSOLContext[$node->nodeName] ) &&
+					!WTUtils::isLiteralHTMLNode( $node )
 				) {
 					return false;
 				}
