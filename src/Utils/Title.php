@@ -91,9 +91,10 @@ class Title {
 		}
 
 		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-		if ( preg_match( '/^(.+?)_*:_*(.*)$/', $title, $m ) &&
+		if ( preg_match( '/^(.+?)_*:_*(.*)$/', $title, $m ) && (
+			( $nsId = $siteConfig->canonicalNamespaceId( $m[1] ) ) !== null ||
 			( $nsId = $siteConfig->namespaceId( $m[1] ) ) !== null
-		) {
+		) ) {
 			$ns = $nsId;
 			$title = $m[2];
 		} else {
