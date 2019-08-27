@@ -31,6 +31,9 @@ class SiteConfig extends ApiSiteConfig {
 	public function __construct( $api, array $opts ) {
 		parent::__construct( $api, $opts );
 		$this->registerParserTestExtension( new ParserHook() );
+
+		// Needed for bidi-char-scrubbing html2wt tests.
+		$this->scrubBidiChars = true;
 	}
 
 	public function reset() {

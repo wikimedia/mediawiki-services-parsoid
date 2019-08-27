@@ -1473,8 +1473,6 @@ class TestRunner {
 		$this->envOptions = [
 			'wrapSections' => false,
 			'nativeTemplateExpansion' => true,
-			// Needed for bidi-char-scrubbing html2wt tests.
-			'scrubBidiChars' => true
 		];
 		ScriptUtils::setDebuggingFlags( $this->envOptions, $options );
 		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );

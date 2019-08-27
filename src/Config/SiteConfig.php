@@ -37,6 +37,9 @@ abstract class SiteConfig {
 	/** @var bool */
 	protected $addHTMLTemplateParameters = false;
 
+	/** @var bool */
+	protected $scrubBidiChars = false;
+
 	/**
 	 * The Parsoid/JS extension registration mechanism is short-lived and
 	 * we are going to probably rely on the core extension mechanism once
@@ -212,7 +215,7 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	public function scrubBidiChars(): bool {
-		return false;
+		return $this->scrubBidiChars;
 	}
 
 	/**@}*/
