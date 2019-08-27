@@ -17,6 +17,7 @@ use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\DataBag; // phpcs:ignore
 use Wikimedia\Assert\Assert;
+use Composer\Semver\Semver;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
@@ -586,12 +587,12 @@ class DOMDataUtils {
 			}
 		}
 		// Strip invalid data-mw attributes
-		$semver = null; // PORT-FIXME see below
 		if ( self::validDataMw( $node ) ) {
-			if ( !empty( $options['storeInPageBundle'] ) && isset( $options['env'] ) &&
+			if (
+				!empty( $options['storeInPageBundle'] ) && isset( $options['env'] ) &&
 				// The pagebundle didn't have data-mw before 999.x
-				// PORT-FIXME - semver equivalent code required
-				$semver->satisfies( $options['env']->outputContentVersion, '^999.0.0' ) ) {
+				Semver::satisfies( $options['env']->getOutputContentVersion(), '^999.0.0' )
+			) {
 				$data = $data ?: new stdClass;
 				$data->mw = self::getDataMw( $node );
 			} else {
