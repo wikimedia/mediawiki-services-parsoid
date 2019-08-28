@@ -120,17 +120,17 @@ class LanguageVariantHandler extends TokenHandler {
 			$to = null;
 			if ( isset( $t['twoway'] ) ) {
 				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
-				$isBlock = $isBlock ?? $text['isBlock'];
+				$isBlock = $isBlock || !empty( $text['isBlock'] );
 				return [ 'lang' => $t['lang'], 'text' => $text['xmlstr'], 'twoway' => true, 'sp' => $t['sp'] ];
 			} elseif ( isset( $t['lang'] ) ) {
 				$from = $this->convertOne( $manager, $options, $t['from'], $attribs );
 				$to = $this->convertOne( $manager, $options, $t['to'], $attribs );
-				$isBlock = $isBlock ?? $from['isBlock'] ?? $to['isBlock'];
+				$isBlock = $isBlock || !empty( $from['isBlock'] ) || !empty( $to['isBlock'] );
 				return [ 'lang' => $t['lang'], 'from' => $from['xmlstr'], 'to' => $to['xmlstr'],
 					'sp' => $t['sp'] ];
 			} else {
 				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
-				$isBlock = $isBlock ?? $text['isBlock'];
+				$isBlock = $isBlock || !empty( $text['isBlock'] );
 				return [ 'text' => $text['xmlstr'], 'sp' => [] ];
 			}
 		}, $dataAttribs->texts );
