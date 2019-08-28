@@ -76,7 +76,7 @@ class TableFixups {
 				// FIXME: will not be set for nested templates
 				DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' ) ||
 				// Hacky work-around for nested templates
-				preg_match( '/^{{.*?}}$/D', DOMDataUtils::getDataParsoid( $nextNode )->src )
+				preg_match( '/^{{.*?}}$/D', DOMDataUtils::getDataParsoid( $nextNode )->src ?? '' )
 			)
 		) {
 			/** @var DOMElement $node */

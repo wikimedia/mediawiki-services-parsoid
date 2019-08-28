@@ -189,7 +189,7 @@ class ProcessTreeBuilderFixups {
 									$c,
 									$dp,
 									$expectedName,
-									(object)[ 'start' => true, 'tsr' => $dp->tsr ]
+									(object)[ 'start' => true, 'tsr' => $dp->tsr ?? null ]
 								);
 							}
 						}
