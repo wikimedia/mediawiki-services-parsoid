@@ -250,18 +250,28 @@ class LanguageVariantHandler extends TokenHandler {
 		// contains only inline content, could contain block content,
 		// or never contains any content.
 
+		$das = [
+			'fl' => $dataAttribs->original, // original "fl"ags
+			'flSp' => $this->compressSpArray( $flagSp ), // spaces around flags
+			'src' => $dataAttribs->src,
+			'tSp' => $this->compressSpArray( $textSp ), // spaces around texts
+			'tsr' => new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) )
+		];
+
+		if ( $das['flSp'] === null ) {
+			unset( $das['flSp'] );
+		}
+
+		if ( $das['tSp'] === null ) {
+			unset( $das['tSp'] );
+		}
+
 		PHPUtils::sortArray( $dataMWV );
 		$tokens = [
 			new TagTk( $isMeta ? 'meta' : ( $isBlock ? 'div' : 'span' ), [
 					new KV( 'typeof', 'mw:LanguageVariant' ),
 					new KV( 'data-mw-variant', PHPUtils::jsonEncode( $dataMWV ) )
-				], (object)[
-					'fl' => $dataAttribs->original, // original "fl"ags
-					'flSp' => $this->compressSpArray( $flagSp ), // spaces around flags
-					'src' => $dataAttribs->src,
-					'tSp' => $this->compressSpArray( $textSp ), // spaces around texts
-					'tsr' => new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) )
-				]
+				], (object)$das
 			)
 		];
 		if ( !$isMeta ) {
