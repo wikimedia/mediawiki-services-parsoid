@@ -246,7 +246,7 @@ class TemplateHandler extends TokenHandler {
 
 		$pieces = explode( ':', $target );
 		$prefix = trim( $pieces[0] );
-		$lowerPrefix = strtolower( $prefix );
+		$lowerPrefix = mb_strtolower( $prefix );
 		// The check for pieces.length > 1 is required to distinguish between
 		// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
 		// even though the target (=lc) matches a registered parser-function name.
