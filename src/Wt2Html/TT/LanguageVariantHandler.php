@@ -250,7 +250,7 @@ class LanguageVariantHandler extends TokenHandler {
 		// contains only inline content, could contain block content,
 		// or never contains any content.
 
-		ksort( $dataMWV );
+		PHPUtils::sortArray( $dataMWV );
 		$tokens = [
 			new TagTk( $isMeta ? 'meta' : ( $isBlock ? 'div' : 'span' ), [
 					new KV( 'typeof', 'mw:LanguageVariant' ),

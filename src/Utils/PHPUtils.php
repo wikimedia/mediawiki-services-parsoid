@@ -355,4 +355,20 @@ class PHPUtils {
 	public static function arrayToObject( $array ) {
 		return (object)array_combine( array_keys( $array ), array_values( $array ) );
 	}
+
+	/**
+	 * Sort keys in an array, recursively, for better reproducibility.
+	 * (This is especially useful before serializing as JSON.)
+	 *
+	 * @param mixed &$array
+	 */
+	public static function sortArray( &$array ): void {
+		if ( !is_array( $array ) ) {
+			return;
+		}
+		ksort( $array );
+		foreach ( $array as $k => $v ) {
+			self::sortArray( $array[$k] );
+		}
+	}
 }
