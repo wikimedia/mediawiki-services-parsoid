@@ -62,7 +62,7 @@
 		}
 	},
 	"scripts": {
-		"php-test": [
+		"test": [
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
@@ -70,11 +70,8 @@
 			"phpunit",
 			"phpspec run -v --ansi",
 			"@phan",
-			"@toolcheck"
-		],
-		"test": [
-			"@php-test",
-			"@parserTests-hybrid"
+			"@toolcheck",
+			"@parserTests"
 		],
 		"fix": [
 			"minus-x fix .",
@@ -83,16 +80,7 @@
 		"cover": "phpunit --coverage-html coverage",
 		"phan": "PHAN_DISABLE_XDEBUG_WARN=1 phan --allow-polyfill-parser",
 		"regen-php-tokenizer": "npm run regen-php-tokenizer",
-		"parserTests-hybrid": [
-			"@ensure-modules",
-			"@ensure-nave",
-			"SHELL=/bin/bash node_modules/nave/nave.sh use 6 npm run parserTests-hybrid-stage14"
-		],
-		"ensure-nave": "if test ! -d node_modules/nave ; then if which npm; then npm install --no-optional --no-save nave ; else git clone https://github.com/cscott/nave.git node_modules/nave ; fi ; fi",
-		"ensure-modules": [
-			"@ensure-nave",
-			"if test ! -d node_modules/domino ; then SHELL=/bin/bash node_modules/nave/nave.sh use 6 npm install --no-optional ; fi"
-		],
+		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --blacklist true",
 		"toolcheck": "bin/toolcheck.php.sh"
 	},
 	"config": {
