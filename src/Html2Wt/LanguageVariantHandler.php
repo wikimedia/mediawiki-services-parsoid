@@ -92,8 +92,10 @@ class LanguageVariantHandler {
 	 * @param string|null $protectFunc
 	 * @return string
 	 */
-	private static function sortedFlags( array $originalFlags, array $flSp, array $flags,
-		bool $noFilter, ?string $protectFunc ): string {
+	private static function sortedFlags(
+		array $originalFlags, array $flSp, array $flags, bool $noFilter,
+		?string $protectFunc
+	): string {
 		$filterInternal = function ( $f ) use ( $noFilter ) {
 			// Filter out internal-use-only flags
 			if ( $noFilter ) {
@@ -101,7 +103,7 @@ class LanguageVariantHandler {
 			}
 			return ( $f[0] ?? null ) !== '$';
 		};
-		$flags = array_keys( array_filter( $flags, $filterInternal ) );
+		$flags = array_filter( $flags, $filterInternal );
 
 		$sortByOriginalPosition = function ( $a, $b ) use ( $originalFlags ) {
 			$ai = $originalFlags[$a] ?? -1;
@@ -213,7 +215,7 @@ class LanguageVariantHandler {
 
 		foreach ( get_object_vars( $dataMWV ) as $key => $val ) {
 			if ( isset( WikitextConstants::$LCNameMap[$key] ) ) {
-				$flags[ WikitextConstants::$LCNameMap[$key] ] = true;
+				self::add( $flags, WikitextConstants::$LCNameMap[$key] );
 			}
 		}
 
@@ -259,10 +261,11 @@ class LanguageVariantHandler {
 			$text = self::ser( $state, $dataMWV->filter->t, [ 'protect' => '/\}-/' ] );
 			Assert::invariant( count( $flags ) === 0, 'Error in language variant flags' );
 			$result = self::combine(
-				self::sortedFlags( $originalFlags, $flSp, $dataMWV->filter->l,
-					true, 'protectLang' ),
-				$text,
-				false
+				self::sortedFlags(
+					$originalFlags, $flSp, $dataMWV->filter->l, true,
+					'protectLang'
+				),
+				$text, false
 			);
 		} else { /* no trailing semi */
 			if ( isset( $dataMWV->disabled ) || isset( $dataMWV->name ) ) {
@@ -272,12 +275,12 @@ class LanguageVariantHandler {
 				if ( !preg_match( '/[:;|]/', $text ) ) {
 					self::maybeDeleteFlag( $originalFlags, $flags, 'R' );
 				}
-
-				$temp = self::sortedFlags( $originalFlags, $flSp, $flags,
-						false, null );
-
-				$result = self::combine( self::sortedFlags( $originalFlags, $flSp, $flags,
-					false, null ), $text, false );
+				$result = self::combine(
+					self::sortedFlags(
+						$originalFlags, $flSp, array_keys( $flags ), false, null
+					),
+					$text, false
+				);
 			} elseif ( isset( $dataMWV->twoway ) ) {
 				// Two-way rules (most common)
 				if ( count( $textSp ) % 3 === 1 ) {
@@ -303,9 +306,12 @@ class LanguageVariantHandler {
 				);
 				// suppress output of default flag ('S')
 				self::maybeDeleteFlag( $originalFlags, $flags, '$S' );
-				$result = self::combine( self::sortedFlags( $originalFlags, $flSp, $flags,
-					false, null ), $text, $trailingSemi );
-
+				$result = self::combine(
+					self::sortedFlags(
+						$originalFlags, $flSp, array_keys( $flags ), false, null
+					),
+					$text, $trailingSemi
+				);
 			} elseif ( isset( $dataMWV->oneway ) ) {
 				// One-way rules (uncommon)
 				if ( count( $textSp ) % 4 === 1 ) {
@@ -324,8 +330,12 @@ class LanguageVariantHandler {
 					}, $dataMWV->oneway, range( 0, count( $dataMWV->oneway ) - 1 )
 					)
 				);
-				$result = self::combine( self::sortedFlags( $originalFlags, $flSp, $flags, false, null ),
-					$text, $trailingSemi );
+				$result = self::combine(
+					self::sortedFlags(
+						$originalFlags, $flSp, array_keys( $flags ), false, null
+					),
+					$text, $trailingSemi
+				);
 			}
 		}
 		$state->emitChunk( new LanguageVariantText( '-{' . $result . '}-', $node ), $node );
