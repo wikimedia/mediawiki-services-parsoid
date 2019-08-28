@@ -8118,10 +8118,21 @@ File containing double quotes and spaces
 !! wikitext
 [[File:Cool "Gator".png]]
 !! html/php+tidy
-<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Cool_%22Gator%22.png" class="new" title="File:Cool &quot;Gator&quot;.png">File:Cool &quot;Gator&quot;.png</a>
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Cool_%22Gator%22.png" class="new" title="File:Cool &quot;Gator&quot;.png">File:Cool "Gator".png</a>
 </p>
 !! html/parsoid
 <p><figure-inline class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Cool_%22Gator%22.png"><span resource='./File:Cool_"Gator".png' data-parsoid='{"a":{"resource":"./File:Cool_\"Gator\".png"},"sa":{"resource":"File:Cool \"Gator\".png"}}'>File:Cool "Gator".png</span></a></figure-inline></p>
+!! end
+
+!! test
+File containing single quotes
+!! wikitext
+[[File:Foo's ''italic'' bar.jpg]]
+[[File:Foo's ''italic'' bar.jpg|Foo's ''italic'' bar]]
+!! html/php+tidy
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo%27s_%27%27italic%27%27_bar.jpg" class="new" title="File:Foo&#39;s &#39;&#39;italic&#39;&#39; bar.jpg">File:Foo's <i>italic</i> bar.jpg</a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo%27s_%27%27italic%27%27_bar.jpg" class="new" title="File:Foo&#39;s &#39;&#39;italic&#39;&#39; bar.jpg">Foo's italic bar</a>
+</p>
 !! end
 
 !! test
@@ -8184,8 +8195,8 @@ Broken image links with HTML captions (T41700)
 [[File:Nonexistent|&lt;]]
 [[File:Nonexistent|a<i>b</i>c]]
 !! html/php
-<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
-<a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script>&lt;/script></a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script>&lt;/script></a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">abc</a>
 </p>
@@ -10858,7 +10869,21 @@ parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! end
 
 !! test
-Magic Word: {{REVISIONID}}
+Magic Word: {{REVISIONID}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONID}}
+!! html/*
+<p>1337
+</p>
+flags=vary-revision-id
+!! end
+
+!! test
+Magic Word: {{REVISIONID}} on non-latest revision
 !! options
 parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 showflags
@@ -10868,6 +10893,143 @@ showflags
 <p>1337
 </p>
 flags=vary-revision-id
+!! end
+
+!! test
+Magic Word: {{REVISIONTIMESTAMP}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONTIMESTAMP}}
+!! html/*
+<p>19700101000203
+</p>
+flags=
+!! end
+
+!! test
+Magic Word: {{REVISIONTIMESTAMP}} on non-existing page
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONTIMESTAMP}}
+!! html/*
+<p>123
+</p>
+flags=vary-revision-timestamp
+!! end
+
+!! test
+Magic Word: {{REVISIONUSER}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONUSER}}
+!! html/*
+<p>127.0.0.1
+</p>
+flags=vary-user
+!! end
+
+!! test
+Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONID:{{PAGENAME}}}}
+!! html/*
+<p>1337
+</p>
+flags=vary-revision-id
+!! end
+
+!! test
+Parser Function: {{REVISIONID:{{PAGENAME}}}} on non-saved revision
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONID:{{PAGENAME}}}}
+!! html/*
+
+flags=vary-revision-id
+!! end
+
+!! test
+Parser Function: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONTIMESTAMP:{{PAGENAME}}}}
+!! html/*
+<p>19700101000203
+</p>
+flags=vary-revision-timestamp
+!! end
+
+!! test
+Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONDAY:{{PAGENAME}}}}
+!! html/*
+<p>1
+</p>
+flags=vary-revision-timestamp
+!! end
+
+!! test
+Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONMONTH:{{PAGENAME}}}}
+!! html/*
+<p>01
+</p>
+flags=vary-revision-timestamp
+!! end
+
+!! test
+Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONYEAR:{{PAGENAME}}}}
+!! html/*
+<p>1970
+</p>
+flags=vary-revision-timestamp
+!! end
+
+!! test
+Parser Function: {{PAGESIZE:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{PAGESIZE:{{PAGENAME}}}}
+!! html/*
+<p>25
+</p>
+flags=vary-revision-sha1
 !! end
 
 !! test
@@ -24361,6 +24523,49 @@ language=nl title=[[MediaWiki:Common.css]]
 <p><span class="mw-formatted-date" title="2009-03-24">24 March 2009</span>
 </p>
 !! end
+
+!! test
+formatdate with invalid month
+!! wikitext
+{{#formatdate:2019-22-22|dmy}}
+!! html
+<p>2019-22-22
+</p>
+!! end
+
+!! test
+formatdate: dots in month name do not match any char (T220563)
+!! options
+language=de
+!! wikitext
+{{#formatdate:jun. 3|dmy}}
+{{#formatdate:junx 3|dmy}}
+!! html
+<p><span class="mw-formatted-date" title="06-03">3 Juni</span>
+junx 3
+</p>
+!! end
+
+!! test
+formatdate uses correct capitalisation in French
+!! options
+language=fr
+!! wikitext
+{{#formatdate:Juin 3|dmy}}
+!! html
+<p><span class="mw-formatted-date" title="06-03">3 juin</span>
+</p>
+!! end
+
+!! test
+formatdate uses correct capitalisation in English
+!! wikitext
+{{#formatdate:june 3|dmy}}
+!! html
+<p><span class="mw-formatted-date" title="06-03">3 June</span>
+</p>
+!! end
+
 
 #
 #

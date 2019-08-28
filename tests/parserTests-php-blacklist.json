@@ -163,8 +163,41 @@
     "Magic Word: {{PAGENAMEE}} with metacharacters (T28781)": {
         "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAMEE\",\"function\":\"pagenamee\"},\"params\":{},\"i\":0}}]}'></span>"
     },
-    "Magic Word: {{REVISIONID}}": {
+    "Magic Word: {{REVISIONID}} on latest revision": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,14,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</p>"
+    },
+    "Magic Word: {{REVISIONID}} on non-latest revision": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,14,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</p>"
+    },
+    "Magic Word: {{REVISIONTIMESTAMP}} on latest revision": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,21,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</p>"
+    },
+    "Magic Word: {{REVISIONTIMESTAMP}} on non-existing page": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,21,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</p>"
+    },
+    "Magic Word: {{REVISIONUSER}} on latest revision": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,16,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,27,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONID:{{PAGENAME}}}} on non-saved revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,27,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,34,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,28,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY:{{PAGENAME}}\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,30,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH:{{PAGENAME}}\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</p>"
+    },
+    "Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,29,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR:{{PAGENAME}}\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</p>"
+    },
+    "Parser Function: {{PAGESIZE:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,25,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESIZE:{{PAGENAME}}\",\"function\":\"pagesize\"},\"params\":{},\"i\":0}}]}'>100</p>"
     },
     "Magic Word: {{SCRIPTPATH}}": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,14,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SCRIPTPATH\",\"function\":\"scriptpath\"},\"params\":{},\"i\":0}}]}'>/</p>"
@@ -490,6 +523,22 @@
     "formatdate parser function, with default format and on a page of which the content language is always English and different from the wiki content language": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,30,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2009-03-24\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</p>",
         "html2wt": "<span class=\"mw-formatted-date\" title=\"2009-03-24\">24 March 2009</span>\n"
+    },
+    "formatdate with invalid month": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,30,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2019-22-22\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</p>",
+        "html2wt": "2019-22-22\n"
+    },
+    "formatdate: dots in month name do not match any char (T220563)": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:jun. 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[27,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:junx 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
+        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 Juni</span>\njunx 3\n"
+    },
+    "formatdate uses correct capitalisation in French": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,26,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:Juin 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</p>",
+        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 juin</span>\n"
+    },
+    "formatdate uses correct capitalisation in English": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,26,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:june 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</p>",
+        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 June</span>\n"
     },
     "T33098 Template which includes system messages which includes the template": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Identical\",\"href\":\"./Template:Identical\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.\nParser function implementation for pf_int missing in Parsoid.</p>",
