@@ -824,6 +824,11 @@ if (require.main === module) {
 			boolean: false,
 			default: '',
 		},
+		proxyURL: {
+			description: 'URL (with protocol and port, if any) for the proxy fronting Parsoid',
+			boolean: false,
+			default: null,
+		},
 		apiURL: {
 			description: 'http path to remote API,' +
 				' e.g. http://en.wikipedia.org/w/api.php',
@@ -883,6 +888,9 @@ if (require.main === module) {
 			argv.parsoidURL = ret.parsoidURL;
 		}
 		argv.parsoidURLOpts = { baseUrl: argv.parsoidURL };
+		if (argv.proxyURL) {
+			argv.proxy = { host: argv.proxyURL };
+		}
 		var formatter = ScriptUtils.booleanOption(argv.xml) ?
 			xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
