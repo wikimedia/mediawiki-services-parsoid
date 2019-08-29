@@ -203,7 +203,7 @@ class QuoteTransformer extends TokenHandler {
 
 		if ( !is_string( $token ) &&
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
-			$token->dataAttribs->stx === 'html'
+			( $token->dataAttribs->stx ?? '' ) === 'html'
 		) {
 			return $token;
 		}

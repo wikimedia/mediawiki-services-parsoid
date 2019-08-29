@@ -1055,7 +1055,7 @@ class WikiLinkHandler extends TokenHandler {
 						// Figure out the proper string to put here and break.
 						if (
 							$tokenType === 'mw:ExtLink' &&
-							$currentToken->dataAttribs->stx === 'url'
+							( $currentToken->dataAttribs->stx ?? '' ) === 'url'
 						) {
 							// Add the URL
 							$resultStr .= $tkHref;
