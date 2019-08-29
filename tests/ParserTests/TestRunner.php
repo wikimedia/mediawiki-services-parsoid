@@ -1339,7 +1339,7 @@ class TestRunner {
 		$test->cachedNormalizedHTML = null;
 
 		$targetModes = $options['modes'];
-		if ( !$test->wikitext || !$haveHtml
+		if ( $test->wikitext === null || !$haveHtml
 			|| ( isset( $test->options['disabled'] ) && !$this->runDisabled )
 			|| ( isset( $test->options['php'] )
 				&& !( isset( $test->altHtmlSections['html/parsoid'] ) || $this->runPHP ) )
