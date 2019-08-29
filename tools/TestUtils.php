@@ -456,7 +456,7 @@ class TestUtils {
 				$curStr = $mode . ': ';
 				$thisMode = $stats->modes[$mode];
 				$curStr .= self::colorizeCount( $thisMode->passedTests, 'green' ) . ' passed (';
-				$curStr .= self::colorizeCount( $thisMode->passedTestsUnexpected, 'red' ) . ' unexpected, ';
+				$curStr .= self::colorizeCount( $thisMode->passedTestsUnexpected, 'red' ) . ' unexpected) / ';
 				$curStr .= self::colorizeCount( $thisMode->failedTests, 'red' ) . ' failed (';
 				$curStr .= self::colorizeCount( $thisMode->failedTestsUnexpected, 'red' ) . ' unexpected)';
 				print $curStr . "\n";
@@ -464,7 +464,7 @@ class TestUtils {
 
 			$curStr = 'TOTAL' . ': ';
 			$curStr .= self::colorizeCount( $stats->passedTests, 'green' ) . ' passed (';
-			$curStr .= self::colorizeCount( $stats->passedTestsUnexpected, 'red' ) . ' unexpected, ';
+			$curStr .= self::colorizeCount( $stats->passedTestsUnexpected, 'red' ) . ' unexpected) / ';
 			$curStr .= self::colorizeCount( $stats->failedTests, 'red' ) . ' failed (';
 			$curStr .= self::colorizeCount( $stats->failedTestsUnexpected, 'red' ) . ' unexpected)';
 			print $curStr . "\n";
