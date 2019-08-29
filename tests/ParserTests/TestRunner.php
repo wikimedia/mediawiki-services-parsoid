@@ -1514,12 +1514,6 @@ class TestRunner {
 
 		$this->suppressLogger = null; // PORT-FIXME
 
-		/*
-		if ( $console->time && $console->timeEnd ) {
-			$console->time( 'Execution time' );
-		}
-		*/
-
 		$options['reportStart']();
 
 		// Run tests

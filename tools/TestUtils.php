@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tools;
 
-use DateTime;
 use DOMElement;
 use DOMNode;
 use DOMText;
@@ -448,7 +447,7 @@ class TestUtils {
 		print "==========================================================\n";
 		print 'SUMMARY:' . self::colorString( $filename, $happiness ? 'green' : 'red' ) . "\n";
 		if ( $file !== null ) {
-			print 'Execution time: ' . ( new DateTime() )->format( 'Y-m-d H:i:s' ) . "\n";
+			print 'Execution time: ' . round( 1000 * ( microtime( true ) - $stats->startTime ), 3 ) . "ms\n";
 		}
 
 		if ( $failTotalTests !== 0 ) {

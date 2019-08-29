@@ -4,6 +4,9 @@ declare( strict_types = 1 );
 namespace Parsoid\Tests\ParserTests;
 
 class Stats {
+	/** @var float */
+	public $startTime;
+
 	/** @var Stats[] */
 	public $modes;
 
@@ -30,6 +33,10 @@ class Stats {
 
 	/** @var string result */
 	public $result;
+
+	public function __construct() {
+		$this->startTime = microtime( true );
+	}
 
 	public function allFailures(): int {
 		$this->failures = $this->passedTestsUnexpected +
