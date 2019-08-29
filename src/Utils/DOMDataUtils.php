@@ -56,12 +56,15 @@ class DOMDataUtils {
 	 */
 	public static function getNodeData( DOMElement $node ): stdClass {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			self::setNodeData( $node, new stdClass );
+			// Initialized on first request
+			$dataObject = new stdClass;
+			self::setNodeData( $node, $dataObject );
+			return $dataObject;
 		}
-		$bag = self::getBag( $node->ownerDocument );
+
 		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
 		if ( $docId !== '' ) {
-			$dataObject = $bag->getObject( (int)$docId );
+			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$docId );
 		} else {
 			$dataObject = null; // Make phan happy
 		}
