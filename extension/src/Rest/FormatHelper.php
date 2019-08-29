@@ -93,7 +93,7 @@ class FormatHelper {
 	 */
 	public static function parseContentTypeHeader(
 		string $contentTypeHeader, string &$format = null
-	): string {
+	): ?string {
 		$newProfileSyntax = 'https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/';
 		$oldProfileSyntax = 'mediawiki.org/specs/(html)/';
 		$profileRegex = "#\bprofile=\"(?:$newProfileSyntax|$oldProfileSyntax)(\d+\.\d+\.\d+)\"#";

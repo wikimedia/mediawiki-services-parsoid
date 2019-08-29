@@ -390,6 +390,10 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['pageWithOldid'] = true;
 		}
 
+		if ( $format === FormatHelper::FORMAT_LINT ) {
+			$reqOpts['lint'] = true;
+		}
+
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$this->statsdDataFactory->timing( "wt2html.$mstr.init", time() - $startTimers['wt2html.init'] );
 		$startTimers["wt2html.$mstr.parse"] = time();
@@ -397,11 +401,9 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		// PORT-FIXME where does $wikitext go?
 		$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), $reqOpts );
-
 		if ( $format === FormatHelper::FORMAT_LINT ) {
-			// TODO
-			// $response = $this->getResponseFactory()->createJson( $lint );
-			throw new LogicException( 'Not implemented yet' );
+			// If linting, $pageBundle is actually an array of linting results
+			$response = $this->getResponseFactory()->createJson( $pageBundle );
 		} else {
 			if ( $needsPageBundle ) {
 				$responseData = [
@@ -451,7 +453,7 @@ abstract class ParsoidHandler extends Handler {
 
 		$this->statsdDataFactory->timing( "wt2html.$mstr.parse",
 			time() - $startTimers["wt2html.$mstr.parse"] );
-		$this->statsdDataFactory->timing( "wt2html.$mstr.size.output", strlen( $pageBundle->html ) );
+		$this->statsdDataFactory->timing( "wt2html.$mstr.size.output", $response->getBody()->getSize() );
 		$this->statsdDataFactory->timing( 'wt2html.total', time() - $startTimers['wt2html.total'] );
 
 		if ( $wikitext !== null ) {

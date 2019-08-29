@@ -16,7 +16,7 @@ use MWParsoid\Rest\FormatHelper;
 class TransformHandler extends ParsoidHandler {
 
 	/**
-	 * Transform content given in the reuqest from or to wikitext.
+	 * Transform content given in the request from or to wikitext.
 	 * @return Response
 	 */
 	public function execute() {

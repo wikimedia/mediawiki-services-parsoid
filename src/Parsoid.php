@@ -40,12 +40,13 @@ class Parsoid {
 	 *   'outputVersion'     => (string|null) Version of HTML to output.
 	 *                                        `null` returns the default version.
 	 *   'inlineDataAttribs' => (bool) Setting to `true` avoids extracting data attributes.
+	 *   'lint'              => (bool) Setting to `true` returns linting results rather than html
 	 * ]
-	 * @return PageBundle
+	 * @return PageBundle|array
 	 */
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = []
-	): PageBundle {
+	) {
 		$envOptions = [];
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
@@ -58,6 +59,11 @@ class Parsoid {
 		);
 		$handler = $env->getContentHandler();
 		$doc = $handler->toHTML( $env );
+
+		if ( !empty( $options['lint'] ) ) {
+			return $env->getLints();
+		}
+
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 		if ( $env->pageBundle ) {

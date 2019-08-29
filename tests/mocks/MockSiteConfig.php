@@ -19,6 +19,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var bool */
 	private $interwikiMagic = true;
 
+	/** @var bool|null */
+	private $lint = null;
+
 	/** @var int|null */
 	private $tidyWhitespaceBugMaxLength = null;
 
@@ -53,7 +56,7 @@ class MockSiteConfig extends SiteConfig {
 		if ( isset( $opts['rtTestMode'] ) ) {
 			$this->rtTestMode = !empty( $opts['rtTestMode'] );
 		}
-
+		$this->lint = $opts['lint'] ?? null;
 		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
 
 		if ( isset( $opts['linkPrefixRegex'] ) ) {
@@ -97,6 +100,10 @@ class MockSiteConfig extends SiteConfig {
 	 */
 	public function setLogger( ?LoggerInterface $logger ): void {
 		$this->logger = $logger;
+	}
+
+	public function linting() {
+		return $this->lint ?? parent::linting();
 	}
 
 	public function tidyWhitespaceBugMaxLength(): int {

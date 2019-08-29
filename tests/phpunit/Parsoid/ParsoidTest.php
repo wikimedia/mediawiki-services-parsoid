@@ -4,6 +4,7 @@ namespace Test\Parsoid;
 
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
+use Parsoid\Tokens\DomSourceRange;
 
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockPageConfig;
@@ -24,14 +25,15 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	public function testWt2Html( $wt, $expected, $parserOpts = [] ) {
 		$opts = [];
 
-		$siteConfig = new MockSiteConfig( $opts );
+		$siteConfig = new MockSiteConfig( [ 'lint' => !empty( $parserOpts['lint'] ) ] );
 		$dataAccess = new MockDataAccess( $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( $opts, $pageContent );
 		$pb = $parsoid->wikitext2html( $pageConfig, $parserOpts );
-		$this->assertEquals( $expected, $pb->html );
+		$actual = !empty( $parserOpts['lint'] ) ? $pb : $pb->html;
+		$this->assertEquals( $expected, $actual );
 	}
 
 	public function provideWt2Html() {
@@ -42,6 +44,18 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				[
 					'body_only' => true,
 					'wrapSections' => false,
+				]
+			],
+			[
+				"[http://google.com This is [[Google]]'s search page]",
+				[
+					[
+						'type' => 'wikilink-in-extlink',
+						'dsr' => new DomSourceRange( 0, 52, 19, 1 ),
+					]
+				],
+				[
+					'lint' => true,
 				]
 			]
 		];
