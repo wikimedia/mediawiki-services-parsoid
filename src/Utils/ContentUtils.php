@@ -122,10 +122,9 @@ class ContentUtils {
 	}
 
 	private static function cloneData( DOMNode $node, DOMNode $clone, array $options ): void {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
-		DOMUtils::assertElt( $node );
 		DOMUtils::assertElt( $clone );
 
 		$d = DOMDataUtils::getNodeData( $node );
@@ -165,10 +164,9 @@ class ContentUtils {
 			return $str;
 		};
 		$convertNode = function ( DOMNode $node ) use ( $dsrFunc, &$convertString ) {
-			if ( !DOMUtils::isElt( $node ) ) {
+			if ( !( $node instanceof DOMElement ) ) {
 				return;
 			}
-			DOMUtils::assertElt( $node );
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			if ( ( $dp->dsr ?? null ) !== null ) {
 				$dp->dsr = $dsrFunc( clone $dp->dsr );

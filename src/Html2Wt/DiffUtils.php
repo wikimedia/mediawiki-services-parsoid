@@ -19,10 +19,9 @@ class DiffUtils {
 	 * @return stdClass|null
 	 */
 	public static function getDiffMark( DOMNode $node, Env $env ): ?stdClass {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return null;
 		}
-		DOMUtils::assertElt( $node );
 
 		$data = DOMDataUtils::getNodeData( $node );
 		$dpd = $data->parsoid_diff ?? null;
@@ -141,10 +140,9 @@ class DiffUtils {
 	 * @param string $change
 	 */
 	public static function setDiffMark( DOMNode $node, Env $env, string $change ): void {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
-		DOMUtils::assertElt( $node );
 
 		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {

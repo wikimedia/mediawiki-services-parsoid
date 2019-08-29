@@ -56,7 +56,7 @@ class CleanUp {
 	public static function handleEmptyElements(
 		DOMNode $node, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
-		if ( !DOMUtils::isElt( $node ) ||
+		if ( !( $node instanceof DOMElement ) ||
 			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][$node->nodeName] ) ||
 			!DOMUtils::nodeEssentiallyEmpty( $node )
 		) {
@@ -72,9 +72,6 @@ class CleanUp {
 				}
 			}
 		}
-
-		/** @var DOMElement $node */
-		DOMUtils::assertElt( $node );
 
 		/**
 		 * The node is known to be empty and a deletion candidate
@@ -157,11 +154,9 @@ class CleanUp {
 	public static function cleanupAndSaveDataParsoid(
 		DOMNode $node, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return true;
 		}
-		/** @var DOMElement $node */
-		DOMUtils::assertElt( $node );
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// $dp will be a DataParsoid object once but currently it is an stdClass

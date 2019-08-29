@@ -246,7 +246,6 @@ class TableFixups {
 		 */
 		while ( $child ) {
 			if ( DOMUtils::isComment( $child ) ) {
-
 				// <!--foo--> are not comments in CSS and PHP parser strips them
 			} elseif ( DOMUtils::isText( $child ) ) {
 				$buf[] = $child->nodeValue;

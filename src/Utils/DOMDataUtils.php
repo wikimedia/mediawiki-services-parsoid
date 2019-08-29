@@ -298,10 +298,9 @@ class DOMDataUtils {
 	 * @return bool
 	 */
 	public static function hasTypeOf( DOMNode $node, string $type ): bool {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return false;
 		}
-		DOMUtils::assertElt( $node );
 		if ( !$node->hasAttribute( 'typeof' ) ) {
 			return false;
 		}
@@ -477,10 +476,9 @@ class DOMDataUtils {
 	 * @param array $options options
 	 */
 	public static function loadDataAttribs( DOMNode $node, array $options ): void {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
-		DOMUtils::assertElt( $node );
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, new stdClass );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
@@ -536,10 +534,9 @@ class DOMDataUtils {
 	 */
 	public static function storeDataAttribs( DOMNode $node, ?array $options = null ): void {
 		$options = $options ?? [];
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
-		DOMUtils::assertElt( $node );
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );

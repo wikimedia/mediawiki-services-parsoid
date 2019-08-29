@@ -124,7 +124,7 @@ class DOMUtils {
 	 * @return bool Always returns true
 	 */
 	public static function assertElt( ?DOMNode $node ): bool {
-		Assert::invariant( self::isElt( $node ), "Expected an element" );
+		Assert::invariant( $node instanceof DOMElement, "Expected an element" );
 		return true;
 	}
 

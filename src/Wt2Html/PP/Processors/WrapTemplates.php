@@ -140,7 +140,7 @@ class WrapTemplates {
 			// We don't try any harder than this for now.
 			$offset = 0;
 			$n = $endNode->previousSibling;
-			while ( $n && !$n instanceof DOMElement ) {
+			while ( $n && !( $n instanceof DOMElement ) ) {
 				if ( $n instanceof DOMText ) {
 					$offset += strlen( $n->nodeValue );
 				} else {

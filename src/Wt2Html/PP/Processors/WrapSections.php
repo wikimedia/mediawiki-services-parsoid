@@ -173,8 +173,7 @@ class WrapSections {
 						$tplInfo, $currSection, $node, $level, false );
 					$addedNode = true;
 				}
-			} elseif ( DOMUtils::isElt( $node ) ) {
-				DOMUtils::assertElt( $node );
+			} elseif ( $node instanceof DOMElement ) {
 				// If we find a higher level nested section,
 				// (a) Make current section non-editable
 				// (b) There are 2 $options here.
@@ -257,10 +256,9 @@ class WrapSections {
 		$offset = 0;
 		$c = $start ? $node->firstChild : $node->lastChild;
 		while ( $c ) {
-			if ( !DOMUtils::isElt( $c ) ) {
+			if ( !( $c instanceof DOMElement ) ) {
 				$offset += strlen( $c->textContent );
 			} else {
-				DOMUtils::assertElt( $c );
 				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;

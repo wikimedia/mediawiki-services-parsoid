@@ -225,8 +225,7 @@ class PWrap {
 			$next = $c->nextSibling;
 			if ( $c->nodeName === $tagName ) {
 				$this->pWrapDOM( $c );
-			} elseif ( DOMUtils::isElt( $c ) ) {
-				DOMUtils::assertElt( $c );
+			} elseif ( $c instanceof DOMElement ) {
 				$this->pWrapInsideTag( $c, $tagName );
 			}
 			$c = $next;

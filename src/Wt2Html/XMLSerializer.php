@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Utils\DOMUtils;
@@ -114,9 +115,8 @@ class XMLSerializer {
 				$next = $child->nextSibling;
 				if ( DOMUtils::isText( $child ) ) {
 					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
-				} elseif ( DOMUtils::isElt( $child ) && !in_array( $child->nodeName, $allowedTags ) ) {
+				} elseif ( ( $child instanceof DOMElement ) && !in_array( $child->nodeName, $allowedTags ) ) {
 					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
-					DOMUtils::assertElt( $child );
 					$attrs = $child->attributes;
 					$len = $attrs->length;
 					$as = [];
@@ -255,7 +255,7 @@ class XMLSerializer {
 				$out['start'] = null;
 				$out['uid'] = null;
 			}
-		} elseif ( !DOMUtils::isElt( $node ) || $out['start'] === null
+		} elseif ( !( $node instanceof DOMElement ) || $out['start'] === null
 			|| !DOMUtils::isBody( $node->parentNode )
 		) {
 			// In case you're wondering, out.start may never be set if body
@@ -266,7 +266,6 @@ class XMLSerializer {
 				$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 			}
 		} else {
-			DOMUtils::assertElt( $node );
 			$newUid = $node->hasAttribute( 'id' ) ? $node->getAttribute( 'id' ) : null;
 			// Encapsulated siblings don't have generated ids (but may have an id),
 			// so associate them with preceding content.

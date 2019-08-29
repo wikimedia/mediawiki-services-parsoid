@@ -340,8 +340,7 @@ class ComputeDSR {
 			// B and I tags where the fix is clear-cut and obvious.
 			if ( !$rtTestMode ) {
 				$next = $child->nextSibling;
-				if ( $next && DOMUtils::isElt( $next ) ) {
-					DOMUtils::assertElt( $next );
+				if ( $next && ( $next instanceof DOMElement ) ) {
 					$ndp = DOMDataUtils::getDataParsoid( $next );
 					if ( isset( $ndp->src ) &&
 						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#', $next->getAttribute( "typeof" ) )
@@ -376,13 +375,12 @@ class ComputeDSR {
 				}
 				return "     CHILD: <" . $child->parentNode->nodeName . ":" . $i .
 					">=" .
-					( DOMUtils::isElt( $child ) ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
-					( DOMUtils::isElt( $child ) ?
-					( $child->nodeName === 'meta' &&
-					  DOMUtils::assertElt( $child ) ?
-					  DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
-						PHPUtils::jsonEncode( $child->nodeValue )
-					) . " with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
+					( $child instanceof DOMElement ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
+					( ( $child instanceof DOMElement ) ?
+						( $child->nodeName === 'meta' ?
+							DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
+							PHPUtils::jsonEncode( $child->nodeValue ) ) .
+					" with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
 			} );
 
 			if ( $cType === XML_TEXT_NODE ) {

@@ -243,10 +243,9 @@ class WTUtils {
 	 */
 	public static function isNewElt( DOMNode $node ): bool {
 		// We cannot determine newness on text/comment $nodes.
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return false;
 		}
-		DOMUtils::assertElt( $node );
 
 		// For template/extension content, newness should be
 		// checked on the encapsulation wrapper $node.
@@ -484,10 +483,9 @@ class WTUtils {
 		// True if it has an encapsulation type or while walking backwards
 		// over elts with identical about ids, we run into a $node with an
 		// encapsulation type.
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return false;
 		}
-		DOMUtils::assertElt( $node );
 		return self::findFirstEncapsulationWrapperNode( $node ) !== null;
 	}
 
