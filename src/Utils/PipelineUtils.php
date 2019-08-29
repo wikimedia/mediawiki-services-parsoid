@@ -382,6 +382,7 @@ class PipelineUtils {
 			// for `node` so we need to peel them off for the purpose of
 			// cloning.
 			$storedDp = DOMDataUtils::getJSONAttribute( $node, 'data-parsoid', new stdClass );
+			DOMDataUtils::massageLoadedDataParsoid( $storedDp );
 			$storedDp->tsr = null;
 			DOMDataUtils::setDataParsoid( $workNode, $storedDp );
 		}

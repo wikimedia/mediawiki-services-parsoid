@@ -468,6 +468,48 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Massage the data parsoid object loaded from a node attribute
+	 * into expected shape. When we create a first-class object for
+	 * data-parsoid, this will move into the constructor.
+	 *
+	 * @param stdClass $dp
+	 * @param array $options
+	 * @param DOMElement|null $node
+	 */
+	public static function massageLoadedDataParsoid(
+		stdClass $dp, array $options = [], DOMElement $node = null
+	): void {
+		if ( isset( $dp->sa ) ) {
+			$dp->sa = (array)$dp->sa;
+		}
+		if ( isset( $dp->a ) ) {
+			$dp->a = (array)$dp->a;
+		}
+		if ( isset( $dp->dsr ) ) {
+			$dp->dsr = DomSourceRange::fromArray( $dp->dsr );
+		}
+		if ( isset( $dp->tsr ) ) {
+			// tsr is generally for tokens, not DOM trees.
+			/* @phan-suppress-next-line PhanTypeMismatchArgument */
+			$dp->tsr = SourceRange::fromArray( $dp->tsr );
+		}
+		if ( isset( $dp->extTagOffsets ) ) {
+			/* @phan-suppress-next-line PhanTypeMismatchArgument */
+			$dp->extTagOffsets = DomSourceRange::fromArray( $dp->extTagOffsets );
+		}
+		if ( isset( $dp->extLinkContentOffsets ) ) {
+			$dp->extLinkContentOffsets =
+				/* @phan-suppress-next-line PhanTypeMismatchArgument */
+				SourceRange::fromArray( $dp->extLinkContentOffsets );
+		}
+		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
+		if ( !empty( $options['markNew'] ) ) {
+			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
+			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
+		}
+	}
+
+	/**
 	 * These are intended be used on a document after post-processing, so that
 	 * the underlying .dataobject is transparently applied (in the store case)
 	 * and reloaded (in the load case), rather than worrying about keeping
@@ -485,30 +527,7 @@ class DOMDataUtils {
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, new stdClass );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
-		if ( isset( $dp->sa ) ) {
-			$dp->sa = (array)$dp->sa;
-		}
-		if ( isset( $dp->a ) ) {
-			$dp->a = (array)$dp->a;
-		}
-		if ( isset( $dp->dsr ) ) {
-			$dp->dsr = DomSourceRange::fromArray( $dp->dsr );
-		}
-		if ( isset( $dp->tsr ) ) {
-			// tsr is generally for tokens, not DOM trees.
-			$dp->tsr = SourceRange::fromArray( $dp->tsr );
-		}
-		if ( isset( $dp->extTagOffsets ) ) {
-			$dp->extTagOffsets = DomSourceRange::fromArray( $dp->extTagOffsets );
-		}
-		if ( isset( $dp->extLinkContentOffsets ) ) {
-			$dp->extLinkContentOffsets =
-				SourceRange::fromArray( $dp->extLinkContentOffsets );
-		}
-		if ( !empty( $options['markNew'] ) ) {
-			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
-			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
-		}
+		self::massageLoadedDataParsoid( $dp, $options, $node );
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
 		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
