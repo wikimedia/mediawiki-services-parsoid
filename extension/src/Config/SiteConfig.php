@@ -47,7 +47,7 @@ class SiteConfig extends ISiteConfig {
 	/** @var string|null */
 	private $baseUri, $relativeLinkPrefix, $bswRegexp, $bswPagePropRegexp,
 		$solTransparentWikitextRegexp,
-		$solTransparentWikitxtNoWsRegexp;
+		$solTransparentWikitextNoWsRegexp;
 
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
