@@ -45,7 +45,9 @@ class SiteConfig extends ISiteConfig {
 	private $traceLogger, $dumpLogger;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix, $bswRegexp, $bswPagePropRegexp;
+	private $baseUri, $relativeLinkPrefix, $bswRegexp, $bswPagePropRegexp,
+		$solTransparentWikitextRegexp,
+		$solTransparentWikitxtNoWsRegexp;
 
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
@@ -410,51 +412,59 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function solTransparentWikitextRegexp(): string {
-		// cscott sadly says: Note that this depends on the precise
-		// localization of the magic words of this particular wiki.
+		if ( $this->solTransparentWikitextRegexp === null ) {
+			// cscott sadly says: Note that this depends on the precise
+			// localization of the magic words of this particular wiki.
 
-		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-		$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
-		if ( $category !== 'Category' ) {
-			$category = "(?:$category|Category)";
+			$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+			$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
+			if ( $category !== 'Category' ) {
+				$category = "(?:$category|Category)";
+			}
+			$this->bswPagePropRegexp(); // populate $this->bswRegexp
+
+			$this->solTransparentWikitextRegexp = '!' .
+				'^[ \t\n\r\0\x0b]*' .
+				'(?:' .
+				  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+				')?' .
+				'(?:' .
+				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
+				  '__(?:' . $this->bswRegexp . ')__|' .
+				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) . '|' .
+				  '[ \t\n\r\0\x0b]' .
+				')*$!i';
 		}
-		$this->bswPagePropRegexp(); // populate $this->bswRegexp
 
-		return '!' .
-			'^[ \t\n\r\0\x0b]*' .
-			'(?:' .
-			  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
-			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-			')?' .
-			'(?:' .
-			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-			  '__(?:' . $this->bswRegexp . ')__|' .
-			  self::COMMENT_REGEXP_FRAGMENT . '|' .
-			  '[ \t\n\r\0\x0b]' .
-			')*$!i';
+		return $this->solTransparentWikitextRegexp;
 	}
 
 	public function solTransparentWikitextNoWsRegexp(): string {
-		// cscott sadly says: Note that this depends on the precise
-		// localization of the magic words of this particular wiki.
+		if ( $this->solTransparentWikitextNoWsRegexp === null ) {
+			// cscott sadly says: Note that this depends on the precise
+			// localization of the magic words of this particular wiki.
 
-		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-		$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
-		if ( $category !== 'Category' ) {
-			$category = "(?:$category|Category)";
+			$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+			$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
+			if ( $category !== 'Category' ) {
+				$category = "(?:$category|Category)";
+			}
+			$this->bswPagePropRegexp(); // populate $this->bswRegexp
+
+			$this->solTransparentWikitextNoWsRegexp = '!' .
+				'((?:' .
+				  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+				')?' .
+				'(?:' .
+				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
+				  '__(?:' . $this->bswRegexp . ')__|' .
+				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) .
+				')*)!i';
 		}
-		$this->bswPagePropRegexp(); // populate $this->bswRegexp
 
-		return '!' .
-			'((?:' .
-			  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
-			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-			')?' .
-			'(?:' .
-			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-			  '__(?:' . $this->bswRegexp . ')__|' .
-			  self::COMMENT_REGEXP_FRAGMENT .
-			')*)!i';
+		return $this->solTransparentWikitextNoWsRegexp;
 	}
 
 	public function timezoneOffset(): int {
