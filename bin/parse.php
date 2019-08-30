@@ -73,6 +73,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'Test in rt test mode (changes some parse & serialization strategies)'
 		);
 		$this->addOption(
+			'lint',
+			'Parse with linter enabled.',
+			false
+		);
+		$this->addOption(
 			'addHTMLTemplateParameters',
 			'Parse template parameters to HTML and add them to template data'
 		);
@@ -182,7 +187,8 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",
 			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
-			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' )
+			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
+			"linting" => $this->hasOption( 'lint' )
 		];
 
 		$parsoidOpts = [

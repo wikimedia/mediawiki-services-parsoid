@@ -88,6 +88,10 @@ class SiteConfig extends ISiteConfig {
 			$this->rtTestMode = !empty( $opts['rtTestMode'] );
 		}
 
+		if ( isset( $opts['linting'] ) ) {
+			$this->linterEnabled = true;
+		}
+
 		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {
 			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
 		}
