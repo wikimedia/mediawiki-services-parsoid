@@ -76,6 +76,19 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'addHTMLTemplateParameters',
 			'Parse template parameters to HTML and add them to template data'
 		);
+		$this->addOption(
+			'domain',
+			'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia, ' .
+			'"es.wikipedia.org" for Spanish, "mediawiki.org" for mediawiki.org',
+			false,
+			true
+		);
+		$this->addOption(
+			'apiURL',
+			'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -157,12 +170,19 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			}
 		}
 
+		$apiURL = "https://en.wikipedia.org/w/api.php";
+		if ( $this->hasOption( 'domain' ) ) {
+			$apiURL = "https://" . $this->getOption( 'domain' ) . "/w/api.php";
+		}
+		if ( $this->hasOption( 'apiURL' ) ) {
+			$apiURL = $this->getOption( 'apiURL' );
+		}
 		$configOpts = [
-			"apiEndpoint" => "https://en.wikipedia.org/w/api.php",
+			"apiEndpoint" => $apiURL,
 			"title" => $this->hasOption( 'pageName' ) ?
 				$this->getOption( 'pageName' ) : "Api",
 			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
-			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
+			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' )
 		];
 
 		$parsoidOpts = [
