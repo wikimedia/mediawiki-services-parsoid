@@ -17,7 +17,7 @@ class Util {
 	 * Meant for inclusion in other regular expressions.
 	 */
 	// Maintenance note: this is used in /x regexes so all whitespace and # should be escaped
-	const COMMENT_REGEXP_FRAGMENT = '<!--(?:[^-]|-(?!->))*-->';
+	const COMMENT_REGEXP_FRAGMENT = '<!--(?>[\s\S]*?-->)';
 	/** Regular fragment for matching a wikitext comment */
 	const COMMENT_REGEXP = '/' . self::COMMENT_REGEXP_FRAGMENT . '/';
 

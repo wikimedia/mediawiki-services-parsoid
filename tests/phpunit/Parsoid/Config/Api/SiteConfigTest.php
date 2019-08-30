@@ -238,7 +238,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$redir = preg_quote( '#REDIRECT', '@' ); // PHP 7.2 doesn't escape #, while 7.3 does.
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:' . $redir . '))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?:[^-]|-(?!->))*-->|[ \t\n\r\0\x0b])*$@i',
+			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:' . $redir . '))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@i',
 			$this->getSiteConfig()->solTransparentWikitextRegexp()
 		);
 	}
@@ -247,7 +247,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$redir = preg_quote( '#REDIRECT', '@' ); // PHP 7.2 doesn't escape #, while 7.3 does.
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@((?:(?:(?i:' . $redir . '))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?:[^-]|-(?!->))*-->)*)@i',
+			'@((?:(?:(?i:' . $redir . '))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?>[\s\S]*?-->))*)@i',
 			$this->getSiteConfig()->solTransparentWikitextNoWsRegexp()
 		);
 	}
