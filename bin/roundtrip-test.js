@@ -889,7 +889,7 @@ if (require.main === module) {
 		}
 		argv.parsoidURLOpts = { baseUrl: argv.parsoidURL };
 		if (argv.proxyURL) {
-			argv.proxy = { host: argv.proxyURL };
+			argv.parsoidURLOpts.proxy = { host: argv.proxyURL };
 		}
 		var formatter = ScriptUtils.booleanOption(argv.xml) ?
 			xmlFormat : plainFormat;
