@@ -45,7 +45,7 @@ class SiteConfig extends ISiteConfig {
 	private $traceLogger, $dumpLogger;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix, $bswRegexp, $bswPagePropRegexp,
+	private $baseUri, $relativeLinkPrefix, $bswRegexpPattern, $bswPagePropRegexp,
 		$solTransparentWikitextRegexp,
 		$solTransparentWikitextNoWsRegexp;
 
@@ -225,12 +225,13 @@ class SiteConfig extends ISiteConfig {
 			}
 
 			if ( $regex ) {
-				$this->bswRegexp = implode( '|', $regex );
+				$this->bswRegexpPattern = implode( '|', $regex );
 			} else {
 				// No magic words? Return a failing regex
-				$this->bswRegexp = '(?!)';
+				$this->bswRegexpPattern = '(?!)';
 			}
-			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $this->bswRegexp . ')(?=$|\\s)/uS';
+			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' .
+				$this->bswRegexpPattern . ')(?=$|\\s)/uS';
 		}
 		return $this->bswPagePropRegexp;
 	}
@@ -412,6 +413,11 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function solTransparentWikitextRegexp(): string {
+		// FIXME: Maybe we should move this regexp out of site config
+		// and into the wikitext serializer which is the sole consumer.
+		// Instead we should export the required regexp patterns
+		// (a) redirects (b) behaviour switches
+		// See T231568.
 		if ( $this->solTransparentWikitextRegexp === null ) {
 			// cscott sadly says: Note that this depends on the precise
 			// localization of the magic words of this particular wiki.
@@ -421,26 +427,41 @@ class SiteConfig extends ISiteConfig {
 			if ( $category !== 'Category' ) {
 				$category = "(?:$category|Category)";
 			}
-			$this->bswPagePropRegexp(); // populate $this->bswRegexp
+			$this->bswPagePropRegexp(); // populate $this->bswRegexpPattern
 
+			// Note about regexp modifiers:
+			// 1. The behaviour switch pattern requires an u
+			// 2. The redirects *may* require an iu
+			// 3. But the JS code applied an 'i' unconditionally on the full RE
+			// So, we are applying iu unconditionally below.
+			// However, there is a potential bug lurking here when the redirects
+			// are case-sensitive but we are using i on the entire pattern.
+			// As it turns out, since this regexp is only used to eliminate spurious
+			// nowikis, this is, at worst, going to cause unneeded <nowiki>s to be
+			// added at the start of line around an empty space to prevent indent-pres.
 			$this->solTransparentWikitextRegexp = '!' .
 				'^[ \t\n\r\0\x0b]*' .
 				'(?:' .
-				  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+				  '(?:' . $mwFactory->get( 'redirect' )->getBaseRegex() . ')' .
 				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
 				')?' .
 				'(?:' .
 				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-				  '__(?:' . $this->bswRegexp . ')__|' .
+				  '__(?:' . $this->bswRegexpPattern . ')__|' .
 				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) . '|' .
 				  '[ \t\n\r\0\x0b]' .
-				')*$!i';
+				')*$!iuS';
 		}
 
 		return $this->solTransparentWikitextRegexp;
 	}
 
 	public function solTransparentWikitextNoWsRegexp(): string {
+		// FIXME: Maybe we should move this regexp out of site config
+		// and into the wikitext serializer which is the sole consumer.
+		// Instead we should export the required regexp patterns
+		// (a) redirects (b) behaviour switches
+		// See T231568.
 		if ( $this->solTransparentWikitextNoWsRegexp === null ) {
 			// cscott sadly says: Note that this depends on the precise
 			// localization of the magic words of this particular wiki.
@@ -450,18 +471,28 @@ class SiteConfig extends ISiteConfig {
 			if ( $category !== 'Category' ) {
 				$category = "(?:$category|Category)";
 			}
-			$this->bswPagePropRegexp(); // populate $this->bswRegexp
+			$this->bswPagePropRegexp(); // populate $this->bswRegexpPattern
 
+			// Note about regexp modifiers:
+			// 1. The behaviour switch pattern requires an u
+			// 2. The redirects *may* require an iu
+			// 3. But the JS code applied an 'i' unconditionally on the full RE
+			// So, we are applying iu unconditionally below.
+			// However, there is a potential bug lurking here when the redirects
+			// are case-sensitive but we are using i on the entire pattern.
+			// As it turns out, since this regexp is only used to eliminate spurious
+			// nowikis, this is, at worst, going to cause unneeded <nowiki>s to be
+			// added at the start of line around an empty space to prevent indent-pres.
 			$this->solTransparentWikitextNoWsRegexp = '!' .
 				'((?:' .
-				  '(?:' . $mwFactory->get( 'redirect' )->getRegex() . ')' .
+				  '(?:' . $mwFactory->get( 'redirect' )->getBaseRegex() . ')' .
 				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
 				')?' .
 				'(?:' .
 				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-				  '__(?:' . $this->bswRegexp . ')__|' .
+				  '__(?:' . $this->bswRegexpPattern . ')__|' .
 				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) .
-				')*)!i';
+				')*)!iuS';
 		}
 
 		return $this->solTransparentWikitextNoWsRegexp;
