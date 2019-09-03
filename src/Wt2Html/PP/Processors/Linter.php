@@ -173,13 +173,14 @@ class Linter {
 		if ( !empty( $dmw->parts ) && count( $dmw->parts ) === 1 ) {
 			$p0 = $dmw->parts[0];
 			$name = null;
-			if ( !empty( $p0->template ) && !empty( $p0->template->target->href ) ) { // Could be "function"
+			if ( !empty( $p0['template']->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = preg_replace( '/^\.\//', '', $p0->template->target->href, 1 );
-			} elseif ( !empty( $p0->template ) ) {
-				$name = trim( $p0->template->target->wt );
+				$name = preg_replace( '/^\.\//', '', $p0['template']->target->href, 1 );
+			// @phan-suppress-next-line PhanTypeMismatchDimAssignment
+			} elseif ( !empty( $p0['template'] ) ) {
+				$name = trim( $p0['template']->target->wt );
 			} else {
-				$name = trim( $p0->templatearg->target->wt );
+				$name = trim( $p0['templatearg']->target->wt );
 			}
 			return [ 'name' => $name ];
 		} else {
