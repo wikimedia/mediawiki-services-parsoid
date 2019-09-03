@@ -1386,7 +1386,8 @@ class WikiLinkHandler extends TokenHandler {
 			if ( !$opts[ 'size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
 				if ( isset( $opts['upright'] ) ) {
-					if ( $opts['upright']['v'] > 0 ) {
+					// FIXME: If non-numeric, should this option be treated as a caption?
+					if ( is_numeric( $opts['upright']['v'] ) && $opts['upright']['v'] > 0 ) {
 						$defaultWidth *= $opts['upright']['v'];
 					} else {
 						$defaultWidth *= 0.75;
