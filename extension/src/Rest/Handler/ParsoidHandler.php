@@ -386,6 +386,10 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['bodyOnly'] = true;
 		}
 
+		if ( $wikitext !== null && $oldid ) {
+			$reqOpts['pageWithOldid'] = true;
+		}
+
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$this->statsdDataFactory->timing( "wt2html.$mstr.init", time() - $startTimers['wt2html.init'] );
 		$startTimers["wt2html.$mstr.parse"] = time();
@@ -455,9 +459,6 @@ abstract class ParsoidHandler extends Handler {
 			// GET for wikitext parsing
 			$response->setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
 		} elseif ( $oldid ) {
-			// PORT-FIXME: This line bolew looks like dead code?
-			// So, something is broken in the port.
-			$reqOpts['pageWithOldid'] = true;
 			// FIXME this should be handled in core (cf OutputPage::sendCacheControl)
 			if ( $request->getHeaderLine( 'Cookie' ) ||
 				$request->getHeaderLine( 'Authorization' ) ) {
