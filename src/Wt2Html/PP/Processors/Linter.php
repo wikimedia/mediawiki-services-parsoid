@@ -664,8 +664,8 @@ class Linter {
 		if ( WTUtils::isGeneratedFigure( $c ) && !empty( $dp->optList ) ) {
 			$items = [];
 			foreach ( $dp->optList as $item ) {
-				if ( $item->ck === 'bogus' ) {
-					$items[] = $item->ak;
+				if ( $item['ck'] === 'bogus' ) {
+					$items[] = $item['ak'];
 				}
 			}
 			if ( $items ) {
