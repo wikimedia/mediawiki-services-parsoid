@@ -168,6 +168,15 @@ class ParserPipeline {
 			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
 			$this->pipelineType );
 
+		// Disable the garbage collector in PHP 7.2 (T230861)
+		if ( gc_enabled() && version_compare( PHP_VERSION, '7.3.0', '<' ) ) {
+			$gcDisabled = true;
+			gc_collect_cycles();
+			gc_disable();
+		} else {
+			$gcDisabled = false;
+		}
+
 		// Reset pipeline state once per top-level doc.
 		// This clears state from any per-doc global state
 		// maintained across all pipelines used by the document.
@@ -186,9 +195,17 @@ class ParserPipeline {
 		$opts['sol'] = true;
 
 		if ( !empty( $opts['chunky'] ) ) {
-			return $this->parseChunkily( $input, $opts );
+			$result = $this->parseChunkily( $input, $opts );
 		} else {
-			return $this->parse( $input, $opts );
+			$result = $this->parse( $input, $opts );
 		}
+
+		if ( $gcDisabled ) {
+			gc_enable();
+			// There's no point running gc_collect_cycles() here, since objects
+			// are not marked for collection while the GC is disabled. The root
+			// buffer will be empty.
+		}
+		return $result;
 	}
 }
