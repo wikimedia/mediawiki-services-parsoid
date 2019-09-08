@@ -155,6 +155,21 @@ class Env {
 	 */
 	private $outputContentVersion;
 
+	/**
+	 * If non-null, the language variant used for Parsoid HTML;
+	 * we convert to this if wt2html, or from this if html2wt.
+	 * @var string
+	 */
+	private $htmlVariantLanguage;
+
+	/**
+	 * If non-null, the language variant to be used for wikitext.
+	 * If null, heuristics will be used to identify the original wikitext variant
+	 * in wt2html mode, and in html2wt mode new or edited HTML will be left unconverted.
+	 * @var string
+	 */
+	private $wtVariantLanguage;
+
 	/** @var ParserPipelineFactory */
 	private $pipelineFactory;
 
@@ -250,6 +265,8 @@ class Env {
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
 		$this->outputContentVersion = self::AVAILABLE_VERSIONS[0];
+		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
+		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
@@ -886,6 +903,28 @@ class Env {
 	}
 
 	/**
+	 * If non-null, the language variant used for Parsoid HTML; we convert
+	 * to this if wt2html, or from this (if html2wt).
+	 *
+	 * @return string|null
+	 */
+	public function getHtmlVariantLanguage(): ?string {
+		return $this->htmlVariantLanguage;
+	}
+
+	/**
+	 * If non-null, the language variant to be used for wikitext.  If null,
+	 * heuristics will be used to identify the original wikitext variant
+	 * in wt2html mode, and in html2wt mode new or edited HTML will be left
+	 * unconverted.
+	 *
+	 * @return string|null
+	 */
+	public function getWtVariantLanguage(): ?string {
+		return $this->wtVariantLanguage;
+	}
+
+	/**
 	 * Set a K=V property that might need to be output as part of the generated HTML
 	 * Ex: module styles, modules scripts
 	 *
@@ -922,11 +961,9 @@ class Env {
 	 * @return string
 	 */
 	public function htmlContentLanguage(): string {
-		// htmlVariant is set iff we do variant conversion on the HTML
-
-		// PORT-FIXME: Language variant code will have to set the target variant when it
-		// gets lang variant requests. We need to figure out where to set this value.
-		// Here or in page config.
-		return /* $this->getPageHtmlVariant() ?? */ $this->pageConfig->getPageLanguage();
+		// PageConfig::htmlVariant is set iff we do variant conversion on the
+		// HTML
+		return $this->pageConfig->getVariant() ??
+			$this->pageConfig->getPageLanguage();
 	}
 }

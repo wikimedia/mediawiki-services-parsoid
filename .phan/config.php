@@ -15,6 +15,8 @@ $cfg['exclude_file_regex'] = '@^vendor/(' . implode( '|', [
 	'phan/phan',
 	'phpunit/php-code-coverage',
 	'squizlabs/php_codesniffer',
+	'wikimedia/langconv/vendor/jakub-onderka',
+	'wikimedia/langconv/vendor/psr',
 ] ) . ')/@';
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:

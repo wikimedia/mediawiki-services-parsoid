@@ -221,7 +221,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function variants(): array {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return [];
 	}
 
 	public function widthOption(): int {

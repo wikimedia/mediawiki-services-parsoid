@@ -26,6 +26,13 @@ abstract class PageConfig {
 	public $editedDoc;
 
 	/**
+	 * Non-null to record the fact that conversion has been done on
+	 * this page (to the specified variant).
+	 * @var ?string
+	 */
+	private $htmlVariant = null;
+
+	/**
 	 * Get content model
 	 * @return string
 	 */
@@ -115,4 +122,20 @@ abstract class PageConfig {
 	 */
 	abstract public function getRevisionContent(): ?PageContent;
 
+	/**
+	 * Get the page's language variant
+	 * @return string|null
+	 */
+	public function getVariant(): ?string {
+		return $this->htmlVariant;
+	}
+
+	/**
+	 * Set the page's language variant.  (Records the fact that
+	 * conversion has been done in the parser pipeline.)
+	 * @param string $htmlVariant
+	 */
+	public function setVariant( $htmlVariant ): void {
+		$this->htmlVariant = $htmlVariant;
+	}
 }

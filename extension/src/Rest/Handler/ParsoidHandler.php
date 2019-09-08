@@ -987,6 +987,7 @@ abstract class ParsoidHandler extends Handler {
 	 * @return Response
 	 */
 	protected function languageConversion( Env $env, array $attribs, array $revision ) {
+		// PORT-FIXME
 		$msg = __FUNCTION__ . ' is not implemented yet.';
 		throw new LogicException( $msg );
 	}

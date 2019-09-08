@@ -866,8 +866,6 @@ class TestRunner {
 	private function runTestInMode( Test $test, string $mode, array $options ): void {
 		$test->time = [];
 
-		$env = $this->newEnv( $test, $test->wikitext ?? '' );
-
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
 		if ( $test->options ) {
@@ -882,6 +880,8 @@ class TestRunner {
 				$this->envOptions['htmlVariantLanguage'] = null;
 			}
 		}
+
+		$env = $this->newEnv( $test, $test->wikitext ?? '' );
 
 		// Some useful booleans
 		$startsAtHtml = $mode === 'html2html' || $mode === 'html2wt';
@@ -1257,7 +1257,8 @@ class TestRunner {
 			}
 			$contents = json_encode(
 				$testBlackList,
-				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES |
+				JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE
 			);
 			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
 				file_put_contents( $this->blackListPath, $contents );

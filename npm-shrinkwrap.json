@@ -3655,9 +3655,9 @@
       }
     },
     "wikimedia-langconv": {
-      "version": "0.0.0",
-      "from": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#master",
-      "resolved": "git+https://github.com/wikimedia/mediawiki-libs-LangConv.git#84872586506a36962bb75dde8fd2de75231cfe43"
+      "version": "0.1.0",
+      "from": "wikimedia-langconv@>=0.1.0 <0.2.0",
+      "resolved": "https://registry.npmjs.org/wikimedia-langconv/-/wikimedia-langconv-0.1.0.tgz"
     },
     "wikipeg": {
       "version": "2.0.3",
