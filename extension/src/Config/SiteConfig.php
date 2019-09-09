@@ -635,6 +635,14 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function getParameterizedAliasMatcher( array $words ): callable {
+		// PORT-FIXME: this should be combined with
+		// getMediaPrefixParameterizedAliasMatcher; see PORT-FIXME comment
+		// in that method.
+		// Filter out timedmedia-* unless that extension is loaded, so Parsoid
+		// doesn't have a hard dependency on an extension.
+		if ( !\ExtensionRegistry::getInstance()->isLoaded( 'TimedMediaHandler' ) ) {
+			$words = preg_grep( '/^timedmedia_/', $words, PREG_GREP_INVERT );
+		}
 		$words = MediaWikiServices::getInstance()->getMagicWordFactory()
 			->newArray( $words );
 		return function ( $text ) use ( $words ) {

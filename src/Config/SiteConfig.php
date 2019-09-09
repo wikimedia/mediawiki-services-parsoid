@@ -685,7 +685,29 @@ abstract class SiteConfig {
 	 * @param string[] $words Magic words to match
 	 * @return callable
 	 */
-	abstract public function getParameterizedAliasMatcher( array $words ): callable;
+	abstract protected function getParameterizedAliasMatcher( array $words ): callable;
+
+	/**
+	 * Get a matcher function for fetching values out of interpolated magic words
+	 * which are media prefix options.
+	 *
+	 * The matcher takes a string and returns null if it doesn't match any of
+	 * the words, or an associative array if it did match:
+	 *  - k: The magic word that matched
+	 *  - v: The value of $1 that was matched
+	 * (the JS also returned 'a' with the specific alias that matched, but that
+	 * seems to be unused and so is omitted here)
+	 *
+	 * @return callable
+	 */
+	final public function getMediaPrefixParameterizedAliasMatcher(): callable {
+		// PORT-FIXME: this shouldn't be a constant, we should fetch these
+		// from the SiteConfig.  Further, we probably need a hook here so
+		// Parsoid can handle media options defined in extensions... in
+		// particular timedmedia_* magic words from Extension:TimedMediaHandler
+		$magicWords = array_keys( WikitextConstants::$Media['PrefixOptions'] );
+		return $this->getParameterizedAliasMatcher( $magicWords );
+	}
 
 	/**
 	 * Get the maximum template depth
