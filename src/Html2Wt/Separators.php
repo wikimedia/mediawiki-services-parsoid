@@ -370,13 +370,7 @@ class Separators {
 		$state = $this->state;
 
 		// Non-element DOM nodes will have a null dom handler
-		if ( $nodeA->nextSibling === $nodeB ) {
-			// sibling separator
-			$sepType = 'sibling';
-			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
-			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
-			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
-		} elseif ( $nodeB->parentNode === $nodeA ) {
+		if ( $nodeB->parentNode === $nodeA ) {
 			// parent-child separator, nodeA parent of nodeB
 			'@phan-var \DOMElement $nodeA'; // @var \DOMElement $nodeA
 			$sepType = 'parent-child';
@@ -419,7 +413,8 @@ class Separators {
 		);
 
 		$state->sep->constraints['constraintInfo'] = [
-			'onSOL' => $state->onSOL, // force SOL state when separator is built/emitted
+			'onSOL' => $state->onSOL,
+			// force SOL state when separator is built/emitted
 			'forceSOL' => $sepHandlerB->isForceSOL(),
 			'sepType' => $sepType,
 			'nodeA' => $nodeA,
