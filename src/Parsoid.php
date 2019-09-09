@@ -91,6 +91,9 @@ class Parsoid {
 	 * @param PageBundle $pageBundle
 	 * @param array $options [
 	 *   'scrubWikitext' => (bool) Indicates emit "clean" wikitext.
+	 *   'inputContentVersion' => (string) The content version of the input.
+	 *     Necessary if it differs from the current default in order to
+	 *     account for any serialization differences.
 	 * ]
 	 * @param Selser|null $selser
 	 * @return string
@@ -106,6 +109,9 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
+		if ( isset( $options['inputContentVersion'] ) ) {
+			$env->setInputContentVersion( $options['inputContentVersion'] );
+		}
 		$doc = $env->createDocument( $pageBundle->html );
 		$handler = $env->getContentHandler();
 		return $handler->fromHTML( $env, $doc, $selser );

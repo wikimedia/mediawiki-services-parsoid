@@ -578,6 +578,9 @@ abstract class ParsoidHandler extends Handler {
 			$this->statsdDataFactory->increment( 'html2wt.original.version.notinline' );
 		}
 
+		// Pass along the determined original version
+		$envOptions['inputContentVersion'] = $env->getInputContentVersion();
+
 		$pb = new PageBundle( '', null, null );
 		// If available, the modified data-mw blob is applied, while preserving
 		// existing inline data-mw.  But, no data-parsoid application, since
@@ -670,6 +673,7 @@ abstract class ParsoidHandler extends Handler {
 		$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $pb, [
 			// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
 			'scrubWikitext' => $envOptions['scrubWikitext'],
+			'inputContentVersion' => $envOptions['inputContentVersion'],
 		], $selser );
 
 		$this->statsdDataFactory->timing( 'html2wt.total', time() - $startTimers['html2wt.total'] );
