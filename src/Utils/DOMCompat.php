@@ -147,6 +147,22 @@ class DOMCompat {
 	}
 
 	/**
+	 * Workaround bug in PHP's Document::getElementById() which doesn't
+	 * actually index the 'id' attribute unless you use the non-standard
+	 * `DOMElement::setIdAttribute` method after the attribute is set;
+	 * see https://www.php.net/manual/en/domdocument.getelementbyid.php
+	 * for more details.
+	 *
+	 * @param DOMElement $element
+	 * @param string $id The desired value for the `id` attribute on $element.
+	 * @see https://phabricator.wikimedia.org/T232390
+	 */
+	public static function setIdAttribute( DOMElement $element, string $id ): void {
+		$element->setAttribute( 'id', $id );
+		$element->setIdAttribute( 'id', true );// phab:T232390
+	}
+
+	/**
 	 * Return all descendants with the specified tag name.
 	 * Workaround for PHP's getElementsByTagName being inexplicably slow in some situations
 	 * and the lack of DOMElement::getElementsByTagName().

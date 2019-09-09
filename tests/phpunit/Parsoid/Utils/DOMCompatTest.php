@@ -8,6 +8,7 @@ use DOMElement;
 use DOMNode;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMCompat\TokenList;
+use Parsoid\Utils\DOMUtils;
 
 use Wikimedia\TestingAccessWrapper;
 
@@ -670,4 +671,20 @@ HTML;
 		];
 	}
 
+	/**
+	 * @covers ::setIdAttribute
+	 */
+	public function testSetIdAttribute() {
+		$doc = DOMUtils::parseHTML( "<p class=xyz>Hello, world</p>" );
+		$head = DOMCompat::getHead( $doc );
+		$elmt = $doc->createElement( 'div' );
+		$head->appendChild( $elmt );
+		DOMCompat::setIdAttribute( $elmt, "this-is-an-id" );
+
+		// Note we're testing the "fast path" native implementation here,
+		// not the workaround version in DOMCompat::getElementById()
+		$q = $doc->getElementById( 'this-is-an-id' );
+		$this->assertNotEquals( $q, null );
+		$this->assertEquals( $q->getAttribute( 'id' ), 'this-is-an-id' );
+	}
 }

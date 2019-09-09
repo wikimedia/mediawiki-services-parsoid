@@ -271,7 +271,11 @@ class DOMDataUtils {
 	public static function addAttributes( DOMElement $elt, array $attrs ): void {
 		foreach ( $attrs as $key => $value ) {
 			if ( $value !== null ) {
-				$elt->setAttribute( $key, $value );
+				if ( $key === 'id' ) {
+					DOMCompat::setIdAttribute( $elt, $value );
+				} else {
+					$elt->setAttribute( $key, $value );
+				}
 			}
 		}
 	}
@@ -289,7 +293,11 @@ class DOMDataUtils {
 	public static function addNormalizedAttribute(
 		DOMElement $node, string $name, $val, $origVal, bool $skipOrig = false
 	): void {
-		$node->setAttribute( $name, $val );
+		if ( $name === 'id' ) {
+			DOMCompat::setIdAttribute( $node, $val );
+		} else {
+			$node->setAttribute( $name, $val );
+		}
 		self::setShadowInfoIfModified( $node, $name, $val, $origVal, $skipOrig );
 	}
 
