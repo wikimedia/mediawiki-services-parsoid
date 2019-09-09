@@ -376,8 +376,13 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @param Env $env environment
 	 * @param stdClass $data data
+	 * @param bool $anyIds Whether any nodes had id attributes starting with
+	 *   'mw' before visitAndStoreDataAttribs(); we can skip id conflict checks
+	 *   if this is false.
 	 */
-	public static function storeInPageBundle( DOMElement $node, Env $env, stdClass $data ): void {
+	public static function storeInPageBundle(
+		DOMElement $node, Env $env, stdClass $data, bool $anyIds = true
+	): void {
 		$uid = $node->getAttribute( 'id' ) ?? '';
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
@@ -392,7 +397,7 @@ class DOMDataUtils {
 			do {
 				$docDp->counter += 1;
 				$uid = 'mw' . PHPUtils::counterToBase64( $docDp->counter );
-			} while ( DOMCompat::getElementById( $document, $uid ) );
+			} while ( $anyIds && DOMCompat::getElementById( $document, $uid ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
 		$docDp->ids[$uid] = $data->parsoid;
@@ -545,6 +550,14 @@ class DOMDataUtils {
 	 * @param array $options options
 	 */
 	public static function visitAndStoreDataAttribs( DOMNode $node, array $options = [] ): void {
+		// XXX PHP's `getElementById` implementation is broken, and so we work
+		// around it in DOMCompat using Zest, which can end up executing in
+		// O(N^2) time instead of O(N).  That causes the loop below to blow up.
+		// But generally none of these IDs will conflict... so here's a hacky
+		// workaround which does a single O(N) pass to determine if we need to
+		// do *any* conflict checks for IDs.
+		$options['anyIds'] =
+			( DOMCompat::querySelector( $node->ownerDocument, '[id|="mw"]' ) !== null );
 		DOMUtils::visitDOM( $node, [ self::class, 'storeDataAttribs' ], $options );
 	}
 
@@ -620,7 +633,7 @@ class DOMDataUtils {
 		}
 		// Store pagebundle
 		if ( $data !== null ) {
-			self::storeInPageBundle( $node, $options['env'], $data );
+			self::storeInPageBundle( $node, $options['env'], $data, $options['anyIds'] ?? true );
 		}
 
 		// Indicate that this node's data has been stored so that if we try
