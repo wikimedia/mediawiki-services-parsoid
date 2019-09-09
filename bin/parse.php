@@ -101,7 +101,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param string|null $wt
-	 * @return PageBundle|array
+	 * @return PageBundle
 	 */
 	public function wt2Html(
 		array $configOpts, array $parsoidOpts, ?string $wt

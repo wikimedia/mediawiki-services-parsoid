@@ -390,21 +390,17 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['pageWithOldid'] = true;
 		}
 
-		if ( $format === FormatHelper::FORMAT_LINT ) {
-			$reqOpts['lint'] = true;
-		}
-
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$this->statsdDataFactory->timing( "wt2html.$mstr.init", time() - $startTimers['wt2html.init'] );
 		$startTimers["wt2html.$mstr.parse"] = time();
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		// PORT-FIXME where does $wikitext go?
-		$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), $reqOpts );
 		if ( $format === FormatHelper::FORMAT_LINT ) {
-			// If linting, $pageBundle is actually an array of linting results
-			$response = $this->getResponseFactory()->createJson( $pageBundle );
+			$lints = $parsoid->wikitext2lint( $env->getPageConfig(), $reqOpts );
+			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
+			$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), $reqOpts );
 			if ( $needsPageBundle ) {
 				$responseData = [
 					'contentmodel' => '',

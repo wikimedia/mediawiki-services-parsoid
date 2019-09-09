@@ -30,23 +30,15 @@ class Parsoid {
 	}
 
 	/**
-	 * Parse the wikitext supplied in a `PageConfig` to HTML.
+	 * Parsing code shared between the next two methods.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param array $options [
-	 *   'wrapSections'      => (bool) Whether `<section>` wrappers should be added.
-	 *   'pageBundle'        => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
-	 *   'body_only'         => (bool|null) Only return the <body> children (T181657)
-	 *   'outputVersion'     => (string|null) Version of HTML to output.
-	 *                                        `null` returns the default version.
-	 *   'inlineDataAttribs' => (bool) Setting to `true` avoids extracting data attributes.
-	 *   'lint'              => (bool) Setting to `true` returns linting results rather than html
-	 * ]
-	 * @return PageBundle|array
+	 * @param array $options See wikitext2html.
+	 * @return array
 	 */
-	public function wikitext2html(
+	private function parseWikitext(
 		PageConfig $pageConfig, array $options = []
-	) {
+	): array {
 		$envOptions = [];
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
@@ -58,12 +50,27 @@ class Parsoid {
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$handler = $env->getContentHandler();
-		$doc = $handler->toHTML( $env );
+		return [ $env, $handler->toHTML( $env ) ];
+	}
 
-		if ( !empty( $options['lint'] ) ) {
-			return $env->getLints();
-		}
-
+	/**
+	 * Parse the wikitext supplied in a `PageConfig` to HTML.
+	 *
+	 * @param PageConfig $pageConfig
+	 * @param array $options [
+	 *   'wrapSections'      => (bool) Whether `<section>` wrappers should be added.
+	 *   'pageBundle'        => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
+	 *   'body_only'         => (bool|null) Only return the <body> children (T181657)
+	 *   'outputVersion'     => (string|null) Version of HTML to output.
+	 *                                        `null` returns the default version.
+	 *   'inlineDataAttribs' => (bool) Setting to `true` avoids extracting data attributes.
+	 * ]
+	 * @return PageBundle
+	 */
+	public function wikitext2html(
+		PageConfig $pageConfig, array $options = []
+	) {
+		[ $env, $doc ] = $this->parseWikitext( $pageConfig, $options );
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 		if ( $env->pageBundle ) {
@@ -82,6 +89,20 @@ class Parsoid {
 			] );
 			return new PageBundle( $html );
 		}
+	}
+
+	/**
+	 * Lint the wikitext supplied in a `PageConfig`.
+	 *
+	 * @param PageConfig $pageConfig
+	 * @param array $options See wikitext2html.
+	 * @return array
+	 */
+	public function wikitext2lint(
+		PageConfig $pageConfig, array $options = []
+	) {
+		[ $env, ] = $this->parseWikitext( $pageConfig, $options );
+		return $env->getLints();
 	}
 
 	/**
