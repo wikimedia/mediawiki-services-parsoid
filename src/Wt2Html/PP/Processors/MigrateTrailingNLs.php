@@ -43,13 +43,13 @@ class MigrateTrailingNLs {
 	 * @return DOMNode|null
 	 */
 	private function getTableParent( DOMNode $node ): ?DOMNode {
-		if ( preg_match( '/^(td|th)$/', $node->nodeName ) ) {
+		if ( preg_match( '/^(td|th)$/D', $node->nodeName ) ) {
 			$node = $node->parentNode;
 		}
 		if ( $node->nodeName === 'tr' ) {
 			$node = $node->parentNode;
 		}
-		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/', $node->nodeName ) ) {
+		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/D', $node->nodeName ) ) {
 			$node = $node->parentNode;
 		}
 		return ( $node->nodeName === 'table' ) ? $node : null;
@@ -163,18 +163,18 @@ class MigrateTrailingNLs {
 					// <!--comment-->
 					$tsrCorrection += WTUtils::decodedCommentLength( $n );
 				} else {
-					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/', $n->nodeValue ) ) {
+					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/D', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = false;
 						// all whitespace is moved
 						$tsrCorrection += strlen( $n->nodeValue );
-					} elseif ( preg_match( '/\n$/', $n->nodeValue ) ) {
+					} elseif ( preg_match( '/\n$/D', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = true;
 						// only newlines moved
-						preg_match( '/\n+$/', $n->nodeValue, $matches );
+						preg_match( '/\n+$/D', $n->nodeValue, $matches );
 						$tsrCorrection += strlen( $matches[ 0 ] ?? '' );
 						break;
 					} else {
@@ -212,7 +212,7 @@ class MigrateTrailingNLs {
 					$next = $n->nextSibling;
 					if ( $partialContent ) {
 						$nls = $n->nodeValue;
-						$n->nodeValue = preg_replace( '/\n+$/', '', $n->nodeValue, 1 );
+						$n->nodeValue = preg_replace( '/\n+$/D', '', $n->nodeValue, 1 );
 						$nls = substr( $nls, strlen( $n->nodeValue ) );
 						$n = $n->ownerDocument->createTextNode( $nls );
 						$partialContent = false;

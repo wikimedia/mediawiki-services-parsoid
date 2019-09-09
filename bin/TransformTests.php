@@ -120,7 +120,7 @@ class TransformTests {
 				case '':		// empty line
 					break;
 				case ':':
-					$testEnabled = preg_replace( '/^:\s*|\s*$/', '', $line ) === $transformerName;
+					$testEnabled = preg_replace( '/^:\s*|\s*$/D', '', $line ) === $transformerName;
 					break;
 				case '!':	// start of test with name
 					$testName = substr( $line, 2 );
@@ -256,7 +256,7 @@ class TransformTests {
 			$pLen = count( $p );
 			$input = [];
 			for ( $j = 0; $j < $pLen; $j++ ) {
-				preg_match( '/^.*(IN|OUT)\s*\|\s*(.*)$/', $testLines[$p[$j]], $matches );
+				preg_match( '/^.*(IN|OUT)\s*\|\s*(.*)$/D', $testLines[$p[$j]], $matches );
 				$isInput = $matches[1] === 'IN';
 				$line = $matches[2];
 				if ( $isInput ) {
@@ -438,7 +438,7 @@ function wfRunTests( $argc, $argv ) {
 
 	// look for the wikitext source file in the same path with a .wt file extension
 	// and load that so transformers that reference the wikitext source have the actual text.
-	$fileName = preg_replace( "/\.[^.]+$/", "", $opts['inputFile'] ) . '.wt';
+	$fileName = preg_replace( "/\.[^.]+$/D", "", $opts['inputFile'] ) . '.wt';
 	if ( file_exists( $fileName ) ) {
 		$testFileWt = file_get_contents( $fileName );
 		$mockEnv = new MockEnv( array_merge( $opts, [ 'pageContent' => $testFileWt ] ) );

@@ -228,7 +228,7 @@ class AddMediaInfo {
 		} elseif ( !empty( $info['url'] ) ) {
 			$path = $info['url'];
 		}
-		return preg_replace( '/^https?:\/\//', '//', $path, 1 );
+		return preg_replace( '#^https?://#', '//', $path, 1 );
 	}
 
 	/**
@@ -361,7 +361,7 @@ class AddMediaInfo {
 		if ( !empty( $info['responsiveUrls'] ) ) {
 			$candidates = [];
 			foreach ( $info['responsiveUrls'] as $density => $url ) {
-				$candidates[] = preg_replace( '/^https?:\/\//', '//', $url, 1 ) . ' ' . $density . 'x';
+				$candidates[] = preg_replace( '#^https?://#', '//', $url, 1 ) . ' ' . $density . 'x';
 			}
 			if ( $candidates ) {
 				$img->setAttribute( 'srcset', implode( ', ', $candidates ) );
@@ -686,7 +686,7 @@ class AddMediaInfo {
 			$anchor->appendChild( $elt );
 
 			$typeOf = $container->getAttribute( 'typeof' );
-			$typeOf = preg_replace( '/\bmw:(Image)(\/\w*)?\b/', "$rdfaType$2", $typeOf, 1 );
+			$typeOf = preg_replace( '#\bmw:(Image)(/\w*)?\b#', "$rdfaType$2", $typeOf, 1 );
 			$container->setAttribute( 'typeof', $typeOf );
 
 			if ( isset( $dataMw->attribs ) && count( $dataMw->attribs ) === 0 ) {

@@ -152,7 +152,7 @@ class WrapSections {
 				];
 			}
 
-			if ( preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+			if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 				DOMUtils::assertElt( $node ); // headings are elements
 				$level = (int)$node->nodeName[1];
 

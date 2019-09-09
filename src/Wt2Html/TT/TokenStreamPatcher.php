@@ -197,7 +197,7 @@ class TokenStreamPatcher extends TokenHandler {
 				// While we are buffering newlines to suppress them
 				// in case we see a category, buffer all intervening
 				// white-space as well.
-				if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/', $token ) ) {
+				if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/D', $token ) ) {
 					$this->tokenBuf[] = $token;
 					return [ 'tokens' => [] ];
 				}
@@ -222,7 +222,7 @@ class TokenStreamPatcher extends TokenHandler {
 							$this->wikiTableNesting++;
 							$this->lastConvertedTableCellToken = null;
 						}
-					} elseif ( preg_match( '/^\s*$/', $token ) ) {
+					} elseif ( preg_match( '/^\s*$/D', $token ) ) {
 						// White-space doesn't change SOL state
 						// Update srcOffset
 						$this->srcOffset += strlen( $token );

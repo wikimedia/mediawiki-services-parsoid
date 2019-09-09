@@ -315,7 +315,7 @@ class Gallery extends ExtensionTag implements Extension {
 					// FIXME: Should we preserve the original namespace?  See T151367
 					if ( $elt->hasAttribute( 'resource' ) ) {
 						$resource = $elt->getAttribute( 'resource' );
-						$content .= preg_replace( '/^\.\//', '', $resource, 1 );
+						$content .= preg_replace( '#^\./#', '', $resource, 1 );
 						// FIXME: Serializing of these attributes should
 						// match the link handler so that values stashed in
 						// data-mw aren't ignored.
@@ -331,7 +331,7 @@ class Gallery extends ExtensionTag implements Extension {
 						if ( $a && $a->hasAttribute( 'href' ) ) {
 							$href = $a->getAttribute( 'href' );
 							if ( $href !== $resource ) {
-								$href = preg_replace( '/^\.\//', '', $href, 1 );
+								$href = preg_replace( '#^\./#', '', $href, 1 );
 								$content .= '|link=' .
 										$state->serializer->wteHandlers->escapeLinkContent(
 											$state, $href, false, $child, true

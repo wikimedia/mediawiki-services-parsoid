@@ -272,13 +272,13 @@ class SiteConfig extends ISiteConfig {
 			}
 
 			if ( $pmws ) {
-				$this->paramMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $pmws ) . ')$/uS';
+				$this->paramMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $pmws ) . ')$/uDS';
 			}
-			$this->allMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $allMWs ) . ')$/';
+			$this->allMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $allMWs ) . ')$/D';
 		}
 
 		$bswRegexp = $this->combineRegexArrays( $bsws );
-		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $bswRegexp . ')(?=$|\\s)/uS';
+		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $bswRegexp . ')(?=$|\\s)/uDS';
 
 		// Parse interwiki map data from the API
 		$this->interwikiMap = ConfigUtils::computeInterwikiMap( $data['interwikimap'] );
@@ -301,7 +301,7 @@ class SiteConfig extends ISiteConfig {
 		// Parse extension tag data from the API
 		$this->extensionTags = [];
 		foreach ( $data['extensiontags'] as $tag ) {
-			$tag = preg_replace( '/^<|>$/', '', $tag );
+			$tag = preg_replace( '/^<|>$/D', '', $tag );
 			$this->ensureExtensionTag( $tag );
 		}
 
@@ -345,7 +345,7 @@ class SiteConfig extends ISiteConfig {
 			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
 			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
 		];
-		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
+		$regex = '!^(?:' . implode( '|', $pats ) . ')$!D';
 		$this->extResourceURLPatternMatcher = function ( $text ) use ( $pats, $regex ) {
 			if ( preg_match( $regex, $text, $m ) ) {
 				foreach ( $pats as $k => $re ) {

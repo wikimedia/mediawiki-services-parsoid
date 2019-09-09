@@ -227,7 +227,7 @@ class ParagraphWrapper extends TokenHandler {
 				$t = $out[$i];
 				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' );
-					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
+					if ( preg_match( '/^mw:Transclusion$/D', $typeOf ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
 						$tplStartIndex = $i;
 						continue;
@@ -266,7 +266,7 @@ class ParagraphWrapper extends TokenHandler {
 				$t = $out[$i];
 				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
 					$typeOf = $t->getAttribute( 'typeof' ) ?? '';
-					if ( preg_match( '/^mw:Transclusion$/', $typeOf ) ) {
+					if ( preg_match( '/^mw:Transclusion$/D', $typeOf ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
 						// Don't include the sol-transparent tags OR the start tag.
 						$tplEndIndex = -1;

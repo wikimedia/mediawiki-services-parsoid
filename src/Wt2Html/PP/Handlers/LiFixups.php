@@ -53,7 +53,7 @@ class LiFixups {
 			$typeOf = $node->getAttribute( 'typeof' );
 			$liHackSrc = WTUtils::getWTSource( $env->topFrame, $prevNode );
 
-			if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+			if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
 				$dataMW = DOMDataUtils::getDataMw( $node );
 				if ( isset( $dataMW->parts ) ) {
 					array_unshift( $dataMW->parts, $liHackSrc );
@@ -98,7 +98,7 @@ class LiFixups {
 			$prev = $tplRoot->previousSibling;
 			while ( $c !== $prev ) {
 				if ( !WTUtils::isCategoryLink( $c ) &&
-					!( $c->nodeName === 'span' && preg_match( '/^\s*$/', $c->textContent ) )
+					!( $c->nodeName === 'span' && preg_match( '/^\s*$/D', $c->textContent ) )
 				) {
 					return [ 'tplRoot' => $tplRoot, 'migratable' => false ];
 				}
@@ -133,12 +133,12 @@ class LiFixups {
 				// Update sentinel if we hit a newline.
 				// We want to migrate these newlines and
 				// everything following them out of 'li'.
-				if ( preg_match( '/\n\s*$/', $c->nodeValue ) ) {
+				if ( preg_match( '/\n\s*$/D', $c->nodeValue ) ) {
 					$sentinel = $c;
 				}
 
 				// If we didn't hit pure whitespace, we are done!
-				if ( !preg_match( '/^\s*$/', $c->nodeValue ) ) {
+				if ( !preg_match( '/^\s*$/D', $c->nodeValue ) ) {
 					break;
 				}
 			} elseif ( $c instanceof DOMComment ) {
@@ -216,13 +216,13 @@ class LiFixups {
 					$newEndDsr = $dsr->start ?? -1;
 					$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 				} elseif ( $c instanceof DOMText ) {
-					if ( preg_match( '/^\s*$/', $c->nodeValue ) ) {
+					if ( preg_match( '/^\s*$/D', $c->nodeValue ) ) {
 						$newEndDsr -= strlen( $c->nodeValue );
 						$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 					} else {
 						// Split off the newlines into its own node and migrate it
 						$nls = $c->nodeValue;
-						$c->nodeValue = preg_replace( '/\s+$/', '', $c->nodeValue, 1 );
+						$c->nodeValue = preg_replace( '/\s+$/D', '', $c->nodeValue, 1 );
 						$nls = substr( $nls, strlen( $c->nodeValue ) );
 						$nlNode = $c->ownerDocument->createTextNode( $nls );
 						$outerList->parentNode->insertBefore( $nlNode, $outerList->nextSibling );

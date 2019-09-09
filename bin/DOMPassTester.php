@@ -124,8 +124,8 @@ class DOMPassTester {
 			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '/\n$/', '', $testFilePre ) ===
-				preg_replace( '/\n$/', '', $dumpOpts['outBuffer'] ) ) {
+			if ( preg_replace( '/\n$/D', '', $testFilePre ) ===
+				preg_replace( '/\n$/D', '', $dumpOpts['outBuffer'] ) ) {
 				print "DOM pre output matches genTest Pre output\n";
 			} else {
 				print "DOM pre output DOES NOT match genTest Pre output\n";
@@ -175,8 +175,8 @@ class DOMPassTester {
 			ContentUtils::dumpDOM( $body, '', $dumpOpts );
 
 			// Ignore trailing newline diffs
-			if ( preg_replace( '/\n$/', '', $testFilePost ) ===
-				preg_replace( '/\n$/', '', $dumpOpts['outBuffer'] ) ) {
+			if ( preg_replace( '/\n$/D', '', $testFilePost ) ===
+				preg_replace( '/\n$/D', '', $dumpOpts['outBuffer'] ) ) {
 				print "DOM post transform output matches genTest Post output\n";
 			} else {
 				print "DOM post transform output DOES NOT match genTest Post output\n";

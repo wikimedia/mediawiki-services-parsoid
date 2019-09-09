@@ -584,13 +584,13 @@ class PipelineUtils {
 				if ( ( preg_match( '#(?:^|\s)(?:mw:(?:Transclusion(?=$|\s)|Extension/))#', $typeOf ) &&
 						$node->hasAttribute( 'about' )
 					) ||
-					preg_match( '#(?:^|\s)(?:mw:(?:Image|Video|Audio)(?:(?=$|\s)|/))#', $typeOf )
+					preg_match( '#(?:^|\s)(?:mw:(?:Image|Video|Audio)(?:(?=$|\s)|/))#D', $typeOf )
 				) {
 					$dp = DOMDataUtils::getDataParsoid( $node );
 					$about = $node->hasAttribute( 'about' ) ? $node->getAttribute( 'about' ) : null;
 					$nodes = WTUtils::getAboutSiblings( $node, $about );
 					$key = null;
-					if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+					if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
 						$expAccum = $expansions['transclusions'];
 						$key = $dp->src;
 					} elseif ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf ) ) {

@@ -23,7 +23,7 @@ class ParserHook extends ExtensionTag implements Extension {
 	public function staticTagPostProcessor( DOMNode $node, \stdClass $obj ): void {
 		if ( $node instanceof DOMElement ) {
 			$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-			if ( preg_match( '#(?:^|\s)mw:Extension/statictag(?=$|\s)#', $typeOf ) ) {
+			if ( preg_match( '#(?:^|\s)mw:Extension/statictag(?=$|\s)#D', $typeOf ) ) {
 				$dataMw = DOMDataUtils::getDataMw( $node );
 				if ( ( $dataMw->attrs->action ?? null ) === 'flush' ) {
 					$node->appendChild( $node->ownerDocument->createTextNode( $obj->buf ) );

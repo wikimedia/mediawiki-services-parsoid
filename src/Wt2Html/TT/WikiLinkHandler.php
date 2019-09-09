@@ -57,7 +57,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @return array|null
 	 */
 	private static function hrefParts( string $str ): ?array {
-		if ( preg_match( '/^([^:]+):(.*)$/', $str, $matches ) ) {
+		if ( preg_match( '/^([^:]+):(.*)$/D', $str, $matches ) ) {
 			return [ 'prefix' => $matches[1], 'title' => $matches[2] ];
 		} else {
 			return null;
@@ -211,7 +211,7 @@ class WikiLinkHandler extends TokenHandler {
 		$r = $this->onWikiLink( $wikiLinkTk );
 		$firstToken = ( $r['tokens'][0] ?? null );
 		$isValid = $firstToken instanceof Token &&
-			preg_match( '/^(a|link)$/', $firstToken->getName() );
+			preg_match( '/^(a|link)$/D', $firstToken->getName() );
 		if ( $isValid ) {
 			$da = $r['tokens'][0]->dataAttribs;
 			$rlink->addNormalizedAttribute( 'href', $da->a['href'], $da->sa['href'] );
@@ -957,7 +957,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $optInfo === null ) {
 			$optInfo = self::getOptionInfo( $prefix . $resultStr, $env );
 		}
-		return $optInfo !== null && preg_match( '/^(link|alt)$/', $optInfo['ck'] );
+		return $optInfo !== null && preg_match( '/^(link|alt)$/D', $optInfo['ck'] );
 	}
 
 	/**

@@ -350,7 +350,7 @@ class WrapTemplates {
 		} else {
 			// Remove mw:* from the typeof.
 			$type = $meta->getAttribute( 'typeof' );
-			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/', '', $type );
+			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/D', '', $type );
 			$meta->setAttribute( 'typeof', $type );
 		}
 	}
@@ -1130,7 +1130,7 @@ class WrapTemplates {
 				// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
 				if ( $metaMatch &&
 					( !empty( DOMDataUtils::getDataParsoid( $elem )->tsr ) ||
-						preg_match( '/\/End(?=$|\s)/', $type )
+						preg_match( '#/End(?=$|\s)#D', $type )
 					)
 				) {
 					$metaType = $metaMatch[1];
@@ -1138,7 +1138,7 @@ class WrapTemplates {
 					$about = $elem->getAttribute( 'about' );
 					$aboutRef = $tpls[$about] ?? null;
 					// Is this a start marker?
-					if ( !preg_match( '/\/End(?=$|\s)/', $metaType ) ) {
+					if ( !preg_match( '#/End(?=$|\s)#D', $metaType ) ) {
 						if ( $aboutRef ) {
 							$aboutRef->start = $elem;
 							// content or end marker existed already
@@ -1194,7 +1194,7 @@ class WrapTemplates {
 
 							// Dont get distracted by a newline node -- skip over it
 							// Unsure why it shows up occasionally
-							if ( $tbl && $tbl instanceof DOMText && preg_match( '/^\n$/', $tbl->data ) ) {
+							if ( $tbl && $tbl instanceof DOMText && preg_match( '/^\n$/D', $tbl->data ) ) {
 								$tbl = $tbl->nextSibling;
 							}
 

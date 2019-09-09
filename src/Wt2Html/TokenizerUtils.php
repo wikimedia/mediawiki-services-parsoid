@@ -194,7 +194,7 @@ class TokenizerUtils {
 					|| $stops['h']
 					&& ( $pos === strlen( $input ) - 1
 					// possibly more equals followed by spaces or comments
-					|| preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->).)*-->)*(?:[\r\n]|$)/s',
+					|| preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->).)*-->)*(?:[\r\n]|$)/sD',
 						substr( $input, $pos + 1 )
 					) );
 
@@ -297,7 +297,7 @@ class TokenizerUtils {
 		$buf = [];
 		for ( $i = count( $attrs ) - 1;  $i > -1;  $i-- ) {
 			$kv = $attrs[ $i ];
-			if ( is_string( $kv->k ) && !$kv->v && preg_match( '/^\s*$/', $kv->k ) ) {
+			if ( is_string( $kv->k ) && !$kv->v && preg_match( '/^\s*$/D', $kv->k ) ) {
 				// permit whitespace
 				array_unshift( $buf, $kv->k );
 			} elseif ( is_array( $kv->k ) && !$kv->v ) {

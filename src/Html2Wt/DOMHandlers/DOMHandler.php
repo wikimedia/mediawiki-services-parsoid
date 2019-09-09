@@ -368,7 +368,7 @@ class DOMHandler {
 		$lc = DOMUtils::lastNonDeletedChild( $node );
 		if ( WTUtils::isNewElt( $node ) ) {
 			// PORT-FIXME are different \s semantics going to be a problem?
-			if ( $lc && ( !DOMUtils::isText( $lc ) || !preg_match( '/\s$/', $lc->nodeValue ) ) ) {
+			if ( $lc && ( !DOMUtils::isText( $lc ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
 		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
@@ -414,12 +414,12 @@ class DOMHandler {
 	 */
 	protected function emitPlaceholderSrc( DOMElement $node, SerializerState $state ) {
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		if ( preg_match( '/<nowiki\s*\/>/', $dp->src ?? '' ) ) {
+		if ( preg_match( '!<nowiki\s*/>!', $dp->src ?? '' ) ) {
 			$state->hasSelfClosingNowikis = true;
 		}
 		// FIXME: Should this also check for tabs and plain space
 		// chars interspersed with newlines?
-		if ( preg_match( '/^\n+$/', $dp->src ?? '' ) ) {
+		if ( preg_match( '/^\n+$/D', $dp->src ?? '' ) ) {
 			$state->appendSep( $dp->src );
 		} else {
 			$state->serializer->emitWikitext( $dp->src, $node );

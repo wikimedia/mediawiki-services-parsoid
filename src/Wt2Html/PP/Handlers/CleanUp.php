@@ -184,7 +184,7 @@ class CleanUp {
 		// handle the HTML markup.
 		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr ?? null );
 		$isPageProp = $node->nodeName === 'meta' &&
-			preg_match( '/^mw\:PageProp\/(.*)$/', $node->getAttribute( 'property' ) );
+			preg_match( '#^mw:PageProp/(.*)$#D', $node->getAttribute( 'property' ) );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
 		} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || empty( $dp->tsr ) ) ) {
@@ -224,7 +224,7 @@ class CleanUp {
 			// and associated ids (we cannot add an about id on the nowiki-ed
 			// content since that would be a text node).
 			if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node ) &&
-				preg_match( '/^mw:Nowiki$/', $node->getAttribute( 'typeof' ) )
+				preg_match( '/^mw:Nowiki$/D', $node->getAttribute( 'typeof' ) )
 			) {
 				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
 				// Replace the span with an empty text node.

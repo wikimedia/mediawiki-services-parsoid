@@ -31,7 +31,7 @@ class PWrap {
 	 * @return bool
 	 */
 	private function emitsSolTransparentWT( DOMNode $n ): bool {
-		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/', $n->nodeValue ) ||
+		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/D', $n->nodeValue ) ||
 			DOMUtils::isComment( $n ) ||
 			isset( WikitextConstants::$HTML['MetaTags'][$n->nodeName] );
 	}

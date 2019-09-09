@@ -193,7 +193,7 @@ class TemplateHandler extends TokenHandler {
 					// the newline can be ignored. But, if we have
 					// non-ws content in $buf, everything that follows
 					// can only be ws.
-					if ( preg_match( '/^\s*$/', $buf ) ) {
+					if ( preg_match( '/^\s*$/D', $buf ) ) {
 						break;
 					} elseif ( !$preNlContent ) {
 						// Buffer accumulated content
@@ -209,7 +209,7 @@ class TemplateHandler extends TokenHandler {
 			}
 		}
 
-		if ( $preNlContent && !preg_match( '/^\s*$/', $buf ) ) {
+		if ( $preNlContent && !preg_match( '/^\s*$/D', $buf ) ) {
 			// intervening newline makes this an invalid target
 			return null;
 		} else {
@@ -297,7 +297,7 @@ class TemplateHandler extends TokenHandler {
 				if ( $isPF ) {
 					// Strip ":", again, after accounting for the lenient stringifying
 					while ( count( $targetToks ) > 0 &&
-						( !is_string( $firstTok ) || preg_match( '/^\s*$/', $firstTok ) )
+						( !is_string( $firstTok ) || preg_match( '/^\s*$/D', $firstTok ) )
 					) {
 						$firstTok = $targetToks[0];
 						$targetToks = array_slice( $targetToks, 1 );
@@ -782,7 +782,7 @@ class TemplateHandler extends TokenHandler {
 						( is_string( $paramTokens ) || self::isSimpleParam( $paramTokens ) )
 					) {
 						$param->html = $param->wt;
-					} elseif ( preg_match( '#^https?://[^[\]{}\s]*$#', $param->wt ) ) {
+					} elseif ( preg_match( '#^https?://[^[\]{}\s]*$#D', $param->wt ) ) {
 						// If the param is just a simple URL, we can process it to
 						// HTML directly without going through a sub-pipeline.
 						$param->html = "<a rel='mw:ExtLink' href='" .
@@ -931,7 +931,7 @@ class TemplateHandler extends TokenHandler {
 					'srcOffsets' => $srcOffsets
 				];
 
-				preg_match( '/^(\s*).*?(\s*)$/s', $kSrc, $keySpaceMatch );
+				preg_match( '/^(\s*).*?(\s*)$/sD', $kSrc, $keySpaceMatch );
 				$valueSpaceMatch = null;
 
 				if ( $isPositional ) {
@@ -941,7 +941,7 @@ class TemplateHandler extends TokenHandler {
 				} else {
 					$paramInfo['named'] = true;
 					if ( $v !== '' ) {
-						preg_match( '/^(\s*)[\s\S]*?(\s*)$/', $vSrc, $valueSpaceMatch );
+						preg_match( '/^(\s*)[\s\S]*?(\s*)$/D', $vSrc, $valueSpaceMatch );
 					} else {
 						$valueSpaceMatch = [ null, '', $vSrc ];
 					}

@@ -45,7 +45,7 @@ class ExtLinkText extends ConstrainedText {
 	): ?ExtLinkText {
 		$type = $node->getAttribute( 'rel' ) ?? '';
 		$stx = $dataParsoid->stx ?? '';
-		if ( $type === 'mw:ExtLink' && !preg_match( '/^(simple|piped)$/', $stx ) ) {
+		if ( $type === 'mw:ExtLink' && !preg_match( '/^(simple|piped)$/D', $stx ) ) {
 			return new ExtLinkText( $text, $node, $env->getSiteConfig(), $type );
 		}
 		return null;

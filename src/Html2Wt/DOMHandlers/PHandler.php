@@ -220,7 +220,7 @@ class PHandler extends DOMHandler {
 				&& !WTUtils::isSolTransparentLink( $node )
 				// PORT-FIXME $node is not guaranteed to be an element
 				// @phan-suppress-next-line PhanUndeclaredMethod
-				&& !( preg_match( '/^mw:Includes\//', $node->getAttribute( 'typeof' ) ?? '' ) ) );
+				&& !( preg_match( '#^mw:Includes/#', $node->getAttribute( 'typeof' ) ?? '' ) ) );
 	}
 
 	/**

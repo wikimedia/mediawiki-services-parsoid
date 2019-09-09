@@ -284,7 +284,7 @@ class PHPUtils {
 		);
 		$flags = substr( $re, $endDelimiterPos + 1 );
 		Assert::invariant(
-			preg_match( '/^[imsxADSUXJu \n]*$/', $flags ) === 1,
+			preg_match( '/^[imsxADSUXJu \n]*$/D', $flags ) === 1,
 			"unexpected flags"
 		);
 		$stripped = substr( $re, 1, $endDelimiterPos - 1 );

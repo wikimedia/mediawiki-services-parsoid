@@ -344,7 +344,7 @@ class ProcessTreeBuilderFixups {
 					( !$c->hasChildNodes() ||
 						( DOMUtils::hasNChildren( $c, 1 ) &&
 							!DOMUtils::isElt( $c->firstChild ) &&
-							preg_match( '/^\s*$/', $c->textContent )
+							preg_match( '/^\s*$/D', $c->textContent )
 						)
 					)
 				) {

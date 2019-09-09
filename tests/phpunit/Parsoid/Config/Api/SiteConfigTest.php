@@ -311,7 +311,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGetMagicWordMatcher() {
 		$this->assertSame(
-			'/^(?:(?:SUBJECTPAGENAME|ARTICLEPAGENAME))$/',
+			'/^(?:(?:SUBJECTPAGENAME|ARTICLEPAGENAME))$/D',
 			$this->getSiteConfig()->getMagicWordMatcher( 'subjectpagename' )
 		);
 		$this->assertSame(

@@ -61,7 +61,7 @@ class AttributeExpander extends TokenHandler {
 		// of wikitext that don't have a DOM representation.
 		//
 		// So, for now, we just suppress all newlines contained within these directives.
-		$includeRE = '#(?:^|\s)mw:Includes/(?:No|Only)?Include(?:Only)?(/.*)?(?:\s|$)#';
+		$includeRE = '#(?:^|\s)mw:Includes/(?:No|Only)?Include(?:Only)?(/.*)?(?:\s|$)#D';
 		$inInclude = false;
 		for ( $i = 0, $n = count( $tokens );  $i < $n;  $i++ ) {
 			$t = $tokens[ $i ];
@@ -69,7 +69,7 @@ class AttributeExpander extends TokenHandler {
 				$type = $t->getAttribute( 'typeof' );
 				$typeMatch = [];
 				if ( $type && preg_match( $includeRE, $type, $typeMatch, PREG_UNMATCHED_AS_NULL ) ) {
-					$inInclude = !preg_match( '#/End$#', $typeMatch[1] ?? '' );
+					$inInclude = !preg_match( '#/End$#D', $typeMatch[1] ?? '' );
 				}
 			} elseif ( !$inInclude && $t instanceof NlTk ) {
 				// newline token outside <*include*>
@@ -81,7 +81,7 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	private static function metaTypeMatcher(): string {
-		return '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#';
+		return '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#D';
 	}
 
 	private static function splitTokens(
@@ -106,7 +106,7 @@ class AttributeExpander extends TokenHandler {
 					$typeMatch = [];
 					if ( $type &&
 						preg_match( self::metaTypeMatcher(), $type, $typeMatch ) &&
-						!preg_match( '#/End$#', $typeMatch[1] )
+						!preg_match( '#/End$#D', $typeMatch[1] )
 					) {
 						$startMeta = $t;
 					}
@@ -179,7 +179,7 @@ class AttributeExpander extends TokenHandler {
 					$type = $t->getAttribute( 'typeof' );
 					$typeMatch = [];
 					if ( $type && preg_match( self::metaTypeMatcher(), $type, $typeMatch ) ) {
-						if ( !preg_match( '#/End$#', $typeMatch[1] ) ) {
+						if ( !preg_match( '#/End$#D', $typeMatch[1] ) ) {
 							$hasGeneratedContent = true;
 						}
 					} else {
@@ -320,7 +320,7 @@ class AttributeExpander extends TokenHandler {
 				// and probably use appropriately-named flags to convey type information.
 				if ( is_array( $oldA->k ) ) {
 					if ( !( is_string( $expandedK ) &&
-						preg_match( '/(^|\s)mw:maybeContent(\s|$)/', $expandedK ) )
+						preg_match( '/(^|\s)mw:maybeContent(\s|$)/D', $expandedK ) )
 					) {
 						$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
 						if ( $nlTkPos !== -1 ) {

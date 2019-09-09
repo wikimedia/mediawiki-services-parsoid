@@ -151,7 +151,7 @@ Diff::diffWords = function ( $oldString, $newString ) use ( &$diffTokens ) {
 Diff::diffLines = function ( $oldString, $newString ) use ( &$diffTokens ) {
 	$lineTokenize = function ( $value ) {
 		return array_map( preg_split( '/^/m', $value ), function ( $line ) {
-				return preg_replace( '/\r$/', "\n", $line );
+				return preg_replace( '/\r$/D', "\n", $line );
 		}
 		);
 	};
@@ -255,7 +255,7 @@ $createPatch = function ( $diff ) {
 
 	for ( $i = 0;  $i < count( $diff );  $i++ ) {
 		$current = $diff[ $i ];
-		$lines = $current->lines || explode( "\n", preg_replace( '/\n$/', '', $current->value, 1 ) );
+		$lines = $current->lines || explode( "\n", preg_replace( '/\n$/D', '', $current->value, 1 ) );
 		$current->lines = $lines;
 
 		if ( $current->added || $current->removed ) {

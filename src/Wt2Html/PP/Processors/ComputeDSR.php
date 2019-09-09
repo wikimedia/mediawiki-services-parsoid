@@ -343,7 +343,7 @@ class ComputeDSR {
 				if ( $next && ( $next instanceof DOMElement ) ) {
 					$ndp = DOMDataUtils::getDataParsoid( $next );
 					if ( isset( $ndp->src ) &&
-						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#', $next->getAttribute( "typeof" ) )
+						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#D', $next->getAttribute( "typeof" ) )
 					) {
 						if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
 							isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
@@ -477,7 +477,7 @@ class ComputeDSR {
 							$cs = $tsr->start;
 							$ce = $tsr->end;
 						}
-					} elseif ( preg_match( '#^mw:Placeholder(/\w*)?$#', $cTypeOf ) &&
+					} elseif ( preg_match( '#^mw:Placeholder(/\w*)?$#D', $cTypeOf ) &&
 						$ce !== null && $dp->src
 					) {
 						$cs = $ce - strlen( $dp->src );
@@ -491,7 +491,7 @@ class ComputeDSR {
 				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
 					$cs = $ce - strlen( $dp->src );
 				} else {
-					if ( preg_match( '/^mw:Placeholder(\/\w*)?$/', $cTypeOf ) &&
+					if ( preg_match( '#^mw:Placeholder(/\w*)?$#D', $cTypeOf ) &&
 						$ce !== null && $dp->src
 					) {
 						$cs = $ce - strlen( $dp->src );

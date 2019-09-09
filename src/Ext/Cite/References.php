@@ -113,7 +113,7 @@ class References extends ExtensionTag {
 		$nodeDp = DOMDataUtils::getDataParsoid( $node );
 		$typeOf = $node->getAttribute( 'typeof' );
 		$isTplWrapper = preg_match( '/\bmw:Transclusion\b/', $typeOf );
-		$nodeType = preg_replace( '/mw:DOMFragment\/sealed\/ref/', '', $typeOf, 1 );
+		$nodeType = preg_replace( '#mw:DOMFragment/sealed/ref#', '', $typeOf, 1 );
 		$content = $nodeDp->html;
 		$tplDmw = $isTplWrapper ? DOMDataUtils::getDataMw( $node ) : null;
 

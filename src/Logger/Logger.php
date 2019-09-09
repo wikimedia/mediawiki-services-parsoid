@@ -84,7 +84,7 @@ Logger::prototype::log = function ( $logType ) use ( &$Promise ) {
 			// We ignore all follow-on log events unless they are fatal. We put all
 			// fatal log events on the logRequestQueue for processing later on.
 			if ( $this->processingLogRequest ) {
-				if ( preg_match( '/^fatal$/', $logType ) ) {
+				if ( preg_match( '/^fatal$/D', $logType ) ) {
 					// Array.from converts arguments to a real array
 					// So that arguments can later be used in log.apply
 					$this->_logRequestQueue[] = Array::from( $arguments );
@@ -304,7 +304,7 @@ Logger::prototype::_routeToBackends = function ( $logData ) use ( &$Promise ) {
 	$applicableBackends = Array::from( $this->_getApplicableBackends( $logData ) );
 	$noop = function () {};
 	// fast path!
-	if ( count( $applicableBackends ) === 0 && !preg_match( '/^fatal$/', $logData->logType ) ) {
+	if ( count( $applicableBackends ) === 0 && !preg_match( '/^fatal$/D', $logData->logType ) ) {
 		return; // no promise allocated on fast path.
 	}
 	// If the logType is fatal, exits the process after logging
@@ -355,7 +355,7 @@ Logger::prototype::_routeToBackends = function ( $logData ) use ( &$Promise ) {
 
 
 	)->finally( function () {
-			if ( preg_match( '/^fatal$/', $logData->logType ) ) {
+			if ( preg_match( '/^fatal$/D', $logData->logType ) ) {
 				// Give some time for async loggers to deliver the message
 				setTimeout( function () { $process->exit( 1 );  }, 100 );
 			}

@@ -19,7 +19,7 @@ use Parsoid\Wt2Html\Frame;
  */
 class WTUtils {
 	const FIRST_ENCAP_REGEXP =
-		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#';
+		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#D';
 
 	/**
 	 * Check whether a node's data-parsoid object includes
@@ -190,7 +190,7 @@ class WTUtils {
 	 */
 	public static function isTplStartMarkerMeta( DOMNode $node ): bool {
 		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
-		return $t !== null && !preg_match( '#/End$#', $t );
+		return $t !== null && !preg_match( '#/End$#D', $t );
 	}
 
 	/**
@@ -202,7 +202,7 @@ class WTUtils {
 	 */
 	public static function isTplEndMarkerMeta( DOMNode $node ): bool {
 		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
-		return $t !== null && preg_match( '#/End$#', $t );
+		return $t !== null && preg_match( '#/End$#D', $t );
 	}
 
 	/**

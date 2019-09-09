@@ -259,9 +259,9 @@ class TableFixups {
 				/** @var DOMElement $child */
 				DOMUtils::assertElt( $child );
 				$typeOf = $child->getAttribute( 'typeof' );
-				if ( preg_match( '/^mw:Entity$/', $typeOf ) ) {
+				if ( preg_match( '/^mw:Entity$/D', $typeOf ) ) {
 					$buf[] = $child->textContent;
-				} elseif ( preg_match( '/^mw:Nowiki$/', $typeOf ) ) {
+				} elseif ( preg_match( '/^mw:Nowiki$/D', $typeOf ) ) {
 					// Nowiki span were added to protect otherwise
 					// meaningful wikitext chars used in attributes.
 
@@ -299,7 +299,7 @@ class TableFixups {
 			}
 
 			// Are we done accumulating?
-			if ( count( $buf ) > 0 && preg_match( '/(?:^|[^|])\|(?:[^|]|$)/', end( $buf ) ) ) {
+			if ( count( $buf ) > 0 && preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', end( $buf ) ) ) {
 				return self::buildRes( $buf, $nowikis, $transclusionNode );
 			}
 

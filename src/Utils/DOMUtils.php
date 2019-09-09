@@ -527,7 +527,7 @@ class DOMUtils {
 	 */
 	public static function isIEW( ?DOMNode $node ): bool {
 		// ws-only
-		return self::isText( $node ) && preg_match( '/^\s*$/', $node->nodeValue );
+		return self::isText( $node ) && preg_match( '/^\s*$/D', $node->nodeValue );
 	}
 
 	/**

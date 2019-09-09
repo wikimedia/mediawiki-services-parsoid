@@ -207,7 +207,7 @@ class LinkHandlerUtils {
 			}
 		} elseif ( $node->hasChildNodes() ) {
 			$rtData->contentNode = $node;
-		} elseif ( preg_match( '#^mw:PageProp/redirect$#', $rtData->type ) ) {
+		} elseif ( preg_match( '#^mw:PageProp/redirect$#D', $rtData->type ) ) {
 			$rtData->isRedirect = true;
 			$rtData->prefix = $dp->src
 				?? ( ( $siteConfig->mwAliases()['redirect'][0] ?? '#REDIRECT' ) . ' ' );
@@ -837,7 +837,7 @@ class LinkHandlerUtils {
 		}
 		if ( $linkType !== null && isset( $linkData->target['value'] ) ) {
 			// We have a type and target info
-			if ( preg_match( '/^mw:WikiLink|mw:MediaLink$/', $linkType ) ||
+			if ( preg_match( '/^mw:WikiLink|mw:MediaLink$/D', $linkType ) ||
 				preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $linkType )
 			) {
 				// [[..]] links: normal, category, redirect, or lang links
@@ -985,7 +985,7 @@ class LinkHandlerUtils {
 				$captionElt = DOMCompat::getPreviousElementSibling( $captionElt )
 			) {
 				if ( $captionElt !== $linkElt && $captionElt !== $elt &&
-					preg_match( '/^(span|div)$/', $captionElt->tagName )
+					preg_match( '/^(span|div)$/D', $captionElt->tagName )
 				) {
 					break;
 				}
@@ -1158,7 +1158,7 @@ class LinkHandlerUtils {
 				];
 			} else {
 				$value = $o['value'] ? $o['value']['value'] : '';
-				if ( $o['value'] && preg_match( '/^(link|alt)$/', $o['name'] ) ) {
+				if ( $o['value'] && preg_match( '/^(link|alt)$/D', $o['name'] ) ) {
 					// see \Parsoid\Wt2Html\TT\WikiLinkHandler: link and alt are whitelisted
 					// for accepting arbitrary wikitext, even though it is stripped
 					// to a string before emitting.

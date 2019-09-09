@@ -41,7 +41,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
 		$src = null;
-		if ( preg_match( '/(?:^|\s)(?:mw:Transclusion|mw:Param)(?=$|\s)/', $typeOf ) ) {
+		if ( preg_match( '/(?:^|\s)(?:mw:Transclusion|mw:Param)(?=$|\s)/D', $typeOf ) ) {
 			if ( !empty( $dataMw->parts ) ) {
 				$src = $serializer->serializeFromParts( $state, $node, $dataMw->parts );
 			} elseif ( isset( $dp->src ) ) {
@@ -50,13 +50,13 @@ class EncapsulatedContentHandler extends DOMHandler {
 			} else {
 				throw new ClientError( "Cannot serialize $typeOf without data-mw.parts or data-parsoid.src" );
 			}
-		} elseif ( preg_match( '/(?:^|\s)mw:Extension\//', $typeOf ) ) {
+		} elseif ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf ) ) {
 			if ( ( $dataMw->name ?? null ) == '' && !isset( $dp->src ) ) {
 				// If there was no typeOf name, and no dp.src, try getting
 				// the name out of the mw:Extension type. This will
 				// generate an empty extension tag, but it's better than
 				// just an error.
-				$extGivenName = preg_replace( '/(?:^|\s)mw:Extension\/([^\s]+)/', '$1', $typeOf, 1 );
+				$extGivenName = preg_replace( '#(?:^|\s)mw:Extension/([^\s]+)#', '$1', $typeOf, 1 );
 				if ( $extGivenName ) {
 					$env->log( 'error', 'no data-mw name for extension in: ', DOMCompat::getOuterHTML( $node ) );
 					$dataMw->name = $extGivenName;
@@ -78,7 +78,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			} else {
 				throw new ClientError( 'Cannot serialize extension without data-mw.name or data-parsoid.src.' );
 			}
-		} elseif ( preg_match( '/(?:^|\s)(?:mw:LanguageVariant)(?=$|\s)/', $typeOf ) ) {
+		} elseif ( preg_match( '/(?:^|\s)(?:mw:LanguageVariant)(?=$|\s)/D', $typeOf ) ) {
 			$state->serializer->languageVariantHandler( $node );
 			return $node->nextSibling;
 		} else {
@@ -107,9 +107,9 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Handle native extension constraints.
-		if ( preg_match( '/(?:^|\s)mw:Extension\//', $typeOf )
+		if ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf )
 			// Only apply to plain extension tags.
-			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/', $typeOf )
+			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
@@ -198,7 +198,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 
 		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
 
-		if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/', $typeOf ) ) {
+		if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
 			// If the first part is a string, template ranges were expanded to
 			// include this list element. That may be trouble. Otherwise,
 			// containers aren't part of the template source and we should emit

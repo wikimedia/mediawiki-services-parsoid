@@ -65,7 +65,7 @@ class TDHandler extends DOMHandler {
 		$state->serializeChildren( $node, $tdHandler );
 
 		// PORT-FIXME does regexp whitespace semantics change matter?
-		if ( $nextUsesRowSyntax && !preg_match( '/\s$/', $state->currLine->text ) ) {
+		if ( $nextUsesRowSyntax && !preg_match( '/\s$/D', $state->currLine->text ) ) {
 			$trailingSpace = $this->getTrailingSpace( $state, $node, '' );
 			if ( $trailingSpace ) {
 				$state->appendSep( $trailingSpace );

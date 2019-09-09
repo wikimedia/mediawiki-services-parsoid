@@ -119,7 +119,7 @@ class ExtensionHandler extends TokenHandler {
 		 *
 		// Strip two trailing newlines that action=parse adds after any
 		// extension output
-		$html = preg_replace( '/\n\n$/', '', $html );
+		$html = preg_replace( '/\n\n$/D', '', $html );
 
 		// Also strip a paragraph wrapper, if any
 		$html = preg_replace( '/(^<p>)|(<\/p>$)/D', '', $html );

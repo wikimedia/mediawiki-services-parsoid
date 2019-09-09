@@ -80,8 +80,8 @@ class Sanitizer extends TokenHandler {
 	 * things that you know are safe and deny everything else.
 	 * [1]: http://ha.ckers.org/xss.html
 	 */
-	const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)([^\w]|$)!i';
-	const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/";
+	const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)([^\w]|$)!iD';
+	const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/D";
 
 	/**
 	 * Tells escapeUrlForHtml() to encode the ID using the wiki's primary encoding.
@@ -119,7 +119,7 @@ class Sanitizer extends TokenHandler {
 				[\xef\xb8\x80-\xef\xb8\x8f] # fe00-fe0f VARIATION SELECTOR-1-16
 				/xuD";
 
-	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/u';
+	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/uD';
 
 	/** Character entity aliases accepted by MediaWiki */
 	const HTML_ENTITY_ALIASES = [
@@ -693,7 +693,7 @@ class Sanitizer extends TokenHandler {
 			);
 		}
 
-		$matched = preg_match( '/^((?:[a-zA-Z][^:\/]*:)?(?:\/\/)?)([^\/]+)(\/?.*)/', $href, $bits );
+		$matched = preg_match( '#^((?:[a-zA-Z][^:/]*:)?(?://)?)([^/]+)(/?.*)#', $href, $bits );
 		if ( $matched === 1 ) {
 			$proto = $bits[1];
 			// if ( $proto && !$env->conf->wiki->hasValidProtocol( $proto ) ) {
@@ -702,7 +702,7 @@ class Sanitizer extends TokenHandler {
 				return null;
 			}
 			$host = self::stripIDNs( $bits[2] );
-			preg_match( '/^%5B([0-9A-Fa-f:.]+)%5D((:\d+)?)$/', $host, $match );
+			preg_match( '/^%5B([0-9A-Fa-f:.]+)%5D((:\d+)?)$/D', $host, $match );
 			if ( $match ) {
 				// IPv6 host names
 				$host = '[' . $match[1] . ']' . $match[2];
@@ -832,7 +832,7 @@ class Sanitizer extends TokenHandler {
 		// Let the value through if it's nothing but a single comment, to
 		// allow other functions which may reject it to pass some error
 		// message through.
-		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !x', $value ) ) {
+		if ( !preg_match( '! ^ \s* /\* [^*\\/]* \*/ \s* $ !xD', $value ) ) {
 			// Remove any comments; IE gets token splitting wrong
 			// This must be done AFTER decoding character references and
 			// escape sequences, because those steps can introduce comments
@@ -1015,11 +1015,11 @@ class Sanitizer extends TokenHandler {
 		// unconditionally discard the entire attribute or process it further.
 		// That further processing will catch and discard any dangerous
 		// strings in the rest of the attribute
-		return preg_match( ( '/^(?:typeof|property|rel)$/' ), $k )
-			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/', $v )
-			|| $k === 'about' && preg_match( '/^#mwt\d+$/', $v )
+		return preg_match( ( '/^(?:typeof|property|rel)$/D' ), $k )
+			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', $v )
+			|| $k === 'about' && preg_match( '/^#mwt\d+$/D', $v )
 			|| $k === 'content'
-			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/', KV::lookup( $attrs, 'property' ) );
+			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', KV::lookup( $attrs, 'property' ) );
 	}
 
 	/**
@@ -1106,7 +1106,7 @@ class Sanitizer extends TokenHandler {
 				# * Disallow data attributes used by MediaWiki code
 				# * Ensure that the attribute is not namespaced by banning
 				#   colons.
-				if ( ( !preg_match( '/^data-[^:]*$/i', $k )
+				if ( ( !preg_match( '/^data-[^:]*$/iD', $k )
 					 && !isset( $wlist[$k] ) )
 					 || self::isReservedDataAttribute( $k )
 				) {
@@ -1166,7 +1166,7 @@ class Sanitizer extends TokenHandler {
 				$rel = $token->getAttributeShadowInfo( 'rel' );
 				$mode = ( $k === 'href' &&
 					$rel &&
-					preg_match( '/^mw:WikiLink(\/Interwiki)?$/', $rel['value'] )
+					preg_match( '#^mw:WikiLink(/Interwiki)?$#', $rel['value'] )
 				) ? 'wikilink' : 'external';
 				$origHref = $token->getAttributeShadowInfo( $k )['value'];
 				$newHref = self::cleanUrl( $env, $v, $mode );

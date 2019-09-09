@@ -250,7 +250,7 @@ class ConversionTraverser extends DOMTraverser {
 		// Is this a wikilink?  If so, extract title & convert it
 		$rel = $node->getAttribute( 'rel' ) || '';
 		if ( $rel === 'mw:WikiLink' ) {
-			$href = preg_replace( '/^(\.\.?\/)+/', '', $node->getAttribute( 'href' ), 1 );
+			$href = preg_replace( '#^(\.\.?/)+#', '', $node->getAttribute( 'href' ), 1 );
 			$fromPage = Util::decodeURI( $href );
 			$toPageFrag = $this->machine->convert(
 				$node->ownerDocument, $fromPage, $this->toLang, $this->fromLang
@@ -303,7 +303,7 @@ class ConversionTraverser extends DOMTraverser {
 				continue;
 			}
 			$orig = $node->getAttribute( $attr );
-			if ( preg_match( '/:\/\//', $orig ) ) { continue; /* Don't convert URLs */
+			if ( preg_match( '#://#', $orig ) ) { continue; /* Don't convert URLs */
    }
 			$toFrag = $this->machine->convert(
 				$node->ownerDocument, $orig, $this->toLang, $this->fromLang
@@ -406,7 +406,7 @@ class LanguageConverter {
 		} else {
 			$ncode = preg_replace(
 
-				'/\/|^\.+/', '', preg_replace(
+				'#/|^\.+#', '', preg_replace(
 
 					'/-/', '_', preg_replace(
 						'/^\w/', function ( $c ) {return strtoupper( $c );

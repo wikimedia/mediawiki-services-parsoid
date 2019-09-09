@@ -19,7 +19,7 @@ class Poem extends ExtensionTag implements Extension {
 		if ( strlen( $content ) > 0 ) {
 			$content = preg_replace(
 				'/^ /m', '&nbsp;', preg_replace(
-					'/\n$/', '', preg_replace(
+					'/\n$/D', '', preg_replace(
 					'/^\n/', '', $content,
 					// Strip leading/trailing newline
 					1
@@ -132,7 +132,7 @@ class Poem extends ExtensionTag implements Extension {
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof DOMElement ) {
-				if ( preg_match( '/\bmw:Extension\/poem\b/', $c->getAttribute( 'typeof' ) ?? '' ) ) {
+				if ( preg_match( '#\bmw:Extension/poem\b#', $c->getAttribute( 'typeof' ) ?? '' ) ) {
 					// In nowikis, replace newlines with <br/>.
 					// Cannot do it before parsing because <br/> will get escaped!
 					self::processNowikis( $c );

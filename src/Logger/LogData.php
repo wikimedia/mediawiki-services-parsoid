@@ -33,7 +33,7 @@ LogData::prototype::fullMsg = function () {
 
 		// Stack traces only for error & fatal
 		// FIXME: This should be configurable later on.
-		if ( preg_match( '/^(error|fatal)(\/|$)?/', $this->logType ) && $this->stack() ) {
+		if ( preg_match( '/^(error|fatal)(\/|$)?/D', $this->logType ) && $this->stack() ) {
 			$messageString += "\n" . $this->stack();
 		}
 

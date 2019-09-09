@@ -904,7 +904,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$inclContent = $dp->extTagOffsets->stripTags( $dp->src );
   			$nlpos = strrpos( $inclContent, "\n" );
   			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
-  			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/', $last ) ) {
+  			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/D', $last ) ) {
   				return false;
   			}
   		}

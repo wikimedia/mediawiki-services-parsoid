@@ -644,7 +644,7 @@ class WikitextEscapeHandlers {
 				// here only verifies SOL requirements, not EOL requirements.
 				// So, record this information so that we can strip unnecessary
 				// nowikis after the fact.
-				if ( preg_match( '/^h\d$/', $t->getName() ) ) {
+				if ( preg_match( '/^h\d$/D', $t->getName() ) ) {
 					$state->hasHeadingEscapes = true;
 				}
 
@@ -658,7 +658,7 @@ class WikitextEscapeHandlers {
 					continue;
 				}
 				// Ignore heading tokens
-				if ( preg_match( '/^h\d$/', $t->getName() ) ) {
+				if ( preg_match( '/^h\d$/D', $t->getName() ) ) {
 					continue;
 				}
 
@@ -818,7 +818,7 @@ class WikitextEscapeHandlers {
 					break;
 				case 'SelfclosingTagTk':
 					if ( $t->getName() !== 'meta' ||
-						!preg_match( '/^mw:(TSRMarker|EmptyLine)$/', $t->getAttribute( 'typeof' ) ?? '' )
+						!preg_match( '/^mw:(TSRMarker|EmptyLine)$/D', $t->getAttribute( 'typeof' ) ?? '' )
 					) {
 						// Don't bother with marker or empty-line metas
 						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
@@ -1240,7 +1240,7 @@ class WikitextEscapeHandlers {
 						self::appendStr(
 							$substr,
 							$last,
-							!preg_match( '/<nowiki>[^<]*<\/nowiki>/', $substr ),
+							!preg_match( '#<nowiki>[^<]*</nowiki>#', $substr ),
 							$buf,
 							$openNowiki,
 							$isTemplate,

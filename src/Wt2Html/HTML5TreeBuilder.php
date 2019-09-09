@@ -359,7 +359,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				if ( !$shouldFoster ) {
 					// transclusions state
 					if ( preg_match( '/^mw:Transclusion/', $tTypeOf ) ) {
-						$this->inTransclusion = preg_match( '/^mw:Transclusion$/', $tTypeOf );
+						$this->inTransclusion = preg_match( '/^mw:Transclusion$/D', $tTypeOf );
 					}
 					$this->dispatcher->comment(
 						WTUtils::fosterCommentData( $tTypeOf, $this->kvArrToFoster( $attribs ), false ),

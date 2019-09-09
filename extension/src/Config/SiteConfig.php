@@ -244,7 +244,7 @@ class SiteConfig extends ISiteConfig {
 				$this->bswRegexpPattern = '(?!)';
 			}
 			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' .
-				$this->bswRegexpPattern . ')(?=$|\\s)/uS';
+				$this->bswRegexpPattern . ')(?=$|\\s)/DuS';
 		}
 		return $this->bswPagePropRegexp;
 	}

@@ -267,7 +267,7 @@ class ScriptUtils {
 		if ( !$val ) {
 			return false;
 		}
-		if ( is_string( $val ) && preg_match( '/^(no|false)$/', $val ) ) {
+		if ( is_string( $val ) && preg_match( '/^(no|false)$/D', $val ) ) {
 			return false;
 		}
 		return true;

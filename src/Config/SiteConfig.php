@@ -426,7 +426,7 @@ abstract class SiteConfig {
 				if ( $i !== $batchStart && $batchLen + $len > $this->iwMatcherBatchSize ) {
 					$this->iwMatcher[] = [
 						array_slice( $keys, $batchStart, $i - $batchStart ),
-						'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/i',
+						'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/Di',
 						$numLangs - $batchStart,
 					];
 					$batchStart = $i;
@@ -439,7 +439,7 @@ abstract class SiteConfig {
 			if ( $i > $batchStart ) {
 				$this->iwMatcher[] = [
 					array_slice( $keys, $batchStart, $i - $batchStart ),
-					'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/i',
+					'/^(?:' . implode( '|', array_slice( $patterns, $batchStart, $i - $batchStart ) ) . ')$/Di',
 					$numLangs - $batchStart,
 				];
 			}
@@ -724,7 +724,7 @@ abstract class SiteConfig {
 				$normalized = strtoupper( preg_replace( '/[\- \t]/', '', $normalized ) );
 				// validate ISBN length and format, so as not to produce magic links
 				// which aren't actually magic
-				$valid = preg_match( '/^ISBN(97[89])?\d{9}(\d|X)$/', $normalized );
+				$valid = preg_match( '/^ISBN(97[89])?\d{9}(\d|X)$/D', $normalized );
 				if ( implode( '', $match ) === $normalized && $valid ) {
 					return $content;
 				}

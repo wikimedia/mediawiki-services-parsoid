@@ -1112,10 +1112,10 @@ class TestRunner {
 		$toWikiText = $mode === 'html2wt' || $mode === 'wt2wt' || $mode === 'selser';
 		// FIXME: normalization not in place yet
 		$normalizedExpected = $toWikiText ?
-			preg_replace( '/\n+$/', '', $testWikitext, 1 ) : $testWikitext;
+			preg_replace( '/\n+$/D', '', $testWikitext, 1 ) : $testWikitext;
 
 		// FIXME: normalization not in place yet
-		$normalizedOut = ( $toWikiText ) ? preg_replace( '/\n+$/', '', $out, 1 ) : $out;
+		$normalizedOut = ( $toWikiText ) ? preg_replace( '/\n+$/D', '', $out, 1 ) : $out;
 
 		$input = $mode === 'selser' ? $test->changedHTMLStr :
 			( $mode === 'html2wt' ? $test->html : $testWikitext );
@@ -1405,7 +1405,7 @@ class TestRunner {
 
 			$allowedPrefixes = [ '' ]; // all allowed
 			if ( isset( $test->options['wgallowexternalimages'] ) &&
-				!preg_match( '/^(1|true|)$/', $test->options['wgallowexternalimages'] )
+				!preg_match( '/^(1|true|)$/D', $test->options['wgallowexternalimages'] )
 			) {
 				$allowedPrefixes = [];
 			}

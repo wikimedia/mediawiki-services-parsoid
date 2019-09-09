@@ -31,7 +31,8 @@ use Parsoid\Tokens\SourceRange;
 use Wikimedia\Assert\Assert;
 
 class TokenUtils {
-	const SOL_TRANSPARENT_LINK_REGEX = '/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/';
+	const SOL_TRANSPARENT_LINK_REGEX =
+		'/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/D';
 
 	/**
 	 * Gets a string type value for a token
@@ -105,7 +106,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isDOMFragmentType( string $typeOf ): bool {
-		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#', $typeOf ) === 1;
+		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#D', $typeOf ) === 1;
 	}
 
 	/**
@@ -165,7 +166,7 @@ class TokenUtils {
 	 */
 	public static function isSolTransparent( Env $env, $token ): bool {
 		if ( is_string( $token ) ) {
-			return (bool)preg_match( '/^\s*$/', $token );
+			return (bool)preg_match( '/^\s*$/D', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
 		} elseif ( $token instanceof CommentTk ) {
@@ -689,7 +690,7 @@ class TokenUtils {
 			if ( $token instanceof NlTk ) {
 				$token = ''; // replace newline with empty
 			} elseif ( is_string( $token ) ) {
-				$token = preg_replace( '/\s+$/', '', $token, 1 );
+				$token = preg_replace( '/\s+$/D', '', $token, 1 );
 				if ( $token !== '' ) {
 					break;
 				}

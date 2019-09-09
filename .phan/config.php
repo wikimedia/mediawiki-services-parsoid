@@ -36,7 +36,7 @@ function wfCollectPhpFiles( string $dir, ?array &$result = [] ) {
 		$fullName = $dir . DIRECTORY_SEPARATOR . $f;
 		if ( is_dir( $fullName ) ) {
 			wfCollectPhpFiles( $fullName, $result );
-		} elseif ( is_file( $fullName ) && preg_match( '/\.php$/', $fullName ) ) {
+		} elseif ( is_file( $fullName ) && preg_match( '/\.php$/D', $fullName ) ) {
 			$result[] = $fullName;
 		}
 	}

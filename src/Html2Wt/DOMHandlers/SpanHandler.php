@@ -52,14 +52,14 @@ class SpanHandler extends DOMHandler {
 				$ext = $env->getSiteConfig()->getNativeExtTagImpl( 'nowiki' );
 				$src = $ext->fromHTML( $node, $state, $wrapperUnmodified );
 				$state->serializer->emitWikitext( $src, $node );
-			} elseif ( preg_match( '/(?:^|\s)mw:(?:Image|Video|Audio)(\/(Frame|Frameless|Thumb))?/',
+			} elseif ( preg_match( '#(?:^|\s)mw:(?:Image|Video|Audio)(/(Frame|Frameless|Thumb))?#',
 				$type )
 			) {
 				// TODO: Remove when 1.5.0 content is deprecated,
 				// since we no longer emit media in spans.  See the test,
 				// "Serialize simple image with span wrapper"
 				$state->serializer->figureHandler( $node );
-			} elseif ( preg_match( '/(?:^|\s)mw\:Entity/', $type ) && DOMUtils::hasNChildren( $node, 1 ) ) {
+			} elseif ( preg_match( '/(?:^|\s)mw:Entity/', $type ) && DOMUtils::hasNChildren( $node, 1 ) ) {
 				// handle a new mw:Entity (not handled by selser) by
 				// serializing its children
 				if ( isset( $dp->src ) && $contentSrc === ( $dp->srcContent ?? null ) ) {
@@ -71,16 +71,16 @@ class SpanHandler extends DOMHandler {
 				} else {
 					$state->serializeChildren( $node );
 				}
-			} elseif ( preg_match( '/(^|\s)mw:Placeholder(\/\w*)?/', $type ) ) {
+			} elseif ( preg_match( '#(^|\s)mw:Placeholder(/\w*)?#', $type ) ) {
 				if ( isset( $dp->src ) ) {
 					$this->emitPlaceholderSrc( $node, $state );
 					return $node->nextSibling;
 				} elseif (
-					preg_match( '/(^|\s)mw:Placeholder(\s|$)/', $type )
+					preg_match( '/(^|\s)mw:Placeholder(\s|$)/D', $type )
 					&& DOMUtils::hasNChildren( $node, 1 )
 					&& DOMUtils::isText( $node->firstChild )
 					// See the DisplaySpace hack in the urltext rule in the tokenizer.
-					&& preg_match( '/^\x{00a0}+$/u', $node->firstChild->nodeValue )
+					&& preg_match( '/^\x{00a0}+$/uD', $node->firstChild->nodeValue )
 				) {
 					$state->emitChunk(
 						str_repeat( ' ', mb_strlen( $node->firstChild->nodeValue ) ),
@@ -94,7 +94,7 @@ class SpanHandler extends DOMHandler {
 			$kvs = array_filter( WTSUtils::getAttributeKVArray( $node ), function ( KV $kv ) {
 				return !preg_match( '/^data-parsoid/', $kv->k )
 					&& ( $kv->k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME )
-					&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/', $kv->v ) );
+					&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $kv->v ) );
 			} );
 			if ( !$state->rtTestMode && !empty( $dp->misnested ) && ( $dp->stx ?? null ) !== 'html'
 				&& !count( $kvs )

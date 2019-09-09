@@ -25,7 +25,7 @@ class Headings {
 	 * @return bool
 	 */
 	public static function genAnchors( DOMNode $node, Env $env ): bool {
-		if ( !preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+		if ( !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 			return true;
 		}
 		/** @var DOMElement $node */
@@ -158,7 +158,7 @@ class Headings {
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
-		if ( preg_match( '/^h\d$/', $node->nodeName ) ||
+		if ( preg_match( '/^h\d$/D', $node->nodeName ) ||
 			WTUtils::isFallbackIdSpan( $node )
 		) {
 			$suffix = 2;

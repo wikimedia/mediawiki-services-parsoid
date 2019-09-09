@@ -25,8 +25,8 @@ class PreHandler extends DOMHandler {
 		// XXX: Use a pre escaper?
 		$content = $state->serializeIndentPreChildrenToString( $node );
 		// Strip (only the) trailing newline
-		preg_match( '/\n$/', $content, $trailingNL );
-		$content = preg_replace( '/\n$/', '', $content, 1 );
+		preg_match( '/\n$/D', $content, $trailingNL );
+		$content = preg_replace( '/\n$/D', '', $content, 1 );
 
 		// Insert indentation
 		$solRE = '/'
@@ -57,7 +57,7 @@ class PreHandler extends DOMHandler {
 			. '[ \t]*'
 			. ')+)'
 			. '(?=\n|$)'
-		. '/';
+		. '/D';
 		$content = preg_replace( $emptyLinesRE, '$1$2', $content, 1 );
 
 		$state->emitChunk( $content, $node );

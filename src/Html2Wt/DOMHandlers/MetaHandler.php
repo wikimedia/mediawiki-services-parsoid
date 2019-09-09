@@ -26,7 +26,7 @@ class MetaHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
 
-		if ( isset( $dp->src ) && preg_match( '#(^|\s)mw:Placeholder(/\w*)?$#', $type ) ) {
+		if ( isset( $dp->src ) && preg_match( '#(^|\s)mw:Placeholder(/\w*)?$#D', $type ) ) {
 			$this->emitPlaceholderSrc( $node, $state );
 			return $node->nextSibling;
 		}
@@ -35,7 +35,7 @@ class MetaHandler extends DOMHandler {
 		// templated attrs roundtrip properly.
 		// Ex: {{DEFAULTSORT:{{echo|foo}} }}
 		if ( $property ) {
-			preg_match( '#^mw\:PageProp/(.*)$#', $property, $switchType );
+			preg_match( '#^mw\:PageProp/(.*)$#D', $property, $switchType );
 			if ( $switchType ) {
 				$out = $switchType[1];
 				$cat = preg_match( '/^(?:category)?(.*)/', $out, $catMatch );
@@ -44,7 +44,7 @@ class MetaHandler extends DOMHandler {
 					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
 						$out = '{{' . $contentInfo['value'] . '}}';
 					} elseif ( isset( $dp->src ) ) {
-						$out = preg_replace( '/^([^:]+:)(.*)$/',
+						$out = preg_replace( '/^([^:]+:)(.*)$/D',
 							'$1' . $contentInfo['value'] . '}}', $dp->src, 1 );
 					} else {
 						$magicWord = strtoupper( $catMatch[1] );
@@ -113,7 +113,7 @@ class MetaHandler extends DOMHandler {
 		} elseif ( WTUtils::isNewElt( $node )
 			// Placeholder metas don't need to be serialized on their own line
 			&& ( $node->nodeName !== 'meta'
-				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#', $node->getAttribute( 'typeof' ) ?: '' ) )
+				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#D', $node->getAttribute( 'typeof' ) ?: '' ) )
 		) {
 			return [ 'min' => 1 ];
 		} else {
@@ -127,7 +127,7 @@ class MetaHandler extends DOMHandler {
 		if ( WTUtils::isNewElt( $node )
 			// Placeholder metas don't need to be serialized on their own line
 			&& ( $node->nodeName !== 'meta'
-				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#', $node->getAttribute( 'typeof' ) ?: '' ) )
+				|| !preg_match( '#(^|\s)mw:Placeholder(/|$)#D', $node->getAttribute( 'typeof' ) ?: '' ) )
 		) {
 			return [ 'min' => 1 ];
 		} else {

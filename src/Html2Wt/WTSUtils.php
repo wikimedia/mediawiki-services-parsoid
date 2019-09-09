@@ -390,7 +390,7 @@ class WTSUtils {
 	 */
 	public static function getMediaType( DOMElement $node ): array {
 		$typeOf = $node->getAttribute( 'typeof' );
-		preg_match( '/(?:^|\s)(mw:(?:Image|Video|Audio))(?:\/(\w*))?(?:\s|$)/', $typeOf, $matches );
+		preg_match( '/(?:^|\s)(mw:(?:Image|Video|Audio))(?:\/(\w*))?(?:\s|$)/D', $typeOf, $matches );
 		return [
 			'rdfaType' => $matches[1] ?? '',
 			'format' => $matches[2] ?? '',

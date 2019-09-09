@@ -31,7 +31,7 @@ class Language {
 		if ( !$validityCache->has( $code ) ) {
 			// XXX PHP version also checks against
 			// MediaWikiTitleCodex::getTitleInvalidRegex()
-			$validityCache->set( $code, preg_match( "/^[^:\\/\\\\\\000&<>'\"]+$/", $code ) );
+			$validityCache->set( $code, preg_match( "/^[^:\\/\\\\\\000&<>'\"]+$/D", $code ) );
 		}
 		return $validityCache->get( $code );
 	}

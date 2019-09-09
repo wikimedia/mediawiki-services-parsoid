@@ -199,7 +199,7 @@ class DOMDiff {
 					} else {
 						$type = '';
 					}
-					$match = preg_match( '/mw:Extension\/(\w+)\b/', $type );
+					$match = preg_match( '!mw:Extension/(\w+)\b!', $type );
 					$extName = $match ? $match[ 1 ] : '---';
 					// Log error
 					if ( !$htmlA ) {

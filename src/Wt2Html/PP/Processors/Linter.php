@@ -175,7 +175,7 @@ class Linter {
 			$name = null;
 			if ( !empty( $p0['template']->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = preg_replace( '/^\.\//', '', $p0['template']->target->href, 1 );
+				$name = preg_replace( '#^\./#', '', $p0['template']->target->href, 1 );
 			// @phan-suppress-next-line PhanTypeMismatchDimAssignment
 			} elseif ( !empty( $p0['template'] ) ) {
 				$name = trim( $p0['template']->target->wt );
@@ -245,7 +245,7 @@ class Linter {
 		// For A, TD, TH, H* tags, Tidy doesn't seem to propagate
 		// the unclosed tag outside these tags.
 		// No need to check for tr/table since content cannot show up there
-		if ( DOMUtils::isBody( $node ) || preg_match( '/^(?:a|td|th|h\d)$/', $node->nodeName ) ) {
+		if ( DOMUtils::isBody( $node ) || preg_match( '/^(?:a|td|th|h\d)$/D', $node->nodeName ) ) {
 			return false;
 		}
 
@@ -307,7 +307,7 @@ class Linter {
 	 * @return DOMNode|null
 	 */
 	private function getHeadingAncestor( DOMNode $node ): ?DOMNode {
-		while ( $node && !preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+		while ( $node && !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 			$node = $node->parentNode;
 		}
 		return $node;
@@ -337,7 +337,7 @@ class Linter {
 
 		$prev = $lc->previousSibling;
 		// PORT-FIXME: Do we care about non-ASCII whitespace here?
-		if ( DOMUtils::isText( $prev ) && !preg_match( '/\s$/', $prev->nodeValue ) ) {
+		if ( DOMUtils::isText( $prev ) && !preg_match( '/\s$/D', $prev->nodeValue ) ) {
 			return true;
 		}
 
@@ -575,7 +575,7 @@ class Linter {
 					$elts[] = preg_quote( $tag, '/' );
 				}
 			}
-			$this->obsoleteTagsRE = '/^(?:' . implode( '|', $elts ) . ')$/';
+			$this->obsoleteTagsRE = '/^(?:' . implode( '|', $elts ) . ')$/D';
 		}
 
 		$templateInfo = null;
@@ -773,7 +773,7 @@ class Linter {
 	private function hasNoWrapCSS( DOMNode $node ): bool {
 		return $node instanceof DOMElement && (
 			preg_match( '/nowrap/', $node->getAttribute( 'style' ) ?? '' ) ||
-			preg_match( '/(?:^|\s)nowrap(?:$|\s)/', $node->getAttribute( 'class' ) ?? '' )
+			preg_match( '/(?:^|\s)nowrap(?:$|\s)/D', $node->getAttribute( 'class' ) ?? '' )
 		);
 	}
 
@@ -878,7 +878,7 @@ class Linter {
 
 		// <br>, <wbr>, <hr> break a line
 		while ( $node && !DOMUtils::isBlockNode( $node ) &&
-			!preg_match( '/^(?:h|b|wb)r$/', $node->nodeName )
+			!preg_match( '/^(?:h|b|wb)r$/D', $node->nodeName )
 		) {
 			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
@@ -904,7 +904,7 @@ class Linter {
 
 				$bug = false;
 				if ( $last && DOMUtils::isText( $last ) &&
-					preg_match( '/\s$/', $last->nodeValue ) // PORT-FIXME: non-ASCII whitespace?
+					preg_match( '/\s$/D', $last->nodeValue ) // PORT-FIXME: non-ASCII whitespace?
 				) {
 					// In this scenario, when Tidy hoists the whitespace to
 					// after the node, that whitespace is not subject to the
@@ -959,7 +959,7 @@ class Linter {
 			if ( !DOMUtils::isComment( $prev ) ) {
 				$s = $prev->textContent;
 				// Find the last \s in the string
-				if ( preg_match( '/\s([^\s]*)$/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?
+				if ( preg_match( '/\s([^\s]*)$/D', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?
 					$runLength += strlen( $m[1] );
 					break;
 				} else {

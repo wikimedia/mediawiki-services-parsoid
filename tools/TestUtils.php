@@ -207,7 +207,7 @@ class TestUtils {
 
 	private static function newlineAround( ?DOMNode $node ) {
 		return $node &&
-			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/', $node->nodeName );
+			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D', $node->nodeName );
 	}
 
 	private static function normalizeIEWVisitor( DOMNode $node, array $opts ) {
@@ -226,7 +226,7 @@ class TestUtils {
 				$node->data = preg_replace( '/^\s+/u', '', $node->data, 1 );
 			}
 			if ( $opts['stripTrailingWS'] ) {
-				$node->data = preg_replace( '/\s+$/u', '', $node->data, 1 );
+				$node->data = preg_replace( '/\s+$/uD', '', $node->data, 1 );
 			}
 		}
 		// unwrap certain SPAN nodes
@@ -259,7 +259,7 @@ class TestUtils {
 		$child = $node->firstChild;
 		// Skip over the empty mw:FallbackId <span> and strip leading WS
 		// on the other side of it.
-		if ( preg_match( '/^h[1-6]$/', $node->nodeName ) &&
+		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) &&
 			$child && WTUtils::isFallbackIdSpan( $child )
 		) {
 			$child = $child->nextSibling;
@@ -282,7 +282,7 @@ class TestUtils {
 			$next = $child->nextSibling;
 			if ( self::newlineAround( $child ) ) {
 				if ( $prev && $prev instanceof DOMText ) {
-					$prev->data = preg_replace( '/\s*$/u', "\n", $prev->data, 1 );
+					$prev->data = preg_replace( '/\s*$/uD', "\n", $prev->data, 1 );
 				} else {
 					$prev = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $prev, $child );

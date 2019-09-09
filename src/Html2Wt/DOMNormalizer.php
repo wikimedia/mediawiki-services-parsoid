@@ -380,7 +380,7 @@ class DOMNormalizer {
 		$last = DOMUtils::lastNonDeletedChild( $node );
 		// Conditional on rtTestMode to reduce the noise in testing.
 		if ( !$this->inRtTestMode && DOMUtils::isText( $last ) &&
-			preg_match( '/\s+$/', $last->nodeValue, $matches ) > 0
+			preg_match( '/\s+$/D', $last->nodeValue, $matches ) > 0
 		) {
 			$trailing = $matches[0];
 			$last->nodeValue = substr( $last->nodeValue, 0, -strlen( $trailing ) );
@@ -437,7 +437,7 @@ class DOMNormalizer {
 			// The following can leave behind an empty text node.
 			$oldLength = strlen( $node->nodeValue );
 			$node->nodeValue = preg_replace(
-				'/([\x{200e}\x{200f}]+\n)?[\x{200e}\x{200f}]+$/u',
+				'/([\x{200e}\x{200f}]+\n)?[\x{200e}\x{200f}]+$/uD',
 				'',
 				$node->nodeValue
 			);
@@ -595,7 +595,7 @@ class DOMNormalizer {
 		}
 
 		// Headings
-		if ( preg_match( '/^h[1-6]$/', $node->nodeName ) ) {
+		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 			DOMUtils::assertElt( $node );
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
