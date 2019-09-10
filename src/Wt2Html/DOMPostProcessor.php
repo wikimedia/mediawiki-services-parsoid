@@ -582,7 +582,7 @@ class DOMPostProcessor extends PipelineStage {
 				// use string directly, depending on value in metadataMap
 				if ( gettype( $mdm[ $k ] ) === 'function' ) {
 					$v = $mdm[ $k ]( $m );
-				} elseif ( array_search( '%', $mdm[ $k ] ) >= 0 ) {
+				} elseif ( array_search( '%', $mdm[ $k ] ) !== false ) {
 					$v = util::format( $mdm[ $k ], $m->get( $f ) );
 				} else {
 					$v = $mdm[ $k ];

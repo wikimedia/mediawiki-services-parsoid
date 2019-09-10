@@ -18,6 +18,8 @@ use Parsoid\Wt2Html\Frame;
 use DOMElement;
 use DOMNode;
 
+use Wikimedia\Assert\Assert;
+
 class WrapSections {
 	/**
 	 * Get page source between the requested offsets
@@ -351,6 +353,10 @@ class WrapSections {
 				// Scenario 2: s1 and s2 are in different subtrees
 				// Find children of the common ancestor that are on the
 				// path from s1 -> ancestor and s2 -> ancestor
+				Assert::invariant(
+					count( $s1Ancestors ) >= 2 && $i >= 1,
+					'Scenario assumptions violated.'
+				);
 				$newS1 = $s1Ancestors[count( $s1Ancestors ) - 2]; // length >= 2 since we know ancestors != s1
 				$newS2 = $s2Ancestors[$i - 1]; // i >= 1 since we know s2 is not s1's ancestor
 				$newAbout = $state['env']->newAboutId(); // new about id for the new wrapping layer

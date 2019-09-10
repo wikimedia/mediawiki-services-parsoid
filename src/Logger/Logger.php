@@ -161,7 +161,7 @@ Logger::prototype::registerBackend = function ( $logType, $backend ) {
 	if ( $this->_backends->has( $logTypeString ) ) {
 		$backendArray = $this->_backends->get( $logTypeString );
 	}
-	if ( array_search( $backend, $backendArray ) === -1 ) {
+	if ( array_search( $backend, $backendArray ) === false ) {
 		$backendArray[] = $backend;
 	}
 	$this->_backends->set( $logTypeString, $backendArray );
