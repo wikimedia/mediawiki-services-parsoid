@@ -650,7 +650,7 @@ class TokenUtils {
 			// of non-string template attribute values in general.
 			$val = ( $useSrc && $kv->vsrc !== null ) ? $kv->vsrc :
 				 ( $convertValuesToString ? self::tokensToString( $kv->v ) : $kv->v );
-			$res[ strtolower( $key ) ] = self::tokenTrim( $val );
+			$res[ mb_strtolower( $key ) ] = self::tokenTrim( $val );
 		}
 		return $res;
 	}

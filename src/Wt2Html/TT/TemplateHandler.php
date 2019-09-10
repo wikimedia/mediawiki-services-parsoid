@@ -1151,7 +1151,7 @@ class TemplateHandler extends TokenHandler {
 			return null;
 		}
 
-		$magicWord = strtolower( $resolvedTgt['prefix'] );
+		$magicWord = mb_strtolower( $resolvedTgt['prefix'] );
 		$pageProp = 'mw:PageProp/';
 		if ( $magicWord === 'defaultsort' ) {
 			$pageProp .= 'category';

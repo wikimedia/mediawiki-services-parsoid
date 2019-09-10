@@ -1075,7 +1075,7 @@ class Sanitizer extends TokenHandler {
 
 			$origK = $a->ksrc ?? $a->k;
 			// $a->k can be uppercase
-			$k = strtolower( $a->k );
+			$k = mb_strtolower( $a->k );
 			$v = $a->v;
 			$origV = $a->vsrc ?? $v;
 			$psdAttr = self::isParsoidAttr( $k, $v, $attrs );

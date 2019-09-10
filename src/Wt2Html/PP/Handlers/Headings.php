@@ -143,8 +143,8 @@ class Headings {
 		if ( !$node->hasAttribute( 'id' ) ) {
 			return true;
 		}
-		// Must be case-insensitively unique (T12721)
-		// ...but note that PHP uses strtolower, which only does A-Z :(
+		// FIXME: Must be case-insensitively unique (T12721)
+		// ...but note that core parser uses strtolower, which only does A-Z :(
 		$key = $node->getAttribute( 'id' );
 		$key = preg_replace_callback(
 			'/[A-Z]+/',

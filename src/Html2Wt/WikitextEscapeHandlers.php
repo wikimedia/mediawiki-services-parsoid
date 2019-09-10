@@ -546,8 +546,7 @@ class WikitextEscapeHandlers {
 				// elements always (which can lead to excessive nowiki-escapes in some
 				// cases, but is always safe).
 				if ( ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
-					// PORT-FIXME do we need strtolower?
-					$env->getSiteConfig()->isExtensionTag( strtolower( $t->getName() ) )
+					$env->getSiteConfig()->isExtensionTag( mb_strtolower( $t->getName() ) )
 				) {
 					return true;
 				}
@@ -560,8 +559,7 @@ class WikitextEscapeHandlers {
 				// result can be confusing for editors. However, doing it here in a
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
-				// PORT-FIXME do we need strtolower?
-				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][strtolower( $t->getName() )] ) ) {
+				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][mb_strtolower( $t->getName() )] ) ) {
 					return true;
 				} else {
 					continue;
@@ -670,8 +668,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// </br>!
-				// PORT-FIXME strtolower?
-				if ( 'br' === strtolower( $t->getName() ) ) {
+				if ( 'br' === mb_strtolower( $t->getName() ) ) {
 					continue;
 				}
 

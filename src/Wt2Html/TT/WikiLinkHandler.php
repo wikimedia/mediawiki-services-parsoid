@@ -903,7 +903,7 @@ class WikiLinkHandler extends TokenHandler {
 		// for the option, and doesn't have an img_ prefix.
 		$imgOption = WikitextConstants::$Media['SimpleOptions'][$canonicalOption] ?? null;
 		$bits = $getOption( $oText );
-		$normalizedBit0 = $bits ? strtolower( trim( $bits['k'] ) ) : null;
+		$normalizedBit0 = $bits ? mb_strtolower( trim( $bits['k'] ) ) : null;
 		$key = $bits ? ( WikitextConstants::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
 
 		if ( !empty( $imgOption ) && $key === null ) {

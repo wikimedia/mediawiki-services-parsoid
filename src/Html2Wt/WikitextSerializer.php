@@ -368,7 +368,7 @@ class WikitextSerializer {
 		$tokenName = $da->srcTagName ?? $token->getName();
 		$ret = "<{$tokenName}{$sAttribs}{$close}>";
 
-		if ( strtolower( $tokenName ) === 'nowiki' ) {
+		if ( mb_strtolower( $tokenName ) === 'nowiki' ) {
 			$ret = WTUtils::escapeNowikiTags( $ret );
 		}
 
@@ -402,7 +402,7 @@ class WikitextSerializer {
 			$ret = "</{$tokenName}>";
 		}
 
-		if ( strtolower( $tokenName ) === 'nowiki' ) {
+		if ( mb_strtolower( $tokenName ) === 'nowiki' ) {
 			$ret = WTUtils::escapeNowikiTags( $ret );
 		}
 
@@ -1517,7 +1517,7 @@ class WikitextSerializer {
 		for ( $j = 1;  $j < $n;  $j += 2 ) {
 			// For HTML tags, pull out just the tag name for clearer code below.
 			preg_match( '#^<(/?\w+)#', $p[$j], $matches );
-			$tag = strtolower( $matches[1] ?? $p[$j] );
+			$tag = mb_strtolower( $matches[1] ?? $p[$j] );
 			$tagLen = strlen( $tag );
 			$selfClose = false;
 			if ( preg_match( '#/>$#D', $p[$j] ) ) {

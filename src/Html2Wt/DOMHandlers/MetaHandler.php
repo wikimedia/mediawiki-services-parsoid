@@ -47,7 +47,7 @@ class MetaHandler extends DOMHandler {
 						$out = preg_replace( '/^([^:]+:)(.*)$/D',
 							'$1' . $contentInfo['value'] . '}}', $dp->src, 1 );
 					} else {
-						$magicWord = strtoupper( $catMatch[1] );
+						$magicWord = mb_strtoupper( $catMatch[1] );
 						$state->getEnv()->log( 'warn', $catMatch[1]
 							. " is missing source. Rendering as $magicWord magicword" );
 						$out = '{{' . $magicWord . ':' . $contentInfo['value'] . '}}';

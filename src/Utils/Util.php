@@ -195,7 +195,7 @@ class Util {
 	 * @return string
 	 */
 	public static function normalizeNamespaceName( string $name ): string {
-		return strtr( strtolower( $name ), ' ', '_' );
+		return strtr( mb_strtolower( $name ), ' ', '_' );
 	}
 
 	/**
