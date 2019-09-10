@@ -4,7 +4,6 @@ namespace Test\Parsoid;
 
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
-use Parsoid\Tokens\DomSourceRange;
 
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockPageConfig;
@@ -74,7 +73,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				[
 					[
 						'type' => 'wikilink-in-extlink',
-						'dsr' => new DomSourceRange( 0, 52, 19, 1 ),
+						'dsr' => [ 0, 52, 19, 1 ],
 					]
 				]
 			]

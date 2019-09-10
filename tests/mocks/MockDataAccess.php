@@ -543,4 +543,8 @@ class MockDataAccess implements DataAccess {
 	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array {
 		return self::TEMPLATE_DATA[$this->normTitle( $title )] ?? null;
 	}
+
+	/** @inheritDoc */
+	public function logLinterData( array $lints ): void {
+	}
 }

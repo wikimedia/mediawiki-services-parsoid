@@ -283,4 +283,10 @@ class DataAccess implements IDataAccess {
 		return $ret;
 	}
 
+	/** @inheritDoc */
+	public function logLinterData( array $lints ): void {
+		// @todo: Document this hook in MediaWiki
+		Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $lints ] );
+	}
+
 }

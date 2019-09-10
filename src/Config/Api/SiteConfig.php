@@ -89,7 +89,7 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		if ( isset( $opts['linting'] ) ) {
-			$this->linterEnabled = true;
+			$this->linterEnabled = !empty( $opts['linting'] );
 		}
 
 		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {

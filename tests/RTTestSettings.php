@@ -10,10 +10,7 @@ $wgReadOnly = "Scandium access is read-only for Parsoid testing. " .
 if ( !isset( $wgParsoidSettings ) ) {
 	// Temporarily enable all these defaults
 	$wgParsoidSettings = [
-		'devAPI' => false,
-		'linting' => true,
 		'useSelser' => true,
-		'scrubWikitext' => false
 	];
 }
 
@@ -25,3 +22,9 @@ $wgParsoidSettings['scrubWikitext'] = true;
 // These endpoints are occasionally useful while investigating rt testing
 // diffs on the server.
 // $wgParsoidSettings['devAPI'] = true;
+
+// Linting during rt testing is useful to catch errors and crashers,
+// but we don't want to save lints to the production db. Right now, in the
+// integrated mode, it isn't possible to lint without posting results.
+// Once this functionality is implemented, we will enable this on scandium.
+// $wgParsoidSettings['linting'] = true;

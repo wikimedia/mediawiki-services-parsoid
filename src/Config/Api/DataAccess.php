@@ -304,4 +304,9 @@ class DataAccess implements IDataAccess {
 		return $ret;
 	}
 
+	/** @inheritDoc */
+	public function logLinterData( array $lints ) {
+		error_log( PHPUtils::jsonEncode( $lints ) );
+	}
+
 }

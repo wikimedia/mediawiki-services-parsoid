@@ -9,7 +9,6 @@ use Parsoid\ContentModelHandler;
 use Parsoid\WikitextContentModelHandler;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
-use Parsoid\Logger\LogData;
 use Parsoid\Utils\Util;
 
 use Psr\Log\LoggerInterface;
@@ -40,7 +39,12 @@ abstract class SiteConfig {
 	/** @var bool */
 	protected $scrubBidiChars = false;
 
-	/** @var bool */
+	/**
+	 * PORT-FIXME: This used to mean that the site had the Linter extension
+	 * installed but we've co-opted it to mean linting is enabled.
+	 *
+	 * @var bool
+	 */
 	protected $linterEnabled = false;
 
 	/**
@@ -488,15 +492,6 @@ abstract class SiteConfig {
 	 * @return string|null
 	 */
 	abstract public function linkTrailRegex(): ?string;
-
-	/**
-	 * Log linter data.
-	 * @note This replaces JS linterEnabled.
-	 * @param LogData $logData
-	 */
-	public function logLinterData( LogData $logData ): void {
-		// In MW, call a hook that the Linter extension will listen on
-	}
 
 	/**
 	 * Wiki language code.

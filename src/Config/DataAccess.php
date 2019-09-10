@@ -135,4 +135,11 @@ interface DataAccess {
 	 */
 	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array;
 
+	/**
+	 * Log linter data.
+	 *
+	 * @param array $lints
+	 */
+	public function logLinterData( array $lints );
+
 }

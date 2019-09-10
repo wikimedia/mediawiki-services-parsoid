@@ -662,7 +662,13 @@ class Env {
 			return $v !== null;
 		} );
 
-		$this->log( "lint/$type", $lintData );
+		if ( empty( $lintData['dsr'] ) ) {
+			$this->log( 'error/lint', "Missing DSR; msg=", $lintData );
+			return;
+		}
+
+		$lintData['dsr'] = $lintData['dsr']->jsonSerialize();
+
 		$this->lints[] = [ 'type' => $type ] + $lintData;
 	}
 

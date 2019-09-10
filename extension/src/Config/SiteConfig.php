@@ -7,7 +7,6 @@ namespace MWParsoid\Config;
 use Config;
 use ConfigException;
 use FakeConverter;
-use Hooks;
 use Language;
 use LanguageConverter;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
@@ -15,7 +14,6 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
 use Parsoid\Config\SiteConfig as ISiteConfig;
-use Parsoid\Logger\LogData;
 use Psr\Log\LoggerInterface;
 use Title;
 use User;
@@ -369,12 +367,6 @@ class SiteConfig extends ISiteConfig {
 			}
 		}
 		return $this->linkTrailRegex;
-	}
-
-	/** @inheritDoc */
-	public function logLinterData( LogData $logData ): void {
-		// @todo: Document this hook in MediaWiki
-		Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $logData ] );
 	}
 
 	public function lang(): string {

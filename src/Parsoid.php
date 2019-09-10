@@ -7,6 +7,7 @@ use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\SiteConfig;
+use Parsoid\Logger\LintLogger;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 
@@ -71,6 +72,13 @@ class Parsoid {
 		PageConfig $pageConfig, array $options = []
 	) {
 		[ $env, $doc ] = $this->parseWikitext( $pageConfig, $options );
+		// FIXME: Does this belong in parseWikitext so that the other endpoint
+		// is covered as well?  It probably depends on expectations of the
+		// Rest API.  If callers of /page/lint/ assume that will update the
+		// results on the Special page.
+		if ( $env->getSiteConfig()->linting() ) {
+			( new LintLogger( $env ) )->logLintOutput();
+		}
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 		if ( $env->pageBundle ) {
