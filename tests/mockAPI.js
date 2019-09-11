@@ -618,6 +618,8 @@ var pageProps = function(titles) {
 	});
 };
 
+const fv2Queries = new Map();
+
 var availableActions = {
 	parse: function(prefix, body, cb) {
 		var formatversion = +(body.formatversion || 1);
@@ -630,40 +632,73 @@ var availableActions = {
 		if (body.meta === 'siteinfo') {
 			return querySiteinfo(prefix, formatversion, cb);
 		}
+		const title = (body.titles || '').replace(/_/g, ' ');
+		const revid = body.revids;
 		if (body.prop === "info|revisions") {
-			console.assert(formatversion === 1);
-			if (body.revids === "1" || body.titles === "Main_Page") {
-				return cb(null , mainPage);
-			} else if (body.revids === "2" || body.titles === "Junk_Page") {
-				return cb(null , junkPage);
-			} else if (body.revids === '3' || body.titles === 'Large_Page') {
-				return cb(null , largePage);
-			} else if (body.revids === '63' || body.titles === 'Revision_ID') {
-				return cb(null , revisionPage);
-			} else if (body.revids === '100' || body.titles === 'Reuse_Page') {
-				return cb(null , reusePage);
-			} else if (body.revids === '101' || body.titles === 'JSON_Page') {
-				return cb(null , jsonPage);
-			} else if (body.revids === '102' || body.titles === 'Lint_Page') {
-				return cb(null , lintPage);
-			} else if (body.revids === '103' || body.titles === 'Redlinks_Page') {
-				return cb(null , redlinksPage);
-			} else if (body.revids === '104' || body.titles === 'Variant_Page') {
-				return cb(null , variantPage);
-			} else if (body.revids === '105' || body.titles === 'No_Variant_Page') {
-				return cb(null , noVariantPage);
-			} else if (body.revids === '999' || body.titles === 'Old_Response') {
-				return cb(null , oldResponse);
+			let query = null;
+			if (revid === "1" || title === "Main Page") {
+				query = mainPage;
+			} else if (revid === "2" || title === "Junk Page") {
+				query = junkPage;
+			} else if (revid === '3' || title === 'Large Page') {
+				query = largePage;
+			} else if (revid === '63' || title === 'Revision ID') {
+				query = revisionPage;
+			} else if (revid === '100' || title === 'Reuse Page') {
+				query = reusePage;
+			} else if (revid === '101' || title === 'JSON Page') {
+				query = jsonPage;
+			} else if (revid === '102' || title === 'Lint Page') {
+				query = lintPage;
+			} else if (revid === '103' || title === 'Redlinks Page') {
+				query = redlinksPage;
+			} else if (revid === '104' || title === 'Variant Page') {
+				query = variantPage;
+			} else if (revid === '105' || title === 'No Variant Page') {
+				query = noVariantPage;
+			} else if (revid === '999' || title === 'Old Response') {
+				query = oldResponse;
 			} else {
-				return cb(null, { query: { pages: {
-					'-1': {
-						ns: 6,
-						title: body.titles,
-						missing: '',
-						imagerepository: '',
-					},
-				} } });
+				query = {
+					query: {
+						pages: {
+							'-1': {
+								ns: 6,
+								title: title,
+								missing: '',
+								imagerepository: '',
+							},
+						}
+					}
+				};
 			}
+			if (formatversion === 2) {
+				if (!fv2Queries.has(query)) {
+					const clone = JSON.parse(JSON.stringify(query));
+					clone.query.pages = Object.keys(clone.query.pages).reduce((ps, k) => {
+						const page = clone.query.pages[k];
+						if (Array.isArray(page.revisions)) {
+							page.revisions[0].slots.main = Object.assign(
+								{},
+								page.revisions[0].slots.main,
+								{
+									'*': undefined,
+									'content': page.revisions[0].slots.main['*'],
+								}
+							);
+							page.pagelanguage = page.pagelanguage || 'en';
+							page.pagelanguagedir = page.pagelanguagedir || 'ltr';
+						} else {
+							page.missing = true;
+						}
+						ps.push(page);
+						return ps;
+					}, []);
+					fv2Queries.set(query, clone);
+				}
+				query = fv2Queries.get(query);
+			}
+			return cb(null, query);
 		}
 		if (body.prop === 'imageinfo') {
 			var response = { query: { } };
