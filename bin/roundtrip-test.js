@@ -702,6 +702,8 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
 	if (options.oldid) {
 		uri2 += '/' + options.oldid;
+	} else {
+		uri2 += '/'; // T232556
 	}
 
 	var profile = { time: { total: 0, start: 0 }, size: {} };
