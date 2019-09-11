@@ -17,6 +17,7 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Title;
 
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
@@ -158,6 +159,7 @@ class DOMPostProcessor extends PipelineStage {
 		$env = $this->env;
 		$options = $this->options;
 		$seenIds = &$this->seenIds;
+		$haveMwPrefixIds = true;
 
 		$tableFixer = new TableFixups( $env );
 
@@ -454,7 +456,14 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => [ CleanUp::class, 'cleanupAndSaveDataParsoid' ]
+						'action' => function ( $node, $env, $atTopLevel, $tplInfo ) use ( &$haveMwPrefixIds ) {
+							if ( DOMUtils::isBody( $node ) ) {
+								$haveMwPrefixIds = DOMCompat::querySelector(
+									$node->ownerDocument, '[id|="mw"]' ) !== null;
+							}
+							return Cleanup::cleanupAndSaveDataParsoid(
+								$haveMwPrefixIds, $node, $env, $atTopLevel, $tplInfo );
+						}
 					]
 				]
 			],

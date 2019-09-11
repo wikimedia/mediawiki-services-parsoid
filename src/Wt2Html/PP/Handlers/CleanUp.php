@@ -145,6 +145,7 @@ class CleanUp {
 	/**
 	 * Perform some final cleanup and save data-parsoid attributes on each node.
 	 *
+	 * @param bool $haveMwPrefixIds
 	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param bool $atTopLevel
@@ -152,7 +153,8 @@ class CleanUp {
 	 * @return bool|DOMText
 	 */
 	public static function cleanupAndSaveDataParsoid(
-		DOMNode $node, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
+		bool $haveMwPrefixIds, DOMNode $node, Env $env,
+		bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
 		if ( !( $node instanceof DOMElement ) ) {
 			return true;
@@ -269,6 +271,7 @@ class CleanUp {
 					// Even though we're passing in the `env`, this is the only place
 					// we want the storage to happen, so don't refactor this in there.
 					'storeInPageBundle' => $env->pageBundle,
+					'anyIds' => $haveMwPrefixIds,
 					'env' => $env
 				]
 			);
