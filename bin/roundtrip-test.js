@@ -556,6 +556,8 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		uri += 'pagebundle/to/wikitext/' + options.title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
+		} else {
+			uri += '/'; // T232556
 		}
 		httpOptions.body.scrub_wikitext = true;
 		// We want to encode the request but *not* decode the response.
@@ -565,6 +567,8 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		uri += 'wikitext/to/pagebundle/' + options.title;
 		if (options.oldid) {
 			uri += '/' + options.oldid;
+		} else {
+			uri += '/'; // T232556
 		}
 		httpOptions.headers.Accept = apiUtils.pagebundleContentType(options.outputContentVersion);
 		// setting json here encodes the request *and* decodes the response.
