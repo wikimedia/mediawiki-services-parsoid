@@ -12,6 +12,7 @@ use MWParsoid\Config\PageConfig as MWPageConfig;
 use Parser;
 use ParserOptions;
 use Parsoid\Config\PageConfig;
+use Parsoid\Config\Api\PageConfig as ApiPageConfig;
 use Title;
 use User;
 use WikitextContent;
@@ -54,15 +55,25 @@ class PageConfigFactory {
 	 * @param string|null $wikitextOverride Wikitext to use instead of the
 	 *   contents of the specific $revision; used when $revision is null
 	 *   (a new page) or when we are parsing a stashed text.
+	 * @param array|null $parsoidSettings At present, only used in debugging.
 	 * @return PageConfig
 	 */
 	public function create(
 		LinkTarget $title,
 		UserIdentity $user = null,
 		int $revisionId = null,
-		string $wikitextOverride = null
+		string $wikitextOverride = null,
+		array $parsoidSettings = null
 	): PageConfig {
 		$title = Title::newFromLinkTarget( $title );
+
+		if ( !empty( $parsoidSettings['debugApi'] ) ) {
+			return ApiPageConfig::fromSettings( $parsoidSettings, [
+				"title" => $title->getPrefixedText(),
+				"pageContent" => $wikitextOverride,
+			] );
+		}
+
 		$revisionRecord = null;
 		if ( $revisionId !== null ) {
 			$revisionRecord = $this->revisionStore->getRevisionById(

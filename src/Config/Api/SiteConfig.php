@@ -707,4 +707,18 @@ class SiteConfig extends ISiteConfig {
 	public function getMagicWordForVariable( string $str ): ?string {
 		return $this->variables[$str] ?? null;
 	}
+
+	/**
+	 * @param array $parsoidSettings
+	 * @return SiteConfig
+	 */
+	public static function fromSettings( array $parsoidSettings ): SiteConfig {
+		$opts = [];
+		if ( isset( $parsoidSettings['linting'] ) ) {
+			$opts['linting'] = !empty( $parsoidSettings['linting'] );
+		}
+		$api = ApiHelper::fromSettings( $parsoidSettings );
+		return new SiteConfig( $api, $opts );
+	}
+
 }

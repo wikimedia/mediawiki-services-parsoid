@@ -144,4 +144,14 @@ class ApiHelper {
 		return $res;
 	}
 
+	/**
+	 * @param array $parsoidSettings
+	 * @return ApiHelper
+	 */
+	public static function fromSettings( array $parsoidSettings ): ApiHelper {
+		return new ApiHelper( [
+			"apiEndpoint" => $parsoidSettings['debugApi'],
+		] );
+	}
+
 }

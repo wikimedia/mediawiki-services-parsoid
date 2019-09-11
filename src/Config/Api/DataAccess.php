@@ -309,4 +309,13 @@ class DataAccess implements IDataAccess {
 		error_log( PHPUtils::jsonEncode( $lints ) );
 	}
 
+	/**
+	 * @param array $parsoidSettings
+	 * @return DataAccess
+	 */
+	public static function fromSettings( array $parsoidSettings ): DataAccess {
+		$api = ApiHelper::fromSettings( $parsoidSettings );
+		return new DataAccess( $api, [] );
+	}
+
 }

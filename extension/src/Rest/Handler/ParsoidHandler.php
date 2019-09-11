@@ -201,7 +201,9 @@ abstract class ParsoidHandler extends Handler {
 		];
 		$attribs['opts'] = $opts;
 
-		$this->assertDomainIsCorrect( $attribs['envOptions']['domain'] );
+		if ( empty( $this->parsoidSettings['debugApi'] ) ) {
+			$this->assertDomainIsCorrect( $attribs['envOptions']['domain'] );
+		}
 
 		$this->requestAttributes = $attribs;
 		return $this->requestAttributes;
@@ -224,7 +226,7 @@ abstract class ParsoidHandler extends Handler {
 		}
 		$user = RequestContext::getMain()->getUser();
 		return $this->pageConfigFactory->create(
-			$title, $user, $revision, $wikitextOverride
+			$title, $user, $revision, $wikitextOverride, $this->parsoidSettings
 		);
 	}
 
