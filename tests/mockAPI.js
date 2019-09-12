@@ -977,7 +977,7 @@ const start = function(options) {
 
 if (require.main === module) {
 	start({
-		config: { port: 0 },
+		config: { port: process.env.MOCKPORT || 0 },
 		logger: { log: function(...args) { console.log(...args); } },
 	})
 	.catch((e) => { console.error(e); });
