@@ -6,8 +6,11 @@ namespace Parsoid\Ext\Poem;
 use DOMDocument;
 use DOMElement;
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
+use Parsoid\Tokens\SourceRange;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
+use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Config\ParsoidExtensionAPI;
@@ -69,13 +72,40 @@ class Poem extends ExtensionTag implements Extension {
 			$content = implode( '\n', $contentMap ); // use faster? preg_replace
 		}
 
-		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
+		// Create new frame, because $content doesn't literally appear in
+		// the parent frame's sourceText (our copy has been munged)
+		$parentFrame = $extApi->getFrame();
+		$newFrame = $parentFrame->newChild(
+			$parentFrame->getTitle(), [], $content
+		);
+
+		$doc = $extApi->parseTokenContentsToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
 				'pipelineOpts' => [
 					'extTag' => 'poem',
 				],
+				'frame' => $newFrame,
+				'srcOffsets' => new SourceRange( 0, strlen( $content ) ),
 			]
 		);
+
+		// We've shifted the content around quite a bit when we preprocessed
+		// it.  In the future if we wanted to enable selser inside the <poem>
+		// body we should create a proper offset map and then apply it to the
+		// result after the parse, like we do in the Gallery extension.
+		// But for now, since we don't selser the contents, just strip the
+		// DSR info so it doesn't cause problems/confusion with unicode
+		// offset conversion (and so it's clear you can't selser what we're
+		// currently emitting).
+		$body = DOMCompat::getBody( $doc );
+		ContentUtils::shiftDSR(
+			$extApi->getEnv(),
+			$body,
+			function ( DomSourceRange $dsr ) {
+				return null; // XXX in the future implement proper mapping
+			}
+		);
+		return $doc;
 	}
 
 	/**

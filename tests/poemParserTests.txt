@@ -3,6 +3,12 @@
 poem
 !! endhooks
 
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
 #Regression tests for existing functionality, to ensure nothing was broken.
 !! test
 <poem>
@@ -190,4 +196,19 @@ foo <span typeof="mw:Entity">&amp;</span> bar<br/>
 [[Not a link]]<br/>
 <br/>
 L3</p></div>
+!! end
+
+!! test
+UTF-8 sequences in extension tags (T231945)
+!! wikitext
+<poem>
+{{1x|ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ}}
+</poem>
+!! html/php+tidy
+<div class="poem">
+<p>ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ
+</p>
+</div>
+!! html/parsoid
+<div typeof="mw:Extension/poem" about="#mwt4" data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\n{{1x|ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ}}\n"}}'><p about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ"}},"i":0}}]}'>ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ</p></div>
 !! end

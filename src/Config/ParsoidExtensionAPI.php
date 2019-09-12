@@ -185,7 +185,7 @@ class ParsoidExtensionAPI {
 
 		$doc = $this->parseWikitextToDOM(
 			$wikitext,
-			[ 'srcOffsets' => $srcOffsets ] + $parseOpts,
+			$parseOpts + [ 'srcOffsets' => $srcOffsets ],
 			/* sol */true
 		);
 
