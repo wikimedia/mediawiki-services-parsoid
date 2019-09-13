@@ -146,9 +146,6 @@ class TestRunner {
 	private $articleTexts;
 
 	/** @var LoggerInterface */
-	private $suppressLogger;
-
-	/** @var LoggerInterface */
 	private $defaultLogger;
 
 	/**
@@ -1352,7 +1349,8 @@ class TestRunner {
 
 		// Set logger
 		$suppressErrors = !empty( $test->options['parsoid']['suppressErrors'] );
-		$this->siteConfig->setLogger( $suppressErrors ? $this->suppressLogger : $this->defaultLogger );
+		$this->siteConfig->setLogger( $suppressErrors ?
+			$this->siteConfig->suppressLogger : $this->defaultLogger );
 
 		$testModes = $test->options['parsoid']['modes'] ?? null;
 		if ( $testModes ) {
@@ -1477,9 +1475,8 @@ class TestRunner {
 		ScriptUtils::setDebuggingFlags( $this->envOptions, $options );
 		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );
 
-		$logLevels = null;
 		if ( ScriptUtils::booleanOption( $options['quiet'] ?? null ) ) {
-			$logLevels = [ 'fatal', 'error' ];
+			$this->envOptions['logLevels'] = [ 'fatal', 'error' ];
 		}
 
 		// Save default logger so we can be reset it after temporarily
@@ -1491,8 +1488,6 @@ class TestRunner {
 		 * PORT-FIXME
 		// Enable sampling to assert it's working while testing.
 		$parsoidConfig->loggerSampling = [ [ '/^warn(\/|$)/', 100 ] ];
-		$this->suppressLogger = new ParsoidLogger( $env );
-		$this->suppressLogger->registerLoggingBackends( [ 'fatal' ], $pc );
 
 		// Override env's `setLogger` to record if we see `fatal` or `error`
 		// while running parser tests.  (Keep it clean, folks!  Use
@@ -1511,8 +1506,6 @@ class TestRunner {
 			};
 		} ) );
 		**/
-
-		$this->suppressLogger = null; // PORT-FIXME
 
 		$options['reportStart']();
 

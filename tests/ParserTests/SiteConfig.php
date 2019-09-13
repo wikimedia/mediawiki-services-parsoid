@@ -8,6 +8,11 @@ use Parsoid\Utils\ConfigUtils;
 use Parsoid\Ext\Extension;
 use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
+use Psr\Log\LoggerInterface;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Handler\FilterHandler;
+use Monolog\Logger;
 
 class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class info */
@@ -28,12 +33,29 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public $responsiveReferences;
 
+	/** @var LoggerInterface */
+	public $suppressLogger;
+
 	public function __construct( $api, array $opts ) {
+		// Use Monolog's PHP console handler
+		$errorLogHandler = new ErrorLogHandler();
+		$errorLogHandler->setFormatter( new LineFormatter( '%message%' ) );
+
+		// Default logger
+		$logger = new Logger( "ParserTests" );
+		$logger->pushHandler( $errorLogHandler );
+
+		$opts['logger'] = $logger;
 		parent::__construct( $api, $opts );
 		$this->registerParserTestExtension( new ParserHook() );
 
 		// Needed for bidi-char-scrubbing html2wt tests.
 		$this->scrubBidiChars = true;
+
+		// Logger to suppress all logs but fatals (critical errors)
+		$this->suppressLogger = new Logger( "ParserTests" );
+		$filterHandler = new FilterHandler( $errorLogHandler, Logger::CRITICAL );
+		$this->suppressLogger->pushHandler( $filterHandler );
 	}
 
 	public function reset() {

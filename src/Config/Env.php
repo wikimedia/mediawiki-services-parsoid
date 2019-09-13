@@ -10,6 +10,7 @@ use DOMNode;
 use Parsoid\ContentModelHandler;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
+use Parsoid\Logger\ParsoidLogger;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
@@ -128,6 +129,9 @@ class Env {
 	/** @var bool[] */
 	public $debugFlags;
 
+	/** @var ParsoidLogger */
+	private $parsoidLogger;
+
 	/** @var float */
 	public $startTime;
 
@@ -234,9 +238,6 @@ class Env {
 		if ( isset( $options['pageBundle'] ) ) {
 			$this->pageBundle = !empty( $options['pageBundle'] );
 		}
-		$this->traceFlags = $options['traceFlags'] ?? [];
-		$this->dumpFlags = $options['dumpFlags'] ?? [];
-		$this->debugFlags = $options['debugFlags'] ?? [];
 		$this->uid = (int)( $options['uid'] ?? 1 );
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
@@ -244,6 +245,15 @@ class Env {
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
+		$this->traceFlags = $options['traceFlags'] ?? [];
+		$this->dumpFlags = $options['dumpFlags'] ?? [];
+		$this->debugFlags = $options['debugFlags'] ?? [];
+		$this->parsoidLogger = new ParsoidLogger( $this->siteConfig->getLogger(), [
+			'logLevels' => $options['logLevels'] ?? [ 'fatal', 'error', 'warn', 'info' ],
+			'debugFlags' => $this->debugFlags,
+			'dumpFlags' => $this->dumpFlags,
+			'traceFlags' => $this->traceFlags
+		] );
 	}
 
 	/**
@@ -683,56 +693,10 @@ class Env {
 	}
 
 	/**
-	 * Deprecated logging function.
-	 * @deprecated Use $this->getSiteConfig()->getLogger() instead.
-	 * @param string $prefix
 	 * @param mixed ...$args
 	 */
-	public function log( string $prefix, ...$args ): void {
-		$logger = $this->getSiteConfig()->getLogger();
-		if ( $logger instanceof \Psr\Log\NullLogger ) {
-			// No need to build the string if it's going to be thrown away anyway.
-			return;
-		}
-
-		/** -------------
-		 *
-		 * PORT-FIXME:
-		 * Commented out till https://phabricator.wikimedia.org/T224377 is implemented
-		 * Without that support, we will unconditionally execute evaluate all
-		 * logging statements in all modes (info, warn, error, fatal, trace, dump, debug)
-
-		$output = $prefix;
-		$numArgs = count( $args );
-		for ( $index = 0; $index < $numArgs; $index++ ) {
-			// don't use is_callable, it would return true for any string that happens to be a function name
-			if ( $args[$index] instanceof Closure ) {
-				$output = $output . ' ' . $args[$index]();
-			} elseif ( is_array( $args[$index] ) ) {
-				$output = $output . '[';
-				$elements = count( $args[$index] );
-				for ( $i = 0; $i < $elements; $i++ ) {
-					if ( $i > 0 ) {
-						$output = $output . ',';
-					}
-					if ( is_string( $args[$index][$i] ) ) {
-						$output = $output . '"' . $args[$index][$i] . '"';
-					} else {
-						// PORT_FIXME the JS output is '[Object object] but we output the actual token class
-						$output = $output . PHPUtils::jsonEncode( $args[$index][$i] );
-					}
-				}
-				$output = $output . ']';
-			} else {
-				if ( is_string( $args[$index] ) ) {
-					$output = $output . ' ' . $args[$index];
-				} else {
-					$output = $output . PHPUtils::jsonEncode( $args[$index] );
-				}
-			}
-		}
-		$logger->debug( $output );
-		----------- **/
+	public function log( ...$args ): void {
+		$this->parsoidLogger->log( ...$args );
 	}
 
 	/**

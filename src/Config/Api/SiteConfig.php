@@ -9,8 +9,10 @@ use Parsoid\Utils\ConfigUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\UrlUtils;
-use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 
 /**
  * SiteConfig via MediaWiki's Action API
@@ -96,32 +98,15 @@ class SiteConfig extends ISiteConfig {
 			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
 		}
 
-		if ( !empty( $opts['traceFlags'] ) ||
-			!empty( $opts['dumpFlags'] ) ||
-			!empty( $opts['debugFlags'] )
-		) {
-			$this->setLogger( new class extends AbstractLogger {
-				/** @inheritDoc */
-				public function log( $level, $message, array $context = [] ) {
-					if ( $context ) {
-						$message = preg_replace_callback( '/\{([A-Za-z0-9_.]+)\}/', function ( $m ) use ( $context ) {
-							if ( isset( $context[$m[1]] ) ) {
-								$v = $context[$m[1]];
-								if ( is_scalar( $v ) || is_object( $v ) && is_callable( [ $v, '__toString' ] ) ) {
-									return (string)$v;
-								}
-							}
-							return $m[0];
-						}, $message );
-
-						fprintf( STDERR, "[%s] %s %s\n", $level, $message,
-							PHPUtils::jsonEncode( $context )
-						);
-					} else {
-						fprintf( STDERR, "[%s] %s\n", $level, $message );
-					}
-				}
-			} );
+		if ( isset( $opts['logger'] ) ) {
+			$this->setLogger( $opts['logger'] );
+		} else {
+			// Use Monolog's PHP console handler
+			$logger = new Logger( "Parsoid CLI" );
+			$handler = new ErrorLogHandler();
+			$handler->setFormatter( new LineFormatter( '%message%' ) );
+			$logger->pushHandler( $handler );
+			$this->setLogger( $logger );
 		}
 	}
 
