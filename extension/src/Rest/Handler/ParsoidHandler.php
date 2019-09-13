@@ -155,8 +155,8 @@ abstract class ParsoidHandler extends Handler {
 		$opts = array_merge( $body, array_intersect_key( $request->getPathParams(),
 			[ 'from' => true, 'format' => true ] ) );
 		$attribs = [
-			'titleMissing' => !isset( $request->getPathParams()['title'] ),
-			'pageName' => $request->getPathParam( 'title' ) ?? null,
+			'titleMissing' => empty( $request->getPathParams()['title'] ),
+			'pageName' => $request->getPathParam( 'title' ) ?? '',
 			'oldid' => $request->getPathParam( 'revision' ) ?? null,
 			// "body_only" flag to return just the body (instead of the entire HTML doc)
 			// We would like to deprecate use of this flag: T181657
@@ -200,16 +200,16 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param string|null $title The page to be transformed
+	 * @param string $title The page to be transformed
 	 * @param int|null $revision The revision to be transformed
 	 * @param string|null $wikitextOverride Custom wikitext to use instead of the real content of
 	 *   the page.
 	 * @return Env
 	 */
 	protected function createEnv(
-		?string $title, ?int $revision, string $wikitextOverride = null
+		string $title, ?int $revision, string $wikitextOverride = null
 	): Env {
-		$title = !is_null( $title ) ? Title::newFromText( $title ) : Title::newMainPage();
+		$title = $title ? Title::newFromText( $title ) : Title::newMainPage();
 		if ( !$title ) {
 			// TODO use proper validation
 			throw new LogicException( 'Title not found!' );
