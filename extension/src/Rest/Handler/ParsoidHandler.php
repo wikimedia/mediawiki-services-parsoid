@@ -13,9 +13,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Response;
 use MediaWiki\Rest\Handler;
 use MobileContext;
-use MWParsoid\Config\DataAccess;
 use MWParsoid\Config\PageConfigFactory;
-use MWParsoid\Config\SiteConfig;
 use MWParsoid\Rest\FormatHelper;
 use Parsoid\Config\Env;
 use MWParsoid\ParsoidServices;
@@ -23,6 +21,8 @@ use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\Selser;
 use Parsoid\Tokens\Token;
+use Parsoid\Config\DataAccess;
+use Parsoid\Config\SiteConfig;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -293,7 +293,7 @@ abstract class ParsoidHandler extends Handler {
 	 */
 	protected function createRedirectToOldidResponse( Env $env, array $attribs ): Response {
 		// porting note: this is  more or less the equivalent of apiUtils.redirectToOldid()
-		$domain = $this->getRequestAttributes()['envOptions']['domain'];
+		$domain = $attribs['envOptions']['domain'];
 		$format = $this->getRequest()->getPathParam( 'format' );
 		$target = $env->getPageConfig()->getTitle();
 		$encodedTarget = PHPUtils::encodeURIComponent( $target );
