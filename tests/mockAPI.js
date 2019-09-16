@@ -608,11 +608,11 @@ var pageProps = function(titles) {
 	if (!Array.isArray(titles)) { return null; }
 	return titles.map(function(t) {
 		var props = { title: t };
-		if (missingTitles.has(t)) { props.missing = ''; }
-		if (specialTitles.has(t)) { props.special = ''; }
-		if (redirectTitles.has(t)) { props.redirect = ''; }
+		if (missingTitles.has(t)) { props.missing = true; }
+		if (specialTitles.has(t)) { props.special = true; }
+		if (redirectTitles.has(t)) { props.redirect = true; }
 		if (disambigTitles.has(t)) {
-			props.pageprops = { disambiguation: '' };
+			props.pageprops = { disambiguation: true };
 		}
 		return props;
 	});
@@ -631,6 +631,13 @@ var availableActions = {
 		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
 			return querySiteinfo(prefix, formatversion, cb);
+		} else if (body.prop === "info|pageprops") {
+			console.assert(formatversion === 2);
+			return cb(null, {
+				query: {
+					pages: pageProps(body.titles.split('|')),
+				},
+			});
 		}
 		const title = (body.titles || '').replace(/_/g, ' ');
 		const revid = body.revids;
