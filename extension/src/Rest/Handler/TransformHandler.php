@@ -48,7 +48,9 @@ class TransformHandler extends ParsoidHandler {
 			// Abort if no wikitext or title.
 			// FIXME use proper validation
 			if ( $wikitext === null && $attribs['titleMissing'] ) {
-				throw new \LogicException( 'No title or wikitext was provided.' );
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => 'No title or wikitext was provided.',
+				] );
 			}
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
 			return $this->wt2html( $env, $attribs, $wikitext );
