@@ -93,6 +93,14 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'flamegraph',
+			"Produce a flamegraph of CPU usage. " .
+			"Assumes existence of Excimer ( https://www.mediawiki.org/wiki/Excimer ). " .
+			"Looks for /usr/local/bin/flamegraph.pl (Set FLAMEGRAPH_PATH env var " .
+			"to use different path). Outputs to /tmp (Set FLAMEGRAPH_OUTDIR " .
+			"env var to output elsewhere)."
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -153,6 +161,33 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 	public function execute() {
 		$this->maybeHelp();
+
+		// Produce a CPU flamegraph via excimer's profiling
+		if ( $this->hasOption( 'flamegraph' ) ) {
+			$profiler = new ExcimerProfiler;
+			$profiler->setPeriod( 0.01 );
+			$profiler->setEventType( EXCIMER_CPU );
+			$profiler->start();
+			register_shutdown_function( function () use ( $profiler ) {
+				$profiler->stop();
+				$fgPath = getenv( 'FLAMEGRAPH_PATH' );
+				if ( empty( $fgPath ) ) {
+					$fgPath = "/usr/local/bin/flamegraph.pl";
+				}
+				$fgOutDir = getenv( 'FLAMEGRAPH_OUTDIR' );
+				if ( empty( $fgOutDir ) ) {
+					$fgOutDir = "/tmp";
+				}
+				// phpcs:disable MediaWiki.Usage.ForbiddenFunctions.popen
+				$pipe = popen( "$fgPath > $fgOutDir/profile.svg", "w" );
+				fwrite( $pipe, $profiler->getLog()->formatCollapsed() );
+				$report = sprintf( "%-79s %14s %14s\n", 'Function', 'Self', 'Inclusive' );
+				foreach ( $profiler->getLog()->aggregateByFunction() as $id => $info ) {
+					$report .= sprintf( "%-79s %14d %14d\n", $id, $info['self'], $info['inclusive'] );
+				}
+				file_put_contents( "$fgOutDir/aggregated.txt", $report );
+			} );
+		}
 
 		if ( $this->hasOption( 'inputfile' ) ) {
 			$input = file_get_contents( $this->getOption( 'inputfile' ) );
