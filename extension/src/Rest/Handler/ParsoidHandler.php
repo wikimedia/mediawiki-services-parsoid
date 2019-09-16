@@ -387,7 +387,7 @@ abstract class ParsoidHandler extends Handler {
 		// (T181226)
 		if ( $attribs['body_only'] ) {
 			$reqOpts['wrapSections'] = false;
-			$reqOpts['bodyOnly'] = true;
+			$reqOpts['body_only'] = true;
 		}
 
 		if ( $wikitext !== null && $oldid ) {
