@@ -384,12 +384,10 @@ class DOMDataUtils {
 	 * @param DOMElement $node node
 	 * @param Env $env environment
 	 * @param stdClass $data data
-	 * @param bool $anyIds Whether any nodes had id attributes starting with
-	 *   'mw' before visitAndStoreDataAttribs(); we can skip id conflict checks
-	 *   if this is false.
+	 * @param array $idIndex Index of used id attributes in the DOM
 	 */
 	public static function storeInPageBundle(
-		DOMElement $node, Env $env, stdClass $data, bool $anyIds = true
+		DOMElement $node, Env $env, stdClass $data, array $idIndex
 	): void {
 		$uid = $node->getAttribute( 'id' ) ?? '';
 		$document = $node->ownerDocument;
@@ -404,8 +402,12 @@ class DOMDataUtils {
 		if ( !$uid ) {
 			do {
 				$docDp->counter += 1;
+				// PORT-FIXME: NOTE that we aren't updating the idIndex here because
+				// we are generating unique ids that will not conflict. In any case,
+				// the idIndex is a workaround for the PHP DOM's issues and we might
+				// switch out of this in the future anyway.
 				$uid = 'mw' . PHPUtils::counterToBase64( $docDp->counter );
-			} while ( $anyIds && DOMCompat::getElementById( $document, $uid ) );
+			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
 		$docDp->ids[$uid] = $data->parsoid;
@@ -552,20 +554,40 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Builds an index of id attributes seen in the DOM
+	 * @param DOMNode $node
+	 * @return array
+	 */
+	public static function usedIdIndex( DOMNode $node ): array {
+		$index = [];
+		DOMUtils::visitDOM( DOMCompat::getBody( $node->ownerDocument ),
+			function ( DOMNode $n, ?array $options = null ) use ( &$index ) {
+				if ( $n instanceof DOMElement && $n->hasAttribute( 'id' ) ) {
+					$index[$n->getAttribute( 'id' )] = true;
+				}
+			},
+			[]
+		);
+		return $index;
+	}
+
+	/**
 	 * Walk DOM from node downward calling storeDataAttribs
 	 *
 	 * @param DOMNode $node node
 	 * @param array $options options
 	 */
 	public static function visitAndStoreDataAttribs( DOMNode $node, array $options = [] ): void {
-		// XXX PHP's `getElementById` implementation is broken, and so we work
-		// around it in DOMCompat using Zest, which can end up executing in
-		// O(N^2) time instead of O(N).  That causes the loop below to blow up.
-		// But generally none of these IDs will conflict... so here's a hacky
-		// workaround which does a single O(N) pass to determine if we need to
-		// do *any* conflict checks for IDs.
-		$options['anyIds'] =
-			( DOMCompat::querySelector( $node->ownerDocument, '[id|="mw"]' ) !== null );
+		// PORT-FIXME: storeDataAttribs calls storeInPageBundle which calls getElementById.
+		// PHP's `getElementById` implementation is broken, and we work around that by
+		// using Zest which uses XPath. So, getElementById call can be O(n) and calling it
+		// on on every element of the DOM via vistDOM here makes it O(n^2) instead of O(n).
+		// So, we work around that by building an index and avoiding getElementByID entirely
+		// in storeInPageBundle.
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset
+		if ( !empty( $options['storeInPageBundle'] ) ) {
+			$options['idIndex'] = self::usedIdIndex( $node );
+		}
 		DOMUtils::visitDOM( $node, [ self::class, 'storeDataAttribs' ], $options );
 	}
 
@@ -641,7 +663,7 @@ class DOMDataUtils {
 		}
 		// Store pagebundle
 		if ( $data !== null ) {
-			self::storeInPageBundle( $node, $options['env'], $data, $options['anyIds'] ?? true );
+			self::storeInPageBundle( $node, $options['env'], $data, $options['idIndex'] );
 		}
 
 		// Indicate that this node's data has been stored so that if we try

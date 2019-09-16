@@ -159,7 +159,7 @@ class DOMPostProcessor extends PipelineStage {
 		$env = $this->env;
 		$options = $this->options;
 		$seenIds = &$this->seenIds;
-		$haveMwPrefixIds = true;
+		$usedIdIndex = [];
 
 		$tableFixer = new TableFixups( $env );
 
@@ -456,13 +456,12 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => function ( $node, $env, $atTopLevel, $tplInfo ) use ( &$haveMwPrefixIds ) {
+						'action' => function ( $node, $env, $atTopLevel, $tplInfo ) use ( &$usedIdIndex ) {
 							if ( DOMUtils::isBody( $node ) ) {
-								$haveMwPrefixIds = DOMCompat::querySelector(
-									$node->ownerDocument, '[id|="mw"]' ) !== null;
+								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}
 							return Cleanup::cleanupAndSaveDataParsoid(
-								$haveMwPrefixIds, $node, $env, $atTopLevel, $tplInfo );
+								$usedIdIndex, $node, $env, $atTopLevel, $tplInfo );
 						}
 					]
 				]
