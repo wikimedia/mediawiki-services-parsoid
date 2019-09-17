@@ -28,8 +28,12 @@ class FormatHelper {
 		self::FORMAT_LINT => 'json',
 	];
 
-	const VALID_TRANSFORMS = [
-		self::FORMAT_WIKITEXT => [ self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE ],
+	const VALID_PAGE = [
+		self::FORMAT_WIKITEXT, self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE
+	];
+
+	const VALID_TRANSFORM = [
+		self::FORMAT_WIKITEXT => [ self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE, self::FORMAT_LINT ],
 		self::FORMAT_HTML => [ self::FORMAT_WIKITEXT ],
 		self::FORMAT_PAGEBUNDLE => [ self::FORMAT_WIKITEXT, self::FORMAT_PAGEBUNDLE ],
 	];

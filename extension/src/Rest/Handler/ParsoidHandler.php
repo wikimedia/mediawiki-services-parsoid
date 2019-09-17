@@ -149,7 +149,6 @@ abstract class ParsoidHandler extends Handler {
 			return $this->requestAttributes;
 		}
 
-		// TODO validate format
 		// Porting note: this is the equivalent of the v3Middle middleware.
 		$request = $this->getRequest();
 		$body = json_decode( $request->getBody()->getContents(), true ) ?? [];

@@ -24,6 +24,15 @@ class TransformHandler extends ParsoidHandler {
 		$from = $request->getPathParam( 'from' );
 		$format = $request->getPathParam( 'format' );
 
+		if (
+			!isset( FormatHelper::VALID_TRANSFORM[$from] ) ||
+			!in_array( $format, FormatHelper::VALID_TRANSFORM[$from] )
+		) {
+			return $this->getResponseFactory()->createHttpError( 404, [
+				'message' => "Invalid transform: ${from}/to/${format}",
+			] );
+		}
+
 		$attribs = &$this->getRequestAttributes();
 
 		if ( $from === FormatHelper::FORMAT_WIKITEXT ) {
