@@ -522,6 +522,11 @@ class DOMDataUtils {
 			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
+		if ( isset( $dp->optList ) ) {
+			foreach ( $dp->optList as &$item ) {
+				$item = (array)$item;
+			}
+		}
 	}
 
 	/**

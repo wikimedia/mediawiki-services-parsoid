@@ -1054,25 +1054,29 @@ class LinkHandlerUtils {
 		$outerDMW = $outerElt ? DOMDataUtils::getDataMw( $outerElt ) : new stdClass;
 		$mwAliases = $state->getEnv()->getSiteConfig()->mwAliases();
 
-		$getOpt = function ( $key ) use ( &$outerDP ) {
+		// Return ref to the array element in case it is modified
+		$getOpt = function & ( $key ) use ( &$outerDP ): ?array {
+			$null = null;
 			if ( empty( $outerDP->optList ) ) {
-				return null;
+				return $null;
 			}
-			foreach ( $outerDP->optList as $o ) {
-				if ( ( $o->ck ?? null ) === $key ) {
-					return $o;
+			foreach ( $outerDP->optList as $opt ) {
+				if ( ( $opt['ck'] ?? null ) === $key ) {
+					return $opt;
 				}
 			}
-			return null;
+			return $null;
 		};
-		$getLastOpt = function ( $key ) use ( &$outerDP ) : ?stdClass {
-			$o = $outerDP->optList ?? [];
-			for ( $i = count( $o ) - 1;  $i >= 0;  $i-- ) {
-				if ( ( $o[$i]->ck ?? null ) === $key ) {
-					return $o[$i];
+		// Return ref to the array element in case it is modified
+		$getLastOpt = function & ( $key ) use ( &$outerDP ) : ?array {
+			$null = null;
+			$opts = $outerDP->optList ?? [];
+			for ( $i = count( $opts ) - 1;  $i >= 0;  $i-- ) {
+				if ( ( $opts[$i]['ck'] ?? null ) === $key ) {
+					return $opts[$i];
 				}
 			}
-			return null;
+			return $null;
 		};
 
 		// Try to identify the local title to use for the link.
@@ -1109,7 +1113,7 @@ class LinkHandlerUtils {
 			$linkOpt = $getOpt( 'link' );
 			if ( $linkOpt ) {
 				$link['fromsrc'] = true;
-				$link['value'] = $linkOpt->ak;
+				$link['value'] = $linkOpt['ak'];
 			}
 		}
 
@@ -1153,7 +1157,7 @@ class LinkHandlerUtils {
 				continue;
 			}
 			if ( $o['value'] && !empty( $o['value']['fromsrc'] ) ) {
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => $o['name'],
 					'ak' => [ $o['value']['value'] ],
 				];
@@ -1167,7 +1171,7 @@ class LinkHandlerUtils {
 						$state, $value, false, $node, true
 					);
 				}
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => $o['name'],
 					'v' => $value,
 					'ak' => $mwAliases['img_' . $o['name']],
@@ -1187,7 +1191,7 @@ class LinkHandlerUtils {
 				case 'mw-halign-left':
 				case 'mw-halign-center':
 					$val = substr( $c, 10 ); // strip mw-halign- prefix
-					$nopts[] = (object)[
+					$nopts[] = [
 						'ck' => $val,
 						'ak' => $mwAliases['img_' . $val],
 					];
@@ -1202,14 +1206,14 @@ class LinkHandlerUtils {
 				case 'mw-valign-bottom':
 				case 'mw-valign-text-bottom':
 					$val = strtr( substr( $c, 10 ), '-', '_' ); // strip mw-valign and '-' to '_'
-					$nopts[] = (object)[
+					$nopts[] = [
 						'ck' => $val,
 						'ak' => $mwAliases['img_' . $val],
 					];
 					break;
 
 				case 'mw-image-border':
-					$nopts[] = (object)[
+					$nopts[] = [
 						'ck' => 'border',
 						'ak' => $mwAliases['img_border'],
 					];
@@ -1227,7 +1231,7 @@ class LinkHandlerUtils {
 		}
 
 		if ( count( $extra ) ) {
-			$nopts[] = (object)[
+			$nopts[] = [
 				'ck' => 'class',
 				'v' => implode( ' ', $extra ),
 				'ak' => $mwAliases['img_class'],
@@ -1261,7 +1265,7 @@ class LinkHandlerUtils {
 			}
 			if ( $v !== null ) {
 				$ak = $state->serializer->getAttributeValue( $outerElt, $o['ck'], $mwAliases[$o['alias']] );
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => $o['ck'],
 					'ak' => $ak,
 					'v' => $v
@@ -1275,7 +1279,7 @@ class LinkHandlerUtils {
 
 		switch ( $format ) {
 			case 'Thumb':
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => 'thumbnail',
 					'ak' => $state->serializer->getAttributeValue(
 						$outerElt, 'thumbnail', $mwAliases['img_thumbnail']
@@ -1283,13 +1287,13 @@ class LinkHandlerUtils {
 				];
 				break;
 			case 'Frame':
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => 'framed',
 					'ak' => $state->serializer->getAttributeValue( $outerElt, 'framed', $mwAliases['img_framed'] ),
 				];
 				break;
 			case 'Frameless':
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => 'frameless',
 					'ak' => $state->serializer->getAttributeValue(
 						$outerElt, 'frameless', $mwAliases['img_frameless']
@@ -1322,21 +1326,21 @@ class LinkHandlerUtils {
 			in_array( $format, [ 'Frameless', 'Thumb' ], true )
 		) {
 			// preserve upright option
-			$nopts[] = (object)[
-				'ck' => $upright->ck,
-				'ak' => [ $upright->ak ],
+			$nopts[] = [
+				'ck' => $upright['ck'],
+				'ak' => [ $upright['ak'] ],
 			];
 		}// FIXME: don't use ak here!
 
 		if ( !( $outerElt && DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
 			$size = $getLastOpt( 'width' );
-			$sizeString = (string)( $size->ak ?? '' );
+			$sizeString = (string)( $size['ak'] ?? '' );
 			if ( $sizeString === '' && !empty( $ww['fromDataMW'] ) ) {
 				$sizeString = (string)( $ww['value'] ?? '' );
 			}
 			if ( $sizeUnmodified && $sizeString !== '' ) {
 				// preserve original width/height string if not touched
-				$nopts[] = (object)[
+				$nopts[] = [
 					'ck' => 'width',
 					'v' => $sizeString, // original size string
 					'ak' => [ '$1' ]
@@ -1364,7 +1368,7 @@ class LinkHandlerUtils {
 					}
 				}
 				if ( $bbox !== null ) {
-					$nopts[] = (object)[
+					$nopts[] = [
 						'ck' => 'width',
 						// MediaWiki interprets 100px as a width
 						// restriction only, so we need to make the bounding
@@ -1381,17 +1385,17 @@ class LinkHandlerUtils {
 
 		// Add bogus options from old optlist in order to round-trip cleanly (T64500)
 		foreach ( $opts as $o ) {
-			if ( ( $o->ck ?? null ) === 'bogus' ) {
-				$nopts[] = (object)[
+			if ( ( $o['ck'] ?? null ) === 'bogus' ) {
+				$nopts[] = [
 					'ck' => 'bogus',
-					'ak' => [ $o->ak ],
+					'ak' => [ $o['ak'] ],
 				];
 			}
 		}
 
 		// Put the caption last, by default.
 		if ( is_string( $caption ) ) {
-			$nopts[] = (object)[
+			$nopts[] = [
 				'ck' => 'caption',
 				'ak' => [ $caption ],
 			];
@@ -1400,20 +1404,20 @@ class LinkHandlerUtils {
 		// ok, sort the new options to match the order given in the old optlist
 		// and try to match up the aliases used
 		$changed = false;
-		foreach ( $nopts as $no ) {
+		foreach ( $nopts as &$no ) {
 			// Make sure we have an array here. Default in data-parsoid is
 			// actually a string.
 			// FIXME: don't reuse ak for two different things!
-			if ( !is_array( $no->ak ) ) {
-				$no->ak = [ $no->ak ];
+			if ( !is_array( $no['ak'] ) ) {
+				$no['ak'] = [ $no['ak'] ];
 			}
 
-			$no->sortId = count( $opts );
+			$no['sortId'] = count( $opts );
 			$idx = -1;
 			foreach ( $opts as $i => $o ) {
-				if ( ( $o->ck ?? null ) === $no->ck &&
+				if ( ( $o['ck'] ?? null ) === $no['ck'] &&
 					// for bogus options, make sure the source matches too.
-					( $o->ck !== 'bogus' || $o->ak === $no->ak[0] )
+					( $o['ck'] !== 'bogus' || $o['ak'] === $no['ak'][0] )
 				) {
 					$idx = $i;
 					break;
@@ -1422,22 +1426,22 @@ class LinkHandlerUtils {
 			if ( $idx < 0 ) {
 				// Preferred words are first in the alias list
 				// (but not in old versions of mediawiki).
-				$no->ak = $no->ak[0];
+				$no['ak'] = $no['ak'][0];
 				$changed = true;
 				continue;
 			}
 
-			$no->sortId = $idx;
+			$no['sortId'] = $idx;
 			// use a matching alias, if there is one
 			$a = null;
-			foreach ( $no->ak as $b ) {
+			foreach ( $no['ak'] as $b ) {
 				// note the trim() here; that allows us to snarf eccentric
 				// whitespace from the original option wikitext
 				$b2 = $b;
-				if ( isset( $no->v ) ) {
-					$b2 = str_replace( '$1', $no->v, $b );
+				if ( isset( $no['v'] ) ) {
+					$b2 = str_replace( '$1', $no['v'], $b );
 				}
-				if ( $b2 === trim( implode( ',', (array)$opts[$idx]->ak ) ) ) {
+				if ( $b2 === trim( implode( ',', (array)$opts[$idx]['ak'] ) ) ) {
 					$a = $b;
 					break;
 				}
@@ -1446,12 +1450,12 @@ class LinkHandlerUtils {
 			// if found; otherwise use the last alias given (English default by
 			// convention that works everywhere).
 			// TODO: use first alias (localized) instead for RTL languages (T53852)
-			if ( $a !== null && $no->ck !== 'caption' ) {
-				$no->ak = $opts[$idx]->ak;
-				$no->v = null; // prevent double substitution
+			if ( $a !== null && $no['ck'] !== 'caption' ) {
+				$no['ak'] = $opts[$idx]['ak'];
+				unset( $no['v'] ); // prevent double substitution
 			} else {
-				$no->ak = end( $no->ak );
-				if ( !( $no->ck === 'caption' && $a !== null ) ) {
+				$no['ak'] = end( $no['ak'] );
+				if ( !( $no['ck'] === 'caption' && $a !== null ) ) {
 					$changed = true;
 				}
 			}
@@ -1460,27 +1464,27 @@ class LinkHandlerUtils {
 		// Filter out bogus options if the image options/caption have changed.
 		if ( $changed ) {
 			$nopts = array_filter( $nopts, function ( $no ) {
-				return $no->ck !== 'bogus';
+				return $no['ck'] !== 'bogus';
 			} );
 			// empty captions should get filtered out in this case, too (T64264)
 			$nopts = array_filter( $nopts, function ( $no ) {
-				return !( $no->ck === 'caption' && $no->ak === '' );
+				return !( $no['ck'] === 'caption' && $no['ak'] === '' );
 			} );
 		}
 
 		// sort!
 		usort( $nopts, function ( $a, $b ) {
-			return $a->sortId <=> $b->sortId;
+			return $a['sortId'] <=> $b['sortId'];
 		} );
 
 		// emit all the options as wikitext!
 		$wikitext = '[[' . $resource['value'];
 		foreach ( $nopts as $o ) {
 			$wikitext .= '|';
-			if ( isset( $o->v ) ) {
-				$wikitext .= str_replace( '$1', $o->v, $o->ak );
+			if ( isset( $o['v'] ) ) {
+				$wikitext .= str_replace( '$1', $o['v'], $o['ak'] );
 			} else {
-				$wikitext .= $o->ak;
+				$wikitext .= $o['ak'];
 			}
 		}
 		$wikitext .= ']]';
