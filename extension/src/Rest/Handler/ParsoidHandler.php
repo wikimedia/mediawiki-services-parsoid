@@ -621,7 +621,7 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$oldhtml = null;
-		$oldtext = null;
+		$oldtext = '';  // PORT-FIXME:  This isn't used.
 
 		if ( $original ) {
 			if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
@@ -681,7 +681,7 @@ abstract class ParsoidHandler extends Handler {
 		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
-		$useSelser = $hasOldId && $oldtext !== null && !empty( $this->parsoidSettings['useSelser'] );
+		$useSelser = $hasOldId && !empty( $this->parsoidSettings['useSelser'] );
 		$selser = null;
 		if ( $useSelser ) {
 			$selser = new Selser( $oldtext, $oldhtml );

@@ -73,7 +73,9 @@ class TransformHandler extends ParsoidHandler {
 			if ( is_array( $html ) ) {
 				$html = $html['body'];
 			}
-			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
+			// PORT-FIXME: See comments in parse.php re: when this should be set.
+			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
+			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
