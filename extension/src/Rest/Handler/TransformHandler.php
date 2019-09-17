@@ -46,7 +46,6 @@ class TransformHandler extends ParsoidHandler {
 				}
 			}
 			// Abort if no wikitext or title.
-			// FIXME use proper validation
 			if ( $wikitext === null && $attribs['titleMissing'] ) {
 				return $this->getResponseFactory()->createHttpError( 400, [
 					'message' => 'No title or wikitext was provided.',
@@ -55,9 +54,13 @@ class TransformHandler extends ParsoidHandler {
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
 			return $this->wt2html( $env, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
-			// FIXME validate $html is present
+			$html = $attribs['opts']['html'] ?? null;
+			if ( $html === null ) {
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => 'No html was supplied.',
+				] );
+			}
 			// Accept html as a string or object{body,headers}
-			$html = $attribs['opts']['html'] ?? '';
 			if ( is_array( $html ) ) {
 				$html = $html['body'];
 			}
