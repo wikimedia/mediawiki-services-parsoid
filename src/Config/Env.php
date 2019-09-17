@@ -215,6 +215,7 @@ class Env {
 	 *         testing and can be removed after porting and testing is complete.
 	 *  - noDataAccess: boolean
 	 *  - nativeTemplateExpansion: boolean
+	 *  - discardDataParsoid: boolean
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
@@ -242,6 +243,7 @@ class Env {
 		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
+		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 	}
 
 	/**

@@ -15,13 +15,14 @@ use MediaWiki\Rest\Handler;
 use MobileContext;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\Rest\FormatHelper;
-use Parsoid\Config\Env;
 use MWParsoid\ParsoidServices;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\Selser;
 use Parsoid\Tokens\Token;
+use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess;
+use Parsoid\Config\PageConfig;
 use Parsoid\Config\SiteConfig;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -166,11 +167,6 @@ abstract class ParsoidHandler extends Handler {
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
 		];
 
-		if ( !empty( $attribs['subst'] ) && $opts['format'] !== FormatHelper::FORMAT_HTML ) {
-			// FIXME use validation
-			throw new LogicException( 'Substitution is only supported for the HTML format.' );
-		}
-
 		if ( $request->getMethod() === 'POST' ) {
 			if ( isset( $opts['original']['revid'] ) ) {
 				$attribs['oldid'] = $opts['original']['revid'];
@@ -202,20 +198,35 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * @param string $title The page to be transformed
 	 * @param int|null $revision The revision to be transformed
-	 * @param string|null $wikitextOverride Custom wikitext to use instead of the real content of
-	 *   the page.
-	 * @return Env
+	 * @param string|null $wikitextOverride
+	 *   Custom wikitext to use instead of the real content of the page.
+	 * @return PageConfig
 	 */
-	protected function createEnv(
+	protected function createPageConfig(
 		string $title, ?int $revision, string $wikitextOverride = null
-	): Env {
+	): PageConfig {
 		$title = $title ? Title::newFromText( $title ) : Title::newMainPage();
 		if ( !$title ) {
 			// TODO use proper validation
 			throw new LogicException( 'Title not found!' );
 		}
 		$user = RequestContext::getMain()->getUser();
-		$pageConfig = $this->pageConfigFactory->create( $title, $user, $revision, $wikitextOverride );
+		return $this->pageConfigFactory->create(
+			$title, $user, $revision, $wikitextOverride
+		);
+	}
+
+	/**
+	 * @param string $title The page to be transformed
+	 * @param int|null $revision The revision to be transformed
+	 * @param string|null $wikitextOverride
+	 *   Custom wikitext to use instead of the real content of the page.
+	 * @return Env
+	 */
+	protected function createEnv(
+		string $title, ?int $revision, string $wikitextOverride = null
+	): Env {
+		$pageConfig = $this->createPageConfig( $title, $revision, $wikitextOverride );
 		$options = [];
 		foreach ( [ 'wrapSections', 'scrubWikitext', 'traceFlags', 'dumpFlags' ] as $opt ) {
 			if ( isset( $this->parsoidSettings[$opt] ) ) {
@@ -245,8 +256,8 @@ abstract class ParsoidHandler extends Handler {
 			/** @var Token $token */
 			if ( $token->getName() === 'template' ) {
 				$tsr = $token->dataAttribs->tsr;
-				$wikitext = substr( $wikitext, 0, $tsr[0] + $tsrIncr )
-					. '{{subst:' . substr( $wikitext, $tsr[0] + $tsrIncr + 2 );
+				$wikitext = substr( $wikitext, 0, $tsr->start + $tsrIncr )
+					. '{{subst:' . substr( $wikitext, $tsr->start + $tsrIncr + 2 );
 				$tsrIncr += 6;
 			}
 		}
@@ -351,8 +362,18 @@ abstract class ParsoidHandler extends Handler {
 			return $this->createRedirectToOldidResponse( $env, $attribs );
 		}
 
+		$pageConfig = $env->getPageConfig();
+
 		if ( $doSubst ) {
+			if ( $format !== FormatHelper::FORMAT_HTML ) {
+				return $this->getResponseFactory()->createHttpError( 501, [
+					'message' => 'Substitution is only supported for the HTML format.',
+				] );
+			}
 			$wikitext = $this->substTopLevelTemplates( $env, $attribs['pageName'], $wikitext );
+			$pageConfig = $this->createPageConfig(
+				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
+			);
 		}
 
 		if ( !empty( $this->parsoidSettings['devAPI'] ) &&
@@ -370,7 +391,7 @@ abstract class ParsoidHandler extends Handler {
 					$redirectPath .= '/' . $redirectInfo['revId'];
 				}
 				$env->log( 'info', 'redirecting to ', $redirectPath );
-				$this->createRedirectResponse( "", $request->getQueryParams() );
+				return $this->createRedirectResponse( "", $request->getQueryParams() );
 			}
 		}
 
@@ -401,10 +422,10 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		if ( $format === FormatHelper::FORMAT_LINT ) {
-			$lints = $parsoid->wikitext2lint( $env->getPageConfig(), $reqOpts );
+			$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
-			$pageBundle = $parsoid->wikitext2html( $env->getPageConfig(), $reqOpts );
+			$pageBundle = $parsoid->wikitext2html( $pageConfig, $reqOpts );
 			if ( $needsPageBundle ) {
 				$responseData = [
 					'contentmodel' => '',

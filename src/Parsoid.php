@@ -40,7 +40,9 @@ class Parsoid {
 	private function parseWikitext(
 		PageConfig $pageConfig, array $options = []
 	): array {
-		$envOptions = [];
+		$envOptions = [
+			'discardDataParsoid' => !empty( $options['discardDataParsoid'] ),
+		];
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
 		}
@@ -59,12 +61,13 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $options [
-	 *   'wrapSections'      => (bool) Whether `<section>` wrappers should be added.
-	 *   'pageBundle'        => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
-	 *   'body_only'         => (bool|null) Only return the <body> children (T181657)
-	 *   'outputVersion'     => (string|null) Version of HTML to output.
-	 *                                        `null` returns the default version.
-	 *   'inlineDataAttribs' => (bool) Setting to `true` avoids extracting data attributes.
+	 *   'wrapSections'       => (bool) Whether `<section>` wrappers should be added.
+	 *   'pageBundle'         => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
+	 *   'body_only'          => (bool|null) Only return the <body> children (T181657)
+	 *   'outputVersion'      => (string|null) Version of HTML to output.
+	 *                                         `null` returns the default version.
+	 *   'inlineDataAttribs'  => (bool) Setting to `true` avoids extracting data attributes.
+	 *   'discardDataParsoid' => (bool) Drop all data-parsoid annotations.
 	 * ]
 	 * @return PageBundle
 	 */
