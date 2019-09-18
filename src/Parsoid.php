@@ -127,12 +127,12 @@ class Parsoid {
 	 *     Necessary if it differs from the current default in order to
 	 *     account for any serialization differences.
 	 * ]
-	 * @param Selser|null $selser
+	 * @param SelserData|null $selserData
 	 * @return string
 	 */
 	public function html2wikitext(
 		PageConfig $pageConfig, PageBundle $pageBundle, array $options = [],
-		?Selser $selser = null
+		?SelserData $selserData = null
 	): string {
 		$envOptions = [];
 		if ( isset( $options['scrubWikitext'] ) ) {
@@ -146,7 +146,7 @@ class Parsoid {
 		}
 		$doc = $env->createDocument( $pageBundle->html );
 		$handler = $env->getContentHandler();
-		return $handler->fromHTML( $env, $doc, $selser );
+		return $handler->fromHTML( $env, $doc, $selserData );
 	}
 
 	/**

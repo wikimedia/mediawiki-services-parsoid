@@ -4,6 +4,7 @@ namespace Test\Parsoid\Wt2Html;
 
 use DOMDocument;
 use DOMElement;
+use Parsoid\SelserData;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
 use Parsoid\Tests\MockEnv;
@@ -100,10 +101,11 @@ class SerializerStateTest extends TestCase {
 	 * @covers \Parsoid\Html2Wt\SerializerState::getOrigSrc
 	 */
 	public function testGetOrigSrc() {
-		$env = new MockEnv( [
-			'pageContent' => '0123456789',
-		] );
-		$state = $this->getState( [], $env );
+		$env = new MockEnv( [] );
+		$selserData = new SelserData( '0123456789' );
+		$state = $this->getState( [
+			'selserData' => $selserData,
+		], $env );
 		$state->initMode( true );
 		$this->assertSame( '23', $state->getOrigSrc( 2, 4 ) );
 	}

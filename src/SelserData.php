@@ -4,11 +4,11 @@ declare( strict_types = 1 );
 namespace Parsoid;
 
 /**
- * PORT-FIXME: This is just a placeholder for data that was previously passed
- * to entrypoint in JavaScript.  Who will construct these objects and whether
- * this is the correct interface is yet to be determined.
+ * Data that's necessary for selective serialization, to be passed to the
+ * library entrypoint.
  */
-class Selser {
+class SelserData {
+
 	/** @var string */
 	public $oldText;
 
@@ -25,4 +25,5 @@ class Selser {
 		$this->oldText = $oldText;
 		$this->oldHTML = $oldHTML;
 	}
+
 }

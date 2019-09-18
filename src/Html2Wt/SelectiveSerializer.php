@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Html2Wt;
 
+use Parsoid\SelserData;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMUtils;
 use Wikimedia\Assert\Assert;
@@ -26,6 +27,9 @@ class SelectiveSerializer {
 	private $trace;
 	private $metrics;
 
+	/** @var SelserData */
+	private $selserData;
+
 	/**
 	 * SelectiveSerializer constructor.
 	 * @param array $options
@@ -33,7 +37,8 @@ class SelectiveSerializer {
 	public function __construct( $options ) {
 		$env = $options[ 'env' ];
 		$this->env = $env;
-		$this->wts = $options[ 'wts' ] ?? new WikitextSerializer( $options );
+		$this->wts = new WikitextSerializer( $options );
+		$this->selserData = $options['selserData'];
 
 		// Debug options
 		$this->trace = !empty( $env->traceFlags ) &&
@@ -63,15 +68,17 @@ class SelectiveSerializer {
 		if ( $metrics ) {
 			$serializeStart = time();
 		}
-		if ( ( !$this->env->getOrigDOM() && !$this->env->getDOMDiff() ) ||
-			$this->env->getPageMainContent() === null ) {
+
+		if (
+			( !$this->env->getOrigDOM() && !$this->env->getDOMDiff() ) ||
+			$this->selserData->oldText === null
+		) {
 			// If there's no old source, fall back to non-selective serialization.
 			$r = $this->wts->serializeDOM( $body, false );
 			if ( $metrics ) {
 				$metrics->endTiming( 'html2wt.full.serialize', $serializeStart );
 			}
 		} else {
-			$diff = null;
 			// Use provided diff-marked DOM (used during testing)
 			// or generate one (used in production)
 			if ( $this->env->getDOMDiff() ) {
@@ -97,7 +104,7 @@ class SelectiveSerializer {
 
 			if ( $diff[ 'isEmpty' ] ) {
 				// Nothing was modified, just re-use the original source
-				$r = $this->env->getPageMainContent();
+				$r = $this->selserData->oldText;
 			} else {
 				if ( $this->trace || ( !empty( $this->env->getSiteConfig()->dumpFlags ) &&
 						$this->env->getSiteConfig()->dumpFlags[ 'dom:post-dom-diff' ] )

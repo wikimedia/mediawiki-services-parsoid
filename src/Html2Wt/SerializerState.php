@@ -6,6 +6,7 @@ namespace Parsoid\Html2Wt;
 use Composer\Semver\Semver;
 use DOMElement;
 use DOMNode;
+use Parsoid\SelserData;
 use Parsoid\Config\Env;
 use Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Parsoid\Utils\DOMDataUtils;
@@ -225,6 +226,9 @@ class SerializerState {
 	 */
 	public $selserMode;
 
+	/** @var SelserData */
+	private $selserData;
+
 	/**
 	 * If in selser mode, while processing a node, do we know if
 	 * its previous node has not been modified in an edit?
@@ -361,7 +365,7 @@ class SerializerState {
 	 */
 	public function getOrigSrc( int $start, int $end ): ?string {
 		Assert::invariant( $this->selserMode, 'SerializerState::$selserMode must be set' );
-		return $start <= $end ? substr( $this->env->getPageMainContent(), $start, $end - $start ) : null;
+		return $start <= $end ? substr( $this->selserData->oldText, $start, $end - $start ) : null;
 	}
 
 	/**

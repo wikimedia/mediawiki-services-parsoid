@@ -13,7 +13,7 @@ use Parsoid\Config\Api\DataAccess;
 use Parsoid\Config\Api\PageConfig;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
-use Parsoid\Selser;
+use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
 use Parsoid\Tools\TestUtils;
 use Parsoid\Utils\ContentUtils;
@@ -850,7 +850,7 @@ class TestRunner {
 		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
 		if ( $mode === 'selser' ) {
 			if ( $startsAtWikitext ) {
-				$selserData = new Selser( $test->wikitext, $test->cachedBODYstr );
+				$selserData = new SelserData( $test->wikitext, $test->cachedBODYstr );
 			}
 		}
 		$handler = $env->getContentHandler();

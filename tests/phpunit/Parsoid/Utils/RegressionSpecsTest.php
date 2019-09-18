@@ -6,7 +6,7 @@ namespace Test\Parsoid\Utils;
 use DOMElement;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
-use Parsoid\Selser;
+use Parsoid\SelserData;
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
@@ -72,8 +72,8 @@ class RegressionSpecsTest extends TestCase {
 		$this->assertEquals( $withoutSelser, $editedWT, $description );
 
 		// With selser
-		$selser = new Selser( $wt, $html );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selser );
+		$selserData = new SelserData( $wt, $html );
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selserData );
 		$this->assertEquals( $withSelser, $editedWT, $description );
 	}
 
@@ -246,8 +246,8 @@ class RegressionSpecsTest extends TestCase {
 		] );
 
 		$newBundle = new PageBundle( $editedBody );
-		$selser = new Selser( $wt, $html );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selser );
+		$selserData = new SelserData( $wt, $html );
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selserData );
 		$this->assertEquals( $newVersion, $editedWT, $description );
 
 		// Whitespace heuristics are disabled, but selser's buildSep heuristics will do
@@ -273,9 +273,9 @@ class RegressionSpecsTest extends TestCase {
 		$htmlVersion = '1.6.1';
 
 		$newBundle = new PageBundle( $editedBody );
-		$selser = new Selser( $wt, $html );
+		$selserData = new SelserData( $wt, $html );
 		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle,
-			[ 'inputContentVersion' => $htmlVersion ], $selser );
+			[ 'inputContentVersion' => $htmlVersion ], $selserData );
 		$this->assertEquals( $oldVersion, $editedWT, $description );
 	}
 

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
-use Parsoid\Selser;
+use Parsoid\SelserData;
 
 use Parsoid\Config\Api\ApiHelper;
 use Parsoid\Config\Api\DataAccess;
@@ -133,18 +133,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param PageBundle $pb
-	 * @param Selser|null $selser
+	 * @param SelserData|null $selserData
 	 * @return string
 	 */
 	public function html2Wt(
 		array $configOpts, array $parsoidOpts, PageBundle $pb,
-		?Selser $selser = null
+		?SelserData $selserData = null
 	): string {
-		// PORT-FIXME: Think about when is the right time for this to be set.
-		if ( $selser ) {
-			$configOpts["pageContent"] = $selser->oldText;
-		}
-
 		$api = new ApiHelper( $configOpts );
 
 		$siteConfig = new SiteConfig( $api, $configOpts );
@@ -155,7 +150,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$pageConfig = new PageConfig( $api, $configOpts );
 
 		return $parsoid->html2wikitext(
-			$pageConfig, $pb, $parsoidOpts, $selser
+			$pageConfig, $pb, $parsoidOpts, $selserData
 		);
 	}
 
@@ -259,12 +254,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 						return;
 					}
 				}
-				$selser = new Selser( $oldText, $oldHTML );
+				$selserData = new SelserData( $oldText, $oldHTML );
 			} else {
-				$selser = null;
+				$selserData = null;
 			}
 			$pb = new PageBundle( $input );
-			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selser );
+			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selserData );
 			if ( $this->hasOption( 'html2html' ) ) {
 				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
 				$this->output( $pb->html . "\n" );

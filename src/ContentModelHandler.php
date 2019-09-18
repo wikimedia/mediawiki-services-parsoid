@@ -18,11 +18,11 @@ abstract class ContentModelHandler {
 	/**
 	 * @param Env $env
 	 * @param DOMDocument $doc
-	 * @param Selser|null $selser
+	 * @param SelserData|null $selserData
 	 * @return string
 	 */
 	abstract public function fromHTML(
-		Env $env, DOMDocument $doc, ?Selser $selser = null
+		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string;
 
 }

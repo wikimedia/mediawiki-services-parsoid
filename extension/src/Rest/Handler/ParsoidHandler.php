@@ -18,7 +18,7 @@ use MWParsoid\Rest\FormatHelper;
 use MWParsoid\ParsoidServices;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
-use Parsoid\Selser;
+use Parsoid\SelserData;
 use Parsoid\Tokens\Token;
 use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess;
@@ -621,7 +621,7 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$oldhtml = null;
-		$oldtext = '';  // PORT-FIXME:  This isn't used.
+		$oldtext = $env->getPageMainContent();
 
 		if ( $original ) {
 			if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
@@ -654,12 +654,6 @@ abstract class ParsoidHandler extends Handler {
 				$envOptions['dpContentType'] = $original[ 'data-parsoid' ]['headers'][ 'content-type' ] ?? null;
 			}
 
-			// If we got original src, set it
-			if ( isset( $original['wikitext'] ) ) {
-				// Don't overwrite env.page.meta!
-				$oldtext = $original['wikitext']['body'];
-			}
-
 			// If we got original html, parse it
 			if ( isset( $original['html'] ) ) {
 				if ( !$oldBody ) {
@@ -681,10 +675,11 @@ abstract class ParsoidHandler extends Handler {
 		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
-		$useSelser = $hasOldId && !empty( $this->parsoidSettings['useSelser'] );
-		$selser = null;
-		if ( $useSelser ) {
-			$selser = new Selser( $oldtext, $oldhtml );
+
+		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
+			$selserData = new SelserData( $oldtext, $oldhtml );
+		} else {
+			$selserData = null;
 		}
 
 		$pb->html = ContentUtils::toXML( $doc );
@@ -694,7 +689,7 @@ abstract class ParsoidHandler extends Handler {
 			// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
 			'scrubWikitext' => $envOptions['scrubWikitext'],
 			'inputContentVersion' => $envOptions['inputContentVersion'],
-		], $selser );
+		], $selserData );
 
 		$this->statsdDataFactory->timing( 'html2wt.total', time() - $startTimers['html2wt.total'] );
 		$this->statsdDataFactory->timing( 'html2wt.size.output', strlen( $wikitext ) );

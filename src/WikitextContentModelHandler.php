@@ -17,9 +17,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * Fetch prior DOM for selser.
 	 *
 	 * @param Env $env
-	 * @param Selser $selser
+	 * @param SelserData $selserData
 	 */
-	private function setupSelser( Env $env, Selser $selser ) {
+	private function setupSelser( Env $env, SelserData $selserData ) {
 		// Why is it safe to use a reparsed dom for dom diff'ing?
 		// (Since that's the only use of `env.page.dom`)
 		//
@@ -55,10 +55,10 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		// selser, will only get worse over time.
 		//
 		// So, we're forced to trade off the correctness for usability.
-		if ( $selser->oldHTML === null ) {
+		if ( $selserData->oldHTML === null ) {
 			$doc = $this->toHTML( $env );
 		} else {
-			$doc = $env->createDocument( $selser->oldHTML );
+			$doc = $env->createDocument( $selserData->oldHTML );
 		}
 		$body = DOMCompat::getBody( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
@@ -76,19 +76,20 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	/**
 	 * @param Env $env
 	 * @param DOMDocument $doc
-	 * @param Selser|null $selser
+	 * @param SelserData|null $selserData
 	 * @return string
 	 */
 	public function fromHTML(
-		Env $env, DOMDocument $doc, ?Selser $selser = null
+		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string {
 		$serializerOpts = [
-			"env" => $env,
+			'env' => $env,
+			'selserData' => $selserData,
 		];
 		$Serializer = null;
-		if ( $selser ) {
+		if ( $selserData ) {
 			$Serializer = SelectiveSerializer::class;
-			$this->setupSelser( $env, $selser );
+			$this->setupSelser( $env, $selserData );
 		} else {
 			$Serializer = WikitextSerializer::class;
 		}
