@@ -709,7 +709,7 @@
 		},
 		"29": {
 			"code": "bjn",
-			"name": "Bahasa Banjar",
+			"name": "Banjar",
 			"site": [
 				{
 					"url": "https://bjn.wikipedia.org",
@@ -2568,6 +2568,12 @@
 					"dbname": "hiwikiquote",
 					"code": "wikiquote",
 					"sitename": "विकिसूक्ति"
+				},
+				{
+					"url": "https://hi.wikisource.org",
+					"dbname": "hiwikisource",
+					"code": "wikisource",
+					"sitename": "विकिस्रोत"
 				},
 				{
 					"url": "https://hi.wikiversity.org",
@@ -6184,7 +6190,7 @@
 		},
 		"255": {
 			"code": "su",
-			"name": "Basa Sunda",
+			"name": "Sunda",
 			"site": [
 				{
 					"url": "https://su.wikipedia.org",
@@ -7508,7 +7514,7 @@
 			"dir": "ltr",
 			"localname": "Zulu"
 		},
-		"count": 934,
+		"count": 935,
 		"specials": [
 			{
 				"url": "https://advisors.wikimedia.org",
@@ -8020,7 +8026,7 @@
 				"url": "https://punjabi.wikimedia.org",
 				"dbname": "punjabiwikimedia",
 				"code": "punjabiwikimedia",
-				"lang": "punjabi",
+				"lang": "pa",
 				"sitename": "Punjabi Wikimedians",
 				"fishbowl": ""
 			},
