@@ -311,6 +311,12 @@ Template:With: Colon
 Template with colon
 !! endarticle
 
+!! article
+Template:Template with pagename
+!! text
+This is {{PAGENAME}}.
+!! endarticle
+
 ###
 ### Basic tests
 ###
@@ -25612,6 +25618,19 @@ title=[[Main Page]]
 {{int:T34057}}
 !! html
 <h2><span class="mw-headline" id="OK">OK</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: OK">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! end
+
+!! test
+Title needed when expanding templates.
+!! options
+title=[[Main Page]]
+!! wikitext
+{{Template with pagename}}
+!! html/php+tidy
+<p>This is Main Page.
+</p>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Template with pagename","href":"./Template:Template_with_pagename"},"params":{},"i":0}}]}'>This is Main Page.</p>
 !! end
 
 !! test

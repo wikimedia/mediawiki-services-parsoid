@@ -77,10 +77,12 @@ class PipelineUtils {
 	 *    Processing options that specify pipeline-type, opts, and callbacks.
 	 *    - string pipelineType
 	 *    - array  pipelineOpts
-	 *    - array  tplArgs
+	 *    - array  tplArgs - if set, defines parameters for the child frame
 	 *    - string tplArgs.name
 	 *    - array  tplArgs.attribs
-	 *    - SourceRange  srcOffsets
+	 *    - string srcText - if set, defines the source text for the expansion
+	 *    - SourceRange  srcOffsets - if set, defines the range within the
+	 *          source text that $content corresponds to
 	 *    - bool   sol
 	 * @return Token[]|DOMDocument (depending on pipeline type)
 	 */

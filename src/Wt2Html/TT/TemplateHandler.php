@@ -633,6 +633,7 @@ class TemplateHandler extends TokenHandler {
 					'expandTemplates' => false,
 					'extTag' => $this->options['extTag'] ?? null
 				],
+				'srcText' => $src,
 				'srcOffsets' => new SourceRange( 0, strlen( $src ) ),
 				'tplArgs' => $tplArgs,
 				'sol' => true
