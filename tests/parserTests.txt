@@ -11326,6 +11326,42 @@ foo<meta property="mw:PageProp/notoc"/>bar
 !! end
 
 !! test
+Magic Word: case-insensitive (all-lowercase)
+!! wikitext
+foo
+__notoc__
+bar
+!! html/php+tidy
+<p>foo
+</p><p>bar
+</p>
+!! html/parsoid
+<p>foo
+<meta property="mw:PageProp/notoc" data-parsoid='{"src":"__notoc__","magicSrc":"__notoc__"}'/>
+bar</p>
+!! end
+
+# wt2wt,html2wt disabled because we always (unless selser) serialize
+# in a uniform case (all upper or all lower)
+!! test
+Magic Word: case-insensitive (mixed case)
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+foo
+__NOtOC__
+bar
+!! html/php+tidy
+<p>foo
+</p><p>bar
+</p>
+!! html/parsoid
+<p>foo
+<meta property="mw:PageProp/notoc" data-parsoid='{"src":"__NOtOC__","magicSrc":"__NOtOC__"}'/>
+bar</p>
+!! end
+
+!! test
 Magic Word: rt non-english wikis
 !! options
 parsoid=wt2wt
