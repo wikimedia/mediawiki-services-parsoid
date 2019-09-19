@@ -123,6 +123,9 @@ class TestUtils {
 		$out = preg_replace( '/\s?importance="high"/u', '', $out );
 		$out = preg_replace( '/\s?elementtiming="thumbnail-(high|top)"/u', '', $out );
 
+		// maplink extension
+		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
+
 		if ( $parsoidOnly ) {
 			// unnecessary attributes, we don't need to check these
 			// style is in there because we should only check classes.

@@ -113,6 +113,9 @@ TestUtils.normalizeOut = function(domBody, options) {
 	out = out.replace(/\s?importance="high"/g, '');
 	out = out.replace(/\s?elementtiming="thumbnail-(high|top)"/g, '');
 
+	// maplink extension
+	out = out.replace(/\s?data-overlays='[^']*'/ig, '');
+
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
