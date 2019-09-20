@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Parsoid\Wt2Html;
+namespace Test\Parsoid\Html2Wt;
 
 use Parsoid\Html2Wt\SingleLineContext;
 use PHPUnit\Framework\TestCase;

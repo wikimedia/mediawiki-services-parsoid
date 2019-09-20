@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Parsoid\Wt2Html;
+namespace Test\Parsoid\Wt2Html\PP\Processors;
 
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;

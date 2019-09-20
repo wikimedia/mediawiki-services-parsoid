@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Parsoid\Wt2Html;
+namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
 use Parsoid\Config\Env;
 use DOMElement;
