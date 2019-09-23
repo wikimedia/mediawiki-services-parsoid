@@ -1143,7 +1143,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a106($spos, $target, $tpos, $lcs) {
   
-  		$pipeTrick = ( count( $lcs ) === 1 && $lcs[0]->v === '' );
+  		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0]->v ) === 0;
   		$textTokens = [];
   		if ( $target === null || $pipeTrick ) {
   			$textTokens[] = '[[';
@@ -1153,7 +1153,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			foreach ( $lcs as $a ) {
   				// a is a mw:maybeContent attribute
   				$textTokens[] = '|';
-  				if ( $a->v !== null ) {
+  				if ( count( $a->v ) > 0 ) {
   					$textTokens[] = $a->v;
   				}
   			}
@@ -1407,7 +1407,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a134($startPos, $lt) {
   
   			$tsr = new SourceRange( $startPos, $this->endOffset() );
-  			$maybeContent = new KV( 'mw:maybeContent', $lt ?? '', $tsr->expandTsrV() );
+  			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
   			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
   			return $maybeContent;
   		
