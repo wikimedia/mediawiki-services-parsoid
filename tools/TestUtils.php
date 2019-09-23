@@ -587,7 +587,7 @@ class TestUtils {
 			'expected' => $expected ? $expected['raw'] : null,
 			'actualNormalized' => $actual ? $actual['normal'] : null
 		];
-		$stats->modes[$mode]->failList[] = $fail;
+		$stats->modes[$mode]->failList[] = &$fail;
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
