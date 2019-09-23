@@ -346,9 +346,17 @@ class SiteConfig extends ISiteConfig {
 		// cscott sadly says: Note that this depends on the precise
 		// localization of the magic words of this particular wiki.
 
-		$redirect = '(?i:#REDIRECT)';
+		$redirect = '(?i:\#REDIRECT)';
 		$quote = function ( $s ) {
-			return preg_quote( $s, '@' );
+			$q = preg_quote( $s, '@' );
+			# Note that PHP < 7.3 doesn't escape # in preg_quote.  That means
+			# that the $redirect regexp will fail if used with the `x` flag.
+			# Manually hack around this for PHP 7.2; can remove this workaround
+			# once minimum PHP version >= 7.3
+			if ( preg_quote( '#' ) === '#' ) {
+				$q = str_replace( '#', '\\#', $q );
+			}
+			return $q;
 		};
 		foreach ( $data['magicwords'] as $mw ) {
 			if ( $mw['name'] === 'redirect' ) {

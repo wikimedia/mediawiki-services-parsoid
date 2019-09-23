@@ -125,7 +125,9 @@ class SerializerStateTest extends TestCase {
 	 * @covers \Parsoid\Html2Wt\SerializerState::emitChunk
 	 */
 	public function testEmitChunk() {
-		$state = $this->getState( [], null, $this->getBaseSerializerMock() );
+		$serializer = $this->getBaseSerializerMock();
+		$serializer->env = new MockEnv( [] );
+		$state = $this->getState( [], null, $serializer );
 		$node = $this->getNode();
 		$this->assertSame( '', $state->currLine->text );
 		$state->emitChunk( 'foo', $node );

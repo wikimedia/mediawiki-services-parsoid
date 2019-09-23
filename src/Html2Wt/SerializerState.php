@@ -27,31 +27,46 @@ class SerializerState {
 	 * beginning of the line, and is indeed at the beginning of the line (modulo comments and
 	 * other ignored elements).
 	 */
-	private const SOL_WIKITEXT_REGEXP = '
-		/
-			^((?:
-				' . Util::COMMENT_REGEXP_FRAGMENT . '
-				|
+	private function solWikitextRegexp(): string {
+		static $solWikitextRegexp = null;
+		if ( $solWikitextRegexp === null ) {
+			$sol = PHPUtils::reStrip(
+				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(),
+				'@'
+			);
+			$solWikitextRegexp = '@' .
+				'^((?:' . $sol . '|' .
 				# SSS FIXME: What about onlyinclude and noinclude?
-				<includeonly>.*?<\/includeonly>
-			)*)
-			([\ \*#:;{\|!=].*)$
-		/xD';
+				'<includeonly>.*?</includeonly>' .
+				')*)' .
+				'([\ \*#:;{\|!=].*)$' .
+				'@D';
+		}
+		return $solWikitextRegexp;
+	}
 
 	/**
 	 * Regexp for checking whether we are at the start of the line (modulo comments and
 	 * other ignored elements).
 	 */
-	private const SOL_REGEXP = '
-		/
-			(^|\\n)
-			(
+	private function solRegexp(): string {
+		static $solRegexp = null;
+		if ( $solRegexp === null ) {
+			$sol = PHPUtils::reStrip(
+				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(),
+				'@'
+			);
+			$solRegexp = '@' .
+				'(^|\\n)' .
+				'(' .
 				# SSS FIXME: What about onlyinclude and noinclude?
-				<includeonly>.*?<\/includeonly>
-				|
-				' . Util::COMMENT_REGEXP_FRAGMENT . '
-			)*$
-		/xD';
+				'<includeonly>.*?</includeonly>' .
+				'|' . $sol .
+				')*$' .
+				'@D';
+		}
+		return $solRegexp;
+	}
 
 	/**
 	 * Are we currently running round-trip tests?  If yes, then we know
@@ -594,7 +609,7 @@ class SerializerState {
 				// If a text node, we have to make sure that the text doesn't
 				// get reparsed as non-text in the wt2html pipeline.
 				if ( $pChild && DOMUtils::isText( $pChild ) ) {
-					$match = $res->match( self::SOL_WIKITEXT_REGEXP );
+					$match = $res->match( $this->solWikitextRegexp() );
 					if ( $match && isset( $match[2] ) ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )
 							// ! and | chars are harmless outside tables
@@ -622,7 +637,7 @@ class SerializerState {
 		$this->pushToCurrLine( $res, $node );
 
 		// Update sol flag. Test for newlines followed by optional includeonly or comments
-		if ( !$res->match( self::SOL_REGEXP ) ) {
+		if ( !$res->match( $this->solRegexp() ) ) {
 			$this->onSOL = false;
 		}
 

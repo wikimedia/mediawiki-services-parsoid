@@ -78,7 +78,8 @@
     },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close": {
         "wt2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span><p data-parsoid='{\"dsr\":[18,22,0,0]}'>*baz</p>",
-        "html2wt": "* foo bar\n* baz"
+        "html2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span>",
+        "html2wt": "*foo {{echo|bar\n}}"
     },
     "Magic Word: {{CURRENTMONTH1}}": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,17,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"CURRENTMONTH1\",\"function\":\"currentmonth1\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_currentmonth1 missing in Parsoid.</p>",
@@ -719,7 +720,7 @@
     },
     "Horizontal ruler (should it add that extra space?)": {
         "wt2wt": "<hr>\n<hr>\nfoo <hr> bar",
-        "html2wt": "----\n----\nfoo \n---- bar"
+        "html2wt": "<hr>\n<hr>\nfoo <hr> bar"
     },
     "Mixed list": {
         "wt2wt": "*Mixed list\n*#with numbers\n**and bullets\n*#and numbers\n*bullets again\n**bullet level 2\n***bullet level 3\n***#Number on level 4\n**bullet level 2\n**#Number on level 3\n**#Number on level 3\n*#number level 2\n*Level 1\n***Level 3\n\n#**Level 3, but ordered\n",
@@ -1327,9 +1328,6 @@
     "Block tag on both lines (<blockquote>)": {
         "html2wt": "a <blockquote>foo</blockquote>\nb <blockquote>foo</blockquote>"
     },
-    "Multiple lines without block tags": {
-        "html2wt": "<div>foo</div> a\n\nb\nc\nd e\n\nx <div>foo</div> z"
-    },
     "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)": {
         "html2wt": " <nowiki><b></nowiki>\n <nowiki><cite></nowiki>\n <nowiki><em></nowiki>\n"
     },
@@ -1619,7 +1617,7 @@
         "html2wt": "* foo\n*** bar\n** baz\n* boo"
     },
     "1. Lists with start-of-line-transparent tokens before bullets: Comments": {
-        "html2wt": "* foo\n* bar\n* baz"
+        "html2wt": "* foo\n* <!--cmt-->bar\n<!--cmt-->* baz"
     },
     "Nested lists 10 (list and span siblings: wt2wt regression)": {
         "html2wt": "* a <span>x</span>\n** b <span>y</span>\n"
@@ -2416,6 +2414,24 @@
     "Block tag on both lines (<blockquote>) [3,[4],2,[[4]]]": {
         "selser": "<blockquote>h72sym</blockquote>3nayvy\n\n\n\nb <blockquote>1arnp7b</blockquote>"
     },
+    "Multiple lines without block tags [4,1,0,[3,0,0],0,1,4,0]": {
+        "selser": "tkn1w8\n\n<nowiki> </nowiki>a\n\n<!--foo--><nowiki> </nowiki>e\n\nx \n\n1p28uxd\n\n z"
+    },
+    "Multiple lines without block tags [2,0,2,1,3,3,0,2]": {
+        "selser": "1j5shwn<div>foo</div> a\n\njrdv3n\nb\nc\nd<!--foo--> e<div>foo</div>4z3kz2\n\n z"
+    },
+    "Multiple lines without block tags [0,2,0,3,3,2,2,[3]]": {
+        "selser": "<div>foo</div>d5cyrn\n\n a\n2zkdzg\n\nx \n\n1tl6yau<div>foo</div>"
+    },
+    "Multiple lines without block tags [3,0,0,[0,0,2],4,3,[3],2]": {
+        "selser": " a\n\nb\nc\nd<!--foo-->13obem9 e\n\nrlzmk<div></div>d4mp6l\n\n z"
+    },
+    "Multiple lines without block tags [3,[4],3,3,0,2,3,0]": {
+        "selser": "1gnvq3r\n\n2whicw\n\nx \n\n z"
+    },
+    "Multiple lines without block tags [4,0,0,4,4,2,[3],[2]]": {
+        "selser": "h7hf32\n\n a\n\npawik2\n\ndvitc2\n\n18ltr5v\n\nx <div></div>1917jrw z"
+    },
     "Empty lines between lines with block tags [0,0,3,3,2,1,4,4,0,2,[3],0,4,2,3,2,3,2]": {
         "selser": "<div></div>\n5ljqv4<div></div>a\n\n1kwaewo\n\nvc7ikq\n2sa0kd<div>a</div>\n\nh89q5o\n\n1pgwihf\n\nd\n\nxtebyq\n\n\n\n\n1ltzq70<div>e</div>"
     },
@@ -2554,14 +2570,14 @@
     "Templates: Handle comments in the target [0,0,0,4,0,0,0,3,0]": {
         "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sg5r2s\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}{{<!-- should be ignored -->echo|foo}}"
     },
-    "3a. Indent-Pre and block tags (single-line html) [5]": {
-        "selser": "<nowiki> </nowiki>a <p> foo </p>\n b <div> foo </div>\n c <blockquote> foo </blockquote>\n <span> foo </span>\n"
-    },
     "3a. Indent-Pre and block tags (single-line html) [[4],2,2,0,[2],1,2,[2]]": {
         "selser": "gy1eyd\n\n17ucfxh<p> foo </p>1yvhwvw\n\n\n b <div> foo </div>k2aost\n c <blockquote data-foobar=\"1q7dlus\"> foo </blockquote>567v5t\n 114soep<span> foo </span>"
     },
     "3a. Indent-Pre and block tags (single-line html) [0,[3],2,3,3,0,2,4]": {
-        "selser": "<nowiki> </nowiki>a <p></p>1fx5dab\n\n\n b <blockquote> foo </blockquote>1g9n7co\nf09a97"
+        "selser": " a <p></p>1fx5dab\n\n\n b <blockquote> foo </blockquote>1g9n7co\nf09a97"
+    },
+    "3a. Indent-Pre and block tags (single-line html) [0,3,1,3,[3],4,0,[4]]": {
+        "selser": " a \n \nb \n\n1qc5zjc\n 1la0n9t"
     },
     "3a. Indent-Pre and block tags (single-line html) [4,[4],0,[3],2,3,0,[4]]": {
         "selser": "1xnnljk<p>1v33w05</p>\n b <div></div>1bu36yk\n\n\n c \n 16w8b21"
@@ -2573,19 +2589,10 @@
         "selser": "tevs9u<p>vts2qz foo </p>\n b \n\nw3u448<blockquote></blockquote>\n <span> foo </span>"
     },
     "3a. Indent-Pre and block tags (single-line html) [0,0,0,4,0,2,0,1]": {
-        "selser": "<nowiki> </nowiki>a <p> foo </p>\n b \n\n145shfl\n\n\n c \n\n1eq7qr5<blockquote> foo </blockquote>\n <span> foo </span>"
+        "selser": " a <p> foo </p>\n b \n\n145shfl\n\n\n c \n\n1eq7qr5<blockquote> foo </blockquote>\n <span> foo </span>"
     },
     "3a. Indent-Pre and block tags (single-line html) [[3],2,4,[2],2,[3],0,0]": {
         "selser": "\nzjgma8<p> foo </p>gzui7m<div>1afaazv foo </div>1rjyhk\n\n\n c <blockquote></blockquote>\n <span> foo </span>"
-    },
-    "3b. Indent-Pre and block tags (multi-line html) [0,4,4,0,[4]]": {
-        "selser": " a <span>foo</span>\n4bbcwx\n\n1csuyi8\n\n<nowiki> </nowiki>b <div>wna7p5</div>"
-    },
-    "3b. Indent-Pre and block tags (multi-line html) [3,0,0,0,0]": {
-        "selser": "\n<!-- comment --><nowiki> </nowiki>b <div> foo </div>"
-    },
-    "3b. Indent-Pre and block tags (multi-line html) [[2,0],2,0,0,0]": {
-        "selser": " 1g8z55oa <span>foo</span>\n1n0glqr\n<!-- comment --><nowiki> </nowiki>b <div> foo </div>"
     },
     "5a. White-space in indent-pre [[0,0,4]]": {
         "selser": " a<br />\n 6redz2"
@@ -3412,6 +3419,12 @@
     "Build table with pipe as data [[3,[3,2,[0,[3],[3]],2,[2,3,1],0,4,0]]]": {
         "selser": "{| class=\"wikitable\"<!--f4bpwj-->\n|- style=\"color:red;\"\n| || style=\"color:red;\" |<!--1dncm0k-->\n|-\n|a6iywe\n| style=\"color:red;\" data-foobar=\"vwf3pf\" | <nowiki>second data with |</nowiki>\n<!--hnyomd-->\n|}"
     },
+    "Parsoid: Round-trip tables directly followed by content (T53219) [2,2,3,[0,1],0]": {
+        "selser": "10h0oj6\n{|\n|foo\n|}\no8dbkm\n\n bar\n{|\n|baz\n|}<b>quux</b>"
+    },
+    "Parsoid: Round-trip tables directly followed by content (T53219) [4,2,4,[4,[[2],0]],4]": {
+        "selser": "1bdlqm0\n\n1gek6ph\n\n bar\n\n1ejx8cn\n{|<!--cqele4-->\n|kx2gm6\n|baz\n|}\n1jm9odp"
+    },
     "Parsoid: Row-syntax table headings followed by comment & table cells [1]": {
         "selser": "{| data-foobar=\"8sbos2\"\n!foo||bar\n<!-- foo -->  ||baz||quux\n|}"
     },
@@ -3644,7 +3657,7 @@
         "selser": "2jn92h<hr>743cw1\ns9njeh\n\nzgot2i\n\n\nfoo \n\n"
     },
     "Horizontal ruler (should it add that extra space?) [2,2,0,1,0,2]": {
-        "selser": "k89ks8<hr>5bkxh5\n<hr >\nfoo <hr\n>5qjne9\n\n<nowiki> </nowiki>bar"
+        "selser": "k89ks8<hr>5bkxh5\n<hr >\nfoo <hr\n>5qjne9\n\n bar"
     },
     "Horizontal ruler (should it add that extra space?) [3,0,4,1,0,1]": {
         "selser": "\neih5oh\n\nfoo <hr\n> bar"
@@ -3653,7 +3666,7 @@
         "selser": "<hr>bsnj98\n\n1p6wqlp\n\n7rzgy0<hr\n>"
     },
     "Horizontal ruler (should it add that extra space?) [2,0,0,1,4,2]": {
-        "selser": "1iulimo<hr>\n<hr >\nfoo \n\neo5myy\n\n1m11uh9\n\n<nowiki> </nowiki>bar"
+        "selser": "1iulimo<hr>\n<hr >\nfoo \n\neo5myy\n\n1m11uh9\n\n bar"
     },
     "Horizontal ruler (should it add that extra space?) [1,4,3,0,0,4]": {
         "selser": "<hr data-foobar=\"8cspvg\">1hmmmf0\n\n\nfoo <hr\n>133sql4"
@@ -3679,11 +3692,23 @@
     "Horizontal ruler (should it add that extra space?) [0,0,0,0,4,[2]]": {
         "selser": "<hr>\n<hr >\nfoo \n\n19jorw0\n\n575z1a bar"
     },
+    "Horizontal ruler (should it add that extra space?) [3,4,4,1,3,0]": {
+        "selser": "nl6dc9\n\n131am6h\n\nfoo \n\n bar"
+    },
     "Horizontal ruler (should it add that extra space?) [0,0,0,4,0,[3]]": {
         "selser": "<hr>\n<hr >1i8gtez<hr\n>"
     },
     "Horizontal ruler (should it add that extra space?) [0,0,0,2,4,1]": {
         "selser": "<hr>\n<hr >1yblofv\n\n\nfoo \n\n1q3eco8\n\n<nowiki> </nowiki>bar"
+    },
+    "Horizontal ruler -- Supports content following dashes on same line [0,2]": {
+        "selser": "----uv4ix9\n\n Foo"
+    },
+    "Horizontal ruler -- Supports content following dashes on same line [3,0]": {
+        "selser": " Foo"
+    },
+    "Horizontal ruler -- Supports content following dashes on same line [1,2]": {
+        "selser": "----1o60zkj\n\n Foo"
     },
     "Mixed list [3,0,0]": {
         "selser": "#**Level 3, but ordered"
@@ -3708,6 +3733,9 @@
     },
     "Nested lists 6 (both elements empty) [[2]]": {
         "selser": "* 14d3cex\n*\n**"
+    },
+    "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,2]": {
+        "selser": "*foo {{echo|bar\n}}ge6ryx\n\n*baz"
     },
     "List interrupted by empty line or heading [4,2,2,0,0,0,[[4]]]": {
         "selser": "1yctvd7\n\nvrelu\n\n1l392b0\n\n**bar\n==A heading==\n*pghdb6"

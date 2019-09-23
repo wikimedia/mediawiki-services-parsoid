@@ -232,7 +232,14 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function solTransparentWikitextNoWsRegexp(): string {
-		throw new \BadMethodCallException( 'Not implemented' );
+		return '@((?:(?:(?i:\\#REDIRECT))[ \\t\\n\\r\\x0c]*' .
+			'(?::[ \\t\\n\\r\\x0c]*)?\\[\\[[^\\]]+\\]\\])?' .
+			'(?:\\[\\[Category\\:[^\\]]*?\\]\\]|' .
+			'__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|' .
+			'HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|' .
+			'(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|' .
+			'NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|' .
+			'<!--(?>[\\s\\S]*?-->))*)@';
 	}
 
 	public function timezoneOffset(): int {
