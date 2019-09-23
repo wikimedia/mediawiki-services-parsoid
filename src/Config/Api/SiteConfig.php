@@ -28,8 +28,10 @@ class SiteConfig extends ISiteConfig {
 	private $siteData, $protocols;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix, $bswPagePropRegexp,
-		$solTransparentWikitextRegexp, $solTransparentWikitextNoWsRegexp;
+	private $baseUri, $relativeLinkPrefix;
+
+	/** @var string */
+	private $savedCategoryRegexp, $savedRedirectRegexp, $savedBswRegexp;
 
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
@@ -224,7 +226,7 @@ class SiteConfig extends ISiteConfig {
 			$allMWs = [];
 			foreach ( $mw['aliases'] as $alias ) {
 				if ( substr( $alias, 0, 2 ) === '__' && substr( $alias, -2 ) === '__' ) {
-					$bsws[$cs][] = preg_quote( substr( $alias, 2, -2 ), '/' );
+					$bsws[$cs][] = preg_quote( substr( $alias, 2, -2 ), '@' );
 				}
 				if ( strpos( $alias, '$1' ) !== false ) {
 					$pmws[$cs][] = strtr( preg_quote( $alias, '/' ), [ '\\$1' => "(.*?)" ] );
@@ -263,7 +265,6 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		$bswRegexp = $this->combineRegexArrays( $bsws );
-		$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' . $bswRegexp . ')(?=$|\\s)/uDS';
 
 		// Parse interwiki map data from the API
 		$this->interwikiMap = ConfigUtils::computeInterwikiMap( $data['interwikimap'] );
@@ -342,10 +343,6 @@ class SiteConfig extends ISiteConfig {
 			return false;
 		};
 
-		// solTransparentWikitext and solTransparentWikitextNoWsRegexp
-		// cscott sadly says: Note that this depends on the precise
-		// localization of the magic words of this particular wiki.
-
 		$redirect = '(?i:\#REDIRECT)';
 		$quote = function ( $s ) {
 			$q = preg_quote( $s, '@' );
@@ -372,29 +369,9 @@ class SiteConfig extends ISiteConfig {
 			$category = "(?:$category|Category)";
 		}
 
-		$this->solTransparentWikitextRegexp = '@' .
-			'^[ \t\n\r\0\x0b]*' .
-			'(?:' .
-			  '(?:' . $redirect . ')' .
-			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-			')?' .
-			'(?:' .
-			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' ) . '|' .
-			  '[ \t\n\r\0\x0b]' .
-			')*$@i';
-
-		$this->solTransparentWikitextNoWsRegexp = '@' .
-			'((?:' .
-			  '(?:' . $redirect . ')' .
-			  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-			')?' .
-			'(?:' .
-			  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-			  '__(?:' . $bswRegexp . ')__|' .
-			  PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' ) .
-			')*)@i';
+		$this->savedCategoryRegexp = "@{$category}@";
+		$this->savedRedirectRegexp = "@{$redirect}@";
+		$this->savedBswRegexp = "@{$bswRegexp}@";
 	}
 
 	/**
@@ -463,11 +440,6 @@ class SiteConfig extends ISiteConfig {
 			$this->determineArticlePath();
 		}
 		return $this->relativeLinkPrefix;
-	}
-
-	public function bswPagePropRegexp(): string {
-		$this->loadSiteData();
-		return $this->bswPagePropRegexp;
 	}
 
 	/** @inheritDoc */
@@ -602,14 +574,19 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['loadscript'] ?? parent::getModulesLoadURI();
 	}
 
-	public function solTransparentWikitextRegexp(): string {
+	public function redirectRegexp(): string {
 		$this->loadSiteData();
-		return $this->solTransparentWikitextRegexp;
+		return $this->savedRedirectRegexp;
 	}
 
-	public function solTransparentWikitextNoWsRegexp(): string {
+	public function categoryRegexp(): string {
 		$this->loadSiteData();
-		return $this->solTransparentWikitextNoWsRegexp;
+		return $this->savedCategoryRegexp;
+	}
+
+	public function bswRegexp(): string {
+		$this->loadSiteData();
+		return $this->savedBswRegexp;
 	}
 
 	public function timezoneOffset(): int {

@@ -113,13 +113,21 @@ class MockSiteConfig extends SiteConfig {
 		return '//my.wiki.example/wikix/';
 	}
 
-	public function bswPagePropRegexp(): string {
-		return '/(?:^|\\s)mw:PageProp\/(?:' .
+	public function redirectRegexp(): string {
+		return '/(?i:#REDIRECT)/';
+	}
+
+	public function categoryRegexp(): string {
+		return '/Category/';
+	}
+
+	public function bswRegexp(): string {
+		return '/' .
 				'NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|' .
 				'NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|' .
 				'NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|' .
 				'NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT' .
-			')(?=$|\\s)/';
+			'/';
 	}
 
 	/** @inheritDoc */
@@ -225,21 +233,6 @@ class MockSiteConfig extends SiteConfig {
 
 	public function server(): string {
 		return '//my.wiki.example';
-	}
-
-	public function solTransparentWikitextRegexp(): string {
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	public function solTransparentWikitextNoWsRegexp(): string {
-		return '@((?:(?:(?i:\\#REDIRECT))[ \\t\\n\\r\\x0c]*' .
-			'(?::[ \\t\\n\\r\\x0c]*)?\\[\\[[^\\]]+\\]\\])?' .
-			'(?:\\[\\[Category\\:[^\\]]*?\\]\\]|' .
-			'__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|' .
-			'HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|' .
-			'(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|' .
-			'NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|' .
-			'<!--(?>[\\s\\S]*?-->))*)@';
 	}
 
 	public function timezoneOffset(): int {

@@ -10,6 +10,8 @@ use FakeConverter;
 use Language;
 use LanguageConverter;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use MagicWordArray;
+use MagicWordFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 
@@ -67,10 +69,11 @@ class SiteConfig extends ISiteConfig {
 	 * `[ _]` so either will be matched.
 	 *
 	 * @param string $s
+	 * @param string $delimiter Defaults to '/'
 	 * @return string
 	 */
-	private static function quoteTitleRe( string $s ): string {
-		$s = preg_quote( $s, '/' );
+	private static function quoteTitleRe( string $s, string $delimiter = '/' ): string {
+		$s = preg_quote( $s, $delimiter );
 		$s = strtr( $s, [
 			' ' => '[ _]',
 			'_' => '[ _]',
@@ -221,30 +224,64 @@ class SiteConfig extends ISiteConfig {
 		return $this->relativeLinkPrefix;
 	}
 
-	public function bswPagePropRegexp(): string {
-		if ( $this->bswPagePropRegexp === null ) {
-			// [0] is the case-insensitive part, [1] is the case-sensitive part
-			$regex = MediaWikiServices::getInstance()->getMagicWordFactory()
-				->getDoubleUnderscoreArray()->getBaseRegex();
-			if ( $regex[0] === '' ) {
-				unset( $regex[0] );
-			} else {
-				$regex[0] = '(?i:' . $regex[0] . ')';
+	/**
+	 * This is very similar to MagicWordArray::getBaseRegex() except we
+	 * don't emit the named grouping constructs, which can cause havoc
+	 * when embedded in other regexps with grouping constructs.
+	 */
+	private static function mwaToRegex(
+		MagicWordFactory $factory,
+		MagicWordArray $magicWordArray,
+		string $delimiter = '/'
+	): string {
+		$regex = [ 0 => [], 1 => [] ];
+		foreach ( $magicWordArray->getNames() as $name ) {
+			$magic = $factory->get( $name );
+			$case = intval( $magic->isCaseSensitive() );
+			foreach ( $magic->getSynonyms() as $syn ) {
+				$regex[$case][] = preg_quote( $syn, $delimiter );
 			}
-			if ( $regex[1] === '' ) {
-				unset( $regex[1] );
-			}
-
-			if ( $regex ) {
-				$this->bswRegexpPattern = implode( '|', $regex );
-			} else {
-				// No magic words? Return a failing regex
-				$this->bswRegexpPattern = '(?!)';
-			}
-			$this->bswPagePropRegexp = '/(?:^|\\s)mw:PageProp\/(?:' .
-				$this->bswRegexpPattern . ')(?=$|\\s)/DuS';
 		}
-		return $this->bswPagePropRegexp;
+		$result = [];
+		if ( count( $regex[1] ) ) {
+			$result[] = implode( '|', $regex[1] );
+		}
+		if ( count( $regex[0] ) ) {
+			$result[] = '(?i:' . implode( '|', $regex[0] ) . ')';
+		}
+		return count( $result ) ? implode( '|', $result ) : '(?!)';
+	}
+
+	public function redirectRegexp(): string {
+		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+		$redirect = self::mwaToRegex(
+			$mwFactory, $mwFactory->newArray( [ 'redirect' ] ), '@'
+		);
+		return "@$redirect@";
+	}
+
+	public function categoryRegexp(): string {
+		$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
+		$canon = $namespaceInfo->getCanonicalName( NS_CATEGORY );
+		$result = [ $canon ];
+		foreach ( $this->contLang->getNamespaceAliases() as $alias => $ns ) {
+			if ( $ns === NS_CATEGORY && $alias !== $canon ) {
+				$result[] = $alias;
+			}
+		}
+		$category = implode( '|', array_map( function ( $v ) {
+			return $this->quoteTitleRe( $v, '@' );
+		}, $result ) );
+		return "@(?i:$category)@";
+	}
+
+	public function bswRegexp(): string {
+		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
+		$words = $mwFactory->getDoubleUnderscoreArray();
+		$bsw = self::mwaToRegex(
+			$mwFactory, $mwFactory->getDoubleUnderscoreArray(), '@'
+		);
+		return "@$bsw@";
 	}
 
 	/** @inheritDoc */
@@ -415,92 +452,6 @@ class SiteConfig extends ISiteConfig {
 
 	public function getModulesLoadURI(): string {
 		return $this->config->get( 'LoadScript' ) ?? parent::getModulesLoadURI();
-	}
-
-	public function solTransparentWikitextRegexp(): string {
-		// FIXME: Maybe we should move this regexp out of site config
-		// and into the wikitext serializer which is the sole consumer.
-		// Instead we should export the required regexp patterns
-		// (a) redirects (b) behaviour switches
-		// See T231568.
-		if ( $this->solTransparentWikitextRegexp === null ) {
-			// cscott sadly says: Note that this depends on the precise
-			// localization of the magic words of this particular wiki.
-
-			$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-			$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
-			if ( $category !== 'Category' ) {
-				$category = "(?:$category|Category)";
-			}
-			$this->bswPagePropRegexp(); // populate $this->bswRegexpPattern
-
-			// Note about regexp modifiers:
-			// 1. The behaviour switch pattern requires an u
-			// 2. The redirects *may* require an iu
-			// 3. But the JS code applied an 'i' unconditionally on the full RE
-			// So, we are applying iu unconditionally below.
-			// However, there is a potential bug lurking here when the redirects
-			// are case-sensitive but we are using i on the entire pattern.
-			// As it turns out, since this regexp is only used to eliminate spurious
-			// nowikis, this is, at worst, going to cause unneeded <nowiki>s to be
-			// added at the start of line around an empty space to prevent indent-pres.
-			$this->solTransparentWikitextRegexp = '!' .
-				'^[ \t\n\r\0\x0b]*' .
-				'(?:' .
-				  '(?:' . $mwFactory->get( 'redirect' )->getBaseRegex() . ')' .
-				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-				')?' .
-				'(?:' .
-				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-				  '__(?:' . $this->bswRegexpPattern . ')__|' .
-				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) . '|' .
-				  '[ \t\n\r\0\x0b]' .
-				')*$!iuS';
-		}
-
-		return $this->solTransparentWikitextRegexp;
-	}
-
-	public function solTransparentWikitextNoWsRegexp(): string {
-		// FIXME: Maybe we should move this regexp out of site config
-		// and into the wikitext serializer which is the sole consumer.
-		// Instead we should export the required regexp patterns
-		// (a) redirects (b) behaviour switches
-		// See T231568.
-		if ( $this->solTransparentWikitextNoWsRegexp === null ) {
-			// cscott sadly says: Note that this depends on the precise
-			// localization of the magic words of this particular wiki.
-
-			$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-			$category = $this->quoteTitleRe( $this->contLang->getNsText( NS_CATEGORY ) );
-			if ( $category !== 'Category' ) {
-				$category = "(?:$category|Category)";
-			}
-			$this->bswPagePropRegexp(); // populate $this->bswRegexpPattern
-
-			// Note about regexp modifiers:
-			// 1. The behaviour switch pattern requires an u
-			// 2. The redirects *may* require an iu
-			// 3. But the JS code applied an 'i' unconditionally on the full RE
-			// So, we are applying iu unconditionally below.
-			// However, there is a potential bug lurking here when the redirects
-			// are case-sensitive but we are using i on the entire pattern.
-			// As it turns out, since this regexp is only used to eliminate spurious
-			// nowikis, this is, at worst, going to cause unneeded <nowiki>s to be
-			// added at the start of line around an empty space to prevent indent-pres.
-			$this->solTransparentWikitextNoWsRegexp = '!' .
-				'((?:' .
-				  '(?:' . $mwFactory->get( 'redirect' )->getBaseRegex() . ')' .
-				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
-				')?' .
-				'(?:' .
-				  '\[\[' . $category . '\:[^\]]*?\]\]|' .
-				  '__(?:' . $this->bswRegexpPattern . ')__|' .
-				  preg_quote( self::COMMENT_REGEXP_FRAGMENT, '!' ) .
-				')*)!iuS';
-		}
-
-		return $this->solTransparentWikitextNoWsRegexp;
 	}
 
 	public function timezoneOffset(): int {

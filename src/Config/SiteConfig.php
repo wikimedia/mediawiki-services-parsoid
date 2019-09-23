@@ -9,6 +9,7 @@ use Parsoid\ContentModelHandler;
 use Parsoid\WikitextContentModelHandler;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 
 use Psr\Log\LoggerInterface;
@@ -268,7 +269,17 @@ abstract class SiteConfig {
 	 * Regex matching all double-underscore magic words
 	 * @return string
 	 */
-	abstract public function bswPagePropRegexp(): string;
+	public function bswPagePropRegexp(): string {
+		static $bswPagePropRegexp = null;
+		if ( $bswPagePropRegexp === null ) {
+			$bswRegexp = $this->bswRegexp();
+			$bswPagePropRegexp =
+				'@(?:^|\\s)mw:PageProp/(?:' .
+				PHPUtils::reStrip( $bswRegexp, '@' ) .
+				')(?=$|\\s)@uDS';
+		}
+		return $bswPagePropRegexp;
+	}
 
 	/**
 	 * Map a canonical namespace name to its index
@@ -558,18 +569,80 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * A regexp matching the localized 'REDIRECT' marker for this wiki.
+	 * @return string
+	 */
+	abstract public function redirectRegexp(): string;
+
+	/**
+	 * A regexp matching the localized 'Category' prefix for this wiki.
+	 * @return string
+	 */
+	abstract public function categoryRegexp(): string;
+
+	/**
+	 * A regexp matching localized behavior switches for this wiki.
+	 * @return string
+	 */
+	abstract public function bswRegexp(): string;
+
+	/**
 	 * A regex matching a line containing just whitespace, comments, and
 	 * sol transparent links and behavior switches.
 	 * @return string
 	 */
-	abstract public function solTransparentWikitextRegexp(): string;
+	public function solTransparentWikitextRegexp(): string {
+		// cscott sadly says: Note that this depends on the precise
+		// localization of the magic words of this particular wiki.
+		static $solTransparentWikitextRegexp = null;
+		if ( $solTransparentWikitextRegexp === null ) {
+			$redirect = PHPUtils::reStrip( $this->redirectRegexp(), '@' );
+			$category = PHPUtils::reStrip( $this->categoryRegexp(), '@' );
+			$bswRegexp = PHPUtils::reStrip( $this->bswRegexp(), '@' );
+			$comment = PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' );
+			$solTransparentWikitextRegexp = '@' .
+				'^[ \t\n\r\0\x0b]*' .
+				'(?:' .
+				'(?:' . $redirect . ')' .
+				'[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+				')?' .
+				'(?:' .
+				'\[\[' . $category . '\:[^\]]*?\]\]|' .
+				'__(?:' . $bswRegexp . ')__|' .
+				$comment . '|' .
+				'[ \t\n\r\0\x0b]' .
+				')*$@';
+		}
+		return $solTransparentWikitextRegexp;
+	}
 
 	/**
 	 * A regex matching a line containing just comments and
 	 * sol transparent links and behavior switches.
 	 * @return string
 	 */
-	abstract public function solTransparentWikitextNoWsRegexp(): string;
+	public function solTransparentWikitextNoWsRegexp(): string {
+		// cscott sadly says: Note that this depends on the precise
+		// localization of the magic words of this particular wiki.
+		static $solTransparentWikitextNoWsRegexp = null;
+		if ( $solTransparentWikitextNoWsRegexp === null ) {
+			$redirect = PHPUtils::reStrip( $this->redirectRegexp(), '@' );
+			$category = PHPUtils::reStrip( $this->categoryRegexp(), '@' );
+			$bswRegexp = PHPUtils::reStrip( $this->bswRegexp(), '@' );
+			$comment = PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' );
+			$solTransparentWikitextNoWsRegexp = '@' .
+				'((?:' .
+				  '(?:' . $redirect . ')' .
+				  '[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\]' .
+				')?' .
+				'(?:' .
+				'\[\[' . $category . '\:[^\]]*?\]\]|' .
+				'__(?:' . $bswRegexp . ')__|' .
+				$comment .
+				')*)@';
+		}
+		return $solTransparentWikitextNoWsRegexp;
+	}
 
 	/**
 	 * The wiki's time zone offset

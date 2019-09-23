@@ -1414,9 +1414,9 @@ class WikitextSerializer {
 		// FIXME: The solTransparentWikitextRegexp includes redirects, which really
 		// only belong at the SOF and should be unique. See the "New redirect" test.
 		// PORT-FIXME do the different whitespace semantics matter?
-		$noWikiRegexp = '/^'
-			. PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' )
-			. '(<nowiki>\s+<\/nowiki>)([^\n]*(?:\n|$))' . '/Dim';
+		$noWikiRegexp = '@^'
+			. PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '@' )
+			. '((?i:<nowiki>\s+</nowiki>))([^\n]*(?:\n|$))' . '@Dm';
 		$pieces = preg_split( $noWikiRegexp, $this->state->out, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$out = $pieces[0];
 		for ( $i = 1;  $i < count( $pieces );  $i += 4 ) {
