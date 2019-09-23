@@ -436,10 +436,11 @@ class TestUtils {
 	 * @param string|null $file
 	 * @param array|null $testFilter
 	 * @param bool $blacklistChanged
+	 * @return int
 	 */
 	public static function reportSummary(
 		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $blacklistChanged
-	): void {
+	): int {
 		$curStr = null;
 		$mode = null;
 		$thisMode = null;
@@ -525,6 +526,8 @@ class TestUtils {
 				print self::colorString( '--> ' . $failures . ' UNEXPECTED RESULTS. <--', 'red' ) . "\n";
 			}
 		}
+
+		return $failures;
 	}
 
 	private static function prettyPrintIOptions( array $iopts = null ) {
@@ -875,10 +878,12 @@ class TestUtils {
 	 */
 	public static function reportSummaryXML(
 		array $modesRan, Stats $stats, string $file, ?array $testFilter, bool $blacklistChanged
-	): void {
+	): int {
+		$failures = $stats->allFailures();
+
 		if ( $file === null ) {
 			/* Summary for all tests; not included in XML format output. */
-			return;
+			return $failures;
 		}
 		print '<testsuites file="' . $file . '">';
 		for ( $i = 0;  $i < count( $modesRan );  $i++ ) {
@@ -888,6 +893,7 @@ class TestUtils {
 			print '</testsuite>';
 		}
 		print '</testsuites>';
+		return $failures;
 	}
 
 	/**

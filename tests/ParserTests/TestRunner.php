@@ -1299,7 +1299,7 @@ class TestRunner {
 
 		// we're done!
 		// exit status 1 == uncaught exception
-		$exitCode = $failures ?? $blacklistChanged ? 2 : 0;
+		$exitCode = ( $failures > 0 || $blacklistChanged ) ? 2 : 0;
 		if ( ScriptUtils::booleanOption( $options['exit-zero'] ?? null ) ) {
 			$exitCode = 0;
 		}

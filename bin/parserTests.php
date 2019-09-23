@@ -17,7 +17,7 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	public function execute(): int {
+	public function execute(): bool {
 		$this->processedOptions = TestUtils::processOptions( $this );
 
 		$testFile = $this->getArg( 0 );
@@ -39,7 +39,7 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 			$result = $testRunner->run( $this->processedOptions );
 			$globalStats->accum( $result['stats'] ); // Sum all stats
 			$blacklistChanged = $blacklistChanged || $result['blacklistChanged'];
-			$exitCode = $exitCode || $result['exitCode'];
+			$exitCode = $exitCode ?: $result['exitCode'];
 			if ( $exitCode !== 0 && $this->processedOptions['exit-unexpected'] ) {
 				break;
 			}
@@ -49,7 +49,7 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 			[], $globalStats, null, null, $blacklistChanged
 		);
 
-		return $exitCode;
+		return $exitCode === 0;
 	}
 }
 
