@@ -159,6 +159,8 @@ class ParsoidLogger {
 				$logLevel = LogLevel::DEBUG;
 			} elseif ( $logLevel === 'fatal' ) {
 				$logLevel = LogLevel::CRITICAL;
+			} elseif ( $logLevel === 'warn' ) {
+				$logLevel = LogLevel::WARNING;
 			}
 			$this->backendLogger->log( $logLevel, $this->logMessage( $prefix, $args ) );
 		}
