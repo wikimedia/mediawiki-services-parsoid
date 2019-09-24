@@ -15,6 +15,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
 use stdClass;
 
 /**
@@ -488,6 +489,15 @@ class AttributeExpander extends TokenHandler {
 				$vals[] = $obj['k'];
 				$vals[] = $obj['v'];
 			}
+
+			// Clone the vals since, while expanding to DOM, attributes
+			// (ex. data-parsoid) of the original token attributes may be
+			// updated such that further uses of the original token attributes
+			// are no longer safe.  For example, the cleanup pass removes
+			// the src where unneeded, however, ExternalLinkHandler calls
+			// tokensToString on the original href tokens, where it makes
+			// use of src on mw:Entity tokens.
+			$vals = Util::clone( $vals );
 
 			// Expand all token arrays to DOM.
 			$eVals = PipelineUtils::expandValuesToDOM(
