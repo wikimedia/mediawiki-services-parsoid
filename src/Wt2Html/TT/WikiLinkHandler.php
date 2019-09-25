@@ -342,7 +342,7 @@ class WikiLinkHandler extends TokenHandler {
 				$tsr = $token->dataAttribs->tsr ?? null;
 				TokenUtils::shiftTokenTSR( $extToks, 1 + ( $tsr ? $tsr->start : 0 ) );
 			} else {
-				$extToks = $src;
+				$extToks = [ $src ];
 			}
 
 			$tokens = array_merge( [ '[' ], $extToks, [ ']' ] );
