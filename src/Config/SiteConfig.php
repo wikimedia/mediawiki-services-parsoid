@@ -570,18 +570,24 @@ abstract class SiteConfig {
 
 	/**
 	 * A regexp matching the localized 'REDIRECT' marker for this wiki.
+	 * The regexp should be delimited, but should not have boundary anchors
+	 * or capture groups.
 	 * @return string
 	 */
 	abstract public function redirectRegexp(): string;
 
 	/**
 	 * A regexp matching the localized 'Category' prefix for this wiki.
+	 * The regexp should be delimited, but should not have boundary anchors
+	 * or capture groups.
 	 * @return string
 	 */
 	abstract public function categoryRegexp(): string;
 
 	/**
 	 * A regexp matching localized behavior switches for this wiki.
+	 * The regexp should be delimited, but should not have boundary anchors
+	 * or capture groups.
 	 * @return string
 	 */
 	abstract public function bswRegexp(): string;
