@@ -368,7 +368,7 @@ class WikitextSerializer {
 		$tokenName = $da->srcTagName ?? $token->getName();
 		$ret = "<{$tokenName}{$sAttribs}{$close}>";
 
-		if ( mb_strtolower( $tokenName ) === 'nowiki' ) {
+		if ( strtolower( $tokenName ) === 'nowiki' ) {
 			$ret = WTUtils::escapeNowikiTags( $ret );
 		}
 
@@ -402,7 +402,7 @@ class WikitextSerializer {
 			$ret = "</{$tokenName}>";
 		}
 
-		if ( mb_strtolower( $tokenName ) === 'nowiki' ) {
+		if ( strtolower( $tokenName ) === 'nowiki' ) {
 			$ret = WTUtils::escapeNowikiTags( $ret );
 		}
 
