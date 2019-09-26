@@ -216,6 +216,11 @@ class DataAccess implements IDataAccess {
 	): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML, $revid );
 		$html = $parser->recursiveTagParseFully( $wikitext );
+		// T230473: Some extensions (ex: math) store their own strip state
+		// and rely on the ParserAfterTidy hook being called at the end.
+		// Since 'recursiveTagParseFully' doesn't call this hook, we explicitly
+		// invoke this here.
+		Hooks::run( 'ParserAfterTidy', [ &$parser, &$html ] );
 		$out = $parser->getOutput();
 		$out->setText( $html );
 
