@@ -44,7 +44,7 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetPageId() {
-		$this->assertSame( 0, $this->getPageConfig( 'missing' )->getPageId() );
+		$this->assertSame( -1, $this->getPageConfig( 'missing' )->getPageId() );
 		$this->assertSame( 53796160, $this->getPageConfig( 'existing' )->getPageId() );
 	}
 
@@ -97,7 +97,10 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetRevisionContent() {
-		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionContent() );
+		$this->assertSame(
+			'',
+			$this->getPageConfig( 'missing' )->getRevisionContent()->getContent( 'main' )
+		);
 
 		$c = $this->getPageConfig( 'existing' )->getRevisionContent();
 		$this->assertInstanceOf( PageContent::class, $c );

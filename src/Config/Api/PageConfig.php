@@ -42,24 +42,29 @@ class PageConfig extends IPageConfig {
 			throw new \InvalidArgumentException( '$opts[\'title\'] must be set' );
 		}
 		$this->title = $opts['title'];
+
 		// This option is primarily used to mock the page content.
 		if ( isset( $opts['pageContent'] ) ) {
-			$this->page = [
-				'title' => $this->title,
-				'ns' => $opts['pagens'] ?? 0,
-				'pageid' => -1,
-				'pagelanguage' => $opts['pageLanguage'] ?? 'en',
-				'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
-			];
-			$this->rev = [
-				'slots' => [ 'main' => $opts['pageContent'] ],
-			];
+			$this->mockPageContent( $opts );
 		} else {
 			Assert::invariant( $api !== null, 'Cannot load page info without an API' );
 			# Lazily load later
 			$this->page = null;
 			$this->rev = null;
 		}
+	}
+
+	private function mockPageContent( array $opts ) {
+		$this->page = [
+			'title' => $this->title,
+			'ns' => $opts['pagens'] ?? 0,
+			'pageid' => -1,
+			'pagelanguage' => $opts['pageLanguage'] ?? 'en',
+			'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
+		];
+		$this->rev = [
+			'slots' => [ 'main' => $opts['pageContent'] ],
+		];
 	}
 
 	private function loadData() {
@@ -81,6 +86,13 @@ class PageConfig extends IPageConfig {
 
 		if ( isset( $this->rev['timestamp'] ) ) {
 			$this->rev['timestamp'] = preg_replace( '/\D/', '', $this->rev['timestamp'] );
+		}
+
+		// Well, we tried but the page probably doesn't exist
+		if ( !$this->rev ) {
+			$this->mockPageContent( [
+				'pageContent' => '',  // FIXME: T234549
+			] );
 		}
 	}
 
@@ -171,7 +183,7 @@ class PageConfig extends IPageConfig {
 	/** @inheritDoc */
 	public function getRevisionContent(): ?PageContent {
 		$this->loadData();
-		if ( $this->rev && !$this->content ) {
+		if ( !$this->content ) {
 			$this->content = new MockPageContent( $this->rev['slots'] );
 		}
 		return $this->content;
