@@ -16,19 +16,19 @@ class SingleLineContext {
 		$this->stack = [];
 	}
 
-	public function enforce() {
+	public function enforce(): void {
 		$this->stack[] = true;
 	}
 
-	public function enforced() {
+	public function enforced(): bool {
 		return count( $this->stack ) > 0 && end( $this->stack );
 	}
 
-	public function disable() {
+	public function disable(): void {
 		$this->stack[] = false;
 	}
 
-	public function pop() {
+	public function pop(): void {
 		array_pop( $this->stack );
 	}
 
