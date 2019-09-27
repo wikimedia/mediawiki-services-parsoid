@@ -897,7 +897,7 @@ class WikitextEscapeHandlers {
 		}
 
 		// Context-specific escape handler
-		$wteHandler = end( $state->wteHandlerStack );
+		$wteHandler = PHPUtils::lastItem( $state->wteHandlerStack );
 		if ( $wteHandler && $wteHandler( $state, $text, $opts ) ) {
 			$env->log( 'trace/wt-escape', '---Context-specific escape handler---' );
 			return $this->escapedText( $state, false, $text, true );

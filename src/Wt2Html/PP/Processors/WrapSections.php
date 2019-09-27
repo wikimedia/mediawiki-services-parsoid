@@ -68,7 +68,7 @@ class WrapSections {
 		 * 1a. Pop stack till we have a higher-level section.
 		 */
 		$stack = &$sectionStack;
-		while ( count( $stack ) > 0 && $newLevel <= end( $stack )['level'] ) {
+		while ( count( $stack ) > 0 && $newLevel <= PHPUtils::lastItem( $stack )['level'] ) {
 			array_pop( $stack );
 		}
 
@@ -78,7 +78,7 @@ class WrapSections {
 		}
 
 		/* Step 2: Add new section where it belongs: a parent section OR body */
-		$parentSection = count( $stack ) > 0 ? end( $stack ) : null;
+		$parentSection = count( $stack ) > 0 ? PHPUtils::lastItem( $stack ) : null;
 		if ( $parentSection ) {
 			// print "Appending to " . $parentSection['debug_id'] . '\n';
 			$parentSection['container']->appendChild( $section['container'] );

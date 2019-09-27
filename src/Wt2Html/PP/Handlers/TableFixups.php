@@ -299,7 +299,9 @@ class TableFixups {
 			}
 
 			// Are we done accumulating?
-			if ( count( $buf ) > 0 && preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', end( $buf ) ) ) {
+			if ( count( $buf ) > 0 &&
+				preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', PHPUtils::lastItem( $buf ) )
+			) {
 				return self::buildRes( $buf, $nowikis, $transclusionNode );
 			}
 

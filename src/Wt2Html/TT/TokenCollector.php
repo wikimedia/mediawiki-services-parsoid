@@ -10,8 +10,8 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
+use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -120,9 +120,7 @@ abstract class TokenCollector extends TokenHandler {
 				$res = $this->toEnd() ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
 				if ( isset( $res['tokens'] ) ) {
 					if ( count( $res['tokens'] )
-					// PORT-FIXME verify this actually is equivalent **** WARNING!!!
-					// && $lastItem( $res->tokens )->constructor !== $EOFTk
-						&& TokenUtils::getTokenType( end( $res['tokens'] ) ) !== 'EOFTk'
+						&& !( PHPUtils::lastItem( $res['tokens'] ) instanceof EOFTk )
 					) {
 						$this->manager->env->log( 'error', $this::name(), 'handler dropped the EOFTk!' );
 
@@ -154,11 +152,7 @@ abstract class TokenCollector extends TokenHandler {
 	 */
 	private function onAnyToken( $token ) : array {
 		// Simply collect anything ordinary in between
-		// PORT-FIXME verify this actually is equivalent **** WARNING!!!
-		// lastItem( $this->scopeStack )[] = $token;
-		// end( $this->scopeStack )[] = $token; // end( ) does not return a reference as needed here.
-		$arrayLen = count( $this->scopeStack );
-		$this->scopeStack[ $arrayLen - 1 ][] = $token;
+		$this->scopeStack[ count( $this->scopeStack ) - 1 ][] = $token;
 		return [];
 	}
 

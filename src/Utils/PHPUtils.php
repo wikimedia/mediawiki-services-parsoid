@@ -105,13 +105,19 @@ class PHPUtils {
 	}
 
 	/**
-	 * PORT-FIXME: To be removed once all uses of this have disappeared
 	 * Helper to get last item of the array
 	 * @param mixed[] $a
 	 * @return mixed
 	 */
 	public static function lastItem( array $a ) {
-		throw new \BadMethodCallException( 'Use end( $a ) instead' );
+		// Tim Starling recommends not using end() for perf reasons
+		// since apparently it can be O(n) where the refcount on the
+		// array is > 1.
+		//
+		// Note that end() is usable in non-array scenarios. But, in our case,
+		// we are almost always dealing with arrays, so this helper probably
+		// better for cases where we aren't sure the array isn't shared.
+		return $a[ count( $a ) - 1 ] ?? null;
 	}
 
 	/**

@@ -1571,7 +1571,7 @@ class WikitextSerializer {
 							&& $j + 2 < $n
 							&& $p[$j + 1] === ''
 							&& $p[$j + 2][0] === "'"
-							&& $p[$j + 2] === end( $stack ) ) )
+							&& $p[$j + 2] === PHPUtils::lastItem( $stack ) ) )
 				) {
 					$nowikiIndex = $j;
 				}
@@ -1582,7 +1582,7 @@ class WikitextSerializer {
 				//   mediawiki.wikitext.constants.js, <br> is the most common
 				//   culprit. )
 				continue;
-			} elseif ( $tagLen > 0 && $tag[0] === "'" && end( $stack ) === $tag ) {
+			} elseif ( $tagLen > 0 && $tag[0] === "'" && PHPUtils::lastItem( $stack ) === $tag ) {
 				array_pop( $stack );
 				$quotesOnStack--;
 			} else {

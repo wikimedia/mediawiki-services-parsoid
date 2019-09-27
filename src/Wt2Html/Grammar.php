@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html;
 
 	use Parsoid\Utils\TokenUtils;
 	use Parsoid\Utils\Util;
+	use Parsoid\Utils\PHPUtils;
 	use Parsoid\Utils\WTUtils;
 	use Parsoid\Tokens\CommentTk;
 	use Parsoid\Tokens\DomSourceRange;
@@ -289,10 +290,6 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		} else {
   			$this->unreachable();
   		}
-  	}
-  
-  	private function lastItem( array $array ) {
-  		return $array[ count( $array ) - 1 ] ?? null;
   	}
   
 
@@ -953,7 +950,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			}
   			if ( strlen( $e ) > $level ) {
   				$extras2 = substr( $e, 0, strlen( $e ) - $level );
-  				$lastElem = $this->lastItem( $c );
+  				$lastElem = PHPUtils::lastItem( $c );
   				if ( is_string( $lastElem ) ) {
   					$c[count( $c ) - 1] .= $extras2;
   				} else {
@@ -1198,7 +1195,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			// yank trailing punctuation out of this match.
   			$url = TokenizerUtils::flattenStringlist( array_merge( [ $proto, $addr ], $path ) );
   			// only need to look at last element; HTML entities are strip-proof.
-  			$last = $this->lastItem( $url );
+  			$last = PHPUtils::lastItem( $url );
   			$trim = 0;
   			if ( is_string( $last ) ) {
   				$strip = ',;\.:!?';

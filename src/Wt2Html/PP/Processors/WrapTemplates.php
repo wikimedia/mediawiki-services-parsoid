@@ -400,7 +400,7 @@ class WrapTemplates {
 		$dsr = $dp->dsr;
 
 		if ( count( $tplArray ) > 0 ) {
-			$prevTplInfo = end( $tplArray );
+			$prevTplInfo = PHPUtils::lastItem( $tplArray );
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
 				$tplArray[] = (object)[
@@ -960,7 +960,7 @@ class WrapTemplates {
 				}
 
 				// Add any trailing wikitext
-				$lastTplInfo = end( $tplArray );
+				$lastTplInfo = PHPUtils::lastItem( $tplArray );
 				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
 					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[

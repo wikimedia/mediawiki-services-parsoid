@@ -144,7 +144,7 @@ class ParserPipeline {
 	 */
 	public function parseChunkily( string $input, array $opts ) {
 		$ret = [];
-		$lastStage = end( $this->stages );
+		$lastStage = PHPUtils::lastItem( $this->stages );
 		foreach ( $lastStage->processChunkily( $input, $opts ) as $output ) {
 			$ret[] = $output;
 		}

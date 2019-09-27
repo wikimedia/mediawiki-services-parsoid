@@ -14,6 +14,7 @@ use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\UrlUtils;
 use Parsoid\Utils\Util;
@@ -1453,7 +1454,7 @@ class LinkHandlerUtils {
 				$no['ak'] = $opts[$idx]['ak'];
 				unset( $no['v'] ); // prevent double substitution
 			} else {
-				$no['ak'] = end( $no['ak'] );
+				$no['ak'] = PHPUtils::lastItem( $no['ak'] );
 				if ( !( $no['ck'] === 'caption' && $a !== null ) ) {
 					$changed = true;
 				}

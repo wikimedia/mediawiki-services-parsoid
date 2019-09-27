@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\TokenUtils;
@@ -113,7 +114,7 @@ class Frame {
 
 		// Add an EOFTk if it isn't present
 		$content = $chunk;
-		if ( !( end( $chunk ) instanceof EOFTk ) ) {
+		if ( !( PHPUtils::lastItem( $chunk ) instanceof EOFTk ) ) {
 			$content[] = new EOFTk();
 		}
 

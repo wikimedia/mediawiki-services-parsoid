@@ -181,7 +181,7 @@ class References extends ExtensionTag {
 				'class' => 'mw-ref',
 				'id' => $nestedInReferences
 					? null
-					: ( $ref->name ? end( $ref->linkbacks ) : $ref->id ),
+					: ( $ref->name ? PHPUtils::lastItem( $ref->linkbacks ) : $ref->id ),
 				'rel' => 'dc:references',
 				'typeof' => $nodeType
 			]
