@@ -116,14 +116,10 @@ class ExtensionHandler extends TokenHandler {
 		// Strip a paragraph wrapper, if any
 		$html = preg_replace( '#(^<p>)|(\n</p>$)#D', '', $html );
 
-		/**
-		 *PORT-FIXME: The patch that supports this is not yet merged
-		 *
 		// Add the modules to the page data
-		$env->setOutputProperty('modules', $ret['modules'] );
-		$env->setOutputProperty('modulescripts', $ret['modulescripts'] );
-		$env->setOutputProperty('modulestyles', $ret['modulestyles'] );
-		*/
+		$env->setOutputProperty( 'modules', $ret['modules'] );
+		$env->setOutputProperty( 'modulescripts', $ret['modulescripts'] );
+		$env->setOutputProperty( 'modulestyles', $ret['modulestyles'] );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the
