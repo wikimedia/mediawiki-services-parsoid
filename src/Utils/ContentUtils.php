@@ -3,10 +3,12 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
-use DOMNode;
+use DOMDocument;
 use DOMElement;
+use DOMNode;
 
 use Parsoid\Config\Env;
+use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\Assert\Assert;
 
@@ -232,6 +234,82 @@ class ContentUtils {
 		};
 		DOMPostOrder::traverse( $rootNode, $convertNode );
 		return $rootNode; // chainable
+	}
+
+	/**
+	 * Convert DSR offsets in a Document between utf-8/ucs2/codepoint
+	 * indices.
+	 *
+	 * Offset types are:
+		*  - 'byte': Bytes (UTF-8 encoding), e.g. PHP `substr()` or `strlen()`.
+		*  - 'char': Unicode code points (encoding irrelevant), e.g. PHP `mb_substr()` or `mb_strlen()`.
+		*  - 'ucs2': 16-bit code units (UTF-16 encoding), e.g. JavaScript `.substring()` or `.length`.
+	 *
+	 * @see TokenUtils::convertTokenOffsets for a related function on tokens.
+	 *
+		* @param Env $env
+	 * @param DOMDocument $doc The document to convert
+		* @param string $from Offset type to convert from.
+		* @param string $to Offset type to convert to.
+	 */
+	public static function convertOffsets(
+		Env $env,
+		DOMDocument $doc,
+		string $from,
+		string $to
+	): void {
+		if ( $from === $to ) {
+			return; // Hey, that was easy!
+		}
+		$offsetMap = [];
+		$offsets = [];
+		$collect = function ( int $n ) use ( &$offsetMap, &$offsets ) {
+			if ( !array_key_exists( $n, $offsetMap ) ) {
+				$box = PHPUtils::arrayToObject( [ 'value' => $n ] );
+				$offsetMap[$n] = $box;
+				$offsets[] =& $box->value;
+			}
+		};
+		// Collect DSR offsets throughout the document
+		$collectDSR = function ( DomSourceRange $dsr ) use ( $collect ) {
+			if ( $dsr->start !== null ) {
+				$collect( $dsr->start );
+				$collect( $dsr->innerStart() );
+			}
+			if ( $dsr->end !== null ) {
+				$collect( $dsr->innerEnd() );
+				$collect( $dsr->end );
+			}
+			return $dsr;
+		};
+		$body = DOMCompat::getBody( $doc );
+		self::shiftDSR( $env, $body, $collectDSR );
+		if ( count( $offsets ) === 0 ) {
+			return; /* nothing to do (shouldn't really happen) */
+		}
+		// Now convert these offsets
+		TokenUtils::convertOffsets(
+			$env->topFrame->getSrcText(), $from, $to, $offsets
+		);
+		// Apply converted offsets
+		$applyDSR = function ( DomSourceRange $dsr ) use ( $offsetMap ) {
+			$start = $dsr->start;
+			$openWidth = $dsr->openWidth;
+			if ( $start !== null ) {
+				$start = $offsetMap[$start]->value;
+				$openWidth = $offsetMap[$dsr->innerStart()]->value - $start;
+			}
+			$end = $dsr->end;
+			$closeWidth = $dsr->closeWidth;
+			if ( $end !== null ) {
+				$end = $offsetMap[$end]->value;
+				$closeWidth = $end - $offsetMap[$dsr->innerEnd()]->value;
+			}
+			return new DomSourceRange(
+				$start, $end, $openWidth, $closeWidth
+			);
+		};
+		self::shiftDSR( $env, $body, $applyDSR );
 	}
 
 	/**

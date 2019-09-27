@@ -100,6 +100,9 @@ class Env {
 	/** @var bool */
 	private $wrapSections = true;
 
+	/** @var string */
+	private $offsetType = 'byte';
+
 	/** @var array<string,mixed> */
 	private $behaviorSwitches = [];
 
@@ -220,6 +223,8 @@ class Env {
 	 *  - noDataAccess: boolean
 	 *  - nativeTemplateExpansion: boolean
 	 *  - discardDataParsoid: boolean
+	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
+	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
@@ -245,6 +250,7 @@ class Env {
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
+		$this->offsetType = $options['offsetType'] ?? 'byte';
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];
@@ -315,6 +321,20 @@ class Env {
 
 	public function getPipelineFactory(): ParserPipelineFactory {
 		return $this->pipelineFactory;
+	}
+
+	/**
+	 * Return the external format of character offsets in source ranges.
+	 * Internally we always keep DomSourceRange and SourceRange information
+	 * as UTF-8 byte offsets for efficiency (matches the native string
+	 * representation), but for external use we can convert these to
+	 * other formats when we output wt2html or input for html2wt.
+	 *
+	 * @see Parsoid\Wt2Html\PP\Processors\ConvertOffsets
+	 * @return string 'byte', 'ucs2', or 'char'
+	 */
+	public function getOffsetType(): string {
+		return $this->offsetType;
 	}
 
 	/**

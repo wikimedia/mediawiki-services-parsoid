@@ -32,6 +32,7 @@ use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ComputeDSR;
+use Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
 use Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Parsoid\Wt2Html\PP\Processors\LangConverter;
 use Parsoid\Wt2Html\PP\Processors\Linter;
@@ -440,6 +441,11 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => AddExtLinkClasses::class,
 				'shortcut' => 'linkclasses',
 				'skipNested' => true
+			],
+			[
+				'Processor' => ConvertOffsets::class,
+				'shortcut' => 'convertoffsets',
+				'skipNested' => true,
 			],
 			[
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',

@@ -550,6 +550,8 @@ var parsoidPost = Promise.async(function *(profile, options) {
 			'User-Agent': UA,
 		},
 	};
+	// For compatibility with Parsoid/PHP service
+	httpOptions.body.offsetType = 'ucs2';
 
 	var uri = options.uri + 'transform/';
 	if (options.html2wt) {

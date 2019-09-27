@@ -89,6 +89,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
+			'offsetType',
+			'Represent DSR as byte/ucs2/char offsets',
+			false,
+			true
+		);
+		$this->addOption(
 			'flamegraph',
 			"Produce a flamegraph of CPU usage. " .
 			"Assumes existence of Excimer ( https://www.mediawiki.org/wiki/Excimer ). " .
@@ -271,6 +277,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"body_only" => $this->hasOption( 'body_only' ),
 			"wrapSections" => $this->hasOption( 'wrapSections' )
 		];
+		if ( $this->hasOption( 'offsetType' ) ) {
+			$parsoidOpts['offsetType'] = $this->getOption( 'offsetType' );
+		}
 
 		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->options );
 

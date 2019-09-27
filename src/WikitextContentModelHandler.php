@@ -8,6 +8,7 @@ use DOMDocument;
 use Parsoid\Config\Env;
 use Parsoid\Html2Wt\SelectiveSerializer;
 use Parsoid\Html2Wt\WikitextSerializer;
+use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 
@@ -62,6 +63,10 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		}
 		$body = DOMCompat::getBody( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
+		// Update DSR offsets if necessary.
+		ContentUtils::convertOffsets(
+			$env, $doc, $env->getOffsetType(), 'byte'
+		);
 		$env->setOrigDOM( $body );
 	}
 
@@ -97,6 +102,10 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		$env->getPageConfig()->editedDoc = $doc;
 		$body = DOMCompat::getBody( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
+		// Update DSR offsets if necessary.
+		ContentUtils::convertOffsets(
+			$env, $doc, $env->getOffsetType(), 'byte'
+		);
 		return $serializer->serializeDOM( $body );
 	}
 

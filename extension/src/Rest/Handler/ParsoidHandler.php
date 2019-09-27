@@ -171,7 +171,10 @@ abstract class ParsoidHandler extends Handler {
 				?? $body['scrubWikitext']
 				?? $request->getPostParams()['scrubWikitext']
 				?? $request->getQueryParams()['scrubWikitext']
-				?? false )
+				?? false ),
+			'offsetType' => $request->getPostParams()['offsetType']
+				?? $request->getQueryParams()['offsetType']
+				?? $body['offsetType'] ?? 'byte',
 		];
 
 		if ( $request->getMethod() === 'POST' ) {
@@ -190,6 +193,7 @@ abstract class ParsoidHandler extends Handler {
 			'domain' => $request->getPathParam( 'domain' ),
 			'pageName' => $attribs['pageName'],
 			'scrubWikitext' => $attribs['scrubWikitext'],
+			'offsetType' => $attribs['offsetType'],
 			'cookie' => $request->getHeaderLine( 'Cookie' ),
 			'reqId' => $request->getHeaderLine( 'X-Request-Id' ),
 			'userAgent' => $request->getHeaderLine( 'User-Agent' ),
@@ -655,6 +659,19 @@ abstract class ParsoidHandler extends Handler {
 			$selserData = null;
 		}
 
+		// Verify that the top-level parsoid object either doesn't contain
+		// offsetType, or that it matches the conversion that has been
+		// explicitly requested.
+		if ( isset( $pb->parsoid->offsetType ) ) {
+			$offsetType = $envOptions['offsetType'] ?? 'byte';
+			if ( $pb->parsoid->offsetType !== $offsetType ) {
+				return $this->getResponseFactory()->createHttpError( 406, [
+					'message' => 'DSR offsetType mismatch: ' .
+						$pb->parsoid->offsetType . ' vs ' . $offsetType,
+				] );
+			}
+		}
+
 		$html = ContentUtils::toXML( $doc );
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
@@ -662,6 +679,7 @@ abstract class ParsoidHandler extends Handler {
 			$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
+				'offsetType' => $envOptions['offsetType'],
 			], $selserData );
 		} catch ( ClientError $e ) {
 			return $this->getResponseFactory()->createHttpError( 400, [

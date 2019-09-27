@@ -49,6 +49,9 @@ class Parsoid {
 		if ( isset( $options['pageBundle'] ) ) {
 			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
+		if ( isset( $options['offsetType'] ) ) {
+			$envOptions['offsetType'] = $options['offsetType'];
+		}
 		if ( isset( $options['traceFlags'] ) ) {
 			$envOptions['traceFlags'] = $options['traceFlags'];
 		}
@@ -146,6 +149,9 @@ class Parsoid {
 		$envOptions = [];
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
+		}
+		if ( isset( $options['offsetType'] ) ) {
+			$envOptions['offsetType'] = $options['offsetType'];
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
