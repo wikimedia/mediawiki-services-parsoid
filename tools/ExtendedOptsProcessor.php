@@ -23,7 +23,7 @@ trait ExtendedOptsProcessor {
 	public function optionsToArray(): array {
 		$options = [];
 		// Set CLI args
-		foreach ( $this->options as $name => $value ) {
+		foreach ( $this->getOptions() as $name => $value ) {
 			$options[$name] = $value;
 		}
 		// Add in defaults

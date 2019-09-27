@@ -18,6 +18,11 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
+	public function finalSetup() {
+		parent::finalSetup();
+		self::requireTestsAutoloader();
+	}
+
 	public function execute(): bool {
 		$this->processedOptions = TestUtils::processOptions( $this );
 
@@ -35,14 +40,37 @@ class ParserTests extends \Parsoid\Tools\Maintenance {
 		$globalStats = new Stats();
 		$blacklistChanged = false;
 		$exitCode = 0;
-		foreach ( $testFilePaths as $testFile ) {
-			$testRunner = new TestRunner( $testFile, $this->processedOptions['modes'] );
-			$result = $testRunner->run( $this->processedOptions );
-			$globalStats->accum( $result['stats'] ); // Sum all stats
-			$blacklistChanged = $blacklistChanged || $result['blacklistChanged'];
-			$exitCode = $exitCode ?: $result['exitCode'];
-			if ( $exitCode !== 0 && $this->processedOptions['exit-unexpected'] ) {
-				break;
+		if ( $this->processedOptions['integrated'] ?? false ) {
+			// Some methods which are discouraged for normal code throw
+			// exceptions unless we declare this is just a test.
+			define( 'MW_PARSER_TEST', true );
+
+			$recorder = new \MultiTestRecorder;
+			// XXX should call $recorder->addRecorder(...some thunk here...)
+			$testrunner = new \MWParsoid\Test\IntegratedTestRunner( $recorder, [
+				'norm' => null,
+				'regex' => false, // XXXX
+				'keep-uploads' => false,
+				'run-disabled' => false,
+				'disable-save-parse' => false,
+				'use-tidy-config' => false,
+				'file-backend' => false,
+				'upload-dir' => false,
+			] );
+			$ok = $testrunner->runTestsFromFiles( $testFilePaths );
+			if ( !$ok ) {
+				$exitCode = 1;
+			}
+		} else {
+			foreach ( $testFilePaths as $testFile ) {
+				$testRunner = new TestRunner( $testFile, $this->processedOptions['modes'] );
+				$result = $testRunner->run( $this->processedOptions );
+				$globalStats->accum( $result['stats'] ); // Sum all stats
+				$blacklistChanged = $blacklistChanged || $result['blacklistChanged'];
+				$exitCode = $exitCode ?: $result['exitCode'];
+				if ( $exitCode !== 0 && $this->processedOptions['exit-unexpected'] ) {
+					break;
+				}
 			}
 		}
 

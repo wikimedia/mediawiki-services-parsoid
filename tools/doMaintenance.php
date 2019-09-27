@@ -44,6 +44,8 @@ $maintenance = new $maintClass();
 // Basic sanity checks and such
 $maintenance->setup();
 
+$maintenance->finalSetup();
+
 $maintenance->validateParamsAndArgs();
 
 // Do the work

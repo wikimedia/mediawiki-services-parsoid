@@ -43,6 +43,26 @@ if ( $parsoidMode === 'integrated' ) {
 			);
 			parent::addDefaultParams();
 		}
+
+		/**
+		 * Make the protected method from the superclass into a public method
+		 * so we can use this from TestUtils.php.
+		 */
+		public function addOption(
+			$name, $description, $required = false,
+			$withArg = false, $shortName = false,
+			$multiOccurrence = false
+		) {
+			parent::addOption(
+				$name, $description, $required, $withArg, $shortName,
+				$multiOccurrence
+			);
+		}
+
+		/** Make the options array available to ExtendedOptsProcessor */
+		protected function getOptions() {
+			return $this->mOptions;
+		}
 	}
 
 	define( 'PARSOID_RUN_MAINTENANCE_IF_MAIN', RUN_MAINTENANCE_IF_MAIN );
@@ -66,6 +86,11 @@ if ( $parsoidMode === 'integrated' ) {
 				'using network API (see --domain option)'
 			);
 			parent::addDefaultParams();
+		}
+
+		/** Make the options array available to ExtendedOptsProcessor */
+		protected function getOptions() {
+			return $this->options;
 		}
 
 		public function setup() {
@@ -95,6 +120,18 @@ if ( $parsoidMode === 'integrated' ) {
 
 			# Turn off output buffering if it's on
 			while ( ob_get_level() > 0 ) {
+				ob_end_flush();
+			}
+		}
+
+		/** For compatibility with core. */
+		public static function requireTestsAutoloader() {
+			/* do nothing, for compatibility only */
+		}
+
+		/** For compatibility with core */
+		public function finalSetup() {
+			if ( ob_get_level() ) {
 				ob_end_flush();
 			}
 		}
