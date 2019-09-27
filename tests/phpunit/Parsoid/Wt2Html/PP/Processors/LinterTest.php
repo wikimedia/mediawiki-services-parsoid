@@ -366,7 +366,6 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'table', $result[ 0 ][ 'params' ][ 'name' ], $desc );
 		$this->assertEquals( [ 58, 91, 0, 0 ], $result[ 0 ][ 'dsr' ], $desc );
 
-		// Note: there is special code in MockDataAccess:preprocessWikitext() that matches this wt
 		$desc = 'should identify deletable table tag for T161341 (3)';
 		$wt = implode( "\n", [
 			"{{echo|{{{!}}",
@@ -385,7 +384,6 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'Echo', $result[ 0 ][ 'templateInfo' ][ 'name' ], $desc );
 		$this->assertEquals( [ 0, 58, null, null ], $result[ 0 ][ 'dsr' ], $desc );
 
-		// Note: there is special code in MockDataAccess:preprocessWikitext() that matches this wt
 		$desc = 'should identify deletable table tag for T161341 (4)';
 		$wt = implode( "\n", [
 			"{{echo|{{{!}}",
