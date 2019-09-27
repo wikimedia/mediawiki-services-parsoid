@@ -147,7 +147,9 @@ class SerializerState {
 	public $inAttribute = false;
 
 	/**
-	 * PORT-FIXME document
+	 * Is the serializer currently processing a subtree that has been
+	 * modified compared to original content (ex: via VE / CX)?
+	 *
 	 * @var bool
 	 */
 	public $inModifiedContent;

@@ -398,20 +398,19 @@ class WTSUtils {
 	}
 
 	/**
+	 * FIXME: This method should probably be moved to DOMDataUtils class since
+	 * it is used by both html2wt and wt2html code
+	 *
 	 * @param stdClass $dataMw
 	 * @param string $key
 	 * @param bool $keep
 	 * @return array|null
 	 */
 	public static function getAttrFromDataMw(
-		stdClass $dataMw /* PORT-FIXME */, string $key, bool $keep
+		stdClass $dataMw, string $key, bool $keep
 	): ?array {
 		$arr = $dataMw->attribs ?? [];
 		$i = false;
-		// PORT-FIXME $i = $arr->findIndex( function ( $a ) use ( &$key ) {
-		// PORT-FIXME     return ( $a[0] === $key || $a[0]->txt === $key );
-		// PORT-FIXME }
-		// PORT-FIXME a few lines below should do the same as comment above (copied from JS)
 		foreach ( $arr as $k => $a ) {
 			if ( is_string( $a[0] ) ) {
 				$txt = $a[0];
@@ -431,7 +430,7 @@ class WTSUtils {
 		}
 
 		$ret = $arr[$i];
-		if ( !$keep && ( !isset( $ret[1]->html ) || $ret[1]->html === null ) ) {
+		if ( !$keep && !isset( $ret[1]->html ) ) {
 			array_splice( $arr, $i, 1 );
 			$dataMw->attribs = $arr;
 		}

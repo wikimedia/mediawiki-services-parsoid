@@ -809,16 +809,18 @@ class DOMNormalizer {
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info
-					// PORT-FIXME: Dumping is not done yet
-					// $console->warn( '--- Nested inserted dom-diff flags ---' );
-					// $console->warn( 'Node:',
-					// ( DOMUtils::isElt( $node ) ) ? ContentUtils::ppToXML( $node ) : $node->textContent
-					// );
-					// $console->warn( "Node's parent:", ContentUtils::ppToXML( $node->parentNode ) );
-					$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
+					$options = [ 'storeDiffMark' => true, 'env' => $this->env, 'outBuffer' => [] ];
 					ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
 						$options
+					);
+					$this->env->log( 'error/html2wt/dom',
+						"--- Nested inserted dom-diff flags ---\n",
+						'Node:',
+						( DOMUtils::isElt( $node ) ) ? ContentUtils::ppToXML( $node ) : $node->textContent,
+						"\nNode's parent:",
+						ContentUtils::ppToXML( $node->parentNode ),
+						$options['outBuffer']
 					);
 				}
 				// FIXME: If this assert is removed, the above dumping code should

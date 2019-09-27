@@ -1,8 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-// Not tested, all code that is not ported throws Exception or has PORT-FIXME
-
 namespace Parsoid\Utils;
 
 use DOMDocument;
@@ -587,7 +585,7 @@ class DOMDataUtils {
 		// PHP's `getElementById` implementation is broken, and we work around that by
 		// using Zest which uses XPath. So, getElementById call can be O(n) and calling it
 		// on on every element of the DOM via vistDOM here makes it O(n^2) instead of O(n).
-		// So, we work around that by building an index and avoiding getElementByID entirely
+		// So, we work around that by building an index and avoiding getElementById entirely
 		// in storeInPageBundle.
 		// @phan-suppress-next-line PhanTypeInvalidDimOffset
 		if ( !empty( $options['storeInPageBundle'] ) ) {

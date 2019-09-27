@@ -177,18 +177,6 @@ class Util {
 	}
 
 	/**
-	 * Quickly hash an array or string.
-	 *
-	 * @param Array|string $arr data to hash
-	 * @return string
-	 */
-	public static function makeHash( $arr ) {
-		// PORT-FIXME: Remove after porting is complete
-		throw new \BadMethodCallException( 'This function should not be used.\n' .
-			'On the JS side, this was only needed for M/W API requests.' );
-	}
-
-	/**
 	 * Cannonicalizes a namespace name.
 	 *
 	 * @param string $name Non-normalized namespace name.
@@ -256,7 +244,6 @@ class Util {
 
 	/**
 	 * PORT-FIXME need accurate function description
-	 *
 	 *
 	 * @param string $s
 	 * @return string
@@ -428,7 +415,7 @@ class Util {
 	 */
 	public static function bcp47n( $code ) {
 		throw new \BadMethodCallException( "Not yet ported" );
-		// PORT_FIXME
+		// PORT-FIXME
 		/*
 		var codeSegment = code.split('-');
 		var codeBCP = [];

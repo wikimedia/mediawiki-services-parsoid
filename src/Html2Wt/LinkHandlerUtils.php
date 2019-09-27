@@ -98,7 +98,6 @@ class LinkHandlerUtils {
 	 * @return string
 	 */
 	private static function normalizeIWP( string $str ): string {
-		// PORT-FIXME: are interwiki prefixes always in english?
 		return preg_replace( '/^:/', '', trim( strtolower( $str ) ), 1 );
 	}
 

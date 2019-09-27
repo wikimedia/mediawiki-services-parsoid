@@ -28,7 +28,7 @@ class Params {
 	}
 
 	/**
-	 * PORT-FIXME: Used in Parsoid native parser functions implementation
+	 * FIXME: Used in Parsoid native parser functions implementation
 	 * and may not be needed in the final version.
 	 *
 	 * Converts the args that are an array of ($k, $v) KV objects to
@@ -90,7 +90,7 @@ class Params {
 	}
 
 	/**
-	 * PORT-FIXME: Used in Parsoid native parser functions implementation
+	 * FIXME: Used in Parsoid native parser functions implementation
 	 * and may not be needed in the final version.
 	 *
 	 * @param int $start

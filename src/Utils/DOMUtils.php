@@ -58,7 +58,6 @@ class DOMUtils {
 	 * @param mixed ...$args
 	 */
 	public static function visitDOM( DOMNode $node, callable $handler, ...$args ): void {
-		// PORT-FIXME determine how to call a function passed as parameter recursively
 		$handler( $node, ...$args );
 		$node = $node->firstChild;
 		while ( $node ) {

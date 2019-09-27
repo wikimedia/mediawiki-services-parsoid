@@ -1595,8 +1595,6 @@ class WikiLinkHandler extends TokenHandler {
 		$env = $this->manager->env;
 		$title = $target->title;
 		$errs = [];
-		// PORT-FIXME
-		// Assert::invariant( $title instanceof Title );
 		$temp2 = AddMediaInfo::requestInfo( $env, $title->getKey(), [
 			'height' => null, 'width' => null
 		] );

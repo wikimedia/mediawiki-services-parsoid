@@ -202,8 +202,10 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * PORT-FIXME document
-	 * @note Porting note: this replaces WikitextSerializer.wteHandlers.escapeWikiText
+	 * Escape wikitext-like strings in '$text' so that $text renders as a plain string
+	 * when rendered as HTML. The escaping is done based on the context in which $text
+	 * is present (ex: start-of-line, in a link, etc.)
+	 *
 	 * @param SerializerState $state
 	 * @param string $text
 	 * @param array $opts

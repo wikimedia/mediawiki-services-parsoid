@@ -551,7 +551,7 @@ class WTUtils {
 	public static function getWTSource( Frame $frame, DOMElement $node ): ?string {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dsr = $dp->dsr ?? null;
-		// PORT-FIXME: We could probably change the null return to ''
+		// FIXME: We could probably change the null return to ''
 		// Just need to verify that code that uses this won't break
 		return Util::isValidDSR( $dsr ) ?
 			$dsr->substr( $frame->getSrcText() ) : null;

@@ -1260,7 +1260,8 @@ class WikitextEscapeHandlers {
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
 						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
 						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
+						// FIXME $da->tsr will be undefined below.
+						// Should we throw an explicit exception here?
 					}
 					self::appendStr(
 						$da->tsr->substr( $arg ),
@@ -1280,7 +1281,8 @@ class WikitextEscapeHandlers {
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
 						$errors[] = 'Toks: ' . PHPUtils::jsonEncode( $tokens );
 						$env->log( 'error/html2wt/wtescape', implode( "\n", $errors ) );
-						// PORT-FIXME $da->tsr will be undefined below - we should probably assert here.
+						// FIXME $da->tsr will be undefined below.
+						// Should we throw an explicit exception here?
 					}
 					$tkSrc = $da->tsr->substr( $arg );
 					// Replace pipe by an entity. This is not completely safe.
