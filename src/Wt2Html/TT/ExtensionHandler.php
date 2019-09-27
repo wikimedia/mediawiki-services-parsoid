@@ -117,10 +117,6 @@ class ExtensionHandler extends TokenHandler {
 		 * PORT-FIXME: Does this still need to be done when the return
 		 * HTML comes from core API calls, not HTTP API calls
 		 *
-		// Strip two trailing newlines that action=parse adds after any
-		// extension output
-		$html = preg_replace( '/\n\n$/D', '', $html );
-
 		// Also strip a paragraph wrapper, if any
 		$html = preg_replace( '/(^<p>)|(<\/p>$)/D', '', $html );
 		*/
@@ -133,15 +129,6 @@ class ExtensionHandler extends TokenHandler {
 		$env->setOutputProperty('modulescripts', $ret['modulescripts'] );
 		$env->setOutputProperty('modulestyles', $ret['modulestyles'] );
 		*/
-
-		// FIXME: This is a hack to account for the php parser's
-		// gratuitous trailing newlines after parse requests.
-		// Trimming keeps the top-level nodes length down to just
-		// the <style> tag, so it can keep that dom fragment
-		// representation as it's tunnelled through to the dom.
-		if ( !$err && $token->getAttribute( 'name' ) === 'templatestyles' ) {
-			$html = trim( $html );
-		}
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the

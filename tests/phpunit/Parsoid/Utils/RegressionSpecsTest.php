@@ -280,8 +280,6 @@ class RegressionSpecsTest extends TestCase {
 	}
 
 	/**
-	 * NOTE: This test assumes that the MediaWiki API doesn't return any
-	 * trailing content after the <style> tag, namely a newline.
 	 * should not wrap templatestyles style tags in p-wrappers
 	 * @covers \Parsoid\Wt2Html\TT\TemplateHandler
 	 */
