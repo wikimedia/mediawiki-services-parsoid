@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use DOMDocument;
-use Exception;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\ParsoidExtensionAPI;
@@ -17,6 +16,7 @@ use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\TokenTransformManager;
+
 use stdClass;
 
 class ExtensionHandler extends TokenHandler {
@@ -32,31 +32,10 @@ class ExtensionHandler extends TokenHandler {
 	 * Parse the extension HTML content and wrap it in a DOMFragment
 	 * to be expanded back into the top-level DOM later.
 	 */
-	private function parseExtensionHTML( Token $extToken, ?Exception $err, ?DOMDocument $doc ): array {
+	private function parseExtensionHTML( Token $extToken, DOMDocument $doc ): array {
 		$logger = $this->env->getSiteConfig()->getLogger();
-		$errType = '';
-		$errObj = [];
-		if ( $err ) {
-			$doc = $this->env->createDocument( '<span></span>' );
-			$extSource = $doc->createTextNode( $extToken->getAttribute( 'source' ) );
-			DOMCompat::getBody( $doc )->firstChild->appendChild( $extSource );
-			$errType = 'mw:Error ';
-			// Provide some info in data-mw in case some client can do something with it.
-			$errObj = [
-				'errors' => [
-					[
-						'key' => 'mw-api-extparse-error',
-						'message' => 'Could not parse extension source.'
-					]
-				]
-			];
-			$this->env->log(
-				'error/extension', 'Error', $err, ' parsing extension token: ',
-				json_encode( $extToken )
-			);
-		}
-
 		$env = $this->env;
+
 		if ( !empty( $env->dumpFlags [ 'extoutput' ] ) ) {
 			$logger->warning( str_repeat( '=', 80 ) );
 			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
@@ -72,8 +51,7 @@ class ExtensionHandler extends TokenHandler {
 			'wrapperName' => $extToken->getAttribute( 'name' ),
 			// We are always wrapping extensions with the DOMFragment mechanism.
 			'wrappedObjectId' => $this->env->newObjectId(),
-			'wrapperType' => $errType . 'mw:Extension/' . $extToken->getAttribute( 'name' ),
-			'wrapperDataMw' => $errObj,
+			'wrapperType' => 'mw:Extension/' . $extToken->getAttribute( 'name' ),
 			'isHtmlExt' => ( $extToken->getAttribute( 'name' ) === 'html' )
 		];
 
@@ -108,9 +86,7 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
-	private function processParserResponse( Env $env, Token $token, array $ret ): array {
-		// PORT-FIXME: Does the parse request never return an error now?
-		$err = null;
+	private function processParserResponse( Env $env, Token $token, array $ret ): string {
 		$html = $ret['html'];
 
 		// Strip a paragraph wrapper, if any
@@ -140,7 +116,7 @@ class ExtensionHandler extends TokenHandler {
 			}
 		}
 
-		return [ 'err' => null, 'html' => $html ];
+		return $html;
 	}
 
 	private function onExtension( $token ): array {
@@ -161,7 +137,7 @@ class ExtensionHandler extends TokenHandler {
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {
 				if ( $doc !== null ) {
-					$toks = $this->parseExtensionHTML( $token, null, $doc );
+					$toks = $this->parseExtensionHTML( $token, $doc );
 					return( [ 'tokens' => $toks ] );
 				} else {
 					// The extension dropped this instance completely (!!)
@@ -174,26 +150,25 @@ class ExtensionHandler extends TokenHandler {
 			// Fall through: this extension is electing not to use
 			// a custom toDOM method (by returning false from toDOM).
 		}
+
 		if ( $cachedExpansion ) {
 			// cache hit. Reuse extension expansion.
 			$toks = PipelineUtils::encapsulateExpansionHTML( $env, $token, $cachedExpansion, [
 				'fromCache' => true
 			] );
-			return( [ 'tokens' => $toks ] );
 		} elseif ( $env->noDataAccess() ) {
-			$err = new Exception( 'Fetches disabled. ' .
-				'Cannot expand non-native extensions.' );
-			$toks = $this->parseExtensionHTML( $token, $err, null );
-			return( [ 'tokens' => $toks ] );
+			$doc = $this->env->createDocument(
+				'<span>Fetches disabled. Cannot expand non-native extensions.</span>'
+			);
+			$toks = $this->parseExtensionHTML( $token, $doc );
 		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
-			$ret = $this->processParserResponse( $env, $token, $ret );
-			$err = $ret['err'];
-			$html = $ret['html'];
-			$toks = $this->parseExtensionHTML( $token, null, $err ? null : $env->createDocument( $html ) );
-			return( [ 'tokens' => $toks ] );
+			$html = $this->processParserResponse( $env, $token, $ret );
+			$doc = $env->createDocument( $html );
+			$toks = $this->parseExtensionHTML( $token, $doc );
 		}
+		return( [ 'tokens' => $toks ] );
 	}
 
 	private function onDocument( array $state, DOMDocument $doc ): array {
@@ -260,9 +235,7 @@ class ExtensionHandler extends TokenHandler {
 			}
 
 			// Set data-mw
-			$dmw = $state['wrapperDataMw'] ?? [];
-			// PORT-FIXME: This looks ugly below. Any other solution?
-			DOMDataUtils::setDataMw( $firstNode, (object)( (array)$argDict + $dmw ) );
+			DOMDataUtils::setDataMw( $firstNode, $argDict );
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
