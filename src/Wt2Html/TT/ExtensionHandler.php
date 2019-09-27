@@ -113,13 +113,8 @@ class ExtensionHandler extends TokenHandler {
 		$err = null;
 		$html = $ret['html'];
 
-		/**
-		 * PORT-FIXME: Does this still need to be done when the return
-		 * HTML comes from core API calls, not HTTP API calls
-		 *
-		// Also strip a paragraph wrapper, if any
-		$html = preg_replace( '/(^<p>)|(<\/p>$)/D', '', $html );
-		*/
+		// Strip a paragraph wrapper, if any
+		$html = preg_replace( '#(^<p>)|(\n</p>$)#D', '', $html );
 
 		/**
 		 *PORT-FIXME: The patch that supports this is not yet merged
