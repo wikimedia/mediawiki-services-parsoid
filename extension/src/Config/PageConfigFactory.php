@@ -69,7 +69,7 @@ class PageConfigFactory {
 				$revisionId
 			);
 		}
-		if ( $wikitextOverride !== null || $revisionRecord === null ) {
+		if ( $wikitextOverride !== null ) {
 			if ( $revisionRecord ) {
 				// PORT-FIXME this is not really the right thing to do; need
 				// a clone-like constructor for MutableRevisionRecord

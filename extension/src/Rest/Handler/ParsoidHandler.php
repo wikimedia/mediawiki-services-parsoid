@@ -592,6 +592,8 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$oldhtml = null;
+		// FIXME: T234548/T234549 - this is deprecated:
+		// should use $env->topFrame->getSrcText()
 		$oldtext = $env->getPageMainContent();
 
 		if ( $original ) {

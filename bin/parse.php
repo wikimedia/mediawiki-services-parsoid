@@ -191,6 +191,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		array $configOpts, array $parsoidOpts, string $html,
 		?SelserData $selserData = null
 	): string {
+		$configOpts["pageContent"] = ''; // FIXME: T234549
 		$res = $this->makeConfig( $configOpts );
 
 		return $res['parsoid']->html2wikitext(
