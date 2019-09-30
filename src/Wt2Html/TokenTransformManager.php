@@ -49,7 +49,7 @@ class TokenTransformManager extends PipelineStage {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
 		$this->stageId = $stageId;
-		$this->traceType = 'trace/sync:' . $stageId;
+		$this->traceType = 'trace/ttm:' . $stageId;
 		$this->pipelineId = null;
 		$this->frame = $env->topFrame;
 

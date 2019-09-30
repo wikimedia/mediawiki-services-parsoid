@@ -12,19 +12,19 @@ namespace Parsoid\Tools;
 class ScriptUtils {
 	/**
 	 * Split a tracing / debugging flag string into individual flags
-	 * and return them.
+	 * and return them as an associative array with flags as keys and true as value.
 	 *
 	 * @param string $origFlag The original flag string.
 	 * @return array
 	 */
-	public static function splitFlags( string $origFlag ): array {
+	private static function fetchFlagsMap( string $origFlag ): array {
 		$objFlags = explode( ',', $origFlag );
 		if ( array_search( 'selser', $objFlags ) !== false &&
 			array_search( 'wts', $objFlags ) === false
 		) {
 			$objFlags[] = 'wts';
 		}
-		return $objFlags;
+		return array_fill_keys( $objFlags, true );
 	}
 
 	/**
@@ -39,9 +39,9 @@ class ScriptUtils {
 				'- Supported flags:',
 				'  * pre-peg   : shows input to tokenizer',
 				'  * peg       : shows tokens emitted by tokenizer',
-				'  * sync:1    : shows tokens flowing through the post-tokenizer Sync Token Transform Manager',
-				'  * async:2   : shows tokens flowing through the Async Token Transform Manager',
-				'  * sync:3    : shows tokens flowing through the post-expansion Sync Token Transform Manager',
+				'  * ttm:1     : shows tokens flowing through stage 1 of the parsing pipeline',
+				'  * ttm:2     : shows tokens flowing through stage 2 of the parsing pipeline',
+				'  * ttm:3     : shows tokens flowing through stage 3 of the parsing pipeline',
 				'  * tsp       : shows tokens flowing through the TokenStreamPatcher '
 					. '(useful to see in-order token stream)',
 				'  * list      : shows actions of the list handler',
@@ -64,7 +64,7 @@ class ScriptUtils {
 				'',
 				'Examples:',
 				'$ php parse.php --trace pre,p-wrap,html < foo',
-				'$ php parse.php --trace sync:3,dsr < foo'
+				'$ php parse.php --trace ttm:3,dsr < foo'
 			]
 		);
 	}
@@ -143,15 +143,15 @@ class ScriptUtils {
 		// Handle the --help options
 		$exit = false;
 		if ( $traceOpt === 'help' ) {
-			error_log( self::traceUsageHelp() );
+			print self::traceUsageHelp();
 			$exit = true;
 		}
 		if ( $dumpOpt === 'help' ) {
-			error_log( self::dumpUsageHelp() );
+			print self::dumpUsageHelp();
 			$exit = true;
 		}
 		if ( $debugOpt === 'help' ) {
-			error_log( self::debugUsageHelp() );
+			print self::debugUsageHelp();
 			$exit = true;
 		}
 		if ( $exit ) {
@@ -166,7 +166,7 @@ class ScriptUtils {
 				$envOptions['debug'] = self::booleanOption( $debugOpt );
 			} else {
 				// Setting --debug automatically enables --trace
-				$envOptions['debugFlags'] = self::splitFlags( $debugOpt );
+				$envOptions['debugFlags'] = self::fetchFlagsMap( $debugOpt );
 				$envOptions['traceFlags'] = $envOptions['debugFlags'];
 			}
 		}
@@ -181,8 +181,8 @@ class ScriptUtils {
 			} else {
 				// Add any new trace flags to the list of existing trace flags (if
 				// any were inherited from debug); otherwise, create a new list.
-				$envOptions['traceFlags'] = array_merge(
-					$envOptions['traceFlags'] ?? [], self::splitFlags( $traceOpt ) );
+				$envOptions['traceFlags'] = array_merge( $envOptions['traceFlags'] ?? [],
+					self::fetchFlagsMap( $traceOpt ) );
 			}
 		}
 
@@ -190,7 +190,7 @@ class ScriptUtils {
 			if ( $dumpOpt === true ) {
 				error_log( 'Warning: Generic dumping not enabled. Please set a flag.' );
 			} else {
-				$envOptions['dumpFlags'] = self::splitFlags( $dumpOpt );
+				$envOptions['dumpFlags'] = self::fetchFlagsMap( $dumpOpt );
 			}
 		}
 

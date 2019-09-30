@@ -10,6 +10,7 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
+use Parsoid\Tools\ScriptUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Parsoid\Tools\Maintenance {
@@ -95,6 +96,24 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"Looks for /usr/local/bin/flamegraph.pl (Set FLAMEGRAPH_PATH env var " .
 			"to use different path). Outputs to /tmp (Set FLAMEGRAPH_OUTDIR " .
 			"env var to output elsewhere)."
+		);
+		$this->addOption(
+			'trace',
+			'Use --trace=help for supported options',
+			false,
+			true
+		);
+		$this->addOption(
+			'dump',
+			'Dump state. Use --dump=help for supported options',
+			false,
+			true
+		);
+		$this->addOption(
+			'debug',
+			'Provide optional flags. Use --debug=help for supported options',
+			false,
+			true
 		);
 		$this->setAllowUnregisteredOptions( false );
 	}
@@ -250,8 +269,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$parsoidOpts = [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => $this->hasOption( 'body_only' ),
-			"wrapSections" => $this->hasOption( 'wrapSections' ),
+			"wrapSections" => $this->hasOption( 'wrapSections' )
 		];
+
+		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->options );
 
 		$startsAtHtml = $this->hasOption( 'html2wt' ) ||
 			$this->hasOption( 'html2html' ) ||

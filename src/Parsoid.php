@@ -49,6 +49,15 @@ class Parsoid {
 		if ( isset( $options['pageBundle'] ) ) {
 			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
+		if ( isset( $options['traceFlags'] ) ) {
+			$envOptions['traceFlags'] = $options['traceFlags'];
+		}
+		if ( isset( $options['dumpFlags'] ) ) {
+			$envOptions['dumpFlags'] = $options['dumpFlags'];
+		}
+		if ( isset( $options['debugFlags'] ) ) {
+			$envOptions['debugFlags'] = $options['debugFlags'];
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
