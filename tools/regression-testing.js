@@ -77,7 +77,7 @@ Promise.async(function *() {
 		yield Promise.reduce(titles, function(_, t) {
 			return rtTest.runTests(t.title, {
 				prefix: t.prefix,
-				parsoidURL: ret.parsoidURL,
+				parsoidURLOpts: { baseUrl: ret.parsoidURL },
 				outputContentVersion: argv.outputContentVersion,
 			}, rtTest.jsonFormat).then(
 				ret => handleResult(t, ret)
