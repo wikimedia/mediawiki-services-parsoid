@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -389,23 +390,23 @@ class SerializerState {
 	}
 
 	/**
-	 * Extracts a subset of the page source bound by the supplied indices.
-	 * @param int $start Start offset, in bytes
-	 * @param int $end End offset, in bytes
+	 * Extracts a subset of the page source bound by the supplied source range.
+	 * @param SourceRange $sr
 	 * @return string|null
 	 */
-	public function getOrigSrc( int $start, int $end ): ?string {
+	public function getOrigSrc( SourceRange $sr ): ?string {
 		Assert::invariant( $this->selserMode, 'SerializerState::$selserMode must be set' );
 		if (
-			$start <= $end &&
+			$sr->start <= $sr->end &&
 			// FIXME: Having a $start greater than the source length is
 			// probably a canary for corruption.  Maybe we should be throwing
 			// here instead.  See T240053.
 			// But, see comment in UnpackDOMFragments where we very very rarely
 			// can deliberately set DSR to point outside page source.
-			$start <= strlen( $this->selserData->oldText )
+			$sr->start <= strlen( $this->selserData->oldText )
 		) {
-			return substr( $this->selserData->oldText, $start, $end - $start );
+			// XXX should use $frame->getSrcText() like WTUtils::getWTSource
+			return $sr->substr( $this->selserData->oldText );
 		} else {
 			return null;
 		}
@@ -549,12 +550,14 @@ class SerializerState {
 		if ( $origSepUsable ) {
 			if ( $this->prevNode instanceof Element && $node instanceof Element ) {
 				'@phan-var Element $node';/** @var Element $node */
-				$origSep = $this->getOrigSrc(
+				if ( DOMUtils::isBody( $this->prevNode ) ) {
 					// <body> won't have DSR in body_only scenarios
-					( DOMUtils::isBody( $this->prevNode ) ?
-						0 : DOMDataUtils::getDataParsoid( $this->prevNode )->dsr->end ),
-					DOMDataUtils::getDataParsoid( $node )->dsr->start
-				);
+					$sr = new SourceRange( 0, 0 );
+				} else {
+					$sr = DOMDataUtils::getDataParsoid( $this->prevNode )->dsr;
+				}
+				$sr = $sr->to( DOMDataUtils::getDataParsoid( $node )->dsr );
+				$origSep = $this->getOrigSrc( $sr );
 			} elseif ( $this->sep->src && WTSUtils::isValidSep( $this->sep->src ) ) {
 				// We don't know where '$this->sep->src' comes from. So, reuse it
 				// only if it is a valid separator string.

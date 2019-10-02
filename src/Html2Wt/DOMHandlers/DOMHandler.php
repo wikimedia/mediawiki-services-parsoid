@@ -296,7 +296,7 @@ class DOMHandler {
 	): string {
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
-			return $state->getOrigSrc( $dsr->start, $dsr->innerStart() ) ?? '';
+			return $state->getOrigSrc( $dsr->openRange() ) ?? '';
 		} else {
 			return $this->serializeTableElement( $symbol, $endSymbol, $state, $node );
 		}

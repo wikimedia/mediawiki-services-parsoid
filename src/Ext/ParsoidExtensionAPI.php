@@ -789,9 +789,9 @@ class ParsoidExtensionAPI {
 			return null;
 		}
 		if ( $checkIfOrigSrcReusable( $elt ) ) {
-			$start = $inner ? $dsr->innerStart() : $dsr->start;
-			$end = $inner ? $dsr->innerEnd() : $dsr->end;
-			return $state->getOrigSrc( $start, $end );
+			return $state->getOrigSrc(
+				$inner ? $dsr->innerRange() : $dsr
+			);
 		} else {
 			return null;
 		}

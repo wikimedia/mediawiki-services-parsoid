@@ -119,6 +119,30 @@ class DomSourceRange extends SourceRange {
 	}
 
 	/**
+	 * Return the source range corresponding to the open portion of this range.
+	 * @return SourceRange
+	 */
+	public function openRange(): SourceRange {
+		return new SourceRange( $this->start, $this->innerStart() );
+	}
+
+	/**
+	 * Return the source range corresponding to the close portion of this range.
+	 * @return SourceRange
+	 */
+	public function closeRange(): SourceRange {
+		return new SourceRange( $this->innerEnd(), $this->end );
+	}
+
+	/**
+	 * Return the source range corresponding to the inner portion of this range.
+	 * @return SourceRange
+	 */
+	public function innerRange(): SourceRange {
+		return new SourceRange( $this->innerStart(), $this->innerEnd() );
+	}
+
+	/**
 	 * Strip the tag open and close from the beginning and end of the
 	 * provided string.  This is similar to `DomSourceRange::innerSubstr()`
 	 * but we assume that the string before `$this->start` and after

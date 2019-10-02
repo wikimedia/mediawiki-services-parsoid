@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Zest\Zest;
 
@@ -103,7 +104,7 @@ class SerializerStateTest extends TestCase {
 			'selserData' => $selserData,
 		], $env );
 		$state->initMode( true );
-		$this->assertSame( '23', $state->getOrigSrc( 2, 4 ) );
+		$this->assertSame( '23', $state->getOrigSrc( new SourceRange( 2, 4 ) ) );
 	}
 
 	/**

@@ -359,7 +359,7 @@ class WTSUtils {
 		if ( !$dsr ) {
 			return false;
 		}
-		$src = $state->getOrigSrc( $dsr->innerStart(), $dsr->innerEnd() );
+		$src = $state->getOrigSrc( $dsr->innerRange() );
 		foreach ( $state->openAnnotations as $ann => $extended ) {
 			if ( $extended ) {
 				if ( preg_match( '</?' . $ann . '.*>', $src ) ) {

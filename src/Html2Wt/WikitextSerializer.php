@@ -304,7 +304,7 @@ class WikitextSerializer {
 
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
-			return $this->state->getOrigSrc( $dsr->start, $dsr->innerStart() ) ?? '';
+			return $this->state->getOrigSrc( $dsr->openRange() ) ?? '';
 		}
 
 		$da = $token->dataParsoid;
@@ -338,7 +338,7 @@ class WikitextSerializer {
 	public function serializeHTMLEndTag( Element $node, $wrapperUnmodified ): string {
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
-			return $this->state->getOrigSrc( $dsr->innerEnd(), $dsr->end ) ?? '';
+			return $this->state->getOrigSrc( $dsr->closeRange() ) ?? '';
 		}
 
 		$token = WTSUtils::mkEndTagTk( $node );
@@ -1167,7 +1167,7 @@ class WikitextSerializer {
 					$state->sep->constraints['constraintInfo']['nodeB'] = $node->firstChild;
 				}
 
-				$out = $state->getOrigSrc( $dp->dsr->start, $dp->dsr->end ) ?? '';
+				$out = $state->getOrigSrc( $dp->dsr ) ?? '';
 
 				$this->trace( 'ORIG-src with DSR', static function () use ( $dp, $out ) {
 					return '[' . $dp->dsr->start . ',' . $dp->dsr->end . '] = '

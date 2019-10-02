@@ -95,6 +95,16 @@ class SourceRange implements JsonCodecable {
 	}
 
 	/**
+	 * Return a range from the end of this range to the start of the given
+	 * range.
+	 * @param SourceRange $sr
+	 * @return SourceRange
+	 */
+	public function to( SourceRange $sr ): SourceRange {
+		return new SourceRange( $this->end, $sr->start );
+	}
+
+	/**
 	 * Return the length of this source range.
 	 * @return int
 	 */

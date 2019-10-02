@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -637,13 +638,15 @@ class Separators {
 				if ( $state->haveTrimmedWsDSR && (
 					$dsr->leadingWS > 0 || ( $dsr->leadingWS === 0 && $dsr->trailingWS > 0 )
 				) ) {
-					$sep = $state->getOrigSrc( $dsr->innerStart(), $dsr->innerStart() + $dsr->leadingWS ) ?? '';
+					$range = new SourceRange( $dsr->innerStart(), $dsr->innerStart() + $dsr->leadingWS );
+					$sep = $state->getOrigSrc( $range ) ?? '';
 					return strspn( $sep, " \t" ) === strlen( $sep ) ? $sep : null;
 				} else {
-					$offset = $dsr->innerStart();
-					if ( $offset < $dsr->innerEnd() ) {
-						$sep = $state->getOrigSrc( $offset, $offset + 1 ) ?? '';
-						return preg_match( '/[ \t]/', $sep ) ? $sep : null;
+					if ( $dsr->innerStart() < $dsr->innerEnd() ) {
+						$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
+						// return first character of inner range iff it is
+						// tab or space
+						return preg_match( '/^[ \t]/', $sep ) ? $sep[0] : null;
 					}
 				}
 			}
@@ -701,20 +704,19 @@ class Separators {
 				if ( $state->haveTrimmedWsDSR && (
 					$dsr->trailingWS > 0 || ( $dsr->trailingWS === 0 && $dsr->leadingWS > 0 )
 				) ) {
-					$sep = $state->getOrigSrc( $dsr->innerEnd() - $dsr->trailingWS, $dsr->innerEnd() ) ?? '';
+					$range = new SourceRange( $dsr->innerEnd() - $dsr->trailingWS, $dsr->innerEnd() );
+					$sep = $state->getOrigSrc( $range ) ?? '';
 					if ( !preg_match( '/^[ \t]*$/', $sep ) ) {
 						$sep = null;
 					}
 				} else {
-					$offset = $dsr->innerEnd() - 1;
 					// The > instead of >= is to deal with an edge case
 					// = = where that single space is captured by the
 					// getLeadingSpace case above
-					if ( $offset > $dsr->innerStart() ) {
-						$sep = $state->getOrigSrc( $offset, $offset + 1 ) ?? '';
-						if ( !preg_match( '/[ \t]/', $sep ) ) {
-							$sep = null;
-						}
+					if ( ( $dsr->innerEnd() - 1 ) > $dsr->innerStart() ) {
+						$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
+						// Return last character of $sep iff it is space or tab
+						$sep = preg_match( '/[ \t]$/', $sep ) ? substr( $sep, -1 ) : null;
 					}
 				}
 			}
@@ -890,19 +892,19 @@ class Separators {
 							$sep = '';
 						} elseif ( isset( $dsrA->openWidth ) ) {
 							// B in A, from parent to child
-							$sep = $state->getOrigSrc( $dsrA->innerStart(), $dsrB->start );
+							$sep = $state->getOrigSrc( $dsrA->openRange()->to( $dsrB ) );
 						}
 					} elseif ( $dsrA->end <= $dsrB->start ) {
 						// B following A (siblingish)
-						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->start );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB ) );
 					} elseif ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ) );
 					}
 				} elseif ( $dsrA->end <= $dsrB->end ) {
 					if ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ) );
 					}
 				} else {
 					$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
@@ -950,21 +952,20 @@ class Separators {
 					// We could work harder for text/comments and extrapolate, but skipping that here
 					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
 					$o1 = $prevNode instanceof Element ?
-						DOMDataUtils::getDataParsoid( $prevNode )->dsr->end ?? null : null;
+						DOMDataUtils::getDataParsoid( $prevNode )->dsr ?? null : null;
 					if ( $o1 !== null ) {
 						$dsr2 = DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr ?? null;
-						$o2 = $dsr2 ? $dsr2->innerEnd() : null;
-						$sep = $o2 !== null ? $state->getOrigSrc( $o1, $o2 ) : null;
+						$sep = $dsr2 !== null ? $state->getOrigSrc( $o1->to( $dsr2->closeRange() ) ) : null;
 					}
 				} elseif ( !DiffUtils::hasDiffMarkers( $origNext ) ) {
 					// We could work harder for text/comments and extrapolate, but skipping that here
 					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
 					$o1 = $prevNode instanceof Element ?
-						DOMDataUtils::getDataParsoid( $prevNode )->dsr->end ?? null : null;
+						DOMDataUtils::getDataParsoid( $prevNode )->dsr ?? null : null;
 					if ( $o1 !== null ) {
 						$o2 = $origNext instanceof Element ?
-							DOMDataUtils::getDataParsoid( $origNext )->dsr->start ?? null : null;
-						$sep = $o2 !== null ? $state->getOrigSrc( $o1, $o2 ) : null;
+							DOMDataUtils::getDataParsoid( $origNext )->dsr ?? null : null;
+						$sep = $o2 !== null ? $state->getOrigSrc( $o1->to( $o2 ) ) : null;
 					}
 				}
 
