@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Utils;
 
 use DOMElement;
-use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tests\MockDataAccess;
@@ -32,9 +31,8 @@ class RegressionSpecsTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( $opts, $content );
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$html = $bundle->html;
 		$doc = DOMUtils::parseHTML( $html );
 
 		$docBody = DOMCompat::getBody( $doc );
@@ -60,20 +58,18 @@ class RegressionSpecsTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( [], $content );
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
-		$html = $bundle->html;
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		// This is mimicking a copy/paste in an editor
 		$editedHTML = str_replace( $search, $replace, $html );
 
 		// Without selser
-		$newBundle = new PageBundle( $editedHTML );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], null );
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $editedHTML, [], null );
 		$this->assertEquals( $withoutSelser, $editedWT, $description );
 
 		// With selser
 		$selserData = new SelserData( $wt, $html );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selserData );
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $editedHTML, [], $selserData );
 		$this->assertEquals( $withSelser, $editedWT, $description );
 	}
 
@@ -220,8 +216,7 @@ class RegressionSpecsTest extends TestCase {
 		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( [], $content );
 
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
-		$html = $bundle->html;
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		$search = [ 'item', 'heading', 'cell' ];
 		$replace = [ 'edited item', 'edited heading', 'edited cell' ];
@@ -245,9 +240,8 @@ class RegressionSpecsTest extends TestCase {
 			"|}"
 		] );
 
-		$newBundle = new PageBundle( $editedBody );
 		$selserData = new SelserData( $wt, $html );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle, [], $selserData );
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $editedBody, [], $selserData );
 		$this->assertEquals( $newVersion, $editedWT, $description );
 
 		// Whitespace heuristics are disabled, but selser's buildSep heuristics will do
@@ -272,9 +266,8 @@ class RegressionSpecsTest extends TestCase {
 		// Pretend we are in 1.6.1 version to disable whitespace heuristics
 		$htmlVersion = '1.6.1';
 
-		$newBundle = new PageBundle( $editedBody );
 		$selserData = new SelserData( $wt, $html );
-		$editedWT = $parsoid->html2wikitext( $pageConfig, $newBundle,
+		$editedWT = $parsoid->html2wikitext( $pageConfig, $editedBody,
 			[ 'inputContentVersion' => $htmlVersion ], $selserData );
 		$this->assertEquals( $oldVersion, $editedWT, $description );
 	}

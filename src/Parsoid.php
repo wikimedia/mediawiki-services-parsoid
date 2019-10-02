@@ -78,7 +78,7 @@ class Parsoid {
 	 *   'inlineDataAttribs'  => (bool) Setting to `true` avoids extracting data attributes.
 	 *   'discardDataParsoid' => (bool) Drop all data-parsoid annotations.
 	 * ]
-	 * @return PageBundle
+	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = []
@@ -99,15 +99,14 @@ class Parsoid {
 			] );
 			return new PageBundle(
 				$out['html'],
-				// PORT-FIXME: Where is the conversion going to live?
 				get_object_vars( $out['pb']->parsoid ),
-				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null
+				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
+				$env->getOutputContentVersion()
 			);
 		} else {
-			$html = ContentUtils::toXML( $node, [
+			return ContentUtils::toXML( $node, [
 				'innerXML' => $body_only,
 			] );
-			return new PageBundle( $html );
 		}
 	}
 
@@ -120,7 +119,7 @@ class Parsoid {
 	 */
 	public function wikitext2lint(
 		PageConfig $pageConfig, array $options = []
-	) {
+	): array {
 		[ $env, ] = $this->parseWikitext( $pageConfig, $options );
 		return $env->getLints();
 	}
@@ -129,7 +128,8 @@ class Parsoid {
 	 * Serialize HTML to wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param PageBundle $pageBundle
+	 * @param string $html Data attributes are expected to have been applied
+	 *   already.  Loading them will happen once the environment is created.
 	 * @param array $options [
 	 *   'scrubWikitext' => (bool) Indicates emit "clean" wikitext.
 	 *   'inputContentVersion' => (string) The content version of the input.
@@ -140,7 +140,7 @@ class Parsoid {
 	 * @return string
 	 */
 	public function html2wikitext(
-		PageConfig $pageConfig, PageBundle $pageBundle, array $options = [],
+		PageConfig $pageConfig, string $html, array $options = [],
 		?SelserData $selserData = null
 	): string {
 		$envOptions = [];
@@ -153,7 +153,7 @@ class Parsoid {
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$env->setInputContentVersion( $options['inputContentVersion'] );
 		}
-		$doc = $env->createDocument( $pageBundle->html );
+		$doc = $env->createDocument( $html );
 		$handler = $env->getContentHandler();
 		return $handler->fromHTML( $env, $doc, $selserData );
 	}

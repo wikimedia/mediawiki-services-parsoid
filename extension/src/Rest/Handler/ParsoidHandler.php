@@ -424,46 +424,16 @@ abstract class ParsoidHandler extends Handler {
 			$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
-			$pageBundle = $parsoid->wikitext2html( $pageConfig, $reqOpts );
+			$out = $parsoid->wikitext2html( $pageConfig, $reqOpts );
 			if ( $needsPageBundle ) {
-				$responseData = [
-					'contentmodel' => '',
-					'html' => [
-						'headers' => [
-							'content-type' => 'text/html; charset=utf-8; '
-								. 'profile="https://www.mediawiki.org/wiki/Specs/HTML/'
-								. $env->getOutputContentVersion() . '"',
-							// PORT-FIXME out.headers?
-						],
-						'body' => $pageBundle->html,
-					],
-					'data-parsoid' => [
-						'headers' => [
-							'content-type' => 'application/json; charset=utf-8; '
-								. 'profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/'
-								. $env->getOutputContentVersion() . '"',
-						],
-						'body' => $pageBundle->parsoid,
-					],
-				];
-				if ( Semver::satisfies( $env->getOutputContentVersion(), '^999.0.0' ) ) {
-					$responseData['data-mw'] = [
-						'headers' => [
-							'content-type' => 'application/json; charset=utf-8; ' .
-								'profile="https://www.mediawiki.org/wiki/Specs/data-mw/' .
-								$env->getOutputContentVersion() . '"',
-						],
-						'body' => $pageBundle->mw,
-					];
-				}
-				$response = $this->getResponseFactory()->createJson( $responseData );
+				$response = $this->getResponseFactory()->createJson( $out->responseData() );
 				FormatHelper::setContentType( $response, FormatHelper::FORMAT_PAGEBUNDLE,
-					$env->getOutputContentVersion() );
+					$out->version );
 			} else {
 				$response = $this->getResponseFactory()->create();
 				FormatHelper::setContentType( $response, FormatHelper::FORMAT_HTML,
 					$env->getOutputContentVersion() );
-				$response->getBody()->write( $pageBundle->html );
+				$response->getBody()->write( $out );
 
 				// FIXME Parsoid-JS only does this when out.headers is empty. We have no out, though.
 				$response->setHeader( 'Content-Language', 'en' );
@@ -601,7 +571,6 @@ abstract class ParsoidHandler extends Handler {
 		// Pass along the determined original version
 		$envOptions['inputContentVersion'] = $env->getInputContentVersion();
 
-		$pb = new PageBundle( '', null, null );
 		// If available, the modified data-mw blob is applied, while preserving
 		// existing inline data-mw.  But, no data-parsoid application, since
 		// that's internal, we only expect to find it in its original,
@@ -682,10 +651,10 @@ abstract class ParsoidHandler extends Handler {
 			$selserData = null;
 		}
 
-		$pb->html = ContentUtils::toXML( $doc );
+		$html = ContentUtils::toXML( $doc );
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $pb, [
+		$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
 			// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
 			'scrubWikitext' => $envOptions['scrubWikitext'],
 			'inputContentVersion' => $envOptions['inputContentVersion'],

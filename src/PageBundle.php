@@ -20,15 +20,23 @@ class PageBundle {
 	/** @var array|null */
 	public $mw;
 
+	/** @var string|null */
+	public $version;
+
 	/**
 	 * @param string $html
 	 * @param array|null $parsoid
 	 * @param array|null $mw
+	 * @param string|null $version
 	 */
-	public function __construct( string $html, array $parsoid = null, array $mw = null ) {
+	public function __construct(
+		string $html, array $parsoid = null, array $mw = null,
+		string $version = null
+	) {
 		$this->html = $html;
 		$this->parsoid = $parsoid;
 		$this->mw = $mw;
+		$this->version = $version;
 	}
 
 	/**
@@ -48,6 +56,43 @@ class PageBundle {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function responseData() {
+		$responseData = [
+			'contentmodel' => '',
+			'html' => [
+				'headers' => [
+					'content-type' => 'text/html; charset=utf-8; '
+						. 'profile="https://www.mediawiki.org/wiki/Specs/HTML/'
+						. $this->version . '"',
+					// PORT-FIXME out.headers?
+				],
+				'body' => $this->html,
+			],
+			'data-parsoid' => [
+				'headers' => [
+					'content-type' => 'application/json; charset=utf-8; '
+						. 'profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/'
+						. $this->version . '"',
+				],
+				'body' => $this->parsoid,
+			],
+		];
+		if ( Semver::satisfies( $this->version, '^999.0.0' ) ) {
+			$responseData['data-mw'] = [
+				'headers' => [
+					'content-type' => 'application/json; charset=utf-8; ' .
+						'profile="https://www.mediawiki.org/wiki/Specs/data-mw/' .
+						$this->version . '"',
+				],
+				'body' => $this->mw,
+			];
+		}
+		return $responseData;
 	}
 
 }

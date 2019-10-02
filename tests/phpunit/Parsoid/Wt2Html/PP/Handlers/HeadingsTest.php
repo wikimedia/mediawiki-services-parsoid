@@ -3,14 +3,13 @@
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
-use Parsoid\Tests\MockEnv;
 use Parsoid\Tests\MockPageContent;
 use Parsoid\Tests\MockSiteConfig;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Parsoid;
-use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -65,13 +64,12 @@ class HeadingsTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $heading ] );
 		$pageConfig = new MockPageConfig( [], $content );
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$html = $bundle->html;
-		$mockEnv = new MockEnv( [] );
-		$doc = ContentUtils::ppToDOM( $mockEnv, $html );
+		$doc = DOMUtils::parseHTML( $html );
+		$body = DOMCompat::getBody( $doc );
 
-		$this->validateId( $name, $heading, $description, $expectedIds, $doc );
+		$this->validateId( $name, $heading, $description, $expectedIds, $body );
 	}
 
 	/**

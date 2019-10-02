@@ -54,9 +54,8 @@ class ComputeDSRTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $test['wt'] ] );
 		$pageConfig = new MockPageConfig( [], $content );
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$html = $bundle->html;
 		$mockEnv = new MockEnv( [] );
 		$doc = ContentUtils::ppToDOM( $mockEnv, $html );
 

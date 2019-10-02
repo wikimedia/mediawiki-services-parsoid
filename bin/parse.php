@@ -7,7 +7,6 @@
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
@@ -167,11 +166,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param string|null $wt
-	 * @return PageBundle
+	 * @return string
 	 */
 	public function wt2Html(
 		array $configOpts, array $parsoidOpts, ?string $wt
-	) {
+	): string {
 		if ( $wt !== null ) {
 			$configOpts["pageContent"] = $wt;
 		}
@@ -184,18 +183,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	/**
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
-	 * @param PageBundle $pb
+	 * @param string $html
 	 * @param SelserData|null $selserData
 	 * @return string
 	 */
 	public function html2Wt(
-		array $configOpts, array $parsoidOpts, PageBundle $pb,
+		array $configOpts, array $parsoidOpts, string $html,
 		?SelserData $selserData = null
 	): string {
 		$res = $this->makeConfig( $configOpts );
 
 		return $res['parsoid']->html2wikitext(
-			$res['pageConfig'], $pb, $parsoidOpts, $selserData
+			$res['pageConfig'], $html, $parsoidOpts, $selserData
 		);
 	}
 
@@ -306,21 +305,20 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			} else {
 				$selserData = null;
 			}
-			$pb = new PageBundle( $input );
-			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb, $selserData );
+			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
 			if ( $this->hasOption( 'html2html' ) ) {
-				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-				$this->output( $pb->html . "\n" );
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
+				$this->output( $html . "\n" );
 			} else {
 				$this->output( $wt );
 			}
 		} else {
-			$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+			$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 			if ( $this->hasOption( 'wt2wt' ) ) {
-				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $pb );
+				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $html );
 				$this->output( $wt );
 			} else {
-				$this->output( $pb->html . "\n" );
+				$this->output( $html . "\n" );
 			}
 		}
 	}

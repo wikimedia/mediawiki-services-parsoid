@@ -30,8 +30,13 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
 		$pageContent = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( $opts, $pageContent );
-		$pb = $parsoid->wikitext2html( $pageConfig, $parserOpts );
-		$this->assertEquals( $expected, $pb->html );
+		$out = $parsoid->wikitext2html( $pageConfig, $parserOpts );
+		if ( !empty( $parserOpts['pageBundle'] ) ) {
+			$this->assertTrue( $out instanceof PageBundle );
+			$this->assertEquals( $expected, $out->html );
+		} else {
+			$this->assertEquals( $expected, $out );
+		}
 	}
 
 	public function provideWt2Html() {
@@ -43,7 +48,16 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'wrapSections' => false,
 				]
-			]
+			],
+			[
+				"'''hi ho'''",
+				"<p id=\"mwAQ\"><b id=\"mwAg\">hi ho</b></p>",
+				[
+					'body_only' => true,
+					'wrapSections' => false,
+					'pageBundle' => true,
+				]
+			],
 		];
 	}
 
@@ -93,8 +107,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
 		$pageConfig = new MockPageConfig( $opts, $pageContent );
-		$pb = new PageBundle( $input );
-		$wt = $parsoid->html2wikitext( $pageConfig, $pb, $parserOpts );
+		$wt = $parsoid->html2wikitext( $pageConfig, $input, $parserOpts );
 		$this->assertEquals( $expected, $wt );
 	}
 

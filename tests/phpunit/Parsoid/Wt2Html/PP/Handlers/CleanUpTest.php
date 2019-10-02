@@ -34,9 +34,8 @@ class CleanUpTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( [], $content );
-		$bundle = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$html = $bundle->html;
 		$doc = ContentUtils::ppToDOM( $env, $html );
 
 		return( $doc );
