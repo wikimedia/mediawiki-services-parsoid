@@ -40,7 +40,6 @@
 		"mediawiki/mediawiki-phan-config": "0.6.1",
 		"mediawiki/minus-x": "0.3.1",
 		"phan/phan": "^1.2",
-		"phpspec/phpspec": "^5.0",
 		"phpunit/phpunit": "^6.5",
 		"sebastian/diff": "2.0.1",
 		"wikimedia/alea": "^0.9.0",
@@ -69,7 +68,6 @@
 			"minus-x check .",
 			"covers-validator",
 			"phpunit",
-			"phpspec run -v --ansi",
 			"@phan",
 			"@toolcheck",
 			"@parserTests"
