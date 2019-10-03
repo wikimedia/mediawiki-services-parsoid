@@ -318,7 +318,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
 			if ( $this->hasOption( 'html2html' ) ) {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-				$this->output( $html . "\n" );
+				$this->output( $html );
 			} else {
 				$this->output( $wt );
 			}
@@ -328,8 +328,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $html );
 				$this->output( $wt );
 			} else {
-				$this->output( $html . "\n" );
+				$this->output( $html );
 			}
+		}
+
+		if ( posix_isatty( STDOUT ) ) {
+			$this->output( "\n" );
 		}
 	}
 }
