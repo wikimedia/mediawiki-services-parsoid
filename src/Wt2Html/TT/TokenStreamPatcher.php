@@ -16,6 +16,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 
 use Parsoid\Tokens\Token;
@@ -89,7 +90,7 @@ class TokenStreamPatcher extends TokenHandler {
 	public function onNewline( NlTk $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
 			function () use ( $token ) {
-				return json_encode( $token );
+				return PHPUtils::jsonEncode( $token );
 			}
 		);
 		$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
@@ -187,7 +188,7 @@ class TokenStreamPatcher extends TokenHandler {
 	public function onAny( $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
 			function () use ( $token ) {
-				return json_encode( $token );
+				return PHPUtils::jsonEncode( $token );
 			} );
 
 		$tokens = [ $token ];

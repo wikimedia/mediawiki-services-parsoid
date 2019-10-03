@@ -600,7 +600,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $env->dumpFlags && isset( $env->dumpFlags['tplsrc'] ) ) {
 			$env->log( 'dump/tplsrc', str_repeat( '=', 80 ) );
 			$env->log( 'dump/tplsrc', 'TEMPLATE:', $tplArgs['name'], '; TRANSCLUSION:',
-				json_encode( $state['token']->dataAttribs->src ) );
+				PHPUtils::jsonEncode( $state['token']->dataAttribs->src ) );
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
 			$env->log( 'dump/tplsrc', $src );
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );

@@ -1509,7 +1509,7 @@ class Sanitizer extends TokenHandler {
 		$token = self::sanitizeToken( $env, $token, $this->inTemplate );
 
 		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
-			return ' ---> ' . json_encode( $token );
+			return ' ---> ' . PHPUtils::jsonEncode( $token );
 		} );
 		return [ 'tokens' => [ $token ] ];
 	}

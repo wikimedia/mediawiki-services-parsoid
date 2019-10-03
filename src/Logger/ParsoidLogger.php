@@ -110,7 +110,7 @@ class ParsoidLogger {
 		// Fixed-width type column so that the messages align
 		$msg = substr( $msg, 0, $typeColumnWidth );
 		$msg .= str_repeat( ' ', $typeColumnWidth - strlen( $msg ) );
-		$msg .= '| ' . $indent . $this->logMessage( null, $args );
+		$msg .= '|' . $indent . $this->logMessage( null, $args );
 
 		return $msg;
 	}

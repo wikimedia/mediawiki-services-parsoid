@@ -408,7 +408,7 @@ class HTML5TreeBuilder extends PipelineStage {
 			$errors = [
 				'-------- Unhandled token ---------',
 				'TYPE: ' . $token->getType(),
-				'VAL : ' . json_encode( $token )
+				'VAL : ' . PHPUtils::jsonEncode( $token )
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
 		}

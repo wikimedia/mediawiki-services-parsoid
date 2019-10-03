@@ -453,7 +453,7 @@ class SerializerState {
 		$this->sepIntroducedSOL( $sep->text );
 
 		$this->serializer->trace( '--->', $debugPrefix, function () use ( $sep ) {
-			return json_encode( $sep->text );
+			return PHPUtils::jsonEncode( $sep->text );
 		} );
 	}
 
@@ -634,7 +634,7 @@ class SerializerState {
 
 		// Output res
 		$this->serializer->trace( '--->', $this->logPrefix, function () use ( $res ) {
-			return json_encode( ( $res instanceof ConstrainedText ) ? $res->text : $res );
+			return PHPUtils::jsonEncode( ( $res instanceof ConstrainedText ) ? $res->text : $res );
 		} );
 		$this->pushToCurrLine( $res, $node );
 

@@ -1210,7 +1210,8 @@ class WikitextSerializer {
 				$out = $state->getOrigSrc( $dp->dsr->start, $dp->dsr->end );
 
 				$this->trace( 'ORIG-src with DSR', function () use ( $dp, $out ) {
-					return '[' . $dp->dsr->start . ',' . $dp->dsr->end . '] = ' . json_encode( $out );
+					return '[' . $dp->dsr->start . ',' . $dp->dsr->end . '] = '
+						. PHPUtils::jsonEncode( $out );
 				} );
 
 				// When reusing source, we should only suppress serializing
