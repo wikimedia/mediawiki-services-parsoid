@@ -165,6 +165,13 @@ abstract class ParsoidHandler extends Handler {
 			'errorEnc' => FormatHelper::ERROR_ENCODING[$opts['format']] ?? 'plain',
 			'iwp' => wfWikiID(), // PORT-FIXME verify
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
+			'scrubWikitext' => (bool)( $body['scrub_wikitext']
+				?? $request->getPostParams()['scrub_wikitext']
+				?? $request->getQueryParams()['scrub_wikitext']
+				?? $body['scrubWikitext']
+				?? $request->getPostParams()['scrubWikitext']
+				?? $request->getQueryParams()['scrubWikitext']
+				?? false )
 		];
 
 		if ( $request->getMethod() === 'POST' ) {
@@ -182,6 +189,7 @@ abstract class ParsoidHandler extends Handler {
 			'prefix' => $attribs['iwp'],
 			'domain' => $request->getPathParam( 'domain' ),
 			'pageName' => $attribs['pageName'],
+			'scrubWikitext' => $attribs['scrubWikitext'],
 			'cookie' => $request->getHeaderLine( 'Cookie' ),
 			'reqId' => $request->getHeaderLine( 'X-Request-Id' ),
 			'userAgent' => $request->getHeaderLine( 'User-Agent' ),
@@ -228,7 +236,9 @@ abstract class ParsoidHandler extends Handler {
 	): Env {
 		$pageConfig = $this->createPageConfig( $title, $revision, $wikitextOverride );
 		$options = [];
-		foreach ( [ 'wrapSections', 'scrubWikitext', 'traceFlags', 'dumpFlags' ] as $opt ) {
+		// NOTE: These settings are mostly ignored since this Env is only used
+		// in this file.
+		foreach ( [ 'traceFlags', 'dumpFlags' ] as $opt ) {
 			if ( isset( $this->parsoidSettings[$opt] ) ) {
 				$options[$opt] = $this->parsoidSettings[$opt];
 			}
@@ -479,16 +489,7 @@ abstract class ParsoidHandler extends Handler {
 	protected function html2wt( Env $env, array $attribs, string $html = null ) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
-		// FIXME make this accept JSON properties and handle via the validation framework
-		$scrubWikitext = $request->getPostParams()['scrub_wikitext']
-			?? $request->getQueryParams()['scrub_wikitext']
-			?? $request->getPostParams()['scrubWikitext']
-			?? $request->getQueryParams()['scrubWikitext']
-			?? $this->parsoidSettings['scrubWikitext']
-			?? false;
-		$envOptions = array_merge( [
-			'scrubWikitext' => $scrubWikitext,
-		], $attribs['envOptions'] );
+		$envOptions = $attribs['envOptions'];
 
 		// Performance Timing options
 		$startTimers = [
@@ -653,12 +654,10 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$html = ContentUtils::toXML( $doc );
-
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		try {
 			$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
-				// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 			], $selserData );
