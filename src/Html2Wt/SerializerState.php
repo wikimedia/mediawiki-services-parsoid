@@ -453,7 +453,7 @@ class SerializerState {
 		$this->sepIntroducedSOL( $sep->text );
 
 		$this->serializer->trace( '--->', $debugPrefix, function () use ( $sep ) {
-			json_encode( $sep->text );
+			return json_encode( $sep->text );
 		} );
 	}
 

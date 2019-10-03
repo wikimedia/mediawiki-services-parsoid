@@ -121,11 +121,11 @@ class ParsoidLogger {
 		foreach ( $args as $arg ) {
 			// don't use is_callable, it would return true for any string that happens to be a function name
 			if ( $arg instanceof \Closure ) {
-				$output = $output . ' ' . $arg();
+				$output .= ' ' . $arg();
 			} elseif ( is_string( $arg ) ) {
-				$output = $output . ' ' . $arg;
+				$output .= ' ' . $arg;
 			} else {
-				$output = $output . PHPUtils::jsonEncode( $arg );
+				$output .= PHPUtils::jsonEncode( $arg );
 			}
 		}
 
@@ -152,7 +152,7 @@ class ParsoidLogger {
 		$logLevel = preg_replace( '#/.*$#', '', $prefix );
 
 		// Handle trace type first
-		if ( $logLevel === 'trace' ) {
+		if ( $logLevel === 'trace' || $logLevel === 'debug' ) {
 			$this->backendLogger->log( LogLevel::DEBUG, $this->formatTrace( $prefix, $args ) );
 		} else {
 			if ( $logLevel === 'dump' ) {
