@@ -10,6 +10,8 @@ use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\EndTagTk;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
@@ -359,7 +361,7 @@ class WikitextEscapeHandlers {
 	public function tokenizeStr( string $str, bool $sol ): array {
 		$tokens = $this->tokenizer->tokenizeSync( $str, [ 'sol' => $sol ] );
 		Assert::invariant(
-			TokenUtils::getTokenType( array_pop( $tokens ) ) === 'EOFTk',
+			array_pop( $tokens ) instanceof EOFTk,
 			'Expected EOF token!'
 		);
 		return $tokens;
@@ -403,7 +405,7 @@ class WikitextEscapeHandlers {
 		// If 'text' remained outside of any non-string tokens,
 		// it does not need nowiking.
 		if ( $lastToken === $text ||
-			( TokenUtils::getTokenType( $lastToken ) === 'string' &&
+			( is_string( $lastToken ) &&
 				$text === substr( $lastToken, -strlen( $text ) )
 			)
 		) {
@@ -1217,7 +1219,7 @@ class WikitextEscapeHandlers {
 				} elseif ( $type === 'mw:Nowiki' ) {
 					$i++;
 					while ( $i < $n &&
-						( TokenUtils::getTokenType( $tokens[$i] ) !== 'EndTagTk' ||
+						( !$tokens[$i] instanceof EndTagTk ||
 							$tokens[$i]->getAttribute( 'typeof' ) !== 'mw:Nowiki'
 						)
 					) {

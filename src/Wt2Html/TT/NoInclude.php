@@ -5,6 +5,7 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
+use Parsoid\Tokens\EOFTk;
 
 /**
  * Simple noinclude implementation.
@@ -73,7 +74,7 @@ class NoInclude extends TokenCollector {
 
 		$tokens = [];
 		$end = array_pop( $collection );
-		$eof = TokenUtils::getTokenType( $end ) === 'EOFTk';
+		$eof = $end instanceof EOFTk;
 
 		if ( empty( $this->options['isInclude'] ) ) {
 			// Content is preserved

@@ -183,7 +183,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isBlockTag'] ?? false,
-			TokenUtils::getTokenType( $token ) === 'string' ? false :
+			is_string( $token ) ? false :
 			TokenUtils::isBlockTag( $token->getName() )
 		);
 	}
@@ -196,7 +196,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagOpensBlockScope'] ?? false,
-			TokenUtils::getTokenType( $token ) === 'string' ? false :
+			is_string( $token ) ? false :
 			TokenUtils::tagOpensBlockScope( $token->getName() )
 		);
 	}
@@ -209,7 +209,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagClosesBlockScope'] ?? false,
-			TokenUtils::getTokenType( $token ) === 'string' ? false :
+			is_string( $token ) ? false :
 			TokenUtils::tagClosesBlockScope( $token->getName() )
 		);
 	}

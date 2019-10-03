@@ -5,8 +5,9 @@ namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\EOFTk;
 
 /**
  * Simple noinclude / onlyinclude implementation.
@@ -58,7 +59,7 @@ class IncludeOnly extends TokenCollector {
 		$start = array_shift( $collection );
 
 		// Handle self-closing tag case specially!
-		if ( TokenUtils::getTokenType( $start ) === 'SelfclosingTagTk' ) {
+		if ( $start instanceof SelfclosingTagTk ) {
 			$token = TokenCollector::buildMetaToken(
 				$this->manager,
 				'mw:Includes/IncludeOnly',
@@ -77,7 +78,7 @@ class IncludeOnly extends TokenCollector {
 
 		$tokens = [];
 		$end = array_pop( $collection );
-		$eof = TokenUtils::getTokenType( $end ) === 'EOFTk';
+		$eof = $end instanceof EOFTk;
 
 		if ( $this->options['isInclude'] ) {
 			// Just pass through the full collection including delimiters

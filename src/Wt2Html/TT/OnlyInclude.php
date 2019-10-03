@@ -6,6 +6,7 @@ namespace Parsoid\Wt2Html\TT;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Tokens\EndTagTk;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 
@@ -65,7 +66,7 @@ class OnlyInclude extends TokenHandler {
 			: null;
 		$attribs = [
 			new KV( 'typeof', 'mw:Includes/OnlyInclude' .
-				( ( TokenUtils::getTokenType( $token ) === 'EndTagTk' ) ? '/End' : '' ) )
+				( ( $token instanceof EndTagTk ) ? '/End' : '' ) )
 		];
 		$meta = new SelfclosingTagTk( 'meta', $attribs, (object)[ 'tsr' => $tsr, 'src' => $src ] );
 		return [ 'tokens' => [ $meta ] ];
