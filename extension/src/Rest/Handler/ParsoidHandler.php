@@ -16,6 +16,7 @@ use MobileContext;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\Rest\FormatHelper;
 use MWParsoid\ParsoidServices;
+use Parsoid\ClientError;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
@@ -654,11 +655,18 @@ abstract class ParsoidHandler extends Handler {
 		$html = ContentUtils::toXML( $doc );
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
-			// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
-			'scrubWikitext' => $envOptions['scrubWikitext'],
-			'inputContentVersion' => $envOptions['inputContentVersion'],
-		], $selserData );
+
+		try {
+			$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
+				// PORT-FIXME where do the rest of $envOptions go? where does the content model go?
+				'scrubWikitext' => $envOptions['scrubWikitext'],
+				'inputContentVersion' => $envOptions['inputContentVersion'],
+			], $selserData );
+		} catch ( ClientError $e ) {
+			return $this->getResponseFactory()->createHttpError( 400, [
+				'message' => $e->getMessage(),
+			] );
+		}
 
 		$this->statsdDataFactory->timing( 'html2wt.total', time() - $startTimers['html2wt.total'] );
 		$this->statsdDataFactory->timing( 'html2wt.size.output', strlen( $wikitext ) );
