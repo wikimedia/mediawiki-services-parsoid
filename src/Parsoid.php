@@ -30,25 +30,8 @@ class Parsoid {
 		$this->dataAccess = $dataAccess;
 	}
 
-	/**
-	 * Parsing code shared between the next two methods.
-	 *
-	 * @param PageConfig $pageConfig
-	 * @param array $options See wikitext2html.
-	 * @return array
-	 */
-	private function parseWikitext(
-		PageConfig $pageConfig, array $options = []
-	): array {
-		$envOptions = [
-			'discardDataParsoid' => !empty( $options['discardDataParsoid'] ),
-		];
-		if ( isset( $options['wrapSections'] ) ) {
-			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
-		}
-		if ( isset( $options['pageBundle'] ) ) {
-			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
-		}
+	private function setupCommonOptions( array $options ): array {
+		$envOptions = [];
 		if ( isset( $options['offsetType'] ) ) {
 			$envOptions['offsetType'] = $options['offsetType'];
 		}
@@ -60,6 +43,28 @@ class Parsoid {
 		}
 		if ( isset( $options['debugFlags'] ) ) {
 			$envOptions['debugFlags'] = $options['debugFlags'];
+		}
+
+		return $envOptions;
+	}
+
+	/**
+	 * Parsing code shared between the next two methods.
+	 *
+	 * @param PageConfig $pageConfig
+	 * @param array $options See wikitext2html.
+	 * @return array
+	 */
+	private function parseWikitext(
+		PageConfig $pageConfig, array $options = []
+	): array {
+		$envOptions = $this->setupCommonOptions( $options );
+		$envOptions['discardDataParsoid'] = !empty( $options['discardDataParsoid'] );
+		if ( isset( $options['wrapSections'] ) ) {
+			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
+		}
+		if ( isset( $options['pageBundle'] ) ) {
+			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
@@ -80,6 +85,11 @@ class Parsoid {
 	 *                                         `null` returns the default version.
 	 *   'inlineDataAttribs'  => (bool) Setting to `true` avoids extracting data attributes.
 	 *   'discardDataParsoid' => (bool) Drop all data-parsoid annotations.
+	 *   'offsetType'         => (string) ucs2, char, byte are valid values
+	 *                           what kind of source offsets should be emitted?
+	 *   'traceFlags'         => (array) associative array with tracing options
+	 *   'dumpFlags'          => (array) associative array with dump options
+	 *   'debugFlags'         => (array) associative array with debug options
 	 * ]
 	 * @return PageBundle|string
 	 */
@@ -138,6 +148,11 @@ class Parsoid {
 	 *   'inputContentVersion' => (string) The content version of the input.
 	 *     Necessary if it differs from the current default in order to
 	 *     account for any serialization differences.
+	 *   'offsetType'         => (string) ucs2, char, byte are valid values
+	 *                           what kind of source offsets are present in the HTML?
+	 *   'traceFlags'         => (array) associative array with tracing options
+	 *   'dumpFlags'          => (array) associative array with dump options
+	 *   'debugFlags'         => (array) associative array with debug options
 	 * ]
 	 * @param SelserData|null $selserData
 	 * @return string
@@ -146,12 +161,9 @@ class Parsoid {
 		PageConfig $pageConfig, string $html, array $options = [],
 		?SelserData $selserData = null
 	): string {
-		$envOptions = [];
+		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
-		}
-		if ( isset( $options['offsetType'] ) ) {
-			$envOptions['offsetType'] = $options['offsetType'];
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
