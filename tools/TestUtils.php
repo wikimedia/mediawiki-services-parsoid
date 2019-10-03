@@ -597,7 +597,8 @@ class TestUtils {
 			$normalizeAbout = function ( $s ) {
 				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
-			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) ) {
+			$offsetType = $options['offsetType'] ?? 'byte';
+			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
 				$blacklisted = true;
 			} else {
 				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
@@ -1044,6 +1045,11 @@ class TestUtils {
 				'description' => 'Suppress notification of passed tests (shows only failed tests)',
 				'boolean' => true,
 				'default' => false
+			],
+			'offsetType' => [
+				'description' => 'Test DSR offset conversion code while running tests.',
+				'boolean' => false,
+				'default' => 'byte',
 			],
 			'blacklist' => [
 				'description' => 'Compare against expected failures from blacklist',

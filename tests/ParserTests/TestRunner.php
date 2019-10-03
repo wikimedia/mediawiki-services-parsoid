@@ -125,6 +125,9 @@ class TestRunner {
 	private $runPHP;
 
 	/** @var string */
+	private $offsetType;
+
+	/** @var string */
 	private $testFileName;
 
 	/** @var string */
@@ -1234,6 +1237,7 @@ class TestRunner {
 			isset( $options['selser'] ) &&
 			!( isset( $options['filter'] ) || isset( $options['regex'] ) ||
 				isset( $options['maxtests'] ) );
+		$offsetType = $options['offsetType'] ?? 'byte';
 
 		// update the blacklist, if requested
 		if ( $allModes || ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
@@ -1257,7 +1261,7 @@ class TestRunner {
 			);
 			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
 				file_put_contents( $this->blackListPath, $contents );
-			} elseif ( $allModes && $oldExists ) {
+			} elseif ( $allModes && $oldExists && $offsetType === 'byte' ) {
 				$blacklistChanged = $contents !== $old;
 			}
 		}
@@ -1443,6 +1447,7 @@ class TestRunner {
 	public function run( array $options ): array {
 		$this->runDisabled = ScriptUtils::booleanOption( $options['run-disabled'] ?? null );
 		$this->runPHP = ScriptUtils::booleanOption( $options['run-php'] ?? null );
+		$this->offsetType = $options['offsetType'] ?? 'byte';
 
 		// Test case filtering
 		$this->testFilter = null;
@@ -1471,6 +1476,7 @@ class TestRunner {
 		$this->envOptions = [
 			'wrapSections' => false,
 			'nativeTemplateExpansion' => true,
+			'offsetType' => $this->offsetType,
 		];
 		ScriptUtils::setDebuggingFlags( $this->envOptions, $options );
 		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );
