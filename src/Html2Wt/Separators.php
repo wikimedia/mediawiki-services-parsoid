@@ -646,7 +646,7 @@ class Separators {
 						if ( DOMUtils::isComment( $prevNode ) ) {
 							$correction = WTUtils::decodedCommentLength( $prevNode );
 						} else {
-							$correction = mb_strlen( $prevNode->nodeValue );
+							$correction = strlen( $prevNode->nodeValue );
 						}
 						$dsrA = new DomSourceRange(
 							$endDsr,
@@ -682,9 +682,9 @@ class Separators {
 					$sepTxt = self::precedingSeparatorTxt( $node );
 					if ( $sepTxt !== null ) {
 						$dsrB = $npDP->dsr;
-						if ( is_int( $dsrB->start ) && mb_strlen( $sepTxt ) > 0 ) {
+						if ( is_int( $dsrB->start ) && strlen( $sepTxt ) > 0 ) {
 							$dsrB = clone $dsrB;
-							$dsrB->start += mb_strlen( $sepTxt );
+							$dsrB->start += strlen( $sepTxt );
 						}
 					}
 				}

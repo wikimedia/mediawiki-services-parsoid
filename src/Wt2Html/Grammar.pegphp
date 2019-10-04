@@ -2169,9 +2169,9 @@ urltext =
 		/ & "&" he:htmlentity { return $he; }
 		// Convert trailing space into &nbsp;
 		// XXX: This should be moved to a serializer
-		// This is a hack to force a whitespace display before the colon
+		// This is a hack to force a whitespace display before the colon (T197879)
 		/ ' ' & ':' {
-			$toks = TokenUtils::placeholder( " ", (object)[
+			$toks = TokenUtils::placeholder( "\u{00a0}", (object)[
 					'src' => ' ',
 					'tsr' => $this->tsrOffsets( 'start' ),
 					'isDisplayHack' => true

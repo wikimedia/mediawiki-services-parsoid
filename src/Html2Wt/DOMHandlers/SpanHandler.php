@@ -83,6 +83,7 @@ class SpanHandler extends DOMHandler {
 					&& preg_match( '/^\x{00a0}+$/uD', $node->firstChild->nodeValue )
 				) {
 					$state->emitChunk(
+						// FIXME: Not sure why we even use a str_repeat instead of using ' ' (T197879)
 						str_repeat( ' ', mb_strlen( $node->firstChild->nodeValue ) ),
 						$node->firstChild
 					);

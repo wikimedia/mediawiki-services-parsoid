@@ -744,7 +744,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a58() {
   
-  			$toks = TokenUtils::placeholder( " ", (object)[
+  			$toks = TokenUtils::placeholder( "\u{00a0}", (object)[
   					'src' => ' ',
   					'tsr' => $this->tsrOffsets( 'start' ),
   					'isDisplayHack' => true
