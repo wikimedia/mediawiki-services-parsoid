@@ -34,6 +34,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PegTokenizer;
 use RequestContext;
 use Title;
+// use Wikimedia\Http\HttpAcceptParser;
 use Wikimedia\ParamValidator\ValidationException;
 
 /**
@@ -208,6 +209,133 @@ abstract class ParsoidHandler extends Handler {
 
 		$this->requestAttributes = $attribs;
 		return $this->requestAttributes;
+	}
+
+	/**
+	 * PORT-FIXME: This is being upstreamed to \Wikimedia\Http\HttpAcceptParser::parserAccept
+	 * but we duplicate it here to expedite the port.
+	 *
+	 * @param string $accept
+	 * @return array
+	 */
+	public function parseAccept( $accept ): array {
+		$accepts = explode( ',', $accept );  // FIXME: Allow commas in quotes
+		$ret = [];
+
+		foreach ( $accepts as $i => $a ) {
+			preg_match( '!^([^\s/;]+)/([^;\s]+)\s*(?:;(.*))?$!D', trim( $a ), $matches );
+			if ( !$matches ) {
+				continue;
+			}
+			$q = 1;
+			$params = [];
+			if ( isset( $matches[3] ) ) {
+				$kvps = explode( ';', $matches[3] );  // FIXME: Allow semi-colon in quotes
+				foreach ( $kvps as $kv ) {
+					[ $key, $val ] = explode( '=', trim( $kv ), 2 );
+					$key = strtolower( trim( $key ) );
+					$val = trim( $val );
+					if ( $key === 'q' ) {
+						$q = (float)$val;  // FIXME: Spec is stricter about this
+					} else {
+						if ( $val && $val[0] === '"' && $val[ strlen( $val ) - 1 ] === '"' ) {
+							$val = substr( $val, 1, strlen( $val ) - 2 );
+						}
+						$params[$key] = $val;
+					}
+				}
+			}
+			$ret[] = [
+				'type' => $matches[1],
+				'subtype' => $matches[2],
+				'q' => $q,
+				'i' => $i,
+				'params' => $params,
+			];
+		}
+
+		// Sort list. First by q values, then by order
+		usort( $ret, function ( $a, $b ) {
+			if ( $b['q'] > $a['q'] ) {
+				return 1;
+			} elseif ( $b['q'] === $a['q'] ) {
+				return $a['i'] - $b['i'];
+			} else {
+				return -1;
+			}
+		} );
+
+		return $ret;
+	}
+
+	/**
+	 * FIXME: Combine with FormatHelper::parseContentTypeHeader
+	 */
+	const NEW_SPEC = '#^https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/(\d+\.\d+\.\d+)$#D';
+
+	/**
+	 * Combines:
+	 *  routes.acceptable
+	 *  apiUtils.validateAndSetOutputContentVersion
+	 *  apiUtils.parseProfile
+	 *
+	 * @param Env $env
+	 * @param array $attribs Request attributes from getRequestAttributes()
+	 * @return bool
+	 */
+	protected function acceptable( Env $env, array $attribs ): bool {
+		$request = $this->getRequest();
+		$format = $attribs['opts']['format'];
+
+		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
+			return true;
+		}
+
+		$acceptHeader = $request->getHeader( 'Accept' );
+		if ( !$acceptHeader ) {
+			return true;
+		}
+
+		// $parser = new HttpAcceptParser();
+		// $acceptableTypes = $parser->parseAccept( $acceptHeader[0] );  // FIXME: Multiple headers valid?
+		$acceptableTypes = $this->parseAccept( $acceptHeader[0] );  // FIXME: Multiple headers valid?
+		if ( !$acceptableTypes ) {
+			return true;
+		}
+
+		// `acceptableTypes` is already sorted by quality.
+		foreach ( $acceptableTypes as $t ) {
+			$type = "{$t['type']}/{$t['subtype']}";
+			$profile = $t['params']['profile'] ?? null;
+			if (
+				( $format === FormatHelper::FORMAT_HTML && $type === 'text/html' ) ||
+				( $format === FormatHelper::FORMAT_PAGEBUNDLE && $type === 'application/json' )
+			) {
+				if ( $profile ) {
+					preg_match( self::NEW_SPEC, $profile, $matches );
+					if ( $matches && strtolower( $matches[1] ) === $format ) {
+						$contentVersion = $env->resolveContentVersion( $matches[2] );
+						if ( $contentVersion ) {
+							$env->setOutputContentVersion( $contentVersion );
+							return true;
+						} else {
+							continue;
+						}
+					} else {
+						continue;
+					}
+				} else {
+					return true;
+				}
+			} elseif (
+				( $type === '*/*' ) ||
+				( $format === FormatHelper::FORMAT_HTML && $type === 'text/*' )
+			) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -726,7 +854,7 @@ abstract class ParsoidHandler extends Handler {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
 
-		$revision = $opts['original'] ?? null;
+		$revision = $opts['previous'] ?? $opts['original'] ?? null;
 		if ( !isset( $revision['html'] ) ) {
 			$env->log( 'fatal/request', 'Missing revision html.' );
 			return $this->getResponseFactory()->createHttpError( 400, [

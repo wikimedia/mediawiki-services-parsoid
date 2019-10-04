@@ -1387,7 +1387,7 @@ describe('Parsoid API', function() {
 		it('should require html when serializing', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')
-			.send()
+			.send({})
 			.expect(400)
 			.end(done);
 		});

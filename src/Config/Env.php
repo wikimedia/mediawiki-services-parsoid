@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 // use Closure;
+use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
@@ -24,6 +26,7 @@ use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\PageConfigFrame;
 use Parsoid\Wt2Html\ParserPipelineFactory;
 use Parsoid\Wt2Html\TT\Sanitizer;
+use UnexpectedValueException;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -137,7 +140,20 @@ class Env {
 	/** @var bool */
 	private $scrubWikitext = false;
 
+	/**
+	 * The default content version that Parsoid assumes it's serializing or
+	 * updating in the pb2pb endpoints
+	 *
+	 * @var string
+	 */
 	private $inputContentVersion;
+
+	/**
+	 * The default content version that Parsoid will generate.
+	 *
+	 * @var string
+	 */
+	private $outputContentVersion;
 
 	/** @var ParserPipelineFactory */
 	private $pipelineFactory;
@@ -243,6 +259,7 @@ class Env {
 		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
+		$this->outputContentVersion = self::AVAILABLE_VERSIONS[0];
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
@@ -844,9 +861,38 @@ class Env {
 	 * @return string A semver version number
 	 */
 	public function getOutputContentVersion(): string {
-		// PORT-FIXME implement this. See MWParserEnvironment.availableVersions,
-		// lib/parse.js
-		return '2.1.0';
+		return $this->outputContentVersion;
+	}
+
+	public function setOutputContentVersion( string $version ): void {
+		if ( !in_array( $version, self::AVAILABLE_VERSIONS ) ) {
+			throw new UnexpectedValueException( 'Not an available content version.' );
+		}
+		$this->outputContentVersion = $version;
+	}
+
+	/**
+	 * See if any content version Parsoid knows how to produce satisfies the
+	 * the supplied version, when interpreted with semver caret semantics.
+	 * This will allow us to make backwards compatible changes, without the need
+	 * for clients to bump the version in their headers all the time.
+	 *
+	 * @param string $version
+	 * @return string|null
+	 */
+	public function resolveContentVersion( $version ) {
+		foreach ( self::AVAILABLE_VERSIONS as $i => $a ) {
+			if ( Semver::satisfies( $a, "^{$version}" ) &&
+				// The section wrapping in 1.6.x should have induced a major
+				// version bump, since it requires upgrading clients to
+				// handle it.  We therefore hardcode this in so that we can
+				// fail hard.
+				Comparator::greaterThanOrEqualTo( $version, '1.6.0' )
+			) {
+				return $a;
+			}
+		}
+		return null;
 	}
 
 	/**

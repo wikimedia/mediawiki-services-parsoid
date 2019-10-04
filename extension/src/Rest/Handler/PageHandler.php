@@ -32,6 +32,12 @@ class PageHandler extends ParsoidHandler {
 		$oldid = (int)$attribs['oldid'];
 		$env = $this->createEnv( $attribs['pageName'], $oldid );
 
+		if ( !$this->acceptable( $env, $attribs ) ) {
+			return $this->getResponseFactory()->createHttpError( 406, [
+				'message' => 'Not acceptable',
+			] );
+		}
+
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
 				return $this->createRedirectToOldidResponse( $env, $attribs );

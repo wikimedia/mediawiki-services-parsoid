@@ -69,6 +69,9 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
+		if ( isset( $options['outputVersion'] ) ) {
+			$env->setOutputContentVersion( $options['outputVersion'] );
+		}
 		$env->bumpWt2HtmlResourceUse(
 			'wikitextSize', strlen( $env->getPageMainContent() )
 		);

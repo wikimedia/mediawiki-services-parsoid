@@ -61,6 +61,11 @@ class TransformHandler extends ParsoidHandler {
 				] );
 			}
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
+			if ( !$this->acceptable( $env, $attribs ) ) {
+				return $this->getResponseFactory()->createHttpError( 406, [
+					'message' => 'Not acceptable',
+				] );
+			}
 			return $this->wt2html( $env, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			$html = $attribs['opts']['html'] ?? null;
@@ -75,9 +80,19 @@ class TransformHandler extends ParsoidHandler {
 			}
 			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
+			if ( !$this->acceptable( $env, $attribs ) ) {
+				return $this->getResponseFactory()->createHttpError( 406, [
+					'message' => 'Not acceptable',
+				] );
+			}
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
 			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
+			if ( !$this->acceptable( $env, $attribs ) ) {
+				return $this->getResponseFactory()->createHttpError( 406, [
+					'message' => 'Not acceptable',
+				] );
+			}
 			return $this->pb2pb( $env, $attribs );
 		}
 	}
