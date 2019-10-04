@@ -784,6 +784,7 @@ class ComputeDSR {
 		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
 		$endOffset = $options['sourceOffsets']->end ?? strlen( $frame->getSrcText() );
+		$env->log( "trace/dsr", "------- tracing DSR computation -------" );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
@@ -791,5 +792,6 @@ class ComputeDSR {
 
 		$dp = DOMDataUtils::getDataParsoid( $rootNode );
 		$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
+		$env->log( "trace/dsr", "------- done tracing computation -------" );
 	}
 }
