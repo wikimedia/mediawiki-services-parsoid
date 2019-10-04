@@ -360,6 +360,9 @@ class AddMediaInfo {
 		// Handle "responsive" images, i.e. srcset
 		if ( !empty( $info['responsiveUrls'] ) ) {
 			$candidates = [];
+			// Match Parsoid/JS ordering of these responsive urls
+			// FIXME: Parsoid's output here doesn't match core! T234932
+			krsort( $info['responsiveUrls'] );
 			foreach ( $info['responsiveUrls'] as $density => $url ) {
 				$candidates[] = preg_replace( '#^https?://#', '//', $url, 1 ) . ' ' . $density . 'x';
 			}
