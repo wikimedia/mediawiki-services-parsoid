@@ -349,7 +349,7 @@ class References extends ExtensionTag {
 				function ( $dp ) use ( $env ) {
 					// The new references come out of "nowhere", so to make selser work
 					// properly, add a zero-sized DSR pointing to the end of the document.
-					$contentLength = mb_strlen( $env->getPageMainContent() );
+					$contentLength = strlen( $env->getPageMainContent() );
 					$dp->dsr = new DomSourceRange( $contentLength, $contentLength, 0, 0 );
 				},
 				true
