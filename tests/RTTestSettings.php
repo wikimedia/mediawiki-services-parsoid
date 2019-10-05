@@ -18,13 +18,11 @@ if ( !isset( $wgParsoidSettings ) ) {
 $wgParsoidSettings['rtTestMode'] = true;
 $wgParsoidSettings['scrubWikitext'] = true;
 
+// Linting during rt testing is useful to catch errors and crashers,
+// but we don't want to save lints to the production db.
+$wgParsoidSettings['linting'] = (bool)$wgReadOnly;
+
 // Disabled for now so porting the dev api isn't on the critical path
 // These endpoints are occasionally useful while investigating rt testing
 // diffs on the server.
 // $wgParsoidSettings['devAPI'] = true;
-
-// Linting during rt testing is useful to catch errors and crashers,
-// but we don't want to save lints to the production db. Right now, in the
-// integrated mode, it isn't possible to lint without posting results.
-// Once this functionality is implemented, we will enable this on scandium.
-// $wgParsoidSettings['linting'] = true;
