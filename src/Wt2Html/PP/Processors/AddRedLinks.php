@@ -37,13 +37,13 @@ class AddRedLinks {
 
 		foreach ( $wikiLinks as $a ) {
 			if ( !$a->hasAttribute( 'title' ) ) {
-				return;
+				continue;
 			}
 			$k = $a->getAttribute( 'title' );
 			$data = $titleMap[$k] ?? null;
 			if ( $data === null ) {
 				$env->log( 'warn', 'We should have data for the title: ' . $k );
-				return;
+				continue;
 			}
 			$a->removeAttribute( 'class' ); // Clear all
 			if ( !empty( $data['missing'] ) && empty( $data['known'] ) ) {
