@@ -147,7 +147,7 @@ class ContentUtils {
 		} elseif ( isset( $opts['outStream'] ) ) {
 			$opts['outStream']->write( $str . "\n" );
 		} else {
-			print $str;
+			error_log( $str );
 		}
 	}
 
@@ -315,12 +315,12 @@ class ContentUtils {
 	/**
 	 * Dump the DOM with attributes.
 	 *
-	 * @param DOMElement $rootNode
+	 * @param DOMNode $rootNode
 	 * @param string $title
 	 * @param array &$options
 	 */
 	public static function dumpDOM(
-		DOMElement $rootNode, string $title, array &$options = []
+		DOMNode $rootNode, string $title, array &$options = []
 	): void {
 		$options = $options ?? [];
 		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
@@ -328,9 +328,13 @@ class ContentUtils {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
 
-		// cloneNode doesn't clone data => walk DOM to clone it
-		$clonedRoot = $rootNode->cloneNode( true );
-		self::cloneData( $rootNode, $clonedRoot, $options );
+		if ( $rootNode instanceof DOMElement ) {
+			// cloneNode doesn't clone data => walk DOM to clone it
+			$clonedRoot = $rootNode->cloneNode( true );
+			self::cloneData( $rootNode, $clonedRoot, $options );
+		} else {
+			$clonedRoot = $rootNode;
+		}
 
 		$buf = [];
 		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
@@ -353,7 +357,7 @@ class ContentUtils {
 				$newOpts = $options;
 				$newOpts['dumpFragmentMap'] = false;
 				$newOpts['quiet'] = true;
-				self::dumpDOM( is_array( $fragment ) ? $fragment[ 0 ] : $fragment, '', $newOpts );
+				self::dumpDOM( is_array( $fragment ) ? $fragment[0] : $fragment, '', $newOpts );
 			}
 		}
 

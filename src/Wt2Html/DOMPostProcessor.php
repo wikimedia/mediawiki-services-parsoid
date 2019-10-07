@@ -792,7 +792,7 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
-			$pp = $this->processors[ $i ];
+			$pp = $this->processors[$i];
 			if ( !empty( $pp['skipNested'] ) && !$this->atTopLevel ) {
 				continue;
 			}
@@ -802,9 +802,9 @@ class DOMPostProcessor extends PipelineStage {
 
 			// Trace
 			if ( $tracePP ) {
-				$ppName = $pp->name . str_repeat(
+				$ppName = $pp['name'] . str_repeat(
 					" ",
-					( strlen( $pp->name ) < 30 ) ? 30 - strlen( $pp->name ) : 0
+					( strlen( $pp['name'] ) < 30 ) ? 30 - strlen( $pp['name'] ) : 0
 				);
 				$ppStart = PHPUtils::getStartHRTime();
 				$env->log( $logLevel, $prefix . '; ' . $ppName . ' start' );
