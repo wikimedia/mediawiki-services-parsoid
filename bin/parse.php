@@ -120,6 +120,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'mock',
+			'Use mock environment instead of api or standalone'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -164,8 +168,25 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		];
 	}
 
+	private function makeMockConfig( $configOpts ) {
+		$siteConfig = new \Parsoid\Tests\MockSiteConfig( $configOpts );
+		$dataAccess = new \Parsoid\Tests\MockDataAccess( $configOpts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new \Parsoid\Tests\MockPageContent( [ 'main' =>
+			$configOpts['pageContent'] ?? '' ] );
+		$pageConfig = new \Parsoid\Tests\MockPageConfig( $configOpts, $pageContent );
+
+		return [
+			'parsoid' => $parsoid,
+			'pageConfig' => $pageConfig,
+		];
+	}
+
 	private function makeConfig( $configOpts ) {
-		if ( $configOpts['standalone'] ?? true ) {
+		if ( $configOpts['mock'] ) {
+			return $this->makeMockConfig( $configOpts );
+		} elseif ( $configOpts['standalone'] ?? true ) {
 			return $this->makeApiConfig( $configOpts );
 		} else {
 			return $this->makeMwConfig( $configOpts );
@@ -271,7 +292,8 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"apiEndpoint" => $apiURL,
 			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
 			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
-			"linting" => $this->hasOption( 'linting' )
+			"linting" => $this->hasOption( 'linting' ),
+			"mock" => $this->hasOption( 'mock' )
 		];
 		if ( $this->hasOption( 'pageName' ) ) {
 			$configOpts['title'] = $this->getOption( 'pageName' );

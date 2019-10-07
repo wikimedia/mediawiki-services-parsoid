@@ -2,10 +2,11 @@
 
 namespace Parsoid\Tests;
 
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 use Parsoid\Config\SiteConfig;
-use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
-use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
 class MockSiteConfig extends SiteConfig {
@@ -64,37 +65,17 @@ class MockSiteConfig extends SiteConfig {
 		if ( isset( $opts['linkTrailRegex'] ) ) {
 			$this->linkTrailRegex = $opts['linkTrailRegex'];
 		}
-		if ( !empty( $opts['traceFlags'] ) ||
-			!empty( $opts['dumpFlags'] ) ||
-			!empty( $opts['debugFlags'] )
-		) {
-			$this->setLogger( new class extends AbstractLogger {
-				/** @inheritDoc */
-				public function log( $level, $message, array $context = [] ) {
-					if ( $context ) {
-						$message = preg_replace_callback( '/\{([A-Za-z0-9_.]+)\}/', function ( $m ) use ( $context ) {
-							if ( isset( $context[$m[1]] ) ) {
-								$v = $context[$m[1]];
-								if ( is_scalar( $v ) || is_object( $v ) && is_callable( [ $v, '__toString' ] ) ) {
-									return (string)$v;
-								}
-							}
-							return $m[0];
-						}, $message );
 
-						fprintf( STDERR, "[%s] %s %s\n", $level, $message,
-							PHPUtils::jsonEncode( $context )
-						);
-					} else {
-						fprintf( STDERR, "[%s] %s\n", $level, $message );
-					}
-				}
-			} );
-		}
+		// Use Monolog's PHP console handler
+		$logger = new Logger( "Parsoid CLI" );
+		$handler = new ErrorLogHandler();
+		$handler->setFormatter( new LineFormatter( '%message%' ) );
+		$logger->pushHandler( $handler );
+		$this->setLogger( $logger );
 	}
 
 	/**
-	 * Set the log channel, for debugging
+	 * Set the log channel, for debuggings
 	 * @param LoggerInterface|null $logger
 	 */
 	public function setLogger( ?LoggerInterface $logger ): void {
