@@ -79,7 +79,8 @@
         "subpages": true,
         "canonical": "MediaWiki",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "editinterface"
       },
       "9": {
         "id": 9,
@@ -187,7 +188,8 @@
         "subpages": false,
         "canonical": "Gadget",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "gadgets-edit"
       },
       "2301": {
         "id": 2301,
@@ -206,6 +208,7 @@
         "canonical": "Gadget definition",
         "content": false,
         "nonincludable": false,
+        "namespaceprotection": "gadgets-definition-edit",
         "defaultcontentmodel": "GadgetDefinition"
       },
       "2303": {
@@ -266,6 +269,10 @@
       {
         "id": 4,
         "alias": "وب"
+      },
+      {
+        "id": 5,
+        "alias": "Wikipedia talk"
       },
       {
         "id": 5,
@@ -498,6 +505,22 @@
         "case-sensitive": false
       },
       {
+        "name": "useliquidthreads",
+        "aliases": [
+          "استخدم_الخيوط_السائلة",
+          "UseLiquidThreads"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "حد_صفحة_خس",
+          "lqtpagelimit"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "target",
         "aliases": [
           "هدف",
@@ -525,22 +548,6 @@
         "aliases": [
           "استدعاء",
           "invoke"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "useliquidthreads",
-        "aliases": [
-          "استخدم_الخيوط_السائلة",
-          "UseLiquidThreads"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "lqtpagelimit",
-        "aliases": [
-          "حد_صفحة_خس",
-          "lqtpagelimit"
         ],
         "case-sensitive": false
       },
@@ -2022,6 +2029,13 @@
         "case-sensitive": true
       },
       {
+        "name": "translation",
+        "aliases": [
+          "translation"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "coordinates",
         "aliases": [
           "coordinates"
@@ -2036,9 +2050,23 @@
         "case-sensitive": false
       },
       {
-        "name": "calendar",
+        "name": "related",
         "aliases": [
-          "calendar"
+          "related"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "assessment",
+        "aliases": [
+          "assessment"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -2053,6 +2081,13 @@
         "name": "nocollaborationhubtoc",
         "aliases": [
           "__NOCOLLABORATIONHUBTOC__"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "calendar",
+        "aliases": [
+          "calendar"
         ],
         "case-sensitive": false
       },
@@ -2155,30 +2190,9 @@
         "case-sensitive": false
       },
       {
-        "name": "assessment",
-        "aliases": [
-          "assessment"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "related",
-        "aliases": [
-          "related"
-        ],
-        "case-sensitive": false
-      },
-      {
         "name": "useskin",
         "aliases": [
           "useskin"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "PAGEBANNER",
-        "aliases": [
-          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -2228,13 +2242,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ],
         "case-sensitive": false
       },
@@ -2391,12 +2398,11 @@
       "base": "https://ar.wikipedia.org/wiki/%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A9_%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A%D8%A9",
       "sitename": "ويكيبيديا",
       "logo": "//ar.wikipedia.org/static/images/project-logos/arwiki.png",
-      "generator": "MediaWiki 1.34.0-wmf.8",
-      "phpversion": "5.6.99-hhvm",
-      "phpsapi": "srv",
-      "hhvmversion": "3.18.6-dev",
+      "generator": "MediaWiki 1.34.0-wmf.25",
+      "phpversion": "7.2.22-1+0~20190902.26+debian9~1.gbpd64eb7+wmf1",
+      "phpsapi": "fpm-fcgi",
       "dbtype": "mysql",
-      "dbversion": "10.1.38-MariaDB",
+      "dbversion": "10.1.39-MariaDB",
       "imagewhitelistenabled": false,
       "langconversion": true,
       "titleconversion": true,
@@ -2408,8 +2414,8 @@
       "allunicodefixes": false,
       "fixarabicunicode": true,
       "fixmalayalamunicode": true,
-      "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
-      "git-branch": "wmf/1.34.0-wmf.8",
+      "git-hash": "4750f8160d9b2d8b3fc429f63d4fbd6267ac27ab",
+      "git-branch": "wmf/1.34.0-wmf.25",
       "case": "first-letter",
       "lang": "ar",
       "fallback": [
@@ -2431,7 +2437,7 @@
       "server": "//ar.wikipedia.org",
       "servername": "ar.wikipedia.org",
       "wikiid": "arwiki",
-      "time": "2019-06-11T19:58:06Z",
+      "time": "2019-10-07T05:06:04Z",
       "misermode": true,
       "uploadsenabled": true,
       "maxuploadsize": 4294967296,
@@ -2492,8 +2498,9 @@
       "categorycollation": "uppercase",
       "wmf-config": {
         "wmfMasterDatacenter": "eqiad",
-        "wmfEtcdLastModifiedIndex": 3672,
-        "wmgCirrusSearchDefaultCluster": "local"
+        "wmfEtcdLastModifiedIndex": 223365,
+        "wmgCirrusSearchDefaultCluster": "local",
+        "wgCirrusSearchDefaultCluster": "eqiad"
       },
       "citeresponsivereferences": false,
       "linter": {
@@ -5061,7 +5068,7 @@
       {
         "prefix": "bjn",
         "local": true,
-        "language": "Bahasa Banjar",
+        "language": "Banjar",
         "url": "https://bjn.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6055,7 +6062,7 @@
       {
         "prefix": "min",
         "local": true,
-        "language": "Baso Minangkabau",
+        "language": "Minangkabau",
         "url": "https://min.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6232,6 +6239,13 @@
         "local": true,
         "language": "Novial",
         "url": "https://nov.wikipedia.org/wiki/$1",
+        "protorel": false
+      },
+      {
+        "prefix": "nqo",
+        "local": true,
+        "language": "ߒߞߏ",
+        "url": "https://nqo.wikipedia.org/wiki/$1",
         "protorel": false
       },
       {
@@ -6643,7 +6657,7 @@
       {
         "prefix": "su",
         "local": true,
-        "language": "Basa Sunda",
+        "language": "Sunda",
         "url": "https://su.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -7345,7 +7359,7 @@
       {
         "code": "ban",
         "bcp47": "ban",
-        "name": "Basa Bali"
+        "name": "Bali"
       },
       {
         "code": "bar",
@@ -7420,7 +7434,7 @@
       {
         "code": "bjn",
         "bcp47": "bjn",
-        "name": "Bahasa Banjar"
+        "name": "Banjar"
       },
       {
         "code": "bm",
@@ -8420,7 +8434,7 @@
       {
         "code": "min",
         "bcp47": "min",
-        "name": "Baso Minangkabau"
+        "name": "Minangkabau"
       },
       {
         "code": "mk",
@@ -8440,7 +8454,7 @@
       {
         "code": "mni",
         "bcp47": "mni",
-        "name": "মেইতেই লোন্"
+        "name": "ꯃꯤꯇꯩ ꯂꯣꯟ"
       },
       {
         "code": "mnw",
@@ -9010,7 +9024,7 @@
       {
         "code": "su",
         "bcp47": "su",
-        "name": "Basa Sunda"
+        "name": "Sunda"
       },
       {
         "code": "sv",
@@ -10492,6 +10506,13 @@
         ]
       },
       {
+        "realname": "NewSection",
+        "aliases": [
+          "NewSection",
+          "Newsection"
+        ]
+      },
+      {
         "realname": "PermanentLink",
         "aliases": [
           "وصلة_دائمة",
@@ -10991,12 +11012,6 @@
         ]
       },
       {
-        "realname": "ZeroRatedMobileAccess",
-        "aliases": [
-          "ZeroRatedMobileAccess"
-        ]
-      },
-      {
         "realname": "MathShowImage",
         "aliases": [
           "MathShowImage"
@@ -11166,19 +11181,22 @@
         ]
       },
       {
-        "realname": "OATH",
-        "aliases": [
-          "أواث",
-          "أواث_أوث",
-          "Two-factor_authentication",
-          "OATH",
-          "OATHAuth"
-        ]
-      },
-      {
         "realname": "DisableOATHForUser",
         "aliases": [
           "DisableOATHForUser"
+        ]
+      },
+      {
+        "realname": "OATHManage",
+        "aliases": [
+          "أواث",
+          "أواث_أوث",
+          "Manage_Two-factor_authentication",
+          "OATH_Manage",
+          "OATHManage",
+          "OATH",
+          "Two-factor_authentication",
+          "OATHAuth"
         ]
       },
       {
@@ -11341,6 +11359,27 @@
           "قريب",
           "Nearby"
         ]
+      },
+      {
+        "realname": "WelcomeSurvey",
+        "aliases": [
+          "استطلاع_ترحيبي",
+          "WelcomeSurvey"
+        ]
+      },
+      {
+        "realname": "Homepage",
+        "aliases": [
+          "صفحة_رئيسية",
+          "Homepage"
+        ]
+      },
+      {
+        "realname": "Impact",
+        "aliases": [
+          "تأثير",
+          "Impact"
+        ]
       }
     ],
     "defaultoptions": {
@@ -11383,6 +11422,7 @@
       "compact-language-links": 1,
       "echo-subscriptions-web-cx": true,
       "cx-enable-entrypoints": true,
+      "cx-entrypoint-fd-status": "notshown",
       "echo-subscriptions-web-oauth-owner": true,
       "echo-subscriptions-email-oauth-owner": true,
       "echo-subscriptions-web-oauth-admin": true,
@@ -11454,11 +11494,12 @@
       "wllimit": 250,
       "useeditwarning": 1,
       "prefershttps": 1,
-      "flaggedrevswatch": 1,
+      "requireemail": 0,
       "wlshowwikibase": 1,
       "wikilove-enabled": 1,
       "echo-cross-wiki-notifications": 1,
       "timecorrection": "System|0",
+      "flaggedrevswatch": 1,
       "language": "ar",
       "variant-en": "en",
       "variant-crh": "crh",
@@ -11472,19 +11513,6 @@
       "variant-uz": "uz",
       "variant-zh": "zh",
       "searchNs0": true,
-      "searchNs1": false,
-      "searchNs2": false,
-      "searchNs3": false,
-      "searchNs4": false,
-      "searchNs5": false,
-      "searchNs6": false,
-      "searchNs7": false,
-      "searchNs8": false,
-      "searchNs9": false,
-      "searchNs10": false,
-      "searchNs11": false,
-      "searchNs12": false,
-      "searchNs13": false,
       "gadget-CiteTooltip": 1,
       "gadget-decodesummary": 1,
       "gadget-Direct-link-to-Commons": 1,
@@ -11506,7 +11534,6 @@
       "cirrussearch-pref-completion-profile": "fuzzy",
       "multimediaviewer-enable": 1,
       "popups": "0",
-      "mobile-specialpages": "1",
       "mf_amc_optin": "0",
       "echo-email-format": "html",
       "echo-subscriptions-email-system": true,
@@ -11535,7 +11562,12 @@
       "echo-subscriptions-web-thank-you-edit": true,
       "echo-subscriptions-email-wikibase-action": false,
       "echo-subscriptions-web-wikibase-action": true,
-      "echo-subscriptions-email-cx": false
+      "echo-subscriptions-email-cx": false,
+      "growthexperiments-help-panel-tog-help-panel": false,
+      "growthexperiments-tour-help-panel": true,
+      "growthexperiments-tour-homepage-mentorship": true,
+      "growthexperiments-tour-homepage-welcome": true,
+      "growthexperiments-tour-homepage-discovery": true
     },
     "variables": [
       "!",

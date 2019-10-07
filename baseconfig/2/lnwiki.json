@@ -79,7 +79,8 @@
         "subpages": true,
         "canonical": "MediaWiki",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "editinterface"
       },
       "9": {
         "id": 9,
@@ -169,7 +170,8 @@
         "subpages": false,
         "canonical": "Gadget",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "gadgets-edit"
       },
       "2301": {
         "id": 2301,
@@ -188,6 +190,7 @@
         "canonical": "Gadget definition",
         "content": false,
         "nonincludable": false,
+        "namespaceprotection": "gadgets-definition-edit",
         "defaultcontentmodel": "GadgetDefinition"
       },
       "2303": {
@@ -226,6 +229,10 @@
       {
         "id": 3,
         "alias": "Discussion Utilisateur"
+      },
+      {
+        "id": 5,
+        "alias": "Wikipedia talk"
       },
       {
         "id": 6,
@@ -426,6 +433,22 @@
         "case-sensitive": false
       },
       {
+        "name": "useliquidthreads",
+        "aliases": [
+          "UtilliserLiquidThreads",
+          "UseLiquidThreads"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "limitepagelqt",
+          "lqtpagelimit"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "babel",
         "aliases": [
           "Babel",
@@ -445,22 +468,6 @@
         "aliases": [
           "invoque",
           "invoke"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "useliquidthreads",
-        "aliases": [
-          "UtilliserLiquidThreads",
-          "UseLiquidThreads"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "lqtpagelimit",
-        "aliases": [
-          "limitepagelqt",
-          "lqtpagelimit"
         ],
         "case-sensitive": false
       },
@@ -1833,6 +1840,13 @@
         "case-sensitive": false
       },
       {
+        "name": "translation",
+        "aliases": [
+          "translation"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "coordinates",
         "aliases": [
           "coordinates"
@@ -1847,9 +1861,23 @@
         "case-sensitive": false
       },
       {
-        "name": "calendar",
+        "name": "related",
         "aliases": [
-          "calendar"
+          "related"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "assessment",
+        "aliases": [
+          "assessment"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -1864,6 +1892,13 @@
         "name": "nocollaborationhubtoc",
         "aliases": [
           "__NOCOLLABORATIONHUBTOC__"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "calendar",
+        "aliases": [
+          "calendar"
         ],
         "case-sensitive": false
       },
@@ -1966,30 +2001,9 @@
         "case-sensitive": false
       },
       {
-        "name": "assessment",
-        "aliases": [
-          "assessment"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "related",
-        "aliases": [
-          "related"
-        ],
-        "case-sensitive": false
-      },
-      {
         "name": "useskin",
         "aliases": [
           "useskin"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "PAGEBANNER",
-        "aliases": [
-          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -2046,13 +2060,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ],
         "case-sensitive": false
       },
@@ -2336,10 +2343,9 @@
       "base": "https://ln.wikipedia.org/wiki/Lok%C3%A1s%C3%A1_ya_libos%C3%B3",
       "sitename": "Wikipedia",
       "logo": "//ln.wikipedia.org/static/images/project-logos/lnwiki.png",
-      "generator": "MediaWiki 1.34.0-wmf.8",
-      "phpversion": "5.6.99-hhvm",
-      "phpsapi": "srv",
-      "hhvmversion": "3.18.6-dev",
+      "generator": "MediaWiki 1.34.0-wmf.25",
+      "phpversion": "7.2.22-1+0~20190902.26+debian9~1.gbpd64eb7+wmf1",
+      "phpsapi": "fpm-fcgi",
       "dbtype": "mysql",
       "dbversion": "10.1.38-MariaDB",
       "imagewhitelistenabled": false,
@@ -2353,8 +2359,8 @@
       "allunicodefixes": false,
       "fixarabicunicode": true,
       "fixmalayalamunicode": true,
-      "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
-      "git-branch": "wmf/1.34.0-wmf.8",
+      "git-hash": "4750f8160d9b2d8b3fc429f63d4fbd6267ac27ab",
+      "git-branch": "wmf/1.34.0-wmf.25",
       "case": "first-letter",
       "lang": "ln",
       "fallback": [
@@ -2379,7 +2385,7 @@
       "server": "//ln.wikipedia.org",
       "servername": "ln.wikipedia.org",
       "wikiid": "lnwiki",
-      "time": "2019-06-11T19:58:33Z",
+      "time": "2019-10-07T05:06:32Z",
       "misermode": true,
       "uploadsenabled": true,
       "maxuploadsize": 4294967296,
@@ -2440,8 +2446,9 @@
       "categorycollation": "uppercase",
       "wmf-config": {
         "wmfMasterDatacenter": "eqiad",
-        "wmfEtcdLastModifiedIndex": 3672,
-        "wmgCirrusSearchDefaultCluster": "local"
+        "wmfEtcdLastModifiedIndex": 223365,
+        "wmgCirrusSearchDefaultCluster": "local",
+        "wgCirrusSearchDefaultCluster": "eqiad"
       },
       "citeresponsivereferences": false,
       "linter": {
@@ -5008,7 +5015,7 @@
       {
         "prefix": "bjn",
         "local": true,
-        "language": "Bahasa Banjar",
+        "language": "Banjar",
         "url": "https://bjn.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6003,7 +6010,7 @@
       {
         "prefix": "min",
         "local": true,
-        "language": "Baso Minangkabau",
+        "language": "Minangkabau",
         "url": "https://min.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6180,6 +6187,13 @@
         "local": true,
         "language": "Novial",
         "url": "https://nov.wikipedia.org/wiki/$1",
+        "protorel": false
+      },
+      {
+        "prefix": "nqo",
+        "local": true,
+        "language": "ߒߞߏ",
+        "url": "https://nqo.wikipedia.org/wiki/$1",
         "protorel": false
       },
       {
@@ -6591,7 +6605,7 @@
       {
         "prefix": "su",
         "local": true,
-        "language": "Basa Sunda",
+        "language": "Sunda",
         "url": "https://su.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -7293,7 +7307,7 @@
       {
         "code": "ban",
         "bcp47": "ban",
-        "name": "Basa Bali"
+        "name": "Bali"
       },
       {
         "code": "bar",
@@ -7368,7 +7382,7 @@
       {
         "code": "bjn",
         "bcp47": "bjn",
-        "name": "Bahasa Banjar"
+        "name": "Banjar"
       },
       {
         "code": "bm",
@@ -8368,7 +8382,7 @@
       {
         "code": "min",
         "bcp47": "min",
-        "name": "Baso Minangkabau"
+        "name": "Minangkabau"
       },
       {
         "code": "mk",
@@ -8388,7 +8402,7 @@
       {
         "code": "mni",
         "bcp47": "mni",
-        "name": "মেইতেই লোন্"
+        "name": "ꯃꯤꯇꯩ ꯂꯣꯟ"
       },
       {
         "code": "mnw",
@@ -8958,7 +8972,7 @@
       {
         "code": "su",
         "bcp47": "su",
-        "name": "Basa Sunda"
+        "name": "Sunda"
       },
       {
         "code": "sv",
@@ -10698,6 +10712,13 @@
         ]
       },
       {
+        "realname": "NewSection",
+        "aliases": [
+          "NewSection",
+          "Newsection"
+        ]
+      },
+      {
         "realname": "PermanentLink",
         "aliases": [
           "Lien_permanent",
@@ -11189,12 +11210,6 @@
         ]
       },
       {
-        "realname": "ZeroRatedMobileAccess",
-        "aliases": [
-          "ZeroRatedMobileAccess"
-        ]
-      },
-      {
         "realname": "MathShowImage",
         "aliases": [
           "MathShowImage"
@@ -11331,17 +11346,20 @@
         ]
       },
       {
-        "realname": "OATH",
-        "aliases": [
-          "Two-factor_authentication",
-          "OATH",
-          "OATHAuth"
-        ]
-      },
-      {
         "realname": "DisableOATHForUser",
         "aliases": [
           "DisableOATHForUser"
+        ]
+      },
+      {
+        "realname": "OATHManage",
+        "aliases": [
+          "Manage_Two-factor_authentication",
+          "OATH_Manage",
+          "OATHManage",
+          "OATH",
+          "Two-factor_authentication",
+          "OATHAuth"
         ]
       },
       {
@@ -11450,6 +11468,7 @@
       "compact-language-links": 1,
       "echo-subscriptions-web-cx": true,
       "cx-enable-entrypoints": true,
+      "cx-entrypoint-fd-status": "notshown",
       "echo-subscriptions-web-oauth-owner": true,
       "echo-subscriptions-email-oauth-owner": true,
       "echo-subscriptions-web-oauth-admin": true,
@@ -11515,6 +11534,7 @@
       "wllimit": 250,
       "useeditwarning": 1,
       "prefershttps": 1,
+      "requireemail": 0,
       "wlshowwikibase": 0,
       "echo-cross-wiki-notifications": 1,
       "timecorrection": "System|0",
@@ -11531,23 +11551,9 @@
       "variant-uz": "uz",
       "variant-zh": "zh",
       "searchNs0": true,
-      "searchNs1": false,
-      "searchNs2": false,
-      "searchNs3": false,
-      "searchNs4": false,
-      "searchNs5": false,
-      "searchNs6": false,
-      "searchNs7": false,
-      "searchNs8": false,
-      "searchNs9": false,
-      "searchNs10": false,
-      "searchNs11": false,
-      "searchNs12": false,
-      "searchNs13": false,
       "cirrussearch-pref-completion-profile": "fuzzy",
       "multimediaviewer-enable": 1,
       "popups": "0",
-      "mobile-specialpages": "1",
       "mf_amc_optin": "0",
       "echo-email-format": "html",
       "echo-subscriptions-email-system": true,

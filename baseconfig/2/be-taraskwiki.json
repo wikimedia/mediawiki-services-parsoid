@@ -79,7 +79,8 @@
         "subpages": true,
         "canonical": "MediaWiki",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "editinterface"
       },
       "9": {
         "id": 9,
@@ -187,7 +188,8 @@
         "subpages": false,
         "canonical": "Gadget",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "gadgets-edit"
       },
       "2301": {
         "id": 2301,
@@ -206,6 +208,7 @@
         "canonical": "Gadget definition",
         "content": false,
         "nonincludable": false,
+        "namespaceprotection": "gadgets-definition-edit",
         "defaultcontentmodel": "GadgetDefinition"
       },
       "2303": {
@@ -252,6 +255,10 @@
       {
         "id": 4,
         "alias": "ВП"
+      },
+      {
+        "id": 5,
+        "alias": "Wikipedia talk"
       },
       {
         "id": 5,
@@ -1464,6 +1471,20 @@
         "case-sensitive": true
       },
       {
+        "name": "useliquidthreads",
+        "aliases": [
+          "UseLiquidThreads"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "lqtpagelimit"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "target",
         "aliases": [
           "target"
@@ -1474,6 +1495,13 @@
         "name": "babel",
         "aliases": [
           "babel"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "translation",
+        "aliases": [
+          "translation"
         ],
         "case-sensitive": false
       },
@@ -1506,9 +1534,23 @@
         "case-sensitive": false
       },
       {
-        "name": "calendar",
+        "name": "related",
         "aliases": [
-          "calendar"
+          "related"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "assessment",
+        "aliases": [
+          "assessment"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -1523,6 +1565,13 @@
         "name": "nocollaborationhubtoc",
         "aliases": [
           "__NOCOLLABORATIONHUBTOC__"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "calendar",
+        "aliases": [
+          "calendar"
         ],
         "case-sensitive": false
       },
@@ -1604,20 +1653,6 @@
         "case-sensitive": false
       },
       {
-        "name": "useliquidthreads",
-        "aliases": [
-          "UseLiquidThreads"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "lqtpagelimit",
-        "aliases": [
-          "lqtpagelimit"
-        ],
-        "case-sensitive": false
-      },
-      {
         "name": "dd2dms",
         "aliases": [
           "dd2dms"
@@ -1639,30 +1674,9 @@
         "case-sensitive": false
       },
       {
-        "name": "assessment",
-        "aliases": [
-          "assessment"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "related",
-        "aliases": [
-          "related"
-        ],
-        "case-sensitive": false
-      },
-      {
         "name": "useskin",
         "aliases": [
           "useskin"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "PAGEBANNER",
-        "aliases": [
-          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -1733,13 +1747,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ],
         "case-sensitive": false
       },
@@ -2278,12 +2285,11 @@
       "base": "https://be-tarask.wikipedia.org/wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0",
       "sitename": "Вікіпэдыя",
       "logo": "//be-tarask.wikipedia.org/static/images/project-logos/be_x_oldwiki.png",
-      "generator": "MediaWiki 1.34.0-wmf.8",
-      "phpversion": "5.6.99-hhvm",
-      "phpsapi": "srv",
-      "hhvmversion": "3.18.6-dev",
+      "generator": "MediaWiki 1.34.0-wmf.25",
+      "phpversion": "7.2.22-1+0~20190902.26+debian9~1.gbpd64eb7+wmf1",
+      "phpsapi": "fpm-fcgi",
       "dbtype": "mysql",
-      "dbversion": "10.1.38-MariaDB",
+      "dbversion": "10.1.39-MariaDB",
       "imagewhitelistenabled": false,
       "langconversion": true,
       "titleconversion": true,
@@ -2295,8 +2301,8 @@
       "allunicodefixes": false,
       "fixarabicunicode": true,
       "fixmalayalamunicode": true,
-      "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
-      "git-branch": "wmf/1.34.0-wmf.8",
+      "git-hash": "4750f8160d9b2d8b3fc429f63d4fbd6267ac27ab",
+      "git-branch": "wmf/1.34.0-wmf.25",
       "case": "first-letter",
       "lang": "be-tarask",
       "fallback": [
@@ -2321,7 +2327,7 @@
       "server": "//be-tarask.wikipedia.org",
       "servername": "be-tarask.wikipedia.org",
       "wikiid": "be_x_oldwiki",
-      "time": "2019-06-11T19:58:10Z",
+      "time": "2019-10-07T05:06:06Z",
       "misermode": true,
       "uploadsenabled": true,
       "maxuploadsize": 4294967296,
@@ -2382,8 +2388,9 @@
       "categorycollation": "uca-be-tarask",
       "wmf-config": {
         "wmfMasterDatacenter": "eqiad",
-        "wmfEtcdLastModifiedIndex": 3672,
-        "wmgCirrusSearchDefaultCluster": "local"
+        "wmfEtcdLastModifiedIndex": 223365,
+        "wmgCirrusSearchDefaultCluster": "local",
+        "wgCirrusSearchDefaultCluster": "eqiad"
       },
       "citeresponsivereferences": false,
       "linter": {
@@ -4951,7 +4958,7 @@
       {
         "prefix": "bjn",
         "local": true,
-        "language": "Bahasa Banjar",
+        "language": "Banjar",
         "url": "https://bjn.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -5945,7 +5952,7 @@
       {
         "prefix": "min",
         "local": true,
-        "language": "Baso Minangkabau",
+        "language": "Minangkabau",
         "url": "https://min.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6122,6 +6129,13 @@
         "local": true,
         "language": "Novial",
         "url": "https://nov.wikipedia.org/wiki/$1",
+        "protorel": false
+      },
+      {
+        "prefix": "nqo",
+        "local": true,
+        "language": "ߒߞߏ",
+        "url": "https://nqo.wikipedia.org/wiki/$1",
         "protorel": false
       },
       {
@@ -6533,7 +6547,7 @@
       {
         "prefix": "su",
         "local": true,
-        "language": "Basa Sunda",
+        "language": "Sunda",
         "url": "https://su.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -7235,7 +7249,7 @@
       {
         "code": "ban",
         "bcp47": "ban",
-        "name": "Basa Bali"
+        "name": "Bali"
       },
       {
         "code": "bar",
@@ -7310,7 +7324,7 @@
       {
         "code": "bjn",
         "bcp47": "bjn",
-        "name": "Bahasa Banjar"
+        "name": "Banjar"
       },
       {
         "code": "bm",
@@ -8310,7 +8324,7 @@
       {
         "code": "min",
         "bcp47": "min",
-        "name": "Baso Minangkabau"
+        "name": "Minangkabau"
       },
       {
         "code": "mk",
@@ -8330,7 +8344,7 @@
       {
         "code": "mni",
         "bcp47": "mni",
-        "name": "মেইতেই লোন্"
+        "name": "ꯃꯤꯇꯩ ꯂꯣꯟ"
       },
       {
         "code": "mnw",
@@ -8900,7 +8914,7 @@
       {
         "code": "su",
         "bcp47": "su",
-        "name": "Basa Sunda"
+        "name": "Sunda"
       },
       {
         "code": "sv",
@@ -10303,6 +10317,13 @@
         ]
       },
       {
+        "realname": "NewSection",
+        "aliases": [
+          "NewSection",
+          "Newsection"
+        ]
+      },
+      {
         "realname": "PermanentLink",
         "aliases": [
           "PermanentLink",
@@ -10740,12 +10761,6 @@
         ]
       },
       {
-        "realname": "ZeroRatedMobileAccess",
-        "aliases": [
-          "ZeroRatedMobileAccess"
-        ]
-      },
-      {
         "realname": "MathShowImage",
         "aliases": [
           "MathShowImage"
@@ -10876,17 +10891,20 @@
         ]
       },
       {
-        "realname": "OATH",
-        "aliases": [
-          "Two-factor_authentication",
-          "OATH",
-          "OATHAuth"
-        ]
-      },
-      {
         "realname": "DisableOATHForUser",
         "aliases": [
           "DisableOATHForUser"
+        ]
+      },
+      {
+        "realname": "OATHManage",
+        "aliases": [
+          "Manage_Two-factor_authentication",
+          "OATH_Manage",
+          "OATHManage",
+          "OATH",
+          "Two-factor_authentication",
+          "OATHAuth"
         ]
       },
       {
@@ -10990,6 +11008,7 @@
       "compact-language-links": 1,
       "echo-subscriptions-web-cx": true,
       "cx-enable-entrypoints": true,
+      "cx-entrypoint-fd-status": "notshown",
       "echo-subscriptions-web-oauth-owner": true,
       "echo-subscriptions-email-oauth-owner": true,
       "echo-subscriptions-web-oauth-admin": true,
@@ -11055,6 +11074,7 @@
       "wllimit": 250,
       "useeditwarning": 1,
       "prefershttps": 1,
+      "requireemail": 0,
       "wlshowwikibase": 0,
       "echo-cross-wiki-notifications": 1,
       "timecorrection": "System|180",
@@ -11071,26 +11091,12 @@
       "variant-uz": "uz",
       "variant-zh": "zh",
       "searchNs0": true,
-      "searchNs1": false,
-      "searchNs2": false,
-      "searchNs3": false,
-      "searchNs4": false,
-      "searchNs5": false,
-      "searchNs6": false,
-      "searchNs7": false,
-      "searchNs8": false,
-      "searchNs9": false,
-      "searchNs10": false,
-      "searchNs11": false,
-      "searchNs12": false,
-      "searchNs13": false,
       "gadget-wikify": 1,
       "gadget-BKL": 1,
       "gadget-ReferenceTooltips": 1,
       "cirrussearch-pref-completion-profile": "fuzzy",
       "multimediaviewer-enable": 1,
       "popups": "0",
-      "mobile-specialpages": "1",
       "mf_amc_optin": "0",
       "echo-email-format": "html",
       "echo-subscriptions-email-system": true,

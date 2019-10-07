@@ -79,7 +79,8 @@
         "subpages": true,
         "canonical": "MediaWiki",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "editinterface"
       },
       "9": {
         "id": 9,
@@ -205,7 +206,8 @@
         "subpages": false,
         "canonical": "Gadget",
         "content": false,
-        "nonincludable": false
+        "nonincludable": false,
+        "namespaceprotection": "gadgets-edit"
       },
       "2301": {
         "id": 2301,
@@ -224,6 +226,7 @@
         "canonical": "Gadget definition",
         "content": false,
         "nonincludable": false,
+        "namespaceprotection": "gadgets-definition-edit",
         "defaultcontentmodel": "GadgetDefinition"
       },
       "2303": {
@@ -815,6 +818,22 @@
         "case-sensitive": false
       },
       {
+        "name": "useliquidthreads",
+        "aliases": [
+          "使用LiquidThreads",
+          "UseLiquidThreads"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "lqtpagelimit",
+        "aliases": [
+          "lqt页面限制",
+          "lqtpagelimit"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "target",
         "aliases": [
           "目标",
@@ -843,22 +862,6 @@
         "aliases": [
           "调用",
           "invoke"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "useliquidthreads",
-        "aliases": [
-          "使用LiquidThreads",
-          "UseLiquidThreads"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "lqtpagelimit",
-        "aliases": [
-          "lqt页面限制",
-          "lqtpagelimit"
         ],
         "case-sensitive": false
       },
@@ -2321,6 +2324,13 @@
         "case-sensitive": true
       },
       {
+        "name": "translation",
+        "aliases": [
+          "translation"
+        ],
+        "case-sensitive": false
+      },
+      {
         "name": "coordinates",
         "aliases": [
           "coordinates"
@@ -2335,9 +2345,23 @@
         "case-sensitive": false
       },
       {
-        "name": "calendar",
+        "name": "related",
         "aliases": [
-          "calendar"
+          "related"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "assessment",
+        "aliases": [
+          "assessment"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "PAGEBANNER",
+        "aliases": [
+          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -2352,6 +2376,13 @@
         "name": "nocollaborationhubtoc",
         "aliases": [
           "__NOCOLLABORATIONHUBTOC__"
+        ],
+        "case-sensitive": false
+      },
+      {
+        "name": "calendar",
+        "aliases": [
+          "calendar"
         ],
         "case-sensitive": false
       },
@@ -2454,30 +2485,9 @@
         "case-sensitive": false
       },
       {
-        "name": "assessment",
-        "aliases": [
-          "assessment"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "related",
-        "aliases": [
-          "related"
-        ],
-        "case-sensitive": false
-      },
-      {
         "name": "useskin",
         "aliases": [
           "useskin"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "PAGEBANNER",
-        "aliases": [
-          "PAGEBANNER"
         ],
         "case-sensitive": false
       },
@@ -2527,13 +2537,6 @@
         "name": "pendingchangelevel",
         "aliases": [
           "pendingchangelevel"
-        ],
-        "case-sensitive": false
-      },
-      {
-        "name": "translation",
-        "aliases": [
-          "translation"
         ],
         "case-sensitive": false
       },
@@ -2739,12 +2742,11 @@
       "base": "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
       "sitename": "Wikipedia",
       "logo": "//zh.wikipedia.org/static/images/project-logos/zhwiki.png",
-      "generator": "MediaWiki 1.34.0-wmf.8",
-      "phpversion": "5.6.99-hhvm",
-      "phpsapi": "srv",
-      "hhvmversion": "3.18.6-dev",
+      "generator": "MediaWiki 1.34.0-wmf.25",
+      "phpversion": "7.2.22-1+0~20190902.26+debian9~1.gbpd64eb7+wmf1",
+      "phpsapi": "fpm-fcgi",
       "dbtype": "mysql",
-      "dbversion": "10.1.38-MariaDB",
+      "dbversion": "10.1.39-MariaDB",
       "imagewhitelistenabled": false,
       "langconversion": true,
       "titleconversion": true,
@@ -2756,8 +2758,8 @@
       "allunicodefixes": false,
       "fixarabicunicode": true,
       "fixmalayalamunicode": true,
-      "git-hash": "b7abad676e71c5d5e1f225d596d048a0b8acd90e",
-      "git-branch": "wmf/1.34.0-wmf.8",
+      "git-hash": "4750f8160d9b2d8b3fc429f63d4fbd6267ac27ab",
+      "git-branch": "wmf/1.34.0-wmf.25",
       "case": "first-letter",
       "lang": "zh",
       "fallback": [
@@ -2820,7 +2822,7 @@
       "server": "//zh.wikipedia.org",
       "servername": "zh.wikipedia.org",
       "wikiid": "zhwiki",
-      "time": "2019-06-11T19:58:41Z",
+      "time": "2019-10-07T05:06:41Z",
       "misermode": true,
       "uploadsenabled": true,
       "maxuploadsize": 4294967296,
@@ -2881,8 +2883,9 @@
       "categorycollation": "uppercase",
       "wmf-config": {
         "wmfMasterDatacenter": "eqiad",
-        "wmfEtcdLastModifiedIndex": 3672,
-        "wmgCirrusSearchDefaultCluster": "local"
+        "wmfEtcdLastModifiedIndex": 223365,
+        "wmgCirrusSearchDefaultCluster": "local",
+        "wgCirrusSearchDefaultCluster": "eqiad"
       },
       "citeresponsivereferences": false,
       "linter": {
@@ -5449,7 +5452,7 @@
       {
         "prefix": "bjn",
         "local": true,
-        "language": "Bahasa Banjar",
+        "language": "Banjar",
         "url": "https://bjn.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6443,7 +6446,7 @@
       {
         "prefix": "min",
         "local": true,
-        "language": "Baso Minangkabau",
+        "language": "Minangkabau",
         "url": "https://min.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -6620,6 +6623,13 @@
         "local": true,
         "language": "Novial",
         "url": "https://nov.wikipedia.org/wiki/$1",
+        "protorel": false
+      },
+      {
+        "prefix": "nqo",
+        "local": true,
+        "language": "ߒߞߏ",
+        "url": "https://nqo.wikipedia.org/wiki/$1",
         "protorel": false
       },
       {
@@ -7031,7 +7041,7 @@
       {
         "prefix": "su",
         "local": true,
-        "language": "Basa Sunda",
+        "language": "Sunda",
         "url": "https://su.wikipedia.org/wiki/$1",
         "protorel": false
       },
@@ -7736,7 +7746,7 @@
       {
         "code": "ban",
         "bcp47": "ban",
-        "name": "Basa Bali"
+        "name": "Bali"
       },
       {
         "code": "bar",
@@ -7811,7 +7821,7 @@
       {
         "code": "bjn",
         "bcp47": "bjn",
-        "name": "Bahasa Banjar"
+        "name": "Banjar"
       },
       {
         "code": "bm",
@@ -8811,7 +8821,7 @@
       {
         "code": "min",
         "bcp47": "min",
-        "name": "Baso Minangkabau"
+        "name": "Minangkabau"
       },
       {
         "code": "mk",
@@ -8831,7 +8841,7 @@
       {
         "code": "mni",
         "bcp47": "mni",
-        "name": "মেইতেই লোন্"
+        "name": "ꯃꯤꯇꯩ ꯂꯣꯟ"
       },
       {
         "code": "mnw",
@@ -9401,7 +9411,7 @@
       {
         "code": "su",
         "bcp47": "su",
-        "name": "Basa Sunda"
+        "name": "Sunda"
       },
       {
         "code": "sv",
@@ -11064,6 +11074,13 @@
         ]
       },
       {
+        "realname": "NewSection",
+        "aliases": [
+          "NewSection",
+          "Newsection"
+        ]
+      },
+      {
         "realname": "PermanentLink",
         "aliases": [
           "固定链接",
@@ -11592,12 +11609,6 @@
         ]
       },
       {
-        "realname": "ZeroRatedMobileAccess",
-        "aliases": [
-          "ZeroRatedMobileAccess"
-        ]
-      },
-      {
         "realname": "MathShowImage",
         "aliases": [
           "MathShowImage"
@@ -11762,18 +11773,27 @@
         ]
       },
       {
-        "realname": "OATH",
+        "realname": "DisableOATHForUser",
+        "aliases": [
+          "DisableOATHForUser"
+        ]
+      },
+      {
+        "realname": "OATHManage",
         "aliases": [
           "OATH验证",
-          "Two-factor_authentication",
+          "Manage_Two-factor_authentication",
+          "OATH_Manage",
+          "OATHManage",
           "OATH",
+          "Two-factor_authentication",
           "OATHAuth"
         ]
       },
       {
-        "realname": "DisableOATHForUser",
+        "realname": "ORESModels",
         "aliases": [
-          "DisableOATHForUser"
+          "ORESModels"
         ]
       },
       {
@@ -11896,10 +11916,17 @@
       "compact-language-links": 1,
       "echo-subscriptions-web-cx": true,
       "cx-enable-entrypoints": true,
+      "cx-entrypoint-fd-status": "notshown",
       "echo-subscriptions-web-oauth-owner": true,
       "echo-subscriptions-email-oauth-owner": true,
       "echo-subscriptions-web-oauth-admin": true,
       "echo-subscriptions-email-oauth-admin": true,
+      "ores-damaging-flag-rc": false,
+      "oresDamagingPref": "soft",
+      "rcOresDamagingPref": "soft",
+      "oresHighlight": false,
+      "oresRCHideNonDamaging": false,
+      "oresWatchlistHideNonDamaging": false,
       "ccmeonemails": 0,
       "cols": 80,
       "date": "default",
@@ -11961,6 +11988,7 @@
       "wllimit": 250,
       "useeditwarning": 1,
       "prefershttps": 1,
+      "requireemail": 0,
       "wlshowwikibase": 0,
       "wikilove-enabled": 1,
       "echo-cross-wiki-notifications": 1,
@@ -11978,19 +12006,6 @@
       "variant-uz": "uz",
       "variant": "zh",
       "searchNs0": true,
-      "searchNs1": false,
-      "searchNs2": false,
-      "searchNs3": false,
-      "searchNs4": false,
-      "searchNs5": false,
-      "searchNs6": false,
-      "searchNs7": false,
-      "searchNs8": false,
-      "searchNs9": false,
-      "searchNs10": false,
-      "searchNs11": false,
-      "searchNs12": false,
-      "searchNs13": false,
       "gadget-edit0": 1,
       "gadget-Edittools-refToolbar": 1,
       "gadget-WikiMiniAtlas": 1,
@@ -11998,6 +12013,7 @@
       "gadget-UnihanTooltips": 1,
       "gadget-variant-link-fix": 1,
       "gadget-FixedTopBottomLink": 1,
+      "gadget-shortURL": 1,
       "gadget-AdvancedSiteNotices": 1,
       "gadget-hideConversionTab": 1,
       "gadget-large-font": 1,
@@ -12010,7 +12026,6 @@
       "cirrussearch-pref-completion-profile": "fuzzy",
       "multimediaviewer-enable": 1,
       "popups": "0",
-      "mobile-specialpages": "1",
       "mf_amc_optin": "0",
       "echo-email-format": "html",
       "echo-subscriptions-email-system": true,
