@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid;
 
+use LogicException;
+
 use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
@@ -10,6 +12,7 @@ use Parsoid\Config\SiteConfig;
 use Parsoid\Logger\LintLogger;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 
 class Parsoid {
 
@@ -192,14 +195,31 @@ class Parsoid {
 	 * Note that these are DOM transforms, and not roundtrips through wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param PageBundle $pageBundle
 	 * @param string $update 'redlinks'|'variant'
-	 * @return PageBundle
+	 * @param string $html
+	 * @param array|null $options
+	 * @return string
 	 */
 	public function html2html(
-		PageConfig $pageConfig, PageBundle $pageBundle, string $update
-	): PageBundle {
-		return new PageBundle( '' );
+		PageConfig $pageConfig, string $update, string $html,
+		array $options = []
+	): string {
+		$envOptions = [];
+		$env = new Env(
+			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
+		);
+		$doc = $env->createDocument( $html );
+		if ( $update === 'redlinks' ) {
+			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
+		} else {
+			throw new LogicException( 'Unknown transformation.' );
+		}
+		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
+		$body_only = !empty( $options['body_only'] );
+		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
+		return ContentUtils::toXML( $node, [
+			'innerXML' => $body_only,
+		] );
 	}
 
 }

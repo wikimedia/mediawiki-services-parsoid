@@ -875,16 +875,35 @@ abstract class ParsoidHandler extends Handler {
 		$this->statsdDataFactory->increment( 'pb2pb.original.version.'
 			. $env->getInputContentVersion() );
 
-		if ( !empty( $opts['updates']['redlinks'] ) ) {
-			// Q(arlolra): Should redlinks be more complex than a bool?
-			// See gwicke's proposal at T114413#2240381
-			return $this->updateRedLinks( $env, $attribs, $revision );
-		} elseif ( !empty( $opts['updates']['variant'] ) ) {
-			return $this->languageConversion( $env, $attribs, $revision );
-		} elseif ( !empty( $opts['updates'] ) ) {
-			$msg = 'Unknown transformation.';
-			$env->log( 'fatal/request', $msg );
-			throw new LogicException( $msg );
+		if ( !empty( $opts['updates'] ) ) {
+			// If we're only updating parts of the original version, it should
+			// satisfy the requested content version, since we'll be returning
+			// that same one.
+			// FIXME: Since this endpoint applies the acceptable middleware,
+			// `getOutputContentVersion` is not what's been passed in, but what
+			// can be produced.  Maybe that should be selectively applied so
+			// that we can update older versions where it makes sense?
+			// Uncommenting below implies that we can only update the latest
+			// version, since carrot semantics is applied in both directions.
+			// if ( !Semver::satisfies(
+			// 	$env->getInputContentVersion(),
+			// 	"^{$env->getOutputContentVersion()}"
+			// ) ) {
+			// 	return $this->getResponseFactory()->createHttpError( 415, [
+			// 		'message' => 'We do not know how to do this conversion.',
+			// 	] );
+			// }
+			if ( !empty( $opts['updates']['redlinks'] ) ) {
+				// Q(arlolra): Should redlinks be more complex than a bool?
+				// See gwicke's proposal at T114413#2240381
+				return $this->updateRedLinks( $env, $attribs, $revision );
+			} elseif ( !empty( $opts['updates']['variant'] ) ) {
+				return $this->languageConversion( $env, $attribs, $revision );
+			} else {
+				$msg = 'Unknown transformation.';
+				$env->log( 'fatal/request', $msg );
+				throw new LogicException( $msg );
+			}
 		}
 
 		// TODO(arlolra): subbu has some sage advice in T114413#2365456 that
@@ -934,8 +953,30 @@ abstract class ParsoidHandler extends Handler {
 	 * @return Response
 	 */
 	protected function updateRedLinks( Env $env, array $attribs, array $revision ) {
-		$msg = __FUNCTION__ . ' is not implemented yet.';
-		throw new LogicException( $msg );
+		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
+		$pageConfig = $env->getPageConfig();
+
+		$html = $parsoid->html2html(
+			$pageConfig, 'redlinks', $revision['html']['body']
+		);
+
+		$out = new PageBundle(
+			$html,
+			$revision['data-parsoid']['body'] ?? null,
+			$revision['data-mw']['body'] ?? null,
+			$env->getInputContentVersion()
+		);
+		if ( !$out->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+			return $this->getResponseFactory()->createHttpError(
+				400,
+				[ 'message' => $errorMessage ]
+			);
+		}
+		$response = $this->getResponseFactory()->createJson( $out->responseData() );
+		FormatHelper::setContentType(
+			$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
+		);
+		return $response;
 	}
 
 	/**

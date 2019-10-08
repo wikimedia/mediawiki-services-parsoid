@@ -186,9 +186,21 @@ class MockDataAccess implements DataAccess {
 				"disambiguation" => "",
 			]
 		],
+		"Special:Version" => [
+			"title" => "Version",
+			"pageid" => 107,
+			"ns" => -1,
+			"revid" => 107,
+			"parentid" => 0,
+			'slots' => [
+				'main' => [
+					'contentmodel' => 'wikitext',
+					'contentformat' => 'text/x-wiki',
+					'*' => "This is a mock special page."
+				]
+			],
+		]
 	];
-
-	// const SPECIAL_TITLES = [ 'Special:Version' ];
 
 	// This templatedata description only provides a subset of fields
 	// that mediawiki API returns. Parsoid only uses the format and

@@ -134,4 +134,35 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
+	/**
+	 * @covers ::html2html
+	 * @dataProvider provideHtml2Html
+	 */
+	public function testHtml2Html( $update, $input, $expected, $parserOpts = [] ) {
+		$opts = [];
+
+		$siteConfig = new MockSiteConfig( $opts );
+		$dataAccess = new MockDataAccess( $opts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new MockPageContent( [ 'main' => '' ] );
+		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$wt = $parsoid->html2html( $pageConfig, $update, $input, $parserOpts );
+		$this->assertEquals( $expected, $wt );
+	}
+
+	// phpcs:disable Generic.Files.LineLength.TooLong
+	public function provideHtml2Html() {
+		return [
+			[
+				'redlinks',
+				'<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected">Redirected</a></p>',
+				'<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist" class="new">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected" class="mw-redirect">Redirected</a></p>',
+				[
+					'body_only' => true,
+				]
+			]
+		];
+	}
+
 }
