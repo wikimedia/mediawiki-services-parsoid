@@ -123,7 +123,9 @@ class ParsoidLogger {
 			if ( $arg instanceof \Closure ) {
 				$output .= ' ' . $arg();
 			} elseif ( is_string( $arg ) ) {
-				$output .= ' ' . $arg;
+				if ( strlen( $arg ) ) {
+					$output .= ' ' . $arg;
+				}
 			} else {
 				$output .= PHPUtils::jsonEncode( $arg );
 			}

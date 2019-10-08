@@ -345,7 +345,7 @@ class ParagraphWrapper extends TokenHandler {
 		$newLineCount = $this->newLineCount;
 		$nlTk = null;
 
-		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, '        NL-count:',
+		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, '        NL-count: ',
 			$newLineCount );
 
 		if ( $newLineCount >= 2 && !$this->inBlockElem ) {

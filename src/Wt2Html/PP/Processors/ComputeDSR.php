@@ -622,7 +622,7 @@ class ComputeDSR {
 					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $cTypeOf, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
-							"; typeof: " . ( $cTypeOf ?: "null" );
+							"; typeof: " . ( $cTypeOf ?: "" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
 							$dp->dbsrc = PHPUtils::safeSubstr( $frame->getSrcText(), $cs, $ce - $cs );

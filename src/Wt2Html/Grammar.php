@@ -90,7 +90,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	private function emitChunk( $tokens ) {
   		// Shift tsr of all tokens by the pipeline offset
   		TokenUtils::shiftTokenTSR( $tokens, $this->pipelineOffset );
-  		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '', '---->  ', $tokens );
+		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
   
   		$i = null;
   		$n = count( $tokens );
