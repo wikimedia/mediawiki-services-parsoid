@@ -290,8 +290,9 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function logLinterData( array $lints ): void {
+		global $wgReadOnly;
 		if ( !$wgReadOnly ) {
-		// @todo: Document this hook in MediaWiki
+			// @todo: Document this hook in MediaWiki
 			Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $lints ] );
 		}
 	}
