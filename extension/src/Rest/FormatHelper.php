@@ -3,11 +3,13 @@
 namespace MWParsoid\Rest;
 
 use Composer\Semver\Semver;
-use LogicException;
 use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
 use Parsoid\PageBundle;
+use Parsoid\Config\Env;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 
 /**
@@ -123,13 +125,13 @@ class FormatHelper {
 	 * @return string[]|null The downgrade that will fulfill the request, as
 	 *   [ 'from' => <old version>, 'to' => <new version> ], or null if it can't be fulfilled.
 	 */
-	public static function findDowngrade( string $from, string $to ): bool {
+	public static function findDowngrade( string $from, string $to ): ?array {
 		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo ) ) {
 			if ( Semver::satisfies( $from, "^$dgFrom" ) && Semver::satisfies( $to, "^$dgTo" ) ) {
 				return [ 'from' => $dgFrom, 'to' => $dgTo ];
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -156,12 +158,29 @@ class FormatHelper {
 	 *
 	 * @param string[] $downgrade
 	 * @param Env $env
-	 * @param array $revision
+	 * @param DOMDocument $doc
+	 * @param PageBundle $pb
 	 * @param array $attribs
+	 * @return PageBundle
 	 */
-	public static function returnDowngrade( $downgrade, $env, $revision, $attribs ) {
-		$msg = __FUNCTION__ . ' is not implemented yet.';
-		throw new LogicException( $msg );
+	public static function returnDowngrade(
+		array $downgrade, Env $env, DOMDocument $doc, PageBundle $pb,
+		array $attribs
+	): PageBundle {
+		self::downgrade( $downgrade['from'], $downgrade['to'], $doc, $pb );
+		// Match the http-equiv meta to the content-type header
+		$meta = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
+		if ( $meta ) {
+			$meta->setAttribute( 'content', $env->getOutputContentVersion() );
+		}
+		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
+		$body_only = !empty( $attribs['body_only'] );
+		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
+		$pb->html = ContentUtils::toXML( $node, [
+			'innerXML' => $body_only,
+		] );
+		$pb->version = $env->getOutputContentVersion();
+		return $pb;
 	}
 
 	/**

@@ -895,7 +895,24 @@ abstract class ParsoidHandler extends Handler {
 			$env->getOutputContentVersion()
 		);
 		if ( $downgrade ) {
-			return FormatHelper::returnDowngrade( $downgrade, $env, $revision, $attribs );
+			$doc = $env->createDocument( $revision['html']['body'] );
+			$pb = new PageBundle(
+				'',
+				$revision['data-parsoid']['body'] ?? null,
+				$revision['data-mw']['body'] ?? null
+			);
+			if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+				return $this->getResponseFactory()->createHttpError(
+					400,
+					[ 'message' => $errorMessage ]
+				);
+			}
+			$out = FormatHelper::returnDowngrade( $downgrade, $env, $doc, $pb, $attribs );
+			$response = $this->getResponseFactory()->createJson( $out->responseData() );
+			FormatHelper::setContentType(
+				$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
+			);
+			return $response;
 		// Ensure we only reuse from semantically similar content versions.
 		} elseif ( Semver::satisfies( $env->getOutputContentVersion(),
 			'^' . $env->getInputContentVersion() ) ) {
