@@ -111,6 +111,17 @@ class SiteConfig extends ISiteConfig {
 			// @todo: Add this setting to MW's DefaultSettings.php
 			$this->linterEnabled = $this->parsoidSettings['linting'];
 		}
+
+		if ( isset( $this->parsoidSettings['wt2htmlLimits'] ) ) {
+			$this->wt2htmlLimits = array_merge(
+				$this->wt2htmlLimits, $this->parsoidSettings['wt2htmlLimits']
+			);
+		}
+		if ( isset( $this->parsoidSettings['html2wtLimits'] ) ) {
+			$this->html2wtLimits = array_merge(
+				$this->html2wtLimits, $this->parsoidSettings['html2wtLimits']
+			);
+		}
 	}
 
 	/** @inheritDoc */

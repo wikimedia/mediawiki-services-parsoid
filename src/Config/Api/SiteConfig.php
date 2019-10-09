@@ -110,6 +110,17 @@ class SiteConfig extends ISiteConfig {
 			$logger->pushHandler( $handler );
 			$this->setLogger( $logger );
 		}
+
+		if ( isset( $opts['wt2htmlLimits'] ) ) {
+			$this->wt2htmlLimits = array_merge(
+				$this->wt2htmlLimits, $opts['wt2htmlLimits']
+			);
+		}
+		if ( isset( $opts['html2wtLimits'] ) ) {
+			$this->html2wtLimits = array_merge(
+				$this->html2wtLimits, $opts['html2wtLimits']
+			);
+		}
 	}
 
 	protected function reset() {
@@ -716,6 +727,12 @@ class SiteConfig extends ISiteConfig {
 		$opts = [];
 		if ( isset( $parsoidSettings['linting'] ) ) {
 			$opts['linting'] = !empty( $parsoidSettings['linting'] );
+		}
+		if ( isset( $parsoidSettings['wt2htmlLimits'] ) ) {
+			$opts['wt2htmlLimits'] = $parsoidSettings['wt2htmlLimits'];
+		}
+		if ( isset( $parsoidSettings['html2wtLimits'] ) ) {
+			$opts['html2wtLimits'] = $parsoidSettings['html2wtLimits'];
 		}
 		$api = ApiHelper::fromSettings( $parsoidSettings );
 		return new SiteConfig( $api, $opts );

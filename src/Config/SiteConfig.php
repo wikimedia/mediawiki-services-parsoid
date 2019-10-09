@@ -1002,4 +1002,47 @@ abstract class SiteConfig {
 		$nativeExtConfig = $this->getNativeExtensionsConfig();
 		return $nativeExtConfig['styles'];
 	}
+
+	/** @phan-var array<string,int> */
+	protected $wt2htmlLimits = [
+		// We won't handle pages beyond this size
+		'wikitextSize' => 1000000, // 1M
+
+		// Max list items per page
+		'listItems' => 30000,
+
+		// Max table cells per page
+		'tableCells' => 30000,
+
+		// Max transclusions per page
+		'transclusions' => 10000,
+
+		// DISABLED for now
+		// Max images per page
+		'images' => 1000,
+
+		// Max top-level token size
+		'tokens' => 1000000, // 1M
+	];
+
+	/**
+	 * @return array<string,int>
+	 */
+	public function getWt2HtmlLimits(): array {
+		return $this->wt2htmlLimits;
+	}
+
+	/** @phan-var array<string,int> */
+	protected $html2wtLimits = [
+		// We refuse to serialize HTML strings bigger than this
+		'HTMLSize' => 10000000,  // 10M
+	];
+
+	/**
+	 * @return array<string,int>
+	 */
+	public function getHtml2WtLimits(): array {
+		return $this->html2wtLimits;
+	}
+
 }

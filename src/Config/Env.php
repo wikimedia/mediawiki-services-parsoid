@@ -85,12 +85,8 @@ class Env {
 	private $nativeTemplateExpansion;
 
 	/** @phan-var array<string,int> */
-	private $wt2htmlLimits = [];
-	/** @phan-var array<string,int> */
 	private $wt2htmlUsage = [];
 
-	/** @phan-var array<string,int> */
-	private $html2wtLimits = [];
 	/** @phan-var array<string,int> */
 	private $html2wtUsage = [];
 
@@ -752,9 +748,10 @@ class Env {
 		$n = $this->wt2htmlUsage[$resource] ?? 0;
 		$n += $count;
 		$this->wt2htmlUsage[$resource] = $n;
+		$wt2htmlLimits = $this->siteConfig->getWt2HtmlLimits();
 		if (
-			isset( $this->wt2htmlLimits[$resource] ) &&
-			$n > $this->wt2htmlLimits[$resource]
+			isset( $wt2htmlLimits[$resource] ) &&
+			$n > $wt2htmlLimits[$resource]
 		) {
 			// TODO: re-evaluate whether throwing an exception is really
 			// the right failure strategy when Parsoid is integrated into MW
@@ -775,9 +772,10 @@ class Env {
 		$n = $this->html2wtUsage[$resource] ?? 0;
 		$n += $count;
 		$this->html2wtUsage[$resource] = $n;
+		$html2wtLimits = $this->siteConfig->getHtml2WtLimits();
 		if (
-			isset( $this->html2wtLimits[$resource] ) &&
-			$n > $this->html2wtLimits[$resource]
+			isset( $html2wtLimits[$resource] ) &&
+			$n > $html2wtLimits[$resource]
 		) {
 			throw new ResourceLimitExceededException( "html2wt: $resource limit exceeded: $n" );
 		}

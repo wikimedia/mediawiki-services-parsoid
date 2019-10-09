@@ -69,6 +69,9 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
+		$env->bumpWt2HtmlResourceUse(
+			'wikitextSize', strlen( $env->getPageMainContent() )
+		);
 		$handler = $env->getContentHandler();
 		return [ $env, $handler->toHTML( $env ) ];
 	}
@@ -171,6 +174,7 @@ class Parsoid {
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$env->setInputContentVersion( $options['inputContentVersion'] );
 		}
+		$env->bumpHtml2WtResourceUse( 'htmlSize', strlen( $html ) );
 		$doc = $env->createDocument( $html );
 		$handler = $env->getContentHandler();
 		return $handler->fromHTML( $env, $doc, $selserData );

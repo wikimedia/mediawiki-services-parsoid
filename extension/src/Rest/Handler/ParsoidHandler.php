@@ -19,6 +19,7 @@ use MWParsoid\ParsoidServices;
 use Parsoid\ClientError;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
+use Parsoid\ResourceLimitExceededException;
 use Parsoid\SelserData;
 use Parsoid\Tokens\Token;
 use Parsoid\Config\Env;
@@ -438,10 +439,22 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		if ( $format === FormatHelper::FORMAT_LINT ) {
-			$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
+			try {
+				$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
+			} catch ( ResourceLimitExceededException $e ) {
+				return $this->getResponseFactory()->createHttpError( 413, [
+					'message' => $e->getMessage(),
+				] );
+			}
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
-			$out = $parsoid->wikitext2html( $pageConfig, $reqOpts );
+			try {
+				$out = $parsoid->wikitext2html( $pageConfig, $reqOpts );
+			} catch ( ResourceLimitExceededException $e ) {
+				return $this->getResponseFactory()->createHttpError( 413, [
+					'message' => $e->getMessage(),
+				] );
+			}
 			if ( $needsPageBundle ) {
 				$response = $this->getResponseFactory()->createJson( $out->responseData() );
 				FormatHelper::setContentType( $response, FormatHelper::FORMAT_PAGEBUNDLE,
@@ -685,6 +698,10 @@ abstract class ParsoidHandler extends Handler {
 			], $selserData );
 		} catch ( ClientError $e ) {
 			return $this->getResponseFactory()->createHttpError( 400, [
+				'message' => $e->getMessage(),
+			] );
+		} catch ( ResourceLimitExceededException $e ) {
+			return $this->getResponseFactory()->createHttpError( 413, [
 				'message' => $e->getMessage(),
 			] );
 		}
