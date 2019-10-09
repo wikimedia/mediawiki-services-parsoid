@@ -460,7 +460,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function getModulesLoadURI(): string {
-		return $this->config->get( 'LoadScript' ) ?? parent::getModulesLoadURI();
+		return wfExpandUrl( $this->config->get( 'LoadScript' ), PROTO_CANONICAL );
 	}
 
 	public function timezoneOffset(): int {

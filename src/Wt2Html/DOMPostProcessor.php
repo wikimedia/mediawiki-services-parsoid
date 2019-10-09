@@ -556,11 +556,20 @@ class DOMPostProcessor extends PipelineStage {
 		];
 		$document->documentElement->setAttribute( 'prefix', implode( ' ', $prefixes ) );
 
-		// add 'http://' to baseURI if it was missing
-		// PORT-FIXME: Doesn't account for protocol rel baseURI
-		$pu = parse_url( $env->getSiteConfig()->baseURI() );
+		// (From wfParseUrl in core:)
+		// Protocol-relative URLs are handled really badly by parse_url().
+		// It's so bad that the easiest way to handle them is to just prepend
+		// 'https:' and strip the protocol out later.
+		$baseURI = $env->getSiteConfig()->baseURI();
+		$wasRelative = substr( $baseURI, 0, 2 ) == '//';
+		if ( $wasRelative ) {
+			$baseURI = "https:$baseURI";
+		}
+		// add 'https://' to baseURI if it was missing
+		$pu = parse_url( $baseURI );
 		$mwrPrefix = ( !empty( $pu['scheme'] ) ? '' : 'https://' ) .
-			$pu['host'] . $pu['path'] . 'Special:Redirect/';
+			$baseURI . 'Special:Redirect/';
+
 		( DOMCompat::getHead( $document ) )->setAttribute( 'prefix', 'mwr: ' . $mwrPrefix );
 
 		// add <head> content based on page meta data:

@@ -582,7 +582,10 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function getModulesLoadURI(): string {
-		return $this->siteData['loadscript'] ?? parent::getModulesLoadURI();
+		// In JS, you could override the load uri
+		// via conf.parsoid.modulesLoadURI, but custom values aren't
+		// exported via siteinfo.
+		return parent::getModulesLoadURI();
 	}
 
 	public function redirectRegexp(): string {
