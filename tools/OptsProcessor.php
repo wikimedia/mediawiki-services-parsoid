@@ -48,7 +48,7 @@ class OptsProcessor {
 	 * This is the array of options that were actually passed
 	 * @var array
 	 */
-	public $options = [];
+	protected $options = [];
 
 	/**
 	 * This is the array of arguments that were actually passed

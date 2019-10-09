@@ -286,7 +286,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$parsoidOpts['offsetType'] = $this->getOption( 'offsetType' );
 		}
 
-		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->options );
+		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );
 
 		$startsAtHtml = $this->hasOption( 'html2wt' ) ||
 			$this->hasOption( 'html2html' ) ||
