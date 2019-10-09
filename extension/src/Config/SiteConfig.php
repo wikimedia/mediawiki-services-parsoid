@@ -49,9 +49,7 @@ class SiteConfig extends ISiteConfig {
 	private $traceLogger, $dumpLogger;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix, $bswRegexpPattern, $bswPagePropRegexp,
-		$solTransparentWikitextRegexp,
-		$solTransparentWikitextNoWsRegexp;
+	private $baseUri, $relativeLinkPrefix;
 
 	/** @var string|null|bool */
 	private $linkTrailRegex = false;
@@ -497,6 +495,10 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	private function populateMagicWords(): void {
+		if ( !empty( $this->magicWords ) ) {
+			return;
+		}
+
 		$services = MediaWikiServices::getInstance();
 
 		// FIXME: Deduplicate with Parsoid\Api\SiteConfig
@@ -521,33 +523,30 @@ class SiteConfig extends ISiteConfig {
 			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
 		] );
 
-		if ( $this->magicWords === null ) {
-			$this->magicWords = $this->mwAliases = $this->variables = $this->functionHooks = [];
-
-			$variables = self::makeSet( $services->getMagicWordFactory()->getVariableIDs() );
-			$functionHooks = self::makeSet( $services->getParser()->getFunctionHooks() );
-			foreach ( $services->getContentLanguage()->getMagicWords() as $magicword => $aliases ) {
-				$caseSensitive = array_shift( $aliases );
-				foreach ( $aliases as $alias ) {
+		$this->magicWords = $this->mwAliases = $this->variables = $this->functionHooks = [];
+		$variables = self::makeSet( $services->getMagicWordFactory()->getVariableIDs() );
+		$functionHooks = self::makeSet( $services->getParser()->getFunctionHooks() );
+		foreach ( $services->getContentLanguage()->getMagicWords() as $magicword => $aliases ) {
+			$caseSensitive = array_shift( $aliases );
+			foreach ( $aliases as $alias ) {
+				$this->mwAliases[$magicword][] = $alias;
+				if ( !$caseSensitive ) {
+					$alias = mb_strtolower( $alias );
 					$this->mwAliases[$magicword][] = $alias;
-					if ( !$caseSensitive ) {
-						$alias = mb_strtolower( $alias );
-						$this->mwAliases[$magicword][] = $alias;
+				}
+				$this->magicWords[$alias] = $magicword;
+				if ( isset( $variables[$magicword] ) ) {
+					$this->variables[$alias] = $magicword;
+				}
+				if ( isset( $functionHooks[$magicword] ) ) {
+					$falias = $alias;
+					if ( substr( $falias, -1 ) === ':' ) {
+						$falias = substr( $falias, 0, -1 );
 					}
-					$this->magicWords[$alias] = $magicword;
-					if ( $variables[$magicword] ?? false ) {
-						$this->variables[$alias] = $magicword;
+					if ( !isset( $noHashFunctions[$magicword] ) ) {
+						$falias = '#' . $falias;
 					}
-					if ( $functionHooks[$magicword] ?? false ) {
-						$falias = $alias;
-						if ( $falias[0] === ':' ) {
-							$falias = substr( $alias, 1 );
-						}
-						if ( !isset( $noHashFunctions[$magicword] ) ) {
-							$falias = '#' . $falias;
-						}
-						$this->functionHooks[$falias] = $magicword;
-					}
+					$this->functionHooks[$falias] = $magicword;
 				}
 			}
 		}
@@ -564,10 +563,12 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function getMagicWordForFunctionHook( string $str ): ?string {
+		$this->populateMagicWords();
 		return $this->functionHooks[$str] ?? null;
 	}
 
 	public function getMagicWordForVariable( string $str ): ?string {
+		$this->populateMagicWords();
 		return $this->variables[$str] ?? null;
 	}
 

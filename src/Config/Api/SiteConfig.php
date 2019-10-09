@@ -233,29 +233,29 @@ class SiteConfig extends ISiteConfig {
 				}
 				$allMWs[$cs][] = preg_quote( $alias, '/' );
 
-				$mwName = $mw['name'];
-				$this->mwAliases[$mwName][] = $alias;
+				$magicword = $mw['name'];
+				$this->mwAliases[$magicword][] = $alias;
 				if ( !$cs ) {
 					$alias = mb_strtolower( $alias );
-					$this->mwAliases[$mwName][] = $alias;
+					$this->mwAliases[$magicword][] = $alias;
 				}
 
-				if ( isset( $variablesMap[$mwName] ) ) {
-					$this->variables[$alias] = $mwName;
+				$this->magicWords[$alias] = $magicword;
+				if ( isset( $variablesMap[$magicword] ) ) {
+					$this->variables[$alias] = $magicword;
 				}
 				// See Parser::setFunctionHook
-				if ( isset( $functionHooksMap[$mwName] ) ) {
+				if ( isset( $functionHooksMap[$magicword] ) ) {
 					$falias = $alias;
 					if ( substr( $falias, -1 ) === ':' ) {
 						$falias = substr( $falias, 0, -1 );
 					}
-					if ( !isset( $noHashFunctions[$mwName] ) ) {
+					if ( !isset( $noHashFunctions[$magicword] ) ) {
 						$falias = '#' . $falias;
 					}
-					$this->functionHooks[$falias] = $mwName;
+					$this->functionHooks[$falias] = $magicword;
 				}
 
-				$this->magicWords[$alias] = $mw['name'];
 			}
 
 			if ( $pmws ) {
