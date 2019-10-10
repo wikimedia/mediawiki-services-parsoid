@@ -4,12 +4,14 @@ const fs = require('fs');
 const path = require('path');
 
 /* This is a wrapper around the roundtrip testing script */
-const serviceWrapper = require('../serviceWrapper.js');
 const rtTest = require('../../bin/roundtrip-test.js');
+const yaml = require('js-yaml');
 
 // If we've started a Parsoid server, cache the URL so that subsequent calls
 // don't need to start their own.
 let parsoidURLOpts = null;
+
+let htmlDiffConfig = null;
 
 // Read ids from a file and return the first line of the file
 function getTestRunId(opts) {
@@ -22,6 +24,7 @@ function _run(test) {
 		prefix: test.prefix,
 		rtTestMode: true,
 		parsoidURLOpts: parsoidURLOpts,
+		htmlDiffConfig: htmlDiffConfig
 	}, rtTest.xmlFormat).then(function(result) {
 		return result.output;
 	});
@@ -38,20 +41,12 @@ function runRoundTripTest(config, test) {
 		} else {
 			parsoidURLOpts = { baseUrl: config.parsoidURL };
 		}
+		const configFile = path.resolve(__dirname, './htmldiffs.config.yaml');
+		if (fs.existsSync(configFile)) {
+			htmlDiffConfig = yaml.load(fs.readFileSync(configFile, 'utf8'));
+		}
 	}
-	if (parsoidURLOpts) {
-		return _run(test);
-	} else {
-		// If no Parsoid server was passed, start our own
-		return serviceWrapper.runServices({
-			skipMock: true,
-			parsoidOptions: config.parsoidOptions,
-		})
-		.then(function(ret) {
-			parsoidURLOpts = { baseUrl: ret.parsoidURL };
-			return _run(test);
-		});
-	}
+	return _run(test);
 }
 
 if (typeof module === 'object') {

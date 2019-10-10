@@ -23,11 +23,8 @@ var path = require('path');
 
 			// Only one of these should be necessary.
 			opts: {
-				// The parsoid API to use. If null, create our own server with `parsoidOptions`.
+				// The parsoid API to use. If null, all your rt tests will fail!
 				parsoidURL: null,
-
-				// By default, use the same configuration as the testing Parsoid server.
-				parsoidOptions: null,
 			},
 
 			runTest: require('./rtTestWrapper.js').runRoundTripTest,

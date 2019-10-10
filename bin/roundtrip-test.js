@@ -4,7 +4,9 @@
 
 require('../core-upgrade.js');
 require('colors');
+const { htmlDiff } = require('./diff.html.js');
 
+var fs = require('fs');
 var yargs = require('yargs');
 var zlib = require('pn/zlib');
 
@@ -789,16 +791,29 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		});
 		if (selserDiffs.length) {
 			data.diffs = data.diffs.concat(selserDiffs);
+			exitCode = 1;
+		} else {
+			exitCode = 0;
 		}
-		exitCode = data.diffs.some(function(r) { return r.selser; }) ? 1 : 0;
 	} catch (e) {
 		error = e;
 		exitCode = 1;
 	}
 	var output = formatter(error, prefix, title, data.diffs, profile);
+	// write diffs to $outDir/DOMAIN/TITLE
+	if (options.htmlDiffConfig && Math.random() < (options.htmlDiffConfig.sampleRate || 0)) {
+		const outDir = options.htmlDiffConfig.outDir || "/tmp/htmldiffs";
+		const dir = `${outDir}/${domain}`;
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir);
+		}
+		const diffs = yield htmlDiff(options.htmlDiffConfig, domain, title);
+		// parsoidOptions.title is uri-encoded
+		fs.writeFileSync(`${dir}/${parsoidOptions.title}`, diffs.join('\n'));
+	}
 	return {
 		output: output,
-		exitCode: exitCode,
+		exitCode: exitCode
 	};
 });
 
@@ -899,8 +914,7 @@ if (require.main === module) {
 		if (argv.proxyURL) {
 			argv.parsoidURLOpts.proxy = { host: argv.proxyURL };
 		}
-		var formatter = ScriptUtils.booleanOption(argv.xml) ?
-			xmlFormat : plainFormat;
+		var formatter = ScriptUtils.booleanOption(argv.xml) ? xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
 		console.log(r.output);
 		if (ret !== null) {
