@@ -66,6 +66,30 @@ class PHPUtils {
 	}
 
 	/**
+	 * Sort associative array keys the same way that JavaScript would;
+	 * that is, natural order is preserved *BUT* integer indices are moved
+	 * to the front of the array and sorted in order.
+	 * @see https://2ality.com/2015/10/property-traversal-order-es6.html
+	 *
+	 * @param array &$a Array to sort.
+	 */
+	public static function jsSort( array &$a ) {
+		$order = array_flip( array_keys( $a ) );
+		uksort( $a, function ( $a, $b ) use ( $order ) {
+			if ( is_numeric( $a ) ) {
+				if ( is_numeric( $b ) ) {
+					return $a - $b;
+				}
+				return -1;
+			} elseif ( is_numeric( $b ) ) {
+				return 1;
+			} else {
+				return $order[$a] - $order[$b];
+			}
+		} );
+	}
+
+	/**
 	 * Convert array to associative array usable as a read-only Set.
 	 *
 	 * @param array $a
