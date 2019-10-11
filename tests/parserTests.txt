@@ -172,7 +172,7 @@ Template:table_attribs
 Template:table_attribs_2
 !! text
 <noinclude>
-|</noinclude>style="color:red;"|Foo
+|</noinclude>data-sort-value="" style="color:red;"|Foo
 |Bar||Baz
 !! endarticle
 
@@ -7000,14 +7000,14 @@ parsoid={
 !! html/php
 <table>
 <tr>
-<td style="color:red;">Foo
+<td data-sort-value="" style="color:red;">Foo
 </td>
 <td>Bar</td>
 <td>Baz
 </td></tr></table>
 !! html/parsoid
 <table>
-<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" style="color:red;" data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_2","href":"./Template:Table_attribs_2"},"params":{},"i":0}}]}'>Foo</td>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-sort-value="" style="color:red;" data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_2","href":"./Template:Table_attribs_2"},"params":{},"i":0}}]}'>Foo</td>
 <td about="#mwt1">Bar</td><td about="#mwt1">Baz</td></tr>
 </tbody></table>
 !! end
