@@ -1009,20 +1009,20 @@ abstract class SiteConfig {
 		'wikitextSize' => 1000000, // 1M
 
 		// Max list items per page
-		'listItems' => 30000,
+		'listItem' => 30000,
 
 		// Max table cells per page
-		'tableCells' => 30000,
+		'tableCell' => 30000,
 
 		// Max transclusions per page
-		'transclusions' => 10000,
+		'transclusion' => 10000,
 
 		// DISABLED for now
 		// Max images per page
-		'images' => 1000,
+		'image' => 1000,
 
 		// Max top-level token size
-		'tokens' => 1000000, // 1M
+		'token' => 1000000, // 1M
 	];
 
 	/**
@@ -1035,7 +1035,7 @@ abstract class SiteConfig {
 	/** @phan-var array<string,int> */
 	protected $html2wtLimits = [
 		// We refuse to serialize HTML strings bigger than this
-		'HTMLSize' => 10000000,  // 10M
+		'htmlSize' => 10000000,  // 10M
 	];
 
 	/**
