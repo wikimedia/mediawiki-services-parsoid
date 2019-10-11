@@ -466,10 +466,10 @@ hr =
 	"----" d:$"-"*
 	// Check if a newline or content follows
 	lineContent:( &sol "" { return null; } / "" { return true; } ) {
-		$dataAttribs = (object)[
-			'tsr' => $this->tsrOffsets(),
-			'lineContent' => $lineContent
-		];
+		$dataAttribs = (object)[ 'tsr' => $this->tsrOffsets() ];
+		if ( $lineContent !== null ) {
+			$dataAttribs->lineContent = $lineContent;
+		}
 		if ( strlen( $d ) > 0 ) {
 			$dataAttribs->extra_dashes = strlen( $d );
 		}

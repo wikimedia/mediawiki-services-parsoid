@@ -1008,7 +1008,9 @@ class WrapTemplates {
 					// FIXME: There's a question here about whether we should
 					// be doing this unconditionally, which is T214241
 					$oldMw = DOMDataUtils::getDataMw( $encapTgt );
-					$encapInfo->datamw->attribs = $oldMw->attribs ?? null;
+					if ( isset( $oldMw->attribs ) ) {
+						$encapInfo->datamw->attribs = $oldMw->attribs;
+					}
 				}
 				DOMDataUtils::setDataMw( $encapTgt, $encapInfo->datamw );
 				$encapInfo->dp->pi = $paramInfoArrays;

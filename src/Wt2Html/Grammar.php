@@ -90,7 +90,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	private function emitChunk( $tokens ) {
   		// Shift tsr of all tokens by the pipeline offset
   		TokenUtils::shiftTokenTSR( $tokens, $this->pipelineOffset );
-		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
+  		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
   
   		$i = null;
   		$n = count( $tokens );
@@ -989,10 +989,10 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a87($d, $lineContent) {
   
-  		$dataAttribs = (object)[
-  			'tsr' => $this->tsrOffsets(),
-  			'lineContent' => $lineContent
-  		];
+  		$dataAttribs = (object)[ 'tsr' => $this->tsrOffsets() ];
+  		if ( $lineContent !== null ) {
+  			$dataAttribs->lineContent = $lineContent;
+  		}
   		if ( strlen( $d ) > 0 ) {
   			$dataAttribs->extra_dashes = strlen( $d );
   		}
