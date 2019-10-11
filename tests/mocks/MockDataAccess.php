@@ -480,9 +480,7 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
+	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array {
 		// Render to html the contents of known extension tags
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $wikitext, $match );
 		switch ( $match[1] ) {
@@ -513,9 +511,8 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
+	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array {
+		$revid = $pageConfig->getRevisionId();
 		$ret = [
 			'modules' => [],
 			'modulescripts' => [],

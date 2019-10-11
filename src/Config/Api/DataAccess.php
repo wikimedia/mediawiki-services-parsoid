@@ -183,9 +183,8 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
+	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array {
+		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'parse', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
@@ -221,9 +220,8 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
+	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array {
+		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'preprocess', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {

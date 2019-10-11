@@ -75,7 +75,6 @@ interface DataAccess {
 	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
-	 * @param int|null $revid Revision ID the wikitext belongs to
 	 * @return array
 	 *  - html: (string) Output HTML.
 	 *  - modules: (string[]) ResourceLoader module names
@@ -83,9 +82,7 @@ interface DataAccess {
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function parseWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array;
+	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array;
 
 	/**
 	 * Preprocess wikitext
@@ -96,7 +93,6 @@ interface DataAccess {
 	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
-	 * @param int|null $revid Revision ID the wikitext belongs to
 	 * @return array
 	 *  - wikitext: (string) Expanded wikitext
 	 *  - modules: (string[]) ResourceLoader module names
@@ -104,9 +100,7 @@ interface DataAccess {
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function preprocessWikitext(
-		PageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array;
+	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
 
 	/**
 	 * Fetch page content, e.g. for transclusion

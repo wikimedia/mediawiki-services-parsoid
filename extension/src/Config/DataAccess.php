@@ -185,17 +185,16 @@ class DataAccess implements IDataAccess {
 	 *
 	 * @param IPageConfig $pageConfig
 	 * @param int $outputType
-	 * @param int|null $revid
 	 * @return Parser
 	 */
-	private function prepareParser( IPageConfig $pageConfig, int $outputType, ?int $revid = null ) {
+	private function prepareParser( IPageConfig $pageConfig, int $outputType ) {
 		// Clear the state only when the PageConfig changes, so that Parser's internal caches can
 		// be retained. This should also provide better compatibility with extension tags.
 		$clearState = $this->previousPageConfig !== $pageConfig;
 		$this->previousPageConfig = $pageConfig;
 		$this->parser->startExternalParse(
 			Title::newFromText( $pageConfig->getTitle() ), $this->parserOptions,
-			$outputType, $clearState, $revid );
+			$outputType, $clearState, $pageConfig->getRevisionId() );
 		$this->parser->resetOutput();
 		return $this->parser;
 	}
@@ -211,10 +210,8 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
-		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
-		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML, $revid );
+	public function parseWikitext( IPageConfig $pageConfig, string $wikitext ): array {
+		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML );
 		$html = $parser->recursiveTagParseFully( $wikitext );
 		// T230473: Some extensions (ex: math) store their own strip state
 		// and rely on the ParserAfterTidy hook being called at the end.
@@ -240,10 +237,8 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext(
-		IPageConfig $pageConfig, string $wikitext, ?int $revid = null
-	): array {
-		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS, $revid );
+	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
+		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
 		$wikitext = $parser->replaceVariables( $wikitext );
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
 
