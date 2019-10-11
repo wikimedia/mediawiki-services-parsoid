@@ -700,7 +700,7 @@ describe('Parsoid API', function() {
 		it('should require a title when no wikitext is provided (html)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send()
+			.send({})
 			.expect(400)
 			.end(done);
 		});
@@ -708,7 +708,7 @@ describe('Parsoid API', function() {
 		it('should require a title when no wikitext is provided (pagebundle)', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.send()
+			.send({})
 			.expect(400)
 			.end(done);
 		});
