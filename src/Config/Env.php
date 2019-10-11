@@ -224,14 +224,6 @@ class Env {
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
 	 *  - debugFlags: (bool[]) Debug flags
-	 *  - uid: (int) Initial value of UID used to generate ids during parse.
-	 *         defaults to 1.
-	 *         PORT-FIXME: This construction option is required to support hybrid
-	 *         testing and can be removed after porting and testing is complete.
-	 *  - fid: (int) Initial value of fragment id used to generate ids during parse.
-	 *         defaults to 1.
-	 *         PORT-FIXME: This construction option is required to support hybrid
-	 *         testing and can be removed after porting and testing is complete.
 	 *  - noDataAccess: boolean
 	 *  - nativeTemplateExpansion: boolean
 	 *  - discardDataParsoid: boolean
@@ -255,8 +247,6 @@ class Env {
 		if ( isset( $options['pageBundle'] ) ) {
 			$this->pageBundle = !empty( $options['pageBundle'] );
 		}
-		$this->uid = (int)( $options['uid'] ?? 1 );
-		$this->fid = (int)( $options['fid'] ?? 1 );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
 		$this->outputContentVersion = self::AVAILABLE_VERSIONS[0];

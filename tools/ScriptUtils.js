@@ -53,10 +53,6 @@ var ScriptUtils = {
 			console.error(ScriptUtils.debugUsageHelp());
 			exit = true;
 		}
-		if (cliOpts.genTest === 'help') {
-			console.error(ScriptUtils.genTestUsageHelp());
-			exit = true;
-		}
 		if (exit) {
 			process.exit(1);
 		}
@@ -89,47 +85,6 @@ var ScriptUtils = {
 				console.warn("Warning: Generic dumping not enabled. Please set a flag.");
 			} else {
 				parsoidOptions.dumpFlags = ScriptUtils.splitFlags(cliOpts.dump);
-			}
-		}
-
-		if (cliOpts.genTest) {
-			if (cliOpts.genTest === true) {
-				console.warn("Warning: Generic test generation is not supported. Ignoring --genTest flag. Please provide handler-specific tracing flags, e.g. '--genTest ListHandler', to turn it on.");
-			} else {
-				if (cliOpts.genTest.slice(0,4) === 'dom:') {
-					var domHandlers = new Set([
-						'dom:dpload', 'dom:fostered', 'dom:process-fixups', 'dom:normalize',
-						'dom:pwrap', 'dom:migrate-metas', 'dom:pres', 'dom:migrate-nls',
-						'dom:dsr', 'dom:tplwrap', 'dom:dom-unpack', 'dom:tag:cite', 'dom:tag:poem',
-						'dom:fixups', 'dom:media', 'dom:sections', 'dom:heading-ids', 'dom:lang-converter',
-						'dom:strip-metas', 'dom:cleanup', 'dom:linkclasses', 'dom:redlinks',
-						'dom:downgrade'
-					]);
-					parsoidOptions.generateFlags = {
-						"handlers": ScriptUtils.splitFlags(cliOpts.genTest),
-						"directory": cliOpts.genDirectory,
-						"pageName": cliOpts.pageName,
-						"fragments": cliOpts.genTestFragments
-					};
-					parsoidOptions.generateFlags.handlers.forEach(function(handler) {
-						console.assert(domHandlers.has(handler),
-							'No matching DOM handler named ' + handler + ' found, exiting.');
-					});
-
-				} else {
-					var handlers = new Set([
-						'QuoteTransformer', 'ListHandler', 'ParagraphWrapper',
-						'TokenStreamPatcher', 'BehaviorSwitchHandler', 'SanitizerHandler',
-						'PreHandler', 'NoInclude', 'IncludeOnly', 'OnlyInclude',
-						'MigrateTemplateMarkerMetas',
-					]);
-					parsoidOptions.generateFlags = {
-						"handler": cliOpts.genTest,
-						"fileName": cliOpts.genTestOut
-					};
-					console.assert(handlers.has(parsoidOptions.generateFlags.handler),
-						'No matching token handler named ' + parsoidOptions.generateFlags.handler + ' found, exiting.');
-				}
 			}
 		}
 
@@ -225,37 +180,6 @@ var ScriptUtils = {
 			"  * pre       : shows actions of the pre handler",
 			"  * wts       : trace actions of the regular wikitext serializer",
 			"  * selser    : trace actions of the selective serializer",
-		].join('\n');
-	},
-
-	/**
-	 * Returns a help message for the generate flags.
-	 */
-	genTestUsageHelp: function() {
-		return [
-			"Generate Test Files for token transforms and DOM transforms",
-			"-----------------------------------------------------------",
-			"- Generates transformTest.js compatible output files for token transformers",
-			"- example: --genTest ListHandler --genTestOut listTestFile.txt",
-			"- Supported transformers/handlers:",
-			"  * QuoteTransformer  : records quote transforms",
-			"  * ListHandler       : records list transforms",
-			"  * ParagraphWrapper  : records paragraph transforms",
-			"  * TokenStreamPatcher : records token stream patch transforms",
-			"  * BehaviorSwitchHandler : records behavior switch transforms",
-			"  * SanitizerHandler  : records sanitizer transforms",
-			"  * PreHandler        : generates pre-block as needed contextually",
-			"  * NoIncludeOnly     : 3 tags, IncludeOnly, OnlyInclude and NoInclude for templates",
-			" ",
-			"- Generates domTest.js compatible DOM pre/post test file pairs for DOM transformers",
-			"- example: --genTest dom:dsr,dom:pwrap --genDirectory ../ --genTestFragments true --pageName Hampi",
-			"- Supported DOM transforms/handlers:",
-			"    dom:dpload, dom:fostered, dom:process-fixups, dom:normalize",
-			"    dom:pwrap, dom:migrate-metas, dom:pres, dom:migrate-nls",
-			"    dom:dsr, dom:tplwrap, dom:dom-unpack, dom:tag:cite, dom:tag:poem",
-			"    dom:fixups, dom:sections, dom:heading-ids, dom:lang-converter",
-			"    dom:strip-metas, dom:cleanup, dom:linkclasses, dom:redlinks",
-			"    dom:downgrade"
 		].join('\n');
 	},
 
@@ -380,26 +304,6 @@ var ScriptUtils = {
 			},
 			'dump': {
 				description: 'Dump state. Use --dump=help for supported options',
-			},
-			'genTest': {
-				description: 'Generates token transformer and DOM pass tests. Use --genTest=help for supported options',
-				'default': '',
-				'boolean': false,
-			},
-			'genTestOut': {
-				description: 'Output file to use for token transformer tests',
-				'default': '',
-				'boolean': false,
-			},
-			'genDirectory': {
-				description: 'Output directory to use for DOM tests',
-				'default': '',
-				'boolean': false,
-			},
-			'genTestFragments': {
-				description: 'Enable fragment generation in DOM genTest output',
-				'default': false,
-				'boolean': true,
 			},
 			// handled by `setTemplatingAndProcessingFlags`
 			'fetchConfig': {

@@ -55,7 +55,6 @@
 	"autoload-dev": {
 		"psr-4": {
 			"Parsoid\\Tests\\": "tests/mocks/",
-			"Parsoid\\Tests\\Porting\\": "tests/porting",
 			"Parsoid\\Tests\\ParserTests\\": "tests/ParserTests",
 			"Parsoid\\Tools\\": "tools/",
 			"Test\\": "tests/phpunit/"
