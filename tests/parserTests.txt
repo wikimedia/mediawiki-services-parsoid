@@ -12996,11 +12996,9 @@ Preprocessor precedence 14: broken language converter in comment
 <li>...extra dashes</li>
 <li>foobat...should be ok</li></ul>
 !! html/parsoid
-<ul>
-<li><!--{{foo}}-->...should be ok</li>
-<li><!--&#x2D;{{foo}}-->...extra dashes</li>
-<li><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;!-- -{bar} -->bat"}},"i":0}}]}'>foo</span><span about="#mwt1"><!-- &#x2D;{bar} --></span><span about="#mwt1">bat</span>...should be ok</li>
-</ul>
+<ul><li data-parsoid="{}"><!--{{foo}}-->...should be ok</li>
+<li data-parsoid="{}"><!--&#x2D;{{foo}}-->...extra dashes</li>
+<li data-parsoid="{}"><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo&lt;!-- -{bar} -->bat"}},"i":0}}]}'>foo</span><span about="#mwt1"><!-- &#x2D;{bar} --></span><span about="#mwt1">bat</span>...should be ok</li></ul>
 !! end
 
 !! test

@@ -1772,9 +1772,6 @@
     "3. includeonly in part of an attr value": {
         "html2wt": "<span style=\"color:red;\">bar</span>\n"
     },
-    "Preprocessor precedence 14: broken language converter in comment": {
-        "html2wt": "* <!--{{foo}}-->...should be ok\n* <!---{{foo}}-->...extra dashes\n* {{echo|foo<!-- -{bar} -->bat}}...should be ok\n"
-    },
     "Templates: Template Name/Arg clash: 1. Use of positional param": {
         "html2wt": "foo\n"
     },
