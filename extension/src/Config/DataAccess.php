@@ -12,6 +12,7 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
+use Parsoid\Config\ConfigUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig as IPageConfig;
 // we can get rid of this once we can assume PHP 7.4+ with covariant return type support
@@ -237,24 +238,23 @@ class DataAccess implements IDataAccess {
 			'modulescripts' => [], // $out->getModuleScripts() is deprecated and always returns []
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'categories' => $out->getCategories(),
-			// @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 		];
 	}
 
 	/** @inheritDoc */
 	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
+		$out = $parser->getOutput();
 		$wikitext = $parser->replaceVariables( $wikitext );
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
+		$wikitext .= ConfigUtils::manglePreprocessorResponse( $out->getProperties() );
 
-		$out = $parser->getOutput();
 		return [
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
 			'modulescripts' => [], // $out->getModuleScripts() is deprecated and always returns []
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'categories' => $out->getCategories(),
-			// @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 		];
 	}
 

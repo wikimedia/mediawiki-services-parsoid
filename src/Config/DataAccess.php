@@ -135,5 +135,4 @@ interface DataAccess {
 	 * @param array $lints
 	 */
 	public function logLinterData( array $lints );
-
 }

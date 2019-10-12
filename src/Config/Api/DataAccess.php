@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Parsoid\Config\Api;
 
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Config\ConfigUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
@@ -229,7 +230,7 @@ class DataAccess implements IDataAccess {
 				'action' => 'expandtemplates',
 				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
-				'prop' => 'wikitext|categories|modules|jsconfigvars',
+				'prop' => 'properties|wikitext|categories|modules|jsconfigvars',
 			];
 			if ( $revid !== null ) {
 				$params['revid'] = $revid;
@@ -241,8 +242,11 @@ class DataAccess implements IDataAccess {
 				$cats[$c['category']] = $c['sortkey'];
 			}
 
+			$wt = $data['wikitext'] .
+				ConfigUtils::manglePreprocessorResponse( $data['properties'] ?? [] );
+
 			$ret = [
-				'wikitext' => $data['wikitext'],
+				'wikitext' => $wt,
 				'modules' => $data['modules'],
 				'modulescripts' => $data['modulescripts'],
 				'modulestyles' => $data['modulestyles'],
