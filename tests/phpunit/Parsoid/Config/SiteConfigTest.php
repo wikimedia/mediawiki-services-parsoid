@@ -80,12 +80,10 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage Invalid match type 'Bogus'
-	 */
 	public function testMakeExtResourceURL_invalid() {
 		$siteConfig = $this->getSiteConfig();
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( "Invalid match type 'Bogus'" );
 		$siteConfig->makeExtResourceURL( [ 'Bogus', '0' ], './Bogus', 'Bogus 0' );
 	}
 
