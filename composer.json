@@ -66,7 +66,7 @@
 			"phpcs -p -s",
 			"minus-x check .",
 			"covers-validator",
-			"phpunit",
+			"@phpunit",
 			"@phan",
 			"@toolcheck",
 			"@parserTests"
@@ -80,6 +80,7 @@
 		"regen-php-tokenizer": "npm run regen-php-tokenizer",
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --blacklist true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --blacklist true --offsetType ucs2",
+		"phpunit": "phpunit",
 		"toolcheck": "bin/toolcheck.php.sh"
 	},
 	"config": {
