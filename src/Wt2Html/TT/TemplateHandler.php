@@ -805,9 +805,9 @@ class TemplateHandler extends TokenHandler {
 
 					// Use a data-attribute to prevent the sanitizer from stripping this
 					// attribute before it reaches the DOM pass where it is needed.
-					$chunk[0]->dataAttribs->tmp->tplarginfo = json_encode( $argInfo );
+					$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 				} else {
-					$chunk[0]->dataAttribs->tmp->tplarginfo = json_encode( $argInfo );
+					$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 				}
 			} else {
 				// Don't add the HTML template parameters, just use their wikitext
