@@ -217,12 +217,20 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function parseWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML );
+
 		$html = $parser->recursiveTagParseFully( $wikitext );
+
 		// T230473: Some extensions (ex: math) store their own strip state
 		// and rely on the ParserAfterTidy hook being called at the end.
-		// Since 'recursiveTagParseFully' doesn't call this hook, we explicitly
-		// invoke this here.
+		// Since 'recursiveTagParseFully' runs within the context of a full page,
+		// it doesn't call some of those hooks.
+		//
+		// Strictly speaking, this is broken since the ordering is incorrect.
+		// The first 2 hooks need to run in the middle of recursiveagparseFully.
+		Hooks::run( 'ParserAfterParse', [ &$parser, &$html ] );
+		Hooks::run( 'ParserBeforeTidy', [ &$parser, &$html ] );
 		Hooks::run( 'ParserAfterTidy', [ &$parser, &$html ] );
+
 		$out = $parser->getOutput();
 		$out->setText( $html );
 		return [
