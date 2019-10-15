@@ -44,6 +44,11 @@ class DataAccess implements IDataAccess {
 		$this->revStore = $revStore;
 		$this->parser = $parser;
 		$this->parserOptions = $parserOptions;
+
+		// Turn off some options since Parsoid/JS currently doesn't
+		// do anything with this. As we proceed with closer integration,
+		// we can figure out if there is any value to these limit reports.
+		$this->parserOptions->setOption( 'enableLimitReport', false );
 	}
 
 	/**
