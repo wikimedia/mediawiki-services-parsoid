@@ -485,7 +485,9 @@ class MockDataAccess implements DataAccess {
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $wikitext, $match );
 		switch ( $match[1] ) {
 			case 'templatestyles':
-				$html = "<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>"; // Silliness
+				// Silliness
+				$html = "<style data-mw-deduplicate='TemplateStyles:r123456'>" .
+					"small { font-size: 120% } big { font-size: 80% }</style>";
 				break;
 
 			case 'translate':

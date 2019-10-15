@@ -213,7 +213,8 @@ class QuoteTransformer extends TokenHandler {
 		$numitalics = 0;
 		$chunkCount = count( $this->chunks );
 		for ( $i = 1; $i < $chunkCount; $i += 2 ) {
-			Assert::invariant( count( $this->chunks[$i] ) === 1, 'Expected a single token in the chunk' ); // quote token
+			// quote token
+			Assert::invariant( count( $this->chunks[$i] ) === 1, 'Expected a single token in the chunk' );
 			$qlen = strlen( $this->chunks[$i][0]->getAttribute( "value" ) );
 			if ( $qlen === 2 || $qlen === 5 ) {
 				$numitalics++;
