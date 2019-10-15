@@ -154,7 +154,7 @@ class References extends ExtensionTag {
 			if ( !empty( $cDp->selfClose ) ) {
 				unset( $refDmw->body );
 			} else {
-				$refDmw->body = [ 'html' => '' ];
+				$refDmw->body = (object)[ 'html' => '' ];
 			}
 		} else {
 			// If there are multiple <ref>s with the same name, but different content,
@@ -170,9 +170,9 @@ class References extends ExtensionTag {
 				$contentDiffers = $html !== $ref->cachedHtml;
 			}
 			if ( $contentDiffers ) {
-				$refDmw->body = [ 'html' => $html ];
+				$refDmw->body = (object)[ 'html' => $html ];
 			} else {
-				$refDmw->body = [ 'id' => 'mw-reference-text-' . $ref->target ];
+				$refDmw->body = (object)[ 'id' => 'mw-reference-text-' . $ref->target ];
 			}
 		}
 
