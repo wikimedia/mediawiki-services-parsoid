@@ -184,8 +184,7 @@ class ContentUtils {
 			}
 
 			// Handle embedded HTML in Language Variant markup
-			$dmwv =
-				DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', null );
+			$dmwv = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', null );
 			if ( $dmwv ) {
 				if ( isset( $dmwv->disabled ) ) {
 					$dmwv->disabled->t = $convertString( $dmwv->disabled->t );
@@ -207,7 +206,7 @@ class ContentUtils {
 				DOMDataUtils::setJSONAttribute( $node, 'data-mw-variant', $dmwv );
 			}
 
-			if ( DOMUtils::matchTypeOf( $node, '/^mw:(Image|ExpandedAttrs)$/D' ) ) {
+			if ( DOMUtils::matchTypeOf( $node, '#^mw:(ExpandedAttrs|Image|Extension)\b#D' ) ) {
 				$dmw = DOMDataUtils::getDataMw( $node );
 				// Handle embedded HTML in template-affected attributes
 				if ( $dmw->attribs ?? null ) {
@@ -222,6 +221,10 @@ class ContentUtils {
 				// Handle embedded HTML in figure-inline captions
 				if ( $dmw->caption ?? null ) {
 					$dmw->caption = $convertString( $dmw->caption );
+				}
+				// FIXME: Cite-specific handling here maybe?
+				if ( $dmw->body->html ?? null ) {
+					$dmw->body->html = $convertString( $dmw->body->html );
 				}
 				DOMDataUtils::setDataMw( $node, $dmw );
 			}
