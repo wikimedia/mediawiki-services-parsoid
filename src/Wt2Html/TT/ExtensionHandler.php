@@ -5,7 +5,6 @@ namespace Parsoid\Wt2Html\TT;
 
 use DOMDocument;
 
-use Parsoid\Config\Env;
 use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\DOMCompat;
@@ -86,7 +85,8 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
-	private function processParserResponse( Env $env, Token $token, array $ret ): string {
+	private function mangleParserResponse( Token $token, array $ret ): string {
+		$env = $this->env;
 		$html = $ret['html'];
 
 		// Strip a paragraph wrapper, if any
@@ -164,7 +164,7 @@ class ExtensionHandler extends TokenHandler {
 		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
-			$html = $this->processParserResponse( $env, $token, $ret );
+			$html = $this->mangleParserResponse( $token, $ret );
 			$doc = $env->createDocument( $html );
 			$toks = $this->parseExtensionHTML( $token, $doc );
 		}

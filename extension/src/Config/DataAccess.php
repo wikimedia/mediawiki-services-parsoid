@@ -12,7 +12,6 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
-use Parsoid\Config\ConfigUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig as IPageConfig;
 // we can get rid of this once we can assume PHP 7.4+ with covariant return type support
@@ -226,12 +225,6 @@ class DataAccess implements IDataAccess {
 		Hooks::run( 'ParserAfterTidy', [ &$parser, &$html ] );
 		$out = $parser->getOutput();
 		$out->setText( $html );
-
-		$categories = [];
-		foreach ( $out->getCategories() as $cat => $sortkey ) {
-			$categories[] = [ 'name' => $cat, 'sortkey' => $sortkey ];
-		}
-
 		return [
 			'html' => $out->getText( [ 'unwrap' => true ] ),
 			'modules' => array_values( array_unique( $out->getModules() ) ),
@@ -247,14 +240,13 @@ class DataAccess implements IDataAccess {
 		$out = $parser->getOutput();
 		$wikitext = $parser->replaceVariables( $wikitext );
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
-		$wikitext .= ConfigUtils::manglePreprocessorResponse( $out->getProperties() );
-
 		return [
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
 			'modulescripts' => [], // $out->getModuleScripts() is deprecated and always returns []
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'categories' => $out->getCategories(),
+			'properties' => $out->getProperties()
 		];
 	}
 

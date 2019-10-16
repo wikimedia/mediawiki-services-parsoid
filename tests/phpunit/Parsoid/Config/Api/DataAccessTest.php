@@ -124,6 +124,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'modulestyles' => [],
 			'modulescripts' => [],
 			'categories' => [],
+			'properties' => [],
 		], $ret );
 
 		// Test caching. Cache miss would make TestApiHelper throw.

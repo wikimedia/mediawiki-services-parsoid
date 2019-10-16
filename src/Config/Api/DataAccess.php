@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace Parsoid\Config\Api;
 
 use Parsoid\Utils\PHPUtils;
-use Parsoid\Config\ConfigUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
@@ -242,15 +241,13 @@ class DataAccess implements IDataAccess {
 				$cats[$c['category']] = $c['sortkey'];
 			}
 
-			$wt = $data['wikitext'] .
-				ConfigUtils::manglePreprocessorResponse( $data['properties'] ?? [] );
-
 			$ret = [
-				'wikitext' => $wt,
+				'wikitext' => $data['wikitext'],
 				'modules' => $data['modules'],
 				'modulescripts' => $data['modulescripts'],
 				'modulestyles' => $data['modulestyles'],
 				'categories' => $cats,
+				'properties' => $data['properties'] ?? [],
 			];
 			$this->setCache( $key, $ret );
 		}

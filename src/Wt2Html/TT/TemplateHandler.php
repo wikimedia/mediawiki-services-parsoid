@@ -1056,15 +1056,51 @@ class TemplateHandler extends TokenHandler {
 			];
 		} else {
 			$pageConfig = $env->getPageConfig();
-			$out = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
-			foreach ( [ 'modules', 'modulescripts', 'modulestyles', 'categories' ] as $prop ) {
-				$env->setOutputProperty( $prop, $out[$prop] );
-			}
+			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
+			$wikitext = $this->manglePreprocessorResponse( $ret );
 			return [
 				'error' => false,
-				'src' => $out['wikitext']
+				'src' => $wikitext
 			];
 		}
+	}
+
+	/**
+	 * This takes properties value of 'expandtemplates' output and computes
+	 * magicword wikitext for those properties.
+	 *
+	 * This is needed for Parsoid/JS compatibility, but may go away in the future.
+	 *
+	 * @param array $ret
+	 * @return string
+	 */
+	public function manglePreprocessorResponse( array $ret ): string {
+		$env = $this->env;
+		$wikitext = $ret['wikitext'];
+
+		foreach ( [ 'modules', 'modulescripts', 'modulestyles' ] as $prop ) {
+			$env->setOutputProperty( $prop, $ret[$prop] );
+		}
+
+		// Add the categories which were added by parser functions directly
+		// into the page and not as in-text links.
+		foreach ( ( $ret['categories'] ?? [] ) as $category => $sortkey ) {
+			$wikitext .= '\n[[Category:' . $category;
+			if ( isset( $sortkey ) ) {
+				$wikitext .= "|" . $sortkey;
+			}
+			$wikitext .= ']]';
+		}
+
+		// FIXME: This seems weirdly special-cased for displaytitle & displaysort
+		// For now, just mimic what Parsoid/JS does, but need to revisit this
+		foreach ( ( $ret['properties'] ?? [] ) as $name => $value ) {
+			if ( $name === 'displaytitle' || $name === 'defaultsort' ) {
+				$wikitext .= "\n{{" . mb_strtoupper( $name ) . ':' . $value . '}}';
+			}
+		}
+
+		return $wikitext;
 	}
 
 	private function fetchArg( $arg, SourceRange $srcOffsets ): array {

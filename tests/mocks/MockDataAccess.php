@@ -520,6 +520,7 @@ class MockDataAccess implements DataAccess {
 			'modulescripts' => [],
 			'modulestyles' => [],
 			'categories' => [],
+			'properties' => [],
 		];
 
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
@@ -532,7 +533,7 @@ class MockDataAccess implements DataAccess {
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {
 			$ret['wikitext'] = (string)$revid;
 		} else {
-			$ret['wikitext'] = null;
+			$ret['wikitext'] = '';
 		}
 
 		return $ret;

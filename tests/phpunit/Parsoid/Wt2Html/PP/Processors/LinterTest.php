@@ -889,7 +889,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'b', $result[ 0 ][ 'params' ][ 'name' ], $desc );
 
 		$desc = "should attribute linter issues to the ref tag even if references is templated";
-		$result = $this->parseWT( "a <ref><b>x</ref> {{1x|<references/>}}" );
+		$result = $this->parseWT( "a <ref><b>x</ref> {{echo|<references/>}}" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[ 0 ][ 'type' ], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[ 0 ][ 'dsr' ], $desc );
