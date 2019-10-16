@@ -59,7 +59,7 @@ language=sr variant=sr-ec
 !! html/parsoid
 <p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'></span>абвг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'></span>šđžčć<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'></span></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-ec"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span>абвг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span><span typeof="mw:LanguageVariant" data-mw-variant-lang="sr-el" data-mw-variant='{"twoway":[{"l":"sr-el","t":"šđžčć"},{"l":"sr-ec","t":"шђжчћ"}],"rt":true}'>шђжчћ</span><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
+<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span><span typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}'>абвг</span><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span>шђжчћ<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
 !! end
 
 !! test
