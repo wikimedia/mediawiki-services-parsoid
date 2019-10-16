@@ -652,6 +652,20 @@ C</span></h2>
 !! end
 
 !! test
+Heading with nonbreaking space in prefix/suffix (T235684)
+!! options
+parsoid=wt2html,html2html
+!! config
+wgFragmentMode=[ 'html5', 'legacy' ]
+!! wikitext
+== &nbsp; A &nbsp; B &nbsp; ==
+!! html/php
+<h2><span class="mw-headline" id="_A_B">&#160; A &#160; B &#160;</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section:   A   B  ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+<h2 id="_A_B"><span typeof="mw:Entity"> </span> A <span typeof="mw:Entity"> </span> B <span typeof="mw:Entity"> </span></h2>
+!! end
+
+!! test
 Parsing an URL
 !! wikitext
 http://fr.wikipedia.org/wiki/🍺
