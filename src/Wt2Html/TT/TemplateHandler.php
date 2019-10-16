@@ -1086,7 +1086,7 @@ class TemplateHandler extends TokenHandler {
 		// into the page and not as in-text links.
 		foreach ( ( $ret['categories'] ?? [] ) as $category => $sortkey ) {
 			$wikitext .= '\n[[Category:' . $category;
-			if ( isset( $sortkey ) ) {
+			if ( $sortkey ) {
 				$wikitext .= "|" . $sortkey;
 			}
 			$wikitext .= ']]';
