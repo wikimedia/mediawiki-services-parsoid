@@ -1085,7 +1085,7 @@ class TemplateHandler extends TokenHandler {
 		// Add the categories which were added by parser functions directly
 		// into the page and not as in-text links.
 		foreach ( ( $ret['categories'] ?? [] ) as $category => $sortkey ) {
-			$wikitext .= '\n[[Category:' . $category;
+			$wikitext .= "\n[[Category:" . $category;
 			if ( $sortkey ) {
 				$wikitext .= "|" . $sortkey;
 			}
