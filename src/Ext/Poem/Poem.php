@@ -31,6 +31,27 @@ class Poem extends ExtensionTag implements Extension {
 			// Suppress indent-pre by replacing leading space with &nbsp;
 			);
 
+			// Replace colons with indented spans
+			$contentArray = explode( "\n", $content );
+			$contentMap = array_map( function ( $line ) use ( $extApi ) {
+				$i = 0;
+				$lineLength = strlen( $line );
+				while ( $i < $lineLength && $line[ $i ] === ':' ) {
+					$i++;
+				}
+				if ( $i > 0 && $i < $lineLength ) {
+					$doc = $extApi->getEnv()->createDocument();
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'class', 'mw-poem-indented' );
+					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );
+					$span->appendChild( $doc->createTextNode( ltrim( $line, ':' ) ) );
+					return DOMCompat::getOuterHTML( $span );
+				} else {
+					return $line;
+				}
+			}, $contentArray );
+			$content = implode( "\n", $contentMap ); // use faster? preg_replace
+
 			// Add <br/> for newlines except (a) in nowikis (b) after ----
 			// nowiki newlines will be processed on the DOM.
 			$splitContent = preg_split( '/(<nowiki>[\s\S]*?<\/nowiki>)/', $content,
@@ -45,31 +66,11 @@ class Poem extends ExtensionTag implements Extension {
 					// cannot show up in the extension's content.
 					return preg_replace( '/^(-+)<\/poem>/m', "\$1\n",
 						preg_replace( '/\n/m', "<br/>\n",
-						preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) ) );
+							preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) ) );
 				}, $splitContent,
-				range( 0, count( $splitContent ) - 1 ) )
+					range( 0, count( $splitContent ) - 1 ) )
 			);
 
-			// Replace colons with indented spans
-			$contentArray = explode( '\n', $content );
-			$contentMap = array_map( function ( $line ) use ( $extApi ) {
-				$i = 0;
-				$lineLength = strlen( $line );
-				while ( $line[ $i ] === ':' && $i < $lineLength ) {
-					$i++;
-				}
-				if ( $i > 0 && $i < $lineLength ) {
-					$doc = $extApi->getEnv()->createDocument();
-					$span = $doc->createElement( 'span' );
-					$span->setAttribute( 'class', 'mw-poem-indented' );
-					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );
-					$span->appendChild( $doc->createTextNode( ltrim( $line, ':' ) ) );
-					return DOMCompat::getOuterHTML( $span );
-				} else {
-					return $line;
-				}
-			}, $contentArray );
-			$content = implode( '\n', $contentMap ); // use faster? preg_replace
 		}
 
 		// Create new frame, because $content doesn't literally appear in
