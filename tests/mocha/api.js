@@ -629,6 +629,28 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should set a custom etag for get requests (html)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/html/Main_Page/1')
+			.expect(validHtmlResponse())
+			.expect((res) => {
+				res.headers.should.have.property('etag');
+				res.headers.etag.should.match(/^W\/"1\//);
+			})
+			.end(done);
+		});
+
+		it('should set a custom etag for get requests (pagebundle)', function(done) {
+			request(api)
+			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
+			.expect(validPageBundleResponse())
+			.expect((res) => {
+				res.headers.should.have.property('etag');
+				res.headers.etag.should.match(/^W\/"1\//);
+			})
+			.end(done);
+		});
+
 		it('should accept wikitext as a string for html', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')

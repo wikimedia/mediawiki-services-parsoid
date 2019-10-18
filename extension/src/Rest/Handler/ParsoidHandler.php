@@ -34,6 +34,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PegTokenizer;
 use RequestContext;
 use Title;
+use UIDGenerator;
 // use Wikimedia\Http\HttpAcceptParser;
 use Wikimedia\ParamValidator\ValidationException;
 
@@ -597,6 +598,10 @@ abstract class ParsoidHandler extends Handler {
 				$response->setHeader( 'Content-Language', 'en' );
 				$response->addHeader( 'Vary', 'Accept' );
 			}
+			if ( $request->getMethod() === 'GET' ) {
+				$tid = UIDGenerator::newUUIDv1();
+				$response->addHeader( 'Etag', "W/\"{$oldid}/{$tid}\"" );
+			}
 		}
 
 		$this->statsdDataFactory->timing( "wt2html.$mstr.parse",
@@ -690,7 +695,7 @@ abstract class ParsoidHandler extends Handler {
 				// Downgrades are only for pagebundle
 				if ( $downgrade && $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
 					$this->statsdDataFactory->increment(
-						"downgrade.from.{$downgrade['from']}.to.${$downgrade['to']}" );
+						"downgrade.from.{$downgrade['from']}.to.{$downgrade['to']}" );
 					$oldDoc = $env->createDocument( $original['html']['body'] );
 					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
 						$original['data-mw']['body'] ?? null );
