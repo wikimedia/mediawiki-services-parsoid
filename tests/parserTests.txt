@@ -27541,6 +27541,19 @@ parsoid=html2wt
 </p>
 !! end
 
+!! test
+Links 16. Link prefix using unicode \x{...} escapes (T235563)
+!! options
+language=ar
+!! wikitext
+Nominated–[[1923]]
+!! html/php
+<p><a href="/index.php?title=1923&amp;action=edit&amp;redlink=1" class="new" title="1923 (الصفحة غير موجودة)">Nominated–1923</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./1923" title="1923" data-parsoid='{"stx":"simple","a":{"href":"./1923"},"sa":{"href":"1923"},"prefix":"Nominated–"}'>Nominated–1923</a></p>
+!! end
+
 #### --------------- Quotes ---------------
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags
