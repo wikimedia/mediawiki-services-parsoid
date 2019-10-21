@@ -60,7 +60,10 @@ class TransformHandler extends ParsoidHandler {
 					'message' => 'No title or wikitext was provided.',
 				] );
 			}
-			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
+			$env = $this->createEnv(
+				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
+				$attribs['pagelanguage']
+			);
 			if ( !$this->acceptable( $env, $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
@@ -87,7 +90,10 @@ class TransformHandler extends ParsoidHandler {
 			}
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
-			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'] );
+			$env = $this->createEnv(
+				$attribs['pageName'], (int)$attribs['oldid'],
+				null, $attribs['pagelanguage']
+			);
 			if ( !$this->acceptable( $env, $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',

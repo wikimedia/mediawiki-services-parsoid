@@ -201,7 +201,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function langConverterEnabled( string $lang ): bool {
-		return true;
+		return $lang === 'sr';
 	}
 
 	public function script(): string {
@@ -221,7 +221,26 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function variants(): array {
-		return [];
+		return [
+			'sr' => [
+				'base' => 'sr',
+				'fallbacks' => [
+					'sr-ec'
+				]
+			],
+			'sr-ec' => [
+				'base' => 'sr',
+				'fallbacks' => [
+					'sr'
+				]
+			],
+			'sr-el' => [
+				'base' => 'sr',
+				'fallbacks' => [
+					'sr'
+				]
+			]
+		];
 	}
 
 	public function widthOption(): int {

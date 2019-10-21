@@ -19,6 +19,12 @@ class MockPageConfig extends PageConfig {
 	/** @var string */
 	private $title;
 
+	/** @var string|null */
+	private $pagelanguage;
+
+	/** @var string|null */
+	private $pagelanguageDir;
+
 	/**
 	 * Construct a mock environment object for use in tests
 	 * @param array $opts
@@ -29,6 +35,8 @@ class MockPageConfig extends PageConfig {
 		$this->title = $opts['title'] ?? 'TestPage';
 		$this->pageid = $opts['pageid'] ?? -1;
 		$this->pagens = $opts['pagens'] ?? 0;
+		$this->pagelanguage = $opts['pageLanguage'] ?? null;
+		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 	}
 
 	public function getContentModel(): string {
@@ -56,12 +64,12 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getPageLanguage(): string {
-		return 'en';
+		return $this->pagelanguage ?? 'en';
 	}
 
 	/** @inheritDoc */
 	public function getPageLanguageDir(): string {
-		return 'rtl';
+		return $this->pagelanguageDir ?? 'rtl';
 	}
 
 	/** @inheritDoc */

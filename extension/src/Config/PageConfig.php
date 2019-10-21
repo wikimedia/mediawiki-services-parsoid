@@ -37,22 +37,33 @@ class PageConfig extends IPageConfig {
 	/** @var RevisionRecord|null */
 	private $revision;
 
+	/** @var string|null */
+	private $pagelanguage;
+
+	/** @var string|null */
+	private $pagelanguageDir;
+
 	/**
 	 * @param Parser $parser
 	 * @param ParserOptions $parserOptions
 	 * @param SlotRoleHandler $slotRoleHandler
 	 * @param Title $title Title being parsed
 	 * @param RevisionRecord|null $revision
+	 * @param string|null $pagelanguage
+	 * @param string|null $pagelanguageDir
 	 */
 	public function __construct(
 		Parser $parser, ParserOptions $parserOptions, SlotRoleHandler $slotRoleHandler,
-		Title $title, RevisionRecord $revision = null
+		Title $title, RevisionRecord $revision = null,
+		string $pagelanguage = null, string $pagelanguageDir = null
 	) {
 		$this->parser = $parser;
 		$this->parserOptions = $parserOptions;
 		$this->slotRoleHandler = $slotRoleHandler;
 		$this->title = $title;
 		$this->revision = $revision;
+		$this->pagelanguage = $pagelanguage;
+		$this->pagelanguageDir = $pagelanguageDir;
 	}
 
 	/**
@@ -101,12 +112,14 @@ class PageConfig extends IPageConfig {
 
 	/** @inheritDoc */
 	public function getPageLanguage(): string {
-		return $this->title->getPageLanguage()->getCode();
+		return $this->pagelanguage ??
+			$this->title->getPageLanguage()->getCode();
 	}
 
 	/** @inheritDoc */
 	public function getPageLanguageDir(): string {
-		return $this->title->getPageLanguage()->getDir();
+		return $this->pagelanguageDir ??
+			$this->title->getPageLanguage()->getDir();
 	}
 
 	/**

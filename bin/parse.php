@@ -158,6 +158,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$dataAccess = new \Parsoid\Config\Api\DataAccess( $api, $configOpts );
 		$pageConfig = new \Parsoid\Config\Api\PageConfig( $api, $configOpts + [
 			'title' => $siteConfig->mainpage(),
+			'loadData' => true,
 		] );
 
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );

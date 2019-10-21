@@ -175,6 +175,7 @@ abstract class ParsoidHandler extends Handler {
 			'offsetType' => $request->getPostParams()['offsetType']
 				?? $request->getQueryParams()['offsetType']
 				?? $body['offsetType'] ?? 'byte',
+			'pagelanguage' => $request->getHeaderLine( 'Content-Language' ) ?: null,
 		];
 
 		if ( $request->getMethod() === 'POST' ) {
@@ -341,10 +342,12 @@ abstract class ParsoidHandler extends Handler {
 	 * @param int|null $revision The revision to be transformed
 	 * @param string|null $wikitextOverride
 	 *   Custom wikitext to use instead of the real content of the page.
+	 * @param string|null $pagelanguageOverride
 	 * @return PageConfig
 	 */
 	protected function createPageConfig(
-		string $title, ?int $revision, string $wikitextOverride = null
+		string $title, ?int $revision, string $wikitextOverride = null,
+		string $pagelanguageOverride = null
 	): PageConfig {
 		$title = $title ? Title::newFromText( $title ) : Title::newMainPage();
 		if ( !$title ) {
@@ -353,7 +356,8 @@ abstract class ParsoidHandler extends Handler {
 		}
 		$user = RequestContext::getMain()->getUser();
 		return $this->pageConfigFactory->create(
-			$title, $user, $revision, $wikitextOverride, $this->parsoidSettings
+			$title, $user, $revision, $wikitextOverride, $pagelanguageOverride,
+			$this->parsoidSettings
 		);
 	}
 
@@ -362,12 +366,16 @@ abstract class ParsoidHandler extends Handler {
 	 * @param int|null $revision The revision to be transformed
 	 * @param string|null $wikitextOverride
 	 *   Custom wikitext to use instead of the real content of the page.
+	 * @param string|null $pagelanguageOverride
 	 * @return Env
 	 */
 	protected function createEnv(
-		string $title, ?int $revision, string $wikitextOverride = null
+		string $title, ?int $revision, string $wikitextOverride = null,
+		string $pagelanguageOverride = null
 	): Env {
-		$pageConfig = $this->createPageConfig( $title, $revision, $wikitextOverride );
+		$pageConfig = $this->createPageConfig(
+			$title, $revision, $wikitextOverride, $pagelanguageOverride
+		);
 		$options = [];
 		// NOTE: These settings are mostly ignored since this Env is only used
 		// in this file.
@@ -557,6 +565,11 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['pageWithOldid'] = true;
 		}
 
+		// XXX: Not necessary, since it's in the pageConfig
+		// if ( isset( $attribs['pagelanguage'] ) ) {
+		// 	$reqOpts['pagelanguage'] = $attribs['pagelanguage'];
+		// }
+
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$timing->end( "wt2html.$mstr.init" );
 		$parseTiming = Timing::start( $metrics );
@@ -574,7 +587,9 @@ abstract class ParsoidHandler extends Handler {
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
 			try {
-				$out = $parsoid->wikitext2html( $pageConfig, $reqOpts );
+				$out = $parsoid->wikitext2html(
+					$pageConfig, $reqOpts, $headers
+				);
 			} catch ( ResourceLimitExceededException $e ) {
 				return $this->getResponseFactory()->createHttpError( 413, [
 					'message' => $e->getMessage(),
@@ -589,10 +604,8 @@ abstract class ParsoidHandler extends Handler {
 				FormatHelper::setContentType( $response, FormatHelper::FORMAT_HTML,
 					$env->getOutputContentVersion() );
 				$response->getBody()->write( $out );
-
-				// FIXME Parsoid-JS only does this when out.headers is empty. We have no out, though.
-				$response->setHeader( 'Content-Language', 'en' );
-				$response->addHeader( 'Vary', 'Accept' );
+				$response->setHeader( 'Content-Language', $headers['content-language'] );
+				$response->addHeader( 'Vary', $headers['vary'] );
 			}
 			if ( $request->getMethod() === 'GET' ) {
 				$tid = UIDGenerator::newUUIDv1();
@@ -895,12 +908,12 @@ abstract class ParsoidHandler extends Handler {
 				// Q(arlolra): Should redlinks be more complex than a bool?
 				// See gwicke's proposal at T114413#2240381
 				return $this->updateRedLinks( $env, $attribs, $revision );
-			} elseif ( !empty( $opts['updates']['variant'] ) ) {
+			} elseif ( isset( $opts['updates']['variant'] ) ) {
 				return $this->languageConversion( $env, $attribs, $revision );
 			} else {
-				$msg = 'Unknown transformation.';
-				$env->log( 'fatal/request', $msg );
-				throw new LogicException( $msg );
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => 'Unknown transformation.',
+				] );
 			}
 		}
 
@@ -944,7 +957,7 @@ abstract class ParsoidHandler extends Handler {
 
 	/**
 	 * Update red links on a document.
-	 * Porting note: should this be here, or somewhere under the parsoid/src tree?
+	 *
 	 * @param Env $env
 	 * @param array $attribs
 	 * @param array $revision
@@ -955,14 +968,15 @@ abstract class ParsoidHandler extends Handler {
 		$pageConfig = $env->getPageConfig();
 
 		$html = $parsoid->html2html(
-			$pageConfig, 'redlinks', $revision['html']['body']
+			$pageConfig, 'redlinks', $revision['html']['body'], [], $headers
 		);
 
 		$out = new PageBundle(
 			$html,
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
-			$env->getInputContentVersion()
+			$env->getInputContentVersion(),
+			$headers
 		);
 		if ( !$out->validate( $env->getInputContentVersion(), $errorMessage ) ) {
 			return $this->getResponseFactory()->createHttpError(
@@ -978,15 +992,57 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * Porting note: should this be here, or somewhere under the parsoid/src tree?
+	 * Do variant conversion on a document.
+	 *
 	 * @param Env $env
 	 * @param array $attribs
 	 * @param array $revision
 	 * @return Response
 	 */
 	protected function languageConversion( Env $env, array $attribs, array $revision ) {
-		// PORT-FIXME
-		$msg = __FUNCTION__ . ' is not implemented yet.';
-		throw new LogicException( $msg );
+		$opts = $attribs['opts'];
+		$source = $opts['updates']['variant']['source'] ?? null;
+		$target = $opts['updates']['variant']['target'] ??
+			$attribs['envOptions']['htmlVariantLanguage'];
+
+		if ( !$target ) {
+			return $this->getResponseFactory()->createHttpError(
+				400, [ 'message' => 'Target variant is required.' ]
+			);
+		}
+
+		if ( !$env->langConverterEnabled() ) {
+			return $this->getResponseFactory()->createHttpError(
+				400, [ 'message' => 'LanguageConversion is not enabled on this article.' ]
+			);
+		}
+
+		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
+		$pageConfig = $env->getPageConfig();
+
+		$html = $parsoid->html2html(
+			$pageConfig, 'variant', $revision['html']['body'],
+			[
+				'variant' => [
+					'source' => $source,
+					'target' => $target,
+				]
+			],
+			$headers
+		);
+
+		$out = new PageBundle(
+			$html,
+			$revision['data-parsoid']['body'] ?? null,
+			$revision['data-mw']['body'] ?? null,
+			$env->getInputContentVersion(),
+			$headers
+		);
+
+		$response = $this->getResponseFactory()->createJson( $out->responseData() );
+		FormatHelper::setContentType(
+			$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
+		);
+		return $response;
 	}
 }

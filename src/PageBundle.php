@@ -23,20 +23,25 @@ class PageBundle {
 	/** @var string|null */
 	public $version;
 
+	/** @var array|null */
+	public $headers;
+
 	/**
 	 * @param string $html
 	 * @param array|null $parsoid
 	 * @param array|null $mw
 	 * @param string|null $version
+	 * @param array|null $headers
 	 */
 	public function __construct(
 		string $html, array $parsoid = null, array $mw = null,
-		string $version = null
+		string $version = null, array $headers = null
 	) {
 		$this->html = $html;
 		$this->parsoid = $parsoid;
 		$this->mw = $mw;
 		$this->version = $version;
+		$this->headers = $headers;
 	}
 
 	/**
@@ -65,12 +70,11 @@ class PageBundle {
 		$responseData = [
 			'contentmodel' => '',
 			'html' => [
-				'headers' => [
+				'headers' => array_merge( [
 					'content-type' => 'text/html; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/HTML/'
 						. $this->version . '"',
-					// PORT-FIXME out.headers?
-				],
+				], $this->headers ?? [] ),
 				'body' => $this->html,
 			],
 			'data-parsoid' => [

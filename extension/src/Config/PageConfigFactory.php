@@ -55,6 +55,7 @@ class PageConfigFactory {
 	 * @param string|null $wikitextOverride Wikitext to use instead of the
 	 *   contents of the specific $revision; used when $revision is null
 	 *   (a new page) or when we are parsing a stashed text.
+	 * @param string|null $pagelanguageOverride
 	 * @param array|null $parsoidSettings At present, only used in debugging.
 	 * @return PageConfig
 	 */
@@ -63,6 +64,7 @@ class PageConfigFactory {
 		UserIdentity $user = null,
 		int $revisionId = null,
 		string $wikitextOverride = null,
+		string $pagelanguageOverride = null,
 		array $parsoidSettings = null
 	): PageConfig {
 		$title = Title::newFromLinkTarget( $title );
@@ -71,6 +73,9 @@ class PageConfigFactory {
 			return ApiPageConfig::fromSettings( $parsoidSettings, [
 				"title" => $title->getPrefixedText(),
 				"pageContent" => $wikitextOverride,
+				"pageLanguage" => $pagelanguageOverride,
+				"revid" => $revisionId,
+				"loadData" => true,
 			] );
 		}
 
@@ -106,7 +111,8 @@ class PageConfigFactory {
 			$parserOptions,
 			$slotRoleHandler,
 			$title,
-			$revisionRecord
+			$revisionRecord,
+			$pagelanguageOverride
 		);
 	}
 

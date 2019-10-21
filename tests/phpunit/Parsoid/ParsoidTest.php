@@ -139,7 +139,9 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideHtml2Html
 	 */
 	public function testHtml2Html( $update, $input, $expected, $parserOpts = [] ) {
-		$opts = [];
+		$opts = [
+			'pageLanguage' => $parserOpts['variant']['source'] ?? null,
+		];
 
 		$siteConfig = new MockSiteConfig( $opts );
 		$dataAccess = new MockDataAccess( $opts );
@@ -160,6 +162,30 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				'<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist" class="new">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected" class="mw-redirect">Redirected</a></p>',
 				[
 					'body_only' => true,
+				]
+			],
+			[
+				'variant',
+				'<p>абвг abcd x</p>',
+				'<p>абвг abcd x</p>',
+				[
+					'body_only' => true,
+					'variant' => [
+						'source' => null,
+						'target' => 'sr-el',
+					]
+				]
+			],
+			[
+				'variant',
+				'<p>абвг abcd x</p>',
+				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd x"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
+				[
+					'body_only' => true,
+					'variant' => [
+						'source' => 'sr',
+						'target' => 'sr-el',
+					]
 				]
 			]
 		];

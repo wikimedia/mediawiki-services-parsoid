@@ -22,6 +22,9 @@ class PageConfig extends IPageConfig {
 	/** @var string */
 	private $title;
 
+	/** @var string|null */
+	private $revid;
+
 	/** @phan-var array<string,mixed>|null */
 	private $page;
 
@@ -30,6 +33,12 @@ class PageConfig extends IPageConfig {
 
 	/** @var PageContent|null */
 	private $content;
+
+	/** @var string|null */
+	private $pagelanguage;
+
+	/** @var string|null */
+	private $pagelanguageDir;
 
 	/**
 	 * @param ApiHelper|null $api (only needed if $opts doesn't provide page info)
@@ -42,15 +51,25 @@ class PageConfig extends IPageConfig {
 			throw new \InvalidArgumentException( '$opts[\'title\'] must be set' );
 		}
 		$this->title = $opts['title'];
+		$this->revid = $opts['revid'] ?? null;
+		$this->pagelanguage = $opts['pageLanguage'] ?? null;
+		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 
 		// This option is primarily used to mock the page content.
-		if ( isset( $opts['pageContent'] ) ) {
+		if ( isset( $opts['pageContent'] ) && empty( $opts['loadData'] ) ) {
 			$this->mockPageContent( $opts );
 		} else {
 			Assert::invariant( $api !== null, 'Cannot load page info without an API' );
 			# Lazily load later
 			$this->page = null;
 			$this->rev = null;
+
+			if ( isset( $opts['pageContent'] ) ) {
+				$this->loadData();
+				$this->rev = [
+					'slots' => [ 'main' => $opts['pageContent'] ],
+				];
+			}
 		}
 	}
 
@@ -72,14 +91,21 @@ class PageConfig extends IPageConfig {
 			return;
 		}
 
-		$this->page = $this->api->makeRequest( [
+		$params = [
 			'action' => 'query',
-			'titles' => $this->title,
 			'prop' => 'info|revisions',
 			'rvprop' => 'ids|timestamp|user|userid|sha1|size|content',
 			'rvslots' => '*',
 			'rvlimit' => 1,
-		] )['query']['pages'][0];
+		];
+
+		if ( isset( $this->revid ) ) {
+			$params['revids'] = $this->revid;
+		} else {
+			$params['titles'] = $this->title;
+		}
+
+		$this->page = $this->api->makeRequest( $params )['query']['pages'][0];
 
 		$this->rev = $this->page['revisions'][0] ?? [];
 		unset( $this->page['revisions'] );
@@ -129,13 +155,13 @@ class PageConfig extends IPageConfig {
 	/** @inheritDoc */
 	public function getPageLanguage(): string {
 		$this->loadData();
-		return $this->page['pagelanguage'];
+		return $this->pagelanguage ?? $this->page['pagelanguage'];
 	}
 
 	/** @inheritDoc */
 	public function getPageLanguageDir(): string {
 		$this->loadData();
-		return $this->page['pagelanguagedir'];
+		return $this->pagelanguageDir ?? $this->page['pagelanguagedir'];
 	}
 
 	/** @inheritDoc */

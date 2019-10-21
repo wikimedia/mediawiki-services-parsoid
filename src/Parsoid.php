@@ -9,9 +9,11 @@ use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\SiteConfig;
+use Parsoid\Language\LanguageConverter;
 use Parsoid\Logger\LintLogger;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 
 class Parsoid {
@@ -47,7 +49,9 @@ class Parsoid {
 		if ( isset( $options['debugFlags'] ) ) {
 			$envOptions['debugFlags'] = $options['debugFlags'];
 		}
-
+		if ( !empty( $options['htmlVariantLanguage'] ) ) {
+			$envOptions['htmlVariantLanguage'] = $options['htmlVariantLanguage'];
+		}
 		return $envOptions;
 	}
 
@@ -87,22 +91,24 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $options [
-	 *   'wrapSections'       => (bool) Whether `<section>` wrappers should be added.
-	 *   'pageBundle'         => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
-	 *   'body_only'          => (bool|null) Only return the <body> children (T181657)
-	 *   'outputVersion'      => (string|null) Version of HTML to output.
-	 *                                         `null` returns the default version.
-	 *   'discardDataParsoid' => (bool) Drop all data-parsoid annotations.
-	 *   'offsetType'         => (string) ucs2, char, byte are valid values
-	 *                           what kind of source offsets should be emitted?
-	 *   'traceFlags'         => (array) associative array with tracing options
-	 *   'dumpFlags'          => (array) associative array with dump options
-	 *   'debugFlags'         => (array) associative array with debug options
+	 *   'wrapSections'        => (bool) Whether `<section>` wrappers should be added.
+	 *   'pageBundle'          => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
+	 *   'body_only'           => (bool|null) Only return the <body> children (T181657)
+	 *   'outputVersion'       => (string|null) Version of HTML to output.
+	 *                                          `null` returns the default version.
+	 *   'discardDataParsoid'  => (bool) Drop all data-parsoid annotations.
+	 *   'offsetType'          => (string) ucs2, char, byte are valid values
+	 *                                     what kind of source offsets should be emitted?
+	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'traceFlags'          => (array) associative array with tracing options
+	 *   'dumpFlags'           => (array) associative array with dump options
+	 *   'debugFlags'          => (array) associative array with debug options
 	 * ]
+	 * @param array|null &$headers
 	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
-		PageConfig $pageConfig, array $options = []
+		PageConfig $pageConfig, array $options = [], array &$headers = null
 	) {
 		[ $env, $doc ] = $this->parseWikitext( $pageConfig, $options );
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
@@ -112,6 +118,7 @@ class Parsoid {
 		if ( $env->getSiteConfig()->linting() ) {
 			( new LintLogger( $env ) )->logLintOutput();
 		}
+		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 		if ( $env->pageBundle ) {
@@ -122,7 +129,8 @@ class Parsoid {
 				$out['html'],
 				get_object_vars( $out['pb']->parsoid ),
 				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
-				$env->getOutputContentVersion()
+				$env->getOutputContentVersion(),
+				$headers
 			);
 		} else {
 			return ContentUtils::toXML( $node, [
@@ -152,15 +160,16 @@ class Parsoid {
 	 * @param string $html Data attributes are expected to have been applied
 	 *   already.  Loading them will happen once the environment is created.
 	 * @param array $options [
-	 *   'scrubWikitext' => (bool) Indicates emit "clean" wikitext.
+	 *   'scrubWikitext'       => (bool) Indicates emit "clean" wikitext.
 	 *   'inputContentVersion' => (string) The content version of the input.
 	 *     Necessary if it differs from the current default in order to
 	 *     account for any serialization differences.
-	 *   'offsetType'         => (string) ucs2, char, byte are valid values
-	 *                           what kind of source offsets are present in the HTML?
-	 *   'traceFlags'         => (array) associative array with tracing options
-	 *   'dumpFlags'          => (array) associative array with dump options
-	 *   'debugFlags'         => (array) associative array with debug options
+	 *   'offsetType'          => (string) ucs2, char, byte are valid values
+	 *                                     what kind of source offsets are present in the HTML?
+	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'traceFlags'          => (array) associative array with tracing options
+	 *   'dumpFlags'           => (array) associative array with dump options
+	 *   'debugFlags'          => (array) associative array with debug options
 	 * ]
 	 * @param SelserData|null $selserData
 	 * @return string
@@ -197,11 +206,12 @@ class Parsoid {
 	 * @param string $update 'redlinks'|'variant'
 	 * @param string $html
 	 * @param array|null $options
+	 * @param array|null &$headers
 	 * @return string
 	 */
 	public function html2html(
 		PageConfig $pageConfig, string $update, string $html,
-		array $options = []
+		array $options = [], array &$headers = null
 	): string {
 		$envOptions = [];
 		$env = new Env(
@@ -210,9 +220,41 @@ class Parsoid {
 		$doc = $env->createDocument( $html );
 		if ( $update === 'redlinks' ) {
 			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
+		} elseif ( $update === 'variant' ) {
+			// Note that `maybeConvert` could still be a no-op, in case the
+			// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
+			// is a base language code or otherwise invalid.
+			LanguageConverter::maybeConvert(
+				$env, $doc, $options['variant']['target'],
+				// FIXME: Setting this is untested in JS and broken!
+				null  // $options['variant']['source']
+			);
+			// Ensure there's a <head>
+			if ( !DOMCompat::getHead( $doc ) ) {
+				$doc->documentElement->insertBefore(
+					$doc->createElement( 'head' ), DOMCompat::getBody( $doc )
+				);
+			}
+			// Update content-language and vary headers.
+			$ensureHeader = function ( string $h ) use ( $doc ) {
+				$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
+				if ( !$el ) {
+					$el = $doc->createElement( 'meta' );
+					$el->setAttribute( 'http-equiv', $h );
+					( DOMCompat::getHead( $doc ) )->appendChild( $el );
+				}
+				return $el;
+			};
+			( $ensureHeader( 'content-language' ) )->setAttribute(
+				'content', $env->htmlContentLanguage()
+			);
+			( $ensureHeader( 'vary' ) )->setAttribute(
+				'content', $env->htmlVary()
+			);
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
+		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
