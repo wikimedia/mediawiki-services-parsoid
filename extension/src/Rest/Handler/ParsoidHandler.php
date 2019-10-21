@@ -7,7 +7,7 @@ use Composer\Semver\Semver;
 use Config;
 use ConfigException;
 use ExtensionRegistry;
-use IBufferingStatsdDataFactory;
+use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use LogicException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Response;
@@ -31,6 +31,7 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\Timing;
 use Parsoid\Wt2Html\PegTokenizer;
 use RequestContext;
 use Title;
@@ -42,7 +43,7 @@ use Wikimedia\ParamValidator\ValidationException;
  * Base class for Parsoid handlers.
  */
 abstract class ParsoidHandler extends Handler {
-	// TODO logging, metrics, timeouts(?), CORS
+	// TODO logging, timeouts(?), CORS
 	// TODO content negotiation (routes.js routes.acceptable)
 	// TODO handle MaxConcurrentCallsError (pool counter?)
 
@@ -64,8 +65,8 @@ abstract class ParsoidHandler extends Handler {
 	/** @var ExtensionRegistry */
 	protected $extensionRegistry;
 
-	/** @var IBufferingStatsdDataFactory */
-	protected $statsdDataFactory;
+	/** @var StatsdDataFactoryInterface A statistics aggregator */
+	protected $metrics;
 
 	/** @var array */
 	private $requestAttributes;
@@ -80,9 +81,7 @@ abstract class ParsoidHandler extends Handler {
 			$services->getMainConfig(),
 			$parsoidServices->getParsoidSiteConfig(),
 			$parsoidServices->getParsoidPageConfigFactory(),
-			$parsoidServices->getParsoidDataAccess(),
-			// FIXME this will prefix stats with 'MediaWiki.' which is probably unwanted
-			$services->getStatsdDataFactory()
+			$parsoidServices->getParsoidDataAccess()
 		);
 	}
 
@@ -91,14 +90,12 @@ abstract class ParsoidHandler extends Handler {
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfigFactory $pageConfigFactory
 	 * @param DataAccess $dataAccess
-	 * @param IBufferingStatsdDataFactory $statsdDataFactory
 	 */
 	public function __construct(
 		Config $config,
 		SiteConfig $siteConfig,
 		PageConfigFactory $pageConfigFactory,
-		DataAccess $dataAccess,
-		IBufferingStatsdDataFactory $statsdDataFactory
+		DataAccess $dataAccess
 	) {
 		$this->config = $config;
 		try {
@@ -111,7 +108,7 @@ abstract class ParsoidHandler extends Handler {
 		$this->pageConfigFactory = $pageConfigFactory;
 		$this->dataAccess = $dataAccess;
 		$this->extensionRegistry = ExtensionRegistry::getInstance();
-		$this->statsdDataFactory = $statsdDataFactory;
+		$this->metrics = $siteConfig->metrics();
 	}
 
 	/**
@@ -463,7 +460,7 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$env->log( 'info', 'redirecting to revision', $revid, 'for', $format );
-		$this->statsdDataFactory->increment( 'redirectToOldid.' . $format );
+		$this->metrics->increment( 'redirectToOldid.' . $format );
 
 		if ( $this->getRequest()->getMethod() === 'POST' ) {
 			$from = $this->getRequest()->getPathParam( 'from' );
@@ -494,13 +491,12 @@ abstract class ParsoidHandler extends Handler {
 
 		// Performance Timing options
 		// init refers to time elapsed before parsing begins
-		$startTimers = [
-			'wt2html.init' => time(),
-			'wt2html.total' => time(),
-		];
+		$metrics = $this->metrics;
+		$timing = Timing::start( $metrics );
+
 		if ( Semver::satisfies( $env->getOutputContentVersion(),
 			'!=' . ENV::AVAILABLE_VERSIONS[0] ) ) {
-			$this->statsdDataFactory->increment( 'wt2html.parse.version.notdefault' );
+			$metrics->increment( 'wt2html.parse.version.notdefault' );
 		}
 
 		if ( $wikitext === null && !$oldid ) {
@@ -562,8 +558,8 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
-		$this->statsdDataFactory->timing( "wt2html.$mstr.init", time() - $startTimers['wt2html.init'] );
-		$startTimers["wt2html.$mstr.parse"] = time();
+		$timing->end( "wt2html.$mstr.init" );
+		$parseTiming = Timing::start( $metrics );
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
@@ -604,10 +600,9 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		$this->statsdDataFactory->timing( "wt2html.$mstr.parse",
-			time() - $startTimers["wt2html.$mstr.parse"] );
-		$this->statsdDataFactory->timing( "wt2html.$mstr.size.output", $response->getBody()->getSize() );
-		$this->statsdDataFactory->timing( 'wt2html.total', time() - $startTimers['wt2html.total'] );
+		$parseTiming->end( "wt2html.$mstr.parse" );
+		$metrics->timing( "wt2html.$mstr.size.output", $response->getBody()->getSize() );
+		$timing->end( 'wt2html.total' );
 
 		if ( $wikitext !== null ) {
 			// Don't cache requests when wt is set in case somebody uses
@@ -642,13 +637,10 @@ abstract class ParsoidHandler extends Handler {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
 		$envOptions = $attribs['envOptions'];
+		$metrics = $this->metrics;
 
 		// Performance Timing options
-		$startTimers = [
-			'html2wt.init' => time(),
-			'html2wt.total' => time(),
-			'html2wt.init.domparse' => time(),
-		];
+		$timing = Timing::start( $metrics );
 
 		$doc = DOMUtils::parseHTML( $html );
 
@@ -656,10 +648,9 @@ abstract class ParsoidHandler extends Handler {
 		// init time is the time elapsed before serialization
 		// init.domParse, a component of init time, is the time elapsed
 		// from html string to DOM tree
-		$this->statsdDataFactory->timing( 'html2wt.init.domparse',
-			time() - $startTimers['html2wt.init.domparse'] );
-		$this->statsdDataFactory->timing( 'html2wt.size.input', strlen( $html ) );
-		$this->statsdDataFactory->timing( 'html2wt.init', time() - $startTimers['html2wt.init'] );
+		$timing->end( 'html2wt.init.domparse' );
+		$metrics->timing( 'html2wt.size.input', strlen( $html ) );
+		$timing->end( 'html2wt.init' );
 
 		$original = $opts['original'] ?? null;
 		$oldBody = null;
@@ -694,7 +685,7 @@ abstract class ParsoidHandler extends Handler {
 				$downgrade = FormatHelper::findDowngrade( $vOriginal, $vEdited );
 				// Downgrades are only for pagebundle
 				if ( $downgrade && $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
-					$this->statsdDataFactory->increment(
+					$metrics->increment(
 						"downgrade.from.{$downgrade['from']}.to.{$downgrade['to']}" );
 					$oldDoc = $env->createDocument( $original['html']['body'] );
 					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
@@ -703,9 +694,9 @@ abstract class ParsoidHandler extends Handler {
 						return $this->getResponseFactory()->createHttpError( 400,
 							[ 'message' => $errorMessage ] );
 					}
-					$downgradeStart = microtime( true );
+					$downgradeTiming = Timing::start( $metrics );
 					FormatHelper::downgrade( $downgrade['from'], $downgrade['to'], $oldDoc, $origPb );
-					$this->statsdDataFactory->timing( 'downgrade.time', microtime( true ) - $downgradeStart );
+					$downgradeTiming->end( 'downgrade.time' );
 					$oldBody = DOMCompat::getBody( $oldDoc );
 				} else {
 					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
@@ -716,10 +707,11 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		$this->statsdDataFactory->increment( 'html2wt.original.version.'
-			. $env->getInputContentVersion() );
+		$metrics->increment(
+			'html2wt.original.version.' . $env->getInputContentVersion()
+		);
 		if ( !$vEdited ) {
-			$this->statsdDataFactory->increment( 'html2wt.original.version.notinline' );
+			$metrics->increment( 'html2wt.original.version.notinline' );
 		}
 
 		// Pass along the determined original version
@@ -839,8 +831,8 @@ abstract class ParsoidHandler extends Handler {
 			] );
 		}
 
-		$this->statsdDataFactory->timing( 'html2wt.total', time() - $startTimers['html2wt.total'] );
-		$this->statsdDataFactory->timing( 'html2wt.size.output', strlen( $wikitext ) );
+		$timing->end( 'html2wt.total' );
+		$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
 
 		$response = $this->getResponseFactory()->create();
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );
@@ -877,8 +869,9 @@ abstract class ParsoidHandler extends Handler {
 		}
 		$env->setInputContentVersion( $vOriginal );
 
-		$this->statsdDataFactory->increment( 'pb2pb.original.version.'
-			. $env->getInputContentVersion() );
+		$this->metrics->increment(
+			'pb2pb.original.version.' . $env->getInputContentVersion()
+		);
 
 		if ( !empty( $opts['updates'] ) ) {
 			// If we're only updating parts of the original version, it should

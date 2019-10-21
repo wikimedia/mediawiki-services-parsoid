@@ -209,8 +209,6 @@ abstract class SiteConfig {
 	/**
 	 * Statistics aggregator, for counting and timing.
 	 *
-	 * @todo Do we want to continue to have a wrapper that adds an endTiming()
-	 *  method instead of using StatsdDataFactoryInterface directly?
 	 * @return StatsdDataFactoryInterface|null
 	 */
 	public function metrics(): ?StatsdDataFactoryInterface {

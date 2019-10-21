@@ -13,6 +13,7 @@ namespace Parsoid\Html2Wt;
 use Parsoid\SelserData;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\Timing;
 use Wikimedia\Assert\Assert;
 use \DOMElement;
 
@@ -62,12 +63,9 @@ class SelectiveSerializer {
 
 		$serializeStart = null;
 		$domDiffStart = null;
-		$metrics = $this->metrics;
 		$r = null;
 
-		if ( $metrics ) {
-			$serializeStart = time();
-		}
+		$timing = Timing::start( $this->metrics );
 
 		if (
 			( !$this->env->getOrigDOM() && !$this->env->getDOMDiff() ) ||
@@ -75,9 +73,7 @@ class SelectiveSerializer {
 		) {
 			// If there's no old source, fall back to non-selective serialization.
 			$r = $this->wts->serializeDOM( $body, false );
-			if ( $metrics ) {
-				$metrics->endTiming( 'html2wt.full.serialize', $serializeStart );
-			}
+			$timing->end( 'html2wt.full.serialize' );
 		} else {
 			// Use provided diff-marked DOM (used during testing)
 			// or generate one (used in production)
@@ -85,9 +81,7 @@ class SelectiveSerializer {
 				$diff = $this->env->getDOMDiff();
 				$body = $diff->dom;
 			} else {
-				if ( $metrics ) {
-					$domDiffStart = time();
-				}
+				$domDiffTiming = Timing::start( $this->metrics );
 
 				// Strip <section> and mw:FallbackId <span> tags, if present.
 				// This ensures that we can accept HTML from CX / VE
@@ -97,9 +91,7 @@ class SelectiveSerializer {
 
 				$diff = ( new DOMDiff( $this->env ) )->diff( $this->env->getOrigDOM(), $body );
 
-				if ( $metrics ) {
-					$metrics->endTiming( 'html2wt.selser.domDiff', $domDiffStart );
-				}
+				$domDiffTiming->end( 'html2wt.selser.domDiff' );
 			}
 
 			if ( $diff[ 'isEmpty' ] ) {
@@ -116,9 +108,7 @@ class SelectiveSerializer {
 				// Call the WikitextSerializer to do our bidding
 				$r = $this->wts->serializeDOM( $body, true );
 			}
-			if ( $metrics ) {
-				$metrics->endTiming( 'html2wt.selser.serialize', $serializeStart );
-			}
+			$timing->end( 'html2wt.selser.serialize' );
 		}
 		return $r;
 	}

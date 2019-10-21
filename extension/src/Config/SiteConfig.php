@@ -161,11 +161,15 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function metrics(): ?StatsdDataFactoryInterface {
-		// PORT-FIXME: Don't return this until the TODO in
-		// ISiteConfig::metrics() is resolved, otherwise calls to `endTiming`
-		// will throw.
-		// return MediaWikiServices::getInstance()->getStatsdDataFactory();
-		return null;
+		static $prefixedMetrics = null;
+		if ( $prefixedMetrics === null ) {
+			$prefixedMetrics = new \PrefixingStatsdDataFactoryProxy(
+				// Our stats will also get prefixed with 'MediaWiki.'
+				MediaWikiServices::getInstance()->getStatsdDataFactory(),
+				'Parsoid.'
+			);
+		}
+		return $prefixedMetrics;
 	}
 
 	public function galleryOptions(): array {

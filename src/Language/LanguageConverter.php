@@ -25,6 +25,7 @@ use DOMDocument;
 use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\Timing;
 use Wikimedia\LangConv\ReplacementMachine;
 
 /**
@@ -233,9 +234,8 @@ class LanguageConverter {
 		}
 
 		$metrics = $env->getSiteConfig()->metrics();
-		$startTime = null;
+		$timing = Timing::start( $metrics );
 		if ( $metrics ) {
-			$startTime = time();
 			$metrics->increment( 'langconv.count' );
 			$metrics->increment( "langconv.{$targetVariant}.count" );
 		}
@@ -253,9 +253,7 @@ class LanguageConverter {
 		$ct = new ConversionTraverser( $targetVariant, $guesser, $langconv->getMachine() );
 		$ct->traverse( $rootNode, $env, [], true );
 
-		if ( $metrics ) {
-			$metrics->timing( 'langconv.total', time() - $startTime );
-			$metrics->timing( "langconv.{$targetVariant}.total", time() - $startTime );
-		}
+		$timing->end( 'langconv.total' );
+		$timing->end( "langconv.{$targetVariant}.total" );
 	}
 }
