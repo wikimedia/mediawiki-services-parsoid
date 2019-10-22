@@ -92,7 +92,6 @@ class Parsoid {
 	 *   'body_only'          => (bool|null) Only return the <body> children (T181657)
 	 *   'outputVersion'      => (string|null) Version of HTML to output.
 	 *                                         `null` returns the default version.
-	 *   'inlineDataAttribs'  => (bool) Setting to `true` avoids extracting data attributes.
 	 *   'discardDataParsoid' => (bool) Drop all data-parsoid annotations.
 	 *   'offsetType'         => (string) ucs2, char, byte are valid values
 	 *                           what kind of source offsets should be emitted?
