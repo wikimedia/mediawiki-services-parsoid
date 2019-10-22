@@ -27554,6 +27554,24 @@ Nominated–[[1923]]
 <p><a rel="mw:WikiLink" href="./1923" title="1923" data-parsoid='{"stx":"simple","a":{"href":"./1923"},"sa":{"href":"1923"},"prefix":"Nominated–"}'>Nominated–1923</a></p>
 !! end
 
+# This example actually from lnwiki, but arwiki has the same link
+# prefix and equivalent link trail for this purpose.
+!! test
+Links 17. Link trails (T236183)
+!! options
+language=ar
+!! wikitext
+[[Likalo]]&nbsp;·
+[[Pusupúsu]]&nbsp;·
+!! html/php+tidy
+<p><a href="/index.php?title=Likalo&amp;action=edit&amp;redlink=1" class="new" title="Likalo (الصفحة غير موجودة)">Likalo</a>&#160;·
+<a href="/index.php?title=Pusup%C3%BAsu&amp;action=edit&amp;redlink=1" class="new" title="Pusupúsu (الصفحة غير موجودة)">Pusupúsu</a>&#160;·
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Likalo" title="Likalo" data-parsoid='{"stx":"simple","a":{"href":"./Likalo"},"sa":{"href":"Likalo"}}'>Likalo</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·
+<a rel="mw:WikiLink" href="./Pusupúsu" title="Pusupúsu" data-parsoid='{"stx":"simple","a":{"href":"./Pusupúsu"},"sa":{"href":"Pusupúsu"}}'>Pusupúsu</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·</p>
+!! end
+
 #### --------------- Quotes ---------------
 #### 1. Quotes inside <b> and <i>
 #### 2. Link fragments separated by <i> and <b> tags

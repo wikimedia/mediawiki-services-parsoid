@@ -514,7 +514,7 @@ class SiteConfig extends ISiteConfig {
 		$this->loadSiteData();
 
 		if ( !empty( $this->siteData['linkprefixcharset'] ) ) {
-			return '/[' . $this->siteData['linkprefixcharset'] . ']+$/u';
+			return '/[' . $this->siteData['linkprefixcharset'] . ']+$/Du';
 		} else {
 			// We don't care about super-old MediaWiki, so don't try to parse 'linkprefix'.
 			return null;

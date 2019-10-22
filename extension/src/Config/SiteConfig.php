@@ -398,7 +398,7 @@ class SiteConfig extends ISiteConfig {
 		if ( !$this->contLang->linkPrefixExtension() ) {
 			return null;
 		}
-		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/u';
+		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/Du';
 	}
 
 	public function linkTrailRegex(): ?string {
