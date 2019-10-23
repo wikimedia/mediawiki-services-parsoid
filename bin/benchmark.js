@@ -41,6 +41,7 @@ let config = {
 	// All other properties are ignored.
 	// If this property is null, sampleTitles above is used
 	testTitles: null, // '/tmp/logs',
+	mode: 'wt2html',
 	jsServer: {
 		baseURI: 'http://localhost:8142',
 		proxy: '',
@@ -49,7 +50,7 @@ let config = {
 		baseURI: 'http://DOMAIN/w/rest.php',
 		proxy: '', // 'http://scandium.eqiad.wmnet:80',
 	},
-	maxOutstanding: 8,
+	maxOutstanding: 4,
 	maxRequests: 25,
 	verbose: true
 };
@@ -61,10 +62,33 @@ const state = {
 };
 
 function genFullUrls(config, domain, title, revid) {
-	const restFragment = `${domain}/v3/page/html/${encodeURIComponent(title)}/${revid}`;
+	let initRestFragment, restFragment;
+
+	switch (config.mode || 'wt2html') {
+		case 'wt2html':
+			restFragment = `${domain}/v3/page/html/${encodeURIComponent(title)}/${revid}`;
+			break;
+		case 'wt2pb':
+			restFragment = `${domain}/v3/page/pagebundle/${encodeURIComponent(title)}/${revid}`;
+			break;
+		case 'html2wt':
+			initRestFragment = `${domain}/v3/page/html/${encodeURIComponent(title)}/${revid}`;
+			restFragment = `${domain}/v3/transform/html/to/wikitext/${encodeURIComponent(title)}/${revid}`;
+			break;
+		case 'pb2wt':
+			initRestFragment = `${domain}/v3/page/pagebundle/${encodeURIComponent(title)}/${revid}`;
+			restFragment = `${domain}/v3/transform/pagebundle/to/wikitext/${encodeURIComponent(title)}/${revid}`;
+			break;
+		default:
+			console.log("Mode " + config.mode + " is not supported right now.");
+			process.exit(-1);
+	}
 	return {
 		js : `${config.jsServer.baseURI}/${restFragment}`,
 		php: `${config.phpServer.baseURI.replace(/DOMAIN/, domain)}/${restFragment}`,
+		init: initRestFragment ? `${config.phpServer.baseURI.replace(/DOMAIN/, domain)}/${initRestFragment}` : null,
+		jsTime: null,
+		phpTime: null,
 	};
 }
 
@@ -75,6 +99,10 @@ function prefixToDomain(prefix) {
 
 	if (prefix === 'metawiki') {
 		return 'meta.wikimedia.org';
+	}
+
+	if (prefix === 'wikidatawiki') {
+		return 'wikidata.org';
 	}
 
 	if (prefix === 'mediawiki' || prefix === 'mediawikiwiki') {
@@ -92,14 +120,58 @@ function prefixToDomain(prefix) {
 	return project ? `${prefix.substr(0, prefix.length - project.length)}.${project}.org` : null;
 }
 
-function issueRequest(type, config, proxy, url, finalizer) {
+function contentFileName(url) {
+	// Hacky
+	const suffix = /.*v3\/(page|transform)\/pagebundle/.test(url) ? 'pb.json' : 'html';
+	const wiki = url.replace(/\/v3\/.*/, '').replace(/.*\//, '');
+	return '/tmp/' + wiki + "." + url.replace(/.*\//, '') + ".php." + suffix;
+}
+
+function fetchPageContent(url) {
+	const fileName = contentFileName(url);
+	return fs.existsSync(fileName) ? fs.readFileSync(fileName, 'utf8') : null;
+}
+
+function issueRequest(opts, url, finalizer) {
+	const config = opts.config;
+	const fromWT = opts.mode === 'wt2html' || opts.mode === 'wt2pb';
 	const httpOptions = {
-		method: 'GET',
+		method: fromWT ? 'GET' : 'POST',
 		headers: { 'User-Agent': 'Parsoid-Test' },
-		proxy: proxy,
-		// uri: 'http://localhost/wiki/rest.php/localhost/v3/page/html/User:Subbu/3074' // dummy for testing script
-		uri: url
+		proxy: opts.proxy,
+		uri: fromWT ? url : url.replace(/\/\d+$/, ''), // strip oldid to suppress selser
 	};
+
+	if (!fromWT) {
+		httpOptions.headers['Content-Type'] = 'application/json';
+		const content = fetchPageContent(url);
+		if (!content) {
+			console.log("Aborting request! Content not found @ " + contentFileName(url));
+			// Abort
+			state.numPendingRequests--;
+			if (state.numPendingRequests === 0 && state.outStanding === 0) {
+				console.log('resolving after abort');
+				finalizer();
+			}
+			return;
+		}
+
+		if (opts.mode === 'pb2wt') {
+			const pb = JSON.parse(content);
+			httpOptions.body = {
+				html: pb.html.body,
+				original : {
+					'data-parsoid': pb['data-parsoid']
+					// non-selser mode, so don't need wikitext
+				},
+			};
+		} else  {
+			httpOptions.body = {
+				'html': content
+			};
+		}
+		httpOptions.body = JSON.stringify(httpOptions.body);
+	}
 
 	const reqId = state.numPendingRequests;
 	if (config.verbose) {
@@ -110,27 +182,41 @@ function issueRequest(type, config, proxy, url, finalizer) {
 	const startTime = process.hrtime();
 	return request(httpOptions)
 	.catch(function(error) { console.log("errrorr!" + error); })
-	.then(function() {
+	.then(function(ret) {
 		state.outStanding--;
-		const endTime = process.hrtime();
-		const reqTime = Math.round((endTime[0] * 1e9 + endTime[1]) / 1e6 - (startTime[0] * 1e9 + startTime[1]) / 1e6);
-		if (config.verbose) {
-			console.log(`<-- ID=${reqId}; URL:${url}; TIME=${reqTime}`);
+		if (opts.type === 'init') {
+			fs.writeFileSync(contentFileName(url), ret[1]);
+			if (state.numPendingRequests === 0 && state.outStanding === 0) {
+				finalizer();
+			}
+		} else {
+			const endTime = process.hrtime();
+			const reqTime = Math.round((endTime[0] * 1e9 + endTime[1]) / 1e6 - (startTime[0] * 1e9 + startTime[1]) / 1e6);
+			if (config.verbose) {
+				console.log(`<-- ID=${reqId}; URL:${url}; TIME=${reqTime}; STATUS: ${ret[0].statusCode}; LEN: ${ret[1].length}`);
+			}
+			if (!opts.results[reqId]) {
+				opts.results[reqId] = {
+					url: url,
+				};
+			}
+			opts.results[reqId][opts.type + 'Time'] = reqTime;
+			state.times.push(reqTime);
+			if (state.numPendingRequests === 0 && state.outStanding === 0) {
+				const res = state.times.reduce((stats, n) => {
+					stats.sum += n;
+					stats.min = n < stats.min ? n : stats.min;
+					stats.max = n > stats.max ? n : stats.max;
+					return stats;
+				}, { sum: 0, min: 1000000, max: 0 });
+				res.avg = res.sum / state.times.length;
+				res.median = state.times.sort((a, b) => a - b)[Math.floor(state.times.length / 2)];
+				console.log(`\n${opts.type.toUpperCase()} STATS: ${JSON.stringify(res)}`);
+				finalizer();
+			}
 		}
-		state.times.push(reqTime);
-		if (state.numPendingRequests === 0 && state.outStanding === 0) {
-			const res = state.times.reduce((stats, n) => {
-				stats.sum += n;
-				stats.min = n < stats.min ? n : stats.min;
-				stats.max = n > stats.max ? n : stats.max;
-				return stats;
-			}, { sum: 0, min: 1000000, max: 0 });
-			res.avg = res.sum / state.times.length;
-			res.median = state.times.sort((a, b) => a - b)[Math.floor(state.times.length / 2)];
-			console.log(`${type.toUpperCase()} STATS: ${JSON.stringify(res)}`);
-			finalizer();
-		}
-	});
+	})
+	.catch(function(error) { console.log("errrorr!" + error); });
 }
 
 function computeRandomRequestStream(testUrls, config) {
@@ -150,12 +236,27 @@ function reset(config) {
 	state.outStanding = 0; // # outstanding reqs
 }
 
-function runTests(config, reqStream, type, proxy, finalizer) {
+function runTests(opts, finalizer) {
 	if (state.numPendingRequests > 0) {
-		if (state.outStanding < config.maxOutstanding) {
-			issueRequest(type, config, proxy, reqStream[reqStream.length - state.numPendingRequests][type], finalizer);
+		if (state.outStanding < opts.config.maxOutstanding) {
+			const url = opts.reqs[opts.reqs.length - state.numPendingRequests][opts.type];
+			if (opts.type === 'js') {
+				opts.proxy = config.jsServer.proxy || '';
+			} else { // 'php' or 'init' For init, content is always fetched from Parsoid/PHP
+				opts.proxy = config.phpServer.proxy || '';
+			}
+			if (opts.type === 'init' && fs.existsSync(contentFileName(url))) {
+				// Content exists. Don't fetch.
+				state.numPendingRequests--;
+				if (state.numPendingRequests === 0 && state.outStanding === 0) {
+					finalizer();
+					return;
+				}
+			} else {
+				issueRequest(opts, url, finalizer);
+			}
 		}
-		setImmediate(() => runTests(config, reqStream, type, proxy, finalizer));
+		setImmediate(() => runTests(opts, finalizer));
 	}
 }
 
@@ -197,13 +298,55 @@ if (config.testTitles) {
 }
 
 const reqStream = computeRandomRequestStream(testUrls, config);
-console.log("--- JS tests ---");
-reset(config);
-runTests(config, reqStream, 'js', config.jsServer.proxy || '', function() {
-	console.log("--- PHP tests---");
-	reset(config);
-	runTests(config,reqStream, 'php', config.phpServer.proxy || '', function() {
-		console.log("--- All done---");
-		process.exit(0);
+const opts = {
+	config: config,
+	reqs: reqStream,
+	results: [],
+};
+
+let p;
+if (/2wt$/.test(config.mode)) {
+	// Fetch pb / html as necessary and save to disk
+	// so we can run and benchmark pb2wt or html2wt after
+	p = new Promise(function(resolve, reject) {
+		opts.type = 'init';
+		opts.mode = config.mode === 'pb2wt' ? 'wt2pb' : 'wt2html';
+		console.log("--- Initialization ---");
+		reset(config);
+		runTests(opts, function() {
+			console.log("--- Initialization done---");
+			resolve();
+		});
 	});
-});
+} else {
+	p = Promise.resolve();
+}
+
+p.then(function() {
+	reset(config);
+	opts.type = 'js';
+	opts.mode = config.mode;
+	console.log("\n\n--- JS tests ---");
+	runTests(opts, function() {
+		console.log("\n\n--- PHP tests---");
+		reset(config);
+		opts.type = 'php';
+		opts.mode = config.mode;
+		runTests(opts, function() {
+			console.log("\n--- All done---\n");
+			let numJSFaster = 0;
+			let numPHPFaster = 0;
+			opts.results.forEach(function(r) {
+				if (r.jsTime < r.phpTime) {
+					numJSFaster++;
+					console.log(`For ${r.url}, Parsoid/JS was faster than Parsoid/PHP (${r.jsTime} vs. ${r.phpTime})`);
+				} else {
+					numPHPFaster++;
+				}
+			});
+			console.log('\n# of reqs where Parsoid/JS was faster than Parsoid/PHP: ' + numJSFaster);
+			console.log('# of reqs where Parsoid/PHP was faster than Parsoid/JS: ' + numPHPFaster);
+			process.exit(0);
+		});
+	});
+}).done();
