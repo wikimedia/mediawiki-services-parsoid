@@ -14,6 +14,9 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 
+use Parsoid\Tests\MockMetrics;
+use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+
 /**
  * SiteConfig via MediaWiki's Action API
  *
@@ -739,6 +742,15 @@ class SiteConfig extends ISiteConfig {
 		}
 		$api = ApiHelper::fromSettings( $parsoidSettings );
 		return new SiteConfig( $api, $opts );
+	}
+
+	/** @inheritDoc */
+	public function metrics(): ?StatsdDataFactoryInterface {
+		static $metrics = null;
+		if ( $metrics === null ) {
+			$metrics = new MockMetrics();
+		}
+		return $metrics;
 	}
 
 }
