@@ -20,6 +20,7 @@ use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Title;
+use Parsoid\Utils\Util;
 
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
@@ -736,8 +737,7 @@ class DOMPostProcessor extends PipelineStage {
 		$body = DOMCompat::getBody( $document );
 		$bodyCL = DOMCompat::getClassList( $body );
 
-		// PORT-FIXME: Unported code: ( Indicate language & directionality on body )
-		// $body->setAttribute( 'lang', Util::bcp47n( $lang ) );
+		$body->setAttribute( 'lang', Util::bcp47n( $lang ) );
 		$bodyCL->add( 'mw-content-' . $dir );
 		$bodyCL->add( 'sitedir-' . $dir );
 		$bodyCL->add( $dir );

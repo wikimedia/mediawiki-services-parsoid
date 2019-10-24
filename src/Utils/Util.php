@@ -414,27 +414,23 @@ class Util {
 	 * @return string BCP47 language code.
 	 */
 	public static function bcp47n( $code ) {
-		throw new \BadMethodCallException( "Not yet ported" );
-		// PORT-FIXME
-		/*
-		var codeSegment = code.split('-');
-		var codeBCP = [];
-		codeSegment.forEach(function(seg, segNo) {
-			// When previous segment is x, it is a private segment and should be lc
-			if (segNo > 0 && /^x$/i.test(codeSegment[segNo - 1])) {
-				codeBCP[segNo] = seg.toLowerCase();
+		$codeSegment = explode( '-', $code );
+		$codeBCP = [];
+		foreach ( $codeSegment as $segNo => $seg ) {
+			// when previous segment is x, it is a private segment and should be lc
+			if ( $segNo > 0 && strtolower( $codeSegment[( $segNo - 1 )] ) == 'x' ) {
+				$codeBCP[$segNo] = strtolower( $seg );
 			// ISO 3166 country code
-			} else if (seg.length === 2 && segNo > 0) {
-				codeBCP[segNo] = seg.toUpperCase();
+			} elseif ( ( strlen( $seg ) == 2 ) && ( $segNo > 0 ) ) {
+				$codeBCP[$segNo] = strtoupper( $seg );
 			// ISO 15924 script code
-			} else if (seg.length === 4 && segNo > 0) {
-				codeBCP[segNo] = seg[0].toUpperCase() + seg.slice(1).toLowerCase();
+			} elseif ( ( strlen( $seg ) == 4 ) && ( $segNo > 0 ) ) {
+				$codeBCP[$segNo] = ucfirst( strtolower( $seg ) );
 			// Use lowercase for other cases
 			} else {
-				codeBCP[segNo] = seg.toLowerCase();
+				$codeBCP[$segNo] = strtolower( $seg );
 			}
-		});
-		return codeBCP.join('-');
-		*/
+		}
+		return implode( '-', $codeBCP );
 	}
 }
