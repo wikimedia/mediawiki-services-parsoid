@@ -165,7 +165,9 @@ class ContentUtils {
 			// mutually-recursive functions.
 			return $str;
 		};
-		$convertNode = function ( DOMNode $node ) use ( $dsrFunc, &$convertString ) {
+		$convertNode = function ( DOMNode $node ) use (
+			$env, $dsrFunc, &$convertString, &$convertNode
+		) {
 			if ( !( $node instanceof DOMElement ) ) {
 				return;
 			}
@@ -227,6 +229,18 @@ class ContentUtils {
 					$dmw->body->html = $convertString( $dmw->body->html );
 				}
 				DOMDataUtils::setDataMw( $node, $dmw );
+			}
+
+			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/|$)#D' ) ) {
+				$dp = DOMDataUtils::getDataParsoid( $node );
+				if ( $dp->html ?? null ) {
+					$nodes = $env->getFragment( $dp->html );
+					foreach ( $nodes as $n ) {
+						DOMDataUtils::visitAndLoadDataAttribs( $n );
+						DOMPostOrder::traverse( $n, $convertNode );
+						DOMDataUtils::visitAndStoreDataAttribs( $n );
+					}
+				}
 			}
 		};
 		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
