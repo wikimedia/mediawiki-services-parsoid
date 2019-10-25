@@ -269,7 +269,7 @@ class WTUtils {
 	 */
 	public static function isInlineMedia( DOMNode $node ): bool {
 		return DOMUtils::matchNameAndTypeOf(
-			$node, 'figure-inline', '/^mw:(Image|Video|Audio)$/'
+			$node, 'figure-inline', '#^mw:(Image|Video|Audio)($|/)#D'
 		) !== null;
 	}
 
