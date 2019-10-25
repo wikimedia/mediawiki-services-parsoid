@@ -21,7 +21,6 @@ describe('Linter Tests', function() {
 		loadWMF: true,
 		linting: true,
 		defaultWiki: 'enwiki',
-		phpConfigFile: process.env.PHP_CONFIG_FILE,
 	});
 	// Undo freezing so we can tweak it below
 	parsoidConfig.linter = Util.clone(parsoidConfig.linter);

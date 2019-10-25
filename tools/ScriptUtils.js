@@ -232,9 +232,6 @@ var ScriptUtils = {
 		if (cliOpts.useBatchAPI !== undefined) {
 			parsoidOptions.useBatchAPI = cliOpts.useBatchAPI;
 		}
-		if (cliOpts.phpConfigFile) {
-			parsoidOptions.phpConfigFile = cliOpts.phpConfigFile;
-		}
 
 		return parsoidOptions;
 	},
@@ -352,11 +349,6 @@ var ScriptUtils = {
 			'useBatchAPI': {
 				description: 'Turn on/off the API batching system',
 				'boolean': false,
-			},
-			'phpConfigFile': {
-				description: 'PHP config to splice into the JS pipelines',
-				'boolean': false,
-				'default': null,
 			},
 			// handled by `setColorFlags`
 			'color': {

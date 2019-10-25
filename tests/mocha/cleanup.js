@@ -22,7 +22,6 @@ describe('Cleanup DOM pass', function() {
 	var parsoidConfig = new ParsoidConfig(null, {
 		loadWMF: true,
 		defaultWiki: 'enwiki',
-		phpConfigFile: process.env.PHP_CONFIG_FILE,
 	});
 	var parse = function(src, options) {
 		return helpers.parse(parsoidConfig, src, options).then(function(ret) {

@@ -376,11 +376,6 @@ class ScriptUtils {
 				'description' => 'Turn on/off the API batching system',
 				'boolean' => false
 			],
-			'phpConfigFile' => [
-				'description' => 'PHP config to splice into the JS pipelines',
-				'boolean' => false,
-				'default' => null
-			],
 			// handled by `setColorFlags`
 			'color' => [
 				'description' => 'Enable color output Ex: --no-color',
