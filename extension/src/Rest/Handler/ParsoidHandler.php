@@ -553,7 +553,7 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['body_only'] = true;
 		}
 
-		if ( $wikitext !== null && $oldid ) {
+		if ( $wikitext === null && $oldid ) {
 			$reqOpts['pageWithOldid'] = true;
 		}
 
