@@ -90,6 +90,11 @@ class Poem extends ExtensionTag implements Extension {
 			]
 		);
 
+		$body = DOMCompat::getBody( $doc );
+		$node = $body->firstChild;
+		DOMUtils::assertElt( $node );
+		$node->setAttribute( 'class', 'poem' );
+
 		// We've shifted the content around quite a bit when we preprocessed
 		// it.  In the future if we wanted to enable selser inside the <poem>
 		// body we should create a proper offset map and then apply it to the
