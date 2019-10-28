@@ -41,6 +41,7 @@ function normalizeHTML(html, isPHP) {
 
 	// JS & PHP introduce differing # of significant digits after the decimal
 	// In any case, fractional pixels don't make sense, so simply strip those out.
+	// (T229594 -- Neither PHP nor JS should emit fractional dims here)
 	html = html.replace(/((?:width|height):\s*[0-9]*)(?:\.[0-9]*)?(px)?/gm, '$1$2');
 
 	// Normalize minor variations in dsr (T231570 is one source)
