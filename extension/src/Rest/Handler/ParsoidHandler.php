@@ -36,7 +36,7 @@ use Parsoid\Wt2Html\PegTokenizer;
 use RequestContext;
 use Title;
 use UIDGenerator;
-// use Wikimedia\Http\HttpAcceptParser;
+use Wikimedia\Http\HttpAcceptParser;
 use Wikimedia\ParamValidator\ValidationException;
 
 /**
@@ -211,63 +211,6 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * PORT-FIXME: This is being upstreamed to \Wikimedia\Http\HttpAcceptParser::parserAccept
-	 * but we duplicate it here to expedite the port.
-	 *
-	 * @param string $accept
-	 * @return array
-	 */
-	public function parseAccept( $accept ): array {
-		$accepts = explode( ',', $accept );  // FIXME: Allow commas in quotes
-		$ret = [];
-
-		foreach ( $accepts as $i => $a ) {
-			preg_match( '!^([^\s/;]+)/([^;\s]+)\s*(?:;(.*))?$!D', trim( $a ), $matches );
-			if ( !$matches ) {
-				continue;
-			}
-			$q = 1;
-			$params = [];
-			if ( isset( $matches[3] ) ) {
-				$kvps = explode( ';', $matches[3] );  // FIXME: Allow semi-colon in quotes
-				foreach ( $kvps as $kv ) {
-					[ $key, $val ] = explode( '=', trim( $kv ), 2 );
-					$key = strtolower( trim( $key ) );
-					$val = trim( $val );
-					if ( $key === 'q' ) {
-						$q = (float)$val;  // FIXME: Spec is stricter about this
-					} else {
-						if ( $val && $val[0] === '"' && $val[ strlen( $val ) - 1 ] === '"' ) {
-							$val = substr( $val, 1, strlen( $val ) - 2 );
-						}
-						$params[$key] = $val;
-					}
-				}
-			}
-			$ret[] = [
-				'type' => $matches[1],
-				'subtype' => $matches[2],
-				'q' => $q,
-				'i' => $i,
-				'params' => $params,
-			];
-		}
-
-		// Sort list. First by q values, then by order
-		usort( $ret, function ( $a, $b ) {
-			if ( $b['q'] > $a['q'] ) {
-				return 1;
-			} elseif ( $b['q'] === $a['q'] ) {
-				return $a['i'] - $b['i'];
-			} else {
-				return -1;
-			}
-		} );
-
-		return $ret;
-	}
-
-	/**
 	 * FIXME: Combine with FormatHelper::parseContentTypeHeader
 	 */
 	const NEW_SPEC = '#^https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/(\d+\.\d+\.\d+)$#D';
@@ -295,9 +238,8 @@ abstract class ParsoidHandler extends Handler {
 			return true;
 		}
 
-		// $parser = new HttpAcceptParser();
-		// $acceptableTypes = $parser->parseAccept( $acceptHeader[0] );  // FIXME: Multiple headers valid?
-		$acceptableTypes = $this->parseAccept( $acceptHeader[0] );  // FIXME: Multiple headers valid?
+		$parser = new HttpAcceptParser();
+		$acceptableTypes = $parser->parseAccept( $acceptHeader[0] );  // FIXME: Multiple headers valid?
 		if ( !$acceptableTypes ) {
 			return true;
 		}
