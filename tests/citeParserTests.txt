@@ -143,6 +143,36 @@ Templating<ref>Text<!--comment--></ref>
 !! end
 
 !! test
+<ref> in expanded attributes of tags (legitimate or otherwise)
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+|- <ref>boo</ref>
+|x
+|}
+<references />
+!! html/php+tidy
+<table>
+
+<tbody><tr id="cite_ref-1" class="reference">
+<td>x
+</td></tr></tbody></table>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">boo</span>
+</li>
+</ol></div>
+!! html/parsoid
+<table>
+<tbody><tr about="#mwt4" typeof="mw:ExpandedAttrs" data-parsoid='{"startTagSrc":"|-","a":{"&lt;ref>boo&lt;/ref>":null},"sa":{"&lt;ref>boo&lt;/ref>":""}' data-mw='{"attribs":[[{"txt":"","html":"&lt;sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[5,19,5,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>"},{"html":""}]]}'>
+<td>x</td></tr>
+</tbody></table>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1" data-parsoid="{}"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy" data-parsoid="{}"><span class="mw-linkback-text" data-parsoid="{}">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text" data-parsoid="{}">boo</span></li></ol>
+
+!! end
+
+!! test
 <references> after <gallery> (bug 6164)
 !! options
 parsoid=wt2html,html2html

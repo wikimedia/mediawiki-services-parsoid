@@ -394,33 +394,47 @@ class References extends ExtensionTag {
 					);
 					self::insertReferencesIntoDOM( $child, $refsData, $nestedRefsHTML );
 				} else {
-					// inline media -- look inside the data-mw attribute
+					/* -----------------------------------------------------------------
+					 * FIXME(subbu): This works but feels very special-cased in 2 ways:
+					 *
+					 * 1. special cased to images & expanded attrs vs. any node that might
+					 *    have serialized HTML embedded in data-mw
+					 * 2. special cased to global cite handling -- the general scenario
+					 *    is DOM post-processors that do different things on the
+					 *    top-level vs not.
+					 *    - Cite needs to process these fragments in the context of the
+					 *      top-level page, and has to be done in order of how the nodes
+					 *      are encountered.
+					 *    - DOM cleanup can be done on embedded fragments without
+					 *      any page-level context and in any order.
+					 *    - So, some variability here.
+					 *
+					 * We should be running dom.cleanup.js passes on embedded html
+					 * in data-mw and other attributes. Since correctness doesn't
+					 * depend on that cleanup, I am not adding more special-case
+					 * code in dom.cleanup.js.
+					 *
+					 * Doing this more generically will require creating a DOMProcessor
+					 * class and adding state to it.
+					 *
+					 * See T214994
+					 * ----------------------------------------------------------------- */
+					if ( preg_match( '/^mw:ExpandedAttrs$/', $child->getAttribute( 'typeof' ) ) ) {
+						$dmw = DOMDataUtils::getDataMw( $child );
+						if ( isset( $dmw->attribs ) && count( $dmw->attribs ) > 0 ) {
+							$attribs = &$dmw->attribs[0];
+							foreach ( $attribs as &$a ) {
+								if ( isset( $a->html ) ) {
+									$dom = ContentUtils::ppToDOM( $env, $a->html );
+									self::processRefs( $env, $refsData, $dom );
+									$a->html = ContentUtils::ppToXML( $dom, [ 'innerXML' => true ] );
+								}
+							}
+						}
+					}
+
+					// Inline media -- look inside the data-mw attribute
 					if ( WTUtils::isInlineMedia( $child ) ) {
-						/* -----------------------------------------------------------------
-						 * FIXME(subbu): This works but feels very special-cased in 2 ways:
-						 *
-						 * 1. special cased to images vs. any node that might have
-						 *    serialized HTML embedded in data-mw
-						 * 2. special cased to global cite handling -- the general scenario
-						 *    is DOM post-processors that do different things on the
-						 *    top-level vs not.
-						 *    - Cite needs to process these fragments in the context of the
-						 *      top-level page, and has to be done in order of how the nodes
-						 *      are encountered.
-						 *    - DOM cleanup can be done on embedded fragments without
-						 *      any page-level context and in any order.
-						 *    - So, some variability here.
-						 *
-						 * We should be running dom.cleanup.js passes on embedded html
-						 * in data-mw and other attributes. Since correctness doesn't
-						 * depend on that cleanup, I am not adding more special-case
-						 * code in dom.cleanup.js.
-						 *
-						 * Doing this more generically will require creating a DOMProcessor
-						 * class and adding state to it.
-						 *
-						 * See T214994
-						 * ----------------------------------------------------------------- */
 						$dmw = DOMDataUtils::getDataMw( $child );
 						$caption = $dmw->caption ?? null;
 						if ( $caption ) {
