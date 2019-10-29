@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
+use Parsoid\ClientError;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
@@ -209,7 +210,14 @@ class Parse extends \Parsoid\Tools\Maintenance {
 
 		$res = $this->makeConfig( $configOpts );
 
-		return $res['parsoid']->wikitext2html( $res['pageConfig'], $parsoidOpts );
+		try {
+			return $res['parsoid']->wikitext2html(
+				$res['pageConfig'], $parsoidOpts
+			);
+		} catch ( ClientError $e ) {
+			$this->error( $e->getMessage() );
+			die( 1 );
+		}
 	}
 
 	/**
@@ -226,9 +234,14 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$configOpts["pageContent"] = ''; // FIXME: T234549
 		$res = $this->makeConfig( $configOpts );
 
-		return $res['parsoid']->html2wikitext(
-			$res['pageConfig'], $html, $parsoidOpts, $selserData
-		);
+		try {
+			return $res['parsoid']->html2wikitext(
+				$res['pageConfig'], $html, $parsoidOpts, $selserData
+			);
+		} catch ( ClientError $e ) {
+			$this->error( $e->getMessage() );
+			die( 1 );
+		}
 	}
 
 	public function execute() {

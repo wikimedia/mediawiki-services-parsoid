@@ -3263,7 +3263,7 @@ parsoid=html2wt,wt2wt
 
 </p>
 !! html/parsoid
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo<nowiki>|</nowiki>bar"}},"i":0}}]}'}'>foo</span><span typeof="mw:Nowiki" about="#mwt1">|</span><span about="#mwt1">bar</span>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"foo<nowiki>|</nowiki>bar"}},"i":0}}]}'>foo</span><span typeof="mw:Nowiki" about="#mwt1">|</span><span about="#mwt1">bar</span>
 <span typeof="mw:Transclusion mw:Nowiki" about="#mwt2" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<nowiki>&amp;lt;div&amp;gt;</nowiki>"}},"i":0}}]}'><span typeof="mw:Entity">&lt;</span>div<span typeof="mw:Entity">&gt;</span></span>
 <span typeof="mw:Transclusion mw:Nowiki" about="#mwt3" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"<nowiki></nowiki>"}},"i":0}}]}'></span>
 </p>

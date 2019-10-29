@@ -12,6 +12,7 @@ use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\TreeBuilder;
 use RemexHtml\TreeBuilder\Dispatcher;
 
+use Parsoid\ClientError;
 use Parsoid\Config\WikitextConstants;
 
 use Wikimedia\Assert\Assert;
@@ -45,6 +46,9 @@ class DOMUtils {
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
 		$tokenizer->execute( [] );
+		if ( $domBuilder->isCoerced() ) {
+			throw new ClientError( 'Encountered a name invalid in XML.' );
+		}
 		return $domBuilder->getFragment();
 	}
 

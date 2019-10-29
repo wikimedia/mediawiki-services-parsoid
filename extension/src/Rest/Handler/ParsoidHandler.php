@@ -585,6 +585,10 @@ abstract class ParsoidHandler extends Handler {
 		if ( $format === FormatHelper::FORMAT_LINT ) {
 			try {
 				$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
+			} catch ( ClientError $e ) {
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => $e->getMessage(),
+				] );
 			} catch ( ResourceLimitExceededException $e ) {
 				return $this->getResponseFactory()->createHttpError( 413, [
 					'message' => $e->getMessage(),
@@ -596,6 +600,10 @@ abstract class ParsoidHandler extends Handler {
 				$out = $parsoid->wikitext2html(
 					$pageConfig, $reqOpts, $headers
 				);
+			} catch ( ClientError $e ) {
+				return $this->getResponseFactory()->createHttpError( 400, [
+					'message' => $e->getMessage(),
+				] );
 			} catch ( ResourceLimitExceededException $e ) {
 				return $this->getResponseFactory()->createHttpError( 413, [
 					'message' => $e->getMessage(),
