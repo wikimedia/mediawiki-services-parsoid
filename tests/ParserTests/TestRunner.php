@@ -116,8 +116,6 @@ class TestRunner {
 		]
 	];
 
-	private static $exitUnexpected = null;
-
 	/** @var boolean */
 	private $runDisabled;
 
@@ -196,10 +194,6 @@ class TestRunner {
 	 * @param string[] $modes
 	 */
 	public function __construct( string $testFilePath, array $modes ) {
-		if ( !self::$exitUnexpected ) {
-			self::$exitUnexpected = new Error( 'unexpected failure' ); // unique marker value
-		}
-
 		$this->testFilePath = $testFilePath;
 
 		$testFilePathInfo = pathinfo( $testFilePath );
@@ -863,7 +857,7 @@ class TestRunner {
 	 * @param string $mode
 	 * @param array $options
 	 */
-	private function runTestInMode( Test $test, string $mode, array $options ): void {
+	private function runTest( Test $test, string $mode, array $options ): void {
 		$test->time = [];
 
 		// These changes are for environment options that change between runs of
@@ -977,22 +971,6 @@ class TestRunner {
 	}
 
 	/**
-	 * Run test in the requested mode
-	 * @param Test $test
-	 * @param string $mode
-	 * @param array $options
-	 */
-	private function runTest( Test $test, string $mode, array $options ): void {
-		try {
-			$this->runTestInMode( $test, $mode, $options );
-		} catch ( Exception | Error $e ) {
-			$cls = get_class( $e );
-			error_log( "$cls from line {$e->getLine()} of {$e->getFile()}: {$e->getMessage()}" );
-			error_log( $e->getTraceAsString() . "\n" );
-		}
-	}
-
-	/**
 	 * Check the given HTML result against the expected result, and throw an
 	 * exception if necessary.
 	 *
@@ -1011,7 +989,7 @@ class TestRunner {
 		// Only throw an error if --exit-unexpected was set and there was an error
 		// Otherwise, continue running tests
 		if ( $options['exit-unexpected'] && !$checkPassed ) {
-			throw self::$exitUnexpected;
+			throw new UnexpectedException;
 		}
 	}
 
@@ -1044,7 +1022,7 @@ class TestRunner {
 		// Only throw an error if --exit-unexpected was set and there was an error
 		// Otherwise, continue running tests
 		if ( $options['exit-unexpected'] && !$checkPassed ) {
-			throw self::$exitUnexpected;
+			throw new UnexpectedException;
 		}
 	}
 
@@ -1520,11 +1498,9 @@ class TestRunner {
 		foreach ( $this->testCases as $test ) {
 			try {
 				$this->processTest( $test, $options );
-			} catch ( Exception $e ) {
-				$err = $e;
-				if ( $options['exit-unexpected'] && $err === self::$exitUnexpected ) {
-					break;
-				}
+			} catch ( UnexpectedException $e ) {
+				// Exit unexpected
+				break;
 			}
 		}
 
