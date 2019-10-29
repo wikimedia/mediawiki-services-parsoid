@@ -367,15 +367,21 @@ abstract class ParsoidHandler extends Handler {
 	 * @param string|null $wikitextOverride
 	 *   Custom wikitext to use instead of the real content of the page.
 	 * @param string|null $pagelanguageOverride
-	 * @return Env
+	 * @param bool $titleShouldExist return null if the title/revision doesn't
+	 *   exist.
+	 * @return Env|null
 	 */
 	protected function createEnv(
 		string $title, ?int $revision, string $wikitextOverride = null,
-		string $pagelanguageOverride = null
-	): Env {
+		string $pagelanguageOverride = null,
+		bool $titleShouldExist = false
+	): ?Env {
 		$pageConfig = $this->createPageConfig(
 			$title, $revision, $wikitextOverride, $pagelanguageOverride
 		);
+		if ( $titleShouldExist && $pageConfig->getRevisionContent() === null ) {
+			return null; // T234549
+		}
 		$options = [];
 		// NOTE: These settings are mostly ignored since this Env is only used
 		// in this file.
