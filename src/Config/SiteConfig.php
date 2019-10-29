@@ -941,7 +941,11 @@ abstract class SiteConfig {
 	 * @return ContentModelHandler|null
 	 */
 	public function getContentModelHandler( string $contentmodel ): ?ContentModelHandler {
-		return ( $this->getNativeExtensionsConfig() )['contentModels'][$contentmodel];
+		// For now, fallback to 'wikitext' as the default handler
+		// FIXME: This is bogus, but this is just so suppress noise in our
+		// logs till we get around to handling all these other content models.
+		return ( $this->getNativeExtensionsConfig() )['contentModels'][$contentmodel] ??
+			( $this->getNativeExtensionsConfig() )['contentModels']['wikitext'];
 	}
 
 	/**
