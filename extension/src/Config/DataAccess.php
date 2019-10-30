@@ -147,6 +147,11 @@ class DataAccess implements IDataAccess {
 			if ( $length ) {
 				$result['duration'] = (float)$length;
 			}
+
+			if ( isset( $dims['seek'] ) ) {
+				$dims['thumbtime'] = $dims['seek'];
+			}
+
 			$txopts = $this->makeTransformOptions( $file, $dims );
 			$mto = $file->transform( $txopts );
 			if ( $mto ) {
