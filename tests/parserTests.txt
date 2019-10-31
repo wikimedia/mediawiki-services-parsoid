@@ -12350,6 +12350,19 @@ Un-closed <onlyinclude>
 !! html
 !! end
 
+!! test
+T236868: Un-closed <noinclude> caused bad SourceRange length
+!! wikitext
+{| <noinclude>
+|- <noinclude>
+| A
+|-</noinclude>
+|}
+!! html/parsoid
+<table about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"&lt;noinclude>\n|- &lt;noinclude>\n| A\n|-&lt;/noinclude>":null},"sa":{"&lt;noinclude>\n|- &lt;noinclude>\n| A\n|-&lt;/noinclude>":""}}' data-mw='{"attribs":[[{"txt":" A","html":"&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[3,14,null,null]}&apos;/>\n|- &amp;lt;noinclude>\n| A\n|-&lt;meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid=&apos;{\"src\":\"&amp;lt;/noinclude>\",\"dsr\":[36,48,null,null]}&apos;/>"},{"html":""}]]}'>
+</table>
+!! end
+
 !!test
 Self-closed noinclude, includeonly, onlyinclude tags
 !! wikitext
