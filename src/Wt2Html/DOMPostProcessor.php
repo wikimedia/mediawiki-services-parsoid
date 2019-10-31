@@ -607,6 +607,7 @@ class DOMPostProcessor extends PipelineStage {
 				if ( $v instanceof Closure ) {
 					$v = $v( $revProps );
 				} elseif ( strpos( $v, '%' ) !== false ) {
+					// @phan-suppress-next-line PhanPluginPrintfVariableFormatString
 					$v = sprintf( $v, $value );
 				}
 				$attrs[$k] = $v;

@@ -1,4 +1,6 @@
 <?php
+// phpcs:disable Generic.Files.LineLength.TooLong
+
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['target_php_version'] = '7.2';
@@ -62,5 +64,37 @@ foreach ( $phpFiles as $f ) {
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
 $cfg['exclude_file_list'][] = "tests/ParserTests/Grammar.php";
+
+// Bundled plugins, generated from,
+// `ls -p1 vendor/phan/phan/.phan/plugins/ |grep -Ev "(/|README)" |sed -e s/\.php// |xargs printf "\t\'%s\',\n"`
+$cfg['plugins'] = array_merge( $cfg['plugins'], [
+	'AlwaysReturnPlugin',
+	// 'DemoPlugin',
+	'DollarDollarPlugin',
+	'DuplicateArrayKeyPlugin',
+	// 'DuplicateExpressionPlugin',  // Already set in "mediawiki-phan-config"
+	'FFIAnalysisPlugin',
+	// 'HasPHPDocPlugin',
+	// 'InvalidVariableIssetPlugin',
+	'InvokePHPNativeSyntaxCheckPlugin',
+	'NoAssertPlugin',
+	// 'NonBoolBranchPlugin',
+	// 'NonBoolInLogicalArithPlugin',
+	// 'NotFullyQualifiedUsagePlugin',
+	// 'NumericalComparisonPlugin',
+	'PHPUnitAssertionPlugin',
+	'PHPUnitNotDeadCodePlugin',
+	'PhanSelfCheckPlugin',
+	// 'PossiblyStaticMethodPlugin',
+	// 'PregRegexCheckerPlugin',  // Already set in "mediawiki-phan-config"
+	'PrintfCheckerPlugin',
+	'SleepCheckerPlugin',
+	// 'SuspiciousParamOrderPlugin',
+	// 'UnknownElementTypePlugin',
+	'UnreachableCodePlugin',
+	// 'UnusedSuppressionPlugin',  // Already set in "mediawiki-phan-config"
+	'UseReturnValuePlugin',
+	// 'WhitespacePlugin',
+] );
 
 return $cfg;

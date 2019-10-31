@@ -373,8 +373,9 @@ class TokenUtils {
 		$bytePos = 0;
 		$ucs2Pos = 0;
 		$charPos = 0;
-		$fromPos = &${$from . 'Pos'};
-		$toPos = &${$to . 'Pos'};
+
+		$fromPos = &${$from . 'Pos'};  // @phan-suppress-current-line PhanPluginDollarDollar
+		$toPos = &${$to . 'Pos'};  // @phan-suppress-current-line PhanPluginDollarDollar
 
 		$byteLen = strlen( $s );
 		while ( $bytePos < $byteLen ) {

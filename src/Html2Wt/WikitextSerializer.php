@@ -653,8 +653,10 @@ class WikitextSerializer {
 			return [ 'order' => $acc['order'], 'dist' => $acc['dist'] + 1 ];
 		};
 		// Find closest original parameter before the key.
+		// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown
 		array_reduce( $keys, $reduceF, [ 'order' => -1, 'dist' => 2 * count( $keys ) ] );
 		// Find closest original parameter after the key.
+		// @phan-suppress-next-line PhanPluginUseReturnValueInternalKnown
 		array_reduce( array_reverse( $keys ), $reduceF,
 			[ 'order' => count( $origOrder ), 'dist' => count( $keys ) ] );
 

@@ -120,6 +120,7 @@ class ParserFunctions {
 			return $res;
 		} else {
 			$this->env->log( 'error', 'Unprocessable res in ParserFunctions:noTrimRes', $res );
+			return [];
 		}
 	}
 

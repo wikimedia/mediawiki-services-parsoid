@@ -794,7 +794,7 @@ class DOMNormalizer {
 
 		// Normalize node till it stabilizes
 		$next = null;
-		while ( true ) { // eslint-disable-line
+		while ( true ) {
 			// Skip templated content
 			while ( $node && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 				$node = WTUtils::skipOverEncapsulatedContent( $node );
@@ -849,7 +849,8 @@ class DOMNormalizer {
 			}
 		}
 
-		Assert::invariant( false, 'Control should never get here!' ); // eslint-disable-line
+		// @phan-suppress-next-line PhanPluginUnreachableCode
+		Assert::invariant( false, 'Control should never get here!' );
 	}
 
 	/**

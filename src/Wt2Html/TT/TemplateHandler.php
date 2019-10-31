@@ -799,9 +799,9 @@ class TemplateHandler extends TokenHandler {
 				}
 
 				if ( count( $params ) ) {
-					array_map( function ( $paramData ) {
+					foreach ( $params as $paramData ) {
 						$this->getParamHTML( $paramData );
-					}, $params );
+					}
 
 					// Use a data-attribute to prevent the sanitizer from stripping this
 					// attribute before it reaches the DOM pass where it is needed.
