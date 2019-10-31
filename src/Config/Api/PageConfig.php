@@ -96,13 +96,13 @@ class PageConfig extends IPageConfig {
 			'prop' => 'info|revisions',
 			'rvprop' => 'ids|timestamp|user|userid|sha1|size|content',
 			'rvslots' => '*',
-			'rvlimit' => 1,
 		];
 
-		if ( isset( $this->revid ) ) {
+		if ( !empty( $this->revid ) ) {
 			$params['revids'] = $this->revid;
 		} else {
 			$params['titles'] = $this->title;
+			$params['rvlimit'] = 1;
 		}
 
 		$this->page = $this->api->makeRequest( $params )['query']['pages'][0];

@@ -243,9 +243,9 @@ class DataAccess implements IDataAccess {
 
 			$ret = [
 				'wikitext' => $data['wikitext'],
-				'modules' => $data['modules'],
-				'modulescripts' => $data['modulescripts'],
-				'modulestyles' => $data['modulestyles'],
+				'modules' => $data['modules'] ?? [],
+				'modulescripts' => $data['modulescripts'] ?? [],
+				'modulestyles' => $data['modulestyles'] ?? [],
 				'categories' => $cats,
 				'properties' => $data['properties'] ?? [],
 			];
