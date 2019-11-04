@@ -124,13 +124,13 @@ class AddMediaInfo {
 		if ( $starttime || $endtime ) {
 			$frag .= '#t=';
 			if ( $starttime ) {
-				$time = self::parseTimeString( $starttime[1]->txt, $info['duration'] );
+				$time = self::parseTimeString( $starttime[1]->txt, $info['duration'] ?? null );
 				if ( $time !== null ) {
 					$frag .= $time;
 				}
 			}
 			if ( $endtime ) {
-				$time = self::parseTimeString( $endtime[1]->txt, $info['duration'] );
+				$time = self::parseTimeString( $endtime[1]->txt, $info['duration'] ?? null );
 				if ( $time !== null ) {
 					$frag .= ',' . $time;
 				}
