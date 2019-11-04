@@ -117,10 +117,14 @@ class DataAccess implements IDataAccess {
 					'pageId' => $page['pageid'] ?? null,
 					'revId' => $page['lastrevid'] ?? null,
 					'missing' => $page['missing'] ?? false,
-					'known' => !( $page['missing'] ?? false ) || ( $page['known'] ?? false ),
+					'known' => ( $page['known'] ?? false ),
 					'redirect' => $page['redirect'] ?? false,
 					'disambiguation' => ( $page['pageprops']['disambiguation'] ?? false ) !== false,
+					'invalid' => $page['invalid'] ?? false,
 				];
+				if ( !( $ret[$title]['missing'] || $ret[$title]['invalid'] ) ) {
+					$ret[$title]['known'] = true;
+				}
 			}
 		}
 

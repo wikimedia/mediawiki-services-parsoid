@@ -40,11 +40,13 @@ class AddRedLinks {
 				continue;
 			}
 			$k = $a->getAttribute( 'title' );
-			$data = $titleMap[$k] ?? null;
-			if ( $data === null ) {
+			if ( empty( $titleMap[$k] ) ) {
+				// Likely a consequence of T237535; can be removed once
+				// that is fixed.
 				$env->log( 'warn', 'We should have data for the title: ' . $k );
 				continue;
 			}
+			$data = $titleMap[$k];
 			$a->removeAttribute( 'class' ); // Clear all
 			if ( !empty( $data['missing'] ) && empty( $data['known'] ) ) {
 				DOMCompat::getClassList( $a )->add( 'new' );
@@ -55,7 +57,7 @@ class AddRedLinks {
 			// Jforrester suggests that, "ideally this'd be a registry so that
 			// extensions could, er, extend this functionality – this is an
 			// API response/CSS class that is provided by the Disambigutation
-			// extension."
+			// extension." T237538
 			if ( !empty( $data['disambiguation'] ) ) {
 				DOMCompat::getClassList( $a )->add( 'mw-disambig' );
 			}

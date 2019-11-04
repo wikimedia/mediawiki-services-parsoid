@@ -92,8 +92,26 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getPageInfo( IPageConfig $pageConfig, array $titles ): array {
 		$titleObjs = [];
+		$ret = [];
 		foreach ( $titles as $name ) {
-			$titleObjs[$name] = Title::newFromText( $name );
+			$t = Title::newFromText( $name );
+			// Filter out invalid titles. Title::newFromText in core (not our bespoke
+			// version in src/Utils/Title.php) can return null for invalid titles.
+			if ( !$t ) {
+				// FIXME: This is a bandaid to patch up the fact that Env::makeTitle treats
+				// this as a valid title, but Title::newFromText treats it as invalid.
+				// T237535
+				// This matches what ApiQuery::outputGeneralPageInfo() would
+				// return for an invalid title.
+				$ret[$name] = [
+					'pageId' => -1,
+					'revId' => -1,
+					'invalid' => true,
+					'invalidreason' => 'The requested page title is invalid',
+				];
+			} else {
+				$titleObjs[$name] = $t;
+			}
 		}
 		$linkBatch = new LinkBatch( $titleObjs );
 		$linkBatch->execute();
@@ -101,10 +119,10 @@ class DataAccess implements IDataAccess {
 		// This depends on the Disambiguator extension :(
 		// @todo Either merge that extension into core, or we'll need to make
 		// a "ParsoidGetRedlinkData" hook that Disambiguator can implement.
+		// T237538
 		$pageProps = PageProps::getInstance();
 		$properties = $pageProps->getProperties( $titleObjs, [ 'disambiguation' ] );
 
-		$ret = [];
 		foreach ( $titleObjs as $name => $obj ) {
 			/** @var Title $obj */
 			$ret[$name] = [
