@@ -72,7 +72,6 @@ class TemplateHandler extends TokenHandler {
 		$chunkToks = [];
 		if ( $ret ) {
 			$tokens = $ret;
-			Assert::invariant( is_array( $tokens ), "Expected token chunk to be an array" );
 
 			// This is only for the Parsoid native expansion pipeline used in
 			// parser tests. The "" token sometimes changes foster parenting
@@ -1360,9 +1359,7 @@ class TemplateHandler extends TokenHandler {
 				// substitution coming from the frame.
 
 				/* If $tgt is not null, target will be present. */
-				/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
 				$templateName = $tgt['target'];
-				/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
 				$templateTitle = $tgt['title'];
 				$attribs = [];
 

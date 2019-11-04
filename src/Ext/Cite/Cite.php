@@ -56,6 +56,7 @@ class Cite implements Extension {
 	 *
 	 * @param Env $env
 	 * @param DOMNode $body
+	 * @suppress PhanEmptyPrivateMethod
 	 */
 	private static function html2wtPreProcessor( Env $env, DOMNode $body ) {
 		// TODO

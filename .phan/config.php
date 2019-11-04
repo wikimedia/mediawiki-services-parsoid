@@ -65,6 +65,9 @@ foreach ( $phpFiles as $f ) {
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
 $cfg['exclude_file_list'][] = "tests/ParserTests/Grammar.php";
 
+// FIXME: Temporary?
+$cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
+
 // Bundled plugins, generated from,
 // `ls -p1 vendor/phan/phan/.phan/plugins/ |grep -Ev "(/|README)" |sed -e s/\.php// |xargs printf "\t\'%s\',\n"`
 $cfg['plugins'] = array_merge( $cfg['plugins'], [
@@ -73,22 +76,30 @@ $cfg['plugins'] = array_merge( $cfg['plugins'], [
 	'DollarDollarPlugin',
 	'DuplicateArrayKeyPlugin',
 	// 'DuplicateExpressionPlugin',  // Already set in "mediawiki-phan-config"
+	'EmptyMethodAndFunctionPlugin',
+	'EmptyStatementListPlugin',
 	'FFIAnalysisPlugin',
 	// 'HasPHPDocPlugin',
+	'InlineHTMLPlugin',
 	// 'InvalidVariableIssetPlugin',
 	'InvokePHPNativeSyntaxCheckPlugin',
+	'LoopVariableReusePlugin',
 	'NoAssertPlugin',
 	// 'NonBoolBranchPlugin',
 	// 'NonBoolInLogicalArithPlugin',
 	// 'NotFullyQualifiedUsagePlugin',
 	// 'NumericalComparisonPlugin',
+	// 'PHPDocRedundantPlugin',
+	// 'PHPDocToRealTypesPlugin',
 	'PHPUnitAssertionPlugin',
 	'PHPUnitNotDeadCodePlugin',
 	'PhanSelfCheckPlugin',
 	// 'PossiblyStaticMethodPlugin',
+	'PreferNamespaceUsePlugin',
 	// 'PregRegexCheckerPlugin',  // Already set in "mediawiki-phan-config"
 	'PrintfCheckerPlugin',
 	'SleepCheckerPlugin',
+	'StrictComparisonPlugin',
 	// 'SuspiciousParamOrderPlugin',
 	// 'UnknownElementTypePlugin',
 	'UnreachableCodePlugin',

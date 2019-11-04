@@ -123,8 +123,7 @@ class ExtensionHandler extends TokenHandler {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
 		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
-		// $cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
-		$cachedExpansion = null;
+		$cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
 
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
@@ -152,7 +151,9 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		if ( $cachedExpansion ) {
-			// cache hit. Reuse extension expansion.
+			// WARNING: THIS HAS BEEN UNUSED SINCE 2015, SEE T98995.
+			// THIS CODE WAS WRITTEN BUT APPARENTLY NEVER TESTED.
+			// NO WARRANTY.  MAY HALT AND CATCH ON FIRE.
 			$toks = PipelineUtils::encapsulateExpansionHTML( $env, $token, $cachedExpansion, [
 				'fromCache' => true
 			] );

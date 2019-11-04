@@ -342,7 +342,7 @@ class MockDataAccess implements DataAccess {
 				'pageId' => $pageData['pageid'] ?? null,
 				'revId' => $pageData['revid'] ?? null,
 				'missing' => $pageData === null,
-				'known' => $pageData !== null || ( $page['known'] ?? false ),
+				'known' => $pageData !== null || ( $pageData['known'] ?? false ),
 				'redirect' => $pageData['redirect'] ?? false,
 				'disambiguation' => ( $pageData['pageprops']['disambiguation'] ?? false ) !== false,
 			];

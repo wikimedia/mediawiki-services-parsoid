@@ -40,6 +40,9 @@ class MockEnv extends Env {
 	public function bumpCount( string $resource, int $n = 1 ): void {
 	}
 
+	/**
+	 * @suppress PhanEmptyPublicMethod
+	 */
 	public function bumpParserResourceUse( string $resource, int $count = 1 ): void {
 	}
 }

@@ -402,7 +402,7 @@ class DOMHandler {
 		}
 		'@phan-var DOMElement $node';/** @var DOMElement $node*/
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		return $dp && !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd );
+		return !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd );
 	}
 
 	/**

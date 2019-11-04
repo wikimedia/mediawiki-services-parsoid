@@ -291,7 +291,6 @@ class TokenUtils {
 	 * @return array return the modified token array so that this call can be chained
 	 */
 	public static function stripEOFTkFromTokens( array &$tokens ): array {
-		$tokens = (array)$tokens;
 		$n = count( $tokens );
 		if ( $n && $tokens[$n - 1] instanceof EOFTk ) {
 			array_pop( $tokens );
@@ -586,14 +585,11 @@ class TokenUtils {
 				$out .= self::tokensToString( $token, $strict, $opts );
 			} elseif (
 				$token instanceof CommentTk ||
-				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )
 			) {
 				// strip comments and newlines
-				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 			} elseif ( !empty( $opts['stripEmptyLineMeta'] ) && self::isEmptyLineMetaToken( $token ) ) {
 				// If requested, strip empty line meta tokens too.
-				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
 				$out .= $token->dataAttribs->src;
 				$i += 2; // Skip child and end tag.
@@ -601,13 +597,11 @@ class TokenUtils {
 				// If strict, return accumulated string on encountering first non-text token
 				return [ $out, array_slice( $tokens, $i ) ];
 			} elseif (
-				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				!empty( $opts['unpackDOMFragments'] ) &&
 				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
 				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) ?? '' )
 			) {
 				// Handle dom fragments
-				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				$fragmentMap = $opts['env']->getFragmentMap();
 				$nodes = $fragmentMap[ $token->dataAttribs->html ];
 				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {

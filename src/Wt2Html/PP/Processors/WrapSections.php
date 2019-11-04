@@ -335,10 +335,11 @@ class WrapSections {
 					// Set about attributes on all children of s2 - add span wrappers if required
 					$span = null;
 					for ( $n = $tplInfo['last']->nextSibling; $n; $n = $n->nextSibling ) {
-						if ( DOMUtils::isElt( $n ) ) {
+						if ( $n instanceof DOMElement ) {
 							$n->setAttribute( 'about', $tplInfo['about'] );
 							$span = null;
 						} else {
+							// @phan-suppress-next-line PhanRedundantConditionInLoop
 							if ( !$span ) {
 								$span = $state['doc']->createElement( 'span' );
 								$span->setAttribute( 'about', $tplInfo['about'] );

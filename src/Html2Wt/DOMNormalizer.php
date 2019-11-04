@@ -379,6 +379,7 @@ class DOMNormalizer {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$last = DOMUtils::lastNonDeletedChild( $node );
 		// Conditional on rtTestMode to reduce the noise in testing.
+		$matches = null;
 		if ( !$this->inRtTestMode && DOMUtils::isText( $last ) &&
 			preg_match( '/\s+$/D', $last->nodeValue, $matches ) > 0
 		) {

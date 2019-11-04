@@ -115,7 +115,10 @@ class XMLSerializer {
 				$next = $child->nextSibling;
 				if ( DOMUtils::isText( $child ) ) {
 					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
-				} elseif ( ( $child instanceof DOMElement ) && !in_array( $child->nodeName, $allowedTags ) ) {
+				} elseif (
+					$child instanceof DOMElement &&
+					!in_array( $child->nodeName, $allowedTags, true )
+				) {
 					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
 					$attrs = $child->attributes;
 					$len = $attrs->length;

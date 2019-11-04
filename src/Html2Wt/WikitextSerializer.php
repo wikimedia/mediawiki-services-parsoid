@@ -1172,7 +1172,7 @@ class WikitextSerializer {
 		if ( $state->selserMode
 			&& !$state->inModifiedContent
 			&& WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node )
-			&& $dp && Util::isValidDSR( $dp->dsr ?? null )
+			&& Util::isValidDSR( $dp->dsr ?? null )
 			&& ( $dp->dsr->end > $dp->dsr->start
 				// FIXME: <p><br/></p>
 				// nodes that have dsr width 0 because currently,

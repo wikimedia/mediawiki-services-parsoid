@@ -66,7 +66,7 @@ class MigrateTrailingNLs {
 	 * @return bool
 	 */
 	private function canMigrateNLOutOfNode( DOMNode $node ): bool {
-		if ( !$node || $node->nodeName === 'table' || $node->nodeName === 'body' ) {
+		if ( $node->nodeName === 'table' || $node->nodeName === 'body' ) {
 			return false;
 		}
 
@@ -86,7 +86,7 @@ class MigrateTrailingNLs {
 		return empty( $dp->fostered ) &&
 			( $this->nodeEndsLineInWT( $node, $dp ) ||
 				!empty( $dp->autoInsertedEnd ) ||
-				( !$node->nextSibling &&
+				( !$node->nextSibling && $node->parentNode &&
 					$this->canMigrateNLOutOfNode( $node->parentNode ) ) );
 	}
 

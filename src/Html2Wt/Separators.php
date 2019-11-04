@@ -750,7 +750,7 @@ class Separators {
 			'debug/wts/sep',
 			function () use ( $prevNode, $origNode, $sep, $state ) {
 				return 'maybe-sep  | ' . 'prev:' . ( $prevNode ? $prevNode->nodeName : '--none--' ) .
-					', node:' . ( $origNode ? $origNode->nodeName : '--none--' ) .
+					', node:' . ( $origNode->nodeName ?? '--none--' ) .
 					', sep: ' . PHPUtils::jsonEncode( $sep ) .
 					', state.sep.src: ' . PHPUtils::jsonEncode( $state->sep->src ?? null );
 			}

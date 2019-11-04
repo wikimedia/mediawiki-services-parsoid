@@ -86,7 +86,6 @@ class ContentUtils {
 	 * @return array
 	 */
 	public static function extractDpAndSerialize( DOMNode $node, array $options = [] ): array {
-		$options = $options ?? [];
 		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
 		$pb = DOMDataUtils::extractPageBundle( $doc );
 		$out = XMLSerializer::serialize( $node, $options );
@@ -339,8 +338,6 @@ class ContentUtils {
 	public static function dumpDOM(
 		DOMNode $rootNode, string $title, array &$options = []
 	): void {
-		$options = $options ?? [];
-		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
@@ -354,7 +351,6 @@ class ContentUtils {
 		}
 
 		$buf = [];
-		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
 		if ( empty( $options['quiet'] ) ) {
 			$buf[] = '----- ' . $title . ' -----';
 		}

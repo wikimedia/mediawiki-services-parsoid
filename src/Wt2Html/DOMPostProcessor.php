@@ -119,7 +119,6 @@ class DOMPostProcessor extends PipelineStage {
 
 	/**
 	 * @param ?array $processors
-	 * @suppress PhanTypeArraySuspiciousNullable
 	 */
 	public function registerProcessors( ?array $processors ): void {
 		if ( empty( $processors ) ) {
@@ -146,6 +145,7 @@ class DOMPostProcessor extends PipelineStage {
 					return $t->traverse( ...$args );
 				};
 			} else {
+				// @phan-suppress-next-line PhanTypeExpectedObjectOrClassName
 				$c = new $p['Processor'];
 				$p['proc'] = function ( ...$args ) use ( $c ) {
 					return $c->run( ...$args );
@@ -759,7 +759,6 @@ class DOMPostProcessor extends PipelineStage {
 
 	/**
 	 * @param DOMDocument $document
-	 * @suppress PhanTypeArraySuspiciousNullable
 	 */
 	public function doPostProcess( DOMDocument $document ): void {
 		$env = $this->env;
@@ -862,9 +861,11 @@ class DOMPostProcessor extends PipelineStage {
 		// For the top-level document, we generate <head> and add it.
 		if ( $this->atTopLevel ) {
 			self::addMetaData( $env, $document );
+			// @phan-suppress-next-line PhanPluginEmptyStatementIf
 			if ( !empty( $traceFlags['time'] ) ) {
 				// $env->printTimeProfile();
 			}
+			// @phan-suppress-next-line PhanPluginEmptyStatementIf
 			if ( !empty( $dumpFlags['wt2html:limits'] ) ) {
 				/*
 				$env->printWt2HtmlResourceUsage( [

@@ -170,16 +170,6 @@ class ParserPipelineFactory {
 		'attrExpansion'
 	];
 
-	private static $initialized = false;
-
-	private static function init(): void {
-		if ( self::$initialized ) {
-			return;
-		}
-
-		self::$supportedOptions = array_flip( self::$supportedOptions );
-	}
-
 	/** @var array */
 	private $pipelineCache;
 
@@ -192,7 +182,6 @@ class ParserPipelineFactory {
 	public function __construct( Env $env ) {
 		$this->pipelineCache = [];
 		$this->env = $env;
-		self::init();
 	}
 
 	// Default options processing
@@ -202,7 +191,10 @@ class ParserPipelineFactory {
 		}
 
 		foreach ( $options as $k => $v ) {
-			Assert::invariant( in_array( $k, self::$supportedOptions ), 'Invalid cacheKey option: ' . $k );
+			Assert::invariant(
+				in_array( $k, self::$supportedOptions, true ),
+				'Invalid cacheKey option: ' . $k
+			);
 		}
 
 		// default: not an include context
@@ -268,7 +260,6 @@ class ParserPipelineFactory {
 	 * @return string
 	 */
 	private function getCacheKey( string $cacheKey, array $options ): string {
-		$cacheKey = $cacheKey ?? '';
 		if ( empty( $options['isInclude'] ) ) {
 			$cacheKey .= '::noInclude';
 		}

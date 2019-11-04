@@ -168,6 +168,7 @@ abstract class Token implements \JsonSerializable {
 				"value" => $curVal,
 				// Mark as modified if a new element
 				// NOTE: strict equality will not work in this comparison
+				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 				"modified" => $this->dataAttribs != new stdClass,
 				"fromsrc" => false
 			];

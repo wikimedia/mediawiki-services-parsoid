@@ -416,27 +416,16 @@ class TestRunner {
 			&$env, &$applyChangesInternal, $removeNode, $insertNewNode,
 			$randomString
 		): void {
-			if ( !$node ) {
-				// FIXME: Generate change assignments dynamically
-				$env->log( 'error', 'no node in applyChangesInternal, ',
-					'HTML structure likely changed'
-				);
-				return;
-			}
-
-			if ( $node->childNodes === null ) {
-				if ( count( $changes ) > 0 ) {
-					throw new Error( "Error: cannot applies changes to node without any children!" );
-				}
-				return;
+			if ( count( $node->childNodes ) < count( $changes ) ) {
+				throw new Error( "Error: more changes than nodes to apply them to!" );
 			}
 
 			// Clone array since we are mutating the children in the changes loop below
-			$nodes = iterator_to_array( $node->childNodes );
 			$nodeArray = [];
-			foreach ( $nodes as $n ) {
+			foreach ( $node->childNodes as $n ) {
 				$nodeArray[] = $n;
 			}
+
 			foreach ( $changes as $i => $change ) {
 				$child = $nodeArray[$i];
 
@@ -781,10 +770,8 @@ class TestRunner {
 				}
 				$els = $acc;
 			}
-			/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
 			$fn = $jquery[$change[1]] ?? null;
 			if ( !$fn ) {
-				/* @phan-suppress-next-line PhanTypeArraySuspiciousNullable */
 				$err = new Error( 'bad mutator function: ' . $change[1] );
 				continue;
 			}
@@ -1339,14 +1326,14 @@ class TestRunner {
 		if ( $testModes ) {
 			// Avoid filtering out the selser test
 			if ( isset( $options['selser'] ) &&
-				array_search( 'selser', $testModes ) === false &&
-				array_search( 'wt2wt', $testModes ) !== false
+				array_search( 'selser', $testModes, true ) === false &&
+				array_search( 'wt2wt', $testModes, true ) !== false
 			) {
 				$testModes[] = 'selser';
 			}
 
 			$targetModes = array_filter( $targetModes, function ( string $mode ) use ( $testModes ): bool {
-				return array_search( $mode, $testModes ) !== false;
+				return array_search( $mode, $testModes, true ) !== false;
 			} );
 		}
 

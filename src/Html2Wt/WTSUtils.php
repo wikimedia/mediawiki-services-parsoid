@@ -221,11 +221,11 @@ class WTSUtils {
 	 * transparent in rendering. (See emitsSolTransparentSingleLineWT for
 	 * which nodes.)
 	 *
-	 * @param DOMNode $origNode
+	 * @param DOMNode|null $origNode
 	 * @param bool $before
 	 * @return bool
 	 */
-	public static function nextToDeletedBlockNodeInWT( DOMNode $origNode, bool $before ): bool {
+	public static function nextToDeletedBlockNodeInWT( ?DOMNode $origNode, bool $before ): bool {
 		if ( !$origNode || DOMUtils::isBody( $origNode ) ) {
 			return false;
 		}

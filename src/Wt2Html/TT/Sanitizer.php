@@ -24,6 +24,7 @@ use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Assert\Assert;
 
 class Sanitizer extends TokenHandler {
 	/** @var bool */
@@ -655,8 +656,10 @@ class Sanitizer extends TokenHandler {
 	 * @param int $cp
 	 * @return string
 	 */
-	private static function codepointToUtf8( int $cp ): string {
-		return mb_chr( $cp, 'UTF-8' );
+	private static function codepointToUtf8( int $cp ) {
+		$chr = mb_chr( $cp, 'UTF-8' );
+		Assert::invariant( $chr !== false, "Getting char failed!" );
+		return $chr;
 	}
 
 	/**
@@ -665,8 +668,10 @@ class Sanitizer extends TokenHandler {
 	 * @param string $str
 	 * @return int
 	 */
-	private static function utf8ToCodepoint( string $str ): int {
-		return mb_ord( $str );
+	private static function utf8ToCodepoint( string $str ) {
+		$ord = mb_ord( $str );
+		Assert::invariant( $ord !== false, "Getting code point failed!" );
+		return $ord;
 	}
 
 	/**

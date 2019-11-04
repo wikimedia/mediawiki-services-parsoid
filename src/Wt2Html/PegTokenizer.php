@@ -48,9 +48,7 @@ class PegTokenizer extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->env = $env;
-		// env can be null during code linting
-		$traceFlags = $env ? $env->traceFlags : [];
-		$this->traceTime = isset( $traceFlags['time'] );
+		$this->traceTime = isset( $env->traceFlags['time'] );
 		$this->options = $options;
 		$this->offsets = [];
 	}
@@ -134,6 +132,7 @@ class PegTokenizer extends PipelineStage {
 		try {
 			// Wrap wikipeg's generator with our own generator
 			// to catch exceptions and track time usage.
+			// @phan-suppress-next-line PhanTypeInvalidYieldFrom
 			yield from $this->grammar->parse( $text, $args );
 			yield [ new EOFTk() ];
 		} catch ( SyntaxError $e ) {

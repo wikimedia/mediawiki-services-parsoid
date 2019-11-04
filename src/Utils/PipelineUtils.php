@@ -281,9 +281,8 @@ class PipelineUtils {
 		// content. It could potentially introduce minor rendering differences when
 		// compared to PHP parser output, but we'll swallow it for now.
 		$wrapperType = 'INLINE';
-		if ( !empty( $opts['pipelineOpts']['inlineContext'] ) ||
-			/* PORT-FIXME: Remove this annotation once DOMFragmentBuilder is ported */
-			/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
+		if (
+			!empty( $opts['pipelineOpts']['inlineContext'] ) ||
 			!empty( $opts['pipelineOpts']['inPHPBlock'] )
 		) {
 			// If the DOM fragment is being processed in the context where P wrapping

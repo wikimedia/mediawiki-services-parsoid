@@ -7,6 +7,9 @@ namespace Parsoid\Tokens;
  * Represents EOF
  */
 class EOFTk extends Token {
+	/**
+	 * @suppress PhanEmptyPublicMethod
+	 */
 	public function __construct() {
 	}
 

@@ -872,7 +872,7 @@ class Env {
 	}
 
 	public function setOutputContentVersion( string $version ): void {
-		if ( !in_array( $version, self::AVAILABLE_VERSIONS ) ) {
+		if ( !in_array( $version, self::AVAILABLE_VERSIONS, true ) ) {
 			throw new UnexpectedValueException( 'Not an available content version.' );
 		}
 		$this->outputContentVersion = $version;

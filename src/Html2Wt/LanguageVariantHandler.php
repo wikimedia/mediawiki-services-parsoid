@@ -22,15 +22,13 @@ class LanguageVariantHandler {
 	 */
 	private static function expandSpArray( array $a ): array {
 		$result = [];
-		if ( is_array( $a ) ) {
-			foreach ( $a as $el ) {
-				if ( gettype( $el ) === 'integer' ) {
-					for ( $i = 0;  $i < $el;  $i++ ) {
-						$result[] = '';
-					}
-				} else {
-					$result[] = $el;
+		foreach ( $a as $el ) {
+			if ( gettype( $el ) === 'integer' ) {
+				for ( $i = 0;  $i < $el;  $i++ ) {
+					$result[] = '';
 				}
+			} else {
+				$result[] = $el;
 			}
 		}
 		return $result;
@@ -161,7 +159,7 @@ class LanguageVariantHandler {
 	 * @param $value
 	 */
 	private static function delete( array &$a, $value ) {
-		$key = array_search( $value, array_keys( $a ) );
+		$key = array_search( $value, array_keys( $a ), true );
 		if ( $key !== false ) {
 			array_splice( $a, $key, 1 );
 		}

@@ -77,6 +77,7 @@ class SourceRange implements \JsonSerializable {
 		$start = $this->start;
 		$length = $this->length();
 		Assert::invariant( ( $start ?? -1 ) >= 0, "Bad SourceRange start" );
+		// @phan-suppress-next-line PhanCoalescingNeverNull
 		Assert::invariant( ( $length ?? -1 ) >= 0, "Bad SourceRange length" );
 		return PHPUtils::safeSubstr( $str, $start, $length );
 	}

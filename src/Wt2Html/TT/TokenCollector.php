@@ -173,17 +173,12 @@ abstract class TokenCollector extends TokenHandler {
 			$tokenName .= '/End';
 		}
 
-		$newSrc = null;
-		if ( $tsr ) {
-			$srcText = $manager->getFrame()->getSrcText();
-			$newSrc = $tsr->substr( $srcText );
-		} else {
-			Assert::invariant( $src !== null, "No src provided" );
-		}
+		$srcText = $manager->getFrame()->getSrcText();
+		$newSrc = $tsr->substr( $srcText );
 
 		return new SelfclosingTagTk( 'meta',
 			[ new KV( 'typeof', $tokenName ) ],
-			$tsr ? (object)[ 'tsr' => $tsr, 'src' => $newSrc ] : (object)[ 'src' => $src ]
+			(object)[ 'tsr' => $tsr, 'src' => $newSrc ]
 		);
 	}
 

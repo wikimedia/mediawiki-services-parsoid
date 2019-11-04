@@ -1126,11 +1126,20 @@ class WikiLinkHandler extends TokenHandler {
 		return $this->used;
 	}
 
-	private function hasTransclusion( $toks ) {
-		return is_array( $toks ) && array_search( function ( Token $t ) {
-			return $t instanceof SelfclosingTagTk &&
-				$t->getAttribute( 'typeof' ) === 'mw:Transclusion';
-		}, $toks ) !== false;
+	/**
+	 * @param array $toks
+	 * @return bool
+	 */
+	private function hasTransclusion( array $toks ): bool {
+		foreach ( $toks as $t ) {
+			if (
+				$t instanceof SelfclosingTagTk &&
+				$t->getAttribute( 'typeof' ) === 'mw:Transclusion'
+			) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1236,7 +1245,8 @@ class WikiLinkHandler extends TokenHandler {
 			// "Image with multiple captions" parserTest.
 			if ( !is_string( $oText ) || $optInfo === null ||
 				// Deprecated options
-				in_array( $optInfo['ck'], [ 'noicon', 'noplayer', 'disablecontrols' ] ) ) {
+				in_array( $optInfo['ck'], [ 'noicon', 'noplayer', 'disablecontrols' ], true )
+			) {
 				// No valid option found!?
 				// Record for RT-ing
 				$optsCaption = [
@@ -1248,7 +1258,7 @@ class WikiLinkHandler extends TokenHandler {
 				];
 				// if there was a 'caption' previously, round-trip it as a
 				// "bogus option".
-				if ( $opts['caption'] ) {
+				if ( !empty( $opts['caption'] ) ) {
 					// Wrap the caption opt in an array since the option itself is an array!
 					// Without the wrapping, the splicing will flatten the value.
 					array_splice( $dataAttribs->optList, $opts['caption']['pos'], 0, [ [
@@ -1320,7 +1330,8 @@ class WikiLinkHandler extends TokenHandler {
 			// expanded, we'll use a more restrictive test, at the cost of
 			// perhaps missing some edgy behaviour.
 			if ( $opt['ck'] === 'link' ) {
-				$expOpt = $this->hasTransclusion( $origOptSrc );
+				$expOpt = is_array( $origOptSrc ) &&
+					$this->hasTransclusion( $origOptSrc );
 			} else {
 				$expOpt = is_array( $origOptSrc );
 			}
@@ -1377,7 +1388,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Handle image default sizes and upright option after extracting all
 		// options
-		if ( $opts['format'] && $opts['format']['v'] === 'framed' ) {
+		if ( !empty( $opts['format'] ) && $opts['format']['v'] === 'framed' ) {
 			// width and height is ignored for framed images
 			// https://phabricator.wikimedia.org/T64258
 			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
@@ -1428,7 +1439,7 @@ class WikiLinkHandler extends TokenHandler {
 		$containerName = $isInline ? 'figure-inline' : 'figure';
 
 		$classes = $wrapperInfo['classes'];
-		if ( $opts['class'] ) {
+		if ( !empty( $opts['class'] ) ) {
 			$classes = array_merge( $classes, explode( ' ', $opts['class']['v'] ) );
 		}
 

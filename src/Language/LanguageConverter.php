@@ -141,6 +141,7 @@ class LanguageConverter {
 	 * @param string $fromVariant
 	 * @param string $text
 	 * @param string $toVariant
+	 * @suppress PhanEmptyPublicMethod
 	 */
 	public function translate( $fromVariant, $text, $toVariant ) {
 		// XXX unimplemented

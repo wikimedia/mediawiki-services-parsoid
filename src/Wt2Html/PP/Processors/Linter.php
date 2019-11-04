@@ -855,7 +855,7 @@ class Linter {
 	): void {
 		// We handle a run of nodes in one shot.
 		// No need to reprocess repeatedly.
-		if ( $dp && !empty( $dp->tmp->processedTidyWSBug ) ) {
+		if ( !empty( $dp->tmp->processedTidyWSBug ) ) {
 			return;
 		}
 

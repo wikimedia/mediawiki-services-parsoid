@@ -37,7 +37,7 @@ class LintLogger {
 		} else {
 			if ( is_array( $linting ) ) {
 				$enabledBuffer = array_filter( $env->getLints(), function ( $item ) use ( &$linting ) {
-					return array_search( $item['type'], $linting ) !== false;
+					return array_search( $item['type'], $linting, true ) !== false;
 				} );
 			} else {
 				Assert::invariant( false, 'Why are we here? Linting is disabled.' );

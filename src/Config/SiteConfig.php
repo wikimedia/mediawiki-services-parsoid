@@ -872,8 +872,10 @@ abstract class SiteConfig {
 	abstract protected function getNonNativeExtensionTags(): array;
 
 	private function constructNativeExtConfig() {
-		$this->nativeExtConfig['allTags'] = array_merge( $this->nativeExtConfig['allTags'],
-			$this->getNonNativeExtensionTags() ?? [] );
+		$this->nativeExtConfig['allTags'] = array_merge(
+			$this->nativeExtConfig['allTags'],
+			$this->getNonNativeExtensionTags()
+		);
 
 		// Default content model implementation for wikitext
 		$this->nativeExtConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();

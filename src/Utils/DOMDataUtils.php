@@ -515,7 +515,6 @@ class DOMDataUtils {
 				/* @phan-suppress-next-line PhanTypeMismatchArgument */
 				SourceRange::fromArray( $dp->extLinkContentOffsets );
 		}
-		/* @phan-suppress-next-line PhanTypeInvalidDimOffset */
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
@@ -587,7 +586,6 @@ class DOMDataUtils {
 		// on on every element of the DOM via vistDOM here makes it O(n^2) instead of O(n).
 		// So, we work around that by building an index and avoiding getElementById entirely
 		// in storeInPageBundle.
-		// @phan-suppress-next-line PhanTypeInvalidDimOffset
 		if ( !empty( $options['storeInPageBundle'] ) ) {
 			$options['idIndex'] = self::usedIdIndex( $node );
 		}

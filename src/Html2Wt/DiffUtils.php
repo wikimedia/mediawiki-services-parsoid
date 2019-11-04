@@ -187,18 +187,18 @@ class DiffUtils {
 		for ( $j = 0,  $n = count( $attrs );  $j < $n;  $j++ ) {
 			$a = $attrs->item( $j );
 			'@phan-var \DOMAttr $a'; // @var \DOMAttr $a
-			if ( !in_array( $a->name, $ignoreableAttribs ) ) {
+			if ( !in_array( $a->name, $ignoreableAttribs, true ) ) {
 				$count++;
 				$h[ $a->name ] = $a->value;
 			}
 		}
 		// If there's no special attribute handler, we want a straight
 		// comparison of these.
-		if ( !in_array( 'data-parsoid', $ignoreableAttribs ) ) {
+		if ( !in_array( 'data-parsoid', $ignoreableAttribs, true ) ) {
 			$h[ 'data-parsoid' ] = DOMDataUtils::getDataParsoid( $node );
 			$count++;
 		}
-		if ( !in_array( 'data-mw', $ignoreableAttribs ) && DOMDataUtils::validDataMw( $node ) ) {
+		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && DOMDataUtils::validDataMw( $node ) ) {
 			$h[ 'data-mw' ] = DOMDataUtils::getDataMw( $node );
 			$count++;
 		}

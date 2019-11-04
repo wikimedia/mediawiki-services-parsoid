@@ -634,7 +634,7 @@ class SerializerState {
 
 		// Output res
 		$this->serializer->trace( '--->', $this->logPrefix, function () use ( $res ) {
-			return PHPUtils::jsonEncode( ( $res instanceof ConstrainedText ) ? $res->text : $res );
+			return PHPUtils::jsonEncode( $res->text );
 		} );
 		$this->pushToCurrLine( $res, $node );
 

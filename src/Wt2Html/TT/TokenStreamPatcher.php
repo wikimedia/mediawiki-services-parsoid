@@ -303,7 +303,13 @@ class TokenStreamPatcher extends TokenHandler {
 					if ( $token->getName() === 'table' ) {
 						$this->lastConvertedTableCellToken = null;
 						$this->wikiTableNesting++;
-					} elseif ( array_search( $token->getName(), [ 'td', 'th', 'tr', 'caption' ] ) !== false ) {
+					} elseif (
+						in_array(
+							$token->getName(),
+							[ 'td', 'th', 'tr', 'caption' ],
+							true
+						)
+					) {
 						if ( $this->wikiTableNesting === 0 ) {
 							if ( $token->getName() === 'td' || $token->getName() === 'th' ) {
 								$this->lastConvertedTableCellToken = $token;

@@ -200,11 +200,6 @@ class WikitextEscapeHandlers {
 	 * @return bool
 	 */
 	public function isFirstContentNode( DOMNode $node ): bool {
-		// Conservative but safe
-		if ( !$node ) {
-			return true;
-		}
-
 		// Skip deleted-node markers
 		return DOMUtils::previousNonDeletedSibling( $node ) === null;
 	}

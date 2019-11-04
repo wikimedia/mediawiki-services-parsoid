@@ -382,8 +382,8 @@ class AttributeExpander extends TokenHandler {
 									if ( is_array( $expandedA->srcOffsets ) ) {
 										if ( is_array( $kv->srcOffsets ) ) {
 											$offset = $expandedA->srcOffsets[0];
-											foreach ( $kv->srcOffsets as $i => $_ ) {
-												$kv->srcOffsets[$i] += $offset;
+											foreach ( $kv->srcOffsets as $j => $_ ) {
+												$kv->srcOffsets[$j] += $offset;
 											}
 										}
 									}

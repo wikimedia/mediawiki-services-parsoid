@@ -1050,8 +1050,8 @@ class LinkHandlerUtils {
 		}
 
 		$nopts = [];
-		$outerDP = $outerElt ? DOMDataUtils::getDataParsoid( $outerElt ) : new stdClass;
-		$outerDMW = $outerElt ? DOMDataUtils::getDataMw( $outerElt ) : new stdClass;
+		$outerDP = DOMDataUtils::getDataParsoid( $outerElt );
+		$outerDMW = DOMDataUtils::getDataMw( $outerElt );
 		$mwAliases = $state->getEnv()->getSiteConfig()->mwAliases();
 
 		// Return ref to the array element in case it is modified
@@ -1180,7 +1180,7 @@ class LinkHandlerUtils {
 		}
 
 		// Handle class-signified options
-		$classes = $outerElt ? DOMCompat::getClassList( $outerElt ) : [];
+		$classes = DOMCompat::getClassList( $outerElt );
 		$extra = []; // 'extra' classes
 		$val = null;
 
@@ -1332,7 +1332,7 @@ class LinkHandlerUtils {
 			];
 		}// FIXME: don't use ak here!
 
-		if ( !( $outerElt && DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
+		if ( !( DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
 			$size = $getLastOpt( 'width' );
 			$sizeString = (string)( $size['ak'] ?? '' );
 			if ( $sizeString === '' && !empty( $ww['fromDataMW'] ) ) {

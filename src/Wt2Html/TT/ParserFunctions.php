@@ -289,7 +289,7 @@ class ParserFunctions {
 	public function pf_iferror( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		if ( array_search( 'class="error"', $target ) !== false ) {
+		if ( array_search( 'class="error"', $target, true ) !== false ) {
 			return $this->expandKV( $args[1], $frame );
 		} else {
 			return $this->expandKV( $args[1], $frame, $target );
@@ -626,13 +626,13 @@ class ParserFunctions {
 	public function pf_fullpagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ?? '' ) ];
+		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ) ];
 	}
 
 	public function pf_fullpagenamee( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ?? '' ) ];
+		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ) ];
 	}
 
 	public function pf_pagelanguage( $token, Frame $frame, Params $params ): array {
@@ -656,7 +656,7 @@ class ParserFunctions {
 	public function pf_fullurl( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		$target = str_replace( ' ', '_', $target ?: ( $this->env->getPageConfig()->getTitle() ?? '' ) );
+		$target = str_replace( ' ', '_', $target ?: ( $this->env->getPageConfig()->getTitle() ) );
 		$wikiConf = $this->env->getSiteConfig();
 		$url = null;
 		if ( $args[1] ) {
@@ -832,12 +832,12 @@ class ParserFunctions {
 
 	public function pf_pagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ $this->env->getPageConfig()->getTitle() ?? '' ];
+		return [ $this->env->getPageConfig()->getTitle() ];
 	}
 
 	public function pf_pagenamebase( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ $this->env->getPageConfig()->getTitle() ?? '' ];
+		return [ $this->env->getPageConfig()->getTitle() ];
 	}
 
 	public function pf_scriptpath( $token, Frame $frame, Params $params ): array {

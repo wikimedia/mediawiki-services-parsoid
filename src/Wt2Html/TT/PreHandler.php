@@ -98,9 +98,9 @@ class PreHandler extends TokenHandler {
 	private $tokens;
 	/** @var array<Token> */
 	private $preCollectCurrentLine;
-	/** @var ?Token */
+	/** @var Token|string|null */
 	private $preWSToken;
-	/** @var ?Token */
+	/** @var Token|string|null */
 	private $multiLinePreWSToken;
 	/** @var array<Token> */
 	private $solTransparentTokens;

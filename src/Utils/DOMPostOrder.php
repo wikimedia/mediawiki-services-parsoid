@@ -9,6 +9,9 @@ use DOMNode;
  * Non-recursive post-order traversal of a DOM tree.
  */
 class DOMPostOrder {
+	/**
+	 * @suppress PhanEmptyPrivateMethod
+	 */
 	private function __construct() {
 		/* Not meant to be instantiated. */
 	}
