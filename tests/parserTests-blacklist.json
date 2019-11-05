@@ -1919,6 +1919,9 @@
     "Categories and newlines: migrateTrailingCategories dom pass should not get tripped by comments and whitespace": {
         "html2wt": "* a\n\n[[Category:Bar]]<!--boo1--> <!--boo2-->\n[[Category:Baz]]<!--boo3--> <!--boo4-->"
     },
+    "Parsoid: Defaultsort with key content being added (T236846)": {
+        "html2wt": "{{DEFAULTSORT}}"
+    },
     "Basic section headings": {
         "html2wt": "== Headline 1 ==\nSome text\n\n== Headline 2 ==\nMore\n\n=== Smaller headline ===\nBlah blah\n"
     },

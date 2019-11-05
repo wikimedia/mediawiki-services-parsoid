@@ -44,12 +44,13 @@ class MetaHandler extends DOMHandler {
 					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
 						$out = '{{' . $contentInfo['value'] . '}}';
 					} elseif ( isset( $dp->src ) ) {
-						// Don't try to squish the 2 lines into one because of
-						// backpattern ambiguities if $contentInfo['value'] happens
-						// to be a "123" or "$1", for example.
-						// See https://www.php.net/manual/en/function.preg-replace.php
-						$out = preg_replace( '/^([^:]+:)(.*)$/D', "$1", $dp->src, 1 );
-						$out .= $contentInfo['value'] . '}}';
+						$colon = strpos( $dp->src, ':', 2 );
+						$out = preg_replace( '/^([^:}]+).*$/D', "$1", $dp->src, 1 );
+						if ( ( $colon === false ) && ( $contentInfo['value'] === '' ) ) {
+							$out .= '}}';
+						} else {
+							$out .= ':' . $contentInfo['value'] . '}}';
+						}
 					} else {
 						$magicWord = mb_strtoupper( $catMatch[1] );
 						$state->getEnv()->log( 'warn', $catMatch[1]

@@ -219,10 +219,6 @@
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,9,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:01\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>01</p>",
         "html2wt": "Talk\n"
     },
-    "Namespace 0 {{ns:0}} (T6783)": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,8,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:0\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>0</p>",
-        "html2wt": ""
-    },
     "Namespace 0 {{ns:00}} (T6783)": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,9,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:00\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>00</p>",
         "html2wt": ""
@@ -1681,6 +1677,9 @@
     },
     "Case-insensitive magic words should still work with weird casing.": {
         "html2wt": "example.org\naOEU\nAoeu\nhttp://example.org\n"
+    },
+    "Namespace 0 {{ns:0}} (T6783)": {
+        "html2wt": ""
     },
     "Namespace User {{ns:User}}": {
         "html2wt": "User\n"

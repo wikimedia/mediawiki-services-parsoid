@@ -17415,6 +17415,28 @@ Parsoid: Defaultsort
 <meta property="mw:PageProp/categorydefaultsort" content="Foo"/>
 !! end
 
+!! test
+Parsoid: Defaultsort variations (T236846)
+!! wikitext
+{{DEFAULTSORT}}
+{{DEFAULTSORT:}}
+{{DEFAULTSORT:DOGGIE}}
+!! html/parsoid
+<meta property="mw:PageProp/categorydefaultsort" content="" data-parsoid='{"src":"{{DEFAULTSORT}}"}'/>
+<meta property="mw:PageProp/categorydefaultsort" content="" data-parsoid='{"src":"{{DEFAULTSORT:}}"}'/>
+<meta property="mw:PageProp/categorydefaultsort" content="DOGGIE" data-parsoid='{"src":"{{DEFAULTSORT:DOGGIE}}"}'/>
+!! end
+
+!! test
+Parsoid: Defaultsort with key content being added (T236846)
+!! options
+parsoid=html2wt
+!! html/parsoid
+<meta property="mw:PageProp/categorydefaultsort" content="BIRD" data-parsoid='{"src":"{{DEFAULTSORT}}"}'/>
+!! wikitext
+{{DEFAULTSORT:BIRD}}
+!! end
+
 # NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
 # But, this is a limitation of our representation and is documented in
 # TemplateHandler.js in processSpecialMagicWord
