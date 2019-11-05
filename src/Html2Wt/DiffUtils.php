@@ -6,6 +6,7 @@ namespace Parsoid\Html2Wt;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use stdClass;
@@ -181,12 +182,9 @@ class DiffUtils {
 	 * @return stdClass
 	 */
 	private static function arrayToHash( DOMElement $node, array $ignoreableAttribs ): stdClass {
-		$attrs = $node->attributes ?? [];
 		$h = [];
 		$count = 0;
-		for ( $j = 0,  $n = count( $attrs );  $j < $n;  $j++ ) {
-			$a = $attrs->item( $j );
-			'@phan-var \DOMAttr $a'; // @var \DOMAttr $a
+		foreach ( DOMCompat::attributes( $node ) as $a ) {
 			if ( !in_array( $a->name, $ignoreableAttribs, true ) ) {
 				$count++;
 				$h[ $a->name ] = $a->value;

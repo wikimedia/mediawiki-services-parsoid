@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
+use DOMAttr;
 use DOMComment;
 use DOMDocument;
 use DOMElement;
-use DOMNamedNodeMap;
 use DOMNode;
 use DOMNodeList;
 use DOMText;
@@ -191,14 +191,12 @@ class PipelineUtils {
 
 	/**
 	 * @param DOMElement $node
-	 * @param DOMNamedNodeMap $attrs
+	 * @param DOMAttr[] $attrs
 	 * @return array
 	 */
-	private static function domAttrsToTagAttrs( DOMElement $node, DOMNamedNodeMap $attrs ): array {
+	private static function domAttrsToTagAttrs( DOMElement $node, array $attrs ): array {
 		$out = [];
-		for ( $j = 0,  $m = count( $attrs );  $j < $m;  $j++ ) {
-			$a = $attrs->item( $j );
-			'@phan-var \DOMAttr $a'; // @var \DOMAttr $a
+		foreach ( $attrs as $a ) {
 			// Not super important since they'll be overwritten by
 			// Parsoid\Wt2Html\PP\Handlers\PrepareDOM
 			if ( !in_array( $a->name, [ 'data-parsoid', DOMDataUtils::DATA_OBJECT_ATTR_NAME ], true ) ) {
@@ -216,7 +214,7 @@ class PipelineUtils {
 	private static function convertDOMtoTokens( DOMNode $node, array $tokBuf ): array {
 		if ( $node instanceof DOMElement ) {
 			$nodeName = strtolower( $node->nodeName );
-			$attrInfo = self::domAttrsToTagAttrs( $node, $node->attributes );
+			$attrInfo = self::domAttrsToTagAttrs( $node, DOMCompat::attributes( $node ) );
 
 			if ( Util::isVoidElement( $nodeName ) ) {
 				$tokBuf[] = new SelfclosingTagTk( $nodeName, $attrInfo['attrs'], $attrInfo['dataAttrs'] );
@@ -349,8 +347,7 @@ class PipelineUtils {
 			// Create a copy of the node without children
 			$workNode = $node->ownerDocument->createElement( $wrapperName );
 			// Copy over attributes
-			for ( $j = 0;  $j < count( $node->attributes );  $j++ ) {
-				$attribute = $node->attributes->item( $j );
+			foreach ( DOMCompat::attributes( $node ) as $attribute ) {
 				'@phan-var \DOMAttr $attribute'; // @var \DOMAttr $attribute
 				// "typeof" is ignored since it'll be remove below.
 				// "data-parsoid" will be overwritten with `dataAttribs` when

@@ -860,11 +860,7 @@ class LinkHandlerUtils {
 			] );
 
 			$isComplexLink = false;
-			$attributes = $node->attributes;
-			$l = $attributes->length;
-			for ( $i = 0;  $i < $l;  $i++ ) {
-				$attr = $attributes->item( $i );
-				'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
+			foreach ( DOMCompat::attributes( $node ) as $attr ) {
 				// XXX: Don't drop rel and class in every case once a tags are
 				// actually supported in the MW default config?
 				if ( $attr->name && !isset( $safeAttr[$attr->name] ) ) {

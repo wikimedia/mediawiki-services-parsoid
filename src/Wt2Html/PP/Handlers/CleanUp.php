@@ -62,8 +62,8 @@ class CleanUp {
 		) {
 			return true;
 		}
-		if ( $node->hasAttributes() ) {
-			foreach ( $node->attributes as $a ) {
+		if ( DOMCompat::hasAttributes( $node ) ) {
+			foreach ( DOMCompat::attributes( $node ) as $a ) {
 				if ( ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
 					( !$tplInfo || $a->name !== 'about' || !Util::isParsoidObjectId( $a->value ) )
 

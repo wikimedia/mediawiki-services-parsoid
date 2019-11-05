@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\WikitextConstants;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
@@ -120,12 +121,8 @@ class XMLSerializer {
 					!in_array( $child->nodeName, $allowedTags, true )
 				) {
 					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
-					$attrs = $child->attributes;
-					$len = $attrs->length;
 					$as = [];
-					for ( $i = 0;  $i < $len;  $i++ ) {
-						$attr = $attrs->item( $i );
-						'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
+					foreach ( DOMCompat::attributes( $child ) as $attr ) {
 						$as[] = [ $attr->name, $attr->value ];
 					}
 					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as, true );
@@ -138,16 +135,10 @@ class XMLSerializer {
 			case XML_ELEMENT_NODE:
 				DOMUtils::assertElt( $node );
 				$child = $node->firstChild;
-				$attrs = $node->attributes;
-				// DOMNamedNodeMap did not implement Countable until PHP 7.2
-				$len = $attrs->length;
 				$nodeName = $node->tagName;
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
-				for ( $i = 0;  $i < $len;  $i++ ) {
-					$attr = $attrs->item( $i );
-					'@phan-var \DOMAttr $attr'; // @var \DOMAttr $attr
-
+				foreach ( DOMCompat::attributes( $node ) as $attr ) {
 					if ( $options['smartQuote']
 						// More double quotes than single quotes in value?
 						&& substr_count( $attr->value, '"' ) > substr_count( $attr->value, "'" )

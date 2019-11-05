@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
+use DOMAttr;
 use DOMCharacterData;
 use DOMDocument;
 use DOMDocumentFragment;
@@ -160,6 +161,46 @@ class DOMCompat {
 	public static function setIdAttribute( DOMElement $element, string $id ): void {
 		$element->setAttribute( 'id', $id );
 		$element->setIdAttribute( 'id', true );// phab:T232390
+	}
+
+	/**
+	 * Workaround bug in PHP's DOMElement::$attributes that fails to enumerate
+	 * attributes named `xmlns`.
+	 *
+	 * @param DOMElement $element
+	 * @return DOMAttr[]
+	 * @see https://phabricator.wikimedia.org/T235295
+	 */
+	public static function attributes( DOMElement $element ): array {
+		$result = [];
+		foreach ( $element->attributes as $attr ) {
+			// These are \DOMAttr objects
+			$result[] = $attr;
+		}
+		// The 'xmlns' attribute is "invisible" T235295
+		if ( $element->hasAttribute( 'xmlns' ) ) {
+			// $element->getAttributeNode actually returns a DOMNameSpaceNode
+			// This is read-only, unlike the other \DOMAttr objects
+			$attr = $element->ownerDocument->createAttributeNS(
+				'http://www.w3.org/2000/xmlns/', 'xmlns'
+			);
+			$attr->value = $element->getAttribute( 'xmlns' );
+			$result[] = $attr;
+		}
+		return $result;
+	}
+
+	/**
+	 * Workaround bug in PHP's DOMElement::hasAttributes() that fails to
+	 * enumerate attributes named `xmlns`.
+	 *
+	 * @param DOMElement $element
+	 * @return bool True if the element has any attributes
+	 * @see https://phabricator.wikimedia.org/T235295
+	 */
+	public static function hasAttributes( DOMElement $element ): bool {
+		// The 'xmlns' attribute is "invisible" T235295
+		return $element->hasAttributes() || $element->hasAttribute( 'xmlns' );
 	}
 
 	/**

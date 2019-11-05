@@ -41,7 +41,7 @@ class DOMDataUtils {
 	 * @return bool
 	 */
 	public static function noAttrs( DOMElement $node ): bool {
-		$numAttrs = count( $node->attributes );
+		$numAttrs = count( DOMCompat::attributes( $node ) );
 		return $numAttrs === 0 ||
 			( $numAttrs === 1 && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) );
 	}
