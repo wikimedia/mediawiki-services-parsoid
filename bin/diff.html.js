@@ -25,9 +25,6 @@ function normalizeHTML(html, isPHP) {
 	html = html.replace(/https:/gm, 'http:');
 
 	if (!isPHP) {
-		// Remex bug (T235295)
-		html = html.replace(/<math xmlns="[^"]*"/gm, '<math');
-
 		// Strip seek parameter in JS videos (T235231)
 		html = html.replace(/(<video poster="[^"]*)seek[%A-F0-9]*/gm, '$1');
 	}
