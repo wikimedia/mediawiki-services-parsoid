@@ -137,7 +137,10 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		throw new ValidationException( 'domain', $domain, [], 'mwparsoid-invalid-domain', [] );
+		throw new ValidationException( 'domain', $domain, [], 'mwparsoid-invalid-domain', [
+			'expected' => $expectedDomain,
+			'actual' => $domain,
+		] );
 	}
 
 	/**
