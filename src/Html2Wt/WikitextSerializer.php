@@ -779,7 +779,7 @@ class WikitextSerializer {
 
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$dpArgInfo = $dp->pi[$part->i] ?? [] ?: [];
+		$dpArgInfo = $dp->pi[$part->i] ?? [];
 
 		// Build a key -> arg info map
 		$dpArgInfoMap = array_column( $dpArgInfo, null, 'k' );
@@ -794,7 +794,7 @@ class WikitextSerializer {
 		$kvMap = [];
 		foreach ( $tplKeysFromDataMw as $key ) {
 			$param = $part->params->{$key};
-			$argInfo = $dpArgInfoMap[$key] ?? [] ?: [];
+			$argInfo = $dpArgInfoMap[$key] ?? [];
 
 			// TODO: Other formats?
 			// Only consider the html parameter if the wikitext one
@@ -903,7 +903,7 @@ class WikitextSerializer {
 				// by adding missing newlines.
 				$spc = $dpArgInfoMap[$arg['dpKey']]->spc ?? null;
 				if ( $spc && ( !$format || preg_match( Util::COMMENT_REGEXP, $spc[3] ?? '' ) ) ) {
-					$nl = ( $formatParamName{0} === "\n" ) ? "\n" : '';
+					$nl = ( substr( $formatParamName, 0, 1 ) === "\n" ) ? "\n" : '';
 					$modFormatParamName = $nl . '|' . $spc[0] . '_' . $spc[1] . '=' . $spc[2];
 					$modFormatParamValue = '_' . $spc[3];
 				} else {
@@ -914,7 +914,7 @@ class WikitextSerializer {
 
 			// Don't create duplicate newlines.
 			$trailing = preg_match( self::TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP, $buf );
-			if ( $trailing && $formatParamName{0} === "\n" ) {
+			if ( $trailing && substr( $formatParamName, 0, 1 ) === "\n" ) {
 				$modFormatParamName = substr( $formatParamName, 1 );
 			}
 
@@ -924,7 +924,7 @@ class WikitextSerializer {
 
 		// Don't create duplicate newlines.
 		if ( preg_match( self::TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP, $buf )
-			 && $formatEnd{0} === "\n"
+			 && substr( $formatEnd, 0, 1 ) === "\n"
 		) {
 			$buf .= substr( $formatEnd, 1 );
 		} else {

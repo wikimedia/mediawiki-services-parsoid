@@ -621,7 +621,7 @@ class SerializerState {
 								&& !DOMUtils::hasAncestorOfName( $node, 'blockquote' ) )
 						) {
 							$res = ConstrainedText::cast( ( $match[1] ?: '' )
-								. '<nowiki>' . $match[2]{0} . '</nowiki>'
+								. '<nowiki>' . substr( $match[2], 0, 1 ) . '</nowiki>'
 								. substr( $match[2], 1 ), $node );
 						}
 					}
