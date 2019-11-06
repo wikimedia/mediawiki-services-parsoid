@@ -60,17 +60,17 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 				'size' => 10009,
 				'mediatype' => 'DRAWING',
 				'mime' => 'image/svg+xml',
-				'url' => 'https://upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
+				'url' => '//upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
 				'mustRender' => true,
 				'badFile' => false,
 				'responsiveUrls' => [
 					// phpcs:ignore Generic.Files.LineLength.TooLong
-					'1.5' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/150px-Example.svg.png',
+					'1.5' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/150px-Example.svg.png',
 					// phpcs:ignore Generic.Files.LineLength.TooLong
-					'2' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/200px-Example.svg.png',
+					'2' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/200px-Example.svg.png',
 				],
 				// phpcs:ignore Generic.Files.LineLength.TooLong
-				'thumburl' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/100px-Example.svg.png',
+				'thumburl' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/100px-Example.svg.png',
 				'thumbwidth' => 100,
 				'thumbheight' => 100,
 			],

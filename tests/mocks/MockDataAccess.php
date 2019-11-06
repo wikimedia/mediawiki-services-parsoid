@@ -271,7 +271,9 @@ class MockDataAccess implements DataAccess {
 	];
 
 	// configuration to match PHP parserTests
-	const IMAGE_BASE_URL = 'http://example.com/images';
+	// although protocol-relative; see T235217 and
+	// If52d21b50cdbb466395ca64ac9877d992e19ce40
+	const IMAGE_BASE_URL = '//example.com/images';
 	const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
 	const FILE_PROPS = [
 		'Foobar.jpg' => [

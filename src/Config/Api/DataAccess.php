@@ -158,10 +158,23 @@ class DataAccess implements IDataAccess {
 
 		$ret = array_fill_keys( array_keys( $files ), null );
 		foreach ( $data['parsoid-batch'] as $i => $batch ) {
+			self::stripProto( $batch, 'url' );
+			self::stripProto( $batch, 'thumburl' );
+			self::stripProto( $batch, 'descriptionurl' );
+			foreach ( $batch['responsiveUrls'] ?? [] as $density => $url ) {
+				self::stripProto( $batch['responsiveUrls'], $density );
+			}
 			$ret[$batches[$i]['filename']] = $batch;
 		}
 
 		return $ret;
+	}
+
+	/** Convert the given URL into protocol-relative form. */
+	private static function stripProto( ?array &$obj, $key ): void {
+		if ( $obj !== null && !empty( $obj[$key] ) ) {
+			$obj[$key] = preg_replace( '#^https?://#', '//', $obj[$key] );
+		}
 	}
 
 	/** @inheritDoc */

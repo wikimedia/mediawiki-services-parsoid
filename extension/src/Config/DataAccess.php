@@ -138,7 +138,7 @@ class DataAccess implements IDataAccess {
 				'size' => $file->getSize(),
 				'mediatype' => $file->getMediaType(),
 				'mime' => $file->getMimeType(),
-				'url' => wfExpandUrl( $file->getFullUrl(), PROTO_CURRENT ),
+				'url' => $file->getFullUrl(),
 				'mustRender' => $file->mustRender(),
 				'badFile' => (bool)wfIsBadImage( $filename, $page ?: false ),
 			];
@@ -159,8 +159,7 @@ class DataAccess implements IDataAccess {
 						if ( count( $mto->responsiveUrls ) ) {
 							$result['responsiveUrls'] = [];
 							foreach ( $mto->responsiveUrls as $density => $url ) {
-								$result['responsiveUrls'][$density] = wfExpandUrl(
-									$url, PROTO_CURRENT );
+								$result['responsiveUrls'][$density] = $url;
 							}
 						}
 					}
@@ -170,7 +169,7 @@ class DataAccess implements IDataAccess {
 						$result['thumbdata'] = $mto->getAPIData();
 					}
 
-					$result['thumburl'] = wfExpandUrl( $mto->getUrl(), PROTO_CURRENT );
+					$result['thumburl'] = $mto->getUrl();
 					$result['thumbwidth'] = $mto->getWidth();
 					$result['thumbheight'] = $mto->getHeight();
 				}
