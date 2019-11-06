@@ -364,6 +364,14 @@ class References extends ExtensionTag {
 		}
 	}
 
+	private static function processEmbeddedRefs(
+		Env $env, ReferencesData $refsData, string $str
+	): string {
+		$dom = ContentUtils::ppToDOM( $env, $str );
+		self::processRefs( $env, $refsData, $dom );
+		return ContentUtils::ppToXML( $dom, [ 'innerXML' => true ] );
+	}
+
 	/**
 	 * @param Env $env
 	 * @param ReferencesData $refsData
@@ -421,11 +429,34 @@ class References extends ExtensionTag {
 							$attribs = &$dmw->attribs[0];
 							foreach ( $attribs as &$a ) {
 								if ( isset( $a->html ) ) {
-									$dom = ContentUtils::ppToDOM( $env, $a->html );
-									self::processRefs( $env, $refsData, $dom );
-									$a->html = ContentUtils::ppToXML( $dom, [ 'innerXML' => true ] );
+									$a->html = self::processEmbeddedRefs( $env, $refsData, $a->html );
 								}
 							}
+						}
+					}
+
+					// Language variant markup
+					if ( DOMUtils::matchTypeOf( $child, '/^mw:LanguageVariant$/' ) ) {
+						$dmwv = DOMDataUtils::getJSONAttribute( $child, 'data-mw-variant', null );
+						if ( $dmwv ) {
+							if ( isset( $dmwv->disabled ) ) {
+								$dmwv->disabled->t = self::processEmbeddedRefs( $env, $refsData, $dmwv->disabled->t );
+							}
+							if ( isset( $dmwv->twoway ) ) {
+								foreach ( $dmwv->twoway as $l ) {
+									$l->t = self::processEmbeddedRefs( $env, $refsData, $l->t );
+								}
+							}
+							if ( isset( $dmwv->oneway ) ) {
+								foreach ( $dmwv->oneway as $l ) {
+									$l->f = self::processEmbeddedRefs( $env, $refsData, $l->f );
+									$l->t = self::processEmbeddedRefs( $env, $refsData, $l->t );
+								}
+							}
+							if ( isset( $dmwv->filter ) ) {
+								$dmwv->filter->t = self::processEmbeddedRefs( $env, $refsData, $dmwv->filter->t );
+							}
+							DOMDataUtils::setJSONAttribute( $child, 'data-mw-variant', $dmwv );
 						}
 					}
 
@@ -434,11 +465,7 @@ class References extends ExtensionTag {
 						$dmw = DOMDataUtils::getDataMw( $child );
 						$caption = $dmw->caption ?? null;
 						if ( $caption ) {
-							// Extract the caption HTML, build the DOM, process refs,
-							// serialize to HTML, update the caption HTML.
-							$captionDOM = ContentUtils::ppToDOM( $env, $caption );
-							self::processRefs( $env, $refsData, $captionDOM );
-							$dmw->caption = ContentUtils::ppToXML( $captionDOM, [ 'innerXML' => true ] );
+							$dmw->caption = self::processEmbeddedRefs( $env, $refsData, $caption );
 						}
 					}
 					if ( $child->hasChildNodes() ) {
