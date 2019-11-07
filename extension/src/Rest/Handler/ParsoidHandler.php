@@ -697,9 +697,9 @@ abstract class ParsoidHandler extends Handler {
 			&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
 		) {
 			// `opts` isn't a revision, but we'll find a `data-mw` there.
-			$pb = new PageBundle( '', $opts['data-parsoid']['body'] ?? null,
+			$pb = new PageBundle( '',
+				[ 'ids' => [] ],  // So it validates
 				$opts['data-mw']['body'] ?? null );
-			$pb->parsoid = [ 'ids' => [] ]; // So it validates
 			if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
 				return $this->getResponseFactory()->createHttpError( 400,
 					[ 'message' => $errorMessage ] );
@@ -721,6 +721,19 @@ abstract class ParsoidHandler extends Handler {
 					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
 						$original['data-mw']['body'] ?? null );
 				}
+
+				// FIXME: This is a temporary protection while Parsoid/JS and
+				// Parsoid/PHP are both in production.  Afterwards, we should
+				// restore this as a 406.
+				$offsetType = $envOptions['offsetType'] ?? 'byte';
+				$origOffsetType = $origPb->parsoid['offsetType'] ?? '';
+				if ( $origOffsetType !== $offsetType ) {
+					return $this->getResponseFactory()->createHttpError( 421, [
+						'message' => 'DSR offsetType mismatch: ' .
+							$origOffsetType . ' vs ' . $offsetType,
+					] );
+				}
+
 				$pb = $origPb;
 				// However, if a modified data-mw was provided,
 				// original data-mw is omitted to avoid losing deletions.
@@ -763,19 +776,6 @@ abstract class ParsoidHandler extends Handler {
 			$selserData = new SelserData( $oldtext, $oldhtml );
 		} else {
 			$selserData = null;
-		}
-
-		// Verify that the top-level parsoid object either doesn't contain
-		// offsetType, or that it matches the conversion that has been
-		// explicitly requested.
-		if ( isset( $pb->parsoid->offsetType ) ) {
-			$offsetType = $envOptions['offsetType'] ?? 'byte';
-			if ( $pb->parsoid->offsetType !== $offsetType ) {
-				return $this->getResponseFactory()->createHttpError( 406, [
-					'message' => 'DSR offsetType mismatch: ' .
-						$pb->parsoid->offsetType . ' vs ' . $offsetType,
-				] );
-			}
 		}
 
 		$html = ContentUtils::toXML( $doc );
