@@ -173,10 +173,6 @@ class DOMCompat {
 	 */
 	public static function attributes( DOMElement $element ): array {
 		$result = [];
-		foreach ( $element->attributes as $attr ) {
-			// These are \DOMAttr objects
-			$result[] = $attr;
-		}
 		// The 'xmlns' attribute is "invisible" T235295
 		if ( $element->hasAttribute( 'xmlns' ) ) {
 			// $element->getAttributeNode actually returns a DOMNameSpaceNode
@@ -185,6 +181,10 @@ class DOMCompat {
 				'http://www.w3.org/2000/xmlns/', 'xmlns'
 			);
 			$attr->value = $element->getAttribute( 'xmlns' );
+			$result[] = $attr;
+		}
+		foreach ( $element->attributes as $attr ) {
+			// These are \DOMAttr objects
 			$result[] = $attr;
 		}
 		return $result;

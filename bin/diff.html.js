@@ -21,10 +21,6 @@ function normalizeHTML(html, isPHP) {
 	// Normalized unexpanded DOM fragments (T235656)
 	html = html.replace(/mwf[0-9]*/gm, 'mwfX');
 
-	// Strip xmlns attribute for simplicity since the ordering of
-	// the attribute varies and causes spurious diffs.
-	html = html.replace(/xmlns="[^"]*"/gm, '');
-
 	if (!isPHP) {
 		// Strip seek parameter in JS videos (T235231)
 		html = html.replace(/(<video poster="[^"]*)seek[%A-F0-9]*/gm, '$1');
