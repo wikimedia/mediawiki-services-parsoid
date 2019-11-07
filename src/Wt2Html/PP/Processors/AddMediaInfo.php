@@ -228,7 +228,7 @@ class AddMediaInfo {
 		} elseif ( !empty( $info['url'] ) ) {
 			$path = $info['url'];
 		}
-		return preg_replace( '#^https?://#', '//', $path, 1 );
+		return $path;
 	}
 
 	/**
@@ -364,7 +364,7 @@ class AddMediaInfo {
 			// FIXME: Parsoid's output here doesn't match core! T234932
 			krsort( $info['responsiveUrls'] );
 			foreach ( $info['responsiveUrls'] as $density => $url ) {
-				$candidates[] = preg_replace( '#^https?://#', '//', $url, 1 ) . ' ' . $density . 'x';
+				$candidates[] = $url . ' ' . $density . 'x';
 			}
 			if ( $candidates ) {
 				$img->setAttribute( 'srcset', implode( ', ', $candidates ) );

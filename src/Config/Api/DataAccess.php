@@ -164,6 +164,9 @@ class DataAccess implements IDataAccess {
 			foreach ( $batch['responsiveUrls'] ?? [] as $density => $url ) {
 				self::stripProto( $batch['responsiveUrls'], $density );
 			}
+			foreach ( $batch['thumbdata']['derivatives'] ?? [] as $j => $d ) {
+				self::stripProto( $batch['thumbdata']['derivatives'][$j], 'src' );
+			}
 			$ret[$batches[$i]['filename']] = $batch;
 		}
 
