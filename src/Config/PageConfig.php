@@ -11,13 +11,6 @@ use DOMDocument;
 abstract class PageConfig {
 
 	/**
-	 * Content type of the page (when parsing HTML).
-	 * PORT-FIXME this should not be here, or should not be exposed directly.
-	 * @var string
-	 */
-	public $dpContentType;
-
-	/**
 	 * The owner document of the page. Used to transfer context between WikitextSerializer and
 	 * some extensions, see WikitextSerializer::serializeDOM.
 	 * PORT-FIXME this should not be here.

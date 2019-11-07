@@ -735,12 +735,6 @@ abstract class ParsoidHandler extends Handler {
 						[ 'message' => $errorMessage ] );
 				}
 				DOMDataUtils::applyPageBundle( $doc, $pb );
-
-				// TODO(arlolra): data-parsoid is no longer versioned
-				// independently, but we leave this for backwards compatibility
-				// until content version <= 1.2.0 is deprecated.  Anything new
-				// should only depend on `env.inputContentVersion`.
-				$envOptions['dpContentType'] = $original[ 'data-parsoid' ]['headers'][ 'content-type' ] ?? null;
 			}
 
 			// If we got original html, parse it

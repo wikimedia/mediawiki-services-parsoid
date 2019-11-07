@@ -717,12 +717,6 @@ class WikitextSerializer {
 		// Parse custom format specification, if present.
 		$defaultBlockSpc = "{{_\n| _ = _\n}}"; // "block"
 		$defaultInlineSpc = '{{_|_=_}}'; // "inline"
-		// FIXME: Do a full regexp test maybe?
-		if ( preg_match( '/.*data-parsoid\/0.0.1"$/D', $this->env->getPageConfig()->dpContentType ) ) {
-			// For previous versions of data-parsoid,
-			// wt2html pipeline used "|foo = bar" style args as the default.
-			$defaultInlineSpc = '{{_|_ = _}}';
-		}
 
 		$format = isset( $tplData['format'] ) ? strtolower( $tplData['format'] ) : null;
 		if ( $format === 'block' ) {
