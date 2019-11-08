@@ -6,6 +6,8 @@ namespace Parsoid\Logger;
 use Wikimedia\Assert\Assert;
 
 use Parsoid\Config\Env;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Timing;
 
 /**
  * Logger backend for linter.
@@ -22,6 +24,59 @@ class LintLogger {
 	 */
 	public function __construct( Env $env ) {
 		$this->env = $env;
+	}
+
+	/**
+	 * Convert DSR offsets in collected lints
+	 * @param Env $env
+	 * @param array &$lints
+	 */
+	public static function convertDSROffsets( Env $env, array &$lints ): void {
+		if ( $env->getOffsetType() !== 'ucs2' ) {
+			$metrics = $env->getSiteConfig()->metrics();
+			$timer = null;
+			if ( $metrics ) {
+				$timer = Timing::start( $metrics );
+			}
+
+			// Accumulate offsets + convert widths to pseudo-offsets
+			$offsets = [];
+			foreach ( $lints as &$lint ) {
+				$dsr = &$lint['dsr'];
+				$offsets[] = &$dsr[0];
+				$offsets[] = &$dsr[1];
+
+				// dsr[2] is a width. Convert it to an offset pointer.
+				if ( ( $dsr[2] ?? 0 ) > 1 ) { // widths 0,1,null are fine
+					$dsr[2] = $dsr[0] + $dsr[2];
+					$offsets[] = &$dsr[2];
+				}
+
+				// dsr[3] is a width. Convert it to an offset pointer.
+				if ( ( $dsr[3] ?? 0 ) > 1 ) { // widths 0,1,null are fine
+					$dsr[3] = $dsr[1] - $dsr[3];
+					$offsets[] = &$dsr[3];
+				}
+			}
+
+			TokenUtils::convertOffsets( $env->topFrame->getSrcText(),
+				$env->getOffsetType(), 'ucs2', $offsets );
+
+			// Undo the conversions of dsr[2], dsr[3]
+			foreach ( $lints as &$lint ) {
+				$dsr = &$lint['dsr'];
+				if ( ( $dsr[2] ?? 0 ) > 1 ) { // widths 0,1,null are fine
+					$dsr[2] = $dsr[2] - $dsr[0];
+				}
+				if ( ( $dsr[3] ?? 0 ) > 1 ) { // widths 0,1,null are fine
+					$dsr[3] = $dsr[1] - $dsr[3];
+				}
+			}
+
+			if ( $metrics ) {
+				$timer->end( "lint.offsetconversion" );
+			}
+		}
 	}
 
 	/**
@@ -65,6 +120,8 @@ class LintLogger {
 		// Only send the request if it the latest revision
 		// if ( $env->page->meta->revision->revid === $env->page->latest ) {
 			if ( !$env->noDataAccess() ) {
+				// Convert offsets to ucs2
+				self::convertDSROffsets( $env, $enabledBuffer );
 				$env->getDataAccess()->logLinterData( $enabledBuffer );
 			}
 		// }

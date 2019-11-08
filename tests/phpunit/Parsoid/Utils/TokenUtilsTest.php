@@ -358,6 +358,12 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	public static function provideConvertOffsets() {
 		# Ensure that we have char from each UTF-8 class here.
+		#
+		#      "foo bár 💩💩 baz AԱ人💩"
+		# char  012345678 9 01234567 8
+		# ucs   012345678 0 23456789 0
+		# byte  012345789 3 78901235 8
+		#
 		$str = "foo bár \u{1F4A9}\u{1F4A9} baz A\u{0531}\u{4EBA}\u{1F4A9}";
 		$offsets = [
 			# 0th offset must be zero, 1st should be length of string
