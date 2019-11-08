@@ -21,11 +21,6 @@ function normalizeHTML(html, isPHP) {
 	// Normalized unexpanded DOM fragments (T235656)
 	html = html.replace(/mwf[0-9]*/gm, 'mwfX');
 
-	if (!isPHP) {
-		// Strip seek parameter in JS videos (T235231)
-		html = html.replace(/(<video poster="[^"]*)seek[%A-F0-9]*/gm, '$1');
-	}
-
 	// Remove stray nowiki strip tags left behind by extensions
 	html = html.replace(/UNIQ--nowiki-.*?QINU/gm, '');
 
