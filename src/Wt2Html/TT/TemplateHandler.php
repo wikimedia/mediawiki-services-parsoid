@@ -325,13 +325,15 @@ class TemplateHandler extends TokenHandler {
 				$magicWordType = 'MASQ';
 			}
 
+			$pfArg = substr( $target, strlen( $prefix ) + 1 );
+
 			return [
 				'isPF' => true,
 				'prefix' => $canonicalFunctionName,
 				'magicWordType' => $magicWordType,
 				'target' => 'pf_' . $canonicalFunctionName,
 				'title' => $env->makeTitleFromURLDecodedStr( "Special:ParserFunction/$canonicalFunctionName" ),
-				'pfArg' => substr( $target, strlen( $prefix ) + 1 ) ?: '',
+				'pfArg' => $pfArg === false ? '' : $pfArg,
 				'pfArgToks' => $pfArgToks,
 				'srcOffsets' => $srcOffsets,
 			];
