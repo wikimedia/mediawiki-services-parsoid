@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMElement;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\DomSourceRange;
+use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
@@ -80,6 +81,22 @@ class Poem extends ExtensionTag implements Extension {
 			$parentFrame->getTitle(), [], $content
 		);
 
+		$foundClass = false;
+
+		$args = array_map( function ( $obj ) use ( &$foundClass ) {
+			if ( strtolower( $obj->k ) === 'class' ) {
+				$foundClass = true;
+				$obj = clone $obj;
+				$space = strlen( $obj->v ) ? ' ' : '';
+				$obj->v = "poem{$space}{$obj->v}";
+			}
+			return $obj;
+		}, $args );
+
+		if ( !$foundClass ) {
+			$args[] = new KV( 'class', 'poem' );
+		}
+
 		$doc = $extApi->parseTokenContentsToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
 				'pipelineOpts' => [
@@ -89,11 +106,6 @@ class Poem extends ExtensionTag implements Extension {
 				'srcOffsets' => new SourceRange( 0, strlen( $content ) ),
 			]
 		);
-
-		$body = DOMCompat::getBody( $doc );
-		$node = $body->firstChild;
-		DOMUtils::assertElt( $node );
-		$node->setAttribute( 'class', 'poem' );
 
 		// We've shifted the content around quite a bit when we preprocessed
 		// it.  In the future if we wanted to enable selser inside the <poem>
