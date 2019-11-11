@@ -841,7 +841,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
    return $e; 
   }
   private function a74() {
-   return $this->endOffset() > 0 && preg_match( '/\w/', $this->input[$this->endOffset() - 1] ?? '' ); 
+   return Util::isUniWord(Util::lastUniChar( $this->input, $this->endOffset() ) ); 
   }
   private function a75($target) {
   

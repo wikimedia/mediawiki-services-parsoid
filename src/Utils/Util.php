@@ -78,6 +78,39 @@ class Util {
 	}
 
 	/**
+	 * Extract the last *unicode* character of the string.
+	 * This might be more than one byte, if the last character
+	 * is non-ASCII.
+	 * @param string $str
+	 * @param ?int $idx The index *after* the character to extract; defaults
+	 *   to the length of $str, which will extract the last character in
+	 *   $str.
+	 * @return string
+	 */
+	public static function lastUniChar( string $str, ?int $idx = null ): string {
+		if ( $idx === null ) {
+			$idx = strlen( $str );
+		}
+		if ( $idx <= 0 || $idx > strlen( $str ) ) {
+			return '';
+		}
+		$c = $str[--$idx];
+		while ( ( ord( $c ) & 0xC0 ) === 0x80 ) {
+			$c = $str[--$idx] . $c;
+		}
+		return $c;
+	}
+
+	/**
+	 * Return true if the first character in $s is a unicode word character.
+	 * @param string $s
+	 * @return bool
+	 */
+	public static function isUniWord( string $s ): bool {
+		return preg_match( '#^\w#u', $s ) === 1;
+	}
+
+	/**
 	 * This should not be used.
 	 * @param string $txt URL to encode using PHP encoding
 	 * @return string
