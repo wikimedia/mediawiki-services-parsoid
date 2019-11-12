@@ -614,13 +614,12 @@ class WikitextSerializer {
 		$aliasMap = [];
 		$keys = [];
 		if ( $tplData && isset( $tplData['paramOrder'] ) ) {
-			$params = $tplData['params'];
 			foreach ( $tplData['paramOrder'] as $i => $key ) {
 				$tplDataOrder[$key] = [ 'order' => $i ];
 				$aliasMap[$key] = [ 'key' => $key, 'order' => -1 ];
 				$keys[] = $key;
 				// Aliases have the same sort order as the main name.
-				$aliases = $params[$key]['aliases'] ?? [];
+				$aliases = $tplData['params'][$key]['aliases'] ?? [];
 				foreach ( $aliases as $j => $alias ) {
 					$aliasMap[$alias] = [ 'key' => $key, 'order' => $j ];
 				}
