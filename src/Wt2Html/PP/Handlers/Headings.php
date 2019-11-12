@@ -153,7 +153,7 @@ class Headings {
 			},
 			$key
 		);
-		if ( empty( $seenIds[$key ] ) ) {
+		if ( empty( $seenIds[$key] ) ) {
 			$seenIds[$key] = true;
 			return true;
 		}

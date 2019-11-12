@@ -30,7 +30,7 @@ class HeadingsTest extends TestCase {
 		$this->assertEquals( count( $elts ), count( $expectedIds ) );
 
 		foreach ( $expectedIds as $key => $id ) {
-			$h = $elts[ $key ];
+			$h = $elts[$key];
 			$fallback = DOMCompat::querySelectorAll( $h, 'span[typeof="mw:FallbackId"]:empty' );
 			if ( is_String( $id ) ) {
 				$attrib = $h->getAttribute( 'id' );

@@ -35,7 +35,7 @@ class ExtensionHandler extends TokenHandler {
 		$logger = $this->env->getSiteConfig()->getLogger();
 		$env = $this->env;
 
-		if ( !empty( $env->dumpFlags [ 'extoutput' ] ) ) {
+		if ( !empty( $env->dumpFlags['extoutput'] ) ) {
 			$logger->warning( str_repeat( '=', 80 ) );
 			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
 			$logger->warning( str_repeat( '=', 80 ) );
@@ -66,7 +66,7 @@ class ExtensionHandler extends TokenHandler {
 		// but here we use the text source instead.
 		$n = count( $options );
 		for ( $i = 0;  $i < $n;  $i++ ) {
-			$o = $options[ $i ];
+			$o = $options[$i];
 			if ( !$o->v && !$o->vsrc ) {
 				continue;
 			}
@@ -123,7 +123,7 @@ class ExtensionHandler extends TokenHandler {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
 		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
-		$cachedExpansion = $env->extensionCache[ $token->dataAttribs->src ] ?? null;
+		$cachedExpansion = $env->extensionCache[$token->dataAttribs->src] ?? null;
 
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );

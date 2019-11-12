@@ -352,8 +352,8 @@ class MockSiteConfig extends SiteConfig {
 		return function ( $text ) use ( $pats, $regex ) {
 			if ( preg_match( $regex, $text, $m ) ) {
 				foreach ( $pats as $k => $re ) {
-					if ( isset( $m[ $k ] ) && $m[ $k ] !== '' ) {
-						return [ $k, $m[ $k ] ];
+					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
+						return [ $k, $m[$k] ];
 					}
 				}
 			}

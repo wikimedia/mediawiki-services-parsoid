@@ -568,7 +568,7 @@ class WrapTemplates {
 							) {
 								$foundNesting = true;
 								if ( !isset( $subsumedRanges[$r->id] ) ||
-									$other->startOffset < $sTpls[ $subsumedRanges[$r->id] ]->startOffset
+									$other->startOffset < $sTpls[$subsumedRanges[$r->id]]->startOffset
 								) {
 									$subsumedRanges[$r->id] = $otherId;
 								}

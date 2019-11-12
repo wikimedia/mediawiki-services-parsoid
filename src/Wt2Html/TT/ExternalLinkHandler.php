@@ -131,7 +131,7 @@ class ExternalLinkHandler extends TokenHandler {
 			$builtTag = new TagTk( 'a', $tagAttrs, $dataAttribs );
 			$dataAttribs->stx = 'url';
 
-			if ( !$this->options[ 'inTemplate' ] ) {
+			if ( !$this->options['inTemplate'] ) {
 				// Since we messed with the text of the link, we need
 				// to preserve the original in the RT data. Or else.
 				$builtTag->addNormalizedAttribute(
@@ -232,7 +232,7 @@ class ExternalLinkHandler extends TokenHandler {
 				$token->attribs, false, null, $newAttrs )['attribs'];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 
-			if ( empty( $this->options[ 'inTemplate' ] ) ) {
+			if ( empty( $this->options['inTemplate'] ) ) {
 				// If we are from a top-level page, add normalized attr info for
 				// accurate roundtripping of original content.
 				//

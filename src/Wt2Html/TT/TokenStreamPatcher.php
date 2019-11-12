@@ -136,7 +136,7 @@ class TokenStreamPatcher extends TokenHandler {
 
 			$ret = [];
 			for ( $i = 0;  $i < count( $toks );  $i++ ) {
-				$t = $toks[ $i ];
+				$t = $toks[$i];
 				if ( !$t ) {
 					continue;
 				}

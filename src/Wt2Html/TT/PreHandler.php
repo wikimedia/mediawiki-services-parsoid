@@ -315,7 +315,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
-			self::stateStr()[ $this->state ], '|',
+			self::stateStr()[$this->state], '|',
 			function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
@@ -381,7 +381,7 @@ class PreHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ) {
 		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
-			self::stateStr()[ $this->state ], '|',
+			self::stateStr()[$this->state], '|',
 			function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
@@ -445,7 +445,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->manager->env;
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
-			self::stateStr()[ $this->state ], '|',
+			self::stateStr()[$this->state], '|',
 			function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
@@ -464,7 +464,7 @@ class PreHandler extends TokenHandler {
 			if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
 				$ret = $this->tokens;
 				$this->tokens = [];
-				$this->preWSToken = $token[ 0 ];
+				$this->preWSToken = $token[0];
 				$this->state = self::STATE_PRE;
 				if ( strlen( $token ) > 1 ) {
 					// Treat everything after the first space
@@ -520,7 +520,7 @@ class PreHandler extends TokenHandler {
 				$this->solTransparentTokens = [];
 
 				// check if token is single-space or more
-				$this->multiLinePreWSToken = $token[ 0 ];
+				$this->multiLinePreWSToken = $token[0];
 				if ( strlen( $token ) > 1 ) {
 					// Treat everything after the first space as a new token
 					// (`substr` not `mb_substr` since we know space is ASCII)

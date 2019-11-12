@@ -60,7 +60,7 @@ class Util {
 		if ( mb_strtolower( $name ) !== $name ) {
 			throw new \BadMethodCallException( 'Use lowercase tag names' );
 		}
-		return isset( Consts::$HTML['VoidTags'][ $name ] );
+		return isset( Consts::$HTML['VoidTags'][$name] );
 	}
 
 	/**

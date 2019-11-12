@@ -434,7 +434,7 @@ class WikitextEscapeHandlers {
 
 				$href = $t->getAttribute( 'href' );
 				if ( is_array( $href ) ) {
-					$href = $href[ 0 ];
+					$href = $href[0];
 				}
 
 				if ( !TokenUtils::isTemplateToken( $href ) ) {
@@ -658,7 +658,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// Ignore table tokens outside of tables
-				if ( isset( ( [ 'caption' => 1, 'table' => 1 ] )[ $t->getName() ] ) &&
+				if ( isset( ( [ 'caption' => 1, 'table' => 1 ] )[$t->getName()] ) &&
 					$state->wikiTableNesting === 0
 				) {
 					continue;

@@ -1179,7 +1179,7 @@ class TestRunner {
 					// `cachedNormalizedHTML`) that should be cleared before use
 					// in `newitem`.
 					if ( $targetMode === 'wt2html' &&
-						isset( $test->altHtmlSections['html/parsoid+langconv' ] )
+						isset( $test->altHtmlSections['html/parsoid+langconv'] )
 					) {
 						$newitem = Util::clone( $test );
 						$newitem->options['langconv'] = true;

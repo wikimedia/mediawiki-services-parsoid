@@ -37,7 +37,7 @@ class Poem extends ExtensionTag implements Extension {
 			$contentMap = array_map( function ( $line ) use ( $extApi ) {
 				$i = 0;
 				$lineLength = strlen( $line );
-				while ( $i < $lineLength && $line[ $i ] === ':' ) {
+				while ( $i < $lineLength && $line[$i] === ':' ) {
 					$i++;
 				}
 				if ( $i > 0 && $i < $lineLength ) {
@@ -155,7 +155,7 @@ class Poem extends ExtensionTag implements Extension {
 					$n = count( $pieces );
 					$nl = '';
 					for ( $i = 0;  $i < $n;  $i++ ) {
-						$p = $pieces[ $i ];
+						$p = $pieces[$i];
 						$c->insertBefore( $doc->createTextNode( $nl . $p ), $cc );
 						if ( $i < $n - 1 ) {
 							$c->insertBefore( $doc->createElement( 'br' ), $cc );

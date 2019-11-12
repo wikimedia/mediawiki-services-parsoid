@@ -263,7 +263,7 @@ class ListHandler extends TokenHandler {
 		$minLength = min( count( $x ), count( $y ) );
 		$i = 0;
 		for ( ;  $i < $minLength;  $i++ ) {
-			if ( $x[ $i ] !== $y[ $i ] ) {
+			if ( $x[$i] !== $y[$i] ) {
 				break;
 			}
 		}
@@ -323,7 +323,7 @@ class ListHandler extends TokenHandler {
 	private function isDtDd( string $a, string $b ): bool {
 		$ab = [ $a, $b ];
 		sort( $ab );
-		return ( $ab[ 0 ] === ':' && $ab[ 1 ] === ';' );
+		return ( $ab[0] === ':' && $ab[1] === ';' );
 	}
 
 	/**
@@ -387,7 +387,7 @@ class ListHandler extends TokenHandler {
 			$tokens = [];
 			if ( count( $bs ) > $prefixLen
 				&& count( $bn ) > $prefixLen
-				&& $this->isDtDd( $bs[ $prefixLen ], $bn[ $prefixLen ] ) ) {
+				&& $this->isDtDd( $bs[$prefixLen], $bn[$prefixLen] ) ) {
 				/* ------------------------------------------------
 				 * Handle dd/dt transitions
 				 *
@@ -401,7 +401,7 @@ class ListHandler extends TokenHandler {
 
 				$tokens = $this->popTags( count( $bs ) - $prefixLen - 1 );
 				$tokens = array_merge( $this->currListFrame->solTokens, $tokens );
-				$newName = self::$bullet_chars_map[ $bn[ $prefixLen ] ]['item'];
+				$newName = self::$bullet_chars_map[$bn[$prefixLen]]['item'];
 				$endTag = array_pop( $this->currListFrame->endtags );
 				$this->currListFrame->endtags[] = new EndTagTk( $newName );
 
@@ -438,8 +438,8 @@ class ListHandler extends TokenHandler {
 			}
 
 			for ( $i = $prefixLen + $prefixCorrection;  $i < count( $bn );  $i++ ) {
-				if ( !self::$bullet_chars_map[ $bn[ $i ] ] ) {
-					throw new \Exception( 'Unknown node prefix ' . $prefix[ $i ] );
+				if ( !self::$bullet_chars_map[$bn[$i]] ) {
+					throw new \Exception( 'Unknown node prefix ' . $prefix[$i] );
 				}
 
 				// Each list item in the chain gets one bullet.
@@ -487,7 +487,7 @@ class ListHandler extends TokenHandler {
 				}
 
 				$tokens = array_merge( $tokens, $this->pushList(
-					self::$bullet_chars_map[ $bn[ $i ] ], $listDP, $listItemDP
+					self::$bullet_chars_map[$bn[$i]], $listDP, $listItemDP
 				) );
 			}
 			$res = $tokens;

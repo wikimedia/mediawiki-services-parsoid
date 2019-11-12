@@ -137,7 +137,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		}
 		$n = count( $tokens );
 		for ( $i = 0;  $i < $n;  $i++ ) {
-			$this->processToken( $tokens[ $i ] );
+			$this->processToken( $tokens[$i] );
 		}
 		if ( $this->traceTime ) {
 			$this->env->bumpTimeUse( 'HTML5 TreeBuilder', PHPUtils::getHRTimeDifferential( $s ), 'HTML5' );
@@ -187,7 +187,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	 */
 	private function kvArrToAttr( array $maybeAttribs ): array {
 		return array_reduce( $maybeAttribs, function ( $prev, $next ) {
-			$prev[ $next->k ] = $next->v;
+			$prev[$next->k] = $next->v;
 			return $prev;
 		}, [] );
 	}

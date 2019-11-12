@@ -712,7 +712,7 @@ class MockApiHelper extends ApiHelper {
 		// used in parser tests currently. This would need to be updated
 		// as more templates are added OR we need to rely on true parsing.
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $text, $match );
-		switch ( $match[ 1 ] ?? '' ) {
+		switch ( $match[1] ?? '' ) {
 			// FIXME: this isn't really used by the mocha tests
 			// since some mocha tests hit the production db, but
 			// when we fix that, they should go through this.
@@ -814,7 +814,7 @@ class MockApiHelper extends ApiHelper {
 			// Assumes that titles is a single title
 			// (which is how Parsoid uses this)
 			'pages' => [
-				'1' => self::$templateData[ $params['titles'] ?? '' ] ?? []
+				'1' => self::$templateData[$params['titles'] ?? ''] ?? []
 			]
 		];
 	}

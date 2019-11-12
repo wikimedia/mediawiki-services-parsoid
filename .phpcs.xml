@@ -39,4 +39,5 @@
 	<rule ref="MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName">
 		<exclude-pattern>tests/spec</exclude-pattern>
 	</rule>
+	<rule ref="Squiz.Arrays.ArrayBracketSpacing" />
 </ruleset>

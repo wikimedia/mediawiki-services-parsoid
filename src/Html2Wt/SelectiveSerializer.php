@@ -36,14 +36,14 @@ class SelectiveSerializer {
 	 * @param array $options
 	 */
 	public function __construct( $options ) {
-		$env = $options[ 'env' ];
+		$env = $options['env'];
 		$this->env = $env;
 		$this->wts = new WikitextSerializer( $options );
 		$this->selserData = $options['selserData'];
 
 		// Debug options
 		$this->trace = !empty( $env->traceFlags ) &&
-			$env->traceFlags[ 'selser' ];
+			$env->traceFlags['selser'];
 
 		// Performance Timing option
 		$this->metrics = $env->getSiteConfig()->metrics();
@@ -94,12 +94,12 @@ class SelectiveSerializer {
 				$domDiffTiming->end( 'html2wt.selser.domDiff' );
 			}
 
-			if ( $diff[ 'isEmpty' ] ) {
+			if ( $diff['isEmpty'] ) {
 				// Nothing was modified, just re-use the original source
 				$r = $this->selserData->oldText;
 			} else {
 				if ( $this->trace || ( !empty( $this->env->getSiteConfig()->dumpFlags ) &&
-						$this->env->getSiteConfig()->dumpFlags[ 'dom:post-dom-diff' ] )
+						$this->env->getSiteConfig()->dumpFlags['dom:post-dom-diff'] )
 				) {
 					$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
 					ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );

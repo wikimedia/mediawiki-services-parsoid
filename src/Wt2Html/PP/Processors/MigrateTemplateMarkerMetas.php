@@ -44,9 +44,9 @@ class MigrateTemplateMarkerMetas {
 		if ( $firstChild && WTUtils::isTplEndMarkerMeta( $firstChild ) ) {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
-			$tagWidth = WikitextConstants::$WtTagWidths[ $node->nodeName ] ?? null;
+			$tagWidth = WikitextConstants::$WtTagWidths[$node->nodeName] ?? null;
 			DOMUtils::assertElt( $node );
-			if ( ( $tagWidth && $tagWidth[ 0 ] === 0 && !WTUtils::isLiteralHTMLNode( $node ) ) ||
+			if ( ( $tagWidth && $tagWidth[0] === 0 && !WTUtils::isLiteralHTMLNode( $node ) ) ||
 				!empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
 			) {
 				$sentinel = $firstChild;
@@ -61,9 +61,9 @@ class MigrateTemplateMarkerMetas {
 		if ( $lastChild && WTUtils::isTplStartMarkerMeta( $lastChild ) ) {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.
-			$tagWidth = WikitextConstants::$WtTagWidths[ $node->nodeName ] ?? null;
+			$tagWidth = WikitextConstants::$WtTagWidths[$node->nodeName] ?? null;
 			DOMUtils::assertElt( $node );
-			if ( ( $tagWidth && $tagWidth[ 1 ] === 0 &&
+			if ( ( $tagWidth && $tagWidth[1] === 0 &&
 				// Except, don't migrate out of a table since the end meta
 				!WTUtils::isLiteralHTMLNode( $node ) ) ||
 				// marker may have been fostered and this is more likely to

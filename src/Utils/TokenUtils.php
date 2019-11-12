@@ -536,10 +536,10 @@ class TokenUtils {
 		$ret = [];
 		// Add one NlTk between each pair, hence toks.length-1
 		for ( $i = 0, $n = count( $toks ) - 1;  $i < $n;  $i++ ) {
-			$ret[] = $toks[ $i ];
+			$ret[] = $toks[$i];
 			$ret[] = new NlTk( null );
 		}
-		$ret[] = $toks[ $i ];
+		$ret[] = $toks[$i];
 		return $ret;
 	}
 
@@ -603,7 +603,7 @@ class TokenUtils {
 			) {
 				// Handle dom fragments
 				$fragmentMap = $opts['env']->getFragmentMap();
-				$nodes = $fragmentMap[ $token->dataAttribs->html ];
+				$nodes = $fragmentMap[$token->dataAttribs->html];
 				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
 						// FIXME: The correct thing to do would be to return
 						// `next.outerHTML` for the current scenarios where
@@ -617,7 +617,7 @@ class TokenUtils {
 				if ( $token instanceof TagTk ) {
 					$i += 1; // Skip the EndTagTK
 					Assert::invariant(
-						$i >= $l || $tokens[ $i ] instanceof EndTagTk,
+						$i >= $l || $tokens[$i] instanceof EndTagTk,
 						"tag should be followed by endtag"
 					);
 				}
@@ -645,7 +645,7 @@ class TokenUtils {
 			// of non-string template attribute values in general.
 			$val = ( $useSrc && $kv->vsrc !== null ) ? $kv->vsrc :
 				 ( $convertValuesToString ? self::tokensToString( $kv->v ) : $kv->v );
-			$res[ mb_strtolower( $key ) ] = self::tokenTrim( $val );
+			$res[mb_strtolower( $key )] = self::tokenTrim( $val );
 		}
 		return $res;
 	}
@@ -681,7 +681,7 @@ class TokenUtils {
 
 		// strip trailing space
 		for ( $i = $n - 1;  $i >= 0;  $i-- ) {
-			$token = &$tokens[ $i ];
+			$token = &$tokens[$i];
 			if ( $token instanceof NlTk ) {
 				$token = ''; // replace newline with empty
 			} elseif ( is_string( $token ) ) {

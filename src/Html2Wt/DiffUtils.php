@@ -187,17 +187,17 @@ class DiffUtils {
 		foreach ( DOMCompat::attributes( $node ) as $a ) {
 			if ( !in_array( $a->name, $ignoreableAttribs, true ) ) {
 				$count++;
-				$h[ $a->name ] = $a->value;
+				$h[$a->name] = $a->value;
 			}
 		}
 		// If there's no special attribute handler, we want a straight
 		// comparison of these.
 		if ( !in_array( 'data-parsoid', $ignoreableAttribs, true ) ) {
-			$h[ 'data-parsoid' ] = DOMDataUtils::getDataParsoid( $node );
+			$h['data-parsoid'] = DOMDataUtils::getDataParsoid( $node );
 			$count++;
 		}
 		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && DOMDataUtils::validDataMw( $node ) ) {
-			$h[ 'data-mw' ] = DOMDataUtils::getDataMw( $node );
+			$h['data-mw'] = DOMDataUtils::getDataMw( $node );
 			$count++;
 		}
 		return (object)[ 'h' => $h, 'count' => $count ];
@@ -237,18 +237,18 @@ class DiffUtils {
 		asort( $keysB );
 
 		for ( $i = 0;  $i < $xA->count;  $i++ ) {
-			$k = $keysA[ $i ];
-			if ( $k !== $keysB[ $i ] ) {
+			$k = $keysA[$i];
+			if ( $k !== $keysB[$i] ) {
 				return false;
 			}
 
 			$attribEquals = $specializedAttribHandlers[$k] ?? null;
 			if ( $attribEquals ) {
 				// Use a specialized compare function, if provided
-				if ( !$hA[ $k ] || !$hB[ $k ] || !$attribEquals( $nodeA, $hA[ $k ], $nodeB, $hB[ $k ] ) ) {
+				if ( !$hA[$k] || !$hB[$k] || !$attribEquals( $nodeA, $hA[$k], $nodeB, $hB[$k] ) ) {
 					return false;
 				}
-			} elseif ( $hA[ $k ] !== $hB[ $k ] ) {
+			} elseif ( $hA[$k] !== $hB[$k] ) {
 				return false;
 			}
 		}

@@ -783,7 +783,7 @@ class TestUtils {
 		$title = $item->title; // Title may be modified here, so pass it on.
 
 		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
-		$parsoidOnly = isset( $item->altHtmlSections['html/parsoid' ] ) ||
+		$parsoidOnly = isset( $item->altHtmlSections['html/parsoid'] ) ||
 			isset( $item->options['parsoid'] );
 
 		if ( $mode === 'selser' ) {
@@ -888,9 +888,9 @@ class TestUtils {
 		}
 		print '<testsuites file="' . $file . '">';
 		for ( $i = 0;  $i < count( $modesRan );  $i++ ) {
-			$mode = $modesRan[ $i ];
+			$mode = $modesRan[$i];
 			print '<testsuite name="parserTests-' . $mode . '">';
-			print $stats->modes[ $mode ]->result;
+			print $stats->modes[$mode]->result;
 			print '</testsuite>';
 		}
 		print '</testsuites>';
@@ -1138,7 +1138,7 @@ class TestUtils {
 			}
 		}
 
-		if ( $options[ 'xml' ] ) {
+		if ( $options['xml'] ) {
 			$options['reportResult']  = [ self::class, 'reportResultXML' ];
 			$options['reportStart']   = [ self::class, 'reportStartXML' ];
 			$options['reportSummary'] = [ self::class, 'reportSummaryXML' ];

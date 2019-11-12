@@ -51,7 +51,7 @@ class ConstrainedText {
 		$state = new State( $line );
 		$safeLeft = '';
 		for ( $state->pos = 0;  $state->pos < count( $line );  $state->pos++ ) {
-			$chunk = $line[ $state->pos ];
+			$chunk = $line[$state->pos];
 			// Process the escapes for this chunk, given escaped previous chunk
 			$state->rightContext = substr( $state->rightContext, strlen( $chunk->text ) );
 			$thisEscape = $chunk->escape( $state );
@@ -300,7 +300,7 @@ class ConstrainedText {
 		if ( !( $ignorePrefix || $ignoreSuffix ) ) {
 			// ensure that the first chunk belongs to `node` in order to
 			// emit separators correctly before `node`
-			if ( $chunks[ 0 ]->node !== $node ) {
+			if ( $chunks[0]->node !== $node ) {
 				array_unshift( $chunks, self::cast( '', $node ) );
 			}
 			// set 'noSep' flag on all but the first chunk, so we don't get

@@ -111,8 +111,8 @@ class Gallery extends ExtensionTag implements Extension {
 			return null;
 		}
 
-		$text = $matches[ 1 ];
-		$caption = $matches[ 2 ] ?? '';
+		$text = $matches[1];
+		$caption = $matches[2] ?? '';
 
 		// TODO: % indicates rawurldecode.
 

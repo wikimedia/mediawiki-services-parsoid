@@ -374,7 +374,7 @@ class MockDataAccess implements DataAccess {
 			$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFileName;
 			$durl = self::IMAGE_DESC_URL . '/' . $normFileName;
 			if ( isset( $props['mediatype'] ) ) {
-				$mediatype = $props[ 'mime' ] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP';
+				$mediatype = $props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP';
 			} else {
 				$mediatype = null;
 			}

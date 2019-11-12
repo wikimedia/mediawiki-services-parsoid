@@ -78,7 +78,7 @@ JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$PARSE_ER
 			$keys = Object::keys( $val );
 			if ( count( $keys ) ) {
 				$keys->forEach( function ( $k ) use ( &$objectRow, &$tbody, &$val ) {
-						$objectRow( $tbody, $k, $val[ $k ] );
+						$objectRow( $tbody, $k, $val[$k] );
 				}
 				);
 			} else {
@@ -101,7 +101,7 @@ JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$PARSE_ER
 			$tbody = $parent->firstElementChild->firstElementChild;
 			if ( count( $val ) ) {
 				for ( $i = 0;  $i < count( $val );  $i++ ) {
-					$objectRow( $tbody, null, $val[ $i ] );
+					$objectRow( $tbody, null, $val[$i] );
 				}
 			} else {
 				$tbody->innerHTML =
@@ -175,7 +175,7 @@ JSONExt::prototype::fromHTML = Promise::method( function ( $env, $body, $useSels
 			if ( $el->classList->contains( 'mw-json-single-value' ) ) {
 				return $primitiveValue( $el->querySelector( 'tr > td' ) );
 			} elseif ( $el->classList->contains( 'mw-json-array' ) ) {
-				return $arrayTable( $el )[ 0 ];
+				return $arrayTable( $el )[0];
 			} else {
 				return $objectTable( $el );
 			}
@@ -192,11 +192,11 @@ JSONExt::prototype::fromHTML = Promise::method( function ( $env, $body, $useSels
 			$rows = $tbody->children;
 			$obj = [];
 			$empty = count( $rows ) === 0
-|| $rows[ 0 ]->firstElementChild
-&& $rows[ 0 ]->firstElementChild->classList->contains( 'mw-json-empty' );
+|| $rows[0]->firstElementChild
+&& $rows[0]->firstElementChild->classList->contains( 'mw-json-empty' );
 			if ( !$empty ) {
 				for ( $i = 0;  $i < count( $rows );  $i++ ) {
-					$objectRow( $rows[ $i ], $obj, null );
+					$objectRow( $rows[$i], $obj, null );
 				}
 			}
 			return $obj;
@@ -207,7 +207,7 @@ JSONExt::prototype::fromHTML = Promise::method( function ( $env, $body, $useSels
 				$key = $td->textContent;
 				$td = $td->nextElementSibling;
 			}
-			$obj[ $key ] = $valueCell( $td );
+			$obj[$key] = $valueCell( $td );
 		};
 		$arrayTable = function ( $el ) use ( &$objectRow ) {
 			Assert::invariant( $el->classList->contains( 'mw-json-array' ) );
@@ -221,11 +221,11 @@ JSONExt::prototype::fromHTML = Promise::method( function ( $env, $body, $useSels
 			$rows = $tbody->children;
 			$arr = [];
 			$empty = count( $rows ) === 0
-|| $rows[ 0 ]->firstElementChild
-&& $rows[ 0 ]->firstElementChild->classList->contains( 'mw-json-empty' );
+|| $rows[0]->firstElementChild
+&& $rows[0]->firstElementChild->classList->contains( 'mw-json-empty' );
 			if ( !$empty ) {
 				for ( $i = 0;  $i < count( $rows );  $i++ ) {
-					$objectRow( $rows[ $i ], $arr, $i );
+					$objectRow( $rows[$i], $arr, $i );
 				}
 			}
 			return $arr;

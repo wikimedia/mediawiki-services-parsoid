@@ -50,7 +50,7 @@ class DOMDiffTest extends TestCase {
 			}
 			if ( isset( $spec['diff'] ) ) {
 				$this->assertEquals( true, DOMUtils::isDiffMarker( $node, $spec['diff'] ) );
-			} elseif ( isset( $spec[ 'markers' ] ) ) {
+			} elseif ( isset( $spec['markers'] ) ) {
 				// NOTE: Not using DiffUtils.getDiffMark because that
 				// tests for page id and we may not be mocking that
 				// precisely here. And, we need to revisit whether that

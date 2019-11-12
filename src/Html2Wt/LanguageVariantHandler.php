@@ -112,14 +112,14 @@ class LanguageVariantHandler {
 
 		$insertOriginalWhitespace = function ( $f ) use ( $originalFlags, $protectFunc, $flSp ) {
 			// Reinsert the original whitespace around the flag (if any)
-			$i = $originalFlags[ $f ] ?? null;
+			$i = $originalFlags[$f] ?? null;
 			if ( !empty( $protectFunc ) ) {
 				$p = call_user_func_array( [ 'self', $protectFunc ], [ $f ] );
 			} else {
 				$p = $f;
 			}
 			if ( $i !== null && ( 2 * $i + 1 ) < count( $flSp ) ) {
-				return $flSp[ 2 * $i ] + $p + $flSp[ 2 * $i + 1 ];
+				return $flSp[2 * $i] + $p + $flSp[2 * $i + 1];
 			}
 			return $p;
 		};
@@ -130,7 +130,7 @@ class LanguageVariantHandler {
 			if ( count( $flSp ) > 1 || strlen( $s ) ) {
 				$s .= ';';
 			}
-			$s .= $flSp[ 2 * count( $originalFlags ) ];
+			$s .= $flSp[2 * count( $originalFlags )];
 		}
 		return $s;
 	}
@@ -193,8 +193,8 @@ class LanguageVariantHandler {
 		$originalFlags = [];
 		if ( isset( $dp->fl ) ) {
 			foreach ( $dp->fl as $key => $val ) {
-				if ( !isset( $originalFlags[ $key ] ) ) {   // was $val
-					$originalFlags[ $val ] = $key;
+				if ( !isset( $originalFlags[$key] ) ) {   // was $val
+					$originalFlags[$val] = $key;
 				}
 			}
 		}
@@ -282,9 +282,9 @@ class LanguageVariantHandler {
 			} elseif ( isset( $dataMWV->twoway ) ) {
 				// Two-way rules (most common)
 				if ( count( $textSp ) % 3 === 1 ) {
-					$trailingSemi = $textSp[ count( $textSp ) - 1 ];
+					$trailingSemi = $textSp[count( $textSp ) - 1];
 				}
-				$b = isset( $dataMWV->twoway[ 0 ] ) && $dataMWV->twoway[ 0 ]->l === '*' ?
+				$b = isset( $dataMWV->twoway[0] ) && $dataMWV->twoway[0]->l === '*' ?
 					array_slice( $dataMWV->twoway, 0, 1 ) :
 					$dataMWV->twoway ?? false;
 				$text = implode( ';',
@@ -298,7 +298,7 @@ class LanguageVariantHandler {
 							$ws = ( 3 * $idx + 2 < count( $textSp ) ) ?
 							array_slice( $textSp, 3 * $idx, $length ) :
 								[ ( $idx > 0 ) ? ' ' : '', '', '' ];
-							return $ws[ 0 ] . self::protectLang( $rule->l ) . $ws[ 1 ] . ':' . $ws[ 2 ] . $text;
+							return $ws[0] . self::protectLang( $rule->l ) . $ws[1] . ':' . $ws[2] . $text;
 					}, $b, range( 0, count( $b ) - 1 )
 					)
 				);
@@ -313,7 +313,7 @@ class LanguageVariantHandler {
 			} elseif ( isset( $dataMWV->oneway ) ) {
 				// One-way rules (uncommon)
 				if ( count( $textSp ) % 4 === 1 ) {
-					$trailingSemi = $textSp[ count( $textSp ) - 1 ];
+					$trailingSemi = $textSp[count( $textSp ) - 1];
 				}
 				$text = implode( ';',
 					array_map( function ( $rule, $idx ) use ( $state, $textSp ) {
@@ -323,8 +323,8 @@ class LanguageVariantHandler {
 							$ws = ( 4 * $idx + 3 < count( $textSp ) ) ?
 								array_slice( $textSp, 4 * $idx, $length ) :
 								[ '', '', '', '' ];
-							return $ws[ 0 ] . $from . '=>' . $ws[ 1 ] . self::protectLang( $rule->l ) .
-								$ws[ 2 ] . ':' . $ws[ 3 ] . $to;
+							return $ws[0] . $from . '=>' . $ws[1] . self::protectLang( $rule->l ) .
+								$ws[2] . ':' . $ws[3] . $to;
 					}, $dataMWV->oneway, range( 0, count( $dataMWV->oneway ) - 1 )
 					)
 				);

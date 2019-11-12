@@ -1288,7 +1288,7 @@ class WikiLinkHandler extends TokenHandler {
 
 			if ( $optInfo['s'] === true ) {
 				// Default: Simple image option
-				$opts[ $optInfo['ck'] ] = [ 'v' => $optInfo['v'] ];
+				$opts[$optInfo['ck']] = [ 'v' => $optInfo['v'] ];
 			} else {
 				// Map short canonical name to the localized version used.
 				$opt['ck'] = $optInfo['ck'];
@@ -1310,7 +1310,7 @@ class WikiLinkHandler extends TokenHandler {
 						$opts['size']['src'] = $oContent->vsrc ?? $optInfo['ak'];
 					}
 				} else {
-					$opts[ $optInfo['ck'] ] = [
+					$opts[$optInfo['ck']] = [
 						'v' => $optInfo['v'],
 						'src' => $oContent->vsrc ?? $optInfo['ak'],
 						'srcOffsets' => $oContent->valueOffset(),
@@ -1393,7 +1393,7 @@ class WikiLinkHandler extends TokenHandler {
 			// https://phabricator.wikimedia.org/T64258
 			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
 		} elseif ( $opts['format'] ) {
-			if ( !$opts[ 'size']['v']['height'] && !$opts['size']['v']['width'] ) {
+			if ( !$opts['size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
 				if ( isset( $opts['upright'] ) ) {
 					// FIXME: If non-numeric, should this option be treated as a caption?

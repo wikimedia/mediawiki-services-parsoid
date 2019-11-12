@@ -958,7 +958,7 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	public function isExtensionTag( string $name ): bool {
-		return isset( $this->getExtensionTagNameMap()[ $name ] );
+		return isset( $this->getExtensionTagNameMap()[$name] );
 	}
 
 	/**
@@ -978,7 +978,7 @@ abstract class SiteConfig {
 	 */
 	public function getNativeExtTagConfig( string $tagName ): ?array {
 		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['nativeTags'][ mb_strtolower( $tagName ) ] ?? null;
+		return $nativeExtConfig['nativeTags'][mb_strtolower( $tagName )] ?? null;
 	}
 
 	/**

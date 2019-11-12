@@ -65,7 +65,7 @@ class AttributeExpander extends TokenHandler {
 		$includeRE = '#(?:^|\s)mw:Includes/(?:No|Only)?Include(?:Only)?(/.*)?(?:\s|$)#D';
 		$inInclude = false;
 		for ( $i = 0, $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[ $i ];
+			$t = $tokens[$i];
 			if ( $t instanceof SelfclosingTagTk ) {
 				$type = $t->getAttribute( 'typeof' );
 				$typeMatch = [];

@@ -175,7 +175,7 @@ class MigrateTrailingNLs {
 						$partialContent = true;
 						// only newlines moved
 						preg_match( '/\n+$/D', $n->nodeValue, $matches );
-						$tsrCorrection += strlen( $matches[ 0 ] ?? '' );
+						$tsrCorrection += strlen( $matches[0] ?? '' );
 						break;
 					} else {
 						break;

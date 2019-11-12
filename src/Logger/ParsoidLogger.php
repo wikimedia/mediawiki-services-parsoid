@@ -96,7 +96,7 @@ class ParsoidLogger {
 		$indent = str_repeat( '  ', $numMatches > 1 ? $numMatches - 1 : 0 );
 		$msg .= $indent;
 
-		$prettyLogType = self::PRETTY_LOGTYPE_MAP[ $logType ] ?? null;
+		$prettyLogType = self::PRETTY_LOGTYPE_MAP[$logType] ?? null;
 		if ( $prettyLogType ) {
 			$msg .= $prettyLogType;
 		} else {

@@ -191,7 +191,7 @@ class ParserFunctions {
 			}
 
 			// value not found!
-			if ( isset( $dict[ '#default' ] ) ) {
+			if ( isset( $dict['#default'] ) ) {
 				return $this->trimRes( $this->expandV( $dict['#default'], $frame ) );
 			} elseif ( count( $kvs ) ) {
 				$lastKV = $kvs[count( $kvs ) - 1];

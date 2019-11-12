@@ -60,6 +60,6 @@ abstract class Mode {
 				'packed-overlay' => new PackedOverlayMode()
 			];
 		}
-		return $modesByName[ $name ] ?? null;
+		return $modesByName[$name] ?? null;
 	}
 }

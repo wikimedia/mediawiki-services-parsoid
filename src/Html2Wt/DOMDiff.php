@@ -165,15 +165,15 @@ class DOMDiff {
 		sort( $keysA );
 		sort( $keysB );
 		for ( $i = 0;  $i < count( $keysA );  $i++ ) {
-			$kA = $keysA[ $i ];
-			$kB = $keysB[ $i ];
+			$kA = $keysA[$i];
+			$kB = $keysB[$i];
 
 			if ( $kA !== $kB ) {
 				return false;
 			}
 
-			$vA = $dmwA[ $kA ];
-			$vB = $dmwB[ $kA ];
+			$vA = $dmwA[$kA];
+			$vB = $dmwB[$kA];
 
 			// Deal with null, undefined (and 0, '')
 			// since they cannot be inspected
@@ -200,7 +200,7 @@ class DOMDiff {
 						$type = '';
 					}
 					$match = preg_match( '!mw:Extension/(\w+)\b!', $type );
-					$extName = $match ? $match[ 1 ] : '---';
+					$extName = $match ? $match[1] : '---';
 					// Log error
 					if ( !$htmlA ) {
 						$this->env->log(

@@ -154,10 +154,10 @@ class XMLSerializer {
 							$node );
 					}
 				}
-				if ( $child || !isset( self::$emptyElements[ $nodeName ] ) ) {
+				if ( $child || !isset( self::$emptyElements[$nodeName] ) ) {
 					$accum( '>', $node, 'start' );
 					// if is cdata child node
-					if ( isset( self::$hasRawContent[ $nodeName ] ) ) {
+					if ( isset( self::$hasRawContent[$nodeName] ) ) {
 						// TODO: perform context-sensitive escaping?
 						// Currently this content is not normally part of our DOM, so
 						// no problem. If it was, we'd probably have to do some
@@ -169,7 +169,7 @@ class XMLSerializer {
 							$accum( $child->nodeValue, $node );
 						}
 					} else {
-						if ( $child && isset( self::$newlineStrippingElements[ $localName ] )
+						if ( $child && isset( self::$newlineStrippingElements[$localName] )
 							&& $child->nodeType === XML_TEXT_NODE && preg_match( '/^\n/', $child->nodeValue )
 						) {
 							/* If current node is a pre, textarea, or listing element,

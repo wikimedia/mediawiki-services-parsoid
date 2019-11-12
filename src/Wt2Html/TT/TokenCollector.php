@@ -113,7 +113,7 @@ abstract class TokenCollector extends TokenHandler {
 				// EOF -- collapse stack!
 				$allToks = [];
 				for ( $i = 0,  $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
-					$allToks = array_merge( $allToks, $this->scopeStack[ $i ] );
+					$allToks = array_merge( $allToks, $this->scopeStack[$i] );
 				}
 				$allToks = array_merge( $allToks, $activeTokens );
 
@@ -152,7 +152,7 @@ abstract class TokenCollector extends TokenHandler {
 	 */
 	private function onAnyToken( $token ) : array {
 		// Simply collect anything ordinary in between
-		$this->scopeStack[ count( $this->scopeStack ) - 1 ][] = $token;
+		$this->scopeStack[count( $this->scopeStack ) - 1][] = $token;
 		return [];
 	}
 

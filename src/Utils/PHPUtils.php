@@ -141,7 +141,7 @@ class PHPUtils {
 		// Note that end() is usable in non-array scenarios. But, in our case,
 		// we are almost always dealing with arrays, so this helper probably
 		// better for cases where we aren't sure the array isn't shared.
-		return $a[ count( $a ) - 1 ] ?? null;
+		return $a[count( $a ) - 1] ?? null;
 	}
 
 	/**

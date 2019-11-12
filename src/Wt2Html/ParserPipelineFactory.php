@@ -222,7 +222,7 @@ class ParserPipelineFactory {
 		if ( !isset( self::$pipelineRecipes[$type] ) ) {
 			throw new InternalException( 'Unsupported Pipeline: ' . $type );
 		}
-		$recipe = self::$pipelineRecipes[ $type ];
+		$recipe = self::$pipelineRecipes[$type];
 		$pipeStages = [];
 		$prevStage = null;
 		$recipeStages = $recipe["stages"];
@@ -310,13 +310,13 @@ class ParserPipelineFactory {
 	public function getPipeline( string $type, array $options = [] ): ParserPipeline {
 		$options = $this->defaultOptions( $options );
 		$cacheKey = $this->getCacheKey( $type, $options );
-		if ( empty( $this->pipelineCache[ $cacheKey ] ) ) {
-			$this->pipelineCache[ $cacheKey ] = [];
+		if ( empty( $this->pipelineCache[$cacheKey] ) ) {
+			$this->pipelineCache[$cacheKey] = [];
 		}
 
 		$pipe = null;
-		if ( count( $this->pipelineCache[ $cacheKey ] ) ) {
-			$pipe = array_pop( $this->pipelineCache[ $cacheKey ] );
+		if ( count( $this->pipelineCache[$cacheKey] ) ) {
+			$pipe = array_pop( $this->pipelineCache[$cacheKey] );
 			$pipe->resetState();
 		} else {
 			$pipe = $this->makePipeline( $type, $cacheKey, $options );
@@ -336,11 +336,11 @@ class ParserPipelineFactory {
 	 */
 	public function returnPipeline( ParserPipeline $pipe ): void {
 		$cacheKey = $pipe->getCacheKey();
-		if ( empty( $this->pipelineCache[ $cacheKey ] ) ) {
-			$this->pipelineCache[ $cacheKey ] = [];
+		if ( empty( $this->pipelineCache[$cacheKey] ) ) {
+			$this->pipelineCache[$cacheKey] = [];
 		}
-		if ( count( $this->pipelineCache[ $cacheKey ] ) < 100 ) {
-			$this->pipelineCache[ $cacheKey ][] = $pipe;
+		if ( count( $this->pipelineCache[$cacheKey] ) < 100 ) {
+			$this->pipelineCache[$cacheKey][] = $pipe;
 		}
 	}
 }

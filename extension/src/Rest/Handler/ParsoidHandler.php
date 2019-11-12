@@ -693,7 +693,7 @@ abstract class ParsoidHandler extends Handler {
 		// existing inline data-mw.  But, no data-parsoid application, since
 		// that's internal, we only expect to find it in its original,
 		// unmodified form.
-		if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE && isset( $opts[ 'data-mw' ] )
+		if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE && isset( $opts['data-mw'] )
 			&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
 		) {
 			// `opts` isn't a revision, but we'll find a `data-mw` there.
@@ -737,7 +737,7 @@ abstract class ParsoidHandler extends Handler {
 				$pb = $origPb;
 				// However, if a modified data-mw was provided,
 				// original data-mw is omitted to avoid losing deletions.
-				if ( isset( $opts[ 'data-mw' ] )
+				if ( isset( $opts['data-mw'] )
 					&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
 				) {
 					// Don't modify `origPb`, it's used below.

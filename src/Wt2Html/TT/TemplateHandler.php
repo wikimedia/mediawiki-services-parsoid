@@ -774,7 +774,7 @@ class TemplateHandler extends TokenHandler {
 					if ( !empty( $paramInfo['named'] ) ) {
 						$paramTokens = $state['token']->getAttribute( $paramInfo['k'] );
 					} else {
-						$paramTokens = $state['token']->attribs[ $paramInfo['k'] ]->v;
+						$paramTokens = $state['token']->attribs[$paramInfo['k']]->v;
 					}
 
 					// No need to pass through a whole sub-pipeline to get the

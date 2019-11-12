@@ -168,7 +168,7 @@ class LanguageVariantHandler extends TokenHandler {
 			$dataMWV = array_reduce( $flags, function ( array $dmwv, string $f ) use ( &$sawFlagA ) {
 				if ( array_key_exists( $f, WikitextConstants::$LCFlagMap ) ) {
 					if ( WikitextConstants::$LCFlagMap[$f] ) {
-						$dmwv[ WikitextConstants::$LCFlagMap[$f] ] = true;
+						$dmwv[WikitextConstants::$LCFlagMap[$f]] = true;
 						if ( $f === 'A' ) {
 							$sawFlagA = true;
 						}

@@ -33,15 +33,15 @@ class ComputeDSRTest extends TestCase {
 		$this->assertEquals( !empty( $dsr ), true );
 		$this->assertEquals( is_object( $dsr ), true );
 
-		$this->assertEquals( $dsr->substr( $wt ), $spec[ 'dsrContent'][0],
+		$this->assertEquals( $dsr->substr( $wt ), $spec['dsrContent'][0],
 			"dsr all actual mismatch: \n\"" .
-			$dsr->substr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec[ 'dsrContent'][0] . "\"" );
-		$this->assertEquals( $dsr->openSubstr( $wt ), $spec[ 'dsrContent'][1],
+			$dsr->substr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][0] . "\"" );
+		$this->assertEquals( $dsr->openSubstr( $wt ), $spec['dsrContent'][1],
 			"dsr open actual mismatch: \n\"" .
-			$dsr->openSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec[ 'dsrContent'][1] . "\"" );
-		$this->assertEquals( $dsr->closeSubstr( $wt ), $spec[ 'dsrContent'][2],
+			$dsr->openSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][1] . "\"" );
+		$this->assertEquals( $dsr->closeSubstr( $wt ), $spec['dsrContent'][2],
 			"dsr close actual mismatch: \n\"" .
-			$dsr->closeSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec[ 'dsrContent'][2] . "\"" );
+			$dsr->closeSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][2] . "\"" );
 	}
 
 	/**

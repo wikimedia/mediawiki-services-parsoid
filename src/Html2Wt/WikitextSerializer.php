@@ -1556,7 +1556,7 @@ class WikitextSerializer {
 				// - trailing single quotes (bar')
 				// - or single quotes by themselves without a preceding '' sequence
 				if ( substr( $p[$j - 1], -1 ) === "'"
-					&& !( $p[$j - 1] === "'" && $j > 1 && substr( $p[$j - 2 ], -2 ) === "''" )
+					&& !( $p[$j - 1] === "'" && $j > 1 && substr( $p[$j - 2], -2 ) === "''" )
 					// Consider <b>foo<i>bar'</i>baz</b> or <b>foo'<i>bar'</i>baz</b>.
 					// The <nowiki/> before the <i> or </i> cannot be stripped
 					// if the <i> is embedded inside another quote.

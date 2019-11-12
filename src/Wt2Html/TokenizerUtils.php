@@ -34,7 +34,7 @@ class TokenizerUtils {
 		}
 
 		for ( $i = 0;  $i < count( $e );  $i++ ) {
-			$v = $e[ $i ];
+			$v = $e[$i];
 			if ( is_array( $v ) ) {
 				// Change in assumption from a shallow array to a nested array.
 				if ( $res === null ) {
@@ -114,7 +114,7 @@ class TokenizerUtils {
 				$dp->tmp = PHPUtils::arrayToObject( [ 'noAttrs' => true ] );
 			}
 		} else {
-			$a = $attrInfo[ 0 ];
+			$a = $attrInfo[0];
 			if ( count( $a ) === 0 ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
 			}
@@ -204,7 +204,7 @@ class TokenizerUtils {
 					|| $stops['linkdesc']
 					|| ( $stops['table']
 						&& $pos < strlen( $input ) - 1
-						&& preg_match( '/[}|]/', $input[ $pos + 1 ] ) );
+						&& preg_match( '/[}|]/', $input[$pos + 1] ) );
 
 			case '!':
 				return $stops['th']
@@ -296,7 +296,7 @@ class TokenizerUtils {
 	public static function popComments( array &$attrs ) {
 		$buf = [];
 		for ( $i = count( $attrs ) - 1;  $i > -1;  $i-- ) {
-			$kv = $attrs[ $i ];
+			$kv = $attrs[$i];
 			if ( is_string( $kv->k ) && !$kv->v && preg_match( '/^\s*$/D', $kv->k ) ) {
 				// permit whitespace
 				array_unshift( $buf, $kv->k );

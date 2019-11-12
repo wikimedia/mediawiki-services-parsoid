@@ -31,11 +31,11 @@ class PrepareDOM {
 			// content model violations when treebuilding.
 			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
 				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
-				if ( isset( $seenDataIds[ $docId ] ) ) {
+				if ( isset( $seenDataIds[$docId] ) ) {
 					$data = DOMDataUtils::getNodeData( $node );
 					DOMDataUtils::setNodeData( $node, Util::clone( $data ) );
 				} else {
-					$seenDataIds[ $docId ] = true;
+					$seenDataIds[$docId] = true;
 				}
 			}
 			// Set title to display when present (last one wins).

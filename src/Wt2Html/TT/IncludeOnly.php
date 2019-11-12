@@ -97,7 +97,7 @@ class IncludeOnly extends TokenCollector {
 
 			if ( $start->dataAttribs->src ) {
 				$dataMw = PHPUtils::jsonEncode( [ 'src' => $start->dataAttribs->src ] );
-				$tokens[ 0 ]->addAttribute( 'data-mw', $dataMw );
+				$tokens[0]->addAttribute( 'data-mw', $dataMw );
 			}
 
 			if ( $end && !$eof ) {

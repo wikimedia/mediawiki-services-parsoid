@@ -32,12 +32,12 @@ class Language {
 	 */
 	public static function isValidCode( $code ) {
 		static $validityCache = [];
-		if ( !isset( $validityCache[ $code ] ) ) {
+		if ( !isset( $validityCache[$code] ) ) {
 			// XXX PHP version also checks against
 			// MediaWikiTitleCodex::getTitleInvalidRegex()
 			$validityCache[$code] = preg_match( '/^[^:\\/\\\\\\000&<>\'"]+$/D', $code );
 		}
-		return $validityCache[ $code ];
+		return $validityCache[$code];
 	}
 
 	/**

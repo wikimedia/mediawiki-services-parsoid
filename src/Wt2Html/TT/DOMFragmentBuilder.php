@@ -33,7 +33,7 @@ class DOMFragmentBuilder extends TokenHandler {
 	 */
 	private function subpipelineUnnecessary( array $toks, Token $contextTok ): bool {
 		for ( $i = 0,  $n = count( $toks );  $i < $n;  $i++ ) {
-			$t = $toks[ $i ];
+			$t = $toks[$i];
 
 			// For wikilinks and extlinks, templates should be properly nested
 			// in the content section. So, we can process them in sub-pipelines.
@@ -78,15 +78,15 @@ class DOMFragmentBuilder extends TokenHandler {
 			// mw:dom-fragment-token should always set offsets on content
 			// that comes from the top-level document.
 			Assert::invariant(
-				!empty( $this->options[ 'inTemplate' ] ) || (bool)$srcOffsets,
+				!empty( $this->options['inTemplate'] ) || (bool)$srcOffsets,
 				'Processing top-level content without source offsets'
 			);
 
 			$pipelineOpts = [
 				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ) === "1",
 				'inPHPBlock' => $scopeToken->getAttribute( 'inPHPBlock' ) === "1",
-				'expandTemplates' => $this->options[ 'expandTemplates' ],
-				'inTemplate' => $this->options[ 'inTemplate' ]
+				'expandTemplates' => $this->options['expandTemplates'],
+				'inTemplate' => $this->options['inTemplate']
 			];
 
 			// Process tokens
