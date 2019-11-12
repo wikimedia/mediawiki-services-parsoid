@@ -28,7 +28,7 @@ class WTSUtils {
 		You might be able to simplify the regex a bit using a no-backtracking group:
 		'/^(?>\s*<!--.*?-->)*\s*$/s'
 		Although I'm not sure that'll actually run faster.*/
-		return (bool)preg_match( '/^(\s|<!--([^\-]|-(?!->))*-->)*$/D', $sep );
+		return (bool)preg_match( '/^(\s|<!--([^\-]|-(?!->))*-->)*$/uD', $sep );
 	}
 
 	/**
