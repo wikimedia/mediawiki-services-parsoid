@@ -645,19 +645,16 @@ class DOMPostProcessor extends PipelineStage {
 			]
 		);
 
-		// PORT-FIXME: The calls to `getTitle()`` here used to be `page.name`
-		// in JS land.  Make sure the equivalent normalizing / encoding is
-		// still happening.
-		$expTitle = explode( '/', $env->getPageConfig()->getTitle() );
+		$expTitle = strtr( $env->getPageConfig()->getTitle(), ' ', '_' );
+		$expTitle = explode( '/', $expTitle );
 		$expTitle = array_map( function ( $comp ) {
 			return PHPUtils::encodeURIComponent( $comp );
 		}, $expTitle );
-		$encTitle = implode( '/', $expTitle );
 
-		$wikiPageUrl = $env->getSiteConfig()->baseURI() . $encTitle;
-		$this->appendToHead( $document, 'link',
-			[ 'rel' => 'dc:isVersionOf', 'href' => $wikiPageUrl ]
-		);
+		$this->appendToHead( $document, 'link', [
+			'rel' => 'dc:isVersionOf',
+			'href' => $env->getSiteConfig()->baseURI() . implode( '/', $expTitle )
+		] );
 
 		DOMCompat::setTitle(
 			$document,
