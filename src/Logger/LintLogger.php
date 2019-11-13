@@ -98,33 +98,20 @@ class LintLogger {
 				Assert::invariant( false, 'Why are we here? Linting is disabled.' );
 			}
 		}
-
-		// if (
-		// 	$env->getPageConfig()->getPageId() %
-		// 		$env->getSiteConfig()->linter->apiSampling !== 0
-		// ) {
-		// 	return;
-		// }
+		/* This is no longer supported in ParsoidPHP according to Subbu
+		if ( $env->getPageConfig()->getPageId() %
+				 $env->getSiteConfig()->linter->apiSampling !== 0 ) {
+			return;
+		} */
 
 		// Skip linting if we cannot lint it
 		if ( !$env->getPageConfig()->hasLintableContentModel() ) {
 			return;
 		}
 
-		// if ( !$env->pageWithOldid ) {
-		// 	// We only want to send to the MW API if this was a request to
-		// 	// parse the full page.
-		// 	return;
-		// }
-
-		// Only send the request if it the latest revision
-		// if ( $env->page->meta->revision->revid === $env->page->latest ) {
-			if ( !$env->noDataAccess() ) {
-				// Convert offsets to ucs2
-				self::convertDSROffsets( $env, $enabledBuffer );
-				$env->getDataAccess()->logLinterData( $enabledBuffer );
-			}
-		// }
+		if ( !$env->noDataAccess() ) {
+			$env->getDataAccess()->logLinterData( $env, $enabledBuffer );
+		}
 	}
 
 }

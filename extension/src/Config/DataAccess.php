@@ -12,12 +12,14 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
+use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig as IPageConfig;
 // we can get rid of this once we can assume PHP 7.4+ with covariant return type support
 use Parsoid\Config\PageContent as IPageContent;
 use RepoGroup;
 use Title;
+use Parsoid\Logger\LintLogger;
 
 class DataAccess implements IDataAccess {
 
@@ -321,9 +323,23 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( array $lints ): void {
+	public function logLinterData( Env $env, array $lints ): void {
 		global $wgReadOnly;
-		if ( !$wgReadOnly ) {
+		if ( !$wgReadOnly || !$env->$pageWithOldid ) {
+			return;
+		}
+
+		$pageConfig = $env->getPageConfig();
+		$revId = $pageConfig->getRevisionId();
+		$title = $pageConfig->getTitle();
+		$pageInfo = $this->getPageInfo( $pageConfig, [ $title ] );
+		$latest = $pageInfo[$title]['revId'];
+
+		// We only want to send to the MW API if this was a request to parse the full page.
+		// Only send the request if it the latest revision
+		if ( $revId !== null && $revId === $latest ) {
+			// Convert offsets to ucs2
+			LintLogger::convertDSROffsets( $env, $lints );
 			// @todo: Document this hook in MediaWiki
 			Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $lints ] );
 		}

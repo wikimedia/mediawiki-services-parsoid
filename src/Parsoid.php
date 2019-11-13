@@ -73,6 +73,9 @@ class Parsoid {
 		if ( isset( $options['pageBundle'] ) ) {
 			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
+		if ( isset( $options['pageWithOldid'] ) ) {
+			$envOptions['pageWithOldid'] = !empty( $options['pageWithOldid'] );
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);

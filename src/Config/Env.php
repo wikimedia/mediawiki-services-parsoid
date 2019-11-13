@@ -125,6 +125,9 @@ class Env {
 	/** @var array[] Lints recorded */
 	private $lints = [];
 
+	/** @var bool pageWithOldid used with section editing */
+	public $pageWithOldid = false;
+
 	/** @var bool[] */
 	public $traceFlags;
 
@@ -276,6 +279,7 @@ class Env {
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
+		$this->pageWithOldid = !empty( $options['pageWithOldid'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];

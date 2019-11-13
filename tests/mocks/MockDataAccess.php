@@ -3,6 +3,7 @@
 namespace Parsoid\Tests;
 
 use Error;
+use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
@@ -565,6 +566,6 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( array $lints ): void {
+	public function logLinterData( Env $env, array $lints ): void {
 	}
 }
