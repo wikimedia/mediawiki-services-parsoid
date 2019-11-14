@@ -690,9 +690,7 @@ class DOMPostProcessor extends PipelineStage {
 			}
 		}
 
-		// Parsoid/JS effectively always makes this protocol-relative. So mimic this for now.
-		// FIXME: In the future, maybe we'll respect the config setting for this.
-		$modulesBaseURI = preg_replace( '#^[^/]*//#', '//', $env->getSiteConfig()->getModulesLoadURI() );
+		$modulesBaseURI = $env->getSiteConfig()->getModulesLoadURI();
 		$styleURI = $modulesBaseURI .
 			'?modules=' .
 			PHPUtils::encodeURIComponent( implode( '|', $modules ) ) .

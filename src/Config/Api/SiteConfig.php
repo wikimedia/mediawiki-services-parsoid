@@ -588,7 +588,10 @@ class SiteConfig extends ISiteConfig {
 		// In JS, you could override the load uri
 		// via conf.parsoid.modulesLoadURI, but custom values aren't
 		// exported via siteinfo.
-		return parent::getModulesLoadURI();
+		// Parsoid/JS always makes this protocol-relative, so match
+		// that (for now at least)
+		$path = parent::getModulesLoadURI();
+		return preg_replace( '#^https?://#', '//', $path );
 	}
 
 	public function redirectRegexp(): string {
