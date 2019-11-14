@@ -56,10 +56,6 @@ class Util {
 	 * @return bool
 	 */
 	public static function isVoidElement( string $name ): bool {
-		// PORT-FIXME: Remove after porting is complete
-		if ( mb_strtolower( $name ) !== $name ) {
-			throw new \BadMethodCallException( 'Use lowercase tag names' );
-		}
 		return isset( Consts::$HTML['VoidTags'][$name] );
 	}
 
@@ -243,7 +239,7 @@ class Util {
 	}
 
 	/**
-	 * PORT-FIXME need accurate function description
+	 * Convert special characters to HTML entities
 	 *
 	 * @param string $s
 	 * @return string

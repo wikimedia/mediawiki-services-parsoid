@@ -218,13 +218,13 @@ class PHandler extends DOMHandler {
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
 				&& !WTUtils::isSolTransparentLink( $node )
-				// PORT-FIXME $node is not guaranteed to be an element
-				// @phan-suppress-next-line PhanUndeclaredMethod
-				&& !( preg_match( '#^mw:Includes/#', $node->getAttribute( 'typeof' ) ?? '' ) ) );
+				&& !( $node instanceof DOMElement  // for static analyzers
+					&& preg_match( '#^mw:Includes/#', $node->getAttribute( 'typeof' ) ?? '' ) ) );
 	}
 
 	/**
-	 * PORT-FIXME: document
+	 * Test if $node is a P-wrapped node or should be treated as one.
+	 *
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */

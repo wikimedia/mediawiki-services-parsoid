@@ -80,9 +80,11 @@ abstract class ExtensionTag {
 	/**
 	 * Number of newlines which should precede this tag in serialization.
 	 *
-	 * PORT-FIXME Per Subbu, extensions should not know about anything outside their tag so this
-	 *   will probably be replaced by something that informs the serializer about the expected
-	 *   behavior on a more abstract level (such as block vs inline).
+	 * FIXME: Extensions should not know about anything outside their tag so
+	 * this will probably be replaced by something that informs the serializer
+	 * about the expected behavior on a more abstract level (such as block vs
+	 * inline).
+	 *
 	 * @param DOMElement $node
 	 * @param DOMNode $otherNode
 	 * @param SerializerState $state
