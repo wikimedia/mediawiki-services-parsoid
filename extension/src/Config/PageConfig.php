@@ -186,7 +186,13 @@ class PageConfig extends IPageConfig {
 	/** @inheritDoc */
 	public function getRevisionSha1(): ?string {
 		$rev = $this->getRevision();
-		return $rev ? $rev->getSha1() : null;
+		if ( $rev ) {
+			// This matches what the Parsoid/JS gets from the API
+			// FIXME: Maybe we don't need to do this in the future?
+			return \Wikimedia\base_convert( $rev->getSha1(), 36, 16, 40 );
+		} else {
+			return null;
+		}
 	}
 
 	/** @inheritDoc */

@@ -542,6 +542,9 @@ abstract class SiteConfig {
 	abstract public function script(): string;
 
 	/**
+	 * FIXME: This is only used to compute the modules path below
+	 * and maybe shouldn't be exposed.
+	 *
 	 * The base wiki path
 	 * @return string
 	 */
