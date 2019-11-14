@@ -11,7 +11,6 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
 use Wikimedia\LangConv\ReplacementMachine;
 
@@ -130,10 +129,9 @@ class ConversionTraverser extends DOMTraverser {
 			// Don't convert title or children of interwiki links
 			return $el->nextSibling;
 		} elseif ( $rel === 'mw:ExtLink' ) {
-			// WTUtils.usesURLLinkSyntax uses data-parsoid, but syntactic free
-			// links should also have class="external free"
-			if ( WTUtils::usesURLLinkSyntax( $el ) ||
-				 DOMCompat::getClassList( $el )->contains( 'free' ) ) {
+			// WTUtils.usesURLLinkSyntax uses data-parsoid, so don't use it,
+			// but syntactic free links should also have class="external free"
+			if ( DOMCompat::getClassList( $el )->contains( 'free' ) ) {
 				// Don't convert children of syntactic "free links"
 				return $el->nextSibling;
 			}

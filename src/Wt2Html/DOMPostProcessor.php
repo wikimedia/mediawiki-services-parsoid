@@ -415,12 +415,6 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			// Language conversion
-			[
-				'Processor' => LangConverter::class,
-				'shortcut' => 'lang-converter',
-				'skipNested' => true
-			],
 			[
 				'Processor' => Linter::class,
 				'omit' => !$env->getSiteConfig()->linting(),
@@ -473,6 +467,12 @@ class DOMPostProcessor extends PipelineStage {
 						}
 					]
 				]
+			],
+			// Language conversion
+			[
+				'Processor' => LangConverter::class,
+				'shortcut' => 'lang-converter',
+				'skipNested' => true
 			],
 			[
 				'Processor' => AddRedLinks::class,
