@@ -1080,7 +1080,7 @@ class TemplateHandler extends TokenHandler {
 		$wikitext = $ret['wikitext'];
 
 		foreach ( [ 'modules', 'modulescripts', 'modulestyles' ] as $prop ) {
-			$env->setOutputProperty( $prop, $ret[$prop] );
+			$env->addOutputProperty( $prop, $ret[$prop] );
 		}
 
 		// Add the categories which were added by parser functions directly

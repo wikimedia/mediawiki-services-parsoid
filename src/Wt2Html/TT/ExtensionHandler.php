@@ -93,9 +93,9 @@ class ExtensionHandler extends TokenHandler {
 		$html = preg_replace( '#(^<p>)|(\n</p>$)#D', '', $html );
 
 		// Add the modules to the page data
-		$env->setOutputProperty( 'modules', $ret['modules'] );
-		$env->setOutputProperty( 'modulescripts', $ret['modulescripts'] );
-		$env->setOutputProperty( 'modulestyles', $ret['modulestyles'] );
+		$env->addOutputProperty( 'modules', $ret['modules'] );
+		$env->addOutputProperty( 'modulescripts', $ret['modulescripts'] );
+		$env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the

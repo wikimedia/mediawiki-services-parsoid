@@ -925,14 +925,17 @@ class Env {
 	}
 
 	/**
-	 * Set a K=V property that might need to be output as part of the generated HTML
-	 * Ex: module styles, modules scripts
+	 * Update K=[V1,V2,...] that might need to be output as part of the
+	 * generated HTML.  Ex: module styles, modules scripts, ...
 	 *
 	 * @param string $key
-	 * @param mixed $value
+	 * @param array $value
 	 */
-	public function setOutputProperty( string $key, $value ): void {
-		$this->outputProps[$key] = $value;
+	public function addOutputProperty( string $key, array $value ): void {
+		if ( !isset( $this->outputProps[$key] ) ) {
+			$this->outputProps[$key] = [];
+		}
+		$this->outputProps[$key] = array_merge( $this->outputProps[$key], $value );
 	}
 
 	/**
