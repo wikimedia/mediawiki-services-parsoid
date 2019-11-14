@@ -309,17 +309,17 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * @param string $title The page to be transformed
 	 * @param int|null $revision The revision to be transformed
+	 * @param bool $titleShouldExist return null if the title/revision doesn't
+	 *   exist.
 	 * @param string|null $wikitextOverride
 	 *   Custom wikitext to use instead of the real content of the page.
 	 * @param string|null $pagelanguageOverride
-	 * @param bool $titleShouldExist return null if the title/revision doesn't
-	 *   exist.
 	 * @return Env|null
 	 */
 	protected function createEnv(
-		string $title, ?int $revision, string $wikitextOverride = null,
-		string $pagelanguageOverride = null,
-		bool $titleShouldExist = false
+		string $title, ?int $revision, bool $titleShouldExist,
+		string $wikitextOverride = null,
+		string $pagelanguageOverride = null
 	): ?Env {
 		$pageConfig = $this->createPageConfig(
 			$title, $revision, $wikitextOverride, $pagelanguageOverride
@@ -327,7 +327,7 @@ abstract class ParsoidHandler extends Handler {
 		if ( $titleShouldExist && $pageConfig->getRevisionContent() === null ) {
 			return null; // T234549
 		}
-		$options = [];
+		$options = [ 'titleShouldExist' => $titleShouldExist ];
 		// NOTE: These settings are mostly ignored since this Env is only used
 		// in this file.
 		foreach ( [ 'traceFlags', 'dumpFlags' ] as $opt ) {
@@ -708,9 +708,6 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$oldhtml = null;
-		// FIXME: T234548/T234549 - this is deprecated:
-		// should use $env->topFrame->getSrcText()
-		$oldtext = $env->getPageMainContent();
 
 		if ( $original ) {
 			if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
@@ -771,6 +768,9 @@ abstract class ParsoidHandler extends Handler {
 		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
+		// FIXME: T234548/T234549 - this is deprecated:
+		// should use $env->topFrame->getSrcText()
+		$oldtext = $hasOldId ? $env->getPageMainContent() : '';
 
 		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
 			$selserData = new SelserData( $oldtext, $oldhtml );
@@ -786,6 +786,7 @@ abstract class ParsoidHandler extends Handler {
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],
+				'titleShouldExist' => $hasOldId
 			], $selserData );
 		} catch ( ClientError $e ) {
 			return $this->getResponseFactory()->createHttpError( 400, [

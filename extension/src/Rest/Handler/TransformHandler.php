@@ -61,7 +61,8 @@ class TransformHandler extends ParsoidHandler {
 				] );
 			}
 			$env = $this->createEnv(
-				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
+				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
+				$wikitext,
 				$attribs['pagelanguage']
 			);
 			if ( !$this->acceptable( $env, $attribs ) ) {
@@ -82,7 +83,10 @@ class TransformHandler extends ParsoidHandler {
 				$html = $html['body'];
 			}
 			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
-			$env = $this->createEnv( $attribs['pageName'], (int)$attribs['oldid'], $wikitext );
+			$env = $this->createEnv(
+				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
+				$wikitext
+			);
 			if ( !$this->acceptable( $env, $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
@@ -91,7 +95,7 @@ class TransformHandler extends ParsoidHandler {
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
 			$env = $this->createEnv(
-				$attribs['pageName'], (int)$attribs['oldid'],
+				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
 				null, $attribs['pagelanguage']
 			);
 			if ( !$this->acceptable( $env, $attribs ) ) {

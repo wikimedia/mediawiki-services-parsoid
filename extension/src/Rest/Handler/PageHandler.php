@@ -30,10 +30,7 @@ class PageHandler extends ParsoidHandler {
 		$attribs = $this->getRequestAttributes();
 
 		$oldid = (int)$attribs['oldid'];
-		$env = $this->createEnv(
-			$attribs['pageName'], $oldid, null, null,
-			true /* titleShouldExist */
-		);
+		$env = $this->createEnv( $attribs['pageName'], $oldid, true /* titleShouldExist */ );
 		if ( !$env ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision does not exist.',

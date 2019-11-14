@@ -244,6 +244,7 @@ class Env {
 	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
+	 *  - titleShouldExist: (bool) Are we expecting page content to exist?
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
@@ -252,7 +253,8 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
-		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
+		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig,
+			!empty( $options['titleShouldExist'] ) );
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		}
