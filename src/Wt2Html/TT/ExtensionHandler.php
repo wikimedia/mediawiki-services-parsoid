@@ -106,7 +106,7 @@ class ExtensionHandler extends TokenHandler {
 				$link = $dummyDoc->createElement( "link" );
 				$link->setAttribute( "rel", "mw:PageProp/Category" );
 				$href = $env->getSiteConfig()->relativeLinkPrefix() .
-					"Category:" . PHPUtils::encodeURIComponent( $name );
+					"Category:" . PHPUtils::encodeURIComponent( (string)$name );
 				if ( $sortkey ) {
 					$href .= "#" . PHPUtils::encodeURIComponent( $sortkey );
 				}
