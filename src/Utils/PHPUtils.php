@@ -2,6 +2,7 @@
 
 namespace Parsoid\Utils;
 
+use Exception;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -52,7 +53,12 @@ class PHPUtils {
 	 * @return string
 	 */
 	public static function jsonEncode( $o ): string {
-		return json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		$str = json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		if ( $str === false ) {
+			// Do this manually until JSON_THROW_ON_ERROR is available
+			throw new Exception( 'JSON encoding failed.' );
+		}
+		return $str;
 	}
 
 	/**

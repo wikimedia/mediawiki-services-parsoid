@@ -327,20 +327,12 @@ class WikiLinkHandler extends TokenHandler {
 		// Don't allow internal links to pages containing PROTO:
 		// See Parser::replaceInternalLinks2()
 		if ( $env->getSiteConfig()->hasValidProtocol( $hrefTokenStr ) ) {
-			// NOTE: Tokenizing this as src seems little suspect
-			$extLinkPieces = array_reduce(
-				array_slice( $token->attribs, 1 ),
-				function ( $prev, $next ) {
-					return $prev . '|' . TokenUtils::tokensToString( $next->v );
-				},
-				$hrefTokenStr
-			);
-			$src = '[' . $extLinkPieces . ']';
-
+			$src = substr( $token->dataAttribs->tsr->substr(
+				$this->manager->getFrame()->getSrcText()
+			), 1, -1 );
 			$extToks = $this->urlParser->tokenizeExtlink( $src, /* sol */true );
 			if ( $extToks !== false ) {
-				$tsr = $token->dataAttribs->tsr ?? null;
-				TokenUtils::shiftTokenTSR( $extToks, 1 + ( $tsr ? $tsr->start : 0 ) );
+				TokenUtils::shiftTokenTSR( $extToks, $token->dataAttribs->tsr->start + 1 );
 			} else {
 				$extToks = [ $src ];
 			}
