@@ -12,6 +12,7 @@ use LogicException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Response;
 use MediaWiki\Rest\Handler;
+use MediaWiki\Rest\HttpException;
 use MobileContext;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\Rest\FormatHelper;
@@ -144,6 +145,25 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
+	 * Get the parsed body by content-type
+	 *
+	 * @return array
+	 */
+	protected function getParsedBody(): array {
+		$request = $this->getRequest();
+		list( $contentType ) = explode( ';', $request->getHeader( 'Content-Type' )[0] ?? '', 2 );
+		switch ( $contentType ) {
+			case 'application/x-www-form-urlencoded':
+			case 'multipart/form-data':
+				return $request->getPostParams();
+			case 'application/json':
+				return json_decode( $request->getBody()->getContents(), true );
+			default:
+				throw new HttpException( 'Unsupported Media Type', 415 );
+		}
+	}
+
+	/**
 	 * Rough equivalent of req.local from Parsoid-JS.
 	 * FIXME most of these should be replaced with more native ways of handling the request.
 	 * @return array
@@ -155,7 +175,7 @@ abstract class ParsoidHandler extends Handler {
 
 		// Porting note: this is the equivalent of the v3Middle middleware.
 		$request = $this->getRequest();
-		$body = json_decode( $request->getBody()->getContents(), true ) ?? [];
+		$body = ( $request->getMethod() === 'POST' ) ? $this->getParsedBody() : [];
 		$opts = array_merge( $body, array_intersect_key( $request->getPathParams(),
 			[ 'from' => true, 'format' => true ] ) );
 		$attribs = [
@@ -169,15 +189,13 @@ abstract class ParsoidHandler extends Handler {
 			'iwp' => wfWikiID(), // PORT-FIXME verify
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
 			'scrubWikitext' => (bool)( $body['scrub_wikitext']
-				?? $request->getPostParams()['scrub_wikitext']
 				?? $request->getQueryParams()['scrub_wikitext']
 				?? $body['scrubWikitext']
-				?? $request->getPostParams()['scrubWikitext']
 				?? $request->getQueryParams()['scrubWikitext']
 				?? false ),
-			'offsetType' => $request->getPostParams()['offsetType']
+			'offsetType' => $body['offsetType']
 				?? $request->getQueryParams()['offsetType']
-				?? $body['offsetType'] ?? 'byte',
+				?? 'byte',
 			'pagelanguage' => $request->getHeaderLine( 'Content-Language' ) ?: null,
 		];
 
