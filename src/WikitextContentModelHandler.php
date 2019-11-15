@@ -65,7 +65,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
-			$env, $doc, $env->getOffsetType(), 'byte'
+			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 		$env->setOrigDOM( $body );
 	}
@@ -104,7 +104,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
-			$env, $doc, $env->getOffsetType(), 'byte'
+			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 		return $serializer->serializeDOM( $body );
 	}

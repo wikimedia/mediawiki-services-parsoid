@@ -25,7 +25,7 @@ class ConvertOffsets {
 	 */
 	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ) {
 		$doc = $rootNode->ownerDocument;
-		$offsetType = $env->getOffsetType();
+		$offsetType = $env->getRequestOffsetType();
 		ContentUtils::convertOffsets(
 			$env, $doc, 'byte', $offsetType
 		);

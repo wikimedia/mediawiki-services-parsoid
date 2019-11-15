@@ -100,7 +100,10 @@ class Env {
 	private $wrapSections = true;
 
 	/** @var string */
-	private $offsetType = 'byte';
+	private $requestOffsetType = 'byte';
+
+	/** @var string */
+	private $currentOffsetType = 'byte';
 
 	/** @var array<string,mixed> */
 	private $behaviorSwitches = [];
@@ -272,7 +275,7 @@ class Env {
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
-		$this->offsetType = $options['offsetType'] ?? 'byte';
+		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];
@@ -355,8 +358,30 @@ class Env {
 	 * @see Parsoid\Wt2Html\PP\Processors\ConvertOffsets
 	 * @return string 'byte', 'ucs2', or 'char'
 	 */
-	public function getOffsetType(): string {
-		return $this->offsetType;
+	public function getRequestOffsetType(): string {
+		return $this->requestOffsetType;
+	}
+
+	/**
+	 * Return the current format of character offsets in source ranges.
+	 * This allows us to track whether the internal byte offsets have
+	 * been converted to the external format (as returned by
+	 * `getRequestOffsetType`) yet.
+	 *
+	 * @see Parsoid\Wt2Html\PP\Processors\ConvertOffsets
+	 * @return string 'byte', 'ucs2', or 'char'
+	 */
+	public function getCurrentOffsetType(): string {
+		return $this->currentOffsetType;
+	}
+
+	/**
+	 * Update the current offset type. Only
+	 * Parsoid\Wt2Html\PP\Processors\ConvertOffsets should be doing this.
+	 * @param string $offsetType 'byte', 'ucs2', or 'char'
+	 */
+	public function setCurrentOffsetType( string $offsetType ) {
+		$this->currentOffsetType = $offsetType;
 	}
 
 	/**

@@ -274,6 +274,7 @@ class ContentUtils {
 		string $from,
 		string $to
 	): void {
+		$env->setCurrentOffsetType( $to );
 		if ( $from === $to ) {
 			return; // Hey, that was easy!
 		}
