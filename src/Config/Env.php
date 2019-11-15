@@ -721,6 +721,7 @@ class Env {
 			return;
 		}
 
+		// This will always be recorded as a native 'byte' offset
 		$lintData['dsr'] = $lintData['dsr']->jsonSerialize();
 
 		$this->lints[] = [ 'type' => $type ] + $lintData;
