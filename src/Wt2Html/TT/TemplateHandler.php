@@ -933,7 +933,10 @@ class TemplateHandler extends TokenHandler {
 					'srcOffsets' => $srcOffsets
 				];
 
-				preg_match( '/^(\s*).*?(\s*)$/sD', $kSrc, $keySpaceMatch );
+				Assert::invariant(
+					preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $kSrc, $keySpaceMatch ),
+					'Template argument whitespace match failed.'
+				);
 				$valueSpaceMatch = null;
 
 				if ( $isPositional ) {
@@ -943,7 +946,10 @@ class TemplateHandler extends TokenHandler {
 				} else {
 					$paramInfo['named'] = true;
 					if ( $v !== '' ) {
-						preg_match( '/^(\s*)[\s\S]*?(\s*)$/D', $vSrc, $valueSpaceMatch );
+						Assert::invariant(
+							preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $vSrc, $valueSpaceMatch ),
+							'Template argument whitespace match failed.'
+						);
 					} else {
 						$valueSpaceMatch = [ null, '', $vSrc ];
 					}
