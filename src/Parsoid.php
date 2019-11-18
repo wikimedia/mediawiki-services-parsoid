@@ -221,6 +221,13 @@ class Parsoid {
 		if ( $update === 'redlinks' ) {
 			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
 		} elseif ( $update === 'variant' ) {
+			// FIXME: This needs an "i", as below, but seems to be a Zest bug
+			$meta = DOMCompat::querySelector( $doc, 'meta[http-equiv="vary"]' );
+			if ( $meta && preg_match(
+				"/\bAccept-Language\b/i", $meta->getAttribute( 'content' ) ?? ''
+			) ) {
+				$env->log( 'error', 'HTML has already been variant converted. (meta)' );
+			}
 			// Note that `maybeConvert` could still be a no-op, in case the
 			// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
 			// is a base language code or otherwise invalid.

@@ -2446,6 +2446,30 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		// NOTE: This doesn't enforce the warning, it's just useful for debugging
+		it('should log a warning if variant conversion has already been done', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+			.set('Content-Language', 'sr')
+			.set('Accept-Language', 'sr-el')
+			.send({
+				updates: {
+					variant: { /* target implicit from accept-language */ },
+				},
+				original: {
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+							vary: 'Accept, Accept-Language',
+						},
+						body: '<html><head><meta http-equiv="vary" content="Accept, Accept-Language"/></head><body><p>абвг abcd</p></body></html>',
+					},
+				},
+			})
+			.expect(200)
+			.end(done);
+		});
+
 	});  // end pb2pb
 
 	after(function() {
