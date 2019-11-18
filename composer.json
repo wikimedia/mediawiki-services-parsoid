@@ -22,7 +22,6 @@
 		"liuggio/statsd-php-client": "1.0.18",
 		"php": ">=7.2.0",
 		"psr/log": "1.0.2",
-		"wikimedia/assert": "0.2.2",
 		"wikimedia/ip-utils": "1.0.0",
 		"wikimedia/langconv": "0.1.0",
 		"wikimedia/remex-html": "2.1.0",
