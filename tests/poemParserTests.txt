@@ -248,3 +248,18 @@ hi ho
 !! html/parsoid
 <div class="poem hiho" typeof="mw:Extension/poem" about="#mwt3" data-mw='{"name":"poem","attrs":{"class":"hiho"},"body":{"extsrc":"\nhi ho\n"}}'><p>hi ho</p></div>
 !! end
+
+!! test
+Poem with empty class
+!! wikitext
+<poem class="">
+hi ho
+</poem>
+!! html/php+tidy
+<div class="poem">
+<p>hi ho
+</p>
+</div>
+!! html/parsoid
+<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw='{"name":"poem","attrs":{"class":""},"body":{"extsrc":"\nhi ho\n"}}'><p>hi ho</p></div>
+!! end

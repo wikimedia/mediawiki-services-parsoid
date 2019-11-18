@@ -65,9 +65,9 @@ class ExtensionHandler extends TokenHandler {
 		// tokenizer parses them to tokens in case they are for an HTML tag,
 		// but here we use the text source instead.
 		$n = count( $options );
-		for ( $i = 0;  $i < $n;  $i++ ) {
+		for ( $i = 0; $i < $n; $i++ ) {
 			$o = $options[$i];
-			if ( !$o->v && !$o->vsrc ) {
+			if ( $o->v !== [] && !$o->v && !$o->vsrc ) {
 				continue;
 			}
 
