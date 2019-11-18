@@ -67,10 +67,6 @@ class ExtensionHandler extends TokenHandler {
 		$n = count( $options );
 		for ( $i = 0; $i < $n; $i++ ) {
 			$o = $options[$i];
-			if ( $o->v !== [] && !$o->v && !$o->vsrc ) {
-				continue;
-			}
-
 			// Use the source if present. If not use the value, but ensure it's a
 			// string, as it can be a token stream if the parser has recognized it
 			// as a directive.
