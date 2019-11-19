@@ -231,12 +231,12 @@ class DiffUtils {
 
 		$hA = $xA->h;
 		$keysA = array_keys( $hA );
-		asort( $keysA );
+		sort( $keysA );
 		$hB = $xB->h;
 		$keysB = array_keys( $hB );
-		asort( $keysB );
+		sort( $keysB );
 
-		for ( $i = 0;  $i < $xA->count;  $i++ ) {
+		for ( $i = 0; $i < $xA->count; $i++ ) {
 			$k = $keysA[$i];
 			if ( $k !== $keysB[$i] ) {
 				return false;

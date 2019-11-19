@@ -18,10 +18,11 @@ $body2 = ContentUtils::ppToDOM( $mockEnv, $html2, [ "markNew" => true ] );
 $domDiff = new DOMDiff( $mockEnv );
 $domDiff->diff( $body1, $body2 );
 
-$opts = [ 'env' => $mockEnv,
+$opts = [
+	'env' => $mockEnv,
 	'keepTmp' => true,
 	'storeDiffMark' => true,
 	'tunnelFosteredContent' => true,
 	'quiet' => true
 ];
-ContentUtils::dumpDOM( $body2, '',  $opts );
+ContentUtils::dumpDOM( $body2, 'DIFF-marked DOM',  $opts );

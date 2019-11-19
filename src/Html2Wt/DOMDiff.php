@@ -164,7 +164,7 @@ class DOMDiff {
 		// Sort keys so we can traverse array and compare keys
 		sort( $keysA );
 		sort( $keysB );
-		for ( $i = 0;  $i < count( $keysA );  $i++ ) {
+		for ( $i = 0; $i < count( $keysA ); $i++ ) {
 			$kA = $keysA[$i];
 			$kB = $keysB[$i];
 

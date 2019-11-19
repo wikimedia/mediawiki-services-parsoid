@@ -35,10 +35,23 @@ class DOMDiffTest extends TestCase {
 	 * @param array $test
 	 */
 	public function testDOMDiff( $test ) {
-		// describe('DOMDiff', function() {
-		// it(`should find diff correctly when ${t.desc}`, function() {
 		$result = $this->parseAndDiff( $test['orig'], $test['edit'] );
 		$body = $result['body'];
+
+		if ( count( $test['specs'] ) === 0 ) {
+			// Verify that body has no diff markers
+			// Dump DOM *with* diff marker attributes to ensure diff markers show up!
+			$opts = [
+				'env' => $result['env'],
+				'keepTmp' => true,
+				'storeDiffMark' => true,
+				'tunnelFosteredContent' => true,
+				'quiet' => true
+			];
+			DOMDataUtils::visitAndStoreDataAttribs( $body, $opts );
+			$this->assertEquals( DOMCompat::getInnerHTML( $body ), $test['edit'] );
+			return;
+		}
 
 		foreach ( $test['specs'] as $spec ) {
 			if ( $spec['selector'] === 'body' ) { // Hmm .. why is this?
@@ -75,6 +88,14 @@ class DOMDiffTest extends TestCase {
 	// markers being used.
 	public function provideDiff() {
 		return [
+			[
+				[
+					'desc' => 'ignore attribute order in a node',
+					'orig' => '<font size="1" class="x">foo</font>',
+					'edit' => '<font class="x" size="1">foo</font>',
+					'specs' => []
+				]
+			],
 			[
 				[
 					'desc' => 'changing text in a node',
