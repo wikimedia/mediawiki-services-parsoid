@@ -989,12 +989,6 @@ abstract class ParsoidHandler extends Handler {
 			);
 		}
 
-		if ( preg_match(
-			"/\bAccept-Language\b/i", $revision['html']['headers']['vary'] ?? ''
-		) ) {
-			$env->log( 'error', 'HTML has already been variant converted. (header)' );
-		}
-
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		$pageConfig = $env->getPageConfig();
 
