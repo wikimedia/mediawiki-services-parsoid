@@ -251,6 +251,7 @@ class Env {
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 *  - titleShouldExist: (bool) Are we expecting page content to exist?
+	 *  - pageWithOldid: (bool) Does this request specify an oldid?
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null

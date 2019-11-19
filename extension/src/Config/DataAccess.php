@@ -324,8 +324,9 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function logLinterData( Env $env, array $lints ): void {
+		// We only want to send to the MW API if this was a request to parse the full page.
 		global $wgReadOnly;
-		if ( !$wgReadOnly || !$env->$pageWithOldid ) {
+		if ( !$wgReadOnly || !$env->pageWithOldid ) {
 			return;
 		}
 
@@ -335,7 +336,6 @@ class DataAccess implements IDataAccess {
 		$pageInfo = $this->getPageInfo( $pageConfig, [ $title ] );
 		$latest = $pageInfo[$title]['revId'];
 
-		// We only want to send to the MW API if this was a request to parse the full page.
 		// Only send the request if it the latest revision
 		if ( $revId !== null && $revId === $latest ) {
 			// Convert offsets to ucs2
