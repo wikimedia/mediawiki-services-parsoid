@@ -773,7 +773,7 @@ class WikitextSerializer {
 
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$dpArgInfo = $dp->pi[$part->i] ?? [];
+		$dpArgInfo = isset( $part->i ) ? ( $dp->pi[$part->i] ?? [] ) : [];
 
 		// Build a key -> arg info map
 		$dpArgInfoMap = array_column( $dpArgInfo, null, 'k' );

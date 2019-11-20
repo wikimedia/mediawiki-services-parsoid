@@ -31708,6 +31708,17 @@ test2<span>
 </span>
 !! end
 
+# Clients like VE don't know about this property (T238721)
+!! test
+T238721: New transclusion without the "i" property for a template part should be handled properly
+!! options
+parsoid=html2wt
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:echo"},"params":{"1":{"wt":"foo"}}}}]}'>foo</span>
+!! wikitext
+{{echo|foo}}
+!! end
+
 # -----------------------------------------------------------------
 # End of section for Parsoid-only html2wt tests for serialization
 # of new content
