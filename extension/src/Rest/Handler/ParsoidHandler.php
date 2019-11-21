@@ -112,6 +112,18 @@ abstract class ParsoidHandler extends Handler {
 		$this->metrics = $siteConfig->metrics();
 	}
 
+	/** @inheritDoc */
+	public function checkPreconditions() {
+		// Execute this since this sets up state
+		// needed for other functionality.
+		parent::checkPreconditions();
+
+		// Disable precondition checks by ignoring the return value above.
+		// Parsoid/JS doesn't implement these checks.
+		// See https://phabricator.wikimedia.org/T238849#5683035 for a discussion.
+		return null;
+	}
+
 	/**
 	 * Verify that the {domain} path parameter matches the actual domain.
 	 * @param string $domain Domain name parameter to validate
