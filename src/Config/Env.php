@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
-// use Closure;
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use DOMDocument;
@@ -16,7 +15,6 @@ use Parsoid\Logger\ParsoidLogger;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
-// use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\TitleNamespace;
 use Parsoid\Utils\TitleException;

@@ -103,6 +103,7 @@ class Parsoid {
 	 *   'offsetType'          => (string) ucs2, char, byte are valid values
 	 *                                     what kind of source offsets should be emitted?
 	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'pageWithOldid'       => (bool) Does this request specify an oldid?
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
