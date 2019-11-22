@@ -21,7 +21,7 @@ use Parsoid\Utils\WTUtils;
 class Ref extends ExtensionTag {
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extExtArgs ) {
+	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
 		// Drop nested refs entirely, unless we've explicitly allowed them
 		if ( ( $extApi->parseContext['extTag'] ?? null ) === 'ref' &&
 			empty( $extApi->parseContext['extTagOpts']['allowNestedRef'] )
@@ -37,7 +37,7 @@ class Ref extends ExtensionTag {
 			( $extApi->parseContext['extTag'] ?? null ) !== 'ref';
 
 		return $extApi->parseTokenContentsToDOM(
-			$extExtArgs,
+			$extArgs,
 			'',
 			$txt,
 			[
