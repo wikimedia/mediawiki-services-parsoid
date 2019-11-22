@@ -83,6 +83,23 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,68,0,0]}'><sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-theName_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,68,54,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\",\"follow\":\"theFollows\",\"dummy\":\"dummy\"},\"body\":{\"id\":\"mw-reference-text-cite_note-theName-1\"}}'><a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[69,83,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-theName-1\" id=\"cite_note-theName-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-theName_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-theName-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">theValue</span></li></ol>",
         "html2wt": "<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag;\ninvalid names, e.g. too many</span>\n"
     },
+    "It's not possible to follow=\"…\" a <ref> defined in the <references> section": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,38,0,0]}'><sup about=\"#mwt5\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,38,22,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"follow\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt9\" data-parsoid='{\"dsr\":[39,100,12,13]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"body\":{\"html\":\"\\n&lt;sup about=\\\"#mwt7\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[52,86,20,6]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"theName\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-theName-2\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-theName-2\\\" style=\\\"counter-reset: mw-Ref 2;\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[2]&lt;/span>&lt;/a>&lt;/sup>\\n\"}}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">theFollows</span></li><li about=\"#cite_note-theName-2\" id=\"cite_note-theName-2\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"></span> <span id=\"mw-reference-text-cite_note-theName-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">theValue</span></li></ol>",
+        "html2html": "<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,88,32,6]}'>\n\n<p data-parsoid='{\"dsr\":[34,80,0,0]}'><span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[34,80,29,7]}'>theFollows</span></p>\n\n</div>\n<p data-parsoid='{\"dsr\":[89,306,0,0]}'><span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\" data-parsoid='{\"stx\":\"html\",\"dsr\":[89,306,58,7]}'>Cite error: <code data-parsoid='{\"stx\":\"html\",\"dsr\":[159,194,6,7]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[165,187,8,9]}'>&lt;ref></span></code> tag with name \"theName\" defined in <code data-parsoid='{\"stx\":\"html\",\"dsr\":[230,272,6,7]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[236,265,8,9]}'>&lt;references></span></code> is not used in prior text.</span></p>\n",
+        "html2wt": "<div class=\"mw-references-wrap\">\n\n<span class=\"reference-text\">theFollows</span>\n\n</div>\n<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: <code><nowiki><ref></nowiki></code> tag with name \"theName\" defined in <code><nowiki><references></nowiki></code> is not used in prior text.</span>\n"
+    },
+    "A follow=\"…\" after it's parent is not merged": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,73,0,0]}'><sup about=\"#mwt4\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,38,22,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"follow\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n<sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-theName_2-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[39,73,20,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-theName-2\"}}'><a href=\"./Parser_test#cite_note-theName-2\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt7\" data-parsoid='{\"dsr\":[73,73,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">theFollows</span></li><li about=\"#cite_note-theName-2\" id=\"cite_note-theName-2\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-theName_2-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-theName-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">theValue</span></li></ol>",
+        "wt2wt": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n<references />",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,83,0,0]}'><sup id=\"cite_ref-theName_2-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,83,49,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-theName-2\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-theName-2\"},\"sa\":{\"href\":\"#cite_note-theName-2\"},\"dsr\":[49,77,23,2]}'>[1]</a></sup></p><div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[83,285,32,6]}'>\n\n<p data-parsoid='{\"dsr\":[117,163,0,0]}'><span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[117,163,29,7]}'>theFollows</span></p>\n\n<ol data-parsoid='{\"dsr\":[165,277,0,0]}'><li data-parsoid='{\"dsr\":[165,277,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[167,232,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-theName_2-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-theName_2-0\"},\"sa\":{\"href\":\"#cite_ref-theName_2-0\"},\"dsr\":[198,225,24,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[233,277,29,7]}'>theValue</span></li></ol>\n\n</div>",
+        "html2wt": "<sup id=\"cite_ref-theName_2-0\" class=\"reference\">[[#cite_note-theName-2|[1]]]</sup><div class=\"mw-references-wrap\">\n\n<span class=\"reference-text\">theFollows</span>\n\n# <span class=\"mw-cite-backlink\">[[#cite_ref-theName_2-0|↑]]</span> <span class=\"reference-text\">theValue</span>\n\n</div>"
+    },
+    "Valid follow=\"…\" after it's parent": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,73,0,0]}'><sup about=\"#mwt4\" class=\"mw-ref\" id=\"cite_ref-theName_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,34,20,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-theName-1\"}}'><a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n<sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-2\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[35,73,22,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"follow\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-2\"}}'><a href=\"./Parser_test#cite_note-2\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt7\" data-parsoid='{\"dsr\":[73,73,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-theName-1\" id=\"cite_note-theName-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-theName_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-theName-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">theValue</span></li><li about=\"#cite_note-2\" id=\"cite_note-2\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-2\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">theFollows</span></li></ol>",
+        "wt2wt": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n<references />",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,83,0,0]}'><sup id=\"cite_ref-theName_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,83,49,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-theName-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-theName-1\"},\"sa\":{\"href\":\"#cite_note-theName-1\"},\"dsr\":[49,77,23,2]}'>[1]</a></sup></p>\n\n<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[85,249,32,6]}'>\n<ol data-parsoid='{\"dsr\":[118,241,0,0]}'><li data-parsoid='{\"dsr\":[118,241,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[120,185,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-theName_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-theName_1-0\"},\"sa\":{\"href\":\"#cite_ref-theName_1-0\"},\"dsr\":[151,178,24,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[186,241,29,7]}'>theValue theFollows</span></li></ol>\n\n</div>",
+        "html2wt": "<sup id=\"cite_ref-theName_1-0\" class=\"reference\">[[#cite_note-theName-1|[1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-theName_1-0|↑]]</span> <span class=\"reference-text\">theValue theFollows</span>\n\n</div>"
+    },
     "Valid parameters become invalid when a third is present": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'><sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-theName_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,65,51,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\",\"group\":\"theGroup\",\"dummy\":\"dummy\"},\"body\":{\"id\":\"mw-reference-text-cite_note-theName-1\"}}'><a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\" data-mw-group=\"theGroup\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[theGroup 1]</span></a></sup></p>\n<ol class=\"mw-references references\" data-mw-group=\"theGroup\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"group\":\"theGroup\",\"dsr\":[66,97,31,0]}' data-mw='{\"name\":\"references\",\"attrs\":{\"group\":\"theGroup\"}}'><li about=\"#cite_note-theName-1\" id=\"cite_note-theName-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-theName_1-0\" data-mw-group=\"theGroup\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-theName-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">theValue</span></li></ol>",
         "html2wt": "<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag;\ninvalid names, e.g. too many</span>\n"
@@ -140,25 +157,15 @@
         "html2wt": "Bla.<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag;\nrefs with no name must have content</span>\n"
     },
     "<ref> with an empty-string name parameter and no content.": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'>Bla.<sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[4,23,13,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"\"},\"body\":{\"html\":\"\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[23,23,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"></span></li></ol>",
-        "wt2wt": "Bla.<ref name=\"\"></ref>\n<references />",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,24,0,0]}'>Bla.<sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[4,24,13,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"\"},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[24,24,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"> </span></li></ol>",
+        "wt2wt": "Bla.<ref name=\"\"> </ref>\n<references />",
         "html2wt": "Bla.<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag;\nrefs with no name must have content</span>\n"
     },
     "<ref> with a non-empty name parameter and no content.": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'>Bla.<sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-void_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[4,27,17,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"void\"},\"body\":{\"html\":\"\"}}'><a href=\"./Parser_test#cite_note-void-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,27,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-void-1\" id=\"cite_note-void-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-void_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-void-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"></span></li></ol>",
-        "wt2wt": "Bla.<ref name=\"void\"></ref>\n<references />",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'>Bla.<sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-void_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[4,28,17,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"void\"},\"body\":{\"id\":\"mw-reference-text-cite_note-void-1\"}}'><a href=\"./Parser_test#cite_note-void-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[28,28,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-void-1\" id=\"cite_note-void-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-void_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-void-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"> </span></li></ol>",
+        "wt2wt": "Bla.<ref name=\"void\"> </ref>\n<references />",
         "html2html": "<p data-parsoid='{\"dsr\":[0,81,0,0]}'>Bla.<sup id=\"cite_ref-void_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[4,81,46,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-void-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-void-1\"},\"sa\":{\"href\":\"#cite_note-void-1\"},\"dsr\":[50,75,20,2]}'>[1]</a></sup></p><div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[81,365,32,6]}'>\n<ol data-parsoid='{\"dsr\":[114,358,0,0]}'><li data-parsoid='{\"dsr\":[114,358,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[116,178,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-void_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-void_1-0\"},\"sa\":{\"href\":\"#cite_ref-void_1-0\"},\"dsr\":[147,171,21,2]}'>↑</a></span> <span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\" data-parsoid='{\"stx\":\"html\",\"dsr\":[179,358,58,7]}'>Cite error: Invalid <code data-parsoid='{\"stx\":\"html\",\"dsr\":[257,292,6,7]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[263,285,8,9]}'>&lt;ref></span></code> tag; no text was provided for refs named <code data-parsoid='{\"stx\":\"html\",\"dsr\":[334,351,6,7]}'>void</code></span></li></ol>\n</div>",
         "html2wt": "Bla.<sup id=\"cite_ref-void_1-0\" class=\"reference\">[[#cite_note-void-1|[1]]]</sup><div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-void_1-0|↑]]</span> <span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag; no text was provided for refs named <code>void</code></span>\n</div>"
-    },
-    "<ref>s with the follow parameter": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'>Page one.<sup about=\"#mwt4\" class=\"mw-ref\" id=\"cite_ref-beginning_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[9,62,22,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"beginning\"},\"body\":{\"id\":\"mw-reference-text-cite_note-beginning-1\"}}'><a href=\"./Parser_test#cite_note-beginning-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n\n<p data-parsoid='{\"dsr\":[64,129,0,0]}'>Page two.<sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-2\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[73,129,24,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"follow\":\"beginning\"},\"body\":{\"id\":\"mw-reference-text-cite_note-2\"}}'><a href=\"./Parser_test#cite_note-2\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]</span></a></sup></p>\n\n<h2 id=\"References\" data-parsoid='{\"dsr\":[131,147,2,2]}'>References</h2>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt9\" data-parsoid='{\"dsr\":[148,162,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-beginning-1\" id=\"cite_note-beginning-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-beginning_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-beginning-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">First page footnote text.</span></li><li about=\"#cite_note-2\" id=\"cite_note-2\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-2\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">Second page footnote text.</span></li></ol>",
-        "wt2wt": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n==References==\n<references />",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,96,0,0]}'>Page one.<sup id=\"cite_ref-beginning_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[9,96,51,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-beginning-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-beginning-1\"},\"sa\":{\"href\":\"#cite_note-beginning-1\"},\"dsr\":[60,90,25,2]}'>[1]</a></sup></p>\n\n<p data-parsoid='{\"dsr\":[98,107,0,0]}'>Page two.</p>\n\n<h2 id=\"References\" data-parsoid='{\"dsr\":[109,125,2,2]}'>References</h2>\n<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[126,325,32,6]}'>\n<ol data-parsoid='{\"dsr\":[159,317,0,0]}'><li data-parsoid='{\"dsr\":[159,317,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[161,228,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-beginning_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-beginning_1-0\"},\"sa\":{\"href\":\"#cite_ref-beginning_1-0\"},\"dsr\":[192,221,26,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[229,317,29,7]}'>First page footnote text. Second page footnote text.</span></li></ol>\n\n</div>",
-        "html2wt": "Page one.<sup id=\"cite_ref-beginning_1-0\" class=\"reference\">[[#cite_note-beginning-1|[1]]]</sup>\n\nPage two.\n\n== References ==\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-beginning_1-0|↑]]</span> <span class=\"reference-text\">First page footnote text. Second page footnote text.</span>\n\n</div>"
-    },
-    "<ref> with both name and follow parameters - invalid": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,74,0,0]}'>Page one.<sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-the-name_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[9,74,39,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"the-name\",\"follow\":\"the-name\"},\"body\":{\"id\":\"mw-reference-text-cite_note-the-name-1\"}}'><a href=\"./Parser_test#cite_note-the-name-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[75,89,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-the-name-1\" id=\"cite_note-the-name-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-the-name_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-the-name-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">This ref is invalid.</span></li></ol>",
-        "html2wt": "Page one.<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code><nowiki><ref></nowiki></code> tag;\ninvalid names, e.g. too many</span>\n"
     },
     "Multiple definition (outside <references/>)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,47,0,0]}'><sup about=\"#mwt4\" class=\"mw-ref\" id=\"cite_ref-a_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,23,14,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"id\":\"mw-reference-text-cite_note-a-1\"}}'><a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n<sup about=\"#mwt9\" class=\"mw-ref\" id=\"cite_ref-a_1-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[24,47,14,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"html\":\"def\"}}'><a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt7\" data-parsoid='{\"dsr\":[48,62,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-a-1\" id=\"cite_note-a-1\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-a_1-0\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">1 </span></a><a href=\"./Parser_test#cite_ref-a_1-1\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">2 </span></a></span> <span id=\"mw-reference-text-cite_note-a-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">abc</span></li></ol>",
@@ -430,6 +437,126 @@
     "Erroneous refs [0,0,0,3,0,2,2,3,1,0,0,2,0]": {
         "selser": "<ref name=\"0\">Zero</ref>\n\n<ref>Also zero, but differently! (Normal ref)</ref>\n\n<ref />\n\narbfc9\n\n1nbyl9p\n\n<ref name=\"foo\" name=\"bar\" />\n\n<ref name=\"blankwithnoreference\" />\n\n<references name=\"quasit\" />19hld02\n\n<references />"
     },
+    "A follow=\"…\" after it's parent is not merged [1,2,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n\ncvcnq6\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [0,2,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n\na2mpft\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [3,2,0]": {
+        "selser": "17p4slo\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [2,0,0]": {
+        "selser": "1va9os\n\n<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>"
+    },
+    "A follow=\"…\" after it's parent is not merged [1,3,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>"
+    },
+    "A follow=\"…\" after it's parent is not merged [4,0,0]": {
+        "selser": "8njpky\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [1,4,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n\n1xeg7gk"
+    },
+    "A follow=\"…\" after it's parent is not merged [[0,3,0],4,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref><ref name=\"theName\">theValue</ref>\n\n12wtjuw"
+    },
+    "A follow=\"…\" after it's parent is not merged [[0,2,0],0,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>q63m6n\n<ref name=\"theName\">theValue</ref>\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [4,2,0]": {
+        "selser": "geusu4\n\ns5m4iu\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [0,4,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n\n1f7xxed"
+    },
+    "A follow=\"…\" after it's parent is not merged [[0,3,0],3,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref><ref name=\"theName\">theValue</ref>"
+    },
+    "A follow=\"…\" after it's parent is not merged [3,4,0]": {
+        "selser": "5m7q17"
+    },
+    "A follow=\"…\" after it's parent is not merged [3,3,0]": {
+        "selser": ""
+    },
+    "A follow=\"…\" after it's parent is not merged [[0,2,0],2,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref>1yiv7e8\n<ref name=\"theName\">theValue</ref>\n\n1wtmfl\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [[0,3,0],0,0]": {
+        "selser": "<ref follow=\"theName\">theFollows</ref><ref name=\"theName\">theValue</ref>\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [4,3,0]": {
+        "selser": "pjnrfh"
+    },
+    "A follow=\"…\" after it's parent is not merged [4,4,0]": {
+        "selser": "1aye5el\n\n1qdz8et"
+    },
+    "A follow=\"…\" after it's parent is not merged [2,2,0]": {
+        "selser": "1rvqm9v\n\n<ref follow=\"theName\">theFollows</ref>\n<ref name=\"theName\">theValue</ref>\n\nj6ok8h\n"
+    },
+    "A follow=\"…\" after it's parent is not merged [3,0,0]": {
+        "selser": "\n"
+    },
+    "Valid follow=\"…\" after it's parent [1,3,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>"
+    },
+    "Valid follow=\"…\" after it's parent [[0,4,0],2,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>1gxmxy4<ref follow=\"theName\">theFollows</ref>\n\n1gkscyd\n"
+    },
+    "Valid follow=\"…\" after it's parent [1,2,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n\n18p21yi\n"
+    },
+    "Valid follow=\"…\" after it's parent [4,0,0]": {
+        "selser": "8hytwt\n"
+    },
+    "Valid follow=\"…\" after it's parent [2,0,0]": {
+        "selser": "1jsmz67\n\n<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>"
+    },
+    "Valid follow=\"…\" after it's parent [[0,3,0],4,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref><ref follow=\"theName\">theFollows</ref>\n\n1jmsk8y"
+    },
+    "Valid follow=\"…\" after it's parent [[0,2,0],2,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>1kj55ll\n<ref follow=\"theName\">theFollows</ref>\n\nxralij\n"
+    },
+    "Valid follow=\"…\" after it's parent [[0,4,0],0,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>1m0d020<ref follow=\"theName\">theFollows</ref>\n"
+    },
+    "Valid follow=\"…\" after it's parent [4,3,0]": {
+        "selser": "1u5yfwr"
+    },
+    "Valid follow=\"…\" after it's parent [0,4,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n\n87nuf6"
+    },
+    "Valid follow=\"…\" after it's parent [[0,3,0],0,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref><ref follow=\"theName\">theFollows</ref>\n"
+    },
+    "Valid follow=\"…\" after it's parent [1,0,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n"
+    },
+    "Valid follow=\"…\" after it's parent [[0,3,0],2,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref><ref follow=\"theName\">theFollows</ref>\n\nqoxp59\n"
+    },
+    "Valid follow=\"…\" after it's parent [4,2,0]": {
+        "selser": "5v0sli\n\n1blkadj\n"
+    },
+    "Valid follow=\"…\" after it's parent [1,4,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n\n16ir6kk"
+    },
+    "Valid follow=\"…\" after it's parent [[0,2,0],3,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>lhogv5\n<ref follow=\"theName\">theFollows</ref>"
+    },
+    "Valid follow=\"…\" after it's parent [[0,2,0],0,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>yth1p4\n<ref follow=\"theName\">theFollows</ref>\n"
+    },
+    "Valid follow=\"…\" after it's parent [[0,4,0],3,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>1k6xn5<ref follow=\"theName\">theFollows</ref>"
+    },
+    "Valid follow=\"…\" after it's parent [4,4,0]": {
+        "selser": "jiwocx\n\nfipsws"
+    },
+    "Valid follow=\"…\" after it's parent [0,2,0]": {
+        "selser": "<ref name=\"theName\">theValue</ref>\n<ref follow=\"theName\">theFollows</ref>\n\nstb6p9\n"
+    },
     "<ref> defined in <references> called with #tag [0,0,0,4,0]": {
         "selser": "<ref name=\"foo\" />\n\n{{#tag:references|\n<ref name=\"foo\">BAR</ref>\n}}\n\n1h4si2i"
     },
@@ -623,16 +750,16 @@
         "selser": "2t6kf2<ref></ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [0,4,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\ncragod"
+        "selser": "Bla.<ref name=\"\"> </ref>\n\ncragod"
     },
     "<ref> with an empty-string name parameter and no content. [2,3,0]": {
-        "selser": "1bfhlah\n\nBla.<ref name=\"\"></ref>"
+        "selser": "1bfhlah\n\nBla.<ref name=\"\"> </ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[3,0],3,0]": {
-        "selser": "<ref name=\"\"></ref>"
+        "selser": "<ref name=\"\"> </ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[4,0],2,0]": {
-        "selser": "1l87kh<ref name=\"\"></ref>\n\n14ep8s4\n"
+        "selser": "1l87kh<ref name=\"\"> </ref>\n\n14ep8s4\n"
     },
     "<ref> with an empty-string name parameter and no content. [4,0,0]": {
         "selser": "nhkn7i\n"
@@ -641,49 +768,49 @@
         "selser": "\n"
     },
     "<ref> with an empty-string name parameter and no content. [0,3,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>"
+        "selser": "Bla.<ref name=\"\"> </ref>"
     },
     "<ref> with an empty-string name parameter and no content. [1,0,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n"
+        "selser": "Bla.<ref name=\"\"> </ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [[4,0],4,0]": {
-        "selser": "nt8qav<ref name=\"\"></ref>\n\nqwx5p0"
+        "selser": "nt8qav<ref name=\"\"> </ref>\n\nqwx5p0"
     },
     "<ref> with an empty-string name parameter and no content. [2,0,0]": {
-        "selser": "pm4jgd\n\nBla.<ref name=\"\"></ref>"
+        "selser": "pm4jgd\n\nBla.<ref name=\"\"> </ref>"
     },
     "<ref> with an empty-string name parameter and no content. [[2,0],0,0]": {
-        "selser": "zfrb64Bla.<ref name=\"\"></ref>\n"
+        "selser": "zfrb64Bla.<ref name=\"\"> </ref>\n"
     },
     "<ref> with an empty-string name parameter and no content. [3,2,0]": {
         "selser": "1q8hcjb\n"
     },
     "<ref> with an empty-string name parameter and no content. [[2,0],2,0]": {
-        "selser": "12b9kmzBla.<ref name=\"\"></ref>\n\nibwpgg\n"
+        "selser": "12b9kmzBla.<ref name=\"\"> </ref>\n\nibwpgg\n"
     },
     "<ref> with an empty-string name parameter and no content. [3,4,0]": {
         "selser": "ry9n5g"
     },
     "<ref> with an empty-string name parameter and no content. [[3,0],4,0]": {
-        "selser": "<ref name=\"\"></ref>\n\nchu8io"
+        "selser": "<ref name=\"\"> </ref>\n\nchu8io"
     },
     "<ref> with an empty-string name parameter and no content. [3,3,0]": {
         "selser": ""
     },
     "<ref> with an empty-string name parameter and no content. [0,2,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\n6wbvmv\n"
+        "selser": "Bla.<ref name=\"\"> </ref>\n\n6wbvmv\n"
     },
     "<ref> with an empty-string name parameter and no content. [2,4,0]": {
-        "selser": "qmsgk4\n\nBla.<ref name=\"\"></ref>\n\n1i5zluc"
+        "selser": "qmsgk4\n\nBla.<ref name=\"\"> </ref>\n\n1i5zluc"
     },
     "<ref> with an empty-string name parameter and no content. [4,3,0]": {
         "selser": "10hsojr"
     },
     "<ref> with an empty-string name parameter and no content. [1,4,0]": {
-        "selser": "Bla.<ref name=\"\"></ref>\n\npot8e9"
+        "selser": "Bla.<ref name=\"\"> </ref>\n\npot8e9"
     },
     "<ref> with a non-empty name parameter and no content. [1,3,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>"
+        "selser": "Bla.<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [4,0,0]": {
         "selser": "jp9ix3\n"
@@ -692,43 +819,43 @@
         "selser": "1svy1oh\n"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],2,0]": {
-        "selser": "11rp2iBla.<ref name=\"void\"></ref>\n\npe7hho\n"
+        "selser": "11rp2iBla.<ref name=\"void\"> </ref>\n\npe7hho\n"
     },
     "<ref> with a non-empty name parameter and no content. [0,4,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\nvvz0q"
+        "selser": "Bla.<ref name=\"void\"> </ref>\n\nvvz0q"
     },
     "<ref> with a non-empty name parameter and no content. [[4,0],3,0]": {
-        "selser": "kmx7u5<ref name=\"void\"></ref>"
+        "selser": "kmx7u5<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [1,0,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n"
+        "selser": "Bla.<ref name=\"void\"> </ref>\n"
     },
     "<ref> with a non-empty name parameter and no content. [2,3,0]": {
-        "selser": "kzgx2m\n\nBla.<ref name=\"void\"></ref>"
+        "selser": "kzgx2m\n\nBla.<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [2,0,0]": {
-        "selser": "gx19mi\n\nBla.<ref name=\"void\"></ref>"
+        "selser": "gx19mi\n\nBla.<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [0,2,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\n1kt4uns\n"
+        "selser": "Bla.<ref name=\"void\"> </ref>\n\n1kt4uns\n"
     },
     "<ref> with a non-empty name parameter and no content. [3,0,0]": {
         "selser": "\n"
     },
     "<ref> with a non-empty name parameter and no content. [1,4,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>\n\n11qwwkk"
+        "selser": "Bla.<ref name=\"void\"> </ref>\n\n11qwwkk"
     },
     "<ref> with a non-empty name parameter and no content. [[3,0],2,0]": {
-        "selser": "<ref name=\"void\"></ref>\n\n1km8swu\n"
+        "selser": "<ref name=\"void\"> </ref>\n\n1km8swu\n"
     },
     "<ref> with a non-empty name parameter and no content. [0,3,0]": {
-        "selser": "Bla.<ref name=\"void\"></ref>"
+        "selser": "Bla.<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [2,4,0]": {
-        "selser": "1k2cjb5\n\nBla.<ref name=\"void\"></ref>\n\n1yfo43q"
+        "selser": "1k2cjb5\n\nBla.<ref name=\"void\"> </ref>\n\n1yfo43q"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],4,0]": {
-        "selser": "15mpccsBla.<ref name=\"void\"></ref>\n\n1sczn67"
+        "selser": "15mpccsBla.<ref name=\"void\"> </ref>\n\n1sczn67"
     },
     "<ref> with a non-empty name parameter and no content. [4,3,0]": {
         "selser": "ii7idw"
@@ -737,58 +864,10 @@
         "selser": "pgzdkr"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],3,0]": {
-        "selser": "1er9bi7Bla.<ref name=\"void\"></ref>"
+        "selser": "1er9bi7Bla.<ref name=\"void\"> </ref>"
     },
     "<ref> with a non-empty name parameter and no content. [[2,0],0,0]": {
-        "selser": "6o8ppyBla.<ref name=\"void\"></ref>\n"
-    },
-    "<ref>s with the follow parameter [1,4,[4,0],2,[3],0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n1gkh1pa\n\n7j8tkg<ref follow=\"beginning\">Second page footnote text.</ref>\n\nxlaqd7\n\n== <nowiki/> ==\n<references />"
-    },
-    "<ref>s with the follow parameter [0,4,4,2,0,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n111xvvc\n\n1dlaeeq\n\nyeoraj\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [2,2,4,2,0,0,0]": {
-        "selser": "lwd6tc\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\n94bae\n\neuzhl6\n\nkrt85n\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [[3,0],0,0,2,[2],0,0]": {
-        "selser": "<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1l2cq7c\n\n== 12wgnnqReferences ==\n<references />"
-    },
-    "<ref>s with the follow parameter [4,0,3,2,2,2,0]": {
-        "selser": "rt95ej\n\n1v04j3a\n\n778fgi\n\n== References ==\n1toatc8\n<references />"
-    },
-    "<ref>s with the follow parameter [3,2,4,4,2,0,0]": {
-        "selser": "1pr12ia\n\n1deh6ac\n\nlyz0hy\n\n104sdxz\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [0,0,1,3,0,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [[4,0],3,3,3,0,0,0]": {
-        "selser": "1tqonfs<ref name=\"beginning\">First page footnote text.</ref>\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [0,4,0,4,[2],3,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\ntnlw8u\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n1fwh4yy\n\n== wjjubdReferences ==\n<references />"
-    },
-    "<ref>s with the follow parameter [3,0,2,0,[3],2,0]": {
-        "selser": "\n1dwtyc3\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== <nowiki/> ==\n18l0rnb\n<references />"
-    },
-    "<ref>s with the follow parameter [0,4,[3,0],3,0,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\n1torx4x\n\n<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [4,4,1,3,1,2,0]": {
-        "selser": "13kqvn2\n\n1qykna2\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== References ==\n1yl34bw\n<references />"
-    },
-    "<ref>s with the follow parameter [4,4,0,3,[3],0,0]": {
-        "selser": "hzbq0k\n\n19grgot\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n== <nowiki/> ==\n<references />"
-    },
-    "<ref>s with the follow parameter [2,3,0,0,2,0,0]": {
-        "selser": "d5sjex\n\nPage one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\nbe3nzx\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [1,0,1,0,1,0,0]": {
-        "selser": "Page one.<ref name=\"beginning\">First page footnote text.</ref>\n\nPage two.<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== References ==\n<references />"
-    },
-    "<ref>s with the follow parameter [3,4,[4,0],0,[4],0,0]": {
-        "selser": "mrutz\n\n6yats0<ref follow=\"beginning\">Second page footnote text.</ref>\n\n== 1kt42p5 ==\n<references />"
+        "selser": "6o8ppyBla.<ref name=\"void\"> </ref>\n"
     },
     "Multiple definition (inside {{#tag:references}}) [2,4,0]": {
         "selser": "1ak5bwa\n\n<ref name=\"a\" />\n{{#tag:references|\n<ref name=\"a\">abc</ref>\n<ref name=\"a\">def</ref>\n}}\n\n192gckh"
