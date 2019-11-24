@@ -316,10 +316,13 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function fetchTemplateData( IPageConfig $pageConfig, string $title ): ?array {
-		$ret = null;
+		$ret = [];
 		// @todo: Document this hook in MediaWiki
-		Hooks::runWithoutAbort( 'ParsoidFetchTemplateData', [ $title, &$ret ] );
-		return $ret;
+		Hooks::runWithoutAbort( 'ParserFetchTemplateData', [ [ $title ], &$ret ] );
+
+		// Cast value to array since the hook returns this as a stdclass
+		$tplData = $ret[$title];
+		return $tplData ? (array)$tplData : null;
 	}
 
 	/** @inheritDoc */
