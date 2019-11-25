@@ -322,7 +322,11 @@ class DataAccess implements IDataAccess {
 
 		// Cast value to array since the hook returns this as a stdclass
 		$tplData = $ret[$title];
-		return $tplData ? (array)$tplData : null;
+		if ( $tplData ) {
+			// Deep convert to associative array
+			$tplData = json_decode( json_encode( $tplData ), true );
+		}
+		return $tplData;
 	}
 
 	/** @inheritDoc */
