@@ -383,7 +383,7 @@ class DOMUtils {
 	 */
 	public static function hasTypeOf( DOMNode $n, string $type ) {
 		return self::matchTypeOf(
-			$n, '/^' . preg_quote( $type, '/' ) . '$/'
+			$n, '/^' . preg_quote( $type, '/' ) . '$/D'
 		) !== null;
 	}
 

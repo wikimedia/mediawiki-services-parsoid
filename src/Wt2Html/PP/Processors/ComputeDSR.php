@@ -73,8 +73,10 @@ class ComputeDSR {
 		$name = $n->nodeName;
 		return !(
 			isset( self::$WtTagsWithLimitedTSR[$name] ) ||
-			preg_match( '/\bmw:(Placeholder|LanguageVariant|DisplaySpace)\b/',
-				$n->getAttribute( 'typeof' ) ) ||
+			DOMUtils::matchTypeOf(
+				$n,
+				'/^mw:(Placeholder|LanguageVariant|DisplaySpace)$/D'
+			) ||
 			WTUtils::hasLiteralHTMLMarker( $parsoidData )
 		);
 	}
@@ -343,7 +345,7 @@ class ComputeDSR {
 				if ( $next && ( $next instanceof DOMElement ) ) {
 					$ndp = DOMDataUtils::getDataParsoid( $next );
 					if ( isset( $ndp->src ) &&
-						preg_match( '#(?:^|\s)mw:Placeholder/StrippedTag(?=$|\s)#D', $next->getAttribute( "typeof" ) )
+						 DOMUtils::hasTypeOf( $next, 'mw:Placeholder/StrippedTag' )
 					) {
 						if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
 							isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
@@ -430,8 +432,8 @@ class ComputeDSR {
 				if ( $child->nodeName === "meta" ) {
 					// Unless they have been foster-parented,
 					// meta marker tags have valid tsr info->
-					if ( $cTypeOf === "mw:EndTag" || $cTypeOf === "mw:TSRMarker" ) {
-						if ( $cTypeOf === "mw:EndTag" ) {
+					if ( DOMUtils::matchTypeOf( $child, '#^mw:(EndTag|TSRMarker)$#D' ) ) {
+						if ( DOMUtils::hasTypeOf( $child, "mw:EndTag" ) ) {
 							// FIXME: This seems like a different function that is
 							// tacked onto DSR computation, but there is no clean place
 							// to do this one-off thing without doing yet another pass
@@ -477,7 +479,7 @@ class ComputeDSR {
 							$cs = $tsr->start;
 							$ce = $tsr->end;
 						}
-					} elseif ( preg_match( '#^mw:Placeholder(/\w*)?$#D', $cTypeOf ) &&
+					} elseif ( DOMUtils::matchTypeOf( $child, '#^mw:Placeholder(/\w*)?$#D' ) &&
 						$ce !== null && $dp->src
 					) {
 						$cs = $ce - strlen( $dp->src );
@@ -488,10 +490,10 @@ class ComputeDSR {
 						/** @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty */
 						unset( $dp->extTagOffsets );
 					}
-				} elseif ( $cTypeOf === "mw:Entity" && $ce !== null && $dp->src ) {
+				} elseif ( DOMUtils::hasTypeOf( $child, "mw:Entity" ) && $ce !== null && $dp->src ) {
 					$cs = $ce - strlen( $dp->src );
 				} else {
-					if ( preg_match( '#^mw:Placeholder(/\w*)?$#D', $cTypeOf ) &&
+					if ( DOMUtils::matchTypeOf( $child, '#^mw:Placeholder(/\w*)?$#D' ) &&
 						$ce !== null && $dp->src
 					) {
 						$cs = $ce - strlen( $dp->src );

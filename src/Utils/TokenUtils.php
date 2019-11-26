@@ -314,6 +314,7 @@ class TokenUtils {
 		?string $content, stdClass $openTagAttribs, stdClass $closeTagAttribs
 	): array {
 		if ( $content === null ) {
+			Assert::invariant( false, "Dead code, no longer used." );
 			return [
 				new SelfclosingTagTk( 'meta', [
 					new KV( 'typeof', 'mw:Placeholder' ),
