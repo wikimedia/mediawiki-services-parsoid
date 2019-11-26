@@ -123,38 +123,65 @@ function formatDiff(str1, str2, offset, context) {
 	].join('\n');
 }
 
+function afterFetch(res) {
+	const diff = Diff.diffLines(res.js.html, res.php.html);
+	const offsets = Diff.convertDiffToOffsetPairs(diff, res.js.lineLens, res.php.lineLens);
+	const lineDiffs = [];
+	if (offsets.length > 0) {
+		for (let i = 0; i < offsets.length; i++) {
+			lineDiffs.push(formatDiff(res.js.html, res.php.html, offsets[i], 0));
+		}
+	}
+	return lineDiffs;
+}
+
 function htmlDiff(config, domain, title) {
 	jsServer = config.jsServer || jsServer;
 	phpServer = config.phpServer || phpServer;
 
 	return fetchAllHTML(domain, title)
-	.then(function(res) {
-		const diff = Diff.diffLines(res.js.html, res.php.html);
-		const offsets = Diff.convertDiffToOffsetPairs(diff, res.js.lineLens, res.php.lineLens);
-		const lineDiffs = [];
-		if (offsets.length > 0) {
-			for (let i = 0; i < offsets.length; i++) {
-				lineDiffs.push(formatDiff(res.js.html, res.php.html, offsets[i], 0));
-			}
-		}
-		return lineDiffs;
-	}).catch(function(e) {
+	.then(afterFetch)
+	.catch(function(e) {
 		console.error(e);
 	});
+}
+
+function fileDiff(jsFilename, phpFilename) {
+	const jsOut = fs.readFileSync(jsFilename, 'utf8');
+	const phpOut = fs.readFileSync(phpFilename, 'utf8');
+	const out = {
+		js: {
+			html: normalizeHTML(jsOut, false),
+		},
+		php: {
+			html: normalizeHTML(phpOut, true),
+		}
+	};
+	out.js.lineLens = genLineLengths(out.js.html);
+	out.php.lineLens = genLineLengths(out.php.html);
+	return afterFetch(out);
+}
+
+function displayResult(diffs, domain, title) {
+	domain = domain || '<unknown>';
+	title = title || '<unknown>';
+	if (diffs.length === 0) {
+		console.log(`${domain}:${title}: NO HTML DIFFS FOUND!`);
+	} else {
+		console.log(`Parsoid/JS vs. Parsoid/PHP HTML diffs for ${domain}:${title}`);
+		console.log(diffs.join('\n'));
+	}
 }
 
 if (require.main === module) {
 	const config = yaml.load(fs.readFileSync(process.argv[2], 'utf8'));
 	const domain = process.argv[3];
 	const title = process.argv[4];
-	htmlDiff(config, domain, title).done(function(diffs) {
-		if (diffs.length === 0) {
-			console.log(`${domain}:${title}: NO HTML DIFFS FOUND!`);
-		} else {
-			console.log(`Parsoid/JS vs. Parsoid/PHP HTML diffs for ${domain}:${title}`);
-			console.log(diffs.join('\n'));
-		}
-	});
+	htmlDiff(config, domain, title).then(function(diffs) {
+		displayResult(diffs, domain, title);
+	}).done();
 } else if (typeof module === "object") {
 	module.exports.htmlDiff = htmlDiff;
+	module.exports.fileDiff = fileDiff;
+	module.exports.displayResult = displayResult;
 }
