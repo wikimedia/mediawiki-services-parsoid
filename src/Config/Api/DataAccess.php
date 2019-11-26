@@ -321,6 +321,7 @@ class DataAccess implements IDataAccess {
 				'action' => 'templatedata',
 				'includeMissingTitles' => 1,
 				'titles' => $title,
+				'redirects' => 1,
 			] )['pages'];
 			$ret = reset( $data );
 			$this->setCache( $key, $ret );
