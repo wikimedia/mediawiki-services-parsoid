@@ -333,7 +333,7 @@ class DataAccess implements IDataAccess {
 	public function logLinterData( Env $env, array $lints ): void {
 		// We only want to send to the MW API if this was a request to parse the full page.
 		global $wgReadOnly;
-		if ( !$wgReadOnly || !$env->pageWithOldid ) {
+		if ( $wgReadOnly || !$env->pageWithOldid ) {
 			return;
 		}
 
@@ -348,7 +348,7 @@ class DataAccess implements IDataAccess {
 			// Convert offsets to ucs2
 			LintLogger::convertDSROffsets( $env, $lints );
 			// @todo: Document this hook in MediaWiki
-			Hooks::runWithoutAbort( 'ParsoidLogLinterData', [ $lints ] );
+			Hooks::runWithoutAbort( 'ParserLogLinterData', [ $title, $revId, $lints ] );
 		}
 	}
 
