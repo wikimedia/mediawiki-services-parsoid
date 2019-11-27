@@ -453,9 +453,7 @@ class TemplateHandler extends TokenHandler {
 				'pipelineType' => 'tokens/x-mediawiki',
 				'pipelineOpts' => [
 					'expandTemplates' => $this->options['expandTemplates'],
-					// FIXME: Doesn't matter here since it is just processing non-template tokens
-					// but, shouldn't this pass through the $this->options['inTemplate'] ?
-					'inTemplate' => false,
+					'inTemplate' => $this->options['inTemplate'],
 				],
 				'sol' => true,
 				'srcOffsets' => $state['token']->dataAttribs->tsr,
@@ -465,7 +463,7 @@ class TemplateHandler extends TokenHandler {
 		TokenUtils::stripEOFTkfromTokens( $toks );
 
 		$hasTemplatedTarget = isset( $state['token']->dataAttribs->tmp->templatedAttribs );
-		if ( $hasTemplatedTarget ) {
+		if ( $hasTemplatedTarget && $this->wrapTemplates ) {
 			// Add encapsulation if we had a templated target
 			// FIXME: This is a deliberate wrapping of the entire
 			// "broken markup" where one or more templates are nested
