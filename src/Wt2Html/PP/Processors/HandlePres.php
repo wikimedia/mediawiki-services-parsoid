@@ -53,7 +53,7 @@ class HandlePres {
 			$nextChild = $n->nextSibling; // store this before n is possibly deleted
 			if ( !$indentPresHandled && ( $n instanceof DOMElement ) ) {
 				if ( TokenUtils::tagOpensBlockScope( $n->nodeName )
-					&& ( WTUtils::isTplMetaType( $n->getAttribute( 'typeof' ) )
+					&& ( WTUtils::matchTplType( $n )
 						|| WTUtils::isLiteralHTMLNode( $n ) )
 				) {
 					// This is a special case in the legacy parser for $inBlockquote

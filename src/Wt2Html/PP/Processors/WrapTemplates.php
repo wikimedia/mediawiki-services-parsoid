@@ -1113,12 +1113,7 @@ class WrapTemplates {
 			$nextSibling = $elem->nextSibling;
 
 			if ( $elem instanceof DOMElement ) {
-				$type = $elem->getAttribute( 'typeof' );
-				if ( $type ) {
-					preg_match( Util::TPL_META_TYPE_REGEXP, $type, $metaMatch );
-				} else {
-					$metaMatch = null;
-				}
+				$metaType = WTUtils::matchTplType( $elem );
 
 				// Ignore templates without tsr.
 				//
@@ -1131,17 +1126,15 @@ class WrapTemplates {
 				// on end-meta-tags.
 				//
 				// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
-				if ( $metaMatch &&
+				if ( $metaType !== null &&
 					( !empty( DOMDataUtils::getDataParsoid( $elem )->tsr ) ||
-						preg_match( '#/End(?=$|\s)#D', $type )
+						preg_match( '#/End$#D', $metaType )
 					)
 				) {
-					$metaType = $metaMatch[1];
-
 					$about = $elem->getAttribute( 'about' );
 					$aboutRef = $tpls[$about] ?? null;
 					// Is this a start marker?
-					if ( !preg_match( '#/End(?=$|\s)#D', $metaType ) ) {
+					if ( !preg_match( '#/End$#D', $metaType ) ) {
 						if ( $aboutRef ) {
 							$aboutRef->start = $elem;
 							// content or end marker existed already

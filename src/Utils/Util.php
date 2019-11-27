@@ -22,12 +22,6 @@ class Util {
 	const COMMENT_REGEXP = '/' . self::COMMENT_REGEXP_FRAGMENT . '/';
 
 	/**
-	 * Regexp for checking marker metas typeofs representing
-	 * transclusion markup or template param markup.
-	 */
-	const TPL_META_TYPE_REGEXP = '#(?:^|\s)(mw:(?:Transclusion|Param)(?:/End)?)(?=$|\s)#';
-
-	/**
 	 * Strip Parsoid id prefix from aboutID
 	 *
 	 * @param string $aboutId aboud ID string

@@ -398,7 +398,6 @@ class ComputeDSR {
 				}
 			} elseif ( $cType === XML_ELEMENT_NODE ) {
 				DOMUtils::assertElt( $child );
-				$cTypeOf = $child->getAttribute( "typeof" );
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = $dp->tsr ?? null;
 				$oldCE = $tsr ? $tsr->end : null;
@@ -466,7 +465,7 @@ class ComputeDSR {
 							$propagateRight = true;
 						}
 					} elseif ( $tsr ) {
-						if ( WTUtils::isTplMetaType( $cTypeOf ) ) {
+						if ( WTUtils::isTplMarkerMeta( $child ) ) {
 							// If this is a meta-marker tag (for templates, extensions),
 							// we have a new valid '$cs'. This marker also effectively resets tsr
 							// back to the top-level wikitext source range from nested template
@@ -621,10 +620,10 @@ class ComputeDSR {
 						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
 					}
 
-					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $cTypeOf, $dp ) {
+					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
-							"; typeof: " . ( $cTypeOf ?: "" );
+							"; typeof: " . ( $child->getAttribute( "typeof" ) ?? "" );
 						// Set up 'dbsrc' so we can debug this
 						if ( $cs !== null && $ce !== null ) {
 							$dp->dbsrc = PHPUtils::safeSubstr( $frame->getSrcText(), $cs, $ce - $cs );

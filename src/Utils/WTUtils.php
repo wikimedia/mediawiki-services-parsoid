@@ -22,6 +22,12 @@ class WTUtils {
 		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#D';
 
 	/**
+	 * Regexp for checking marker metas typeofs representing
+	 * transclusion markup or template param markup.
+	 */
+	private const TPL_META_TYPE_REGEXP = '#^mw:(?:Transclusion|Param)(?:/End)?$#D';
+
+	/**
 	 * Check whether a node's data-parsoid object includes
 	 * an indicator that the original wikitext was a literal
 	 * HTML element (like table or p)
@@ -152,13 +158,13 @@ class WTUtils {
 	}
 
 	/**
-	 * Check whether a meta's typeof indicates that it is a template expansion.
+	 * Check whether a node's typeof indicates that it is a template expansion.
 	 *
-	 * @param string $nType
-	 * @return bool
+	 * @param DOMElement $node
+	 * @return ?string The matched type, or null if no match.
 	 */
-	public static function isTplMetaType( string $nType ): bool {
-		return (bool)preg_match( Util::TPL_META_TYPE_REGEXP, $nType );
+	public static function matchTplType( DOMElement $node ): ?string {
+		return DOMUtils::matchTypeOf( $node, self::TPL_META_TYPE_REGEXP );
 	}
 
 	/**
@@ -179,7 +185,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplMarkerMeta( DOMNode $node ): bool {
-		return DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP ) !== null;
+		return DOMUtils::matchNameAndTypeOf( $node, 'meta', self::TPL_META_TYPE_REGEXP ) !== null;
 	}
 
 	/**
@@ -189,7 +195,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplStartMarkerMeta( DOMNode $node ): bool {
-		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
+		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', self::TPL_META_TYPE_REGEXP );
 		return $t !== null && !preg_match( '#/End$#D', $t );
 	}
 
@@ -201,7 +207,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isTplEndMarkerMeta( DOMNode $node ): bool {
-		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', Util::TPL_META_TYPE_REGEXP );
+		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', self::TPL_META_TYPE_REGEXP );
 		return $t !== null && preg_match( '#/End$#D', $t );
 	}
 
