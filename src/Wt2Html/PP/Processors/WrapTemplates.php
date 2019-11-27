@@ -911,7 +911,7 @@ class WrapTemplates {
 			$dp1 = Util::clone( DOMDataUtils::getDataParsoid( $range->start ) );
 			$dp2DSR = self::getRangeEndDSR( $range );
 
-			if ( $dp1->dsr ) {
+			if ( isset( $dp1->dsr ) ) {
 				if ( $dp2DSR ) {
 					// Case 1. above
 					if ( $dp2DSR->end > $dp1->dsr->end ) {
