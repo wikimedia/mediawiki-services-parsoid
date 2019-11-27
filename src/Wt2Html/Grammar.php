@@ -743,15 +743,26 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a58() {
   
-  			$toks = TokenUtils::placeholder( "\u{00a0}", (object)[
+  			// Content with mw:Placeholder typeof attribute will be ignored by
+  			// editing clients and they are not expected to modify it either.
+  			// This is just an escape hatch for scenarios where we don't have
+  			// a good representation for this content and just want to render
+  			// it without providing any editing support for it.
+  			return [
+  				new TagTk( 'span', [
+  					new KV( 'typeof', 'mw:DisplaySpace mw:Placeholder' ),
+  				], (object)[
   					'src' => ' ',
   					'tsr' => $this->tsrOffsets( 'start' ),
-  					'isDisplayHack' => true
-  				], (object)[ 'tsr' => $this->tsrOffsets( 'end' ), 'isDisplayHack' => true ]
-  			);
-  			$typeOf = $toks[0]->getAttribute( 'typeof' );
-  			$toks[0]->setAttribute( 'typeof', 'mw:DisplaySpace ' . $typeOf );
-  			return $toks;
+  					'isDisplayHack' => true,
+  				] ),
+  				"\u{00a0}",
+  				new EndTagTk( 'span', [
+  				], (object)[
+  					'tsr' => $this->tsrOffsets( 'end' ),
+  					'isDisplayHack' => true,
+  				]),
+  			];
   		
   }
   private function a59($bs) {

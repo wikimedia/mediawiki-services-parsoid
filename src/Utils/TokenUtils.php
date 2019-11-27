@@ -12,7 +12,6 @@ declare( strict_types = 1 );
 namespace Parsoid\Utils;
 
 use DOMNode;
-use stdClass;
 
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
@@ -296,39 +295,6 @@ class TokenUtils {
 			array_pop( $tokens );
 		}
 		return $tokens;
-	}
-
-	/**
-	 * Create placeholder tokens for some content. This is just an escape hatch
-	 * for scenarios where we don't have a good representation for this content
-	 * and just want to render it without providing any editing support for it.
-	 * Content with mw:Placeholder typeof attribute will be ignored by
-	 * editing clients and they are expected to not modify it either.
-	 *
-	 * @param ?string $content
-	 * @param stdClass $openTagAttribs
-	 * @param stdClass $closeTagAttribs
-	 * @return array
-	 */
-	public static function placeholder(
-		?string $content, stdClass $openTagAttribs, stdClass $closeTagAttribs
-	): array {
-		if ( $content === null ) {
-			Assert::invariant( false, "Dead code, no longer used." );
-			return [
-				new SelfclosingTagTk( 'meta', [
-					new KV( 'typeof', 'mw:Placeholder' ),
-				], $openTagAttribs ),
-			];
-		} else {
-			return [
-				new TagTk( 'span', [
-					new KV( 'typeof', 'mw:Placeholder' ),
-				], $openTagAttribs ),
-				$content,
-				new EndTagTk( 'span', [], $closeTagAttribs ),
-			];
-		}
 	}
 
 	/**
