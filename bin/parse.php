@@ -125,6 +125,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'mock',
 			'Use mock environment instead of api or standalone'
 		);
+		$this->addOption(
+			'oldid',
+			'Oldid of the given page.',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -141,7 +147,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$pageConfig = $pcFactory->create(
 			$title,
 			null, // UserIdentity
-			null, // revisionId
+			$configOpts['revid'] ?? null,
 			$configOpts['pageContent'] ?? null
 		);
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -311,6 +317,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		];
 		if ( $this->hasOption( 'pageName' ) ) {
 			$configOpts['title'] = $this->getOption( 'pageName' );
+		}
+		if ( $this->hasOption( 'oldid' ) ) {
+			$configOpts['revid'] = $this->getOption( 'oldid' );
 		}
 
 		$parsoidOpts = [
