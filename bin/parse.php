@@ -11,6 +11,7 @@ use Parsoid\ClientError;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
+use Parsoid\Tools\TestUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Parsoid\Tools\Maintenance {
@@ -131,6 +132,14 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'normalize',
+			"Normalize the output as parserTests would do. " .
+			"Use --normalize for PHP tests, and --normalize=parsoid for " .
+			"parsoid-only tests",
+			false,
+			false
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -248,6 +257,22 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$this->error( $e->getMessage() );
 			die( 1 );
 		}
+	}
+
+	/**
+	 * @param string $html
+	 * @return string
+	 */
+	private function maybeNormalize( string $html ): string {
+		if ( $this->hasOption( 'normalize' ) ) {
+			$html = TestUtils::normalizeOut(
+				$html, [
+					'parsoidOnly' => $this->getOption( 'normalize' ) === 'parsoid',
+					'scrubWikitext' => $this->hasOption( 'scrubWikitext' ),
+				]
+			);
+		}
+		return $html;
 	}
 
 	public function execute() {
@@ -368,7 +393,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
 			if ( $this->hasOption( 'html2html' ) ) {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-				$this->output( $html );
+				$this->output( $this->maybeNormalize( $html ) );
 			} else {
 				$this->output( $wt );
 			}
@@ -378,7 +403,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $html );
 				$this->output( $wt );
 			} else {
-				$this->output( $html );
+				$this->output( $this->maybeNormalize( $html ) );
 			}
 		}
 
