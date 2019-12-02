@@ -152,12 +152,13 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
-	private function attrHandler( DOMElement $node, Env $env, $atTopLevel, $tplInfo ) {
+	private function attrHandler( DOMNode $node, Env $env, $atTopLevel, $tplInfo ) {
 		// Convert `alt` and `title` attributes on elements
 		// (Called before aHandler, so the `title` might get overwritten there)
 		if ( !DOMUtils::isElt( $node ) ) {
 			return true;
 		}
+		DOMUtils::assertElt( $node );
 		foreach ( [ 'title', 'alt' ] as $attr ) {
 			if ( !$node->hasAttribute( $attr ) ) {
 				continue;
@@ -190,20 +191,20 @@ class ConversionTraverser extends DOMTraverser {
 			return true; /* not language converter markup */
 		}
 		$dmv = DOMDataUtils::getJSONAttribute( $el, 'data-mw-variant', [] );
-		if ( $dmv->disabled ) {
+		if ( isset( $dmv->disabled ) ) {
 			DOMCompat::setInnerHTML( $el, $dmv->disabled->t );
 			// XXX check handling of embedded data-parsoid
 			// XXX check handling of nested constructs
 			return $el->nextSibling;
-		} elseif ( $dmv->twoway ) {
+		} elseif ( isset( $dmv->twoway ) ) {
 			// FIXME
-		} elseif ( $dmv->oneway ) {
+		} elseif ( isset( $dmv->oneway ) ) {
 			// FIXME
-		} elseif ( $dmv->name ) {
+		} elseif ( isset( $dmv->name ) ) {
 			// FIXME
-		} elseif ( $dmv->filter ) {
+		} elseif ( isset( $dmv->filter ) ) {
 			// FIXME
-		} elseif ( $dmv->describe ) {
+		} elseif ( isset( $dmv->describe ) ) {
 			// FIXME
 		}
 		return true;
