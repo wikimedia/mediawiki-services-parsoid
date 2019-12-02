@@ -4310,9 +4310,6 @@
     "T4095: link with pipe and three closing brackets, version 2 [[2]]": {
         "selser": "v7jqm7[[Main Page|[http://example.com/]]]"
     },
-    "MSIE 6 CSS safety test: Repetition markers (T57332) [0,4,1,3,0,2,4,4,1,3,0,0,1]": {
-        "selser": "<p style=\"font-size: 100px; color: expres〱ion((title='XSSed'),'red')\">A</p>12w6m52<p style=\"font-size: 100px; color: expresゝion((title='XSSed'),'red')\" data-foobar=\"1e5e14z\">B</p>\n<p style=\"font-size: 100px; color: expresーion((title='XSSed'),'red')\">C</p>105gpbb\n1xbzpah\n\n1w1bh8f<p style=\"font-size: 100px; color: expresﹽion((title='XSSed'),'red')\" data-foobar=\"i8d2up\">E</p>\n<p style=\"font-size: 100px; color: expresﹼion((title='XSSed'),'red')\">F</p>\n<p style=\"font-size: 100px; color: expresｰion((title='XSSed'),'red')\" data-foobar=\"1yszwt8\">G</p>"
-    },
     "Table attribute legitimate extension [[0,1]]": {
         "selser": "{|\n!+ style=\"<nowiki>color:blue</nowiki>\"|status\n|}"
     },
