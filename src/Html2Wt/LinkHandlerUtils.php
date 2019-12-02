@@ -1344,10 +1344,10 @@ class LinkHandlerUtils {
 			} else { // don't add px or the like
 				$bbox = null;
 				// Serialize to a square bounding box
-				if ( isset( $ww['value'] ) && $ww['value'] !== '' ) {
-					$bbox = +$ww['value'];
+				if ( isset( $ww['value'] ) && preg_match( '/^\d+/', $ww['value'] ) ) {
+					$bbox = intval( $ww['value'] );
 				}
-				if ( isset( $wh['value'] ) && $wh['value'] !== '' &&
+				if ( isset( $wh['value'] ) && preg_match( '/^\d+/', $wh['value'] ) &&
 					// As with "mw-default-size", editing clients should remove the
 					// "mw-default-audio-height" if they want to factor a defined
 					// height into the bounding box size.  However, note that, at
@@ -1358,7 +1358,7 @@ class LinkHandlerUtils {
 						!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-audio-height' )
 					)
 				) {
-					$height = +$wh['value'];
+					$height = intval( $wh['value'] );
 					if ( $bbox === null || $height > $bbox ) {
 						$bbox = $height;
 					}

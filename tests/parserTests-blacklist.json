@@ -1898,6 +1898,9 @@
     "Image with heading and horizontal rule in caption": {
         "html2wt": "[[File:Foobar.jpg|thumb|\n=== Testing ===\n123\n--------------\n]]"
     },
+    "Bogus sizes during html2wt": {
+        "html2wt": "[[File:Foobar.jpg|NaNxNaNpx]]\n\n[[File:Foobar.jpg|NaNxNaNpx]]"
+    },
     "Parsoid-specific image handling - simple image with size and middle alignment": {
         "html2wt": "[[File:Foobar.jpg|middle|50x50px]]"
     },
