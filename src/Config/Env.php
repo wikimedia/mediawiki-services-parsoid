@@ -250,6 +250,14 @@ class Env {
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 *  - titleShouldExist: (bool) Are we expecting page content to exist?
 	 *  - pageWithOldid: (bool) Does this request specify an oldid?
+	 *  - htmlVariantLanguage: string|null
+	 *      If non-null, the language variant used for Parsoid HTML;
+	 *      we convert to this if wt2html, or from this if html2wt.
+	 *  - wtVariantLanguage: string|null
+	 *      If non-null, the language variant to be used for wikitext.
+	 *      If null, heuristics will be used to identify the original
+	 *      wikitext variant in wt2html mode, and in html2wt mode new
+	 *      or edited HTML will be left unconverted.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null

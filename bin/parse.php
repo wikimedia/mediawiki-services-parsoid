@@ -104,6 +104,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
+			'wtVariantLanguage',
+			'Language variant to use for wikitext',
+			false,
+			true
+		);
+		$this->addOption(
+			'htmlVariantLanguage',
+			'Language variant to use for HTML',
+			false,
+			true
+		);
+		$this->addOption(
 			'flamegraph',
 			"Produce a flamegraph of CPU usage. " .
 			"Assumes existence of Excimer ( https://www.mediawiki.org/wiki/Excimer ). " .
@@ -385,11 +397,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			"body_only" => $this->hasOption( 'body_only' ),
 			"wrapSections" => $this->hasOption( 'wrapSections' )
 		];
-		if ( $this->hasOption( 'offsetType' ) ) {
-			$parsoidOpts['offsetType'] = $this->getOption( 'offsetType' );
-		}
-		if ( $this->hasOption( 'outputContentVersion' ) ) {
-			$parsoidOpts['outputContentVersion'] = $this->getOption( 'outputContentVersion' );
+		foreach ( [
+			'offsetType', 'outputContentVersion',
+			'wtVariantLanguage', 'htmlVariantLanguage'
+		] as $opt ) {
+			if ( $this->hasOption( $opt ) ) {
+				$parsoidOpts[$opt] = $this->getOption( $opt );
+			}
 		}
 
 		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );

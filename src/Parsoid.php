@@ -52,6 +52,9 @@ class Parsoid {
 		if ( !empty( $options['htmlVariantLanguage'] ) ) {
 			$envOptions['htmlVariantLanguage'] = $options['htmlVariantLanguage'];
 		}
+		if ( !empty( $options['wtVariantLanguage'] ) ) {
+			$envOptions['wtVariantLanguage'] = $options['wtVariantLanguage'];
+		}
 		return $envOptions;
 	}
 
@@ -104,6 +107,7 @@ class Parsoid {
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
 	 *   'htmlVariantLanguage'  => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'wtVariantLanguage'    => (string) If non-null, the language variant used for wikitext.
 	 *   'pageWithOldid'        => (bool) Does this request specify an oldid?
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
@@ -172,6 +176,7 @@ class Parsoid {
 	 *   'offsetType'          => (string) ucs2, char, byte are valid values
 	 *                                     what kind of source offsets are present in the HTML?
 	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'wtVariantLanguage'   => (string) If non-null, the language variant used for wikitext.
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
