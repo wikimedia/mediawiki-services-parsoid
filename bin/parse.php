@@ -56,6 +56,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
+			'restURL',
+			'Parses a RESTBase API URL (as supplied in our logs) and ' .
+			'sets --domain and --pageName.  Debugging aid.',
+			false,
+			true
+		);
+		$this->addOption(
 			'scrubWikitext',
 			'Apply wikitext scrubbing while serializing.  This is also used ' .
 			'for a mode of normalization (--normalize) applied when parsing.'
@@ -311,7 +318,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				return;
 			}
 		} else {
-			$input = file_get_contents( 'php://stdin' );
+			if ( $this->hasOption( 'restURL' ) ) {
+				$input = '';
+			} else {
+				$input = file_get_contents( 'php://stdin' );
+			}
 			if ( strlen( $input ) === 0 ) {
 				// Parse page if no input
 				if ( $this->hasOption( 'html2wt' ) || $this->hasOption( 'html2html' ) ) {
@@ -325,6 +336,22 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			}
 		}
 
+		if ( $this->hasOption( 'restURL' ) ) {
+			if ( !preg_match(
+				'#^(?:https?://)?([a-z.]+)/api/rest_v1/page/html/([^/?]+)#',
+				$this->getOption( 'restURL' ), $matches )
+			) {
+				# XXX we could extend this to process other URLs, but the
+				# above is the most common seen in error logs
+				$this->error(
+					'Bad rest url.'
+				);
+				return;
+			}
+			# Calling it with the default implicitly sets it as well.
+			$this->getOption( 'domain', $matches[1] );
+			$this->getOption( 'pageName', urldecode( $matches[2] ) );
+		}
 		$apiURL = "https://en.wikipedia.org/w/api.php";
 		if ( $this->hasOption( 'domain' ) ) {
 			$apiURL = "https://" . $this->getOption( 'domain' ) . "/w/api.php";
