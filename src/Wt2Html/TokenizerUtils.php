@@ -50,7 +50,7 @@ class TokenizerUtils {
 			}
 		}
 
-		if ( $res ) {
+		if ( $res !== null ) {
 			$e = $res;
 		}
 		return $e;
