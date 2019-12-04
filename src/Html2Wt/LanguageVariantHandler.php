@@ -56,7 +56,7 @@ class LanguageVariantHandler {
 	 * @return string
 	 */
 	private static function protectLang( string $l ): string {
-		if ( preg_match( '/^[a-z][-a-z]+$/D', $l ) ) {
+		if ( preg_match( '/^[a-z][-a-zA-Z]+$/D', $l ) ) {
 			return $l;
 		}
 		return '<nowiki>' . Util::escapeWtEntities( $l ) . '</nowiki>';

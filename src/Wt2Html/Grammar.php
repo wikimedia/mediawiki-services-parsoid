@@ -387,7 +387,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     86 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
     87 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
     88 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-    89 => ["type" => "class", "value" => "[-a-z]", "description" => "[-a-z]"],
+    89 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
   ];
 
   // actions
@@ -1678,8 +1678,13 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a163($o, $rest, $tr) {
   
   		array_unshift( $rest, $o );
-  		if ( $tr ) {
-  			$rest[] = [ 'semi' => true, 'sp' => $tr[1] ];
+  		// if the last bogus option is just spaces, keep them; otherwise
+  		// drop all this bogus stuff on the ground
+  		if ( count($tr) > 0 ) {
+  			$last = $tr[count($tr)-1];
+  			if (preg_match('/^\s*$/Du', $last[1])) {
+  				$rest[] = [ 'semi' => true, 'sp' => $last[1] ];
+  			}
   		}
   		return $rest;
   	
@@ -1887,7 +1892,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
   }
   private function parsestart($silence, &$param_preproc) {
-    $key = json_encode([282, $param_preproc]);
+    $key = json_encode([284, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -1936,7 +1941,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_start_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([464, $boolParams & 0x3bee, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([468, $boolParams & 0x3bee, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2052,7 +2057,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseurl($silence, &$param_preproc) {
-    $key = json_encode([338, $param_preproc]);
+    $key = json_encode([340, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2309,7 +2314,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parserow_syntax_table_args($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([484, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([488, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2369,7 +2374,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attributes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([288, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([290, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2424,7 +2429,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsegeneric_newline_attributes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([286, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([288, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2452,7 +2457,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
-    $key = json_encode([348, $param_preproc]);
+    $key = json_encode([350, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2498,7 +2503,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseextlink($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([328, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([330, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2692,7 +2697,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetlb($silence, &$param_preproc) {
-    $key = json_encode([294, $param_preproc]);
+    $key = json_encode([296, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2737,7 +2742,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenewlineToken($silence) {
-    $key = 534;
+    $key = 538;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2758,7 +2763,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsespace($silence) {
-    $key = 498;
+    $key = 502;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2780,7 +2785,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsecomment($silence) {
-    $key = 320;
+    $key = 322;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2878,7 +2883,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsepipe($silence) {
-    $key = 560;
+    $key = 564;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -2910,7 +2915,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseurl_protocol($silence) {
-    $key = 334;
+    $key = 336;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3015,7 +3020,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseurladdr($silence) {
-    $key = 342;
+    $key = 344;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3079,7 +3084,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function discardinline_breaks($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([313, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([315, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3133,7 +3138,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parseno_punctuation_char($silence) {
-    $key = 336;
+    $key = 338;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3155,7 +3160,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetplarg_or_template($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([344, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([346, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3212,7 +3217,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsehtmlentity($silence) {
-    $key = 492;
+    $key = 496;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3235,7 +3240,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseoptional_spaces($silence) {
-    $key = 496;
+    $key = 500;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3269,7 +3274,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function discardpipe($silence) {
-    $key = 561;
+    $key = 565;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3301,7 +3306,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attribute($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([430, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([434, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3397,7 +3402,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardoptionalSpaceToken($silence) {
-    $key = 501;
+    $key = 505;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3420,7 +3425,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsebroken_table_attribute_name_char($silence) {
-    $key = 436;
+    $key = 440;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3448,7 +3453,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsegeneric_newline_attribute($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([428, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([432, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3559,7 +3564,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseextlink_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([544, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([548, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3578,7 +3583,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardspace($silence) {
-    $key = 499;
+    $key = 503;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3600,7 +3605,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardunispace($silence) {
-    $key = 507;
+    $key = 511;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3622,7 +3627,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseinlineline($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([314, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([316, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3729,7 +3734,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardeof($silence) {
-    $key = 531;
+    $key = 535;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3751,7 +3756,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseblock($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([296, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([298, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3925,7 +3930,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardnewline($silence) {
-    $key = 533;
+    $key = 537;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -3957,7 +3962,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetplarg_or_template_guarded($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([346, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([348, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4251,7 +4256,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseraw_htmlentity($silence) {
-    $key = 490;
+    $key = 494;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4322,7 +4327,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseoptionalSpaceToken($silence) {
-    $key = 500;
+    $key = 504;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4345,7 +4350,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attribute_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([438, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([442, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4538,7 +4543,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_att_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([442, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([446, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4816,7 +4821,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardspace_or_newline_or_solidus($silence) {
-    $key = 421;
+    $key = 425;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -4874,7 +4879,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsegeneric_attribute_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([434, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([438, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5034,7 +5039,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardspace_or_newline($silence) {
-    $key = 503;
+    $key = 507;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5055,7 +5060,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsegeneric_att_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([440, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([444, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5355,7 +5360,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseextlink_preprocessor_text_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([546, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([550, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5536,7 +5541,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseurltext($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([488, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([492, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5697,7 +5702,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseinline_element($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([316, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([318, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5922,7 +5927,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardsof($silence) {
-    $key = 529;
+    $key = 533;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -5944,7 +5949,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseredirect($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([284, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([286, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6049,7 +6054,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsecomment_or_includes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([514, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([518, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6083,7 +6088,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseblock_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([306, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([308, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6227,7 +6232,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseblock_lines($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([302, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([304, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6294,7 +6299,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardeolf($silence) {
-    $key = 537;
+    $key = 541;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6316,7 +6321,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseblock_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([426, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([430, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6366,7 +6371,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseparagraph($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([308, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([310, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6414,7 +6419,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsesol($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([516, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([520, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6454,7 +6459,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function discardtplarg($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = json_encode([357, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $key = json_encode([359, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6470,7 +6475,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = json_encode([350, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $key = json_encode([352, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6486,7 +6491,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsebroken_template($silence, &$param_preproc) {
-    $key = json_encode([352, $param_preproc]);
+    $key = json_encode([354, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6522,7 +6527,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetplarg($silence, $boolParams, $param_templatedepth, &$param_th) {
-    $key = json_encode([356, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
+    $key = json_encode([358, $boolParams & 0x1bfe, $param_templatedepth, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6538,7 +6543,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardwikilink($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([399, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([403, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6563,7 +6568,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsedirective($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([540, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([544, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6656,7 +6661,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardxmlish_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([423, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([427, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6706,7 +6711,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text_single($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([556, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([560, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6801,7 +6806,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text_double($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([558, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([562, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6896,7 +6901,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_attribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([554, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([558, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -6994,7 +6999,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseless_than($silence, $boolParams) {
-    $key = json_encode([432, $boolParams & 0x800]);
+    $key = json_encode([436, $boolParams & 0x800]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7038,7 +7043,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parseattribute_preprocessor_text_single($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([550, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([554, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7154,7 +7159,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseattribute_preprocessor_text_double($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([552, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([556, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7270,7 +7275,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseattribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([548, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([552, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7389,7 +7394,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseautolink($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([326, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([328, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7456,7 +7461,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsebehavior_switch($silence) {
-    $key = 322;
+    $key = 324;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7515,7 +7520,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsexmlish_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([422, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([426, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7565,7 +7570,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_or_tpl($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([368, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([370, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7897,7 +7902,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsewikilink($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([398, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([402, $boolParams & 0x3bff, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7922,7 +7927,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsequote($silence) {
-    $key = 408;
+    $key = 412;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -7983,7 +7988,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseredirect_word($silence) {
-    $key = 290;
+    $key = 292;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8098,7 +8103,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parseinclude_limits($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([526, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([530, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8200,7 +8205,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseheading($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([318, $boolParams & 0x1bfc, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([320, $boolParams & 0x1bfc, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8373,7 +8378,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselist_item($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([444, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([448, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8402,7 +8407,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsehr($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([304, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([306, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8497,7 +8502,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([460, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([464, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8598,7 +8603,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsexmlish_tag_opened($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([424, $boolParams & 0x1fae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([428, $boolParams & 0x1fae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8706,7 +8711,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseempty_line_with_comments($silence) {
-    $key = 520;
+    $key = 524;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8809,7 +8814,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsesol_prefix($silence) {
-    $key = 518;
+    $key = 522;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -8840,7 +8845,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardtplarg_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([359, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([361, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9041,7 +9046,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([354, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([356, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9305,7 +9310,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetplarg_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([358, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([360, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9506,7 +9511,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardwikilink_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([403, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([407, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9593,7 +9598,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, $param_templatedepth, &$param_th) {
-    $key = json_encode([401, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
+    $key = json_encode([405, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9681,7 +9686,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseextension_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([410, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([414, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -9733,7 +9738,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseautourl($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([340, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([342, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10001,7 +10006,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseautoref($silence) {
-    $key = 330;
+    $key = 332;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10097,7 +10102,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseisbn($silence) {
-    $key = 332;
+    $key = 334;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10284,7 +10289,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardbehavior_text($silence) {
-    $key = 325;
+    $key = 327;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10345,7 +10350,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parselang_variant($silence, $boolParams, $param_templatedepth, &$param_th, &$param_preproc) {
-    $key = json_encode([372, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
+    $key = json_encode([374, $boolParams & 0x1bfe, $param_templatedepth, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10370,7 +10375,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsewikilink_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([402, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([406, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10457,7 +10462,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, $param_templatedepth, &$param_th) {
-    $key = json_encode([400, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
+    $key = json_encode([404, $boolParams & 0x19fe, $param_preproc, $param_templatedepth, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10545,7 +10550,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsespaces($silence) {
-    $key = 494;
+    $key = 498;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10580,7 +10585,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parsedtdd($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([450, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([454, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10713,7 +10718,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsehacky_dl_uses($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([448, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([452, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10819,7 +10824,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseli($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([446, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([450, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10887,7 +10892,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardsol($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([517, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([521, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10927,7 +10932,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parseoptionalNewlines($silence) {
-    $key = 512;
+    $key = 516;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10989,7 +10994,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_content_line($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([462, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([466, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11048,7 +11053,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parsetable_end_tag($silence) {
-    $key = 482;
+    $key = 486;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11119,7 +11124,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetag_name($silence) {
-    $key = 418;
+    $key = 422;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11169,7 +11174,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parsenewline($silence) {
-    $key = 532;
+    $key = 536;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11201,7 +11206,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate_param_value($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([364, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([366, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11227,7 +11232,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardnl_comment_space($silence) {
-    $key = 525;
+    $key = 529;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11249,7 +11254,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenl_comment_space($silence) {
-    $key = 524;
+    $key = 528;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11271,7 +11276,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate_param($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([360, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([362, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11382,7 +11387,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsewikilink_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([542, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([546, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11523,7 +11528,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsewikilink_content($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([396, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([400, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11579,7 +11584,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsespace_or_nbsp($silence) {
-    $key = 508;
+    $key = 512;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11630,7 +11635,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardend_of_word($silence) {
-    $key = 505;
+    $key = 509;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11665,7 +11670,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsespace_or_nbsp_or_dash($silence) {
-    $key = 510;
+    $key = 514;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11693,7 +11698,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_preproc($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([374, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([376, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11869,7 +11874,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsebroken_lang_variant($silence, &$param_preproc) {
-    $key = json_encode([370, $param_preproc]);
+    $key = json_encode([372, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11904,7 +11909,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardlist_char($silence) {
-    $key = 453;
+    $key = 457;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11925,7 +11930,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselist_char($silence) {
-    $key = 452;
+    $key = 456;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11946,7 +11951,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseinlineline_break_on_colon($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([454, $boolParams & 0xbfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([458, $boolParams & 0xbfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -11972,7 +11977,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardcomment_space_eolf($silence) {
-    $key = 539;
+    $key = 543;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12026,7 +12031,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function discardempty_line_with_comments($silence) {
-    $key = 521;
+    $key = 525;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12129,7 +12134,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardsol_prefix($silence) {
-    $key = 519;
+    $key = 523;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12160,7 +12165,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardcomment_or_includes($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([515, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([519, $boolParams & 0x13ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12193,7 +12198,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_heading_tags($silence, $boolParams, $param_templatedepth, &$param_preproc) {
-    $key = json_encode([476, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc]);
+    $key = json_encode([480, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12209,7 +12214,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_row_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([468, $boolParams & 0x3bef, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([472, $boolParams & 0x3bef, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12305,7 +12310,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_data_tags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([472, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([476, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12389,7 +12394,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_caption_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([466, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([470, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12468,7 +12473,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardtag_name_chars($silence) {
-    $key = 417;
+    $key = 421;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12489,7 +12494,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate_param_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([366, $boolParams & 0x1b8a, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([368, $boolParams & 0x1b8a, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12533,7 +12538,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardnewlineToken($silence) {
-    $key = 535;
+    $key = 539;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12554,7 +12559,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardcomment_space($silence) {
-    $key = 523;
+    $key = 527;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12576,7 +12581,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsecomment_space($silence) {
-    $key = 522;
+    $key = 526;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12598,7 +12603,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetemplate_param_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([362, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([364, $boolParams & 0x1b82, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12642,7 +12647,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardtext_char($silence) {
-    $key = 487;
+    $key = 491;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12663,7 +12668,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselink_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([404, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([408, $boolParams & 0x39f7, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12682,7 +12687,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseunispace($silence) {
-    $key = 506;
+    $key = 510;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12704,7 +12709,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parseopt_lang_variant_flags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([376, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([378, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12757,7 +12762,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([390, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([394, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12804,7 +12809,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_option_list($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([384, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([386, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -12859,42 +12864,41 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     // rest <- $r5
     // free $r6
-    // start seq_3
-    $p8 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === ";") {
-      $this->currPos++;
-      $r11 = ";";
-    } else {
-      if (!$silence) {$this->fail(31);}
-      $r11 = self::$FAILED;
-      $r6 = self::$FAILED;
-      goto seq_3;
-    }
-    $p12 = $this->currPos;
+    $r6 = [];
     for (;;) {
-      $r14 = $this->discardspace_or_newline($silence);
-      if ($r14===self::$FAILED) {
+      // start seq_3
+      $p8 = $this->currPos;
+      if (($this->input[$this->currPos] ?? null) === ";") {
+        $this->currPos++;
+        $r12 = ";";
+      } else {
+        if (!$silence) {$this->fail(31);}
+        $r12 = self::$FAILED;
+        $r11 = self::$FAILED;
+        goto seq_3;
+      }
+      $p13 = $this->currPos;
+      $r14 = $this->discardbogus_lang_variant_option($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+      if ($r14!==self::$FAILED) {
+        $r14 = substr($this->input, $p13, $this->currPos - $p13);
+      } else {
+        $r14 = self::$FAILED;
+        $this->currPos = $p8;
+        $r11 = self::$FAILED;
+        goto seq_3;
+      }
+      // free $p13
+      $r11 = [$r12,$r14];
+      seq_3:
+      if ($r11!==self::$FAILED) {
+        $r6[] = $r11;
+      } else {
         break;
       }
+      // free $p8
     }
-    // free $r14
-    $r13 = true;
-    if ($r13!==self::$FAILED) {
-      $r13 = substr($this->input, $p12, $this->currPos - $p12);
-    } else {
-      $r13 = self::$FAILED;
-      $this->currPos = $p8;
-      $r6 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $p12
-    $r6 = [$r11,$r13];
-    seq_3:
-    if ($r6===self::$FAILED) {
-      $r6 = null;
-    }
-    // free $p8
     // tr <- $r6
+    // free $r11
     $r1 = true;
     seq_1:
     if ($r1!==self::$FAILED) {
@@ -12904,12 +12908,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     // free $p3
     $p3 = $this->currPos;
-    $r14 = $this->parselang_variant_text($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
-    // lvtext <- $r14
-    $r1 = $r14;
+    $r11 = $this->parselang_variant_text($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+    // lvtext <- $r11
+    $r1 = $r11;
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r1 = $this->a164($r14);
+      $r1 = $this->a164($r11);
     }
     choice_1:
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
@@ -12919,7 +12923,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardcomment($silence) {
-    $key = 321;
+    $key = 323;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13017,7 +13021,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardinclude_limits($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([527, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([531, $boolParams & 0x33ae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13119,7 +13123,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_heading_tags_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([478, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([482, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13204,7 +13208,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetable_data_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([474, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([478, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13275,7 +13279,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetds($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([470, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([474, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13355,7 +13359,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenested_block_in_table($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([300, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([302, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13468,7 +13472,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenested_block($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([298, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([300, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13514,7 +13518,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselink_text_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([406, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([410, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13707,7 +13711,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_flags($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([378, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([380, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -13826,7 +13830,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_option($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([386, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([390, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14080,8 +14084,30 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
+  private function discardbogus_lang_variant_option($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
+    $key = json_encode([389, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
+        if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
+        if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
+      return $cached['result'];
+    }
+        $saved_preproc=$param_preproc;
+        $saved_th=$param_th;
+    $r1 = $this->discardlang_variant_text($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+    if ($r1===self::$FAILED) {
+      $r1 = null;
+    }
+    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
+      if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
+      if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
+    $this->cache[$bucket][$key] = $cached;
+    return $r1;
+  }
   private function parsetable_heading_tag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([480, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([484, $boolParams & 0x3bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14150,7 +14176,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsepipe_pipe($silence) {
-    $key = 562;
+    $key = 566;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14182,7 +14208,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardrow_syntax_table_args($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([485, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([489, $boolParams & 0x3bbe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14242,7 +14268,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsefull_table_in_link_caption($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([456, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([460, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14303,7 +14329,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsetext_char($silence) {
-    $key = 486;
+    $key = 490;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14324,7 +14350,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_flag($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([380, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([382, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14428,7 +14454,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_name($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([382, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([384, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14455,7 +14481,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $r5 = self::$FAILED;
     for (;;) {
       $r6 = $this->input[$this->currPos] ?? '';
-      if (preg_match("/^[\\-a-z]/", $r6)) {
+      if (preg_match("/^[\\-a-zA-Z]/", $r6)) {
         $this->currPos++;
         $r5 = true;
       } else {
@@ -14489,7 +14515,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_nowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([388, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([392, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14542,7 +14568,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_text_no_semi($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([392, $boolParams & 0x1b7e, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([396, $boolParams & 0x1b7e, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14561,7 +14587,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([394, $boolParams & 0x1a7e, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([398, $boolParams & 0x1a7e, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14579,8 +14605,55 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
+  private function discardlang_variant_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
+    $key = json_encode([395, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
+        if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
+        if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
+      return $cached['result'];
+    }
+        $saved_preproc=$param_preproc;
+        $saved_th=$param_th;
+    $p2 = $this->currPos;
+    $r3 = [];
+    for (;;) {
+      // start choice_1
+      $r4 = $this->parseinlineline($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+      if ($r4!==self::$FAILED) {
+        goto choice_1;
+      }
+      if (($this->input[$this->currPos] ?? null) === "|") {
+        $this->currPos++;
+        $r4 = "|";
+      } else {
+        if (!$silence) {$this->fail(13);}
+        $r4 = self::$FAILED;
+      }
+      choice_1:
+      if ($r4!==self::$FAILED) {
+        $r3[] = $r4;
+      } else {
+        break;
+      }
+    }
+    // tokens <- $r3
+    // free $r4
+    $r1 = $r3;
+    if ($r1!==self::$FAILED) {
+      $this->savedPos = $p2;
+      $r1 = $this->a161($r3);
+    }
+    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
+      if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
+      if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
+    $this->cache[$bucket][$key] = $cached;
+    return $r1;
+  }
   private function parsefull_table_in_link_caption_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([458, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([462, $boolParams & 0x3bff, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14692,7 +14765,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function discardnowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([413, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([417, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14736,7 +14809,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenowiki_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([414, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([418, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -14762,7 +14835,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r1;
   }
   private function parsenowiki($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([412, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
+    $key = json_encode([416, $boolParams & 0x1bae, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {

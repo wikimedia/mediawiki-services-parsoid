@@ -1320,7 +1320,7 @@ lang_variant_flag =
 
 // language variant name, like zh, zh-cn, etc.
 lang_variant_name =
-	$([a-z] [-a-z]+)
+	$([a-z] [-a-zA-Z]+)
 	// Escaped otherwise-unrepresentable language names
 	// Primarily for supporting html2html round trips; PHP doesn't support
 	// using nowikis here (yet!)
@@ -1328,15 +1328,23 @@ lang_variant_name =
 
 lang_variant_option_list =
 	o:lang_variant_option rest:( ";" oo:lang_variant_option { return $oo; })*
-	tr:( ";" $space_or_newline* )? // optional trailing semicolon
+	tr:( ";" $bogus_lang_variant_option )* // optional trailing crap
 	{
 		array_unshift( $rest, $o );
-		if ( $tr ) {
-			$rest[] = [ 'semi' => true, 'sp' => $tr[1] ];
+		// if the last bogus option is just spaces, keep them; otherwise
+		// drop all this bogus stuff on the ground
+		if ( count($tr) > 0 ) {
+			$last = $tr[count($tr)-1];
+			if (preg_match('/^\s*$/Du', $last[1])) {
+				$rest[] = [ 'semi' => true, 'sp' => $last[1] ];
+			}
 		}
 		return $rest;
 	}
 	/ lvtext:lang_variant_text { return [ [ 'text' => $lvtext ] ]; }
+
+bogus_lang_variant_option =
+	lang_variant_text?
 
 lang_variant_option =
 	sp1:$(space_or_newline*) lang:lang_variant_name

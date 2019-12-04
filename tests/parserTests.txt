@@ -24136,6 +24136,40 @@ a:b=>c xyz
 !! end
 
 !! test
+T239806: Trailing garbage in language converter rules (1)
+!! options
+language=zh variant=zh-hans
+parsoid=wt2html,html2html
+!! wikitext
+-{H|zh-cn:约翰·塞纳; zh-hk:莊·先拿; zh-tw:約翰·希南; ;}-
+-{H|zh-cn:泰瑞斯·吉布森; zh-hk:泰列斯·吉遜; zh-tw:泰瑞斯·吉布森; ;}-
+-{H|zh-cn:金·米尔福特; zh-tw:金·米爾福特; 真·米爾福特;}-
+!! html/php+tidy
+<p class="mw-empty-elt">
+
+
+</p>
+!! html/parsoid
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"约翰·塞纳"},{"l":"zh-hk","t":"莊·先拿"},{"l":"zh-tw","t":"約翰·希南"}]}'/>
+<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"泰瑞斯·吉布森"},{"l":"zh-hk","t":"泰列斯·吉遜"},{"l":"zh-tw","t":"泰瑞斯·吉布森"}]}'/>
+<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"金·米尔福特"},{"l":"zh-tw","t":"金·米爾福特"}]}'/></p>
+!! end
+
+!! test
+T239806: Trailing garbage in language converter rules (2)
+!! options
+language=zh variant=zh-hans
+parsoid=wt2html,html2html
+!! wikitext
+-{H|zh-cn:玛格特·罗比; zh-tw:瑪格·羅比; zh-hk:瑪歌·羅比; zh-sg:玛格·罗比; ;}-
+!! html/php+tidy
+<p class="mw-empty-elt">
+</p>
+!! html/parsoid
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"玛格特·罗比"},{"l":"zh-tw","t":"瑪格·羅比"},{"l":"zh-hk","t":"瑪歌·羅比"},{"l":"zh-sg","t":"玛格·罗比"}]}'/></p>
+!! end
+
+!! test
 T179579: Nowiki and lc interaction
 !! options
 parsoid=wt2html
