@@ -357,6 +357,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		if ( $this->hasOption( 'restURL' ) ) {
 			if ( !preg_match(
 				'#^(?:https?://)?([a-z.]+)/api/rest_v1/page/html/([^/?]+)#',
+				$this->getOption( 'restURL' ), $matches ) &&
+				 !preg_match(
+				'#^/w/rest\.php/([a-z.]+)/v3/transform/pagebundle/to/pagebundle/([^/?]+)#',
 				$this->getOption( 'restURL' ), $matches )
 			) {
 				# XXX we could extend this to process other URLs, but the
