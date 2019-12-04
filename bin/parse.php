@@ -147,6 +147,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			false
 		);
+		$this->addOption(
+			'outputContentVersion',
+			'The acceptable content version.',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -381,6 +387,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		];
 		if ( $this->hasOption( 'offsetType' ) ) {
 			$parsoidOpts['offsetType'] = $this->getOption( 'offsetType' );
+		}
+		if ( $this->hasOption( 'outputContentVersion' ) ) {
+			$parsoidOpts['outputContentVersion'] = $this->getOption( 'outputContentVersion' );
 		}
 
 		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );

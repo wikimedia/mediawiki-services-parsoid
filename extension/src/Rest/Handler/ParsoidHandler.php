@@ -531,7 +531,7 @@ abstract class ParsoidHandler extends Handler {
 			// When substing, set data-parsoid to be discarded, so that the subst'ed
 			// content is considered new when it comes back.
 			'discardDataParsoid' => $doSubst,
-			'outputVersion' => $env->getOutputContentVersion(),
+			'outputContentVersion' => $env->getOutputContentVersion(),
 		], $attribs['envOptions'] );
 
 		// VE, the only client using body_only property,

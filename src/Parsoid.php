@@ -79,8 +79,8 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		if ( isset( $options['outputVersion'] ) ) {
-			$env->setOutputContentVersion( $options['outputVersion'] );
+		if ( isset( $options['outputContentVersion'] ) ) {
+			$env->setOutputContentVersion( $options['outputContentVersion'] );
 		}
 		$env->bumpWt2HtmlResourceUse(
 			'wikitextSize', mb_strlen( $env->getPageMainContent() )
@@ -94,19 +94,20 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $options [
-	 *   'wrapSections'        => (bool) Whether `<section>` wrappers should be added.
-	 *   'pageBundle'          => (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
-	 *   'body_only'           => (bool|null) Only return the <body> children (T181657)
-	 *   'outputVersion'       => (string|null) Version of HTML to output.
-	 *                                          `null` returns the default version.
-	 *   'discardDataParsoid'  => (bool) Drop all data-parsoid annotations.
-	 *   'offsetType'          => (string) ucs2, char, byte are valid values
-	 *                                     what kind of source offsets should be emitted?
-	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
-	 *   'pageWithOldid'       => (bool) Does this request specify an oldid?
-	 *   'traceFlags'          => (array) associative array with tracing options
-	 *   'dumpFlags'           => (array) associative array with dump options
-	 *   'debugFlags'          => (array) associative array with debug options
+	 *   'wrapSections'         => (bool) Whether `<section>` wrappers should be added.
+	 *   'pageBundle'           => (bool) Sets ids on nodes and stores
+	 *                                    data-* attributes in a JSON blob.
+	 *   'body_only'            => (bool|null) Only return the <body> children (T181657)
+	 *   'outputContentVersion' => (string|null) Version of HTML to output.
+	 *                                           `null` returns the default version.
+	 *   'discardDataParsoid'   => (bool) Drop all data-parsoid annotations.
+	 *   'offsetType'           => (string) ucs2, char, byte are valid values
+	 *                                      what kind of source offsets should be emitted?
+	 *   'htmlVariantLanguage'  => (string) If non-null, the language variant used for Parsoid HTML.
+	 *   'pageWithOldid'        => (bool) Does this request specify an oldid?
+	 *   'traceFlags'           => (array) associative array with tracing options
+	 *   'dumpFlags'            => (array) associative array with dump options
+	 *   'debugFlags'           => (array) associative array with debug options
 	 * ]
 	 * @param array|null &$headers
 	 * @return PageBundle|string
