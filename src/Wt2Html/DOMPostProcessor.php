@@ -641,7 +641,7 @@ class DOMPostProcessor extends PipelineStage {
 		// FIXME: Should we be using http-equiv for this?
 		$this->appendToHead( $document, 'meta', [
 				'property' => 'mw:html:version',
-				'content' => $env->getInputContentVersion()
+				'content' => $env->getOutputContentVersion()
 			]
 		);
 
