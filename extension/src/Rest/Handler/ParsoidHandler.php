@@ -553,6 +553,10 @@ abstract class ParsoidHandler extends Handler {
 
 		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$timing->end( "wt2html.$mstr.init" );
+		$metrics->timing(
+			"wt2html.$mstr.size.input",
+			mb_strlen( $env->getPageMainContent() )
+		);
 		$parseTiming = Timing::start( $metrics );
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
