@@ -555,6 +555,7 @@ abstract class ParsoidHandler extends Handler {
 		$timing->end( "wt2html.$mstr.init" );
 		$metrics->timing(
 			"wt2html.$mstr.size.input",
+			# Should perhaps be strlen instead (or cached!): T239841
 			mb_strlen( $env->getPageMainContent() )
 		);
 		$parseTiming = Timing::start( $metrics );
@@ -655,7 +656,8 @@ abstract class ParsoidHandler extends Handler {
 		// init.domParse, a component of init time, is the time elapsed
 		// from html string to DOM tree
 		$timing->end( 'html2wt.init.domparse' );
-		$metrics->timing( 'html2wt.size.input', strlen( $html ) );
+		# Should perhaps be strlen instead (or cached!): T239841
+		$metrics->timing( 'html2wt.size.input', mb_strlen( $html ) );
 		$timing->end( 'html2wt.init' );
 
 		$original = $opts['original'] ?? null;
@@ -833,7 +835,8 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$timing->end( 'html2wt.total' );
-		$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
+		# Should perhaps be strlen instead (or cached!): T239841
+		$metrics->timing( 'html2wt.size.output', mb_strlen( $wikitext ) );
 
 		$response = $this->getResponseFactory()->create();
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );

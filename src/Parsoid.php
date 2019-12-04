@@ -86,6 +86,7 @@ class Parsoid {
 			$env->setOutputContentVersion( $options['outputContentVersion'] );
 		}
 		$env->bumpWt2HtmlResourceUse(
+			# Should perhaps be strlen instead (or cached!): T239841
 			'wikitextSize', mb_strlen( $env->getPageMainContent() )
 		);
 		$handler = $env->getContentHandler();
@@ -198,6 +199,7 @@ class Parsoid {
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$env->setInputContentVersion( $options['inputContentVersion'] );
 		}
+		# Should perhaps be strlen instead (or cached!): T239841
 		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
 		$doc = $env->createDocument( $html );
 		$handler = $env->getContentHandler();
