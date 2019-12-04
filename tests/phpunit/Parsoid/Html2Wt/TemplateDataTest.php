@@ -39,8 +39,8 @@ class TemplateDataTest extends TestCase {
 		$this->assertEquals( $expectedWT, $wt, $description );
 	}
 
-	private function defineTestData(): array {
-		$testData = [
+	public function defineTestData(): array {
+		return [
 			// 1. Transclusions without template data
 			[
 				'name' => 'Transclusions without template data',
@@ -59,6 +59,7 @@ class TemplateDataTest extends TestCase {
 
 			// 2. normal
 			[
+				'name' => 'normal',
 				'html' => '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"f2"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"NoFormatWithParamOrder",' .
@@ -238,6 +239,7 @@ class TemplateDataTest extends TestCase {
 
 			// 13. Inline Formatted template 1
 			[
+				'name' => 'Inline Formatted template 1',
 				'html' => 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"x"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_1",' .
@@ -252,6 +254,7 @@ class TemplateDataTest extends TestCase {
 
 			// 14. Inline Formatted template 2
 			[
+				'name' => 'Inline Formatted template 2',
 				'html' => 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"x"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_2",' .
@@ -266,6 +269,7 @@ class TemplateDataTest extends TestCase {
 
 			// 15. Inline Formatted template 3
 			[
+				'name' => 'Inline Formatted template 3',
 				'html' => 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"x"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_3",' .
@@ -280,6 +284,7 @@ class TemplateDataTest extends TestCase {
 
 			// 16. Custom block formatting 1
 			[
+				'name' => 'Custom block formatting 1',
 				'html' => 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"f2"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_1",' .
@@ -294,6 +299,7 @@ class TemplateDataTest extends TestCase {
 
 			// 17. Custom block formatting 2
 			[
+				'name' => 'Custom block formatting 2',
 				'html' => 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"f2"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2",' .
@@ -308,6 +314,7 @@ class TemplateDataTest extends TestCase {
 
 			// 18. Custom block formatting 3 - T199849
 			[
+				'name' => 'Custom block formatting 3 - T199849',
 				'html' => "x\n" . '<span about="#mwt1" typeof="mw:Transclusion" data-mw=' . "'" .
 					'{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2",' .
 					'"href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},' .
@@ -318,8 +325,9 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 19. Custom block formatting 3 - T199849
+			// 19. Custom block formatting 4 - T199849
 			[
+				'name' => 'Custom block formatting 4 - T199849',
 				'html' => "x\n" . '<span about="#mwt1" typeof="mw:Transclusion" data-mw=' . "'" .
 					'{"parts":["X", {"template":{"target":{"wt":"BlockFormattedTpl_2",' .
 					'"href":"./Template:BlockFormattedTpl_2"},"params":{"f1":{"wt":""},' .
@@ -330,8 +338,9 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 19. Custom block formatting 3 - T199849
+			// 19. Custom block formatting 5 - T199849
 			[
+				'name' => 'Custom block formatting 5 - T199849',
 				'html' => "x\n" . '<span about="#mwt1" typeof="mw:Transclusion" data-mw=' . "'" .
 					'{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_2",' .
 					'"href":"./Template:BlockFormattedTpl_2"},"params":{"g1":{"wt":""},' .
@@ -346,8 +355,9 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 20. Custom block formatting 4
+			// 20. Custom block formatting 6
 			[
+				'name' => 'Custom block formatting 6',
 				'html' => 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"f2"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"BlockFormattedTpl_3",' .
@@ -360,11 +370,40 @@ class TemplateDataTest extends TestCase {
 				]
 			]
 		];
-		return $testData;
 	}
 
-	private function defineVersionTestData(): array {
-		$testData = [
+	/**
+	 * @covers \Parsoid\Parsoid::html2wikitext
+	 * @covers \Parsoid\WikitextContentModelHandler::fromHTML
+	 * @dataProvider defineTestData
+	 */
+	public function testTemplateData(
+		string $name, string $html, array $wt
+	): void {
+		// Non-selser test
+		if ( isset( $wt['no_selser'] ) ) {
+			$desc = "$name: Default non-selser serialization should ignore templatedata";
+			self::verifyTransformation( $html, null, null, $wt['no_selser'], $desc );
+		}
+
+		// New content test
+		$desc = "$name: Serialization of new content (no data-parsoid) should respect templatedata";
+		// Remove data-parsoid making it look like new content
+		$newHTML = preg_replace( '/data-parsoid.*? data-mw/', ' data-mw', $html );
+		self::verifyTransformation( $newHTML, '', '', $wt['new_content'], $desc );
+
+		// Transclusion edit test
+		$desc = "$name: Serialization of edited content should respect templatedata";
+		// Replace only the first instance of 'foo' with 'BAR'
+		// to simulate an edit of a transclusion.
+		$newHTML = preg_replace( '/foo/', 'BAR', $html, 1 );
+		self::verifyTransformation(
+			$newHTML, $html, $wt['no_selser'] ?? '', $wt['edited'], $desc
+		);
+	}
+
+	public function defineVersionTestData(): array {
+		return [
 			[
 				'contentVersion' => $this->defaultContentVersion,
 				'html' => '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
@@ -378,57 +417,24 @@ class TemplateDataTest extends TestCase {
 				]
 			]
 		];
-		return $testData;
 	}
 
 	/**
 	 * @covers \Parsoid\Parsoid::html2wikitext
 	 * @covers \Parsoid\WikitextContentModelHandler::fromHTML
+	 * @dataProvider defineVersionTestData
 	 */
-	public function testTemplateData(): void {
-		$tests = self::defineTestData();
-
-		foreach ( $tests as $key => $test ) {
-			$html = $test['html'];
-			$name = 'Single Template Test ' . ( $key . 1 );
-			if ( isset( $test['name'] ) ) {
-				$name .= ' (' . $test['name'] . ')';
-			}
-			$name .= ': ';
-
-			// Non-selser test
-			if ( isset( $test['wt']['no_selser'] ) ) {
-				$desc = $name . 'Default non-selser serialization should ignore templatedata';
-				self::verifyTransformation( $html, null, null, $test['wt']['no_selser'], $desc );
-			}
-
-			// New content test
-			$desc = $name . 'Serialization of new content (no data-parsoid) should respect templatedata';
-			// Remove data-parsoid making it look like new content
-			$newHTML = preg_replace( '/data-parsoid.*? data-mw/', ' data-mw', $html );
-			self::verifyTransformation( $newHTML, '', '', $test['wt']['new_content'], $desc );
-
-			// Transclusion edit test
-			$desc = $name . 'Serialization of edited content should respect templatedata';
-			// Replace only the first instance of 'foo' with 'BAR'
-			// to simulate an edit of a transclusion.
-			$newHTML = preg_replace( '/foo/', 'BAR', $html, 1 );
-			self::verifyTransformation( $newHTML, $html, $test['wt']['no_selser'] ?? '',
-				$test['wt']['edited'], $desc );
-		}
-
-		$tests = self::defineVersionTestData();
-
-		// forEach(function(test) {
-		foreach ( $tests as $test ) {
-			$desc = 'Serialization should use correct arg space defaults for data-parsoid version ' .
-				$test['contentVersion'];
-			// Replace only the first instance of 'foo' with 'BAR'
-			// to simulate an edit of a transclusion.
-				$newHTML = preg_replace( '/foo/', 'BAR', $test['html'], 1 );
-				self::verifyTransformation( $newHTML, $test['html'], $test['wt']['orig'], $test['wt']['edited'],
-					$desc, $test['contentVersion'] );
-		}
+	public function testTemplateDataVersion(
+		string $contentVersion, string $html, array $wt
+	): void {
+		$desc = "Serialization should use correct arg space defaults for " .
+			"data-parsoid version $contentVersion";
+		// Replace only the first instance of 'foo' with 'BAR'
+		// to simulate an edit of a transclusion.
+		$newHTML = preg_replace( '/foo/', 'BAR', $html, 1 );
+		self::verifyTransformation(
+			$newHTML, $html, $wt['orig'], $wt['edited'], $desc, $contentVersion
+		);
 	}
 
 }
