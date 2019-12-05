@@ -290,7 +290,7 @@ class DOMHandler {
 	): string {
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
-			return $state->getOrigSrc( $dsr->start, $dsr->innerStart() );
+			return $state->getOrigSrc( $dsr->start, $dsr->innerStart() ) ?? '';
 		} else {
 			return $this->serializeTableElement( $symbol, $endSymbol, $state, $node );
 		}
@@ -342,7 +342,8 @@ class DOMHandler {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
 			if ( Util::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerStart();
-				$space = $offset < $dsr->innerEnd() ? $state->getOrigSrc( $offset, $offset + 1 ) : '';
+				$space = $offset < $dsr->innerEnd() ?
+					( $state->getOrigSrc( $offset, $offset + 1 ) ?? '' ) : '';
 				if ( !preg_match( '/[ \t]/', $space ) ) {
 					$space = '';
 				}
@@ -380,7 +381,8 @@ class DOMHandler {
 				// The > instead of >= is to deal with an edge case
 				// = = where that single space is captured by the
 				// getLeadingSpace case above
-				$space = $offset > $dsr->innerStart() ? $state->getOrigSrc( $offset, $offset + 1 ) : '';
+				$space = $offset > $dsr->innerStart() ?
+					( $state->getOrigSrc( $offset, $offset + 1 ) ?? '' ) : '';
 				if ( !preg_match( '/[ \t]/', $space ) ) {
 					$space = '';
 				}

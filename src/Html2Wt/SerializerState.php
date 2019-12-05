@@ -382,7 +382,17 @@ class SerializerState {
 	 */
 	public function getOrigSrc( int $start, int $end ): ?string {
 		Assert::invariant( $this->selserMode, 'SerializerState::$selserMode must be set' );
-		return $start <= $end ? substr( $this->selserData->oldText, $start, $end - $start ) : null;
+		if (
+			$start <= $end &&
+			// FIXME: Having a $start greater than the source length is
+			// probably a canary for corruption.  Maybe we should be throwing
+			// here instead.  See T240053
+			$start <= strlen( $this->selserData->oldText )
+		) {
+			return substr( $this->selserData->oldText, $start, $end - $start );
+		} else {
+			return null;
+		}
 	}
 
 	/**
