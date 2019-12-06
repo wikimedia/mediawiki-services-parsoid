@@ -804,12 +804,17 @@ abstract class ParsoidHandler extends Handler {
 		//    clean round-tripping of HTML retrieved earlier with"
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
-		// FIXME: T234548/T234549 - this is deprecated:
-		// should use $env->topFrame->getSrcText()
-		$oldtext = $hasOldId ? $env->getPageMainContent() : '';
 
 		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
-			$selserData = new SelserData( $oldtext, $oldhtml );
+			if ( !$env->getPageConfig()->getRevisionContent() ) {
+				return $this->getResponseFactory()->createHttpError( 409, [
+					'message' => 'Could not find previous revision. Has the page been locked / deleted?'
+				] );
+			}
+
+			// FIXME: T234548/T234549 - $env->getPageMainContent() is deprecated:
+			// should use $env->topFrame->getSrcText()
+			$selserData = new SelserData( $env->getPageMainContent(), $oldhtml );
 		} else {
 			$selserData = null;
 		}
