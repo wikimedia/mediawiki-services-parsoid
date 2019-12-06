@@ -33325,3 +33325,17 @@ parsoid=wt2html
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Disambiguation" title="Disambiguation" class="mw-disambig">Disambiguation</a></p>
 !! end
+
+## Note that there's a leading \r here that's necessary for the test
+!! test
+Stray carriage return in text
+!! options
+parsoid=wt2html
+!! wikitext
+hiho
+!! html/php+tidy
+<p>hiho
+</p>
+!! html/parsoid
+<p>hiho</p>
+!! end

@@ -422,7 +422,7 @@ block =
 	// Inlineline includes generic tags; wrapped into paragraphs in token
 	// transform and DOM postprocessor
 	/ inlineline
-	/ s:sol !inline_breaks { return $s; }
+	/ s:sol !sof !inline_breaks { return $s; }
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
@@ -551,7 +551,7 @@ inlineline =
 	c:(
 		urltext
 		/ !inline_breaks
-		r:(inline_element / [^\r\n]) { return $r; }
+		r:(inline_element / !newline s:. { return $s; }) { return $r; }
 	)+ {
 		return TokenizerUtils::flattenStringlist( $c );
 	}
