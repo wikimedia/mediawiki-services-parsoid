@@ -45,7 +45,17 @@ var opts = yargs
 	},
 	semanticOnly: {
 		boolean: false,
-	}
+	},
+	parsoidURL: {
+		description: 'The URL for the Parsoid API',
+		boolean: false,
+		default: '',
+	},
+	proxyURL: {
+		description: 'URL (with protocol and port, if any) for the proxy fronting Parsoid',
+		boolean: false,
+		default: null,
+	},
 	// FIXME: Add an option for the regression url.
 });
 
@@ -69,21 +79,31 @@ Promise.async(function *() {
 			cwd: path.join(__dirname, '..'),
 		}).promise;
 	});
-
 	var titles;
 	var run = Promise.async(function *(handleResult) {
-		var ret = yield serviceWrapper.runServices({ skipMock: true });
+		var obj;
+		if (argv.parsoidURL) {
+			obj = { parsoidURL: argv.parsoidURL };
+		} else {
+			obj = yield serviceWrapper.runServices({ skipMock: true });
+		}
 		// Do this serially for now.
 		yield Promise.reduce(titles, function(_, t) {
+			var parsoidURLOpts = { baseUrl: obj.parsoidURL };
+			if (argv.proxyURL) {
+				parsoidURLOpts.proxy = { host: argv.proxyURL };
+			}
 			return rtTest.runTests(t.title, {
 				prefix: t.prefix,
-				parsoidURLOpts: { baseUrl: ret.parsoidURL },
+				parsoidURLOpts: parsoidURLOpts,
 				outputContentVersion: argv.outputContentVersion,
 			}, rtTest.jsonFormat).then(
 				ret => handleResult(t, ret)
 			);
 		}, null);
-		yield ret.runner.stop();
+		if (!argv.parsoidURL) {
+			yield obj.runner.stop();
+		}
 	});
 
 	var trimSyntactic = function(r) {
