@@ -929,7 +929,8 @@ class WrapTemplates {
 				}
 
 				// encapsulation possible only if dp1.dsr is valid
-				$encapInfo->valid = $dp1->dsr->start !== null && $dp1->dsr->end !== null;
+				$encapInfo->valid = Util::isValidDSR( $dp1->dsr ?? null ) &&
+					$dp1->dsr->end >= $dp1->dsr->start;
 			}
 
 			$tplArray = $encapInfo->tplArray;
