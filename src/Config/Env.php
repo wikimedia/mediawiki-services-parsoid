@@ -745,6 +745,9 @@ class Env {
 	 * Record a lint
 	 * @param string $type Lint type key
 	 * @param array $lintData Data for the lint.
+	 *  - dsr: (SourceRange)
+	 *  - params: (array)
+	 *  - templateInfo: (array|null)
 	 */
 	public function recordLint( string $type, array $lintData ): void {
 		// Parsoid-JS tests don't like getting null properties where JS had undefined.
@@ -759,6 +762,11 @@ class Env {
 
 		// This will always be recorded as a native 'byte' offset
 		$lintData['dsr'] = $lintData['dsr']->jsonSerialize();
+
+		// Ensure a "params" array
+		if ( !isset( $lintData['params'] ) ) {
+			$lintData['params'] = [];
+		}
 
 		$this->lints[] = [ 'type' => $type ] + $lintData;
 	}
