@@ -180,7 +180,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			[
 				'variant',
 				'<p>абвг abcd x</p>',
-				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd x"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
+				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
 				[
 					'body_only' => true,
 					'variant' => [
