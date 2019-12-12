@@ -713,7 +713,11 @@ class WikitextEscapeHandlers {
 		SerializerState $state, bool $sol, string $origText,
 		bool $fullWrap = false, bool $dontWrapIfUnnecessary = false
 	): string {
-		preg_match( '/^((?:[^\r\n]|[\r\n]+[^\r\n]|[~]{3,5})*?)((?:\r?\n)*)$/D', $origText, $match );
+		Assert::invariant(
+			preg_match( '/^(.*?)((?:\r?\n)*)$/sD', $origText, $match ),
+			"Escaped text matching failed: {$origText}"
+		);
+
 		$text = $match[1];
 		$nls = $match[2];
 
