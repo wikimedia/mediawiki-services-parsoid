@@ -71,7 +71,8 @@ class LanguageConverter {
 		// this.mVariantNames = Language.// XXX
 
 		// Eagerly load conversion tables.
-		// XXX we could defer loading in the future.
+		// XXX we could defer loading in the future, or cache more
+		// aggressively
 		$this->loadDefaultTables();
 	}
 
@@ -220,10 +221,14 @@ class LanguageConverter {
 			?: 'en';
 		$guesser = null;
 
+		$metrics = $env->getSiteConfig()->metrics();
+		$loadTiming = Timing::start( $metrics );
 		$languageClass = self::loadLanguage( $env, $pageLangCode );
 		$lang = new $languageClass();
 		$langconv = $lang->getConverter();
 		// XXX we might want to lazily-load conversion tables here.
+		$loadTiming->end( "langconv.{$targetVariant}.init" );
+		$loadTiming->end( 'langconv.init' );
 
 		// Check the the target variant is valid (and implemented!)
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null
@@ -234,7 +239,6 @@ class LanguageConverter {
 			return; /* no conversion */
 		}
 
-		$metrics = $env->getSiteConfig()->metrics();
 		$timing = Timing::start( $metrics );
 		if ( $metrics ) {
 			$metrics->increment( 'langconv.count' );
@@ -256,5 +260,6 @@ class LanguageConverter {
 
 		$timing->end( 'langconv.total' );
 		$timing->end( "langconv.{$targetVariant}.total" );
+		$loadTiming->end( 'langconv.totalWithInit' );
 	}
 }
