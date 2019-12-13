@@ -166,7 +166,7 @@ class SiteConfig extends ISiteConfig {
 			$prefixedMetrics = new \PrefixingStatsdDataFactoryProxy(
 				// Our stats will also get prefixed with 'MediaWiki.'
 				MediaWikiServices::getInstance()->getStatsdDataFactory(),
-				'Parsoid.'
+				$this->parsoidSettings['metricsPrefix'] ?? 'Parsoid.'
 			);
 		}
 		return $prefixedMetrics;

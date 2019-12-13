@@ -25,3 +25,5 @@ $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 // These endpoints are occasionally useful while investigating rt testing
 // diffs on the server.
 // $wgParsoidSettings['devAPI'] = true;
+
+$wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
