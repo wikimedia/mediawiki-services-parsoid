@@ -4,6 +4,8 @@ namespace MWParsoid\Config;
 
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\RevisionAccessException;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
@@ -18,6 +20,9 @@ use User;
 use WikitextContent;
 
 class PageConfigFactory {
+
+	public const PAGE_UNAVAILABLE = RevisionRecord::DELETED_TEXT | RevisionRecord::DELETED_USER |
+	RevisionRecord::DELETED_RESTRICTED;
 
 	/** @var RevisionStore */
 	private $revisionStore;
@@ -85,6 +90,11 @@ class PageConfigFactory {
 				$revisionId
 			);
 		}
+
+		if ( $revisionRecord != null && PAGE_UNAVAILABLE | $revisionRecord->getVisibility() ) {
+			throw new RevisionAccessException( 'Not an available content version.' );
+		}
+
 		if ( $wikitextOverride !== null ) {
 			if ( $revisionRecord ) {
 				// PORT-FIXME this is not really the right thing to do; need

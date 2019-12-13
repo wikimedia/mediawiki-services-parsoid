@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace MWParsoid\Rest\Handler;
 
 use MediaWiki\Rest\Response;
+use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
 use Parsoid\Config\Env;
@@ -30,7 +31,13 @@ class PageHandler extends ParsoidHandler {
 		$attribs = $this->getRequestAttributes();
 
 		$oldid = (int)$attribs['oldid'];
-		$env = $this->createEnv( $attribs['pageName'], $oldid, true /* titleShouldExist */ );
+		try {
+			$env = $this->createEnv( $attribs['pageName'], $oldid, true /* titleShouldExist */ );
+		} catch ( RevisionAccessException $exception ) {
+			return $this->getResponseFactory()->createHttpError( 404, [
+				'message' => 'The specified revision is deleted or suppressed.',
+			] );
+		}
 		if ( !$env ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision does not exist.',

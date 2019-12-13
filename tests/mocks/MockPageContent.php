@@ -60,6 +60,9 @@ class MockPageContent implements PageContent {
 	/** @inheritDoc */
 	public function getContent( string $role ): string {
 		$this->checkRole( $role );
+		if ( !isset( $this->data[$role]['content'] ) ) {
+			throw new \InvalidArgumentException( 'Unknown role or missing content failure' );
+		}
 		return $this->data[$role]['content'];
 	}
 

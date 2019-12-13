@@ -105,7 +105,11 @@ class PageConfig extends IPageConfig {
 			$params['rvlimit'] = 1;
 		}
 
-		$this->page = $this->api->makeRequest( $params )['query']['pages'][0];
+		$content = $this->api->makeRequest( $params );
+		if ( !isset( $content['query']['pages'][0] ) ) {
+			throw new \RuntimeException( 'Request for page failed' );
+		}
+		$this->page = $content['query']['pages'][0];
 
 		$this->rev = $this->page['revisions'][0] ?? [];
 		unset( $this->page['revisions'] );
