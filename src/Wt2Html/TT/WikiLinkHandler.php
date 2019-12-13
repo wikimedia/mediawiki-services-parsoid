@@ -654,7 +654,7 @@ class WikiLinkHandler extends TokenHandler {
 		$saniContent = preg_replace( '/#/', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
 		$newTk->addNormalizedAttribute( 'href', $env->makeLink( $target->title ), $target->hrefSrc );
 		// Change the href to include the sort key, if any (but don't update the rt info)
-		if ( $strContent && $strContent !== '' && $strContent !== $target->href ) {
+		if ( isset( $strContent ) && $strContent !== '' && $strContent !== $target->href ) {
 			$hrefkv = $newTk->getAttributeKV( 'href' );
 			$hrefkv->v .= '#';
 			$hrefkv->v .= $saniContent;
