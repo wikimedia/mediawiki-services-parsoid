@@ -101,14 +101,14 @@ class LanguageConverter {
 	 */
 	public static function classFromCode( $code, $fallback ) {
 		if ( $fallback && $code === 'en' ) {
-			return 'Language';
+			return '\Parsoid\Language\Language';
 		} else {
 			$code = preg_replace_callback( '/^\w/', function ( $matches ) {
 				return strtoupper( $matches[0] );
 			}, $code, 1 );
 			$code = preg_replace( '/-/', '_', $code );
 			$code = preg_replace( '#/|^\.+#', '', $code ); // avoid path attacks
-			return "Parsoid\Language\Language{$code}";
+			return "\Parsoid\Language\Language{$code}";
 		}
 	}
 
@@ -124,10 +124,10 @@ class LanguageConverter {
 				$languageClass = self::classFromCode( $lang, $fallback );
 				return new $languageClass();
 			}
-		} catch ( \Exception $e ) {
+		} catch ( \Error $e ) {
 			/* fall through */
 		}
-		$env->log( 'info', "Couldn't load language: {$lang} fallback={!!$fallback}" );
+		$env->log( 'info', "Couldn't load language: {$lang} fallback={$fallback}" );
 		return new Language();
 	}
 
