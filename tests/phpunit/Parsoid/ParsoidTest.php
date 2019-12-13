@@ -139,18 +139,18 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::html2html
 	 * @dataProvider provideHtml2Html
 	 */
-	public function testHtml2Html( $update, $input, $expected, $parserOpts = [] ) {
-		$opts = [
-			'pageLanguage' => $parserOpts['variant']['source'] ?? null,
-		];
+	public function testHtml2Html( $update, $input, $expected, $testOpts = [] ) {
+		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
 		$dataAccess = new MockDataAccess( $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
-		$wt = $parsoid->html2html( $pageConfig, $update, $input, $parserOpts );
+		$pageConfig = new MockPageConfig( [
+			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
+		], $pageContent );
+		$wt = $parsoid->html2html( $pageConfig, $update, $input, $testOpts );
 		$this->assertEquals( $expected, $wt );
 	}
 
@@ -168,9 +168,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			[
 				'variant',
 				'<p>абвг abcd x</p>',
-				'<p>абвг abcd x</p>',
+				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
 				[
 					'body_only' => true,
+					'pageLanguage' => 'sr',
 					'variant' => [
 						'source' => null,
 						'target' => 'sr-el',
@@ -183,9 +184,23 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
 				[
 					'body_only' => true,
+					'pageLanguage' => 'sr',
 					'variant' => [
-						'source' => 'sr',
+						'source' => 'sr-ec',
 						'target' => 'sr-el',
+					]
+				]
+			],
+			[
+				'variant',
+				'<p>абвг abcd x</p>',
+				'<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}\'>абвг</span> абцд x</p>',
+				[
+					'body_only' => true,
+					'pageLanguage' => 'sr',
+					'variant' => [
+						'source' => 'sr-el',
+						'target' => 'sr-ec',
 					]
 				]
 			]

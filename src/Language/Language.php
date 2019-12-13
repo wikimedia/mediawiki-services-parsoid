@@ -7,20 +7,20 @@ namespace Parsoid\Language;
  */
 class Language {
 
-	/** @var LanguageConverter */
+	/** @var LanguageConverter|null */
 	private $converter;
 
 	/**
-	 * @return LanguageConverter
+	 * @return LanguageConverter|null
 	 */
-	public function getConverter() {
+	public function getConverter(): ?LanguageConverter {
 		return $this->converter;
 	}
 
 	/**
 	 * @param LanguageConverter $converter
 	 */
-	public function setConverter( LanguageConverter $converter ) {
+	public function setConverter( LanguageConverter $converter ): void {
 		$this->converter = $converter;
 	}
 
@@ -30,7 +30,7 @@ class Language {
 	 * @param string $code
 	 * @return bool
 	 */
-	public static function isValidCode( $code ) {
+	public static function isValidCode( string $code ): bool {
 		static $validityCache = [];
 		if ( !isset( $validityCache[$code] ) ) {
 			// XXX PHP version also checks against
@@ -50,7 +50,7 @@ class Language {
 	 *   * `mwfile` only if the language is in `mw` *and* has a message file
 	 * @return array
 	 */
-	public function fetchLanguageNames( $inLanguage, $include ) {
+	public function fetchLanguageNames( string $inLanguage, string $include ): array {
 		return [];
 	}
 

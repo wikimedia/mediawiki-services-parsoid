@@ -238,8 +238,7 @@ class Parsoid {
 			// is a base language code or otherwise invalid.
 			LanguageConverter::maybeConvert(
 				$env, $doc, $options['variant']['target'],
-				// FIXME: Setting this is untested in JS and broken!
-				null  // $options['variant']['source']
+				$options['variant']['source'] ?? null
 			);
 			// Ensure there's a <head>
 			if ( !DOMCompat::getHead( $doc ) ) {

@@ -14,6 +14,16 @@
  * additional metadata to the output to record the original source variant
  * text to allow round-tripping (and variant-aware editing).
  *
+ * Note that different wikis have different policies for source variant:
+ * in some wikis all articles are authored in one particular variant, by
+ * convention.  In others, it's a "first author gets to choose the variant"
+ * situation.  In both cases, a constant/per-article "source variant" may
+ * be specified via some as-of-yet-unimplemented mechanism; either part of
+ * the site configuration, or per-article metadata like pageLanguage.
+ * In other wikis (like zhwiki) the text is a random mix of variants; in
+ * these cases the "source variant" will be null/unspecified, and we'll
+ * dynamically pick the most likely source variant for each subtree.
+ *
  * Each individual language has a dynamically-loaded subclass of `Language`,
  * which may also have a `LanguageConverter` subclass to load appropriate
  * `ReplacementMachine`s and do other language-specific customizations.
@@ -23,6 +33,7 @@ namespace Parsoid\Language;
 
 use DOMDocument;
 use DOMNode;
+use Parsoid\ClientError;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\Timing;
@@ -45,7 +56,7 @@ class LanguageConverter {
 	/** @var array */
 	private $variantFallbacks;
 
-	/** @var ReplacementMachine */
+	/** @var ReplacementMachine|null */
 	private $machine;
 
 	/**
@@ -81,16 +92,16 @@ class LanguageConverter {
 
 	/**
 	 * Return the {@link ReplacementMachine} powering this conversion.
-	 * @return ReplacementMachine
+	 * @return ReplacementMachine|null
 	 */
-	public function getMachine() {
+	public function getMachine(): ?ReplacementMachine {
 		return $this->machine;
 	}
 
 	/**
 	 * @param ReplacementMachine $machine
 	 */
-	public function setMachine( ReplacementMachine $machine ) {
+	public function setMachine( ReplacementMachine $machine ): void {
 		$this->machine = $machine;
 	}
 
@@ -98,9 +109,9 @@ class LanguageConverter {
 	 * Try to return a classname from a given code.
 	 * @param string $code
 	 * @param bool $fallback Whether we're going through language fallback
-	 * @return string Name of the language class (if one were to exist)
+	 * @return class-string Name of the language class (if one were to exist)
 	 */
-	public static function classFromCode( $code, $fallback ) {
+	public static function classFromCode( string $code, bool $fallback ): string {
 		if ( $fallback && $code === 'en' ) {
 			return '\Parsoid\Language\Language';
 		} else {
@@ -119,7 +130,7 @@ class LanguageConverter {
 	 * @param bool $fallback
 	 * @return Language
 	 */
-	public static function loadLanguage( Env $env, $lang, $fallback = false ) {
+	public static function loadLanguage( Env $env, string $lang, bool $fallback = false ): Language {
 		try {
 			if ( Language::isValidCode( $lang ) ) {
 				$languageClass = self::classFromCode( $lang, $fallback );
@@ -158,17 +169,29 @@ class LanguageConverter {
 	}
 
 	/**
+	 * Convert the given document into $targetVariant, if:
+	 *  1) language converter is enabled on this wiki, and
+	 *  2) the targetVariant is specified, and it is a known variant (not a
+	 *     base language code)
+	 *
+	 * The `$sourceVariant`, if provided is expected to be per-wiki or
+	 * per-article metadata which specifies a standard "authoring variant"
+	 * for this article or wiki.  For example, all articles are authored in
+	 * Cyrillic by convention.  It should be left blank if there is no
+	 * consistent convention on the wiki (as for zhwiki, for instance).
+	 *
 	 * @param Env $env
-	 * @param DOMDocument $doc
-	 * @param string $targetVariant
-	 * @param string $sourceVariant
+	 * @param DOMDocument $doc The input document.
+	 * @param string|null $targetVariant The desired output variant.
+	 * @param string|null $sourceVariant The variant used by convention when
+	 *   authoring pages, if there is one; otherwise left null.
 	 */
 	public static function maybeConvert(
 		Env $env,
 		DOMDocument $doc,
-		$targetVariant,
-		$sourceVariant
-	) {
+		?string $targetVariant,
+		?string $sourceVariant
+	): void {
 		// language converter must be enabled for the pagelanguage
 		if ( !$env->langConverterEnabled() ) {
 			return;
@@ -207,15 +230,15 @@ class LanguageConverter {
 	 * @param Env $env
 	 * @param DOMNode $rootNode The root node of a fragment to convert.
 	 * @param string $targetVariant The variant to be used for the output DOM.
-	 * @param string $sourceVariant An optional variant assumed for the input DOM in order to
-	 * create roundtrip metadata.
+	 * @param string|null $sourceVariant An optional variant assumed for the
+	 *  input DOM in order to create roundtrip metadata.
 	 */
 	public static function baseToVariant(
 		Env $env,
 		DOMNode $rootNode,
-		$targetVariant,
-		$sourceVariant
-	) {
+		string $targetVariant,
+		?string $sourceVariant
+	): void {
 		$pageLangCode = $env->getPageConfig()->getPageLanguage()
 			?: $env->getSiteConfig()->lang()
 			?: 'en';
@@ -237,6 +260,12 @@ class LanguageConverter {
 			// XXX create a warning header? (T197949)
 			$env->log( 'info', "Unimplemented variant: {$targetVariant}" );
 			return; /* no conversion */
+		}
+		// Check that the source variant is valid.
+		$validSource = $sourceVariant === null ||
+			array_key_exists( $sourceVariant, $langconv->getMachine()->getCodes() );
+		if ( !$validSource ) {
+			throw new ClientError( "Invalid source variant: $sourceVariant for target $targetVariant" );
 		}
 
 		$timing = Timing::start( $metrics );
