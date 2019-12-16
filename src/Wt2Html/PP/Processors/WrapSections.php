@@ -250,7 +250,7 @@ class WrapSections {
 	 */
 	private function getDSR( array $tplInfo, DOMElement $node, bool $start ): int {
 		if ( $node->nodeName !== 'section' ) {
-			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr;
+			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			$tmplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 			if ( $start ) {
 				return $nodeDsr->start ?? $tmplDsr->start;
