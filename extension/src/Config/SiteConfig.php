@@ -172,6 +172,10 @@ class SiteConfig extends ISiteConfig {
 		return $prefixedMetrics;
 	}
 
+	public function nativeGalleryEnabled(): bool {
+		return false;
+	}
+
 	public function galleryOptions(): array {
 		return $this->config->get( 'GalleryOptions' );
 	}
