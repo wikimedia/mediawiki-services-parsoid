@@ -339,7 +339,7 @@ class DOMHandler {
 		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
 			&& ( !$fc || !DOMUtils::isElt( $fc ) )
 		) {
-			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
+			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Util::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerStart();
 				$space = $offset < $dsr->innerEnd() ?
@@ -375,7 +375,7 @@ class DOMHandler {
 		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
 			&& ( !$lc || !DOMUtils::isElt( $lc ) )
 		) {
-			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
+			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Util::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerEnd() - 1;
 				// The > instead of >= is to deal with an edge case
