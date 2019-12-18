@@ -23,6 +23,7 @@ use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
+use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
 
@@ -1274,7 +1275,7 @@ class Sanitizer extends TokenHandler {
 	 * @param bool $inTemplate
 	 * @return Token|string
 	 */
-	private static function sanitizeToken( Env $env, $token, bool $inTemplate ) {
+	private static function sanitizeToken( Env $env, Frame $frame, $token, bool $inTemplate ) {
 		$i = null;
 		$l = null;
 		$kv = null;
@@ -1289,7 +1290,7 @@ class Sanitizer extends TokenHandler {
 			if ( !$inTemplate && !empty( $token->dataAttribs->tsr ) ) {
 				// Just get the original token source, so that we can avoid
 				// whitespace differences.
-				$token = $token->getWTSource( $env->topFrame );
+				$token = $token->getWTSource( $frame );
 			} elseif ( !$token instanceof EndTagTk ) {
 				// Handle things without a TSR: For example template or extension
 				// content. Whitespace in these is not necessarily preserved.
@@ -1511,7 +1512,7 @@ class Sanitizer extends TokenHandler {
 			return [ 'tokens' => [ $token ] ];
 		}
 
-		$token = self::sanitizeToken( $env, $token, $this->inTemplate );
+		$token = self::sanitizeToken( $env, $this->manager->getFrame(), $token, $this->inTemplate );
 
 		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
 			return ' ---> ' . PHPUtils::jsonEncode( $token );

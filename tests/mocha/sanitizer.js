@@ -12,6 +12,7 @@ const { TagTk } = require('../../lib/tokens/TokenTypes.js');
 describe('Sanitizer', function() {
 	it('should sanitize attributes according to php\'s getAttribsRegex', function() {
 		var fakeEnv = {};
+		var fakeFrame = {};
 		var name = 'testelement';
 		Sanitizer.attributeWhitelistCache[name] = new Set([
 			'foo', 'עברית', '६', '搭𨋢', 'ńgh',
@@ -23,7 +24,7 @@ describe('Sanitizer', function() {
 		token.setAttribute('६', 'bar');
 		token.setAttribute('搭𨋢', 'bar');
 		token.setAttribute('ńgh', 'bar');
-		token = Sanitizer.sanitizeToken(fakeEnv, token);
+		token = Sanitizer.sanitizeToken(fakeEnv, fakeFrame, token);
 		token.getAttribute('foo').should.equal('bar');
 		should.equal(token.getAttribute('bar'), null);
 		token.getAttribute('עברית').should.equal('bar');
