@@ -433,7 +433,7 @@ It's not possible to follow="…" a <ref> defined in the <references> section
 !! end
 
 !! test
-A follow="…" after it's parent is not merged
+A follow="…" before its parent is not merged
 !! wikitext
 <ref follow="theName">theFollows</ref>
 <ref name="theName">theValue</ref>
@@ -442,6 +442,53 @@ A follow="…" after it's parent is not merged
 <p id="cite_note-theName"><span class="reference-text">theFollows</span>
 </p>
 <li id="cite_note-theName-2"><span class="mw-cite-backlink"><a href="#cite_ref-theName_2-0">↑</a></span> <span class="reference-text">theValue</span>
+</li>
+</ol></div>
+!! end
+
+# This is a nasty edge case which was dropping the ref entirely.
+!! test
+"follow" after a named ref but before its parent
+!! wikitext
+<ref name="first">First</ref>
+<ref follow="third">Second</ref>
+<ref name="third">Third</ref>
+<hr />
+<references />
+!! html/php
+<p><sup id="cite_ref-first_1-0" class="reference"><a href="#cite_note-first-1">&#91;1&#93;</a></sup>
+</p><p><sup id="cite_ref-third_3-0" class="reference"><a href="#cite_note-third-3">&#91;2&#93;</a></sup>
+</p>
+<hr />
+<div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-third"><span class="reference-text">Second</span>
+</p>
+<li id="cite_note-first-1"><span class="mw-cite-backlink"><a href="#cite_ref-first_1-0">↑</a></span> <span class="reference-text">First</span>
+</li>
+<li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
+</li>
+</ol></div>
+!! end
+
+!! test
+"follow" after an anonymous ref but before its parent
+!! wikitext
+<ref>First</ref>
+<ref follow="third">Second</ref>
+<ref name="third">Third</ref>
+<hr />
+<references />
+!! html/php
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p><p><sup id="cite_ref-third_3-0" class="reference"><a href="#cite_note-third-3">&#91;2&#93;</a></sup>
+</p>
+<hr />
+<div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-third"><span class="reference-text">Second</span>
+</p>
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">First</span>
+</li>
+<li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
 </li>
 </ol></div>
 !! end
@@ -521,6 +568,26 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 !! end
 
 !! test
+Attributes are trimmed by the parser, see Sanitizer::decodeTagAttributes()
+!! wikitext
+<ref group="g" name="n1">in group g</ref>
+<ref group=" g " name=" n2 ">in group " g "</ref>
+<references group="g" />
+<references group=" g " />
+!! html
+<p><sup id="cite_ref-n1_1-0" class="reference"><a href="#cite_note-n1-1">&#91;g 1&#93;</a></sup>
+<sup id="cite_ref-n2_2-0" class="reference"><a href="#cite_note-n2-2">&#91;g 2&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-n1-1"><span class="mw-cite-backlink"><a href="#cite_ref-n1_1-0">↑</a></span> <span class="reference-text">in group g</span>
+</li>
+<li id="cite_note-n2-2"><span class="mw-cite-backlink"><a href="#cite_ref-n2_2-0">↑</a></span> <span class="reference-text">in group " g "</span>
+</li>
+</ol></div>
+
+!! end
+
+!! test
 <ref> defined in <references>
 !! wikitext
 <ref name="foo" />
@@ -572,9 +639,40 @@ AAA<ref group="参">ref a</ref>BBB<ref group="注">note b</ref>CCC<ref group="�
 <li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
 no text was provided for refs named <code>foo</code></span></li>
 </ol></div>
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "unused" defined in <code>&lt;references&gt;</code> is not used in prior text.</span><br />
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "foo" has no content.</span><br />
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "unused" defined in <code>&lt;references&gt;</code> is not used in prior text.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag in <code>&lt;references&gt;</code> has conflicting group attribute "1".</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has no name attribute.</span>
+</p>
+!! end
+
+!! test
+Error conditions on non-visible content
+!! wikitext
+<ref name="a">x</ref>
+<ref name="b"> </ref>
+<ref name="c" />
+<references>
+<ref name="a" />
+<ref name="b" />
+<ref name="c"> </ref>
+</references>
+!! html
+<p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
+<sup id="cite_ref-b_2-0" class="reference"><a href="#cite_note-b-2">&#91;2&#93;</a></sup>
+<sup id="cite_ref-c_3-0" class="reference"><a href="#cite_note-c-3">&#91;3&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">x</span>
+</li>
+<li id="cite_note-b-2"><span class="mw-cite-backlink"><a href="#cite_ref-b_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
+no text was provided for refs named <code>b</code></span></li>
+<li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
+no text was provided for refs named <code>c</code></span></li>
+</ol></div>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "a" has no content.</span><br />
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "b" has no content.</span><br />
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "c" has no content.</span>
 </p>
 !! end
 
@@ -1209,6 +1307,19 @@ A <ref>foo</ref>
 B <ref>bar</ref>
 
 <references />
+!! html
+<p>A <sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">foo</span>
+</li>
+</ol></div>
+<p>B <sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">bar</span>
+</li>
+</ol></div>
 !! html/parsoid
 <p>A <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
@@ -1220,6 +1331,31 @@ B <ref>bar</ref>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{}}'>
 <li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">bar</span></li>
 </ol>
+!! end
+
+!! test
+Counters should be cleared after processing named <references group="…">
+!! wikitext
+A <ref group="g">foo</ref>
+
+<references group="g" />
+
+B <ref group="g">bar</ref>
+
+<references group="g" />
+!! html
+<p>A <sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;g 1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">foo</span>
+</li>
+</ol></div>
+<p>B <sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;g 1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">bar</span>
+</li>
+</ol></div>
 !! end
 
 !! test
