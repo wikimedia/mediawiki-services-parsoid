@@ -360,10 +360,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$this->getOption( 'restURL' ), $matches ) &&
 				 !preg_match(
 				'#^/w/rest\.php/([a-z.]+)/v3/transform/pagebundle/to/pagebundle/([^/?]+)#',
+				$this->getOption( 'restURL' ), $matches ) &&
+				 !preg_match(
+				'#^/w/rest.php/([a-z.]+)/v3/page/pagebundle/([^/?]+)(?:/([^/?]+))?#',
 				$this->getOption( 'restURL' ), $matches )
 			) {
 				# XXX we could extend this to process other URLs, but the
-				# above is the most common seen in error logs
+				# above are the most common seen in error logs
 				$this->error(
 					'Bad rest url.'
 				);
@@ -372,6 +375,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			# Calling it with the default implicitly sets it as well.
 			$this->getOption( 'domain', $matches[1] );
 			$this->getOption( 'pageName', urldecode( $matches[2] ) );
+			if ( isset( $matches[3] ) ) {
+				$this->getOption( 'oldid', $matches[3] );
+			}
 		}
 		$apiURL = "https://en.wikipedia.org/w/api.php";
 		if ( $this->hasOption( 'domain' ) ) {
