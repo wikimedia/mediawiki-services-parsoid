@@ -49,33 +49,33 @@ class ConversionTraverser extends DOMTraverser {
 		foreach ( [ 'code', 'script', 'pre', 'cite' ] as $el ) {
 			$this->addHandler( $el, function ( ...$args ) {
 				return $this->noConvertHandler( ...$args );
-			}, true );
+			} );
 		}
 		// Setting/saving the language context
 		$this->addHandler( null, function ( ...$args ) {
 			return $this->anyHandler( ...$args );
-		}, true );
+		} );
 		$this->addHandler( 'p', function ( ...$args ) {
 			return $this->langContextHandler( ...$args );
-		}, true );
+		} );
 		$this->addHandler( 'body', function ( ...$args ) {
 			return $this->langContextHandler( ...$args );
-		}, true );
+		} );
 		// Converting #text, <a> nodes, and title/alt attributes
 		$this->addHandler( '#text', function ( ...$args ) {
 			return $this->textHandler( ...$args );
-		}, true );
+		} );
 		$this->addHandler( 'a', function ( ...$args ) {
 			return $this->aHandler( ...$args );
-		}, true );
+		} );
 		$this->addHandler( null, function ( ...$args ) {
 			return $this->attrHandler( ...$args );
-		}, true );
+		} );
 		// LanguageConverter markup
 		foreach ( [ 'meta', 'div', 'span' ] as $el ) {
 			$this->addHandler( $el, function ( ...$args ) {
 				return $this->lcHandler( ...$args );
-			}, true );
+			} );
 		}
 	}
 

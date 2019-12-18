@@ -138,9 +138,7 @@ class DOMPostProcessor extends PipelineStage {
 			if ( !empty( $p['isTraverser'] ) ) {
 				$t = new DOMTraverser();
 				foreach ( $p['handlers'] as $h ) {
-					// All handlers in this class use the "new style"
-					// handle argument list (with passOptions=true)
-					$t->addHandler( $h['nodeName'], $h['action'], true );
+					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
 				$p['proc'] = function ( ...$args ) use ( $t ) {
 					$args[] = null;

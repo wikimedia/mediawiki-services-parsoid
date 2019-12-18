@@ -48,17 +48,13 @@ class DOMTraverser {
 	 *     on the current node); after processing it and its siblings, it will continue with the
 	 *     next sibling of the closest ancestor which has one.
 	 *   - null: like the DOMNode case, except there is no new node to process before continuing.
-	 * @param bool $passOptions Opt-in to using new-style method signature,
-	 *   where $options is passed as the third argument. Defaults to false
-	 *   (for now).
 	 */
 	public function addHandler(
-		?string $nodeName, callable $action, bool $passOptions = false
+		?string $nodeName, callable $action
 	): void {
 		$this->handlers[] = [
 			'action' => $action,
 			'nodeName' => $nodeName,
-			'passOptions' => $passOptions,
 		];
 	}
 
@@ -77,13 +73,9 @@ class DOMTraverser {
 
 		foreach ( $this->handlers as $handler ) {
 			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {
-				$args = [ $handler['action'], $node, $env ];
-				if ( !empty( $handler['passOptions'] ) ) {
-					$args[] = $options;
-				}
-				$args[] = $atTopLevel;
-				$args[] = $tplInfo;
-				$result = call_user_func( ...$args );
+				$result = call_user_func(
+					$handler['action'], $node, $env, $options, $atTopLevel, $tplInfo
+				);
 				if ( $result !== true ) {
 					// abort processing for this node
 					return $result;

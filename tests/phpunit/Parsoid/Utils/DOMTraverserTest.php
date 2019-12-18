@@ -38,7 +38,7 @@ HTML;
 
 		$trace = [];
 		$traverser = new DOMTraverser();
-		$traverser->addHandler( $nodeName, $callback, true );
+		$traverser->addHandler( $nodeName, $callback );
 		$traverser->addHandler( null, function (
 			DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
 		) use ( &$trace ) {
@@ -46,7 +46,7 @@ HTML;
 				$trace[] = $node->getAttribute( 'id' );
 			}
 			return true;
-		}, true );
+		} );
 		$traverser->traverse( $doc->documentElement, $env, [], true, null );
 		$this->assertSame( $expectedTrace, $trace );
 	}
