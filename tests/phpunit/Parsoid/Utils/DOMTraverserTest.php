@@ -38,15 +38,15 @@ HTML;
 
 		$trace = [];
 		$traverser = new DOMTraverser();
-		$traverser->addHandler( $nodeName, $callback );
+		$traverser->addHandler( $nodeName, $callback, true );
 		$traverser->addHandler( null, function (
-			DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo
+			DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
 		) use ( &$trace ) {
 			if ( $node instanceof DOMElement && $node->hasAttribute( 'id' ) ) {
 				$trace[] = $node->getAttribute( 'id' );
 			}
 			return true;
-		} );
+		}, true );
 		$traverser->traverse( $doc->documentElement, $env, [], true, null );
 		$this->assertSame( $expectedTrace, $trace );
 	}
@@ -73,7 +73,8 @@ HTML;
 		return [
 			'basic' => [
 				'callback' => function (
-					DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
 				) use ( $basicEnv ) {
 					$this->assertSame( $basicEnv, $env );
 					$this->assertTrue( $atTopLevel );
@@ -84,7 +85,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return true' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
+				) {
 					return true;
 				},
 				'nodeName' => null,
@@ -92,7 +96,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return first child' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
+				) {
 					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->firstChild;
 					}
@@ -103,7 +110,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
 			],
 			'return next sibling' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
+				) {
 					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->nextSibling;
 					}
@@ -114,7 +124,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return null' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
+				) {
 					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}
@@ -125,7 +138,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x2', 'x2_1' ],
 			],
 			'return another node' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					?stdClass $tplInfo
+				) {
 					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						$newNode = $node->ownerDocument->createElement( 'div' );
 						$newNode->setAttribute( 'id', 'new' );
@@ -138,7 +154,10 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'new', 'x2', 'x2_1' ],
 			],
 			'name filter' => [
-				'callback' => function ( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+				'callback' => function (
+					DOMNode $node, Env $env, array $options,
+					bool $atTopLevel, ?stdClass $tplInfo
+				) {
 					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}

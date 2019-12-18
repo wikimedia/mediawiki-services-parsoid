@@ -51,7 +51,7 @@ class CleanUpTest extends TestCase {
 			$domVisitor->addHandler( $tag,
 				function ( ...$args ) use ( $value ) {
 					return $this->autoInsValidation( $value, ...$args );
-				}
+				}, true
 			);
 		}
 	}

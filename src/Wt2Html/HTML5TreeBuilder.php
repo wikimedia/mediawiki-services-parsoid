@@ -172,7 +172,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		$t = new DOMTraverser();
 		$t->addHandler( null, function ( ...$args ) use ( &$seenDataIds ) {
 			return PrepareDOM::handler( $seenDataIds, ...$args );
-		} );
+		}, true );
 		$t->traverse( DOMCompat::getBody( $doc ), $this->env, [], false, null );
 
 		// PORT-FIXME: Are we reusing this?  Switch to `init()`

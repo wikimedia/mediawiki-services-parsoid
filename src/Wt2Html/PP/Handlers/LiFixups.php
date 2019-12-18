@@ -167,12 +167,13 @@ class LiFixups {
 	 * followed by a list of categories for the page).
 	 * @param DOMNode $li
 	 * @param Env $env
+	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param stdClass|null $tplInfo
 	 * @return bool
 	 */
 	public static function migrateTrailingCategories(
-		DOMNode $li, Env $env, bool $atTopLevel = false, ?stdClass $tplInfo = null
+		DOMNode $li, Env $env, array $options, bool $atTopLevel = false, ?stdClass $tplInfo = null
 	): bool {
 		// * Don't bother fixing up template content when processing the full page
 		if ( $tplInfo ) {

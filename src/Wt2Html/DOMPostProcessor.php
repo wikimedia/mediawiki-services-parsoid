@@ -138,7 +138,9 @@ class DOMPostProcessor extends PipelineStage {
 			if ( !empty( $p['isTraverser'] ) ) {
 				$t = new DOMTraverser();
 				foreach ( $p['handlers'] as $h ) {
-					$t->addHandler( $h['nodeName'], $h['action'], $h['passOptions'] ?? false );
+					// All handlers in this class use the "new style"
+					// handle argument list (with passOptions=true)
+					$t->addHandler( $h['nodeName'], $h['action'], true );
 				}
 				$p['proc'] = function ( ...$args ) use ( $t ) {
 					$args[] = null;
@@ -330,7 +332,6 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => 'li',
 						'action' => [ LiFixups::class, 'handleLIHack' ],
-						'passOptions' => true,
 					],
 					[
 						'nodeName' => 'li',
@@ -347,20 +348,20 @@ class DOMPostProcessor extends PipelineStage {
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->stripDoubleTDs( $node, $this->options['frame'] );
+						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+							return $tableFixer->stripDoubleTDs( $node, $options['frame'] );
 						}
 					],
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $this->options['frame'] );
+						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $options['frame'] );
 						}
 					],
 					[
 						'nodeName' => 'th',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $this->options['frame'] );
+						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+							return $tableFixer->handleTableCellTemplates( $node, $options['frame'] );
 						}
 					],
 					// 3. Deduplicate template styles
@@ -459,7 +460,7 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => function ( $node, $env, $atTopLevel, $tplInfo ) use ( &$usedIdIndex ) {
+						'action' => function ( $node, $env, $options, $atTopLevel, $tplInfo ) use ( &$usedIdIndex ) {
 							if ( DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}

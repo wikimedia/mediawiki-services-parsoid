@@ -49,42 +49,46 @@ class ConversionTraverser extends DOMTraverser {
 		foreach ( [ 'code', 'script', 'pre', 'cite' ] as $el ) {
 			$this->addHandler( $el, function ( ...$args ) {
 				return $this->noConvertHandler( ...$args );
-			} );
+			}, true );
 		}
 		// Setting/saving the language context
 		$this->addHandler( null, function ( ...$args ) {
 			return $this->anyHandler( ...$args );
-		} );
+		}, true );
 		$this->addHandler( 'p', function ( ...$args ) {
 			return $this->langContextHandler( ...$args );
-		} );
+		}, true );
 		$this->addHandler( 'body', function ( ...$args ) {
 			return $this->langContextHandler( ...$args );
-		} );
+		}, true );
 		// Converting #text, <a> nodes, and title/alt attributes
 		$this->addHandler( '#text', function ( ...$args ) {
 			return $this->textHandler( ...$args );
-		} );
+		}, true );
 		$this->addHandler( 'a', function ( ...$args ) {
 			return $this->aHandler( ...$args );
-		} );
+		}, true );
 		$this->addHandler( null, function ( ...$args ) {
 			return $this->attrHandler( ...$args );
-		} );
+		}, true );
 		// LanguageConverter markup
 		foreach ( [ 'meta', 'div', 'span' ] as $el ) {
 			$this->addHandler( $el, function ( ...$args ) {
 				return $this->lcHandler( ...$args );
-			} );
+			}, true );
 		}
 	}
 
-	private function noConvertHandler( DOMElement $el, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function noConvertHandler(
+		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		// Don't touch the inside of this node!
 		return $el->nextSibling;
 	}
 
-	private function anyHandler( DOMNode $node, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function anyHandler(
+		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		/* Look for `lang` attributes */
 		if ( DOMUtils::isElt( $node ) ) {
 			DOMUtils::assertElt( $node );
@@ -97,18 +101,24 @@ class ConversionTraverser extends DOMTraverser {
 		return true; // Continue with other handlers
 	}
 
-	private function langContextHandler( DOMElement $el, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function langContextHandler(
+		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		$this->fromLang = $this->guesser->guessLang( $el );
 		$el->setAttribute( 'data-mw-variant-lang', $this->fromLang );
 		return true; // Continue with other handlers
 	}
 
-	private function textHandler( DOMNode $node, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function textHandler(
+		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		Assert::invariant( $this->fromLang !== null, 'Text w/o a context' );
 		return $this->machine->replace( $node, $this->toLang, $this->fromLang );
 	}
 
-	private function aHandler( DOMElement $el, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function aHandler(
+		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		// Is this a wikilink?  If so, extract title & convert it
 		$rel = $el->getAttribute( 'rel' ) ?? '';
 		if ( $rel === 'mw:WikiLink' ) {
@@ -154,7 +164,9 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
-	private function attrHandler( DOMNode $node, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function attrHandler(
+		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		// Convert `alt` and `title` attributes on elements
 		// (Called before aHandler, so the `title` might get overwritten there)
 		if ( !DOMUtils::isElt( $node ) ) {
@@ -188,7 +200,9 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/** Handler for LanguageConverter markup */
-	private function lcHandler( DOMElement $el, Env $env, bool $atTopLevel, $tplInfo ) {
+	private function lcHandler(
+		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+	) {
 		if ( !DOMDataUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
 			return true; /* not language converter markup */
 		}
