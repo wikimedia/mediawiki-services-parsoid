@@ -138,7 +138,7 @@ class DOMPostProcessor extends PipelineStage {
 			if ( !empty( $p['isTraverser'] ) ) {
 				$t = new DOMTraverser();
 				foreach ( $p['handlers'] as $h ) {
-					$t->addHandler( $h['nodeName'], $h['action'] );
+					$t->addHandler( $h['nodeName'], $h['action'], $h['passOptions'] ?? false );
 				}
 				$p['proc'] = function ( ...$args ) use ( $t ) {
 					$args[] = null;
@@ -329,7 +329,8 @@ class DOMPostProcessor extends PipelineStage {
 					// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
 					[
 						'nodeName' => 'li',
-						'action' => [ LiFixups::class, 'handleLIHack' ]
+						'action' => [ LiFixups::class, 'handleLIHack' ],
+						'passOptions' => true,
 					],
 					[
 						'nodeName' => 'li',

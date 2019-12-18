@@ -38,6 +38,8 @@ class DOMTraverser {
 	 *   Will be called with the following parameters:
 	 *   - DOMNode $node: the node being processed
 	 *   - Env $env: the parser environment
+	 *   - array $options: (only passed if optional $passOptions is true)
+	 *        a closure of extra information passed to DOMTraverser::traverse
 	 *   - bool $atTopLevel: passed through from DOMTraverser::traverse
 	 *   - stdClass $tplInfo: Template information. See traverse().
 	 *   Return value: DOMNode|null|true.
@@ -46,24 +48,42 @@ class DOMTraverser {
 	 *     on the current node); after processing it and its siblings, it will continue with the
 	 *     next sibling of the closest ancestor which has one.
 	 *   - null: like the DOMNode case, except there is no new node to process before continuing.
+	 * @param bool $passOptions Opt-in to using new-style method signature,
+	 *   where $options is passed as the third argument. Defaults to false
+	 *   (for now).
 	 */
-	public function addHandler( ?string $nodeName, callable $action ): void {
-		$this->handlers[] = [ 'action' => $action, 'nodeName' => $nodeName ];
+	public function addHandler(
+		?string $nodeName, callable $action, bool $passOptions = false
+	): void {
+		$this->handlers[] = [
+			'action' => $action,
+			'nodeName' => $nodeName,
+			'passOptions' => $passOptions,
+		];
 	}
 
 	/**
 	 * @param DOMNode $node
 	 * @param Env $env
+	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param stdClass|null $tplInfo
 	 * @return bool|mixed
 	 */
-	private function callHandlers( DOMNode $node, Env $env, bool $atTopLevel, ?stdClass $tplInfo ) {
+	private function callHandlers(
+		DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
+	) {
 		$name = $node->nodeName ?: '';
 
 		foreach ( $this->handlers as $handler ) {
 			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {
-				$result = call_user_func( $handler['action'], $node, $env, $atTopLevel, $tplInfo );
+				$args = [ $handler['action'], $node, $env ];
+				if ( !empty( $handler['passOptions'] ) ) {
+					$args[] = $options;
+				}
+				$args[] = $atTopLevel;
+				$args[] = $tplInfo;
+				$result = call_user_func( ...$args );
 				if ( $result !== true ) {
 					// abort processing for this node
 					return $result;
@@ -130,7 +150,9 @@ class DOMTraverser {
 			}
 
 			// Call the handlers on this workNode
-			$possibleNext = $this->callHandlers( $workNode, $env, $atTopLevel, $tplInfo );
+			$possibleNext = $this->callHandlers(
+				$workNode, $env, $options, $atTopLevel, $tplInfo
+			);
 
 			// We may have walked passed the last about sibling or want to
 			// ignore the template info in future processing.

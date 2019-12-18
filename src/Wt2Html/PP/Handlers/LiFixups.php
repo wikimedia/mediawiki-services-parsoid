@@ -33,9 +33,10 @@ class LiFixups {
 	 * DOM.
 	 * @param DOMNode $node
 	 * @param Env $env
+	 * @param array $options
 	 * @return bool
 	 */
-	public static function handleLIHack( DOMNode $node, Env $env ): bool {
+	public static function handleLIHack( DOMNode $node, Env $env, array $options ): bool {
 		$prevNode = $node->previousSibling;
 
 		if ( WTUtils::isLiteralHTMLNode( $node ) &&
@@ -50,10 +51,9 @@ class LiFixups {
 			DOMUtils::assertElt( $prevNode );
 
 			$dp = DOMDataUtils::getDataParsoid( $node );
-			$typeOf = $node->getAttribute( 'typeof' );
-			$liHackSrc = WTUtils::getWTSource( $env->topFrame, $prevNode );
+			$liHackSrc = WTUtils::getWTSource( $options['frame'], $prevNode );
 
-			if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
+			if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 				$dataMW = DOMDataUtils::getDataMw( $node );
 				if ( isset( $dataMW->parts ) ) {
 					array_unshift( $dataMW->parts, $liHackSrc );
