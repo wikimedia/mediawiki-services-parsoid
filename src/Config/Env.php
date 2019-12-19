@@ -258,6 +258,7 @@ class Env {
 	 *      If null, heuristics will be used to identify the original
 	 *      wikitext variant in wt2html mode, and in html2wt mode new
 	 *      or edited HTML will be left unconverted.
+	 *  - logLevels: (string[]) Levels to log
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null

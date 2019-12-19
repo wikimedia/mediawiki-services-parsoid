@@ -55,6 +55,9 @@ class Parsoid {
 		if ( !empty( $options['wtVariantLanguage'] ) ) {
 			$envOptions['wtVariantLanguage'] = $options['wtVariantLanguage'];
 		}
+		if ( isset( $options['logLevels'] ) ) {
+			$envOptions['logLevels'] = $options['logLevels'];
+		}
 		return $envOptions;
 	}
 
@@ -113,6 +116,7 @@ class Parsoid {
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
+	 *   'logLevels'            => (string[]) Levels to log
 	 * ]
 	 * @param array|null &$headers
 	 * @return PageBundle|string
@@ -181,6 +185,7 @@ class Parsoid {
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
+	 *   'logLevels'           => (string[]) Levels to log
 	 * ]
 	 * @param SelserData|null $selserData
 	 * @return string

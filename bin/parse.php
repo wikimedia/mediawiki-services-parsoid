@@ -179,6 +179,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'verbose',
+			'Log at level "info" as well'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -429,6 +433,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			if ( $this->hasOption( $opt ) ) {
 				$parsoidOpts[$opt] = $this->getOption( $opt );
 			}
+		}
+		if ( !$this->hasOption( 'verbose' ) ) {
+			$parsoidOpts['logLevels'] = [ 'fatal', 'error', 'warn' ];
 		}
 
 		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );
