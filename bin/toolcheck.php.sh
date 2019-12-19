@@ -11,7 +11,7 @@ BIN=$(dirname $0)
 set -ev
 
 echo "Foo" | php $BIN/parse.php --wt2html
-# echo "Foo" | php $BIN/parse.php --wt2html --pageBundle
+echo "Foo" | php $BIN/parse.php --wt2html --pageBundle
 echo "Foo" | php $BIN/parse.php --wt2wt
 echo "Foo" | php $BIN/parse.php --html2wt
 echo "Foo" | php $BIN/parse.php --html2html
@@ -31,9 +31,9 @@ echo "<p>foo</p><p>boo</p>" | tee $TMPWT | php $BIN/parse.php | tee $TMPORIG |
     sed -e "s/foo/bar/g" > $TMPEDIT
 php $BIN/parse.php --selser --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 
-# # data-parsoid in separate files
-# php $BIN/parse.php --pboutfile $TMPPB < $TMPWT |
-#     tee $TMPORIG | sed -e "s/foo/bar/g" > $TMPEDIT
+# data-parsoid in separate files
+php $BIN/parse.php --pboutfile $TMPPB < $TMPWT |
+    tee $TMPORIG | sed -e "s/foo/bar/g" > $TMPEDIT
 # php $BIN/parse.php --pbinfile $TMPPB --selser \
 #     --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 

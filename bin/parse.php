@@ -12,6 +12,10 @@ use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
 use Parsoid\Tools\TestUtils;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Parsoid\Tools\Maintenance {
@@ -47,6 +51,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 						 false, true );
 		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
 		$this->addOption(
+			'pboutfile',
+			'Output pagebundle JSON to file',
+			false,
+			true
+		);
+		$this->addOption(
 			'pageName',
 			'The page name, returned for {{PAGENAME}}. If no input is given ' .
 			'(ie. empty/stdin closed), it downloads and parses the page. ' .
@@ -61,6 +71,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'sets --domain and --pageName.  Debugging aid.',
 			false,
 			true
+		);
+		$this->addOption(
+			'pageBundle',
+			'Output pagebundle JSON'
 		);
 		$this->addOption(
 			'scrubWikitext',
@@ -239,11 +253,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param string|null $wt
-	 * @return string
+	 * @return string|PageBundle
 	 */
 	public function wt2Html(
 		array $configOpts, array $parsoidOpts, ?string $wt
-	): string {
+	) {
 		if ( $wt !== null ) {
 			$configOpts["pageContent"] = $wt;
 		}
@@ -404,7 +418,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$parsoidOpts = [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => $this->hasOption( 'body_only' ),
-			"wrapSections" => $this->hasOption( 'wrapSections' )
+			"wrapSections" => $this->hasOption( 'wrapSections' ),
+			"pageBundle" =>
+			$this->hasOption( 'pageBundle' ) || $this->hasOption( 'pboutfile' ),
 		];
 		foreach ( [
 			'offsetType', 'outputContentVersion',
@@ -462,6 +478,26 @@ class Parse extends \Parsoid\Tools\Maintenance {
 				$wt = $this->html2Wt( $configOpts, $parsoidOpts, $html );
 				$this->output( $wt );
 			} else {
+				if ( $this->hasOption( 'pboutfile' ) ) {
+					file_put_contents(
+						$this->getOption( 'pboutfile' ),
+						PHPUtils::jsonEncode( [
+							'parsoid' => $html->parsoid,
+							'mw' => $html->mw,
+						] )
+					);
+					$html = $html->html;
+				} elseif ( $this->hasOption( 'pageBundle' ) ) {
+					// Stitch this back in, even though it was just extracted
+					$doc = DOMUtils::parseHTML( $html->html );
+					DOMDataUtils::injectPageBundle(
+						$doc,
+						PHPUtils::arrayToObject( [
+							'parsoid' => $html->parsoid,
+							'mw' => $html->mw,
+						] ) );
+					$html = ContentUtils::toXML( $doc );
+				}
 				$this->output( $this->maybeNormalize( $html ) );
 			}
 		}
