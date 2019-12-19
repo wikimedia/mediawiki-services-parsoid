@@ -1,4 +1,8 @@
 {
+    "Implicit newline insertion/sol when expanding templates (T241150/T14974/T2529)": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[13,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[13,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>"
+    },
     "Comment on its own line post-expand": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>a\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[2,11,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"blank\",\"href\":\"./Template:Blank\"},\"params\":{},\"i\":0}}]}'></span><!---->\nb</p>",
         "html2wt": "a\n\nb\n"

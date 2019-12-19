@@ -1514,6 +1514,20 @@ Bare pipe character from a template (T54363)
 </p>
 !! end
 
+!! test
+Implicit newline insertion/sol when expanding templates (T241150/T14974/T2529)
+!! wikitext
+{{echo|#foo}}{{echo|#foo}}
+!! html/php+tidy
+<ol><li>foo</li>
+<li>foo</li></ol>
+!! html/parsoid
+<ol typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"#foo"}},"i":0}},{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"#foo"}},"i":1}}]}'>
+<li>foo</li>
+<li>foo</li>
+</ol>
+!! end
+
 ###
 ### <nowiki> test cases
 ###
