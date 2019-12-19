@@ -183,6 +183,12 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			'verbose',
 			'Log at level "info" as well'
 		);
+		$this->addOption(
+			'maxdepth',
+			'Maximum expansion depth.',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -190,6 +196,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$parsoidServices = new \MWParsoid\ParsoidServices( $services );
 		$siteConfig = $parsoidServices->getParsoidSiteConfig();
+		if ( isset( $configOpts['maxDepth'] ) ) {
+			$siteConfig->setMaxTemplateDepth( $configOpts['maxDepth'] );
+		}
 		$dataAccess = $parsoidServices->getParsoidDataAccess();
 		$pcFactory = $parsoidServices->getParsoidPageConfigFactory();
 		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
@@ -417,6 +426,9 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		}
 		if ( $this->hasOption( 'oldid' ) ) {
 			$configOpts['revid'] = $this->getOption( 'oldid' );
+		}
+		if ( $this->hasOption( 'maxdepth' ) ) {
+			$configOpts['maxDepth'] = (int)$this->getOption( 'maxdepth' );
 		}
 
 		$parsoidOpts = [

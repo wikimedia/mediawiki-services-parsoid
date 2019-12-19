@@ -63,6 +63,9 @@ class SiteConfig extends ISiteConfig {
 	/** @var callable|null */
 	private $extResourceURLPatternMatcher;
 
+	/** @var int */
+	private $maxDepth = 40;
+
 	/**
 	 * Quote a title regex
 	 *
@@ -101,6 +104,10 @@ class SiteConfig extends ISiteConfig {
 
 		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {
 			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
+		}
+
+		if ( isset( $opts['maxDepth'] ) ) {
+			$this->maxDepth = $opts['maxDepth'];
 		}
 
 		if ( isset( $opts['logger'] ) ) {
@@ -689,7 +696,7 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function getMaxTemplateDepth(): int {
 		// Not in the API result
-		return 40;
+		return $this->maxDepth;
 	}
 
 	/** @inheritDoc */

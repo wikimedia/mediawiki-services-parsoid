@@ -45,6 +45,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var array */
 	protected $interwikiMap = [];
 
+	/** @var int */
+	private $maxDepth = 40;
+
 	/**
 	 * @param array $opts
 	 */
@@ -64,6 +67,9 @@ class MockSiteConfig extends SiteConfig {
 		}
 		if ( isset( $opts['linkTrailRegex'] ) ) {
 			$this->linkTrailRegex = $opts['linkTrailRegex'];
+		}
+		if ( isset( $opts['maxDepth'] ) ) {
+			$this->maxDepth = $opts['maxDepth'];
 		}
 
 		// Use Monolog's PHP console handler
@@ -333,7 +339,7 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	public function getMaxTemplateDepth(): int {
-		return 40;
+		return $this->maxDepth;
 	}
 
 	/** @inheritDoc */

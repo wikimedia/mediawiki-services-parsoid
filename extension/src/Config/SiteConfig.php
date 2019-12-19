@@ -635,6 +635,20 @@ class SiteConfig extends ISiteConfig {
 		return (int)$this->config->get( 'MaxTemplateDepth' );
 	}
 
+	/**
+	 * Overrides the max template depth in the MediaWiki configuration.
+	 * @param int $depth
+	 */
+	public function setMaxTemplateDepth( int $depth ): void {
+		try {
+			// Only works if the Config is a MutableConfig!
+			$this->config->set( 'MaxTemplateDepth', $depth );
+		} catch ( \Error $e ) {
+			// Fall back on global variable (default GlobalVarConfig)
+			$GLOBALS['wgMaxTemplateDepth'] = $depth;
+		}
+	}
+
 	/** @inheritDoc */
 	public function getExtResourceURLPatternMatcher(): callable {
 		$nsAliases = [
