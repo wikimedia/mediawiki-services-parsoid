@@ -138,13 +138,15 @@ Promise.async(function *() {
 	// Make a new mediawiki/core commit with an appropriate message.
 	var commitmsg = 'Sync up with Parsoid ' + targetName;
 	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
-	yield mwexec(['git', 'commit', '-m', commitmsg, mwPARSERTESTS]);
+	// Note the --allow-empty, because sometimes there are no parsoid-side
+	// changes to merge. (We just need to get changes from upstream.)
+	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty', mwPARSERTESTS]);
 
 	// ok, we were successful at making the commit.  Give further instructions.
 	console.log();
 	console.log('Success!  Now:');
 	console.log(' cd', mwpath);
-	console.log(' git rebase origin/master');
+	console.log(' git rebase --keep-empty origin/master');
 	console.log(' .. fix any conflicts .. ');
 	console.log(' php tests/parser/parserTests.php');
 	console.log(' git review');
