@@ -90,8 +90,7 @@ class Util {
 	public static function lastUniChar( string $str, ?int $idx = null ): string {
 		if ( $idx === null ) {
 			$idx = strlen( $str );
-		}
-		if ( $idx <= 0 || $idx > strlen( $str ) ) {
+		} elseif ( $idx <= 0 || $idx > strlen( $str ) ) {
 			return '';
 		}
 		$c = $str[--$idx];
