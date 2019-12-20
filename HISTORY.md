@@ -1,3 +1,38 @@
+0.11.0 / 2019-12-20
+===================
+This is the LAST release of (the JS implementation of) Parsoid. Parsoid has been
+ported from JS to PHP and will be more closely integrated into MediaWiki and will
+not need its own debian package henceforth.
+
+This release contains the entire working port of Parsoid to PHP, but we are not
+providing any support for this setup. By the next release of MediaWiki, Parsoid
+will be better integrated there and will be available as part of MediaWiki.
+
+  Notable changes
+  * Parsoid HTML version bumped to 2.1.0
+  * Code cleanup
+    - Use ES6 class syntax with one class export per file
+    - Removed dead code
+    - Removed most uses of .bind()
+    - Removed circular dependencies
+    - Replaced promises with async/yield in most places in the codebase
+  * Language converter
+    - Bulk of the code moved out of Parsoid into its own repo
+    - Crimean Tatar, zh language converters added
+  * Code improvements
+    - Extract a token transform interface that individual handlers implement
+    - Extract a DOMHandler interface for html2wt DOM handlers
+  * Move media info code to a post-processing batch pass to eliminate
+    imageinfo API requests during token processing
+  * Move data out of DOM nodes into a bag-on-the-side
+  * Eliminate serialize/parse of JSON data attributes when tree building
+  * Move redlink and language converter code into lib/parse.js - Parsoid's
+    entry point class
+  * Use wikipeg (our erstwhile pegjs fork) native rule parameters and get rid of
+    our homegrown stop/flag stacks and update PEG grammar
+  * Ensure protocol-relative URLs are used for media
+  * A number of bug fixes during the port of Parsoid from JS to PHP
+
 0.10.0 / 2018-12-05
 ===================
   Notable wt -&gt; html changes
