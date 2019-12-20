@@ -8,6 +8,7 @@
 require_once __DIR__ . '/../tools/Maintenance.php';
 
 use Parsoid\ClientError;
+use Parsoid\PageBundle;
 use Parsoid\Parsoid;
 use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
@@ -50,6 +51,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 						 'File containing the old HTML for a selective-serialization (see --selser)',
 						 false, true );
 		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
+		$this->addOption(
+			'pbin',
+			'Input pagebundle JSON',
+			false,
+			true
+		);
+		$this->addOption(
+			'pbinfile',
+			'Input pagebundle JSON file',
+			false,
+			true
+		);
 		$this->addOption(
 			'pboutfile',
 			'Output pagebundle JSON to file',
@@ -457,6 +470,23 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			$this->hasOption( 'selser' );
 
 		if ( $startsAtHtml ) {
+			if ( $this->hasOption( 'pbin' ) || $this->hasOption( 'pbinfile' ) ) {
+				$doc = DOMUtils::parseHTML( $input );
+				if ( $this->hasOption( 'pbinfile' ) ) {
+					$json = file_get_contents( $this->getOption( 'pbinfile' ) );
+				} else {
+					$json = $this->getOption( 'pbin' );
+				}
+				$pb = PHPUtils::jsonDecode( $json );
+				$pb = new PageBundle(
+					'',
+					$pb['parsoid'] ?? null,
+					[ 'ids' => [] ]  // FIXME: ^999.0.0
+				);
+				DOMDataUtils::applyPageBundle( $doc, $pb );
+				$input = ContentUtils::toXML( $doc );
+			}
+
 			if ( $this->hasOption( 'selser' ) ) {
 				if ( $this->hasOption( 'oldtext' ) ) {
 					$oldText = $this->getOption( 'oldtext' );
@@ -479,11 +509,17 @@ class Parse extends \Parsoid\Tools\Maintenance {
 					if ( $oldHTML === false ) {
 						return;
 					}
+					if ( isset( $pb ) ) {
+						$oldDoc = DOMUtils::parseHTML( $oldHTML );
+						DOMDataUtils::applyPageBundle( $oldDoc, $pb );
+						$oldHTML = ContentUtils::toXML( $oldDoc );
+					}
 				}
 				$selserData = new SelserData( $oldText, $oldHTML );
 			} else {
 				$selserData = null;
 			}
+
 			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
 			if ( $this->hasOption( 'html2html' ) ) {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );

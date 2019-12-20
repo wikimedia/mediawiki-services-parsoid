@@ -34,8 +34,8 @@ php $BIN/parse.php --selser --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPED
 # data-parsoid in separate files
 php $BIN/parse.php --pboutfile $TMPPB < $TMPWT |
     tee $TMPORIG | sed -e "s/foo/bar/g" > $TMPEDIT
-# php $BIN/parse.php --pbinfile $TMPPB --selser \
-#     --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
+php $BIN/parse.php --pbinfile $TMPPB --selser \
+    --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 
 # clean up
 /bin/rm $TMPWT $TMPORIG $TMPEDIT $TMPPB
