@@ -7,6 +7,9 @@
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
+use Composer\Factory;
+use Composer\IO\NullIO;
+
 use Parsoid\ClientError;
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
@@ -202,6 +205,10 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'version',
+			'Show version number.'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -340,8 +347,18 @@ class Parse extends \Parsoid\Tools\Maintenance {
 		return $html;
 	}
 
+	private function maybeVersion() {
+		if ( $this->hasOption( 'version' ) ) {
+			$composer = Factory::create( new NullIo(), './composer.json', false );
+			$root = $composer->getPackage();
+			$this->output( $root->getFullPrettyVersion() . "\n" );
+			die( 0 );
+		}
+	}
+
 	public function execute() {
 		$this->maybeHelp();
+		$this->maybeVersion();
 
 		// Produce a CPU flamegraph via excimer's profiling
 		if ( $this->hasOption( 'flamegraph' ) ) {

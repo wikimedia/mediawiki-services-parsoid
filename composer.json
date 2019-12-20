@@ -45,7 +45,8 @@
 		"wikimedia/alea": "^0.9.0",
 		"wikimedia/testing-access-wrapper": "~1.0",
 		"ext-curl": "*",
-		"ockcyp/covers-validator": "1.1.0"
+		"ockcyp/covers-validator": "1.1.0",
+		"composer/composer": "^1.9"
 	},
 	"autoload": {
 		"psr-4": {
