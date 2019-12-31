@@ -38,6 +38,7 @@ use RequestContext;
 use Title;
 use UIDGenerator;
 use Wikimedia\Http\HttpAcceptParser;
+use Wikimedia\Message\DataMessageValue;
 use Wikimedia\ParamValidator\ValidationException;
 
 /**
@@ -150,10 +151,13 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		throw new ValidationException( 'domain', $domain, [], 'mwparsoid-invalid-domain', [
-			'expected' => $expectedDomain,
-			'actual' => $domain,
-		] );
+		throw new ValidationException(
+			new DataMessageValue( 'mwparsoid-invalid-domain', [], 'invalid-domain', [
+				'expected' => $expectedDomain,
+				'actual' => $domain,
+			] ),
+			'domain', $domain, []
+		);
 	}
 
 	/**
