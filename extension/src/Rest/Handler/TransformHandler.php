@@ -65,7 +65,7 @@ class TransformHandler extends ParsoidHandler {
 				$wikitext,
 				$attribs['pagelanguage']
 			);
-			if ( !$this->acceptable( $env, $attribs ) ) {
+			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
 				] );
@@ -87,7 +87,7 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
 				$wikitext
 			);
-			if ( !$this->acceptable( $env, $attribs ) ) {
+			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
 				] );
@@ -98,7 +98,7 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
 				null, $attribs['pagelanguage']
 			);
-			if ( !$this->acceptable( $env, $attribs ) ) {
+			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
 				] );

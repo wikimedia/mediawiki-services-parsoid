@@ -7,7 +7,6 @@ use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
 use Parsoid\PageBundle;
-use Parsoid\Config\Env;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
@@ -157,21 +156,21 @@ class FormatHelper {
 	 * Downgrade and return content
 	 *
 	 * @param string[] $downgrade
-	 * @param Env $env
+	 * @param string $outputContentVersion
 	 * @param DOMDocument $doc
 	 * @param PageBundle $pb
 	 * @param array $attribs
 	 * @return PageBundle
 	 */
 	public static function returnDowngrade(
-		array $downgrade, Env $env, DOMDocument $doc, PageBundle $pb,
+		array $downgrade, string $outputContentVersion, DOMDocument $doc, PageBundle $pb,
 		array $attribs
 	): PageBundle {
 		self::downgrade( $downgrade['from'], $downgrade['to'], $doc, $pb );
 		// Match the http-equiv meta to the content-type header
 		$meta = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
 		if ( $meta ) {
-			$meta->setAttribute( 'content', $env->getOutputContentVersion() );
+			$meta->setAttribute( 'content', $outputContentVersion );
 		}
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $attribs['body_only'] );
@@ -179,7 +178,7 @@ class FormatHelper {
 		$pb->html = ContentUtils::toXML( $node, [
 			'innerXML' => $body_only,
 		] );
-		$pb->version = $env->getOutputContentVersion();
+		$pb->version = $outputContentVersion;
 		return $pb;
 	}
 

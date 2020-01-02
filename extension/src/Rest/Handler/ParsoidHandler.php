@@ -237,6 +237,9 @@ abstract class ParsoidHandler extends Handler {
 			'reqId' => $request->getHeaderLine( 'X-Request-Id' ),
 			'userAgent' => $request->getHeaderLine( 'User-Agent' ),
 			'htmlVariantLanguage' => $request->getHeaderLine( 'Accept-Language' ) ?: null,
+			// Semver::satisfies checks below expect a valid outputContentVersion value.
+			// Better to set it here instead of adding the default value at every check.
+			'outputContentVersion' => Parsoid::defaultHTMLVersion(),
 		];
 		$attribs['opts'] = $opts;
 
@@ -259,11 +262,10 @@ abstract class ParsoidHandler extends Handler {
 	 *  apiUtils.validateAndSetOutputContentVersion
 	 *  apiUtils.parseProfile
 	 *
-	 * @param Env $env
-	 * @param array $attribs Request attributes from getRequestAttributes()
+	 * @param array &$attribs Request attributes from getRequestAttributes()
 	 * @return bool
 	 */
-	protected function acceptable( Env $env, array $attribs ): bool {
+	protected function acceptable( array &$attribs ): bool {
 		$request = $this->getRequest();
 		$format = $attribs['opts']['format'];
 
@@ -293,9 +295,9 @@ abstract class ParsoidHandler extends Handler {
 				if ( $profile ) {
 					preg_match( self::NEW_SPEC, $profile, $matches );
 					if ( $matches && strtolower( $matches[1] ) === $format ) {
-						$contentVersion = $env->resolveContentVersion( $matches[2] );
+						$contentVersion = Parsoid::resolveContentVersion( $matches[2] );
 						if ( $contentVersion ) {
-							$env->setOutputContentVersion( $contentVersion );
+							$attribs['envOptions']['outputContentVersion'] = $contentVersion;
 							return true;
 						} else {
 							continue;
@@ -488,8 +490,8 @@ abstract class ParsoidHandler extends Handler {
 		$metrics = $this->metrics;
 		$timing = Timing::start( $metrics );
 
-		if ( Semver::satisfies( $env->getOutputContentVersion(),
-			'!=' . ENV::AVAILABLE_VERSIONS[0] ) ) {
+		if ( Semver::satisfies( $attribs['envOptions']['outputContentVersion'],
+			'!=' . Parsoid::defaultHTMLVersion() ) ) {
 			$metrics->increment( 'wt2html.parse.version.notdefault' );
 		}
 
@@ -536,7 +538,6 @@ abstract class ParsoidHandler extends Handler {
 			// When substing, set data-parsoid to be discarded, so that the subst'ed
 			// content is considered new when it comes back.
 			'discardDataParsoid' => $doSubst,
-			'outputContentVersion' => $env->getOutputContentVersion(),
 		], $attribs['envOptions'] );
 
 		// VE, the only client using body_only property,
@@ -601,7 +602,7 @@ abstract class ParsoidHandler extends Handler {
 			} else {
 				$response = $this->getResponseFactory()->create();
 				FormatHelper::setContentType( $response, FormatHelper::FORMAT_HTML,
-					$env->getOutputContentVersion() );
+					$attribs['envOptions']['outputContentVersion'] );
 				$response->getBody()->write( $out );
 				$response->setHeader( 'Content-Language', $headers['content-language'] );
 				$response->addHeader( 'Vary', $headers['vary'] );
@@ -641,7 +642,7 @@ abstract class ParsoidHandler extends Handler {
 	 * Porting note: this is the rough equivalent of routes.html2wt.
 	 * @param Env $env
 	 * @param array $attribs Request attributes from getRequestAttributes()
-	 * @param string|null $html HTMLto transform (or null to use the page specified in
+	 * @param string|null $html HTML to transform (or null to use the page specified in
 	 *   the request attributes).
 	 * @return Response
 	 */
@@ -674,7 +675,7 @@ abstract class ParsoidHandler extends Handler {
 
 		// Check for version mismatches between original & edited doc
 		if ( !isset( $original['html'] ) ) {
-			$env->setInputContentVersion( $vEdited ?? $env->getInputContentVersion() );
+			$envOptions['inputContentVersion'] = $vEdited ?? Parsoid::defaultHTMLVersion();
 		} else {
 			$vOriginal = FormatHelper::parseContentTypeHeader(
 				$original['html']['headers']['content-type'] ?? '' );
@@ -688,12 +689,12 @@ abstract class ParsoidHandler extends Handler {
 				// If version of edited doc is unavailable we assume
 				// the edited doc is derived from the original doc.
 				// No downgrade necessary
-				$env->setInputContentVersion( $vOriginal );
+				$envOptions['inputContentVersion'] = $vOriginal;
 			} elseif ( $vEdited === $vOriginal ) {
 				// No downgrade necessary
-				$env->setInputContentVersion( $vOriginal );
+				$envOptions['inputContentVersion'] = $vOriginal;
 			} else {
-				$env->setInputContentVersion( $vEdited );
+				$envOptions['inputContentVersion'] = $vEdited;
 				// We need to downgrade the original to match the the edited doc's version.
 				$downgrade = FormatHelper::findDowngrade( $vOriginal, $vEdited );
 				// Downgrades are only for pagebundle
@@ -721,27 +722,24 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$metrics->increment(
-			'html2wt.original.version.' . $env->getInputContentVersion()
+			'html2wt.original.version.' . $envOptions['inputContentVersion']
 		);
 		if ( !$vEdited ) {
 			$metrics->increment( 'html2wt.original.version.notinline' );
 		}
-
-		// Pass along the determined original version
-		$envOptions['inputContentVersion'] = $env->getInputContentVersion();
 
 		// If available, the modified data-mw blob is applied, while preserving
 		// existing inline data-mw.  But, no data-parsoid application, since
 		// that's internal, we only expect to find it in its original,
 		// unmodified form.
 		if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE && isset( $opts['data-mw'] )
-			&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
+			&& Semver::satisfies( $envOptions['inputContentVersion'], '^999.0.0' )
 		) {
 			// `opts` isn't a revision, but we'll find a `data-mw` there.
 			$pb = new PageBundle( '',
 				[ 'ids' => [] ],  // So it validates
 				$opts['data-mw']['body'] ?? null );
-			if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+			if ( !$pb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
 				return $this->getResponseFactory()->createHttpError( 400,
 					[ 'message' => $errorMessage ] );
 			}
@@ -776,12 +774,12 @@ abstract class ParsoidHandler extends Handler {
 				// However, if a modified data-mw was provided,
 				// original data-mw is omitted to avoid losing deletions.
 				if ( isset( $opts['data-mw'] )
-					&& Semver::satisfies( $env->getInputContentVersion(), '^999.0.0' )
+					&& Semver::satisfies( $envOptions['inputContentVersion'], '^999.0.0' )
 				) {
 					// Don't modify `origPb`, it's used below.
 					$pb = new PageBundle( '', $pb->parsoid, [ 'ids' => [] ] );
 				}
-				if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+				if ( !$pb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
 					return $this->getResponseFactory()->createHttpError( 400,
 						[ 'message' => $errorMessage ] );
 				}
@@ -794,7 +792,7 @@ abstract class ParsoidHandler extends Handler {
 					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $original['html']['body'] ) );
 				}
 				if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
-					if ( !$origPb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+					if ( !$origPb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
 						return $this->getResponseFactory()->createHttpError( 400,
 							[ 'message' => $errorMessage ] );
 					}
@@ -881,10 +879,10 @@ abstract class ParsoidHandler extends Handler {
 				'message' => 'Content-type of revision html is missing.',
 			] );
 		}
-		$env->setInputContentVersion( $vOriginal );
+		$attribs['envOptions']['inputContentVersion'] = $vOriginal;
 
 		$this->metrics->increment(
-			'pb2pb.original.version.' . $env->getInputContentVersion()
+			'pb2pb.original.version.' . $attribs['envOptions']['inputContentVersion']
 		);
 
 		if ( !empty( $opts['updates'] ) ) {
@@ -898,8 +896,8 @@ abstract class ParsoidHandler extends Handler {
 			// Uncommenting below implies that we can only update the latest
 			// version, since carrot semantics is applied in both directions.
 			// if ( !Semver::satisfies(
-			// 	$env->getInputContentVersion(),
-			// 	"^{$env->getOutputContentVersion()}"
+			// 	$attribs['envOptions']['inputContentVersion'],
+			// 	"^{$attribs['envOptions']['outputContentVersion']}"
 			// ) ) {
 			// 	return $this->getResponseFactory()->createHttpError( 415, [
 			// 		'message' => 'We do not know how to do this conversion.',
@@ -922,8 +920,8 @@ abstract class ParsoidHandler extends Handler {
 		// we should probably be more explicit about the pb2pb conversion
 		// requested rather than this increasingly complex fallback logic.
 		$downgrade = FormatHelper::findDowngrade(
-			$env->getInputContentVersion(),
-			$env->getOutputContentVersion()
+			$attribs['envOptions']['inputContentVersion'],
+			$attribs['envOptions']['outputContentVersion']
 		);
 		if ( $downgrade ) {
 			$doc = $env->createDocument( $revision['html']['body'] );
@@ -932,21 +930,22 @@ abstract class ParsoidHandler extends Handler {
 				$revision['data-parsoid']['body'] ?? null,
 				$revision['data-mw']['body'] ?? null
 			);
-			if ( !$pb->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+			if ( !$pb->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
 				return $this->getResponseFactory()->createHttpError(
 					400,
 					[ 'message' => $errorMessage ]
 				);
 			}
-			$out = FormatHelper::returnDowngrade( $downgrade, $env, $doc, $pb, $attribs );
+			$out = FormatHelper::returnDowngrade(
+				$downgrade, $attribs['envOptions']['outputContentVersion'], $doc, $pb, $attribs );
 			$response = $this->getResponseFactory()->createJson( $out->responseData() );
 			FormatHelper::setContentType(
 				$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
 			);
 			return $response;
 		// Ensure we only reuse from semantically similar content versions.
-		} elseif ( Semver::satisfies( $env->getOutputContentVersion(),
-			'^' . $env->getInputContentVersion() ) ) {
+		} elseif ( Semver::satisfies( $attribs['envOptions']['outputContentVersion'],
+			'^' . $attribs['envOptions']['inputContentVersion'] ) ) {
 			return $this->wt2html( $env, $attribs, null );
 		} else {
 			$env->log( 'fatal/request', 'We do not know how to do this conversion.' );
@@ -976,10 +975,10 @@ abstract class ParsoidHandler extends Handler {
 			$html,
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
-			$env->getInputContentVersion(),
+			$attribs['envOptions']['inputContentVersion'],
 			$headers
 		);
-		if ( !$out->validate( $env->getInputContentVersion(), $errorMessage ) ) {
+		if ( !$out->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
 			return $this->getResponseFactory()->createHttpError(
 				400,
 				[ 'message' => $errorMessage ]
@@ -1025,7 +1024,7 @@ abstract class ParsoidHandler extends Handler {
 			$revision['html']['body'],
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
-			$env->getInputContentVersion(),
+			$attribs['envOptions']['inputContentVersion'],
 			$revision['html']['headers'] ?? null
 		);
 		$out = $parsoid->pb2pb(

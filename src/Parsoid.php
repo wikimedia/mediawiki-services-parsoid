@@ -5,6 +5,8 @@ namespace Parsoid;
 
 use LogicException;
 
+use Composer\Semver\Semver;
+use Composer\Semver\Comparator;
 use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
@@ -19,6 +21,13 @@ use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
 
 class Parsoid {
+
+	/**
+	 * Available HTML content versions.
+	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 */
+	const AVAILABLE_VERSIONS = [ '2.1.0', '999.0.0' ];
 
 	/** @var SiteConfig */
 	private $siteConfig;
@@ -35,6 +44,38 @@ class Parsoid {
 	) {
 		$this->siteConfig = $siteConfig;
 		$this->dataAccess = $dataAccess;
+	}
+
+	/**
+	 * Returns the default HTML content version
+	 * @return string
+	 */
+	public static function defaultHTMLVersion(): string {
+		return self::AVAILABLE_VERSIONS[0];
+	}
+
+	/**
+	 * See if any content version Parsoid knows how to produce satisfies the
+	 * the supplied version, when interpreted with semver caret semantics.
+	 * This will allow us to make backwards compatible changes, without the need
+	 * for clients to bump the version in their headers all the time.
+	 *
+	 * @param string $version
+	 * @return string|null
+	 */
+	public static function resolveContentVersion( string $version ) {
+		foreach ( self::AVAILABLE_VERSIONS as $i => $a ) {
+			if ( Semver::satisfies( $a, "^{$version}" ) &&
+				// The section wrapping in 1.6.x should have induced a major
+				// version bump, since it requires upgrading clients to
+				// handle it.  We therefore hardcode this in so that we can
+				// fail hard.
+				Comparator::greaterThanOrEqualTo( $version, '1.6.0' )
+			) {
+				return $a;
+			}
+		}
+		return null;
 	}
 
 	private function setupCommonOptions( array $options ): array {
@@ -74,6 +115,9 @@ class Parsoid {
 		PageConfig $pageConfig, array $options = []
 	): array {
 		$envOptions = $this->setupCommonOptions( $options );
+		if ( isset( $options['outputContentVersion'] ) ) {
+			$envOptions['outputContentVersion'] = $options['outputContentVersion'];
+		}
 		$envOptions['discardDataParsoid'] = !empty( $options['discardDataParsoid'] );
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
@@ -87,9 +131,6 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		if ( isset( $options['outputContentVersion'] ) ) {
-			$env->setOutputContentVersion( $options['outputContentVersion'] );
-		}
 		$env->bumpWt2HtmlResourceUse(
 			# Should perhaps be strlen instead (or cached!): T239841
 			'wikitextSize', mb_strlen( $env->getPageMainContent() )
@@ -197,15 +238,15 @@ class Parsoid {
 		?SelserData $selserData = null
 	): string {
 		$envOptions = $this->setupCommonOptions( $options );
+		if ( isset( $options['inputContentVersion'] ) ) {
+			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
+		}
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		if ( isset( $options['inputContentVersion'] ) ) {
-			$env->setInputContentVersion( $options['inputContentVersion'] );
-		}
 		# Should perhaps be strlen instead (or cached!): T239841
 		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
 		$doc = $env->createDocument( $html );
@@ -265,7 +306,7 @@ class Parsoid {
 	) {
 		$envOptions = [];
 		if ( isset( $options['pageBundle'] ) ) {
-			$envOptions['pageBundle'] = true;
+			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions

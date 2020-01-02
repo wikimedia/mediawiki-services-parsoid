@@ -3,15 +3,14 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config;
 
-use Composer\Semver\Comparator;
-use Composer\Semver\Semver;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Parsoid\ContentModelHandler;
+use Parsoid\Logger\ParsoidLogger;
+use Parsoid\Parsoid;
 use Parsoid\ResourceLimitExceededException;
 use Parsoid\Tokens\Token;
-use Parsoid\Logger\ParsoidLogger;
 use Parsoid\Utils\DataBag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
@@ -24,7 +23,6 @@ use Parsoid\Wt2Html\Frame;
 use Parsoid\Wt2Html\PageConfigFrame;
 use Parsoid\Wt2Html\ParserPipelineFactory;
 use Parsoid\Wt2Html\TT\Sanitizer;
-use UnexpectedValueException;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -35,13 +33,6 @@ use UnexpectedValueException;
  * and provides certain other services.
  */
 class Env {
-
-	/**
-	 * Available HTML content versions.
-	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
-	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
-	 */
-	const AVAILABLE_VERSIONS = [ '2.1.0', '999.0.0' ];
 
 	/** @var SiteConfig */
 	private $siteConfig;
@@ -279,8 +270,15 @@ class Env {
 			$this->pageBundle = !empty( $options['pageBundle'] );
 		}
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
-		$this->inputContentVersion = self::AVAILABLE_VERSIONS[0];
-		$this->outputContentVersion = self::AVAILABLE_VERSIONS[0];
+		$defaultContentVersion = Parsoid::defaultHTMLVersion();
+		$this->inputContentVersion = $options['inputContentVersion'] ?? $defaultContentVersion;
+		// FIXME: We should have a check for the supported input content versions as well.
+		// That will require a separate constant.
+		$this->outputContentVersion = $options['outputContentVersion'] ?? $defaultContentVersion;
+		if ( !in_array( $this->outputContentVersion, Parsoid::AVAILABLE_VERSIONS, true ) ) {
+			throw new \UnexpectedValueException(
+				$this->outputContentVersion . ' is not an available content version.' );
+		}
 		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
 		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
 		$this->noDataAccess = !empty( $options['noDataAccess'] );
@@ -919,10 +917,6 @@ class Env {
 		return $this->inputContentVersion;
 	}
 
-	public function setInputContentVersion( string $version ) {
-		$this->inputContentVersion = $version;
-	}
-
 	/**
 	 * The HTML content version of the input document (for html2wt and html2html conversions).
 	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
@@ -931,37 +925,6 @@ class Env {
 	 */
 	public function getOutputContentVersion(): string {
 		return $this->outputContentVersion;
-	}
-
-	public function setOutputContentVersion( string $version ): void {
-		if ( !in_array( $version, self::AVAILABLE_VERSIONS, true ) ) {
-			throw new UnexpectedValueException( 'Not an available content version.' );
-		}
-		$this->outputContentVersion = $version;
-	}
-
-	/**
-	 * See if any content version Parsoid knows how to produce satisfies the
-	 * the supplied version, when interpreted with semver caret semantics.
-	 * This will allow us to make backwards compatible changes, without the need
-	 * for clients to bump the version in their headers all the time.
-	 *
-	 * @param string $version
-	 * @return string|null
-	 */
-	public function resolveContentVersion( $version ) {
-		foreach ( self::AVAILABLE_VERSIONS as $i => $a ) {
-			if ( Semver::satisfies( $a, "^{$version}" ) &&
-				// The section wrapping in 1.6.x should have induced a major
-				// version bump, since it requires upgrading clients to
-				// handle it.  We therefore hardcode this in so that we can
-				// fail hard.
-				Comparator::greaterThanOrEqualTo( $version, '1.6.0' )
-			) {
-				return $a;
-			}
-		}
-		return null;
 	}
 
 	/**

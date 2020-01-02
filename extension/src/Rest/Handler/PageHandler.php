@@ -37,7 +37,7 @@ class PageHandler extends ParsoidHandler {
 			] );
 		}
 
-		if ( !$this->acceptable( $env, $attribs ) ) {
+		if ( !$this->acceptable( $attribs ) ) {
 			return $this->getResponseFactory()->createHttpError( 406, [
 				'message' => 'Not acceptable',
 			] );
@@ -71,7 +71,7 @@ class PageHandler extends ParsoidHandler {
 		$response->setStatus( 200 );
 		$response->setHeader( 'X-ContentModel', $content->getModel( SlotRecord::MAIN ) );
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT,
-			$env->getOutputContentVersion() );
+			$attribs['envOptions']['outputContentVersion'] );
 		$response->getBody()->write( $content->getContent( SlotRecord::MAIN ) );
 		return $response;
 	}
