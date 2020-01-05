@@ -1380,6 +1380,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Handle image default sizes and upright option after extracting all
 		// options
+		// @phan-suppress-next-line PhanRedundantCondition
 		if ( !empty( $opts['format'] ) && $opts['format']['v'] === 'framed' ) {
 			// width and height is ignored for framed images
 			// https://phabricator.wikimedia.org/T64258
@@ -1431,6 +1432,7 @@ class WikiLinkHandler extends TokenHandler {
 		$containerName = $isInline ? 'figure-inline' : 'figure';
 
 		$classes = $wrapperInfo['classes'];
+		// @phan-suppress-next-line PhanRedundantCondition
 		if ( !empty( $opts['class'] ) ) {
 			$classes = array_merge( $classes, explode( ' ', $opts['class']['v'] ) );
 		}

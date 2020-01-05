@@ -571,6 +571,7 @@ class LinkHandlerUtils {
 		$escapedTgt = null;
 		if ( !empty( $linkData->isRedirect ) ) {
 			$linkTarget = $target['value'];
+			// @phan-suppress-next-line PhanRedundantCondition
 			if ( !empty( $target['modified'] ) || empty( $target['fromsrc'] ) ) {
 				$linkTarget = strtr( preg_replace( '#^(\.\.?/)*#', '', $linkTarget, 1 ), '_', ' ' );
 				$escapedTgt = self::escapeLinkTarget( $linkTarget, $state );
@@ -657,6 +658,7 @@ class LinkHandlerUtils {
 			}
 
 			$linkTarget = $target['value'];
+			// @phan-suppress-next-line PhanRedundantCondition
 			if ( !empty( $target['modified'] ) || empty( $target['fromsrc'] ) ) {
 				// Links starting with ./ shouldn't get _ replaced with ' '
 				$linkContentIsRelative = preg_match( '#^\./#', $linkData->content->string ?? '' );

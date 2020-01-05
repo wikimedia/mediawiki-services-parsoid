@@ -90,8 +90,11 @@ class PWrap {
 				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $n ];
 				$i++;
 			} elseif ( $ret[$i]['pwrap'] === null ) {
+				// @phan-suppress-previous-line PhanTypeInvalidDimOffset
 				$ret[$i]['pwrap'] = $v['pwrap'];
 			} elseif ( $ret[$i]['pwrap'] !== $v['pwrap'] && $v['pwrap'] !== null ) {
+				// @phan-suppress-previous-line PhanTypeInvalidDimOffset
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
 				$cnode = $n->cloneNode();
 				$cnode->removeAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
