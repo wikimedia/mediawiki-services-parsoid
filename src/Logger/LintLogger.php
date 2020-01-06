@@ -28,10 +28,19 @@ class LintLogger {
 
 	/**
 	 * Convert DSR offsets in collected lints
+	 *
+	 * Linter offsets should always be ucs2 if the lint viewer is client-side JavaScript.
+	 * But, added conversion args in case callers wants some other conversion for other
+	 * use cases.
+	 *
 	 * @param Env $env
 	 * @param array &$lints
+	 * @param string $from
+	 * @param string $to
 	 */
-	public static function convertDSROffsets( Env $env, array &$lints ): void {
+	public static function convertDSROffsets(
+		Env $env, array &$lints, string $from = 'byte', string $to = 'ucs2'
+	): void {
 		$metrics = $env->getSiteConfig()->metrics();
 		$timer = null;
 		if ( $metrics ) {
@@ -58,10 +67,7 @@ class LintLogger {
 			}
 		}
 
-		// Linter offsets are always ucs2 (because the lint viewer is
-		// client-side JavaScript)
-		TokenUtils::convertOffsets( $env->topFrame->getSrcText(),
-								   'byte', 'ucs2', $offsets );
+		TokenUtils::convertOffsets( $env->topFrame->getSrcText(), $from, $to, $offsets );
 
 		// Undo the conversions of dsr[2], dsr[3]
 		foreach ( $lints as &$lint ) {

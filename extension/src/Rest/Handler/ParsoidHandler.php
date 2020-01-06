@@ -211,7 +211,8 @@ abstract class ParsoidHandler extends Handler {
 				?? false ),
 			'offsetType' => $body['offsetType']
 				?? $request->getQueryParams()['offsetType']
-				?? 'byte',
+				// Lint requests should return UCS2 offsets by default
+				?? ( $opts['format'] === FormatHelper::FORMAT_LINT ? 'ucs2' : 'byte' ),
 			'pagelanguage' => $request->getHeaderLine( 'Content-Language' ) ?: null,
 		];
 

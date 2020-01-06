@@ -8,6 +8,7 @@ use DOMElement;
 use Parsoid\Config\Env;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Logger\LintLogger;
 
 /**
  * Very thin shim to call ContentUtils::convertOffsets where requested
@@ -29,6 +30,13 @@ class ConvertOffsets {
 		ContentUtils::convertOffsets(
 			$env, $doc, 'byte', $offsetType
 		);
+		// Because linter runs before this DOM pass, we need to convert offsets
+		// of collected lints from 'byte' to the requested type
+		if ( $offsetType !== 'byte' ) {
+			$lints = $env->getLints();
+			LintLogger::convertDSROffsets( $env, $lints, 'byte', $offsetType );
+			$env->setLints( $lints );
+		}
 		DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $offsetType;
 	}
 }

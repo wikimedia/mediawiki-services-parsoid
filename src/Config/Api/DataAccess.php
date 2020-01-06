@@ -10,7 +10,6 @@ use Parsoid\Config\DataAccess as IDataAccess;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageContent;
-use Parsoid\Logger\LintLogger;
 
 /**
  * DataAccess via MediaWiki's Action API
@@ -331,8 +330,6 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function logLinterData( Env $env, array $lints ): void {
-		// Convert offsets to ucs2
-		LintLogger::convertDSROffsets( $env, $lints );
 		error_log( PHPUtils::jsonEncode( $lints ) );
 	}
 

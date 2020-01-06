@@ -781,6 +781,20 @@ class Env {
 	}
 
 	/**
+	 * Init lints to the passed array.
+	 *
+	 * FIXME: This is currently needed to reset lints after converting
+	 * DSR offsets because of ordering of DOM passes. So, in reality,
+	 * there should be no real use case for setting this anywhere else
+	 * but from that single callsite.
+	 *
+	 * @param array $lints
+	 */
+	public function setLints( array $lints ): void {
+		$this->lints = $lints;
+	}
+
+	/**
 	 * @param mixed ...$args
 	 */
 	public function log( ...$args ): void {

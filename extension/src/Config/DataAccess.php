@@ -346,7 +346,10 @@ class DataAccess implements IDataAccess {
 		// Only send the request if it the latest revision
 		if ( $revId !== null && $revId === $latest ) {
 			// Convert offsets to ucs2
-			LintLogger::convertDSROffsets( $env, $lints );
+			$offsetType = $env->getCurrentOffsetType();
+			if ( $offsetType !== 'ucs2' ) {
+				LintLogger::convertDSROffsets( $env, $lints, $offsetType, 'ucs2' );
+			}
 			// @todo: Document this hook in MediaWiki
 			Hooks::runWithoutAbort( 'ParserLogLinterData', [ $title, $revId, $lints ] );
 		}
