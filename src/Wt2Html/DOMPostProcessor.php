@@ -440,6 +440,12 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'linkclasses',
 				'skipNested' => true
 			],
+			// Language conversion
+			[
+				'Processor' => LangConverter::class,
+				'shortcut' => 'lang-converter',
+				'skipNested' => true
+			],
 			[
 				'Processor' => ConvertOffsets::class,
 				'shortcut' => 'convertoffsets',
@@ -464,17 +470,11 @@ class DOMPostProcessor extends PipelineStage {
 							if ( DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}
-							return Cleanup::cleanupAndSaveDataParsoid(
+							return CleanUp::cleanupAndSaveDataParsoid(
 								$usedIdIndex, $node, $env, $atTopLevel, $tplInfo );
 						}
 					]
 				]
-			],
-			// Language conversion
-			[
-				'Processor' => LangConverter::class,
-				'shortcut' => 'lang-converter',
-				'skipNested' => true
 			],
 			[
 				'Processor' => AddRedLinks::class,

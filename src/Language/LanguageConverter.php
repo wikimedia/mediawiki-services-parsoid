@@ -36,6 +36,8 @@ use DOMNode;
 use Parsoid\ClientError;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Timing;
 use Wikimedia\LangConv\ReplacementMachine;
 
@@ -286,6 +288,19 @@ class LanguageConverter {
 
 		$ct = new ConversionTraverser( $targetVariant, $guesser, $langconv->getMachine() );
 		$ct->traverse( $rootNode, $env, [], true );
+
+		// HACK: to avoid data-parsoid="{}" in the output, set the isNew flag
+		// on synthetic spans
+		DOMUtils::assertElt( $rootNode );
+		foreach ( DOMCompat::querySelectorAll(
+			$rootNode, 'span[typeof="mw:LanguageVariant"][data-mw-variant]'
+		) as $span ) {
+			$dmwv = DOMDataUtils::getJSONAttribute( $span, 'data-mw-variant', null );
+			if ( $dmwv->rt ?? false ) {
+				$dp = DOMDataUtils::getDataParsoid( $span );
+				$dp->tmp->isNew = true;
+			}
+		}
 
 		$timing->end( 'langconv.total' );
 		$timing->end( "langconv.{$targetVariant}.total" );

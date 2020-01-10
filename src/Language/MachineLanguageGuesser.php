@@ -2,7 +2,10 @@
 
 namespace Parsoid\Language;
 
+use DOMElement;
 use DOMNode;
+use stdClass;
+use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMPostOrder;
 use Parsoid\Utils\DOMUtils;
 use Wikimedia\LangConv\ReplacementMachine;
@@ -12,10 +15,6 @@ use Wikimedia\LangConv\ReplacementMachine;
  * Appropriate for wikis which are written in a mix of variants.
  */
 class MachineLanguageGuesser extends LanguageGuesser {
-	const SHARED_KEY = '$shared$';
-
-	/** @var array */
-	private $nodeMap = [];
 
 	/**
 	 * MachineLanguageGuesser constructor.
@@ -30,67 +29,78 @@ class MachineLanguageGuesser extends LanguageGuesser {
 				$codes[] = $invertCode;
 			}
 		}
-		$countMap = [];
-		$merge = function ( string $nodePath, array &$map ) use ( &$countMap, $codes ) {
-			if ( !array_key_exists( $nodePath, $countMap ) ) {
-				$countMap[$nodePath] = $map;
-				$map[self::SHARED_KEY] = true;
-				return;
-			}
-			$m = $countMap[$nodePath];
-			if ( array_key_exists( self::SHARED_KEY, $m ) ) {
-				// Clone the map (and mark the clone not-shared)
-				$newm = array_filter( $m, function ( $k ) {
-					return $k !== self::SHARED_KEY;
-				} );
-				$countMap[$nodePath] = &$newm;
-			}
-			foreach ( $codes as $c ) {
-				$countMap[$nodePath][$c] += $map[$c];
-			}
-		};
+		$zeroCounts = [];
+		foreach ( $codes as $invertCode ) {
+			$zeroCounts[$invertCode] = 0;
+		}
 
 		DOMPostOrder::traverse(
 			$root, function ( DOMNode &$node ) use (
-				$machine, $codes, $merge, $destCode, &$countMap
+				$machine, $codes, $destCode, $zeroCounts
 			) {
+				if ( !( $node instanceof DOMElement ) ) {
+					// Elements only!
+					return;
+				}
 				// XXX look at `lang` attribute and use it to inform guess?
-				$nodePath = $node->getNodePath();
-				if ( DOMUtils::isText( $node ) ) {
-					foreach ( $codes as $invertCode ) {
-						$countMap[$nodePath][$invertCode] = $machine->countBrackets(
-							$node->textContent,
-							$destCode,
-							$invertCode
-						)->safe;
+				$nodeData = self::getNodeData( $node );
+				$first = true;
+				// Iterate over child *nodes* (not just elements)
+				for ( $child = $node->firstChild;
+					  $child;
+					  $child = $child->nextSibling
+				) {
+					if ( DOMUtils::isText( $child ) ) {
+						$countMap = [];
+						foreach ( $codes as $invertCode ) {
+							$countMap[$invertCode] = $machine->countBrackets(
+								$child->textContent,
+								$destCode,
+								$invertCode
+							)->safe;
+						}
+					} elseif ( $child instanceof DOMElement ) {
+						$countMap = self::getNodeData( $child )->countMap;
+					} else {
+						continue; // skip this non-element non-text node
 					}
-				} elseif ( !$node->firstChild ) {
-					foreach ( $codes as $invertCode ) {
-						$countMap[$nodePath][$invertCode] = 0;
-					}
-				} else {
-					// Accumulate counts from children
-					for ( $child = $node->firstChild;
-						  $child;
-						  $child = $child->nextSibling
-					) {
-						$merge( $nodePath, $countMap[$child->getNodePath()] );
+					if ( $first ) {
+						$nodeData->countMap = $countMap;
+						$first = false;
+					} else {
+						// accumulate child counts!
+						foreach ( $codes as $c ) {
+							$nodeData->countMap[$c] += $countMap[$c];
+						}
 					}
 				}
+				if ( $first ) {
+					$nodeData->countMap = $zeroCounts;
+				}
+				// Compute best guess for language
+				$safe = [];
+				foreach ( $codes as $code ) {
+					$safe[$code] = $nodeData->countMap[$code];
+				}
+				arsort( $safe );
+				$nodeData->guessLang = array_keys( $safe )[0];
 			} );
+	}
 
-		foreach ( $countMap as $nodePath => $counts ) {
-			$safe = [];
-			foreach ( $codes as $code ) {
-				$safe[$code] = $counts[$code];
-			}
-			arsort( $safe );
-			$this->nodeMap[$nodePath] = array_keys( $safe )[0];
+	/**
+	 * Helper function that namespaces all of our node data used in
+	 * this class into the top-level `mw_variant` key.
+	 */
+	private static function getNodeData( DOMElement $node ): stdClass {
+		$nodeData = DOMDataUtils::getNodeData( $node );
+		if ( !isset( $nodeData->mw_variant ) ) {
+			$nodeData->mw_variant = new stdClass;
 		}
+		return $nodeData->mw_variant;
 	}
 
 	/** @inheritDoc */
-	public function guessLang( $node ) {
-		return $this->nodeMap[$node->getNodePath()];
+	public function guessLang( DOMElement $node ): string {
+		return self::getNodeData( $node )->guessLang;
 	}
 }

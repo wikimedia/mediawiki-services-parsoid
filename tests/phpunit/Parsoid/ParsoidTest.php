@@ -4,6 +4,7 @@ namespace Test\Parsoid;
 
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
+use Parsoid\Utils\PHPUtils;
 
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockPageConfig;
@@ -154,8 +155,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $wt );
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
 	public function provideHtml2Html() {
+		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			[
 				'redlinks',
@@ -167,8 +168,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			],
 			[
 				'variant',
-				'<p>абвг abcd x</p>',
-				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
+				// bogus <meta> w/ a data-parsoid attribute, just to verify
+				// that data-parsoid attributes are preserved and not erased.
+				'<meta data-parsoid=\'{"test":1}\'><p>абвг abcd x</p>',
+				'<meta data-parsoid=\'{"test":1}\'/><p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
 				[
 					'body_only' => true,
 					'pageLanguage' => 'sr',
@@ -205,6 +208,92 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				]
 			]
 		];
+		// phpcs:enable Generic.Files.LineLength.TooLong
 	}
 
+	/**
+	 * @covers ::pb2pb
+	 * @dataProvider providePb2Pb
+	 */
+	public function testPb2Pb( $update, $input, $expected, $testOpts = [] ) {
+		$opts = [];
+
+		$siteConfig = new MockSiteConfig( $opts );
+		$dataAccess = new MockDataAccess( $opts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new MockPageContent( [ 'main' => '' ] );
+		$pageConfig = new MockPageConfig( [
+			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
+		], $pageContent );
+		$pb = new PageBundle(
+			$input['html'],
+			PHPUtils::jsonDecode( $input['parsoid'] ?? 'null' ),
+			PHPUtils::jsonDecode( $input['mw'] ?? 'null' ),
+			$input['version'] ?? null,
+			$input['headers'] ?? null
+		);
+		$out = $parsoid->pb2pb( $pageConfig, $update, $pb, $testOpts );
+		$this->assertTrue( $out instanceof PageBundle );
+		$this->assertEquals( $expected['html'], $out->html );
+		$this->assertEquals( $expected['parsoid'] ?? 'null', PHPUtils::jsonEncode( $out->parsoid ) );
+		$this->assertEquals( $expected['mw'] ?? 'null', PHPUtils::jsonEncode( $out->mw ) );
+		$this->assertEquals( $expected['version'] ?? null, $out->version );
+		if ( isset( $expected['headers'] ) ) {
+			$this->assertEquals( $expected['headers'] ?? null, $out->headers );
+		}
+	}
+
+	public function providePb2Pb() {
+		// phpcs:disable Generic.Files.LineLength.TooLong
+		return [
+			[
+				'variant',
+				[
+					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><b id="mwAg">abcd</b></p></body>',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,11,0,0]},"mwAQ":{"dsr":[0,10,0,0]},"mwAg":{"dsr":[0,10,3,3]}},"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+				],
+				[
+					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,11,0,0]},"mwAQ":{"dsr":[0,10,0,0]},"mwAg":{"dsr":[0,10,3,3]}},"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+					'pageLanguage' => 'sr',
+					'variant' => [
+						'source' => 'sr-el',
+						'target' => 'sr-ec',
+					]
+				]
+			],
+			// Note that id attributes are preserved, even if no data-parsoid
+			// is provided.
+			[
+				'variant',
+				[
+					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><b id="mwAg">abcd</b></p></body>',
+					'parsoid' => null,
+					'mw' => null,
+				],
+				[
+					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
+					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+					'pageLanguage' => 'sr',
+					'variant' => [
+						'source' => 'sr-el',
+						'target' => 'sr-ec',
+					]
+				]
+			],
+		];
+		// phpcs:enable Generic.Files.LineLength.TooLong
+	}
 }

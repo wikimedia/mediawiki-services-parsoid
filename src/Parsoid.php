@@ -243,7 +243,7 @@ class Parsoid {
 	 * Update the supplied HTML based on the `$update` type.
 	 *
 	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
-	 *   'variant': Hydrates the HTML based on the supplied variant.
+	 *   'variant': Converts the HTML based on the supplied variant.
 	 *
 	 * Note that these are DOM transforms, and not roundtrips through wikitext.
 	 *
@@ -272,12 +272,22 @@ class Parsoid {
 		if ( $update === 'redlinks' ) {
 			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
 		} elseif ( $update === 'variant' ) {
+			DOMDataUtils::visitAndLoadDataAttribs(
+				DOMCompat::getBody( $doc ), [ 'markNew' => true ]
+			);
 			// Note that `maybeConvert` could still be a no-op, in case the
 			// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
 			// is a base language code or otherwise invalid.
 			LanguageConverter::maybeConvert(
 				$env, $doc, $options['variant']['target'],
 				$options['variant']['source'] ?? null
+			);
+			DOMDataUtils::visitAndStoreDataAttribs(
+				DOMCompat::getBody( $doc ), [
+					'discardDataParsoid' => $env->discardDataParsoid,
+					'storeInPageBundle' => $env->pageBundle,
+					'env' => $env,
+				]
 			);
 			// Ensure there's a <head>
 			if ( !DOMCompat::getHead( $doc ) ) {
