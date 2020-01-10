@@ -1021,22 +1021,21 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		$pageConfig = $env->getPageConfig();
 
-		$html = $parsoid->html2html(
-			$pageConfig, 'variant', $revision['html']['body'],
+		$pb = new PageBundle(
+			$revision['html']['body'],
+			$revision['data-parsoid']['body'] ?? null,
+			$revision['data-mw']['body'] ?? null,
+			$env->getInputContentVersion(),
+			$headers
+		);
+		$out = $parsoid->pb2pb(
+			$pageConfig, 'variant', $pb,
 			[
 				'variant' => [
 					'source' => $source,
 					'target' => $target,
 				]
 			],
-			$headers
-		);
-
-		$out = new PageBundle(
-			$html,
-			$revision['data-parsoid']['body'] ?? null,
-			$revision['data-mw']['body'] ?? null,
-			$env->getInputContentVersion(),
 			$headers
 		);
 

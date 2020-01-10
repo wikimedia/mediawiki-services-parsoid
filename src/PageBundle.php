@@ -4,6 +4,9 @@ declare( strict_types = 1 );
 namespace Parsoid;
 
 use Composer\Semver\Semver;
+use Parsoid\Utils\ContentUtils;
+use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 
 /**
  * PORT-FIXME: This is just a placeholder for data that was previously passed
@@ -42,6 +45,12 @@ class PageBundle {
 		$this->mw = $mw;
 		$this->version = $version;
 		$this->headers = $headers;
+	}
+
+	public function toHtml(): string {
+		$doc = DOMUtils::parseHTML( $this->html );
+		DOMDataUtils::applyPageBundle( $doc, $this );
+		return ContentUtils::toXML( $doc );
 	}
 
 	/**

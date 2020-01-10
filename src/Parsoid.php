@@ -13,8 +13,10 @@ use Parsoid\Language\LanguageConverter;
 use Parsoid\Logger\LintLogger;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
+use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
+use Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
 
 class Parsoid {
 
@@ -212,6 +214,32 @@ class Parsoid {
 	}
 
 	/**
+	 * Update the supplied PageBundle based on the `$update` type.
+	 *
+	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
+	 *   'variant': Converts the HTML based on the supplied variant.
+	 *
+	 * Note that these are DOM transforms, and not roundtrips through wikitext.
+	 *
+	 * @param PageConfig $pageConfig
+	 * @param string $update 'redlinks'|'variant'
+	 * @param PageBundle $pb
+	 * @param array|null $options
+	 * @param array|null &$headers
+	 * @return PageBundle
+	 */
+	public function pb2pb(
+		PageConfig $pageConfig, string $update, PageBundle $pb,
+		array $options = [], array &$headers = null
+	): PageBundle {
+		return $this->html2html(
+			$pageConfig, $update, $pb->toHtml(),
+			[ 'pageBundle' => true ] + $options,
+			$headers
+		);
+	}
+
+	/**
 	 * Update the supplied HTML based on the `$update` type.
 	 *
 	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
@@ -224,17 +252,23 @@ class Parsoid {
 	 * @param string $html
 	 * @param array|null $options
 	 * @param array|null &$headers
-	 * @return string
+	 * @return string|PageBundle
 	 */
 	public function html2html(
 		PageConfig $pageConfig, string $update, string $html,
 		array $options = [], array &$headers = null
-	): string {
+	) {
 		$envOptions = [];
+		if ( isset( $options['pageBundle'] ) ) {
+			$envOptions['pageBundle'] = true;
+		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$doc = $env->createDocument( $html );
+		ContentUtils::convertOffsets(
+			$env, $doc, $env->getRequestOffsetType(), 'byte'
+		);
 		if ( $update === 'redlinks' ) {
 			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
 		} elseif ( $update === 'variant' ) {
@@ -270,13 +304,28 @@ class Parsoid {
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
+		( new ConvertOffsets() )->run( DOMCompat::getBody( $doc ), $env );
 		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		return ContentUtils::toXML( $node, [
-			'innerXML' => $body_only,
-		] );
+		if ( $env->pageBundle ) {
+			DOMDataUtils::injectPageBundle( $doc, DOMDataUtils::getPageBundle( $doc ) );
+			$out = ContentUtils::extractDpAndSerialize( $node, [
+				'innerXML' => $body_only,
+			] );
+			return new PageBundle(
+				$out['html'],
+				get_object_vars( $out['pb']->parsoid ),
+				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
+				$env->getOutputContentVersion(),
+				$headers
+			);
+		} else {
+			return ContentUtils::toXML( $node, [
+				'innerXML' => $body_only,
+			] );
+		}
 	}
 
 }
