@@ -135,6 +135,24 @@ if ( $parsoidMode === 'integrated' ) {
 				ob_end_flush();
 			}
 		}
+
+		// Implementation copied from core:
+		/**
+		 * Wrapper for posix_isatty()
+		 * We default as considering stdin a tty (for nice readline methods)
+		 * but treating stdout as not a tty to avoid color codes
+		 *
+		 * @param mixed $fd File descriptor
+		 * @return bool
+		 */
+		// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+		public static function posix_isatty( $fd ) {
+			if ( !function_exists( 'posix_isatty' ) ) {
+				return !$fd;
+			} else {
+				return posix_isatty( $fd );
+			}
+		}
 	}
 
 	define( 'PARSOID_RUN_MAINTENANCE_IF_MAIN', __DIR__ . '/doMaintenance.php' );

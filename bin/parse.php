@@ -557,7 +557,7 @@ class Parse extends \Parsoid\Tools\Maintenance {
 			}
 		}
 
-		if ( posix_isatty( STDOUT ) ) {
+		if ( self::posix_isatty( STDOUT ) ) {
 			$this->output( "\n" );
 		}
 	}
