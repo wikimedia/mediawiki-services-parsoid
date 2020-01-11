@@ -27,7 +27,7 @@ var PEG = require('wikipeg');
 var Util = require('../lib/utils/Util.js').Util;
 var ScriptUtils = require('../tools/ScriptUtils.js').ScriptUtils;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
-const ParsoidExtApi = require('../lib/config/extapi.js').versionCheck('^0.10.0');
+const ParsoidExtApi = require('../lib/config/extapi.js').versionCheck('^0.11.0');
 
 // Fetch up some of our wacky parser bits...
 var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWParserEnvironment;
