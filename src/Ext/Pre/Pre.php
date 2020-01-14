@@ -10,7 +10,6 @@ use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * The `<pre>` extension tag shadows the html pre tag, but has different
@@ -23,7 +22,7 @@ class Pre extends ExtensionTag implements Extension {
 		$doc = $extApi->getEnv()->createDocument();
 		$pre = $doc->createElement( 'pre' );
 
-		Sanitizer::applySanitizedArgs( $extApi->getEnv(), $pre, $extArgs );
+		$extApi->sanitizeArgs( $pre, $extArgs );
 		DOMDataUtils::getDataParsoid( $pre )->stx = 'html';
 
 		// Support nowikis in pre.  Do this before stripping newlines, see test,
