@@ -1964,3 +1964,15 @@ Hi ho
 !! html/parsoid
 
 !! end
+
+!! test
+Serialize reference tags by themselves on a line
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p>hi <sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Main_Page#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text" data-parsoid="{}">[1]</span></a></sup></p><div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><a href="./Main_Page#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">ho</span></li></ol></div><p>hi ho</p>
+!! wikitext
+hi <ref>ho</ref>
+<references />
+hi ho
+!! end

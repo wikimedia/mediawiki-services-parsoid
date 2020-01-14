@@ -603,6 +603,16 @@ class References extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
+		// Serialize new references tags on a new line.
+		if ( WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode ) ) {
+			return [ 'min' => 1, 'max' => 2 ];
+		} else {
+			return false;
+		}
+	}
+
+	/** @inheritDoc */
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, DOMElement $refs, callable $defaultHandler
 	): ?DOMNode {

@@ -96,6 +96,24 @@ abstract class ExtensionTag {
 	}
 
 	/**
+	 * Number of newlines which should follow this tag in serialization.
+	 *
+	 * FIXME: Extensions should not know about anything outside their tag so
+	 * this will probably be replaced by something that informs the serializer
+	 * about the expected behavior on a more abstract level (such as block vs
+	 * inline).
+	 *
+	 * @param DOMElement $node
+	 * @param DOMNode $otherNode
+	 * @param SerializerState $state
+	 * @return array|false Return false to use the default
+	 */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
+		/* no special newlines-before behavior */
+		return false;
+	}
+
+	/**
 	 * Some extensions require the ability to modify the argument
 	 * dictionary.
 	 * @param ParsoidExtensionApi $extApi

@@ -136,7 +136,33 @@ class EncapsulatedContentHandler extends DOMHandler {
 		}
 
 		// default behavior
-		return [ 'min' => 0, 'max' => 2 ];
+		return [];
+	}
+
+	/** @inheritDoc */
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+		$env = $state->getEnv();
+		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
+		$dataMw = DOMDataUtils::getDataMw( $node );
+
+		// Handle native extension constraints.
+		if ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf )
+			// Only apply to plain extension tags.
+			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
+		) {
+			if ( isset( $dataMw->name ) ) {
+				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
+				if ( $ext ) {
+					$ret = $ext->after( $node, $otherNode, $state );
+					if ( $ret !== false ) {
+						return $ret;
+					}
+				}
+			}
+		}
+
+		// default behavior
+		return [];
 	}
 
 	/**
