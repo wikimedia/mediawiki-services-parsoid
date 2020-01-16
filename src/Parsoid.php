@@ -306,6 +306,8 @@ class Parsoid {
 		);
 		// Prefer the passed in content model
 		$newPB->contentmodel = $pb->contentmodel ?? $newPB->contentmodel;
+		// Prefer the passed in version, since this was just a transformation
+		$newPB->version = $pb->version ?? $newPB->version;
 		return $newPB;
 	}
 
@@ -344,25 +346,18 @@ class Parsoid {
 		ContentUtils::convertOffsets(
 			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
+		DOMDataUtils::visitAndLoadDataAttribs(
+			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
+		);
 		if ( $update === 'redlinks' ) {
 			( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
 		} elseif ( $update === 'variant' ) {
-			DOMDataUtils::visitAndLoadDataAttribs(
-				DOMCompat::getBody( $doc ), [ 'markNew' => true ]
-			);
 			// Note that `maybeConvert` could still be a no-op, in case the
 			// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
 			// is a base language code or otherwise invalid.
 			LanguageConverter::maybeConvert(
 				$env, $doc, $options['variant']['target'],
 				$options['variant']['source'] ?? null
-			);
-			DOMDataUtils::visitAndStoreDataAttribs(
-				DOMCompat::getBody( $doc ), [
-					'discardDataParsoid' => $env->discardDataParsoid,
-					'storeInPageBundle' => $env->pageBundle,
-					'env' => $env,
-				]
 			);
 			// Ensure there's a <head>
 			if ( !DOMCompat::getHead( $doc ) ) {
@@ -389,6 +384,13 @@ class Parsoid {
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
+		DOMDataUtils::visitAndStoreDataAttribs(
+			DOMCompat::getBody( $doc ), [
+				'discardDataParsoid' => $env->discardDataParsoid,
+				'storeInPageBundle' => $env->pageBundle,
+				'env' => $env,
+			]
+		);
 		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ) );
 		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.

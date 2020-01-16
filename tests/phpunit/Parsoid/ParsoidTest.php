@@ -248,6 +248,43 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			[
+				'redlinks',
+				[
+					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><a rel="mw:WikiLink" href="./Not_an_article" title="Not an article" id="mwAg">abcd</a></p>' . "\n" . '</body>',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,24,0,0]},"mwAQ":{"dsr":[0,23,0,0]},"mwAg":{"stx":"piped","a":{"href":"./Not_an_article"},"sa":{"href":"Not an article"},"dsr":[0,23,17,2]}},"offsetType":"byte"}',
+					'mw' => '{"ids":[]}}',
+				],
+				[
+					'html' => '<p id="mwAQ"><a rel="mw:WikiLink" href="./Not_an_article" title="Not an article" id="mwAg" class="new">abcd</a></p>' . "\n",
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,24,0,0]},"mwAQ":{"dsr":[0,23,0,0]},"mwAg":{"stx":"piped","a":{"href":"./Not_an_article"},"sa":{"href":"Not an article"},"dsr":[0,23,17,2]}},"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+				],
+			],
+			// Note that id attributes are preserved, even if no data-parsoid
+			// is provided.
+			[
+				'redlinks',
+				[
+					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><a id="mwAg" href="./Not_an_article">abcd</a></p></body>',
+					'parsoid' => null,
+					'mw' => null,
+				],
+				[
+					'html' => '<p id="mwAQ"><a id="mwAg" href="./Not_an_article">abcd</a></p>',
+					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+				],
+			],
+			// Language Variant conversion endpoint
+			[
 				'variant',
 				[
 					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><b id="mwAg">abcd</b></p></body>',

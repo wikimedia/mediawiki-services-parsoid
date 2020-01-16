@@ -961,19 +961,21 @@ abstract class ParsoidHandler extends Handler {
 	) {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
-		$html = $parsoid->html2html(
-			$pageConfig, 'redlinks', $revision['html']['body'], [], $headers
-		);
-
-		$out = new PageBundle(
-			$html,
+		$pb = new PageBundle(
+			$revision['html']['body'],
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
 			$attribs['envOptions']['inputContentVersion'],
-			$headers,
+			$revision['html']['headers'] ?? null,
 			$revision['contentmodel'] ?? null
 		);
+
+		$out = $parsoid->pb2pb(
+			$pageConfig, 'redlinks', $pb, []
+		);
+
 		$this->validatePb( $out, $attribs['envOptions']['inputContentVersion'] );
+
 		$response = $this->getResponseFactory()->createJson( $out->responseData() );
 		FormatHelper::setContentType(
 			$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version

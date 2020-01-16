@@ -431,11 +431,20 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			// Language conversion
+			// Language conversion and Red link marking are done here
+			// *before* we cleanup and save data-parsoid because they
+			// are also used in pb2pb/html2html passes, and we want to
+			// keep their input/output formats consistent.
 			[
 				'Processor' => LangConverter::class,
 				'shortcut' => 'lang-converter',
 				'skipNested' => true
+			],
+			[
+				'Processor' => AddRedLinks::class,
+				'shortcut' => 'redlinks',
+				'skipNested' => true,
+				'omit' => $env->noDataAccess(),
 			],
 			[
 				'name' => 'DisplaySpace',
@@ -493,12 +502,6 @@ class DOMPostProcessor extends PipelineStage {
 						}
 					]
 				]
-			],
-			[
-				'Processor' => AddRedLinks::class,
-				'shortcut' => 'redlinks',
-				'skipNested' => true,
-				'omit' => $env->noDataAccess(),
 			],
 		] );
 
