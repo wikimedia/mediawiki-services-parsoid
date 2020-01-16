@@ -1026,7 +1026,7 @@ abstract class ParsoidHandler extends Handler {
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
 			$env->getInputContentVersion(),
-			$headers
+			$revision['html']['headers'] ?? null
 		);
 		$out = $parsoid->pb2pb(
 			$pageConfig, 'variant', $pb,
@@ -1035,8 +1035,7 @@ abstract class ParsoidHandler extends Handler {
 					'source' => $source,
 					'target' => $target,
 				]
-			],
-			$headers
+			]
 		);
 
 		$response = $this->getResponseFactory()->createJson( $out->responseData() );

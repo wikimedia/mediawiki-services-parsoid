@@ -225,17 +225,17 @@ class Parsoid {
 	 * @param string $update 'redlinks'|'variant'
 	 * @param PageBundle $pb
 	 * @param array|null $options
-	 * @param array|null &$headers
 	 * @return PageBundle
 	 */
 	public function pb2pb(
 		PageConfig $pageConfig, string $update, PageBundle $pb,
-		array $options = [], array &$headers = null
+		array $options = []
 	): PageBundle {
 		return $this->html2html(
 			$pageConfig, $update, $pb->toHtml(),
-			[ 'pageBundle' => true ] + $options,
-			$headers
+			[ 'pageBundle' => true ] + $options
+			# headers are returned in the pagebundle; we don't need the
+			# $headers out-argument
 		);
 	}
 
@@ -251,8 +251,13 @@ class Parsoid {
 	 * @param string $update 'redlinks'|'variant'
 	 * @param string $html
 	 * @param array|null $options
-	 * @param array|null &$headers
-	 * @return string|PageBundle
+	 * @param array|null &$headers Output argument for HTTP headers
+	 *   which should be included in the response; when a PageBundle
+	 *   is returned this argument is unnecessary since the PageBundle
+	 *   contains the HTTP output headers.
+	 * @return string|PageBundle The ouput HTML string, with embedded
+	 *   attributes, unless $options['pageBundle'] is true, in which case
+	 *   a PageBundle is returned.
 	 */
 	public function html2html(
 		PageConfig $pageConfig, string $update, string $html,
