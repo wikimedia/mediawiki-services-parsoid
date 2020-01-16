@@ -17,7 +17,7 @@ use Parsoid\Utils\PHPUtils;
 	 */
 }
 
-testfile = chunk+
+testfile = format? chunk+
 
 eol = "\n"
 
@@ -47,6 +47,13 @@ chunk =
 	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
 	/ hooks
 	/ functionhooks
+
+format =
+	"!!" ws? version_keyword ws+ v:$([0-9]+) rest_of_line {
+		return [ 'type' => 'version', 'text' => $v ];
+	}
+
+version_keyword = [vV] [eE] [rR] [sS] [iI] [oO] [nN]
 
 comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }

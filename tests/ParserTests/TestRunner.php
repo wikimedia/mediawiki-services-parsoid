@@ -158,6 +158,9 @@ class TestRunner {
 	/** @var Test[] */
 	private $testCases;
 
+	/** @var int */
+	private $testFormat;
+
 	/** @var Stats */
 	private $stats;
 
@@ -274,7 +277,14 @@ class TestRunner {
 	private function buildTests(): void {
 		// Startup by loading .txt test file
 		$content = file_get_contents( $this->testFilePath );
-		$rawTestItems = ( new Grammar() )->parse( $content );
+		$parsedTests = ( new Grammar() )->parse( $content );
+		$testFormat = $parsedTests[0];
+		$rawTestItems = $parsedTests[1];
+		if ( $testFormat === null ) {
+			$this->testFormat = 1;
+		} else {
+			$this->testFormat = intval( $testFormat['text'] );
+		}
 		$this->testCases = [];
 		foreach ( $rawTestItems as $item ) {
 			if ( $item['type'] === 'article' ) {

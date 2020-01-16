@@ -4,6 +4,7 @@
  */
 
 testfile =
+    format?
     chunk+
 
 
@@ -37,7 +38,16 @@ chunk =
     hooks /
     functionhooks
 
+format =
+    "!!" ws? version_keyword ws+ v:$([0-9]+) rest_of_line
+{
+    return {
+        type: 'version',
+        text: v
+    }
+}
 
+version_keyword = [vV] [eE] [rR] [sS] [iI] [oO] [nN]
 
 comment =
     "#" text:rest_of_line

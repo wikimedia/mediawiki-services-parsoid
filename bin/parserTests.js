@@ -919,7 +919,14 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 	this.testParserFilePath = path.join(__dirname, '../tests/ParserTests/parserTests.pegjs');
 	this.testParser = PEG.buildParser(yield fs.readFile(this.testParserFilePath, 'utf8'));
 
-	this.cases = yield this.getTests(options);
+	const parsedTests = yield this.getTests(options);
+	this.testFormat = parsedTests[0];
+	this.cases = parsedTests[1];
+	if (this.testFormat && this.testFormat.text) {
+		this.testFormat = +(this.testFormat.text);
+	} else {
+		this.testFormat = 1;
+	}
 
 	if (options.maxtests) {
 		var n = Number(options.maxtests);
