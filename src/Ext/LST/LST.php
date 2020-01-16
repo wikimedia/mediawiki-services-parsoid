@@ -13,7 +13,7 @@ use Parsoid\Utils\DOMDataUtils;
 class LST extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
-	public function fromHTML( DOMElement $node, SerializerState $state,
+	public function fromDOM( DOMElement $node, SerializerState $state,
 							  bool $wrapperUnmodified ): string {
 		// TODO: We're keeping this serial handler around to remain backwards
 		// compatible with stored content version 1.3.0 and below.  Remove it

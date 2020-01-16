@@ -80,7 +80,7 @@ class Ref extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function fromHTML(
+	public function fromDOM(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
 	): string {
 		$startTagSrc = $state->serializer->serializeExtensionStartTag( $node, $state );

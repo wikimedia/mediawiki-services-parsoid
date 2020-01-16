@@ -374,7 +374,7 @@ class TemplateDataTest extends TestCase {
 
 	/**
 	 * @covers \Parsoid\Parsoid::html2wikitext
-	 * @covers \Parsoid\WikitextContentModelHandler::fromHTML
+	 * @covers \Parsoid\WikitextContentModelHandler::fromDOM
 	 * @dataProvider defineTestData
 	 */
 	public function testTemplateData(
@@ -421,7 +421,7 @@ class TemplateDataTest extends TestCase {
 
 	/**
 	 * @covers \Parsoid\Parsoid::html2wikitext
-	 * @covers \Parsoid\WikitextContentModelHandler::fromHTML
+	 * @covers \Parsoid\WikitextContentModelHandler::fromDOM
 	 * @dataProvider defineVersionTestData
 	 */
 	public function testTemplateDataVersion(

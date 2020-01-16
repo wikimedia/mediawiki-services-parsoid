@@ -70,7 +70,7 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Ext\Nowiki\Nowiki::fromHTML
+	 * @covers \Parsoid\Ext\Nowiki\Nowiki::fromDOM
 	 */
 	public function testFromHTML() {
 		$state = $this->getState();
@@ -78,7 +78,7 @@ class NowikiTest extends TestCase {
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki"></span>', 'span' );
-		$wt = $nowiki->fromHTML( $node, $state, true );
+		$wt = $nowiki->fromDOM( $node, $state, true );
 		$this->assertSame( '<nowiki/>', $wt );
 
 		$state = $this->getState();
@@ -86,7 +86,7 @@ class NowikiTest extends TestCase {
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki">xxx</span>', 'span' );
-		$wt = $nowiki->fromHTML( $node, $state, true );
+		$wt = $nowiki->fromDOM( $node, $state, true );
 		$this->assertSame( '<nowiki>xxx</nowiki>', $wt );
 	}
 

@@ -57,7 +57,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		//
 		// So, we're forced to trade off the correctness for usability.
 		if ( $selserData->oldHTML === null ) {
-			$doc = $this->toHTML( $env );
+			$doc = $this->toDOM( $env );
 		} else {
 			$doc = $env->createDocument( $selserData->oldHTML );
 		}
@@ -74,7 +74,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @param Env $env
 	 * @return DOMDocument
 	 */
-	public function toHTML( Env $env ): DOMDocument {
+	public function toDOM( Env $env ): DOMDocument {
 		return $env->getPipelineFactory()->parse( $env->getPageMainContent() );
 	}
 
@@ -84,7 +84,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @param SelserData|null $selserData
 	 * @return string
 	 */
-	public function fromHTML(
+	public function fromDOM(
 		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string {
 		$serializerOpts = [

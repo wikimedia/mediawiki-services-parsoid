@@ -810,7 +810,7 @@ class TestRunner {
 		);
 
 		$handler = $env->getContentHandler();
-		$doc = $handler->toHTML( $env );
+		$doc = $handler->toDOM( $env );
 		return DOMCompat::getBody( $doc );
 	}
 
@@ -835,7 +835,7 @@ class TestRunner {
 			}
 		}
 		$handler = $env->getContentHandler();
-		return $handler->fromHTML( $env, $body->ownerDocument, $selserData );
+		return $handler->fromDOM( $env, $body->ownerDocument, $selserData );
 	}
 
 	/**

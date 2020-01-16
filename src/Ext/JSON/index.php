@@ -48,7 +48,7 @@ $PARSE_ERROR_HTML =
  * @return {Document}
  * @method
  */
-JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$PARSE_ERROR_HTML, &$DOMDataUtils, &$addMetaData ) {
+JSONExt::prototype::toDOM = Promise::method( function ( $env ) use ( &$PARSE_ERROR_HTML, &$DOMDataUtils, &$addMetaData ) {
 		$document = $env->createDocument( '<!DOCTYPE html><html><body>' );
 		$rootValueTable = null;
 		$objectTable = null;
@@ -161,7 +161,7 @@ JSONExt::prototype::toHTML = Promise::method( function ( $env ) use ( &$PARSE_ER
  * @return {string}
  * @method
  */
-JSONExt::prototype::fromHTML = Promise::method( function ( $env, $body, $useSelser ) use ( &$DOMUtils ) {
+JSONExt::prototype::fromDOM = Promise::method( function ( $env, $body, $useSelser ) use ( &$DOMUtils ) {
 		$rootValueTable = null;
 		$objectTable = null;
 		$objectRow = null;

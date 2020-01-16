@@ -55,7 +55,7 @@ class Nowiki extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function fromHTML(
+	public function fromDOM(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
 	): string {
 		if ( !$node->hasChildNodes() ) {

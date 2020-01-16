@@ -70,7 +70,7 @@ abstract class ExtensionTag {
 	 * @param bool $wrapperUnmodified
 	 * @return string|false Return false to use the default serialization.
 	 */
-	public function fromHTML(
+	public function fromDOM(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
 	) {
 		/* Use default serialization */

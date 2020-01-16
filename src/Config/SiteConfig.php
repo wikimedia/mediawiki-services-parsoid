@@ -898,7 +898,7 @@ abstract class SiteConfig {
 	protected function registerNativeExtension( Extension $ext ): void {
 		$extConfig = $ext->getConfig();
 
-		// This is for wt2html toDOM, html2wt fromHTML, and linter functionality
+		// This is for wt2html toDOM, html2wt fromDOM, and linter functionality
 		foreach ( $extConfig['tags'] as $tagConfig ) {
 			$lowerTagName = mb_strtolower( $tagConfig['name'] );
 			$this->nativeExtConfig['allTags'][$lowerTagName] = true;

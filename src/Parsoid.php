@@ -95,7 +95,7 @@ class Parsoid {
 			'wikitextSize', mb_strlen( $env->getPageMainContent() )
 		);
 		$handler = $env->getContentHandler();
-		return [ $env, $handler->toHTML( $env ) ];
+		return [ $env, $handler->toDOM( $env ) ];
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Parsoid {
 		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
 		$doc = $env->createDocument( $html );
 		$handler = $env->getContentHandler();
-		return $handler->fromHTML( $env, $doc, $selserData );
+		return $handler->fromDOM( $env, $doc, $selserData );
 	}
 
 	/**

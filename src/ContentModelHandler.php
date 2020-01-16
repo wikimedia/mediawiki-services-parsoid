@@ -13,7 +13,7 @@ abstract class ContentModelHandler {
 	 * @param Env $env
 	 * @return DOMDocument
 	 */
-	abstract public function toHTML( Env $env ): DOMDocument;
+	abstract public function toDOM( Env $env ): DOMDocument;
 
 	/**
 	 * @param Env $env
@@ -21,7 +21,7 @@ abstract class ContentModelHandler {
 	 * @param SelserData|null $selserData
 	 * @return string
 	 */
-	abstract public function fromHTML(
+	abstract public function fromDOM(
 		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string;
 

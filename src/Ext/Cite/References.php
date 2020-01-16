@@ -561,7 +561,7 @@ class References extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function fromHTML(
+	public function fromDOM(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
 	): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
