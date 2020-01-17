@@ -65,13 +65,13 @@ abstract class ExtensionTag {
 
 	/**
 	 * Serialize a DOM node created by this extension to wikitext.
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $node
-	 * @param SerializerState $state
 	 * @param bool $wrapperUnmodified
 	 * @return string|false Return false to use the default serialization.
 	 */
 	public function fromDOM(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		/* Use default serialization */
 		return false;

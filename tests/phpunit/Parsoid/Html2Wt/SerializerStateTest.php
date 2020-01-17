@@ -31,15 +31,18 @@ class SerializerStateTest extends TestCase {
 			->method( 'trace' )
 			->willReturn( null );
 		/** @var WikitextSerializer $serializer */
+		$serializer->env = new MockEnv( [] );
 		return $serializer;
 	}
 
 	private function getState(
 		array $options = [], MockEnv $env = null, WikitextSerializer $serializer = null
 	) {
-		$this->assertFalse( $env && $serializer, 'Invalid arguments to getState' );
+		if ( !$env ) {
+			$env = new MockEnv( [] );
+		}
 		if ( !$serializer ) {
-			$serializer = new WikitextSerializer( [ 'env' => $env ?? new MockEnv( [] ) ] );
+			$serializer = new WikitextSerializer( [ 'env' => $env ] );
 		}
 		return new SerializerState( $serializer, $options );
 	}

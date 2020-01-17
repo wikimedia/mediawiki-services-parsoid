@@ -9,6 +9,7 @@ use DOMNode;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -223,6 +224,9 @@ class SerializerState {
 	/** @var WikitextSerializer */
 	public $serializer;
 
+	/** @var ParsoidExtensionAPI */
+	public $extApi;
+
 	/** @var ConstrainedText|string The serialized output */
 	public $out = '';
 
@@ -293,6 +297,7 @@ class SerializerState {
 	public function __construct( WikitextSerializer $serializer, array $options = [] ) {
 		$this->env = $serializer->env;
 		$this->serializer = $serializer;
+		$this->extApi = new ParsoidExtensionAPI( $this->env, [ 'html2wt' => [ 'state' => $this ] ] );
 		foreach ( $options as $name => $option ) {
 			// PORT-FIXME validate
 			if ( !( $option instanceof Env ) ) {

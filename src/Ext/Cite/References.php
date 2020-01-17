@@ -101,6 +101,7 @@ class References extends ExtensionTag {
 	}
 
 	private static function extractRefFromNode(
+		ParsoidExtensionAPI $extApi,
 		DOMElement $node, ReferencesData $refsData, ?string $referencesAboutId = null,
 		?string $referencesGroup = '', array &$nestedRefsHTML = []
 	): void {
@@ -127,7 +128,7 @@ class References extends ExtensionTag {
 		$cDp = DOMDataUtils::getDataParsoid( $c );
 		$refDmw = DOMDataUtils::getDataMw( $c );
 		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
-			self::processRefs( $env, $refsData, $c );
+			self::processRefs( $extApi, $refsData, $c );
 		}
 		DOMDataUtils::visitAndStoreDataAttribs( $c );
 
@@ -365,30 +366,33 @@ class References extends ExtensionTag {
 	}
 
 	private static function processEmbeddedRefs(
-		Env $env, ReferencesData $refsData, string $str
+		ParsoidExtensionAPI $extApi, ReferencesData $refsData, string $str
 	): string {
-		$dom = ContentUtils::ppToDOM( $env, $str );
-		self::processRefs( $env, $refsData, $dom );
+		$dom = ContentUtils::ppToDOM( $extApi->getEnv(), $str );
+		self::processRefs( $extApi, $refsData, $dom );
 		return ContentUtils::ppToXML( $dom, [ 'innerXML' => true ] );
 	}
 
 	/**
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param ReferencesData $refsData
 	 * @param DOMElement $node
 	 */
-	public static function processRefs( Env $env, ReferencesData $refsData, DOMElement $node ): void {
+	public static function processRefs(
+		ParsoidExtensionAPI $extApi, ReferencesData $refsData, DOMElement $node
+	): void {
 		$child = $node->firstChild;
 		while ( $child !== null ) {
 			$nextChild = $child->nextSibling;
 			if ( $child instanceof DOMElement ) {
 				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
-					self::extractRefFromNode( $child, $refsData );
+					self::extractRefFromNode( $extApi, $child, $refsData );
 				} elseif ( DOMUtils::matchTypeOf( $child, '#^mw:Extension/references$#' ) ) {
 					$referencesId = $child->getAttribute( 'about' ) ?? '';
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
 					$nestedRefsHTML = [];
 					self::processRefsInReferences(
+						$extApi,
 						$refsData,
 						$child,
 						$referencesId,
@@ -397,79 +401,15 @@ class References extends ExtensionTag {
 					);
 					self::insertReferencesIntoDOM( $child, $refsData, $nestedRefsHTML );
 				} else {
-					/* -----------------------------------------------------------------
-					 * FIXME(subbu): This works but feels very special-cased in 2 ways:
-					 *
-					 * 1. special cased to images & expanded attrs vs. any node that might
-					 *    have serialized HTML embedded in data-mw
-					 * 2. special cased to global cite handling -- the general scenario
-					 *    is DOM post-processors that do different things on the
-					 *    top-level vs not.
-					 *    - Cite needs to process these fragments in the context of the
-					 *      top-level page, and has to be done in order of how the nodes
-					 *      are encountered.
-					 *    - DOM cleanup can be done on embedded fragments without
-					 *      any page-level context and in any order.
-					 *    - So, some variability here.
-					 *
-					 * We should be running dom.cleanup.js passes on embedded html
-					 * in data-mw and other attributes. Since correctness doesn't
-					 * depend on that cleanup, I am not adding more special-case
-					 * code in dom.cleanup.js.
-					 *
-					 * Doing this more generically will require creating a DOMProcessor
-					 * class and adding state to it.
-					 *
-					 * See T214994
-					 * ----------------------------------------------------------------- */
-					// Expanded attributes
-					if ( DOMUtils::matchTypeOf( $child, '/^mw:ExpandedAttrs$/' ) ) {
-						$dmw = DOMDataUtils::getDataMw( $child );
-						if ( isset( $dmw->attribs ) && count( $dmw->attribs ) > 0 ) {
-							$attribs = &$dmw->attribs[0];
-							foreach ( $attribs as &$a ) {
-								if ( isset( $a->html ) ) {
-									$a->html = self::processEmbeddedRefs( $env, $refsData, $a->html );
-								}
-							}
+					// Look for <ref>s embedded in data attributes
+					$extApi->processHiddenHTMLInDataAttributes( $child,
+						function ( string $html ) use ( $extApi, $refsData ) {
+							return self::processEmbeddedRefs( $extApi, $refsData, $html );
 						}
-					}
+					);
 
-					// Language variant markup
-					if ( DOMUtils::matchTypeOf( $child, '/^mw:LanguageVariant$/' ) ) {
-						$dmwv = DOMDataUtils::getJSONAttribute( $child, 'data-mw-variant', null );
-						if ( $dmwv ) {
-							if ( isset( $dmwv->disabled ) ) {
-								$dmwv->disabled->t = self::processEmbeddedRefs( $env, $refsData, $dmwv->disabled->t );
-							}
-							if ( isset( $dmwv->twoway ) ) {
-								foreach ( $dmwv->twoway as $l ) {
-									$l->t = self::processEmbeddedRefs( $env, $refsData, $l->t );
-								}
-							}
-							if ( isset( $dmwv->oneway ) ) {
-								foreach ( $dmwv->oneway as $l ) {
-									$l->f = self::processEmbeddedRefs( $env, $refsData, $l->f );
-									$l->t = self::processEmbeddedRefs( $env, $refsData, $l->t );
-								}
-							}
-							if ( isset( $dmwv->filter ) ) {
-								$dmwv->filter->t = self::processEmbeddedRefs( $env, $refsData, $dmwv->filter->t );
-							}
-							DOMDataUtils::setJSONAttribute( $child, 'data-mw-variant', $dmwv );
-						}
-					}
-
-					// Inline media -- look inside the data-mw attribute
-					if ( WTUtils::isInlineMedia( $child ) ) {
-						$dmw = DOMDataUtils::getDataMw( $child );
-						$caption = $dmw->caption ?? null;
-						if ( $caption ) {
-							$dmw->caption = self::processEmbeddedRefs( $env, $refsData, $caption );
-						}
-					}
 					if ( $child->hasChildNodes() ) {
-						self::processRefs( $env, $refsData, $child );
+						self::processRefs( $extApi, $refsData, $child );
 					}
 				}
 			}
@@ -484,6 +424,7 @@ class References extends ExtensionTag {
 	 *   <references> <ref>bar</ref> </references>
 	 * ```
 	 *
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param ReferencesData $refsData
 	 * @param DOMElement $node
 	 * @param string $referencesId
@@ -491,6 +432,7 @@ class References extends ExtensionTag {
 	 * @param array &$nestedRefsHTML
 	 */
 	private static function processRefsInReferences(
+		ParsoidExtensionAPI $extApi,
 		ReferencesData $refsData, DOMElement $node, string $referencesId,
 		?string $referencesGroup, array &$nestedRefsHTML
 	): void {
@@ -500,6 +442,7 @@ class References extends ExtensionTag {
 			if ( $child instanceof DOMElement ) {
 				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
 					self::extractRefFromNode(
+						$extApi,
 						$child,
 						$refsData,
 						$referencesId,
@@ -508,6 +451,7 @@ class References extends ExtensionTag {
 					);
 				} elseif ( $child->hasChildNodes() ) {
 					self::processRefsInReferences(
+						$extApi,
 						$refsData,
 						$child,
 						$referencesId,
@@ -559,28 +503,25 @@ class References extends ExtensionTag {
 
 	/** @inheritDoc */
 	public function fromDOM(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): string {
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		if ( !empty( $dataMw->autoGenerated ) && $state->rtTestMode ) {
+		if ( !empty( $dataMw->autoGenerated ) && $extApi->rtTestMode() ) {
 			// Eliminate auto-inserted <references /> noise in rt-testing
 			return '';
 		} else {
-			$startTagSrc = $state->serializer->serializeExtensionStartTag( $node, $state );
+			$startTagSrc = $extApi->serializeExtensionStartTag( $node );
 			if ( empty( $dataMw->body ) ) {
 				return $startTagSrc; // We self-closed this already.
 			} else { // We self-closed this already.
 				if ( is_string( $dataMw->body->html ) ) {
-					$src = $state->serializer->serializeHTML(
-						[
-							'env' => $state->getEnv(),
-							'extName' => $dataMw->name,
-						],
+					$src = $extApi->serializeHTML(
+						[ 'extName' => $dataMw->name ],
 						$dataMw->body->html
 					);
 					return $startTagSrc . $src . '</' . $dataMw->name . '>';
 				} else {
-					$state->getEnv()->log( 'error',
+					$extApi->log( 'error',
 						'References body unavailable for: ' . DOMCompat::getOuterHTML( $node )
 					);
 					return ''; // Drop it!

@@ -226,7 +226,7 @@ class ParserPipelineFactory {
 		$prevStage = null;
 		$recipeStages = $recipe["stages"];
 
-		for ( $i = 0,  $l = count( $recipeStages );  $i < $l;  $i++ ) {
+		for ( $i = 0, $l = count( $recipeStages ); $i < $l; $i++ ) {
 			// create the stage
 			$stageId = $recipeStages[$i];
 

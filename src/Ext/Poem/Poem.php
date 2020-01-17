@@ -18,6 +18,14 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class Poem extends ExtensionTag implements Extension {
 
+	/**
+	 * @param ParsoidExtensionAPI|null $extApi
+	 */
+	public function __construct( ParsoidExtensionAPI $extApi = null ) {
+		/* @phan-suppress-previous-line PhanEmptyPublicMethod */
+		/* The dom post processor doesn't need to use $extApi, so ignore it */
+	}
+
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
 		if ( strlen( $content ) > 0 ) {

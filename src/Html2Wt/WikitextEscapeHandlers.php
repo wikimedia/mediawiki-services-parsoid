@@ -1360,7 +1360,7 @@ class WikitextEscapeHandlers {
 	}
 
 	/**
-	 * See also `escapeLinkTarget` in LinkHandler.js
+	 * See also `escapeLinkTarget` in LinkHandler.php
 	 *
 	 * @param SerializerState $state
 	 * @param string $str

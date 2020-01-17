@@ -10,7 +10,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -285,9 +284,7 @@ class Gallery extends ExtensionTag implements Extension {
 		return $doc;
 	}
 
-	private function contentHandler(
-		DOMElement $node, SerializerState $state
-	): string {
+	private function contentHandler( ParsoidExtensionAPI $extApi, DOMElement $node ): string {
 		$content = "\n";
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			switch ( $child->nodeType ) {
@@ -318,9 +315,7 @@ class Gallery extends ExtensionTag implements Extension {
 						if ( $elt->hasAttribute( 'alt' ) ) {
 							$alt = $elt->getAttribute( 'alt' );
 							$content .= '|alt=' .
-								$state->serializer->wteHandlers->escapeLinkContent(
-									$state, $alt, false, $child, true
-								);
+								$extApi->escapeWikitext( $alt, $child, $extApi::IN_MEDIA );
 						}
 						// The first "a" is for the link, hopefully.
 						$a = DOMCompat::querySelector( $thumb, 'a' );
@@ -329,9 +324,7 @@ class Gallery extends ExtensionTag implements Extension {
 							if ( $href !== $resource ) {
 								$href = preg_replace( '#^\./#', '', $href, 1 );
 								$content .= '|link=' .
-										$state->serializer->wteHandlers->escapeLinkContent(
-											$state, $href, false, $child, true
-										);
+									$extApi->escapeWikitext( $href, $child, $extApi::IN_MEDIA );
 							}
 						}
 					}
@@ -348,12 +341,10 @@ class Gallery extends ExtensionTag implements Extension {
 					if ( $showfilename ) {
 						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 					}
-					$state->singleLineContext->enforce();
-					$caption = $state->serializeCaptionChildrenToString(
-						$gallerytext,
-						[ $state->serializer->wteHandlers, 'wikilinkHandler' ]
+					$caption = $extApi->serializeChildren( $gallerytext,
+						$extApi::IN_IMG_CAPTION,
+						true /* singleLine */
 					);
-					$state->singleLineContext->pop();
 					// Drop empty captions
 					if ( !preg_match( '/^\s*$/D', $caption ) ) {
 						$content .= '|' . $caption;
@@ -375,8 +366,8 @@ class Gallery extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function fromDOM(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): string {
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dataMw->attrs = $dataMw->attrs ?? new stdClass;
 		// Handle the "gallerycaption" first
@@ -387,14 +378,12 @@ class Gallery extends ExtensionTag implements Extension {
 			// `caption` from data-mw.
 			!is_string( $dataMw->attrs->caption ?? null )
 		) {
-			$dataMw->attrs->caption = $state->serializeCaptionChildrenToString(
-				$galcaption,
-				[ $state->serializer->wteHandlers, 'mediaOptionHandler' ]
+			$dataMw->attrs->caption = $extApi->serializeChildren( $galcaption,
+				$extApi::IN_IMG_CAPTION | $extApi::IN_OPTION,
+				false /* singleLine */
 			);
 		}
-		$startTagSrc = $state->serializer->serializeExtensionStartTag(
-			$node, $state
-		);
+		$startTagSrc = $extApi->serializeExtensionStartTag( $node );
 
 		if ( !$dataMw->body ) {
 			return $startTagSrc; // We self-closed this already.
@@ -404,7 +393,7 @@ class Gallery extends ExtensionTag implements Extension {
 			if ( is_string( $dataMw->body->extsrc ?? null ) ) {
 				$content = $dataMw->body->extsrc;
 			} else {
-				$content = $this->contentHandler( $node, $state );
+				$content = $this->contentHandler( $extApi, $node );
 			}
 			return $startTagSrc . $content . '</' . $dataMw->name . '>';
 		}

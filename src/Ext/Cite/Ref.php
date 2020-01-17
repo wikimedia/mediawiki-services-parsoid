@@ -8,7 +8,6 @@ use DOMNode;
 use Exception;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -23,9 +22,8 @@ class Ref extends ExtensionTag {
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
 		// Drop nested refs entirely, unless we've explicitly allowed them
-		if ( ( $extApi->parseContext['extTag'] ?? null ) === 'ref' &&
-			empty( $extApi->parseContext['extTagOpts']['allowNestedRef'] )
-		) {
+		$parentExtTag = $extApi->parentExtTag();
+		if ( $parentExtTag === 'ref' && empty( $extApi->parentExtTagOpts()['allowNestedRef'] ) ) {
 			return null;
 		}
 
@@ -33,8 +31,7 @@ class Ref extends ExtensionTag {
 		// function.  However, we're overly permissive here since we can't
 		// distinguish when that's nested in another template.
 		// The php preprocessor did our expansion.
-		$allowNestedRef = !empty( $extApi->parseContext['inTemplate'] ) &&
-			( $extApi->parseContext['extTag'] ?? null ) !== 'ref';
+		$allowNestedRef = !empty( $extApi->inTemplate() ) && $parentExtTag !== 'ref';
 
 		return $extApi->parseTokenContentsToDOM(
 			$extArgs,
@@ -80,11 +77,11 @@ class Ref extends ExtensionTag {
 
 	/** @inheritDoc */
 	public function fromDOM(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): string {
-		$startTagSrc = $state->serializer->serializeExtensionStartTag( $node, $state );
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+	) {
+		$startTagSrc = $extApi->serializeExtensionStartTag( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$env = $state->getEnv();
+		$env = $extApi->getEnv();
 		$html = null;
 		if ( !isset( $dataMw->body ) ) {
 			return $startTagSrc; // We self-closed this already.
@@ -136,7 +133,7 @@ class Ref extends ExtensionTag {
 							$extraDebug = ' [reference ' . $href . ' not found]';
 						}
 					}
-					$env->log(
+					$extApi->log(
 						'error/' . $dataMw->name,
 						'extension src id ' . $dataMw->body->id . ' points to non-existent element for:',
 						DOMCompat::getOuterHTML( $node ),
@@ -146,15 +143,15 @@ class Ref extends ExtensionTag {
 					return ''; // Drop it!
 				}
 			} else { // Drop it!
-				$env->log( 'error', 'Ref body unavailable for: ' . DOMCompat::getOuterHTML( $node ) );
+				$extApi->log( 'error', 'Ref body unavailable for: ' . DOMCompat::getOuterHTML( $node ) );
 				return ''; // Drop it!
 			} // Drop it!
 		}
 
-		$src = $state->serializer->serializeHTML(
+		$src = $extApi->serializeHTML(
 			[
-				'env' => $state->getEnv(),
-				'extName' => $dataMw->name, // FIXME: One-off PHP parser state leak.
+				'extName' => $dataMw->name,
+				// FIXME: One-off PHP parser state leak.
 				// This needs a better solution.
 				'inPHPBlock' => true
 			],

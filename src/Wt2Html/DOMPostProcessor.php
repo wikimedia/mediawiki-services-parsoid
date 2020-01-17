@@ -9,6 +9,7 @@ use DOMDocument;
 use DOMElement;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -55,6 +56,9 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var array */
 	private $processors;
 
+	/** @var ParsoidExtensionAPI Provides post-processing support to extensions */
+	private $extApi;
+
 	/** @var array */
 	private $metadataMap;
 
@@ -75,6 +79,7 @@ class DOMPostProcessor extends PipelineStage {
 		$this->options = $options + [ 'frame' => $env->topFrame ];
 		$this->seenIds = [];
 		$this->processors = [];
+		$this->extApi = new ParsoidExtensionAPI( $env, [] );
 
 		// map from mediawiki metadata names to RDFa property names
 		$this->metadataMap = [
@@ -141,7 +146,7 @@ class DOMPostProcessor extends PipelineStage {
 				};
 			} else {
 				// @phan-suppress-next-line PhanTypeExpectedObjectOrClassName
-				$c = new $p['Processor'];
+				$c = new $p['Processor']( $this->extApi );
 				$p['proc'] = function ( ...$args ) use ( $c ) {
 					return $c->run( ...$args );
 				};
@@ -310,7 +315,7 @@ class DOMPostProcessor extends PipelineStage {
 		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
 				'name' => 'tag:' . $extName,
-				'Processor' => new $domProcs['wt2htmlPostProcessor']()
+				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
 		}
 

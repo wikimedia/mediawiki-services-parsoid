@@ -161,7 +161,7 @@ JSONExt::prototype::toDOM = Promise::method( function ( $env ) use ( &$PARSE_ERR
  * @return {string}
  * @method
  */
-JSONExt::prototype::fromDOM = Promise::method( function ( $env, $body, $useSelser ) use ( &$DOMUtils ) {
+JSONExt::prototype::fromDOM = Promise::method( function ( $extApi, $env, $body, $useSelser ) use ( &$DOMUtils ) {
 		$rootValueTable = null;
 		$objectTable = null;
 		$objectRow = null;

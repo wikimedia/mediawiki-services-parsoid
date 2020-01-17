@@ -125,8 +125,12 @@ class ExtensionHandler extends TokenHandler {
 		if ( $nativeExt !== null ) {
 			$extContent = Util::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
-			$extApi = new ParsoidExtensionAPI( $env,
-				$this->manager->getFrame(), $token, $this->options );
+			$extApi = new ParsoidExtensionAPI( $env, [
+				'wt2html' => $this->options + [
+					'frame' => $this->manager->getFrame(),
+					'extToken' => $token
+				]
+			] );
 			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {
 				if ( $doc !== null ) {

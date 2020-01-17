@@ -5,11 +5,21 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 
 /**
  * wt -> html DOM PostProcessor
  */
 class RefProcessor {
+	/** @var ParsoidExtensionAPI Provides post-processing support */
+	private $extApi;
+
+	/**
+	 * @param ParsoidExtensionAPI $extApi
+	 */
+	public function __construct( ParsoidExtensionAPI $extApi ) {
+		$this->extApi = $extApi;
+	}
 
 	/**
 	 * @param DOMElement $body
@@ -22,7 +32,7 @@ class RefProcessor {
 	): void {
 		if ( $atTopLevel ) {
 			$refsData = new ReferencesData( $env );
-			References::processRefs( $env, $refsData, $body );
+			References::processRefs( $this->extApi, $refsData, $body );
 			References::insertMissingReferencesIntoDOM( $refsData, $body );
 		}
 	}

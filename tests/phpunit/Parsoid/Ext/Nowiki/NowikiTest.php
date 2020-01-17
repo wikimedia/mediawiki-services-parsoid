@@ -31,9 +31,11 @@ class NowikiTest extends TestCase {
 	 * @return SerializerState|MockObject
 	 */
 	private function getState() {
+		$env = new MockEnv( [] );
 		$serializer = $this->getMockBuilder( WikitextSerializer::class )
 			->disableOriginalConstructor()
 			->getMock();
+		$serializer->env = $env;
 		'@phan-var WikitextSerializer|MockObject $serializer';
 		/** @var WikitextSerializer|MockObject $serializer */
 		$state = $this->getMockBuilder( SerializerState::class )
@@ -41,6 +43,7 @@ class NowikiTest extends TestCase {
 			->getMock();
 		'@phan-var SerializerState|MockObject $state'; /** @var SerializerState|MockObject $state */
 		$state->serializer = $serializer;
+		$state->extApi = new ParsoidExtensionAPI( $env, [ 'html2wt' => [ 'state' => $state ] ] );
 		return $state;
 	}
 
@@ -78,7 +81,7 @@ class NowikiTest extends TestCase {
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki"></span>', 'span' );
-		$wt = $nowiki->fromDOM( $node, $state, true );
+		$wt = $nowiki->fromDOM( $state->extApi, $node, true );
 		$this->assertSame( '<nowiki/>', $wt );
 
 		$state = $this->getState();
@@ -86,7 +89,7 @@ class NowikiTest extends TestCase {
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki">xxx</span>', 'span' );
-		$wt = $nowiki->fromDOM( $node, $state, true );
+		$wt = $nowiki->fromDOM( $state->extApi, $node, true );
 		$this->assertSame( '<nowiki>xxx</nowiki>', $wt );
 	}
 

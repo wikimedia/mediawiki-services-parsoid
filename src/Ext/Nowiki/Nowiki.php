@@ -10,7 +10,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -56,10 +55,10 @@ class Nowiki extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function fromDOM(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified
-	): string {
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+	) {
 		if ( !$node->hasChildNodes() ) {
-			$state->hasSelfClosingNowikis = true;
+			$extApi->setHtml2wtStateFlag( 'hasSelfClosingNowikis' ); // FIXME
 			return '<nowiki/>';
 		}
 		$str = '<nowiki>';
@@ -84,7 +83,7 @@ class Nowiki extends ExtensionTag implements Extension {
 					/* This is a hacky fallback for what is essentially
 					 * undefined behavior. No matter what we emit here,
 					 * this won't roundtrip html2html. */
-					$state->getEnv()->log( 'error/html2wt/nowiki', 'Invalid nowiki content' );
+					$extApi->log( 'error/html2wt/nowiki', 'Invalid nowiki content' );
 					$out = $child->textContent;
 				}
 			} elseif ( $child instanceof DOMText ) {
@@ -92,7 +91,7 @@ class Nowiki extends ExtensionTag implements Extension {
 			} else {
 				Assert::invariant( DOMUtils::isComment( $child ), "Expected a comment here" );
 				/* Comments can't be embedded in a <nowiki> */
-				$state->getEnv()->log( 'error/html2wt/nowiki',
+				$extApi->log( 'error/html2wt/nowiki',
 					'Discarded invalid embedded comment in a <nowiki>' );
 				$out = '';
 			}
