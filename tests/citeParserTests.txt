@@ -622,6 +622,55 @@ Attributes are trimmed by the parser, see Sanitizer::decodeTagAttributes()
 !! end
 
 !! test
+T242437 - Nested references edge case, outer tag function with LDR
+!! wikitext
+<ref name="foo" />
+{{#tag:references|
+  <ref name="foo">bar</ref>
+
+  <references />
+}}
+!! html
+<p><sup id="cite_ref-foo_1-0" class="reference"><a href="#cite_note-foo-1">&#91;1&#93;</a></sup>
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Closing tag missing for <code>&lt;references&gt;</code></span>
+</p>
+!! end
+
+!! test
+T242437 - Nested references edge case, outer tag function, inner LDR
+!! wikitext
+<ref name="foo" />
+{{#tag:references|
+  <references>
+    <ref name="foo">bar</ref>
+  </references>
+}}
+!! html
+<p><sup id="cite_ref-foo_1-0" class="reference"><a href="#cite_note-foo-1">&#91;1&#93;</a></sup>
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Closing tag missing for <code>&lt;references&gt;</code></span>
+</p>
+!! end
+
+!! test
+T242437 - Nested references edge case, inner tag function with LDR
+!! wikitext
+<ref name="foo" />
+
+<references>
+  {{#tag:references|
+    <ref name="foo">bar</ref>
+  }}
+</references>
+!! html
+<p><sup id="cite_ref-foo_1-0" class="reference"><a href="#cite_note-foo-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="reference-text">bar</span>
+</li>
+</ol></div>
+!! end
+
+!! test
 <ref> defined in <references> error conditions
 !! wikitext
 <ref name="foo" group="2" />
@@ -768,8 +817,7 @@ refs with no name must have content</span>
 !! wikitext
 Bla.<ref name=""> </ref>
 !! html
-<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-refs with no name must have content</span>
+<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
 </p>
 !! end
 
@@ -1963,6 +2011,27 @@ Hi ho
 {{echo|<div><references /></div>}}
 !! html/parsoid
 
+!! end
+
+# TODO: Return a more helpful error, this is because the reference is never used, not about the group attribute.
+!! test
+Confusing error
+!! wikitext
+<references>
+<ref name="foo">foo</ref>
+</references>
+!! html
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has group attribute "" which does not appear in prior text.</span>
+</p>
+!! end
+
+!! test
+T242437 - Blank ref name in #tag regression
+!! wikitext
+{{#tag:references|
+<ref name="">foo</ref>
+}}
+!! html
 !! end
 
 !! test
