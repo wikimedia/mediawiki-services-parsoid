@@ -974,12 +974,6 @@ class TemplateHandler extends TokenHandler {
 			}
 		}
 
-		// Make the order of entries in $dict match native JS order.
-		// This can be safely removed after the Parsoid/PHP transition
-		$tmp = (array)$dict;
-		PHPUtils::jsSort( $tmp );
-		$dict = (object)$tmp;
-
 		$ret = [
 			'dict' => [
 				'target' => [],
