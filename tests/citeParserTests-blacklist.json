@@ -131,6 +131,22 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,75,0,0]}'><sup id=\"cite_ref-foo_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,45,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-foo-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-foo-1\"},\"sa\":{\"href\":\"#cite_note-foo-1\"},\"dsr\":[45,69,19,2]}'>[1]</a></sup></p>\n\n<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[77,221,32,6]}'>\n<ol data-parsoid='{\"dsr\":[110,213,0,0]}'><li data-parsoid='{\"dsr\":[110,213,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[112,173,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-foo_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-foo_1-0\"},\"sa\":{\"href\":\"#cite_ref-foo_1-0\"},\"dsr\":[143,166,20,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[174,213,29,7]}'>BAR</span></li></ol>\n\n</div>",
         "html2wt": "<sup id=\"cite_ref-foo_1-0\" class=\"reference\">[[#cite_note-foo-1|[1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-foo_1-0|↑]]</span> <span class=\"reference-text\">BAR</span>\n\n</div>"
     },
+    "T242437 - Nested references edge case, outer tag function with LDR": {
+        "wt2html": "<p about=\"#mwt6\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,86,0,0],\"firstWikitextNode\":\"P\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"&lt;ref name=\\\"foo\\\" />\\n\",{\"template\":{\"target\":{\"wt\":\"#tag:references\",\"function\":\"tag\"},\"params\":{\"1\":{\"wt\":\"\\n  &lt;ref name=\\\"foo\\\">bar&lt;/ref>\\n\\n  &lt;references />\\n\"}},\"i\":0}}]}'><sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-foo_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,18,18,0]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\"}}'><a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n<references></references></p><span about=\"#mwt6\">\n</span><pre about=\"#mwt6\"> <sup about=\"#mwt10\" class=\"mw-ref\" id=\"cite_ref-foo_1-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"src\":\"&lt;ref name=\\\"foo\\\">bar&lt;/ref>\"}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\"},\"body\":{\"id\":\"mw-reference-text-cite_note-foo-1\"}}'><a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></pre><span about=\"#mwt6\">\n\n  </span><ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt6\" data-parsoid='{\"src\":\"&lt;references />\"}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-foo-1\" id=\"cite_note-foo-1\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-foo_1-0\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">1 </span></a><a href=\"./Parser_test#cite_ref-foo_1-1\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">2 </span></a></span> <span id=\"mw-reference-text-cite_note-foo-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">bar</span></li></ol><span about=\"#mwt6\">\n</span><p class=\"mw-empty-elt\" data-parsoid='{\"dsr\":[86,86,0,0]}'></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,219,0,0]}'><sup id=\"cite_ref-foo_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,45,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-foo-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-foo-1\"},\"sa\":{\"href\":\"#cite_note-foo-1\"},\"dsr\":[45,69,19,2]}'>[1]</a></sup>\n<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\" data-parsoid='{\"stx\":\"html\",\"dsr\":[76,219,58,7]}'>Cite error: Closing tag missing for <code data-parsoid='{\"stx\":\"html\",\"dsr\":[170,212,6,7]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[176,205,8,9]}'>&lt;references></span></code></span></p>\n",
+        "html2wt": "<sup id=\"cite_ref-foo_1-0\" class=\"reference\">[[#cite_note-foo-1|[1]]]</sup>\n<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Closing tag missing for <code><nowiki><references></nowiki></code></span>\n"
+    },
+    "T242437 - Nested references edge case, outer tag function, inner LDR": {
+        "wt2html": "<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,101,0,0],\"firstWikitextNode\":\"P\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"&lt;ref name=\\\"foo\\\" />\\n\",{\"template\":{\"target\":{\"wt\":\"#tag:references\",\"function\":\"tag\"},\"params\":{\"1\":{\"wt\":\"\\n  &lt;references>\\n    &lt;ref name=\\\"foo\\\">bar&lt;/ref>\\n  &lt;/references>\\n\"}},\"i\":0}}]}'><sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-foo_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,18,18,0]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\"}}'><a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n<references></references></p><span about=\"#mwt5\">\n  </span><ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt5\" data-parsoid='{\"src\":\"&lt;references>\\n    &lt;ref name=\\\"foo\\\">bar&lt;/ref>\\n  &lt;/references>\"}' data-mw='{\"name\":\"references\",\"attrs\":{},\"body\":{\"html\":\"\\n&lt;sup about=\\\"#mwt8\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;ref name=\\\\\\\"foo\\\\\\\">bar&amp;lt;/ref>\\\"}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"foo\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-foo-1\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-foo-1\\\" style=\\\"counter-reset: mw-Ref 1;\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[1]&lt;/span>&lt;/a>&lt;/sup>\\n\"}}'><li about=\"#cite_note-foo-1\" id=\"cite_note-foo-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-foo_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-foo-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">bar</span></li></ol><span about=\"#mwt5\">\n</span><p class=\"mw-empty-elt\" data-parsoid='{\"dsr\":[101,101,0,0]}'></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,219,0,0]}'><sup id=\"cite_ref-foo_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,45,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-foo-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-foo-1\"},\"sa\":{\"href\":\"#cite_note-foo-1\"},\"dsr\":[45,69,19,2]}'>[1]</a></sup>\n<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\" data-parsoid='{\"stx\":\"html\",\"dsr\":[76,219,58,7]}'>Cite error: Closing tag missing for <code data-parsoid='{\"stx\":\"html\",\"dsr\":[170,212,6,7]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[176,205,8,9]}'>&lt;references></span></code></span></p>\n",
+        "html2wt": "<sup id=\"cite_ref-foo_1-0\" class=\"reference\">[[#cite_note-foo-1|[1]]]</sup>\n<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Closing tag missing for <code><nowiki><references></nowiki></code></span>\n"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,18,0,0]}'><sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-foo_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,18,18,0]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\"}}'><a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt10\" data-parsoid='{\"dsr\":[20,102,12,13]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"body\":{\"html\":\"\\n&lt;sup about=\\\"#mwt8\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;ref name=\\\\\\\"foo\\\\\\\">bar&amp;lt;/ref>\\\"}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"foo\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-foo-1\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-foo-1\\\" style=\\\"counter-reset: mw-Ref 1;\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[1]&lt;/span>&lt;/a>&lt;/sup>\\n\"}}'><li about=\"#cite_note-foo-1\" id=\"cite_note-foo-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-foo_1-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-foo-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">bar</span></li></ol>",
+        "wt2wt": "<ref name=\"foo\" />\n\n<references>\n<ref name=\"foo\">bar</ref>\n</references>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,75,0,0]}'><sup id=\"cite_ref-foo_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,45,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-foo-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-foo-1\"},\"sa\":{\"href\":\"#cite_note-foo-1\"},\"dsr\":[45,69,19,2]}'>[1]</a></sup></p>\n\n<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[77,221,32,6]}'>\n<ol data-parsoid='{\"dsr\":[110,213,0,0]}'><li data-parsoid='{\"dsr\":[110,213,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[112,173,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-foo_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-foo_1-0\"},\"sa\":{\"href\":\"#cite_ref-foo_1-0\"},\"dsr\":[143,166,20,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[174,213,29,7]}'>bar</span></li></ol>\n\n</div>",
+        "html2wt": "<sup id=\"cite_ref-foo_1-0\" class=\"reference\">[[#cite_note-foo-1|[1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-foo_1-0|↑]]</span> <span class=\"reference-text\">bar</span>\n\n</div>"
+    },
     "<ref> defined in <references> error conditions": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-foo_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,28,28,0]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\",\"group\":\"2\"}}'><a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\" data-mw-group=\"2\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2 1]</span></a></sup></p>\n\n<ol class=\"mw-references references\" data-mw-group=\"2\" typeof=\"mw:Extension/references\" about=\"#mwt18\" data-parsoid='{\"group\":\"2\",\"dsr\":[30,175,22,13]}' data-mw='{\"name\":\"references\",\"attrs\":{\"group\":\"2\"},\"body\":{\"html\":\"\\n&lt;sup about=\\\"#mwt7\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[53,71,18,0]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"foo\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-foo-1\\\" style=\\\"counter-reset: mw-Ref 1;\\\" data-mw-group=\\\"2\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[2 1]&lt;/span>&lt;/a>&lt;/sup>\\n&lt;sup about=\\\"#mwt11\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[72,100,19,6]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"unused\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-unused-2\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-unused-2\\\" style=\\\"counter-reset: mw-Ref 2;\\\" data-mw-group=\\\"2\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[2 2]&lt;/span>&lt;/a>&lt;/sup>\\n&lt;sup about=\\\"#mwt14\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[101,142,26,6]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"foo\\\",\\\"group\\\":\\\"1\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-foo-3\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-foo-3\\\" style=\\\"counter-reset: mw-Ref 1;\\\" data-mw-group=\\\"1\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[1 1]&lt;/span>&lt;/a>&lt;/sup>\\n&lt;sup about=\\\"#mwt16\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[143,161,5,6]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-4\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-4\\\" style=\\\"counter-reset: mw-Ref 3;\\\" data-mw-group=\\\"2\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[2 3]&lt;/span>&lt;/a>&lt;/sup>\\n\"}}'><li about=\"#cite_note-foo-1\" id=\"cite_note-foo-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-foo_1-0\" data-mw-group=\"2\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-foo-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"></span></li><li about=\"#cite_note-unused-2\" id=\"cite_note-unused-2\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"></span> <span id=\"mw-reference-text-cite_note-unused-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">BAR</span></li><li about=\"#cite_note-4\" id=\"cite_note-4\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"></span> <span id=\"mw-reference-text-cite_note-4\" class=\"mw-reference-text\" data-parsoid=\"{}\">BAR BAR</span></li></ol>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt19\" data-mw-group=\"1\" data-parsoid='{\"group\":\"1\",\"dsr\":[175,175,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{\"group\":\"1\"},\"autoGenerated\":true}'><li about=\"#cite_note-foo-3\" id=\"cite_note-foo-3\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"></span> <span id=\"mw-reference-text-cite_note-foo-3\" class=\"mw-reference-text\" data-parsoid=\"{}\">bad group</span></li></ol>",
         "wt2wt": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>\n<references group=\"1\" />",
@@ -208,6 +224,21 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><sup about=\"#mwt6\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,30,20,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"dir\":\"nonsense\"},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup></p>\n\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt4\" data-parsoid='{\"dsr\":[32,46,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">TEST</span></li></ol>",
         "html2wt": "<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: Invalid <code>dir=\"nonsense\"</code>, must be <code>ltr</code> or <code>rtl</code></span>\n\n\n"
     },
+    "Confusing error": {
+        "wt2html": "<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt6\" data-parsoid='{\"dsr\":[0,52,12,13]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"body\":{\"html\":\"\\n&lt;sup about=\\\"#mwt4\\\" class=\\\"mw-ref\\\" rel=\\\"dc:references\\\" typeof=\\\"mw:Extension/ref\\\" data-parsoid=&apos;{\\\"dsr\\\":[13,38,16,6]}&apos; data-mw=&apos;{\\\"name\\\":\\\"ref\\\",\\\"attrs\\\":{\\\"name\\\":\\\"foo\\\"},\\\"body\\\":{\\\"id\\\":\\\"mw-reference-text-cite_note-foo-1\\\"}}&apos;>&lt;a href=\\\"./Parser_test#cite_note-foo-1\\\" style=\\\"counter-reset: mw-Ref 1;\\\" data-parsoid=\\\"{}\\\">&lt;span class=\\\"mw-reflink-text\\\" data-parsoid=\\\"{}\\\">[1]&lt;/span>&lt;/a>&lt;/sup>\\n\"}}'><li about=\"#cite_note-foo-1\" id=\"cite_note-foo-1\" data-parsoid=\"{}\"><span rel=\"mw:referencedBy\" data-parsoid=\"{}\"></span> <span id=\"mw-reference-text-cite_note-foo-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">foo</span></li></ol>",
+        "html2wt": "<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: <code><nowiki><ref></nowiki></code> tag defined in <code><nowiki><references></nowiki></code> has group attribute \"\" which does not appear in prior text.</span>\n"
+    },
+    "T242437 - Blank ref name in #tag regression": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,44,0,0]}'><references about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,44,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#tag:references\",\"function\":\"tag\"},\"params\":{\"1\":{\"wt\":\"\\n&lt;ref name=\\\"\\\">foo&lt;/ref>\\n\"}},\"i\":0}}]}'>\n<sup about=\"#mwt4\" class=\"mw-ref\" id=\"cite_ref-1\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"src\":\"&lt;ref name=\\\"\\\">foo&lt;/ref>\"}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"\"},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}'><a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n</references></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt5\" data-parsoid='{\"dsr\":[44,44,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-1\" id=\"cite_note-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-1\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-1\" class=\"mw-reference-text\" data-parsoid=\"{}\">foo</span></li></ol>",
+        "wt2wt": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n<references />",
+        "html2wt": "<span class=\"error mw-ext-cite-error\" lang=\"en\" dir=\"ltr\">Cite error: <code><nowiki><ref></nowiki></code> tag defined in <code><nowiki><references></nowiki></code> has no name attribute.</span>\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,100,0,0]}'><sup about=\"#mwt3\" class=\"mw-ref\" id=\"cite_ref-a_1-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"a\",\"group\":\"g\"}}'><a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-mw-group=\"g\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[g 1]</span></a></sup>\n<references about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"a\":{\"group\":null},\"sa\":{\"group\":\"g\"},\"dsr\":[27,78,null,null],\"pi\":[[{\"k\":\"1\"},{\"k\":\"group\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#tag:references\",\"function\":\"tag\"},\"params\":{\"1\":{\"wt\":\"\\n&lt;ref name=\\\"a\\\">a&lt;/ref>\\n\"},\"group\":{\"wt\":\"g\"}},\"i\":0}}]}'>\n<sup about=\"#mwt8\" class=\"mw-ref\" id=\"cite_ref-a_2-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"src\":\"&lt;ref name=\\\"a\\\">a&lt;/ref>\"}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"id\":\"mw-reference-text-cite_note-a-2\"}}'><a href=\"./Parser_test#cite_note-a-2\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]</span></a></sup>\n</references>\n<sup about=\"#mwt10\" class=\"mw-ref\" id=\"cite_ref-c_3-0\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid='{\"dsr\":[79,100,14,6]}' data-mw='{\"name\":\"ref\",\"attrs\":{\"name\":\"c\"},\"body\":{\"id\":\"mw-reference-text-cite_note-c-3\"}}'><a href=\"./Parser_test#cite_note-c-3\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\"><span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]</span></a></sup></p>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt11\" data-mw-group=\"g\" data-parsoid='{\"group\":\"g\",\"dsr\":[100,100,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{\"group\":\"g\"},\"autoGenerated\":true}'><li about=\"#cite_note-a-1\" id=\"cite_note-a-1\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-a_1-0\" data-mw-group=\"g\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-a-1\" class=\"mw-reference-text\" data-parsoid=\"{}\"></span></li></ol>\n<ol class=\"mw-references references\" typeof=\"mw:Extension/references\" about=\"#mwt12\" data-parsoid='{\"dsr\":[100,100,0,0]}' data-mw='{\"name\":\"references\",\"attrs\":{},\"autoGenerated\":true}'><li about=\"#cite_note-a-2\" id=\"cite_note-a-2\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-a_2-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-a-2\" class=\"mw-reference-text\" data-parsoid=\"{}\">a</span></li><li about=\"#cite_note-c-3\" id=\"cite_note-c-3\" data-parsoid=\"{}\"><a href=\"./Parser_test#cite_ref-c_3-0\" rel=\"mw:referencedBy\" data-parsoid=\"{}\"><span class=\"mw-linkback-text\" data-parsoid=\"{}\">↑ </span></a> <span id=\"mw-reference-text-cite_note-c-3\" class=\"mw-reference-text\" data-parsoid=\"{}\">c</span></li></ol>",
+        "wt2wt": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\n<references group=\"g\" />\n<references />",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,73,0,0]}'><sup id=\"cite_ref-a_1-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,73,43,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-a-1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-a-1\"},\"sa\":{\"href\":\"#cite_note-a-1\"},\"dsr\":[43,67,17,2]}'>[g 1]</a></sup></p>\n\n<div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[75,215,32,6]}'>\n<ol data-parsoid='{\"dsr\":[108,207,0,0]}'><li data-parsoid='{\"dsr\":[108,207,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[110,169,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-a_1-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-a_1-0\"},\"sa\":{\"href\":\"#cite_ref-a_1-0\"},\"dsr\":[141,162,18,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[170,207,29,7]}'>a</span></li></ol>\n\n</div>\n<p data-parsoid='{\"dsr\":[216,287,0,0]}'><sup id=\"cite_ref-c_3-0\" class=\"reference\" data-parsoid='{\"stx\":\"html\",\"dsr\":[216,287,43,6]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_note-c-3\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_note-c-3\"},\"sa\":{\"href\":\"#cite_note-c-3\"},\"dsr\":[259,281,17,2]}'>[1]</a></sup></p><div class=\"mw-references-wrap\" data-parsoid='{\"stx\":\"html\",\"dsr\":[287,427,32,6]}'>\n<ol data-parsoid='{\"dsr\":[320,419,0,0]}'><li data-parsoid='{\"dsr\":[320,419,1,0]}'><span class=\"mw-cite-backlink\" data-parsoid='{\"stx\":\"html\",\"dsr\":[322,381,31,7]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#cite_ref-c_3-0\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#cite_ref-c_3-0\"},\"sa\":{\"href\":\"#cite_ref-c_3-0\"},\"dsr\":[353,374,18,2]}'>↑</a></span> <span class=\"reference-text\" data-parsoid='{\"stx\":\"html\",\"dsr\":[382,419,29,7]}'>c</span></li></ol>\n\n</div>",
+        "html2wt": "<sup id=\"cite_ref-a_1-0\" class=\"reference\">[[#cite_note-a-1|[g 1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-a_1-0|↑]]</span> <span class=\"reference-text\">a</span>\n\n</div>\n<sup id=\"cite_ref-c_3-0\" class=\"reference\">[[#cite_note-c-3|[1]]]</sup><div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">[[#cite_ref-c_3-0|↑]]</span> <span class=\"reference-text\">c</span>\n\n</div>"
+    },
     "Ref: 3. spaces in ref-names should be ignored": {
         "wt2wt": "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n<references />",
         "html2wt": "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n<references />"
@@ -228,6 +259,9 @@
     },
     "Ref: 5. body should accept generic wikitext": {
         "html2wt": "A <ref> This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}\n</ref>\n\n<references />"
+    },
+    "Serialize reference tags by themselves on a line": {
+        "html2wt": "hi <ref>ho</ref>\n<references />hi ho"
     },
     "Simple <ref>, no <references/> [2,0,0]": {
         "selser": "22oxk8\n\nWikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>"
@@ -696,6 +730,63 @@
     },
     "<ref> defined in <references> called with #tag [2,3,3,0,0]": {
         "selser": "1tof2ch\n\n<ref name=\"foo\" />\n"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [3,4,0]": {
+        "selser": "bawpqu<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [3,0,0]": {
+        "selser": "\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [4,0,0]": {
+        "selser": "ck0llt\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [1,2,0]": {
+        "selser": "<ref name=\"foo\" />\n\ncogz2u\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [0,4,0]": {
+        "selser": "<ref name=\"foo\" />\n\nh3v8aa<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [0,3,0]": {
+        "selser": "<ref name=\"foo\" /><references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [2,0,0]": {
+        "selser": "jffeh4\n\n<ref name=\"foo\" />\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [0,2,0]": {
+        "selser": "<ref name=\"foo\" />\n\n1tfp11e\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [3,3,0]": {
+        "selser": "<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [2,3,0]": {
+        "selser": "166laqq\n\n<ref name=\"foo\" /><references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [1,3,0]": {
+        "selser": "<ref name=\"foo\" /><references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [1,0,0]": {
+        "selser": "<ref name=\"foo\" />\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [2,2,0]": {
+        "selser": "1h8bapc\n\n<ref name=\"foo\" />\n\nt9r6y7\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [2,4,0]": {
+        "selser": "q2syc4\n\n<ref name=\"foo\" />\n\nx52kyz<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [4,3,0]": {
+        "selser": "n4b1sc<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [4,2,0]": {
+        "selser": "88268g\n\n1u6javj\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [1,4,0]": {
+        "selser": "<ref name=\"foo\" />\n\n1r3ee5r<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [3,2,0]": {
+        "selser": "1h3zbhu\n\n<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
+    },
+    "T242437 - Nested references edge case, inner tag function with LDR [4,4,0]": {
+        "selser": "1w3p74w\n\n164bamw<references>\n  {{#tag:references|\n    <ref name=\"foo\">bar</ref>\n  }}\n</references>"
     },
     "<ref> defined in <references> error conditions [0,0,0,4,0]": {
         "selser": "<ref name=\"foo\" group=\"2\" />\n\n<references group=\"2\">\n<ref name=\"foo\" />\n<ref name=\"unused\">BAR</ref>\n<ref name=\"foo\" group=\"1\">bad group</ref>\n<ref>BAR BAR</ref>\n</references>xwwv1f"
@@ -1224,5 +1315,122 @@
     },
     "References: 9. Generate missing references list at the end [3,0,0,0,0]": {
         "selser": "\n"
+    },
+    "T242437 - Blank ref name in #tag regression [0,2,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\n6e1uxa\n"
+    },
+    "T242437 - Blank ref name in #tag regression [2,2,0]": {
+        "selser": "1frrzfg\n\n{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\nyjdbx2\n"
+    },
+    "T242437 - Blank ref name in #tag regression [3,4,0]": {
+        "selser": "2ht734"
+    },
+    "T242437 - Blank ref name in #tag regression [2,0,0]": {
+        "selser": "1qii04\n\n{{#tag:references|\n<ref name=\"\">foo</ref>\n}}"
+    },
+    "T242437 - Blank ref name in #tag regression [4,0,0]": {
+        "selser": "1egl9a6\n"
+    },
+    "T242437 - Blank ref name in #tag regression [0,4,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\n1afctgy"
+    },
+    "T242437 - Blank ref name in #tag regression [3,0,0]": {
+        "selser": "\n"
+    },
+    "T242437 - Blank ref name in #tag regression [2,4,0]": {
+        "selser": "w94t7x\n\n{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\nkuazb8"
+    },
+    "T242437 - Blank ref name in #tag regression [2,3,0]": {
+        "selser": "10e6xsh\n\n{{#tag:references|\n<ref name=\"\">foo</ref>\n}}"
+    },
+    "T242437 - Blank ref name in #tag regression [0,3,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}"
+    },
+    "T242437 - Blank ref name in #tag regression [1,2,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\nx8o2nl\n"
+    },
+    "T242437 - Blank ref name in #tag regression [1,3,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}"
+    },
+    "T242437 - Blank ref name in #tag regression [1,0,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n"
+    },
+    "T242437 - Blank ref name in #tag regression [4,3,0]": {
+        "selser": "npiwne"
+    },
+    "T242437 - Blank ref name in #tag regression [4,2,0]": {
+        "selser": "eq1yls\n\n5b4lhl\n"
+    },
+    "T242437 - Blank ref name in #tag regression [1,4,0]": {
+        "selser": "{{#tag:references|\n<ref name=\"\">foo</ref>\n}}\n\n1xxpnr5"
+    },
+    "T242437 - Blank ref name in #tag regression [4,4,0]": {
+        "selser": "1e9b7w3\n\n1jbh22t"
+    },
+    "T242437 - Blank ref name in #tag regression [3,2,0]": {
+        "selser": "rsqom2\n"
+    },
+    "T242437 - Blank ref name in #tag regression [3,3,0]": {
+        "selser": ""
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [3,0,0,3,0]": {
+        "selser": "\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [3,0,0,2,0]": {
+        "selser": "\n12udjjv\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [2,3,0,2,0]": {
+        "selser": "10j4r7m\n\n<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>v7z3he\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,2,0,0,0],0,0,2,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />1734riw\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\nhw3hl7\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,4,0,0,0],4,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />1waykkx{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\n\n21c2ph"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [1,2,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\n\naygrvj\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [1,3,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,3,0,0,0],3,0,3,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [4,3,0,4,0]": {
+        "selser": "xis99ig94uzc"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,2,0,0,0],3,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />dzfiwb\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,4,0,0,0],0,0,4,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />kbcoqk{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\nnzm8ec"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [3,2,0,4,0]": {
+        "selser": "advidq\nw661bb"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [4,0,0,0,0]": {
+        "selser": "hmmstx\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,3,0,3,0],0,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}<ref name=\"c\">c</ref>\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [3,0,0,0,0]": {
+        "selser": "\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,4,0,2,0],0,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />1jndzf3{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}agzyfh\n<ref name=\"c\">c</ref>\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [[0,0,0,3,0],0,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}<ref name=\"c\">c</ref>\n"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [1,3,0,4,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>wj9nby"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [1,4,0,0,0]": {
+        "selser": "<ref name=\"a\" group=\"g\" />\n{{#tag:references|\n<ref name=\"a\">a</ref>\n|group=g}}\n<ref name=\"c\">c</ref>\n\n1cy7ynj"
+    },
+    "Numbers in the default group need to start with 1, independent from other groups [3,4,0,0,0]": {
+        "selser": "xz59a5"
     }
 }

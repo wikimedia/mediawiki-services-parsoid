@@ -817,7 +817,8 @@ refs with no name must have content</span>
 !! wikitext
 Bla.<ref name=""> </ref>
 !! html
-<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
+<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
+refs with no name must have content</span>
 </p>
 !! end
 
@@ -2032,6 +2033,29 @@ T242437 - Blank ref name in #tag regression
 <ref name="">foo</ref>
 }}
 !! html
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has no name attribute.</span>
+</p>
+!! end
+
+!! test
+Numbers in the default group need to start with 1, independent from other groups
+!! wikitext
+<ref name="a" group="g" />
+{{#tag:references|
+<ref name="a">a</ref>
+|group=g}}
+<ref name="c">c</ref>
+!! html
+<p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;g 1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">a</span>
+</li>
+</ol></div>
+<sup id="cite_ref-c_3-0" class="reference"><a href="#cite_note-c-3">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="reference-text">c</span>
+</li>
+</ol></div>
 !! end
 
 !! test
