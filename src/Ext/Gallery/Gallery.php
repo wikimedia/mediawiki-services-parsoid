@@ -78,7 +78,6 @@ class Gallery extends ExtensionTag implements Extension {
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					'inTemplate' => $extApi->parseContext['inTemplate'],
 					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
@@ -171,7 +170,6 @@ class Gallery extends ExtensionTag implements Extension {
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					'inTemplate' => $extApi->parseContext['inTemplate'],
 					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],

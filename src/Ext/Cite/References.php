@@ -528,10 +528,7 @@ class References extends ExtensionTag {
 			$txt,
 			[
 				'wrapperTag' => 'div',
-				'pipelineOpts' => [
-					'extTag' => 'references',
-					'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
-				],
+				'pipelineOpts' => [ 'extTag' => 'references' ],
 			]
 		);
 

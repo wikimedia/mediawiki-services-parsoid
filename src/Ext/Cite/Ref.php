@@ -49,7 +49,6 @@ class Ref extends ExtensionTag {
 				'pipelineOpts' => [
 					'extTag' => 'ref',
 					'extTagOpts' => [ 'allowNestedRef' => $allowNestedRef ],
-					'inTemplate' => $extApi->parseContext['inTemplate'] ?? null,
 					// FIXME: One-off PHP parser state leak.
 					// This needs a better solution.
 					'inPHPBlock' => true,

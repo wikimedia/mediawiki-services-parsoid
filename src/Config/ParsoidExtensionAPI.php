@@ -115,13 +115,13 @@ class ParsoidExtensionAPI {
 	 *
 	 * @param string $wikitext
 	 * @param array $parseOpts
-	 *    - extTag
-	 *    - extTagOpts
-	 *    - frame
-	 *    - inTemplate
-	 *    - inlineContext
-	 *    - inPHPBlock
-	 *    - srcOffsets
+	 * - srcOffsets
+	 * - frame
+	 * - pipelineOpts
+	 *   - extTag
+	 *   - extTagOpts
+	 *   - inlineContext
+	 *   - inPHPBlock
 	 * @param bool $sol
 	 * @return DOMDocument
 	 */
@@ -142,7 +142,7 @@ class ParsoidExtensionAPI {
 					'expandTemplates' => true,
 					'extTag' => $pipelineOpts['extTag'],
 					'extTagOpts' => $pipelineOpts['extTagOpts'] ?? null,
-					'inTemplate' => !empty( $pipelineOpts['inTemplate'] ),
+					'inTemplate' => $this->parseContext['inTemplate'] ?? null,
 					'inlineContext' => !empty( $pipelineOpts['inlineContext'] ),
 					// FIXME: Hack for backward compatibility
 					// support for extensions that rely on this behavior.
@@ -166,11 +166,14 @@ class ParsoidExtensionAPI {
 	 * @param string $leadingWS
 	 * @param string $wikitext
 	 * @param array $parseOpts
-	 *    - extTag
-	 *    - extTagOpts
-	 *    - inTemplate
-	 *    - inlineContext
-	 *    - inPHPBlock
+	 * - srcOffsets
+	 * - frame
+	 * - wrapperTag
+	 * - pipelineOpts
+	 *   - extTag
+	 *   - extTagOpts
+	 *   - inlineContext
+	 *   - inPHPBlock
 	 * @return DOMDocument
 	 */
 	public function parseTokenContentsToDOM(
