@@ -758,16 +758,18 @@ abstract class ParsoidHandler extends Handler {
 						$original['data-mw']['body'] ?? null );
 				}
 
-				// FIXME: This is a temporary protection while Parsoid/JS and
-				// Parsoid/PHP are both in production.  Afterwards, we should
-				// restore this as a 406.
-				$offsetType = $envOptions['offsetType'] ?? 'byte';
-				$origOffsetType = $origPb->parsoid['offsetType'] ?? '';
-				if ( $origOffsetType !== $offsetType ) {
-					return $this->getResponseFactory()->createHttpError( 421, [
-						'message' => 'DSR offsetType mismatch: ' .
-							$origOffsetType . ' vs ' . $offsetType,
-					] );
+				// Verify that the top-level parsoid object either doesn't contain
+				// offsetType, or that it matches the conversion that has been
+				// explicitly requested.
+				if ( isset( $origPb->parsoid['offsetType'] ) ) {
+					$offsetType = $envOptions['offsetType'] ?? 'byte';
+					$origOffsetType = $origPb->parsoid['offsetType'];
+					if ( $origOffsetType !== $offsetType ) {
+						return $this->getResponseFactory()->createHttpError( 406, [
+							'message' => 'DSR offsetType mismatch: ' .
+								$origOffsetType . ' vs ' . $offsetType,
+						] );
+					}
 				}
 
 				$pb = $origPb;
