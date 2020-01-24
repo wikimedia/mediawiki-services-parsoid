@@ -71,7 +71,12 @@ if ( $parsoidMode === 'integrated' ) {
 	require_once __DIR__ . '/../vendor/autoload.php';
 } else {
 	/* Use Parsoid's stand-alone clone of the Maintenance framework */
-	require_once __DIR__ . '/../vendor/autoload.php';
+	// Note: Using @include_once rather than require so we can catch errors.
+	// phpcs:disable Generic.PHP.NoSilencedErrors.Discouraged
+	if ( !@include_once __DIR__ . '/../vendor/autoload.php' ) {
+		// HACK: Try a second path, in case we're running from within the deploy repo
+		require_once __DIR__ . '/../../vendor/autoload.php';
+	}
 
 	abstract class Maintenance extends OptsProcessor {
 		public function addDefaultParams(): void {
