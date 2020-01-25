@@ -376,8 +376,7 @@ Erroneous refs
 
 <references />
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-name cannot be a simple integer. Use a descriptive title</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name cannot be a simple integer. Use a descriptive title</span>
 </p><p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p><p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
 </p><p><sup id="cite_ref-bar_2-0" class="reference"><a href="#cite_note-bar-2">&#91;2&#93;</a></sup>
@@ -387,10 +386,8 @@ name cannot be a simple integer. Use a descriptive title</span>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Also zero, but differently! (Normal ref)</span>
 </li>
-<li id="cite_note-bar-2"><span class="mw-cite-backlink"><a href="#cite_ref-bar_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>bar</code></span></li>
-<li id="cite_note-blankwithnoreference-3"><span class="mw-cite-backlink"><a href="#cite_ref-blankwithnoreference_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>blankwithnoreference</code></span></li>
+<li id="cite_note-bar-2"><span class="mw-cite-backlink"><a href="#cite_ref-bar_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>bar</code></span></li>
+<li id="cite_note-blankwithnoreference-3"><span class="mw-cite-backlink"><a href="#cite_ref-blankwithnoreference_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>blankwithnoreference</code></span></li>
 </ol></div>
 !! end
 
@@ -400,8 +397,7 @@ Can't have name="…" and follow="…" the same time
 <ref name="theName" follow="theFollows">theValue</ref>
 <references />
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
 </p>
 !! end
 
@@ -411,8 +407,7 @@ Conflicting name="…" and follow="…" still invalid when a third parameter is 
 <ref name="theName" follow="theFollows" dummy="dummy">theValue</ref>
 <references />
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
 </p>
 !! end
 
@@ -513,8 +508,7 @@ Valid parameters become invalid when a third is present
 <ref name="theName" group="theGroup" dummy="dummy">theValue</ref>
 <references group="theGroup" />
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
 </p>
 !! end
 
@@ -685,8 +679,7 @@ T242437 - Nested references edge case, inner tag function with LDR
 <p><sup id="cite_ref-foo_1-0" class="reference"><a href="#cite_note-foo-1">&#91;2 1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>foo</code></span></li>
+<li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>foo</code></span></li>
 </ol></div>
 <p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "foo" has no content.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "unused" defined in <code>&lt;references&gt;</code> is not used in prior text.</span><br />
@@ -714,10 +707,8 @@ Error conditions on non-visible content
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">x</span>
 </li>
-<li id="cite_note-b-2"><span class="mw-cite-backlink"><a href="#cite_ref-b_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>b</code></span></li>
-<li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>c</code></span></li>
+<li id="cite_note-b-2"><span class="mw-cite-backlink"><a href="#cite_ref-b_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>b</code></span></li>
+<li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>c</code></span></li>
 </ol></div>
 <p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "a" has no content.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "b" has no content.</span><br />
@@ -807,8 +798,7 @@ foo</span>
 !! wikitext
 Bla.<ref></ref>
 !! html
-<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-refs with no name must have content</span>
+<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; refs with no name must have content</span>
 </p>
 !! end
 
@@ -817,8 +807,7 @@ refs with no name must have content</span>
 !! wikitext
 Bla.<ref name=""> </ref>
 !! html
-<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-refs with no name must have content</span>
+<p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; refs with no name must have content</span>
 </p>
 !! end
 
@@ -828,8 +817,7 @@ refs with no name must have content</span>
 Bla.<ref name="void"> </ref>
 !! html
 Bla.<sup id="cite_ref-void_1-0" class="reference"><a href="#cite_note-void-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-void-1"><span class="mw-cite-backlink"><a href="#cite_ref-void_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag;
-no text was provided for refs named <code>void</code></span></li>
+<li id="cite_note-void-1"><span class="mw-cite-backlink"><a href="#cite_ref-void_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>void</code></span></li>
 </ol></div>
 !! end
 
@@ -2035,6 +2023,31 @@ T242437 - Blank ref name in #tag regression
 !! html
 <p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has no name attribute.</span>
 </p>
+!! end
+
+!! test
+T48140 - Make sure rollback/redo does not consume numbers
+!! wikitext
+<ref>should be [1]</ref>
+<ref name="a" group="g" />
+{{#tag:references|
+<ref name="a">a</ref>
+|group=g}}
+<ref>should be [2]</ref>
+!! html
+<p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
+<sup id="cite_ref-a_2-0" class="reference"><a href="#cite_note-a-2">&#91;g 1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-a-2"><span class="mw-cite-backlink"><a href="#cite_ref-a_2-0">↑</a></span> <span class="reference-text">a</span>
+</li>
+</ol></div>
+<sup id="cite_ref-4" class="reference"><a href="#cite_note-4">&#91;2&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">should be [1]</span>
+</li>
+<li id="cite_note-4"><span class="mw-cite-backlink"><a href="#cite_ref-4">↑</a></span> <span class="reference-text">should be [2]</span>
+</li>
+</ol></div>
 !! end
 
 !! test

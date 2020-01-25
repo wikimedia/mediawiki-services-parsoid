@@ -29,7 +29,7 @@ require('../core-upgrade.js');
 
    $ cd $PARSOID
    $ tools/fetch-parserTests.txt.js $TARGET --force
-   $ bin/parserTests.js --rewrite-blacklist
+   $ php bin/parserTests.php --rewrite-blacklist
    $ git add -u
    $ git commit -m "Sync parserTests with core"
    $ git review

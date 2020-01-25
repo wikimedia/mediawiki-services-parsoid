@@ -80,6 +80,10 @@
     "Space and question mark encoding in interlanguage links (T95473)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo%20bar%3F\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo%20bar%3F\"},\"sa\":{\"href\":\"es:Foo bar?\"},\"dsr\":[15,30,null,null]}'/>"
     },
+    "Template parameter named \"constructor\"": {
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,29,0,0],\"pi\":[[{\"k\":\"constructor\",\"named\":true,\"spc\":[\"  \",\" \",\"\",\"  \"]},{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"hi\"},\"constructor\":{\"wt\":\"\"}},\"i\":0}}]}'>hi</p>",
+        "html2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,29,0,0],\"pi\":[[{\"k\":\"constructor\",\"named\":true,\"spc\":[\"  \",\" \",\"\",\"  \"]},{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"hi\"},\"constructor\":{\"wt\":\"\"}},\"i\":0}}]}'>hi</p>"
+    },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close": {
         "wt2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span><p data-parsoid='{\"dsr\":[18,22,0,0]}'>*baz</p>",
         "html2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span>",
