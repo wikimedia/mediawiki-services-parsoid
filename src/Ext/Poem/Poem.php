@@ -6,15 +6,15 @@ namespace Parsoid\Ext\Poem;
 use DOMDocument;
 use DOMElement;
 use Parsoid\Config\Env;
+use Parsoid\Config\ParsoidExtensionAPI;
+use Parsoid\Ext\Extension;
+use Parsoid\Ext\ExtensionTag;
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SourceRange;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
-use Parsoid\Config\ParsoidExtensionAPI;
 
 class Poem extends ExtensionTag implements Extension {
 

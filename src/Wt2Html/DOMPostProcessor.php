@@ -8,20 +8,16 @@ use DateTime;
 use DOMDocument;
 use DOMElement;
 use Generator;
-
 use Parsoid\Config\Env;
-
 use Parsoid\Tokens\SourceRange;
-
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMTraverser;
-use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Title;
 use Parsoid\Utils\Util;
-
 use Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
@@ -29,7 +25,6 @@ use Parsoid\Wt2Html\PP\Handlers\Headings;
 use Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
-
 use Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
 use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Parsoid\Wt2Html\PP\Processors\AddRedLinks;

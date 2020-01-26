@@ -9,7 +9,7 @@ namespace Parsoid\Html2Wt;
 class SingleLineContext {
 	// PORT-TODO document
 
-	/** @var array  */
+	/** @var array */
 	private $stack;
 
 	public function __construct() {

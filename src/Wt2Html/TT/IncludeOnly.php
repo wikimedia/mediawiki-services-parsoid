@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\EOFTk;
 
 /**
  * Simple noinclude / onlyinclude implementation.

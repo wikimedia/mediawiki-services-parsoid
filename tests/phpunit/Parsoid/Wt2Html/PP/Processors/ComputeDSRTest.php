@@ -2,13 +2,13 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
+use Parsoid\Parsoid;
+use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockEnv;
+use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
 use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Parsoid;
-use DOMElement;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;

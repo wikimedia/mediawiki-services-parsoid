@@ -43,7 +43,7 @@ class LinterTest extends TestCase {
 	 */
 	private function expectEmptyResults( $description, $wt, $opts = [] ): void {
 		$result = $this->parseWT( $wt, $opts );
-		$this->assertEquals( true, empty( $result ), $description );
+		$this->assertTrue( empty( $result ), $description );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 5, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'div', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint missing end tags for quotes correctly';
@@ -95,7 +95,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 6, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint missing end tags found in transclusions correctly';
@@ -103,9 +103,9 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 29, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'p', $result[0]['params']['name'], $desc );
 
 		$desc = 'should not flag tags where end tags are optional in the spec';
@@ -121,7 +121,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( 'foo</div>' );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'div', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 3, 9, null, null ], $result[0]['dsr'], $desc );
 
@@ -129,10 +129,10 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( '{{echo|<div>foo</div></div>}}' );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'div', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 0, 29, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (</i> is stripped)';
@@ -140,7 +140,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 7, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations " .
@@ -149,9 +149,9 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 24, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)';
@@ -159,7 +159,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 7, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations " .
@@ -168,7 +168,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 2, 10, 7, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations " .
@@ -177,7 +177,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 7, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
 	}
 
@@ -190,7 +190,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 12, 4, 5 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'tt', $result[0]['params']['name'], $desc );
 
 		$desc = 'should not lint big as an obsolete tag';
@@ -201,9 +201,9 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 32, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'tt', $result[0]['params']['name'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should not lint auto-inserted obsolete tags';
@@ -213,14 +213,14 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( 'obsolete-tag', $result[1]['type'], $desc );
 		$this->assertEquals( [ 0, 7, 4, 0 ], $result[1]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'tt', $result[1]['params']['name'], $desc );
 
 		$desc = 'should not have template info for extension tags';
 		$result = $this->parseWT( "<gallery>\nFile:Test.jpg|<tt>foo</tt>\n</gallery>" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
-		$this->assertEquals( false, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( [ 24, 36, 4, 5 ], $result[0]['dsr'], $desc );
 	}
 
@@ -258,8 +258,8 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 22, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
-		$this->assertEquals( true, isset( $result[0]['params']['items'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params']['items'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
 
 		$desc = 'should lint Bogus image options found in transclusions correctly';
@@ -267,9 +267,9 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 31, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should batch lint Bogus image options correctly';
@@ -277,7 +277,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 26, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
 		$this->assertEquals( 'bar', $result[0]['params']['items'][1], $desc );
 
@@ -290,7 +290,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 70, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'noplayer', $result[0]['params']['items'][0], $desc );
 		$this->assertEquals( 'noicon', $result[0]['params']['items'][1], $desc );
 		$this->assertEquals( 'disablecontrols=ok', $result[0]['params']['items'][2], $desc );
@@ -308,11 +308,11 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'self-closed-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 8, 5, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'self-closed-tag', $result[1]['type'], $desc );
 		$this->assertEquals( [ 11, 19, 8, 0 ], $result[1]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[1]['params']['name'], $desc );
 
 		$desc = 'should lint self-closing tags in a template correctly';
@@ -320,9 +320,9 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'self-closed-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 33, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'][0], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 	}
 
@@ -344,7 +344,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( $wt );
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 39, 72, 0, 0 ], $result[0]['dsr'], $desc );
 
@@ -362,7 +362,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( $wt );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 58, 91, 0, 0 ], $result[0]['dsr'], $desc );
 
@@ -380,7 +380,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( $wt );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 		$this->assertEquals( [ 0, 58, null, null ], $result[0]['dsr'], $desc );
 
@@ -398,8 +398,8 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( $wt );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertEquals( false, isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 31, 33, 0, 0 ], $result[0]['dsr'], $desc );
 	}
@@ -418,8 +418,8 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( $wt );
 		$this->assertEquals( 3, count( $result ), $desc );
 		$this->assertEquals( 'pwrap-bug-workaround', $result[1]['type'], $desc );
-		$this->assertEquals( false, isset( $result[1]['templateInfo'] ), $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertFalse( isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'div', $result[1]['params']['root'], $desc );
 		$this->assertEquals( 'span', $result[1]['params']['child'], $desc );
 		$this->assertEquals( [ 5, 48, 33, 0 ], $result[1]['dsr'], $desc );
@@ -577,20 +577,20 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "[[None]]\n[[:One]]\n[[::Two]]\n[[:::Three]]" );
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( [ 18, 27, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '::Two', $result[0]['params']['href'], $desc );
 		$this->assertEquals( [ 28, 40, null, null ], $result[1]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( ':::Three', $result[1]['params']['href'], $desc );
 
 		$desc = 'should lint links prefixed with multiple colons from templates';
 		$result = $this->parseWT( "{{echo|[[:One]]}}\n{{echo|[[::Two]]}}" );
 		$this->assertEquals( 1, count( $result ), $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 		// TODO(arlolra): Frame doesn't have tsr info yet
 		$this->assertEquals( [ 0, 0, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '::Two', $result[0]['params']['href'], $desc );
 	}
 
@@ -602,7 +602,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "<del>foo\nbar" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'del', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting correctly";
@@ -610,7 +610,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 5, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'del', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (1)";
@@ -618,7 +618,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (2)";
@@ -626,7 +626,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (3)";
@@ -634,14 +634,14 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting when there is no misnested content";
 		$result = $this->parseWT( "<span>foo\n\n</span>y" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting when unclosed tag is inside a td/th/heading tags";
@@ -656,7 +656,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "[[Foo|<span>foo]]Bar</span>" );
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
@@ -666,7 +666,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "[[Foo|<span>foo]]bar</span>" );
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
@@ -674,7 +674,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "<small>foo\n\nbar" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting for span if there is a nested span tag";
@@ -687,7 +687,7 @@ class LinterTest extends TestCase {
 		$result = $this->parseWT( "<span>foo<del>boo</del>\n\nbar</span>" );
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
@@ -885,7 +885,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$desc = "should attribute linter issues to the ref tag even if references is templated";
@@ -893,7 +893,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$desc = "should attribute linter issues to the ref tag even when " .
@@ -904,21 +904,21 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 3, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$this->assertEquals( 'missing-end-tag', $result[1]['type'], $desc );
 		$this->assertEquals( [ 25, 38, null, null ], $result[1]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[1]['params']['name'], $desc );
-		$this->assertEquals( true, isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[1]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[1]['templateInfo']['name'], $desc );
 
 		$this->assertEquals( 'missing-end-tag', $result[2]['type'], $desc );
 		$this->assertEquals( [ 45, 71, null, null ], $result[2]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[2]['params'] ), $desc );
+		$this->assertTrue( isset( $result[2]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[2]['params']['name'], $desc );
-		$this->assertEquals( true, isset( $result[2]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[2]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[2]['templateInfo']['name'], $desc );
 
 		$desc = "should attribute linter issues properly when ref " .
@@ -929,14 +929,14 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 2, count( $result ), $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['params'] ), $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 's', $result[0]['params']['name'], $desc );
 
 		$this->assertEquals( 'missing-end-tag', $result[1]['type'], $desc );
 		$this->assertEquals( [ 64, 79, null, null ], $result[1]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[1]['params'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[1]['params']['name'], $desc );
-		$this->assertEquals( true, isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[1]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[1]['templateInfo']['name'], $desc );
 
 // PORT-FIXME this code is not yet supported
@@ -1003,7 +1003,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 68, null, null ], $result[0]['dsr'], $desc );
-		$this->assertEquals( true, isset( $result[0]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( 'Echo', $result[0]['templateInfo']['name'], $desc );
 	}
 

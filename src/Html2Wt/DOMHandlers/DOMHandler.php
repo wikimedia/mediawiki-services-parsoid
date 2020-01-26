@@ -402,7 +402,7 @@ class DOMHandler {
 		if ( !DOMUtils::isElt( $node ) ) {
 			return false;
 		}
-		'@phan-var DOMElement $node';/** @var DOMElement $node*/
+		'@phan-var DOMElement $node';/** @var DOMElement $node */
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		return !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd );
 	}

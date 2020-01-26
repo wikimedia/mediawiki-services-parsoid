@@ -7,8 +7,6 @@ use DOMDocument;
 use Parsoid\Config\Env;
 use Parsoid\InternalException;
 use Parsoid\Utils\PHPUtils;
-use Wikimedia\Assert\Assert;
-
 use Parsoid\Wt2Html\TT\AttributeExpander;
 use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
@@ -26,6 +24,7 @@ use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Wt2Html\TT\TemplateHandler;
 use Parsoid\Wt2Html\TT\TokenStreamPatcher;
 use Parsoid\Wt2Html\TT\WikiLinkHandler;
+use Wikimedia\Assert\Assert;
 
 /**
  * This class assembles parser pipelines from parser stages

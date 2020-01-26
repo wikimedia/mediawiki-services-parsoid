@@ -3,17 +3,17 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Wt2Html\PegTokenizer;
 use Parsoid\Tokens\EOFTk;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SelfclosingTagTk;
+use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
+use Parsoid\Utils\TokenUtils;
+use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\PegTokenizer;
 
 class ExternalLinkHandler extends TokenHandler {
 	/** @var PegTokenizer */

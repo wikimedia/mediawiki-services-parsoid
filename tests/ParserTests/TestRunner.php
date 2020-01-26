@@ -7,13 +7,12 @@ use DOMElement;
 use DOMNode;
 use Error;
 use Exception;
-
-use Parsoid\Config\Env;
 use Parsoid\Config\Api\DataAccess;
 use Parsoid\Config\Api\PageConfig;
+use Parsoid\Config\Env;
+use Parsoid\SelserData;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
-use Parsoid\SelserData;
 use Parsoid\Tools\ScriptUtils;
 use Parsoid\Tools\TestUtils;
 use Parsoid\Utils\ContentUtils;
@@ -23,9 +22,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\PageConfigFrame;
-
 use Psr\Log\LoggerInterface;
-
 use Wikimedia\Alea\Alea;
 use Wikimedia\Assert\Assert;
 
@@ -1239,20 +1236,20 @@ class TestRunner {
 			/**
 			 * PORT-FIXME
 			 *
-			$updateFormat = $options[ 'update-tests' ] === 'raw' ? 'raw' : 'actualNormalized';
-			$fileContent = file_get_contents( $this->testFilePath, 'utf8' );
-			foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
-				if ( isset( $options['update-tests'] ) || $fail->unexpected ) {
-					$exp = '/(' . '!!\s*test\s*'
-.							. JSUtils::escapeRegExp( $fail->title ) . '(?:(?!!!\s*end)[\s\S])*'
-.							. ')(' . JSUtils::escapeRegExp( $fail->expected ) . ')/m';
-					$fileContent = preg_replace( $exp,
-						'$1' . preg_replace( '/\$/', '$$$$', $fail[ $updateFormat ] ), $fileContent );
-				}
-			}
-			file_put_contents( $this->testFilePath, $fileContent );
-			*
-			**/
+			 * $updateFormat = $options[ 'update-tests' ] === 'raw' ? 'raw' : 'actualNormalized';
+			 * $fileContent = file_get_contents( $this->testFilePath, 'utf8' );
+			 * foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
+			 * if ( isset( $options['update-tests'] ) || $fail->unexpected ) {
+			 * $exp = '/(' . '!!\s*test\s*'
+			 * .							. JSUtils::escapeRegExp( $fail->title ) . '(?:(?!!!\s*end)[\s\S])*'
+			 * .							. ')(' . JSUtils::escapeRegExp( $fail->expected ) . ')/m';
+			 * $fileContent = preg_replace( $exp,
+			 * '$1' . preg_replace( '/\$/', '$$$$', $fail[ $updateFormat ] ), $fileContent );
+			 * }
+			 * }
+			 * file_put_contents( $this->testFilePath, $fileContent );
+			 *
+			 */
 
 			error_log( "update-tests not yet supported\n" );
 			die( -1 );
@@ -1458,26 +1455,26 @@ class TestRunner {
 
 		/**
 		 * PORT-FIXME
-		// Enable sampling to assert it's working while testing.
-		$parsoidConfig->loggerSampling = [ [ '/^warn(\/|$)/', 100 ] ];
-
-		// Override env's `setLogger` to record if we see `fatal` or `error`
-		// while running parser tests.  (Keep it clean, folks!  Use
-		// "suppressError" option on the test if error is expected.)
-		$env->setLogger = ( ( function ( $parserTests, $superSetLogger ) {
-			return function ( $_logger ) use ( &$parserTests ) {
-				call_user_func( 'superSetLogger', $_logger );
-				$this->log = function ( $level ) use ( &$_logger, &$parserTests ) {
-					if ( $_logger !== $parserTests->suppressLogger &&
-						preg_match( '/^(fatal|error)\b/', $level )
-					) {
-						$parserTests->stats->loggedErrorCount++;
-					}
-					return call_user_func_array( [ $_logger, 'log' ], $arguments );
-				};
-			};
-		} ) );
-		**/
+		 * // Enable sampling to assert it's working while testing.
+		 * $parsoidConfig->loggerSampling = [ [ '/^warn(\/|$)/', 100 ] ];
+		 *
+		 * // Override env's `setLogger` to record if we see `fatal` or `error`
+		 * // while running parser tests.  (Keep it clean, folks!  Use
+		 * // "suppressError" option on the test if error is expected.)
+		 * $env->setLogger = ( ( function ( $parserTests, $superSetLogger ) {
+		 * return function ( $_logger ) use ( &$parserTests ) {
+		 * call_user_func( 'superSetLogger', $_logger );
+		 * $this->log = function ( $level ) use ( &$_logger, &$parserTests ) {
+		 * if ( $_logger !== $parserTests->suppressLogger &&
+		 * preg_match( '/^(fatal|error)\b/', $level )
+		 * ) {
+		 * $parserTests->stats->loggedErrorCount++;
+		 * }
+		 * return call_user_func_array( [ $_logger, 'log' ], $arguments );
+		 * };
+		 * };
+		 * } ) );
+		 */
 
 		$options['reportStart']();
 

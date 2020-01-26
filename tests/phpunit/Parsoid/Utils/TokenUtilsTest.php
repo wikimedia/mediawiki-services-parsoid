@@ -6,8 +6,8 @@ use Parsoid\Tokens\KV;
 use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\Token;
 use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\TokenUtils;
 
 /**

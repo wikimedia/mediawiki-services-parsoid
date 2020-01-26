@@ -5,8 +5,6 @@ namespace Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
 use DOMNode;
-use stdClass;
-
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\DataParsoid;
@@ -18,6 +16,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\Frame;
+use stdClass;
 
 class ComputeDSR {
 	/**

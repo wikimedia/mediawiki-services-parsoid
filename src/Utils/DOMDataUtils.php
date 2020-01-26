@@ -3,19 +3,17 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Utils;
 
+use Composer\Semver\Semver;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use stdClass;
-
-use Parsoid\PageBundle;
 use Parsoid\Config\Env;
 use Parsoid\DataParsoid;
+use Parsoid\PageBundle;
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\DataBag; // phpcs:ignore
+use stdClass;
 use Wikimedia\Assert\Assert;
-use Composer\Semver\Semver;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.

@@ -4,10 +4,10 @@ use MediaWiki\MediaWikiServices;
 use MWParsoid\Config\DataAccess as MWDataAccess;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\Config\SiteConfig as MWSiteConfig;
-use Parsoid\Config\DataAccess;
-use Parsoid\Config\SiteConfig;
 use Parsoid\Config\Api\DataAccess as ApiDataAccess;
 use Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
+use Parsoid\Config\DataAccess;
+use Parsoid\Config\SiteConfig;
 
 return [
 

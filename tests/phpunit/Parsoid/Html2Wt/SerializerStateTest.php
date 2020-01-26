@@ -4,9 +4,9 @@ namespace Test\Parsoid\Html2Wt;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\SelserData;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
+use Parsoid\SelserData;
 use Parsoid\Tests\MockEnv;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

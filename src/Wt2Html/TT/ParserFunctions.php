@@ -8,17 +8,16 @@ namespace Parsoid\Wt2Html\TT;
 
 use DateTime;
 use DateTimeZone;
-
 use Parsoid\Config\Env;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\Params;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\Frame;
+use Parsoid\Wt2Html\Params;
 use stdClass;
 
 /**

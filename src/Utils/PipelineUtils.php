@@ -10,7 +10,6 @@ use DOMElement;
 use DOMNode;
 use DOMNodeList;
 use DOMText;
-use Parsoid\Wt2Html\Frame;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\CommentTk;
 use Parsoid\Tokens\EndTagTk;
@@ -20,6 +19,7 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Wt2Html\Frame;
 use stdClass;
 use Wikimedia\Assert\Assert;
 

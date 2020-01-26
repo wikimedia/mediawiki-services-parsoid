@@ -2,9 +2,9 @@
 
 namespace Test\Parsoid\Html2Wt;
 
+use Parsoid\Html2Wt\DOMHandlers\MetaHandler;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\Html2Wt\DOMHandlers\MetaHandler;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;

@@ -4,13 +4,12 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Generator;
-
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\Token;
+use Parsoid\Utils\PHPUtils;
 use Parsoid\Wt2Html\PipelineStage;
 use Parsoid\Wt2Html\TokenTransformManager;
-use Parsoid\Utils\PHPUtils;
 
 /**
  * Currently, all token handlers are managed by the TokenTransformManager,

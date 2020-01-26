@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\PageContent;
 use Parsoid\Config\Api\DataAccess;
+use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageConfig;
 
 /**
@@ -91,7 +91,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'dopst' );
 		$ret = $da->doPst( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
-		$this->assertInternalType( 'string', $ret );
+		$this->assertIsString( $ret );
 		$this->assertSame( 'Foobar.{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 40 ) );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
@@ -176,7 +176,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'templatedata' );
 		$ret = $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'description', $ret );
 		$this->assertArrayHasKey( 'params', $ret );
 

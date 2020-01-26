@@ -4,12 +4,12 @@ namespace Test\Parsoid\Ext\Nowiki;
 
 use DOMDocument;
 use DOMElement;
+use Parsoid\Config\ParsoidExtensionAPI;
 use Parsoid\Ext\Nowiki\Nowiki;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\DOMCompat;
-use Parsoid\Config\ParsoidExtensionAPI;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

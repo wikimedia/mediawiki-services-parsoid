@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Tokens\EOFTk;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
-use Parsoid\Tokens\EOFTk;
 
 /**
  * Simple noinclude implementation.

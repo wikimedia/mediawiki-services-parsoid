@@ -331,7 +331,7 @@ class RegressionSpecsTest extends TestCase {
 
 		$keys = [ 'about','typeof','data-mw','data-parsoid' ];
 		foreach ( $keys as $key ) {
-			$this->assertEquals( true, $secondStyle->hasAttribute( $key ), $description );
+			$this->assertTrue( $secondStyle->hasAttribute( $key ), $description );
 		}
 	}
 }

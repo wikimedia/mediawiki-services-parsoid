@@ -4,11 +4,10 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
-
 use Parsoid\Config\Env;
+use Parsoid\Logger\LintLogger;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Logger\LintLogger;
 
 /**
  * Very thin shim to call ContentUtils::convertOffsets where requested

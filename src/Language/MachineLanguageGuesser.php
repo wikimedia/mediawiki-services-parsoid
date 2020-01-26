@@ -4,10 +4,10 @@ namespace Parsoid\Language;
 
 use DOMElement;
 use DOMNode;
-use stdClass;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMPostOrder;
 use Parsoid\Utils\DOMUtils;
+use stdClass;
 use Wikimedia\LangConv\ReplacementMachine;
 
 /**

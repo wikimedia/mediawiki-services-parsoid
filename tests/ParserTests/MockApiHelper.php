@@ -782,18 +782,18 @@ class MockApiHelper extends ApiHelper {
 				/**
 				 * Unused currently
 				 *
-				case 'preprocess':
-					$res = self::preProcess( $b['titles'], $b['text'], $b['revid'] );
-					break;
-
-				case 'parse':
-					$res = self::parse( $b['text'], false );
-					break;
-
-				case 'pageprops':
-					$res = self::pageProps( $b['titles'] );
-					break;
-				*/
+				 * case 'preprocess':
+				 * $res = self::preProcess( $b['titles'], $b['text'], $b['revid'] );
+				 * break;
+				 *
+				 * case 'parse':
+				 * $res = self::parse( $b['text'], false );
+				 * break;
+				 *
+				 * case 'pageprops':
+				 * $res = self::pageProps( $b['titles'] );
+				 * break;
+				 */
 				default:
 					error_log( "Unsupported batch action: " . $b['action'] . "\n" );
 			}

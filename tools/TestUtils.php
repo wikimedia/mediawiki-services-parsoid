@@ -9,7 +9,7 @@ use DOMNode;
 use DOMText;
 use Error;
 use Exception;
-
+use JakubOnderka\PhpConsoleColor\ConsoleColor;
 use Parsoid\Html2Wt\DOMNormalizer;
 use Parsoid\Html2Wt\SerializerState;
 use Parsoid\Html2Wt\WikitextSerializer;
@@ -22,8 +22,6 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
-
-use JakubOnderka\PhpConsoleColor\ConsoleColor;
 use SebastianBergmann\Diff\Differ;
 
 class TestUtils {

@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Tests\MockEnv;
 use Parsoid\Logger\LintLogger;
+use Parsoid\Tests\MockEnv;
 
 /**
  * @coversDefaultClass Parsoid\Logger\LintLogger

@@ -9,8 +9,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use \stdClass;
-use Parsoid\Utils\TitleException;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\InternalException;
@@ -27,11 +25,13 @@ use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
+use Parsoid\Utils\TitleException;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\PegTokenizer;
-use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
+use Parsoid\Wt2Html\TokenTransformManager;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 class WikiLinkHandler extends TokenHandler {

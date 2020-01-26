@@ -4,18 +4,17 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config\Api;
 
-use Parsoid\Config\SiteConfig as ISiteConfig;
-use Parsoid\Utils\ConfigUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\UrlUtils;
-use Psr\Log\LoggerInterface;
+use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-
+use Parsoid\Config\SiteConfig as ISiteConfig;
 use Parsoid\Tests\MockMetrics;
-use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Parsoid\Utils\ConfigUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\UrlUtils;
+use Parsoid\Utils\Util;
+use Psr\Log\LoggerInterface;
 
 /**
  * SiteConfig via MediaWiki's Action API

@@ -18,7 +18,8 @@ class DataBag {
 	private $docId;
 
 	/** @var stdClass the page bundle object into which all data-parsoid and data-mw
-	 * attributes will be extracted to for pagebundle API requests. */
+	 * attributes will be extracted to for pagebundle API requests.
+	 */
 	private $pageBundle;
 
 	public function __construct() {

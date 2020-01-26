@@ -3,11 +3,10 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Logger;
 
-use Wikimedia\Assert\Assert;
-
 use Parsoid\Config\Env;
-use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Timing;
+use Parsoid\Utils\TokenUtils;
+use Wikimedia\Assert\Assert;
 
 /**
  * Logger backend for linter.

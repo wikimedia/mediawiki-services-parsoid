@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\PageContent;
 use Parsoid\Config\Api\PageConfig;
+use Parsoid\Config\PageContent;
 
 /**
  * @covers \Parsoid\Config\Api\PageConfig

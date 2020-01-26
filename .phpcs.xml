@@ -9,6 +9,10 @@
 	<exclude-pattern>src/Wt2Html/Grammar.php</exclude-pattern>
 	<exclude-pattern>tests/ParserTests/Grammar.php</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPrivate" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingParamName" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.ParamNameNoMatch" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.WrongStyle" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.SingleSpaceBeforeSingleLineComment" />
@@ -22,11 +26,13 @@
 	</rule>
 	<rule ref="MediaWiki.Commenting.FunctionComment.MissingParamTag">
 		<exclude-pattern>*/bin/*</exclude-pattern>
+		<exclude-pattern>*/src/*</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
 		<exclude-pattern>*/tools/*</exclude-pattern>
 	</rule>
 	<rule ref="MediaWiki.Commenting.FunctionComment.MissingReturn">
 		<exclude-pattern>*/bin/*</exclude-pattern>
+		<exclude-pattern>*/src/*</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
 		<exclude-pattern>*/tools/*</exclude-pattern>
 	</rule>

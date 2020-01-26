@@ -3,11 +3,11 @@
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
+use Parsoid\Parsoid;
+use Parsoid\Tests\MockDataAccess;
+use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
 use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Parsoid;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +35,7 @@ class HeadingsTest extends TestCase {
 			if ( is_String( $id ) ) {
 				$attrib = $h->getAttribute( 'id' );
 				$this->assertEquals( $id, $attrib, $name . $heading . $description . $id );
-				$this->assertEquals( 0, count( $fallback ), $name . $description .
+				$this->assertSame( 0, count( $fallback ), $name . $description .
 					' fallback should not be set.' );
 			} else {
 				$attrib = $h->getAttribute( 'id' );

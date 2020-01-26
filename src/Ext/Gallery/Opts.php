@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Ext\Gallery;
 
 use Parsoid\Config\Env;
-use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * @class

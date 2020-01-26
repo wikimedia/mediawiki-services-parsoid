@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Config\Api;
 
-use Parsoid\Config\Env;
-use Parsoid\Utils\PHPUtils;
 use Parsoid\Config\DataAccess as IDataAccess;
+use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
 use Parsoid\Tests\MockPageContent;
+use Parsoid\Utils\PHPUtils;
 
 /**
  * DataAccess via MediaWiki's Action API
@@ -70,7 +70,7 @@ class DataAccess implements IDataAccess {
 		$this->cache[$key] = $value;
 	}
 
-	/**@}*/
+	/** @} */
 
 	/**
 	 * @param ApiHelper $api

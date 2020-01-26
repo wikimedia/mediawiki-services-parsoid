@@ -4,18 +4,18 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Config\Env;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\PegTokenizer;
-use Parsoid\Wt2Html\TokenTransformManager;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\NlTk;
+use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\PipelineUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
+use Parsoid\Wt2Html\Frame;
+use Parsoid\Wt2Html\PegTokenizer;
+use Parsoid\Wt2Html\TokenTransformManager;
 use stdClass;
 
 /**

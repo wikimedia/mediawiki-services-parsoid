@@ -4,9 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
-use stdClass;
-
 use Parsoid\Config\Env;
+use stdClass;
 
 /**
  * An autolink to an RFC/PMID/ISBN, like `RFC 1234`.

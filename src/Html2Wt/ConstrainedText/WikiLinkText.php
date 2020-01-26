@@ -4,11 +4,10 @@ declare( strict_types = 1 );
 namespace Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
-use stdClass;
-
 use Parsoid\Config\Env;
 use Parsoid\Config\SiteConfig;
 use Parsoid\Utils\PHPUtils;
+use stdClass;
 
 /**
  * An internal wiki link, like `[[Foo]]`.

@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html\TT;
 
 use Parsoid\Tokens\CommentTk;
-use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\EndTagTk;
+use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\TagTk;
@@ -69,7 +69,7 @@ class ParagraphWrapper extends TokenHandler {
 		$this->currLine = null;
 
 		// These are defined in the php parser's `BlockLevelPass`
-		if ( is_null( self::$wgBlockElems ) ) {
+		if ( self::$wgBlockElems === null ) {
 			self::$wgBlockElems = PHPUtils::makeSet( [ 'table', 'h1', 'h2', 'h3', 'h4',
 			'h5', 'h6', 'pre', 'p', 'ul', 'ol', 'dl' ] );
 			self::$wgAntiBlockElems = PHPUtils::makeSet( [ 'td', 'th' ] );

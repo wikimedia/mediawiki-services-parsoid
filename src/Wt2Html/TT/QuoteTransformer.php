@@ -10,8 +10,8 @@ use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Wt2html\TokenTransformManager;
 use Parsoid\Utils\PHPUtils;
+use Parsoid\Wt2html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
 
 /**

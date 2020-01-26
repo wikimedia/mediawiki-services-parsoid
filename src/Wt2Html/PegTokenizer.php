@@ -17,14 +17,12 @@ declare( strict_types = 1 );
 namespace Parsoid\Wt2Html;
 
 use Generator;
-
 use Parsoid\Config\Env;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Utils\PHPUtils;
-use WikiPEG\SyntaxError;
-
 use Wikimedia\Assert\Assert;
+use WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
 	private $traceTime;

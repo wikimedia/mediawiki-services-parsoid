@@ -3,16 +3,16 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Tests\ParserTests;
 
-use Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
-use Parsoid\Utils\ConfigUtils;
-use Parsoid\Ext\Extension;
-use Parsoid\Utils\Util;
-use Wikimedia\Assert\Assert;
-use Psr\Log\LoggerInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
+use Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
+use Parsoid\Ext\Extension;
+use Parsoid\Utils\ConfigUtils;
+use Parsoid\Utils\Util;
+use Psr\Log\LoggerInterface;
+use Wikimedia\Assert\Assert;
 
 class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class info */

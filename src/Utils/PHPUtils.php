@@ -6,10 +6,10 @@ use Exception;
 use Wikimedia\Assert\Assert;
 
 /**
-* This file contains Parsoid-independent PHP helper functions.
-* Over time, more functions can be migrated out of various other files here.
-* @module
-*/
+ * This file contains Parsoid-independent PHP helper functions.
+ * Over time, more functions can be migrated out of various other files here.
+ * @module
+ */
 
 class PHPUtils {
 	/**

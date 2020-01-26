@@ -4,12 +4,11 @@ namespace Test\Parsoid;
 
 use Parsoid\PageBundle;
 use Parsoid\Parsoid;
-use Parsoid\Utils\PHPUtils;
-
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockPageConfig;
 use Parsoid\Tests\MockPageContent;
 use Parsoid\Tests\MockSiteConfig;
+use Parsoid\Utils\PHPUtils;
 
 /**
  * Test the entrypoint to the library.

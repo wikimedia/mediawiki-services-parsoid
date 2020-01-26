@@ -140,7 +140,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testInterwikiMap() {
 		$ret = $this->getSiteConfig()->interwikiMap();
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertSame(
 			[
 				'prefix' => 'zh-cn',
@@ -259,7 +259,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testVariants() {
 		$ret = $this->getSiteConfig()->variants();
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertSame(
 			[
 				'base' => 'zh',
@@ -278,13 +278,13 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testMagicWords() {
 		$ret = $this->getSiteConfig()->magicWords();
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertSame( 'disambiguation', $ret['__DISAMBIG__'] ?? null );
 	}
 
 	public function testMwAliases() {
 		$ret = $this->getSiteConfig()->mwAliases();
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertSame(
 			[
 				'DEFAULTSORT:',
@@ -393,7 +393,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGetExtResourceURLPatternMatcher() {
 		$matcher = $this->getSiteConfig()->getExtResourceURLPatternMatcher();
-		$this->assertInternalType( 'callable', $matcher );
+		$this->assertIsCallable( $matcher );
 		$this->assertSame(
 			[ 'ISBN', '12345' ],
 			$matcher( 'Special:Booksources/12345' )

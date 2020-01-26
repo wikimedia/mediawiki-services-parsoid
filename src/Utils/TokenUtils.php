@@ -12,7 +12,6 @@ declare( strict_types = 1 );
 namespace Parsoid\Utils;
 
 use DOMNode;
-
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Tokens\CommentTk;
@@ -22,11 +21,10 @@ use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\KVSourceRange;
 use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Tokens\TagTk;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\SourceRange;
-
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Wikimedia\Assert\Assert;
 
 class TokenUtils {

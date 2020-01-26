@@ -3,19 +3,19 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Wt2Html\TokenTransformManager;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\Token;
-use Parsoid\Tokens\TagTk;
+use Parsoid\Config\WikitextConstants;
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
-use Parsoid\Utils\PHPUtils;
+use Parsoid\Tokens\KV;
+use Parsoid\Tokens\SourceRange;
+use Parsoid\Tokens\TagTk;
+use Parsoid\Tokens\Token;
 use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\PipelineUtils;
+use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMUtils;
-use Parsoid\Config\WikitextConstants;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\PipelineUtils;
+use Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Handler for language conversion markup, which looks like `-{ ... }-`.

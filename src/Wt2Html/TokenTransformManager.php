@@ -3,12 +3,11 @@
 namespace Parsoid\Wt2Html;
 
 use Generator;
-
 use Parsoid\Config\Env;
 use Parsoid\Tokens\SourceRange;
-use Parsoid\Wt2Html\TT\TokenHandler;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Title;
+use Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
  * Token transformation manager. Individual transformations

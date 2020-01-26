@@ -3,9 +3,8 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\PP\Processors;
 
-use DOMNode;
 use DOMElement;
-
+use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\TokenUtils;

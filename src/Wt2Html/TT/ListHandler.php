@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
-use stdClass;
-
 use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\EOFTk;
 use Parsoid\Tokens\NlTk;
@@ -15,6 +13,7 @@ use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Wt2Html\TokenTransformManager;
+use stdClass;
 
 /**
  * Create list tag around list items and map wiki bullet levels to html.
@@ -318,7 +317,7 @@ class ListHandler extends TokenHandler {
 	 *
 	 * @param string $a
 	 * @param string $b
-	 * @return boolean
+	 * @return bool
 	 */
 	private function isDtDd( string $a, string $b ): bool {
 		$ab = [ $a, $b ];

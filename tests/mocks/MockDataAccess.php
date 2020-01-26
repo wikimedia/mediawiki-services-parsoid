@@ -3,8 +3,8 @@
 namespace Parsoid\Tests;
 
 use Error;
-use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess;
+use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;
 use Parsoid\Config\PageContent;
 

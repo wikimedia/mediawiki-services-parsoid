@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
-use Parsoid\Config\Env;
 use DOMElement;
+use Parsoid\Config\Env;
 use Parsoid\Parsoid;
 use Parsoid\Tests\MockDataAccess;
 use Parsoid\Tests\MockEnv;
@@ -122,8 +122,8 @@ class CleanUpTest extends TestCase {
 	}
 
 	/**
-	* @return array
-	*/
+	 * @return array
+	 */
 	public function provideCleanUpWT(): array {
 		$test = [
 			";Definition list",

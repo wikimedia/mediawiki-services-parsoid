@@ -5,12 +5,11 @@ namespace Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
 use DOMNode;
-use stdClass;
-
 use Parsoid\Config\Env;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\Util;
+use stdClass;
 
 /**
  * A chunk of wikitext output.  This base class contains the

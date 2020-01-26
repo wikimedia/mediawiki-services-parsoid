@@ -79,7 +79,7 @@ class CleanUp {
 		 * - If node is part of template content, it can be deleted
 		 *   (since we know it has no attributes, it won't be the
 		 *   first node that has about, typeof, and other attrs)
-		* - If not, we add the mw-empty-elt class so that wikis
+		 * - If not, we add the mw-empty-elt class so that wikis
 		 *   can decide what to do with them.
 		 */
 		if ( $tplInfo ) {

@@ -4,9 +4,8 @@ declare( strict_types = 1 );
 namespace Parsoid\Tokens;
 
 use Parsoid\Utils\PHPUtils;
-use stdClass;
-
 use Parsoid\Wt2Html\Frame;
+use stdClass;
 use Wikimedia\Assert\Assert;
 
 /**
@@ -288,7 +287,7 @@ abstract class Token implements \JsonSerializable {
 				$e["ksrc"] ?? null,
 				$e["vsrc"] ?? null
 			);
-		};
+		}
 		return $kvs;
 	}
 

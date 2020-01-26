@@ -12,14 +12,13 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
-use Parsoid\Config\Env;
 use Parsoid\Config\DataAccess as IDataAccess;
+use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig as IPageConfig;
-// we can get rid of this once we can assume PHP 7.4+ with covariant return type support
 use Parsoid\Config\PageContent as IPageContent;
+use Parsoid\Logger\LintLogger;
 use RepoGroup;
 use Title;
-use Parsoid\Logger\LintLogger;
 
 class DataAccess implements IDataAccess {
 
@@ -207,7 +206,7 @@ class DataAccess implements IDataAccess {
 										'#^https?://#', '//', $item[$key]
 									);
 								}
-							};
+							}
 						};
 						if ( isset( $result['thumbdata']['derivatives'] ) ) {
 							$stripProto( $result['thumbdata']['derivatives'] );

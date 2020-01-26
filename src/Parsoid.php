@@ -3,10 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid;
 
-use LogicException;
-
-use Composer\Semver\Semver;
 use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
+use LogicException;
 use Parsoid\Config\DataAccess;
 use Parsoid\Config\Env;
 use Parsoid\Config\PageConfig;

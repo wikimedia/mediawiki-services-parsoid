@@ -5,9 +5,9 @@ namespace Test\Parsoid\Html2Wt;
 use Parsoid\Html2Wt\DOMDiff;
 use Parsoid\Tests\MockEnv;
 use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -62,7 +62,7 @@ class DOMDiffTest extends TestCase {
 				$node = $nodes[0];
 			}
 			if ( isset( $spec['diff'] ) ) {
-				$this->assertEquals( true, DOMUtils::isDiffMarker( $node, $spec['diff'] ) );
+				$this->assertTrue( DOMUtils::isDiffMarker( $node, $spec['diff'] ) );
 			} elseif ( isset( $spec['markers'] ) ) {
 				// NOTE: Not using DiffUtils.getDiffMark because that
 				// tests for page id and we may not be mocking that

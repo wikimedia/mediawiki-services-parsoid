@@ -8,10 +8,10 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Html2Wt;
 
-use Parsoid\Utils\DOMDataUtils;
+use DOMElement;
 use Parsoid\Config\WikitextConstants;
 use Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
-use DOMElement;
+use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
 

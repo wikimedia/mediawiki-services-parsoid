@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\TT;
 
+use Parsoid\Tokens\EndTagTk;
 use Parsoid\Tokens\KV;
 use Parsoid\Tokens\SelfclosingTagTk;
 use Parsoid\Tokens\Token;
-use Parsoid\Tokens\EndTagTk;
 use Parsoid\Utils\TokenUtils;
 use Parsoid\Wt2Html\TokenTransformManager;
 

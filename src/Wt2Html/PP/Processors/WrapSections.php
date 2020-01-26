@@ -6,18 +6,16 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
+use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
+use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
 use Parsoid\Wt2Html\Frame;
-
-use DOMElement;
-use DOMNode;
-
 use Wikimedia\Assert\Assert;
 
 class WrapSections {

@@ -6,13 +6,12 @@ namespace Parsoid\Utils;
 use DOMComment;
 use DOMElement;
 use DOMNode;
-use stdClass;
-
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants as Consts;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Tokens\CommentTk;
 use Parsoid\Wt2Html\Frame;
+use stdClass;
 
 /**
  * These utilites pertain to extracting / modifying wikitext information from the DOM.

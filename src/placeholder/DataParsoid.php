@@ -3,10 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid;
 
-use stdClass;
-
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
+use stdClass;
 
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().

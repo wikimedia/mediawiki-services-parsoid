@@ -3,13 +3,12 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
+use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Config\WikitextConstants;
-use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\DOMDataUtils;
-
-use \DOMNode;
-use \DOMElement;
+use Parsoid\Utils\DOMUtils;
 
 class PWrap {
 	/**

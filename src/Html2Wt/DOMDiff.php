@@ -3,6 +3,9 @@ declare( strict_types = 1 );
 
 namespace Parsoid\Html2Wt;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Parsoid\Config\Env;
 use Parsoid\Utils\ContentUtils;
 use Parsoid\Utils\DOMCompat;
@@ -10,11 +13,8 @@ use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\WTUtils;
-use Wikimedia\Assert\Assert;
-use \DOMNode;
-use \DOMElement;
-use \DOMDocument;
 use stdClass;
+use Wikimedia\Assert\Assert;
 
 /**
  * A DOM diff helper class.

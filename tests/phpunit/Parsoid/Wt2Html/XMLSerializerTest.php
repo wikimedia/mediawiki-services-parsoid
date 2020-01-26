@@ -30,17 +30,17 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'innerXML' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedInnerHtml, $ret['html'] );
 	}
@@ -56,7 +56,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( '123', $ret['offsets'] );
 		$this->assertSame( [ 0, 62 ], $ret['offsets']['123']['html'] );
@@ -65,7 +65,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( [ 62, 85 ], $ret['offsets']['345']['html'] );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true, 'innerXML' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( '123', $ret['offsets'] );
 		$this->assertSame( [ 0, 62 ], $ret['offsets']['123']['html'] );
@@ -87,7 +87,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
 		$this->assertArrayHasKey( 'mwAg', $ret['offsets'] );
@@ -109,7 +109,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
 		$this->assertArrayHasKey( 'mwAg', $ret['offsets'] );
@@ -132,7 +132,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
 		$this->assertArrayNotHasKey( 'timeline', $ret['offsets'] );
@@ -153,7 +153,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 	}
@@ -184,12 +184,12 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedNonSmart, $ret['html'] );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => true ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedSmart, $ret['html'] );
 	}
@@ -205,7 +205,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 	}
@@ -219,7 +219,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $html, $ret['html'] );
 	}
@@ -237,7 +237,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
-		$this->assertInternalType( 'array', $ret );
+		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 	}

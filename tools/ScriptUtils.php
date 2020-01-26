@@ -284,14 +284,14 @@ class ScriptUtils {
 	public static function setColorFlags( array $options ): void {
 		/**
 		 * PORT-FIXME:
-		if ( $options->color === 'auto' ) {
-			if ( !$process->stdout->isTTY ) {
-				$colors->mode = 'none';
-			}
-		} elseif ( !self::booleanOption( $options->color ) ) {
-			$colors->mode = 'none';
-		}
-		**/
+		 * if ( $options->color === 'auto' ) {
+		 * if ( !$process->stdout->isTTY ) {
+		 * $colors->mode = 'none';
+		 * }
+		 * } elseif ( !self::booleanOption( $options->color ) ) {
+		 * $colors->mode = 'none';
+		 * }
+		 */
 	}
 
 	/**

@@ -6,22 +6,19 @@ namespace Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-
-use RemexHtml\DOM\DOMBuilder;
-use RemexHtml\Tokenizer\Tokenizer;
-use RemexHtml\TreeBuilder\TreeBuilder;
-use RemexHtml\TreeBuilder\Dispatcher;
-
 use Parsoid\ClientError;
 use Parsoid\Config\WikitextConstants;
-
+use RemexHtml\DOM\DOMBuilder;
+use RemexHtml\Tokenizer\Tokenizer;
+use RemexHtml\TreeBuilder\Dispatcher;
+use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
 
 /**
-* DOM utilities for querying the DOM. This is largely independent of Parsoid
-* although some Parsoid details (diff markers, TokenUtils, inline content version)
-* have snuck in.
-*/
+ * DOM utilities for querying the DOM. This is largely independent of Parsoid
+ * although some Parsoid details (diff markers, TokenUtils, inline content version)
+ * have snuck in.
+ */
 class DOMUtils {
 	const TPL_META_TYPE_REGEXP = '/(?:^|\s)(mw:(?:Transclusion|Param)(?:\/End)?)(?=$|\s)/';
 	const FIRST_ENCAP_REGEXP =
@@ -814,7 +811,7 @@ class DOMUtils {
 		$r = [];
 		foreach ( $elts as $el ) {
 			$r[strtolower( $el->getAttribute( 'http-equiv' ) )] = $el->getAttribute( 'content' );
-		};
+		}
 		return $r;
 	}
 

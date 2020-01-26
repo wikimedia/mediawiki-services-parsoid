@@ -4,14 +4,12 @@ declare( strict_types = 1 );
 namespace Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
-
 use Parsoid\ContentModelHandler;
-use Parsoid\WikitextContentModelHandler;
 use Parsoid\Ext\Extension;
 use Parsoid\Ext\ExtensionTag;
 use Parsoid\Utils\PHPUtils;
 use Parsoid\Utils\Util;
-
+use Parsoid\WikitextContentModelHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -224,7 +222,7 @@ abstract class SiteConfig {
 		return $this->scrubBidiChars;
 	}
 
-	/**@}*/
+	/** @} */
 
 	/************************************************************************//**
 	 * @name   Wiki config
@@ -853,7 +851,7 @@ abstract class SiteConfig {
 	 */
 	abstract public function findValidProtocol( string $potentialLink ): bool;
 
-	/**@}*/
+	/** @} */
 
 	/**
 	 * Fake timestamp, for unit tests.

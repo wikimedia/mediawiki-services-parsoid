@@ -3,8 +3,6 @@
 namespace Parsoid\Html2Wt;
 
 use DOMElement;
-use stdClass;
-
 use Parsoid\Config\Env;
 use Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
 use Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
@@ -19,6 +17,7 @@ use Parsoid\Utils\TokenUtils;
 use Parsoid\Utils\UrlUtils;
 use Parsoid\Utils\Util;
 use Parsoid\Utils\WTUtils;
+use stdClass;
 use UnexpectedValueException;
 
 /**

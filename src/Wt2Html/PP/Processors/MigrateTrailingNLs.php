@@ -7,10 +7,10 @@ use DOMComment;
 use DOMElement;
 use DOMNode;
 use Parsoid\Config\Env;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\WTUtils;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
+use Parsoid\Utils\PHPUtils;
+use Parsoid\Utils\WTUtils;
 use stdClass;
 
 class MigrateTrailingNLs {

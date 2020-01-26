@@ -5,16 +5,15 @@ namespace Parsoid\Config;
 
 use DOMDocument;
 use DOMElement;
-
 use Parsoid\Tokens\DomSourceRange;
 use Parsoid\Tokens\SourceRange;
 use Parsoid\Tokens\Token;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\TT\Sanitizer;
 use Parsoid\Utils\DOMCompat;
 use Parsoid\Utils\DOMDataUtils;
 use Parsoid\Utils\DOMUtils;
 use Parsoid\Utils\PipelineUtils;
+use Parsoid\Wt2Html\Frame;
+use Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * Extensions should / will eventually only get access to an instance of this config.
