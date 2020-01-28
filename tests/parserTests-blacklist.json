@@ -56,10 +56,6 @@
         "wt2wt": "*#*#;*;;foo :bar\n*#*#;boo :baz\n",
         "html2wt": "*#*#; foo \n*#*#:*;; bar\n*#; boo \n*#: baz\n"
     },
-    "External link containing double-single-quotes in text embedded in italics (T6598 sanity check)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,60,0,0]}'><i data-parsoid='{\"dsr\":[0,60,2,2]}'>Some <a rel=\"mw:ExtLink\" href=\"http://example.com/\" class=\"external text\" data-parsoid='{\"dsr\":[7,57,21,1]}'>pretty <i data-parsoid='{\"dsr\":[35,46,2,2]}'>italics</i> and stuff</a>!</i></p>",
-        "html2wt": "''Some ''[http://example.com/ ''pretty ''italics'' and stuff'']''!''\n"
-    },
     "Self-link to numeric title": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,5,0,0]}'><a rel=\"mw:WikiLink\" href=\"./0\" title=\"0\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./0\"},\"sa\":{\"href\":\"0\"},\"dsr\":[0,5,2,2]}'>0</a></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,1,0,0]}'>0</p>\n",
@@ -252,11 +248,6 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'>{{a<b data-parsoid='{\"stx\":\"html\",\"dsr\":[3,11,3,4]}'>b</b>|<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[12,24,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>|<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[25,35,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span>=<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[36,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"b\"}},\"i\":0}}]}'>b</span>|a =b}}</p>",
         "wt2wt": "<nowiki>{{a</nowiki><b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}<nowiki>|a =b}}</nowiki>",
         "html2wt": "<nowiki>{{a</nowiki>'''b'''<nowiki>|foo|a=b|a = b}}</nowiki>\n"
-    },
-    "Template with invalid target containing unclosed tag": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,49,0,0]}'>{{a<b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[3,49,3,0]}'>|<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[7,19,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>|<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[20,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span>=<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[31,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"b\"}},\"i\":0}}]}'>b</span>|a =b}}</b></p>",
-        "wt2wt": "<nowiki>{{a</nowiki><b>|{{echo|foo}}|{{echo|a}}={{echo|b}}<nowiki>|a =b}}</nowiki>",
-        "html2wt": "<nowiki>{{a</nowiki>'''<nowiki>|foo|a=b|a = b}}</nowiki>'''\n"
     },
     "Template with invalid target containing wikilink": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'>{{<a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[2,15,2,2]}'>Main Page</a>}}</p>",
@@ -603,7 +594,7 @@
     "Quote balancing context should be restricted to td/th cells on the same wikitext line": {
         "wt2wt": "{|\n!''a''!!''b''\n|''a''||''b''\n|}"
     },
-    "Non-word characters don't terminate tag names": {
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
         "wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>",
         "html2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n"
     },
@@ -1965,9 +1956,6 @@
     "Nested template calls": {
         "html2wt": "(My parameter is: param)\n"
     },
-    "Sanitizer: Closing of open but not closed tags": {
-        "html2wt": "<s>foo</s>\n"
-    },
     "Self closed html pairs (T7487)": {
         "html2wt": "<center><font id=\"bug\"></font>Centered text</center>\n<div><font id=\"bug2\"></font>In div text</div>"
     },
@@ -2373,26 +2361,23 @@
     "Quote balancing context should be restricted to td/th cells on the same wikitext line [[0,1]]": {
         "selser": "{|\n!''a!!''b\n|''a||''b\n|}"
     },
-    "Non-word characters don't terminate tag names [0,4,3,0,4,3,4,0,1,0,[3]]": {
-        "selser": "<blockquote|>a</blockquote>\n\n175zygm\n\n6dh813\n\n1g8m88l\n\n<s.foo> doesn't terminate </s.foo>\n\n"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [0,0,0,3,0,4,1,3,[3],0,[2]]": {
+        "selser": "<blockquote|>a</blockquote>\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\ng0p38s\n\n<boo> doesn't terminate </boo>\n\n15zmhzp<sub-ID#1>"
     },
-    "Non-word characters don't terminate tag names [2,4,3,4,2,0,4,4,1,0,0]": {
-        "selser": "khe7wi\n\n<blockquote|>a</blockquote>\n\n19rknbf\n\ndfmlyv\n\njtezfq\n\n<bä> doesn't terminate </bä>\n\ncchirf\n\n1jz6mw1\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [0,0,[3],4,3,0,1,4,[4],0,0]": {
+        "selser": "<blockquote|>a</blockquote>\n\n10u9srl\n\n<boo> doesn't terminate </boo>\n\n1pfxe03\n\n17gvfiq\n\n<sub-ID#1>"
     },
-    "Non-word characters don't terminate tag names [0,0,[3],3,0,0,1,0,4,4,1]": {
-        "selser": "<blockquote|>a</blockquote>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n19x7pgg\n\n1a83u6j\n\n<sub-ID#1>"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [2,0,0,2,1,0,[4],0,0,0,[3]]": {
+        "selser": "1kvfbh7\n\n<blockquote|>a</blockquote>\n\n<b→> doesn't terminate </b→>\n\n1ckx0ef\n\n<bä> doesn't terminate </bä>\n\n1euhok7\n\n<s.foo> doesn't terminate </s.foo>\n\n"
     },
-    "Non-word characters don't terminate tag names [0,2,[2],2,0,2,[2],2,0,3,4]": {
-        "selser": "<blockquote|>a</blockquote>\n\n6pj11s\n\nqe7suh<b→> doesn't terminate </b→>\n\nodp2da\n\n<bä> doesn't terminate </bä>\n\n1snlqhx\n\n1ot3yuh<boo> doesn't terminate </boo>\n\nrlmlm9\n\n<s.foo> doesn't terminate </s.foo>\n\n1oz7tqz"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [2,4,1,0,[2],0,0,0,[4],3,2]": {
+        "selser": "1jnsohs\n\n<blockquote|>a</blockquote>\n\nmsvqr8\n\n<b→> doesn't terminate </b→>\n\n1blzxen<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n1q0c8fj\n\ndk8akl\n\n<sub-ID#1>"
     },
-    "Non-word characters don't terminate tag names [0,3,0,3,3,3,1,2,0,2,0]": {
-        "selser": "<blockquote|>a</blockquote>\n\n<b→> doesn't terminate </b→>\n\n<boo> doesn't terminate </boo>\n\nrm2z1s\n\n<s.foo> doesn't terminate </s.foo>\n\nnqwtvu\n\n<sub-ID#1>"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [0,0,2,2,3,3,3,4,3,0,1]": {
+        "selser": "<blockquote|>a</blockquote>\n\n1ego5dv\n\n<b→> doesn't terminate </b→>\n\n1bkybqx\n\nn2r4nj\n\n<sub-ID#1>"
     },
-    "Non-word characters don't terminate tag names [0,0,0,4,1,0,[4],0,4,0,3]": {
-        "selser": "<blockquote|>a</blockquote>\n\n<b→> doesn't terminate </b→>\n\nyso8g8\n\n<bä> doesn't terminate </bä>\n\n1ri2fsk\n\n1rzfofp\n"
-    },
-    "Non-word characters don't terminate tag names [0,0,[2],4,[3],0,[2],2,1,0,3]": {
-        "selser": "<blockquote|>a</blockquote>\n\nkrxckp<b→> doesn't terminate </b→>\n\n1366vfq\n\n1hrisb9<boo> doesn't terminate </boo>\n\n18ci2r5\n\n<s.foo> doesn't terminate </s.foo>\n"
+    "Non-word characters don't terminate tag names (T19663, T42670, T54022) [0,4,2,0,4,4,1,0,0,2,[2]]": {
+        "selser": "<blockquote|>a</blockquote>\n\n1vd24n8\n\n18ssbe9\n\n<b→> doesn't terminate </b→>\n\n1yjt8s3\n\nn9g45c\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n1qy93z2\n\niaid67<sub-ID#1>"
     },
     "Block tag on both lines (<div>) [[2],0,2,[4]]": {
         "selser": "h6qyj8a <div>foo</div>1mjtzj4\n\n\n\nb <div>679wm4</div>"
@@ -3797,33 +3782,6 @@
     },
     "Template with invalid target containing tags [[4,1,0,0,4,0,3,0,0]]": {
         "selser": "t9hq36<b data-foobar=\"ngjfip\">b</b>|{{echo|foo}}hc4wv8{{echo|a}}{{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [1]": {
-        "selser": "<nowiki>{{a</nowiki><b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
-    },
-    "Template with invalid target containing unclosed tag [[0,1]]": {
-        "selser": "<nowiki>{{a</nowiki><b data-foobar=\"63xynt\">|{{echo|foo}}|{{echo|a}}={{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [[4,2]]": {
-        "selser": "1u5b2pr12h8jnq<b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
-    },
-    "Template with invalid target containing unclosed tag [[3,[0,0,4,0,3,0,0]]]": {
-        "selser": "<b>|{{echo|foo}}16paeqf{{echo|a}}{{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [[0,[4,0,0,0,3,0,0]]]": {
-        "selser": "<nowiki>{{a</nowiki><b>1uamuv9{{echo|foo}}|{{echo|a}}{{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [[3,[4,0,0,0,0,0,0]]]": {
-        "selser": "<b>1ylthb7{{echo|foo}}|{{echo|a}}={{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [2]": {
-        "selser": "akurp4\n\n{{a<b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
-    },
-    "Template with invalid target containing unclosed tag [[0,[3,0,0,0,2,0,0]]]": {
-        "selser": "<nowiki>{{a</nowiki><b>{{echo|foo}}|{{echo|a}}1hykhll={{echo|b}}|a =b}}"
-    },
-    "Template with invalid target containing unclosed tag [[2,2]]": {
-        "selser": "<nowiki>ozcrij{{a102mqyr</nowiki><b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
     },
     "Template with invalid target containing wikilink [2]": {
         "selser": "gmc0h9\n\n{{[[Main Page]]}}"
