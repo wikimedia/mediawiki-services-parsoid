@@ -1,10 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
-use Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\Env;
 
 /**
  * wt -> html DOM PostProcessor

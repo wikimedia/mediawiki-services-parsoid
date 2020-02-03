@@ -2,13 +2,13 @@
 
 namespace Test\Parsoid\Html2Wt;
 
-use Parsoid\Html2Wt\SingleLineContext;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Html2Wt\SingleLineContext;
 
 class SingleLineContextTest extends TestCase {
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SingleLineContext
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SingleLineContext
 	 */
 	public function testEnforced() {
 		$ctx = new SingleLineContext();

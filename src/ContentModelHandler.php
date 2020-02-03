@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 use DOMDocument;
 
-use Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\Env;
 
 abstract class ContentModelHandler {
 

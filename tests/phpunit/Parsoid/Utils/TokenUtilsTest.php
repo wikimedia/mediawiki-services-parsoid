@@ -2,16 +2,16 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\KVSourceRange;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\KVSourceRange;
+use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
- * @coversDefaultClass Parsoid\Utils\TokenUtils
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\TokenUtils
  */
 class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 

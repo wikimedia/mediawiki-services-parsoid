@@ -12,17 +12,17 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
-use Parsoid\Config\Env;
-use Parsoid\Tokens\CommentTk;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;

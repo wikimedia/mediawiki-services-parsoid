@@ -4,9 +4,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Parsoid\Html2Wt\DOMNormalizer;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 
 $html = file_get_contents( $argv[1] );
 

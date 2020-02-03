@@ -2,13 +2,13 @@
 
 namespace Test\Parsoid\Html2Wt;
 
-use Parsoid\Parsoid;
-use Parsoid\SelserData;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
 
 class TemplateDataTest extends TestCase {
 
@@ -373,8 +373,8 @@ class TemplateDataTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Parsoid::html2wikitext
-	 * @covers \Parsoid\WikitextContentModelHandler::fromDOM
+	 * @covers \Wikimedia\Parsoid\Parsoid::html2wikitext
+	 * @covers \Wikimedia\Parsoid\WikitextContentModelHandler::fromDOM
 	 * @dataProvider defineTestData
 	 */
 	public function testTemplateData(
@@ -420,8 +420,8 @@ class TemplateDataTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Parsoid::html2wikitext
-	 * @covers \Parsoid\WikitextContentModelHandler::fromDOM
+	 * @covers \Wikimedia\Parsoid\Parsoid::html2wikitext
+	 * @covers \Wikimedia\Parsoid\WikitextContentModelHandler::fromDOM
 	 * @dataProvider defineVersionTestData
 	 */
 	public function testTemplateDataVersion(

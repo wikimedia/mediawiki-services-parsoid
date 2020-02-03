@@ -1,9 +1,9 @@
 <?php
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
-use Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class Normalize {
 	/**

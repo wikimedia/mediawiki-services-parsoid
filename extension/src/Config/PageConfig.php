@@ -7,10 +7,9 @@ use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleHandler;
 use Parser;
 use ParserOptions;
-
-use Parsoid\Config\PageConfig as IPageConfig;
-use Parsoid\Config\PageContent as IPageContent;
 use Title;
+use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
+use Wikimedia\Parsoid\Config\PageContent as IPageContent;
 
 /**
  * Page-level configuration interface for Parsoid

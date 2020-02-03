@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\Parsoid;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
 
 /** Test cases for the linter */
 
@@ -71,7 +71,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testNoIssues(): void {
 		$desc = 'should not have lint any issues';
@@ -79,7 +79,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testMissingEndTags(): void {
 		$desc = 'should lint missing end tags correctly';
@@ -114,7 +114,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testStrippedTags(): void {
 		$desc = 'should lint stripped tags correctly';
@@ -182,7 +182,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testObsoleteTags(): void {
 		$desc = 'should lint obsolete tags correctly';
@@ -225,7 +225,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testFosteredContent(): void {
 		$desc = 'should lint fostered content correctly';
@@ -250,7 +250,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testBogusImageOptions(): void {
 		$desc = 'should lint Bogus image options correctly';
@@ -300,7 +300,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testSelfClosingTags(): void {
 		$desc = 'should lint self-closing tags corrrectly';
@@ -327,7 +327,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testDeletableTableTag(): void {
 		$desc = 'should identify deletable table tag for T161341 (1)';
@@ -405,7 +405,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testPwrapBugWorkaround(): void {
 		$desc = 'should identify rendering workarounds needed for doBlockLevels bug';
@@ -454,7 +454,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testTidyWhitespaceBug(): void {
 		$wt1 = implode( "", [
@@ -570,7 +570,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testMultipleColonEscape(): void {
 		$desc = 'should lint links prefixed with multiple colons';
@@ -595,7 +595,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testHtml5MisnestedTags(): void {
 		$desc = "should not trigger html5 misnesting if there is no following content";
@@ -700,7 +700,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testTidyFontBug(): void {
 		$desc = "should flag Tidy font fixups accurately when color attribute is present";
@@ -752,7 +752,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testMultipleUnclosedFormatTags(): void {
 		$desc = 'should detect multiple unclosed small tags';
@@ -809,7 +809,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testUnclosedIBTagsInHeadings(): void {
 		$desc = "should detect unclosed wikitext i tags in headings";
@@ -834,7 +834,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testMultilineHtmlTablesInLists(): void {
 		$desc = "should detect multiline HTML tables in lists (li)";
@@ -877,7 +877,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testLintIssueInRefTags(): void {
 		$desc = "should attribute linter issues to the ref tag";
@@ -949,7 +949,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testDivSpanFlipTidyBug(): void {
 		$desc = "should not trigger this lint when there are no style or class attributes";
@@ -981,7 +981,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testWikilinkInExternalLink(): void {
 		$desc = "should lint wikilink in external link correctly";

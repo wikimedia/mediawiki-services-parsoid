@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 /**
  * Data that's necessary for selective serialization, to be passed to the

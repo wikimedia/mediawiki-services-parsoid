@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 /**
  * This refactors common code in Api and Mock based config computation

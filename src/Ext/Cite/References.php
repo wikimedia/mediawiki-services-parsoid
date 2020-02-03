@@ -1,26 +1,26 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Title;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\WTUtils;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 class References extends ExtensionTag {
 	/**

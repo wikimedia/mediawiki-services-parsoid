@@ -3,10 +3,10 @@
 namespace Test\Parsoid\Language;
 
 use DOMDocument;
-use Parsoid\Language\LanguageConverter;
-use Parsoid\Tests\MockEnv;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\Language\LanguageConverter;
+use Wikimedia\Parsoid\Tests\MockEnv;
 
 class EnTest extends TestCase {
 

@@ -2,12 +2,12 @@
 
 namespace Test\Parsoid\Config;
 
-use Parsoid\Config\SiteConfig;
 use PHPUnit\Framework\MockObject\MockObject;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\TestingAccessWrapper;
 
 /**
- * @covers \Parsoid\Config\SiteConfig
+ * @covers \Wikimedia\Parsoid\Config\SiteConfig
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 

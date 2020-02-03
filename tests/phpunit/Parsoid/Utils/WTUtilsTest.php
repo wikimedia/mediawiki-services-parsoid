@@ -2,10 +2,10 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
- * @coversDefaultClass Parsoid\Utils\WTUtils
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\WTUtils
  */
 class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 

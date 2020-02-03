@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\DOMHandlers;
+namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 // Just serialize the children, ignore the (implicit) tag
 use DOMElement;
 use DOMNode;
-use Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
 
 class JustChildrenHandler extends DOMHandler {
 

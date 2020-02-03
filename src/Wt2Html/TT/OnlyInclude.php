@@ -1,14 +1,14 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * OnlyInclude sadly forces synchronous template processing, as it needs to

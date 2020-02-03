@@ -7,9 +7,9 @@
  * @module
  */
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
-use Parsoid\simpleDiff as simpleDiff;
+use Wikimedia\Parsoid\simpleDiff as simpleDiff;
 
 $Util = require './Util.js'::Util;
 

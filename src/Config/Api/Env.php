@@ -2,9 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Config\Api;
+namespace Wikimedia\Parsoid\Config\Api;
 
-use Parsoid\Config\Env as IEnv;
+use Wikimedia\Parsoid\Config\Env as IEnv;
 
 /**
  * An Env accessing MediaWiki via its Action API
@@ -34,7 +34,7 @@ class Env extends IEnv {
 	// https://wiki.php.net/rfc/covariant-returns-and-contravariant-parameters
 
 	/** @return SiteConfig */
-	public function getSiteConfig(): \Parsoid\Config\SiteConfig {
+	public function getSiteConfig(): \Wikimedia\Parsoid\Config\SiteConfig {
 		return parent::getSiteConfig();
 	}
 }

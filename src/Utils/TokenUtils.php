@@ -9,23 +9,23 @@ declare( strict_types = 1 );
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Config\WikitextConstants as Consts;
-use Parsoid\Tokens\CommentTk;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\KVSourceRange;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
+use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\KVSourceRange;
+use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
 
 class TokenUtils {
 	const SOL_TRANSPARENT_LINK_REGEX =

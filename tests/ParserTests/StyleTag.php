@@ -1,14 +1,14 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 use DOMDocument;
 
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class StyleTag extends ExtensionTag implements Extension {
 	/** @inheritDoc */

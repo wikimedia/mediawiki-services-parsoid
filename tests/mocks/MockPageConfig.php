@@ -1,9 +1,9 @@
 <?php
 
-namespace Parsoid\Tests;
+namespace Wikimedia\Parsoid\Tests;
 
-use Parsoid\Config\PageConfig;
-use Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\PageContent;
 
 class MockPageConfig extends PageConfig {
 

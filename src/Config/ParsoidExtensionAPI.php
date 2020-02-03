@@ -1,19 +1,19 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PipelineUtils;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\TT\Sanitizer;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * Extensions should / will eventually only get access to an instance of this config.

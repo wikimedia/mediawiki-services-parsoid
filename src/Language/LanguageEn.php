@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 /** English ( / Pig Latin) conversion code */
 class LanguageEn extends Language {

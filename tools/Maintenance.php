@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Tools;
+namespace Wikimedia\Parsoid\Tools;
 
 // Hacky preprocessing of command-line arguments: look for
 // --integrated and/or --standalone flags.

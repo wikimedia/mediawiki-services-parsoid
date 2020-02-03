@@ -2,12 +2,12 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Config\Api;
+namespace Wikimedia\Parsoid\Config\Api;
 
-use Parsoid\Config\PageConfig as IPageConfig;
-use Parsoid\Config\PageContent;
-use Parsoid\Tests\MockPageContent;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
+use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Tests\MockPageContent;
 
 /**
  * PageConfig via MediaWiki's Action API

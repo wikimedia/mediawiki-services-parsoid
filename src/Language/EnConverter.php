@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 use Wikimedia\LangConv\ReplacementMachine;
 

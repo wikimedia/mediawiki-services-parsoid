@@ -1,24 +1,24 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt;
+namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Config\WikitextConstants;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
-use Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class WikitextEscapeHandlers {
 

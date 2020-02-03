@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 /** Serbian (Српски / Srpski) specific code. */
 class LanguageSr extends Language {

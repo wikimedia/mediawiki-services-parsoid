@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 /**
  * Utilities for manipulating URLs

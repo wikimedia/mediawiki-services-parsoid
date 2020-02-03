@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 use DOMDocument;
 use Generator;
 
-use Parsoid\Config\Env;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\Title;
-use Parsoid\Wt2Html\TT\TokenHandler;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
  * This represents the abstract interface for a wt2html parsing pipeline stage

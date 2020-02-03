@@ -9,7 +9,7 @@
  * @module ext/JSON
  */
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 $ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
 $temp0 =

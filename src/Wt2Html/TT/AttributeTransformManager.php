@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\KV;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * Utility transformation manager for expanding attributes

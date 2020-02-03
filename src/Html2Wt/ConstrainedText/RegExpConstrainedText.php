@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\ConstrainedText;
+namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
 /**
  * This subclass allows specification of a regular expression for

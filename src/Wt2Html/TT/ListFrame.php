@@ -1,10 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\NlTk;
 
 /**
  * Private helper class for ListHandler.

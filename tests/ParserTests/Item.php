@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 class Item {
 	/** @var string */

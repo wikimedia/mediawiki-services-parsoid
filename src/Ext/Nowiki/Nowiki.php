@@ -1,21 +1,21 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Nowiki;
+namespace Wikimedia\Parsoid\Ext\Nowiki;
 
 use DOMDocument;
 use DOMElement;
 use DOMText;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Nowiki treats anything inside it as plain text.

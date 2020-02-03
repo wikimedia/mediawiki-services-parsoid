@@ -2,14 +2,14 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Config\Api;
+namespace Wikimedia\Parsoid\Config\Api;
 
-use Parsoid\Config\DataAccess as IDataAccess;
-use Parsoid\Config\Env;
-use Parsoid\Config\PageConfig;
-use Parsoid\Config\PageContent;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * DataAccess via MediaWiki's Action API

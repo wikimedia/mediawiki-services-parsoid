@@ -5,8 +5,8 @@ namespace MWParsoid;
 
 use MediaWiki\MediaWikiServices;
 use MWParsoid\Config\PageConfigFactory;
-use Parsoid\Config\DataAccess;
-use Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Config\DataAccess;
+use Wikimedia\Parsoid\Config\SiteConfig;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 class ParsoidServices {

@@ -1,30 +1,30 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 use DOMElement;
 use DOMNode;
 use Error;
 use Exception;
-use Parsoid\Config\Api\DataAccess;
-use Parsoid\Config\Api\PageConfig;
-use Parsoid\Config\Env;
-use Parsoid\SelserData;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tools\ScriptUtils;
-use Parsoid\Tools\TestUtils;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
-use Parsoid\Wt2Html\PageConfigFrame;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Alea\Alea;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Api\DataAccess;
+use Wikimedia\Parsoid\Config\Api\PageConfig;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tools\ScriptUtils;
+use Wikimedia\Parsoid\Tools\TestUtils;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
 /**
  * Test runner for parser tests

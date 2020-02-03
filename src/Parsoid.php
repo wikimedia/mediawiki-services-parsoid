@@ -1,23 +1,23 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use LogicException;
-use Parsoid\Config\DataAccess;
-use Parsoid\Config\Env;
-use Parsoid\Config\PageConfig;
-use Parsoid\Config\SiteConfig;
-use Parsoid\Language\LanguageConverter;
-use Parsoid\Logger\LintLogger;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Wt2Html\PP\Processors\AddRedLinks;
-use Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
+use Wikimedia\Parsoid\Config\DataAccess;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Language\LanguageConverter;
+use Wikimedia\Parsoid\Logger\LintLogger;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
 
 class Parsoid {
 

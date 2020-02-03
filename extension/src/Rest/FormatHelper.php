@@ -6,10 +6,10 @@ use Composer\Semver\Semver;
 use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
-use Parsoid\PageBundle;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**
  * Format-related REST API helper.

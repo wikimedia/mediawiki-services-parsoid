@@ -2,13 +2,13 @@
 
 namespace Test\Parsoid\Config;
 
-use Parsoid\Tests\MockEnv;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
 
 /**
- * @covers \Parsoid\Config\Env
+ * @covers \Wikimedia\Parsoid\Config\Env
  */
 class EnvTest extends \PHPUnit\Framework\TestCase {
 

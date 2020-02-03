@@ -14,14 +14,14 @@ declare( strict_types = 1 );
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingParamTag
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingReturn
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
-use Parsoid\Config\Env;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {

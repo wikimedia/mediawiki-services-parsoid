@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tokens;
+namespace Wikimedia\Parsoid\Tokens;
 
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2Html\Frame;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * Catch-all class for all token types.

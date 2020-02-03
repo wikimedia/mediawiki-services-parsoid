@@ -29,17 +29,17 @@
  * `ReplacementMachine`s and do other language-specific customizations.
  */
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 use DOMDocument;
 use DOMNode;
-use Parsoid\ClientError;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Timing;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\ClientError;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Timing;
 
 /**
  * Base class for language variant conversion.
@@ -115,14 +115,14 @@ class LanguageConverter {
 	 */
 	public static function classFromCode( string $code, bool $fallback ): string {
 		if ( $fallback && $code === 'en' ) {
-			return '\Parsoid\Language\Language';
+			return '\Wikimedia\Parsoid\Language\Language';
 		} else {
 			$code = preg_replace_callback( '/^\w/', function ( $matches ) {
 				return strtoupper( $matches[0] );
 			}, $code, 1 );
 			$code = preg_replace( '/-/', '_', $code );
 			$code = preg_replace( '#/|^\.+#', '', $code ); // avoid path attacks
-			return "\Parsoid\Language\Language{$code}";
+			return "\Wikimedia\Parsoid\Language\Language{$code}";
 		}
 	}
 

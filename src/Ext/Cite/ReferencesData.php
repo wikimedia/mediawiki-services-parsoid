@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
-use Parsoid\Config\Env;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Wt2Html\TT\Sanitizer;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 class ReferencesData {
 

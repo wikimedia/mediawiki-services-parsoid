@@ -1,22 +1,20 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
-
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\PipelineUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\TokenTransformManager;
-
 use stdClass;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
 	/**

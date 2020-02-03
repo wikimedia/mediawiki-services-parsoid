@@ -1,14 +1,14 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\DOMHandlers;
+namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WTSUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class CaptionHandler extends DOMHandler {
 

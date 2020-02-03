@@ -1,14 +1,14 @@
 <?php
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
-use Parsoid\Config\Env;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\PipelineUtils;
-use Parsoid\Utils\Title;
-use Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
  * A frame represents a template expansion scope including parameters passed

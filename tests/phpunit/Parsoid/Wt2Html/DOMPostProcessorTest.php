@@ -3,19 +3,19 @@
 
 namespace Test\Parsoid\Wt2Html;
 
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Wt2Html\DOMPostProcessor;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
 
-use Parsoid\Wt2Html\PP\Handlers\CleanUp;
+use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
 
-use Parsoid\Wt2Html\PP\Processors\Normalize;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\Normalize;
 
 class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers \Parsoid\Wt2Html\DOMPostProcessor
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOMPostProcessor
 	 * @dataProvider provideDOMPostProcessor
 	 */
 	public function testDOMPostProcessor( $atTopLevel, $processors, $html, $expected ) {

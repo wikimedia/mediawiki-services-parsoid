@@ -1,10 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
-use Parsoid\Config\SiteConfig;
 use Wikimedia\IPUtils;
+use Wikimedia\Parsoid\Config\SiteConfig;
 
 class Title {
 

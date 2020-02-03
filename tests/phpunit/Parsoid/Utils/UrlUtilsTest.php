@@ -2,10 +2,10 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Utils\UrlUtils;
+use Wikimedia\Parsoid\Utils\UrlUtils;
 
 /**
- * @coversDefaultClass \Parsoid\Utils\UrlUtils
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\UrlUtils
  */
 class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 

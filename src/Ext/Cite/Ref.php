@@ -1,19 +1,19 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
 use DOMNode;
 use Exception;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Simple token transform version of the Ref extension tag.

@@ -1,14 +1,14 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMPostOrder;
-use Parsoid\Utils\DOMUtils;
 use stdClass;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMPostOrder;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Use a {@Link ReplacementMachine} to predict the best "source language" for every node in a DOM.

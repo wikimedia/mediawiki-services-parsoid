@@ -1,19 +1,19 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\DOMHandlers;
+namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
 use LogicException;
-use Parsoid\ClientError;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\ClientError;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 class EncapsulatedContentHandler extends DOMHandler {
 

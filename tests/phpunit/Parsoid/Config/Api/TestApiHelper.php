@@ -2,9 +2,9 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\Api\ApiHelper;
-use Parsoid\Utils\PHPUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Config\Api\ApiHelper;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\ScopedCallback;
 
 class TestApiHelper extends ApiHelper {

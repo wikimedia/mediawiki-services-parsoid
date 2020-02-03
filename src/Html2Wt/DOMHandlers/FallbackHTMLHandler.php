@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\DOMHandlers;
+namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WTSUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
  * Used as a fallback in other tag handles.

@@ -1,9 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Gallery;
+namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class NoLinesMode extends TraditionalMode {
 	/**

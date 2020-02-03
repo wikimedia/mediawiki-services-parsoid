@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\DOMHandlers;
+namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
 
 class AHandler extends DOMHandler {
 

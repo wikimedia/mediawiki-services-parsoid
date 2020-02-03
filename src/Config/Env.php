@@ -1,28 +1,28 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\ContentModelHandler;
-use Parsoid\Logger\ParsoidLogger;
-use Parsoid\Parsoid;
-use Parsoid\ResourceLimitExceededException;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\DataBag;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Title;
-use Parsoid\Utils\TitleException;
-use Parsoid\Utils\TitleNamespace;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\PageConfigFrame;
-use Parsoid\Wt2Html\ParserPipelineFactory;
-use Parsoid\Wt2Html\TT\Sanitizer;
+use Wikimedia\Parsoid\ContentModelHandler;
+use Wikimedia\Parsoid\Logger\ParsoidLogger;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\ResourceLimitExceededException;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DataBag;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleException;
+use Wikimedia\Parsoid\Utils\TitleNamespace;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
+use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 

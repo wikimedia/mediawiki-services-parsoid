@@ -1,20 +1,20 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Poem;
+namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class Poem extends ExtensionTag implements Extension {
 

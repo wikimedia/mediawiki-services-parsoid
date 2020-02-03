@@ -12,13 +12,13 @@ use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
-use Parsoid\Config\DataAccess as IDataAccess;
-use Parsoid\Config\Env;
-use Parsoid\Config\PageConfig as IPageConfig;
-use Parsoid\Config\PageContent as IPageContent;
-use Parsoid\Logger\LintLogger;
 use RepoGroup;
 use Title;
+use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
+use Wikimedia\Parsoid\Config\PageContent as IPageContent;
+use Wikimedia\Parsoid\Logger\LintLogger;
 
 class DataAccess implements IDataAccess {
 

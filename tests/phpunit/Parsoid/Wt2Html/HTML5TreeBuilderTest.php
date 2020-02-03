@@ -3,17 +3,17 @@
 
 namespace Test\Parsoid\Wt2Html;
 
-use Parsoid\Tests\MockEnv;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Wt2Html\HTML5TreeBuilder;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Wt2Html\HTML5TreeBuilder;
 
 class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers \Parsoid\Wt2Html\HTML5TreeBuilder
+	 * @covers \Wikimedia\Parsoid\Wt2Html\HTML5TreeBuilder
 	 * @dataProvider provideTreeBuilder
 	 */
 	public function testTreeBuilder( $tokens, $expected ) {

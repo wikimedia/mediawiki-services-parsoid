@@ -1,16 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-
-use Parsoid\Config\Env;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
  * These utilities are for processing content that's generated

@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\ConstrainedText;
+namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
-use Parsoid\Config\Env;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
 
 /**
  * An autolink to an external resource, like `http://example.com`.

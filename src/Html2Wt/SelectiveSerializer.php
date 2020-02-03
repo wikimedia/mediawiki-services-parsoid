@@ -8,14 +8,14 @@ declare( strict_types = 1 );
  * editor, but we now generate these ourselves using DOMDiff.
  */
 
-namespace Parsoid\Html2Wt;
+namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
-use Parsoid\SelserData;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Timing;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Timing;
 
 /**
  * If we have the page source (this.env.page.src), we use the selective

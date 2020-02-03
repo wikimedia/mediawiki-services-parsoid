@@ -2,19 +2,19 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Config\Api;
+namespace Wikimedia\Parsoid\Config\Api;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Parsoid\Config\SiteConfig as ISiteConfig;
-use Parsoid\Tests\MockMetrics;
-use Parsoid\Utils\ConfigUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\UrlUtils;
-use Parsoid\Utils\Util;
 use Psr\Log\LoggerInterface;
+use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
+use Wikimedia\Parsoid\Tests\MockMetrics;
+use Wikimedia\Parsoid\Utils\ConfigUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\UrlUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 /**
  * SiteConfig via MediaWiki's Action API

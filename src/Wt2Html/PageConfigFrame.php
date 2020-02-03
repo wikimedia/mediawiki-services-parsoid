@@ -1,13 +1,12 @@
 <?php
 
-namespace Parsoid\Wt2Html;
-
-use Parsoid\Config\Env;
-use Parsoid\Config\PageConfig;
-use Parsoid\Config\SiteConfig;
-use Parsoid\Utils\Title;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * A special subclass of frame used for the topmost frame in the environment;

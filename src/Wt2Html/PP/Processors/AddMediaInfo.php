@@ -1,18 +1,18 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Html2Wt\WTSUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Wt2Html\PegTokenizer;
-use Parsoid\Wt2Html\TT\Sanitizer;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 class AddMediaInfo {
 	/**

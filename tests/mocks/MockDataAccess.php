@@ -1,12 +1,12 @@
 <?php
 
-namespace Parsoid\Tests;
+namespace Wikimedia\Parsoid\Tests;
 
 use Error;
-use Parsoid\Config\DataAccess;
-use Parsoid\Config\Env;
-use Parsoid\Config\PageConfig;
-use Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\DataAccess;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\PageContent;
 
 /**
  * This implements some of the functionality that the tests/ParserTests/MockAPIHelper.php

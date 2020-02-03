@@ -1,9 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class WikitextConstants {
 	public static $Media;

@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class AddRedLinks {
 	/**

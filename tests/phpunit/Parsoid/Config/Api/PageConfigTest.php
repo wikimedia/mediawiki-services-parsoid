@@ -2,11 +2,11 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\Api\PageConfig;
-use Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\Api\PageConfig;
+use Wikimedia\Parsoid\Config\PageContent;
 
 /**
- * @covers \Parsoid\Config\Api\PageConfig
+ * @covers \Wikimedia\Parsoid\Config\Api\PageConfig
  */
 class PageConfigTest extends \PHPUnit\Framework\TestCase {
 

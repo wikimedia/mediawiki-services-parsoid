@@ -16,7 +16,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-namespace Parsoid\Tools;
+namespace Wikimedia\Parsoid\Tools;
 
 /**
  * Class for processing CLI args

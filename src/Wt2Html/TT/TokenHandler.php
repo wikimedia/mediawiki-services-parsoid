@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Generator;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2Html\PipelineStage;
-use Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\PipelineStage;
+use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Currently, all token handlers are managed by the TokenTransformManager,

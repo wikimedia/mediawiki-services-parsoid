@@ -4,14 +4,14 @@ namespace Test\Parsoid\Ext\Nowiki;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Nowiki\Nowiki;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\DOMCompat;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class NowikiTest extends TestCase {
 
@@ -45,7 +45,7 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Ext\Nowiki\Nowiki::toDOM
+	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::toDOM
 	 */
 	public function testToDOM() {
 		$nowiki = new Nowiki();
@@ -70,7 +70,7 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Ext\Nowiki\Nowiki::fromDOM
+	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::fromDOM
 	 */
 	public function testFromHTML() {
 		$state = $this->getState();

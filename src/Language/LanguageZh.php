@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 /** Chinese conversion code. */
 class LanguageZh extends Language {

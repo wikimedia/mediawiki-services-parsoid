@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
-use Parsoid\Config\Env;
-use Parsoid\Config\WikitextConstants as Consts;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\Token;
 
 /**
  * This file contains general utilities for token transforms.
@@ -167,7 +167,7 @@ class Util {
 	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
 		$extTagOffsets = $token->dataAttribs->extTagOffsets;
-		'@phan-var \Parsoid\Tokens\DomSourceRange $extTagOffsets';
+		'@phan-var \Wikimedia\Parsoid\Tokens\DomSourceRange $extTagOffsets';
 		return $extTagOffsets->stripTags( $src );
 	}
 

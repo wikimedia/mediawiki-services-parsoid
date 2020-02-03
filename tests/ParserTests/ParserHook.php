@@ -1,20 +1,20 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Error;
 
-use Parsoid\Config\Env;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * See tests/parser/ParserTestParserHook.php in core.

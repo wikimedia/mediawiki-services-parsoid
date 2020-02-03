@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 /**
  * A helper class to make it easier to compute timing metrics.

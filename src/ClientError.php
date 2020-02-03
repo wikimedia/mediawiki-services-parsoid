@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 use Exception;
 

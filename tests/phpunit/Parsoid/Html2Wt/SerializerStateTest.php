@@ -4,12 +4,12 @@ namespace Test\Parsoid\Html2Wt;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\SelserData;
-use Parsoid\Tests\MockEnv;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Tests\MockEnv;
 use Wikimedia\Zest\Zest;
 
 class SerializerStateTest extends TestCase {
@@ -57,7 +57,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::__construct
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::__construct
 	 */
 	public function testConstruct() {
 		$state = $this->getState();
@@ -69,7 +69,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::initMode
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::initMode
 	 */
 	public function testInitMode() {
 		$state = $this->getState();
@@ -78,7 +78,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::appendSep
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::appendSep
 	 */
 	public function testAppendSep() {
 		$state = $this->getState();
@@ -88,7 +88,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::updateSep
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::updateSep
 	 */
 	public function testUpdateSep() {
 		$state = $this->getState();
@@ -98,7 +98,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::getOrigSrc
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::getOrigSrc
 	 */
 	public function testGetOrigSrc() {
 		$env = new MockEnv( [] );
@@ -111,7 +111,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::updateModificationFlags
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::updateModificationFlags
 	 */
 	public function testUpdateModificationFlags() {
 		$state = $this->getState();
@@ -122,7 +122,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::emitChunk
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::emitChunk
 	 */
 	public function testEmitChunk() {
 		$serializer = $this->getBaseSerializerMock();
@@ -142,7 +142,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::serializeChildren
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::serializeChildren
 	 */
 	public function testSerializeChildren() {
 		$node = $this->getNode();
@@ -184,10 +184,10 @@ class SerializerStateTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Html2Wt\SerializerState::kickOffSerialize
-	 * @covers \Parsoid\Html2Wt\SerializerState::serializeLinkChildrenToString
-	 * @covers \Parsoid\Html2Wt\SerializerState::serializeCaptionChildrenToString
-	 * @covers \Parsoid\Html2Wt\SerializerState::serializeIndentPreChildrenToString
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::kickOffSerialize
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::serializeLinkChildrenToString
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::serializeCaptionChildrenToString
+	 * @covers \Wikimedia\Parsoid\Html2Wt\SerializerState::serializeIndentPreChildrenToString
 	 * @dataProvider provideSerializeChildrenToString
 	 */
 	public function testSerializeChildrenToString( $method ) {

@@ -5,17 +5,17 @@ namespace Test\Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\DOMTraverser;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
 
 class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @dataProvider provideTraverse
-	 * @covers \Parsoid\Utils\DOMTraverser::addHandler
-	 * @covers \Parsoid\Utils\DOMTraverser::traverse
+	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::addHandler
+	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::traverse
 	 */
 	public function testTraverse( $callback, $nodeName, $env, $expectedTrace ) {
 		$html = <<<'HTML'

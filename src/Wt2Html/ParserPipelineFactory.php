@@ -1,30 +1,30 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 use DOMDocument;
-use Parsoid\Config\Env;
-use Parsoid\InternalException;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2Html\TT\AttributeExpander;
-use Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
-use Parsoid\Wt2Html\TT\DOMFragmentBuilder;
-use Parsoid\Wt2Html\TT\ExtensionHandler;
-use Parsoid\Wt2Html\TT\ExternalLinkHandler;
-use Parsoid\Wt2Html\TT\IncludeOnly;
-use Parsoid\Wt2Html\TT\LanguageVariantHandler;
-use Parsoid\Wt2Html\TT\ListHandler;
-use Parsoid\Wt2Html\TT\NoInclude;
-use Parsoid\Wt2Html\TT\OnlyInclude;
-use Parsoid\Wt2Html\TT\ParagraphWrapper;
-use Parsoid\Wt2Html\TT\PreHandler;
-use Parsoid\Wt2Html\TT\QuoteTransformer;
-use Parsoid\Wt2Html\TT\Sanitizer;
-use Parsoid\Wt2Html\TT\TemplateHandler;
-use Parsoid\Wt2Html\TT\TokenStreamPatcher;
-use Parsoid\Wt2Html\TT\WikiLinkHandler;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\InternalException;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\TT\AttributeExpander;
+use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\DOMFragmentBuilder;
+use Wikimedia\Parsoid\Wt2Html\TT\ExtensionHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\ExternalLinkHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\IncludeOnly;
+use Wikimedia\Parsoid\Wt2Html\TT\LanguageVariantHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\ListHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\NoInclude;
+use Wikimedia\Parsoid\Wt2Html\TT\OnlyInclude;
+use Wikimedia\Parsoid\Wt2Html\TT\ParagraphWrapper;
+use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\QuoteTransformer;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
+use Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\TokenStreamPatcher;
+use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
 
 /**
  * This class assembles parser pipelines from parser stages

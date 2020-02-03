@@ -2,18 +2,18 @@
 
 namespace Test\Parsoid;
 
-use Parsoid\PageBundle;
-use Parsoid\Parsoid;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Test the entrypoint to the library.
  *
- * @coversDefaultClass \Parsoid\Parsoid
+ * @coversDefaultClass \Wikimedia\Parsoid\Parsoid
  */
 class ParsoidTest extends \PHPUnit\Framework\TestCase {
 

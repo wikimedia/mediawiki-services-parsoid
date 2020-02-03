@@ -1,29 +1,29 @@
 <?php
 
-namespace Parsoid\Html2Wt;
+namespace Wikimedia\Parsoid\Html2Wt;
 
 use Closure;
 use DOMElement;
 use DOMNode;
 use Exception;
-use Parsoid\Config\Env;
-use Parsoid\Config\WikitextConstants;
-use Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
-use Parsoid\Html2Wt\DOMHandlers\DOMHandler;
-use Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
+use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
+use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Wikitext to HTML serializer.

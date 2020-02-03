@@ -2,10 +2,10 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\Api\SiteConfig;
+use Wikimedia\Parsoid\Config\Api\SiteConfig;
 
 /**
- * @covers \Parsoid\Config\Api\SiteConfig
+ * @covers \Wikimedia\Parsoid\Config\Api\SiteConfig
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 

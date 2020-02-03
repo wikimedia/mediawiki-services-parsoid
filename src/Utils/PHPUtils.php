@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use Exception;
 use Wikimedia\Assert\Assert;

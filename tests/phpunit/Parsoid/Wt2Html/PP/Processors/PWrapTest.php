@@ -2,16 +2,16 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Wt2Html\PP\Processors\PWrap;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap;
 
 /**
  * based on tests/mocha/pwrap.js
- * @coversDefaultClass \Parsoid\Wt2Html\PP\Processors\PWrap
+ * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap
  */
 class PWrapTest extends TestCase {
 

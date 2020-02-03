@@ -1,13 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Simple noinclude / onlyinclude implementation.

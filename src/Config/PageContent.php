@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
 use InvalidArgumentException;
 

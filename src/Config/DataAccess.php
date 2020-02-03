@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
 /**
  * MediaWiki data access interface for Parsoid

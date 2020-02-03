@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 /** Crimean Tatar (Qırımtatarca) conversion code */
 class LanguageCrh extends Language {

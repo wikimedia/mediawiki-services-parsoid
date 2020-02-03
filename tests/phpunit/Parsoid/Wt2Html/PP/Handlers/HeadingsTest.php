@@ -3,18 +3,18 @@
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
-use Parsoid\Parsoid;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * based on tests/mocha/heading.ids.js
- * @coversDefaultClass \Parsoid\Wt2Html\PP\Handlers\Headings
+ * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings
  */
 class HeadingsTest extends TestCase {
 	/**

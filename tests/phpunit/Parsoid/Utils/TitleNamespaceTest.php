@@ -2,11 +2,11 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\TitleNamespace;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\TitleNamespace;
 
 /**
- * @covers \Parsoid\Utils\TitleNamespace
+ * @covers \Wikimedia\Parsoid\Utils\TitleNamespace
  */
 class TitleNamespaceTest extends \PHPUnit\Framework\TestCase {
 

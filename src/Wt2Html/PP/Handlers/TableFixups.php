@@ -1,20 +1,20 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Handlers;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\PegTokenizer;
-use Parsoid\Wt2Html\TT\Sanitizer;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * TableFixups class.

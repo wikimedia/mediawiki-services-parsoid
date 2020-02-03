@@ -1,24 +1,24 @@
 <?php
 
-namespace Parsoid\Html2Wt;
+namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
-use Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
-use Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
-use Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\UrlUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use stdClass;
 use UnexpectedValueException;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\UrlUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Serializes link markup.
@@ -1161,7 +1161,7 @@ class LinkHandlerUtils {
 			} else {
 				$value = $o['value'] ? $o['value']['value'] : '';
 				if ( $o['value'] && preg_match( '/^(link|alt)$/D', $o['name'] ) ) {
-					// see \Parsoid\Wt2Html\TT\WikiLinkHandler: link and alt are whitelisted
+					// see \Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler: link and alt are whitelisted
 					// for accepting arbitrary wikitext, even though it is stripped
 					// to a string before emitting.
 					$value = $state->serializer->wteHandlers->escapeLinkContent(

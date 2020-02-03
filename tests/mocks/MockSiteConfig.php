@@ -1,13 +1,13 @@
 <?php
 
-namespace Parsoid\Tests;
+namespace Wikimedia\Parsoid\Tests;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Parsoid\Config\SiteConfig;
-use Parsoid\Utils\Util;
 use Psr\Log\LoggerInterface;
+use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Utils\Util;
 
 class MockSiteConfig extends SiteConfig {
 

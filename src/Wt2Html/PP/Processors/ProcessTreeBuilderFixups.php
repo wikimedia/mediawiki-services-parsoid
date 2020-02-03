@@ -1,18 +1,18 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
-use Parsoid\Wt2Html\Frame;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 
 class ProcessTreeBuilderFixups {
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 /** Kurdish conversion code. */
 class LanguageKu extends Language {

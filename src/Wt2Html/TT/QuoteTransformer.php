@@ -1,18 +1,18 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Wt2html\TokenTransformManager;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2html\TokenTransformManager;
 
 /**
  * PORT-FIXME: Maybe we need to look at all uses of flatten

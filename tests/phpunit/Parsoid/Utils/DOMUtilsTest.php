@@ -2,17 +2,17 @@
 namespace spec\Parsoid\Utils;
 
 use DOMElement;
-use Parsoid\Html2Wt\DOMDiff;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Html2Wt\DOMDiff;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Based on tests/mocha/domdiff.js
- * @coversDefaultClass \Parsoid\Utils\DOMUtils
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\DOMUtils
  */
 class DOMUtilsTest extends TestCase {
 

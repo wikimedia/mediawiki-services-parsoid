@@ -1,17 +1,17 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMComment;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Config\WikitextConstants as Consts;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Tokens\CommentTk;
-use Parsoid\Wt2Html\Frame;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * These utilites pertain to extracting / modifying wikitext information from the DOM.

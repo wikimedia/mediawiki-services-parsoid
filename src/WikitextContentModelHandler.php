@@ -1,16 +1,16 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 use DOMDocument;
 
-use Parsoid\Config\Env;
-use Parsoid\Html2Wt\SelectiveSerializer;
-use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Html2Wt\SelectiveSerializer;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class WikitextContentModelHandler extends ContentModelHandler {
 

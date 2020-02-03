@@ -2,10 +2,10 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Util;
 
 /**
- * @coversDefaultClass \Parsoid\Utils\Util
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\Util
  */
 class UtilTest extends \PHPUnit\Framework\TestCase {
 	/**

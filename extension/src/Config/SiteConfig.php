@@ -14,11 +14,10 @@ use MagicWordArray;
 use MagicWordFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
-
-use Parsoid\Config\SiteConfig as ISiteConfig;
 use Psr\Log\LoggerInterface;
 use Title;
 use User;
+use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 
 /**
  * Site-level configuration for Parsoid

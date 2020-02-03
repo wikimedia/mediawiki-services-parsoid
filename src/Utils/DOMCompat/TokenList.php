@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils\DOMCompat;
+namespace Wikimedia\Parsoid\Utils\DOMCompat;
 
 use DOMElement;
 use Iterator;

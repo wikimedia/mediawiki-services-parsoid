@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
 use Composer\Semver\Semver;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * PORT-FIXME: This is just a placeholder for data that was previously passed

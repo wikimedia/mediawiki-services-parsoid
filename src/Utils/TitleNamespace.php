@@ -1,9 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
-use Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Config\SiteConfig;
 
 /**
  * @deprecated Use namespace IDs and SiteConfig methods instead.

@@ -1,9 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Represents a parser test

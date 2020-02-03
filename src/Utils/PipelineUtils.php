@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMAttr;
 use DOMComment;
@@ -10,18 +10,18 @@ use DOMElement;
 use DOMNode;
 use DOMNodeList;
 use DOMText;
-use Parsoid\Config\Env;
-use Parsoid\Tokens\CommentTk;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\EOFTk;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Wt2Html\Frame;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * This file contains parsing pipeline related utilities.

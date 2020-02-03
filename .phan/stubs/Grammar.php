@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 class Grammar extends \WikiPEG\PEGParserBase {
 	/**

@@ -1,22 +1,22 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Parsoid\Config\Env;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\NlTk;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Tokens\Token;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\PipelineUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\PegTokenizer;
-use Parsoid\Wt2Html\TokenTransformManager;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
+use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
  * Generic attribute expansion handler.

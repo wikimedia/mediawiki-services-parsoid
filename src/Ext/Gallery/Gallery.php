@@ -1,26 +1,24 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Gallery;
+namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use DOMDocument;
 use DOMElement;
-
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SourceRange;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\TokenUtils;
-
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
  * Implements the php parser's `renderImageGallery` natively.

@@ -1,17 +1,17 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\WikitextConstants;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\WTUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Stand-alone XMLSerializer for DOM3 documents.

@@ -1,10 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Translate;
+namespace Wikimedia\Parsoid\Ext\Translate;
 
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
 
 /**
  * This is effectively a stub at this point.

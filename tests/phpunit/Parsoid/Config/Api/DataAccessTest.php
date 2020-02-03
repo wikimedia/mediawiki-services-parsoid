@@ -2,12 +2,12 @@
 
 namespace Test\Parsoid\Config\Api;
 
-use Parsoid\Config\Api\DataAccess;
-use Parsoid\Config\PageContent;
-use Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Config\Api\DataAccess;
+use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
 
 /**
- * @covers \Parsoid\Config\Api\DataAccess
+ * @covers \Wikimedia\Parsoid\Config\Api\DataAccess
  */
 class DataAccessTest extends \PHPUnit\Framework\TestCase {
 

@@ -1,20 +1,20 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Handlers;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMTraverser;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PipelineUtils;
-use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 class UnpackDOMFragments {
 	/**

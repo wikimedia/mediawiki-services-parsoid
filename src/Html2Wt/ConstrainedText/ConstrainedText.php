@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\ConstrainedText;
+namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Util;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 /**
  * A chunk of wikitext output.  This base class contains the

@@ -1,12 +1,12 @@
 <?php
 
-namespace Test\Parsoid\Utils;
+namespace Test\Parsoid\Logger;
 
-use Parsoid\Logger\LintLogger;
-use Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Logger\LintLogger;
+use Wikimedia\Parsoid\Tests\MockEnv;
 
 /**
- * @coversDefaultClass Parsoid\Logger\LintLogger
+ * @coversDefaultClass \Wikimedia\Parsoid\Logger\LintLogger
  */
 class LintLoggerTest extends \PHPUnit\Framework\TestCase {
 	/**

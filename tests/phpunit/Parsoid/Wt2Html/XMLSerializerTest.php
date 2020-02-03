@@ -3,13 +3,13 @@
 namespace Test\Parsoid\Wt2Html;
 
 use DOMDocument;
-use Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\TestingAccessWrapper;
 
 /**
  * Test the entity encoding logic (which the JS version did not have as it called
  * on the entities npm package).
- * @coversDefaultClass \Parsoid\Wt2Html\XMLSerializer
+ * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\XMLSerializer
  */
 class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 

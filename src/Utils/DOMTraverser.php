@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
 
 /**
  * Class for helping us traverse the DOM.

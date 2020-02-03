@@ -13,10 +13,10 @@ use MediaWiki\User\UserIdentity;
 use MWParsoid\Config\PageConfig as MWPageConfig;
 use Parser;
 use ParserOptions;
-use Parsoid\Config\Api\PageConfig as ApiPageConfig;
-use Parsoid\Config\PageConfig;
 use Title;
 use User;
+use Wikimedia\Parsoid\Config\Api\PageConfig as ApiPageConfig;
+use Wikimedia\Parsoid\Config\PageConfig;
 use WikitextContent;
 
 class PageConfigFactory {

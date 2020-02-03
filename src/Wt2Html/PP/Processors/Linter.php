@@ -2,20 +2,20 @@
 
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Config\WikitextConstants as Consts;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * DOM pass that walks the DOM tree, detects specific wikitext patterns,

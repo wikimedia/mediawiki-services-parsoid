@@ -6,14 +6,14 @@ declare( strict_types = 1 );
  * @module
  */
 
-namespace Parsoid\Html2Wt;
+namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
-use Parsoid\Config\WikitextConstants;
-use Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 class LanguageVariantHandler {
 	/**

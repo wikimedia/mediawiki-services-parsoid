@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Gallery;
+namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use DOMDocument;
 use DOMElement;
 
-use Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\Env;
 
 abstract class Mode {
 	/**

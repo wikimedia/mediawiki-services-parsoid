@@ -1,19 +1,19 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use Composer\Semver\Semver;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\DataParsoid;
-use Parsoid\PageBundle;
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\SourceRange;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DataParsoid;
+use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.

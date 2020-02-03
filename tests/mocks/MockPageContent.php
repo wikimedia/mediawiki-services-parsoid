@@ -1,8 +1,8 @@
 <?php
 
-namespace Parsoid\Tests;
+namespace Wikimedia\Parsoid\Tests;
 
-use Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\PageContent;
 
 class MockPageContent implements PageContent {
 

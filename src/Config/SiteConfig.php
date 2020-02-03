@@ -1,17 +1,17 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Config;
+namespace Wikimedia\Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
-use Parsoid\ContentModelHandler;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\Util;
-use Parsoid\WikitextContentModelHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Wikimedia\Parsoid\ContentModelHandler;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\WikitextContentModelHandler;
 
 /**
  * Site-level configuration interface for Parsoid
@@ -882,7 +882,7 @@ abstract class SiteConfig {
 		$this->nativeExtConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
 
 		foreach ( $this->defaultNativeExtensions as $extName ) {
-			$extPkg = '\Parsoid\Ext\\' . $extName . '\\' . $extName;
+			$extPkg = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
 			$this->registerNativeExtension( new $extPkg() );
 		}
 

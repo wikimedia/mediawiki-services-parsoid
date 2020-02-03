@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMAttr;
 use DOMCharacterData;
@@ -11,14 +11,14 @@ use DOMElement;
 use DOMNode;
 use DOMNodeList;
 use DOMText;
-use Parsoid\Utils\DOMCompat\TokenList;
-use Parsoid\Wt2Html\XMLSerializer;
 use RemexHtml\DOM\DOMBuilder;
 use RemexHtml\HTMLData;
 use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\Zest\Zest;
 
 /**

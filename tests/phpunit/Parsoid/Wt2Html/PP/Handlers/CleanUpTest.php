@@ -3,22 +3,22 @@
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Parsoid;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMTraverser;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
 
 /**
  * Test CleanUp, the tests used for validating CleanUp class port from JS to PHP
  * and based on tests/mocha/cleanup.js
- * @coversDefaultClass \Parsoid\Wt2Html\PP\Handlers\CleanUp
+ * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp
  */
 class CleanUpTest extends TestCase {
 

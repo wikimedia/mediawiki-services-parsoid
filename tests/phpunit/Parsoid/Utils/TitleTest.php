@@ -2,14 +2,14 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\Title;
-use Parsoid\Utils\TitleException;
-use Parsoid\Utils\TitleNamespace;
 use PHPUnit\Framework\MockObject\MockObject;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleException;
+use Wikimedia\Parsoid\Utils\TitleNamespace;
 
 /**
- * @coversDefaultClass \Parsoid\Utils\Title
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\Title
  */
 class TitleTest extends \PHPUnit\Framework\TestCase {
 

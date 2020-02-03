@@ -1,13 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Wt2Html\PP\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Logger\LintLogger;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Logger\LintLogger;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**
  * Very thin shim to call ContentUtils::convertOffsets where requested

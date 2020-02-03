@@ -2,19 +2,19 @@
 
 namespace Test\Parsoid\Html2Wt;
 
-use Parsoid\Html2Wt\DOMNormalizer;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\TestingAccessWrapper;
 
 /**
  * Test DOM normalisation, the tests used for Porting DOMNormalizer class from JS
  * and based on similar tests in tests/mocha/dom_normalizer.js
- * @coversDefaultClass \Parsoid\Html2Wt\DOMNormalizer
+ * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\DOMNormalizer
  */
 class DOMNormalizerTest extends TestCase {
 

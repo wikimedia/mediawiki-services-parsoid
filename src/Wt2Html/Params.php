@@ -1,9 +1,9 @@
 <?php
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
-use Parsoid\Tokens\KV;
-use Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
  * A parameter object wrapper, essentially an array of key/value pairs with a few extra methods.

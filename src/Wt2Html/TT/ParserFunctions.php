@@ -4,21 +4,21 @@
 // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 // phpcs:disable MediaWiki.Commenting.FunctionComment.WrongStyle
 
-namespace Parsoid\Wt2Html\TT;
+namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DateTime;
 use DateTimeZone;
-use Parsoid\Config\Env;
-use Parsoid\Tokens\EndTagTk;
-use Parsoid\Tokens\KV;
-use Parsoid\Tokens\SelfclosingTagTk;
-use Parsoid\Tokens\TagTk;
-use Parsoid\Utils\PHPUtils;
-use Parsoid\Utils\TokenUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Wt2Html\Frame;
-use Parsoid\Wt2Html\Params;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\Params;
 
 /**
  * Some parser functions, and quite a bunch of stubs of parser functions.

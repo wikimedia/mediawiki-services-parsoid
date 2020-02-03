@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Pre;
+namespace Wikimedia\Parsoid\Ext\Pre;
 
 use DOMDocument;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 /**
  * The `<pre>` extension tag shadows the html pre tag, but has different

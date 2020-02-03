@@ -5,7 +5,7 @@ namespace MWParsoid\Config;
 use InvalidArgumentException;
 use MediaWiki\Revision\RevisionRecord;
 
-use Parsoid\Config\PageContent as IPageContent;
+use Wikimedia\Parsoid\Config\PageContent as IPageContent;
 
 /**
  * PageContent implementation for MediaWiki

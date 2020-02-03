@@ -1,10 +1,10 @@
 <?php
 
-namespace Parsoid\Logger;
+namespace Wikimedia\Parsoid\Logger;
 
-use Parsoid\Utils\PHPUtils;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class ParsoidLogger {
 	/* @var Logger */

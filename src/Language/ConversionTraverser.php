@@ -1,18 +1,18 @@
 <?php
 
-namespace Parsoid\Language;
+namespace Wikimedia\Parsoid\Language;
 
 use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMTraverser;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Util;
 use Wikimedia\Assert\Assert;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 class ConversionTraverser extends DOMTraverser {
 

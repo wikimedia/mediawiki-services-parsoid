@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid;
+namespace Wikimedia\Parsoid;
 
-use Parsoid\Tokens\DomSourceRange;
-use Parsoid\Tokens\SourceRange;
 use stdClass;
+use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().

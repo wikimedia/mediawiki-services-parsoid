@@ -2,12 +2,12 @@
 
 namespace Test\Parsoid\Utils;
 
-use Parsoid\Utils\PHPUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class PHPUtilsTest extends TestCase {
 	/**
-	 * @covers \Parsoid\Utils\PHPUtils::reStrip
+	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::reStrip
 	 * @dataProvider provideReStrip
 	 */
 	public function testReStrip( $re, $delimiter, $expected ) {
@@ -26,7 +26,7 @@ class PHPUtilsTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Utils\PHPUtils::coalesce
+	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::coalesce
 	 * @dataProvider provideCoalesce
 	 */
 	public function testCoalesce( array $args, $expectedResult ) {
@@ -51,8 +51,8 @@ class PHPUtilsTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Parsoid\Utils\PHPUtils::safeSubstr
-	 * @covers \Parsoid\Utils\PHPUtils::assertValidUTF8
+	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::safeSubstr
+	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::assertValidUTF8
 	 * @dataProvider provideSafeSubstr
 	 */
 	public function testSafeSubstr( $s, $start, $end, $expectedOk ) {

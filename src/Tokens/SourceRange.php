@@ -1,10 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tokens;
+namespace Wikimedia\Parsoid\Tokens;
 
-use Parsoid\Utils\PHPUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Represents a source offset range.

@@ -1,20 +1,20 @@
 <?php
 namespace Test\Parsoid\Html2Wt\ConstrainedText;
 
-use Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
-use Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
-use Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
-use Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
-use Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
-use Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
- * @coversDefaultClass \Parsoid\Html2Wt\ConstrainedText\ConstrainedText
+ * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText
  */
 class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 

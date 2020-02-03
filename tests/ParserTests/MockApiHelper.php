@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 // phpcs:disable Generic.Files.LineLength.TooLong
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 use Error;
-use Parsoid\Config\Api\ApiHelper;
+use Wikimedia\Parsoid\Config\Api\ApiHelper;
 
 /**
  * This class supports the implementation of Parser Tests in a standalone mode

@@ -1,15 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMDocument;
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Title;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Helper class used by `<references>` implementation.

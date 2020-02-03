@@ -7,7 +7,7 @@ use MediaWiki\Rest\Response;
 use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
-use Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\Env;
 
 /**
  * Handler for displaying or rendering the content of a page:

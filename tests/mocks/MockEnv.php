@@ -1,9 +1,9 @@
 <?php
 
-namespace Parsoid\Tests;
+namespace Wikimedia\Parsoid\Tests;
 
-use Parsoid\Config\Env;
-use Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageContent;
 
 class MockEnv extends Env {
 

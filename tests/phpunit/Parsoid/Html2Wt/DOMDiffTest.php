@@ -2,18 +2,18 @@
 
 namespace Test\Parsoid\Html2Wt;
 
-use Parsoid\Html2Wt\DOMDiff;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Html2Wt\DOMDiff;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Test DOM Diff, the tests used for validating DOMNDiff class port from JS
  * and based on similar tests in tests/mocha/domdiff.js
- * @coversDefaultClass \Parsoid\Html2Wt\DOMDiff
+ * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\DOMDiff
  */
 class DOMDiffTest extends TestCase {
 

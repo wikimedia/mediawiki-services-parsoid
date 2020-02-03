@@ -6,14 +6,14 @@ use DOMDocument;
 use DOMElement;
 // phpcs:ignore
 use DOMNode;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMCompat\TokenList;
-use Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 use Wikimedia\TestingAccessWrapper;
 
 /**
- * @coversDefaultClass \Parsoid\Utils\DOMCompat
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\DOMCompat
  */
 class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
@@ -529,7 +529,7 @@ HTML;
 
 	/**
 	 * @covers ::getClassList()
-	 * @covers \Parsoid\Utils\DOMCompat\TokenList
+	 * @covers \Wikimedia\Parsoid\Utils\DOMCompat\TokenList
 	 */
 	public function testGetClassList() {
 		$html = '<html><body><div id="x" class=" a  b&#9;c "></div></body></html>';

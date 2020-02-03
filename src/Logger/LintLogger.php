@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Logger;
+namespace Wikimedia\Parsoid\Logger;
 
-use Parsoid\Config\Env;
-use Parsoid\Utils\Timing;
-use Parsoid\Utils\TokenUtils;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\Timing;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
  * Logger backend for linter.

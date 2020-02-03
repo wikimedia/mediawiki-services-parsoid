@@ -1,13 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Gallery;
+namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use DOMDocument;
 use DOMElement;
 
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class PackedMode extends TraditionalMode {
 	/**

@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext;
+namespace Wikimedia\Parsoid\Ext;
 
 /**
  * A Parsoid native extension.  The only method required is `getConfig`.

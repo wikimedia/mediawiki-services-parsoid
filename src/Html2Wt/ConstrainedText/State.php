@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\ConstrainedText;
+namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
 class State {
 	/** @var string */

@@ -7,7 +7,7 @@ declare( strict_types = 1 );
  * lib/ directory.
  */
 
-namespace Parsoid\Tools;
+namespace Wikimedia\Parsoid\Tools;
 
 class ScriptUtils {
 	/**

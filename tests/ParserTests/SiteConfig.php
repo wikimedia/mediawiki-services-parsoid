@@ -1,18 +1,18 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
-use Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
-use Parsoid\Ext\Extension;
-use Parsoid\Utils\ConfigUtils;
-use Parsoid\Utils\Util;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Utils\ConfigUtils;
+use Wikimedia\Parsoid\Utils\Util;
 
 class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class info */

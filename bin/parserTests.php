@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Parsoid\Tests\ParserTests\Stats;
-use Parsoid\Tests\ParserTests\TestRunner;
-use Parsoid\Tools\TestUtils;
+use Wikimedia\Parsoid\Tests\ParserTests\Stats;
+use Wikimedia\Parsoid\Tests\ParserTests\TestRunner;
+use Wikimedia\Parsoid\Tools\TestUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
-class ParserTests extends \Parsoid\Tools\Maintenance {
-	use \Parsoid\Tools\ExtendedOptsProcessor;
+class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
+	use \Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
 
 	/** @var array */
 	public $processedOptions;

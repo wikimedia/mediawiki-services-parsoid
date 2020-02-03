@@ -1,14 +1,14 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\LST;
+namespace Wikimedia\Parsoid\Ext\LST;
 
 use DOMElement;
-use Parsoid\Ext\Extension;
-use Parsoid\Ext\ExtensionTag;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class LST extends ExtensionTag implements Extension {
 

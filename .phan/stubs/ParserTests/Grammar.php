@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\Tests\ParserTests;
 
 class Grammar extends \WikiPEG\PEGParserBase {
 	/**

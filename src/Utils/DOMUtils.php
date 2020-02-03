@@ -1,18 +1,18 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Utils;
+namespace Wikimedia\Parsoid\Utils;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\ClientError;
-use Parsoid\Config\WikitextConstants;
 use RemexHtml\DOM\DOMBuilder;
 use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\ClientError;
+use Wikimedia\Parsoid\Config\WikitextConstants;
 
 /**
  * DOM utilities for querying the DOM. This is largely independent of Parsoid

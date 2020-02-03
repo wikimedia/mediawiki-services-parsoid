@@ -2,7 +2,7 @@
 declare( strict_types = 1 );
 // phpcs:disable Generic.Files.LineLength.TooLong
 
-namespace Parsoid\Tools;
+namespace Wikimedia\Parsoid\Tools;
 
 use DOMElement;
 use DOMNode;
@@ -10,19 +10,19 @@ use DOMText;
 use Error;
 use Exception;
 use JakubOnderka\PhpConsoleColor\ConsoleColor;
-use Parsoid\Html2Wt\DOMNormalizer;
-use Parsoid\Html2Wt\SerializerState;
-use Parsoid\Html2Wt\WikitextSerializer;
-use Parsoid\Tests\MockEnv;
-use Parsoid\Tests\ParserTests\Stats;
-use Parsoid\Tests\ParserTests\Test;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\Util;
-use Parsoid\Utils\WTUtils;
 use SebastianBergmann\Diff\Differ;
+use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Tests\ParserTests\Stats;
+use Wikimedia\Parsoid\Tests\ParserTests\Test;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 class TestUtils {
 	// PORT-FIXME: Used to be colors::mode in all the use sites

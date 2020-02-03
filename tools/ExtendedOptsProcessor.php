@@ -1,6 +1,6 @@
 <?php
 
-namespace Parsoid\Tools;
+namespace Wikimedia\Parsoid\Tools;
 
 trait ExtendedOptsProcessor {
 	private $optionDefaults = [];

@@ -1,13 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext;
+namespace Wikimedia\Parsoid\Ext;
 
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Config\ParsoidExtensionAPI;
-use Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
 
 /**
  * A Parsoid native extension.  The only method which is generally

@@ -1,12 +1,12 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Html2Wt\ConstrainedText;
+namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
 use DOMElement;
-use Parsoid\Config\Env;
-use Parsoid\Config\SiteConfig;
 use stdClass;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\SiteConfig;
 
 /**
  * An external link, like `[http://example.com]`.

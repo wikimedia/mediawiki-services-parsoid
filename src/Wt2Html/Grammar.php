@@ -1,26 +1,26 @@
 <?php
 
-namespace Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html;
 
 
-	use Parsoid\Utils\TokenUtils;
-	use Parsoid\Utils\Util;
-	use Parsoid\Utils\PHPUtils;
-	use Parsoid\Utils\WTUtils;
-	use Parsoid\Tokens\CommentTk;
-	use Parsoid\Tokens\DomSourceRange;
-	use Parsoid\Tokens\EndTagTk;
-	use Parsoid\Tokens\EOFTk;
-	use Parsoid\Tokens\KV;
-	use Parsoid\Tokens\KVSourceRange;
-	use Parsoid\Tokens\NlTk;
-	use Parsoid\Tokens\SelfclosingTagTk;
-	use Parsoid\Tokens\SourceRange;
-	use Parsoid\Tokens\TagTk;
-	use Parsoid\Tokens\Token;
-	use Parsoid\Config\Env;
-	use Parsoid\Config\SiteConfig;
-	use Parsoid\Config\WikitextConstants;
+	use Wikimedia\Parsoid\Utils\TokenUtils;
+	use Wikimedia\Parsoid\Utils\Util;
+	use Wikimedia\Parsoid\Utils\PHPUtils;
+	use Wikimedia\Parsoid\Utils\WTUtils;
+	use Wikimedia\Parsoid\Tokens\CommentTk;
+	use Wikimedia\Parsoid\Tokens\DomSourceRange;
+	use Wikimedia\Parsoid\Tokens\EndTagTk;
+	use Wikimedia\Parsoid\Tokens\EOFTk;
+	use Wikimedia\Parsoid\Tokens\KV;
+	use Wikimedia\Parsoid\Tokens\KVSourceRange;
+	use Wikimedia\Parsoid\Tokens\NlTk;
+	use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+	use Wikimedia\Parsoid\Tokens\SourceRange;
+	use Wikimedia\Parsoid\Tokens\TagTk;
+	use Wikimedia\Parsoid\Tokens\Token;
+	use Wikimedia\Parsoid\Config\Env;
+	use Wikimedia\Parsoid\Config\SiteConfig;
+	use Wikimedia\Parsoid\Config\WikitextConstants;
 
 
 class Grammar extends \WikiPEG\PEGParserBase {

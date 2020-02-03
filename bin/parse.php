@@ -10,20 +10,20 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use Composer\Factory;
 use Composer\IO\NullIO;
 
-use Parsoid\ClientError;
-use Parsoid\PageBundle;
-use Parsoid\Parsoid;
-use Parsoid\SelserData;
-use Parsoid\Tools\ScriptUtils;
-use Parsoid\Tools\TestUtils;
-use Parsoid\Utils\ContentUtils;
-use Parsoid\Utils\DOMDataUtils;
-use Parsoid\Utils\DOMUtils;
-use Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\ClientError;
+use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Tools\ScriptUtils;
+use Wikimedia\Parsoid\Tools\TestUtils;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
-class Parse extends \Parsoid\Tools\Maintenance {
-	use \Parsoid\Tools\ExtendedOptsProcessor;
+class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
+	use \Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
 
 	public function __construct() {
 		parent::__construct();
@@ -240,11 +240,11 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	}
 
 	private function makeApiConfig( $configOpts ) {
-		$api = new \Parsoid\Config\Api\ApiHelper( $configOpts );
+		$api = new \Wikimedia\Parsoid\Config\Api\ApiHelper( $configOpts );
 
-		$siteConfig = new \Parsoid\Config\Api\SiteConfig( $api, $configOpts );
-		$dataAccess = new \Parsoid\Config\Api\DataAccess( $api, $configOpts );
-		$pageConfig = new \Parsoid\Config\Api\PageConfig( $api, $configOpts + [
+		$siteConfig = new \Wikimedia\Parsoid\Config\Api\SiteConfig( $api, $configOpts );
+		$dataAccess = new \Wikimedia\Parsoid\Config\Api\DataAccess( $api, $configOpts );
+		$pageConfig = new \Wikimedia\Parsoid\Config\Api\PageConfig( $api, $configOpts + [
 			'title' => $siteConfig->mainpage(),
 			'loadData' => true,
 		] );
@@ -258,13 +258,13 @@ class Parse extends \Parsoid\Tools\Maintenance {
 	}
 
 	private function makeMockConfig( $configOpts ) {
-		$siteConfig = new \Parsoid\Tests\MockSiteConfig( $configOpts );
-		$dataAccess = new \Parsoid\Tests\MockDataAccess( $configOpts );
+		$siteConfig = new \Wikimedia\Parsoid\Tests\MockSiteConfig( $configOpts );
+		$dataAccess = new \Wikimedia\Parsoid\Tests\MockDataAccess( $configOpts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$pageContent = new \Parsoid\Tests\MockPageContent( [ 'main' =>
+		$pageContent = new \Wikimedia\Parsoid\Tests\MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
-		$pageConfig = new \Parsoid\Tests\MockPageConfig( $configOpts, $pageContent );
+		$pageConfig = new \Wikimedia\Parsoid\Tests\MockPageConfig( $configOpts, $pageContent );
 
 		return [
 			'parsoid' => $parsoid,

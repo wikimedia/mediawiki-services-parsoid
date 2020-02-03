@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Parsoid\Ext\Cite;
+namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMNode;
-use Parsoid\Config\Env;
-use Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Ext\Extension;
 
 /**
  * Native Parsoid implementation of the Cite extension

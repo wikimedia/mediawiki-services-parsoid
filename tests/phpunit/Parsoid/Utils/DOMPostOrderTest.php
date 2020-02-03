@@ -5,12 +5,12 @@ namespace Test\Parsoid\Utils;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Parsoid\Utils\DOMPostOrder;
+use Wikimedia\Parsoid\Utils\DOMPostOrder;
 
 class DOMPostOrderTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers \Parsoid\Utils\DOMPostOrder::traverse
+	 * @covers \Wikimedia\Parsoid\Utils\DOMPostOrder::traverse
 	 */
 	public function testTraverse() {
 		$trace = [];

@@ -2,7 +2,7 @@
 // phpcs:disable MediaWiki.Commenting.FunctionComment.DefaultNullTypeParam -- T218324, T218816
 declare( strict_types = 1 );
 
-namespace Parsoid\Tokens;
+namespace Wikimedia\Parsoid\Tokens;
 
 /**
  * Represents a Key-value pair.

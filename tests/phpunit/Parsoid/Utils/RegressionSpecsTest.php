@@ -4,15 +4,15 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Utils;
 
 use DOMElement;
-use Parsoid\Parsoid;
-use Parsoid\SelserData;
-use Parsoid\Tests\MockDataAccess;
-use Parsoid\Tests\MockPageConfig;
-use Parsoid\Tests\MockPageContent;
-use Parsoid\Tests\MockSiteConfig;
-use Parsoid\Utils\DOMCompat;
-use Parsoid\Utils\DOMUtils;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Tests\MockDataAccess;
+use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Tests parsing for regressions against specific issues that have been resolved
@@ -78,7 +78,7 @@ class RegressionSpecsTest extends TestCase {
 	 * we should use a similar format for internal cite urls.
 	 * This spec ensures that we don't inadvertently break that requirement.
 	 * should use ./ prefixed urls for cite links
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testWikilinkUseDotSlashPrefix(): void {
 		$description = "Regression Specs: should use ./ prefixed urls for cite links";
@@ -96,7 +96,7 @@ class RegressionSpecsTest extends TestCase {
 
 	/**
 	 * should prevent regression of T153107
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testPreventRegressionT153107(): void {
 		$description = "Regression Specs: should prevent regression of T153107";
@@ -113,7 +113,7 @@ class RegressionSpecsTest extends TestCase {
 	/**
 	 * should ensure edited lists, headings, table cells preserve original
 	 * whitespace in some scenarios
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testPreserveWhitespace(): void {
 		$description = "should ensure edited lists, headings, table cells preserve original " .
@@ -188,7 +188,7 @@ class RegressionSpecsTest extends TestCase {
 
 	/**
 	 * should not apply whitespace heuristics for HTML versions older than 1.7.0
-	 * @covers \Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testNoWhitespaceHeuristics(): void {
 		$description = "should not apply whitespace heuristics for HTML versions older than 1.7.0";
@@ -274,7 +274,7 @@ class RegressionSpecsTest extends TestCase {
 
 	/**
 	 * should not wrap templatestyles style tags in p-wrappers
-	 * @covers \Parsoid\Wt2Html\TT\TemplateHandler
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler
 	 */
 	public function testNoWrapTemplateStyles(): void {
 		$description = "Regression Specs: should not wrap templatestyles style tags in p-wrappers";
@@ -288,7 +288,7 @@ class RegressionSpecsTest extends TestCase {
 	/**
 	 * For https://phabricator.wikimedia.org/T208901
 	 * should not split p-wrappers around templatestyles
-	 * @covers \Parsoid\Wt2Html\TT\TemplateHandler
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler
 	 */
 	public function testNoSplitPWrapper(): void {
 		$description = "Regression Specs: should not split p-wrappers around templatestyles";
@@ -305,7 +305,7 @@ class RegressionSpecsTest extends TestCase {
 
 	/**
 	 * Regression Specs: should deduplicate templatestyles style tags
-	 * @covers \Parsoid\Wt2Html\TT\TemplateHandler
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler
 	 */
 	public function testNoDupTemplateStyleTags(): void {
 		$description = "Regression Specs: should deduplicate templatestyles style tags";
