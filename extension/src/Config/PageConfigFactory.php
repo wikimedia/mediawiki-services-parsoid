@@ -91,7 +91,8 @@ class PageConfigFactory {
 			);
 		}
 
-		if ( $revisionRecord != null && PAGE_UNAVAILABLE | $revisionRecord->getVisibility() ) {
+		if ( $revisionRecord != null
+			&& ( 0 != self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) ) {
 			throw new RevisionAccessException( 'Not an available content version.' );
 		}
 
