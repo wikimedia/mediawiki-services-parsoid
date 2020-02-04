@@ -33,6 +33,9 @@ class Cite implements Extension {
 				[
 					'name' => 'references',
 					'class' => References::class,
+					'html2wt' => [
+						'format' => 'block'
+					],
 				]
 			],
 			'styles' => [

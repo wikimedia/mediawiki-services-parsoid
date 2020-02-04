@@ -112,12 +112,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
-				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
-				if ( $ext ) {
-					$ret = $ext->before( $node, $otherNode, $state );
-					if ( $ret !== false ) {
-						return $ret;
-					}
+				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
+				if ( ( $extConfig['html2wt']['format'] ?? '' ) === 'block' &&
+					WTUtils::isNewElt( $node )
+				) {
+					return [ 'min' => 1, 'max' => 2 ];
 				}
 			}
 		}
@@ -151,12 +150,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
-				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
-				if ( $ext ) {
-					$ret = $ext->after( $node, $otherNode, $state );
-					if ( $ret !== false ) {
-						return $ret;
-					}
+				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
+				if ( ( $extConfig['html2wt']['format'] ?? '' ) === 'block' &&
+					WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode )
+				) {
+					return [ 'min' => 1, 'max' => 2 ];
 				}
 			}
 		}

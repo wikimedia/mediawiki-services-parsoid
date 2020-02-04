@@ -11,7 +11,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -527,26 +526,6 @@ class References extends ExtensionTag {
 					return ''; // Drop it!
 				}
 			}
-		}
-	}
-
-	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
-		// Serialize new references tags on a new line.
-		if ( WTUtils::isNewElt( $node ) ) {
-			return [ 'min' => 1, 'max' => 2 ];
-		} else {
-			return false;
-		}
-	}
-
-	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ) {
-		// Serialize new references tags on a new line.
-		if ( WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode ) ) {
-			return [ 'min' => 1, 'max' => 2 ];
-		} else {
-			return false;
 		}
 	}
 
