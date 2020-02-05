@@ -42,8 +42,7 @@ class SelectiveSerializer {
 		$this->selserData = $options['selserData'];
 
 		// Debug options
-		$this->trace = !empty( $env->traceFlags ) &&
-			$env->traceFlags['selser'];
+		$this->trace = !empty( $env->traceFlags['selser'] );
 
 		// Performance Timing option
 		$this->metrics = $env->getSiteConfig()->metrics();
