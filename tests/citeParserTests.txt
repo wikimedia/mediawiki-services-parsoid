@@ -419,8 +419,11 @@ It's not possible to follow="…" a <ref> defined in the <references> section
 <ref name="theName">theValue</ref>
 </references>
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag depends on an unknown ref named "theName"</span>
-</p><p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has group attribute "" which does not appear in prior text.</span>
+<div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-theName"><span class="reference-text">theFollows</span>
+</p>
+</ol></div>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "theName" defined in <code>&lt;references&gt;</code> is not used in prior text.</span>
 </p>
 !! end
 
@@ -430,10 +433,10 @@ A follow="…" before its parent is not merged
 <ref follow="theName">theFollows</ref>
 <ref name="theName">theValue</ref>
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag depends on an unknown ref named "theName"</span>
+<sup id="cite_ref-theName_2-0" class="reference"><a href="#cite_note-theName-2">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-theName"><span class="reference-text">theFollows</span>
 </p>
-<sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text">theValue</span>
+<li id="cite_note-theName-2"><span class="mw-cite-backlink"><a href="#cite_ref-theName_2-0">↑</a></span> <span class="reference-text">theValue</span>
 </li>
 </ol></div>
 !! end
@@ -449,14 +452,15 @@ A follow="…" before its parent is not merged
 <references />
 !! html/php
 <p><sup id="cite_ref-first_1-0" class="reference"><a href="#cite_note-first-1">&#91;1&#93;</a></sup>
-<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag depends on an unknown ref named "third"</span>
-<sup id="cite_ref-third_2-0" class="reference"><a href="#cite_note-third-2">&#91;2&#93;</a></sup>
+</p><p><sup id="cite_ref-third_3-0" class="reference"><a href="#cite_note-third-3">&#91;2&#93;</a></sup>
 </p>
 <hr />
 <div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-third"><span class="reference-text">Second</span>
+</p>
 <li id="cite_note-first-1"><span class="mw-cite-backlink"><a href="#cite_ref-first_1-0">↑</a></span> <span class="reference-text">First</span>
 </li>
-<li id="cite_note-third-2"><span class="mw-cite-backlink"><a href="#cite_ref-third_2-0">↑</a></span> <span class="reference-text">Third</span>
+<li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
 </li>
 </ol></div>
 !! end
@@ -471,20 +475,21 @@ A follow="…" before its parent is not merged
 <references />
 !! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
-<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag depends on an unknown ref named "third"</span>
-<sup id="cite_ref-third_2-0" class="reference"><a href="#cite_note-third-2">&#91;2&#93;</a></sup>
+</p><p><sup id="cite_ref-third_3-0" class="reference"><a href="#cite_note-third-3">&#91;2&#93;</a></sup>
 </p>
 <hr />
 <div class="mw-references-wrap"><ol class="references">
+<p id="cite_note-third"><span class="reference-text">Second</span>
+</p>
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">First</span>
 </li>
-<li id="cite_note-third-2"><span class="mw-cite-backlink"><a href="#cite_ref-third_2-0">↑</a></span> <span class="reference-text">Third</span>
+<li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
 </li>
 </ol></div>
 !! end
 
 !! test
-Valid follow="…" after its parent
+Valid follow="…" after it's parent
 !! wikitext
 <ref name="theName">theValue</ref>
 <ref follow="theName">theFollows</ref>
@@ -493,42 +498,6 @@ Valid follow="…" after its parent
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text">theValue theFollows</span>
-</li>
-</ol></div>
-!! end
-
-# TODO: This should be supported, or the error should be more specific, like "Cannot follow a list-defined reference."
-!! test
-Forward-referenced ref with follow
-!! wikitext
-<ref name="theName" />
-<ref follow="theName">theFollows</ref>
-<references>
-<ref name="theName">theValue</ref>
-</references>
-!! html
-<p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
-</p>
-<div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text"> theFollows <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "theName" defined multiple times with different content</span></span>
-</li>
-</ol></div>
-!! end
-
-# TODO: This should not validate, it's an accident caused by processing the follow as if the list-defined reference already exists.
-!! test
-Forward-referenced ref with magical follow edge case
-!! wikitext
-<ref name="theName" />
-<ref follow="theName">theValue</ref>
-<references>
-<ref name="theName"> theValue</ref>
-</references>
-!! html
-<p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
-</p>
-<div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text"> theValue</span>
 </li>
 </ol></div>
 !! end
