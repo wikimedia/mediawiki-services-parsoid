@@ -1,265 +1,367 @@
-<?php // lint >= 99.9
-// phpcs:disable Generic.Files.LineLength.TooLong
-/* REMOVE THIS COMMENT AFTER PORTING */
+<?php
 /**
- * This is a demonstration of content model handling in extensions for
- * Parsoid.  It implements the "json" content model, to allow editing
+ * This implements the "json" content model as an extension, to allow editing
  * JSON data structures using Visual Editor.  It represents the JSON
  * structure as a nested table.
- * @module ext/JSON
  */
 
-namespace Wikimedia\Parsoid;
+declare( strict_types = 1 );
 
-$ParsoidExtApi = $module->parent->require( './extapi.js' )->versionCheck( '^0.10.0' );
-$temp0 =
+namespace Wikimedia\Parsoid\Ext\JSON;
 
-$ParsoidExtApi;
-$DOMDataUtils = $temp0::DOMDataUtils; $DOMUtils = $temp0::
-DOMUtils; $Promise = $temp0::
-Promise; $addMetaData = $temp0->
-addMetaData;
+use DOMDocument;
+use DOMElement;
+use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\ContentModelHandler;
+use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Native Parsoid implementation of the "json" contentmodel.
  * @class
  */
-$JSONExt = function () {
-	/** @type {Object} */
-	$this->config = [
-		'contentmodels' => [
-			'json' => $this
-		]
-	];
-};
 
-$PARSE_ERROR_HTML =
-'<!DOCTYPE html><html>'
-.	'<body>'
-.	"<table data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}' typeof=\"mw:Error\">"
-.	'</body>';
+class JSON extends ContentModelHandler implements Extension {
+	private const PARSE_ERROR_HTML = '<!DOCTYPE html><html>'
+		. '<body>'
+		. "<table data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}' typeof=\"mw:Error\">"
+		. '</body>';
 
-/**
- * JSON to HTML.
- * Implementation matches that from includes/content/JsonContent.php in
- * mediawiki core, except that we add some additional classes to distinguish
- * value types.
- * @param {MWParserEnvironment} env
- * @return {Document}
- * @method
- */
-JSONExt::prototype::toDOM = Promise::method( function ( $env ) use ( &$PARSE_ERROR_HTML, &$DOMDataUtils, &$addMetaData ) {
-		$document = $env->createDocument( '<!DOCTYPE html><html><body>' );
-		$rootValueTable = null;
-		$objectTable = null;
-		$objectRow = null;
-		$arrayTable = null;
-		$valueCell = null;
-		$primitiveValue = null;
+	/**
+	 * @var DOMDocument
+	 */
+	protected $document;
+
+	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'contentmodels' => [
+				'json' => self::class
+			],
+			'tags' => [
+			]
+		];
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param array|object|string $val
+	 */
+	private function rootValueTable( DOMElement $parent, $val ): void {
+		if ( is_array( $val ) ) {
+			// Wrap arrays in another array so they're visually boxed in a
+			// container.  Otherwise they are visually indistinguishable from
+			// a single value.
+			self::arrayTable( $parent, [ $val ] );
+			return;
+		}
+
+		if ( $val && is_object( $val ) ) {
+			self::objectTable( $parent, (array)$val );
+			return;
+		}
+
+		DOMCompat::setInnerHTML( $parent,
+			'<table class="mw-json mw-json-single-value"><tbody><tr><td>' );
+		self::primitiveValue( DOMCompat::querySelector( $parent, 'td' ), $val );
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param array $val
+	 */
+	private function objectTable( DOMElement $parent, array $val ): void {
+		DOMCompat::setInnerHTML( $parent,
+			'<table class="mw-json mw-json-object"><tbody>' );
+		$tbody = $parent->firstChild->firstChild;
+		DOMUtils::assertElt( $tbody );
+		$keys = array_keys( $val );
+		if ( count( $keys ) ) {
+			foreach ( $val as $k => $v ) {
+				self::objectRow( $tbody, (string)$k, $v );
+			}
+		} else {
+			DOMCompat::setInnerHTML( $tbody,
+				'<tr><td class="mw-json-empty">' );
+		}
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param string|null $key
+	 * @param mixed $val
+	 */
+	private function objectRow( DOMElement $parent, ?string $key, $val ): void {
+		$tr = $this->document->createElement( 'tr' );
+		if ( $key !== null ) {
+			$th = $this->document->createElement( 'th' );
+			$th->textContent = $key;
+			$tr->appendChild( $th );
+		}
+		self::valueCell( $tr, $val );
+		$parent->appendChild( $tr );
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param array $val
+	 */
+	private function arrayTable( DOMElement $parent, array $val ): void {
+		DOMCompat::setInnerHTML( $parent,
+			'<table class="mw-json mw-json-array"><tbody>' );
+		$tbody = $parent->firstChild->firstChild;
+		DOMUtils::assertElt( $tbody );
+		if ( count( $val ) ) {
+			foreach ( $val as $v ) {
+				self::objectRow( $tbody, null, $v );
+			}
+		} else {
+			DOMCompat::setInnerHTML( $tbody,
+				'<tr><td class="mw-json-empty">' );
+		}
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param mixed $val
+	 */
+	private function valueCell( DOMElement $parent, $val ): void {
+		$td = $this->document->createElement( 'td' );
+		if ( is_array( $val ) ) {
+			self::arrayTable( $td, $val );
+		} elseif ( $val && gettype( $val ) === 'object' ) {
+			self::objectTable( $td, (array)$val );
+		} else {
+			DOMCompat::getClassList( $td )->add( 'value' );
+			self::primitiveValue( $td, $val );
+		}
+		$parent->appendChild( $td );
+	}
+
+	/**
+	 * @param DOMElement $parent
+	 * @param string|int|bool|null $val
+	 */
+	private function primitiveValue( DOMElement $parent, $val ): void {
+		if ( $val === null ) {
+			DOMCompat::getClassList( $parent )->add( 'mw-json-null' );
+			$parent->textContent = 'null';
+			return;
+		} elseif ( is_bool( $val ) ) {
+			DOMCompat::getClassList( $parent )->add( 'mw-json-boolean' );
+			$parent->textContent = [ 'false', 'true' ][$val === true];
+			return;
+		} elseif ( is_int( $val ) || is_float( $val ) ) {
+			DOMCompat::getClassList( $parent )->add( 'mw-json-number' );
+		} elseif ( is_string( $val ) ) {
+			DOMCompat::getClassList( $parent )->add( 'mw-json-string' );
+		}
+		$parent->textContent = (string)$val;
+	}
+
+	/**
+	 * JSON to HTML.
+	 * Implementation matches that from includes/content/JsonContent.php in
+	 * mediawiki core, except that we distinguish value types.
+	 * @param Env $env
+	 * @return DOMDocument
+	 */
+	public function toDOM( Env $env ): DOMDocument {
+		$this->document = $env->createDocument( '<!DOCTYPE html><html><body>' );
 		$src = null;
 
-		$rootValueTable = function ( $parent, $val ) use ( &$arrayTable, &$objectTable, &$primitiveValue ) {
-			if ( is_array( $val ) ) {
-				// Wrap arrays in another array so they're visually boxed in a
-				// container.  Otherwise they are visually indistinguishable from
-				// a single value.
-				return $arrayTable( $parent, [ $val ] );
-			}
-			if ( $val && gettype( $val ) === 'object' ) {
-				return $objectTable( $parent, $val );
-			}
-			$parent->innerHTML =
-			'<table class="mw-json mw-json-single-value"><tbody><tr><td>';
-			return $primitiveValue( $parent->querySelector( 'td' ), $val );
-		};
-		$objectTable = function ( $parent, $val ) use ( &$objectRow ) {
-			$parent->innerHTML = '<table class="mw-json mw-json-object"><tbody>';
-			$tbody = $parent->firstElementChild->firstElementChild;
-			$keys = Object::keys( $val );
-			if ( count( $keys ) ) {
-				$keys->forEach( function ( $k ) use ( &$objectRow, &$tbody, &$val ) {
-						$objectRow( $tbody, $k, $val[$k] );
-				}
-				);
-			} else {
-				$tbody->innerHTML =
-				'<tr><td class="mw-json-empty">';
-			}
-		};
-		$objectRow = function ( $parent, $key, $val ) use ( &$document, &$valueCell ) {
-			$tr = $document->createElement( 'tr' );
-			if ( $key !== null ) {
-				$th = $document->createElement( 'th' );
-				$th->textContent = $key;
-				$tr->appendChild( $th );
-			}
-			$valueCell( $tr, $val );
-			$parent->appendChild( $tr );
-		};
-		$arrayTable = function ( $parent, $val ) use ( &$objectRow ) {
-			$parent->innerHTML = '<table class="mw-json mw-json-array"><tbody>';
-			$tbody = $parent->firstElementChild->firstElementChild;
-			if ( count( $val ) ) {
-				for ( $i = 0;  $i < count( $val );  $i++ ) {
-					$objectRow( $tbody, null, $val[$i] );
-				}
-			} else {
-				$tbody->innerHTML =
-				'<tr><td class="mw-json-empty">';
-			}
-		};
-		$valueCell = function ( $parent, $val ) use ( &$document, &$arrayTable, &$objectTable, &$primitiveValue ) {
-			$td = $document->createElement( 'td' );
-			if ( is_array( $val ) ) {
-				$arrayTable( $td, $val );
-			} elseif ( $val && gettype( $val ) === 'object' ) {
-				$objectTable( $td, $val );
-			} else {
-				$td->classList->add( 'value' );
-				$primitiveValue( $td, $val );
-			}
-			$parent->appendChild( $td );
-		};
-		$primitiveValue = function ( $parent, $val ) {
-			if ( $val === null ) {
-				$parent->classList->add( 'mw-json-null' );
-			} elseif ( $val === true || $val === false ) {
-				$parent->classList->add( 'mw-json-boolean' );
-			} elseif ( gettype( $val ) === 'number' ) {
-				$parent->classList->add( 'mw-json-number' );
-			} elseif ( gettype( $val ) === 'string' ) {
-				$parent->classList->add( 'mw-json-string' );
-			}
-			$parent->textContent = '' . $val;
-		};
-
-		try {
-			$src = json_decode( $env->page->src );
-			$rootValueTable( $document->body, $src );
+// PORT-FIXME When production moves to PHP 7.3, re-enable this try catch code
+/*		try {
+			$src = json_decode( $env->topFrame->getSrcText(),
+				false, 6, JSON_THROW_ON_ERROR );
+			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		} catch ( Exception $e ) {
-			$document = $env->createDocument( $PARSE_ERROR_HTML );
+			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
 		}
+*/
+		$src = json_decode( $env->topFrame->getSrcText(),
+			false, 6 );
+		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
+			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
+		} else {
+			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
+		}
+/* end of PHP 7.2 compatible error handling code, remove whem enabling 7.3+ try catch code */
+
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
 		if ( $env->pageBundle ) {
-			DOMDataUtils::visitAndStoreDataAttribs( $document->body, [
+			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $this->document ), [
 					'storeInPageBundle' => $env->pageBundle,
 					'env' => $env
 				]
 			);
 		}
-		$addMetaData( $env, $document );
-		return $document;
-}
-);
 
-/**
- * HTML to JSON.
- * @param {MWParserEnvironment} env
- * @param {Node} body
- * @param {boolean} useSelser
- * @return {string}
- * @method
- */
-JSONExt::prototype::fromDOM = Promise::method( function ( $extApi, $env, $body, $useSelser ) use ( &$DOMUtils ) {
-		$rootValueTable = null;
-		$objectTable = null;
-		$objectRow = null;
-		$arrayTable = null;
-		$valueCell = null;
-		$primitiveValue = null;
+// PORT-FIXME need to figure out how to initialize/call DOMPostProcessor addMetaData from here
+//		addMetaData( $env, $document );
+		return $this->document;
+	}
 
+	/**
+	 * RootValueTableFrom
+	 * @param DOMElement $el
+	 * @return array|false|int|string|null
+	 */
+	private function rootValueTableFrom( DOMElement $el ) {
+		if ( DOMCompat::getClassList( $el )->contains( 'mw-json-single-value' ) ) {
+			return self::primitiveValueFrom( DOMCompat::querySelector( $el, 'tr > td' ) );
+		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-array' ) ) {
+			return self::arrayTableFrom( $el )[0];
+		} else {
+			return self::objectTableFrom( $el );
+		}
+	}
+
+	/**
+	 * @param DOMElement $el
+	 * @return array
+	 */
+	private function objectTableFrom( DOMElement $el ) {
+		Assert::invariant( DOMCompat::getClassList( $el )->contains( 'mw-json-object' ),
+			'Expected mw-json-object' );
+		$tbody = $el;
+		if ( $tbody->firstChild ) {
+			$child = $tbody->firstChild;
+			DOMUtils::assertElt( $child );
+			if ( $child->tagName === 'tbody' ) {
+				$tbody = $child;
+			}
+		}
+		$rows = $tbody->childNodes;
+		$obj = [];
+		$empty = count( $rows ) === 0;
+		if ( !$empty ) {
+			$child = $rows->item( 0 )->firstChild;
+			DOMUtils::assertElt( $child );
+			if ( DOMCompat::getClassList( $child )->contains( 'mw-json-empty' ) ) {
+				$empty = true;
+			}
+		}
+		if ( !$empty ) {
+			for ( $i = 0; $i < count( $rows ); $i++ ) {
+				$item = $rows->item( $i );
+				DOMUtils::assertElt( $item );
+				self::objectRowFrom( $item, $obj, null );
+			}
+		}
+		return $obj;
+	}
+
+	/**
+	 * @param DOMElement $tr
+	 * @param $obj
+	 * @param $key
+	 */
+	private function objectRowFrom( DOMElement $tr, &$obj, $key ) {
+		$td = $tr->firstChild;
+		if ( $key === null ) {
+			$key = $td->textContent;
+			$td = $td->nextSibling;
+		}
+		DOMUtils::assertElt( $td );
+		$obj[$key] = self::valueCellFrom( $td );
+	}
+
+	/**
+	 * @param DOMElement $el
+	 * @return array
+	 */
+	private function arrayTableFrom( DOMElement $el ): array {
+		Assert::invariant( DOMCompat::getClassList( $el )->contains( 'mw-json-array' ),
+			'Expected ms-json-array' );
+		$tbody = $el;
+		if ( $tbody->firstChild ) {
+			$child = $tbody->firstChild;
+			DOMUtils::assertElt( $child );
+			if ( $child->tagName === 'tbody' ) {
+				$tbody = $child;
+			}
+		}
+		$rows = $tbody->childNodes;
+		$arr = [];
+		$empty = count( $rows ) === 0;
+		if ( !$empty ) {
+			$child = $rows->item( 0 )->firstChild;
+			DOMUtils::assertElt( $child );
+			if ( DOMCompat::getClassList( $child )->contains( 'mw-json-empty' ) ) {
+				$empty = true;
+			}
+		}
+		if ( !$empty ) {
+			for ( $i = 0; $i < count( $rows ); $i++ ) {
+				$item = $rows->item( $i );
+				DOMUtils::assertElt( $item );
+				self::objectRowFrom( $item, $arr, $i );
+			}
+		}
+		return $arr;
+	}
+
+	/**
+	 * @param DOMElement $el
+	 * @return array|object|false|float|int|string|null
+	 */
+	private function valueCellFrom( DOMElement $el ) {
+		Assert::invariant( $el->tagName === 'td', 'Expected tagName = td' );
+		$table = $el->firstChild;
+		if ( $table && DOMUtils::isElt( $table ) ) {
+			DOMUtils::assertElt( $table );
+			if ( DOMCompat::getClassList( $table )->contains( 'mw-json-array' ) ) {
+				return self::arrayTableFrom( $table );
+			} elseif ( DOMCompat::getClassList( $table )->contains( 'mw-json-object' ) ) {
+				return self::objectTableFrom( $table );
+			}
+		} else {
+			return self::primitiveValueFrom( $el );
+		}
+	}
+
+	/**
+	 * @param DOMElement $el
+	 * @return false|float|int|string|null
+	 */
+	private function primitiveValueFrom( DOMElement $el ) {
+		if ( DOMCompat::getClassList( $el )->contains( 'mw-json-null' ) ) {
+			return null;
+		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-boolean' ) ) {
+			return [ false, true ][preg_match( '/true/', $el->textContent )];
+		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-number' ) ) {
+			return floatval( $el->textContent );
+		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-string' ) ) {
+			return (string)$el->textContent;
+		} else {
+			return null; // shouldn't happen.
+		}
+	}
+
+	/**
+	 * HTML to JSON.
+	 * @param Env $env
+	 * @param DOMDocument $doc
+	 * @param SelserData|null $selserData
+	 * @return string
+	 */
+	public function fromDOM( Env $env, DOMDocument $doc, ?SelserData $selserData = null ): string {
+		$body = DOMCompat::getBody( $doc );
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
+		$t = $body->firstChild;
+		DOMUtils::assertElt( $t );
+		Assert::invariant( $t && $t->tagName === 'table',
+			'Expected tagName = table' );
+		self::rootValueTableFrom( $t );
+		return json_encode( self::rootValueTableFrom( $t ),
+// PORT-FIXME should this code use the following JSON options
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE, 6 );
+	}
 
-		$rootValueTable = function ( $el ) use ( &$primitiveValue, &$arrayTable, &$objectTable ) {
-			if ( $el->classList->contains( 'mw-json-single-value' ) ) {
-				return $primitiveValue( $el->querySelector( 'tr > td' ) );
-			} elseif ( $el->classList->contains( 'mw-json-array' ) ) {
-				return $arrayTable( $el )[0];
-			} else {
-				return $objectTable( $el );
-			}
-		};
-		$objectTable = function ( $el ) use ( &$objectRow ) {
-			Assert::invariant( $el->classList->contains( 'mw-json-object' ) );
-			$tbody = $el;
-			if (
-				$tbody->firstElementChild
-&& $tbody->firstElementChild->tagName === 'TBODY'
-			) {
-				$tbody = $tbody->firstElementChild;
-			}
-			$rows = $tbody->children;
-			$obj = [];
-			$empty = count( $rows ) === 0
-|| $rows[0]->firstElementChild
-&& $rows[0]->firstElementChild->classList->contains( 'mw-json-empty' );
-			if ( !$empty ) {
-				for ( $i = 0;  $i < count( $rows );  $i++ ) {
-					$objectRow( $rows[$i], $obj, null );
-				}
-			}
-			return $obj;
-		};
-		$objectRow = function ( $tr, $obj, $key ) use ( &$valueCell ) {
-			$td = $tr->firstElementChild;
-			if ( $key === null ) {
-				$key = $td->textContent;
-				$td = $td->nextElementSibling;
-			}
-			$obj[$key] = $valueCell( $td );
-		};
-		$arrayTable = function ( $el ) use ( &$objectRow ) {
-			Assert::invariant( $el->classList->contains( 'mw-json-array' ) );
-			$tbody = $el;
-			if (
-				$tbody->firstElementChild
-&& $tbody->firstElementChild->tagName === 'TBODY'
-			) {
-				$tbody = $tbody->firstElementChild;
-			}
-			$rows = $tbody->children;
-			$arr = [];
-			$empty = count( $rows ) === 0
-|| $rows[0]->firstElementChild
-&& $rows[0]->firstElementChild->classList->contains( 'mw-json-empty' );
-			if ( !$empty ) {
-				for ( $i = 0;  $i < count( $rows );  $i++ ) {
-					$objectRow( $rows[$i], $arr, $i );
-				}
-			}
-			return $arr;
-		};
-		$valueCell = function ( $el ) use ( &$arrayTable, &$objectTable, &$primitiveValue ) {
-			Assert::invariant( $el->tagName === 'TD' );
-			$table = $el->firstElementChild;
-			if ( $table && $table->classList->contains( 'mw-json-array' ) ) {
-				return $arrayTable( $table );
-			} elseif ( $table && $table->classList->contains( 'mw-json-object' ) ) {
-				return $objectTable( $table );
-			} else {
-				return $primitiveValue( $el );
-			}
-		};
-		$primitiveValue = function ( $el ) {
-			if ( $el->classList->contains( 'mw-json-null' ) ) {
-				return null;
-			} elseif ( $el->classList->contains( 'mw-json-boolean' ) ) {
-				return preg_match( '/true/', $el->textContent );
-			} elseif ( $el->classList->contains( 'mw-json-number' ) ) {
-				return +$el->textContent;
-			} elseif ( $el->classList->contains( 'mw-json-string' ) ) {
-				return '' . $el->textContent;
-			} else {
-				return null; // shouldn't happen.
-			}
-		};
-		$t = $body->firstElementChild;
-		Assert::invariant( $t && $t->tagName === 'TABLE' );
-		return json_encode( rootValueTable( $t ), null, 4 );
-}
-);
-
-if ( gettype( $module ) === 'object' ) {
-	$module->exports = $JSONExt;
 }
