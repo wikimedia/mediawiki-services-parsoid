@@ -105,7 +105,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testNamespaceHasSubpages() {
 		$this->assertSame( false, $this->getSiteConfig()->namespaceHasSubpages( 0 ) );
-		$this->assertSame( true, $this->getSiteConfig()->namespaceHasSubpages( 1 ) );
+		$this->assertTrue( $this->getSiteConfig()->namespaceHasSubpages( 1 ) );
 	}
 
 	public function testNamespaceCase() {
@@ -128,12 +128,11 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testNamespaceIsTalk() {
 		$this->assertSame( false, $this->getSiteConfig()->namespaceIsTalk( -1 ) );
 		$this->assertSame( false, $this->getSiteConfig()->namespaceIsTalk( 0 ) );
-		$this->assertSame( true, $this->getSiteConfig()->namespaceIsTalk( 1 ) );
+		$this->assertTrue( $this->getSiteConfig()->namespaceIsTalk( 1 ) );
 	}
 
 	public function testInterwikiMagic() {
-		$this->assertSame(
-			true,
+		$this->assertTrue(
 			$this->getSiteConfig()->interwikiMagic()
 		);
 	}
@@ -303,7 +302,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testIsMagicWord() {
-		$this->assertSame( true, $this->getSiteConfig()->isMagicWord( '$1px' ) );
+		$this->assertTrue( $this->getSiteConfig()->isMagicWord( '$1px' ) );
 		$this->assertSame( false, $this->getSiteConfig()->isMagicWord( 'img_width' ) );
 	}
 

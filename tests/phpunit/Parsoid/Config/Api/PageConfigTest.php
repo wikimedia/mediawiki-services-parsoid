@@ -30,8 +30,8 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testHasLintableContentModel() {
 		// Assumes wikitext:
-		$this->assertSame( true, $this->getPageConfig( 'missing' )->hasLintableContentModel() );
-		$this->assertSame( true, $this->getPageConfig( 'existing' )->hasLintableContentModel() );
+		$this->assertTrue( $this->getPageConfig( 'missing' )->hasLintableContentModel() );
+		$this->assertTrue( $this->getPageConfig( 'existing' )->hasLintableContentModel() );
 	}
 
 	public function testGetTitle() {
