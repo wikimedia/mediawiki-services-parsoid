@@ -87,20 +87,20 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testCanonicalNamespaceId() {
 		$this->assertSame( 5, $this->getSiteConfig()->canonicalNamespaceId( 'Project talk' ) );
-		$this->assertSame( null, $this->getSiteConfig()->canonicalNamespaceId( 'Wikipedia talk' ) );
+		$this->assertNull( $this->getSiteConfig()->canonicalNamespaceId( 'Wikipedia talk' ) );
 	}
 
 	public function testNamespaceId() {
 		$this->assertSame( 0, $this->getSiteConfig()->namespaceId( '' ) );
 		$this->assertSame( 5, $this->getSiteConfig()->namespaceId( 'Wikipedia talk' ) );
 		$this->assertSame( 5, $this->getSiteConfig()->namespaceId( 'WiKiPeDiA_TaLk' ) );
-		$this->assertSame( null, $this->getSiteConfig()->namespaceId( 'Foobar' ) );
+		$this->assertNull( $this->getSiteConfig()->namespaceId( 'Foobar' ) );
 	}
 
 	public function testNamespaceName() {
 		$this->assertSame( '', $this->getSiteConfig()->namespaceName( 0 ) );
 		$this->assertSame( 'Wikipedia talk', $this->getSiteConfig()->namespaceName( 5 ) );
-		$this->assertSame( null, $this->getSiteConfig()->namespaceName( 500 ) );
+		$this->assertNull( $this->getSiteConfig()->namespaceName( 500 ) );
 	}
 
 	public function testNamespaceHasSubpages() {
@@ -339,9 +339,9 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( [ 'k' => 'img_link', 'v' => '' ], $matcher( 'link=' ) );
 
 		// img_page isn't in the list of image options above
-		$this->assertSame( null, $matcher( 'page=123' ) );
+		$this->assertNull( $matcher( 'page=123' ) );
 		// enlace is link in Spanish, but this alias isn't present in siteconfig data
-		$this->assertSame( null, $matcher( 'enlace=123' ) );
+		$this->assertNull( $matcher( 'enlace=123' ) );
 	}
 
 	public function testIsExtensionTag() {
