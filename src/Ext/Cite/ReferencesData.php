@@ -4,16 +4,10 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use stdClass;
-use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 class ReferencesData {
-
-	/**
-	 * @var Env
-	 */
-	private $env;
 
 	/**
 	 * @var int
@@ -27,11 +21,9 @@ class ReferencesData {
 
 	/**
 	 * ReferencesData constructor.
-	 * @param Env $env
 	 */
-	public function __construct( Env $env ) {
+	public function __construct() {
 		$this->index = 0;
-		$this->env = $env;
 		$this->refGroups = [];
 	}
 
@@ -73,7 +65,7 @@ class ReferencesData {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $groupName
 	 * @param string $refName
 	 * @param string $about
@@ -81,7 +73,7 @@ class ReferencesData {
 	 * @return stdClass
 	 */
 	public function add(
-		Env $env, string $groupName, string $refName, string $about, bool $skipLinkback
+		ParsoidExtensionAPI $extApi, string $groupName, string $refName, string $about, bool $skipLinkback
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$refName = $this->makeValidIdAttr( $refName );
@@ -89,14 +81,11 @@ class ReferencesData {
 
 		if ( $hasRefName && isset( $group->indexByName[$refName] ) ) {
 			$ref = $group->indexByName[$refName];
-			if ( $ref->content && !$ref->hasMultiples ) {
+			if ( $ref->contentId && !$ref->hasMultiples ) {
 				$ref->hasMultiples = true;
 				// Use the non-pp version here since we've already stored attribs
 				// before putting them in the map.
-				$ref->cachedHtml = ContentUtils::toXML(
-					$env->getFragment( $ref->content )[0],
-					[ 'innerXML' => true ]
-				);
+				$ref->cachedHtml = $extApi->getContentHTML( $ref->contentId );
 			}
 		} else {
 			// The ids produced Cite.php have some particulars:
@@ -114,7 +103,7 @@ class ReferencesData {
 
 			$ref = (object)[
 				'about' => $about,
-				'content' => null,
+				'contentId' => null,
 				'dir' => '',
 				'group' => $group->name,
 				'groupIndex' => count( $group->refs ) + 1,
@@ -138,13 +127,6 @@ class ReferencesData {
 			$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
 		}
 		return $ref;
-	}
-
-	/**
-	 * @return Env
-	 */
-	public function getEnv(): Env {
-		return $this->env;
 	}
 
 	/**

@@ -11,10 +11,12 @@ use Wikimedia\Parsoid\Html2wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
@@ -88,6 +90,18 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Get an URI for the current page
+	 * @return string
+	 */
+	public function getPageUri(): string {
+		$title = Title::newFromText(
+			$this->env->getPageConfig()->getTitle(),
+			$this->env->getSiteConfig()
+		);
+		return $this->env->makeLink( $title );
+	}
+
+	/**
 	 * @return Frame
 	 */
 	public function getFrame(): Frame {
@@ -153,6 +167,23 @@ class ParsoidExtensionAPI {
 	 */
 	public function isSelfClosedExtTag(): bool {
 		return !empty( $this->extToken->dataAttribs->selfClose );
+	}
+
+	/**
+	 * @param string $contentId
+	 * @return DOMNode
+	 */
+	public function getContentDOM( string $contentId ): DOMNode {
+		return $this->env->getFragment( $contentId )[0];
+	}
+
+	/**
+	 * @param string $contentId
+	 * @return string
+	 */
+	public function getContentHTML( string $contentId ): string {
+		$dom = $this->getContentDOM( $contentId );
+		return ContentUtils::toXML( $dom, [ 'innerXML' => true ] );
 	}
 
 	/**
@@ -355,7 +386,7 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * FIXME: We should get rid of this and simply let RT tests fail on this or add
-	 * other test output normalizations to deal with it.  But, this should be done
+	 * other test output normalizations to deal with it. But, this should be done
 	 * as a separate refactoring step to isolate its affects and reset the rt test baseline.
 	 * @return bool
 	 */

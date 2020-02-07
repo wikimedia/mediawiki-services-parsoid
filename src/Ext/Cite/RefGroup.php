@@ -6,10 +6,9 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Helper class used by `<references>` implementation.
@@ -43,24 +42,21 @@ class RefGroup {
 
 	/**
 	 * Generate leading linkbacks
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $href
 	 * @param string|null $group
 	 * @param string $text
 	 * @param DOMDocument $ownerDoc
-	 * @param Env $env
 	 * @return DOMElement
 	 */
 	private static function createLinkback(
-		string $href, ?string $group, string $text, DOMDocument $ownerDoc, Env $env
+		ParsoidExtensionAPI $extApi,
+		string $href, ?string $group, string $text, DOMDocument $ownerDoc
 	): DOMElement {
 		$a = $ownerDoc->createElement( 'a' );
 		$s = $ownerDoc->createElement( 'span' );
 		$textNode = $ownerDoc->createTextNode( $text . ' ' );
-		$title = Title::newFromText(
-			$env->getPageConfig()->getTitle(),
-			$env->getSiteConfig()
-		);
-		$a->setAttribute( 'href', $env->makeLink( $title ) . '#' . $href );
+		$a->setAttribute( 'href', $extApi->getPageUri() . '#' . $href );
 		$s->setAttribute( 'class', 'mw-linkback-text' );
 		if ( $group ) {
 			$a->setAttribute( 'data-mw-group', $group );
@@ -71,11 +67,13 @@ class RefGroup {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $refsList
 	 * @param stdClass $ref
 	 */
-	public function renderLine( Env $env, DOMElement $refsList, stdClass $ref ): void {
+	public function renderLine(
+		ParsoidExtensionAPI $extApi, DOMElement $refsList, stdClass $ref
+	): void {
 		$ownerDoc = $refsList->ownerDocument;
 
 		// Generate the li and set ref content first, so the HTML gets parsed.
@@ -83,7 +81,7 @@ class RefGroup {
 		$li = $ownerDoc->createElement( 'li' );
 		$refDir = $ref->dir;
 		$refTarget = $ref->target;
-		$refContent = $ref->content;
+		$refContentId = $ref->contentId;
 		$refGroup = $ref->group;
 		DOMDataUtils::addAttributes( $li, [
 				'about' => '#' . $refTarget,
@@ -99,15 +97,15 @@ class RefGroup {
 				'class' => 'mw-reference-text',
 			]
 		);
-		if ( $refContent ) {
-			$content = $env->getFragment( $refContent )[0];
+		if ( $refContentId ) {
+			$content = $extApi->getContentDOM( $refContentId );
 			DOMUtils::migrateChildrenBetweenDocs( $content, $reftextSpan );
 			DOMDataUtils::visitAndLoadDataAttribs( $reftextSpan );
 		}
 		$li->appendChild( $reftextSpan );
 
 		if ( count( $ref->linkbacks ) === 1 ) {
-			$linkback = self::createLinkback( $ref->id, $refGroup, "↑", $ownerDoc, $env );
+			$linkback = self::createLinkback( $extApi, $ref->id, $refGroup, "↑", $ownerDoc );
 			$linkback->setAttribute( 'rel', 'mw:referencedBy' );
 			$li->insertBefore( $linkback, $reftextSpan );
 		} else {
@@ -118,7 +116,7 @@ class RefGroup {
 
 			foreach ( $ref->linkbacks as $i => $lb ) {
 				$span->appendChild(
-					self::createLinkback( $lb, $refGroup, (string)( $i + 1 ), $ownerDoc, $env )
+					self::createLinkback( $extApi, $lb, $refGroup, (string)( $i + 1 ), $ownerDoc )
 				);
 			}
 		}

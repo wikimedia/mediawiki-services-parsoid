@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 
 /**
@@ -23,17 +22,17 @@ class RefProcessor {
 
 	/**
 	 * @param DOMElement $body
-	 * @param Env $env
+	 * @param mixed $unused unused Env object FIXME: stop passing this through?
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 */
 	public function run(
-		DOMElement $body, Env $env, array $options = [], bool $atTopLevel = false
+		DOMElement $body, $unused, array $options = [], bool $atTopLevel = false
 	): void {
 		if ( $atTopLevel ) {
-			$refsData = new ReferencesData( $env );
+			$refsData = new ReferencesData();
 			References::processRefs( $this->extApi, $refsData, $body );
-			References::insertMissingReferencesIntoDOM( $refsData, $body );
+			References::insertMissingReferencesIntoDOM( $this->extApi, $refsData, $body );
 		}
 	}
 }
