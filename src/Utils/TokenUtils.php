@@ -592,24 +592,19 @@ class TokenUtils {
 	}
 
 	/**
-	 * Convert an array of key-value pairs into a hash of keys to values. For
-	 * duplicate keys, the last entry wins.
+	 * Convert an array of key-value pairs into a hash of keys to values.
+	 * For duplicate keys, the last entry wins.
 	 * @param array<KV> $kvs
-	 * @param bool $convertValuesToString
-	 * @param bool $useSrc
 	 * @return array<string,Token[]>|array<string,string>
 	 */
-	public static function kvToHash(
-		array $kvs, bool $convertValuesToString = false, bool $useSrc = false
-	): array {
+	public static function kvToHash( array $kvs ): array {
 		$res = [];
 		foreach ( $kvs as $kv ) {
 			$key = trim( self::tokensToString( $kv->k ) );
 			// SSS FIXME: Temporary fix to handle extensions which use
 			// entities in attribute values. We need more robust handling
 			// of non-string template attribute values in general.
-			$val = ( $useSrc && $kv->vsrc !== null ) ? $kv->vsrc :
-				 ( $convertValuesToString ? self::tokensToString( $kv->v ) : $kv->v );
+			$val = self::tokensToString( $kv->v );
 			$res[mb_strtolower( $key )] = self::tokenTrim( $val );
 		}
 		return $res;

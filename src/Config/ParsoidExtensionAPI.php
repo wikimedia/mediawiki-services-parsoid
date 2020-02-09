@@ -243,7 +243,7 @@ class ParsoidExtensionAPI {
 		DOMUtils::migrateChildren( $body, $wrapper );
 		$body->appendChild( $wrapper );
 
-		// Sanitize argDict.attrs and set on the wrapper
+		// Sanitize args and set on the wrapper
 		Sanitizer::applySanitizedArgs( $this->env, $wrapper, $extArgs );
 
 		// Mark empty content DOMs

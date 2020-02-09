@@ -328,16 +328,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$expected[$kExpect] = $vExpect;
 		$this->assertEquals(
 			$expected,
-			TokenUtils::kvToHash( [ new KV( $k, $v, $srcOffsets ) ], true )
-		);
-		// and now w/o converting to string (but still trimming whitespace)
-		$expected[$kExpect] = [ 'vaLUE', $testCase['token'], '' ];
-		if ( $testCase['tokenTrimTransparent'] ?? false ) {
-			$expected[$kExpect][1] = '';
-		}
-		$this->assertEquals(
-			$expected,
-			TokenUtils::kvToHash( [ new KV( $k, $v, $srcOffsets ) ], false )
+			TokenUtils::kvToHash( [ new KV( $k, $v, $srcOffsets ) ] )
 		);
 	}
 

@@ -252,7 +252,7 @@ class Gallery extends ExtensionTag implements Extension {
 	public function toDOM(
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DOMDocument {
-		$attrs = TokenUtils::kvToHash( $args, true );
+		$attrs = TokenUtils::kvToHash( $args );
 		$opts = new Opts( $extApi->getEnv(), $attrs );
 
 		$offset = $extApi->getExtTagOffsets()->innerStart();

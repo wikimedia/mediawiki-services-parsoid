@@ -475,7 +475,7 @@ class References extends ExtensionTag {
 			]
 		);
 
-		$refsOpts = TokenUtils::kvToHash( $extArgs, true ) + [
+		$refsOpts = TokenUtils::kvToHash( $extArgs ) + [
 			'group' => null,
 			'responsive' => null,
 		];
