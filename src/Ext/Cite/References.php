@@ -11,7 +11,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -117,9 +116,7 @@ class References extends ExtensionTag {
 		$tplDmw = $isTplWrapper ? DOMDataUtils::getDataMw( $node ) : null;
 
 		// This is the <sup> that's the meat of the sealed fragment
-		/** @var DOMElement $c */
 		$c = $extApi->getContentDOM( $contentId );
-		DOMUtils::assertElt( $c );
 		$cDp = DOMDataUtils::getDataParsoid( $c );
 		$refDmw = DOMDataUtils::getDataMw( $c );
 		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
@@ -159,7 +156,10 @@ class References extends ExtensionTag {
 			$html = '';
 			$contentDiffers = false;
 			if ( $ref->hasMultiples ) {
-				$html = ContentUtils::ppToXML( $c, [ 'innerXML' => true ] );
+				$html = $extApi->toHTML( $c );
+				// ParsoidExtensionAPI says $c shouldn't used beyond the toHTML call
+				// So, set $c to null to explicitly prevent that usage.
+				$c = null;
 				$contentDiffers = $html !== $ref->cachedHtml;
 			}
 			if ( $contentDiffers ) {
@@ -168,11 +168,6 @@ class References extends ExtensionTag {
 				$refDmw->body = (object)[ 'id' => 'mw-reference-text-' . $ref->target ];
 			}
 		}
-
-		// FIXME: This leaks internal information about how Parsoid handles the DOM.
-		// $c may not be in canonical form anymore
-		// and shouldn't be used beyond this point.
-		$c = null;
 
 		DOMDataUtils::addAttributes( $linkBack, [
 				'about' => $about,
@@ -233,7 +228,8 @@ class References extends ExtensionTag {
 		} else {
 			// We don't need to delete the node now since it'll be removed in
 			// `insertReferencesIntoDOM` when all the children are cleaned out.
-			array_push( $nestedRefsHTML, ContentUtils::ppToXML( $linkBack ), "\n" );
+			array_push( $nestedRefsHTML, $extApi->toHTML( $linkBack, false ), "\n" );
+			$linkBack = null; // should not be used beyond this point as per 'toHTML' docs
 		}
 
 		// Keep the first content to compare multiple <ref>s with the same name.
@@ -367,9 +363,9 @@ class References extends ExtensionTag {
 	private static function processEmbeddedRefs(
 		ParsoidExtensionAPI $extApi, ReferencesData $refsData, string $str
 	): string {
-		$dom = ContentUtils::ppToDOM( $extApi->getEnv(), $str );
-		self::processRefs( $extApi, $refsData, $dom );
-		return ContentUtils::ppToXML( $dom, [ 'innerXML' => true ] );
+		$domBody = DOMCompat::getBody( $extApi->parseHTML( $str ) );
+		self::processRefs( $extApi, $refsData, $domBody );
+		return $extApi->toHTML( $domBody );
 	}
 
 	/**

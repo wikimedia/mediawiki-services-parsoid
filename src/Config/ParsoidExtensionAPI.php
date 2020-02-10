@@ -192,13 +192,15 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * @param string $contentId
-	 * @return DOMNode
+	 * @return DOMElement
 	 */
-	public function getContentDOM( string $contentId ): DOMNode {
+	public function getContentDOM( string $contentId ): DOMElement {
 		// FIXME: This [0] indexing is sepcific to <ref> fragments.
 		// Might need to be revisited if this assumption breaks for
 		// other extension tags.
-		return $this->env->getDOMFragment( $contentId )[0];
+		$frag = $this->env->getDOMFragment( $contentId )[0];
+		DOMUtils::assertElt( $frag );
+		return $frag;
 	}
 
 	/**
@@ -206,11 +208,7 @@ class ParsoidExtensionAPI {
 	 * @return string
 	 */
 	public function getContentHTML( string $contentId ): string {
-		$dom = $this->getContentDOM( $contentId );
-		DOMDataUtils::visitAndStoreDataAttribs( $dom );
-		$html = ContentUtils::toXML( $dom, [ 'innerXML' => true ] );
-		DOMDataUtils::visitAndLoadDataAttribs( $dom );
-		return $html;
+		return $this->innerHTML( $this->getContentDOM( $contentId ) );
 	}
 
 	/**
@@ -435,8 +433,11 @@ class ParsoidExtensionAPI {
 	 *
 	 * @param DOMElement $from
 	 * @param DOMElement $to
+	 * @param bool $transferDataAttribs Should data-mw & data-parsoid be copied over?
 	 */
-	public static function migrateChildrenBetweenDocs( DOMElement $from, DOMElement $to ): void {
+	public static function migrateChildrenBetweenDocs(
+		DOMElement $from, DOMElement $to, bool $transferDataAttribs = true
+	): void {
 		// Migrate nodes
 		DOMUtils::migrateChildrenBetweenDocs( $from, $to );
 
@@ -457,8 +458,61 @@ class ParsoidExtensionAPI {
 			}
 		} );
 
-		DOMDataUtils::setDataParsoid( $to, Util::clone( DOMDataUtils::getDataParsoid( $from ) ) );
-		DOMDataUtils::setDataMw( $to, Util::clone( DOMDataUtils::getDataMw( $from ) ) );
+		if ( $transferDataAttribs ) {
+			DOMDataUtils::setDataParsoid( $to, Util::clone( DOMDataUtils::getDataParsoid( $from ) ) );
+			DOMDataUtils::setDataMw( $to, Util::clone( DOMDataUtils::getDataMw( $from ) ) );
+		}
+	}
+
+	/**
+	 * Parse input string into DOM.
+	 * NOTE: This leaves the DOM in Parsoid-canonical state and is the preferred method
+	 * to convert HTML to DOM that will be passed into Parsoid's code processing code.
+	 *
+	 * @param string $html
+	 * @return DOMDocument
+	 */
+	public function parseHTML( string $html ): DOMDocument {
+		$doc = $this->env->createDocument( $html );
+		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
+		return $doc;
+	}
+
+	/**
+	 * Serialize DOM element to string. This puts the input node in a
+	 * non-canonical form and callers shouldn't use it after this call.
+	 * If callers expect to continue using the node beyond this point,
+	 * use the 'innerHTML' method instead.
+	 *
+	 * @param DOMElement $elt
+	 * @param bool $innerHTML
+	 * @return string
+	 */
+	public function toHTML( DOMElement $elt, bool $innerHTML = true ): string {
+		// FIXME: This is going to drop any diff markers but since
+		// the dom differ doesn't traverse into extension content (right now),
+		// none should exist anyways.
+		DOMDataUtils::visitAndStoreDataAttribs( $elt );
+		$html = ContentUtils::toXML( $elt, [ 'innerXML' => $innerHTML ] );
+		return $html;
+	}
+
+	/**
+	 * Return innerHTML equivalent of $elt.
+	 * This version is aware of the DOM state and how/where data-attribs are stored
+	 *
+	 * @param DOMElement $elt
+	 * @return string
+	 */
+	public static function innerHTML( DOMElement $elt ): string {
+		// FIXME: This is going to drop any diff markers but since
+		// the dom differ doesn't traverse into extension content (right now),
+		// none should exist anyways.
+		DOMDataUtils::visitAndStoreDataAttribs( $elt );
+		$html = ContentUtils::toXML( $elt, [ 'innerXML' => true ] );
+		DOMDataUtils::visitAndLoadDataAttribs( $elt );
+
+		return $html;
 	}
 
 	/**

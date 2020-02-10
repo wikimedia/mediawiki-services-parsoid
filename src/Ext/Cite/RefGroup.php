@@ -8,7 +8,6 @@ use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Helper class used by `<references>` implementation.
@@ -99,9 +98,10 @@ class RefGroup {
 		);
 		if ( $refContentId ) {
 			$content = $extApi->getContentDOM( $refContentId );
-			DOMDataUtils::visitAndStoreDataAttribs( $content );
-			DOMUtils::migrateChildrenBetweenDocs( $content, $reftextSpan );
-			DOMDataUtils::visitAndLoadDataAttribs( $reftextSpan );
+			// The data-mw and data-parsoid attributes aren't needed on the ref content
+			// in the references section. The content wrapper will remain in the original
+			// site where the <ref> tag showed up and will retain data-parsoid & data-mw.
+			ParsoidExtensionAPI::migrateChildrenBetweenDocs( $content, $reftextSpan, false );
 		}
 		$li->appendChild( $reftextSpan );
 

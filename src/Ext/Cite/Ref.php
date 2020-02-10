@@ -8,7 +8,6 @@ use DOMNode;
 use Exception;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -102,12 +101,7 @@ class Ref extends ExtensionTag {
 					$bodyElt = DOMCompat::getElementById( $editedDoc, $dataMw->body->id );
 				}
 				if ( $bodyElt ) {
-					// n.b. this is going to drop any diff markers but since
-					// the dom differ doesn't traverse into extension content
-					// none should exist anyways.
-					DOMDataUtils::visitAndStoreDataAttribs( $bodyElt );
-					$html = ContentUtils::toXML( $bodyElt, [ 'innerXML' => true ] );
-					DOMDataUtils::visitAndLoadDataAttribs( $bodyElt );
+					$html = ParsoidExtensionAPI::innerHTML( $bodyElt );
 				} else {
 					// Some extra debugging for VisualEditor
 					$extraDebug = '';
