@@ -83,8 +83,6 @@ class Gallery extends ExtensionTag implements Extension {
 			false// Gallery captions are deliberately not parsed in SOL context
 		);
 		$body = DOMCompat::getBody( $doc );
-		// Store before `migrateChildrenBetweenDocs` in render
-		DOMDataUtils::visitAndStoreDataAttribs( $body );
 		return $body;
 	}
 
@@ -241,12 +239,6 @@ class Gallery extends ExtensionTag implements Extension {
 			break;
 		}
 
-		// Store before `migrateChildrenBetweenDocs` in render
-		DOMDataUtils::visitAndStoreDataAttribs( $thumb );
-		if ( $gallerytext ) {
-			DOMDataUtils::visitAndStoreDataAttribs( $gallerytext );
-		}
-
 		return new ParsedLine( $thumb, $gallerytext, $rdfaType );
 	}
 
@@ -281,8 +273,6 @@ class Gallery extends ExtensionTag implements Extension {
 
 		$mode = Mode::byName( $opts->mode );
 		$doc = $mode->render( $extApi->getEnv(), $opts, $caption, $lines );
-		// Reload now that `migrateChildrenBetweenDocs` is done
-		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
 		return $doc;
 	}
 

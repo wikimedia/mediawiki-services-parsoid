@@ -7,8 +7,8 @@ use DOMDocument;
 use DOMElement;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -77,15 +77,7 @@ class TraditionalMode extends Mode {
 	) {
 		$li = $doc->createElement( 'li' );
 		$li->setAttribute( 'class', 'gallerycaption' );
-		DOMUtils::migrateChildrenBetweenDocs( $caption, $li );
-		if ( $caption->hasAttribute( 'data-parsoid' ) ) {
-			$li->setAttribute( 'data-parsoid', $caption->getAttribute( 'data-parsoid' ) );
-		}
-		// The data-mw attribute *shouldn't* exist, since this caption
-		// should be a <body>.  But let's be safe and copy it anyway.
-		if ( $caption->hasAttribute( 'data-mw' ) ) {
-			$li->setAttribute( 'data-mw', $caption->getAttribute( 'data-mw' ) );
-		}
+		ParsoidExtensionAPI::migrateChildrenBetweenDocs( $caption, $li );
 		$ul->appendChild( $doc->createTextNode( "\n" ) );
 		$ul->appendChild( $li );
 	}
@@ -162,15 +154,7 @@ class TraditionalMode extends Mode {
 		$div = $doc->createElement( 'div' );
 		$div->setAttribute( 'class', 'gallerytext' );
 		if ( $gallerytext ) {
-			DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
-			if ( $gallerytext->hasAttribute( 'data-parsoid' ) ) {
-				$div->setAttribute( 'data-parsoid', $gallerytext->getAttribute( 'data-parsoid' ) );
-			}
-			// The data-mw attribute *shouldn't* exist, since this gallerytext
-			// should be a <figcaption>.  But let's be safe and copy it anyway.
-			if ( $gallerytext->hasAttribute( 'data-mw' ) ) {
-				$div->setAttribute( 'data-mw', $gallerytext->getAttribute( 'data-mw' ) );
-			}
+			ParsoidExtensionAPI::migrateChildrenBetweenDocs( $gallerytext, $div );
 		}
 		$box->appendChild( $div );
 	}
@@ -191,16 +175,7 @@ class TraditionalMode extends Mode {
 
 		$wrapper = $doc->createElement( 'figure-inline' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
-
-		DOMUtils::migrateChildrenBetweenDocs( $o->thumb, $wrapper );
-
-		if ( $o->thumb->hasAttribute( 'data-parsoid' ) ) {
-			$wrapper->setAttribute( 'data-parsoid', $o->thumb->getAttribute( 'data-parsoid' ) );
-		}
-		if ( $o->thumb->hasAttribute( 'data-mw' ) ) {
-			$wrapper->setAttribute( 'data-mw', $o->thumb->getAttribute( 'data-mw' ) );
-		}
-
+		ParsoidExtensionAPI::migrateChildrenBetweenDocs( $o->thumb, $wrapper );
 		$thumb->appendChild( $wrapper );
 
 		$box->appendChild( $thumb );

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
@@ -64,15 +65,7 @@ class PackedMode extends TraditionalMode {
 		}
 		$div = $doc->createElement( 'div' );
 		$div->setAttribute( 'class', 'gallerytext' );
-		DOMUtils::migrateChildrenBetweenDocs( $gallerytext, $div );
-		if ( $gallerytext->hasAttribute( 'data-parsoid' ) ) {
-			$div->setAttribute( 'data-parsoid', $gallerytext->getAttribute( 'data-parsoid' ) );
-		}
-		// The data-mw attribute *shouldn't* exist, since this gallerytext
-		// should be a <figcaption>.  But let's be safe and copy it anyway.
-		if ( $gallerytext->hasAttribute( 'data-mw' ) ) {
-			$div->setAttribute( 'data-mw', $gallerytext->getAttribute( 'data-mw' ) );
-		}
+		ParsoidExtensionAPI::migrateChildrenBetweenDocs( $gallerytext, $div );
 		$wrapper = $doc->createElement( 'div' );
 		$wrapper->setAttribute( 'class', 'gallerytextwrapper' );
 		$wrapper->setAttribute( 'style', 'width: ' . ceil( $width - 20 ) . 'px;' );

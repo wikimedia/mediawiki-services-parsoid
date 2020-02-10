@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
@@ -406,6 +407,38 @@ class ParsoidExtensionAPI {
 				$dmw->caption = $proc( $caption );
 			}
 		}
+	}
+
+	/**
+	 * Copy $from->childNodes to $to.
+	 * $from and $to belong to different documents.
+	 *
+	 * @param DOMElement $from
+	 * @param DOMElement $to
+	 */
+	public static function migrateChildrenBetweenDocs( DOMElement $from, DOMElement $to ): void {
+		// Migrate nodes
+		DOMUtils::migrateChildrenBetweenDocs( $from, $to );
+
+		// Ensure node data is available in $to's data bag as well
+		// FIXME: This will no longer be needed once DOM fragments
+		// are attached to the same source document instead of coming
+		// from different documents.
+		$fromDataBag = DOMDataUtils::getBag( $from->ownerDocument );
+		$toDataBag = DOMDataUtils::getBag( $to->ownerDocument );
+		DOMUtils::visitDOM( $to, function ( DOMNode $n ) use ( $fromDataBag, $toDataBag ) {
+			if ( $n instanceof DOMElement &&
+				$n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME )
+			) {
+				$nId = $n->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+				$data = $fromDataBag->getObject( (int)$nId );
+				$newId = $toDataBag->stashObject( $data );
+				$n->setAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$newId );
+			}
+		} );
+
+		DOMDataUtils::setDataParsoid( $to, Util::clone( DOMDataUtils::getDataParsoid( $from ) ) );
+		DOMDataUtils::setDataMw( $to, Util::clone( DOMDataUtils::getDataMw( $from ) ) );
 	}
 
 	/**

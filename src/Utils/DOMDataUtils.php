@@ -26,7 +26,7 @@ class DOMDataUtils {
 	 * @param DOMDocument $doc
 	 * @return DataBag
 	 */
-	private static function getBag( DOMDocument $doc ): DataBag {
+	public static function getBag( DOMDocument $doc ): DataBag {
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
