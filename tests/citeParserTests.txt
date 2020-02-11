@@ -503,6 +503,40 @@ Valid follow="…" after it's parent
 !! end
 
 !! test
+Forward-referenced ref with follow
+!! wikitext
+<ref name="theName" />
+<ref follow="theName">theFollows</ref>
+<references>
+<ref name="theName">theValue</ref>
+</references>
+!! html
+<p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text"> theFollows <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "theName" defined multiple times with different content</span></span>
+</li>
+</ol></div>
+!! end
+
+!! test
+Forward-referenced ref with magical follow edge case
+!! wikitext
+<ref name="theName" />
+<ref follow="theName">theValue</ref>
+<references>
+<ref name="theName"> theValue</ref>
+</references>
+!! html
+<p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text"> theValue</span>
+</li>
+</ol></div>
+!! end
+
+!! test
 Valid parameters become invalid when a third is present
 !! wikitext
 <ref name="theName" group="theGroup" dummy="dummy">theValue</ref>
