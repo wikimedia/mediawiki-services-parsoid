@@ -719,7 +719,7 @@ class Env {
 	/**
 	 * @return array<string,DOMNode[]>
 	 */
-	public function getFragmentMap(): array {
+	public function getDOMFragmentMap(): array {
 		return $this->fragmentMap;
 	}
 
@@ -727,7 +727,7 @@ class Env {
 	 * @param string $id Fragment id
 	 * @return DOMNode[]
 	 */
-	public function getFragment( string $id ): array {
+	public function getDOMFragment( string $id ): array {
 		return $this->fragmentMap[$id];
 	}
 
@@ -736,7 +736,7 @@ class Env {
 	 * @param DOMNode[] $forest DOM forest (contiguous array of DOM trees)
 	 *   to store against the fragment id
 	 */
-	public function setFragment( string $id, array $forest ): void {
+	public function setDOMFragment( string $id, array $forest ): void {
 		$this->fragmentMap[$id] = $forest;
 	}
 

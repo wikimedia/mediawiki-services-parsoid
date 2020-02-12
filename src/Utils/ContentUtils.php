@@ -234,7 +234,7 @@ class ContentUtils {
 			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/|$)#D' ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $dp->html ?? null ) {
-					$nodes = $env->getFragment( $dp->html );
+					$nodes = $env->getDOMFragment( $dp->html );
 					foreach ( $nodes as $n ) {
 						DOMDataUtils::visitAndLoadDataAttribs( $n );
 						DOMPostOrder::traverse( $n, $convertNode );
@@ -362,7 +362,7 @@ class ContentUtils {
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
-			foreach ( $options['env']->getFragmentMap() as $k => $fragment ) {
+			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
 				$buf = [];
 				$buf[] = str_repeat( '=', 15 );
 				$buf[] = 'FRAGMENT ' . $k;

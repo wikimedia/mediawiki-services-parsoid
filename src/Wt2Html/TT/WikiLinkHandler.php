@@ -347,7 +347,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $t instanceof Token &&
 					TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ?? '' )
 				) {
-					$firstNode = $env->getFragment( $t->dataAttribs->html )[0];
+					$firstNode = $env->getDOMFragment( $t->dataAttribs->html )[0];
 					if ( DOMUtils::matchTypeOf( $firstNode, '/^mw:(Nowiki|Extension)/' ) ) {
 						return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 					}

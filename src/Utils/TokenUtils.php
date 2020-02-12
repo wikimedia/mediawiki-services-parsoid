@@ -567,7 +567,7 @@ class TokenUtils {
 				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) ?? '' )
 			) {
 				// Handle dom fragments
-				$fragmentMap = $opts['env']->getFragmentMap();
+				$fragmentMap = $opts['env']->getDOMFragmentMap();
 				$nodes = $fragmentMap[$token->dataAttribs->html];
 				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
 						// FIXME: The correct thing to do would be to return

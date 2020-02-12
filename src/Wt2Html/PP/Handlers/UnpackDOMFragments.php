@@ -187,7 +187,7 @@ class UnpackDOMFragments {
 		$dummyNode = $node->ownerDocument->createElement( $fragmentParent->nodeName );
 
 		Assert::invariant( preg_match( '/^mwf/', $dp->html ), '' );
-		$nodes = $env->getFragment( $dp->html );
+		$nodes = $env->getDOMFragment( $dp->html );
 
 		if ( !empty( $dp->tmp->isHtmlExt ) ) {
 			// FIXME: This is a silly workaround for foundationwiki which has the

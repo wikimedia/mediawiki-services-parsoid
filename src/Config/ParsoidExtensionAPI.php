@@ -174,7 +174,7 @@ class ParsoidExtensionAPI {
 	 * @return DOMNode
 	 */
 	public function getContentDOM( string $contentId ): DOMNode {
-		return $this->env->getFragment( $contentId )[0];
+		return $this->env->getDOMFragment( $contentId )[0];
 	}
 
 	/**

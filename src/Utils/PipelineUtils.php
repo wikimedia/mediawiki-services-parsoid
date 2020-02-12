@@ -564,7 +564,7 @@ class PipelineUtils {
 			DOMDataUtils::visitAndStoreDataAttribs( $node );
 		}
 		$fragmentId = $env->newFragmentId();
-		$env->setFragment( $fragmentId, $nodes );
+		$env->setDOMFragment( $fragmentId, $nodes );
 		return [ 'nodes' => $nodes, 'html' => $fragmentId ];
 	}
 
