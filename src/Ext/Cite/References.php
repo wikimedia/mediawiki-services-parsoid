@@ -121,15 +121,11 @@ class References extends ExtensionTag {
 		/** @var DOMElement $c */
 		$c = $extApi->getContentDOM( $contentId );
 		DOMUtils::assertElt( $c );
-		// All the actions that require loaded data-attributes on `c` are done
-		// here so that we can quickly store those away for later.
-		DOMDataUtils::visitAndLoadDataAttribs( $c );
 		$cDp = DOMDataUtils::getDataParsoid( $c );
 		$refDmw = DOMDataUtils::getDataMw( $c );
 		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
 			self::processRefs( $extApi, $refsData, $c );
 		}
-		DOMDataUtils::visitAndStoreDataAttribs( $c );
 
 		// Use the about attribute on the wrapper with priority, since it's
 		// only added when the wrapper is a template sibling.
@@ -164,9 +160,7 @@ class References extends ExtensionTag {
 			$html = '';
 			$contentDiffers = false;
 			if ( $ref->hasMultiples ) {
-				// Use the non-pp version here since we've already stored attribs
-				// before putting them in the map.
-				$html = ContentUtils::toXML( $c, [ 'innerXML' => true ] );
+				$html = ContentUtils::ppToXML( $c, [ 'innerXML' => true ] );
 				$contentDiffers = $html !== $ref->cachedHtml;
 			}
 			if ( $contentDiffers ) {
@@ -175,6 +169,11 @@ class References extends ExtensionTag {
 				$refDmw->body = (object)[ 'id' => 'mw-reference-text-' . $ref->target ];
 			}
 		}
+
+		// FIXME: This leaks internal information about how Parsoid handles the DOM.
+		// $c may not be in canonical form anymore
+		// and shouldn't be used beyond this point.
+		$c = null;
 
 		DOMDataUtils::addAttributes( $linkBack, [
 				'about' => $about,

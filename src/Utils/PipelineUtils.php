@@ -190,6 +190,9 @@ class PipelineUtils {
 	}
 
 	/**
+	 * Convert a DOM node to a token. The node comes from a DOM whose data attributes
+	 * are stored outside the DOM.
+	 *
 	 * @param DOMElement $node
 	 * @param DOMAttr[] $attrs
 	 * @return array
@@ -197,16 +200,19 @@ class PipelineUtils {
 	private static function domAttrsToTagAttrs( DOMElement $node, array $attrs ): array {
 		$out = [];
 		foreach ( $attrs as $a ) {
-			// Not super important since they'll be overwritten by
-			// Parsoid\Wt2Html\PP\Handlers\PrepareDOM
-			if ( !in_array( $a->name, [ 'data-parsoid', DOMDataUtils::DATA_OBJECT_ATTR_NAME ], true ) ) {
+			if ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) {
 				$out[] = new KV( $a->name, $a->value );
 			}
+		}
+		if ( DOMDataUtils::validDataMw( $node ) ) {
+			$out[] = new KV( 'data-mw', PHPUtils::jsonEncode( DOMDataUtils::getDataMw( $node ) ) );
 		}
 		return [ 'attrs' => $out, 'dataAttrs' => DOMDataUtils::getDataParsoid( $node ) ];
 	}
 
 	/**
+	 * Convert a DOM to tokens. Data attributes for nodes are stored outside the DOM.
+	 *
 	 * @param DOMNode $node The root of the DOM tree to convert to tokens
 	 * @param Token[] $tokBuf This is where the tokens get stored
 	 * @return array
@@ -333,13 +339,6 @@ class PipelineUtils {
 			$wrapperName = $node->nodeName;
 		}
 
-		// Assumed to only be called on nodes that have had data
-		// attributes stored.
-		if ( $node instanceof DOMElement ) {
-			Assert::invariant( !$node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ),
-				"Expected node to have its data attributes stored" );
-		}
-
 		$workNode = null;
 		if ( !( $node instanceof DOMElement ) ) {
 			$workNode = $node->ownerDocument->createElement( $wrapperName );
@@ -367,22 +366,17 @@ class PipelineUtils {
 			// broken tsr or dsr values. This also lets these tokens pass
 			// through the sanitizer as stx.html is not set.
 			//
-			// FIXME(arlolra): Presumably, the tsr/dsr portion of the above
-			// comment is with respect to the case where the child nodes are
-			// being dropped.  The stx part though is suspect considering
+			// FIXME(arlolra): The stx part though is suspect considering
 			// below where `workNode` is set to the `node` that information
 			// would be preserved.
 			//
 			// We've filed T204279 to look into all this, but for now we'll do
 			// the safe thing and preserve dataAttribs where it makes sense.
-			//
-			// As indicated above, data attributes have already been stored
-			// for `node` so we need to peel them off for the purpose of
-			// cloning.
-			$storedDp = DOMDataUtils::getJSONAttribute( $node, 'data-parsoid', new stdClass );
-			DOMDataUtils::massageLoadedDataParsoid( $storedDp );
-			$storedDp->tsr = null;
-			DOMDataUtils::setDataParsoid( $workNode, $storedDp );
+			$nodeData = Util::clone( DOMDataUtils::getNodeData( $node ) );
+			if ( isset( $nodeData->parsoid->tsr ) ) {
+				$nodeData->parsoid->tsr = null;
+			}
+			DOMDataUtils::setNodeData( $workNode, $nodeData );
 		}
 
 		$tokens = self::convertDOMtoTokens( $workNode, [] );
@@ -560,9 +554,6 @@ class PipelineUtils {
 	 * @return array
 	 */
 	public static function makeExpansion( Env $env, array $nodes ): array {
-		foreach ( $nodes as $node ) {
-			DOMDataUtils::visitAndStoreDataAttribs( $node );
-		}
 		$fragmentId = $env->newFragmentId();
 		$env->setDOMFragment( $fragmentId, $nodes );
 		return [ 'nodes' => $nodes, 'html' => $fragmentId ];

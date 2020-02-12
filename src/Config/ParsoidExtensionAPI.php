@@ -174,6 +174,9 @@ class ParsoidExtensionAPI {
 	 * @return DOMNode
 	 */
 	public function getContentDOM( string $contentId ): DOMNode {
+		// FIXME: This [0] indexing is sepcific to <ref> fragments.
+		// Might need to be revisited if this assumption breaks for
+		// other extension tags.
 		return $this->env->getDOMFragment( $contentId )[0];
 	}
 
@@ -183,7 +186,10 @@ class ParsoidExtensionAPI {
 	 */
 	public function getContentHTML( string $contentId ): string {
 		$dom = $this->getContentDOM( $contentId );
-		return ContentUtils::toXML( $dom, [ 'innerXML' => true ] );
+		DOMDataUtils::visitAndStoreDataAttribs( $dom );
+		$html = ContentUtils::toXML( $dom, [ 'innerXML' => true ] );
+		DOMDataUtils::visitAndLoadDataAttribs( $dom );
+		return $html;
 	}
 
 	/**

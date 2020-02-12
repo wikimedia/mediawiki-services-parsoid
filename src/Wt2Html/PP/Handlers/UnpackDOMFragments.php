@@ -201,13 +201,21 @@ class UnpackDOMFragments {
 			// This works because importNode does attribute error checking, whereas
 			// parsing does not.  A better fix would be to use one ownerDocument
 			// for the entire parse, so no adoption is needed.  See T179082
-			$xmlNodes = array_map( function ( $n ) {
-				return ContentUtils::toXML( $n );
+			$nodeStrings = array_map( function ( $n ) {
+				$str = ContentUtils::ppToXML( $n );
+				// Put $n back in canonical form.
+				// Since $nodes isn't used beyond this point, we can also
+				// set $nodes to null but this is an uncommon use case so
+				// simpler to do this here.
+				DOMDataUtils::visitAndLoadDataAttribs( $n );
+				return $str;
 			}, $nodes );
-			$html = implode( '', $xmlNodes );
+			$html = implode( '', $nodeStrings );
 			ContentUtils::ppToDOM( $env, $html, [ 'node' => $dummyNode ] );
 		} else {
 			array_walk( $nodes, function ( $n ) use ( &$dummyNode ) {
+				// Dump $n's node data from the data-bag onto the node attribute
+				DOMDataUtils::visitAndStoreDataAttribs( $n );
 				$imp = $dummyNode->ownerDocument->importNode( $n, true );
 				$dummyNode->appendChild( $imp );
 			} );

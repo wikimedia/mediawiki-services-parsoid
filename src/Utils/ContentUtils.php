@@ -234,9 +234,7 @@ class ContentUtils {
 				if ( $dp->html ?? null ) {
 					$nodes = $env->getDOMFragment( $dp->html );
 					foreach ( $nodes as $n ) {
-						DOMDataUtils::visitAndLoadDataAttribs( $n );
 						DOMPostOrder::traverse( $n, $convertNode );
-						DOMDataUtils::visitAndStoreDataAttribs( $n );
 					}
 				}
 			}

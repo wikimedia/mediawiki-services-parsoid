@@ -99,6 +99,7 @@ class RefGroup {
 		);
 		if ( $refContentId ) {
 			$content = $extApi->getContentDOM( $refContentId );
+			DOMDataUtils::visitAndStoreDataAttribs( $content );
 			DOMUtils::migrateChildrenBetweenDocs( $content, $reftextSpan );
 			DOMDataUtils::visitAndLoadDataAttribs( $reftextSpan );
 		}
