@@ -896,11 +896,13 @@ abstract class SiteConfig {
 	protected function registerNativeExtension( Extension $ext ): void {
 		$extConfig = $ext->getConfig();
 
-		// This is for wt2html toDOM, html2wt fromDOM, and linter functionality
-		foreach ( $extConfig['tags'] as $tagConfig ) {
-			$lowerTagName = mb_strtolower( $tagConfig['name'] );
-			$this->nativeExtConfig['allTags'][$lowerTagName] = true;
-			$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
+		if ( isset( $extConfig['tags'] ) ) {
+			// This is for wt2html toDOM, html2wt fromDOM, and linter functionality
+			foreach ( $extConfig['tags'] as $tagConfig ) {
+				$lowerTagName = mb_strtolower( $tagConfig['name'] );
+				$this->nativeExtConfig['allTags'][$lowerTagName] = true;
+				$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
+			}
 		}
 
 		// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
@@ -923,7 +925,6 @@ abstract class SiteConfig {
 				if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
 					continue;
 				}
-
 				$this->nativeExtConfig['contentModels'][$cm] = $impl;
 			}
 		}

@@ -10,7 +10,8 @@ interface Extension {
 
 	/**
 	 * Return information about this extension.
-	 * @return array
+	 * FIXME: Add more expected fields or create a class for this
+	 * @return array{tags:array}
 	 */
 	public function getConfig(): array;
 
