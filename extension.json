@@ -49,6 +49,6 @@
 	"ConfigRegistry": {
 		"Parsoid-testing": "GlobalVarConfig::newInstance"
 	},
-	"load_composer_autoloader": true,
+	"load_composer_autoloader": false,
 	"manifest_version": 2
 }
