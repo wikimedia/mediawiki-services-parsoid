@@ -607,6 +607,7 @@ class DOMDataUtils {
 		// $dp will be a DataParsoid object once but currently it is an stdClass
 		// with a fake type hint. Unfake it to prevent phan complaining about unset().
 		'@phan-var stdClass $dp';
+		// @phan-suppress-next-line PhanRedundantCondition
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,
@@ -625,6 +626,7 @@ class DOMDataUtils {
 		}
 		$data = null;
 		if ( !$discardDataParsoid ) {
+			// @phan-suppress-next-line PhanRedundantCondition
 			if ( !empty( $options['keepTmp'] ) ) {
 				if ( isset( $dp->tmp->tplRanges ) ) {
 					unset( $dp->tmp->tplRanges );

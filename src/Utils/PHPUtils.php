@@ -222,9 +222,9 @@ class PHPUtils {
 				$i === -4, 'Bad UTF-8 at end of string (4 byte sequence)'
 			);
 		} else {
-			Assert::invariant(
+			self::unreachable(
 				// This shouldn't happen, assuming original string was valid
-				false, 'Bad UTF-8 at end of string'
+				'Bad UTF-8 at end of string'
 			);
 		}
 		if ( $checkEntireString ) {
@@ -383,4 +383,17 @@ class PHPUtils {
 			self::sortArray( $array[$k] );
 		}
 	}
+
+	/**
+	 * Indicate that the code which calls this function is intended to be
+	 * unreachable.
+	 *
+	 * This is a workaround for T247093; hopefully we can move this
+	 * function upstream into wikimedia/assert.
+	 */
+	public static function unreachable( string $reason = "should never happen" ) {
+		// @phan-suppress-next-line PhanImpossibleCondition
+		Assert::invariant( false, $reason );
+	}
+
 }

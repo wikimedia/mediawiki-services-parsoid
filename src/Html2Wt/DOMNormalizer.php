@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /*
@@ -851,7 +852,7 @@ class DOMNormalizer {
 		}
 
 		// @phan-suppress-next-line PhanPluginUnreachableCode
-		Assert::invariant( false, 'Control should never get here!' );
+		PHPUtils::unreachable( 'Control should never get here!' );
 	}
 
 	/**

@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
@@ -17,6 +16,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
@@ -349,7 +349,7 @@ class Gallery extends ExtensionTag implements Extension {
 				// Ignore it
 				break;
 			default:
-				Assert::invariant( false, 'Should not be here!' );
+				PHPUtils::unreachable( 'should not be here!' );
 				break;
 			}
 		}

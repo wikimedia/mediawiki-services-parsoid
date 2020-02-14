@@ -358,7 +358,6 @@ class ContentUtils {
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
-			// @phan-suppress-next-line PhanNonClassMethodCall
 			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
 				$buf = [];
 				$buf[] = str_repeat( '=', 15 );

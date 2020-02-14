@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt;
 use DOMElement;
 use DOMNode;
 use stdClass;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -414,7 +413,7 @@ class WTSUtils {
 			} elseif ( is_object( $a[0] ) ) {
 				$txt = $a[0]->txt ?? null;
 			} else {
-				Assert::invariant( false, 'Control should never get here!' );
+				PHPUtils::unreachable( 'Control should never get here!' );
 				break;
 			}
 			if ( $txt === $key ) {

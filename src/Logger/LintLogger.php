@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Logger;
 
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
@@ -100,7 +100,7 @@ class LintLogger {
 					return array_search( $item['type'], $linting, true ) !== false;
 				} );
 			} else {
-				Assert::invariant( false, 'Why are we here? Linting is disabled.' );
+				PHPUtils::unreachable( 'Why are we here? Linting is disabled.' );
 			}
 		}
 		/* This is no longer supported in ParsoidPHP according to Subbu

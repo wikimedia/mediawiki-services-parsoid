@@ -321,7 +321,7 @@ class DOMDiff {
 			// Did not find a diff yet, so the trees must be equal.
 			return true;
 		}
-		Assert::invariant( false, 'we shouldn\'t get here' );
+		PHPUtils::unreachable( 'we shouldn\'t get here' );
 		return false;
 	}
 

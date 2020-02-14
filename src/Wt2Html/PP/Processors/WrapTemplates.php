@@ -1145,7 +1145,7 @@ class WrapTemplates {
 								$tplRanges[] = self::getDOMRange( $frame, $doc, $elem, $aboutRef->end, $aboutRef->end );
 							} else {
 								// should not happen!
-								Assert::invariant( false, "start found after content for $about." );
+								PHPUtils::unreachable( "start found after content for $about." );
 							}
 						} else {
 							$tpls[$about] = (object)[ 'start' => $elem ];

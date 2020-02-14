@@ -204,7 +204,7 @@ class TemplateHandler extends TokenHandler {
 					}
 
 				default:
-					Assert::invariant( false, 'Unexpected token type: ' . get_class( $ntt ) );
+					PHPUtils::unreachable( 'Unexpected token type: ' . get_class( $ntt ) );
 			}
 		}
 

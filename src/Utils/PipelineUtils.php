@@ -244,7 +244,7 @@ class PipelineUtils {
 			// getWrapperTokens calls convertDOMToTokens with a DOMElement
 			// and children of dom elements are always text/comment/elements
 			// which are all covered above.
-			Assert::invariant( false, "Should never get here!" );
+			PHPUtils::unreachable( "Should never get here!" );
 		}
 
 		return $tokBuf;
