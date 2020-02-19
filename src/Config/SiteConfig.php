@@ -9,6 +9,7 @@ use Psr\Log\NullLogger;
 use Wikimedia\Parsoid\ContentModelHandler;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\ExtensionContentModelHandler;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\WikitextContentModelHandler;
@@ -925,7 +926,7 @@ abstract class SiteConfig {
 				if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
 					continue;
 				}
-				$this->nativeExtConfig['contentModels'][$cm] = $impl;
+				$this->nativeExtConfig['contentModels'][$cm] = new ExtensionContentModelHandler( new $impl );
 			}
 		}
 	}
