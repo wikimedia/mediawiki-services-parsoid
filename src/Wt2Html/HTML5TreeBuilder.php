@@ -160,6 +160,9 @@ class HTML5TreeBuilder extends PipelineStage {
 			DOMUtils::migrateChildrenBetweenDocs(
 				DOMCompat::getBody( $this->doc ), $node
 			);
+			$this->env->unreferenceDataObject( $this->doc );
+			$this->doc = null;
+			$this->dispatcher = null;
 		}
 
 		// Preparing the DOM is considered one "unit" with treebuilding,

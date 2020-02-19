@@ -610,6 +610,9 @@ class TokenUtils {
 				$domFragment = $opts['env']->getDOMFragment(
 					$token->dataAttribs->html
 				);
+				// Calling `env->removeDOMFragment()` here is case dependent
+				// but should be rare enough when permissible that it can be
+				// ignored.
 				// FIXME: The correct thing to do would be to return
 				// `$domFragment.innerHTML` for the current scenarios where
 				// `unpackDOMFragments` is used (expanded attribute

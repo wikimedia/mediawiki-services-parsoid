@@ -10,6 +10,7 @@ use RemexHtml\Tokenizer\PlainAttributes;
 use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
@@ -686,6 +687,17 @@ class Env {
 	}
 
 	/**
+	 * FIXME: See the poor naming convention above.
+	 *
+	 * @param DOMDocument $doc
+	 */
+	public function unreferenceDataObject( DOMDocument $doc ): void {
+		$ind = array_search( $doc, $this->liveDocs, true );
+		Assert::invariant( $ind !== false, 'A live document was not found.' );
+		array_splice( $this->liveDocs, $ind, 1 );
+	}
+
+	/**
 	 * When an environment is constructed, we initialize a document (and
 	 * dispatcher to it) to be used throughout the parse.
 	 */
@@ -817,6 +829,17 @@ class Env {
 		string $id, DOMDocumentFragment $forest
 	): void {
 		$this->fragmentMap[$id] = $forest;
+	}
+
+	/**
+	 * @param string $id
+	 */
+	public function removeDOMFragment( string $id ): void {
+		$domFragment = $this->fragmentMap[$id];
+		Assert::invariant(
+			!$domFragment->hasChildNodes(), 'Fragment should be empty.'
+		);
+		unset( $this->fragmentMap[$id] );
 	}
 
 	/**

@@ -246,11 +246,7 @@ class ContentUtils {
 			}
 
 			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/|$)#D' ) ) {
-				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( $dp->html ?? null ) {
-					$domFragment = $env->getDOMFragment( $dp->html );
-					DOMPostOrder::traverse( $domFragment, $convertNode );
-				}
+				PHPUtils::unreachable( "Shouldn't encounter these nodes here." );
 			}
 		};
 		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {

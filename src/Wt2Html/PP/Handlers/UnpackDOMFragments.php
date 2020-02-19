@@ -10,6 +10,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -346,6 +347,11 @@ class UnpackDOMFragments {
 					'keepTmp' => true
 				]
 			);
+
+			// Empty the fragment since we've serialized its children and
+			// removing it asserts everything has been migrated out
+			DOMCompat::replaceChildren( $domFragment );
+
 			$parentHTML = ContentUtils::ppToXML( $fragmentParent );
 
 			$p = $fragmentParent->previousSibling;
@@ -381,6 +387,8 @@ class UnpackDOMFragments {
 			DOMUtils::migrateChildren( $domFragment, $fragmentParent, $node );
 			$node->parentNode->removeChild( $node );
 		}
+
+		$env->removeDOMFragment( $dp->html );
 
 		return $nextNode;
 	}

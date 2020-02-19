@@ -194,6 +194,13 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * @param string $contentId
+	 */
+	public function clearContentDOM( string $contentId ) {
+		$this->env->removeDOMFragment( $contentId );
+	}
+
+	/**
 	 * Parse wikitext to DOM
 	 *
 	 * @param string $wikitext

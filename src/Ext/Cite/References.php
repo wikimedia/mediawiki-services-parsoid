@@ -199,7 +199,7 @@ class References extends ExtensionTagHandler {
 						// Otherwise, we have a follow that comes after a named
 						// ref without content so use the follow fragment as
 						// the content
-						$ref->contentId = $contentId;
+						// This will be set below with `$ref->contentId = $contentId;`
 					}
 				} else {
 					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
@@ -231,6 +231,9 @@ class References extends ExtensionTagHandler {
 			if ( !empty( $cDp->selfClose ) ) {
 				unset( $refDmw->body );
 			} else {
+				// Empty the <sup> since we've serialized its children and
+				// removing it below asserts everything has been migrated out
+				DOMCompat::replaceChildren( $c );
 				$refDmw->body = (object)[ 'html' => $refDmw->body->extsrc ];
 			}
 		} else {
@@ -244,7 +247,9 @@ class References extends ExtensionTagHandler {
 				// FIXME: Strip the mw:Cite/Follow wrappers
 				// See the test, "Forward-referenced ref with magical follow edge case"
 				$html = $extApi->domToHtml( $c, true, true );
-				$c = null; // $c is being release in the call above
+				// Empty the <sup> since we've serialized its children and
+				// removing it below asserts everything has been migrated out
+				DOMCompat::replaceChildren( $c );
 				$contentDiffers = $html !== $ref->cachedHtml;
 				if ( $contentDiffers ) {
 					// TODO: Since this error is being placed on the ref, the
@@ -327,6 +332,9 @@ class References extends ExtensionTagHandler {
 		if ( $ref->contentId === null && !$missingContent ) {
 			$ref->contentId = $contentId;
 			$ref->dir = strtolower( $refDmw->attrs->dir ?? '' );
+		} else {
+			DOMCompat::remove( $c );
+			$extApi->clearContentDOM( $contentId );
 		}
 	}
 
