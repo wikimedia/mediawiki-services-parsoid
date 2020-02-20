@@ -331,7 +331,7 @@ class AddMediaInfo {
 		$doc = $container->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
-		self::addAttributeFromDateMw( $img, $dataMw, 'alt' );
+		self::addAttributeFromDataMw( $img, $dataMw, 'alt' );
 
 		if ( $manualinfo ) {
 			$info = $manualinfo;
@@ -505,7 +505,7 @@ class AddMediaInfo {
 	 * @param stdClass $dataMw
 	 * @param string $key
 	 */
-	private static function addAttributeFromDateMw(
+	private static function addAttributeFromDataMw(
 		DOMElement $elt, stdClass $dataMw, string $key
 	): void {
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, $key, false );
