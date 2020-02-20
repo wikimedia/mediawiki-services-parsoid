@@ -52,7 +52,7 @@ class Opts {
 				continue;
 			}
 			if ( $k === 'style' ) {
-				$v = Sanitizer::checkCSS( $v );
+				$v = Sanitizer::checkCss( $v );
 			}
 			$this->attrs[$k] = $v;
 		}
