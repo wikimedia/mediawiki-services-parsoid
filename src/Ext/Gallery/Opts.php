@@ -3,9 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\Util;
-use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * @class
@@ -13,11 +12,11 @@ use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 class Opts {
 	/**
 	 * Parse options from an attribute array.
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param array<string,string> $attrs The attribute array
 	 */
-	public function __construct( Env $env, array $attrs ) {
-		foreach ( $env->getSiteConfig()->galleryOptions() as $k => $v ) {
+	public function __construct( ParsoidExtensionAPI $extApi, array $attrs ) {
+		foreach ( $extApi->getEnv()->getSiteConfig()->galleryOptions() as $k => $v ) {
 			$this->$k = $v;
 		}
 
@@ -45,14 +44,14 @@ class Opts {
 		$this->caption = (bool)( $attrs['caption'] ?? false );
 
 		// TODO: Good contender for T54941
-		$validUlAttrs = Sanitizer::attributeWhitelist( 'ul' );
+		$validUlAttrs = $extApi->getValidHTMLAttributes( 'ul' );
 		$this->attrs = [];
 		foreach ( $attrs as $k => $v ) {
 			if ( !isset( $validUlAttrs[$k] ) ) {
 				continue;
 			}
 			if ( $k === 'style' ) {
-				$v = Sanitizer::checkCss( $v );
+				$v = $extApi->sanitizeCss( $v );
 			}
 			$this->attrs[$k] = $v;
 		}

@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 
 use stdClass;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 class ReferencesData {
 
@@ -25,21 +24,6 @@ class ReferencesData {
 	public function __construct() {
 		$this->index = 0;
 		$this->refGroups = [];
-	}
-
-	/**
-	 * @param string $val
-	 * @return bool|string
-	 */
-	public function makeValidIdAttr( string $val ) {
-		// Looks like Cite.php doesn't try to fix ids that already have
-		// a "_" in them. Ex: name="a b" and name="a_b" are considered
-		// identical. Not sure if this is a feature or a bug.
-		// It also considers entities equal to their encoding
-		// (i.e. '&' === '&amp;'), which is done:
-		//  in PHP: Sanitizer#decodeTagAttributes and
-		//  in Parsoid: ExtensionHandler#normalizeExtOptions
-		return Sanitizer::escapeIdForAttribute( $val );
 	}
 
 	/**
@@ -76,7 +60,14 @@ class ReferencesData {
 		ParsoidExtensionAPI $extApi, string $groupName, string $refName, string $about, bool $skipLinkback
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
-		$refName = $this->makeValidIdAttr( $refName );
+		// Looks like Cite.php doesn't try to fix ids that already have
+		// a "_" in them. Ex: name="a b" and name="a_b" are considered
+		// identical. Not sure if this is a feature or a bug.
+		// It also considers entities equal to their encoding
+		// (i.e. '&' === '&amp;'), which is done:
+		//  in PHP: Sanitizer#decodeTagAttributes and
+		//  in Parsoid: ExtensionHandler#normalizeExtOptions
+		$refName = $extApi->sanitizeHTMLId( $refName );
 		$hasRefName = strlen( $refName ) > 0;
 
 		if ( $hasRefName && isset( $group->indexByName[$refName] ) ) {
