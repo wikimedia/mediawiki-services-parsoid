@@ -1380,8 +1380,7 @@ class Sanitizer extends TokenHandler {
 	 * @param string $id String to escape
 	 * @param int $mode One of ID_* constants, specifying whether the primary or fallback encoding
 	 *     should be used.
-	 * @return string|bool Escaped ID or false if fallback encoding is requested but it's not
-	 *     configured.
+	 * @return string Escaped ID
 	 *
 	 * @since 1.30
 	 */
