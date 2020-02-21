@@ -145,7 +145,7 @@ class LanguageVariantHandler {
 	}
 
 	/**
-	 * @param array $a
+	 * @param array &$a
 	 * @param $value
 	 */
 	private static function add( array &$a, $value ) {
@@ -155,7 +155,7 @@ class LanguageVariantHandler {
 	}
 
 	/**
-	 * @param array $a
+	 * @param array &$a
 	 * @param $value
 	 */
 	private static function delete( array &$a, $value ) {

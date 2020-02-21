@@ -353,7 +353,7 @@ class OptsProcessor {
 	 * This sets the param in the options array based on
 	 * whether or not it can be specified multiple times.
 	 *
-	 * @param array $options
+	 * @param array &$options
 	 * @param string $option
 	 * @param mixed $value
 	 */

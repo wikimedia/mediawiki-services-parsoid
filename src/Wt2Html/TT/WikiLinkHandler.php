@@ -934,7 +934,7 @@ class WikiLinkHandler extends TokenHandler {
 
 	/**
 	 * @param Env $env
-	 * @param ?array $optInfo
+	 * @param ?array &$optInfo
 	 * @param string $prefix
 	 * @param string $resultStr
 	 * @return bool

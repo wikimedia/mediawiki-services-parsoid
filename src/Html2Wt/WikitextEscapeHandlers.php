@@ -1064,10 +1064,10 @@ class WikitextEscapeHandlers {
 	 * @param string $str
 	 * @param bool $isLast
 	 * @param bool $checkNowiki
-	 * @param string $buf
-	 * @param bool $openNowiki
+	 * @param string &$buf
+	 * @param bool &$openNowiki
 	 * @param bool $isTemplate
-	 * @param bool $serializeAsNamed
+	 * @param bool &$serializeAsNamed
 	 * @param array $opts [ 'numPositionalArgs' => int, 'argPositionalIndex' => int, 'type' => string,
 	 * 'numArgs' => int, 'argIndex' => int ]
 	 */
