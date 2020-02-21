@@ -24,7 +24,6 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -341,16 +340,20 @@ class WikiLinkHandler extends TokenHandler {
 			return [ 'tokens' => $tokens ];
 		}
 
-		if ( is_array( $hrefKV->v ) ) {
-			// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach
-			foreach ( $hrefKV->v as $t ) {
-				if ( $t instanceof Token &&
-					TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ?? '' )
-				) {
-					$firstNode = $env->getDOMFragment( $t->dataAttribs->html )[0];
-					if ( DOMUtils::matchTypeOf( $firstNode, '/^mw:(Nowiki|Extension)/' ) ) {
+		// Xmlish tags in title position are invalid.  Not according to the
+		// preprocessor ABNF but at later stages in the legacy parser,
+		// namely replaceInternalLinks.
+		if (
+			is_array( $hrefKV->v ) &&
+			preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' )
+		) {
+			$attribs = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
+			foreach ( $attribs as $a ) {
+				if ( $a[0]->txt === 'href' ) {
+					if ( preg_match( '/mw:(Nowiki|Extension)/', $a[1]->html ) ) {
 						return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 					}
+					break;
 				}
 			}
 		}
