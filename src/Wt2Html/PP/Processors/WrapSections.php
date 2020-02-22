@@ -341,7 +341,6 @@ class WrapSections {
 							$n->setAttribute( 'about', $tplInfo['about'] );
 							$span = null;
 						} else {
-							// @phan-suppress-next-line PhanRedundantConditionInLoop
 							if ( !$span ) {
 								$span = $state['doc']->createElement( 'span' );
 								$span->setAttribute( 'about', $tplInfo['about'] );

@@ -1027,7 +1027,7 @@ class Linter {
 			if ( $item['type'] === 'missing-end-tag' && !$item['params']['inTable'] ) {
 				if ( $item['params']['name'] === 'small' || $item['params']['name'] === 'big' ) {
 					$tagName = $item['params']['name'];
-					// @phan-suppress-next-line PhanRedundantConditionInLoop
+					// @phan-suppress-next-line PhanPossiblyUndeclaredVariable
 					if ( !$firstUnclosedTag[$tagName] ) {
 						$firstUnclosedTag[$tagName] = $item;
 					} else {

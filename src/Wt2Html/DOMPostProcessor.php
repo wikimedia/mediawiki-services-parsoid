@@ -145,7 +145,7 @@ class DOMPostProcessor extends PipelineStage {
 					return $t->traverse( ...$args );
 				};
 			} else {
-				// @phan-suppress-next-line PhanTypeExpectedObjectOrClassName
+				// @phan-suppress-next-line PhanNonClassMethodCall
 				$c = new $p['Processor']( $this->extApi );
 				$p['proc'] = function ( ...$args ) use ( $c ) {
 					return $c->run( ...$args );

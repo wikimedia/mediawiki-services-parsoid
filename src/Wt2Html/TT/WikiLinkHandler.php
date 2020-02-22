@@ -1432,7 +1432,6 @@ class WikiLinkHandler extends TokenHandler {
 		$containerName = $isInline ? 'figure-inline' : 'figure';
 
 		$classes = $wrapperInfo['classes'];
-		// @phan-suppress-next-line PhanRedundantCondition
 		if ( !empty( $opts['class'] ) ) {
 			$classes = array_merge( $classes, explode( ' ', $opts['class']['v'] ) );
 		}

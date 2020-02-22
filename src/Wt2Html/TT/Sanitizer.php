@@ -811,7 +811,6 @@ class Sanitizer extends TokenHandler {
 					() | # 4. backslash at end of string
 				)/xu";
 		}
-		// @phan-suppress-next-line PhanParamSuspiciousOrder
 		$value = preg_replace_callback( $decodeRegex,
 			[ self::class, 'cssDecodeCallback' ], $value );
 

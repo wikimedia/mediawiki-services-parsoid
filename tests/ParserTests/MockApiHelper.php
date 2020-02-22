@@ -501,15 +501,15 @@ class MockApiHelper extends ApiHelper {
 		$md5 = md5( $normFileName );
 		$md5prefix = $md5[0] . '/' . $md5[0] . $md5[1] . '/';
 		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFileName;
-		$height = $props['height'] ?? 220;
-		$width = $props['width'] ?? 1941;
+		$height = $props['height'];
+		$width = $props['width'];
 		$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFileName;
 		$durl = self::IMAGE_DESC_URL . '/' . $normFileName;
 		$mediatype = $props['mediatype'] ??
 			( $props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP' );
 
 		$info = [
-			'size' => $props['size'] ?? 12345,
+			'size' => $props['size'],
 			'height' => $height,
 			'width' => $width,
 			'url' => $baseurl,

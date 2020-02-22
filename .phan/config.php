@@ -11,15 +11,6 @@ $cfg['directory_list'] = [
 	'tools',
 	'.phan/stubs',
 ];
-$cfg['exclude_file_regex'] = '@^vendor/(' . implode( '|', [
-	'jakub-onderka/php-parallel-lint',
-	'mediawiki/mediawiki-codesniffer',
-	'phan/phan',
-	'phpunit/php-code-coverage',
-	'squizlabs/php_codesniffer',
-	'wikimedia/langconv/vendor/jakub-onderka',
-	'wikimedia/langconv/vendor/psr',
-] ) . ')/@';
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
 $cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/spec/', 'tests/phpunit/', 'tools/' ];
@@ -89,7 +80,7 @@ $cfg['plugins'] = array_merge( $cfg['plugins'], [
 	// 'InvalidVariableIssetPlugin',
 	'InvokePHPNativeSyntaxCheckPlugin',
 	'LoopVariableReusePlugin',
-	'NoAssertPlugin',
+	// 'NoAssertPlugin', // Already handled by mediawiki-codesniffer
 	// 'NonBoolBranchPlugin',
 	// 'NonBoolInLogicalArithPlugin',
 	// 'NotFullyQualifiedUsagePlugin',
@@ -98,7 +89,7 @@ $cfg['plugins'] = array_merge( $cfg['plugins'], [
 	// 'PHPDocToRealTypesPlugin',
 	'PHPUnitAssertionPlugin',
 	'PHPUnitNotDeadCodePlugin',
-	'PhanSelfCheckPlugin',
+	// 'PhanSelfCheckPlugin', // This is only useful for developing Phan plugins
 	// 'PossiblyStaticMethodPlugin',
 	'PreferNamespaceUsePlugin',
 	// 'PregRegexCheckerPlugin',  // Already set in "mediawiki-phan-config"

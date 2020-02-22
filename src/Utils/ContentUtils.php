@@ -55,7 +55,6 @@ class ContentUtils {
 			'reinsertFosterableContent' => null,
 		];
 		$node = $options['node'];
-		// @phan-suppress-next-line PhanSuspiciousValueComparison
 		if ( $node === null ) {
 			$node = DOMCompat::getBody( $env->createDocument( $html ) );
 		} else {
@@ -63,7 +62,6 @@ class ContentUtils {
 			DOMCompat::setInnerHTML( $node, $html );
 		}
 
-		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( $options['reinsertFosterableContent'] ) {
 			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
 				// untunnel fostered content
@@ -362,6 +360,7 @@ class ContentUtils {
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
+			// @phan-suppress-next-line PhanNonClassMethodCall
 			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
 				$buf = [];
 				$buf[] = str_repeat( '=', 15 );

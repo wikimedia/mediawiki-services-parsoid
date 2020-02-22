@@ -271,6 +271,7 @@ class ParserFunctions {
 		$args = $params->args;
 		$this->env->log( 'debug', '#ifexp: ', $args );
 		$target = $args[0]->k;
+		$res = null;
 		if ( $target ) {
 			try {
 				$res = eval( $target );
