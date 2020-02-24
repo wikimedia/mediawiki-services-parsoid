@@ -58,12 +58,12 @@ class ParserHook extends ExtensionTag implements Extension {
 		switch ( $extName ) {
 			case 'tag':
 			case 'tåg':
-				return $extApi->getEnv()->createDocument( '<pre />' );
+				return $extApi->parseHTML( '<pre />' );
 
 			case 'statictag':
 				// FIXME: Choose a better DOM representation that doesn't mess with
 				// newline constraints.
-				return $extApi->getEnv()->createDocument( '<span />' );
+				return $extApi->parseHTML( '<span />' );
 
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );

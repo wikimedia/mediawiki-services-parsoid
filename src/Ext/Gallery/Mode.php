@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 
 abstract class Mode {
 	/**
@@ -32,14 +32,14 @@ abstract class Mode {
 
 	/**
 	 * Render HTML for the given lines in this mode.
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param Opts $opts
 	 * @param DOMElement|null $caption
 	 * @param ParsedLine[] $lines
 	 * @return DOMDocument
 	 */
 	abstract public function render(
-		Env $env, Opts $opts, ?DOMElement $caption, array $lines
+		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMElement $caption, array $lines
 	): DOMDocument;
 
 	/**

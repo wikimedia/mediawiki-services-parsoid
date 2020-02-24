@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
 class RawHTML extends ExtensionTag implements Extension {
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
-		return $extApi->getEnv()->createDocument( $content );
+		return $extApi->parseHTML( $content );
 	}
 
 	/** @inheritDoc */

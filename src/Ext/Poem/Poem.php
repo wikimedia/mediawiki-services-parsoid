@@ -48,7 +48,7 @@ class Poem extends ExtensionTag implements Extension {
 					$i++;
 				}
 				if ( $i > 0 && $i < $lineLength ) {
-					$doc = $extApi->getEnv()->createDocument();
+					$doc = $extApi->parseHTML( '' ); // Empty doc
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'class', 'mw-poem-indented' );
 					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );

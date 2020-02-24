@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -186,9 +185,9 @@ class TraditionalMode extends Mode {
 
 	/** @inheritDoc */
 	public function render(
-		Env $env, Opts $opts, ?DOMElement $caption, array $lines
+		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMElement $caption, array $lines
 	): DOMDocument {
-		$doc = $env->createDocument();
+		$doc = $extApi->parseHTML( '' ); // empty doc
 		$ul = $this->ul( $opts, $doc );
 		if ( $caption ) {
 			$this->caption( $opts, $doc, $ul, $caption );

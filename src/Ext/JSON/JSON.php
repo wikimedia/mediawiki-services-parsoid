@@ -170,8 +170,7 @@ class JSON extends ContentModelHandlerExtension {
 	 * @return DOMDocument
 	 */
 	public function toDOM( ParsoidExtensionAPI $API, string $jsonText ): DOMDocument {
-		$env = $API->getEnv();
-		$this->document = $env->createDocument( '<!DOCTYPE html><html><body>' );
+		$this->document = $API->parseHTML( '<!DOCTYPE html><html><body>' );
 		$src = null;
 
 // PORT-FIXME When production moves to PHP 7.3, re-enable this try catch code
@@ -179,12 +178,12 @@ class JSON extends ContentModelHandlerExtension {
 			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
 			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		} catch ( Exception $e ) {
-			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
+			$this->document = $API->parseHTML( self::PARSE_ERROR_HTML );
 		}
 */
 		$src = json_decode( $jsonText, false, 6 );
 		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
-			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
+			$this->document = $API->parseHTML( self::PARSE_ERROR_HTML );
 		} else {
 			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		}
@@ -192,13 +191,11 @@ class JSON extends ContentModelHandlerExtension {
 
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
-		if ( $env->pageBundle ) {
-			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $this->document ), [
-					'storeInPageBundle' => $env->pageBundle,
-					'env' => $env
-				]
-			);
-		}
+		$env = $API->getEnv();
+		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $this->document ), [
+			'storeInPageBundle' => $env->pageBundle,
+			'env' => $env
+		] );
 
 		// PORT-FIXME: need to figure out how to initialize/call DOMPostProcessor addMetaData from here
 		// addMetaData( $env, $document );

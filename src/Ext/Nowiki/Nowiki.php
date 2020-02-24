@@ -23,7 +23,7 @@ class Nowiki extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
-		$doc = $extApi->getEnv()->createDocument();
+		$doc = $extApi->parseHTML( '' ); // Empty doc
 		$span = $doc->createElement( 'span' );
 		$span->setAttribute( 'typeof', 'mw:Nowiki' );
 

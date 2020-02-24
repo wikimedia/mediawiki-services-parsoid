@@ -272,7 +272,7 @@ class Gallery extends ExtensionTag implements Extension {
 		} );
 
 		$mode = Mode::byName( $opts->mode );
-		$doc = $mode->render( $extApi->getEnv(), $opts, $caption, $lines );
+		$doc = $mode->render( $extApi, $opts, $caption, $lines );
 		return $doc;
 	}
 

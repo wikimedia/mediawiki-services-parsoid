@@ -19,7 +19,7 @@ class Pre extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
-		$doc = $extApi->getEnv()->createDocument();
+		$doc = $extApi->parseHTML( '' ); // Empty doc
 		$pre = $doc->createElement( 'pre' );
 
 		$extApi->sanitizeArgs( $pre, $extArgs );
