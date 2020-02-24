@@ -234,8 +234,6 @@ class DOMPostProcessor extends PipelineStage {
 			],
 			// 1. Link prefixes and suffixes
 			// 2. Unpack DOM fragments
-			// FIXME: Picked a terse 'v' varname instead of trying to find
-			// a suitable name that addresses both functions above.
 			[
 				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
 				'shortcut' => 'dom-unpack',
