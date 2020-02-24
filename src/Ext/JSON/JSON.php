@@ -16,7 +16,6 @@ use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
 use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
@@ -191,20 +190,7 @@ class JSON extends ContentModelHandlerExtension {
 
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
-		$env = $API->getEnv();
-		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $this->document ), [
-			'storeInPageBundle' => $env->pageBundle,
-			'env' => $env
-		] );
-
-		// PORT-FIXME: need to figure out how to initialize/call DOMPostProcessor addMetaData from here
-		// addMetaData( $env, $document );
-		// For now, just inline this part of it so that pagebundle requests don't crash
-		if ( $env->pageBundle ) {
-			DOMDataUtils::injectPageBundle(
-				$this->document, DOMDataUtils::getPageBundle( $this->document )
-			);
-		}
+		$API->postProcessDOM( $this->document );
 
 		return $this->document;
 	}

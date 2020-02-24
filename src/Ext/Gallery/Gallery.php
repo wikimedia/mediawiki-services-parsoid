@@ -98,8 +98,6 @@ class Gallery extends ExtensionTag implements Extension {
 		ParsoidExtensionAPI $extApi, string $line, int $lineStartOffset,
 		Opts $opts
 	): ?ParsedLine {
-		$env = $extApi->getEnv();
-
 		// Regexp from php's `renderImageGallery`
 		if ( !preg_match( '/^([^|]+)(\|(?:.*))?$/D', $line, $matches ) ) {
 			return null;
@@ -110,10 +108,9 @@ class Gallery extends ExtensionTag implements Extension {
 
 		// TODO: % indicates rawurldecode.
 
-		$title = $env->makeTitleFromText(
+		$title = $extApi->makeTitle(
 			$text,
-			$extApi->getSiteConfig()->canonicalNamespaceId( 'file' ),
-			true /* no exceptions */
+			$extApi->getSiteConfig()->canonicalNamespaceId( 'file' )
 		);
 
 		if ( $title === null || !$title->getNamespace()->isFile() ) {
@@ -180,7 +177,7 @@ class Gallery extends ExtensionTag implements Extension {
 		// for bits which aren't the caption or file, since they
 		// don't refer to actual source wikitext
 		ContentUtils::shiftDSR(
-			$env,
+			$extApi->getEnv(),
 			$body,
 			function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
 				$start = $shiftOffset( $dsr->start );
@@ -216,7 +213,7 @@ class Gallery extends ExtensionTag implements Extension {
 
 		if ( $opts->showfilename ) {
 			$galleryfilename = $doc->createElement( 'a' );
-			$galleryfilename->setAttribute( 'href', $env->makeLink( $title ) );
+			$galleryfilename->setAttribute( 'href', $extApi->getTitleUri( $title ) );
 			$galleryfilename->setAttribute( 'class', 'galleryfilename galleryfilename-truncate' );
 			$galleryfilename->setAttribute( 'title', $file );
 			$galleryfilename->appendChild( $doc->createTextNode( $file ) );

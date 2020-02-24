@@ -535,7 +535,7 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * FIXME: consider moving to DOMUtils or MWParserEnvironment.
+	 * FIXME: consider moving to DOMUtils or Env.
 	 *
 	 * @param Env $env
 	 * @param DOMDocument $document

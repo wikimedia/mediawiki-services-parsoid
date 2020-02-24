@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
@@ -92,6 +93,18 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Get a new about id for marking extension output
+	 * FIXME: This should never really be needed since the extension API
+	 * handles this on behalf of extensions, but Cite has one use case
+	 * where implicit <references /> output is added.
+	 *
+	 * @return string
+	 */
+	public function newAboutId(): string {
+		return $this->env->newAboutId();
+	}
+
+	/**
 	 * Get the site configuration to let extensions customize
 	 * their behavior based on how the wiki is configured.
 	 *
@@ -111,6 +124,15 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Get the URI to link to a title
+	 * @param Title $title
+	 * @return string
+	 */
+	public function getTitleUri( Title $title ): string {
+		return $this->env->makeLink( $title );
+	}
+
+	/**
 	 * Get an URI for the current page
 	 * @return string
 	 */
@@ -119,7 +141,17 @@ class ParsoidExtensionAPI {
 			$this->env->getPageConfig()->getTitle(),
 			$this->env->getSiteConfig()
 		);
-		return $this->env->makeLink( $title );
+		return $this->getTitleUri( $title );
+	}
+
+	/**
+	 * Make a title from an input string
+	 * @param string $str
+	 * @param int $namespaceId
+	 * @return ?Title
+	 */
+	public function makeTitle( string $str, int $namespaceId ): ?Title {
+		return $this->env->makeTitleFromText( $str, $namespaceId, true /* no exceptions */ );
 	}
 
 	/**
@@ -626,5 +658,25 @@ class ParsoidExtensionAPI {
 		} else {
 			throw new \RuntimeException( 'Not yet supported!' );
 		}
+	}
+
+	/**
+	 * EXTAPI-FIXME: We have to figure out what it means to run a DOM PP pass
+	 * (and what processors and what handlers apply) on content models that are
+	 * not wikitext. For now, we are only storing data attribs back to the DOM
+	 * and adding metadata to the page.
+	 *
+	 * @param DOMDocument $doc
+	 */
+	public function postProcessDOM( DOMDocument $doc ): void {
+		$env = $this->env;
+		// From CleanUp::cleanupAndSaveDataParsoid
+		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
+			'storeInPageBundle' => $env->pageBundle,
+			'env' => $env
+		] );
+		// DOMPostProcessor has a FIXME about moving this to DOMUtils / Env
+		$dompp = new DOMPostProcessor( $env );
+		$dompp->addMetaData( $env, $doc );
 	}
 }
