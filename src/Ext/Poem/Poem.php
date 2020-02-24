@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
 use DOMElement;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
@@ -179,7 +178,7 @@ class Poem extends ExtensionTag implements Extension {
 	}
 
 	private function doPostProcessDOM(
-		DOMElement $node, Env $env, array $options, bool $atTopLevel
+		DOMElement $node, array $options, bool $atTopLevel
 	): void {
 		if ( !$atTopLevel ) {
 			return;
@@ -193,7 +192,7 @@ class Poem extends ExtensionTag implements Extension {
 					// Cannot do it before parsing because <br/> will get escaped!
 					self::processNowikis( $c );
 				} else {
-					$this->doPostProcessDOM( $c, $env, $options, $atTopLevel );
+					$this->doPostProcessDOM( $c, $options, $atTopLevel );
 				}
 			}
 			$c = $c->nextSibling;
@@ -206,12 +205,12 @@ class Poem extends ExtensionTag implements Extension {
 	 * entry method. But, for now, run() method it is.
 	 *
 	 * @param DOMElement $root
-	 * @param Env $env
+	 * @param mixed $unused unused Env object FIXME: stop passing this through?
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 */
-	public function run( DOMElement $root, Env $env, array $options, bool $atTopLevel ): void {
-		$this->doPostProcessDOM( $root, $env, $options, $atTopLevel );
+	public function run( DOMElement $root, $unused, array $options, bool $atTopLevel ): void {
+		$this->doPostProcessDOM( $root, $options, $atTopLevel );
 	}
 
 	/** @inheritDoc */
