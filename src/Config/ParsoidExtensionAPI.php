@@ -85,14 +85,6 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * FIXME: This access will soon be eliminated
-	 * @return Env
-	 */
-	public function getEnv(): Env {
-		return $this->env;
-	}
-
-	/**
 	 * Get a new about id for marking extension output
 	 * FIXME: This should never really be needed since the extension API
 	 * handles this on behalf of extensions, but Cite has one use case
@@ -290,6 +282,14 @@ class ParsoidExtensionAPI {
 				$wikitext,
 				$opts
 			);
+
+			if ( isset( $parseOpts['shiftDSRFn'] ) ) {
+				ContentUtils::shiftDSR(
+					$this->env,
+					DOMCompat::getBody( $doc ),
+					$parseOpts['shiftDSRFn']
+				);
+			}
 		}
 		return $doc;
 	}
@@ -314,16 +314,14 @@ class ParsoidExtensionAPI {
 	): DOMDocument {
 		$dataAttribs = $this->extToken->dataAttribs;
 		$extTagOffsets = $dataAttribs->extTagOffsets;
-		$srcOffsets = new SourceRange(
-			$extTagOffsets->innerStart() + strlen( $leadingWS ),
-			$extTagOffsets->innerEnd()
-		);
+		if ( !isset( $parseOpts['srcOffsets'] ) ) {
+			$parseOpts['srcOffsets'] = new SourceRange(
+				$extTagOffsets->innerStart() + strlen( $leadingWS ),
+				$extTagOffsets->innerEnd()
+			);
+		}
 
-		$doc = $this->parseWikitextToDOM(
-			$wikitext,
-			$parseOpts + [ 'srcOffsets' => $srcOffsets ],
-			/* sol */true
-		);
+		$doc = $this->parseWikitextToDOM( $wikitext, $parseOpts, true /* sol */ );
 
 		// Create a wrapper and migrate content into the wrapper
 		$wrapper = $doc->createElement( $parseOpts['wrapperTag'] );

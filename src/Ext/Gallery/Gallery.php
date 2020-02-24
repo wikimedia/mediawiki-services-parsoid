@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -167,31 +166,25 @@ class Gallery extends ExtensionTag implements Extension {
 				],
 				'frame' => $newFrame,
 				'srcOffsets' => new SourceRange( 0, strlen( $wt ) ),
+				// Shift the DSRs in the DOM by startOffset, and strip DSRs
+				// for bits which aren't the caption or file, since they
+				// don't refer to actual source wikitext
+				'shiftDSRFn' => function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
+					$start = $shiftOffset( $dsr->start );
+					$end = $shiftOffset( $dsr->end );
+					// If either offset is invalid, remove entire DSR
+					if ( $start === null || $end === null ) {
+						return null;
+					}
+					return new DomSourceRange(
+						$start, $end, $dsr->openWidth, $dsr->closeWidth
+					);
+				}
 			],
 			true // sol
 		);
 
 		$body = DOMCompat::getBody( $doc );
-
-		// Now shift the DSRs in the DOM by startOffset, and strip DSRs
-		// for bits which aren't the caption or file, since they
-		// don't refer to actual source wikitext
-		ContentUtils::shiftDSR(
-			$extApi->getEnv(),
-			$body,
-			function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
-				$start = $shiftOffset( $dsr->start );
-				$end = $shiftOffset( $dsr->end );
-				// If either offset is invalid, remove entire DSR
-				if ( $start === null || $end === null ) {
-					return null;
-				}
-				return new DomSourceRange(
-					$start, $end, $dsr->openWidth, $dsr->closeWidth
-				);
-			}
-		);
-
 		$thumb = $body->firstChild;
 		if ( $thumb->nodeName !== 'figure' ) {
 			return null;

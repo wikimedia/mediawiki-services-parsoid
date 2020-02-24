@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -104,33 +103,26 @@ class Poem extends ExtensionTag implements Extension {
 			$args[] = new KV( 'class', 'poem' );
 		}
 
-		$doc = $extApi->parseTokenContentsToDOM( $args, '', $content, [
+		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
 				'pipelineOpts' => [
 					'extTag' => 'poem',
 				],
 				'frame' => $newFrame,
 				'srcOffsets' => new SourceRange( 0, strlen( $content ) ),
+				// We've shifted the content around quite a bit when we preprocessed
+				// it.  In the future if we wanted to enable selser inside the <poem>
+				// body we should create a proper offset map and then apply it to the
+				// result after the parse, like we do in the Gallery extension.
+				// But for now, since we don't selser the contents, just strip the
+				// DSR info so it doesn't cause problems/confusion with unicode
+				// offset conversion (and so it's clear you can't selser what we're
+				// currently emitting).
+				'shiftDSRFn' => function ( DomSourceRange $dsr ) {
+					return null; // XXX in the future implement proper mapping
+				}
 			]
 		);
-
-		// We've shifted the content around quite a bit when we preprocessed
-		// it.  In the future if we wanted to enable selser inside the <poem>
-		// body we should create a proper offset map and then apply it to the
-		// result after the parse, like we do in the Gallery extension.
-		// But for now, since we don't selser the contents, just strip the
-		// DSR info so it doesn't cause problems/confusion with unicode
-		// offset conversion (and so it's clear you can't selser what we're
-		// currently emitting).
-		$body = DOMCompat::getBody( $doc );
-		ContentUtils::shiftDSR(
-			$extApi->getEnv(),
-			$body,
-			function ( DomSourceRange $dsr ) {
-				return null; // XXX in the future implement proper mapping
-			}
-		);
-		return $doc;
 	}
 
 	/**
