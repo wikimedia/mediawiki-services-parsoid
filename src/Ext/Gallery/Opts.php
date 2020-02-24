@@ -16,7 +16,7 @@ class Opts {
 	 * @param array<string,string> $attrs The attribute array
 	 */
 	public function __construct( ParsoidExtensionAPI $extApi, array $attrs ) {
-		foreach ( $extApi->getEnv()->getSiteConfig()->galleryOptions() as $k => $v ) {
+		foreach ( $extApi->getSiteConfig()->galleryOptions() as $k => $v ) {
 			$this->$k = $v;
 		}
 

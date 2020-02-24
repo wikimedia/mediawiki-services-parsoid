@@ -112,7 +112,7 @@ class Gallery extends ExtensionTag implements Extension {
 
 		$title = $env->makeTitleFromText(
 			$text,
-			$env->getSiteConfig()->canonicalNamespaceId( 'file' ),
+			$extApi->getSiteConfig()->canonicalNamespaceId( 'file' ),
 			true /* no exceptions */
 		);
 
@@ -396,7 +396,7 @@ class Gallery extends ExtensionTag implements Extension {
 		ParsoidExtensionAPI $extApi, object $argDict
 	): void {
 		// FIXME: Only remove after VE switches to editing HTML.
-		if ( $extApi->getEnv()->getSiteConfig()->nativeGalleryEnabled() ) {
+		if ( $extApi->getSiteConfig()->nativeGalleryEnabled() ) {
 			// Remove extsrc from native extensions
 			unset( $argDict->body->extsrc );
 

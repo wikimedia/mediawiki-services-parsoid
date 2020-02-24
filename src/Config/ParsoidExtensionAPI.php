@@ -84,10 +84,30 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * FIXME: This access will soon be eliminated
 	 * @return Env
 	 */
 	public function getEnv(): Env {
 		return $this->env;
+	}
+
+	/**
+	 * Get the site configuration to let extensions customize
+	 * their behavior based on how the wiki is configured.
+	 *
+	 * @return SiteConfig
+	 */
+	public function getSiteConfig(): SiteConfig {
+		return $this->env->getSiteConfig();
+	}
+
+	/**
+	 * FIXME: Unsure if we need to provide this access yet
+	 * Get the page configuration
+	 * @return PageConfig
+	 */
+	public function getPageConfig(): PageConfig {
+		return $this->env->getPageConfig();
 	}
 
 	/**

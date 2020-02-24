@@ -81,7 +81,6 @@ class Ref extends ExtensionTag {
 	) {
 		$startTagSrc = $extApi->serializeExtensionStartTag( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$env = $extApi->getEnv();
 		$html = null;
 		if ( !isset( $dataMw->body ) ) {
 			return $startTagSrc; // We self-closed this already.
@@ -93,7 +92,7 @@ class Ref extends ExtensionTag {
 				// If the body isn't contained in data-mw.body.html, look if
 				// there's an element pointed to by body.id.
 				$bodyElt = DOMCompat::getElementById( $node->ownerDocument, $dataMw->body->id );
-				$editedDoc = $env->getPageConfig()->editedDoc ?? null;
+				$editedDoc = $extApi->getPageConfig()->editedDoc ?? null;
 				if ( !$bodyElt && $editedDoc ) {
 					// Try to get to it from the main page.
 					// This can happen when the <ref> is inside another
@@ -120,7 +119,7 @@ class Ref extends ExtensionTag {
 							if ( $ref ) {
 								$extraDebug .= ' [own doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 							}
-							$ref = DOMCompat::querySelector( $env->getPageConfig()->editedDoc, $href );
+							$ref = DOMCompat::querySelector( $editedDoc, $href );
 							if ( $ref ) {
 								$extraDebug .= ' [main doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 							}
