@@ -21,13 +21,13 @@ class RefProcessor {
 	}
 
 	/**
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $body
-	 * @param mixed $unused unused Env object FIXME: stop passing this through?
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 */
 	public function run(
-		DOMElement $body, $unused, array $options = [], bool $atTopLevel = false
+		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
 	): void {
 		if ( $atTopLevel ) {
 			$refsData = new ReferencesData();

@@ -8,7 +8,6 @@ use DOMElement;
 use DOMNode;
 use Error;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
@@ -36,13 +35,13 @@ class ParserHook extends ExtensionTag implements Extension {
 	}
 
 	/**
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $body
-	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 */
 	public function run(
-		DOMElement $body, Env $env, array $options = [], bool $atTopLevel = false
+		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
 	): void {
 		if ( $atTopLevel ) {
 			// Pass an object since we want the data to be carried around across

@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMNode;
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 
 /**
@@ -57,11 +57,11 @@ class Cite implements Extension {
 	 * - for deleted refs, if the primary ref was deleted, we have to transfer
 	 *   the primary ref designation to another instance of the named ref.
 	 *
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMNode $body
 	 * @suppress PhanEmptyPrivateMethod
 	 */
-	private static function html2wtPreProcessor( Env $env, DOMNode $body ) {
+	private static function html2wtPreProcessor( ParsoidExtensionAPI $extApi, DOMNode $body ) {
 		// TODO
 	}
 }

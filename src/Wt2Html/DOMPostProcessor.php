@@ -312,6 +312,7 @@ class DOMPostProcessor extends PipelineStage {
 		 */
 		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
+				'isExtPP' => true, // This is an extension DOM post processor
 				'name' => 'tag:' . $extName,
 				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
@@ -823,7 +824,12 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			$pp['proc']( $body, $env, $this->options, $this->atTopLevel );
+			if ( empty( $pp['isExtPP'] ) ) {
+				$pp['proc']( $body, $env, $this->options, $this->atTopLevel );
+			} else {
+				// Pass $extApi, not $env to extension post processors
+				$pp['proc']( $this->extApi, $body, $this->options, $this->atTopLevel );
+			}
 
 			if ( $dumpFlags ) {
 				if ( !empty( $dumpFlags['dom:post-' . $pp['shortcut']] ) ) {

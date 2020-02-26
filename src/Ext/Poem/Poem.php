@@ -204,13 +204,15 @@ class Poem extends ExtensionTag implements Extension {
 	 * Eventually, we will probably have an interface with a better name for this
 	 * entry method. But, for now, run() method it is.
 	 *
-	 * @param DOMElement $root
-	 * @param mixed $unused unused Env object FIXME: stop passing this through?
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param DOMElement $body
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 */
-	public function run( DOMElement $root, $unused, array $options, bool $atTopLevel ): void {
-		$this->doPostProcessDOM( $root, $options, $atTopLevel );
+	public function run(
+		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
+	): void {
+		$this->doPostProcessDOM( $body, $options, $atTopLevel );
 	}
 
 	/** @inheritDoc */
