@@ -267,7 +267,7 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 15. Inline Formatted template 3
+			// 15.1 Inline Formatted template 3
 			[
 				'name' => 'Inline Formatted template 3',
 				'html' => 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
@@ -279,6 +279,21 @@ class TemplateDataTest extends TestCase {
 					'no_selser' => "x {{InlineFormattedTpl_3|f1=|x=foo}} y",
 					'new_content' => "x {{InlineFormattedTpl_3| f1    = | x     = foo}} y",
 					'edited' => "x {{InlineFormattedTpl_3| f1    = | x     = BAR}} y"
+				]
+			],
+
+			// 15.2 Inline Formatted template 3 with multibyte unicode chars (T245627)
+			[
+				'name' => 'Inline Formatted template 3 (multibyte chars)',
+				'html' => 'x <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
+					'{"pi":[[{"k":"f1"},{"k":"é"}]]}' . "' data-mw='" .
+					'{"parts":[{"template":{"target":{"wt":"InlineFormattedTpl_3",' .
+					'"href":"./Template:InlineFormattedTpl_3"},"params":{"f1":{"wt":""},' .
+					'"é":{"wt":"foo"}},"i":0}}]}' . "'" . '>something</span> y',
+				'wt' => [
+					'no_selser' => "x {{InlineFormattedTpl_3|f1=|é=foo}} y",
+					'new_content' => "x {{InlineFormattedTpl_3| f1    = | é     = foo}} y",
+					'edited' => "x {{InlineFormattedTpl_3| f1    = | é     = BAR}} y"
 				]
 			],
 

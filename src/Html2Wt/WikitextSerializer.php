@@ -585,11 +585,13 @@ class WikitextSerializer {
 			$value = trim( $value );
 		}
 		return preg_replace_callback( '/_+/', function ( $m ) use ( $value ) {
-			$hole = $m[0];
-			if ( $value === '' || strlen( $hole ) <= strlen( $value ) ) {
+			if ( $value === '' ) {
 				return $value;
 			}
-			return $value . str_repeat( ' ', strlen( $hole ) - strlen( $value ) );
+			$hole = $m[0];
+			$holeLen = strlen( $hole );
+			$valueLen = mb_strlen( $value );
+			return $holeLen <= $valueLen ? $value : $value . str_repeat( ' ', $holeLen - $valueLen );
 		}, $format, 1 );
 	}
 
