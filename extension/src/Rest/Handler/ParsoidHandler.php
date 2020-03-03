@@ -479,7 +479,8 @@ abstract class ParsoidHandler extends Handler {
 	 */
 	protected function wt2html( Env $env, array $attribs, string $wikitext = null ) {
 		$request = $this->getRequest();
-		$format = $attribs['opts']['format'];
+		$opts = $attribs['opts'];
+		$format = $opts['format'];
 		$oldid = $attribs['oldid'];
 
 		$needsPageBundle = ( $format === FormatHelper::FORMAT_PAGEBUNDLE );
@@ -538,6 +539,7 @@ abstract class ParsoidHandler extends Handler {
 			// When substing, set data-parsoid to be discarded, so that the subst'ed
 			// content is considered new when it comes back.
 			'discardDataParsoid' => $doSubst,
+			'contentmodel' => $opts['contentmodel'] ?? null,
 		], $attribs['envOptions'] );
 
 		// VE, the only client using body_only property,
@@ -832,7 +834,8 @@ abstract class ParsoidHandler extends Handler {
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],
-				'titleShouldExist' => $hasOldId
+				'titleShouldExist' => $hasOldId,
+				'contentmodel' => $opts['contentmodel'] ?? null,
 			], $selserData );
 		} catch ( ClientError $e ) {
 			return $this->getResponseFactory()->createHttpError( 400, [
@@ -978,7 +981,8 @@ abstract class ParsoidHandler extends Handler {
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
 			$attribs['envOptions']['inputContentVersion'],
-			$headers
+			$headers,
+			$revision['contentmodel'] ?? null
 		);
 		if ( !$out->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
 			return $this->getResponseFactory()->createHttpError(
@@ -1027,7 +1031,8 @@ abstract class ParsoidHandler extends Handler {
 			$revision['data-parsoid']['body'] ?? null,
 			$revision['data-mw']['body'] ?? null,
 			$attribs['envOptions']['inputContentVersion'],
-			$revision['html']['headers'] ?? null
+			$revision['html']['headers'] ?? null,
+			$revision['contentmodel'] ?? null
 		);
 		$out = $parsoid->pb2pb(
 			$pageConfig, 'variant', $pb,

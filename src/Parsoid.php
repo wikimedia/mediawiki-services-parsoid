@@ -134,8 +134,9 @@ class Parsoid {
 			# Should perhaps be strlen instead (or cached!): T239841
 			'wikitextSize', mb_strlen( $env->getPageMainContent() )
 		);
-		$handler = $env->getContentHandler();
-		return [ $env, $handler->toDOM( $env ) ];
+		$contentmodel = $options['contentmodel'] ?? null;
+		$handler = $env->getContentHandler( $contentmodel );
+		return [ $env, $handler->toDOM( $env ), $contentmodel ];
 	}
 
 	/**
@@ -149,6 +150,7 @@ class Parsoid {
 	 *   'body_only'            => (bool|null) Only return the <body> children (T181657)
 	 *   'outputContentVersion' => (string|null) Version of HTML to output.
 	 *                                           `null` returns the default version.
+	 *   'contentmodel'         => (string|null) The content model of the input.
 	 *   'discardDataParsoid'   => (bool) Drop all data-parsoid annotations.
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
@@ -166,7 +168,7 @@ class Parsoid {
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = [], array &$headers = null
 	) {
-		[ $env, $doc ] = $this->parseWikitext( $pageConfig, $options );
+		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $options );
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
 		// is covered as well?  It probably depends on expectations of the
 		// Rest API.  If callers of /page/lint/ assume that will update the
@@ -186,7 +188,8 @@ class Parsoid {
 				get_object_vars( $out['pb']->parsoid ),
 				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
 				$env->getOutputContentVersion(),
-				$headers
+				$headers,
+				$contentmodel
 			);
 		} else {
 			return ContentUtils::toXML( $node, [
@@ -222,6 +225,7 @@ class Parsoid {
 	 *     account for any serialization differences.
 	 *   'offsetType'          => (string) ucs2, char, byte are valid values
 	 *                                     what kind of source offsets are present in the HTML?
+	 *   'contentmodel'        => (string|null) The content model of the input.
 	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
 	 *   'wtVariantLanguage'   => (string) If non-null, the language variant used for wikitext.
 	 *   'traceFlags'          => (array) associative array with tracing options
@@ -249,7 +253,8 @@ class Parsoid {
 		# Should perhaps be strlen instead (or cached!): T239841
 		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
 		$doc = $env->createDocument( $html );
-		$handler = $env->getContentHandler();
+		$contentmodel = $options['contentmodel'] ?? null;
+		$handler = $env->getContentHandler( $contentmodel );
 		return $handler->fromDOM( $env, $doc, $selserData );
 	}
 
@@ -271,12 +276,15 @@ class Parsoid {
 		PageConfig $pageConfig, string $update, PageBundle $pb,
 		array $options = []
 	): PageBundle {
-		return $this->html2html(
+		$newPB = $this->html2html(
 			$pageConfig, $update, $pb->toHtml(),
 			[ 'pageBundle' => true ] + $options
 			# headers are returned in the pagebundle; we don't need the
 			# $headers out-argument
 		);
+		// Prefer the passed in content model
+		$newPB->contentmodel = $pb->contentmodel ?? $newPB->contentmodel;
+		return $newPB;
 	}
 
 	/**
@@ -374,7 +382,8 @@ class Parsoid {
 				get_object_vars( $out['pb']->parsoid ),
 				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
 				$env->getOutputContentVersion(),
-				$headers
+				$headers,
+				$pageConfig->getContentModel()
 			);
 		} else {
 			return ContentUtils::toXML( $node, [

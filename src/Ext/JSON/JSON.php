@@ -202,8 +202,15 @@ class JSON extends ContentModelHandler implements Extension {
 			);
 		}
 
-// PORT-FIXME need to figure out how to initialize/call DOMPostProcessor addMetaData from here
-//		addMetaData( $env, $document );
+		// PORT-FIXME: need to figure out how to initialize/call DOMPostProcessor addMetaData from here
+		// addMetaData( $env, $document );
+		// For now, just inline this part of it so that pagebundle requests don't crash
+		if ( $env->pageBundle ) {
+			DOMDataUtils::injectPageBundle(
+				$this->document, DOMDataUtils::getPageBundle( $this->document )
+			);
+		}
+
 		return $this->document;
 	}
 

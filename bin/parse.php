@@ -209,6 +209,13 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'version',
 			'Show version number.'
 		);
+		$this->addOption(
+			'contentmodel',
+			"The content model of the input.  Defaults to \"wikitext\" but " .
+			"extensions may support others (for example, \"json\").",
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -470,7 +477,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		];
 		foreach ( [
 			'offsetType', 'outputContentVersion',
-			'wtVariantLanguage', 'htmlVariantLanguage'
+			'wtVariantLanguage', 'htmlVariantLanguage',
+			'contentmodel'
 		] as $opt ) {
 			if ( $this->hasOption( $opt ) ) {
 				$parsoidOpts[$opt] = $this->getOption( $opt );

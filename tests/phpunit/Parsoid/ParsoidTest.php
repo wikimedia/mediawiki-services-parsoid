@@ -230,7 +230,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			PHPUtils::jsonDecode( $input['parsoid'] ?? 'null' ),
 			PHPUtils::jsonDecode( $input['mw'] ?? 'null' ),
 			$input['version'] ?? null,
-			$input['headers'] ?? null
+			$input['headers'] ?? null,
+			$input['contentmodel'] ?? null
 		);
 		$out = $parsoid->pb2pb( $pageConfig, $update, $pb, $testOpts );
 		$this->assertTrue( $out instanceof PageBundle );

@@ -29,22 +29,28 @@ class PageBundle {
 	/** @var array|null */
 	public $headers;
 
+	/** @var string|null */
+	public $contentmodel;
+
 	/**
 	 * @param string $html
 	 * @param array|null $parsoid
 	 * @param array|null $mw
 	 * @param string|null $version
 	 * @param array|null $headers
+	 * @param string|null $contentmodel
 	 */
 	public function __construct(
 		string $html, array $parsoid = null, array $mw = null,
-		string $version = null, array $headers = null
+		string $version = null, array $headers = null,
+		string $contentmodel = null
 	) {
 		$this->html = $html;
 		$this->parsoid = $parsoid;
 		$this->mw = $mw;
 		$this->version = $version;
 		$this->headers = $headers;
+		$this->contentmodel = $contentmodel;
 	}
 
 	public function toHtml(): string {
@@ -77,7 +83,7 @@ class PageBundle {
 	 */
 	public function responseData() {
 		$responseData = [
-			'contentmodel' => '',
+			'contentmodel' => $this->contentmodel ?? '',
 			'html' => [
 				'headers' => array_merge( [
 					'content-type' => 'text/html; charset=utf-8; '

@@ -868,18 +868,20 @@ class Env {
 	/**
 	 * Get an appropriate content handler, given a contentmodel.
 	 *
-	 * @param string|null $forceContentModel An optional content model which
-	 *   will override whatever the source specifies.
+	 * @param string|null &$contentmodel An optional content model which
+	 *   will override whatever the source specifies.  It gets set to the
+	 *   handler which is used.
 	 * @return ContentModelHandler An appropriate content handler
 	 */
 	public function getContentHandler(
-		?string $forceContentModel = null
+		?string &$contentmodel = null
 	): ContentModelHandler {
-		$contentmodel = $forceContentModel ?? $this->pageConfig->getContentModel();
+		$contentmodel = $contentmodel ?? $this->pageConfig->getContentModel();
 		$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
 		if ( !$handler ) {
 			$this->log( 'warn', "Unknown contentmodel $contentmodel" );
-			$handler = $this->siteConfig->getContentModelHandler( 'wikitext' );
+			$contentmodel = 'wikitext';
+			$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
 		}
 		return $handler;
 	}
