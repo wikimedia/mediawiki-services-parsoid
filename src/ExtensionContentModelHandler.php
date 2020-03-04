@@ -6,8 +6,8 @@ namespace Wikimedia\Parsoid;
 use DOMDocument;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ExtensionContentModelHandler extends ContentModelHandler {
 

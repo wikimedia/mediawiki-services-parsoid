@@ -5,8 +5,6 @@ namespace Wikimedia\Parsoid\Ext;
 
 use DOMDocument;
 
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
-
 abstract class ContentModelHandlerExtension implements Extension {
 
 	/**

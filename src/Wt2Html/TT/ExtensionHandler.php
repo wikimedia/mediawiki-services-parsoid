@@ -5,7 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
 use stdClass;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;

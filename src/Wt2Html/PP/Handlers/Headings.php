@@ -7,7 +7,7 @@ use DOMElement;
 use DOMNode;
 use DOMText;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TitleException;

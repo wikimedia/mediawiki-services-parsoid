@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**

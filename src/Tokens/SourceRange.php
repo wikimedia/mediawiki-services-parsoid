@@ -89,7 +89,7 @@ class SourceRange implements \JsonSerializable {
 	 */
 	public function offset( int $amount ) {
 		/* PHP 7.3 won't allow a return type declaration on this static
-		* function, sinc DomSourceRange::offset's return differs */
+		* function, since DomSourceRange::offset's return differs */
 		return new SourceRange( $this->start + $amount, $this->end + $amount );
 	}
 
@@ -109,7 +109,7 @@ class SourceRange implements \JsonSerializable {
 	 */
 	public static function fromArray( array $sr ) {
 		/* PHP 7.3 won't allow a return type declaration on this static
-		* function, sinc DomSourceRange::fromArray's return differs */
+		* function, since DomSourceRange::fromArray's return differs */
 		Assert::invariant(
 			count( $sr ) === 2,
 			'Wrong # of elements in SourceRange array'

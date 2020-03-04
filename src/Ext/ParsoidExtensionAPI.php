@@ -1,14 +1,17 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Config;
+namespace Wikimedia\Parsoid\Ext;
 
 use \Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Html2wt\SerializerState;
-use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;

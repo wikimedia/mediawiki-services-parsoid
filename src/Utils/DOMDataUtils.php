@@ -10,9 +10,9 @@ use DOMNode;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DataParsoid;
 use Wikimedia\Parsoid\PageBundle;
-use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**

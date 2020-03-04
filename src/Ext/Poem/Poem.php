@@ -5,10 +5,10 @@ namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
 use DOMElement;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;

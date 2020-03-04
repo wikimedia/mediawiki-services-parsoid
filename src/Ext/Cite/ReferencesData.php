@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use stdClass;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ReferencesData {
 

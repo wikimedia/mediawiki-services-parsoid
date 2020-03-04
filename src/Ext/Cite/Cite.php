@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMNode;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 /**
  * Native Parsoid implementation of the Cite extension

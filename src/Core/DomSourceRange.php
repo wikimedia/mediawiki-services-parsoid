@@ -1,9 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Tokens;
+namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**

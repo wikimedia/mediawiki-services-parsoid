@@ -5,9 +5,9 @@ namespace Wikimedia\Parsoid\ParserTests;
 
 use DOMDocument;
 
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class StyleTag extends ExtensionTag implements Extension {

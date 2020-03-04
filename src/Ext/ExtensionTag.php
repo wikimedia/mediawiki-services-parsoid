@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 
 /**
  * A Parsoid native extension.  The only method which is generally

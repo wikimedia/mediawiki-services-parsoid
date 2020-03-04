@@ -1,16 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-// Minimal testing on the php-prototype branch.
-// Needs more rigorous testing.
-
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMElement;
 use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Tokens\DomSourceRange;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;

@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Tokens;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 

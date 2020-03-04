@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Ext\Pre;
 
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\DOMCompat;

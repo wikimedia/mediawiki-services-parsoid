@@ -3,12 +3,11 @@
 namespace Wikimedia\Parsoid\Wt2Html;
 
 
-	use Wikimedia\Parsoid\Utils\TokenUtils;
-	use Wikimedia\Parsoid\Utils\Util;
-	use Wikimedia\Parsoid\Utils\PHPUtils;
-	use Wikimedia\Parsoid\Utils\WTUtils;
+	use Wikimedia\Parsoid\Config\Env;
+	use Wikimedia\Parsoid\Config\SiteConfig;
+	use Wikimedia\Parsoid\Config\WikitextConstants;
+	use Wikimedia\Parsoid\Core\DomSourceRange;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
-	use Wikimedia\Parsoid\Tokens\DomSourceRange;
 	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\EOFTk;
 	use Wikimedia\Parsoid\Tokens\KV;
@@ -18,9 +17,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Tokens\SourceRange;
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
-	use Wikimedia\Parsoid\Config\Env;
-	use Wikimedia\Parsoid\Config\SiteConfig;
-	use Wikimedia\Parsoid\Config\WikitextConstants;
+	use Wikimedia\Parsoid\Utils\TokenUtils;
+	use Wikimedia\Parsoid\Utils\Util;
+	use Wikimedia\Parsoid\Utils\PHPUtils;
+	use Wikimedia\Parsoid\Utils\WTUtils;
 
 
 class Grammar extends \WikiPEG\PEGParserBase {
