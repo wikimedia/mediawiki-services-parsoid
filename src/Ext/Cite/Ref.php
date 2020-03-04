@@ -32,7 +32,7 @@ class Ref extends ExtensionTag {
 		// The php preprocessor did our expansion.
 		$allowNestedRef = !empty( $extApi->inTemplate() ) && $parentExtTag !== 'ref';
 
-		return $extApi->parseTokenContentsToDOM(
+		return $extApi->parseExtTagToDOM(
 			$extArgs,
 			'',
 			$txt,

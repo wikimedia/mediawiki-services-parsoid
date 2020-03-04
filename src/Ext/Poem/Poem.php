@@ -103,7 +103,7 @@ class Poem extends ExtensionTag implements Extension {
 			$args[] = new KV( 'class', 'poem' );
 		}
 
-		return $extApi->parseTokenContentsToDOM( $args, '', $content, [
+		return $extApi->parseExtTagToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
 				'pipelineOpts' => [
 					'extTag' => 'poem',

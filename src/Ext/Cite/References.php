@@ -454,7 +454,7 @@ class References extends ExtensionTag {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
-		$doc = $extApi->parseTokenContentsToDOM(
+		$doc = $extApi->parseExtTagToDOM(
 			$extArgs,
 			'',
 			$txt,

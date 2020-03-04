@@ -24,12 +24,6 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
- * Extensions should / will eventually only get access to an instance of this config.
- * Instead of giving them direct access to all of Env, maybe we should given access
- * to specific properties (title, wiki config, page config) and methods as necessary.
- *
- * But, that is post-port TODO when we think more seriously about the extension and hooks API.
- *
  * Extensions are expected to use only these interfaces and strongly discouraged from
  * calling Parsoid code directly. Code review is expected to catch these discouraged
  * code patterns. We'll have to finish grappling with the extension and hooks API
@@ -162,36 +156,19 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * If we are parsing in the context of a parent extension tag,
-	 * return the name of that extension tag
-	 * @return string|null
-	 */
-	public function parentExtTag(): ?string {
-		return $this->wt2htmlOpts['extTag'] ?? null;
-	}
-
-	/**
-	 * If we are parsing in the context of a parent extension tag,
-	 * return the parsing options set by that tag.
-	 * @return array
-	 */
-	public function parentExtTagOpts(): array {
-		return $this->wt2htmlOpts['extTagOpts'] ?? [];
-	}
-
-	/**
-	 * Return the extTagOffsets from the extToken.
-	 * @return DomSourceRange|null
-	 */
-	public function getExtTagOffsets(): ?DomSourceRange {
-		return $this->extToken->dataAttribs->extTagOffsets ?? null;
-	}
-
-	/**
+	 * Return the name of the extension tag
 	 * @return string
 	 */
 	public function getExtensionName(): string {
 		return $this->extToken->getAttribute( 'name' );
+	}
+
+	/**
+	 * Return the source offsets for this extension tag usage
+	 * @return DomSourceRange|null
+	 */
+	public function getExtTagOffsets(): ?DomSourceRange {
+		return $this->extToken->dataAttribs->extTagOffsets ?? null;
 	}
 
 	/**
@@ -215,11 +192,32 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * FIXME: Is this something that can come from the frame?
+	 * If we are parsing in the context of a parent extension tag,
+	 * return the name of that extension tag
+	 * @return string|null
+	 */
+	public function parentExtTag(): ?string {
+		return $this->wt2htmlOpts['extTag'] ?? null;
+	}
+
+	/**
+	 * FIXME: Is this something that can come from the frame?
+	 * If we are parsing in the context of a parent extension tag,
+	 * return the parsing options set by that tag.
+	 * @return array
+	 */
+	public function parentExtTagOpts(): array {
+		return $this->wt2htmlOpts['extTagOpts'] ?? [];
+	}
+
+	/**
+	 * Get the content DOM corresponding to an id
 	 * @param string $contentId
 	 * @return DOMElement
 	 */
 	public function getContentDOM( string $contentId ): DOMElement {
-		// FIXME: This [0] indexing is sepcific to <ref> fragments.
+		// FIXME: This [0] indexing is specific to <ref> fragments.
 		// Might need to be revisited if this assumption breaks for
 		// other extension tags.
 		$frag = $this->env->getDOMFragment( $contentId )[0];
@@ -228,6 +226,7 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Get the serialized HTML for the content DOM corresponding to an id
 	 * @param string $contentId
 	 * @return string
 	 */
@@ -236,7 +235,7 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Create a parsing pipeline to parse wikitext.
+	 * Parse wikitext to DOM
 	 *
 	 * @param string $wikitext
 	 * @param array $parseOpts
@@ -295,6 +294,10 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Parse extension tag to DOM. Beyond parsing the contents of the extension tag,
+	 * this wraps the contents in a custom wrapper element (ex: <div>), sanitizes
+	 * the arguments of the extension args and sets some content flags on the wrapper.
+	 *
 	 * @param array $extArgs
 	 * @param string $leadingWS
 	 * @param string $wikitext
@@ -309,11 +312,10 @@ class ParsoidExtensionAPI {
 	 *   - inPHPBlock
 	 * @return DOMDocument
 	 */
-	public function parseTokenContentsToDOM(
+	public function parseExtTagToDOM(
 		array $extArgs, string $leadingWS, string $wikitext, array $parseOpts
 	): DOMDocument {
-		$dataAttribs = $this->extToken->dataAttribs;
-		$extTagOffsets = $dataAttribs->extTagOffsets;
+		$extTagOffsets = $this->extToken->dataAttribs->extTagOffsets;
 		if ( !isset( $parseOpts['srcOffsets'] ) ) {
 			$parseOpts['srcOffsets'] = new SourceRange(
 				$extTagOffsets->innerStart() + strlen( $leadingWS ),
