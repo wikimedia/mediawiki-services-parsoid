@@ -4,6 +4,7 @@ namespace Test\Parsoid\Ext\JSON;
 
 use DOMDocument;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Tests\MockEnv;
 
@@ -13,24 +14,25 @@ class JSONTest extends TestCase {
 	 * @covers \Wikimedia\Parsoid\Ext\JSON\JSON::toDOM
 	 */
 	public function testToDOM() {
-		$json = new JSON();
-
 		// Test malformed JSON handler
 		$opts = [];
-		$opts['pageContent'] = '{"1":2';    // malformed JSON example
+		$env = new MockEnv( $opts );
+		$API = new ParsoidExtensionAPI( $env );
+		$json = new JSON();
+
+		$pageContent = '{"1":2';    // malformed JSON example
 		$expected = '<!DOCTYPE html>' . "\n" .
 			'<html><head></head><body><table data-mw=' .
 			'\'{"errors":[{"key":"bad-json"}]}\'' .
 			' typeof="mw:Error"></table></body></html>' .
 			"\n";
-		$env = new MockEnv( $opts );
 
-		$doc = $json->toDOM( $env );
+		$doc = $json->toDOM( $API, $pageContent );
 		$response = $doc->saveHTML();
 		$this->assertSame( $expected, $response );
 
 		// Test complex nested JSON object using string matching
-		$opts['pageContent'] =
+		$pageContent =
 			'{"array":[{"foo":"bar","key":["string1",null,false,true,0,1,123,456.789]}]}';
 		$expected = '<!DOCTYPE html>' . "\n" .
 			'<html><head></head><body><table class="mw-json mw-json-object"><tbody><tr><th>' .
@@ -48,9 +50,8 @@ class JSONTest extends TestCase {
 			'<td class="value mw-json-number">456.789</td></tr></tbody></table></td></tr>' .
 			'</tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
-		$env = new MockEnv( $opts );
 
-		$doc = $json->toDOM( $env );
+		$doc = $json->toDOM( $API, $pageContent );
 		$response = $doc->saveHTML();
 		$this->assertSame( $expected, $response );
 	}
@@ -60,6 +61,9 @@ class JSONTest extends TestCase {
 	 * @covers \Wikimedia\Parsoid\Ext\JSON\JSON::fromDOM
 	 */
 	public function testFromDOM() {
+		$opts = [];
+		$env = new MockEnv( $opts );
+		$API = new ParsoidExtensionAPI( $env );
 		$json = new JSON();
 
 		$html = '<!DOCTYPE html>' . "\n" .
@@ -79,12 +83,10 @@ class JSONTest extends TestCase {
 			'</tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
 		$expected = '{"array":[{"foo":"bar","key":["string1",null,false,true,0,1,123,456.789]}]}';
-		$opts = [];
-		$env = new MockEnv( $opts );
 
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
-		$response = $json->fromDOM( $env, $doc );
+		$response = $json->fromDOM( $API, $doc );
 		$this->assertSame( $expected, $response );
 	}
 }

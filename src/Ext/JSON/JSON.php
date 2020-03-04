@@ -12,9 +12,8 @@ namespace Wikimedia\Parsoid\Ext\JSON;
 use DOMDocument;
 use DOMElement;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\ContentModelHandler;
-use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
 use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -24,8 +23,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  * Native Parsoid implementation of the "json" contentmodel.
  * @class
  */
-
-class JSON extends ContentModelHandler implements Extension {
+class JSON extends ContentModelHandlerExtension {
 	private const PARSE_ERROR_HTML = '<!DOCTYPE html><html>'
 		. '<body>'
 		. "<table data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}' typeof=\"mw:Error\">"
@@ -167,24 +165,24 @@ class JSON extends ContentModelHandler implements Extension {
 	 * JSON to HTML.
 	 * Implementation matches that from includes/content/JsonContent.php in
 	 * mediawiki core, except that we distinguish value types.
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $API
+	 * @param string $jsonText
 	 * @return DOMDocument
 	 */
-	public function toDOM( Env $env ): DOMDocument {
+	public function toDOM( ParsoidExtensionAPI $API, string $jsonText ): DOMDocument {
+		$env = $API->getEnv();
 		$this->document = $env->createDocument( '<!DOCTYPE html><html><body>' );
 		$src = null;
 
 // PORT-FIXME When production moves to PHP 7.3, re-enable this try catch code
 /*		try {
-			$src = json_decode( $env->topFrame->getSrcText(),
-				false, 6, JSON_THROW_ON_ERROR );
+			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
 			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		} catch ( Exception $e ) {
 			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
 		}
 */
-		$src = json_decode( $env->topFrame->getSrcText(),
-			false, 6 );
+		$src = json_decode( $jsonText, false, 6 );
 		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
 			$this->document = $env->createDocument( self::PARSE_ERROR_HTML );
 		} else {
@@ -353,12 +351,14 @@ class JSON extends ContentModelHandler implements Extension {
 
 	/**
 	 * HTML to JSON.
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $API
 	 * @param DOMDocument $doc
 	 * @param SelserData|null $selserData
 	 * @return string
 	 */
-	public function fromDOM( Env $env, DOMDocument $doc, ?SelserData $selserData = null ): string {
+	public function fromDOM(
+		ParsoidExtensionAPI $API, DOMDocument $doc, ?SelserData $selserData = null
+	): string {
 		$body = DOMCompat::getBody( $doc );
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
 		$t = $body->firstChild;
