@@ -8,10 +8,8 @@ use DOMElement;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
 
 /**
  * @class
@@ -193,16 +191,16 @@ class TraditionalMode extends Mode {
 
 		$wrapper = $doc->createElement( 'figure-inline' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
-		DOMDataUtils::setDataParsoid(
-			$wrapper, Util::clone( DOMDataUtils::getDataParsoid( $o->thumb ) )
-		);
-		DOMDataUtils::setDataMw(
-			$wrapper, Util::clone( DOMDataUtils::getDataMw( $o->thumb ) )
-		);
-		// Store temporarily, otherwise these get clobbered after rendering by
-		// the call to `DOMDataUtils.visitAndLoadDataAttribs()` in `toDOM`.
-		DOMDataUtils::storeDataAttribs( $wrapper );
+
 		DOMUtils::migrateChildrenBetweenDocs( $o->thumb, $wrapper );
+
+		if ( $o->thumb->hasAttribute( 'data-parsoid' ) ) {
+			$wrapper->setAttribute( 'data-parsoid', $o->thumb->getAttribute( 'data-parsoid' ) );
+		}
+		if ( $o->thumb->hasAttribute( 'data-mw' ) ) {
+			$wrapper->setAttribute( 'data-mw', $o->thumb->getAttribute( 'data-mw' ) );
+		}
+
 		$thumb->appendChild( $wrapper );
 
 		$box->appendChild( $thumb );

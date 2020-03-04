@@ -241,10 +241,12 @@ class Gallery extends ExtensionTag implements Extension {
 			break;
 		}
 
+		// Store before `migrateChildrenBetweenDocs` in render
+		DOMDataUtils::visitAndStoreDataAttribs( $thumb );
 		if ( $gallerytext ) {
-			// Store before `migrateChildrenBetweenDocs` in render
 			DOMDataUtils::visitAndStoreDataAttribs( $gallerytext );
 		}
+
 		return new ParsedLine( $thumb, $gallerytext, $rdfaType );
 	}
 
