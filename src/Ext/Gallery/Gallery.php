@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -79,7 +78,7 @@ class Gallery extends ExtensionTag implements Extension {
 				],
 				'srcOffsets' => $caption->valueOffset(),
 			],
-			false// Gallery captions are deliberately not parsed in SOL context
+			false // Gallery captions are deliberately not parsed in SOL context
 		);
 		$body = DOMCompat::getBody( $doc );
 		return $body;
@@ -153,9 +152,6 @@ class Gallery extends ExtensionTag implements Extension {
 			return null;
 		};
 
-		$parentFrame = $extApi->getFrame();
-		$newFrame = $parentFrame->newChild( $parentFrame->getTitle(), [], $wt );
-
 		$doc = $extApi->parseWikitextToDOM(
 			$wt,
 			[
@@ -164,8 +160,9 @@ class Gallery extends ExtensionTag implements Extension {
 					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
-				'frame' => $newFrame,
-				'srcOffsets' => new SourceRange( 0, strlen( $wt ) ),
+				// Create new frame, because $wt doesn't literally appear
+				// on the page, it has been hand-crafted here
+				'processInNewFrame' => true,
 				// Shift the DSRs in the DOM by startOffset, and strip DSRs
 				// for bits which aren't the caption or file, since they
 				// don't refer to actual source wikitext

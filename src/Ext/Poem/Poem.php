@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Tokens\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -80,13 +79,6 @@ class Poem extends ExtensionTag implements Extension {
 
 		}
 
-		// Create new frame, because $content doesn't literally appear in
-		// the parent frame's sourceText (our copy has been munged)
-		$parentFrame = $extApi->getFrame();
-		$newFrame = $parentFrame->newChild(
-			$parentFrame->getTitle(), [], $content
-		);
-
 		$foundClass = false;
 
 		$args = array_map( function ( $obj ) use ( &$foundClass ) {
@@ -108,8 +100,9 @@ class Poem extends ExtensionTag implements Extension {
 				'pipelineOpts' => [
 					'extTag' => 'poem',
 				],
-				'frame' => $newFrame,
-				'srcOffsets' => new SourceRange( 0, strlen( $content ) ),
+				// Create new frame, because $content doesn't literally appear in
+				// the parent frame's sourceText (our copy has been munged)
+				'processInNewFrame' => true,
 				// We've shifted the content around quite a bit when we preprocessed
 				// it.  In the future if we wanted to enable selser inside the <poem>
 				// body we should create a proper offset map and then apply it to the
