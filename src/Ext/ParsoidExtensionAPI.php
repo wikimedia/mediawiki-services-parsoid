@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Html2wt\SerializerState;
+use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -20,6 +21,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
@@ -336,6 +338,16 @@ class ParsoidExtensionAPI {
 		}
 
 		return $doc;
+	}
+
+	/**
+	 * Convert the ext args representation from an array of KV objects
+	 * to a plain associative array mapping arg name strings to arg value strings.
+	 * @param array<KV> $extArgs
+	 * @return array<string,string>
+	 */
+	public function extArgsToArray( array $extArgs ): array {
+		return TokenUtils::kvToHash( $extArgs );
 	}
 
 	/**

@@ -9,14 +9,13 @@ use DOMNode;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\PHPUtils;
+use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\WTUtils;
 
 class References extends ExtensionTag {
 	/**
@@ -166,12 +165,11 @@ class References extends ExtensionTag {
 			}
 		}
 
+		$lastLinkback = $ref->linkbacks[count( $ref->linkbacks ) - 1] ?? null;
 		DOMDataUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref',
-				'id' => $nestedInReferences
-					? null
-					: ( $ref->name ? PHPUtils::lastItem( $ref->linkbacks ) : $ref->id ),
+				'id' => $nestedInReferences ? null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
 				'typeof' => $nodeType
 			]
@@ -464,7 +462,7 @@ class References extends ExtensionTag {
 			]
 		);
 
-		$refsOpts = TokenUtils::kvToHash( $extArgs ) + [
+		$refsOpts = $extApi->extArgsToArray( $extArgs ) + [
 			'group' => null,
 			'responsive' => null,
 		];

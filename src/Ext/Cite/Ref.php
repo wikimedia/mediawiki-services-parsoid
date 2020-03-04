@@ -6,12 +6,12 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 use DOMElement;
 use DOMNode;
 use Exception;
+use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Simple token transform version of the Ref extension tag.

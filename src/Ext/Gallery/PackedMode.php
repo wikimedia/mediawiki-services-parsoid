@@ -7,8 +7,8 @@ use DOMDocument;
 use DOMElement;
 
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class PackedMode extends TraditionalMode {
 	/**

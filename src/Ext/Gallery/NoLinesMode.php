@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Ext\PHPUtils;
 
 class NoLinesMode extends TraditionalMode {
 	/**

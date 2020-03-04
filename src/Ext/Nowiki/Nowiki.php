@@ -7,14 +7,13 @@ use DOMDocument;
 use DOMElement;
 use DOMText;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Util;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
-use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Nowiki treats anything inside it as plain text.
@@ -108,9 +107,10 @@ class Nowiki extends ExtensionTag implements Extension {
 				$out = '';
 			}
 
-			// Always escape any nowikis found in out
+			// Always escape any nowikis found in $out
 			if ( $out ) {
-				$str .= WTUtils::escapeNowikiTags( $out );
+				// Inlined helper that previously existed in Parsoid's WT Utils
+				$str .= preg_replace( '#<(/?nowiki\s*/?\s*)>#i', '&lt;$1&gt;', $out );
 			}
 		}
 

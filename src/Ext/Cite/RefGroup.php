@@ -6,8 +6,8 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 use DOMDocument;
 use DOMElement;
 use stdClass;
+use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**
  * Helper class used by `<references>` implementation.
