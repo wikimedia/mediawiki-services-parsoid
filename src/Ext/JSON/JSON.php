@@ -37,7 +37,7 @@ class JSON extends ContentModelHandlerExtension {
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
-			'contentmodels' => [
+			'contentModels' => [
 				'json' => self::class
 			],
 			'tags' => [
@@ -131,7 +131,7 @@ class JSON extends ContentModelHandlerExtension {
 		$td = $this->document->createElement( 'td' );
 		if ( is_array( $val ) ) {
 			self::arrayTable( $td, $val );
-		} elseif ( $val && gettype( $val ) === 'object' ) {
+		} elseif ( $val && is_object( $val ) ) {
 			self::objectTable( $td, (array)$val );
 		} else {
 			DOMCompat::getClassList( $td )->add( 'value' );
