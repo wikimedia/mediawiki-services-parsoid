@@ -1406,7 +1406,7 @@ class Sanitizer extends TokenHandler {
 	 * @since 1.30
 	 */
 	public static function escapeIdForLink( string $id ): string {
-		return self::escapeIdInternal( $id, 'html5' );
+		return self::escapeIdInternalUrl( $id, 'html5' );
 	}
 
 	/**
@@ -1420,7 +1420,23 @@ class Sanitizer extends TokenHandler {
 	 */
 	private static function escapeIdForExternalInterwiki( string $id ): string {
 		// Assume $wgExternalInterwikiFragmentMode = 'legacy'
-		return self::escapeIdInternal( $id, 'legacy' );
+		return self::escapeIdInternalUrl( $id, 'legacy' );
+	}
+
+	/**
+	 * Do percent encoding of percent signs for href (but not id) attributes
+	 *
+	 * @see https://phabricator.wikimedia.org/T238385
+	 * @param string $id String to escape
+	 * @param string $mode One of modes from $wgFragmentMode
+	 * @return string
+	 */
+	private static function escapeIdInternalUrl( $id, $mode ) {
+		$id = self::escapeIdInternal( $id, $mode );
+		if ( $mode === 'html5' ) {
+			$id = preg_replace( '/%([a-fA-F0-9]{2})/', '%25$1', $id );
+		}
+		return $id;
 	}
 
 	/**
