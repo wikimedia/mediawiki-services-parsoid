@@ -356,6 +356,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 	private function maybeVersion() {
 		if ( $this->hasOption( 'version' ) ) {
+			# XXX: This doesn't work on production machines or in integrated
+			# mode, since Composer\Factory isn't in the production `vendor`
+			# deploy.
 			$composer = Factory::create( new NullIo(), './composer.json', false );
 			$root = $composer->getPackage();
 			$this->output( $root->getFullPrettyVersion() . "\n" );

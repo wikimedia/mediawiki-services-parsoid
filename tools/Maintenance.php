@@ -15,15 +15,40 @@ for ( $arg = reset( $argv ); $arg !== false; $arg = next( $argv ) ) {
 	}
 }
 
+# On scandium and production machines, you should use:
+# sudo -u www-data php /srv/mediawiki/multiversion/MWScript.php \
+#     /srv/parsoid-testing/bin/<cmd>.php --wiki=hiwiki --integrated <args>
+#
+# eg:
+#
+# USER@scandium:/srv/mediawiki/multiversion$ echo '==Foo==' | \
+#    sudo -u www-data php MWScript.php \
+#    /srv/parsoid-testing/bin/parse.php --wiki=hiwiki --integrated
+#
+
 // phpcs:disable Generic.Classes.DuplicateClassName.Found
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 if ( $parsoidMode === 'integrated' ) {
 	/* Is MW installed w/ Parsoid?  Then use core's copy of Maintenance.php. */
 	if ( strval( getenv( 'MW_INSTALL_PATH' ) ) !== '' ) {
 		require_once getenv( 'MW_INSTALL_PATH' ) . '/maintenance/Maintenance.php';
+		require_once getenv( 'MW_INSTALL_PATH' ) . '/includes/AutoLoader.php';
 	} else {
 		error_log( 'MW_INSTALL_PATH environment variable must be defined.' );
 	}
+
+	// EVIL(ish) hack:
+	// Override autoloader to ensure all of Parsoid is running from the
+	// same place as this file (since there will also be another copy of
+	// Parsoid included from the vendor/wikimedia/parsoid directory)
+	// @phan-suppress-next-line PhanUndeclaredClassStaticProperty
+	\AutoLoader::$psr4Namespaces += [
+		// Keep this in sync with the "autoload" clause in /composer.json!
+		'Wikimedia\\Parsoid\\' => __DIR__ . "/../src",
+		// And this is from autoload-dev
+		'Wikimedia\\Parsoid\\Tools\\' => __DIR__ . "/../tools/",
+	];
+
 	abstract class Maintenance extends \Maintenance {
 		public function __construct() {
 			parent::__construct();
@@ -67,16 +92,11 @@ if ( $parsoidMode === 'integrated' ) {
 
 	define( 'PARSOID_RUN_MAINTENANCE_IF_MAIN', RUN_MAINTENANCE_IF_MAIN );
 
-	// XXX There's probably a better way to ensure that Parsoid's loaded
-	require_once __DIR__ . '/../vendor/autoload.php';
+	// Ensure parsoid extension is loaded on production machines.
+	$_SERVER['SERVERGROUP'] = 'parsoid';
 } else {
 	/* Use Parsoid's stand-alone clone of the Maintenance framework */
-	// Note: Using @include_once rather than require so we can catch errors.
-	// phpcs:disable Generic.PHP.NoSilencedErrors.Discouraged
-	if ( !@include_once __DIR__ . '/../vendor/autoload.php' ) {
-		// HACK: Try a second path, in case we're running from within the deploy repo
-		require_once __DIR__ . '/../../vendor/autoload.php';
-	}
+	require_once __DIR__ . '/../vendor/autoload.php';
 
 	abstract class Maintenance extends OptsProcessor {
 		public function addDefaultParams(): void {
