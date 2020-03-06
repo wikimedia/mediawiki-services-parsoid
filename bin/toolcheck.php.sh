@@ -10,6 +10,8 @@ BIN=$(dirname $0)
 # If any of these commands fail, something is wrong!
 set -ev
 
+php $BIN/parse.php --version
+
 echo "Foo" | php $BIN/parse.php --wt2html
 echo "Foo" | php $BIN/parse.php --wt2html --pageBundle
 echo "Foo" | php $BIN/parse.php --wt2wt
