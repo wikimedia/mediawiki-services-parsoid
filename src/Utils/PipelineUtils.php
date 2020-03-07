@@ -339,44 +339,47 @@ class PipelineUtils {
 			$wrapperName = $node->nodeName;
 		}
 
-		$workNode = null;
-		if ( !( $node instanceof DOMElement ) ) {
-			$workNode = $node->ownerDocument->createElement( $wrapperName );
-		} elseif ( $wrapperName !== $node->nodeName ) {
-			// Create a copy of the node without children
-			$workNode = $node->ownerDocument->createElement( $wrapperName );
-			// Copy over attributes
-			foreach ( DOMCompat::attributes( $node ) as $attribute ) {
-				'@phan-var \DOMAttr $attribute'; // @var \DOMAttr $attribute
-				// "typeof" is ignored since it'll be remove below.
-				// "data-parsoid" will be overwritten with `dataAttribs` when
-				// the token gets to the tree builder, so skip it.  It's
-				// present on the `node` since it has already had its data
-				// attributes stored.
-				if ( !in_array( $attribute->name, [ 'typeof', 'data-parsoid' ], true ) ) {
-					$workNode->setAttribute( $attribute->name, $attribute->value );
+		if ( $node instanceof DOMElement ) {
+			Assert::invariant(
+				// No need to look for data-mw as well.
+				// Nodes that have data-mw also have data-parsoid.
+				!$node->hasAttribute( 'data-parsoid' ),
+				"Expected node to have its data attributes loaded" );
+
+			$nodeData = Util::clone( DOMDataUtils::getNodeData( $node ) );
+
+			if ( $wrapperName !== $node->nodeName ) {
+				// Create a copy of the node without children
+				$workNode = $node->ownerDocument->createElement( $wrapperName );
+
+				// Copy over attributes
+				foreach ( DOMCompat::attributes( $node ) as $attribute ) {
+					'@phan-var \DOMAttr $attribute'; // @var \DOMAttr $attribute
+					// "typeof" is ignored since it'll be remove below.
+					if ( $attribute->name !== 'typeof' ) {
+						$workNode->setAttribute( $attribute->name, $attribute->value );
+					}
+				}
+
+				// We are applying a different wrapper.
+				// So, node's data-parsoid isn't applicable.
+				$nodeData->parsoid = new stdClass;
+			} else {
+				// Shallow clone since we don't want to convert the whole tree to tokens.
+				$workNode = $node->cloneNode( false );
+
+				// Reset 'tsr' since it isn't applicable.
+				// FIXME: The above comment is only true if we are reusing
+				// DOM fragments from cache from previous revisions in
+				// incremental parsing scenarios.
+				if ( isset( $nodeData->parsoid->tsr ) ) {
+					$nodeData->parsoid->tsr = null;
 				}
 			}
-		} else {
-			// Shallow clone since we don't want to convert the whole tree
-			// to tokens.
-			$workNode = $node->cloneNode( false );
 
-			// dataAttribs are not copied over so that we don't inject
-			// broken tsr or dsr values. This also lets these tokens pass
-			// through the sanitizer as stx.html is not set.
-			//
-			// FIXME(arlolra): The stx part though is suspect considering
-			// below where `workNode` is set to the `node` that information
-			// would be preserved.
-			//
-			// We've filed T204279 to look into all this, but for now we'll do
-			// the safe thing and preserve dataAttribs where it makes sense.
-			$nodeData = Util::clone( DOMDataUtils::getNodeData( $node ) );
-			if ( isset( $nodeData->parsoid->tsr ) ) {
-				$nodeData->parsoid->tsr = null;
-			}
 			DOMDataUtils::setNodeData( $workNode, $nodeData );
+		} else {
+			$workNode = $node->ownerDocument->createElement( $wrapperName );
 		}
 
 		$tokens = self::convertDOMtoTokens( $workNode, [] );
