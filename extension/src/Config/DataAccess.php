@@ -8,11 +8,11 @@ use Hooks;
 use LinkBatch;
 use Linker;
 use MediaTransformError;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
-use RepoGroup;
 use Title;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\Env;
@@ -141,7 +141,7 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( IPageConfig $pageConfig, array $files ): array {
 		$page = Title::newFromText( $pageConfig->getTitle() );
-		$fileObjs = RepoGroup::singleton()->findFiles( array_keys( $files ) );
+		$fileObjs = MediaWikiServices::getInstance()->getRepoGroup()->findFiles( array_keys( $files ) );
 		$ret = [];
 		foreach ( $files as $filename => $dims ) {
 			/** @var File $file */
