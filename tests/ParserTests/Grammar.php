@@ -4,7 +4,7 @@
 
 
 /* File-scope initializer */
-namespace Wikimedia\Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\ParserTests;
 
 use Wikimedia\Parsoid\Utils\PHPUtils;
 

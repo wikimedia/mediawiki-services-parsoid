@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\ParserTests;
 
 use Exception;
 

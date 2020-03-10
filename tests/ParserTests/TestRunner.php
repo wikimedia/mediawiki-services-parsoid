@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\ParserTests;
 
 use DOMElement;
 use DOMNode;

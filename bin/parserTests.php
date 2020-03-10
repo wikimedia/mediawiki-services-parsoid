@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Wikimedia\Parsoid\Tests\ParserTests\Stats;
-use Wikimedia\Parsoid\Tests\ParserTests\TestRunner;
+use Wikimedia\Parsoid\ParserTests\Stats;
+use Wikimedia\Parsoid\ParserTests\TestRunner;
 use Wikimedia\Parsoid\Tools\TestUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase

@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 // phpcs:disable Generic.Files.LineLength.TooLong
 
-namespace Wikimedia\Parsoid\Tests\ParserTests;
+namespace Wikimedia\Parsoid\ParserTests;
 
 use Error;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
