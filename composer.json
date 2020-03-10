@@ -49,7 +49,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Wikimedia\\Parsoid\\": ["src/placeholder", "src"]
+			"Wikimedia\\Parsoid\\": "src"
 		}
 	},
 	"autoload-dev": {
