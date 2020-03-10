@@ -7,7 +7,7 @@ namespace Wikimedia\Parsoid\Config\Api;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
-use Wikimedia\Parsoid\Tests\MockPageContent;
+use Wikimedia\Parsoid\Mocks\MockPageContent;
 
 /**
  * PageConfig via MediaWiki's Action API

@@ -6,7 +6,7 @@ use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Language\LanguageConverter;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class EnTest extends TestCase {
 

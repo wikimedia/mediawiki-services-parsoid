@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\MetaHandler;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 

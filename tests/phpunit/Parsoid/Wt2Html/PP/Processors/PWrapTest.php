@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;

@@ -5,7 +5,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 
 $html1 = file_get_contents( $argv[1] );

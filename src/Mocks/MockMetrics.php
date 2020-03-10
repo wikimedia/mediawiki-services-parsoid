@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Tests;
+namespace Wikimedia\Parsoid\Mocks;
 
 use Liuggio\StatsdClient\Entity\StatsdDataInterface;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;

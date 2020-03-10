@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Logger;
 
 use Wikimedia\Parsoid\Logger\LintLogger;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Logger\LintLogger

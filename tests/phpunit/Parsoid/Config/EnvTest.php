@@ -2,10 +2,10 @@
 
 namespace Test\Parsoid\Config;
 
-use Wikimedia\Parsoid\Tests\MockEnv;
-use Wikimedia\Parsoid\Tests\MockPageConfig;
-use Wikimedia\Parsoid\Tests\MockPageContent;
-use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockPageConfig;
+use Wikimedia\Parsoid\Mocks\MockPageContent;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Env

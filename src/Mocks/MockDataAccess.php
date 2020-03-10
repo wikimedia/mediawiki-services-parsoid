@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Tests;
+namespace Wikimedia\Parsoid\Mocks;
 
 use Error;
 use Wikimedia\Parsoid\Config\DataAccess;

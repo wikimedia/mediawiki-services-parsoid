@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Tests;
+namespace Wikimedia\Parsoid\Mocks;
 
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;

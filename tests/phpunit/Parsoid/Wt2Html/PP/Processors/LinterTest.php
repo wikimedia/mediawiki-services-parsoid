@@ -4,11 +4,11 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Mocks\MockDataAccess;
+use Wikimedia\Parsoid\Mocks\MockPageConfig;
+use Wikimedia\Parsoid\Mocks\MockPageContent;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
-use Wikimedia\Parsoid\Tests\MockDataAccess;
-use Wikimedia\Parsoid\Tests\MockPageConfig;
-use Wikimedia\Parsoid\Tests\MockPageContent;
-use Wikimedia\Parsoid\Tests\MockSiteConfig;
 
 /** Test cases for the linter */
 

@@ -265,13 +265,13 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	}
 
 	private function makeMockConfig( $configOpts ) {
-		$siteConfig = new \Wikimedia\Parsoid\Tests\MockSiteConfig( $configOpts );
-		$dataAccess = new \Wikimedia\Parsoid\Tests\MockDataAccess( $configOpts );
+		$siteConfig = new \Wikimedia\Parsoid\Mocks\MockSiteConfig( $configOpts );
+		$dataAccess = new \Wikimedia\Parsoid\Mocks\MockDataAccess( $configOpts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$pageContent = new \Wikimedia\Parsoid\Tests\MockPageContent( [ 'main' =>
+		$pageContent = new \Wikimedia\Parsoid\Mocks\MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
-		$pageConfig = new \Wikimedia\Parsoid\Tests\MockPageConfig( $configOpts, $pageContent );
+		$pageConfig = new \Wikimedia\Parsoid\Mocks\MockPageConfig( $configOpts, $pageContent );
 
 		return [
 			'parsoid' => $parsoid,

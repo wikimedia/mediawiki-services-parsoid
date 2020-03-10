@@ -2,7 +2,7 @@
 
 namespace Test\Parsoid\Utils;
 
-use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\TitleNamespace;
 
 /**

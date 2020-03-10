@@ -1,20 +1,20 @@
 <?php
 
-namespace Test;
+namespace Test\Parsoid\Mocks;
 
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 
 /**
  * Test the Parsoid\Tests\Mock* wrappers
- * @covers \Wikimedia\Parsoid\Tests\MockEnv
- * @covers \Wikimedia\Parsoid\Tests\MockDataAccess
- * @covers \Wikimedia\Parsoid\Tests\MockPageConfig
- * @covers \Wikimedia\Parsoid\Tests\MockPageContent
- * @covers \Wikimedia\Parsoid\Tests\MockSiteConfig
+ * @covers \Wikimedia\Parsoid\Mocks\MockEnv
+ * @covers \Wikimedia\Parsoid\Mocks\MockDataAccess
+ * @covers \Wikimedia\Parsoid\Mocks\MockPageConfig
+ * @covers \Wikimedia\Parsoid\Mocks\MockPageContent
+ * @covers \Wikimedia\Parsoid\Mocks\MockSiteConfig
  */
 class MockEnvTest extends \PHPUnit\Framework\TestCase {
 

@@ -8,8 +8,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\SelserData;
-use Wikimedia\Parsoid\Tests\MockEnv;
 use Wikimedia\Zest\Zest;
 
 class SerializerStateTest extends TestCase {

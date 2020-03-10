@@ -7,7 +7,7 @@ use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Config\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class JSONTest extends TestCase {
 	/**

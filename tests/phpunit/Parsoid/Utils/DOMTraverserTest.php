@@ -7,7 +7,7 @@ use DOMElement;
 use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Tests\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 
 class DOMTraverserTest extends \PHPUnit\Framework\TestCase {

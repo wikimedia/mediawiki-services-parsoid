@@ -54,7 +54,6 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Wikimedia\\Parsoid\\Tests\\": "tests/mocks/",
 			"Wikimedia\\Parsoid\\Tests\\ParserTests\\": "tests/ParserTests",
 			"Wikimedia\\Parsoid\\Tools\\": "tools/",
 			"Test\\": "tests/phpunit/"

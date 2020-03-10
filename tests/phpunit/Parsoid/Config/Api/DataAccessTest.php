@@ -4,7 +4,7 @@ namespace Test\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\PageContent;
-use Wikimedia\Parsoid\Tests\MockPageConfig;
+use Wikimedia\Parsoid\Mocks\MockPageConfig;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Api\DataAccess

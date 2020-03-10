@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Utils;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use Wikimedia\Parsoid\Tests\MockSiteConfig;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TitleNamespace;
