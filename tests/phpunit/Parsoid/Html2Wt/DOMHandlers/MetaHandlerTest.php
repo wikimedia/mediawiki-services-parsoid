@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Parsoid\Html2Wt;
+namespace Test\Parsoid\Html2Wt\DOMHandlers;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

@@ -64,7 +64,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-    // phpcs:disable Generic.Files.LineLength.TooLong
+	// phpcs:disable Generic.Files.LineLength.TooLong
 	public function provideConstrainedText() {
 		return [
 			[ [
