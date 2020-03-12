@@ -1,6 +1,6 @@
 {
 	"name": "wikimedia/parsoid",
-	"description": "Parsoid (a bidirectional parser between wikitext and HTML5) - ported from the Node.js version",
+	"description": "Parsoid, a bidirectional parser between wikitext and HTML5",
 	"keywords": [
 		"mediawiki",
 		"parsoid"
