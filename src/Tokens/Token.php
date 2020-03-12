@@ -380,4 +380,25 @@ abstract class Token implements \JsonSerializable {
 
 		return $token;
 	}
+
+	/**
+	 * @param string $key
+	 * @return ?string
+	 */
+	public function fetchExpandedAttrValue( string $key ): ?string {
+		if ( preg_match(
+			'/mw:ExpandedAttrs/', $this->getAttribute( 'typeof' ) ?? ''
+		) ) {
+			$attribs = PHPUtils::jsonDecode(
+				$this->getAttribute( 'data-mw' ), false
+			)->attribs;
+			foreach ( $attribs as $attr ) {
+				if ( $attr[0]->txt === $key ) {
+					return $attr[1]->html;
+				}
+			}
+		}
+		return null;
+	}
+
 }

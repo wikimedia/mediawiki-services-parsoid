@@ -343,18 +343,12 @@ class WikiLinkHandler extends TokenHandler {
 		// Xmlish tags in title position are invalid.  Not according to the
 		// preprocessor ABNF but at later stages in the legacy parser,
 		// namely replaceInternalLinks.
-		if (
-			is_array( $hrefKV->v ) &&
-			TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' )
-		) {
-			$attribs = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
-			foreach ( $attribs as $a ) {
-				if ( $a[0]->txt === 'href' ) {
-					if ( preg_match( '/mw:(Nowiki|Extension)/', $a[1]->html ) ) {
-						return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
-					}
-					break;
-				}
+		if ( is_array( $hrefKV->v ) ) {
+			// Use the expanded attr instead of trying to unpackDOMFragments
+			// since the fragment will have been released when expanding to DOM
+			$expandedVal = $token->fetchExpandedAttrValue( 'href' );
+			if ( preg_match( '/mw:(Nowiki|Extension)/', $expandedVal ?? '' ) ) {
+				return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 			}
 		}
 
@@ -998,6 +992,15 @@ class WikiLinkHandler extends TokenHandler {
 				if ( TokenUtils::hasDOMFragmentType( $currentToken ) ) {
 					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$str = TokenUtils::tokensToString( [ $currentToken ], false, [
+								// These tokens haven't been expanded to DOM yet
+								// so unpacking them here is justifiable
+								// FIXME: It's a little convoluted to figure out
+								// that this is actually the case in the
+								// AttributeExpander, but it seems like only
+								// target/href ever gets expanded to DOM and
+								// the rest of the wikilink_content/options
+								// become mw:maybeContent that gets expanded
+								// below where $hasExpandableOpt is set.
 								'unpackDOMFragments' => true,
 								'env' => $env
 							]

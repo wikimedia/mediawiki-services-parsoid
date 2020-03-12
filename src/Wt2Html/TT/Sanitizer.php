@@ -22,6 +22,8 @@ use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -1073,12 +1075,20 @@ class Sanitizer extends TokenHandler {
 
 			// Convert attributes to string, if necessary.
 			$a->k = TokenUtils::tokensToString( $a->k );
-			$a->v = TokenUtils::tokensToString( $a->v, false, [
-					'unpackDOMFragments' => true,
-					// FIXME: Sneaking in `env` to avoid changing the signature
-					'env' => $env
-				]
-			);
+
+			if ( is_array( $a->v ) ) {
+				// Use the expanded attr instead of trying to unpackDOMFragments
+				// since the fragment will have been released when expanding to DOM
+				$expandedVal = $token ? $token->fetchExpandedAttrValue( $a->k ) : null;
+				if ( $expandedVal === null ) {
+					$a->v = TokenUtils::tokensToString( $a->v );
+				} else {
+					// See the comment in TokenUtils::tokensToString about
+					// unpackDOMFragments for why we're just using the textContent
+					$dom = DOMUtils::parseHTML( $expandedVal );
+					$a->v = DOMCompat::getBody( $dom )->textContent;
+				}
+			}
 
 			$origK = $a->ksrc ?? $a->k;
 			// $a->k can be uppercase

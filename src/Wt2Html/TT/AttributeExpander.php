@@ -385,6 +385,8 @@ class AttributeExpander extends TokenHandler {
 						// Trim whitespace to ensure tokenizer isn't tripped up
 						// by the presence of unnecessary whitespace.
 						$kStr = trim( TokenUtils::tokensToString( $expandedK, false, [
+							// These tokens haven't been expanded to DOM yet
+							// so unpacking them here is justifiable
 							'unpackDOMFragments' => true,
 							'env' => $env
 						] ) );

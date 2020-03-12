@@ -601,13 +601,14 @@ class TokenUtils {
 				// If strict, return accumulated string on encountering first non-text token
 				return [ $out, array_slice( $tokens, $i ) ];
 			} elseif (
+				// This option shouldn't be used if the tokens have been
+				// expanded to DOM
 				!empty( $opts['unpackDOMFragments'] ) &&
 				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
 				self::hasDOMFragmentType( $token )
 			) {
 				// Handle dom fragments
-				$fragmentMap = $opts['env']->getDOMFragmentMap();
-				$nodes = $fragmentMap[$token->dataAttribs->html];
+				$nodes = $opts['env']->getDOMFragment( $token->dataAttribs->html );
 				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
 						// FIXME: The correct thing to do would be to return
 						// `next.outerHTML` for the current scenarios where
