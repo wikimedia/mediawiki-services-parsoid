@@ -10,10 +10,10 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use Composer\Factory;
 use Composer\IO\NullIO;
 
-use Wikimedia\Parsoid\ClientError;
-use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Core\ClientError;
+use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Parsoid;
-use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Tools\ScriptUtils;
 use Wikimedia\Parsoid\Tools\TestUtils;
 use Wikimedia\Parsoid\Utils\ContentUtils;

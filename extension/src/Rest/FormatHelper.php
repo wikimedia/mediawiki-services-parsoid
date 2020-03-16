@@ -6,7 +6,7 @@ use Composer\Semver\Semver;
 use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
-use Wikimedia\Parsoid\PageBundle;
+use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;

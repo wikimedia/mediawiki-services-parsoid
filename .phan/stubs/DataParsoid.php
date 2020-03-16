@@ -1,10 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid;
+namespace Wikimedia\Parsoid\Core;
 
 use stdClass;
-use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**

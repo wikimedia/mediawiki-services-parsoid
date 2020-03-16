@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid;
+namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
 use Wikimedia\Parsoid\Utils\ContentUtils;

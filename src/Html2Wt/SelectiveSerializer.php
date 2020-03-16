@@ -12,7 +12,7 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\SelserData;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;

@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use DOMDocument;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\InternalException;
+use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\AttributeExpander;
 use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;

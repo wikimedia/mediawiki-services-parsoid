@@ -10,6 +10,8 @@ use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Utils\ContentUtils;

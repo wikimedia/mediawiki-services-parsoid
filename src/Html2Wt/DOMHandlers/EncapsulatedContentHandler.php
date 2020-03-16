@@ -7,7 +7,7 @@ use DOMElement;
 use DOMNode;
 use LogicException;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\ClientError;
+use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;

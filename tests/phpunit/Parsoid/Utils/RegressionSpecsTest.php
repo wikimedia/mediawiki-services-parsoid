@@ -5,12 +5,12 @@ namespace Test\Parsoid\Utils;
 
 use DOMElement;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
-use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 

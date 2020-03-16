@@ -12,9 +12,9 @@ namespace Wikimedia\Parsoid\Ext\JSON;
 use DOMDocument;
 use DOMElement;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\SelserData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 

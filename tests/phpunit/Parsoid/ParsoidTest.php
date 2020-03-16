@@ -2,11 +2,11 @@
 
 namespace Test\Parsoid;
 
+use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
-use Wikimedia\Parsoid\PageBundle;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 

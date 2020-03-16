@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid;
+namespace Wikimedia\Parsoid\Core;
 
 /**
  * Parsoid internal error that we don't know how to recover from.

@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use DOMElement;
 use DOMNode;
 use stdClass;
-use Wikimedia\Parsoid\DataParsoid;
+use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;

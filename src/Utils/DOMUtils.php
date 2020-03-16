@@ -11,8 +11,8 @@ use RemexHtml\Tokenizer\Tokenizer;
 use RemexHtml\TreeBuilder\Dispatcher;
 use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\ClientError;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\Core\ClientError;
 
 /**
  * DOM utilities for querying the DOM. This is largely independent of Parsoid

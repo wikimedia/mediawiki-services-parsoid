@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid;
+namespace Wikimedia\Parsoid\Core;
 
 /**
  * Parsoid resource limit exception.

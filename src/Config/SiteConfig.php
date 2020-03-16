@@ -6,13 +6,13 @@ namespace Wikimedia\Parsoid\Config;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Wikimedia\Parsoid\ContentModelHandler;
+use Wikimedia\Parsoid\Core\ContentModelHandler;
+use Wikimedia\Parsoid\Core\ExtensionContentModelHandler;
+use Wikimedia\Parsoid\Core\WikitextContentModelHandler;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\ExtensionContentModelHandler;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
-use Wikimedia\Parsoid\WikitextContentModelHandler;
 
 /**
  * Site-level configuration interface for Parsoid
