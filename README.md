@@ -1,16 +1,18 @@
 Parsoid
 =======
 
-Parsoid is a bidirectional parser between wikitext and HTML5. Please
-see (https://www.mediawiki.org/wiki/Parsoid) for an overview of the project.
+Parsoid is a bidirectional parser between wikitext and HTML5.
 
 It was originally written in JavaScript running on Node.js but was
 ported to PHP.
 
+Please see the [overview of the project](https://www.mediawiki.org/wiki/Parsoid)
+for more information.
+
 License
 -------
 
-Copyright (c) 2011-2020 Wikimedia Foundation and others; see `AUTHORS.txt`.
+Copyright (c) 2011-2020 Wikimedia Foundation and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
