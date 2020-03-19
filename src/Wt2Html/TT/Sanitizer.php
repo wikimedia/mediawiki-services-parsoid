@@ -424,6 +424,7 @@ class Sanitizer extends TokenHandler {
 			'lang',
 			'dir',
 			'title',
+			'tabindex',
 
 			# WAI-ARIA
 			'aria-describedby',
@@ -1180,6 +1181,11 @@ class Sanitizer extends TokenHandler {
 					$newAttrs[$k] = [ $newHref, $origHref, $origK ];
 					continue;
 				}
+			}
+
+			if ( $k === 'tabindex' && $v !== '0' ) {
+				// Only allow tabindex of 0, which is useful for accessibility.
+				continue;
 			}
 
 			// SSS FIXME: This logic is not RT-friendly.

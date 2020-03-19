@@ -33421,22 +33421,26 @@ parsoid=wt2html
 Allow tabindex 0
 !! wikitext
 <div tabindex="0">A</div>
-!! html/php
+!! html+tidy
 <div tabindex="0">A</div>
 !! end
 
 !! test
 Don't allow tabindex -1
+!! options
+parsoid=wt2html
 !! wikitext
 <div tabindex="-1">A</div>
-!! html/php
+!! html+tidy
 <div>A</div>
 !! end
 
 !! test
 Don't Allow tabindex > 0
+!! options
+parsoid=wt2html
 !! wikitext
 <div tabindex="3">A</div>
-!! html/php
+!! html+tidy
 <div>A</div>
 !! end
