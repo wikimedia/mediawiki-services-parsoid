@@ -669,10 +669,11 @@ class DOMPostProcessor extends PipelineStage {
 
 		// Hack: link styles
 		$modules = [
-			'mediawiki.legacy.commonPrint,shared',
 			'mediawiki.skinning.content.parsoid',
+			// Use the base styles that apioutput and fallback skin use.
 			'mediawiki.skinning.interface',
-			'skins.vector.styles',
+			// Make sure to include contents of user generated styles
+			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
 			'site.styles'
 		];
 
