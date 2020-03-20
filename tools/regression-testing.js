@@ -78,6 +78,10 @@ Promise.async(function *() {
 		yield childProcess.execFile('git', ['checkout', commit], {
 			cwd: path.join(__dirname, '..'),
 		}).promise;
+		console.log('Restarting PHP');
+		yield childProcess.exec(
+			'sudo systemctl restart php7.2-fpm.service'
+		).promise;
 	});
 	var titles;
 	var run = Promise.async(function *(handleResult) {
