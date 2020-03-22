@@ -32,15 +32,8 @@ function _run(test) {
 
 function runRoundTripTest(config, test) {
 	if (!parsoidURLOpts) {
-		// If the test run id starts with PHP: we'll
-		// run tests with Parsoid/PHP. If not, we'll
-		// run tests with Parsoid/JS.
 		const testRunId = getTestRunId({});
-		if (/^PHP:/.test(testRunId)) {
-			parsoidURLOpts = config.parsoidPHP;
-		} else {
-			parsoidURLOpts = { baseUrl: config.parsoidURL };
-		}
+		parsoidURLOpts = config.parsoidPHP;
 		const configFile = path.resolve(__dirname, './htmldiffs.config.yaml');
 		if (fs.existsSync(configFile)) {
 			htmlDiffConfig = yaml.load(fs.readFileSync(configFile, 'utf8'));
