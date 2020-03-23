@@ -25,19 +25,23 @@ class Poem extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
-		if ( strlen( $content ) > 0 ) {
-			$content = preg_replace(
-				'/^ /m', '&nbsp;', preg_replace(
-					'/\n$/D', '', preg_replace(
-					'/^\n/', '', $content,
-					// Strip leading/trailing newline
-					1
-				), 1
-				)
-			// Suppress indent-pre by replacing leading space with &nbsp;
-			);
+		/*
+		 * Transform wikitext found in <poem>...</poem>
+		 * 1. Strip leading & trailing newlines
+		 * 2. Suppress indent-pre by replacing leading space with &nbsp;
+		 * 3. Replace colons with <span class='...' style='...'>...</span>
+		 * 4. Add <br/> for newlines except (a) in nowikis (b) after ----
+		 */
 
-			// Replace colons with indented spans
+		if ( strlen( $content ) > 0 ) {
+			// 1. above
+			$content = preg_replace( '/^\n/', '', $content, 1 );
+			$content = preg_replace( '/\n$/D', '', $content, 1 );
+
+			// 2. above
+			$content = preg_replace( '/^ /m', '&nbsp;', $content );
+
+			// 3. above
 			$contentArray = explode( "\n", $content );
 			$contentMap = array_map( function ( $line ) use ( $extApi ) {
 				$i = 0;
@@ -58,8 +62,10 @@ class Poem extends ExtensionTag implements Extension {
 			}, $contentArray );
 			$content = implode( "\n", $contentMap ); // use faster? preg_replace
 
-			// Add <br/> for newlines except (a) in nowikis (b) after ----
-			// nowiki newlines will be processed on the DOM.
+			// 4. above
+			// Split on <nowiki>..</nowiki> fragments.
+			// Process newlines inside nowikis in a post-processing pass.
+			// If <br/>s are added here, Parsoid will escape them to plaintext.
 			$splitContent = preg_split( '/(<nowiki>[\s\S]*?<\/nowiki>)/', $content,
 				-1, PREG_SPLIT_DELIM_CAPTURE );
 			$content = implode( '',
@@ -73,8 +79,9 @@ class Poem extends ExtensionTag implements Extension {
 					return preg_replace( '/^(-+)<\/poem>/m', "\$1\n",
 						preg_replace( '/\n/m', "<br/>\n",
 							preg_replace( '/(^----+)\n/m', '$1</poem>', $p ) ) );
-				}, $splitContent,
-					range( 0, count( $splitContent ) - 1 ) )
+				},
+				$splitContent,
+				range( 0, count( $splitContent ) - 1 ) )
 			);
 
 		}
@@ -97,9 +104,7 @@ class Poem extends ExtensionTag implements Extension {
 
 		return $extApi->parseExtTagToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
-				'pipelineOpts' => [
-					'extTag' => 'poem',
-				],
+				'pipelineOpts' => [ 'extTag' => 'poem' ],
 				// Create new frame, because $content doesn't literally appear in
 				// the parent frame's sourceText (our copy has been munged)
 				'processInNewFrame' => true,
@@ -136,7 +141,7 @@ class Poem extends ExtensionTag implements Extension {
 				continue;
 			}
 
-			// Replace nowiki's text node with a combination
+			// Replace the nowiki's text node with a combination
 			// of content and <br/>s. Take care to deal with
 			// entities that are still entity-wrapped (!!).
 			$cc = $c->firstChild;
@@ -173,8 +178,7 @@ class Poem extends ExtensionTag implements Extension {
 		while ( $c ) {
 			if ( $c instanceof DOMElement ) {
 				if ( preg_match( '#\bmw:Extension/poem\b#', $c->getAttribute( 'typeof' ) ?? '' ) ) {
-					// In nowikis, replace newlines with <br/>.
-					// Cannot do it before parsing because <br/> will get escaped!
+					// Replace newlines found in <nowiki> fragment with <br/>s
 					self::processNowikis( $c );
 				} else {
 					$this->doPostProcessDOM( $c, $options, $atTopLevel );
