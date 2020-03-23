@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Ext;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Tokens\KV;
 
 /**
  * A Parsoid native extension.  The only method which is generally
@@ -23,7 +24,7 @@ abstract class ExtensionTag {
 	 * Convert an extension tag to DOM.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $txt Extension tag contents
-	 * @param array $extArgs Extension tag arguments
+	 * @param KV[] $extArgs Extension tag arguments
 	 * @return DOMDocument|false
 	 */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
