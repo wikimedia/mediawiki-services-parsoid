@@ -15,6 +15,22 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class Poem extends ExtensionTag implements Extension {
 
+	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'name' => 'poem',
+			'domProcessors' => [
+				'wt2htmlPostProcessor' => self::class
+			],
+			'tags' => [
+				[
+					'name' => 'poem',
+					'class' => self::class
+				]
+			]
+		];
+	}
+
 	/**
 	 * @param ParsoidExtensionAPI|null $extApi
 	 */
@@ -202,22 +218,6 @@ class Poem extends ExtensionTag implements Extension {
 		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
 	): void {
 		$this->doPostProcessDOM( $body, $options, $atTopLevel );
-	}
-
-	/** @inheritDoc */
-	public function getConfig(): array {
-		return [
-			'name' => 'poem',
-			'domProcessors' => [
-				'wt2htmlPostProcessor' => self::class
-			],
-			'tags' => [
-				[
-					'name' => 'poem',
-					'class' => self::class
-				]
-			]
-		];
 	}
 
 }

@@ -22,6 +22,18 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 class Nowiki extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'nowiki',
+					'class' => self::class,
+				]
+			]
+		];
+	}
+
+	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
 		$doc = $extApi->parseHTML( '' ); // Empty doc
 		$span = $doc->createElement( 'span' );
@@ -103,18 +115,6 @@ class Nowiki extends ExtensionTag implements Extension {
 		}
 
 		return $str . '</nowiki>';
-	}
-
-	/** @inheritDoc */
-	public function getConfig(): array {
-		return [
-			'tags' => [
-				[
-					'name' => 'nowiki',
-					'class' => self::class,
-				]
-			]
-		];
 	}
 
 }

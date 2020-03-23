@@ -13,6 +13,26 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 class LST extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'labeledsectiontransclusion',
+					'class' => self::class
+				],
+				[
+					'name' => 'labeledsectiontransclusion/begin',
+					'class' => self::class
+				],
+				[
+					'name' => 'labeledsectiontransclusion/end',
+					'class' => self::class
+				]
+			]
+		];
+	}
+
+	/** @inheritDoc */
 	public function fromDOM(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
@@ -35,26 +55,6 @@ class LST extends ExtensionTag implements Extension {
 			$src = '<section />';
 		}
 		return $src;
-	}
-
-	/** @inheritDoc */
-	public function getConfig(): array {
-		return [
-			'tags' => [
-				[
-					'name' => 'labeledsectiontransclusion',
-					'class' => self::class
-				],
-				[
-					'name' => 'labeledsectiontransclusion/begin',
-					'class' => self::class
-				],
-				[
-					'name' => 'labeledsectiontransclusion/end',
-					'class' => self::class
-				]
-			]
-		];
 	}
 
 }

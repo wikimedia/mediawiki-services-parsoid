@@ -18,6 +18,18 @@ use Wikimedia\Parsoid\Utils\Util;
 class Pre extends ExtensionTag implements Extension {
 
 	/** @inheritDoc */
+	public function getConfig(): array {
+		return [
+			'tags' => [
+				[
+					'name' => 'pre',
+					'class' => self::class,
+				]
+			]
+		];
+	}
+
+	/** @inheritDoc */
 	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
 		$doc = $extApi->parseHTML( '' ); // Empty doc
 		$pre = $doc->createElement( 'pre' );
@@ -43,18 +55,6 @@ class Pre extends ExtensionTag implements Extension {
 		DOMCompat::getBody( $doc )->appendChild( $pre );
 
 		return $doc;
-	}
-
-	/** @inheritDoc */
-	public function getConfig(): array {
-		return [
-			'tags' => [
-				[
-					'name' => 'pre',
-					'class' => self::class,
-				]
-			]
-		];
 	}
 
 }
