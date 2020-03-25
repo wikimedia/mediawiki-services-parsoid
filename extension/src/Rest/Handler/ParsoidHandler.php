@@ -345,14 +345,11 @@ abstract class ParsoidHandler extends Handler {
 	 * @param PageConfig $pageConfig
 	 * @param bool $titleShouldExist return null if the title/revision doesn't
 	 *   exist.
-	 * @return Env|null
+	 * @return Env
 	 */
 	protected function createEnv(
 		PageConfig $pageConfig, bool $titleShouldExist
-	): ?Env {
-		if ( $titleShouldExist && $pageConfig->getRevisionContent() === null ) {
-			return null; // T234549
-		}
+	): Env {
 		$options = [ 'titleShouldExist' => $titleShouldExist ];
 		// NOTE: These settings are mostly ignored since this Env is only used
 		// in this file.

@@ -30,29 +30,32 @@ class PageHandler extends ParsoidHandler {
 
 		$attribs = $this->getRequestAttributes();
 
+		if ( !$this->acceptable( $attribs ) ) {
+			return $this->getResponseFactory()->createHttpError( 406, [
+				'message' => 'Not acceptable',
+			] );
+		}
+
 		try {
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid']
-			);
-			$env = $this->createEnv(
-				$pageConfig, true /* titleShouldExist */
 			);
 		} catch ( RevisionAccessException $exception ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision is deleted or suppressed.',
 			] );
 		}
-		if ( !$env ) {
+
+		// T234549
+		if ( $pageConfig->getRevisionContent() === null ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision does not exist.',
 			] );
 		}
 
-		if ( !$this->acceptable( $attribs ) ) {
-			return $this->getResponseFactory()->createHttpError( 406, [
-				'message' => 'Not acceptable',
-			] );
-		}
+		$env = $this->createEnv(
+			$pageConfig, true /* titleShouldExist */
+		);
 
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
