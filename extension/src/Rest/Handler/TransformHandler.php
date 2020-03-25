@@ -35,6 +35,12 @@ class TransformHandler extends ParsoidHandler {
 
 		$attribs = &$this->getRequestAttributes();
 
+		if ( !$this->acceptable( $attribs ) ) {
+			return $this->getResponseFactory()->createHttpError( 406, [
+				'message' => 'Not acceptable',
+			] );
+		}
+
 		if ( $from === FormatHelper::FORMAT_WIKITEXT ) {
 			// Accept wikitext as a string or object{body,headers}
 			$wikitext = $attribs['opts']['wikitext'] ?? null;
@@ -64,11 +70,6 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
 				$attribs['pagelanguage']
 			);
-			if ( !$this->acceptable( $attribs ) ) {
-				return $this->getResponseFactory()->createHttpError( 406, [
-					'message' => 'Not acceptable',
-				] );
-			}
 			return $this->wt2html( $pageConfig, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			$html = $attribs['opts']['html'] ?? null;
@@ -86,11 +87,6 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
 			);
 			$env = $this->createEnv( $pageConfig );
-			if ( !$this->acceptable( $attribs ) ) {
-				return $this->getResponseFactory()->createHttpError( 406, [
-					'message' => 'Not acceptable',
-				] );
-			}
 
 			$hasOldId = (bool)$attribs['oldid'];
 			if ( $hasOldId && $pageConfig->getRevisionContent() === null ) {
@@ -106,11 +102,6 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pagelanguage']
 			);
 			$env = $this->createEnv( $pageConfig );
-			if ( !$this->acceptable( $attribs ) ) {
-				return $this->getResponseFactory()->createHttpError( 406, [
-					'message' => 'Not acceptable',
-				] );
-			}
 			return $this->pb2pb( $env, $attribs );
 		}
 	}
