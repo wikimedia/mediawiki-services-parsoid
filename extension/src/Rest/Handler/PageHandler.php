@@ -52,7 +52,9 @@ class PageHandler extends ParsoidHandler {
 
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
-				return $this->createRedirectToOldidResponse( $env, $attribs );
+				return $this->createRedirectToOldidResponse(
+					$env->getPageConfig(), $attribs
+				);
 			}
 			return $this->getPageContentResponse( $env, $attribs );
 		} else {

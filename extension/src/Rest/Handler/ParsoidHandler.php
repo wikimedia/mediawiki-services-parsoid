@@ -405,17 +405,19 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * Expand the current URL with the latest revision number and redirect there.
 	 * Will return an error response if the page does not exist.
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @return Response
 	 */
-	protected function createRedirectToOldidResponse( Env $env, array $attribs ): Response {
+	protected function createRedirectToOldidResponse(
+		PageConfig $pageConfig, array $attribs
+	): Response {
 		// porting note: this is  more or less the equivalent of apiUtils.redirectToOldid()
 		$domain = $attribs['envOptions']['domain'];
 		$format = $this->getRequest()->getPathParam( 'format' );
-		$target = $env->getPageConfig()->getTitle();
+		$target = $pageConfig->getTitle();
 		$encodedTarget = PHPUtils::encodeURIComponent( $target );
-		$revid = $env->getPageConfig()->getRevisionId();
+		$revid = $pageConfig->getRevisionId();
 
 		if ( $revid === null ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
@@ -423,7 +425,6 @@ abstract class ParsoidHandler extends Handler {
 			] );
 		}
 
-		$env->log( 'info', 'redirecting to revision', $revid, 'for', $format );
 		$this->metrics->increment( 'redirectToOldid.' . $format );
 
 		if ( $this->getRequest()->getMethod() === 'POST' ) {
@@ -464,13 +465,14 @@ abstract class ParsoidHandler extends Handler {
 			$metrics->increment( 'wt2html.parse.version.notdefault' );
 		}
 
+		$pageConfig = $env->getPageConfig();
+
 		if ( $wikitext === null && !$oldid ) {
 			// Redirect to the latest revid
-			return $this->createRedirectToOldidResponse( $env, $attribs );
+			return $this->createRedirectToOldidResponse( $pageConfig, $attribs );
 		}
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		$pageConfig = $env->getPageConfig();
 
 		if ( $doSubst ) {
 			if ( $format !== FormatHelper::FORMAT_HTML ) {
