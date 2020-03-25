@@ -1,7 +1,7 @@
 {
-	"name": "Parsoid-testing",
-	"description": "Parsoid is not an extension. This file is only meant for internal use during development, as a lightweight way of testing integration.",
-	"url": "https://www.mediawiki.org/wiki/Parsing/Notes/Moving_Parsoid_Into_Core",
+	"name": "Parsoid",
+	"description": "The Parsoid extension enables the REST API for Parsoid.  This is only needed if you are using RESTBase as a caching layer.",
+	"url": "https://www.mediawiki.org/wiki/Parsoid/PHP",
 	"requires": {
 		"MediaWiki": "^1.34",
 		"platform": {
@@ -47,7 +47,7 @@
 		"extension/ServiceWiring.php"
 	],
 	"ConfigRegistry": {
-		"Parsoid-testing": "GlobalVarConfig::newInstance"
+		"Parsoid": "GlobalVarConfig::newInstance"
 	},
 	"load_composer_autoloader": false,
 	"manifest_version": 2

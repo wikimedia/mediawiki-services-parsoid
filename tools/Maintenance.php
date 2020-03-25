@@ -52,7 +52,7 @@ if ( $parsoidMode === 'integrated' ) {
 	abstract class Maintenance extends \Maintenance {
 		public function __construct() {
 			parent::__construct();
-			$this->requireExtension( 'Parsoid-testing' );
+			$this->requireExtension( 'Parsoid' );
 		}
 
 		public function addDefaultParams(): void {
