@@ -86,23 +86,19 @@ class TransformHandler extends ParsoidHandler {
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
 			);
-			$env = $this->createEnv( $pageConfig );
-
 			$hasOldId = (bool)$attribs['oldid'];
 			if ( $hasOldId && $pageConfig->getRevisionContent() === null ) {
 				return $this->getResponseFactory()->createHttpError( 404, [
 					'message' => 'The specified revision does not exist.',
 				] );
 			}
-
-			return $this->html2wt( $env, $attribs, $html );
+			return $this->html2wt( $pageConfig, $attribs, $html );
 		} else {
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid'], null,
 				$attribs['pagelanguage']
 			);
-			$env = $this->createEnv( $pageConfig );
-			return $this->pb2pb( $env, $attribs );
+			return $this->pb2pb( $pageConfig, $attribs );
 		}
 	}
 

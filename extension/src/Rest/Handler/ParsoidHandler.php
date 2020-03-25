@@ -24,7 +24,6 @@ use Wikimedia\Http\HttpAcceptParser;
 use Wikimedia\Message\DataMessageValue;
 use Wikimedia\ParamValidator\ValidationException;
 use Wikimedia\Parsoid\Config\DataAccess;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ClientError;
@@ -342,22 +341,6 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param PageConfig $pageConfig
-	 * @return Env
-	 */
-	protected function createEnv( PageConfig $pageConfig ): Env {
-		$options = [];
-		// NOTE: These settings are mostly ignored since this Env is only used
-		// in this file.
-		foreach ( [ 'traceFlags', 'dumpFlags' ] as $opt ) {
-			if ( isset( $this->parsoidSettings[$opt] ) ) {
-				$options[$opt] = $this->parsoidSettings[$opt];
-			}
-		}
-		return new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $options );
-	}
-
-	/**
 	 * Redirect to another Parsoid URL (e.g. canonization)
 	 * @param string $path Target URL
 	 * @param array $queryParams Query parameters
@@ -599,13 +582,15 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * HTML -> wikitext helper.
 	 * Porting note: this is the rough equivalent of routes.html2wt.
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @param string|null $html HTML to transform (or null to use the page specified in
 	 *   the request attributes).
 	 * @return Response
 	 */
-	protected function html2wt( Env $env, array $attribs, string $html = null ) {
+	protected function html2wt(
+		PageConfig $pageConfig, array $attribs, string $html = null
+	) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
 		$envOptions = $attribs['envOptions'];
@@ -639,7 +624,6 @@ abstract class ParsoidHandler extends Handler {
 			$vOriginal = FormatHelper::parseContentTypeHeader(
 				$original['html']['headers']['content-type'] ?? '' );
 			if ( $vOriginal === null ) {
-				$env->log( 'fatal/request', 'Content-type of original html is missing.' );
 				return $this->getResponseFactory()->createHttpError( 400, [
 					'message' => 'Content-type of original html is missing.',
 				] );
@@ -678,7 +662,6 @@ abstract class ParsoidHandler extends Handler {
 				} else {
 					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
 						. 'different type, and no path to downgrade.';
-					$env->log( 'fatal/request', $err );
 					return $this->getResponseFactory()->createHttpError( 400, [ 'message' => $err ] );
 				}
 			}
@@ -773,8 +756,6 @@ abstract class ParsoidHandler extends Handler {
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
 
-		$pageConfig = $env->getPageConfig();
-
 		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
 			if ( !$pageConfig->getRevisionContent() ) {
 				return $this->getResponseFactory()->createHttpError( 409, [
@@ -822,17 +803,16 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * Pagebundle -> pagebundle helper.
 	 * Porting note: this is the rough equivalent of routes.pb2pb.
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs
 	 * @return Response
 	 */
-	protected function pb2pb( Env $env, array $attribs ) {
+	protected function pb2pb( PageConfig $pageConfig, array $attribs ) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
 
 		$revision = $opts['previous'] ?? $opts['original'] ?? null;
 		if ( !isset( $revision['html'] ) ) {
-			$env->log( 'fatal/request', 'Missing revision html.' );
 			return $this->getResponseFactory()->createHttpError( 400, [
 				'message' => 'Missing revision html.',
 			] );
@@ -841,7 +821,6 @@ abstract class ParsoidHandler extends Handler {
 		$vOriginal = FormatHelper::parseContentTypeHeader(
 			$revision['html']['headers']['content-type'] ?? '' );
 		if ( $vOriginal === null ) {
-			$env->log( 'fatal/request', 'Content-type of revision html is missing.' );
 			return $this->getResponseFactory()->createHttpError( 400, [
 				'message' => 'Content-type of revision html is missing.',
 			] );
@@ -851,8 +830,6 @@ abstract class ParsoidHandler extends Handler {
 		$this->metrics->increment(
 			'pb2pb.original.version.' . $attribs['envOptions']['inputContentVersion']
 		);
-
-		$pageConfig = $env->getPageConfig();
 
 		if ( !empty( $opts['updates'] ) ) {
 			// If we're only updating parts of the original version, it should
@@ -923,7 +900,6 @@ abstract class ParsoidHandler extends Handler {
 			'^' . $attribs['envOptions']['inputContentVersion'] ) ) {
 			return $this->wt2html( $pageConfig, $attribs, null );
 		} else {
-			$env->log( 'fatal/request', 'We do not know how to do this conversion.' );
 			return $this->getResponseFactory()->createHttpError( 415, [
 				'message' => 'We do not know how to do this conversion.',
 			] );
