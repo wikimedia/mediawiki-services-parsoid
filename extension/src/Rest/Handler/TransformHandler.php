@@ -64,9 +64,6 @@ class TransformHandler extends ParsoidHandler {
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
 				$attribs['pagelanguage']
 			);
-			$env = $this->createEnv(
-				$pageConfig, false /* titleShouldExist */
-			);
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
@@ -88,23 +85,27 @@ class TransformHandler extends ParsoidHandler {
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
 			);
-			$env = $this->createEnv(
-				$pageConfig, false /* titleShouldExist */
-			);
+			$env = $this->createEnv( $pageConfig );
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',
 				] );
 			}
+
+			$hasOldId = (bool)$attribs['oldid'];
+			if ( $hasOldId && $pageConfig->getRevisionContent() === null ) {
+				return $this->getResponseFactory()->createHttpError( 404, [
+					'message' => 'The specified revision does not exist.',
+				] );
+			}
+
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid'], null,
 				$attribs['pagelanguage']
 			);
-			$env = $this->createEnv(
-				$pageConfig, false /* titleShouldExist */
-			);
+			$env = $this->createEnv( $pageConfig );
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
 					'message' => 'Not acceptable',

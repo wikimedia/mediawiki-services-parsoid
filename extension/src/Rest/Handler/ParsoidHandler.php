@@ -343,14 +343,10 @@ abstract class ParsoidHandler extends Handler {
 
 	/**
 	 * @param PageConfig $pageConfig
-	 * @param bool $titleShouldExist return null if the title/revision doesn't
-	 *   exist.
 	 * @return Env
 	 */
-	protected function createEnv(
-		PageConfig $pageConfig, bool $titleShouldExist
-	): Env {
-		$options = [ 'titleShouldExist' => $titleShouldExist ];
+	protected function createEnv( PageConfig $pageConfig ): Env {
+		$options = [];
 		// NOTE: These settings are mostly ignored since this Env is only used
 		// in this file.
 		foreach ( [ 'traceFlags', 'dumpFlags' ] as $opt ) {
@@ -797,7 +793,6 @@ abstract class ParsoidHandler extends Handler {
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],
-				'titleShouldExist' => $hasOldId,
 				'contentmodel' => $opts['contentmodel'] ?? null,
 			], $selserData );
 		} catch ( ClientError $e ) {

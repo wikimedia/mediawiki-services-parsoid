@@ -239,7 +239,6 @@ class Env {
 	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
-	 *  - titleShouldExist: (bool) Are we expecting page content to exist?
 	 *  - pageWithOldid: (bool) Does this request specify an oldid?
 	 *  - htmlVariantLanguage: string|null
 	 *      If non-null, the language variant used for Parsoid HTML;
@@ -258,8 +257,7 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
-		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig,
-			!empty( $options['titleShouldExist'] ) );
+		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$this->scrubWikitext = !empty( $options['scrubWikitext'] );
 		}

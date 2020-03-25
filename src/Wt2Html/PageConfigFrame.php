@@ -2,7 +2,6 @@
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -19,17 +18,11 @@ class PageConfigFrame extends Frame {
 	 * @param Env $env
 	 * @param PageConfig $pageConfig
 	 * @param SiteConfig $siteConfig
-	 * @param bool $titleShouldExist Do we expect title to exist?
-	 *   If so, be strict about missing page content.
 	 */
 	public function __construct(
-		Env $env, PageConfig $pageConfig, SiteConfig $siteConfig, bool $titleShouldExist = true
+		Env $env, PageConfig $pageConfig, SiteConfig $siteConfig
 	) {
 		$rev = $pageConfig->getRevisionContent();
-		Assert::invariant(
-			$rev !== null || !$titleShouldExist,
-			'Missing revision for a title that should exist.'
-		);
 		$content = $rev ? $rev->getContent( 'main' ) : '';
 		parent::__construct(
 			// It would be nicer to have the Title object directly available

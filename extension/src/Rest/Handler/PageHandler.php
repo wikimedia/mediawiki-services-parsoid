@@ -55,9 +55,7 @@ class PageHandler extends ParsoidHandler {
 			] );
 		}
 
-		$env = $this->createEnv(
-			$pageConfig, true /* titleShouldExist */
-		);
+		$env = $this->createEnv( $pageConfig );
 
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
