@@ -60,10 +60,12 @@ class TransformHandler extends ParsoidHandler {
 					'message' => 'No title or wikitext was provided.',
 				] );
 			}
-			$env = $this->createEnv(
-				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
-				$wikitext,
+			$pageConfig = $this->createPageConfig(
+				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
 				$attribs['pagelanguage']
+			);
+			$env = $this->createEnv(
+				$pageConfig, false /* titleShouldExist */
 			);
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
@@ -83,9 +85,11 @@ class TransformHandler extends ParsoidHandler {
 				$html = $html['body'];
 			}
 			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
+			$pageConfig = $this->createPageConfig(
+				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
+			);
 			$env = $this->createEnv(
-				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
-				$wikitext
+				$pageConfig, false /* titleShouldExist */
 			);
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [
@@ -94,9 +98,12 @@ class TransformHandler extends ParsoidHandler {
 			}
 			return $this->html2wt( $env, $attribs, $html );
 		} else {
+			$pageConfig = $this->createPageConfig(
+				$attribs['pageName'], (int)$attribs['oldid'], null,
+				$attribs['pagelanguage']
+			);
 			$env = $this->createEnv(
-				$attribs['pageName'], (int)$attribs['oldid'], false /* titleShouldExist */,
-				null, $attribs['pagelanguage']
+				$pageConfig, false /* titleShouldExist */
 			);
 			if ( !$this->acceptable( $attribs ) ) {
 				return $this->getResponseFactory()->createHttpError( 406, [

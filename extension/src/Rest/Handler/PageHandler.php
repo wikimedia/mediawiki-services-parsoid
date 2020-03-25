@@ -30,9 +30,13 @@ class PageHandler extends ParsoidHandler {
 
 		$attribs = $this->getRequestAttributes();
 
-		$oldid = (int)$attribs['oldid'];
 		try {
-			$env = $this->createEnv( $attribs['pageName'], $oldid, true /* titleShouldExist */ );
+			$pageConfig = $this->createPageConfig(
+				$attribs['pageName'], (int)$attribs['oldid']
+			);
+			$env = $this->createEnv(
+				$pageConfig, true /* titleShouldExist */
+			);
 		} catch ( RevisionAccessException $exception ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision is deleted or suppressed.',

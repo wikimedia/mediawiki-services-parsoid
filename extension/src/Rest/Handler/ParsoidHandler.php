@@ -342,23 +342,14 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param string $title The page to be transformed
-	 * @param int|null $revision The revision to be transformed
+	 * @param PageConfig $pageConfig
 	 * @param bool $titleShouldExist return null if the title/revision doesn't
 	 *   exist.
-	 * @param string|null $wikitextOverride
-	 *   Custom wikitext to use instead of the real content of the page.
-	 * @param string|null $pagelanguageOverride
 	 * @return Env|null
 	 */
 	protected function createEnv(
-		string $title, ?int $revision, bool $titleShouldExist,
-		string $wikitextOverride = null,
-		string $pagelanguageOverride = null
+		PageConfig $pageConfig, bool $titleShouldExist
 	): ?Env {
-		$pageConfig = $this->createPageConfig(
-			$title, $revision, $wikitextOverride, $pagelanguageOverride
-		);
 		if ( $titleShouldExist && $pageConfig->getRevisionContent() === null ) {
 			return null; // T234549
 		}
