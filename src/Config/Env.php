@@ -874,17 +874,13 @@ class Env {
 
 	/**
 	 * Is the language converter enabled on this page?
+	 *
 	 * @return bool
 	 */
 	public function langConverterEnabled(): bool {
-		$lang = $this->pageConfig->getPageLanguage();
-		if ( !$lang ) {
-			$lang = $this->siteConfig->lang();
-		}
-		if ( !$lang ) {
-			$lang = 'en';
-		}
-		return $this->siteConfig->langConverterEnabled( $lang );
+		return $this->siteConfig->langConverterEnabledForLanguage(
+			$this->pageConfig->getPageLanguage()
+		);
 	}
 
 	/**

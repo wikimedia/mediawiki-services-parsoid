@@ -530,6 +530,22 @@ abstract class SiteConfig {
 	abstract public function langConverterEnabled( string $lang ): bool;
 
 	/**
+	 * Is the language converter enabled for this language?
+	 *
+	 * @param string $lang
+	 * @return bool
+	 */
+	public function langConverterEnabledForLanguage( string $lang ): bool {
+		if ( !$lang ) {
+			$lang = $this->lang();
+		}
+		if ( !$lang ) {
+			$lang = 'en';
+		}
+		return $this->langConverterEnabled( $lang );
+	}
+
+	/**
 	 * The URL path to index.php.
 	 * @return string
 	 */

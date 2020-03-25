@@ -975,14 +975,17 @@ abstract class ParsoidHandler extends Handler {
 			);
 		}
 
-		if ( !$env->langConverterEnabled() ) {
+		$pageConfig = $env->getPageConfig();
+
+		if ( !$this->siteConfig->langConverterEnabledForLanguage(
+			$pageConfig->getPageLanguage()
+		) ) {
 			return $this->getResponseFactory()->createHttpError(
 				400, [ 'message' => 'LanguageConversion is not enabled on this article.' ]
 			);
 		}
 
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		$pageConfig = $env->getPageConfig();
 
 		$pb = new PageBundle(
 			$revision['html']['body'],
