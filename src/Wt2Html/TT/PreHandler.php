@@ -125,7 +125,7 @@ class PreHandler extends TokenHandler {
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		if ( !empty( $this->options['inlineContext'] ) || !empty( $this->options['inPHPBlock'] ) ) {
+		if ( !empty( $this->options['inlineContext'] ) ) {
 			$this->disabled = true;
 		} else {
 			$this->disabled = false;

@@ -44,9 +44,6 @@ class PipelineUtils {
 	 * @param array $opts Parsing options.
 	 *    - Token token The token that generated the content.
 	 *    - bool  inlineContext Is this DOM fragment used in an inline context?
-	 *    - bool  inPHPBlock Is this DOM fragment used inside a "PHP Block"
-	 *            FIXME: This exists primarily for backward compatibility
-	 *            reasons and is likely to eventually go away.
 	 * @return SelfclosingTagTk
 	 */
 	public static function getDOMFragmentToken(
@@ -285,10 +282,7 @@ class PipelineUtils {
 		// content. It could potentially introduce minor rendering differences when
 		// compared to PHP parser output, but we'll swallow it for now.
 		$wrapperType = 'INLINE';
-		if (
-			!empty( $opts['pipelineOpts']['inlineContext'] ) ||
-			!empty( $opts['pipelineOpts']['inPHPBlock'] )
-		) {
+		if ( !empty( $opts['pipelineOpts']['inlineContext'] ) ) {
 			// If the DOM fragment is being processed in the context where P wrapping
 			// has been suppressed, we represent the DOM fragment with inline-tokens.
 			//

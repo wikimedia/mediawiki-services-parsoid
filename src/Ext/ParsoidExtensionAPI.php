@@ -241,7 +241,6 @@ class ParsoidExtensionAPI {
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - inlineContext
-	 *   - inPHPBlock
 	 * @param bool $sol
 	 * @return DOMDocument
 	 */
@@ -270,9 +269,6 @@ class ParsoidExtensionAPI {
 					'extTagOpts' => $pipelineOpts['extTagOpts'] ?? null,
 					'inTemplate' => $this->inTemplate(),
 					'inlineContext' => !empty( $pipelineOpts['inlineContext'] ),
-					// FIXME: Hack for backward compatibility
-					// support for extensions that rely on this behavior.
-					'inPHPBlock' => !empty( $pipelineOpts['inPHPBlock'] )
 				],
 				'srcOffsets' => $srcOffsets,
 				'sol' => $sol
@@ -306,7 +302,6 @@ class ParsoidExtensionAPI {
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - inlineContext
-	 *   - inPHPBlock
 	 * @return DOMDocument
 	 */
 	public function parseExtTagToDOM(

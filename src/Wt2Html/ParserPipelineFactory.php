@@ -159,11 +159,6 @@ class ParserPipelineFactory {
 		// Content being parsed is used in an inline context
 		'inlineContext',
 
-		// FIXME: Related to PHP parser doBlockLevels side effect.
-		// Primarily exists for backward compatibility reasons.
-		// Might eventually go away in favor of something else.
-		'inPHPBlock',
-
 		// Are we processing content of attributes?
 		// (in current usage, used for transcluded attr. keys/values)
 		'attrExpansion'
@@ -267,9 +262,6 @@ class ParserPipelineFactory {
 		}
 		if ( !empty( $options['inlineContext'] ) ) {
 			$cacheKey .= '::inlineContext';
-		}
-		if ( !empty( $options['inPHPBlock'] ) ) {
-			$cacheKey .= '::inPHPBlock';
 		}
 		if ( !empty( $options['inTemplate'] ) ) {
 			$cacheKey .= '::inTemplate';

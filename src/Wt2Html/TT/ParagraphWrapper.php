@@ -78,8 +78,7 @@ class ParagraphWrapper extends TokenHandler {
 		}
 
 		// Disable p-wrapper
-		$this->disabled = !empty( $this->options['inlineContext'] )
-			|| !empty( $this->options['inPHPBlock'] );
+		$this->disabled = !empty( $this->options['inlineContext'] );
 		$this->reset();
 	}
 
@@ -117,7 +116,7 @@ class ParagraphWrapper extends TokenHandler {
 		$this->hasOpenPTag = false;
 		$this->inPre = false;
 		// NOTE: This flag is the local equivalent of what we're mimicking with
-		// the inPHPBlock pipeline option.
+		// the 'inlineContext' pipeline option.
 		$this->inBlockElem = false;
 	}
 

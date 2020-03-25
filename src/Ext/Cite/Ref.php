@@ -45,9 +45,9 @@ class Ref extends ExtensionTag {
 				'pipelineOpts' => [
 					'extTag' => 'ref',
 					'extTagOpts' => [ 'allowNestedRef' => $allowNestedRef ],
-					// FIXME: One-off PHP parser state leak.
-					// This needs a better solution.
-					'inPHPBlock' => true,
+					// Ref content doesn't need p-wrapping or indent-pres.
+					// Treat this as inline-context content to get that b/c behavior.
+					'inlineContext' => true,
 				],
 			]
 		);

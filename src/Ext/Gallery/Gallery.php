@@ -73,7 +73,6 @@ class Gallery extends ExtensionTag implements Extension {
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
 				'srcOffsets' => $caption->valueOffset(),
@@ -157,7 +156,6 @@ class Gallery extends ExtensionTag implements Extension {
 			[
 				'pipelineOpts' => [
 					'extTag' => 'gallery',
-					// FIXME: This needs more analysis.  Maybe it's inPHPBlock
 					'inlineContext' => true
 				],
 				// Create new frame, because $wt doesn't literally appear
