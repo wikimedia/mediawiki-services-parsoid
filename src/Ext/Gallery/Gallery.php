@@ -64,8 +64,12 @@ class Gallery extends ExtensionTag implements Extension {
 		if ( $caption === null || !$caption->v ) {
 			return null;
 		}
-		// `normalizeExtOptions` messes up src offsets, so we do our own
-		// normalization to avoid parsing sol blocks
+		// `normalizeExtOptions` that strips whitespace in $caption->v
+		// messes up src offsets, so we do our own normalization of
+		// the original source to strip newline breaks.
+		//
+		// 'inlineContext' flag below ensures indent-pre / p-wrapping is
+		// suppressed. So, the normalization is primarily for HTML string parity.
 		$capV = preg_replace( '/[\t\r\n ]/', ' ', $caption->vsrc );
 		$doc = $extApi->parseWikitextToDOM(
 			$capV,
