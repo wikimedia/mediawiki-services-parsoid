@@ -848,6 +848,8 @@ abstract class ParsoidHandler extends Handler {
 			'pb2pb.original.version.' . $attribs['envOptions']['inputContentVersion']
 		);
 
+		$pageConfig = $env->getPageConfig();
+
 		if ( !empty( $opts['updates'] ) ) {
 			// If we're only updating parts of the original version, it should
 			// satisfy the requested content version, since we'll be returning
@@ -869,9 +871,9 @@ abstract class ParsoidHandler extends Handler {
 			if ( !empty( $opts['updates']['redlinks'] ) ) {
 				// Q(arlolra): Should redlinks be more complex than a bool?
 				// See gwicke's proposal at T114413#2240381
-				return $this->updateRedLinks( $env, $attribs, $revision );
+				return $this->updateRedLinks( $pageConfig, $attribs, $revision );
 			} elseif ( isset( $opts['updates']['variant'] ) ) {
-				return $this->languageConversion( $env, $attribs, $revision );
+				return $this->languageConversion( $pageConfig, $attribs, $revision );
 			} else {
 				return $this->getResponseFactory()->createHttpError( 400, [
 					'message' => 'Unknown transformation.',
@@ -909,7 +911,7 @@ abstract class ParsoidHandler extends Handler {
 		// Ensure we only reuse from semantically similar content versions.
 		} elseif ( Semver::satisfies( $attribs['envOptions']['outputContentVersion'],
 			'^' . $attribs['envOptions']['inputContentVersion'] ) ) {
-			return $this->wt2html( $env->getPageConfig(), $attribs, null );
+			return $this->wt2html( $pageConfig, $attribs, null );
 		} else {
 			$env->log( 'fatal/request', 'We do not know how to do this conversion.' );
 			return $this->getResponseFactory()->createHttpError( 415, [
@@ -921,14 +923,15 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * Update red links on a document.
 	 *
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs
 	 * @param array $revision
 	 * @return Response
 	 */
-	protected function updateRedLinks( Env $env, array $attribs, array $revision ) {
+	protected function updateRedLinks(
+		PageConfig $pageConfig, array $attribs, array $revision
+	) {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
-		$pageConfig = $env->getPageConfig();
 
 		$html = $parsoid->html2html(
 			$pageConfig, 'redlinks', $revision['html']['body'], [], $headers
@@ -958,12 +961,14 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * Do variant conversion on a document.
 	 *
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs
 	 * @param array $revision
 	 * @return Response
 	 */
-	protected function languageConversion( Env $env, array $attribs, array $revision ) {
+	protected function languageConversion(
+		PageConfig $pageConfig, array $attribs, array $revision
+	) {
 		$opts = $attribs['opts'];
 		$source = $opts['updates']['variant']['source'] ?? null;
 		$target = $opts['updates']['variant']['target'] ??
@@ -974,8 +979,6 @@ abstract class ParsoidHandler extends Handler {
 				400, [ 'message' => 'Target variant is required.' ]
 			);
 		}
-
-		$pageConfig = $env->getPageConfig();
 
 		if ( !$this->siteConfig->langConverterEnabledForLanguage(
 			$pageConfig->getPageLanguage()
