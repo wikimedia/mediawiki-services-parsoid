@@ -431,13 +431,15 @@ abstract class ParsoidHandler extends Handler {
 	 * Wikitext -> HTML helper.
 	 * Porting note: this is the rough equivalent of routes.wt2html.
 	 * Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @param string|null $wikitext Wikitext to transform (or null to use the page specified in
 	 *   the request attributes).
 	 * @return Response
 	 */
-	protected function wt2html( Env $env, array $attribs, string $wikitext = null ) {
+	protected function wt2html(
+		PageConfig $pageConfig, array $attribs, string $wikitext = null
+	) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
 		$format = $opts['format'];
@@ -455,8 +457,6 @@ abstract class ParsoidHandler extends Handler {
 			'!=' . Parsoid::defaultHTMLVersion() ) ) {
 			$metrics->increment( 'wt2html.parse.version.notdefault' );
 		}
-
-		$pageConfig = $env->getPageConfig();
 
 		if ( $wikitext === null && !$oldid ) {
 			// Redirect to the latest revid
@@ -479,21 +479,23 @@ abstract class ParsoidHandler extends Handler {
 			);
 		}
 
-		if ( !empty( $this->parsoidSettings['devAPI'] ) &&
-			( $request->getQueryParams()['follow_redirects'] ?? false ) ) {
-			$content = $env->getPageConfig()->getRevisionContent();
+		if (
+			!empty( $this->parsoidSettings['devAPI'] ) &&
+			( $request->getQueryParams()['follow_redirects'] ?? false )
+		) {
+			$content = $pageConfig->getRevisionContent();
 			$redirectTarget = $content ? $content->getRedirectTarget() : null;
 			if ( $redirectTarget ) {
 				$redirectInfo =
-					$redirectTarget ? $this->dataAccess->getPageInfo( $env->getPageConfig(),
-						[ $redirectTarget ] ) : null;
+					$redirectTarget ? $this->dataAccess->getPageInfo(
+						$pageConfig, [ $redirectTarget ]
+					) : null;
 				$encodedTarget = PHPUtils::encodeURIComponent( $redirectTarget );
 				$redirectPath =
 					"/{$attribs['envOptions']['domain']}/v3/page/$encodedTarget/wikitext";
 				if ( $redirectInfo['revId'] ) {
 					$redirectPath .= '/' . $redirectInfo['revId'];
 				}
-				$env->log( 'info', 'redirecting to ', $redirectPath );
 				return $this->createRedirectResponse( "", $request->getQueryParams() );
 			}
 		}
@@ -915,7 +917,7 @@ abstract class ParsoidHandler extends Handler {
 		// Ensure we only reuse from semantically similar content versions.
 		} elseif ( Semver::satisfies( $attribs['envOptions']['outputContentVersion'],
 			'^' . $attribs['envOptions']['inputContentVersion'] ) ) {
-			return $this->wt2html( $env, $attribs, null );
+			return $this->wt2html( $env->getPageConfig(), $attribs, null );
 		} else {
 			$env->log( 'fatal/request', 'We do not know how to do this conversion.' );
 			return $this->getResponseFactory()->createHttpError( 415, [

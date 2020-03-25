@@ -72,7 +72,7 @@ class TransformHandler extends ParsoidHandler {
 					'message' => 'Not acceptable',
 				] );
 			}
-			return $this->wt2html( $env, $attribs, $wikitext );
+			return $this->wt2html( $pageConfig, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			$html = $attribs['opts']['html'] ?? null;
 			if ( $html === null ) {

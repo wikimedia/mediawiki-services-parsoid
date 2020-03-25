@@ -62,7 +62,7 @@ class PageHandler extends ParsoidHandler {
 			}
 			return $this->getPageContentResponse( $env, $attribs );
 		} else {
-			return $this->wt2html( $env, $attribs );
+			return $this->wt2html( $pageConfig, $attribs );
 		}
 	}
 
