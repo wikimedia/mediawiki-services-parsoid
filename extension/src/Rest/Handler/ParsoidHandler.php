@@ -32,14 +32,12 @@ use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Parsoid;
-use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Timing;
-use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 /**
  * Base class for Parsoid handlers.
@@ -376,36 +374,6 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * To support the 'subst' API parameter, we need to prefix each
-	 * top-level template with 'subst'. To make sure we do this for the
-	 * correct templates, tokenize the starting wikitext and use that to
-	 * detect top-level templates. Then, substitute each starting '{{' with
-	 * '{{subst' using the template token's tsr.
-	 *
-	 * @param Env $env
-	 * @param string $target The page being parsed
-	 * @param string $wikitext
-	 * @return string
-	 */
-	protected function substTopLevelTemplates( Env $env, $target, $wikitext ): string {
-		$tokenizer = new PegTokenizer( $env );
-		$tokens = $tokenizer->tokenizeSync( $wikitext );
-		$tsrIncr = 0;
-		foreach ( $tokens as $token ) {
-			/** @var Token $token */
-			if ( $token->getName() === 'template' ) {
-				$tsr = $token->dataAttribs->tsr;
-				$wikitext = substr( $wikitext, 0, $tsr->start + $tsrIncr )
-					. '{{subst:' . substr( $wikitext, $tsr->start + $tsrIncr + 2 );
-				$tsrIncr += 6;
-			}
-		}
-		// Now pass it to the MediaWiki API with onlypst set so that it
-		// subst's the templates.
-		return $this->dataAccess->doPst( $env->getPageConfig(), $wikitext );
-	}
-
-	/**
 	 * Redirect to another Parsoid URL (e.g. canonization)
 	 * @param string $path Target URL
 	 * @param array $queryParams Query parameters
@@ -501,6 +469,7 @@ abstract class ParsoidHandler extends Handler {
 			return $this->createRedirectToOldidResponse( $env, $attribs );
 		}
 
+		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 		$pageConfig = $env->getPageConfig();
 
 		if ( $doSubst ) {
@@ -509,7 +478,9 @@ abstract class ParsoidHandler extends Handler {
 					'message' => 'Substitution is only supported for the HTML format.',
 				] );
 			}
-			$wikitext = $this->substTopLevelTemplates( $env, $attribs['pageName'], $wikitext );
+			$wikitext = $parsoid->substTopLevelTemplates(
+				$pageConfig, $wikitext
+			);
 			$pageConfig = $this->createPageConfig(
 				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
 			);
@@ -567,8 +538,6 @@ abstract class ParsoidHandler extends Handler {
 			mb_strlen( $env->getPageMainContent() )
 		);
 		$parseTiming = Timing::start( $metrics );
-
-		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		if ( $format === FormatHelper::FORMAT_LINT ) {
 			try {
