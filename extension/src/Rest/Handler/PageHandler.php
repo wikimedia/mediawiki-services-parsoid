@@ -7,7 +7,7 @@ use MediaWiki\Rest\Response;
 use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\PageConfig;
 
 /**
  * Handler for displaying or rendering the content of a page:
@@ -55,39 +55,42 @@ class PageHandler extends ParsoidHandler {
 			] );
 		}
 
-		$env = $this->createEnv( $pageConfig );
-
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			if ( !$oldid ) {
 				return $this->createRedirectToOldidResponse(
-					$env->getPageConfig(), $attribs
+					$pageConfig, $attribs
 				);
 			}
-			return $this->getPageContentResponse( $env, $attribs );
+			return $this->getPageContentResponse( $pageConfig, $attribs );
 		} else {
 			return $this->wt2html( $pageConfig, $attribs );
 		}
 	}
 
 	/**
-	 * Return the content of a page. This is the case when GET /page/ is called with format=wikitext.
-	 * @param Env $env
+	 * Return the content of a page. This is the case when GET /page/ is
+	 * called with format=wikitext.
+	 *
+	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @return Response
 	 */
-	protected function getPageContentResponse( Env $env, array $attribs ) {
-		$content = $env->getPageConfig()->getRevisionContent();
+	protected function getPageContentResponse(
+		PageConfig $pageConfig, array $attribs
+	) {
+		$content = $pageConfig->getRevisionContent();
 		if ( !$content ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => 'The specified revision does not exist.',
 			] );
 		}
-
 		$response = $this->getResponseFactory()->create();
 		$response->setStatus( 200 );
 		$response->setHeader( 'X-ContentModel', $content->getModel( SlotRecord::MAIN ) );
-		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT,
-			$attribs['envOptions']['outputContentVersion'] );
+		FormatHelper::setContentType(
+			$response, FormatHelper::FORMAT_WIKITEXT,
+			$attribs['envOptions']['outputContentVersion']
+		);
 		$response->getBody()->write( $content->getContent( SlotRecord::MAIN ) );
 		return $response;
 	}
