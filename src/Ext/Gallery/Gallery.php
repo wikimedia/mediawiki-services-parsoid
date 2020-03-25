@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -48,40 +47,15 @@ class Gallery extends ExtensionTag implements Extension {
 	/**
 	 * Parse the gallery caption.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param KV[] $options
+	 * @param array $extArgs
 	 * @return DOMElement|null
 	 */
-	private function pCaption(
-		ParsoidExtensionAPI $extApi, array $options
-	): ?DOMElement {
-		$caption = null;
-		foreach ( $options as $kv ) {
-			if ( $kv->k === 'caption' ) {
-				$caption = $kv;
-				break;
-			}
-		}
-		if ( $caption === null || !$caption->v ) {
+	private function pCaption( ParsoidExtensionAPI $extApi, array $extArgs ): ?DOMElement {
+		$doc = $extApi->extArgToDOM( $extArgs, 'caption' );
+		if ( !$doc ) {
 			return null;
 		}
-		// `normalizeExtOptions` that strips whitespace in $caption->v
-		// messes up src offsets, so we do our own normalization of
-		// the original source to strip newline breaks.
-		//
-		// 'inlineContext' flag below ensures indent-pre / p-wrapping is
-		// suppressed. So, the normalization is primarily for HTML string parity.
-		$capV = preg_replace( '/[\t\r\n ]/', ' ', $caption->vsrc );
-		$doc = $extApi->parseWikitextToDOM(
-			$capV,
-			[
-				'parseOpts' => [
-					'extTag' => 'gallery',
-					'inlineContext' => true
-				],
-				'srcOffsets' => $caption->valueOffset(),
-			],
-			false // Gallery captions are deliberately not parsed in SOL context
-		);
+
 		$body = DOMCompat::getBody( $doc );
 		return $body;
 	}

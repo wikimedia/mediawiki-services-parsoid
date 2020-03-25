@@ -8,7 +8,6 @@ use DOMElement;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -101,20 +100,13 @@ class Poem extends ExtensionTag implements Extension {
 
 		}
 
-		$foundClass = false;
+		// Add the 'poem' class to the 'class' attribute, or if not found, add it
+		$value = $extApi->findAndUpdateArg( $args, 'class', function ( string $value ) {
+			return strlen( $value ) ? "poem {$value}" : 'poem';
+		} );
 
-		$args = array_map( function ( $obj ) use ( &$foundClass ) {
-			if ( strtolower( $obj->k ) === 'class' ) {
-				$foundClass = true;
-				$obj = clone $obj;
-				$space = strlen( $obj->v ) ? ' ' : '';
-				$obj->v = "poem{$space}{$obj->v}";
-			}
-			return $obj;
-		}, $args );
-
-		if ( !$foundClass ) {
-			$args[] = new KV( 'class', 'poem' );
+		if ( !$value ) {
+			$extApi->addNewArg( $args, 'class', 'poem' );
 		}
 
 		return $extApi->parseExtTagToDOM( $args, '', $content, [

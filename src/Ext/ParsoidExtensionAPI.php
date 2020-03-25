@@ -342,6 +342,46 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Process a specific extension arg as wikitext and return its DOM equivalent.
+	 * By default, this method processes the argument value in inline context and normalizes
+	 * every whitespace character to a single space.
+	 * @param KV[] $extArgs
+	 * @param string $key should be lower-case
+	 * @param bool $inlineContext
+	 * @return ?DOMDocument
+	 */
+	public function extArgToDOM( array $extArgs, string $key, $inlineContext = true ): ?DOMDocument {
+		$argKV = KV::lookupKV( $extArgs, strtolower( $key ) );
+		if ( $argKV === null || !$argKV->v ) {
+			return null;
+		}
+
+		if ( $inlineContext ) {
+			// `normalizeExtOptions` can mess up source offsets as well as the string
+			// that ought to be processed as wikitext. So, we do our own whitespace
+			// normalization of the original source here.
+			//
+			// 'inlineContext' flag below ensures indent-pre / p-wrapping is suppressed.
+			// So, the normalization is primarily for HTML string parity.
+			$argVal = preg_replace( '/[\t\r\n ]/', ' ', $argKV->vsrc );
+		} else {
+			$argVal = $argKV->vsrc;
+		}
+
+		return $this->parseWikitextToDOM(
+			$argVal,
+			[
+				'parseOpts' => [
+					'extTag' => $this->getExtensionName(),
+					'inlineContext' => $inlineContext
+				],
+				'srcOffsets' => $argKV->valueOffset(),
+			],
+			false // inline context => no sol state
+		);
+	}
+
+	/**
 	 * Convert the ext args representation from an array of KV objects
 	 * to a plain associative array mapping arg name strings to arg value strings.
 	 * @param array<KV> $extArgs
@@ -349,6 +389,44 @@ class ParsoidExtensionAPI {
 	 */
 	public function extArgsToArray( array $extArgs ): array {
 		return TokenUtils::kvToHash( $extArgs );
+	}
+
+	/**
+	 * This method finds a requested arg by key name and return its current value.
+	 * If a closure is passed in to update the current value, it is used to update the arg.
+	 *
+	 * @param KV[] &$extArgs Array of extension args
+	 * @param string $key Argument key whose value needs an update
+	 * @param ?Closure $updater $updater will get the existing string value
+	 *   for the arg and is expected to return an updated value.
+	 * @return ?string
+	 */
+	public function findAndUpdateArg(
+		array &$extArgs, string $key, ?Closure $updater = null
+	): ?string {
+		foreach ( $extArgs as $i => $kv ) {
+			if ( strtolower( trim( $kv->k ) ) === strtolower( $key ) ) {
+				$val = $kv->v;
+				if ( $updater ) {
+					$kv = clone $kv;
+					$kv->v = $updater( $val );
+					$extArgs[$i] = $kv;
+				}
+				return $val;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method adds a new argument to the extension args array
+	 * @param KV[] &$extArgs
+	 * @param string $key
+	 * @param string $value
+	 */
+	public function addNewArg( array &$extArgs, string $key, string $value ): void {
+		$extArgs[] = new KV( $key, $value );
 	}
 
 	/**
