@@ -28,7 +28,9 @@ class ExtensionContentModelHandler extends ContentModelHandler {
 	 */
 	public function toDOM( Env $env ): DOMDocument {
 		$extApi = new ParsoidExtensionAPI( $env );
-		return $this->impl->toDOM( $extApi, $env->getPageMainContent() );
+		return $this->impl->toDOM(
+			$extApi, $env->getPageConfig()->getPageMainContent()
+		);
 	}
 
 	/**

@@ -705,18 +705,6 @@ class Env {
 	}
 
 	/**
-	 * FIXME: Once we remove the hardcoded slot name here,
-	 * the name of this method could be updated, if necessary.
-	 *
-	 * Shortcut method to get page source
-	 * @deprecated Use $this->topFrame->getSrcText()
-	 * @return string
-	 */
-	public function getPageMainContent(): string {
-		return $this->pageConfig->getRevisionContent()->getContent( 'main' );
-	}
-
-	/**
 	 * @return array<string,DOMNode[]>
 	 */
 	public function getDOMFragmentMap(): array {

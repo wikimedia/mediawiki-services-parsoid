@@ -136,7 +136,7 @@ class Parsoid {
 		);
 		$env->bumpWt2HtmlResourceUse(
 			# Should perhaps be strlen instead (or cached!): T239841
-			'wikitextSize', mb_strlen( $env->getPageMainContent() )
+			'wikitextSize', mb_strlen( $pageConfig->getPageMainContent() )
 		);
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );

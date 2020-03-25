@@ -528,7 +528,7 @@ abstract class ParsoidHandler extends Handler {
 		$metrics->timing(
 			"wt2html.$mstr.size.input",
 			# Should perhaps be strlen instead (or cached!): T239841
-			mb_strlen( $env->getPageMainContent() )
+			mb_strlen( $pageConfig->getPageMainContent() )
 		);
 		$parseTiming = Timing::start( $metrics );
 
@@ -774,16 +774,18 @@ abstract class ParsoidHandler extends Handler {
 		// So, no oldid => no selser
 		$hasOldId = (bool)$attribs['oldid'];
 
+		$pageConfig = $env->getPageConfig();
+
 		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
-			if ( !$env->getPageConfig()->getRevisionContent() ) {
+			if ( !$pageConfig->getRevisionContent() ) {
 				return $this->getResponseFactory()->createHttpError( 409, [
 					'message' => 'Could not find previous revision. Has the page been locked / deleted?'
 				] );
 			}
 
-			// FIXME: T234548/T234549 - $env->getPageMainContent() is deprecated:
+			// FIXME: T234548/T234549 - $pageConfig->getPageMainContent() is deprecated:
 			// should use $env->topFrame->getSrcText()
-			$selserData = new SelserData( $env->getPageMainContent(), $oldhtml );
+			$selserData = new SelserData( $pageConfig->getPageMainContent(), $oldhtml );
 		} else {
 			$selserData = null;
 		}
@@ -792,7 +794,7 @@ abstract class ParsoidHandler extends Handler {
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		try {
-			$wikitext = $parsoid->html2wikitext( $env->getPageConfig(), $html, [
+			$wikitext = $parsoid->html2wikitext( $pageConfig, $html, [
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],

@@ -74,7 +74,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @inheritDoc
 	 */
 	public function toDOM( Env $env ): DOMDocument {
-		return $env->getPipelineFactory()->parse( $env->getPageMainContent() );
+		return $env->getPipelineFactory()->parse(
+			$env->getPageConfig()->getPageMainContent()
+		);
 	}
 
 	/**
