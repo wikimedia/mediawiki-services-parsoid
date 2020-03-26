@@ -74,7 +74,7 @@ class Gallery extends ExtensionTag implements Extension {
 		$doc = $extApi->parseWikitextToDOM(
 			$capV,
 			[
-				'pipelineOpts' => [
+				'parseOpts' => [
 					'extTag' => 'gallery',
 					'inlineContext' => true
 				],
@@ -157,7 +157,7 @@ class Gallery extends ExtensionTag implements Extension {
 		$doc = $extApi->parseWikitextToDOM(
 			$wt,
 			[
-				'pipelineOpts' => [
+				'parseOpts' => [
 					'extTag' => 'gallery',
 					'inlineContext' => true
 				],

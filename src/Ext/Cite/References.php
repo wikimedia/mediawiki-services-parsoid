@@ -458,7 +458,7 @@ class References extends ExtensionTag {
 			$txt,
 			[
 				'wrapperTag' => 'div',
-				'pipelineOpts' => [ 'extTag' => 'references' ],
+				'parseOpts' => [ 'extTag' => 'references' ],
 			]
 		);
 

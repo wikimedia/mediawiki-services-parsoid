@@ -236,52 +236,49 @@ class ParsoidExtensionAPI {
 	 * Parse wikitext to DOM
 	 *
 	 * @param string $wikitext
-	 * @param array $parseOpts
+	 * @param array $opts
 	 * - srcOffsets
 	 * - frame
-	 * - pipelineOpts
+	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - inlineContext
 	 * @param bool $sol
 	 * @return DOMDocument
 	 */
-	public function parseWikitextToDOM(
-		string $wikitext, array $parseOpts, bool $sol
-	): DOMDocument {
+	public function parseWikitextToDOM( string $wikitext, array $opts, bool $sol ): DOMDocument {
 		$doc = null;
 		if ( $wikitext === '' ) {
 			$doc = $this->env->createDocument();
 		} else {
 			// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
 			// The DOM will get unwrapped and integrated  when processing the top level document.
-			$pipelineOpts = $parseOpts['pipelineOpts'] ?? [];
-			$srcOffsets = $parseOpts['srcOffsets'] ?? null;
+			$parseOpts = $opts['parseOpts'] ?? [];
+			$srcOffsets = $opts['srcOffsets'] ?? null;
 			$frame = $this->frame;
-			if ( !empty( $parseOpts['processInNewFrame'] ) ) {
+			if ( !empty( $opts['processInNewFrame'] ) ) {
 				$frame = $frame->newChild( $frame->getTitle(), [], $wikitext );
 				$srcOffsets = new SourceRange( 0, strlen( $wikitext ) );
 			}
-			$opts = [
+			$doc = PipelineUtils::processContentInPipeline( $this->env, $frame, $wikitext, [
 				// Full pipeline for processing content
 				'pipelineType' => 'text/x-mediawiki/full',
 				'pipelineOpts' => [
 					'expandTemplates' => true,
-					'extTag' => $pipelineOpts['extTag'],
-					'extTagOpts' => $pipelineOpts['extTagOpts'] ?? null,
+					'extTag' => $parseOpts['extTag'],
+					'extTagOpts' => $parseOpts['extTagOpts'] ?? null,
 					'inTemplate' => $this->inTemplate(),
-					'inlineContext' => !empty( $pipelineOpts['inlineContext'] ),
+					'inlineContext' => !empty( $parseOpts['inlineContext'] ),
 				],
 				'srcOffsets' => $srcOffsets,
 				'sol' => $sol
-			];
-			$doc = PipelineUtils::processContentInPipeline( $this->env, $frame, $wikitext, $opts );
+			] );
 
-			if ( isset( $parseOpts['shiftDSRFn'] ) ) {
+			if ( isset( $opts['shiftDSRFn'] ) ) {
 				ContentUtils::shiftDSR(
 					$this->env,
 					DOMCompat::getBody( $doc ),
-					$parseOpts['shiftDSRFn']
+					$opts['shiftDSRFn']
 				);
 			}
 		}
@@ -296,31 +293,31 @@ class ParsoidExtensionAPI {
 	 * @param array $extArgs
 	 * @param string $leadingWS
 	 * @param string $wikitext
-	 * @param array $parseOpts
+	 * @param array $opts
 	 * - srcOffsets
 	 * - frame
 	 * - wrapperTag
-	 * - pipelineOpts
+	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - inlineContext
 	 * @return DOMDocument
 	 */
 	public function parseExtTagToDOM(
-		array $extArgs, string $leadingWS, string $wikitext, array $parseOpts
+		array $extArgs, string $leadingWS, string $wikitext, array $opts
 	): DOMDocument {
 		$extTagOffsets = $this->extToken->dataAttribs->extTagOffsets;
-		if ( !isset( $parseOpts['srcOffsets'] ) ) {
-			$parseOpts['srcOffsets'] = new SourceRange(
+		if ( !isset( $opts['srcOffsets'] ) ) {
+			$opts['srcOffsets'] = new SourceRange(
 				$extTagOffsets->innerStart() + strlen( $leadingWS ),
 				$extTagOffsets->innerEnd()
 			);
 		}
 
-		$doc = $this->parseWikitextToDOM( $wikitext, $parseOpts, true /* sol */ );
+		$doc = $this->parseWikitextToDOM( $wikitext, $opts, true /* sol */ );
 
 		// Create a wrapper and migrate content into the wrapper
-		$wrapper = $doc->createElement( $parseOpts['wrapperTag'] );
+		$wrapper = $doc->createElement( $opts['wrapperTag'] );
 		$body = DOMCompat::getBody( $doc );
 		DOMUtils::migrateChildren( $body, $wrapper );
 		$body->appendChild( $wrapper );

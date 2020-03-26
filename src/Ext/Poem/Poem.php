@@ -120,7 +120,7 @@ class Poem extends ExtensionTag implements Extension {
 
 		return $extApi->parseExtTagToDOM( $args, '', $content, [
 				'wrapperTag' => 'div',
-				'pipelineOpts' => [ 'extTag' => 'poem' ],
+				'parseOpts' => [ 'extTag' => 'poem' ],
 				// Create new frame, because $content doesn't literally appear in
 				// the parent frame's sourceText (our copy has been munged)
 				'processInNewFrame' => true,

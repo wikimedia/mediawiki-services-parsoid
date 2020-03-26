@@ -42,7 +42,7 @@ class Ref extends ExtensionTag {
 				// in-memory DOM which is simply a tree data structure, we can
 				// nest flow content in a <sup> tag.
 				'wrapperTag' => 'sup',
-				'pipelineOpts' => [
+				'parseOpts' => [
 					'extTag' => 'ref',
 					'extTagOpts' => [ 'allowNestedRef' => $allowNestedRef ],
 					// Ref content doesn't need p-wrapping or indent-pres.
