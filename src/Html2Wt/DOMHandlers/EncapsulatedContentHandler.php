@@ -113,7 +113,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
-				if ( ( $extConfig['html2wt']['format'] ?? '' ) === 'block' &&
+				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 					WTUtils::isNewElt( $node )
 				) {
 					return [ 'min' => 1, 'max' => 2 ];
@@ -151,7 +151,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
-				if ( ( $extConfig['html2wt']['format'] ?? '' ) === 'block' &&
+				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 					WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode )
 				) {
 					return [ 'min' => 1, 'max' => 2 ];

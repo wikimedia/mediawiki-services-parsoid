@@ -26,15 +26,15 @@ class Cite implements Extension {
 				[
 					'name' => 'ref',
 					'class' => Ref::class,
-					'fragmentOptions' => [
-						'sealFragment' => true
+					'options' => [
+						'wt2html' => [ 'sealFragment' => true ]
 					],
 				],
 				[
 					'name' => 'references',
 					'class' => References::class,
-					'html2wt' => [
-						'format' => 'block'
+					'options' => [
+						'html2wt' => [ 'format' => 'block' ]
 					],
 				]
 			],

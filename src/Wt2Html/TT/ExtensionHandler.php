@@ -195,8 +195,8 @@ class ExtensionHandler extends TokenHandler {
 		// Check if the tag wants its DOM fragment not to be unwrapped.
 		// The default setting is to unwrap the content DOM fragment automatically.
 		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
-		if ( isset( $extConfig['fragmentOptions'] ) ) {
-			$opts += $extConfig['fragmentOptions'];
+		if ( isset( $extConfig['options']['wt2html'] ) ) {
+			$opts += $extConfig['options']['wt2html'];
 		}
 
 		$body = DOMCompat::getBody( $doc );
