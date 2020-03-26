@@ -655,22 +655,26 @@ abstract class ParsoidHandler extends Handler {
 			} else {
 				$envOptions['inputContentVersion'] = $vEdited;
 				// We need to downgrade the original to match the the edited doc's version.
-				$downgrade = FormatHelper::findDowngrade( $vOriginal, $vEdited );
+				$downgrade = Parsoid::findDowngrade( $vOriginal, $vEdited );
 				// Downgrades are only for pagebundle
 				if ( $downgrade && $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
 					$metrics->increment(
-						"downgrade.from.{$downgrade['from']}.to.{$downgrade['to']}" );
-					$oldDoc = $env->createDocument( $original['html']['body'] );
-					$origPb = new PageBundle( '', $original['data-parsoid']['body'] ?? null,
-						$original['data-mw']['body'] ?? null );
+						"downgrade.from.{$downgrade['from']}.to.{$downgrade['to']}"
+					);
+					$origPb = new PageBundle(
+						$original['html']['body'],
+						$original['data-parsoid']['body'] ?? null,
+						$original['data-mw']['body'] ?? null
+					);
 					if ( !$origPb->validate( $vOriginal, $errorMessage ) ) {
-						return $this->getResponseFactory()->createHttpError( 400,
-							[ 'message' => $errorMessage ] );
+						return $this->getResponseFactory()->createHttpError(
+							400, [ 'message' => $errorMessage ]
+						);
 					}
 					$downgradeTiming = Timing::start( $metrics );
-					FormatHelper::downgrade( $downgrade['from'], $downgrade['to'], $oldDoc, $origPb );
+					Parsoid::downgrade( $downgrade, $origPb );
 					$downgradeTiming->end( 'downgrade.time' );
-					$oldBody = DOMCompat::getBody( $oldDoc );
+					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $origPb->html ) );
 				} else {
 					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
 						. 'different type, and no path to downgrade.';
@@ -884,28 +888,34 @@ abstract class ParsoidHandler extends Handler {
 		// TODO(arlolra): subbu has some sage advice in T114413#2365456 that
 		// we should probably be more explicit about the pb2pb conversion
 		// requested rather than this increasingly complex fallback logic.
-		$downgrade = FormatHelper::findDowngrade(
+		$downgrade = Parsoid::findDowngrade(
 			$attribs['envOptions']['inputContentVersion'],
 			$attribs['envOptions']['outputContentVersion']
 		);
 		if ( $downgrade ) {
-			$doc = $env->createDocument( $revision['html']['body'] );
 			$pb = new PageBundle(
-				'',
+				$revision['html']['body'],
 				$revision['data-parsoid']['body'] ?? null,
 				$revision['data-mw']['body'] ?? null
 			);
 			if ( !$pb->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
 				return $this->getResponseFactory()->createHttpError(
-					400,
-					[ 'message' => $errorMessage ]
+					400, [ 'message' => $errorMessage ]
 				);
 			}
-			$out = FormatHelper::returnDowngrade(
-				$downgrade, $attribs['envOptions']['outputContentVersion'], $doc, $pb, $attribs );
-			$response = $this->getResponseFactory()->createJson( $out->responseData() );
+			Parsoid::downgrade( $downgrade, $pb );
+
+			if ( !empty( $attribs['body_only'] ) ) {
+				$doc = DOMUtils::parseHTML( $pb->html );
+				$body = DOMCompat::getBody( $doc );
+				$pb->html = ContentUtils::toXML( $body, [
+					'innerXML' => true,
+				] );
+			}
+
+			$response = $this->getResponseFactory()->createJson( $pb->responseData() );
 			FormatHelper::setContentType(
-				$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
+				$response, FormatHelper::FORMAT_PAGEBUNDLE, $pb->version
 			);
 			return $response;
 		// Ensure we only reuse from semantically similar content versions.

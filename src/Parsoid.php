@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid;
 
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
+use InvalidArgumentException;
 use LogicException;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
@@ -31,6 +32,10 @@ class Parsoid {
 	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
 	 */
 	const AVAILABLE_VERSIONS = [ '2.1.0', '999.0.0' ];
+
+	private const DOWNGRADES = [
+		[ 'from' => '999.0.0', 'to' => '2.0.0', 'func' => 'downgrade999to2' ],
+	];
 
 	/** @var SiteConfig */
 	private $siteConfig;
@@ -426,6 +431,85 @@ class Parsoid {
 		// Now pass it to the MediaWiki API with onlypst set so that it
 		// subst's the templates.
 		return $this->dataAccess->doPst( $pageConfig, $wikitext );
+	}
+
+	/**
+	 * Check whether a given content version can be downgraded to the requested
+	 * content version.
+	 *
+	 * @param string $from Current content version
+	 * @param string $to Requested content version
+	 * @return string[]|null The downgrade that will fulfill the request, as
+	 *   [ 'from' => <old version>, 'to' => <new version> ], or null if it
+	 *   can't be fulfilled.
+	 */
+	public static function findDowngrade( string $from, string $to ): ?array {
+		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo ) ) {
+			if (
+				Semver::satisfies( $from, "^$dgFrom" ) &&
+				Semver::satisfies( $to, "^$dgTo" )
+			) {
+				// FIXME: Make this a class?
+				return [ 'from' => $dgFrom, 'to' => $dgTo ];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Downgrade a document to an older content version.
+	 *
+	 * @param string[] $dg Value returned by findDowngrade().
+	 * @param PageBundle $pageBundle
+	 */
+	public static function downgrade(
+		array $dg, PageBundle $pageBundle
+	): void {
+		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ) ) {
+			if ( $dg['from'] === $dgFrom && $dg['to'] === $dgTo ) {
+				call_user_func( [ 'self', $dgFunc ], $pageBundle );
+
+				// FIXME: Maybe this resolve should just be part of the $dg
+				$pageBundle->version = self::resolveContentVersion( $dg['to'] );
+
+				// FIXME: Maybe this should be a helper to avoid the rt
+				$doc = DOMUtils::parseHTML( $pageBundle->html );
+				// Match the http-equiv meta to the content-type header
+				$meta = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
+				if ( $meta ) {
+					$meta->setAttribute( 'content', $pageBundle->version );
+					$pageBundle->html = ContentUtils::toXML( $doc );
+				}
+
+				return;
+			}
+		}
+		throw new InvalidArgumentException(
+			"Unsupported downgrade: {$dg['from']} -> {$dg['to']}"
+		);
+	}
+
+	/**
+	 * Downgrade the given document and pagebundle from 999.x to 2.x.
+	 *
+	 * @param PageBundle $pageBundle
+	 */
+	private static function downgrade999to2( PageBundle $pageBundle ) {
+		// Effectively, skip applying data-parsoid.  Note that if we were to
+		// support a pb2html downgrade, we'd need to apply the full thing,
+		// but that would create complications where ids would be left behind.
+		// See the comment in around `DOMDataUtils::applyPageBundle`
+		$newPageBundle = new PageBundle(
+			$pageBundle->html,
+			[ 'ids' => [] ],
+			$pageBundle->mw
+		);
+		$pageBundle->html = $newPageBundle->toHtml();
+		// Now, modify the pagebundle to the expected form.  This is important
+		// since, at least in the serialization path, the original pb will be
+		// applied to the modified content and its presence could cause lost
+		// deletions.
+		$pageBundle->mw = [ 'ids' => [] ];
 	}
 
 }

@@ -2,14 +2,8 @@
 
 namespace MWParsoid\Rest;
 
-use Composer\Semver\Semver;
-use DOMDocument;
 use InvalidArgumentException;
 use MediaWiki\Rest\ResponseInterface;
-use Wikimedia\Parsoid\Core\PageBundle;
-use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**
  * Format-related REST API helper.
@@ -37,10 +31,6 @@ class FormatHelper {
 		self::FORMAT_WIKITEXT => [ self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE, self::FORMAT_LINT ],
 		self::FORMAT_HTML => [ self::FORMAT_WIKITEXT ],
 		self::FORMAT_PAGEBUNDLE => [ self::FORMAT_WIKITEXT, self::FORMAT_PAGEBUNDLE ],
-	];
-
-	private const DOWNGRADES = [
-		[ 'from' => '999.0.0', 'to' => '2.0.0', 'func' => 'downgrade999to2' ],
 	];
 
 	/**
@@ -115,90 +105,6 @@ class FormatHelper {
 			return $m[3];
 		}
 		return null;
-	}
-
-	/**
-	 * Check whether a given content version can be downgraded to the requested content version.
-	 * @param string $from Current content version
-	 * @param string $to Requested content version
-	 * @return string[]|null The downgrade that will fulfill the request, as
-	 *   [ 'from' => <old version>, 'to' => <new version> ], or null if it can't be fulfilled.
-	 */
-	public static function findDowngrade( string $from, string $to ): ?array {
-		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo ) ) {
-			if ( Semver::satisfies( $from, "^$dgFrom" ) && Semver::satisfies( $to, "^$dgTo" ) ) {
-				return [ 'from' => $dgFrom, 'to' => $dgTo ];
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Downgrade a document to an older content version.
-	 * @param string $from Value returned by findDowngrade().
-	 * @param string $to Value returned by findDowngrade().
-	 * @param DOMDocument $doc
-	 * @param PageBundle $pageBundle
-	 */
-	public static function downgrade(
-		string $from, string $to, DOMDocument $doc, PageBundle $pageBundle
-	): void {
-		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ) ) {
-			if ( $from === $dgFrom && $to === $dgTo ) {
-				call_user_func( [ 'self', $dgFunc ], $doc, $pageBundle );
-				return;
-			}
-		}
-		throw new InvalidArgumentException( "Unsupported downgrade: $from -> $to" );
-	}
-
-	/**
-	 * Downgrade and return content
-	 *
-	 * @param string[] $downgrade
-	 * @param string $outputContentVersion
-	 * @param DOMDocument $doc
-	 * @param PageBundle $pb
-	 * @param array $attribs
-	 * @return PageBundle
-	 */
-	public static function returnDowngrade(
-		array $downgrade, string $outputContentVersion, DOMDocument $doc, PageBundle $pb,
-		array $attribs
-	): PageBundle {
-		self::downgrade( $downgrade['from'], $downgrade['to'], $doc, $pb );
-		// Match the http-equiv meta to the content-type header
-		$meta = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
-		if ( $meta ) {
-			$meta->setAttribute( 'content', $outputContentVersion );
-		}
-		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
-		$body_only = !empty( $attribs['body_only'] );
-		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		$pb->html = ContentUtils::toXML( $node, [
-			'innerXML' => $body_only,
-		] );
-		$pb->version = $outputContentVersion;
-		return $pb;
-	}
-
-	/**
-	 * Downgrade the given document and pagebundle from 999.x to 2.x.
-	 * @param DOMDocument $doc
-	 * @param PageBundle $pageBundle
-	 */
-	private static function downgrade999to2( DOMDocument $doc, PageBundle $pageBundle ) {
-		// Effectively, skip applying data-parsoid.  Note that if we were to
-		// support a pb2html downgrade, we'd need to apply the full thing,
-		// but that would create complications where ids would be left behind.
-		// See the comment in around `DOMDataUtils::applyPageBundle`
-		$newPageBundle = new PageBundle( $pageBundle->html, [ 'ids' => [] ], $pageBundle->mw );
-		DOMDataUtils::applyPageBundle( $doc, $newPageBundle );
-		// Now, modify the pagebundle to the expected form.  This is important
-		// since, at least in the serialization path, the original pb will be
-		// applied to the modified content and its presence could cause lost
-		// deletions.
-		$pageBundle->mw = [ 'ids' => [] ];
 	}
 
 }
