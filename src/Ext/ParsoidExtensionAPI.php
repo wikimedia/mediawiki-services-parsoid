@@ -274,12 +274,16 @@ class ParsoidExtensionAPI {
 				'sol' => $sol
 			] );
 
-			if ( isset( $opts['shiftDSRFn'] ) ) {
-				ContentUtils::shiftDSR(
-					$this->env,
-					DOMCompat::getBody( $doc ),
-					$opts['shiftDSRFn']
-				);
+			if ( !empty( $opts['clearDSROffsets'] ) ) {
+				$dsrFn = function ( DOMSourceRange $dsr ) {
+					return null;
+				};
+			} else {
+				$dsrFn = $opts['shiftDSRFn'] ?? null;
+			}
+
+			if ( $dsrFn ) {
+				ContentUtils::shiftDSR( $this->env, DOMCompat::getBody( $doc ), $dsrFn );
 			}
 		}
 		return $doc;

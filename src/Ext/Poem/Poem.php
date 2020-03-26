@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
 use DOMElement;
-use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\Extension;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -132,9 +131,7 @@ class Poem extends ExtensionTag implements Extension {
 				// DSR info so it doesn't cause problems/confusion with unicode
 				// offset conversion (and so it's clear you can't selser what we're
 				// currently emitting).
-				'shiftDSRFn' => function ( DomSourceRange $dsr ) {
-					return null; // XXX in the future implement proper mapping
-				}
+				'clearDSROffsets' => true
 			]
 		);
 	}
