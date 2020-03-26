@@ -229,7 +229,7 @@ class ParsoidExtensionAPI {
 	 * @return string
 	 */
 	public function getContentHTML( string $contentId ): string {
-		return $this->innerHTML( $this->getContentDOM( $contentId ) );
+		return $this->toHTML( $this->getContentDOM( $contentId ), true );
 	}
 
 	/**
@@ -516,39 +516,28 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Serialize DOM element to string. This puts the input node in a
-	 * non-canonical form and callers shouldn't use it after this call.
-	 * If callers expect to continue using the node beyond this point,
-	 * use the 'innerHTML' method instead.
+	 * Serialize DOM element to string (inner/outer HTML is controlled by flag).
+	 * If $releaseDOM is set to true, the DOM will be left in non-canonical form
+	 * and is not safe to use after this call. This is primarily a performance optimization.
 	 *
 	 * @param DOMElement $elt
-	 * @param bool $innerHTML
+	 * @param bool $innerHTML if true, inner HTML of the element will be returned
+	 *    This flag defaults to false
+	 * @param bool $releaseDOM if true, the DOM will not be in canonical form after this call
+	 *    This flag defaults to false
 	 * @return string
 	 */
-	public function toHTML( DOMElement $elt, bool $innerHTML = true ): string {
+	public function toHTML(
+		DOMElement $elt, bool $innerHTML = false, bool $releaseDOM = false
+	): string {
 		// FIXME: This is going to drop any diff markers but since
 		// the dom differ doesn't traverse into extension content (right now),
 		// none should exist anyways.
 		DOMDataUtils::visitAndStoreDataAttribs( $elt );
 		$html = ContentUtils::toXML( $elt, [ 'innerXML' => $innerHTML ] );
-		return $html;
-	}
-
-	/**
-	 * Return innerHTML equivalent of $elt.
-	 * This version is aware of the DOM state and how/where data-attribs are stored
-	 *
-	 * @param DOMElement $elt
-	 * @return string
-	 */
-	public static function innerHTML( DOMElement $elt ): string {
-		// FIXME: This is going to drop any diff markers but since
-		// the dom differ doesn't traverse into extension content (right now),
-		// none should exist anyways.
-		DOMDataUtils::visitAndStoreDataAttribs( $elt );
-		$html = ContentUtils::toXML( $elt, [ 'innerXML' => true ] );
-		DOMDataUtils::visitAndLoadDataAttribs( $elt );
-
+		if ( !$releaseDOM ) {
+			DOMDataUtils::visitAndLoadDataAttribs( $elt );
+		}
 		return $html;
 	}
 

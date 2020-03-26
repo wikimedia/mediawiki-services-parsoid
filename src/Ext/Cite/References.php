@@ -152,10 +152,8 @@ class References extends ExtensionTag {
 			$html = '';
 			$contentDiffers = false;
 			if ( $ref->hasMultiples ) {
-				$html = $extApi->toHTML( $c );
-				// ParsoidExtensionAPI says $c shouldn't used beyond the toHTML call
-				// So, set $c to null to explicitly prevent that usage.
-				$c = null;
+				$html = $extApi->toHTML( $c, true, true );
+				$c = null; // $c is being release in the call above
 				$contentDiffers = $html !== $ref->cachedHtml;
 			}
 			if ( $contentDiffers ) {
@@ -219,8 +217,8 @@ class References extends ExtensionTag {
 		} else {
 			// We don't need to delete the node now since it'll be removed in
 			// `insertReferencesIntoDOM` when all the children are cleaned out.
-			array_push( $nestedRefsHTML, $extApi->toHTML( $linkBack, false ), "\n" );
-			$linkBack = null; // should not be used beyond this point as per 'toHTML' docs
+			array_push( $nestedRefsHTML, $extApi->toHTML( $linkBack, false, true ), "\n" );
+			$linkBack = null; // $linkBack is being released in the toHTML call above
 		}
 
 		// Keep the first content to compare multiple <ref>s with the same name.
@@ -356,7 +354,7 @@ class References extends ExtensionTag {
 	): string {
 		$domBody = DOMCompat::getBody( $extApi->parseHTML( $str ) );
 		self::processRefs( $extApi, $refsData, $domBody );
-		return $extApi->toHTML( $domBody );
+		return $extApi->toHTML( $domBody, true, true );
 	}
 
 	/**

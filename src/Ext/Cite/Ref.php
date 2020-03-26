@@ -101,7 +101,7 @@ class Ref extends ExtensionTag {
 					$bodyElt = DOMCompat::getElementById( $editedDoc, $dataMw->body->id );
 				}
 				if ( $bodyElt ) {
-					$html = ParsoidExtensionAPI::innerHTML( $bodyElt );
+					$html = $extApi->toHTML( $bodyElt, true );
 				} else {
 					// Some extra debugging for VisualEditor
 					$extraDebug = '';
