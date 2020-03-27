@@ -18,6 +18,7 @@ var serviceWrapper = require('../serviceWrapper.js');
 // By default a local test endpoint based on test.config.yaml
 // will be used. Set the PARSOID_URL env variable to use a
 // different endpoint.
+const PARSOID_URL = process.env.PARSOID_URL;
 
 var optionsPath = path.resolve(__dirname, './test.config.yaml');
 var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
@@ -57,8 +58,8 @@ describe('Parsoid API', function() {
 	var mockDomain = 'customwiki';
 
 	before(function() {
-		if (process.env.PARSOID_URL) {
-			api = process.env.PARSOID_URL;
+		if (PARSOID_URL) {
+			api = PARSOID_URL;
 			return Promise.resolve();
 		} else {
 			return serviceWrapper.runServices({
@@ -112,7 +113,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should return a plaintext error', function(done) {
+		// Skipped because all errors are returned as JSON in Parsoid/PHP
+		it.skip('should return a plaintext error', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/wikitext/Doesnotexist')
 			.expect(404)
@@ -131,14 +133,15 @@ describe('Parsoid API', function() {
 			.expect(404)
 			.expect(function(res) {
 				res.headers['content-type'].should.equal(
-					'application/json; charset=utf-8'
+					'application/json'
 				);
-				res.body.error.should.equal('Did not find page revisions for Doesnotexist');
+				res.body.message.should.equal('Page not found.');
 			})
 			.end(done);
 		});
 
-		it('should return an html error', function(done) {
+		// Skipped because all errors are returned as JSON in Parsoid/PHP
+		it.skip('should return an html error', function(done) {
 			request(api)
 			.get('<img src=x onerror="javascript:alert(\'hi\')">/v3/page/html/XSS')
 			.expect(404)
@@ -212,10 +215,9 @@ describe('Parsoid API', function() {
 			.send({ wikitext: '== h2 ==' })
 			.expect(406)
 			.expect(function(res) {
-				res.error.text.should.equal(
-					'Not acceptable.\n' +
-					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/2.1.0&quot;\n' +
-					'text/html; charset=utf-8; profile=&quot;https://www.mediawiki.org/wiki/Specs/HTML/999.0.0&quot;\n'
+				// FIXME: See skipped html error test above
+				JSON.parse(res.error.text).message.should.equal(
+					'Not acceptable'
 				);
 			})
 			.end(done);
@@ -228,10 +230,8 @@ describe('Parsoid API', function() {
 			.send({ wikitext: '== h2 ==' })
 			.expect(406)
 			.expect(function(res) {
-				JSON.parse(res.error.text).error.should.equal(
-					'Not acceptable.\n' +
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.1.0"\n' +
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"\n'
+				JSON.parse(res.error.text).message.should.equal(
+					'Not acceptable'
 				);
 			})
 			.end(done);
@@ -524,7 +524,10 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/lint/Lint_Page/102');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain +
+					'/v3/transform/wikitext/to/lint/Lint%20Page/102'
+				);
 			})
 			.end(done);
 		});
@@ -539,7 +542,9 @@ describe('Parsoid API', function() {
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/page/html/Main%20Page/1'
+				);
 			})
 			.end(done);
 		});
@@ -550,7 +555,9 @@ describe('Parsoid API', function() {
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/pagebundle/Main_Page/1');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/page/pagebundle/Main%20Page/1'
+				);
 			})
 			.end(done);
 		});
@@ -561,7 +568,9 @@ describe('Parsoid API', function() {
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/wikitext/Main_Page/1');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/page/wikitext/Main%20Page/1'
+				);
 			})
 			.end(done);
 		});
@@ -572,7 +581,9 @@ describe('Parsoid API', function() {
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/page/html/Main_Page/1?test=123');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/page/html/Main%20Page/1?test=123'
+				);
 			})
 			.end(done);
 		});
@@ -587,7 +598,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should get from a title and revision (html, pre-mcr)', function(done) {
+		// Parsoid/PHP isn't really expected to work on old MediaWiki versions
+		it.skip('should get from a title and revision (html, pre-mcr)', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/html/Old_Response/999')
 			.expect(validHtmlResponse(function(doc) {
@@ -746,7 +758,9 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Main%20Page/1'
+				);
 			})
 			.end(done);
 		});
@@ -762,7 +776,9 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/pagebundle/Main_Page/1');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/pagebundle/Main%20Page/1'
+				);
 			})
 			.end(done);
 		});
@@ -778,7 +794,9 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal('/' + mockDomain + '/v3/transform/wikitext/to/html/Lint_Page/102');
+				res.headers.location.should.equal(
+					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Lint%20Page/102'
+				);
 			})
 			.end(done);
 		});
@@ -1431,7 +1449,7 @@ describe('Parsoid API', function() {
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: http://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:articleNamespace" content="0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><title></title><base href="//en.wikipedia.org/wiki/"/><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid|ext.cite.style&amp;only=styles&amp;skin=vector"/></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><table class="mw-json mw-json-object"><tbody><tr><th>a</th><td class="value mw-json-number">4</td></tr><tr><th>b</th><td class="value mw-json-number">3</td></tr></tbody></table></body></html>',
 				contentmodel: 'json',
 			})
-			.expect(validWikitextResponse('{\n    "a": 4,\n    "b": 3\n}'))
+			.expect(validWikitextResponse('{"a":4,"b":3}'))
 			.end(done);
 		});
 
@@ -1626,7 +1644,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should return http 400 if supplied data-parsoid is a string', function(done) {
+		// FIXME: Pagebundle validation in general is needed
+		it.skip('should return http 400 if supplied data-parsoid is a string', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
@@ -2194,7 +2213,8 @@ describe('Parsoid API', function() {
 			},
 		};
 
-		it('should accept the previous revision to reuse expansions', function(done) {
+		// FIXME: Expansion reuse wasn't ported, see T98995
+		it.skip('should accept the previous revision to reuse expansions', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.send({
@@ -2209,7 +2229,8 @@ describe('Parsoid API', function() {
 		var origHTML = Util.clone(previousRevHTML);
 		origHTML.revid = 100;
 
-		it('should accept the original and reuse certain expansions', function(done) {
+		// FIXME: Expansion reuse wasn't ported, see T98995
+		it.skip('should accept the original and reuse certain expansions', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.send({
