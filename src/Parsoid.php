@@ -407,7 +407,7 @@ class Parsoid {
 	 * @param string $wikitext
 	 * @return string
 	 */
-	protected function substTopLevelTemplates(
+	public function substTopLevelTemplates(
 		PageConfig $pageConfig, string $wikitext
 	): string {
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess );
