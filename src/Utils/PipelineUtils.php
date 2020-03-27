@@ -365,7 +365,7 @@ class PipelineUtils {
 				// Reset 'tsr' since it isn't applicable.
 				// FIXME: The above comment is only true if we are reusing
 				// DOM fragments from cache from previous revisions in
-				// incremental parsing scenarios.
+				// incremental parsing scenarios.  See T98992
 				if ( isset( $nodeData->parsoid->tsr ) ) {
 					$nodeData->parsoid->tsr = null;
 				}
