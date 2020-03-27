@@ -33,7 +33,7 @@ class LST extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		// TODO: We're keeping this serial handler around to remain backwards

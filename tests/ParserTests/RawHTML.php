@@ -11,8 +11,10 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class RawHTML extends ExtensionTag implements Extension {
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
-		return $extApi->parseHTML( $content );
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $content, array $args
+	): DOMDocument {
+		return $extApi->htmlToDom( $content );
 	}
 
 	/** @inheritDoc */

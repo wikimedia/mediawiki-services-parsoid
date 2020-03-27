@@ -48,13 +48,13 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::toDOM
+	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::sourceToDom
 	 */
 	public function testToDOM() {
 		$nowiki = new Nowiki();
 		$env = new MockEnv( [] );
 		$extApi = new ParsoidExtensionAPI( $env );
-		$doc = $nowiki->toDOM( $extApi, 'ab[[cd]]e', [] );
+		$doc = $nowiki->sourceToDom( $extApi, 'ab[[cd]]e', [] );
 		$span = DOMCompat::querySelector( $doc, 'span' );
 		$this->assertNotNull( $span );
 		$this->assertSame( 'mw:Nowiki', $span->getAttribute( 'typeof' ) );
@@ -62,7 +62,7 @@ class NowikiTest extends TestCase {
 
 		$env = new MockEnv( [] );
 		$extApi = new ParsoidExtensionAPI( $env );
-		$doc = $nowiki->toDOM( $extApi, 'foo&amp;bar', [] );
+		$doc = $nowiki->sourceToDom( $extApi, 'foo&amp;bar', [] );
 		$span = DOMCompat::querySelector( $doc, 'span' );
 		$this->assertNotNull( $span );
 		$span2 = DOMCompat::querySelector( $span, 'span' );
@@ -73,15 +73,15 @@ class NowikiTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::fromDOM
+	 * @covers \Wikimedia\Parsoid\Ext\Nowiki\Nowiki::domToWikitext
 	 */
-	public function testFromHTML() {
+	public function testDomToWikitext() {
 		$state = $this->getState();
 		$state->serializer->expects( $this->never() )
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki"></span>', 'span' );
-		$wt = $nowiki->fromDOM( $state->extApi, $node, true );
+		$wt = $nowiki->domToWikitext( $state->extApi, $node, true );
 		$this->assertSame( '<nowiki/>', $wt );
 
 		$state = $this->getState();
@@ -89,7 +89,7 @@ class NowikiTest extends TestCase {
 			->method( 'serializeNode' );
 		$nowiki = new Nowiki();
 		$node = $this->getNode( '<span typeof="mw:Nowiki">xxx</span>', 'span' );
-		$wt = $nowiki->fromDOM( $state->extApi, $node, true );
+		$wt = $nowiki->domToWikitext( $state->extApi, $node, true );
 		$this->assertSame( '<nowiki>xxx</nowiki>', $wt );
 	}
 

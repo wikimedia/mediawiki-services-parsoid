@@ -19,7 +19,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class Ref extends ExtensionTag {
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
+	public function sourceToDom( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
 		// Drop nested refs entirely, unless we've explicitly allowed them
 		$parentExtTag = $extApi->parentExtTag();
 		if ( $parentExtTag === 'ref' && empty( $extApi->parentExtTagOpts()['allowNestedRef'] ) ) {
@@ -32,7 +32,7 @@ class Ref extends ExtensionTag {
 		// The php preprocessor did our expansion.
 		$allowNestedRef = !empty( $extApi->inTemplate() ) && $parentExtTag !== 'ref';
 
-		return $extApi->parseExtTagToDOM(
+		return $extApi->extTagToDOM(
 			$extArgs,
 			'',
 			$txt,
@@ -75,10 +75,10 @@ class Ref extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
-		$startTagSrc = $extApi->serializeExtensionStartTag( $node );
+		$startTagSrc = $extApi->extStartTagToWikitext( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$html = null;
 		if ( !isset( $dataMw->body ) ) {
@@ -101,7 +101,7 @@ class Ref extends ExtensionTag {
 					$bodyElt = DOMCompat::getElementById( $editedDoc, $dataMw->body->id );
 				}
 				if ( $bodyElt ) {
-					$html = $extApi->toHTML( $bodyElt, true );
+					$html = $extApi->domToHTML( $bodyElt, true );
 				} else {
 					// Some extra debugging for VisualEditor
 					$extraDebug = '';
@@ -141,7 +141,7 @@ class Ref extends ExtensionTag {
 			} // Drop it!
 		}
 
-		$src = $extApi->serializeHTML(
+		$src = $extApi->htmlToWikitext(
 			[
 				'extName' => $dataMw->name,
 				// FIXME: One-off PHP parser state leak.

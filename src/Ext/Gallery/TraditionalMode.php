@@ -187,7 +187,7 @@ class TraditionalMode extends Mode {
 	public function render(
 		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMElement $caption, array $lines
 	): DOMDocument {
-		$doc = $extApi->parseHTML( '' ); // empty doc
+		$doc = $extApi->htmlToDom( '' ); // empty doc
 		$ul = $this->ul( $opts, $doc );
 		if ( $caption ) {
 			$this->caption( $opts, $doc, $ul, $caption );

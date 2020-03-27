@@ -53,17 +53,19 @@ class ParserHook extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $content, array $args
+	): DOMDocument {
 		$extName = $extApi->getExtensionName();
 		switch ( $extName ) {
 			case 'tag':
 			case 'tåg':
-				return $extApi->parseHTML( '<pre />' );
+				return $extApi->htmlToDom( '<pre />' );
 
 			case 'statictag':
 				// FIXME: Choose a better DOM representation that doesn't mess with
 				// newline constraints.
-				return $extApi->parseHTML( '<span />' );
+				return $extApi->htmlToDom( '<span />' );
 
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );

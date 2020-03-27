@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
  * add a generic extension span wrapper around its contents.
  *
  * So, the PHP version mimics that and hence doesn't implement the
- * toDOM method.
+ * sourceToDom method.
  */
 class Translate extends ExtensionTag implements Extension {
 	/** @inheritDoc */

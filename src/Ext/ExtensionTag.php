@@ -9,7 +9,7 @@ use DOMNode;
 
 /**
  * A Parsoid native extension.  The only method which is generally
- * required by all extensions is `toDOM` (but Translate doesn't even
+ * required by all extensions is `sourceToDom` (but Translate doesn't even
  * implement that).  All other methods have default do-nothing
  * implementations; override them iff you wish to implement those
  * features.  Default implementations consistently return `false`
@@ -20,15 +20,15 @@ use DOMNode;
 abstract class ExtensionTag {
 
 	/**
-	 * Convert an extension tag to DOM
+	 * Convert an extension tag's content to DOM
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param string $txt Extension tag contents
+	 * @param string $src Extension tag content
 	 * @param array $extArgs Extension tag arguments
 	 *   The extension tag arguments should be treated as opaque objects
 	 *   and any necessary inspection should be handled through the API.
 	 * @return DOMDocument|false
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
+	public function sourceToDom( ParsoidExtensionAPI $extApi, string $src, array $extArgs ) {
 		return false; /* Use default wrapper */
 	}
 
@@ -70,7 +70,7 @@ abstract class ExtensionTag {
 	 * @param bool $wrapperUnmodified
 	 * @return string|false Return false to use the default serialization.
 	 */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		/* Use default serialization */

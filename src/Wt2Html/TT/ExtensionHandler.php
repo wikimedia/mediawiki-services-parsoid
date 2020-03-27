@@ -131,7 +131,7 @@ class ExtensionHandler extends TokenHandler {
 					'extToken' => $token
 				]
 			] );
-			$doc = $nativeExt->toDOM( $extApi, $extContent, $extArgs );
+			$doc = $nativeExt->sourceToDom( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {
 				if ( $doc !== null ) {
 					$toks = $this->parseExtensionHTML( $token, $doc );
@@ -145,7 +145,7 @@ class ExtensionHandler extends TokenHandler {
 				}
 			}
 			// Fall through: this extension is electing not to use
-			// a custom toDOM method (by returning false from toDOM).
+			// a custom sourceToDom method (by returning false from sourceToDom).
 		}
 
 		if ( $cachedExpansion ) {

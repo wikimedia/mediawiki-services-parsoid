@@ -12,8 +12,10 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class StyleTag extends ExtensionTag implements Extension {
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
-		$doc = $extApi->parseHTML( '' ); // Empty doc
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $content, array $args
+	): DOMDocument {
+		$doc = $extApi->htmlToDom( '' ); // Empty doc
 		$style = $doc->createElement( 'style' );
 		DOMCompat::setInnerHTML( $style, $content );
 		$extApi->sanitizeArgs( $style, $args );

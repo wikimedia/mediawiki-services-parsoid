@@ -33,8 +33,10 @@ class Nowiki extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
-		$doc = $extApi->parseHTML( '' ); // Empty doc
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
+	): DOMDocument {
+		$doc = $extApi->htmlToDom( '' ); // Empty doc
 		$span = $doc->createElement( 'span' );
 		$span->setAttribute( 'typeof', 'mw:Nowiki' );
 
@@ -65,7 +67,7 @@ class Nowiki extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		if ( !$node->hasChildNodes() ) {

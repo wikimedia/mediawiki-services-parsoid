@@ -38,7 +38,9 @@ class Poem extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $content, array $args ): DOMDocument {
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $content, array $extArgs
+	): DOMDocument {
 		/*
 		 * Transform wikitext found in <poem>...</poem>
 		 * 1. Strip leading & trailing newlines
@@ -64,7 +66,7 @@ class Poem extends ExtensionTag implements Extension {
 					$i++;
 				}
 				if ( $i > 0 && $i < $lineLength ) {
-					$doc = $extApi->parseHTML( '' ); // Empty doc
+					$doc = $extApi->htmlToDom( '' ); // Empty doc
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'class', 'mw-poem-indented' );
 					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );
@@ -101,15 +103,15 @@ class Poem extends ExtensionTag implements Extension {
 		}
 
 		// Add the 'poem' class to the 'class' attribute, or if not found, add it
-		$value = $extApi->findAndUpdateArg( $args, 'class', function ( string $value ) {
+		$value = $extApi->findAndUpdateArg( $extArgs, 'class', function ( string $value ) {
 			return strlen( $value ) ? "poem {$value}" : 'poem';
 		} );
 
 		if ( !$value ) {
-			$extApi->addNewArg( $args, 'class', 'poem' );
+			$extApi->addNewArg( $extArgs, 'class', 'poem' );
 		}
 
-		return $extApi->parseExtTagToDOM( $args, '', $content, [
+		return $extApi->extTagToDOM( $extArgs, '', $content, [
 				'wrapperTag' => 'div',
 				'parseOpts' => [ 'extTag' => 'poem' ],
 				// Create new frame, because $content doesn't literally appear in

@@ -169,7 +169,7 @@ class JSON extends ContentModelHandlerExtension {
 	 * @return DOMDocument
 	 */
 	public function toDOM( ParsoidExtensionAPI $API, string $jsonText ): DOMDocument {
-		$this->document = $API->parseHTML( '<!DOCTYPE html><html><body>' );
+		$this->document = $API->htmlToDom( '<!DOCTYPE html><html><body>' );
 		$src = null;
 
 // PORT-FIXME When production moves to PHP 7.3, re-enable this try catch code
@@ -177,12 +177,12 @@ class JSON extends ContentModelHandlerExtension {
 			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
 			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		} catch ( Exception $e ) {
-			$this->document = $API->parseHTML( self::PARSE_ERROR_HTML );
+			$this->document = $API->htmlToDom( self::PARSE_ERROR_HTML );
 		}
 */
 		$src = json_decode( $jsonText, false, 6 );
 		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
-			$this->document = $API->parseHTML( self::PARSE_ERROR_HTML );
+			$this->document = $API->htmlToDom( self::PARSE_ERROR_HTML );
 		} else {
 			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
 		}
@@ -333,7 +333,7 @@ class JSON extends ContentModelHandlerExtension {
 	}
 
 	/**
-	 * HTML to JSON.
+	 * DOM to JSON.
 	 * @param ParsoidExtensionAPI $API
 	 * @param DOMDocument $doc
 	 * @param SelserData|null $selserData

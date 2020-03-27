@@ -152,7 +152,7 @@ class References extends ExtensionTag {
 			$html = '';
 			$contentDiffers = false;
 			if ( $ref->hasMultiples ) {
-				$html = $extApi->toHTML( $c, true, true );
+				$html = $extApi->domToHtml( $c, true, true );
 				$c = null; // $c is being release in the call above
 				$contentDiffers = $html !== $ref->cachedHtml;
 			}
@@ -217,8 +217,8 @@ class References extends ExtensionTag {
 		} else {
 			// We don't need to delete the node now since it'll be removed in
 			// `insertReferencesIntoDOM` when all the children are cleaned out.
-			array_push( $nestedRefsHTML, $extApi->toHTML( $linkBack, false, true ), "\n" );
-			$linkBack = null; // $linkBack is being released in the toHTML call above
+			array_push( $nestedRefsHTML, $extApi->domToHtml( $linkBack, false, true ), "\n" );
+			$linkBack = null; // $linkBack is being released in the domToHtml call above
 		}
 
 		// Keep the first content to compare multiple <ref>s with the same name.
@@ -352,9 +352,9 @@ class References extends ExtensionTag {
 	private static function processEmbeddedRefs(
 		ParsoidExtensionAPI $extApi, ReferencesData $refsData, string $str
 	): string {
-		$domBody = DOMCompat::getBody( $extApi->parseHTML( $str ) );
+		$domBody = DOMCompat::getBody( $extApi->htmlToDom( $str ) );
 		self::processRefs( $extApi, $refsData, $domBody );
-		return $extApi->toHTML( $domBody, true, true );
+		return $extApi->domToHtml( $domBody, true, true );
 	}
 
 	/**
@@ -449,8 +449,10 @@ class References extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function toDOM( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ): DOMDocument {
-		$doc = $extApi->parseExtTagToDOM(
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
+	): DOMDocument {
+		$doc = $extApi->extTagToDOM(
 			$extArgs,
 			'',
 			$txt,
@@ -486,7 +488,7 @@ class References extends ExtensionTag {
 	}
 
 	/** @inheritDoc */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
@@ -494,12 +496,12 @@ class References extends ExtensionTag {
 			// Eliminate auto-inserted <references /> noise in rt-testing
 			return '';
 		} else {
-			$startTagSrc = $extApi->serializeExtensionStartTag( $node );
+			$startTagSrc = $extApi->extStartTagToWikitext( $node );
 			if ( empty( $dataMw->body ) ) {
 				return $startTagSrc; // We self-closed this already.
 			} else { // We self-closed this already.
 				if ( is_string( $dataMw->body->html ) ) {
-					$src = $extApi->serializeHTML(
+					$src = $extApi->htmlToWikitext(
 						[ 'extName' => $dataMw->name ],
 						$dataMw->body->html
 					);

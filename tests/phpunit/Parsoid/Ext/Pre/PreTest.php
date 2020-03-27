@@ -11,13 +11,13 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 class PreTest extends TestCase {
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Ext\Pre\Pre::toDOM
+	 * @covers \Wikimedia\Parsoid\Ext\Pre\Pre::sourceToDom
 	 */
-	public function testToDOM() {
+	public function testSourceToDOM() {
 		$pre = new Pre();
 		$env = new MockEnv( [] );
 		$extApi = new ParsoidExtensionAPI( $env );
-		$doc = $pre->toDOM( $extApi, 'abcd', [] );
+		$doc = $pre->sourceToDom( $extApi, 'abcd', [] );
 		$pre = DOMCompat::querySelector( $doc, 'pre' );
 		$this->assertNotNull( $pre );
 		$this->assertSame( 'abcd', $pre->textContent );

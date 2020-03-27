@@ -128,7 +128,7 @@ class Gallery extends ExtensionTag implements Extension {
 			return null;
 		};
 
-		$doc = $extApi->parseWikitextToDOM(
+		$doc = $extApi->wikitextToDOM(
 			$wt,
 			[
 				'parseOpts' => [
@@ -205,7 +205,7 @@ class Gallery extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function toDOM(
+	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DOMDocument {
 		$attrs = $extApi->extArgsToArray( $args );
@@ -295,7 +295,7 @@ class Gallery extends ExtensionTag implements Extension {
 					if ( $showfilename ) {
 						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 					}
-					$caption = $extApi->serializeChildren( $gallerytext,
+					$caption = $extApi->domChildrenToWikitext( $gallerytext,
 						$extApi::IN_IMG_CAPTION,
 						true /* singleLine */
 					);
@@ -319,7 +319,7 @@ class Gallery extends ExtensionTag implements Extension {
 	}
 
 	/** @inheritDoc */
-	public function fromDOM(
+	public function domToWikitext(
 		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
@@ -332,12 +332,12 @@ class Gallery extends ExtensionTag implements Extension {
 			// `caption` from data-mw.
 			!is_string( $dataMw->attrs->caption ?? null )
 		) {
-			$dataMw->attrs->caption = $extApi->serializeChildren( $galcaption,
+			$dataMw->attrs->caption = $extApi->domChildrenToWikitext( $galcaption,
 				$extApi::IN_IMG_CAPTION | $extApi::IN_OPTION,
 				false /* singleLine */
 			);
 		}
-		$startTagSrc = $extApi->serializeExtensionStartTag( $node );
+		$startTagSrc = $extApi->extStartTagToWikitext( $node );
 
 		if ( !$dataMw->body ) {
 			return $startTagSrc; // We self-closed this already.
