@@ -36,9 +36,11 @@ class PageHandler extends ParsoidHandler {
 			] );
 		}
 
+		$oldid = (int)$attribs['oldid'];
+
 		try {
 			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], (int)$attribs['oldid']
+				$attribs['pageName'], $oldid
 			);
 		} catch ( RevisionAccessException $exception ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
