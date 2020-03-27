@@ -132,8 +132,8 @@ interface DataAccess {
 	/**
 	 * Log linter data.
 	 *
-	 * @param Env $env
+	 * @param PageConfig $pageConfig
 	 * @param array $lints
 	 */
-	public function logLinterData( Env $env, array $lints ): void;
+	public function logLinterData( PageConfig $pageConfig, array $lints ): void;
 }

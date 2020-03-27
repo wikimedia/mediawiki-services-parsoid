@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -329,7 +328,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( Env $env, array $lints ): void {
+	public function logLinterData( PageConfig $pageConfig, array $lints ): void {
 		error_log( PHPUtils::jsonEncode( $lints ) );
 	}
 

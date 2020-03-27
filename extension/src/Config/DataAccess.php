@@ -15,10 +15,8 @@ use Parser;
 use ParserOptions;
 use Title;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
-use Wikimedia\Parsoid\Logger\LintLogger;
 
 class DataAccess implements IDataAccess {
 
@@ -329,14 +327,12 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( Env $env, array $lints ): void {
-		// We only want to send to the MW API if this was a request to parse the full page.
+	public function logLinterData( IPageConfig $pageConfig, array $lints ): void {
 		global $wgReadOnly;
-		if ( $wgReadOnly || !$env->pageWithOldid ) {
+		if ( $wgReadOnly ) {
 			return;
 		}
 
-		$pageConfig = $env->getPageConfig();
 		$revId = $pageConfig->getRevisionId();
 		$title = $pageConfig->getTitle();
 		$pageInfo = $this->getPageInfo( $pageConfig, [ $title ] );
@@ -344,11 +340,6 @@ class DataAccess implements IDataAccess {
 
 		// Only send the request if it the latest revision
 		if ( $revId !== null && $revId === $latest ) {
-			// Convert offsets to ucs2
-			$offsetType = $env->getCurrentOffsetType();
-			if ( $offsetType !== 'ucs2' ) {
-				LintLogger::convertDSROffsets( $env, $lints, $offsetType, 'ucs2' );
-			}
 			// @todo: Document this hook in MediaWiki
 			Hooks::runWithoutAbort( 'ParserLogLinterData', [ $title, $revId, $lints ] );
 		}

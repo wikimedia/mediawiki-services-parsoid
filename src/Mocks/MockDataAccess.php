@@ -4,7 +4,6 @@ namespace Wikimedia\Parsoid\Mocks;
 
 use Error;
 use Wikimedia\Parsoid\Config\DataAccess;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 
@@ -566,6 +565,6 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( Env $env, array $lints ): void {
+	public function logLinterData( PageConfig $pageConfig, array $lints ): void {
 	}
 }

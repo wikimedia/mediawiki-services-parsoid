@@ -89,34 +89,44 @@ class LintLogger {
 	 */
 	public function logLintOutput() {
 		$env = $this->env;
+
+		if ( $env->noDataAccess() ) {
+			return;
+		}
+
+		// We only want to send to the MW API if this was a request to parse
+		// the full page.
+		if ( !$env->pageWithOldid ) {
+			return;
+		}
+
+		$pageConfig = $env->getPageConfig();
+
+		// Skip linting if we cannot lint it
+		if ( !$pageConfig->hasLintableContentModel() ) {
+			return;
+		}
+
 		$linting = $env->getSiteConfig()->linting();
 		$enabledBuffer = null;
 
 		if ( $linting === true ) {
 			$enabledBuffer = $env->getLints(); // Everything is enabled
+		} elseif ( is_array( $linting ) ) {
+			$enabledBuffer = array_filter( $env->getLints(), function ( $item ) use ( &$linting ) {
+				return array_search( $item['type'], $linting, true ) !== false;
+			} );
 		} else {
-			if ( is_array( $linting ) ) {
-				$enabledBuffer = array_filter( $env->getLints(), function ( $item ) use ( &$linting ) {
-					return array_search( $item['type'], $linting, true ) !== false;
-				} );
-			} else {
-				PHPUtils::unreachable( 'Why are we here? Linting is disabled.' );
-			}
-		}
-		/* This is no longer supported in ParsoidPHP according to Subbu
-		if ( $env->getPageConfig()->getPageId() %
-				 $env->getSiteConfig()->linter->apiSampling !== 0 ) {
-			return;
-		} */
-
-		// Skip linting if we cannot lint it
-		if ( !$env->getPageConfig()->hasLintableContentModel() ) {
-			return;
+			PHPUtils::unreachable( 'Why are we here? Linting is disabled.' );
 		}
 
-		if ( !$env->noDataAccess() ) {
-			$env->getDataAccess()->logLinterData( $env, $enabledBuffer );
+		// Convert offsets to ucs2
+		$offsetType = $env->getCurrentOffsetType();
+		if ( $offsetType !== 'ucs2' ) {
+			self::convertDSROffsets( $env, $enabledBuffer, $offsetType, 'ucs2' );
 		}
+
+		$env->getDataAccess()->logLinterData( $pageConfig, $enabledBuffer );
 	}
 
 }
