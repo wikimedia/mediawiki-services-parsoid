@@ -595,25 +595,25 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Serialize DOM element to string (inner/outer HTML is controlled by flag).
-	 * If $releaseDOM is set to true, the DOM will be left in non-canonical form
+	 * If $releaseDom is set to true, the DOM will be left in non-canonical form
 	 * and is not safe to use after this call. This is primarily a performance optimization.
 	 *
 	 * @param DOMElement $elt
 	 * @param bool $innerHTML if true, inner HTML of the element will be returned
 	 *    This flag defaults to false
-	 * @param bool $releaseDOM if true, the DOM will not be in canonical form after this call
+	 * @param bool $releaseDom if true, the DOM will not be in canonical form after this call
 	 *    This flag defaults to false
 	 * @return string
 	 */
 	public function domToHtml(
-		DOMElement $elt, bool $innerHTML = false, bool $releaseDOM = false
+		DOMElement $elt, bool $innerHTML = false, bool $releaseDom = false
 	): string {
 		// FIXME: This is going to drop any diff markers but since
 		// the dom differ doesn't traverse into extension content (right now),
 		// none should exist anyways.
 		DOMDataUtils::visitAndStoreDataAttribs( $elt );
 		$html = ContentUtils::toXML( $elt, [ 'innerXML' => $innerHTML ] );
-		if ( !$releaseDOM ) {
+		if ( !$releaseDom ) {
 			DOMDataUtils::visitAndLoadDataAttribs( $elt );
 		}
 		return $html;
@@ -647,6 +647,36 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Emit the opening tag (including attributes) for the extension
+	 * represented by this node.
+	 *
+	 * @param DOMElement $node
+	 * @return string
+	 */
+	public function extStartTagToWikitext( DOMElement $node ): string {
+		$state = $this->serializerState;
+		return $state->serializer->serializeExtensionStartTag( $node, $state );
+	}
+
+	/**
+	 * Convert the input DOM to wikitext.
+	 *
+	 * @param array $opts
+	 *  - extName: (string) Name of the extension whose body we are serializing
+	 *  - inPHPBlock: (bool) FIXME: This needs to be removed
+	 * @param DOMElement $node DOM to serialize
+	 * @param bool $releaseDom If $releaseDom is set to true, the DOM will be left in
+	 *  non-canonical form and is not safe to use after this call. This is primarily a
+	 *  performance optimization.  This flag defaults to false.
+	 * @return mixed
+	 */
+	public function domToWikitext( array $opts, DOMElement $node, bool $releaseDom = false ) {
+		// FIXME: WTS expects the input DOM to be a <body> element!
+		// Till that is fixed, we have to go through this round-trip!
+		return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom ) );
+	}
+
+	/**
 	 * Convert the HTML body of an extension to wikitext
 	 *
 	 * @param array $opts
@@ -659,20 +689,7 @@ class ParsoidExtensionAPI {
 		// Type cast so phan has more information to ensure type safety
 		$state = $this->serializerState;
 		$opts['env'] = $this->env;
-		return $state->serializer->serializeHTML( $opts, $html );
-	}
-
-	/**
-	 * Emit the opening tag (including attributes) for the extension
-	 * represented by this node.
-	 *
-	 * @param DOMElement $node
-	 * @return string
-	 */
-	public function extStartTagToWikitext( DOMElement $node ): string {
-		// Type cast so phan has more information to ensure type safety
-		$state = $this->serializerState;
-		return $state->serializer->serializeExtensionStartTag( $node, $state );
+		return $state->serializer->htmlToWikitext( $opts, $html );
 	}
 
 	/**

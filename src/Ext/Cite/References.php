@@ -499,7 +499,7 @@ class References extends ExtensionTag {
 			$startTagSrc = $extApi->extStartTagToWikitext( $node );
 			if ( empty( $dataMw->body ) ) {
 				return $startTagSrc; // We self-closed this already.
-			} else { // We self-closed this already.
+			} else {
 				if ( is_string( $dataMw->body->html ) ) {
 					$src = $extApi->htmlToWikitext(
 						[ 'extName' => $dataMw->name ],

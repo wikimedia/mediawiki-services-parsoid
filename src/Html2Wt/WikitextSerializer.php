@@ -219,14 +219,23 @@ class WikitextSerializer {
 
 	/**
 	 * @param array $opts
+	 * @param DOMElement $elt
+	 * @return ConstrainedText|string
+	 */
+	public function domToWikitext( array $opts, DOMElement $elt ) {
+		$opts['logType'] = $this->logType;
+		$serializer = new WikitextSerializer( $opts );
+		return $serializer->serializeDOM( $elt );
+	}
+
+	/**
+	 * @param array $opts
 	 * @param string $html
 	 * @return ConstrainedText|string
 	 */
-	public function serializeHTML( array $opts, string $html ) {
-		$opts['logType'] = $this->logType;
+	public function htmlToWikitext( array $opts, string $html ) {
 		$body = ContentUtils::ppToDOM( $this->env, $html, [ 'markNew' => true ] );
-		$serializer = new WikitextSerializer( $opts );
-		return $serializer->serializeDOM( $body );
+		return $this->domToWikitext( $opts, $body );
 	}
 
 	/**
@@ -241,7 +250,7 @@ class WikitextSerializer {
 			// serialize HTML back to generator wikitext.
 			// PORT-FIXME: bool check might not be safe. Need documentation on attrib format.
 			if ( ( $attr[0]->txt ?? null ) === $key && isset( $attr[0]->html ) ) {
-				return $this->serializeHTML( [
+				return $this->htmlToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
 				], $attr[0]->html );
@@ -273,7 +282,7 @@ class WikitextSerializer {
 				 // Ex: <div {{echo|1=style='color:red'}}>foo</div>
 				 && $attr[1]->html !== null
 			) {
-				return $this->serializeHTML( [
+				return $this->htmlToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
 					'inAttribute' => true,
@@ -798,7 +807,7 @@ class WikitextSerializer {
 			if ( property_exists( $param, 'wt' ) ) {
 				$value = $param->wt;
 			} else {
-				$value = $this->serializeHTML( [ 'env' => $env ], $param->html );
+				$value = $this->htmlToWikitext( [ 'env' => $env ], $param->html );
 			}
 
 			Assert::invariant( is_string( $value ), "For param: $key, wt property should be a string '

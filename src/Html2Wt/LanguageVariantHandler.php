@@ -47,7 +47,7 @@ class LanguageVariantHandler {
 				'onSOL' => false
 			], $opts ?? []
 		);
-		return $state->serializer->serializeHTML( $options, $t );
+		return $state->serializer->htmlToWikitext( $options, $t );
 	}
 
 	/**
