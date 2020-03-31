@@ -62,7 +62,10 @@ class Ref extends ExtensionTagHandler {
 		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) {
 			return $ref->nextSibling;
 		}
-
+		// Ignore content from reference errors
+		if ( DOMUtils::hasTypeOf( $ref, 'mw:Error' ) ) {
+			return $ref->nextSibling;
+		}
 		$refFirstChild = $ref->firstChild;
 		DOMUtils::assertElt( $refFirstChild );
 		$linkBackId = preg_replace( '/[^#]*#/', '', $refFirstChild->getAttribute( 'href' ), 1 );

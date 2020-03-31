@@ -858,9 +858,19 @@ foo</span>
 <ref> with no name and no content.
 !! wikitext
 Bla.<ref></ref>
-!! html
+foo.<ref />
+zero{{1x|<ref />}}
+<references />
+!! html/php
 <p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; refs with no name must have content</span>
+foo.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
+zero<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: The opening <code>&lt;ref&gt;</code> tag is malformed or has a bad name</span>
 </p>
+!! html/parsoid
+<p>Bla.<sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{},"body":{"html":""},"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+foo.<sup about="#mwt6" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{},"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup>
+zero<sup about="#mwt8" class="mw-ref" id="cite_ref-3" rel="dc:references" typeof="mw:Transclusion mw:Extension/ref mw:Error" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;ref />"}},"i":0}}],"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt13" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"></span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text"></span></li><li about="#cite_note-3" id="cite_note-3"><a href="./Parser_test#cite_ref-3" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-3" class="mw-reference-text"></span></li></ol>
 !! end
 
 !! test

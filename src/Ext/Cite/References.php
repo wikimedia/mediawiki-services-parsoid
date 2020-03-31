@@ -144,6 +144,9 @@ class References extends ExtensionTagHandler {
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );
 
+		// Check for missing name and content and generate error code
+		$hasMissingNameAndContent = ( $refName === '' && !empty( $cDp->empty ) );
+
 		// FIXME: Lot of useless work for an edge case
 		if ( !empty( $cDp->empty ) ) {
 			// Discard wrapper if there was no input wikitext
@@ -182,6 +185,10 @@ class References extends ExtensionTagHandler {
 			]
 		);
 		DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
+		if ( $hasMissingNameAndContent ) {
+			DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
+		}
+
 		$dataParsoid = new stdClass;
 		if ( isset( $nodeDp->src ) ) {
 			$dataParsoid->src = $nodeDp->src;
@@ -193,11 +200,18 @@ class References extends ExtensionTagHandler {
 			$dataParsoid->pi = $nodeDp->pi;
 		}
 		DOMDataUtils::setDataParsoid( $linkBack, $dataParsoid );
-		if ( $isTplWrapper ) {
-			DOMDataUtils::setDataMw( $linkBack, $tplDmw );
-		} else {
-			DOMDataUtils::setDataMw( $linkBack, $refDmw );
+
+		$dmw = $isTplWrapper ? $tplDmw : $refDmw;
+		if ( $hasMissingNameAndContent ) {
+			$errs = [
+				[ 'key' => 'cite_error_ref_no_input' ],
+			];
+			if ( is_array( $dmw->errors ?? null ) ) {
+				$errs = array_merge( $dmw->errors, $errs );
+			}
+			$dmw->errors = $errs;
 		}
+		DOMDataUtils::setDataMw( $linkBack, $dmw );
 
 		// refLink is the link to the citation
 		$refLink = $doc->createElement( 'a' );
