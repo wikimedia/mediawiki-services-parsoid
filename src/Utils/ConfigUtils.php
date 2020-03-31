@@ -31,6 +31,10 @@ class ConfigUtils {
 		};
 		foreach ( $iwData as $iwEntry ) {
 			$iwEntry['language'] = isset( $iwEntry['language'] );
+			// Fix up broken interwiki hrefs that are missing a $1 placeholder
+			// Just append the placeholder at the end.
+			// This makes sure that the interwikiMatcher adds one match
+			// group per URI, and that interwiki links work as expected.
 			if ( strpos( $iwEntry['url'], '$1' ) === false ) {
 				$iwEntry['url'] .= '$1';
 			}

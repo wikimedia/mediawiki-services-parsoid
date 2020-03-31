@@ -34,6 +34,14 @@ class TestRunner {
 	// in parserTest.inc:setupInterwikis()
 	const PARSER_TESTS_IWPS = [
 		[
+			'prefix' => 'wikinvest',
+			'local' => true,
+			// This url doesn't have a $1 to exercise the fix in
+			// ConfigUtils::computeInterwikiMap
+			'url' => 'https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikinvest',
+			'protorel' => false
+		],
+		[
 			'prefix' => 'local',
 			'url' => 'http://doesnt.matter.org/$1',
 			'localinterwiki' => true

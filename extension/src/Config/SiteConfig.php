@@ -366,8 +366,16 @@ class SiteConfig extends ISiteConfig {
 				$val['prefix'] = $prefix;
 				$val['url'] = wfExpandUrl( $row['iw_url'], PROTO_CURRENT );
 
+				// Fix up broken interwiki hrefs that are missing a $1 placeholder
+				// Just append the placeholder at the end.
+				// This makes sure that the interwikiMatcher adds one match
+				// group per URI, and that interwiki links work as expected.
+				if ( strpos( $val['url'], '$1' ) === false ) {
+					$val['url'] .= '$1';
+				}
+
 				if ( substr( $row['iw_url'], 0, 2 ) == '//' ) {
-					$val['protorel'] = substr( $row['iw_url'], 0, 2 ) == '//';
+					$val['protorel'] = true;
 				}
 				if ( isset( $row['iw_local'] ) && $row['iw_local'] == '1' ) {
 					$val['local'] = true;
