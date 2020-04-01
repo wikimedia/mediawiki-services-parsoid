@@ -1,19 +1,53 @@
 <?php
 // phpcs:disable Generic.Files.LineLength.TooLong
 
+# In order to test in standalone mode, use --config-file=.phan/standalone.php
+# In integrated mode ($STANDALONE is false), you should be sure MW_INSTALL_DIR
+# is set in your environment and points to an up-to-date copy of mediawiki-core
+$STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
+
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['target_php_version'] = '7.2';
-$cfg['directory_list'] = [
-	'src',
-	'tests',
-	'vendor',
-	'tools',
-	'.phan/stubs',
-];
+if ( $STANDALONE ) {
+	$cfg['directory_list'] = [
+		# not the extension directory, it requires MW (ie, "not standalone")
+		'src',
+		'tests',
+		'tools',
+		'vendor',
+		'.phan/stubs',
+	];
+} else {
+	$cfg['directory_list'] = array_merge( $cfg['directory_list'], [
+		# 'src' and '.phan/stubs' are already included by default
+		'extension',
+		'tests',
+		'tools',
+		# mediawiki-phan-config doesn't include core's parser test framework
+		# by default:
+		$IP . '/tests/parser',
+		# don't use our vendor directory, use the one from core...
+		# but we still need a few things from require-dev
+		'vendor/wikimedia/alea',
+	] );
+}
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
-$cfg['exclude_analysis_directory_list'] = [ 'vendor/', 'tests/spec/', 'tests/phpunit/', 'tools/' ];
+$cfg['exclude_analysis_directory_list'] = array_merge(
+	$cfg['exclude_analysis_directory_list'],
+	[ 'vendor/', 'tests/spec/', 'tests/phpunit/', 'tools/' ]
+);
+if ( $STANDALONE ) {
+	// Analyze RTTestSettings only in the context of core code (ie, !STANDALONE)
+	$cfg['exclude_file_list'][] = 'tests/RTTestSettings.php';
+} else {
+	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
+	$cfg['exclude_file_regex'] = '@/vendor/(wikimedia/parsoid|jakub-onderka/php-parallel-lint)/@';
+}
+error_log( $IP );
+#error_log(var_export($cfg['directory_list'], TRUE));
+#error_log(var_export($cfg['exclude_analysis_directory_list'], TRUE));
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';

@@ -259,12 +259,11 @@ class SiteConfig extends ISiteConfig {
 				$regex[$case][] = preg_quote( $syn, $delimiter );
 			}
 		}
+		'@phan-var array<int,string[]> $regex'; /** @var array<int,string[]> $regex */
 		$result = [];
-		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( count( $regex[1] ) > 0 ) {
 			$result[] = implode( '|', $regex[1] );
 		}
-		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( count( $regex[0] ) > 0 ) {
 			$result[] = '(?i:' . implode( '|', $regex[0] ) . ')';
 		}
