@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
+use Wikimedia\Parsoid\Ext\ImageMap\ImageMap;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
@@ -71,6 +72,7 @@ abstract class SiteConfig {
 		LST::class,
 		Poem::class,
 		Translate::class,
+		ImageMap::class,
 	];
 
 	/**

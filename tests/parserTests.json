@@ -42,5 +42,11 @@
 		"path": "tests/parser/parserTests.txt",
 		"expectedSHA1": "ffe275baf1e88b174eb90fe4a61ae7f7171821ee",
 		"latestCommit": "5337f7927ace34af6620e7d5c8f733f6cf413667"
+	},
+	"imageMapParserTests.txt": {
+		"repo": "/wikimedia/mediawiki-extensions-ImageMap/",
+		"path": "tests/parser/imageMapParserTests.txt",
+		"expectedSHA1": "df1f578a27c3e2e950c8e2d32967a153c1e3e3fd",
+		"latestCommit": "86e2a3a971b8e0fcef771e0312eafc4a40f200a5"
 	}
 }

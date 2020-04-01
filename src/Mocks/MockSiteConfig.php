@@ -335,7 +335,6 @@ class MockSiteConfig extends SiteConfig {
 			'hiero' => true,
 			'charinsert' => true,
 			'inputbox' => true,
-			'imagemap' => true,
 			'source' => true,
 			'syntaxhighlight' => true,
 			'section' => true,
