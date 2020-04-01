@@ -14,8 +14,8 @@
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "8b4ba56375806453a2bd99d686f20b9e2ca4344b",
-		"latestCommit": "ed007b2f670eb3bb96560193a86b6f9b62883d8b"
+		"expectedSHA1": "fe3a72f4032c4b23d42f1e42d52c382c45dc6e64",
+		"latestCommit": "076c6c879f69ac864508a23e924f0406052141aa"
 	},
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
