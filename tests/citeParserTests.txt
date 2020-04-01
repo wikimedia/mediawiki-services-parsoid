@@ -1,3 +1,4 @@
+!! version 2
 # Force the test runner to ensure the extension is loaded
 !! hooks
 ref
@@ -21,7 +22,7 @@ Simple <ref>, no <references/>
 !! wikitext
 Wikipedia rocks!<ref>Proceeds of Rockology, vol. XXI</ref>
 !! html
-Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p>Wikipedia rocks!<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Proceeds of Rockology, vol. XXI</span>
 </li>
 </ol></div>
@@ -235,7 +236,7 @@ parsoid=wt2html,html2html
 !! wikitext
 {{REVISIONID}}<ref>elite</ref>
 !! html
-1337<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p>1337<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">elite</span>
 </li>
 </ol></div>
@@ -433,7 +434,7 @@ A follow="…" before its parent is not merged
 <ref follow="theName">theFollows</ref>
 <ref name="theName">theValue</ref>
 !! html
-<sup id="cite_ref-theName_2-0" class="reference"><a href="#cite_note-theName-2">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p><sup id="cite_ref-theName_2-0" class="reference"><a href="#cite_note-theName-2">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <p id="cite_note-theName"><span class="reference-text">theFollows</span>
 </p>
 <li id="cite_note-theName-2"><span class="mw-cite-backlink"><a href="#cite_ref-theName_2-0">↑</a></span> <span class="reference-text">theValue</span>
@@ -612,7 +613,6 @@ Attributes are trimmed by the parser, see Sanitizer::decodeTagAttributes()
 <li id="cite_note-n2-2"><span class="mw-cite-backlink"><a href="#cite_ref-n2_2-0">↑</a></span> <span class="reference-text">in group " g "</span>
 </li>
 </ol></div>
-
 !! end
 
 !! test
@@ -850,7 +850,7 @@ Bla.<ref name=""> </ref>
 !! wikitext
 Bla.<ref name="void"> </ref>
 !! html
-Bla.<sup id="cite_ref-void_1-0" class="reference"><a href="#cite_note-void-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p>Bla.<sup id="cite_ref-void_1-0" class="reference"><a href="#cite_note-void-1">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-void-1"><span class="mw-cite-backlink"><a href="#cite_ref-void_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>void</code></span></li>
 </ol></div>
 !! end
@@ -932,7 +932,7 @@ parsoid=wt2html
 !! wikitext
 <ref name="[#foo] {bar} <baz>">[bar]</ref>
 !! html/php
-<sup id="cite_ref-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz_1-0" class="reference"><a href="#cite_note-[#foo]_{bar}_&lt;baz-1">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p><sup id="cite_ref-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz_1-0" class="reference"><a href="#cite_note-[#foo]_{bar}_&lt;baz-1">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-&#91;#foo&#93;_&#123;bar&#125;_&lt;baz-1"><span class="mw-cite-backlink"><a href="#cite_ref-[#foo]_{bar}_&lt;baz_1-0">↑</a></span> <span class="reference-text">"&gt;[bar]</span>
 </li>
 </ol></div>
@@ -1479,7 +1479,7 @@ B <sup about="#mwt4" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" type
 References: 6. <references /> from a transclusion
 !! wikitext
 <ref>Foo</ref> {{echo|<references />}}
-!! html/php
+!! html/php+untidy
 <sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
 </li>
@@ -2076,7 +2076,7 @@ T48140 - Make sure rollback/redo does not consume numbers
 <li id="cite_note-a-2"><span class="mw-cite-backlink"><a href="#cite_ref-a_2-0">↑</a></span> <span class="reference-text">a</span>
 </li>
 </ol></div>
-<sup id="cite_ref-4" class="reference"><a href="#cite_note-4">&#91;2&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p><sup id="cite_ref-4" class="reference"><a href="#cite_note-4">&#91;2&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">should be [1]</span>
 </li>
 <li id="cite_note-4"><span class="mw-cite-backlink"><a href="#cite_ref-4">↑</a></span> <span class="reference-text">should be [2]</span>
@@ -2099,7 +2099,7 @@ Numbers in the default group need to start with 1, independent from other groups
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">a</span>
 </li>
 </ol></div>
-<sup id="cite_ref-c_3-0" class="reference"><a href="#cite_note-c-3">&#91;1&#93;</a></sup><div class="mw-references-wrap"><ol class="references">
+<p><sup id="cite_ref-c_3-0" class="reference"><a href="#cite_note-c-3">&#91;1&#93;</a></sup></p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="reference-text">c</span>
 </li>
 </ol></div>
