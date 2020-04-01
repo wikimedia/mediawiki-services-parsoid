@@ -1,3 +1,4 @@
+!! Version 2
 # Force the test runner to ensure the extension is loaded
 !! hooks
 poem
@@ -19,7 +20,7 @@ is
 a
 test
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p>this<br />
 is<br />
@@ -40,7 +41,7 @@ test</p></div>
 <poem>
 this ''is'' a '''test'''
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p>this <i>is</i> a <b>test</b>
 </p>
@@ -58,7 +59,7 @@ this ''is'' a '''test'''
    test
 
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p><br />
 &#160;&#160;&#160;test<br />
@@ -79,7 +80,7 @@ some
 -----
 text
 </poem>
-!!html/php+tidy
+!! html/php
 <div class="poem">
 <p>some<br />
 </p>
@@ -102,7 +103,7 @@ is
 a
 test
 </nowiki></poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p><br />
 this<br />
@@ -130,7 +131,7 @@ this
 a
 test
 </nowiki></poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p><br />
 this<br />
@@ -158,7 +159,7 @@ Where Alph, the sacred river, ran
 Through caverns measureless to man
 Down to a sunless sea.
 </poem>
-!! html/php+tidy
+!! html/php
 <div style="border: 2px solid #d6d2c5; background-color: #f9f4e6; padding: 1em;" class="poem">
 <p>A stately pleasure-dome decree:<br />
 Where Alph, the sacred river, ran<br />
@@ -187,6 +188,18 @@ foo &amp; bar
 </nowiki>
 L3
 </poem>
+!! html/php
+<div class="poem">
+<p>L1<br />
+L2<br />
+<br />
+&lt;ref&gt;Not a ref&lt;/ref&gt;<br />
+foo &amp; bar<br />
+[[Not a link]]<br />
+<br />
+L3
+</p>
+</div>
 !! html/parsoid
 <div class="poem" typeof="mw:Extension/poem" about="#mwt4" data-parsoid='{"dsr":[0,92,2,2]}' data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\nL1\nL2\n&lt;nowiki>\n&lt;ref>Not a ref&lt;/ref>\nfoo &amp;amp; bar\n[[Not a link]]\n&lt;/nowiki>\nL3\n"}}'><p>L1<br/>
 L2<br/>
@@ -204,7 +217,7 @@ UTF-8 sequences in extension tags (T231945)
 <poem>
 {{1x|ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ}}
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p>ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ
 </p>
@@ -221,17 +234,17 @@ Multi-line poems with indentation use spans and breaks correctly (T235709)
 :'''EX TOTO ORBE'''
 ::'''''MATHEMATICI'''''
 </poem>
-!! html/parsoid
-<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw="{&quot;name&quot;:&quot;poem&quot;,&quot;attrs&quot;:{},&quot;body&quot;:{&quot;extsrc&quot;:&quot;\n''CONGREGATI''\n:'''EX TOTO ORBE'''\n::'''''MATHEMATICI'''''\n&quot;}}"><p data-parsoid="{}"><i data-parsoid="{}">CONGREGATI</i><br data-parsoid='{"stx":"html","selfClose":true}'/>
-<span class="mw-poem-indented" style="display: inline-block; margin-left: 1em;" data-parsoid='{"stx":"html"}'><b data-parsoid="{}">EX TOTO ORBE</b></span><br data-parsoid='{"stx":"html","selfClose":true}'/>
-<span class="mw-poem-indented" style="display: inline-block; margin-left: 2em;" data-parsoid='{"stx":"html"}'><i data-parsoid="{}"><b data-parsoid="{}">MATHEMATICI</b></i></span></p></div>
-!!html/php+tidy
+!! html/php
 <div class="poem">
 <p><i>CONGREGATI</i><br />
 <span class="mw-poem-indented" style="display: inline-block; margin-left: 1em;"><b>EX TOTO ORBE</b></span><br />
 <span class="mw-poem-indented" style="display: inline-block; margin-left: 2em;"><i><b>MATHEMATICI</b></i></span>
 </p>
 </div>
+!! html/parsoid
+<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw="{&quot;name&quot;:&quot;poem&quot;,&quot;attrs&quot;:{},&quot;body&quot;:{&quot;extsrc&quot;:&quot;\n''CONGREGATI''\n:'''EX TOTO ORBE'''\n::'''''MATHEMATICI'''''\n&quot;}}"><p data-parsoid="{}"><i data-parsoid="{}">CONGREGATI</i><br data-parsoid='{"stx":"html","selfClose":true}'/>
+<span class="mw-poem-indented" style="display: inline-block; margin-left: 1em;" data-parsoid='{"stx":"html"}'><b data-parsoid="{}">EX TOTO ORBE</b></span><br data-parsoid='{"stx":"html","selfClose":true}'/>
+<span class="mw-poem-indented" style="display: inline-block; margin-left: 2em;" data-parsoid='{"stx":"html"}'><i data-parsoid="{}"><b data-parsoid="{}">MATHEMATICI</b></i></span></p></div>
 !! end
 
 !! test
@@ -240,7 +253,7 @@ Poem with class
 <poem class="hiho">
 hi ho
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem hiho">
 <p>hi ho
 </p>
@@ -255,7 +268,7 @@ Poem with empty class
 <poem class="">
 hi ho
 </poem>
-!! html/php+tidy
+!! html/php
 <div class="poem">
 <p>hi ho
 </p>
