@@ -143,8 +143,8 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 
-		$desc = 'should lint stripped tags correctly in misnested tag situations " .
-			"from template (</i> is stripped)';
+		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
+			'from template (</i> is stripped)';
 		$result = $this->parseWT( '{{echo|<b><i>X</b></i>}}' );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
@@ -162,8 +162,8 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 
-		$desc = 'should lint stripped tags correctly in misnested tag situations " .
-			"(skip over empty autoinserted <small></small>)';
+		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
+			'(skip over empty autoinserted <small></small>)';
 		$result = $this->parseWT( "*a<small>b\n*c</small>d" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
@@ -171,8 +171,8 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
 
-		$desc = 'should lint stripped tags correctly in misnested tag situations " .
-			"(formatting tags around lists, but ok for div)';
+		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
+			'(formatting tags around lists, but ok for div)';
 		$result = $this->parseWT( "<small>a\n*b\n*c\nd</small>\n<div>a\n*b\n*c\nd</div>" );
 		$this->assertEquals( 1, count( $result ), $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
