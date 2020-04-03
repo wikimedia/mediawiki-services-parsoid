@@ -117,6 +117,10 @@ class DOMPostProcessor extends PipelineStage {
 		];
 	}
 
+	private static function stripNamespace( $className ) {
+		return preg_replace( '/.*\\\\/', '', $className );
+	}
+
 	/**
 	 * @param ?array $processors
 	 */
@@ -130,7 +134,7 @@ class DOMPostProcessor extends PipelineStage {
 				continue;
 			}
 			if ( empty( $p['name'] ) ) {
-				$p['name'] = $p['Processor'];
+				$p['name'] = self::stripNamespace( $p['Processor'] );
 			}
 			if ( empty( $p['shortcut'] ) ) {
 				$p['shortcut'] = $p['name'];
@@ -313,7 +317,7 @@ class DOMPostProcessor extends PipelineStage {
 		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
 				'isExtPP' => true, // This is an extension DOM post processor
-				'name' => 'tag:' . $extName,
+				'name' => 'tag:' . self::stripNamespace( $extName ),
 				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
 		}
