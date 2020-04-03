@@ -329,7 +329,9 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function logLinterData( PageConfig $pageConfig, array $lints ): void {
-		error_log( PHPUtils::jsonEncode( $lints ) );
+		foreach ( $lints as $l ) {
+			error_log( PHPUtils::jsonEncode( $l ) );
+		}
 	}
 
 	/**
