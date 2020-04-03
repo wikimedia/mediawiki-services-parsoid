@@ -71,7 +71,7 @@ class ProcessTreeBuilderFixups {
 			$placeHolder->setAttribute( 'typeof', 'mw:Placeholder/StrippedTag' );
 			DOMDataUtils::setDataParsoid( $placeHolder, (object)[
 					'src' => $src,
-					'name' => strtoupper( $name ), // PORT-FIXME: Parsoid-JS uses $dp->name in uppercase
+					'name' => $name,
 					'tmp' => new stdClass,
 				]
 			);

@@ -102,10 +102,6 @@ class Linter {
 
 		if ( DOMUtils::isMarkerMeta( $node, 'mw:Placeholder/StrippedTag' ) ) {
 			$name = DOMDataUtils::getDataParsoid( $node )->name ?? null;
-			if ( $name !== null ) {
-				// PORT-FIXME: Parsoid-JS puts uppercase here, while $match->nodeName is lowercase.
-				$name = strtolower( $name );
-			}
 			return $name === $match->nodeName ? $node : null;
 		}
 
@@ -266,8 +262,7 @@ class Linter {
 			$contentNode instanceof DOMElement &&
 			DOMUtils::isMarkerMeta( $contentNode, 'mw:Placeholder/StrippedTag' ) &&
 			isset( DOMDataUtils::getDataParsoid( $contentNode )->name ) &&
-			// PORT-FIXME: Parsoid-JS puts uppercase here, while $name is lowercase.
-			strtolower( DOMDataUtils::getDataParsoid( $contentNode )->name ) === $name
+			DOMDataUtils::getDataParsoid( $contentNode )->name === $name
 		);
 	}
 
@@ -385,10 +380,7 @@ class Linter {
 			$lintObj = [
 				'dsr' => $dsr,
 				'templateInfo' => $templateInfo,
-				'params' => [
-					// PORT-FIXME: Parsoid-JS gives us $dp->name in uppercase here, but tests want lowercase
-					'name' => isset( $dp->name ) ? strtolower( $dp->name ) : null,
-				],
+				'params' => [ 'name' => $dp->name ?? null ],
 			];
 			$env->recordLint( 'stripped-tag', $lintObj );
 		}
