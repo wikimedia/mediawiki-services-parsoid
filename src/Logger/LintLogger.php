@@ -96,7 +96,7 @@ class LintLogger {
 
 		// We only want to send to the MW API if this was a request to parse
 		// the full page.
-		if ( !$env->pageWithOldid ) {
+		if ( !$env->logLinterData ) {
 			return;
 		}
 

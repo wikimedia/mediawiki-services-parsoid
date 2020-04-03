@@ -493,7 +493,10 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		if ( $wikitext === null && $oldid ) {
-			$reqOpts['pageWithOldid'] = true;
+			$reqOpts['logLinterData'] = true;
+			$mstr = 'pageWithOldid';
+		} else {
+			$mstr = 'wt';
 		}
 
 		// XXX: Not necessary, since it's in the pageConfig
@@ -501,7 +504,6 @@ abstract class ParsoidHandler extends Handler {
 		// 	$reqOpts['pagelanguage'] = $attribs['pagelanguage'];
 		// }
 
-		$mstr = !empty( $reqOpts['pageWithOldid'] ) ? 'pageWithOldid' : 'wt';
 		$timing->end( "wt2html.$mstr.init" );
 		$metrics->timing(
 			"wt2html.$mstr.size.input",

@@ -133,8 +133,8 @@ class Parsoid {
 		if ( isset( $options['pageBundle'] ) ) {
 			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
 		}
-		if ( isset( $options['pageWithOldid'] ) ) {
-			$envOptions['pageWithOldid'] = !empty( $options['pageWithOldid'] );
+		if ( isset( $options['logLinterData'] ) ) {
+			$envOptions['logLinterData'] = !empty( $options['logLinterData'] );
 		}
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
@@ -165,7 +165,7 @@ class Parsoid {
 	 *                                      what kind of source offsets should be emitted?
 	 *   'htmlVariantLanguage'  => (string) If non-null, the language variant used for Parsoid HTML.
 	 *   'wtVariantLanguage'    => (string) If non-null, the language variant used for wikitext.
-	 *   'pageWithOldid'        => (bool) Does this request specify an oldid?
+	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options

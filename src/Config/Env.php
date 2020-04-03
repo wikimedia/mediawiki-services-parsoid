@@ -114,8 +114,8 @@ class Env {
 	/** @var array[] Lints recorded */
 	private $lints = [];
 
-	/** @var bool pageWithOldid used with section editing */
-	public $pageWithOldid = false;
+	/** @var bool logLinterData */
+	public $logLinterData = false;
 
 	/** @var bool[] */
 	public $traceFlags;
@@ -239,7 +239,7 @@ class Env {
 	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
-	 *  - pageWithOldid: (bool) Does this request specify an oldid?
+	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
 	 *  - htmlVariantLanguage: string|null
 	 *      If non-null, the language variant used for Parsoid HTML;
 	 *      we convert to this if wt2html, or from this if html2wt.
@@ -283,7 +283,7 @@ class Env {
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
-		$this->pageWithOldid = !empty( $options['pageWithOldid'] );
+		$this->logLinterData = !empty( $options['logLinterData'] );
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];
