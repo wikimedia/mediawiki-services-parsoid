@@ -39,5 +39,15 @@ php $BIN/parse.php --pboutfile $TMPPB < $TMPWT |
 php $BIN/parse.php --pbinfile $TMPPB --selser \
     --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 
+# Linting
+echo "<div>foo" | php $BIN/parse.php --linting
+
+# Ensure lint output (exactly 1 line) is present!
+x=`echo "<div>foo" | php $BIN/parse.php --linting 2>&1 > /dev/null | wc -l`
+if [ ! $x -eq 1 ]
+then
+	exit -1
+fi
+
 # clean up
 /bin/rm $TMPWT $TMPORIG $TMPEDIT $TMPPB

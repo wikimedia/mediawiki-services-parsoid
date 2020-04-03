@@ -475,6 +475,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => $this->hasOption( 'body_only' ),
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
+			// By default, all parse requests have page id
+			// This also ensures we can run --linting and get lint output.
+			"pageWithOldid" => true,
 			"pageBundle" =>
 			$this->hasOption( 'pageBundle' ) || $this->hasOption( 'pboutfile' ),
 		];
