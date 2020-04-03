@@ -138,7 +138,7 @@ class Linter {
 			return null;
 		}
 
-		if ( $node->nextSibling ) {
+		if ( DOMUtils::nextNonSepSibling( $node ) ) {
 			return $this->leftMostMisnestedDescendent( DOMUtils::nextNonSepSibling( $node ), $match );
 		}
 

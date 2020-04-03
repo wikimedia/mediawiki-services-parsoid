@@ -179,6 +179,15 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 0, 8, 7, 0 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
+
+		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
+			'(T221989 regression test case)';
+		$result = $this->parseWT( "<div>\n* <span>foo\n\n</div>\n</span>y" );
+		$this->assertEquals( 1, count( $result ), $desc );
+		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 8, 17, 6, 0 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 	}
 
 	/**
