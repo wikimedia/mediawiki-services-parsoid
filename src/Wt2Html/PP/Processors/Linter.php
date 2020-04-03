@@ -95,7 +95,7 @@ class Linter {
 	 * @param DOMElement $match
 	 * @return DOMElement|null
 	 */
-	private function leftMostDescendent( ?DOMNode $node, DOMElement $match ): ?DOMElement {
+	private function leftMostMisnestedDescendent( ?DOMNode $node, DOMElement $match ): ?DOMElement {
 		if ( !$node instanceof DOMElement ) {
 			return null;
 		}
@@ -111,34 +111,38 @@ class Linter {
 				!empty( $dp->autoInsertedStart )
 			) {
 				if ( !empty( $dp->autoInsertedEnd ) ) {
-					return $this->getNextMatchingNode( $node, $match );
+					return $this->getMatchingMisnestedNode( $node, $match );
 				} else {
 					return $node;
 				}
 			}
 		}
 
-		return $this->leftMostDescendent( $node->firstChild, $match );
+		return $this->leftMostMisnestedDescendent( $node->firstChild, $match );
 	}
 
 	/**
-	 * Get the next matching node that is considered adjacent
-	 * to this node. If no next sibling, walk up and down the tree
-	 * as necessary to find it.
+	 * $node has an 'autoInsertedEnd' flag set on it. We are looking for
+	 * its matching node that has an 'autoInsertedStart' flag set on it.
+	 * This happens when the tree-builder fixes up misnested tags.
+	 * This "adjacency" is wrt the HTML string. In a DOM, this can either
+	 * be the next sibling OR, it might be the left-most-descendent of
+	 * of $node's parent's sibling (and so on up the ancestor chain).
+	 *
 	 * @param DOMNode $node
 	 * @param DOMElement $match
 	 * @return DOMElement|null
 	 */
-	private function getNextMatchingNode( DOMNode $node, DOMElement $match ): ?DOMElement {
+	private function getMatchingMisnestedNode( DOMNode $node, DOMElement $match ): ?DOMElement {
 		if ( DOMUtils::isBody( $node ) ) {
 			return null;
 		}
 
-		if ( $node->nextSibling ) { // T221989: Should this test DOMUtils::nextNonSepSibling() instead?
-			return $this->leftMostDescendent( DOMUtils::nextNonSepSibling( $node ), $match );
+		if ( $node->nextSibling ) {
+			return $this->leftMostMisnestedDescendent( DOMUtils::nextNonSepSibling( $node ), $match );
 		}
 
-		return $this->getNextMatchingNode( $node->parentNode, $match );
+		return $this->getMatchingMisnestedNode( $node->parentNode, $match );
 	}
 
 	/**
@@ -387,8 +391,8 @@ class Linter {
 
 		// Dont bother linting for auto-inserted start/end or self-closing-tag if:
 		// 1. c is a void element
-		// Void elements won't have auto-inserted start/end tags
-		// and self-closing versions are valid for them.
+		//    Void elements won't have auto-inserted start/end tags
+		//    and self-closing versions are valid for them.
 		//
 		// 2. c is tbody (FIXME: don't remember why we have this exception)
 		//
@@ -397,9 +401,10 @@ class Linter {
 		// 4. c doesn't have DSR info and doesn't come from a template either
 		$cNodeName = strtolower( $c->nodeName );
 		$ancestor = null;
+		$isHtmlElement = WTUtils::hasLiteralHTMLMarker( $dp );
 		if ( !Util::isVoidElement( $cNodeName ) &&
 			$cNodeName !== 'tbody' &&
-			( WTUtils::hasLiteralHTMLMarker( $dp ) || DOMUtils::isQuoteElt( $c ) ) &&
+			( $isHtmlElement || DOMUtils::isQuoteElt( $c ) ) &&
 			( $tplInfo !== null || $dsr !== null )
 		) {
 			if ( !empty( $dp->selfClose ) && $cNodeName !== 'meta' ) {
@@ -425,12 +430,12 @@ class Linter {
 
 				// FIXME: This literal html marker check is strictly not required
 				// (a) we've already checked that above and know that isQuoteElt is
-				// not one of our tags.
+				//     not one of our tags.
 				// (b) none of the tags in the list have native wikitext syntax =>
-				// they will show up as literal html tags.
+				//     they will show up as literal html tags.
 				// But, in the interest of long-term maintenance in the face of
 				// changes (to wikitext or html specs), let us make it explicit.
-				if ( WTUtils::hasLiteralHTMLMarker( $dp ) &&
+				if ( $isHtmlElement &&
 					isset( $this->getTagsWithChangedMisnestingBehavior()[$c->nodeName] ) &&
 					$this->hasMisnestableContent( $c, $c->nodeName ) &&
 					// Tidy WTF moment here!
@@ -451,13 +456,13 @@ class Linter {
 				) {
 					$env->recordLint( 'html5-misnesting', $lintObj );
 				// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-				} elseif ( !WTUtils::hasLiteralHTMLMarker( $dp ) && DOMUtils::isQuoteElt( $c ) &&
+				} elseif ( !$isHtmlElement && DOMUtils::isQuoteElt( $c ) &&
 					( $ancestor = $this->getHeadingAncestor( $c->parentNode ) )
 				) {
 					$lintObj['params']['ancestorName'] = strtolower( $ancestor->nodeName );
 					$env->recordLint( 'unclosed-quotes-in-heading', $lintObj );
 				} else {
-					$adjNode = $this->getNextMatchingNode( $c, $c );
+					$adjNode = $this->getMatchingMisnestedNode( $c, $c );
 					if ( $adjNode ) {
 						$adjDp = DOMDataUtils::getDataParsoid( $adjNode );
 						if ( !isset( $adjDp->tmp ) ) {
