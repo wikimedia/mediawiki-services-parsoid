@@ -139,7 +139,9 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( IPageConfig $pageConfig, array $files ): array {
 		$page = Title::newFromText( $pageConfig->getTitle() );
-		$fileObjs = MediaWikiServices::getInstance()->getRepoGroup()->findFiles( array_keys( $files ) );
+		$services = MediaWikiServices::getInstance();
+		$fileObjs = $services->getRepoGroup()->findFiles( array_keys( $files ) );
+		$badFileLookup = $services->getBadFileLookup();
 		$ret = [];
 		foreach ( $files as $filename => $dims ) {
 			/** @var File $file */
@@ -157,7 +159,7 @@ class DataAccess implements IDataAccess {
 				'mime' => $file->getMimeType(),
 				'url' => $file->getFullUrl(),
 				'mustRender' => $file->mustRender(),
-				'badFile' => (bool)wfIsBadImage( $filename, $page ?: false ),
+				'badFile' => $badFileLookup->isBadFile( $filename, $page ?: false ),
 			];
 
 			$length = $file->getLength();
