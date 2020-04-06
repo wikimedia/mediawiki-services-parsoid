@@ -524,8 +524,13 @@ class LinkHandlerUtils {
 
 		// Special-case handling for category links
 		if ( $linkData->type === 'mw:PageProp/Category' ) {
-			// Split target and sort key
-			if ( preg_match( '/^([^#]*)#(.*)/', $target['value'], $targetParts ) ) {
+			// Split target and sort key in $target['value'].
+			// The sort key shows up as "#something" in there.
+			// However, watch out for parser functions that start with "{{#"
+			// The atomic group is essential to prevent "{{#" parser function prefix
+			// from getting split at the "{{" and "#" where the "{{" matches the
+			// [^#]* and the "#" matches after separately.
+			if ( preg_match( '/^((?>{{#|[^#])*)#(.*)/', $target['value'], $targetParts ) ) {
 				$target['value'] = strtr( preg_replace( '#^(\.\.?/)*#', '', $targetParts[1], 1 ), '_', ' ' );
 				// FIXME: Reverse `Sanitizer.sanitizeTitleURI(strContent).replace(/#/g, '%23');`
 				$strContent = Util::decodeURIComponent( $targetParts[2] );

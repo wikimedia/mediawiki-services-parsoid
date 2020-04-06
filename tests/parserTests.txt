@@ -29913,6 +29913,32 @@ parsoid={
 [[Foo]] , placeholder
 !! end
 
+## No sort-key or templated sort-key
+!! test
+T189544 Regression test: 1. html2wt of links should not trip on parser functions found in target
+!! options
+parsoid
+!! wikitext
+[[Category:Bugs-{{#if:blah|Regression|None}}]]
+[[Category:Bugs-{{#if:blah|Regression|None}}|{{#if:blah|2020|None}}-#fragment]]
+!! html/parsoid
+<link typeof="mw:ExpandedAttrs" rel="mw:PageProp/Category" href="./Category:Bugs-Regression" data-mw='{"attribs":[[{"txt":"href"},{"html":"Category:Bugs-&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"Regression\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>Regression&lt;/span>"}]]}'/>
+<link typeof="mw:ExpandedAttrs" rel="mw:PageProp/Category" href="./Category:Bugs-Regression#2020-%23fragment" data-mw='{"attribs":[[{"txt":"href"},{"html":"Category:Bugs-&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"Regression\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>Regression&lt;/span>"}],[{"txt":"mw:sortKey"},{"html":"&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"2020\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>2020&lt;/span>-#fragment"}]]}'/>
+!! end
+
+## Untemplated sort-key (wt2html data-mw is missing sort-key information!)
+!! test
+T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)
+!! options
+parsoid
+!! wikitext
+[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]
+[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]
+!! html/parsoid
+<link typeof="mw:ExpandedAttrs" rel="mw:PageProp/Category" href="./Category:Bugs-Regression#fragment" data-mw='{"attribs":[[{"txt":"href"},{"html":"Category:Bugs-&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"Regression\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>Regression&lt;/span>"}]]}'/>
+<link typeof="mw:ExpandedAttrs" rel="mw:PageProp/Category" href="./Category:Bugs-Regression-2020#fragment" data-mw='{"attribs":[[{"txt":"href"},{"html":"Category:Bugs-&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"Regression\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>Regression&lt;/span>-&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:blah\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"2020\"},\"2\":{\"wt\":\"None\"}},\"i\":0}}]}&apos;>2020&lt;/span>"}]]}'/>
+!! end
+
 #------------------------------
 # End of tag minimization tests
 #------------------------------
