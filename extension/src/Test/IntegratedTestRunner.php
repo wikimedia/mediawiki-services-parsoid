@@ -3,6 +3,22 @@ declare( strict_types = 1 );
 
 namespace MWParsoid\Test;
 
+use Html;
+use Parser;
+use ParserOptions;
+use ParserTestResult;
+use ParserTestResultNormalizer;
+use RequestContext;
+use Revision;
+use Title;
+use Wikimedia\ScopedCallback;
+use Wikimedia\TestingAccessWrapper;
+use WikitextContent;
+
+// This file is not yet complete (and some methods in core need to be made
+// protected rather than private):
+// @phan-file-suppress PhanAccessPropertyPrivate
+// @phan-file-suppress PhanAccessMethodPrivate
 class IntegratedTestRunner extends \ParserTestRunner {
 
 	/**
@@ -10,15 +26,14 @@ class IntegratedTestRunner extends \ParserTestRunner {
 	 * @inheritDoc
 	 */
 	public function runTest( $test ) {
+		wfDebug( __METHOD__ . ": running {$test['desc']}" );
+		$opts = $this->parseOptions( $test['options'] ); // XXX FIXME PRIVATE
 		// Skip tests targetting features Parsoid doesn't (yet?) support
 		if ( isset( $opts['pst'] ) || isset( $opts['msg'] ) ||
 			 isset( $opts['section'] ) || isset( $opts['replace'] ) ||
 			 isset( $opts['comment'] ) || isset( $opts['preload'] ) ) {
 			return false;
 		}
-
-		wfDebug( __METHOD__ . ": running {$test['desc']}" );
-		$opts = $this->parseOptions( $test['options'] ); // XXX FIXME PRIVATE
 		$teardownGuard = $this->perTestSetup( $test );
 
 		$context = RequestContext::getMain();
@@ -72,8 +87,7 @@ class IntegratedTestRunner extends \ParserTestRunner {
 		}
 
 		$local = isset( $opts['local'] );
-		$preprocessor = $opts['preprocessor'] ?? null;
-		$parser = $this->getParser( $preprocessor );
+		$parser = $this->getParser();
 
 		if ( isset( $opts['styletag'] ) ) {
 			// For testing the behavior of <style> (including those deduplicated
