@@ -14,6 +14,7 @@ use MagicWordArray;
 use MagicWordFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
+use MutableConfig;
 use Psr\Log\LoggerInterface;
 use Title;
 use User;
@@ -259,10 +260,12 @@ class SiteConfig extends ISiteConfig {
 			}
 		}
 		$result = [];
-		if ( count( $regex[1] ) ) {
+		// @phan-suppress-next-line PhanImpossibleCondition
+		if ( count( $regex[1] ) > 0 ) {
 			$result[] = implode( '|', $regex[1] );
 		}
-		if ( count( $regex[0] ) ) {
+		// @phan-suppress-next-line PhanImpossibleCondition
+		if ( count( $regex[0] ) > 0 ) {
 			$result[] = '(?i:' . implode( '|', $regex[0] ) . ')';
 		}
 		return count( $result ) ? implode( '|', $result ) : '(?!)';
@@ -647,11 +650,11 @@ class SiteConfig extends ISiteConfig {
 	 * @param int $depth
 	 */
 	public function setMaxTemplateDepth( int $depth ): void {
-		try {
-			// Only works if the Config is a MutableConfig!
+		if ( $this->config instanceof MutableConfig ) {
 			$this->config->set( 'MaxTemplateDepth', $depth );
-		} catch ( \Error $e ) {
-			// Fall back on global variable (default GlobalVarConfig)
+		} else {
+			// Fall back on global variable (hopefully we're using
+			// a GlobalVarConfig and this will work)
 			$GLOBALS['wgMaxTemplateDepth'] = $depth;
 		}
 	}

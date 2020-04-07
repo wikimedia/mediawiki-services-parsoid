@@ -76,6 +76,7 @@ abstract class ParsoidHandler extends Handler {
 	public static function factory(): ParsoidHandler {
 		$services = MediaWikiServices::getInstance();
 		$parsoidServices = new ParsoidServices( $services );
+		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static(
 			$services->getMainConfig(),
 			$parsoidServices->getParsoidSiteConfig(),
@@ -191,6 +192,7 @@ abstract class ParsoidHandler extends Handler {
 		$body = ( $request->getMethod() === 'POST' ) ? $this->getParsedBody() : [];
 		$opts = array_merge( $body, array_intersect_key( $request->getPathParams(),
 			[ 'from' => true, 'format' => true ] ) );
+		'@phan-var array<string,array|bool|string> $opts'; // @var array<string,array|bool|string> $opts
 		$attribs = [
 			'titleMissing' => empty( $request->getPathParams()['title'] ),
 			'pageName' => $request->getPathParam( 'title' ) ?? '',
@@ -805,7 +807,7 @@ abstract class ParsoidHandler extends Handler {
 	 * Pagebundle -> pagebundle helper.
 	 * Porting note: this is the rough equivalent of routes.pb2pb.
 	 * @param PageConfig $pageConfig
-	 * @param array $attribs
+	 * @param array<string,array> $attribs
 	 * @return Response
 	 */
 	protected function pb2pb( PageConfig $pageConfig, array $attribs ) {
@@ -827,6 +829,7 @@ abstract class ParsoidHandler extends Handler {
 			] );
 		}
 		$attribs['envOptions']['inputContentVersion'] = $vOriginal;
+		'@phan-var array<string,array> $attribs'; // @var array<string,array> $attribs
 
 		$this->metrics->increment(
 			'pb2pb.original.version.' . $attribs['envOptions']['inputContentVersion']
