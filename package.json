@@ -38,7 +38,7 @@
     "eslint-config-node-services": "^2.2.5",
     "eslint-config-wikimedia": "^0.5.0",
     "eslint-plugin-jsdoc": "^3.6.3",
-    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-json": "^1.4.0",
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
     "jsdoc": "^3.5.5",
     "jsdoc-wmf-theme": "0.0.3",
