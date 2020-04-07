@@ -92,7 +92,7 @@ class PageConfigFactory {
 		}
 
 		if ( $revisionRecord != null
-			&& ( 0 != self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) ) {
+			 && ( 0 != ( self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) ) ) {
 			throw new RevisionAccessException( 'Not an available content version.' );
 		}
 
@@ -109,7 +109,7 @@ class PageConfigFactory {
 			$revisionRecord->setSlot(
 				SlotRecord::newUnsaved(
 					SlotRecord::MAIN,
-					new WikitextContent( $wikitextOverride ?? '' )
+					new WikitextContent( $wikitextOverride )
 				)
 			);
 		}

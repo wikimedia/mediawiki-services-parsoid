@@ -253,7 +253,7 @@ class SiteConfig extends ISiteConfig {
 		$regex = [ 0 => [], 1 => [] ];
 		foreach ( $magicWordArray->getNames() as $name ) {
 			$magic = $factory->get( $name );
-			$case = intval( $magic->isCaseSensitive() );
+			$case = $magic->isCaseSensitive() ? 1 : 0;
 			foreach ( $magic->getSynonyms() as $syn ) {
 				$regex[$case][] = preg_quote( $syn, $delimiter );
 			}
@@ -383,10 +383,10 @@ class SiteConfig extends ISiteConfig {
 				if ( isset( $langNames[$prefix] ) ) {
 					$val['language'] = true;
 				}
-				if ( in_array( $prefix, $localInterwikis ) ) {
+				if ( in_array( $prefix, $localInterwikis, true ) ) {
 					$val['localinterwiki'] = true;
 				}
-				if ( in_array( $prefix, $extraLangPrefixes ) ) {
+				if ( in_array( $prefix, $extraLangPrefixes, true ) ) {
 					$val['extralanglink'] = true;
 
 					$linktext = wfMessage( "interlanguage-link-$prefix" );

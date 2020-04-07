@@ -22,7 +22,7 @@ class PageHandler extends ParsoidHandler {
 		$request = $this->getRequest();
 		$format = $request->getPathParam( 'format' );
 
-		if ( !in_array( $format, FormatHelper::VALID_PAGE ) ) {
+		if ( !in_array( $format, FormatHelper::VALID_PAGE, true ) ) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => "Invalid page format: ${format}",
 			] );

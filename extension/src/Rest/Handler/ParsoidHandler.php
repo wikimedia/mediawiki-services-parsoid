@@ -462,10 +462,9 @@ abstract class ParsoidHandler extends Handler {
 			$content = $pageConfig->getRevisionContent();
 			$redirectTarget = $content ? $content->getRedirectTarget() : null;
 			if ( $redirectTarget ) {
-				$redirectInfo =
-					$redirectTarget ? $this->dataAccess->getPageInfo(
-						$pageConfig, [ $redirectTarget ]
-					) : null;
+				$redirectInfo = $this->dataAccess->getPageInfo(
+					$pageConfig, [ $redirectTarget ]
+				);
 				$encodedTarget = PHPUtils::encodeURIComponent( $redirectTarget );
 				$redirectPath =
 					"/{$attribs['envOptions']['domain']}/v3/page/$encodedTarget/wikitext";

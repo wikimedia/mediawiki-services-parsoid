@@ -26,7 +26,7 @@ class TransformHandler extends ParsoidHandler {
 
 		if (
 			!isset( FormatHelper::VALID_TRANSFORM[$from] ) ||
-			!in_array( $format, FormatHelper::VALID_TRANSFORM[$from] )
+			!in_array( $format, FormatHelper::VALID_TRANSFORM[$from], true )
 		) {
 			return $this->getResponseFactory()->createHttpError( 404, [
 				'message' => "Invalid transform: ${from}/to/${format}",
