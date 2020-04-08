@@ -143,7 +143,7 @@ class ContentUtils {
 		if ( isset( $opts['outBuffer'] ) ) {
 			$opts['outBuffer'] .= $str;
 		} elseif ( isset( $opts['outStream'] ) ) {
-			$opts['outStream']->write( $str . "\n" );
+			fwrite( $opts['outStream'], $str . "\n" );
 		} else {
 			error_log( $str );
 		}
