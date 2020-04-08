@@ -19,7 +19,7 @@
     "negotiator": "git+https://github.com/arlolra/negotiator.git#full-parse-access",
     "pn": "^1.1.0",
     "prfun": "^2.1.5",
-    "request": "^2.86.0",
+    "request": "^2.87.0",
     "semver": "^6.1.0",
     "serve-favicon": "^2.5.0",
     "service-runner": "^2.6.19",
