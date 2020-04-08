@@ -804,7 +804,7 @@ class DOMUtils {
 	 * vary headers, if present
 	 *
 	 * @param DOMDocument $doc
-	 * @return DOMNode[]
+	 * @return array<string,string>
 	 */
 	public static function findHttpEquivHeaders( DOMDocument $doc ): array {
 		$elts = DOMCompat::querySelectorAll( $doc, 'meta[http-equiv][content]' );
