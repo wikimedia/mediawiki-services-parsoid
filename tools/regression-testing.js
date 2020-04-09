@@ -133,7 +133,7 @@ Promise.async(function *() {
 				// errors go down but syntactic errors go up, it is a degradation.
 				return newRes.semantic > oldRes.semantic ||
 					(!argv.semanticOnly && newRes.syntactic > oldRes.syntactic);
-			}
+			};
 			if (degraded(results.html2wt, t.oresults.html2wt) ||
 				degraded(results.selser, t.oresults.selser)
 			) {
