@@ -22,7 +22,7 @@
     "request": "^2.87.0",
     "semver": "^6.1.0",
     "serve-favicon": "^2.5.0",
-    "service-runner": "^2.6.19",
+    "service-runner": "git+https://github.com/cscott/service-runner.git#npm-audit-fix",
     "simplediff": "^0.1.1",
     "uuid": "^3.2.1",
     "wikimedia-langconv": "^0.1.0",
@@ -41,7 +41,7 @@
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
     "jsdoc": "^3.6.4",
     "jsdoc-wmf-theme": "0.0.3",
-    "mocha": "^5.2.0",
+    "mocha": "^8.0.1",
     "nock": "^9.2.5",
     "supertest": "^3.0.0"
   },
@@ -67,7 +67,8 @@
     "roundtrip": "node bin/roundtrip-test.js -c --domain en.wikipedia.org 'Barack Obama' && node bin/roundtrip-test.js -c --domain fr.wikipedia.org Chope && node bin/roundtrip-test.js -c --domain en.wikipedia.org --xml Parkour && node bin/roundtrip-test.js -c --domain www.mediawiki.org --oldid 2170316 'User:Legoktm/test_this_is_json'",
     "langcheck": "bin/langconv-test.js -c --domain sr.wikipedia.org --oldid 15236684 Мирослав_Филиповић sr-el",
     "toolcheck": "bin/toolcheck.js.sh",
-    "test": "npm audit && npm run lint && npm run parserTests && npm run parserTests-nobatch && npm run mocha",
+    "test": "echo 'Parsoid/JS tests have been disabled. Use npm test-js to run them.'",
+    "test-js": "npm audit && npm run lint && npm run parserTests && npm run parserTests-nobatch && npm run mocha",
     "doc": "jsdoc -c jsdoc.json",
     "api-testing": "mocha tests/api-testing"
   },
