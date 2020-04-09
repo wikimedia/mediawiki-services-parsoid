@@ -7,7 +7,7 @@
  * @module
  */
 
-namespace Wikimedia\Parsoid;
+namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Parsoid\simpleDiff as simpleDiff;
 
