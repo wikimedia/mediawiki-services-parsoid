@@ -115,7 +115,8 @@ class SiteConfig extends ISiteConfig {
 			// Use Monolog's PHP console handler
 			$logger = new Logger( "Parsoid CLI" );
 			$handler = new ErrorLogHandler();
-			$handler->setFormatter( new LineFormatter( '%message%' ) );
+			// Don't suppress inline newlines
+			$handler->setFormatter( new LineFormatter( '%message%', null, true ) );
 			$logger->pushHandler( $handler );
 			$this->setLogger( $logger );
 		}
