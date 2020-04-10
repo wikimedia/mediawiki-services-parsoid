@@ -38,11 +38,11 @@ class PegTokenizer extends PipelineStage {
 	/**
 	 * @param Env $env
 	 * @param array $options
-	 * @param int $stageId
+	 * @param string $stageId
 	 * @param PipelineStage|null $prevStage
 	 */
 	public function __construct(
-		Env $env, array $options = [], int $stageId = -1, $prevStage = null
+		Env $env, array $options = [], string $stageId = "", $prevStage = null
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->env = $env;

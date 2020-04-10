@@ -793,7 +793,8 @@ class Env {
 	 * @param mixed $cat
 	 */
 	public function bumpTimeUse( string $resource, $time, $cat ): void {
-		throw new \BadMethodCallException( 'not yet ported' );
+		// --trace ttm:* trip on this if we throw an exception
+		// throw new \BadMethodCallException( 'not yet ported' );
 	}
 
 	/**

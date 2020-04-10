@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -23,9 +24,6 @@ class TokenTransformManager extends PipelineStage {
 	/** @var array */
 	private $options = null;
 
-	/** @var int */
-	private $stageId = -1;
-
 	/** @var string */
 	private $traceType = "";
 
@@ -41,28 +39,29 @@ class TokenTransformManager extends PipelineStage {
 	/**
 	 * @param Env $env
 	 * @param array $options
-	 * @param int $stageId
+	 * @param string $stageId
 	 * @param PipelineStage|null $prevStage
 	 */
-	public function __construct( Env $env, array $options, int $stageId, $prevStage = null ) {
+	public function __construct( Env $env, array $options, string $stageId, $prevStage = null ) {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
-		$this->stageId = $stageId;
-		$this->traceType = 'trace/ttm:' . $stageId;
+		$this->traceType = 'trace/ttm:' . preg_replace( '/TokenTransform/', '', $stageId );
 		$this->pipelineId = null;
 		$this->frame = $env->topFrame;
 
 		// Compute tracing state
 		$traceFlags = $env->traceFlags;
-		$traceState = null;
+		$this->traceState = null;
 		if ( $traceFlags ) {
-			$traceState = [
+			$this->traceState = [
 				'tokenTimes' => 0,
 				'traceFlags' => $traceFlags,
 				'traceTime' => !empty( $traceFlags['time'] ),
 				'tracer' => function ( $token, $transformer ) use ( $env ) {
+					$cname = Util::stripNamespace( get_class( $transformer ) );
+					$cnameStr = $cname . str_repeat( ' ', 23 - strlen( $cname ) ) . "|";
 					$env->log(
-						$this->traceType, $this->pipelineId, get_class( $transformer ),
+						$this->traceType, $this->pipelineId, $cnameStr,
 						PHPUtils::jsonEncode( $token )
 					);
 				},

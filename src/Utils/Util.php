@@ -33,6 +33,15 @@ class Util {
 	}
 
 	/**
+	 * Strip PHP namespace from the fully qualified class name
+	 * @param string $className
+	 * @return string
+	 */
+	public static function stripNamespace( string $className ): string {
+		return preg_replace( '/.*\\\\/', '', $className );
+	}
+
+	/**
 	 * Check for Parsoid id prefix in an aboutID string
 	 *
 	 * @param string $aboutId aboud ID string

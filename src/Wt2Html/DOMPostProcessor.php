@@ -68,11 +68,11 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * @param Env $env
 	 * @param array $options
-	 * @param int $stageId
+	 * @param string $stageId
 	 * @param PipelineStage|null $prevStage
 	 */
 	public function __construct(
-		Env $env, array $options = [], int $stageId = -1, $prevStage = null
+		Env $env, array $options = [], string $stageId = "", $prevStage = null
 	) {
 		parent::__construct( $env, $prevStage );
 
@@ -117,10 +117,6 @@ class DOMPostProcessor extends PipelineStage {
 		];
 	}
 
-	private static function stripNamespace( $className ) {
-		return preg_replace( '/.*\\\\/', '', $className );
-	}
-
 	/**
 	 * @param ?array $processors
 	 */
@@ -134,7 +130,7 @@ class DOMPostProcessor extends PipelineStage {
 				continue;
 			}
 			if ( empty( $p['name'] ) ) {
-				$p['name'] = self::stripNamespace( $p['Processor'] );
+				$p['name'] = Util::stripNamespace( $p['Processor'] );
 			}
 			if ( empty( $p['shortcut'] ) ) {
 				$p['shortcut'] = $p['name'];
@@ -317,7 +313,7 @@ class DOMPostProcessor extends PipelineStage {
 		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
 				'isExtPP' => true, // This is an extension DOM post processor
-				'name' => 'tag:' . self::stripNamespace( $extName ),
+				'name' => 'tag:' . Util::stripNamespace( $extName ),
 				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
 		}
