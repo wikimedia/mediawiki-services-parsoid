@@ -6,6 +6,7 @@ use Error;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * This implements some of the functionality that the tests/ParserTests/MockAPIHelper.php
@@ -565,6 +566,11 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function logLinterData( PageConfig $pageConfig, array $lints ): void {
+	public function logLinterData(
+		PageConfig $pageConfig, array $lints
+	): void {
+		foreach ( $lints as $l ) {
+			error_log( PHPUtils::jsonEncode( $l ) );
+		}
 	}
 }
