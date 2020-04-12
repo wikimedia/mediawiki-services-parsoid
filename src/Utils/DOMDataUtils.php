@@ -66,14 +66,17 @@ class DOMDataUtils {
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
 		'@phan-var stdClass $dataObject'; // @var stdClass $dataObject
-		Assert::invariant( !isset( $dataObject->storedId ),
-			'Trying to fetch node data without loading!' .
-			// If this node's data-object id is different from storedId,
-			// it will indicate that the data-parsoid object was shared
-			// between nodes without getting cloned. Useful for debugging.
-			'Node id: ' . $node->getAttribute( self::DATA_OBJECT_ATTR_NAME ) .
-			'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
+		if ( isset( $dataObject->storedId ) ) {
+			// @phan-suppress-next-line PhanImpossibleCondition
+			Assert::invariant( false,
+				'Trying to fetch node data without loading!' .
+				// If this node's data-object id is different from storedId,
+				// it will indicate that the data-parsoid object was shared
+				// between nodes without getting cloned. Useful for debugging.
+				'Node id: ' . $node->getAttribute( self::DATA_OBJECT_ATTR_NAME ) .
+				'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
 			);
+		}
 		return $dataObject;
 	}
 
