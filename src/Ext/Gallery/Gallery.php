@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\Extension;
@@ -14,6 +13,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Implements the php parser's `renderImageGallery` natively.
@@ -311,8 +311,7 @@ class Gallery extends ExtensionTag implements Extension {
 				// Ignore it
 				break;
 			default:
-				// @phan-suppress-next-line PhanImpossibleCondition
-				Assert::invariant( false, 'should not be here!' );
+				PHPUtils::unreachable( 'should not be here!' );
 				break;
 			}
 		}
