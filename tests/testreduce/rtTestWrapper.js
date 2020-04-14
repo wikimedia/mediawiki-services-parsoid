@@ -32,7 +32,6 @@ function _run(test) {
 
 function runRoundTripTest(config, test) {
 	if (!parsoidURLOpts) {
-		const testRunId = getTestRunId({});
 		parsoidURLOpts = config.parsoidPHP;
 		const configFile = path.resolve(__dirname, './htmldiffs.config.yaml');
 		if (fs.existsSync(configFile)) {
