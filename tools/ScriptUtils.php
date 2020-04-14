@@ -92,7 +92,7 @@ class ScriptUtils {
 				'',
 				'      dpload, fostered, tb-fixups, Normalize, pwrap, ',
 				'      migrate-metas, pres, migrate-nls, dsr, tplwrap, ',
-				'      dom-unpack, tag:EXT (replace EXT with extension: Cite, Poem, etc)',
+				'      dom-unpack, pp:EXT (replace EXT with extension: Cite, Poem, etc)',
 				'      sections, heading-ids, lang-converter, Linter, ',
 				'      strip-metas, linkclasses, redlinks, downgrade',
 				'',

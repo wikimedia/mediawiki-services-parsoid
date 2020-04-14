@@ -116,7 +116,7 @@ class ExtensionHandler extends TokenHandler {
 	private function onExtension( $token ): array {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
-		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
+		$nativeExt = $env->getSiteConfig()->getExtTagImpl( $extensionName );
 		$cachedExpansion = $env->extensionCache[$token->dataAttribs->src] ?? null;
 
 		$options = $token->getAttribute( 'options' );
@@ -181,7 +181,7 @@ class ExtensionHandler extends TokenHandler {
 
 		// Give native extensions a chance to manipulate the argDict
 		$extensionName = $state['wrapperName'];
-		$nativeExt = $env->getSiteConfig()->getNativeExtTagImpl( $extensionName );
+		$nativeExt = $env->getSiteConfig()->getExtTagImpl( $extensionName );
 		if ( $nativeExt ) {
 			$extApi = new ParsoidExtensionAPI( $env );
 			$nativeExt->modifyArgDict( $extApi, $argDict );
@@ -194,7 +194,7 @@ class ExtensionHandler extends TokenHandler {
 
 		// Check if the tag wants its DOM fragment not to be unwrapped.
 		// The default setting is to unwrap the content DOM fragment automatically.
-		$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $extensionName );
+		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 		if ( isset( $extConfig['options']['wt2html'] ) ) {
 			$opts += $extConfig['options']['wt2html'];
 		}

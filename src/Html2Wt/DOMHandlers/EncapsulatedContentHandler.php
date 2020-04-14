@@ -63,7 +63,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 				}
 			}
 			if ( ( $dataMw->name ?? null ) != '' ) {
-				$ext = $env->getSiteConfig()->getNativeExtTagImpl( $dataMw->name );
+				$ext = $env->getSiteConfig()->getExtTagImpl( $dataMw->name );
 				if ( $ext ) {
 					$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
 					if ( $src === false ) {
@@ -112,7 +112,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
-				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
+				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
 				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 					WTUtils::isNewElt( $node )
 				) {
@@ -150,7 +150,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
 		) {
 			if ( isset( $dataMw->name ) ) {
-				$extConfig = $env->getSiteConfig()->getNativeExtTagConfig( $dataMw->name );
+				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
 				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 					WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode )
 				) {

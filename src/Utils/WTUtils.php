@@ -817,6 +817,6 @@ class WTUtils {
 		$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
 		$matchingTag = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
 		return $matchingTag ?
-			$env->getSiteConfig()->getNativeExtTagImpl( $matchingTag ) : null;
+			$env->getSiteConfig()->getExtTagImpl( $matchingTag ) : null;
 	}
 }

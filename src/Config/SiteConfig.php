@@ -20,6 +20,42 @@ use Wikimedia\Parsoid\Utils\Util;
  * This includes both global configuration and wiki-level configuration.
  */
 abstract class SiteConfig {
+	/**
+	 * These "extensions" are considered to provide "core" functionality
+	 * and their implementations live in the Parsoid repo.
+	 *
+	 * @var array
+	 */
+	private static $coreExtModules = [ 'Nowiki', 'Pre', 'Gallery' ];
+
+	/**
+	 * The Parsoid/JS extension registration mechanism is short-lived and
+	 * we are going to rely on the core extension mechanism soon. Till then,
+	 * it is simplest to just hardcode the list of extensions that have
+	 * Parsoid-compatible implementations in the Parsoid repo
+	 *
+	 * @var array
+	 */
+	private static $parsoidRepoExtModules = [ 'Cite', 'LST', 'Poem', 'Translate', 'JSON' ];
+
+	/**
+	 * Array specifying fully qualified class name for Parsoid-compatible extensions
+	 * @var string[]
+	 */
+	private static $extModules = [];
+
+	public static function init() {
+		foreach ( self::$coreExtModules as $extName ) {
+			self::$extModules[] = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
+		}
+
+		foreach ( self::$parsoidRepoExtModules as $extName ) {
+			self::$extModules[] = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
+		}
+
+		self::$coreExtModules = [];
+		self::$parsoidRepoExtModules = [];
+	}
 
 	/** @var LoggerInterface|null */
 	protected $logger = null;
@@ -47,32 +83,21 @@ abstract class SiteConfig {
 	 */
 	protected $linterEnabled = false;
 
-	/**
-	 * The Parsoid/JS extension registration mechanism is short-lived and
-	 * we are going to probably rely on the core extension mechanism once
-	 * we integrate into core. So, for the port, it is simplest to just
-	 * hardcode the list of extensions that have native equivalents in Parsoid.
-	 *
-	 * @var array
-	 */
-	private $defaultNativeExtensions = [
-		'Cite', 'LST', 'Nowiki', 'Poem', 'Pre', 'Translate', 'Gallery', 'JSON'
-	];
-
 	/** var array */
-	protected $nativeExtConfig = null;
+	protected $extConfig = null;
 
 	/** @var bool */
-	private $nativeExtConfigInitialized;
+	private $extConfigInitialized;
 
 	public function __construct() {
-		$this->nativeExtConfigInitialized = false;
-		$this->nativeExtConfig = [
-			'allTags'       => [],
-			'nativeTags'    => [],
-			'domProcessors' => [],
-			'styles'        => [],
-			'contentModels' => []
+		self::init();
+		$this->extConfigInitialized = false;
+		$this->extConfig = [
+			'allTags'        => [],
+			'parsoidExtTags' => [],
+			'domProcessors'  => [],
+			'styles'         => [],
+			'contentModels'  => []
 		];
 	}
 
@@ -876,7 +901,7 @@ abstract class SiteConfig {
 	/**
 	 * Get an array of defined extension tags, with the lower case name in the
 	 * key, the value arbitrary. This is the set of extension tags that are
-	 * configured in M/W core. $defaultNativeExtensions may already be part of it,
+	 * configured in M/W core. $coreExtModules may already be part of it,
 	 * but eventually this distinction will disappear since all extension tags
 	 * have to be defined against the Parsoid's extension API.
 	 *
@@ -884,60 +909,64 @@ abstract class SiteConfig {
 	 */
 	abstract protected function getNonNativeExtensionTags(): array;
 
-	private function constructNativeExtConfig() {
-		$this->nativeExtConfig['allTags'] = array_merge(
-			$this->nativeExtConfig['allTags'],
+	// FIXME: might benefit from T250230 (caching)
+	private function constructExtConfig() {
+		$this->extConfig['allTags'] = array_merge(
+			$this->extConfig['allTags'],
 			$this->getNonNativeExtensionTags()
 		);
 
 		// Default content model implementation for wikitext
-		$this->nativeExtConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
+		$this->extConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
 
-		foreach ( $this->defaultNativeExtensions as $extName ) {
-			$extPkg = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
-			$this->registerNativeExtension( new $extPkg() );
+		foreach ( self::$extModules as $className ) {
+			$this->processExtensionModules( new $className() );
 		}
 
-		$this->nativeExtConfigInitialized = true;
+		$this->extConfigInitialized = true;
 	}
 
 	/**
-	 * Register a Parsoid-native extension
+	 * Register a Parsoid-compatible extension
 	 * @param Extension $ext
 	 */
-	protected function registerNativeExtension( Extension $ext ): void {
+	protected function processExtensionModules( Extension $ext ): void {
 		$extConfig = $ext->getConfig();
 
 		if ( isset( $extConfig['tags'] ) ) {
 			// This is for wt2html (sourceToDom), html2wt (domToWikitext), and linter functionality
 			foreach ( $extConfig['tags'] as $tagConfig ) {
 				$lowerTagName = mb_strtolower( $tagConfig['name'] );
-				$this->nativeExtConfig['allTags'][$lowerTagName] = true;
-				$this->nativeExtConfig['nativeTags'][$lowerTagName] = $tagConfig;
+				$this->extConfig['allTags'][$lowerTagName] = true;
+				$this->extConfig['parsoidExtTags'][$lowerTagName] = $tagConfig;
 			}
 		}
 
 		// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
 		if ( isset( $extConfig['domProcessors'] ) ) {
-			$this->nativeExtConfig['domProcessors'][get_class( $ext )] = $extConfig['domProcessors'];
+			$this->extConfig['domProcessors'][get_class( $ext )] = $extConfig['domProcessors'];
 		}
 
 		// Does this extension export any native styles?
 		// FIXME: When we integrate with core, this will probably generalize
 		// to all resources (scripts, modules, etc). not just styles.
 		// De-dupe styles after merging.
-		$this->nativeExtConfig['styles'] = array_unique( array_merge(
-			$this->nativeExtConfig['styles'], $extConfig['styles'] ?? []
+		// FIXME: This will unconditionally export all styles in the <head>
+		// when DOMPostProcessor fetches this. Instead these styles should
+		// be added to a ParserOutput equivalent object whenever the exttag
+		// is used.
+		$this->extConfig['styles'] = array_unique( array_merge(
+			$this->extConfig['styles'], $extConfig['styles'] ?? []
 		) );
 
 		if ( isset( $extConfig['contentModels'] ) ) {
 			foreach ( $extConfig['contentModels'] as $cm => $impl ) {
 				// For compatibility with mediawiki core, the first
 				// registered extension wins.
-				if ( isset( $this->nativeExtConfig['contentModels'][$cm] ) ) {
+				if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
 					continue;
 				}
-				$this->nativeExtConfig['contentModels'][$cm] = new ExtensionContentModelHandler( new $impl );
+				$this->extConfig['contentModels'][$cm] = new ExtensionContentModelHandler( new $impl );
 			}
 		}
 	}
@@ -945,11 +974,11 @@ abstract class SiteConfig {
 	/**
 	 * @return array
 	 */
-	private function getNativeExtensionsConfig(): array {
-		if ( !$this->nativeExtConfigInitialized ) {
-			$this->constructNativeExtConfig();
+	private function getExtConfig(): array {
+		if ( !$this->extConfigInitialized ) {
+			$this->constructExtConfig();
 		}
-		return $this->nativeExtConfig;
+		return $this->extConfig;
 	}
 
 	/**
@@ -960,8 +989,8 @@ abstract class SiteConfig {
 		// For now, fallback to 'wikitext' as the default handler
 		// FIXME: This is bogus, but this is just so suppress noise in our
 		// logs till we get around to handling all these other content models.
-		return ( $this->getNativeExtensionsConfig() )['contentModels'][$contentmodel] ??
-			( $this->getNativeExtensionsConfig() )['contentModels']['wikitext'];
+		return ( $this->getExtConfig() )['contentModels'][$contentmodel] ??
+			( $this->getExtConfig() )['contentModels']['wikitext'];
 	}
 
 	/**
@@ -982,17 +1011,17 @@ abstract class SiteConfig {
 	 * @return array
 	 */
 	public function getExtensionTagNameMap(): array {
-		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['allTags'];
+		$extConfig = $this->getExtConfig();
+		return $extConfig['allTags'];
 	}
 
 	/**
 	 * @param string $tagName Extension tag name
 	 * @return array|null
 	 */
-	public function getNativeExtTagConfig( string $tagName ): ?array {
-		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['nativeTags'][mb_strtolower( $tagName )] ?? null;
+	public function getExtTagConfig( string $tagName ): ?array {
+		$extConfig = $this->getExtConfig();
+		return $extConfig['parsoidExtTags'][mb_strtolower( $tagName )] ?? null;
 	}
 
 	/**
@@ -1000,25 +1029,25 @@ abstract class SiteConfig {
 	 * @return ExtensionTag|null
 	 *   Returns the implementation of the named extension, if there is one.
 	 */
-	public function getNativeExtTagImpl( string $tagName ): ?ExtensionTag {
-		$tagConfig = $this->getNativeExtTagConfig( $tagName );
+	public function getExtTagImpl( string $tagName ): ?ExtensionTag {
+		$tagConfig = $this->getExtTagConfig( $tagName );
 		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getNativeExtDOMProcessors(): array {
-		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['domProcessors'];
+	public function getExtDOMProcessors(): array {
+		$extConfig = $this->getExtConfig();
+		return $extConfig['domProcessors'];
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getNativeExtStyles(): array {
-		$nativeExtConfig = $this->getNativeExtensionsConfig();
-		return $nativeExtConfig['styles'];
+	public function getExtStyles(): array {
+		$extConfig = $this->getExtConfig();
+		return $extConfig['styles'];
 	}
 
 	/** @phan-var array<string,int> */

@@ -213,7 +213,7 @@ class SiteConfig extends ApiSiteConfig {
 	 * @param Extension $ext
 	 */
 	public function registerParserTestExtension( Extension $ext ): void {
-		$this->registerNativeExtension( $ext );
+		$this->processExtensionModules( $ext );
 	}
 
 	/**
@@ -225,12 +225,12 @@ class SiteConfig extends ApiSiteConfig {
 
 		foreach ( $extConfig['tags'] as $tagConfig ) {
 			$lowerTagName = mb_strtolower( $tagConfig['name'] );
-			unset( $this->nativeExtConfig['allTags'][$lowerTagName] );
-			unset( $this->nativeExtConfig['nativeTags'][$lowerTagName] );
+			unset( $this->extConfig['allTags'][$lowerTagName] );
+			unset( $this->extConfig['nativeTags'][$lowerTagName] );
 		}
 
 		if ( isset( $extConfig['domProcessors'] ) ) {
-			unset( $this->nativeExtConfig['domProcessors'][get_class( $ext )] );
+			unset( $this->extConfig['domProcessors'][get_class( $ext )] );
 		}
 
 		/*

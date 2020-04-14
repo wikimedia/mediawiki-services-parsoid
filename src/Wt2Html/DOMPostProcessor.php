@@ -315,10 +315,10 @@ class DOMPostProcessor extends PipelineStage {
 		 *   by analyzing what the DOM postprocessor does and see if it introduces
 		 *   potential ordering issues.
 		 */
-		foreach ( $env->getSiteConfig()->getNativeExtDOMProcessors() as $extName => $domProcs ) {
+		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
 				'isExtPP' => true, // This is an extension DOM post processor
-				'name' => 'tag:' . Util::stripNamespace( $extName ),
+				'name' => 'pp:' . Util::stripNamespace( $extName ),
 				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
 		}
@@ -683,7 +683,7 @@ class DOMPostProcessor extends PipelineStage {
 		];
 
 		// Styles from native extensions
-		foreach ( $env->getSiteConfig()->getNativeExtStyles() as $style ) {
+		foreach ( $env->getSiteConfig()->getExtStyles() as $style ) {
 			$modules[] = $style;
 		}
 
