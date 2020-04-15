@@ -309,11 +309,10 @@ class AttributeExpander extends TokenHandler {
 			// valid attributes (the templated attribute scenario is a special case) and
 			// orig-v will be "". So, the same strategy as above is applied here as well.
 
-			$origK = $expandedA->k;
-			$origV = $expandedA->v;
+			$expandedK = $origK = $expandedA->k;
+			$expandedV = $origV = $expandedA->v;
 			$updatedK = null;
 			$updatedV = null;
-			$expandedK = $expandedA->k;
 			$reparsedKV = false;
 
 			if ( $expandedK ) {
@@ -360,13 +359,11 @@ class AttributeExpander extends TokenHandler {
 							$kvs = preg_match( '/=/', $kStr ) ?
 								$this->tokenizer->tokenizeAs( $kStr, $rule, /* sol */true ) : null;
 							if ( $kvs ) {
-								// At this point, templates should have been
-								// expanded.  Returning a template token here
-								// probably means that when we just converted to
-								// string and reparsed, we put back together a
-								// failed expansion. This can be particularly bad
-								// when we make iterative calls to expand template
-								// names.
+								// At this point, templates should have been expanded.
+								// Returning a template token here probably means that
+								// when we just converted to string and reparsed, we put back
+								// together a failed expansion. This can be particularly bad
+								// when we make iterative calls to expand template names.
 								foreach ( $kvs as $kv ) {
 									if ( is_array( $kv->k ) ) {
 										$kv->k = self::convertTemplates( $kv->k );
@@ -375,10 +372,9 @@ class AttributeExpander extends TokenHandler {
 										$kv->v = self::convertTemplates( $kv->v );
 									}
 
-									// These `kv`s come from tokenizing the string
-									// we produced above, and will therefore have
-									// offset starting at zero. Shift them by the
-									// old amount if available.
+									// These `kv`s come from tokenizing the string we produced above,
+									// and will therefore have offset starting at zero.
+									// Shift them by the old amount if available.
 									if ( is_array( $expandedA->srcOffsets ) ) {
 										if ( is_array( $kv->srcOffsets ) ) {
 											$offset = $expandedA->srcOffsets[0];
@@ -412,25 +408,24 @@ class AttributeExpander extends TokenHandler {
 
 				// We have a potentially expanded value.
 				// Check if the value came from a template/extension expansion.
-				$attrValTokens = $origV;
 				if ( is_string( $expandedK ) && is_array( $oldA->v ) ) {
 					if ( !preg_match( '/^mw:/', $expandedK ) ) {
-						$nlTkPos = self::nlTkIndex( $nlTkOkay, $attrValTokens, $wrapTemplates );
+						$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedV, $wrapTemplates );
 						if ( $nlTkPos !== -1 ) {
 							// Scenario 1 from the documentation comment above.
 							$updatedV = self::splitTokens(
 								$this->manager->getFrame(), $token, $nlTkPos,
-								$attrValTokens, $wrapTemplates
+								$expandedV, $wrapTemplates
 							);
-							$attrValTokens = $updatedV['preNLBuf'];
+							$expandedV = $updatedV['preNLBuf'];
 							$postNLToks = $updatedV['postNLBuf'];
 							$metaTokens = $updatedV['metaTokens'];
 						} else {
 							// Scenario 2 from the documentation comment above.
-							$updatedV = self::stripMetaTags( $env, $attrValTokens, $wrapTemplates );
-							$attrValTokens = $updatedV['value'];
+							$updatedV = self::stripMetaTags( $env, $expandedV, $wrapTemplates );
+							$expandedV = $updatedV['value'];
 						}
-						$expandedA->v = $attrValTokens;
+						$expandedA->v = $expandedV;
 					}
 				}
 
@@ -477,10 +472,9 @@ class AttributeExpander extends TokenHandler {
 		// If the token already has an about, it already has transclusion/extension
 		// wrapping. No need to record information about templated attributes in addition.
 		//
-		// FIXME: If there is a real use case for extension attributes getting
-		// templated, this check can be relaxed to allow that.
-		// https://gerrit.wikimedia.org/r/#/c/65575 has some reference code that
-		// can be used then.
+		// FIXME: If there is a real use case for extension attributes getting templated,
+		// this check can be relaxed to allow that.
+		// https://gerrit.wikimedia.org/r/#/c/65575 has some reference code that can be used then.
 
 		if ( !$token->getAttribute( 'about' ) && $tmpDataMW && count( $tmpDataMW ) > 0 ) {
 			// Flatten k-v pairs.
@@ -491,8 +485,7 @@ class AttributeExpander extends TokenHandler {
 			}
 
 			// Clone the vals since they'll be passed to another pipeline
-			// for expanding, which may destructively mutate them in the
-			// process.
+			// for expanding, which may destructively mutate them in the process.
 			//
 			// This is a problem since subsequent handlers to the
 			// AttributeExpander may interact with the original tokens still
@@ -504,9 +497,8 @@ class AttributeExpander extends TokenHandler {
 			// unsetting properties changes the token as well.  This was
 			// the issue when an "href" was expanded and then the
 			// ExternalLinkHandler tried to call tokensToString on it,
-			// resulting in a transcluded entity missing its src (which,
-			// by the way, had already been clobered by WrapTemplates,
-			// similar to T214241).
+			// resulting in a transcluded entity missing its src (which, by the way,
+			// had already been clobered by WrapTemplates, similar to T214241).
 			//
 			// The general principle here being, don't share tokens between
 			// pipelines.
