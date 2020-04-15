@@ -4,6 +4,7 @@
 .gitattributes export-ignore
 .gitignore export-ignore
 .gitreview export-ignore
+.phan export-ignore
 .phpcs.xml export-ignore
 Doxyfile export-ignore
 composer.json export-ignore
