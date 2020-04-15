@@ -24,7 +24,7 @@ class FormatHelper {
 	];
 
 	const VALID_PAGE = [
-		self::FORMAT_WIKITEXT, self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE
+		self::FORMAT_WIKITEXT, self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE, self::FORMAT_LINT
 	];
 
 	const VALID_TRANSFORM = [

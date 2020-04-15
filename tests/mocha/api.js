@@ -473,10 +473,15 @@ describe('Parsoid API', function() {
 
 	describe('wt2lint', function() {
 
-		it('should reject the given page format', function(done) {
+		it('should lint the given page', function(done) {
 			request(api)
 			.get(mockDomain + '/v3/page/lint/Lint_Page/102')
-			.expect(404)
+			.expect(200)
+			.expect(function(res) {
+				res.body.should.be.instanceof(Array);
+				res.body.length.should.equal(1);
+				res.body[0].type.should.equal('fostered');
+			})
 			.end(done);
 		});
 
