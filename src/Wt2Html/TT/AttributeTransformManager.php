@@ -23,12 +23,6 @@ class AttributeTransformManager {
 	private $frame;
 
 	/**
-	 * Temporary holder for expanded KV values
-	 * @var array
-	 */
-	private $expandedKVs;
-
-	/**
 	 * @param Frame $frame
 	 * @param array $options
 	 *  - bool inTemplate (reqd) Is this being invoked while processing a template?
@@ -37,7 +31,6 @@ class AttributeTransformManager {
 	public function __construct( Frame $frame, array $options ) {
 		$this->options = $options;
 		$this->frame = $frame;
-		$this->expandedKVs = [];
 	}
 
 	private function processOne( KV $cur ): KV {
