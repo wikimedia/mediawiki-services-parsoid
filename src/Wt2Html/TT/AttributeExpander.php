@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -312,6 +313,8 @@ class AttributeExpander extends TokenHandler {
 			$updatedK = null;
 			$updatedV = null;
 			$reparsedKV = false;
+			$keyUsesMixedAttrContentTpl = false;
+			$valUsesMixedAttrContentTpl = false;
 
 			if ( $expandedK ) {
 				// FIXME: We should get rid of these array/string/non-string checks
@@ -325,6 +328,7 @@ class AttributeExpander extends TokenHandler {
 					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
 					if ( $nlTkPos !== -1 ) {
 						// Scenario 1 from the documentation comment above.
+						$keyUsesMixedAttrContentTpl = true;
 						$updatedK = self::splitTokens(
 							$this->manager->getFrame(), $token, $nlTkPos, $expandedK, $wrapTemplates
 						);
@@ -409,6 +413,7 @@ class AttributeExpander extends TokenHandler {
 					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedV, $wrapTemplates );
 					if ( $nlTkPos !== -1 ) {
 						// Scenario 1 from the documentation comment above.
+						$valUsesMixedAttrContentTpl = true;
 						$updatedV = self::splitTokens(
 							$this->manager->getFrame(), $token, $nlTkPos,
 							$expandedV, $wrapTemplates
@@ -426,11 +431,6 @@ class AttributeExpander extends TokenHandler {
 
 				// Update data-mw to account for templated attributes.
 				// For editability, set HTML property.
-				//
-				// If we encountered a reparse-KV-string scenario,
-				// we set the value's HTML to [] since we can edit
-				// the transclusion either via the key's HTML or the
-				// value's HTML, but not both.
 				if ( !empty( $updatedK['hasGeneratedContent'] ) ||
 					!empty( $updatedV['hasGeneratedContent'] ) ||
 					( $reparsedKV && count( $metaTokens ) > 0 )
@@ -439,19 +439,51 @@ class AttributeExpander extends TokenHandler {
 					if ( !$tmpDataMW ) {
 						$tmpDataMW = [];
 					}
+
+					// For the $(key|val)UsesMixedAttrContentTpl checks below,
+					// it is incorrect to assign the HTML for the original wikitext
+					// string since the content part will get duplicated in both
+					// this data-mw and in the actual body of the table (for example)
+					// and cause bugs like T249740.
+					//
+					// So, in this case, we assign just the key/value part of the HTML
+					// ($expandedA->k or $expandedA->v), but we mark it uneditable
+					// because we cannot really edit just the key/value of the attribute
+					// on its own because it is only a part of the template's output.
+					if ( $reparsedKV ) {
+						// If we encountered a reparse-KV-string scenario,
+						// we set the value's HTML to [] since we can edit
+						// the transclusion either via the key's HTML or the
+						// value's HTML, but not both.
+						$keyHTML = $keyUsesMixedAttrContentTpl ? $expandedA->k : $origK;
+						$valHTML = [];
+					} else {
+						Assert::invariant( !$keyUsesMixedAttrContentTpl,
+							"If reparseKV was false, and we had a mixed attr-content template, " .
+							"we should have landed in the valUsesMixedAttrContentTpl codepath." );
+						$keyHTML = empty( $updatedK['hasGeneratedContent'] ) ? null : $origK;
+						$valHTML = $valUsesMixedAttrContentTpl ? $expandedA->v : $origV;
+					}
+
+					// FIXME: Ideally we would have called them ktext, khtml, vhtml
+					// since in the serialized data-mw, the "k" and "v" key strings are dropped.
+					//    [{ "ktxt":..., "khtml":... }, { "vhtml":... }]
+					//         is clearer and less confusing than
+					//    [{ "txt":..., "html":... }, { "html":... }]
 					$tmpDataMW[$key] = [
-						'k' => [
-							'txt' => $key,
-							'html' => ( $reparsedKV || !empty( $updatedK['hasGeneratedContent'] ) ) ? $origK : null,
-							'srcOffsets' => $expandedA->srcOffsets->key,
-						],
-						'v' => [
-							'html' => $reparsedKV ? [] : $origV,
-							'srcOffsets' => $expandedA->srcOffsets->value,
-						]
+						'k' => [ 'txt' => $key, 'srcOffsets' => $expandedA->srcOffsets->key ],
+						// FIXME: Why is 'txt' missing? Why are we not checking for [] ?
+						'v' => [ 'html' => $valHTML, 'srcOffsets' => $expandedA->srcOffsets->value ]
 					];
-					if ( $tmpDataMW[$key]['k']['html'] === null ) {
-						unset( $tmpDataMW[$key]['k']['html'] );
+
+					if ( $keyHTML !== null ) {
+						$tmpDataMW[$key]['k']['html'] = $keyHTML;
+					}
+					if ( $keyUsesMixedAttrContentTpl ) {
+						$tmpDataMW[$key]['k']['uneditable'] = true;
+					}
+					if ( $valUsesMixedAttrContentTpl ) {
+						$tmpDataMW[$key]['v']['uneditable'] = true;
 					}
 				}
 			}

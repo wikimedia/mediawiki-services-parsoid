@@ -254,6 +254,16 @@ style="color:red;" title="T48811"
 |foo
 !! endarticle
 
+## This template has a category in fosterable position. See T249740 for details
+!! article
+Template:mixed_attr_content_template_2
+!! text
+style="color:red;" title="T249740"
+|-
+[[Category:Fostered Content]]
+|foo
+!! endarticle
+
 !! article
 Template:definition_list
 !! text
@@ -13599,6 +13609,31 @@ Templates: Support for templates generating attributes and content
 !! html/parsoid
 <table style="color:red;" title="T48811" about="#mwt1" typeof="mw:Transclusion mw:ExpandedAttrs" data-mw='{"parts":["{| ",{"template":{"target":{"wt":"mixed_attr_content_template","href":"./Template:Mixed_attr_content_template"},"params":{},"i":0}},"\n|-\n|bar\n|}"]}'>
 <tbody><tr>
+<td>foo</td></tr>
+<tr>
+<td>bar</td></tr>
+</tbody></table>
+!!end
+
+!! test
+Templates: Support for templates generating table attributes and content (with fostered categories)
+!! wikitext
+{| {{mixed_attr_content_template_2}}
+|-
+|bar
+|}
+!! html/php
+<table style="color:red;" title="T249740">
+<tbody><tr>
+<td>foo
+</td></tr>
+<tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:Fostered_Content" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:Fostered_Content"},"sa":{"href":"Category:Fostered Content"},"pi":[[]],"firstWikitextNode":"TABLE"}' data-mw='{"parts":["{| ",{"template":{"target":{"wt":"mixed_attr_content_template_2","href":"./Template:Mixed_attr_content_template_2"},"params":{},"i":0}},"\n|-\n|bar\n|}"]}'/><table style="color:red;" title="T249740" about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"style","html":"style=\"color:red;\" title=\"T249740\"","uneditable":true},{"html":""}]]}'>
+<tbody><tr>
+
 <td>foo</td></tr>
 <tr>
 <td>bar</td></tr>
