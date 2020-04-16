@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -64,8 +65,7 @@ class AttributeExpander extends TokenHandler {
 		// So, for now, we just suppress all newlines contained within these directives.
 		$includeRE = '#(?:^|\s)mw:Includes/(?:No|Only)?Include(?:Only)?(/.*)?(?:\s|$)#D';
 		$inInclude = false;
-		for ( $i = 0, $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[$i];
+		foreach ( $tokens as $i => $t ) {
 			if ( $t instanceof SelfclosingTagTk ) {
 				$type = $t->getAttribute( 'typeof' );
 				$typeMatch = [];
@@ -94,8 +94,7 @@ class AttributeExpander extends TokenHandler {
 		$metaTokens = null;
 
 		// Split the token array around the first newline token.
-		for ( $i = 0,  $l = count( $tokens );  $i < $l;  $i++ ) {
-			$t = $tokens[$i];
+		foreach ( $tokens as $i => $t ) {
 			if ( $i === $nlTkPos ) {
 				// split here!
 				$postNLBuf = array_slice( $tokens, $i );
@@ -164,8 +163,7 @@ class AttributeExpander extends TokenHandler {
 		$buf = [];
 		$hasGeneratedContent = false;
 
-		for ( $i = 0, $l = count( $tokens ); $i < $l; $i++ ) {
-			$t = $tokens[$i];
+		foreach ( $tokens as $t ) {
 			if ( $t instanceof TagTk || $t instanceof SelfclosingTagTk ) {
 				// Take advantage of this iteration of `tokens` to seek out
 				// document fragments.  They're an indication that an attribute
@@ -201,7 +199,11 @@ class AttributeExpander extends TokenHandler {
 		return [ 'hasGeneratedContent' => $hasGeneratedContent, 'value' => $buf ];
 	}
 
-	private static function convertTemplates( array $a ): array {
+	private static function tplToksToString( $a ) {
+		if ( !is_array( $a ) ) {
+			return $a;
+		}
+
 		$ret = [];
 		foreach ( $a as $t ) {
 			$ret[] = TokenUtils::isTemplateToken( $t ) ? $t->dataAttribs->src : $t;
@@ -230,13 +232,10 @@ class AttributeExpander extends TokenHandler {
 		// happens in this code.
 		$newAttrs = null;
 		$nlTkPos = -1;
-		$i = null;
-		$l = null;
 		$nlTkOkay = TokenUtils::isHTMLTag( $token ) || !TokenUtils::isTableTag( $token );
 
 		// Identify attributes that were generated in full or in part using templates
-		for ( $i = 0, $l = count( $oldAttrs );  $i < $l;  $i++ ) {
-			$oldA = $oldAttrs[$i];
+		foreach ( $oldAttrs as $i => $oldA ) {
 			$expandedA = $expandedAttrs[$i];
 
 			// Preserve the key and value source, if available.
@@ -319,114 +318,109 @@ class AttributeExpander extends TokenHandler {
 				// FIXME: We should get rid of these array/string/non-string checks
 				// and probably use appropriately-named flags to convey type information.
 				if ( is_array( $oldA->k ) ) {
-					if ( !( is_string( $expandedK ) &&
-						preg_match( '/(^|\s)mw:maybeContent(\s|$)/D', $expandedK ) )
-					) {
-						$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
-						if ( $nlTkPos !== -1 ) {
-							// Scenario 1 from the documentation comment above.
-							$updatedK = self::splitTokens(
-								$this->manager->getFrame(), $token, $nlTkPos,
-								$expandedK, $wrapTemplates
-							);
-							$expandedK = $updatedK['preNLBuf'];
-							$postNLToks = $updatedK['postNLBuf'];
-							$metaTokens = $updatedK['metaTokens'];
-						} else {
-							// Scenario 2 from the documentation comment above.
-							$updatedK = self::stripMetaTags( $env, $expandedK, $wrapTemplates );
-							$expandedK = $updatedK['value'];
-						}
+					Assert::invariant( is_array( $expandedK ),
+						"expandedK: expected array. Found: " . PHPUtils::jsonEncode( $expandedK ) );
 
-						$expandedA->k = $expandedK;
+					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
+					if ( $nlTkPos !== -1 ) {
+						// Scenario 1 from the documentation comment above.
+						$updatedK = self::splitTokens(
+							$this->manager->getFrame(), $token, $nlTkPos, $expandedK, $wrapTemplates
+						);
+						$expandedK = $updatedK['preNLBuf'];
+						$postNLToks = $updatedK['postNLBuf'];
+						$metaTokens = $updatedK['metaTokens'];
+					} else {
+						// Maybe scenario 2 from the documentation comment above.
+						$updatedK = self::stripMetaTags( $env, $expandedK, $wrapTemplates );
+						$expandedK = $updatedK['value'];
+					}
 
-						// Check if we need to deal with the Reparse-KV-string scenario.
-						// (See documentation comment above)
-						// So far, "standalone" mode is only for expanding template
-						// targets, which by definition do not have values, so this
-						// scenario doesn't apply.  It was wrongly being triggered
-						// by the "#ifexpr" parser function, which can expect the
-						// "=" equality operator.
-						if ( $expandedA->v === '' && empty( $this->options['standalone'] ) ) {
-							// Extract a parsable string from the token array.
-							// Trim whitespace to ensure tokenizer isn't tripped up
-							// by the presence of unnecessary whitespace.
-							$kStr = trim( TokenUtils::tokensToString( $expandedK, false, [
-								'unpackDOMFragments' => true,
-								'env' => $env
-							] ) );
-							$rule = $nlTkOkay ? 'generic_newline_attributes' : 'table_attributes';
-							$kvs = preg_match( '/=/', $kStr ) ?
-								$this->tokenizer->tokenizeAs( $kStr, $rule, /* sol */true ) : null;
-							if ( $kvs ) {
-								// At this point, templates should have been expanded.
-								// Returning a template token here probably means that
-								// when we just converted to string and reparsed, we put back
-								// together a failed expansion. This can be particularly bad
-								// when we make iterative calls to expand template names.
-								foreach ( $kvs as $kv ) {
-									if ( is_array( $kv->k ) ) {
-										$kv->k = self::convertTemplates( $kv->k );
-									}
-									if ( is_array( $kv->v ) ) {
-										$kv->v = self::convertTemplates( $kv->v );
-									}
+					$expandedA->k = $expandedK;
 
-									// These `kv`s come from tokenizing the string we produced above,
-									// and will therefore have offset starting at zero.
-									// Shift them by the old amount if available.
-									if ( is_array( $expandedA->srcOffsets ) ) {
-										if ( is_array( $kv->srcOffsets ) ) {
-											$offset = $expandedA->srcOffsets[0];
-											foreach ( $kv->srcOffsets as $j => $_ ) {
-												$kv->srcOffsets[$j] += $offset;
-											}
+					// Check if we need to deal with the Reparse-KV-string scenario.
+					// (See documentation comment above.)
+					//
+					// Don't incorrectly reparse the kv string for parser functions.
+					// Ex: "#ifexpr" parser function expects the "=" equality operator.
+					// We encounter those in "standalone" mode (used to expand
+					// templated template targets).
+					if ( $expandedA->v === '' && empty( $this->options['standalone'] ) ) {
+						// Extract a parsable string from the token array.
+						// Trim whitespace to ensure tokenizer isn't tripped up
+						// by the presence of unnecessary whitespace.
+						$kStr = trim( TokenUtils::tokensToString( $expandedK, false, [
+							'unpackDOMFragments' => true,
+							'env' => $env
+						] ) );
+						$rule = $nlTkOkay ? 'generic_newline_attributes' : 'table_attributes';
+						$kvs = preg_match( '/=/', $kStr ) ?
+							$this->tokenizer->tokenizeAs( $kStr, $rule, /* sol */true ) : null;
+						if ( $kvs ) {
+							// At this point, templates should have been expanded.
+							// Returning a template token here probably means that
+							// when we just converted to string and reparsed, we failed
+							// to expand the template. This can be particularly bad
+							// when we make iterative calls to expand template names.
+							// So, give up template expansion and convert them to strings.
+							foreach ( $kvs as $kv ) {
+								$kv->k = self::tplToksToString( $kv->k );
+								$kv->v = self::tplToksToString( $kv->v );
+
+								// These `kv`s come from tokenizing the string we produced above,
+								// and will therefore have offset starting at zero.
+								// Shift them by the old amount if available.
+								if ( is_array( $expandedA->srcOffsets ) ) {
+									if ( is_array( $kv->srcOffsets ) ) {
+										$offset = $expandedA->srcOffsets[0];
+										foreach ( $kv->srcOffsets as $j => $_ ) {
+											$kv->srcOffsets[$j] += $offset;
 										}
 									}
 								}
-								// SSS FIXME: Collect all keys here, not just the first key
-								// i.e. in a string like {{echo|1=id='v1' title='foo' style='..'}}
-								// that string is setting attributes for [id, title, style], not just id.
-								//
-								// That requires the ability for the data-mw.attribs[i].txt to be an array.
-								// However, the spec at [[mw:Parsoid/MediaWiki_DOM_spec]] says:
-								//    "This spec also assumes that a template can only
-								//     generate one attribute rather than multiple attributes."
-								//
-								// So, revision of the spec is another FIXME at which point this code can
-								// be updated to reflect the revised spec.
-								$expandedK = $kvs[0]->k;
-								$reparsedKV = true;
-								if ( !$newAttrs ) {
-									$newAttrs = $i === 0 ? [] : array_slice( $expandedAttrs, 0, $i );
-								}
-								$newAttrs = array_merge( $newAttrs, $kvs );
 							}
+							// SSS FIXME: Collect all keys here, not just the first key
+							// i.e. in a string like {{echo|1=id='v1' title='foo' style='..'}}
+							// that string is setting attributes for [id, title, style], not just id.
+							//
+							// That requires the ability for the data-mw.attribs[i].txt to be an array.
+							// However, the spec at [[mw:Parsoid/MediaWiki_DOM_spec]] says:
+							//    "This spec also assumes that a template can only
+							//     generate one attribute rather than multiple attributes."
+							//
+							// So, revision of the spec is another FIXME at which point this code can
+							// be updated to reflect the revised spec.
+							$expandedK = $kvs[0]->k;
+							$reparsedKV = true;
+							if ( !$newAttrs ) {
+								$newAttrs = $i === 0 ? [] : array_slice( $expandedAttrs, 0, $i );
+							}
+							$newAttrs = array_merge( $newAttrs, $kvs );
 						}
 					}
 				}
 
 				// We have a potentially expanded value.
 				// Check if the value came from a template/extension expansion.
-				if ( is_string( $expandedK ) && is_array( $oldA->v ) ) {
-					if ( !preg_match( '/^mw:/', $expandedK ) ) {
-						$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedV, $wrapTemplates );
-						if ( $nlTkPos !== -1 ) {
-							// Scenario 1 from the documentation comment above.
-							$updatedV = self::splitTokens(
-								$this->manager->getFrame(), $token, $nlTkPos,
-								$expandedV, $wrapTemplates
-							);
-							$expandedV = $updatedV['preNLBuf'];
-							$postNLToks = $updatedV['postNLBuf'];
-							$metaTokens = $updatedV['metaTokens'];
-						} else {
-							// Scenario 2 from the documentation comment above.
-							$updatedV = self::stripMetaTags( $env, $expandedV, $wrapTemplates );
-							$expandedV = $updatedV['value'];
-						}
-						$expandedA->v = $expandedV;
+				if ( is_string( $expandedK ) && !preg_match( '/^mw:/', $expandedK )
+					&& is_array( $oldA->v )
+				) {
+					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedV, $wrapTemplates );
+					if ( $nlTkPos !== -1 ) {
+						// Scenario 1 from the documentation comment above.
+						$updatedV = self::splitTokens(
+							$this->manager->getFrame(), $token, $nlTkPos,
+							$expandedV, $wrapTemplates
+						);
+						$expandedV = $updatedV['preNLBuf'];
+						$postNLToks = $updatedV['postNLBuf'];
+						$metaTokens = $updatedV['metaTokens'];
+					} else {
+						// Maybe scenario 2 from the documentation comment above.
+						$updatedV = self::stripMetaTags( $env, $expandedV, $wrapTemplates );
+						$expandedV = $updatedV['value'];
 					}
+					$expandedA->v = $expandedV;
 				}
 
 				// Update data-mw to account for templated attributes.
