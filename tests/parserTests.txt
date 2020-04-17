@@ -3837,6 +3837,17 @@ foo
 --> b</p>
 !! end
 
+!! test
+Indent pre with leading colon
+!! wikitext
+ :foo
+!! html/php
+<pre>:foo
+</pre>
+!! html/parsoid
+<pre>:foo</pre>
+!! end
+
 ###
 ### HTML-pre (some to spec PHP parser behavior and some Parsoid-RT-centric)
 ###

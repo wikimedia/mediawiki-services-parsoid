@@ -2178,7 +2178,7 @@ urltext =
 		// Convert trailing space into &nbsp;
 		// FIXME: Parsoid's handling of french spacing is broken; see
 		// T197879
-		/ ' ' & ':' {
+		/ ! sol ' ' & ':' {
 			// Content with mw:Placeholder typeof attribute will be ignored by
 			// editing clients and they are not expected to modify it either.
 			// This is just an escape hatch for scenarios where we don't have
