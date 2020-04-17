@@ -15,6 +15,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -349,9 +350,7 @@ class JSON extends ContentModelHandlerExtension {
 		Assert::invariant( $t && $t->tagName === 'table',
 			'Expected tagName = table' );
 		self::rootValueTableFrom( $t );
-		return json_encode( self::rootValueTableFrom( $t ),
-// PORT-FIXME should this code use the following JSON options
-			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE, 6 );
+		return PHPUtils::jsonEncode( self::rootValueTableFrom( $t ) );
 	}
 
 }

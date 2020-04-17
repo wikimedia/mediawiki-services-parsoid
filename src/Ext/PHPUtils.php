@@ -29,4 +29,15 @@ class PHPUtils {
 	public static function arrayToObject( $array ) {
 		return (object)array_combine( array_keys( $array ), array_values( $array ) );
 	}
+
+	/**
+	 * json_encode wrapper function
+	 * - unscapes slashes and unicode
+	 *
+	 * @param mixed $o
+	 * @return string
+	 */
+	public static function jsonEncode( $o ): string {
+		return \Wikimedia\Parsoid\Utils\PHPUtils::jsonEncode( $o );
+	}
 }

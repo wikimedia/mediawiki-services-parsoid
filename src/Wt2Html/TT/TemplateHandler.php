@@ -801,17 +801,13 @@ class TemplateHandler extends TokenHandler {
 					foreach ( $params as $paramData ) {
 						$this->getParamHTML( $paramData );
 					}
-
-					// Use a data-attribute to prevent the sanitizer from stripping this
-					// attribute before it reaches the DOM pass where it is needed.
-					$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
-				} else {
-					$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 				}
 			} else {
 				// Don't add the HTML template parameters, just use their wikitext
-				$chunk[0]->dataAttribs->tmp->tplarginfo = json_encode( $argInfo );
 			}
+			// Use a data-attribute to prevent the sanitizer from stripping this
+			// attribute before it reaches the DOM pass where it is needed
+			$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 		}
 
 		$env->log( 'debug', 'TemplateHandler.encapsulateTemplate', $chunk );
