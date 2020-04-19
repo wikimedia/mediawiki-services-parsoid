@@ -6,21 +6,20 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use DOMElement;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Language\LanguageConverter;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class LangConverter {
-
+class LangConverter implements Wt2HtmlDOMProcessor {
 	/**
-	 * @param DOMElement $rootNode
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMElement $rootNode, Env $env, $options = [] ) {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		LanguageConverter::maybeConvert(
 			$env,
-			$rootNode->ownerDocument,
+			$root->ownerDocument,
 			$env->getHtmlVariantLanguage(),
 			$env->getWtVariantLanguage()
 		);
 	}
-
 }

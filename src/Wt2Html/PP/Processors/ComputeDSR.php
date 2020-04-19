@@ -17,8 +17,9 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class ComputeDSR {
+class ComputeDSR implements Wt2HtmlDOMProcessor {
 	/**
 	 * For an explanation of what TSR is, see ComputeDSR::computeNodeDSR()
 	 *
@@ -772,15 +773,19 @@ class ComputeDSR {
 
 	/**
 	 * Computes DSR ranges for every node of a DOM tree.
+	 * This pass is only invoked on the top-level page.
 	 *
-	 * @param DOMElement $rootNode The root of the tree for which DSR has to be computed
 	 * @param Env $env The environment/context for the parse pipeline
+	 * @param DOMElement $root The root of the tree for which DSR has to be computed
 	 * @param array|null $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
+	 * @param bool $atTopLevel Are we running this on the top level?
 	 */
-	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ): void {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
 		$endOffset = $options['sourceOffsets']->end ?? strlen( $frame->getSrcText() );
@@ -788,9 +793,9 @@ class ComputeDSR {
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
-		$this->computeNodeDSR( $frame, $rootNode, $startOffset, $endOffset, 0, $opts );
+		$this->computeNodeDSR( $frame, $root, $startOffset, $endOffset, 0, $opts );
 
-		$dp = DOMDataUtils::getDataParsoid( $rootNode );
+		$dp = DOMDataUtils::getDataParsoid( $root );
 		$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
 		$env->log( "trace/dsr", "------- done tracing computation -------" );
 	}

@@ -3,14 +3,16 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class MigrateTemplateMarkerMetas {
+class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	/**
 	 * This will move the start/end-meta closest to the content
 	 * that the template/extension produced and improve accuracy
@@ -81,11 +83,11 @@ class MigrateTemplateMarkerMetas {
 	}
 
 	/**
-	 * @param DOMNode $root
-	 * @param Env $env
-	 * @param array $opts
+	 * @inheritDoc
 	 */
-	public function run( DOMNode $root, Env $env, array $opts ) {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		$this->doMigrate( $root, $env );
 	}
 }

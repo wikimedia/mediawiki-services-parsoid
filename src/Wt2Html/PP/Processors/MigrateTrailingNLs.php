@@ -12,8 +12,9 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class MigrateTrailingNLs {
+class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	private static $nodesToMigrateFrom;
 
 	/**
@@ -239,11 +240,11 @@ class MigrateTrailingNLs {
 	}
 
 	/**
-	 * @param DOMNode $node
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMNode $node, Env $env, ?array $options = null ) {
-		$this->doMigrateTrailingNLs( $node, $env );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		$this->doMigrateTrailingNLs( $root, $env );
 	}
 }

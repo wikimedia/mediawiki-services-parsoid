@@ -9,8 +9,9 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class HandlePres {
+class HandlePres implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param string $str
 	 * @param bool $isLastChild
@@ -129,10 +130,11 @@ class HandlePres {
 	}
 
 	/**
-	 * @param DOMNode $body
-	 * @param Env $env
+	 * @inheritDoc
 	 */
-	public function run( DOMNode $body, Env $env ): void {
-		$this->findAndHandlePres( $body, false );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		$this->findAndHandlePres( $root, false );
 	}
 }

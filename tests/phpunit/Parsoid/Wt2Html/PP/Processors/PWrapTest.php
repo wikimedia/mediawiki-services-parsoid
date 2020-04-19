@@ -23,7 +23,7 @@ class PWrapTest extends TestCase {
 		$mockEnv = new MockEnv( [] );
 		$body = ContentUtils::ppToDOM( $mockEnv, $html );
 		$pwrap = new PWrap();
-		$pwrap->run( $body, $mockEnv );
+		$pwrap->run( $mockEnv, $body );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
 		$pattern = '/ ' . DOMDataUtils::DATA_OBJECT_ATTR_NAME . '="\d+"/';

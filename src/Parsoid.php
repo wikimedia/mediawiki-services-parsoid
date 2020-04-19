@@ -332,7 +332,7 @@ class Parsoid {
 			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 		if ( $update === 'redlinks' ) {
-			AddRedLinks::run( DOMCompat::getBody( $doc ), $env );
+			( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
 		} elseif ( $update === 'variant' ) {
 			DOMDataUtils::visitAndLoadDataAttribs(
 				DOMCompat::getBody( $doc ), [ 'markNew' => true ]
@@ -376,7 +376,7 @@ class Parsoid {
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
-		( new ConvertOffsets() )->run( DOMCompat::getBody( $doc ), $env );
+		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ) );
 		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $options['body_only'] );

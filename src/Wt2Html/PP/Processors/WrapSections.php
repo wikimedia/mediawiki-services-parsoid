@@ -14,8 +14,9 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class WrapSections {
+class WrapSections implements Wt2HtmlDOMProcessor {
 	/**
 	 * Get page source between the requested offsets
 	 *
@@ -401,20 +402,20 @@ class WrapSections {
 	}
 
 	/**
-	 * DOM Postprocessor entry function to walk DOM rooted at $rootNode
+	 * DOM Postprocessor entry function to walk DOM rooted at $root
 	 * and add <section> wrappers as necessary.
 	 * Implements the algorithm documented @ mw:Parsing/Notes/Section_Wrapping
 	 *
-	 * @param DOMElement $rootNode
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ) {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		if ( !$env->getWrapSections() ) {
 			return;
 		}
 
-		$doc = $rootNode->ownerDocument;
+		$doc = $root->ownerDocument;
 		$leadSection = [
 			'container' => $doc->createElement( 'section' ),
 			'debug_id' => 0,
@@ -431,16 +432,16 @@ class WrapSections {
 			'frame' => $options['frame'],
 			'count' => 1,
 			'doc' => $doc,
-			'rootNode' => $rootNode,
+			'rootNode' => $root,
 			'sectionNumber' => 0,
 			'inTemplate' => false,
 			'tplsAndExtsToExamine' => []
 		];
-		$this->wrapSectionsInDOM( $state, $leadSection, $rootNode );
+		$this->wrapSectionsInDOM( $state, $leadSection, $root );
 
 		// There will always be a lead section, even if sometimes it only
 		// contains whitespace + comments.
-		$rootNode->insertBefore( $leadSection['container'], $rootNode->firstChild );
+		$root->insertBefore( $leadSection['container'], $root->firstChild );
 
 		// Resolve template conflicts after all sections have been added to the DOM
 		$this->resolveTplExtSectionConflicts( $state );

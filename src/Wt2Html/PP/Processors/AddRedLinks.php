@@ -6,16 +6,18 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use DOMElement;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class AddRedLinks {
+class AddRedLinks implements Wt2HtmlDOMProcessor {
 	/**
 	 * Add red links to a document.
 	 *
-	 * @param DOMElement $rootNode
-	 * @param Env $env
+	 * @inheritDoc
 	 */
-	public static function run( DOMElement $rootNode, Env $env ): void {
-		$wikiLinks = DOMCompat::querySelectorAll( $rootNode, 'a[rel~="mw:WikiLink"]' );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		$wikiLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
 
 		$titles = array_reduce(
 			$wikiLinks,

@@ -7,6 +7,7 @@ use DOMElement;
 use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * Class for helping us traverse the DOM.
@@ -14,7 +15,7 @@ use Wikimedia\Parsoid\Config\Env;
  * This class currently does a pre-order depth-first traversal.
  * See {@link DOMPostOrder} for post-order traversal.
  */
-class DOMTraverser {
+class DOMTraverser implements Wt2HtmlDOMProcessor {
 	/**
 	 * List of handlers to call on each node. Each handler is an array with the following fields:
 	 * - action: a callable to call
@@ -100,8 +101,8 @@ class DOMTraverser {
 	 *   `$workNode->nextSibling` works even when workNode is a last child of its parent.
 	 * - `true`: continues regular processing on current node.
 	 *
-	 * @param DOMNode $workNode The root node for the traversal.
 	 * @param Env $env
+	 * @param DOMNode $workNode The root node for the traversal.
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param stdClass|null $tplInfo Template information. When set, it must have all of these fields:
@@ -111,7 +112,7 @@ class DOMTraverser {
 	 *   - clear: when set, the template will not be passed along for further processing
 	 */
 	public function traverse(
-		DOMNode $workNode, Env $env,
+		Env $env, DOMNode $workNode,
 		array $options = [], bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
 		while ( $workNode !== null ) {
@@ -155,7 +156,7 @@ class DOMTraverser {
 			if ( $possibleNext === true ) {
 				// the 'continue processing' case
 				if ( DOMUtils::isElt( $workNode ) && $workNode->hasChildNodes() ) {
-					$this->traverse( $workNode->firstChild, $env, $options, $atTopLevel, $tplInfo );
+					$this->traverse( $env, $workNode->firstChild, $options, $atTopLevel, $tplInfo );
 				}
 				$possibleNext = $workNode->nextSibling;
 			}
@@ -169,4 +170,12 @@ class DOMTraverser {
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function run(
+		Env $env, DOMElement $workNode, array $options = [], bool $atTopLevel = false
+	): void {
+		$this->traverse( $env, $workNode, $options, $atTopLevel );
+	}
 }

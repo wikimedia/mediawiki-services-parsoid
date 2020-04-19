@@ -16,12 +16,13 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * DOM pass that walks the DOM tree, detects specific wikitext patterns,
  * and emits them as linter events.
  */
-class Linter {
+class Linter implements Wt2HtmlDOMProcessor {
 	/** @var ParsoidExtensionAPI */
 	private $extApi = null;
 
@@ -1252,19 +1253,19 @@ class Linter {
 	}
 
 	/**
-	 * Run the processor (?)
-	 * @param DOMNode $body
-	 * @param Env $env
-	 * @param array $options
+	 * This is only invoked on the top-level document
+	 * @inheritDoc
 	 */
-	public function run( DOMNode $body, Env $env, array $options = [] ): void {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		// Skip linting if we cannot lint it
 		if ( !$env->getPageConfig()->hasLintableContentModel() ) {
 			return;
 		}
 
 		$this->extApi = new ParsoidExtensionAPI( $env );
-		$this->findLints( $body, $env );
+		$this->findLints( $root, $env );
 		$this->postProcessLints( $env->getLints(), $env );
 	}
 

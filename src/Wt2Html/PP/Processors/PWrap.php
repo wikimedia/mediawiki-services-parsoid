@@ -9,8 +9,9 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class PWrap {
+class PWrap implements Wt2HtmlDOMProcessor {
 	/**
 	 * Flattens an array with other arrays for elements into
 	 * an array without nested arrays.
@@ -238,11 +239,11 @@ class PWrap {
 	 * Wrap children of <body> as well as children of
 	 * <blockquote> found anywhere in the DOM tree.
 	 *
-	 * @param DOMElement $root
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMElement $root, Env $env, $options = [] ) {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		$this->pWrapDOM( $root );
 		$this->pWrapInsideTag( $root, 'blockquote' );
 	}

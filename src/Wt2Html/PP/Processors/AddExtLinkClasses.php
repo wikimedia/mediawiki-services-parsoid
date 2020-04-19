@@ -7,19 +7,20 @@ use DOMElement;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class AddExtLinkClasses {
+class AddExtLinkClasses implements Wt2HtmlDOMProcessor {
 	/**
 	 * Add class info to ExtLink information.
 	 * Currently positions the class immediately after the rel attribute
 	 * to keep tests stable.
 	 *
-	 * @param DOMElement $body
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMElement $body, Env $env, array $options = null ): void {
-		$extLinks = DOMCompat::querySelectorAll( $body, 'a[rel~="mw:ExtLink"]' );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		$extLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:ExtLink"]' );
 		foreach ( $extLinks as $a ) {
 			$classInfoText = 'external autonumber';
 			if ( $a->firstChild ) {

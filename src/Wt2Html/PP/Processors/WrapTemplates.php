@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * Template encapsulation happens in three steps.
@@ -56,7 +57,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * in pseudo-code as an algorithm.
  * @module
  */
-class WrapTemplates {
+class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 	private const MAP_TBODY_TR = [
 		'tbody' => true,
@@ -1246,11 +1247,11 @@ class WrapTemplates {
 	 * Encapsulate template-affected DOM structures by wrapping text nodes into
 	 * spans and adding RDFa attributes to all subtree roots according to
 	 * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
-	 * @param DOMNode $body
-	 * @param Env $env
-	 * @param array $options
+	 * @inheritDoc
 	 */
-	public static function run( DOMNode $body, Env $env, array $options = [] ): void {
-		self::wrapTemplatesInTree( $body->ownerDocument, $options['frame'], $body );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		self::wrapTemplatesInTree( $root->ownerDocument, $options['frame'], $root );
 	}
 }

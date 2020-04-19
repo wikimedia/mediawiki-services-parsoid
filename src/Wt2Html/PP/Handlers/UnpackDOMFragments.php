@@ -85,7 +85,7 @@ class UnpackDOMFragments {
 			return true;
 		};
 		$dsrFixer->addHandler( null, $fixHandler );
-		$dsrFixer->traverse( $fragment->firstChild, $env );
+		$dsrFixer->traverse( $env, $fragment->firstChild );
 		$fixHandler( $fragment );
 	}
 

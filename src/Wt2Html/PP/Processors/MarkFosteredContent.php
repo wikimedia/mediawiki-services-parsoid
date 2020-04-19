@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * Non-IEW (inter-element-whitespace) can only be found in <td> <th> and
@@ -25,7 +26,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  * http://www.w3.org/TR/html5/syntax.html#foster-parent
  * @module
  */
-class MarkFosteredContent {
+class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 	/**
 	 * Create a new DOM node with attributes.
 	 *
@@ -235,10 +236,11 @@ class MarkFosteredContent {
 	}
 
 	/**
-	 * @param DOMNode $node
-	 * @param Env $env
+	 * @inheritDoc
 	 */
-	public static function run( DOMNode $node, Env $env ): void {
-		self::processRecursively( $node, $env );
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		self::processRecursively( $root, $env );
 	}
 }

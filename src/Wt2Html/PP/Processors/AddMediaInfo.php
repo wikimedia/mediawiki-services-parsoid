@@ -13,8 +13,9 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class AddMediaInfo {
+class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	/**
 	 * Extract the dimensions for media.
 	 *
@@ -572,12 +573,13 @@ class AddMediaInfo {
 	}
 
 	/**
-	 * @param DOMElement $rootNode
-	 * @param Env $env
+	 * @inheritDoc
 	 */
-	public static function run( DOMElement $rootNode, Env $env ): void {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		$urlParser = new PegTokenizer( $env );
-		$containers = DOMCompat::querySelectorAll( $rootNode, 'figure,figure-inline' );
+		$containers = DOMCompat::querySelectorAll( $root, 'figure,figure-inline' );
 
 		// Try to ensure `addMediaInfo` is idempotent based on finding the
 		// structure unaltered from the emitted tokens.  Note that we may hit

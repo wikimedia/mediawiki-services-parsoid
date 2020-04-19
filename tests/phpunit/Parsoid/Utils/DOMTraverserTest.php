@@ -47,7 +47,7 @@ HTML;
 			}
 			return true;
 		} );
-		$traverser->traverse( $doc->documentElement, $env, [], true, null );
+		$traverser->traverse( $env, $doc->documentElement, [], true, null );
 		$this->assertSame( $expectedTrace, $trace );
 	}
 

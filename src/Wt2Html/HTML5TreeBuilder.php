@@ -170,7 +170,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		$t->addHandler( null, function ( ...$args ) use ( &$seenDataIds ) {
 			return PrepareDOM::handler( $seenDataIds, ...$args );
 		} );
-		$t->traverse( DOMCompat::getBody( $doc ), $this->env, [], false, null );
+		$t->traverse( $this->env, DOMCompat::getBody( $doc ), [], false, null );
 
 		// PORT-FIXME: Are we reusing this?  Switch to `init()`
 		// $this->resetState([]);

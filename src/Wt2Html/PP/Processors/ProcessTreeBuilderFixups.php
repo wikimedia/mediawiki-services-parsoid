@@ -13,8 +13,9 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class ProcessTreeBuilderFixups {
+class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	/**
 	 * Replace a meta node with an empty text node, which will be deleted by
 	 * the normalize pass. This is faster than just deleting the node if there
@@ -364,14 +365,14 @@ class ProcessTreeBuilderFixups {
 	}
 
 	/**
-	 * @param DOMElement $body
-	 * @param Env $env
-	 * @param array $options
+	 * @inheritDoc
 	 */
-	public static function run( DOMElement $body, Env $env, array $options ): void {
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
 		$frame = $options['frame'];
-		self::findAutoInsertedTags( $frame, $body );
-		self::findDeletedStartTags( $frame, $body );
-		self::removeAutoInsertedEmptyTags( $frame, $body );
+		self::findAutoInsertedTags( $frame, $root );
+		self::findDeletedStartTags( $frame, $root );
+		self::removeAutoInsertedEmptyTags( $frame, $root );
 	}
 }

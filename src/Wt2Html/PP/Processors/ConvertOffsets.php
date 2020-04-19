@@ -8,23 +8,24 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * Very thin shim to call ContentUtils::convertOffsets where requested
  * in the environment.
  */
-class ConvertOffsets {
+class ConvertOffsets implements Wt2HtmlDOMProcessor {
 	/**
-	 * DOM Postprocessor entry function to walk DOM rooted at $rootNode
+	 * DOM Postprocessor entry function to walk DOM rooted at $root
 	 * and convert the DSR offsets as needed.
 	 * @see ConvertUtils::convertOffsets
 	 *
-	 * @param DOMElement $rootNode
-	 * @param Env $env
-	 * @param array|null $options
+	 * @inheritDoc
 	 */
-	public function run( DOMElement $rootNode, Env $env, ?array $options = [] ) {
-		$doc = $rootNode->ownerDocument;
+	public function run(
+		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+	): void {
+		$doc = $root->ownerDocument;
 		$offsetType = $env->getRequestOffsetType();
 		ContentUtils::convertOffsets(
 			$env, $doc, 'byte', $offsetType
