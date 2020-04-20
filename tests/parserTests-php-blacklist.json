@@ -918,7 +918,7 @@
         "wt2wt": "[[File:Foobar.jpg|500x500px|caption]]",
         "html2wt": "[[File:Foobar.jpg|500x500px|caption]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
         "wt2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]",
         "html2html": "<link typeof=\"mw:ExpandedAttrs\" about=\"#mwt2\" rel=\"mw:PageProp/Category\" href=\"./Category:Bugs-Regression\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Bugs-Regression\"},\"sa\":{\"href\":\"Category:Bugs-{{#if:blah|Regression|None}}\"},\"dsr\":[0,46,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Category:Bugs-&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"}]],\\\"dsr\\\":[16,44,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"Regression\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>Regression&lt;/span>\"}]]}'/>\n<link typeof=\"mw:ExpandedAttrs\" about=\"#mwt5\" rel=\"mw:PageProp/Category\" href=\"./Category:Bugs-Regression-2020\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Bugs-Regression-2020\"},\"sa\":{\"href\":\"Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}\"},\"dsr\":[47,116,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Category:Bugs-&lt;span about=\\\"#mwt3\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"}]],\\\"dsr\\\":[63,91,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"Regression\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>Regression&lt;/span>-&lt;span about=\\\"#mwt4\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"}]],\\\"dsr\\\":[92,114,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"2020\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>2020&lt;/span>\"}]]}'/>",
         "html2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]"
@@ -4984,59 +4984,56 @@
     "Image: upright option is ignored on inline and frame images (parsoid) [2]": {
         "selser": "1x4nbkn\n\n[[File:Foobar.jpg|500x500px|upright=0.5|caption]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,0,3]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,0,0]": {
+        "selser": "fzlv20\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,2,0]": {
-        "selser": "1raxe3k\n\nunm4u\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,4,0]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1ha4yfu\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,0,1]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,4,0]": {
-        "selser": "c82kln\n\nu1emqp\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,0,0]": {
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,0,0]": {
         "selser": "\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,2,0]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n2tjf6j\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [1,0,2]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\nch5480\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,4]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n10wgmx4"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,2,1]": {
+        "selser": "1qzsk51\n\n1q7u882\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,4,0]": {
-        "selser": "xkoj1u\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1b0l0o2\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,0,2]": {
+        "selser": "\n1z0mf5c\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,0,4]": {
-        "selser": "e6yv6k\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\nfkv74p"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,0,1]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,2]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n10ei7kz\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,4]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1cdxgr"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,0,0]": {
-        "selser": "aet3bj\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,2,1]": {
+        "selser": "e3d6n4\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,0]": {
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,0,4]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\nq4i7jz"
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,0,2]": {
+        "selser": "gp679p\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n2zkhkj\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [1,0,0]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,2]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\nf3tw5x\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,4,0]": {
+        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n11dapge\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [0,3,0]": {
         "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,0,0]": {
-        "selser": "1xl9ibu\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,2,0]": {
+        "selser": "77wx48\n\n1dy0ips\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,0,2]": {
-        "selser": "hc0ucb\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1gxve6w\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,2,0]": {
+        "selser": "1kxc4ot\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [3,0,2]": {
-        "selser": "\nrfchi6\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [2,4,4]": {
-        "selser": "kbumib\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1dnoheb\n\n1479ect"
-    },
-    "T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [1,3,0]": {
-        "selser": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2) [4,2,2]": {
+        "selser": "1c1qznt\n\nklxc2j\n\n1ixrma7\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
     "WTS of edited autolink surrounded by square brackets (T220018) [manual]": {
         "selser": "[http://example.com<nowiki>]</nowiki>"

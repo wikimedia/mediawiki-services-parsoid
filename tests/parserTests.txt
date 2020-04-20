@@ -29915,7 +29915,7 @@ parsoid={
 
 ## No sort-key or templated sort-key
 !! test
-T189544 Regression test: 1. html2wt of links should not trip on parser functions found in target
+T192913 Regression test: 1. html2wt of links should not trip on parser functions found in target
 !! options
 parsoid
 !! wikitext
@@ -29928,7 +29928,7 @@ parsoid
 
 ## Untemplated sort-key (wt2html data-mw is missing sort-key information!)
 !! test
-T189544 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)
+T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)
 !! options
 parsoid
 !! wikitext
