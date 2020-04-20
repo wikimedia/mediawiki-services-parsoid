@@ -3,6 +3,7 @@
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
+use DOMNode;
 use stdClass;
 use UnexpectedValueException;
 use Wikimedia\Parsoid\Config\Env;
@@ -123,6 +124,40 @@ class LinkHandlerUtils {
 	}
 
 	/**
+	 * Get the plain text content of the node, if it can be represented as such
+	 *
+	 * NOTE: This function seems a little inconsistent about what's considered
+	 * null and what's an empty string.  For example, no children is null
+	 * but a single diffMarker gets a string?  One of the current callers
+	 * seems to subtly depend on that though.
+	 *
+	 * FIXME(T254501): This function can return `$node->textContent` instead
+	 * of the string concatenation once mw:DisplaySpace is preprocessed away.
+	 *
+	 * @param DOMNode $node
+	 * @return ?string
+	 */
+	private static function getContentString( DOMNode $node ): ?string {
+		if ( !$node->hasChildNodes() ) {
+			return null;
+		}
+		$contentString = '';
+		$child = $node->firstChild;
+		while ( $child ) {
+			if ( DOMUtils::isText( $child ) ) {
+				$contentString .= $child->nodeValue;
+			} elseif ( DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) ) {
+				$contentString .= ' ';
+			} elseif ( DOMUtils::isDiffMarker( $child ) ) {
+			} else {
+				return null;
+			}
+			$child = $child->nextSibling;
+		}
+		return $contentString;
+	}
+
+	/**
 	 * Helper function for getting RT data from the tokens
 	 * @param Env $env
 	 * @param DOMElement $node
@@ -192,8 +227,8 @@ class LinkHandlerUtils {
 		}
 
 		// Get the content string or tokens
-		if ( $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node ) ) {
-			$contentString = $node->textContent;
+		$contentString = self::getContentString( $node );
+		if ( $contentString !== null ) {
 			if ( !empty( $rtData->target['value'] ) && $rtData->target['value'] !== $contentString ) {
 				// Try to identify a new potential tail
 				$contentParts = self::splitLinkContentString( $contentString, $dp );
@@ -391,9 +426,8 @@ class LinkHandlerUtils {
 		$target = $linkData->target;
 
 		// Get plain text content, if any
-		$contentStr = $node->hasChildNodes() && DOMUtils::allChildrenAreText( $node )
-			? $node->textContent
-			: null;
+		$contentStr = self::getContentString( $node );
+
 		// First check if we can serialize as an URL link
 		return ( $contentStr !== null && $contentStr !== '' ) &&
 			// Can we minimize this?

@@ -23,6 +23,7 @@ use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Util;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
+use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DisplaySpace;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\HandleLinkNeighbours;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\LiFixups;
@@ -464,6 +465,22 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => ConvertOffsets::class,
 				'shortcut' => 'convertoffsets',
 				'skipNested' => true,
+			],
+			[
+				'name' => 'DisplaySpace',
+				'shortcut' => 'displayspace',
+				'skipNested' => true,
+				'isTraverser' => true,
+				'handlers' => [
+					[
+						'nodeName' => '#text',
+						'action' => [ DisplaySpace::class, 'leftHandler' ]
+					],
+					[
+						'nodeName' => '#text',
+						'action' => [ DisplaySpace::class, 'rightHandler' ]
+					],
+				]
 			],
 			[
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',

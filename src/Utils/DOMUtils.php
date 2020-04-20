@@ -762,23 +762,6 @@ class DOMUtils {
 	}
 
 	/**
-	 * Are all children of this node text nodes?
-	 *
-	 * @param DOMNode $node
-	 * @return bool
-	 */
-	public static function allChildrenAreText( DOMNode $node ): bool {
-		$child = $node->firstChild;
-		while ( $child ) {
-			if ( !self::isDiffMarker( $child ) && !self::isText( $child ) ) {
-				return false;
-			}
-			$child = $child->nextSibling;
-		}
-		return true;
-	}
-
-	/**
 	 * Does `node` contain nothing or just non-newline whitespace?
 	 * `strict` adds the condition that all whitespace is forbidden.
 	 *

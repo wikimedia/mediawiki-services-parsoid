@@ -1645,7 +1645,6 @@ This text: L<nowiki>''</nowiki>[[Foo]]
 This text: L<nowiki>'''</nowiki>[[Foo]]<nowiki>''</nowiki>
 !! end
 
-# This test fails because wikitext whitespace is not normalized before comparing.
 !! test
 T71950: 2. Put nowiki as close to cause as possible, after ' :'
 !! options
@@ -3323,7 +3322,7 @@ Templates parameters with special tokenizing behavior dont get modified because 
 <p>a&#160;: b
 </p>
 !! html/parsoid
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"isDisplayHack":true}'> </span>: b</p>
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a : b"}},"i":0}}]}'>a<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: b</p>
 !! end
 
 ## T73412
@@ -4050,8 +4049,11 @@ HTML-pre: 3: other wikitext
 ###
 ### Definition lists
 ###
+
 !! test
 Simple definition
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;name :Definition
 !! html
@@ -4078,11 +4080,15 @@ Definition list with no space
 
 !! test
 Definition list with URL link
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;http://example.com/ :definition
-!! html
+!! html/php
 <dl><dt><a rel="nofollow" class="external free" href="http://example.com/">http://example.com/</a></dt>
 <dd>definition</dd></dl>
+!! html/parsoid
+<dl><dt><a rel="mw:ExtLink" href="http://example.com/" class="external free">http://example.com/</a></dt><dd data-parsoid='{"stx":"row"}'>definition</dd></dl>
 !! end
 
 !! test
@@ -4106,6 +4112,8 @@ Definition list with wikilink containing colon
 # At Brion's and JeLuF's insistence... :)
 !! test
 Definition list with news link containing colon
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;news:alt.wikipedia.rox :This isn't even a real newsgroup!
 !! html/php
@@ -4125,11 +4133,15 @@ Malformed definition list with colon
 
 !! test
 Definition lists: colon in external link text
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;[http://www.wikipedia2.org/ Wikipedia :The Next Generation] :OK, I made that up
-!! html
+!! html/php
 <dl><dt><a rel="nofollow" class="external text" href="http://www.wikipedia2.org/">Wikipedia :The Next Generation</a></dt>
 <dd>OK, I made that up</dd></dl>
+!! html/parsoid
+<dl><dt><a rel="mw:ExtLink" href="http://www.wikipedia2.org/" class="external text">Wikipedia :The Next Generation</a></dt><dd data-parsoid='{"stx":"row"}'>OK, I made that up</dd></dl>
 !! end
 
 !! test
@@ -4142,6 +4154,8 @@ Definition lists: colon in HTML attribute
 
 !! test
 Definition lists: self-closed tag
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;one<br/>two :two-line fun
 !! html
@@ -4160,6 +4174,8 @@ Definition lists: ignore colons inside tags
 
 !! test
 Definition lists: excess closed tags
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;one</b>two :bad tag fun
 !! html/php+tidy
@@ -4192,6 +4208,8 @@ T13748: Literal closing tags
 
 !! test
 Definition and unordered list using wiki syntax nested in unordered list using html tags.
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 <ul><li>
 ;term :description
@@ -4462,9 +4480,9 @@ Table / list interaction: lists nested in tables nested in indented lists
 !! test
 Definition Lists: Nesting: Multi-level (Parsoid only)
 !! wikitext
-;t1 :d1
-;;t2 ::d2
-;;;t3 :::d3
+;t1:d1
+;;t2::d2
+;;;t3:::d3
 !! html/parsoid
 <dl>
   <dt>t1 </dt>
@@ -4580,6 +4598,8 @@ Definition Lists: Mixed Lists: Test 3
 
 !! test
 Definition Lists: Mixed Lists: Test 4
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *;d1 :d2
 *;d3 :d4
@@ -4637,6 +4657,8 @@ Definition Lists: Mixed Lists: Test 8
 
 !! test
 Definition Lists: Mixed Lists: Test 9
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *;foo :bar
 !! html
@@ -4647,6 +4669,8 @@ Definition Lists: Mixed Lists: Test 9
 
 !! test
 Definition Lists: Mixed Lists: Test 10
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *#;foo :bar
 !! html
@@ -4677,6 +4701,8 @@ Definition Lists: Mixed Lists: Test 11
 # FIXME: Maybe get rid of this test?
 !! test
 Definition Lists: Mixed Lists: Test 12
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *#*#;*;;foo :bar
 *#*#;boo :baz
@@ -4722,6 +4748,8 @@ Definition Lists: Mixed Lists: Test 12
 
 !! test
 Definition Lists: Mixed Lists: Test 13
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *#*#;*;;foo : bar
 *#*#;boo : baz
@@ -4738,6 +4766,8 @@ Definition Lists: Mixed Lists: Test 13
 # * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
 !! test
 Definition Lists: Weird Ones: Test 1
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 *#;*::;;foo :bar (who uses this?)
 !! html/php+tidy
@@ -9200,7 +9230,7 @@ Blah blah blah
 !! html/parsoid
 <p>Blah blah blah
 <a rel="mw:WikiLink/Interwiki" href="http://es.wikipedia.org/wiki/Spanish" title="es:Spanish">es:Spanish</a>
-<a rel="mw:WikiLink/Interwiki" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese"> zh : Chinese </a></p>
+<a rel="mw:WikiLink/Interwiki" href="http://zh.wikipedia.org/wiki/Chinese" title="zh:Chinese"> zh<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: Chinese </a></p>
 !! end
 
 !! test
@@ -22701,6 +22731,8 @@ parsoid=wt2html
 
 !! test
 Definition list code coverage
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;title   :def
 ;title :def
@@ -25316,6 +25348,8 @@ Hello : this ; is « something ‹ else › again »
 
 !! test
 Corner case: french spaces in definition list
+!! options
+parsoid=wt2html,html2html
 !! wikitext
 ;foo : bar
 !! html+tidy
@@ -29726,21 +29760,35 @@ ha
 !! end
 
 !! test
-Serialize new placeholder space without spans
+Serialize new displayspace spans
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p>foo<span typeof="mw:Placeholder"> </span>: bar</p>
+<p>foo<span typeof="mw:DisplaySpace"> </span>: bar</p>
 
-<p>foo<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"src":" ","isDisplayHack":true}'> </span>: bar</p>
+<p>foo<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: bar</p>
 
-<span typeof="mw:Extension/ref" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo<span typeof=\&quot;mw:Placeholder\&quot;>&amp;nbsp;</span>: bar&quot;}}"><sup>[1]</sup></span>ok</p>
+<span typeof="mw:Extension/ref" data-mw="{&quot;name&quot;:&quot;ref&quot;,&quot;body&quot;:{&quot;html&quot;:&quot;foo<span typeof=\&quot;mw:DisplaySpace\&quot;>&amp;nbsp;</span>: bar&quot;}}"><sup>[1]</sup></span>ok</p>
+
+<a href="http://example.com">«<span typeof="mw:DisplaySpace">&nsbp;</span>Tour Eiffel<span typeof="mw:DisplaySpace">&nsbp;</span>»</a>
+
+Hello<span typeof="mw:DisplaySpace">&nbsp;</span>World!
+
+<ul>
+<li><span typeof="mw:DisplaySpace">&nbsp;</span>Foo</li>
+</ul>
 !! wikitext
 foo : bar
 
 foo : bar
 
 <ref>foo : bar</ref>ok
+
+[http://example.com « Tour Eiffel »]
+
+Hello World!
+
+*  Foo
 !! end
 
 
@@ -32269,7 +32317,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 
 <h2 id="тест"><span id=".D1.82.D0.B5.D1.81.D1.82" typeof="mw:FallbackId"></span>тест</h2>
 
-<h2 id="Hey_&lt;_#_&quot;_>_%_:_'"><span id="Hey_.3C_.23_.22_.3E_.25_:_.27" typeof="mw:FallbackId"></span>Hey &lt; # " > %<span typeof="mw:DisplaySpace mw:Placeholder" data-parsoid='{"src":" ","isDisplayHack":true}'> </span>: '</h2>
+<h2 id="Hey_&lt;_#_&quot;_>_%_:_'"><span id="Hey_.3C_.23_.22_.3E_.25_:_.27" typeof="mw:FallbackId"></span>Hey &lt; # " > %<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: '</h2>
 <p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar">#Foo bar</a> <a rel="mw:WikiLink" href="./Parser_test#foo_Bar">#foo Bar</a> <a rel="mw:WikiLink" href="./Parser_test#Тест">#Тест</a> <a rel="mw:WikiLink" href="./Parser_test#тест">#тест</a> <a rel="mw:WikiLink" href="./Parser_test#Hey_&lt;_#_&quot;_>_%_:_'" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Hey_&lt;_#_\"_>_%_:_&#39;"},"sa":{"href":"#Hey &lt; # \" > % : &#39;"}}'>#Hey &lt; # " > % : '</a></p>
 
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"anchorencode:💩","function":"anchorencode"},"params":{},"i":0}}]}'>💩</span> <span id="💩" about="#mwt3" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[178,197,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:💩\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&#39;>💩&lt;/span>"}]]}'></span></p>
@@ -33325,7 +33373,7 @@ __NOTOC__
 <h2 id="Tabs"><!--c1--><!--c2-->Tabs<!--c3--><!--c4--></h2>
 <h2 id="Личная_жизнь"><span id=".D0.9B.D0.B8.D1.87.D0.BD.D0.B0.D1.8F_.D0.B6.D0.B8.D0.B7.D0.BD.D1.8C" typeof="mw:FallbackId"></span><!--Headings with fallback ids-->Личная жизнь</h2>
 <ul><li><!--c1--><!--c2-->List item<!--c3--><!--c4--></li></ul>
-<dl><dt><!--term to define-->term&nbsp;</dt><dd><!--term's definition-->definition</dd></dl>
+<dl><dt><!--term to define-->term</dt><dd><!--term's definition-->definition</dd></dl>
 <table>
 <caption><!--c1--><!--c2-->Table Caption<!--c3--><!--c4--></caption>
 <tbody><tr>

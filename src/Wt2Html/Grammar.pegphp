@@ -2167,31 +2167,6 @@ urltext =
 	(
 		& [A-Za-z] al:autolink { return $al; }
 		/ & "&" he:htmlentity { return $he; }
-		// Convert trailing space into &nbsp;
-		// FIXME: Parsoid's handling of french spacing is broken; see
-		// T197879
-		/ ! sol ' ' & ':' {
-			// Content with mw:Placeholder typeof attribute will be ignored by
-			// editing clients and they are not expected to modify it either.
-			// This is just an escape hatch for scenarios where we don't have
-			// a good representation for this content and just want to render
-			// it without providing any editing support for it.
-			return [
-				new TagTk( 'span', [
-					new KV( 'typeof', 'mw:DisplaySpace mw:Placeholder' ),
-				], (object)[
-					'src' => ' ',
-					'tsr' => $this->tsrOffsets( 'start' ),
-					'isDisplayHack' => true,
-				] ),
-				"\u{00a0}",
-				new EndTagTk( 'span', [
-				], (object)[
-					'tsr' => $this->tsrOffsets( 'end' ),
-					'isDisplayHack' => true,
-				]),
-			];
-		}
 		/ & ('__') bs:behavior_switch { return $bs; }
 		// About 96% of text_char calls originated here, so inline it for efficiency
 		/ [^-'<~[{\n\r:;\]}|!=]

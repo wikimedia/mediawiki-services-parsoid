@@ -92,8 +92,6 @@ class Headings {
 					// Special case for -{...}-
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$str .= $dp->src ?? '';
-				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:DisplaySpace' ) ) {
-					$str .= ' ';
 				} elseif ( $n->nodeName === 'style' || $n->nodeName === 'script' ) {
 					/* ignore children */
 				} else {

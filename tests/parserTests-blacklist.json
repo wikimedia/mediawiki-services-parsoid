@@ -904,37 +904,6 @@
     "Consecutive <pre>s should not get merged": {
         "html2html": "<pre data-parsoid='{\"dsr\":[0,2,1,0]}'>a</pre>\n\n<pre data-parsoid='{\"dsr\":[4,6,1,0]}'>b</pre>\n\n<pre data-parsoid='{\"dsr\":[8,10,1,0]}'>c</pre>\n\n<pre data-parsoid='{\"dsr\":[12,14,1,0]}'>d</pre>\n\n<pre data-parsoid='{\"dsr\":[16,19,1,0]}'>e</pre>\n\n<p data-parsoid='{\"dsr\":[21,23,0,0]}'>\n <br data-parsoid='{\"dsr\":[23,23,0,0]}'/></p>\n<pre data-parsoid='{\"dsr\":[24,26,1,0]}'>f</pre>\n"
     },
-    "Corner case: french spaces in definition list": {
-        "wt2wt": ";foo :bar",
-        "html2wt": "; foo\n: bar"
-    },
-    "Corner case: french spaces in definition list [1]": {
-        "selser": ";foo : bar"
-    },
-    "Corner case: french spaces in definition list [2]": {
-        "selser": "sltbdu\n;foo : bar"
-    },
-    "Corner case: french spaces in definition list [[0,2]]": {
-        "selser": ";foo \n: xj7u5v: bar"
-    },
-    "Corner case: french spaces in definition list [[1,0]]": {
-        "selser": ";foo : bar"
-    },
-    "Corner case: french spaces in definition list [[2,0]]": {
-        "selser": ": p5fs0m\n;foo : bar"
-    },
-    "Corner case: french spaces in definition list [[3,0]]": {
-        "selser": ": bar"
-    },
-    "Corner case: french spaces in definition list [[3,2]]": {
-        "selser": ": x9xgl7: bar"
-    },
-    "Corner case: french spaces in definition list [[4,0]]": {
-        "selser": ": tliemi: bar"
-    },
-    "Corner case: french spaces in definition list [[[0,2],0]]": {
-        "selser": ";foo1wgjaqd : bar"
-    },
     "Correct handling of <td>, <tr> (T8171)": {
         "html2wt": "{|  \n    | Some tabular data\n    | More tabular data ...\n    | And yet som tabular data  \n|}"
     },
@@ -1045,55 +1014,17 @@
     "Definition Lists: Mixed Lists: Test 1": {
         "html2wt": "\n:;* foo\n::* bar\n:; baz\n"
     },
-    "Definition Lists: Mixed Lists: Test 10": {
-        "html2wt": "*#; foo\n*#: bar\n"
-    },
     "Definition Lists: Mixed Lists: Test 11": {
         "html2wt": "; a\n:* b\n"
     },
-    "Definition Lists: Mixed Lists: Test 12": {
-        "html2wt": "\n*#*#;*;; foo:bar\n*#*#; boo:baz\n"
-    },
     "Definition Lists: Mixed Lists: Test 13": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0]}'>foo<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"isDisplayHack\":true,\"dsr\":[11,12,null,0]}'> </span></dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0]}'>boo<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"isDisplayHack\":true,\"dsr\":[26,27,null,0]}'> </span></dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>",
-        "wt2wt": "*#*#;*;;foo :bar\n*#*#;boo :baz\n",
-        "html2wt": "*#*#; foo\n*#*#:*;; bar\n*#; boo\n*#: baz\n"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [1]": {
-        "selser": "*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [2]": {
-        "selser": "dv68o7\n*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[1]]": {
-        "selser": "*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[2]]": {
-        "selser": "* 11yf6av\n*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[[1]]]": {
-        "selser": "*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[[2]]]": {
-        "selser": "*1co5tvz\n*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[[[2]]]]": {
-        "selser": "*# nbwmmp\n*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[[[[1]]]]]": {
-        "selser": "*#*#;*;;foo : bar\n*#*#;boo : baz"
-    },
-    "Definition Lists: Mixed Lists: Test 13 [[[[[2]]]]]": {
-        "selser": "*#1aucnmm\n*#*#;*;;foo : bar\n*#*#;boo : baz"
+        "wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0]}'>foo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0]}'>boo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>"
     },
     "Definition Lists: Mixed Lists: Test 2": {
         "html2wt": "*: d1\n*: d2\n"
     },
     "Definition Lists: Mixed Lists: Test 3": {
         "html2wt": "*::: d1\n*::: d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 4": {
-        "html2wt": "*; d1\n*: d2\n*; d3\n*: d4\n"
     },
     "Definition Lists: Mixed Lists: Test 5": {
         "html2wt": "*: d1\n*:: d2\n"
@@ -1106,9 +1037,6 @@
     },
     "Definition Lists: Mixed Lists: Test 8": {
         "html2wt": ":* d1\n::* d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 9": {
-        "html2wt": "*; foo\n*: bar\n"
     },
     "Definition Lists: Nesting: Multi-level (Parsoid only)": {
         "html2wt": "\n; t1 \n: d1      \n;; t2 \n;: :d2              \n;;; t3 \n;;: ::d3                    \n"
@@ -1124,9 +1052,6 @@
     },
     "Definition Lists: No nesting: Multiple dd's": {
         "html2wt": "; x\n: a\n: b"
-    },
-    "Definition Lists: Weird Ones: Test 1": {
-        "html2wt": "\n*#;*::;; foo:bar (who uses this?)\n"
     },
     "Definition Lists: colons and tables 1": {
         "html2wt": ": {|\n|x\n|}\n: {|\n|y\n|}\n"
@@ -1156,26 +1081,14 @@
     "Definition Lists: colons occurring in tags [[3,[4],0,[[2]],4,0,4,[4],0,[[2]],2,[[4]],2,0,0,0,0,4]]": {
         "selser": ":11uov7i\n;'''1jgi286a:b'''\n: 1ts2957\n;<i>a:b</i>\n: 1p2mqlr\n;180613s\n;<div>1u5nj4ha:b</div>\n: 19fc4ea\n;<div>e2ipg\n: 1xcujhb\n:b</div>\n;{{1x|a:b}}\n: 1n5wm10"
     },
-    "Definition and unordered list using wiki syntax nested in unordered list using html tags.": {
-        "html2wt": "\n*; term\n*: description\n** unordered\n"
-    },
-    "Definition list code coverage": {
-        "html2wt": "; title   \n: def\n; title \n: def\n; title\n: def"
-    },
     "Definition list for indentation only": {
         "html2wt": ": Indented text"
-    },
-    "Definition list with URL link": {
-        "html2wt": "; http://example.com/\n: definition"
     },
     "Definition list with bracketed URL link": {
         "html2wt": "; [http://www.example.com/ Example]\n: Something about it"
     },
     "Definition list with empty definition and following paragraph": {
         "html2wt": "; term\n:\n\nParagraph text\n"
-    },
-    "Definition list with news link containing colon": {
-        "html2wt": "; news:alt.wikipedia.rox<nowiki/>:This isn't even a real newsgroup!"
     },
     "Definition list with no space": {
         "html2wt": "; name\n: Definition"
@@ -1188,21 +1101,8 @@
         "html2html": "<dl data-parsoid='{\"dsr\":[0,12,0,0]}'><dt data-parsoid='{\"dsr\":[0,12,1,0]}'><b data-parsoid='{\"dsr\":[2,12,3,3]}'>bold</b></dt></dl>",
         "html2wt": "; '''bold'''"
     },
-    "Definition lists: colon in external link text": {
-        "html2wt": "; [http://www.wikipedia2.org/ Wikipedia :The Next Generation]\n: OK, I made that up"
-    },
-    "Definition lists: excess closed tags": {
-        "wt2wt": ";onetwo :bad tag fun",
-        "html2wt": "\n; onetwo\n: bad tag fun\n"
-    },
-    "Definition lists: excess closed tags [1]": {
-        "selser": ";one</b>two :bad tag fun"
-    },
-    "Definition lists: excess closed tags [2]": {
-        "selser": "t1vms\n;one</b>two :bad tag fun"
-    },
     "Definition lists: ignore colons inside tags": {
-        "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"isDisplayHack\":true,\"dsr\":[11,12,null,0]}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
+        "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \"}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
         "wt2wt": ";one <b>two : tag <i>fun:</i>:</b><nowiki>:def</nowiki>",
         "html2wt": "; one '''two : tag ''fun:'':'''\n: def"
     },
@@ -1238,43 +1138,6 @@
     },
     "Definition lists: ignore colons inside tags [[[4,[4,1,4,2,0],0]]]": {
         "selser": ";1q8i1kl<b>rca5fn 1aj6sc1dmmcs9<i>fun:</i>:</b>:def"
-    },
-    "Definition lists: self-closed tag": {
-        "wt2wt": ";one<br />two :two-line fun",
-        "html2wt": "; one<br />two\n: two-line fun"
-    },
-    "Definition lists: self-closed tag [1]": {
-        "selser": ";one<br/>two :two-line fun"
-    },
-    "Definition lists: self-closed tag [2]": {
-        "selser": "dxwh3g\n;one<br/>two :two-line fun"
-    },
-    "Definition lists: self-closed tag [[1,0]]": {
-        "selser": ";one<br/>two :two-line fun"
-    },
-    "Definition lists: self-closed tag [[2,3]]": {
-        "selser": ": 1xpgm0m\n;one<br/>two "
-    },
-    "Definition lists: self-closed tag [[[0,0,0,1],0]]": {
-        "selser": ";one<br/>two :two-line fun"
-    },
-    "Definition lists: self-closed tag [[[0,0,0,[3]],0]]": {
-        "selser": ";one<br/>two :two-line fun"
-    },
-    "Definition lists: self-closed tag [[[0,0,2,[4]],3]]": {
-        "selser": ";one<br/>j4te7utwo "
-    },
-    "Definition lists: self-closed tag [[[2,2,0,3],[3]]]": {
-        "selser": ";11rxfkfonezjccpp<br/>two:"
-    },
-    "Definition lists: self-closed tag [[[3,0,0,1],2]]": {
-        "selser": ";<br/>two \n: 16vkcbp:two-line fun"
-    },
-    "Definition lists: self-closed tag [[[4,0,2,0],4]]": {
-        "selser": ";1xvrfm9<br/>1huinlptwo \n: 1dzvyz6"
-    },
-    "Definition lists: self-closed tag [[[4,2,4,0],[2]]]": {
-        "selser": ";gse4oqoshdm5<br/>1hwa21s :pxwtn4two-line fun"
     },
     "Different interwiki prefixes mapping to the same URL [2,0,[[4]],3,3,0,[[3]],0,1,3,0,3,[2]]": {
         "selser": "1r74r6y\n\n[[:en:Foo]]\n\n[[:en:Foo|13jznjb]]\n\n[:wikipedia:Foo]\n\n[[:wikipedia:en:Foo]]\n\n[[:wikipedia:en:Foo]]\n\n19pl9j1[[  wikiPEdia :Foo]]"
@@ -1460,7 +1323,7 @@
         "html2wt": " <\n"
     },
     "Escaping of interlanguage links (T129218, T156308)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Zh_:_Chinese\" title=\"Zh : Chinese\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Zh_:_Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh : Chinese </a></p>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Zh_:_Chinese\" title=\"Zh : Chinese\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Zh_:_Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \"}'> </span>: Chinese </a></p>",
         "html2wt": "Blah blah blah\n[[:es:Spanish]]\n[[:zh:Chinese| zh : Chinese ]]"
     },
     "Expansion of multi-line templates in attribute values (T8255 sanity check 2)": {
@@ -1883,20 +1746,17 @@
     "HTML5 ids: fallback to legacy": {
         "html2wt": "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]"
     },
-    "HTML5 ids: fallback to legacy [0,0,[4],4,[3,0],0,0,0,[4,2],0,[0,0,0,4],0,[4,4,0,0,[3],2,0,3,[3]],0,4,4,2,3,[[4],4,1],4]": {
-        "selser": "==Foo bar==\n\n==1uo2pmu==\nxjcewk\n\n==Тест==\n\n==Тест==\n\n==24ey46oretk0тест==\n\n==Hey < # \" > % 1egbman==\njuj170cpt2ix[[#foo Bar]] [[#Тест|<nowiki/>]]1lav5es [[#тест]][[#Hey < # \" > % : '|<nowiki/>]]\n\npu6443\n\nqbwi0t\n\n1wgrq10<!-- These two links should produce identical HTML -->\n\n[[#啤酒|a7p2hg]]<nowiki/>argfal[[#啤酒]]\n\nhejh11"
+    "HTML5 ids: fallback to legacy [2,0,[3],4,[1,3],0,3,4,4,2,3,4,[2,0,2,4,3,4,0,2,[3,[3],4,4,2]],4,1,2,0,0,1,0]": {
+        "selser": "z795ke\n\n==Foo bar==\n\n==<nowiki/>==\nizuo72\n\n==<nowiki/>==\n\n1khms7e\n\n1j2swts\n\n1wc6yow\n\n1hq2nd9\n\n156tovc[[#Foo bar]] 6nkksv[[#foo Bar]]<nowiki/>o55z4l1hhcpjo[[#тест]]<nowiki/>bdes9t [[#Hey < # \" > % : '| 1qt4n5peo5m42kbkfcm: ']]\n\n11nb69s\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nz18uuh\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#啤酒]]\n"
     },
-    "HTML5 ids: fallback to legacy [0,2,3,2,1,0,[3,0],4,4,2,[0,4,2,3],0,[0,0,4,3,1,0,2,3,1],3,1,4,0,2,1,3]": {
-        "selser": "==Foo bar==\nkifv2w\n\n6p5o1i\n\n==Тест==\n\n==Тест==\n16h91gx\n\nmwraa7\n\ne1gkip\n\n==77yvlqx5j4vt ==\n[[#Foo bar]] 1pe5knt[[#Тест]] 1pnpsrp[[#тест]][[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n10xpsq9<!-- These two links should produce identical HTML -->\n\n16oabgt\n\n[[#啤酒]] [[#啤酒]]\n"
+    "HTML5 ids: fallback to legacy [2,4,2,2,[0,4],4,4,0,4,4,2,2,[4,2,[3],0,0,0,0,2,[0,0,0,[4],3]],0,1,0,3,2,[0,0,2],0]": {
+        "selser": "evf28k\n\n==Foo bar==\n1fdb7z4\n\ntvpr8q\n\n==foo Bar==\n1c1l4s2\n\n==1h2o8mb==\n1w6xqp9\n\n1ap6t5n\n\n19qs3z5\n\n1enye1u\n\n1ebmkjv\n\n==Hey < # \" > % : '==\n1iltr7z\n1xgupzp1kjh08v [[#foo Bar|<nowiki/>]] [[#Тест]] [[#тест]]<nowiki/>kjowhj [[#Hey < # \" > % : '|#Hey < # \" > % ]]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n1v9w6x6\n\n[[#啤酒]] 1a2a28w[[#啤酒]]\n"
     },
-    "HTML5 ids: fallback to legacy [2,4,2,2,[0,4],4,4,0,4,4,2,2,[4,2,[3],0,0,0,0,2,0],0,0,4,3,0,1,0]": {
-        "selser": "jncop1\n\n==Foo bar==\nfg89q4\n\n1aqqzkm\n\n==foo Bar==\npt946j\n\n==1dwavb8==\nax9o1o\n\nr3toxe\n\ns1qk8w\n\n100rtm3\n\ny0q7bj\n\n==Hey < # \" > % : '==\nlx7zea\n48xgi3z99dd5 [[#foo Bar|<nowiki/>]] [[#Тест]] [[#тест]]1x3u01n [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n10ovi1f\n\n[[#啤酒]] [[#啤酒]]\n"
+    "HTML5 ids: fallback to legacy [3,0,4,0,4,0,2,0,1,0,[4,0,[4],0,[2],0],0,[[4],3,[4],2,4,3,0,2,3],4,4,2,4,3,1,0]": {
+        "selser": "\nsbzwnn\n\n1bvoye1\n\nb4844v\n\n==Тест==\n\n==тест==\n\n==1df45v9Hey < # \" > % : '==\n[[#Foo bar|11xl6jk]][[#foo Bar|10v6nst]]11w6rxz 2iopb7[[#тест]]<nowiki/>k3adpo \n\n1hhfvql\n\nzpfsws\n\nz2f7g6\n\njstjna\n\n[[#啤酒]] [[#啤酒]]\n"
     },
-    "HTML5 ids: fallback to legacy [3,3,[3],0,[0,3],0,0,0,0,0,[3,0,4,0],3,1,0,0,0,2,0,[0,2,0],3]": {
-        "selser": "==<nowiki/>==\n\n==<nowiki/>==\n\n==Тест==\n\n==тест==\n\n==Hey < # \" > %fl5tzw: '==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\np053pg<!-- These two links should produce identical HTML -->\n\n[[#啤酒]]<nowiki/>co4e5a [[#啤酒]]\n"
-    },
-    "HTML5 ids: fallback to legacy [[2],2,4,0,4,0,[2,0],2,2,0,[0,0,1,0],2,[2,4,3,4,4,0,[2],0,0],0,2,0,2,0,[0,2,2],3]": {
-        "selser": "==1c1674gFoo bar==\ns5rn7z\n\n1dje3c9\n\nmhys32\n\n==1jo35xeТест==\n20vvul\n\nfcidd5\n\n==тест==\n\n==Hey < # \" > % : '==\ngs1iq4\nnxkvld[[#Foo bar]]13rjhhn1o8p34c1f9y51q [[#тест|wmg9ty#тест]] [[#Hey < # \" > % : ']]\n\n1sn68io\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n17ojox4<!-- These two links should produce identical HTML -->\n\n[[#啤酒]]<nowiki/>ti6muq 1d1ua61[[#啤酒]]\n"
+    "HTML5 ids: fallback to legacy [[4],2,0,0,[3,4],3,[3,3],0,2,0,[3,3,[4],0,1,3],0,[2,0,0,4,[4],0,4,0,[0,0,4,4,4]],0,0,0,4,0,[3,0,1],4]": {
+        "selser": "==m5tiut==\n18c5afx\n\n==foo Bar==\n\n==1tozno2==\n==<nowiki/>==\n\nb2309s\n\n==тест==\n\n== % ==\n1cgc55[[#Foo bar]] [[#foo Bar]]1vwr8tt[[#Тест|1qmp5uy]] 1f5pavx [[#Hey < # \" > % : '|#Hey < # \" > td5ftk1xfyfct1u69kdo]]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n1qll473\n\n<nowiki> </nowiki>[[#啤酒]]\n\n19dta16"
     },
     "HTML5 ids: fallback to legacy [[4],4,1,0,4,0,2,0,0,4,1,3,[2,0,2,2,[3],0,[4],3,1],0,2,0,2,4,1,2]": {
         "selser": "==1f3lkrb==\n11qe63s\n\n==foo Bar==\n\no18c3z\n\n1tsat6f\n\n==Тест==\n\n==тест==\nbu4nlz\n\n==Hey < # \" > % : '==\nolz8dh[[#Foo bar]] 16wig31[[#foo Bar]]<nowiki/>szv1s8 [[#Тест|<nowiki/>]] [[#тест|aaxfmm]][[#Hey < # \" > % : ']]\n\ney7857\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nfia5ft<!-- These two links should produce identical HTML -->\n\nxi6m6u\n\n[[#啤酒]] [[#啤酒]]\n\nqul42e\n"
@@ -3474,9 +3334,6 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,44,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page#section\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page#section\"},\"sa\":{\"href\":\"wiki/Main Page#section\"},\"dsr\":[0,44,25,2]}'>Main Page#section</a></p>\n",
         "html2wt": "[[wiki/Main Page#section|Main Page#section]]\n"
     },
-    "Simple definition": {
-        "html2wt": "; name\n: Definition"
-    },
     "Simple list": {
         "html2wt": "* Item 1\n* Item 2"
     },
@@ -3944,9 +3801,6 @@
         "wt2html": "<blockquote data-parsoid='{\"stx\":\"html\",\"dsr\":[0,74,12,13]}'>\n<p data-parsoid='{\"dsr\":[13,18,0,0]}'> Blah</p>\n<table data-parsoid='{\"dsr\":[19,60,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[22,58,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[22,57,0,0]}'><td data-parsoid='{\"dsr\":[22,57,1,0]}'>\n<pre data-parsoid='{\"dsr\":[24,57,1,0]}'>indented cell (no pre-wrapping!)</pre></td></tr>\n</tbody></table>\n</blockquote>",
         "html2html": "<blockquote data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,12,13]}'>\n<p data-parsoid='{\"dsr\":[13,18,0,0]}'> Blah</p>\n\n<table data-parsoid='{\"dsr\":[20,61,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[23,59,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[23,58,0,0]}'><td data-parsoid='{\"dsr\":[23,58,1,0]}'>\n<pre data-parsoid='{\"dsr\":[25,58,1,0]}'>indented cell (no pre-wrapping!)</pre></td></tr>\n</tbody></table>\n</blockquote>",
         "html2wt": "<blockquote>\n Blah\n\n{|\n|\n indented cell (no pre-wrapping!)\n|}\n</blockquote>"
-    },
-    "T71950: 2. Put nowiki as close to cause as possible, after ' :'": {
-        "html2wt": "This text : L<nowiki>''</nowiki>[[Foo]]\n"
     },
     "T73074: More fostering fun": {
         "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]",

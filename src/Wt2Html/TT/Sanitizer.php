@@ -1375,6 +1375,36 @@ class Sanitizer extends TokenHandler {
 		return $title;
 	}
 
+	public const FIXTAGS = [
+		# French spaces, last one Guillemet-left
+		# only if there is something before the space
+		# and a non-word character after the punctuation.
+		'/(?<=\S) (?=[?:;!%»›](?!\w))/u' => "%s",
+		# French spaces, Guillemet-right
+		'/([«‹]) /u' => "\\1%s",
+	];
+
+	/**
+	 * Armor French spaces with a replacement character
+	 *
+	 * @since 1.32
+	 * @param string $text Text to armor
+	 * @param string $space Space character for the French spaces, defaults to '&#160;'
+	 * @return string Armored text
+	 */
+	public static function armorFrenchSpaces( $text, $space = '&#160;' ) {
+		// Replace $ with \$ and \ with \\
+		$space = preg_replace( '#(?<!\\\\)(\\$|\\\\)#', '\\\\$1', $space );
+		return preg_replace(
+			array_keys( self::FIXTAGS ),
+			array_map( function ( string $replacement ) use ( $space ) {
+				// @phan-suppress-next-line PhanPluginPrintfVariableFormatString
+				return sprintf( $replacement, $space );
+			}, array_values( self::FIXTAGS ) ),
+			$text
+		);
+	}
+
 	/**
 	 * Given a section name or other user-generated or otherwise unsafe string, escapes it to be
 	 * a valid HTML id attribute.

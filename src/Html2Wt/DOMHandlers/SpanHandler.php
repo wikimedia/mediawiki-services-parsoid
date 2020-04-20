@@ -54,22 +54,13 @@ class SpanHandler extends DOMHandler {
 				} else {
 					$state->serializeChildren( $node );
 				}
+			} elseif ( DOMUtils::hasTypeOf( $node, 'mw:DisplaySpace' ) ) {
+				// FIXME(T254501): Turn this into an `PHPUtils::unreachable()`
+				$state->emitChunk( ' ', $node );
 			} elseif ( DOMUtils::matchTypeOf( $node, '#^mw:Placeholder(/|$)#' ) ) {
 				if ( isset( $dp->src ) ) {
 					$this->emitPlaceholderSrc( $node, $state );
 					return $node->nextSibling;
-				} elseif (
-					DOMUtils::hasTypeOf( $node, 'mw:Placeholder' )
-					&& DOMUtils::hasNChildren( $node, 1 )
-					&& DOMUtils::isText( $node->firstChild )
-					// See the DisplaySpace hack in the urltext rule in the tokenizer.
-					&& preg_match( '/^\x{00a0}+$/uD', $node->firstChild->nodeValue )
-				) {
-					$state->emitChunk(
-						// FIXME: Not sure why we even use a str_repeat instead of using ' ' (T197879)
-						str_repeat( ' ', mb_strlen( $node->firstChild->nodeValue ) ),
-						$node->firstChild
-					);
 				} else {
 					( new FallbackHTMLHandler )->handle( $node, $state );
 				}
@@ -103,7 +94,11 @@ class SpanHandler extends DOMHandler {
 	private static function isRecognizedSpanWrapper( DOMElement $node ): ?string {
 		return DOMUtils::matchTypeOf(
 			$node,
-			'#^mw:(Nowiki|Entity|Placeholder(/\w+)?|(Image|Video|Audio)(/(Frameless|Frame|Thumb))?)$#'
+			// FIXME(T254501): Remove mw:DisplaySpace
+			'#^mw:('
+				. 'Nowiki|Entity|DisplaySpace|Placeholder(/\w+)?'
+				. '|(Image|Video|Audio)(/(Frameless|Frame|Thumb))?'
+				. ')$#'
 		);
 	}
 

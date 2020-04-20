@@ -622,17 +622,6 @@ class WikitextEscapeHandlers {
 					continue;
 				}
 
-				// Ignore display-hack placeholders and display spaces -- they dont need nowiki escaping
-				// They are added as a display-hack by the tokenizer (and we should probably
-				// find a better solution than that if one exists).
-				if ( TokenUtils::matchTypeOf( $t, '#^mw:Placeholder(/|$)#' ) &&
-					!empty( $t->dataAttribs->isDisplayHack )
-				) {
-					// Skip over the entity and the end-tag as well
-					$i += 2;
-					continue;
-				}
-
 				// Headings have both SOL and EOL requirements. This tokenization
 				// here only verifies SOL requirements, not EOL requirements.
 				// So, record this information so that we can strip unnecessary
@@ -766,12 +755,6 @@ class WikitextEscapeHandlers {
 					}
 					$sol = false;
 				}
-				continue;
-			}
-
-			// Ignore display hacks, so text like "A : B" doesn't produce
-			// an unnecessary nowiki.
-			if ( !empty( $t->dataAttribs->isDisplayHack ) ) {
 				continue;
 			}
 

@@ -69,13 +69,13 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
-		//   constructs: placeholders, lang variants, DisplayHack)
+		//   constructs: placeholders, lang variants)
 		$name = $n->nodeName;
 		return !(
 			isset( self::$WtTagsWithLimitedTSR[$name] ) ||
 			DOMUtils::matchTypeOf(
 				$n,
-				'/^mw:(Placeholder|LanguageVariant|DisplaySpace)$/D'
+				'/^mw:(Placeholder|LanguageVariant)$/D'
 			) ||
 			WTUtils::hasLiteralHTMLMarker( $parsoidData )
 		);
