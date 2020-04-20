@@ -404,12 +404,14 @@ class ParsoidExtensionAPI {
 	public function findAndUpdateArg(
 		array &$extArgs, string $key, ?Closure $updater = null
 	): ?string {
+		// FIXME: This code will get an overhaul when T250854 is resolved.
 		foreach ( $extArgs as $i => $kv ) {
-			if ( strtolower( trim( $kv->k ) ) === strtolower( $key ) ) {
+			$k = TokenUtils::tokensToString( $kv->k );
+			if ( strtolower( trim( $k ) ) === strtolower( $key ) ) {
 				$val = $kv->v;
 				if ( $updater ) {
 					$kv = clone $kv;
-					$kv->v = $updater( $val );
+					$kv->v = $updater( TokenUtils::tokensToString( $val ) );
 					$extArgs[$i] = $kv;
 				}
 				return $val;
