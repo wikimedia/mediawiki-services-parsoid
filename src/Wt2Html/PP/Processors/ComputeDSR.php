@@ -777,7 +777,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param DOMElement $root The root of the tree for which DSR has to be computed
-	 * @param array|null $options Options governing DSR computation
+	 * @param array $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
