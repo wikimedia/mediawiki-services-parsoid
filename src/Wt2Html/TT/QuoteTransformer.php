@@ -236,22 +236,13 @@ class QuoteTransformer extends TokenHandler {
 					continue;
 				}
 
-				$ctxPrevToken = $this->chunks[$i][0]->getAttribute( 'preceding-2chars' );
-				$lastCharIndex = strlen( $ctxPrevToken );
-				if ( $lastCharIndex >= 1 ) {
-					$lastchar = $ctxPrevToken[$lastCharIndex - 1];
-				} else {
-					$lastchar = "";
-				}
-				if ( $lastCharIndex >= 2 ) {
-					$secondtolastchar = $ctxPrevToken[$lastCharIndex - 2];
-				} else {
-					$secondtolastchar = "";
-				}
-				if ( $lastchar === ' ' && $firstspace === -1 ) {
+				$tok = $this->chunks[$i][0];
+				$lastCharIsSpace = $tok->getAttribute( 'isSpace_1' );
+				$secondLastCharIsSpace = $tok->getAttribute( 'isSpace_2' );
+				if ( $lastCharIsSpace && $firstspace === -1 ) {
 					$firstspace = $i;
-				} elseif ( $lastchar !== ' ' ) {
-					if ( $secondtolastchar === ' ' && $firstsingleletterword === -1 ) {
+				} elseif ( !$lastCharIsSpace ) {
+					if ( $secondLastCharIsSpace && $firstsingleletterword === -1 ) {
 						$firstsingleletterword = $i;
 						// if firstsingleletterword is set, we don't need
 						// to look at the options options, so we can bail early

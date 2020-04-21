@@ -1520,7 +1520,8 @@ quote =
 			[ new KV( 'value', substr( $quotes, $plainticks ) ) ],
 			(object)[ 'tsr' => $tsr ] );
 		if ( strlen( $quotes ) > 2 ) {
-			$mwq->addAttribute( 'preceding-2chars', substr( $this->input, $tsr->start - 2, 2 ) );
+			$mwq->addAttribute( 'isSpace_1', $tsr->start > 0 && substr( $this->input, $tsr->start - 1, 1 ) === ' ');
+			$mwq->addAttribute( 'isSpace_2', $tsr->start > 1 && substr( $this->input, $tsr->start - 2, 1 ) === ' ');
 		}
 		$result[] = $mwq;
 		return $result;
