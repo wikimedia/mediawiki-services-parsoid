@@ -8,7 +8,9 @@ use DateTime;
 use DOMDocument;
 use DOMElement;
 use Generator;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -142,19 +144,25 @@ class DOMPostProcessor extends PipelineStage {
 				}
 				$p['proc'] = function ( ...$args ) use ( $t ) {
 					$args[] = null;
-					return $t->traverse( ...$args );
+					return $t->traverse( $this->env, ...$args );
 				};
 			} else {
+				$className = $p['Processor'];
+				// @phan-suppress-next-line PhanNonClassMethodCall
+				$c = new $className();
 				if ( empty( $p['isExtPP'] ) ) {
-					// @phan-suppress-next-line PhanNonClassMethodCall
-					$c = new $p['Processor']();
+					$p['proc'] = function ( ...$args ) use ( $c ) {
+						return $c->run( $this->env, ...$args );
+					};
 				} else {
-					// @phan-suppress-next-line PhanNonClassMethodCall
-					$c = new $p['Processor']( $this->extApi );
+					Assert::invariant(
+						$c instanceof ExtDOMProcessor,
+						"Bad extension dom processor"
+					);
+					$p['proc'] = function ( ...$args ) use ( $c ) {
+						return $c->wtPostprocess( $this->extApi, ...$args );
+					};
 				}
-				$p['proc'] = function ( ...$args ) use ( $c ) {
-					return $c->run( ...$args );
-				};
 			}
 			$this->processors[] = $p;
 		}
@@ -316,11 +324,13 @@ class DOMPostProcessor extends PipelineStage {
 		 *   potential ordering issues.
 		 */
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
-			$processors[] = [
-				'isExtPP' => true, // This is an extension DOM post processor
-				'name' => 'pp:' . $extName,
-				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
-			];
+			foreach ( $domProcs as $i => $domProc ) {
+				$processors[] = [
+					'isExtPP' => true, // This is an extension DOM post processor
+					'name' => "pp:$extName:$i",
+					'Processor' => $domProc,
+				];
+			}
 		}
 
 		$processors = array_merge( $processors, [
@@ -829,12 +839,7 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			if ( empty( $pp['isExtPP'] ) ) {
-				$pp['proc']( $env, $body, $this->options, $this->atTopLevel );
-			} else {
-				// Pass $extApi, not $env to extension post processors
-				$pp['proc']( $this->extApi, $body, $this->options, $this->atTopLevel );
-			}
+			$pp['proc']( $body, $this->options, $this->atTopLevel );
 
 			if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] ) ) {
 				ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );

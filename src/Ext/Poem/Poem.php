@@ -4,12 +4,10 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
-use DOMElement;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class Poem extends ExtensionTagHandler implements ExtensionModule {
 
@@ -18,7 +16,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 		return [
 			'name' => 'Poem',
 			'domProcessors' => [
-				'wt2htmlPostProcessor' => self::class
+				PoemProcessor::class,
 			],
 			'tags' => [
 				[
@@ -129,86 +127,4 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 			]
 		);
 	}
-
-	/**
-	 * @param DOMElement $node
-	 */
-	private function processNowikis( DOMElement $node ): void {
-		$doc = $node->ownerDocument;
-		$c = $node->firstChild;
-		while ( $c ) {
-			if ( !$c instanceof DOMElement ) {
-				$c = $c->nextSibling;
-				continue;
-			}
-
-			if ( !preg_match( '/\bmw:Nowiki\b/', $c->getAttribute( 'typeof' ) ?? '' ) ) {
-				self::processNowikis( $c );
-				$c = $c->nextSibling;
-				continue;
-			}
-
-			// Replace the nowiki's text node with a combination
-			// of content and <br/>s. Take care to deal with
-			// entities that are still entity-wrapped (!!).
-			$cc = $c->firstChild;
-			while ( $cc ) {
-				$next = $cc->nextSibling;
-				if ( DOMUtils::isText( $cc ) ) {
-					$pieces = preg_split( '/\n/', $cc->nodeValue );
-					$n = count( $pieces );
-					$nl = '';
-					for ( $i = 0;  $i < $n;  $i++ ) {
-						$p = $pieces[$i];
-						$c->insertBefore( $doc->createTextNode( $nl . $p ), $cc );
-						if ( $i < $n - 1 ) {
-							$c->insertBefore( $doc->createElement( 'br' ), $cc );
-							$nl = "\n";
-						}
-					}
-					$c->removeChild( $cc );
-				}
-				$cc = $next;
-			}
-			$c = $c->nextSibling;
-		}
-	}
-
-	private function doPostProcessDOM(
-		DOMElement $node, array $options, bool $atTopLevel
-	): void {
-		if ( !$atTopLevel ) {
-			return;
-		}
-
-		$c = $node->firstChild;
-		while ( $c ) {
-			if ( $c instanceof DOMElement ) {
-				if ( preg_match( '#\bmw:Extension/poem\b#', $c->getAttribute( 'typeof' ) ?? '' ) ) {
-					// Replace newlines found in <nowiki> fragment with <br/>s
-					self::processNowikis( $c );
-				} else {
-					$this->doPostProcessDOM( $c, $options, $atTopLevel );
-				}
-			}
-			$c = $c->nextSibling;
-		}
-	}
-
-	/**
-	 * All DOM PostProcessors are expected to implement the run method.
-	 * Eventually, we will probably have an interface with a better name for this
-	 * entry method. But, for now, run() method it is.
-	 *
-	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMElement $body
-	 * @param array $options
-	 * @param bool $atTopLevel
-	 */
-	public function run(
-		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
-	): void {
-		$this->doPostProcessDOM( $body, $options, $atTopLevel );
-	}
-
 }

@@ -17,8 +17,7 @@ class Cite implements ExtensionModule {
 		return [
 			'name' => 'Cite',
 			'domProcessors' => [
-				'wt2htmlPostProcessor' => RefProcessor::class,
-				'html2wtPreProcessor' => [ self::class, 'html2wtPreProcessor' ],
+				RefProcessor::class,
 			],
 			'tags' => [
 				[
