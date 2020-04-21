@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -318,8 +317,10 @@ class AttributeExpander extends TokenHandler {
 				// FIXME: We should get rid of these array/string/non-string checks
 				// and probably use appropriately-named flags to convey type information.
 				if ( is_array( $oldA->k ) ) {
-					Assert::invariant( is_array( $expandedK ),
-						"expandedK: expected array. Found: " . PHPUtils::jsonEncode( $expandedK ) );
+					if ( !is_array( $expandedK ) ) {
+						PHPUtils::unreachable( "expandedK: expected array. Found: " .
+							PHPUtils::jsonEncode( $expandedK ) );
+					}
 
 					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedK, $wrapTemplates );
 					if ( $nlTkPos !== -1 ) {
