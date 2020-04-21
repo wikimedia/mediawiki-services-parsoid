@@ -8,10 +8,10 @@ OUTPUT_DIRECTORY       = doc
 JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = YES
 WARN_NO_PARAMDOC       = YES
-INPUT                  = src/README.md src/
+INPUT                  = README.md src/
 FILE_PATTERNS          = *.php
 RECURSIVE              = YES
-USE_MDFILE_AS_MAINPAGE = src/README.md
+USE_MDFILE_AS_MAINPAGE = README.md
 # FILTER_PATTERNS        = *md=build/doxygen_escape.sh
 HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
