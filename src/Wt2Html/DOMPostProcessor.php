@@ -318,7 +318,7 @@ class DOMPostProcessor extends PipelineStage {
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
 			$processors[] = [
 				'isExtPP' => true, // This is an extension DOM post processor
-				'name' => 'pp:' . Util::stripNamespace( $extName ),
+				'name' => 'pp:' . $extName,
 				'Processor' => new $domProcs['wt2htmlPostProcessor']( $this->extApi )
 			];
 		}

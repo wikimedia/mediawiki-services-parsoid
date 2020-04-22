@@ -5,16 +5,17 @@ namespace Wikimedia\Parsoid\Ext\LST;
 
 use DOMElement;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
-class LST extends ExtensionTag implements Extension {
+class LST extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => 'LST',
 			'tags' => [
 				[
 					'name' => 'labeledsectiontransclusion',

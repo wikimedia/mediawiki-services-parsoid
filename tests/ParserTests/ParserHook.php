@@ -8,8 +8,8 @@ use DOMElement;
 use DOMNode;
 use Error;
 
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 /**
  * See tests/parser/ParserTestParserHook.php in core.
  */
-class ParserHook extends ExtensionTag implements Extension {
+class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	public function staticTagPostProcessor( DOMNode $node, \stdClass $obj ): void {
 		if ( $node instanceof DOMElement ) {
 			$typeOf = $node->getAttribute( 'typeof' ) ?? '';
@@ -75,6 +75,7 @@ class ParserHook extends ExtensionTag implements Extension {
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => 'ParserHook',
 			'tags' => [
 				[ 'name' => 'tag', 'class' => self::class ],
 				[ 'name' => 'tåg', 'class' => self::class ],

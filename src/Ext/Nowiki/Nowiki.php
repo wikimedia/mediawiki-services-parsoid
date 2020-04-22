@@ -8,8 +8,8 @@ use DOMElement;
 use DOMText;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Util;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -18,11 +18,12 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 /**
  * Nowiki treats anything inside it as plain text.
  */
-class Nowiki extends ExtensionTag implements Extension {
+class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => '<nowiki>',
 			'tags' => [
 				[
 					'name' => 'nowiki',

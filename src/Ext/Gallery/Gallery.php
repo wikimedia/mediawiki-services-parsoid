@@ -8,8 +8,8 @@ use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -28,12 +28,12 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  *
  * A proposed spec is at: https://phabricator.wikimedia.org/P2506
  */
-class Gallery extends ExtensionTag implements Extension {
+class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
-			'name' => 'gallery',
+			'name' => 'Gallery',
 			'tags' => [
 				[
 					'name' => 'gallery',

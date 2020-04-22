@@ -5,8 +5,8 @@ namespace Wikimedia\Parsoid\Ext\Pre;
 
 use DOMDocument;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Util;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -15,11 +15,12 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
  * The `<pre>` extension tag shadows the html pre tag, but has different
  * semantics.  It treats anything inside it as plaintext.
  */
-class Pre extends ExtensionTag implements Extension {
+class Pre extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => '<pre>',
 			'tags' => [
 				[
 					'name' => 'pre',

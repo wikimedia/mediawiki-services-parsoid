@@ -5,7 +5,12 @@ namespace Wikimedia\Parsoid\Ext;
 
 use DOMDocument;
 
-abstract class ContentModelHandlerExtension implements Extension {
+/**
+ * A Parsoid extension module may contain one more more
+ * ContentModelHandlers, which allow Parsoid to round-trip a certain
+ * content model to and from HTML.
+ */
+abstract class ContentModelHandler {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi

@@ -10,7 +10,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
-use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
 use Wikimedia\Parsoid\Utils\Util;
 
@@ -210,27 +210,30 @@ class SiteConfig extends ApiSiteConfig {
 
 	/**
 	 * Register an extension for use in parser tests
-	 * @param Extension $ext
+	 * @param ExtensionModule $ext
 	 */
-	public function registerParserTestExtension( Extension $ext ): void {
-		$this->processExtensionModules( $ext );
+	public function registerParserTestExtension( ExtensionModule $ext ): void {
+		$this->getExtConfig(); // ensure $this->extConfig is initialized
+		$this->processExtensionModule( $ext );
 	}
 
 	/**
 	 * Unregister a previously registered extension.
-	 * @param Extension $ext
+	 * @param ExtensionModule $ext
 	 */
-	private function unregisterParserTestExtension( Extension $ext ): void {
+	private function unregisterParserTestExtension( ExtensionModule $ext ): void {
 		$extConfig = $ext->getConfig();
+		$name = $extConfig['name'];
 
-		foreach ( $extConfig['tags'] as $tagConfig ) {
+		$this->getExtConfig(); // ensure $this->extConfig is initialized
+		foreach ( ( $extConfig['tags'] ?? [] ) as $tagConfig ) {
 			$lowerTagName = mb_strtolower( $tagConfig['name'] );
 			unset( $this->extConfig['allTags'][$lowerTagName] );
 			unset( $this->extConfig['nativeTags'][$lowerTagName] );
 		}
 
 		if ( isset( $extConfig['domProcessors'] ) ) {
-			unset( $this->extConfig['domProcessors'][get_class( $ext )] );
+			unset( $this->extConfig['domProcessors'][$name] );
 		}
 
 		/*

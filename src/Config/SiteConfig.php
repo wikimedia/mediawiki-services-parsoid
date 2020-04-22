@@ -6,11 +6,20 @@ namespace Wikimedia\Parsoid\Config;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ExtensionContentModelHandler;
 use Wikimedia\Parsoid\Core\WikitextContentModelHandler;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\Cite\Cite;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
+use Wikimedia\Parsoid\Ext\Gallery\Gallery;
+use Wikimedia\Parsoid\Ext\JSON\JSON;
+use Wikimedia\Parsoid\Ext\LST\LST;
+use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
+use Wikimedia\Parsoid\Ext\Poem\Poem;
+use Wikimedia\Parsoid\Ext\Pre\Pre;
+use Wikimedia\Parsoid\Ext\Translate\Translate;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 
@@ -42,40 +51,58 @@ abstract class SiteConfig {
 	protected $linkTrailRegex = false;
 
 	/**
-	 * These "extensions" are considered to provide "core" functionality
+	 * These extension modules provide "core" functionality
 	 * and their implementations live in the Parsoid repo.
 	 *
-	 * @var array
+	 * @var class-string<ExtensionModule>[]
 	 */
-	private static $coreExtModules = [ 'Nowiki', 'Pre', 'Gallery' ];
-
-	/**
-	 * The Parsoid/JS extension registration mechanism is short-lived and
-	 * we are going to rely on the core extension mechanism soon. Till then,
-	 * it is simplest to just hardcode the list of extensions that have
-	 * Parsoid-compatible implementations in the Parsoid repo
-	 *
-	 * @var array
-	 */
-	private static $parsoidRepoExtModules = [ 'Cite', 'LST', 'Poem', 'Translate', 'JSON' ];
+	private static $coreExtModules = [
+		// content modules
+		JSON::class,
+		// extension tags
+		Nowiki::class,
+		Pre::class,
+		Gallery::class,
+		// The following implementations will move to their own repositories
+		// soon, but for now are implemented in the Parsoid repo.
+		Cite::class,
+		LST::class,
+		Poem::class,
+		Translate::class,
+	];
 
 	/**
 	 * Array specifying fully qualified class name for Parsoid-compatible extensions
-	 * @var string[]
+	 * @var ?class-string<ExtensionModule>[]
 	 */
-	private static $extModules = [];
+	private $extModules = null;
 
-	public static function init() {
-		foreach ( self::$coreExtModules as $extName ) {
-			self::$extModules[] = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
+	/**
+	 * Register a Parsoid extension module.
+	 * @param class-string<ExtensionModule> $className
+	 */
+	public function registerExtensionModule( string $className ): void {
+		$this->getExtensionModules(); // ensure it's initialized w/ core modules
+		$this->extModules[] = $className;
+	}
+
+	/**
+	 * Return the set of Parsoid extension modules associated with this
+	 * SiteConfig.  An implementation of SiteConfig may elect either to
+	 * call the ::registerExtension() method above, or else to override the
+	 * implementation of getExtensions() to return the proper list.
+	 * (But be sure to delegate to the superclass implementation in order
+	 * to include the Parsoid core extension modules.)
+	 *
+	 * FIXME: choose one method!
+	 *
+	 * @return class-string<ExtensionModule>[]
+	 */
+	public function getExtensionModules() {
+		if ( $this->extModules === null ) {
+			$this->extModules = self::$coreExtModules;
 		}
-
-		foreach ( self::$parsoidRepoExtModules as $extName ) {
-			self::$extModules[] = '\Wikimedia\Parsoid\Ext\\' . $extName . '\\' . $extName;
-		}
-
-		self::$coreExtModules = [];
-		self::$parsoidRepoExtModules = [];
+		return $this->extModules;
 	}
 
 	/** @var LoggerInterface|null */
@@ -105,21 +132,18 @@ abstract class SiteConfig {
 	protected $linterEnabled = false;
 
 	/** var array */
-	protected $extConfig = null;
+	protected $extConfig = [
+		'allTags'        => [],
+		'parsoidExtTags' => [],
+		'domProcessors'  => [],
+		'styles'         => [],
+		'contentModels'  => [],
+	];
 
 	/** @var bool */
-	private $extConfigInitialized;
+	private $extConfigInitialized = false;
 
 	public function __construct() {
-		self::init();
-		$this->extConfigInitialized = false;
-		$this->extConfig = [
-			'allTags'        => [],
-			'parsoidExtTags' => [],
-			'domProcessors'  => [],
-			'styles'         => [],
-			'contentModels'  => []
-		];
 	}
 
 	/************************************************************************//**
@@ -1060,30 +1084,37 @@ abstract class SiteConfig {
 
 	// FIXME: might benefit from T250230 (caching)
 	private function constructExtConfig() {
-		$this->extConfig['allTags'] = array_merge(
-			$this->extConfig['allTags'],
-			$this->getNonNativeExtensionTags()
-		);
+		// We always support wikitext
+		$this->extConfig['contentModels']['wikitext'] =
+			new WikitextContentModelHandler();
 
-		// Default content model implementation for wikitext
-		$this->extConfig['contentModels']['wikitext'] = new WikitextContentModelHandler();
+		// There may be some tags defined by the parent wiki which have no
+		// associated parsoid modules; for now we handle these by invoking
+		// the legacy parser.
+		$this->extConfig['allTags'] = $this->getNonNativeExtensionTags();
 
-		foreach ( self::$extModules as $className ) {
-			$this->processExtensionModules( new $className() );
+		foreach ( $this->getExtensionModules() as $className ) {
+			$this->processExtensionModule( new $className() );
 		}
-
-		$this->extConfigInitialized = true;
 	}
 
 	/**
 	 * Register a Parsoid-compatible extension
-	 * @param Extension $ext
+	 * @param ExtensionModule $ext
 	 */
-	protected function processExtensionModules( Extension $ext ): void {
+	protected function processExtensionModule( ExtensionModule $ext ): void {
+		Assert::invariant( $this->extConfigInitialized, "not yet inited!" );
 		$extConfig = $ext->getConfig();
+		Assert::invariant(
+			isset( $extConfig['name'] ),
+			"Every extension module must have a name."
+		);
+		$name = $extConfig['name'];
 
 		if ( isset( $extConfig['tags'] ) ) {
-			// This is for wt2html (sourceToDom), html2wt (domToWikitext), and linter functionality
+			// These are extension tag handlers.  They have
+			// wt2html (sourceToDom), html2wt (domToWikitext), and
+			// linter functionality.
 			foreach ( $extConfig['tags'] as $tagConfig ) {
 				$lowerTagName = mb_strtolower( $tagConfig['name'] );
 				$this->extConfig['allTags'][$lowerTagName] = true;
@@ -1091,9 +1122,11 @@ abstract class SiteConfig {
 			}
 		}
 
-		// This is for wt2htmlPostProcessor and html2wtPreProcessor functionality
+		// Extension modules may also register dom processors.
+		// This is for wt2htmlPostProcessor and html2wtPreProcessor
+		// functionality.
 		if ( isset( $extConfig['domProcessors'] ) ) {
-			$this->extConfig['domProcessors'][get_class( $ext )] = $extConfig['domProcessors'];
+			$this->extConfig['domProcessors'][$name] = $extConfig['domProcessors'];
 		}
 
 		// Does this extension export any native styles?
@@ -1115,7 +1148,10 @@ abstract class SiteConfig {
 				if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
 					continue;
 				}
-				$this->extConfig['contentModels'][$cm] = new ExtensionContentModelHandler( new $impl );
+				// Wrap the handler so we can give it a sanitized
+				// ParsoidExtensionAPI object.
+				$handler = new ExtensionContentModelHandler( new $impl() );
+				$this->extConfig['contentModels'][$cm] = $handler;
 			}
 		}
 	}
@@ -1123,8 +1159,9 @@ abstract class SiteConfig {
 	/**
 	 * @return array
 	 */
-	private function getExtConfig(): array {
+	protected function getExtConfig(): array {
 		if ( !$this->extConfigInitialized ) {
+			$this->extConfigInitialized = true;
 			$this->constructExtConfig();
 		}
 		return $this->extConfig;
@@ -1175,10 +1212,10 @@ abstract class SiteConfig {
 
 	/**
 	 * @param string $tagName Extension tag name
-	 * @return ExtensionTag|null
+	 * @return ExtensionTagHandler|null
 	 *   Returns the implementation of the named extension, if there is one.
 	 */
-	public function getExtTagImpl( string $tagName ): ?ExtensionTag {
+	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
 		$tagConfig = $this->getExtTagConfig( $tagName );
 		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
 	}

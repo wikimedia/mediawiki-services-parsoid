@@ -9,7 +9,7 @@ use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -811,9 +811,9 @@ class WTUtils {
 	/**
 	 * @param Env $env
 	 * @param DOMNode $node
-	 * @return ?ExtensionTag
+	 * @return ?ExtensionTagHandler
 	 */
-	public static function getNativeExt( Env $env, DOMNode $node ): ?ExtensionTag {
+	public static function getNativeExt( Env $env, DOMNode $node ): ?ExtensionTagHandler {
 		$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
 		$matchingTag = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
 		return $matchingTag ?

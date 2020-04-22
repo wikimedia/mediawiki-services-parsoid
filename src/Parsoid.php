@@ -511,5 +511,4 @@ class Parsoid {
 		// deletions.
 		$pageBundle->mw = [ 'ids' => [] ];
 	}
-
 }

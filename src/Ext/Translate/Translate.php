@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Translate;
 
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 
 /**
  * This is effectively a stub at this point.
@@ -15,10 +15,11 @@ use Wikimedia\Parsoid\Ext\ExtensionTag;
  * So, the PHP version mimics that and hence doesn't implement the
  * sourceToDom method.
  */
-class Translate extends ExtensionTag implements Extension {
+class Translate extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => 'Translate',
 			'tags' => [
 				[
 					'name' => 'translate',

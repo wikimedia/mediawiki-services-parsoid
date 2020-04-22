@@ -13,7 +13,8 @@ use DOMDocument;
 use DOMElement;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\SelserData;
-use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
+use Wikimedia\Parsoid\Ext\ContentModelHandler;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -23,7 +24,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  * Native Parsoid implementation of the "json" contentmodel.
  * @class
  */
-class JSON extends ContentModelHandlerExtension {
+class JSON extends ContentModelHandler implements ExtensionModule {
 	private const PARSE_ERROR_HTML = '<!DOCTYPE html><html>'
 		. '<body>'
 		. "<table data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}' typeof=\"mw:Error\">"
@@ -37,11 +38,10 @@ class JSON extends ContentModelHandlerExtension {
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
+			'name' => 'JSON content',
 			'contentModels' => [
 				'json' => self::class
 			],
-			'tags' => [
-			]
 		];
 	}
 

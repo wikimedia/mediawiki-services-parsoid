@@ -5,18 +5,18 @@ namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMDocument;
 use DOMElement;
-use Wikimedia\Parsoid\Ext\Extension;
-use Wikimedia\Parsoid\Ext\ExtensionTag;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
-class Poem extends ExtensionTag implements Extension {
+class Poem extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
-			'name' => 'poem',
+			'name' => 'Poem',
 			'domProcessors' => [
 				'wt2htmlPostProcessor' => self::class
 			],

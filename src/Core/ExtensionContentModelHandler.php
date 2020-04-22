@@ -6,20 +6,20 @@ namespace Wikimedia\Parsoid\Core;
 use DOMDocument;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Ext\ContentModelHandlerExtension;
+use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ExtensionContentModelHandler extends ContentModelHandler {
 
 	/**
-	 * @var ContentModelHandlerExtension
+	 * @var ExtContentModelHandler
 	 */
 	private $impl;
 
 	/**
-	 * @param ContentModelHandlerExtension $impl
+	 * @param ExtContentModelHandler $impl
 	 */
-	public function __construct( ContentModelHandlerExtension $impl ) {
+	public function __construct( ExtContentModelHandler $impl ) {
 		$this->impl = $impl;
 	}
 

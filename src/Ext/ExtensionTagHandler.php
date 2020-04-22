@@ -8,16 +8,17 @@ use DOMElement;
 use DOMNode;
 
 /**
- * A Parsoid native extension.  The only method which is generally
- * required by all extensions is `sourceToDom` (but Translate doesn't even
- * implement that).  All other methods have default do-nothing
+ * A Parsoid extension module may register handlers for one or more
+ * extension tags. The only method which is generally
+ * required by all extension tags is `sourceToDom` (but Translate doesn't
+ * even implement that).  All other methods have default do-nothing
  * implementations; override them iff you wish to implement those
  * features.  Default implementations consistently return `false`
  * to indicate not-implemented (in some cases `null` would be a
  * valid return value, and in other cases `null` would be a likely
  * "accidental" return value which we'd like to catch and flag).
  */
-abstract class ExtensionTag {
+abstract class ExtensionTagHandler {
 
 	/**
 	 * Convert an extension tag's content to DOM

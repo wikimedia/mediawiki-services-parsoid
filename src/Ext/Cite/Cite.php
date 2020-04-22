@@ -4,23 +4,21 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMNode;
-use Wikimedia\Parsoid\Ext\Extension;
+use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 /**
  * Native Parsoid implementation of the Cite extension
  * that ties together `<ref>` and `<references>`.
  */
-class Cite implements Extension {
+class Cite implements ExtensionModule {
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
-			'name' => 'cite',
+			'name' => 'Cite',
 			'domProcessors' => [
 				'wt2htmlPostProcessor' => RefProcessor::class,
-				'html2wtPreProcessor' => function ( ...$args ) {
-					return self::html2wtPreProcessor( ...$args );
-				}
+				'html2wtPreProcessor' => [ self::class, 'html2wtPreProcessor' ],
 			],
 			'tags' => [
 				[
