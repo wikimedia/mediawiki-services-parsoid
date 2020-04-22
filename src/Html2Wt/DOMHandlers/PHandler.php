@@ -222,8 +222,7 @@ class PHandler extends DOMHandler {
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
 				&& !WTUtils::isSolTransparentLink( $node )
-				&& !( $node instanceof DOMElement  // for static analyzers
-					&& preg_match( '#^mw:Includes/#', $node->getAttribute( 'typeof' ) ?? '' ) ) );
+				&& !DOMUtils::matchTypeOf( $node, '#^mw:Includes/#' ) );
 	}
 
 	/**

@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\LST;
 
 use DOMElement;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
+use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -41,14 +42,13 @@ class LST extends ExtensionTagHandler implements ExtensionModule {
 		// compatible with stored content version 1.3.0 and below.  Remove it
 		// when those versions are no longer supported.
 
-		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$src = null;
 		if ( isset( $dp->src ) ) {
 			$src = $dp->src;
-		} elseif ( preg_match( '/begin/', $typeOf ) ) {
+		} elseif ( DOMUtils::matchTypeOf( $node, '/begin/' ) ) {
 			$src = '<section begin="' . $node->getAttribute( 'content' ) . '" />';
-		} elseif ( preg_match( '/end/', $typeOf ) ) {
+		} elseif ( DOMUtils::matchTypeOf( $node, '/end/' ) ) {
 			$src = '<section end="' . $node->getAttribute( 'content' ) . '" />';
 		} else {
 			$extApi->log( 'error', 'LST <section> without content in: ' .

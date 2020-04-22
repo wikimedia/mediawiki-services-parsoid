@@ -25,7 +25,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 		DOMNode $node, stdClass $obj
 	): void {
 		if ( $node instanceof DOMElement ) {
-			if ( DOMDataUtils::hasTypeOf( $node, 'mw:Extension/statictag' ) ) {
+			if ( DOMUtils::hasTypeOf( $node, 'mw:Extension/statictag' ) ) {
 				$dataMw = DOMDataUtils::getDataMw( $node );
 				if ( ( $dataMw->attrs->action ?? null ) === 'flush' ) {
 					$node->appendChild( $node->ownerDocument->createTextNode( $obj->buf ) );

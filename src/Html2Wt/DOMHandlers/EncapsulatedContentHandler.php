@@ -39,24 +39,27 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$serializer = $state->serializer;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
 		$src = null;
-		if ( preg_match( '/(?:^|\s)(?:mw:Transclusion|mw:Param)(?=$|\s)/D', $typeOf ) ) {
+		$transclusionType = DOMUtils::matchTypeOf( $node, '/^mw:(Transclusion|Param)$/' );
+		$extType = DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' );
+		if ( $transclusionType ) {
 			if ( !empty( $dataMw->parts ) ) {
 				$src = $serializer->serializeFromParts( $state, $node, $dataMw->parts );
 			} elseif ( isset( $dp->src ) ) {
 				$env->log( 'error', 'data-mw missing in: ' . DOMCompat::getOuterHTML( $node ) );
 				$src = $dp->src;
 			} else {
-				throw new ClientError( "Cannot serialize $typeOf without data-mw.parts or data-parsoid.src" );
+				throw new ClientError(
+					"Cannot serialize $transclusionType without data-mw.parts or data-parsoid.src"
+				);
 			}
-		} elseif ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf ) ) {
+		} elseif ( $extType ) {
 			if ( ( $dataMw->name ?? null ) == '' && !isset( $dp->src ) ) {
 				// If there was no typeOf name, and no dp.src, try getting
 				// the name out of the mw:Extension type. This will
 				// generate an empty extension tag, but it's better than
 				// just an error.
-				$extGivenName = preg_replace( '#(?:^|\s)mw:Extension/([^\s]+)#', '$1', $typeOf, 1 );
+				$extGivenName = substr( $extType, strlen( 'mw:Extension/' ) );
 				if ( $extGivenName ) {
 					$env->log( 'error', 'no data-mw name for extension in: ', DOMCompat::getOuterHTML( $node ) );
 					$dataMw->name = $extGivenName;
@@ -78,7 +81,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			} else {
 				throw new ClientError( 'Cannot serialize extension without data-mw.name or data-parsoid.src.' );
 			}
-		} elseif ( preg_match( '/(?:^|\s)(?:mw:LanguageVariant)(?=$|\s)/D', $typeOf ) ) {
+		} elseif ( DOMUtils::hasTypeOf( $node, 'mw:LanguageVariant' ) ) {
 			$state->serializer->languageVariantHandler( $node );
 			return $node->nextSibling;
 		} else {
@@ -102,14 +105,13 @@ class EncapsulatedContentHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		$env = $state->getEnv();
-		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Handle native extension constraints.
-		if ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf )
+		if ( DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' )
 			// Only apply to plain extension tags.
-			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
+			 && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
@@ -141,13 +143,12 @@ class EncapsulatedContentHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		$env = $state->getEnv();
-		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
 		$dataMw = DOMDataUtils::getDataMw( $node );
 
 		// Handle native extension constraints.
-		if ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf )
+		if ( DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' )
 			// Only apply to plain extension tags.
-			 && !preg_match( '/(?:^|\s)mw:Transclusion(?:\s|$)/D', $typeOf )
+			 && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
 		) {
 			if ( isset( $dataMw->name ) ) {
 				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
@@ -220,9 +221,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			return false;
 		}
 
-		$typeOf = $node->getAttribute( 'typeof' ) ?: '';
-
-		if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
+		if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 			// If the first part is a string, template ranges were expanded to
 			// include this list element. That may be trouble. Otherwise,
 			// containers aren't part of the template source and we should emit
@@ -235,7 +234,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			// assigned to this element. A safe indication that we should call
 			// getListsBullets on the containing list element.
 			return !preg_match( '/^[*#:;]{2,}$/D', $dataMw->parts[0] );
-		} elseif ( preg_match( '/(?:^|\s)mw:(Extension|Param)/', $typeOf ) ) {
+		} elseif ( DOMUtils::matchTypeOf( $node, '/^mw:(Extension|Param)/' ) ) {
 			// Containers won't ever be part of the src here, so emit them.
 			return true;
 		} else {

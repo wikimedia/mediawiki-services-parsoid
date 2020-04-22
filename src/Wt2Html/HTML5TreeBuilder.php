@@ -343,10 +343,9 @@ class HTML5TreeBuilder extends PipelineStage {
 			// should be fostered since they end up generating
 			// HTML content at the marker site.
 			if ( $tName === 'meta' ) {
-				$tTypeOf = $token->getAttribute( 'typeof' ) ?: '';
-				$shouldFoster = preg_match(
-					'/^mw:(Includes\/(OnlyInclude|IncludeOnly|NoInclude))\b/',
-					$tTypeOf
+				$shouldFoster = TokenUtils::matchTypeOf(
+					$token,
+					'#^mw:Includes/(OnlyInclude|IncludeOnly|NoInclude)$#'
 				);
 				if ( !$shouldFoster ) {
 					$prop = $token->getAttribute( 'property' ) ?: '';
@@ -354,12 +353,17 @@ class HTML5TreeBuilder extends PipelineStage {
 				}
 				if ( !$shouldFoster ) {
 					// transclusions state
-					if ( preg_match( '/^mw:Transclusion/', $tTypeOf ) ) {
-						$this->inTransclusion = preg_match( '/^mw:Transclusion$/D', $tTypeOf );
+					$transType = TokenUtils::matchTypeOf( $token, '#^mw:Transclusion#' );
+					if ( $transType ) {
+						// typeof starts with mw:Transclusion
+						$this->inTransclusion = ( $transType === 'mw:Transclusion' );
 					}
 					$this->dispatcher->comment(
-						WTUtils::fosterCommentData( $tTypeOf, $this->kvArrToFoster( $attribs ), false ),
-						0, 0
+						WTUtils::fosterCommentData(
+							$token->getAttribute( 'typeof' ) ?? '',
+							$this->kvArrToFoster( $attribs ),
+							false
+						), 0, 0
 					);
 					$wasInserted = true;
 				}

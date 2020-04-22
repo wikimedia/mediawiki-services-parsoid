@@ -115,7 +115,7 @@ class TableFixups {
 	 */
 	public function isSimpleTemplatedSpan( DOMNode $node ): bool {
 		return $node->nodeName === 'span' &&
-			DOMDataUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
+			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
 			DOMUtils::allChildrenAreTextOrComments( $node );
 	}
 
@@ -227,7 +227,7 @@ class TableFixups {
 		$buf = [];
 		$nowikis = [];
 		$transclusionNode = $templateWrapper ?:
-			( DOMDataUtils::hasTypeOf( $node, 'mw:Transclusion' ) ? $node : null );
+			( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ? $node : null );
 		$child = $node->firstChild;
 
 		/*
@@ -258,10 +258,9 @@ class TableFixups {
 			} else {
 				/** @var DOMElement $child */
 				DOMUtils::assertElt( $child );
-				$typeOf = $child->getAttribute( 'typeof' );
-				if ( preg_match( '/^mw:Entity$/D', $typeOf ) ) {
+				if ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
 					$buf[] = $child->textContent;
-				} elseif ( preg_match( '/^mw:Nowiki$/D', $typeOf ) ) {
+				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
 					// Nowiki span were added to protect otherwise
 					// meaningful wikitext chars used in attributes.
 

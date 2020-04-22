@@ -243,15 +243,17 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataAttribs->stx ?? '' ) !== 'html' ) {
 					$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
-					$typeOf = $token->getAttribute( 'typeof' );
-					if ( $typeOf === 'mw:TSRMarker' &&
+					if ( TokenUtils::hasTypeOf( $token, 'mw:TSRMarker' ) &&
 						$this->lastConvertedTableCellToken !== null &&
 						$this->lastConvertedTableCellToken->getName() === $token->getAttribute( 'data-etag' )
 					) {
 						// Swallow the token and clear the marker
 						$this->lastConvertedTableCellToken = null;
 						return [ 'tokens' => [] ];
-					} elseif ( count( $this->tokenBuf ) > 0 && $typeOf === 'mw:Transclusion' ) {
+					} elseif (
+						count( $this->tokenBuf ) > 0 &&
+						TokenUtils::hasTypeOf( $token, 'mw:Transclusion' )
+					) {
 						// If we have buffered newlines, we might very well encounter
 						// a category link, so continue buffering.
 						$this->tokenBuf[] = $token;

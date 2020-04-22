@@ -289,69 +289,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Test if a node matches a given typeof.
-	 *
-	 * @param DOMNode $node node
-	 * @param string $type type
-	 * @return bool
-	 */
-	public static function hasTypeOf( DOMNode $node, string $type ): bool {
-		if ( !( $node instanceof DOMElement ) ) {
-			return false;
-		}
-		if ( !$node->hasAttribute( 'typeof' ) ) {
-			return false;
-		}
-		$typeOfs = $node->getAttribute( 'typeof' );
-		$types = preg_split( '/\s+/', $typeOfs );
-		return in_array( $type, $types, true );
-	}
-
-	/**
-	 * Add a type to the typeof attribute. This method works for both tokens
-	 * and DOM nodes as it only relies on getAttribute and setAttribute, which
-	 * are defined for both.
-	 *
-	 * @param DOMElement $node node
-	 * @param string $type type
-	 */
-	public static function addTypeOf( DOMElement $node, string $type ): void {
-		$typeOf = $node->getAttribute( 'typeof' );
-		if ( $typeOf !== '' ) {
-			$types = preg_split( '/\s+/', $typeOf );
-			if ( !in_array( $type, $types, true ) ) {
-				// not in type set yet, so add it.
-				$types[] = $type;
-			}
-			$node->setAttribute( 'typeof', implode( ' ', $types ) );
-		} else {
-			$node->setAttribute( 'typeof', $type );
-		}
-	}
-
-	/**
-	 * Remove a type from the typeof attribute. This method works on both
-	 * tokens and DOM nodes as it only relies on
-	 * getAttribute/setAttribute/removeAttribute.
-	 *
-	 * @param DOMElement $node node
-	 * @param string $type type
-	 */
-	public static function removeTypeOf( DOMElement $node, string $type ): void {
-		$typeOf = $node->getAttribute( 'typeof' );
-		if ( $typeOf !== '' ) {
-			$types = array_filter( preg_split( '/\s+/', $typeOf ), function ( $t ) use ( $type ) {
-				return $t !== $type;
-			} );
-			if ( count( $types ) > 0 ) {
-				$node->setAttribute( 'typeof', implode( ' ', $types ) );
-			} else {
-				$node->removeAttribute( 'typeof' );
-			}
-		}
-	}
-
-	/**
 	 * Get this document's pagebundle object
 	 * @param DOMDocument $doc
 	 * @return stdClass

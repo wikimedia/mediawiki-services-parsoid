@@ -894,7 +894,7 @@ class TemplateHandler extends TokenHandler {
 			}
 			if ( $t instanceof SelfclosingTagTk &&
 				strtolower( $t->getName() ) === 'meta' &&
-				$t->getAttribute( 'typeof' ) === 'mw:Placeholder'
+				TokenUtils::hasTypeOf( $t, 'mw:Placeholder' )
 			) {
 				// replace with empty string to avoid metas being foster-parented out
 				$chunk[$i] = '';
@@ -1102,7 +1102,7 @@ class TemplateHandler extends TokenHandler {
 					]
 				] );
 				$typeOf = $tokens[0]->getAttribute( 'typeof' );
-				$tokens[0]->setAttribute( 'typeof', 'mw:Error ' . $typeOf );
+				$tokens[0]->setAttribute( 'typeof', 'mw:Error' . ( $typeOf ? " $typeOf" : '' ) );
 			}
 			return [ 'tokens' => $tokens ];
 		} else {

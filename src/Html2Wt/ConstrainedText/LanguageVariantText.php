@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Language Variant markup, like `-{ ... }-`.
@@ -37,7 +38,7 @@ class LanguageVariantText extends RegExpConstrainedText {
 		string $text, DOMElement $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	): ?LanguageVariantText {
-		if ( $node->getAttribute( 'typeof' ) === 'mw:LanguageVariant' ) {
+		if ( DOMUtils::hasTypeOf( $node, 'mw:LanguageVariant' ) ) {
 			return new LanguageVariantText( $text, $node );
 		}
 		return null;

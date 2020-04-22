@@ -171,7 +171,7 @@ class DiffUtils {
 	 */
 	public static function prependTypedMeta( DOMNode $node, string $type ): DOMElement {
 		$meta = $node->ownerDocument->createElement( 'meta' );
-		$meta->setAttribute( 'typeof', $type );
+		DOMUtils::addTypeOf( $meta, $type );
 		$node->parentNode->insertBefore( $meta, $node );
 		return $meta;
 	}

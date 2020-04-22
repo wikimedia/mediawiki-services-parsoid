@@ -501,8 +501,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isDOMFragmentWrapper( DOMNode $node ): bool {
-		return $node instanceof DOMElement &&
-			TokenUtils::isDOMFragmentType( $node->getAttribute( 'typeof' ) );
+		// See TokenUtils::hasDOMFragmentType
+		return DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/sealed/\w+)?$#D' ) !== null;
 	}
 
 	/**

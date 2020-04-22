@@ -375,9 +375,59 @@ class DOMUtils {
 	 * @return bool True if the node matches.
 	 */
 	public static function hasTypeOf( DOMNode $n, string $type ) {
+		// fast path
+		if ( !( $n instanceof DOMElement && $n->hasAttribute( 'typeof' ) ) ) {
+			return false;
+		}
+		if ( $n->getAttribute( 'typeof' ) === $type ) {
+			return true;
+		}
+		// fallback
 		return self::matchTypeOf(
 			$n, '/^' . preg_quote( $type, '/' ) . '$/D'
 		) !== null;
+	}
+
+	/**
+	 * Add a type to the typeof attribute.  This method should almost always
+	 * be used instead of `setAttribute`, to ensure we don't overwrite existing
+	 * typeof information.
+	 *
+	 * @param DOMElement $node node
+	 * @param string $type type
+	 */
+	public static function addTypeOf( DOMElement $node, string $type ): void {
+		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
+		if ( $typeOf !== '' ) {
+			$types = preg_split( '/\s+/', $typeOf );
+			if ( !in_array( $type, $types, true ) ) {
+				// not in type set yet, so add it.
+				$types[] = $type;
+			}
+			$node->setAttribute( 'typeof', implode( ' ', $types ) );
+		} else {
+			$node->setAttribute( 'typeof', $type );
+		}
+	}
+
+	/**
+	 * Remove a type from the typeof attribute.
+	 *
+	 * @param DOMElement $node node
+	 * @param string $type type
+	 */
+	public static function removeTypeOf( DOMElement $node, string $type ): void {
+		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
+		if ( $typeOf !== '' ) {
+			$types = array_filter( preg_split( '/\s+/', $typeOf ), function ( $t ) use ( $type ) {
+				return $t !== $type;
+			} );
+			if ( count( $types ) > 0 ) {
+				$node->setAttribute( 'typeof', implode( ' ', $types ) );
+			} else {
+				$node->removeAttribute( 'typeof' );
+			}
+		}
 	}
 
 	/**
@@ -477,8 +527,7 @@ class DOMUtils {
 			return self::isMarkerMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
 			return $node->nodeName === 'meta' &&
-				self::assertElt( $node ) &&
-				preg_match( '#\bmw:DiffMarker/\w*\b#', $node->getAttribute( 'typeof' ) );
+				self::matchTypeOf( $node, '#^mw:DiffMarker/#' );
 		}
 	}
 

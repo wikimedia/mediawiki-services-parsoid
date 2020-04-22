@@ -194,19 +194,14 @@ class DOMDiff {
 				if ( $htmlA && $htmlB && !$this->treeEquals( $htmlA, $htmlB, true ) ) {
 					return false;
 				} elseif ( !$htmlA || !$htmlB ) {
-					if ( $nodeA instanceof DOMElement ) {
-						$type = $nodeA->getAttribute( 'typeof' ) ?: '';
-					} else {
-						$type = '';
-					}
-					$match = preg_match( '!mw:Extension/(\w+)\b!', $type );
-					$extName = $match ? $match[1] : '---';
+					$type = DOMUtils::matchTypeOf( $nodeA, '!^mw:Extension/\w+$!' );
+					$extName = $type ? '---' : substr( $type, strlen( 'mw:Extension/' ) );
 					// Log error
 					if ( !$htmlA ) {
 						$this->env->log(
 							'error/domdiff/orig/' . $extName,
 							'extension src id ' . PHPUtils::jsonEncode( $vA ) . ' points to non-existent element for:',
-							DOMCompat::getOuterHTML( $nodeA )
+							DOMUtils::assertElt( $nodeA ) && DOMCompat::getOuterHTML( $nodeA )
 						);
 					}
 					if ( !$htmlB ) {
@@ -497,7 +492,7 @@ class DOMDiff {
 			// in this scenario. So, bailing out in this one case for now.
 			if ( $newParentNode->hasChildNodes() ) {
 				$meta = $newParentNode->ownerDocument->createElement( 'meta' );
-				$meta->setAttribute( 'typeof', 'mw:DiffMarker/deleted' );
+				DOMUtils::addTypeOf( $meta, 'mw:DiffMarker/deleted' );
 				if ( WTUtils::isBlockNodeWithVisibleWT( $baseNode ) ) {
 					$meta->setAttribute( 'data-is-block', 'true' );
 				}

@@ -537,7 +537,7 @@ class TestRunner {
 			return !( $node instanceof DOMElement ) ||
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// Deleting these div wrappers is tantamount to removing the
-					$node->getAttribute( 'typeof' ) !== 'mw:Entity' &&
+					!DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
 					// reference tag encaption wrappers, which results in errors.
 					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? '' )
 				);
@@ -560,8 +560,7 @@ class TestRunner {
 			// - Any node nested in an image elt that is not a fig-caption
 			//   is an uneditable image elt.
 			// - Entity spans are uneditable as well
-			$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-			return preg_match( ( '/\bmw:(Image|Video|Audio|Entity)\b/' ), $typeOf ) || (
+			return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio|Entity)(/|$)#' ) || (
 				$node->nodeName !== 'figcaption' &&
 				$node->parentNode &&
 				$node->parentNode->nodeName !== 'body' &&

@@ -15,25 +15,6 @@ use Wikimedia\Parsoid\Utils\Util;
 
 class SpanHandler extends DOMHandler {
 
-	/** @var string[] List of typeof attributes to consider */
-	public static $genContentSpanTypes = [
-		'mw:Nowiki',
-		'mw:Image',
-		'mw:Image/Frameless',
-		'mw:Image/Frame',
-		'mw:Image/Thumb',
-		'mw:Video',
-		'mw:Video/Frameless',
-		'mw:Video/Frame',
-		'mw:Video/Thumb',
-		'mw:Audio',
-		'mw:Audio/Frameless',
-		'mw:Audio/Frame',
-		'mw:Audio/Thumb',
-		'mw:Entity',
-		'mw:Placeholder',
-	];
-
 	public function __construct() {
 		parent::__construct( false );
 	}
@@ -44,22 +25,24 @@ class SpanHandler extends DOMHandler {
 	): ?DOMNode {
 		$env = $state->getEnv();
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$type = $node->getAttribute( 'typeof' ) ?: '';
 		$contentSrc = ( $node->textContent != '' ) ? $node->textContent
 			: DOMCompat::getInnerHTML( $node );
-		if ( $this->isRecognizedSpanWrapper( $type ) ) {
-			if ( $type === 'mw:Nowiki' ) {
+		if ( self::isRecognizedSpanWrapper( $node ) ) {
+			if ( DOMUtils::hasTypeOf( $node, 'mw:Nowiki' ) ) {
 				$ext = $env->getSiteConfig()->getExtTagImpl( 'nowiki' );
 				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
 				$state->serializer->emitWikitext( $src, $node );
-			} elseif ( preg_match( '#(?:^|\s)mw:(?:Image|Video|Audio)(/(Frame|Frameless|Thumb))?#',
-				$type )
-			) {
+			} elseif ( DOMUtils::matchTypeOf(
+				$node, '#^mw:(Image|Video|Audio)(/(Frame|Frameless|Thumb))?$#'
+			) ) {
 				// TODO: Remove when 1.5.0 content is deprecated,
 				// since we no longer emit media in spans.  See the test,
 				// "Serialize simple image with span wrapper"
 				$state->serializer->figureHandler( $node );
-			} elseif ( preg_match( '/(?:^|\s)mw:Entity/', $type ) && DOMUtils::hasNChildren( $node, 1 ) ) {
+			} elseif (
+				DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
+				DOMUtils::hasNChildren( $node, 1 )
+			) {
 				// handle a new mw:Entity (not handled by selser) by
 				// serializing its children
 				if ( isset( $dp->src ) && $contentSrc === ( $dp->srcContent ?? null ) ) {
@@ -71,12 +54,12 @@ class SpanHandler extends DOMHandler {
 				} else {
 					$state->serializeChildren( $node );
 				}
-			} elseif ( preg_match( '#(^|\s)mw:Placeholder(/\w*)?#', $type ) ) {
+			} elseif ( DOMUtils::matchTypeOf( $node, '#^mw:Placeholder(/|$)#' ) ) {
 				if ( isset( $dp->src ) ) {
 					$this->emitPlaceholderSrc( $node, $state );
 					return $node->nextSibling;
 				} elseif (
-					preg_match( '/(^|\s)mw:Placeholder(\s|$)/D', $type )
+					DOMUtils::hasTypeOf( $node, 'mw:Placeholder' )
 					&& DOMUtils::hasNChildren( $node, 1 )
 					&& DOMUtils::isText( $node->firstChild )
 					// See the DisplaySpace hack in the urltext rule in the tokenizer.
@@ -114,12 +97,14 @@ class SpanHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param string $type
-	 * @return bool
+	 * @param DOMElement $node
+	 * @return string|null
 	 */
-	private function isRecognizedSpanWrapper( string $type ): bool {
-		$types = preg_split( '/\s+/', $type, -1, PREG_SPLIT_NO_EMPTY );
-		return (bool)array_intersect( $types, self::$genContentSpanTypes );
+	private static function isRecognizedSpanWrapper( DOMElement $node ): ?string {
+		return DOMUtils::matchTypeOf(
+			$node,
+			'#^mw:(Nowiki|Entity|Placeholder(/\w+)?|(Image|Video|Audio)(/(Frameless|Frame|Thumb))?)$#'
+		);
 	}
 
 }

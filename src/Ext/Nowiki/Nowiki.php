@@ -39,7 +39,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 	): DOMDocument {
 		$doc = $extApi->htmlToDom( '' ); // Empty doc
 		$span = $doc->createElement( 'span' );
-		$span->setAttribute( 'typeof', 'mw:Nowiki' );
+		DOMUtils::addTypeOf( $span, 'mw:Nowiki' );
 
 		foreach ( preg_split( '/(&[#0-9a-zA-Z]+;)/', $txt, -1, PREG_SPLIT_DELIM_CAPTURE ) as $i => $t ) {
 			if ( $i % 2 === 1 ) {
@@ -48,7 +48,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 					// This should match the output of the "htmlentity" rule
 					// in the tokenizer.
 					$entity = $doc->createElement( 'span' );
-					$entity->setAttribute( 'typeof', 'mw:Entity' );
+					DOMUtils::addTypeOf( $entity, 'mw:Entity' );
 					DOMDataUtils::setDataParsoid( $entity, (object)[
 						'src' => $t,
 						'srcContent' => $cc,
@@ -82,7 +82,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 				if ( DOMUtils::isDiffMarker( $child ) ) {
 					/* ignore */
 				} elseif ( $child->nodeName === 'span' &&
-					 $child->getAttribute( 'typeof' ) === 'mw:Entity' &&
+					DOMUtils::hasTypeOf( $child, 'mw:Entity' ) &&
 					DOMUtils::hasNChildren( $child, 1 )
 				) {
 					$dp = DOMDataUtils::getDataParsoid( $child );

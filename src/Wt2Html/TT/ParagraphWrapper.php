@@ -225,12 +225,11 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = 0; $i < $countOut; $i++ ) {
 				$t = $out[$i];
 				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
-					$typeOf = $t->getAttribute( 'typeof' ) ?? '';
-					if ( preg_match( '/^mw:Transclusion$/D', $typeOf ) ) {
+					if ( TokenUtils::hasTypeOf( $t, 'mw:Transclusion' ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
 						$tplStartIndex = $i;
 						continue;
-					} elseif ( preg_match( '/^mw:Transclusion/', $typeOf ) ) {
+					} elseif ( TokenUtils::matchTypeOf( $t, '#^mw:Transclusion/#' ) ) {
 						// End tag. All tokens before this are sol-transparent.
 						// Let us leave them all out of the p-wrapping.
 						$tplStartIndex = -1;
@@ -264,13 +263,12 @@ class ParagraphWrapper extends TokenHandler {
 			for ( $i = count( $out ) - 1; $i > -1; $i-- ) {
 				$t = $out[$i];
 				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
-					$typeOf = $t->getAttribute( 'typeof' ) ?? '';
-					if ( preg_match( '/^mw:Transclusion$/D', $typeOf ) ) {
+					if ( TokenUtils::hasTypeOf( $t, 'mw:Transclusion' ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
 						// Don't include the sol-transparent tags OR the start tag.
 						$tplEndIndex = -1;
 						continue;
-					} elseif ( preg_match( '/^mw:Transclusion/', $typeOf ) ) {
+					} elseif ( TokenUtils::matchTypeOf( $t, '#^mw:Transclusion/#' ) ) {
 						// End tag. The rest of the tags past this are sol-transparent.
 						// Let us leave them all out of the p-wrapping.
 						$tplEndIndex = $i;

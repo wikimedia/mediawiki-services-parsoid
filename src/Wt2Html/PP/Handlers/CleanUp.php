@@ -24,18 +24,17 @@ class CleanUp {
 	public static function stripMarkerMetas( DOMElement $node, Env $env ) {
 		$rtTestMode = $env->getSiteConfig()->rtTestMode();
 
-		if ( !$node->hasAttribute( 'typeof' ) ) {
-			return true;
-		}
-		$metaType = $node->getAttribute( 'typeof' );
-
 		// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 		// element attached to it. So, check if the node has data-mw,
 		// in which case we also have to keep it.
-		$metaTestRE = /* RegExp */ '/(?:^|\s)mw:(StartTag|EndTag|TSRMarker|Transclusion)\/?[^\s]*/';
-
-		if ( ( !$rtTestMode && $metaType === 'mw:Placeholder/StrippedTag' ) ||
-			( preg_match( $metaTestRE, $metaType ) && !DOMDataUtils::validDataMw( $node ) )
+		if (
+			(
+				!$rtTestMode &&
+				DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' )
+			) || (
+				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' ) &&
+				!DOMDataUtils::validDataMw( $node )
+			)
 		) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );
@@ -227,7 +226,7 @@ class CleanUp {
 			// and associated ids (we cannot add an about id on the nowiki-ed
 			// content since that would be a text node).
 			if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node ) &&
-				preg_match( '/^mw:Nowiki$/D', $node->getAttribute( 'typeof' ) )
+				 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 			) {
 				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
 				// Replace the span with an empty text node.

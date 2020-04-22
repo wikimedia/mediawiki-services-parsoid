@@ -196,7 +196,7 @@ class ConversionTraverser extends DOMTraverser {
 			// Other external link text is protected from conversion iff
 			// (a) it doesn't starts/end with -{ ... }-
 			if ( $el->firstChild &&
-				DOMDataUtils::hasTypeOf( $el->firstChild, 'mw:LanguageVariant' ) ) {
+				DOMUtils::hasTypeOf( $el->firstChild, 'mw:LanguageVariant' ) ) {
 				return true;
 			}
 			// (b) it looks like a URL (protocol-relative links excluded)
@@ -268,7 +268,7 @@ class ConversionTraverser extends DOMTraverser {
 		DOMElement $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
-		if ( !DOMDataUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
+		if ( !DOMUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
 			return true; /* not language converter markup */
 		}
 		$dmv = DOMDataUtils::getJSONAttribute( $el, 'data-mw-variant', [] );

@@ -69,7 +69,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 
 		if ( $src ) {
 			$placeHolder = $node->ownerDocument->createElement( 'meta' );
-			$placeHolder->setAttribute( 'typeof', 'mw:Placeholder/StrippedTag' );
+			DOMUtils::addTypeOf( $placeHolder, 'mw:Placeholder/StrippedTag' );
 			DOMDataUtils::setDataParsoid( $placeHolder, (object)[
 					'src' => $src,
 					'name' => $name,
@@ -135,8 +135,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 			if ( $c instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $c );
 				if ( $c->nodeName === 'meta' ) {
-					$metaType = $c->getAttribute( 'typeof' );
-					if ( $metaType === 'mw:StartTag' ) {
+					if ( DOMUtils::hasTypeOf( $c, 'mw:StartTag' ) ) {
 						$dataStag = $c->getAttribute( 'data-stag' );
 						$data = explode( ':', $dataStag );
 						$expectedName = $data[0];
@@ -195,7 +194,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 							}
 						}
 						self::deleteShadowMeta( $c );
-					} elseif ( $metaType === 'mw:EndTag' && empty( $dp->tsr ) ) {
+					} elseif ( DOMUtils::hasTypeOf( $c, 'mw:EndTag' ) && empty( $dp->tsr ) ) {
 						// If there is no tsr, this meta is useless for DSR
 						// calculations. Remove the meta to avoid breaking
 						// other brittle DOM passes working on the DOM.
@@ -290,8 +289,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						$dp->autoInsertedStart = true;
 					}
 				} elseif ( $cNodeName === 'meta' ) {
-					$type = $c->getAttribute( 'typeof' );
-					if ( $type === 'mw:EndTag' ) {
+					if ( DOMUtils::hasTypeOf( $c, 'mw:EndTag' ) ) {
 						// Got an mw:EndTag meta element, see if the previous sibling
 						// is the corresponding element.
 						$sibling = $c->previousSibling;

@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class DOMFragmentBuilder extends TokenHandler {
@@ -43,7 +44,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			if ( $contextTok && $contextTok->getName() !== 'wikilink' &&
 				$contextTok->getName() !== 'extlink' &&
 				$t instanceof SelfclosingTagTk &&
-				$t->getName() === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:Transclusion'
+				 $t->getName() === 'meta' && TokenUtils::hasTypeOf( $t, 'mw:Transclusion' )
 			) {
 				return true;
 			} elseif ( $t instanceof TagTk || $t instanceof EndTagTk || $t instanceof SelfclosingTagTk ) {

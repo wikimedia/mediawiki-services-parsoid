@@ -97,13 +97,13 @@ class TokenUtils {
 	}
 
 	/**
-	 * Is the typeof a DOMFragment type value?
+	 * Is the token a DOMFragment type value?
 	 *
-	 * @param string $typeOf
+	 * @param Token $token
 	 * @return bool
 	 */
-	public static function isDOMFragmentType( string $typeOf ): bool {
-		return preg_match( '#(?:^|\s)mw:DOMFragment(/sealed/\w+)?(?=$|\s)#D', $typeOf ) === 1;
+	public static function hasDOMFragmentType( Token $token ): bool {
+		return self::matchTypeOf( $token, '#^mw:DOMFragment(/sealed/\w+)?$#D' ) !== null;
 	}
 
 	/**
@@ -187,6 +187,45 @@ class TokenUtils {
 		return $token instanceof SelfclosingTagTk &&
 			$token->getName() === 'meta' &&
 			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
+	}
+
+	/**
+	 * Determine whether the token matches the given `typeof` attribute value.
+	 *
+	 * @param Token $t The token to test
+	 * @param string $typeRe Regular expression matching the expected value of
+	 *   the `typeof` attribute.
+	 * @return ?string The matching `typeof` value, or `null` if there is
+	 *   no match.
+	 */
+	public static function matchTypeOf( Token $t, string $typeRe ): ?string {
+		if ( !$t->hasAttribute( 'typeof' ) ) {
+			return null;
+		}
+		$v = $t->getAttribute( 'typeof' );
+		Assert::invariant( is_string( $v ), "Typeof is not simple" );
+		foreach ( preg_split( '/\s+/', $v, -1, PREG_SPLIT_NO_EMPTY ) as $ty ) {
+			$count = preg_match( $typeRe, $ty );
+			Assert::invariant( $count !== false, "Bad regexp" );
+			if ( $count ) {
+				return $ty;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Determine whether the token matches the given typeof attribute value.
+	 *
+	 * @param Token $t
+	 * @param string $type Expected value of "typeof" attribute, as a literal
+	 *   string.
+	 * @return bool True if the token matches.
+	 */
+	public static function hasTypeOf( Token $t, string $type ): bool {
+		return self::matchTypeOf(
+			$t, '/^' . preg_quote( $type, '/' ) . '$/D'
+		) !== null;
 	}
 
 	/**
@@ -488,7 +527,7 @@ class TokenUtils {
 		return $token &&
 			$token instanceof TagTk &&
 			$token->getName() === 'span' &&
-			$token->getAttribute( 'typeof' ) === 'mw:Entity';
+			self::hasTypeOf( $token, 'mw:Entity' );
 	}
 
 	/**
@@ -564,7 +603,7 @@ class TokenUtils {
 			} elseif (
 				!empty( $opts['unpackDOMFragments'] ) &&
 				( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) &&
-				self::isDOMFragmentType( $token->getAttribute( 'typeof' ) ?? '' )
+				self::hasDOMFragmentType( $token )
 			) {
 				// Handle dom fragments
 				$fragmentMap = $opts['env']->getDOMFragmentMap();

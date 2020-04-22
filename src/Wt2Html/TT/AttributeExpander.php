@@ -196,7 +196,7 @@ class AttributeExpander extends TokenHandler {
 				// document fragments.  They're an indication that an attribute
 				// value wasn't present as literal text in the input and the
 				// token should be annotated with "mw:ExpandedAttrs".
-				if ( TokenUtils::isDOMFragmentType( $t->getAttribute( 'typeof' ) ?? '' ) ) {
+				if ( TokenUtils::hasDOMFragmentType( $t ) ) {
 					$hasGeneratedContent = true;
 				}
 

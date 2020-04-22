@@ -269,7 +269,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		$dft = null;
-		if ( preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' ) ) {
+		if ( TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' ) ) {
 			$attribs = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
 			$html = null;
 			foreach ( $attribs as $a ) {
@@ -345,7 +345,7 @@ class WikiLinkHandler extends TokenHandler {
 		// namely replaceInternalLinks.
 		if (
 			is_array( $hrefKV->v ) &&
-			preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' )
+			TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' )
 		) {
 			$attribs = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ), false )->attribs;
 			foreach ( $attribs as $a ) {
@@ -993,7 +993,7 @@ class WikiLinkHandler extends TokenHandler {
 				$resultStr .= $nextResult;
 			} elseif ( !( $currentToken instanceof EndTagTk ) ) {
 				// This is actually a token
-				if ( TokenUtils::isDOMFragmentType( $currentToken->getAttribute( 'typeof' ) ?? '' ) ) {
+				if ( TokenUtils::hasDOMFragmentType( $currentToken ) ) {
 					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$str = TokenUtils::tokensToString( [ $currentToken ], false, [
 								'unpackDOMFragments' => true,
@@ -1129,7 +1129,7 @@ class WikiLinkHandler extends TokenHandler {
 		foreach ( $toks as $t ) {
 			if (
 				$t instanceof SelfclosingTagTk &&
-				$t->getAttribute( 'typeof' ) === 'mw:Transclusion'
+				TokenUtils::hasTypeOf( $t, 'mw:Transclusion' )
 			) {
 				return true;
 			}

@@ -61,7 +61,7 @@ class Headings {
 		if ( $fallbackId ) {
 			$span = $node->ownerDocument->createElement( 'span' );
 			$span->setAttribute( 'id', $fallbackId );
-			$span->setAttribute( 'typeof', 'mw:FallbackId' );
+			DOMUtils::addTypeOf( $span, 'mw:FallbackId' );
 			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			// Set a zero-width dsr range for the fallback id
 			if ( Util::isValidDSR( $nodeDsr ) ) {
@@ -88,11 +88,11 @@ class Headings {
 			foreach ( $node->childNodes as $n ) {
 				if ( $n instanceof DOMText ) {
 					$str .= $n->nodeValue;
-				} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
+				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
 					// Special case for -{...}-
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$str .= $dp->src ?? '';
-				} elseif ( DOMDataUtils::hasTypeOf( $n, 'mw:DisplaySpace' ) ) {
+				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:DisplaySpace' ) ) {
 					$str .= ' ';
 				} elseif ( $n->nodeName === 'style' || $n->nodeName === 'script' ) {
 					/* ignore children */

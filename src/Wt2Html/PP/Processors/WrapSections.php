@@ -382,7 +382,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 						$dmw->parts[] = $this->getSrc( $state['frame'], $tplDsr->end, $dsr2 );
 					}
 					DOMDataUtils::setDataMw( $newS1, $dmw );
-					$newS1->setAttribute( 'typeof', 'mw:Transclusion' );
+					DOMUtils::addTypeOf( $newS1, 'mw:Transclusion' );
 					// Copy the template's parts-information object
 					// which has white-space information for formatting
 					// the transclusion and eliminates dirty-diffs.

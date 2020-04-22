@@ -246,7 +246,7 @@ class UnpackDOMFragments {
 			// Transfer typeof, data-mw, and param info
 			// about attributes are transferred below.
 			DOMDataUtils::setDataMw( $contentNode, Util::clone( DOMDataUtils::getDataMw( $node ) ) );
-			DOMDataUtils::addTypeOf( $contentNode, 'mw:Transclusion' );
+			DOMUtils::addTypeOf( $contentNode, 'mw:Transclusion' );
 			DOMDataUtils::getDataParsoid( $contentNode )->pi = $dp->pi ?? null;
 		}
 

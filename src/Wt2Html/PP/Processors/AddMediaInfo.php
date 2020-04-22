@@ -690,7 +690,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$anchor = $container->firstChild;
 			$anchor->appendChild( $elt );
 
-			$typeOf = $container->getAttribute( 'typeof' );
+			$typeOf = $container->getAttribute( 'typeof' ) ?? '';
 			$typeOf = preg_replace( '#\bmw:(Image)(/\w*)?\b#', "$rdfaType$2", $typeOf, 1 );
 			$container->setAttribute( 'typeof', $typeOf );
 

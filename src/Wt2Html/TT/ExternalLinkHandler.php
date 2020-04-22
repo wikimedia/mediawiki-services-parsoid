@@ -166,7 +166,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$aStart = null;
 		$env = $this->manager->env;
 		$origHref = $token->getAttribute( 'href' );
-		$hasExpandedAttrs = preg_match( '/mw:ExpandedAttrs/', $token->getAttribute( 'typeof' ) ?? '' );
+		$hasExpandedAttrs = TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$hrefWithEntities = TokenUtils::tokensToString( $origHref, false, [
 				'includeEntities' => true
@@ -174,14 +174,15 @@ class ExternalLinkHandler extends TokenHandler {
 		);
 		$content = $token->getAttribute( 'mw:content' );
 		$dataAttribs = Util::clone( $token->dataAttribs );
-		$rdfaType = $token->getAttribute( 'typeof' );
-		$magLinkRe = '/(?:^|\s)(mw:(?:Ext|Wiki)Link\/(?:ISBN|RFC|PMID))(?=$|\s)/D';
+		$magLinkType = TokenUtils::matchTypeOf(
+			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
+		);
 		$tokens = null;
 
-		if ( $rdfaType && preg_match( $magLinkRe, $rdfaType ) ) {
+		if ( $magLinkType ) {
 			$newHref = $href;
 			$newRel = 'mw:ExtLink';
-			if ( preg_match( '#(?:^|\s)mw:(Ext|Wiki)Link/ISBN#', $rdfaType ) ) {
+			if ( preg_match( '#/ISBN$#', $magLinkType ) ) {
 				$newHref = $env->getSiteConfig()->relativeLinkPrefix() . $href;
 				// ISBNs use mw:WikiLink instead of mw:ExtLink
 				$newRel = 'mw:WikiLink';

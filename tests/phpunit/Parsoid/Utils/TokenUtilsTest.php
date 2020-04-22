@@ -102,7 +102,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				],
 			],
 			'getTokenType' => 'TagTk',
-			'isDOMFragmentType' => true,
+			'hasDOMFragmentType' => true,
 		],
 		[
 			'name' => 'SOL-transparent <link>',
@@ -239,16 +239,16 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers ::isDOMFragmentType
+	 * @covers ::hasDOMFragmentType
 	 * @dataProvider provideTokens
 	 */
 	public function testIsDOMFragmentType( $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
-			$testCase['isDOMFragmentType'] ?? false,
+			$testCase['hasDOMFragmentType'] ?? false,
 			( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) ?
-			TokenUtils::isDOMFragmentType(
-				$token->getAttribute( 'typeof' ) ?? ''
+			TokenUtils::hasDOMFragmentType(
+				$token
 			) : false
 		);
 	}

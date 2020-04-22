@@ -10,12 +10,12 @@ use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
+use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class References extends ExtensionTagHandler {
 	/**
@@ -181,7 +181,7 @@ class References extends ExtensionTagHandler {
 				'typeof' => $nodeType
 			]
 		);
-		DOMDataUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
+		DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
 		$dataParsoid = new stdClass;
 		if ( isset( $nodeDp->src ) ) {
 			$dataParsoid->src = $nodeDp->src;

@@ -530,7 +530,7 @@ class WikitextEscapeHandlers {
 
 			// Ignore non-whitelisted html tags
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( preg_match( '/\bmw:Extension\b/', $t->getAttribute( 'typeof' ) ?? '' ) &&
+				if ( TokenUtils::hasTypeOf( $t, 'mw:Extension' ) &&
 					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
 				) {
 					return true;
@@ -588,7 +588,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// ignore TSR marker metas
-				if ( $t->getName() === 'meta' && $t->getAttribute( 'typeof' ) === 'mw:TSRMarker' ) {
+				if ( $t->getName() === 'meta' && TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
 					continue;
 				}
 
@@ -608,9 +608,8 @@ class WikitextEscapeHandlers {
 			}
 
 			if ( $tc === 'TagTk' ) {
-				$ttype = $t->getAttribute( 'typeof' );
 				// Ignore mw:Entity tokens
-				if ( $t->getName() === 'span' && $ttype === 'mw:Entity' ) {
+				if ( $t->getName() === 'span' && TokenUtils::hasTypeOf( $t, 'mw:Entity' ) ) {
 					$numEntities++;
 					continue;
 				}
@@ -626,8 +625,7 @@ class WikitextEscapeHandlers {
 				// Ignore display-hack placeholders and display spaces -- they dont need nowiki escaping
 				// They are added as a display-hack by the tokenizer (and we should probably
 				// find a better solution than that if one exists).
-				if ( $ttype &&
-					preg_match( '/(?:\b|mw:DisplaySpace\s+)mw:Placeholder\b/', $ttype ) &&
+				if ( TokenUtils::hasTypeOf( $t, 'mw:Placeholder' ) &&
 					!empty( $t->dataAttribs->isDisplayHack )
 				) {
 					// Skip over the entity and the end-tag as well
@@ -823,7 +821,7 @@ class WikitextEscapeHandlers {
 					break;
 				case 'SelfclosingTagTk':
 					if ( $t->getName() !== 'meta' ||
-						!preg_match( '/^mw:(TSRMarker|EmptyLine)$/D', $t->getAttribute( 'typeof' ) ?? '' )
+						!TokenUtils::matchTypeOf( $t, '/^mw:(TSRMarker|EmptyLine)$/D' )
 					) {
 						// Don't bother with marker or empty-line metas
 						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
@@ -1207,8 +1205,7 @@ class WikitextEscapeHandlers {
 			// special case to serialize back the entity's source.
 			if ( $t instanceof TagTk ) {
 				$da = $t->dataAttribs;
-				$type = $t->getAttribute( 'typeof' );
-				if ( $type && preg_match( '/\bmw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Entity)\b/', $type ) ) {
+				if ( TokenUtils::matchTypeOf( $t, '/^mw:(Placeholder|Entity)$/' ) ) {
 					$i += 2;
 					$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
 					self::appendStr(
@@ -1222,11 +1219,11 @@ class WikitextEscapeHandlers {
 						$opts
 					);
 					continue;
-				} elseif ( $type === 'mw:Nowiki' ) {
+				} elseif ( TokenUtils::hasTypeOf( $t, 'mw:Nowiki' ) ) {
 					$i++;
 					while ( $i < $n &&
 						( !$tokens[$i] instanceof EndTagTk ||
-							$tokens[$i]->getAttribute( 'typeof' ) !== 'mw:Nowiki'
+							!TokenUtils::hasTypeOf( $tokens[$i], 'mw:Nowiki' )
 						)
 					) {
 						$i++;

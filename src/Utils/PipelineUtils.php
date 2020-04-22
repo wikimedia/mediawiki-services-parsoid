@@ -349,7 +349,7 @@ class PipelineUtils {
 				// Copy over attributes
 				foreach ( DOMCompat::attributes( $node ) as $attribute ) {
 					'@phan-var \DOMAttr $attribute'; // @var \DOMAttr $attribute
-					// "typeof" is ignored since it'll be remove below.
+					// "typeof" is ignored since it'll be removed below.
 					if ( $attribute->name !== 'typeof' ) {
 						$workNode->setAttribute( $attribute->name, $attribute->value );
 					}
@@ -572,20 +572,17 @@ class PipelineUtils {
 		$expAccum = null;
 		while ( $node ) {
 			if ( $node instanceof DOMElement ) {
-				$typeOf = $node->getAttribute( 'typeof' ) || '';
-				if ( ( preg_match( '#(?:^|\s)(?:mw:(?:Transclusion(?=$|\s)|Extension/))#', $typeOf ) &&
+				if ( DOMUtils::matchTypeOf( $node, '#^mw:(Transclusion|Extension)(/|$)#' ) &&
 						$node->hasAttribute( 'about' )
-					) ||
-					preg_match( '#(?:^|\s)(?:mw:(?:Image|Video|Audio)(?:(?=$|\s)|/))#D', $typeOf )
-				) {
+					) {
 					$dp = DOMDataUtils::getDataParsoid( $node );
 					$about = $node->hasAttribute( 'about' ) ? $node->getAttribute( 'about' ) : null;
 					$nodes = WTUtils::getAboutSiblings( $node, $about );
 					$key = null;
-					if ( preg_match( '/(?:^|\s)mw:Transclusion(?=$|\s)/D', $typeOf ) ) {
+					if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
 						$expAccum = $expansions['transclusions'];
 						$key = $dp->src;
-					} elseif ( preg_match( '#(?:^|\s)mw:Extension/#', $typeOf ) ) {
+					} elseif ( DOMUtils::matchTypeOf( $node, '#^mw:Extension/#' ) ) {
 						$expAccum = $expansions['extensions'];
 						$key = $dp->src;
 					} else {

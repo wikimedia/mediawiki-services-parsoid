@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils as DDU;
@@ -87,34 +86,4 @@ class DOMDataUtils {
 	public static function noAttrs( DOMElement $elt ): bool {
 		return DDU::noAttrs( $elt );
 	}
-
-	/**
-	 * Test if a node matches a given typeof.
-	 * @param DOMNode $node node
-	 * @param string $type type
-	 * @return bool
-	 */
-	public static function hasTypeOf( DOMNode $node, string $type ): bool {
-		return DDU::hasTypeOf( $node, $type );
-	}
-
-	/**
-	 * Add a type to the typeof attribute. If the elt already has an existing typeof,
-	 * it makes that attribute a string of space separated types.
-	 * @param DOMElement $elt
-	 * @param string $type type
-	 */
-	public static function addTypeOf( DOMElement $elt, string $type ): void {
-		DDU::addTypeOf( $elt, $type );
-	}
-
-	/**
-	 * Remove a type from the typeof attribute.
-	 * @param DOMElement $elt
-	 * @param string $type type
-	 */
-	public static function removeTypeOf( DOMElement $elt, string $type ): void {
-		DDU::removeTypeOf( $elt, $type );
-	}
-
 }
