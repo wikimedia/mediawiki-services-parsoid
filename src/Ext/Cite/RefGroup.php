@@ -6,8 +6,8 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Helper class used by `<references>` implementation.
@@ -82,14 +82,14 @@ class RefGroup {
 		$refTarget = $ref->target;
 		$refContentId = $ref->contentId;
 		$refGroup = $ref->group;
-		DOMDataUtils::addAttributes( $li, [
+		DOMUtils::addAttributes( $li, [
 				'about' => '#' . $refTarget,
 				'id' => $refTarget,
 				'class' => ( $refDir === 'rtl' || $refDir === 'ltr' ) ? 'mw-cite-dir-' . $refDir : null
 			]
 		);
 		$reftextSpan = $ownerDoc->createElement( 'span' );
-		DOMDataUtils::addAttributes(
+		DOMUtils::addAttributes(
 			$reftextSpan,
 			[
 				'id' => 'mw-reference-text-' . $refTarget,

@@ -268,24 +268,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Add attributes to a node element.
-	 *
-	 * @param DOMElement $elt element
-	 * @param array $attrs attributes
-	 */
-	public static function addAttributes( DOMElement $elt, array $attrs ): void {
-		foreach ( $attrs as $key => $value ) {
-			if ( $value !== null ) {
-				if ( $key === 'id' ) {
-					DOMCompat::setIdAttribute( $elt, $value );
-				} else {
-					$elt->setAttribute( $key, $value );
-				}
-			}
-		}
-	}
-
-	/**
 	 * Set an attribute and shadow info to a node.
 	 * Similar to the method on tokens
 	 *
@@ -428,10 +410,8 @@ class DOMDataUtils {
 	public static function injectPageBundle( DOMDocument $doc, stdClass $obj ): void {
 		$pb = PHPUtils::jsonEncode( $obj );
 		$script = $doc->createElement( 'script' );
-		self::addAttributes( $script, [
-			'id' => 'mw-pagebundle',
-			'type' => 'application/x-mw-pagebundle'
-		] );
+		DOMCompat::setIdAttribute( $script, 'mw-pagebundle' );
+		$script->setAttribute( 'type', 'application/x-mw-pagebundle' );
 		$script->appendChild( $doc->createTextNode( $pb ) );
 		DOMCompat::getHead( $doc )->appendChild( $script );
 	}

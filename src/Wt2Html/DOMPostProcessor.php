@@ -535,7 +535,7 @@ class DOMPostProcessor extends PipelineStage {
 	 */
 	public function appendToHead( DOMDocument $document, string $tagName, array $attrs = [] ): void {
 		$elt = $document->createElement( $tagName );
-		DOMDataUtils::addAttributes( $elt, $attrs );
+		DOMUtils::addAttributes( $elt, $attrs );
 		( DOMCompat::getHead( $document ) )->appendChild( $elt );
 	}
 

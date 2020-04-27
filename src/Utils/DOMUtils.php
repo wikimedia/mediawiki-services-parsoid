@@ -824,4 +824,22 @@ class DOMUtils {
 		return $el ? $el->getAttribute( 'content' ) : null;
 	}
 
+	/**
+	 * Add attributes to a node element.
+	 *
+	 * @param DOMElement $elt element
+	 * @param array $attrs attributes
+	 */
+	public static function addAttributes( DOMElement $elt, array $attrs ): void {
+		foreach ( $attrs as $key => $value ) {
+			if ( $value !== null ) {
+				if ( $key === 'id' ) {
+					DOMCompat::setIdAttribute( $elt, $value );
+				} else {
+					$elt->setAttribute( $key, $value );
+				}
+			}
+		}
+	}
+
 }

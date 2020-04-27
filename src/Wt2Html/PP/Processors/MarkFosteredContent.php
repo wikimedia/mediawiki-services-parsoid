@@ -39,7 +39,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		DOMDocument $document, string $type, array $attrs
 	): DOMElement {
 		$node = $document->createElement( $type );
-		DOMDataUtils::addAttributes( $node, $attrs );
+		DOMUtils::addAttributes( $node, $attrs );
 		return $node;
 	}
 

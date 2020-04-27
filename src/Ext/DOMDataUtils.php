@@ -89,15 +89,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Add attributes to an element
-	 * @param DOMElement $elt element
-	 * @param array $attrs attributes
-	 */
-	public static function addAttributes( DOMElement $elt, array $attrs ): void {
-		DDU::addAttributes( $elt, $attrs );
-	}
-
-	/**
 	 * Test if a node matches a given typeof.
 	 * @param DOMNode $node node
 	 * @param string $type type
