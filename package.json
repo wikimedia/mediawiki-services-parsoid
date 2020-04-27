@@ -35,7 +35,7 @@
     "chai": "^4.1.2",
     "colors": "^1.2.4",
     "eslint": "6.8.0",
-    "eslint-config-wikimedia": "0.15.2",
+    "eslint-config-wikimedia": "0.15.3",
     "eslint-plugin-jsdoc": "^23.0.0",
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
     "jsdoc": "^3.6.4",
