@@ -673,16 +673,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasValidProtocol( string $potentialLink ): bool {
-		$protocols = $this->config->get( 'UrlProtocols' );
-		$regex = '!^(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
-		return (bool)preg_match( $regex, $potentialLink );
-	}
-
-	/** @inheritDoc */
-	public function findValidProtocol( string $potentialLink ): bool {
-		$protocols = $this->config->get( 'UrlProtocols' );
-		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $protocols ) ) . ')!i';
-		return (bool)preg_match( $regex, $potentialLink );
+	protected function getProtocols(): array {
+		return $this->config->get( 'UrlProtocols' );
 	}
 }

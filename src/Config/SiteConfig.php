@@ -833,18 +833,30 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Get the list of valid protocols
+	 * @return array
+	 */
+	abstract protected function getProtocols(): array;
+
+	/**
 	 * Matcher for valid protocols, must be anchored at start of string.
 	 * @param string $potentialLink
 	 * @return bool Whether $potentialLink begins with a valid protocol
 	 */
-	abstract public function hasValidProtocol( string $potentialLink ): bool;
+	public function hasValidProtocol( string $potentialLink ): bool {
+		$re = '!^(?:' . implode( '|', array_map( 'preg_quote', $this->getProtocols() ) ) . ')!i';
+		return (bool)preg_match( $re, $potentialLink );
+	}
 
 	/**
 	 * Matcher for valid protocols, may occur at any point within string.
 	 * @param string $potentialLink
 	 * @return bool Whether $potentialLink contains a valid protocol
 	 */
-	abstract public function findValidProtocol( string $potentialLink ): bool;
+	public function findValidProtocol( string $potentialLink ): bool {
+		$re = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $this->getProtocols() ) ) . ')!i';
+		return (bool)preg_match( $re, $potentialLink );
+	}
 
 	/** @} */
 

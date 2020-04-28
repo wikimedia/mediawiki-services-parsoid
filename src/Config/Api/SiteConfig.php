@@ -706,23 +706,9 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasValidProtocol( string $potentialLink ): bool {
+	protected function getProtocols(): array {
 		$this->loadSiteData();
-		$quote = function ( $s ) {
-			return preg_quote( $s, '!' );
-		};
-		$regex = '!^(?:' . implode( '|', array_map( $quote, $this->protocols ) ) . ')!i';
-		return (bool)preg_match( $regex, $potentialLink );
-	}
-
-	/** @inheritDoc */
-	public function findValidProtocol( string $potentialLink ): bool {
-		$this->loadSiteData();
-		$quote = function ( $s ) {
-			return preg_quote( $s, '!' );
-		};
-		$regex = '!(?:\W|^)(?:' . implode( '|', array_map( $quote, $this->protocols ) ) . ')!i';
-		return (bool)preg_match( $regex, $potentialLink );
+		return $this->protocols;
 	}
 
 	/** @inheritDoc */

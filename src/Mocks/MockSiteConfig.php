@@ -366,13 +366,8 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function hasValidProtocol( string $potentialLink ): bool {
-		return preg_match( '#^((https?|ircs?|news|ftp|mailto|gopher):|//)#', $potentialLink );
-	}
-
-	/** @inheritDoc */
-	public function findValidProtocol( string $potentialLink ): bool {
-		return preg_match( '#(?:\W|^)((https?|ircs?|news|ftp|mailto|gopher):|//)#', $potentialLink );
+	protected function getProtocols(): array {
+		return [ "http:", "https:", "irc:", "ircs:", "news:", "ftp:", "mailto:", "gopher:", "//" ];
 	}
 
 	public function fakeTimestamp(): ?int {
