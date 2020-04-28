@@ -21,6 +21,19 @@ use Wikimedia\Parsoid\Utils\Util;
  */
 abstract class SiteConfig {
 	/**
+	 * Maps aliases to the canonical magic word
+	 * FIXME: not private so that ParserTests can reset these variables
+	 * since they reuse site config and other objects between tests for
+	 * efficiency reasons.
+	 *
+	 * @var array|null
+	 */
+	protected $magicWordMap;
+
+	/** @var array|null */
+	private $mwAliases, $variables, $functionHooks;
+
+	/**
 	 * These "extensions" are considered to provide "core" functionality
 	 * and their implementations live in the Parsoid repo.
 	 *
@@ -665,30 +678,113 @@ abstract class SiteConfig {
 	abstract public function widthOption(): int;
 
 	/**
+	 * @return array
+	 */
+	abstract protected function getVariableIDs(): array;
+
+	/**
+	 * @return array
+	 */
+	abstract protected function getFunctionHooks(): array;
+
+	/**
+	 * @return array
+	 */
+	abstract protected function getMagicWords(): array;
+
+	private function populateMagicWords() {
+		if ( !empty( $this->magicWordMap ) ) {
+			return;
+		}
+
+		// FIXME: This feels broken. This should come from Core / API ?
+		$noHashFunctions = PHPUtils::makeSet( [
+			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
+			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
+			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
+			'numberofpages', 'numberofusers', 'numberofactiveusers',
+			'numberofarticles', 'numberoffiles', 'numberofadmins',
+			'numberingroup', 'numberofedits', 'language',
+			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
+			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
+			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
+			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
+			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
+			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
+			'talkpagename', 'talkpagenamee', 'subjectpagename',
+			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
+			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
+			'revisiontimestamp', 'revisionuser', 'cascadingsources',
+			// Special callbacks in core
+			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
+		] );
+
+		$this->magicWordMap = $this->mwAliases = $this->variables = $this->functionHooks = [];
+		$variablesMap = PHPUtils::makeSet( $this->getVariableIDs() );
+		$functionHooksMap = PHPUtils::makeSet( $this->getFunctionHooks() );
+		foreach ( $this->getMagicWords() as $magicword => $aliases ) {
+			$caseSensitive = array_shift( $aliases );
+			foreach ( $aliases as $alias ) {
+				$this->mwAliases[$magicword][] = $alias;
+				if ( !$caseSensitive ) {
+					$alias = mb_strtolower( $alias );
+					$this->mwAliases[$magicword][] = $alias;
+				}
+				$this->magicWordMap[$alias] = $magicword;
+				if ( isset( $variablesMap[$magicword] ) ) {
+					$this->variables[$alias] = $magicword;
+				}
+				if ( isset( $functionHooksMap[$magicword] ) ) {
+					$falias = $alias;
+					if ( substr( $falias, -1 ) === ':' ) {
+						$falias = substr( $falias, 0, -1 );
+					}
+					if ( !isset( $noHashFunctions[$magicword] ) ) {
+						$falias = '#' . $falias;
+					}
+					$this->functionHooks[$falias] = $magicword;
+				}
+			}
+		}
+	}
+
+	/**
 	 * List all magic words by alias
 	 * @return string[] Keys are aliases, values are canonical names.
 	 */
-	abstract public function magicWords(): array;
+	public function magicWords(): array {
+		$this->populateMagicWords();
+		return $this->magicWordMap;
+	}
 
 	/**
 	 * List all magic words by canonical name
 	 * @return string[][] Keys are canonical names, values are arrays of aliases.
 	 */
-	abstract public function mwAliases(): array;
+	public function mwAliases(): array {
+		$this->populateMagicWords();
+		return $this->mwAliases;
+	}
 
 	/**
 	 * Return canonical magic word for a function hook
 	 * @param string $str
 	 * @return string|null
 	 */
-	abstract public function getMagicWordForFunctionHook( string $str ): ?string;
+	public function getMagicWordForFunctionHook( string $str ): ?string {
+		$this->populateMagicWords();
+		return $this->functionHooks[$str] ?? null;
+	}
 
 	/**
 	 * Return canonical magic word for a variable
 	 * @param string $str
 	 * @return string|null
 	 */
-	abstract public function getMagicWordForVariable( string $str ): ?string;
+	public function getMagicWordForVariable( string $str ): ?string {
+		$this->populateMagicWords();
+		return $this->variables[$str] ?? null;
+	}
 
 	/**
 	 * Get canonical magicword name for the input word.
@@ -773,8 +869,8 @@ abstract class SiteConfig {
 		// from the SiteConfig.  Further, we probably need a hook here so
 		// Parsoid can handle media options defined in extensions... in
 		// particular timedmedia_* magic words from Extension:TimedMediaHandler
-		$magicWords = array_keys( WikitextConstants::$Media['PrefixOptions'] );
-		return $this->getParameterizedAliasMatcher( $magicWords );
+		$mws = array_keys( WikitextConstants::$Media['PrefixOptions'] );
+		return $this->getParameterizedAliasMatcher( $mws );
 	}
 
 	/**

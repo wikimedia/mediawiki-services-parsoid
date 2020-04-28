@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\Util;
 
@@ -55,8 +54,8 @@ class SiteConfig extends ISiteConfig {
 
 	/** @var array|null */
 	private $interwikiMap, $variants,
-		$langConverterEnabled, $magicWords, $mwAliases, $paramMWs,
-		$variables, $functionHooks,
+		$langConverterEnabled, $apiMagicWords, $paramMWs,
+		$apiVariables, $apiFunctionHooks,
 		$allMWs, $extensionTags;
 
 	/** @var int|null */
@@ -119,6 +118,8 @@ class SiteConfig extends ISiteConfig {
 		$this->linkTrailRegex = false;
 		$this->baseUri = null;
 		$this->relativeLinkPrefix = null;
+		// Superclass value reset since parsertests reuse SiteConfig objects
+		$this->magicWordMap = null;
 	}
 
 	/**
@@ -181,6 +182,8 @@ class SiteConfig extends ISiteConfig {
 		$this->siteData = $data['general'];
 		$this->widthOption = $data['general']['thumblimits'][$data['defaultoptions']['thumbsize']];
 		$this->protocols = $data['protocols'];
+		$this->apiVariables = $data['variables'];
+		$this->apiFunctionHooks = $data['functionhooks'];
 
 		// Process namespace data from API
 		foreach ( $data['namespaces'] as $ns ) {
@@ -190,43 +193,23 @@ class SiteConfig extends ISiteConfig {
 			$this->nsIds[Util::normalizeNamespaceName( $ns['alias'] )] = $ns['id'];
 		}
 
-		// FIXME: Export this from CoreParserFunctions::register, maybe?
-		$noHashFunctions = PHPUtils::makeSet( [
-			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
-			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
-			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
-			'numberofpages', 'numberofusers', 'numberofactiveusers',
-			'numberofarticles', 'numberoffiles', 'numberofadmins',
-			'numberingroup', 'numberofedits', 'language',
-			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
-			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
-			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
-			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
-			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
-			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
-			'talkpagename', 'talkpagenamee', 'subjectpagename',
-			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
-			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
-			'revisiontimestamp', 'revisionuser', 'cascadingsources',
-			// Special callbacks in core
-			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
-		] );
-
 		// Process magic word data from API
 		$bsws = [];
-		$this->magicWords = [];
-		$this->mwAliases = [];
 		$this->paramMWs = [];
 		$this->allMWs = [];
-		$this->variables = [];
-		$this->functionHooks = [];
-		$variablesMap = PHPUtils::makeSet( $data['variables'] );
-		$functionHooksMap = PHPUtils::makeSet( $data['functionhooks'] );
+
+		// Recast the API results in the format that core MediaWiki returns internally
+		// This enables us to use the Production SiteConfig without changes and add the
+		// extra overhead to this developer API usage.
+		$this->apiMagicWords = [];
 		foreach ( $data['magicwords'] as $mw ) {
 			$cs = (int)$mw['case-sensitive'];
+			$mwName = $mw['name'];
+			$this->apiMagicWords[$mwName][] = $cs;
 			$pmws = [];
 			$allMWs = [];
 			foreach ( $mw['aliases'] as $alias ) {
+				$this->apiMagicWords[$mwName][] = $alias;
 				if ( substr( $alias, 0, 2 ) === '__' && substr( $alias, -2 ) === '__' ) {
 					$bsws[$cs][] = preg_quote( substr( $alias, 2, -2 ), '@' );
 				}
@@ -234,36 +217,12 @@ class SiteConfig extends ISiteConfig {
 					$pmws[$cs][] = strtr( preg_quote( $alias, '/' ), [ '\\$1' => "(.*?)" ] );
 				}
 				$allMWs[$cs][] = preg_quote( $alias, '/' );
-
-				$magicword = $mw['name'];
-				$this->mwAliases[$magicword][] = $alias;
-				if ( !$cs ) {
-					$alias = mb_strtolower( $alias );
-					$this->mwAliases[$magicword][] = $alias;
-				}
-
-				$this->magicWords[$alias] = $magicword;
-				if ( isset( $variablesMap[$magicword] ) ) {
-					$this->variables[$alias] = $magicword;
-				}
-				// See Parser::setFunctionHook
-				if ( isset( $functionHooksMap[$magicword] ) ) {
-					$falias = $alias;
-					if ( substr( $falias, -1 ) === ':' ) {
-						$falias = substr( $falias, 0, -1 );
-					}
-					if ( !isset( $noHashFunctions[$magicword] ) ) {
-						$falias = '#' . $falias;
-					}
-					$this->functionHooks[$falias] = $magicword;
-				}
-
 			}
 
 			if ( $pmws ) {
-				$this->paramMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $pmws ) . ')$/uDS';
+				$this->paramMWs[$mwName] = '/^(?:' . $this->combineRegexArrays( $pmws ) . ')$/uDS';
 			}
-			$this->allMWs[$mw['name']] = '/^(?:' . $this->combineRegexArrays( $allMWs ) . ')$/D';
+			$this->allMWs[$mwName] = '/^(?:' . $this->combineRegexArrays( $allMWs ) . ')$/D';
 		}
 
 		$bswRegexp = $this->combineRegexArrays( $bsws );
@@ -571,14 +530,22 @@ class SiteConfig extends ISiteConfig {
 		return $this->widthOption;
 	}
 
-	public function magicWords(): array {
+	/** @inheritDoc */
+	protected function getVariableIDs(): array {
 		$this->loadSiteData();
-		return $this->magicWords;
+		return $this->apiVariables;
 	}
 
-	public function mwAliases(): array {
+	/** @inheritDoc */
+	protected function getFunctionHooks(): array {
 		$this->loadSiteData();
-		return $this->mwAliases;
+		return $this->apiFunctionHooks;
+	}
+
+	/** @inheritDoc */
+	protected function getMagicWords(): array {
+		$this->loadSiteData();
+		return $this->apiMagicWords;
 	}
 
 	/** @inheritDoc */
@@ -668,16 +635,6 @@ class SiteConfig extends ISiteConfig {
 	protected function getProtocols(): array {
 		$this->loadSiteData();
 		return $this->protocols;
-	}
-
-	/** @inheritDoc */
-	public function getMagicWordForFunctionHook( string $str ): ?string {
-		return $this->functionHooks[$str] ?? null;
-	}
-
-	/** @inheritDoc */
-	public function getMagicWordForVariable( string $str ): ?string {
-		return $this->variables[$str] ?? null;
 	}
 
 	/**

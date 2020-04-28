@@ -253,13 +253,24 @@ class MockSiteConfig extends SiteConfig {
 		return 220;
 	}
 
-	public function magicWords(): array {
-		return [ 'toc' => 'toc', "thumb" => "img_thumbnail", "none" => "img_none",
-			"__notoc__" => "__notoc__" ];
+	/** @inheritDoc */
+	protected function getVariableIDs(): array {
+		return []; // None for now
 	}
 
-	public function mwAliases(): array {
-		return [ 'toc' => [ 'toc' ] ];
+	/** @inheritDoc */
+	protected function getFunctionHooks(): array {
+		return []; // None for now
+	}
+
+	/** @inheritDoc */
+	protected function getMagicWords(): array {
+		// make all magic words case-sensitive
+		return [ 'toc'           => [ 1, 'toc' ],
+			'img_thumbnail' => [ 1, 'thumb' ],
+			'img_none'      => [ 1, 'none' ],
+			'__notoc__'     => [ 1, '__notoc__' ]
+		];
 	}
 
 	public function getMagicWordMatcher( string $id ): string {
@@ -381,15 +392,5 @@ class MockSiteConfig extends SiteConfig {
 
 	public function scrubBidiChars(): bool {
 		return true;
-	}
-
-	/** @inheritDoc */
-	public function getMagicWordForFunctionHook( string $str ): ?string {
-		return null;
-	}
-
-	/** @inheritDoc */
-	public function getMagicWordForVariable( string $str ): ?string {
-		return null;
 	}
 }

@@ -55,20 +55,10 @@ class SiteConfig extends ISiteConfig {
 	private $linkTrailRegex = false;
 
 	/** @var array|null */
-	private $interwikiMap, $variants, $magicWords, $mwAliases, $variables, $functionHooks;
+	private $interwikiMap, $variants;
 
 	/** @var array */
 	private $extensionTags;
-
-	/**
-	 * Convert a sequential array to an associative one to speed up set membership checks.
-	 *
-	 * @param array $a
-	 * @return array
-	 */
-	private static function makeSet( array $a ): array {
-		return array_fill_keys( $a, true );
-	}
 
 	public function __construct() {
 		parent::__construct();
@@ -475,82 +465,19 @@ class SiteConfig extends ISiteConfig {
 		return $this->config->get( 'ThumbLimits' )[User::getDefaultOption( 'thumbsize' )];
 	}
 
-	private function populateMagicWords(): void {
-		if ( !empty( $this->magicWords ) ) {
-			return;
-		}
-
-		$services = MediaWikiServices::getInstance();
-
-		// FIXME: Deduplicate with Parsoid\Api\SiteConfig
-		$noHashFunctions = self::makeSet( [
-			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
-			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
-			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
-			'numberofpages', 'numberofusers', 'numberofactiveusers',
-			'numberofarticles', 'numberoffiles', 'numberofadmins',
-			'numberingroup', 'numberofedits', 'language',
-			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
-			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
-			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
-			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
-			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
-			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
-			'talkpagename', 'talkpagenamee', 'subjectpagename',
-			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
-			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
-			'revisiontimestamp', 'revisionuser', 'cascadingsources',
-			// Special callbacks in core
-			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
-		] );
-
-		$this->magicWords = $this->mwAliases = $this->variables = $this->functionHooks = [];
-		$variables = self::makeSet( $services->getMagicWordFactory()->getVariableIDs() );
-		$functionHooks = self::makeSet( $services->getParser()->getFunctionHooks() );
-		foreach ( $services->getContentLanguage()->getMagicWords() as $magicword => $aliases ) {
-			$caseSensitive = array_shift( $aliases );
-			foreach ( $aliases as $alias ) {
-				$this->mwAliases[$magicword][] = $alias;
-				if ( !$caseSensitive ) {
-					$alias = mb_strtolower( $alias );
-					$this->mwAliases[$magicword][] = $alias;
-				}
-				$this->magicWords[$alias] = $magicword;
-				if ( isset( $variables[$magicword] ) ) {
-					$this->variables[$alias] = $magicword;
-				}
-				if ( isset( $functionHooks[$magicword] ) ) {
-					$falias = $alias;
-					if ( substr( $falias, -1 ) === ':' ) {
-						$falias = substr( $falias, 0, -1 );
-					}
-					if ( !isset( $noHashFunctions[$magicword] ) ) {
-						$falias = '#' . $falias;
-					}
-					$this->functionHooks[$falias] = $magicword;
-				}
-			}
-		}
+	/** @inheritDoc */
+	protected function getVariableIDs(): array {
+		return MediaWikiServices::getInstance()->getMagicWordFactory()->getVariableIDs();
 	}
 
-	public function magicWords(): array {
-		$this->populateMagicWords();
-		return $this->magicWords;
+	/** @inheritDoc */
+	protected function getFunctionHooks(): array {
+		return MediaWikiServices::getInstance()->getParser()->getFunctionHooks();
 	}
 
-	public function mwAliases(): array {
-		$this->populateMagicWords();
-		return $this->mwAliases;
-	}
-
-	public function getMagicWordForFunctionHook( string $str ): ?string {
-		$this->populateMagicWords();
-		return $this->functionHooks[$str] ?? null;
-	}
-
-	public function getMagicWordForVariable( string $str ): ?string {
-		$this->populateMagicWords();
-		return $this->variables[$str] ?? null;
+	/** @inheritDoc */
+	protected function getMagicWords(): array {
+		return MediaWikiServices::getInstance()->getContentLanguage()->getMagicWords();
 	}
 
 	public function getMagicWordMatcher( string $id ): string {
