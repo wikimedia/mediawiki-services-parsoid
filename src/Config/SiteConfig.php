@@ -118,48 +118,6 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Log channel for traces
-	 * @return LoggerInterface
-	 */
-	public function getTraceLogger(): LoggerInterface {
-		return $this->getLogger();
-	}
-
-	/**
-	 * Test which trace information to log
-	 *
-	 * Known flags include 'time' and 'time/dompp'.
-	 *
-	 * @param string $flag Flag name.
-	 * @return bool
-	 */
-	public function hasTraceFlag( string $flag ): bool {
-		return false;
-	}
-
-	/**
-	 * Log channel for dumps
-	 * @return LoggerInterface
-	 */
-	public function getDumpLogger(): LoggerInterface {
-		return $this->getLogger();
-	}
-
-	/**
-	 * Test which state to dump
-	 *
-	 * Known flags include 'dom:post-dom-diff', 'dom:post-normal', 'dom:post-builder',
-	 * various other things beginning 'dom:pre-' and 'dom:post-',
-	 * 'wt2html:limits', 'extoutput', and 'tplsrc'.
-	 *
-	 * @param string $flag Flag name.
-	 * @return bool
-	 */
-	public function hasDumpFlag( string $flag ): bool {
-		return false;
-	}
-
-	/**
 	 * Test in rt test mode (changes some parse & serialization strategies)
 	 * @return bool
 	 */

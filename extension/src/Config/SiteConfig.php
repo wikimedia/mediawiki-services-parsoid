@@ -132,34 +132,6 @@ class SiteConfig extends ISiteConfig {
 		return $this->logger;
 	}
 
-	/** @inheritDoc */
-	public function getTraceLogger(): LoggerInterface {
-		if ( $this->traceLogger === null ) {
-			$this->traceLogger = LoggerFactory::getInstance( 'ParsoidTrace' );
-		}
-		return $this->traceLogger;
-	}
-
-	/** @inheritDoc */
-	public function hasTraceFlag( string $flag ): bool {
-		// @todo: Implement this
-		return false;
-	}
-
-	/** @inheritDoc */
-	public function getDumpLogger(): LoggerInterface {
-		if ( $this->dumpLogger === null ) {
-			$this->dumpLogger = LoggerFactory::getInstance( 'ParsoidDump' );
-		}
-		return $this->dumpLogger;
-	}
-
-	/** @inheritDoc */
-	public function hasDumpFlag( string $flag ): bool {
-		// @todo: Implement this
-		return false;
-	}
-
 	public function metrics(): ?StatsdDataFactoryInterface {
 		static $prefixedMetrics = null;
 		if ( $prefixedMetrics === null ) {
