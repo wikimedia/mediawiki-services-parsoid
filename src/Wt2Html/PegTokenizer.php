@@ -46,7 +46,7 @@ class PegTokenizer extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->env = $env;
-		$this->traceTime = isset( $env->traceFlags['time'] );
+		$this->traceTime = $env->hasTraceFlag( 'time' );
 		$this->options = $options;
 		$this->offsets = [];
 	}

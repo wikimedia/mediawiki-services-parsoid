@@ -765,18 +765,16 @@ class DOMPostProcessor extends PipelineStage {
 	public function doPostProcess( DOMDocument $document ): void {
 		$env = $this->env;
 
-		$traceFlags = $env->traceFlags;
-		$dumpFlags = $env->dumpFlags;
+		$hasDumpFlags = $env->hasDumpFlags();
 
 		$body = DOMCompat::getBody( $document );
 
-		if ( !empty( $dumpFlags['dom:post-builder'] ) ) {
+		if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-builder' ) ) {
 			$opts = [];
 			ContentUtils::dumpDOM( $body, 'DOM: after tree builder', $opts );
 		}
 
-		$tracePP = !empty( $traceFlags['time/dompp'] ) ||
-			!empty( $traceFlags['time'] );
+		$tracePP = $env->hasTraceFlag( 'time/dompp' ) || $env->hasTraceFlag( 'time' );
 
 		$startTime = null;
 		$endTime = null;
@@ -819,13 +817,14 @@ class DOMPostProcessor extends PipelineStage {
 			}
 
 			$opts = null;
-			if ( $dumpFlags ) {
+			if ( $hasDumpFlags ) {
 				$opts = [
 					'env' => $env,
 					'dumpFragmentMap' => $this->atTopLevel,
 					'keepTmp' => true
 				];
-				if ( !empty( $dumpFlags['dom:pre-' . $pp['shortcut']] ) ) {
+
+				if ( $env->hasDumpFlag( 'dom:pre-' . $pp['shortcut'] ) ) {
 					ContentUtils::dumpDOM( $body, 'DOM: pre-' . $pp['shortcut'], $opts );
 				}
 			}
@@ -837,10 +836,8 @@ class DOMPostProcessor extends PipelineStage {
 				$pp['proc']( $this->extApi, $body, $this->options, $this->atTopLevel );
 			}
 
-			if ( $dumpFlags ) {
-				if ( !empty( $dumpFlags['dom:post-' . $pp['shortcut']] ) ) {
-					ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );
-				}
+			if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] ) ) {
+				ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );
 			}
 
 			if ( $tracePP ) {
@@ -864,16 +861,14 @@ class DOMPostProcessor extends PipelineStage {
 
 		// For sub-pipeline documents, we are done.
 		// For the top-level document, we generate <head> and add it.
-		// For sub-pipeline documents, we are done.
-		// For the top-level document, we generate <head> and add it.
 		if ( $this->atTopLevel ) {
 			self::addMetaData( $env, $document );
 			// @phan-suppress-next-line PhanPluginEmptyStatementIf
-			if ( !empty( $traceFlags['time'] ) ) {
+			if ( $env->hasTraceFlag( 'time' ) ) {
 				// $env->printTimeProfile();
 			}
 			// @phan-suppress-next-line PhanPluginEmptyStatementIf
-			if ( !empty( $dumpFlags['wt2html:limits'] ) ) {
+			if ( $env->hasDumpFlag( 'wt2html:limits' ) ) {
 				/*
 				$env->printWt2HtmlResourceUsage( [
 					'HTML Size' => strlen( DOMCompat::getOuterHTML( $document->documentElement ) )

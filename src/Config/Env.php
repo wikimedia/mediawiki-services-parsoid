@@ -118,13 +118,13 @@ class Env {
 	public $logLinterData = false;
 
 	/** @var bool[] */
-	public $traceFlags;
+	private $traceFlags;
 
 	/** @var bool[] */
-	public $dumpFlags;
+	private $dumpFlags;
 
 	/** @var bool[] */
-	public $debugFlags;
+	private $debugFlags;
 
 	/** @var ParsoidLogger */
 	private $parsoidLogger;
@@ -293,6 +293,40 @@ class Env {
 			'dumpFlags' => $this->dumpFlags,
 			'traceFlags' => $this->traceFlags
 		] );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasTraceFlags(): bool {
+		return !empty( $this->traceFlags );
+	}
+
+	/**
+	 * Test which trace information to log
+	 *
+	 * @param string $flag Flag name.
+	 * @return bool
+	 */
+	public function hasTraceFlag( string $flag ): bool {
+		return isset( $this->traceFlags[$flag] );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasDumpFlags(): bool {
+		return !empty( $this->dumpFlags );
+	}
+
+	/**
+	 * Test which state to dump
+	 *
+	 * @param string $flag Flag name.
+	 * @return bool
+	 */
+	public function hasDumpFlag( string $flag ): bool {
+		return isset( $this->dumpFlags[$flag] );
 	}
 
 	/**

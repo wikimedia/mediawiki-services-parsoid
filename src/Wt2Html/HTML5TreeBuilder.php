@@ -74,7 +74,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 
-		$this->traceTime = isset( $env->traceFlags['time'] );
+		$this->traceTime = $env->hasTraceFlag( 'time' );
 
 		// Reset variable state and set up the parser
 		$this->resetState( [] );

@@ -33,7 +33,7 @@ class ExtensionHandler extends TokenHandler {
 		$logger = $this->env->getSiteConfig()->getLogger();
 		$env = $this->env;
 
-		if ( !empty( $env->dumpFlags['extoutput'] ) ) {
+		if ( $env->hasDumpFlag( 'extoutput' ) ) {
 			$logger->warning( str_repeat( '=', 80 ) );
 			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
 			$logger->warning( str_repeat( '=', 80 ) );

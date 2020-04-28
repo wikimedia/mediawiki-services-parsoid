@@ -166,14 +166,13 @@ abstract class TokenHandler extends PipelineStage {
 	public function process( $tokens, array $opts = null ) {
 		'@phan-var array $tokens'; // @var array $tokens
 		$traceState = $this->manager->getTraceState();
-		$traceFlags = $traceState['traceFlags'] ?? null;
 		$traceTime = $traceState['traceTime'] ?? false;
 		$accum = [];
 		$i = 0;
 		$n = count( $tokens );
 		while ( $i < $n ) {
 			$token = $tokens[$i];
-			if ( $traceFlags ) {
+			if ( $traceState ) {
 				$traceState['tracer']( $token, $this );
 			}
 

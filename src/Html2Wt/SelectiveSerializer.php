@@ -42,7 +42,7 @@ class SelectiveSerializer {
 		$this->selserData = $options['selserData'];
 
 		// Debug options
-		$this->trace = !empty( $env->traceFlags['selser'] );
+		$this->trace = $env->hasTraceFlag( 'selser' );
 
 		// Performance Timing option
 		$this->metrics = $env->getSiteConfig()->metrics();
@@ -97,9 +97,7 @@ class SelectiveSerializer {
 				// Nothing was modified, just re-use the original source
 				$r = $this->selserData->oldText;
 			} else {
-				if ( $this->trace || ( !empty( $this->env->getSiteConfig()->dumpFlags ) &&
-						$this->env->getSiteConfig()->dumpFlags['dom:post-dom-diff'] )
-				) {
+				if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
 					$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
 					ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );
 				}

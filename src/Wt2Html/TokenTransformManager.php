@@ -50,13 +50,11 @@ class TokenTransformManager extends PipelineStage {
 		$this->frame = $env->topFrame;
 
 		// Compute tracing state
-		$traceFlags = $env->traceFlags;
 		$this->traceState = null;
-		if ( $traceFlags ) {
+		if ( $env->hasTraceFlags() ) {
 			$this->traceState = [
 				'tokenTimes' => 0,
-				'traceFlags' => $traceFlags,
-				'traceTime' => !empty( $traceFlags['time'] ),
+				'traceTime' => $env->hasTraceFlag( 'time' ),
 				'tracer' => function ( $token, $transformer ) use ( $env ) {
 					$cname = Util::stripNamespace( get_class( $transformer ) );
 					$cnameStr = $cname . str_repeat( ' ', 23 - strlen( $cname ) ) . "|";
