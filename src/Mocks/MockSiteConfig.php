@@ -315,8 +315,6 @@ class MockSiteConfig extends SiteConfig {
 	/** @inheritDoc */
 	protected function getNonNativeExtensionTags(): array {
 		return [
-			'gallery' => true,    // Remove when gallery is ported
-			'poem' => true,       // Remove when poem is ported
 			'indicator' => true,
 			'timeline' => true,
 			'hiero' => true,
