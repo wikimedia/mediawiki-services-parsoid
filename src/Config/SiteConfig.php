@@ -785,6 +785,38 @@ abstract class SiteConfig {
 	abstract public function getMaxTemplateDepth(): int;
 
 	/**
+	 * Return name spaces aliases for the NS_SPECIAL namespace
+	 * @return array
+	 */
+	abstract protected function getSpecialNSAliases(): array;
+
+	/**
+	 * Return Special Page aliases for a special page name
+	 * @param string $specialPage
+	 * @return array
+	 */
+	abstract protected function getSpecialPageAliases( string $specialPage ): array;
+
+	/**
+	 * Quote a title regex
+	 *
+	 * Assumes '/' as the delimiter, and replaces spaces or underscores with
+	 * `[ _]` so either will be matched.
+	 *
+	 * @param string $s
+	 * @param string $delimiter Defaults to '/'
+	 * @return string
+	 */
+	protected static function quoteTitleRe( string $s, string $delimiter = '/' ): string {
+		$s = preg_quote( $s, $delimiter );
+		$s = strtr( $s, [
+			' ' => '[ _]',
+			'_' => '[ _]',
+		] );
+		return $s;
+	}
+
+	/**
 	 * Matcher for ISBN/RFC/PMID URL patterns, returning the type and number.
 	 *
 	 * The match method takes a string and returns false on no match or a tuple
@@ -792,7 +824,32 @@ abstract class SiteConfig {
 	 *
 	 * @return callable
 	 */
-	abstract public function getExtResourceURLPatternMatcher(): callable;
+	public function getExtResourceURLPatternMatcher(): callable {
+		$nsAliases = implode( '|', array_unique( $this->getSpecialNSAliases() ) );
+		$pageAliases = implode( '|', array_map( [ $this, 'quoteTitleRe' ],
+			$this->getSpecialPageAliases( 'Booksources' )
+		) );
+
+		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
+		// being disabled")
+		$pats = [
+			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
+				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
+			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
+			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
+		];
+		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
+		return function ( $text ) use ( $pats, $regex ) {
+			if ( preg_match( $regex, $text, $m ) ) {
+				foreach ( $pats as $k => $re ) {
+					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
+						return [ $k, $m[$k] ];
+					}
+				}
+			}
+			return false;
+		};
+	}
 
 	/**
 	 * Serialize ISBN/RFC/PMID URL patterns

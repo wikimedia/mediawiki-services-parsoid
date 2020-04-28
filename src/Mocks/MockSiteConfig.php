@@ -341,28 +341,17 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getExtResourceURLPatternMatcher(): callable {
-		// Mock generated from extension SiteConfig results, might not be right for some circumstances
-		$pats = [
-			'ISBN' => '(?:\.\.?/)*(?i:Special|special)(?:%3[Aa]|:)(?i:Booksources|BookSources)' .
-				'(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
-			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
-			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract'
-		];
-		$regex = '!^(?:(?:\.\.?/)*(?i:Special|special)(?:%3[Aa]|:)(?i:Booksources|BookSources)' .
-			'(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)|[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)' .
-			'|[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract)$!';
+	protected function getSpecialPageAliases( string $specialPage ): array {
+		if ( $specialPage === 'Booksources' ) {
+			return [ 'Booksources', 'BookSources' ]; // Mock value
+		} else {
+			throw new \BadMethodCallException( 'Not implemented' );
+		}
+	}
 
-		return function ( $text ) use ( $pats, $regex ) {
-			if ( preg_match( $regex, $text, $m ) ) {
-				foreach ( $pats as $k => $re ) {
-					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
-						return [ $k, $m[$k] ];
-					}
-				}
-			}
-			return false;
-		};
+	/** @inheritDoc */
+	protected function getSpecialNSAliases(): array {
+		return [ "Special", "special" ]; // Mock value
 	}
 
 	/** @inheritDoc */

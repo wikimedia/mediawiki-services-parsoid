@@ -50,6 +50,9 @@ class SiteConfig extends ISiteConfig {
 	/** @phan-var array<string,string> */
 	private $specialPageNames = [];
 
+	/** @phan-var array */
+	private $specialPageAliases = [];
+
 	/** @var array|null */
 	private $interwikiMap, $variants,
 		$langConverterEnabled, $magicWords, $mwAliases, $paramMWs,
@@ -59,30 +62,8 @@ class SiteConfig extends ISiteConfig {
 	/** @var int|null */
 	private $widthOption;
 
-	/** @var callable|null */
-	private $extResourceURLPatternMatcher;
-
 	/** @var int */
 	private $maxDepth = 40;
-
-	/**
-	 * Quote a title regex
-	 *
-	 * Assumes '/' as the delimiter, and replaces spaces or underscores with
-	 * `[ _]` so either will be matched.
-	 *
-	 * @param string $s
-	 * @param string $delimiter Defaults to '/'
-	 * @return string
-	 */
-	private static function quoteTitleRe( string $s, string $delimiter = '/' ): string {
-		$s = preg_quote( $s, $delimiter );
-		$s = strtr( $s, [
-			' ' => '[ _]',
-			'_' => '[ _]',
-		] );
-		return $s;
-	}
 
 	/**
 	 * @param ApiHelper $api
@@ -312,19 +293,9 @@ class SiteConfig extends ISiteConfig {
 			$this->ensureExtensionTag( $tag );
 		}
 
-		// extResourceURLPatternMatcher
-		$nsAliases = [
-			'Special',
-		];
-		foreach ( $this->nsIds as $name => $id ) {
-			if ( $id === -1 ) {
-				$nsAliases[] = $this->quoteTitleRe( $name, '!' );
-			}
-		}
-		$nsAliases = implode( '|', array_unique( $nsAliases ) );
-
+		$this->specialPageAliases = $data['specialpagealiases'];
 		$this->specialPageNames = [];
-		foreach ( $data['specialpagealiases'] as $special ) {
+		foreach ( $this->specialPageAliases as $special ) {
 			$alias = strtr( mb_strtoupper( $special['realname'] ), ' ', '_' );
 			$this->specialPageNames[$alias] = $special['aliases'][0];
 			foreach ( $special['aliases'] as $alias ) {
@@ -332,37 +303,6 @@ class SiteConfig extends ISiteConfig {
 				$this->specialPageNames[$alias] = $special['aliases'][0];
 			}
 		}
-
-		$bsAliases = [ 'Booksources' ];
-		foreach ( $data['specialpagealiases'] as $special ) {
-			if ( $special['realname'] === 'Booksources' ) {
-				$bsAliases = array_merge( $bsAliases, $special['aliases'] );
-				break;
-			}
-		}
-		$pageAliases = implode( '|', array_map( function ( $s ) {
-			return $this->quoteTitleRe( $s, '!' );
-		}, $bsAliases ) );
-
-		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
-		// being disabled")
-		$pats = [
-			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
-				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
-			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
-			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
-		];
-		$regex = '!^(?:' . implode( '|', $pats ) . ')$!D';
-		$this->extResourceURLPatternMatcher = function ( $text ) use ( $pats, $regex ) {
-			if ( preg_match( $regex, $text, $m ) ) {
-				foreach ( $pats as $k => $re ) {
-					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
-						return [ $k, $m[$k] ];
-					}
-				}
-			}
-			return false;
-		};
 
 		$redirect = '(?i:\#REDIRECT)';
 		$quote = function ( $s ) {
@@ -700,9 +640,28 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getExtResourceURLPatternMatcher(): callable {
-		$this->loadSiteData();
-		return $this->extResourceURLPatternMatcher;
+	protected function getSpecialNSAliases(): array {
+		$nsAliases = [
+			'Special',
+		];
+		foreach ( $this->nsIds as $name => $id ) {
+			if ( $id === -1 ) {
+				$nsAliases[] = $this->quoteTitleRe( $name, '!' );
+			}
+		}
+		return $nsAliases;
+	}
+
+	/** @inheritDoc */
+	protected function getSpecialPageAliases( string $specialPage ): array {
+		$spAliases = [ $specialPage ];
+		foreach ( $this->specialPageAliases as $special ) {
+			if ( $special['realname'] === $specialPage ) {
+				$spAliases = array_merge( $spAliases, $special['aliases'] );
+				break;
+			}
+		}
+		return $spAliases;
 	}
 
 	/** @inheritDoc */

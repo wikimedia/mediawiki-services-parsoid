@@ -61,25 +61,6 @@ class SiteConfig extends ISiteConfig {
 	private $extensionTags;
 
 	/**
-	 * Quote a title regex
-	 *
-	 * Assumes '/' as the delimiter, and replaces spaces or underscores with
-	 * `[ _]` so either will be matched.
-	 *
-	 * @param string $s
-	 * @param string $delimiter Defaults to '/'
-	 * @return string
-	 */
-	private static function quoteTitleRe( string $s, string $delimiter = '/' ): string {
-		$s = preg_quote( $s, $delimiter );
-		$s = strtr( $s, [
-			' ' => '[ _]',
-			'_' => '[ _]',
-		] );
-		return $s;
-	}
-
-	/**
 	 * Convert a sequential array to an associative one to speed up set membership checks.
 	 *
 	 * @param array $a
@@ -631,7 +612,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getExtResourceURLPatternMatcher(): callable {
+	protected function getSpecialNSAliases(): array {
 		$nsAliases = [
 			'Special',
 			$this->quoteTitleRe( $this->contLang->getNsText( NS_SPECIAL ) )
@@ -644,32 +625,15 @@ class SiteConfig extends ISiteConfig {
 				$nsAliases[] = $this->quoteTitleRe( $name );
 			}
 		}
-		$nsAliases = implode( '|', array_unique( $nsAliases ) );
 
-		$pageAliases = implode( '|', array_map( [ $this, 'quoteTitleRe' ], array_merge(
-			[ 'Booksources' ],
-			$this->contLang->getSpecialPageAliases()['Booksources'] ?? []
-		) ) );
+		return $nsAliases;
+	}
 
-		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
-		// being disabled")
-		$pats = [
-			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
-				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
-			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
-			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
-		];
-		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
-		return function ( $text ) use ( $pats, $regex ) {
-			if ( preg_match( $regex, $text, $m ) ) {
-				foreach ( $pats as $k => $re ) {
-					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
-						return [ $k, $m[$k] ];
-					}
-				}
-			}
-			return false;
-		};
+	/** @inheritDoc */
+	protected function getSpecialPageAliases( string $specialPage ): array {
+		return array_merge( [ $specialPage ],
+			$this->contLang->getSpecialPageAliases()[$specialPage] ?? []
+		);
 	}
 
 	/** @inheritDoc */
