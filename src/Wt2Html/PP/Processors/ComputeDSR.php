@@ -174,7 +174,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 *     -> content  : "Foo"
 		 *     -> end-tag  : "]]"
 		 *
-		 * 3. [[{{echo|Foo}}|Foo]] <-- tpl-attr mw:WikiLink
+		 * 3. [[{{1x|Foo}}|Foo]] <-- tpl-attr mw:WikiLink
 		 *    Dont bother setting tag widths since dp->sa['href'] will be
 		 *    the expanded target and won't correspond to original source.
 		 *    We dont always have access to the meta-tag that has the source.

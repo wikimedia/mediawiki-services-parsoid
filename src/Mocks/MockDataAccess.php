@@ -479,7 +479,7 @@ class MockDataAccess implements DataAccess {
 	/** @inheritDoc */
 	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
 		// FIXME: This is all mockAPI does
-		return preg_replace( '/\{\{subst:(?:echo|1x)\|([^}]+)\}\}/', '$1', $wikitext, 1 );
+		return preg_replace( '/\{\{subst:1x\|([^}]+)\}\}/', '$1', $wikitext, 1 );
 	}
 
 	/** @inheritDoc */
@@ -527,7 +527,7 @@ class MockDataAccess implements DataAccess {
 		];
 
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
-		preg_match( '/{{(?:echo|1x)\|(.*?)}}/s', $expanded, $match );
+		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match );
 
 		if ( $match ) {
 			$ret['wikitext'] = $match[1];

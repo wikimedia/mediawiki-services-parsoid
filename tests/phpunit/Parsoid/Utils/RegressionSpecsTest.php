@@ -291,7 +291,7 @@ class RegressionSpecsTest extends TestCase {
 	 */
 	public function testNoSplitPWrapper(): void {
 		$description = "Regression Specs: should not split p-wrappers around templatestyles";
-		$wt = 'abc {{echo|<templatestyles src="Template:Quote/styles.css" /> def}} ghi ' .
+		$wt = 'abc {{1x|<templatestyles src="Template:Quote/styles.css" /> def}} ghi ' .
 			'[[File:Thumb.png|thumb|250px]]';
 		$docBody = $this->parseWT( $wt );
 

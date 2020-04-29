@@ -193,7 +193,7 @@ class ExternalLinkHandler extends TokenHandler {
 			$token->removeAttribute( 'typeof' );
 
 			// SSS FIXME: Right now, Parsoid does not support templating
-			// of ISBN attributes.  So, "ISBN {{echo|1234567890}}" will not
+			// of ISBN attributes.  So, "ISBN {{1x|1234567890}}" will not
 			// parse as you might expect it to.  As a result, this code below
 			// that attempts to combine rdf attrs from earlier is unnecessary
 			// right now.  But, it will become necessary if Parsoid starts

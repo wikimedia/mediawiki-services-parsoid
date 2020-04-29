@@ -135,7 +135,7 @@ class TokenizerUtils {
 			// We cannot close the cell here because cell content can come from
 			// multiple parsing contexts and we cannot close the tag in the same
 			// parsing context in which the td was opened:
-			//   Ex: {{echo|{{!}}foo}}{{echo|bar}} has to output <td>foobar</td>
+			//   Ex: {{1x|{{!}}foo}}{{1x|bar}} has to output <td>foobar</td>
 			//
 			// But, add a marker meta-tag to capture tsr info.
 			// SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.

@@ -33,7 +33,7 @@ class MetaHandler extends DOMHandler {
 
 		// Check for property before type so that page properties with
 		// templated attrs roundtrip properly.
-		// Ex: {{DEFAULTSORT:{{echo|foo}} }}
+		// Ex: {{DEFAULTSORT:{{1x|foo}} }}
 		if ( $property ) {
 			preg_match( '#^mw\:PageProp/(.*)$#D', $property, $switchType );
 			if ( $switchType ) {

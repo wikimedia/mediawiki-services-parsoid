@@ -699,7 +699,7 @@ class Separators {
 					// a dsr-bearing node
 					//
 					// This fix is needed to handle trailing newlines in this wikitext:
-					// [[File:foo.jpg|thumb|300px|foo\n{{echo|A}}\n{{echo|B}}\n{{echo|C}}\n\n]]
+					// [[File:foo.jpg|thumb|300px|foo\n{{1x|A}}\n{{1x|B}}\n{{1x|C}}\n\n]]
 					while ( !$node->nextSibling && !DOMUtils::atTheTop( $node ) &&
 						( empty( DOMDataUtils::getDataParsoid( $node )->dsr ) ||
 							DOMDataUtils::getDataParsoid( $node )->dsr->start === null ||

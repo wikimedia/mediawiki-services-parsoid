@@ -453,7 +453,7 @@ var formatters = {
 };
 
 var preProcess = function(text, revid, formatversion) {
-	var match = text.match(/{{echo\|(.*?)}}/);
+	var match = text.match(/{{1x\|(.*?)}}/);
 	if (match) {
 		return { wikitext: match[1] };
 	} else if (text === '{{colours of the rainbow}}') {
@@ -568,7 +568,7 @@ var parse = function(text, onlypst, formatversion) {
 	};
 	// We're performing a subst
 	if (onlypst) {
-		return fmt(text.replace(/\{\{subst:echo\|([^}]+)\}\}/, "$1"));
+		return fmt(text.replace(/\{\{subst:1x\|([^}]+)\}\}/, "$1"));
 	}
 	// Render to html the contents of known extension tags
 	var match = text.match(/<([A-Za-z][^\t\n\v />\0]*)/);

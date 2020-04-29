@@ -1,7 +1,7 @@
 {
     "Implicit newline insertion/sol when expanding templates (T241150/T14974/T2529)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[13,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[13,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>"
     },
     "Comment on its own line post-expand": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>a\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[2,11,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"blank\",\"href\":\"./Template:Blank\"},\"params\":{},\"i\":0}}]}'></span><!---->\nb</p>",
@@ -12,12 +12,12 @@
         "html2wt": "a\n\nb\n"
     },
     "post-expand include size being exceeded": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,20,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo3\",\"href\":\"./Template:Echo3\"},\"params\":{\"1\":{\"wt\":\"1234567890\"}},\"i\":0}}]}'>1234567890\n1234567890\n1234567890</p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,38,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:Echo3\" title=\"Wiki/Template:Echo3\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:Echo3\"},\"sa\":{\"href\":\"wiki/Template:Echo3\"},\"dsr\":[0,38,22,2]}'>Template:Echo3</a></p><!-- WARNING: template omitted, post&#x2D;expand include size too large -->\n",
-        "html2wt": "[[wiki/Template:Echo3|Template:Echo3]]<!-- WARNING: template omitted, post-expand include size too large -->\n"
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,28,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"3x_on_newline\",\"href\":\"./Template:3x_on_newline\"},\"params\":{\"1\":{\"wt\":\"1234567890\"}},\"i\":0}}]}'>1234567890\n1234567890\n1234567890</p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:3x_on_newline\" title=\"Wiki/Template:3x on newline\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:3x_on_newline\"},\"sa\":{\"href\":\"wiki/Template:3x on newline\"},\"dsr\":[0,54,30,2]}'>Template:3x on newline</a></p><!-- WARNING: template omitted, post&#x2D;expand include size too large -->\n",
+        "html2wt": "[[wiki/Template:3x on newline|Template:3x on newline]]<!-- WARNING: template omitted, post-expand include size too large -->\n"
     },
     "max template depth being reached": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,29,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo with depth\",\"href\":\"./Template:Echo_with_depth\"},\"params\":{\"1\":{\"wt\":\"too deep!\"}},\"i\":0}}]}'>too deep!</p>",
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,27,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x with depth\",\"href\":\"./Template:1x_with_depth\"},\"params\":{\"1\":{\"wt\":\"too deep!\"}},\"i\":0}}]}'>too deep!</p>",
         "html2wt": "<span class=\"error\">Template recursion depth limit exceeded (1)</span>\n"
     },
     "multiple templates that are redirects": {
@@ -30,17 +30,17 @@
         "html2wt": "<blockquote>\n Blah\n\n{|\n|\n indented cell (no pre-wrapping!)\n|}\n</blockquote>"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content": {
-        "wt2html": "<pre about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,11,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\" \"}},\"i\":0}},\"a\"]}'>a</pre>\n\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[13,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"a\"]}'>\n</span><pre about=\"#mwt2\">a</pre>\n\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[27,39,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n b\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt3\">b</pre>\n\n<p about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[41,54,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a\\n \"}},\"i\":0}},\"b\"]}'>a</p><span about=\"#mwt4\">\n</span><pre about=\"#mwt4\">b</pre>\n\n<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[56,67,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a\\n\"}},\"i\":0}}]}'>a</p><span about=\"#mwt5\">\n</span><pre data-parsoid='{\"dsr\":[67,69,1,0]}'>b</pre>",
-        "wt2wt": "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n\n{{echo|a\n}}\n b\n",
+        "wt2html": "<pre about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,9,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" \"}},\"i\":0}},\"a\"]}'>a</pre>\n\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"a\"]}'>\n</span><pre about=\"#mwt2\">a</pre>\n\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n b\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt3\">b</pre>\n\n<p about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[35,46,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\\n \"}},\"i\":0}},\"b\"]}'>a</p><span about=\"#mwt4\">\n</span><pre about=\"#mwt4\">b</pre>\n\n<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[48,57,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\\n\"}},\"i\":0}}]}'>a</p><span about=\"#mwt5\">\n</span><pre data-parsoid='{\"dsr\":[57,59,1,0]}'>b</pre>",
+        "wt2wt": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}}\n b\n",
         "html2wt": " a\n\n\n a\n\n\n b\n\na\n\n b\n\na\n\n b\n"
     },
     "Templates: Don't strip whitespace from positional-param values": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,11,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a \"}},\"i\":0}}]}'>a </p>\n\n<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[13,33,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"{{echo|b}} \"}},\"i\":0}}]}'>b </p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[35,48,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[50,71,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\" {{echo|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[73,85,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[87,99,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'>\n</span><ul about=\"#mwt8\"><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[101,113,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>",
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,9,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a \"}},\"i\":0}}]}'>a </p>\n\n<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[11,27,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[29,40,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[42,59,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[61,71,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[73,83,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'>\n</span><ul about=\"#mwt8\"><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[85,95,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>",
         "html2wt": "a \n\nb \n\n c \n\n\n d\n\n\n e\n\n\n* f\n\n\n g\n"
     },
     "Templates: Other wikitext in parameter names (T69657)": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>",
-        "html2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>"
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,16,0,0],\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>",
+        "html2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,16,0,0],\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>"
     },
     "6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content": {
         "wt2html": "<pre data-parsoid='{\"dsr\":[0,26,1,0]}'>a\n\n <!-- continue -->\nb</pre>\n\n<pre data-parsoid='{\"dsr\":[28,30,1,0]}'>c</pre>\n \n<p data-parsoid='{\"dsr\":[33,34,0,0]}'>d</p>",
@@ -77,9 +77,9 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo%20bar%3F\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo%20bar%3F\"},\"sa\":{\"href\":\"es:Foo bar?\"},\"dsr\":[15,30,null,null]}'/>"
     },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close": {
-        "wt2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span><p data-parsoid='{\"dsr\":[18,22,0,0]}'>*baz</p>",
-        "html2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span>",
-        "html2wt": "*foo {{echo|bar\n}}"
+        "wt2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,16,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span><p data-parsoid='{\"dsr\":[16,20,0,0]}'>*baz</p>",
+        "html2html": "<ul about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,16,0,0],\"firstWikitextNode\":\"UL\",\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[\"*foo \",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"bar\\n\"}},\"i\":0}}]}'><li>foo bar</li></ul><span about=\"#mwt1\">\n</span>",
+        "html2wt": "*foo {{1x|bar\n}}"
     },
     "Magic Word: {{CURRENTMONTH1}}": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,17,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"CURRENTMONTH1\",\"function\":\"currentmonth1\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_currentmonth1 missing in Parsoid.</p>",
@@ -241,8 +241,8 @@
         "html2wt": "[/index.php?title=Template:Thistemplatedoesnotexist&action=edit&redlink=1 Template:Thistemplatedoesnotexist]\n"
     },
     "Template with invalid target containing tags": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'>{{a<b data-parsoid='{\"stx\":\"html\",\"dsr\":[3,11,3,4]}'>b</b>|<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[12,24,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>|<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[25,35,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span>=<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[36,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"b\"}},\"i\":0}}]}'>b</span>|a =b}}</p>",
-        "wt2wt": "<nowiki>{{a</nowiki><b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}<nowiki>|a =b}}</nowiki>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,48,0,0]}'>{{a<b data-parsoid='{\"stx\":\"html\",\"dsr\":[3,11,3,4]}'>b</b>|<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[12,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>|<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,31,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span>=<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[32,40,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b\"}},\"i\":0}}]}'>b</span>|a =b}}</p>",
+        "wt2wt": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}<nowiki>|a =b}}</nowiki>",
         "html2wt": "<nowiki>{{a</nowiki>'''b'''<nowiki>|foo|a=b|a = b}}</nowiki>\n"
     },
     "Template with invalid target containing wikilink": {
@@ -256,9 +256,9 @@
         "html2wt": "[[wiki/Template:Complextemplate|link]] This is a test template with parameter (test)\n"
     },
     "Template from non-includable namespace": {
-        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,15,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"uh oh!\"}},\"i\":0}}]}'>uh oh!</p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,36,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:Echo\" title=\"Wiki/Template:Echo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:Echo\"},\"sa\":{\"href\":\"wiki/Template:Echo\"},\"dsr\":[0,36,21,2]}'>Template:Echo</a></p>\n",
-        "html2wt": "[[wiki/Template:Echo|Template:Echo]]\n"
+        "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"uh oh!\"}},\"i\":0}}]}'>uh oh!</p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:1x\" title=\"Wiki/Template:1x\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:1x\"},\"sa\":{\"href\":\"wiki/Template:1x\"},\"dsr\":[0,32,19,2]}'>Template:1x</a></p>\n",
+        "html2wt": "[[wiki/Template:1x|Template:1x]]\n"
     },
     "int keyword": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,45,0,0],\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"int:youhavenewmessages\",\"function\":\"int\"},\"params\":{\"1\":{\"wt\":\"lots of money\"},\"2\":{\"wt\":\"not!\"}},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.</p>",
@@ -293,13 +293,13 @@
         "html2wt": "{|\n|a\n|}"
     },
     "Templates: HTML Tag: 2. Generation of HTML attr. value": {
-        "wt2html": "<div style=\"'color:red;'\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"&apos;color:red;&apos;\"},\"sa\":{\"style\":\"{{echo|&apos;color:red;&apos;}}\"},\"dsr\":[0,42,33,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[11,32,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"echo\\\",\\\"href\\\":\\\"./Template:Echo\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"&amp;apos;color:red;&amp;apos;\\\"}},\\\"i\\\":0}}]}&apos;>&apos;color:red;&apos;&lt;/span>\"}]]}'>foo</div>",
-        "wt2wt": "<div style=\"{{echo|'color:red;'}}\">foo</div>",
+        "wt2html": "<div style=\"'color:red;'\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"&apos;color:red;&apos;\"},\"sa\":{\"style\":\"{{1x|&apos;color:red;&apos;}}\"},\"dsr\":[0,40,31,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[11,30,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"&amp;apos;color:red;&amp;apos;\\\"}},\\\"i\\\":0}}]}&apos;>&apos;color:red;&apos;&lt;/span>\"}]]}'>foo</div>",
+        "wt2wt": "<div style=\"{{1x|'color:red;'}}\">foo</div>",
         "html2wt": "<div style=\"color:red;\">foo</div>"
     },
     "Templates: HTML Tag: 3. Generation of HTML attr key and value": {
-        "wt2html": "<div style=\"'color:red;'\" about=\"#mwt3\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"&apos;color:red;&apos;\"},\"sa\":{\"style\":\"{{echo|&apos;color:red;&apos;}}\"},\"dsr\":[0,51,42,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\",\"html\":\"&lt;span about=\\\"#mwt2\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[5,19,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"echo\\\",\\\"href\\\":\\\"./Template:Echo\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"style\\\"}},\\\"i\\\":0}}]}&apos;>style&lt;/span>\"},{\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[20,41,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"echo\\\",\\\"href\\\":\\\"./Template:Echo\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"&amp;apos;color:red;&amp;apos;\\\"}},\\\"i\\\":0}}]}&apos;>&apos;color:red;&apos;&lt;/span>\"}]]}'>foo</div>",
-        "wt2wt": "<div {{echo|style}}=\"{{echo|'color:red;'}}\">foo</div>",
+        "wt2html": "<div style=\"'color:red;'\" about=\"#mwt3\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"&apos;color:red;&apos;\"},\"sa\":{\"style\":\"{{1x|&apos;color:red;&apos;}}\"},\"dsr\":[0,47,38,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\",\"html\":\"&lt;span about=\\\"#mwt2\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[5,17,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"style\\\"}},\\\"i\\\":0}}]}&apos;>style&lt;/span>\"},{\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[18,37,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"&amp;apos;color:red;&amp;apos;\\\"}},\\\"i\\\":0}}]}&apos;>&apos;color:red;&apos;&lt;/span>\"}]]}'>foo</div>",
+        "wt2wt": "<div {{1x|style}}=\"{{1x|'color:red;'}}\">foo</div>",
         "html2wt": "<div style=\"color:red;\">foo</div>"
     },
     "Templates: Wiki Tables: 4. Templated tags, no content": {
@@ -307,16 +307,16 @@
         "html2wt": "{|\n|\n|}"
     },
     "Templates: Lists: Multi-line list-items via templates": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,71,0,0]}'><li data-parsoid='{\"dsr\":[0,35,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[1,35,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"a {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>a </span></li>\n<li data-parsoid='{\"dsr\":[36,71,1,0]}'><span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[37,71,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"b {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>b </span></li></ul>",
+        "wt2html": "<ul data-parsoid='{\"dsr\":[0,67,0,0]}'><li data-parsoid='{\"dsr\":[0,33,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[1,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>a </span></li>\n<li data-parsoid='{\"dsr\":[34,67,1,0]}'><span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[35,67,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>b </span></li></ul>",
         "html2html": "<ul data-parsoid='{\"dsr\":[0,173,0,0]}'><li data-parsoid='{\"dsr\":[0,86,1,0]}'>a [/index.php?title=Template:Nonexistent&amp;action=edit&amp;redlink=1 Template:Nonexistent]</li>\n<li data-parsoid='{\"dsr\":[87,173,1,0]}'>b [/index.php?title=Template:Nonexistent&amp;action=edit&amp;redlink=1 Template:Nonexistent]</li></ul>",
         "html2wt": "* a [/index.php?title=Template:Nonexistent&action=edit&redlink=1 Template:Nonexistent]\n* b [/index.php?title=Template:Nonexistent&action=edit&redlink=1 Template:Nonexistent]"
     },
-    "Templates: Ugly nesting: 1. Quotes opened/closed across templates (echo)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,40,0,0]}'><i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,40,null,null],\"pi\":[[{\"k\":\"1\"}],[{\"k\":\"1\"}],[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;a\"}},\"i\":0}},{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"b&apos;&apos;c&apos;&apos;d\"}},\"i\":1}},{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;e\"}},\"i\":2}}]}'>ab</i><span about=\"#mwt1\">c</span><i about=\"#mwt1\">d</i><span about=\"#mwt1\">e</span></p>",
+    "Templates: Ugly nesting: 1. Quotes opened/closed across templates (1x)": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,34,null,null],\"pi\":[[{\"k\":\"1\"}],[{\"k\":\"1\"}],[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;a\"}},\"i\":0}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b&apos;&apos;c&apos;&apos;d\"}},\"i\":1}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;e\"}},\"i\":2}}]}'>ab</i><span about=\"#mwt1\">c</span><i about=\"#mwt1\">d</i><span about=\"#mwt1\">e</span></p>",
         "html2wt": "''ab''c''d''e\n"
     },
     "Templates: Ugly templates: 4. newline-only template parameter inconsistency": {
-        "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,10,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"\\n\"}},\"i\":0}}]}'>\n</span>",
+        "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n\"}},\"i\":0}}]}'>\n</span>",
         "html2html": "\n\n",
         "html2wt": "\n\n"
     },
@@ -576,7 +576,7 @@
         "html2wt": "Special:Random\nSpecial:Badtitle\nSpecial:Foobar\n"
     },
     "1. SOL-sensitive wikitext tokens as template-args": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,35,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"*a\"}},\"i\":0}}]}'>*a</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[12,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"#a\"}},\"i\":0}}]}'>#a</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[24,35,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\":a\"}},\"i\":0}}]}'>:a</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"*a\"}},\"i\":0}}]}'>*a</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[10,19,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#a\"}},\"i\":0}}]}'>#a</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[20,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\":a\"}},\"i\":0}}]}'>:a</span></p>"
     },
     "Empty table rows go away": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>",
@@ -595,9 +595,9 @@
         "html2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n"
     },
     "Templates: Handle comments in the target": {
-        "wt2wt": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo|foo}}",
-        "html2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,39,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\\n&lt;!-- should be ignored -->\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[41,136,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\\n&lt;!-- should be ignored and spaces on next line should not trip us up (T147742) -->\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[138,176,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo&lt;!-- should be ignored -->\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[178,216,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo&lt;!-- should be ignored -->\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[218,230,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>",
-        "html2wt": "{{echo\n<!-- should be ignored -->|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{echo|foo}}"
+        "wt2wt": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{1x|foo}}",
+        "html2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,37,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\\n&lt;!-- should be ignored -->\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[39,132,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\\n&lt;!-- should be ignored and spaces on next line should not trip us up (T147742) -->\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[134,170,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x&lt;!-- should be ignored -->\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[172,208,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x&lt;!-- should be ignored -->\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>\n\n<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[210,220,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</p>",
+        "html2wt": "{{1x\n<!-- should be ignored -->|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{1x|foo}}"
     },
     "Definition lists: self-closed tag": {
         "wt2wt": ";one<br />two :two-line fun",
@@ -612,8 +612,8 @@
         "html2wt": ": {|\n|a\n|}\n"
     },
     "Definition Lists: colons occurring in tags": {
-        "wt2wt": ";a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''\n",
-        "html2wt": "; a:b\n; '''a:b'''\n; <i>a:b</i>\n; <span>a:b</span>\n; <div>a:b</div>\n; <div>a\n: b\n; {{echo|a:b}}\n; {{echo|''a:b''}}\n;;; ''a:b''\n"
+        "wt2wt": ";a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b\n;{{1x|a:b}}\n;{{1x|''a:b''}}\n;;;''a:b''\n",
+        "html2wt": "; a:b\n; '''a:b'''\n; <i>a:b</i>\n; <span>a:b</span>\n; <div>a:b</div>\n; <div>a\n: b\n; {{1x|a:b}}\n; {{1x|''a:b''}}\n;;; ''a:b''\n"
     },
     "T2289: \">\"-token in bracketed URL": {
         "wt2wt": "[http://www.example.com/ <hello> stuff]",
@@ -728,10 +728,10 @@
         "html2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR": {
-        "wt2wt": "{{echo|}}\n{| width=\"100%\"\n|foo\n|}"
+        "wt2wt": "{{1x|}}\n{| width=\"100%\"\n|foo\n|}"
     },
     "Templates: HTML Tag: 9. Multiple template-generated attributes": {
-        "wt2wt": "<div {{echo|1=id=\"v1\" title=\"foo\"}} title=\"foo\">bar</div>",
+        "wt2wt": "<div {{1x|1=id=\"v1\" title=\"foo\"}} title=\"foo\">bar</div>",
         "html2wt": "<div id=\"v1\" title=\"foo\">bar</div>"
     },
     "Templates: HTML Tables: 5. Proper fostering of categories from inside": {
@@ -752,9 +752,9 @@
         "html2wt": "[[File:Foobar.jpg|300x300px|caption]]"
     },
     "Render invalid page names as plain text (T53090)": {
-        "wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}|bar]]\n[[{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}]]\n[[{{echo|foo>bar}}]]\n[[{{echo|foo././bar}}]]\n[[{{echo|foo{bar}}]]\n[[{{echo|foo}bar}}]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,174,0,0]}'>[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[61,91,8,9]}'>[[foo~~~bar]]</span>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo<a rel=\"mw:ExtLink\" href=\"http://example.com\" class=\"external autonumber\" data-parsoid='{\"dsr\":[149,169,19,1]}'></a>xyz]]</p>\n\n<p data-parsoid='{\"dsr\":[176,422,0,0]}'>[[<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[178,195,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"./../foo\"}},\"i\":0}}]}'>./../foo</span>|bar]]\n[[<span about=\"#mwt6\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[204,218,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo/.\"}},\"i\":0}}]}'>foo/.</span>|bar]]\n[[<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[227,242,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo/..\"}},\"i\":0}}]}'>foo/..</span>|bar]]\n[[<span about=\"#mwt10\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[251,270,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo~~~~bar\"}},\"i\":0}}]}'>foo~~~~bar</span>]]\n[[<span about=\"#mwt12\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[275,291,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo>bar\"}},\"i\":0}}]}'>foo>bar</span>]]\n[[<span about=\"#mwt14\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[296,315,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo././bar\"}},\"i\":0}}]}'>foo././bar</span>]]\n[[<span about=\"#mwt16\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[320,336,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo{bar\"}},\"i\":0}}]}'>foo{bar</span>]]\n[[<span about=\"#mwt18\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[341,357,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo}bar\"}},\"i\":0}}]}'>foo}bar</span>]]\n[[<span about=\"#mwt20\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[362,378,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo[bar\"}},\"i\":0}}]}'>foo[bar</span>]]\n[[<span about=\"#mwt22\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[383,399,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo]bar\"}},\"i\":0}}]}'>foo]bar</span>]]\n[[<span about=\"#mwt24\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[404,420,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo&lt;bar\"}},\"i\":0}}]}'>foo&lt;bar</span>]]</p>",
-        "html2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}|bar]]\n[[{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}]]\n[[{{echo|foo>bar}}]]\n[[{{echo|foo././bar}}]]\n[[{{echo|foo{bar}}]]\n[[{{echo|foo}bar}}]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]"
+        "wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,174,0,0]}'>[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[61,91,8,9]}'>[[foo~~~bar]]</span>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo<a rel=\"mw:ExtLink\" href=\"http://example.com\" class=\"external autonumber\" data-parsoid='{\"dsr\":[149,169,19,1]}'></a>xyz]]</p>\n\n<p data-parsoid='{\"dsr\":[176,400,0,0]}'>[[<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[178,193,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"./../foo\"}},\"i\":0}}]}'>./../foo</span>|bar]]\n[[<span about=\"#mwt6\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[202,214,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo/.\"}},\"i\":0}}]}'>foo/.</span>|bar]]\n[[<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[223,236,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo/..\"}},\"i\":0}}]}'>foo/..</span>|bar]]\n[[<span about=\"#mwt10\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[245,262,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo~~~~bar\"}},\"i\":0}}]}'>foo~~~~bar</span>]]\n[[<span about=\"#mwt12\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[267,281,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo>bar\"}},\"i\":0}}]}'>foo>bar</span>]]\n[[<span about=\"#mwt14\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[286,303,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo././bar\"}},\"i\":0}}]}'>foo././bar</span>]]\n[[<span about=\"#mwt16\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[308,322,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo{bar\"}},\"i\":0}}]}'>foo{bar</span>]]\n[[<span about=\"#mwt18\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[327,341,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo}bar\"}},\"i\":0}}]}'>foo}bar</span>]]\n[[<span about=\"#mwt20\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[346,360,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo[bar\"}},\"i\":0}}]}'>foo[bar</span>]]\n[[<span about=\"#mwt22\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[365,379,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo]bar\"}},\"i\":0}}]}'>foo]bar</span>]]\n[[<span about=\"#mwt24\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[384,398,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo&lt;bar\"}},\"i\":0}}]}'>foo&lt;bar</span>]]</p>",
+        "html2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
     },
     "div with single-quoted attribute": {
         "wt2wt": "<div id=\"rock\">HTML rocks</div>",
@@ -875,7 +875,7 @@
         "html2wt": "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute": {
-        "wt2wt": "{|\n|-\n|\n| {{echo|style='color:red'}} |foo\n|}",
+        "wt2wt": "{|\n|-\n|\n| {{1x|style='color:red'}} |foo\n|}",
         "html2wt": "{|\n|\n|foo\n|}"
     },
     "Improperly nested inline or quotes tags with whitespace in between": {
@@ -886,12 +886,12 @@
         "wt2wt": "<nowiki> </nowiki><nowiki>||</nowiki> <nowiki>||</nowiki>\n<table>\n<tr><td> a\n</table>"
     },
     "8. Encapsulate foster-parented transclusion content": {
-        "wt2wt": "{{echo|a\n}}\n{|{{echo|style='color:red'}}\n|-\n|b\n|}\n"
+        "wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}\n"
     },
     "T73074: More fostering fun": {
-        "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{echo|<tr>}}<!--c-->[[Category:Two]]",
-        "html2html": "<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"dsr\":[0,16,null,null]}'/>\n<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"fostered\":true,\"dsr\":[17,17,null,null]}'/><table data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[17,70,7,0]}'><tbody data-parsoid='{\"dsr\":[24,70,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[24,33,0,0]}'><td data-parsoid='{\"stx\":\"html\",\"dsr\":[24,33,4,5]}'></td></tr><tr about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[33,70,null,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>\"}},\"i\":0}},\"&lt;!--c-->[[Category:Two]]\"]}'><!--c--></tr></tbody></table>",
-        "html2wt": "[[Category:Two]]\n<table><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]",
+        "html2html": "<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"dsr\":[0,16,null,null]}'/>\n<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"fostered\":true,\"dsr\":[17,17,null,null]}'/><table data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[17,68,7,0]}'><tbody data-parsoid='{\"dsr\":[24,68,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[24,33,0,0]}'><td data-parsoid='{\"stx\":\"html\",\"dsr\":[24,33,4,5]}'></td></tr><tr about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[33,68,null,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>\"}},\"i\":0}},\"&lt;!--c-->[[Category:Two]]\"]}'><!--c--></tr></tbody></table>",
+        "html2wt": "[[Category:Two]]\n<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "Image: upright option is ignored on inline and frame images (parsoid)": {
         "wt2wt": "[[File:Foobar.jpg|500x500px|caption]]",
@@ -1095,19 +1095,19 @@
         "html2wt": "<small>\n\n* a\n* b</small>"
     },
     "Template with just whitespace in it, T70421": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,31,0,0]}'>{{echo|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[11,29,8,9]}'>}</span>}}</p>"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'>{{1x|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[9,27,8,9]}'>}</span>}}</p>"
     },
     "Template unnamed parameter": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>the main page</a></p>\n",
         "html2wt": "[[wiki/Main Page|the main page]]\n"
     },
     "Templates with templated name": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,45,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{echo|echo}}\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,44,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"echo\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>",
-        "html2wt": "{{{{echo|echo}}|foo}}\n{{{{echo|inner list}}}}"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,39,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{1x|1x}}\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[19,38,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"1x\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>",
+        "html2wt": "{{{{1x|1x}}|foo}}\n{{{{1x|inner list}}}}"
     },
     "Templates with invalid templated targets": {
-        "html2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,21,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\\n{{echo|foo}}\"},\"params\":{},\"i\":0}}]}'>{{echo\nfoo}}</p>",
-        "html2wt": "{{echo\n{{echo|foo}}}}"
+        "html2html": "<p about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,17,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\\n{{1x|foo}}\"},\"params\":{},\"i\":0}}]}'>{{1x\nfoo}}</p>",
+        "html2wt": "{{1x\n{{1x|foo}}}}"
     },
     "Template parameter as link source": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,23,17,2]}'>link</a></p>\n",
@@ -1142,8 +1142,8 @@
         "html2wt": "[[wiki/Foo|bar]]\n"
     },
     "Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,63,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"{{{!}}\\n{{!}}-\"}},\"i\":0}}]}'>{|\n|-</span>\n<meta typeof=\"mw:Includes/OnlyInclude\" data-parsoid='{\"src\":\"&lt;onlyinclude>\",\"dsr\":[23,36,null,null]}'/>\n|foo\n<meta typeof=\"mw:Includes/OnlyInclude/End\" data-parsoid='{\"src\":\"&lt;/onlyinclude>\",\"dsr\":[42,56,null,null]}'/>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[57,62,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"!\",\"function\":\"!\"},\"params\":{},\"i\":0}}]}'>|</span>}</p>\n",
-        "html2wt": "{{echo|{{{!}}\n{{!}}-}}\n<onlyinclude>\n|foo\n</onlyinclude>\n{{!}}}\n"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,61,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,20,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{{!}}\\n{{!}}-\"}},\"i\":0}}]}'>{|\n|-</span>\n<meta typeof=\"mw:Includes/OnlyInclude\" data-parsoid='{\"src\":\"&lt;onlyinclude>\",\"dsr\":[21,34,null,null]}'/>\n|foo\n<meta typeof=\"mw:Includes/OnlyInclude/End\" data-parsoid='{\"src\":\"&lt;/onlyinclude>\",\"dsr\":[40,54,null,null]}'/>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[55,60,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"!\",\"function\":\"!\"},\"params\":{},\"i\":0}}]}'>|</span>}</p>\n",
+        "html2wt": "{{1x|{{{!}}\n{{!}}-}}\n<onlyinclude>\n|foo\n</onlyinclude>\n{{!}}}\n"
     },
     "Image with link tails": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'>123<figure-inline class=\"mw-default-size\" typeof=\"mw:Image\" data-parsoid='{\"optList\":[],\"dsr\":[3,22,null,null]}'><a href=\"./File:Foobar.jpg\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/3/3a/Foobar.jpg\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a></figure-inline>456\n123</p>\n<figure class=\"mw-default-size mw-halign-right\" typeof=\"mw:Image\" data-parsoid='{\"optList\":[{\"ck\":\"right\",\"ak\":\"right\"}],\"dsr\":[30,55,2,2]}'><a href=\"./File:Foobar.jpg\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/3/3a/Foobar.jpg\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a><figcaption data-parsoid='{\"dsr\":[53,53,0,0]}'></figcaption></figure>\n<p data-parsoid='{\"dsr\":[56,63,0,0]}'>456\n123</p>\n<figure class=\"mw-default-size\" typeof=\"mw:Image/Thumb\" data-parsoid='{\"optList\":[{\"ck\":\"thumbnail\",\"ak\":\"thumb\"}],\"dsr\":[64,89,2,2]}'><a href=\"./File:Foobar.jpg\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"25\" width=\"220\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"25\",\"width\":\"220\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a><figcaption data-parsoid='{\"dsr\":[87,87,0,0]}'></figcaption></figure>\n<p data-parsoid='{\"dsr\":[90,93,0,0]}'>456</p>",
@@ -1218,8 +1218,8 @@
         "html2wt": "* a\n*\n* b\n\n{|\n|-\n|foo\n|}"
     },
     "Empty TR followed by a template-generated TR": {
-        "html2html": "<table data-parsoid='{\"dsr\":[0,36,2,2]}'>\n<tbody about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[3,34,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"echo\",\"href\":\"./Template:Echo\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>&lt;td>foo&lt;/td>&lt;/tr>\"}},\"i\":0}},\"\\n\"]}'><tr><td>foo</td></tr>\n</tbody></table>",
-        "html2wt": "{|\n{{echo|<tr><td>foo</td></tr>}}\n|}"
+        "html2html": "<table data-parsoid='{\"dsr\":[0,34,2,2]}'>\n<tbody about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[3,32,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>&lt;td>foo&lt;/td>&lt;/tr>\"}},\"i\":0}},\"\\n\"]}'><tr><td>foo</td></tr>\n</tbody></table>",
+        "html2wt": "{|\n{{1x|<tr><td>foo</td></tr>}}\n|}"
     },
     "Empty TR followed by mixed-ws-comment line should RT correctly": {
         "html2html": "<table data-parsoid='{\"dsr\":[0,36,2,2]}'>\n\n <!--c--><tbody data-parsoid='{\"dsr\":[13,34,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[13,25,2,0]}'>\n<!--c--> </tr><!--d-->\n</tbody></table>",
@@ -1344,7 +1344,7 @@
         "html2wt": "a\n\nb\n\nc\n\n* d"
     },
     "Templates: Handle comments in parameter names (T69657)": {
-        "html2wt": "{{echo|1\n<!-- should be ignored -->=foo}}\n\n{{echo|<!-- should be ignored -->\n1=foo}}\n\n{{echo|1<!-- should be ignored -->=foo}}\n\n{{echo|<!-- should be ignored -->1=foo}}"
+        "html2wt": "{{1x|1\n<!-- should be ignored -->=foo}}\n\n{{1x|<!-- should be ignored -->\n1=foo}}\n\n{{1x|1<!-- should be ignored -->=foo}}\n\n{{1x|<!-- should be ignored -->1=foo}}"
     },
     "1a. Indent-Pre and Comments": {
         "html2wt": " a\n\nc\n"
@@ -1587,7 +1587,7 @@
         "html2wt": "* hi\n* <ul><li>ho</li></ul>\n* hi\n** ho\n"
     },
     "2. Nested mixed wikitext and html list (incompatible)": {
-        "html2wt": "; hi\n: {{echo|<li>ho</li>}}"
+        "html2wt": "; hi\n: {{1x|<li>ho</li>}}"
     },
     "Nested lists 1": {
         "html2wt": "* foo\n** bar\n"
@@ -1893,7 +1893,7 @@
         "html2wt": "[[File:Foobar.jpg|middle|50x50px]]"
     },
     "Parsoid-specific image handling - caption with a template in it": {
-        "html2wt": "[[File:Foobar.jpg|thumb|200x200px|This caption has a {{echo|transclusion}} in it.]]\n"
+        "html2wt": "[[File:Foobar.jpg|thumb|200x200px|This caption has a {{1x|transclusion}} in it.]]\n"
     },
     "3. Categories and newlines: newline suppression for last list item should RT properly": {
         "html2wt": "* a\n* b\n   \n[[Category:Foo]]\n   \n[[Category:Bar]]\n[[Category:Baz]]\n\n: c\n\n[[Category:C]]\n\n; d\n\n[[Category:D]]"
@@ -1902,10 +1902,10 @@
         "html2wt": "* a\n**** b\n\n[[Category:Foo]]"
     },
     "7. Categories and newlines: migrateTrailingCategories dom pass should leave template content alone": {
-        "html2wt": "* {{echo|a\n[[Category:Foo]]}}"
+        "html2wt": "* {{1x|a\n[[Category:Foo]]}}"
     },
     "8. Categories and newlines: migrateTrailingCategories dom pass should not get tripped by intervening templates": {
-        "html2wt": "* a\n\n{{echo|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]"
+        "html2wt": "* a\n\n{{1x|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]"
     },
     "Categories and newlines: migrateTrailingCategories dom pass should not get tripped by comments and whitespace": {
         "html2wt": "* a\n\n[[Category:Bar]]<!--boo1--> <!--boo2-->\n[[Category:Baz]]<!--boo3--> <!--boo4-->"
@@ -2442,115 +2442,115 @@
         "selser": "<div></div>1ofrbjc\n\n1q06thu\n\n\n\n\n1hgtqn3\n<div></div>a\n\nvum19r\n\nb\n\n<div>b</div>1ptcp79\n\nd\n\ndmvgry\n\n\n\n1e22ig8\n\n1jvy72n<div>e</div>"
     },
     "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[0,0,2,0,0],0,0]": {
-        "selser": "jv7k6ehi\n\n12kmtcn\n{{echo|<br/>\n}}\n\n[[Category:Ho]]"
+        "selser": "jv7k6ehi\n\n12kmtcn\n{{1x|<br/>\n}}\n\n[[Category:Ho]]"
     },
     "Avoid expanding multiline sol transparent template ranges unnecessarily [4,0,1,0,0]": {
-        "selser": "rk3tr7\n\n\n\n{{echo|<br/>\n}}\n\n[[Category:Ho]]"
+        "selser": "rk3tr7\n\n\n\n{{1x|<br/>\n}}\n\n[[Category:Ho]]"
     },
     "Avoid expanding multiline sol transparent template ranges unnecessarily [[2],0,[3,0,0,0,0],0,3]": {
-        "selser": "11zstwqhi\n\n\n\n{{echo|<br/>\n}}\n"
+        "selser": "11zstwqhi\n\n\n\n{{1x|<br/>\n}}\n"
     },
     "Avoid expanding multiline sol transparent template ranges unnecessarily [3,4,1,0,4]": {
-        "selser": "uo9c1i\n\n\n\n{{echo|<br/>\n}}\n\n1be6gyh"
+        "selser": "uo9c1i\n\n\n\n{{1x|<br/>\n}}\n\n1be6gyh"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,4,0,0,0,0,0,3,0,0,0,4,0,0,[3]]": {
-        "selser": "{{echo| }}a60me7p{{echo|\n }}a\n\n{{echo|\n b}}\n{{echo|a\n }}b\n1845xzp{{echo|a\n}} "
+        "selser": "{{1x| }}a60me7p{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n1845xzp{{1x|a\n}} "
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,4,0,0,0,0,0,4,0,0,0,0,0,0,0]": {
-        "selser": "{{echo| }}aj90d3l{{echo|\n }}a\n\n{{echo|\n b}}\nzgdomz{{echo|a\n }}b\n\n{{echo|a\n}} b"
+        "selser": "{{1x| }}aj90d3l{{1x|\n }}a\n\n{{1x|\n b}}\nzgdomz{{1x|a\n }}b\n\n{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,3,0,0,0,0,0,4,0,0,0,0,0,0,[4]]": {
-        "selser": "{{echo| }}a{{echo|\n }}a\n\n{{echo|\n b}}\n14v9z5u{{echo|a\n }}b\n\n{{echo|a\n}} 99dktd"
+        "selser": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n14v9z5u{{1x|a\n }}b\n\n{{1x|a\n}} 99dktd"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,4,0,0,0,0,0,0,0,0,0,2,0,0,[3]]": {
-        "selser": "{{echo| }}adm7tcc{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\nvw42dq\n\n{{echo|a\n}} "
+        "selser": "{{1x| }}adm7tcc{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\nvw42dq\n\n{{1x|a\n}} "
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,3,0,0,0,0,0,0,0,0,0,2,0,0,[3]]": {
-        "selser": "{{echo| }}a{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n9taely\n\n{{echo|a\n}} "
+        "selser": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n9taely\n\n{{1x|a\n}} "
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,3,0,0,0,0,0,3,0,0,0,4,0,0,0]": {
-        "selser": "{{echo| }}a{{echo|\n }}a\n\n{{echo|\n b}}\n{{echo|a\n }}b\n1izgzim{{echo|a\n}} b"
+        "selser": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n1izgzim{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,3,0,0,0,0,0,3,0,0,0,3,0,0,0]": {
-        "selser": "{{echo| }}a{{echo|\n }}a\n\n{{echo|\n b}}\n{{echo|a\n }}b\n{{echo|a\n}} b"
+        "selser": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,0,0,0,0,0,0,2,0,0,0,0,0,0,1]": {
-        "selser": "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\noj610q\n\n{{echo|a\n }}b\n\n{{echo|a\n}} b"
+        "selser": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\noj610q\n\n{{1x|a\n }}b\n\n{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,2,0,0,0,0,0,3,0,0,0,0,0,0,1]": {
-        "selser": "{{echo| }}a1442ymz\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n{{echo|a\n }}b\n\n{{echo|a\n}} b"
+        "selser": "{{1x| }}a1442ymz\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n\n{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,0,0,0,0,0,0,0,0,0,0,4,0,0,0]": {
-        "selser": "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n3cw4yv{{echo|a\n}} b"
+        "selser": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n3cw4yv{{1x|a\n}} b"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,0,0,0,4,0,0,0,0,0,0,0,0,0,[2]]": {
-        "selser": "{{echo| }}a\n\n{{echo|\n }}a\nzfyath{{echo|\n b}}\n\n{{echo|a\n }}b\n\n{{echo|a\n}} 12ev5ibb"
+        "selser": "{{1x| }}a\n\n{{1x|\n }}a\nzfyath{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}} 12ev5ibb"
     },
     "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content [0,0,0,0,0,0,0,0,0,0,0,0,0,0,[4]]": {
-        "selser": "{{echo| }}a\n\n{{echo|\n }}a\n\n{{echo|\n b}}\n\n{{echo|a\n }}b\n\n{{echo|a\n}} gcrjt0"
+        "selser": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}} gcrjt0"
     },
     "Less than in attribute position [0,2,[2]]": {
         "selser": "<pre <pre>123</pre>6njtnz\n\n\n\n<div <div>zghs00123</div>"
     },
     "Templates: Handle comments in the target [0,0,0,3,0,2,0,2,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\nn3rz6z\n\n{{echo<!-- should be ignored -->|foo}}\n\nzv2kv5\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\nn3rz6z\n\n{{1x<!-- should be ignored -->|foo}}\n\nzv2kv5\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,3,0,3,0,2,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}{{echo<!-- should be ignored -->|foo}}\n\n1358m7q\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}{{1x<!-- should be ignored -->|foo}}\n\n1358m7q\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,3,0,0,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,3,0,0,0,2,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n16e7tsw\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n16e7tsw\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,4,0,3,0,0,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n1r71247\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n1r71247\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,0,0,2,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\niz552v\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\niz552v\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,3,0,0,0,4,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\nctzcmv\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\nctzcmv\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,2,0,3,0,0,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\nay9p92\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\nay9p92\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,0,0,0,0,3,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,2,0,0,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n8024fy\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n8024fy\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,2,0,0,0,4,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\ngc4991\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\nj95st3\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\ngc4991\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\nj95st3\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,0,0,0,0,4,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\n8yy6d0\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n8yy6d0\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,2,0,3,0,4,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1k2e9dy\n\n{{echo<!-- should be ignored -->\n|foo}}{{echo<!-- should be ignored -->|foo}}\n\n1wl4so6\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1k2e9dy\n\n{{1x<!-- should be ignored -->\n|foo}}{{1x<!-- should be ignored -->|foo}}\n\n1wl4so6\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,3,0,0,0,4,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n1ry69od\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n1ry69od\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,2,0,2,0,3,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n1w8pjv5\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n77nf8o\n\n{{echo<!-- should be ignored -->\n|foo}}{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n1w8pjv5\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n77nf8o\n\n{{1x<!-- should be ignored -->\n|foo}}{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,0,0,4,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\ngv5ka1\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\ngv5ka1\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,4,0,4,0,4,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n2ar1mf\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sgvxe3\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n1i1ol24\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n2ar1mf\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sgvxe3\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n1i1ol24\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,3,0,0,0,2,0,0,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{echo<!-- should be ignored -->\n|foo}}\n\nuqxwu7\n\n{{echo<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n{{1x<!-- should be ignored -->\n|foo}}\n\nuqxwu7\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,3,0,3,0,0,0,2,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}\n\nit9tee\n\n{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\nit9tee\n\n{{<!-- should be ignored -->1x|foo}}"
     },
     "Templates: Handle comments in the target [0,0,0,4,0,0,0,3,0]": {
-        "selser": "{{echo\n<!-- should be ignored -->\n|foo}}\n\n{{echo\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sg5r2s\n\n{{echo<!-- should be ignored -->\n|foo}}\n\n{{echo<!-- should be ignored -->|foo}}{{<!-- should be ignored -->echo|foo}}"
+        "selser": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sg5r2s\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}{{<!-- should be ignored -->1x|foo}}"
     },
     "3a. Indent-Pre and block tags (single-line html) [[4],2,2,0,[2],1,2,[2]]": {
         "selser": "gy1eyd\n\n17ucfxh<p> foo </p>1yvhwvw\n\n\n b <div> foo </div>k2aost\n c <blockquote data-foobar=\"1q7dlus\"> foo </blockquote>567v5t\n 114soep<span> foo </span>"
@@ -2757,22 +2757,22 @@
         "selser": ";a\n: 74zc0c\n: akujim\n;'''a:b'''\n;<i>1sanhwm</i>\n;<div></div>\n;<div>a\n: e52st8\n:b</div>\n: 64u4ef\n"
     },
     "Definition Lists: colons occurring in tags [2]": {
-        "selser": "nb6a3a\n;a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''"
+        "selser": "nb6a3a\n;a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{1x|a:b}}\n;{{1x|''a:b''}}\n;;;''a:b''"
     },
     "Definition Lists: colons occurring in tags [[3,3,2,1,0,[[2]],2,[3],4,3,0,1,2,0,2,1,0,[0,4,[4]]]]": {
-        "selser": ": 1xsre66\n;'''a:b'''\n;<i>4urk14a:b</i>\n: 1cf8uu3\n;\n: b19z0y\n;<div>a\n: kpzshh\n:b</div>\n: m95a73\n;{{echo|a:b}}\n;{{echo|''a:b''}}c4tj4n\n;: i160qp\n"
+        "selser": ": 1xsre66\n;'''a:b'''\n;<i>4urk14a:b</i>\n: 1cf8uu3\n;\n: b19z0y\n;<div>a\n: kpzshh\n:b</div>\n: m95a73\n;{{1x|a:b}}\n;{{1x|''a:b''}}c4tj4n\n;: i160qp\n"
     },
     "Definition Lists: colons occurring in tags [[1,1,3,[3],0,[3],0,1,4,[1],0,3,3,0,4,0,0,2]]": {
-        "selser": ";a:b\n;\n;\n;<span>a:b</span>\n: 12z9opy\n;<div data-foobar=\"yme680\">a:b</div>\n:b</div>\n: jkllqi\n;{{echo|a:b}}\n: 1c01ysy\n;{{echo|''a:b''}}\n;;;''a:b''"
+        "selser": ";a:b\n;\n;\n;<span>a:b</span>\n: 12z9opy\n;<div data-foobar=\"yme680\">a:b</div>\n:b</div>\n: jkllqi\n;{{1x|a:b}}\n: 1c01ysy\n;{{1x|''a:b''}}\n;;;''a:b''"
     },
     "Definition Lists: colons occurring in tags [[3,[4],0,[[2]],4,0,4,[4],0,[[2]],2,[[4]],2,0,0,0,0,4]]": {
-        "selser": ":11uov7i\n;'''1jgi286a:b'''\n: 1ts2957\n;<i>a:b</i>\n: 1p2mqlr\n;180613s\n;<div>1u5nj4ha:b</div>\n: 19fc4ea\n;<div>e2ipg\n: 1xcujhb\n:b</div>\n;{{echo|a:b}}\n: 1n5wm10"
+        "selser": ":11uov7i\n;'''1jgi286a:b'''\n: 1ts2957\n;<i>a:b</i>\n: 1p2mqlr\n;180613s\n;<div>1u5nj4ha:b</div>\n: 19fc4ea\n;<div>e2ipg\n: 1xcujhb\n:b</div>\n;{{1x|a:b}}\n: 1n5wm10"
     },
     "Definition Lists: colons occurring in tags [[0,0,4,[2],3,[4],0,[[3]],4,[[3]],0,2,3,0,0,0,0,[0,0,1]]]": {
-        "selser": ";a:b\n: 9fp0qe\n;18518cf'''a:b'''\n;grxt5v\n;<span></span>\n: evbdy\n;<div></div>\n: 1lr6lil\n;<div>a\n:b</div>\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''"
+        "selser": ";a:b\n: 9fp0qe\n;18518cf'''a:b'''\n;grxt5v\n;<span></span>\n: evbdy\n;<div></div>\n: 1lr6lil\n;<div>a\n:b</div>\n;{{1x|a:b}}\n;{{1x|''a:b''}}\n;;;''a:b''"
     },
     "Definition Lists: colons occurring in tags [1]": {
-        "selser": ";a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''"
+        "selser": ";a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{1x|a:b}}\n;{{1x|''a:b''}}\n;;;''a:b''"
     },
     "T2289: \">\"-token in bracketed URL [1]": {
         "selser": "[http://www.example.com/<hello> stuff]"
@@ -3450,7 +3450,7 @@
         "selser": "f9hn8b\n\n[[Main<pre> Page</pre>]] [[Main Page|the main page <pre>[it's not very good]</pre>]]<pre> Page</pre>]] [[Main Page|the main page <pre>[it's not very good]</pre>]]"
     },
     "2. Interaction of linktrail and template encapsulation [1]": {
-        "selser": "{{echo|Some [[Fool]]}}"
+        "selser": "{{1x|Some [[Fool]]}}"
     },
     "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved [3,2,[[4,2]],3,4,3,2]": {
         "selser": "2i1snz\n\n[[Foo|16tbpzj148o92k''bar'']]\n\n223sno\n\n19y3bzn\n\n[http://wp.org   ''foo'']"
@@ -3702,37 +3702,37 @@
         "selser": "* 14d3cex\n*\n**"
     },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,2]": {
-        "selser": "*foo {{echo|bar\n}}ge6ryx\n\n*baz"
+        "selser": "*foo {{1x|bar\n}}ge6ryx\n\n*baz"
     },
     "Template with invalid target containing tags [2]": {
-        "selser": "6m3b6y\n\n{{a<b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
+        "selser": "6m3b6y\n\n{{a<b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}|a = b}}"
     },
     "Template with invalid target containing tags [[3,3,3,0,4,0,2,0,0]]": {
-        "selser": "{{echo|foo}}napzwa{{echo|a}}iofwsk={{echo|b}}|a =b}}"
+        "selser": "{{1x|foo}}napzwa{{1x|a}}iofwsk={{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[3,[4],2,0,0,0,3,0,0]]": {
-        "selser": "<b>1xxs67g</b>uckcy2|{{echo|foo}}|{{echo|a}}{{echo|b}}|a =b}}"
+        "selser": "<b>1xxs67g</b>uckcy2|{{1x|foo}}|{{1x|a}}{{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [1]": {
-        "selser": "<nowiki>{{a</nowiki><b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a =b}}"
+        "selser": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[2,[2],4,0,2,0,0,0,0]]": {
-        "selser": "<nowiki>9xe14n{{a</nowiki><b>eohk8ob</b>60vmj7{{echo|foo}}1i8dgjo|{{echo|a}}={{echo|b}}|a =b}}"
+        "selser": "<nowiki>9xe14n{{a</nowiki><b>eohk8ob</b>60vmj7{{1x|foo}}1i8dgjo|{{1x|a}}={{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[0,[2],2,0,0,0,3,0,0]]": {
-        "selser": "<nowiki>{{a</nowiki><b>1orfzvwb</b>1k84mlk|{{echo|foo}}|{{echo|a}}{{echo|b}}|a =b}}"
+        "selser": "<nowiki>{{a</nowiki><b>1orfzvwb</b>1k84mlk|{{1x|foo}}|{{1x|a}}{{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[0,2,0,0,0,0,4,0,0]]": {
-        "selser": "<nowiki>{{aruce93</nowiki><b>b</b>|{{echo|foo}}|{{echo|a}}1klwcjt{{echo|b}}|a =b}}"
+        "selser": "<nowiki>{{aruce93</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}1klwcjt{{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[2,0,0,0,4,0,0,0,0]]": {
-        "selser": "<nowiki>9lhhf6{{a</nowiki><b>b</b>|{{echo|foo}}10rdcyk{{echo|a}}={{echo|b}}|a =b}}"
+        "selser": "<nowiki>9lhhf6{{a</nowiki><b>b</b>|{{1x|foo}}10rdcyk{{1x|a}}={{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[0,0,4,0,0,0,0,0,0]]": {
-        "selser": "<nowiki>{{a</nowiki><b>b</b>112xyy0{{echo|foo}}|{{echo|a}}={{echo|b}}|a =b}}"
+        "selser": "<nowiki>{{a</nowiki><b>b</b>112xyy0{{1x|foo}}|{{1x|a}}={{1x|b}}|a =b}}"
     },
     "Template with invalid target containing tags [[4,1,0,0,4,0,3,0,0]]": {
-        "selser": "t9hq36<b data-foobar=\"ngjfip\">b</b>|{{echo|foo}}hc4wv8{{echo|a}}{{echo|b}}|a =b}}"
+        "selser": "t9hq36<b data-foobar=\"ngjfip\">b</b>|{{1x|foo}}hc4wv8{{1x|a}}{{1x|b}}|a =b}}"
     },
     "Template with invalid target containing wikilink [2]": {
         "selser": "gmc0h9\n\n{{[[Main Page]]}}"
@@ -3867,94 +3867,94 @@
         "selser": "\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,3]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[0,2]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|foo<!--1lo6yer-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|foo<!--1lo6yer-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,1]": {
-        "selser": "{{echo|}}{| width=\"100%\" data-foobar=\"d5ck45\"\n|foo\n|}"
+        "selser": "{{1x|}}{| width=\"100%\" data-foobar=\"d5ck45\"\n|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[[2]],3]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|1lr4bk8foo\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|1lr4bk8foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[4,[4,2]]]": {
-        "selser": "{{echo|}}{| width = '100%'<!--1p4haoj--><!--1ifk60g--><!--1tu056n-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'<!--1p4haoj--><!--1ifk60g--><!--1tu056n-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[4,[2,0]]]": {
-        "selser": "{{echo|}}{| width = '100%'<!--hxenqc--><!--xbh46y-->\n|foo\n|}"
+        "selser": "{{1x|}}{| width = '100%'<!--hxenqc--><!--xbh46y-->\n|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[4,[3,0]]]": {
-        "selser": "{{echo|}}{| width = '100%'<!--qmxjva-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'<!--qmxjva-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,2]": {
-        "selser": "{{echo|}}16d54ej\n{| width = '100%'\n|foo\n|}"
+        "selser": "{{1x|}}16d54ej\n{| width = '100%'\n|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[4,[[1],4]]]": {
-        "selser": "{{echo|}}{| width = '100%'<!--rsu6we-->\n| data-foobar=\"1qt3mgp\" |foo<!--1n7ytsm-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'<!--rsu6we-->\n| data-foobar=\"1qt3mgp\" |foo<!--1n7ytsm-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,1]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|foo\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[3],0]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[1,4]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|foo<!--12a4fih-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|foo<!--12a4fih-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[3],3]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[2,0]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n<!--19woy9y-->|foo\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n<!--19woy9y-->|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[[3]],3]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[4,0]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n<!--19hnpm1-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n<!--19hnpm1-->\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[3,[1,0]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n|foo\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n|foo\n|}"
     },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR [0,[0,[[1],4]]]": {
-        "selser": "{{echo|}}{| width = '100%'\n| data-foobar=\"bz5rz9\" |foo<!--4qz9ay-->\n|}"
+        "selser": "{{1x|}}{| width = '100%'\n| data-foobar=\"bz5rz9\" |foo<!--4qz9ay-->\n|}"
     },
     "Templates: HTML Tag: 2. Generation of HTML attr. value [[4]]": {
-        "selser": "<div style={{echo|'color:red;'}}>st8w6k</div>"
+        "selser": "<div style={{1x|'color:red;'}}>st8w6k</div>"
     },
     "Templates: HTML Tag: 2. Generation of HTML attr. value [[3]]": {
-        "selser": "<div style={{echo|'color:red;'}}></div>"
+        "selser": "<div style={{1x|'color:red;'}}></div>"
     },
     "Templates: HTML Tag: 2. Generation of HTML attr. value [2]": {
-        "selser": "j1h7tb<div style={{echo|'color:red;'}}>foo</div>"
+        "selser": "j1h7tb<div style={{1x|'color:red;'}}>foo</div>"
     },
     "Templates: HTML Tag: 2. Generation of HTML attr. value [[2]]": {
-        "selser": "<div style={{echo|'color:red;'}}>1t5bf2jfoo</div>"
+        "selser": "<div style={{1x|'color:red;'}}>1t5bf2jfoo</div>"
     },
     "Templates: HTML Tag: 3. Generation of HTML attr key and value [2]": {
-        "selser": "pdx0f1<div {{echo|style}}={{echo|'color:red;'}}>foo</div>"
+        "selser": "pdx0f1<div {{1x|style}}={{1x|'color:red;'}}>foo</div>"
     },
     "Templates: HTML Tag: 3. Generation of HTML attr key and value [[2]]": {
-        "selser": "<div {{echo|style}}={{echo|'color:red;'}}>or4lrdfoo</div>"
+        "selser": "<div {{1x|style}}={{1x|'color:red;'}}>or4lrdfoo</div>"
     },
     "Templates: HTML Tag: 3. Generation of HTML attr key and value [[3]]": {
-        "selser": "<div {{echo|style}}={{echo|'color:red;'}}></div>"
+        "selser": "<div {{1x|style}}={{1x|'color:red;'}}></div>"
     },
     "Templates: HTML Tag: 3. Generation of HTML attr key and value [[4]]": {
-        "selser": "<div {{echo|style}}={{echo|'color:red;'}}>1olq5ql</div>"
+        "selser": "<div {{1x|style}}={{1x|'color:red;'}}>1olq5ql</div>"
     },
     "Templates: HTML Tag: 9. Multiple template-generated attributes [2]": {
-        "selser": "p24rfu<div {{echo|1=id=\"v1\" title=\"foo\"}}>bar</div>"
+        "selser": "p24rfu<div {{1x|1=id=\"v1\" title=\"foo\"}}>bar</div>"
     },
     "Templates: HTML Tag: 9. Multiple template-generated attributes [[4]]": {
-        "selser": "<div {{echo|1=id=\"v1\" title=\"foo\"}}>le9cq8</div>"
+        "selser": "<div {{1x|1=id=\"v1\" title=\"foo\"}}>le9cq8</div>"
     },
     "Templates: HTML Tag: 9. Multiple template-generated attributes [[2]]": {
-        "selser": "<div {{echo|1=id=\"v1\" title=\"foo\"}}>1bxu541bar</div>"
+        "selser": "<div {{1x|1=id=\"v1\" title=\"foo\"}}>1bxu541bar</div>"
     },
     "Templates: HTML Tag: 9. Multiple template-generated attributes [[3]]": {
-        "selser": "<div {{echo|1=id=\"v1\" title=\"foo\"}}></div>"
+        "selser": "<div {{1x|1=id=\"v1\" title=\"foo\"}}></div>"
     },
     "Templates: HTML Tables: 5. Proper fostering of categories from inside [0,4,3,3,0,0,3,1]": {
         "selser": "\n19h1ld5\n\n<table data-foobar=\"exxatp\">[[Category:bar1]][[Category:bar2]]<tr><td>foo</td></tr></table>"
@@ -4032,10 +4032,10 @@
         "selser": "[[File:Foobar.jpg|thumb|float|left|caption]]r3ecic\n\n[[File:Foobar.jpg|thumb|righ]]\n\n[[File:Foobar.jpg|bogus1|thumb|bogus2|left|bogus3|caption]]"
     },
     "Render invalid page names as plain text (T53090) [2,4,[4,0,0,0,0,0,0,0,0,0,3,0,0,0,2,0,4,0,0,0,0,0,4]]": {
-        "selser": "qotbd7\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n124i42d\n\n1kvpep{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}|bar]]\n[[{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}]]\n[[{{echo|foo>bar}}{{echo|foo././bar}}]]\n[[{{echo|foo{bar}}ray2sa]]\n[[{{echo|foo}bar}}6gtjnj{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}1baix6o"
+        "selser": "qotbd7\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n124i42d\n\n1kvpep{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}ray2sa]]\n[[{{1x|foo}bar}}6gtjnj{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}1baix6o"
     },
     "Render invalid page names as plain text (T53090) [0,0,[4,0,0,0,2,0,0,0,3,0,0,0,0,0,4,0,0,0,0,0,0,0,2]]": {
-        "selser": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n1cpfkcv{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}yrz3yc|bar]]\n[[{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}{{echo|foo>bar}}]]\n[[{{echo|foo././bar}}]]\n[[{{echo|foo{bar}}1vcbz01{{echo|foo}bar}}]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}tpybk4]]"
+        "selser": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n1cpfkcv{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}yrz3yc|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}1vcbz01{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}tpybk4]]"
     },
     "Render invalid page names as plain text (T53090) [2,2,4]": {
         "selser": "1cqndhq\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n1m64qc8\n\n1w5jbhp"
@@ -4044,13 +4044,13 @@
         "selser": "1miybq4\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n1v0vumv"
     },
     "Render invalid page names as plain text (T53090) [0,3,[3,0,0,0,3,0,3,0,0,0,4,0,4,0,4,0,3,0,3,0,0,0,0]]": {
-        "selser": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}{{echo|foo/..}}{{echo|foo~~~~bar}}]]\n[[{{echo|foo>bar}}1369k38{{echo|foo././bar}}1s2pdje{{echo|foo{bar}}kc7br8{{echo|foo}bar}}{{echo|foo[bar}}{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]"
+        "selser": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}{{1x|foo/..}}{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}1369k38{{1x|foo././bar}}1s2pdje{{1x|foo{bar}}kc7br8{{1x|foo}bar}}{{1x|foo[bar}}{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
     },
     "Render invalid page names as plain text (T53090) [2,2,2]": {
-        "selser": "1p7ag6r\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\nzgbtfl\n\n1s6qnfr\n\n[[{{echo|./../foo}}|bar]]\n[[{{echo|foo/.}}|bar]]\n[[{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}]]\n[[{{echo|foo>bar}}]]\n[[{{echo|foo././bar}}]]\n[[{{echo|foo{bar}}]]\n[[{{echo|foo}bar}}]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]"
+        "selser": "1p7ag6r\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\nzgbtfl\n\n1s6qnfr\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
     },
     "Render invalid page names as plain text (T53090) [2,0,[0,0,4,0,4,0,0,0,4,0,2,0,2,0,0,0,2,0,0,0,0,0,0]]": {
-        "selser": "1ys83ti\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{echo|./../foo}}3vtcxh{{echo|foo/.}}17795w{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}nbklz1{{echo|foo>bar}}1jbv0hg]]\n[[{{echo|foo././bar}}zoqgl4]]\n[[{{echo|foo{bar}}]]\n[[{{echo|foo}bar}}nhq2qs]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]"
+        "selser": "1ys83ti\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}3vtcxh{{1x|foo/.}}17795w{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}nbklz1{{1x|foo>bar}}1jbv0hg]]\n[[{{1x|foo././bar}}zoqgl4]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}nhq2qs]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
     },
     "3. Categories and newlines: newline suppression for last list item should RT properly [2,3,4,2,2,0,3,2,[3],3,0,0,[1],0,4]": {
         "selser": "q620vp\n*a\n*b\nhhfaih\n\nv4npyx\n   \n1o3h9yi\n[[Category:Bar]]\n1ybvf0r\n\n\n\n[[Category:C]]\n\n;d\n\n17avyym"
@@ -4767,34 +4767,34 @@
         "selser": "520cu8\n{|\n|<small>foo\nbar\n|}\n\n{|<!--1wcfyae-->\n<!--hzgi8f-->|<small>foo<small>\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [1]": {
-        "selser": "{| data-foobar=\"h5cb1o\"\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{| data-foobar=\"h5cb1o\"\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [2]": {
-        "selser": "204y7q\n{|\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "204y7q\n{|\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[0,[[2,0,0,0],0]]]": {
-        "selser": "{|\n|-\n|hssbe0\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|\n|-\n|hssbe0\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[0,[1,4]]]": {
-        "selser": "{|\n|- data-foobar=\"16febr0\"\n|\n|{{echo|style='color:red'}}|foo<!--1fw320c-->\n|}"
+        "selser": "{|\n|- data-foobar=\"16febr0\"\n|\n|{{1x|style='color:red'}}|foo<!--1fw320c-->\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[0,2]]": {
-        "selser": "{|\n<!--17w8mfe-->|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|\n<!--17w8mfe-->|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[4,2]]": {
-        "selser": "{|<!--1r5l00v--><!--n467mo-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|<!--1r5l00v--><!--n467mo-->\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[4,[2,0]]]": {
-        "selser": "{|<!--m5h5v1--><!--1kdmhei-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|<!--m5h5v1--><!--1kdmhei-->\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[0,1]]": {
-        "selser": "{|\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[3,[[0,2,0,0],2]]]": {
-        "selser": "{|\n|-\n|bqbnlp\n|\n|{{echo|style='color:red'}}|foo<!--1rteuuo-->\n|}"
+        "selser": "{|\n|-\n|bqbnlp\n|\n|{{1x|style='color:red'}}|foo<!--1rteuuo-->\n|}"
     },
     "Empty TD followed by TD with tpl-generated attribute [[4,1]]": {
-        "selser": "{|<!--95fu82-->\n|-\n|\n|{{echo|style='color:red'}}|foo\n|}"
+        "selser": "{|<!--95fu82-->\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Indented table with blank lines in between (T85627) [0,[0,[0,2]]]": {
         "selser": " {|\n |foo\n \n <!--1amzorg-->\n |}"
@@ -4893,13 +4893,13 @@
         "selser": "\nlomg0q"
     },
     "T73074: More fostering fun [0,1]": {
-        "selser": "<table data-foobar=\"9cf581\"><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table data-foobar=\"9cf581\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [2,[[[3],0]]]": {
-        "selser": "scse7n\n<table>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "scse7n\n<table>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [3,1]": {
-        "selser": "<table data-foobar=\"nvceso\"><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table data-foobar=\"nvceso\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [2,[4]]": {
         "selser": "lmrcpt\n<table><!--tdercx-->"
@@ -4908,31 +4908,31 @@
         "selser": "qee0jt\n\nw6btke"
     },
     "T73074: More fostering fun [1,[2]]": {
-        "selser": "[[Category:Two]]<table><!--r9jimg--><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "[[Category:Two]]<table><!--r9jimg--><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [0,[1]]": {
-        "selser": "<table><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [0,2]": {
-        "selser": "\n11oow1i<table><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "\n11oow1i<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [3,[1]]": {
-        "selser": "<table><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [0,3]": {
         "selser": ""
     },
     "T73074: More fostering fun [2,1]": {
-        "selser": "1mv3j75\n<table data-foobar=\"xgfqp4\"><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "1mv3j75\n<table data-foobar=\"xgfqp4\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [0,[[[4],0]]]": {
-        "selser": "<table><td>1na3y5x</td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table><td>1na3y5x</td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [3,[[[2],0]]]": {
-        "selser": "<table><td>gaip59</td><td></td>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table><td>gaip59</td><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "T73074: More fostering fun [0,[[[3],0]]]": {
-        "selser": "<table>{{echo|<tr>}}<!--c-->[[Category:Two]]"
+        "selser": "<table>{{1x|<tr>}}<!--c-->[[Category:Two]]"
     },
     "Image: upright option is ignored on inline and frame images (parsoid) [1]": {
         "selser": "[[File:Foobar.jpg|500x500px|upright=0.5|caption]]"

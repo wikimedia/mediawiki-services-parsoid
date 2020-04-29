@@ -56,7 +56,7 @@ class TableFixups {
 	/**
 	 * DOM visitor that strips the double td for this test case:
 	 * ```
-	 * |{{echo|{{!}} Foo}}
+	 * |{{1x|{{!}} Foo}}
 	 * ```
 	 *
 	 * @see https://phabricator.wikimedia.org/T52603

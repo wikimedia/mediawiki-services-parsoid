@@ -269,8 +269,8 @@ class AttributeExpander extends TokenHandler {
 			// -----------------------------------------------------
 			// In either scenario above, we need additional special handling if the
 			// template generates one or more k=v style strings:
-			//    <div {{echo|1=style='color:red''}}></div>
-			//    <div {{echo|1=style='color:red' title='boo'}}></div>
+			//    <div {{1x|1=style='color:red''}}></div>
+			//    <div {{1x|1=style='color:red' title='boo'}}></div>
 			//
 			// Real use case: Template {{ligne grise}} on frwp.
 			//
@@ -279,7 +279,7 @@ class AttributeExpander extends TokenHandler {
 			// and retokenize it to extract one or more attributes.
 			//
 			// But, we won't support scenarios like this:
-			//   {| title={{echo|1='name' style='color:red;'\n|-\n|foo}}\n|}
+			//   {| title={{1x|1='name' style='color:red;'\n|-\n|foo}}\n|}
 			// Here, part of one attribute and additional complete attribute strings
 			// need reparsing, and that isn't a use case that is worth more complexity here.
 			//
@@ -385,7 +385,7 @@ class AttributeExpander extends TokenHandler {
 								}
 							}
 							// SSS FIXME: Collect all keys here, not just the first key
-							// i.e. in a string like {{echo|1=id='v1' title='foo' style='..'}}
+							// i.e. in a string like {{1x|1=id='v1' title='foo' style='..'}}
 							// that string is setting attributes for [id, title, style], not just id.
 							//
 							// That requires the ability for the data-mw.attribs[i].txt to be an array.

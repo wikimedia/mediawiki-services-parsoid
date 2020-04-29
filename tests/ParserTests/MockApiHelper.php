@@ -703,7 +703,7 @@ class MockApiHelper extends ApiHelper {
 	private function parse( string $text, bool $onlypst ) {
 		// We're performing a subst
 		if ( $onlypst ) {
-			return [ 'text' => preg_replace( '/\{\{subst:echo\|([^}]+)\}\}/', '$1', $text, 1 ) ];
+			return [ 'text' => preg_replace( '/\{\{subst:1x\|([^}]+)\}\}/', '$1', $text, 1 ) ];
 		}
 
 		$res = null;
@@ -747,7 +747,7 @@ class MockApiHelper extends ApiHelper {
 		// These are the only known templates in current parser tests.
 		// This would need to be updated as more templates are added OR we need
 		// to rely on true (instead of mock) preprocessing.
-		preg_match( '/{{echo\|(.*?)}}/', $text, $match );
+		preg_match( '/{{1x\|(.*?)}}/', $text, $match );
 		if ( $match ) {
 			return [ 'wikitext' => $match[1] ];
 		} elseif ( $text === '{{colours of the rainbow}}' ) {

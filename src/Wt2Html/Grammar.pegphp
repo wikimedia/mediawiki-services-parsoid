@@ -1878,9 +1878,9 @@ inlineline_break_on_colon =
  * Example 2:
  *
  * [[Image:Foo.jpg|left|30px|Example 1
- * {{echo|a}}
+ * {{1x|a}}
  * |foo
- * {{echo|b}}
+ * {{1x|b}}
  * ]]
  *
  * So, we cannot know a priori (without preprocessing or fully expanding

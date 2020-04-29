@@ -109,9 +109,9 @@ class HeadingsTest extends TestCase {
 		return [
 			[ [ '=This is a [[Link]]=', 'This_is_a_Link' ] ],
 			[ [ "=Some '''bold''' and '''italic''' text=", 'Some_bold_and_italic_text' ] ],
-			[ [ "=Some {{echo|transclusion}} here=", 'Some_transclusion_here' ] ]
+			[ [ "=Some {{1x|transclusion}} here=", 'Some_transclusion_here' ] ]
 /* 	PORT-FIXME this is a bug in the template handler for nested templates
-			[ [ "={{echo|a and ''b'' and [[c]] and {{echo|d}} and e}}=", "a_and_b_and_c_and_d_and_e" ] ],
+			[ [ "={{1x|a and ''b'' and [[c]] and {{1x|d}} and e}}=", "a_and_b_and_c_and_d_and_e" ] ],
 */
 /*  PORT-FIXME this test depends on missing mock environment code
 			[ [ "=Some {{convert|1|km}} here=", [ "Some_1_kilometre_(0.62_mi)_here",

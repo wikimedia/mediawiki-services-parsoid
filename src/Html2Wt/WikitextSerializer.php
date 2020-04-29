@@ -279,7 +279,7 @@ class WikitextSerializer {
 				 // will be returned here. This is used to suppress the =".."
 				 // string in the attribute in scenarios where the template
 				 // generates a "k=v" string.
-				 // Ex: <div {{echo|1=style='color:red'}}>foo</div>
+				 // Ex: <div {{1x|1=style='color:red'}}>foo</div>
 				 && $attr[1]->html !== null
 			) {
 				return $this->htmlToWikitext( [

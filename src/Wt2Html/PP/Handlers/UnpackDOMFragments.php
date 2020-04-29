@@ -344,7 +344,7 @@ class UnpackDOMFragments {
 			// Post fixup, its children will surface to the encapsulation wrapper level.
 			// So, we have to fix them up so they dont break the encapsulation.
 			//
-			// Ex: {{echo|[http://foo.com This is [[bad]], very bad]}}
+			// Ex: {{1x|[http://foo.com This is [[bad]], very bad]}}
 			//
 			// In this example, the <a> corresponding to Foo is fragmentParent and has an about.
 			// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup

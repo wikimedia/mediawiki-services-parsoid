@@ -102,7 +102,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	public function testSerialize_captureOffsets_expandedAttrs() {
 		$html = '<html><head><title>hi</title><body>'
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			. '<div style="color:red" about="#mwt2" typeof="mw:ExpandedAttrs" id="mwAQ" data-mw=\'{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[12,30,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;color:red&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">color:red&lt;/span>"}]]}\'>boo</div>'
+			. '<div style="color:red" about="#mwt2" typeof="mw:ExpandedAttrs" id="mwAQ" data-mw=\'{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[12,30,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;1x&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:1x&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;color:red&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">color:red&lt;/span>"}]]}\'>boo</div>'
 			. '<p id="mwAg">next!</p>'
 			. '</body></html>';
 		$doc = new DOMDocument();
@@ -113,8 +113,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
 		$this->assertArrayHasKey( 'mwAg', $ret['offsets'] );
-		$this->assertSame( [ 0, 684 ], $ret['offsets']['mwAQ']['html'] );
-		$this->assertSame( [ 684, 706 ], $ret['offsets']['mwAg']['html'] );
+		$this->assertSame( [ 0, 680 ], $ret['offsets']['mwAQ']['html'] );
+		$this->assertSame( [ 680, 702 ], $ret['offsets']['mwAg']['html'] );
 	}
 
 	/**

@@ -324,7 +324,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
@@ -335,7 +335,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
@@ -351,7 +351,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"')  // Keep this on the older version
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
@@ -362,7 +362,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')  // Keep this on the older version
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
@@ -391,7 +391,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
@@ -402,7 +402,7 @@ describe('Parsoid API', function() {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
-			.send({ wikitext: '{{echo|hi}}' })
+			.send({ wikitext: '{{1x|hi}}' })
 			.expect(200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In 999.x, data-mw is in the pagebundle.
@@ -882,7 +882,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/plain;profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"',
 						},
-						body: "{{echo|foo|bar=bat}}",
+						body: "{{1x|foo|bar=bat}}",
 					},
 				},
 			})
@@ -891,7 +891,7 @@ describe('Parsoid API', function() {
 				var p = doc.querySelector('P[typeof="mw:Transclusion"]');
 				var dmw = JSON.parse(p.getAttribute('data-mw'));
 				var template = dmw.parts[0].template;
-				template.target.wt.should.equal('echo');
+				template.target.wt.should.equal('1x');
 				template.params[1].wt.should.equal('foo');
 				template.params.bar.wt.should.equal('bat');
 			}))
@@ -963,7 +963,7 @@ describe('Parsoid API', function() {
 		it("should implement subst - simple", function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send({ wikitext: "{{echo|foo}}", subst: 'true' })
+			.send({ wikitext: "{{1x|foo}}", subst: 'true' })
 			.expect(validHtmlResponse(function(doc) {
 				var body = doc.body;
 				// <body> should have one child, <section>, the lead section
@@ -982,7 +982,7 @@ describe('Parsoid API', function() {
 		it("should implement subst - internal tranclusion", function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send({ wikitext: "{{echo|foo {{echo|bar}} baz}}", subst: 'true' })
+			.send({ wikitext: "{{1x|foo {{1x|bar}} baz}}", subst: 'true' })
 			.expect(validHtmlResponse(function(doc) {
 				var body = doc.body;
 				// <body> should have one child, <section>, the lead section
@@ -1006,7 +1006,7 @@ describe('Parsoid API', function() {
 		it('should not allow subst with pagebundle', function(done) {
 			request(api)
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.send({ wikitext: "{{echo|foo}}", subst: 'true' })
+			.send({ wikitext: "{{1x|foo}}", subst: 'true' })
 			.expect(501)
 			.end(done);
 		});

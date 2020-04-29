@@ -87,7 +87,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		$expandable = false;
 		if ( $mightAddSpan ) {
 			// See if we can expand the range to the parent node.
-			// Eliminates useless spanning of wikitext of the form: {{echo|foo}}
+			// Eliminates useless spanning of wikitext of the form: {{1x|foo}}
 			// where the the entire template content is contained in a paragraph.
 			$contentParent = $range->start->parentNode;
 			$expandable = $contentParent->nodeName === 'p' &&
@@ -1126,7 +1126,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				// because wikitext errors can lead to parse failures and no tsr
 				// on end-meta-tags.
 				//
-				// Ex: "<ref>{{echo|bar}}<!--bad-></ref>"
+				// Ex: "<ref>{{1x|bar}}<!--bad-></ref>"
 				if ( $metaType !== null &&
 					( !empty( DOMDataUtils::getDataParsoid( $elem )->tsr ) ||
 						preg_match( '#/End$#D', $metaType )
@@ -1161,13 +1161,13 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 							 * Simplest example:
 							 *
 							 *   {|
-							 *   {{echo|foo}}
+							 *   {{1x|foo}}
 							 *   |}
 							 *
 							 * More complex example:
 							 *
 							 *   {|
-							 *   {{echo|
+							 *   {{1x|
 							 *   a
 							 *    b
 							 *
