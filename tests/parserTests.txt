@@ -123,6 +123,12 @@ Template:echo
 !! endarticle
 
 !! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! article
 Template:echo3
 !! text
 {{{1}}}

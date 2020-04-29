@@ -12,6 +12,12 @@ Template:echo
 !! endarticle
 
 !! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! article
 Template:refinref
 !! text
 <ref>ho</ref>
