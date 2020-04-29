@@ -233,12 +233,12 @@ class SiteConfig extends ISiteConfig {
 		foreach ( $data['languagevariants'] as $base => $variants ) {
 			if ( $this->siteData['langconversion'] ) {
 				$this->langConverterEnabled[$base] = true;
-			}
-			foreach ( $variants as $code => $vdata ) {
-				$this->variants[$code] = [
-					'base' => $base,
-					'fallbacks' => $vdata['fallbacks'],
-				];
+				foreach ( $variants as $code => $vdata ) {
+					$this->variants[$code] = [
+						'base' => $base,
+						'fallbacks' => $vdata['fallbacks'],
+					];
+				}
 			}
 		}
 
