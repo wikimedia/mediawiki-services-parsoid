@@ -48,6 +48,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var int */
 	private $maxDepth = 40;
 
+	/** @var string|null */
+	private $linkPrefixRegex = null;
+
 	/**
 	 * @param array $opts
 	 */
@@ -60,17 +63,12 @@ class MockSiteConfig extends SiteConfig {
 		if ( isset( $opts['linting'] ) ) {
 			$this->linterEnabled = $opts['linting'];
 		}
-		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
-
-		if ( isset( $opts['linkPrefixRegex'] ) ) {
-			$this->linkPrefixRegex = $opts['linkPrefixRegex'];
-		}
-		if ( isset( $opts['linkTrailRegex'] ) ) {
-			$this->linkTrailRegex = $opts['linkTrailRegex'];
-		}
 		if ( isset( $opts['maxDepth'] ) ) {
 			$this->maxDepth = $opts['maxDepth'];
 		}
+		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
+		$this->linkPrefixRegex = $opts['linkPrefixRegex'] ?? null;
+		$this->linkTrailRegex = $opts['linkTrailRegex'] ?? '/^([a-z]+)/sD'; // enwiki default
 
 		// Use Monolog's PHP console handler
 		$logger = new Logger( "Parsoid CLI" );
@@ -175,13 +173,15 @@ class MockSiteConfig extends SiteConfig {
 		return ' %!"$&\'()*,\-.\/0-9:;=?@A-Z\\\\^_`a-z~\x80-\xFF+';
 	}
 
-	private $linkPrefixRegex = null;
-
 	public function linkPrefixRegex(): ?string {
 		return $this->linkPrefixRegex;
 	}
 
-	private $linkTrailRegex = '/^([a-z]+)/sD'; // enwiki default
+	protected function linkTrail(): string {
+		throw new \BadMethodCallException(
+			'Should not be used. linkTrailRegex() is overridden here.' );
+	}
+
 	public function linkTrailRegex(): ?string {
 		return $this->linkTrailRegex;
 	}

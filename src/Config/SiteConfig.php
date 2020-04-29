@@ -34,6 +34,14 @@ abstract class SiteConfig {
 	private $mwAliases, $variables, $functionHooks;
 
 	/**
+	 * FIXME: not private so that ParserTests can reset these variables
+	 * since they reuse site config and other objects between tests for
+	 * efficiency reasons.
+	 * @var string|null|bool
+	 */
+	protected $linkTrailRegex = false;
+
+	/**
 	 * These "extensions" are considered to provide "core" functionality
 	 * and their implementations live in the Parsoid repo.
 	 *
@@ -487,10 +495,28 @@ abstract class SiteConfig {
 	abstract public function linkPrefixRegex(): ?string;
 
 	/**
+	 * Return raw link trail regexp from config
+	 * @return string
+	 */
+	abstract protected function linkTrail(): string;
+
+	/**
 	 * Link trail regular expression.
 	 * @return string|null
 	 */
-	abstract public function linkTrailRegex(): ?string;
+	public function linkTrailRegex(): ?string {
+		if ( $this->linkTrailRegex === false ) {
+			$trail = $this->linkTrail();
+			$trail = str_replace( '(.*)$', '', $trail );
+			if ( strpos( $trail, '()' ) !== false ) {
+				// Empty regex from zh-hans
+				$this->linkTrailRegex = null;
+			} else {
+				$this->linkTrailRegex = $trail;
+			}
+		}
+		return $this->linkTrailRegex;
+	}
 
 	/**
 	 * Wiki language code.

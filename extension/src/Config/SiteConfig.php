@@ -51,9 +51,6 @@ class SiteConfig extends ISiteConfig {
 	/** @var string|null */
 	private $baseUri, $relativeLinkPrefix;
 
-	/** @var string|null|bool */
-	private $linkTrailRegex = false;
-
 	/** @var array|null */
 	private $interwikiMap, $variants;
 
@@ -361,18 +358,9 @@ class SiteConfig extends ISiteConfig {
 		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/Du';
 	}
 
-	public function linkTrailRegex(): ?string {
-		if ( $this->linkTrailRegex === false ) {
-			$trail = $this->contLang->linkTrail();
-			$trail = str_replace( '(.*)$', '', $trail );
-			if ( strpos( $trail, '()' ) !== false ) {
-				// Empty regex from zh-hans
-				$this->linkTrailRegex = null;
-			} else {
-				$this->linkTrailRegex = $trail;
-			}
-		}
-		return $this->linkTrailRegex;
+	/** inheritDoc */
+	protected function linkTrail(): string {
+		return $this->contLang->linkTrail();
 	}
 
 	public function lang(): string {

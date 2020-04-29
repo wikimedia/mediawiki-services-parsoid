@@ -34,9 +34,6 @@ class SiteConfig extends ISiteConfig {
 	/** @var string */
 	private $savedCategoryRegexp, $savedRedirectRegexp, $savedBswRegexp;
 
-	/** @var string|null|bool */
-	private $linkTrailRegex = false;
-
 	/** @phan-var array<int,string> */
 	protected $nsNames = [], $nsCase = [];
 
@@ -115,10 +112,10 @@ class SiteConfig extends ISiteConfig {
 
 	protected function reset() {
 		$this->siteData = null;
-		$this->linkTrailRegex = false;
 		$this->baseUri = null;
 		$this->relativeLinkPrefix = null;
 		// Superclass value reset since parsertests reuse SiteConfig objects
+		$this->linkTrailRegex = false;
 		$this->magicWordMap = null;
 	}
 
@@ -430,19 +427,10 @@ class SiteConfig extends ISiteConfig {
 		}
 	}
 
-	public function linkTrailRegex(): ?string {
-		if ( $this->linkTrailRegex === false ) {
-			$this->loadSiteData();
-			$trail = $this->siteData['linktrail'];
-			$trail = str_replace( '(.*)$', '', $trail );
-			if ( strpos( $trail, '()' ) !== false ) {
-				// Empty regex from zh-hans
-				$this->linkTrailRegex = null;
-			} else {
-				$this->linkTrailRegex = $trail;
-			}
-		}
-		return $this->linkTrailRegex;
+	/** inheritDoc */
+	protected function linkTrail(): string {
+		$this->loadSiteData();
+		return $this->siteData['linktrail'];
 	}
 
 	public function lang(): string {
