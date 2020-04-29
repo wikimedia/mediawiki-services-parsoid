@@ -6,12 +6,6 @@ references
 !! endhooks
 
 !! article
-Template:echo
-!! text
-{{{1}}}
-!! endarticle
-
-!! article
 Template:1x
 !! text
 {{{1}}}
@@ -1038,7 +1032,7 @@ A <ref name="constructor">foo</ref>
 Ref: 5. body should accept generic wikitext
 !! wikitext
 A <ref>
- This is a '''[[bolded link]]''' and this is a {{echo|transclusion}}
+ This is a '''[[bolded link]]''' and this is a {{1x|transclusion}}
 </ref>
 
 <references />
@@ -1046,7 +1040,7 @@ A <ref>
 <p>A <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> This is a <b><a rel="mw:WikiLink" href="./Bolded_link" title="Bolded link">bolded link</a></b> and this is a <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"transclusion"}},"i":0}}]}'>transclusion</span>
+<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> This is a <b><a rel="mw:WikiLink" href="./Bolded_link" title="Bolded link">bolded link</a></b> and this is a <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"transclusion"}},"i":0}}]}'>transclusion</span>
 </span></li>
 </ol>
 !! end
@@ -1112,13 +1106,13 @@ booz
 !! test
 Ref: 8. transclusion wikitext has lower precedence
 !! wikitext
-A <ref> foo {{echo|</ref> B C}}
+A <ref> foo {{1x|</ref> B C}}
 
 <references />
 !! html/parsoid
 <p>A <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></sup> B C}}</p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> foo {{echo|</span></li>
+<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> foo {{1x|</span></li>
 </ol>
 !! end
 
@@ -1269,22 +1263,22 @@ Ref: 18. T58916: Extension attributes should be parsed as plain text
 !! config
 wgFragmentMode=[ 'html5', 'legacy' ]
 !! wikitext
-<ref name="{{echo|a}}">foo</ref>
+<ref name="{{1x|a}}">foo</ref>
 
 <references />
 !! html/php
-<p><sup id="cite_ref-&#123;&#123;echo&#124;a&#125;&#125;_1-0" class="reference"><a href="#cite_note-{{echo|a}}-1">&#91;1&#93;</a></sup>
+<p><sup id="cite_ref-&#123;&#123;1x&#124;a&#125;&#125;_1-0" class="reference"><a href="#cite_note-{{1x|a}}-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-&#123;&#123;echo&#124;a&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-{{echo|a}}_1-0">↑</a></span> <span class="reference-text">foo</span>
+<li id="cite_note-&#123;&#123;1x&#124;a&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-{{1x|a}}_1-0">↑</a></span> <span class="reference-text">foo</span>
 </li>
 </ol></div>
 !! html/parsoid
-<p><sup class="mw-ref" id="cite_ref-{{echo|a}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"{{echo|a}}"},"body":{"id":"mw-reference-text-cite_note-{{echo|a}}-1"}}'><a href="./Parser_test#cite_note-{{echo|a}}-1"><span class="mw-reflink-text">[1]</span></a></sup>
+<p><sup class="mw-ref" id="cite_ref-{{1x|a}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"{{1x|a}}"},"body":{"id":"mw-reference-text-cite_note-{{1x|a}}-1"}}'><a href="./Parser_test#cite_note-{{1x|a}}-1"><span class="mw-reflink-text">[1]</span></a></sup>
 </p>
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_ref-{{echo|a}}_1-1" id="cite_note-{{echo|a}}-1"><a href="./Parser_test#cite_ref-{{echo|a}}_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-{{echo|a}}-1" class="mw-reference-text">foo</span></li>
+<li about="#cite_ref-{{1x|a}}_1-1" id="cite_note-{{1x|a}}-1"><a href="./Parser_test#cite_ref-{{1x|a}}_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-{{1x|a}}-1" class="mw-reference-text">foo</span></li>
 </ol>
 !! end
 
@@ -1484,7 +1478,7 @@ B <sup about="#mwt4" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" type
 !! test
 References: 6. <references /> from a transclusion
 !! wikitext
-<ref>Foo</ref> {{echo|<references />}}
+<ref>Foo</ref> {{1x|<references />}}
 !! html/php+untidy
 <sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
@@ -1496,7 +1490,7 @@ References: 6. <references /> from a transclusion
 </li>
 </ol></div>
 !! html/parsoid
-<p><sup about="#mwt6" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup> </p><ol class="mw-references references" typeof="mw:Extension/references mw:Transclusion" about="#mwt3" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">Foo</span></li></ol>
+<p><sup about="#mwt6" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup> </p><ol class="mw-references references" typeof="mw:Extension/references mw:Transclusion" about="#mwt3" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">Foo</span></li></ol>
 
 !! end
 
@@ -1528,10 +1522,10 @@ B <sup about="#mwt4" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" type
 !! test
 References: 8. T88019: Remove <meta>s from templates inside <ref> that's itself inside a template
 !! wikitext
-X{{echo|<ref>foo {{echo|<b>bar</b>}} and {{echo|baz}} boo</ref>}}
+X{{1x|<ref>foo {{1x|<b>bar</b>}} and {{1x|baz}} boo</ref>}}
 <references />
 !! html/parsoid
-<p>X<sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"&lt;ref>foo {{echo|&lt;b>bar&lt;/b>}} and {{echo|baz}} boo&lt;/ref>"}},"i":0}}]}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span></p>
+<p>X<sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Transclusion  mw:Extension/ref" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;ref>foo {{1x|&lt;b>bar&lt;/b>}} and {{1x|baz}} boo&lt;/ref>"}},"i":0}}]}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></span></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo <b data-parsoid='{"stx":"html"}'>bar</b> and baz boo</span></li>
 </ol>
 !! end
@@ -1592,19 +1586,19 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! options
 parsoid=wt2html,html2html
 !! wikitext
-<ref name="test &amp; me {{echo|foo}}">hi</ref>
+<ref name="test &amp; me {{1x|foo}}">hi</ref>
 <references />
 !! html/php
-<p><sup id="cite_ref-test_&amp;_me_&#123;&#123;echo&#124;foo&#125;&#125;_1-0" class="reference"><a href="#cite_note-test_&amp;_me_{{echo|foo}}-1">&#91;1&#93;</a></sup>
+<p><sup id="cite_ref-test_&amp;_me_&#123;&#123;1x&#124;foo&#125;&#125;_1-0" class="reference"><a href="#cite_note-test_&amp;_me_{{1x|foo}}-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-test_&amp;_me_&#123;&#123;echo&#124;foo&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-test_&amp;_me_{{echo|foo}}_1-0">↑</a></span> <span class="reference-text">hi</span>
+<li id="cite_note-test_&amp;_me_&#123;&#123;1x&#124;foo&#125;&#125;-1"><span class="mw-cite-backlink"><a href="#cite_ref-test_&amp;_me_{{1x|foo}}_1-0">↑</a></span> <span class="reference-text">hi</span>
 </li>
 </ol></div>
 !! html/parsoid
-<p><sup about="#mwt2" class="mw-ref" id="cite_ref-test_&amp;_me_{{echo|foo}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test &amp; me {{echo|foo}}"},"body":{"id":"mw-reference-text-cite_note-test_&amp;_me_{{echo|foo}}-1"}}'><a href="./Parser_test#cite_note-test_&amp;_me_{{echo|foo}}-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-test_&amp;_me_{{1x|foo}}_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test &amp; me {{1x|foo}}"},"body":{"id":"mw-reference-text-cite_note-test_&amp;_me_{{1x|foo}}-1"}}'><a href="./Parser_test#cite_note-test_&amp;_me_{{1x|foo}}-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-test_&amp;_me_{{echo|foo}}-1" id="cite_note-test_&amp;_me_{{echo|foo}}-1"><a href="./Parser_test#cite_ref-test_&amp;_me_{{echo|foo}}_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-test_&amp;_me_{{echo|foo}}-1" class="mw-reference-text">hi</span></li>
+<li about="#cite_note-test_&amp;_me_{{1x|foo}}-1" id="cite_note-test_&amp;_me_{{1x|foo}}-1"><a href="./Parser_test#cite_ref-test_&amp;_me_{{1x|foo}}_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-test_&amp;_me_{{1x|foo}}-1" class="mw-reference-text">hi</span></li>
 </ol>
 !! end
 
@@ -1795,11 +1789,11 @@ parsoid={
 !! wikitext
 test <ref>123</ref>
 
-{{echo|haha<references/>}}
+{{1x|haha<references/>}}
 !! html/parsoid
 <p>test <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
-<p about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"echo","href":"./Template:Echo"},"params":{"1":{"wt":"haha&lt;references/>"}},"i":0}}]}'>haha</p><div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">123</span></li></ol></div>
+<p about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"haha&lt;references/>"}},"i":0}}]}'>haha</p><div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">123</span></li></ol></div>
 !! end
 
 ## End Parsoid responsive references tests
@@ -2032,12 +2026,12 @@ Transclusion parameter spacing is lost without data-parsoid
 !! options
 parsoid=wt2wt
 !! wikitext
-<ref>{{echo|
+<ref>{{1x|
 Hi ho
 }}</ref>
 
 <!-- Traverse with an encapsulation where the root isn't a native extension -->
-{{echo|<div><references /></div>}}
+{{1x|<div><references /></div>}}
 !! html/parsoid
 
 !! end
