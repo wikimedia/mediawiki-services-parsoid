@@ -188,4 +188,202 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
+	/**
+	 * @dataProvider provideProtocolMethods
+	 */
+	public function testProtocolMethods( $link, $expectHas, $expectFind ) {
+		$siteConfig = $this->getSiteConfig( [ 'getProtocols' ] );
+		$siteConfig->method( 'getProtocols' )->willReturn( [ 'https' ] );
+
+		$this->assertSame( $expectHas, $siteConfig->hasValidProtocol( $link ) );
+		$this->assertSame( $expectFind, $siteConfig->findValidProtocol( $link ) );
+	}
+
+	public function provideProtocolMethods() {
+		return [
+			[ 'http://wikipedia.org',                       false, false ],
+			[ 'https://wikipedia.org',                      true, true ],
+			[ 'ftp://ftp.something.net',                    false, false ],
+			[ 'something http://wikipedia.org',             false, false ],
+			[ 'something https://wikipedia.org',            false, true ],
+			[ 'something ftp://ftp.something.net',          false, false ],
+			[ 'http://wikipedia.org https://wikipedia.org', false, true ],
+			[ 'https://wikipedia.org http://wikipedia.org', true, true ],
+		];
+	}
+
+	public function mockSpecialPageAlias( $specialPage ) {
+		if ( $specialPage === 'Booksources' ) {
+			return [ 'Booksources', 'BookSources' ]; // Mock value
+		} else {
+			throw new \BadMethodCallException( 'Not implemented' );
+		}
+	}
+
+	/**
+	 * @dataProvider provideGetResourceURLPatternMatcher
+	 */
+	public function testGetResourceURLPatternMatcher( $input, $res ) {
+		// Alternatively, we can construct a MockSiteConfig object and use it since
+		// it delegates all the work of the method under test to the base class.
+		// But, this technique is probably more resilient in case MockSiteConfig changes.
+		$siteConfig = $this->getSiteConfig( [ 'getSpecialNSAliases', 'getSpecialPageAliases' ] );
+		$siteConfig->method( 'getSpecialNSAliases' )->willReturn( [ 'Special', 'special' ] );
+		$siteConfig->method( 'getSpecialPageAliases' )->
+			will( $this->returnCallBack( [ $this, 'mockSpecialPageAlias' ] ) );
+
+		$matcher = $siteConfig->getExtResourceURLPatternMatcher();
+		$this->assertSame( $res, $matcher( $input ) );
+	}
+
+	public function provideGetResourceURLPatternMatcher() {
+		$isbnTests = [
+			[ "Special:BookSources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
+			[ "Special:Booksources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
+			[ "special:BookSources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
+			[ "special:Booksources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
+			[ "Special:BookSources/1234567890x",      [ 'ISBN', '1234567890x' ] ],
+			[ "Special:BookSources/1234567890",       [ 'ISBN', '1234567890' ] ],
+			[ "../Special:BookSources/1234567890",    [ 'ISBN', '1234567890' ] ],
+			[ "../../Special:BookSources/1234567890", [ 'ISBN', '1234567890' ] ],
+			[ "SPECIAL:BOOKSOURCES/1234567890",       [ 'ISBN', '1234567890' ] ], // see the ?i flag
+			[ "Special:BookSources/1234567890Y",      false ],
+			[ "special:boksources/1234567890",        false ],
+			[ "Notspecial:Booksources/1234567890",    false ],
+		];
+		$pmidTests = [
+			[ "//www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",        [ 'PMID', 'covid19' ] ],
+			[ "https://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",  [ 'PMID', 'covid19' ] ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",   [ 'PMID', 'covid19' ] ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19",                 false ],
+			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"
+			[ "foobar://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract", [ 'PMID', 'covid19' ] ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract&something_more",  false ],
+		];
+		$rfcTests = [
+			[ "//tools.ietf.org/html/rfc1234",        [ 'RFC', '1234' ] ],
+			[ "https://tools.ietf.org/html/rfc1234",  [ 'RFC', '1234' ] ],
+			[ "http://tools.ietf.org/html/rfc1234",   [ 'RFC', '1234' ] ],
+			// FIXME T257629: Strange that our code accepts RFCs with "_" and doesn't have more sanity checking
+			// but, magic links are on the way out anyway.
+			[ "http://tools.ietf.org/html/rfc_1234",  [ 'RFC', '_1234' ] ],
+			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"
+			[ "foobar://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "http://tools.ietf.org/html/RFC1234",   false ],
+			[ "http://tools.ietf.org/json/rfc1234",   false ],
+		];
+
+		return array_merge( $isbnTests, $pmidTests, $rfcTests );
+	}
+
+	private function setupMagicWordTestConfig(): SiteConfig {
+		$mws = [
+			"img_lossy"     => [ false, "lossy=$1" ],
+			"numberofwikis" => [ false, "NUMBEROFWIKIS" ], // variable
+			"lcfirst"       => [ false, "LCFIRST:" ], // is a no-hash function hook
+			"expr"          => [ false, "EXPR" ], // function hook with valid hashed version
+			"noglobal"      => [ true, "__NOGLOBAL__" ],
+			"defaultsort"   => [ true, "DEFAULTSORT:", "DEFAULTSORTKEY:", "DEFAULTCATEGORYSORT:" ],
+		];
+		$functionhooks = [ "expr", "lcfirst" ];
+		$vars = [ "numberofwikis" ];
+		$siteConfig = $this->getSiteConfig( [
+			'getMagicWords', 'getFunctionHooks', 'getVariableIDs'
+		] );
+		$siteConfig->method( 'getMagicWords' )->willReturn( $mws );
+		$siteConfig->method( 'getFunctionHooks' )->willReturn( $functionhooks );
+		$siteConfig->method( 'getVariableIDs' )->willReturn( $vars );
+
+		return $siteConfig;
+	}
+
+	public function testMagicWords() {
+		// FIXME: Given that Parsoid proxies {{..}} wikitext to core for expansion,
+		// some of these tests don't mean a while lot right now. There are known
+		// bugs in SiteConfig right now.
+		$siteConfig = $this->setupMagicWordTestConfig();
+		// Expected results
+		$mwMap = [
+			'lossy=$1'             => 'img_lossy',
+			'numberofwikis'        => 'numberofwikis',
+			"lcfirst:"             => "lcfirst",
+			'expr'                 => 'expr',
+			'__NOGLOBAL__'         => 'noglobal',
+			'DEFAULTSORT:'         => 'defaultsort',
+			'DEFAULTSORTKEY:'      => 'defaultsort',
+			'DEFAULTCATEGORYSORT:' => 'defaultsort'
+		];
+		$this->assertSame( $mwMap, $siteConfig->magicWords() );
+	}
+
+	public function testMwAliases() {
+		// FIXME: Given that Parsoid proxies {{..}} wikitext to core for expansion,
+		// some of these tests don't mean a while lot right now. There are known
+		// bugs in SiteConfig right now. (T257629)
+		// T257629: for example, Parsoid accepts '[[File:Foo.jpg|RIGHT]]'
+		// where the core parser doesn't; img_right should be case-sensitive.
+		// In fact, img_lossy is the only attribute in mediawiki which is *not*
+		// case-sensitive. (T259165 says these should all be made consistent.)
+		$siteConfig = $this->setupMagicWordTestConfig();
+		$aliases = [
+			// FIXME: Should the magic word code be de-duping the aliases array?
+			"img_lossy"     => [ "lossy=$1", "lossy=$1" ],
+			"numberofwikis" => [ "NUMBEROFWIKIS", "numberofwikis" ],
+			"lcfirst"       => [ "LCFIRST:", "lcfirst:" ],
+			"expr"          => [ "EXPR", "expr" ],
+			"noglobal"      => [ "__NOGLOBAL__" ],
+			"defaultsort"   => [ "DEFAULTSORT:", "DEFAULTSORTKEY:", "DEFAULTCATEGORYSORT:" ],
+		];
+		$this->assertSame( $aliases, $siteConfig->mwAliases() );
+	}
+
+	/**
+	 * @dataProvider provideGetMagicWordForFunctionHooks
+	 */
+	public function testGetMagicWordForFunctionHooks( $input, $res ) {
+		$siteConfig = $this->setupMagicWordTestConfig();
+		$this->assertSame( $res, $siteConfig->getMagicWordForFunctionHook( $input ) );
+	}
+
+	public function provideGetMagicWordForFunctionHooks() {
+		return [
+			[ "lcfirst" , "lcfirst" ],
+			[ "#expr"   , "expr" ],
+			[ "expr"    , null ],
+			[ "#lcfirst", null ],
+			[ "lcfirst:", null ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideGetMagicWordForVariable
+	 */
+	public function testGetMagicWordForVariable( $input, $res ) {
+		$siteConfig = $this->setupMagicWordTestConfig();
+		$this->assertSame( $res, $siteConfig->getMagicWordForVariable( $input ) );
+	}
+
+	public function provideGetMagicWordForVariable() {
+		return [
+			[ "numberofwikis" , "numberofwikis" ],
+			[ "NUMBEROFWIKIS" , null ],
+			[ "numberofadmins", null ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideLinkTrailRegex
+	 */
+	public function testLinkTrailRegex( $input, $res ) {
+		$siteConfig = $this->getSiteConfig( [ 'linkTrail' ] );
+		$siteConfig->method( 'linkTrail' )->willReturn( $input );
+		$this->assertSame( $res, $siteConfig->linkTrailRegex() );
+	}
+
+	public function provideLinkTrailRegex() {
+		return [
+			[ '/^([a-z]+)(.*)$/sD', '/^([a-z]+)/sD' ], // enwiki
+			[ '/^()(.*)$/sD'      , null ] // zhwiki
+		];
+	}
 }
