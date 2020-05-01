@@ -13,7 +13,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 	protected function getDataAccess( string $filename ) {
 		$helper = new TestApiHelper( $this, $filename );
-		return new DataAccess( $helper, [] );
+		return new DataAccess( $helper, null, [] );
 	}
 
 	public function testGetRedlinkData() {
@@ -56,35 +56,32 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetFileInfo() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$data = $this->getDataAccess( 'fileinfo' )->getFileInfo( $pageConfig, [
+		$files = [
 			'Example.svg' => [ 'width' => 100 ],
 			'DoesNotExist.png' => [ 'width' => 200 ],
-		] );
-
-		$this->assertSame( [
+		];
+		$results = [
 			'Example.svg' => [
+				'size' => 10009,
 				'width' => 600,
 				'height' => 600,
-				'size' => 10009,
-				'mediatype' => 'DRAWING',
-				'mime' => 'image/svg+xml',
-				'url' => '//upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
-				'mustRender' => true,
-				'badFile' => false,
-				'responsiveUrls' => [
-					// phpcs:ignore Generic.Files.LineLength.TooLong
-					'1.5' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/150px-Example.svg.png',
-					// phpcs:ignore Generic.Files.LineLength.TooLong
-					'2' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/200px-Example.svg.png',
-				],
 				// phpcs:ignore Generic.Files.LineLength.TooLong
 				'thumburl' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/100px-Example.svg.png',
 				'thumbwidth' => 100,
 				'thumbheight' => 100,
+				'url' => '//upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
+				"descriptionurl" => "//commons.wikimedia.org/wiki/File:Example.svg",
+				"descriptionshorturl" => "//commons.wikimedia.org/w/index.php?curid=937952",
+				'mime' => 'image/svg+xml',
+				'mediatype' => 'DRAWING',
 			],
 			'DoesNotExist.png' => null,
-		], $data );
+		];
+		foreach ( $files as $file => $dims ) {
+			$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
+			$data = $this->getDataAccess( "fileinfo.$file" )->getFileInfo( $pageConfig, [ $file => $dims ] );
+			$this->assertSame( [ $file => $results[$file] ], $data );
+		}
 	}
 
 	public function testDoPst() {

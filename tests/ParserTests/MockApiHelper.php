@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Config\Api\ApiHelper;
  * and returning mock responses based on cached site configs, hardcoded network
  * responses and config,
  *
- * So, this API helper shoudl be used with the Parsoid\Config\Api* set of config classes
+ * So, this API helper should be used with the Parsoid\Config\Api* set of config classes
  * (and any subclasses derived from them).
  *
  * A lot of the responses here are tuned to what ParserTests needed. But, presumably
@@ -370,6 +370,7 @@ class MockApiHelper extends ApiHelper {
 
 	const FNAMES = [
 		'Image:Foobar.jpg' => 'Foobar.jpg',
+		'Datei:Foobar.jpg' => 'Foobar.jpg',
 		'File:Foobar.jpg' => 'Foobar.jpg',
 		'Archivo:Foobar.jpg' => 'Foobar.jpg',
 		'Mynd:Foobar.jpg' => 'Foobar.jpg',
@@ -463,9 +464,6 @@ class MockApiHelper extends ApiHelper {
 			case 'query':
 				return $this->processQuery( $params );
 
-			case 'parsoid-batch':
-				return $this->processBatch( $params );
-
 			case 'parse':
 				return $this->parse( $params['text'], !empty( $params['onlypst'] ) );
 
@@ -490,21 +488,21 @@ class MockApiHelper extends ApiHelper {
 	}
 
 	private function imageInfo( string $filename, ?int $twidth, ?int $theight ) : ?array {
-		$normPageName = self::PNAMES[$filename] ?? $filename;
-		$normFileName = self::FNAMES[$filename] ?? $filename;
-		$props = self::FILE_PROPS[$normFileName] ?? null;
+		$normPagename = self::PNAMES[$filename] ?? $filename;
+		$normFilename = self::FNAMES[$filename] ?? $filename;
+		$props = self::FILE_PROPS[$normFilename] ?? null;
 		if ( $props === null ) {
 			// We don't have info for this file
 			return null;
 		}
 
-		$md5 = md5( $normFileName );
+		$md5 = md5( $normFilename );
 		$md5prefix = $md5[0] . '/' . $md5[0] . $md5[1] . '/';
-		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFileName;
+		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFilename;
 		$height = $props['height'];
 		$width = $props['width'];
-		$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFileName;
-		$durl = self::IMAGE_DESC_URL . '/' . $normFileName;
+		$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFilename;
+		$durl = self::IMAGE_DESC_URL . '/' . $normFilename;
 		$mediatype = $props['mediatype'] ??
 			( $props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP' );
 
@@ -558,7 +556,7 @@ class MockApiHelper extends ApiHelper {
 				}
 			}
 			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' ) {
-				$turl .= '/' . $urlWidth . 'px-' . $normFileName;
+				$turl .= '/' . $urlWidth . 'px-' . $normFilename;
 				switch ( $mediatype ) {
 					case 'AUDIO':
 						// No thumbs are generated for audio
@@ -581,7 +579,7 @@ class MockApiHelper extends ApiHelper {
 
 		return [
 			'result' => $info,
-			'normPageName' => $normPageName
+			'normPagename' => $normPagename
 		];
 	}
 
@@ -661,7 +659,11 @@ class MockApiHelper extends ApiHelper {
 			$tonum = function ( $x ) {
 				return $x ? (int)$x : null;
 			};
-			$ii = self::imageInfo( $filename, $tonum( $params['iiurlwidth'] ), $tonum( $params['iiurlheight'] ) );
+			$ii = self::imageInfo(
+				$filename,
+				isset( $params['iiurlwidth'] ) ? $tonum( $params['iiurlwidth'] ) : null,
+				isset( $params['iiurlheight'] ) ? $tonum( $params['iiurlheight'] ) : null
+			);
 			if ( $ii === null ) {
 				$p = [
 					'ns' => 6,
@@ -669,20 +671,21 @@ class MockApiHelper extends ApiHelper {
 					'missing' => '',
 					'imagerepository' => '',
 					'imageinfo' => [ [
-							'size' => 0,
-							'width' => 0,
-							'height' => 0,
-							'filemissing' => '',
-							'mime' => null,
-							'mediatype' => null
-						]
-					]
+						'size' => 0,
+						'width' => 0,
+						'height' => 0,
+						'filemissing' => '',
+						'mime' => null,
+						'mediatype' => null
+					] ]
 				];
 				$p['missing'] = $p['imageinfo']['filemissing'] = true;
 				$p['badfile'] = false;
 			} else {
 				if ( $filename !== $ii['normPagename'] ) {
-					$response['query']['normalized'] = [ [ 'from' => $filename, 'to' => $ii['normPagename'] ] ];
+					$response['query']['normalized'] = [
+						[ 'from' => $filename, 'to' => $ii['normPagename'] ]
+					];
 				}
 				$p = [
 					'pageid' => 1,
@@ -758,55 +761,6 @@ class MockApiHelper extends ApiHelper {
 			error_log( "UNKNOWN TEMPLATE: $text for $title\n" );
 			return null;
 		}
-	}
-
-	private function processBatch( array $params ): array {
-		if ( !isset( $params['batch'] ) ) {
-			return [ 'parsoid-batch' => [] ];
-		}
-
-		$batch = json_decode( $params['batch'], true );
-		$errs = [];
-		$results = [];
-		foreach ( $batch as $b ) {
-			$res = null;
-			switch ( $b['action'] ) {
-				case 'imageinfo':
-					$txopts = $b['txopts'] ?? [];
-					$ii = self::imageInfo( 'File:' . $b['filename'],
-						$txopts['width'] ?? null, $txopts['height'] ?? null );
-					// NOTE: Return early here since a null is acceptable.
-					// NOTE: Return early here since a null is acceptable.
-					$res = $ii['result'] ?? null;
-					break;
-				/**
-				 * Unused currently
-				 *
-				 * case 'preprocess':
-				 * $res = self::preProcess( $b['titles'], $b['text'], $b['revid'] );
-				 * break;
-				 *
-				 * case 'parse':
-				 * $res = self::parse( $b['text'], false );
-				 * break;
-				 *
-				 * case 'pageprops':
-				 * $res = self::pageProps( $b['titles'] );
-				 * break;
-				 */
-				default:
-					error_log( "Unsupported batch action: " . $b['action'] . "\n" );
-			}
-
-			if ( $res === null ) {
-				$errs[] = $b;
-			}
-
-			$results[] = $res;
-		}
-
-		$err = count( $errs ) > 0 ? new Error( json_encode( $errs ) ) : null;
-		return [ 'errors' => $err, 'parsoid-batch' => $results ];
 	}
 
 	private function fetchTemplateData( array $params ): array {

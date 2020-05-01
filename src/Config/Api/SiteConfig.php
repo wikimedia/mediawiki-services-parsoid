@@ -61,6 +61,9 @@ class SiteConfig extends ISiteConfig {
 	/** @var int */
 	private $maxDepth = 40;
 
+	private $featureDetectionDone = false;
+	private $hasVideoInfo = false;
+
 	/**
 	 * @param ApiHelper $api
 	 * @param array $opts
@@ -158,6 +161,20 @@ class SiteConfig extends ISiteConfig {
 			$this->nsWithSubpages[$id] = true;
 		}
 		$this->nsCase[$id] = (string)$ns['case'];
+	}
+
+	private function detectFeatures(): void {
+		if ( !$this->featureDetectionDone ) {
+			$this->featureDetectionDone = true;
+			$data = $this->api->makeRequest( [ 'action' => 'paraminfo', 'modules' => 'query' ] );
+			$props = $data["paraminfo"]["modules"][0]["parameters"]["0"]["type"] ?? [];
+			$this->hasVideoInfo = array_search( 'videoinfo', $props, true ) !== false;
+		}
+	}
+
+	public function hasVideoInfo(): bool {
+		$this->detectFeatures();
+		return $this->hasVideoInfo;
 	}
 
 	/**

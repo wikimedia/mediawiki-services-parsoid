@@ -250,7 +250,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$api = new \Wikimedia\Parsoid\Config\Api\ApiHelper( $configOpts );
 
 		$siteConfig = new \Wikimedia\Parsoid\Config\Api\SiteConfig( $api, $configOpts );
-		$dataAccess = new \Wikimedia\Parsoid\Config\Api\DataAccess( $api, $configOpts );
+		$dataAccess = new \Wikimedia\Parsoid\Config\Api\DataAccess( $api, $siteConfig, $configOpts );
 		$pageConfig = new \Wikimedia\Parsoid\Config\Api\PageConfig( $api, $configOpts + [
 			'title' => $siteConfig->mainpage(),
 			'loadData' => true,

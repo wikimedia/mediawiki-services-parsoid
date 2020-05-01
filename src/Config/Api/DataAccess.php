@@ -35,6 +35,11 @@ class DataAccess implements IDataAccess {
 	private $cache = [];
 
 	/**
+	 * @var SiteConfig
+	 */
+	private $siteConfig = null;
+
+	/**
 	 * Get from cache
 	 * @param string $key
 	 * @return mixed
@@ -73,10 +78,12 @@ class DataAccess implements IDataAccess {
 
 	/**
 	 * @param ApiHelper $api
+	 * @param ?SiteConfig $siteConfig
 	 * @param array $opts
 	 */
-	public function __construct( ApiHelper $api, array $opts ) {
+	public function __construct( ApiHelper $api, ?SiteConfig $siteConfig, array $opts ) {
 		$this->api = $api;
+		$this->siteConfig = $siteConfig;
 	}
 
 	/** @inheritDoc */
@@ -133,48 +140,67 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
-		$batches = [];
+		$sc = $this->siteConfig;
+		$ret = array_fill_keys( array_keys( $files ), null );
+		if ( $sc && $sc->hasVideoInfo() ) {
+			$prefix = "vi";
+			$propName = "videoinfo";
+		} else {
+			$prefix = "ii";
+			$propName = "imageinfo";
+		}
+		$apiArgs = [
+			'action' => 'query',
+			'format' => 'json',
+			'formatversion' => 2,
+			'rawcontinue' => 1,
+			'prop' => $propName,
+			"${prefix}badfilecontexttitle" => $pageConfig->getTitle(),
+			"${prefix}prop" => implode( '|', [
+				'mediatype', 'mime', 'size', 'url', 'badfile'
+			] )
+		];
+		if ( $prefix === 'vi' ) {
+			$apiArgs["viprop"] .= '|derivatives|timedtext';
+		}
 		foreach ( $files as $name => $dims ) {
-			$txopts = [];
+			$imgNS = $sc ? $sc->namespaceName( $sc->canonicalNamespaceId( "File" ) ) : "File";
+			$apiArgs['titles'] = "$imgNS:$name";
 			if ( isset( $dims['width'] ) && $dims['width'] !== null ) {
-				$txopts['width'] = $dims['width'];
+				$apiArgs["${prefix}urlwidth"] = $dims['width'];
 				if ( isset( $dims['page'] ) ) {
-					$txopts['page'] = $dims['page'];
+					$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
 				}
 			}
 			if ( isset( $dims['height'] ) && $dims['height'] !== null ) {
-				$txopts['height'] = $dims['height'];
+				$apiArgs["${prefix}urlheight"] = $dims['height'];
 			}
 			if ( isset( $dims['seek'] ) ) {
-				$txopts['thumbtime'] = $dims['seek'];
+				$apiArgs["${prefix}urlparam"] = "seek={$dims['seek']}";
 			}
-			$batches[] = [
-				'action' => 'imageinfo',
-				'filename' => $name,
-				'txopts' => $txopts,
-				'page' => $pageConfig->getTitle(),
-			];
-		}
-		$data = $this->api->makeRequest( [
-			'action' => 'parsoid-batch',
-			'batch' => PHPUtils::jsonEncode( $batches ),
-		] );
+			$data = $this->api->makeRequest( $apiArgs );
 
-		$ret = array_fill_keys( array_keys( $files ), null );
-		foreach ( $data['parsoid-batch'] as $i => $batch ) {
-			self::stripProto( $batch, 'url' );
-			self::stripProto( $batch, 'thumburl' );
-			self::stripProto( $batch, 'descriptionurl' );
-			foreach ( $batch['responsiveUrls'] ?? [] as $density => $url ) {
-				self::stripProto( $batch['responsiveUrls'], $density );
+			$fileinfo = $data['query']['pages'][0][$propName][0]; // Expect exactly 1 row
+			if ( isset( $fileinfo['filemissing'] ) ) {
+				$fileinfo = null;
+			} else {
+				self::stripProto( $fileinfo, 'url' );
+				self::stripProto( $fileinfo, 'thumburl' );
+				self::stripProto( $fileinfo, 'descriptionurl' );
+				self::stripProto( $fileinfo, 'descriptionshorturl' );
+				foreach ( $fileinfo['responsiveUrls'] ?? [] as $density => $url ) {
+					self::stripProto( $fileinfo['responsiveUrls'], $density );
+				}
+				if ( $prefix === 'vi' ) {
+					foreach ( $fileinfo['thumbdata']['derivatives'] ?? [] as $j => $d ) {
+						self::stripProto( $fileinfo['thumbdata']['derivatives'][$j], 'src' );
+					}
+					foreach ( $fileinfo['thumbdata']['timedtext'] ?? [] as $j => $d ) {
+						self::stripProto( $fileinfo['thumbdata']['timedtext'][$j], 'src' );
+					}
+				}
 			}
-			foreach ( $batch['thumbdata']['derivatives'] ?? [] as $j => $d ) {
-				self::stripProto( $batch['thumbdata']['derivatives'][$j], 'src' );
-			}
-			foreach ( $batch['thumbdata']['timedtext'] ?? [] as $j => $d ) {
-				self::stripProto( $batch['thumbdata']['timedtext'][$j], 'src' );
-			}
-			$ret[$batches[$i]['filename']] = $batch;
+			$ret[$name] = $fileinfo;
 		}
 
 		return $ret;
@@ -340,7 +366,7 @@ class DataAccess implements IDataAccess {
 	 */
 	public static function fromSettings( array $parsoidSettings ): DataAccess {
 		$api = ApiHelper::fromSettings( $parsoidSettings );
-		return new DataAccess( $api, [] );
+		return new DataAccess( $api, null, [] );
 	}
 
 }

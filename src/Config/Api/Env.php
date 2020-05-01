@@ -26,7 +26,7 @@ class Env extends IEnv {
 
 		$pageConfig = new PageConfig( $api, $opts );
 		$siteConfig = new SiteConfig( $api, $opts );
-		$dataAccess = new DataAccess( $api, $opts );
+		$dataAccess = new DataAccess( $api, $siteConfig, $opts );
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $opts );
 	}
 
