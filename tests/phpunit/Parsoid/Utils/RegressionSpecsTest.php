@@ -147,7 +147,6 @@ class RegressionSpecsTest extends TestCase {
 			"*<!--cmt-->edited item",
 			"*<div>edited item</div>",
 			"*[[Link|edited item]]",
-			"",
 			"==edited heading==",
 			"==<!--cmt-->edited heading==",
 			"==<div>edited heading</div>==",

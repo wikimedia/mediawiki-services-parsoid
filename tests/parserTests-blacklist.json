@@ -607,14 +607,6 @@
         "wt2wt": ";onetwo :bad tag fun",
         "html2wt": "\n; onetwo\n: bad tag fun\n"
     },
-    "Definition Lists: Hacky use to indent tables": {
-        "wt2wt": "::{|\n|foo\n|bar\n|}\n\nthis text\nshould be left alone",
-        "html2wt": ":: {|\n|foo\n|bar\n|}\n\nthis text\nshould be left alone\n"
-    },
-    "Definition Lists: Hacky use to indent tables, with comments (T65979)": {
-        "wt2wt": "<!-- foo -->\n::{|\n|foo\n|bar\n|}<!-- bar -->\n\nthis text\nshould be left alone",
-        "html2wt": "<!-- foo -->\n:: {|\n|foo\n|bar\n|}<!-- bar -->\n\nthis text\nshould be left alone"
-    },
     "Definition Lists: Hacky use to indent tables (WS-insensitive)": {
         "wt2wt": ":{|\n|a\n|}",
         "html2wt": ": {|\n|a\n|}\n"
@@ -713,10 +705,6 @@
         "wt2wt": "<hr>\n<hr>\nfoo <hr> bar",
         "html2wt": "<hr>\n<hr>\nfoo <hr> bar"
     },
-    "Mixed list": {
-        "wt2wt": "*Mixed list\n*#with numbers\n**and bullets\n*#and numbers\n*bullets again\n**bullet level 2\n***bullet level 3\n***#Number on level 4\n**bullet level 2\n**#Number on level 3\n**#Number on level 3\n*#number level 2\n*Level 1\n***Level 3\n\n#**Level 3, but ordered\n",
-        "html2wt": "* Mixed list\n*# with numbers\n** and bullets\n*# and numbers\n* bullets again\n** bullet level 2\n*** bullet level 3\n***# Number on level 4\n** bullet level 2\n**# Number on level 3\n**# Number on level 3\n*# number level 2\n* Level 1\n*** Level 3\n\n#** Level 3, but ordered\n"
-    },
     "Nested lists 3 (first element empty)": {
         "wt2wt": "\n**bar\n",
         "html2wt": "\n** bar\n"
@@ -724,15 +712,6 @@
     "Nested lists 6 (both elements empty)": {
         "wt2wt": "\n**\n",
         "html2wt": "\n**\n"
-    },
-    "List interrupted by empty line or heading": {
-        "wt2wt": "*foo\n\n**bar\n\n==A heading==\n\n*Another list item",
-        "html2wt": "* foo\n\n** bar\n\n== A heading ==\n\n* Another list item"
-    },
-    "2. List embedded in a formatting tag in a misnested way": {
-        "wt2wt": "<small>\n\n*a\n*b</small>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>",
-        "html2wt": "<small>\n\n* a\n* b</small>"
     },
     "Template with argument in separate line": {
         "wt2wt": "{{templateasargtest  |\n templ = simple }}",
@@ -985,7 +964,7 @@
         "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data [[wiki/Main Page|linktext]]\n|second data [[wiki/Main Page|linktext]]\n|-\n|data\n|second data [[wiki/Main Page|link|text with pipe]]\n|}"
     },
     "Fostered content in tables: Lists": {
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,3,0,0]}'><li data-parsoid='{\"dsr\":[0,3,1,0]}'>a</li></ul>\n\n<table data-parsoid='{\"dsr\":[5,13,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[8,11,0,0]}'><tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[8,10,2,0]}'></tr>\n</tbody></table>"
+        "html2html": "<ul data-parsoid='{\"dsr\":[0,3,0,0]}'><li data-parsoid='{\"dsr\":[0,3,1,0]}'>a</li></ul>\n<table data-parsoid='{\"dsr\":[4,12,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[7,10,0,0]}'><tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[7,9,2,0]}'></tr>\n</tbody></table>"
     },
     "Plain link, capitalized": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>Main Page</a></p>\n",
@@ -1110,6 +1089,10 @@
     "Failing to transform badly formed HTML into correct XHTML": {
         "html2html": "\n<p data-parsoid='{\"autoInsertedEnd\":true,\"dsr\":[1,2,0,0]}'>\n<br data-parsoid='{\"dsr\":[2,2,0,0]}'/></p>\n",
         "html2wt": "\n\n\n"
+    },
+    "2. List embedded in a formatting tag in a misnested way": {
+        "html2html": "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>",
+        "html2wt": "<small>\n\n* a\n* b</small>"
     },
     "Template with just whitespace in it, T70421": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,31,0,0]}'>{{echo|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[11,29,8,9]}'>}</span>}}</p>"
@@ -1447,8 +1430,14 @@
     "Definition Lists: Indentation: Multi-level indent": {
         "html2wt": "::: i3\n"
     },
+    "Definition Lists: Hacky use to indent tables": {
+        "html2wt": ":: {|\n|foo\n|bar\n|}\n\nthis text\nshould be left alone\n"
+    },
     "Definition Lists: Hacky use to indent tables (with content following table)": {
         "html2wt": ": {|\n|foo\n|bar\n|} <!--c1-->  this text should be part of the dl"
+    },
+    "Definition Lists: Hacky use to indent tables, with comments (T65979)": {
+        "html2wt": "<!-- foo -->\n:: {|\n|foo\n|bar\n|}<!-- bar -->\n\nthis text\nshould be left alone"
     },
     "Table / list interaction: indented table with lists in table contents": {
         "html2wt": ": {|\n|a\n\n* b\n|-\n|c\n\n* d\n|}\n"
@@ -1591,6 +1580,9 @@
     "Numbered list": {
         "html2wt": "# Numbered list\n# item 2\n# item 3"
     },
+    "Mixed list": {
+        "html2wt": "* Mixed list\n*# with numbers\n** and bullets\n*# and numbers\n* bullets again\n** bullet level 2\n*** bullet level 3\n***# Number on level 4\n** bullet level 2\n**# Number on level 3\n**# Number on level 3\n*# number level 2\n* Level 1\n*** Level 3\n\n#** Level 3, but ordered\n"
+    },
     "1. Nested mixed wikitext and html list": {
         "html2wt": "* hi\n* <ul><li>ho</li></ul>\n* hi\n** ho\n"
     },
@@ -1623,6 +1615,9 @@
     },
     "List items from template": {
         "html2wt": "* item 1\n* item 2\n\n* item 0\n* item 1\n* item 2\n\n* item 0\n* notSOL\n* item 1\n* item 2"
+    },
+    "List interrupted by empty line or heading": {
+        "html2wt": "* foo\n\n** bar\n\n== A heading ==\n\n* Another list item"
     },
     "Single-comment whitespace lines dont break lists, and neither do multi-comment whitespace lines": {
         "html2wt": "* a\n* b\n* c\n* d"
@@ -2264,28 +2259,28 @@
         "selser": "=b=\n\n\n\n\n[[a|<nowiki/>]]"
     },
     "Extra new lines before and after lists are preserved [0,0,[3,0],0,[4],3,3]": {
-        "selser": "a\n\n\n\n\n* 10x2a1y"
+        "selser": "a\n\n\n\n* 10x2a1y"
     },
     "Extra new lines before and after lists are preserved [[3],4,[4,0],0,3,3,4]": {
         "selser": "\n1htrbwe\n\nmbdls4\n\nlhzama"
     },
     "Extra new lines before and after lists are preserved [1,0,[0,3],4,0,0,2]": {
-        "selser": "a\n\n1sdlaev\n\n*b\n\n1k8xl54\n\n\n\nc"
+        "selser": "a\n\n1sdlaev\n*b\n1k8xl54\n\n\n\nc"
     },
     "Extra new lines before and after lists are preserved [0,0,[4,1],3,4,4,0]": {
         "selser": "a\n\n1484fwk\n\n1skjf24\n\n7z2qry\n\n\n\nc"
     },
     "Extra new lines before and after lists are preserved [[3],0,[3,0],0,[4],3,0]": {
-        "selser": "\n\n\n\n* x7yop0\n\n\n\nc"
+        "selser": "\n\n\n* x7yop0\n\n\nc"
     },
     "Extra new lines before and after lists are preserved [1,0,1,0,3,0,[4,4,0]]": {
         "selser": "a\n\n\n\n\n\n1qciwap1xd4cx7\nc"
     },
     "Extra new lines before and after lists are preserved [3,0,4,0,0,2,2]": {
-        "selser": "\n13hqha1\n\n*b\n\n8hjyf9\n\n1jhwsov\n\n\n\nc"
+        "selser": "\n13hqha1\n*b\n8hjyf9\n\n1jhwsov\n\n\n\nc"
     },
     "Extra new lines before and after lists are preserved [[3],3,2,3,[4],0,[0,3,2]]": {
-        "selser": "\nvtvy93\n\n\n\n\n* vpduic\n\n1nly2ch\nc"
+        "selser": "\nvtvy93\n\n\n\n* vpduic\n\n1nly2ch\nc"
     },
     "Extra new lines before and after lists are preserved [0,0,2,0,[1],0,[0,0,2]]": {
         "selser": "a\n\n19jl0yl\n\n\n\n*b\n\ny4gtyn\nc"
@@ -2612,7 +2607,7 @@
         "selser": " ao8n78o<br />\n \n \n b"
     },
     "Definition lists: self-closed tag [2]": {
-        "selser": "dxwh3g\n\n;one<br/>two :two-line fun"
+        "selser": "dxwh3g\n;one<br/>two :two-line fun"
     },
     "Definition lists: self-closed tag [1]": {
         "selser": ";one<br/>two :two-line fun"
@@ -2654,7 +2649,7 @@
         "selser": ": 63f2vo\n;one <b>two : tag <i>fun:</i>:</b>:def"
     },
     "Definition lists: ignore colons inside tags [2]": {
-        "selser": "1vyzwic\n\n;one <b>two : tag <i>fun:</i>:</b>:def"
+        "selser": "1vyzwic\n;one <b>two : tag <i>fun:</i>:</b>:def"
     },
     "Definition lists: ignore colons inside tags [1]": {
         "selser": ";one <b>two : tag <i>fun:</i>:</b>:def"
@@ -2681,22 +2676,10 @@
         "selser": ";one</b>two :bad tag fun"
     },
     "Definition lists: excess closed tags [2]": {
-        "selser": "t1vms\n\n;one</b>two :bad tag fun"
+        "selser": "t1vms\n;one</b>two :bad tag fun"
     },
     "T13748: Literal closing tags [[0,4,3,[2],0,[3],3,0,0]]": {
         "selser": "<dl>\n<dd>1k0w39v</dd><dd>lotdkwtest test test test test</dd>\n<dt></dt>\n<dd>test test test test test</dd>\n</dl>"
-    },
-    "Definition Lists: Hacky use to indent tables [2,0,0]": {
-        "selser": "496umb\n\n::{|\n|foo\n|bar\n|}\nthis text\nshould be left alone"
-    },
-    "Definition Lists: Hacky use to indent tables [1,0,1]": {
-        "selser": "::{|\n|foo\n|bar\n|}\nthis text\nshould be left alone"
-    },
-    "Definition Lists: Hacky use to indent tables [1,0,0]": {
-        "selser": "::{|\n|foo\n|bar\n|}\nthis text\nshould be left alone"
-    },
-    "Definition Lists: Hacky use to indent tables [[[[2]]],0,0]": {
-        "selser": ":: dkg6ef\n::{|\n|foo\n|bar\n|}\nthis text\nshould be left alone"
     },
     "Definition Lists: Hacky use to indent tables (WS-insensitive) [[[[4,3]]]]": {
         "selser": ":{|<!--nvkt7k-->\n|} "
@@ -2720,7 +2703,7 @@
         "selser": ":{|\n|a<!--12bq36y-->\n|} "
     },
     "Definition Lists: Hacky use to indent tables (WS-insensitive) [2]": {
-        "selser": "h175d3\n\n:{|\n|a\n|} "
+        "selser": "h175d3\n:{|\n|a\n|} "
     },
     "Definition Lists: Hacky use to indent tables (WS-insensitive) [[[[4,[[[2]],3]]]]]": {
         "selser": ":{|<!--1bb9eok-->\n|j0vzm1a\n|} "
@@ -2747,7 +2730,7 @@
         "selser": "*# nbwmmp\n*#*#;*;;foo : bar\n*#*#;boo : baz"
     },
     "Definition Lists: Mixed Lists: Test 13 [2]": {
-        "selser": "dv68o7\n\n*#*#;*;;foo : bar\n*#*#;boo : baz"
+        "selser": "dv68o7\n*#*#;*;;foo : bar\n*#*#;boo : baz"
     },
     "Definition Lists: Mixed Lists: Test 13 [[[[[2]]]]]": {
         "selser": "*#1aucnmm\n*#*#;*;;foo : bar\n*#*#;boo : baz"
@@ -2774,7 +2757,7 @@
         "selser": ";a\n: 74zc0c\n: akujim\n;'''a:b'''\n;<i>1sanhwm</i>\n;<div></div>\n;<div>a\n: e52st8\n:b</div>\n: 64u4ef\n"
     },
     "Definition Lists: colons occurring in tags [2]": {
-        "selser": "nb6a3a\n\n;a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''"
+        "selser": "nb6a3a\n;a:b\n;'''a:b'''\n;<i>a:b</i>\n;<span>a:b</span>\n;<div>a:b</div>\n;<div>a\n:b</div>\n;{{echo|a:b}}\n;{{echo|''a:b''}}\n;;;''a:b''"
     },
     "Definition Lists: colons occurring in tags [[3,3,2,1,0,[[2]],2,[3],4,3,0,1,2,0,2,1,0,[0,4,[4]]]]": {
         "selser": ": 1xsre66\n;'''a:b'''\n;<i>4urk14a:b</i>\n: 1cf8uu3\n;\n: b19z0y\n;<div>a\n: kpzshh\n:b</div>\n: m95a73\n;{{echo|a:b}}\n;{{echo|''a:b''}}c4tj4n\n;: i160qp\n"
@@ -3700,11 +3683,8 @@
     "Mixed list [3,0,0]": {
         "selser": "#**Level 3, but ordered"
     },
-    "Mixed list [2,0,[[3]]]": {
-        "selser": "18b3n2l\n\n*Mixed list\n*#with numbers\n**and bullets\n*#and numbers\n*bullets again\n**bullet level 2\n***bullet level 3\n***#Number on level 4\n**bullet level 2\n**#Number on level 3\n**#Number on level 3\n*#number level 2\n*Level 1\n***Level 3\n#"
-    },
     "Nested lists 3 (first element empty) [2]": {
-        "selser": "1b8vuw9\n\n*\n**bar"
+        "selser": "1b8vuw9\n*\n**bar"
     },
     "Nested lists 3 (first element empty) [1]": {
         "selser": "*\n**bar"
@@ -3716,40 +3696,13 @@
         "selser": "*\n**"
     },
     "Nested lists 6 (both elements empty) [2]": {
-        "selser": "1u5v0i7\n\n*\n**"
+        "selser": "1u5v0i7\n*\n**"
     },
     "Nested lists 6 (both elements empty) [[2]]": {
         "selser": "* 14d3cex\n*\n**"
     },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close [0,0,2]": {
         "selser": "*foo {{echo|bar\n}}ge6ryx\n\n*baz"
-    },
-    "List interrupted by empty line or heading [4,2,2,0,0,0,[[4]]]": {
-        "selser": "1yctvd7\n\nvrelu\n\n1l392b0\n\n**bar\n==A heading==\n*pghdb6"
-    },
-    "List interrupted by empty line or heading [[4],4,0,0,1,0,4]": {
-        "selser": "* 1sk4m44\n\n1ag7t3b\n\n**bar\n==A heading==\n1tg441a"
-    },
-    "List interrupted by empty line or heading [3,0,3,4,0,0,1]": {
-        "selser": "\n1vzzbpn\n\n==A heading==\n*Another list item"
-    },
-    "List interrupted by empty line or heading [3,0,2,4,2,0,[[2]]]": {
-        "selser": "\n1apo20p\n\n**bar\n\n195n8zx\n\n1qa9lgs\n\n==A heading==\n*144jpy4Another list item"
-    },
-    "List interrupted by empty line or heading [[1],3,3,0,[3],0,[1]]": {
-        "selser": "*foo\n\n==<nowiki/>==\n*Another list item"
-    },
-    "List interrupted by empty line or heading [[[4]],3,2,0,1,4,1]": {
-        "selser": "*plq2f7\n\n1hyzvii\n\n**bar\n==A heading==\n1jjb2o3\n\n*Another list item"
-    },
-    "2. List embedded in a formatting tag in a misnested way [0,0,[0,4,[2]]]": {
-        "selser": "<small>\n*a* 8716yg\n*bpyszkb</small>"
-    },
-    "2. List embedded in a formatting tag in a misnested way [2,0,[[[2]],3,4]]": {
-        "selser": "1nyfueo\n\n<small>\n*cgjk89a* 1qcy7be"
-    },
-    "2. List embedded in a formatting tag in a misnested way [1,0,[[[2]],0,4]]": {
-        "selser": "<small>\n*7weqaca\n* atjds4"
     },
     "Template with invalid target containing tags [2]": {
         "selser": "6m3b6y\n\n{{a<b>b</b>|{{echo|foo}}|{{echo|a}}={{echo|b}}|a = b}}"
@@ -4098,6 +4051,9 @@
     },
     "Render invalid page names as plain text (T53090) [2,0,[0,0,4,0,4,0,0,0,4,0,2,0,2,0,0,0,2,0,0,0,0,0,0]]": {
         "selser": "1ys83ti\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{echo|./../foo}}3vtcxh{{echo|foo/.}}17795w{{echo|foo/..}}|bar]]\n[[{{echo|foo~~~~bar}}nbklz1{{echo|foo>bar}}1jbv0hg]]\n[[{{echo|foo././bar}}zoqgl4]]\n[[{{echo|foo{bar}}]]\n[[{{echo|foo}bar}}nhq2qs]]\n[[{{echo|foo[bar}}]]\n[[{{echo|foo]bar}}]]\n[[{{echo|foo<bar}}]]"
+    },
+    "3. Categories and newlines: newline suppression for last list item should RT properly [2,3,4,2,2,0,3,2,[3],3,0,0,[1],0,4]": {
+        "selser": "q620vp\n*a\n*b\nhhfaih\n\nv4npyx\n   \n1o3h9yi\n[[Category:Bar]]\n1ybvf0r\n\n\n\n[[Category:C]]\n\n;d\n\n17avyym"
     },
     "Section headings with TOC [3,4,0,0,3,2,[3],3,0,4,3,3,0]": {
         "selser": "13xji52\n\n===Subheadline 1===\nl5piqx\n\n======<nowiki/>======\n\n==Headline 2==\n16mk0e2\n\n===Another headline==="
@@ -4559,7 +4515,7 @@
         "selser": "{|<!--1i1athc-->\n|-\n| -{R|B}-\n|}"
     },
     "T2529: Uncovered bullet [2]": {
-        "selser": "xpt49k\n\n*Foo {{bullet}}"
+        "selser": "xpt49k\n*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet [[2,0]]": {
         "selser": "* 12na0t\n*Foo {{bullet}}"
@@ -4583,7 +4539,7 @@
         "selser": "*******Foo{{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list [2]": {
-        "selser": "113swo7\n\n*******Foo {{bullet}}"
+        "selser": "113swo7\n*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list [[[[1]],0]]": {
         "selser": "*******Foo{{bullet}}"
@@ -4637,7 +4593,7 @@
         "selser": "<div style=\"width:50% !important\">&nbsp;</div>yyzg2g\n<div style=\"width:50%&nbsp;!important\" data-foobar=\"338jos\">&nbsp;</div>\n<div style=\"width:50%&#160;!important\">&nbsp;</div>\n<div style=\"border : solid;\" data-foobar=\"1sol4wa\">&nbsp;</div>"
     },
     "Corner case: french spaces in definition list [2]": {
-        "selser": "sltbdu\n\n;foo : bar"
+        "selser": "sltbdu\n;foo : bar"
     },
     "Corner case: french spaces in definition list [[0,2]]": {
         "selser": ";foo \n: xj7u5v: bar"
@@ -5165,7 +5121,7 @@
         "selser": "*a\n* 1k486vt\n* \n*\n* 1xmr7e0\n*16s6j1gb"
     },
     "Empty LI (T49673) [2]": {
-        "selser": "1ei47dn\n\n*a\n* \n*\n*b"
+        "selser": "1ei47dn\n*a\n* \n*\n*b"
     },
     "Empty LI (T49673) [[3,0,0,4,0,0,0]]": {
         "selser": "* \n* 41ayue\n*\n*b"
@@ -5239,85 +5195,7 @@
     "Section wrapping with editable lead section + div overlapping multiple sections [[4,3],[4,2,[2],0],[1,4,1,2],[4,0,1,3,0]]": {
         "selser": "1x6hr6p\n\n1fsd33x\n\nbtc36h\n\npslz85a\n<div style=\"border:1px solid red;\" data-foobar=\"1ahvbjp\">\nb\n\n==1.1==\nc\n\n=2=\nd\n</div>10art7i\ne\n1q6wce1\n\nz5805j\n\nf\n\n==3.1==\ng"
     },
-    "Selser preserves lack of newline before list and allows newline after the list [[4],0,[[4],0,3]]": {
-        "selser": "1yzwdcr\n*lheo4s\n"
-    },
-    "Selser preserves lack of newline before list and allows newline after the list [0,0,[1,0,3]]": {
-        "selser": "header\n*foo\n"
-    },
-    "Selser preserves lack of newline before list and allows newline after the list [0,0,[[2],0,1]]": {
-        "selser": "header\n*oywzdjfoo\n*bar"
-    },
-    "Selser preserves lack of newline before list and allows newline after the list [1,0,1]": {
-        "selser": "header\n*foo\n*bar"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [2]": {
-        "selser": "ykepdx\n{|\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[0,[1,0]]]": {
-        "selser": "{|\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [1]": {
-        "selser": "{| data-foobar=\"bmj4sc\"\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[4,1]]": {
-        "selser": "{|<!--1aiesp9-->\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[3,2]]": {
-        "selser": "{|<!--17hc5o7-->\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[3,[[1],0]]]": {
-        "selser": "{|\n| data-foobar=\"fn7jlt\" |\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[0,1]]": {
-        "selser": "{|\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[0,2]]": {
-        "selser": "{|\n<!--1nc9fe5-->|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[3,[2,2]]]": {
-        "selser": "{|<!--f8w7a6-->\n|\nheader\n*foo\n*bar\nfooter<!--1817noh-->\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph preceding the list [[4,2]]": {
-        "selser": "{|<!--3b92rp--><!--1gk5koe-->\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [1]": {
-        "selser": "{| data-foobar=\"1likea1\"\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [[2,2]]": {
-        "selser": "{|<!--u2faox-->\n<!--15ucrx8-->|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [2]": {
-        "selser": "ojaffw\n{|\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [[4,[[[0,0,0,1,0,0]],0]]]": {
-        "selser": "{|<!--1mz653p-->\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [[4,2]]": {
-        "selser": "{|<!--1m5pjiv--><!--11mish9-->\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
-    "Selser does not introduce newlines between unedited paragraph following the list [[0,1]]": {
-        "selser": "{|\n|\nheader\n*foo\n*bar\nfooter\n|}"
-    },
     "Remove a list item but do not insert newline above list [manual]": {
         "selser": "header\n*foo\n\nfooter"
-    },
-    "Remove a list item but do not insert newline above list [3,0,2,0,0]": {
-        "selser": "\n16h46xs\n\n*foo\n*bar\nfooter"
-    },
-    "Remove a list item but do not insert newline above list [1,0,[0,2,0],3,1]": {
-        "selser": "header\n*foo\n* av293\n*bar\n\nfooter"
-    },
-    "Remove a list item but do not insert newline above list [1,0,1,4,2]": {
-        "selser": "header\n*foo\n*bar\n\nt8cor8\n\nlr9gmu\n\nfooter"
-    },
-    "Remove a list item but do not insert newline above list [[2],0,[1,2,[2]],4,[2]]": {
-        "selser": "1d9lxg9header\n*foo\n* s9iq9c\n*ruiim9bar\n\n1q55144\n\n610az9footer"
-    },
-    "Remove a list item but do not insert newline above list [3,2,2,0,1]": {
-        "selser": "16gvbc8\n\n1frb35j\n\n*foo\n*bar\nfooter"
-    },
-    "Remove a list item but do not insert newline above list [2,0,2,0,0]": {
-        "selser": "10rjw53\n\nheader\n\n1a8jty2\n\n*foo\n*bar\nfooter"
     }
 }
