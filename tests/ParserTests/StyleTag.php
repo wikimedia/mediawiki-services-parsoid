@@ -28,7 +28,7 @@ class StyleTag extends ExtensionTagHandler implements ExtensionModule {
 		return [
 			'name' => 'StyleTag',
 			'tags' => [
-				[ 'name' => 'style', 'class' => self::class ],
+				[ 'name' => 'style', 'handler' => self::class ],
 			],
 		];
 	}

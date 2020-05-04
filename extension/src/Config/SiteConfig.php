@@ -90,6 +90,11 @@ class SiteConfig extends ISiteConfig {
 				$this->html2wtLimits, $this->parsoidSettings['html2wtLimits']
 			);
 		}
+		// Register extension modules
+		$parsoidModules = ExtensionRegistry::getInstance()->getAttribute( 'ParsoidModules' );
+		foreach ( $parsoidModules as $configOrSpec ) {
+			$this->registerExtensionModule( $configOrSpec );
+		}
 	}
 
 	/** @inheritDoc */

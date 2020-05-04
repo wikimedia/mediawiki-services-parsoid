@@ -22,7 +22,7 @@ class RawHTML extends ExtensionTagHandler implements ExtensionModule {
 		return [
 			'name' => 'RawHTML',
 			'tags' => [
-				[ 'name' => 'html', 'class' => self::class ],
+				[ 'name' => 'html', 'handler' => self::class ],
 			],
 		];
 	}

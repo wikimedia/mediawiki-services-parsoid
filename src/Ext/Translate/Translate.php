@@ -23,11 +23,11 @@ class Translate extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'translate',
-					'class' => self::class
+					'handler' => self::class
 				],
 				[
 					'name' => 'tvar',
-					'class' => self::class
+					'handler' => self::class
 				]
 			]
 		];

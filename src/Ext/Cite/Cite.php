@@ -22,14 +22,14 @@ class Cite implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'ref',
-					'class' => Ref::class,
+					'handler' => Ref::class,
 					'options' => [
 						'wt2html' => [ 'sealFragment' => true ]
 					],
 				],
 				[
 					'name' => 'references',
-					'class' => References::class,
+					'handler' => References::class,
 					'options' => [
 						'html2wt' => [ 'format' => 'block' ]
 					],

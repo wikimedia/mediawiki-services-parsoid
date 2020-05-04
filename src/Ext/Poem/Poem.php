@@ -21,7 +21,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'poem',
-					'class' => self::class
+					'handler' => self::class,
 				]
 			]
 		];

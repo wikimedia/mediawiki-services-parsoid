@@ -7,10 +7,12 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
+use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ExtensionContentModelHandler;
 use Wikimedia\Parsoid\Core\WikitextContentModelHandler;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
+use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
@@ -73,18 +75,49 @@ abstract class SiteConfig {
 
 	/**
 	 * Array specifying fully qualified class name for Parsoid-compatible extensions
-	 * @var ?class-string<ExtensionModule>[]
+	 * @var ExtensionModule[]|null
 	 */
 	private $extModules = null;
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
 	 * Register a Parsoid extension module.
-	 * @param class-string<ExtensionModule> $className
+	 * @param string|array{name:string}|array{factory:callable}|array{class:class-string<ExtensionModule>} $configOrSpec
+	 *  Either an object factory specification for an ExtensionModule object,
+	 *  or else the configuration array which ExtensionModule::getConfig()
+	 *  would return.  (The latter is preferred, but our internal extensions
+	 *  use the former.)
 	 */
-	public function registerExtensionModule( string $className ): void {
+	public function registerExtensionModule( $configOrSpec ): void {
 		$this->getExtensionModules(); // ensure it's initialized w/ core modules
-		$this->extModules[] = $className;
+		if ( is_string( $configOrSpec ) || isset( $configOrSpec['class'] ) || isset( $configOrSpec['factory'] ) ) {
+			// Treat this as an object factory spec for an ExtensionModule
+			$module = ObjectFactory::getObjectFromSpec( $configOrSpec, [
+				'allowClassName' => true,
+				'assertClass' => ExtensionModule::class,
+			] );
+		} else {
+			// Treat this as a configuration array, create a new anonymous
+			// ExtensionModule object for it.
+			$module = new class( $configOrSpec ) implements ExtensionModule {
+				private $config;
+
+				/** @param array $config */
+				public function __construct( $config ) {
+					$this->config = $config;
+				}
+
+				/** @inheritDoc */
+				public function getConfig(): array {
+					return $this->config;
+				}
+			};
+		}
+		$this->extModules[] = $module;
 	}
+
+	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * Return the set of Parsoid extension modules associated with this
@@ -96,11 +129,14 @@ abstract class SiteConfig {
 	 *
 	 * FIXME: choose one method!
 	 *
-	 * @return class-string<ExtensionModule>[]
+	 * @return ExtensionModule[]
 	 */
 	public function getExtensionModules() {
 		if ( $this->extModules === null ) {
-			$this->extModules = self::$coreExtModules;
+			$this->extModules = [];
+			foreach ( self::$coreExtModules as $m ) {
+				$this->extModules[] = new $m();
+			}
 		}
 		return $this->extModules;
 	}
@@ -1095,8 +1131,8 @@ abstract class SiteConfig {
 		// the legacy parser.
 		$this->extConfig['allTags'] = $this->getNonNativeExtensionTags();
 
-		foreach ( $this->getExtensionModules() as $className ) {
-			$this->processExtensionModule( new $className() );
+		foreach ( $this->getExtensionModules() as $module ) {
+			$this->processExtensionModule( $module );
 		}
 	}
 
@@ -1144,7 +1180,7 @@ abstract class SiteConfig {
 		) );
 
 		if ( isset( $extConfig['contentModels'] ) ) {
-			foreach ( $extConfig['contentModels'] as $cm => $impl ) {
+			foreach ( $extConfig['contentModels'] as $cm => $spec ) {
 				// For compatibility with mediawiki core, the first
 				// registered extension wins.
 				if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
@@ -1152,7 +1188,12 @@ abstract class SiteConfig {
 				}
 				// Wrap the handler so we can give it a sanitized
 				// ParsoidExtensionAPI object.
-				$handler = new ExtensionContentModelHandler( new $impl() );
+				$handler = new ExtensionContentModelHandler(
+					ObjectFactory::getObjectFromSpec( $spec, [
+						'allowClassName' => true,
+						'assertClass' => ExtContentModelHandler::class,
+					] )
+				);
 				$this->extConfig['contentModels'][$cm] = $handler;
 			}
 		}
@@ -1219,10 +1260,16 @@ abstract class SiteConfig {
 	 */
 	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
 		$tagConfig = $this->getExtTagConfig( $tagName );
-		return isset( $tagConfig['class'] ) ? new $tagConfig['class']() : null;
+		return isset( $tagConfig['handler'] ) ?
+			ObjectFactory::getObjectFromSpec( $tagConfig['handler'], [
+				'allowClassName' => true,
+				'assertClass' => ExtensionTagHandler::class,
+			] ) : null;
 	}
 
 	/**
+	 * Return an array mapping extension name to an array of object factory
+	 * specs for Ext\DOMProcessor objects
 	 * @return array
 	 */
 	public function getExtDOMProcessors(): array {

@@ -40,9 +40,9 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 		return [
 			'name' => 'ParserHook',
 			'tags' => [
-				[ 'name' => 'tag', 'class' => self::class ],
-				[ 'name' => 'tåg', 'class' => self::class ],
-				[ 'name' => 'statictag', 'class' => self::class ],
+				[ 'name' => 'tag', 'handler' => self::class ],
+				[ 'name' => 'tåg', 'handler' => self::class ],
+				[ 'name' => 'statictag', 'handler' => self::class ],
 			],
 			'domProcessors' => [
 				ParserHookProcessor::class

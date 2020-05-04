@@ -8,7 +8,7 @@ use DateTime;
 use DOMDocument;
 use DOMElement;
 use Generator;
-use Wikimedia\Assert\Assert;
+use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -147,18 +147,20 @@ class DOMPostProcessor extends PipelineStage {
 					return $t->traverse( $this->env, ...$args );
 				};
 			} else {
-				$className = $p['Processor'];
-				// @phan-suppress-next-line PhanNonClassMethodCall
-				$c = new $className();
+				$classNameOrSpec = $p['Processor'];
 				if ( empty( $p['isExtPP'] ) ) {
+					// Internal processor w/ ::run() method, class name given
+					// @phan-suppress-next-line PhanNonClassMethodCall
+					$c = new $classNameOrSpec();
 					$p['proc'] = function ( ...$args ) use ( $c ) {
 						return $c->run( $this->env, ...$args );
 					};
 				} else {
-					Assert::invariant(
-						$c instanceof ExtDOMProcessor,
-						"Bad extension dom processor"
-					);
+					// Extension post processor, object factory spec given
+					$c = ObjectFactory::getObjectFromSpec( $classNameOrSpec, [
+						'allowClassName' => true,
+						'assertClass' => ExtDOMProcessor::class,
+					] );
 					$p['proc'] = function ( ...$args ) use ( $c ) {
 						return $c->wtPostprocess( $this->extApi, ...$args );
 					};
@@ -324,11 +326,11 @@ class DOMPostProcessor extends PipelineStage {
 		 *   potential ordering issues.
 		 */
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
-			foreach ( $domProcs as $i => $domProc ) {
+			foreach ( $domProcs as $i => $domProcSpec ) {
 				$processors[] = [
 					'isExtPP' => true, // This is an extension DOM post processor
 					'name' => "pp:$extName:$i",
-					'Processor' => $domProc,
+					'Processor' => $domProcSpec,
 				];
 			}
 		}

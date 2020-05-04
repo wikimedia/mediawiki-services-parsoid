@@ -24,7 +24,7 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'pre',
-					'class' => self::class,
+					'handler' => self::class,
 				]
 			]
 		];

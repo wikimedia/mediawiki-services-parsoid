@@ -27,7 +27,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'nowiki',
-					'class' => self::class,
+					'handler' => self::class,
 				]
 			]
 		];

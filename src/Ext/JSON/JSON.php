@@ -40,7 +40,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		return [
 			'name' => 'JSON content',
 			'contentModels' => [
-				'json' => self::class
+				'json' => self::class,
 			],
 		];
 	}

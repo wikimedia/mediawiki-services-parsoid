@@ -20,15 +20,15 @@ class LST extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'labeledsectiontransclusion',
-					'class' => self::class
+					'handler' => self::class,
 				],
 				[
 					'name' => 'labeledsectiontransclusion/begin',
-					'class' => self::class
+					'handler' => self::class,
 				],
 				[
 					'name' => 'labeledsectiontransclusion/end',
-					'class' => self::class
+					'handler' => self::class,
 				]
 			]
 		];

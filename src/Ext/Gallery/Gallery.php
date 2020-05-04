@@ -37,7 +37,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			'tags' => [
 				[
 					'name' => 'gallery',
-					'class' => self::class,
+					'handler' => self::class,
 				]
 			],
 			'styles' => [ 'mediawiki.page.gallery.styles' ]
