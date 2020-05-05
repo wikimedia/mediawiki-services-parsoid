@@ -1,3 +1,4 @@
+!! Version 2
 # LanguageConverter parser tests
 
 ## sr-ec ##
@@ -136,7 +137,7 @@ language=sr variant=sr-ec
 http://example.com
 
 [http://example.com -{abcd}-]
-!! html/php+tidy
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://example.com">абцд</a>
 </p><p><a rel="nofollow" class="external text" href="http://example.com">http://foo.com</a>
 </p><p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a>
