@@ -57,7 +57,7 @@ var fetch = Promise.async(function *(page, revid, opts) {
 	}
 	pc.defaultWiki = prefix;
 
-	var outputPrefix = prefix + "." + page;
+	var outputPrefix = prefix + "." + Util.phpURLEncode(page);
 	var rbOpts = {
 		uri: null,
 		method: 'GET',
