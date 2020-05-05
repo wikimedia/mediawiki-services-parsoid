@@ -1235,6 +1235,10 @@ class TestRunner {
 					$testBlackList[$fail['title']][$mode] = $fail['raw'];
 				}
 			}
+			// Sort, otherwise, titles get added above based on the first
+			// failing mode, which can make diffs harder to verify when
+			// failing modes change.
+			ksort( $testBlackList );
 			$contents = json_encode(
 				$testBlackList,
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES |
