@@ -31679,7 +31679,6 @@ b
 <div>4</div>
 a
 
-<br />
 <div>foo</div>
 !! html/php+tidy
 <div>1</div>
@@ -31700,7 +31699,6 @@ b
 </p>
 <div>4</div>
 <p>a
-</p><p><br />
 </p>
 <div>foo</div>
 !! end
