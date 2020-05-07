@@ -8,8 +8,8 @@
 	"citeParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Cite/",
 		"path": "tests/parser/citeParserTests.txt",
-		"expectedSHA1": "cb659c161794677f23aa8330235d4c4d467bc3f2",
-		"latestCommit": "376c0418d3a2213a6e7698c4801866037cb57616"
+		"expectedSHA1": "463a1f9ea7f0612c1e90ade02a25a7dc833278af",
+		"latestCommit": "eb8e07c69cb930a09cad1ca3a91dc9253471e5c2"
 	},
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
