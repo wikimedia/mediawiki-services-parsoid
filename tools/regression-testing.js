@@ -117,7 +117,7 @@ Promise.async(function *() {
 		return r;
 	};
 
-	var summary = [];
+	var summary = { degraded: [], improved: [] };
 	var compareResult = function(t, results) {
 		var oracle = JSON.stringify(trimSyntactic(t.oresults), null, '\t');
 		var commit = JSON.stringify(trimSyntactic(results), null, '\t');
@@ -127,7 +127,20 @@ Promise.async(function *() {
 		} else {
 			console.log(argv.o + ' results:', oracle);
 			console.log(argv.c + ' results:', commit);
-			summary.push(t.prefix + '/' + t.title);
+
+			const degraded = function(newRes, oldRes) {
+				// NOTE: We are conservatively assuming that even if semantic
+				// errors go down but syntactic errors go up, it is a degradation.
+				return newRes.semantic > oldRes.semantic ||
+					(!argv.semanticOnly && newRes.syntactic > oldRes.syntactic);
+			}
+			if (degraded(results.html2wt, t.oresults.html2wt) ||
+				degraded(results.selser, t.oresults.selser)
+			) {
+				summary.degraded.push(t.prefix + '/' + t.title);
+			} else {
+				summary.improved.push(t.prefix + '/' + t.title);
+			}
 		}
 	};
 
@@ -150,6 +163,11 @@ Promise.async(function *() {
 		compareResult(t, ret.output.results);
 	});
 	console.log('----------------------------');
+	if (summary.improved.length > 0) {
+		console.log('Pages that seem to have improved (feel free to verify in other ways):');
+		console.log(summary.improved);
+		console.log('----------------------------');
+	}
 	console.log('Pages needing investigation:');
-	console.log(summary);
+	console.log(summary.degraded);
 })().done();
