@@ -737,6 +737,16 @@ var runTests = Promise.async(function *(title, options, formatter) {
 			data: { wikitext: data.oldWt, contentmodel: data.contentmodel },
 		}, parsoidOptions);
 		var body = yield parsoidPost(profile, opts);
+
+		// Check for wikitext redirects
+		const redirectMatch = body.html.body.match(/<link rel="mw:PageProp\/redirect" href="([^"]*)"/);
+		if (redirectMatch) {
+			const target = redirectMatch[1].replace(/^(\.\/)?/, '');
+			// Log this so we can collect these and update the database titles
+			console.error(`REDIRECT: ${prefix}:${title} -> ${prefix}:${target}`);
+			return yield runTests(target, options, formatter);
+		}
+
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
 		data.oldMw = body['data-mw'];
