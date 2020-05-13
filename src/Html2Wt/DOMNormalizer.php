@@ -64,7 +64,7 @@ class DOMNormalizer {
 	public function __construct( SerializerState $state ) {
 		if ( !self::$specializedAttribHandlers ) {
 			self::$specializedAttribHandlers = [
-				'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB, $options ) {
+				'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
 					return $dmwA == $dmwB;
 				}
 			];
