@@ -393,7 +393,7 @@ ScriptUtils.retryingHTTPRequest = function(retries, requestOptions, delay) {
 	.spread(function(res, body) {
 		if (res.statusCode !== 200) {
 			throw new Error('Got status code: ' + res.statusCode +
-				'; body: ' + JSON.stringify(body).substr(0, 500));
+				'; body: ' + JSON.stringify(body || '').substr(0, 500));
 		}
 		return Array.from(arguments);
 	});
