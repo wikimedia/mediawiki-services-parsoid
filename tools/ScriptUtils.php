@@ -371,10 +371,6 @@ class ScriptUtils {
 				'boolean' => true,
 				'default' => false
 			],
-			'useBatchAPI' => [
-				'description' => 'Turn on/off the API batching system',
-				'boolean' => false
-			],
 			// handled by `setColorFlags`
 			'color' => [
 				'description' => 'Enable color output Ex: --no-color',

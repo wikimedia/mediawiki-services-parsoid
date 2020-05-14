@@ -905,7 +905,6 @@ if (require.main === module) {
 			var serverOpts = {
 				logging: { level: 'info' },
 				parsoidOptions: {
-					useBatchAPI: true,
 					loadWMF: true,
 					useSelser: true,
 					rtTestMode: true,
