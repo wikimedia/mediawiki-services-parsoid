@@ -6,6 +6,7 @@ require('../core-upgrade.js');
 require('colors');
 const { htmlDiff } = require('./diff.html.js');
 
+var entities = require('entities');
 var fs = require('fs');
 var yargs = require('yargs');
 var zlib = require('pn/zlib');
@@ -741,7 +742,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		// Check for wikitext redirects
 		const redirectMatch = body.html.body.match(/<link rel="mw:PageProp\/redirect" href="([^"]*)"/);
 		if (redirectMatch) {
-			const target = Util.decodeURIComponent(redirectMatch[1].replace(/^(\.\/)?/, ''));
+			const target = Util.decodeURIComponent(entities.decodeHTML5(redirectMatch[1].replace(/^(\.\/)?/, '')));
 			// Log this so we can collect these and update the database titles
 			console.error(`REDIRECT: ${prefix}:${title.replace(/"/g, '\\"')} -> ${prefix}:${target.replace(/"/g, '\\"')}`);
 			return yield runTests(target, options, formatter);
