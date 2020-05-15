@@ -58,7 +58,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			}
 			// Jforrester suggests that, "ideally this'd be a registry so that
 			// extensions could, er, extend this functionality – this is an
-			// API response/CSS class that is provided by the Disambigutation
+			// API response/CSS class that is provided by the Disambiguation
 			// extension." T237538
 			if ( !empty( $data['disambiguation'] ) ) {
 				DOMCompat::getClassList( $a )->add( 'mw-disambig' );
