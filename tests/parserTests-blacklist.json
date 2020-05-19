@@ -906,7 +906,7 @@
     },
     "Corner case: french spaces in definition list": {
         "wt2wt": ";foo :bar",
-        "html2wt": "; foo \n: bar"
+        "html2wt": "; foo\n: bar"
     },
     "Corner case: french spaces in definition list [1]": {
         "selser": ";foo : bar"
@@ -1057,7 +1057,7 @@
     "Definition Lists: Mixed Lists: Test 13": {
         "wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0]}'>foo<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"isDisplayHack\":true,\"dsr\":[11,12,null,0]}'> </span></dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0]}'>boo<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"isDisplayHack\":true,\"dsr\":[26,27,null,0]}'> </span></dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>",
         "wt2wt": "*#*#;*;;foo :bar\n*#*#;boo :baz\n",
-        "html2wt": "*#*#; foo \n*#*#:*;; bar\n*#; boo \n*#: baz\n"
+        "html2wt": "*#*#; foo\n*#*#:*;; bar\n*#; boo\n*#: baz\n"
     },
     "Definition Lists: Mixed Lists: Test 13 [1]": {
         "selser": "*#*#;*;;foo : bar\n*#*#;boo : baz"
