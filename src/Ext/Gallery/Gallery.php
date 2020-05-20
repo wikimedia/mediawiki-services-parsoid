@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 use stdClass;
-use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -77,92 +76,27 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			return null;
 		}
 
-		$text = $matches[1];
-		$caption = $matches[2] ?? '';
+		$titleStr = $matches[1];
+		$imageOptStr = $matches[2] ?? '';
 
 		// TODO: % indicates rawurldecode.
 
-		$title = $extApi->makeTitle(
-			$text,
-			$extApi->getSiteConfig()->canonicalNamespaceId( 'file' )
-		);
-
-		if ( $title === null || !$title->getNamespace()->isFile() ) {
-			return null;
-		}
-
-		// FIXME: Try to confirm `file` isn't going to break WikiLink syntax.
-		// See the check for 'FIGURE' below.
-		$file = $title->getPrefixedDBKey();
-
 		$mode = Mode::byName( $opts->mode );
 
-		// NOTE: We add "none" here so that this renders in the block form
-		// (ie. figure) for an easier structure to manipulate.
-		$start = '[[';
-		$middle = '|' . $mode->dimensions( $opts ) . '|none';
-		$end = ']]';
-		$wt = $start . $file . $middle . $caption . $end;
+		$imageOpts = [
+			"|{$mode->dimensions( $opts )}",
+			// NOTE: We add "none" here so that this renders in the block form
+			// (ie. figure) for an easier structure to manipulate.
+			'|none',
+			[ $imageOptStr, $lineStartOffset + strlen( $titleStr ) ],
+		];
 
-		// This is all in service of lining up the caption
-		$shiftOffset = function ( $offset ) use (
-			$lineStartOffset, $text, $caption, $file, $start, $middle
-		) {
-			$offset -= strlen( $start );
-			if ( $offset <= 0 ) {
-				return null;
-			}
-			if ( $offset <= strlen( $file ) ) {
-				// Align file part
-				return $lineStartOffset + $offset;
-			}
-			$offset -= strlen( $file );
-			$offset -= strlen( $middle );
-			if ( $offset <= 0 ) {
-				return null;
-			}
-			if ( $offset <= strlen( $caption ) ) {
-				// Align caption part
-				return $lineStartOffset + strlen( $text ) + $offset;
-			}
-			return null;
-		};
-
-		$doc = $extApi->wikitextToDOM(
-			$wt,
-			[
-				'parseOpts' => [
-					'extTag' => 'gallery',
-					'context' => 'inline',
-				],
-				// Create new frame, because $wt doesn't literally appear
-				// on the page, it has been hand-crafted here
-				'processInNewFrame' => true,
-				// Shift the DSRs in the DOM by startOffset, and strip DSRs
-				// for bits which aren't the caption or file, since they
-				// don't refer to actual source wikitext
-				'shiftDSRFn' => function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
-					$start = $shiftOffset( $dsr->start );
-					$end = $shiftOffset( $dsr->end );
-					// If either offset is invalid, remove entire DSR
-					if ( $start === null || $end === null ) {
-						return null;
-					}
-					return new DomSourceRange(
-						$start, $end, $dsr->openWidth, $dsr->closeWidth
-					);
-				}
-			],
-			true // sol
-		);
-
-		$body = DOMCompat::getBody( $doc );
-		$thumb = $body->firstChild;
-		if ( $thumb->nodeName !== 'figure' ) {
+		$thumb = $extApi->renderMedia( $titleStr, $imageOpts );
+		if ( !$thumb || $thumb->nodeName !== 'figure' ) {
 			return null;
 		}
-		DOMUtils::assertElt( $thumb );
 
+		$doc = $thumb->ownerDocument;
 		$rdfaType = $thumb->getAttribute( 'typeof' );
 
 		// Detach from document
@@ -177,6 +111,13 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		if ( $opts->showfilename ) {
+			// No need for error checking on this call since it was already
+			// done in $extApi->renderMedia() above
+			$title = $extApi->makeTitle(
+				$titleStr,
+				$extApi->getSiteConfig()->canonicalNamespaceId( 'file' )
+			);
+			$file = $title->getPrefixedDBKey();
 			$galleryfilename = $doc->createElement( 'a' );
 			$galleryfilename->setAttribute( 'href', $extApi->getTitleUri( $title ) );
 			$galleryfilename->setAttribute( 'class', 'galleryfilename galleryfilename-truncate' );

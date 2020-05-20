@@ -770,4 +770,104 @@ class ParsoidExtensionAPI {
 		$dompp = new DOMPostProcessor( $env );
 		$dompp->addMetaData( $env, $doc );
 	}
+
+	/**
+	 * @param string $titleStr Image title string
+	 * @param array $imageOpts Array of a mix of strings or arrays,
+	 *   the latter of which can signify that the value came from source.
+	 *   Where,
+	 *     [0] is the fully-constructed image option
+	 *     [1] is the full wikitext source offset for it
+	 * @param ?string &$error
+	 * @return ?DOMElement
+	 */
+	public function renderMedia(
+		string $titleStr, array $imageOpts, ?string &$error = null
+	): ?DOMElement {
+		$extTag = $this->getExtensionName();
+
+		$title = $this->makeTitle(
+			$titleStr,
+			$this->getSiteConfig()->canonicalNamespaceId( 'file' )
+		);
+
+		if ( $title === null || !$title->getNamespace()->isFile() ) {
+			$error = "{$extTag}_no_image";
+			return null;
+		}
+
+		// FIXME: Try to confirm `file` isn't going to break WikiLink syntax.
+		// See the check for 'figure' below.
+		$file = $title->getPrefixedDBKey();
+
+		$pieces = [ '[[' ];
+		// Since the above two chars aren't from source, the resulting figure
+		// won't have any dsr info, so we can omit an offset for the title as
+		// well
+		$pieces[] = $file;
+		$pieces = array_merge( $pieces, $imageOpts );
+		$pieces[] = ']]';
+
+		$shiftOffset = function ( int $offset ) use ( $pieces ): ?int {
+			foreach ( $pieces as $p ) {
+				if ( is_string( $p ) ) {
+					$offset -= strlen( $p );
+					if ( $offset <= 0 ) {
+						return null;
+					}
+				} else {
+					if ( $offset <= strlen( $p[0] ) && isset( $p[1] ) ) {
+						return $p[1] + $offset;
+					}
+					$offset -= strlen( $p[0] );
+					if ( $offset <= 0 ) {
+						return null;
+					}
+				}
+			}
+			return null;
+		};
+
+		$imageWt = array_reduce( $pieces, function ( $c, $p ) {
+			return $c . ( is_string( $p ) ? $p : $p[0] );
+		}, '' );
+
+		$doc = $this->wikitextToDOM(
+			$imageWt,
+			[
+				'parseOpts' => [
+					'extTag' => $extTag,
+					'context' => 'inline',
+				],
+				// Create new frame, because $pieces doesn't literally appear
+				// on the page, it has been hand-crafted here
+				'processInNewFrame' => true,
+				// Shift the DSRs in the DOM by startOffset, and strip DSRs
+				// for bits which aren't the caption or file, since they
+				// don't refer to actual source wikitext
+				'shiftDSRFn' => function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
+					$start = $shiftOffset( $dsr->start );
+					$end = $shiftOffset( $dsr->end );
+					// If either offset is invalid, remove entire DSR
+					if ( $start === null || $end === null ) {
+						return null;
+					}
+					return new DomSourceRange(
+						$start, $end, $dsr->openWidth, $dsr->closeWidth
+					);
+				},
+			],
+			true  // sol
+		);
+
+		$body = DOMCompat::getBody( $doc );
+		$thumb = $body->firstChild;
+		if ( !preg_match( "/^figure(-inline)?$/", $thumb->nodeName ) ) {
+			$error = "{$extTag}_invalid_image";
+			return null;
+		}
+		DOMUtils::assertElt( $thumb );
+
+		return $thumb;
+	}
 }
