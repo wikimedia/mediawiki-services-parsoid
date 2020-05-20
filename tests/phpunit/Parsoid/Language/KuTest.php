@@ -10,10 +10,10 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class KuTest extends TestCase {
 
-	const CODES = [ "ku-arab", "ku-latn" ];
+	private const CODES = [ "ku-arab", "ku-latn" ];
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	const TEST_CASES = [
+	private const TEST_CASES = [
 		[
 			'title' => 'Convert one char',
 			'output' => [

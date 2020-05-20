@@ -10,10 +10,10 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class CrhTest extends TestCase {
 
-	const CODES = [ "crh-cyrl", "crh-latn" ];
+	private const CODES = [ "crh-cyrl", "crh-latn" ];
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	const TEST_CASES = [
+	private const TEST_CASES = [
 		[
 			'title' => 'general words, covering more of the alphabet (1)',
 			'output' => [

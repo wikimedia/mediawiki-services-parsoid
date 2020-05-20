@@ -10,10 +10,12 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class ZhTest extends TestCase {
 
-	const CODES = [ "zh-cn", "zh-sg", "zh-my", "zh-hans", "zh-tw", "zh-hk", "zh-mo", "zh-hant" ];
+	private const CODES = [
+		"zh-cn", "zh-sg", "zh-my", "zh-hans", "zh-tw", "zh-hk", "zh-mo", "zh-hant"
+	];
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	const TEST_CASES = [
+	private const TEST_CASES = [
 			[
 				'title' => 'Plain hant -> hans',
 				'output' => [

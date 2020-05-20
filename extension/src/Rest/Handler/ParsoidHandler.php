@@ -253,7 +253,8 @@ abstract class ParsoidHandler extends Handler {
 	/**
 	 * FIXME: Combine with FormatHelper::parseContentTypeHeader
 	 */
-	const NEW_SPEC = '#^https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/(\d+\.\d+\.\d+)$#D';
+	private const NEW_SPEC =
+		'#^https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/(\d+\.\d+\.\d+)$#D';
 
 	/**
 	 * Combines:

@@ -624,11 +624,11 @@ class ParsoidExtensionAPI {
 	/**
 	 * Bit flags describing escaping / serializing context in html -> wt mode
 	 */
-	const IN_SOL = 1;
-	const IN_MEDIA = 2;
-	const IN_LINK = 4;
-	const IN_IMG_CAPTION = 8;
-	const IN_OPTION = 16;
+	public const IN_SOL = 1;
+	public const IN_MEDIA = 2;
+	public const IN_LINK = 4;
+	public const IN_IMG_CAPTION = 8;
+	public const IN_OPTION = 16;
 
 	/**
 	 * FIXME: We should get rid of this and simply let RT tests fail on this or add

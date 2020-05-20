@@ -17,7 +17,7 @@ class ParsoidLogger {
 	/* @var string */
 	private $samplingRE;
 
-	const PRETTY_LOGTYPE_MAP = [
+	private const PRETTY_LOGTYPE_MAP = [
 		'debug' => '[DEBUG]',
 		'trace/peg' => '[peg]',
 		'trace/pre' => '[PRE]',

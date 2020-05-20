@@ -11,23 +11,23 @@ use MediaWiki\Rest\ResponseInterface;
  */
 class FormatHelper {
 
-	const FORMAT_WIKITEXT = 'wikitext';
-	const FORMAT_HTML = 'html';
-	const FORMAT_PAGEBUNDLE = 'pagebundle';
-	const FORMAT_LINT = 'lint';
+	public const FORMAT_WIKITEXT = 'wikitext';
+	public const FORMAT_HTML = 'html';
+	public const FORMAT_PAGEBUNDLE = 'pagebundle';
+	public const FORMAT_LINT = 'lint';
 
-	const ERROR_ENCODING = [
+	public const ERROR_ENCODING = [
 		self::FORMAT_WIKITEXT => 'plain',
 		self::FORMAT_HTML => 'html',
 		self::FORMAT_PAGEBUNDLE => 'json',
 		self::FORMAT_LINT => 'json',
 	];
 
-	const VALID_PAGE = [
+	public const VALID_PAGE = [
 		self::FORMAT_WIKITEXT, self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE, self::FORMAT_LINT
 	];
 
-	const VALID_TRANSFORM = [
+	public const VALID_TRANSFORM = [
 		self::FORMAT_WIKITEXT => [ self::FORMAT_HTML, self::FORMAT_PAGEBUNDLE, self::FORMAT_LINT ],
 		self::FORMAT_HTML => [ self::FORMAT_WIKITEXT ],
 		self::FORMAT_PAGEBUNDLE => [ self::FORMAT_WIKITEXT, self::FORMAT_PAGEBUNDLE ],

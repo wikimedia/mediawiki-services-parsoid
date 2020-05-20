@@ -28,7 +28,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 
 class TokenUtils {
-	const SOL_TRANSPARENT_LINK_REGEX =
+	public const SOL_TRANSPARENT_LINK_REGEX =
 		'/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/D';
 
 	/**

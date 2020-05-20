@@ -10,10 +10,10 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class SrTest extends TestCase {
 
-	const CODES = [ "sr-ec", "sr-el" ];
+	private const CODES = [ "sr-ec", "sr-el" ];
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	const TEST_CASES = [
+	private const TEST_CASES = [
 			[
 				'title' => 'A simple conversion of Latin to Cyrillic',
 				'output' => [

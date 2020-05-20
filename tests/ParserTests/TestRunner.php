@@ -32,7 +32,7 @@ use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 class TestRunner {
 	// Hard-code some interwiki prefixes, as is done
 	// in parserTest.inc:setupInterwikis()
-	const PARSER_TESTS_IWPS = [
+	private const PARSER_TESTS_IWPS = [
 		[
 			'prefix' => 'wikinvest',
 			'local' => true,
@@ -336,7 +336,7 @@ class TestRunner {
 	}
 
 	// Random string used as selser comment content
-	const STATIC_RANDOM_STRING = 'ahseeyooxooZ8Oon0boh';
+	private const STATIC_RANDOM_STRING = 'ahseeyooxooZ8Oon0boh';
 
 	/**
 	 * Make changes to a DOM in order to run a selser test on it.

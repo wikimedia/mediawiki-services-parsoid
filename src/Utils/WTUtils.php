@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * These utilites pertain to extracting / modifying wikitext information from the DOM.
  */
 class WTUtils {
-	const FIRST_ENCAP_REGEXP =
+	private const FIRST_ENCAP_REGEXP =
 		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#D';
 
 	/**

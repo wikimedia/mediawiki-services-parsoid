@@ -206,7 +206,7 @@ class MockDataAccess implements DataAccess {
 	// This templatedata description only provides a subset of fields
 	// that mediawiki API returns. Parsoid only uses the format and
 	// paramOrder fields at this point, so keeping these lean.
-	const TEMPLATE_DATA = [
+	private const TEMPLATE_DATA = [
 		'Template:NoFormatWithParamOrder' => [
 			'paramOrder' => [ 'f0', 'f1', 'unused2', 'f2', 'unused3' ]
 		],
@@ -250,7 +250,7 @@ class MockDataAccess implements DataAccess {
 		]
 	];
 
-	const FNAMES = [
+	private const FNAMES = [
 		'Image:Foobar.jpg' => 'Foobar.jpg',
 		'File:Foobar.jpg' => 'Foobar.jpg',
 		'Archivo:Foobar.jpg' => 'Foobar.jpg',
@@ -265,7 +265,7 @@ class MockDataAccess implements DataAccess {
 		'File:Audio.oga' => 'Audio.oga'
 	];
 
-	const PNAMES = [
+	private const PNAMES = [
 		'Image:Foobar.jpg' => 'File:Foobar.jpg',
 		'Image:Foobar.svg' => 'File:Foobar.svg',
 		'Image:Thumb.png' => 'File:Thumb.png'
@@ -274,9 +274,9 @@ class MockDataAccess implements DataAccess {
 	// configuration to match PHP parserTests
 	// although protocol-relative; see T235217 and
 	// If52d21b50cdbb466395ca64ac9877d992e19ce40
-	const IMAGE_BASE_URL = '//example.com/images';
-	const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
-	const FILE_PROPS = [
+	private const IMAGE_BASE_URL = '//example.com/images';
+	private const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
+	private const FILE_PROPS = [
 		'Foobar.jpg' => [
 			'size' => 7881,
 			'width' => 1941,

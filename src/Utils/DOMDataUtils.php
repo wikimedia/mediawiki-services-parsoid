@@ -19,7 +19,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * These helpers pertain to HTML and data attributes of a node.
  */
 class DOMDataUtils {
-	const DATA_OBJECT_ATTR_NAME = 'data-object-id';
+	public const DATA_OBJECT_ATTR_NAME = 'data-object-id';
 
 	/**
 	 * Return the dynamic "bag" property of a DOMDocument.

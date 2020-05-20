@@ -31,12 +31,12 @@ class Sanitizer extends TokenHandler {
 	/** @var bool */
 	private $inTemplate;
 
-	const NO_END_TAG_SET = [ 'br' => true ];
+	private const NO_END_TAG_SET = [ 'br' => true ];
 
 	/**
 	 * RDFa and microdata properties allow URLs, URIs and/or CURIs.
 	 */
-	const MICRODATA = [
+	private const MICRODATA = [
 		'rel' => true,
 		'rev' => true,
 		'about' => true,
@@ -51,18 +51,18 @@ class Sanitizer extends TokenHandler {
 		'itemtype' => true,
 	];
 
-	const UTF8_REPLACEMENT = "ï¿½";
+	private const UTF8_REPLACEMENT = "ï¿½";
 
 	/**
 	 * Regular expression to match various types of character references in
 	 * Sanitizer::normalizeCharReferences and Sanitizer::decodeCharReferences
 	 */
-	const CHAR_REFS_RE_G = "/&([A-Za-z0-9\x80-\xff]+);
+	private const CHAR_REFS_RE_G = "/&([A-Za-z0-9\x80-\xff]+);
 		|&\#([0-9]+);
 		|&\#[xX]([0-9A-Fa-f]+);
 		|(&)/x";
 
-	const INSECURE_RE = '! expression
+	private const INSECURE_RE = '! expression
 		| filter\s*:
 		| accelerator\s*:
 		| -o-link\s*:
@@ -82,15 +82,15 @@ class Sanitizer extends TokenHandler {
 	 * things that you know are safe and deny everything else.
 	 * [1]: http://ha.ckers.org/xss.html
 	 */
-	const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)([^\w]|$)!iD';
-	const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/D";
+	private const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)([^\w]|$)!iD';
+	private const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/D";
 
 	/**
 	 * Tells escapeUrlForHtml() to encode the ID using the wiki's primary encoding.
 	 *
 	 * @since 1.30
 	 */
-	const ID_PRIMARY = 0;
+	private const ID_PRIMARY = 0;
 
 	/**
 	 * Tells escapeUrlForHtml() to encode the ID using the fallback encoding, or return false
@@ -98,14 +98,14 @@ class Sanitizer extends TokenHandler {
 	 *
 	 * @since 1.30
 	 */
-	const ID_FALLBACK = 1;
+	public const ID_FALLBACK = 1; // public because it is accessed in Headings handler
 
 	/** Characters that will be ignored in IDNs.
 	 * https://tools.ietf.org/html/rfc3454#section-3.1
 	 * Strip them before further processing so blacklists and such work.
 	 * Part of Sanitizer::cleanUrl in core.
 	 */
-	const IDN_RE_G = "/
+	private const IDN_RE_G = "/
 				\\s|          # general whitespace
 				\xc2\xad|     # 00ad SOFT HYPHEN
 				\xe1\xa0\x86| # 1806 MONGOLIAN TODO SOFT HYPHEN
@@ -121,10 +121,10 @@ class Sanitizer extends TokenHandler {
 				[\xef\xb8\x80-\xef\xb8\x8f] # fe00-fe0f VARIATION SELECTOR-1-16
 				/xuD";
 
-	const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/uD';
+	private const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/uD';
 
 	/** Character entity aliases accepted by MediaWiki */
-	const HTML_ENTITY_ALIASES = [
+	private const HTML_ENTITY_ALIASES = [
 		"רלמ" => 'rlm',
 		"رلم" => 'rlm'
 	];
@@ -135,7 +135,7 @@ class Sanitizer extends TokenHandler {
 	 * http://www.w3.org/TR/html4/sgml/entities.html
 	 * As well as &apos; which is only defined starting in XHTML1.
 	 */
-	const HTML_ENTITIES = [
+	private const HTML_ENTITIES = [
 		'Aacute' => 193,
 		'aacute' => 225,
 		'Acirc' => 194,

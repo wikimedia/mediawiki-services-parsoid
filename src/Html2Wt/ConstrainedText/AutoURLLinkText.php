@@ -27,20 +27,20 @@ class AutoURLLinkText extends RegExpConstrainedText {
 	}
 
 	// This regexp comes from the legacy parser's EXT_LINK_URL_CLASS regexp.
-	const EXT_LINK_URL_CLASS =
+	private const EXT_LINK_URL_CLASS =
 		'^\[\]<>"\x00-\x20\x7F\x{00A0}\x{1680}\x{180E}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}';
 	// This set of trailing punctuation comes from Parser.php::makeFreeExternalLink
-	const TRAILING_PUNCT = ',;\\\.:!?';
-	const NOT_LTGTNBSP = '(?!&(lt|gt|nbsp|#x0*(3[CcEe]|[Aa]0)|#0*(60|62|160));)';
-	const NOT_QQ = "(?!'')";
+	private const TRAILING_PUNCT = ',;\\\.:!?';
+	private const NOT_LTGTNBSP = '(?!&(lt|gt|nbsp|#x0*(3[CcEe]|[Aa]0)|#0*(60|62|160));)';
+	private const NOT_QQ = "(?!'')";
 	// Trailing context for an autourl link
-	const PAREN_AUTOURL_BAD_SUFFIX =
+	private const PAREN_AUTOURL_BAD_SUFFIX =
 		'/^' . self::NOT_LTGTNBSP . self::NOT_QQ .
 		'[' . self::TRAILING_PUNCT . ']*' .
 		'[' . self::EXT_LINK_URL_CLASS . self::TRAILING_PUNCT . ']/u';
 	// If the URL has an doesn't have an open paren in it, TRAILING PUNCT will
 	// include ')' as well.
-	const NOPAREN_AUTOURL_BAD_SUFFIX =
+	private const NOPAREN_AUTOURL_BAD_SUFFIX =
 		'/^' . self::NOT_LTGTNBSP . self::NOT_QQ .
 		'[' . self::TRAILING_PUNCT . '\)]*' .
 		'[' . self::EXT_LINK_URL_CLASS . self::TRAILING_PUNCT . '\)]/u';

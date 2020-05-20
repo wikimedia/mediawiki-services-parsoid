@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
  */
 class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 
-	const TOKEN_TEST_DATA = [
+	private const TOKEN_TEST_DATA = [
 		[
 			'token' => 'string',
 			'getTokenType' => 'string',

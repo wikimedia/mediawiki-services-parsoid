@@ -25,7 +25,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 class DOMDiff {
 
 	// These attributes are ignored for equality purposes if they are added to a node.
-	const IGNORE_ATTRIBUTES = [
+	private const IGNORE_ATTRIBUTES = [
 		// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
 		// moved around without their content which occasionally leads to incorrect
 		// DSR being used by selser.  Hard to describe a reduced test case here.

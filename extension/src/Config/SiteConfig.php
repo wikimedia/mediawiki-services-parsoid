@@ -34,7 +34,7 @@ class SiteConfig extends ISiteConfig {
 	 * Regular expression fragment for matching wikitext comments.
 	 * Meant for inclusion in other regular expressions.
 	 */
-	const COMMENT_REGEXP_FRAGMENT = '<!--(?>[\s\S]*?-->)';
+	protected const COMMENT_REGEXP_FRAGMENT = '<!--(?>[\s\S]*?-->)';
 
 	/** @var Config MediaWiki configuration object */
 	private $config;

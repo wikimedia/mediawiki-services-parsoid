@@ -20,10 +20,6 @@ use Wikimedia\Parsoid\Core\ClientError;
  * have snuck in.
  */
 class DOMUtils {
-	const TPL_META_TYPE_REGEXP = '/(?:^|\s)(mw:(?:Transclusion|Param)(?:\/End)?)(?=$|\s)/';
-	const FIRST_ENCAP_REGEXP =
-		 '/(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(\/[^\s]+)))(?=$|\s)/';
-
 	/**
 	 * Parse HTML, return the tree.
 	 *

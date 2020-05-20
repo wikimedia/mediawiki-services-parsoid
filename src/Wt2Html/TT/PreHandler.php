@@ -82,11 +82,11 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  */
 class PreHandler extends TokenHandler {
 	// FSM states
-	const STATE_SOL = 1;
-	const STATE_PRE = 2;
-	const STATE_PRE_COLLECT = 3;
-	const STATE_MULTILINE_PRE = 4;
-	const STATE_IGNORE = 5;
+	private const STATE_SOL = 1;
+	private const STATE_PRE = 2;
+	private const STATE_PRE_COLLECT = 3;
+	private const STATE_MULTILINE_PRE = 4;
+	private const STATE_IGNORE = 5;
 
 	/** @var int */
 	private $state;

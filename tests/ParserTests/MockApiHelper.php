@@ -34,9 +34,9 @@ use Wikimedia\Parsoid\Config\Api\ApiHelper;
  */
 class MockApiHelper extends ApiHelper {
 	// configuration to match PHP parserTests
-	const IMAGE_BASE_URL = 'http://example.com/images';
-	const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
-	const FILE_PROPS = [
+	private const IMAGE_BASE_URL = 'http://example.com/images';
+	private const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
+	private const FILE_PROPS = [
 		'Foobar.jpg' => [
 			'size' => 7881,
 			'width' => 1941,
@@ -368,7 +368,7 @@ class MockApiHelper extends ApiHelper {
 	private static $redirectTitles = [ 'Redirected' ];
 	private static $disambigTitles = [ 'Disambiguation' ];
 
-	const FNAMES = [
+	private const FNAMES = [
 		'Image:Foobar.jpg' => 'Foobar.jpg',
 		'Datei:Foobar.jpg' => 'Foobar.jpg',
 		'File:Foobar.jpg' => 'Foobar.jpg',
@@ -384,7 +384,7 @@ class MockApiHelper extends ApiHelper {
 		'File:Audio.oga' => 'Audio.oga'
 	];
 
-	const PNAMES = [
+	private const PNAMES = [
 		'Image:Foobar.jpg' => 'File:Foobar.jpg',
 		'Image:Foobar.svg' => 'File:Foobar.svg',
 		'Image:Thumb.png' => 'File:Thumb.png'

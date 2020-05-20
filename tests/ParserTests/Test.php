@@ -75,8 +75,8 @@ class Test extends Item {
 	/** @var array */
 	public $time = [];
 
-	const ALT_WT_KEYS = [ 'wikitext/edited' ];
-	const ALT_HTML_KEYS = [
+	private const ALT_WT_KEYS = [ 'wikitext/edited' ];
+	private const ALT_HTML_KEYS = [
 		'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid', 'html/parsoid+langconv'
 	];
 

@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class WikitextEscapeHandlers {
 
-	const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/D';
+	private const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/D';
 
 	/**
 	 * @var array

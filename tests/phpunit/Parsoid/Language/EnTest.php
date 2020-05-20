@@ -10,10 +10,10 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 
 class EnTest extends TestCase {
 
-	const CODES = [ 'en', 'en-x-piglatin' ];
+	private const CODES = [ 'en', 'en-x-piglatin' ];
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	const TEST_CASES = [
+	private const TEST_CASES = [
 		[
 			'title' => 'Converting to Pig Latin',
 			'output' => [

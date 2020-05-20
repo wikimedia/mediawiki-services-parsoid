@@ -27,7 +27,7 @@ class DataAccess implements IDataAccess {
 	 * @{
 	 */
 
-	const MAX_CACHE_LEN = 100;
+	private const MAX_CACHE_LEN = 100;
 
 	/**
 	 * @var array
