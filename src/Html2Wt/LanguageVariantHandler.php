@@ -137,18 +137,18 @@ class LanguageVariantHandler {
 
 	/**
 	 * @param array $a
-	 * @param $value
+	 * @param string $value
 	 * @return bool
 	 */
-	private static function has( array $a, $value ): bool {
+	private static function has( array $a, string $value ): bool {
 		return isset( $a[$value] );
 	}
 
 	/**
 	 * @param array &$a
-	 * @param $value
+	 * @param string $value
 	 */
-	private static function add( array &$a, $value ) {
+	private static function add( array &$a, string $value ) {
 		if ( !isset( $a[$value] ) ) {
 			$a[$value] = true;
 		}
@@ -156,9 +156,9 @@ class LanguageVariantHandler {
 
 	/**
 	 * @param array &$a
-	 * @param $value
+	 * @param string $value
 	 */
-	private static function delete( array &$a, $value ) {
+	private static function delete( array &$a, string $value ) {
 		$key = array_search( $value, array_keys( $a ), true );
 		if ( $key !== false ) {
 			array_splice( $a, $key, 1 );
@@ -166,11 +166,13 @@ class LanguageVariantHandler {
 	}
 
 	/**
-	 * @param $originalFlags
-	 * @param $flags
-	 * @param $f
+	 * @param array $originalFlags
+	 * @param array &$flags
+	 * @param string $f
 	 */
-	private static function maybeDeleteFlag( $originalFlags, &$flags, $f ) {
+	private static function maybeDeleteFlag(
+		array $originalFlags, array &$flags, string $f
+	) {
 		if ( !isset( $originalFlags[$f] ) ) {
 			self::delete( $flags, $f );
 		}

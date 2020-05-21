@@ -70,7 +70,7 @@ abstract class TokenCollector extends TokenHandler {
 	/**
 	 * Handle the delimiter token.
 	 * XXX: Adjust to sync phase callback when that is modified!
-	 * @param $token
+	 * @param Token $token
 	 * @return array
 	 */
 	private function onDelimiterToken( Token $token ) : array {

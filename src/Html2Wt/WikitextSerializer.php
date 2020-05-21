@@ -1394,7 +1394,7 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param $line
+	 * @param string $line
 	 * @return string
 	 */
 	private function stripUnnecessaryHeadingNowikis( string $line ): string {

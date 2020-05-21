@@ -248,10 +248,10 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 
 	/**
 	 * @param DOMElement $tr
-	 * @param $obj
-	 * @param $key
+	 * @param array &$obj
+	 * @param int|null $key
 	 */
-	private function objectRowFrom( DOMElement $tr, &$obj, $key ) {
+	private function objectRowFrom( DOMElement $tr, array &$obj, ?int $key ) {
 		$td = $tr->firstChild;
 		if ( $key === null ) {
 			$key = $td->textContent;
