@@ -136,36 +136,6 @@ class LanguageVariantHandler {
 	}
 
 	/**
-	 * @param array $a
-	 * @param string $value
-	 * @return bool
-	 */
-	private static function has( array $a, string $value ): bool {
-		return isset( $a[$value] );
-	}
-
-	/**
-	 * @param array &$a
-	 * @param string $value
-	 */
-	private static function add( array &$a, string $value ) {
-		if ( !isset( $a[$value] ) ) {
-			$a[$value] = true;
-		}
-	}
-
-	/**
-	 * @param array &$a
-	 * @param string $value
-	 */
-	private static function delete( array &$a, string $value ) {
-		$key = array_search( $value, array_keys( $a ), true );
-		if ( $key !== false ) {
-			array_splice( $a, $key, 1 );
-		}
-	}
-
-	/**
 	 * @param array $originalFlags
 	 * @param array &$flags
 	 * @param string $f
@@ -174,7 +144,7 @@ class LanguageVariantHandler {
 		array $originalFlags, array &$flags, string $f
 	) {
 		if ( !isset( $originalFlags[$f] ) ) {
-			self::delete( $flags, $f );
+			unset( $flags[$f] );
 		}
 	}
 
@@ -215,44 +185,44 @@ class LanguageVariantHandler {
 
 		foreach ( get_object_vars( $dataMWV ) as $key => $val ) {
 			if ( isset( WikitextConstants::$LCNameMap[$key] ) ) {
-				self::add( $flags, WikitextConstants::$LCNameMap[$key] );
+				$flags[WikitextConstants::$LCNameMap[$key]] = true;
 			}
 		}
 
 		// Tweak flag set to account for implicitly-enabled flags.
 		if ( $node->tagName !== 'meta' ) {
-			self::add( $flags, '$S' );
+			$flags['$S'] = true;
 		}
-		if ( !self::has( $flags, '$S' ) && !self::has( $flags, 'T' ) && !isset( $dataMWV->filter ) ) {
-			self::add( $flags, 'H' );
+		if ( !isset( $flags['$S'] ) && !isset( $flags['T'] ) && !isset( $dataMWV->filter ) ) {
+			$flags['H'] = true;
 		}
-		if ( count( $flags ) === 1 && self::has( $flags, '$S' ) ) {
+		if ( count( $flags ) === 1 && isset( $flags['$S'] ) ) {
 			self::maybeDeleteFlag( $originalFlags, $flags, '$S' );
-		} elseif ( self::has( $flags, 'D' ) ) {
+		} elseif ( isset( $flags['D'] ) ) {
 			// Weird: Only way to hide a 'describe' rule is to write -{D;A|...}-
-			if ( self::has( $flags, '$S' ) ) {
-				if ( self::has( $flags, 'A' ) ) {
-					self::add( $flags, 'H' );
+			if ( isset( $flags['$S'] ) ) {
+				if ( isset( $flags['A'] ) ) {
+					$flags['H'] = true;
 				}
-				self::delete( $flags, 'A' );
+				unset( $flags['A'] );
 			} else {
-				self::add( $flags, 'A' );
-				self::delete( $flags, 'H' );
+				$flags['A'] = true;
+				unset( $flags['H'] );
 			}
-		} elseif ( self::has( $flags, 'T' ) ) {
-			if ( self::has( $flags, 'A' ) && !self::has( $flags, '$S' ) ) {
-				self::delete( $flags, 'A' );
-				self::add( $flags, 'H' );
+		} elseif ( isset( $flags['T'] ) ) {
+			if ( isset( $flags['A'] ) && !isset( $flags['$S'] ) ) {
+				unset( $flags['A'] );
+				$flags['H'] = true;
 			}
-		} elseif ( self::has( $flags, 'A' ) ) {
-			if ( self::has( $flags, '$S' ) ) {
+		} elseif ( isset( $flags['A'] ) ) {
+			if ( isset( $flags['$S'] ) ) {
 				self::maybeDeleteFlag( $originalFlags, $flags, '$S' );
-			} elseif ( self::has( $flags, 'H' ) ) {
+			} elseif ( isset( $flags['H'] ) ) {
 				self::maybeDeleteFlag( $originalFlags, $flags, 'A' );
 			}
-		} elseif ( self::has( $flags, 'R' ) ) {
+		} elseif ( isset( $flags['R'] ) ) {
 			self::maybeDeleteFlag( $originalFlags, $flags, '$S' );
-		} elseif ( self::has( $flags, '-' ) ) {
+		} elseif ( isset( $flags['-'] ) ) {
 			self::maybeDeleteFlag( $originalFlags, $flags, 'H' );
 		}
 
