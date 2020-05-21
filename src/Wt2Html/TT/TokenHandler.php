@@ -136,6 +136,11 @@ abstract class TokenHandler extends PipelineStage {
 		$this->atTopLevel = $opts['toplevel'] ?? false;
 	}
 
+	/**
+	 * @param mixed $token
+	 * @param mixed $res
+	 * @return bool
+	 */
 	private function isModified( $token, $res ): bool {
 		return $res !== $token && (
 			!isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token

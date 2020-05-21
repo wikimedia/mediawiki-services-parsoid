@@ -219,7 +219,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	private function makeMwConfig( $configOpts ) {
+	/**
+	 * @param array $configOpts
+	 * @return array
+	 */
+	private function makeMwConfig( array $configOpts ): array {
 		$services = \MediaWiki\MediaWikiServices::getInstance();
 		$parsoidServices = new \MWParsoid\ParsoidServices( $services );
 		$siteConfig = $parsoidServices->getParsoidSiteConfig();
@@ -246,7 +250,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		];
 	}
 
-	private function makeApiConfig( $configOpts ) {
+	/**
+	 * @param array $configOpts
+	 * @return array
+	 */
+	private function makeApiConfig( array $configOpts ): array {
 		$api = new \Wikimedia\Parsoid\Config\Api\ApiHelper( $configOpts );
 
 		$siteConfig = new \Wikimedia\Parsoid\Config\Api\SiteConfig( $api, $configOpts );
@@ -264,7 +272,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		];
 	}
 
-	private function makeMockConfig( $configOpts ) {
+	/**
+	 * @param array $configOpts
+	 * @return array
+	 */
+	private function makeMockConfig( array $configOpts ): array {
 		$siteConfig = new \Wikimedia\Parsoid\Mocks\MockSiteConfig( $configOpts );
 		$dataAccess = new \Wikimedia\Parsoid\Mocks\MockDataAccess( $configOpts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -279,7 +291,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		];
 	}
 
-	private function makeConfig( $configOpts ) {
+	/**
+	 * @param array $configOpts
+	 * @return array
+	 */
+	private function makeConfig( array $configOpts ): array {
 		if ( $configOpts['mock'] ) {
 			return $this->makeMockConfig( $configOpts );
 		} elseif ( $configOpts['standalone'] ?? true ) {

@@ -269,7 +269,11 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		return [ $stWidth, $etWidth ];
 	}
 
-	private function trace( $env, ...$args ): void {
+	/**
+	 * @param Env $env
+	 * @param mixed ...$args
+	 */
+	private function trace( Env $env, ...$args ): void {
 		$env->log( "trace/dsr", function () use ( $args ) {
 			$buf = '';
 			foreach ( $args as $arg ) {

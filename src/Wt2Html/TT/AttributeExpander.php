@@ -42,7 +42,15 @@ class AttributeExpander extends TokenHandler {
 		$this->tokenizer = new PegTokenizer( $manager->getEnv() );
 	}
 
-	private static function nlTkIndex( bool $nlTkOkay, array $tokens, bool $atTopLevel ): int {
+	/**
+	 * @param bool $nlTkOkay
+	 * @param array $tokens
+	 * @param bool $atTopLevel
+	 * @return int
+	 */
+	private static function nlTkIndex(
+		bool $nlTkOkay, array $tokens, bool $atTopLevel
+	): int {
 		// Moving this check here since it makes the
 		// callsite cleaner and simpler.
 		if ( $nlTkOkay ) {
@@ -81,12 +89,24 @@ class AttributeExpander extends TokenHandler {
 		return -1;
 	}
 
+	/**
+	 * @return string
+	 */
 	private static function metaTypeMatcher(): string {
 		return '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#D';
 	}
 
+	/**
+	 * @param Frame $frame
+	 * @param Token $token
+	 * @param int $nlTkPos
+	 * @param array $tokens
+	 * @param bool $wrapTemplates
+	 * @return array
+	 */
 	private static function splitTokens(
-		Frame $frame, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
+		Frame $frame, Token $token, int $nlTkPos, array $tokens,
+		bool $wrapTemplates
 	): array {
 		$buf = [];
 		$postNLBuf = null;
@@ -199,11 +219,13 @@ class AttributeExpander extends TokenHandler {
 		return [ 'hasGeneratedContent' => $hasGeneratedContent, 'value' => $buf ];
 	}
 
+	/**
+	 * @param mixed $a
+	 */
 	private static function tplToksToString( $a ) {
 		if ( !is_array( $a ) ) {
 			return $a;
 		}
-
 		$ret = [];
 		foreach ( $a as $t ) {
 			$ret[] = TokenUtils::isTemplateToken( $t ) ? $t->dataAttribs->src : $t;

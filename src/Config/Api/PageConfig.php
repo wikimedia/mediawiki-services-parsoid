@@ -73,6 +73,9 @@ class PageConfig extends IPageConfig {
 		}
 	}
 
+	/**
+	 * @param array $opts
+	 */
 	private function mockPageContent( array $opts ) {
 		$this->page = [
 			'title' => $this->title,

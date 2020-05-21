@@ -106,7 +106,10 @@ class SiteConfig extends ApiSiteConfig {
 		$this->unregisterParserTestExtension( new RawHTML() );
 	}
 
-	private function deleteNamespace( string $name ) {
+	/**
+	 * @param string $name
+	 */
+	private function deleteNamespace( string $name ): void {
 		$normName = Util::normalizeNamespaceName( $name );
 		$id = $this->namespaceId( $normName );
 

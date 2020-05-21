@@ -433,6 +433,12 @@ class Separators {
 		$this->state = $state;
 	}
 
+	/**
+	 * @param SerializerState $state
+	 * @param string $sep
+	 * @param array $nlConstraints
+	 * @return string
+	 */
 	private function makeSepIndentPreSafe(
 		SerializerState $state, string $sep, array $nlConstraints
 	): string {

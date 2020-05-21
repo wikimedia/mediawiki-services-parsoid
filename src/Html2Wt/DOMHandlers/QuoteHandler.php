@@ -46,7 +46,13 @@ class QuoteHandler extends DOMHandler {
 		return $node->nextSibling;
 	}
 
-	private function precedingQuoteEltRequiresEscape( DOMElement $node ) {
+	/**
+	 * @param DOMElement $node
+	 * @return bool
+	 */
+	private function precedingQuoteEltRequiresEscape(
+		DOMElement $node
+	): bool {
 		// * <i> and <b> siblings don't need a <nowiki/> separation
 		// as long as quote chars in text nodes are always
 		// properly escaped -- which they are right now.

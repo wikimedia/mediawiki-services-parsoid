@@ -3,6 +3,7 @@
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 // phpcs:disable MediaWiki.Commenting.FunctionComment.WrongStyle
+// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPrivate
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 

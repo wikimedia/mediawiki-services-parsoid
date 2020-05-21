@@ -249,6 +249,11 @@ class TestRunner {
 		$this->siteConfig->setupInterwikiMap( self::PARSER_TESTS_IWPS );
 	}
 
+	/**
+	 * @param Test $test
+	 * @param string $wikitext
+	 * @return Env
+	 */
 	private function newEnv( Test $test, string $wikitext ): Env {
 		$pageNs = $this->dummyEnv->makeTitleFromURLDecodedStr(
 			$test->pageName()
@@ -1209,6 +1214,10 @@ class TestRunner {
 		}
 	}
 
+	/**
+	 * @param array $options
+	 * @return array
+	 */
 	private function updateBlacklist( array $options ): array {
 		// Sanity check in case any tests were removed but we didn't update
 		// the blacklist
@@ -1302,7 +1311,11 @@ class TestRunner {
 		];
 	}
 
-	private function processTest( Test $test, array $options ) {
+	/**
+	 * @param Test $test
+	 * @param array $options
+	 */
+	private function processTest( Test $test, array $options ): void {
 		if ( !$test->options ) {
 			$test->options = [];
 		}

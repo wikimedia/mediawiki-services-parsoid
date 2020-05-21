@@ -98,7 +98,15 @@ class TemplateHandler extends TokenHandler {
 		return array_merge( $chunkToks, $endToks );
 	}
 
-	private function encapTokens( array $state, array $tokens, array $extraDict = [] ): array {
+	/**
+	 * @param array $state
+	 * @param array $tokens
+	 * @param array $extraDict
+	 * @return array
+	 */
+	private function encapTokens(
+		array $state, array $tokens, array $extraDict = []
+	): array {
 		$toks = $this->getEncapsulationInfo( $state, $tokens );
 		$toks[] = $this->getEncapsulationInfoEndTag( $state );
 		if ( $this->wrapTemplates ) {
@@ -146,6 +154,10 @@ class TemplateHandler extends TokenHandler {
 		return $toks;
 	}
 
+	/**
+	 * @param array $tokens
+	 * @return ?string
+	 */
 	private function toStringOrNull( array $tokens ): ?string {
 		$maybeTarget = TokenUtils::tokensToString( $tokens, true, [ 'retainNLs' => true ] );
 		if ( !is_array( $maybeTarget ) ) {
@@ -412,7 +424,14 @@ class TemplateHandler extends TokenHandler {
 		return $tokens;
 	}
 
-	private function convertAttribsToString( array $state, array $attribs ): array {
+	/**
+	 * @param array $state
+	 * @param array $attribs
+	 * @return array
+	 */
+	private function convertAttribsToString(
+		array $state, array $attribs
+	): array {
 		$attribTokens = [];
 
 		// Leading whitespace, if any
@@ -586,8 +605,15 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Process a fetched template source to a token stream.
+	 *
+	 * @param array $state
+	 * @param array $tplArgs
+	 * @param ?string $src
+	 * @return array
 	 */
-	private function processTemplateSource( array $state, array $tplArgs, ?string $src ): array {
+	private function processTemplateSource(
+		array $state, array $tplArgs, ?string $src
+	): array {
 		if ( !$src ) {
 			// We have a choice between aborting or keeping going and reporting the
 			// error inline.
@@ -643,7 +669,14 @@ class TemplateHandler extends TokenHandler {
 		return array_merge( $toks, $this->finalizeTemplateTokens( $state ) );
 	}
 
-	private function getEncapsulationInfo( array $state, array $chunk = null ): array {
+	/**
+	 * @param array $state
+	 * @param ?array $chunk
+	 * @return array
+	 */
+	private function getEncapsulationInfo(
+		array $state, ?array $chunk = null
+	): array {
 		// TODO
 		// * only add this information for top-level includes, but track parameter
 		// expansion in lower-level templates
@@ -665,7 +698,11 @@ class TemplateHandler extends TokenHandler {
 		return $chunk;
 	}
 
-	private function getEncapsulationInfoEndTag( array $state ) {
+	/**
+	 * @param array $state
+	 * @return Token
+	 */
+	private function getEncapsulationInfoEndTag( array $state ): Token {
 		$tsr = $state['token']->dataAttribs->tsr ?? null;
 		return new SelfclosingTagTk( 'meta',
 			[
@@ -816,6 +853,10 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Handle chunk emitted from the input pipeline after feeding it a template.
+	 *
+	 * @param array $state
+	 * @param array $chunk
+	 * @return array
 	 */
 	private function processTemplateTokens( array $state, array $chunk ): array {
 		TokenUtils::stripEOFTkfromTokens( $chunk );
@@ -851,6 +892,10 @@ class TemplateHandler extends TokenHandler {
 		return $chunk;
 	}
 
+	/**
+	 * @param array $state
+	 * @return array
+	 */
 	private function finalizeTemplateTokens( array $state ): array {
 		$this->env->log( 'debug', 'TemplateHandler.finalizeTemplateTokens' );
 		$toks = [];
@@ -1098,6 +1143,11 @@ class TemplateHandler extends TokenHandler {
 		return $wikitext;
 	}
 
+	/**
+	 * @param mixed $arg
+	 * @param SourceRange $srcOffsets
+	 * @return array
+	 */
 	private function fetchArg( $arg, SourceRange $srcOffsets ): array {
 		if ( is_string( $arg ) ) {
 			return [ 'tokens' => [ $arg ] ];
@@ -1112,7 +1162,13 @@ class TemplateHandler extends TokenHandler {
 		}
 	}
 
-	private function lookupArg( $args, $attribs, $ret ) {
+	/**
+	 * @param array $args
+	 * @param KV[] $attribs
+	 * @param array $ret
+	 * @return array
+	 */
+	private function lookupArg( array $args, $attribs, array $ret ): array {
 		$toks = $ret['tokens'];
 		// FIXME: Why is there a trim in one, but not the other??
 		// Feels like a bug
@@ -1132,6 +1188,10 @@ class TemplateHandler extends TokenHandler {
 		}
 	}
 
+	/**
+	 * @param mixed $tokens
+	 * @return bool
+	 */
 	private static function hasTemplateToken( $tokens ): bool {
 		if ( is_array( $tokens ) ) {
 			foreach ( $tokens as $t ) {
@@ -1140,7 +1200,6 @@ class TemplateHandler extends TokenHandler {
 				}
 			}
 		}
-
 		return false;
 	}
 

@@ -243,6 +243,10 @@ class EncapsulatedContentHandler extends DOMHandler {
 		}
 	}
 
+	/**
+	 * @param DOMElement $node
+	 * @return bool
+	 */
 	private function parentBulletsHaveBeenEmitted( DOMElement $node ): bool {
 		if ( WTUtils::isLiteralHTMLNode( $node ) ) {
 			return true;

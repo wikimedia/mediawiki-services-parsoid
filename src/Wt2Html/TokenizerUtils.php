@@ -27,7 +27,11 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
 
-	private static function internalFlatten( $e, &$res ) {
+	/**
+	 * @param mixed $e
+	 * @param ?array &$res
+	 */
+	private static function internalFlatten( $e, ?array &$res ) {
 		// Don't bother flattening if we dont have an array
 		if ( !is_array( $e ) ) {
 			return $e;

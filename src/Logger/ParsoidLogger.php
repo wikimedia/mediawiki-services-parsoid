@@ -127,6 +127,11 @@ class ParsoidLogger {
 		return $msg;
 	}
 
+	/**
+	 * @param ?string $logType
+	 * @param array $args
+	 * @return string
+	 */
 	private function logMessage( ?string $logType, array $args ): string {
 		$numArgs = count( $args );
 		$output = $logType ? "[$logType]" : '';

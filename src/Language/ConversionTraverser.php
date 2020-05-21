@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Language;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
+use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
@@ -79,16 +80,34 @@ class ConversionTraverser extends DOMTraverser {
 		}
 	}
 
+	/**
+	 * @param DOMElement $el
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 * @return ?DOMNode
+	 */
 	private function noConvertHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
-	) {
+		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
+	): ?DOMNode {
 		// Don't touch the inside of this node!
 		return $el->nextSibling;
 	}
 
+	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 * @return bool
+	 */
 	private function anyHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
-	) {
+		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
+	): bool {
 		/* Look for `lang` attributes */
 		if ( DOMUtils::isElt( $node ) ) {
 			DOMUtils::assertElt( $node );
@@ -101,23 +120,48 @@ class ConversionTraverser extends DOMTraverser {
 		return true; // Continue with other handlers
 	}
 
+	/**
+	 * @param DOMElement $el
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 * @return bool
+	 */
 	private function langContextHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
-	) {
+		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
+	): bool {
 		$this->fromLang = $this->guesser->guessLang( $el );
 		$el->setAttribute( 'data-mw-variant-lang', $this->fromLang );
 		return true; // Continue with other handlers
 	}
 
+	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 */
 	private function textHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
+		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
 	) {
 		Assert::invariant( $this->fromLang !== null, 'Text w/o a context' );
 		return $this->machine->replace( $node, $this->toLang, $this->fromLang );
 	}
 
+	/**
+	 * @param DOMElement $el
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 */
 	private function aHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
 	) {
 		// Is this a wikilink?  If so, extract title & convert it
 		$rel = $el->getAttribute( 'rel' ) ?? '';
@@ -164,8 +208,16 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
+	/**
+	 * @param DOMNode $node
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 */
 	private function attrHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel, $tplInfo
+		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
 	) {
 		// Convert `alt` and `title` attributes on elements
 		// (Called before aHandler, so the `title` might get overwritten there)
@@ -199,9 +251,18 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
-	/** Handler for LanguageConverter markup */
+	/**
+	 * Handler for LanguageConverter markup
+	 *
+	 * @param DOMElement $el
+	 * @param Env $env
+	 * @param array $options
+	 * @param bool $atTopLevel
+	 * @param ?stdClass $tplInfo
+	 */
 	private function lcHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel, $tplInfo
+		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
 	) {
 		if ( !DOMDataUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
 			return true; /* not language converter markup */
@@ -226,7 +287,14 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
-	private function docFragToString( DOMDocumentFragment $docFrag, bool $force = false ) {
+	/**
+	 * @param DOMDocumentFragment $docFrag
+	 * @param bool $force
+	 * @return ?string
+	 */
+	private function docFragToString(
+		DOMDocumentFragment $docFrag, bool $force = false
+	): ?string {
 		if ( !$force ) {
 			for ( $child = $docFrag->firstChild; $child; $child = $child->nextSibling ) {
 				if ( !DOMUtils::isText( $child ) ) {

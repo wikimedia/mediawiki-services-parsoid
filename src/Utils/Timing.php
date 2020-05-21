@@ -10,12 +10,17 @@ class Timing {
 	 * This is typically a StatsdDataFactoryInterface, but really could be
 	 * anything which has a `timing()` method.  Set it to `null` to disable
 	 * metrics.
+	 *
+	 * @var ?object
 	 */
 	private $metrics;
 	/* @var float */
 	private $startTime;
 
-	private function __construct( $metrics ) {
+	/**
+	 * @param ?object $metrics
+	 */
+	private function __construct( ?object $metrics ) {
 		$this->metrics = $metrics;
 		$this->startTime = $metrics ? self::millis() : 0; /* will not be used */
 	}
@@ -41,10 +46,10 @@ class Timing {
 	/**
 	 * Start a timing measurement, logging it to the given `$metrics` object
 	 * (which just needs to have a `timing()` method).
-	 * @param object|null $metrics
+	 * @param ?object $metrics
 	 * @return Timing
 	 */
-	public static function start( $metrics ): Timing {
+	public static function start( ?object $metrics ): Timing {
 		return new Timing( $metrics );
 	}
 }

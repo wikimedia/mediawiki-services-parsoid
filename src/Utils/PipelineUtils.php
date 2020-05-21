@@ -471,7 +471,13 @@ class PipelineUtils {
 		return $toks;
 	}
 
-	private static function wrapAccum( DOMDocument $doc, array &$textCommentAccum ): void {
+	/**
+	 * @param DOMDocument $doc
+	 * @param array &$textCommentAccum
+	 */
+	private static function wrapAccum(
+		DOMDocument $doc, array &$textCommentAccum
+	): void {
 		// Wrap accumulated nodes in a span
 		$span = $doc->createElement( 'span' );
 		$parentNode = $textCommentAccum[0]->parentNode;

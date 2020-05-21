@@ -121,7 +121,14 @@ class ContentUtils {
 		}
 	}
 
-	private static function cloneData( DOMNode $node, DOMNode $clone, array $options ): void {
+	/**
+	 * @param DOMNode $node
+	 * @param DOMNode $clone
+	 * @param array $options
+	 */
+	private static function cloneData(
+		DOMNode $node, DOMNode $clone, array $options
+	): void {
 		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
@@ -138,6 +145,10 @@ class ContentUtils {
 		}
 	}
 
+	/**
+	 * @param array $buf
+	 * @param array &$opts
+	 */
 	private static function emit( array $buf, array &$opts ): void {
 		$str = implode( "\n", $buf ) . "\n";
 		if ( isset( $opts['outBuffer'] ) ) {

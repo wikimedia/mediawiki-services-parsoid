@@ -148,7 +148,13 @@ class UnpackDOMFragments {
 		}
 	}
 
-	private static function makeChildrenEncapWrappers( DOMNode $node, string $about ): void {
+	/**
+	 * @param DOMNode $node
+	 * @param string $about
+	 */
+	private static function makeChildrenEncapWrappers(
+		DOMNode $node, string $about
+	): void {
 		PipelineUtils::addSpanWrappers( $node->childNodes );
 
 		$c = $node->firstChild;

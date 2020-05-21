@@ -56,6 +56,10 @@ class ExtensionHandler extends TokenHandler {
 		return $this->onDocument( $state, $doc );
 	}
 
+	/**
+	 * @param array $options
+	 * @return array
+	 */
 	private static function normalizeExtOptions( array $options ): array {
 		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
 		//
@@ -79,6 +83,11 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
+	/**
+	 * @param Token $token
+	 * @param array $ret
+	 * @return string
+	 */
 	private function mangleParserResponse( Token $token, array $ret ): string {
 		$env = $this->env;
 		$html = $ret['html'];
@@ -113,7 +122,11 @@ class ExtensionHandler extends TokenHandler {
 		return $html;
 	}
 
-	private function onExtension( $token ): array {
+	/**
+	 * @param Token $token
+	 * @return array
+	 */
+	private function onExtension( Token $token ): array {
 		$env = $this->env;
 		$extensionName = $token->getAttribute( 'name' );
 		$nativeExt = $env->getSiteConfig()->getExtTagImpl( $extensionName );
@@ -170,6 +183,11 @@ class ExtensionHandler extends TokenHandler {
 		return( [ 'tokens' => $toks ] );
 	}
 
+	/**
+	 * @param array $state
+	 * @param DOMDocument $doc
+	 * @return array
+	 */
 	private function onDocument( array $state, DOMDocument $doc ): array {
 		$env = $this->env;
 

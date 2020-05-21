@@ -45,7 +45,11 @@ class AutoURLLinkText extends RegExpConstrainedText {
 		'[' . self::TRAILING_PUNCT . '\)]*' .
 		'[' . self::EXT_LINK_URL_CLASS . self::TRAILING_PUNCT . '\)]/u';
 
-	private static function badSuffix( $url ) {
+	/**
+	 * @param string $url
+	 * @return string
+	 */
+	private static function badSuffix( string $url ): string {
 		return strpos( $url, '(' ) === false ?
 			self::NOPAREN_AUTOURL_BAD_SUFFIX :
 			self::PAREN_AUTOURL_BAD_SUFFIX;

@@ -135,11 +135,15 @@ class PageConfig extends IPageConfig {
 		return $this->parser;
 	}
 
+	/**
+	 * @return ?RevisionRecord
+	 */
 	private function getRevision(): ?RevisionRecord {
 		if ( $this->revision === null ) {
 			$this->revision = false;
 			$rev = call_user_func(
-				$this->parserOptions->getCurrentRevisionCallback(), $this->title, $this->parser
+				$this->parserOptions->getCurrentRevisionCallback(),
+				$this->title, $this->parser
 			);
 			if ( $rev instanceof RevisionRecord ) {
 				$this->revision = $rev;

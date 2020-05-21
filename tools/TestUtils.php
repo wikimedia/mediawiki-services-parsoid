@@ -179,7 +179,13 @@ class TestUtils {
 		);
 	}
 
-	private static function cleanSpans( DOMNode $node, ?string $stripSpanTypeof ): void {
+	/**
+	 * @param DOMNode $node
+	 * @param ?string $stripSpanTypeof
+	 */
+	private static function cleanSpans(
+		DOMNode $node, ?string $stripSpanTypeof
+	): void {
 		if ( !$stripSpanTypeof ) {
 			return;
 		}
@@ -196,9 +202,14 @@ class TestUtils {
 		}
 	}
 
+	/**
+	 * @param DOMNode $parent
+	 * @param DOMNode $node
+	 * @param ?string $stripSpanTypeof
+	 */
 	private static function unwrapSpan(
 		DOMNode $parent, DOMNode $node, ?string $stripSpanTypeof
-	) {
+	):void {
 		// first recurse to unwrap any spans in the immediate children.
 		self::cleanSpans( $node, $stripSpanTypeof );
 		// now unwrap this span.
@@ -206,11 +217,19 @@ class TestUtils {
 		$parent->removeChild( $node );
 	}
 
-	private static function newlineAround( ?DOMNode $node ) {
+	/**
+	 * @param ?DOMNode $node
+	 * @return bool
+	 */
+	private static function newlineAround( ?DOMNode $node ): bool {
 		return $node &&
 			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D', $node->nodeName );
 	}
 
+	/**
+	 * @param DOMNode $node
+	 * @param array $opts
+	 */
 	private static function normalizeIEWVisitor( DOMNode $node, array $opts ) {
 		$child = null;
 		$next = null;
@@ -528,7 +547,13 @@ class TestUtils {
 		return $failures;
 	}
 
-	private static function prettyPrintIOptions( array $iopts = null ) {
+	/**
+	 * @param ?array $iopts
+	 * @return string
+	 */
+	private static function prettyPrintIOptions(
+		?array $iopts = null
+	): string {
 		if ( !$iopts ) {
 			return '';
 		}
@@ -934,7 +959,15 @@ class TestUtils {
 		$stats->modes[$mode]->passedTests++;
 	}
 
-	private static function pre( Stats $stats, string $mode, string $title, array $time ): void {
+	/**
+	 * @param Stats $stats
+	 * @param string $mode
+	 * @param string $title
+	 * @param array $time
+	 */
+	private static function pre(
+		Stats $stats, string $mode, string $title, array $time
+	): void {
 		$testcaseEle = '<testcase name="' . self::encodeXml( $title ) . '" ';
 		$testcaseEle .= 'assertions="1" ';
 
@@ -950,7 +983,11 @@ class TestUtils {
 		$stats->modes[$mode]->result .= $testcaseEle;
 	}
 
-	private static function post( Stats $stats, string $mode ) {
+	/**
+	 * @param Stats $stats
+	 * @param string $mode
+	 */
+	private static function post( Stats $stats, string $mode ): void {
 		$stats->modes[$mode]->result .= '</testcase>';
 	}
 

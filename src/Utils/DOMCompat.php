@@ -370,6 +370,9 @@ class DOMCompat {
 		return preg_replace( "/[$ws]+/", ' ', trim( $text, $ws ) );
 	}
 
+	/**
+	 * @param DOMElement $e
+	 */
 	private static function stripEmptyTextNodes( DOMElement $e ): void {
 		$c = $e->firstChild;
 		while ( $c ) {

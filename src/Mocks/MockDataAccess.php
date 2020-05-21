@@ -325,7 +325,11 @@ class MockDataAccess implements DataAccess {
 		]
 	];
 
-	private function normTitle( $title ) {
+	/**
+	 * @param string $title
+	 * @return string
+	 */
+	private function normTitle( string $title ): string {
 		return strtr( $title, ' ', '_' );
 	}
 

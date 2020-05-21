@@ -238,7 +238,14 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		return $doc;
 	}
 
-	private function contentHandler( ParsoidExtensionAPI $extApi, DOMElement $node ): string {
+	/**
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param DOMElement $node
+	 * @return string
+	 */
+	private function contentHandler(
+		ParsoidExtensionAPI $extApi, DOMElement $node
+	): string {
 		$content = "\n";
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			switch ( $child->nodeType ) {

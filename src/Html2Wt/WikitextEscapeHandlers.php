@@ -676,6 +676,13 @@ class WikitextEscapeHandlers {
 		return false;
 	}
 
+	/**
+	 * @param string $str
+	 * @param bool $close
+	 * @param bool &$inNowiki
+	 * @param bool &$nowikisAdded
+	 * @param string &$buf
+	 */
 	private static function nowikiWrap(
 		string $str, bool $close, bool &$inNowiki, bool &$nowikisAdded, string &$buf
 	): void {

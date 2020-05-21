@@ -33,6 +33,10 @@ class AttributeTransformManager {
 		$this->frame = $frame;
 	}
 
+	/**
+	 * @param KV $cur
+	 * @return KV
+	 */
 	private function processOne( KV $cur ): KV {
 		$k = $cur->k;
 		$v = $cur->v;

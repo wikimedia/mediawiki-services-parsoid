@@ -86,6 +86,10 @@ class Parsoid {
 		return null;
 	}
 
+	/**
+	 * @param array $options
+	 * @return array
+	 */
 	private function setupCommonOptions( array $options ): array {
 		$envOptions = [];
 		if ( isset( $options['offsetType'] ) ) {

@@ -487,7 +487,15 @@ class MockApiHelper extends ApiHelper {
 		}
 	}
 
-	private function imageInfo( string $filename, ?int $twidth, ?int $theight ) : ?array {
+	/**
+	 * @param string $filename
+	 * @param ?int $twidth
+	 * @param ?int $theight
+	 * @return ?array
+	 */
+	private function imageInfo(
+		string $filename, ?int $twidth, ?int $theight
+	) : ?array {
 		$normPagename = self::PNAMES[$filename] ?? $filename;
 		$normFilename = self::FNAMES[$filename] ?? $filename;
 		$props = self::FILE_PROPS[$normFilename] ?? null;
@@ -583,6 +591,10 @@ class MockApiHelper extends ApiHelper {
 		];
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	private function processQuery( array $params ): array {
 		if ( ( $params['meta'] ?? null ) === 'siteinfo' ) {
 			if ( !isset( $this->cachedConfigs[$this->prefix] ) ) {
@@ -703,7 +715,12 @@ class MockApiHelper extends ApiHelper {
 		return [ "error" => new Error( 'Uh oh!' ) ];
 	}
 
-	private function parse( string $text, bool $onlypst ) {
+	/**
+	 * @param string $text
+	 * @param bool $onlypst
+	 * @return array
+	 */
+	private function parse( string $text, bool $onlypst ): array {
 		// We're performing a subst
 		if ( $onlypst ) {
 			return [ 'text' => preg_replace( '/\{\{subst:1x\|([^}]+)\}\}/', '$1', $text, 1 ) ];
@@ -746,7 +763,15 @@ class MockApiHelper extends ApiHelper {
 		return [ 'parse' => $parse ];
 	}
 
-	private function preProcess( string $title, string $text, ?int $revid ): ?array {
+	/**
+	 * @param string $title
+	 * @param string $text
+	 * @param ?int $revid
+	 * @return ?array
+	 */
+	private function preProcess(
+		string $title, string $text, ?int $revid
+	): ?array {
 		// These are the only known templates in current parser tests.
 		// This would need to be updated as more templates are added OR we need
 		// to rely on true (instead of mock) preprocessing.
@@ -763,6 +788,10 @@ class MockApiHelper extends ApiHelper {
 		}
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	private function fetchTemplateData( array $params ): array {
 		return [
 			// Assumes that titles is a single title

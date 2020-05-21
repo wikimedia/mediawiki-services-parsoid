@@ -29,6 +29,11 @@ class TraditionalMode extends Mode {
 	/** @var object */
 	protected $padding;
 
+	/**
+	 * @param DOMElement $ul
+	 * @param string $k
+	 * @param string $v
+	 */
 	private function appendAttr( DOMElement $ul, string $k, string $v ) {
 		$val = $ul->hasAttribute( $k ) ? $ul->getAttribute( $k ) : '';
 		if ( strlen( $val ) > 0 ) {
@@ -37,6 +42,11 @@ class TraditionalMode extends Mode {
 		$ul->setAttribute( $k, $val . $v );
 	}
 
+	/**
+	 * @param Opts $opts
+	 * @param DOMDocument $doc
+	 * @return DOMElement
+	 */
 	private function ul( Opts $opts, DOMDocument $doc ): DOMElement {
 		$ul = $doc->createElement( 'ul' );
 		$cl = 'gallery mw-gallery-' . $this->mode;
@@ -71,6 +81,12 @@ class TraditionalMode extends Mode {
 	protected function setAdditionalOptions( Opts $opts, DOMElement $ul ): void {
 	}
 
+	/**
+	 * @param Opts $opts
+	 * @param DOMDocument $doc
+	 * @param DOMElement $ul
+	 * @param DOMElement $caption
+	 */
 	private function caption(
 		Opts $opts, DOMDocument $doc, DOMElement $ul, DOMElement $caption
 	) {
@@ -158,6 +174,12 @@ class TraditionalMode extends Mode {
 		$box->appendChild( $div );
 	}
 
+	/**
+	 * @param Opts $opts
+	 * @param DOMDocument $doc
+	 * @param DOMElement $ul
+	 * @param ParsedLine $o
+	 */
 	private function line(
 		Opts $opts, DOMDocument $doc, DOMElement $ul, ParsedLine $o
 	): void {
