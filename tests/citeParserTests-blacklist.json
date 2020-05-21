@@ -835,7 +835,7 @@
         "html2wt": "<sup id=\"cite_ref-blank_1-0\" class=\"reference\">[[#cite_note-blank-1|[1]]]</sup>\n\n<sup id=\"cite_ref-blank_1-1\" class=\"reference\">[[#cite_note-blank-1|[1]]]</sup>\n\n<div class=\"mw-references-wrap\">\n# <span class=\"mw-cite-backlink\">↑ <sup>[[#cite_ref-blank_1-0|1.0]]</sup> <sup>[[#cite_ref-blank_1-1|1.1]]</sup></span> <span class=\"reference-text\">content</span>\n\n</div>"
     },
     "Ref: 12. ref-tags act as trailing newline migration barrier [4,[2],3,2,4,[4],3,0]": {
-        "selser": "7i6vwo\n\nfzf7t0a\n\n1cltg43\n\nb<!--the newline at the end of this line stays inside the p tag--> <ref />\n<ref />\n\n7vjkpr\n\n1vn32lo\n<references />"
+        "selser": "7i6vwo\n\nfzf7t0a\n\n1cltg43\n\nb<!--the newline at the end of this line stays inside the p tag--> <ref>foo</ref>\n<ref>bar</ref>\n\n7vjkpr\n\n1vn32lo\n<references />"
     },
     "Ref: 3. spaces in ref-names should be ignored": {
         "wt2wt": "A <ref name=\"x\">foo</ref>\nB <ref name=\"x\" />\nC <ref name=\"x\" />\n<references />",

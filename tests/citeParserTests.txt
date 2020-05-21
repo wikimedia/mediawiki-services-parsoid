@@ -1194,8 +1194,8 @@ Ref: 12. ref-tags act as trailing newline migration barrier
 !! wikitext
 <!--the newline at the end of this line moves out of the p tag-->a
 
-b<!--the newline at the end of this line stays inside the p tag--> <ref />
-<ref />
+b<!--the newline at the end of this line stays inside the p tag--> <ref>foo</ref>
+<ref>bar</ref>
 
 c
 <references />
@@ -1203,13 +1203,13 @@ c
 <!--the newline at the end of this line moves out of the p tag--><p>a</p>
 
 
-<p>b<!--the newline at the end of this line stays inside the p tag--> <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup about="#mwt4" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{}}'><a href="./Parser_test#cite_note-2"><span class="mw-reflink-text">[2]</span></a></sup></p>
+<p>b<!--the newline at the end of this line stays inside the p tag--> <sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-2"}}'><a href="./Parser_test#cite_note-2"><span class="mw-reflink-text">[2]</span></a></sup></p>
 
 <p>c</p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'>
-<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"></span></li>
-<li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text"></span></li></ol>
+<li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">foo</span></li>
+<li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">bar</span></li></ol>
 !! end
 
 !! test
