@@ -999,6 +999,7 @@ class TestRunner {
 	 * Check the given wikitext result against the expected result, and throw an
 	 * exception if necessary.
 	 *
+	 * @param Env $env
 	 * @param Test $test
 	 * @param array $options
 	 * @param string $mode

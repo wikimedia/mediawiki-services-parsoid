@@ -1276,12 +1276,16 @@ class Sanitizer extends TokenHandler {
 	 * XXX: Make attribute sanitation reversible by storing round-trip info in
 	 * token.dataAttribs object (which is serialized as JSON in a data-parsoid
 	 * attribute in the DOM).
+	 *
 	 * @param Env $env
+	 * @param Frame $frame
 	 * @param Token|string $token
 	 * @param bool $inTemplate
 	 * @return Token|string
 	 */
-	private static function sanitizeToken( Env $env, Frame $frame, $token, bool $inTemplate ) {
+	private static function sanitizeToken(
+		Env $env, Frame $frame, $token, bool $inTemplate
+	) {
 		$i = null;
 		$l = null;
 		$kv = null;

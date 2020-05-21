@@ -206,11 +206,15 @@ class ParserPipelineFactory {
 
 	/**
 	 * Generic pipeline creation from the above recipes.
+	 *
 	 * @param string $type
+	 * @param string $cacheKey
 	 * @param array $options
 	 * @return ParserPipeline
 	 */
-	private function makePipeline( string $type, string $cacheKey, array $options ): ParserPipeline {
+	private function makePipeline(
+		string $type, string $cacheKey, array $options
+	): ParserPipeline {
 		$options = $this->defaultOptions( $options );
 
 		if ( !isset( self::$pipelineRecipes[$type] ) ) {
