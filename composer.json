@@ -61,14 +61,17 @@
 	},
 	"scripts": {
 		"test": [
-			"parallel-lint . --exclude vendor --exclude node_modules",
-			"phpcs -p -s",
-			"minus-x check .",
-			"covers-validator",
+			"@lint",
 			"@phpunit",
 			"@phan",
 			"@toolcheck",
 			"@parserTests"
+		],
+		"lint": [
+			"parallel-lint . --exclude vendor --exclude node_modules",
+			"phpcs -p -s",
+			"minus-x check .",
+			"covers-validator"
 		],
 		"fix": [
 			"minus-x fix .",
