@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use \Closure;
+use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
