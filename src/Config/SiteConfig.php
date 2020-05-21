@@ -1082,7 +1082,9 @@ abstract class SiteConfig {
 	 */
 	abstract protected function getNonNativeExtensionTags(): array;
 
-	// FIXME: might benefit from T250230 (caching)
+	/**
+	 * FIXME: might benefit from T250230 (caching)
+	 */
 	private function constructExtConfig() {
 		// We always support wikitext
 		$this->extConfig['contentModels']['wikitext'] =

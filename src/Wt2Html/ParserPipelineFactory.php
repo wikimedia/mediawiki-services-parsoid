@@ -178,7 +178,12 @@ class ParserPipelineFactory {
 		$this->env = $env;
 	}
 
-	// Default options processing
+	/**
+	 * Default options processing
+	 *
+	 * @param array $options
+	 * @return array
+	 */
 	private function defaultOptions( array $options ): array {
 		if ( !$options ) {
 			$options = [];

@@ -315,9 +315,14 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	// Done after `findDeletedStartTags` to give it a chance to cleanup any
-	// leftover meta markers that may trip up the check for whether this element
-	// is indeed empty.
+	/**
+	 * Done after `findDeletedStartTags` to give it a chance to cleanup any
+	 * leftover meta markers that may trip up the check for whether this element
+	 * is indeed empty.
+	 *
+	 * @param Frame $frame
+	 * @param DOMNode $node
+	 */
 	private static function removeAutoInsertedEmptyTags( Frame $frame, DOMNode $node ) {
 		$c = $node->firstChild;
 		while ( $c !== null ) {

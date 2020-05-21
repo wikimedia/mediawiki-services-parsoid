@@ -40,8 +40,13 @@ class ParsoidLogger {
 		'trace/ttm:3' => '[3-TTM]',
 	];
 
-	// TRACE / DEBUG: Make trace / debug regexp with appropriate postfixes,
-	// depending on the command-line options passed in.
+	/**
+	 * TRACE / DEBUG: Make trace / debug regexp with appropriate postfixes,
+	 * depending on the command-line options passed in.
+	 *
+	 * @param array $flags
+	 * @param string $logType
+	 */
 	private function buildLoggingRE( array $flags, string $logType ) {
 		return $logType . '/(' . implode( '|', array_keys( $flags ) ) . ')(/|$)';
 	}
@@ -76,9 +81,16 @@ class ParsoidLogger {
 		}
 	}
 
-	// PORT-FIXME: This can become a MonologFormatter possibly.
-	// We can create channel-specific loggers and this formatter
-	// can be added to the trace-channel logger.
+	/**
+	 * PORT-FIXME: This can become a MonologFormatter possibly.
+	 *
+	 * We can create channel-specific loggers and this formatter
+	 * can be added to the trace-channel logger.
+	 *
+	 * @param string $logType
+	 * @param array $args
+	 * @return string
+	 */
 	private function formatTrace( string $logType, array $args ): string {
 		$typeColumnWidth = 15;
 		$firstArg = $args[0];
