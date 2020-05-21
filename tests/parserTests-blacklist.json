@@ -1647,8 +1647,35 @@
     "File in link scenarios": {
         "html2wt": "[http://www.google.com][[File:Foobar.jpg|1941x1941px]]\n\n[http://www.google.com][[File:Foobar.jpg|thumb|123]]"
     },
-    "Fostered content in tables: Lists": {
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,3,0,0]}'><li data-parsoid='{\"dsr\":[0,3,1,0]}'>a</li></ul>\n<table data-parsoid='{\"dsr\":[4,12,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[7,10,0,0]}'><tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[7,9,2,0]}'></tr>\n</tbody></table>"
+    "Fostered content in tables: Lists [1,1]": {
+        "selser": "*a\n*b\n{| data-foobar=\"15nckv4\"\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [1,2]": {
+        "selser": "*a\n*b\najwbwr\n{|\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [2,0]": {
+        "selser": "1kscycd\n{|\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [2,1]": {
+        "selser": "yomulg\n{| data-foobar=\"ikb4sw\"\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [2,2]": {
+        "selser": "u94qxj\n\nrq6jfc\n{|\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [2,[4,0]]": {
+        "selser": "1awbnr7\n{|<!--a5irch-->\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [[0,4,0],[4,2]]": {
+        "selser": "*a\n* 1b3dqm3\n*b\n{|<!--1ctabq5--><!--q5qhbe-->\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [[3,3,[2]],2]": {
+        "selser": "*8f87u4b\n1mdpxmc\n{|\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [[[2],4,0],0]": {
+        "selser": "*1t57graa\n* 1lty4kl\n*b\n{|\n|-\n*a\n*b\n|}"
+    },
+    "Fostered content in tables: Lists [[[2],4,[2]],[0,[2]]]": {
+        "selser": "*u211axa\n* rhxrwz\n*1tegptyb\n{|\n<!--47ercg-->|-\n*a\n*b\n|}"
     },
     "French spaces in wikitext": {
         "html2wt": "foo ! bar ? bat 50 % is less than 75 %.\n\nHello : this ; is « something ‹ else › again »\n"

@@ -7,8 +7,10 @@ use DOMElement;
 use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Util;
 
 /**
@@ -267,12 +269,25 @@ class ConstrainedText {
 		) {
 			DOMUtils::assertElt( $firstChild ); // implied by $firstChildDp
 			$len = $firstChildDp->dsr->length();
-			$prefixChunks = self::fromSelSer(
-				substr( $text, 0, $len ), $firstChild, $firstChildDp, $env,
-				// this child node's right context will be protected:
-				[ 'ignoreSuffix' => true ]
-			);
-			$text = substr( $text, $len );
+			if ( $len < 0 ) { // T254412: Bad DSR
+				$env->log( "error/html2wt/dsr",
+					"Bad DSR: " . PHPUtils::jsonEncode( $firstChildDp->dsr ),
+					"Node: " . DOMCompat::getOuterHTML( $firstChild ) );
+				$prefixChunks = [];
+			} else {
+				if ( $len > strlen( $text ) ) { // T254412: Bad DSR
+					$env->log( "error/html2wt/dsr",
+						"Bad DSR: " . PHPUtils::jsonEncode( $firstChildDp->dsr ),
+						"Node: " . DOMCompat::getOuterHTML( $firstChild ) );
+					$len = strlen( $text );
+				}
+				$prefixChunks = self::fromSelSer(
+					substr( $text, 0, $len ), $firstChild, $firstChildDp, $env,
+					// this child node's right context will be protected:
+					[ 'ignoreSuffix' => true ]
+				);
+				$text = substr( $text, $len );
+			}
 		}
 		// check to see if last child's DSR end is the same as this node's
 		// DSR end.  If so, the last child is exposed to the (modified)
@@ -285,12 +300,25 @@ class ConstrainedText {
 		) {
 			DOMUtils::assertElt( $lastChild ); // implied by $lastChildDp
 			$len = $lastChildDp->dsr->length();
-			$suffixChunks = self::fromSelSer(
-				substr( $text, -$len ), $lastChild, $lastChildDp, $env,
-				// this child node's left context will be protected:
-				[ 'ignorePrefix' => true ]
-			);
-			$text = substr( $text, 0, -$len );
+			if ( $len < 0 ) { // T254412: Bad DSR
+				$env->log( "error/html2wt/dsr",
+					"Bad DSR: " . PHPUtils::jsonEncode( $lastChildDp->dsr ),
+					"Node: " . DOMCompat::getOuterHTML( $lastChild ) );
+				$suffixChunks = [];
+			} else {
+				if ( $len > strlen( $text ) ) { // T254412: Bad DSR
+					$env->log( "error/html2wt/dsr",
+						"Bad DSR: " . PHPUtils::jsonEncode( $lastChildDp->dsr ),
+						"Node: " . DOMCompat::getOuterHTML( $lastChild ) );
+					$len = strlen( $text );
+				}
+				$suffixChunks = self::fromSelSer(
+					substr( $text, -$len ), $lastChild, $lastChildDp, $env,
+					// this child node's left context will be protected:
+					[ 'ignorePrefix' => true ]
+				);
+				$text = substr( $text, 0, -$len );
+			}
 		}
 		// glue together prefixChunks, whatever's left of `text`, and suffixChunks
 		$chunks = [ self::cast( $text, $node ) ];

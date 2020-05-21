@@ -7449,27 +7449,32 @@ a</p>
 <tbody><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'></tr></tbody></table>
 !! end
 
+# selser tests are needed below as a regression test for T233815
+# they also demonstrate DSR errors in fostered content (T254412)
 !! test
 Fostered content in tables: Lists
 !! options
-parsoid=wt2html,html2html
+parsoid=wt2html,selser
 !! wikitext
 {|
 |-
 *a
+*b
 |}
 !! html/php+untidy
 <table>
 
-<ul><li>a</li></ul>
+<ul><li>a</li>
+<li>b</li></ul>
 </table>
 !! html/php+tidy
-<ul><li>a</li></ul><table>
+<ul><li>a</li>
+<li>b</li></ul><table>
 
 
 </table>
 !! html/parsoid
-<ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li></ul><table>
+<ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li><li>b</li></ul><table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
 
 </tr></tbody></table>
