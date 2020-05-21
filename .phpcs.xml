@@ -12,7 +12,6 @@
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPrivate" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
-		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.SingleSpaceBeforeSingleLineComment" />
 	</rule>
 	<rule ref="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic">
 		<exclude-pattern>*/bin/*</exclude-pattern>
