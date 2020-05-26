@@ -1,3 +1,0 @@
-suites:
-    parsoid_suite:
-        spec_path: tests
