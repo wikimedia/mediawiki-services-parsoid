@@ -24,14 +24,5 @@
 		<exclude-pattern>*/tests/*</exclude-pattern>
 		<exclude-pattern>*/tools/*</exclude-pattern>
 	</rule>
-	<rule ref="Internal.NoCodeFound">
-		<exclude-pattern>*/src/*</exclude-pattern>
-		<exclude-pattern>*/bin/*</exclude-pattern>
-		<exclude-pattern>*/tests/*</exclude-pattern>
-		<exclude-pattern>*/tools/*</exclude-pattern>
-	</rule>
-	<rule ref="MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName">
-		<exclude-pattern>tests/spec</exclude-pattern>
-	</rule>
 	<rule ref="Squiz.Arrays.ArrayBracketSpacing" />
 </ruleset>
