@@ -12,11 +12,5 @@
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 	</rule>
-	<rule ref="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic">
-		<exclude-pattern>*/bin/*</exclude-pattern>
-		<exclude-pattern>*/src/Mocks/*</exclude-pattern>
-		<exclude-pattern>*/tests/*</exclude-pattern>
-		<exclude-pattern>*/tools/*</exclude-pattern>
-	</rule>
 	<rule ref="Squiz.Arrays.ArrayBracketSpacing" />
 </ruleset>

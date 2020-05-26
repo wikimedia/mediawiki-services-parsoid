@@ -420,6 +420,12 @@ class TestUtils {
 		}
 	}
 
+	/**
+	 * @param string $string
+	 * @param string $color
+	 * @param bool $inverse
+	 * @return string
+	 */
 	public static function colorString(
 		string $string, string $color, bool $inverse = false
 	): string {

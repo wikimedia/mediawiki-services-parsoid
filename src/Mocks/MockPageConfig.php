@@ -39,6 +39,7 @@ class MockPageConfig extends PageConfig {
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 	}
 
+	/** @inheritDoc */
 	public function getContentModel(): string {
 		return 'wikitext';
 	}

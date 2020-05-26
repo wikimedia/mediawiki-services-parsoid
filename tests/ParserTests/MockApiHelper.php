@@ -440,7 +440,10 @@ class MockApiHelper extends ApiHelper {
 	/** @var string wiki prefix for which we are mocking the api access */
 	private $prefix = 'enwiki';
 
-	public function __construct( string $prefix = null ) {
+	/**
+	 * @param ?string $prefix
+	 */
+	public function __construct( ?string $prefix = null ) {
 		if ( $prefix ) {
 			$this->prefix = $prefix;
 		}
@@ -459,6 +462,10 @@ class MockApiHelper extends ApiHelper {
 		$this->prefix = $prefix;
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function makeRequest( array $params ): array {
 		switch ( $params['action'] ?? null ) {
 			case 'query':

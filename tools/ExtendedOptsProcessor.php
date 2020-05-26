@@ -5,14 +5,18 @@ namespace Wikimedia\Parsoid\Tools;
 trait ExtendedOptsProcessor {
 	private $optionDefaults = [];
 
+	/**
+	 * @param string $name
+	 * @param mixed $default
+	 */
 	public function setOptionDefault( string $name, $default ) {
 		$this->optionDefaults[$name] = $default;
 	}
 
-	public function getOption( $name, $default = null ) {
+	/** @inheritDoc */
+	public function getOption( string $name, $default = null ) {
 		return parent::getOption(
-			$name,
-			$default ?? $this->optionDefaults[$name] ?? null
+			$name, $default ?? $this->optionDefaults[$name] ?? null
 		);
 	}
 

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable Generic.Files.LineLength.TooLong
 
 namespace Wikimedia\Parsoid\Tools;
 
@@ -171,8 +172,9 @@ if ( $parsoidMode === 'integrated' ) {
 			}
 		}
 
-		// Implementation copied from core:
 		/**
+		 * Implementation copied from core
+		 *
 		 * Wrapper for posix_isatty()
 		 * We default as considering stdin a tty (for nice readline methods)
 		 * but treating stdout as not a tty to avoid color codes
@@ -180,8 +182,7 @@ if ( $parsoidMode === 'integrated' ) {
 		 * @param mixed $fd File descriptor
 		 * @return bool
 		 */
-		// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
-		public static function posix_isatty( $fd ) {
+		public static function posix_isatty( $fd ): bool {  // phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 			if ( !function_exists( 'posix_isatty' ) ) {
 				return !$fd;
 			} else {

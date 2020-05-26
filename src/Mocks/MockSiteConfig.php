@@ -153,7 +153,10 @@ class MockSiteConfig extends SiteConfig {
 		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
-	public function setInterwikiMagic( bool $val ) {
+	/**
+	 * @param bool $val
+	 */
+	public function setInterwikiMagic( bool $val ): void {
 		$this->interwikiMagic = $val;
 	}
 
@@ -273,6 +276,7 @@ class MockSiteConfig extends SiteConfig {
 		];
 	}
 
+	/** @inheritDoc */
 	public function getMagicWordMatcher( string $id ): string {
 		if ( $id === 'toc' ) {
 			return '/^TOC$/';
@@ -347,6 +351,7 @@ class MockSiteConfig extends SiteConfig {
 		];
 	}
 
+	/** @inheritDoc */
 	public function getMaxTemplateDepth(): int {
 		return $this->maxDepth;
 	}

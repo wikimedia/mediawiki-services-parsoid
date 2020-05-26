@@ -333,6 +333,9 @@ class MockDataAccess implements DataAccess {
 		return strtr( $title, ' ', '_' );
 	}
 
+	/**
+	 * @param array $opts
+	 */
 	public function __construct( array $opts ) {
 		// Update data of the large page
 		$mainSlot = &self::$PAGE_DATA['Large_Page']['slots']['main'];
