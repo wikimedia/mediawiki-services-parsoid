@@ -86,12 +86,12 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode
+	 * @return ?DOMNode|bool
 	 */
 	private function noConvertHandler(
 		DOMElement $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
-	): ?DOMNode {
+	) {
 		// Don't touch the inside of this node!
 		return $el->nextSibling;
 	}
@@ -102,12 +102,12 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return bool
+	 * @return ?DOMNode|bool
 	 */
 	private function anyHandler(
 		DOMNode $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
-	): bool {
+	) {
 		/* Look for `lang` attributes */
 		if ( DOMUtils::isElt( $node ) ) {
 			DOMUtils::assertElt( $node );
@@ -126,12 +126,12 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return bool
+	 * @return ?DOMNode|bool
 	 */
 	private function langContextHandler(
 		DOMElement $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
-	): bool {
+	) {
 		$this->fromLang = $this->guesser->guessLang( $el );
 		$el->setAttribute( 'data-mw-variant-lang', $this->fromLang );
 		return true; // Continue with other handlers
@@ -143,6 +143,7 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
+	 * @return ?DOMNode|bool
 	 */
 	private function textHandler(
 		DOMNode $node, Env $env, array $options, bool $atTopLevel,
@@ -158,6 +159,7 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
+	 * @return ?DOMNode|bool
 	 */
 	private function aHandler(
 		DOMElement $el, Env $env, array $options, bool $atTopLevel,
@@ -214,6 +216,7 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
+	 * @return ?DOMNode|bool
 	 */
 	private function attrHandler(
 		DOMNode $node, Env $env, array $options, bool $atTopLevel,
@@ -259,6 +262,7 @@ class ConversionTraverser extends DOMTraverser {
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
+	 * @return ?DOMNode|bool
 	 */
 	private function lcHandler(
 		DOMElement $el, Env $env, array $options, bool $atTopLevel,

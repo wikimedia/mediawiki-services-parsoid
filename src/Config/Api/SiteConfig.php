@@ -444,7 +444,7 @@ class SiteConfig extends ISiteConfig {
 		}
 	}
 
-	/** inheritDoc */
+	/** @inheritDoc */
 	protected function linkTrail(): string {
 		$this->loadSiteData();
 		return $this->siteData['linktrail'];

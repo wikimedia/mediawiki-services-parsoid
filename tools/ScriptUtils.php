@@ -29,8 +29,10 @@ class ScriptUtils {
 
 	/**
 	 * Returns a help message for the tracing flags.
+	 *
+	 * @return string
 	 */
-	public static function traceUsageHelp() {
+	public static function traceUsageHelp(): string {
 		return implode(
 			"\n", [
 				'Tracing',
@@ -70,8 +72,10 @@ class ScriptUtils {
 
 	/**
 	 * Returns a help message for the dump flags.
+	 *
+	 * @return string
 	 */
-	public static function dumpUsageHelp() {
+	public static function dumpUsageHelp(): string {
 		return implode(
 			"\n", [
 				'Dumping state',
@@ -111,8 +115,10 @@ class ScriptUtils {
 
 	/**
 	 * Returns a help message for the debug flags.
+	 *
+	 * @return string
 	 */
-	public static function debugUsageHelp() {
+	public static function debugUsageHelp(): string {
 		return implode(
 			"\n", [
 				'Debugging',

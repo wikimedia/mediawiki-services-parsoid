@@ -363,7 +363,7 @@ class SiteConfig extends ISiteConfig {
 		return '/[' . $this->contLang->linkPrefixCharset() . ']+$/Du';
 	}
 
-	/** inheritDoc */
+	/** @inheritDoc */
 	protected function linkTrail(): string {
 		return $this->contLang->linkTrail();
 	}

@@ -538,8 +538,9 @@ class TemplateHandler extends TokenHandler {
 	 *
 	 * @param array $state
 	 * @param array $attribs
+	 * @return array
 	 */
-	private function expandTemplate( array $state, array $attribs ) {
+	private function expandTemplate( array $state, array $attribs ): array {
 		$env = $this->env;
 		$target = $attribs[0]->k;
 		if ( !$target ) {
@@ -735,8 +736,9 @@ class TemplateHandler extends TokenHandler {
 	 * Parameter processing helpers.
 	 *
 	 * @param mixed $tokens
+	 * @return bool
 	 */
-	private static function isSimpleParam( $tokens ) {
+	private static function isSimpleParam( $tokens ): bool {
 		if ( !is_array( $tokens ) ) {
 			$tokens = [ $tokens ];
 		}

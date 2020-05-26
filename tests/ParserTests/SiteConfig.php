@@ -208,7 +208,11 @@ class SiteConfig extends ApiSiteConfig {
 		return 123;
 	}
 
-	/** Hardcode value for parser tests */
+	/**
+	 * Hardcode value for parser tests
+	 *
+	 * @return int
+	 */
 	public function timezoneOffset(): int {
 		return 0;
 	}

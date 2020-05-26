@@ -86,8 +86,12 @@ if ( $parsoidMode === 'integrated' ) {
 			);
 		}
 
-		/** Make the options array available to ExtendedOptsProcessor */
-		protected function getOptions() {
+		/**
+		 * Make the options array available to ExtendedOptsProcessor
+		 *
+		 * @return array
+		 */
+		protected function getOptions(): array {
 			return $this->mOptions;
 		}
 	}
@@ -115,8 +119,12 @@ if ( $parsoidMode === 'integrated' ) {
 			parent::addDefaultParams();
 		}
 
-		/** Make the options array available to ExtendedOptsProcessor */
-		protected function getOptions() {
+		/**
+		 * Make the options array available to ExtendedOptsProcessor
+		 *
+		 * @return array
+		 */
+		protected function getOptions(): array {
 			return $this->options;
 		}
 

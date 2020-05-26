@@ -1039,8 +1039,11 @@ class TestRunner {
 	 * @param DOMElement $out
 	 * @param array $options
 	 * @param string $mode
+	 * @return bool
 	 */
-	private function checkHTML( Test $test, DOMElement $out, array $options, string $mode ) {
+	private function checkHTML(
+		Test $test, DOMElement $out, array $options, string $mode
+	): bool {
 		$normalizedOut = null;
 		$normalizedExpected = null;
 		$parsoidOnly = isset( $test->altHtmlSections['html/parsoid'] ) ||
@@ -1080,8 +1083,11 @@ class TestRunner {
 	 * @param string $out
 	 * @param array $options
 	 * @param string $mode
+	 * @return bool
 	 */
-	private function checkWikitext( Test $test, string $out, array $options, string $mode ) {
+	private function checkWikitext(
+		Test $test, string $out, array $options, string $mode
+	): bool {
 		$testWikitext = $test->wikitext;
 		$out = preg_replace( '/<!--' . self::STATIC_RANDOM_STRING . '-->/', '', $out );
 		if ( $mode === 'selser' && $test->resultWT !== null &&

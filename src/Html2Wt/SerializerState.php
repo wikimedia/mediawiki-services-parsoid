@@ -27,6 +27,8 @@ class SerializerState {
 	 * Regexp for checking if what we have consumed wikimarkup that has special meaning at the
 	 * beginning of the line, and is indeed at the beginning of the line (modulo comments and
 	 * other ignored elements).
+	 *
+	 * @return string
 	 */
 	private function solWikitextRegexp(): string {
 		static $solWikitextRegexp = null;
@@ -49,6 +51,8 @@ class SerializerState {
 	/**
 	 * Regexp for checking whether we are at the start of the line (modulo comments and
 	 * other ignored elements).
+	 *
+	 * @return string
 	 */
 	private function solRegexp(): string {
 		static $solRegexp = null;

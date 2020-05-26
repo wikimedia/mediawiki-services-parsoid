@@ -228,6 +228,7 @@ class AttributeExpander extends TokenHandler {
 
 	/**
 	 * @param mixed $a
+	 * @return mixed
 	 */
 	private static function tplToksToString( $a ) {
 		if ( !is_array( $a ) ) {

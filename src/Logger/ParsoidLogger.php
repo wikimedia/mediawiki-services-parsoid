@@ -46,8 +46,9 @@ class ParsoidLogger {
 	 *
 	 * @param array $flags
 	 * @param string $logType
+	 * @return string
 	 */
-	private function buildLoggingRE( array $flags, string $logType ) {
+	private function buildLoggingRE( array $flags, string $logType ): string {
 		return $logType . '/(' . implode( '|', array_keys( $flags ) ) . ')(/|$)';
 	}
 

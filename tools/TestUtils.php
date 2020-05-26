@@ -229,8 +229,11 @@ class TestUtils {
 	/**
 	 * @param DOMNode $node
 	 * @param array $opts
+	 * @return DOMNode
 	 */
-	private static function normalizeIEWVisitor( DOMNode $node, array $opts ) {
+	private static function normalizeIEWVisitor(
+		DOMNode $node, array $opts
+	): DOMNode {
 		$child = null;
 		$next = null;
 		$prev = null;
