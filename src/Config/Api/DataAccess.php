@@ -189,7 +189,7 @@ class DataAccess implements IDataAccess {
 				self::stripProto( $fileinfo, 'descriptionurl' );
 				self::stripProto( $fileinfo, 'descriptionshorturl' );
 				foreach ( $fileinfo['responsiveUrls'] ?? [] as $density => $url ) {
-					self::stripProto( $fileinfo['responsiveUrls'], $density );
+					self::stripProto( $fileinfo['responsiveUrls'], (string)$density );
 				}
 				if ( $prefix === 'vi' ) {
 					foreach ( $fileinfo['thumbdata']['derivatives'] ?? [] as $j => $d ) {
@@ -206,8 +206,13 @@ class DataAccess implements IDataAccess {
 		return $ret;
 	}
 
-	/** Convert the given URL into protocol-relative form. */
-	private static function stripProto( ?array &$obj, $key ): void {
+	/**
+	 * Convert the given URL into protocol-relative form.
+	 *
+	 * @param ?array &$obj
+	 * @param string $key
+	 */
+	private static function stripProto( ?array &$obj, string $key ): void {
 		if ( $obj !== null && !empty( $obj[$key] ) ) {
 			$obj[$key] = preg_replace( '#^https?://#', '//', $obj[$key] );
 		}

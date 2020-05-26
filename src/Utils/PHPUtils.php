@@ -390,6 +390,8 @@ class PHPUtils {
 	 *
 	 * This is a workaround for T247093; hopefully we can move this
 	 * function upstream into wikimedia/assert.
+	 *
+	 * @param string $reason
 	 */
 	public static function unreachable( string $reason = "should never happen" ) {
 		// @phan-suppress-next-line PhanImpossibleCondition

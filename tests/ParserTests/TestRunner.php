@@ -1122,8 +1122,14 @@ class TestRunner {
 	 * - indicate whether to compare to wt2wt or the original input
 	 * - maybe make a full selser test one method that uses others rather than the
 	 *   current chain of methods that sometimes do something for selser
+	 *
+	 * @param Test $test
+	 * @param array $targetModes
+	 * @param array $options
 	 */
-	private function buildTasks( Test $test, array $targetModes, array $options ) {
+	private function buildTasks(
+		Test $test, array $targetModes, array $options
+	): void {
 		if ( !$test->title ) {
 			throw new Error( 'Missing title from test case.' );
 		}

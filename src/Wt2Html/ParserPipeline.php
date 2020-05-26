@@ -59,7 +59,11 @@ class ParserPipeline {
 	}
 
 	/**
-	 * Applies the function across all stages and transformers registered at each stage.
+	 * Applies the function across all stages and transformers registered at
+	 * each stage.
+	 *
+	 * @param string $fn
+	 * @param mixed ...$args
 	 */
 	private function applyToStage( string $fn, ...$args ): void {
 		// Apply to each stage

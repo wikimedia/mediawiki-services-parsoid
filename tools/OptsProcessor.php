@@ -150,8 +150,10 @@ class OptsProcessor {
 	 * @param string|bool $shortName Character to use as short name
 	 * @param bool $multiOccurrence Can this option be passed multiple times?
 	 */
-	public function addOption( string $name, string $description, bool $required = false,
-		bool $withArg = false, bool $shortName = false, bool $multiOccurrence = false
+	public function addOption(
+		string $name, string $description, bool $required = false,
+		bool $withArg = false, bool $shortName = false,
+		bool $multiOccurrence = false
 	): void {
 		$this->params[$name] = [
 			'desc' => $description,
@@ -554,13 +556,21 @@ class OptsProcessor {
 		die( 1 );
 	}
 
-	/** Override to redirect opts processor error messages. */
-	protected function error( $err ) {
+	/**
+	 * Override to redirect opts processor error messages.
+	 *
+	 * @param string $err
+	 */
+	protected function error( string $err ): void {
 		error_log( $err );
 	}
 
-	/** Override to redirect opts processor output. */
-	protected function output( $out ) {
+	/**
+	 * Override to redirect opts processor output.
+	 *
+	 * @param string $out
+	 */
+	protected function output( string $out ): void {
 		print $out;
 	}
 }

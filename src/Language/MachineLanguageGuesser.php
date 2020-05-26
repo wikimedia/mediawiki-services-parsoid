@@ -90,6 +90,9 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	/**
 	 * Helper function that namespaces all of our node data used in
 	 * this class into the top-level `mw_variant` key.
+	 *
+	 * @param DOMElement $node
+	 * @return stdClass
 	 */
 	private static function getNodeData( DOMElement $node ): stdClass {
 		$nodeData = DOMDataUtils::getNodeData( $node );

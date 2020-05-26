@@ -72,11 +72,13 @@ if ( $parsoidMode === 'integrated' ) {
 		/**
 		 * Make the protected method from the superclass into a public method
 		 * so we can use this from TestUtils.php.
+		 *
+		 * @inheritDoc
 		 */
 		public function addOption(
-			$name, $description, $required = false,
-			$withArg = false, $shortName = false,
-			$multiOccurrence = false
+			string $name, string $description, bool $required = false,
+			bool $withArg = false, bool $shortName = false,
+			bool $multiOccurrence = false
 		) {
 			parent::addOption(
 				$name, $description, $required, $withArg, $shortName,

@@ -140,6 +140,8 @@ class SiteConfig extends ApiSiteConfig {
 	 *
 	 * Delete any existing namespace with the same id.
 	 * Add new namespaces.
+	 *
+	 * @param array $ns
 	 */
 	private function updateNamespace( array $ns ): void {
 		$old = $this->namespaceName( (int)$ns['id'] );

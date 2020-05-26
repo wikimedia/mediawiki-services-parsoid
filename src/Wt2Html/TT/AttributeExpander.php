@@ -178,8 +178,15 @@ class AttributeExpander extends TokenHandler {
 	/**
 	 * This helper method strips all meta tags introduced by
 	 * transclusions, etc. and returns the content.
+	 *
+	 * @param Env $env
+	 * @param array $tokens
+	 * @param bool $wrapTemplates
+	 * @return array
 	 */
-	private static function stripMetaTags( Env $env, array $tokens, bool $wrapTemplates ): array {
+	private static function stripMetaTags(
+		Env $env, array $tokens, bool $wrapTemplates
+	): array {
 		$buf = [];
 		$hasGeneratedContent = false;
 

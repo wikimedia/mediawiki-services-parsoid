@@ -344,6 +344,9 @@ class TestUtils {
 
 	/**
 	 * Strip some php output we aren't generating.
+	 *
+	 * @param string $html
+	 * @return string
 	 */
 	public static function normalizePhpOutput( string $html ): string {
 		$html = preg_replace(
@@ -1007,8 +1010,10 @@ class TestUtils {
 
 	/**
 	 * Process CLI opts and return
+	 *
+	 * @param Maintenance $script
 	 */
-	public static function setupOpts( Maintenance $script ) {
+	public static function setupOpts( Maintenance $script ): void {
 		$opts = ScriptUtils::addStandardOptions( [
 			'wt2html' => [
 				'description' => 'Wikitext -> HTML(DOM)',
@@ -1031,8 +1036,8 @@ class TestUtils {
 				'boolean' => true
 			],
 			'selser' => [
-				'description' => 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). '
-. 'Set to "noauto" to just run the tests with manual selser changes.',
+				'description' => 'Roundtrip testing: Wikitext -> DOM(HTML) -> Wikitext (with selective serialization). ' .
+					'Set to "noauto" to just run the tests with manual selser changes.',
 				'boolean' => false
 			],
 			'changetree' => [
@@ -1136,6 +1141,7 @@ class TestUtils {
 	}
 
 	/**
+	 * @param Maintenance $script
 	 * @return array
 	 */
 	public static function processOptions( Maintenance $script ): array {

@@ -28,6 +28,10 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * Parse the extension HTML content and wrap it in a DOMFragment
 	 * to be expanded back into the top-level DOM later.
+	 *
+	 * @param Token $extToken
+	 * @param DOMDocument $doc
+	 * @return array
 	 */
 	private function parseExtensionHTML( Token $extToken, DOMDocument $doc ): array {
 		$logger = $this->env->getSiteConfig()->getLogger();

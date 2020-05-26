@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Util;
@@ -67,6 +68,10 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Parser functions also need template wrapping.
+	 *
+	 * @param array $state
+	 * @param array $ret
+	 * @return array
 	 */
 	private function parserFunctionsWrapper( array $state, array $ret ): array {
 		$chunkToks = [];
@@ -501,10 +506,19 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * checkRes
+	 *
+	 * @param mixed $target
+	 * @param Title $title
+	 * @param bool $ignoreLoop
+	 * @return ?array
 	 */
-	private function checkRes( $target, $title, $ignoreLoop ) {
+	private function checkRes(
+		$target, Title $title, bool $ignoreLoop
+	): ?array {
 		$checkRes = $this->manager->getFrame()->loopAndDepthCheck(
-			$title, $this->env->getSiteConfig()->getMaxTemplateDepth(), $ignoreLoop );
+			$title, $this->env->getSiteConfig()->getMaxTemplateDepth(),
+			$ignoreLoop
+		);
 		if ( $checkRes ) {
 			// Loop detected or depth limit exceeded, abort!
 			$res = [
@@ -515,13 +529,17 @@ class TemplateHandler extends TokenHandler {
 			];
 			return $res;
 		}
+		return null;
 	}
 
 	/**
-	 * Fetch, tokenize and token-transform a template after all arguments and the
-	 * target were expanded.
+	 * Fetch, tokenize and token-transform a template after all arguments and
+	 * the target were expanded.
+	 *
+	 * @param array $state
+	 * @param array $attribs
 	 */
-	private function expandTemplate( $state, $attribs ) {
+	private function expandTemplate( array $state, array $attribs ) {
 		$env = $this->env;
 		$target = $attribs[0]->k;
 		if ( !$target ) {
@@ -715,6 +733,8 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Parameter processing helpers.
+	 *
+	 * @param mixed $tokens
 	 */
 	private static function isSimpleParam( $tokens ) {
 		if ( !is_array( $tokens ) ) {
@@ -730,6 +750,8 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Add its HTML conversion to a parameter
+	 *
+	 * @param array $paramData
 	 */
 	private function getParamHTML( array $paramData ): void {
 		$param = $paramData['param'];
@@ -772,8 +794,11 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Process the main template element, including the arguments.
+	 *
+	 * @param array $state
+	 * @return array
 	 */
-	private function encapsulateTemplate( $state ) {
+	private function encapsulateTemplate( array $state ): array {
 		$i = null;
 		$n = null;
 		$env = $this->env;
@@ -908,8 +933,11 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Get the public data-mw structure that exposes the template name and
 	 * parameters.
+	 *
+	 * @param array $state
+	 * @return array
 	 */
-	private function getArgInfo( $state ) {
+	private function getArgInfo( array $state ): array {
 		$src = $this->manager->getFrame()->getSrcText();
 		$params = $state['token']->attribs;
 		// TODO: `dict` might be a good candidate for a T65370 style cleanup as a
@@ -1042,8 +1070,15 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Fetch a template.
+	 *
+	 * @param string $templateName
+	 * @param array $state
+	 * @param array $attribs
+	 * @return array
 	 */
-	private function fetchTemplateAndTitle( $templateName, $state, $attribs ) {
+	private function fetchTemplateAndTitle(
+		string $templateName, array $state, array $attribs
+	): array {
 		$env = $this->env;
 		if ( isset( $env->pageCache[$templateName] ) ) {
 			$tplSrc = $env->pageCache[$templateName];
@@ -1085,8 +1120,11 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Fetch the preprocessed wikitext for a template-like construct.
+	 *
+	 * @param string $transclusion
+	 * @return array
 	 */
-	private function fetchExpandedTpl( string $transclusion ) {
+	private function fetchExpandedTpl( string $transclusion ): array {
 		$env = $this->env;
 		if ( $env->noDataAccess() ) {
 			$err = 'Warning: Page/template fetching disabled cannot expand ' . $transclusion;
@@ -1437,7 +1475,7 @@ class TemplateHandler extends TokenHandler {
 					] );
 				} else {
 					// Fetch and process the template expansion
-					$expansion = $this->fetchExpandedTpl( $text ) ?? null;
+					$expansion = $this->fetchExpandedTpl( $text );
 					if ( $expansion['error'] ) {
 						$tplToks = $expansion['tokens'];
 					} else {
