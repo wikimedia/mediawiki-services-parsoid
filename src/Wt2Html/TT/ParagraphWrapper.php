@@ -73,7 +73,7 @@ class ParagraphWrapper extends TokenHandler {
 			self::$wgBlockElems = PHPUtils::makeSet( [ 'table', 'h1', 'h2', 'h3', 'h4',
 			'h5', 'h6', 'pre', 'p', 'ul', 'ol', 'dl' ] );
 			self::$wgAntiBlockElems = PHPUtils::makeSet( [ 'td', 'th' ] );
-			self::$wgAlwaysSuppress = PHPUtils::makeSet( [ 'tr', 'dt', 'dd', 'li' ] );
+			self::$wgAlwaysSuppress = PHPUtils::makeSet( [ 'tr', 'caption', 'dt', 'dd', 'li' ] );
 			self::$wgNeverSuppress = PHPUtils::makeSet( [ 'center', 'blockquote', 'div', 'hr', 'figure' ] );
 		}
 

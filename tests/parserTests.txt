@@ -2378,6 +2378,49 @@ P-wrapping non-breaking spaces
 <p> </p>
 !! end
 
+!! test
+Paragraph wrapping suppressed in table captions
+!! wikitext
+{|
+|+hi
+|ho
+|}
+
+{|
+|hi
+|+ho
+|}
+
+it's off to work we go
+!! html/php
+<table>
+<caption>hi
+</caption>
+<tbody><tr>
+<td>ho
+</td></tr></tbody></table>
+<table>
+<tbody><tr>
+<td>hi
+</td>
+</tr></tbody><caption>ho
+</caption></table>
+<p>it's off to work we go
+</p>
+!! html/parsoid
+<table>
+<caption>hi</caption>
+<tbody><tr><td>ho</td></tr>
+</tbody></table>
+
+<table>
+<tbody><tr><td>hi</td></tr>
+</tbody><caption>ho</caption>
+</table>
+
+<p>it's off to work we go</p>
+!! end
+
 ###
 ### Preformatted text
 ###
@@ -31593,33 +31636,6 @@ b
 </p><p><br />
 </p>
 <div>foo</div>
-!! end
-
-!! test
-Empty paragraphs (marked with mw-empty-elt) found in source should not be normalized away
-!! options
-parsoid={
-  "modes": ["html2wt"],
-  "scrubWikitext": true
-}
-!! html/parsoid
-<table>
-<tbody>
-<tr>
-<td><div>foo
-</div>
-<p class="mw-empty-elt"></p>
-</td>
-</tr>
-</tbody>
-<caption></caption>
-</table>
-!! wikitext
-{|
-|<div>foo
-</div>
-|+
-|}
 !! end
 
 !! test
