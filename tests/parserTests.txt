@@ -31744,6 +31744,14 @@ parsoid=html2wt
 |}
 !! end
 
+!! test
+Newly inserted noinclude tags do not need newlines before/after
+!! html/parsoid
+<p>a<meta typeof="mw:Includes/NoInclude">b<meta typeof="mw:Includes/NoInclude/End">c</p>
+!! wikitext
+a<noinclude>b</noinclude>c
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
