@@ -661,9 +661,6 @@ class DOMNormalizer {
 			// they serialize to as many newlines as the count of <p></p> nodes.
 		} elseif ( $node->nodeName === 'p' && DOMUtils::assertElt( $node ) &&
 			!WTUtils::isLiteralHTMLNode( $node ) &&
-			// Don't normalize empty p-nodes that came from source
-			// FIXME: See T210647
-			!DOMCompat::getClassList( $node )->contains( 'mw-empty-elt' ) &&
 			// Don't apply normalization to <p></p> nodes that
 			// were generated through deletions or other normalizations.
 			// FIXME: This trick fails for non-selser mode since
