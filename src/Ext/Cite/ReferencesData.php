@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
+use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
@@ -54,10 +55,12 @@ class ReferencesData {
 	 * @param string $refName
 	 * @param string $about
 	 * @param bool $skipLinkback
+	 * @param DOMElement $linkBack
 	 * @return stdClass
 	 */
 	public function add(
-		ParsoidExtensionAPI $extApi, string $groupName, string $refName, string $about, bool $skipLinkback
+		ParsoidExtensionAPI $extApi, string $groupName, string $refName,
+		string $about, bool $skipLinkback, DOMElement $linkBack
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		// Looks like Cite.php doesn't try to fix ids that already have
@@ -78,6 +81,7 @@ class ReferencesData {
 				// before putting them in the map.
 				$ref->cachedHtml = $extApi->getContentHTML( $ref->contentId );
 			}
+			$ref->nodes[] = $linkBack;
 		} else {
 			// The ids produced Cite.php have some particulars:
 			// Simple refs get 'cite_ref-' + index
@@ -106,17 +110,20 @@ class ReferencesData {
 				'target' => $noteId,
 				'hasMultiples' => false,
 				// Just used for comparison when we have multiples
-				'cachedHtml' => ''
+				'cachedHtml' => '',
+				'nodes' => [],
 			];
 			$group->refs[] = $ref;
-			if ( $refName ) {
+			if ( $hasRefName ) {
 				$group->indexByName[$refName] = $ref;
+				$ref->nodes[] = $linkBack;
 			}
 		}
 
 		if ( !$skipLinkback ) {
 			$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
 		}
+
 		return $ref;
 	}
 

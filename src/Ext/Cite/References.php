@@ -139,10 +139,13 @@ class References extends ExtensionTagHandler {
 		// elt has a group attribute, what takes precedence?
 		$group = $refDmw->attrs->group ?? $referencesGroup ?? '';
 		$refName = $refDmw->attrs->name ?? '';
-		$ref = $refsData->add( $extApi, $group, $refName, $about, $nestedInReferences );
 
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );
+
+		$ref = $refsData->add(
+			$extApi, $group, $refName, $about, $nestedInReferences, $linkBack
+		);
 
 		// Check for missing content
 		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' );
@@ -314,6 +317,25 @@ class References extends ExtensionTagHandler {
 		// references before generating fresh references.
 		while ( $refsNode->firstChild ) {
 			$refsNode->removeChild( $refsNode->firstChild );
+		}
+
+		// Iterate through the named ref list for refs without content and
+		// back-patch typeof and data-mw error information into named ref
+		// instances without content
+		if ( $refGroup ) {
+			foreach ( $refGroup->indexByName as $ref ) {
+				if ( $ref->contentId === null ) {
+					foreach ( $ref->nodes as $linkBack ) {
+						DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
+						$dmw = DOMDataUtils::getDataMw( $linkBack );
+						$errs = [ [ 'key' => 'cite_error_ref_no_text' ] ];
+						if ( is_array( $dmw->errors ?? null ) ) {
+							$errs = array_merge( $dmw->errors, $errs );
+						}
+						$dmw->errors = $errs;
+					}
+				}
+			}
 		}
 
 		if ( $refGroup ) {
