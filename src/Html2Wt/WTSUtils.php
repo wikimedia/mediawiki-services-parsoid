@@ -385,7 +385,7 @@ class WTSUtils {
 	 * @return array
 	 */
 	public static function getMediaType( DOMElement $node ): array {
-		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/\w+)?$#' );
+		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
 		$parts = explode( '/', $mediaType ?? '' );
 		return [
 			'rdfaType' => $parts[0] ?? '',

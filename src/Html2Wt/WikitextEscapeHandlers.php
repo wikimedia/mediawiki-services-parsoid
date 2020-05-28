@@ -530,7 +530,7 @@ class WikitextEscapeHandlers {
 
 			// Ignore non-whitelisted html tags
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( TokenUtils::hasTypeOf( $t, 'mw:Extension' ) &&
+				if ( TokenUtils::matchTypeOf( $t, '#^mw:Extension(/|$)#' ) &&
 					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
 				) {
 					return true;
@@ -625,7 +625,7 @@ class WikitextEscapeHandlers {
 				// Ignore display-hack placeholders and display spaces -- they dont need nowiki escaping
 				// They are added as a display-hack by the tokenizer (and we should probably
 				// find a better solution than that if one exists).
-				if ( TokenUtils::hasTypeOf( $t, 'mw:Placeholder' ) &&
+				if ( TokenUtils::matchTypeOf( $t, '#^mw:Placeholder(/|$)#' ) &&
 					!empty( $t->dataAttribs->isDisplayHack )
 				) {
 					// Skip over the entity and the end-tag as well
@@ -1205,7 +1205,7 @@ class WikitextEscapeHandlers {
 			// special case to serialize back the entity's source.
 			if ( $t instanceof TagTk ) {
 				$da = $t->dataAttribs;
-				if ( TokenUtils::matchTypeOf( $t, '/^mw:(Placeholder|Entity)$/' ) ) {
+				if ( TokenUtils::matchTypeOf( $t, '#^mw:(Placeholder|Entity)(/|$)#' ) ) {
 					$i += 2;
 					$width = $tokens[$i]->dataAttribs->tsr->end - $da->tsr->start;
 					self::appendStr(

@@ -572,7 +572,7 @@ class PipelineUtils {
 		$expAccum = null;
 		while ( $node ) {
 			if ( $node instanceof DOMElement ) {
-				if ( DOMUtils::matchTypeOf( $node, '#^mw:(Transclusion|Extension)(/|$)#' ) &&
+				if ( DOMUtils::matchTypeOf( $node, '#^mw:(Transclusion$|Extension/)#' ) &&
 						$node->hasAttribute( 'about' )
 					) {
 					$dp = DOMDataUtils::getDataParsoid( $node );

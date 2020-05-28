@@ -4829,10 +4829,6 @@
     "Templates: Wiki Tables: 6. Templated tags, templated td-tags": {
         "html2wt": "{|\n|foo\n|}"
     },
-    "Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,61,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,20,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{{!}}\\n{{!}}-\"}},\"i\":0}}]}'>{|\n|-</span>\n<meta typeof=\"mw:Includes/OnlyInclude\" data-parsoid='{\"src\":\"&lt;onlyinclude>\",\"dsr\":[21,34,null,null]}'/>\n|foo\n<meta typeof=\"mw:Includes/OnlyInclude/End\" data-parsoid='{\"src\":\"&lt;/onlyinclude>\",\"dsr\":[40,54,null,null]}'/>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[55,60,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"!\",\"function\":\"!\"},\"params\":{},\"i\":0}}]}'>|</span>}</p>",
-        "html2wt": "{{1x|{{{!}}\n{{!}}-}}\n<onlyinclude>\n|foo\n</onlyinclude>\n{{!}}}"
-    },
     "Testing serialization after deletion of table cells [1]": {
         "selser": "{| data-foobar=\"1wk5r9j\"\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}"
     },

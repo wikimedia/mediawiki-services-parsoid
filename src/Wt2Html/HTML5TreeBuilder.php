@@ -345,7 +345,7 @@ class HTML5TreeBuilder extends PipelineStage {
 			if ( $tName === 'meta' ) {
 				$shouldFoster = TokenUtils::matchTypeOf(
 					$token,
-					'#^mw:Includes/(OnlyInclude|IncludeOnly|NoInclude)$#'
+					'#^mw:Includes/(OnlyInclude|IncludeOnly|NoInclude)(/|$)#'
 				);
 				if ( !$shouldFoster ) {
 					$prop = $token->getAttribute( 'property' ) ?: '';
