@@ -113,10 +113,10 @@ class MetaHandler extends DOMHandler {
 			} else {
 				return [ 'min' => 1 ];
 			}
-		} elseif ( WTUtils::isNewElt( $node )
+		} elseif (
+			WTUtils::isNewElt( $node )
 			// Placeholder metas or <*include*> tags don't need to be serialized on their own line
-			&& ( $node->nodeName !== 'meta'
-				|| !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' ) )
+			&& !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' )
 		) {
 			return [ 'min' => 1 ];
 		} else {
@@ -127,10 +127,10 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		// No diffs
-		if ( WTUtils::isNewElt( $node )
+		if (
+			WTUtils::isNewElt( $node )
 			// Placeholder metas or <*include*> tags don't need to be serialized on their own line
-			&& ( $node->nodeName !== 'meta'
-				|| !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' ) )
+			&& !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' )
 		) {
 			return [ 'min' => 1 ];
 		} else {
