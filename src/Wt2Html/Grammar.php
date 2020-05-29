@@ -301,8 +301,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
     0 => ["type" => "end", "description" => "end of input"],
     1 => ["type" => "other", "description" => "start"],
     2 => ["type" => "other", "description" => "table_start_tag"],
-    3 => ["type" => "class", "value" => "[.:,']", "description" => "[.:,']"],
-    4 => ["type" => "class", "value" => "[&%{]", "description" => "[&%{]"],
+    3 => ["type" => "class", "value" => "['{]", "description" => "['{]"],
+    4 => ["type" => "literal", "value" => "&", "description" => "\"&\""],
     5 => ["type" => "other", "description" => "table_attributes"],
     6 => ["type" => "other", "description" => "generic_newline_attributes"],
     7 => ["type" => "any", "description" => "any character"],
@@ -320,72 +320,70 @@ class Grammar extends \WikiPEG\PEGParserBase {
     19 => ["type" => "literal", "value" => "[", "description" => "\"[\""],
     20 => ["type" => "class", "value" => "[0-9A-Fa-f:.]", "description" => "[0-9A-Fa-f:.]"],
     21 => ["type" => "literal", "value" => "]", "description" => "\"]\""],
-    22 => ["type" => "class", "value" => "[^ :\\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f,.&%\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]", "description" => "[^ :\\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f,.&%\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]"],
+    22 => ["type" => "class", "value" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]", "description" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]"],
     23 => ["type" => "literal", "value" => "=", "description" => "\"=\""],
     24 => ["type" => "class", "value" => "[\\0/=>]", "description" => "[\\0/=>]"],
     25 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
     26 => ["type" => "literal", "value" => "\x0a", "description" => "\"\\n\""],
     27 => ["type" => "literal", "value" => "\x0d\x0a", "description" => "\"\\r\\n\""],
     28 => ["type" => "literal", "value" => "{", "description" => "\"{\""],
-    29 => ["type" => "literal", "value" => "&", "description" => "\"&\""],
-    30 => ["type" => "class", "value" => "[#0-9a-zA-Z]", "description" => "[#0-9a-zA-Z]"],
-    31 => ["type" => "literal", "value" => ";", "description" => "\";\""],
-    32 => ["type" => "class", "value" => "[\"'=]", "description" => "[\"'=]"],
-    33 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]"],
-    34 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
-    35 => ["type" => "literal", "value" => "\"", "description" => "\"\\\"\""],
-    36 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
-    37 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]"],
-    38 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
-    39 => ["type" => "class", "value" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
-    40 => ["type" => "class", "value" => "[&|{\\-!}=]", "description" => "[&|{\\-!}=]"],
-    41 => ["type" => "class", "value" => "[']", "description" => "[']"],
-    42 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
-    43 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
-    44 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
-    45 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
-    46 => ["type" => "class", "value" => "[^{}&<\\-!\\['\\r\\n|]", "description" => "[^{}&<\\-!\\['\\r\\n|]"],
-    47 => ["type" => "class", "value" => "[{}&<\\-!\\[]", "description" => "[{}&<\\-!\\[]"],
-    48 => ["type" => "class", "value" => "[^{}&<\\-!\\[\"\\r\\n|]", "description" => "[^{}&<\\-!\\[\"\\r\\n|]"],
-    49 => ["type" => "class", "value" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]", "description" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]"],
-    50 => ["type" => "class", "value" => "[^{}&<\\-|/'>]", "description" => "[^{}&<\\-|/'>]"],
-    51 => ["type" => "class", "value" => "[{}&\\-|/]", "description" => "[{}&\\-|/]"],
-    52 => ["type" => "class", "value" => "[^{}&<\\-|/\">]", "description" => "[^{}&<\\-|/\">]"],
-    53 => ["type" => "class", "value" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]", "description" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]"],
-    54 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
-    55 => ["type" => "literal", "value" => "-", "description" => "\"-\""],
-    56 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
-    57 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
-    58 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
-    59 => ["type" => "literal", "value" => ">", "description" => "\">\""],
-    60 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
-    61 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
-    62 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
-    63 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
-    64 => ["type" => "class", "value" => "[.:,]", "description" => "[.:,]"],
-    65 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
-    66 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
-    67 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
-    68 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
-    69 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
-    70 => ["type" => "class", "value" => "[\\n\\r\\t ]", "description" => "[\\n\\r\\t ]"],
-    71 => ["type" => "literal", "value" => "}", "description" => "\"}\""],
-    72 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
-    73 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
-    74 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
-    75 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
-    76 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
-    77 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
-    78 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
-    79 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
-    80 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
-    81 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
-    82 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
-    83 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
-    84 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-    85 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
-    86 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-    87 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
+    29 => ["type" => "class", "value" => "[#0-9a-zA-Z]", "description" => "[#0-9a-zA-Z]"],
+    30 => ["type" => "literal", "value" => ";", "description" => "\";\""],
+    31 => ["type" => "class", "value" => "[\"'=]", "description" => "[\"'=]"],
+    32 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]"],
+    33 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
+    34 => ["type" => "literal", "value" => "\"", "description" => "\"\\\"\""],
+    35 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
+    36 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]"],
+    37 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
+    38 => ["type" => "class", "value" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
+    39 => ["type" => "class", "value" => "[&|{\\-!}=]", "description" => "[&|{\\-!}=]"],
+    40 => ["type" => "class", "value" => "[']", "description" => "[']"],
+    41 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
+    42 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
+    43 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
+    44 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
+    45 => ["type" => "class", "value" => "[^{}&<\\-!\\['\\r\\n|]", "description" => "[^{}&<\\-!\\['\\r\\n|]"],
+    46 => ["type" => "class", "value" => "[{}&<\\-!\\[]", "description" => "[{}&<\\-!\\[]"],
+    47 => ["type" => "class", "value" => "[^{}&<\\-!\\[\"\\r\\n|]", "description" => "[^{}&<\\-!\\[\"\\r\\n|]"],
+    48 => ["type" => "class", "value" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]", "description" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]"],
+    49 => ["type" => "class", "value" => "[^{}&<\\-|/'>]", "description" => "[^{}&<\\-|/'>]"],
+    50 => ["type" => "class", "value" => "[{}&\\-|/]", "description" => "[{}&\\-|/]"],
+    51 => ["type" => "class", "value" => "[^{}&<\\-|/\">]", "description" => "[^{}&<\\-|/\">]"],
+    52 => ["type" => "class", "value" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]", "description" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]"],
+    53 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
+    54 => ["type" => "literal", "value" => "-", "description" => "\"-\""],
+    55 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
+    56 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
+    57 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
+    58 => ["type" => "literal", "value" => ">", "description" => "\">\""],
+    59 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
+    60 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
+    61 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
+    62 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
+    63 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
+    64 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
+    65 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
+    66 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
+    67 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
+    68 => ["type" => "class", "value" => "[\\n\\r\\t ]", "description" => "[\\n\\r\\t ]"],
+    69 => ["type" => "literal", "value" => "}", "description" => "\"}\""],
+    70 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
+    71 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
+    72 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
+    73 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
+    74 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
+    75 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
+    76 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
+    77 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
+    78 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
+    79 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
+    80 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
+    81 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
+    82 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
+    83 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
+    84 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
+    85 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
   ];
 
   // actions
@@ -2064,13 +2062,6 @@ class Grammar extends \WikiPEG\PEGParserBase {
       if ($r12!==self::$FAILED) {
         goto choice_2;
       }
-      if (strspn($this->input, ".:,'", $this->currPos, 1) !== 0) {
-        $r12 = $this->input[$this->currPos++];
-        goto choice_2;
-      } else {
-        $r12 = self::$FAILED;
-        if (!$silence) {$this->fail(3);}
-      }
       $r12 = $this->parsecomment($silence);
       if ($r12!==self::$FAILED) {
         goto choice_2;
@@ -2078,6 +2069,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r12 = $this->parsetplarg_or_template($silence, 0x0, 0, self::newRef(null), $param_preproc);
       if ($r12!==self::$FAILED) {
         goto choice_2;
+      }
+      $r12 = $this->input[$this->currPos] ?? '';
+      if ($r12 === "'" || $r12 === "{") {
+        $this->currPos++;
+        goto choice_2;
+      } else {
+        $r12 = self::$FAILED;
+        if (!$silence) {$this->fail(3);}
       }
       $p10 = $this->currPos;
       // start seq_3
@@ -2199,11 +2198,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
         goto choice_4;
       }
       // free $p16
-      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
-        $r25 = $this->input[$this->currPos++];
+      if (($this->input[$this->currPos] ?? null) === "&") {
+        $this->currPos++;
+        $r25 = "&";
       } else {
-        $r25 = self::$FAILED;
         if (!$silence) {$this->fail(4);}
+        $r25 = self::$FAILED;
       }
       choice_4:
       // r <- $r25
@@ -3096,7 +3096,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
   
     $r1 = self::charAt($this->input, $this->currPos);
-    if (preg_match("/^[^ :\\]\\[\\x0d\\x0a\"'<>\\x00- \\x7f,.&%\\x{a0}\\x{1680}\\x{180e}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}{]/u", $r1)) {
+    if (preg_match("/^[^ \\]\\[\\x0d\\x0a\"'<>\\x00- \\x7f&\\x{a0}\\x{1680}\\x{180e}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}{]/u", $r1)) {
       $this->currPos += strlen($r1);
     } else {
       $r1 = self::$FAILED;
@@ -4214,7 +4214,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r6 = "&";
     } else {
-      if (!$silence) {$this->fail(29);}
+      if (!$silence) {$this->fail(4);}
       $r6 = self::$FAILED;
       $r3 = self::$FAILED;
       goto seq_1;
@@ -4227,7 +4227,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r7 = true;
       } else {
         $r8 = self::$FAILED;
-        if (!$silence) {$this->fail(30);}
+        if (!$silence) {$this->fail(29);}
         break;
       }
     }
@@ -4241,7 +4241,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r8 = ";";
     } else {
-      if (!$silence) {$this->fail(31);}
+      if (!$silence) {$this->fail(30);}
       $r8 = self::$FAILED;
       $this->currPos = $p5;
       $r3 = self::$FAILED;
@@ -4310,7 +4310,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = $this->input[$this->currPos++];
     } else {
       $r4 = self::$FAILED;
-      if (!$silence) {$this->fail(32);}
+      if (!$silence) {$this->fail(31);}
       $r4 = null;
     }
     // q <- $r4
@@ -4327,7 +4327,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r7 = true;
         } else {
           $r8 = self::$FAILED;
-          if (!$silence) {$this->fail(33);}
+          if (!$silence) {$this->fail(32);}
           break;
         }
       }
@@ -4519,7 +4519,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r7 = "'";
     } else {
-      if (!$silence) {$this->fail(34);}
+      if (!$silence) {$this->fail(33);}
       $r7 = self::$FAILED;
       $this->currPos = $p6;
       $r4 = self::$FAILED;
@@ -4549,7 +4549,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r9 = "'";
       goto choice_2;
     } else {
-      if (!$silence) {$this->fail(34);}
+      if (!$silence) {$this->fail(33);}
       $r9 = self::$FAILED;
     }
     $p6 = $this->currPos;
@@ -4614,7 +4614,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r12 = "\"";
     } else {
-      if (!$silence) {$this->fail(35);}
+      if (!$silence) {$this->fail(34);}
       $r12 = self::$FAILED;
       $this->currPos = $p11;
       $r10 = self::$FAILED;
@@ -4644,7 +4644,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r14 = "\"";
       goto choice_4;
     } else {
-      if (!$silence) {$this->fail(35);}
+      if (!$silence) {$this->fail(34);}
       $r14 = self::$FAILED;
     }
     $p11 = $this->currPos;
@@ -4784,7 +4784,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "/";
     } else {
-      if (!$silence) {$this->fail(36);}
+      if (!$silence) {$this->fail(35);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -4839,7 +4839,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = $this->input[$this->currPos++];
     } else {
       $r4 = self::$FAILED;
-      if (!$silence) {$this->fail(32);}
+      if (!$silence) {$this->fail(31);}
       $r4 = null;
     }
     // q <- $r4
@@ -4856,7 +4856,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r7 = true;
         } else {
           $r8 = self::$FAILED;
-          if (!$silence) {$this->fail(37);}
+          if (!$silence) {$this->fail(36);}
           break;
         }
       }
@@ -4993,7 +4993,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = $this->input[$this->currPos++];
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(38);}
+      if (!$silence) {$this->fail(37);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -5036,7 +5036,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r7 = "'";
     } else {
-      if (!$silence) {$this->fail(34);}
+      if (!$silence) {$this->fail(33);}
       $r7 = self::$FAILED;
       $this->currPos = $p6;
       $r4 = self::$FAILED;
@@ -5066,7 +5066,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r9 = "'";
       goto choice_2;
     } else {
-      if (!$silence) {$this->fail(34);}
+      if (!$silence) {$this->fail(33);}
       $r9 = self::$FAILED;
     }
     $p6 = $this->currPos;
@@ -5138,7 +5138,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r14 = "\"";
     } else {
-      if (!$silence) {$this->fail(35);}
+      if (!$silence) {$this->fail(34);}
       $r14 = self::$FAILED;
       $this->currPos = $p10;
       $r13 = self::$FAILED;
@@ -5168,7 +5168,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r16 = "\"";
       goto choice_3;
     } else {
-      if (!$silence) {$this->fail(35);}
+      if (!$silence) {$this->fail(34);}
       $r16 = self::$FAILED;
     }
     $p10 = $this->currPos;
@@ -5325,7 +5325,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r4 = true;
         } else {
           $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(39);}
+          if (!$silence) {$this->fail(38);}
           break;
         }
       }
@@ -5360,7 +5360,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r9 = $this->input[$this->currPos++];
       } else {
         $r9 = self::$FAILED;
-        if (!$silence) {$this->fail(40);}
+        if (!$silence) {$this->fail(39);}
       }
       choice_2:
       // s <- $r9
@@ -5385,7 +5385,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
       } else {
         $r10 = self::$FAILED;
-        if (!$silence) {$this->fail(41);}
+        if (!$silence) {$this->fail(40);}
         $r4 = self::$FAILED;
         goto seq_2;
       }
@@ -5547,7 +5547,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r2 = self::consumeChar($this->input, $this->currPos);
       } else {
         $r2 = self::$FAILED;
-        if (!$silence) {$this->fail(42);}
+        if (!$silence) {$this->fail(41);}
       }
       choice_1:
       if ($r2!==self::$FAILED) {
@@ -5684,7 +5684,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r14 = "[[";
         $this->currPos += 2;
       } else {
-        if (!$silence) {$this->fail(43);}
+        if (!$silence) {$this->fail(42);}
         $r14 = self::$FAILED;
         $r13 = self::$FAILED;
         goto seq_4;
@@ -6204,7 +6204,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "<";
     } else {
-      if (!$silence) {$this->fail(44);}
+      if (!$silence) {$this->fail(43);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -6373,7 +6373,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "{{";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(45);}
+      if (!$silence) {$this->fail(44);}
       $r4 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -6544,7 +6544,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "<";
     } else {
-      if (!$silence) {$this->fail(44);}
+      if (!$silence) {$this->fail(43);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -6599,7 +6599,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r4 = true;
         } else {
           $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(46);}
+          if (!$silence) {$this->fail(45);}
           break;
         }
       }
@@ -6634,7 +6634,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r9 = $this->input[$this->currPos++];
       } else {
         $r9 = self::$FAILED;
-        if (!$silence) {$this->fail(47);}
+        if (!$silence) {$this->fail(46);}
       }
       choice_2:
       // s <- $r9
@@ -6694,7 +6694,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r4 = true;
         } else {
           $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(48);}
+          if (!$silence) {$this->fail(47);}
           break;
         }
       }
@@ -6729,7 +6729,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r9 = $this->input[$this->currPos++];
       } else {
         $r9 = self::$FAILED;
-        if (!$silence) {$this->fail(47);}
+        if (!$silence) {$this->fail(46);}
       }
       choice_2:
       // s <- $r9
@@ -6789,7 +6789,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r4 = true;
         } else {
           $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(49);}
+          if (!$silence) {$this->fail(48);}
           break;
         }
       }
@@ -6824,7 +6824,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r9 = $this->input[$this->currPos++];
       } else {
         $r9 = self::$FAILED;
-        if (!$silence) {$this->fail(47);}
+        if (!$silence) {$this->fail(46);}
       }
       choice_2:
       // s <- $r9
@@ -6887,7 +6887,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r5 = "<";
     } else {
-      if (!$silence) {$this->fail(44);}
+      if (!$silence) {$this->fail(43);}
       $r5 = self::$FAILED;
       $this->currPos = $p3;
       $r2 = self::$FAILED;
@@ -6931,7 +6931,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r4 = true;
         } else {
           $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(50);}
+          if (!$silence) {$this->fail(49);}
           break;
         }
       }
@@ -6987,7 +6987,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r10 = $this->input[$this->currPos++];
       } else {
         $r10 = self::$FAILED;
-        if (!$silence) {$this->fail(51);}
+        if (!$silence) {$this->fail(50);}
       }
       choice_2:
       // s <- $r10
@@ -7043,6 +7043,122 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = self::$FAILED;
       for (;;) {
         if (strcspn($this->input, "{}&<-|/\">", $this->currPos, 1) !== 0) {
+          $r6 = self::consumeChar($this->input, $this->currPos);
+          $r4 = true;
+        } else {
+          $r6 = self::$FAILED;
+          if (!$silence) {$this->fail(51);}
+          break;
+        }
+      }
+      if ($r4!==self::$FAILED) {
+        $r4 = substr($this->input, $p5, $this->currPos - $p5);
+        goto choice_1;
+      } else {
+        $r4 = self::$FAILED;
+      }
+      // free $r6
+      // free $p5
+      $p5 = $this->currPos;
+      // start seq_1
+      $p7 = $this->currPos;
+      $p8 = $this->currPos;
+      $r6 = $this->discardinline_breaks(true, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+      if ($r6 === self::$FAILED) {
+        $r6 = false;
+      } else {
+        $r6 = self::$FAILED;
+        $this->currPos = $p8;
+        $r4 = self::$FAILED;
+        goto seq_1;
+      }
+      // free $p8
+      $p8 = $this->currPos;
+      if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "/>", $this->currPos, 2, false) === 0) {
+        $r9 = "/>";
+        $this->currPos += 2;
+      } else {
+        $r9 = self::$FAILED;
+      }
+      if ($r9 === self::$FAILED) {
+        $r9 = false;
+      } else {
+        $r9 = self::$FAILED;
+        $this->currPos = $p8;
+        $this->currPos = $p7;
+        $r4 = self::$FAILED;
+        goto seq_1;
+      }
+      // free $p8
+      // start choice_2
+      $r10 = $this->parsedirective($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
+      if ($r10!==self::$FAILED) {
+        goto choice_2;
+      }
+      $r10 = $this->parseless_than($silence, $boolParams);
+      if ($r10!==self::$FAILED) {
+        goto choice_2;
+      }
+      if (strspn($this->input, "{}&-|/", $this->currPos, 1) !== 0) {
+        $r10 = $this->input[$this->currPos++];
+      } else {
+        $r10 = self::$FAILED;
+        if (!$silence) {$this->fail(50);}
+      }
+      choice_2:
+      // s <- $r10
+      if ($r10===self::$FAILED) {
+        $this->currPos = $p7;
+        $r4 = self::$FAILED;
+        goto seq_1;
+      }
+      $r4 = true;
+      seq_1:
+      if ($r4!==self::$FAILED) {
+        $this->savedPos = $p5;
+        $r4 = $this->a39($r10);
+      }
+      // free $p7
+      choice_1:
+      if ($r4!==self::$FAILED) {
+        $r3[] = $r4;
+      } else {
+        break;
+      }
+    }
+    // r <- $r3
+    // free $r4
+    $r1 = $r3;
+    if ($r1!==self::$FAILED) {
+      $this->savedPos = $p2;
+      $r1 = $this->a54($r3);
+    }
+    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
+      if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
+      if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
+    $this->cache[$bucket][$key] = $cached;
+    return $r1;
+  }
+  private function parseattribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
+    $key = json_encode([552, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
+    $bucket = $this->currPos;
+    $cached = $this->cache[$bucket][$key] ?? null;
+    if ($cached) {
+      $this->currPos = $cached['nextPos'];
+        if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
+        if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
+      return $cached['result'];
+    }
+        $saved_preproc=$param_preproc;
+        $saved_th=$param_th;
+    $p2 = $this->currPos;
+    $r3 = [];
+    for (;;) {
+      // start choice_1
+      $p5 = $this->currPos;
+      $r4 = self::$FAILED;
+      for (;;) {
+        if (strcspn($this->input, "{}&<-|/ \x09\x0a\x0d\x0c>", $this->currPos, 1) !== 0) {
           $r6 = self::consumeChar($this->input, $this->currPos);
           $r4 = true;
         } else {
@@ -7103,123 +7219,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r10 = $this->input[$this->currPos++];
       } else {
         $r10 = self::$FAILED;
-        if (!$silence) {$this->fail(51);}
-      }
-      choice_2:
-      // s <- $r10
-      if ($r10===self::$FAILED) {
-        $this->currPos = $p7;
-        $r4 = self::$FAILED;
-        goto seq_1;
-      }
-      $r4 = true;
-      seq_1:
-      if ($r4!==self::$FAILED) {
-        $this->savedPos = $p5;
-        $r4 = $this->a39($r10);
-      }
-      // free $p7
-      choice_1:
-      if ($r4!==self::$FAILED) {
-        $r3[] = $r4;
-      } else {
-        break;
-      }
-    }
-    // r <- $r3
-    // free $r4
-    $r1 = $r3;
-    if ($r1!==self::$FAILED) {
-      $this->savedPos = $p2;
-      $r1 = $this->a54($r3);
-    }
-    $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-      if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-      if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    $this->cache[$bucket][$key] = $cached;
-    return $r1;
-  }
-  private function parseattribute_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
-    $key = json_encode([552, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
-    $bucket = $this->currPos;
-    $cached = $this->cache[$bucket][$key] ?? null;
-    if ($cached) {
-      $this->currPos = $cached['nextPos'];
-        if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-        if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      return $cached['result'];
-    }
-        $saved_preproc=$param_preproc;
-        $saved_th=$param_th;
-    $p2 = $this->currPos;
-    $r3 = [];
-    for (;;) {
-      // start choice_1
-      $p5 = $this->currPos;
-      $r4 = self::$FAILED;
-      for (;;) {
-        if (strcspn($this->input, "{}&<-|/ \x09\x0a\x0d\x0c>", $this->currPos, 1) !== 0) {
-          $r6 = self::consumeChar($this->input, $this->currPos);
-          $r4 = true;
-        } else {
-          $r6 = self::$FAILED;
-          if (!$silence) {$this->fail(53);}
-          break;
-        }
-      }
-      if ($r4!==self::$FAILED) {
-        $r4 = substr($this->input, $p5, $this->currPos - $p5);
-        goto choice_1;
-      } else {
-        $r4 = self::$FAILED;
-      }
-      // free $r6
-      // free $p5
-      $p5 = $this->currPos;
-      // start seq_1
-      $p7 = $this->currPos;
-      $p8 = $this->currPos;
-      $r6 = $this->discardinline_breaks(true, $boolParams, $param_templatedepth, $param_preproc, $param_th);
-      if ($r6 === self::$FAILED) {
-        $r6 = false;
-      } else {
-        $r6 = self::$FAILED;
-        $this->currPos = $p8;
-        $r4 = self::$FAILED;
-        goto seq_1;
-      }
-      // free $p8
-      $p8 = $this->currPos;
-      if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "/>", $this->currPos, 2, false) === 0) {
-        $r9 = "/>";
-        $this->currPos += 2;
-      } else {
-        $r9 = self::$FAILED;
-      }
-      if ($r9 === self::$FAILED) {
-        $r9 = false;
-      } else {
-        $r9 = self::$FAILED;
-        $this->currPos = $p8;
-        $this->currPos = $p7;
-        $r4 = self::$FAILED;
-        goto seq_1;
-      }
-      // free $p8
-      // start choice_2
-      $r10 = $this->parsedirective($silence, $boolParams, $param_templatedepth, $param_preproc, $param_th);
-      if ($r10!==self::$FAILED) {
-        goto choice_2;
-      }
-      $r10 = $this->parseless_than($silence, $boolParams);
-      if ($r10!==self::$FAILED) {
-        goto choice_2;
-      }
-      if (strspn($this->input, "{}&-|/", $this->currPos, 1) !== 0) {
-        $r10 = $this->input[$this->currPos++];
-      } else {
-        $r10 = self::$FAILED;
-        if (!$silence) {$this->fail(51);}
+        if (!$silence) {$this->fail(50);}
       }
       choice_2:
       // s <- $r10
@@ -7338,7 +7338,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r6 = "__";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(54);}
+      if (!$silence) {$this->fail(53);}
       $r6 = self::$FAILED;
       $r3 = self::$FAILED;
       goto seq_1;
@@ -7353,7 +7353,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r8 = "__";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(54);}
+      if (!$silence) {$this->fail(53);}
       $r8 = self::$FAILED;
       $this->currPos = $p5;
       $r3 = self::$FAILED;
@@ -7398,7 +7398,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "<";
     } else {
-      if (!$silence) {$this->fail(44);}
+      if (!$silence) {$this->fail(43);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -7546,7 +7546,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r17 = "-";
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r17 = self::$FAILED;
       $r16 = self::$FAILED;
       goto seq_5;
@@ -7636,7 +7636,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r24 = "-";
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r24 = self::$FAILED;
       $r23 = self::$FAILED;
       goto seq_8;
@@ -7804,7 +7804,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r6 = "''";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(56);}
+      if (!$silence) {$this->fail(55);}
       $r6 = self::$FAILED;
       $r3 = self::$FAILED;
       goto seq_1;
@@ -7814,7 +7814,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
         $r8 = "'";
       } else {
-        if (!$silence) {$this->fail(34);}
+        if (!$silence) {$this->fail(33);}
         $r8 = self::$FAILED;
         break;
       }
@@ -7865,7 +7865,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r5 = $this->input[$this->currPos++];
       } else {
         $r5 = self::$FAILED;
-        if (!$silence) {$this->fail(57);}
+        if (!$silence) {$this->fail(56);}
         break;
       }
     }
@@ -8285,7 +8285,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "----";
       $this->currPos += 4;
     } else {
-      if (!$silence) {$this->fail(58);}
+      if (!$silence) {$this->fail(57);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -8296,7 +8296,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
         $r7 = "-";
       } else {
-        if (!$silence) {$this->fail(55);}
+        if (!$silence) {$this->fail(54);}
         $r7 = self::$FAILED;
         break;
       }
@@ -8481,7 +8481,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "/";
     } else {
-      if (!$silence) {$this->fail(36);}
+      if (!$silence) {$this->fail(35);}
       $r4 = self::$FAILED;
       $r4 = null;
     }
@@ -8528,7 +8528,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r8 = "/";
     } else {
-      if (!$silence) {$this->fail(36);}
+      if (!$silence) {$this->fail(35);}
       $r8 = self::$FAILED;
       $r8 = null;
     }
@@ -8551,7 +8551,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r9 = ">";
     } else {
-      if (!$silence) {$this->fail(59);}
+      if (!$silence) {$this->fail(58);}
       $r9 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -8723,7 +8723,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "{{{";
       $this->currPos += 3;
     } else {
-      if (!$silence) {$this->fail(60);}
+      if (!$silence) {$this->fail(59);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -8886,7 +8886,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r23 = "}}}";
       $this->currPos += 3;
     } else {
-      if (!$silence) {$this->fail(61);}
+      if (!$silence) {$this->fail(60);}
       $r23 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -8925,7 +8925,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "{{";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(45);}
+      if (!$silence) {$this->fail(44);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -9103,7 +9103,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r23 = "}}";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(62);}
+      if (!$silence) {$this->fail(61);}
       $r23 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -9124,7 +9124,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r24 = "{{";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(45);}
+      if (!$silence) {$this->fail(44);}
       $r24 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_4;
@@ -9147,7 +9147,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r25 = "}}";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(62);}
+      if (!$silence) {$this->fail(61);}
       $r25 = self::$FAILED;
       $this->currPos = $p10;
       $r1 = self::$FAILED;
@@ -9188,7 +9188,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "{{{";
       $this->currPos += 3;
     } else {
-      if (!$silence) {$this->fail(60);}
+      if (!$silence) {$this->fail(59);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -9351,7 +9351,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r23 = "}}}";
       $this->currPos += 3;
     } else {
-      if (!$silence) {$this->fail(61);}
+      if (!$silence) {$this->fail(60);}
       $r23 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -9389,7 +9389,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "[[";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(43);}
+      if (!$silence) {$this->fail(42);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -9438,7 +9438,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r12 = "]]";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(63);}
+      if (!$silence) {$this->fail(62);}
       $r12 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -9671,29 +9671,30 @@ class Grammar extends \WikiPEG\PEGParserBase {
       if ($r16!==self::$FAILED) {
         goto choice_2;
       }
-      if (strspn($this->input, ".:,", $this->currPos, 1) !== 0) {
-        $r16 = $this->input[$this->currPos++];
+      $r16 = $this->parsecomment($silence);
+      if ($r16!==self::$FAILED) {
         goto choice_2;
-      } else {
-        $r16 = self::$FAILED;
-        if (!$silence) {$this->fail(64);}
+      }
+      $r16 = $this->parsetplarg_or_template($silence, $boolParams, $param_templatedepth, $param_th, $param_preproc);
+      if ($r16!==self::$FAILED) {
+        goto choice_2;
       }
       $p14 = $this->currPos;
       // start seq_4
       $p17 = $this->currPos;
-      $r18 = $this->input[$this->currPos] ?? '';
-      if ($r18 === "'") {
+      if (($this->input[$this->currPos] ?? null) === "'") {
         $this->currPos++;
+        $r18 = "'";
       } else {
+        if (!$silence) {$this->fail(33);}
         $r18 = self::$FAILED;
-        if (!$silence) {$this->fail(41);}
         $r16 = self::$FAILED;
         goto seq_4;
       }
       $p19 = $this->currPos;
-      $r20 = $this->input[$this->currPos] ?? '';
-      if ($r20 === "'") {
+      if (($this->input[$this->currPos] ?? null) === "'") {
         $this->currPos++;
+        $r20 = "'";
       } else {
         $r20 = self::$FAILED;
       }
@@ -9717,13 +9718,13 @@ class Grammar extends \WikiPEG\PEGParserBase {
       }
       // free $p17
       // free $p14
-      $r16 = $this->parsecomment($silence);
-      if ($r16!==self::$FAILED) {
+      if (($this->input[$this->currPos] ?? null) === "{") {
+        $this->currPos++;
+        $r16 = "{";
         goto choice_2;
-      }
-      $r16 = $this->parsetplarg_or_template($silence, $boolParams, $param_templatedepth, $param_th, $param_preproc);
-      if ($r16!==self::$FAILED) {
-        goto choice_2;
+      } else {
+        if (!$silence) {$this->fail(28);}
+        $r16 = self::$FAILED;
       }
       $p14 = $this->currPos;
       // start seq_5
@@ -9790,11 +9791,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
         goto choice_3;
       }
       // free $p22
-      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
-        $r25 = $this->input[$this->currPos++];
+      if (($this->input[$this->currPos] ?? null) === "&") {
+        $this->currPos++;
+        $r25 = "&";
       } else {
-        $r25 = self::$FAILED;
         if (!$silence) {$this->fail(4);}
+        $r25 = self::$FAILED;
       }
       choice_3:
       // r <- $r25
@@ -9884,14 +9886,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos += 3;
       goto choice_1;
     } else {
-      if (!$silence) {$this->fail(65);}
+      if (!$silence) {$this->fail(63);}
       $r4 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "PMID", $this->currPos, 4, false) === 0) {
       $r4 = "PMID";
       $this->currPos += 4;
     } else {
-      if (!$silence) {$this->fail(66);}
+      if (!$silence) {$this->fail(64);}
       $r4 = self::$FAILED;
     }
     choice_1:
@@ -9928,7 +9930,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r6 = true;
       } else {
         $r8 = self::$FAILED;
-        if (!$silence) {$this->fail(67);}
+        if (!$silence) {$this->fail(65);}
         break;
       }
     }
@@ -9978,7 +9980,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "ISBN";
       $this->currPos += 4;
     } else {
-      if (!$silence) {$this->fail(68);}
+      if (!$silence) {$this->fail(66);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -10009,7 +10011,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
     } else {
       $r8 = self::$FAILED;
-      if (!$silence) {$this->fail(67);}
+      if (!$silence) {$this->fail(65);}
       $r6 = self::$FAILED;
       goto seq_2;
     }
@@ -10033,7 +10035,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
       } else {
         $r13 = self::$FAILED;
-        if (!$silence) {$this->fail(67);}
+        if (!$silence) {$this->fail(65);}
         $this->currPos = $p11;
         $r10 = self::$FAILED;
         goto seq_3;
@@ -10075,7 +10077,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
     } else {
       $r15 = self::$FAILED;
-      if (!$silence) {$this->fail(69);}
+      if (!$silence) {$this->fail(67);}
       $this->currPos = $p11;
       $r10 = self::$FAILED;
       goto seq_4;
@@ -10175,7 +10177,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
         $r7 = "-";
       } else {
-        if (!$silence) {$this->fail(55);}
+        if (!$silence) {$this->fail(54);}
         $r7 = self::$FAILED;
       }
       choice_1:
@@ -10249,7 +10251,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "[[";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(43);}
+      if (!$silence) {$this->fail(42);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -10298,7 +10300,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r12 = "]]";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(63);}
+      if (!$silence) {$this->fail(62);}
       $r12 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -10519,7 +10521,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r5 = ";";
     } else {
-      if (!$silence) {$this->fail(31);}
+      if (!$silence) {$this->fail(30);}
       $r5 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -10806,7 +10808,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r7 = $this->input[$this->currPos++];
       } else {
         $r7 = self::$FAILED;
-        if (!$silence) {$this->fail(70);}
+        if (!$silence) {$this->fail(68);}
         $r5 = self::$FAILED;
         goto seq_1;
       }
@@ -10961,7 +10963,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r8 = "}";
     } else {
-      if (!$silence) {$this->fail(71);}
+      if (!$silence) {$this->fail(69);}
       $r8 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -11266,7 +11268,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
           $r5 = true;
         } else {
           $r7 = self::$FAILED;
-          if (!$silence) {$this->fail(72);}
+          if (!$silence) {$this->fail(70);}
           break;
         }
       }
@@ -11329,7 +11331,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r14 = $this->input[$this->currPos++];
       } else {
         $r14 = self::$FAILED;
-        if (!$silence) {$this->fail(73);}
+        if (!$silence) {$this->fail(71);}
       }
       choice_3:
       if ($r14===self::$FAILED) {
@@ -11461,18 +11463,31 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $p2 = $this->currPos;
     // start seq_1
     $p3 = $this->currPos;
-    $r4 = $this->parsehtmlentity($silence);
-    // he <- $r4
-    if ($r4===self::$FAILED) {
+    $p4 = $this->currPos;
+    if (($this->input[$this->currPos] ?? null) === "&") {
+      $this->currPos++;
+      $r5 = "&";
+      $r5 = false;
+      $this->currPos = $p4;
+    } else {
+      $r5 = self::$FAILED;
+      $r1 = self::$FAILED;
+      goto seq_1;
+    }
+    // free $p4
+    $r6 = $this->parsehtmlentity($silence);
+    // he <- $r6
+    if ($r6===self::$FAILED) {
+      $this->currPos = $p3;
       $r1 = self::$FAILED;
       goto seq_1;
     }
     $this->savedPos = $this->currPos;
-    $r5 = $this->a132($r4);
-    if ($r5) {
-      $r5 = false;
+    $r7 = $this->a132($r6);
+    if ($r7) {
+      $r7 = false;
     } else {
-      $r5 = self::$FAILED;
+      $r7 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -11481,7 +11496,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a56($r4);
+      $r1 = $this->a56($r6);
     }
     // free $p3
     choice_1:
@@ -11544,7 +11559,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r1 = "-";
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r1 = self::$FAILED;
     }
     choice_1:
@@ -11567,7 +11582,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(42);}
+      if (!$silence) {$this->fail(41);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -11597,7 +11612,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->savedPos = $p5;
       $r4 = $this->a133();
     } else {
-      if (!$silence) {$this->fail(74);}
+      if (!$silence) {$this->fail(72);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -11731,7 +11746,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->savedPos = $p17;
       $r21 = $this->a142($r4, $r6, $r13);
     } else {
-      if (!$silence) {$this->fail(75);}
+      if (!$silence) {$this->fail(73);}
       $r21 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -11768,7 +11783,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r4 = "-{";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(74);}
+      if (!$silence) {$this->fail(72);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -11799,7 +11814,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = $this->input[$this->currPos++];
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(76);}
+      if (!$silence) {$this->fail(74);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -11820,7 +11835,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = $this->input[$this->currPos++];
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(76);}
+      if (!$silence) {$this->fail(74);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -12120,7 +12135,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r8 = "-";
         $r6 = true;
       } else {
-        if (!$silence) {$this->fail(55);}
+        if (!$silence) {$this->fail(54);}
         $r8 = self::$FAILED;
         break;
       }
@@ -12296,7 +12311,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r6 = "+";
     } else {
-      if (!$silence) {$this->fail(77);}
+      if (!$silence) {$this->fail(75);}
       $r6 = self::$FAILED;
       $this->currPos = $p3;
       $r1 = self::$FAILED;
@@ -12356,7 +12371,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(78);}
+      if (!$silence) {$this->fail(76);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -12681,7 +12696,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
         $r9 = ";";
       } else {
-        if (!$silence) {$this->fail(31);}
+        if (!$silence) {$this->fail(30);}
         $r9 = self::$FAILED;
         $r6 = self::$FAILED;
         goto seq_2;
@@ -12714,7 +12729,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos++;
         $r12 = ";";
       } else {
-        if (!$silence) {$this->fail(31);}
+        if (!$silence) {$this->fail(30);}
         $r12 = self::$FAILED;
         $r11 = self::$FAILED;
         goto seq_3;
@@ -12983,7 +12998,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r4 = "!";
     } else {
-      if (!$silence) {$this->fail(79);}
+      if (!$silence) {$this->fail(77);}
       $r4 = self::$FAILED;
       $r1 = self::$FAILED;
       goto seq_1;
@@ -13006,7 +13021,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $this->currPos += 2;
         goto choice_1;
       } else {
-        if (!$silence) {$this->fail(80);}
+        if (!$silence) {$this->fail(78);}
         $r10 = self::$FAILED;
       }
       $r10 = $this->parsepipe_pipe($silence);
@@ -13618,7 +13633,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
       $r9 = ";";
     } else {
-      if (!$silence) {$this->fail(31);}
+      if (!$silence) {$this->fail(30);}
       $r9 = self::$FAILED;
       $r8 = self::$FAILED;
       goto seq_2;
@@ -13819,7 +13834,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r14 = "=>";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(81);}
+      if (!$silence) {$this->fail(79);}
       $r14 = self::$FAILED;
       $this->currPos = $p5;
       $r1 = self::$FAILED;
@@ -14033,14 +14048,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) {$this->fail(82);}
+      if (!$silence) {$this->fail(80);}
       $r1 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
       $r1 = "{{!}}{{!}}";
       $this->currPos += 10;
     } else {
-      if (!$silence) {$this->fail(83);}
+      if (!$silence) {$this->fail(81);}
       $r1 = self::$FAILED;
     }
     choice_1:
@@ -14184,7 +14199,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r1 = self::$FAILED;
-      if (!$silence) {$this->fail(42);}
+      if (!$silence) {$this->fail(41);}
     }
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
   
@@ -14211,7 +14226,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
     } else {
       $r3 = self::$FAILED;
-      if (!$silence) {$this->fail(84);}
+      if (!$silence) {$this->fail(82);}
     }
     $r1 = $r3;
     if ($r1!==self::$FAILED) {
@@ -14261,7 +14276,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r14 = self::consumeChar($this->input, $this->currPos);
       } else {
         $r14 = self::$FAILED;
-        if (!$silence) {$this->fail(85);}
+        if (!$silence) {$this->fail(83);}
         $this->currPos = $p10;
         $r9 = self::$FAILED;
         goto seq_1;
@@ -14316,7 +14331,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $this->currPos++;
     } else {
       $r4 = self::$FAILED;
-      if (!$silence) {$this->fail(86);}
+      if (!$silence) {$this->fail(84);}
       $r1 = self::$FAILED;
       goto seq_1;
     }
@@ -14328,7 +14343,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $r5 = true;
       } else {
         $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(87);}
+        if (!$silence) {$this->fail(85);}
         break;
       }
     }
