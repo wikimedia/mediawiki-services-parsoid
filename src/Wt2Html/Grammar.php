@@ -440,14 +440,14 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$s2 );
   	
   }
-  private function a6($proto, $addr, $c) {
-   return $c; 
-  }
-  private function a7($proto, $addr, $he) {
+  private function a6($proto, $addr, $he) {
    return $he; 
   }
-  private function a8($proto, $addr, $r) {
+  private function a7($proto, $addr, $r) {
    return $r; 
+  }
+  private function a8($proto, $addr, $c) {
+   return $c; 
   }
   private function a9($proto, $addr, $path) {
    return $addr !== '' || count( $path ) > 0; 
@@ -2045,7 +2045,6 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $r6 = [];
     for (;;) {
-      // start choice_2
       $p8 = $this->currPos;
       // start seq_2
       $p9 = $this->currPos;
@@ -2060,7 +2059,167 @@ class Grammar extends \WikiPEG\PEGParserBase {
         goto seq_2;
       }
       // free $p10
+      // start choice_2
       $r12 = $this->parseno_punctuation_char($silence);
+      if ($r12!==self::$FAILED) {
+        goto choice_2;
+      }
+      if (strspn($this->input, ".:,'", $this->currPos, 1) !== 0) {
+        $r12 = $this->input[$this->currPos++];
+        goto choice_2;
+      } else {
+        $r12 = self::$FAILED;
+        if (!$silence) {$this->fail(3);}
+      }
+      $r12 = $this->parsecomment($silence);
+      if ($r12!==self::$FAILED) {
+        goto choice_2;
+      }
+      $r12 = $this->parsetplarg_or_template($silence, 0x0, 0, self::newRef(null), $param_preproc);
+      if ($r12!==self::$FAILED) {
+        goto choice_2;
+      }
+      $p10 = $this->currPos;
+      // start seq_3
+      $p13 = $this->currPos;
+      $p14 = $this->currPos;
+      // start seq_4
+      $p16 = $this->currPos;
+      if (($this->input[$this->currPos] ?? null) === "&") {
+        $this->currPos++;
+        $r17 = "&";
+      } else {
+        $r17 = self::$FAILED;
+        $r15 = self::$FAILED;
+        goto seq_4;
+      }
+      // start choice_3
+      // start seq_5
+      $p19 = $this->currPos;
+      $r20 = $this->input[$this->currPos] ?? '';
+      if ($r20 === "l" || $r20 === "L") {
+        $this->currPos++;
+      } else {
+        $r20 = self::$FAILED;
+        $r18 = self::$FAILED;
+        goto seq_5;
+      }
+      $r21 = $this->input[$this->currPos] ?? '';
+      if ($r21 === "t" || $r21 === "T") {
+        $this->currPos++;
+      } else {
+        $r21 = self::$FAILED;
+        $this->currPos = $p19;
+        $r18 = self::$FAILED;
+        goto seq_5;
+      }
+      $r18 = true;
+      seq_5:
+      if ($r18!==self::$FAILED) {
+        goto choice_3;
+      }
+      // free $p19
+      // start seq_6
+      $p19 = $this->currPos;
+      $r22 = $this->input[$this->currPos] ?? '';
+      if ($r22 === "g" || $r22 === "G") {
+        $this->currPos++;
+      } else {
+        $r22 = self::$FAILED;
+        $r18 = self::$FAILED;
+        goto seq_6;
+      }
+      $r23 = $this->input[$this->currPos] ?? '';
+      if ($r23 === "t" || $r23 === "T") {
+        $this->currPos++;
+      } else {
+        $r23 = self::$FAILED;
+        $this->currPos = $p19;
+        $r18 = self::$FAILED;
+        goto seq_6;
+      }
+      $r18 = true;
+      seq_6:
+      // free $p19
+      choice_3:
+      if ($r18===self::$FAILED) {
+        $this->currPos = $p16;
+        $r15 = self::$FAILED;
+        goto seq_4;
+      }
+      if (($this->input[$this->currPos] ?? null) === ";") {
+        $this->currPos++;
+        $r24 = ";";
+      } else {
+        $r24 = self::$FAILED;
+        $this->currPos = $p16;
+        $r15 = self::$FAILED;
+        goto seq_4;
+      }
+      $r15 = true;
+      seq_4:
+      // free $p16
+      if ($r15 === self::$FAILED) {
+        $r15 = false;
+      } else {
+        $r15 = self::$FAILED;
+        $this->currPos = $p14;
+        $r12 = self::$FAILED;
+        goto seq_3;
+      }
+      // free $p14
+      // start choice_4
+      $p14 = $this->currPos;
+      // start seq_7
+      $p16 = $this->currPos;
+      $p19 = $this->currPos;
+      if (($this->input[$this->currPos] ?? null) === "&") {
+        $this->currPos++;
+        $r26 = "&";
+        $r26 = false;
+        $this->currPos = $p19;
+      } else {
+        $r26 = self::$FAILED;
+        $r25 = self::$FAILED;
+        goto seq_7;
+      }
+      // free $p19
+      $r27 = $this->parsehtmlentity($silence);
+      // he <- $r27
+      if ($r27===self::$FAILED) {
+        $this->currPos = $p16;
+        $r25 = self::$FAILED;
+        goto seq_7;
+      }
+      $r25 = true;
+      seq_7:
+      if ($r25!==self::$FAILED) {
+        $this->savedPos = $p14;
+        $r25 = $this->a6($r4, $r5, $r27);
+        goto choice_4;
+      }
+      // free $p16
+      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
+        $r25 = $this->input[$this->currPos++];
+      } else {
+        $r25 = self::$FAILED;
+        if (!$silence) {$this->fail(4);}
+      }
+      choice_4:
+      // r <- $r25
+      if ($r25===self::$FAILED) {
+        $this->currPos = $p13;
+        $r12 = self::$FAILED;
+        goto seq_3;
+      }
+      $r12 = true;
+      seq_3:
+      if ($r12!==self::$FAILED) {
+        $this->savedPos = $p10;
+        $r12 = $this->a7($r4, $r5, $r25);
+      }
+      // free $p13
+      choice_2:
       // c <- $r12
       if ($r12===self::$FAILED) {
         $this->currPos = $p9;
@@ -2071,171 +2230,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
       seq_2:
       if ($r7!==self::$FAILED) {
         $this->savedPos = $p8;
-        $r7 = $this->a6($r4, $r5, $r12);
-        goto choice_2;
-      }
-      // free $p9
-      if (strspn($this->input, ".:,'", $this->currPos, 1) !== 0) {
-        $r7 = $this->input[$this->currPos++];
-        goto choice_2;
-      } else {
-        $r7 = self::$FAILED;
-        if (!$silence) {$this->fail(3);}
-      }
-      $r7 = $this->parsecomment($silence);
-      if ($r7!==self::$FAILED) {
-        goto choice_2;
-      }
-      $r7 = $this->parsetplarg_or_template($silence, 0x0, 0, self::newRef(null), $param_preproc);
-      if ($r7!==self::$FAILED) {
-        goto choice_2;
-      }
-      $p9 = $this->currPos;
-      // start seq_3
-      $p10 = $this->currPos;
-      $p13 = $this->currPos;
-      // start seq_4
-      $p15 = $this->currPos;
-      if (($this->input[$this->currPos] ?? null) === "&") {
-        $this->currPos++;
-        $r16 = "&";
-      } else {
-        $r16 = self::$FAILED;
-        $r14 = self::$FAILED;
-        goto seq_4;
-      }
-      // start choice_3
-      // start seq_5
-      $p18 = $this->currPos;
-      $r19 = $this->input[$this->currPos] ?? '';
-      if ($r19 === "l" || $r19 === "L") {
-        $this->currPos++;
-      } else {
-        $r19 = self::$FAILED;
-        $r17 = self::$FAILED;
-        goto seq_5;
-      }
-      $r20 = $this->input[$this->currPos] ?? '';
-      if ($r20 === "t" || $r20 === "T") {
-        $this->currPos++;
-      } else {
-        $r20 = self::$FAILED;
-        $this->currPos = $p18;
-        $r17 = self::$FAILED;
-        goto seq_5;
-      }
-      $r17 = true;
-      seq_5:
-      if ($r17!==self::$FAILED) {
-        goto choice_3;
-      }
-      // free $p18
-      // start seq_6
-      $p18 = $this->currPos;
-      $r21 = $this->input[$this->currPos] ?? '';
-      if ($r21 === "g" || $r21 === "G") {
-        $this->currPos++;
-      } else {
-        $r21 = self::$FAILED;
-        $r17 = self::$FAILED;
-        goto seq_6;
-      }
-      $r22 = $this->input[$this->currPos] ?? '';
-      if ($r22 === "t" || $r22 === "T") {
-        $this->currPos++;
-      } else {
-        $r22 = self::$FAILED;
-        $this->currPos = $p18;
-        $r17 = self::$FAILED;
-        goto seq_6;
-      }
-      $r17 = true;
-      seq_6:
-      // free $p18
-      choice_3:
-      if ($r17===self::$FAILED) {
-        $this->currPos = $p15;
-        $r14 = self::$FAILED;
-        goto seq_4;
-      }
-      if (($this->input[$this->currPos] ?? null) === ";") {
-        $this->currPos++;
-        $r23 = ";";
-      } else {
-        $r23 = self::$FAILED;
-        $this->currPos = $p15;
-        $r14 = self::$FAILED;
-        goto seq_4;
-      }
-      $r14 = true;
-      seq_4:
-      // free $p15
-      if ($r14 === self::$FAILED) {
-        $r14 = false;
-      } else {
-        $r14 = self::$FAILED;
-        $this->currPos = $p13;
-        $r7 = self::$FAILED;
-        goto seq_3;
-      }
-      // free $p13
-      // start choice_4
-      $p13 = $this->currPos;
-      // start seq_7
-      $p15 = $this->currPos;
-      $p18 = $this->currPos;
-      if (($this->input[$this->currPos] ?? null) === "&") {
-        $this->currPos++;
-        $r25 = "&";
-        $r25 = false;
-        $this->currPos = $p18;
-      } else {
-        $r25 = self::$FAILED;
-        $r24 = self::$FAILED;
-        goto seq_7;
-      }
-      // free $p18
-      $r26 = $this->parsehtmlentity($silence);
-      // he <- $r26
-      if ($r26===self::$FAILED) {
-        $this->currPos = $p15;
-        $r24 = self::$FAILED;
-        goto seq_7;
-      }
-      $r24 = true;
-      seq_7:
-      if ($r24!==self::$FAILED) {
-        $this->savedPos = $p13;
-        $r24 = $this->a7($r4, $r5, $r26);
-        goto choice_4;
-      }
-      // free $p15
-      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
-        $r24 = $this->input[$this->currPos++];
-      } else {
-        $r24 = self::$FAILED;
-        if (!$silence) {$this->fail(4);}
-      }
-      choice_4:
-      // r <- $r24
-      if ($r24===self::$FAILED) {
-        $this->currPos = $p10;
-        $r7 = self::$FAILED;
-        goto seq_3;
-      }
-      $r7 = true;
-      seq_3:
-      if ($r7!==self::$FAILED) {
-        $this->savedPos = $p9;
-        $r7 = $this->a8($r4, $r5, $r24);
-      }
-      // free $p10
-      choice_2:
-      if ($r7!==self::$FAILED) {
+        $r7 = $this->a8($r4, $r5, $r12);
         $r6[] = $r7;
       } else {
         break;
       }
+      // free $p9
     }
     // path <- $r6
     // free $r7
@@ -9652,7 +9652,6 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
     $r10 = [];
     for (;;) {
-      // start choice_2
       $p12 = $this->currPos;
       // start seq_3
       $p13 = $this->currPos;
@@ -9667,7 +9666,151 @@ class Grammar extends \WikiPEG\PEGParserBase {
         goto seq_3;
       }
       // free $p14
+      // start choice_2
       $r16 = $this->parseno_punctuation_char($silence);
+      if ($r16!==self::$FAILED) {
+        goto choice_2;
+      }
+      if (strspn($this->input, ".:,", $this->currPos, 1) !== 0) {
+        $r16 = $this->input[$this->currPos++];
+        goto choice_2;
+      } else {
+        $r16 = self::$FAILED;
+        if (!$silence) {$this->fail(64);}
+      }
+      $p14 = $this->currPos;
+      // start seq_4
+      $p17 = $this->currPos;
+      $r18 = $this->input[$this->currPos] ?? '';
+      if ($r18 === "'") {
+        $this->currPos++;
+      } else {
+        $r18 = self::$FAILED;
+        if (!$silence) {$this->fail(41);}
+        $r16 = self::$FAILED;
+        goto seq_4;
+      }
+      $p19 = $this->currPos;
+      $r20 = $this->input[$this->currPos] ?? '';
+      if ($r20 === "'") {
+        $this->currPos++;
+      } else {
+        $r20 = self::$FAILED;
+      }
+      if ($r20 === self::$FAILED) {
+        $r20 = false;
+      } else {
+        $r20 = self::$FAILED;
+        $this->currPos = $p19;
+        $this->currPos = $p17;
+        $r16 = self::$FAILED;
+        goto seq_4;
+      }
+      // free $p19
+      $r16 = true;
+      seq_4:
+      if ($r16!==self::$FAILED) {
+        $r16 = substr($this->input, $p14, $this->currPos - $p14);
+        goto choice_2;
+      } else {
+        $r16 = self::$FAILED;
+      }
+      // free $p17
+      // free $p14
+      $r16 = $this->parsecomment($silence);
+      if ($r16!==self::$FAILED) {
+        goto choice_2;
+      }
+      $r16 = $this->parsetplarg_or_template($silence, $boolParams, $param_templatedepth, $param_th, $param_preproc);
+      if ($r16!==self::$FAILED) {
+        goto choice_2;
+      }
+      $p14 = $this->currPos;
+      // start seq_5
+      $p17 = $this->currPos;
+      $p19 = $this->currPos;
+      // start seq_6
+      $p22 = $this->currPos;
+      $r23 = $this->parseraw_htmlentity(true);
+      // rhe <- $r23
+      if ($r23===self::$FAILED) {
+        $r21 = self::$FAILED;
+        goto seq_6;
+      }
+      $this->savedPos = $this->currPos;
+      $r24 = $this->a108($r8, $r9, $r23);
+      if ($r24) {
+        $r24 = false;
+      } else {
+        $r24 = self::$FAILED;
+        $this->currPos = $p22;
+        $r21 = self::$FAILED;
+        goto seq_6;
+      }
+      $r21 = true;
+      seq_6:
+      // free $p22
+      if ($r21 === self::$FAILED) {
+        $r21 = false;
+      } else {
+        $r21 = self::$FAILED;
+        $this->currPos = $p19;
+        $r16 = self::$FAILED;
+        goto seq_5;
+      }
+      // free $p19
+      // start choice_3
+      $p19 = $this->currPos;
+      // start seq_7
+      $p22 = $this->currPos;
+      $p26 = $this->currPos;
+      if (($this->input[$this->currPos] ?? null) === "&") {
+        $this->currPos++;
+        $r27 = "&";
+        $r27 = false;
+        $this->currPos = $p26;
+      } else {
+        $r27 = self::$FAILED;
+        $r25 = self::$FAILED;
+        goto seq_7;
+      }
+      // free $p26
+      $r28 = $this->parsehtmlentity($silence);
+      // he <- $r28
+      if ($r28===self::$FAILED) {
+        $this->currPos = $p22;
+        $r25 = self::$FAILED;
+        goto seq_7;
+      }
+      $r25 = true;
+      seq_7:
+      if ($r25!==self::$FAILED) {
+        $this->savedPos = $p19;
+        $r25 = $this->a6($r8, $r9, $r28);
+        goto choice_3;
+      }
+      // free $p22
+      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
+        $r25 = $this->input[$this->currPos++];
+      } else {
+        $r25 = self::$FAILED;
+        if (!$silence) {$this->fail(4);}
+      }
+      choice_3:
+      // r <- $r25
+      if ($r25===self::$FAILED) {
+        $this->currPos = $p17;
+        $r16 = self::$FAILED;
+        goto seq_5;
+      }
+      $r16 = true;
+      seq_5:
+      if ($r16!==self::$FAILED) {
+        $this->savedPos = $p14;
+        $r16 = $this->a7($r8, $r9, $r25);
+      }
+      // free $p17
+      choice_2:
       // c <- $r16
       if ($r16===self::$FAILED) {
         $this->currPos = $p13;
@@ -9678,155 +9821,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
       seq_3:
       if ($r11!==self::$FAILED) {
         $this->savedPos = $p12;
-        $r11 = $this->a6($r8, $r9, $r16);
-        goto choice_2;
-      }
-      // free $p13
-      if (strspn($this->input, ".:,", $this->currPos, 1) !== 0) {
-        $r11 = $this->input[$this->currPos++];
-        goto choice_2;
-      } else {
-        $r11 = self::$FAILED;
-        if (!$silence) {$this->fail(64);}
-      }
-      $p13 = $this->currPos;
-      // start seq_4
-      $p14 = $this->currPos;
-      $r17 = $this->input[$this->currPos] ?? '';
-      if ($r17 === "'") {
-        $this->currPos++;
-      } else {
-        $r17 = self::$FAILED;
-        if (!$silence) {$this->fail(41);}
-        $r11 = self::$FAILED;
-        goto seq_4;
-      }
-      $p18 = $this->currPos;
-      $r19 = $this->input[$this->currPos] ?? '';
-      if ($r19 === "'") {
-        $this->currPos++;
-      } else {
-        $r19 = self::$FAILED;
-      }
-      if ($r19 === self::$FAILED) {
-        $r19 = false;
-      } else {
-        $r19 = self::$FAILED;
-        $this->currPos = $p18;
-        $this->currPos = $p14;
-        $r11 = self::$FAILED;
-        goto seq_4;
-      }
-      // free $p18
-      $r11 = true;
-      seq_4:
-      if ($r11!==self::$FAILED) {
-        $r11 = substr($this->input, $p13, $this->currPos - $p13);
-        goto choice_2;
-      } else {
-        $r11 = self::$FAILED;
-      }
-      // free $p14
-      // free $p13
-      $r11 = $this->parsecomment($silence);
-      if ($r11!==self::$FAILED) {
-        goto choice_2;
-      }
-      $r11 = $this->parsetplarg_or_template($silence, $boolParams, $param_templatedepth, $param_th, $param_preproc);
-      if ($r11!==self::$FAILED) {
-        goto choice_2;
-      }
-      $p13 = $this->currPos;
-      // start seq_5
-      $p14 = $this->currPos;
-      $p18 = $this->currPos;
-      // start seq_6
-      $p21 = $this->currPos;
-      $r22 = $this->parseraw_htmlentity(true);
-      // rhe <- $r22
-      if ($r22===self::$FAILED) {
-        $r20 = self::$FAILED;
-        goto seq_6;
-      }
-      $this->savedPos = $this->currPos;
-      $r23 = $this->a108($r8, $r9, $r22);
-      if ($r23) {
-        $r23 = false;
-      } else {
-        $r23 = self::$FAILED;
-        $this->currPos = $p21;
-        $r20 = self::$FAILED;
-        goto seq_6;
-      }
-      $r20 = true;
-      seq_6:
-      // free $p21
-      if ($r20 === self::$FAILED) {
-        $r20 = false;
-      } else {
-        $r20 = self::$FAILED;
-        $this->currPos = $p18;
-        $r11 = self::$FAILED;
-        goto seq_5;
-      }
-      // free $p18
-      // start choice_3
-      $p18 = $this->currPos;
-      // start seq_7
-      $p21 = $this->currPos;
-      $p25 = $this->currPos;
-      if (($this->input[$this->currPos] ?? null) === "&") {
-        $this->currPos++;
-        $r26 = "&";
-        $r26 = false;
-        $this->currPos = $p25;
-      } else {
-        $r26 = self::$FAILED;
-        $r24 = self::$FAILED;
-        goto seq_7;
-      }
-      // free $p25
-      $r27 = $this->parsehtmlentity($silence);
-      // he <- $r27
-      if ($r27===self::$FAILED) {
-        $this->currPos = $p21;
-        $r24 = self::$FAILED;
-        goto seq_7;
-      }
-      $r24 = true;
-      seq_7:
-      if ($r24!==self::$FAILED) {
-        $this->savedPos = $p18;
-        $r24 = $this->a7($r8, $r9, $r27);
-        goto choice_3;
-      }
-      // free $p21
-      if (strspn($this->input, "&%{", $this->currPos, 1) !== 0) {
-        $r24 = $this->input[$this->currPos++];
-      } else {
-        $r24 = self::$FAILED;
-        if (!$silence) {$this->fail(4);}
-      }
-      choice_3:
-      // r <- $r24
-      if ($r24===self::$FAILED) {
-        $this->currPos = $p14;
-        $r11 = self::$FAILED;
-        goto seq_5;
-      }
-      $r11 = true;
-      seq_5:
-      if ($r11!==self::$FAILED) {
-        $this->savedPos = $p13;
-        $r11 = $this->a8($r8, $r9, $r24);
-      }
-      // free $p14
-      choice_2:
-      if ($r11!==self::$FAILED) {
+        $r11 = $this->a8($r8, $r9, $r16);
         $r10[] = $r11;
       } else {
         break;
       }
+      // free $p13
     }
     // path <- $r10
     // free $r11

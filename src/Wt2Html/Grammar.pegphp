@@ -814,19 +814,17 @@ url =
 	proto:url_protocol
 	addr:(urladdr / "")
 	path:(
-		(
-			!inline_breaks
-			c:no_punctuation_char
-			{ return $c; }
-		)
-		/ [.:,']
-		/ comment
-		/ tplarg_or_template
-		/ ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
-		r:(
-			& "&" he:htmlentity { return $he; }
-			/ [&%{]
-		) { return $r; }
+		!inline_breaks c:(
+			no_punctuation_char
+			/ [.:,']
+			/ comment
+			/ tplarg_or_template
+			/ ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
+				r:(
+					& "&" he:htmlentity { return $he; }
+					/ [&%{]
+				) { return $r; }
+		) { return $c; }
 	)*
 	// Must be at least one character after the protocol
 	& { return $addr !== '' || count( $path ) > 0; }
@@ -847,20 +845,18 @@ autourl =
 		proto:url_protocol
 		addr:(urladdr / "")
 		path:(
-			(
-				!inline_breaks
-				c:no_punctuation_char
-				{ return $c; }
-			)
-			/ [.:,]
-			/ $(['] ![']) // single quotes are ok, double quotes are bad
-			/ comment
-			/ tplarg_or_template
-			/ ! ( rhe:raw_htmlentity &{ return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; } )
-			r:(
-				& "&" he:htmlentity { return $he; }
-				/ [&%{]
-			) { return $r; }
+			!inline_breaks c:(
+				no_punctuation_char
+				/ [.:,]
+				/ $(['] ![']) // single quotes are ok, double quotes are bad
+				/ comment
+				/ tplarg_or_template
+				/ ! ( rhe:raw_htmlentity &{ return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; } )
+					r:(
+						& "&" he:htmlentity { return $he; }
+						/ [&%{]
+					) { return $r; }
+			) { return $c; }
 		)*
 		{
 			// as in Parser.php::makeFreeExternalLink, we're going to
