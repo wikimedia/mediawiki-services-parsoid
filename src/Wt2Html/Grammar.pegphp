@@ -677,11 +677,11 @@ behavior_switch =
 		}
 	}
 
-// Instead of defining a charset, the old parser's doDoubleUnderscore concats a regexp of
-// all the language specific aliases of the behavior switches and then does a
-// match and replace. Just be as permissive as possible and let the
+// Instead of defining a charset, the old parser's doDoubleUnderscore concats a
+// regexp of all the language specific aliases of the behavior switches and
+// then does a match and replace. Just be as permissive as possible and let the
 // BehaviorSwitchPreprocessor back out of any overreach.
-behavior_text = $( !'__' [^'"<~[{\n\r:;\]}|!=] )+
+behavior_text = $( !'__' ( text_char / "-" ) )+
 
 
 /**************************************************************
@@ -2138,12 +2138,11 @@ row_syntax_table_args =
  * be reflected there.
  */
 
-text_char = [^-'<~[{\n\r:;\]}|!=]
+text_char = [^-'<[{\n\r:;\]}|!=]
 
 /* Legend
  * '    quotes (italic/bold)
  * <    start of xmlish_tag
- * ~    signatures/dates
  * [    start of links
  * {    start of parser functions, transclusion and template args
  * \n   all sort of block-level markup at start of line
@@ -2169,7 +2168,7 @@ urltext =
 		/ & "&" he:htmlentity { return $he; }
 		/ & ('__') bs:behavior_switch { return $bs; }
 		// About 96% of text_char calls originated here, so inline it for efficiency
-		/ [^-'<~[{\n\r:;\]}|!=]
+		/ [^-'<[{\n\r:;\]}|!=]
 	)+
 
 raw_htmlentity =
@@ -2371,7 +2370,7 @@ extlink_preprocessor_text =
 
 extlink_preprocessor_text_parameterized =
 	r:(
-		$[^'<~[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
+		$[^'<[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
 		/ !inline_breaks s:( directive / no_punctuation_char / [&|{\-] ) { return $s; }
 		// !inline_breaks no_punctuation_char
 		/ $([.:,] !(space / eolf))
