@@ -1934,8 +1934,9 @@
         "selser": "ltebnx\n<br title/>\n4nzjam\n<br title=bar /><br title=bar/><br title=bar/ >"
     },
     "Handling html with a div self-closing tag": {
+        "wt2html": "<div title=\"\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,13,13,0]}'></div>\n<div title=\"\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[14,26,12,0]}'></div>\n<div title=\"\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[27,93,13,0]}'>\n<div title=\"bar\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[41,58,17,0]}'></div>\n<div title=\"bar\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[59,75,16,0]}'></div>\n<div title=\"bar/\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[76,93,17,0]}'></div></div>",
         "wt2wt": "<div title=\"\" />\n<div title=\"\" />\n<div title=\"\">\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">",
-        "html2wt": "<div title=\"\" />\n<div title=\"\" />\n<div title=\"\">\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">"
+        "html2wt": "<div title=\"\">\n<div title=\"\">\n<div title=\"\">\n<div title=\"bar\">\n<div title=\"bar\">\n<div title=\"bar/\"></div></div></div></div></div></div>"
     },
     "Handling html with a div self-closing tag [0,0,0,2,4]": {
         "selser": "<div title />\n<div title/>1y4ezss\n1n0zzbf"
@@ -3426,12 +3427,16 @@
         "selser": "1x6hr6p\n\n1fsd33x\n\nbtc36h\n\npslz85a\n<div style=\"border:1px solid red;\" data-foobar=\"1ahvbjp\">\nb\n\n==1.1==\nc\n\n=2=\nd\n</div>10art7i\ne\n1q6wce1\n\nz5805j\n\nf\n\n==3.1==\ng"
     },
     "Self closed html pairs (T7487)": {
-        "html2wt": "<center><font id=\"bug\"></font>Centered text</center>\n<div><font id=\"bug2\"></font>In div text</div>"
+        "wt2html": "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>",
+        "html2wt": "<center><font id=\"bug\">Centered text</font></center><font id=\"bug\"><div><font id=\"bug2\">In div text</font></div></font>"
     },
     "Self-closed noinclude, includeonly, onlyinclude tags": {
         "wt2html": "<meta typeof=\"mw:Includes/NoInclude\" data-parsoid='{\"src\":\"&lt;noinclude />\",\"dsr\":[0,13,null,null]}'/>\n<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[14,29,null,null]}' data-mw='{\"src\":\"&lt;includeonly />\"}'/>\n<meta typeof=\"mw:Includes/OnlyInclude\" data-parsoid='{\"src\":\"&lt;onlyinclude />\",\"dsr\":[30,45,null,null]}'/>",
         "html2html": "\n\n",
         "html2wt": "\n\n"
+    },
+    "Self-closed tag with broken attribute value quoting": {
+        "wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
     },
     "Self-link to numeric title": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,5,0,0]}'><a rel=\"mw:WikiLink\" href=\"./0\" title=\"0\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./0\"},\"sa\":{\"href\":\"0\"},\"dsr\":[0,5,2,2]}'>0</a></p>",
