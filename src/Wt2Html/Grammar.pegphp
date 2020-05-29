@@ -2370,10 +2370,8 @@ extlink_preprocessor_text =
 
 extlink_preprocessor_text_parameterized =
 	r:(
-		$[^'<[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
-		/ !inline_breaks s:( directive / no_punctuation_char / [&|{\-] ) { return $s; }
-		// !inline_breaks no_punctuation_char
-		/ $([.:,] !(space / eolf))
+		$[^<[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
+		/ !inline_breaks s:( directive / [&|{\-!}=] ) { return $s; }
 		/ $(['] ![']) // single quotes are ok, double quotes are bad
 	)+ {
 		return TokenizerUtils::flattenString( $r );
