@@ -6,6 +6,7 @@ namespace MWParsoid\Config;
 
 use Config;
 use ConfigException;
+use ExtensionRegistry;
 use FakeConverter;
 use Language;
 use LanguageConverter;
