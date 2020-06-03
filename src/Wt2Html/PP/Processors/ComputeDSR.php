@@ -678,8 +678,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 								// debug info
 								if ( $siblingDP->dsr->end ) {
-									$siblingDP->dbsrc =
-										PHPUtils::safeSubstr( $frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
+									$siblingDP->dbsrc = PHPUtils::safeSubstr(
+										$frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
 								}
 								return $str;
 							} );

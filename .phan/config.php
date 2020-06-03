@@ -45,9 +45,6 @@ if ( $STANDALONE ) {
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
 	$cfg['exclude_file_regex'] = '@/vendor/(wikimedia/parsoid|jakub-onderka/php-parallel-lint)/@';
 }
-error_log( $IP );
-# error_log(var_export($cfg['directory_list'], TRUE));
-# error_log(var_export($cfg['exclude_analysis_directory_list'], TRUE));
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';

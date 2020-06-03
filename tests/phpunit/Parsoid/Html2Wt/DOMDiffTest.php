@@ -58,7 +58,7 @@ class DOMDiffTest extends TestCase {
 				$node = $body;
 			} else {
 				$nodes = DOMCompat::querySelectorAll( $body, $spec['selector'] );
-				$this->assertEquals( 1, count( $nodes ) );
+				$this->assertSame( 1, count( $nodes ) );
 				$node = $nodes[0];
 			}
 			if ( isset( $spec['diff'] ) ) {

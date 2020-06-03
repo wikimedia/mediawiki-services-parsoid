@@ -601,6 +601,7 @@ class Separators {
 	 * and existing separator text. Called when new output is triggered.
 	 * @param DOMNode $node
 	 * @return string|null
+	 * @suppress PhanTypeMismatchArgument Mixing DOMNode and DOMElement
 	 */
 	public function buildSep( DOMNode $node ): ?string {
 		$state = $this->state;
@@ -650,6 +651,7 @@ class Separators {
 					$correction = null;
 					if ( is_int( $endDsr ) ) {
 						if ( DOMUtils::isComment( $prevNode ) ) {
+							'@phan-var \DOMComment $prevNode'; // @var \DOMComment $prevNode
 							$correction = WTUtils::decodedCommentLength( $prevNode );
 						} else {
 							$correction = strlen( $prevNode->nodeValue );

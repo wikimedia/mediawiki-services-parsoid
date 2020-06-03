@@ -34,12 +34,12 @@
 		"ext-json": "*"
 	},
 	"require-dev": {
-		"jakub-onderka/php-console-color": "0.2",
-		"jakub-onderka/php-parallel-lint": "1.0.0",
+		"php-parallel-lint/php-console-highlighter": "0.5.0",
+		"php-parallel-lint/php-parallel-lint": "1.2.0",
 		"monolog/monolog": "~1.25.2",
-		"mediawiki/mediawiki-codesniffer": "30.0.0",
-		"mediawiki/mediawiki-phan-config": "0.9.2",
-		"mediawiki/minus-x": "1.0.0",
+		"mediawiki/mediawiki-codesniffer": "31.0.0",
+		"mediawiki/mediawiki-phan-config": "0.10.2",
+		"mediawiki/minus-x": "1.1.0",
 		"phpunit/phpunit": "^8.5",
 		"sebastian/diff": "^3.0.2",
 		"wikimedia/alea": "^0.9.2",
@@ -79,8 +79,8 @@
 			"phpcbf"
 		],
 		"cover": "phpunit --coverage-html coverage",
-		"phan": "phan -p --allow-polyfill-parser --config-file=.phan/standalone.php",
-		"phan-integrated": "phan -p --allow-polyfill-parser",
+		"phan": "phan -p --allow-polyfill-parser --config-file=.phan/standalone.php --long-progress-bar",
+		"phan-integrated": "phan -p --allow-polyfill-parser --long-progress-bar",
 		"regen-tokenizer": "npm run regen-php-tokenizer",
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --blacklist true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --blacklist true --offsetType ucs2",

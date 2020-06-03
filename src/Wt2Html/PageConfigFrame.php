@@ -37,6 +37,7 @@ class PageConfigFrame extends Frame {
 			null
 		);
 	}
+
 	// XXX: override getSrcText() to mirror $pageConfig, if the $pageConfig
 	// is mutable?
 }

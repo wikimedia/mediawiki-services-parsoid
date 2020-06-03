@@ -20,8 +20,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * Extract the dimensions for media.
 	 *
 	 * @param Env $env
-	 * @param array{size:array{height?:int,width?:int},format:string} $attrs
+	 * @param array $attrs
 	 * @param array $info
+	 * @phan-param array{size:array{height?:int,width?:int},format:string} $attrs
 	 * @return array
 	 */
 	private static function handleSize( Env $env, array $attrs, array $info ): array {

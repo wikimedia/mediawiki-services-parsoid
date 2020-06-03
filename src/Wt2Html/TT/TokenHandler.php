@@ -32,7 +32,7 @@ abstract class TokenHandler extends PipelineStage {
 	protected $onAnyEnabled;
 
 	/**
-	 * @param object $manager The manager for this stage of the parse.
+	 * @param TokenTransformManager $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {

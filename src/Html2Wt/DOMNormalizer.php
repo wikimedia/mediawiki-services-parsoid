@@ -423,7 +423,8 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * FIXME, see https://gerrit.wikimedia.org/r/#/c/mediawiki/services/parsoid/+/500975/7/src/Html2Wt/DOMNormalizer.php@423
+	 * FIXME see
+	 * https://gerrit.wikimedia.org/r/#/c/mediawiki/services/parsoid/+/500975/7/src/Html2Wt/DOMNormalizer.php@423
 	 * @param DOMNode $node
 	 * @return DOMNode|null
 	 */
@@ -733,7 +734,9 @@ class DOMNormalizer {
 		if ( self::swappable( $a, $b ) ) {
 			'@phan-var \DOMElement $a'; // @var \DOMElement $a
 			'@phan-var \DOMElement $b'; // @var \DOMElement $b
-			$a = $this->merge( $this->swap( $a, DOMUtils::firstNonDeletedChild( $a ) ), $b );
+			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $a );
+			'@phan-var \DOMElement $firstNonDeletedChild'; // @var \DOMElement $firstNonDeletedChild
+			$a = $this->merge( $this->swap( $a, $firstNonDeletedChild ), $b );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
 			$this->processSubtree( $a, false );
@@ -743,7 +746,9 @@ class DOMNormalizer {
 		if ( self::swappable( $b, $a ) ) {
 			'@phan-var \DOMElement $a'; // @var \DOMElement $a
 			'@phan-var \DOMElement $b'; // @var \DOMElement $b
-			$a = $this->merge( $a, $this->swap( $b, DOMUtils::firstNonDeletedChild( $b ) ) );
+			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $b );
+			'@phan-var \DOMElement $firstNonDeletedChild'; // @var \DOMElement $firstNonDeletedChild
+			$a = $this->merge( $a, $this->swap( $b, $firstNonDeletedChild ) );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
 			$this->processSubtree( $a, false );

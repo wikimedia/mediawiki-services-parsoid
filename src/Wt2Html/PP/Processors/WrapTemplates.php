@@ -532,7 +532,9 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 						// Record the outermost range in which 'r' is nested.
 						$rangeIds = array_keys( $ranges );
 						$findOutermostRange = function ( $previous, $next ) use ( &$ranges ) {
-							return ( $ranges[$next]->startOffset < $ranges[$previous]->startOffset ) ? $next : $previous;
+							return ( $ranges[$next]->startOffset < $ranges[$previous]->startOffset )
+								? $next
+								: $previous;
 						};
 						$subsumedRanges[$r->id] =
 							(string)array_reduce( $rangeIds, $findOutermostRange, $rangeIds[0] );

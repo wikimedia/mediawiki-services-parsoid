@@ -40,7 +40,7 @@ class HeadingsTest extends TestCase {
 			} else {
 				$attrib = $h->getAttribute( 'id' );
 				$this->assertEquals( $attrib, $id[0], $name . $heading . $description . $id[0] );
-				$this->assertEquals( 1, count( $fallback ), $name . $description .
+				$this->assertSame( 1, count( $fallback ), $name . $description .
 					' fallback should be set to 1.' );
 				$fallbackAttribute = $fallback[0]->getAttribute( 'id' );
 				$this->assertEquals( $id[1], $fallbackAttribute, $name . $heading . $description . $id[1] );

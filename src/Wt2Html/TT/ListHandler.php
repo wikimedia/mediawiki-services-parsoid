@@ -76,8 +76,9 @@ class ListHandler extends TokenHandler {
 	 */
 	public function onAny( $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'ANY:',  function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-		 } );
+			'ANY:', function () use ( $token ) {
+				return PHPUtils::jsonEncode( $token );
+			} );
 		$tokens = null;
 
 		if ( !$this->currListFrame ) {
@@ -177,7 +178,7 @@ class ListHandler extends TokenHandler {
 	public function onEnd( EOFTk $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'END:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-		 } );
+			} );
 
 		$this->listFrames = [];
 		if ( !$this->currListFrame ) {
@@ -261,7 +262,7 @@ class ListHandler extends TokenHandler {
 	private function commonPrefixLength( array $x, array $y ): int {
 		$minLength = min( count( $x ), count( $y ) );
 		$i = 0;
-		for ( ;  $i < $minLength;  $i++ ) {
+		for ( ; $i < $minLength; $i++ ) {
 			if ( $x[$i] !== $y[$i] ) {
 				break;
 			}
@@ -336,7 +337,7 @@ class ListHandler extends TokenHandler {
 	private function doListItem( array $bs, array $bn, Token $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'BEGIN:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-		 } );
+			} );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
@@ -436,7 +437,7 @@ class ListHandler extends TokenHandler {
 				}
 			}
 
-			for ( $i = $prefixLen + $prefixCorrection;  $i < count( $bn );  $i++ ) {
+			for ( $i = $prefixLen + $prefixCorrection; $i < count( $bn ); $i++ ) {
 				if ( !self::$bullet_chars_map[$bn[$i]] ) {
 					throw new \Exception( 'Unknown node prefix ' . $prefix[$i] );
 				}
@@ -499,7 +500,7 @@ class ListHandler extends TokenHandler {
 
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
 			'RET:', function () use ( $res ) { return PHPUtils::jsonEncode( $res );
-		 } );
+			} );
 		return $res;
 	}
 }

@@ -265,16 +265,16 @@ class ContentUtils {
 	 * indices.
 	 *
 	 * Offset types are:
-		*  - 'byte': Bytes (UTF-8 encoding), e.g. PHP `substr()` or `strlen()`.
-		*  - 'char': Unicode code points (encoding irrelevant), e.g. PHP `mb_substr()` or `mb_strlen()`.
-		*  - 'ucs2': 16-bit code units (UTF-16 encoding), e.g. JavaScript `.substring()` or `.length`.
+	 *  - 'byte': Bytes (UTF-8 encoding), e.g. PHP `substr()` or `strlen()`.
+	 *  - 'char': Unicode code points (encoding irrelevant), e.g. PHP `mb_substr()` or `mb_strlen()`.
+	 *  - 'ucs2': 16-bit code units (UTF-16 encoding), e.g. JavaScript `.substring()` or `.length`.
 	 *
 	 * @see TokenUtils::convertTokenOffsets for a related function on tokens.
 	 *
-		* @param Env $env
+	 * @param Env $env
 	 * @param DOMDocument $doc The document to convert
-		* @param string $from Offset type to convert from.
-		* @param string $to Offset type to convert to.
+	 * @param string $from Offset type to convert from.
+	 * @param string $to Offset type to convert to.
 	 */
 	public static function convertOffsets(
 		Env $env,

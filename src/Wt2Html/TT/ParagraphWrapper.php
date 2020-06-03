@@ -183,8 +183,8 @@ class ParagraphWrapper extends TokenHandler {
 		$this->resetBuffers();
 		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
 			function () use( $resToks ) {
-			return PHPUtils::jsonEncode( $resToks );
-		 } );
+				return PHPUtils::jsonEncode( $resToks );
+			} );
 		return $resToks;
 	}
 
@@ -298,12 +298,12 @@ class ParagraphWrapper extends TokenHandler {
 	private function onNewLineOrEOF( Token $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
 			function () use( $token ) {
-			return PHPUtils::jsonEncode( $token );
-		 } );
+				return PHPUtils::jsonEncode( $token );
+			} );
 		$l = $this->currLine;
 		if ( $this->currLine['openMatch'] || $this->currLine['closeMatch'] ) {
 			$this->closeOpenPTag( $l['tokens'] );
-		} elseif ( !$this->inBlockElem && !$this->hasOpenPTag && $l['hasWrappableTokens'] ) {;
+		} elseif ( !$this->inBlockElem && !$this->hasOpenPTag && $l['hasWrappableTokens'] ) {
 			$this->openPTag( $l['tokens'] );
 		}
 
@@ -396,8 +396,8 @@ class ParagraphWrapper extends TokenHandler {
 	public function onAny( $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'ANY   |',
 			function () use( $token ) {
-			return PHPUtils::jsonEncode( $token );
-		 } );
+				return PHPUtils::jsonEncode( $token );
+			} );
 		$res = null;
 		if ( $token instanceof TagTk && $token->getName() === 'pre'
 			 && !TokenUtils::isHTMLTag( $token )
@@ -430,8 +430,8 @@ class ParagraphWrapper extends TokenHandler {
 				$this->currLine['closeMatch'] = true;
 				$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
 					function () use( $token ) {
-					return PHPUtils::jsonEncode( $token );
-				 } );
+						return PHPUtils::jsonEncode( $token );
+					} );
 				$res = [ $token ];
 				// skip ensures this doesn't hit the AnyHandler
 				return [ 'tokens' => $res, 'skipOnAny' => true ];

@@ -88,7 +88,7 @@ class ExternalLinkHandler extends TokenHandler {
 		//  allowedPrefixes = ['http://127.0.0.1/', 'http://example.com'];
 		// Note that the values include the http:// or https:// protocol.
 		// See https://phabricator.wikimedia.org/T53092
-		return $hasImageExtension && is_array( $allowedPrefixes ) &&
+		return $hasImageExtension &&
 			// true if some prefix in the list matches href
 			self::arraySome( $allowedPrefixes, function ( string $prefix ) use ( &$href ) {
 				return $prefix === "" || strpos( $href, $prefix ) === 0;

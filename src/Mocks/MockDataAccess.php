@@ -463,10 +463,10 @@ class MockDataAccess implements DataAccess {
 							$turl = self::IMAGE_BASE_URL . '/w/resources/assets/file-type-icons/fileicon-ogg.png';
 							break;
 						case 'VIDEO':
-							$turl += '.jpg';
+							$turl .= '.jpg';
 							break;
 						case 'DRAWING':
-							$turl += '.png';
+							$turl .= '.png';
 							break;
 					}
 				} else {
