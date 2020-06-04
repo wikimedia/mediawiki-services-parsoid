@@ -1502,7 +1502,7 @@ class TestRunner {
 		$this->defaultLogger = $this->siteConfig->getLogger();
 
 		/**
-		 * PORT-FIXME
+		 * PORT-FIXME(T238722)
 		 * // Enable sampling to assert it's working while testing.
 		 * $parsoidConfig->loggerSampling = [ [ '/^warn(\/|$)/', 100 ] ];
 		 *

@@ -7484,7 +7484,7 @@ a</p>
 !! test
 Fostered content in tables: Lists
 !! options
-parsoid=wt2html,selser
+parsoid={ "modes": ["wt2html","selser"], "suppressErrors": true }
 !! wikitext
 {|
 |-
