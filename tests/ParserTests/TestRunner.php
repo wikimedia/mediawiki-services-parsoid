@@ -560,7 +560,8 @@ class TestRunner {
 			// - Any node nested in an image elt that is not a fig-caption
 			//   is an uneditable image elt.
 			// - Entity spans are uneditable as well
-			return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio|Entity)(/|$)#' ) || (
+			// - Placeholder is defined to be uneditable in the spec
+			return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio|Entity|Placeholder)(/|$)#' ) || (
 				$node->nodeName !== 'figcaption' &&
 				$node->parentNode &&
 				$node->parentNode->nodeName !== 'body' &&
