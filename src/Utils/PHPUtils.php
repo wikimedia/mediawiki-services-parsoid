@@ -345,7 +345,8 @@ class PHPUtils {
 	}
 
 	/**
-	 * Convert an array to an object. Workaround for https://bugs.php.net/bug.php?id=78379
+	 * Convert an array to an object. Workaround for
+	 * T228346 / https://bugs.php.net/bug.php?id=78379
 	 *
 	 * PHP 7 introduced "efficient" casting of arrays to objects by taking a
 	 * reference instead of duplicating the array. However, this was not
@@ -365,6 +366,7 @@ class PHPUtils {
 	 * @return \stdClass
 	 */
 	public static function arrayToObject( $array ) {
+		// FIXME: remove this workaround (T254519)
 		return (object)array_combine( array_keys( $array ), array_values( $array ) );
 	}
 
