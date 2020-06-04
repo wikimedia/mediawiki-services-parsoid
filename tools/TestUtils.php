@@ -464,11 +464,11 @@ class TestUtils {
 	 *  - modes array All of the stats (failedTests, passedTests) per-mode.
 	 * @param string|null $file
 	 * @param array|null $testFilter
-	 * @param bool $blacklistChanged
+	 * @param bool $knownFailuresChanged
 	 * @return int
 	 */
 	public static function reportSummary(
-		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $blacklistChanged
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $knownFailuresChanged
 	): int {
 		$curStr = null;
 		$mode = null;
@@ -539,17 +539,17 @@ class TestUtils {
 
 		$failures = $stats->allFailures();
 
-		// If the blacklist changed, complain about it.
-		if ( $blacklistChanged ) {
-			print self::colorString( 'Blacklist changed!', 'red' ) . "\n";
+		// If the knownFailures changed, complain about it.
+		if ( $knownFailuresChanged ) {
+			print self::colorString( 'Known failures changed!', 'red' ) . "\n";
 		}
 
 		if ( $file === null ) {
 			if ( $failures === 0 ) {
 				print '--> ' . self::colorString( 'NO UNEXPECTED RESULTS', 'green' ) . " <--\n";
-				if ( $blacklistChanged ) {
+				if ( $knownFailuresChanged ) {
 					print "Perhaps some tests were deleted or renamed.\n";
-					print "Use `bin/parserTests.js --rewrite-blacklist` to update blacklist.\n";
+					print "Use `bin/parserTests.js --updateKnownFailures` to update knownFailures list.\n";
 				}
 			} else {
 				print self::colorString( '--> ' . $failures . ' UNEXPECTED RESULTS. <--', 'red' ) . "\n";
@@ -605,14 +605,14 @@ class TestUtils {
 	 * @param string $title
 	 * @param array $actual
 	 * @param array $expected
-	 * @param bool $expectFail Whether this test was expected to fail (on blacklist).
+	 * @param bool $expectFail Whether this test was expected to fail (on knownFailures list).
 	 * @param bool $failureOnly Whether we should print only a failure message, or go on to print the diff.
-	 * @param array $bl BlackList.
+	 * @param array $kf knownFailures.
 	 * @return bool true if the failure was expected.
 	 */
 	public static function printFailure(
 		Stats $stats, Test $item, array $options, string $mode, string $title,
-		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $bl
+		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $kf
 	): bool {
 		$stats->failedTests++;
 		$stats->modes[$mode]->failedTests++;
@@ -626,15 +626,15 @@ class TestUtils {
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
-		$blacklisted = false;
-		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && $expectFail ) {
+		$knownFailures = false;
+		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && $expectFail ) {
 			// compare with remembered output
 			$normalizeAbout = function ( $s ) {
 				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
 			$offsetType = $options['offsetType'] ?? 'byte';
-			if ( $normalizeAbout( $bl[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
-				$blacklisted = true;
+			if ( $normalizeAbout( $kf[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
+				$knownFailures = true;
 			} else {
 				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
 					print self::colorString( 'EXPECTED FAIL', 'red' ) . ': ' . self::colorString( $extTitle, 'yellow' ) . "\n";
@@ -651,10 +651,10 @@ class TestUtils {
 			print "=====================================================\n";
 		}
 
-		if ( $blacklisted ) {
-			print self::colorString( 'UNEXPECTED BLACKLIST FAIL', 'red', true ) . ': '
+		if ( $knownFailures ) {
+			print self::colorString( 'UNEXPECTED KNOWNFAILURE FAIL', 'red', true ) . ': '
 				. self::colorString( $extTitle, 'yellow' ) . "\n";
-			print self::colorString( 'Blacklisted, but the output changed!', 'red' ) . "\n";
+			print self::colorString( 'Known failure, but the output changed!', 'red' ) . "\n";
 		} else {
 			print self::colorString( 'UNEXPECTED FAIL', 'red', true ) . ': '
 				. self::colorString( $extTitle, 'yellow' ) . "\n";
@@ -689,7 +689,7 @@ class TestUtils {
 	 * @param array $options
 	 * @param string $mode
 	 * @param string $title
-	 * @param bool $expectSuccess Whether this success was expected (or was this test blacklisted?).
+	 * @param bool $expectSuccess Whether this success was expected (or was it a known failure).
 	 * @return bool true if the success was expected.
 	 */
 	public static function printSuccess(
@@ -701,7 +701,7 @@ class TestUtils {
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
-		if ( ScriptUtils::booleanOption( $options['blacklist'] ?? null ) && !$expectSuccess ) {
+		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess ) {
 			$stats->passedTestsUnexpected++;
 			$stats->modes[$mode]->passedTestsUnexpected++;
 			print self::colorString( 'UNEXPECTED PASS', 'green', true ) . ': ' .
@@ -799,7 +799,7 @@ class TestUtils {
 	/**
 	 * @param Callable $reportFailure
 	 * @param Callable $reportSuccess
-	 * @param array $bl BlackList.
+	 * @param array $kf knownFailures.
 	 * @param Stats $stats
 	 * @param Test $item
 	 * @param array $options
@@ -811,7 +811,7 @@ class TestUtils {
 	 * @return bool True if the result was as expected.
 	 */
 	public static function printResult(
-		callable $reportFailure, callable $reportSuccess, array $bl,
+		callable $reportFailure, callable $reportSuccess, array $kf,
 		Stats $stats, Test $item, array $options, string $mode,
 		array $expected, array $actual, callable $pre = null, callable $post = null
 	): bool {
@@ -827,7 +827,7 @@ class TestUtils {
 			$title .= ' [langconv]';
 		}
 
-		$tb = $bl[$title] ?? [];
+		$tb = $kf[$title] ?? [];
 		$expectFail = isset( $tb[$mode] );
 		$fail = $expected['normal'] !== $actual['normal'];
 		// Return whether the test was as expected, independent of pass/fail
@@ -851,7 +851,7 @@ class TestUtils {
 		}
 
 		if ( $fail ) {
-			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick, $bl );
+			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick, $kf );
 		} else {
 			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, !$expectFail );
 		}
@@ -913,7 +913,7 @@ class TestUtils {
 	 * @inheritDoc reportSummary
 	 */
 	public static function reportSummaryXML(
-		array $modesRan, Stats $stats, string $file, ?array $testFilter, bool $blacklistChanged
+		array $modesRan, Stats $stats, string $file, ?array $testFilter, bool $knownFailuresChanged
 	): int {
 		$failures = $stats->allFailures();
 
@@ -939,17 +939,17 @@ class TestUtils {
 	 */
 	public static function reportFailureXML(
 		Stats $stats, Test $item, array $options, string $mode, string $title,
-		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $bl
+		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $kf
 	): void {
 		$stats->failedTests++;
 		$stats->modes[$mode]->failedTests++;
 		$failEle = '';
-		$blacklisted = false;
-		if ( ScriptUtils::booleanOption( $options['blacklist'] ) && $expectFail ) {
+		$knownFailures = false;
+		if ( ScriptUtils::booleanOption( $options['knownFailures'] ) && $expectFail ) {
 			// compare with remembered output
-			$blacklisted = $bl[$title][$mode] === $actual['raw'];
+			$knownFailures = $kf[$title][$mode] === $actual['raw'];
 		}
-		if ( !$blacklisted ) {
+		if ( !$knownFailures ) {
 			$failEle .= "<failure type=\"parserTestsDifferenceInOutputFailure\">\n";
 			$failEle .= self::getActualExpectedXML( $actual, $expected, $options['getDiff'] );
 			$failEle .= "\n</failure>";
@@ -1100,13 +1100,13 @@ class TestUtils {
 				'boolean' => false,
 				'default' => 'byte',
 			],
-			'blacklist' => [
-				'description' => 'Compare against expected failures from blacklist',
+			'knownFailures' => [
+				'description' => 'Compare against known failures',
 				'default' => true,
 				'boolean' => false
 			],
-			'rewrite-blacklist' => [
-				'description' => 'Update parserTests-blacklist.json with failing tests.',
+			'updateKnownFailures' => [
+				'description' => 'Update parserTests-knownFailures.json with failing tests.',
 				'default' => false,
 				'boolean' => true
 			],
@@ -1175,14 +1175,14 @@ class TestUtils {
 			$options['wt2html'] = true;
 			$options['html2html'] = true;
 			$options['html2wt'] = true;
-			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
-				// turn on all modes by default for --rewrite-blacklist
+			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
+				// turn on all modes by default for --updateKnownFailures
 				$options['selser'] = true;
 				// sanity checking (T53448 asks to be able to use --filter here)
 				if ( isset( $options['filter'] ) || isset( $options['regex'] ) ||
 					isset( $options['maxtests'] ) || $options['exit-unexpected']
 				) {
-					print "\nERROR: can't combine --rewrite-blacklist with --filter, --maxtests or --exit-unexpected";
+					print "\nERROR: can't combine --updateKnownFailures with --filter, --maxtests or --exit-unexpected";
 					die( 1 );
 				}
 			}

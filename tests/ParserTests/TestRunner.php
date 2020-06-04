@@ -137,10 +137,10 @@ class TestRunner {
 	private $testFilePath;
 
 	/** @var string */
-	private $blackListPath;
+	private $knownFailuresPath;
 
 	/** @var array */
-	private $testBlackList;
+	private $testKnownFailures;
 
 	/** @var array<string,string> */
 	private $testTitles;
@@ -207,16 +207,16 @@ class TestRunner {
 		$testFilePathInfo = pathinfo( $testFilePath );
 		$this->testFileName = $testFilePathInfo['basename'];
 
-		$blackListName = $testFilePathInfo['filename'] . '-blacklist.json';
-		$this->blackListPath = $testFilePathInfo['dirname'] . '/' . $blackListName;
+		$knownFailuresName = $testFilePathInfo['filename'] . '-knownFailures.json';
+		$this->knownFailuresPath = $testFilePathInfo['dirname'] . '/' . $knownFailuresName;
 		try {
-			$blackListData = file_get_contents( $this->blackListPath );
-			$this->testBlackList = PHPUtils::jsonDecode( $blackListData ) ?? [];
-			error_log( 'Loaded blacklist from ' . $this->blackListPath .
-				". Found " . count( $this->testBlackList ) . " entries!" );
+			$knownFailuresData = file_get_contents( $this->knownFailuresPath );
+			$this->testKnownFailures = PHPUtils::jsonDecode( $knownFailuresData ) ?? [];
+			error_log( 'Loaded known failures from ' . $this->knownFailuresPath .
+				". Found " . count( $this->testKnownFailures ) . " entries!" );
 		} catch ( Exception $e ) {
-			error_log( 'No blacklist found at ' . $this->blackListPath );
-			$this->testBlackList = [];
+			error_log( 'No known failures found at ' . $this->knownFailuresPath );
+			$this->testKnownFailures = [];
 		}
 
 		$this->articles = [];
@@ -599,7 +599,7 @@ class TestRunner {
 				if ( $domSubtreeIsEditable( $child ) ) {
 					if ( $nodeIsUneditable( $child ) || $alea->random() < 0.5 ) {
 						// This call to random is a hack to preserve the current
-						// determined state of our blacklist entries after a
+						// determined state of our knownFailures entries after a
 						// refactor.
 						$alea->uint32();
 						$changeType = $genChangesInternal( $child );
@@ -1074,7 +1074,7 @@ class TestRunner {
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $test->html ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
-		return $options['reportResult']( $this->testBlackList,
+		return $options['reportResult']( $this->testKnownFailures,
 			$this->stats, $test, $options, $mode, $expected, $actual );
 	}
 
@@ -1114,7 +1114,7 @@ class TestRunner {
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
-		return $options['reportResult']( $this->testBlackList,
+		return $options['reportResult']( $this->testKnownFailures,
 			$this->stats, $test, $options, $mode, $expected, $actual );
 	}
 
@@ -1149,7 +1149,7 @@ class TestRunner {
 				if ( isset( $test->options['parsoid']['changes'] ) ) {
 					$newitem = Util::clone( $test );
 					// Mutating the item here is necessary to output 'manual' in
-					// the test's title and to differentiate it for blacklist.
+					// the test's title and to differentiate it for knownFailures.
 					// It can only get here in two cases:
 					// * When there's no changetree specified in the command line,
 					//   buildTasks creates the items by cloning the original one,
@@ -1230,10 +1230,10 @@ class TestRunner {
 	 * @param array $options
 	 * @return array
 	 */
-	private function updateBlacklist( array $options ): array {
+	private function updateKnownFailures( array $options ): array {
 		// Sanity check in case any tests were removed but we didn't update
-		// the blacklist
-		$blacklistChanged = false;
+		// the knownFailures
+		$knownFailuresChanged = false;
 		$allModes = $options['wt2html'] && $options['wt2wt'] &&
 			$options['html2wt'] && $options['html2html'] &&
 			isset( $options['selser'] ) &&
@@ -1241,35 +1241,35 @@ class TestRunner {
 				isset( $options['maxtests'] ) );
 		$offsetType = $options['offsetType'] ?? 'byte';
 
-		// update the blacklist, if requested
-		if ( $allModes || ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
+		// update the knownFailures, if requested
+		if ( $allModes || ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
 			$old = null;
-			$oldExists = file_exists( $this->blackListPath );
+			$oldExists = file_exists( $this->knownFailuresPath );
 			if ( $oldExists ) {
-				$old = file_get_contents( $this->blackListPath );
+				$old = file_get_contents( $this->knownFailuresPath );
 			}
-			$testBlackList = [];
+			$testKnownFailures = [];
 			foreach ( $options['modes'] as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
-					if ( !isset( $testBlackList[$fail['title']] ) ) {
-						$testBlackList[$fail['title']] = [];
+					if ( !isset( $testKnownFailures[$fail['title']] ) ) {
+						$testKnownFailures[$fail['title']] = [];
 					}
-					$testBlackList[$fail['title']][$mode] = $fail['raw'];
+					$testKnownFailures[$fail['title']][$mode] = $fail['raw'];
 				}
 			}
 			// Sort, otherwise, titles get added above based on the first
 			// failing mode, which can make diffs harder to verify when
 			// failing modes change.
-			ksort( $testBlackList );
+			ksort( $testKnownFailures );
 			$contents = json_encode(
-				$testBlackList,
+				$testKnownFailures,
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES |
 				JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE
 			);
-			if ( ScriptUtils::booleanOption( $options['rewrite-blacklist'] ?? null ) ) {
-				file_put_contents( $this->blackListPath, $contents );
+			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
+				file_put_contents( $this->knownFailuresPath, $contents );
 			} elseif ( $allModes && $oldExists && $offsetType === 'byte' ) {
-				$blacklistChanged = $contents !== $old;
+				$knownFailuresChanged = $contents !== $old;
 			}
 		}
 
@@ -1305,12 +1305,12 @@ class TestRunner {
 		// increment the stats.
 		$failures = $options['reportSummary'](
 			$options['modes'], $this->stats, $this->testFileName,
-			$this->testFilter, $blacklistChanged
+			$this->testFilter, $knownFailuresChanged
 		);
 
 		// we're done!
 		// exit status 1 == uncaught exception
-		$exitCode = ( $failures > 0 || $blacklistChanged ) ? 2 : 0;
+		$exitCode = ( $failures > 0 || $knownFailuresChanged ) ? 2 : 0;
 		if ( ScriptUtils::booleanOption( $options['exit-zero'] ?? null ) ) {
 			$exitCode = 0;
 		}
@@ -1319,7 +1319,7 @@ class TestRunner {
 			'exitCode' => $exitCode,
 			'stats' => $this->stats,
 			'file' => $this->testFileName,
-			'blacklistChanged' => $blacklistChanged
+			'knownFailuresChanged' => $knownFailuresChanged
 		];
 	}
 
@@ -1536,7 +1536,7 @@ class TestRunner {
 			}
 		}
 
-		// Update blacklist
-		return $this->updateBlacklist( $options );
+		// Update knownFailures
+		return $this->updateKnownFailures( $options );
 	}
 }

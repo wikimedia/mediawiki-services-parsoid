@@ -83,12 +83,12 @@ regularly sync it with the copy in `mediawiki/core`.  Unfortunately,
 that means that we inherited a large number of tests which are not
 appropriate for Parsoid, and which therefore fail.  There are also
 some real bugs which cause failing tests as well, of course!
-In order to track regressions, we maintain a blacklist of
-currently-failing tests in `tests/parserTests-blacklist.json`.
-If you need to add or remove tests from the blacklist, then this
+In order to track regressions, we maintain a list of known failing tests
+in `tests/parserTests-knownFailures.json`.
+If you need to add or remove tests from the knownFailures, then this
 command will help:
 
-	$ node bin/parserTests --rewrite-blacklist
+	$ node bin/parserTests --updateKnownFailures
 
 We also gladly accept patches that mark tests as PHP-only (usually
 with the `!! html/php` tag) when they've been audited to be irrelevant

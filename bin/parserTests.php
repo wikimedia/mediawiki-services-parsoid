@@ -38,7 +38,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$globalStats = new Stats();
-		$blacklistChanged = false;
+		$knownFailuresChanged = false;
 		$exitCode = 0;
 		if ( $this->processedOptions['integrated'] ?? false ) {
 			// Some methods which are discouraged for normal code throw
@@ -66,7 +66,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$testRunner = new TestRunner( $testFile, $this->processedOptions['modes'] );
 				$result = $testRunner->run( $this->processedOptions );
 				$globalStats->accum( $result['stats'] ); // Sum all stats
-				$blacklistChanged = $blacklistChanged || $result['blacklistChanged'];
+				$knownFailuresChanged = $knownFailuresChanged || $result['knownFailuresChanged'];
 				$exitCode = $exitCode ?: $result['exitCode'];
 				if ( $exitCode !== 0 && $this->processedOptions['exit-unexpected'] ) {
 					break;
@@ -75,7 +75,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$this->processedOptions['reportSummary'](
-			[], $globalStats, null, null, $blacklistChanged
+			[], $globalStats, null, null, $knownFailuresChanged
 		);
 
 		return $exitCode === 0;
