@@ -9053,7 +9053,7 @@ Interwiki links that cannot be represented in wiki syntax
 !! html/parsoid
 <p><a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok">meatball:ok</a>
 <a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok">ok with fragment</a>
-<a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well%3F" title="meatball:ok as well?">ok ending with ? mark</a>
+<a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well%3F" title="meatball:ok as well?">ok ending with<span typeof="mw:DisplaySpace mw:Placeholder"> </span>? mark</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/Foo?action=history" class="external text">has query</a>
 <a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo" class="external text">is just fragment</a></p>
 !! end
@@ -19849,9 +19849,11 @@ Self closed html pairs (T7487)
 Punctuation: nbsp before exclamation
 !! wikitext
 C'est grave !
-!! html
+!! html/php
 <p>C'est grave&#160;!
 </p>
+!! html/parsoid
+<p>C'est grave<span typeof="mw:DisplaySpace mw:Placeholder"> </span>!</p>
 !! end
 
 !! test
@@ -25340,10 +25342,14 @@ French spaces in wikitext
 foo ! bar ? bat 50 % is less than 75 %.
 
 Hello : this ; is « something ‹ else › again »
-!! html
+!! html/php
 <p>foo&#160;! bar&#160;? bat 50&#160;% is less than 75&#160;%.
 </p><p>Hello&#160;: this&#160;; is «&#160;something ‹&#160;else&#160;› again&#160;»
 </p>
+!! html/parsoid
+<p>foo<span typeof="mw:DisplaySpace mw:Placeholder"> </span>! bar<span typeof="mw:DisplaySpace mw:Placeholder"> </span>? bat 50<span typeof="mw:DisplaySpace mw:Placeholder"> </span>% is less than 75<span typeof="mw:DisplaySpace mw:Placeholder"> </span>%.</p>
+
+<p>Hello<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: this<span typeof="mw:DisplaySpace mw:Placeholder"> </span>; is «<span typeof="mw:DisplaySpace mw:Placeholder"> </span>something ‹<span typeof="mw:DisplaySpace mw:Placeholder"> </span>else<span typeof="mw:DisplaySpace mw:Placeholder"> </span>› again<span typeof="mw:DisplaySpace mw:Placeholder"> </span>»</p>
 !! end
 
 !! test
@@ -32317,8 +32323,8 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 
 <h2 id="тест"><span id=".D1.82.D0.B5.D1.81.D1.82" typeof="mw:FallbackId"></span>тест</h2>
 
-<h2 id="Hey_&lt;_#_&quot;_>_%_:_'"><span id="Hey_.3C_.23_.22_.3E_.25_:_.27" typeof="mw:FallbackId"></span>Hey &lt; # " > %<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: '</h2>
-<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar">#Foo bar</a> <a rel="mw:WikiLink" href="./Parser_test#foo_Bar">#foo Bar</a> <a rel="mw:WikiLink" href="./Parser_test#Тест">#Тест</a> <a rel="mw:WikiLink" href="./Parser_test#тест">#тест</a> <a rel="mw:WikiLink" href="./Parser_test#Hey_&lt;_#_&quot;_>_%_:_'" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Hey_&lt;_#_\"_>_%_:_&#39;"},"sa":{"href":"#Hey &lt; # \" > % : &#39;"}}'>#Hey &lt; # " > % : '</a></p>
+<h2 id="Hey_&lt;_#_&quot;_>_%_:_'"><span id="Hey_.3C_.23_.22_.3E_.25_:_.27" typeof="mw:FallbackId"></span>Hey &lt; # " ><span typeof="mw:DisplaySpace mw:Placeholder"> </span>%<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: '</h2>
+<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar">#Foo bar</a> <a rel="mw:WikiLink" href="./Parser_test#foo_Bar">#foo Bar</a> <a rel="mw:WikiLink" href="./Parser_test#Тест">#Тест</a> <a rel="mw:WikiLink" href="./Parser_test#тест">#тест</a> <a rel="mw:WikiLink" href="./Parser_test#Hey_&lt;_#_&quot;_>_%_:_'" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Hey_&lt;_#_\"_>_%_:_&apos;"},"sa":{"href":"#Hey &lt; # \" > % : &apos;"}}'>#Hey &lt; # " ><span typeof="mw:DisplaySpace mw:Placeholder"> </span>%<span typeof="mw:DisplaySpace mw:Placeholder"> </span>: '</a></p>
 
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"anchorencode:💩","function":"anchorencode"},"params":{},"i":0}}]}'>💩</span> <span id="💩" about="#mwt3" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[178,197,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:💩\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&#39;>💩&lt;/span>"}]]}'></span></p>
 
