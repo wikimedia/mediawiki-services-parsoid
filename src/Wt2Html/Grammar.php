@@ -2029,7 +2029,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       goto seq_1;
     }
     // start choice_1
-    $r5 = $this->parseurladdr($silence);
+    $r5 = $this->parseipv6urladdr($silence);
     if ($r5!==self::$FAILED) {
       goto choice_1;
     }
@@ -2502,7 +2502,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r11 = self::$FAILED;
       goto seq_3;
     }
-    $r14 = $this->parseurladdr(true);
+    $r14 = $this->parseipv6urladdr(true);
     if ($r14===self::$FAILED) {
       $this->currPos = $p12;
       $r11 = self::$FAILED;
@@ -2523,7 +2523,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       goto seq_2;
     }
     // start choice_2
-    $r15 = $this->parseextlink_preprocessor_text(true, $boolParams | 0x4, $param_templatedepth, $param_preproc, $param_th);
+    $r15 = $this->parseextlink_nonipv6url(true, $boolParams | 0x4, $param_templatedepth, $param_preproc, $param_th);
     if ($r15!==self::$FAILED) {
       goto choice_2;
     }
@@ -2967,7 +2967,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
-  private function parseurladdr($silence) {
+  private function parseipv6urladdr($silence) {
     $key = 344;
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
@@ -3511,7 +3511,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
-  private function parseextlink_preprocessor_text($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
+  private function parseextlink_nonipv6url($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
     $key = json_encode([548, $boolParams & 0x19fe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
@@ -3523,7 +3523,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     }
         $saved_preproc=$param_preproc;
         $saved_th=$param_th;
-    $r1 = $this->parseextlink_preprocessor_text_parameterized($silence, $boolParams & ~0x200, $param_templatedepth, $param_preproc, $param_th);
+    $r1 = $this->parseextlink_nonipv6url_parameterized($silence, $boolParams & ~0x200, $param_templatedepth, $param_preproc, $param_th);
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
       if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
       if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
@@ -5300,7 +5300,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $this->cache[$bucket][$key] = $cached;
     return $r1;
   }
-  private function parseextlink_preprocessor_text_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
+  private function parseextlink_nonipv6url_parameterized($silence, $boolParams, $param_templatedepth, &$param_preproc, &$param_th) {
     $key = json_encode([550, $boolParams & 0x1bfe, $param_templatedepth, $param_preproc, $param_th]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
@@ -9638,7 +9638,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       goto seq_2;
     }
     // start choice_1
-    $r9 = $this->parseurladdr($silence);
+    $r9 = $this->parseipv6urladdr($silence);
     if ($r9!==self::$FAILED) {
       goto choice_1;
     }

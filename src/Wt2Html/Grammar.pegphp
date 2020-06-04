@@ -703,8 +703,8 @@ extlink "extlink" =
 	r:(
 		"["
 		p0:( "" { return $this->endOffset(); })
-		addr:(url_protocol urladdr / "")
-		target:(extlink_preprocessor_text<extlink> / "")
+		addr:(url_protocol ipv6urladdr / "")
+		target:(extlink_nonipv6url<extlink> / "")
 		p1:( "" { return $this->endOffset(); })
 		& {
 			// Protocol must be valid and there ought to be at least one
@@ -810,7 +810,7 @@ no_punctuation_char = [^ \]\[\r\n"'<>\x00-\x20\x7f&\u00A0\u1680\u180E\u2000-\u20
 // which is '[^][<>"\\x00-\\x20\\x7F\p{Zs}]'
 url =
 	proto:url_protocol
-	addr:(urladdr / "")
+	addr:(ipv6urladdr / "")
 	path:(
 		!inline_breaks c:(
 			no_punctuation_char
@@ -839,7 +839,7 @@ autourl =
 	! '//' // protocol-relative autolinks not allowed (T32269)
 	r:(
 		proto:url_protocol
-		addr:(urladdr / "")
+		addr:(ipv6urladdr / "")
 		path:(
 			!inline_breaks c:(
 				no_punctuation_char
@@ -888,7 +888,7 @@ autourl =
 // expression to match an IPv6 address.  The IPv4 address and "at least
 // one character of a host name" portions are punted to the `path`
 // component of the `autourl` and `url` productions
-urladdr =
+ipv6urladdr =
 	$( "[" [0-9A-Fa-f:.]+ "]" )
 
 /**************************************************************
@@ -2355,12 +2355,12 @@ wikilink_preprocessor_text =
 
 // added special separator character class inline: separates url from
 // description / text
-extlink_preprocessor_text =
+extlink_nonipv6url =
 	// Prevent breaking on pipes when we're in a link description.
 	// See the test, 'Images with the "|" character in the comment'.
-	extlink_preprocessor_text_parameterized<linkdesc=false>
+	extlink_nonipv6url_parameterized<linkdesc=false>
 
-extlink_preprocessor_text_parameterized =
+extlink_nonipv6url_parameterized =
 	r:(
 		$[^<[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
 		/ !inline_breaks s:( directive / [&|{\-!}=] ) { return $s; }
