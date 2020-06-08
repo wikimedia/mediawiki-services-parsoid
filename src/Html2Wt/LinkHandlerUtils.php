@@ -1198,8 +1198,8 @@ class LinkHandlerUtils {
 			} else {
 				$value = $o['value'] ? $o['value']['value'] : '';
 				if ( $o['value'] && preg_match( '/^(link|alt)$/D', $o['name'] ) ) {
-					// see \Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler: link and alt are whitelisted
-					// for accepting arbitrary wikitext, even though it is stripped
+					// see WikiLinkHandler::isWikitextOpt(): link and alt are allowed
+					// to contain arbitrary wikitext, even though it is stripped
 					// to a string before emitting.
 					$value = $state->serializer->wteHandlers->escapeLinkContent(
 						$state, $value, false, $node, true

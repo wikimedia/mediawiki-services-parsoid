@@ -942,9 +942,9 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param string $resultStr
 	 * @return bool
 	 */
-	private static function isWhitelistedOpt( Env $env, ?array &$optInfo, string $prefix,
+	private static function isWikitextOpt( Env $env, ?array &$optInfo, string $prefix,
 											  string $resultStr ): bool {
-		// link and alt options are whitelisted for accepting arbitrary
+		// link and alt options are allowed to contain arbitrary
 		// wikitext (even though only strings are supported in reality)
 		// SSS FIXME: Is this actually true of all options rather than
 		// just link and alt?
@@ -994,7 +994,7 @@ class WikiLinkHandler extends TokenHandler {
 			} elseif ( !( $currentToken instanceof EndTagTk ) ) {
 				// This is actually a token
 				if ( TokenUtils::hasDOMFragmentType( $currentToken ) ) {
-					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
+					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$str = TokenUtils::tokensToString( [ $currentToken ], false, [
 								'unpackDOMFragments' => true,
 								'env' => $env
@@ -1015,7 +1015,7 @@ class WikiLinkHandler extends TokenHandler {
 					}
 				}
 				if ( $currentToken->getName() === 'mw-quote' ) {
-					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
+					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						// just recurse inside
 						$optInfo = null; // might change the nature of opt
 						continue;
@@ -1038,7 +1038,7 @@ class WikiLinkHandler extends TokenHandler {
 						}
 					}
 
-					if ( self::isWhitelistedOpt( $env, $optInfo, $prefix, $resultStr ) ) {
+					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$tokenType = $currentToken->getAttribute( 'rel' );
 						// Using the shadow since entities (think pipes) would
 						// have already been decoded.
