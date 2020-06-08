@@ -1456,7 +1456,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		$span = new TagTk( 'span', [] );
 
-		// "resource" and "lang" are whitelisted attributes on spans
+		// "resource" and "lang" are allowed attributes on spans
 		$span->addNormalizedAttribute( 'resource', $opts['title']['v'], $opts['title']['src'] );
 		if ( isset( $opts['lang'] ) ) {
 			$span->addNormalizedAttribute( 'lang', $opts['lang']['v'], $opts['lang']['src'] );

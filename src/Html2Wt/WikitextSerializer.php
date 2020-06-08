@@ -1221,7 +1221,7 @@ class WikitextSerializer {
 				} );
 
 				// When reusing source, we should only suppress serializing
-				// to a single line for the cases we've whitelisted in
+				// to a single line for the cases we've allowed in
 				// normal serialization.
 				$suppressSLC = WTUtils::isFirstEncapsulationWrapperNode( $node )
 					|| in_array( $node->nodeName, [ 'dl', 'ul', 'ol' ], true )
