@@ -4761,7 +4761,7 @@ parsoid=wt2html,html2html
 !! end
 
 # FIXME: Maybe get rid of this test?
-# From old whitelist description:
+# From an old description in the Parsoid codebase:
 # * The test is wrong, there are two colons where there should be :;
 # * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
 !! test
