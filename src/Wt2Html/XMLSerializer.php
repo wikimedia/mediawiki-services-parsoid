@@ -83,11 +83,11 @@ class XMLSerializer {
 	 * HTML entity encoder helper. Replaces calls to the entities npm module.
 	 * Only supports the few entities we'll actually need: <&'"
 	 * @param string $raw Input string
-	 * @param string $whitelist String with the characters that should be encoded
+	 * @param string $encodeChars String with the characters that should be encoded
 	 * @return string
 	 */
-	private static function encodeHtmlEntities( string $raw, string $whitelist ): string {
-		$encodings = array_intersect_key( self::$entityEncodings, array_flip( str_split( $whitelist ) ) );
+	private static function encodeHtmlEntities( string $raw, string $encodeChars ): string {
+		$encodings = array_intersect_key( self::$entityEncodings, array_flip( str_split( $encodeChars ) ) );
 		return strtr( $raw, $encodings );
 	}
 
