@@ -1290,10 +1290,10 @@ class Sanitizer extends TokenHandler {
 		$l = null;
 		$kv = null;
 		$attribs = $token->attribs ?? null;
-		$tagWhiteList = WikitextConstants::$Sanitizer['TagWhiteList'];
+		$allowedTags = WikitextConstants::$Sanitizer['AllowedLiteralTags'];
 
 		if ( TokenUtils::isHTMLTag( $token )
-			&& ( empty( $tagWhiteList[$token->getName()] )
+			&& ( empty( $allowedTags[$token->getName()] )
 				|| ( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) )
 			)
 		) { // unknown tag -- convert to plain text

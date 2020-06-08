@@ -528,7 +528,7 @@ class WikitextEscapeHandlers {
 
 			$tc = TokenUtils::getTokenType( $t );
 
-			// Ignore non-whitelisted html tags
+			// Ignore html tags that aren't allowed as literals in wikitext
 			if ( TokenUtils::isHTMLTag( $t ) ) {
 				if ( TokenUtils::matchTypeOf( $t, '#^mw:Extension(/|$)#' ) &&
 					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
@@ -556,7 +556,7 @@ class WikitextEscapeHandlers {
 				// result can be confusing for editors. However, doing it here in a
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
-				if ( isset( WikitextConstants::$Sanitizer['TagWhiteList'][mb_strtolower( $t->getName() )] ) ) {
+				if ( isset( WikitextConstants::$Sanitizer['AllowedLiteralTags'][mb_strtolower( $t->getName() )] ) ) {
 					return true;
 				} else {
 					continue;

@@ -84,11 +84,11 @@ class WikitextConstants {
 		];
 
 		self::$Sanitizer = [
-			# List of whitelisted tags that can be used as raw HTML in wikitext.
+			# List of allowed tags that can be used as raw HTML in wikitext.
 			# All other html/html-like tags will be spit out as text.
-			'TagWhiteList' => PHPUtils::makeSet( [
+			'AllowedLiteralTags' => PHPUtils::makeSet( [
 				# In case you were wondering, explicit <a .. > HTML is NOT allowed in wikitext.
-				# That is why the <a> tag is missing from the white-list.
+				# That is why the <a> tag is missing from the allowed list.
 				'abbr',
 				'b', 'bdi', 'bdo', 'big', 'blockquote', 'br',
 				'caption', 'center', 'cite', 'code',

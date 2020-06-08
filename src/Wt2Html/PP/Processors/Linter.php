@@ -77,7 +77,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		if ( $this->tagsWithChangedMisnestingBehavior === null ) {
 			$this->tagsWithChangedMisnestingBehavior = [];
 			foreach ( Consts::$HTML['HTML5Tags'] as $tag => $dummy ) {
-				if ( isset( Consts::$Sanitizer['TagWhiteList'][$tag] ) &&
+				if ( isset( Consts::$Sanitizer['AllowedLiteralTags'][$tag] ) &&
 					!isset( Consts::$HTML['HTML4BlockTags'][$tag] ) &&
 					!isset( Consts::$HTML['FormattingTags'][$tag] ) &&
 					!isset( Consts::$HTML['VoidTags'][$tag] )
