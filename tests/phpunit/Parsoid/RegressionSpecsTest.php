@@ -124,6 +124,7 @@ class RegressionSpecsTest extends TestCase {
 			"* <!--cmt--> item",
 			"* <div>item</div>",
 			"* [[Link|item]]",
+			"* wrap",
 			"== heading ==",
 			"== <!--cmt--> heading ==",
 			"== <div>heading</div> ==",
@@ -138,8 +139,8 @@ class RegressionSpecsTest extends TestCase {
 			"|}"
 		] );
 
-		$searchItems = [ 'item', 'heading', 'cell' ];
-		$replaceItems = [ 'edited item', 'edited heading', 'edited cell' ];
+		$searchItems = [ 'item', 'heading', 'cell', 'wrap' ];
+		$replaceItems = [ 'edited item', 'edited heading', 'edited cell', '<span>wrap</span>' ];
 
 		// Without selser, we should see normalized wikitext
 		$withoutSelser = implode( "\n", [
@@ -147,6 +148,7 @@ class RegressionSpecsTest extends TestCase {
 			"*<!--cmt-->edited item",
 			"*<div>edited item</div>",
 			"*[[Link|edited item]]",
+			"*<span>wrap</span>",
 			"==edited heading==",
 			"==<!--cmt-->edited heading==",
 			"==<div>edited heading</div>==",
@@ -167,6 +169,7 @@ class RegressionSpecsTest extends TestCase {
 			"* <!--cmt-->edited item",
 			"* <div>edited item</div>",
 			"* [[Link|edited item]]",
+			"* <span>wrap</span>",
 			"== edited heading ==",
 			"== <!--cmt-->edited heading ==",
 			"== <div>edited heading</div> ==",
@@ -196,6 +199,7 @@ class RegressionSpecsTest extends TestCase {
 			"* <!--cmt--> item",
 			"* <div>item</div>",
 			"* [[Link|item]]",
+			"* wrap",
 			"== heading ==",
 			"== <!--cmt--> heading ==",
 			"== <div>heading</div> ==",
@@ -217,8 +221,8 @@ class RegressionSpecsTest extends TestCase {
 
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$search = [ 'item', 'heading', 'cell' ];
-		$replace = [ 'edited item', 'edited heading', 'edited cell' ];
+		$search = [ 'item', 'heading', 'cell', 'wrap' ];
+		$replace = [ 'edited item', 'edited heading', 'edited cell', '<span>wrap</span>' ];
 		$editedBody = str_replace( $search, $replace, $html );
 
 		// Whitespace heuristics are enabled
@@ -227,6 +231,7 @@ class RegressionSpecsTest extends TestCase {
 			"* <!--cmt-->edited item",
 			"* <div>edited item</div>",
 			"* [[Link|edited item]]",
+			"* <span>wrap</span>",
 			"== edited heading ==",
 			"== <!--cmt-->edited heading ==",
 			"== <div>edited heading</div> ==",
@@ -243,13 +248,14 @@ class RegressionSpecsTest extends TestCase {
 		$editedWT = $parsoid->html2wikitext( $pageConfig, $editedBody, [], $selserData );
 		$this->assertEquals( $newVersion, $editedWT, $description );
 
-		// Whitespace heuristics are disabled, but selser's buildSep heuristics will do
-		// the magic for non-text and non-comment nodes.
+		// Whitespace heuristics are disabled, but selser's buildSep heuristics
+		// will do the magic for old non-text and non-comment nodes.
 		$oldVersion = implode( "\n", [
 			"*edited item",
 			"*<!--cmt-->edited item",
 			"* <div>edited item</div>",
 			"* [[Link|edited item]]",
+			"*<span>wrap</span>",
 			"==edited heading==",
 			"==<!--cmt-->edited heading==",
 			"== <div>edited heading</div> ==",

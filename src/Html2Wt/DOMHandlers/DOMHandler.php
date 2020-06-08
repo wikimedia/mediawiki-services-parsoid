@@ -337,7 +337,7 @@ class DOMHandler {
 				$space = $newEltDefault;
 			}
 		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
-			&& ( !$fc || !DOMUtils::isElt( $fc ) )
+			&& ( !$fc || !DOMUtils::isElt( $fc ) || WTUtils::isNewElt( $fc ) )
 		) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Util::isValidDSR( $dsr, true ) ) {
@@ -373,7 +373,7 @@ class DOMHandler {
 				$space = $newEltDefault;
 			}
 		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
-			&& ( !$lc || !DOMUtils::isElt( $lc ) )
+			&& ( !$lc || !DOMUtils::isElt( $lc ) || WTUtils::isNewElt( $lc ) )
 		) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Util::isValidDSR( $dsr, true ) ) {
@@ -388,7 +388,6 @@ class DOMHandler {
 				}
 			}
 		}
-
 		return $space;
 	}
 
