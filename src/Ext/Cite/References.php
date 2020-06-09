@@ -145,7 +145,8 @@ class References extends ExtensionTagHandler {
 		$linkBack = $doc->createElement( 'sup' );
 
 		// Check for missing name and content and generate error code
-		$hasMissingNameAndContent = ( $refName === '' && !empty( $cDp->empty ) );
+		$hasMissingNameAndContent = ( $refName === '' &&
+			( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' ) );
 
 		// FIXME: Lot of useless work for an edge case
 		if ( !empty( $cDp->empty ) ) {

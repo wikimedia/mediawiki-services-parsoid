@@ -877,9 +877,13 @@ zero<sup about="#mwt8" class="mw-ref" id="cite_ref-3" rel="dc:references" typeof
 <ref> with an empty-string name parameter and no content.
 !! wikitext
 Bla.<ref name=""> </ref>
-!! html
+<references />
+!! html/php
 <p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; refs with no name must have content</span>
 </p>
+!! html/parsoid
+<p>Bla.<sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":""},"body":{"id":"mw-reference-text-cite_note-1"},"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> </span></li></ol>
 !! end
 
 !! test
