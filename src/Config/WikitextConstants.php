@@ -308,10 +308,10 @@ class WikitextConstants {
 				"tbody", "thead", "tfoot", "tr", "caption", "th", "td",
 			] ),
 
-			# See http://www.whatwg.org/specs/web-apps/current-work/#void-elements
+			# See https://html.spec.whatwg.org/#void-elements
 			'VoidTags' => PHPUtils::makeSet( [
-				'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img',
-				'input', 'keygen', 'link', 'meta', 'param', 'source',
+				'area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+				'input', 'link', 'meta', 'param', 'source',
 				'track', 'wbr',
 			] ),
 		];
