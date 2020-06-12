@@ -23,6 +23,10 @@ class WikitextConstants {
 	public static $ZeroWidthWikitextTags;
 	public static $LCFlagMap;
 	public static $LCNameMap;
+	public static $blockElems;
+	public static $antiBlockElems;
+	public static $alwaysBlockElems;
+	public static $neverBlockElems;
 
 	public static function init() {
 		/*
@@ -132,6 +136,24 @@ class WikitextConstants {
 
 		# These wikitext tags are composed with quote-chars.
 		self::$WTQuoteTags = PHPUtils::makeSet( [ 'i', 'b' ] );
+
+		// These are defined in the legacy parser's `BlockLevelPass`
+
+		// Opens block scope when entering, closes when exiting
+		self::$blockElems = PHPUtils::makeSet( [
+			'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'p', 'ul',
+			'ol', 'dl'
+		] );
+		// Closes block scope when entering, opens when exiting
+		self::$antiBlockElems = PHPUtils::makeSet( [ 'td', 'th' ] );
+		// Opens block scope when entering, opens when exiting too
+		self::$alwaysBlockElems = PHPUtils::makeSet( [
+			'tr', 'caption', 'dt', 'dd', 'li'
+		] );
+		// Closes block scope when entering, closes when exiting too
+		self::$neverBlockElems = PHPUtils::makeSet( [
+			'center', 'blockquote', 'div', 'hr', 'figure'
+		] );
 
 		# Leading whitespace on new lines in these elements does not lead to indent-pre.
 		# This only applies to immediate children (while skipping past zero-wikitext tags).

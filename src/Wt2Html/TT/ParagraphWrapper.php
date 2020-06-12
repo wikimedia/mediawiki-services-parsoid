@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -56,18 +57,6 @@ class ParagraphWrapper extends TokenHandler {
 	/** @var array */
 	private $currLine;
 
-	/** @var array */
-	private static $wgBlockElems = null;
-
-	/** @var array */
-	private static $wgAntiBlockElems = null;
-
-	/** @var array */
-	private static $wgAlwaysSuppress = null;
-
-	/** @var array */
-	private static $wgNeverSuppress = null;
-
 	/**
 	 * Constructor for paragraph wrapper.
 	 * @param TokenTransformManager $manager manager enviroment
@@ -84,16 +73,6 @@ class ParagraphWrapper extends TokenHandler {
 		$this->nlWsTokens = [];
 		$this->newLineCount = 0;
 		$this->currLine = null;
-
-		// These are defined in the php parser's `BlockLevelPass`
-		if ( self::$wgBlockElems === null ) {
-			self::$wgBlockElems = PHPUtils::makeSet( [ 'table', 'h1', 'h2', 'h3', 'h4',
-			'h5', 'h6', 'pre', 'p', 'ul', 'ol', 'dl' ] );
-			self::$wgAntiBlockElems = PHPUtils::makeSet( [ 'td', 'th' ] );
-			self::$wgAlwaysSuppress = PHPUtils::makeSet( [ 'tr', 'caption', 'dt', 'dd', 'li' ] );
-			self::$wgNeverSuppress = PHPUtils::makeSet( [ 'center', 'blockquote', 'div', 'hr', 'figure' ] );
-		}
-
 		// Disable p-wrapper
 		$this->disabled = !empty( $this->options['inlineContext'] );
 		$this->reset();
@@ -512,14 +491,14 @@ class ParagraphWrapper extends TokenHandler {
 		} else {
 			if ( !is_string( $token ) ) {
 				$name = $token->getName();
-				if ( ( isset( self::$wgBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
-					( isset( self::$wgAntiBlockElems[$name] ) && $token instanceof EndTagTk ) ||
-					isset( self::$wgAlwaysSuppress[$name] ) ) {
+				if ( ( isset( Consts::$blockElems[$name] ) && !$token instanceof EndTagTk ) ||
+					( isset( Consts::$antiBlockElems[$name] ) && $token instanceof EndTagTk ) ||
+					isset( Consts::$alwaysBlockElems[$name] ) ) {
 					$this->currLine['openMatch'] = true;
 				}
-				if ( ( isset( self::$wgBlockElems[$name] ) && $token instanceof EndTagTk ) ||
-					( isset( self::$wgAntiBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
-					isset( self::$wgNeverSuppress[$name] ) ) {
+				if ( ( isset( Consts::$blockElems[$name] ) && $token instanceof EndTagTk ) ||
+					( isset( Consts::$antiBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
+					isset( Consts::$neverBlockElems[$name] ) ) {
 					$this->currLine['closeMatch'] = true;
 				}
 				if ( $name === 'blockquote' ) {
