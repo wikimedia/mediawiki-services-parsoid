@@ -63,7 +63,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private function hasBlockTag( DOMNode $n ): bool {
-		if ( DOMUtils::isBlockNode( $n ) ) {
+		if ( DOMUtils::isRemexBlockNode( $n ) ) {
 			return true;
 		}
 		$c = $n->firstChild;
@@ -190,7 +190,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
-			if ( DOMUtils::isBlockNode( $c ) ) {
+			if ( DOMUtils::isRemexBlockNode( $c ) ) {
 				$p = null;
 			} else {
 				$vs = $this->split( $c );

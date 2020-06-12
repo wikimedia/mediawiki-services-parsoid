@@ -874,7 +874,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$runLength = 0;
 
 		// <br>, <wbr>, <hr> break a line
-		while ( $node && !DOMUtils::isBlockNode( $node ) &&
+		while ( $node && !DOMUtils::isRemexBlockNode( $node ) &&
 			!preg_match( '/^(?:h|b|wb)r$/D', $node->nodeName )
 		) {
 			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
@@ -952,7 +952,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		// Find run before startNode that doesn't have a whitespace break
 		$prev = $startNode->previousSibling;
-		while ( $prev && !DOMUtils::isBlockNode( $prev ) ) {
+		while ( $prev && !DOMUtils::isRemexBlockNode( $prev ) ) {
 			if ( !DOMUtils::isComment( $prev ) ) {
 				$s = $prev->textContent;
 				// Find the last \s in the string

@@ -156,6 +156,18 @@ class DOMUtils {
 	}
 
 	/**
+	 * @param ?DOMNode $node
+	 * @return bool
+	 */
+	public static function isRemexBlockNode( ?DOMNode $node ): bool {
+		return self::isElt( $node ) &&
+			!isset( WikitextConstants::$HTML['OnlyInlineElements'][$node->nodeName] ) &&
+			// From \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
+			// This is a superset but matches `emitsSolTransparentWT` below
+			!isset( WikitextConstants::$HTML['MetaTags'][$node->nodeName] );
+	}
+
+	/**
 	 * Determine whether this is a formatting DOM element.
 	 * @param DOMNode|null $node
 	 * @return bool

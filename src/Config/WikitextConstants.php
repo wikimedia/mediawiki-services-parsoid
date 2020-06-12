@@ -244,6 +244,20 @@ class WikitextConstants {
 				's', 'small', 'strike', 'strong', 'tt', 'u',
 			] ),
 
+			/**
+			 * From \\MediaWiki\Tidy\RemexCompatMunger::$onlyInlineElements
+			 */
+			'OnlyInlineElements' => PHPUtils::makeSet( [
+				'a', 'abbr', 'acronym', 'applet', 'b', 'basefont', 'bdo',
+				'big', 'br', 'button', 'cite', 'code', 'del', 'dfn', 'em',
+				'font', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label',
+				'legend', 'map', 'object', 'param', 'q', 'rb', 'rbc', 'rp',
+				'rt', 'rtc', 'ruby', 's', 'samp', 'select', 'small', 'span',
+				'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var',
+				// Those defined in tidy.conf
+				'video', 'audio', 'bdi', 'data', 'time', 'mark',
+			] ),
+
 			'ListTags' => PHPUtils::makeSet( [ 'ul', 'ol', 'dl' ] ),
 
 			'ListItemTags' => PHPUtils::makeSet( [ 'li', 'dd', 'dt' ] ),

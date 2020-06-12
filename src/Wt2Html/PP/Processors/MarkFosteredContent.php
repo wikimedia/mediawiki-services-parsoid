@@ -174,7 +174,8 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 					if ( $sibling instanceof DOMElement ) {
 						// TODO: Note the similarity here with the p-wrapping pass.
 						// This can likely be combined in some more maintainable way.
-						if ( DOMUtils::isBlockNode( $sibling ) ||
+						if (
+							DOMUtils::isRemexBlockNode( $sibling ) ||
 							WTUtils::emitsSolTransparentSingleLineWT( $sibling )
 						) {
 							// Block nodes don't need to be wrapped in a p-tag either.
