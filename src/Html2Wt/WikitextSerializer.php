@@ -1450,7 +1450,7 @@ class WikitextSerializer {
 						// conservatively bail and leave the nowiki as is.
 						$reqd = true;
 						break;
-					} elseif ( TokenUtils::isBlockTag( $tagName ) ) {
+					} elseif ( TokenUtils::isWikitextBlockTag( $tagName ) ) {
 						// FIXME: Extension tags shadowing html5 tags might not
 						// have block semantics.
 						// Block tags on a line suppress nowikis

@@ -53,6 +53,14 @@ class TokenUtils {
 	}
 
 	/**
+	 * @param string $name
+	 * @return bool
+	 */
+	public static function isWikitextBlockTag( string $name ): bool {
+		return isset( Consts::$wikitextBlockElems[$name] );
+	}
+
+	/**
 	 * In the PHP parser, these block tags open block-tag scope
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php).
 	 * @param string $name

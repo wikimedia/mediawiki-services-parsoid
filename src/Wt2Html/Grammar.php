@@ -124,7 +124,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	private function isXMLTag( string $name, bool $block ): bool {
   		$lName = mb_strtolower( $name );
   		return $block ?
-  			TokenUtils::isBlockTag( $lName ) :
+  			TokenUtils::isWikitextBlockTag( $lName ) :
   			isset( WikitextConstants::$HTML['HTML5Tags'][$lName] )
   			|| isset( WikitextConstants::$HTML['OlderHTMLTags'][$lName] );
   	}

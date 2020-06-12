@@ -67,7 +67,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isBlockNodeWithVisibleWT( DOMNode $node ): bool {
-		return DOMUtils::isBlockNode( $node ) && !self::isZeroWidthWikitextElt( $node );
+		return DOMUtils::isWikitextBlockNode( $node ) &&
+			!self::isZeroWidthWikitextElt( $node );
 	}
 
 	/**

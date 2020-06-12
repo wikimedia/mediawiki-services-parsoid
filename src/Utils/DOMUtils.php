@@ -168,6 +168,14 @@ class DOMUtils {
 	}
 
 	/**
+	 * @param DOMNode|null $node
+	 * @return bool
+	 */
+	public static function isWikitextBlockNode( ?DOMNode $node ): bool {
+		return $node && TokenUtils::isWikitextBlockTag( $node->nodeName );
+	}
+
+	/**
 	 * Determine whether this is a formatting DOM element.
 	 * @param DOMNode|null $node
 	 * @return bool
@@ -567,7 +575,7 @@ class DOMUtils {
 	public static function hasBlockElementDescendant( DOMNode $node ): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			if ( self::isElt( $child ) &&
-				( self::isBlockNode( $child ) || // Is a block-level node
+				( self::isWikitextBlockNode( $child ) || // Is a block-level node
 				self::hasBlockElementDescendant( $child ) ) // or has a block-level child or grandchild or..
 			) {
 				return true;

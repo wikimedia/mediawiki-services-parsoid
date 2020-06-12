@@ -785,7 +785,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logBadPWrapping(
 		Env $env, DOMElement $node, stdClass $dp, ?stdClass $tplInfo
 	): void {
-		if ( !DOMUtils::isBlockNode( $node ) && DOMUtils::isBlockNode( $node->parentNode ) &&
+		if (
+			!DOMUtils::isWikitextBlockNode( $node ) &&
+			DOMUtils::isWikitextBlockNode( $node->parentNode ) &&
 			$this->hasNoWrapCSS( $node )
 		) {
 			$p = $this->findMatchingChild( $node, function ( $e ) {

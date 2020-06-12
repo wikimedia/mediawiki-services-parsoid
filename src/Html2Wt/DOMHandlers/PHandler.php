@@ -59,7 +59,7 @@ class PHandler extends DOMHandler {
 		) {
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
-			|| ( DOMUtils::isBlockNode( $otherNode )
+			|| ( DOMUtils::isWikitextBlockNode( $otherNode )
 				&& $otherNode->nodeName !== 'blockquote'
 				&& $node->parentNode === $otherNode )
 			// new p-node added after sol-transparent wikitext should always
@@ -98,7 +98,7 @@ class PHandler extends DOMHandler {
 		} elseif ( DOMUtils::isBody( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
-			|| ( DOMUtils::isBlockNode( $otherNode )
+			|| ( DOMUtils::isWikitextBlockNode( $otherNode )
 				&& $otherNode->nodeName !== 'blockquote'
 				&& $node->parentNode === $otherNode )
 		) {
@@ -218,7 +218,7 @@ class PHandler extends DOMHandler {
 		// * mw:Includes meta or a SOL-transparent link
 		return DOMUtils::isText( $node )
 			|| ( !DOMUtils::isBody( $node )
-				&& !DOMUtils::isBlockNode( $node )
+				&& !DOMUtils::isWikitextBlockNode( $node )
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
 				&& !WTUtils::isSolTransparentLink( $node )

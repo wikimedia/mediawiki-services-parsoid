@@ -301,7 +301,7 @@ class PipelineUtils {
 			// categories?
 		} else {
 			for ( $i = 0;  $i < count( $nodes );  $i++ ) {
-				if ( DOMUtils::isBlockNode( $nodes[$i] ) ||
+				if ( DOMUtils::isWikitextBlockNode( $nodes[$i] ) ||
 					DOMUtils::hasBlockElementDescendant( $nodes[$i] )
 				) {
 					$wrapperType = 'BLOCK';
@@ -311,7 +311,7 @@ class PipelineUtils {
 		}
 
 		$wrapperName = null;
-		if ( $wrapperType === 'BLOCK' && !DOMUtils::isBlockNode( $node ) ) {
+		if ( $wrapperType === 'BLOCK' && !DOMUtils::isWikitextBlockNode( $node ) ) {
 			$wrapperName = 'div';
 		} elseif ( $node->nodeName === 'a' ) {
 			// Do not use 'A' as a wrapper node because it could

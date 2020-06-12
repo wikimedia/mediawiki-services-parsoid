@@ -168,8 +168,9 @@ class DOMHandler {
 			// last child in ul/ol (the list element is our parent), defer
 			// separator constraints to the list.
 			return [];
-		} elseif ( DOMUtils::isBlockNode( $node->parentNode )
-			&& DOMUtils::lastNonSepChild( $node->parentNode ) === $node
+		} elseif (
+			DOMUtils::isWikitextBlockNode( $node->parentNode ) &&
+			DOMUtils::lastNonSepChild( $node->parentNode ) === $node
 		) {
 			// A list in a block node (<div>, <td>, etc) doesn't need a trailing empty line
 			// if it is the last non-separator child (ex: <div>..</ul></div>)

@@ -74,7 +74,7 @@ class WikitextEscapeHandlers {
 
 		while ( $node ) {
 			if ( $node instanceof DOMElement ) {
-				if ( DOMUtils::isBlockNode( $node ) ) {
+				if ( DOMUtils::isWikitextBlockNode( $node ) ) {
 					return !self::startsOnANewLine( $node );
 				}
 				if ( $node->hasChildNodes() ) {

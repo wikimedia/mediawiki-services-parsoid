@@ -67,8 +67,9 @@ class ListHandler extends DOMHandler {
 
 		// A list in a block node (<div>, <td>, etc) doesn't need a leading empty line
 		// if it is the first non-separator child (ex: <div><ul>...</div>)
-		if ( DOMUtils::isBlockNode( $node->parentNode )
-			&& DOMUtils::firstNonSepChild( $node->parentNode ) === $node
+		if (
+			DOMUtils::isWikitextBlockNode( $node->parentNode ) &&
+			DOMUtils::firstNonSepChild( $node->parentNode ) === $node
 		) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} elseif ( DOMUtils::isFormattingElt( $otherNode ) ) {

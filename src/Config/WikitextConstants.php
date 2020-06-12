@@ -27,6 +27,7 @@ class WikitextConstants {
 	public static $antiBlockElems;
 	public static $alwaysBlockElems;
 	public static $neverBlockElems;
+	public static $wikitextBlockElems;
 
 	public static function init() {
 		/*
@@ -154,6 +155,13 @@ class WikitextConstants {
 		self::$neverBlockElems = PHPUtils::makeSet( [
 			'center', 'blockquote', 'div', 'hr', 'figure'
 		] );
+
+		self::$wikitextBlockElems = PHPUtils::makeSet( array_merge(
+			array_keys( self::$blockElems ),
+			array_keys( self::$antiBlockElems ),
+			array_keys( self::$alwaysBlockElems ),
+			array_keys( self::$neverBlockElems )
+		) );
 
 		# Leading whitespace on new lines in these elements does not lead to indent-pre.
 		# This only applies to immediate children (while skipping past zero-wikitext tags).

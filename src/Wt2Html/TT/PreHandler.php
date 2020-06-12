@@ -487,7 +487,7 @@ class PreHandler extends TokenHandler {
 			if ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
 				$this->solTransparentTokens[] = $token;
 			} elseif ( TokenUtils::isTableTag( $token ) ||
-				( TokenUtils::isHTMLTag( $token ) && TokenUtils::isBlockTag( $token->getName() ) )
+				( TokenUtils::isHTMLTag( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) )
 			) {
 				$ret = $this->getResultAndReset( $token );
 				$this->moveToIgnoreState();
@@ -500,7 +500,7 @@ class PreHandler extends TokenHandler {
 			break;
 
 			case self::STATE_PRE_COLLECT:
-			if ( !is_string( $token ) && TokenUtils::isBlockTag( $token->getName() ) ) {
+			if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
 				$ret = $this->encounteredBlockWhileCollecting( $token );
 				$this->moveToIgnoreState();
 			} else {
