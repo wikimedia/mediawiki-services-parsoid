@@ -64,7 +64,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	private $textContentBuffer;
 
 	/** @var bool */
-	private $haveTransclusionShadow;
+	private $needTransclusionShadow;
 
 	/**
 	 * @param Env $env
@@ -107,9 +107,8 @@ class HTML5TreeBuilder extends PipelineStage {
 		 * -------------------------------------------------------------------- */
 		$this->tableDepth = 0;
 
-		// Have we inserted a transclusion shadow meta already?
 		// We only need one for every run of strings and newline tokens.
-		$this->haveTransclusionShadow = false;
+		$this->needTransclusionShadow = false;
 
 		$this->domBuilder = new DOMBuilder( [ 'suppressHtmlNamespace' => true ] );
 		$treeBuilder = new TreeBuilder( $this->domBuilder );
@@ -259,22 +258,33 @@ class HTML5TreeBuilder extends PipelineStage {
 		// Store the last token
 		$this->lastToken = $token;
 
+		// If we encountered a non-string non-nl token, we have broken a run of
+		// string+nl content.  If we need transclusion shadow protection, now's
+		// the time to insert it.
+		if (
+			!is_string( $token ) && !( $token instanceof NlTk ) &&
+			$this->needTransclusionShadow
+		) {
+			$this->needTransclusionShadow = false;
+			// If inside a table and a transclusion, add a meta tag after every
+			// text node so that we can detect fostered content that came from
+			// a transclusion.
+			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
+			$this->dispatcher->startTag( 'meta', new PlainAttributes( $this->kvArrToAttr( [
+				new KV( 'typeof', 'mw:TransclusionShadow' )
+			] ) ), true, 0, 0 );
+		}
+
 		if ( is_string( $token ) || $token instanceof NlTk ) {
 			$data = ( $token instanceof NlTk ) ? "\n" : $token;
 			$this->dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
-			// NlTks are only fostered when accompanied by
-			// non-whitespace. Safe to ignore.
-			if ( $this->inTransclusion && $this->tableDepth > 0
-				&& is_string( $token ) && !$this->haveTransclusionShadow
+			// NlTks are only fostered when accompanied by non-whitespace.
+			// Safe to ignore.
+			if (
+				$this->inTransclusion && $this->tableDepth > 0 &&
+				is_string( $token )
 			) {
-				// If inside a table and a transclusion, add a meta tag
-				// after every text node so that we can detect
-				// fostered content that came from a transclusion.
-				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-				$this->dispatcher->startTag( 'meta', new PlainAttributes( $this->kvArrToAttr( [
-					new KV( 'typeof', 'mw:TransclusionShadow' )
-				] ) ), true, 0, 0 );
-				$this->haveTransclusionShadow = true;
+				$this->needTransclusionShadow = true;
 			}
 		} elseif ( $token instanceof TagTk ) {
 			$tName = $token->getName();
@@ -389,13 +399,6 @@ class HTML5TreeBuilder extends PipelineStage {
 				'VAL : ' . PHPUtils::jsonEncode( $token )
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
-		}
-
-		// If we encountered a non-string non-nl token, we have broken
-		// a run of string+nl content and the next occurence of one of
-		// those tokens will need transclusion shadow protection again.
-		if ( !is_string( $token ) && !( $token instanceof NlTk ) ) {
-			$this->haveTransclusionShadow = false;
 		}
 	}
 
