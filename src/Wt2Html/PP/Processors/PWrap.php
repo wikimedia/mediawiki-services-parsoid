@@ -56,15 +56,19 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Does the subtree $rooted at 'n' have a block tag in it?
+	 * Is 'n' a block tag, or does the subtree rooted at 'n' have a block tag
+	 * in it?
 	 *
 	 * @param DOMNode $n
 	 * @return bool
 	 */
 	private function hasBlockTag( DOMNode $n ): bool {
+		if ( DOMUtils::isBlockNode( $n ) ) {
+			return true;
+		}
 		$c = $n->firstChild;
 		while ( $c ) {
-			if ( DOMUtils::isBlockNode( $n ) || $this->hasBlockTag( $c ) ) {
+			if ( $this->hasBlockTag( $c ) ) {
 				return true;
 			}
 			$c = $c->nextSibling;
@@ -127,7 +131,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		} elseif ( !$this->isSplittableTag( $n ) || count( $n->childNodes ) === 0 ) {
 			// block tag OR non-splittable inline tag
 			return [
-				[ 'pwrap' => !DOMUtils::isBlockNode( $n ) && !$this->hasBlockTag( $n ), 'node' => $n ]
+				[ 'pwrap' => !$this->hasBlockTag( $n ), 'node' => $n ]
 			];
 		} else {
 			DOMUtils::assertElt( $n );
@@ -147,7 +151,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * so that the final output has the following properties:
 	 *
 	 * 1. A paragraph will have at least one non-whitespace text
-	 * node or an non-block element node in its subtree.
+	 *    node or an non-block element node in its subtree.
 	 *
 	 * 2. Two paragraph nodes aren't siblings of each other.
 	 *

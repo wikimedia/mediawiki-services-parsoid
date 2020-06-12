@@ -51,6 +51,7 @@ class PWrapTest extends TestCase {
 			[ '<i><div>a</div></i>', '<i><div>a</div></i>' ],
 			// <span> is not a spittable tag
 			[ '<span>x<div>a</div>y</span>', '<span>x<div>a</div>y</span>' ],
+			[ '<span>x<div></div>y</span>', '<span>x<div></div>y</span>' ],
 		];
 	}
 
