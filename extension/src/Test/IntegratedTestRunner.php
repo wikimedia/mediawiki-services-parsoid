@@ -4,12 +4,13 @@ declare( strict_types = 1 );
 namespace MWParsoid\Test;
 
 use Html;
+use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 use Parser;
 use ParserOptions;
 use ParserTestResult;
 use ParserTestResultNormalizer;
 use RequestContext;
-use Revision;
 use Title;
 use Wikimedia\ScopedCallback;
 use Wikimedia\TestingAccessWrapper;
@@ -55,25 +56,21 @@ class IntegratedTestRunner extends \ParserTestRunner {
 				'page_title' => $title->getDBkey(),
 				'page_is_redirect' => 0
 			] );
-			$rev = new Revision(
-				[
-					'id' => $title->getLatestRevID(),
-					'page' => $title->getArticleID(),
-					'user' => $user,
-					'content' => $content,
-					'timestamp' => $this->getFakeTimestamp(),
-					'title' => $title
-				],
-				Revision::READ_LATEST,
-				$title
-			);
-			$oldCallback = $options->getCurrentRevisionCallback();
-			$options->setCurrentRevisionCallback(
-				function ( Title $t, $parser ) use ( $title, $rev, $oldCallback ) {
+
+			$revRecord = new MutableRevisionRecord( $title );
+			$revRecord->setContent( SlotRecord::MAIN, $content );
+			$revRecord->setUser( $user );
+			$revRecord->setTimestamp( strval( $this->getFakeTimestamp() ) );
+			$revRecord->setPageId( $title->getArticleID() );
+			$revRecord->setId( $title->getLatestRevID() );
+
+			$oldCallback = $options->getCurrentRevisionRecordCallback();
+			$options->setCurrentRevisionRecordCallback(
+				function ( Title $t, $parser ) use ( $title, $revRecord, $oldCallback ) {
 					if ( $t->equals( $title ) ) {
-						return $rev;
+						return $revRecord;
 					} else {
-						return call_user_func( $oldCallback, $t, $parser );
+						return $oldCallback( $t, $parser );
 					}
 				}
 			);

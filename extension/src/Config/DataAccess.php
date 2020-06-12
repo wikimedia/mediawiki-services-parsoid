@@ -298,19 +298,16 @@ class DataAccess implements IDataAccess {
 		$titleObj = Title::newFromText( $title );
 
 		if ( $oldid ) {
-			$rev = $this->revStore->getRevisionByTitle( $titleObj, $oldid );
+			$revRecord = $this->revStore->getRevisionByTitle( $titleObj, $oldid );
 		} else {
-			$rev = call_user_func(
-				$this->parserOptions->getCurrentRevisionCallback(),
+			$revRecord = call_user_func(
+				$this->parserOptions->getCurrentRevisionRecordCallback(),
 				$titleObj,
 				$this->parser
 			);
 		}
-		if ( $rev instanceof \Revision ) {
-			$rev = $rev->getRevisionRecord();
-		}
 
-		return $rev ? new PageContent( $rev ) : null;
+		return $revRecord ? new PageContent( $revRecord ) : null;
 	}
 
 	/** @inheritDoc */
