@@ -52,7 +52,7 @@ class PageConfig extends IPageConfig {
 	/** @var Title */
 	private $title;
 
-	/** @var RevisionRecord|null */
+	/** @var ?RevisionRecord */
 	private $revision;
 
 	/** @var string|null */
@@ -172,12 +172,11 @@ class PageConfig extends IPageConfig {
 	 */
 	private function getRevision(): ?RevisionRecord {
 		if ( $this->revision === null ) {
-			$this->revision = call_user_func(
-				$this->parserOptions->getCurrentRevisionRecordCallback(),
-				$this->title, $this->parser
-			);
+			$this->revision =
+				$this->parser->fetchCurrentRevisionRecordOfTitle( $this->title );
+			// Note that $this->revision could still be null here.
 		}
-		return $this->revision ?: null;
+		return $this->revision;
 	}
 
 	/** @inheritDoc */
