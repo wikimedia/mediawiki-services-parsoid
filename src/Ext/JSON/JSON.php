@@ -14,11 +14,11 @@ use DOMElement;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Ext\ContentModelHandler;
+use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Native Parsoid implementation of the "json" contentmodel.

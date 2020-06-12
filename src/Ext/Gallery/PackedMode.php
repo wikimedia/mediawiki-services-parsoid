@@ -6,9 +6,9 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocument;
 use DOMElement;
 
+use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class PackedMode extends TraditionalMode {
 	/**

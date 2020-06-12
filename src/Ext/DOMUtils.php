@@ -54,6 +54,26 @@ class DOMUtils {
 	}
 
 	/**
+	 * Assert that this is a DOM element node.
+	 * This is primarily to help phan analyze variable types.
+	 * @phan-assert DOMElement $node
+	 * @param DOMNode|null $node
+	 * @return bool Always returns true
+	 */
+	public static function assertElt( ?DOMNode $node ): bool {
+		return DU::assertElt( $node );
+	}
+
+	/**
+	 * Check whether this is the <body> DOM element.
+	 * @param DOMNode|null $node
+	 * @return bool
+	 */
+	public static function isBody( ?DOMNode $node ): bool {
+		return DU::isBody( $node );
+	}
+
+	/**
 	 * Check whether this is a DOM element node.
 	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
 	 * @param DOMNode|null $node
@@ -71,6 +91,47 @@ class DOMUtils {
 	 */
 	public static function isText( ?DOMNode $node ): bool {
 		return DU::isText( $node );
+	}
+
+	/**
+	 * Check whether this is a DOM comment node.
+	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
+	 * @param DOMNode|null $node
+	 * @return bool
+	 */
+	public static function isComment( ?DOMNode $node ): bool {
+		return DU::isComment( $node );
+	}
+
+	/**
+	 * Check a node to see whether it's a diff marker.
+	 *
+	 * @param ?DOMNode $node
+	 * @param string|null $mark
+	 * @return bool
+	 */
+	public static function isDiffMarker( ?DOMNode $node, string $mark = null ): bool {
+		return DU::isDiffMarker( $node, $mark );
+	}
+
+	/**
+	 * PORT-FIXME: Is this necessary with PHP DOM unlike Domino in JS?
+	 *
+	 * Test the number of children this node has without using
+	 * `Node#childNodes.length`.  This walks the sibling list and so
+	 * takes O(`nchildren`) time -- so `nchildren` is expected to be small
+	 * (say: 0, 1, or 2).
+	 *
+	 * Skips all diff markers by default.
+	 * @param DOMNode $node
+	 * @param int $nchildren
+	 * @param bool $countDiffMarkers
+	 * @return bool
+	 */
+	public static function hasNChildren(
+		DOMNode $node, int $nchildren, bool $countDiffMarkers = false
+	): bool {
+		return DU::hasNChildren( $node, $nchildren, $countDiffMarkers );
 	}
 
 	/**
@@ -94,5 +155,15 @@ class DOMUtils {
 	 */
 	public static function addAttributes( DOMElement $elt, array $attrs ): void {
 		DU::addAttributes( $elt, $attrs );
+	}
+
+	/**
+	 * Returns a media element nested in `node`
+	 *
+	 * @param DOMElement $node
+	 * @return DOMElement|null
+	 */
+	public static function selectMediaElt( DOMElement $node ): ?DOMElement {
+		return DU::selectMediaElt( $node );
 	}
 }

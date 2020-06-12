@@ -174,7 +174,7 @@ class DOMUtils {
 	}
 
 	/**
-	 * Determine whether this is a body DOM element.
+	 * Determine whether this is the <body> DOM element.
 	 * @param DOMNode|null $node
 	 * @return bool
 	 */
