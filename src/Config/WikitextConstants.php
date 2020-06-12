@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 class WikitextConstants {
 	public static $Media;
 	public static $Sanitizer;
-	public static $HTMLTagsWithWTEquivalents;
 	public static $WikitextTagsWithTrimmableWS;
 	public static $HTMLTagsRequiringSOLContext;
 	public static $WTQuoteTags;
@@ -111,17 +110,6 @@ class WikitextConstants {
 				'wbr',
 			] ),
 		];
-
-		# These HTML tags have native wikitext representations.
-		# All other HTML tags would have to be emitted as HTML tags in wikitext.
-		self::$HTMLTagsWithWTEquivalents = PHPUtils::makeSet( [
-			"a", "b", "p", "pre",
-			"hr", "i", "img", "link", "meta",
-			"h1", "h2", "h3", "h4", "h5", "h6",
-			"ol", "li", "ul", "dd", "dl", "dt",
-			"figcaption", "figure",
-			"table", "td", "th", "tr", "caption",
-		] );
 
 		/**
 		 * These HTML tags come from native wikitext markup and
@@ -250,30 +238,6 @@ class WikitextConstants {
 				'map', 'object', 'pre', 'progress', 'video',
 			] ),
 
-			# From https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
-			# plus some non-strict elements not on that list (FONT, S, STRIKE, U) since
-			# these are tags that are actually used on wikipedias
-			#
-			# All HTML5 formatting elements except NOBR is on this list
-			'HTML4InlineTags' => PHPUtils::makeSet( [
-				'a', 'abbr', /* 'acronym', */
-				'b', 'big', 'bdo', 'br', 'button',
-				'cite', 'code',
-				'dfn',
-				'em',
-				'font',
-				'i', 'img', 'input',
-				'kbd',
-				'label',
-				'map',
-				'q',
-				'object',
-				's', 'samp', 'script', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
-				'textarea', 'time', 'tt',
-				'u',
-				'var',
-			] ),
-
 			# See http://www.w3.org/html/wg/drafts/html/master/syntax.html#formatting
 			'FormattingTags' => PHPUtils::makeSet( [
 				'a', 'b', 'big', 'code', 'em', 'font', 'i', 'nobr',
@@ -296,11 +260,6 @@ class WikitextConstants {
 
 			'TableTags' => PHPUtils::makeSet( [
 				'table', 'tbody', 'thead', 'tfoot', 'caption', 'th', 'tr', 'td',
-			] ),
-
-			# Table tags that can be parents
-			'ParentTableTags' => PHPUtils::makeSet( [
-				"table", "tbody", "thead", "tfoot", "tr",
 			] ),
 
 			# Table tags that can be children
