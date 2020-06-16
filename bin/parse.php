@@ -534,7 +534,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 					$pb['parsoid'] ?? null,
 					[ 'ids' => [] ]  // FIXME: ^999.0.0
 				);
-				DOMDataUtils::applyPageBundle( $doc, $pb );
+				PageBundle::apply( $doc, $pb );
 				$input = ContentUtils::toXML( $doc );
 			}
 
@@ -562,7 +562,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 					}
 					if ( isset( $pb ) ) {
 						$oldDoc = DOMUtils::parseHTML( $oldHTML );
-						DOMDataUtils::applyPageBundle( $oldDoc, $pb );
+						PageBundle::apply( $oldDoc, $pb );
 						$oldHTML = ContentUtils::toXML( $oldDoc );
 					}
 				}

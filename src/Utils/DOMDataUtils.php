@@ -12,7 +12,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
@@ -365,33 +364,6 @@ class DOMDataUtils {
 			$pb = PHPUtils::jsonDecode( $dpScriptElt->textContent, false );
 		}
 		return $pb;
-	}
-
-	/**
-	 * Applies the `data-*` attributes JSON structure to the document.
-	 * Leaves `id` attributes behind -- they are used by citation
-	 * code to extract `<ref>` body from the DOM.
-	 *
-	 * @param DOMDocument $doc doc
-	 * @param PageBundle $pb page bundle
-	 */
-	public static function applyPageBundle( DOMDocument $doc, PageBundle $pb ): void {
-		DOMUtils::visitDOM( DOMCompat::getBody( $doc ), function ( DOMNode $node ) use ( &$pb ): void {
-			if ( $node instanceof DOMElement ) {
-				$id = $node->getAttribute( 'id' ) ?? '';
-				if ( isset( $pb->parsoid['ids'][$id] ) ) {
-					self::setJSONAttribute( $node, 'data-parsoid', $pb->parsoid['ids'][$id] );
-				}
-				if ( isset( $pb->mw['ids'][$id] ) ) {
-					// Only apply if it isn't already set.  This means earlier
-					// applications of the pagebundle have higher precedence,
-					// inline data being the highest.
-					if ( !$node->hasAttribute( 'data-mw' ) ) {
-						self::setJSONAttribute( $node, 'data-mw', $pb->mw['ids'][$id] );
-					}
-				}
-			}
-		} );
 	}
 
 	/**

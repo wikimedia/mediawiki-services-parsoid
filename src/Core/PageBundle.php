@@ -4,7 +4,11 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -55,7 +59,7 @@ class PageBundle {
 
 	public function toHtml(): string {
 		$doc = DOMUtils::parseHTML( $this->html );
-		DOMDataUtils::applyPageBundle( $doc, $this );
+		self::apply( $doc, $this );
 		return ContentUtils::toXML( $doc );
 	}
 
@@ -114,6 +118,40 @@ class PageBundle {
 			];
 		}
 		return $responseData;
+	}
+
+	/**
+	 * Applies the `data-*` attributes JSON structure to the document.
+	 * Leaves `id` attributes behind -- they are used by citation code to
+	 * extract `<ref>` body from the DOM.
+	 *
+	 * @param DOMDocument $doc doc
+	 * @param PageBundle $pb page bundle
+	 */
+	public static function apply( DOMDocument $doc, PageBundle $pb ): void {
+		DOMUtils::visitDOM(
+			DOMCompat::getBody( $doc ),
+			function ( DOMNode $node ) use ( &$pb ): void {
+				if ( $node instanceof DOMElement ) {
+					$id = $node->getAttribute( 'id' ) ?? '';
+					if ( isset( $pb->parsoid['ids'][$id] ) ) {
+						DOMDataUtils::setJSONAttribute(
+							$node, 'data-parsoid', $pb->parsoid['ids'][$id]
+						);
+					}
+					if ( isset( $pb->mw['ids'][$id] ) ) {
+						// Only apply if it isn't already set.  This means
+						// earlier applications of the pagebundle have higher
+						// precedence, inline data being the highest.
+						if ( !$node->hasAttribute( 'data-mw' ) ) {
+							DOMDataUtils::setJSONAttribute(
+								$node, 'data-mw', $pb->mw['ids'][$id]
+							);
+						}
+					}
+				}
+			}
+		);
 	}
 
 }
