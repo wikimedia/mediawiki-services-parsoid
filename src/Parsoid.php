@@ -298,51 +298,11 @@ class Parsoid {
 		PageConfig $pageConfig, string $update, PageBundle $pb,
 		array $options = []
 	): PageBundle {
-		$newPB = $this->html2html(
-			$pageConfig, $update, $pb->toHtml(),
-			[ 'pageBundle' => true ] + $options
-			# headers are returned in the pagebundle; we don't need the
-			# $headers out-argument
-		);
-		// Prefer the passed in content model
-		$newPB->contentmodel = $pb->contentmodel ?? $newPB->contentmodel;
-		// Prefer the passed in version, since this was just a transformation
-		$newPB->version = $pb->version ?? $newPB->version;
-		return $newPB;
-	}
-
-	/**
-	 * Update the supplied HTML based on the `$update` type.
-	 *
-	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
-	 *   'variant': Converts the HTML based on the supplied variant.
-	 *
-	 * Note that these are DOM transforms, and not roundtrips through wikitext.
-	 *
-	 * @param PageConfig $pageConfig
-	 * @param string $update 'redlinks'|'variant'
-	 * @param string $html
-	 * @param array $options
-	 * @param ?array &$headers Output argument for HTTP headers
-	 *   which should be included in the response; when a PageBundle
-	 *   is returned this argument is unnecessary since the PageBundle
-	 *   contains the HTTP output headers.
-	 * @return string|PageBundle The ouput HTML string, with embedded
-	 *   attributes, unless $options['pageBundle'] is true, in which case
-	 *   a PageBundle is returned.
-	 */
-	public function html2html(
-		PageConfig $pageConfig, string $update, string $html,
-		array $options = [], ?array &$headers = null
-	) {
-		$envOptions = [];
-		if ( isset( $options['pageBundle'] ) ) {
-			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
-		}
+		$envOptions = [ 'pageBundle' => true ];
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		$doc = $env->createDocument( $html, true );
+		$doc = $env->createDocument( $pb->toHtml(), true );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);
@@ -392,28 +352,22 @@ class Parsoid {
 				'env' => $env,
 			]
 		);
-		$headers = DOMUtils::findHttpEquivHeaders( $doc );
-		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		if ( $env->pageBundle ) {
-			DOMDataUtils::injectPageBundle( $doc, DOMDataUtils::getPageBundle( $doc ) );
-			$out = ContentUtils::extractDpAndSerialize( $node, [
-				'innerXML' => $body_only,
-			] );
-			return new PageBundle(
-				$out['html'],
-				get_object_vars( $out['pb']->parsoid ),
-				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
-				$env->getOutputContentVersion(),
-				$headers,
-				$pageConfig->getContentModel()
-			);
-		} else {
-			return ContentUtils::toXML( $node, [
-				'innerXML' => $body_only,
-			] );
-		}
+		DOMDataUtils::injectPageBundle( $doc, DOMDataUtils::getPageBundle( $doc ) );
+		$out = ContentUtils::extractDpAndSerialize( $node, [
+			'innerXML' => $body_only,
+		] );
+		return new PageBundle(
+			$out['html'],
+			get_object_vars( $out['pb']->parsoid ),
+			isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
+			// Prefer the passed in version, since this was just a transformation
+			$pb->version ?? $env->getOutputContentVersion(),
+			DOMUtils::findHttpEquivHeaders( $doc ),
+			// Prefer the passed in content model
+			$pb->contentmodel ?? $pageConfig->getContentModel()
+		);
 	}
 
 	/**

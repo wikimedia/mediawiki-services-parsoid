@@ -136,81 +136,6 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers ::html2html
-	 * @dataProvider provideHtml2Html
-	 */
-	public function testHtml2Html( $update, $input, $expected, $testOpts = [] ) {
-		$opts = [];
-
-		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
-		$parsoid = new Parsoid( $siteConfig, $dataAccess );
-
-		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( [
-			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
-		], $pageContent );
-		$wt = $parsoid->html2html( $pageConfig, $update, $input, $testOpts );
-		$this->assertEquals( $expected, $wt );
-	}
-
-	public function provideHtml2Html() {
-		// phpcs:disable Generic.Files.LineLength.TooLong
-		return [
-			[
-				'redlinks',
-				'<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected">Redirected</a></p>',
-				'<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist" class="new">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected" class="mw-redirect">Redirected</a></p>',
-				[
-					'body_only' => true,
-				]
-			],
-			[
-				'variant',
-				// bogus <meta> w/ a data-parsoid attribute, just to verify
-				// that data-parsoid attributes are preserved and not erased.
-				'<meta data-parsoid=\'{"test":1}\'><p>абвг abcd x</p>',
-				'<meta data-parsoid=\'{"test":1}\'/><p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
-				[
-					'body_only' => true,
-					'pageLanguage' => 'sr',
-					'variant' => [
-						'source' => null,
-						'target' => 'sr-el',
-					]
-				]
-			],
-			[
-				'variant',
-				'<p>абвг abcd x</p>',
-				'<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
-				[
-					'body_only' => true,
-					'pageLanguage' => 'sr',
-					'variant' => [
-						'source' => 'sr-ec',
-						'target' => 'sr-el',
-					]
-				]
-			],
-			[
-				'variant',
-				'<p>абвг abcd x</p>',
-				'<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}\'>абвг</span> абцд x</p>',
-				[
-					'body_only' => true,
-					'pageLanguage' => 'sr',
-					'variant' => [
-						'source' => 'sr-el',
-						'target' => 'sr-ec',
-					]
-				]
-			]
-		];
-		// phpcs:enable Generic.Files.LineLength.TooLong
-	}
-
-	/**
 	 * @covers ::pb2pb
 	 * @dataProvider providePb2Pb
 	 */
@@ -250,9 +175,26 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			[
 				'redlinks',
 				[
+					'html' => '<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected">Redirected</a></p>',
+					'parsoid' => null,
+					'mw' => null,
+				],
+				[
+					'html' => '<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist" class="new">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected" class="mw-redirect">Redirected</a></p>',
+					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+				]
+			],
+			[
+				'redlinks',
+				[
 					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><a rel="mw:WikiLink" href="./Not_an_article" title="Not an article" id="mwAg">abcd</a></p>' . "\n" . '</body>',
 					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,24,0,0]},"mwAQ":{"dsr":[0,23,0,0]},"mwAg":{"stx":"piped","a":{"href":"./Not_an_article"},"sa":{"href":"Not an article"},"dsr":[0,23,17,2]}},"offsetType":"byte"}',
-					'mw' => '{"ids":[]}}',
+					'mw' => '{"ids":[]}',
 				],
 				[
 					'html' => '<p id="mwAQ"><a rel="mw:WikiLink" href="./Not_an_article" title="Not an article" id="mwAg" class="new">abcd</a></p>' . "\n",
@@ -284,6 +226,50 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 			],
 			// Language Variant conversion endpoint
+			[
+				'variant',
+				[
+					'html' => '<p>абвг abcd x</p>',
+					'parsoid' => null,
+					'mw' => null,
+				],
+				[
+					'html' => '<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
+					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+					'pageLanguage' => 'sr',
+					'variant' => [
+						'source' => 'sr-ec',
+						'target' => 'sr-el',
+					]
+				]
+			],
+			[
+				'variant',
+				[
+					'html' => '<p>абвг abcd x</p>',
+					'parsoid' => null,
+					'mw' => null,
+				],
+				[
+					'html' => '<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}\'>абвг</span> абцд x</p>',
+					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => '2.1.0',
+				],
+				[
+					'body_only' => true,
+					'pageLanguage' => 'sr',
+					'variant' => [
+						'source' => 'sr-el',
+						'target' => 'sr-ec',
+					]
+				]
+			],
 			[
 				'variant',
 				[
