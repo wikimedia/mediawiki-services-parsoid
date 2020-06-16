@@ -1102,7 +1102,7 @@
         "html2wt": "; '''bold'''"
     },
     "Definition lists: ignore colons inside tags": {
-        "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \"}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
+        "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"dsr\":[11,12,0,0]}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
         "wt2wt": ";one <b>two : tag <i>fun:</i>:</b><nowiki>:def</nowiki>",
         "html2wt": "; one '''two : tag ''fun:'':'''\n: def"
     },
@@ -1317,7 +1317,7 @@
         "html2wt": " <\n"
     },
     "Escaping of interlanguage links (T129218, T156308)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Zh_:_Chinese\" title=\"Zh : Chinese\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Zh_:_Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \"}'> </span>: Chinese </a></p>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Zh_:_Chinese\" title=\"Zh : Chinese\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Zh_:_Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"dsr\":[38,39,0,0]}'> </span>: Chinese </a></p>",
         "html2wt": "Blah blah blah\n[[:es:Spanish]]\n[[:zh:Chinese| zh : Chinese ]]"
     },
     "Expansion of multi-line templates in attribute values (T8255 sanity check 2)": {

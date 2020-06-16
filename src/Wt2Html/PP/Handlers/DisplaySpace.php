@@ -3,18 +3,53 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMComment;
 use DOMElement;
 use DOMText;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * Apply french space armoring.
  *
- * FIXME(T254500): Parsoid's spec needs updating for mw:DisplaySpace
+ * See https://www.mediawiki.org/wiki/Specs/HTML#Display_space
  */
 class DisplaySpace {
+
+	/**
+	 * @param DOMText $node
+	 * @return ?int
+	 */
+	private static function getTextNodeDSRStart( DOMText $node ): ?int {
+		$parent = $node->parentNode;
+		'@phan-var \DOMElement $parent';
+		$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
+		if ( !Util::isValidDSR( $dsr, true ) ) {
+			return null;
+		}
+		$start = $dsr->innerStart();
+		$c = $parent->firstChild;
+		while ( $c !== $node ) {
+			if ( $c instanceof DOMComment ) {
+				$start += WTUtils::decodedCommentLength( $c );
+			} elseif ( $c instanceof DOMText ) {
+				$start += strlen( $c->nodeValue );
+			} else {
+				'@phan-var \DOMElement $c';
+				$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
+				if ( !Util::isValidDSR( $dsr ) ) {
+					return null;
+				}
+				$start = $dsr->end;
+			}
+			$c = $c->nextSibling;
+		}
+		return $start;
+	}
 
 	/**
 	 * @param DOMText $node
@@ -34,12 +69,22 @@ class DisplaySpace {
 		$post = $doc->createTextNode( $suffix );
 		$node->parentNode->insertBefore( $post, $node->nextSibling );
 
+		$start = self::getTextNodeDSRStart( $node );
+		if ( $start !== null ) {
+			$start += strlen( $prefix );
+			$dsr = new DomSourceRange( $start, $start + 1, 0, 0 );
+		} else {
+			$dsr = new DomSourceRange( null, null, null, null );
+		}
+
 		$span = $doc->createElement( 'span' );
 		$span->appendChild( $doc->createTextNode( "\u{00A0}" ) );
 		// FIXME(T254502): Do away with the mw:Placeholder and the associated
 		// data-parsoid.src
 		$span->setAttribute( 'typeof', 'mw:DisplaySpace mw:Placeholder' );
-		DOMDataUtils::setDataParsoid( $span, (object)[ 'src' => ' ' ] );
+		DOMDataUtils::setDataParsoid( $span, (object)[
+			'src' => ' ', 'dsr' => $dsr,
+		] );
 		$node->parentNode->insertBefore( $span, $post );
 	}
 
