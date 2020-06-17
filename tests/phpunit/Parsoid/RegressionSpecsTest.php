@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Test\Parsoid\Utils;
+namespace Test\Parsoid;
 
 use DOMElement;
 use PHPUnit\Framework\TestCase;
