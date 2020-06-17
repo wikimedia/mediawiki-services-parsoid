@@ -99,9 +99,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 			if ( !$sibling || !DOMUtils::isMarkerMeta( $sibling, $type ) ) {
 				return null;
 			}
-			/** @var DOMElement $sibling */
-			DOMUtils::assertElt( $sibling );
-
+			'@phan-var DOMElement $sibling';  /** @var DOMElement $sibling */
 			if ( $sibling->getAttribute( 'data-etag' ) === $name &&
 				// If the node was literal html, the end tag should be as well.
 				// However, the converse isn't true. A node for an

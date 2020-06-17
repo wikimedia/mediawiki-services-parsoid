@@ -26,7 +26,7 @@ class DisplaySpace {
 	 */
 	private static function getTextNodeDSRStart( DOMText $node ): ?int {
 		$parent = $node->parentNode;
-		'@phan-var \DOMElement $parent';
+		'@phan-var DOMElement $parent';  /** @var DOMElement $parent */
 		$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
 		if ( !Utils::isValidDSR( $dsr, true ) ) {
 			return null;
@@ -39,7 +39,7 @@ class DisplaySpace {
 			} elseif ( $c instanceof DOMText ) {
 				$start += strlen( $c->nodeValue );
 			} else {
-				'@phan-var \DOMElement $c';
+				'@phan-var DOMElement $c';  /** @var DOMElement $c */
 				$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
 				if ( !Utils::isValidDSR( $dsr ) ) {
 					return null;

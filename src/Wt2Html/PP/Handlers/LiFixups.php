@@ -31,25 +31,22 @@ class LiFixups {
 	 * However, note that the wikitext `<li></li>`, any preceding wikitext
 	 * asterisk `*` absent, should indeed expand into two nodes in the
 	 * DOM.
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @param Env $env
 	 * @param array $options
 	 * @return bool
 	 */
-	public static function handleLIHack( DOMNode $node, Env $env, array $options ): bool {
+	public static function handleLIHack(
+		DOMElement $node, Env $env, array $options
+	): bool {
 		$prevNode = $node->previousSibling;
 
 		if ( WTUtils::isLiteralHTMLNode( $node ) &&
-			$prevNode !== null &&
+			$prevNode instanceof DOMElement &&
 			$prevNode->nodeName === 'li' &&
 			!WTUtils::isLiteralHTMLNode( $prevNode ) &&
 			DOMUtils::nodeEssentiallyEmpty( $prevNode )
 		) {
-			/** @var DOMElement $node */
-			DOMUtils::assertElt( $node );
-			/** @var DOMElement $prevNode */
-			DOMUtils::assertElt( $prevNode );
-
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$liHackSrc = WTUtils::getWTSource( $options['frame'], $prevNode );
 
@@ -165,7 +162,7 @@ class LiFixups {
 	 * when serializing list items). This needs addressing because
 	 * this pattern is extremely common (some list at the end of the page
 	 * followed by a list of categories for the page).
-	 * @param DOMNode $li
+	 * @param DOMElement $li
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
@@ -173,7 +170,8 @@ class LiFixups {
 	 * @return bool
 	 */
 	public static function migrateTrailingCategories(
-		DOMNode $li, Env $env, array $options, bool $atTopLevel = false, ?stdClass $tplInfo = null
+		DOMElement $li, Env $env, array $options, bool $atTopLevel = false,
+		?stdClass $tplInfo = null
 	): bool {
 		// * Don't bother fixing up template content when processing the full page
 		if ( $tplInfo ) {
@@ -187,8 +185,6 @@ class LiFixups {
 		if ( $li->nextSibling === null && DOMUtils::isList( $li->parentNode ) &&
 			WTUtils::isCategoryLink( DOMUtils::lastNonSepChild( $li ) )
 		) {
-			/** @var DOMElement $li */
-			DOMUtils::assertElt( $li );
 
 			// Find the outermost list -- content will be moved after it
 			$outerList = $li->parentNode;

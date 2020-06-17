@@ -28,8 +28,7 @@ class Headings {
 		if ( !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 			return true;
 		}
-		/** @var DOMElement $node */
-		DOMUtils::assertElt( $node );
+		'@phan-var DOMElement $node';  /** @var DOMElement $node */
 
 		// Cannot generate an anchor id if the heading already has an id!
 		//

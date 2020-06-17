@@ -159,8 +159,13 @@ class UnpackDOMFragments {
 
 		$c = $node->firstChild;
 		while ( $c ) {
-			/** @var DOMElement $c */
-			DOMUtils::assertElt( $c );
+			/**
+			 * We just span wrapped the child nodes, so it's safe to assume
+			 * they're all DOMElements.
+			 *
+			 * @var DOMElement $c
+			 */
+			'@phan-var DOMElement $c';
 			// FIXME: This unconditionally sets about on children
 			// This is currently safe since all of them are nested
 			// inside a transclusion, but do we need future-proofing?

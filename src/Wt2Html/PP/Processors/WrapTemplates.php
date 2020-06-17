@@ -153,8 +153,13 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 			$dsr = null;
 			if ( $n ) {
-				/** @var DOMElement $n */
-				DOMUtils::assertElt( $n );
+				/**
+				 * The point of the above loop is to ensure we're working
+				 * with a DOMElement if there is an $n.
+				 *
+				 * @var DOMElement $n
+				 */
+				'@phan-var DOMElement $n';
 				$dsr = DOMDataUtils::getDataParsoid( $n )->dsr ?? null;
 			}
 
@@ -249,8 +254,13 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// as long as it is a tr/tbody -- pushing whitespace into the
 			// other (th/td/caption) can change display semantics.
 			if ( $newStart && isset( self::MAP_TBODY_TR[$newStart->nodeName] ) ) {
-				/** @var DOMElement $newStart */
-				DOMUtils::assertElt( $newStart );
+				/**
+				 * The point of the above loop is to ensure we're working
+				 * with a DOMElement if there is an $newStart.
+				 *
+				 * @var DOMElement $newStart
+				 */
+				'@phan-var DOMElement $newStart';
 				$insertPosition = $newStart->firstChild;
 				$n = $range->start;
 				while ( $n !== $newStart ) {
@@ -1199,9 +1209,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 							$dp = DOMDataUtils::getDataParsoid( $sm->parentNode );
 							if ( $tbl && $tbl->nodeName === 'table' && !empty( $dp->fostered ) ) {
-								/** @var DOMElement $tbl */
-								DOMUtils::assertElt( $tbl );
-
+								'@phan-var DOMElement $tbl';  /** @var DOMElement $tbl */
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
 								if ( isset( $dp->tsr->start ) && $dp->tsr->start !== null &&
 									isset( $tblDP->dsr->start ) && $tblDP->dsr->start === null
