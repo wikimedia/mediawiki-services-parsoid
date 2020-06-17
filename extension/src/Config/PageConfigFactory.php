@@ -115,7 +115,7 @@ class PageConfigFactory {
 		}
 		$parserOptions = $user
 			? ParserOptions::newFromUser( User::newFromIdentity( $user ) )
-			: ParserOptions::newCanonical();
+			: ParserOptions::newCanonical( new User() );
 		$slotRoleHandler = $this->slotRoleRegistry->getRoleHandler( SlotRecord::MAIN );
 		return new MWPageConfig(
 			$this->parser,
