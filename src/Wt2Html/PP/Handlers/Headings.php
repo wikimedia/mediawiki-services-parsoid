@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
@@ -64,7 +64,7 @@ class Headings {
 			DOMUtils::addTypeOf( $span, 'mw:FallbackId' );
 			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			// Set a zero-width dsr range for the fallback id
-			if ( Util::isValidDSR( $nodeDsr ) ) {
+			if ( Utils::isValidDSR( $nodeDsr ) ) {
 				$offset = $nodeDsr->innerStart();
 				DOMDataUtils::getDataParsoid( $span )->dsr = new DomSourceRange( $offset, $offset, null, null );
 			}

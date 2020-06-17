@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -356,7 +356,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							$correction = strlen( $ndp->src );
 							$ce += $correction;
 							$dsrCorrection = $correction;
-							if ( Util::isValidDSR( $ndp->dsr ?? null ) ) {
+							if ( Utils::isValidDSR( $ndp->dsr ?? null ) ) {
 								// Record original DSR for the meta tag
 								// since it will now get corrected to zero width
 								// since child acquires its width->

@@ -18,7 +18,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
 	use Wikimedia\Parsoid\Utils\TokenUtils;
-	use Wikimedia\Parsoid\Utils\Util;
+	use Wikimedia\Parsoid\Utils\Utils;
 	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -482,7 +482,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				// There are templates present, alas.
   				return count( $flat ) > 0;
   			}
-  			return Util::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
+  			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
   		
   }
   private function a17($p0, $addr, $target, $p1, $sp) {
@@ -542,7 +542,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	
   }
   private function a24($p) {
-   return Util::isProtocolValid( $p, $this->env ); 
+   return Utils::isProtocolValid( $p, $this->env ); 
   }
   private function a25($p) {
    return $p; 
@@ -695,7 +695,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a47($m) {
   
-  		return Util::decodeWtEntities( $m );
+  		return Utils::decodeWtEntities( $m );
   	
   }
   private function a48($q, $ill) {
@@ -810,7 +810,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
    return $e; 
   }
   private function a72() {
-   return Util::isUniWord(Util::lastUniChar( $this->input, $this->endOffset() ) ); 
+   return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) ); 
   }
   private function a73($bs) {
   
@@ -991,7 +991,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   
   		// Extension tags don't necessarily have the same semantics as html tags,
   		// so don't treat them as void elements.
-  		$isVoidElt = Util::isVoidElement( $lcName ) && !$extTag;
+  		$isVoidElt = Utils::isVoidElement( $lcName ) && !$extTag;
   
   		// Support </br>
   		if ( $lcName === 'br' && $end ) {
@@ -1794,8 +1794,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a179($extToken) {
   
-  		$txt = Util::extractExtBody( $extToken );
-  		return Util::decodeWtEntities( $txt );
+  		$txt = Utils::extractExtBody( $extToken );
+  		return Utils::decodeWtEntities( $txt );
   	
   }
 

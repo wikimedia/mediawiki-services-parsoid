@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
@@ -82,7 +82,7 @@ class ExtensionHandler extends TokenHandler {
 			// can mess with src offsets.
 			$o->v = trim( preg_replace( '/[\t\r\n ]+/', ' ', $v ) );
 			// Decode character references
-			$o->v = Util::decodeWtEntities( $o->v );
+			$o->v = Utils::decodeWtEntities( $o->v );
 		}
 		return $options;
 	}
@@ -140,7 +140,7 @@ class ExtensionHandler extends TokenHandler {
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
 		if ( $nativeExt !== null ) {
-			$extContent = Util::extractExtBody( $token );
+			$extContent = Utils::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
 			$extApi = new ParsoidExtensionAPI( $env, [
 				'wt2html' => $this->options + [
@@ -195,7 +195,7 @@ class ExtensionHandler extends TokenHandler {
 	private function onDocument( array $state, DOMDocument $doc ): array {
 		$env = $this->env;
 
-		$argDict = Util::getExtArgInfo( $state['token'] )->dict;
+		$argDict = Utils::getExtArgInfo( $state['token'] )->dict;
 		$extTagOffsets = $state['token']->dataAttribs->extTagOffsets;
 		if ( $extTagOffsets->closeWidth === 0 ) {
 			unset( $argDict->body ); // Serialize to self-closing.
@@ -260,7 +260,7 @@ class ExtensionHandler extends TokenHandler {
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
-			$dp->tsr = Util::clone( $state['token']->dataAttribs->tsr );
+			$dp->tsr = Utils::clone( $state['token']->dataAttribs->tsr );
 			$dp->src = $state['token']->dataAttribs->src;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}

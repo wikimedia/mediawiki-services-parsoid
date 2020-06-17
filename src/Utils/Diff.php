@@ -106,7 +106,7 @@ Diff::convertChangesToXML = function ( $changes ) {
 			$result[] = '<del>';
 		}
 
-		$result[] = Util::escapeHtml( implode( '', $change[ 1 ] ) );
+		$result[] = Utils::escapeHtml( implode( '', $change[ 1 ] ) );
 
 		if ( $change[ 0 ] === '+' ) {
 			$result[] = '</ins>';
@@ -167,11 +167,11 @@ Diff::colorDiff = function ( $a, $b, $options ) use ( &$Util, &$Diff ) {
 	$visibleWs = function ( $s ) {return preg_replace( '/[ \xA0]/', "␣", $s );
  };
 	$funcs = ( $options && $options->html ) ? [
-		'+' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="green">' . Util::escapeHtml( $visibleWs( $s ) ) . '</font>';
+		'+' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="green">' . Utils::escapeHtml( $visibleWs( $s ) ) . '</font>';
   },
-		'-' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="red">' . Util::escapeHtml( $visibleWs( $s ) ) . '</font>';
+		'-' => function ( $s ) use ( &$Util, &$visibleWs ) {return '<font color="red">' . Utils::escapeHtml( $visibleWs( $s ) ) . '</font>';
   },
-		'=' => function ( $s ) use ( &$Util ) {return Util::escapeHtml( $s );
+		'=' => function ( $s ) use ( &$Util ) {return Utils::escapeHtml( $s );
   }
 	] : ( $options && $options->noColor ) ? [
 		'+' => function ( $s ) {return '{+' . $s . '+}';

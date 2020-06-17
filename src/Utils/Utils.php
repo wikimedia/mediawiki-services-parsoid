@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 /**
  * This file contains general utilities for token transforms.
  */
-class Util {
+class Utils {
 	/**
 	 * Regular expression fragment for matching wikitext comments.
 	 * Meant for inclusion in other regular expressions.

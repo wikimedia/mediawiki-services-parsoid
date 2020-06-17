@@ -23,7 +23,7 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Params;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
@@ -338,7 +338,7 @@ class TemplateHandler extends TokenHandler {
 			$magicWordType = null;
 			if ( $canonicalFunctionName === '!' ) {
 				$magicWordType = '!';
-			} elseif ( isset( Util::magicMasqs()[$canonicalFunctionName] ) ) {
+			} elseif ( isset( Utils::magicMasqs()[$canonicalFunctionName] ) ) {
 				$magicWordType = 'MASQ';
 			}
 
@@ -1297,7 +1297,7 @@ class TemplateHandler extends TokenHandler {
 
 		$metaToken = new SelfclosingTagTk( 'meta',
 			[ new KV( 'property', $pageProp ) ],
-			Util::clone( $tplToken->dataAttribs )
+			Utils::clone( $tplToken->dataAttribs )
 		);
 
 		if ( isset( $tplToken->dataAttribs->tmp->templatedAttribs ) ) {

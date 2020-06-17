@@ -331,7 +331,7 @@ class WTUtils {
 			$about = $node->getAttribute( 'about' );
 			// SSS FIXME: Verify that our DOM spec clarifies this
 			// expectation on about-ids and that our clients respect this.
-			return $about && Util::isParsoidObjectId( $about );
+			return $about && Utils::isParsoidObjectId( $about );
 		} else {
 			return false;
 		}
@@ -558,7 +558,7 @@ class WTUtils {
 		$dsr = $dp->dsr ?? null;
 		// FIXME: We could probably change the null return to ''
 		// Just need to verify that code that uses this won't break
-		return Util::isValidDSR( $dsr ) ?
+		return Utils::isValidDSR( $dsr ) ?
 			$dsr->substr( $frame->getSrcText() ) : null;
 	}
 
@@ -692,14 +692,14 @@ class WTUtils {
 	public static function encodeComment( string $comment ): string {
 		// Undo wikitext escaping to obtain "true value" of comment.
 		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/', function ( $m ) {
-				return Util::decodeWtEntities( $m[0] );
+				return Utils::decodeWtEntities( $m[0] );
 		}, $comment );
 
 		// Now encode '-', '>' and '&' in the "true value" as HTML entities,
 		// so that they can be safely embedded in an HTML comment.
 		// This part doesn't have to map strings 1-to-1.
 		return preg_replace_callback( '/[->&]/', function ( $m ) {
-			return Util::entityEncodeAll( $m[0] );
+			return Utils::entityEncodeAll( $m[0] );
 		}, $trueValue );
 	}
 
@@ -710,7 +710,7 @@ class WTUtils {
 	 */
 	public static function decodeComment( string $comment ): string {
 		// Undo HTML entity escaping to obtain "true value" of comment.
-		$trueValue = Util::decodeWtEntities( $comment );
+		$trueValue = Utils::decodeWtEntities( $comment );
 
 		// ok, now encode this "true value" of the comment in such a way
 		// that the string "-->" never shows up.  (See above.)

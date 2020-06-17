@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -110,7 +110,7 @@ class LinkHandlerUtils {
 	 */
 	private static function escapeLinkTarget( string $linkTarget, SerializerState $state ): stdClass {
 		// Entity-escape the content.
-		$linkTarget = Util::escapeWtEntities( $linkTarget );
+		$linkTarget = Utils::escapeWtEntities( $linkTarget );
 		return (object)[
 			'linkTarget' => $linkTarget,
 			// Is this an invalid link?
@@ -317,7 +317,7 @@ class LinkHandlerUtils {
 				if ( !preg_match( '/^(:?[^:]+):/', $tmp, $oldPrefix ) ) {
 					break;
 				}
-				$iwi = $iwMap[Util::normalizeNamespaceName( preg_replace( '/^:/', '', $oldPrefix[1], 1 ) )]
+				$iwi = $iwMap[Utils::normalizeNamespaceName( preg_replace( '/^:/', '', $oldPrefix[1], 1 ) )]
 					?? null;
 				if ( !$iwi || !isset( $iwi['localinterwiki'] ) ) {
 					break;
@@ -341,7 +341,7 @@ class LinkHandlerUtils {
 					)
 				) {
 					// Reuse old prefix capitalization
-					if ( Util::decodeWtEntities( substr( $target['value'], strlen( $oldPrefix[1] ) + 1 ) )
+					if ( Utils::decodeWtEntities( substr( $target['value'], strlen( $oldPrefix[1] ) + 1 ) )
 						!== $interWikiMatch[1]
 					) {
 						// Modified, update target.value.
@@ -386,7 +386,7 @@ class LinkHandlerUtils {
 				// phpcs:ignore Generic.Files.LineLength.TooLong
 				'/[\]\[<>"\x00-\x20\x7F\x{A0}\x{1680}\x{180E}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}]|-(?=\{)/u',
 				function ( $m ) {
-					return Util::entityEncodeAll( $m[0] );
+					return Utils::entityEncodeAll( $m[0] );
 				},
 				$urlStr
 			),
@@ -434,7 +434,7 @@ class LinkHandlerUtils {
 			( $target['value'] === $contentStr || self::getHref( $env, $node ) === $contentStr ) &&
 			// protocol-relative url links not allowed in text
 			// (see autourl rule in peg tokenizer, T32269)
-			!preg_match( '#^//#', $contentStr ) && Util::isProtocolValid( $contentStr, $env );
+			!preg_match( '#^//#', $contentStr ) && Utils::isProtocolValid( $contentStr, $env );
 	}
 
 	/**
@@ -472,7 +472,7 @@ class LinkHandlerUtils {
 			// Strip ./ prefixes as well since they are relative link prefixes
 			// added to all titles.
 			$strippedTargetValue = preg_replace( '#^(:|\./)#', '', $target['value'], 1 );
-			$decodedTarget = Util::decodeWtEntities( $strippedTargetValue );
+			$decodedTarget = Utils::decodeWtEntities( $strippedTargetValue );
 			// Deal with the protocol-relative link scenario as well
 			$hrefHasProto = preg_match( '#^(\w+:)?//#', $linkData->href );
 
@@ -511,10 +511,10 @@ class LinkHandlerUtils {
 					// <a rel="mw:WikiLink" href="7%25 Solution">7%25 Solution</a></p>
 					// should serialize as [[7% Solution|7%25 Solution]]
 					(
-						$contentString === Util::decodeURIComponent( $linkData->href ) ||
+						$contentString === Utils::decodeURIComponent( $linkData->href ) ||
 						// normalize with underscores for comparison with href
 						$env->normalizedTitleKey( $contentString, true )
-							=== Util::decodeURIComponent( $linkData->href )
+							=== Utils::decodeURIComponent( $linkData->href )
 					)
 				);
 		}
@@ -549,10 +549,10 @@ class LinkHandlerUtils {
 			// Omit fragments from decoding
 			$hash = strpos( $target['value'], '#' );
 			if ( $hash !== false ) {
-				$target['value'] = Util::decodeURIComponent( substr( $target['value'], 0, $hash ) )
+				$target['value'] = Utils::decodeURIComponent( substr( $target['value'], 0, $hash ) )
 					. substr( $target['value'], $hash );
 			} else {
-				$target['value'] = Util::decodeURIComponent( $target['value'] );
+				$target['value'] = Utils::decodeURIComponent( $target['value'] );
 			}
 		}
 
@@ -567,7 +567,7 @@ class LinkHandlerUtils {
 			if ( preg_match( '/^((?>{{#|[^#])*)#(.*)/', $target['value'], $targetParts ) ) {
 				$target['value'] = strtr( preg_replace( '#^(\.\.?/)*#', '', $targetParts[1], 1 ), '_', ' ' );
 				// FIXME: Reverse `Sanitizer.sanitizeTitleURI(strContent).replace(/#/g, '%23');`
-				$strContent = Util::decodeURIComponent( $targetParts[2] );
+				$strContent = Utils::decodeURIComponent( $targetParts[2] );
 				$contentParts = self::splitLinkContentString( $strContent, $dp );
 				$linkData->content->string = $contentParts->contentString;
 				$dp->tail = $linkData->tail = $contentParts->tail;
@@ -599,7 +599,7 @@ class LinkHandlerUtils {
 				// Fix up the the content string
 				// TODO: see if linkData can be cleaner!
 				if ( !isset( $linkData->content->string ) ) {
-					$linkData->content->string = Util::decodeWtEntities( $target['value'] );
+					$linkData->content->string = Utils::decodeWtEntities( $target['value'] );
 				}
 			}
 		}
@@ -616,7 +616,7 @@ class LinkHandlerUtils {
 				// Determine if it's a redirect to a category, in which case
 				// it needs a ':' on front to distingish from a category link.
 				if ( preg_match( '/^([^:]+)[:]/', $linkTarget, $categoryMatch ) ) {
-					$ns = $siteConfig->namespaceId( Util::normalizeNamespaceName( $categoryMatch[1] ) );
+					$ns = $siteConfig->namespaceId( Utils::normalizeNamespaceName( $categoryMatch[1] ) );
 					if ( $ns === $siteConfig->canonicalNamespaceId( 'category' ) ) {
 						// Check that the next node isn't a category link,
 						// in which case we don't want the ':'.
@@ -809,7 +809,7 @@ class LinkHandlerUtils {
 
 		// TODO: match vs. interwikis too
 		$magicLinkMatch = $siteConfig->getExtResourceURLPatternMatcher()(
-			Util::decodeURI( $linkData->origHref )
+			Utils::decodeURI( $linkData->origHref )
 		);
 		$pureHashMatch = substr( $urlStr, 0, 1 ) === '#';
 		// Fully serialize the content
@@ -870,7 +870,7 @@ class LinkHandlerUtils {
 		// Get the rt data from the token and tplAttrs
 		$linkData = self::getLinkRoundTripData( $env, $node, $state );
 		$linkType = $linkData->type;
-		if ( $siteConfig->getExtResourceURLPatternMatcher()( Util::decodeURI( $linkData->origHref ) ) ) {
+		if ( $siteConfig->getExtResourceURLPatternMatcher()( Utils::decodeURI( $linkData->origHref ) ) ) {
 			// Override the 'rel' type if this is a magic link
 			$linkType = 'mw:ExtLink';
 		}

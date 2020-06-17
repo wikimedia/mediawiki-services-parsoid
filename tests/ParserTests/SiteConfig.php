@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class info */
@@ -112,7 +112,7 @@ class SiteConfig extends ApiSiteConfig {
 	 * @param string $name
 	 */
 	private function deleteNamespace( string $name ): void {
-		$normName = Util::normalizeNamespaceName( $name );
+		$normName = Utils::normalizeNamespaceName( $name );
 		$id = $this->namespaceId( $normName );
 
 		if ( !$id ) {
@@ -154,7 +154,7 @@ class SiteConfig extends ApiSiteConfig {
 	private function updateNamespace( array $ns ): void {
 		$old = $this->namespaceName( (int)$ns['id'] );
 		if ( $old ) { // Id may already be defined; if so, clear it.
-			if ( $old === Util::normalizeNamespaceName( $ns['name'] ) ) {
+			if ( $old === Utils::normalizeNamespaceName( $ns['name'] ) ) {
 				// ParserTests does a lot redundantly.
 				return;
 			}

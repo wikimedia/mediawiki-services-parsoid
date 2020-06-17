@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -76,17 +76,17 @@ class WikitextSerializer {
 
 	/** @var string Regexp */
 	private const TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
-		= '/\n(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$/D';
+		= '/\n(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
 
 	/** @var string Regexp */
 	private const FORMATSTRING_REGEXP =
 		'/^(\n)?(\{\{ *_+)(\n? *\|\n? *_+ *= *)(_+)(\n? *\}\})(\n)?$/D';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const COMMENT_OR_WS_REGEXP = '/^(\s|' . Util::COMMENT_REGEXP_FRAGMENT . ')*$/D';
+	private const COMMENT_OR_WS_REGEXP = '/^(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Util::COMMENT_REGEXP_FRAGMENT . ')*'
+	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*'
 		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/D';
 
 	/** @var array string[] */
@@ -364,7 +364,7 @@ class WikitextSerializer {
 		}
 
 		$close = '';
-		if ( ( Util::isVoidElement( $token->getName() ) && empty( $da->noClose ) ) ||
+		if ( ( Utils::isVoidElement( $token->getName() ) && empty( $da->noClose ) ) ||
 			!empty( $da->selfClose )
 		) {
 			$close = ' /';
@@ -407,7 +407,7 @@ class WikitextSerializer {
 		$ret = '';
 
 		if ( empty( $token->dataAttribs->autoInsertedEnd )
-			&& !Util::isVoidElement( $token->getName() )
+			&& !Utils::isVoidElement( $token->getName() )
 			&& empty( $token->dataAttribs->selfClose )
 		) {
 			$ret = "</{$tokenName}>";
@@ -512,7 +512,7 @@ class WikitextSerializer {
 				if ( strlen( $vv ) > 0 ) {
 					if ( !$vInfo['fromsrc'] && !$isWt ) {
 						// Escape wikitext entities
-						$vv = preg_replace( '/>/', '&gt;', Util::escapeWtEntities( $vv ) );
+						$vv = preg_replace( '/>/', '&gt;', Utils::escapeWtEntities( $vv ) );
 					}
 					$out[] = $kk . '=' . '"' . preg_replace( '/"/', '&quot;', $vv ) . '"';
 				} elseif ( preg_match( '/[{<]/', $kk ) ) {
@@ -906,7 +906,7 @@ class WikitextSerializer {
 				// non-block-formatted transclusions into block formats
 				// by adding missing newlines.
 				$spc = $dpArgInfoMap[$arg['dpKey']]->spc ?? null;
-				if ( $spc && ( !$format || preg_match( Util::COMMENT_REGEXP, $spc[3] ?? '' ) ) ) {
+				if ( $spc && ( !$format || preg_match( Utils::COMMENT_REGEXP, $spc[3] ?? '' ) ) ) {
 					$nl = ( substr( $formatParamName, 0, 1 ) === "\n" ) ? "\n" : '';
 					$modFormatParamName = $nl . '|' . $spc[0] . '_' . $spc[1] . '=' . $spc[2];
 					$modFormatParamValue = '_' . $spc[3];
@@ -1093,7 +1093,7 @@ class WikitextSerializer {
 			$state->emitChunk( $res, $node );
 		} else {
 			// Always escape entities
-			$res = Util::escapeWtEntities( $res );
+			$res = Utils::escapeWtEntities( $res );
 
 			// If not in pre context, escape wikitext
 			// XXX refactor: Handle this with escape handlers instead!
@@ -1176,7 +1176,7 @@ class WikitextSerializer {
 		if ( $state->selserMode
 			&& !$state->inModifiedContent
 			&& WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node )
-			&& Util::isValidDSR( $dp->dsr ?? null )
+			&& Utils::isValidDSR( $dp->dsr ?? null )
 			&& ( $dp->dsr->end > $dp->dsr->start
 				// FIXME: <p><br/></p>
 				// nodes that have dsr width 0 because currently,

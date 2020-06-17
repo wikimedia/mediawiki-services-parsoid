@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -205,7 +205,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function findLintDSR(
 		?array $tplLintInfo, ?stdClass $tplInfo, ?DomSourceRange $nodeDSR, callable $updateNodeDSR = null
 	): ?DomSourceRange {
-		if ( $tplLintInfo !== null || ( $tplInfo && !Util::isValidDSR( $nodeDSR ) ) ) {
+		if ( $tplLintInfo !== null || ( $tplInfo && !Utils::isValidDSR( $nodeDSR ) ) ) {
 			return DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr ?? null;
 		} else {
 			return $updateNodeDSR ? $updateNodeDSR( $nodeDSR ) : $nodeDSR;
@@ -403,7 +403,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$cNodeName = strtolower( $c->nodeName );
 		$ancestor = null;
 		$isHtmlElement = WTUtils::hasLiteralHTMLMarker( $dp );
-		if ( !Util::isVoidElement( $cNodeName ) &&
+		if ( !Utils::isVoidElement( $cNodeName ) &&
 			$cNodeName !== 'tbody' &&
 			( $isHtmlElement || DOMUtils::isQuoteElt( $c ) ) &&
 			( $tplInfo !== null || $dsr !== null )

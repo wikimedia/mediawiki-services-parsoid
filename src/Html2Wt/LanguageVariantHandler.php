@@ -13,7 +13,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class LanguageVariantHandler {
 	/**
@@ -59,7 +59,7 @@ class LanguageVariantHandler {
 		if ( preg_match( '/^[a-z][-a-zA-Z]+$/D', $l ) ) {
 			return $l;
 		}
-		return '<nowiki>' . Util::escapeWtEntities( $l ) . '</nowiki>';
+		return '<nowiki>' . Utils::escapeWtEntities( $l ) . '</nowiki>';
 	}
 
 	/**

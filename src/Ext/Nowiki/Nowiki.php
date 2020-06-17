@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Ext\Util;
+use Wikimedia\Parsoid\Ext\Utils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -43,7 +43,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 
 		foreach ( preg_split( '/(&[#0-9a-zA-Z]+;)/', $txt, -1, PREG_SPLIT_DELIM_CAPTURE ) as $i => $t ) {
 			if ( $i % 2 === 1 ) {
-				$cc = Util::decodeWtEntities( $t );
+				$cc = Utils::decodeWtEntities( $t );
 				if ( $cc !== $t ) {
 					// This should match the output of the "htmlentity" rule
 					// in the tokenizer.
@@ -91,7 +91,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 						$out = $dp->src;
 					} else {
 						// Edited content
-						$out = Util::entityEncodeAll( $child->firstChild->nodeValue );
+						$out = Utils::entityEncodeAll( $child->firstChild->nodeValue );
 					}
 				} else {
 					/* This is a hacky fallback for what is essentially

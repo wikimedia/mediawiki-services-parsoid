@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -243,7 +243,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				// tbody-tags dont exist in wikitext and are always
 				// closed properly.  How about figure, caption, ... ?
 				// Is this last check useless optimization?????
-				if ( !Util::isVoidElement( $cNodeName ) &&
+				if ( !Utils::isVoidElement( $cNodeName ) &&
 					empty( $dp->selfClose ) &&
 					( $cNodeName !== 'tbody' || WTUtils::hasLiteralHTMLMarker( $dp ) )
 				) {

@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class CleanUp {
@@ -65,7 +65,7 @@ class CleanUp {
 		if ( DOMCompat::hasAttributes( $node ) ) {
 			foreach ( DOMCompat::attributes( $node ) as $a ) {
 				if ( ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
-					( !$tplInfo || $a->name !== 'about' || !Util::isParsoidObjectId( $a->value ) )
+					( !$tplInfo || $a->name !== 'about' || !Utils::isParsoidObjectId( $a->value ) )
 
 				) {
 					return true;
@@ -184,7 +184,7 @@ class CleanUp {
 		// this content from HTML. Token handlers should strip src for
 		// content where data-mw isn't necessary and html2wt knows how to
 		// handle the HTML markup.
-		$validDSR = DOMDataUtils::validDataMw( $node ) && Util::isValidDSR( $dp->dsr ?? null );
+		$validDSR = DOMDataUtils::validDataMw( $node ) && Utils::isValidDSR( $dp->dsr ?? null );
 		$isPageProp = $node->nodeName === 'meta' &&
 			preg_match( '#^mw:PageProp/(.*)$#D', $node->getAttribute( 'property' ) );
 		if ( $validDSR && !$isPageProp ) {

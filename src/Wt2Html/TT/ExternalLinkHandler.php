@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class ExternalLinkHandler extends TokenHandler {
@@ -105,7 +105,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$env = $this->manager->env;
 		$origHref = $token->getAttribute( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
-		$dataAttribs = Util::clone( $token->dataAttribs );
+		$dataAttribs = Utils::clone( $token->dataAttribs );
 
 		if ( $this->hasImageLink( $href ) ) {
 			$checkAlt = explode( '/', $href );
@@ -173,7 +173,7 @@ class ExternalLinkHandler extends TokenHandler {
 			]
 		);
 		$content = $token->getAttribute( 'mw:content' );
-		$dataAttribs = Util::clone( $token->dataAttribs );
+		$dataAttribs = Utils::clone( $token->dataAttribs );
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);

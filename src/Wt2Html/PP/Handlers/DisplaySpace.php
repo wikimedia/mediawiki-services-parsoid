@@ -9,7 +9,7 @@ use DOMText;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
@@ -28,7 +28,7 @@ class DisplaySpace {
 		$parent = $node->parentNode;
 		'@phan-var \DOMElement $parent';
 		$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
-		if ( !Util::isValidDSR( $dsr, true ) ) {
+		if ( !Utils::isValidDSR( $dsr, true ) ) {
 			return null;
 		}
 		$start = $dsr->innerStart();
@@ -41,7 +41,7 @@ class DisplaySpace {
 			} else {
 				'@phan-var \DOMElement $c';
 				$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
-				if ( !Util::isValidDSR( $dsr ) ) {
+				if ( !Utils::isValidDSR( $dsr ) ) {
 					return null;
 				}
 				$start = $dsr->end;

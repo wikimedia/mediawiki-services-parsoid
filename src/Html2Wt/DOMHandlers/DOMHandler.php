@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -340,7 +340,7 @@ class DOMHandler {
 			&& ( !$fc || !DOMUtils::isElt( $fc ) || WTUtils::isNewElt( $fc ) )
 		) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			if ( Util::isValidDSR( $dsr, true ) ) {
+			if ( Utils::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerStart();
 				$space = $offset < $dsr->innerEnd() ?
 					( $state->getOrigSrc( $offset, $offset + 1 ) ?? '' ) : '';
@@ -376,7 +376,7 @@ class DOMHandler {
 			&& ( !$lc || !DOMUtils::isElt( $lc ) || WTUtils::isNewElt( $lc ) )
 		) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			if ( Util::isValidDSR( $dsr, true ) ) {
+			if ( Utils::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerEnd() - 1;
 				// The > instead of >= is to deal with an edge case
 				// = = where that single space is captured by the

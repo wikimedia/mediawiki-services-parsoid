@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class UnpackDOMFragments {
 	/**
@@ -245,7 +245,7 @@ class UnpackDOMFragments {
 			DOMUtils::assertElt( $contentNode );
 			// Transfer typeof, data-mw, and param info
 			// about attributes are transferred below.
-			DOMDataUtils::setDataMw( $contentNode, Util::clone( DOMDataUtils::getDataMw( $node ) ) );
+			DOMDataUtils::setDataMw( $contentNode, Utils::clone( DOMDataUtils::getDataMw( $node ) ) );
 			DOMUtils::addTypeOf( $contentNode, 'mw:Transclusion' );
 			DOMDataUtils::getDataParsoid( $contentNode )->pi = $dp->pi ?? null;
 		}

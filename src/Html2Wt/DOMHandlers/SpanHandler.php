@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class SpanHandler extends DOMHandler {
 
@@ -49,7 +49,7 @@ class SpanHandler extends DOMHandler {
 					$state->serializer->emitWikitext( $dp->src, $node );
 				} elseif ( DOMUtils::isText( $node->firstChild ) ) {
 					$state->emitChunk(
-						Util::entityEncodeAll( $node->firstChild->nodeValue ),
+						Utils::entityEncodeAll( $node->firstChild->nodeValue ),
 						$node->firstChild );
 				} else {
 					$state->serializeChildren( $node );

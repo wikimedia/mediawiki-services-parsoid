@@ -8,7 +8,7 @@ use DOMNode;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class PrepareDOM {
@@ -33,7 +33,7 @@ class PrepareDOM {
 				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
 				if ( isset( $seenDataIds[$docId] ) ) {
 					$data = DOMDataUtils::getNodeData( $node );
-					DOMDataUtils::setNodeData( $node, Util::clone( $data ) );
+					DOMDataUtils::setNodeData( $node, Utils::clone( $data ) );
 				} else {
 					$seenDataIds[$docId] = true;
 				}

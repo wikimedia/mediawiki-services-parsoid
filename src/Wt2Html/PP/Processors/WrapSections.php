@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -375,7 +375,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$dsr2 = $this->getDSR( $tplInfo, $newS2, false ); // Traverses non-tpl content => will succeed
 				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
 				$tplDsr = &$tplDP->dsr;
-				$dmw = Util::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
+				$dmw = Utils::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
 				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
 					if ( $dmw->parts ) {
 						array_unshift( $dmw->parts, $this->getSrc( $state['frame'], $dsr1, $tplDsr->start ) );

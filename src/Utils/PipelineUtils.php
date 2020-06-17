@@ -219,7 +219,7 @@ class PipelineUtils {
 			$nodeName = strtolower( $node->nodeName );
 			$attrInfo = self::domAttrsToTagAttrs( $node, DOMCompat::attributes( $node ) );
 
-			if ( Util::isVoidElement( $nodeName ) ) {
+			if ( Utils::isVoidElement( $nodeName ) ) {
 				$tokBuf[] = new SelfclosingTagTk( $nodeName, $attrInfo['attrs'], $attrInfo['dataAttrs'] );
 			} else {
 				$tokBuf[] = new TagTk( $nodeName, $attrInfo['attrs'], $attrInfo['dataAttrs'] );
@@ -340,7 +340,7 @@ class PipelineUtils {
 				!$node->hasAttribute( 'data-parsoid' ),
 				"Expected node to have its data attributes loaded" );
 
-			$nodeData = Util::clone( DOMDataUtils::getNodeData( $node ) );
+			$nodeData = Utils::clone( DOMDataUtils::getNodeData( $node ) );
 
 			if ( $wrapperName !== $node->nodeName ) {
 				// Create a copy of the node without children

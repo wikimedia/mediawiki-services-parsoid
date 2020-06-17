@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * A chunk of wikitext output.  This base class contains the
@@ -264,7 +264,7 @@ class ConstrainedText {
 		// list of specialized chunks.
 		if (
 			!$ignorePrefix &&
-			$firstChildDp && Util::isValidDSR( $firstChildDp->dsr ?? null ) &&
+			$firstChildDp && Utils::isValidDSR( $firstChildDp->dsr ?? null ) &&
 			$dataParsoid->dsr->start === $firstChildDp->dsr->start
 		) {
 			DOMUtils::assertElt( $firstChild ); // implied by $firstChildDp
@@ -295,7 +295,7 @@ class ConstrainedText {
 		// list of specialized chunks.
 		if (
 			!$ignoreSuffix && $lastChild !== $firstChild &&
-			$lastChildDp && Util::isValidDSR( $lastChildDp->dsr ?? null ) &&
+			$lastChildDp && Utils::isValidDSR( $lastChildDp->dsr ?? null ) &&
 			$dataParsoid->dsr->end === $lastChildDp->dsr->end
 		) {
 			DOMUtils::assertElt( $lastChild ); // implied by $lastChildDp

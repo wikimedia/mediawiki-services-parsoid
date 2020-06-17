@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -94,7 +94,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			]
 		);
 		DOMDataUtils::setDataParsoid( $s, (object)[
-				'tsr' => Util::clone( DOMDataUtils::getDataParsoid( $table )->tsr ),
+				'tsr' => Utils::clone( DOMDataUtils::getDataParsoid( $table )->tsr ),
 				'tmp' => PHPUtils::arrayToObject( [ 'fromFoster' => true ] ),
 			]
 		);

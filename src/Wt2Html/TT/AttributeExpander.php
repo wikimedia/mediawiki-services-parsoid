@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -559,7 +559,7 @@ class AttributeExpander extends TokenHandler {
 			//
 			// The general principle here being, don't share tokens between
 			// pipelines.
-			$vals = Util::clone( $vals );
+			$vals = Utils::clone( $vals );
 
 			// Expand all token arrays to DOM.
 			$eVals = PipelineUtils::expandValuesToDOM(

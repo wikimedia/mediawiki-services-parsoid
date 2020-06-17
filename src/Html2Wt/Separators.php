@@ -15,13 +15,13 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class Separators {
 
 	private const WS_COMMENTS_SEP_STRING = '( +)' .
-		'(' . Util::COMMENT_REGEXP_FRAGMENT . '[^\n]*' . ')?$';
+		'(' . Utils::COMMENT_REGEXP_FRAGMENT . '[^\n]*' . ')?$';
 
 	/**
 	 * spaces + (comments and anything but newline)?
@@ -198,9 +198,9 @@ class Separators {
 		// those lines are ignored by the PHP parser
 		// Ignore lines with ws and a single comment in them
 		$splitRe = implode( [ "#(?:\n(?:[ \t]*?",
-				Util::COMMENT_REGEXP_FRAGMENT,
+				Utils::COMMENT_REGEXP_FRAGMENT,
 				"[ \t]*?)+(?=\n))+|",
-				Util::COMMENT_REGEXP_FRAGMENT,
+				Utils::COMMENT_REGEXP_FRAGMENT,
 				"#"
 			] );
 		$sepNlCount = preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ) );
@@ -290,7 +290,7 @@ class Separators {
 			'debug/wts/sep',
 			'make-new   |',
 			function () use ( $nlConstraints, $sepNlCount, $minNls, $sep, $origSep ) {
-				$constraints = Util::clone( $nlConstraints );
+				$constraints = Utils::clone( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $origSep ) . ', ' .
 					$minNls . ', ' . $sepNlCount . ', ' . PHPUtils::jsonEncode( $constraints );
@@ -566,7 +566,7 @@ class Separators {
 			'debug/wts/sep',
 			'ipre-safe  |',
 			function () use ( $sep, $nlConstraints ) {
-				$constraints = Util::clone( $nlConstraints );
+				$constraints = Utils::clone( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $constraints );
 			}
@@ -724,7 +724,7 @@ class Separators {
 			}
 
 			// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
-			if ( Util::isValidDSR( $dsrA ) && Util::isValidDSR( $dsrB ) ) {
+			if ( Utils::isValidDSR( $dsrA ) && Utils::isValidDSR( $dsrB ) ) {
 				// Figure out containment relationship
 				if ( $dsrA->start <= $dsrB->start ) {
 					if ( $dsrB->end <= $dsrA->end ) {

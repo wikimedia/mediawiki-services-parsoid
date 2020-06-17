@@ -8,7 +8,7 @@ use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Ext\Util;
+use Wikimedia\Parsoid\Ext\Utils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -52,7 +52,7 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 		$txt = preg_replace( '/^\n/', '', $txt, 1 );
 
 		// `extSrc` will take care of rt'ing these
-		$txt = Util::decodeWtEntities( $txt );
+		$txt = Utils::decodeWtEntities( $txt );
 
 		$pre->appendChild( $doc->createTextNode( $txt ) );
 		DOMCompat::getBody( $doc )->appendChild( $pre );

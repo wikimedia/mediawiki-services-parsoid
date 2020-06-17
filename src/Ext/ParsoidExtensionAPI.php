@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -576,8 +576,8 @@ class ParsoidExtensionAPI {
 		} );
 
 		if ( $transferDataAttribs ) {
-			DOMDataUtils::setDataParsoid( $to, Util::clone( DOMDataUtils::getDataParsoid( $from ) ) );
-			DOMDataUtils::setDataMw( $to, Util::clone( DOMDataUtils::getDataMw( $from ) ) );
+			DOMDataUtils::setDataParsoid( $to, Utils::clone( DOMDataUtils::getDataParsoid( $from ) ) );
+			DOMDataUtils::setDataMw( $to, Utils::clone( DOMDataUtils::getDataMw( $from ) ) );
 		}
 	}
 

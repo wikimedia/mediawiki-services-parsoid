@@ -23,7 +23,7 @@ use Wikimedia\Parsoid\Ext\Poem\Poem;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Ext\Translate\Translate;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Site-level configuration interface for Parsoid
@@ -698,7 +698,7 @@ abstract class SiteConfig {
 			$redirect = PHPUtils::reStrip( $this->redirectRegexp(), '@' );
 			$category = PHPUtils::reStrip( $this->categoryRegexp(), '@' );
 			$bswRegexp = PHPUtils::reStrip( $this->bswRegexp(), '@' );
-			$comment = PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' );
+			$comment = PHPUtils::reStrip( Utils::COMMENT_REGEXP, '@' );
 			$solTransparentWikitextRegexp = '@' .
 				'^[ \t\n\r\0\x0b]*' .
 				'(?:' .
@@ -728,7 +728,7 @@ abstract class SiteConfig {
 			$redirect = PHPUtils::reStrip( $this->redirectRegexp(), '@' );
 			$category = PHPUtils::reStrip( $this->categoryRegexp(), '@' );
 			$bswRegexp = PHPUtils::reStrip( $this->bswRegexp(), '@' );
-			$comment = PHPUtils::reStrip( Util::COMMENT_REGEXP, '@' );
+			$comment = PHPUtils::reStrip( Utils::COMMENT_REGEXP, '@' );
 			$solTransparentWikitextNoWsRegexp = '@' .
 				'((?:' .
 				  '(?:' . $redirect . ')' .
@@ -1044,7 +1044,7 @@ abstract class SiteConfig {
 	public function makeExtResourceURL( array $match, string $href, string $content ): string {
 		$normalized = preg_replace(
 			'/[ \x{00A0}\x{1680}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}]+/u', ' ',
-			Util::decodeWtEntities( $content )
+			Utils::decodeWtEntities( $content )
 		);
 
 		// TODO: T145590 ("Update Parsoid to be compatible with magic links being disabled")

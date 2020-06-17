@@ -20,7 +20,7 @@
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
 	use Wikimedia\Parsoid\Utils\TokenUtils;
-	use Wikimedia\Parsoid\Utils\Util;
+	use Wikimedia\Parsoid\Utils\Utils;
 	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\WTUtils;
 }
@@ -691,7 +691,7 @@ behavior_text = $( !'__' ( text_char / "-" ) )+
 autolink =
 	! <extlink>
 	// this must be a word boundary, so previous character must be non-word
-	! { return Util::isUniWord(Util::lastUniChar( $this->input, $this->endOffset() ) ); }
+	! { return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) ); }
 	r:(
 		autourl
 		/ autoref
@@ -715,7 +715,7 @@ extlink "extlink" =
 				// There are templates present, alas.
 				return count( $flat ) > 0;
 			}
-			return Util::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
+			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		}
 		sp:$( space / unispace )*
 		p2:( "" { return $this->endOffset(); })
@@ -799,7 +799,7 @@ isbn =
 
 url_protocol =
 	p:$( '//' / [A-Za-z] [-A-Za-z0-9+.]* ':' '//'? )
-	& { return Util::isProtocolValid( $p, $this->env ); }
+	& { return Utils::isProtocolValid( $p, $this->env ); }
 	{ return $p; }
 
 // no punctuation, and '{<' to trigger directives
@@ -1537,8 +1537,8 @@ nowiki =
 nowiki_text =
 	extToken:nowiki
 	{
-		$txt = Util::extractExtBody( $extToken );
-		return Util::decodeWtEntities( $txt );
+		$txt = Utils::extractExtBody( $extToken );
+		return Utils::decodeWtEntities( $txt );
 	}
 
 /* Generic XML-like tags
@@ -1587,7 +1587,7 @@ xmlish_tag_opened =
 
 		// Extension tags don't necessarily have the same semantics as html tags,
 		// so don't treat them as void elements.
-		$isVoidElt = Util::isVoidElement( $lcName ) && !$extTag;
+		$isVoidElt = Utils::isVoidElement( $lcName ) && !$extTag;
 
 		// Support </br>
 		if ( $lcName === 'br' && $end ) {
@@ -2165,7 +2165,7 @@ urltext =
 
 raw_htmlentity =
 	m:$("&" [#0-9a-zA-Z]+ ";") {
-		return Util::decodeWtEntities( $m );
+		return Utils::decodeWtEntities( $m );
 	}
 
 htmlentity =

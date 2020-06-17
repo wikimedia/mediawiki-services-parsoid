@@ -16,7 +16,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
@@ -1360,7 +1360,7 @@ class WikitextEscapeHandlers {
 		SerializerState $state, string $str, bool $solState, DOMNode $node, bool $isMedia
 	): string {
 		// Entity-escape the content.
-		$str = Util::escapeWtEntities( $str );
+		$str = Utils::escapeWtEntities( $str );
 
 		// Wikitext-escape content.
 		$state->onSOL = $solState;

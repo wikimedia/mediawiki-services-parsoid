@@ -32,7 +32,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
 
@@ -309,7 +309,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				$attrs = $this->stashDataAttribs( [
 					new KV( 'typeof', 'mw:StartTag' ),
 					new KV( 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" )
-				], Util::clone( $dataAttribs ) );
+				], Utils::clone( $dataAttribs ) );
 				$this->dispatcher->comment(
 					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
 					0, 0
@@ -361,7 +361,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				$this->dispatcher->startTag(
 					$tName, new PlainAttributes( $this->kvArrToAttr( $attribs ) ), true, 0, 0
 				);
-				if ( !Util::isVoidElement( $tName ) ) {
+				if ( !Utils::isVoidElement( $tName ) ) {
 					// PORT-FIXME: startTag has a self-closed flag?
 					// VOID_ELEMENTS are automagically treated as self-closing by
 					// the tree builder

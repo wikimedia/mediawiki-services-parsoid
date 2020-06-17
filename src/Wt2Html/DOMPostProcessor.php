@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DisplaySpace;
@@ -133,7 +133,7 @@ class DOMPostProcessor extends PipelineStage {
 				continue;
 			}
 			if ( empty( $p['name'] ) ) {
-				$p['name'] = Util::stripNamespace( $p['Processor'] );
+				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}
 			if ( empty( $p['shortcut'] ) ) {
 				$p['shortcut'] = $p['name'];
@@ -769,7 +769,7 @@ class DOMPostProcessor extends PipelineStage {
 		$body = DOMCompat::getBody( $document );
 		$bodyCL = DOMCompat::getClassList( $body );
 
-		$body->setAttribute( 'lang', Util::bcp47n( $lang ) );
+		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
 		$bodyCL->add( 'mw-content-' . $dir );
 		$bodyCL->add( 'sitedir-' . $dir );
 		$bodyCL->add( $dir );

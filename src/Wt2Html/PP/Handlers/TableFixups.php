@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
@@ -136,10 +136,10 @@ class TableFixups {
 		$parts = $dataMW->parts ?? [];
 		$dp = DOMDataUtils::getDataParsoid( $tdNode );
 		$childDP = DOMDataUtils::getDataParsoid( $child );
-		Assert::invariant( Util::isValidDSR( $childDP->dsr ?? null ), 'Expected valid DSR' );
+		Assert::invariant( Utils::isValidDSR( $childDP->dsr ?? null ), 'Expected valid DSR' );
 
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
-		if ( !Util::isValidDSR( $dp->dsr ?? null ) ) {
+		if ( !Utils::isValidDSR( $dp->dsr ?? null ) ) {
 			$dp->dsr = clone $childDP->dsr;
 		}
 

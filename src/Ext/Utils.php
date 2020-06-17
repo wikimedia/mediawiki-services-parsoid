@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use Wikimedia\Parsoid\Utils\Util as U;
+use Wikimedia\Parsoid\Utils\Utils as U;
 
 /**
  * This class provides sundry helpers needed by extensions.
  */
-class Util {
+class Utils {
 	/**
 	 * Entity-escape anything that would decode to a valid wikitext entity.
 	 *

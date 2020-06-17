@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Ext\Util;
+use Wikimedia\Parsoid\Ext\Utils;
 
 /**
  * @class
@@ -24,13 +24,13 @@ class Opts {
 			$this->imagesPerRow = intval( $attrs['perrow'], 10 );
 		}
 
-		$maybeDim = Util::parseMediaDimensions( $attrs['widths'] ?? '', true );
-		if ( $maybeDim && Util::validateMediaParam( $maybeDim['x'] ) ) {
+		$maybeDim = Utils::parseMediaDimensions( $attrs['widths'] ?? '', true );
+		if ( $maybeDim && Utils::validateMediaParam( $maybeDim['x'] ) ) {
 			$this->imageWidth = $maybeDim['x'];
 		}
 
-		$maybeDim = Util::parseMediaDimensions( $attrs['heights'] ?? '', true );
-		if ( $maybeDim && Util::validateMediaParam( $maybeDim['x'] ) ) {
+		$maybeDim = Utils::parseMediaDimensions( $attrs['heights'] ?? '', true );
+		if ( $maybeDim && Utils::validateMediaParam( $maybeDim['x'] ) ) {
 			$this->imageHeight = $maybeDim['x'];
 		}
 

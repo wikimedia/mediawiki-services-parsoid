@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
@@ -1147,7 +1147,7 @@ class TestRunner {
 				// Prepend manual changes, if present, but not if 'selser' isn't
 				// in the explicit modes option.
 				if ( isset( $test->options['parsoid']['changes'] ) ) {
-					$newitem = Util::clone( $test );
+					$newitem = Utils::clone( $test );
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for knownFailures.
 					// It can only get here in two cases:
@@ -1175,12 +1175,12 @@ class TestRunner {
 				$test->selserChangeTrees = [];
 
 				// Prepend a selser test that appends a comment to the root node
-				$newitem = Util::clone( $test );
+				$newitem = Utils::clone( $test );
 				$newitem->changetree = [ 5 ];
 				$this->runTest( $newitem, 'selser', $options );
 
 				for ( $j = 0; $j < $options['numchanges']; $j++ ) {
-					$newitem = Util::clone( $test );
+					$newitem = Utils::clone( $test );
 					// Make sure we aren't reusing the one from manual changes
 					Assert::invariant( $newitem->changetree === null, "Expected changetree to be null" );
 					$newitem->seed = $j . '';
@@ -1200,7 +1200,7 @@ class TestRunner {
 					if ( isset( $test->options['parsoid']['changes'] ) ) {
 						// If it does, we need to clone the item so that previous
 						// results don't clobber this one.
-						$this->runTest( Util::clone( $test ), $targetMode, $options );
+						$this->runTest( Utils::clone( $test ), $targetMode, $options );
 					} else {
 						// If it doesn't have manual changes, just skip it.
 						continue;
@@ -1214,7 +1214,7 @@ class TestRunner {
 					if ( $targetMode === 'wt2html' &&
 						isset( $test->altHtmlSections['html/parsoid+langconv'] )
 					) {
-						$newitem = Util::clone( $test );
+						$newitem = Utils::clone( $test );
 						$newitem->options['langconv'] = true;
 						$newitem->html = $test->altHtmlSections['html/parsoid+langconv'];
 						$this->runTest( $newitem, $targetMode, $options );

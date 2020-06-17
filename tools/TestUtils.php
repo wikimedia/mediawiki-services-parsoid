@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class TestUtils {
@@ -170,7 +170,7 @@ class TestUtils {
 		$out = preg_replace( '#(href=")(?:\.?\./)+#u', '$1', $out );
 		// replace unnecessary URL escaping
 		$out = preg_replace_callback( '/ href="[^"]*"/u', function ( $m ) {
-			return Util::decodeURI( $m[0] );
+			return Utils::decodeURI( $m[0] );
 		}, $out );
 		// strip thumbnail size prefixes
 		return preg_replace(
@@ -408,7 +408,7 @@ class TestUtils {
 			// replace unnecessary URL escaping
 			$html = preg_replace_callback( '/ href="[^"]*"/',
 				function ( $m ) {
-					return Util::decodeURI( $m[0] );
+					return Utils::decodeURI( $m[0] );
 				},
 				$html );
 			// strip empty spans

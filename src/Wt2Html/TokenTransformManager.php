@@ -7,7 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -56,7 +56,7 @@ class TokenTransformManager extends PipelineStage {
 				'tokenTimes' => 0,
 				'traceTime' => $env->hasTraceFlag( 'time' ),
 				'tracer' => function ( $token, $transformer ) use ( $env ) {
-					$cname = Util::stripNamespace( get_class( $transformer ) );
+					$cname = Utils::stripNamespace( get_class( $transformer ) );
 					$cnameStr = $cname . str_repeat( ' ', 23 - strlen( $cname ) ) . "|";
 					$env->log(
 						$this->traceType, $this->pipelineId, $cnameStr,

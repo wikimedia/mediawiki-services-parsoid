@@ -16,7 +16,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -185,7 +185,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		$range = (object)[
 			'startElem' => $startElem,
 			'endElem' => $endMeta,
-			'id' => Util::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ),
+			'id' => Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ),
 			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr->start,
 			'flipped' => false
 		];
@@ -911,7 +911,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			 *    2b. If dp2.dsr->start is unknown, we rely on fostered flag on
 			 *        range.start, if any.
 			 * ---------------------------------------------------------------- */
-			$dp1 = Util::clone( DOMDataUtils::getDataParsoid( $range->start ) );
+			$dp1 = Utils::clone( DOMDataUtils::getDataParsoid( $range->start ) );
 			$dp2DSR = self::getRangeEndDSR( $range );
 
 			if ( isset( $dp1->dsr ) ) {
@@ -932,7 +932,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				}
 
 				// encapsulation possible only if dp1.dsr is valid
-				$encapInfo->valid = Util::isValidDSR( $dp1->dsr ?? null ) &&
+				$encapInfo->valid = Utils::isValidDSR( $dp1->dsr ?? null ) &&
 					$dp1->dsr->end >= $dp1->dsr->start;
 			}
 

@@ -28,7 +28,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -126,12 +126,12 @@ class WikiLinkHandler extends TokenHandler {
 			throw new InternalException( 'Multiple colons prefixing href.' );
 		}
 
-		$title = $env->resolveTitle( Util::decodeURIComponent( $info->href ) );
+		$title = $env->resolveTitle( Utils::decodeURIComponent( $info->href ) );
 		$hrefBits = self::hrefParts( $info->href );
 		if ( $hrefBits ) {
 			$nsPrefix = $hrefBits['prefix'];
 			$info->prefix = $nsPrefix;
-			$nnn = Util::normalizeNamespaceName( trim( $nsPrefix ) );
+			$nnn = Utils::normalizeNamespaceName( trim( $nsPrefix ) );
 			$interwikiInfo = $siteConfig->interwikiMap()[$nnn] ?? null;
 			// check for interwiki / language links
 			$ns = $siteConfig->namespaceId( $nnn );
@@ -188,8 +188,8 @@ class WikiLinkHandler extends TokenHandler {
 		// the href from the result, and then creating a
 		// <link rel="mw:PageProp/redirect"> token from it.
 
-		$rlink = new SelfclosingTagTk( 'link', Util::clone( $token->attribs ),
-			Util::clone( $token->dataAttribs ) );
+		$rlink = new SelfclosingTagTk( 'link', Utils::clone( $token->attribs ),
+			Utils::clone( $token->dataAttribs ) );
 		$wikiLinkTk = $rlink->dataAttribs->linkTk;
 		$rlink->setAttribute( 'rel', 'mw:PageProp/redirect' );
 
@@ -199,7 +199,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Transfer href attribute back to wikiLinkTk, since it may have been
 		// template-expanded in the pipeline prior to this point.
-		$wikiLinkTk->attribs = Util::clone( $token->attribs );
+		$wikiLinkTk->attribs = Utils::clone( $token->attribs );
 
 		// Set "redirect" attribute on the wikilink token to indicate that
 		// image and category links should be handled as plain links.
@@ -522,7 +522,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Set attribs and dataAttribs
 		$newTk->attribs = $newAttrData['attribs'];
-		$newTk->dataAttribs = Util::clone( $dataAttribs );
+		$newTk->dataAttribs = Utils::clone( $dataAttribs );
 		unset( $newTk->dataAttribs->src ); // clear src string since we can serialize this
 
 		// Note: Link tails are handled on the DOM in handleLinkNeighbours, so no
@@ -584,7 +584,7 @@ class WikiLinkHandler extends TokenHandler {
 			}
 		} else {
 			$newTk->dataAttribs->stx = 'simple';
-			$morecontent = Util::decodeURIComponent( $target->href );
+			$morecontent = Utils::decodeURIComponent( $target->href );
 
 			// Strip leading colon
 			$morecontent = preg_replace( '/^:/', '', $morecontent, 1 );
@@ -715,7 +715,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		// We set an absolute link to the article in the other wiki/language
-		$title = Sanitizer::sanitizeTitleURI( Util::decodeURIComponent( $target->href ), false );
+		$title = Sanitizer::sanitizeTitleURI( Utils::decodeURIComponent( $target->href ), false );
 		$absHref = str_replace( '$1', $title, $target->language['url'] );
 		if ( isset( $target->language['protorel'] ) ) {
 			$absHref = preg_replace( '/^https?:/', '', $absHref, 1 );
@@ -744,7 +744,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// We set an absolute link to the article in the other wiki/language
 		$isLocal = !empty( $target->interwiki['local'] );
-		$title = Sanitizer::sanitizeTitleURI( Util::decodeURIComponent( $target->href ), !$isLocal );
+		$title = Sanitizer::sanitizeTitleURI( Utils::decodeURIComponent( $target->href ), !$isLocal );
 		$absHref = str_replace( '$1', $title, $target->interwiki['url'] );
 		if ( isset( $target->interwiki['protorel'] ) ) {
 			$absHref = preg_replace( '/^https?:/', '', $absHref, 1 );
@@ -759,7 +759,7 @@ class WikiLinkHandler extends TokenHandler {
 		// (The normalization here is similar to what Title#getPrefixedDBKey() does.)
 		if ( $target->href === '' || $target->href[0] !== '#' ) {
 			$titleAttr = $target->interwiki['prefix'] . ':' .
-				Util::decodeURIComponent( preg_replace( '/_/', ' ',
+				Utils::decodeURIComponent( preg_replace( '/_/', ' ',
 					preg_replace( '/#[\s\S]*/', '', $target->href, 1 ) ) );
 			$newTk->setAttribute( 'title', $titleAttr );
 		}
@@ -926,7 +926,7 @@ class WikiLinkHandler extends TokenHandler {
 			// not it's a good idea.
 			return [
 				'ck' => $shortCanonicalOption,
-				'v' => Util::decodeWtEntities( $bits['v'] ),
+				'v' => Utils::decodeWtEntities( $bits['v'] ),
 				'ak' => $optStr,
 				's' => false
 			];
@@ -1152,7 +1152,7 @@ class WikiLinkHandler extends TokenHandler {
 		// into this new processing model. See T98995
 		// const cachedMedia = env.mediaCache[token.dataAttribs.src];
 
-		$dataAttribs = Util::clone( $token->dataAttribs );
+		$dataAttribs = Utils::clone( $token->dataAttribs );
 		$dataAttribs->optList = [];
 
 		// Account for the possibility of an expanded target
@@ -1294,12 +1294,12 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $optInfo['ck'] === 'width' ) {
 					// We support a trailing 'px' here for historical reasons
 					// (T15500, T53628)
-					$maybeDim = Util::parseMediaDimensions( $optInfo['v'] );
+					$maybeDim = Utils::parseMediaDimensions( $optInfo['v'] );
 					if ( $maybeDim !== null ) {
 						$opts['size']['v'] = [
-							'width' => Util::validateMediaParam( $maybeDim['x'] ) ? $maybeDim['x'] : null,
+							'width' => Utils::validateMediaParam( $maybeDim['x'] ) ? $maybeDim['x'] : null,
 							'height' => array_key_exists( 'y', $maybeDim ) &&
-								Util::validateMediaParam( $maybeDim['y'] ) ? $maybeDim['y'] : null
+								Utils::validateMediaParam( $maybeDim['y'] ) ? $maybeDim['y'] : null
 						];
 						// Only round-trip a valid size
 						$opts['size']['src'] = $oContent->vsrc ?? $optInfo['ak'];
@@ -1550,7 +1550,7 @@ class WikiLinkHandler extends TokenHandler {
 		$imgHref = preg_replace( '#^https?://#', '//', $info['url'], 1 ); // Copied from getPath
 		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
 
-		$link = new TagTk( 'a', [], Util::clone( $token->dataAttribs ) );
+		$link = new TagTk( 'a', [], Utils::clone( $token->dataAttribs ) );
 		$link->addAttribute( 'rel', 'mw:MediaLink' );
 		$link->addAttribute( 'href', $imgHref );
 		// html2wt will use the resource rather than try to parse the href.

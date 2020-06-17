@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class ConversionTraverser extends DOMTraverser {
 
@@ -169,7 +169,7 @@ class ConversionTraverser extends DOMTraverser {
 		$rel = $el->getAttribute( 'rel' ) ?? '';
 		if ( $rel === 'mw:WikiLink' ) {
 			$href = preg_replace( '#^(\.\.?/)+#', '', $el->getAttribute( 'href' ), 1 );
-			$fromPage = Util::decodeURI( $href );
+			$fromPage = Utils::decodeURI( $href );
 			$toPageFrag = $this->machine->convert(
 				$el->ownerDocument, $fromPage, $this->toLang, $this->fromLang
 			);
@@ -201,7 +201,7 @@ class ConversionTraverser extends DOMTraverser {
 			}
 			// (b) it looks like a URL (protocol-relative links excluded)
 			$linkText = $el->textContent; // XXX: this could be expensive
-			if ( Util::isProtocolValid( $linkText, $env )
+			if ( Utils::isProtocolValid( $linkText, $env )
 				 && substr( $linkText, 0, 2 ) !== '//'
 			) {
 				return $el->nextSibling;

@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Params;
 
@@ -647,7 +647,7 @@ class ParserFunctions {
 		$dir = $this->env->getPageConfig()->getPageLanguageDir();
 		$mark = $dir === 'rtl' ? '&rlm;' : '&lrm;';
 		// See Parser.php::getVariableValue()
-		return [ Util::decodeWtEntities( $mark ) ];
+		return [ Utils::decodeWtEntities( $mark ) ];
 	}
 
 	public function pf_dirmark( $token, Frame $frame, Params $args ): array {
@@ -707,7 +707,7 @@ class ParserFunctions {
 	}
 
 	private function encodeCharEntity( string $c, array &$tokens ) {
-		$enc = Util::entityEncodeAll( $c );
+		$enc = Utils::entityEncodeAll( $c );
 		$tokens[] = new TagTk( 'span',
 			[ new KV( 'typeof', 'mw:Entity' ) ],
 			(object)[ 'src' => $enc, 'srcContent' => $c ]
@@ -848,7 +848,7 @@ class ParserFunctions {
 
 	public function pf_server( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		$dataAttribs = Util::clone( $token->dataAttribs );
+		$dataAttribs = Utils::clone( $token->dataAttribs );
 		return [
 			new TagTk( 'a', [
 					new KV( 'rel', 'nofollow' ),

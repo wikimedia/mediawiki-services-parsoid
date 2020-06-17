@@ -2,18 +2,18 @@
 
 namespace Test\Parsoid\Utils;
 
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
- * @coversDefaultClass \Wikimedia\Parsoid\Utils\Util
+ * @coversDefaultClass \Wikimedia\Parsoid\Utils\Utils
  */
-class UtilTest extends \PHPUnit\Framework\TestCase {
+class UtilsTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @covers ::decodeWtEntities
 	 * @dataProvider provideDecodeWtEntities
 	 */
 	public function testDecodeWtEntities( $wt, $expected ) {
-		$actual = Util::decodeWtEntities( $wt );
+		$actual = Utils::decodeWtEntities( $wt );
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -72,7 +72,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideEscapeWtEntities
 	 */
 	public function testEscapeWtEntities( $text, $expected ) {
-		$actual = Util::escapeWtEntities( $text );
+		$actual = Utils::escapeWtEntities( $text );
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -90,7 +90,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideEscapeHtml
 	 */
 	public function testEscapeHtml( $text, $expected ) {
-		$actual = Util::escapeHtml( $text );
+		$actual = Utils::escapeHtml( $text );
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -106,7 +106,7 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideEntityEncodeAll
 	 */
 	public function testEntityEncodeAll( $text, $expected ) {
-		$actual = Util::entityEncodeAll( $text );
+		$actual = Utils::entityEncodeAll( $text );
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -129,8 +129,8 @@ class UtilTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodeURIComponent
 	 */
 	public function testDecodeURI( $input, $expect1, $expect2 = null ) {
-		$this->assertSame( $expect1, Util::decodeURIComponent( $input ) );
-		$this->assertSame( $expect2 ?? $expect1, Util::decodeURI( $input ) );
+		$this->assertSame( $expect1, Utils::decodeURIComponent( $input ) );
+		$this->assertSame( $expect2 ?? $expect1, Utils::decodeURI( $input ) );
 	}
 
 	public function provideDecodeURI() {

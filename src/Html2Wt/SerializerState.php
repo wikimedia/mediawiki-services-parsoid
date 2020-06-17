@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -305,7 +305,7 @@ class SerializerState {
 		foreach ( $options as $name => $option ) {
 			// PORT-FIXME validate
 			if ( !( $option instanceof Env ) ) {
-				$this->$name = Util::clone( $option );
+				$this->$name = Utils::clone( $option );
 			}
 		}
 		$this->resetCurrLine( null );
@@ -421,7 +421,7 @@ class SerializerState {
 	private function sepIntroducedSOL( string $sep ): void {
 		// Don't get tripped by newlines in comments!  Be wary of nowikis added
 		// by makeSepIndentPreSafe on the last line.
-		if ( substr( preg_replace( Util::COMMENT_REGEXP, '', $sep ), -1 ) === "\n" ) {
+		if ( substr( preg_replace( Utils::COMMENT_REGEXP, '', $sep ), -1 ) === "\n" ) {
 			// Since we are stashing away newlines for emitting
 			// before the next element, we are in SOL state wrt
 			// the content of that next element.

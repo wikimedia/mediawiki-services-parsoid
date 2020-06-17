@@ -8,7 +8,7 @@ use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class PreHandler extends DOMHandler {
 
@@ -33,7 +33,7 @@ class PreHandler extends DOMHandler {
 			. '(\n('
 			// SSS FIXME: What happened to the includeonly seen
 			// in wts.separators.js?
-			. PHPUtils::reStrip( Util::COMMENT_REGEXP )
+			. PHPUtils::reStrip( Utils::COMMENT_REGEXP )
 			. ')*)'
 		. '/';
 		$content = ' ' . preg_replace( $solRE, '$1 ', $content );
@@ -53,7 +53,7 @@ class PreHandler extends DOMHandler {
 			. '(^|\n) '
 			. '((?:'
 			. '[ \t]*'
-			. PHPUtils::reStrip( Util::COMMENT_REGEXP )
+			. PHPUtils::reStrip( Utils::COMMENT_REGEXP )
 			. '[ \t]*'
 			. ')+)'
 			. '(?=\n|$)'

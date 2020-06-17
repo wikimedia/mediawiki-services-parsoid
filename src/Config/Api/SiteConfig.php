@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * SiteConfig via MediaWiki's Action API
@@ -155,8 +155,8 @@ class SiteConfig extends ISiteConfig {
 	protected function addNamespace( array $ns ): void {
 		$id = (int)$ns['id'];
 		$this->nsNames[$id] = $ns['name'];
-		$this->nsIds[Util::normalizeNamespaceName( $ns['name'] )] = $id;
-		$this->nsCanon[Util::normalizeNamespaceName( $ns['canonical'] ?? $ns['name'] )] = $id;
+		$this->nsIds[Utils::normalizeNamespaceName( $ns['name'] )] = $id;
+		$this->nsCanon[Utils::normalizeNamespaceName( $ns['canonical'] ?? $ns['name'] )] = $id;
 		if ( $ns['subpages'] ) {
 			$this->nsWithSubpages[$id] = true;
 		}
@@ -204,7 +204,7 @@ class SiteConfig extends ISiteConfig {
 			$this->addNamespace( $ns );
 		}
 		foreach ( $data['namespacealiases'] as $ns ) {
-			$this->nsIds[Util::normalizeNamespaceName( $ns['alias'] )] = $ns['id'];
+			$this->nsIds[Utils::normalizeNamespaceName( $ns['alias'] )] = $ns['id'];
 		}
 
 		// Process magic word data from API
@@ -379,13 +379,13 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
 		$this->loadSiteData();
-		return $this->nsCanon[Util::normalizeNamespaceName( $name )] ?? null;
+		return $this->nsCanon[Utils::normalizeNamespaceName( $name )] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
 		$this->loadSiteData();
-		return $this->nsIds[Util::normalizeNamespaceName( $name )] ?? null;
+		return $this->nsIds[Utils::normalizeNamespaceName( $name )] ?? null;
 	}
 
 	/** @inheritDoc */

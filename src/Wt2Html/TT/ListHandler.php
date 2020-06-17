@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -344,7 +344,7 @@ class ListHandler extends TokenHandler {
 		$dp = $token->dataAttribs;
 
 		$makeDP = function ( $k, $j ) use ( $dp ) {
-			$newDP = Util::clone( $dp );
+			$newDP = Utils::clone( $dp );
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
 				$newDP->tsr = new SourceRange(

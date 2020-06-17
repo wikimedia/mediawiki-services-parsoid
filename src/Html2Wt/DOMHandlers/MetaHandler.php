@@ -9,7 +9,7 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class MetaHandler extends DOMHandler {
@@ -39,7 +39,7 @@ class MetaHandler extends DOMHandler {
 			if ( $switchType ) {
 				$out = $switchType[1];
 				$cat = preg_match( '/^(?:category)?(.*)/', $out, $catMatch );
-				if ( $cat && isset( Util::magicMasqs()[$catMatch[1]] ) ) {
+				if ( $cat && isset( Utils::magicMasqs()[$catMatch[1]] ) ) {
 					$contentInfo = $state->serializer->serializedAttrVal( $node, 'content' );
 					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
 						$out = '{{' . $contentInfo['value'] . '}}';

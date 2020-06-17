@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TitleNamespace;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
@@ -566,7 +566,7 @@ class Env {
 	public function makeTitleFromText(
 		string $str, $defaultNs = 0, bool $noExceptions = false
 	): ?Title {
-		return $this->makeTitle( Util::decodeURIComponent( $str ), $defaultNs, $noExceptions );
+		return $this->makeTitle( Utils::decodeURIComponent( $str ), $defaultNs, $noExceptions );
 	}
 
 	/**
@@ -605,7 +605,7 @@ class Env {
 
 		// decode percent-encoding so that we can reliably detect
 		// bad page title characters
-		$hrefToken = Util::decodeURIComponent( $href );
+		$hrefToken = Utils::decodeURIComponent( $href );
 		return $this->normalizedTitleKey( $this->resolveTitle( $hrefToken, true ), true ) !== null;
 	}
 

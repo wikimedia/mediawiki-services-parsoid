@@ -7,7 +7,7 @@ use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Utils\Util;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class MockSiteConfig extends SiteConfig {
 
@@ -122,7 +122,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
-		$name = Util::normalizeNamespaceName( $name );
+		$name = Utils::normalizeNamespaceName( $name );
 		return $this->namespaceMap[$name] ?? null;
 	}
 
