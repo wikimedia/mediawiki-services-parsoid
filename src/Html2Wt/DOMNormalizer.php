@@ -474,15 +474,13 @@ class DOMNormalizer {
 	 * Also merge a single sibling A tag that is mergable
 	 * The link href and text must match for this normalization to take effect
 	 *
-	 * @param DOMNode $node
+	 * @param DOMElement $node
 	 * @return DOMNode|null
 	 */
-	public function moveFormatTagOutsideATag( DOMNode $node ): ?DOMNode {
+	public function moveFormatTagOutsideATag( DOMElement $node ): ?DOMNode {
 		if ( $this->inRtTestMode || $node->nodeName !== 'a' ) {
 			return $node;
 		}
-		DOMUtils::assertElt( $node );
-
 		$sibling = DOMUtils::nextNonDeletedSibling( $node );
 		if ( $sibling ) {
 			$this->normalizeSiblingPair( $node, $sibling );
@@ -520,7 +518,7 @@ class DOMNormalizer {
 				 DOMUtils::isFormattingElt( $child );
 				 $child = DOMUtils::firstNonDeletedChild( $node )
 			) {
-				DOMUtils::assertElt( $child );
+				'@phan-var \DOMElement $child'; // @var \DOMElement $child
 				$this->swap( $node, $child );
 			}
 			return $firstChild;
@@ -555,7 +553,7 @@ class DOMNormalizer {
 	public function normalizeNode( DOMNode $node ): ?DOMNode {
 		$dp = null;
 		if ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// Table cells (td/th) previously used the stx_v flag for single-row syntax.
 			// Newer code uses stx flag since that is used everywhere else.
@@ -601,7 +599,7 @@ class DOMNormalizer {
 
 		// Headings
 		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
 			$this->stripBRs( $node );
@@ -613,7 +611,7 @@ class DOMNormalizer {
 
 			// Anchors
 		} elseif ( $node->nodeName === 'a' ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			// We could have checked for !mw:ExtLink but in
 			// the case of links without any annotations,
@@ -627,7 +625,7 @@ class DOMNormalizer {
 
 			// Table cells
 		} elseif ( $node->nodeName === 'td' ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// * HTML <td>s won't have escapable prefixes
 			// * First cell should always be checked for escapable prefixes
