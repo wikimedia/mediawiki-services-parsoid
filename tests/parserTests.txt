@@ -1715,6 +1715,7 @@ protection !! here
 ###
 ### Comments
 ###
+
 !! test
 Comments and Indent-Pre
 !! wikitext
@@ -3898,6 +3899,31 @@ Indent pre with leading colon
 </pre>
 !! html/parsoid
 <pre>:foo</pre>
+!! end
+
+!! test
+Preserving leading whitespace in indent-pre suppressing contexts
+!! wikitext
+<ol>
+<li>
+ foo
+ bar
+</li>
+</ol>
+!! html/php
+<ol>
+<li>
+ foo
+ bar
+</li>
+</ol>
+!! html/parsoid
+<ol data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html"}'>
+ foo
+ bar
+</li>
+</ol>
 !! end
 
 ###
