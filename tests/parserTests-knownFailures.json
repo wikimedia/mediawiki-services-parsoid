@@ -3786,8 +3786,6 @@
         "html2wt": "<blockquote>\nFoo\n\nBar\n\n</blockquote>"
     },
     "T54763: Preformatted in <blockquote>": {
-        "wt2html": "<blockquote data-parsoid='{\"stx\":\"html\",\"dsr\":[0,74,12,13]}'>\n<p data-parsoid='{\"dsr\":[13,18,0,0]}'> Blah</p>\n<table data-parsoid='{\"dsr\":[19,60,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[22,58,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[22,57,0,0]}'><td data-parsoid='{\"dsr\":[22,57,1,0]}'>\n<pre data-parsoid='{\"dsr\":[24,57,1,0]}'>indented cell (no pre-wrapping!)</pre></td></tr>\n</tbody></table>\n</blockquote>",
-        "html2html": "<blockquote data-parsoid='{\"stx\":\"html\",\"dsr\":[0,75,12,13]}'>\n<p data-parsoid='{\"dsr\":[13,18,0,0]}'> Blah</p>\n\n<table data-parsoid='{\"dsr\":[20,61,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[23,59,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[23,58,0,0]}'><td data-parsoid='{\"dsr\":[23,58,1,0]}'>\n<pre data-parsoid='{\"dsr\":[25,58,1,0]}'>indented cell (no pre-wrapping!)</pre></td></tr>\n</tbody></table>\n</blockquote>",
         "html2wt": "<blockquote>\n Blah\n\n{|\n|\n indented cell (no pre-wrapping!)\n|}\n</blockquote>"
     },
     "T73074: More fostering fun": {

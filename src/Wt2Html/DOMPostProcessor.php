@@ -34,7 +34,6 @@ use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ComputeDSR;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
-use Wikimedia\Parsoid\Wt2Html\PP\Processors\HandlePres;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\LangConverter;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\MarkFosteredContent;
@@ -228,10 +227,6 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas'
-			],
-			[
-				'Processor' => HandlePres::class,
-				'shortcut' => 'pres'
 			],
 			[
 				'Processor' => MigrateTrailingNLs::class,

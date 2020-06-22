@@ -29,6 +29,9 @@ class ParagraphWrapper extends TokenHandler {
 	/** @var bool */
 	private $inBlockElem;
 
+	/** @var bool */
+	private $inBlockquote;
+
 	/**
 	 * The state machine in the PreHandler is line based and only suppresses
 	 * indent-pres when encountering blocks on a line.  However, the legacy
@@ -76,6 +79,7 @@ class ParagraphWrapper extends TokenHandler {
 		$this->undoIndentPre = false;
 		$this->hasOpenPTag = false;
 		$this->inBlockElem = false;
+		$this->inBlockquote = false;
 		$this->tokenBuffer = [];
 		$this->nlWsTokens = [];
 		$this->newLineCount = 0;
@@ -132,6 +136,7 @@ class ParagraphWrapper extends TokenHandler {
 		// NOTE: This flag is the local equivalent of what we're mimicking with
 		// the 'inlineContext' pipeline option.
 		$this->inBlockElem = false;
+		$this->inBlockquote = false;
 	}
 
 	/**
@@ -419,7 +424,7 @@ class ParagraphWrapper extends TokenHandler {
 		if ( $token instanceof TagTk && $token->getName() === 'pre'
 			 && !TokenUtils::isHTMLTag( $token )
 		) {
-			if ( $this->inBlockElem ) {
+			if ( $this->inBlockElem || $this->inBlockquote ) {
 				$this->undoIndentPre = true;
 				$this->currLine['tokens'][] = ' ';
 				return [ 'tokens' => [] ];
@@ -438,7 +443,7 @@ class ParagraphWrapper extends TokenHandler {
 		} elseif ( $token instanceof EndTagTk && $token->getName() === 'pre' &&
 			!TokenUtils::isHTMLTag( $token )
 		) {
-			if ( $this->inBlockElem && !$this->inPre ) {
+			if ( ( $this->inBlockElem && !$this->inPre ) || $this->inBlockquote ) {
 				$this->undoIndentPre = false;
 				// No pre-tokens inside block tags -- swallow it.
 				return [ 'tokens' => [] ];
@@ -516,6 +521,9 @@ class ParagraphWrapper extends TokenHandler {
 					( isset( self::$wgAntiBlockElems[$name] ) && !$token instanceof EndTagTk ) ||
 					isset( self::$wgNeverSuppress[$name] ) ) {
 					$this->currLine['closeMatch'] = true;
+				}
+				if ( $name === 'blockquote' ) {
+					$this->inBlockquote = ( !$token instanceof EndTagTk );
 				}
 			}
 			$this->currLine['hasWrappableTokens'] = true;
