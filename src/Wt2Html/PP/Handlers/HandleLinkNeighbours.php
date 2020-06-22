@@ -4,10 +4,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use DOMElement;
-use DOMNode;
-
 use DOMText;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -19,51 +18,34 @@ class HandleLinkNeighbours {
 	 * The content will be reversed, so be ready for that.
 	 *
 	 * @param Env $env
-	 * @param DOMNode|null $node
+	 * @param DOMElement $aNode
 	 * @return array|null
 	 */
-	private static function getLinkPrefix( Env $env, ?DOMNode $node ): ?array {
+	private static function getLinkPrefix( Env $env, DOMElement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkPrefixRegex();
 		if ( !$regex ) {
 			return null;
 		}
 
-		if ( $node instanceof DOMElement && WTUtils::hasParsoidAboutId( $node ) ) {
-			$baseAbout = $node->getAttribute( 'about' );
-		} else {
-			$baseAbout = '';
-		}
-
-		if ( $node !== null ) {
-			$node = $node->previousSibling;
-		}
-		return self::findAndHandleNeighbour( $env, false, $regex, $node, $baseAbout );
+		$baseAbout = WTUtils::hasParsoidAboutId( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		return self::findAndHandleNeighbour( $env, false, $regex, $aNode, $baseAbout );
 	}
 
 	/**
 	 * Function for fetching the link trail based on a link node.
 	 *
 	 * @param Env $env
-	 * @param DOMNode|null $node
+	 * @param DOMelement $aNode
 	 * @return array|null
 	 */
-	private static function getLinkTrail( Env $env, ?DOMNode $node ): ?array {
+	private static function getLinkTrail( Env $env, DOMelement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkTrailRegex();
-
 		if ( !$regex ) {
 			return null;
 		}
 
-		if ( $node instanceof DOMElement && WTUtils::hasParsoidAboutId( $node ) ) {
-			$baseAbout = $node->getAttribute( 'about' );
-		} else {
-			$baseAbout = '';
-		}
-
-		if ( $node !== null ) {
-			$node = $node->nextSibling;
-		}
-		return self::findAndHandleNeighbour( $env, true, $regex, $node, $baseAbout );
+		$baseAbout = WTUtils::hasParsoidAboutId( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		return self::findAndHandleNeighbour( $env, true, $regex, $aNode, $baseAbout );
 	}
 
 	/**
@@ -72,69 +54,75 @@ class HandleLinkNeighbours {
 	 * @param Env $env
 	 * @param bool $goForward
 	 * @param string $regex
-	 * @param DOMNode|null $node
+	 * @param DOMElement $aNode
 	 * @param string $baseAbout
 	 * @return array
 	 */
 	private static function findAndHandleNeighbour(
-		Env $env, bool $goForward, string $regex, ?DOMNode $node, string $baseAbout
+		Env $env, bool $goForward, string $regex, DOMElement $aNode, string $baseAbout
 	): array {
-		$nextNode = $goForward ? 'nextSibling' : 'previousSibling';
-		$innerNode = $goForward ? 'firstChild' : 'lastChild';
-		$getInnerNeighbour = $goForward ? 'getLinkTrail' : 'getLinkPrefix';
-		$result = [ 'content' => [], 'src' => '' ];
-
+		$nbrs = [];
+		$node = $goForward ? $aNode->nextSibling : $aNode->previousSibling;
 		while ( $node !== null ) {
-			$nextSibling = $node->{ $nextNode };
-			$document = $node->ownerDocument;
-
-			if ( $node instanceof DOMText ) {
-				$value = [ 'content' => $node, 'src' => $node->nodeValue ];
-				if ( preg_match( $regex, $node->nodeValue, $matches ) ) {
-					$value['src'] = $matches[0];
-					if ( $value['src'] === $node->nodeValue ) {
-						// entire node matches linkprefix/trail
-						$node->parentNode->removeChild( $node );
-					} else {
-						// part of node matches linkprefix/trail
-						$value['content'] = $document->createTextNode( $matches[0] );
-						$tn = $document->createTextNode( preg_replace( $regex, '', $node->nodeValue ) );
-						$node->parentNode->replaceChild( $tn, $node );
-					}
-				} else {
-					break;
-				}
-			} elseif ( $node instanceof DOMElement && WTUtils::hasParsoidAboutId( $node ) &&
+			$nextSibling = $goForward ? $node->nextSibling : $node->previousSibling;
+			$fromTpl = WTUtils::hasParsoidAboutId( $node );
+			$unwrappedSpan = null;
+			if ( $node instanceof DOMElement &&
+				$node->nodeName === 'span' &&
+				$fromTpl &&
 				$baseAbout !== '' && $node->getAttribute( 'about' ) === $baseAbout
 			) {
-				$value = self::{ $getInnerNeighbour }( $env, $node->{ $innerNode } );
-			} else {
-				break;
-			}
-
-			$vc = $value['content'];
-			if ( $vc ) {
-				if ( $vc instanceof DOMNode ) {
-					$result['content'][] = $vc;
-				} else { // $vs is array
-					$result['content'] = array_merge( $result['content'], $vc );
+				// With these checks here, we are not going to support link suffixes
+				// or link trails coming from a different transclusion than the link itself.
+				// {{1x|[[Foo]]}}{{1x|bar}} won't be link-trailed. Similarly for prefixes.
+				// But, we want support {{1x|Foo[[bar]]}} style link prefixes where the
+				// "Foo" is wrapped in a <span> and carries the transclusion info.
+				if ( !$node->hasAttribute( 'typeof' ) ||
+					( !$goForward && !$aNode->hasAttribute( 'typeof' ) )
+				) {
+					$unwrappedSpan = $node;
+					$node = $node->firstChild;
+					Assert::invariant( !$node || $node->nextSibling === null,
+						'Expected template-span wrapping to wrap a single text node' );
 				}
 			}
 
-			if ( $goForward ) {
-				$result['src'] .= $value['src'];
-			} else {
-				$result['src'] = $value['src'] . $result['src'];
-			}
+			if ( $node instanceof DOMText && preg_match( $regex, $node->nodeValue, $matches ) && $matches[0] !== '' ) {
+				$nbr = [ 'node' => $node, 'src' => $matches[0], 'fromTpl' => $fromTpl ];
 
-			if ( $value['src'] !== $node->nodeValue ) {
+				// Link prefix node is templated => migrate transclusion info to $aNode
+				if ( $unwrappedSpan && $unwrappedSpan->hasAttribute( 'typeof' ) ) {
+					DOMUtils::addTypeOf( $aNode, $unwrappedSpan->getAttribute( 'typeof' ) );
+					DOMDataUtils::setDataMw( $aNode, DOMDataUtils::getDataMw( $unwrappedSpan ) );
+				}
+
+				if ( $nbr['src'] === $node->nodeValue ) {
+					// entire node matches linkprefix/trail
+					$node->parentNode->removeChild( $node );
+					if ( $unwrappedSpan ) { // The empty span is useless now
+						$unwrappedSpan->parentNode->removeChild( $unwrappedSpan );
+					}
+
+					// Continue looking at siblings
+					$nbrs[] = $nbr;
+				} else {
+					// part of node matches linkprefix/trail
+					$nbr['node'] = $node->ownerDocument->createTextNode( $matches[0] );
+					$tn = $node->ownerDocument->createTextNode( preg_replace( $regex, '', $node->nodeValue ) );
+					$node->parentNode->replaceChild( $tn, $node );
+
+					// No need to look any further beyond this point
+					$nbrs[] = $nbr;
+					break;
+				}
+			} else {
 				break;
 			}
 
 			$node = $nextSibling;
 		}
 
-		return $result;
+		return $nbrs;
 	}
 
 	/**
@@ -151,62 +139,100 @@ class HandleLinkNeighbours {
 			return true;
 		}
 
+		$inTpl = WTUtils::hasParsoidAboutId( $node );
+		$firstTplNode = $inTpl ? WTUtils::findFirstEncapsulationWrapperNode( $node ) : null;
+
+		// Find link prefix neighbors
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$prefix = self::getLinkPrefix( $env, $node );
-		$trail = self::getLinkTrail( $env, $node );
-
-		if ( !empty( $prefix['content'] ) ) {
-			foreach ( $prefix['content'] as &$pc ) {
-				$node->insertBefore( $pc, $node->firstChild );
-			}
-			if ( !empty( $prefix['src'] ) ) {
-				$dp->prefix = $prefix['src'];
-				if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
-					// only necessary if we're the first
-					$dataMW = DOMDataUtils::getDataMw( $node );
-					if ( isset( $dataMW->parts ) ) {
-						array_unshift( $dataMW->parts, $prefix['src'] );
-					}
+		$prefixNbrs = self::getLinkPrefix( $env, $node );
+		if ( !empty( $prefixNbrs ) ) {
+			$prefix = '';
+			$dataMwCorrection = '';
+			$dsrCorrection = 0;
+			foreach ( $prefixNbrs as $nbr ) {
+				$node->insertBefore( $nbr['node'], $node->firstChild );
+				$prefix = $nbr['src'] . $prefix;
+				if ( !$nbr['fromTpl'] ) {
+					$dataMwCorrection = $nbr['src'] . $dataMwCorrection;
+					$dsrCorrection += strlen( $nbr['src'] );
 				}
-				if ( !empty( $dp->dsr ) ) {
-					$len = strlen( $prefix['src'] );
-					$dp->dsr->start -= $len;
-					$dp->dsr->openWidth += $len;
+			}
+
+			// Set link prefix
+			if ( $prefix !== '' ) {
+				$dp->prefix = $prefix;
+			}
+
+			// Correct DSR values
+			if ( $firstTplNode ) {
+				// If this is part of a template, update dsr on that node!
+				$dp = DOMDataUtils::getDataParsoid( $firstTplNode );
+			}
+			if ( $dsrCorrection !== 0 && !empty( $dp->dsr ) ) {
+				if ( $dp->dsr->start !== null ) {
+					$dp->dsr->start -= $dsrCorrection;
+				}
+				if ( $dp->dsr->openWidth !== null ) {
+					$dp->dsr->openWidth += $dsrCorrection;
+				}
+			}
+
+			// Update template wrapping data-mw info, if necessary
+			if ( $dataMwCorrection !== '' && $inTpl ) {
+				$dataMW = DOMDataUtils::getDataMw( $firstTplNode );
+				if ( isset( $dataMW->parts ) ) {
+					array_unshift( $dataMW->parts, $dataMwCorrection );
 				}
 			}
 		}
 
-		if ( !empty( $trail['content'] ) ) {
-			foreach ( $trail['content'] as &$tc ) {
-				$node->appendChild( $tc );
-			}
-			if ( !empty( $trail['src'] ) ) {
-				$dp->tail = $trail['src'];
-				$about = $node->getAttribute( 'about' );
-				if ( WTUtils::hasParsoidAboutId( $node )
-					&& count( WTUtils::getAboutSiblings( $node, $about ) ) === 1
-				) {
-					// search back for the first wrapper but
-					// only if we're the last. otherwise can assume
-					// template encapsulation will handle it
-					$wrapper = WTUtils::findFirstEncapsulationWrapperNode( $node );
-					if ( $wrapper instanceof DOMElement && DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ) {
-						$dataMW = DOMDataUtils::getDataMw( $wrapper );
-						if ( isset( $dataMW->parts ) ) {
-							$dataMW->parts[] = $trail['src'];
-						}
-					}
-				}
-				if ( !empty( $dp->dsr ) ) {
-					$len = strlen( $trail['src'] );
-					$dp->dsr->end += $len;
-					$dp->dsr->closeWidth += $len;
+		// Find link trail neighbors
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$trailNbrs = self::getLinkTrail( $env, $node );
+		if ( !empty( $trailNbrs ) ) {
+			$trail = '';
+			$dataMwCorrection = '';
+			$dsrCorrection = 0;
+			foreach ( $trailNbrs as $nbr ) {
+				$node->appendChild( $nbr['node'] );
+				$trail .= $nbr['src'];
+				if ( !$nbr['fromTpl'] ) {
+					$dataMwCorrection .= $nbr['src'];
+					$dsrCorrection += strlen( $nbr['src'] );
 				}
 			}
-			// indicate that the node's tail siblings have been consumed
+
+			// Set link trail
+			if ( $trail !== '' ) {
+				$dp->tail = $trail;
+			}
+
+			// Correct DSR values
+			if ( $firstTplNode ) {
+				// If this is part of a template, update dsr on that node!
+				$dp = DOMDataUtils::getDataParsoid( $firstTplNode );
+			}
+			if ( $dsrCorrection !== 0 && !empty( $dp->dsr ) ) {
+				if ( $dp->dsr->end !== null ) {
+					$dp->dsr->end += $dsrCorrection;
+				}
+				if ( $dp->dsr->closeWidth !== null ) {
+					$dp->dsr->closeWidth += $dsrCorrection;
+				}
+			}
+
+			// Update template wrapping data-mw info, if necessary
+			if ( $dataMwCorrection !== '' && $inTpl ) {
+				$dataMW = DOMDataUtils::getDataMw( $firstTplNode );
+				if ( isset( $dataMW->parts ) ) {
+					$dataMW->parts[] = $dataMwCorrection;
+				}
+			}
+
+			// If $trailNbs is not empty, $node's tail siblings have been consumed
 			return $node;
-		} else {
-			return true;
 		}
+
+		return true;
 	}
 }

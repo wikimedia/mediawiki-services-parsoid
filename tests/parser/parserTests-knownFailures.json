@@ -145,9 +145,6 @@
     "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost) [[4],[4,2]]": {
         "selser": "695dyy<table><!--a592r9--><!--tunxvk--><tr> || ||\n<td> a\n</table>"
     },
-    "2. Interaction of linktrail and template encapsulation [1]": {
-        "selser": "{{1x|Some [[Fool]]}}"
-    },
     "2. Link fragments separated by <i> and <b> tags": {
         "html2wt": "[[''foo''hello]]\n\n[['''foo'''hello]]"
     },
@@ -2189,10 +2186,6 @@
     "Internal link with en linktrail: no apostrophes (T29473)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something]'nice</p>\n",
         "html2wt": "[/index.php?title=Something&action=edit&redlink=1 Something]'nice\n"
-    },
-    "Internal link with is link prefix": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'>Aðrir <a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[7,49,18,2]}'>mótmælendasöfnuðir</a> og</p>\n",
-        "html2wt": "Aðrir [[wiki/Söfnuður|mótmælendasöfnuðir]] og\n"
     },
     "Internal link with is link trail and link prefix": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,208,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Mótmælendatrú\" title=\"Wiki/Mótmælendatrú\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Mótmælendatrú\"},\"sa\":{\"href\":\"wiki/Mótmælendatrú\"},\"dsr\":[0,31,24,2]}'>xxxar</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Mótmælendatrú\" title=\"Wiki/Mótmælendatrú\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Mótmælendatrú\"},\"sa\":{\"href\":\"wiki/Mótmælendatrú\"},\"dsr\":[32,76,24,2]}'>mótmælendatrúar</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[77,119,18,2]}'>mótmælendasöfnuður</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[120,162,18,2]}'>mótmælendasöfnuðir</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[163,208,18,2]}'>mótmælendasöfnuðirxxx</a></p>\n",
