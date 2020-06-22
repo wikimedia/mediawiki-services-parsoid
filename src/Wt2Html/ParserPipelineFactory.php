@@ -39,9 +39,9 @@ class ParserPipelineFactory {
 		"TokenTransform1" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
-				 OnlyInclude::class,
-				 IncludeOnly::class,
-				 NoInclude::class,
+				OnlyInclude::class,
+				IncludeOnly::class,
+				NoInclude::class,
 			],
 		],
 		"TokenTransform2" => [
@@ -92,9 +92,9 @@ class ParserPipelineFactory {
 			"class" => HTML5TreeBuilder::class,
 		],
 		"DOMPP" => [
-			 // Generic DOM transformer.
-			 // This performs a lot of post-processing of the DOM
-			 // (Template wrapping, broken wikitext/html detection, etc.)
+			// Generic DOM transformer.
+			// This performs a lot of post-processing of the DOM
+			// (Template wrapping, broken wikitext/html detection, etc.)
 			"class" => DOMPostProcessor::class,
 			"processors" => [],
 		],
