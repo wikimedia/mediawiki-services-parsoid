@@ -144,18 +144,17 @@ class References extends ExtensionTagHandler {
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );
 
-		// Check for missing name and content and generate error code
-		$hasMissingNameAndContent = ( $refName === '' &&
-			( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' ) );
+		// Check for missing content
+		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' );
 
-		// FIXME: Lot of useless work for an edge case
-		if ( !empty( $cDp->empty ) ) {
-			// Discard wrapper if there was no input wikitext
-			$contentId = null;
+		// Check for missing name and content to generate error code
+		$hasMissingNameAndContent = ( $refName === '' ) && $missingContent;
+
+		if ( $missingContent ) {
 			if ( !empty( $cDp->selfClose ) ) {
 				unset( $refDmw->body );
 			} else {
-				$refDmw->body = (object)[ 'html' => '' ];
+				$refDmw->body = (object)[ 'html' => $refDmw->body->extsrc ];
 			}
 		} else {
 			// If there are multiple <ref>s with the same name, but different content,
@@ -246,7 +245,7 @@ class References extends ExtensionTagHandler {
 		}
 
 		// Keep the first content to compare multiple <ref>s with the same name.
-		if ( !$ref->contentId ) {
+		if ( $ref->contentId === null && !$missingContent ) {
 			$ref->contentId = $contentId;
 			$ref->dir = strtolower( $refDmw->attrs->dir ?? '' );
 		}

@@ -882,20 +882,44 @@ Bla.<ref name=""> </ref>
 <p>Bla.<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; refs with no name must have content</span>
 </p>
 !! html/parsoid
-<p>Bla.<sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":""},"body":{"id":"mw-reference-text-cite_note-1"},"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"> </span></li></ol>
+<p>Bla.<sup about="#mwt3" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":""},"body":{"html":" "},"errors":[{"key":"cite_error_ref_no_input"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"></span></li></ol>
 !! end
 
 !! test
 <ref> with a non-empty name parameter and no content.
 !! wikitext
 Bla.<ref name="void"> </ref>
-!! html
+<references />
+!! html/php
 <p>Bla.<sup id="cite_ref-void_1-0" class="reference"><a href="#cite_note-void-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-void-1"><span class="mw-cite-backlink"><a href="#cite_ref-void_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>void</code></span></li>
 </ol></div>
+!! html/parsoid
+<p>Bla.<sup about="#mwt3" class="mw-ref" id="cite_ref-void_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"void"},"body":{"html":" "}}'><a href="./Parser_test#cite_note-void-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-void-1" id="cite_note-void-1"><a href="./Parser_test#cite_ref-void_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-void-1" class="mw-reference-text"></span></li></ol>
+!! end
+
+!! test
+Whitespace only doesn't set content for named ref
+!! wikitext
+Hi <ref name="ho"> </ref>
+Hi <ref name="ho">Off to work we go!</ref>
+<references />
+!! html/php
+<p>Hi <sup id="cite_ref-ho_1-0" class="reference"><a href="#cite_note-ho-1">&#91;1&#93;</a></sup>
+Hi <sup id="cite_ref-ho_1-1" class="reference"><a href="#cite_note-ho-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-ho-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-ho_1-0">1.0</a></sup> <sup><a href="#cite_ref-ho_1-1">1.1</a></sup></span> <span class="reference-text">Off to work we go!</span>
+</li>
+</ol></div>
+!! html/parsoid
+<p>Hi <sup about="#mwt3" class="mw-ref" id="cite_ref-ho_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"ho"},"body":{"html":" "}}'><a href="./Parser_test#cite_note-ho-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+Hi <sup about="#mwt6" class="mw-ref" id="cite_ref-ho_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"ho"},"body":{"id":"mw-reference-text-cite_note-ho-1"}}'><a href="./Parser_test#cite_note-ho-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-ho-1" id="cite_note-ho-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-ho_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-ho_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-ho-1" class="mw-reference-text">Off to work we go!</span></li></ol>
 !! end
 
 !! test
