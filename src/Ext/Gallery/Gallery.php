@@ -133,7 +133,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			[
 				'parseOpts' => [
 					'extTag' => 'gallery',
-					'inlineContext' => true
+					'context' => 'inline',
 				],
 				// Create new frame, because $wt doesn't literally appear
 				// on the page, it has been hand-crafted here

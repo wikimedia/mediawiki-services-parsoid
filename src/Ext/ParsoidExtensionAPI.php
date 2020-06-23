@@ -242,7 +242,7 @@ class ParsoidExtensionAPI {
 	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
-	 *   - inlineContext
+	 *   - context "inline", "block", etc. Currently, only "inline" is supported
 	 * @param bool $sol
 	 * @return DOMDocument
 	 */
@@ -268,7 +268,7 @@ class ParsoidExtensionAPI {
 					'extTag' => $parseOpts['extTag'],
 					'extTagOpts' => $parseOpts['extTagOpts'] ?? null,
 					'inTemplate' => $this->inTemplate(),
-					'inlineContext' => !empty( $parseOpts['inlineContext'] ),
+					'inlineContext' => ( $parseOpts['context'] ?? '' ) === 'inline',
 				],
 				'srcOffsets' => $srcOffsets,
 				'sol' => $sol
@@ -304,7 +304,7 @@ class ParsoidExtensionAPI {
 	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
-	 *   - inlineContext
+	 *   - context
 	 * @return DOMDocument
 	 */
 	public function extTagToDOM(
@@ -347,21 +347,21 @@ class ParsoidExtensionAPI {
 	 * every whitespace character to a single space.
 	 * @param KV[] $extArgs
 	 * @param string $key should be lower-case
-	 * @param bool $inlineContext
+	 * @param bool $context
 	 * @return ?DOMDocument
 	 */
-	public function extArgToDOM( array $extArgs, string $key, $inlineContext = true ): ?DOMDocument {
+	public function extArgToDOM( array $extArgs, string $key, string $context = "inline" ): ?DOMDocument {
 		$argKV = KV::lookupKV( $extArgs, strtolower( $key ) );
 		if ( $argKV === null || !$argKV->v ) {
 			return null;
 		}
 
-		if ( $inlineContext ) {
+		if ( $context === "inline" ) {
 			// `normalizeExtOptions` can mess up source offsets as well as the string
 			// that ought to be processed as wikitext. So, we do our own whitespace
 			// normalization of the original source here.
 			//
-			// 'inlineContext' flag below ensures indent-pre / p-wrapping is suppressed.
+			// If 'context' is 'inline' below, it ensures indent-pre / p-wrapping is suppressed.
 			// So, the normalization is primarily for HTML string parity.
 			$argVal = preg_replace( '/[\t\r\n ]/', ' ', $argKV->vsrc );
 		} else {
@@ -373,7 +373,7 @@ class ParsoidExtensionAPI {
 			[
 				'parseOpts' => [
 					'extTag' => $this->getExtensionName(),
-					'inlineContext' => $inlineContext
+					'context' => $context,
 				],
 				'srcOffsets' => $argKV->valueOffset(),
 			],
