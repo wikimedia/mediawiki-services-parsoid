@@ -61,6 +61,15 @@ class ParsoidExtensionAPI {
 	private $serializerState;
 
 	/**
+	 * Errors collected while parsing.  This is used to indicate that, although
+	 * an extension is returning a dom fragment, errors were encountered while
+	 * generating it and should be marked up with the mw:Error typeof.
+	 *
+	 * @var array
+	 */
+	private $errors = [];
+
+	/**
 	 * @param Env $env
 	 * @param ?array $options
 	 *  - wt2html: used in wt->html direction
@@ -82,6 +91,39 @@ class ParsoidExtensionAPI {
 		$this->serializerState = $this->html2wtOpts['state'] ?? null;
 		$this->frame = $this->wt2htmlOpts['frame'] ?? null;
 		$this->extTag = $this->wt2htmlOpts['extTag'] ?? null;
+	}
+
+	/**
+	 * Collect errors while parsing.  If processing can't continue, an
+	 * ExtensionError should be thrown instead.
+	 *
+	 * $key and $params are basically the arguments to wfMessage, although they
+	 * will be stored in the data-mw of the encapsulation wrapper.
+	 *
+	 * See https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Error_handling
+	 *
+	 * The returned fragment can be inserted in the dom and will be populated
+	 * with the localized message.  See T266666
+	 *
+	 * @unstable
+	 * @param string $key
+	 * @param mixed ...$params
+	 * @return DOMDocumentFragment
+	 */
+	public function pushError( string $key, ...$params ): DOMDocumentFragment {
+		$err = [ 'key' => $key ];
+		if ( count( $params ) > 0 ) {
+			$err['params'] = $params;
+		}
+		$this->errors[] = $err;
+		return WTUtils::createLocalizationFragment( $this->getTopLevelDoc(), $err );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getErrors(): array {
+		return $this->errors;
 	}
 
 	/**

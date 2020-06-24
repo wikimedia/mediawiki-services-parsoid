@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocumentFragment;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -15,6 +16,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
@@ -112,13 +114,23 @@ class ExtensionHandler extends TokenHandler {
 					'extTag' => new ExtensionTag( $token ),
 				],
 			] );
-			$domFragment = $nativeExt->sourceToDom(
-				$extApi, $extContent, $extArgs
-			);
+			try {
+				$domFragment = $nativeExt->sourceToDom(
+					$extApi, $extContent, $extArgs
+				);
+				$errors = $extApi->getErrors();
+			} catch ( ExtensionError $e ) {
+				$domFragment = WTUtils::createLocalizationFragment(
+					$env->topLevelDoc, $e->err
+				);
+				$errors = [ $e->err ];
+				// FIXME: Should we include any errors collected
+				// from $extApi->getErrors() here?
+			}
 			if ( $domFragment !== false ) {
 				if ( $domFragment !== null ) {
 					$toks = $this->onDocumentFragment(
-						$nativeExt, $token, $domFragment
+						$nativeExt, $token, $domFragment, $errors
 					);
 					return( [ 'tokens' => $toks ] );
 				} else {
@@ -138,16 +150,17 @@ class ExtensionHandler extends TokenHandler {
 			// WARNING: THIS HAS BEEN UNUSED SINCE 2015, SEE T98995.
 			// THIS CODE WAS WRITTEN BUT APPARENTLY NEVER TESTED.
 			// NO WARRANTY.  MAY HALT AND CATCH ON FIRE.
+			PHPUtils::unreachable( 'Should not be here!' );
 			$toks = PipelineUtils::encapsulateExpansionHTML(
 				$env, $token, $cachedExpansion, [ 'fromCache' => true ]
 			);
 		} elseif ( $env->noDataAccess() ) {
-			$domFragment = DOMUtils::parseHTMLToFragment(
-				$this->env->topLevelDoc,
-				'<span>Fetches disabled. Cannot expand non-native extensions.</span>'
+			$err = [ 'key' => 'mw-extparse-error' ];
+			$domFragment = WTUtils::createLocalizationFragment(
+				$env->topLevelDoc, $err
 			);
 			$toks = $this->onDocumentFragment(
-				$nativeExt, $token, $domFragment
+				$nativeExt, $token, $domFragment, [ $err ]
 			);
 		} else {
 			$pageConfig = $env->getPageConfig();
@@ -173,7 +186,7 @@ class ExtensionHandler extends TokenHandler {
 			);
 
 			$toks = $this->onDocumentFragment(
-				$nativeExt, $token, $domFragment
+				$nativeExt, $token, $domFragment, []
 			);
 		}
 		return( [ 'tokens' => $toks ] );
@@ -185,11 +198,12 @@ class ExtensionHandler extends TokenHandler {
 	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param Token $extToken
 	 * @param DOMDocumentFragment $domFragment
+	 * @param array $errors
 	 * @return array
 	 */
 	private function onDocumentFragment(
 		?ExtensionTagHandler $nativeExt, Token $extToken,
-		DOMDocumentFragment $domFragment
+		DOMDocumentFragment $domFragment, array $errors
 	): array {
 		$env = $this->env;
 		$extensionName = $extToken->getAttribute( 'name' );
@@ -264,6 +278,11 @@ class ExtensionHandler extends TokenHandler {
 				!DOMUtils::hasTypeOf( $firstNode, 'mw:Transclusion' ),
 				'First node of extension content is transcluded.'
 			);
+
+			if ( count( $errors ) > 0 ) {
+				DOMUtils::addTypeOf( $firstNode, 'mw:Error' );
+				$argDict->errors = $errors;
+			}
 
 			// Add about to all wrapper tokens.
 			$about = $env->newAboutId();
