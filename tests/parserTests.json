@@ -24,7 +24,7 @@
 	"poemParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Poem/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "021979a1c2161e5c0da66d938c23c3a1c5e0895e",
-		"latestCommit": "abd067204555865befc949a2de16c5c75c2da529"
+		"expectedSHA1": "ee956596015eb6080949e870c5b06c70a10dc26c",
+		"latestCommit": "50d6f5b39ba1814ea3ba6c07d044935c6c2e97bb"
 	}
 }
