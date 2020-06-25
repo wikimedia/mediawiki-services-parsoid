@@ -322,6 +322,9 @@ class References extends ExtensionTagHandler {
 		// Iterate through the named ref list for refs without content and
 		// back-patch typeof and data-mw error information into named ref
 		// instances without content
+		// FIXME: Note this doesn't add errors to the content in
+		// $nestedRefsHTML since it's already serialized at this point.
+		// Captured in the test, "Error conditions on non-visible content"
 		if ( $refGroup ) {
 			foreach ( $refGroup->indexByName as $ref ) {
 				if ( $ref->contentId === null ) {

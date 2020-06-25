@@ -779,6 +779,8 @@ THREE<sup id="cite_ref-bar_3-0" class="reference"><a href="#cite_note-bar-3">&#9
 </ol></div>
 !! end
 
+## FIXME: Note the refs nested in references aren't marked up with mw:Error
+## in Parsoid's data-mw.body.html
 !! test
 Error conditions on non-visible content
 !! wikitext
@@ -790,7 +792,7 @@ Error conditions on non-visible content
 <ref name="b" />
 <ref name="c"> </ref>
 </references>
-!! html
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 <sup id="cite_ref-b_2-0" class="reference"><a href="#cite_note-b-2">&#91;2&#93;</a></sup>
 <sup id="cite_ref-c_3-0" class="reference"><a href="#cite_note-c-3">&#91;3&#93;</a></sup>
@@ -805,6 +807,11 @@ Error conditions on non-visible content
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "b" has no content.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "c" has no content.</span>
 </p>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt6" class="mw-ref" id="cite_ref-b_2-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"b"},"body":{"html":" "},"errors":[{"key":"cite_error_ref_no_text"}]}'><a href="./Parser_test#cite_note-b-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup>
+<sup about="#mwt9" class="mw-ref" id="cite_ref-c_3-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"c"},"errors":[{"key":"cite_error_ref_no_text"}]}'><a href="./Parser_test#cite_note-c-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt21" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt15\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[74,90,16,0]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n&lt;sup about=\"#mwt17\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[91,107,16,0]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"b\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-b-2\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]&lt;/span>&lt;/a>&lt;/sup>\n&lt;sup about=\"#mwt19\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[108,129,14,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"c\"},\"body\":{\"html\":\" \"}}&apos;>&lt;a href=\"./Parser_test#cite_note-c-3\" style=\"counter-reset: mw-Ref 3;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[3]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-a-1" id="cite_note-a-1"><a href="./Parser_test#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">x</span></li><li about="#cite_note-b-2" id="cite_note-b-2"><a href="./Parser_test#cite_ref-b_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-b-2" class="mw-reference-text"></span></li><li about="#cite_note-c-3" id="cite_note-c-3"><a href="./Parser_test#cite_ref-c_3-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-c-3" class="mw-reference-text"></span></li></ol>
 !! end
 
 !! article
