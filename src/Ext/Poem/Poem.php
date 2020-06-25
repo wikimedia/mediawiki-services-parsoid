@@ -67,7 +67,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 					$doc = $extApi->htmlToDom( '' ); // Empty doc
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'class', 'mw-poem-indented' );
-					$span->setAttribute( 'style', 'display: inline-block; margin-left: ' . $i . 'em;' );
+					$span->setAttribute( 'style', 'display: inline-block; margin-inline-start: ' . $i . 'em;' );
 					$span->appendChild( $doc->createTextNode( ltrim( $line, ':' ) ) );
 					return DOMCompat::getOuterHTML( $span );
 				} else {

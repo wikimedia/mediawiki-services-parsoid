@@ -257,6 +257,8 @@ Indention syntax with no content
 <div class="poem">
 <dl><dd><dl><dd></dd></dl></dd></dl>
 </div>
+!! html/parsoid
+<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\n::\n"}}'><dl><dd><dl><dd></dd></dl></dd></dl></div>
 !! end
 
 !! test
