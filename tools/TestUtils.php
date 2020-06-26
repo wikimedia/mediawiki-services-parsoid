@@ -652,7 +652,7 @@ class TestUtils {
 		}
 
 		if ( $knownFailures ) {
-			print self::colorString( 'UNEXPECTED KNOWNFAILURE FAIL', 'red', true ) . ': '
+			print self::colorString( 'UNEXPECTED CHANGE TO KNOWN FAILURE OUTPUT', 'red', true ) . ': '
 				. self::colorString( $extTitle, 'yellow' ) . "\n";
 			print self::colorString( 'Known failure, but the output changed!', 'red' ) . "\n";
 		} else {
