@@ -284,7 +284,7 @@ Ref with content followed by blank ref
 <ref name="blank" />
 
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p>
@@ -292,6 +292,12 @@ Ref with content followed by blank ref
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">content</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-blank_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"id":"mw-reference-text-cite_note-blank-1"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<p><sup about="#mwt6" class="mw-ref" id="cite_ref-blank_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-blank-1" id="cite_note-blank-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-blank_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-blank_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-blank-1" class="mw-reference-text">content</span></li></ol>
 !! end
 
 !! test
@@ -302,7 +308,7 @@ Blank ref followed by ref with content
 <ref name="blank">content</ref>
 
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p>
@@ -310,6 +316,12 @@ Blank ref followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">content</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-blank_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<p><sup about="#mwt6" class="mw-ref" id="cite_ref-blank_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"id":"mw-reference-text-cite_note-blank-1"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-blank-1" id="cite_note-blank-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-blank_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-blank_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-blank-1" class="mw-reference-text">content</span></li></ol>
 !! end
 
 !! test
@@ -320,7 +332,7 @@ Regression: non-blank ref "0" followed by ref with content
 <ref name="blank">content</ref>
 
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p>
@@ -328,6 +340,12 @@ Regression: non-blank ref "0" followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">0 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "blank" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-blank_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"id":"mw-reference-text-cite_note-blank-1"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<p><sup about="#mwt6" class="mw-ref" id="cite_ref-blank_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"html":"content"},"errors":[{"key":"cite_error_references_duplicate_key"}]}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-blank-1" id="cite_note-blank-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-blank_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-blank_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-blank-1" class="mw-reference-text">0</span></li></ol>
 !! end
 
 !! test
@@ -338,7 +356,7 @@ Regression sanity check: non-blank ref "1" followed by ref with content
 <ref name="blank">content</ref>
 
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-blank_1-0" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-blank_1-1" class="reference"><a href="#cite_note-blank-1">&#91;1&#93;</a></sup>
 </p>
@@ -346,6 +364,12 @@ Regression sanity check: non-blank ref "1" followed by ref with content
 <li id="cite_note-blank-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-blank_1-0">1.0</a></sup> <sup><a href="#cite_ref-blank_1-1">1.1</a></sup></span> <span class="reference-text">1 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "blank" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-blank_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"id":"mw-reference-text-cite_note-blank-1"}}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<p><sup about="#mwt6" class="mw-ref" id="cite_ref-blank_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"blank"},"body":{"html":"content"},"errors":[{"key":"cite_error_references_duplicate_key"}]}'><a href="./Parser_test#cite_note-blank-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-blank-1" id="cite_note-blank-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-blank_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-blank_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-blank-1" class="mw-reference-text">1</span></li></ol>
 !! end
 
 !! test
@@ -963,7 +987,7 @@ Multiple definition (outside <references/>)
 <ref name="a">abc</ref>
 <ref name="a">def</ref>
 <references />
-!! html
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 <sup id="cite_ref-a_1-1" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 </p>
@@ -971,6 +995,10 @@ Multiple definition (outside <references/>)
 <li id="cite_note-a-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_1-0">1.0</a></sup> <sup><a href="#cite_ref-a_1-1">1.1</a></sup></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt6" class="mw-ref" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"html":"def"},"errors":[{"key":"cite_error_references_duplicate_key"}]}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-a_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-a_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li></ol>
 !! end
 
 !! test
@@ -981,13 +1009,16 @@ Multiple definition (inside <references/>)
 <ref name="a">abc</ref>
 <ref name="a">def</ref>
 </references>
-!! html
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt12" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt8\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[30,53,14,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"id\":\"mw-reference-text-cite_note-a-1\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n&lt;sup about=\"#mwt10\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[54,77,14,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"html\":\"def\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-a-1" id="cite_note-a-1"><a href="./Parser_test#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li></ol>
 !! end
 
 !! test
@@ -997,13 +1028,16 @@ Multiple definition (mixed outside/inside)
 <references>
 <ref name="a">def</ref>
 </references>
-!! html
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt7\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[37,60,14,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"html\":\"def\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-a-1" id="cite_note-a-1"><a href="./Parser_test#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li></ol>
 !! end
 
 !! test
@@ -1014,13 +1048,21 @@ Multiple definition (inside {{#tag:references}})
 <ref name="a">abc</ref>
 <ref name="a">def</ref>
 }}
-!! html
+<references />
+!! html/php
 <p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-a-1"><span class="mw-cite-backlink"><a href="#cite_ref-a_1-0">↑</a></span> <span class="reference-text">abc <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "a" defined multiple times with different content</span></span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt3" class="mw-ref" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<references about="#mwt6" typeof="mw:Transclusion" data-parsoid='{"dsr":[17,86,null,null],"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#tag:references","function":"tag"},"params":{"1":{"wt":"\n&lt;ref name=\"a\">abc&lt;/ref>\n&lt;ref name=\"a\">def&lt;/ref>\n"}},"i":0}}]}'>
+<sup about="#mwt8" class="mw-ref" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"src":"&lt;ref name=\"a\">abc&lt;/ref>"}' data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt10" class="mw-ref" id="cite_ref-a_1-2" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-parsoid='{"src":"&lt;ref name=\"a\">def&lt;/ref>"}' data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"html":"def"},"errors":[{"key":"cite_error_references_duplicate_key"}]}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+</references></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt11" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-a-1" id="cite_note-a-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-a_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-a_1-1"><span class="mw-linkback-text">2 </span></a><a href="./Parser_test#cite_ref-a_1-2"><span class="mw-linkback-text">3 </span></a></span> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li></ol>
 !! end
 
 # Parsoid doesn't rt cleanly because name attribute is actually broken
@@ -1419,7 +1461,7 @@ C <ref name="foo" />
 <references />
 !! html/parsoid
 <p>A <sup about="#mwt2" class="mw-ref" id="cite_ref-foo_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"foo"},"body":{"id":"mw-reference-text-cite_note-foo-1"}}'><a href="./Parser_test#cite_note-foo-1"><span class="mw-reflink-text">[1]</span></a></sup>
-B <sup about="#mwt4" class="mw-ref" id="cite_ref-foo_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"foo"},"body":{"html":"Foo two"}}'><a href="./Parser_test#cite_note-foo-1"><span class="mw-reflink-text">[1]</span></a></sup>
+B <sup about="#mwt6" class="mw-ref" id="cite_ref-foo_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"foo"},"body":{"html":"Foo two"},"errors":[{"key":"cite_error_references_duplicate_key"}]}'><a href="./Parser_test#cite_note-foo-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
 C <sup about="#mwt6" class="mw-ref" id="cite_ref-foo_1-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"foo"}}'><a href="./Parser_test#cite_note-foo-1"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-foo-1" id="cite_note-foo-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-foo_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-foo_1-1"><span class="mw-linkback-text">2 </span></a><a href="./Parser_test#cite_ref-foo_1-2"><span class="mw-linkback-text">3 </span></a></span> <span id="mw-reference-text-cite_note-foo-1" class="mw-reference-text">Foo one</span></li>
@@ -2118,7 +2160,7 @@ Similarly named refs with identical bodies
 !! html/parsoid
 <p>1 <sup about="#mwt7" class="mw-ref" id="cite_ref-1_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"1"},"body":{"id":"mw-reference-text-cite_note-1-1"}}'><a href="./Parser_test#cite_note-1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup> 2 <sup about="#mwt9" class="mw-ref" id="cite_ref-1_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"1"},"body":{"id":"mw-reference-text-cite_note-1-1"}}'><a href="./Parser_test#cite_note-1-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1-1" id="cite_note-1-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-1-1" class="mw-reference-text" data-parsoid="{}">1</span></li></ol>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1-1" id="cite_note-1-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-1_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-1_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-1-1" class="mw-reference-text">1</span></li></ol>
 !! end
 
 !! test

@@ -154,13 +154,17 @@ class References extends ExtensionTagHandler {
 			$extApi, $group, $refName, $about, $nestedInReferences, $linkBack
 		);
 
+		$errs = [];
+
 		// Check for missing content
 		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' );
 
-		// Check for missing name and content to generate error code
-		$hasMissingNameAndContent = ( $refName === '' ) && $missingContent;
-
 		if ( $missingContent ) {
+			// Check for missing name and content to generate error code
+			if ( $refName === '' ) {
+				$errs[] = [ 'key' => 'cite_error_ref_no_input' ];
+			}
+
 			if ( !empty( $cDp->selfClose ) ) {
 				unset( $refDmw->body );
 			} else {
@@ -177,6 +181,9 @@ class References extends ExtensionTagHandler {
 				$html = $extApi->domToHtml( $c, true, true );
 				$c = null; // $c is being release in the call above
 				$contentDiffers = $html !== $ref->cachedHtml;
+				if ( $contentDiffers ) {
+					$errs[] = [ 'key' => 'cite_error_references_duplicate_key' ];
+				}
 			}
 			if ( $contentDiffers ) {
 				$refDmw->body = (object)[ 'html' => $html ];
@@ -195,7 +202,7 @@ class References extends ExtensionTagHandler {
 			]
 		);
 		DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
-		if ( $hasMissingNameAndContent ) {
+		if ( count( $errs ) > 0 ) {
 			DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
 		}
 
@@ -212,10 +219,7 @@ class References extends ExtensionTagHandler {
 		DOMDataUtils::setDataParsoid( $linkBack, $dataParsoid );
 
 		$dmw = $isTplWrapper ? $tplDmw : $refDmw;
-		if ( $hasMissingNameAndContent ) {
-			$errs = [
-				[ 'key' => 'cite_error_ref_no_input' ],
-			];
+		if ( count( $errs ) > 0 ) {
 			if ( is_array( $dmw->errors ?? null ) ) {
 				$errs = array_merge( $dmw->errors, $errs );
 			}
