@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "alea": "^0.0.9",
+    "api-testing": "^1.2.0",
     "chai": "^4.1.2",
     "colors": "^1.2.4",
     "eslint": "6.8.0",
@@ -40,7 +41,7 @@
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
     "jsdoc": "^3.6.4",
     "jsdoc-wmf-theme": "0.0.3",
-    "mocha": "^5.1.1",
+    "mocha": "^5.2.0",
     "nock": "^9.2.5",
     "supertest": "^3.0.0"
   },
@@ -67,7 +68,8 @@
     "langcheck": "bin/langconv-test.js -c --domain sr.wikipedia.org --oldid 15236684 Мирослав_Филиповић sr-el",
     "toolcheck": "bin/toolcheck.js.sh",
     "test": "npm audit && npm run lint && npm run parserTests && npm run parserTests-nobatch && npm run mocha",
-    "doc": "jsdoc -c jsdoc.json"
+    "doc": "jsdoc -c jsdoc.json",
+    "api-testing": "mocha tests/api-testing"
   },
   "repository": {
     "type": "git",

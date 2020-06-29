@@ -5,6 +5,7 @@
 .DS_Store
 .deploy
 .phpunit.result.cache
+.api-testing.config.json
 npm-debug.log
 node_modules
 
