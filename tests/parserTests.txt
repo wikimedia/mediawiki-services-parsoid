@@ -6689,7 +6689,7 @@ Accept "!!" in table data
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'> Foo!! </td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'></td></tr>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'> Foo!! </td><td data-parsoid='{"stx":"row"}'></td></tr>
 </tbody></table>
 !! end
 
@@ -6721,7 +6721,8 @@ Accept "!!" in templates
 </th></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><th typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["!a ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"b!!c"}},"i":0}}]}'>a b</th><th about="#mwt1">c</th></tr>
+<tbody><tr><th typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":["!a ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"b!!c"}},"i":0}}]}'>a b</th><th about="#mwt1">c</th></tr>
+</tbody></table>
 !! end
 
 !! test
@@ -6962,7 +6963,7 @@ parsoid=wt2html,html2html
 !! html/parsoid
 <table><tbody>
 <tr>
-<td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|","autoInsertedEnd":true}'>[<a rel="mw:ExtLink" href="ftp://%7Cx" class="external free" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
+<td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|"}'>[<a rel="mw:ExtLink" href="ftp://%7Cx" class="external free" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx":"row"}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
 !! end
 
 !! test
@@ -7016,7 +7017,7 @@ parsoid=wt2html
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><td>style="color: red !important;" data-contrived="put this here</td><td data-parsoid='{"stx":"row","a":{"\"":null},"sa":{"\"":""},"autoInsertedEnd":true}'>foo</td></tr>
+<tbody><tr><td>style="color: red !important;" data-contrived="put this here</td><td data-parsoid='{"stx":"row","a":{"\"":null},"sa":{"\"":""}}'>foo</td></tr>
 </tbody></table>
 !! end
 
@@ -7319,8 +7320,8 @@ Wikitext table comments represented in parsoid dom
 </td></tr></tbody></table>
 !! html/parsoid
 <table><!--c1--><!--c2-->
-<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'><!--c3-->
-<td data-parsoid='{"autoInsertedEnd":true}'>x</td></tr>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'><!--c3-->
+<td data-parsoid='{}'>x</td></tr>
 </tbody></table>
 !! end
 
@@ -7373,9 +7374,9 @@ Table-cell after a comment-only-empty-line
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'>a</td>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'>a</td>
 <!--c1-->
-<!--c2--><td data-parsoid='{"autoInsertedEnd":true}'>b</td></tr>
+<!--c2--><td data-parsoid='{}'>b</td></tr>
 </tbody></table>
 !! end
 
@@ -7531,7 +7532,7 @@ parsoid={ "modes": ["wt2html","selser"], "suppressErrors": true }
 </table>
 !! html/parsoid
 <ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li><li>b</li></ul><table>
-<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
 
 </tr></tbody></table>
 !! end
@@ -7553,8 +7554,9 @@ Template generated table cell with attributes
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
-<td style="background-color:#DC241f;" width="10px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"table_attribs_4","href":"./Template:Table_attribs_4"},"params":{},"i":0}}," ||a||b"]}'></td><td about="#mwt1">a</td><td about="#mwt1">b</td></tr>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+<td style="background-color:#DC241f;" width="10px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"table_attribs_4","href":"./Template:Table_attribs_4"},"params":{},"i":0}}," ||a||b"]}'></td><td about="#mwt1">a</td><td about="#mwt1">b</td></tr>
+</tbody></table>
 !! end
 
 !! test
@@ -10372,7 +10374,7 @@ parsoid=wt2html,wt2wt
 <ul><li> foo</li>
 <li data-parsoid='{"stx":"html","autoInsertedEnd":true,"liHackSrc":"*"}'>li-hack</li>
 <li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["*",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}}]}'>templated li-hack</li>
-<li data-parsoid='{"autoInsertedEnd":true}'><!--foo--></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>unsupported li-hack with preceding comments</li></ul>
+<li data-parsoid='{}'><!--foo--></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>unsupported li-hack with preceding comments</li></ul>
 
 <ul data-parsoid='{"stx":"html"}'>
 <li class="mw-empty-elt" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></li><li data-parsoid='{"stx":"html"}'>not a li-hack
@@ -12097,9 +12099,9 @@ Abort table cell attribute parsing on wikilink
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'>testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> |three</td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'>four</td>
-<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""},"autoInsertedEnd":true}'>three</td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'>four</td>
-<td>testing="<a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a>" |three</td><td data-parsoid='{"stx":"row","autoInsertedEnd":true}'>four</td></tr>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'>testing <a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a> |three</td><td data-parsoid='{"stx":"row"}'>four</td>
+<td data-parsoid='{"a":{"testing":null,"one":null,"two":null},"sa":{"testing":"","one":"","two":""}}'>three</td><td data-parsoid='{"stx":"row"}'>four</td>
+<td>testing="<a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"piped","a":{"href":"./One"},"sa":{"href":"one"}}'>two</a>" |three</td><td data-parsoid='{"stx":"row"}'>four</td></tr>
 </tbody></table>
 !! end
 
@@ -13773,7 +13775,7 @@ Table cell with attribute before expanded attribute
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td style="background:#f9f9f9;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":0}}]}'>Foo</td></tr>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td style="background:#f9f9f9;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_3","href":"./Template:Table_attribs_3"},"params":{},"i":0}}]}'>Foo</td></tr>
 </tbody></table>
 !! end
 
@@ -13808,7 +13810,7 @@ Table cell with attribute before expanded attribute
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><td style="background:  red;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_6","href":"./Template:Table_attribs_6"},"params":{},"i":0}}," hi"]}'> hi</td></tr>
+<tbody><tr><td style="background:  red;" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|",{"template":{"target":{"wt":"table_attribs_6","href":"./Template:Table_attribs_6"},"params":{},"i":0}}," hi"]}'> hi</td></tr>
 </tbody></table>
 !! end
 
@@ -28472,7 +28474,7 @@ RT-ed inter-element separators should be valid separators
 </table>
 !! html/parsoid
 <table>
-<tbody><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""},"autoInsertedEnd":true}'></tr>
+<tbody><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""}}'></tr>
 </tbody></table>
 !!end
 
@@ -28490,12 +28492,12 @@ bar
 |}
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'>foo
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'>foo
 <p>bar</p></small></td></tr>
 </tbody></table>
 
 <table>
-<tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'>foo<small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></small></td></tr>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'>foo<small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></small></td></tr>
 </tbody></table>
 !!end
 
@@ -28576,7 +28578,7 @@ Indented block & table
 !! html/parsoid
  <div data-parsoid='{"stx":"html"}'>foo</div>
  <table><tbody>
- <tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"autoInsertedEnd":true}'>foo</td></tr>
+ <tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'>foo</td></tr>
  </tbody></table>
 !!end
 
@@ -28595,8 +28597,8 @@ Indent and comment before table row
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
- <!--hi--><tbody><tr data-parsoid='{"startTagSrc":"|-","autoInsertedEnd":true}'>
- <td data-parsoid='{"autoInsertedEnd":true}'> there</td></tr>
+ <!--hi--><tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+ <td data-parsoid='{}'> there</td></tr>
 </tbody></table>
 !! end
 
@@ -28700,7 +28702,7 @@ Encapsulate protected attributes from wt
 <div data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">foo</div>
 
 <table data-x-typeof="mw:placeholder stuff" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-data-parsoid-other="no" data-x-about="time" data-x-rel="mw:true">
-<tbody><tr><td data-parsoid='{"autoInsertedEnd":true}'>ok</td></tr>
+<tbody><tr><td data-parsoid='{}'>ok</td></tr>
 </tbody></table>
 !!end
 
@@ -28748,7 +28750,7 @@ parsoid=wt2html,wt2wt
 !! html/parsoid
 <p data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'> || ||</p>
 <table data-parsoid='{"stx":"html"}'>
-<tbody><tr data-parsoid='{"stx":"html","autoInsertedEnd":true}'><td data-parsoid='{"stx":"html","autoInsertedEnd":true}'> a
+<tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'> a
 </td></tr></tbody></table>
 !! end
 
@@ -28987,7 +28989,7 @@ T73074: More fostering fun
 !! wikitext
 <table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'><!--c--></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'><!--c--></tr></tbody></table>
 !! end
 
 !!test
