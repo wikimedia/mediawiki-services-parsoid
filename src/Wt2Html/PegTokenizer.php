@@ -116,6 +116,7 @@ class PegTokenizer extends PipelineStage {
 		$pipelineOffset = $this->offsets['startOffset'] ?? 0;
 		$args = [
 			'env' => $this->env,
+			'pipelineId' => $this->getPipelineId(),
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $pipelineOffset,
 			'sol' => !empty( $opts['sol'] ), // defaults to false
@@ -159,6 +160,7 @@ class PegTokenizer extends PipelineStage {
 		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
 		$args += [
 			'pegTokenizer' => $this,
+			'pipelineId' => $this->getPipelineId(),
 			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,
 			'startRule' => 'start',
 			'sol' => $args['sol'] ?? true, // defaults to true
