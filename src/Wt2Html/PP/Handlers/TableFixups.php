@@ -22,17 +22,11 @@ use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
  * Provides two DOMTraverser visitors that implement the two parts of
  * https://phabricator.wikimedia.org/T52603 :
  * - stripDoubleTDs
- * - reparseTemplatedAttributes.
+ * - reparseTemplatedAttributes
  * @class
  */
 class TableFixups {
 	/**
-	 * Set up some helper objects for reparseTemplatedAttributes
-	 */
-
-	/**
-	 * Actually the regular tokenizer, but we'll use
-	 * tokenizeTableCellAttributes only.
 	 * @var PegTokenizer
 	 */
 	private $tokenizer;
@@ -415,45 +409,126 @@ class TableFixups {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Frame $frame
+	 * @param DOMElement $cell
 	 * @return bool
 	 */
-	public function needsReparsing( DOMNode $node ): bool {
+	private function combineWithPreviousCell( Frame $frame, DOMElement $cell ): bool {
+		$prev = DOMUtils::previousNonSepSibling( $cell );
+		if ( !$prev ) {
+			return false;
+		}
+
+		// Build the attribute string
+		DOMUtils::assertElt( $prev );
+		$dp = DOMDataUtils::getDataParsoid( $prev );
+		$prevCellSrc = PHPUtils::safeSubstr( $frame->getSrcText(), $dp->dsr->start, $dp->dsr->length() );
+		$cellAttrSrc = substr( $prevCellSrc, $dp->dsr->openWidth );
+		$reparseSrc = $cellAttrSrc . "|"; // "|" or "!", but doesn't matter since we discard that anyway
+
+		// Reparse the attributish prefix
+		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
+		Assert::invariant( is_array( $attributeTokens ), "Expected successful parse of $reparseSrc" );
+
+		// Note that `row_syntax_table_args` (the rule used for tokenizing above)
+		// returns an array consisting of [table_attributes, spaces, pipe]
+		$attrs = $attributeTokens[0];
+
+		Sanitizer::applySanitizedArgs( $frame->getEnv(), $cell, $attrs );
+
+		// Update data-mw, DSR
+		$dataMW = DOMDataUtils::getDataMw( $cell );
+		array_unshift( $dataMW->parts, $prevCellSrc );
+		$cellDSR = DOMDataUtils::getDataParsoid( $cell )->dsr ?? null;
+		if ( $cellDSR && $cellDSR->start ) {
+			$cellDSR->start -= strlen( $prevCellSrc );
+		}
+
+		$prev->parentNode->removeChild( $prev );
+
+		return true;
+	}
+
+	private const NO_REPARSING = 0;
+	private const COMBINE_WITH_PREV_CELL = 1;
+	private const OTHER_REPARSE = 2;
+
+	/**
+	 * @param DOMElement $node
+	 * @return int
+	 */
+	private function getReparseType( DOMElement $node ): int {
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$isTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $node );
+		if ( $isTplWrapper &&
+			!isset( $dp->tmp->failedReparse ) &&
+			// If this is a (templated) cell without attributes, then it could
+			// combine with the previous cell (outside the template) and reparse.
+			// A cell with attributes doesn't have the right syntactic form
+			// for this specific recombination to be triggered.
+			// i.e. |class="foo"{{1x|{{!}}foo}}
+			// vs.  |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
+			// In the second example above, a recombination and reparse could still
+			// alter the table cell but we'll need to add additional code and for now,
+			// we are only supporting a narrow range of use cases. There are at least
+			// two other known edge cases that we aren't supporting besides this one.
+			// |class="foo"{{1x| foo}} and |class="foo"{{1x|&nbsp;foo}}
+			// So, unless there is a simpler redesign of this table fixup code,
+			// we are deliberately constraining support to the 'noAttrs' case.
+			isset( $dp->tmp->noAttrs ) && !isset( $dp->stx ) &&
+			( DOMUtils::previousNonSepSibling( $node )->nodeName ?? '' ) === $node->nodeName
+		) {
+			return self::COMBINE_WITH_PREV_CELL;
+		}
+
 		$testRE = ( $node->nodeName === 'td' ) ? '/[|]/' : '/[!|]/';
 		$child = $node->firstChild;
 		while ( $child ) {
 			if ( DOMUtils::isText( $child ) && preg_match( $testRE, $child->textContent ) ) {
-				return true;
+				return self::OTHER_REPARSE;
 			} elseif ( $child->nodeName === 'span' ) {
 				if ( WTUtils::hasParsoidAboutId( $child ) && preg_match( $testRE, $child->textContent ) ) {
-					return true;
+					return self::OTHER_REPARSE;
 				}
 			}
 			$child = $child->nextSibling;
 		}
 
-		return false;
+		return self::NO_REPARSING;
 	}
 
 	/**
 	 * @param DOMElement $node
 	 * @param Frame $frame
-	 * @return bool
+	 * @return mixed
 	 */
 	public function handleTableCellTemplates(
 		DOMElement $node, Frame $frame
-	): bool {
-		// Don't bother with literal HTML nodes or nodes that don't need reparsing.
-		if ( WTUtils::isLiteralHTMLNode( $node ) || !$this->needsReparsing( $node ) ) {
+	) {
+		if ( WTUtils::isLiteralHTMLNode( $node ) ) {
 			return true;
 		}
 
-		// If the cell didn't have attrs, extract and reparse templated attrs
-		$about = null;
+		$reparseType = $this->getReparseType( $node );
+		if ( $reparseType === self::NO_REPARSING ) {
+			return true;
+		}
 
+		if ( $reparseType === self::COMBINE_WITH_PREV_CELL ) {
+			if ( $this->combineWithPreviousCell( $frame, $node ) ) {
+				return true;
+			} else {
+				// Clear property and retry node for other reparses
+				// The DOMTraverser will resume the handler on the
+				// returned node.
+				DOMDataUtils::getDataParsoid( $node )->tmp->failedReparse = true;
+				return $node;
+			}
+		}
+
+		// If the cell didn't have attrs, extract and reparse templated attrs
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$hasAttrs = empty( $dp->tmp->noAttrs );
-
 		if ( !$hasAttrs ) {
 			$templateWrapper = DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ? $node : null;
 			$this->reparseTemplatedAttributes( $frame, $node, $templateWrapper );

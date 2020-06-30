@@ -233,6 +233,18 @@ Template:table_cells
 !! endarticle
 
 !! article
+Template:table_cell_content
+!! text
+{{{attr|}}}{{{cmt|}}}| foo
+!! endarticle
+
+!! article
+Template:table_cell_content_with_leading_spc
+!! text
+ | foo
+!! endarticle
+
+!! article
 Template:PartialTable
 !! text
 {|
@@ -7605,6 +7617,71 @@ Template generated table cell with attributes
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
 <td style="background-color:#DC241f;" width="10px" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"table_attribs_4","href":"./Template:Table_attribs_4"},"params":{},"i":0}}," ||a||b"]}'></td><td about="#mwt1">a</td><td about="#mwt1">b</td></tr>
 </tbody></table>
+!! end
+
+!! test
+1. Templated table cell with untemplated attributes
+!! wikitext
+{|
+|-
+|colspan="3" class="test"{{table_cell_content}}
+|-
+|colspan="3" class="test"{{table_cell_content|attr=style='color:red;'}}
+|-
+|colspan="3" class="test"{{table_cell_content|cmt=<!--bar-->}}
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td colspan="3" class="test">foo
+</td></tr>
+<tr>
+<td colspan="3" class="test" style="color:red;">foo
+</td></tr>
+<tr>
+<td colspan="3" class="test">foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+<td colspan="3" class="test" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{},"i":0}}]}'>foo</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td colspan="3" class="test" style="color:red;" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[{"k":"attr","named":true}]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"attr":{"wt":"style=&apos;color:red;&apos;"}},"i":0}}]}'>foo</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td colspan="3" class="test" typeof="mw:Transclusion" about="#mwt3" data-parsoid='{"pi":[[{"k":"cmt","named":true}]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"cmt":{"wt":"&lt;!--bar-->"}},"i":0}}]}'>foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Unsupported Scenarios: Templated table cell with untemplated attributes
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|-
+|colspan="3" class="test"{{1x|1= {{!}}foo}}
+|-
+|colspan="3" class="test"{{1x|1=&nbsp;{{!}}foo}}
+|-
+|colspan="3" class="test"{{1x|1={{!}}title="fail"{{!}}foo}}
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td colspan="3" class="test">foo
+</td></tr>
+<tr>
+<td colspan="3" class="test">foo
+</td></tr>
+<tr>
+<td colspan="3" class="test">title="fail"|foo
+</td></tr></tbody></table>
+!! html/parsoid
+This test fails each of the three table cell scenarios for different reasons.
+For now, we are deliberately not support these use cases in Parsoid unless
+required or we find a simpler solution that covers everything uniformly.
 !! end
 
 !! test
