@@ -145,6 +145,9 @@ class References extends ExtensionTagHandler {
 		// If both the containing <references> elt as well as the nested <ref>
 		// elt has a group attribute, what takes precedence?
 		$group = $refDmw->attrs->group ?? $referencesGroup ?? '';
+
+		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
+		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
 		$refName = $refDmw->attrs->name ?? '';
 
 		// Add ref-index linkback
@@ -162,7 +165,11 @@ class References extends ExtensionTagHandler {
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
 			if ( $refName === '' ) {
-				$errs[] = [ 'key' => 'cite_error_ref_no_input' ];
+				if ( !empty( $cDp->selfClose ) ) {
+					$errs[] = [ 'key' => 'cite_error_ref_no_key' ];
+				} else {
+					$errs[] = [ 'key' => 'cite_error_ref_no_input' ];
+				}
 			}
 
 			if ( !empty( $cDp->selfClose ) ) {
