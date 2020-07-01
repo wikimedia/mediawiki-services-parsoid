@@ -4794,6 +4794,9 @@
     "Unbalanced closing block tags break a list": {
         "html2wt": "<div>\n* a\n</div>\n<div>\n* b\n</div>"
     },
+    "Unbalanced closing wikitext block tags break a list": {
+        "html2wt": "<p>\n\n* a</p><p>\n\n* b</p>"
+    },
     "Unbalanced includeonly and noinclude tags": {
         "html2wt": "{|\n|a\n|b\n|c</includeonly>\n|d</includeonly></includeonly>\n|}"
     },

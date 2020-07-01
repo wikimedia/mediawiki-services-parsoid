@@ -10433,8 +10433,6 @@ parsoid=wt2html
 # tags (parse, minimize scope of fixup, and roundtrip back)
 # ------------------------------------------------------------------------
 
-# Remex and Parsoid output stems from list handling diffs because Parsoid & PHP parser.
-# Parsoid's list handling is more aware of block structure.
 !! test
 Unbalanced closing block tags break a list
 !! wikitext
@@ -10452,6 +10450,30 @@ Unbalanced closing block tags break a list
 <div><ul>
 <li>b</li>
 </ul></div>
+!! end
+
+## We call this "wikitext block" because we're diverging a bit from the HTML5
+## parsing spec.  Remex output is because it doesn't need to generate the
+## implied end tag for the list item when encountering the closing </p> but
+## Parsoid's broader definition opts to.  This can happen for a number of other
+## tags but those aren't allowed literal tags in wikitext.  There's also the
+## opposite problem, where the wikitext blocks aren't a superset of the tags
+## that generate implied ends in HTML5, but the missing ones again aren't
+## allowed literal tags in wikitext.
+!! test
+Unbalanced closing wikitext block tags break a list
+!! wikitext
+<p>
+*a</p><p>
+*b</p>
+!! html/php+tidy
+<p class="mw-empty-elt">
+</p><ul><li>a<p class="mw-empty-elt"></p><p class="mw-empty-elt"></p></li>
+<li>b<p class="mw-empty-elt"></p></li></ul>
+!! html/parsoid
+<p class="mw-empty-elt" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p>
+<ul><li>a</li></ul><p class="mw-empty-elt" data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p><p class="mw-empty-elt" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></p>
+<ul><li>b</li></ul><p class="mw-empty-elt" data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
 !! end
 
 !! test
