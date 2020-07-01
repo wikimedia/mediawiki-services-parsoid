@@ -182,6 +182,8 @@ class References extends ExtensionTagHandler {
 				$c = null; // $c is being release in the call above
 				$contentDiffers = $html !== $ref->cachedHtml;
 				if ( $contentDiffers ) {
+					// TODO: Since this error is being placed on the ref, the
+					// key should arguably be "cite_error_ref_duplicate_key"
 					$errs[] = [ 'key' => 'cite_error_references_duplicate_key' ];
 				}
 			}
@@ -283,7 +285,9 @@ class References extends ExtensionTagHandler {
 					foreach ( $ref->nodes as $linkBack ) {
 						DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
 						$dmw = DOMDataUtils::getDataMw( $linkBack );
-						$errs = [ [ 'key' => 'cite_error_ref_no_text' ] ];
+						// TODO: Since this error is being placed on the ref,
+						// the key should arguably be "cite_error_ref_no_text"
+						$errs = [ [ 'key' => 'cite_error_references_no_text' ] ];
 						if ( is_array( $dmw->errors ?? null ) ) {
 							$errs = array_merge( $dmw->errors, $errs );
 						}
