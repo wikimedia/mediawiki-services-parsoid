@@ -406,12 +406,6 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			// Add <section> wrappers around sections
-			[
-				'Processor' => WrapSections::class,
-				'shortcut' => 'sections',
-				'skipNested' => true
-			],
 			// Make heading IDs unique
 			[
 				'name' => 'Headings-dedupeHeadingIds',
@@ -445,21 +439,11 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			[
-				'Processor' => AddExtLinkClasses::class,
-				'shortcut' => 'linkclasses',
-				'skipNested' => true
-			],
 			// Language conversion
 			[
 				'Processor' => LangConverter::class,
 				'shortcut' => 'lang-converter',
 				'skipNested' => true
-			],
-			[
-				'Processor' => ConvertOffsets::class,
-				'shortcut' => 'convertoffsets',
-				'skipNested' => true,
 			],
 			[
 				'name' => 'DisplaySpace',
@@ -476,6 +460,22 @@ class DOMPostProcessor extends PipelineStage {
 						'action' => [ DisplaySpace::class, 'rightHandler' ]
 					],
 				]
+			],
+			[
+				'Processor' => AddExtLinkClasses::class,
+				'shortcut' => 'linkclasses',
+				'skipNested' => true
+			],
+			// Add <section> wrappers around sections
+			[
+				'Processor' => WrapSections::class,
+				'shortcut' => 'sections',
+				'skipNested' => true
+			],
+			[
+				'Processor' => ConvertOffsets::class,
+				'shortcut' => 'convertoffsets',
+				'skipNested' => true,
 			],
 			[
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',
@@ -507,7 +507,7 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'redlinks',
 				'skipNested' => true,
 				'omit' => $env->noDataAccess(),
-			]
+			],
 		] );
 
 		return $processors;
