@@ -396,23 +396,14 @@ class DOMPostProcessor extends PipelineStage {
 			// Benefits from running after determining which media are redlinks
 			[
 				'name' => 'Headings-genAnchors',
-				'shortcut' => 'headings',
+				'shortcut' => 'heading-ids',
 				'isTraverser' => true,
 				'skipNested' => true,
 				'handlers' => [
 					[
 						'nodeName' => null,
 						'action' => [ Headings::class, 'genAnchors' ]
-					]
-				]
-			],
-			// Make heading IDs unique
-			[
-				'name' => 'Headings-dedupeHeadingIds',
-				'shortcut' => 'heading-ids',
-				'isTraverser' => true,
-				'skipNested' => true,
-				'handlers' => [
+					],
 					[
 						'nodeName' => null,
 						'action' => function ( $node, $env ) use ( &$seenIds ) {
