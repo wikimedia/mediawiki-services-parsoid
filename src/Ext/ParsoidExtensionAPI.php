@@ -174,7 +174,7 @@ class ParsoidExtensionAPI {
 	 * @return string|null
 	 */
 	public function getExtSource(): ?string {
-		if ( $this->extToken->hasAttribute( 'source ' ) ) {
+		if ( $this->extToken->hasAttribute( 'source' ) ) {
 			return $this->extToken->getAttribute( 'source' );
 		} else {
 			return null;
