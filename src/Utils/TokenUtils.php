@@ -41,18 +41,6 @@ class TokenUtils {
 	}
 
 	/**
-	 * Determine if a tag is block-level or not.
-	 *
-	 * `<video>` is removed from block tags, since it can be phrasing content.
-	 * This is necessary for it to render inline.
-	 * @param string $name
-	 * @return bool
-	 */
-	public static function isBlockTag( string $name ): bool {
-		return $name !== 'video' && isset( Consts::$HTML['HTML4BlockTags'][$name] );
-	}
-
-	/**
 	 * @param string $name
 	 * @return bool
 	 */

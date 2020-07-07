@@ -249,25 +249,6 @@ class WikitextConstants {
 				"strike", "big", "center", "font", "tt",
 			] ),
 
-			# From https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
-			# However, you probably want to use `TokenUtils.isBlockTag()`, where some
-			# exceptions are being made.
-			'HTML4BlockTags' => PHPUtils::makeSet( [
-				'div', 'p',
-				# tables
-				'table', 'tbody', 'thead', 'tfoot', 'caption', 'th', 'tr', 'td',
-				# lists
-				'ul', 'ol', 'li', 'dl', 'dt', 'dd',
-				# HTML5 heading content
-				'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup',
-				# HTML5 sectioning content
-				'article', 'aside', 'nav', 'section', 'footer', 'header',
-				'figure', 'figcaption', 'fieldset', 'details', 'blockquote',
-				# other
-				'hr', 'button', 'canvas', 'center', 'col', 'colgroup', 'embed',
-				'map', 'object', 'pre', 'progress', 'video',
-			] ),
-
 			# See http://www.w3.org/html/wg/drafts/html/master/syntax.html#formatting
 			'FormattingTags' => PHPUtils::makeSet( [
 				'a', 'b', 'big', 'code', 'em', 'font', 'i', 'nobr',

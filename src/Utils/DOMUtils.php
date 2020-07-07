@@ -147,15 +147,6 @@ class DOMUtils {
 	}
 
 	/**
-	 * Determine whether this is a block-level DOM element.
-	 * @param DOMNode|null $node
-	 * @return bool
-	 */
-	public static function isBlockNode( ?DOMNode $node ): bool {
-		return $node && TokenUtils::isBlockTag( $node->nodeName );
-	}
-
-	/**
 	 * @param ?DOMNode $node
 	 * @return bool
 	 */

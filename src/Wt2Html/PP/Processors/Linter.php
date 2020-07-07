@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -75,10 +76,28 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function getTagsWithChangedMisnestingBehavior(): array {
 		if ( $this->tagsWithChangedMisnestingBehavior === null ) {
+			// This set is frozen in time.  It gets us down to the requisite
+			// 22 HTML5 tags above, but shouldn't be used for anything other
+			// than that.
+			$HTML4TidyBlockTags = PHPUtils::makeSet( [
+				'div', 'p',
+				# tables
+				'table', 'tbody', 'thead', 'tfoot', 'caption', 'th', 'tr', 'td',
+				# lists
+				'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+				# HTML5 heading content
+				'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup',
+				# HTML5 sectioning content
+				'article', 'aside', 'nav', 'section', 'footer', 'header',
+				'figure', 'figcaption', 'fieldset', 'details', 'blockquote',
+				# other
+				'hr', 'button', 'canvas', 'center', 'col', 'colgroup', 'embed',
+				'map', 'object', 'pre', 'progress', 'video',
+			] );
 			$this->tagsWithChangedMisnestingBehavior = [];
 			foreach ( Consts::$HTML['HTML5Tags'] as $tag => $dummy ) {
 				if ( isset( Consts::$Sanitizer['AllowedLiteralTags'][$tag] ) &&
-					!isset( Consts::$HTML['HTML4BlockTags'][$tag] ) &&
+					!isset( $HTML4TidyBlockTags[$tag] ) &&
 					!isset( Consts::$HTML['FormattingTags'][$tag] ) &&
 					!isset( Consts::$HTML['VoidTags'][$tag] )
 				) {
