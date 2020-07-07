@@ -189,13 +189,6 @@ class WikitextConstants {
 			'ul', 'ol', 'dl', 'li',
 		] );
 
-		# Leading whitespace on new lines changes wikitext
-		# parsing for these tags (*#;:=)
-		self::$SolSpaceSensitiveTags = PHPUtils::makeSet( [
-			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-			'ul', 'ol', 'li', 'dl', 'dd', 'dt',
-		] );
-
 		# In the PHP parser, these block tags open block-tag scope
 		# See doBlockLevels in the PHP parser (includes/parser/Parser.php)
 		self::$BlockScopeOpenTags = PHPUtils::makeSet( [

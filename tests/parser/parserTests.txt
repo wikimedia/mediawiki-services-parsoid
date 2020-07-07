@@ -3739,7 +3739,18 @@ array (
 !! html/php
  <pre class="123">hi</pre>
 !! html/parsoid
- <pre class="123" typeof="mw:Extension/pre" about="#mwt2" data-mw='{"name":"pre","attrs":{"class":"123"},"body":{"extsrc":"hi"}}'>hi</pre>
+ <pre class="123" typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{"class":"123"},"body":{"extsrc":"hi"}}'>hi</pre>
+!! end
+
+!! test
+Serializing indent pre at sol
+!! html/parsoid
+ <pre>hi</pre>
+!! html/php
+<pre>hi
+</pre>
+!! wikitext
+ hi
 !! end
 
 !!test

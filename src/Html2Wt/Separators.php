@@ -539,7 +539,8 @@ class Separators {
 			}
 
 			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
-				$nodeB && isset( WikitextConstants::$SolSpaceSensitiveTags[$nodeB->nodeName] );
+				$nodeB && !WTUtils::isLiteralHTMLNode( $nodeB ) &&
+				isset( WikitextConstants::$HTMLTagsRequiringSOLContext[$nodeB->nodeName] );
 			if ( !$isIndentPreSafe || $stripLeadingSpace ) {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
