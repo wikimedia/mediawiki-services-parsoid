@@ -27,44 +27,6 @@ class ExtensionHandler extends TokenHandler {
 	}
 
 	/**
-	 * Parse the extension HTML content and wrap it in a DOMFragment
-	 * to be expanded back into the top-level DOM later.
-	 *
-	 * @param ?ExtensionTagHandler $nativeExt
-	 * @param Token $extToken
-	 * @param DOMDocument $doc
-	 * @return array
-	 */
-	private function parseExtensionHTML(
-		?ExtensionTagHandler $nativeExt, Token $extToken, DOMDocument $doc
-	): array {
-		$logger = $this->env->getSiteConfig()->getLogger();
-		$env = $this->env;
-
-		if ( $env->hasDumpFlag( 'extoutput' ) ) {
-			$logger->warning( str_repeat( '=', 80 ) );
-			$logger->warning( 'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' ) );
-			$logger->warning( str_repeat( '=', 80 ) );
-			$logger->warning( "EXTENSION OUTPUT:\n" );
-			$logger->warning( DOMCompat::getOuterHTML( DOMCompat::getBody( $doc ) ) );
-			$logger->warning( str_repeat( '-', 80 ) );
-		}
-
-		// document -> html -> body -> children
-		$state = [
-			'token' => $extToken,
-			'wrapperName' => $extToken->getAttribute( 'name' ),
-			// We are always wrapping extensions with the DOMFragment mechanism.
-			'wrappedObjectId' => $this->env->newObjectId(),
-			'wrapperType' => 'mw:Extension/' . $extToken->getAttribute( 'name' ),
-			'isHtmlExt' => ( $extToken->getAttribute( 'name' ) === 'html' )
-		];
-
-		// DOMFragment-based encapsulation.
-		return $this->onDocument( $nativeExt, $state, $doc );
-	}
-
-	/**
 	 * @param array $options
 	 * @return array
 	 */
@@ -155,7 +117,7 @@ class ExtensionHandler extends TokenHandler {
 			$doc = $nativeExt->sourceToDom( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {
 				if ( $doc !== null ) {
-					$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
+					$toks = $this->onDocument( $nativeExt, $token, $doc );
 					return( [ 'tokens' => $toks ] );
 				} else {
 					// The extension dropped this instance completely (!!)
@@ -180,36 +142,52 @@ class ExtensionHandler extends TokenHandler {
 			$doc = $this->env->createDocument(
 				'<span>Fetches disabled. Cannot expand non-native extensions.</span>'
 			);
-			$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
+			$toks = $this->onDocument( $nativeExt, $token, $doc );
 		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
 			$html = $this->mangleParserResponse( $token, $ret );
 			$doc = $env->createDocument( $html );
-			$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
+			$toks = $this->onDocument( $nativeExt, $token, $doc );
 		}
 		return( [ 'tokens' => $toks ] );
 	}
 
 	/**
+	 * DOMFragment-based encapsulation
+	 *
 	 * @param ?ExtensionTagHandler $nativeExt
-	 * @param array $state
+	 * @param Token $extToken
 	 * @param DOMDocument $doc
 	 * @return array
 	 */
 	private function onDocument(
-		?ExtensionTagHandler $nativeExt, array $state, DOMDocument $doc
+		?ExtensionTagHandler $nativeExt, Token $extToken, DOMDocument $doc
 	): array {
 		$env = $this->env;
+		$extensionName = $extToken->getAttribute( 'name' );
 
-		$argDict = Utils::getExtArgInfo( $state['token'] )->dict;
-		$extTagOffsets = $state['token']->dataAttribs->extTagOffsets;
+		if ( $env->hasDumpFlag( 'extoutput' ) ) {
+			$logger = $env->getSiteConfig()->getLogger();
+			$logger->warning( str_repeat( '=', 80 ) );
+			$logger->warning(
+				'EXTENSION INPUT: ' . $extToken->getAttribute( 'source' )
+			);
+			$logger->warning( str_repeat( '=', 80 ) );
+			$logger->warning( "EXTENSION OUTPUT:\n" );
+			$logger->warning(
+				DOMCompat::getOuterHTML( DOMCompat::getBody( $doc ) )
+			);
+			$logger->warning( str_repeat( '-', 80 ) );
+		}
+
+		$argDict = Utils::getExtArgInfo( $extToken )->dict;
+		$extTagOffsets = $extToken->dataAttribs->extTagOffsets;
 		if ( $extTagOffsets->closeWidth === 0 ) {
 			unset( $argDict->body ); // Serialize to self-closing.
 		}
 
 		// Give native extensions a chance to manipulate the argDict
-		$extensionName = $state['wrapperName'];
 		if ( $nativeExt ) {
 			$extApi = new ParsoidExtensionAPI( $env );
 			$nativeExt->modifyArgDict( $extApi, $argDict );
@@ -217,7 +195,7 @@ class ExtensionHandler extends TokenHandler {
 
 		$opts = [
 			'setDSR' => true, // FIXME: This is the only place that sets this ...
-			'wrapperName' => $state['wrapperName'],
+			'wrapperName' => $extensionName,
 		];
 
 		// Check if the tag wants its DOM fragment not to be unwrapped.
@@ -235,7 +213,7 @@ class ExtensionHandler extends TokenHandler {
 		//
 		// We'll keep this hardcoded to avoid exposing the functionality to
 		// other native extensions until it's needed.
-		if ( $state['wrapperName'] !== 'nowiki' ) {
+		if ( $extensionName !== 'nowiki' ) {
 			if ( !$body->hasChildNodes() ) {
 				// RT extensions expanding to nothing.
 				$body->appendChild( $body->ownerDocument->createElement( 'link' ) );
@@ -251,7 +229,9 @@ class ExtensionHandler extends TokenHandler {
 			DOMUtils::assertElt( $firstNode );
 
 			// Adds the wrapper attributes to the first element
-			$firstNode->setAttribute( 'typeof', $state['wrapperType'] );
+			$firstNode->setAttribute(
+				'typeof', "mw:Extension/{$extensionName}"
+			);
 
 			// Add about to all wrapper tokens.
 			$about = $env->newAboutId();
@@ -266,14 +246,14 @@ class ExtensionHandler extends TokenHandler {
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
-			$dp->tsr = Utils::clone( $state['token']->dataAttribs->tsr );
-			$dp->src = $state['token']->dataAttribs->src;
+			$dp->tsr = Utils::clone( $extToken->dataAttribs->tsr );
+			$dp->src = $extToken->dataAttribs->src;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 
-		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $state['token'], $body, $opts );
+		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $extToken, $body, $opts );
 
-		if ( $state['isHtmlExt'] ) {
+		if ( $extensionName === 'html' ) {
 			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp ?? new stdClass;
 			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
 		}
