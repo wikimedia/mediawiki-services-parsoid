@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
 use stdClass;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -29,11 +30,14 @@ class ExtensionHandler extends TokenHandler {
 	 * Parse the extension HTML content and wrap it in a DOMFragment
 	 * to be expanded back into the top-level DOM later.
 	 *
+	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param Token $extToken
 	 * @param DOMDocument $doc
 	 * @return array
 	 */
-	private function parseExtensionHTML( Token $extToken, DOMDocument $doc ): array {
+	private function parseExtensionHTML(
+		?ExtensionTagHandler $nativeExt, Token $extToken, DOMDocument $doc
+	): array {
 		$logger = $this->env->getSiteConfig()->getLogger();
 		$env = $this->env;
 
@@ -57,7 +61,7 @@ class ExtensionHandler extends TokenHandler {
 		];
 
 		// DOMFragment-based encapsulation.
-		return $this->onDocument( $state, $doc );
+		return $this->onDocument( $nativeExt, $state, $doc );
 	}
 
 	/**
@@ -151,7 +155,7 @@ class ExtensionHandler extends TokenHandler {
 			$doc = $nativeExt->sourceToDom( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {
 				if ( $doc !== null ) {
-					$toks = $this->parseExtensionHTML( $token, $doc );
+					$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
 					return( [ 'tokens' => $toks ] );
 				} else {
 					// The extension dropped this instance completely (!!)
@@ -176,23 +180,26 @@ class ExtensionHandler extends TokenHandler {
 			$doc = $this->env->createDocument(
 				'<span>Fetches disabled. Cannot expand non-native extensions.</span>'
 			);
-			$toks = $this->parseExtensionHTML( $token, $doc );
+			$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
 		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
 			$html = $this->mangleParserResponse( $token, $ret );
 			$doc = $env->createDocument( $html );
-			$toks = $this->parseExtensionHTML( $token, $doc );
+			$toks = $this->parseExtensionHTML( $nativeExt, $token, $doc );
 		}
 		return( [ 'tokens' => $toks ] );
 	}
 
 	/**
+	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param array $state
 	 * @param DOMDocument $doc
 	 * @return array
 	 */
-	private function onDocument( array $state, DOMDocument $doc ): array {
+	private function onDocument(
+		?ExtensionTagHandler $nativeExt, array $state, DOMDocument $doc
+	): array {
 		$env = $this->env;
 
 		$argDict = Utils::getExtArgInfo( $state['token'] )->dict;
@@ -203,7 +210,6 @@ class ExtensionHandler extends TokenHandler {
 
 		// Give native extensions a chance to manipulate the argDict
 		$extensionName = $state['wrapperName'];
-		$nativeExt = $env->getSiteConfig()->getExtTagImpl( $extensionName );
 		if ( $nativeExt ) {
 			$extApi = new ParsoidExtensionAPI( $env );
 			$nativeExt->modifyArgDict( $extApi, $argDict );
