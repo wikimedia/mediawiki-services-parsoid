@@ -34,6 +34,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'attribs' => [],
 			],
 			'getTokenType' => 'TagTk',
+			'tagClosesBlockScope' => true,
 		],
 		[
 			'name' => '<p>',
@@ -80,6 +81,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				],
 			],
 			'getTokenType' => 'TagTk',
+			'tagClosesBlockScope' => true,
 			'isHTMLTag' => true,
 		],
 		[

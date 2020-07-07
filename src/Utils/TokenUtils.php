@@ -49,23 +49,27 @@ class TokenUtils {
 	}
 
 	/**
-	 * In the PHP parser, these block tags open block-tag scope
+	 * In the legacy parser, these block tags open block-tag scope
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php).
+	 *
 	 * @param string $name
 	 * @return bool
 	 */
 	public static function tagOpensBlockScope( string $name ): bool {
-		return isset( Consts::$BlockScopeOpenTags[$name] );
+		return isset( Consts::$blockElems[$name] ) ||
+			isset( Consts::$alwaysBlockElems[$name] );
 	}
 
 	/**
-	 * In the PHP parser, these block tags close block-tag scope
+	 * In the legacy parser, these block tags close block-tag scope
 	 * See doBlockLevels in the PHP parser (includes/parser/Parser.php).
+	 *
 	 * @param string $name
 	 * @return bool
 	 */
 	public static function tagClosesBlockScope( string $name ): bool {
-		return isset( Consts::$BlockScopeCloseTags[$name] );
+		return isset( Consts::$antiBlockElems[$name] ) ||
+			isset( Consts::$neverBlockElems[$name] );
 	}
 
 	/**

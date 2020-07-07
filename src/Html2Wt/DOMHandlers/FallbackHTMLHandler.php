@@ -39,7 +39,12 @@ class FallbackHTMLHandler extends DOMHandler {
 
 		if ( $node->hasChildNodes() ) {
 			$inPHPBlock = $state->inPHPBlock;
-			if ( TokenUtils::tagOpensBlockScope( $node->nodeName ) ) {
+			if (
+				TokenUtils::tagOpensBlockScope( $node->nodeName ) ||
+				// Blockquote is special in that it doesn't suppress paragraphs
+				// but does suppress pre wrapping
+				$node->nodeName === 'blockquote'
+			) {
 				$state->inPHPBlock = true;
 			}
 

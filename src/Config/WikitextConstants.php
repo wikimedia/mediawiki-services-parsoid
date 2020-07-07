@@ -14,8 +14,6 @@ class WikitextConstants {
 	public static $WeakIndentPreSuppressingTags;
 	public static $StrongIndentPreSuppressingTags;
 	public static $SolSpaceSensitiveTags;
-	public static $BlockScopeOpenTags;
-	public static $BlockScopeCloseTags;
 	public static $HTML;
 	public static $WTTagsWithNoClosingTags;
 	public static $Output;
@@ -187,21 +185,6 @@ class WikitextConstants {
 			'blockquote', 'pre', 'p',
 			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 			'ul', 'ol', 'dl', 'li',
-		] );
-
-		# In the PHP parser, these block tags open block-tag scope
-		# See doBlockLevels in the PHP parser (includes/parser/Parser.php)
-		self::$BlockScopeOpenTags = PHPUtils::makeSet( [
-			'blockquote', 'pre', 'p',
-			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-			'ul', 'ol', 'li', 'dl',
-			'table', 'tr',
-		] );
-
-		# In the PHP parser, these block tags close block-tag scope
-		# See doBlockLevels in the PHP parser (includes/parser/Parser.php)
-		self::$BlockScopeCloseTags = PHPUtils::makeSet( [
-			'td', 'th',
 		] );
 
 		self::$HTML = [
