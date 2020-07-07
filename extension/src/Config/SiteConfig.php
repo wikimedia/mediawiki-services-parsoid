@@ -5,7 +5,6 @@ namespace MWParsoid\Config;
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
 use Config;
-use ConfigException;
 use ExtensionRegistry;
 use FakeConverter;
 use Language;
@@ -63,12 +62,7 @@ class SiteConfig extends ISiteConfig {
 
 		$services = MediaWikiServices::getInstance();
 		$this->config = $services->getMainConfig();
-		try {
-			$this->parsoidSettings = $this->config->get( 'ParsoidSettings' );
-		} catch ( ConfigException $e ) {
-			// If the config option isn't defined, use defaults
-			$this->parsoidSettings = [];
-		}
+		$this->parsoidSettings = $services->get( 'ParsoidSettings' );
 		$this->contLang = $services->getContentLanguage();
 		// Override parent default
 		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {

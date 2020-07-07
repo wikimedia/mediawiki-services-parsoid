@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace MWParsoid\Rest\Handler;
 
 use Composer\Semver\Semver;
-use Config;
-use ConfigException;
 use ExtensionRegistry;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use LogicException;
@@ -46,9 +44,6 @@ abstract class ParsoidHandler extends Handler {
 	// TODO content negotiation (routes.js routes.acceptable)
 	// TODO handle MaxConcurrentCallsError (pool counter?)
 
-	/** @var Config */
-	protected $config;
-
 	/** @var array Parsoid-specific settings array from $config */
 	private $parsoidSettings;
 
@@ -78,7 +73,7 @@ abstract class ParsoidHandler extends Handler {
 		$parsoidServices = new ParsoidServices( $services );
 		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static(
-			$services->getMainConfig(),
+			$parsoidServices->getParsoidSettings(),
 			$parsoidServices->getParsoidSiteConfig(),
 			$parsoidServices->getParsoidPageConfigFactory(),
 			$parsoidServices->getParsoidDataAccess()
@@ -86,24 +81,18 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param Config $config
+	 * @param array $parsoidSettings
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfigFactory $pageConfigFactory
 	 * @param DataAccess $dataAccess
 	 */
 	public function __construct(
-		Config $config,
+		array $parsoidSettings,
 		SiteConfig $siteConfig,
 		PageConfigFactory $pageConfigFactory,
 		DataAccess $dataAccess
 	) {
-		$this->config = $config;
-		try {
-			$this->parsoidSettings = $this->config->get( 'ParsoidSettings' );
-		} catch ( ConfigException $e ) {
-			// If the config option isn't defined, use defaults
-			$this->parsoidSettings = [];
-		}
+		$this->parsoidSettings = $parsoidSettings;
 		$this->siteConfig = $siteConfig;
 		$this->pageConfigFactory = $pageConfigFactory;
 		$this->dataAccess = $dataAccess;

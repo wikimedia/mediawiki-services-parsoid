@@ -11,8 +11,25 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 
 return [
 
+	'ParsoidSettings' => function ( MediaWikiServices $services ): array {
+		# Unified location for default parsoid settings.
+
+		$parsoidSettings = [
+			# Default parsoid settings, for 'no config' install.
+			'useSelser' => true,
+		];
+		try {
+			$parsoidSettings =
+				$services->getMainConfig()->get( 'ParsoidSettings' )
+				+ $parsoidSettings;
+		} catch ( ConfigException $e ) {
+			/* Config option isn't defined, use defaults */
+		}
+		return $parsoidSettings;
+	},
+
 	'ParsoidSiteConfig' => function ( MediaWikiServices $services ): SiteConfig {
-		$parsoidSettings = $services->getMainConfig()->get( 'ParsoidSettings' );
+		$parsoidSettings = $services->get( 'ParsoidSettings' );
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
 			return ApiSiteConfig::fromSettings( $parsoidSettings );
 		}
@@ -25,7 +42,7 @@ return [
 	},
 
 	'ParsoidDataAccess' => function ( MediaWikiServices $services ): DataAccess {
-		$parsoidSettings = $services->getMainConfig()->get( 'ParsoidSettings' );
+		$parsoidSettings = $services->get( 'ParsoidSettings' );
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
 			return ApiDataAccess::fromSettings( $parsoidSettings );
 		}

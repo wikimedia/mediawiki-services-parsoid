@@ -1,6 +1,6 @@
 {
 	"name": "Parsoid",
-	"description": "The Parsoid extension enables the REST API for Parsoid.  This is only needed if you are using RESTBase as a caching layer.",
+	"description": "The Parsoid extension enables the REST API for Parsoid.  This is needed to support VisualEditor.",
 	"url": "https://www.mediawiki.org/wiki/Parsoid/PHP",
 	"requires": {
 		"MediaWiki": "^1.34",

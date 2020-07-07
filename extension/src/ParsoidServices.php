@@ -18,6 +18,10 @@ class ParsoidServices {
 		$this->services = $services;
 	}
 
+	public function getParsoidSettings(): array {
+		return $this->services->get( 'ParsoidSettings' );
+	}
+
 	public function getParsoidSiteConfig(): SiteConfig {
 		return $this->services->get( 'ParsoidSiteConfig' );
 	}
