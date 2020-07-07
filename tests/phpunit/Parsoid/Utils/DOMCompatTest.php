@@ -591,10 +591,12 @@ HTML;
 	}
 
 	/**
+	 * See https://bugs.php.net/bug.php?id=78221 for the upstream bug
+	 * we're working around here.
 	 * @covers ::normalize()
 	 * @dataProvider provideNormalize
 	 */
-	public function testNormalize( $compat, $textNodeCount, $interleaveSpan, $expectedNodeCount ) {
+	public function testNormalize( $textNodeCount, $interleaveSpan, $expectedNodeCount ) {
 		$doc = new DOMDocument();
 		$doc->loadXML( "<html><body></body></html>" );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
@@ -608,62 +610,28 @@ HTML;
 			$textNodeCount--;
 		}
 
-		if ( $compat ) {
-			DOMCompat::normalize( $body );
-		} else {
-			$body->normalize();
-		}
+		DOMCompat::normalize( $body );
 		$this->assertSame( $expectedNodeCount, $div->childNodes->length );
 	}
 
 	public function provideNormalize() {
 		return [
-			// PHP DOM mode
 			[
-				"compat" => false,
-				"textNodeCount" => 1,
-				"interleaveSpan" => false,
-				"expected" => 1
-			],
-			[
-				"compat" => false,
-				"textNodeCount" => 5,
-				"interleaveSpan" => false,
-				"expected" => 1
-			],
-			[
-				"compat" => false,
-				"textNodeCount" => 1,
-				"interleaveSpan" => true,
-				"expected" => 2
-			],
-			[
-				"compat" => false,
-				"textNodeCount" => 5,
-				"interleaveSpan" => true,
-				"expected" => 10
-			],
-			// DOM Compat mode
-			[
-				"compat" => true,
 				"textNodeCount" => 1,
 				"interleaveSpan" => false,
 				"expected" => 0
 			],
 			[
-				"compat" => true,
 				"textNodeCount" => 5,
 				"interleaveSpan" => false,
 				"expected" => 0
 			],
 			[
-				"compat" => true,
 				"textNodeCount" => 1,
 				"interleaveSpan" => true,
 				"expected" => 1
 			],
 			[
-				"compat" => true,
 				"textNodeCount" => 5,
 				"interleaveSpan" => true,
 				"expected" => 5
