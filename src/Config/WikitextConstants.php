@@ -11,8 +11,6 @@ class WikitextConstants {
 	public static $WikitextTagsWithTrimmableWS;
 	public static $HTMLTagsRequiringSOLContext;
 	public static $WTQuoteTags;
-	public static $WeakIndentPreSuppressingTags;
-	public static $StrongIndentPreSuppressingTags;
 	public static $SolSpaceSensitiveTags;
 	public static $HTML;
 	public static $WTTagsWithNoClosingTags;
@@ -160,32 +158,6 @@ class WikitextConstants {
 			array_keys( self::$alwaysBlockElems ),
 			array_keys( self::$neverBlockElems )
 		) );
-
-		# Leading whitespace on new lines in these elements does not lead to indent-pre.
-		# This only applies to immediate children (while skipping past zero-wikitext tags).
-		# (Ex: content in table-cells induce indent pres)
-		self::$WeakIndentPreSuppressingTags = PHPUtils::makeSet( [
-			'table', 'tbody', 'tr',
-		] );
-
-		/*
-		 * Leading whitespace on new lines in these elements does not lead to indent-pre
-		 * This applies to all nested content in these tags.
-		 * Ex: content in table-cells nested in blocktags do not induce indent pres
-		 *
-		 * These tags should match $openmatch regexp in doBlockLevels:
-		 * $openmatch = preg_match(
-		 *		'#(?:<table|<blockquote|<h1|<h2|<h3|<h4|<h5|<h6|<pre|<tr|<p|<ul|<ol|<dl|<li|</tr|</td|</th)/#S',
-		 *		$t )
-		 *
-		 * PHP parser handling is line-based. Our handling is DOM-children based.
-		 * So, there might be edge cases where behavior will be different.
-		*/
-		self::$StrongIndentPreSuppressingTags = PHPUtils::makeSet( [
-			'blockquote', 'pre', 'p',
-			'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-			'ul', 'ol', 'dl', 'li',
-		] );
 
 		self::$HTML = [
 			# The list of HTML5 tags, mainly used for the identification of *non*-html tags.

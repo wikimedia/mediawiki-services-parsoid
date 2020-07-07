@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -508,33 +509,31 @@ class Separators {
 
 			// Check whether nodeB is nested inside an element that suppresses
 			// indent-pres.
-			//
-			// 1. Walk up past zero-wikitext width nodes in the ancestor chain
-			// of 'nodeB' till we establish indent-pre safety.
-			// If nodeB uses HTML syntax, obviously it is not zero width!
-			//
-			// 2. Check if the ancestor is a weak/strong indent-pre suppressing tag.
-			// - Weak indent-pre suppressing tags only suppress indent-pres
-			// within immediate children.
-			// - Strong indent-pre suppressing tags suppress indent-pres
-			// in entire DOM subtree rooted at that node.
-
-			if ( $nodeB && !DOMUtils::atTheTop( $nodeB ) ) {
+			if ( $nodeB && !$isIndentPreSafe && !DOMUtils::atTheTop( $nodeB ) ) {
 				$parentB = $nodeB->parentNode; // could be nodeA
 				while ( WTUtils::isZeroWidthWikitextElt( $parentB ) ) {
 					$parentB = $parentB->parentNode;
 				}
 
-				if ( isset( WikitextConstants::$WeakIndentPreSuppressingTags[$parentB->nodeName] ) ) {
-					$isIndentPreSafe = true;
-				} else {
-					while ( !DOMUtils::atTheTop( $parentB ) ) {
-						if ( isset( WikitextConstants::$StrongIndentPreSuppressingTags[$parentB->nodeName] ) &&
-								( $parentB->nodeName !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) ) ) {
-							$isIndentPreSafe = true;
-						}
-						$parentB = $parentB->parentNode;
+				// The token stream paragraph wrapper (and legacy doBlockLevels)
+				// tracks this separately with $inBlockquote
+				$isIndentPreSafe = DOMUtils::hasAncestorOfName(
+					$parentB, 'blockquote'
+				);
+
+				// First scope wins
+				while ( !$isIndentPreSafe && !DOMUtils::atTheTop( $parentB ) ) {
+					if (
+						TokenUtils::tagOpensBlockScope( $parentB->nodeName ) &&
+						// Only html p-tag is indent pre suppressing
+						( $parentB->nodeName !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) )
+					) {
+						$isIndentPreSafe = true;
+						break;
+					} elseif ( TokenUtils::tagClosesBlockScope( $parentB->nodeName ) ) {
+						break;
 					}
+					$parentB = $parentB->parentNode;
 				}
 			}
 
