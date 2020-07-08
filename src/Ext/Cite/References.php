@@ -149,83 +149,77 @@ class References extends ExtensionTagHandler {
 		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
 		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
 		$refName = $refDmw->attrs->name ?? '';
-		$follow = $refDmw->attrs->follow ?? '';
+		$followName = $refDmw->attrs->follow ?? '';
 
-		$hasRefName = strlen( $refName ) > 0;
-		$hasFollow = strlen( $follow ) > 0;
+		// Looks like Cite.php doesn't try to fix ids that already have
+		// a "_" in them. Ex: name="a b" and name="a_b" are considered
+		// identical. Not sure if this is a feature or a bug.
+		// It also considers entities equal to their encoding
+		// (i.e. '&' === '&amp;'), which is done:
+		//  in PHP: Sanitizer#decodeTagAttributes and
+		//  in Parsoid: ExtensionHandler#normalizeExtOptions
+		$refName = $extApi->sanitizeHTMLId( $refName );
+		$followName = $extApi->sanitizeHTMLId( $followName );
 
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );
 
-		// prechecking various combinations of un-named refs, named refs, follow and error cases to
-		// properly determine how to proceed with adding a ref or not and generating appropriate code
-		if ( $hasRefName ) {
-			if ( $hasFollow ) {
-				// having both a ref name and follow is an error, the ref should be represented
-				// and the follow present, but not causing any effect, but add and
-				// verify follow round trips anyway
-				$debugging = 0;
+		$ref = null;
+		$errs = [];
+
+		$hasRefName = strlen( $refName ) > 0;
+		$hasFollow = strlen( $followName ) > 0;
+
+		if ( $hasFollow ) {
+			if ( $hasRefName ) {
+				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
 			} else {
-				// normal named ref, so add normally
-				$debugging = 1;
-			}
-		} else {
-			// Either an un-named ref or a follow
-			if ( $hasFollow ) {
-				// Is a follow ref, so check if a named ref has already been defined
-				$group = $refsData->getRefGroup( $groupName, true );
-				if ( isset( $group->indexByName[$follow] ) ) {
-					// Yes the named ref is defined, so lets check if it has defined content
-					$ref = $group->indexByName[$follow];
+				// This is a follows ref, so check that a named ref has already
+				// been defined
+				$group = $refsData->getRefGroup( $groupName );
+				if ( isset( $group->indexByName[$followName] ) ) {
+					$ref = $group->indexByName[$followName];
+
+					$span = $c->ownerDocument->createElement( 'span' );
+					DOMUtils::addTypeOf( $span, 'mw:Cite/Follow' );
+					$span->setAttribute( 'about', $about );
+					$span->appendChild(
+						$c->ownerDocument->createTextNode( ' ' )
+					);
+					DOMUtils::migrateChildren( $c, $span );
+					$c->appendChild( $span );
+
 					if ( $ref->contentId ) {
-						// The named ref did define content, so attach follow content normally
-						$debugging = 2;
+						$refContent = $extApi->getContentDOM( $ref->contentId );
+						ParsoidExtensionAPI::migrateChildrenBetweenDocs(
+							$c, $refContent, false
+						);
 					} else {
-						// The follow content follows a named ref that did not define content
-						// and therefore the follow content cannot be appended and must be
-						// handled differently
-						$debugging = 3;
+						// Otherwise, we have a follow that comes after a named
+						// ref without content so use the follow fragment as
+						// the content
+						$ref->contentId = $contentId;
 					}
 				} else {
-					// this follow precedes a named ref being defined or possibly never being defined
-					// which is a type of error but still must round trip, so we must handle this case
-					// with special code and not call the add function.
-					$debugging = 4;
-
-					$html = $extApi->domToHtml( $c, true, true );
-					$refDmw->body = (object)[ 'html' => $html ];
-					DOMDataUtils::setDataMw( $linkBack, $refDmw );
-					DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref mw:Error' );
-					$node->parentNode->replaceChild( $linkBack, $node );
-					return;
-					// do not define a ref
-
+					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
 				}
-			// Is an unnamed ref and not a follow, so add the ref normally
-			} else {
-				// normal un-named ref, so add normally
-				$debugging = 5;
 			}
 		}
 
-		$ref = $refsData->add(
-			$extApi, $groupName, $refName, $follow, $contentId, $about, $nestedInReferences,
-			$linkBack
-		);
-
-		$errs = [];
+		if ( !$ref ) {
+			$ref = $refsData->add(
+				$extApi, $groupName, $refName, $about, $nestedInReferences,
+				$linkBack
+			);
+		}
 
 		// Check for missing content, added ?? '' to fix T259676 crasher
 		// FIXME: See T260082 for a more complete description of cause and deeper fix
 		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ?? '' ) === '' );
 
-		if ( $refName !== '' && strlen( $follow ) > 0 ) {
-			$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
-		}
-
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
-			if ( $refName === '' ) {
+			if ( !$hasRefName ) {
 				if ( !empty( $cDp->selfClose ) ) {
 					$errs[] = [ 'key' => 'cite_error_ref_no_key' ];
 				} else {
@@ -246,6 +240,8 @@ class References extends ExtensionTagHandler {
 			$html = '';
 			$contentDiffers = false;
 			if ( $ref->hasMultiples ) {
+				// FIXME: Strip the mw:Cite/Follow wrappers
+				// See the test, "Forward-referenced ref with magical follow edge case"
 				$html = $extApi->domToHtml( $c, true, true );
 				$c = null; // $c is being release in the call above
 				$contentDiffers = $html !== $ref->cachedHtml;
@@ -263,10 +259,6 @@ class References extends ExtensionTagHandler {
 		}
 
 		$lastLinkback = $ref->linkbacks[count( $ref->linkbacks ) - 1] ?? null;
-
-		if ( strlen( $follow ) > 0 ) {
-			$linkBack->setAttribute( 'style', 'display: none;' );
-		}
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref',
@@ -279,6 +271,7 @@ class References extends ExtensionTagHandler {
 		if ( count( $errs ) > 0 ) {
 			DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
 		}
+
 		$dataParsoid = new stdClass;
 		if ( isset( $nodeDp->src ) ) {
 			$dataParsoid->src = $nodeDp->src;
@@ -300,13 +293,16 @@ class References extends ExtensionTagHandler {
 		}
 		DOMDataUtils::setDataMw( $linkBack, $dmw );
 
+		if ( $hasFollow && count( $errs ) === 0 ) {
+			$linkBack->setAttribute( 'style', 'display: none;' );
+		}
+
 		// refLink is the link to the citation
 		$refLink = $doc->createElement( 'a' );
 		DOMUtils::addAttributes( $refLink, [
-				'href' => $extApi->getPageUri() . '#' . $ref->target,
-				'style' => 'counter-reset: mw-Ref ' . $ref->groupIndex . ';',
-			]
-		);
+			'href' => $extApi->getPageUri() . '#' . $ref->target,
+			'style' => 'counter-reset: mw-Ref ' . $ref->groupIndex . ';',
+		] );
 		if ( $ref->group ) {
 			$refLink->setAttribute( 'data-mw-group', $ref->group );
 		}
@@ -317,13 +313,10 @@ class References extends ExtensionTagHandler {
 		$refLinkSpan->setAttribute( 'class', 'mw-reflink-text' );
 		$refLinkSpan->appendChild( $doc->createTextNode(
 			'[' . ( $ref->group ? $ref->group . ' ' : '' ) . $ref->groupIndex . ']'
-			)
-		);
+		) );
 
-		if ( strlen( $follow ) == 0 || count( $errs ) > 0 ) {
-			$refLink->appendChild( $refLinkSpan );
-			$linkBack->appendChild( $refLink );
-		}
+		$refLink->appendChild( $refLinkSpan );
+		$linkBack->appendChild( $refLink );
 
 		$node->parentNode->replaceChild( $linkBack, $node );
 

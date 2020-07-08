@@ -482,7 +482,7 @@ Conflicting name="…" and follow="…" still invalid when a third parameter is 
 <p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
 </p>
 !! html/parsoid
-<p><sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"theName","follow":"theFollows","dummy":"dummy"},"body":{"id":"mw-reference-text-cite_note-theName-1"},"errors":[{"key":"cite_error_ref_too_many_keys"}]}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;" ><span class="mw-reflink-text">[1]</span></a></sup></p>
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"theName","follow":"theFollows","dummy":"dummy"},"body":{"id":"mw-reference-text-cite_note-theName-1"},"errors":[{"key":"cite_error_ref_too_many_keys"}]}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text">theValue</span></li></ol>
 !! end
 
@@ -493,21 +493,28 @@ It's not possible to follow="…" a <ref> defined in the <references> section
 <references>
 <ref name="theName">theValue</ref>
 </references>
-!! html
+!! html/php
 <div class="mw-references-wrap"><ol class="references">
 <p id="cite_note-theName"><span class="reference-text">theFollows</span>
 </p>
 </ol></div>
 <p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "theName" defined in <code>&lt;references&gt;</code> is not used in prior text.</span>
 </p>
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-1"},"errors":[{"key":"cite_error_references_missing_key"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt5\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[52,86,20,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"id\":\"mw-reference-text-cite_note-theName-2\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-theName-2\" style=\"counter-reset: mw-Ref 2;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[2]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">theFollows</span></li><li about="#cite_note-theName-2" id="cite_note-theName-2"><span rel="mw:referencedBy"></span> <span id="mw-reference-text-cite_note-theName-2" class="mw-reference-text">theValue</span></li></ol>
 !! end
 
+## Note that the Cite extension of the legacy parser is putting paragraphs
+## as direct descendents of ordered lists (instead of inside list items,
+## or wherehaveyou)
 !! test
 A follow="…" before its parent is not merged
 !! wikitext
 <ref follow="theName">theFollows</ref>
 <ref name="theName">theValue</ref>
-!! html
+<references />
+!! html/php
 <p><sup id="cite_ref-theName_2-0" class="reference"><a href="#cite_note-theName-2">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -516,9 +523,14 @@ A follow="…" before its parent is not merged
 <li id="cite_note-theName-2"><span class="mw-cite-backlink"><a href="#cite_ref-theName_2-0">↑</a></span> <span class="reference-text">theValue</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-1"},"errors":[{"key":"cite_error_references_missing_key"}]}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-theName_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-2"}}'><a href="./Parser_test#cite_note-theName-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">theFollows</span></li><li about="#cite_note-theName-2" id="cite_note-theName-2"><a href="./Parser_test#cite_ref-theName_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-2" class="mw-reference-text">theValue</span></li></ol>
 !! end
 
-# This is a nasty edge case which was dropping the ref entirely.
+## This is a nasty edge case which was dropping the ref entirely from the
+## output of the Cite extension of the legacy parser
 !! test
 "follow" after a named ref but before its parent
 !! wikitext
@@ -540,6 +552,12 @@ A follow="…" before its parent is not merged
 <li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-first_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"first"},"body":{"id":"mw-reference-text-cite_note-first-1"}}'><a href="./Parser_test#cite_note-first-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"follow":"third"},"body":{"id":"mw-reference-text-cite_note-2"},"errors":[{"key":"cite_error_references_missing_key"}]}'><a href="./Parser_test#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup>
+<sup about="#mwt6" class="mw-ref" id="cite_ref-third_3-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"third"},"body":{"id":"mw-reference-text-cite_note-third-3"}}'><a href="./Parser_test#cite_note-third-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<hr data-parsoid='{"stx":"html","selfClose":true}'/>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-first-1" id="cite_note-first-1"><a href="./Parser_test#cite_ref-first_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-first-1" class="mw-reference-text">First</span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">Second</span></li><li about="#cite_note-third-3" id="cite_note-third-3"><a href="./Parser_test#cite_ref-third_3-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-third-3" class="mw-reference-text">Third</span></li></ol>
 !! end
 
 !! test
@@ -563,6 +581,12 @@ A follow="…" before its parent is not merged
 <li id="cite_note-third-3"><span class="mw-cite-backlink"><a href="#cite_ref-third_3-0">↑</a></span> <span class="reference-text">Third</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"follow":"third"},"body":{"id":"mw-reference-text-cite_note-2"},"errors":[{"key":"cite_error_references_missing_key"}]}'><a href="./Parser_test#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup>
+<sup about="#mwt6" class="mw-ref" id="cite_ref-third_3-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"third"},"body":{"id":"mw-reference-text-cite_note-third-3"}}'><a href="./Parser_test#cite_note-third-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<hr data-parsoid='{"stx":"html","selfClose":true}'/>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">First</span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">Second</span></li><li about="#cite_note-third-3" id="cite_note-third-3"><a href="./Parser_test#cite_ref-third_3-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-third-3" class="mw-reference-text">Third</span></li></ol>
 !! end
 
 !! test
@@ -571,6 +595,7 @@ Valid follow="…" after it's parent
 <ref name="theName">theValue</ref>
 <ref follow="theName">theFollows</ref>
 <ref>Should be 2</ref>
+<references />
 !! html/php
 <p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
 </p><p><sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;2&#93;</a></sup>
@@ -583,9 +608,9 @@ Valid follow="…" after it's parent
 </ol></div>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup style="display: none;" about="#mwt4" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'></sup>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" style="display: none;" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
 <sup about="#mwt6" class="mw-ref" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-2"}}'><a href="./Parser_test#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup></p>
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{},"autoGenerated":true}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text">theValue<span typeof="mw:Cite/Follow" about="#mwt4"> theFollows</span></span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">Should be 2</span></li></ol>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text">theValue<span typeof="mw:Cite/Follow" about="#mwt4"> theFollows</span></span></li><li about="#cite_note-2" id="cite_note-2"><a href="./Parser_test#cite_ref-2" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-2" class="mw-reference-text">Should be 2</span></li></ol>
 !! end
 
 !! test
@@ -605,10 +630,11 @@ Forward-referenced ref with follow
 </ol></div>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup style="display: none;" about="#mwt4" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'></sup></p>
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt7\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[75,109,20,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"html\":\"theValue\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text">theFollows</span></li></ol>
+<sup about="#mwt4" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" style="display: none;" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt7\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[75,109,20,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"html\":\"theValue\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text"><span typeof="mw:Cite/Follow" about="#mwt4"> theFollows</span></span></li></ol>
 !! end
 
+## FIXME: Parsoid needs to strip the mw:Cite/Follow wrapper for this to pass
 !! test
 Forward-referenced ref with magical follow edge case
 !! wikitext
@@ -617,17 +643,13 @@ Forward-referenced ref with magical follow edge case
 <references>
 <ref name="theName"> theValue</ref>
 </references>
-!! html/php
+!! html
 <p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text"> theValue</span>
 </li>
 </ol></div>
-!! html/parsoid
-<p><sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup style="display: none;" about="#mwt4" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'></sup></p>
-<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt8" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt7\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[73,108,20,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"html\":\" theValue\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><a href="./Parser_test#cite_ref-theName_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text">theValue</span></li></ol>
 !! end
 
 !! test

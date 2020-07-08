@@ -94,28 +94,9 @@ class Ref extends ExtensionTagHandler {
 			'inPHPBlock' => true
 		];
 
-		// ref follow nodes should already have their content spans stored in followContent
 		if ( is_string( $dataMw->body->html ?? null ) ) {
 			// First look for the extension's content in data-mw.body.html
 			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
-		} elseif ( isset( $dataMw->attrs->follow ) ) {
-			$src = '';
-			if ( $node->hasAttribute( 'about' ) ) {
-				$about = $node->getAttribute( 'about' );
-				$bodyElt = [];
-				$followNode = DOMCompat::getElementById( $node->ownerDocument, $dataMw->body->id )
-					?? null;
-				if ( $followNode != null ) {
-					$bodyElt = DOMCompat::querySelectorAll( $followNode,
-				"span[typeof~='mw:Cite/Follow'][about='" . $about . "']" );
-				}
-				// ensure that $bodyElt was found
-				if ( count( $bodyElt ) > 0 ) {
-					$src = $extApi->domToWikitext( $html2wtOpts, $bodyElt[0], true );
-					$src = ltrim( $src, ' ' );
-				}
-			}
-
 		} elseif ( is_string( $dataMw->body->id ?? null ) ) {
 			// If the body isn't contained in data-mw.body.html, look if
 			// there's an element pointed to by body.id.
@@ -164,15 +145,35 @@ class Ref extends ExtensionTagHandler {
 				return ''; // Drop it!
 			}
 
-			// Search for spans with follow content
-			if ( isset( $bodyElt->firstChild->nextSibling ) &&
-				DOMUtils::hasTypeOf( $bodyElt->firstChild->nextSibling, 'mw:Cite/Follow' ) ) {
-				$clonedNode = $bodyElt->cloneNode();
-				$clonedNode->appendChild( $bodyElt->firstChild );
-				$bodyElt = $clonedNode;
-			}
+			$hasRefName = strlen( $dataMw->attrs->name ?? '' ) > 0;
+			$hasFollow = strlen( $dataMw->attrs->follow ?? '' ) > 0;
 
-			$src = $extApi->domToWikitext( $html2wtOpts, $bodyElt, true );
+			if ( $hasFollow && !DOMUtils::hasTypeOf( $node, 'mw:Error' ) ) {
+				$about = $node->getAttribute( 'about' );
+				$followNode = DOMCompat::querySelector(
+					$bodyElt, "span[typeof~='mw:Cite/Follow'][about='{$about}']"
+				);
+				if ( $followNode ) {
+					$src = $extApi->domToWikitext( $html2wtOpts, $followNode, true );
+					$src = ltrim( $src, ' ' );
+				} else {
+					$src = '';
+				}
+			} else {
+				if ( $hasRefName ) {
+					// Follow content may have been added as spans, so drop it
+					if ( DOMCompat::querySelector( $bodyElt, "span[typeof~='mw:Cite/Follow']" ) ) {
+						$bodyElt = $bodyElt->cloneNode( true );
+						foreach ( $bodyElt->childNodes as $child ) {
+							if ( DOMUtils::hasTypeOf( $child, 'mw:Cite/Follow' ) ) {
+								DOMCompat::remove( $child );
+							}
+						}
+					}
+				}
+
+				$src = $extApi->domToWikitext( $html2wtOpts, $bodyElt, true );
+			}
 		} else {
 			$extApi->log( 'error', 'Ref body unavailable for: ' . DOMCompat::getOuterHTML( $node ) );
 			return ''; // Drop it!
