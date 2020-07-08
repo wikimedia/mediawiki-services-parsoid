@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
 use stdClass;
+use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ReferencesData {
@@ -53,14 +54,16 @@ class ReferencesData {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $groupName
 	 * @param string $refName
+	 * @param string $follow
+	 * @param string $contentId
 	 * @param string $about
 	 * @param bool $skipLinkback
 	 * @param DOMElement $linkBack
 	 * @return stdClass
 	 */
 	public function add(
-		ParsoidExtensionAPI $extApi, string $groupName, string $refName,
-		string $about, bool $skipLinkback, DOMElement $linkBack
+		ParsoidExtensionAPI $extApi, string $groupName, string $refName, string $follow,
+		string $contentId, string $about, bool $skipLinkback, DOMElement $linkBack
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		// Looks like Cite.php doesn't try to fix ids that already have
@@ -72,6 +75,41 @@ class ReferencesData {
 		//  in Parsoid: ExtensionHandler#normalizeExtOptions
 		$refName = $extApi->sanitizeHTMLId( $refName );
 		$hasRefName = strlen( $refName ) > 0;
+		$hasFollow = strlen( $follow ) > 0;
+
+		// Is this a follow ref that has been preceeded by a named ref which defined
+		// content or did not define content, or a self closed named ref without content
+		if ( !$hasRefName && $hasFollow && isset( $group->indexByName[$follow] ) ) {
+			$ref = $group->indexByName[$follow];
+			$contentSup = $extApi->getContentDOM( $contentId );
+			$ownerDoc = $contentSup->ownerDocument;
+			$span = $ownerDoc->createElement( 'span' );
+			DOMUtils::addTypeOf( $span, 'mw:Cite/Follow' );
+			$span->setAttribute( 'about', $about );
+			$spaceNode = $ownerDoc->createTextNode( ' ' );
+			$span->appendChild( $spaceNode );
+			DOMUtils::migrateChildren( $contentSup, $span );
+
+			// contentSup is now empty and can be used as a container for migrate children
+			$contentSup->appendChild( $span );
+
+			// If the named ref has defined content
+			if ( $ref->contentId ) {
+				$refContent = $extApi->getContentDOM( $ref->contentId );
+				ParsoidExtensionAPI::migrateChildrenBetweenDocs( $contentSup, $refContent, false );
+			} else {
+				// Otherwise we have a follow that comes after named ref without content
+				// So create a sup in a fragment, set that into the environment and migrate
+				// the follow content into the fragment
+				$ref->contentId = $contentId;
+			}
+			return $ref;
+		}
+
+		// Must check for error case where $hasRefName and $hasFollow are both present
+		// which still needs to create the ref, but also flag it with an error due to
+		// [ 'key' => 'cite_error_ref_too_many_keys' ]; as trapped in References.php
+		// but which needs to preserve the extra key for round tripping
 
 		if ( $hasRefName && isset( $group->indexByName[$refName] ) ) {
 			$ref = $group->indexByName[$refName];

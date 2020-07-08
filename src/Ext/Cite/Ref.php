@@ -94,9 +94,28 @@ class Ref extends ExtensionTagHandler {
 			'inPHPBlock' => true
 		];
 
+		// ref follow nodes should already have their content spans stored in followContent
 		if ( is_string( $dataMw->body->html ?? null ) ) {
 			// First look for the extension's content in data-mw.body.html
 			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
+		} elseif ( isset( $dataMw->attrs->follow ) ) {
+			$src = '';
+			if ( $node->hasAttribute( 'about' ) ) {
+				$about = $node->getAttribute( 'about' );
+				$bodyElt = [];
+				$followNode = DOMCompat::getElementById( $node->ownerDocument, $dataMw->body->id )
+					?? null;
+				if ( $followNode != null ) {
+					$bodyElt = DOMCompat::querySelectorAll( $followNode,
+				"span[typeof~='mw:Cite/Follow'][about='" . $about . "']" );
+				}
+				// ensure that $bodyElt was found
+				if ( count( $bodyElt ) > 0 ) {
+					$src = $extApi->domToWikitext( $html2wtOpts, $bodyElt[0], true );
+					$src = ltrim( $src, ' ' );
+				}
+			}
+
 		} elseif ( is_string( $dataMw->body->id ?? null ) ) {
 			// If the body isn't contained in data-mw.body.html, look if
 			// there's an element pointed to by body.id.
@@ -143,6 +162,14 @@ class Ref extends ExtensionTagHandler {
 					$extraDebug
 				);
 				return ''; // Drop it!
+			}
+
+			// Search for spans with follow content
+			if ( isset( $bodyElt->firstChild->nextSibling ) &&
+				DOMUtils::hasTypeOf( $bodyElt->firstChild->nextSibling, 'mw:Cite/Follow' ) ) {
+				$clonedNode = $bodyElt->cloneNode();
+				$clonedNode->appendChild( $bodyElt->firstChild );
+				$bodyElt = $clonedNode;
 			}
 
 			$src = $extApi->domToWikitext( $html2wtOpts, $bodyElt, true );

@@ -144,17 +144,73 @@ class References extends ExtensionTagHandler {
 		// FIXME(SSS): Need to clarify semantics here.
 		// If both the containing <references> elt as well as the nested <ref>
 		// elt has a group attribute, what takes precedence?
-		$group = $refDmw->attrs->group ?? $referencesGroup ?? '';
+		$groupName = $refDmw->attrs->group ?? $referencesGroup ?? '';
 
 		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
 		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
 		$refName = $refDmw->attrs->name ?? '';
+		$follow = $refDmw->attrs->follow ?? '';
+
+		$hasRefName = strlen( $refName ) > 0;
+		$hasFollow = strlen( $follow ) > 0;
 
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );
 
+		// prechecking various combinations of un-named refs, named refs, follow and error cases to
+		// properly determine how to proceed with adding a ref or not and generating appropriate code
+		if ( $hasRefName ) {
+			if ( $hasFollow ) {
+				// having both a ref name and follow is an error, the ref should be represented
+				// and the follow present, but not causing any effect, but add and
+				// verify follow round trips anyway
+				$debugging = 0;
+			} else {
+				// normal named ref, so add normally
+				$debugging = 1;
+			}
+		} else {
+			// Either an un-named ref or a follow
+			if ( $hasFollow ) {
+				// Is a follow ref, so check if a named ref has already been defined
+				$group = $refsData->getRefGroup( $groupName, true );
+				if ( isset( $group->indexByName[$follow] ) ) {
+					// Yes the named ref is defined, so lets check if it has defined content
+					$ref = $group->indexByName[$follow];
+					if ( $ref->contentId ) {
+						// The named ref did define content, so attach follow content normally
+						$debugging = 2;
+					} else {
+						// The follow content follows a named ref that did not define content
+						// and therefore the follow content cannot be appended and must be
+						// handled differently
+						$debugging = 3;
+					}
+				} else {
+					// this follow precedes a named ref being defined or possibly never being defined
+					// which is a type of error but still must round trip, so we must handle this case
+					// with special code and not call the add function.
+					$debugging = 4;
+
+					$html = $extApi->domToHtml( $c, true, true );
+					$refDmw->body = (object)[ 'html' => $html ];
+					DOMDataUtils::setDataMw( $linkBack, $refDmw );
+					DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref mw:Error' );
+					$node->parentNode->replaceChild( $linkBack, $node );
+					return;
+					// do not define a ref
+
+				}
+			// Is an unnamed ref and not a follow, so add the ref normally
+			} else {
+				// normal un-named ref, so add normally
+				$debugging = 5;
+			}
+		}
+
 		$ref = $refsData->add(
-			$extApi, $group, $refName, $about, $nestedInReferences, $linkBack
+			$extApi, $groupName, $refName, $follow, $contentId, $about, $nestedInReferences,
+			$linkBack
 		);
 
 		$errs = [];
@@ -162,6 +218,10 @@ class References extends ExtensionTagHandler {
 		// Check for missing content, added ?? '' to fix T259676 crasher
 		// FIXME: See T260082 for a more complete description of cause and deeper fix
 		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ?? '' ) === '' );
+
+		if ( $refName !== '' && strlen( $follow ) > 0 ) {
+			$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
+		}
 
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
@@ -203,6 +263,10 @@ class References extends ExtensionTagHandler {
 		}
 
 		$lastLinkback = $ref->linkbacks[count( $ref->linkbacks ) - 1] ?? null;
+
+		if ( strlen( $follow ) > 0 ) {
+			$linkBack->setAttribute( 'style', 'display: none;' );
+		}
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref',
@@ -215,7 +279,6 @@ class References extends ExtensionTagHandler {
 		if ( count( $errs ) > 0 ) {
 			DOMUtils::addTypeOf( $linkBack, 'mw:Error' );
 		}
-
 		$dataParsoid = new stdClass;
 		if ( isset( $nodeDp->src ) ) {
 			$dataParsoid->src = $nodeDp->src;
@@ -256,8 +319,11 @@ class References extends ExtensionTagHandler {
 			'[' . ( $ref->group ? $ref->group . ' ' : '' ) . $ref->groupIndex . ']'
 			)
 		);
-		$refLink->appendChild( $refLinkSpan );
-		$linkBack->appendChild( $refLink );
+
+		if ( strlen( $follow ) == 0 || count( $errs ) > 0 ) {
+			$refLink->appendChild( $refLinkSpan );
+			$linkBack->appendChild( $refLink );
+		}
 
 		$node->parentNode->replaceChild( $linkBack, $node );
 
