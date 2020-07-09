@@ -213,9 +213,9 @@ class WTUtils {
 	/**
 	 * Find the first wrapper element of encapsulated content.
 	 * @param DOMNode $node
-	 * @return DOMNode|null
+	 * @return DOMElement|null
 	 */
-	public static function findFirstEncapsulationWrapperNode( DOMNode $node ): ?DOMNode {
+	public static function findFirstEncapsulationWrapperNode( DOMNode $node ): ?DOMElement {
 		if ( !self::hasParsoidAboutId( $node ) ) {
 			return null;
 		}
@@ -232,7 +232,9 @@ class WTUtils {
 			$prev instanceof DOMElement &&
 			$prev->getAttribute( 'about' ) === $about
 		);
-		return self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
+		$elt = self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
+		'@phan-var ?DOMElement $elt'; // @var ?DOMElement $elt
+		return $elt;
 	}
 
 	/**
