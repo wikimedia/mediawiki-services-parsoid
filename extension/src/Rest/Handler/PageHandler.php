@@ -7,6 +7,7 @@ use MediaWiki\Rest\Response;
 use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
+use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\Parsoid\Config\PageConfig;
 
 /**
@@ -16,6 +17,32 @@ use Wikimedia\Parsoid\Config\PageConfig;
  * @see https://www.mediawiki.org/wiki/Parsoid/API#GET
  */
 class PageHandler extends ParsoidHandler {
+
+	/** @inheritDoc */
+	public function getParamSettings() {
+		return [
+			'domain' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'format' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'title' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'revision' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+		];
+	}
 
 	/** @inheritDoc */
 	public function execute(): Response {

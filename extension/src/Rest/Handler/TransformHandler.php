@@ -5,6 +5,7 @@ namespace MWParsoid\Rest\Handler;
 
 use MediaWiki\Rest\Response;
 use MWParsoid\Rest\FormatHelper;
+use Wikimedia\ParamValidator\ParamValidator;
 
 /**
  * Handler for transforming content given in the request.
@@ -14,6 +15,37 @@ use MWParsoid\Rest\FormatHelper;
  * @see https://www.mediawiki.org/wiki/Parsoid/API#POST
  */
 class TransformHandler extends ParsoidHandler {
+
+	/** @inheritDoc */
+	public function getParamSettings() {
+		return [
+			'domain' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'from' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'format' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'title' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+			'revision' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+		];
+	}
 
 	/**
 	 * Transform content given in the request from or to wikitext.
