@@ -91,6 +91,7 @@ class IntegratedTestRunner extends \ParserTestRunner {
 			// into <link> tags), add tag hooks to allow them to be generated.
 			$parser->setHook( 'style', function ( $content, $attributes, $parser ) {
 				$marker = Parser::MARKER_PREFIX . '-style-' . md5( $content ) . Parser::MARKER_SUFFIX;
+				// @phan-suppress-next-line SecurityCheck-XSS
 				$parser->mStripState->addNoWiki( $marker, $content );
 				return Html::inlineStyle( $marker, 'all', $attributes );
 			} );
