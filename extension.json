@@ -11,6 +11,13 @@
 	"AutoloadNamespaces": {
 		"MWParsoid\\": "extension/src"
 	},
+	"config": {
+		"ParsoidSettings": {
+			"value": {
+				"useSelser": true
+			}
+		}
+	},
 	"RestRoutes": [
 		{
 			"path": "/{domain}/v3/page/{format}/{title}",
@@ -46,9 +53,6 @@
 	"ServiceWiringFiles": [
 		"extension/ServiceWiring.php"
 	],
-	"ConfigRegistry": {
-		"Parsoid": "GlobalVarConfig::newInstance"
-	},
 	"load_composer_autoloader": false,
 	"manifest_version": 2
 }

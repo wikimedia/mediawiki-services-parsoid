@@ -18,12 +18,11 @@ AutoLoader::$psr4Namespaces += [
 // have already been configured.
 if ( !isset( $wgParsoidSettings ) ) {
 	// Temporarily enable all these defaults
-	$wgParsoidSettings = [
-		'useSelser' => true,
-	];
+	$wgParsoidSettings = [];
 }
 
 // Override Parsoid-specific settings for rt-testing.
+$wgParsoidSettings['useSelser'] = true;
 $wgParsoidSettings['rtTestMode'] = true;
 
 // Linting during rt testing is useful to catch errors and crashers,

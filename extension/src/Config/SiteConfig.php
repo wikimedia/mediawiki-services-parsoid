@@ -79,7 +79,7 @@ class SiteConfig extends ISiteConfig {
 
 		$services = MediaWikiServices::getInstance();
 		$this->config = $services->getMainConfig();
-		$this->parsoidSettings = $services->get( 'ParsoidSettings' );
+		$this->parsoidSettings = $services->getMainConfig()->get( 'ParsoidSettings' );
 		$this->contLang = $services->getContentLanguage();
 		// Override parent default
 		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {

@@ -90,7 +90,7 @@ abstract class ParsoidHandler extends Handler {
 		$parsoidServices = new ParsoidServices( $services );
 		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static(
-			$parsoidServices->getParsoidSettings(),
+			$services->getMainConfig()->get( 'ParsoidSettings' ),
 			$parsoidServices->getParsoidSiteConfig(),
 			$parsoidServices->getParsoidPageConfigFactory(),
 			$parsoidServices->getParsoidDataAccess()
