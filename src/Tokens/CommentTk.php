@@ -19,9 +19,11 @@ class CommentTk extends Token {
 
 	/**
 	 * @param string $value
-	 * @param stdClass|null $dataAttribs
+	 * @param ?stdClass $dataAttribs
 	 */
-	public function __construct( string $value, stdClass $dataAttribs = null ) {
+	public function __construct(
+		string $value, ?stdClass $dataAttribs = null
+	) {
 		$this->value = $value;
 
 		// Won't survive in the DOM, but still useful for token serialization

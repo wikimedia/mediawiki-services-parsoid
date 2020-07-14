@@ -35,15 +35,17 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @param array &$state
 	 * @param DOMElement $rootNode
 	 * @param array &$sectionStack
-	 * @param array|null $tplInfo
-	 * @param array|null $currSection
+	 * @param ?array $tplInfo
+	 * @param ?array $currSection
 	 * @param DOMNode $node
 	 * @param int $newLevel
 	 * @param bool $pseudoSection
 	 * @return array
 	 */
-	private function createNewSection( array &$state, DOMElement $rootNode, array &$sectionStack,
-		?array $tplInfo, ?array $currSection, DOMNode $node, int $newLevel, bool $pseudoSection
+	private function createNewSection(
+		array &$state, DOMElement $rootNode, array &$sectionStack,
+		?array $tplInfo, ?array $currSection, DOMNode $node, int $newLevel,
+		bool $pseudoSection
 	): array {
 		/* Structure for regular (editable or not) sections
 		 *   <section data-mw-section-id="..">
@@ -123,12 +125,13 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * This is the workhorse code that wrapSections relies on.
 	 *
 	 * @param array &$state
-	 * @param array|null $currSection
+	 * @param ?array $currSection
 	 * @param DOMElement $rootNode
 	 * @return int
 	 */
-	private function wrapSectionsInDOM( array &$state, ?array $currSection,
-		DOMElement $rootNode ): int {
+	private function wrapSectionsInDOM(
+		array &$state, ?array $currSection, DOMElement $rootNode
+	): int {
 		$tplInfo = null;
 		$sectionStack = [];
 		$highestSectionLevel = 7;

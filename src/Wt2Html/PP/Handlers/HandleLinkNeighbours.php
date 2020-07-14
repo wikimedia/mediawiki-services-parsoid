@@ -18,7 +18,7 @@ class HandleLinkNeighbours {
 	 *
 	 * @param Env $env
 	 * @param DOMElement $aNode
-	 * @return array|null
+	 * @return ?array
 	 */
 	private static function getLinkPrefix( Env $env, DOMElement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkPrefixRegex();
@@ -35,7 +35,7 @@ class HandleLinkNeighbours {
 	 *
 	 * @param Env $env
 	 * @param DOMelement $aNode
-	 * @return array|null
+	 * @return ?array
 	 */
 	private static function getLinkTrail( Env $env, DOMelement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkTrailRegex();

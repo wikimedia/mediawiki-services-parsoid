@@ -13,9 +13,9 @@ use Wikimedia\Parsoid\Ext\PHPUtils;
 class PackedMode extends TraditionalMode {
 	/**
 	 * Create a PackedMode singleton.
-	 * @param string|null $mode Only used by subclasses.
+	 * @param ?string $mode Only used by subclasses.
 	 */
-	protected function __construct( string $mode = null ) {
+	protected function __construct( ?string $mode = null ) {
 		parent::__construct( $mode ?? 'packed' );
 		$this->scale = 1.5;
 		$this->padding = PHPUtils::arrayToObject( [ 'thumb' => 0, 'box' => 2, 'border' => 8 ] );

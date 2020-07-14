@@ -19,7 +19,7 @@ class SelserData {
 	 * Data that's necessary to perform selective serialization.
 	 *
 	 * @param string $oldText
-	 * @param string|null $oldHTML
+	 * @param ?string $oldHTML
 	 */
 	public function __construct( string $oldText, ?string $oldHTML = null ) {
 		$this->oldText = $oldText;

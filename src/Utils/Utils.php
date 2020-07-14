@@ -194,11 +194,13 @@ class Utils {
 	 * Check for valid DSR range(s)
 	 * DSR = "DOM Source Range".
 	 *
-	 * @param DomSourceRange|null $dsr DSR source range values
+	 * @param ?DomSourceRange $dsr DSR source range values
 	 * @param bool $all Also check the widths of the container tag
 	 * @return bool
 	 */
-	public static function isValidDSR( ?DomSourceRange $dsr, bool $all = false ): bool {
+	public static function isValidDSR(
+		?DomSourceRange $dsr, bool $all = false
+	): bool {
 		return $dsr !== null &&
 			self::isValidOffset( $dsr->start ) &&
 			self::isValidOffset( $dsr->end ) &&
@@ -350,9 +352,11 @@ class Utils {
 	 *
 	 * @param string $str media dimension string to parse
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
-	 * @return array{x:int,y?:int}|null
+	 * @return ?array{x:int,y?:int}
 	 */
-	public static function parseMediaDimensions( string $str, bool $onlyOne = false ): ?array {
+	public static function parseMediaDimensions(
+		string $str, bool $onlyOne = false
+	): ?array {
 		$dimensions = null;
 		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/D', $str, $match ) ) {
 			$dimensions = [ 'x' => null, 'y' => null ];
@@ -373,7 +377,7 @@ class Utils {
 	 * Validate media parameters
 	 * More generally, this is defined by the media handler in core
 	 *
-	 * @param int|null $num
+	 * @param ?int $num
 	 * @return bool
 	 */
 	public static function validateMediaParam( ?int $num ): bool {

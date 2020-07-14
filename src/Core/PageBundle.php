@@ -17,16 +17,16 @@ class PageBundle {
 	/** @var string */
 	public $html;
 
-	/** @var array|null */
+	/** @var ?array */
 	public $parsoid;
 
-	/** @var array|null */
+	/** @var ?array */
 	public $mw;
 
-	/** @var string|null */
+	/** @var ?string */
 	public $version;
 
-	/** @var array|null */
+	/** @var ?array */
 	public $headers;
 
 	/** @var string|null */
@@ -34,16 +34,16 @@ class PageBundle {
 
 	/**
 	 * @param string $html
-	 * @param array|null $parsoid
-	 * @param array|null $mw
-	 * @param string|null $version
-	 * @param array|null $headers
-	 * @param string|null $contentmodel
+	 * @param ?array $parsoid
+	 * @param ?array $mw
+	 * @param ?string $version
+	 * @param ?array $headers
+	 * @param ?string $contentmodel
 	 */
 	public function __construct(
-		string $html, array $parsoid = null, array $mw = null,
-		string $version = null, array $headers = null,
-		string $contentmodel = null
+		string $html, ?array $parsoid = null, ?array $mw = null,
+		?string $version = null, ?array $headers = null,
+		?string $contentmodel = null
 	) {
 		$this->html = $html;
 		$this->parsoid = $parsoid;
@@ -62,10 +62,12 @@ class PageBundle {
 	/**
 	 * Check if this pagebundle is valid.
 	 * @param string $contentVersion Document content version to validate against.
-	 * @param string|null &$errorMessage Error message will be returned here.
+	 * @param ?string &$errorMessage Error message will be returned here.
 	 * @return bool
 	 */
-	public function validate( string $contentVersion, string &$errorMessage = null ) {
+	public function validate(
+		string $contentVersion, ?string &$errorMessage = null
+	) {
 		if ( !$this->parsoid || !isset( $this->parsoid['ids'] ) ) {
 			$errorMessage = 'Invalid data-parsoid was provided.';
 			return false;

@@ -28,9 +28,9 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 	}
 
 	/**
-	 * @param ParsoidExtensionAPI|null $extApi
+	 * @param ?ParsoidExtensionAPI $extApi
 	 */
-	public function __construct( ParsoidExtensionAPI $extApi = null ) {
+	public function __construct( ?ParsoidExtensionAPI $extApi = null ) {
 		/* @phan-suppress-previous-line PhanEmptyPublicMethod */
 		/* The dom post processor doesn't need to use $extApi, so ignore it */
 	}

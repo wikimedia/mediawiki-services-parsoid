@@ -40,7 +40,7 @@ class WTUtils {
 
 	/**
 	 * Run a node through {@link #hasLiteralHTMLMarker}.
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
 	public static function isLiteralHTMLNode( ?DOMNode $node ): bool {
@@ -77,10 +77,12 @@ class WTUtils {
 	 * anymore since mw:ExtLink is used for all the three link syntaxes.
 	 *
 	 * @param DOMElement $node
-	 * @param stdClass|null $dp
+	 * @param ?stdClass $dp
 	 * @return bool
 	 */
-	public static function usesWikiLinkSyntax( DOMElement $node, ?stdClass $dp ): bool {
+	public static function usesWikiLinkSyntax(
+		DOMElement $node, ?stdClass $dp
+	): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -99,10 +101,12 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param stdClass|null $dp
+	 * @param ?stdClass $dp
 	 * @return bool
 	 */
-	public static function usesExtLinkSyntax( DOMElement $node, ?stdClass $dp ): bool {
+	public static function usesExtLinkSyntax(
+		DOMElement $node, ?stdClass $dp
+	): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -121,10 +125,12 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param stdClass|null $dp
+	 * @param ?stdClass $dp
 	 * @return bool
 	 */
-	public static function usesURLLinkSyntax( DOMElement $node, stdClass $dp = null ): bool {
+	public static function usesURLLinkSyntax(
+		DOMElement $node, ?stdClass $dp = null
+	): bool {
 		// FIXME: Optimization from ComputeDSR to avoid refetching this property
 		// Is it worth the unnecessary code here?
 		if ( !$dp ) {
@@ -143,10 +149,12 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param DOMElement $node
-	 * @param stdClass|null $dp
+	 * @param ?stdClass $dp
 	 * @return bool
 	 */
-	public static function usesMagicLinkSyntax( DOMElement $node, stdClass $dp = null ): bool {
+	public static function usesMagicLinkSyntax(
+		DOMElement $node, ?stdClass $dp = null
+	): bool {
 		if ( !$dp ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 		}
@@ -355,7 +363,7 @@ class WTUtils {
 	/**
 	 * Does $node represent a category link?
 	 *
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
 	public static function isCategoryLink( ?DOMNode $node ): bool {

@@ -17,7 +17,7 @@ class Title {
 	/** @var string */
 	private $dbkey;
 
-	/** @var string|null */
+	/** @var ?string */
 	private $fragment;
 
 	/** @var TitleNamespace */
@@ -27,9 +27,11 @@ class Title {
 	 * @param string $key Page DBkey (with underscores, not spaces)
 	 * @param int|TitleNamespace $ns
 	 * @param SiteConfig $siteConfig
-	 * @param string|null $fragment
+	 * @param ?string $fragment
 	 */
-	public function __construct( string $key, $ns, SiteConfig $siteConfig, ?string $fragment = null ) {
+	public function __construct(
+		string $key, $ns, SiteConfig $siteConfig, ?string $fragment = null
+	) {
 		$this->dbkey = $key;
 		if ( $ns instanceof TitleNamespace ) {
 			$this->namespaceId = $ns->getId();

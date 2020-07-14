@@ -15,13 +15,15 @@ class NlTk extends Token {
 	public $dataAttribs;
 
 	/**
-	 * @param SourceRange|null $tsr
+	 * @param ?SourceRange $tsr
 	 *    TSR ("tag source range") represents the (start, end) wikitext
 	 *    byte offsets for a token (in this case, the newline) in the
 	 *    UTF8-encoded source string
-	 * @param stdClass|null $dataAttribs
+	 * @param ?stdClass $dataAttribs
 	 */
-	public function __construct( ?SourceRange $tsr, stdClass $dataAttribs = null ) {
+	public function __construct(
+		?SourceRange $tsr, ?stdClass $dataAttribs = null
+	) {
 		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
 		} elseif ( $tsr ) {

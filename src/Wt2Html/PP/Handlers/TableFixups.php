@@ -190,7 +190,7 @@ class TableFixups {
 	 *
 	 * @param array $buf
 	 * @param array $nowikis
-	 * @param DOMElement|null $transclusionNode
+	 * @param ?DOMElement $transclusionNode
 	 * @return array
 	 */
 	private static function buildRes(
@@ -213,7 +213,7 @@ class TableFixups {
 	 *
 	 * @param Env $env
 	 * @param DOMElement $node
-	 * @param DOMElement|null $templateWrapper
+	 * @param ?DOMElement $templateWrapper
 	 * @return array
 	 */
 	public function collectAttributishContent(
@@ -330,7 +330,7 @@ class TableFixups {
 	 *
 	 * @param Frame $frame
 	 * @param DOMElement $node
-	 * @param DOMElement|null $templateWrapper
+	 * @param ?DOMElement $templateWrapper
 	 */
 	public function reparseTemplatedAttributes(
 		Frame $frame, DOMElement $node, ?DOMElement $templateWrapper

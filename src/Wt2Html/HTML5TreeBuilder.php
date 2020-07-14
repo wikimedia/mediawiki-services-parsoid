@@ -70,10 +70,11 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * @param Env $env
 	 * @param array $options
 	 * @param string $stageId
-	 * @param PipelineStage|null $prevStage
+	 * @param ?PipelineStage $prevStage
 	 */
 	public function __construct(
-		Env $env, array $options = [], string $stageId = "", $prevStage = null
+		Env $env, array $options = [], string $stageId = "",
+		?PipelineStage $prevStage = null
 	) {
 		parent::__construct( $env, $prevStage );
 

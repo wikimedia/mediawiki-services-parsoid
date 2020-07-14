@@ -162,13 +162,13 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param string $tokenName
 	 * @param bool $isEnd
 	 * @param SourceRange $tsr
-	 * @param string|null $src
+	 * @param ?string $src
 	 * @return SelfclosingTagTk
 	 */
 	public static function buildMetaToken(
 		TokenTransformManager $manager, string $tokenName, bool $isEnd,
 		SourceRange $tsr, ?string $src
-	) : SelfclosingTagTk {
+	): SelfclosingTagTk {
 		if ( $isEnd ) {
 			$tokenName .= '/End';
 		}
@@ -186,12 +186,13 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param TokenTransformManager $manager
 	 * @param string $tokenName
 	 * @param Token $startDelim
-	 * @param Token|null $endDelim
+	 * @param ?Token $endDelim
 	 * @return SelfclosingTagTk
 	 */
 	protected static function buildStrippedMetaToken(
-		TokenTransformManager $manager, string $tokenName, Token $startDelim, ?Token $endDelim
-	) : SelfclosingTagTk {
+		TokenTransformManager $manager, string $tokenName, Token $startDelim,
+		?Token $endDelim
+	): SelfclosingTagTk {
 		$da = $startDelim->dataAttribs;
 		$tsr0 = $da ? $da->tsr : null;
 		$t0 = $tsr0 ? $tsr0->start : null;

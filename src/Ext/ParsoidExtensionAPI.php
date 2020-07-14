@@ -61,7 +61,7 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * @param Env $env
-	 * @param array|null $options
+	 * @param ?array $options
 	 *  - wt2html: used in wt->html direction
 	 *    - frame: (Frame)
 	 *    - parseOpts: (array)
@@ -73,7 +73,7 @@ class ParsoidExtensionAPI {
 	 *    - state: (SerializerState)
 	 */
 	public function __construct(
-		Env $env, array $options = null
+		Env $env, ?array $options = null
 	) {
 		$this->env = $env;
 		$this->wt2htmlOpts = $options['wt2html'] ?? null;

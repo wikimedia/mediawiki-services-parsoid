@@ -40,7 +40,7 @@ class ReferencesData {
 	}
 
 	/**
-	 * @param string|null $groupName
+	 * @param ?string $groupName
 	 */
 	public function removeRefGroup( ?string $groupName = null ): void {
 		if ( $groupName !== null ) {

@@ -10,9 +10,9 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 class PackedHoverMode extends PackedMode {
 	/**
 	 * Create a PackedHoverMode singleton.
-	 * @param string|null $mode Only used by subclasses.
+	 * @param ?string $mode Only used by subclasses.
 	 */
-	protected function __construct( string $mode = null ) {
+	protected function __construct( ?string $mode = null ) {
 		parent::__construct( $mode ?? 'packed-hover' );
 	}
 

@@ -15,24 +15,26 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 class DomSourceRange extends SourceRange {
 	/**
 	 * Opening tag width.
-	 * @var int|null
+	 * @var ?int
 	 */
 	public $openWidth;
 
 	/**
 	 * Closing tag width.
-	 * @var int|null
+	 * @var ?int
 	 */
 	public $closeWidth;
 
 	/**
 	 * Create a new DOM source offset.
-	 * @param int|null $start The starting index (UTF-8 byte count, inclusive)
-	 * @param int|null $end The ending index (UTF-8 byte count, exclusive)
-	 * @param int|null $openWidth The width of the open container tag
-	 * @param int|null $closeWidth The width of the close container tag
+	 * @param ?int $start The starting index (UTF-8 byte count, inclusive)
+	 * @param ?int $end The ending index (UTF-8 byte count, exclusive)
+	 * @param ?int $openWidth The width of the open container tag
+	 * @param ?int $closeWidth The width of the close container tag
 	 */
-	public function __construct( ?int $start, ?int $end, ?int $openWidth, ?int $closeWidth ) {
+	public function __construct(
+		?int $start, ?int $end, ?int $openWidth, ?int $closeWidth
+	) {
 		parent::__construct( $start, $end );
 		$this->openWidth = $openWidth;
 		$this->closeWidth = $closeWidth;

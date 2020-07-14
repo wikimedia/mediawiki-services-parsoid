@@ -157,10 +157,12 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
 	 * @param DOMElement $node
-	 * @param stdClass|null $dp
+	 * @param ?stdClass $dp
 	 * @return int[]|null
 	 */
-	private function computeATagWidth( DOMElement $node, ?stdClass $dp ): ?array {
+	private function computeATagWidth(
+		DOMElement $node, ?stdClass $dp
+	): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
 		 *
@@ -305,14 +307,15 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param Frame $frame
 	 * @param DOMNode $node node to process
-	 * @param int|null $s start position, inclusive
-	 * @param int|null $e end position, exclusive
+	 * @param ?int $s start position, inclusive
+	 * @param ?int $e end position, exclusive
 	 * @param int $dsrCorrection
 	 * @param array $opts
 	 * @return array
 	 */
 	private function computeNodeDSR(
-		Frame $frame, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection, array $opts
+		Frame $frame, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection,
+		array $opts
 	): array {
 		$env = $frame->getEnv();
 		if ( $e === null && !$node->hasChildNodes() ) {

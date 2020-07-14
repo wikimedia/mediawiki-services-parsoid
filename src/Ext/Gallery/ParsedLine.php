@@ -18,7 +18,7 @@ class ParsedLine {
 
 	/**
 	 * DOM node representing the caption (if any).
-	 * @var DOMElement|null
+	 * @var ?DOMElement
 	 */
 	public $gallerytext;
 
@@ -31,7 +31,7 @@ class ParsedLine {
 	/**
 	 * Construct a new ParsedLine object.
 	 * @param DOMElement $thumb
-	 * @param DOMElement|null $gallerytext
+	 * @param ?DOMElement $gallerytext
 	 * @param string $rdfaType
 	 */
 	public function __construct(

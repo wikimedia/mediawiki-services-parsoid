@@ -11,13 +11,13 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 
 class DDHandler extends DOMHandler {
 
-	/** @var string|null Syntax */
+	/** @var ?string Syntax */
 	private $stx;
 
 	/**
-	 * @param string|null $stx
+	 * @param ?string $stx
 	 */
-	public function __construct( string $stx = null ) {
+	public function __construct( ?string $stx = null ) {
 		parent::__construct( $stx !== 'row' );
 		$this->stx = $stx;
 	}

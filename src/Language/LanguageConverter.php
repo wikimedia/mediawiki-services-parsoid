@@ -55,27 +55,24 @@ class LanguageConverter {
 	/** @var string[] */
 	private $variants;
 
-	/** @var array */
+	/** @var ?array */
 	private $variantFallbacks;
 
-	/** @var ReplacementMachine|null */
+	/** @var ?ReplacementMachine */
 	private $machine;
 
 	/**
 	 * @param Language $language
 	 * @param string $langCode The main language code of this language
 	 * @param string[] $variants The supported variants of this language
-	 * @param array|null $variantfallbacks The fallback language of each variant
-	 * @param array|null $flags Defining the custom strings that maps to the flags
-	 * @param array|null $manualLevel Limit for supported variants
+	 * @param ?array $variantfallbacks The fallback language of each variant
+	 * @param ?array $flags Defining the custom strings that maps to the flags
+	 * @param ?array $manualLevel Limit for supported variants
 	 */
 	public function __construct(
-		Language $language,
-		$langCode,
-		array $variants,
-		array $variantfallbacks = null,
-		array $flags = null,
-		array $manualLevel = null
+		Language $language, string $langCode, array $variants,
+		?array $variantfallbacks = null, ?array $flags = null,
+		?array $manualLevel = null
 	) {
 		$this->language = $language;
 		$this->langCode = $langCode;
@@ -94,7 +91,7 @@ class LanguageConverter {
 
 	/**
 	 * Return the {@link ReplacementMachine} powering this conversion.
-	 * @return ReplacementMachine|null
+	 * @return ?ReplacementMachine
 	 */
 	public function getMachine(): ?ReplacementMachine {
 		return $this->machine;
@@ -184,14 +181,12 @@ class LanguageConverter {
 	 *
 	 * @param Env $env
 	 * @param DOMDocument $doc The input document.
-	 * @param string|null $targetVariant The desired output variant.
-	 * @param string|null $sourceVariant The variant used by convention when
+	 * @param ?string $targetVariant The desired output variant.
+	 * @param ?string $sourceVariant The variant used by convention when
 	 *   authoring pages, if there is one; otherwise left null.
 	 */
 	public static function maybeConvert(
-		Env $env,
-		DOMDocument $doc,
-		?string $targetVariant,
+		Env $env, DOMDocument $doc, ?string $targetVariant,
 		?string $sourceVariant
 	): void {
 		// language converter must be enabled for the pagelanguage
@@ -232,13 +227,11 @@ class LanguageConverter {
 	 * @param Env $env
 	 * @param DOMNode $rootNode The root node of a fragment to convert.
 	 * @param string $targetVariant The variant to be used for the output DOM.
-	 * @param string|null $sourceVariant An optional variant assumed for the
+	 * @param ?string $sourceVariant An optional variant assumed for the
 	 *  input DOM in order to create roundtrip metadata.
 	 */
 	public static function baseToVariant(
-		Env $env,
-		DOMNode $rootNode,
-		string $targetVariant,
+		Env $env, DOMNode $rootNode, string $targetVariant,
 		?string $sourceVariant
 	): void {
 		$pageLangCode = $env->getPageConfig()->getPageLanguage()

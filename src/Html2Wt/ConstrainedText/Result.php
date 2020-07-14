@@ -17,10 +17,12 @@ class Result {
 	 * Construct a new constrained text result object.
 	 *
 	 * @param string $text
-	 * @param string|null $prefix
-	 * @param string|null $suffix
+	 * @param ?string $prefix
+	 * @param ?string $suffix
 	 */
-	public function __construct( string $text, ?string $prefix = null, ?string $suffix = null ) {
+	public function __construct(
+		string $text, ?string $prefix = null, ?string $suffix = null
+	) {
 		$this->text = $text;
 		$this->prefix = $prefix;
 		$this->suffix = $suffix;

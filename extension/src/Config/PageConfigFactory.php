@@ -72,22 +72,19 @@ class PageConfigFactory {
 	/**
 	 * Create a new PageConfig.
 	 * @param LinkTarget $title The page represented by the PageConfig.
-	 * @param UserIdentity|null $user User who is doing rendering (for parsing options).
-	 * @param int|null $revisionId The revision of the page.
-	 * @param string|null $wikitextOverride Wikitext to use instead of the
+	 * @param ?UserIdentity $user User who is doing rendering (for parsing options).
+	 * @param ?int $revisionId The revision of the page.
+	 * @param ?string $wikitextOverride Wikitext to use instead of the
 	 *   contents of the specific $revision; used when $revision is null
 	 *   (a new page) or when we are parsing a stashed text.
-	 * @param string|null $pagelanguageOverride
-	 * @param array|null $parsoidSettings At present, only used in debugging.
+	 * @param ?string $pagelanguageOverride
+	 * @param ?array $parsoidSettings At present, only used in debugging.
 	 * @return PageConfig
 	 */
 	public function create(
-		LinkTarget $title,
-		UserIdentity $user = null,
-		int $revisionId = null,
-		string $wikitextOverride = null,
-		string $pagelanguageOverride = null,
-		array $parsoidSettings = null
+		LinkTarget $title, ?UserIdentity $user = null, ?int $revisionId = null,
+		?string $wikitextOverride = null, ?string $pagelanguageOverride = null,
+		?array $parsoidSettings = null
 	): PageConfig {
 		$title = Title::newFromLinkTarget( $title );
 

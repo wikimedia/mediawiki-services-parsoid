@@ -164,7 +164,7 @@ class PHPUtils {
 	 * @param string $s The (sub)string to check
 	 * @param int $start The starting offset (in bytes). If negative, the
 	 *  offset is counted from the end of the string.
-	 * @param int|null $length (optional) The maximum length of the returned
+	 * @param ?int $length (optional) The maximum length of the returned
 	 *  string. If negative, the end position is counted from the end of
 	 *  the string.
 	 * @param bool $checkEntireString Whether to do a slower verification
@@ -269,12 +269,14 @@ class PHPUtils {
 	 * `(?!foo)` will break the regular expression.
 	 *
 	 * @param string $re The regular expression to strip
-	 * @param string|null $newDelimiter Optional delimiter which will be
+	 * @param ?string $newDelimiter Optional delimiter which will be
 	 *   used when recomposing this stripped regular expression into a
 	 *   new regular expression.
 	 * @return string The regular expression without delimiters or flags
 	 */
-	public static function reStrip( string $re, ?string $newDelimiter = null ): string {
+	public static function reStrip(
+		string $re, ?string $newDelimiter = null
+	): string {
 		static $delimiterPairs = [
 			'(' => ')',
 			'[' => ']',

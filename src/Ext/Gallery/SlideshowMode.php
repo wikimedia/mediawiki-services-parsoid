@@ -8,9 +8,9 @@ use DOMElement;
 class SlideshowMode extends TraditionalMode {
 	/**
 	 * Create a SlideshowMode singleton.
-	 * @param string|null $mode Only used by subclasses.
+	 * @param ?string $mode Only used by subclasses.
 	 */
-	protected function __construct( string $mode = null ) {
+	protected function __construct( ?string $mode = null ) {
 		parent::__construct( $mode ?? 'slideshow' );
 	}
 

@@ -411,10 +411,10 @@ class DOMDataUtils {
 	 *
 	 * @param stdClass $dp
 	 * @param array $options
-	 * @param DOMElement|null $node
+	 * @param ?DOMElement $node
 	 */
 	public static function massageLoadedDataParsoid(
-		stdClass $dp, array $options = [], DOMElement $node = null
+		stdClass $dp, array $options = [], ?DOMElement $node = null
 	): void {
 		if ( isset( $dp->sa ) ) {
 			$dp->sa = (array)$dp->sa;
@@ -520,7 +520,7 @@ class DOMDataUtils {
 	 * PORT_FIXME This function needs an accurate description
 	 *
 	 * @param DOMNode $node node
-	 * @param ?array|null $options options
+	 * @param ?array $options options
 	 */
 	public static function storeDataAttribs( DOMNode $node, ?array $options = null ): void {
 		$options = $options ?? [];

@@ -34,12 +34,13 @@ abstract class Mode {
 	 * Render HTML for the given lines in this mode.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param Opts $opts
-	 * @param DOMElement|null $caption
+	 * @param ?DOMElement $caption
 	 * @param ParsedLine[] $lines
 	 * @return DOMDocument
 	 */
 	abstract public function render(
-		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMElement $caption, array $lines
+		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMElement $caption,
+		array $lines
 	): DOMDocument;
 
 	/**

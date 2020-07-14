@@ -62,8 +62,8 @@ class LanguageVariantHandler extends TokenHandler {
 
 	/**
 	 * compress a whitespace sequence
-	 * @param array|null $a
-	 * @return array|null
+	 * @param ?array $a
+	 * @return ?array
 	 */
 	private function compressSpArray( ?array $a ): ?array {
 		$result = [];

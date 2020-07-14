@@ -222,7 +222,7 @@ class XMLSerializer {
 	 *   - uid: the ID of the element
 	 * @param string $bit A piece of the HTML string
 	 * @param DOMNode $node The DOM node $bit is a part of
-	 * @param string|null $flag 'start' when receiving the final part of the opening tag
+	 * @param ?string $flag 'start' when receiving the final part of the opening tag
 	 *   of an element, 'end' when receiving the final part of the closing tag of an element
 	 *   or the final part of a self-closing element.
 	 */

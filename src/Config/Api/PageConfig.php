@@ -41,7 +41,7 @@ class PageConfig extends IPageConfig {
 	private $pagelanguageDir;
 
 	/**
-	 * @param ApiHelper|null $api (only needed if $opts doesn't provide page info)
+	 * @param ?ApiHelper $api (only needed if $opts doesn't provide page info)
 	 * @param array $opts
 	 */
 	public function __construct( ?ApiHelper $api, array $opts ) {

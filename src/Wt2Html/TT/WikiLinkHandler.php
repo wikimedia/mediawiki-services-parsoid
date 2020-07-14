@@ -450,12 +450,14 @@ class WikiLinkHandler extends TokenHandler {
 	 *
 	 * @param array $attrs
 	 * @param bool $getLinkText
-	 * @param string|null $rdfaType
-	 * @param array|null $linkAttrs
+	 * @param ?string $rdfaType
+	 * @param ?array $linkAttrs
 	 * @return array
 	 */
-	public static function buildLinkAttrs( array $attrs, bool $getLinkText,
-			?string $rdfaType, ?array $linkAttrs ): array {
+	public static function buildLinkAttrs(
+		array $attrs, bool $getLinkText, ?string $rdfaType,
+		?array $linkAttrs
+	): array {
 		$newAttrs = [];
 		$linkTextKVs = [];
 		$about = null;

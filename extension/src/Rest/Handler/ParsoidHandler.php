@@ -327,15 +327,15 @@ abstract class ParsoidHandler extends Handler {
 
 	/**
 	 * @param string $title The page to be transformed
-	 * @param int|null $revision The revision to be transformed
-	 * @param string|null $wikitextOverride
+	 * @param ?int $revision The revision to be transformed
+	 * @param ?string $wikitextOverride
 	 *   Custom wikitext to use instead of the real content of the page.
-	 * @param string|null $pagelanguageOverride
+	 * @param ?string $pagelanguageOverride
 	 * @return PageConfig
 	 */
 	protected function createPageConfig(
-		string $title, ?int $revision, string $wikitextOverride = null,
-		string $pagelanguageOverride = null
+		string $title, ?int $revision, ?string $wikitextOverride = null,
+		?string $pagelanguageOverride = null
 	): PageConfig {
 		$title = $title ? Title::newFromText( $title ) : Title::newMainPage();
 		if ( !$title ) {
@@ -452,7 +452,7 @@ abstract class ParsoidHandler extends Handler {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
-	 * @param string|null $wikitext Wikitext to transform (or null to use the
+	 * @param ?string $wikitext Wikitext to transform (or null to use the
 	 *   page specified in the request attributes).
 	 * @return Response
 	 */
@@ -623,12 +623,12 @@ abstract class ParsoidHandler extends Handler {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
-	 * @param string|null $html HTML to transform (or null to use the page specified in
+	 * @param ?string $html HTML to transform (or null to use the page specified in
 	 *   the request attributes).
 	 * @return Response
 	 */
 	protected function html2wt(
-		PageConfig $pageConfig, array $attribs, string $html = null
+		PageConfig $pageConfig, array $attribs, ?string $html = null
 	) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];

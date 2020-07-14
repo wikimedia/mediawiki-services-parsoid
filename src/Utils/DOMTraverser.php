@@ -34,7 +34,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	/**
 	 * Add a handler to the DOM traverser.
 	 *
-	 * @param string|null $nodeName An optional node name filter
+	 * @param ?string $nodeName An optional node name filter
 	 * @param callable $action A callback, called on each node we traverse that matches nodeName.
 	 *   Will be called with the following parameters:
 	 *   - DOMNode $node: the node being processed
@@ -64,11 +64,12 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 * @return bool|mixed
 	 */
 	private function callHandlers(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
+		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		?stdClass $tplInfo
 	) {
 		$name = $node->nodeName ?: '';
 
@@ -105,15 +106,15 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @param DOMNode $workNode The root node for the traversal.
 	 * @param array $options
 	 * @param bool $atTopLevel
-	 * @param stdClass|null $tplInfo Template information. When set, it must have all of these fields:
+	 * @param ?stdClass $tplInfo Template information. When set, it must have all of these fields:
 	 *   - first: (DOMNode) first sibling
 	 *   - last: (DOMNode) last sibling
 	 *   - dsr: field from Pasoid ino
 	 *   - clear: when set, the template will not be passed along for further processing
 	 */
 	public function traverse(
-		Env $env, DOMNode $workNode,
-		array $options = [], bool $atTopLevel = false, ?stdClass $tplInfo = null
+		Env $env, DOMNode $workNode, array $options = [],
+		bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
 		while ( $workNode !== null ) {
 			if ( $workNode instanceof DOMElement ) {

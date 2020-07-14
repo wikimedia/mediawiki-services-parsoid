@@ -26,9 +26,11 @@ class TagTk extends Token {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
-	 * @param stdClass|null $dataAttribs data-parsoid object
+	 * @param ?stdClass $dataAttribs data-parsoid object
 	 */
-	public function __construct( string $name, array $attribs = [], stdClass $dataAttribs = null ) {
+	public function __construct(
+		string $name, array $attribs = [], ?stdClass $dataAttribs = null
+	) {
 		$this->name = $name;
 		$this->attribs = $attribs;
 		$this->dataAttribs = $dataAttribs ?? new stdClass;

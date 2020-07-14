@@ -175,11 +175,11 @@ class Parsoid {
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
 	 * ]
-	 * @param array|null &$headers
+	 * @param ?array &$headers
 	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
-		PageConfig $pageConfig, array $options = [], array &$headers = null
+		PageConfig $pageConfig, array $options = [], ?array &$headers = null
 	) {
 		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $options );
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
@@ -246,7 +246,7 @@ class Parsoid {
 	 *   'debugFlags'          => (array) associative array with debug options
 	 *   'logLevels'           => (string[]) Levels to log
 	 * ]
-	 * @param SelserData|null $selserData
+	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	public function html2wikitext(
@@ -282,7 +282,7 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param string $update 'redlinks'|'variant'
 	 * @param PageBundle $pb
-	 * @param array|null $options
+	 * @param array $options
 	 * @return PageBundle
 	 */
 	public function pb2pb(
@@ -311,8 +311,8 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param string $update 'redlinks'|'variant'
 	 * @param string $html
-	 * @param array|null $options
-	 * @param array|null &$headers Output argument for HTTP headers
+	 * @param array $options
+	 * @param ?array &$headers Output argument for HTTP headers
 	 *   which should be included in the response; when a PageBundle
 	 *   is returned this argument is unnecessary since the PageBundle
 	 *   contains the HTTP output headers.
@@ -322,7 +322,7 @@ class Parsoid {
 	 */
 	public function html2html(
 		PageConfig $pageConfig, string $update, string $html,
-		array $options = [], array &$headers = null
+		array $options = [], ?array &$headers = null
 	) {
 		$envOptions = [];
 		if ( isset( $options['pageBundle'] ) ) {

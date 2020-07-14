@@ -313,7 +313,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	/**
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
-	 * @param string|null $wt
+	 * @param ?string $wt
 	 * @return string|PageBundle
 	 */
 	public function wt2Html(
@@ -339,7 +339,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param string $html
-	 * @param SelserData|null $selserData
+	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	public function html2Wt(

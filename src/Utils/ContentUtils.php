@@ -46,10 +46,12 @@ class ContentUtils {
 	 *
 	 * @param Env $env
 	 * @param string $html
-	 * @param array|null $options
+	 * @param array $options
 	 * @return DOMElement
 	 */
-	public static function ppToDOM( Env $env, string $html, array $options = [] ): DOMElement {
+	public static function ppToDOM(
+		Env $env, string $html, array $options = []
+	): DOMElement {
 		$options += [
 			'node' => null,
 			'reinsertFosterableContent' => null,

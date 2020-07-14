@@ -67,7 +67,7 @@ class DiffUtils {
 	}
 
 	/**
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
 	public static function maybeDeletedNode( ?DOMNode $node ): bool {
@@ -78,7 +78,7 @@ class DiffUtils {
 	 * Is node a mw:DiffMarker node that represents a deleted block node?
 	 * This annotation is added by the DOMDiff pass.
 	 *
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
 	public static function isDeletedBlockNode( ?DOMNode $node ): bool {

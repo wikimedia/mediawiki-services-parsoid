@@ -16,9 +16,9 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 class TraditionalMode extends Mode {
 	/**
 	 * Create a TraditionalMode singleton.
-	 * @param string|null $mode Only used by subclasses.
+	 * @param ?string $mode Only used by subclasses.
 	 */
-	protected function __construct( string $mode = null ) {
+	protected function __construct( ?string $mode = null ) {
 		parent::__construct( $mode ?? 'traditional' );
 		$this->scale = 1;
 		$this->padding = PHPUtils::arrayToObject( [ 'thumb' => 30, 'box' => 5, 'border' => 8 ] );
@@ -160,7 +160,7 @@ class TraditionalMode extends Mode {
 	/**
 	 * @param DOMDocument $doc
 	 * @param DOMElement $box
-	 * @param DOMElement|null $gallerytext
+	 * @param ?DOMElement $gallerytext
 	 * @param float $width
 	 */
 	protected function galleryText(

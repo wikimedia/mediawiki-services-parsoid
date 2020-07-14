@@ -80,7 +80,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/**
 	 * Set the log channel, for debuggings
-	 * @param LoggerInterface|null $logger
+	 * @param ?LoggerInterface $logger
 	 */
 	public function setLogger( ?LoggerInterface $logger ): void {
 		$this->logger = $logger;
@@ -381,7 +381,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/**
 	 * Set the fake timestamp for testing
-	 * @param int|null $ts Unix timestamp
+	 * @param ?int $ts Unix timestamp
 	 */
 	public function setFakeTimestamp( ?int $ts ): void {
 		$this->fakeTimestamp = $ts;

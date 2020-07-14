@@ -398,11 +398,13 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Flatten
 	 * @param (Token|string)[] $tokens
-	 * @param string|null $prefix
+	 * @param ?string $prefix
 	 * @param Token|string|(Token|string)[] $t
 	 * @return array
 	 */
-	private function flattenAndAppendToks( array $tokens, ?string $prefix, $t ): array {
+	private function flattenAndAppendToks(
+		array $tokens, ?string $prefix, $t
+	): array {
 		if ( is_array( $t ) ) {
 			$len = count( $t );
 			if ( $len > 0 ) {
@@ -1252,11 +1254,11 @@ class TemplateHandler extends TokenHandler {
 	 * ```
 	 * @param bool $atTopLevel
 	 * @param Token $tplToken
-	 * @param array|null $resolvedTgt
+	 * @param ?array $resolvedTgt
 	 * @return Token[]|null
 	 */
 	public function processSpecialMagicWord(
-		bool $atTopLevel, Token $tplToken, array $resolvedTgt = null
+		bool $atTopLevel, Token $tplToken, ?array $resolvedTgt = null
 	): ?array {
 		$env = $this->env;
 

@@ -41,10 +41,11 @@ class Frame {
 	 * @param Env $env
 	 * @param array $args
 	 * @param string $srcText
-	 * @param Frame|null $parentFrame
+	 * @param ?Frame $parentFrame
 	 */
 	public function __construct(
-		Title $title, Env $env, array $args, string $srcText, Frame $parentFrame = null
+		Title $title, Env $env, array $args, string $srcText,
+		?Frame $parentFrame = null
 	) {
 		$this->title = $title;
 		$this->env = $env;

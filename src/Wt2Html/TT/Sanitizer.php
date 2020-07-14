@@ -1052,8 +1052,8 @@ class Sanitizer extends TokenHandler {
 
 	/**
 	 * @param Env $env
-	 * @param string|null $tagName
-	 * @param Token|null $token
+	 * @param ?string $tagName
+	 * @param ?Token $token
 	 * @param array $attrs
 	 * @return array
 	 */

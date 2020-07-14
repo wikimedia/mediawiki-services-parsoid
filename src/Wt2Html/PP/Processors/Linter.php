@@ -111,11 +111,13 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Finds a matching node at the "start" of this node.
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @param DOMElement $match
-	 * @return DOMElement|null
+	 * @return ?DOMElement
 	 */
-	private function leftMostMisnestedDescendent( ?DOMNode $node, DOMElement $match ): ?DOMElement {
+	private function leftMostMisnestedDescendent(
+		?DOMNode $node, DOMElement $match
+	): ?DOMElement {
 		if ( !$node instanceof DOMElement ) {
 			return null;
 		}
@@ -178,10 +180,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * be cached in tplInfo after it is computed once.
 	 *
 	 * @param Env $env
-	 * @param stdClass|null $tplInfo Template info.
-	 * @return array|null
+	 * @param ?stdClass $tplInfo Template info.
+	 * @return ?array
 	 */
-	private function findEnclosingTemplateName( Env $env, ?stdClass $tplInfo ): ?array {
+	private function findEnclosingTemplateName(
+		Env $env, ?stdClass $tplInfo
+	): ?array {
 		if ( !$tplInfo ) {
 			return null;
 		}
@@ -215,14 +219,15 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * - If the lint is found in template content, then the DSR spans
 	 *   the transclusion markup in the toplevel page source.
 	 *
-	 * @param array|null $tplLintInfo
-	 * @param stdClass|null $tplInfo
-	 * @param DomSourceRange|null $nodeDSR
-	 * @param callable|null $updateNodeDSR
-	 * @return DomSourceRange|null
+	 * @param ?array $tplLintInfo
+	 * @param ?stdClass $tplInfo
+	 * @param ?DomSourceRange $nodeDSR
+	 * @param ?callable $updateNodeDSR
+	 * @return ?DomSourceRange
 	 */
 	private function findLintDSR(
-		?array $tplLintInfo, ?stdClass $tplInfo, ?DomSourceRange $nodeDSR, callable $updateNodeDSR = null
+		?array $tplLintInfo, ?stdClass $tplInfo, ?DomSourceRange $nodeDSR,
+		?callable $updateNodeDSR = null
 	): ?DomSourceRange {
 		if ( $tplLintInfo !== null || ( $tplInfo && !Utils::isValidDSR( $nodeDSR ) ) ) {
 			return DOMDataUtils::getDataParsoid( $tplInfo->first )->dsr ?? null;
@@ -382,7 +387,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $c
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logTreeBuilderFixup(
 		Env $env, DOMElement $c, stdClass $dp, ?stdClass $tplInfo
@@ -520,8 +525,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $node
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
-	 * @return DOMElement|null
+	 * @param ?stdClass $tplInfo
+	 * @return ?DOMElement
 	 */
 	private function logFosteredContent(
 		Env $env, DOMElement $node, stdClass $dp, ?stdClass $tplInfo
@@ -576,7 +581,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $c
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logObsoleteHTMLTags(
 		Env $env, DOMElement $c, stdClass $dp, ?stdClass $tplInfo
@@ -672,7 +677,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMNode $c
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logBogusMediaOptions(
 		Env $env, DOMNode $c, stdClass $dp, ?stdClass $tplInfo
@@ -718,7 +723,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMNode $c
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logDeletableTables(
 		Env $env, DOMNode $c, stdClass $dp, ?stdClass $tplInfo
@@ -799,7 +804,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $node
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logBadPWrapping(
 		Env $env, DOMElement $node, stdClass $dp, ?stdClass $tplInfo
@@ -832,7 +837,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $node
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logTidyDivSpanFlip(
 		Env $env, DOMElement $node, stdClass $dp, ?stdClass $tplInfo
@@ -867,7 +872,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMNode $node
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logTidyWhitespaceBug(
 		Env $env, DOMNode $node, stdClass $dp, ?stdClass $tplInfo
@@ -1081,8 +1086,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Get wikitext list item ancestor
-	 * @param DOMNode|null $node
-	 * @return DOMNode|null
+	 * @param ?DOMNode $node
+	 * @return ?DOMNode
 	 */
 	private function getWikitextListItemAncestor( ?DOMNode $node ): ?DOMNode {
 		while ( $node && !DOMUtils::isListItem( $node ) ) {
@@ -1103,7 +1108,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $node
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logPHPParserBug(
 		Env $env, DOMElement $node, stdClass $dp, ?stdClass $tplInfo
@@ -1147,7 +1152,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param DOMElement $c
 	 * @param stdClass $dp
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
 	private function logWikilinksInExtlinks(
 		Env $env, DOMElement $c, stdClass $dp, ?stdClass $tplInfo
@@ -1173,10 +1178,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * Log wikitext fixups
 	 * @param DOMElement $node
 	 * @param Env $env
-	 * @param stdClass|null $tplInfo
-	 * @return DOMElement|null
+	 * @param ?stdClass $tplInfo
+	 * @return ?DOMElement
 	 */
-	private function logWikitextFixups( DOMElement $node, Env $env, ?stdClass $tplInfo ): ?DOMElement {
+	private function logWikitextFixups(
+		DOMElement $node, Env $env, ?stdClass $tplInfo
+	): ?DOMElement {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		$this->logTreeBuilderFixup( $env, $node, $dp, $tplInfo );
@@ -1213,9 +1220,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param DOMNode $root
 	 * @param Env $env
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 */
-	private function findLints( DOMNode $root, Env $env, ?stdClass $tplInfo = null ): void {
+	private function findLints(
+		DOMNode $root, Env $env, ?stdClass $tplInfo = null
+	): void {
 		$node = $root->firstChild;
 		while ( $node !== null ) {
 			if ( !$node instanceof DOMElement ) {

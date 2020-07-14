@@ -7,7 +7,7 @@ use Wikimedia\Parsoid\Config\PageContent;
 
 class MockPageConfig extends PageConfig {
 
-	/** @var PageContent|null */
+	/** @var ?PageContent */
 	private $content;
 
 	/** @var int */
@@ -19,16 +19,16 @@ class MockPageConfig extends PageConfig {
 	/** @var string */
 	private $title;
 
-	/** @var string|null */
+	/** @var ?string */
 	private $pagelanguage;
 
-	/** @var string|null */
+	/** @var ?string */
 	private $pagelanguageDir;
 
 	/**
 	 * Construct a mock environment object for use in tests
 	 * @param array $opts
-	 * @param PageContent|null $content
+	 * @param ?PageContent $content
 	 */
 	public function __construct( array $opts, ?PageContent $content ) {
 		$this->content = $content;

@@ -62,7 +62,7 @@ class Utils {
 	/**
 	 * Validate media parameters
 	 * More generally, this is defined by the media handler in core
-	 * @param int|null $num
+	 * @param ?int $num
 	 * @return bool
 	 */
 	public static function validateMediaParam( ?int $num ): bool {

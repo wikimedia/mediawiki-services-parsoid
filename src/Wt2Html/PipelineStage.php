@@ -27,7 +27,7 @@ abstract class PipelineStage {
 	/**
 	 * Previous pipeline stage that generates input for this stage.
 	 * Will be null for the first pipeline stage.
-	 * @var PipelineStage
+	 * @var ?PipelineStage
 	 */
 	protected $prevStage;
 
@@ -42,9 +42,9 @@ abstract class PipelineStage {
 
 	/**
 	 * @param Env $env
-	 * @param PipelineStage|null $prevStage
+	 * @param ?PipelineStage $prevStage
 	 */
-	public function __construct( Env $env, PipelineStage $prevStage = null ) {
+	public function __construct( Env $env, ?PipelineStage $prevStage = null ) {
 		$this->env = $env;
 		$this->prevStage = $prevStage;
 	}
@@ -95,12 +95,14 @@ abstract class PipelineStage {
 	 * FIXME: This can be refactored to deal directly with the pipeline's constructor
 	 * and TTM instead of exposing this on the pipeline.
 	 *
-	 * @param Frame|null $frame Parent pipeline frame
-	 * @param Title|null $title Title (template) being processed in this (nested) pipeline
+	 * @param ?Frame $frame Parent pipeline frame
+	 * @param ?Title $title Title (template) being processed in this (nested) pipeline
 	 * @param array $args Template args for the title (template)
 	 * @param string $srcText The wikitext source for this frame
 	 */
-	public function setFrame( ?Frame $frame, ?Title $title, array $args, string $srcText ): void {
+	public function setFrame(
+		?Frame $frame, ?Title $title, array $args, string $srcText
+	): void {
 		/* Default implementation: Do nothing */
 	}
 
@@ -123,10 +125,10 @@ abstract class PipelineStage {
 	 * signal will follow.
 	 *
 	 * @param string|array|DOMDocument $input
-	 * @param array|null $options
+	 * @param ?array $options
 	 * @return array|DOMDocument
 	 */
-	abstract public function process( $input, array $options = null );
+	abstract public function process( $input, ?array $options = null );
 
 	/**
 	 * Process wikitext, an array of tokens, or a DOM document depending on
@@ -138,7 +140,10 @@ abstract class PipelineStage {
 	 * will provide specialized implementations that handle their input type.
 	 *
 	 * @param string|array|DOMDocument $input
-	 * @param array|null $options
+	 * @param ?array $options
+	 * @return Generator
 	 */
-	abstract public function processChunkily( $input, ?array $options ): Generator;
+	abstract public function processChunkily(
+		$input, ?array $options
+	): Generator;
 }

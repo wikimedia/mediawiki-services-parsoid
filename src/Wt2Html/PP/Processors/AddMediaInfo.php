@@ -88,7 +88,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param int|float|null $length
 	 * @return int|float|null
 	 */
-	private static function parseTimeString( string $timeString, $length = null ) {
+	private static function parseTimeString(
+		string $timeString, $length = null
+	) {
 		$parts = explode( ':', $timeString );
 		$time = 0;
 		$countParts = count( $parts );
@@ -278,7 +280,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param DOMElement $container
 	 * @param array $attrs
 	 * @param array $info
-	 * @param array|null $manualinfo
+	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
 	 * @return array
 	 */
@@ -322,7 +324,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param DOMElement $container
 	 * @param array $attrs
 	 * @param array $info
-	 * @param array|null $manualinfo
+	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
 	 * @return array
 	 */
@@ -398,7 +400,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param string $key
 	 * @param string $message
-	 * @param array|null $params
+	 * @param ?array $params
 	 * @return array
 	 */
 	private static function makeErr(

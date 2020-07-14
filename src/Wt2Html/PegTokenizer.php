@@ -39,10 +39,11 @@ class PegTokenizer extends PipelineStage {
 	 * @param Env $env
 	 * @param array $options
 	 * @param string $stageId
-	 * @param PipelineStage|null $prevStage
+	 * @param ?PipelineStage $prevStage
 	 */
 	public function __construct(
-		Env $env, array $options = [], string $stageId = "", $prevStage = null
+		Env $env, array $options = [], string $stageId = "",
+		?PipelineStage $prevStage = null
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->env = $env;
@@ -81,11 +82,11 @@ class PegTokenizer extends PipelineStage {
 	 * PORT-FIXME: Update docs
 	 *
 	 * @param string $input FIXME
-	 * @param array|null $opts FIXME
+	 * @param ?array $opts FIXME
 	 * - sol: (bool) Whether input should be processed in start-of-line context.
 	 * @return array|bool FIXME
 	 */
-	public function process( $input, array $opts = null ) {
+	public function process( $input, ?array $opts = null ) {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
 		PHPUtils::assertValidUTF8( $input ); // Transitional check for PHP port
 		return $this->tokenizeSync( $input, $opts ?? [] );
@@ -101,8 +102,9 @@ class PegTokenizer extends PipelineStage {
 	 * process().
 	 *
 	 * @param string $text
-	 * @param array|null $opts
+	 * @param ?array $opts
 	 *   - sol (bool) Whether text should be processed in start-of-line context.
+	 * @return Generator
 	 */
 	public function processChunkily( $text, ?array $opts ): Generator {
 		if ( !$this->grammar ) {

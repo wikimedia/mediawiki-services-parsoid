@@ -66,14 +66,15 @@ class PageConfig extends IPageConfig {
 	 * @param ParserOptions $parserOptions
 	 * @param SlotRoleHandler $slotRoleHandler
 	 * @param Title $title Title being parsed
-	 * @param RevisionRecord|null $revision
-	 * @param string|null $pagelanguage
-	 * @param string|null $pagelanguageDir
+	 * @param ?RevisionRecord $revision
+	 * @param ?string $pagelanguage
+	 * @param ?string $pagelanguageDir
 	 */
 	public function __construct(
-		Parser $parser, ParserOptions $parserOptions, SlotRoleHandler $slotRoleHandler,
-		Title $title, RevisionRecord $revision = null,
-		string $pagelanguage = null, string $pagelanguageDir = null
+		Parser $parser, ParserOptions $parserOptions,
+		SlotRoleHandler $slotRoleHandler, Title $title,
+		?RevisionRecord $revision = null, ?string $pagelanguage = null,
+		?string $pagelanguageDir = null
 	) {
 		$this->parser = $parser;
 		$this->parserOptions = $parserOptions;

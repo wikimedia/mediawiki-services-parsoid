@@ -13,20 +13,20 @@ class SourceRange implements \JsonSerializable {
 
 	/**
 	 * Offset of the first character (range start is inclusive).
-	 * @var int|null
+	 * @var ?int
 	 */
 	public $start;
 
 	/**
 	 * Offset just past the last character (range end is exclusive).
-	 * @var int|null
+	 * @var ?int
 	 */
 	public $end;
 
 	/**
 	 * Create a new source offset range.
-	 * @param int|null $start The starting index (UTF-8 byte count, inclusive)
-	 * @param int|null $end The ending index (UTF-8 byte count, exclusive)
+	 * @param ?int $start The starting index (UTF-8 byte count, inclusive)
+	 * @param ?int $end The ending index (UTF-8 byte count, exclusive)
 	 */
 	public function __construct( ?int $start, ?int $end ) {
 		$this->start = $start;

@@ -254,7 +254,7 @@ class DOMHandler {
 	/**
 	 * Private helper for serializing table nodes
 	 * @param string $symbol
-	 * @param string|null $endSymbol
+	 * @param ?string $endSymbol
 	 * @param SerializerState $state
 	 * @param DOMElement $node
 	 * @return string
@@ -276,7 +276,7 @@ class DOMHandler {
 	/**
 	 * Helper: Handles content serialization for table nodes
 	 * @param string $symbol
-	 * @param string|null $endSymbol
+	 * @param ?string $endSymbol
 	 * @param SerializerState $state
 	 * @param DOMElement $node
 	 * @param bool $wrapperUnmodified

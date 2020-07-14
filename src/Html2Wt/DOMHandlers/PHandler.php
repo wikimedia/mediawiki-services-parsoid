@@ -119,7 +119,7 @@ class PHandler extends DOMHandler {
 	// DOM node that generated multiple wikitext lines.
 
 	/**
-	 * @param stdClass|null $line See SerializerState::$currLine
+	 * @param ?stdClass $line See SerializerState::$currLine
 	 * @param DOMNode $node
 	 * @param bool $skipNode
 	 * @return bool
@@ -228,7 +228,7 @@ class PHandler extends DOMHandler {
 	/**
 	 * Test if $node is a P-wrapped node or should be treated as one.
 	 *
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
 	public static function isPPTransition( ?DOMNode $node ): bool {

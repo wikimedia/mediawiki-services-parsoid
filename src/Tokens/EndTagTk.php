@@ -26,9 +26,11 @@ class EndTagTk extends Token {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
-	 * @param stdClass|null $dataAttribs
+	 * @param ?stdClass $dataAttribs
 	 */
-	public function __construct( string $name, array $attribs = [], stdClass $dataAttribs = null ) {
+	public function __construct(
+		string $name, array $attribs = [], ?stdClass $dataAttribs = null
+	) {
 		$this->name = $name;
 		$this->attribs = $attribs;
 		$this->dataAttribs = $dataAttribs ?? new stdClass;

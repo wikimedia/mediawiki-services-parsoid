@@ -608,7 +608,7 @@ class WikitextSerializer {
 	 * Generates a template parameter sort function that tries to preserve existing ordering
 	 * but also to follow the order prescribed by the templatedata.
 	 * @param array $dpArgInfo
-	 * @param array|null $tplData
+	 * @param ?array $tplData
 	 * @param array $dataMwKeys
 	 * @return Closure
 	 * PORT-FIXME: there's probably a better way to do this
@@ -1620,7 +1620,7 @@ class WikitextSerializer {
 	 * Serialize an HTML DOM document.
 	 * WARNING: You probably want to use {@link FromHTML::serializeDOM} instead.
 	 * @param DOMElement $body
-	 * @param bool|null $selserMode
+	 * @param bool $selserMode
 	 * @return ConstrainedText|string
 	 */
 	public function serializeDOM( DOMElement $body, bool $selserMode = false ) {

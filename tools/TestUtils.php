@@ -325,13 +325,14 @@ class TestUtils {
 	 * Normalize newlines in IEW to spaces instead.
 	 *
 	 * @param DOMElement $body The document body node to normalize.
-	 * @param string|null $stripSpanTypeof Regular expression to strip typeof attributes
+	 * @param ?string $stripSpanTypeof Regular expression to strip typeof attributes
 	 * @param bool $parsoidOnly
 	 * @param bool $preserveIEW
 	 * @return DOMElement
 	 */
 	public static function unwrapSpansAndNormalizeIEW(
-		DOMElement $body, string $stripSpanTypeof = null, bool $parsoidOnly = false, bool $preserveIEW = false
+		DOMElement $body, ?string $stripSpanTypeof = null,
+		bool $parsoidOnly = false, bool $preserveIEW = false
 	): DOMElement {
 		$opts = [
 			'preserveIEW' => $preserveIEW,
@@ -462,13 +463,14 @@ class TestUtils {
 	 *  - failedTests int Number of failed tests due to differences in output.
 	 *  - passedTests int Number of tests passed without any special consideration.
 	 *  - modes array All of the stats (failedTests, passedTests) per-mode.
-	 * @param string|null $file
-	 * @param array|null $testFilter
+	 * @param ?string $file
+	 * @param ?array $testFilter
 	 * @param bool $knownFailuresChanged
 	 * @return int
 	 */
 	public static function reportSummary(
-		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $knownFailuresChanged
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter,
+		bool $knownFailuresChanged
 	): int {
 		$curStr = null;
 		$mode = null;
@@ -732,7 +734,7 @@ class TestUtils {
 	 * @param array $expected
 	 *  - string raw
 	 *  - string normal
-	 * @param Callable $getDiff Returns a string showing the diff(s) for the test.
+	 * @param callable $getDiff Returns a string showing the diff(s) for the test.
 	 *  - array actual
 	 *  - array expected
 	 * @return string
@@ -797,8 +799,8 @@ class TestUtils {
 	}
 
 	/**
-	 * @param Callable $reportFailure
-	 * @param Callable $reportSuccess
+	 * @param callable $reportFailure
+	 * @param callable $reportSuccess
 	 * @param array $kf knownFailures.
 	 * @param Stats $stats
 	 * @param Test $item
@@ -806,14 +808,15 @@ class TestUtils {
 	 * @param string $mode
 	 * @param array $expected
 	 * @param array $actual
-	 * @param Callable|null $pre
-	 * @param Callable|null $post
+	 * @param ?callable $pre
+	 * @param ?callable $post
 	 * @return bool True if the result was as expected.
 	 */
 	public static function printResult(
 		callable $reportFailure, callable $reportSuccess, array $kf,
 		Stats $stats, Test $item, array $options, string $mode,
-		array $expected, array $actual, callable $pre = null, callable $post = null
+		array $expected, array $actual, ?callable $pre = null,
+		?callable $post = null
 	): bool {
 		$title = $item->testName; // Title may be modified here, so pass it on.
 

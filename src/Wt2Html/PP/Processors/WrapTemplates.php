@@ -66,7 +66,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param stdClass $range
-	 * @param bool|null $startsWithText
+	 * @param ?bool $startsWithText
 	 * @return bool
 	 */
 	private static function expandRangeToAvoidSpanWrapping(
@@ -368,8 +368,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param array $nestingInfo
-	 * @param string|null $startId
-	 * @return string|null
+	 * @param ?string $startId
+	 * @return ?string
 	 */
 	private static function findToplevelEnclosingRange(
 		array $nestingInfo, ?string $startId

@@ -164,10 +164,10 @@ class ParserPipeline {
 	 * The input is expected to be the wikitext string for the doc.
 	 *
 	 * @param string $input
-	 * @param array|null $opts
+	 * @param ?array $opts
 	 * @return DOMDocument
 	 */
-	public function parseToplevelDoc( string $input, array $opts = null ) {
+	public function parseToplevelDoc( string $input, ?array $opts = null ) {
 		Assert::invariant( $this->pipelineType === 'text/x-mediawiki/full',
 			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
 			$this->pipelineType );

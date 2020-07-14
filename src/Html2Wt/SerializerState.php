@@ -363,7 +363,7 @@ class SerializerState {
 
 	/**
 	 * Reset the current line state.
-	 * @param DOMNode|null $node
+	 * @param ?DOMNode $node
 	 */
 	private function resetCurrLine( ?DOMNode $node ): void {
 		$this->currLine = (object)[
@@ -670,12 +670,13 @@ class SerializerState {
 	 * Serialize the children of a DOM node, sharing the global serializer state.
 	 * Typically called by a DOM-based handler to continue handling its children.
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper ( $state, $text, $opts )
+	 * @param ?callable $wtEscaper ( $state, $text, $opts )
 	 *   PORT-FIXME document better; should this be done via WikitextEscapeHandlers somehow?
-	 * @param DOMNode|null $firstChild
+	 * @param ?DOMNode $firstChild
 	 */
 	public function serializeChildren(
-		DOMElement $node, callable $wtEscaper = null, DOMNode $firstChild = null
+		DOMElement $node, ?callable $wtEscaper = null,
+		?DOMNode $firstChild = null
 	): void {
 		// SSS FIXME: Unsure if this is the right thing always
 		if ( $wtEscaper ) {
@@ -700,10 +701,12 @@ class SerializerState {
 	/**
 	 * Abstracts some steps taken in `serializeChildrenToString` and `serializeDOM`
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper See {@link serializeChildren()}
+	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @internal For use by WikitextSerializer only
 	 */
-	public function kickOffSerialize( DOMElement $node, callable $wtEscaper = null ): void {
+	public function kickOffSerialize(
+		DOMElement $node, ?callable $wtEscaper = null
+	): void {
 		$this->updateSep( $node );
 		$this->currNodeUnmodified = false;
 		$this->updateModificationFlags( $node );
@@ -722,7 +725,7 @@ class SerializerState {
 	 * have been known to happen. T109793 suggests using its own wts / state.
 	 *
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper See {@link serializeChildren()}
+	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @param string $inState
 	 * @return string
 	 */
@@ -773,30 +776,36 @@ class SerializerState {
 	/**
 	 * Serialize children of a link to a string
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper See {@link serializeChildren()}
+	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeLinkChildrenToString( $node, $wtEscaper = null ): string {
+	public function serializeLinkChildrenToString(
+		DOMElement $node, ?callable $wtEscaper = null
+	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inLink' );
 	}
 
 	/**
 	 * Serialize children of a caption to a string
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper See {@link serializeChildren()}
+	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeCaptionChildrenToString( $node, $wtEscaper = null ): string {
+	public function serializeCaptionChildrenToString(
+		DOMElement $node, ?callable $wtEscaper = null
+	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inCaption' );
 	}
 
 	/**
 	 * Serialize children of an indent-pre to a string
 	 * @param DOMElement $node
-	 * @param callable|null $wtEscaper See {@link serializeChildren()}
+	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
-	public function serializeIndentPreChildrenToString( $node, $wtEscaper = null ): string {
+	public function serializeIndentPreChildrenToString(
+		DOMElement $node, ?callable $wtEscaper = null
+	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inIndentPre' );
 	}
 

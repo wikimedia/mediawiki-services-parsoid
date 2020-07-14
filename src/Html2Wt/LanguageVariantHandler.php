@@ -38,7 +38,7 @@ class LanguageVariantHandler {
 	 * Helper function: serialize a DOM string
 	 * @param SerializerState $state
 	 * @param string|bool $t
-	 * @param array|null $opts
+	 * @param ?array $opts
 	 * @return ConstrainedText\ConstrainedText|string
 	 */
 	private static function ser( SerializerState $state, string $t, ?array $opts ) {
@@ -87,7 +87,7 @@ class LanguageVariantHandler {
 	 * @param array $flSp
 	 * @param array $flags
 	 * @param bool $noFilter
-	 * @param string|null $protectFunc
+	 * @param ?string $protectFunc
 	 * @return string
 	 */
 	private static function sortedFlags(

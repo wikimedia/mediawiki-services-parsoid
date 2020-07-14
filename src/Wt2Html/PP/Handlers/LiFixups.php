@@ -166,7 +166,7 @@ class LiFixups {
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 * @return bool
 	 */
 	public static function migrateTrailingCategories(

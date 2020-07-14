@@ -90,7 +90,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 
 	/**
 	 * @param DOMElement $parent
-	 * @param string|null $key
+	 * @param ?string $key
 	 * @param mixed $val
 	 */
 	private function objectRow( DOMElement $parent, ?string $key, $val ): void {
@@ -249,7 +249,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	/**
 	 * @param DOMElement $tr
 	 * @param array &$obj
-	 * @param int|null $key
+	 * @param ?int $key
 	 */
 	private function objectRowFrom( DOMElement $tr, array &$obj, ?int $key ) {
 		$td = $tr->firstChild;
@@ -337,11 +337,12 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * DOM to JSON.
 	 * @param ParsoidExtensionAPI $API
 	 * @param DOMDocument $doc
-	 * @param SelserData|null $selserData
+	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $API, DOMDocument $doc, ?SelserData $selserData = null
+		ParsoidExtensionAPI $API, DOMDocument $doc,
+		?SelserData $selserData = null
 	): string {
 		$body = DOMCompat::getBody( $doc );
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );

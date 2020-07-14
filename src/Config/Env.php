@@ -227,7 +227,7 @@ class Env {
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
-	 * @param array|null $options
+	 * @param ?array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - pageBundle: (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
 	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
@@ -251,7 +251,8 @@ class Env {
 	 *  - logLevels: (string[]) Levels to log
 	 */
 	public function __construct(
-		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess, array $options = null
+		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess,
+		?array $options = null
 	) {
 		$options = $options ?? [];
 		$this->siteConfig = $siteConfig;
@@ -677,7 +678,7 @@ class Env {
 	 * FIXME: This function could be given a better name to reflect what it does.
 	 *
 	 * @param DOMDocument $doc
-	 * @param DataBag|null $bag
+	 * @param ?DataBag $bag
 	 */
 	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
@@ -729,7 +730,7 @@ class Env {
 	 *
 	 * @todo Does this belong here, or on some equivalent to MediaWiki's ParserOutput?
 	 * @param string $switch Switch name
-	 * @param mixed|null $default Default value if the switch was never set
+	 * @param mixed $default Default value if the switch was never set
 	 * @return mixed State data that was previously passed to setBehaviorSwitch(), or $default
 	 */
 	public function getBehaviorSwitch( string $switch, $default = null ) {
@@ -889,7 +890,7 @@ class Env {
 	/**
 	 * Get an appropriate content handler, given a contentmodel.
 	 *
-	 * @param string|null &$contentmodel An optional content model which
+	 * @param ?string &$contentmodel An optional content model which
 	 *   will override whatever the source specifies.  It gets set to the
 	 *   handler which is used.
 	 * @return ContentModelHandler An appropriate content handler

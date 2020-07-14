@@ -43,14 +43,14 @@ class RefGroup {
 	 * Generate leading linkbacks
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $href
-	 * @param string|null $group
+	 * @param ?string $group
 	 * @param string $text
 	 * @param DOMDocument $ownerDoc
 	 * @return DOMElement
 	 */
 	private static function createLinkback(
-		ParsoidExtensionAPI $extApi,
-		string $href, ?string $group, string $text, DOMDocument $ownerDoc
+		ParsoidExtensionAPI $extApi, string $href, ?string $group,
+		string $text, DOMDocument $ownerDoc
 	): DOMElement {
 		$a = $ownerDoc->createElement( 'a' );
 		$s = $ownerDoc->createElement( 'span' );

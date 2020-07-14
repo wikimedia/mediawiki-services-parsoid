@@ -22,13 +22,13 @@ use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
  */
 class TokenTransformManager extends PipelineStage {
 	/** @var array */
-	private $options = null;
+	private $options;
 
 	/** @var string */
 	private $traceType = "";
 
 	/** @var array */
-	private $traceState = null;
+	private $traceState;
 
 	/** @var TokenHandler[] */
 	private $transformers = [];
@@ -40,9 +40,12 @@ class TokenTransformManager extends PipelineStage {
 	 * @param Env $env
 	 * @param array $options
 	 * @param string $stageId
-	 * @param PipelineStage|null $prevStage
+	 * @param ?PipelineStage $prevStage
 	 */
-	public function __construct( Env $env, array $options, string $stageId, $prevStage = null ) {
+	public function __construct(
+		Env $env, array $options, string $stageId,
+		?PipelineStage $prevStage = null
+	) {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
 		$this->traceType = 'trace/ttm:' . preg_replace( '/TokenTransform/', '', $stageId );
@@ -170,10 +173,10 @@ class TokenTransformManager extends PipelineStage {
 	 * Process a chunk of tokens.
 	 *
 	 * @param array $tokens Array of tokens to process
-	 * @param array|null $opts
+	 * @param ?array $opts
 	 * @return array Returns the array of processed tokens
 	 */
-	public function process( $tokens, array $opts = null ): array {
+	public function process( $tokens, ?array $opts = null ): array {
 		'@phan-var array $tokens'; // @var array $tokens
 		return $this->processChunk( $tokens );
 	}

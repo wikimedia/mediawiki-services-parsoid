@@ -50,11 +50,12 @@ class CleanUp {
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 * @return bool|DOMNode
 	 */
 	public static function handleEmptyElements(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel = false, ?stdClass $tplInfo = null
+		DOMNode $node, Env $env, array $options, bool $atTopLevel = false,
+		?stdClass $tplInfo = null
 	) {
 		if ( !( $node instanceof DOMElement ) ||
 			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][$node->nodeName] ) ||
@@ -149,7 +150,7 @@ class CleanUp {
 	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param bool $atTopLevel
-	 * @param stdClass|null $tplInfo
+	 * @param ?stdClass $tplInfo
 	 * @return bool|DOMText
 	 */
 	public static function cleanupAndSaveDataParsoid(

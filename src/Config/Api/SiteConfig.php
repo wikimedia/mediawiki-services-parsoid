@@ -310,7 +310,7 @@ class SiteConfig extends ISiteConfig {
 
 	/**
 	 * Set the log channel, for debugging
-	 * @param LoggerInterface|null $logger
+	 * @param ?LoggerInterface $logger
 	 */
 	public function setLogger( ?LoggerInterface $logger ): void {
 		$this->logger = $logger;
