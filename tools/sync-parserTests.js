@@ -103,7 +103,7 @@ Promise.async(function *() {
 		});
 	};
 
-	var pPARSERTESTS = path.join(__dirname, '..', 'tests', targetName);
+	var pPARSERTESTS = path.join(__dirname, '..', 'tests', 'parser', targetName);
 	var mwPARSERTESTS = path.join(mwpath, file.path);
 
 	// Fetch current Parsoid git hash.
@@ -123,7 +123,7 @@ Promise.async(function *() {
 	yield mwexec(['git', 'checkout', '-b', branch, oldhash]);
 
 	// Copy our locally-modified parser tests over to mediawiki/core.
-	// cp __dirname/parserTests.txt $mwpath/tests/parser
+	// cp __dirname/tests/parser/parserTests.txt $mwpath/tests/parser
 	try {
 		var data = yield fs.readFile(pPARSERTESTS);
 		console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);

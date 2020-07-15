@@ -33,7 +33,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$testFilePaths = [];
 			$testFiles = json_decode( file_get_contents( __DIR__ . '/../tests/parserTests.json' ), true );
 			foreach ( $testFiles as $f => $info ) {
-				$testFilePaths[] = realpath( __DIR__ . '/../tests/' . $f );
+				$testFilePaths[] = realpath( __DIR__ . '/../tests/parser/' . $f );
 			}
 		}
 

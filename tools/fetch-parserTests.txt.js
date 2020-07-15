@@ -21,8 +21,8 @@ var crypto = require('crypto');
 
 var Promise = require('../lib/utils/promise.js');
 
-var testDir = path.join(__dirname, '../tests/');
-var testFilesPath = path.join(testDir, 'parserTests.json');
+var testDir = path.join(__dirname, '../tests/parser/');
+var testFilesPath = path.join(testDir, '../parserTests.json');
 var testFiles = require(testFilesPath);
 
 var DEFAULT_TARGET = 'parserTests.txt';
