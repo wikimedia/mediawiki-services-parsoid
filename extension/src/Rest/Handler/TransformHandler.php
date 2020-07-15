@@ -115,10 +115,12 @@ class TransformHandler extends ParsoidHandler {
 					'message' => 'No title or wikitext was provided.',
 				] );
 			}
-			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], (int)$attribs['oldid'], $wikitext,
-				$attribs['pagelanguage']
+			$response = $this->respondToMissingRevisionContent(
+				$pageConfig, $attribs, $wikitext
 			);
+			if ( $response ) {
+				return $response;
+			}
 			return $this->wt2html( $pageConfig, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			$html = $attribs['opts']['html'] ?? null;
@@ -143,11 +145,7 @@ class TransformHandler extends ParsoidHandler {
 			}
 			return $this->html2wt( $pageConfig, $attribs, $html );
 		} else {
-			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], (int)$attribs['oldid'], null,
-				$attribs['pagelanguage']
-			);
-			return $this->pb2pb( $pageConfig, $attribs );
+			return $this->pb2pb( $attribs );
 		}
 	}
 

@@ -84,9 +84,11 @@ class PageConfig extends IPageConfig {
 			'pagelanguage' => $opts['pageLanguage'] ?? 'en',
 			'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
 		];
-		$this->rev = [
-			'slots' => [ 'main' => $opts['pageContent'] ],
-		];
+		if ( isset( $opts['pageContent'] ) ) {
+			$this->rev = [
+				'slots' => [ 'main' => $opts['pageContent'] ],
+			];
+		}
 	}
 
 	private function loadData() {
@@ -123,9 +125,7 @@ class PageConfig extends IPageConfig {
 
 		// Well, we tried but the page probably doesn't exist
 		if ( !$this->rev ) {
-			$this->mockPageContent( [
-				'pageContent' => '',  // FIXME: T234549
-			] );
+			$this->mockPageContent( [] );  // FIXME: T234549
 		}
 	}
 
@@ -216,7 +216,7 @@ class PageConfig extends IPageConfig {
 	/** @inheritDoc */
 	public function getRevisionContent(): ?PageContent {
 		$this->loadData();
-		if ( !$this->content ) {
+		if ( $this->rev && !$this->content ) {
 			$this->content = new MockPageContent( $this->rev['slots'] );
 		}
 		return $this->content;

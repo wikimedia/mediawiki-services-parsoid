@@ -98,10 +98,7 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetRevisionContent() {
-		$this->assertSame(
-			'',
-			$this->getPageConfig( 'missing' )->getRevisionContent()->getContent( 'main' )
-		);
+		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionContent() );
 
 		$c = $this->getPageConfig( 'existing' )->getRevisionContent();
 		$this->assertInstanceOf( PageContent::class, $c );

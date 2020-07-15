@@ -21,7 +21,6 @@ declare( strict_types = 1 );
 namespace MWParsoid\Rest\Handler;
 
 use MediaWiki\Rest\Response;
-use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -80,31 +79,12 @@ class PageHandler extends ParsoidHandler {
 			] );
 		}
 
-		$oldid = (int)$attribs['oldid'];
-
-		try {
-			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], $oldid
-			);
-		} catch ( RevisionAccessException $exception ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => 'The specified revision is deleted or suppressed.',
-			] );
-		}
-
-		// T234549
-		if ( $pageConfig->getRevisionContent() === null ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => 'The specified revision does not exist.',
-			] );
+		$response = $this->respondToMissingRevisionContent( $pageConfig, $attribs );
+		if ( $response ) {
+			return $response;
 		}
 
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
-			if ( !$oldid ) {
-				return $this->createRedirectToOldidResponse(
-					$pageConfig, $attribs
-				);
-			}
 			return $this->getPageContentResponse( $pageConfig, $attribs );
 		} else {
 			return $this->wt2html( $pageConfig, $attribs );
