@@ -193,7 +193,6 @@ abstract class ParsoidHandler extends Handler {
 			return $this->requestAttributes;
 		}
 
-		// Porting note: this is the equivalent of the v3Middle middleware.
 		$request = $this->getRequest();
 		$body = ( $request->getMethod() === 'POST' ) ? $this->getParsedBody() : [];
 		$opts = array_merge( $body, array_intersect_key( $request->getPathParams(),
@@ -355,9 +354,9 @@ abstract class ParsoidHandler extends Handler {
 	 * @param array $queryParams Query parameters
 	 * @return Response
 	 */
-	protected function createRedirectResponse( string $path, array $queryParams = [] ): Response {
-		// porting note: this is  more or less the equivalent of apiUtils.redirect()
-
+	protected function createRedirectResponse(
+		string $path, array $queryParams = []
+	): Response {
 		// FIXME there should be a better way to do this
 		global $wgRestPath;
 		$path = wfExpandUrl( "$wgRestPath$path", PROTO_CURRENT );
@@ -388,7 +387,6 @@ abstract class ParsoidHandler extends Handler {
 	protected function createRedirectToOldidResponse(
 		PageConfig $pageConfig, array $attribs
 	): Response {
-		// porting note: this is  more or less the equivalent of apiUtils.redirectToOldid()
 		$domain = $attribs['envOptions']['domain'];
 		$format = $this->getRequest()->getPathParam( 'format' );
 		$target = $pageConfig->getTitle();
@@ -414,16 +412,16 @@ abstract class ParsoidHandler extends Handler {
 
 	/**
 	 * Wikitext -> HTML helper.
-	 * Porting note: this is the rough equivalent of routes.wt2html.
 	 * Spec'd in https://phabricator.wikimedia.org/T75955 and the API tests.
+	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
-	 * @param string|null $wikitext Wikitext to transform (or null to use the page specified in
-	 *   the request attributes).
+	 * @param string|null $wikitext Wikitext to transform (or null to use the
+	 *   page specified in the request attributes).
 	 * @return Response
 	 */
 	protected function wt2html(
-		PageConfig $pageConfig, array $attribs, string $wikitext = null
+		PageConfig $pageConfig, array $attribs, ?string $wikitext = null
 	) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];
@@ -591,7 +589,7 @@ abstract class ParsoidHandler extends Handler {
 
 	/**
 	 * HTML -> wikitext helper.
-	 * Porting note: this is the rough equivalent of routes.html2wt.
+	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @param string|null $html HTML to transform (or null to use the page specified in
