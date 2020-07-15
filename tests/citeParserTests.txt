@@ -563,11 +563,15 @@ Valid follow="…" after it's parent
 !! wikitext
 <ref name="theName">theValue</ref>
 <ref follow="theName">theFollows</ref>
+<ref>Should be 2</ref>
 !! html
 <p><sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
+</p><p><sup id="cite_ref-2" class="reference"><a href="#cite_note-2">&#91;2&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-theName-1"><span class="mw-cite-backlink"><a href="#cite_ref-theName_1-0">↑</a></span> <span class="reference-text">theValue theFollows</span>
+</li>
+<li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="reference-text">Should be 2</span>
 </li>
 </ol></div>
 !! end

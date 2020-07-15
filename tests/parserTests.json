@@ -2,14 +2,14 @@
 	"parserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "a739df8b0fddd8bbf03f71e90621e86408af8de8",
-		"latestCommit": "f45fa7be70d99c53b4a53e63e992ce5421403af5"
+		"expectedSHA1": "d9684489070cdb7e1f4703685143a2cb357317df",
+		"latestCommit": "39fb017285df94f8e9bbaa4de23c2d27489d7b19"
 	},
 	"citeParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Cite/",
 		"path": "tests/parser/citeParserTests.txt",
-		"expectedSHA1": "463a1f9ea7f0612c1e90ade02a25a7dc833278af",
-		"latestCommit": "eb8e07c69cb930a09cad1ca3a91dc9253471e5c2"
+		"expectedSHA1": "2cd4f4dcb400c86163e0bcdbeb8c1e6adec43b50",
+		"latestCommit": "90728bde87a39a6e63c46afddeed5d4d526f8f5a"
 	},
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
@@ -24,7 +24,7 @@
 	"poemParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Poem/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "ee956596015eb6080949e870c5b06c70a10dc26c",
-		"latestCommit": "50d6f5b39ba1814ea3ba6c07d044935c6c2e97bb"
+		"expectedSHA1": "ffe275baf1e88b174eb90fe4a61ae7f7171821ee",
+		"latestCommit": "5337f7927ace34af6620e7d5c8f733f6cf413667"
 	}
 }
