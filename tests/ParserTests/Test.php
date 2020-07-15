@@ -33,7 +33,7 @@ class Test extends Item {
 	/** @var ?string */
 	public $legacyHtml = null;
 
-	/* --- The rest below are computed while running tests -- */
+	/* --- The rest below are computed by Parsoid while running tests -- */
 
 	/** @var string */
 	private $pageName;
@@ -82,6 +82,9 @@ class Test extends Item {
 
 	private const DIRECT_KEYS = [
 		'type',
+		'filename',
+		'lineNumStart',
+		'lineNumEnd',
 		'testName',
 		'options',
 		'config',
@@ -119,18 +122,19 @@ class Test extends Item {
 
 	/**
 	 * @param array $testProperties key-value mapping of properties
+	 * @param ?string $comment Optional comment describing the test
 	 * @param ?callable $warnFunc Optional callback used to emit
 	 *   deprecation warnings.
 	 */
-	public function __construct( array $testProperties, callable $warnFunc = null ) {
-		parent::__construct( $testProperties['type'] );
+	public function __construct( array $testProperties, ?string $comment = null, ?callable $warnFunc = null ) {
+		parent::__construct( $testProperties, $comment );
 
 		foreach ( $testProperties as $key => $value ) {
 			if ( in_array( $key, self::DIRECT_KEYS, true ) ) {
 				$this->$key = $value;
 			} else {
 				if ( isset( $this->sections[$key] ) ) {
-					throw new \Error( "Duplicate test section $key" );
+					$this->error( "Duplicate test section", $key );
 				}
 				$this->sections[$key] = $value;
 			}
@@ -155,7 +159,9 @@ class Test extends Item {
 		if ( $warnFunc ) {
 			foreach ( self::WARN_DEPRECATED_KEYS as $key ) {
 				if ( isset( $this->sections[$key] ) ) {
-					$warnFunc( "Parser test section $key is deprecated" );
+					$warnFunc( $this->errorMsg(
+						"Parser test section $key is deprecated"
+					) );
 				}
 			}
 		}
@@ -171,7 +177,10 @@ class Test extends Item {
 		}
 
 		if ( !empty( $testFilter['regex'] ) ) {
-			return (bool)preg_match( '/' . $testFilter['raw'] . '/', $this->testName );
+			$regex = isset( $testFilter['raw'] ) ?
+				   ( '/' . $testFilter['raw'] . '/' ) :
+				   $testFilter['regex'];
+			return (bool)preg_match( $regex, $this->testName );
 		}
 
 		if ( !empty( $testFilter['string'] ) ) {

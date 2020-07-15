@@ -15,9 +15,10 @@ class Article extends Item {
 
 	/**
 	 * @param array $articleProps key-value mapping of properties
+	 * @param ?string $comment Optional comment describing the article
 	 */
-	public function __construct( array $articleProps ) {
-		parent::__construct( $articleProps['type'] );
+	public function __construct( array $articleProps, ?string $comment = null ) {
+		parent::__construct( $articleProps, $comment );
 		$this->title = $articleProps['title'];
 		$this->text = $articleProps['text'];
 	}

@@ -9,17 +9,35 @@ namespace Wikimedia\Parsoid\ParserTests;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 }
 {
-	/*
-	 * Empty class-scope initializer.
-	 *
-	 * Needed so the initializer above doesn't
-	 * become the class-scope initializer.
+	/** @var string */
+	private $filename = '';
+	/** @var int */
+	private $lineNum = 1;
+
+	/**
+	 * @param string $filename
+	 * @return array
 	 */
+	public static function load( string $filename ) {
+		$g = new Grammar();
+		$g->filename = $filename;
+		return $g->parse( file_get_contents( $filename ) );
+	}
 }
 
-testfile = format? chunk+
+testfile = format? lined_chunk+
 
-eol = "\n"
+/* Line number bookkeeping.
+ * Be careful about backtracking after you successfully match this production.
+ */
+eol = nl:"\n" { $this->lineNum++; return $nl; }
+
+lined_chunk = l:("" { return $this->lineNum; }) c:chunk {
+	$c['filename'] = $this->filename;
+	$c['lineNumStart'] = $l;
+	$c['lineNumEnd'] = $this->lineNum;
+	return $c;
+}
 
 whitespace = [ \t]+
 
@@ -58,7 +76,7 @@ version_keyword = [vV] [eE] [rR] [sS] [iI] [oO] [nN]
 comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
 
-empty = eol / ws eol { return [ 'type' => 'empty' ]; }
+empty = ws? eol { return [ 'type' => 'empty' ]; }
 
 article =
 	start_article title:line start_text text:text end_article
@@ -157,7 +175,7 @@ option_section =
 	return [ 'name' => 'options', 'text' => $o ];
 }
 
-option_list = o:an_option [ \t\n]+ rest:option_list?
+option_list = o:an_option ([ \t] / eol)+ rest:option_list?
 {
 	$result = [ $o ];
 	if ( $rest && count( $rest ) > 0 ) {
@@ -206,7 +224,7 @@ an_option_value = v:(link_target_value / quoted_value / plain_value / json_value
 	return $v;
 }
 
-link_target_value = "[[" v:[^\]]* "]]"
+link_target_value = "[[" v:[^\]\n]* "]]"
 {
 	// Perhaps we should canonicalize the title?
 	// Protect with JSON.stringify just in case the link target starts with
@@ -214,7 +232,7 @@ link_target_value = "[[" v:[^\]]* "]]"
 	return PHPUtils::jsonEncode( implode( $v ) );
 }
 
-quoted_value = [\"] v:( [^\\\"] / ("\\" c:. { return "\\" . $c; } ) )* [\"]
+quoted_value = [\"] v:( [^\\\"\n] / ("\\" c:[^\n] { return "\\" . $c; } ) )* [\"]
 {
 	return '"' . implode( $v ) . '"';
 }
@@ -224,7 +242,7 @@ plain_value = v:[^ \t\n\"\'\[\]=,!\{]+
 	return implode( $v );
 }
 
-json_value = "{" v:( [^\"\{\}] / quoted_value / json_value )* "}"
+json_value = "{" v:( [^\"\{\}\n] / quoted_value / json_value / eol )* "}"
 {
 	return "{" . implode( $v ) . "}";
 }

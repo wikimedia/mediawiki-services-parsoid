@@ -142,14 +142,8 @@ class TestRunner {
 	/** @var array */
 	private $testKnownFailures;
 
-	/** @var array<string,string> */
-	private $testTitles;
-
-	/** @var array<string,Article> */
+	/** @var Article[] */
 	private $articles;
-
-	/** @var array<string,string> */
-	private $articleTexts;
 
 	/** @var LoggerInterface */
 	private $defaultLogger;
@@ -165,9 +159,6 @@ class TestRunner {
 
 	/** @var Test[] */
 	private $testCases;
-
-	/** @var int */
-	private $testFormat;
 
 	/** @var Stats */
 	private $stats;
@@ -218,10 +209,6 @@ class TestRunner {
 			error_log( 'No known failures found at ' . $this->knownFailuresPath );
 			$this->testKnownFailures = [];
 		}
-
-		$this->articles = [];
-		$this->articleTexts = [];
-		$this->testTitles = [];
 
 		$newModes = [];
 		foreach ( $modes as $mode ) {
@@ -276,7 +263,10 @@ class TestRunner {
 			$this->envOptions
 		);
 
-		$env->pageCache = $this->articleTexts;
+		$env->pageCache = [];
+		foreach ( $this->articles as $art ) {
+			$env->pageCache[$env->normalizedTitleKey( $art->title, false, true )] = $art->text;
+		}
 		// $this->mockApi->setArticleCache( $this->articles );
 		// Set parsing resource limits.
 		// $env->setResourceLimits();
@@ -289,37 +279,17 @@ class TestRunner {
 	 */
 	private function buildTests(): void {
 		// Startup by loading .txt test file
-		$content = file_get_contents( $this->testFilePath );
-		$parsedTests = ( new Grammar() )->parse( $content );
-		$testFormat = $parsedTests[0];
-		$rawTestItems = $parsedTests[1];
-		if ( $testFormat === null ) {
-			$this->testFormat = 1;
-		} else {
-			$this->testFormat = intval( $testFormat['text'] );
-		}
-		$this->testCases = [];
-		foreach ( $rawTestItems as $item ) {
-			if ( $item['type'] === 'article' ) {
-				$art = new Article( $item );
-				$key = $this->dummyEnv->normalizedTitleKey( $art->title, false, true );
-				if ( isset( $this->articles[$key] ) ) {
-					throw new Error( 'Duplicate article: ' . $item['title'] );
-				} else {
-					$this->articles[$key] = $art;
-					$this->articleTexts[$key] = $art->text;
-				}
-			} elseif ( $item['type'] === 'test' ) {
-				$test = new Test( $item );
-				$this->testCases[] = $test;
-				if ( isset( $this->testTitles[$test->testName] ) ) {
-					throw new Error( 'Duplicate titles: ' . $test->testName );
-				} else {
-					$this->testTitles[$test->testName] = true;
-				}
-			}
-			/* Ignore the rest */
-		}
+		$warnFunc = function ( string $warnMsg ):void {
+			error_log( $warnMsg );
+		};
+		$normFunc = function ( string $title ):string {
+			return $this->dummyEnv->normalizedTitleKey( $title, false, true );
+		};
+		$testReader = TestFileReader::read(
+			$this->testFilePath, $warnFunc, $normFunc
+		);
+		$this->testCases = $testReader->testCases;
+		$this->articles = $testReader->articles;
 	}
 
 	/**
@@ -1339,11 +1309,9 @@ class TestRunner {
 
 		// ensure that test is not skipped if it has a wikitext/edited or
 		// html/parsoid+langconv section (but not a parsoid html section)
-		$haveHtml = $test->parsoidHtml !== null;
-		if ( isset( $test->sections['wikitext/edited'] ) ||
-			 isset( $test->sections['html/parsoid+langconv'] ) ) {
-			$haveHtml = true;
-		}
+		$haveHtml = ( $test->parsoidHtml !== null ) ||
+			isset( $test->sections['wikitext/edited'] ) ||
+			isset( $test->sections['html/parsoid+langconv'] );
 
 		// Reset the cached results for the new case.
 		// All test modes happen in a single run of processCase.
