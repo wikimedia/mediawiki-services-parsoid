@@ -312,10 +312,10 @@ class TestRunner {
 			} elseif ( $item['type'] === 'test' ) {
 				$test = new Test( $item );
 				$this->testCases[] = $test;
-				if ( isset( $this->testTitles[$test->title] ) ) {
-					throw new Error( 'Duplicate titles: ' . $test->title );
+				if ( isset( $this->testTitles[$test->testName] ) ) {
+					throw new Error( 'Duplicate titles: ' . $test->testName );
 				} else {
-					$this->testTitles[$test->title] = true;
+					$this->testTitles[$test->testName] = true;
 				}
 			}
 			/* Ignore the rest */
@@ -356,7 +356,7 @@ class TestRunner {
 		Env $env, Test $test, DOMElement $body, array $changelist
 	): DOMNode {
 		// Seed the random-number generator based on the item title and changelist
-		$alea = new Alea( ( json_encode( $changelist ) ?? '' ) . ( $test->title ?? '' ) );
+		$alea = new Alea( ( json_encode( $changelist ) ?? '' ) . ( $test->testName ?? '' ) );
 
 		// Keep the changes in the test object
 		// to check for duplicates while building tasks
@@ -525,7 +525,7 @@ class TestRunner {
 	private function generateChanges(
 		array $options, Test $test, DOMElement $body
 	): array {
-		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->title ?? '' ) );
+		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->testName ?? '' ) );
 
 		/**
 		 * If no node in the DOM subtree rooted at 'node' is editable in the VE,
@@ -889,7 +889,7 @@ class TestRunner {
 		$endsAtWikitext = $mode === 'wt2wt' || $mode === 'selser' || $mode === 'html2wt';
 		$endsAtHtml = $mode === 'wt2html' || $mode === 'html2html';
 
-		$parsoidOnly = isset( $test->altHtmlSections['html/parsoid'] ) ||
+		$parsoidOnly = isset( $test->sections['html/parsoid'] ) ||
 			( !empty( $test->options['parsoid'] ) &&
 			!isset( $test->options['parsoid']['normalizePhp'] ) );
 		$test->time['start'] = microtime( true );
@@ -898,7 +898,7 @@ class TestRunner {
 
 		// Source preparation
 		if ( $startsAtHtml ) {
-			$html = $test->html;
+			$html = $test->parsoidHtml;
 			if ( !$parsoidOnly ) {
 				// Strip some php output that has no wikitext representation
 				// (like .mw-editsection) and won't html2html roundtrip and
@@ -1046,8 +1046,8 @@ class TestRunner {
 	): bool {
 		$normalizedOut = null;
 		$normalizedExpected = null;
-		$parsoidOnly = isset( $test->altHtmlSections['html/parsoid'] ) ||
-			( isset( $test->altHtmlSections['html/parsoid+langconv'] ) ) ||
+		$parsoidOnly = isset( $test->sections['html/parsoid'] ) ||
+			( isset( $test->sections['html/parsoid+langconv'] ) ) ||
 			( isset( $test->options['parsoid'] ) && !isset( $test->options['parsoid']['normalizePhp'] ) );
 
 		$normOpts = [
@@ -1061,17 +1061,17 @@ class TestRunner {
 
 		if ( $test->cachedNormalizedHTML === null ) {
 			if ( $parsoidOnly ) {
-				$normalizedExpected = TestUtils::normalizeOut( $test->html, $normOpts );
+				$normalizedExpected = TestUtils::normalizeOut( $test->parsoidHtml, $normOpts );
 			} else {
-				$normalizedExpected = TestUtils::normalizeHTML( $test->html );
+				$normalizedExpected = TestUtils::normalizeHTML( $test->parsoidHtml );
 			}
 			$test->cachedNormalizedHTML = $normalizedExpected;
 		} else {
 			$normalizedExpected = $test->cachedNormalizedHTML;
 		}
 
-		$input = ( $mode === 'html2html' ) ? $test->html : $test->wikitext;
-		$expected = [ 'normal' => $normalizedExpected, 'raw' => $test->html ];
+		$input = ( $mode === 'html2html' ) ? $test->parsoidHtml : $test->wikitext;
+		$expected = [ 'normal' => $normalizedExpected, 'raw' => $test->parsoidHtml ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
 		return $options['reportResult']( $this->testKnownFailures,
@@ -1098,7 +1098,7 @@ class TestRunner {
 				( $mode === 'selser' && $test->changetree === [ 'manual' ] )
 			) && isset( $test->options['parsoid']['changes'] )
 		) {
-			$testWikitext = $test->altWtSections['wikitext/edited'];
+			$testWikitext = $test->sections['wikitext/edited'];
 		}
 
 		$toWikiText = $mode === 'html2wt' || $mode === 'wt2wt' || $mode === 'selser';
@@ -1110,7 +1110,7 @@ class TestRunner {
 		$normalizedOut = ( $toWikiText ) ? preg_replace( '/\n+$/D', '', $out, 1 ) : $out;
 
 		$input = $mode === 'selser' ? $test->changedHTMLStr :
-			( $mode === 'html2wt' ? $test->html : $testWikitext );
+			( $mode === 'html2wt' ? $test->parsoidHtml : $testWikitext );
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
@@ -1136,7 +1136,7 @@ class TestRunner {
 	private function buildTasks(
 		Test $test, array $targetModes, array $options
 	): void {
-		if ( !$test->title ) {
+		if ( !$test->testName ) {
 			throw new Error( 'Missing title from test case.' );
 		}
 
@@ -1212,12 +1212,17 @@ class TestRunner {
 					// `cachedNormalizedHTML`) that should be cleared before use
 					// in `newitem`.
 					if ( $targetMode === 'wt2html' &&
-						isset( $test->altHtmlSections['html/parsoid+langconv'] )
+						isset( $test->sections['html/parsoid+langconv'] )
 					) {
 						$newitem = Utils::clone( $test );
 						$newitem->options['langconv'] = true;
-						$newitem->html = $test->altHtmlSections['html/parsoid+langconv'];
+						$newitem->parsoidHtml = $test->sections['html/parsoid+langconv'];
 						$this->runTest( $newitem, $targetMode, $options );
+						if ( $test->parsoidHtml === null ) {
+							// Don't run the same test in non-langconv mode
+							// unless we have a non-langconv section
+							continue;
+						}
 					}
 					// A non-selser task, we can reuse the item.
 					$this->runTest( $test, $targetMode, $options );
@@ -1285,7 +1290,7 @@ class TestRunner {
 			 * foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
 			 * if ( isset( $options['update-tests'] ) || $fail->unexpected ) {
 			 * $exp = '/(' . '!!\s*test\s*'
-			 * .							. JSUtils::escapeRegExp( $fail->title ) . '(?:(?!!!\s*end)[\s\S])*'
+			 * .							. JSUtils::escapeRegExp( $fail->testName ) . '(?:(?!!!\s*end)[\s\S])*'
 			 * .							. ')(' . JSUtils::escapeRegExp( $fail->expected ) . ')/m';
 			 * $fileContent = preg_replace( $exp,
 			 * '$1' . preg_replace( '/\$/', '$$$$', $fail[ $updateFormat ] ), $fileContent );
@@ -1332,16 +1337,11 @@ class TestRunner {
 			$test->options = [];
 		}
 
-		// html/* and html/parsoid should be treated as html.
-		foreach ( [ 'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid' ] as $alt ) {
-			if ( isset( $test->altHtmlSections[$alt] ) ) {
-				$test->html = $test->altHtmlSections[$alt];
-			}
-		}
-
-		// ensure that test is not skipped if it has a wikitext/edited section
-		$haveHtml = $test->html !== null;
-		if ( isset( $test->altWtSections['wikitext/edited'] ) ) {
+		// ensure that test is not skipped if it has a wikitext/edited or
+		// html/parsoid+langconv section (but not a parsoid html section)
+		$haveHtml = $test->parsoidHtml !== null;
+		if ( isset( $test->sections['wikitext/edited'] ) ||
+			 isset( $test->sections['html/parsoid+langconv'] ) ) {
 			$haveHtml = true;
 		}
 
@@ -1354,7 +1354,7 @@ class TestRunner {
 		if ( $test->wikitext === null || !$haveHtml
 			|| ( isset( $test->options['disabled'] ) && !$this->runDisabled )
 			|| ( isset( $test->options['php'] )
-				&& !( isset( $test->altHtmlSections['html/parsoid'] ) || $this->runPHP ) )
+				&& !( isset( $test->sections['html/parsoid'] ) || $this->runPHP ) )
 			|| !$test->matchesFilter( $this->testFilter )
 		) {
 			// Skip test whose title does not match --filter

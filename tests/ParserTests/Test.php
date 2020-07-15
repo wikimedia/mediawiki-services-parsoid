@@ -3,33 +3,35 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use Wikimedia\Parsoid\Utils\PHPUtils;
-
 /**
  * Represents a parser test
  */
 class Test extends Item {
 	/* --- These are test properties from the test file --- */
+
+	/** @var ?string This is the test name, not page title for the test */
+	public $testName = null;
+
 	/** @var array */
 	public $options = [];
 
+	/** @var ?string */
+	public $config = null;
+
 	/** @var array */
-	public $changes = [];
+	public $sections = [];
 
-	/** @var string This is the test name, not page title for the test */
-	public $title = null;
+	/* --- These next are computed based on an ordered list of preferred
+	*      section keys --- */
 
-	/** @var string */
+	/** @var ?string */
 	public $wikitext = null;
 
-	/** @var string */
-	public $html = null;
+	/** @var ?string */
+	public $parsoidHtml = null;
 
-	/** @var array */
-	public $altHtmlSections = [];
-
-	/** @var array */
-	public $altWtSections = [];
+	/** @var ?string */
+	public $legacyHtml = null;
 
 	/* --- The rest below are computed while running tests -- */
 
@@ -38,6 +40,9 @@ class Test extends Item {
 
 	/** @var int */
 	private $pageNs;
+
+	/** @var array */
+	public $changes = [];
 
 	/** @var array */
 	public $selserChangeTrees = [];
@@ -75,29 +80,84 @@ class Test extends Item {
 	/** @var array */
 	public $time = [];
 
-	private const ALT_WT_KEYS = [ 'wikitext/edited' ];
-	private const ALT_HTML_KEYS = [
-		'html/*', 'html/*+tidy', 'html+tidy', 'html/parsoid', 'html/parsoid+langconv'
+	private const DIRECT_KEYS = [
+		'type',
+		'testName',
+		'options',
+		'config',
+	];
+	private const WIKITEXT_KEYS = [
+		'wikitext',
+		# deprecated
+		'input',
+	];
+	private const LEGACY_HTML_KEYS = [
+		'html/php', 'html/*', 'html',
+		# deprecated
+		'result',
+		'html/php+tidy',
+		'html/*+tidy',
+		'html+tidy',
+	];
+	private const PARSOID_HTML_KEYS = [
+		'html/parsoid', 'html/*', 'html',
+		# deprecated
+		'result',
+		'html/*+tidy',
+		'html+tidy',
+	];
+	private const WARN_DEPRECATED_KEYS = [
+		'input',
+		'result',
+		# Don't hard-deprecate +tidy or +untidy quite yet, too noisy.
+		#'html/php+tidy',
+		#'html/*+tidy',
+		#'html+tidy',
+		#'html/php+untidy',
+		#'html+untidy',
 	];
 
 	/**
 	 * @param array $testProperties key-value mapping of properties
+	 * @param ?callable $warnFunc Optional callback used to emit
+	 *   deprecation warnings.
 	 */
-	public function __construct( array $testProperties ) {
+	public function __construct( array $testProperties, callable $warnFunc = null ) {
 		parent::__construct( $testProperties['type'] );
+
 		foreach ( $testProperties as $key => $value ) {
-			if ( in_array( $key, self::ALT_HTML_KEYS, true ) ) {
-				$this->altHtmlSections[$key] = $value;
-			} elseif ( in_array( $key, self::ALT_WT_KEYS, true ) ) {
-				$this->altWtSections[$key] = $value;
-			} else {
+			if ( in_array( $key, self::DIRECT_KEYS, true ) ) {
 				$this->$key = $value;
+			} else {
+				if ( isset( $this->sections[$key] ) ) {
+					throw new \Error( "Duplicate test section $key" );
+				}
+				$this->sections[$key] = $value;
 			}
 		}
 
-		if ( isset( $this->options['parsoid'] ) ) {
-			$this->options['parsoid'] =
-				PHPUtils::jsonDecode( PHPUtils::jsonEncode( $this->options['parsoid'] ) );
+		# Priority order for wikitext, legacyHtml, and parsoidHtml properties
+		$cats = [
+			'wikitext' => self::WIKITEXT_KEYS,
+			'legacyHtml' => self::LEGACY_HTML_KEYS,
+			'parsoidHtml' => self::PARSOID_HTML_KEYS,
+		];
+		foreach ( $cats as $prop => $keys ) {
+			foreach ( $keys as $key ) {
+				if ( isset( $this->sections[$key] ) ) {
+					$this->$prop = $this->sections[$key];
+					break;
+				}
+			}
+		}
+
+		# Deprecation warnings
+		if ( $warnFunc ) {
+			foreach ( self::WARN_DEPRECATED_KEYS as $key ) {
+				if ( isset( $this->sections[$key] ) ) {
+					$warnFunc( "Parser test section $key is deprecated" );
+				}
+			}
 		}
 	}
 
@@ -111,11 +171,11 @@ class Test extends Item {
 		}
 
 		if ( !empty( $testFilter['regex'] ) ) {
-			return (bool)preg_match( '/' . $testFilter['raw'] . '/', $this->title );
+			return (bool)preg_match( '/' . $testFilter['raw'] . '/', $this->testName );
 		}
 
 		if ( !empty( $testFilter['string'] ) ) {
-			return strpos( $this->title, $testFilter['raw'] ) !== false;
+			return strpos( $this->testName, $testFilter['raw'] ) !== false;
 		}
 
 		return true; // Trivial match because of a bad test filter

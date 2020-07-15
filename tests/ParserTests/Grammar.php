@@ -94,11 +94,11 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	];
   
   }
-  private function a5($title, $sections) {
+  private function a5($testName, $sections) {
   
   	$test = [
   		'type' => 'test',
-  		'title' => $title
+  		'testName' => $testName
   	];
   
   	foreach ( $sections as $section ) {
@@ -122,6 +122,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   			$test['options']['parsoid'] = [ $test['options']['parsoid'] ];
   		}
   		if ( is_array( $test['options']['parsoid'] ) &&
+  			isset( $test['options']['parsoid'][0] ) &&
   			!isset( $test['options']['parsoid']['modes'] )
   		) {
   			$test['options']['parsoid'] = [ 'modes' => $test['options']['parsoid'] ];
@@ -204,7 +205,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a18($v) {
   
   	if ( $v[0] === '"' || $v[0] === '{' ) { // } is needed to make pegjs happy
-  		return PHPUtils::jsonDecode( $v, false );
+  		return PHPUtils::jsonDecode( $v );
   	}
   	return $v;
   
@@ -584,7 +585,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
       goto seq_1;
     }
     $r5 = $this->parsetext($silence);
-    // title <- $r5
+    // testName <- $r5
     if ($r5===self::$FAILED) {
       $this->currPos = $p3;
       $r1 = self::$FAILED;

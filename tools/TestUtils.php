@@ -815,11 +815,9 @@ class TestUtils {
 		Stats $stats, Test $item, array $options, string $mode,
 		array $expected, array $actual, callable $pre = null, callable $post = null
 	): bool {
-		$title = $item->title; // Title may be modified here, so pass it on.
+		$title = $item->testName; // Title may be modified here, so pass it on.
 
 		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
-		$parsoidOnly = isset( $item->altHtmlSections['html/parsoid'] ) ||
-			isset( $item->options['parsoid'] );
 
 		if ( $mode === 'selser' ) {
 			$title .= ' ' . ( $item->changes ? json_encode( $item->changes ) : '[manual]' );
