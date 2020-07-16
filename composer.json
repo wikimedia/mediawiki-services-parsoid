@@ -61,7 +61,6 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Wikimedia\\Parsoid\\ParserTests\\": "tests/ParserTests",
 			"Wikimedia\\Parsoid\\Tools\\": "tools/",
 			"Test\\": "tests/phpunit/"
 		}
@@ -88,6 +87,7 @@
 		"phan": "phan -p --allow-polyfill-parser --config-file=.phan/standalone.php --long-progress-bar",
 		"phan-integrated": "phan -p --allow-polyfill-parser --long-progress-bar",
 		"regen-tokenizer": "npm run regen-php-tokenizer",
+		"regen-tests-tokenizer": "npm run regen-php-tests-tokenizer",
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true --offsetType ucs2",
 		"phpunit": "phpunit",

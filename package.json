@@ -57,7 +57,7 @@
     "regen-js-tokenizer": "bin/inspectTokenizer.js --source -o lib/wt2html/mediawiki.tokenizer.js",
     "regen-php-tokenizer": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php",
     "regen-php-tokenizer-trace": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
-    "regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar tests/ParserTests/Grammar.pegphp tests/ParserTests/Grammar.php",
+    "regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
     "mocha": "mocha --opts tests/mocha/mocha.opts tests/mocha",
     "parserTests": "node bin/parserTests.js --wt2html --wt2wt --html2wt --html2html --selser --no-color --quiet --blacklist",
     "parserTests-nobatch": "node bin/parserTests.js --useBatchAPI=false --wt2html --html2html --no-color --quiet --blacklist",

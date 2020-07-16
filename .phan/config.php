@@ -85,7 +85,7 @@ foreach ( $phpFiles as $f ) {
 
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
-$cfg['exclude_file_list'][] = "tests/ParserTests/Grammar.php";
+$cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
 
 // FIXME: Temporary?
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';

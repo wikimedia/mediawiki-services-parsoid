@@ -7,7 +7,7 @@
 	<exclude-pattern>doc/html</exclude-pattern>
 	<exclude-pattern>vendor</exclude-pattern>
 	<exclude-pattern>src/Wt2Html/Grammar.php</exclude-pattern>
-	<exclude-pattern>tests/ParserTests/Grammar.php</exclude-pattern>
+	<exclude-pattern>src/ParserTests/Grammar.php</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />

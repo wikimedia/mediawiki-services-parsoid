@@ -34,7 +34,7 @@ var MWParserEnvironment = require('../lib/config/MWParserEnvironment.js').MWPars
 var ParsoidConfig = require('../lib/config/ParsoidConfig.js').ParsoidConfig;
 // be careful to load our extension code with the correct parent module.
 var ParserHook = ParsoidConfig.loadExtension(
-	path.resolve(__dirname, '../tests/parserTestsParserHook.js')
+	path.resolve(__dirname, '../lib/parserTests/parserTestsParserHook.js')
 );
 
 var exitUnexpected = new Error('unexpected failure');  // unique marker value
@@ -916,7 +916,7 @@ ParserTests.prototype.main = Promise.async(function *(options, mockAPIServerURL)
 		this.testFilter = new RegExp(pattern);
 	}
 
-	this.testParserFilePath = path.join(__dirname, '../tests/ParserTests/parserTests.pegjs');
+	this.testParserFilePath = path.join(__dirname, '../lib/parserTests/parserTests.pegjs');
 	this.testParser = PEG.buildParser(yield fs.readFile(this.testParserFilePath, 'utf8'));
 
 	const parsedTests = yield this.getTests(options);
