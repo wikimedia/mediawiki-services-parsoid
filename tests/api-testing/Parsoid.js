@@ -1445,6 +1445,26 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should error when revision not found (transform, html2wt)', function(done) {
+			client.req
+			.post(mockDomain + '/v3/transform/html/to/wikitext/Doesnotexist/2020')
+			.send({
+				html: '<pre>hi ho</pre>'
+			})
+			.expect(404)
+			.end(done);
+		});
+
+		it('should not error when oldid not supplied (transform, html2wt)', function(done) {
+			client.req
+			.post(mockDomain + '/v3/transform/html/to/wikitext/Doesnotexist')
+			.send({
+				html: '<pre>hi ho</pre>'
+			})
+			.expect(validWikitextResponse(' hi ho\n'))
+			.end(done);
+		});
+
 		it('should accept html as a string', function(done) {
 			client.req
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')
