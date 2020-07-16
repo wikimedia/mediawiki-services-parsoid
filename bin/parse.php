@@ -37,8 +37,13 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->addOption( 'html2wt', 'HTML -> Wikitext' );
 		$this->addOption( 'wt2wt', 'Wikitext -> Wikitext' );
 		$this->addOption( 'html2html', 'HTML -> HTML' );
-		$this->addOption( 'body_only',
-						 'Just return the body, without any normalizations as in --normalize' );
+		$this->addOption(
+			'body_only',
+			'Just return <body> innerHTML (defaults to true)',
+			false,
+			true
+		);
+		$this->setOptionDefault( 'body_only', true );
 		$this->addOption( 'selser',
 						 'Use the selective serializer to go from HTML to Wikitext.' );
 		$this->addOption(
@@ -489,7 +494,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		$parsoidOpts = [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
-			"body_only" => $this->hasOption( 'body_only' ),
+			"body_only" => ScriptUtils::booleanOption( $this->getOption( 'body_only' ) ),
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
 			// This ensures we can run --linting and get lint output.
 			"logLinterData" => true,
