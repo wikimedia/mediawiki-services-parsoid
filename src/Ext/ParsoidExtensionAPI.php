@@ -550,32 +550,38 @@ class ParsoidExtensionAPI {
 	 *
 	 * @param DOMElement $from
 	 * @param DOMElement $to
-	 * @param bool $transferDataAttribs Should data-mw & data-parsoid be copied over?
+	 * @param bool $transferWrapperDataAttribs Should data-mw & data-parsoid
+	 *   be copied over for the wrappers?
 	 */
 	public static function migrateChildrenBetweenDocs(
-		DOMElement $from, DOMElement $to, bool $transferDataAttribs = true
+		DOMElement $from, DOMElement $to, bool $transferWrapperDataAttribs = true
 	): void {
-		// Migrate nodes
-		DOMUtils::migrateChildrenBetweenDocs( $from, $to );
-
-		// Ensure node data is available in $to's data bag as well
-		// FIXME: This will no longer be needed once DOM fragments
-		// are attached to the same source document instead of coming
-		// from different documents.
 		$fromDataBag = DOMDataUtils::getBag( $from->ownerDocument );
 		$toDataBag = DOMDataUtils::getBag( $to->ownerDocument );
-		DOMUtils::visitDOM( $to, function ( DOMNode $n ) use ( $fromDataBag, $toDataBag ) {
-			if ( $n instanceof DOMElement &&
-				$n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME )
-			) {
-				$nId = $n->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
-				$data = $fromDataBag->getObject( (int)$nId );
-				$newId = $toDataBag->stashObject( $data );
-				$n->setAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$newId );
-			}
-		} );
+		$child = $from->firstChild;
+		$destDoc = $to->ownerDocument;
+		while ( $child ) {
+			$destNode = $destDoc->importNode( $child, true );
+			$to->appendChild( $destNode );
 
-		if ( $transferDataAttribs ) {
+			// Ensure node data is available in $to's data bag as well
+			// FIXME: This will no longer be needed once DOM fragments
+			// are attached to the same source document instead of coming
+			// from different documents.
+			DOMUtils::visitDOM( $destNode, function ( DOMNode $n ) use ( $fromDataBag, $toDataBag ) {
+				if ( $n instanceof DOMElement &&
+					$n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME )
+				) {
+					$nId = $n->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+					$data = $fromDataBag->getObject( (int)$nId );
+					$newId = $toDataBag->stashObject( $data );
+					$n->setAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$newId );
+				}
+			} );
+			$child = $child->nextSibling;
+		}
+
+		if ( $transferWrapperDataAttribs ) {
 			DOMDataUtils::setDataParsoid( $to, Utils::clone( DOMDataUtils::getDataParsoid( $from ) ) );
 			DOMDataUtils::setDataMw( $to, Utils::clone( DOMDataUtils::getDataMw( $from ) ) );
 		}
