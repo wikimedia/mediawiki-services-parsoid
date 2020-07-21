@@ -1531,7 +1531,7 @@ class WikiLinkHandler extends TokenHandler {
 			$tokens[] = new EndTagTk( 'figcaption' );
 		}
 
-		if ( count( array_keys( get_object_vars( $dataMw ) ) ) ) {
+		if ( (array)$dataMw !== [] ) {
 			$container->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
 		}
 
