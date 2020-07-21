@@ -496,7 +496,7 @@ class TestRunner {
 			return !( $node instanceof DOMElement ) ||
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// Deleting these div wrappers is tantamount to removing the
-					!DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
+					!DOMUtils::matchTypeOf( $node, '#^mw:(Entity|Placeholder)(/|$)#' ) &&
 					// reference tag encaption wrappers, which results in errors.
 					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? '' )
 				);

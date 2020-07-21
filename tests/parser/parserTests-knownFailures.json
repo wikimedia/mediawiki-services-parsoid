@@ -651,13 +651,14 @@
         "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace mw:Placeholder\" data-parsoid='{\"src\":\" \",\"dsr\":[11,12,0,0]}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
         "wt2wt": ";one <b>two : tag <i>fun:</i>:</b><nowiki>:def</nowiki>",
         "html2wt": "; one '''two : tag ''fun:'':'''\n: def",
-        "selser [[[3,[2,0,3,1,0],0]]]": ";<b>1te0w2utwo <i data-foobar=\"1c42uow\">fun:</i>:</b>:def",
+        "selser [[[3,[2,0,3,3,0],0]]]": ";<b>1uz6j1ntwo :</b>:def",
         "selser [[1]]": ";one <b>two : tag <i>fun:</i>:</b>:def",
         "selser [[2]]": ": 63f2vo\n;one <b>two : tag <i>fun:</i>:</b>:def",
         "selser [2]": "1vyzwic\n;one <b>two : tag <i>fun:</i>:</b>:def",
         "selser [1]": ";one <b>two : tag <i>fun:</i>:</b>:def",
-        "selser [[[4,[4,0,3,[2],4],0]]]": ";dvuqiv<b>151jovd <i>103uwafun:</i>1up1hzp</b>:def",
-        "selser [[[0,[0,[4],4,2,0],0]]]": ";one <b>two 1bczvrcoqx256<i>fun:</i>:</b>:def",
+        "selser [[[4,[4,0,2,4,3],0]]]": ";1guwtke<b>1c7opx6 z5lbus: tag 1qp4x2b</b>:def",
+        "selser [[[2,[0,0,3,[3],2],0]]]": ";m4autdone <b>two <i></i>18zi5k8:</b>:def",
+        "selser [[[0,[0,0,0,3,4],0]]]": ";one <b>two : tag qvu4dz</b>:def",
         "selser [[[4,2,0]]]": ";19f00pvjxkgge<b>two : tag <i>fun:</i>:</b>:def",
         "selser [[[3,2,0]]]": ";1yorxlx<b>two : tag <i>fun:</i>:</b>:def"
     },
@@ -978,11 +979,10 @@
     },
     "HTML5 ids: fallback to legacy": {
         "html2wt": "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]",
-        "selser [[2],2,4,0,4,0,[2,0],2,2,0,[0,0,0,0,0,3],4,3,4,4,0,0,2,[0,0,2],0]": "==81f3sbFoo bar==\n13mwdj4\n\n1ycteos\n\niyd7r9\n\n==z09ao0Тест==\n1n2zf0b\n\nbxghpk\n\n==тест==\n\n==Hey < # \" > % ==\ngexbt7\n\n1tthvox\n\nvhtik6\n\n<!-- These two links should produce identical HTML -->1m5ow\n\n[[#啤酒]] 1vlhffq[[#啤酒]]\n",
+        "selser [3,3,[3],0,[0,3],0,0,0,0,0,[3,0,0,4,0,0],3,1,0,0,0,2,0,[0,2,0],3]": "==<nowiki/>==\n\n==<nowiki/>==\n\n==Тест==\n\n==тест==\n\n==Hey < # \" > uil09e : '==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nu46tm4<!-- These two links should produce identical HTML -->\n\n[[#啤酒]]<nowiki/>norrr7 [[#啤酒]]\n",
+        "selser [3,0,4,0,4,0,2,0,1,0,[4,0,0,0,0,4],0,[1,0,0,0,4,3,[4],2,4],3,[0,0,2],4,4,4,1,4]": "\n6ze4fn\n\n1avxyec\n\n1ugscuw\n\n==Тест==\n\n==тест==\n\n==ltvbujHey < # \" > % kgadth==\n[[#Foo bar]] [[#foo Bar]] 12tkxz4[[#тест|b8lrok]]1sumsj6 19b22wg\n\n{{anchorencode:💩}} 8d035y<span id=\"{{anchorencode:💩}}\"></span>\n\n19zalhk\n\n1krv6y1\n\n1ci48d0\n\n[[#啤酒]] [[#啤酒]]\n\n10zmeyy",
         "selser [[4],4,1,0,4,0,2,0,0,4,1,3,[2,0,2,2,[3],0,[4],3,1],0,2,0,2,4,1,2]": "==1f3lkrb==\n11qe63s\n\n==foo Bar==\n\no18c3z\n\n1tsat6f\n\n==Тест==\n\n==тест==\nbu4nlz\n\n==Hey < # \" > % : '==\nolz8dh[[#Foo bar]] 16wig31[[#foo Bar]]<nowiki/>szv1s8 [[#Тест|<nowiki/>]] [[#тест|aaxfmm]][[#Hey < # \" > % : ']]\n\ney7857\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nfia5ft<!-- These two links should produce identical HTML -->\n\nxi6m6u\n\n[[#啤酒]] [[#啤酒]]\n\nqul42e\n",
-        "selser [2,0,[3],4,[1,3],0,3,4,4,2,3,4,[2,0,2,4,3,4,0,2,[3,[4],4,[4],2]],4,1,2,0,0,1,0]": "moo54x\n\n==Foo bar==\n\n==<nowiki/>==\nfj3ndz\n\n==<nowiki/>==\n\nlglag6\n\n18h0vpo\n\n17ouw6c\n\n1ojsh0z\n\nxbqd9j[[#Foo bar]] latonk[[#foo Bar]]10aidl61kdbp6[[#тест]]1j0yfv4 [[#Hey < # \" > % : '| 21ksoz 1dj9bj1: ']]\n\njr9mwb\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n15vscot\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#啤酒]]\n",
-        "selser [0,0,[4],4,[3,0],0,0,0,[4,2],0,[0,0,0,4,0,0],4,4,0,0,3,2,0,[2,0,2],0]": "==Foo bar==\n\n==1g86mfy==\n3uulck\n\n==Тест==\n\n==Тест==\n\n==em42d2m67m4nтест==\n\n==Hey < # \" > 1o05lco : '==\n6zmdc0\n\nmr3rt5\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\ngu79zs<!-- These two links should produce identical HTML -->\n\n10sftb0[[#啤酒]] qano2x[[#啤酒]]\n",
-        "selser [[4],2,0,0,[3,4],3,[3,3],0,2,0,[3,3,0,2,[2],3],0,[2,0,0,4,[4],0,4,0,[0,[2],0,[4],4]],0,0,0,4,0,[3,0,1],4]": "==1ssro8b==\n1wvdr61\n\n==foo Bar==\n\n==11dfqvt==\n==<nowiki/>==\n\n16ov2yk\n\n==тест==\n\n== 1lain83% ==\n1derm1e[[#Foo bar]] [[#foo Bar]]1mxmfl3[[#Тест|xicwvf]] pqbohd [[#Hey < # \" > % : '|#Hey < # \" > % 1fuolhv]]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n1l4ten\n\n<nowiki> </nowiki>[[#啤酒]]\n\n9ekw2c"
+        "selser [0,2,3,2,1,0,[3,0],4,4,2,[0,4,0,2,0,3],0,[0,0,4,3,1,0,2,3,1],3,1,4,0,2,1,3]": "==Foo bar==\n1dpzxys\n\n7py4pu\n\n==Тест==\n\n==Тест==\nms2xu2\n\n1u6nw1d\n\nlh4rn3\n\n==twumu8 6ssrq0% ==\n[[#Foo bar]] t2u696[[#Тест]] a8f0yu[[#тест]][[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n31pwt4<!-- These two links should produce identical HTML -->\n\nz0rdg6\n\n[[#啤酒]] [[#啤酒]]\n"
     },
     "Handling html with a br self-closing tag": {
         "wt2wt": "<br title=\"\" />\n<br title=\"\" />\n<br title=\"\">\n<br title=\"bar\" />\n<br title=\"bar\" />\n<br title=\"bar/\">",
