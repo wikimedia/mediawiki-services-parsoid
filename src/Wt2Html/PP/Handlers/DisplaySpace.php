@@ -79,12 +79,8 @@ class DisplaySpace {
 
 		$span = $doc->createElement( 'span' );
 		$span->appendChild( $doc->createTextNode( "\u{00A0}" ) );
-		// FIXME(T254502): Do away with the mw:Placeholder and the associated
-		// data-parsoid.src
-		$span->setAttribute( 'typeof', 'mw:DisplaySpace mw:Placeholder' );
-		DOMDataUtils::setDataParsoid( $span, (object)[
-			'src' => ' ', 'dsr' => $dsr,
-		] );
+		$span->setAttribute( 'typeof', 'mw:DisplaySpace' );
+		DOMDataUtils::setDataParsoid( $span, (object)[ 'dsr' => $dsr ] );
 		$node->parentNode->insertBefore( $span, $post );
 	}
 
