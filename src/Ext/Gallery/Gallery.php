@@ -152,7 +152,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$attrs = $extApi->extArgsToArray( $args );
 		$opts = new Opts( $extApi, $attrs );
 
-		$offset = $extApi->getExtTagOffsets()->innerStart();
+		$offset = $extApi->extTag->getOffsets()->innerStart();
 
 		// Prepare the lines for processing
 		$lines = explode( "\n", $content );

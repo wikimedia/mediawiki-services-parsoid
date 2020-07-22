@@ -530,10 +530,10 @@ class References extends ExtensionTagHandler {
 			$docBody,
 			$refsOpts,
 			function ( $dp ) use ( $extApi ) {
-				$dp->src = $extApi->getExtSource();
+				$dp->src = $extApi->extTag->getSource();
 				// Setting redundant info on fragment.
 				// $docBody->firstChild info feels cumbersome to use downstream.
-				if ( $extApi->isSelfClosedExtTag() ) {
+				if ( $extApi->extTag->isSelfClosed() ) {
 					$dp->selfClose = true;
 				}
 			}

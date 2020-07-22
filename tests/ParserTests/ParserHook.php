@@ -19,7 +19,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DOMDocument {
-		$extName = $extApi->getExtensionName();
+		$extName = $extApi->extTag->getName();
 		switch ( $extName ) {
 			case 'tag':
 			case 'tåg':

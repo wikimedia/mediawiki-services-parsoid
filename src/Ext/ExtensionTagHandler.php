@@ -81,7 +81,7 @@ abstract class ExtensionTagHandler {
 	/**
 	 * Some extensions require the ability to modify the argument
 	 * dictionary.
-	 * @param ParsoidExtensionApi $extApi
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param object $argDict
 	 */
 	public function modifyArgDict( ParsoidExtensionAPI $extApi, object $argDict ): void {

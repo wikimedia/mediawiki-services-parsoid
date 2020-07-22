@@ -81,7 +81,7 @@ class DOMPostProcessor extends PipelineStage {
 		$this->options = $options + [ 'frame' => $env->topFrame ];
 		$this->seenIds = [];
 		$this->processors = [];
-		$this->extApi = new ParsoidExtensionAPI( $env, [] );
+		$this->extApi = new ParsoidExtensionAPI( $env );
 
 		// map from mediawiki metadata names to RDFa property names
 		$this->metadataMap = [

@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
 use stdClass;
+use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -109,10 +110,11 @@ class ExtensionHandler extends TokenHandler {
 			$extContent = Utils::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
 			$extApi = new ParsoidExtensionAPI( $env, [
-				'wt2html' => $this->options + [
+				'wt2html' => [
 					'frame' => $this->manager->getFrame(),
-					'extToken' => $token
-				]
+					'parseOpts' => $this->options,
+					'extTag' => new ExtensionTag( $token ),
+				],
 			] );
 			$doc = $nativeExt->sourceToDom( $extApi, $extContent, $extArgs );
 			if ( $doc !== false ) {

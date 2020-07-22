@@ -14,7 +14,6 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Html2wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -39,24 +38,24 @@ class ParsoidExtensionAPI {
 	/** @var Env */
 	private $env;
 
-	/** @var Frame */
+	/** @var ?Frame */
 	private $frame;
 
-	/** @var Token */
-	private $extToken;
+	/** @var ?ExtensionTag */
+	public $extTag;
 
 	/**
-	 * @var array TokenHandler options
+	 * @var ?array TokenHandler options
 	 */
 	private $wt2htmlOpts;
 
 	/**
-	 * @var array Serialiation options / state
+	 * @var ?array Serialiation options / state
 	 */
 	private $html2wtOpts;
 
 	/**
-	 * @var SerializerState
+	 * @var ?SerializerState
 	 */
 	private $serializerState;
 
@@ -65,10 +64,11 @@ class ParsoidExtensionAPI {
 	 * @param array|null $options
 	 *  - wt2html: used in wt->html direction
 	 *    - frame: (Frame)
-	 *    - extToken: (Token)
-	 *    - extTag: (string)
-	 *    - extTagOpts: (array)
-	 *    - inTemplate: (bool)
+	 *    - parseOpts: (array)
+	 *      - extTag: (string)
+	 *      - extTagOpts: (array)
+	 *      - inTemplate: (bool)
+	 *    - extTag: (ExtensionTag)
 	 *  - html2wt: used in html->wt direction
 	 *    - state: (SerializerState)
 	 */
@@ -80,7 +80,7 @@ class ParsoidExtensionAPI {
 		$this->html2wtOpts = $options['html2wt'] ?? null;
 		$this->serializerState = $this->html2wtOpts['state'] ?? null;
 		$this->frame = $this->wt2htmlOpts['frame'] ?? null;
-		$this->extToken = $this->wt2htmlOpts['extToken'] ?? null;
+		$this->extTag = $this->wt2htmlOpts['extTag'] ?? null;
 	}
 
 	/**
@@ -150,43 +150,7 @@ class ParsoidExtensionAPI {
 	 * @return bool
 	 */
 	public function inTemplate(): bool {
-		return $this->wt2htmlOpts['inTemplate'] ?? false;
-	}
-
-	/**
-	 * Return the name of the extension tag
-	 * @return string
-	 */
-	public function getExtensionName(): string {
-		return $this->extToken->getAttribute( 'name' );
-	}
-
-	/**
-	 * Return the source offsets for this extension tag usage
-	 * @return DomSourceRange|null
-	 */
-	public function getExtTagOffsets(): ?DomSourceRange {
-		return $this->extToken->dataAttribs->extTagOffsets ?? null;
-	}
-
-	/**
-	 * Return the full extension source
-	 * @return string|null
-	 */
-	public function getExtSource(): ?string {
-		if ( $this->extToken->hasAttribute( 'source' ) ) {
-			return $this->extToken->getAttribute( 'source' );
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Is this extension tag self-closed?
-	 * @return bool
-	 */
-	public function isSelfClosedExtTag(): bool {
-		return !empty( $this->extToken->dataAttribs->selfClose );
+		return $this->wt2htmlOpts['parseOpts']['inTemplate'] ?? false;
 	}
 
 	/**
@@ -196,7 +160,7 @@ class ParsoidExtensionAPI {
 	 * @return string|null
 	 */
 	public function parentExtTag(): ?string {
-		return $this->wt2htmlOpts['extTag'] ?? null;
+		return $this->wt2htmlOpts['parseOpts']['extTag'] ?? null;
 	}
 
 	/**
@@ -206,7 +170,7 @@ class ParsoidExtensionAPI {
 	 * @return array
 	 */
 	public function parentExtTagOpts(): array {
-		return $this->wt2htmlOpts['extTagOpts'] ?? [];
+		return $this->wt2htmlOpts['parseOpts']['extTagOpts'] ?? [];
 	}
 
 	/**
@@ -310,7 +274,7 @@ class ParsoidExtensionAPI {
 	public function extTagToDOM(
 		array $extArgs, string $leadingWS, string $wikitext, array $opts
 	): DOMDocument {
-		$extTagOffsets = $this->extToken->dataAttribs->extTagOffsets;
+		$extTagOffsets = $this->extTag->getOffsets();
 		if ( !isset( $opts['srcOffsets'] ) ) {
 			$opts['srcOffsets'] = new SourceRange(
 				$extTagOffsets->innerStart() + strlen( $leadingWS ),
@@ -334,7 +298,7 @@ class ParsoidExtensionAPI {
 			DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
 		}
 
-		if ( !empty( $this->extToken->dataAttribs->selfClose ) ) {
+		if ( !empty( $this->extTag->isSelfClosed() ) ) {
 			DOMDataUtils::getDataParsoid( $wrapper )->selfClose = true;
 		}
 
@@ -372,7 +336,7 @@ class ParsoidExtensionAPI {
 			$argVal,
 			[
 				'parseOpts' => [
-					'extTag' => $this->getExtensionName(),
+					'extTag' => $this->extTag->getName(),
 					'context' => $context,
 				],
 				'srcOffsets' => $argKV->valueOffset(),
@@ -790,7 +754,7 @@ class ParsoidExtensionAPI {
 	public function renderMedia(
 		string $titleStr, array $imageOpts, ?string &$error = null
 	): ?DOMElement {
-		$extTag = $this->getExtensionName();
+		$extTagName = $this->extTag->getName();
 
 		$title = $this->makeTitle(
 			$titleStr,
@@ -798,7 +762,7 @@ class ParsoidExtensionAPI {
 		);
 
 		if ( $title === null || !$title->getNamespace()->isFile() ) {
-			$error = "{$extTag}_no_image";
+			$error = "{$extTagName}_no_image";
 			return null;
 		}
 
@@ -842,7 +806,7 @@ class ParsoidExtensionAPI {
 			$imageWt,
 			[
 				'parseOpts' => [
-					'extTag' => $extTag,
+					'extTag' => $extTagName,
 					'context' => 'inline',
 				],
 				// Create new frame, because $pieces doesn't literally appear
@@ -869,7 +833,7 @@ class ParsoidExtensionAPI {
 		$body = DOMCompat::getBody( $doc );
 		$thumb = $body->firstChild;
 		if ( !preg_match( "/^figure(-inline)?$/", $thumb->nodeName ) ) {
-			$error = "{$extTag}_invalid_image";
+			$error = "{$extTagName}_invalid_image";
 			return null;
 		}
 		DOMUtils::assertElt( $thumb );
