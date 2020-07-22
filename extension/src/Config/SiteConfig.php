@@ -74,13 +74,17 @@ class SiteConfig extends ISiteConfig {
 	/** @var array */
 	private $extensionTags;
 
-	public function __construct() {
+	/**
+	 * @param Config $mainConfig MediaWiki main configuration object
+	 * @param array $parsoidSettings Parsoid-specific options array from main configuration.
+	 * @param Language $contentLanguage Content language.
+	 */
+	public function __construct( Config $mainConfig, array $parsoidSettings, Language $contentLanguage ) {
 		parent::__construct();
 
-		$services = MediaWikiServices::getInstance();
-		$this->config = $services->getMainConfig();
-		$this->parsoidSettings = $services->getMainConfig()->get( 'ParsoidSettings' );
-		$this->contLang = $services->getContentLanguage();
+		$this->config = $mainConfig;
+		$this->parsoidSettings = $parsoidSettings;
+		$this->contLang = $contentLanguage;
 		// Override parent default
 		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {
 			// @todo: Add this setting to MW's DefaultSettings.php
