@@ -19,6 +19,8 @@
 
 namespace MWParsoid\Config;
 
+use Language;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleHandler;
@@ -132,10 +134,22 @@ class PageConfig extends IPageConfig {
 			$this->title->getPageLanguage()->getCode();
 	}
 
+	/**
+	 * Helper function: get the Language object corresponding to
+	 * PageConfig::getPageLanguage()
+	 * @return Language
+	 */
+	private function getPageLanguageObject(): Language {
+		return $this->pagelanguage ?
+			MediaWikiServices::getInstance()->getLanguageFactory()
+				->getLanguage( $this->pagelanguage ) :
+			$this->title->getPageLanguage();
+	}
+
 	/** @inheritDoc */
 	public function getPageLanguageDir(): string {
 		return $this->pagelanguageDir ??
-			$this->title->getPageLanguage()->getDir();
+			$this->getPageLanguageObject()->getDir();
 	}
 
 	/**
