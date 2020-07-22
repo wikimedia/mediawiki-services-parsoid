@@ -9,6 +9,9 @@ $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['target_php_version'] = '7.2';
+
+$hasLangConv = is_dir( 'vendor/wikimedia/langconv' );
+
 if ( $STANDALONE ) {
 	$cfg['directory_list'] = [
 		# not the extension directory, it requires MW (ie, "not standalone")
@@ -31,7 +34,20 @@ if ( $STANDALONE ) {
 		# but we still need a few things from require-dev
 		'vendor/wikimedia/alea',
 	] );
+	if ( is_dir( "{$IP}/vendor/wikimedia/langconv" ) ) {
+		$hasLangConv = true;
+	} elseif ( $hasLangConv ) {
+		# use our local wikimedia/langconv if not redundant
+		$cfg['directory_list'][] = 'vendor/wikimedia/langconv';
+	}
 }
+
+// If the optional wikimedia/langconv package isn't installed, ignore files
+// which require it.
+if ( !$hasLangConv ) {
+	$cfg['exclude_analysis_directory_list'][] = 'src/Language/';
+}
+
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
 $cfg['exclude_analysis_directory_list'] = array_merge(
