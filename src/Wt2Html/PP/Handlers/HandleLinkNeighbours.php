@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 use DOMElement;
 use DOMText;
 
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -67,10 +66,12 @@ class HandleLinkNeighbours {
 			$nextSibling = $goForward ? $node->nextSibling : $node->previousSibling;
 			$fromTpl = WTUtils::hasParsoidAboutId( $node );
 			$unwrappedSpan = null;
-			if ( $node instanceof DOMElement &&
-				$node->nodeName === 'span' &&
-				$fromTpl &&
-				$baseAbout !== '' && $node->getAttribute( 'about' ) === $baseAbout
+			if ( $node instanceof DOMElement && $node->nodeName === 'span' &&
+				!WTUtils::isLiteralHTMLNode( $node ) &&
+				// <span> comes from the same template we are in
+				$fromTpl && $baseAbout !== '' && $node->getAttribute( 'about' ) === $baseAbout &&
+				// Not interested in <span>s wrapping more than 1 node
+				( !$node->firstChild || $node->firstChild->nextSibling === null )
 			) {
 				// With these checks here, we are not going to support link suffixes
 				// or link trails coming from a different transclusion than the link itself.
@@ -82,8 +83,6 @@ class HandleLinkNeighbours {
 				) {
 					$unwrappedSpan = $node;
 					$node = $node->firstChild;
-					Assert::invariant( !$node || $node->nextSibling === null,
-						'Expected template-span wrapping to wrap a single text node' );
 				}
 			}
 
