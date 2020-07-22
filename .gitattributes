@@ -10,7 +10,7 @@ Doxyfile export-ignore
 composer.json export-ignore
 phpunit.xml.dist export-ignore
 # ignore javascript code and docs
-guides/ export-ignore
+docs/ export-ignore
 lib/ export-ignore
 tests/mocha/ export-ignore
 tools/*.js export-ignore
