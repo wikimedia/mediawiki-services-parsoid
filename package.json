@@ -37,10 +37,7 @@
     "colors": "^1.2.4",
     "eslint": "6.8.0",
     "eslint-config-wikimedia": "0.15.3",
-    "eslint-plugin-jsdoc": "^23.0.0",
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
-    "jsdoc": "^3.6.4",
-    "jsdoc-wmf-theme": "0.0.3",
     "mocha": "^8.0.1",
     "nock": "^9.2.5",
     "supertest": "^3.0.0"
@@ -69,7 +66,6 @@
     "toolcheck": "bin/toolcheck.js.sh",
     "test": "echo 'Parsoid/JS tests have been disabled. Use npm test-js to run them.'",
     "test-js": "npm audit && npm run lint && npm run parserTests && npm run parserTests-nobatch && npm run mocha",
-    "doc": "jsdoc -c jsdoc.json",
     "api-testing": "mocha tests/api-testing"
   },
   "repository": {
