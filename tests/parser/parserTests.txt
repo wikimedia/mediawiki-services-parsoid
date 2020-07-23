@@ -122,7 +122,7 @@ Template:1x
 {{{1}}}
 !! endarticle
 
-// For is; localize Template namespace
+# For is; localize Template namespace
 !! article
 Snið:1x
 !! text
