@@ -21,6 +21,9 @@ class Test extends Item {
 	/** @var array */
 	public $sections = [];
 
+	/** @var array Known failures for this test, indexed by testing mode. */
+	public $knownFailures = [];
+
 	/* --- These next are computed based on an ordered list of preferred
 	*      section keys --- */
 
@@ -122,12 +125,19 @@ class Test extends Item {
 
 	/**
 	 * @param array $testProperties key-value mapping of properties
+	 * @param array $knownFailures Known failures for this test, indexed by testing mode
 	 * @param ?string $comment Optional comment describing the test
 	 * @param ?callable $warnFunc Optional callback used to emit
 	 *   deprecation warnings.
 	 */
-	public function __construct( array $testProperties, ?string $comment = null, ?callable $warnFunc = null ) {
+	public function __construct(
+		array $testProperties,
+		array $knownFailures = [],
+		?string $comment = null,
+		?callable $warnFunc = null
+	) {
 		parent::__construct( $testProperties, $comment );
+		$this->knownFailures = $knownFailures;
 
 		foreach ( $testProperties as $key => $value ) {
 			if ( in_array( $key, self::DIRECT_KEYS, true ) ) {

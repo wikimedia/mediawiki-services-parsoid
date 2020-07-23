@@ -607,35 +607,24 @@ class TestUtils {
 	 * @param string $title
 	 * @param array $actual
 	 * @param array $expected
-	 * @param bool $expectFail Whether this test was expected to fail (on knownFailures list).
+	 * @param ?string $expectFail If this test was expected to fail (on knownFailures list), then the expected failure output; otherwise null.
 	 * @param bool $failureOnly Whether we should print only a failure message, or go on to print the diff.
-	 * @param array $kf knownFailures.
 	 * @return bool true if the failure was expected.
 	 */
 	public static function printFailure(
 		Stats $stats, Test $item, array $options, string $mode, string $title,
-		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $kf
+		array $actual, array $expected, ?string $expectFail, bool $failureOnly
 	): bool {
-		$stats->failedTests++;
-		$stats->modes[$mode]->failedTests++;
-		$fail = [
-			'title' => $title,
-			'raw' => $actual ? $actual['raw'] : null,
-			'expected' => $expected ? $expected['raw'] : null,
-			'actualNormalized' => $actual ? $actual['normal'] : null
-		];
-		$stats->modes[$mode]->failList[] = &$fail;
-
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		$knownFailures = false;
-		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && $expectFail ) {
+		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && $expectFail !== null ) {
 			// compare with remembered output
 			$normalizeAbout = function ( $s ) {
 				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
 			$offsetType = $options['offsetType'] ?? 'byte';
-			if ( $normalizeAbout( $kf[$title][$mode] ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
+			if ( $normalizeAbout( $expectFail ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
 				$knownFailures = true;
 			} else {
 				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
@@ -644,10 +633,6 @@ class TestUtils {
 				return true;
 			}
 		}
-
-		$stats->failedTestsUnexpected++;
-		$stats->modes[$mode]->failedTestsUnexpected++;
-		$fail['unexpected'] = true;
 
 		if ( !$failureOnly ) {
 			print "=====================================================\n";
@@ -698,14 +683,10 @@ class TestUtils {
 		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
 	): bool {
 		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
-		$stats->passedTests++;
-		$stats->modes[$mode]->passedTests++;
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess ) {
-			$stats->passedTestsUnexpected++;
-			$stats->modes[$mode]->passedTestsUnexpected++;
 			print self::colorString( 'UNEXPECTED PASS', 'green', true ) . ': ' .
 				self::colorString( $extTitle, 'yellow' ) . "\n";
 			return false;
@@ -801,7 +782,6 @@ class TestUtils {
 	/**
 	 * @param callable $reportFailure
 	 * @param callable $reportSuccess
-	 * @param array $kf knownFailures.
 	 * @param Stats $stats
 	 * @param Test $item
 	 * @param array $options
@@ -813,7 +793,7 @@ class TestUtils {
 	 * @return bool True if the result was as expected.
 	 */
 	public static function printResult(
-		callable $reportFailure, callable $reportSuccess, array $kf,
+		callable $reportFailure, callable $reportSuccess,
 		Stats $stats, Test $item, array $options, string $mode,
 		array $expected, array $actual, ?callable $pre = null,
 		?callable $post = null
@@ -822,14 +802,15 @@ class TestUtils {
 
 		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
 
+		$suffix = '';
 		if ( $mode === 'selser' ) {
-			$title .= ' ' . ( $item->changes ? json_encode( $item->changes ) : '[manual]' );
+			$suffix = ' ' . ( $item->changes ? json_encode( $item->changes ) : '[manual]' );
 		} elseif ( $mode === 'wt2html' && isset( $item->options['langconv'] ) ) {
 			$title .= ' [langconv]';
 		}
+		$title .= $suffix;
 
-		$tb = $kf[$title] ?? [];
-		$expectFail = isset( $tb[$mode] );
+		$expectFail = $item->knownFailures[$mode . $suffix] ?? null;
 		$fail = $expected['normal'] !== $actual['normal'];
 		// Return whether the test was as expected, independent of pass/fail
 		$asExpected = null;
@@ -852,9 +833,29 @@ class TestUtils {
 		}
 
 		if ( $fail ) {
-			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick, $kf );
+			$stats->failedTests++;
+			$stats->modes[$mode]->failedTests++;
+			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick );
+			if ( !$asExpected ) {
+				$stats->failedTestsUnexpected++;
+				$stats->modes[$mode]->failedTestsUnexpected++;
+			}
+			$stats->modes[$mode]->failList[] = [
+				'testName' => $item->testName,
+				'suffix' => $suffix,
+				'raw' => $actual['raw'] ?? null,
+				'expected' => $expected['raw'] ?? null,
+				'actualNormalized' => $actual['normal'] ?? null,
+				'unexpected' => !$asExpected,
+			];
 		} else {
-			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, !$expectFail );
+			$stats->passedTests++;
+			$stats->modes[$mode]->passedTests++;
+			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, $expectFail === null );
+			if ( !$asExpected ) {
+				$stats->passedTestsUnexpected++;
+				$stats->modes[$mode]->passedTestsUnexpected++;
+			}
 		}
 
 		if ( is_callable( $post ) ) {
@@ -914,7 +915,7 @@ class TestUtils {
 	 * @inheritDoc reportSummary
 	 */
 	public static function reportSummaryXML(
-		array $modesRan, Stats $stats, string $file, ?array $testFilter, bool $knownFailuresChanged
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $knownFailuresChanged
 	): int {
 		$failures = $stats->allFailures();
 
@@ -940,24 +941,22 @@ class TestUtils {
 	 */
 	public static function reportFailureXML(
 		Stats $stats, Test $item, array $options, string $mode, string $title,
-		array $actual, array $expected, bool $expectFail, bool $failureOnly, array $kf
-	): void {
-		$stats->failedTests++;
-		$stats->modes[$mode]->failedTests++;
+		array $actual, array $expected, ?string $expectFail, bool $failureOnly
+	): bool {
 		$failEle = '';
 		$knownFailures = false;
-		if ( ScriptUtils::booleanOption( $options['knownFailures'] ) && $expectFail ) {
+		if ( ScriptUtils::booleanOption( $options['knownFailures'] ) && $expectFail !== null ) {
 			// compare with remembered output
-			$knownFailures = $kf[$title][$mode] === $actual['raw'];
+			$knownFailures = $expectFail === $actual['raw'];
 		}
 		if ( !$knownFailures ) {
 			$failEle .= "<failure type=\"parserTestsDifferenceInOutputFailure\">\n";
 			$failEle .= self::getActualExpectedXML( $actual, $expected, $options['getDiff'] );
 			$failEle .= "\n</failure>";
-			$stats->failedTestsUnexpected++;
-			$stats->modes[$mode]->failedTestsUnexpected++;
 			$stats->modes[$mode]->result .= $failEle;
+			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -967,9 +966,8 @@ class TestUtils {
 	 */
 	public static function reportSuccessXML(
 		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
-	): void {
-		$stats->passedTests++;
-		$stats->modes[$mode]->passedTests++;
+	): bool {
+		return ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess;
 	}
 
 	/**
@@ -1010,9 +1008,13 @@ class TestUtils {
 	 * @inheritDoc printResult
 	 */
 	public static function reportResultXML( ...$args ) {
-		$args = array_merge( [ [ self::class, 'reportFailureXML' ], [ self::class, 'reportSuccessXML' ] ], $args );
-		$args = array_merge( $args, [ [ self::class, 'pre' ], [ self::class, 'post' ] ] );
-		call_user_func_array( [ self::class, 'printResult' ], $args );
+		$args[] = [ self::class, 'pre' ];
+		$args[] = [ self::class, 'post' ];
+		self::printResult(
+			[ self::class, 'reportFailureXML' ],
+			[ self::class, 'reportSuccessXML' ],
+			...$args
+		);
 
 		// In xml, test all cases always
 		return true;

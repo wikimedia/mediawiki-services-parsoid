@@ -17,6 +17,12 @@ class TestFileReader {
 	public $requirements = [];
 
 	/**
+	 * @var ?string Path to known failures file, or null if does not exist
+	 *   or is not readable.
+	 */
+	public $knownFailuresPath;
+
+	/**
 	 * Read and parse a parserTest file.
 	 * @param string $testFilePath The parserTest file to read
 	 * @param ?callable(string) $warnFunc An optional function to use to
@@ -30,18 +36,32 @@ class TestFileReader {
 		?callable $warnFunc = null,
 		?callable $normalizeFunc = null
 	): TestFileReader {
-		$reader = new self( $testFilePath, $warnFunc, $normalizeFunc );
+		$info = pathinfo( $testFilePath );
+		$knownFailuresPath = $info['dirname'] . '/' . $info['filename'] .
+			'-knownFailures.json';
+		$reader = new self(
+			$testFilePath,
+			is_readable( $knownFailuresPath ) ? $knownFailuresPath : null,
+			$warnFunc,
+			$normalizeFunc
+		);
 		return $reader;
 	}
 
 	/**
 	 * @param string $testFilePath The parserTest file to read
+	 * @param ?string $knownFailuresPath The known failures file to read
+	 *   (or null, if there is no readable known failures file)
 	 * @param ?callable(string) $warnFunc An optional function to use to
 	 *   report the use of deprecated test section names
 	 * @param ?callable(string):string $normalizeFunc An optional function
 	 *   to use to normalize article titles for uniqueness testing
 	 */
-	private function __construct( string $testFilePath, ?callable $warnFunc = null, ?callable $normalizeFunc = null ) {
+	private function __construct(
+		string $testFilePath, ?string $knownFailuresPath,
+		?callable $warnFunc = null, ?callable $normalizeFunc = null
+	) {
+		$this->knownFailuresPath = $knownFailuresPath;
 		$parsedTests = Grammar::load( $testFilePath );
 		$testFormat = $parsedTests[0];
 		$rawTestItems = $parsedTests[1];
@@ -50,6 +70,9 @@ class TestFileReader {
 		} else {
 			$this->testFormat = intval( $testFormat['text'] );
 		}
+		$knownFailures = $knownFailuresPath ?
+			json_decode( file_get_contents( $knownFailuresPath ), true ) :
+			null;
 
 		$testNames = [];
 		$articleTitles = [];
@@ -66,7 +89,12 @@ class TestFileReader {
 				$this->articles[] = $art;
 				$lastComment = '';
 			} elseif ( $item['type'] === 'test' ) {
-				$test = new Test( $item, $lastComment, $warnFunc );
+				$test = new Test(
+					$item,
+					$knownFailures[$item['testName']] ?? [],
+					$lastComment,
+					$warnFunc
+				);
 				if ( isset( $testNames[$test->testName] ) ) {
 					$test->error( 'Duplicate test name', $test->testName );
 				}

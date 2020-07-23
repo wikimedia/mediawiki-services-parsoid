@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\ParserTests;
 use DOMElement;
 use DOMNode;
 use Error;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Alea\Alea;
 use Wikimedia\Assert\Assert;
@@ -21,7 +20,6 @@ use Wikimedia\Parsoid\Tools\TestUtils;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
@@ -139,9 +137,6 @@ class TestRunner {
 	/** @var string */
 	private $knownFailuresPath;
 
-	/** @var array */
-	private $testKnownFailures;
-
 	/** @var Article[] */
 	private $articles;
 
@@ -197,18 +192,6 @@ class TestRunner {
 
 		$testFilePathInfo = pathinfo( $testFilePath );
 		$this->testFileName = $testFilePathInfo['basename'];
-
-		$knownFailuresName = $testFilePathInfo['filename'] . '-knownFailures.json';
-		$this->knownFailuresPath = $testFilePathInfo['dirname'] . '/' . $knownFailuresName;
-		try {
-			$knownFailuresData = file_get_contents( $this->knownFailuresPath );
-			$this->testKnownFailures = PHPUtils::jsonDecode( $knownFailuresData ) ?? [];
-			error_log( 'Loaded known failures from ' . $this->knownFailuresPath .
-				". Found " . count( $this->testKnownFailures ) . " entries!" );
-		} catch ( Exception $e ) {
-			error_log( 'No known failures found at ' . $this->knownFailuresPath );
-			$this->testKnownFailures = [];
-		}
 
 		$newModes = [];
 		foreach ( $modes as $mode ) {
@@ -288,8 +271,14 @@ class TestRunner {
 		$testReader = TestFileReader::read(
 			$this->testFilePath, $warnFunc, $normFunc
 		);
+		$this->knownFailuresPath = $testReader->knownFailuresPath;
 		$this->testCases = $testReader->testCases;
 		$this->articles = $testReader->articles;
+		if ( $this->knownFailuresPath ) {
+			error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
+		} else {
+			error_log( 'No known failures found.' );
+		}
 	}
 
 	/**
@@ -1044,8 +1033,9 @@ class TestRunner {
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $test->parsoidHtml ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
-		return $options['reportResult']( $this->testKnownFailures,
-			$this->stats, $test, $options, $mode, $expected, $actual );
+		return $options['reportResult'](
+			$this->stats, $test, $options, $mode, $expected, $actual
+		);
 	}
 
 	/**
@@ -1084,7 +1074,7 @@ class TestRunner {
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
-		return $options['reportResult']( $this->testKnownFailures,
+		return $options['reportResult'](
 			$this->stats, $test, $options, $mode, $expected, $actual );
 	}
 
@@ -1218,18 +1208,17 @@ class TestRunner {
 
 		// update the knownFailures, if requested
 		if ( $allModes || ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
-			$old = null;
-			$oldExists = file_exists( $this->knownFailuresPath );
-			if ( $oldExists ) {
+			$old = '[]';
+			if ( $this->knownFailuresPath !== null ) {
 				$old = file_get_contents( $this->knownFailuresPath );
 			}
 			$testKnownFailures = [];
 			foreach ( $options['modes'] as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
-					if ( !isset( $testKnownFailures[$fail['title']] ) ) {
-						$testKnownFailures[$fail['title']] = [];
+					if ( !isset( $testKnownFailures[$fail['testName']] ) ) {
+						$testKnownFailures[$fail['testName']] = [];
 					}
-					$testKnownFailures[$fail['title']][$mode] = $fail['raw'];
+					$testKnownFailures[$fail['testName']][$mode . $fail['suffix']] = $fail['raw'];
 				}
 			}
 			// Sort, otherwise, titles get added above based on the first
@@ -1243,7 +1232,7 @@ class TestRunner {
 			);
 			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
 				file_put_contents( $this->knownFailuresPath, $contents );
-			} elseif ( $allModes && $oldExists && $offsetType === 'byte' ) {
+			} elseif ( $allModes && $offsetType === 'byte' ) {
 				$knownFailuresChanged = $contents !== $old;
 			}
 		}
