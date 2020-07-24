@@ -235,7 +235,7 @@ class TestRunner {
 
 		$this->mockApi = new MockApiHelper();
 		$this->siteConfig = new SiteConfig( $this->mockApi, [] );
-		$this->dataAccess = new DataAccess( $this->mockApi, $this->siteConfig, [] );
+		$this->dataAccess = new DataAccess( $this->mockApi, $this->siteConfig, [ 'stripProto' => false ] );
 		$this->dummyEnv = new Env(
 			$this->siteConfig,
 			// Unused; needed to satisfy Env signature requirements

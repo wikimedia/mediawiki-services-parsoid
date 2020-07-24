@@ -272,9 +272,9 @@ class MockDataAccess implements DataAccess {
 	];
 
 	// configuration to match PHP parserTests
-	// although protocol-relative; see T235217 and
-	// If52d21b50cdbb466395ca64ac9877d992e19ce40
-	private const IMAGE_BASE_URL = '//example.com/images';
+	// Note that parserTests use a MockLocalRepo with
+	// url=>'http://example.com/images' although $wgServer="http://example.org"
+	private const IMAGE_BASE_URL = 'http://example.com/images';
 	private const IMAGE_DESC_URL = self::IMAGE_BASE_URL;
 	private const FILE_PROPS = [
 		'Foobar.jpg' => [

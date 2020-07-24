@@ -21,6 +21,17 @@ class DataAccess implements IDataAccess {
 	private $api;
 
 	/**
+	 * @var bool Should we strip the protocol from returned URLs?
+	 * Generally this should be true, since the protocol of the API
+	 * request doesn't necessarily match the protocol of article
+	 * access; ie, we could be using https to access the API but emit
+	 * article content which can be read with http.  But for running
+	 * parserTests, we need to include the protocol in order to match
+	 * the parserTest configuration in core.
+	 */
+	private $stripProto;
+
+	/**
 	 * @name Caching
 	 * @todo Someone should librarize MediaWiki core's MapCacheLRU so we can
 	 *  pull it in via composer and use it here.
@@ -84,6 +95,7 @@ class DataAccess implements IDataAccess {
 	public function __construct( ApiHelper $api, ?SiteConfig $siteConfig, array $opts ) {
 		$this->api = $api;
 		$this->siteConfig = $siteConfig;
+		$this->stripProto = $opts['stripProto'] ?? true;
 	}
 
 	/** @inheritDoc */
@@ -184,19 +196,19 @@ class DataAccess implements IDataAccess {
 			if ( isset( $fileinfo['filemissing'] ) ) {
 				$fileinfo = null;
 			} else {
-				self::stripProto( $fileinfo, 'url' );
-				self::stripProto( $fileinfo, 'thumburl' );
-				self::stripProto( $fileinfo, 'descriptionurl' );
-				self::stripProto( $fileinfo, 'descriptionshorturl' );
+				$this->stripProto( $fileinfo, 'url' );
+				$this->stripProto( $fileinfo, 'thumburl' );
+				$this->stripProto( $fileinfo, 'descriptionurl' );
+				$this->stripProto( $fileinfo, 'descriptionshorturl' );
 				foreach ( $fileinfo['responsiveUrls'] ?? [] as $density => $url ) {
-					self::stripProto( $fileinfo['responsiveUrls'], (string)$density );
+					$this->stripProto( $fileinfo['responsiveUrls'], (string)$density );
 				}
 				if ( $prefix === 'vi' ) {
 					foreach ( $fileinfo['thumbdata']['derivatives'] ?? [] as $j => $d ) {
-						self::stripProto( $fileinfo['thumbdata']['derivatives'][$j], 'src' );
+						$this->stripProto( $fileinfo['thumbdata']['derivatives'][$j], 'src' );
 					}
 					foreach ( $fileinfo['thumbdata']['timedtext'] ?? [] as $j => $d ) {
-						self::stripProto( $fileinfo['thumbdata']['timedtext'][$j], 'src' );
+						$this->stripProto( $fileinfo['thumbdata']['timedtext'][$j], 'src' );
 					}
 				}
 			}
@@ -212,8 +224,8 @@ class DataAccess implements IDataAccess {
 	 * @param ?array &$obj
 	 * @param string $key
 	 */
-	private static function stripProto( ?array &$obj, string $key ): void {
-		if ( $obj !== null && !empty( $obj[$key] ) ) {
+	private function stripProto( ?array &$obj, string $key ): void {
+		if ( $obj !== null && !empty( $obj[$key] ) && $this->stripProto ) {
 			$obj[$key] = preg_replace( '#^https?://#', '//', $obj[$key] );
 		}
 	}
