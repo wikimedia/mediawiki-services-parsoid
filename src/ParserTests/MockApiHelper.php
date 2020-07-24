@@ -98,6 +98,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
+	private $articleCache = [];
 	private $cachedConfigs = [];
 
 	private static $MAIN_PAGE = [
@@ -377,7 +378,12 @@ class MockApiHelper extends ApiHelper {
 	];
 
 	private static $missingTitles = [ 'Doesnotexist' ];
-	private static $specialTitles = [ 'Special:Version' ];
+	private static $specialTitles = [
+		'Special:Version',
+		'Special:BookSources',
+		'Special:BookSources/isbn=4-00-026157-6',
+		'Special:BookSources/0978739256',
+	];
 	private static $redirectTitles = [ 'Redirected' ];
 	private static $disambigTitles = [ 'Disambiguation' ];
 
@@ -473,6 +479,16 @@ class MockApiHelper extends ApiHelper {
 	 */
 	public function setApiPrefix( string $prefix ): void {
 		$this->prefix = $prefix;
+	}
+
+	/**
+	 * Register an article defined in parsertests so that we can return
+	 * the proper known/missing information about that title.
+	 * @param string $key The normalized title of the article
+	 * @param Article $article The contents of the article
+	 */
+	public function addArticle( string $key, Article $article ):void {
+		$this->articleCache[$key] = $article;
 	}
 
 	/**
@@ -680,8 +696,8 @@ class MockApiHelper extends ApiHelper {
 							[
 								'ns' => 6,
 								'title' => json_encode( $params['titles'] ),
-								'missing' => '',
-								'imagerepository' => ''
+								'missing' => true,
+								'imagerepository' => true
 							]
 						]
 					]
@@ -694,17 +710,23 @@ class MockApiHelper extends ApiHelper {
 			$titles = preg_split( '/\|/', $params['titles'] );
 			foreach ( $titles as $t ) {
 				$props = [ 'title' => $t ];
-				if ( in_array( $t, self::$missingTitles, true ) ) {
-					$props['missing'] = '';
+				$key = str_replace( ' ', '_', $t ); # poor man's normalization
+				$definedInPt = isset( $this->articleCache[$key] );
+				if ( in_array( $t, self::$missingTitles, true ) ||
+					 !$definedInPt ) {
+					$props['missing'] = true;
 				}
 				if ( in_array( $t, self::$specialTitles, true ) ) {
-					$props['special'] = '';
+					$props['special'] = true;
+					$props['missing'] = false;
 				}
 				if ( in_array( $t, self::$redirectTitles, true ) ) {
-					$props['redirect'] = '';
+					$props['redirect'] = true;
+					$props['missing'] = false;
 				}
 				if ( in_array( $t, self::$disambigTitles, true ) ) {
-					$props['pageprops'] = [ 'disambiguation' => '' ];
+					$props['pageprops'] = [ 'disambiguation' => true ];
+					$props['missing'] = false;
 				}
 				$ret[] = $props;
 			}
@@ -727,13 +749,13 @@ class MockApiHelper extends ApiHelper {
 				$p = [
 					'ns' => 6,
 					'title' => $filename,
-					'missing' => '',
-					'imagerepository' => '',
+					'missing' => true,
+					'imagerepository' => true,
 					'imageinfo' => [ [
 						'size' => 0,
 						'width' => 0,
 						'height' => 0,
-						'filemissing' => '',
+						'filemissing' => true,
 						'mime' => null,
 						'mediatype' => null
 					] ]

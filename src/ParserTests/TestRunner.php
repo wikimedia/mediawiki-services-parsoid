@@ -247,9 +247,10 @@ class TestRunner {
 
 		$env->pageCache = [];
 		foreach ( $this->articles as $art ) {
-			$env->pageCache[$env->normalizedTitleKey( $art->title, false, true )] = $art->text;
+			$key = $env->normalizedTitleKey( $art->title, false, true );
+			$env->pageCache[$key] = $art->text;
+			$this->mockApi->addArticle( $key, $art );
 		}
-		// $this->mockApi->setArticleCache( $this->articles );
 		// Set parsing resource limits.
 		// $env->setResourceLimits();
 
