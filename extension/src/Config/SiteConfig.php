@@ -134,7 +134,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function nativeGalleryEnabled(): bool {
-		return false;
+		return $this->parsoidSettings['nativeGalleryEnabled'] ?? false;
 	}
 
 	public function galleryOptions(): array {
@@ -476,6 +476,12 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function widthOption(): int {
+		// Allow override of thumb limit for parser tests (the core parser
+		// test framework does this by setting a per-user option, but parsoid
+		// doesn't support per-user options)
+		if ( isset( $this->parsoidSettings['thumbsize'] ) ) {
+			return $this->parsoidSettings['thumbsize'];
+		}
 		return $this->config->get( 'ThumbLimits' )[User::getDefaultOption( 'thumbsize' )];
 	}
 
