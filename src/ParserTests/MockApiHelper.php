@@ -70,18 +70,31 @@ class MockApiHelper extends ApiHelper {
 			'width' => 320,
 			'height' => 240,
 			'bits' => 0,
-			'duration' => 160.733333333333,
-			'mime' => 'application/ogg',
-			'mediatype' => 'VIDEO'
+			# duration comes from
+			# TimedMediaHandler/tests/phpunit/mocks/MockOggHandler::getLength()
+			'duration' => 4.3666666666667,
+			'mime' => 'video/ogg; codecs="theora"',
+			'mediatype' => 'VIDEO',
+			'title' => 'Original Ogg file, 320 × 240 (590 kbps)',
+			'shorttitle' => 'Ogg source',
+			# hacky way to get seek parameters to return the correct info
+			'extraParams' => [
+				'seek=1.2' => 'seek%3D1.2',
+				'seek=85' => 'seek%3D3.3666666666667', # hard limited by duration
+			],
 		],
 		'Audio.oga' => [
 			'size' => 12345,
 			'width' => 0,
 			'height' => 0,
 			'bits' => 0,
-			'duration' => 160.733333333333,
-			'mime' => 'application/ogg',
-			'mediatype' => 'AUDIO'
+			# duration comes from
+			# TimedMediaHandler/tests/phpunit/mocks/MockOggHandler::getLength()
+			'duration' => 0.99875,
+			'mime' => 'audio/ogg; codecs="vorbis"',
+			'mediatype' => 'AUDIO',
+			'title' => 'Original Ogg file (41 kbps)',
+			'shorttitle' => 'Ogg source',
 		]
 	];
 
@@ -498,10 +511,11 @@ class MockApiHelper extends ApiHelper {
 	 * @param string $filename
 	 * @param ?int $twidth
 	 * @param ?int $theight
+	 * @param ?string $extraParam optional iiurlparam, used for video/pdf/etc
 	 * @return ?array
 	 */
 	private function imageInfo(
-		string $filename, ?int $twidth, ?int $theight
+		string $filename, ?int $twidth, ?int $theight, ?string $extraParam
 	) : ?array {
 		$normPagename = self::PNAMES[$filename] ?? $filename;
 		$normFilename = self::FNAMES[$filename] ?? $filename;
@@ -571,7 +585,15 @@ class MockApiHelper extends ApiHelper {
 				}
 			}
 			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' ) {
-				$turl .= '/' . $urlWidth . 'px-' . $normFilename;
+				$turl .= '/' . $urlWidth . 'px-';
+				if ( $mediatype === 'VIDEO' ) {
+					// Hack in a 'seek' option, if provided (T258767)
+					if ( $extraParam ) {
+						$turl .= $props['extraParams'][$extraParam] ?? '';
+					}
+					$turl .= '-';
+				}
+				$turl .= $normFilename;
 				switch ( $mediatype ) {
 					case 'AUDIO':
 						// No thumbs are generated for audio
@@ -590,6 +612,23 @@ class MockApiHelper extends ApiHelper {
 			$info['thumbwidth'] = $twidth;
 			$info['thumbheight'] = $theight;
 			$info['thumburl'] = $turl;
+		}
+		// Make this look like a TMH response
+		if ( isset( $props['title'] ) || isset( $props['shorttitle'] ) ) {
+			$info['derivatives'] = [
+				[
+					'src' => $info['url'],
+					'type' => $info['mime'],
+					'width' => strval( $info['width'] ),
+					'height' => strval( $info['height'] ),
+				]
+			];
+			if ( isset( $props['title'] ) ) {
+				$info['derivatives'][0]['title'] = $props['title'];
+			}
+			if ( isset( $props['shorttitle'] ) ) {
+				$info['derivatives'][0]['shorttitle'] = $props['shorttitle'];
+			}
 		}
 
 		return [
@@ -681,7 +720,8 @@ class MockApiHelper extends ApiHelper {
 			$ii = self::imageInfo(
 				$filename,
 				isset( $params['iiurlwidth'] ) ? $tonum( $params['iiurlwidth'] ) : null,
-				isset( $params['iiurlheight'] ) ? $tonum( $params['iiurlheight'] ) : null
+				isset( $params['iiurlheight'] ) ? $tonum( $params['iiurlheight'] ) : null,
+				$params['iiurlparam'] ?? null
 			);
 			if ( $ii === null ) {
 				$p = [
