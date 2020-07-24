@@ -25,11 +25,12 @@ use Hooks;
 use LinkBatch;
 use Linker;
 use MediaTransformError;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\BadFileLookup;
 use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserOptions;
+use RepoGroup;
 use Title;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
@@ -39,6 +40,12 @@ class DataAccess implements IDataAccess {
 
 	/** @var RevisionStore */
 	private $revStore;
+
+	/** @var RepoGroup */
+	private $repoGroup;
+
+	/** @var BadFileLookup */
+	private $badFileLookup;
 
 	/** @var Parser */
 	private $parser;
@@ -51,13 +58,19 @@ class DataAccess implements IDataAccess {
 
 	/**
 	 * @param RevisionStore $revStore
+	 * @param RepoGroup $repoGroup
+	 * @param BadFileLookup $badFileLookup
 	 * @param Parser $parser
 	 * @param ParserOptions $parserOptions
 	 */
 	public function __construct(
-		RevisionStore $revStore, Parser $parser, ParserOptions $parserOptions
+		RevisionStore $revStore, RepoGroup $repoGroup,
+		BadFileLookup $badFileLookup, Parser $parser,
+		ParserOptions $parserOptions
 	) {
 		$this->revStore = $revStore;
+		$this->repoGroup = $repoGroup;
+		$this->badFileLookup = $badFileLookup;
 		$this->parser = $parser;
 		$this->parserOptions = $parserOptions;
 
@@ -156,9 +169,7 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( IPageConfig $pageConfig, array $files ): array {
 		$page = Title::newFromText( $pageConfig->getTitle() );
-		$services = MediaWikiServices::getInstance();
-		$fileObjs = $services->getRepoGroup()->findFiles( array_keys( $files ) );
-		$badFileLookup = $services->getBadFileLookup();
+		$fileObjs = $this->repoGroup->findFiles( array_keys( $files ) );
 		$ret = [];
 		foreach ( $files as $filename => $dims ) {
 			/** @var File $file */
@@ -176,7 +187,7 @@ class DataAccess implements IDataAccess {
 				'mime' => $file->getMimeType(),
 				'url' => $file->getFullUrl(),
 				'mustRender' => $file->mustRender(),
-				'badFile' => $badFileLookup->isBadFile( $filename, $page ?: false ),
+				'badFile' => $this->badFileLookup->isBadFile( $filename, $page ?: false ),
 			];
 
 			$length = $file->getLength();

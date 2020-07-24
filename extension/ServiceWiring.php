@@ -47,7 +47,11 @@ return [
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
 			return ApiDataAccess::fromSettings( $parsoidSettings );
 		}
-		return new MWDataAccess( $services->getRevisionStore(), $services->getParser(),
+		return new MWDataAccess(
+			$services->getRevisionStore(),
+			$services->getRepoGroup(),
+			$services->getBadFileLookup(),
+			$services->getParser(),
 			$services->get( '_ParsoidParserOptions' ) );
 	},
 
