@@ -87,6 +87,15 @@ class Parsoid {
 	}
 
 	/**
+	 * Determine if language conversion is enabled, aka if the optional
+	 * wikimedia/langconv library is installed.
+	 * @return bool True if the wikimedia/langconv library is available
+	 */
+	public static function supportsLanguageConversion(): bool {
+		return class_exists( '\Wikimedia\LangConv\ReplacementMachine' );
+	}
+
+	/**
 	 * @param array $options
 	 * @return array
 	 */
