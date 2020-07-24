@@ -206,31 +206,12 @@ class DataAccess implements IDataAccess {
 					}
 
 					// Proposed MediaTransformOutput serialization method for T51896 etc.
-					// Note that getAPIData() returns wfExpandUrl(), which
-					// doesn't respect the wiki's protocol preferences --
-					// instead it uses the protocol used for the API request
+					// Note that getAPIData(['fullurl']) would return
+					// wfExpandUrl(), which wouldn't respect the wiki's
+					// protocol preferences -- instead it would use the
+					// protocol used for the API request.
 					if ( is_callable( [ $mto, 'getAPIData' ] ) ) {
 						$result['thumbdata'] = $mto->getAPIData( [ 'withhash' ] );
-						// During a transitional period, additionally strip
-						// protocol from the result.
-						// FIXME: remove once
-						// Ib9e30c7734ea266e6be8dd5dd425bf2f7d40100f
-						// is merged.
-						$stripProto = function ( array &$arr, $key = 'src' ): void {
-							foreach ( $arr as &$item ) {
-								if ( !empty( $item[$key] ) ) {
-									$item[$key] = preg_replace(
-										'#^https?://#', '//', $item[$key]
-									);
-								}
-							}
-						};
-						if ( isset( $result['thumbdata']['derivatives'] ) ) {
-							$stripProto( $result['thumbdata']['derivatives'] );
-						}
-						if ( isset( $result['thumbdata']['timedtext'] ) ) {
-							$stripProto( $result['thumbdata']['timedtext'] );
-						}
 					}
 
 					$result['thumburl'] = $mto->getUrl();
