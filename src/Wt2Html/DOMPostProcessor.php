@@ -711,9 +711,14 @@ class DOMPostProcessor extends PipelineStage {
 			}
 		}
 
+		$lang = $env->getPageConfig()->getPageLanguage() ?:
+			$env->getSiteConfig()->lang() ?: 'en';
+		$dir = $env->getPageConfig()->getPageLanguageDir() ?:
+			( ( $env->getSiteConfig()->rtl() ) ? 'rtl' : 'ltr' );
+
 		$modulesBaseURI = $env->getSiteConfig()->getModulesLoadURI();
 		$styleURI = $modulesBaseURI .
-			'?modules=' .
+			'?lang=' . $lang . '&modules=' .
 			PHPUtils::encodeURIComponent( implode( '|', $modules ) ) .
 			'&only=styles&skin=vector';
 		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
@@ -725,7 +730,7 @@ class DOMPostProcessor extends PipelineStage {
 
 		// html5shiv
 		$shiv = $document->createElement( 'script' );
-		$src = $modulesBaseURI . '?modules=html5shiv&only=scripts&skin=vector&sync=1';
+		$src = $modulesBaseURI . '?lang=' . $lang . '&modules=html5shiv&only=scripts&skin=vector&sync=1';
 		$shiv->setAttribute( 'src', $src );
 		$fi = $document->createElement( 'script' );
 		$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
@@ -734,11 +739,6 @@ class DOMPostProcessor extends PipelineStage {
 			DOMCompat::getOuterHTML( $fi ) . '<![endif]'
 		);
 		DOMCompat::getHead( $document )->appendChild( $comment );
-
-		$lang = $env->getPageConfig()->getPageLanguage() ?:
-			$env->getSiteConfig()->lang() ?: 'en';
-		$dir = $env->getPageConfig()->getPageLanguageDir() ?:
-			( ( $env->getSiteConfig()->rtl() ) ? 'rtl' : 'ltr' );
 
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)
