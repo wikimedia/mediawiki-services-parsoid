@@ -441,7 +441,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				print '--> ' . TestUtils::colorString( 'NO UNEXPECTED RESULTS', 'green' ) . " <--\n";
 				if ( $knownFailuresChanged ) {
 					print "Perhaps some tests were deleted or renamed.\n";
-					print "Use `bin/parserTests.js --updateKnownFailures` to update knownFailures list.\n";
+					print "Use `php bin/parserTests.php --updateKnownFailures` to update knownFailures list.\n";
 				}
 			} else {
 				print TestUtils::colorString( '--> ' . $failures . ' UNEXPECTED RESULTS. <--', 'red' ) . "\n";
