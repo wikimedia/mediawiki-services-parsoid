@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Wikimedia\Assert\Assert;
@@ -47,20 +48,22 @@ class ContentUtils {
 	 * @param Env $env
 	 * @param string $html
 	 * @param array $options
-	 * @return DOMElement
+	 * @return DOMElement|DOMDocumentFragment
 	 */
 	public static function ppToDOM(
 		Env $env, string $html, array $options = []
-	): DOMElement {
+	): DOMNode {
 		$options += [
 			'node' => null,
 			'reinsertFosterableContent' => null,
+			'toFragment' => false,
 		];
 		$node = $options['node'];
-		if ( $node === null ) {
+		if ( $options['toFragment'] ) {
+			$node = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, $html );
+		} elseif ( $node === null ) {
 			$node = DOMCompat::getBody( $env->createDocument( $html ) );
 		} else {
-			DOMUtils::assertElt( $node );
 			DOMCompat::setInnerHTML( $node, $html );
 		}
 
@@ -245,10 +248,8 @@ class ContentUtils {
 			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/|$)#D' ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $dp->html ?? null ) {
-					$nodes = $env->getDOMFragment( $dp->html );
-					foreach ( $nodes as $n ) {
-						DOMPostOrder::traverse( $n, $convertNode );
-					}
+					$domFragment = $env->getDOMFragment( $dp->html );
+					DOMPostOrder::traverse( $domFragment, $convertNode );
 				}
 			}
 		};

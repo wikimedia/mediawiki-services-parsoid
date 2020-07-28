@@ -25,15 +25,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
  * @class
  */
 class JSON extends ContentModelHandler implements ExtensionModule {
-	private const PARSE_ERROR_HTML = '<!DOCTYPE html><html>'
-		. '<body>'
-		. "<table data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}' typeof=\"mw:Error\">"
-		. '</body>';
-
-	/**
-	 * @var DOMDocument
-	 */
-	protected $document;
+	private const PARSE_ERROR_HTML = "<table typeof=\"mw:Error\" data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}'>";
 
 	/** @inheritDoc */
 	public function getConfig(): array {
@@ -94,9 +86,9 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @param mixed $val
 	 */
 	private function objectRow( DOMElement $parent, ?string $key, $val ): void {
-		$tr = $this->document->createElement( 'tr' );
+		$tr = $parent->ownerDocument->createElement( 'tr' );
 		if ( $key !== null ) {
-			$th = $this->document->createElement( 'th' );
+			$th = $parent->ownerDocument->createElement( 'th' );
 			$th->textContent = $key;
 			$tr->appendChild( $th );
 		}
@@ -128,7 +120,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @param mixed $val
 	 */
 	private function valueCell( DOMElement $parent, $val ): void {
-		$td = $this->document->createElement( 'td' );
+		$td = $parent->ownerDocument->createElement( 'td' );
 		if ( is_array( $val ) ) {
 			self::arrayTable( $td, $val );
 		} elseif ( $val && is_object( $val ) ) {
@@ -165,35 +157,41 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * JSON to HTML.
 	 * Implementation matches that from includes/content/JsonContent.php in
 	 * mediawiki core, except that we distinguish value types.
-	 * @param ParsoidExtensionAPI $API
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $jsonText
 	 * @return DOMDocument
 	 */
-	public function toDOM( ParsoidExtensionAPI $API, string $jsonText ): DOMDocument {
-		$this->document = $API->htmlToDom( '<!DOCTYPE html><html><body>' );
-		$src = null;
+	public function toDOM(
+		ParsoidExtensionAPI $extApi, string $jsonText
+	): DOMDocument {
+		$document = $extApi->getTopLevelDoc();
+		$body = DOMCompat::getBody( $document );
 
-// PORT-FIXME When production moves to PHP 7.3, re-enable this try catch code
-/*		try {
-			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
-			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
-		} catch ( Exception $e ) {
-			$this->document = $API->htmlToDom( self::PARSE_ERROR_HTML );
-		}
-*/
+		// PORT-FIXME: When production moves to PHP 7.3, re-enable this try
+		// catch code
+
+		// try {
+		// 	$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
+		// 	self::rootValueTable( $body, $src );
+		// } catch ( Exception $e ) {
+		// 	DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
+		// }
+
 		$src = json_decode( $jsonText, false, 6 );
 		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
-			$this->document = $API->htmlToDom( self::PARSE_ERROR_HTML );
+			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
 		} else {
-			self::rootValueTable( DOMCompat::getBody( $this->document ), $src );
+			self::rootValueTable( $body, $src );
 		}
-/* end of PHP 7.2 compatible error handling code, remove whem enabling 7.3+ try catch code */
+
+		// end of PHP 7.2 compatible error handling code, remove whem enabling
+		// 7.3+ try catch code
 
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
-		$API->postProcessDOM( $this->document );
+		$extApi->postProcessDOM( $document );
 
-		return $this->document;
+		return $document;
 	}
 
 	/**
@@ -335,13 +333,13 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 
 	/**
 	 * DOM to JSON.
-	 * @param ParsoidExtensionAPI $API
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMDocument $doc
 	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $API, DOMDocument $doc,
+		ParsoidExtensionAPI $extApi, DOMDocument $doc,
 		?SelserData $selserData = null
 	): string {
 		$body = DOMCompat::getBody( $doc );

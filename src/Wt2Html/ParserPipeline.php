@@ -167,7 +167,9 @@ class ParserPipeline {
 	 * @param ?array $opts
 	 * @return DOMDocument
 	 */
-	public function parseToplevelDoc( string $input, ?array $opts = null ) {
+	public function parseToplevelDoc(
+		string $input, ?array $opts = null
+	): DOMDocument {
 		Assert::invariant( $this->pipelineType === 'text/x-mediawiki/full',
 			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
 			$this->pipelineType );
@@ -210,6 +212,7 @@ class ParserPipeline {
 			// are not marked for collection while the GC is disabled. The root
 			// buffer will be empty.
 		}
-		return $result;
+
+		return $result->ownerDocument;
 	}
 }

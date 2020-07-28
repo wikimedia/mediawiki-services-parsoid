@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
-use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Ext\DOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
@@ -16,12 +16,12 @@ class RefProcessor extends DOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, DOMElement $body, array $options, bool $atTopLevel
+		ParsoidExtensionAPI $extApi, DOMNode $node, array $options, bool $atTopLevel
 	): void {
 		if ( $atTopLevel ) {
 			$refsData = new ReferencesData();
-			References::processRefs( $extApi, $refsData, $body );
-			References::insertMissingReferencesIntoDOM( $extApi, $refsData, $body );
+			References::processRefs( $extApi, $refsData, $node );
+			References::insertMissingReferencesIntoDOM( $extApi, $refsData, $node );
 		}
 	}
 

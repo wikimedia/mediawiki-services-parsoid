@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -766,7 +765,7 @@ class TemplateHandler extends TokenHandler {
 			$srcEnd -= count( $paramData['info']['spc'][3] );
 		}
 
-		$dom = PipelineUtils::processContentInPipeline(
+		$domFragment = PipelineUtils::processContentInPipeline(
 			$this->env, $this->manager->getFrame(),
 			$param->wt,
 			[
@@ -781,19 +780,20 @@ class TemplateHandler extends TokenHandler {
 				'sol' => true
 			]
 		);
-		$body = DOMCompat::getBody( $dom );
 		// FIXME: We're better off setting a pipeline option above
 		// to skip dsr computation to begin with.  Worth revisitting
 		// if / when `addHTMLTemplateParameters` is enabled.
 		// Remove DSR from children
-		DOMUtils::visitDOM( $body, function ( $node ) {
+		DOMUtils::visitDOM( $domFragment, function ( $node ) {
 			if ( !DOMUtils::isElt( $node ) ) {
 				return;
 			}
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$dp->dsr = null;
 		} );
-		$param->html = ContentUtils::ppToXML( $body, [ 'innerXML' => true ] );
+		$param->html = ContentUtils::ppToXML(
+			$domFragment, [ 'innerXML' => true ]
+		);
 	}
 
 	/**

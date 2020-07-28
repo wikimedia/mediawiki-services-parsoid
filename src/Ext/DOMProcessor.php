@@ -3,7 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use DOMDocumentFragment;
 use DOMElement;
+use DOMNode;
 
 /**
  * A Parsoid extension module may contain one or more DOMProcessors,
@@ -16,14 +18,14 @@ abstract class DOMProcessor {
 	 * Post-process DOM in the wt2html direction.
 	 *
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMElement $root The root of the tree to process
+	 * @param DOMDocumentFragment|DOMElement $root The root of the tree to process
 	 * @param array $options
 	 * @param bool $atTopLevel Is this processor invoked on the top level page?
 	 *   If false, this is being invoked in a sub-pipeline (ex: extensions)
 	 */
 	public function wtPostprocess(
 		ParsoidExtensionAPI $extApi,
-		DOMElement $root,
+		DOMNode $root,
 		array $options,
 		bool $atTopLevel
 	): void {

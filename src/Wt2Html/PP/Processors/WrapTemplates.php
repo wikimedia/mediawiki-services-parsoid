@@ -1198,7 +1198,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 								$tbl = $tbl->nextSibling;
 							}
 
-							$dp = DOMDataUtils::getDataParsoid( $sm->parentNode );
+							$dp = !DOMUtils::atTheTop( $sm->parentNode ) ?
+								DOMDataUtils::getDataParsoid( $sm->parentNode ) : null;
 							if ( $tbl && $tbl->nodeName === 'table' && !empty( $dp->fostered ) ) {
 								'@phan-var DOMElement $tbl';  /** @var DOMElement $tbl */
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
@@ -1251,7 +1252,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		self::wrapTemplatesInTree( $root->ownerDocument, $options['frame'], $root );
 	}

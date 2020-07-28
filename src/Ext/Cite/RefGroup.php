@@ -97,11 +97,10 @@ class RefGroup {
 			]
 		);
 		if ( $refContentId ) {
-			$content = $extApi->getContentDOM( $refContentId );
-			// The data-mw and data-parsoid attributes aren't needed on the ref content
-			// in the references section. The content wrapper will remain in the original
-			// site where the <ref> tag showed up and will retain data-parsoid & data-mw.
-			ParsoidExtensionAPI::migrateChildrenBetweenDocs( $content, $reftextSpan, false );
+			// `sup` is the wrapper created by Ref::sourceToDom()'s call to
+			// `extApi->extTagToDOM()`.  Only its contents are relevant.
+			$sup = $extApi->getContentDOM( $refContentId )->firstChild;
+			DOMUtils::migrateChildren( $sup, $reftextSpan );
 		}
 		$li->appendChild( $reftextSpan );
 

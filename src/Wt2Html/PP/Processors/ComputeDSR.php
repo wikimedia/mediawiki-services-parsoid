@@ -117,7 +117,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			)
 		) {
 			return true;
-		} elseif ( isset( $opts['attrExpansion'] ) && DOMUtils::isBody( $node ) ) {
+		} elseif ( isset( $opts['attrExpansion'] ) && DOMUtils::atTheTop( $node ) ) {
 			return true;
 		} else {
 			return false;
@@ -783,7 +783,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * This pass is only invoked on the top-level page.
 	 *
 	 * @param Env $env The environment/context for the parse pipeline
-	 * @param DOMElement $root The root of the tree for which DSR has to be computed
+	 * @param DOMNode $root The root of the tree for which DSR has to be computed
 	 * @param array $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
@@ -791,7 +791,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param bool $atTopLevel Are we running this on the top level?
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
@@ -802,8 +802,11 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
 		$this->computeNodeDSR( $frame, $root, $startOffset, $endOffset, 0, $opts );
 
-		$dp = DOMDataUtils::getDataParsoid( $root );
-		$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
+		if ( $atTopLevel ) {
+			'@phan-var DOMElement $root';  // @var DOMElement $root
+			$dp = DOMDataUtils::getDataParsoid( $root );
+			$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
+		}
 		$env->log( "trace/dsr", "------- done tracing computation -------" );
 	}
 }

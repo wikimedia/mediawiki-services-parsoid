@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Utils;
 use DOMAttr;
 use DOMComment;
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use DOMNodeList;
@@ -59,8 +60,8 @@ class PipelineUtils {
 	}
 
 	/**
-	 * Processes content (wikitext, array of tokens, whatever) in its own pipeline
-	 * based on options.
+	 * Processes content (wikitext, array of tokens, whatever) in its own
+	 * pipeline based on options.
 	 *
 	 * @param Env $env The environment/context for the expansion.
 	 * @param Frame $frame
@@ -81,9 +82,11 @@ class PipelineUtils {
 	 *    - SourceRange  srcOffsets - if set, defines the range within the
 	 *          source text that $content corresponds to
 	 *    - bool   sol
-	 * @return Token[]|DOMDocument (depending on pipeline type)
+	 * @return Token[]|DOMDocumentFragment (depending on pipeline type)
 	 */
-	public static function processContentInPipeline( Env $env, Frame $frame, $content, array $opts ) {
+	public static function processContentInPipeline(
+		Env $env, Frame $frame, $content, array $opts
+	) {
 		// Build a pipeline
 		$pipeline = $env->getPipelineFactory()->getPipeline(
 			$opts['pipelineType'],
@@ -93,7 +96,10 @@ class PipelineUtils {
 		// Set frame if necessary
 		$srcText = $opts['srcText'] ?? $frame->getSrcText();
 		if ( isset( $opts['tplArgs'] ) ) {
-			$pipeline->setFrame( $frame, $opts['tplArgs']['title'], $opts['tplArgs']['attribs'], $srcText );
+			$pipeline->setFrame(
+				$frame, $opts['tplArgs']['title'], $opts['tplArgs']['attribs'],
+				$srcText
+			);
 		} else {
 			$pipeline->setFrame( $frame, null, [], $srcText );
 		}
@@ -144,13 +150,15 @@ class PipelineUtils {
 				'sol' => true
 			];
 			$content = array_merge( $v['html'], [ new EOFTk() ] );
-			$dom = self::processContentInPipeline(
+			$domFragment = self::processContentInPipeline(
 				$env, $frame, $content, $opts
 			);
 			// Since we aren't at the top level, data attrs
 			// were not applied in cleanup.  However, tmp
 			// was stripped.
-			$v['html'] = ContentUtils::ppToXML( DOMCompat::getBody( $dom ), [ 'innerXML' => true ] );
+			$v['html'] = ContentUtils::ppToXML(
+				$domFragment, [ 'innerXML' => true ]
+			);
 		}
 		// Remove srcOffsets after value is expanded, so they don't show
 		// up in the output data-mw attribute
@@ -254,17 +262,19 @@ class PipelineUtils {
 	 * token processing while preserving token stream semantics as if
 	 * the DOM had been converted to tokens.
 	 *
-	 * @param DOMNode[] $nodes List of DOM nodes that need to be tunneled through.
+	 * @param DOMDocumentFragment $domFragment List of DOM nodes that need to be tunneled through.
 	 * @param array $opts
 	 * @see encapsulateExpansionHTML's doc. for more info about these options.
 	 * @return Token[] List of token representatives.
 	 */
-	private static function getWrapperTokens( array $nodes, array $opts ): array {
-		if ( !$nodes ) {
+	private static function getWrapperTokens(
+		DOMDocumentFragment $domFragment, array $opts
+	): array {
+		if ( !$domFragment->hasChildNodes() ) {
 			return [ new TagTk( 'span' ), new EndTagTk( 'span' ) ];
 		}
 
-		$node = $nodes[0];
+		$node = $domFragment->firstChild;
 
 		// Do we represent this with inline or block elements?
 		// This is to ensure that we get p-wrapping correct.
@@ -300,9 +310,10 @@ class PipelineUtils {
 			// FIXME(arlolra): Do we need a mechanism to specify content
 			// categories?
 		} else {
-			for ( $i = 0;  $i < count( $nodes );  $i++ ) {
-				if ( DOMUtils::isWikitextBlockNode( $nodes[$i] ) ||
-					DOMUtils::hasBlockElementDescendant( $nodes[$i] )
+			foreach ( $domFragment->childNodes as $n ) {
+				if (
+					DOMUtils::isWikitextBlockNode( $n ) ||
+					DOMUtils::hasBlockElementDescendant( $n )
 				) {
 					$wrapperType = 'BLOCK';
 					break;
@@ -320,7 +331,10 @@ class PipelineUtils {
 			// longer siblings.
 			// Ex: "[http://foo.com Bad nesting [[Here]]].
 			$wrapperName = 'span';
-		} elseif ( in_array( $node->nodeName, [ 'style', 'script' ], true ) && count( $nodes ) > 1 ) {
+		} elseif (
+			in_array( $node->nodeName, [ 'style', 'script' ], true ) &&
+			count( $domFragment->childNodes ) > 1
+		) {
 			// <style>/<script> tags are not fostered, so if we're wrapping
 			// more than a single node, they aren't a good representation for
 			// the content.  It can lead to fosterable content being inserted
@@ -402,7 +416,7 @@ class PipelineUtils {
 	 *    The token that generated the DOM.
 	 * @param array $expansion
 	 *    - string html HTML of the expansion.
-	 *    - DOMNode[] nodes Outermost nodes of the HTML.
+	 *    - DOMDocumentFragment domFragment Outermost nodes of the HTML.
 	 * @param array $opts
 	 *    - SourceRange tsr
 	 *            The TSR to set on the generated tokens. This TSR is
@@ -428,7 +442,7 @@ class PipelineUtils {
 		}
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.
-		$toks = self::getWrapperTokens( $expansion['nodes'], $opts );
+		$toks = self::getWrapperTokens( $expansion['domFragment'], $opts );
 		$firstWrapperToken = $toks[0];
 
 		// Add the DOMFragment type so that we get unwrapped later.
@@ -536,7 +550,7 @@ class PipelineUtils {
 	 *    The active environment/context.
 	 * @param Token $token
 	 *    The token that generated the DOM.
-	 * @param DOMElement $body
+	 * @param DOMDocumentFragment $domFragment
 	 *    The DOM that the token expanded to.
 	 * @param array $opts
 	 *    Options to be passed onto the encapsulation code
@@ -544,24 +558,25 @@ class PipelineUtils {
 	 * @return Token[]
 	 */
 	public static function tunnelDOMThroughTokens(
-		Env $env, Token $token, DOMElement $body, array $opts
+		Env $env, Token $token, DOMDocumentFragment $domFragment, array $opts
 	): array {
-		Assert::invariant( DOMUtils::isBody( $body ), 'DOMFragment expected body node.' );
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.
-		$expansion = self::makeExpansion( $env, iterator_to_array( $body->childNodes ) );
+		$expansion = self::makeExpansion( $env, $domFragment );
 		return self::encapsulateExpansionHTML( $env, $token, $expansion, $opts );
 	}
 
 	/**
 	 * @param Env $env
-	 * @param DOMNode[] $nodes
+	 * @param DOMDocumentFragment $domFragment
 	 * @return array
 	 */
-	public static function makeExpansion( Env $env, array $nodes ): array {
+	public static function makeExpansion(
+		Env $env, DOMDocumentFragment $domFragment
+	): array {
 		$fragmentId = $env->newFragmentId();
-		$env->setDOMFragment( $fragmentId, $nodes );
-		return [ 'nodes' => $nodes, 'html' => $fragmentId ];
+		$env->setDOMFragment( $fragmentId, $domFragment );
+		return [ 'domFragment' => $domFragment, 'html' => $fragmentId ];
 	}
 
 	/**
@@ -596,7 +611,9 @@ class PipelineUtils {
 					}
 
 					if ( $key ) {
-						$expAccum[$key] = self::makeExpansion( $env, $nodes );
+						PHPUtils::unreachable( 'Callsite was not ported!' );
+						// FIXME: makeExpansion return type changed
+						// $expAccum[$key] = self::makeExpansion( $env, $nodes );
 					}
 
 					$node = end( $nodes );

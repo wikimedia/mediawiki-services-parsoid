@@ -229,7 +229,7 @@ class XMLSerializer {
 	private static function accumOffsets(
 		array &$out, string $bit, DOMNode $node, ?string $flag = null
 	): void {
-		if ( DOMUtils::isBody( $node ) ) {
+		if ( DOMUtils::atTheTop( $node ) ) {
 			$out['html'] .= $bit;
 			if ( $flag === 'start' ) {
 				$out['start'] = strlen( $out['html'] );
@@ -237,8 +237,9 @@ class XMLSerializer {
 				$out['start'] = null;
 				$out['uid'] = null;
 			}
-		} elseif ( !( $node instanceof DOMElement ) || $out['start'] === null
-			|| !DOMUtils::isBody( $node->parentNode )
+		} elseif (
+			!( $node instanceof DOMElement ) || $out['start'] === null ||
+			!DOMUtils::atTheTop( $node->parentNode )
 		) {
 			// In case you're wondering, out.start may never be set if body
 			// isn't a child of the node passed to serializeToString, or if it

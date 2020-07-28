@@ -321,22 +321,18 @@ class DOMCompat {
 		$treeBuilder = new TreeBuilder( $domBuilder );
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
+
 		$tokenizer->execute( [
 			'fragmentNamespace' => HTMLData::NS_HTML,
-			'fragmentName' => $element->tagName,
+			'fragmentName' => $element->nodeName,
 		] );
-		// Remex returns the document fragment wrapped into a DOMElement
-		// because libxml fragment handling is not great.
-		// FIXME life would be simpler if we could make DOMBuilder use an existing document
-		$documentFragmentWrapper = $element->ownerDocument->importNode(
-			$domBuilder->getFragment(), true );
 
+		// Empty the element
 		self::replaceChildren( $element );
 
-		// Use an iteration method that's not affected by the tree being modified during iteration
-		while ( $documentFragmentWrapper->firstChild ) {
-			$element->appendChild( $documentFragmentWrapper->firstChild );
-		}
+		DOMUtils::migrateChildrenBetweenDocs(
+			$domBuilder->getFragment(), $element
+		);
 	}
 
 	/**
@@ -370,9 +366,9 @@ class DOMCompat {
 	}
 
 	/**
-	 * @param DOMElement $e
+	 * @param DOMElement|DOMDocumentFragment $e
 	 */
-	private static function stripEmptyTextNodes( DOMElement $e ): void {
+	private static function stripEmptyTextNodes( DOMNode $e ): void {
 		$c = $e->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
@@ -388,14 +384,15 @@ class DOMCompat {
 	}
 
 	/**
-	 * @param DOMElement $elt root of the DOM tree that needs to be normalized
+	 * @param DOMElement|DOMDocumentFragment $elt root of the DOM tree that
+	 *   needs to be normalized
 	 */
-	public static function normalize( DOMElement $elt ): void {
+	public static function normalize( DOMNode $elt ): void {
 		$elt->normalize();
 
 		// Now traverse the tree rooted at $elt and remove any stray empty text nodes
 		// Unlike what https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-normalize says,
-		// the PHP DOM's normalization leaves behind upto 1 empty text node.
+		// the PHP DOM's normalization leaves behind up to 1 empty text node.
 		// See https://bugs.php.net/bug.php?id=78221
 		self::stripEmptyTextNodes( $elt );
 	}

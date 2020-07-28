@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
@@ -47,16 +47,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	 * Parse the gallery caption.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param array $extArgs
-	 * @return DOMElement|null
+	 * @return ?DOMDocumentFragment
 	 */
-	private function pCaption( ParsoidExtensionAPI $extApi, array $extArgs ): ?DOMElement {
-		$doc = $extApi->extArgToDOM( $extArgs, 'caption' );
-		if ( !$doc ) {
-			return null;
-		}
-
-		$body = DOMCompat::getBody( $doc );
-		return $body;
+	private function pCaption(
+		ParsoidExtensionAPI $extApi, array $extArgs
+	): ?DOMDocumentFragment {
+		return $extApi->extArgToDOM( $extArgs, 'caption' );
 	}
 
 	/**
@@ -98,9 +94,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$doc = $thumb->ownerDocument;
 		$rdfaType = $thumb->getAttribute( 'typeof' );
-
-		// Detach from document
-		DOMCompat::remove( $thumb );
 
 		// Detach figcaption as well
 		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );
@@ -148,7 +141,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
-	): DOMDocument {
+	): DOMDocumentFragment {
 		$attrs = $extApi->extArgsToArray( $args );
 		$opts = new Opts( $extApi, $attrs );
 
@@ -175,8 +168,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		} );
 
 		$mode = Mode::byName( $opts->mode );
-		$doc = $mode->render( $extApi, $opts, $caption, $lines );
-		return $doc;
+		return $mode->render( $extApi, $opts, $caption, $lines );
 	}
 
 	/**

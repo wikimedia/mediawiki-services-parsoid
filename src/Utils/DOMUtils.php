@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use RemexHtml\DOM\DOMBuilder;
@@ -13,6 +14,7 @@ use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\ClientError;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
  * DOM utilities for querying the DOM. This is largely independent of Parsoid
@@ -888,4 +890,47 @@ class DOMUtils {
 		}
 	}
 
+	/**
+	 * innerHTML and outerHTML are not defined on DocumentFragment.
+	 *
+	 * Defined similarly to DOMCompat::getInnerHTML()
+	 *
+	 * @param DOMDocumentFragment $frag
+	 * @return string
+	 */
+	public static function getFragmentInnerHTML(
+		DOMDocumentFragment $frag
+	): string {
+		return XMLSerializer::serialize(
+			$frag, [ 'innerXML' => true ]
+		)['html'];
+	}
+
+	/**
+	 * innerHTML and outerHTML are not defined on DocumentFragment.
+	 *
+	 * @param DOMDocumentFragment $frag
+	 * @param string $html
+	 */
+	public static function setFragmentInnerHTML(
+		DOMDocumentFragment $frag, string $html
+	) {
+		// FIXME: This should be an HTML5 template element
+		$body = $frag->ownerDocument->createElement( 'body' );
+		DOMCompat::setInnerHTML( $body, $html );
+		self::migrateChildren( $body, $frag );
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 * @param string $html
+	 * @return DOMDocumentFragment
+	 */
+	public static function parseHTMLToFragment(
+		DOMDocument $doc, string $html
+	): DOMDocumentFragment {
+		$frag = $doc->createDocumentFragment();
+		self::setFragmentInnerHTML( $frag, $html );
+		return $frag;
+	}
 }

@@ -29,7 +29,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 		];
 		$dpp->resetState( $opts );
 		$document = ( ContentUtils::ppToDOM( $mockEnv, $html ) )->ownerDocument;
-		$dpp->doPostProcess( $document );
+		$dpp->doPostProcess( DOMCompat::getBody( $document ) );
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}
 

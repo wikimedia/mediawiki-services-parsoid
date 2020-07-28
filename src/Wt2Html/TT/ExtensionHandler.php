@@ -3,13 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use DOMDocument;
+use DOMDocumentFragment;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -57,13 +56,14 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * Process extension metadata and record it somewhere (Env state or the DOM)
 	 *
-	 * @param DOMDocument $doc
+	 * @param DOMDocumentFragment $domFragment
 	 * @param array $modules
 	 * @param array $modulestyles
 	 * @param ?array $categories
 	 */
 	private function processExtMetadata(
-		DOMDocument $doc, array $modules, array $modulestyles, ?array $categories
+		DOMDocumentFragment $domFragment, array $modules, array $modulestyles,
+		?array $categories
 	): void {
 		// Add the modules to the page data
 		$this->env->addOutputProperty( 'modules', $modules );
@@ -73,7 +73,7 @@ class ExtensionHandler extends TokenHandler {
 		// Add the categories which were added by extensions directly into the
 		// page and not as in-text links
 		foreach ( ( $categories ?? [] ) as $name => $sortkey ) {
-			$link = $doc->createElement( "link" );
+			$link = $domFragment->ownerDocument->createElement( "link" );
 			$link->setAttribute( "rel", "mw:PageProp/Category" );
 			$href = $this->env->getSiteConfig()->relativeLinkPrefix() .
 				"Category:" . PHPUtils::encodeURIComponent( (string)$name );
@@ -82,9 +82,10 @@ class ExtensionHandler extends TokenHandler {
 			}
 			$link->setAttribute( "href", $href );
 
-			$body = DOMCompat::getBody( $doc );
-			$body->appendChild( $doc->createTextNode( "\n" ) );
-			$body->appendChild( $link );
+			$domFragment->appendChild(
+				$domFragment->ownerDocument->createTextNode( "\n" )
+			);
+			$domFragment->appendChild( $link );
 		}
 	}
 
@@ -111,10 +112,14 @@ class ExtensionHandler extends TokenHandler {
 					'extTag' => new ExtensionTag( $token ),
 				],
 			] );
-			$doc = $nativeExt->sourceToDom( $extApi, $extContent, $extArgs );
-			if ( $doc !== false ) {
-				if ( $doc !== null ) {
-					$toks = $this->onDocument( $nativeExt, $token, $doc );
+			$domFragment = $nativeExt->sourceToDom(
+				$extApi, $extContent, $extArgs
+			);
+			if ( $domFragment !== false ) {
+				if ( $domFragment !== null ) {
+					$toks = $this->onDocumentFragment(
+						$nativeExt, $token, $domFragment
+					);
 					return( [ 'tokens' => $toks ] );
 				} else {
 					// The extension dropped this instance completely (!!)
@@ -125,28 +130,45 @@ class ExtensionHandler extends TokenHandler {
 				}
 			}
 			// Fall through: this extension is electing not to use
-			// a custom sourceToDom method (by returning false from sourceToDom).
+			// a custom sourceToDom method (by returning false from
+			// sourceToDom).
 		}
 
 		if ( $cachedExpansion ) {
 			// WARNING: THIS HAS BEEN UNUSED SINCE 2015, SEE T98995.
 			// THIS CODE WAS WRITTEN BUT APPARENTLY NEVER TESTED.
 			// NO WARRANTY.  MAY HALT AND CATCH ON FIRE.
-			$toks = PipelineUtils::encapsulateExpansionHTML( $env, $token, $cachedExpansion, [
-				'fromCache' => true
-			] );
+			$toks = PipelineUtils::encapsulateExpansionHTML(
+				$env, $token, $cachedExpansion, [ 'fromCache' => true ]
+			);
 		} elseif ( $env->noDataAccess() ) {
-			$doc = $this->env->createDocument(
+			$domFragment = DOMUtils::parseHTMLToFragment(
+				$this->env->topLevelDoc,
 				'<span>Fetches disabled. Cannot expand non-native extensions.</span>'
 			);
-			$toks = $this->onDocument( $nativeExt, $token, $doc );
+			$toks = $this->onDocumentFragment(
+				$nativeExt, $token, $domFragment
+			);
 		} else {
 			$pageConfig = $env->getPageConfig();
-			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
-			// Strip a paragraph wrapper, if any, before parsing HTML to DOM
-			$doc = $env->createDocument( preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] ) );
-			$this->processExtMetadata( $doc, $ret['modules'], $ret['modulestyles'], $ret['categories'] );
-			$toks = $this->onDocument( $nativeExt, $token, $doc );
+			$ret = $env->getDataAccess()->parseWikitext(
+				$pageConfig, $token->getAttribute( 'source' )
+			);
+
+			$domFragment = DOMUtils::parseHTMLToFragment(
+				$this->env->topLevelDoc,
+				// Strip a paragraph wrapper, if any, before parsing HTML to DOM
+				preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] )
+			);
+
+			$this->processExtMetadata(
+				$domFragment, $ret['modules'], $ret['modulestyles'],
+				$ret['categories']
+			);
+
+			$toks = $this->onDocumentFragment(
+				$nativeExt, $token, $domFragment
+			);
 		}
 		return( [ 'tokens' => $toks ] );
 	}
@@ -156,11 +178,12 @@ class ExtensionHandler extends TokenHandler {
 	 *
 	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param Token $extToken
-	 * @param DOMDocument $doc
+	 * @param DOMDocumentFragment $domFragment
 	 * @return array
 	 */
-	private function onDocument(
-		?ExtensionTagHandler $nativeExt, Token $extToken, DOMDocument $doc
+	private function onDocumentFragment(
+		?ExtensionTagHandler $nativeExt, Token $extToken,
+		DOMDocumentFragment $domFragment
 	): array {
 		$env = $this->env;
 		$extensionName = $extToken->getAttribute( 'name' );
@@ -174,7 +197,7 @@ class ExtensionHandler extends TokenHandler {
 			$logger->warning( str_repeat( '=', 80 ) );
 			$logger->warning( "EXTENSION OUTPUT:\n" );
 			$logger->warning(
-				DOMCompat::getOuterHTML( DOMCompat::getBody( $doc ) )
+				DOMUtils::getFragmentInnerHTML( $domFragment )
 			);
 			$logger->warning( str_repeat( '-', 80 ) );
 		}
@@ -203,8 +226,6 @@ class ExtensionHandler extends TokenHandler {
 			$opts += $extConfig['options']['wt2html'];
 		}
 
-		$body = DOMCompat::getBody( $doc );
-
 		// This special case is only because, from the beginning, Parsoid has
 		// treated <nowiki>s as core functionality with lean markup (no about,
 		// no data-mw, custom typeof).
@@ -212,17 +233,19 @@ class ExtensionHandler extends TokenHandler {
 		// We'll keep this hardcoded to avoid exposing the functionality to
 		// other native extensions until it's needed.
 		if ( $extensionName !== 'nowiki' ) {
-			if ( !$body->hasChildNodes() ) {
+			if ( !$domFragment->hasChildNodes() ) {
 				// RT extensions expanding to nothing.
-				$body->appendChild( $body->ownerDocument->createElement( 'link' ) );
+				$domFragment->appendChild(
+					$domFragment->ownerDocument->createElement( 'link' )
+				);
 			}
 
 			// Wrap the top-level nodes so that we have a firstNode element
 			// to annotate with the typeof and to apply about ids.
-			PipelineUtils::addSpanWrappers( $body->childNodes );
+			PipelineUtils::addSpanWrappers( $domFragment->childNodes );
 
 			// Now get the firstNode
-			$firstNode = $body->firstChild;
+			$firstNode = $domFragment->firstChild;
 
 			DOMUtils::assertElt( $firstNode );
 
@@ -255,9 +278,9 @@ class ExtensionHandler extends TokenHandler {
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 
-		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $extToken, $body, $opts );
-
-		return $toks;
+		return PipelineUtils::tunnelDOMThroughTokens(
+			$env, $extToken, $domFragment, $opts
+		);
 	}
 
 	/**

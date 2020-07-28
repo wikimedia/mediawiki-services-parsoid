@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMComment;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use stdClass;
@@ -67,7 +68,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private function canMigrateNLOutOfNode( DOMNode $node ): bool {
-		if ( $node->nodeName === 'table' || $node->nodeName === 'body' ) {
+		if ( $node->nodeName === 'table' || DOMUtils::atTheTop( $node ) ) {
 			return false;
 		}
 
@@ -118,7 +119,10 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 */
 	private function doMigrateTrailingNLs( DOMNode $elt, Env $env ) {
 		// Nothing to do for text and comment nodes
-		if ( !DOMUtils::isElt( $elt ) ) {
+		if (
+			!( $elt instanceof DOMElement ) &&
+			!( $elt instanceof DOMDocumentFragment )
+		) {
 			return;
 		}
 
@@ -243,7 +247,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->doMigrateTrailingNLs( $root, $env );
 	}

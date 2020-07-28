@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Exception;
@@ -19,7 +20,9 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 class Ref extends ExtensionTagHandler {
 
 	/** @inheritDoc */
-	public function sourceToDom( ParsoidExtensionAPI $extApi, string $txt, array $extArgs ) {
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
+	): ?DOMDocumentFragment {
 		// Drop nested refs entirely, unless we've explicitly allowed them
 		$parentExtTag = $extApi->parentExtTag();
 		if ( $parentExtTag === 'ref' && empty( $extApi->parentExtTagOpts()['allowNestedRef'] ) ) {

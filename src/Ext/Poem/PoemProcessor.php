@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Poem;
 
 use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Ext\DOMProcessor;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -14,7 +15,7 @@ class PoemProcessor extends DOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, DOMElement $node, array $options, bool $atTopLevel
+		ParsoidExtensionAPI $extApi, DOMNode $node, array $options, bool $atTopLevel
 	): void {
 		if ( !$atTopLevel ) {
 			return;

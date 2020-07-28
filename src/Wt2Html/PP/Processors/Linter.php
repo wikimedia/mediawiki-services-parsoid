@@ -156,7 +156,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @return DOMElement|null
 	 */
 	private function getMatchingMisnestedNode( DOMNode $node, DOMElement $match ): ?DOMElement {
-		if ( DOMUtils::isBody( $node ) ) {
+		if ( DOMUtils::atTheTop( $node ) ) {
 			return null;
 		}
 
@@ -269,7 +269,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// For A, TD, TH, H* tags, Tidy doesn't seem to propagate
 		// the unclosed tag outside these tags.
 		// No need to check for tr/table since content cannot show up there
-		if ( DOMUtils::isBody( $node ) || preg_match( '/^(?:a|td|th|h\d)$/D', $node->nodeName ) ) {
+		if ( DOMUtils::atTheTop( $node ) || preg_match( '/^(?:a|td|th|h\d)$/D', $node->nodeName ) ) {
 			return false;
 		}
 
@@ -1287,7 +1287,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		// Skip linting if we cannot lint it
 		if ( !$env->getPageConfig()->hasLintableContentModel() ) {

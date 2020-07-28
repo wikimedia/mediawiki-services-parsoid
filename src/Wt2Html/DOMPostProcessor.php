@@ -7,6 +7,7 @@ use Closure;
 use DateTime;
 use DOMDocument;
 use DOMElement;
+use DOMNode;
 use Generator;
 use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
@@ -493,12 +494,16 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => function ( $node, $env, $options, $atTopLevel, $tplInfo ) use ( &$usedIdIndex ) {
-							if ( DOMUtils::isBody( $node ) ) {
+						'action' => function (
+							$node, $env, $options, $atTopLevel, $tplInfo
+						) use ( &$usedIdIndex ) {
+							if ( $atTopLevel && DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}
 							return CleanUp::cleanupAndSaveDataParsoid(
-								$usedIdIndex, $node, $env, $atTopLevel, $tplInfo );
+								$usedIdIndex, $node, $env, $atTopLevel,
+								$tplInfo
+							);
 						}
 					]
 				]
@@ -766,18 +771,16 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * @param DOMDocument $document
+	 * @param DOMNode $node
 	 */
-	public function doPostProcess( DOMDocument $document ): void {
+	public function doPostProcess( DOMNode $node ): void {
 		$env = $this->env;
 
 		$hasDumpFlags = $env->hasDumpFlags();
 
-		$body = DOMCompat::getBody( $document );
-
 		if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-builder' ) ) {
 			$opts = [];
-			ContentUtils::dumpDOM( $body, 'DOM: after tree builder', $opts );
+			ContentUtils::dumpDOM( $node, 'DOM: after tree builder', $opts );
 		}
 
 		$tracePP = $env->hasTraceFlag( 'time/dompp' ) || $env->hasTraceFlag( 'time' );
@@ -831,14 +834,14 @@ class DOMPostProcessor extends PipelineStage {
 				];
 
 				if ( $env->hasDumpFlag( 'dom:pre-' . $pp['shortcut'] ) ) {
-					ContentUtils::dumpDOM( $body, 'DOM: pre-' . $pp['shortcut'], $opts );
+					ContentUtils::dumpDOM( $node, 'DOM: pre-' . $pp['shortcut'], $opts );
 				}
 			}
 
-			$pp['proc']( $body, $this->options, $this->atTopLevel );
+			$pp['proc']( $node, $this->options, $this->atTopLevel );
 
 			if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] ) ) {
-				ContentUtils::dumpDOM( $body, 'DOM: post-' . $pp['shortcut'], $opts );
+				ContentUtils::dumpDOM( $node, 'DOM: post-' . $pp['shortcut'], $opts );
 			}
 
 			if ( $tracePP ) {
@@ -863,7 +866,7 @@ class DOMPostProcessor extends PipelineStage {
 		// For sub-pipeline documents, we are done.
 		// For the top-level document, we generate <head> and add it.
 		if ( $this->atTopLevel ) {
-			self::addMetaData( $env, $document );
+			self::addMetaData( $env, $node->ownerDocument );
 			// @phan-suppress-next-line PhanPluginEmptyStatementIf
 			if ( $env->hasTraceFlag( 'time' ) ) {
 				// $env->printTimeProfile();
@@ -882,10 +885,10 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $doc, array $opts = null ) {
-		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
-		$this->doPostProcess( $doc );
-		return $doc;
+	public function process( $node, array $opts = null ) {
+		'@phan-var DOMNode $node'; // @var DOMNode $node
+		$this->doPostProcess( $node );
+		return $node;
 	}
 
 	/**
@@ -897,11 +900,11 @@ class DOMPostProcessor extends PipelineStage {
 			// FIXME: Should we change the signature of that to return a DOM
 			// If we do so, a pipeline stage returns either a generator or
 			// concrete output (in this case, a DOM).
-			$dom = $this->prevStage->processChunkily( $input, $options )->current();
+			$node = $this->prevStage->processChunkily( $input, $options )->current();
 		} else {
-			$dom = $input;
+			$node = $input;
 		}
-		$this->process( $dom );
-		yield $dom;
+		$this->process( $node );
+		yield $node;
 	}
 }

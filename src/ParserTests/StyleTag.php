@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use DOMDocument;
+use DOMDocumentFragment;
 
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -14,13 +14,13 @@ class StyleTag extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
-	): DOMDocument {
-		$doc = $extApi->htmlToDom( '' ); // Empty doc
-		$style = $doc->createElement( 'style' );
+	): DOMDocumentFragment {
+		$domFragment = $extApi->htmlToDom( '' );
+		$style = $domFragment->ownerDocument->createElement( 'style' );
 		DOMCompat::setInnerHTML( $style, $content );
 		$extApi->sanitizeArgs( $style, $args );
-		DOMCompat::getBody( $doc )->appendChild( $style );
-		return $doc;
+		$domFragment->appendChild( $style );
+		return $domFragment;
 	}
 
 	/** @inheritDoc */

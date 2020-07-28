@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
@@ -183,7 +184,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *    or a comment node. The current algorithm does not ensure that it doesn't
 	 *    end with one of those either, but that is a potential future enhancement.
 	 *
-	 * @param DOMNode $root
+	 * @param DOMElement|DOMDocumentFragment $root
 	 */
 	private function pWrapDOM( DOMNode $root ) {
 		$p = null;
@@ -223,17 +224,19 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * and uses pWrapDOM to add appropriate paragraph wrapper
 	 * tags around children of nodes with tag name '$tagName'.
 	 *
-	 * @param DOMElement $root
+	 * @param DOMElement|DOMDocumentFragment $root
 	 * @param string $tagName
 	 */
-	private function pWrapInsideTag( DOMElement $root, string $tagName ) {
+	private function pWrapInsideTag( DOMNode $root, string $tagName ) {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
-			if ( $c->nodeName === $tagName ) {
-				$this->pWrapDOM( $c );
-			} elseif ( $c instanceof DOMElement ) {
-				$this->pWrapInsideTag( $c, $tagName );
+			if ( $c instanceof DOMElement ) {
+				if ( $c->nodeName === $tagName ) {
+					$this->pWrapDOM( $c );
+				} else {
+					$this->pWrapInsideTag( $c, $tagName );
+				}
 			}
 			$c = $next;
 		}
@@ -246,8 +249,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
+		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
 		$this->pWrapDOM( $root );
 		$this->pWrapInsideTag( $root, 'blockquote' );
 	}

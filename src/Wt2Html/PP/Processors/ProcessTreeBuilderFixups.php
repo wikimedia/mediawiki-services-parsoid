@@ -369,7 +369,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$frame = $options['frame'];
 		self::findAutoInsertedTags( $frame, $root );

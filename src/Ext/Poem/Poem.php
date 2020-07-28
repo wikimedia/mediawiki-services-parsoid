@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Poem;
 
-use DOMDocument;
+use DOMDocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -38,7 +38,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $extArgs
-	): DOMDocument {
+	): DOMDocumentFragment {
 		/*
 		 * Transform wikitext found in <poem>...</poem>
 		 * 1. Strip leading & trailing newlines
@@ -64,7 +64,8 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 					$i++;
 				}
 				if ( $i > 0 && $i < $lineLength ) {
-					$doc = $extApi->htmlToDom( '' ); // Empty doc
+					$domFragment = $extApi->htmlToDom( '' );
+					$doc = $domFragment->ownerDocument;
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'class', 'mw-poem-indented' );
 					$span->setAttribute( 'style', 'display: inline-block; margin-inline-start: ' . $i . 'em;' );

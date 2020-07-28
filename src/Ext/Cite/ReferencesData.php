@@ -69,9 +69,8 @@ class ReferencesData {
 			$ref = $group->indexByName[$refName];
 			if ( $ref->contentId && !$ref->hasMultiples ) {
 				$ref->hasMultiples = true;
-				// Use the non-pp version here since we've already stored attribs
-				// before putting them in the map.
-				$ref->cachedHtml = $extApi->getContentHTML( $ref->contentId );
+				$c = $extApi->getContentDOM( $ref->contentId )->firstChild;
+				$ref->cachedHtml = $extApi->domToHtml( $c, true, false );
 			}
 			$ref->nodes[] = $linkBack;
 		} else {

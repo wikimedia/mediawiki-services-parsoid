@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use DOMComment;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use DOMText;
@@ -35,7 +36,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * Create a new section element
 	 *
 	 * @param array &$state
-	 * @param DOMElement $rootNode
+	 * @param DOMElement|DOMDocumentFragment $rootNode
 	 * @param array &$sectionStack
 	 * @param ?array $tplInfo
 	 * @param ?array $currSection
@@ -45,7 +46,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @return array
 	 */
 	private function createNewSection(
-		array &$state, DOMElement $rootNode, array &$sectionStack,
+		array &$state, DOMNode $rootNode, array &$sectionStack,
 		?array $tplInfo, ?array $currSection, DOMNode $node, int $newLevel,
 		bool $pseudoSection
 	): array {
@@ -128,11 +129,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param array &$state
 	 * @param ?array $currSection
-	 * @param DOMElement $rootNode
+	 * @param DOMElement|DOMDocumentFragment $rootNode
 	 * @return int
 	 */
 	private function wrapSectionsInDOM(
-		array &$state, ?array $currSection, DOMElement $rootNode
+		array &$state, ?array $currSection, DOMNode $rootNode
 	): int {
 		$tplInfo = null;
 		$sectionStack = [];
@@ -172,8 +173,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 					if ( $level < $highestSectionLevel ) {
 						$highestSectionLevel = $level;
 					}
-					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack,
-						$tplInfo, $currSection, $node, $level, false );
+					$currSection = $this->createNewSection(
+						$state, $rootNode, $sectionStack, $tplInfo,
+						$currSection, $node, $level, false
+					);
 					$addedNode = true;
 				}
 			} elseif ( $node instanceof DOMElement ) {
@@ -197,8 +200,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
 				if ( $currSection && $nestedHighestSectionLevel <= $currSection['level'] ) {
 					$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
-					$currSection = $this->createNewSection( $state, $rootNode, $sectionStack,
-						$tplInfo, $currSection, $node, $nestedHighestSectionLevel, true );
+					$currSection = $this->createNewSection(
+						$state, $rootNode, $sectionStack, $tplInfo,
+						$currSection, $node, $nestedHighestSectionLevel, true
+					);
 					$addedNode = true;
 				}
 			}
@@ -231,7 +236,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		// should always be marked non-editable since it will have
 		// the closing tag (ex: </div>) showing up in the source editor
 		// which we cannot support in a visual editing $environment.
-		if ( $currSection && !DOMUtils::isBody( $rootNode ) ) {
+		if ( $currSection && !DOMUtils::atTheTop( $rootNode ) ) {
 			$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
 		}
 
@@ -417,8 +422,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
+		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
+
 		if ( !$env->getWrapSections() ) {
 			return;
 		}

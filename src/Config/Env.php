@@ -4,7 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use DOMDocument;
-use DOMNode;
+use DOMDocumentFragment;
+use RemexHtml\DOM\DOMBuilder;
+use RemexHtml\Tokenizer\PlainAttributes;
+use RemexHtml\Tokenizer\Tokenizer;
+use RemexHtml\TreeBuilder\Dispatcher;
+use RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
@@ -98,7 +103,7 @@ class Env {
 
 	/**
 	 * Maps fragment id to the fragment forest (array of DOMNodes).
-	 * @var array<string,DOMNode[]>
+	 * @var array<string,DOMDocumentFragment>
 	 */
 	private $fragmentMap = [];
 
@@ -219,6 +224,15 @@ class Env {
 	 */
 	public $extensionCache = [];
 
+	/** @var DOMDocument */
+	public $topLevelDoc;
+
+	/** @var Dispatcher */
+	private $dispatcher;
+
+	/** @var DataBag */
+	private $bag;
+
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
@@ -290,6 +304,8 @@ class Env {
 			'dumpFlags' => $this->dumpFlags,
 			'traceFlags' => $this->traceFlags
 		] );
+
+		$this->initDocumentDispatcher();
 	}
 
 	/**
@@ -670,6 +686,63 @@ class Env {
 	}
 
 	/**
+	 * When an environment is constructed, we initialize a document (and
+	 * dispatcher to it) to be used throughout the parse.
+	 */
+	private function initDocumentDispatcher() {
+		$this->bag = new DataBag();
+		list(
+			$this->topLevelDoc,
+			$this->dispatcher
+		) = $this->createDocumentDispatcher();
+	}
+
+	/**
+	 * @param bool $atTopLevel
+	 * @return array
+	 */
+	public function fetchDocumentDispatcher( bool $atTopLevel ): array {
+		if ( $atTopLevel ) {
+			return [ $this->topLevelDoc, $this->dispatcher ];
+		} else {
+			return $this->createDocumentDispatcher();
+		}
+	}
+
+	/**
+	 * Returns a document and dispatcher to it.
+	 *
+	 * The dispatcher tracks the insertion mode and relays token events to
+	 * specific handlers.
+	 *
+	 * Since we do our own tokenizing, the dispatcher is needed as our
+	 * entrypoint to tree building.
+	 *
+	 * @return array
+	 */
+	private function createDocumentDispatcher(): array {
+		// The options to DOMBuilder should be kept in sync with its other
+		// uses, so grep for it before changing
+		$domBuilder = new DOMBuilder( [ 'suppressHtmlNamespace' => true ] );
+		$dispatcher = new Dispatcher( new TreeBuilder( $domBuilder ) );
+
+		// PORT-FIXME: Necessary to setEnableCdataCallback
+		$tokenizer = new Tokenizer( $dispatcher, '', [ 'ignoreErrors' => true ] );
+
+		$dispatcher->startDocument( $tokenizer, null, null );
+		$dispatcher->doctype( 'html', '', '', false, 0, 0 );
+		$dispatcher->startTag( 'body', new PlainAttributes(), false, 0, 0 );
+
+		$doc = $domBuilder->getFragment();
+		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
+
+		// Special case where we can't call `$env->createDocument()`
+		$this->referenceDataObject( $doc, $this->bag );
+
+		return [ $doc, $dispatcher ];
+	}
+
+	/**
 	 * @param string $html
 	 * @param bool $validateXMLNames
 	 * @return DOMDocument
@@ -721,7 +794,7 @@ class Env {
 	}
 
 	/**
-	 * @return array<string,DOMNode[]>
+	 * @return array<string,DOMDocumentFragment>
 	 */
 	public function getDOMFragmentMap(): array {
 		return $this->fragmentMap;
@@ -729,18 +802,20 @@ class Env {
 
 	/**
 	 * @param string $id Fragment id
-	 * @return DOMNode[]
+	 * @return DOMDocumentFragment
 	 */
-	public function getDOMFragment( string $id ): array {
+	public function getDOMFragment( string $id ): DOMDocumentFragment {
 		return $this->fragmentMap[$id];
 	}
 
 	/**
 	 * @param string $id Fragment id
-	 * @param DOMNode[] $forest DOM forest (contiguous array of DOM trees)
+	 * @param DOMDocumentFragment $forest DOM forest
 	 *   to store against the fragment id
 	 */
-	public function setDOMFragment( string $id, array $forest ): void {
+	public function setDOMFragment(
+		string $id, DOMDocumentFragment $forest
+	): void {
 		$this->fragmentMap[$id] = $forest;
 	}
 

@@ -235,6 +235,7 @@ class WikitextSerializer {
 	 */
 	public function htmlToWikitext( array $opts, string $html ) {
 		$body = ContentUtils::ppToDOM( $this->env, $html, [ 'markNew' => true ] );
+		'@phan-var DOMElement $body';  // @var DOMElement $body
 		return $this->domToWikitext( $opts, $body );
 	}
 

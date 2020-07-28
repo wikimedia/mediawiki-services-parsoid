@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -90,7 +89,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			];
 
 			// Process tokens
-			$dom = PipelineUtils::processContentInPipeline(
+			$domFragment = PipelineUtils::processContentInPipeline(
 				$this->manager->env,
 				$this->manager->getFrame(),
 				// Append EOF
@@ -106,7 +105,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			$toks = PipelineUtils::tunnelDOMThroughTokens(
 				$this->manager->env,
 				$scopeToken,
-				DOMCompat::getBody( $dom ),
+				$domFragment,
 				[ "pipelineOpts" => $pipelineOpts ]
 			);
 

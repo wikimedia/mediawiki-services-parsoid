@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Nowiki;
 
-use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMText;
 use Wikimedia\Assert\Assert;
@@ -36,8 +36,9 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
-	): DOMDocument {
-		$doc = $extApi->htmlToDom( '' ); // Empty doc
+	): DOMDocumentFragment {
+		$domFragment = $extApi->htmlToDom( '' );
+		$doc = $domFragment->ownerDocument;
 		$span = $doc->createElement( 'span' );
 		DOMUtils::addTypeOf( $span, 'mw:Nowiki' );
 
@@ -63,8 +64,8 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		DOMCompat::normalize( $span );
-		DOMCompat::getBody( $doc )->appendChild( $span );
-		return $doc;
+		$domFragment->appendChild( $span );
+		return $domFragment;
 	}
 
 	/** @inheritDoc */

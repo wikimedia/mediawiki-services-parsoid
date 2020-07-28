@@ -3,15 +3,15 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 
 /**
  * A Parsoid extension module may register handlers for one or more
  * extension tags. The only method which is generally
- * required by all extension tags is `sourceToDom` (but Translate doesn't
- * even implement that).  All other methods have default do-nothing
+ * required by all extension tags is `sourceToDom` (but Translate
+ * doesn't even implement that).  All other methods have default do-nothing
  * implementations; override them iff you wish to implement those
  * features.  Default implementations consistently return `false`
  * to indicate not-implemented (in some cases `null` would be a
@@ -27,9 +27,14 @@ abstract class ExtensionTagHandler {
 	 * @param array $extArgs Extension tag arguments
 	 *   The extension tag arguments should be treated as opaque objects
 	 *   and any necessary inspection should be handled through the API.
-	 * @return DOMDocument|false
+	 * @return DOMDocumentFragment|false|null
+	 *   `DOMDocumentFragment` if returning some parsed content
+	 *   `false` to fallback to the default handler for the content
+	 *   `null` to drop the instance completely
 	 */
-	public function sourceToDom( ParsoidExtensionAPI $extApi, string $src, array $extArgs ) {
+	public function sourceToDom(
+		ParsoidExtensionAPI $extApi, string $src, array $extArgs
+	) {
 		return false; /* Use default wrapper */
 	}
 

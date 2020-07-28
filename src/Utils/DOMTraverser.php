@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use stdClass;
@@ -144,9 +145,13 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 			}
 
 			// Call the handlers on this workNode
-			$possibleNext = $this->callHandlers(
-				$workNode, $env, $options, $atTopLevel, $tplInfo
-			);
+			if ( $workNode instanceof DOMDocumentFragment ) {
+				$possibleNext = true;
+			} else {
+				$possibleNext = $this->callHandlers(
+					$workNode, $env, $options, $atTopLevel, $tplInfo
+				);
+			}
 
 			// We may have walked passed the last about sibling or want to
 			// ignore the template info in future processing.
@@ -156,8 +161,11 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 
 			if ( $possibleNext === true ) {
 				// the 'continue processing' case
-				if ( DOMUtils::isElt( $workNode ) && $workNode->hasChildNodes() ) {
-					$this->traverse( $env, $workNode->firstChild, $options, $atTopLevel, $tplInfo );
+				if ( $workNode->hasChildNodes() ) {
+					$this->traverse(
+						$env, $workNode->firstChild, $options, $atTopLevel,
+						$tplInfo
+					);
 				}
 				$possibleNext = $workNode->nextSibling;
 			}
@@ -175,7 +183,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMElement $workNode, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $workNode, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->traverse( $env, $workNode, $options, $atTopLevel );
 	}

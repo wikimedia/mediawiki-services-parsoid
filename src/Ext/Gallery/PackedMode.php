@@ -65,7 +65,9 @@ class PackedMode extends TraditionalMode {
 		}
 		$div = $doc->createElement( 'div' );
 		$div->setAttribute( 'class', 'gallerytext' );
-		ParsoidExtensionAPI::migrateChildrenBetweenDocs( $gallerytext, $div );
+		ParsoidExtensionAPI::migrateChildrenAndTransferWrapperDataAttribs(
+			$gallerytext, $div
+		);
 		$wrapper = $doc->createElement( 'div' );
 		$wrapper->setAttribute( 'class', 'gallerytextwrapper' );
 		$wrapper->setAttribute( 'style', 'width: ' . ceil( $width - 20 ) . 'px;' );

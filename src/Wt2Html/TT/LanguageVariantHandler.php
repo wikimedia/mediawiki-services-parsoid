@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -41,7 +40,7 @@ class LanguageVariantHandler extends TokenHandler {
 		// of the pipeline already to be expanded)
 		$t = preg_replace( '/^mw:lv/', '', $t, 1 );
 		$srcOffsets = $attribs[$t]->srcOffsets;
-		$doc = PipelineUtils::processContentInPipeline(
+		$domFragment = PipelineUtils::processContentInPipeline(
 			$manager->env, $manager->getFrame(), array_merge( $attribs[$t]->v, [ new EOFTk() ] ),
 			[
 				'pipelineType' => 'tokens/x-mediawiki/expanded',
@@ -55,8 +54,10 @@ class LanguageVariantHandler extends TokenHandler {
 			]
 		);
 		return [
-			'xmlstr' => ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] ),
-			'isBlock' => DOMUtils::hasBlockElementDescendant( DOMCompat::getBody( $doc ) )
+			'xmlstr' => ContentUtils::ppToXML(
+				$domFragment, [ 'innerXML' => true ]
+			),
+			'isBlock' => DOMUtils::hasBlockElementDescendant( $domFragment ),
 		];
 	}
 

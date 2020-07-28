@@ -23,7 +23,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -294,8 +293,11 @@ class WikiLinkHandler extends TokenHandler {
 				$tsr = null;
 			}
 
-			$body = ContentUtils::ppToDOM( $env, $html );
-			$dft = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $body, [
+			$domFragment = ContentUtils::ppToDOM( $env, $html, [
+				'toFragment' => true,
+			] );
+			$dft = PipelineUtils::tunnelDOMThroughTokens(
+				$env, $token, $domFragment, [
 					'tsr' => $tsr,
 					'pipelineOpts' => [ 'inlineContext' => true ]
 				]
@@ -1563,7 +1565,8 @@ class WikiLinkHandler extends TokenHandler {
 				// Use parsed DOM given in `captionDOM`
 				// FIXME: Does this belong in `dataMw.attribs`?
 				$dataMw->caption = ContentUtils::ppToXML(
-					DOMCompat::getBody( $captionDOM ), [ 'innerXML' => true ] );
+					$captionDOM, [ 'innerXML' => true ]
+				);
 			}
 		} else {
 			// We always add a figcaption for blocks

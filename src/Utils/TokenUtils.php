@@ -11,7 +11,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
@@ -608,17 +607,17 @@ class TokenUtils {
 				self::hasDOMFragmentType( $token )
 			) {
 				// Handle dom fragments
-				$nodes = $opts['env']->getDOMFragment( $token->dataAttribs->html );
-				$out .= array_reduce( $nodes, function ( string $prev, DOMNode $next ) {
-						// FIXME: The correct thing to do would be to return
-						// `next.outerHTML` for the current scenarios where
-						// `unpackDOMFragments` is used (expanded attribute
-						// values and reparses thereof) but we'd need to remove
-						// the span wrapping and typeof annotation of extension
-						// content and nowikis.  Since we're primarily expecting
-						// to find <translate> and <nowiki> here, this will do.
-						return $prev . $next->textContent;
-				}, '' );
+				$domFragment = $opts['env']->getDOMFragment(
+					$token->dataAttribs->html
+				);
+				// FIXME: The correct thing to do would be to return
+				// `$domFragment.innerHTML` for the current scenarios where
+				// `unpackDOMFragments` is used (expanded attribute
+				// values and reparses thereof) but we'd need to remove
+				// the span wrapping and typeof annotation of extension
+				// content and nowikis.  Since we're primarily expecting
+				// to find <translate> and <nowiki> here, this will do.
+				$out .= $domFragment->textContent;
 				if ( $token instanceof TagTk ) {
 					$i += 1; // Skip the EndTagTK
 					Assert::invariant(

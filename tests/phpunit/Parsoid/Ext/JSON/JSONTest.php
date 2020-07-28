@@ -15,15 +15,16 @@ class JSONTest extends TestCase {
 	 * @covers \Wikimedia\Parsoid\Ext\JSON\JSON::toDOM
 	 */
 	public function testToDOM() {
-		// Test malformed JSON handler
 		$opts = [];
+		$json = new JSON();
+
+		// Test malformed JSON handler
 		$env = new MockEnv( $opts );
 		$API = new ParsoidExtensionAPI( $env );
-		$json = new JSON();
 
 		$pageContent = '{"1":2';    // malformed JSON example
 		$expected = '<!DOCTYPE html>' . "\n" .
-			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="https://my.wiki.example/wikix/Special:Redirect/revision/1"><head prefix="mwr: https://my.wiki.example/wikix/Special:Redirect/"><meta charset="utf-8"><meta property="mw:pageId" content="-1"><meta property="mw:pageNamespace" content="0"><meta property="mw:html:version" content="2.1.0"><link rel="dc:isVersionOf" href="//my.wiki.example/wikix/TestPage"><title>TestPage</title><base href="//my.wiki.example/wikix/"><link rel="stylesheet" href="//my.wiki.example/wx/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles%7Cmediawiki.page.gallery.styles%7Cext.cite.style%7Cext.cite.styles&amp;only=styles&amp;skin=vector"><meta http-equiv="content-language" content="en"><meta http-equiv="vary" content="Accept"></head><body data-parsoid="{}" lang="en" class="mw-content-rtl sitedir-rtl rtl mw-body-content parsoid-body mediawiki mw-parser-output" dir="rtl"><table typeof="mw:Error" data-parsoid="{}" data-mw=\'{"errors":[{"key":"bad-json"}]}\'></table></body></html>' .
+			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="https://my.wiki.example/wikix/Special:Redirect/revision/1"><head prefix="mwr: https://my.wiki.example/wikix/Special:Redirect/"><meta charset="utf-8"><meta property="mw:pageId" content="-1"><meta property="mw:pageNamespace" content="0"><meta property="mw:html:version" content="2.1.0"><link rel="dc:isVersionOf" href="//my.wiki.example/wikix/TestPage"><title>TestPage</title><base href="//my.wiki.example/wikix/"><link rel="stylesheet" href="//my.wiki.example/wx/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles%7Cmediawiki.page.gallery.styles%7Cext.cite.style%7Cext.cite.styles&amp;only=styles&amp;skin=vector"><meta http-equiv="content-language" content="en"><meta http-equiv="vary" content="Accept"></head><body data-parsoid="{}" lang="en" class="mw-content-rtl sitedir-rtl rtl mw-body-content parsoid-body mediawiki mw-parser-output" dir="rtl"><table typeof="mw:Error" data-mw=\'{"errors":[{"key":"bad-json"}]}\' data-parsoid="{}"></table></body></html>' .
 			"\n";
 
 		$doc = $json->toDOM( $API, $pageContent );
@@ -31,6 +32,9 @@ class JSONTest extends TestCase {
 		$this->assertSame( $expected, $response );
 
 		// Test complex nested JSON object using string matching
+		$env = new MockEnv( $opts );
+		$API = new ParsoidExtensionAPI( $env );
+
 		$pageContent =
 			'{"array":[{"foo":"bar","key":["string1",null,false,true,0,1,123,456.789]}]}';
 		$expected = '<!DOCTYPE html>' . "\n" .
