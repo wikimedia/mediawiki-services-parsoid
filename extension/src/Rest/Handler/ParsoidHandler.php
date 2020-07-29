@@ -178,7 +178,11 @@ abstract class ParsoidHandler extends Handler {
 			case 'multipart/form-data':
 				return $request->getPostParams();
 			case 'application/json':
-				return json_decode( $request->getBody()->getContents(), true );
+				$json = json_decode( $request->getBody()->getContents(), true );
+				if ( !is_array( $json ) ) {
+					throw new HttpException( 'Payload does not JSON decode to an array.', 400 );
+				}
+				return $json;
 			default:
 				throw new HttpException( 'Unsupported Media Type', 415 );
 		}
