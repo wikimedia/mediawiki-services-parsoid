@@ -162,13 +162,13 @@ class PageConfig extends IPageConfig {
 	/** @inheritDoc */
 	public function getPageLanguage(): string {
 		$this->loadData();
-		return $this->pagelanguage ?? $this->page['pagelanguage'];
+		return $this->pagelanguage ?? $this->page['pagelanguage'] ?? 'en';
 	}
 
 	/** @inheritDoc */
 	public function getPageLanguageDir(): string {
 		$this->loadData();
-		return $this->pagelanguageDir ?? $this->page['pagelanguagedir'];
+		return $this->pagelanguageDir ?? $this->page['pagelanguagedir'] ?? 'ltr';
 	}
 
 	/** @inheritDoc */

@@ -711,10 +711,9 @@ class DOMPostProcessor extends PipelineStage {
 			}
 		}
 
-		$lang = $env->getPageConfig()->getPageLanguage() ?:
-			$env->getSiteConfig()->lang() ?: 'en';
-		$dir = $env->getPageConfig()->getPageLanguageDir() ?:
-			( ( $env->getSiteConfig()->rtl() ) ? 'rtl' : 'ltr' );
+		// PageConfig guarantees language and dir will always be non-null.
+		$lang = $env->getPageConfig()->getPageLanguage();
+		$dir = $env->getPageConfig()->getPageLanguageDir();
 
 		$modulesBaseURI = $env->getSiteConfig()->getModulesLoadURI();
 		$styleURI = $modulesBaseURI .

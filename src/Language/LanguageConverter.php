@@ -234,9 +234,8 @@ class LanguageConverter {
 		Env $env, DOMNode $rootNode, string $targetVariant,
 		?string $sourceVariant
 	): void {
-		$pageLangCode = $env->getPageConfig()->getPageLanguage()
-			?: $env->getSiteConfig()->lang()
-			?: 'en';
+		// PageConfig guarantees getPageLanguage() never returns null.
+		$pageLangCode = $env->getPageConfig()->getPageLanguage();
 		$guesser = null;
 
 		$metrics = $env->getSiteConfig()->metrics();
