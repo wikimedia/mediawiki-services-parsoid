@@ -447,10 +447,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				'#^(?:https?://)?([a-z.]+)/api/rest_v1/page/html/([^/?]+)#',
 				$this->getOption( 'restURL' ), $matches ) &&
 				 !preg_match(
-				'#^/w/rest\.php/([a-z.]+)/v3/transform/pagebundle/to/pagebundle/([^/?]+)#',
+				'#^(?:https?://[a-z.]+)?/w/rest\.php/([a-z.]+)/v3/transform/pagebundle/to/pagebundle/([^/?]+)#',
 				$this->getOption( 'restURL' ), $matches ) &&
 				 !preg_match(
-				'#^/w/rest.php/([a-z.]+)/v3/page/pagebundle/([^/?]+)(?:/([^/?]+))?#',
+				'#^(?:https?://[a-z.]+)?/w/rest.php/([a-z.]+)/v3/page/pagebundle/([^/?]+)(?:/([^/?]+))?#',
 				$this->getOption( 'restURL' ), $matches )
 			) {
 				# XXX we could extend this to process other URLs, but the
