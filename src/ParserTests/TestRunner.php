@@ -1208,9 +1208,13 @@ class TestRunner {
 
 		// update the knownFailures, if requested
 		if ( $allModes || ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
-			$old = '[]';
 			if ( $this->knownFailuresPath !== null ) {
 				$old = file_get_contents( $this->knownFailuresPath );
+			} else {
+				// If file doesn't exist, use the JSON representation of an
+				// empty array, so it compares equal in the case that we
+				// end up with an empty array of known failures below.
+				$old = '[]';
 			}
 			$testKnownFailures = [];
 			foreach ( $options['modes'] as $mode ) {
