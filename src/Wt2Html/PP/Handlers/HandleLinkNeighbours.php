@@ -138,8 +138,8 @@ class HandleLinkNeighbours {
 			return true;
 		}
 
-		$inTpl = WTUtils::hasParsoidAboutId( $node );
-		$firstTplNode = $inTpl ? WTUtils::findFirstEncapsulationWrapperNode( $node ) : null;
+		$firstTplNode = WTUtils::findFirstEncapsulationWrapperNode( $node );
+		$inTpl = $firstTplNode !== null && DOMUtils::hasTypeOf( $firstTplNode, 'mw:Transclusion' );
 
 		// Find link prefix neighbors
 		$dp = DOMDataUtils::getDataParsoid( $node );

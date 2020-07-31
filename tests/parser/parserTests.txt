@@ -8784,11 +8784,14 @@ parsoid=html2wt
 {{1x|[[Foo]]l}}s
 
 {{1x|[[Foo]]<span>ls</span>}}
+
+[[{{1x|Foo}}]]l
 !! html/php+tidy
 <p><a href="/wiki/Foo" title="Foo">Fool</a>
 </p><p><a href="/wiki/Foo" title="Foo">Fool</a>
 </p><p><a href="/wiki/Foo" title="Foo">Fools</a>
 </p><p><a href="/wiki/Foo" title="Foo">Foo</a><span>ls</span>
+</p><p><a href="/wiki/Foo" title="Foo">Fool</a>
 </p>
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo"},"pi":[[{"k":"1"}]],"tail":"l"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Foo]]"}},"i":0}},"l"]}'>Fool</a></p>
@@ -8798,6 +8801,8 @@ parsoid=html2wt
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo" about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo"},"pi":[[{"k":"1"}]],"tail":"ls"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Foo]]l"}},"i":0}},"s"]}'>Fools</a></p>
 
 <p><a rel="mw:WikiLink" href="./Foo" title="Foo" about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Foo]]&lt;span>ls&lt;/span>"}},"i":0}}]}'>Foo</a><span about="#mwt4">ls</span></p>
+
+<p><a typeof="mw:ExpandedAttrs" about="#mwt6" rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"{{1x|Foo}}"},"tail":"l"}' data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;span about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[85,95,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"Foo\"}},\"i\":0}}]}&apos;>Foo&lt;/span>"}]]}'>Fool</a></p>
 !! end
 
 !! test
