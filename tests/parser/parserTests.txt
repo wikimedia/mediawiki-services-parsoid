@@ -3016,6 +3016,36 @@ parsoid=wt2html
 </tbody></table>
 !! end
 
+# Regression test to prevent problematic simplifications of parser tests
+!! test
+Don't paragraph-wrap empty newlines between HTML list items
+!! options
+parsoid=wt2html
+!! wikitext
+<ol>
+<li>foo</li>
+
+
+
+<li>foo</li>
+</ol>
+!! html/php+tidy
+<ol>
+<li>foo</li>
+
+
+
+<li>foo</li>
+</ol>
+!! html/parsoid
+<ol data-parsoid='{"stx":"html"}'>
+<li data-parsoid='{"stx":"html"}'>foo</li>
+
+
+
+<li data-parsoid='{"stx":"html"}'>foo</li>
+</ol>
+!! end
 
 #--------------------------------------------------------------------
 # Transclusion parameter whitespace stripping tests
