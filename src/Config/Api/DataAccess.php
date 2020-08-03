@@ -178,21 +178,42 @@ class DataAccess implements IDataAccess {
 		foreach ( $files as $name => $dims ) {
 			$imgNS = $sc ? $sc->namespaceName( $sc->canonicalNamespaceId( "File" ) ) : "File";
 			$apiArgs['titles'] = "$imgNS:$name";
-			if ( isset( $dims['width'] ) && $dims['width'] !== null ) {
+			$needPage = isset( $dims['page'] );
+			if ( isset( $dims['width'] ) ) {
 				$apiArgs["${prefix}urlwidth"] = $dims['width'];
-				if ( isset( $dims['page'] ) ) {
+				if ( $needPage ) {
 					$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
+					$needPage = false;
 				}
 			}
-			if ( isset( $dims['height'] ) && $dims['height'] !== null ) {
+			if ( isset( $dims['height'] ) ) {
 				$apiArgs["${prefix}urlheight"] = $dims['height'];
 			}
 			if ( isset( $dims['seek'] ) ) {
 				$apiArgs["${prefix}urlparam"] = "seek={$dims['seek']}";
 			}
-			$data = $this->api->makeRequest( $apiArgs );
 
-			$fileinfo = $data['query']['pages'][0][$propName][0]; // Expect exactly 1 row
+			do {
+				$data = $this->api->makeRequest( $apiArgs );
+				 // Expect exactly 1 row
+				$fileinfo = $data['query']['pages'][0][$propName][0];
+				// Corner case: if page is set, the core ImageInfo API doesn't
+				// respect it *unless* width is set as well.  So repeat the
+				// request if necessary.
+				if ( isset( $fileinfo['pagecount'] ) && !isset( $dims['page'] ) ) {
+					$dims['page'] = 1; # also ensures we won't get here again
+					$needPage = true;
+				}
+				if ( $needPage ) {
+					$needPage = false; # ensure we won't get here again
+					$width = $fileinfo['width'];
+					$apiArgs["${prefix}urlwidth"] = $width;
+					$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$width}px";
+					continue;
+				}
+				break;
+			} while ( true );
+
 			if ( isset( $fileinfo['filemissing'] ) ) {
 				$fileinfo = null;
 			} else {

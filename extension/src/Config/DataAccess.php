@@ -99,7 +99,7 @@ class DataAccess implements IDataAccess {
 
 		// This part is similar to Linker::makeImageLink(). If there is no width,
 		// set one based on the source file size.
-		$page = $hp['page'] ?? 1;
+		$page = $hp['page'] ?? 0;
 		if ( !isset( $hp['width'] ) ) {
 			if ( isset( $hp['height'] ) && $file->isVectorized() ) {
 				// If it's a vector image, and user only specifies height
@@ -178,10 +178,13 @@ class DataAccess implements IDataAccess {
 				$ret[$filename] = null;
 				continue;
 			}
+			// See Linker::makeImageLink; 'page' is a key in $handlerParams
+			// core uses 'false' as the default then casts to (int) => 0
+			$pageNum = $dims['page'] ?? 0;
 
 			$result = [
-				'width' => $file->getWidth(),
-				'height' => $file->getHeight(),
+				'width' => $file->getWidth( $pageNum ),
+				'height' => $file->getHeight( $pageNum ),
 				'size' => $file->getSize(),
 				'mediatype' => $file->getMediaType(),
 				'mime' => $file->getMimeType(),

@@ -1137,6 +1137,8 @@ class LinkHandlerUtils {
 					$link = $resource;
 				}
 				$link['value'] = preg_replace( '#^(\.\.?/)+#', '', $link['value'], 1 );
+				// strip page parameter if present
+				$link['value'] = preg_replace( '#[?]page=\d+$#D', '', $link['value'], 1 );
 			}
 		} else {
 			// Otherwise, just try and get it from data-mw

@@ -22672,18 +22672,21 @@ Width-sized image (using px, with preceding whitespace - test regression from r3
 <p><figure-inline typeof="mw:Image" data-parsoid='{"optList":[{"ck":"width","ak":" 640px"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/640px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="73" width="640" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/960px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/1280px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"73","width":"640"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></figure-inline></p>
 !! end
 
-## FIXME: Parsoid mocking should include the page in the url to catch regressions
 !! test
 Image with page parameter
 !! options
 djvu
 !! wikitext
+[[File:LoremIpsum.djvu]]
+
 [[File:LoremIpsum.djvu|page=2]]
 !! html/php
-<p><a href="/index.php?title=File:LoremIpsum.djvu&amp;page=2" class="image"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a>
+<p><a href="/wiki/File:LoremIpsum.djvu" class="image"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-4960px-LoremIpsum.djvu.jpg 2x" /></a>
+</p><p><a href="/index.php?title=File:LoremIpsum.djvu&amp;page=2" class="image"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Image" data-mw='{"attribs":[["page",{"txt":"2"}]]}'><a href="./File:LoremIpsum.djvu" data-parsoid='{"a":{"href":"./File:LoremIpsum.djvu"},"sa":{"href":"File:LoremIpsum.djvu"}}'><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/5/5f/LoremIpsum.djvu" data-file-width="2480" data-file-height="3508" data-file-type="bitmap" height="3508" width="2480" data-parsoid='{"a":{"resource":"./File:LoremIpsum.djvu","height":"3508","width":"2480"},"sa":{"resource":"File:LoremIpsum.djvu"}}'/></a></figure-inline></p>
+<p><figure-inline class="mw-default-size" typeof="mw:Image"><a href="./File:LoremIpsum.djvu"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-2480px-LoremIpsum.djvu.jpg" data-file-width="2480" data-file-height="3508" data-file-type="office" height="3508" width="2480" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page1-4960px-LoremIpsum.djvu.jpg 2x"/></a></figure-inline></p>
+<p><figure-inline class="mw-default-size" typeof="mw:Image" data-mw='{"attribs":[["page",{"txt":"2"}]]}'><a href="./File:LoremIpsum.djvu?page=2"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" data-file-width="2480" data-file-height="3508" data-file-type="office" height="3508" width="2480" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x"/></a></figure-inline></p>
 !! end
 
 !! test
