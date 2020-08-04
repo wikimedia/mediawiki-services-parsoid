@@ -600,6 +600,7 @@ class MockApiHelper extends ApiHelper {
 					$urlWidth = $width;
 				}
 			}
+			$thumbBaseUrl = $turl;
 			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' ) {
 				$turl .= '/' . $urlWidth . 'px-';
 				if ( $mediatype === 'VIDEO' ) {
@@ -628,6 +629,24 @@ class MockApiHelper extends ApiHelper {
 			$info['thumbwidth'] = $twidth;
 			$info['thumbheight'] = $theight;
 			$info['thumburl'] = $turl;
+			// src set info; added to core API result as part of T226683
+			foreach ( [ 1.5, 2 ] as $scale ) {
+				$turl = $baseurl;
+				if (
+					round( $twidth * $scale ) < $width ||
+					$mediatype === 'DRAWING'
+				) {
+					$turl = $thumbBaseUrl . '/' . round( $twidth * $scale ) . 'px-' . $normFilename;
+					if ( $mediatype === 'VIDEO' ) {
+						$turl .= '.jpg';
+					} elseif ( $mediatype === 'DRAWING' ) {
+						$turl .= '.png';
+					}
+				}
+				if ( $info['thumburl'] !== $turl && $mediatype !== 'AUDIO' ) {
+					$info['responsiveUrls']["$scale"] = $turl;
+				}
+			}
 		}
 		// Make this look like a TMH response
 		if ( isset( $props['title'] ) || isset( $props['shorttitle'] ) ) {
