@@ -24,7 +24,12 @@ class Grammar extends \WikiPEG\PEGParserBase {
   	public static function load( string $filename ) {
   		$g = new Grammar();
   		$g->filename = $filename;
-  		return $g->parse( file_get_contents( $filename ) );
+  		$contents = file_get_contents( $filename ) ?: '';
+  		if ( substr( $contents, -1 ) !== "\n" ) {
+  			# ensure that the file is terminated with a newline
+  			$contents .= "\n";
+  		}
+  		return $g->parse( $contents );
   	}
   
 

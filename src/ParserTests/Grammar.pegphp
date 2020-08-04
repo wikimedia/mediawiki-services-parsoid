@@ -21,7 +21,13 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 	public static function load( string $filename ) {
 		$g = new Grammar();
 		$g->filename = $filename;
-		return $g->parse( file_get_contents( $filename ) );
+		$contents = file_get_contents( $filename ) ?: '';
+		if ( substr( $contents, -1 ) !== "\n" ) {
+			# ensure that the file is terminated with a newline
+			# to match `end_test` rule (and other uses of `eol`)
+			$contents .= "\n";
+		}
+		return $g->parse( $contents );
 	}
 }
 
@@ -76,8 +82,6 @@ version_keyword = [vV] [eE] [rR] [sS] [iI] [oO] [nN]
 comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
 
-empty = ws? eol { return [ 'type' => 'empty' ]; }
-
 article =
 	start_article title:line start_text text:text end_article
 {
@@ -109,9 +113,6 @@ start_functionhooks =
 
 end_functionhooks =
 	"!!" ws? "endfunctionhooks" ":"? ws? eol
-
-end_test =
-	"!!" ws? "end" ws? eol
 
 test =
 	start_test
