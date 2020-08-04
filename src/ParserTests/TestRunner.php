@@ -1243,28 +1243,27 @@ class TestRunner {
 
 		// Write updated tests from failed ones
 		if ( isset( $options['update-tests'] ) ||
-			ScriptUtils::booleanOption( $options['update-unexpected'] ?? null )
+			 ScriptUtils::booleanOption( $options['update-unexpected'] ?? null )
 		) {
-			/**
-			 * PORT-FIXME
-			 *
-			 * $updateFormat = $options[ 'update-tests' ] === 'raw' ? 'raw' : 'actualNormalized';
-			 * $fileContent = file_get_contents( $this->testFilePath, 'utf8' );
-			 * foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
-			 * if ( isset( $options['update-tests'] ) || $fail->unexpected ) {
-			 * $exp = '/(' . '!!\s*test\s*'
-			 * .							. JSUtils::escapeRegExp( $fail->testName ) . '(?:(?!!!\s*end)[\s\S])*'
-			 * .							. ')(' . JSUtils::escapeRegExp( $fail->expected ) . ')/m';
-			 * $fileContent = preg_replace( $exp,
-			 * '$1' . preg_replace( '/\$/', '$$$$', $fail[ $updateFormat ] ), $fileContent );
-			 * }
-			 * }
-			 * file_put_contents( $this->testFilePath, $fileContent );
-			 *
-			 */
-
-			error_log( "update-tests not yet supported\n" );
-			die( -1 );
+			$updateFormat = $options['update-tests'] === 'raw' ? 'raw' : 'actualNormalized';
+			$fileContent = file_get_contents( $this->testFilePath );
+			foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
+				if ( isset( $options['update-tests'] ) || $fail['unexpected'] ) {
+					$exp = '/(!!\s*test\s*' .
+						 preg_quote( $fail['testName'], '/' ) .
+						 '(?:(?!!!\s*end)[\s\S])*' .
+						 ')(' . preg_quote( $fail['expected'], '/' ) .
+						 ')/m';
+					$fileContent = preg_replace_callback(
+						$exp,
+						function ( array $matches ) use ( $fail, $updateFormat ) {
+							return $matches[1] . $fail[$updateFormat];
+						},
+						$fileContent
+					);
+				}
+			}
+			file_put_contents( $this->testFilePath, $fileContent );
 		}
 
 		// print out the summary
