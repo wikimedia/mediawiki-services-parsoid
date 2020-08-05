@@ -159,8 +159,9 @@ class References extends ExtensionTagHandler {
 
 		$errs = [];
 
-		// Check for missing content
-		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ) === '' );
+		// Check for missing content, added ?? '' to fix T259676 crasher
+		// FIXME: See T260082 for a more complete description of cause and deeper fix
+		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ?? '' ) === '' );
 
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
