@@ -516,7 +516,7 @@ inline_breaks =
 		extTag: <extTag>
 		h: <h>
 		extlink: <extlink>
-		templatedepth: <templatedepth>
+		intemplate: <intemplate>
 		preproc: <preproc>
 		equal: <equal>
 		table: <table>
@@ -532,7 +532,7 @@ inline_breaks =
 				'extTag' => $extTag,
 				'h' => $h,
 				'extlink' => $extlink,
-				'templatedepth' => $templatedepth,
+				'intemplate' => $intemplate,
 				'preproc' => $preproc,
 				'equal' => $equal,
 				'table' => $table,
@@ -907,15 +907,7 @@ ipv6urladdr =
  */
 tplarg_or_template =
 	&'{{'
-	templatedepth:<templatedepth>
-	&{
-		// Refuse to recurse beyond `maxDepth` levels. Default in the old parser
-		// is $wgMaxTemplateDepth = 40; This is to prevent crashing from
-		// buggy wikitext with lots of unclosed template calls, as in
-		// eswiki/Usuario:C%C3%A1rdenas/PRUEBAS?oldid=651094
-		return $templatedepth + 1 < $this->siteConfig->getMaxTemplateDepth();
-	}
-	t:tplarg_or_template_guarded<templatedepth++> {
+	t:tplarg_or_template_guarded<intemplate=true> {
 		return $t;
 	}
 
