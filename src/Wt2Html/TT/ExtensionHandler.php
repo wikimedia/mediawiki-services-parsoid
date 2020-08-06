@@ -200,8 +200,8 @@ class ExtensionHandler extends TokenHandler {
 			'wrapperName' => $extensionName,
 		];
 
-		// Check if the tag wants its DOM fragment not to be unwrapped.
-		// The default setting is to unwrap the content DOM fragment automatically.
+		// Check if the tag wants its DOM fragment not to be unpacked.
+		// The default setting is to unpack the content DOM fragment automatically.
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 		if ( isset( $extConfig['options']['wt2html'] ) ) {
 			$opts += $extConfig['options']['wt2html'];

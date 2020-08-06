@@ -24,7 +24,7 @@ class Cite implements ExtensionModule {
 					'name' => 'ref',
 					'handler' => Ref::class,
 					'options' => [
-						'wt2html' => [ 'sealFragment' => true ]
+						'wt2html' => [ 'unpackOutput' => false ]
 					],
 				],
 				[

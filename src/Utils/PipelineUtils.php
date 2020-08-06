@@ -259,7 +259,7 @@ class PipelineUtils {
 	 * @see encapsulateExpansionHTML's doc. for more info about these options.
 	 * @return Token[] List of token representatives.
 	 */
-	public static function getWrapperTokens( array $nodes, array $opts ): array {
+	private static function getWrapperTokens( array $nodes, array $opts ): array {
 		if ( !$nodes ) {
 			return [ new TagTk( 'span' ), new EndTagTk( 'span' ) ];
 		}
@@ -292,9 +292,9 @@ class PipelineUtils {
 			// to cause the <a>..</a> to get split apart.
 			//
 			// Filed as T49963
-		} elseif ( !empty( $opts['sealFragment'] ) ) {
-			// Sealed fragments aren't amenable to inspection, since the
-			// ultimate content is unknown.  For example, refs shuttle content
+		} elseif ( !$opts['unpackOutput'] ) {
+			// Fragments that won't be unpacked aren't amenable to inspection, since
+			// the ultimate content is unknown.  For example, refs shuttle content
 			// through treebuilding that ends up in the references list.
 			//
 			// FIXME(arlolra): Do we need a mechanism to specify content
@@ -416,21 +416,23 @@ class PipelineUtils {
 	 *            For example: Cite, reused transclusions.
 	 *    - bool  fromCache
 	 *    - array pipelineOpts
-	 *    - bool  sealFragment
+	 *    - bool  unpackOutput
 	 *    - string wrapperName
 	 * @return Token[]
 	 */
 	public static function encapsulateExpansionHTML(
-		Env $env, Token $token, array $expansion, array $opts = []
+		Env $env, Token $token, array $expansion, array $opts
 	): array {
+		if ( !isset( $opts['unpackOutput'] ) ) {
+			$opts['unpackOutput'] = true; // Default
+		}
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.
 		$toks = self::getWrapperTokens( $expansion['nodes'], $opts );
 		$firstWrapperToken = $toks[0];
 
 		// Add the DOMFragment type so that we get unwrapped later.
-		$sealFragment = !empty( $opts['sealFragment'] );
-		$fragmentType = 'mw:DOMFragment' . ( $sealFragment ? '/sealed/' . $opts['wrapperName'] : '' );
+		$fragmentType = 'mw:DOMFragment' . ( !$opts['unpackOutput'] ? '/sealed/' . $opts['wrapperName'] : '' );
 		$firstWrapperToken->setAttribute( 'typeof', $fragmentType );
 
 		// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
