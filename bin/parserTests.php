@@ -55,22 +55,10 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			// exceptions unless we declare this is just a test.
 			define( 'MW_PARSER_TEST', true );
 
-			$recorder = new \MultiTestRecorder;
-			// XXX should call $recorder->addRecorder(...some thunk here...)
-			$testrunner = new \MWParsoid\Test\IntegratedTestRunner( $recorder, [
-				'norm' => null,
-				'regex' => false, // XXXX
-				'keep-uploads' => false,
-				'run-disabled' => false,
-				'disable-save-parse' => false,
-				'use-tidy-config' => false,
-				'file-backend' => false,
-				'upload-dir' => false,
-			] );
-			$ok = $testrunner->runTestsFromFiles( $testFilePaths );
-			if ( !$ok ) {
-				$exitCode = 1;
-			}
+			// See Ifaf53862b96e9127d8f375ad8dd0cc362cba9f5b in gerrit;
+			// this should use the \ParserTestRunner::runParsoidTest()
+			// method from core.
+			throw new \MWException( "Not yet implemented" );
 		} else {
 			foreach ( $testFilePaths as $testFile ) {
 				$testRunner = new TestRunner( $testFile, $this->processedOptions['modes'] );
