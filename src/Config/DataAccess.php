@@ -111,11 +111,10 @@ interface DataAccess {
 	 *   TemplateRequest.setPageSrcInfo() which is replaced by PageConfig.
 	 * @param PageConfig $pageConfig
 	 * @param string $title Title of the page to fetch
-	 * @param int $oldid Revision ID to fetch. Set 0 for the current revision
 	 * @return PageContent|null
 	 */
 	public function fetchPageContent(
-		PageConfig $pageConfig, string $title, int $oldid = 0
+		PageConfig $pageConfig, string $title
 	): ?PageContent;
 
 	/**

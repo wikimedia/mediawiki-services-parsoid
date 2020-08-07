@@ -155,18 +155,6 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertEquals( $c, $da->fetchPageContent( $pageConfig, 'Help:Sample page' ) );
-
-		$c = $this->getDataAccess( 'pagecontent-old' )
-			  ->fetchPageContent( $pageConfig, 'Help:Sample page', 776171508 );
-		$this->assertInstanceOf( PageContent::class, $c );
-		$this->assertSame( [ 'main' ], $c->getRoles() );
-		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
-		$this->assertSame( 'text/x-wiki', $c->getFormat( 'main' ) );
-		$this->assertSame(
-			// phpcs:ignore Generic.Files.LineLength.TooLong
-			"Our '''world''' is a planet where human beings have formed many societies.\n\nNobody knows whether there are intelligent beings on other worlds.\n\nThere are about one septillion (10<sup>24</sup>) worlds in the universe.\n\n<!-- All the contet here is public domain and has been copied from https://www.mediawiki.org/w/index.php?title=Help:Sample_page&oldid=2331983. Only add content here that has been previously been placed in the public domain as this page is used to generate screenshots -->",
-			$c->getContent( 'main' )
-		);
 	}
 
 	public function testFetchTemplateData() {

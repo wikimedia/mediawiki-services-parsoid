@@ -343,9 +343,9 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function fetchPageContent(
-		PageConfig $pageConfig, string $title, int $oldid = 0
+		PageConfig $pageConfig, string $title
 	): ?PageContent {
-		$key = implode( ':', [ 'content', md5( $title ), $oldid ] );
+		$key = implode( ':', [ 'content', md5( $title ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
 			$params = [
@@ -353,13 +353,9 @@ class DataAccess implements IDataAccess {
 				'prop' => 'revisions',
 				'rvprop' => 'content',
 				'rvslots' => '*',
+				'titles' => $title,
+				'rvlimit' => 1,
 			];
-			if ( $oldid !== 0 ) {
-				$params['revids'] = $oldid;
-			} else {
-				$params['titles'] = $title;
-				$params['rvlimit'] = 1;
-			}
 
 			$data = $this->api->makeRequest( $params );
 			$pageData = $data['query']['pages'][0];

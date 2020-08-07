@@ -48,7 +48,6 @@ return [
 			return ApiDataAccess::fromSettings( $parsoidSettings );
 		}
 		return new MWDataAccess(
-			$services->getRevisionStore(),
 			$services->getRepoGroup(),
 			$services->getBadFileLookup(),
 			$services->getParserFactory() // *legacy* parser factory

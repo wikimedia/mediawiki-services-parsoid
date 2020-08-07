@@ -26,7 +26,6 @@ use LinkBatch;
 use Linker;
 use MediaTransformError;
 use MediaWiki\BadFileLookup;
-use MediaWiki\Revision\RevisionStore;
 use PageProps;
 use Parser;
 use ParserFactory;
@@ -37,9 +36,6 @@ use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
 
 class DataAccess implements IDataAccess {
-
-	/** @var RevisionStore */
-	private $revStore;
 
 	/** @var RepoGroup */
 	private $repoGroup;
@@ -54,17 +50,15 @@ class DataAccess implements IDataAccess {
 	private $previousPageConfig;
 
 	/**
-	 * @param RevisionStore $revStore
 	 * @param RepoGroup $repoGroup
 	 * @param BadFileLookup $badFileLookup
 	 * @param ParserFactory $parserFactory A legacy parser factory,
 	 *   for PST/preprocessing/extension handling
 	 */
 	public function __construct(
-		RevisionStore $revStore, RepoGroup $repoGroup,
-		BadFileLookup $badFileLookup, ParserFactory $parserFactory
+		RepoGroup $repoGroup, BadFileLookup $badFileLookup,
+		ParserFactory $parserFactory
 	) {
-		$this->revStore = $revStore;
 		$this->repoGroup = $repoGroup;
 		$this->badFileLookup = $badFileLookup;
 
@@ -301,17 +295,14 @@ class DataAccess implements IDataAccess {
 
 	/** @inheritDoc */
 	public function fetchPageContent(
-		IPageConfig $pageConfig, string $title, int $oldid = 0
+		IPageConfig $pageConfig, string $title
 	): ?IPageContent {
 		'@phan-var PageConfig $pageConfig'; // @var PageConfig $pageConfig
 		$titleObj = Title::newFromText( $title );
 
-		if ( $oldid ) {
-			$revRecord = $this->revStore->getRevisionByTitle( $titleObj, $oldid );
-		} else {
-			// Use the PageConfig to take advantage of caching
-			$revRecord = $pageConfig->getCurrentRevisionRecordOfTitle( $titleObj );
-		}
+		// Use the PageConfig to take advantage of caching and custom
+		// fetch hooks like FlaggedRevisions, etc.
+		$revRecord = $pageConfig->getCurrentRevisionRecordOfTitle( $titleObj );
 
 		return $revRecord ? new PageContent( $revRecord ) : null;
 	}
