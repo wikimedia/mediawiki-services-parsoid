@@ -1113,6 +1113,47 @@ class LinkHandlerUtils {
 			return $null;
 		};
 
+		// Identify a page # to use.
+		$page = null;
+		$pageFromHref = preg_match(
+			'#[?]page=(\d+)$#D',
+			( $linkElt ? $linkElt->getAttribute( 'href' ) : null ) ?? '',
+			$matches ) ? $matches[1] : null;
+		$pageFromDataMw = WTSUtils::getAttrFromDataMw( $outerDMW, 'page', true );
+		if ( $pageFromDataMw !== null ) {
+			// FIXME: if $pageFromHref is null but $pageFromDataMw is
+			// set, then we go ahead and serialize the page parameter
+			// as unmodified.  This helps transition old RESTBase
+			// content where the ?page suffix on the URL was missing,
+			// but eventually $restBaseMigrationHack should be left
+			// false always. (T259931)
+			$restBaseMigrationHack =
+				( $pageFromHref === null && $pageFromDataMw[1]->txt );
+
+			if (
+				trim( $pageFromDataMw[1]->txt ) === $pageFromHref ||
+				$restBaseMigrationHack
+			) {
+				$page = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'page' );
+				if ( !$page ) {
+					$page = [
+						'value' => $pageFromDataMw[1]->txt,
+						'modified' => false,
+						'fromsrc' => false,
+						'fromDataMW' => true,
+					];
+				}
+			}
+		}
+		if ( !$page && $pageFromHref !== null ) {
+			$page = [
+				'value' => $pageFromHref,
+				'modified' => true,
+				'fromsrc' => false,
+				'fromDataMW' => false,
+			];
+		}
+
 		// Try to identify the local title to use for the link.
 		$link = null;
 
@@ -1132,13 +1173,13 @@ class LinkHandlerUtils {
 		} elseif ( $linkElt && $linkElt->hasAttribute( 'href' ) ) {
 			$link = $state->serializer->serializedImageAttrVal( $outerElt, $linkElt, 'href' );
 			if ( empty( $link['fromsrc'] ) ) {
-				if ( $linkElt->getAttribute( 'href' ) === $elt->getAttribute( 'resource' ) ) {
+				// strip page parameter if present on href
+				$strippedHref = preg_replace( '#[?]page=\d+$#D', '', $linkElt->getAttribute( 'href' ) ?? '' );
+				if ( $strippedHref === $elt->getAttribute( 'resource' ) ) {
 					// default link: same place as resource
 					$link = $resource;
 				}
 				$link['value'] = preg_replace( '#^(\.\.?/)+#', '', $link['value'], 1 );
-				// strip page parameter if present
-				$link['value'] = preg_replace( '#[?]page=\d+$#D', '', $link['value'], 1 );
 			}
 		} else {
 			// Otherwise, just try and get it from data-mw
@@ -1187,6 +1228,7 @@ class LinkHandlerUtils {
 		foreach ( [
 			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
 			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
+			[ 'name' => 'page', 'value' => $page, 'cond' => $page['value'] !== null ],
 			[ 'name' => 'lang', 'value' => $lang, 'cond' => $lang['value'] !== null ]
 		] as $o ) {
 			if ( !$o['cond'] ) {
@@ -1276,7 +1318,6 @@ class LinkHandlerUtils {
 
 		$mwParams = [
 			[ 'prop' => 'thumb', 'ck' => 'manualthumb', 'alias' => 'img_manualthumb' ],
-			[ 'prop' => 'page', 'ck' => 'page', 'alias' => 'img_page' ],
 			// mw:Video specific
 			[ 'prop' => 'starttime', 'ck' => 'starttime', 'alias' => 'timedmedia_starttime' ],
 			[ 'prop' => 'endtime', 'ck' => 'endtime', 'alias' => 'timedmedia_endtime' ],
