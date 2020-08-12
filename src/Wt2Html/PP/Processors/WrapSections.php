@@ -3,8 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMComment;
 use DOMElement;
 use DOMNode;
+use DOMText;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
@@ -261,9 +263,12 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		$offset = 0;
 		$c = $start ? $node->firstChild : $node->lastChild;
 		while ( $c ) {
-			if ( !( $c instanceof DOMElement ) ) {
+			if ( $c instanceof DOMText ) {
 				$offset += strlen( $c->textContent );
+			} elseif ( $c instanceof DOMComment ) {
+				$offset += WTUtils::decodedCommentLength( $c );
 			} else {
+				DOMUtils::assertElt( $c );
 				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
