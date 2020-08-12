@@ -400,7 +400,8 @@ class SiteConfig extends ISiteConfig {
 	public function responsiveReferences(): array {
 		// @todo This is from the Cite extension, which shouldn't be known about by core
 		return [
-			'enabled' => $this->config->get( 'CiteResponsiveReferences' ),
+			'enabled' => $this->config->has( 'CiteResponsiveReferences' ) ?
+				$this->config->get( 'CiteResponsiveReferences' ) : false,
 			'threshold' => 10,
 		];
 	}
