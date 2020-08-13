@@ -1225,6 +1225,16 @@ class LinkHandlerUtils {
 		// "alt" for non-image is handle below
 		$altCond = $alt['value'] !== null && $elt->nodeName === 'img';
 
+		// This loop handles media options which *mostly* correspond 1-1 with
+		// HTML attributes.  `img_$name` is the name of the media option,
+		// and $value is the Parsoid "shadow info" for the attribute.
+		// $cond tells us whether we need to explicitly output this option;
+		// if it is false we are using an implicit default.
+		// `lang` and `alt` are fairly straightforward.  `link` and `page`
+		// are a little trickier, since we need to massage/fake the shadow
+		// info because they don't come *directly* from the attribute.
+		// link comes from the combination of a[href], img[src], and
+		// img[resource], etc; page comes from the query part of a[href] etc.
 		foreach ( [
 			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
 			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
@@ -1257,7 +1267,9 @@ class LinkHandlerUtils {
 			}
 		}
 
-		// Handle class-signified options
+		// Now we handle media options which all come from space-separated
+		// values in a single HTML attribute, `class`.  (But note that there
+		// can also be "extra" classes added by `img_class` as well.)
 		$classes = DOMCompat::getClassList( $outerElt );
 		$extra = []; // 'extra' classes
 		$val = null;
@@ -1316,6 +1328,11 @@ class LinkHandlerUtils {
 			];
 		}
 
+		// Now we handle parameters which don't have a representation
+		// as HTML attributes; they are set only from the data-mw
+		// values.  (In theory they could perhaps be reverse engineered
+		// from the thumbnail URL, but that would be fragile and expose
+		// thumbnail implementation to the editor so we don't do that.)
 		$mwParams = [
 			[ 'prop' => 'thumb', 'ck' => 'manualthumb', 'alias' => 'img_manualthumb' ],
 			// mw:Video specific
@@ -1324,7 +1341,9 @@ class LinkHandlerUtils {
 			[ 'prop' => 'thumbtime', 'ck' => 'thumbtime', 'alias' => 'timedmedia_thumbtime' ]
 		];
 
-		// "alt" for images is handled above
+		// `img_link` and `img_alt` are only surfaced as HTML attributes
+		// for image media. For all other media we treat them as set only
+		// from data-mw.
 		if ( $elt->nodeName !== 'img' ) {
 			$mwParams = array_merge( $mwParams, [
 				[ 'prop' => 'link', 'ck' => 'link', 'alias' => 'img_link' ],
@@ -1354,6 +1373,7 @@ class LinkHandlerUtils {
 			}
 		}
 
+		// These media options come from the HTML `typeof` attribute.
 		switch ( $format ) {
 			case 'Thumb':
 				$nopts[] = [
@@ -1378,6 +1398,10 @@ class LinkHandlerUtils {
 				];
 				break;
 		}
+
+		// Now handle the size-related options.  This is complicated!
+		// We consider the `height`, `data-height`, `width`, and
+		// `data-width` attributes, as well as the `typeof` and the `class`.
 
 		// Get the user-specified height from wikitext
 		$wh = $state->serializer->serializedImageAttrVal(
