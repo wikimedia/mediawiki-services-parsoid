@@ -312,7 +312,11 @@ class DataAccess implements IDataAccess {
 		if ( $oldid ) {
 			$revRecord = $this->revStore->getRevisionByTitle( $titleObj, $oldid );
 		} else {
-			$revRecord = $this->parser->fetchCurrentRevisionRecordOfTitle( $titleObj );
+			$revRecord = call_user_func(
+				$this->parserOptions->getCurrentRevisionRecordCallback(),
+				$titleObj,
+				$this->parser
+			);
 		}
 
 		return $revRecord ? new PageContent( $revRecord ) : null;
