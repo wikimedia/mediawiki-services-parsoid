@@ -28,7 +28,7 @@ use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\User\UserIdentity;
 use MWParsoid\Config\PageConfig as MWPageConfig;
-use Parser;
+use ParserFactory;
 use ParserOptions;
 use Title;
 use User;
@@ -44,33 +44,37 @@ class PageConfigFactory {
 	/** @var RevisionStore */
 	private $revisionStore;
 
-	/** @var Parser */
-	private $parser;
-
-	/** @var ParserOptions */
-	private $parserOptions;
+	/** @var ParserFactory */
+	private $parserFactory;
 
 	/** @var SlotRoleRegistry */
 	private $slotRoleRegistry;
 
 	/**
 	 * @param RevisionStore $revisionStore
-	 * @param Parser $parser
-	 * @param ParserOptions $parserOptions
+	 * @param ParserFactory $parserFactory Either a legacy or parsoid parser
+	 *  factory; only used to hold an LRU cache for revision lookup.
 	 * @param SlotRoleRegistry $slotRoleRegistry
 	 */
 	public function __construct(
-		RevisionStore $revisionStore, Parser $parser, ParserOptions $parserOptions,
+		RevisionStore $revisionStore,
+		ParserFactory $parserFactory,
 		SlotRoleRegistry $slotRoleRegistry
 	) {
-		$this->parser = $parser;
 		$this->revisionStore = $revisionStore;
-		$this->parserOptions = $parserOptions;
+		$this->parserFactory = $parserFactory;
 		$this->slotRoleRegistry = $slotRoleRegistry;
 	}
 
 	/**
 	 * Create a new PageConfig.
+	 *
+	 * Note that Parsoid isn't supposed to use the user context by design; all
+	 * user-specific processing is expected to be introduced as a post-parse
+	 * transform.  The $user parameter is therefore usually null, especially
+	 * in background job parsing, although there are corner cases during
+	 * extension processing where a non-null $user could affect the output.
+	 *
 	 * @param LinkTarget $title The page represented by the PageConfig.
 	 * @param ?UserIdentity $user User who is doing rendering (for parsing options).
 	 * @param ?int $revisionId The revision of the page.
@@ -78,7 +82,7 @@ class PageConfigFactory {
 	 *   contents of the specific $revision; used when $revision is null
 	 *   (a new page) or when we are parsing a stashed text.
 	 * @param ?string $pagelanguageOverride
-	 * @param ?array $parsoidSettings At present, only used in debugging.
+	 * @param ?array $parsoidSettings Used to enable the debug API if requested
 	 * @return PageConfig
 	 */
 	public function create(
@@ -127,12 +131,20 @@ class PageConfigFactory {
 				)
 			);
 		}
-		$parserOptions = $user
+
+		$parserOptions =
+			$user
 			? ParserOptions::newFromUser( User::newFromIdentity( $user ) )
 			: ParserOptions::newCanonical( new User() );
+
+		// Turn off some options since Parsoid/JS currently doesn't
+		// do anything with this. As we proceed with closer integration,
+		// we can figure out if there is any value to these limit reports.
+		$parserOptions->setOption( 'enableLimitReport', false );
+
 		$slotRoleHandler = $this->slotRoleRegistry->getRoleHandler( SlotRecord::MAIN );
 		return new MWPageConfig(
-			$this->parser,
+			$this->parserFactory,
 			$parserOptions,
 			$slotRoleHandler,
 			$title,

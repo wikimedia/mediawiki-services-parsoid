@@ -38,8 +38,8 @@ return [
 	},
 
 	'ParsoidPageConfigFactory' => function ( MediaWikiServices $services ): MWPageConfigFactory {
-		return new MWPageConfigFactory( $services->getRevisionStore(), $services->getParser(),
-			$services->get( '_ParsoidParserOptions' ), $services->getSlotRoleRegistry() );
+		return new MWPageConfigFactory( $services->getRevisionStore(), $services->getParserFactory(),
+			$services->getSlotRoleRegistry() );
 	},
 
 	'ParsoidDataAccess' => function ( MediaWikiServices $services ): DataAccess {
@@ -51,20 +51,7 @@ return [
 			$services->getRevisionStore(),
 			$services->getRepoGroup(),
 			$services->getBadFileLookup(),
-			$services->getParser(),
-			$services->get( '_ParsoidParserOptions' ) );
+			$services->getParserFactory() // *legacy* parser factory
+		);
 	},
-
-	'_ParsoidParserOptions' => function ( MediaWikiServices $services ): ParserOptions {
-		global $wgUser;
-
-		// Pass a dummy user: Parsoid's parses don't use the user context right now
-		// and all user state is expected to be introduced as a post-parse transformation
-		// It is unclear if wikitext supports this model. But, given that Parsoid/JS
-		// operated in this fashion, for now, Parsoid/PHP will as well with the caveat below.
-		// ParserOptions used to default to $wgUser if we passed in null here (and new User()
-		// if $wgUser was null as it would be in most background job parsing contexts).
-		return ParserOptions::newCanonical( $wgUser ?? new User() );
-	},
-
 ];

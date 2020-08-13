@@ -347,6 +347,11 @@ abstract class ParsoidHandler extends Handler {
 			throw new LogicException( 'Title not found!' );
 		}
 		$user = RequestContext::getMain()->getUser();
+		// Note: Parsoid by design isn't supposed to use the user
+		// context right now, and all user state is expected to be
+		// introduced as a post-parse transform.  So although we pass a
+		// User here, it only currently affects the output in obscure
+		// corner cases; see PageConfigFactory::create() for more.
 		return $this->pageConfigFactory->create(
 			$title, $user, $revision, $wikitextOverride, $pagelanguageOverride,
 			$this->parsoidSettings
