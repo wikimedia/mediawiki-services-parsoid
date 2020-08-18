@@ -1,0 +1,809 @@
+!! Version 2
+##
+## This file has tests for Parsoid's section-wrapping feature
+##
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! article
+Template:3x_on_newline
+!! text
+{{{1}}}
+{{{1}}}
+{{{1}}}
+!! endarticle
+
+!! test
+Section wrapping for well-nested sections (no leading content)
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+=1=
+a
+
+=2=
+b
+
+==2.1==
+c
+
+==2.2==
+d
+
+===2.2.1===
+e
+
+=3=
+f
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>b
+</p>
+<h2><span class="mw-headline" id="2.1">2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>c
+</p>
+<h2><span class="mw-headline" id="2.2">2.2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2.2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>d
+</p>
+<h3><span class="mw-headline" id="2.2.1">2.2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2.2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>e
+</p>
+<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>f
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+</section><section data-mw-section-id="2"><h1 id="2" data-parsoid="{}">2</h1>
+<p>b</p>
+
+<section data-mw-section-id="3"><h2 id="2.1" data-parsoid="{}">2.1</h2>
+<p>c</p>
+
+</section><section data-mw-section-id="4"><h2 id="2.2" data-parsoid="{}">2.2</h2>
+<p>d</p>
+
+<section data-mw-section-id="5"><h3 id="2.2.1" data-parsoid="{}">2.2.1</h3>
+<p>e</p>
+
+</section></section></section><section data-mw-section-id="6"><h1 id="3" data-parsoid="{}">3</h1>
+<p>f</p>
+
+</section>
+!! end
+
+!! test
+Section wrapping for well-nested sections (with leading content)
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+Para 1.
+
+Para 2 with a <div>nested in it</div>
+
+Para 3.
+
+=1=
+a
+
+=2=
+b
+
+==2.1==
+c
+!! html/php+tidy
+<p>Para 1.
+</p><p>
+Para 2 with a </p><div>nested in it</div>
+<p>Para 3.
+</p>
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>b
+</p>
+<h2><span class="mw-headline" id="2.1">2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>c
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"><p>Para 1.</p>
+
+<p>Para 2 with a </p><div>nested in it</div>
+
+<p>Para 3.</p>
+
+</section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+</section><section data-mw-section-id="2"><h1 id="2" data-parsoid="{}">2</h1>
+<p>b</p>
+
+<section data-mw-section-id="3"><h2 id="2.1" data-parsoid="{}">2.1</h2>
+<p>c</p>
+
+</section></section>
+!! end
+
+!! test
+Section wrapping with template-generated sections (good nesting 1)
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+=1=
+a
+
+{{1x|1=
+==1.1==
+b
+}}
+==1.2==
+c
+
+=2=
+d
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<p>b
+</p>
+<h2><span class="mw-headline" id="1.2">1.2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 1.2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>c
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>d
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"dsr":[9,33,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb"}},"i":0}}]}'>1.1</h2><span about="#mwt1">
+</span><p about="#mwt1">b</p>
+</section><section data-mw-section-id="3"><h2 id="1.2" data-parsoid="{}">1.2</h2>
+<p>c</p>
+
+</section></section><section data-mw-section-id="4"><h1 id="2" data-parsoid="{}">2</h1>
+<p>d</p></section>
+!! end
+
+# In this example, the template scope is mildly expanded to incorporate the
+# trailing newline after the transclusion since that is part of section 1.1.1
+!! test
+Section wrapping with template-generated sections (good nesting 2)
+!! options
+notoc
+parsoid={
+  "wrapSections": true,
+  "modes": ["wt2html", "wt2wt"]
+}
+!! wikitext
+=1=
+a
+
+{{1x|1=
+==1.1==
+b
+===1.1.1===
+d
+}}
+=2=
+e
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<p>b
+</p>
+<h3><span class="mw-headline" id="1.1.1">1.1.1</span></h3>
+<p>d
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>e
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1">1</h1>
+<p>a</p>
+
+<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n"]}'>1.1</h2><span about="#mwt1">
+</span><p about="#mwt1">b</p><span about="#mwt1">
+</span><section data-mw-section-id="-1" about="#mwt1"><h3 about="#mwt1" id="1.1.1">1.1.1</h3><span about="#mwt1">
+</span><p about="#mwt1">d</p><span about="#mwt1">
+</span></section></section></section><section data-mw-section-id="4" data-parsoid="{}"><h1 id="2">2</h1>
+<p>e</p></section>
+!! end
+
+# In this example, the template scope is mildly expanded to incorporate the
+# trailing newline after the transclusion since that is part of section 1.2.1
+!! test
+Section wrapping with template-generated sections (good nesting 3)
+!! options
+notoc
+parsoid={
+  "wrapSections": true,
+  "modes": ["wt2html", "wt2wt"]
+}
+!! wikitext
+=1=
+a
+
+{{1x|1=
+x
+==1.1==
+b
+==1.2==
+c
+===1.2.1===
+d
+}}
+=2=
+e
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p><p>x
+</p>
+<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<p>b
+</p>
+<h2><span class="mw-headline" id="1.2">1.2</span></h2>
+<p>c
+</p>
+<h3><span class="mw-headline" id="1.2.1">1.2.1</span></h3>
+<p>d
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>e
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1" data-parsoid="{}"><h1 id="1"> 1 </h1>
+<p>a</p>
+
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"dsr":[9,60,0,0],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==1.1==\nb\n==1.2==\nc\n===1.2.1===\nd"}},"i":0}},"\n"]}'>x</p><span about="#mwt1">
+</span><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="1.1">1.1</h2><span about="#mwt1">
+</span><p about="#mwt1">b</p><span about="#mwt1">
+</span></section><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="1.2">1.2</h2><span about="#mwt1">
+</span><p about="#mwt1">c</p><span about="#mwt1">
+</span><section data-mw-section-id="-1" about="#mwt1"><h3 about="#mwt1" id="1.2.1">1.2.1</h3><span about="#mwt1">
+</span><p about="#mwt1">d</p><span about="#mwt1">
+</span></section></section></section><section data-mw-section-id="5"><h1 id="2">2</h1>
+<p>e</p></section>
+!! end
+
+# Because of section-wrapping and template-wrapping interactions,
+# the scope of the template is expanded so that the template markup
+# is valid in the presence of <section> tags.
+# This exercises the s1 is null scenario in the wrapSections code
+!! test
+Section wrapping with template-generated sections (bad nesting 1)
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+<div>
+a
+
+{{1x|1=
+=1=
+b
+}}
+
+c
+</div>
+!! html/php+tidy
+<div>
+<p>a
+</p>
+<h1><span class="mw-headline" id="1">1</span></h1>
+<p>b
+</p><p>c
+</p>
+</div>
+!! html/parsoid
+<section data-mw-section-id="-1"></section><section data-mw-section-id="-2"><div data-parsoid='{"stx":"html"}'>
+<p>a</p>
+
+<section data-mw-section-id="-1"><h1 about="#mwt1" typeof="mw:Transclusion" id="1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"=1=\nb"}},"i":0}}]}'>1</h1><span about="#mwt1">
+</span><p about="#mwt1">b</p>
+
+<p>c</p>
+</section></div></section>
+!! end
+
+# Because of section-wrapping and template-wrapping interactions,
+# the scope of the template is expanded so that the template markup
+# is valid in the presence of <section> tags.
+# This exercises the s1 is ancestor of s2 scenario in the wrapSections code
+!! test
+Section wrapping with template-generated sections (bad nesting 2)
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+=1=
+a
+
+{{1x|1=
+=2=
+b
+==2.1==
+c
+}}
+
+d
+
+=3=
+e
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h1><span class="mw-headline" id="2">2</span></h1>
+<p>b
+</p>
+<h2><span class="mw-headline" id="2.1">2.1</span></h2>
+<p>c
+</p><p>d
+</p>
+<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>e
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+</section><section data-mw-section-id="-1"><h1 about="#mwt1" typeof="mw:Transclusion" id="2" data-parsoid='{"dsr":[9,45,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"=2=\nb\n==2.1==\nc"}},"i":0}},"\n\nd\n\n"]}'>2</h1><span about="#mwt1">
+</span><p about="#mwt1">b</p><span about="#mwt1">
+</span><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="2.1">2.1</h2><span about="#mwt1">
+</span><p about="#mwt1">c</p><span about="#mwt1">
+
+</span><p about="#mwt1">d</p><span about="#mwt1">
+
+</span></section></section><section data-mw-section-id="4"><h1 id="3" data-parsoid="{}">3</h1>
+<p>e</p></section>
+!! end
+
+# Because of section-wrapping and template-wrapping interactions,
+# additional template wrappers are added to <section> tags
+# so that template wrapping semantics are valid whether section
+# tags are retained or stripped. But, the template scope can expand
+# greatly when accounting for section tags.
+# This exercises the s1 and s2 are in different subtrees scenario
+!! test
+Section wrapping with template-generated sections (bad nesting 3)
+!! options
+notoc
+parsoid={
+  "wrapSections": true,
+  "modes": ["wt2html", "wt2wt"]
+}
+!! wikitext
+=1=
+a
+
+{{1x|1=
+==1.2==
+b
+=2=
+c
+}}
+
+d
+
+=3=
+e
+!! html/php+tidy
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h2><span class="mw-headline" id="1.2">1.2</span></h2>
+<p>b
+</p>
+<h1><span class="mw-headline" id="2">2</span></h1>
+<p>c
+</p><p>d
+</p>
+<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>e
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["=1=\na\n\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.2==\nb\n=2=\nc"}},"i":0}},"\n\nd\n\n"]}'><h1 id="1">1</h1>
+<p>a</p>
+
+<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.2" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.2==\nb\n=2=\nc"}},"i":0}}]}'>1.2</h2><span about="#mwt1">
+</span><p about="#mwt1">b</p><span about="#mwt1">
+</span></section></section><section data-mw-section-id="-1" about="#mwt1"><h1 about="#mwt1" id="2">2</h1><span about="#mwt1">
+</span><p about="#mwt1">c</p>
+
+<p>d</p>
+</section><section data-mw-section-id="4" data-parsoid="{}"><h1 id="3">3</h1>
+<p>e</p></section>
+!! end
+
+!! test
+Section wrapping with uneditable lead section + div wrapping multiple sections
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+foo
+
+<div style="border:1px solid red;">
+=1=
+a
+
+==1.1==
+b
+
+=2=
+c
+</div>
+
+=3=
+d
+
+==3.1==
+e
+!! html/php+tidy
+<p>foo
+</p>
+<div style="border:1px solid red;">
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h2><span class="mw-headline" id="1.1">1.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>b
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>c
+</p>
+</div>
+<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>d
+</p>
+<h2><span class="mw-headline" id="3.1">3.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>e
+</p>
+!! html/parsoid
+<section data-mw-section-id="-1"><p>foo</p>
+
+</section><section data-mw-section-id="-2"><div style="border:1px solid red;">
+<section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+<section data-mw-section-id="2"><h2 id="1.1" data-parsoid="{}">1.1</h2>
+<p>b</p>
+
+</section></section><section data-mw-section-id="-1"><h1 id="2" data-parsoid="{}">2</h1>
+<p>c</p>
+</section></div>
+
+</section><section data-mw-section-id="4"><h1 id="3" data-parsoid="{}">3</h1>
+<p>d</p>
+
+<section data-mw-section-id="5"><h2 id="3.1" data-parsoid="{}">3.1</h2>
+<p>e</p>
+</section></section>
+!! end
+
+!! test
+Section wrapping with editable lead section + div overlapping multiple sections
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+foo
+
+=1=
+a
+<div style="border:1px solid red;">
+b
+
+==1.1==
+c
+
+=2=
+d
+</div>
+e
+
+=3=
+f
+
+==3.1==
+g
+!! html/php+tidy
+<p>foo
+</p>
+
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<div style="border:1px solid red;">
+<p>b
+</p>
+<h2><span class="mw-headline" id="1.1">1.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>c
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>d
+</p>
+</div>
+<p>e
+</p>
+<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>f
+</p>
+<h2><span class="mw-headline" id="3.1">3.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>g
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"><p>foo</p>
+
+</section><section data-mw-section-id="-1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+</section><section data-mw-section-id="-2"><div style="border:1px solid red;">
+<p>b</p>
+
+<section data-mw-section-id="2"><h2 id="1.1" data-parsoid="{}">1.1</h2>
+<p>c</p>
+
+</section><section data-mw-section-id="-1"><h1 id="2" data-parsoid="{}">2</h1>
+<p>d</p>
+</section></div>
+<p>e</p>
+
+</section><section data-mw-section-id="4"><h1 id="3" data-parsoid="{}">3</h1>
+<p>f</p>
+
+<section data-mw-section-id="5"><h2 id="3.1" data-parsoid="{}">3.1</h2>
+<p>g</p>
+</section></section>
+!! end
+
+!! test
+HTML header tags should not be wrapped in section tags
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+foo
+
+<h1>a</h1>
+
+=b=
+
+<h1>c</h1>
+
+=d=
+!! html/php+tidy
+<p>foo
+</p>
+
+<h1><span class="mw-headline" id="a">a</span></h1>
+<h1><span class="mw-headline" id="b">b</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<h1><span class="mw-headline" id="c">c</span></h1>
+<h1><span class="mw-headline" id="d">d</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: d">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+!! html/parsoid
+<section data-mw-section-id="0"><p>foo</p>
+
+<h1 id="a" data-parsoid='{"stx":"html"}'>a</h1>
+
+</section><section data-mw-section-id="1"><h1 id="b" data-parsoid="{}">b</h1>
+
+<h1 id="c" data-parsoid='{"stx":"html"}'>c</h1>
+
+</section><section data-mw-section-id="2"><h1 id="d" data-parsoid="{}">d</h1></section>
+!! end
+
+!! test
+Lead section containing only whitespace and comments.
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+
+<!-- this is a comment, presumably significant to editors -->
+=1=
+a
+
+=2=
+b
+!! html/php+tidy
+<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>a
+</p>
+<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p>b
+</p>
+!! html/parsoid
+<section data-mw-section-id="0" data-parsoid="{}">
+<!-- this is a comment, presumably significant to editors -->
+</section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
+<p>a</p>
+
+</section><section data-mw-section-id="2"><h1 id="2" data-parsoid="{}">2</h1>
+<p>b</p>
+</section>
+!! end
+
+!! test
+Pseudo-sections emitted by templates should have id -2
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+foo
+{{1x|<div>
+==a==
+==b==
+</div>
+}}
+!! html/php+tidy
+<p>foo
+</p>
+<div>
+<h2><span class="mw-headline" id="a">a</span></h2>
+<h2><span class="mw-headline" id="b">b</span></h2>
+</div>
+!! html/parsoid
+<section data-mw-section-id="-1"><p>foo</p>
+</section><section data-mw-section-id="-2"><div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>\n==a==\n==b==\n&lt;/div>\n"}},"i":0}}]}'>
+<section data-mw-section-id="-1"><h2 id="a">a</h2>
+</section><section data-mw-section-id="-1"><h2 id="b">b</h2>
+</section></div><span about="#mwt1">
+</span></section>
+!! end
+
+!! test
+T213468: Transcluded sections don't get PHP section numbers
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+==PHP section=1==
+{{1x|1=
+== This is counted as if it were section 2 ==
+}}
+==PHP section=3==
+!! html/php+tidy
+<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_2">This is counted as if it were section 2</span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
+</section><section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_2" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"== This is counted as if it were section 2 =="}},"i":0}}]}'>This is counted as if it were section 2</h2>
+</section><section data-mw-section-id="3"><h2 id="PHP_section=3" data-parsoid="{}"><span id="PHP_section.3D3" typeof="mw:FallbackId"></span>PHP section=3</h2></section>
+!! end
+
+!! test
+T213468: Corner cases in edit section ID assignment in tokenizer
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+==PHP section=1==
+{{1x|Not a section|
+== This is counted as if it were section 2 ==
+}}
+==PHP section=3==
+{{3x_on_newline|1=
+== This is counted as if it were section 4 ==
+}}
+==PHP section=5==
+{{#tag:p|Not a section|data-ignored=
+== This is counted as if it were section 6 ==
+}}
+==PHP section=7==
+{{1x|1=Not a ==heading==}}
+==PHP section=8==
+[[File:Foobar.jpg|thumb|
+==This is section 9, even though it's in a caption==
+]]
+==PHP section=10==
+!! html/php+tidy
+
+<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>Not a section
+</p>
+<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4">This is counted as if it were section 4</span></h2>
+<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</span></h2>
+<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4_3">This is counted as if it were section 4</span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D5">PHP section=5</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: PHP section=5">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p data-ignored="== This is counted as if it were section 6 ==">Not a section</p>
+<h2><span class="mw-headline" id="PHP_section.3D7">PHP section=7</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=7" title="Edit section: PHP section=7">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>Not a ==heading==
+</p>
+<h2><span class="mw-headline" id="PHP_section.3D8">PHP section=8</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=8" title="Edit section: PHP section=8">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><h2><span class="mw-headline" id="This_is_section_9.2C_even_though_it.27s_in_a_caption">This is section 9, even though it's in a caption</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=9" title="Edit section: This is section 9, even though it&#039;s in a caption">edit</a><span class="mw-editsection-bracket">]</span></span></h2></div></div></div>
+<h2><span class="mw-headline" id="PHP_section.3D10">PHP section=10</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=10" title="Edit section: PHP section=10">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a section"},"2":{"wt":"\n== This is counted as if it were section 2 ==\n"}},"i":0}}]}'>Not a section</p>
+</section><section data-mw-section-id="3"><h2 id="PHP_section=3" data-parsoid="{}"><span id="PHP_section.3D3" typeof="mw:FallbackId"></span>PHP section=3</h2>
+</section><section data-mw-section-id="-1" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["",{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}},"\n"]}'><h2 about="#mwt2" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_4" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}}]}'>This is counted as if it were section 4</h2><span about="#mwt2">
+</span></section><section data-mw-section-id="-1" about="#mwt5"><h2 about="#mwt2" id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</h2><span about="#mwt2">
+</span></section><section data-mw-section-id="-1" about="#mwt5"><h2 about="#mwt2" id="This_is_counted_as_if_it_were_section_4_3">This is counted as if it were section 4</h2>
+</section><section data-mw-section-id="5"><h2 id="PHP_section=5" data-parsoid="{}"><span id="PHP_section.3D5" typeof="mw:FallbackId"></span>PHP section=5</h2>
+<p data-ignored=" This is counted as if it were section 6 " about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"data-ignored","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#tag:p","function":"tag"},"params":{"1":{"wt":"Not a section"},"data-ignored":{"wt":"== This is counted as if it were section 6 =="}},"i":0}}]}'>Not a section</p>
+</section><section data-mw-section-id="7"><h2 id="PHP_section=7" data-parsoid="{}"><span id="PHP_section.3D7" typeof="mw:FallbackId"></span>PHP section=7</h2>
+<p about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a ==heading=="}},"i":0}}]}'>Not a ==heading==</p>
+</section><section data-mw-section-id="8"><h2 id="PHP_section=8" data-parsoid="{}"><span id="PHP_section.3D8" typeof="mw:FallbackId"></span>PHP section=8</h2>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n== This is counted as if it were section 9 ==\n"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
+<section data-mw-section-id="-1"><h2 id="This_is_section_9,_even_though_it's_in_a_caption" data-parsoid="{}"><span id="This_is_section_9.2C_even_though_it.27s_in_a_caption" typeof="mw:FallbackId"></span>This is section 9, even though it's in a caption</h2>
+</section></figcaption></figure>
+</section><section data-mw-section-id="10"><h2 id="PHP_section=10" data-parsoid="{}"><span id="PHP_section.3D10" typeof="mw:FallbackId" data-parsoid='{"dsr":[412,412]}'></span>PHP section=10</h2></section>
+!! end
+
+!! test
+T215628: Section numbering and <includeonly> and <noinclude> on a page
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+==PHP section=1==
+<noinclude>
+==PHP section=2==
+</noinclude>
+==PHP section=3==
+<includeonly>
+==This is not counted as section 4==
+</includeonly>
+==PHP section=4==
+!! html/php+tidy
+
+<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D2">PHP section=2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: PHP section=2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="PHP_section.3D4">PHP section=4</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: PHP section=4">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+PARSOID HAS A BUG HERE: T215628
+!! end
+

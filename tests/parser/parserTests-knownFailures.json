@@ -1969,14 +1969,6 @@
         "html2wt": "<div id=\"toc\" class=\"toc\" role=\"navigation\" aria-labelledby=\"mw-toc-heading\"><input type=\"checkbox\" role=\"button\" id=\"toctogglecheckbox\" class=\"toctogglecheckbox\" style=\"display:none\" /><div class=\"toctitle\" lang=\"en\" dir=\"ltr\">\n== Contents ==\n<span class=\"toctogglespan\"><label class=\"toctogglelabel\" for=\"toctogglecheckbox\"></label></span></div>\n\n* [[#Headline_1|<span class=\"tocnumber\">1</span> <span class=\"toctext\">Headline 1</span>]]\n** [[#Subheadline_1|<span class=\"tocnumber\">1.1</span> <span class=\"toctext\">Subheadline 1</span>]]\n*** [[#Skipping_a_level|<span class=\"tocnumber\">1.1.1</span> <span class=\"toctext\">Skipping a level</span>]]\n**** [[#Skipping_a_level_2|<span class=\"tocnumber\">1.1.1.1</span> <span class=\"toctext\">Skipping a level</span>]]\n* [[#Headline_2|<span class=\"tocnumber\">2</span> <span class=\"toctext\">Headline 2</span>]]\n** [[#Another_headline|<span class=\"tocnumber\">2.1</span> <span class=\"toctext\">Another headline</span>]]\n\n</div>\n\n== Headline 1 ==\n\n=== Subheadline 1 ===\n\n===== Skipping a level =====\n\n====== Skipping a level ======\n\n== Headline 2 ==\nSome text\n\n=== Another headline ===\n",
         "selser [3,4,0,0,3,2,[3],3,0,4,3,3,0]": "13xji52\n\n===Subheadline 1===\nl5piqx\n\n======<nowiki/>======\n\n==Headline 2==\n16mk0e2\n\n===Another headline==="
     },
-    "Section wrapping for well-nested sections (with leading content)": {
-        "selser [[3,2,0,0,0,4],[4,0,3,3],[2,4,2,4,[4,0,3]]]": "1zs67o\n\n\n\nPara 2 with a <div>nested in it</div>\n\nPara 3.\n\n5l3bd0\n\n95g4oe\n\n1tj68pl\n\n=2=\n845rsnm6rdk9\nb\n1mca6yt\n82xt5f\n",
-        "selser [[2,2,0,0,4,0],[3,3,2,2],[4,0,1,0,1]]": "8jyud8\n\nPara 1.\n\n1a7r90a\n\n\n\nPara 2 with a <div>nested in it</div>\n\n1j092on\n\ndnlgj1\n\na\n\n1dho922\n\n1sq6gvq\n\nb\n\n==2.1==\nc",
-        "selser [[1,2,0,3,2,0],4,[0,0,2,0,[2,0,0]]]": "Para 1.\n\nrty8v2\n\n\n\nPara 2 with a <div>nested in it</div>1ykply9\nPara 3.\n\n12xqy01\n\n=2=\na3diha\n\nb\n\nk34lms\n\n==2.1==\nc"
-    },
-    "Section wrapping with editable lead section + div overlapping multiple sections": {
-        "selser [[4,3],[4,2,[2],0],[1,4,1,2],[4,0,1,3,0]]": "1x6hr6p\n\n1fsd33x\n\nbtc36h\n\npslz85a\n<div style=\"border:1px solid red;\" data-foobar=\"1ahvbjp\">\nb\n\n==1.1==\nc\n\n=2=\nd\n</div>10art7i\ne\n1q6wce1\n\nz5805j\n\nf\n\n==3.1==\ng"
-    },
     "Self closed html pairs (T7487)": {
         "wt2html": "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>",
         "html2wt": "<center><font id=\"bug\">Centered text</font></center><font id=\"bug\"><div><font id=\"bug2\">In div text</font></div></font>"
@@ -2125,11 +2117,6 @@
         "selser [2]": "1dbyq81\n\n[http://www.example.org/　ideograms]",
         "selser [[2]]": "k7rfsq[http://www.example.org/　ideograms]",
         "selser [1]": "[http://www.example.org/　ideograms]"
-    },
-    "T215628: Section numbering and <includeonly> and <noinclude> on a page": {
-        "wt2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"></section><section data-mw-section-id=\"1\" data-parsoid=\"{}\"><h2 id=\"PHP_section=1\" data-parsoid='{\"dsr\":[0,17,2,2]}'><span id=\"PHP_section.3D1\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[2,2,null,null]}'></span>PHP section=1</h2>\n<meta typeof=\"mw:Includes/NoInclude\" data-parsoid='{\"src\":\"&lt;noinclude>\",\"dsr\":[18,29,null,null]}'/>\n</section><section data-mw-section-id=\"1\" data-parsoid=\"{}\"><h2 id=\"PHP_section=2\" data-parsoid='{\"dsr\":[30,47,2,2]}'><span id=\"PHP_section.3D2\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[32,32,null,null]}'></span>PHP section=2</h2>\n<meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid='{\"src\":\"&lt;/noinclude>\",\"dsr\":[48,60,null,null]}'/>\n</section><section data-mw-section-id=\"2\" data-parsoid=\"{}\"><h2 id=\"PHP_section=3\" data-parsoid='{\"dsr\":[61,78,2,2]}'><span id=\"PHP_section.3D3\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[63,63,null,null]}'></span>PHP section=3</h2>\n<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[79,144,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==This is not counted as section 4==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[144,144,null,null]}'/>\n</section><section data-mw-section-id=\"3\" data-parsoid=\"{}\"><h2 id=\"PHP_section=4\" data-parsoid='{\"dsr\":[145,162,2,2]}'><span id=\"PHP_section.3D4\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[147,147,null,null]}'></span>PHP section=4</h2></section>",
-        "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><p data-parsoid='{\"dsr\":[0,31,0,0]}'>PARSOID HAS A BUG HERE: T215628</p></section>",
-        "html2wt": "PARSOID HAS A BUG HERE: T215628"
     },
     "T2289: \">\"-token in bracketed URL": {
         "wt2wt": "[http://www.example.com/ <hello> stuff]",
