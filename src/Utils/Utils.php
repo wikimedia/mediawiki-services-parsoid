@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * This file contains general utilities for token transforms.
@@ -231,22 +232,15 @@ class Utils {
 	 * @return string
 	 */
 	public static function decodeWtEntities( string $text ): string {
-		// There are some entities disallowed by wikitext (T106578,T113194)
-		$text = preg_replace( [
-			'/&#(0*12|x0*c);/i',
-			'/&#(0*1114110|x0*10fffe);/i',
-			'/&#(0*1114111|x0*10ffff);/i',
-		], [
-			'&amp;#$1;',  // \u000C is disallowed
-			"\u{10FFFE}", // \u10FFFE is allowed but not decoded (weird)
-			"\u{10FFFF}", // \u10FFFF is allowed but not decoded (again, weird)
-		], $text );
-		// HTML5 allows semicolon-less entities which wikitext does not:
-		// in wikitext all entities must end in a semicolon.
-		// PHP currently doesn't decode semicolon-less entities (see
-		// https://bugs.php.net/bug.php?id=77769 ) but we've got a
-		// unit test which would fail if it ever started to.
-		return html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'utf-8' );
+		// Note that HTML5 allows semicolon-less entities which
+		// wikitext does not: in wikitext all entities must end in a
+		// semicolon.
+		// By normalizing before decoding, this routine deliberately
+		// does not decode entity references which are invalid in wikitext
+		// (mostly because they decode to invalid codepoints).
+		return Sanitizer::decodeCharReferences(
+			Sanitizer::normalizeCharReferences( $text )
+		);
 	}
 
 	/**
@@ -262,7 +256,7 @@ class Utils {
 	public static function escapeWtEntities( string $text ): string {
 		// We just want to encode ampersands that precede valid entities.
 		// (And note that semicolon-less entities aren't valid wikitext.)
-		return preg_replace_callback( '/&[#0-9a-zA-Z]+;/', function ( $match ) {
+		return preg_replace_callback( '/&[#0-9a-zA-Z\x80-\xff]+;/', function ( $match ) {
 			$m = $match[0];
 			$decodedChar = self::decodeWtEntities( $m );
 			if ( $decodedChar !== $m ) {

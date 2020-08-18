@@ -2156,14 +2156,15 @@ urltext =
 	)+
 
 raw_htmlentity =
-	m:$("&" [#0-9a-zA-Z]+ ";") {
+	m:$("&" [#0-9a-zA-Zרלמرلم]+ ";") {
 		return Utils::decodeWtEntities( $m );
 	}
 
 htmlentity =
 	cc:raw_htmlentity {
 		// if this is an invalid entity, don't tag it with 'mw:Entity'
-		if ( mb_strlen( $cc ) > 1 /* decoded entity would be 1 character */ ) {
+		// note that some entities (like &acE;) decode to 2 codepoints!
+		if ( mb_strlen( $cc ) > 2 /* decoded entity would be 1-2 codepoints */ ) {
 			return $cc;
 		}
 		return [
