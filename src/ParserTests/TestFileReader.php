@@ -41,7 +41,7 @@ class TestFileReader {
 			'-knownFailures.json';
 		$reader = new self(
 			$testFilePath,
-			is_readable( $knownFailuresPath ) ? $knownFailuresPath : null,
+			$knownFailuresPath,
 			$warnFunc,
 			$normalizeFunc
 		);
@@ -70,7 +70,7 @@ class TestFileReader {
 		} else {
 			$this->testFormat = intval( $testFormat['text'] );
 		}
-		$knownFailures = $knownFailuresPath ?
+		$knownFailures = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :
 			null;
 
