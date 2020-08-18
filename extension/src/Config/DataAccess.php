@@ -294,7 +294,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchPageContent(
+	public function fetchTemplateSource(
 		IPageConfig $pageConfig, string $title
 	): ?IPageContent {
 		'@phan-var PageConfig $pageConfig'; // @var PageConfig $pageConfig

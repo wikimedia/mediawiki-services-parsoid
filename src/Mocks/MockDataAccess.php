@@ -585,7 +585,7 @@ class MockDataAccess implements DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchPageContent(
+	public function fetchTemplateSource(
 		PageConfig $pageConfig, string $title
 	): ?PageContent {
 		$normTitle = $this->normTitle( $title );

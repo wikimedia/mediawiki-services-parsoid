@@ -103,7 +103,13 @@ interface DataAccess {
 	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
 
 	/**
-	 * Fetch page content, e.g. for transclusion
+	 * Fetch latest revision of article/template content for transclusion.
+	 *
+	 * Technically, the ParserOptions might select a different
+	 * revision other than the latest via
+	 * ParserOptions::getTemplateCallback() (used for FlaggedRevisions,
+	 * etc), but the point is that template lookups are by title, not
+	 * revision id.
 	 *
 	 * This replaces TemplateRequest
 	 *
@@ -113,7 +119,7 @@ interface DataAccess {
 	 * @param string $title Title of the page to fetch
 	 * @return PageContent|null
 	 */
-	public function fetchPageContent(
+	public function fetchTemplateSource(
 		PageConfig $pageConfig, string $title
 	): ?PageContent;
 

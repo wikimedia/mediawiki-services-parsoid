@@ -1108,7 +1108,7 @@ class TemplateHandler extends TokenHandler {
 			}
 			return [ 'tokens' => $tokens ];
 		} else {
-			$pageContent = $env->getDataAccess()->fetchPageContent( $env->getPageConfig(), $templateName );
+			$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
 			if ( !$pageContent ) {
 				// Missing page!
 				// FIXME: This should be a redlink here!

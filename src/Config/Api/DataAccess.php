@@ -342,7 +342,7 @@ class DataAccess implements IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchPageContent(
+	public function fetchTemplateSource(
 		PageConfig $pageConfig, string $title
 	): ?PageContent {
 		$key = implode( ':', [ 'content', md5( $title ) ] );

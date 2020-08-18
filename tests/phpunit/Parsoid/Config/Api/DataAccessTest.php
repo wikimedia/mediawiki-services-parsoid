@@ -139,10 +139,10 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function testFetchPageContent() {
+	public function testFetchTemplateSource() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'pagecontent-cur' );
-		$c = $da->fetchPageContent( $pageConfig, 'Help:Sample page' );
+		$c = $da->fetchTemplateSource( $pageConfig, 'Help:Sample page' );
 		$this->assertInstanceOf( PageContent::class, $c );
 		$this->assertSame( [ 'main' ], $c->getRoles() );
 		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
@@ -154,7 +154,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertEquals( $c, $da->fetchPageContent( $pageConfig, 'Help:Sample page' ) );
+		$this->assertEquals( $c, $da->fetchTemplateSource( $pageConfig, 'Help:Sample page' ) );
 	}
 
 	public function testFetchTemplateData() {
