@@ -24,9 +24,8 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleHandler;
-use Parser;
-use ParserFactory;
 use ParserOptions;
+use Revision;
 use Title;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
@@ -41,8 +40,8 @@ use Wikimedia\Parsoid\Config\PageContent as IPageContent;
  */
 class PageConfig extends IPageConfig {
 
-	/** @var Parser */
-	private $parser;
+	/** @var ParserOptions */
+	private $parserOptions;
 
 	/** @var SlotRoleHandler */
 	private $slotRoleHandler;
@@ -60,9 +59,6 @@ class PageConfig extends IPageConfig {
 	private $pagelanguageDir;
 
 	/**
-	 * @param ParserFactory $parserFactory A factory for either the legacy
-	 *   parser or parsoid; it is just used a a container for the revision
-	 *   cache stored in the PageConfig.
 	 * @param ParserOptions $parserOptions
 	 * @param SlotRoleHandler $slotRoleHandler
 	 * @param Title $title Title being parsed
@@ -71,16 +67,12 @@ class PageConfig extends IPageConfig {
 	 * @param ?string $pagelanguageDir
 	 */
 	public function __construct(
-		ParserFactory $parserFactory,
 		ParserOptions $parserOptions,
 		SlotRoleHandler $slotRoleHandler, Title $title,
 		?RevisionRecord $revision = null, ?string $pagelanguage = null,
 		?string $pagelanguageDir = null
 	) {
-		// The Parser object is just a container for the ParserOptions
-		// and for a revision cache used by ::getCurrentRevisionRecordOfTitle()
-		$this->parser = $parserFactory->create();
-		$this->parser->setOptions( $parserOptions );
+		$this->parserOptions = $parserOptions;
 		$this->slotRoleHandler = $slotRoleHandler;
 		$this->title = $title;
 		$this->revision = $revision;
@@ -160,36 +152,41 @@ class PageConfig extends IPageConfig {
 	 * @return ParserOptions
 	 */
 	public function getParserOptions(): ParserOptions {
-		// We're using $this->parser as a container for the options
-		return $this->parser->getOptions();
+		return $this->parserOptions;
 	}
 
 	/**
-	 * Use an LRU cache and the callbacks registered in the
-	 * ParserOptions associated with this PageConfig to fetch the
-	 * current RevisionRecord for the given title.
+	 * Use ParserOptions::getTemplateCallback() to fetch the correct
+	 * (usually latest) RevisionRecord for the given title.
 	 *
 	 * @param Title $title
 	 * @return ?RevisionRecord
 	 */
-	public function getCurrentRevisionRecordOfTitle( Title $title ) {
-		// Use the LRU cache from the Parser object; eventually
-		// perhaps this cache should be moved into the PageConfig
-		// or the ParserOptions, since we don't really need a full
-		// Parser object here.  (Note that we're keeping $this->parser
-		// private so that no outside caller can see that we're holding
-		// a full parser object.)
-		return $this->parser->fetchCurrentRevisionRecordOfTitle( $title );
+	public function fetchRevisionRecordOfTemplate( Title $title ): ?RevisionRecord {
+		// See Parser::fetchTemplateAndTitle(), but stateless
+		// (Parsoid will track dependencies, etc, itself.)
+		// The callback defaults to Parser::statelessFetchTemplate()
+		$templateCb = $this->parserOptions->getTemplateCallback();
+		$stuff = call_user_func( $templateCb, $title, $this );
+		// Compatibility; the 'revision' property was deprecated in 1.35.
+		if ( isset( $stuff['revision-record'] ) ) {
+			$revRecord = $stuff['revision-record'];
+		} else {
+			// Triggers deprecation warnings via DeprecatablePropertyArray
+			$rev = $stuff['revision'] ?? null;
+			if ( $rev instanceof Revision ) {
+				$revRecord = $rev->getRevisionRecord();
+			} else {
+				$revRecord = null;
+			}
+		}
+		return $revRecord;
 	}
 
 	/**
 	 * @return ?RevisionRecord
 	 */
 	private function getRevision(): ?RevisionRecord {
-		if ( $this->revision === null ) {
-			$this->revision = $this->getCurrentRevisionRecordOfTitle( $this->title );
-			// Note that $this->revision could still be null here.
-		}
 		return $this->revision;
 	}
 

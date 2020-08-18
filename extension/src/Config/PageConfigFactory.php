@@ -28,7 +28,6 @@ use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\User\UserIdentity;
 use MWParsoid\Config\PageConfig as MWPageConfig;
-use ParserFactory;
 use ParserOptions;
 use Title;
 use User;
@@ -44,25 +43,18 @@ class PageConfigFactory {
 	/** @var RevisionStore */
 	private $revisionStore;
 
-	/** @var ParserFactory */
-	private $parserFactory;
-
 	/** @var SlotRoleRegistry */
 	private $slotRoleRegistry;
 
 	/**
 	 * @param RevisionStore $revisionStore
-	 * @param ParserFactory $parserFactory Either a legacy or parsoid parser
-	 *  factory; only used to hold an LRU cache for revision lookup.
 	 * @param SlotRoleRegistry $slotRoleRegistry
 	 */
 	public function __construct(
 		RevisionStore $revisionStore,
-		ParserFactory $parserFactory,
 		SlotRoleRegistry $slotRoleRegistry
 	) {
 		$this->revisionStore = $revisionStore;
-		$this->parserFactory = $parserFactory;
 		$this->slotRoleRegistry = $slotRoleRegistry;
 	}
 
@@ -137,6 +129,19 @@ class PageConfigFactory {
 			? ParserOptions::newFromUser( User::newFromIdentity( $user ) )
 			: ParserOptions::newCanonical( new User() );
 
+		if ( $revisionRecord === null ) {
+			// Note: This initial fetch of the page context revision is
+			// *not* using Parser::fetchCurrentRevisionRecordOfTitle()
+			// (which usually invokes Parser::statelessFetchRevisionRecord
+			// and from there RevisionStore::getKnownCurrentRevision)
+			// because we don't have a Parser option to give to that callback.
+			// We could create one if needed for greater compatibility.
+			$revisionRecord = $this->revisionStore->getKnownCurrentRevision(
+				$title
+			) ?: null;
+			// Note that $revisionRecord could still be null here
+		}
+
 		// Turn off some options since Parsoid/JS currently doesn't
 		// do anything with this. As we proceed with closer integration,
 		// we can figure out if there is any value to these limit reports.
@@ -144,7 +149,6 @@ class PageConfigFactory {
 
 		$slotRoleHandler = $this->slotRoleRegistry->getRoleHandler( SlotRecord::MAIN );
 		return new MWPageConfig(
-			$this->parserFactory,
 			$parserOptions,
 			$slotRoleHandler,
 			$title,

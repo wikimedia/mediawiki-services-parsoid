@@ -38,7 +38,7 @@ return [
 	},
 
 	'ParsoidPageConfigFactory' => function ( MediaWikiServices $services ): MWPageConfigFactory {
-		return new MWPageConfigFactory( $services->getRevisionStore(), $services->getParserFactory(),
+		return new MWPageConfigFactory( $services->getRevisionStore(),
 			$services->getSlotRoleRegistry() );
 	},
 

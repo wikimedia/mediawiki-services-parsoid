@@ -300,9 +300,9 @@ class DataAccess implements IDataAccess {
 		'@phan-var PageConfig $pageConfig'; // @var PageConfig $pageConfig
 		$titleObj = Title::newFromText( $title );
 
-		// Use the PageConfig to take advantage of caching and custom
+		// Use the PageConfig to take advantage of custom template
 		// fetch hooks like FlaggedRevisions, etc.
-		$revRecord = $pageConfig->getCurrentRevisionRecordOfTitle( $titleObj );
+		$revRecord = $pageConfig->fetchRevisionRecordOfTemplate( $titleObj );
 
 		return $revRecord ? new PageContent( $revRecord ) : null;
 	}
