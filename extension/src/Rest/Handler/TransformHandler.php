@@ -135,9 +135,9 @@ class TransformHandler extends ParsoidHandler {
 			}
 			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
 			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], (int)$attribs['oldid'], $wikitext
+				$attribs['pageName'], $attribs['oldid'], $wikitext
 			);
-			$hasOldId = (bool)$attribs['oldid'];
+			$hasOldId = ( $attribs['oldid'] !== null );
 			if ( $hasOldId && $pageConfig->getRevisionContent() === null ) {
 				return $this->getResponseFactory()->createHttpError( 404, [
 					'message' => 'The specified revision does not exist.',
