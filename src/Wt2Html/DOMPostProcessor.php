@@ -222,6 +222,17 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'pwrap',
 				'skipNested' => true
 			],
+			// This is run at all levels since, for now, we don't have a generic
+			// solution to running top level passes on HTML stashed in data-mw.
+			// See T214994 for that.
+			//
+			// Also, the gallery extension's "packed" mode would otherwise need a
+			// post-processing pass to scale media after it has been fetched.  That
+			// introduces an ordering dependency that may or may not complicate things.
+			[
+				'Processor' => AddMediaInfo::class,
+				'shortcut' => 'media'
+			],
 			// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
 			// and mw:EndTag metas would otherwise interfere with the
 			// firstChild/lastChild check that this pass does.
@@ -382,17 +393,6 @@ class DOMPostProcessor extends PipelineStage {
 						'action' => [ DedupeStyles::class, 'dedupe' ]
 					]
 				]
-			],
-			// This is run at all levels since, for now, we don't have a generic
-			// solution to running top level passes on HTML stashed in data-mw.
-			// See T214994 for that.
-			//
-			// Also, the gallery extension's "packed" mode would otherwise need a
-			// post-processing pass to scale media after it has been fetched.  That
-			// introduces an ordering dependency that may or may not complicate things.
-			[
-				'Processor' => AddMediaInfo::class,
-				'shortcut' => 'media'
 			],
 			// Benefits from running after determining which media are redlinks
 			[
