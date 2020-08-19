@@ -807,3 +807,25 @@ parsoid={
 PARSOID HAS A BUG HERE: T215628
 !! end
 
+!! test
+T236866: Ensure comments are handled correctly during section wrapping
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+<!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->
+{{1x|1=
+x
+==boo==
+}}
+!! html/php
+<p>x
+</p>
+<h2><span class="mw-headline" id="boo">boo</span></h2>
+!! html/parsoid
+<section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]],"dsr":[0,93,null,null]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}},""]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"dsr":[73,93,0,0],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
+</span></section><section data-mw-section-id="-1" about="#mwt2" data-parsoid="{}"><h2 about="#mwt1" id="boo" data-parsoid="{}">boo</h2></section>
+!! end
