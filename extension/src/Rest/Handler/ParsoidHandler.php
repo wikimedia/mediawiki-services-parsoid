@@ -423,7 +423,7 @@ abstract class ParsoidHandler extends Handler {
 			] );
 		}
 
-		if ( $wikitext === null && !$oldid ) {
+		if ( $wikitext === null && $oldid === null ) {
 			// Redirect to the latest revid
 			return $this->createRedirectToOldidResponse( $pageConfig, $attribs );
 		}
@@ -545,7 +545,7 @@ abstract class ParsoidHandler extends Handler {
 			$reqOpts['body_only'] = true;
 		}
 
-		if ( $wikitext === null && $oldid ) {
+		if ( $wikitext === null && $oldid !== null ) {
 			$reqOpts['logLinterData'] = true;
 			$mstr = 'pageWithOldid';
 		} else {
@@ -618,7 +618,7 @@ abstract class ParsoidHandler extends Handler {
 			// Don't cache requests when wt is set in case somebody uses
 			// GET for wikitext parsing
 			$response->setHeader( 'Cache-Control', 'private,no-cache,s-maxage=0' );
-		} elseif ( $oldid ) {
+		} elseif ( $oldid !== null ) {
 			// FIXME this should be handled in core (cf OutputPage::sendCacheControl)
 			if ( $request->getHeaderLine( 'Cookie' ) ||
 				$request->getHeaderLine( 'Authorization' ) ) {

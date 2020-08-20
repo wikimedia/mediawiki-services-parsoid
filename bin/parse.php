@@ -486,7 +486,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$configOpts['title'] = $this->getOption( 'pageName' );
 		}
 		if ( $this->hasOption( 'oldid' ) ) {
-			$configOpts['revid'] = $this->getOption( 'oldid' );
+			$configOpts['revid'] = (int)$this->getOption( 'oldid' );
 		}
 		if ( $this->hasOption( 'maxdepth' ) ) {
 			$configOpts['maxDepth'] = (int)$this->getOption( 'maxdepth' );
