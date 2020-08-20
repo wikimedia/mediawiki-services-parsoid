@@ -20,6 +20,7 @@ declare( strict_types = 1 );
 
 namespace MWParsoid\Rest\Handler;
 
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\Response;
 use MediaWiki\Revision\SlotRecord;
 use MWParsoid\Rest\FormatHelper;
@@ -61,28 +62,25 @@ class PageHandler extends ParsoidHandler {
 	}
 
 	/** @inheritDoc */
-	public function execute(): Response {
+	public function realExecute(): Response {
 		$request = $this->getRequest();
 		$format = $request->getPathParam( 'format' );
 
 		if ( !in_array( $format, FormatHelper::VALID_PAGE, true ) ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => "Invalid page format: ${format}",
-			] );
+			throw new HttpException(
+				"Invalid page format: ${format}", 404
+			);
 		}
 
 		$attribs = $this->getRequestAttributes();
 
 		if ( !$this->acceptable( $attribs ) ) { // mutates $attribs
-			return $this->getResponseFactory()->createHttpError( 406, [
-				'message' => 'Not acceptable',
-			] );
+			throw new HttpException(
+				'Not acceptable', 406
+			);
 		}
 
-		$response = $this->respondToMissingRevisionContent( $pageConfig, $attribs );
-		if ( $response ) {
-			return $response;
-		}
+		$pageConfig = $this->tryToCreatePageConfig( $attribs );
 
 		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			return $this->getPageContentResponse( $pageConfig, $attribs );
@@ -98,15 +96,16 @@ class PageHandler extends ParsoidHandler {
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
 	 * @return Response
+	 * @throws HttpException
 	 */
 	protected function getPageContentResponse(
 		PageConfig $pageConfig, array $attribs
 	) {
 		$content = $pageConfig->getRevisionContent();
 		if ( !$content ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => 'The specified revision does not exist.',
-			] );
+			throw new HttpException(
+				'The specified revision does not exist.', 404
+			);
 		}
 		$response = $this->getResponseFactory()->create();
 		$response->setStatus( 200 );

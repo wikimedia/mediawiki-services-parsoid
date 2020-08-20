@@ -395,14 +395,16 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/**
-	 * @param ?PageConfig &$pageConfig
+	 * Try to create a PageConfig object. If we get an exception (because content
+	 * may be missing or inaccessible), throw an appropriate HTTP response object
+	 * for callers to handle.
+	 *
 	 * @param array $attribs
 	 * @param ?string $wikitext
-	 * @return ?Response
+	 * @return PageConfig
+	 * @throws HttpException
 	 */
-	protected function respondToMissingRevisionContent(
-		?PageConfig &$pageConfig, array $attribs, ?string $wikitext = null
-	): ?Response {
+	protected function tryToCreatePageConfig( array $attribs, ?string $wikitext = null ): PageConfig {
 		$oldid = $attribs['oldid'];
 
 		try {
@@ -411,24 +413,27 @@ abstract class ParsoidHandler extends Handler {
 				$attribs['pagelanguage']
 			);
 		} catch ( RevisionAccessException $exception ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => 'The specified revision is deleted or suppressed.',
-			] );
+			throw new HttpException(
+				'The specified revision is deleted or suppressed.', 404
+			);
 		}
 
-		// T234549
 		if ( $pageConfig->getRevisionContent() === null ) {
-			return $this->getResponseFactory()->createHttpError( 404, [
-				'message' => 'The specified revision does not exist.',
-			] );
+			// T234549
+			throw new HttpException(
+				'The specified revision does not exist.', 404
+			);
 		}
 
 		if ( $wikitext === null && $oldid === null ) {
 			// Redirect to the latest revid
-			return $this->createRedirectToOldidResponse( $pageConfig, $attribs );
+			throw new ResponseException(
+				$this->createRedirectToOldidResponse( $pageConfig, $attribs )
+			);
 		}
 
-		return null;
+		// All good!
+		return $pageConfig;
 	}
 
 	/**
@@ -497,9 +502,9 @@ abstract class ParsoidHandler extends Handler {
 
 		if ( $doSubst ) {
 			if ( $format !== FormatHelper::FORMAT_HTML ) {
-				return $this->getResponseFactory()->createHttpError( 501, [
-					'message' => 'Substitution is only supported for the HTML format.',
-				] );
+				throw new HttpException(
+					'Substitution is only supported for the HTML format.', 501
+				);
 			}
 			$wikitext = $parsoid->substTopLevelTemplates(
 				$pageConfig, $wikitext
@@ -525,7 +530,9 @@ abstract class ParsoidHandler extends Handler {
 				if ( $redirectInfo['revId'] ) {
 					$redirectPath .= '/' . $redirectInfo['revId'];
 				}
-				return $this->createRedirectResponse( "", $request->getQueryParams() );
+				throw new ResponseException(
+					$this->createRedirectResponse( "", $request->getQueryParams() )
+				);
 			}
 		}
 
@@ -569,13 +576,9 @@ abstract class ParsoidHandler extends Handler {
 			try {
 				$lints = $parsoid->wikitext2lint( $pageConfig, $reqOpts );
 			} catch ( ClientError $e ) {
-				return $this->getResponseFactory()->createHttpError( 400, [
-					'message' => $e->getMessage(),
-				] );
+				throw new HttpException( $e->getMessage(), 400 );
 			} catch ( ResourceLimitExceededException $e ) {
-				return $this->getResponseFactory()->createHttpError( 413, [
-					'message' => $e->getMessage(),
-				] );
+				throw new HttpException( $e->getMessage(), 413 );
 			}
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
@@ -584,13 +587,9 @@ abstract class ParsoidHandler extends Handler {
 					$pageConfig, $reqOpts, $headers
 				);
 			} catch ( ClientError $e ) {
-				return $this->getResponseFactory()->createHttpError( 400, [
-					'message' => $e->getMessage(),
-				] );
+				throw new HttpException( $e->getMessage(), 400 );
 			} catch ( ResourceLimitExceededException $e ) {
-				return $this->getResponseFactory()->createHttpError( 413, [
-					'message' => $e->getMessage(),
-				] );
+				throw new HttpException( $e->getMessage(), 413 );
 			}
 			if ( $needsPageBundle ) {
 				$response = $this->getResponseFactory()->createJson( $out->responseData() );
@@ -679,9 +678,9 @@ abstract class ParsoidHandler extends Handler {
 			$vOriginal = FormatHelper::parseContentTypeHeader(
 				$original['html']['headers']['content-type'] ?? '' );
 			if ( $vOriginal === null ) {
-				return $this->getResponseFactory()->createHttpError( 400, [
-					'message' => 'Content-type of original html is missing.',
-				] );
+				throw new HttpException(
+					'Content-type of original html is missing.', 400
+				);
 			}
 			if ( $vEdited === null ) {
 				// If version of edited doc is unavailable we assume
@@ -705,19 +704,16 @@ abstract class ParsoidHandler extends Handler {
 						$original['data-parsoid']['body'] ?? null,
 						$original['data-mw']['body'] ?? null
 					);
-					if ( !$origPb->validate( $vOriginal, $errorMessage ) ) {
-						return $this->getResponseFactory()->createHttpError(
-							400, [ 'message' => $errorMessage ]
-						);
-					}
+					$this->validatePb( $origPb, $vOriginal );
 					$downgradeTiming = Timing::start( $metrics );
 					Parsoid::downgrade( $downgrade, $origPb );
 					$downgradeTiming->end( 'downgrade.time' );
 					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $origPb->html ) );
 				} else {
-					$err = "Modified ({$vEdited}) and original ({$vOriginal}) html are of "
-						. 'different type, and no path to downgrade.';
-					return $this->getResponseFactory()->createHttpError( 400, [ 'message' => $err ] );
+					throw new HttpException(
+						"Modified ({$vEdited}) and original ({$vOriginal}) html are of "
+						. 'different type, and no path to downgrade.', 400
+					);
 				}
 			}
 		}
@@ -740,10 +736,7 @@ abstract class ParsoidHandler extends Handler {
 			$pb = new PageBundle( '',
 				[ 'ids' => [] ],  // So it validates
 				$opts['data-mw']['body'] ?? null );
-			if ( !$pb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
-				return $this->getResponseFactory()->createHttpError( 400,
-					[ 'message' => $errorMessage ] );
-			}
+			$this->validatePb( $pb, $envOptions['inputContentVersion'] );
 			DOMDataUtils::applyPageBundle( $doc, $pb );
 		}
 
@@ -766,10 +759,10 @@ abstract class ParsoidHandler extends Handler {
 					$offsetType = $envOptions['offsetType'] ?? 'byte';
 					$origOffsetType = $origPb->parsoid['offsetType'];
 					if ( $origOffsetType !== $offsetType ) {
-						return $this->getResponseFactory()->createHttpError( 406, [
-							'message' => 'DSR offsetType mismatch: ' .
-								$origOffsetType . ' vs ' . $offsetType,
-						] );
+						throw new HttpException(
+							'DSR offsetType mismatch: ' .
+							$origOffsetType . ' vs ' . $offsetType, 406
+						);
 					}
 				}
 
@@ -782,10 +775,7 @@ abstract class ParsoidHandler extends Handler {
 					// Don't modify `origPb`, it's used below.
 					$pb = new PageBundle( '', $pb->parsoid, [ 'ids' => [] ] );
 				}
-				if ( !$pb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
-					return $this->getResponseFactory()->createHttpError( 400,
-						[ 'message' => $errorMessage ] );
-				}
+				$this->validatePb( $pb, $envOptions['inputContentVersion'] );
 				DOMDataUtils::applyPageBundle( $doc, $pb );
 			}
 
@@ -795,10 +785,7 @@ abstract class ParsoidHandler extends Handler {
 					$oldBody = DOMCompat::getBody( DOMUtils::parseHTML( $original['html']['body'] ) );
 				}
 				if ( $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {
-					if ( !$origPb->validate( $envOptions['inputContentVersion'], $errorMessage ) ) {
-						return $this->getResponseFactory()->createHttpError( 400,
-							[ 'message' => $errorMessage ] );
-					}
+					$this->validatePb( $origPb, $envOptions['inputContentVersion'] );
 					DOMDataUtils::applyPageBundle( $oldBody->ownerDocument, $origPb );
 				}
 				$oldhtml = ContentUtils::toXML( $oldBody );
@@ -813,9 +800,9 @@ abstract class ParsoidHandler extends Handler {
 
 		if ( $hasOldId && !empty( $this->parsoidSettings['useSelser'] ) ) {
 			if ( !$pageConfig->getRevisionContent() ) {
-				return $this->getResponseFactory()->createHttpError( 409, [
-					'message' => 'Could not find previous revision. Has the page been locked / deleted?'
-				] );
+				throw new HttpException(
+					'Could not find previous revision. Has the page been locked / deleted?', 409
+				);
 			}
 
 			// FIXME: T234548/T234549 - $pageConfig->getPageMainContent() is deprecated:
@@ -836,13 +823,9 @@ abstract class ParsoidHandler extends Handler {
 				'contentmodel' => $opts['contentmodel'] ?? null,
 			], $selserData );
 		} catch ( ClientError $e ) {
-			return $this->getResponseFactory()->createHttpError( 400, [
-				'message' => $e->getMessage(),
-			] );
+			throw new HttpException( $e->getMessage(), 400 );
 		} catch ( ResourceLimitExceededException $e ) {
-			return $this->getResponseFactory()->createHttpError( 413, [
-				'message' => $e->getMessage(),
-			] );
+			throw new HttpException( $e->getMessage(), 413 );
 		}
 
 		$timing->end( 'html2wt.total' );
@@ -860,6 +843,7 @@ abstract class ParsoidHandler extends Handler {
 	 *
 	 * @param array<string,array|string> $attribs
 	 * @return Response
+	 * @throws HttpException
 	 */
 	protected function pb2pb( array $attribs ) {
 		$request = $this->getRequest();
@@ -867,17 +851,17 @@ abstract class ParsoidHandler extends Handler {
 
 		$revision = $opts['previous'] ?? $opts['original'] ?? null;
 		if ( !isset( $revision['html'] ) ) {
-			return $this->getResponseFactory()->createHttpError( 400, [
-				'message' => 'Missing revision html.',
-			] );
+			throw new HttpException(
+				'Missing revision html.', 400
+			);
 		}
 
 		$vOriginal = FormatHelper::parseContentTypeHeader(
 			$revision['html']['headers']['content-type'] ?? '' );
 		if ( $vOriginal === null ) {
-			return $this->getResponseFactory()->createHttpError( 400, [
-				'message' => 'Content-type of revision html is missing.',
-			] );
+			throw new HttpException(
+				'Content-type of revision html is missing.', 400
+			);
 		}
 		$attribs['envOptions']['inputContentVersion'] = $vOriginal;
 		'@phan-var array<string,array|string> $attribs'; // @var array<string,array|string> $attribs
@@ -904,9 +888,9 @@ abstract class ParsoidHandler extends Handler {
 			// 	$attribs['envOptions']['inputContentVersion'],
 			// 	"^{$attribs['envOptions']['outputContentVersion']}"
 			// ) ) {
-			// 	return $this->getResponseFactory()->createHttpError( 415, [
-			// 		'message' => 'We do not know how to do this conversion.',
-			// 	] );
+			//  throw new HttpException(
+			// 		'We do not know how to do this conversion.', 415
+			// 	);
 			// }
 			if ( !empty( $opts['updates']['redlinks'] ) ) {
 				// Q(arlolra): Should redlinks be more complex than a bool?
@@ -915,9 +899,9 @@ abstract class ParsoidHandler extends Handler {
 			} elseif ( isset( $opts['updates']['variant'] ) ) {
 				return $this->languageConversion( $pageConfig, $attribs, $revision );
 			} else {
-				return $this->getResponseFactory()->createHttpError( 400, [
-					'message' => 'Unknown transformation.',
-				] );
+				throw new HttpException(
+					'Unknown transformation.', 400
+				);
 			}
 		}
 
@@ -934,11 +918,7 @@ abstract class ParsoidHandler extends Handler {
 				$revision['data-parsoid']['body'] ?? null,
 				$revision['data-mw']['body'] ?? null
 			);
-			if ( !$pb->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
-				return $this->getResponseFactory()->createHttpError(
-					400, [ 'message' => $errorMessage ]
-				);
-			}
+			$this->validatePb( $pb, $attribs['envOptions']['inputContentVersion'] );
 			Parsoid::downgrade( $downgrade, $pb );
 
 			if ( !empty( $attribs['body_only'] ) ) {
@@ -957,15 +937,12 @@ abstract class ParsoidHandler extends Handler {
 		// Ensure we only reuse from semantically similar content versions.
 		} elseif ( Semver::satisfies( $attribs['envOptions']['outputContentVersion'],
 			'^' . $attribs['envOptions']['inputContentVersion'] ) ) {
-			$response = $this->respondToMissingRevisionContent( $pageConfig, $attribs );
-			if ( $response ) {
-				return $response;
-			}
+			$pageConfig = $this->tryToCreatePageConfig( $attribs );
 			return $this->wt2html( $pageConfig, $attribs );
 		} else {
-			return $this->getResponseFactory()->createHttpError( 415, [
-				'message' => 'We do not know how to do this conversion.',
-			] );
+			throw new HttpException(
+				'We do not know how to do this conversion.', 415
+			);
 		}
 	}
 
@@ -994,12 +971,7 @@ abstract class ParsoidHandler extends Handler {
 			$headers,
 			$revision['contentmodel'] ?? null
 		);
-		if ( !$out->validate( $attribs['envOptions']['inputContentVersion'], $errorMessage ) ) {
-			return $this->getResponseFactory()->createHttpError(
-				400,
-				[ 'message' => $errorMessage ]
-			);
-		}
+		$this->validatePb( $out, $attribs['envOptions']['inputContentVersion'] );
 		$response = $this->getResponseFactory()->createJson( $out->responseData() );
 		FormatHelper::setContentType(
 			$response, FormatHelper::FORMAT_PAGEBUNDLE, $out->version
@@ -1014,6 +986,7 @@ abstract class ParsoidHandler extends Handler {
 	 * @param array $attribs
 	 * @param array $revision
 	 * @return Response
+	 * @throws HttpException
 	 */
 	protected function languageConversion(
 		PageConfig $pageConfig, array $attribs, array $revision
@@ -1024,16 +997,16 @@ abstract class ParsoidHandler extends Handler {
 			$attribs['envOptions']['htmlVariantLanguage'];
 
 		if ( !$target ) {
-			return $this->getResponseFactory()->createHttpError(
-				400, [ 'message' => 'Target variant is required.' ]
+			throw new HttpException(
+				'Target variant is required.', 400
 			);
 		}
 
 		if ( !$this->siteConfig->langConverterEnabledForLanguage(
 			$pageConfig->getPageLanguage()
 		) ) {
-			return $this->getResponseFactory()->createHttpError(
-				400, [ 'message' => 'LanguageConversion is not enabled on this article.' ]
+			throw new HttpException(
+				'LanguageConversion is not enabled on this article.', 400
 			);
 		}
 
@@ -1063,4 +1036,31 @@ abstract class ParsoidHandler extends Handler {
 		);
 		return $response;
 	}
+
+	/** @inheritDoc */
+	public function execute() {
+		// Until core supports ResponseException (T260959)
+		try {
+			return $this->realExecute();
+		} catch ( ResponseException $re ) {
+			return $re->getResponse();
+		}
+	}
+
+	/** @inheritDoc ::execute() */
+	abstract public function realExecute(): Response;
+
+	/**
+	 * Validate a PageBundle against the given contentVersion, and throw
+	 * an HttpException if it does not match.
+	 * @param PageBundle $pb
+	 * @param string $contentVersion
+	 * @throws HttpException
+	 */
+	private function validatePb( PageBundle $pb, string $contentVersion ): void {
+		if ( !$pb->validate( $contentVersion, $errorMessage ) ) {
+			throw new HttpException( $errorMessage, 400 );
+		}
+	}
+
 }
