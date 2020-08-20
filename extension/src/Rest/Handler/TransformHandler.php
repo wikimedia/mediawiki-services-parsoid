@@ -84,7 +84,7 @@ class TransformHandler extends ParsoidHandler {
 
 		$attribs = &$this->getRequestAttributes();
 
-		if ( !$this->acceptable( $attribs ) ) {
+		if ( !$this->acceptable( $attribs ) ) { // mutates $attribs
 			return $this->getResponseFactory()->createHttpError( 406, [
 				'message' => 'Not acceptable',
 			] );

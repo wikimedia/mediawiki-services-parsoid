@@ -270,10 +270,9 @@ abstract class ParsoidHandler extends Handler {
 		'#^https://www.mediawiki.org/wiki/Specs/(HTML|pagebundle)/(\d+\.\d+\.\d+)$#D';
 
 	/**
-	 * Combines:
-	 *  routes.acceptable
-	 *  apiUtils.validateAndSetOutputContentVersion
-	 *  apiUtils.parseProfile
+	 * This method checks if we support the requested content formats
+	 * As a side-effect, it updates $attribs to set outputContentVersion
+	 * that Parsoid should generate based on request headers.
 	 *
 	 * @param array &$attribs Request attributes from getRequestAttributes()
 	 * @return bool
@@ -310,6 +309,7 @@ abstract class ParsoidHandler extends Handler {
 					if ( $matches && strtolower( $matches[1] ) === $format ) {
 						$contentVersion = Parsoid::resolveContentVersion( $matches[2] );
 						if ( $contentVersion ) {
+							// $attribs mutated here!
 							$attribs['envOptions']['outputContentVersion'] = $contentVersion;
 							return true;
 						} else {
