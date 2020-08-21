@@ -235,7 +235,11 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 		if ( $attribs['oldid'] !== null ) {
-			$attribs['oldid'] = (int)$attribs['oldid'];
+			if ( $attribs['oldid'] === '' ) {
+				$attribs['oldid'] = null;
+			} else {
+				$attribs['oldid'] = (int)$attribs['oldid'];
+			}
 		}
 
 		$attribs['envOptions'] = [
