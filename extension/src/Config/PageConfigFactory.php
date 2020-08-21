@@ -20,6 +20,7 @@
 namespace MWParsoid\Config;
 
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\RevisionRecord;
@@ -94,13 +95,48 @@ class PageConfigFactory {
 			] );
 		}
 
-		$revisionRecord = null;
-		if ( $revisionId !== null ) {
+		if ( $revisionId === null ) {
+			// Fetch the 'latest' revision for the given title.
+			// Note: This initial fetch of the page context revision is
+			// *not* using Parser::fetchCurrentRevisionRecordOfTitle()
+			// (which usually invokes Parser::statelessFetchRevisionRecord
+			// and from there RevisionStore::getKnownCurrentRevision)
+			// because we don't have a Parser object to give to that callback.
+			// We could create one if needed for greater compatibility.
+			$revisionRecord = $this->revisionStore->getKnownCurrentRevision(
+				$title
+			) ?: null;
+			// Note that $revisionRecord could still be null here if no
+			// page with that $title yet exists.
+		} else {
+			// Fetch the correct revision record by the supplied id.
+			// This accesses the replica DB and may (or may not) fail over to
+			// the master DB if the revision isn't found.
 			$revisionRecord = $this->revisionStore->getRevisionById(
 				$revisionId
 			);
+			if ( $revisionRecord === null ) {
+				// This revision really ought to exist.  Check the master DB.
+				// This *could* cause two requests to the master if there were
+				// pending writes, but this codepath should be very rare.
+				// [T259855]
+				$revisionRecord = $this->revisionStore->getRevisionById(
+					$revisionId, RevisionStore::READ_LATEST
+				);
+				$success = ( $revisionRecord !== null );
+				LoggerFactory::getInstance( 'Parsoid' )->error(
+					"Retried revision fetch after failure: {$success}", [
+						'id' => $revisionId,
+						'title' => $title->getPrefixedText(),
+					]
+				);
+			}
+			if ( $revisionRecord === null ) {
+				throw new RevisionAccessException( "Can't find revision {$revisionId}" );
+			}
 		}
 
+		// If we have a revision record, check that we are allowed to see it.
 		if ( $revisionRecord != null
 			 && ( 0 != ( self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) ) ) {
 			throw new RevisionAccessException( 'Not an available content version.' );
@@ -128,19 +164,6 @@ class PageConfigFactory {
 			$user
 			? ParserOptions::newFromUser( User::newFromIdentity( $user ) )
 			: ParserOptions::newCanonical( new User() );
-
-		if ( $revisionRecord === null ) {
-			// Note: This initial fetch of the page context revision is
-			// *not* using Parser::fetchCurrentRevisionRecordOfTitle()
-			// (which usually invokes Parser::statelessFetchRevisionRecord
-			// and from there RevisionStore::getKnownCurrentRevision)
-			// because we don't have a Parser option to give to that callback.
-			// We could create one if needed for greater compatibility.
-			$revisionRecord = $this->revisionStore->getKnownCurrentRevision(
-				$title
-			) ?: null;
-			// Note that $revisionRecord could still be null here
-		}
 
 		// Turn off some options since Parsoid/JS currently doesn't
 		// do anything with this. As we proceed with closer integration,
