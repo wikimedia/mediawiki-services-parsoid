@@ -62,7 +62,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 			$span->appendChild( $doc->createTextNode( $t ) );
 		}
 
-		$span->normalize();
+		DOMCompat::normalize( $span );
 		DOMCompat::getBody( $doc )->appendChild( $span );
 		return $doc;
 	}

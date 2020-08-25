@@ -249,7 +249,7 @@ class DOMNormalizer {
 		$b->parentNode->removeChild( $b );
 
 		// Normalize the node to merge any adjacent text nodes
-		$a->normalize();
+		DOMCompat::normalize( $a );
 
 		// Update diff markers
 		if ( !DOMUtils::isRemoved( $sentinel ) ) {
