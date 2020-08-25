@@ -181,6 +181,13 @@ class Title {
 			$title = IPUtils::sanitizeIP( $title );
 		}
 
+		// Any remaining initial :s are illegal.
+		if ( $title !== '' && $title[0] == ':' ) {
+			throw new TitleException(
+				'Leading colon title', 'title-invalid-leading-colon', $title
+			);
+		}
+
 		// This is not in core's splitTitleString but matches
 		// mediawiki-title's newFromText.
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {

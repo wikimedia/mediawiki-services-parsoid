@@ -253,6 +253,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			'Too long (special)' => [ "Special:$x513", 'title-invalid-too-long' ],
 			'Empty except for namespace' => [ 'User:', 'title-invalid-empty' ],
 			'Empty except for namespace+fragment' => [ 'User:#frag', 'title-invalid-empty' ],
+			'Leading colon' => [ 'User::Hiho', 'title-invalid-leading-colon' ],
 
 			// == More tests copied from the JS module ==
 			[ ':', 'title-invalid-empty' ],
