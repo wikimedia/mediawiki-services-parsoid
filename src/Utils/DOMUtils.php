@@ -24,9 +24,12 @@ class DOMUtils {
 	 * Parse HTML, return the tree.
 	 *
 	 * @param string $html
+	 * @param bool $validateXMLNames
 	 * @return DOMDocument
 	 */
-	public static function parseHTML( string $html ): DOMDocument {
+	public static function parseHTML(
+		string $html, bool $validateXMLNames = false
+	): DOMDocument {
 		if ( !preg_match( '/^<(?:!doctype|html|body)/i', $html ) ) {
 			// Make sure that we parse fragments in the body. Otherwise comments,
 			// link and meta tags end up outside the html element or in the head
@@ -39,7 +42,7 @@ class DOMUtils {
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
 		$tokenizer->execute( [] );
-		if ( $domBuilder->isCoerced() ) {
+		if ( $validateXMLNames && $domBuilder->isCoerced() ) {
 			throw new ClientError( 'Encountered a name invalid in XML.' );
 		}
 		return $domBuilder->getFragment();

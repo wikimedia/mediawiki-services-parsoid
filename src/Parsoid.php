@@ -265,7 +265,7 @@ class Parsoid {
 		);
 		# Should perhaps be strlen instead (or cached!): T239841
 		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
-		$doc = $env->createDocument( $html );
+		$doc = $env->createDocument( $html, true );
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		return $handler->fromDOM( $env, $doc, $selserData );
@@ -331,7 +331,7 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		$doc = $env->createDocument( $html );
+		$doc = $env->createDocument( $html, true );
 		ContentUtils::convertOffsets(
 			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);

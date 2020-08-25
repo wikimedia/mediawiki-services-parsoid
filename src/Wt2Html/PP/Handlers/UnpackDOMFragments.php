@@ -200,38 +200,13 @@ class UnpackDOMFragments {
 		Assert::invariant( preg_match( '/^mwf/', $dp->html ), '' );
 		$nodes = $env->getDOMFragment( $dp->html );
 
-		if ( !empty( $dp->tmp->isHtmlExt ) ) {
-			// FIXME: This is a silly workaround for foundationwiki which has the
-			// "html" extension tag which lets through arbitrary content and
-			// often does so in a way that doesn't consider that we'd like to
-			// encapsulate it.  For example, it closes the tag in the middle
-			// of style tag content to insert a template and then closes the style
-			// tag in another "html" extension tag.  The balance proposal isn't
-			// its friend.
-			//
-			// This works because importNode does attribute error checking, whereas
-			// parsing does not.  A better fix would be to use one ownerDocument
-			// for the entire parse, so no adoption is needed.  See T179082
-			$nodeStrings = array_map( function ( $n ) {
-				$str = ContentUtils::ppToXML( $n );
-				// Put $n back in canonical form.
-				// Since $nodes isn't used beyond this point, we can also
-				// set $nodes to null but this is an uncommon use case so
-				// simpler to do this here.
-				DOMDataUtils::visitAndLoadDataAttribs( $n );
-				return $str;
-			}, $nodes );
-			$html = implode( '', $nodeStrings );
-			ContentUtils::ppToDOM( $env, $html, [ 'node' => $dummyNode ] );
-		} else {
-			array_walk( $nodes, function ( $n ) use ( &$dummyNode ) {
-				// Dump $n's node data from the data-bag onto the node attribute
-				DOMDataUtils::visitAndStoreDataAttribs( $n );
-				$imp = $dummyNode->ownerDocument->importNode( $n, true );
-				$dummyNode->appendChild( $imp );
-			} );
-			DOMDataUtils::visitAndLoadDataAttribs( $dummyNode );
-		}
+		array_walk( $nodes, function ( $n ) use ( &$dummyNode ) {
+			// Dump $n's node data from the data-bag onto the node attribute
+			DOMDataUtils::visitAndStoreDataAttribs( $n );
+			$imp = $dummyNode->ownerDocument->importNode( $n, true );
+			$dummyNode->appendChild( $imp );
+		} );
+		DOMDataUtils::visitAndLoadDataAttribs( $dummyNode );
 
 		$contentNode = $dummyNode->firstChild;
 

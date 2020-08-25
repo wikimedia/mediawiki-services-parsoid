@@ -690,10 +690,13 @@ class Env {
 
 	/**
 	 * @param string $html
+	 * @param bool $validateXMLNames
 	 * @return DOMDocument
 	 */
-	public function createDocument( string $html = '' ): DOMDocument {
-		$doc = DOMUtils::parseHTML( $html );
+	public function createDocument(
+		string $html = '', bool $validateXMLNames = false
+	): DOMDocument {
+		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
 		DOMCompat::getBody( $doc );

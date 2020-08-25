@@ -59,7 +59,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		if ( $selserData->oldHTML === null ) {
 			$doc = $this->toDOM( $env );
 		} else {
-			$doc = $env->createDocument( $selserData->oldHTML );
+			$doc = $env->createDocument( $selserData->oldHTML, true );
 		}
 		$body = DOMCompat::getBody( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );

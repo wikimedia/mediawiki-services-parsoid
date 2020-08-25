@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
-use stdClass;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -252,11 +251,6 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $extToken, $body, $opts );
-
-		if ( $extensionName === 'html' ) {
-			$toks[0]->dataAttribs->tmp = $toks[0]->dataAttribs->tmp ?? new stdClass;
-			$toks[0]->dataAttribs->tmp->isHtmlExt = true;
-		}
 
 		return $toks;
 	}
