@@ -710,9 +710,8 @@ class TestRunner {
 				}
 			},
 			'empty' => function ( DOMNode $node ) {
-				while ( $node->firstChild ) {
-					$node->removeChild( $node->firstChild );
-				}
+				'@phan-var \DOMElement $node'; // @var \DOMElement $node
+				DOMCompat::replaceChildren( $node );
 			},
 			'wrap' => function ( DOMNode $node, string $w ) {
 				$frag = $node->ownerDocument->createElement( 'div' );

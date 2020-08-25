@@ -345,9 +345,7 @@ class References extends ExtensionTagHandler {
 		// Ex: When {{Reflist}} is reused from the cache, it comes with
 		// a bunch of references as well. We have to remove all those cached
 		// references before generating fresh references.
-		while ( $refsNode->firstChild ) {
-			$refsNode->removeChild( $refsNode->firstChild );
-		}
+		DOMCompat::replaceChildren( $refsNode );
 
 		if ( $refGroup ) {
 			foreach ( $refGroup->refs as $ref ) {

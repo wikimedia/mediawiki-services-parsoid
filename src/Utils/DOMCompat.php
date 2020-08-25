@@ -331,9 +331,8 @@ class DOMCompat {
 		$documentFragmentWrapper = $element->ownerDocument->importNode(
 			$domBuilder->getFragment(), true );
 
-		while ( $element->firstChild ) {
-			$element->removeChild( $element->firstChild );
-		}
+		self::replaceChildren( $element );
+
 		// Use an iteration method that's not affected by the tree being modified during iteration
 		while ( $documentFragmentWrapper->firstChild ) {
 			$element->appendChild( $documentFragmentWrapper->firstChild );
@@ -399,5 +398,29 @@ class DOMCompat {
 		// the PHP DOM's normalization leaves behind upto 1 empty text node.
 		// See https://bugs.php.net/bug.php?id=78221
 		self::stripEmptyTextNodes( $elt );
+	}
+
+	/**
+	 * ParentNode.replaceChildren()
+	 * https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/replaceChildren
+	 *
+	 * @param DOMDocument|DOMDocumentFragment|DOMElement $parentNode
+	 * @param array<string|DOMNode> ...$nodes
+	 */
+	public static function replaceChildren(
+		DOMNode $parentNode, ...$nodes
+	): void {
+		Assert::parameterType(
+			'DOMDocument|DOMDocumentFragment|DOMElement', $parentNode, '$parentNode'
+		);
+		while ( $parentNode->firstChild ) {
+			$parentNode->removeChild( $parentNode->firstChild );
+		}
+		foreach ( $nodes as $node ) {
+			if ( is_string( $node ) ) {
+				$node = $parentNode->ownerDocument->createTextNode( $node );
+			}
+			$parentNode->insertBefore( $node, null );
+		}
 	}
 }

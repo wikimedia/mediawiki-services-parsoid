@@ -45,7 +45,7 @@ class DedupeStyles {
 				'Duplicate style tag found in fosterable position. ' .
 					'Not deduping it, but emptying out the style tag for performance reasons.'
 			);
-			DOMCompat::setInnerHTML( $node, '' );
+			DOMCompat::replaceChildren( $node );
 			return true;
 		}
 	}
