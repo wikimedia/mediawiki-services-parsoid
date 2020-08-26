@@ -136,7 +136,7 @@ class TestRunner {
 	/** @var string */
 	private $knownFailuresPath;
 
-	/** @var Article[] */
+	/** @var array */
 	private $articles;
 
 	/** @var LoggerInterface */
@@ -245,12 +245,7 @@ class TestRunner {
 			$this->envOptions
 		);
 
-		$env->pageCache = [];
-		foreach ( $this->articles as $art ) {
-			$key = $env->normalizedTitleKey( $art->title, false, true );
-			$env->pageCache[$key] = $art->text;
-			$this->mockApi->addArticle( $key, $art );
-		}
+		$env->pageCache = $this->articles;
 		// Set parsing resource limits.
 		// $env->setResourceLimits();
 
@@ -273,7 +268,12 @@ class TestRunner {
 		);
 		$this->knownFailuresPath = $testReader->knownFailuresPath;
 		$this->testCases = $testReader->testCases;
-		$this->articles = $testReader->articles;
+		$this->articles = [];
+		foreach ( $testReader->articles as $art ) {
+			$key = $normFunc( $art->title );
+			$this->articles[$key] = $art->text;
+			$this->mockApi->addArticle( $key, $art );
+		}
 		if ( $this->knownFailuresPath ) {
 			error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
 		} else {
