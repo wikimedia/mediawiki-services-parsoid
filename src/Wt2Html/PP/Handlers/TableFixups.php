@@ -414,7 +414,7 @@ class TableFixups {
 	 * @return bool
 	 */
 	private function combineWithPreviousCell( Frame $frame, DOMElement $cell ): bool {
-		$prev = DOMUtils::previousNonSepSibling( $cell );
+		$prev = $cell->previousSibling;
 		if ( !$prev ) {
 			return false;
 		}
@@ -476,7 +476,7 @@ class TableFixups {
 			// So, unless there is a simpler redesign of this table fixup code,
 			// we are deliberately constraining support to the 'noAttrs' case.
 			isset( $dp->tmp->noAttrs ) && !isset( $dp->stx ) &&
-			( DOMUtils::previousNonSepSibling( $node )->nodeName ?? '' ) === $node->nodeName
+			( $node->previousSibling->nodeName ?? '' ) === $node->nodeName
 		) {
 			return self::COMBINE_WITH_PREV_CELL;
 		}

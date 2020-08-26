@@ -7620,7 +7620,7 @@ Template generated table cell with attributes
 !! end
 
 !! test
-1. Templated table cell with untemplated attributes
+Templated table cell with untemplated attributes: Common use cases
 !! wikitext
 {|
 |-
@@ -7654,29 +7654,52 @@ Template generated table cell with attributes
 !! end
 
 !! test
-Unsupported Scenarios: Templated table cell with untemplated attributes
+Templated table cell with untemplated attributes: Regression tests
+!! wikitext
+{|
+|class="foo"
+{{1x|1={{!}}bar}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>class="foo"
+</td>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td>class="foo"</td>
+<td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}bar"}},"i":0}}]}'>bar</td></tr>
+</tbody></table>
+
+!! end
+
+!! test
+Templated table cell with untemplated attributes: Unsupported Scenarios
 !! options
 parsoid=wt2html
 !! wikitext
 {|
 |-
-|colspan="3" class="test"{{1x|1= {{!}}foo}}
+|class="foo"{{1x|1= {{!}}bar}}
 |-
-|colspan="3" class="test"{{1x|1=&nbsp;{{!}}foo}}
+|class="foo"{{1x|1=&nbsp;{{!}}bar}}
 |-
-|colspan="3" class="test"{{1x|1={{!}}title="fail"{{!}}foo}}
+|class="foo"{{1x|1={{!}}title="fail"{{!}}bar}}
 |}
 !! html/php
 <table>
 
 <tbody><tr>
-<td colspan="3" class="test">foo
+<td class="foo">bar
 </td></tr>
 <tr>
-<td colspan="3" class="test">foo
+<td class="foo">bar
 </td></tr>
 <tr>
-<td colspan="3" class="test">title="fail"|foo
+<td class="foo">title="fail"|bar
 </td></tr></tbody></table>
 !! html/parsoid
 This test fails each of the three table cell scenarios for different reasons.
